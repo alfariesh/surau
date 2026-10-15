@@ -1,12 +1,12 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-15 · oleh agent, S04 selesai (PR #7): Surau bertema Zaitun, Fase 0 siap dirilis
+> Diperbarui: 2026-10-15 · oleh agent, **Fase 0 dirilis** (`rilis-f0`, deploy run 38722166900)
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** Fase 0 selesai. Ketik **`/rilis 0`** untuk merilisnya, lalu buka percakapan baru dan ketik **`/sesi`** untuk S05.
-- **Fase:** 0 · Fondasi (S01–S04 selesai) · `/rilis 0` sedang berjalan
+- **Mulai di sini (pemilik):** Fase 0 sudah dirilis. Buka percakapan baru dan ketik **`/sesi`** untuk S05. Mulai 16 Okt 14:51 WIB, sesi sisipan X01 (Next 16.4) bisa dikerjakan lebih dulu.
+- **Fase:** 0 · Fondasi **dirilis 2026-10-15** (`rilis-f0`) · berikutnya Fase 1 · Pembaca Ihya
 - **Sesi berikutnya:** **S05 · Paket teks Arab** → [sesi/S05-paket-teks-arab.md](sesi/S05-paket-teks-arab.md)
 - **Tindak lanjut kecil:** `react`/`react-dom` → 19.2.9 (boleh mulai 15 Okt 23:54 WIB), atau langsung lewat X01. `vite-plus` 1.2.0 sudah dipasang (butir S01 tuntas).
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
