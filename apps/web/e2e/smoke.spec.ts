@@ -69,3 +69,13 @@ test("menu samping: Tentang bisa dibuka, fitur yang belum ada berlabel segera", 
   await menu.getByRole("row", { name: "Tentang" }).click();
   await expect(page).toHaveURL(/\/tentang$/);
 });
+
+test("respons HTML membawa header keamanan dasar", async ({ request }) => {
+  const response = await request.get("/");
+  const headers = response.headers();
+
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+  expect(headers["x-frame-options"]).toBe("DENY");
+  expect(headers["permissions-policy"]).toContain("camera=()");
+});

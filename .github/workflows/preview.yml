@@ -147,6 +147,8 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           versi=$(sed -nE 's/^  wrangler: ([0-9.]+)$/\1/p' pnpm-workspace.yaml)
+          # Tanpa versi, `pnpm dlx wrangler@` akan mengambil versi terbaru yang tidak dipin.
+          [ -n "$versi" ] || { echo "::error title=Versi wrangler tidak terbaca::Cek catalog di pnpm-workspace.yaml"; exit 1; }
           if ! pnpm dlx "wrangler@${versi}" preview delete --name "pr-${PR_NUMBER}" --worker-name surau-web --skip-confirmation; then
             echo "::warning title=Preview tidak terhapus::pr-${PR_NUMBER} tidak ditemukan atau gagal dihapus. Cek di dashboard Cloudflare bila perlu."
           fi
