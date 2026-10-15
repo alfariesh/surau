@@ -9,6 +9,7 @@ const generated = [
   "**/.wrangler/**",
   "**/next-env.d.ts",
   "**/worker-configuration.d.ts",
+  "**/cloudflare-env.d.ts",
 ];
 
 export default defineConfig({

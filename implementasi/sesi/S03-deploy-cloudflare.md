@@ -1,6 +1,6 @@
 # S03 · Deploy ke Cloudflare
 
-> **Fase:** 0 · **Status:** belum
+> **Fase:** 0 · **Status:** berjalan
 > **Prasyarat:** S02 selesai · Tugas pemilik: **T-05** (wrangler login), **T-06** (token CI). **T-07** (domain) opsional; tanpa domain, situs memakai `*.workers.dev`
 > **Perkiraan:** 1 percakapan agent
 

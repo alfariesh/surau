@@ -1,0 +1,48 @@
+// Worker web Surau (Next.js lewat OpenNext). Keputusan: ADR-002, ADR-003, ADR-017, ADR-026.
+// Top-level = PRODUKSI. Blok `previews` = Preview per PR dan TIDAK mewarisi binding produksi:
+// setiap binding storage wajib dideklarasikan ulang di sana dengan resource khusus preview.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-14",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "services": [
+    {
+      // Self-reference untuk cache OpenNext; nama harus sama dengan `name`.
+      // Catatan: dari Preview, binding ini memanggil deployment PRODUKSI (keterbatasan Workers).
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "surau-web",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "surau-next-cache",
+    },
+  ],
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+  },
+  "upload_source_maps": true,
+  "previews": {
+    "services": [
+      {
+        "binding": "WORKER_SELF_REFERENCE",
+        "service": "surau-web",
+      },
+    ],
+    "r2_buckets": [
+      {
+        "binding": "NEXT_INC_CACHE_R2_BUCKET",
+        "bucket_name": "surau-next-cache-preview",
+      },
+    ],
+  },
+}

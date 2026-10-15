@@ -12,6 +12,7 @@ catalog:
   typescript: 7.0.2
   vite-plus: 1.1.0
   wrangler: 4.151.0
+  "@opennextjs/cloudflare": 1.20.11
 
   # Web: Next + React (ADR-003; Next 16.4 lewat sesi X01)
   next: 16.3.8

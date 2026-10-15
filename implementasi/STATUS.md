@@ -36,7 +36,7 @@
 | – | S00 | Review dokumen & setup agent | selesai | 2026-10-15 |
 | 0 | S01 | Monorepo & toolchain | selesai* | 2026-10-15 · *vite-plus 1.2.0 tertunda (ADR-023) · di `main` |
 | 0 | S02 | GitHub & CI | selesai | 2026-10-15 · PR #1 · di `main` · repo publik + proteksi `main` (ADR-025) |
-| 0 | S03 | Deploy ke Cloudflare | belum | butuh T-05, T-06 (T-07 opsional) |
+| 0 | S03 | Deploy ke Cloudflare | berjalan | butuh T-05, T-06 (T-07 opsional) |
 | 0 | S04 | Identitas & fondasi UI | belum | butuh T-08 · lalu `/rilis 0` |
 | 1 | S05 | Paket teks Arab | belum | |
 | 1 | S06 | Skema data & D1 | belum | |

@@ -9,6 +9,13 @@
     "types": ["node", "react", "react-dom"],
     "plugins": [{ "name": "next" }]
   },
-  "include": ["src", "next.config.ts", "next-env.d.ts", ".next/types/**/*.ts"],
+  "include": [
+    "src",
+    "next.config.ts",
+    "open-next.config.ts",
+    "next-env.d.ts",
+    "cloudflare-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

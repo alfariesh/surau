@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "next dev --port 3004",
     "build": "next build",
-    "start": "next start --port 3004"
+    "start": "next start --port 3004",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview --port 3005",
+    "deploy:web": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@gravity-ui/icons": "catalog:",
@@ -68,12 +72,14 @@
     "tailwind-variants": "catalog:"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
   }
 }
