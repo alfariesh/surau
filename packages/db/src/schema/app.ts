@@ -28,6 +28,10 @@ export const feedbackRow = z.strictObject({
 });
 export type FeedbackRow = z.infer<typeof feedbackRow>;
 
+// Karakter kontrol (termasuk NUL, yang memotong length() SQLite) ditolak di sini supaya input
+// buruk berakhir sebagai ZodError (400), bukan error CHECK D1 (500).
+const noControl = (v: string) => !/\p{Cc}/u.test(v.replaceAll(/[\n\t]/g, " "));
+
 /**
  * Input laporan dari pengguna (batas sistem). Sama dengan CHECK di migrasi: path tanpa query
  * string/fragmen (pertanyaan pengguna tidak boleh tersimpan, P-7), pesan 1–2000 karakter.
@@ -40,9 +44,10 @@ export const feedbackInput = z.strictObject({
     .string()
     .max(300)
     .regex(/^\/[^?#]*$/, "path harus diawali / dan tanpa ? atau #")
+    .refine((v) => !/[\p{Cc}\s]/u.test(v), "path tanpa spasi/karakter kontrol")
     .nullable()
     .default(null),
-  message: z.string().trim().min(1).max(2000),
+  message: z.string().trim().min(1).max(2000).refine(noControl, "pesan memuat karakter kontrol"),
   corpus_version: z.string().max(64).nullable().default(null),
 });
 export type FeedbackInput = z.input<typeof feedbackInput>;

@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { describe, expect, test } from "vite-plus/test";
+import { describe, expect, onTestFinished, test } from "vite-plus/test";
 import { ZodError } from "zod";
 
 import { feedbackRow } from "../schema/app.ts";
@@ -13,9 +13,11 @@ describe("settings", () => {
   });
 
   test("sakelar dibaca sebagai boolean", async () => {
+    onTestFinished(async () => {
+      await db.prepare("UPDATE settings SET value = '0' WHERE key = 'jawab_enabled'").run();
+    });
     await db.prepare("UPDATE settings SET value = '1' WHERE key = 'jawab_enabled'").run();
     expect(await getSettings(db)).toEqual({ jawab_enabled: true });
-    await db.prepare("UPDATE settings SET value = '0' WHERE key = 'jawab_enabled'").run();
   });
 });
 
@@ -55,6 +57,19 @@ describe("feedback", () => {
     await expect(
       createFeedback(db, { kind: "other", message: "a".repeat(2001) }),
     ).rejects.toBeInstanceOf(ZodError);
+  });
+
+  test("karakter kontrol (mis. NUL) ditolak Zod, bukan lolos ke CHECK D1", async () => {
+    await expect(createFeedback(db, { kind: "other", message: "a\u0000b" })).rejects.toBeInstanceOf(
+      ZodError,
+    );
+    await expect(
+      createFeedback(db, { kind: "other", path: "/kitab/a b", message: "x" }),
+    ).rejects.toBeInstanceOf(ZodError);
+    // Baris baru dan tab di pesan tetap boleh.
+    expect(
+      await createFeedback(db, { kind: "other", message: "baris 1\nbaris\t2" }),
+    ).toBeGreaterThan(0);
   });
 
   test("CHECK di DB menjaga hal yang sama bila Zod dilewati", async () => {

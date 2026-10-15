@@ -18,7 +18,7 @@ Aturan kerja yang berlaku untuk semua sesi. Perubahan konvensi dicatat sebagai A
 apps/*    → boleh mengimpor packages/*
 tools/*   → boleh mengimpor packages/* (khusus Node: node:sqlite, fs)
 packages/text  → TANPA dependensi runtime (TS murni). Normalisasi Arab, offset map, pembersih HTML Shamela.
-packages/db    → migrasi SQL (wrangler d1 migrations) + skema Zod baris + repository bertipe (prepare/bind). Tanpa ORM, next/*, atau cloudflare:*; menerima D1Database sebagai parameter.
+packages/db    → migrasi SQL (wrangler d1 migrations) + skema Zod baris + repository bertipe (prepare/bind). Tanpa ORM, next/*, atau cloudflare:*; menerima tipe struktural `D1Db` (src/d1.ts, ADR-029) sebagai parameter, yang dipenuhi binding D1 Worker.
 packages/core  → core tools (toc, section, search, verify_quote, takhrij). Bergantung pada text + db. Tanpa next/*.
 packages/llm   → (Fase 2+) pembungkus Anthropic, prompt berversi, verifikasi sitasi.
 ```
@@ -30,7 +30,7 @@ packages/llm   → (Fase 2+) pembungkus Anthropic, prompt berversi, verifikasi s
 ## TypeScript
 
 - `strict`, ESM saja, `verbatimModuleSyntax`, dan `import type` untuk tipe.
-- Tidak boleh ada `any` (pakai `unknown` lalu persempit), `enum` (pakai union string atau objek `as const`), maupun `namespace`. Ini menjaga kode bisa dijalankan dengan type stripping Node.
+- Tidak boleh ada `any` (pakai `unknown` lalu persempit), `enum` (pakai union string atau objek `as const`), maupun `namespace`. Pengecualian: `declare namespace` di file `.d.ts` untuk augmentasi tipe ambien (misalnya `Cloudflare.Env` di tes), karena tidak menghasilkan kode. Ini menjaga kode bisa dijalankan dengan type stripping Node.
 - Di `tools/*` **dan** `packages/*`, impor relatif ditulis lengkap dengan ekstensi `.ts` (`./normalize.ts`), karena paket juga dijalankan Node lewat type stripping dari `tools/*`. `tsconfig.base.json` memakai `allowImportingTsExtensions: true` + `noEmit: true`. Jangan memakai `--preserve-symlinks`.
 - Validasi input di batas sistem (route, tool MCP, CLI) memakai Zod 4. Skemanya dibagikan dari `packages/core`.
 - Error jangan ditelan. Lempar error bertipe di `packages/*`, lalu petakan ke status HTTP atau pesan UI di `apps/*`.

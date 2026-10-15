@@ -6,6 +6,7 @@ import {
   editionOfPassageId,
   pageId,
   passageId,
+  passageAnchor,
   passageIdRange,
   tocNodeId,
 } from "./ids.ts";
@@ -17,6 +18,10 @@ describe("formula ID (ADR-029)", () => {
     expect(passageId(1, 42)).toBe(10_000_042);
     expect(editionOfPageId(pageId(37, 99_999))).toBe(37);
     expect(editionOfPassageId(passageId(37, 9_999_999))).toBe(37);
+  });
+
+  test("jangkar publik = #p<seq>, tidak bergantung pada ord", () => {
+    expect(passageAnchor(passageId(3, 1234))).toBe("p1234");
   });
 
   test("rentang rowid per edisi tidak bertumpuk", () => {

@@ -4,7 +4,10 @@
 // (kind, ord), daftar isi memakai `ord`. Setelah rilis publik ID dibekukan; unit baru mendapat
 // nomor urut setelah yang terbesar, dan ID yang hilang dialihkan (tabel redirect, ADR-029).
 
-/** Nomor edisi 1..899.999 (cukup untuk 92+ kitab; batas atas menjaga ID < 2⁵³). */
+/**
+ * Nomor edisi 1..899.999. Pilihan konservatif yang sama dengan CHECK di migrasi; batas keras
+ * aritmetikanya ±900 juta (2⁵³ / 10⁷), jauh di atas kebutuhan.
+ */
 export const EDITION_ID_MAX = 899_999;
 /** Halaman dan node daftar isi per edisi: id = edition_id·10⁵ + seq. */
 export const PAGE_STRIDE = 100_000;
@@ -54,4 +57,9 @@ export function editionOfPageId(id: number): number {
 /** Edisi pemilik sebuah ID paragraf. */
 export function editionOfPassageId(id: number): number {
   return Math.floor(id / PASSAGE_STRIDE);
+}
+
+/** Jangkar publik paragraf (`#p<seq>`, ADR-029): stabil karena seq dibekukan, berbeda dari `ord`. */
+export function passageAnchor(id: number): string {
+  return `p${id % PASSAGE_STRIDE}`;
 }

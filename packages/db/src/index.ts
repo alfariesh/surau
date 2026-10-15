@@ -12,6 +12,7 @@ export {
   editionOfPassageId,
   pageId,
   passageId,
+  passageAnchor,
   passageIdRange,
   tocNodeId,
 } from "./ids.ts";

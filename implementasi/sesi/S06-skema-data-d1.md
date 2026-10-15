@@ -65,7 +65,15 @@ Skema korpus dan aplikasi terdefinisi, migrasinya berjalan di D1 lokal dan remot
   - `surau-app` `76b6488e…`
   - `surau-app-staging` `49fd36a5…` (`env.staging`)
 - Migrasi remote diterapkan atas izin pemilik.
-- Skrip root `db:migrate:local` dan `db:migrate:remote`.
+- Skrip root `db:migrate:local`, `db:migrate:staging`, dan `db:migrate:remote`. Yang terakhir hanya untuk app produksi, dipisah atas saran peninjau.
+- Peninjau: 0 blocker. Perbaikan diterapkan:
+  - jangkar `#p<seq>`, bukan `ord`;
+  - alokasi ID lewat peta ID yang di-commit;
+  - KONVENSI `D1Db`;
+  - Zod menolak karakter kontrol;
+  - tes tipe SQL ↔ Zod;
+  - urutan `getFootnoteRefs` stabil;
+  - pembersihan tes `onTestFinished`.
 - `pnpm test` kini terdiri dari project `node` (dengan coverage) + project `db` (workerd) + smoke.
 
 **Bukti:**
@@ -73,8 +81,8 @@ Skema korpus dan aplikasi terdefinisi, migrasinya berjalan di D1 lokal dan remot
 - `wrangler d1 create … --location apac` ×3: "Successfully created DB … in region APAC".
 - `pnpm run db:migrate:remote`: 17/5/5 commands ✅.
 - Uji FTS di `surau-corpus-staging` (insert → MATCH → delete → count 0) lolos. `pragma_table_list` remote: semua tabel Surau `strict=1`.
-- `pnpm exec vp test --project db`: 44 tes lolos (6 file) di workerd. Uji sabotase (skema Zod `source_page_id` dibuat tidak nullable) membuat tes skema gagal, jadi tes itu benar-benar menjaga kecocokan.
-- `pnpm verify` lolos: format, lint, cek tipe 61 file, 126 tes node + 44 tes db, smoke, build.
+- `pnpm exec vp test --project db`: 46 tes lolos (6 file) di workerd. Uji sabotase (skema Zod `source_page_id` dibuat tidak nullable) membuat tes skema gagal, jadi tes itu benar-benar menjaga kecocokan.
+- `pnpm verify` lolos: format, lint, cek tipe 61 file, 126 tes node + 46 tes db, smoke, build.
 
 **Utang teknis / catatan:**
 - Cakupan `packages/db/src` belum diukur angkanya: coverage v8 tidak berjalan di runner workerd (ADR-029 butir 8). Semua fungsi repository dipanggil tes.
@@ -83,8 +91,9 @@ Skema korpus dan aplikasi terdefinisi, migrasinya berjalan di D1 lokal dan remot
 
 **Untuk sesi berikutnya:**
 - **S07:**
+  - Buat peta ID yang di-commit (`data/ids/<edition>.json`, kunci stabil → seq, tanpa teks; ADR-029 butir 3) dan validasi integritas lintas tabel: `page_id`/`toc_node_id` satu edisi, dan `footnote_ref` menunjuk paragraf `foot`.
   - Ingest menulis `meta.norm_version` = `NORM_VERSION`, beserta `corpus_version`, `built_at` (`SOURCE_DATE_EPOCH`), dan `source_hash`.
   - Isi `edition.slug` + `is_default`, `work.slug` = `ihya`, `juz`/`page_no` sebagai angka. Pasangan (juz, halaman) di Ihya unik (dicek).
   - `footnote_ref` hanya untuk penanda yang tertaut, dengan offset dari `linkFootnotes` relatif terhadap `text_raw` paragraf.
   - ID memakai fungsi di `@surau/db`. Muat lokal dengan `--persist-to .wrangler/state` dan binding `CORPUS` dari `packages/db/wrangler.jsonc`.
-- **S08/S09:** binding D1 di `apps/web/wrangler.jsonc` memakai `database_id` yang sama, ditambah blok `previews` (`surau-corpus-staging`, `surau-app-staging`), dan `migrations_dir` menunjuk ke `../../packages/db/migrations/app`. Persist lokal dibuat sama (ARSITEKTUR §7 aturan 1).
+- **S08/S09:** jangkar paragraf memakai `passageAnchor` (`#p<seq>`). Validasi kepemilikan edisi untuk `/bab/<id>`, dan alihkan `@<edisi default>` ke URL kanonis. Binding D1 di `apps/web/wrangler.jsonc` memakai `database_id` yang sama, ditambah blok `previews` (`surau-corpus-staging`, `surau-app-staging`), dan `migrations_dir` menunjuk ke `../../packages/db/migrations/app`. Persist lokal dibuat sama (ARSITEKTUR §7 aturan 1).

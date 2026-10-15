@@ -140,10 +140,11 @@ export function getTocChildren(
 }
 
 /** Paragraf satu halaman: badan teks dulu, lalu catatan kaki, masing-masing urut `ord`. */
+// `kind = 'foot'` (0/1) dipakai, bukan urutan alfabet `kind`, supaya jenis baru tidak menyela.
 export function getPassagesByPage(db: D1Db, pageId: number): Promise<PassageRow[]> {
   return allRows(
     db
-      .prepare(`SELECT ${PASSAGE_COLS} FROM passage WHERE page_id = ? ORDER BY kind, ord`)
+      .prepare(`SELECT ${PASSAGE_COLS} FROM passage WHERE page_id = ? ORDER BY kind = 'foot', ord`)
       .bind(pageId),
     passageRow,
   );
@@ -157,7 +158,8 @@ export async function getFootnoteRefs(
   db: D1Db,
   passageIds: readonly number[],
 ): Promise<FootnoteRefRow[]> {
-  const unique = [...new Set(passageIds)];
+  // Diurutkan dulu supaya hasil gabungan antarpotongan tetap urut passage_id.
+  const unique = [...new Set(passageIds)].sort((a, b) => a - b);
   if (unique.length === 0) return [];
   const stmts = chunk(unique, D1_MAX_PARAMS).map((ids) =>
     db

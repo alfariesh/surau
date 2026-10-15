@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { beforeAll, describe, expect, test } from "vite-plus/test";
+import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/test";
 import { ZodError } from "zod";
 
 import {
@@ -162,9 +162,11 @@ describe("paragraf dan catatan kaki", () => {
 
 describe("baris salah bentuk", () => {
   test("nilai di luar skema Zod ditolak saat dibaca, bukan diteruskan", async () => {
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM meta WHERE key = 'norm_version'").run();
+    });
     await db.prepare("INSERT OR REPLACE INTO meta (key, value) VALUES ('norm_version', 'x')").run();
     const { getCorpusMeta } = await import("./corpus.ts");
     await expect(getCorpusMeta(db)).rejects.toBeInstanceOf(ZodError);
-    await db.prepare("DELETE FROM meta WHERE key = 'norm_version'").run();
   });
 });

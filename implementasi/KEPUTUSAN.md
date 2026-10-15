@@ -310,10 +310,16 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konteks:** S06 membuat `packages/db` (ADR-009). Sebelum data masuk (S07), ID dan URL publik harus diputuskan, karena keduanya tidak boleh berubah setelah rilis ([docs/02](../docs/02-arsitektur.md#yang-harus-benar-sejak-v1) butir 1) dan DB app (feedback, nanti review ustadz) merujuk korpus lewat ID. Ihya Shamela 9472 (hanya-baca, 15 Okt 2026): 1.706 halaman, juz 1–4, `part` dan `page` selalu angka, tanpa pasangan (juz, halaman) ganda; 311 judul.
 
 **Keputusan:**
-1. **Formula ID (usulan ARSITEKTUR dipakai):** `page.id = edition_id·10⁵ + seq`, `toc_node.id = edition_id·10⁵ + seq`, `passage.id = edition_id·10⁷ + seq`. `seq` mulai 1 dalam urutan sumber. Batas: 99.999 halaman/node dan 9.999.999 paragraf per edisi, `edition_id` 1..899.999 (ID terbesar tetap < 2⁵³). Formula dijaga `CHECK` di DB dan fungsi `pageId`/`tocNodeId`/`passageId`. Filter FTS per edisi memakai rentang rowid `passageIdRange` (ADR-005). Alternatif "hash isi" ditolak (tidak berurutan, tidak bisa difilter per rentang); UUID ditolak (boros, tanpa rentang).
+1. **Formula ID (usulan ARSITEKTUR dipakai):** `page.id = edition_id·10⁵ + seq`, `toc_node.id = edition_id·10⁵ + seq`, `passage.id = edition_id·10⁷ + seq`. Pada build pertama, `seq` mulai 1 dalam urutan sumber. Batas: 99.999 halaman/node dan 9.999.999 paragraf per edisi. `edition_id` 1..899.999 adalah batas konservatif; batas aritmetika 2⁵³/10⁷ ≈ 900 juta. Formula dijaga `CHECK` di DB dan fungsi `pageId`/`tocNodeId`/`passageId`. Filter FTS per edisi memakai rentang rowid `passageIdRange` (ADR-005). Alternatif "hash isi" ditolak (tidak berurutan, tidak bisa difilter per rentang); UUID ditolak (boros, tanpa rentang).
 2. **Urutan tampil tidak pernah diambil dari ID.** Halaman diurutkan dengan (`juz`, `page_no`), daftar isi dengan `ord`, dan paragraf dengan (`kind`, `ord`) per halaman. Dengan begitu ID bisa dibekukan tanpa merusak urutan.
 3. **Aturan stabilitas.** Sebelum rilis publik Fase 1, ID boleh dibangun ulang bebas. **Sejak rilis**, ID dibekukan:
    - Build ulang dengan sumber + patch yang sama wajib menghasilkan ID yang sama.
+   - **Alokasi ID memakai peta ID yang di-commit sebagai masukan**, tidak dihitung ulang dari urutan. Peta ini berisi kunci stabil → `seq`, tanpa teks kitab, di `data/ids/<edition>.json` (format final di S07).
+   - Kunci stabil per tabel:
+     - halaman: `source_page_id`;
+     - node daftar isi: `source_title_id`, atau ID patch untuk node hasil patch;
+     - paragraf: (`source_page_id`, `kind`, posisi paragraf di halaman sumber).
+   - S07 membuat peta dari build pertama. Sejak rilis Fase 1, ingest hanya boleh **menambah** entri ke peta itu.
    - Unit baru (paragraf atau node hasil patch) mendapat `seq` setelah yang terbesar. Nomor tidak pernah dipakai ulang.
    - Unit yang hilang atau digabung dialihkan lewat tabel redirect korpus (`id_redirect`: `old_id` → `new_id`). Tabel ini dibuat dengan migrasi baru saat pertama kali dibutuhkan, sebelum perubahannya dirilis.
    - Pemeriksaan "ID lama masih ada atau dialihkan" terhadap manifes rilis sebelumnya dikerjakan di S10 (`corpus:promote`).
@@ -322,7 +328,10 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Halaman: `/kitab/<work.slug>/<juz>/<page_no>`, misalnya `/kitab/ihya/1/200`, memakai edisi default (`edition.is_default`, tepat satu per karya, dijaga unique index parsial).
    - Edisi lain: `/kitab/<work.slug>@<edition.slug>/<juz>/<page_no>`.
    - Bagian daftar isi: `/kitab/<work.slug>/bab/<toc_node.id>`.
-   - Jangkar: paragraf badan `#p<ord>` dan catatan kaki `#f<ord>` (`ord` per halaman per jenis, mulai 1).
+   - Jangkar paragraf (badan maupun catatan kaki): `#p<seq>`, dengan `seq` = `passage.id − edition_id·10⁷`, lewat fungsi `passageAnchor`.
+   - Jangkar **bukan** `ord`. `ord` hanya urutan tampil dan bisa bergeser bila patch menyisipkan paragraf, padahal fragmen `#…` tidak sampai ke server, sehingga tidak bisa dialihkan.
+   - Satu URL kanonis per halaman. `/kitab/ihya@<slug edisi default>/…` dan `/bab/<id>` dari edisi lain dialihkan atau ditolak (validasi kepemilikan edisi, S08/S09).
+   - Privasi: kueri atau pertanyaan pengguna **tidak pernah** ditaruh di segmen path. Rute cari/tanya memakai query string (yang tidak disimpan di `feedback` maupun log).
    - Kitab satu jilid memakai juz 1.
    - Pasangan (edisi, juz, halaman) wajib unik (`page_citation`). Sumber yang punya nomor ganda atau kosong diperbaiki lewat patch di S07, tidak dibiarkan ambigu.
 5. **Skema v1:** semua tabel biasa `STRICT`, dengan `CHECK` untuk enum dan formula.
@@ -337,7 +346,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - `surau-app` (produksi)
    - `surau-app-staging` (`env.staging`)
    - Korpus produksi blue-green dibuat di S10.
-   - Migrasi remote diterapkan atas izin pemilik.
+   - Migrasi remote diterapkan atas izin pemilik. Skrip dipisah: `db:migrate:staging` (korpus staging + app staging) dan `db:migrate:remote` (hanya `surau-app` produksi; `deploy.yml` kelak memakainya).
    - Uji di `surau-corpus-staging` membuktikan FTS5 `contentless_delete=1` dan tabel `STRICT` didukung D1 remote. Ini menutup butir "belum diuji di remote" dari riset FTS.
 8. **Tes D1:** `@cloudflare/vitest-plugin` 1.4.2 di project Vitest `db` (`packages/db/vitest.config.ts`). Tes Node berada di project `node`.
    - Binding dideklarasikan lewat opsi `miniflare`, bukan `wrangler.jsonc`, supaya tes tidak pernah menyentuh remote.
@@ -347,5 +356,9 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
      - Coverage v8 hanya untuk project `node`: plugin menolak perintah `__vitest_stopV8Coverage`. Akibatnya `pnpm test` = `vp test --coverage --project node && vp test --project db && smoke`.
 
 **Ditolak:** ORM (ADR-009); tipe `D1Database` dari `@cloudflare/workers-types` di `src` (paket itu hanya ambien, tanpa ekspor modul, dan dipakai di tes saja); binding tes dari `wrangler.jsonc` (risiko `remoteBindings`); coverage `istanbul` untuk semua project (mengubah alat ukur ambang S05 di tengah fase).
-**Utang teknis:** cakupan `packages/db/src` belum diukur angkanya. Semua fungsinya dipanggil tes, tetapi tanpa angka. Tinjau saat plugin mendukung coverage v8 atau saat pindah ke istanbul.
+**Utang teknis:**
+- Integritas lintas tabel belum dijaga DB, misalnya `passage.page_id` dari edisi lain atau `footnote_ref` yang menunjuk paragraf `body`. Pemeriksaannya masuk validasi ingest S07 dan QA S10, bukan migrasi.
+- `settings.updated_at` tidak berubah saat UPDATE (setter/trigger di S20).
+- `packages/db/tsconfig.json` memuat tipe ambien Workers juga untuk `src`, jadi larangan `cloudflare:*` di `src` dijaga peninjau, belum oleh alat.
+- Cakupan `packages/db/src` belum diukur angkanya. Semua fungsinya dipanggil tes, tetapi tanpa angka. Tinjau saat plugin mendukung coverage v8 atau saat pindah ke istanbul.
 **Tinjau ulang bila:** satu edisi melewati 99.999 halaman atau 10⁷ paragraf, kitab berjilid memakai penomoran non-angka, atau plugin Cloudflare mendukung `fsModuleCache`/coverage v8.

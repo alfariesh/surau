@@ -21,7 +21,7 @@
 - `pnpm dev` → http://localhost:3004: situs Surau lokal. `pnpm --filter @surau/web preview` → http://localhost:3005 (versi Workers lokal).
 - `pnpm test:e2e`: smoke + cek aksesibilitas (Playwright, chromium desktop & ponsel); juga berjalan otomatis di setiap preview PR.
 - `pnpm verify` → format, lint, cek tipe, tes (dengan cakupan), dan build sekaligus.
-- `pnpm run db:migrate:local` → DB D1 lokal (korpus + app) dengan skema v1 di `.wrangler/state`. `pnpm exec vp test --project db` → 44 tes DB di runtime Workers lokal. DB Cloudflare: `surau-corpus-staging`, `surau-app`, `surau-app-staging` (apac, sudah bertabel, masih kosong).
+- `pnpm run db:migrate:local` → DB D1 lokal (korpus + app) dengan skema v1 di `.wrangler/state`. `pnpm exec vp test --project db` → 46 tes DB di runtime Workers lokal. DB Cloudflare: `surau-corpus-staging`, `surau-app`, `surau-app-staging` (apac, sudah bertabel, masih kosong).
 - `pnpm bench:text` → kecepatan normalisasi teks Arab (±0,5 dtk per 5 juta karakter). `/api/version` di situs → versi aturan normalisasi (`normVersion`).
 - https://github.com/alfariesh/surau (publik): setiap PR otomatis dicek CI (±1 menit) dan mendapat link preview (`pr-<nomor>-surau-web…workers.dev`) di komentar; Dependabot mengusulkan pembaruan tiap Senin.
 

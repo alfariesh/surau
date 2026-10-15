@@ -2,7 +2,7 @@
 // Juga memastikan passage_fts terbentuk dengan kolom dan opsi yang benar (tabel virtual FTS5).
 import { NORM_VERSION } from "@surau/text";
 import { env } from "cloudflare:workers";
-import { describe, expect, test } from "vite-plus/test";
+import { describe, expect, onTestFinished, test } from "vite-plus/test";
 import { z } from "zod";
 
 import type { D1Db } from "../src/d1.ts";
@@ -45,6 +45,10 @@ function checkTables(db: () => D1Db, tables: Record<string, z.ZodObject>) {
         // Kolom PRIMARY KEY INTEGER tunggal adalah rowid: notnull=0 di PRAGMA, tetapi tak pernah null.
         const neverNull = c.notnull === 1 || (c.pk > 0 && c.type === "INTEGER");
         expect(field?.safeParse(null).success, `${table}.${c.name} nullable?`).toBe(!neverNull);
+        // Tipe SQL ↔ tipe Zod: kolom INTEGER menolak teks, kolom TEXT menolak angka.
+        const wrong = c.type === "INTEGER" ? "1" : c.type === "TEXT" ? 1 : undefined;
+        expect(wrong, `${table}.${c.name} tipe ${c.type}`).toBeDefined();
+        expect(field?.safeParse(wrong).success, `${table}.${c.name} tipe ${c.type}`).toBe(false);
       }
     });
   }
@@ -105,11 +109,13 @@ describe("meta", () => {
   });
 
   test("norm_version yang ditulis ingest = NORM_VERSION @surau/text", async () => {
+    onTestFinished(async () => {
+      await env.CORPUS.prepare("DELETE FROM meta WHERE key = 'norm_version'").run();
+    });
     await env.CORPUS.prepare("INSERT OR REPLACE INTO meta (key, value) VALUES ('norm_version', ?)")
       .bind(String(NORM_VERSION))
       .run();
     const meta = await getCorpusMeta(env.CORPUS);
     expect(meta.norm_version).toBe(NORM_VERSION);
-    await env.CORPUS.prepare("DELETE FROM meta WHERE key = 'norm_version'").run();
   });
 });

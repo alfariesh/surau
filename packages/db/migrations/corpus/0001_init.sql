@@ -86,7 +86,9 @@ CREATE TABLE passage (
   page_id     INTEGER NOT NULL REFERENCES page (id),
   toc_node_id INTEGER REFERENCES toc_node (id),
   kind        TEXT NOT NULL CHECK (kind IN ('body', 'foot')),
-  -- Urutan dalam halaman per jenis, mulai 1. Jangkar publik #p<ord> / #f<ord> (ADR-029).
+  -- Urutan tampil dalam halaman per jenis, mulai 1. BUKAN jangkar publik: jangkar = #p<seq>
+  -- (seq = id − edition_id·10⁷, dibekukan), karena ord bisa bergeser bila patch menyisipkan paragraf.
+  -- (Komentar ini diperbarui sebelum merge S06; skemanya tidak berubah.)
   ord         INTEGER NOT NULL CHECK (ord >= 1),
   -- Teks mentah persis (HTML dibersihkan deterministik oleh @surau/text). Tidak pernah diubah.
   text_raw    TEXT NOT NULL,
