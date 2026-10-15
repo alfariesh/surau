@@ -66,11 +66,11 @@ Nama perintah yang pasti diatur di S01. Bila berubah, perbarui tabel ini. Script
 
 ## Git
 
-- Satu sesi = satu branch `sesi/sNN-slug` = satu PR. Merge ke `main` memakai **squash**, setelah CI hijau dan pemilik setuju. Sesi berikutnya baru dimulai dari `main` yang sudah memuat sesi sebelumnya. Sebelum ada remote (S01), merge dilakukan secara lokal dengan izin pemilik.
+- Satu sesi = satu branch `sesi/sNN-slug` = satu PR. Merge ke `main` memakai **squash**, setelah CI hijau; agent melakukannya sendiri tanpa bertanya. Sesi berikutnya baru dimulai dari `main` yang sudah memuat sesi sebelumnya.
 - Commit kecil dengan format `<tipe>(<area>): <ringkasan bahasa Indonesia>`. Tipe yang dipakai: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `data`. Contoh: `feat(reader): tampilkan catatan kaki takhrij`.
 - Akhiri pesan commit dengan baris atribusi dari system prompt Claude Code (Co-Authored-By).
 - **Tidak pernah** `push --force` ke `main`, dan tidak pernah meng-commit `.env*`, `.dev.vars*`, `*.db`, `*.sqlite`, data Shamela, atau skill HeroUI Pro (berlisensi).
-- Push, membuat PR, merge, dan deploy hanya dilakukan dengan izin pemilik di chat.
+- Push, membuat PR, merge, dan deploy dilakukan agent tanpa bertanya (aturan keras 4 di `CLAUDE.md`). Izin pemilik hanya untuk biaya LLM berbayar dan penghapusan/penimpaan data produksi.
 
 ## Rahasia dan konfigurasi
 

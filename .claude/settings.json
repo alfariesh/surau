@@ -73,9 +73,7 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "mcp__cloudflare-docs__*",
-      "mcp__heroui-pro__*"
-    ],
-    "ask": [
+      "mcp__heroui-pro__*",
       "Bash(git push *)",
       "Bash(git restore *)",
       "Bash(git stash *)",
