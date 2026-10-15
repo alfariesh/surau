@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
-import { Amiri, Noto_Naskh_Arabic, Plus_Jakarta_Sans } from "next/font/google";
+import { Noto_Naskh_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 
 import { id } from "../i18n/id";
 
@@ -9,8 +9,9 @@ import { Providers } from "./providers";
 
 import "./globals.css";
 
-// Font UI: Plus Jakarta Sans (karya Tokotype, Indonesia). Font Arab: Noto Naskh Arabic dan Amiri
-// (dua opsi T-08); keduanya diunduh saat build dan di-host sendiri oleh next/font.
+// Font UI: Plus Jakarta Sans (karya Tokotype, Indonesia). Font Arab: Noto Naskh Arabic (T-08,
+// ADR-027). Keduanya diunduh saat build dan di-host sendiri oleh next/font. Naskh tidak di-preload:
+// teks Arab belum ada di setiap halaman, jadi tidak perlu membebani halaman lain.
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
@@ -20,14 +21,6 @@ const jakarta = Plus_Jakarta_Sans({
 const naskh = Noto_Naskh_Arabic({
   subsets: ["arabic"],
   variable: "--font-naskh",
-  display: "swap",
-  preload: false,
-});
-
-const amiri = Amiri({
-  subsets: ["arabic"],
-  weight: ["400", "700"],
-  variable: "--font-amiri",
   display: "swap",
   preload: false,
 });
@@ -60,7 +53,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       suppressHydrationWarning
-      className={`palet-zaitun ${jakarta.variable} ${naskh.variable} ${amiri.variable}`}
+      className={`${jakarta.variable} ${naskh.variable}`}
       dir="ltr"
       lang="id"
     >

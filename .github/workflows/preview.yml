@@ -79,7 +79,7 @@ jobs:
         env:
           URL: ${{ steps.preview.outputs.url }}
         run: |
-          for p in /explore /library /new; do
+          for p in / /tentang; do
             code=$(curl -s --fail -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 5 --retry-all-errors "$URL$p" || true)
             echo "$p → $code"
             [ "$code" = "200" ] || { echo "::error title=Smoke gagal::$p mengembalikan $code"; exit 1; }
@@ -103,6 +103,16 @@ jobs:
           Storage memakai resource khusus preview (cache R2 \`surau-next-cache-preview\`), bukan data produksi.
           EOF
           gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/komentar.md" --edit-last --create-if-none
+
+      # Smoke e2e (Playwright, chromium) terhadap preview PR: runtime Workers, bukan `next dev` (S04).
+      # Dijalankan setelah komentar supaya URL preview tetap terpasang walau e2e gagal.
+      - name: Pasang chromium Playwright
+        run: pnpm --filter @surau/web exec playwright install --with-deps chromium
+
+      - name: e2e terhadap preview
+        env:
+          BASE_URL: ${{ steps.preview.outputs.url }}
+        run: pnpm test:e2e
 
   hapus:
     name: hapus preview

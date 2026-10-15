@@ -58,7 +58,7 @@ jobs:
 
       - name: Smoke test produksi
         run: |
-          for p in /explore /library /new; do
+          for p in / /tentang; do
             code=$(curl -s --fail -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 5 --retry-all-errors "https://surau-web.alfarieshsalman.workers.dev$p" || true)
             echo "$p → $code"
             [ "$code" = "200" ] || { echo "::error title=Smoke gagal::$p mengembalikan $code"; exit 1; }

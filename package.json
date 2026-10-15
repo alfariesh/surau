@@ -7,7 +7,7 @@
     "check": "vp check",
     "fix": "vp check --fix",
     "test": "vp test",
-    "test:e2e": "echo 'e2e (Playwright) disiapkan di S04'",
+    "test:e2e": "pnpm --filter @surau/web test:e2e",
     "build": "vp run -r build",
     "verify": "pnpm check && pnpm test && pnpm build",
     "prepare": "vp config --no-agent"
