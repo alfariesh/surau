@@ -1,24 +1,25 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-15 · oleh agent, S02 selesai dan sudah digabung ke `main` (PR #1)
+> Diperbarui: 2026-10-15 · oleh agent, S03 digabung (PR #4); deploy otomatis dicek di PR catatan berikutnya
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** kerjakan **T-05** dan **T-06** (Cloudflare), buka percakapan baru, dan ketik **`/sesi`** untuk S03.
-- **Fase:** 0 · Fondasi (S01 selesai dengan 1 butir tertunda, S02 selesai)
-- **Sesi berikutnya:** **S03 · Deploy ke Cloudflare** → [sesi/S03-deploy-cloudflare.md](sesi/S03-deploy-cloudflare.md)
-- **Tindak lanjut kecil (awal S03; belum bisa di S02 karena belum 24 jam):** naikkan catalog `vite-plus` → 1.2.0 (boleh mulai 15 Okt 16:21 WIB) dan `react`/`react-dom` → 19.2.9 (mulai 15 Okt 23:54 WIB), lalu `pnpm verify` dan centang butir S01 yang tertunda (ADR-023)
+- **Mulai di sini (pemilik):** kerjakan **T-08** (arah desain), buka percakapan baru, dan ketik **`/sesi`** untuk S04.
+- **Fase:** 0 · Fondasi (S01 selesai dengan 1 butir tertunda, S02 selesai, S03 selesai)
+- **Sesi berikutnya:** **S04 · Identitas & fondasi UI** → [sesi/S04-identitas-ui.md](sesi/S04-identitas-ui.md)
+- **Tindak lanjut kecil (belum bisa di S02/S03 karena belum 24 jam):** naikkan catalog `vite-plus` → 1.2.0 (boleh mulai 15 Okt 16:21 WIB) dan `react`/`react-dom` → 19.2.9 (mulai 15 Okt 23:54 WIB), lalu `pnpm verify` dan centang butir S01 yang tertunda (ADR-023)
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dipakai usulan bila tidak dijawab:** P-3 font Noto Naskh · P-4 anggaran $20/bln · P-7 retensi data
-- **Gerbang X01 (Next 16.4):** belum terpenuhi (OpenNext 1.20.11 belum menyebut dukungan 16.4) · terakhir dicek 2026-10-15
+- **Gerbang X01 (Next 16.4):** belum terpenuhi (peer OpenNext 1.20.11 `>=16.3.8`, tapi rilis belum menyebut 16.4 diuji) · terakhir dicek 2026-10-15
 
 ## Sudah bisa dicoba
 
-- `pnpm dev` → http://localhost:3004: template chat HeroUI Pro (belum bertema Surau) berjalan di monorepo baru.
+- https://surau-web.alfarieshsalman.workers.dev: template web sudah online di Cloudflare (setiap merge ke `main` otomatis ter-deploy).
+- `pnpm dev` → http://localhost:3004: template chat HeroUI Pro (belum bertema Surau) berjalan di monorepo baru. `pnpm --filter @surau/web preview` → http://localhost:3005 (versi Workers lokal).
 - `pnpm verify` → format, lint, cek tipe, tes, dan build sekaligus.
-- https://github.com/alfariesh/surau (publik): setiap PR otomatis dicek CI (±1 menit); Dependabot mengusulkan pembaruan tiap Senin.
+- https://github.com/alfariesh/surau (publik): setiap PR otomatis dicek CI (±1 menit) dan mendapat link preview (`pr-<nomor>-surau-web…workers.dev`) di komentar; Dependabot mengusulkan pembaruan tiap Senin.
 
 ## Perhatian (risiko aktif)
 
@@ -36,7 +37,7 @@
 | – | S00 | Review dokumen & setup agent | selesai | 2026-10-15 |
 | 0 | S01 | Monorepo & toolchain | selesai* | 2026-10-15 · *vite-plus 1.2.0 tertunda (ADR-023) · di `main` |
 | 0 | S02 | GitHub & CI | selesai | 2026-10-15 · PR #1 · di `main` · repo publik + proteksi `main` (ADR-025) |
-| 0 | S03 | Deploy ke Cloudflare | belum | butuh T-05, T-06 (T-07 opsional) |
+| 0 | S03 | Deploy ke Cloudflare | selesai | 2026-10-15 · PR #4 · di `main` · workers.dev, preview per PR (ADR-026) |
 | 0 | S04 | Identitas & fondasi UI | belum | butuh T-08 · lalu `/rilis 0` |
 | 1 | S05 | Paket teks Arab | belum | |
 | 1 | S06 | Skema data & D1 | belum | |

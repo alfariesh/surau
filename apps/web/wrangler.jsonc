@@ -1,0 +1,56 @@
+// Worker web Surau (Next.js lewat OpenNext). Keputusan: ADR-002, ADR-003, ADR-017, ADR-026.
+// Top-level = PRODUKSI. Blok `previews` = Preview per PR dan TIDAK mewarisi binding produksi:
+// setiap binding storage wajib dideklarasikan ulang di sana dengan resource khusus preview.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-14",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "services": [
+    {
+      // Self-reference OpenNext (revalidasi/queue ISR); nama harus sama dengan `name`. Dengan queue
+      // default (`dummy`) praktis belum dipakai. Dari Preview, binding ini memanggil PRODUKSI (ADR-026).
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "surau-web",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "surau-next-cache",
+    },
+  ],
+  // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
+  "observability": {
+    "enabled": true,
+    "redact_query_string": true,
+    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+  },
+  "upload_source_maps": true,
+  "previews": {
+    "observability": {
+      "enabled": true,
+      "redact_query_string": true,
+      "logs": { "enabled": true, "head_sampling_rate": 1 },
+      "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+    },
+    "services": [
+      {
+        "binding": "WORKER_SELF_REFERENCE",
+        "service": "surau-web",
+      },
+    ],
+    "r2_buckets": [
+      {
+        "binding": "NEXT_INC_CACHE_R2_BUCKET",
+        "bucket_name": "surau-next-cache-preview",
+      },
+    ],
+  },
+}

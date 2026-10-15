@@ -25,7 +25,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 |---|---|---|---|---|
 | Next.js | **16.3.8** sekarang (+ mitigasi ADR-003); naik ke 16.4.x lewat sesi [X01](sesi/X01-upgrade-next-16-4.md) setelah OpenNext mendukung | **16.3.8** (dicek 2026-10-15; advisory dimitigasi, ADR-023) | **Utamakan** `apps/web/node_modules/next/dist/docs/` · https://nextjs.org/docs/llms.txt · agent guide https://nextjs.org/docs/app/guides/ai-agents · advisories https://github.com/vercel/next.js/security/advisories | 003 |
 | React / React DOM | 19.2.x bersama Next 16.3.8; 19.3.x bersama Next 16.4 | 19.2.8 (19.2.9 belum 24 jam, ADR-023) | https://react.dev | 003 |
-| @opennextjs/cloudflare | 1.20.11+ | – | https://opennext.js.org/cloudflare · rilis https://github.com/opennextjs/opennextjs-cloudflare/releases · *batas ukuran 3/10 MiB di docs ini sudah usang; yang berlaku 64 MiB* | 003 |
+| @opennextjs/cloudflare | 1.20.11+ | **1.20.11** (devDependency apps/web, catalog; dicek 2026-10-15) · peer `next >=15.5.27 <16 \|\| >=16.3.8` → Next **16.3.8 didukung resmi** (versi minimum). Gerbang ADR-003 untuk 16.4: **belum terbuka** (rilis belum menyebut 16.4 diuji) | https://opennext.js.org/cloudflare · rilis https://github.com/opennextjs/opennextjs-cloudflare/releases · *batas ukuran 3/10 MiB di docs ini sudah usang; yang berlaku 64 MiB* | 003 |
 | HeroUI OSS (`@heroui/react`, `@heroui/styles`) | 3.2.6 | 3.2.6 | MCP `heroui-pro` (level user, T-01) · https://heroui.com/react/llms.txt | 004 |
 | HeroUI Pro (`@heroui-pro/react`) | **1.0.0-beta.10 persis** | 1.0.0-beta.10 (catalog, dicek 2026-10-15) | MCP `heroui-pro` (`list_components`, `get_component_docs`) · https://heroui.pro/docs/react/llms.txt · instalasi/CI https://heroui.pro/docs/react/getting-started/installation · terms https://heroui.pro/terms | 004 |
 | Tailwind CSS | 4.x (ikut template) | 4.2.2 | https://tailwindcss.com/docs | 004 |
@@ -37,12 +37,12 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
-| Wrangler | 4.151.0+ (devDependency, **jangan pakai yang global**) | 4.151.0 (devDependency root, catalog; dicek 2026-10-15) · global 4.126 (usang) | MCP `cloudflare-docs` · https://developers.cloudflare.com/workers/llms.txt · skill `wrangler` | 002 |
-| Workers (limits, pricing) | Paid | – | https://developers.cloudflare.com/workers/platform/limits/ | 002 |
+| Wrangler | 4.151.0+ (devDependency, **jangan pakai yang global**) | 4.151.0 (devDependency root + apps/web, catalog; dicek 2026-10-15) · global 4.126 (usang) | MCP `cloudflare-docs` · https://developers.cloudflare.com/workers/llms.txt · skill `wrangler` | 002 |
+| Workers (limits, pricing) | Paid | Worker `surau-web` aktif (2026-10-15): 15.993 KiB tak terkompresi / 3.021 KiB gzip dari batas 64 MiB, startup 20 ms, `compatibility_date` 2026-10-14 | https://developers.cloudflare.com/workers/platform/limits/ | 002 |
 | D1 + FTS5 | – | – | https://developers.cloudflare.com/d1/llms-full.txt · limits https://developers.cloudflare.com/d1/platform/limits/ · migrasi https://developers.cloudflare.com/d1/reference/migrations/ · impor https://developers.cloudflare.com/d1/best-practices/import-export-data/ · FTS5 https://www.sqlite.org/fts5.html | 005 |
-| R2 | – | – | https://developers.cloudflare.com/r2/llms-full.txt | 005 |
+| R2 | – | bucket `surau-next-cache` + `surau-next-cache-preview` (cache ISR OpenNext, 2026-10-15) | https://developers.cloudflare.com/r2/llms-full.txt | 005 |
 | Vectorize + Workers AI (ditunda) | – | – | https://developers.cloudflare.com/vectorize/llms-full.txt · https://developers.cloudflare.com/workers-ai/llms-full.txt | 006 |
-| Worker Previews | wrangler ≥4.135 | – | https://developers.cloudflare.com/workers/previews/get-started/ | 017 |
+| Worker Previews | wrangler ≥4.135 | `wrangler preview --name pr-<n> --json` di `preview.yml` (open beta; diuji lokal 2026-10-15) | https://developers.cloudflare.com/workers/previews/get-started/ | 017 |
 | Vitest di Workers | `@cloudflare/vitest-plugin` 1.4.x (**bukan** `vitest-pool-workers`) | – | https://developers.cloudflare.com/workers/testing/vitest-integration/ | 008 |
 | AI Gateway (mode BYOK) | – | – | https://developers.cloudflare.com/ai-gateway/llms.txt · Anthropic https://developers.cloudflare.com/ai-gateway/usage/providers/anthropic/ · BYOK https://developers.cloudflare.com/ai-gateway/configuration/bring-your-own-keys/ · spend limit https://developers.cloudflare.com/ai-gateway/features/spend-limits/ | 013 |
 | Turnstile | Managed | – | https://developers.cloudflare.com/turnstile/get-started/server-side-validation/ | 014 |

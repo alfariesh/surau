@@ -55,12 +55,12 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   ```
   Perintah kedua dibutuhkan supaya pembaruan otomatis dari Dependabot juga bisa di-build.
 
-- [ ] **T-05 · Login Cloudflare + aktifkan R2** (dibutuhkan S03)
+- [x] **T-05 · Login Cloudflare + aktifkan R2** (dibutuhkan S03) · selesai 2026-10-15 (dicek agent: `wrangler whoami` OK, bucket R2 berhasil dibuat; budget alert langkah 3 tidak bisa dicek agent)
   1. Di Terminal: `pnpm dlx wrangler@latest login`. Browser terbuka; setujui akses.
   2. Di dash.cloudflare.com → **R2 Object Storage**, aktifkan R2 (sekali saja, dengan menyetujui ketentuannya).
   3. Disarankan: **Manage Account → Billing → Billable Usage → Create budget alert**. Isi ambang $10 dan email Anda. Satu alert ini sudah mencakup Workers, D1, dan R2.
 
-- [ ] **T-06 · Token Cloudflare untuk GitHub Actions** (dibutuhkan S03)
+- [x] **T-06 · Token Cloudflare untuk GitHub Actions** (dibutuhkan S03) · selesai 2026-10-15 (dicek agent: `gh secret list` → kedua secret ada; preview PR #4 sukses)
   1. Buka dash.cloudflare.com → **My Profile → API Tokens → Create Token → Create Custom Token**.
   2. Beri izin: *Account › Workers Scripts › Edit*, *Account › D1 › Edit*, *Account › Workers R2 Storage › Edit*, *Account › Account Settings › Read*, dan *Zone › Workers Routes › Edit*. Di bagian **Zone Resources**, pilih *All zones from an account*, supaya domain yang ditambahkan nanti otomatis tercakup.
   3. Di Terminal, jalankan `gh secret set CLOUDFLARE_API_TOKEN` lalu tempel tokennya.

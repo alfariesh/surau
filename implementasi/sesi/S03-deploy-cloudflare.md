@@ -1,6 +1,6 @@
 # S03 · Deploy ke Cloudflare
 
-> **Fase:** 0 · **Status:** belum
+> **Fase:** 0 · **Status:** berjalan (T-06 selesai) · PR #4
 > **Prasyarat:** S02 selesai · Tugas pemilik: **T-05** (wrangler login), **T-06** (token CI). **T-07** (domain) opsional; tanpa domain, situs memakai `*.workers.dev`
 > **Perkiraan:** 1 percakapan agent
 
@@ -39,13 +39,13 @@ Setiap merge ke `main` otomatis ter-deploy ke Cloudflare Workers, dan setiap PR 
 
 ## Selesai bila
 
-- [ ] `pnpm --filter @surau/web preview` berjalan di workerd lokal tanpa error, dan ukuran bundle tercatat
-- [ ] PR mendapat komentar URL preview yang bisa dibuka
-- [ ] Merge ke `main` men-deploy otomatis (tautan run dicatat); situs terbuka di domain atau workers.dev
-- [ ] Workers Logs tidak menunjukkan error saat membuka 3 halaman
-- [ ] Preview tidak memakai resource produksi (dicek dari `wrangler.jsonc`)
-- [ ] Versi Next dan OpenNext yang dipakai, beserta status gerbang ADR-003, dicatat di STACK.md
-- [ ] STATUS, LOG, dan file sesi ini diperbarui
+- [x] `pnpm --filter @surau/web preview` berjalan di workerd lokal tanpa error, dan ukuran bundle tercatat · `opennextjs-cloudflare preview --port 3005` → `/explore`, `/library`, `/new`, `/pro-ai-showcase` 200, `/` 307; log tanpa error; konsol browser kosong · `wrangler deploy --dry-run` → **15.993 KiB / gzip 3.021 KiB** (batas 64 MiB)
+- [x] PR mendapat komentar URL preview yang bisa dibuka · run [38700735787](https://github.com/alfariesh/surau/actions/runs/38700735787) success → komentar `github-actions` di PR #4 berisi https://pr-4-surau-web.alfarieshsalman.workers.dev; smoke `/explore`, `/library`, `/new` → 200 (dicek ulang dari lokal)
+- [ ] Merge ke `main` men-deploy otomatis (tautan run dicatat); situs terbuka di domain atau workers.dev · **menunggu T-06**. Situs sudah terbuka di https://surau-web.alfarieshsalman.workers.dev, tapi lewat deploy manual dari lokal (versi `6347e851`), bukan otomatis
+- [x] Workers Logs tidak menunjukkan error saat membuka 3 halaman · `wrangler tail surau-web --format json` sambil membuka `/explore`, `/library`, `/pro-ai-showcase` → outcome `ok`, status 200, 0 exception, 0 log error
+- [x] Preview tidak memakai resource produksi (dicek dari `wrangler.jsonc`) · blok `previews` → R2 `surau-next-cache-preview`; JSON `wrangler preview` uji → `NEXT_INC_CACHE_R2_BUCKET.bucket_name = surau-next-cache-preview`. Pengecualian yang dicatat: `WORKER_SELF_REFERENCE` selalu ke produksi (ADR-026)
+- [x] Versi Next dan OpenNext yang dipakai, beserta status gerbang ADR-003, dicatat di STACK.md · Next 16.3.8 + OpenNext 1.20.11 (peer `>=16.3.8`), gerbang 16.4 belum terbuka
+- [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan
 
@@ -53,4 +53,22 @@ Setiap merge ke `main` otomatis ter-deploy ke Cloudflare Workers, dan setiap PR 
 
 ## Catatan hasil
 
-*(diisi agent)*
+**2026-10-15 (percakapan 1) — terblokir di T-06.**
+
+Dibuat:
+- `@opennextjs/cloudflare` 1.20.11 + `wrangler` 4.151.0 di `apps/web` (catalog). `wrangler.jsonc` (Worker `surau-web`, R2 cache, blok `previews`, observability + `redact_query_string`), `open-next.config.ts` (R2 + regional cache long-lived), `initOpenNextCloudflareForDev` di `next.config.ts` (persist ke `<root>/.wrangler/state`), `public/_headers`, `.dev.vars` (tidak di-commit), skrip `preview`/`deploy:web`/`upload`/`cf-typegen`, `cloudflare-env.d.ts` hasil `wrangler types` (diabaikan fmt/lint).
+- R2 `surau-next-cache` dan `surau-next-cache-preview` dibuat. Deploy produksi pertama dari lokal → https://surau-web.alfarieshsalman.workers.dev (startup 20 ms).
+- `deploy.yml`, `preview.yml`, dan action komposit `.github/actions/siapkan` (refactor `ci.yml`). ADR-026.
+- Peninjau: tanpa blocker. Diperbaiki: ADR-026 ditulis, `redact_query_string`, `workflow_dispatch` hanya dari `main`, job hapus preview (Node lewat setup-vp, `pnpm dlx` versi catalog, `--skip-confirmation`, gagal = peringatan), cek secret tanpa nilai token, `curl --fail` supaya 5xx diulang.
+
+**Lanjutan setelah T-06:** kedua secret diisi pemilik (07:40–07:41 UTC). Run preview pertama gagal: di CI, `wrangler preview --json` menulis teks lain ke stdout sebelum JSON, sehingga `jq` gagal (lokal tidak). Diperbaiki dengan mengambil keluaran mulai baris pertama `{` (+ `WRANGLER_SEND_METRICS=false`); run berikutnya hijau.
+
+Semula belum selesai (karena T-06):
+- Agent tidak bisa mengisi secret GitHub (ditolak pengaman mode otomatis), jadi `CLOUDFLARE_API_TOKEN` **dan** `CLOUDFLARE_ACCOUNT_ID` diisi pemilik. Setelah itu: jalankan ulang job `preview` di PR #4 (`gh run rerun --failed`), cek komentar URL, merge, lalu cek run `deploy.yml` dan Workers Logs. Domain (T-07) belum ada → tetap workers.dev.
+- Tindak lanjut S01 (vite-plus 1.2.0, React 19.2.9) belum bisa: belum lewat 24 jam saat sesi ini (14:10 WIB).
+
+Utang teknis / untuk sesi berikutnya:
+- `pnpm --filter @surau/web preview` masih menyimpan state di `apps/web/.wrangler/state` (beda dari `next dev`). S06 wajib menyamakannya sebelum D1 lokal (ADR-026).
+- Smoke di workflow memakai `curl`; ganti/ tambah Playwright di S04 (`test:e2e`).
+- `.claude/settings.json` (perubahan pemilik) memindahkan beberapa perintah berisiko ke `allow`; dilaporkan ke pemilik, tidak diubah agent.
+- Dependabot PR #3 (49 pembaruan) masih terbuka; belum ditinjau di sesi ini.

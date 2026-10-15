@@ -58,10 +58,10 @@ Pemilik proyek adalah product designer, bukan developer. Ia mengandalkan Anda un
 6. **`TUGAS-PEMILIK.md`:** tambahkan tugas baru yang ditemukan.
 7. Commit catatan ini.
 
-## 6. Gabungkan ke main (dengan izin)
+## 6. Gabungkan ke main (tanpa bertanya)
 
-- **Sudah ada remote GitHub:** minta izin untuk push dan membuka PR. Tunggu CI hijau, lalu tanyakan: "Gabungkan Sesi NN ke main sekarang? (ya/tidak)". Bila ya, lakukan squash merge.
-- **Belum ada remote** (S01): tanyakan izin untuk menggabungkan branch sesi ke `main` secara lokal (squash). Bila ya, lakukan merge.
+- **Sudah ada remote GitHub:** push, buka PR, tunggu CI hijau, lalu squash merge sendiri. Bila CI merah, perbaiki dulu; jangan merge yang merah.
+- **Belum ada remote:** squash merge branch sesi ke `main` secara lokal setelah `pnpm verify` lolos.
 - Bila pemilik belum mau menggabungkan, catat di STATUS bahwa sesi berikutnya menunggu merge ini.
 
 ## 7. Lapor ke pemilik
@@ -73,6 +73,6 @@ Sesi NN selesai: <judul>
 Yang sekarang bisa dilihat/dicoba: <tautan preview / perintah / halaman>
 Yang dikerjakan: <3-5 poin, bahasa awam>
 Belum/ditunda: <bila ada, jujur>
-Butuh Anda: <persetujuan merge, tugas pemilik T-NN, atau "tidak ada">
+Butuh Anda: <tugas pemilik T-NN, izin biaya LLM, atau "tidak ada">
 Berikutnya: Sesi MM · <judul>. Ketik /sesi untuk lanjut (sebaiknya di percakapan baru).
 ```

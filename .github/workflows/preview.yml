@@ -1,0 +1,142 @@
+# Preview per PR: build OpenNext → `wrangler preview --name pr-<nomor>` → komentar URL di PR.
+# Saat PR ditutup, Preview-nya dihapus. Keputusan: ADR-017 (CI/CD), ADR-026 (deploy Cloudflare).
+# Preview memakai binding dari blok `previews` di apps/web/wrangler.jsonc (resource khusus preview),
+# kecuali WORKER_SELF_REFERENCE yang selalu memanggil deployment produksi (keterbatasan Workers).
+# Cache R2 preview tidak diisi saat build: halaman ISR dirender on-demand. Cukup untuk smoke test.
+name: Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: preview
+    # Hanya PR dari repo ini. PR fork tidak mendapat secret; PR Dependabot tidak diberi token
+    # Cloudflare (secret Dependabot terpisah), jadi dilewati. Kita tidak memakai pull_request_target.
+    if: >-
+      github.event.action != 'closed'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Hanya memeriksa ada/tidaknya secret; nilainya tidak masuk ke langkah ini.
+      - name: Cek secret Cloudflare
+        env:
+          ADA_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+          ADA_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        run: |
+          if [ "$ADA_TOKEN" != "true" ] || [ "$ADA_ACCOUNT" != "true" ]; then
+            echo "::error title=Secret Cloudflare kosong::CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID belum diisi. Lihat T-06 di implementasi/TUGAS-PEMILIK.md."
+            exit 1
+          fi
+
+      - uses: ./.github/actions/siapkan
+        with:
+          heroui-auth-token: ${{ secrets.HEROUI_AUTH_TOKEN }}
+
+      - name: Build OpenNext
+        run: pnpm --filter @surau/web exec opennextjs-cloudflare build
+
+      # Token Cloudflare hanya diberikan ke langkah ini. JSON ke stdout, log wrangler ke stderr.
+      - name: Buat Preview
+        id: preview
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          WRANGLER_SEND_METRICS: "false"
+        run: |
+          pnpm exec wrangler preview --name "pr-${PR_NUMBER}" --message "PR #${PR_NUMBER}" --json > "$RUNNER_TEMP/preview.out"
+          # Di CI wrangler menulis teks lain (banner/telemetri) ke stdout sebelum JSON: ambil mulai baris "{".
+          sed -n '/^{/,$p' "$RUNNER_TEMP/preview.out" > "$RUNNER_TEMP/preview.json"
+          if ! url=$(jq -er '.preview.urls[0]' "$RUNNER_TEMP/preview.json"); then
+            echo "::error title=Keluaran wrangler preview tidak terbaca::Lihat keluaran di bawah."
+            cat "$RUNNER_TEMP/preview.out"
+            exit 1
+          fi
+          deployment_url=$(jq -er '.deployment.urls[0]' "$RUNNER_TEMP/preview.json")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test preview
+        env:
+          URL: ${{ steps.preview.outputs.url }}
+        run: |
+          for p in /explore /library /new; do
+            code=$(curl -s --fail -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 5 --retry-all-errors "$URL$p" || true)
+            echo "$p → $code"
+            [ "$code" = "200" ] || { echo "::error title=Smoke gagal::$p mengembalikan $code"; exit 1; }
+          done
+
+      # Satu komentar per PR yang diperbarui setiap push (bukan komentar baru tiap kali).
+      - name: Komentar URL di PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.preview.outputs.url }}
+          DEPLOYMENT_URL: ${{ steps.preview.outputs.deployment_url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          cat > "$RUNNER_TEMP/komentar.md" <<EOF
+          **Preview Surau siap** untuk commit \`${SHA:0:7}\`
+
+          - Preview PR (selalu versi terbaru): ${URL}
+          - Deployment ini saja: ${DEPLOYMENT_URL}
+
+          Storage memakai resource khusus preview (cache R2 \`surau-next-cache-preview\`), bukan data produksi.
+          EOF
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/komentar.md" --edit-last --create-if-none
+
+  hapus:
+    name: hapus preview
+    if: >-
+      github.event.action == 'closed'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Hanya Node + pnpm (tanpa install workspace); versi wrangler dibaca dari catalog.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            .node-version
+            package.json
+            pnpm-workspace.yaml
+          sparse-checkout-cone-mode: false
+
+      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+        with:
+          node-version-file: .node-version
+          cache: false
+          run-install: false
+
+      # Preview bisa saja tidak pernah dibuat (build gagal, secret belum ada): jangan buat PR merah.
+      - name: Hapus Preview pr-<nomor>
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          versi=$(sed -nE 's/^  wrangler: ([0-9.]+)$/\1/p' pnpm-workspace.yaml)
+          if ! pnpm dlx "wrangler@${versi}" preview delete --name "pr-${PR_NUMBER}" --worker-name surau-web --skip-confirmation; then
+            echo "::warning title=Preview tidak terhapus::pr-${PR_NUMBER} tidak ditemukan atau gagal dihapus. Cek di dashboard Cloudflare bila perlu."
+          fi

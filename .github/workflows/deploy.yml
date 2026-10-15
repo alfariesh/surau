@@ -1,0 +1,65 @@
+# Deploy produksi: setiap push ke main → build OpenNext → deploy Worker `surau-web`.
+# Keputusan: ADR-017 (CI/CD), ADR-026 (deploy Cloudflare). Migrasi D1 `surau-app` ditambahkan di Fase 1.
+# `main` hanya berubah lewat PR yang lolos `verify` (ADR-025), jadi workflow ini tidak mengulang verify.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Deploy produksi tidak pernah dibatalkan di tengah jalan; yang berikutnya menunggu.
+concurrency:
+  group: deploy-produksi
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy
+    # workflow_dispatch hanya boleh dari main: branch lain belum lolos `verify`.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: produksi
+      url: https://surau-web.alfarieshsalman.workers.dev
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Hanya memeriksa ada/tidaknya secret; nilainya tidak masuk ke langkah ini.
+      - name: Cek secret Cloudflare
+        env:
+          ADA_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+          ADA_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        run: |
+          if [ "$ADA_TOKEN" != "true" ] || [ "$ADA_ACCOUNT" != "true" ]; then
+            echo "::error title=Secret Cloudflare kosong::CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID belum diisi. Lihat T-06 di implementasi/TUGAS-PEMILIK.md."
+            exit 1
+          fi
+
+      - uses: ./.github/actions/siapkan
+        with:
+          heroui-auth-token: ${{ secrets.HEROUI_AUTH_TOKEN }}
+
+      - name: Build OpenNext
+        run: pnpm --filter @surau/web exec opennextjs-cloudflare build
+
+      # Token Cloudflare hanya diberikan ke langkah ini. `deploy` juga mengisi cache R2 produksi.
+      - name: Deploy ke Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm --filter @surau/web exec opennextjs-cloudflare deploy
+
+      - name: Smoke test produksi
+        run: |
+          for p in /explore /library /new; do
+            code=$(curl -s --fail -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 5 --retry-all-errors "https://surau-web.alfarieshsalman.workers.dev$p" || true)
+            echo "$p → $code"
+            [ "$code" = "200" ] || { echo "::error title=Smoke gagal::$p mengembalikan $code"; exit 1; }
+          done

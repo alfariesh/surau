@@ -15,6 +15,15 @@ Format entri:
 
 ---
 
+## 2026-10-15 · S03 · Deploy ke Cloudflare — selesai (PR #4)
+
+- Dikerjakan: OpenNext 1.20.11 + wrangler di `apps/web`, `wrangler.jsonc` (R2 cache, `previews` terpisah, observability tanpa query string), bucket R2 produksi + preview, deploy produksi pertama dari lokal, `deploy.yml` + `preview.yml` + action `siapkan`; PR #4.
+- Verifikasi: `pnpm verify` → lolos · preview workerd lokal → 4 halaman 200, tanpa error · `wrangler deploy --dry-run` → 15.993 KiB / gzip 3.021 KiB · produksi https://surau-web.alfarieshsalman.workers.dev → 200 · `wrangler tail` 3 halaman → 0 error · `wrangler preview --name uji-s03 --json` → bucket preview, 3 halaman 200, lalu dihapus.
+- Biaya API: –
+- Keputusan: ADR-026
+- Lanjutan setelah T-06: preview PR #4 gagal sekali (stdout wrangler di CI tidak murni JSON), diperbaiki → run [38700735787](https://github.com/alfariesh/surau/actions/runs/38700735787) hijau, komentar URL muncul.
+- Catatan untuk sesi berikutnya: agent tidak bisa mengisi secret GitHub (ditolak pengaman mode otomatis). Smoke Playwright di `preview.yml` ditambahkan di S04. S06 menyamakan lokasi state lokal `preview` (ADR-026).
+
 ## 2026-10-15 · S02 (lanjutan) · Repo dibuat publik — selesai
 
 - Dikerjakan: atas permintaan pemilik, `alfariesh/surau` diubah menjadi publik (risiko lisensi HeroUI Pro dijelaskan dan diterima); persetujuan workflow untuk semua kontributor luar; proteksi `main` (wajib `verify`, berlaku untuk admin, tanpa force-push).
