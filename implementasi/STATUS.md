@@ -13,7 +13,7 @@
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dijawab di S04:** P-3/T-08 → palet **Zaitun** + Noto Naskh Arabic (ADR-027)
 - **Dipakai usulan bila tidak dijawab:** P-4 anggaran $20/bln · P-7 retensi data
-- **Gerbang X01 (Next 16.4):** belum terpenuhi (peer OpenNext 1.20.11 `>=16.3.8`, tapi rilis belum menyebut 16.4 diuji) · terakhir dicek 2026-10-15
+- **Gerbang X01 (Next 16.4): SIAP** (dicek 2026-10-15 saat `/rilis 0`): OpenNext **1.20.12** (15 Okt 07:51 UTC) menyatakan "Add support for Next.js 16.4", peer `>=16.4.1`. Paket boleh dipasang (umur 24 jam) mulai **16 Okt 14:51 WIB** (OpenNext) dan 16 Okt 00:43 WIB (Next 16.4.1). Syarat kedua gerbang (smoke workerd) diuji di X01
 
 ## Sudah bisa dicoba
 
@@ -59,4 +59,4 @@
 | 4 | S20 | Pengaman biaya | belum | garis besar · butuh T-14, P-4, P-7 (T-20 opsional) |
 | 4 | S21 | UI Tanya & transparansi | belum | garis besar · lalu `/rilis 4` |
 | 5–7 | – | Ruang al-Ghazali, Wiki, Kurikulum | belum | dirinci saat Fase 4 hampir selesai |
-| sisipan | X01 | Upgrade Next 16.4 + React 19.3 | menunggu gerbang | setelah OpenNext mendukung 16.4 (cek mingguan) |
+| sisipan | X01 | Upgrade Next 16.4 + React 19.3 | **siap** | OpenNext 1.20.12 mendukung 16.4; mulai 16 Okt 14:51 WIB (umur paket) |
