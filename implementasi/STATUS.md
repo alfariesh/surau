@@ -1,19 +1,19 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-15 · oleh agent, **S05 selesai** (paket teks Arab `@surau/text`)
+> Diperbarui: 2026-10-15 · oleh agent, **S06 selesai** (skema data & D1, `@surau/db`)
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** S05 selesai. Buka percakapan baru dan ketik **`/sesi`** untuk S06. Mulai 16 Okt 14:51 WIB, sesi sisipan X01 (Next 16.4) sebaiknya dikerjakan lebih dulu (`/sesi X01`).
+- **Mulai di sini (pemilik):** S06 selesai. Mulai **16 Okt 14:53 WIB**, kerjakan dulu sesi sisipan X01 (Next 16.4): buka percakapan baru dan ketik **`/sesi X01`**. Sebelum jam itu, atau setelah X01 selesai, ketik **`/sesi`** untuk S07 (drive Shamela harus terpasang, T-09).
 - **Fase:** 1 · Pembaca Ihya (berjalan; Fase 0 dirilis 2026-10-15, `rilis-f0`)
-- **Sesi berikutnya:** **S06 · Skema data & D1** → [sesi/S06-skema-data-d1.md](sesi/S06-skema-data-d1.md) (atau X01 dulu mulai 16 Okt 14:51 WIB)
-- **Tindak lanjut kecil:** `react`/`react-dom` → 19.2.9 (boleh mulai 15 Okt 23:54 WIB), atau langsung lewat X01. `vite-plus` 1.2.0 sudah dipasang (butir S01 tuntas).
+- **Sesi berikutnya:** **S07 · Importer Ihya** → [sesi/S07-importer-ihya.md](sesi/S07-importer-ihya.md) (butuh T-09), atau X01 dulu mulai 16 Okt 14:53 WIB
+- **Tindak lanjut kecil:** `react`/`react-dom` → 19.3.1 lewat X01. Cakupan tes `packages/db` belum terukur (coverage v8 tidak jalan di workerd, ADR-029).
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dijawab di S04:** P-3/T-08 → palet **Zaitun** + Noto Naskh Arabic (ADR-027)
 - **Dipakai usulan bila tidak dijawab:** P-4 anggaran $20/bln · P-7 retensi data
-- **Gerbang X01 (Next 16.4): SIAP** (dicek 2026-10-15 saat `/rilis 0`): OpenNext **1.20.12** (15 Okt 07:51 UTC) menyatakan "Add support for Next.js 16.4", peer `>=16.4.1`. Paket boleh dipasang (umur 24 jam) mulai **16 Okt 14:51 WIB** (OpenNext) dan 16 Okt 00:43 WIB (Next 16.4.1). Syarat kedua gerbang (smoke workerd) diuji di X01
+- **Gerbang X01 (Next 16.4): SIAP** (dicek 2026-10-15 saat `/rilis 0`): OpenNext **1.20.12** (15 Okt 07:51 UTC) menyatakan "Add support for Next.js 16.4", peer `>=16.4.1`. Paket boleh dipasang (umur 24 jam) mulai **16 Okt 14:53 WIB** (OpenNext 1.20.12 terbit 07:53:11 UTC), 16 Okt 00:43 WIB (Next 16.4.1), dan 15 Okt 23:49 WIB (React 19.3.1). Dicoba 15 Okt 18:52 WIB: belum bisa. Syarat kedua gerbang (smoke workerd) diuji di X01
 
 ## Sudah bisa dicoba
 
@@ -21,12 +21,13 @@
 - `pnpm dev` → http://localhost:3004: situs Surau lokal. `pnpm --filter @surau/web preview` → http://localhost:3005 (versi Workers lokal).
 - `pnpm test:e2e`: smoke + cek aksesibilitas (Playwright, chromium desktop & ponsel); juga berjalan otomatis di setiap preview PR.
 - `pnpm verify` → format, lint, cek tipe, tes (dengan cakupan), dan build sekaligus.
+- `pnpm run db:migrate:local` → DB D1 lokal (korpus + app) dengan skema v1 di `.wrangler/state`. `pnpm exec vp test --project db` → 44 tes DB di runtime Workers lokal. DB Cloudflare: `surau-corpus-staging`, `surau-app`, `surau-app-staging` (apac, sudah bertabel, masih kosong).
 - `pnpm bench:text` → kecepatan normalisasi teks Arab (±0,5 dtk per 5 juta karakter). `/api/version` di situs → versi aturan normalisasi (`normVersion`).
 - https://github.com/alfariesh/surau (publik): setiap PR otomatis dicek CI (±1 menit) dan mendapat link preview (`pr-<nomor>-surau-web…workers.dev`) di komentar; Dependabot mengusulkan pembaruan tiap Senin.
 
 ## Perhatian (risiko aktif)
 
-- **Gerbang versi Next:** Surau memakai Next 16.3.8 + mitigasi (ADR-003). OpenNext 1.20.12 sudah mendukung 16.4; upgrade lewat sesi sisipan X01 mulai 16 Okt 14:51 WIB.
+- **Gerbang versi Next:** Surau memakai Next 16.3.8 + mitigasi (ADR-003). OpenNext 1.20.12 sudah mendukung 16.4; upgrade lewat sesi sisipan X01 mulai 16 Okt 14:53 WIB.
 - **Lisensi HeroUI Pro** melarang publikasi komponen dan template Pro, tetapi repo sudah publik atas keputusan pemilik (ADR-025). Disarankan tetap kirim email izin ke HeroUI (lampiran TUGAS-PEMILIK); bila ditegur, beralih ke HeroUI OSS.
 - **`main` terlindungi:** hanya bisa diubah lewat PR yang lolos CI `verify`, tanpa force-push (ADR-025). PR dari fork butuh persetujuan pemilik sebelum CI berjalan; jangan setujui PR fork yang mengubah `.github/`.
 - **Lisensi teks:** Shamela tidak memberi hak pakai ulang, jadi dipakai rantai lisensi OpenITI (ADR-018).
@@ -43,7 +44,7 @@
 | 0 | S03 | Deploy ke Cloudflare | selesai | 2026-10-15 · PR #4 · di `main` · workers.dev, preview per PR (ADR-026) |
 | 0 | S04 | Identitas & fondasi UI | selesai | 2026-10-15 · PR #7 · palet Zaitun (ADR-027) · lalu `/rilis 0` |
 | 1 | S05 | Paket teks Arab | selesai | 2026-10-15 · `@surau/text`, NORM_VERSION 1 (ADR-028) |
-| 1 | S06 | Skema data & D1 | belum | |
+| 1 | S06 | Skema data & D1 | selesai | 2026-10-15 · `@surau/db`, 3 DB D1 apac, ID & permalink (ADR-029) |
 | 1 | S07 | Importer Ihya | belum | butuh T-09 |
 | 1 | S08 | Core tools baca | belum | |
 | 1 | S09 | UI pembaca | belum | |
@@ -60,4 +61,4 @@
 | 4 | S20 | Pengaman biaya | belum | garis besar · butuh T-14, P-4, P-7 (T-20 opsional) |
 | 4 | S21 | UI Tanya & transparansi | belum | garis besar · lalu `/rilis 4` |
 | 5–7 | – | Ruang al-Ghazali, Wiki, Kurikulum | belum | dirinci saat Fase 4 hampir selesai |
-| sisipan | X01 | Upgrade Next 16.4 + React 19.3 | **siap** | OpenNext 1.20.12 mendukung 16.4; mulai 16 Okt 14:51 WIB (umur paket) |
+| sisipan | X01 | Upgrade Next 16.4 + React 19.3 | **siap** | OpenNext 1.20.12 mendukung 16.4; mulai 16 Okt 14:53 WIB (umur paket; dicoba 15 Okt 18:52, belum bisa) |

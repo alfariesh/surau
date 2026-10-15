@@ -304,3 +304,48 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Ditolak:** NFKC seluruh string (merusak peta offset); membuang semua tag tanpa sisa (kata bisa menempel, teks non-tag hilang); stem agresif (riset: merusak kata dasar); `transpilePackages` (Turbopack 16 mentranspilasi paket workspace otomatis).
 **Tinjau ulang bila:** kitab kedua memakai tag di luar daftar putih (lihat `unknownTags` di laporan S07), pencarian tahun dalam kurung dibutuhkan, atau eval retrieval (S15) menunjukkan aturan stem perlu diubah (= NORM_VERSION 2, reindex penuh).
+
+## ADR-029 · Skema data v1: formula ID, permalink publik, aturan stabilitas, dan tes D1 di workerd — diterima · 2026-10-15
+
+**Konteks:** S06 membuat `packages/db` (ADR-009). Sebelum data masuk (S07), ID dan URL publik harus diputuskan, karena keduanya tidak boleh berubah setelah rilis ([docs/02](../docs/02-arsitektur.md#yang-harus-benar-sejak-v1) butir 1) dan DB app (feedback, nanti review ustadz) merujuk korpus lewat ID. Ihya Shamela 9472 (hanya-baca, 15 Okt 2026): 1.706 halaman, juz 1–4, `part` dan `page` selalu angka, tanpa pasangan (juz, halaman) ganda; 311 judul.
+
+**Keputusan:**
+1. **Formula ID (usulan ARSITEKTUR dipakai):** `page.id = edition_id·10⁵ + seq`, `toc_node.id = edition_id·10⁵ + seq`, `passage.id = edition_id·10⁷ + seq`. `seq` mulai 1 dalam urutan sumber. Batas: 99.999 halaman/node dan 9.999.999 paragraf per edisi, `edition_id` 1..899.999 (ID terbesar tetap < 2⁵³). Formula dijaga `CHECK` di DB dan fungsi `pageId`/`tocNodeId`/`passageId`. Filter FTS per edisi memakai rentang rowid `passageIdRange` (ADR-005). Alternatif "hash isi" ditolak (tidak berurutan, tidak bisa difilter per rentang); UUID ditolak (boros, tanpa rentang).
+2. **Urutan tampil tidak pernah diambil dari ID.** Halaman diurutkan dengan (`juz`, `page_no`), daftar isi dengan `ord`, dan paragraf dengan (`kind`, `ord`) per halaman. Dengan begitu ID bisa dibekukan tanpa merusak urutan.
+3. **Aturan stabilitas.** Sebelum rilis publik Fase 1, ID boleh dibangun ulang bebas. **Sejak rilis**, ID dibekukan:
+   - Build ulang dengan sumber + patch yang sama wajib menghasilkan ID yang sama.
+   - Unit baru (paragraf atau node hasil patch) mendapat `seq` setelah yang terbesar. Nomor tidak pernah dipakai ulang.
+   - Unit yang hilang atau digabung dialihkan lewat tabel redirect korpus (`id_redirect`: `old_id` → `new_id`). Tabel ini dibuat dengan migrasi baru saat pertama kali dibutuhkan, sebelum perubahannya dirilis.
+   - Pemeriksaan "ID lama masih ada atau dialihkan" terhadap manifes rilis sebelumnya dikerjakan di S10 (`corpus:promote`).
+   - Slug karya dan edisi juga dibekukan.
+4. **Permalink publik:**
+   - Halaman: `/kitab/<work.slug>/<juz>/<page_no>`, misalnya `/kitab/ihya/1/200`, memakai edisi default (`edition.is_default`, tepat satu per karya, dijaga unique index parsial).
+   - Edisi lain: `/kitab/<work.slug>@<edition.slug>/<juz>/<page_no>`.
+   - Bagian daftar isi: `/kitab/<work.slug>/bab/<toc_node.id>`.
+   - Jangkar: paragraf badan `#p<ord>` dan catatan kaki `#f<ord>` (`ord` per halaman per jenis, mulai 1).
+   - Kitab satu jilid memakai juz 1.
+   - Pasangan (edisi, juz, halaman) wajib unik (`page_citation`). Sumber yang punya nomor ganda atau kosong diperbaiki lewat patch di S07, tidak dibiarkan ambigu.
+5. **Skema v1:** semua tabel biasa `STRICT`, dengan `CHECK` untuk enum dan formula.
+   - `meta.schema_version` diisi migrasi (sekarang `1`, konstanta `CORPUS_SCHEMA_VERSION`). `norm_version`, `corpus_version`, `built_at`, dan `source_hash` diisi ingest (S07).
+   - `footnote_ref` hanya menyimpan penanda yang punya catatan kaki. Offset-nya berupa indeks string JS di `text_raw`.
+   - `work.attribution_status` ∈ `authentic`/`disputed`/`spurious` (docs/05 §3).
+   - DB app: `settings` (`jawab_enabled` = `0`) dan `feedback` tanpa PII (`path` tanpa query string, pesan 1–2.000 karakter; dijaga Zod dan `CHECK`).
+   - Bentuk normal dan peta offset tetap **tidak disimpan** (ADR-009).
+6. **Repository** menerima tipe struktural `D1Db` (`prepare`/`bind`/`all`/`first`/`batch`), bukan tipe global `D1Database`, supaya `@surau/db` bisa di-typecheck dari Node (`tools/ingest`) tanpa tipe ambien Workers. Tes `d1-compat` memastikan binding asli memenuhi tipe itu. Query `IN (…)` dipecah ≤100 parameter dan dikirim dalam `batch`.
+7. **DB remote** (dibuat 2026-10-15 dengan `--location apac`; ID di `packages/db/wrangler.jsonc`):
+   - `surau-corpus-staging`
+   - `surau-app` (produksi)
+   - `surau-app-staging` (`env.staging`)
+   - Korpus produksi blue-green dibuat di S10.
+   - Migrasi remote diterapkan atas izin pemilik.
+   - Uji di `surau-corpus-staging` membuktikan FTS5 `contentless_delete=1` dan tabel `STRICT` didukung D1 remote. Ini menutup butir "belum diuji di remote" dari riset FTS.
+8. **Tes D1:** `@cloudflare/vitest-plugin` 1.4.2 di project Vitest `db` (`packages/db/vitest.config.ts`). Tes Node berada di project `node`.
+   - Binding dideklarasikan lewat opsi `miniflare`, bukan `wrangler.jsonc`, supaya tes tidak pernah menyentuh remote.
+   - Migrasi diterapkan di setup dengan `applyD1Migrations`.
+   - Dua penyesuaian wajib:
+     - `fsModuleCache: false` untuk project `db`: cache modul Vitest 5 tidak terbaca dari runner workerd.
+     - Coverage v8 hanya untuk project `node`: plugin menolak perintah `__vitest_stopV8Coverage`. Akibatnya `pnpm test` = `vp test --coverage --project node && vp test --project db && smoke`.
+
+**Ditolak:** ORM (ADR-009); tipe `D1Database` dari `@cloudflare/workers-types` di `src` (paket itu hanya ambien, tanpa ekspor modul, dan dipakai di tes saja); binding tes dari `wrangler.jsonc` (risiko `remoteBindings`); coverage `istanbul` untuk semua project (mengubah alat ukur ambang S05 di tengah fase).
+**Utang teknis:** cakupan `packages/db/src` belum diukur angkanya. Semua fungsinya dipanggil tes, tetapi tanpa angka. Tinjau saat plugin mendukung coverage v8 atau saat pindah ke istanbul.
+**Tinjau ulang bila:** satu edisi melewati 99.999 halaman atau 10⁷ paragraf, kitab berjilid memakai penomoran non-angka, atau plugin Cloudflare mendukung `fsModuleCache`/coverage v8.
