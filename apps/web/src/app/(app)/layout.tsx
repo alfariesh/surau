@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import { ChatShell } from "../../components/chat-shell";
+import { SurauShell } from "../../components/shell/surau-shell";
 
-export default function AppLayoutGroup({ children }: { children: ReactNode }) {
-  return <ChatShell>{children}</ChatShell>;
+export default function AppGroupLayout({ children }: { children: ReactNode }) {
+  return <SurauShell>{children}</SurauShell>;
 }

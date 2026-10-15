@@ -3,6 +3,77 @@
 
 @source "../**/*.{ts,tsx}";
 
+/* Font dari next/font (layout.tsx): --font-jakarta (UI) dan --font-naskh (Arab). */
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Palet Surau "Zaitun" (T-08, dipilih pemilik 2026-10-15; ADR-027): kertas hangat, aksen hijau
+ * zaitun, huruf Arab Noto Naskh Arabic. Menimpa variabel dasar tema HeroUI; variabel turunan
+ * (hover, soft, focus) dihitung HeroUI dari nilai ini. Sengaja di luar @layer supaya menang atas
+ * tema bawaan HeroUI (@layer base). `next-themes` memasang `.light`/`.dark` di <html>.
+ */
+:root {
+  --font-arabic: var(--font-naskh), "Noto Naskh Arabic", serif;
+  --arabic-leading: 2;
+
+  --background: oklch(0.975 0.008 90);
+  --foreground: oklch(0.23 0.015 85);
+  --surface: oklch(0.995 0.004 90);
+  --surface-secondary: oklch(0.96 0.01 90);
+  --surface-tertiary: oklch(0.945 0.012 90);
+  --overlay: oklch(0.995 0.004 90);
+  --default: oklch(0.935 0.012 90);
+  --default-foreground: var(--foreground);
+  --muted: oklch(0.47 0.02 85);
+  --border: oklch(0.89 0.012 90);
+  --separator: oklch(0.91 0.01 90);
+  --field-background: var(--surface);
+  --accent: oklch(0.47 0.085 150);
+  --accent-foreground: oklch(0.99 0.005 90);
+  --link: var(--accent);
+}
+
+:root.dark {
+  --background: oklch(0.17 0.008 85);
+  --foreground: oklch(0.95 0.008 90);
+  --surface: oklch(0.215 0.01 85);
+  --surface-secondary: oklch(0.245 0.01 85);
+  --surface-tertiary: oklch(0.265 0.01 85);
+  --overlay: oklch(0.23 0.01 85);
+  --default: oklch(0.28 0.01 85);
+  --muted: oklch(0.74 0.015 90);
+  --border: oklch(0.3 0.01 85);
+  --separator: oklch(0.27 0.01 85);
+  --field-background: var(--surface);
+  --accent: oklch(0.79 0.1 150);
+  --accent-foreground: oklch(0.2 0.03 150);
+}
+
 body {
   background-color: var(--background);
+}
+
+/* Tipografi Arab (.claude/rules/teks-arab.md, Tampilan). Dipakai hanya oleh ArabicText/ArabicInline.
+ * line-height sengaja di luar @layer: utilitas ukuran Tailwind (`text-3xl`) ikut menyetel
+ * line-height dan akan menimpanya, padahal harakat butuh ruang. Ukuran huruf tetap boleh diubah. */
+.arabic-text {
+  line-height: var(--arabic-leading, 2);
+}
+
+@layer components {
+  .arabic-text {
+    font-family: var(--font-arabic);
+    font-size: 1.25em;
+    text-align: start;
+    letter-spacing: normal;
+    word-spacing: normal;
+  }
+
+  .arabic-inline {
+    font-family: var(--font-arabic);
+    font-size: 1.15em;
+    letter-spacing: normal;
+  }
 }

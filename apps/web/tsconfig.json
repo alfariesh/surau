@@ -11,6 +11,8 @@
   },
   "include": [
     "src",
+    "e2e",
+    "playwright.config.ts",
     "next.config.ts",
     "open-next.config.ts",
     "next-env.d.ts",

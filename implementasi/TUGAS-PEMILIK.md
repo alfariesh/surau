@@ -69,7 +69,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 - [ ] **T-07 · Pilih dan siapkan domain (P-2, wajib dijawab)** (dibutuhkan S03; sebelum itu situs bisa jalan di alamat `*.workers.dev`)
   Daftarkan domain di Cloudflare Registrar, atau pindahkan DNS domain yang sudah ada ke Cloudflare. Beri tahu agent nama domainnya.
 
-- [ ] **T-08 · Arah desain (P-3)** (dibutuhkan S04)
+- [x] **T-08 · Arah desain (P-3)** (dibutuhkan S04) · **selesai 2026-10-15:** pemilik memilih Opsi A · Zaitun (hijau zaitun, kertas hangat, Noto Naskh Arabic); lihat ADR-027
   Anda product designer, jadi bagian ini milik Anda. Tentukan:
   - font Arab (usulan: Noto Naskh Arabic, dengan Amiri sebagai opsi);
   - warna aksen;

@@ -13,6 +13,11 @@ const generated = [
 ];
 
 export default defineConfig({
+  // tsconfig apps/web memakai `jsx: "preserve"` (wajib untuk Next). Tes komponen (.tsx) dijalankan
+  // Vitest, jadi JSX ditransformasi di sini dengan runtime otomatis React.
+  oxc: {
+    jsx: { runtime: "automatic" },
+  },
   lint: {
     plugins: ["typescript", "unicorn", "oxc", "react", "nextjs", "jsx-a11y", "import", "vitest"],
     ignorePatterns: [...generated, "docs/**", "implementasi/**"],
@@ -39,7 +44,6 @@ export default defineConfig({
   test: {
     include: ["apps/**/*.test.{ts,tsx}", "packages/**/*.test.ts", "tools/**/*.test.ts"],
     exclude: ["**/node_modules/**", "**/.next/**", "**/.open-next/**"],
-    // Belum ada tes sampai S05 (packages/text).
     passWithNoTests: true,
   },
   staged: {

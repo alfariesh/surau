@@ -23,7 +23,7 @@ Semua fakta versi di bawah dicek ke docs/registry resmi pada 15 Okt 2026 (riset 
 |---|---|---|---|
 | P-1 | Kode di GitHub **terbuka untuk umum atau privat**? Lisensi HeroUI Pro (Terms §9) melarang mempublikasikan komponen dan template Pro, sedangkan `web/` adalah turunan template chat Pro. | **Privat.** Minta izin tertulis ke support@heroui.pro. Repo ini menyimpan template Pro di riwayat git, jadi repo ini **tidak boleh sekadar diubah menjadi publik**. Bila kelak ingin publik tanpa izin HeroUI, buat repo publik baru dari kode yang sudah ditulis ulang, tanpa riwayat lama. Lihat ADR-004. | S02 |
 | P-2 | Nama domain Surau | Pemilik memilih; daftar lewat Cloudflare Registrar | S03 |
-| P-3 | Font Arab utama | Noto Naskh Arabic (variable, ringan) untuk teks, dengan Amiri sebagai opsi "klasik". Keputusan desain ada di tangan pemilik. | S04 |
+| P-3 | Font Arab utama | **Dijawab 2026-10-15:** Noto Naskh Arabic, palet Zaitun (Opsi A, ADR-027). | S04 |
 | P-4 | Plafon biaya AI per bulan, dan jatah tanya gratis per pengunjung per hari | $20/bulan untuk Tanya online, 10 pertanyaan/hari per pengunjung. Batch dan eval memakai workspace terpisah (`surau-dev`, ±$40/bulan). | S13, Fase 4 |
 | P-5 | Siapa ustadz pertama untuk eval dan review | Dicari pemilik (T-13) | Rilis Fase 4 (dianjurkan sudah ada sejak Fase 2) |
 | P-6 | Sumber teks publik dan lisensi konten | ADR-018 + ADR-021: teks dan catatan kaki dari Shamela lokal, dengan dasar lisensi rilis OpenITI yang terbukti identik (CC BY-NC-SA 4.0); konten turunan CC BY-NC-SA; email pemberitahuan ke Shamela | Rilis Fase 1 |
@@ -271,3 +271,20 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Ditolak:** `cloudflare/wrangler-action` (lapisan tambahan; `pnpm exec wrangler` memakai versi catalog), Workers Builds (ADR-017), `npx wrangler` di job hapus (melewati `minimumReleaseAge`; diganti `pnpm dlx` dengan versi dari catalog).
 **Tinjau ulang bila:** OpenNext menyatakan dukungan Next 16.4 (X01), ISR berbasis waktu atau `revalidateTag` mulai dipakai (perlu queue + tag cache), domain sendiri siap, atau D1 masuk (S06).
+
+## ADR-027 · Identitas visual dan fondasi UI web: palet Zaitun, Plus Jakarta Sans + Noto Naskh Arabic, next-themes, Playwright + axe — diterima · 2026-10-15
+
+**Konteks:** S04 mengubah template chat HeroUI Pro menjadi Surau. T-08 (arah desain, P-3) belum diisi pemilik, jadi agent membuat dua opsi di halaman sementara `/_desain` (A · Zaitun: kertas hangat, aksen hijau zaitun, Noto Naskh Arabic; B · Lazuardi: kertas sejuk, aksen biru lazuardi, Amiri). Pemilik menjawab: "Lupakan Paper, pakai Opsi A Zaitun saja." (2026-10-15).
+
+**Keputusan:**
+1. **Palet Zaitun** ditulis sebagai override variabel dasar tema HeroUI di `:root` dan `:root.dark` (`apps/web/src/app/globals.css`), sengaja di luar `@layer` supaya menang atas `@layer base` HeroUI. Variabel turunan (hover, soft, focus) tetap dihitung HeroUI. Aksen terang `oklch(0.47 0.085 150)`, gelap `oklch(0.79 0.1 150)`. Kontras diperiksa axe (WCAG 2.1 AA) di terang dan gelap.
+2. **Font** lewat `next/font/google`, di-host sendiri: UI **Plus Jakarta Sans** (Tokotype, Indonesia; OFL) dan Arab **Noto Naskh Arabic** (variable, subset `arabic`, `preload: false` karena teks Arab belum ada di setiap halaman). Variabel CSS `--font-arabic` dan `--arabic-leading` (2). Amiri tidak dipakai: harakatnya tinggi dan butuh line-height ±2,4.
+3. **Tipografi Arab** hanya lewat `ArabicText` (blok, `lang="ar" dir="rtl"`) dan `ArabicInline` (`<bdi>`). `line-height` blok Arab ditulis di luar `@layer` supaya tidak ditimpa utilitas ukuran Tailwind (`text-3xl` ikut menyetel line-height).
+4. **Tema** memakai `next-themes` 0.4.6 (`attribute="class"`, `defaultTheme="system"`); tombol tema berpindah terang/gelap. `I18nProvider locale="id-ID"` dan `RouterProvider` (router Next) dipasang di `Providers`; root layout tidak membaca `headers()`.
+5. **Tes UI:** `@playwright/test` 1.64.0 (chromium desktop + profil ponsel Pixel 7) untuk smoke, ditambah `@axe-core/playwright` 4.13.0 (MPL-2.0, devDependency saja; kompatibel dengan Apache-2.0) untuk cek a11y di setiap halaman, terang dan gelap. `preview.yml` menjalankannya terhadap URL preview PR (runtime Workers). Smoke `curl` di `deploy.yml`/`preview.yml` kini `/` dan `/tentang`.
+6. **Dependensi template dibuang:** semua `@tiptap/*`, `embla-carousel*`, `marked`, `react-markdown`, `remark-*`, `streamdown`, `shiki`, `recharts`, `@number-flow/react`, `@internationalized/number`, `@react-stately/utils` (peer opsional HeroUI Pro, atau dependensi langsungnya). Bundle Worker: 15.993 → 5.815 KiB (gzip 3.021 → 1.221 KiB).
+7. **Vitest** mentransformasi JSX dengan `oxc.jsx.runtime: "automatic"` di `vite.config.ts`, karena tsconfig web wajib `jsx: "preserve"` untuk Next.
+8. Demo basmalah (`apps/web/src/content/basmalah.ts`) diambil skrip, lalu dicocokkan persis dengan unduhan resmi Tanzil Uthmani v1.1 (sha256 dicatat di file). Atribusi bertaut ke tanzil.net sesuai syarat Tanzil. S12 menggantinya dengan data ayat dari DB.
+
+**Ditolak:** Opsi B Lazuardi + Amiri (pilihan pemilik). Mengimpor Design System HeroUI Pro (pemilik tidak membuatnya). Paper MCP untuk referensi warna (koneksi gagal; pemilik memilih Opsi A). `ToggleButtonGroup` tiga keadaan (terang/gelap/sistem) untuk tema: ditunda, tombol dua keadaan cukup untuk Fase 0.
+**Tinjau ulang bila:** pemilik membuat Design System di HeroUI Pro, teks Arab panjang (Fase 1 pembaca) menunjukkan Naskh kurang nyaman, atau domain sendiri siap (`SITE_URL` di `layout.tsx` dan `deploy.yml`).

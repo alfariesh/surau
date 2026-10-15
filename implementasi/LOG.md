@@ -15,6 +15,14 @@ Format entri:
 
 ---
 
+## 2026-10-15 · S04 · Identitas & fondasi UI — selesai (PR #7)
+
+- Dikerjakan: template chat dihapus (rute, data mock, 42 dependensi); `SurauShell`, Beranda, Tentang, 404 berbahasa Indonesia (`i18n/id.ts`); `ArabicText`/`ArabicInline` + tes; palet Zaitun (pilihan pemilik dari dua opsi di `/_desain`), Plus Jakarta Sans + Noto Naskh Arabic, mode gelap; demo basmalah Tanzil v1.1 bertaut; Playwright smoke + axe, dijalankan di preview PR.
+- Verifikasi: `pnpm verify` → lolos (4 tes unit) · `pnpm test:e2e` → 22 lolos (next dev, workerd lokal, dan preview PR #7 run 38706564892) · Lighthouse a11y 100 (Beranda/Tentang, ponsel/desktop) · axe 0 pelanggaran (3 halaman × terang/gelap) · `wrangler deploy --dry-run` → 5.815 KiB / gzip 1.221 KiB (S03: 15.993 / 3.021) · peninjau: 0 blocker, 6 perbaikan diterapkan.
+- Biaya API: –
+- Keputusan: ADR-027
+- Catatan untuk sesi berikutnya: pemilik bisa `/rilis 0`. Tindak lanjut kecil vite-plus 1.2.0 / React 19.2.9 masih terbuka. Utang kecil (tema "ikuti sistem", cache browser Playwright di CI, `SITE_URL` saat domain siap) ada di Catatan hasil S04.
+
 ## 2026-10-15 · Pemeliharaan · Tinjau PR Dependabot #3 — selesai
 
 - Dikerjakan: PR #3 (49 pembaruan) dibuat dari `main` lama (sebelum OpenNext), jadi lockfile-nya tidak dipakai. Dari isinya, 45 pembaruan aman diterapkan ulang ke catalog di branch baru: Tailwind 4.3.3, react-aria 3.53.1 / react-aria-components 1.22.1 / react-stately 3.51.0, tiptap 3.31.4, motion, recharts, shiki, streamdown, dll. **Ditolak:** `react`/`react-dom`/`@types/react*` 19.3.0 (React 19.3 berpasangan dengan Next 16.4, lewat X01; ADR-003). `dependabot.yml` sekarang mengabaikan minor React sampai X01.

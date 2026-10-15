@@ -30,3 +30,7 @@ evals/private/
 
 # Vite+ hook dispatcher (dibuat ulang oleh `vp config`)
 .vite-hooks/_/
+
+# Playwright
+apps/web/test-results/
+apps/web/playwright-report/
