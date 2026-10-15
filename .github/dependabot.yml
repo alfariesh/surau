@@ -27,6 +27,15 @@ updates:
       # Patch 16.3.x (backport keamanan) tetap diusulkan.
       - dependency-name: next
         update-types: ["version-update:semver-minor"]
+      # React 19.3 berpasangan dengan Next 16.4, jadi ikut X01. Patch 19.2.x tetap diusulkan.
+      - dependency-name: react
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: react-dom
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-minor"]
     commit-message:
       prefix: chore(deps)
 
