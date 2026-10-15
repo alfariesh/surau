@@ -15,6 +15,14 @@ Format entri:
 
 ---
 
+## 2026-10-15 · S03 · Deploy ke Cloudflare — terblokir (T-06)
+
+- Dikerjakan: OpenNext 1.20.11 + wrangler di `apps/web`, `wrangler.jsonc` (R2 cache, `previews` terpisah, observability tanpa query string), bucket R2 produksi + preview, deploy produksi pertama dari lokal, `deploy.yml` + `preview.yml` + action `siapkan`; PR #4.
+- Verifikasi: `pnpm verify` → lolos · preview workerd lokal → 4 halaman 200, tanpa error · `wrangler deploy --dry-run` → 15.993 KiB / gzip 3.021 KiB · produksi https://surau-web.alfarieshsalman.workers.dev → 200 · `wrangler tail` 3 halaman → 0 error · `wrangler preview --name uji-s03 --json` → bucket preview, 3 halaman 200, lalu dihapus.
+- Biaya API: –
+- Keputusan: ADR-026
+- Catatan untuk sesi berikutnya: setelah T-06, `gh run rerun --failed` untuk job preview PR #4, cek komentar URL, merge, cek run `deploy.yml` + Workers Logs, lalu centang 2 butir sisa. Agent tidak bisa mengisi secret GitHub (ditolak pengaman mode otomatis).
+
 ## 2026-10-15 · S02 (lanjutan) · Repo dibuat publik — selesai
 
 - Dikerjakan: atas permintaan pemilik, `alfariesh/surau` diubah menjadi publik (risiko lisensi HeroUI Pro dijelaskan dan diterima); persetujuan workflow untuk semua kontributor luar; proteksi `main` (wajib `verify`, berlaku untuk admin, tanpa force-push).
