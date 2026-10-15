@@ -60,7 +60,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   2. Di dash.cloudflare.com → **R2 Object Storage**, aktifkan R2 (sekali saja, dengan menyetujui ketentuannya).
   3. Disarankan: **Manage Account → Billing → Billable Usage → Create budget alert**. Isi ambang $10 dan email Anda. Satu alert ini sudah mencakup Workers, D1, dan R2.
 
-- [ ] **T-06 · Token Cloudflare untuk GitHub Actions** (dibutuhkan S03; **sedang ditunggu**: PR #4 siap, hanya menunggu dua secret ini)
+- [x] **T-06 · Token Cloudflare untuk GitHub Actions** (dibutuhkan S03) · selesai 2026-10-15 (dicek agent: `gh secret list` → kedua secret ada; preview PR #4 sukses)
   1. Buka dash.cloudflare.com → **My Profile → API Tokens → Create Token → Create Custom Token**.
   2. Beri izin: *Account › Workers Scripts › Edit*, *Account › D1 › Edit*, *Account › Workers R2 Storage › Edit*, *Account › Account Settings › Read*, dan *Zone › Workers Routes › Edit*. Di bagian **Zone Resources**, pilih *All zones from an account*, supaya domain yang ditambahkan nanti otomatis tercakup.
   3. Di Terminal, jalankan `gh secret set CLOUDFLARE_API_TOKEN` lalu tempel tokennya.
