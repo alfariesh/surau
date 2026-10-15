@@ -40,14 +40,14 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 0: Fondasi
 
-- [ ] **T-03 · Putuskan repo GitHub publik atau privat (P-1)** (dibutuhkan S02; bila tidak dijawab, dipakai **privat**)
+- [x] **T-03 · Putuskan repo GitHub publik atau privat (P-1)** (dibutuhkan S02; bila tidak dijawab, dipakai **privat**) · selesai 2026-10-15: **privat** (`alfariesh/surau`; repo lama menjadi `surau-lama`). Langkah 2 (email ke HeroUI) masih opsional.
   Lisensi HeroUI Pro melarang mempublikasikan komponen dan template Pro. Usulannya:
   1. Mulai **privat**.
   2. Kirim email ke `support@heroui.pro` memakai draf di [lampiran](#lampiran-draf-email-ke-heroui).
 
   **Penting:** repo ini akan menyimpan template HeroUI Pro di riwayat git, jadi repo ini **tidak boleh sekadar diubah menjadi publik**. Bila nanti ingin publik tanpa izin HeroUI, kita membuat repo publik baru dari kode yang sudah ditulis ulang, tanpa riwayat lama. Selama privat, CI memakai kuota menit GitHub Actions akun Anda. Untuk akun gratis kuotanya sekitar 2.000 menit/bulan, dan itu cukup untuk proyek ini; angka pastinya bisa dicek di GitHub → Settings → Billing.
 
-- [ ] **T-04 · Simpan token CI HeroUI di GitHub** (dibutuhkan S02, setelah repo dibuat)
+- [x] **T-04 · Simpan token CI HeroUI di GitHub** (dibutuhkan S02, setelah repo dibuat) · selesai 2026-10-15 (diverifikasi `gh secret list` + `--app dependabot`)
   Di Terminal (folder Surau), jalankan dua perintah berikut satu per satu. Tempel **CI/CD token** dari T-01 setiap kali diminta:
   ```
   gh secret set HEROUI_AUTH_TOKEN

@@ -1,0 +1,42 @@
+# Pembaruan otomatis dependensi (ADR-017, ADR-024).
+# Versi npm dipin di catalog pnpm-workspace.yaml. Dukungan Dependabot untuk pnpm 12 + catalog
+# belum resmi; bila PR-nya rusak, naikkan versi secara manual lewat catalog (lihat ADR-024).
+# PR Dependabot butuh secret HEROUI_AUTH_TOKEN di Dependabot secrets (T-04).
+version: 2
+updates:
+  - package-ecosystem: npm # pnpm memakai nilai "npm"
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Jakarta
+    # Lebih lama dari minimumReleaseAge pnpm (24 jam), supaya PR tidak pasti gagal di install.
+    cooldown:
+      default-days: 3
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Mayor dikerjakan lewat sesi (contoh: Next lewat X01, ADR-003).
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      # HeroUI Pro dipin persis ke beta; ada versi salah terbit 1.0.0-beta.19 (ADR-004).
+      - dependency-name: "@heroui-pro/react"
+      # Next 16.4 lewat sesi sisipan X01 setelah OpenNext mendukung (ADR-003).
+      # Patch 16.3.x (backport keamanan) tetap diusulkan.
+      - dependency-name: next
+        update-types: ["version-update:semver-minor"]
+    commit-message:
+      prefix: chore(deps)
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      timezone: Asia/Jakarta
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore(ci)

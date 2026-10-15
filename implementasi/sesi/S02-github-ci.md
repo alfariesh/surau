@@ -1,6 +1,6 @@
 # S02 · GitHub & CI
 
-> **Fase:** 0 · **Status:** belum
+> **Fase:** 0 · **Status:** selesai (menunggu merge PR #1)
 > **Prasyarat:** S01 selesai dan sudah digabung ke `main` lokal · Tugas pemilik: **T-03** (publik/privat; bila tidak dijawab dipakai privat). **T-04** dikerjakan di langkah 3, setelah repo dibuat.
 > **Perkiraan:** 1 percakapan agent (pendek)
 
@@ -34,13 +34,13 @@ Kode tersimpan di GitHub. Setiap PR otomatis diperiksa CI (`pnpm verify`), dan `
 
 ## Selesai bila
 
-- [ ] Repo ada di GitHub dengan visibilitas sesuai P-1, dan `git remote -v` menunjuk ke sana
-- [ ] `gh secret list` dan `gh secret list --app dependabot` memuat `HEROUI_AUTH_TOKEN`
-- [ ] Workflow CI hijau di sebuah PR (tautan run dicatat di LOG)
-- [ ] Run kedua memakai cache `node_modules` (lebih cepat, terlihat di log)
-- [ ] Dependabot dan template PR ada
-- [ ] Proteksi `main` aktif, atau keterbatasannya dicatat
-- [ ] STATUS, LOG, dan file sesi ini diperbarui
+- [x] Repo ada di GitHub dengan visibilitas sesuai P-1, dan `git remote -v` menunjuk ke sana · *`gh repo view` → `alfariesh/surau` PRIVATE, default `main`; `git remote -v` → `origin https://github.com/alfariesh/surau.git`*
+- [x] `gh secret list` dan `gh secret list --app dependabot` memuat `HEROUI_AUTH_TOKEN` · *keduanya ada (06:34 UTC)*
+- [x] Workflow CI hijau di sebuah PR (tautan run dicatat di LOG) · *PR #1: run 38693275094, 38693870081, 38694117242 → success*
+- [x] Run kedua memakai cache `node_modules` (lebih cepat, terlihat di log) · *run 38694117242: "Cache hit for: nm-Linux-X64-d0f851…", install 2,5 dtk (sebelumnya ±15 dtk) tanpa postinstall Pro; langkah simpan di-skip. Run kedua (38693870081) miss karena kunci cache diubah oleh perbaikan peninjau, jadi yang membuktikan adalah run ketiga dengan kunci yang sama*
+- [x] Dependabot dan template PR ada · *`.github/dependabot.yml`, `.github/pull_request_template.md` (dipakai saat PR #1 dibuat)*
+- [x] Proteksi `main` aktif, atau keterbatasannya dicatat · *`gh api …/branches/main/protection` dan `…/rulesets` → HTTP 403 "Upgrade to GitHub Pro or make this repository public"; dicatat di ADR-024 butir 7*
+- [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan
 
@@ -48,4 +48,29 @@ Kode tersimpan di GitHub. Setiap PR otomatis diperiksa CI (`pnpm verify`), dan `
 
 ## Catatan hasil
 
-*(diisi agent)*
+**2026-10-15 · selesai (merge PR #1 menunggu izin pemilik)**
+
+*Yang dibuat*
+- Repo privat `alfariesh/surau` (P-1 privat, dijawab pemilik di chat). Nama itu sudah dipakai repo lama (Feb 2026, proyek berbeda); atas izin pemilik repo lama di-rename menjadi `alfariesh/surau-lama`, isinya utuh.
+- `.github/workflows/ci.yml`: satu job `verify` (guard token → `setup-vp` v1.21.2 tanpa cache/install → restore `node_modules` → `pnpm install --frozen-lockfile` → save bila miss → `pnpm verify`). Action dipin SHA (dicocokkan dengan tag). Hanya PR dari repo ini; tanpa `pull_request_target`; `permissions: contents: read`; `persist-credentials: false`.
+- `.github/dependabot.yml` (npm mingguan + github-actions bulanan), `.github/pull_request_template.md`, `LICENSE` Apache-2.0 (teks dari API lisensi GitHub). README: judul "Lisensi" tidak lagi "(rencana)" untuk kode.
+- ADR-024.
+
+*Bukti tambahan*
+- Langkah 1: `pnpm dev` + MCP `next-devtools` → `nextjs_index` menemukan server port 3004 dengan 9 tool; `nextjs_call get_errors` → "No browser sessions connected" (wajar tanpa browser); `get_compilation_issues` → `{"issues":[]}`.
+- Postinstall Pro di CI: "Installed HeroUI React Pro ✓" dengan `HEROUI_AUTH_TOKEN`, walau build `@zowe/secrets-for-zowe-sdk` ditolak. Poin 3 ADR-023 terbukti aman di CI.
+- `setup-vp` mencetak "✓ Dependencies installed." untuk pemasangan `vp` sendiri ("Local vite-plus: Not found" saat itu); dependensi proyek hanya di-install sekali di langkah `pnpm install`.
+- Durasi job: ±60 dtk (miss) → ±50 dtk (hit).
+
+*Penyimpangan dari rencana (ADR-024)*
+- Token di level **langkah** (guard + install), bukan level job: postinstall tetap melihatnya, `pnpm verify` tidak.
+- Cache memakai `actions/cache/restore` + `save` terpisah (simpan sebelum verify), atas temuan peninjau.
+- Proteksi branch tidak tersedia (akun Free + privat). Langkah 9 dan bagian "pasang proteksi setelah PR hijau" di langkah 10 tidak bisa dikerjakan.
+
+*Belum/ditunda*
+- **Langkah 0** (vite-plus 1.2.0, React 19.2.9) belum bisa: saat sesi berjalan (±13:15–14:00 WIB) keduanya belum berumur 24 jam (boleh mulai 16:21 dan 23:54 WIB). Butir S01 tetap belum dicentang; dikerjakan di awal S03 (commit `chore(deps)` terpisah).
+- Kuota menit Actions repo privat (langkah 8): satu run ±1 menit tagihan; kuota akun Free ±2.000 menit/bulan (cek di GitHub › Settings › Billing and licensing). Pemakaian S02: 3 run.
+
+*Untuk sesi berikutnya*
+- Dependabot pertama akan berjalan Senin. Bila PR npm-nya merusak lockfile/catalog (pnpm 12 belum resmi didukung), tutup dan naikkan manual (ADR-024 butir 6).
+- S03 menambah `preview.yml`/`deploy.yml`: ikuti pola yang sama (SHA pin, token hanya di langkah yang butuh, restore/save `node_modules` dengan kunci yang sama supaya cache dipakai bersama).
