@@ -13,13 +13,13 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Mulai di sini (sebelum Sesi 1)
 
-- [ ] **T-00 · Buka repo di Claude Code pertama kali**
+- [x] **T-00 · Buka repo di Claude Code pertama kali**
   1. Buka folder Surau di Claude Code. Saat muncul dialog *trust folder*, pilih percaya. Ini mengaktifkan izin, hook, dan skill proyek.
   2. Setujui server MCP proyek `cloudflare-docs` bila ditanya. Setelah Sesi 1, setujui juga `next-devtools`.
   3. Opsional: supaya agent tidak terlalu sering meminta izin, pilih mode izin *auto* di pengaturan Claude Code Anda. Mode ini tidak bisa diatur dari repo. Tindakan berisiko (push, deploy, menulis ke database online) tetap akan meminta izin.
   4. Plugin `vercel` sudah dimatikan untuk repo ini (Surau memakai Cloudflare). Bila muncul skill atau plugin `supabase`, Anda boleh mematikannya untuk repo ini lewat menu plugin, dengan memilih *Disable for me*.
 
-- [ ] **T-01 · Login HeroUI Pro dan sambungkan docs HeroUI ke Claude** (prasyarat S01)
+- [x] **T-01 · Login HeroUI Pro dan sambungkan docs HeroUI ke Claude** (prasyarat S01)
   1. Di Terminal (folder Surau): `pnpm dlx heroui-pro@latest login`. Browser akan terbuka; login dengan GitHub.
   2. Buka https://heroui.pro/dashboard, masuk ke bagian **Tokens**, lalu buat **Personal token** dan **CI/CD token**. Simpan keduanya di password manager.
   3. Sambungkan MCP HeroUI ke Claude Code (token disimpan di pengaturan Claude milik Anda, bukan di repo). Tempel perintah ini, tekan Enter, tempel **Personal token** saat diminta (tidak akan terlihat), lalu Enter lagi:
@@ -33,6 +33,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   1. Di Terminal, jalankan sekali: `echo 'export PATH="$HOME/.vite-plus/bin:$PATH"' >> ~/.zshrc`
   2. Tutup **semua** jendela Terminal dan aplikasi Claude (Cmd+Q), lalu buka lagi.
   3. Di Terminal baru, `node -v` harus menampilkan `v24…`. Tool lain yang memakai Node 22 tetap punya salinannya sendiri.
+  - *Catatan 2026-10-15:* langkah 1 sudah berlaku di Terminal baru (Node 24). Yang tersisa: tutup aplikasi Claude dengan **Cmd+Q** (bukan hanya menutup jendela), lalu buka lagi.
 
 - [ ] **T-13 · Mulai cari ustadz pendamping (P-5)** (mulai sekarang; wajib sebelum S18, dianjurkan sejak Fase 2)
   Cari 2–5 ustadz/pengkaji yang bersedia mereview soal eval, kebijakan penolakan, dan sampel jawaban, serta membantu menilai teks Arab (T-15 s.d. T-17). Kumpulkan email mereka, karena halaman `/tinjau` dibuka dengan PIN yang dikirim ke email. Sepakati juga rubrik penilaian: Benar/Kurang/Salah + alasan, dan skor bahasa 1–5.

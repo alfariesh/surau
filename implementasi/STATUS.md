@@ -1,14 +1,14 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-15 · oleh agent di akhir S00 (review dokumen + setup proyek)
+> Diperbarui: 2026-10-15 · oleh agent, S01 terblokir (menunggu aplikasi Claude dibuka ulang, T-02)
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik, sekali saja):** kerjakan **T-00, T-01, T-02** di [TUGAS-PEMILIK.md](TUGAS-PEMILIK.md) lewat aplikasi Terminal, tutup lalu buka lagi aplikasi Claude, lalu ketik **`/sesi`** di percakapan baru.
+- **Mulai di sini (pemilik):** tutup aplikasi Claude sepenuhnya (**Cmd+Q**), buka lagi, lalu ketik **`/sesi`** di percakapan baru. T-00 dan T-01 sudah selesai; T-02 sudah benar di Terminal, tetapi aplikasi Claude masih membawa Node 22 dari sebelum T-02.
 - **Fase:** 0 · Fondasi (belum dimulai)
 - **Sesi berikutnya:** **S01 · Monorepo & toolchain** → [sesi/S01-monorepo-toolchain.md](sesi/S01-monorepo-toolchain.md)
-- **Menunggu pemilik (memblokir S01):** T-00 buka repo · T-01 login HeroUI Pro + MCP HeroUI · T-02 Node 24
+- **MENUNGGU PEMILIK (memblokir S01):** T-02 langkah 2: buka ulang aplikasi Claude (Cmd+Q) supaya `node -v` di shell agent = v24
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Dipakai usulan bila tidak dijawab:** P-1 repo privat · P-3 font Noto Naskh · P-4 anggaran $20/bln · P-7 retensi data
 - **Gerbang X01 (Next 16.4):** belum terpenuhi · terakhir dicek 2026-10-15
@@ -30,7 +30,7 @@
 | Fase | Sesi | Judul | Status | Catatan |
 |---|---|---|---|---|
 | – | S00 | Review dokumen & setup agent | selesai | 2026-10-15 |
-| 0 | S01 | Monorepo & toolchain | belum | butuh T-00, T-01, T-02 |
+| 0 | S01 | Monorepo & toolchain | terblokir | T-00, T-01 selesai · menunggu T-02 (buka ulang app) |
 | 0 | S02 | GitHub & CI | belum | butuh T-03 (P-1), T-04 |
 | 0 | S03 | Deploy ke Cloudflare | belum | butuh T-05, T-06 (T-07 opsional) |
 | 0 | S04 | Identitas & fondasi UI | belum | butuh T-08 · lalu `/rilis 0` |

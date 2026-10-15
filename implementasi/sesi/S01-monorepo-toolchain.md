@@ -1,6 +1,6 @@
 # S01 · Monorepo & toolchain
 
-> **Fase:** 0 · **Status:** belum
+> **Fase:** 0 · **Status:** terblokir (T-02)
 > **Prasyarat:** S00 ter-commit di `main` · Tugas pemilik (wajib sebelum mulai): **T-00**, **T-01**, **T-02**
 > **Perkiraan:** 1 percakapan agent (ini juga *spike*: memverifikasi pilihan toolchain ADR-008)
 
@@ -95,3 +95,8 @@ Repo menjadi monorepo pnpm yang rapi: `web/` pindah ke `apps/web`, Vite+ menjadi
 ## Catatan hasil
 
 *(diisi agent)*
+
+**2026-10-15 · percobaan 1 · terblokir di langkah 1 (cek lingkungan)**
+- T-00 selesai (hook dan skill proyek aktif). T-01 selesai: `heroui-pro status` → login sebagai @alfariesh; MCP `heroui-pro` menjawab `list_components` (138 komponen).
+- T-02 belum berlaku di aplikasi Claude: `node -v` di shell agent = v22.23.2 karena `~/.local/bin/node` (symlink ke Node milik Hermes) ada di depan `~/.vite-plus/bin` pada PATH yang diwarisi aplikasi. Shell login baru (`zsh -lic`) sudah menaruh `~/.vite-plus/bin` paling depan dan `node -v` = v24.22.0, jadi cukup buka ulang aplikasi Claude (Cmd+Q). Tidak diakali dengan mengubah PATH per perintah.
+- `pnpm -v` = 12.11.2; `vp` global = 1.1.0 (vite-plus lokal 1.2.0 dipasang di langkah 4).
