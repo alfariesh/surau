@@ -1,0 +1,114 @@
+# Preview per PR: build OpenNext → `wrangler preview --name pr-<nomor>` → komentar URL di PR.
+# Saat PR ditutup, Preview-nya dihapus. Keputusan: ADR-017 (CI/CD), ADR-026 (deploy Cloudflare).
+# Preview memakai binding dari blok `previews` di apps/web/wrangler.jsonc (resource khusus preview),
+# kecuali WORKER_SELF_REFERENCE yang selalu memanggil deployment produksi (keterbatasan Workers).
+# Cache R2 preview tidak diisi saat build: halaman ISR dirender on-demand. Cukup untuk smoke test.
+name: Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: preview
+    # Hanya PR dari repo ini. PR fork tidak mendapat secret; PR Dependabot tidak diberi token
+    # Cloudflare (secret Dependabot terpisah), jadi dilewati. Kita tidak memakai pull_request_target.
+    if: >-
+      github.event.action != 'closed'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Cek secret Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error title=Secret Cloudflare kosong::CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID belum diisi. Lihat T-06 di implementasi/TUGAS-PEMILIK.md."
+            exit 1
+          fi
+
+      - uses: ./.github/actions/siapkan
+        with:
+          heroui-auth-token: ${{ secrets.HEROUI_AUTH_TOKEN }}
+
+      - name: Build OpenNext
+        run: pnpm --filter @surau/web exec opennextjs-cloudflare build
+
+      # Token Cloudflare hanya diberikan ke langkah ini. JSON ke stdout, log wrangler ke stderr.
+      - name: Buat Preview
+        id: preview
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          pnpm exec wrangler preview --name "pr-${PR_NUMBER}" --message "PR #${PR_NUMBER}" --json > "$RUNNER_TEMP/preview.json"
+          url=$(jq -er '.preview.urls[0]' "$RUNNER_TEMP/preview.json")
+          deployment_url=$(jq -er '.deployment.urls[0]' "$RUNNER_TEMP/preview.json")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test preview
+        env:
+          URL: ${{ steps.preview.outputs.url }}
+        run: |
+          for p in /explore /library /new; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --retry 3 --retry-all-errors "$URL$p")
+            echo "$p → $code"
+            [ "$code" = "200" ] || { echo "::error title=Smoke gagal::$p mengembalikan $code"; exit 1; }
+          done
+
+      # Satu komentar per PR yang diperbarui setiap push (bukan komentar baru tiap kali).
+      - name: Komentar URL di PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.preview.outputs.url }}
+          DEPLOYMENT_URL: ${{ steps.preview.outputs.deployment_url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          cat > "$RUNNER_TEMP/komentar.md" <<EOF
+          **Preview Surau siap** untuk commit \`${SHA:0:7}\`
+
+          - Preview PR (selalu versi terbaru): ${URL}
+          - Deployment ini saja: ${DEPLOYMENT_URL}
+
+          Memakai resource khusus preview (cache R2 \`surau-next-cache-preview\`), bukan data produksi.
+          EOF
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/komentar.md" --edit-last --create-if-none
+
+  hapus:
+    name: hapus preview
+    if: >-
+      github.event.action == 'closed'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Tanpa checkout dan install: cukup wrangler dengan versi yang sama dengan catalog.
+      - name: Hapus Preview pr-<nomor>
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: npx --yes wrangler@4.151.0 preview delete --name "pr-${PR_NUMBER}" --worker-name surau-web
