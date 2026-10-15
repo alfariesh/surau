@@ -10,7 +10,7 @@
 - **Sesi berikutnya:** **S03 · Deploy ke Cloudflare** → [sesi/S03-deploy-cloudflare.md](sesi/S03-deploy-cloudflare.md)
 - **Tindak lanjut kecil (awal S03; belum bisa di S02 karena belum 24 jam):** naikkan catalog `vite-plus` → 1.2.0 (boleh mulai 15 Okt 16:21 WIB) dan `react`/`react-dom` → 19.2.9 (mulai 15 Okt 23:54 WIB), lalu `pnpm verify` dan centang butir S01 yang tertunda (ADR-023)
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
-- **Sudah dijawab:** P-1 → repo **publik** (2026-10-15, `alfariesh/surau`, risiko lisensi HeroUI Pro diterima pemilik, ADR-025)
+- **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dipakai usulan bila tidak dijawab:** P-3 font Noto Naskh · P-4 anggaran $20/bln · P-7 retensi data
 - **Gerbang X01 (Next 16.4):** belum terpenuhi (OpenNext 1.20.11 belum menyebut dukungan 16.4) · terakhir dicek 2026-10-15
 
