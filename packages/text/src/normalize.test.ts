@@ -78,6 +78,14 @@ describe("normalizeArabic", () => {
     expect(normalizeArabic("١٤٠٢ ۱۴۰۲").text).toBe("1402 1402");
     expect(normalizeArabic("Ihya ULUM").text).toBe("ihya ulum");
     expect(normalizeArabic("e\u0301te").text).toBe("ete");
+    // toLowerCase menambah U+0307 pada İ; tanda itu dibuang supaya idempoten.
+    expect(normalizeArabic("\u0130BN").text).toBe("ibn");
+  });
+
+  test("code point astral tidak terbelah: huruf jadi huruf, tanda gabung dibuang, emoji pemisah", () => {
+    const n = normalizeArabic("ب\u{1EE01}ت \u{1D167}ك😀ل");
+    expect(n.text).toBe("ب\u{1EE01}ت ك ل");
+    expect([...n.map]).toEqual([0, 1, 1, 3, 4, 7, 8, 10]);
   });
 
   test("karakter lebar-nol dan kontrol arah dibuang tanpa memutus kata", () => {
@@ -109,6 +117,12 @@ describe("toRawSpan", () => {
     const n = normalizeArabic(raw);
     const [rs, re] = toRawSpan(raw, n, 0, "الصبر".length);
     expect(raw.slice(rs, re)).toBe("الصَّبْرُ\uFE7Fـ");
+  });
+
+  test("tidak menyertakan kontrol arah/BOM sesudah kata (isolate bidi tidak bocor)", () => {
+    const raw = "علم\u2067عمل\u2069";
+    const n = normalizeArabic(raw);
+    expect(raw.slice(...toRawSpan(raw, n, 0, 3))).toBe("علم");
   });
 
   test("menolak span tidak valid", () => {

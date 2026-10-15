@@ -93,17 +93,32 @@ const EXPAND: Readonly<Record<string, string>> = {
   "\uFDFF": "عز وجل",
 };
 
-// Penanda catatan kaki: "(١)", "( ١٢ )", "(12)". Maksimal 4 digit supaya "(١٤٠٢)" tahun tetap ikut
-// terbuang hanya bila memang berbentuk penanda; angka di luar kurung tidak tersentuh.
-const FOOTNOTE_REF = /\(\s*[\u0660-\u0669\u06F0-\u06F90-9]{1,4}\s*\)/y;
+/**
+ * Pola penanda catatan kaki: "(١)", "( ١٢ )", "(12)": 1–4 digit Arab-India, Persia, atau ASCII di
+ * dalam kurung; grup 1 = digitnya. Dipakai bersama oleh normalisasi dan `shamela.ts` supaya tidak
+ * menyimpang. Keputusan sadar (ADR-028): angka 1–4 digit dalam kurung yang BUKAN penanda, misalnya
+ * tahun "(١٤٠٢)", ikut dibuang dari bentuk normal (tidak bisa dicari); angka di luar kurung tidak.
+ */
+export const FOOTNOTE_MARKER_SOURCE = String.raw`\(\s*([\u0660-\u0669\u06F0-\u06F90-9]{1,4})\s*\)`;
+const FOOTNOTE_REF = new RegExp(FOOTNOTE_MARKER_SOURCE, "y");
 // Tag HTML (sisa markup Shamela): "<span ...>", "</span>", "<hr>". "<" lain diperlakukan biasa.
 const HTML_TAG = /<\/?[A-Za-z][^>]*>/y;
+
+function isTrailingMark(raw: string, at: number): boolean {
+  const ch = String.fromCodePoint(raw.codePointAt(at) as number);
+  if (TRAILING_MARK.test(ch)) return true;
+  return isPresentationForm(ch.charCodeAt(0)) && presentationExpansion(ch) === "";
+}
 
 /** Blok *presentation forms* Arab (umumnya teks hasil salin dari PDF). */
 const isPresentationForm = (code: number): boolean =>
   (code >= 0xfb50 && code <= 0xfdff) || (code >= 0xfe70 && code <= 0xfeff);
 
-/** `true` bila karakter (satu unit UTF-16) dibuang tanpa jejak oleh normalisasi. */
+// Tanda yang boleh ikut di ujung span kutipan: tanda gabung, tatweel, waw/ya kecil. BUKAN kontrol
+// arah atau BOM, supaya isolate bidi milik segmen berikutnya tidak bocor ke teks yang disalin.
+const TRAILING_MARK = /[\p{Mn}\p{Me}\u0640\u06E5\u06E6]/u;
+
+/** `true` bila karakter (satu code point) dibuang tanpa jejak oleh normalisasi. */
 export function isDroppedChar(ch: string): boolean {
   if (DROP.test(ch)) return true;
   const code = ch.charCodeAt(0);
@@ -171,21 +186,21 @@ export function normalizeArabic(raw: string, opts: NormalizeOptions = {}): Norma
       map.push(spaceAt);
     }
     pendingSpace = false;
-    const lower = c.toLowerCase();
-    for (let k = 0; k < lower.length; k++) {
-      text += lower[k];
-      map.push(at);
+    // toLowerCase bisa menambah tanda gabung (İ → i + U+0307); buang supaya tetap idempoten.
+    for (const lc of c.toLowerCase()) {
+      if (DROP.test(lc)) continue;
+      text += lc;
+      for (let k = 0; k < lc.length; k++) map.push(at);
     }
   };
 
   let i = 0;
   while (i < raw.length) {
-    const ch = raw[i] as string;
     const code = raw.charCodeAt(i);
 
     // Jalur cepat: huruf Arab dasar ء–ي (mayoritas teks), kecuali tatweel U+0640 yang dibuang.
     if (code >= 0x0621 && code <= 0x064a && code !== 0x0640) {
-      emitChar(foldChar(ch, hamzaSeats), i);
+      emitChar(foldChar(raw[i] as string, hamzaSeats), i);
       i++;
       continue;
     }
@@ -205,8 +220,12 @@ export function normalizeArabic(raw: string, opts: NormalizeOptions = {}): Norma
         continue;
       }
     }
+    // Satu code point utuh (pasangan surrogate = 2 unit), supaya huruf/tanda astral tidak terbelah.
+    const cp = raw.codePointAt(i) as number;
+    const ch = String.fromCodePoint(cp);
+    const width = ch.length;
     if (DROP.test(ch)) {
-      i++;
+      i += width;
       continue;
     }
     if (isPresentationForm(code)) {
@@ -227,7 +246,7 @@ export function normalizeArabic(raw: string, opts: NormalizeOptions = {}): Norma
       continue;
     }
     emitChar(foldChar(ch, hamzaSeats), i);
-    i++;
+    i += width;
   }
   return { text, map: Int32Array.from(map) };
 }
@@ -256,6 +275,7 @@ export function toRawSpan(
   }
   const rStart = n.map[nStart] as number;
   let rEnd = (n.map[nEnd - 1] as number) + 1;
-  while (rEnd < raw.length && isDroppedChar(raw[rEnd] as string)) rEnd++;
+  while (rEnd < raw.length && isTrailingMark(raw, rEnd))
+    rEnd += raw.codePointAt(rEnd)! > 0xffff ? 2 : 1;
   return [rStart, rEnd];
 }

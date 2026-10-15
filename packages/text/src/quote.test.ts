@@ -62,5 +62,7 @@ describe("findQuote", () => {
   test("hasil normalisasi yang sudah ada bisa dipakai ulang", () => {
     const normalized = normalizeArabic(RAW);
     expect(findQuote(RAW, "في الدين", { normalized })?.rawText).toBe("فِي الدِّينِ");
+    // Hasil normalisasi dari teks lain ditolak, bukan dipakai diam-diam.
+    expect(() => findQuote("قال", "قال", { normalized })).toThrow(TypeError);
   });
 });

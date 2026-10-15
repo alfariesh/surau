@@ -83,10 +83,25 @@ describe("cleanShamelaHtml dan extractTitles", () => {
     });
   });
 
-  test("<br>/<hr> menjadi batas paragraf; <img>, <table>, tag lain dibuang", () => {
+  test("tag blok menjadi batas paragraf; <img> dibuang; tag tak dikenal dibiarkan dan dilaporkan", () => {
     const html =
       "اول<hr>ثان<br/>ثالث<img src='data:image/png;base64,AAAA'><table dir=rtl>رابع</table><s1>";
-    expect(cleanShamelaHtml(html).text).toBe("اول\rثان\rثالثرابع");
+    expect(cleanShamelaHtml(html)).toMatchObject({
+      text: "اول\rثان\rثالث\rرابع\r<s1>",
+      unknownTags: ["s1"],
+    });
+    expect(cleanShamelaHtml("<tr><td>ا</td><td>ب</td></tr>").text).toBe("\r ا  ب \r");
+    // Teks yang hanya mirip tag tidak boleh hilang dari text_raw.
+    expect(cleanShamelaHtml("x<y dan y>z")).toEqual({
+      text: "x<y dan y>z",
+      titles: [],
+      unknownTags: ["y"],
+    });
+  });
+
+  test("span self-closing tidak mengacaukan tumpukan judul", () => {
+    const out = cleanShamelaHtml('<span data-type="title" id=toc-4>باب<span id="x"/></span> بعد');
+    expect(out.titles[0]?.text).toBe("باب");
   });
 
   test("entitas HTML diurai; entitas tidak dikenal atau tidak valid dibiarkan", () => {
@@ -117,6 +132,14 @@ describe("penanda dan catatan kaki", () => {
       [3, "(٣) ثالث فيه (٩) ليس جديدا"],
     ]);
     for (const n of notes) expect(foot.slice(n.start, n.end)).toBe(n.text);
+  });
+
+  test("penanda tengah baris yang nomornya ada di awal baris lain bukan catatan baru", () => {
+    const foot = "(١) اول انظر رقم (٢) هنا\r(٢) ثان";
+    expect(splitFootnoteEntries(foot).map((n) => [n.number, n.text])).toEqual([
+      [1, "(١) اول انظر رقم (٢) هنا"],
+      [2, "(٢) ثان"],
+    ]);
   });
 
   test("teks sebelum penanda pertama menjadi catatan tanpa nomor; kosong → []", () => {

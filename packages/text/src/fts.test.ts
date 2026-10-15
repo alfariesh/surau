@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { FTS_MAX_PHRASES, buildFtsMatch, ftsQuote } from "./fts.ts";
+import { FTS_MAX_PHRASES, FTS_MAX_TOKENS, buildFtsMatch, ftsQuote } from "./fts.ts";
 
 describe("buildFtsMatch", () => {
   test("kata tunggal, frasa, kunyah, sufiks (port prototipe)", () => {
@@ -25,6 +25,19 @@ describe("buildFtsMatch", () => {
 
   test("frasa: token pertama dilindungi tidak diberi varian proklitik", () => {
     expect(buildFtsMatch("الله اكبر")).toBe('{sbody sfoot} : ("الله اكبر")');
+  });
+
+  test("kueri lebih dari FTS_MAX_TOKENS token ditolak", () => {
+    expect(
+      buildFtsMatch(Array.from({ length: FTS_MAX_TOKENS }, () => "علم").join(" ")),
+    ).not.toBeNull();
+    expect(() =>
+      buildFtsMatch(Array.from({ length: FTS_MAX_TOKENS + 1 }, () => "علم").join(" ")),
+    ).toThrow(RangeError);
+  });
+
+  test("sufiks: kata dilindungi tidak diberi varian ه→ت", () => {
+    expect(buildFtsMatch("الله", { suffix: true })).toBe('{sbody sfoot} : ("الله"*)');
   });
 
   test("frasa dibatasi FTS_MAX_PHRASES", () => {

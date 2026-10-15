@@ -13,7 +13,10 @@ export interface QuoteMatch {
 }
 
 export interface FindQuoteOptions {
-  /** Hasil `normalizeArabic(raw)` yang sudah ada, supaya halaman yang sama tidak dinormalisasi ulang. */
+  /**
+   * Hasil `normalizeArabic(raw)` yang sudah ada, supaya halaman yang sama tidak dinormalisasi ulang.
+   * Wajib dibuat dari `raw` yang SAMA dengan opsi default (kutipan juga dinormalisasi dengan default).
+   */
   normalized?: Normalized;
 }
 
@@ -31,6 +34,10 @@ export function findQuote(
   opts: FindQuoteOptions = {},
 ): QuoteMatch | null {
   const n = opts.normalized ?? normalizeArabic(raw);
+  const lastAt = n.map.at(-1);
+  if (n.map.length !== n.text.length || (lastAt !== undefined && lastAt >= raw.length)) {
+    throw new TypeError("opts.normalized bukan hasil normalizeArabic dari teks mentah ini");
+  }
   const q = normalizeArabic(quote).text;
   if (q === "") return null;
   const { text, map } = n;

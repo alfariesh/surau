@@ -5,6 +5,8 @@
 // tunggal, kadang tanpa id); catatan kaki setelah satu baris garis bawah (Shamela: tepat 9 `_`),
 // dengan penanda `(١)` berangka Arab-India. Membaca file Shamela sendiri dikerjakan di tools/ingest.
 
+import { FOOTNOTE_MARKER_SOURCE } from "./normalize.ts";
+
 /** Rentang `[start, end)` di sebuah string. */
 export interface Span {
   start: number;
@@ -63,9 +65,45 @@ export interface CleanedHtml {
   text: string;
   /** Posisi judul di `text` (span judul dibuang, isinya tetap). */
   titles: TitleSpan[];
+  /** Nama tag yang tidak dikenal (huruf kecil, unik, terurut); tag ini dibiarkan apa adanya di `text`. */
+  unknownTags: string[];
 }
 
 const TAG = /<(\/?)([A-Za-z][A-Za-z0-9]*)([^>]*)>/g;
+// Tag yang dikenal dan penggantinya. Tag blok menjadi batas paragraf supaya kata di dua sisinya
+// tidak menempel; sel tabel menjadi spasi; span dan gambar (termasuk base64) dibuang tanpa sisa.
+// Tag lain TIDAK dibuang: bisa jadi teks biasa ("x<y dan y>z") yang tidak boleh hilang dari text_raw.
+const BLOCK_TAGS = new Set([
+  "br",
+  "hr",
+  "p",
+  "div",
+  "table",
+  "tr",
+  "li",
+  "ul",
+  "ol",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+]);
+const SPACE_TAGS = new Set(["td", "th"]);
+const SILENT_TAGS = new Set([
+  "span",
+  "img",
+  "b",
+  "i",
+  "u",
+  "font",
+  "sup",
+  "sub",
+  "a",
+  "tbody",
+  "thead",
+]);
 const TITLE_ATTR = /data-type\s*=\s*["']?title["']?|class\s*=\s*["']?title["']?/i;
 const TOC_ID = /\bid\s*=\s*["']?toc-(\d+)/i;
 const ENTITY = /&(?:#(\d{1,7})|#[xX]([0-9A-Fa-f]{1,6})|(amp|lt|gt|quot|apos|nbsp));/g;
@@ -92,8 +130,9 @@ function decodeEntities(s: string): string {
  * Bersihkan HTML Shamela secara deterministik menjadi teks mentah + posisi judul.
  *
  * - Span judul dibuang, isinya tetap; posisinya dicatat di `titles` (judul tetap bagian teks).
- * - `<br>` dan `<hr>` menjadi `\r` (batas paragraf); tag lain (`<span id="aya-N">`, `<img>`, dst.)
- *   dibuang tanpa sisa, termasuk gambar base64.
+ * - Tag blok (`<br>`, `<hr>`, `<p>`, `<div>`, `<table>`, `<tr>`, …) menjadi `\r` (batas paragraf),
+ *   sel tabel menjadi spasi, dan `<span id="aya-N">`/`<img>` (termasuk base64) dibuang tanpa sisa.
+ * - Tag yang tidak dikenal dibiarkan sebagai teks dan dilaporkan di `unknownTags` (laporan validasi).
  * - Entitas `&amp; &lt; &gt; &quot; &apos; &nbsp;` dan entitas angka diurai.
  * Span bersarang ditangani dengan tumpukan; `</span>` yatim diabaikan; judul yang tidak ditutup
  * berakhir di akhir teks.
@@ -103,16 +142,24 @@ export function cleanShamelaHtml(html: string): CleanedHtml {
   const titles: TitleSpan[] = [];
   // Tumpukan span terbuka: indeks judul di `titles`, atau -1 untuk span biasa.
   const stack: number[] = [];
+  const unknown = new Set<string>();
   let last = 0;
   for (const m of html.matchAll(TAG)) {
-    text += decodeEntities(html.slice(last, m.index));
-    last = m.index + m[0].length;
     const closing = m[1] === "/";
     const name = (m[2] as string).toLowerCase();
     const attrs = m[3] ?? "";
-    if (name === "br" || name === "hr") {
+    if (!BLOCK_TAGS.has(name) && !SPACE_TAGS.has(name) && !SILENT_TAGS.has(name)) {
+      unknown.add(name);
+      continue; // biarkan sebagai teks; ikut terurai di potongan berikutnya
+    }
+    text += decodeEntities(html.slice(last, m.index));
+    last = m.index + m[0].length;
+    const selfClosing = attrs.trimEnd().endsWith("/");
+    if (BLOCK_TAGS.has(name)) {
       text += "\r";
-    } else if (name === "span" && !closing) {
+    } else if (SPACE_TAGS.has(name)) {
+      text += " ";
+    } else if (name === "span" && !closing && !selfClosing) {
       if (TITLE_ATTR.test(attrs)) {
         const id = TOC_ID.exec(attrs)?.[1];
         titles.push({
@@ -136,7 +183,7 @@ export function cleanShamelaHtml(html: string): CleanedHtml {
     if (t.end < 0) t.end = text.length;
     t.text = text.slice(t.start, t.end);
   }
-  return { text, titles };
+  return { text, titles, unknownTags: [...unknown].sort() };
 }
 
 /** Judul-judul (span `data-type="title"`) dalam HTML halaman, dengan posisi di teks bersih. */
@@ -172,7 +219,7 @@ export interface FootnoteLinks {
   orphanNotes: number[];
 }
 
-const MARKER = /\(\s*([\u0660-\u0669\u06F0-\u06F90-9]{1,4})\s*\)/g;
+const MARKER = new RegExp(FOOTNOTE_MARKER_SOURCE, "g");
 
 function parseDigits(digits: string): number {
   let n = 0;
@@ -196,17 +243,26 @@ export function findFootnoteMarkers(body: string): FootnoteMarker[] {
 /**
  * Pecah teks catatan kaki menjadi catatan bernomor. Catatan baru dimulai oleh penanda di awal
  * baris, atau oleh penanda bernomor *berikutnya yang diharapkan* di tengah baris (Shamela kadang
- * menulis beberapa catatan dalam satu baris). Baris tanpa penanda menyambung catatan sebelumnya.
+ * menulis beberapa catatan dalam satu baris). Penanda di tengah baris yang nomornya juga muncul di
+ * awal baris lain diabaikan (itu rujukan di dalam teks takhrij, bukan catatan baru). Baris tanpa
+ * penanda menyambung catatan sebelumnya.
  */
 export function splitFootnoteEntries(footnotes: string): Footnote[] {
+  const markers = [...footnotes.matchAll(MARKER)].map((m) => {
+    const lineStart = footnotes.slice(0, m.index).search(/[^\r\n]*$/);
+    return {
+      index: m.index,
+      lineStart,
+      number: parseDigits(m[1] as string),
+      atLineStart: footnotes.slice(lineStart, m.index).trim() === "",
+    };
+  });
+  const lineStartNumbers = new Set(markers.filter((m) => m.atLineStart).map((m) => m.number));
   const starts: { at: number; number: number | null }[] = [];
   let expected = 1;
-  for (const m of footnotes.matchAll(MARKER)) {
-    const number = parseDigits(m[1] as string);
-    const lineStart = footnotes.slice(0, m.index).search(/[^\r\n]*$/);
-    const atLineStart = footnotes.slice(lineStart, m.index).trim() === "";
-    if (atLineStart || number === expected) {
-      starts.push({ at: atLineStart ? lineStart : m.index, number });
+  for (const { index, lineStart, number, atLineStart } of markers) {
+    if (atLineStart || (number === expected && !lineStartNumbers.has(number))) {
+      starts.push({ at: atLineStart ? lineStart : index, number });
       expected = number + 1;
     }
   }

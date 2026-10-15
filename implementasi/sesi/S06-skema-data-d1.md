@@ -18,7 +18,7 @@ Skema korpus dan aplikasi terdefinisi, migrasinya berjalan di D1 lokal dan remot
 ## Langkah
 
 1. Buat `packages/db` (`@surau/db`) **tanpa ORM** (ADR-009). Satu-satunya dependensi runtime adalah `zod` (catalog).
-2. **Skema korpus** (migrasi SQL di `migrations/corpus/` dan skema Zod baris di `src/schema/corpus.ts`): `work`, `author`, `edition`, `page`, `toc_node`, `passage`, `footnote_ref`, `meta`, plus `translation` dan `summary` (kosong sampai S13). Tabel `page` menyimpan `source_page_id` (Shamela `page.id`). Buat indeks yang dibutuhkan query baca: (`edition_id`, `juz`, `page_no`), `toc_node.parent_id`, dan `passage.page_id`.
+2. **Skema korpus** (migrasi SQL di `migrations/corpus/` dan skema Zod baris di `src/schema/corpus.ts`): `work`, `author`, `edition`, `page`, `toc_node`, `passage`, `footnote_ref`, `meta`, plus `translation` dan `summary` (kosong sampai S13). Tabel `page` menyimpan `source_page_id` (Shamela `page.id`). Buat indeks yang dibutuhkan query baca: (`edition_id`, `juz`, `page_no`), `toc_node.parent_id`, dan `passage.page_id`. `meta.norm_version` diisi dari `NORM_VERSION` `@surau/text` (S05); web sudah melaporkan versinya di `GET /api/version`.
 3. **Skema app** (`migrations/app/` + `src/schema/app.ts`): `settings` dan `feedback`. Tabel kuota dan ledger ditunda ke Fase 4. **Tanpa** tabel virtual.
 4. **ADR ID & permalink.** Putuskan dan tulis ADR baru tentang hal-hal di bawah. ADR ini juga mengonfirmasi bahwa bentuk normal dan peta offset tidak disimpan (ADR-009).
    - Formula ID (`page.id = edition_id·10⁵ + seq`; `passage.id = edition_id·10⁷ + seq`), atau alternatif yang lebih baik.

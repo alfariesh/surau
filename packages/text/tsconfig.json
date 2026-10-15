@@ -5,7 +5,8 @@
     // Paket ini dijalankan langsung oleh Node lewat type stripping (tools/ingest), jadi hanya
     // sintaks TS yang bisa dihapus begitu saja yang diizinkan (tanpa enum, namespace, parameter property).
     "erasableSyntaxOnly": true,
-    "types": ["node"]
+    // Tanpa @types/node: paket harus jalan di Worker dan browser juga, jadi API Node tidak boleh lolos typecheck.
+    "types": []
   },
   "include": ["src", "test"]
 }

@@ -2,7 +2,13 @@
 // TypeScript murni tanpa dependensi runtime; dipakai Node (tools/ingest, lewat type stripping),
 // Worker, dan Next.
 
-export { NORM_VERSION, isDroppedChar, normalizeArabic, toRawSpan } from "./normalize.ts";
+export {
+  FOOTNOTE_MARKER_SOURCE,
+  NORM_VERSION,
+  isDroppedChar,
+  normalizeArabic,
+  toRawSpan,
+} from "./normalize.ts";
 export type { NormalizeOptions, Normalized } from "./normalize.ts";
 
 export {
@@ -17,7 +23,7 @@ export {
 export { findQuote } from "./quote.ts";
 export type { FindQuoteOptions, QuoteMatch } from "./quote.ts";
 
-export { FTS_MAX_PHRASES, buildFtsMatch, ftsQuote } from "./fts.ts";
+export { FTS_MAX_PHRASES, FTS_MAX_TOKENS, buildFtsMatch, ftsQuote } from "./fts.ts";
 export type { FtsColumn, FtsMatchOptions } from "./fts.ts";
 
 export {

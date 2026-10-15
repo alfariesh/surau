@@ -20,6 +20,12 @@ const FTS_COLUMNS: readonly FtsColumn[] = ["body", "foot", "sbody", "sfoot"];
 /** Batas jumlah frasa alternatif hasil ekspansi (kueri FTS tetap kecil dan cepat). */
 export const FTS_MAX_PHRASES = 64;
 
+/**
+ * Batas jumlah token kueri. Pertahanan berlapis: batas panjang input tetap divalidasi Zod di batas
+ * sistem, tetapi kueri ribuan token tidak boleh sampai menghasilkan string MATCH raksasa (batas D1).
+ */
+export const FTS_MAX_TOKENS = 32;
+
 export interface FtsMatchOptions {
   /**
    * Cocokkan awalan (`"صبر"*`) untuk menangkap sufiks pronomina/tanwin (صبره, صبرهم, صبرا).
@@ -57,13 +63,17 @@ export function buildFtsMatch(query: string, opts: FtsMatchOptions = {}): string
     .map(stemToken);
   const [first] = stems;
   if (first === undefined) return null;
+  if (stems.length > FTS_MAX_TOKENS) {
+    throw new RangeError(`kueri terlalu panjang: ${stems.length} token (maks ${FTS_MAX_TOKENS})`);
+  }
 
   if (stems.length === 1) {
     const kunya = kunyaVariants(first);
     if (kunya.length > 1) return `${filter} : (${kunya.map(ftsQuote).join(" OR ")})`;
     const variants = expandQueryToken(first);
     if (opts.suffix === true && first.length >= 3) {
-      const extra = first.endsWith("ه") ? [`${first.slice(0, -1)}ت`] : [];
+      const extra =
+        first.endsWith("ه") && !isProtectedToken(first) ? [`${first.slice(0, -1)}ت`] : [];
       return `${filter} : (${[...variants, ...extra].map((v) => `${ftsQuote(v)}*`).join(" OR ")})`;
     }
     return `${filter} : (${variants.map(ftsQuote).join(" OR ")})`;
