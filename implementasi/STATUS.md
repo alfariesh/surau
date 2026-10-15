@@ -10,7 +10,7 @@
 - **Sesi berikutnya:** **S03 · Deploy ke Cloudflare** → [sesi/S03-deploy-cloudflare.md](sesi/S03-deploy-cloudflare.md)
 - **Tindak lanjut kecil (awal S03; belum bisa di S02 karena belum 24 jam):** naikkan catalog `vite-plus` → 1.2.0 (boleh mulai 15 Okt 16:21 WIB) dan `react`/`react-dom` → 19.2.9 (mulai 15 Okt 23:54 WIB), lalu `pnpm verify` dan centang butir S01 yang tertunda (ADR-023)
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
-- **Sudah dijawab:** P-1 repo privat (2026-10-15, `alfariesh/surau`)
+- **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dipakai usulan bila tidak dijawab:** P-3 font Noto Naskh · P-4 anggaran $20/bln · P-7 retensi data
 - **Gerbang X01 (Next 16.4):** belum terpenuhi (OpenNext 1.20.11 belum menyebut dukungan 16.4) · terakhir dicek 2026-10-15
 
@@ -18,13 +18,13 @@
 
 - `pnpm dev` → http://localhost:3004: template chat HeroUI Pro (belum bertema Surau) berjalan di monorepo baru.
 - `pnpm verify` → format, lint, cek tipe, tes, dan build sekaligus.
-- https://github.com/alfariesh/surau (privat): setiap PR otomatis dicek CI (±1 menit); Dependabot mengusulkan pembaruan tiap Senin.
+- https://github.com/alfariesh/surau (publik): setiap PR otomatis dicek CI (±1 menit); Dependabot mengusulkan pembaruan tiap Senin.
 
 ## Perhatian (risiko aktif)
 
 - **Gerbang versi Next:** OpenNext 1.20.11 belum mendukung Next 16.4 (perkiraan patch akhir Okt 2026). Surau memakai Next 16.3.8 + mitigasi; upgrade lewat sesi sisipan X01 (ADR-003).
-- **Lisensi HeroUI Pro** melarang publikasi komponen dan template Pro. Repo privat sampai ada izin (ADR-004, P-1).
-- **`main` tanpa proteksi server-side** (akun GitHub Free + repo privat → HTTP 403). Pengamannya CI + merge hanya dengan izin pemilik (ADR-024).
+- **Lisensi HeroUI Pro** melarang publikasi komponen dan template Pro, tetapi repo sudah publik atas keputusan pemilik (ADR-025). Disarankan tetap kirim email izin ke HeroUI (lampiran TUGAS-PEMILIK); bila ditegur, beralih ke HeroUI OSS.
+- **`main` terlindungi:** hanya bisa diubah lewat PR yang lolos CI `verify`, tanpa force-push (ADR-025). PR dari fork butuh persetujuan pemilik sebelum CI berjalan; jangan setujui PR fork yang mengubah `.github/`.
 - **Lisensi teks:** Shamela tidak memberi hak pakai ulang, jadi dipakai rantai lisensi OpenITI (ADR-018).
 - **Vite+ masih baru** (1.0 pada 28 Sep 2026). Spike S01 lolos (check, lint, type-check apps/web, test, staged); cadangan Biome tidak dipakai (ADR-023).
 - **Advisory Next 16.3.8:** 3 kritis/tinggi di Next + 1 kritis di React RSC, semuanya ditambal di Next 16.4.1. Dimitigasi dengan larangan ADR-003 (tanpa `use cache`, Server Actions, optimasi gambar) dan larangan typed array dari Server Component (ADR-023). Kerjakan X01 sebelum `/rilis 0` bila gerbangnya terbuka.
@@ -35,7 +35,7 @@
 |---|---|---|---|---|
 | – | S00 | Review dokumen & setup agent | selesai | 2026-10-15 |
 | 0 | S01 | Monorepo & toolchain | selesai* | 2026-10-15 · *vite-plus 1.2.0 tertunda (ADR-023) · di `main` |
-| 0 | S02 | GitHub & CI | selesai | 2026-10-15 · PR #1 · tanpa proteksi branch (ADR-024) · di `main` |
+| 0 | S02 | GitHub & CI | selesai | 2026-10-15 · PR #1 · di `main` · repo publik + proteksi `main` (ADR-025) |
 | 0 | S03 | Deploy ke Cloudflare | belum | butuh T-05, T-06 (T-07 opsional) |
 | 0 | S04 | Identitas & fondasi UI | belum | butuh T-08 · lalu `/rilis 0` |
 | 1 | S05 | Paket teks Arab | belum | |

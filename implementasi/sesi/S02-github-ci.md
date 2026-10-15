@@ -71,6 +71,9 @@ Kode tersimpan di GitHub. Setiap PR otomatis diperiksa CI (`pnpm verify`), dan `
 - **Langkah 0** (vite-plus 1.2.0, React 19.2.9) belum bisa: saat sesi berjalan (±13:15–14:00 WIB) keduanya belum berumur 24 jam (boleh mulai 16:21 dan 23:54 WIB). Butir S01 tetap belum dicentang; dikerjakan di awal S03 (commit `chore(deps)` terpisah).
 - Kuota menit Actions repo privat (langkah 8): satu run ±1 menit tagihan; kuota akun Free ±2.000 menit/bulan (cek di GitHub › Settings › Billing and licensing). Pemakaian S02: 3 run.
 
+*Tambahan setelah merge (2026-10-15)*
+- Atas permintaan pemilik, repo dibuat **publik** (risiko lisensi HeroUI Pro diterima). Proteksi `main` lalu dipasang (wajib `verify`, berlaku untuk admin, tanpa force-push) dan persetujuan workflow diwajibkan untuk semua kontributor luar. Lihat ADR-025; ini mengganti ADR-024 butir 7.
+
 *Untuk sesi berikutnya*
 - Dependabot pertama akan berjalan Senin. Bila PR npm-nya merusak lockfile/catalog (pnpm 12 belum resmi didukung), tutup dan naikkan manual (ADR-024 butir 6).
 - S03 menambah `preview.yml`/`deploy.yml`: ikuti pola yang sama (SHA pin, token hanya di langkah yang butuh, restore/save `node_modules` dengan kunci yang sama supaya cache dipakai bersama).
