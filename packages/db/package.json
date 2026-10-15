@@ -1,0 +1,22 @@
+{
+  "name": "@surau/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Skema data Surau tanpa ORM (ADR-009): migrasi SQL D1 (korpus + app), skema Zod baris, dan repository bertipe yang menerima D1Database.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "catalog:",
+    "@cloudflare/workers-types": "catalog:",
+    "@surau/text": "workspace:*",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

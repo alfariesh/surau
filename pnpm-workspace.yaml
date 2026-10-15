@@ -16,6 +16,13 @@ catalog:
   "@vitest/coverage-v8": 5.0.4
   "@opennextjs/cloudflare": 1.20.11
 
+  # Data (S06, ADR-009): tanpa ORM. Zod untuk skema baris + validasi batas sistem.
+  zod: 4.6.7
+  # Tes D1 di workerd (S06). Pengganti @cloudflare/vitest-pool-workers (deprecated); peer vitest ^5.
+  "@cloudflare/vitest-plugin": 1.4.2
+  # Tipe D1Database untuk packages/* (yang tidak punya wrangler types sendiri).
+  "@cloudflare/workers-types": 5.20261014.1
+
   # Web: Next + React (ADR-003; Next 16.4 lewat sesi X01)
   next: 16.3.8
   react: 19.2.8

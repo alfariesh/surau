@@ -44,15 +44,30 @@ export default defineConfig({
     sortPackageJson: true,
   },
   test: {
-    include: ["apps/**/*.test.{ts,tsx}", "packages/**/*.test.ts", "tools/**/*.test.ts"],
-    exclude: ["**/node_modules/**", "**/.next/**", "**/.open-next/**"],
     passWithNoTests: true,
+    // Dua project: "node" (Node, semua tes selain packages/db) dan "db" (workerd + D1 lokal,
+    // packages/db/vitest.config.ts, S06). Plugin Cloudflare mengganti runtime seluruh project,
+    // jadi tes Node tidak boleh ikut project db.
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "node",
+          include: ["apps/**/*.test.{ts,tsx}", "packages/**/*.test.ts", "tools/**/*.test.ts"],
+          exclude: ["**/node_modules/**", "**/.next/**", "**/.open-next/**", "packages/db/**"],
+        },
+      },
+      "packages/db/vitest.config.ts",
+    ],
     // `pnpm test` = `vp test --coverage`. Paket teks Arab wajib 100% fungsi teruji (S05): semua
     // fungsi di sana menyentuh kutipan atau indeks, jadi tidak boleh ada jalur yang tak pernah diuji.
     coverage: {
       provider: "v8",
+      // packages/db diuji di workerd (project "db"), dan coverage v8 tidak berjalan di sana
+      // (plugin Cloudflare 1.4.2 menolak perintah __vitest_stopV8Coverage), jadi `pnpm test`
+      // mengukur cakupan project "node" saja. Utang teknis S06: lihat ADR-029.
       include: ["packages/*/src/**/*.ts"],
-      exclude: ["**/*.test.ts"],
+      exclude: ["**/*.test.ts", "packages/db/**"],
       reporter: ["text-summary", "text"],
       thresholds: {
         "packages/text/src/**": { functions: 100, lines: 95, branches: 90 },
