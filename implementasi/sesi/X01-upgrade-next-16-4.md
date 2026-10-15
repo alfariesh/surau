@@ -1,6 +1,6 @@
 # X01 · Sesi sisipan: upgrade Next.js 16.4 + React 19.3
 
-> **Fase:** sisipan (bisa dikerjakan kapan saja setelah S03) · **Status:** belum, **menunggu gerbang**
+> **Fase:** sisipan (bisa dikerjakan kapan saja setelah S03) · **Status:** belum, **gerbang SIAP** (2026-10-15: OpenNext 1.20.12 mendukung Next 16.4; paket boleh dipasang mulai 16 Okt 14:51 WIB)
 > **Prasyarat:** S03 selesai **dan** gerbang di bawah terpenuhi · Tugas pemilik: –
 > **Perkiraan:** 1 percakapan agent (pendek)
 

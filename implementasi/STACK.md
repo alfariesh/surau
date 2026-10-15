@@ -10,12 +10,12 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 |---|---|---|---|---|
 | Node.js LTS | 24.22.0 (`.node-version`) | 24.22.0 (dicek 2026-10-15) | https://nodejs.org/docs/latest-v24.x/api/ · `node:sqlite` https://nodejs.org/docs/latest-v24.x/api/sqlite.html · type stripping https://nodejs.org/docs/latest-v24.x/api/typescript.html | 008 |
 | pnpm | 12.11.2 (`packageManager`) | 12.11.2 (terbaru 12.13.0; dicek 2026-10-15) | https://pnpm.io/settings · https://pnpm.io/catalogs · build scripts https://pnpm.io/settings/build | 008 |
-| Vite+ (`vp`) | 1.2.0 | lokal **1.1.0** (1.2.0 belum 24 jam, ADR-023) · global 1.1.0 · dicek 2026-10-15 | https://viteplus.dev/llms.txt · monorepo https://viteplus.dev/guide/monorepo · CI https://viteplus.dev/guide/ci | 008 |
+| Vite+ (`vp`) | 1.2.0 | lokal **1.2.0** (dinaikkan 2026-10-15 17:20 WIB) · global 1.1.0 · dicek 2026-10-15 | https://viteplus.dev/llms.txt · monorepo https://viteplus.dev/guide/monorepo · CI https://viteplus.dev/guide/ci | 008 |
 | `voidzero-dev/setup-vp` (CI) | v1.21.2 (pin SHA `68f39c78…`) | v1.21.2 di `ci.yml` (dicek 2026-10-15) · **jangan** `@v1` (beku di v1.15.0) | https://github.com/voidzero-dev/setup-vp · https://viteplus.dev/guide/ci | 024 |
 | `actions/checkout`, `actions/cache` (CI) | v7.0.1 (`3d3c42e5…`), v6.1.0 (`55cc8345…`, `restore`/`save`) | idem di `ci.yml` (dicek 2026-10-15) | https://github.com/actions/checkout · https://github.com/actions/cache | 024 |
 | Dependabot | `version: 2`, npm + github-actions | `.github/dependabot.yml` (dicek 2026-10-15) · pnpm 12 + catalog belum resmi didukung | https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference | 024 |
-| Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | oxlint 1.87.0 · oxfmt 0.72.0 (lewat vite-plus 1.1.0) | https://oxc.rs/llms.txt | 008 |
-| Vitest (di dalam Vite+) | 5.x | 5.0.3 (lewat vite-plus 1.1.0) | https://vitest.dev/llms.txt | 008 |
+| Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | oxlint 1.88.0 · oxfmt 0.73.0 (lewat vite-plus 1.2.0) | https://oxc.rs/llms.txt | 008 |
+| Vitest (di dalam Vite+) | 5.x | 5.0.4 (lewat vite-plus 1.2.0) | https://vitest.dev/llms.txt | 008 |
 | TypeScript | 7.0.2 | 7.0.2 (root + apps/web; dicek 2026-10-15) | https://nextjs.org/docs/app/api-reference/config/typescript | 008 |
 | Playwright | 1.64.x (chromium saja) | `@playwright/test` **1.64.0** (1.64.1 belum 24 jam) + `@axe-core/playwright` 4.13.0 (MPL-2.0, dev), apps/web; dicek 2026-10-15 | https://playwright.dev/docs/intro | 017 |
 
@@ -25,7 +25,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 |---|---|---|---|---|
 | Next.js | **16.3.8** sekarang (+ mitigasi ADR-003); naik ke 16.4.x lewat sesi [X01](sesi/X01-upgrade-next-16-4.md) setelah OpenNext mendukung | **16.3.8** (dicek 2026-10-15; advisory dimitigasi, ADR-023) | **Utamakan** `apps/web/node_modules/next/dist/docs/` · https://nextjs.org/docs/llms.txt · agent guide https://nextjs.org/docs/app/guides/ai-agents · advisories https://github.com/vercel/next.js/security/advisories | 003 |
 | React / React DOM | 19.2.x bersama Next 16.3.8; 19.3.x bersama Next 16.4 | 19.2.8 (19.2.9 belum 24 jam, ADR-023) | https://react.dev | 003 |
-| @opennextjs/cloudflare | 1.20.11+ | **1.20.11** (devDependency apps/web, catalog; dicek 2026-10-15) · peer `next >=15.5.27 <16 \|\| >=16.3.8` → Next **16.3.8 didukung resmi** (versi minimum). Gerbang ADR-003 untuk 16.4: **belum terbuka** (rilis belum menyebut 16.4 diuji) | https://opennext.js.org/cloudflare · rilis https://github.com/opennextjs/opennextjs-cloudflare/releases · *batas ukuran 3/10 MiB di docs ini sudah usang; yang berlaku 64 MiB* | 003 |
+| @opennextjs/cloudflare | 1.20.11+ | **1.20.11** (devDependency apps/web, catalog; dicek 2026-10-15) · peer `next >=15.5.27 <16 \|\| >=16.3.8` → Next **16.3.8 didukung resmi** (versi minimum). Gerbang ADR-003 untuk 16.4: **terbuka** sejak **1.20.12** (15 Okt 2026, peer `>=16.4.1`, "Add support for Next.js 16.4"); pasang lewat X01 mulai 16 Okt 14:51 WIB (umur 24 jam). Advisory terbuka 16.3.8 (673q, 2464, p3m5) dan React xqc2/h3gv termitigasi, diverifikasi di build saat `/rilis 0` | https://opennext.js.org/cloudflare · rilis https://github.com/opennextjs/opennextjs-cloudflare/releases · *batas ukuran 3/10 MiB di docs ini sudah usang; yang berlaku 64 MiB* | 003 |
 | HeroUI OSS (`@heroui/react`, `@heroui/styles`) | 3.2.6 | 3.2.6 | MCP `heroui-pro` (level user, T-01) · https://heroui.com/react/llms.txt | 004 |
 | HeroUI Pro (`@heroui-pro/react`) | **1.0.0-beta.10 persis** | 1.0.0-beta.10 (catalog, dicek 2026-10-15) | MCP `heroui-pro` (`list_components`, `get_component_docs`) · https://heroui.pro/docs/react/llms.txt · instalasi/CI https://heroui.pro/docs/react/getting-started/installation · terms https://heroui.pro/terms | 004 |
 | Tailwind CSS | 4.x (ikut template) | 4.3.3 (2026-10-15, dari PR Dependabot #3) | https://tailwindcss.com/docs | 004 |

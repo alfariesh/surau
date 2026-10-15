@@ -18,9 +18,10 @@ concurrency:
 jobs:
   verify:
     name: verify
-    # Hanya PR dari repo ini (termasuk Dependabot). PR dari fork tidak mendapat secret,
-    # dan kita sengaja tidak memakai pull_request_target.
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    # Sengaja TANPA `if` tingkat job: job yang di-skip dihitung "lulus" oleh required status check,
+    # sehingga PR fork yang disetujui bisa di-merge tanpa verify. PR fork tidak mendapat secret,
+    # jadi action `siapkan` gagal di cek HEROUI_AUTH_TOKEN (merah, tidak bisa di-merge).
+    # Kita tetap tidak memakai pull_request_target.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     # HEROUI_AUTH_TOKEN hanya diberikan ke langkah cek dan install di action `siapkan`
