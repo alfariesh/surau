@@ -17,7 +17,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 | Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | oxlint 1.87.0 · oxfmt 0.72.0 (lewat vite-plus 1.1.0) | https://oxc.rs/llms.txt | 008 |
 | Vitest (di dalam Vite+) | 5.x | 5.0.3 (lewat vite-plus 1.1.0) | https://vitest.dev/llms.txt | 008 |
 | TypeScript | 7.0.2 | 7.0.2 (root + apps/web; dicek 2026-10-15) | https://nextjs.org/docs/app/api-reference/config/typescript | 008 |
-| Playwright | 1.64.x (chromium saja) | – | https://playwright.dev/docs/intro | 017 |
+| Playwright | 1.64.x (chromium saja) | `@playwright/test` **1.64.0** (1.64.1 belum 24 jam) + `@axe-core/playwright` 4.13.0 (MPL-2.0, dev), apps/web; dicek 2026-10-15 | https://playwright.dev/docs/intro | 017 |
 
 ## Web
 
@@ -29,16 +29,16 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 | HeroUI OSS (`@heroui/react`, `@heroui/styles`) | 3.2.6 | 3.2.6 | MCP `heroui-pro` (level user, T-01) · https://heroui.com/react/llms.txt | 004 |
 | HeroUI Pro (`@heroui-pro/react`) | **1.0.0-beta.10 persis** | 1.0.0-beta.10 (catalog, dicek 2026-10-15) | MCP `heroui-pro` (`list_components`, `get_component_docs`) · https://heroui.pro/docs/react/llms.txt · instalasi/CI https://heroui.pro/docs/react/getting-started/installation · terms https://heroui.pro/terms | 004 |
 | Tailwind CSS | 4.x (ikut template) | 4.3.3 (2026-10-15, dari PR Dependabot #3) | https://tailwindcss.com/docs | 004 |
-| next-themes | 0.4.6 | – | https://heroui.com/docs/react/getting-started/dark-mode | 004 |
+| next-themes | 0.4.6 | 0.4.6 (apps/web, catalog; peer React ≤19; dicek 2026-10-15) | https://heroui.com/docs/react/getting-started/dark-mode | 004 |
 | Ikon | `@gravity-ui/icons` saja | 2.22.0 | https://gravity-ui.com/icons | 004 |
-| Font Arab | Noto Naskh Arabic (+ Amiri opsional) via `next/font/google` | – | data font ada di `next/dist/compiled/@next/font` | P-3 |
+| Font | Arab: Noto Naskh Arabic (T-08) · UI: Plus Jakarta Sans, via `next/font/google` | Noto Naskh Arabic (variable 400–700, subset arabic, `preload: false`) + Plus Jakarta Sans (latin), Next 16.3.8; dicek 2026-10-15 · Amiri dicoba lalu tidak dipilih (ADR-027) | data font ada di `next/dist/compiled/@next/font` | P-3 |
 
 ## Cloudflare
 
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
 | Wrangler | 4.151.0+ (devDependency, **jangan pakai yang global**) | 4.151.0 (devDependency root + apps/web, catalog; dicek 2026-10-15) · global 4.126 (usang) | MCP `cloudflare-docs` · https://developers.cloudflare.com/workers/llms.txt · skill `wrangler` | 002 |
-| Workers (limits, pricing) | Paid | Worker `surau-web` aktif (2026-10-15): 15.993 KiB tak terkompresi / 3.021 KiB gzip dari batas 64 MiB, startup 20 ms, `compatibility_date` 2026-10-14 | https://developers.cloudflare.com/workers/platform/limits/ | 002 |
+| Workers (limits, pricing) | Paid | Worker `surau-web` aktif: S04 (2026-10-15) **5.815 KiB / 1.221 KiB gzip** (S03: 15.993 / 3.021 KiB) dari batas 64 MiB, startup 20 ms, `compatibility_date` 2026-10-14 | https://developers.cloudflare.com/workers/platform/limits/ | 002 |
 | D1 + FTS5 | – | – | https://developers.cloudflare.com/d1/llms-full.txt · limits https://developers.cloudflare.com/d1/platform/limits/ · migrasi https://developers.cloudflare.com/d1/reference/migrations/ · impor https://developers.cloudflare.com/d1/best-practices/import-export-data/ · FTS5 https://www.sqlite.org/fts5.html | 005 |
 | R2 | – | bucket `surau-next-cache` + `surau-next-cache-preview` (cache ISR OpenNext, 2026-10-15) | https://developers.cloudflare.com/r2/llms-full.txt | 005 |
 | Vectorize + Workers AI (ditunda) | – | – | https://developers.cloudflare.com/vectorize/llms-full.txt · https://developers.cloudflare.com/workers-ai/llms-full.txt | 006 |
