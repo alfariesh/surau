@@ -61,9 +61,16 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          WRANGLER_SEND_METRICS: "false"
         run: |
-          pnpm exec wrangler preview --name "pr-${PR_NUMBER}" --message "PR #${PR_NUMBER}" --json > "$RUNNER_TEMP/preview.json"
-          url=$(jq -er '.preview.urls[0]' "$RUNNER_TEMP/preview.json")
+          pnpm exec wrangler preview --name "pr-${PR_NUMBER}" --message "PR #${PR_NUMBER}" --json > "$RUNNER_TEMP/preview.out"
+          # Di CI wrangler menulis teks lain (banner/telemetri) ke stdout sebelum JSON: ambil mulai baris "{".
+          sed -n '/^{/,$p' "$RUNNER_TEMP/preview.out" > "$RUNNER_TEMP/preview.json"
+          if ! url=$(jq -er '.preview.urls[0]' "$RUNNER_TEMP/preview.json"); then
+            echo "::error title=Keluaran wrangler preview tidak terbaca::Lihat keluaran di bawah."
+            cat "$RUNNER_TEMP/preview.out"
+            exit 1
+          fi
           deployment_url=$(jq -er '.deployment.urls[0]' "$RUNNER_TEMP/preview.json")
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
