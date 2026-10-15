@@ -1,0 +1,67 @@
+# CI Surau: `pnpm verify` (format + lint + typecheck + test + build) di setiap PR dan push ke main.
+# Keputusan: ADR-017 (CI/CD), ADR-004 (HeroUI Pro butuh HEROUI_AUTH_TOKEN + cache node_modules).
+# Action dipin ke SHA commit; Dependabot (github-actions) memperbarui SHA dan komentar versinya.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
+    name: verify
+    # Hanya PR dari repo ini (termasuk Dependabot). PR dari fork tidak mendapat secret,
+    # dan kita sengaja tidak memakai pull_request_target.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      # Di level job supaya postinstall @heroui-pro/react selalu melihat token.
+      HEROUI_AUTH_TOKEN: ${{ secrets.HEROUI_AUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Postinstall Pro bisa "sukses" tanpa mengunduh apa pun bila token kosong. Gagal lebih awal.
+      - name: Cek secret HEROUI_AUTH_TOKEN
+        run: |
+          if [ -z "$HEROUI_AUTH_TOKEN" ]; then
+            echo "::error title=HEROUI_AUTH_TOKEN kosong::Secret HEROUI_AUTH_TOKEN belum diisi untuk ${GITHUB_EVENT_NAME} (actor: ${GITHUB_ACTOR}). Lihat T-04 di implementasi/TUGAS-PEMILIK.md (Actions dan --app dependabot)."
+            exit 1
+          fi
+
+      # Versi vp dibaca dari catalog (pnpm-workspace.yaml). Node dari .node-version.
+      # Cache bawaan setup-vp (store pnpm) sengaja tidak dipakai: yang menghemat kuota HeroUI
+      # adalah cache node_modules di langkah berikut. Install hanya berjalan sekali.
+      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+        with:
+          node-version-file: .node-version
+          run-install: false
+
+      - name: Pulihkan cache node_modules
+        id: deps
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            tools/*/node_modules
+          key: nm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.node-version', 'pnpm-lock.yaml', 'pnpm-workspace.yaml') }}
+
+      # Dengan cache hit, pnpm hanya memastikan node_modules cocok dengan lockfile
+      # (postinstall Pro tidak dijalankan ulang, jadi kuota unduhan tidak terpakai).
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: pnpm verify
+        run: pnpm verify
