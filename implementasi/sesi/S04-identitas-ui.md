@@ -1,6 +1,6 @@
 # S04 · Identitas & fondasi UI
 
-> **Fase:** 0 · **Status:** belum
+> **Fase:** 0 · **Status:** berjalan
 > **Prasyarat:** S03 selesai · Tugas pemilik: **T-08** (arah desain). Bila belum ada, agent mengusulkan 2 opsi lalu bertanya.
 > **Perkiraan:** 1–2 percakapan agent
 

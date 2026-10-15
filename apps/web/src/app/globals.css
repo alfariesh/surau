@@ -3,6 +3,150 @@
 
 @source "../**/*.{ts,tsx}";
 
+/* Font dari next/font (layout.tsx): --font-jakarta (UI), --font-naskh dan --font-amiri (Arab). */
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Palet Surau. Dipasang sebagai kelas di <html>; `next-themes` menambah `.light`/`.dark`.
+ * Variabel turunan (hover, soft, focus) dideklarasikan ulang di sini karena HeroUI menghitungnya
+ * di :root, sehingga tidak ikut berubah bila palet dipasang di elemen lain (halaman /_desain).
+ * Sengaja di luar @layer supaya menang atas tema bawaan HeroUI (@layer base).
+ *
+ * SEMENTARA (S04, T-08 belum dijawab): dua opsi untuk dipilih pemilik. Setelah dipilih, palet
+ * yang tidak dipakai dan halaman /_desain dihapus.
+ */
+
+/* Opsi A · Zaitun: kertas hangat, aksen hijau zaitun, Noto Naskh Arabic. */
+.palet-zaitun {
+  --font-arabic: var(--font-naskh), "Noto Naskh Arabic", serif;
+  --arabic-leading: 2;
+
+  --background: oklch(0.975 0.008 90);
+  --foreground: oklch(0.23 0.015 85);
+  --surface: oklch(0.995 0.004 90);
+  --surface-secondary: oklch(0.96 0.01 90);
+  --surface-tertiary: oklch(0.945 0.012 90);
+  --overlay: oklch(0.995 0.004 90);
+  --default: oklch(0.935 0.012 90);
+  --default-foreground: var(--foreground);
+  --muted: oklch(0.47 0.02 85);
+  --border: oklch(0.89 0.012 90);
+  --separator: oklch(0.91 0.01 90);
+  --field-background: var(--surface);
+  --accent: oklch(0.47 0.085 150);
+  --accent-foreground: oklch(0.99 0.005 90);
+  --link: var(--accent);
+}
+
+/* Opsi B · Lazuardi: kertas sejuk, aksen biru lazuardi, Amiri. */
+.palet-lazuardi {
+  --font-arabic: var(--font-amiri), "Amiri", serif;
+  /* Harakat Amiri lebih tinggi; line-height 2 membuat tanda atas menabrak baris sebelumnya. */
+  --arabic-leading: 2.4;
+
+  --background: oklch(0.975 0.004 255);
+  --foreground: oklch(0.22 0.02 260);
+  --surface: oklch(0.997 0.002 255);
+  --surface-secondary: oklch(0.96 0.006 255);
+  --surface-tertiary: oklch(0.945 0.008 255);
+  --overlay: oklch(0.997 0.002 255);
+  --default: oklch(0.935 0.008 255);
+  --default-foreground: var(--foreground);
+  --muted: oklch(0.48 0.02 260);
+  --border: oklch(0.89 0.008 255);
+  --separator: oklch(0.91 0.006 255);
+  --field-background: var(--surface);
+  --accent: oklch(0.45 0.13 262);
+  --accent-foreground: oklch(0.99 0.003 255);
+  --link: var(--accent);
+}
+
+:is(.dark .palet-zaitun:not(.light), .palet-zaitun.dark) {
+  --background: oklch(0.17 0.008 85);
+  --foreground: oklch(0.95 0.008 90);
+  --surface: oklch(0.215 0.01 85);
+  --surface-secondary: oklch(0.245 0.01 85);
+  --surface-tertiary: oklch(0.265 0.01 85);
+  --overlay: oklch(0.23 0.01 85);
+  --default: oklch(0.28 0.01 85);
+  --muted: oklch(0.74 0.015 90);
+  --border: oklch(0.3 0.01 85);
+  --separator: oklch(0.27 0.01 85);
+  --accent: oklch(0.79 0.1 150);
+  --accent-foreground: oklch(0.2 0.03 150);
+}
+
+:is(.dark .palet-lazuardi:not(.light), .palet-lazuardi.dark) {
+  --background: oklch(0.165 0.012 260);
+  --foreground: oklch(0.95 0.005 255);
+  --surface: oklch(0.21 0.014 260);
+  --surface-secondary: oklch(0.24 0.014 260);
+  --surface-tertiary: oklch(0.26 0.014 260);
+  --overlay: oklch(0.225 0.014 260);
+  --default: oklch(0.275 0.014 260);
+  --muted: oklch(0.74 0.02 255);
+  --border: oklch(0.3 0.014 260);
+  --separator: oklch(0.27 0.014 260);
+  --accent: oklch(0.8 0.09 255);
+  --accent-foreground: oklch(0.2 0.04 262);
+}
+
+/* Variabel turunan (rumus sama dengan tema bawaan HeroUI 3.2.6). */
+:is(.palet-zaitun, .palet-lazuardi) {
+  color: var(--foreground);
+  background-color: var(--background);
+
+  --focus: var(--accent);
+  --surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+  --background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+  --background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+  --default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+  --accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+  --accent-soft: color-mix(in oklab, var(--accent) 15%, transparent);
+  --accent-soft-foreground: color-mix(in oklab, var(--accent) 70%, var(--foreground) 30%);
+  --accent-soft-hover: color-mix(in oklab, var(--accent) 20%, transparent);
+  --surface-foreground: var(--foreground);
+  --surface-secondary-foreground: var(--foreground);
+  --surface-tertiary-foreground: var(--foreground);
+  --overlay-foreground: var(--foreground);
+}
+
+:is(
+  .dark .palet-zaitun:not(.light),
+  .palet-zaitun.dark,
+  .dark .palet-lazuardi:not(.light),
+  .palet-lazuardi.dark
+) {
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --accent-soft-foreground: color-mix(in oklab, var(--accent) 80%, var(--foreground) 30%);
+  --accent-soft-hover: color-mix(in oklab, var(--accent) 16%, transparent);
+}
+
 body {
   background-color: var(--background);
+}
+
+/* Tipografi Arab (.claude/rules/teks-arab.md, Tampilan). Dipakai hanya oleh ArabicText/ArabicInline.
+ * line-height sengaja di luar @layer: utilitas ukuran Tailwind (`text-3xl`) ikut menyetel
+ * line-height dan akan menimpanya, padahal harakat butuh ruang. Ukuran huruf tetap boleh diubah. */
+.arabic-text {
+  line-height: var(--arabic-leading, 2);
+}
+
+@layer components {
+  .arabic-text {
+    font-family: var(--font-arabic);
+    font-size: 1.25em;
+    text-align: start;
+    letter-spacing: normal;
+    word-spacing: normal;
+  }
+
+  .arabic-inline {
+    font-family: var(--font-arabic);
+    font-size: 1.15em;
+    letter-spacing: normal;
+  }
 }

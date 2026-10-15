@@ -38,7 +38,7 @@
 | 0 | S01 | Monorepo & toolchain | selesai* | 2026-10-15 · *vite-plus 1.2.0 tertunda (ADR-023) · di `main` |
 | 0 | S02 | GitHub & CI | selesai | 2026-10-15 · PR #1 · di `main` · repo publik + proteksi `main` (ADR-025) |
 | 0 | S03 | Deploy ke Cloudflare | selesai | 2026-10-15 · PR #4 · di `main` · workers.dev, preview per PR (ADR-026) |
-| 0 | S04 | Identitas & fondasi UI | belum | butuh T-08 · lalu `/rilis 0` |
+| 0 | S04 | Identitas & fondasi UI | berjalan | T-08 belum: 2 opsi diusulkan agent · lalu `/rilis 0` |
 | 1 | S05 | Paket teks Arab | belum | |
 | 1 | S06 | Skema data & D1 | belum | |
 | 1 | S07 | Importer Ihya | belum | butuh T-09 |
