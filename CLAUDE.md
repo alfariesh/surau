@@ -20,7 +20,7 @@ Surau adalah asisten riset kitab klasik Islam: nirlaba, open source, dan berbaha
 1. **Kutipan Arab tidak pernah ditulis model.** Kode menyalin teks dari DB berdasarkan ID dan offset. Detailnya ada di `.claude/rules/teks-arab.md` (dimuat otomatis saat membuka kode).
 2. Gunakan bahasa atribusi, bukan fatwa. Tidak ada roleplay orang pertama sebagai ulama. Ayat Al-Qur'an memakai teks Tanzil dan terjemahan Kemenag verbatim, **tidak pernah** diterjemahkan LLM.
 3. Jangan pernah meng-commit `.env*`, `.dev.vars*`, `*.db`, `*.sqlite`, teks kitab mentah (`data/raw/`, `data/build/`), atau skill HeroUI Pro (berlisensi). Jangan membaca `.env`.
-4. **Utamakan ship.** Agent langsung commit, push, membuat repo/PR, merge (squash, setelah `pnpm verify` dan CI hijau), dan deploy tanpa bertanya; cukup laporkan sesudahnya. Izin eksplisit pemilik di chat **hanya** untuk: mengirim batch/eval LLM berbayar, menghapus atau menimpa data produksi (D1/R2 remote), dan mengubah dotfile/konfigurasi di luar repo. `push --force` ke `main` tetap dilarang.
+4. **Wajib ada izin eksplisit pemilik di chat** sebelum: push, membuat repo/PR, merge, deploy, menulis ke D1/R2 remote, mengirim batch LLM berbayar, atau mengubah dotfile/konfigurasi di luar repo.
 5. Centang butir "Selesai bila" hanya dengan bukti perintah. Jangan mengubah kriteria supaya sesi tampak lolos.
 6. Setiap keputusan teknis baru dicatat sebagai ADR di `implementasi/KEPUTUSAN.md`. Bila menyimpang dari rencana, tulis secara terbuka.
 7. Data Shamela di `/Volumes/Elfariesh/database` hanya **dibaca** (readOnly), tidak pernah ditulis.
@@ -52,4 +52,4 @@ Semua dijalankan dari root repo.
 
 - Gunakan bahasa Indonesia yang awam dan ringkas. Sebutkan apa yang sekarang bisa dilihat atau dicoba.
 - Bila butuh tindakan pemilik, sebut ID tugasnya (T-NN di `implementasi/TUGAS-PEMILIK.md`) beserta langkah klik demi klik. Perintah untuk pemilik diketik di aplikasi Terminal, bukan di chat. Jangan pernah meminta token atau password ditempel di chat, dan jangan membuka dotfile pemilik (`~/.zshrc`, `~/.claude.json`).
-- Setiap selesai sesi, gabungkan (merge) hasilnya ke `main` sendiri bila CI hijau, lalu laporkan. Jangan bertanya untuk hal yang sudah diizinkan aturan keras 4.
+- Setiap selesai sesi, minta persetujuan pemilik untuk menggabungkan (merge) hasilnya ke `main`.
