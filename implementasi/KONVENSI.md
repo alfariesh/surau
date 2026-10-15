@@ -54,7 +54,9 @@ packages/llm   → (Fase 2+) pembungkus Anthropic, prompt berversi, verifikasi s
 | Perintah | Kapan |
 |---|---|
 | `pnpm check` | Sesering mungkin: format, lint, dan typecheck (`vp check`) |
+| `pnpm fix` | Memperbaiki otomatis temuan format dan lint (`vp check --fix`) |
 | `pnpm test` | Setelah mengubah logika |
+| `pnpm build` | Build semua app (`vp run -r build`; untuk web = `next build` dengan type-check `tsc`) |
 | `pnpm verify` | **Wajib lolos** sebelum commit terakhir sesi dan sebelum PR: `check` + `test` + `build` |
 | `pnpm test:e2e` | Sebelum rilis dan saat UI alur utama berubah |
 | `pnpm run eval:retrieval` | Fase 2+: eval pencarian (tanpa LLM, gratis) |

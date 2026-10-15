@@ -5,14 +5,62 @@
 import { readFileSync } from "node:fs";
 
 const ALLOWED_PREFIXES = [
-  "git diff", "git log", "git show", "git status", "git branch --show-current", "git rev-list",
-  "git ls-files", "git merge-base", "git blame",
-  "grep", "rg", "cat", "head", "tail", "ls", "wc", "find", "sed -n", "sort", "uniq", "cut", "tr",
-  "jq", "file", "stat", "du", "pwd", "echo", "date", "which",
-  "npm view", "pnpm why", "pnpm list", "pnpm ls", "node -v", "node --version",
-  "pnpm test", "pnpm run test", "pnpm check", "pnpm run check", "vp test", "vp check", "vp lint",
+  "git diff",
+  "git log",
+  "git show",
+  "git status",
+  "git branch --show-current",
+  "git rev-list",
+  "git ls-files",
+  "git merge-base",
+  "git blame",
+  "grep",
+  "rg",
+  "cat",
+  "head",
+  "tail",
+  "ls",
+  "wc",
+  "find",
+  "sed -n",
+  "sort",
+  "uniq",
+  "cut",
+  "tr",
+  "jq",
+  "file",
+  "stat",
+  "du",
+  "pwd",
+  "echo",
+  "date",
+  "which",
+  "npm view",
+  "pnpm why",
+  "pnpm list",
+  "pnpm ls",
+  "node -v",
+  "node --version",
+  "pnpm test",
+  "pnpm run test",
+  "pnpm check",
+  "pnpm run check",
+  "vp test",
+  "vp check",
+  "vp lint",
 ];
-const FORBIDDEN = [/>/, /\brm\b/, /\bmv\b/, /\bcp\b/, /\btee\b/, /-delete\b/, /-exec\b/, /sed\s+-i/, /--fix\b/, /\bgit\s+(add|commit|push|reset|checkout|switch|restore|stash|clean|merge|rebase)\b/];
+const FORBIDDEN = [
+  />/,
+  /\brm\b/,
+  /\bmv\b/,
+  /\bcp\b/,
+  /\btee\b/,
+  /-delete\b/,
+  /-exec\b/,
+  /sed\s+-i/,
+  /--fix\b/,
+  /\bgit\s+(add|commit|push|reset|checkout|switch|restore|stash|clean|merge|rebase)\b/,
+];
 
 let input = {};
 try {
@@ -32,7 +80,10 @@ const block = (why) => {
 const probe = command.replace(/2>&1|2>\/dev\/null/g, "");
 for (const re of FORBIDDEN) if (re.test(probe)) block(`pola terlarang ${re}`);
 
-const segments = probe.split(/&&|\|\||;|\|/).map((s) => s.trim()).filter(Boolean);
+const segments = probe
+  .split(/&&|\|\||;|\|/)
+  .map((s) => s.trim())
+  .filter(Boolean);
 for (const seg of segments) {
   const cleaned = seg.replace(/^(cd\s+\S+\s*)/, "").trim() || seg;
   if (/^cd\s/.test(seg) && cleaned === seg && segments.length > 1) continue;

@@ -28,7 +28,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
      ```
   4. Cek dengan `claude mcp list`. Baris `heroui-pro` harus bertanda ✔.
 
-- [ ] **T-02 · Pakai Node 24 dari Vite+** (prasyarat S01)
+- [x] **T-02 · Pakai Node 24 dari Vite+** (prasyarat S01) · selesai 2026-10-15 (shell agent v24.22.0)
   Saat ini perintah `node` memakai versi 22 milik tool lain, padahal Surau butuh Node 24. Perbaikannya:
   1. Di Terminal, jalankan sekali: `echo 'export PATH="$HOME/.vite-plus/bin:$PATH"' >> ~/.zshrc`
   2. Tutup **semua** jendela Terminal dan aplikasi Claude (Cmd+Q), lalu buka lagi.

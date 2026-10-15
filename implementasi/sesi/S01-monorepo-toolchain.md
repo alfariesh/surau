@@ -1,6 +1,6 @@
 # S01 · Monorepo & toolchain
 
-> **Fase:** 0 · **Status:** terblokir (T-02)
+> **Fase:** 0 · **Status:** selesai, 1 butir tertunda (vite-plus 1.2.0 belum cukup umur; ADR-023) · menunggu merge
 > **Prasyarat:** S00 ter-commit di `main` · Tugas pemilik (wajib sebelum mulai): **T-00**, **T-01**, **T-02**
 > **Perkiraan:** 1 percakapan agent (ini juga *spike*: memverifikasi pilihan toolchain ADR-008)
 
@@ -73,18 +73,18 @@ Repo menjadi monorepo pnpm yang rapi: `web/` pindah ke `apps/web`, Vite+ menjadi
 
 ## Selesai bila
 
-- [ ] `node -v` = v24.x dan `pnpm -v` = 12.11.x di shell agent
-- [ ] `pnpm exec tsc -v` = 7.0.x di root dan `apps/web`; `pnpm exec vp --version` menunjukkan vite-plus **lokal** 1.2.0
-- [ ] `pnpm install --frozen-lockfile` sukses dari keadaan bersih, dan `pnpm-lock.yaml` di-commit
-- [ ] `pnpm verify` lolos (`vp check` + test + build Next dengan tsc CLI); `vp test` tidak mengumpulkan file di `docs/`
-- [ ] `pnpm dev` menampilkan template chat di `http://localhost:3004` tanpa error di console (dicek lewat browser preview)
-- [ ] Tidak ada ESLint/Prettier/Turborepo tersisa; `@heroui-pro/react` dipin persis; semua versi lewat `catalog:`
-- [ ] Next 16.3.8 tercatat di STACK.md; `next.config` memakai `cacheComponents: false` dan `images.unoptimized: true`
-- [ ] `apps/web/AGENTS.md` (hasil Next) dan `apps/web/CLAUDE.md` ada dan di-commit
-- [ ] Hook format bekerja: edit file `.tsx`, lalu file terformat otomatis
-- [ ] Commit uji memicu `vp staged`, dan `git diff CLAUDE.md` kosong setelah `pnpm install` (`vp config --no-agent` tidak mengubah instruksi agent)
-- [ ] `curl` ke `/_next/mcp` (`tools/list`) berhasil saat `pnpm dev` berjalan; `.mcp.json` memuat `next-devtools`
-- [ ] `git ls-files` tidak memuat `.env*`, `*.db`, `*.sqlite`, `.dev.vars`, atau skill HeroUI
+- [x] `node -v` = v24.x dan `pnpm -v` = 12.11.x di shell agent
+- [ ] `pnpm exec tsc -v` = 7.0.x di root dan `apps/web`; `pnpm exec vp --version` menunjukkan vite-plus **lokal** 1.2.0 · *tsc 7.0.2 lolos di keduanya; vp lokal masih **1.1.0** karena 1.2.0 belum berumur 24 jam (ADR-023). Belum dicentang.*
+- [x] `pnpm install --frozen-lockfile` sukses dari keadaan bersih, dan `pnpm-lock.yaml` di-commit
+- [x] `pnpm verify` lolos (`vp check` + test + build Next dengan tsc CLI); `vp test` tidak mengumpulkan file di `docs/`
+- [x] `pnpm dev` menampilkan template chat di `http://localhost:3004` tanpa error di console (dicek lewat browser preview)
+- [x] Tidak ada ESLint/Prettier/Turborepo tersisa; `@heroui-pro/react` dipin persis; semua versi lewat `catalog:`
+- [x] Next 16.3.8 tercatat di STACK.md; `next.config` memakai `cacheComponents: false` dan `images.unoptimized: true`
+- [x] `apps/web/AGENTS.md` (hasil Next) dan `apps/web/CLAUDE.md` ada dan di-commit
+- [x] Hook format bekerja: edit file `.tsx`, lalu file terformat otomatis
+- [x] Commit uji memicu `vp staged`, dan `git diff CLAUDE.md` kosong setelah `pnpm install` (`vp config --no-agent` tidak mengubah instruksi agent)
+- [x] `curl` ke `/_next/mcp` (`tools/list`) berhasil saat `pnpm dev` berjalan; `.mcp.json` memuat `next-devtools`
+- [x] `git ls-files` tidak memuat `.env*`, `*.db`, `*.sqlite`, `.dev.vars`, atau skill HeroUI
 - [ ] Branch sesi sudah digabung ke `main` lokal (dengan izin); STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan
@@ -100,3 +100,34 @@ Repo menjadi monorepo pnpm yang rapi: `web/` pindah ke `apps/web`, Vite+ menjadi
 - T-00 selesai (hook dan skill proyek aktif). T-01 selesai: `heroui-pro status` → login sebagai @alfariesh; MCP `heroui-pro` menjawab `list_components` (138 komponen).
 - T-02 belum berlaku di aplikasi Claude: `node -v` di shell agent = v22.23.2 karena `~/.local/bin/node` (symlink ke Node milik Hermes) ada di depan `~/.vite-plus/bin` pada PATH yang diwarisi aplikasi. Shell login baru (`zsh -lic`) sudah menaruh `~/.vite-plus/bin` paling depan dan `node -v` = v24.22.0, jadi cukup buka ulang aplikasi Claude (Cmd+Q). Tidak diakali dengan mengubah PATH per perintah.
 - `pnpm -v` = 12.11.2; `vp` global = 1.1.0 (vite-plus lokal 1.2.0 dipasang di langkah 4).
+
+**2026-10-15 · percobaan 2 · selesai, 1 butir tertunda**
+
+*Yang dibuat*
+- Monorepo pnpm: `apps/web` (`@surau/web`, template chat HeroUI Pro), `pnpm-workspace.yaml` (catalog strict, `allowBuilds`, `minimumReleaseAge: 1440` eksplisit), `package.json` root (scripts `dev/check/fix/test/test:e2e/build/verify/prepare`), `tsconfig.base.json`, `.node-version`, `vite.config.ts` (lint 8 plugin + typeAware/typeCheck, fmt mengecualikan `docs/`, `implementasi/`, `*.md`, test hanya `apps|packages|tools`, staged), `.vite-hooks/pre-commit`.
+- ESLint dan config-nya dihapus. `next.config.ts`: `cacheComponents: false`, `images.unoptimized`, `turbopack.root`. `tsconfig` web tanpa `baseUrl`, `types` eksplisit.
+- Agent: `apps/web/AGENTS.md` (ditulis `next dev`), `apps/web/CLAUDE.md` (31 baris), hook `PostToolUse` → `.claude/hooks/format.sh`, `.mcp.json` + `next-devtools-mcp@0.4.0`, bagian *Perintah* di `CLAUDE.md` root, tabel perintah di KONVENSI.
+- Dependensi baru di root: `vite-plus`, `typescript`, `@types/node`, `wrangler` (semua sesuai rencana ADR-008/STACK). Tidak ada dependensi app baru; daftar template dipindah apa adanya ke catalog (kecuali ESLint).
+
+*Bukti*
+- `node -v` → v24.22.0 · `pnpm -v` → 12.11.2 · `pnpm exec tsc -v` → 7.0.2 (root dan apps/web) · `pnpm exec vp --version` → lokal v1.1.0.
+- `rm -rf node_modules apps/web/node_modules && pnpm install --frozen-lockfile` → sukses (postinstall HeroUI Pro "Installed ✓"; `heroui-pro status` → @heroui-pro/react@1.0.0-beta.10).
+- `pnpm verify` → exit 0: format 34 file lolos, lint/type 26 file 0 error, `vp test` "No test files found" (exit 0), `next build` 16.3.8 + "Running TypeScript" lolos, 11 halaman.
+- Spike: file uji `export const x: number = "salah"` di `apps/web/src` → `vp check` menangkap TS2322 (type-check app berjalan dengan tsconfig app). `docs/zz-probe.test.ts` → tidak dikumpulkan `vp test`. Tanpa `next-env.d.ts` dan `.next/` (simulasi clone bersih) → `pnpm check` tetap lolos. `vp fmt docs/riset/.../normalize.ts` → ditolak oleh ignore rules (prosa riset aman).
+- Browser preview `localhost:3004` → redirect ke `/pro-ai-showcase`, console hanya info React DevTools + HMR, 3/3 gambar mock termuat (`images.unoptimized`), tampilan ponsel 375 px rapi.
+- `curl -H 'Accept: application/json, text/event-stream' localhost:3004/_next/mcp` `tools/list` → SSE berisi tool `get_project_metadata`, `get_errors`, `get_page_metadata`, `get_logs`, dll.
+- Hook format: Write `zz-hook-probe.tsx` berantakan → langsung terformat. Skrip juga exit 0 untuk path di luar repo dan input rusak.
+- Commit `7de1025` dan `d3006e6` → `vp staged` berjalan ("✔ vp check --fix"). `git diff CLAUDE.md` kosong setelah `pnpm install` (`prepare: vp config --no-agent`).
+- Lockfile tanpa eslint/prettier/turbo; semua spec di `package.json` = `catalog:`; `@heroui-pro/react: 1.0.0-beta.10` persis. `git ls-files` tanpa `.env*`, `*.db`, `*.sqlite`, `.dev.vars*`, skill HeroUI.
+
+*Penyimpangan dan utang (ADR-023)*
+- vite-plus **1.1.0** dan React **19.2.8** (versi lebih baru belum 24 jam). **Tindak lanjut kecil:** ubah catalog ke `vite-plus: 1.2.0` (boleh dipasang mulai 15 Okt 09:21 UTC ≈ 16:21 WIB) dan `react`/`react-dom: 19.2.9` (mulai 15 Okt 16:54 UTC ≈ 23:54 WIB), lalu `pnpm install` + `pnpm verify` dan centang butir di atas. Bisa dikerjakan di awal S02.
+- Next 16.3.8 terkena 3 advisory kritis/tinggi (Next) + 1 kritis (React RSC). Semuanya dimitigasi dengan larangan ADR-003 dan larangan typed array dari Server Component. X01 sebaiknya sebelum `/rilis 0`.
+- Build `@zowe/secrets-for-zowe-sdk` ditolak; cek lagi saat CI S02 memakai `HEROUI_AUTH_TOKEN`.
+- `peerDependencies` vite/vitest dilaporkan "unmet" oleh `pnpm peers check`, karena vite-plus memakai alias `@voidzero-dev/vite-plus-core`. Ini kosmetik dan tidak mengganggu install, check, test, atau build.
+- Root belum punya `tsconfig.json`, jadi `vite.config.ts` dan `.claude/hooks/*.mjs` hanya diformat dan di-lint, belum di-type-check. Cukup untuk sekarang; tambahkan bila `tools/*` muncul.
+- `readonly-bash.mjs` diformat ulang Oxfmt (isi logika identik, sudah dicek peninjau).
+
+*Untuk S02*
+- Uji MCP `next-devtools` (`nextjs_index`, `nextjs_call get_errors`) setelah pemilik menyetujui server baru itu (T-00 langkah 2).
+- CI: `pnpm install --frozen-lockfile` butuh `HEROUI_AUTH_TOKEN`; cache store pnpm dan `node_modules` (kuota unduhan Pro).

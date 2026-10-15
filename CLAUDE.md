@@ -31,16 +31,20 @@ Monorepo TypeScript (pnpm 12 + Vite+ `vp`, Node 24, TS 7). Web memakai Next.js 1
 
 ## Perintah
 
-<!-- Diperbarui di S01 setelah toolchain terpasang. Sebelum S01 repo hanya berisi dokumen dan template web/. -->
-- `pnpm dev` menjalankan web di http://localhost:3004.
-- `pnpm check` (format + lint + typecheck) · `pnpm test` · `pnpm verify` (wajib lolos sebelum commit akhir sesi).
+Semua dijalankan dari root repo.
+- `pnpm install`: memasang dependensi (versi di `catalog` pada `pnpm-workspace.yaml`) dan mengaktifkan hook pre-commit `vp staged`.
+- `pnpm dev` menjalankan web di http://localhost:3004 (MCP dev Next di `/_next/mcp`).
+- `pnpm check` (format + lint + typecheck, `vp check`) · `pnpm fix` (perbaiki otomatis) · `pnpm test` (`vp test`) · `pnpm build` (build semua app lewat `vp run -r build`).
+- `pnpm verify` = check + test + build, wajib lolos sebelum commit akhir sesi. `pnpm test:e2e` masih placeholder sampai S04.
+- `pnpm --filter @surau/web <script>` untuk script satu app. Jangan `vp dev`/`vp build` di `apps/web` (itu build Vite, bukan Next).
 - Pakai `pnpm wrangler …`, bukan wrangler global (usang). `sqlite3` di PATH **tidak punya FTS5**; pakai `node:sqlite` atau `pnpm wrangler d1 execute --local`.
+- Paket npm berumur <24 jam ditolak pnpm (`minimumReleaseAge`); jangan dimatikan, pakai versi sebelumnya.
 
 ## Peta repo
 
 - `docs/`: dokumen produk (visi, kebijakan, arsitektur konsep, biaya, riset). Sumber kebenaran *apa* dan *kenapa*.
 - `implementasi/`: rencana eksekusi (STATUS, FASE, `sesi/`, STACK, ARSITEKTUR-TEKNIS, KONVENSI, KEPUTUSAN, LOG, TUGAS-PEMILIK).
-- `apps/`, `packages/`, `tools/`: kode, dibuat mulai S01. `web/` dipindah ke `apps/web` di S01. Folder app punya `CLAUDE.md` sendiri.
+- `apps/`, `packages/`, `tools/`: kode. Web ada di `apps/web` (punya `CLAUDE.md` + `AGENTS.md` sendiri). Paket dibuat saat sesi yang membutuhkannya.
 - `data/`: lisensi, atribusi, sumber, patch, dan laporan. Teks kitab tidak masuk git.
 - `.claude/`: skills (`sesi`, `posisi`, `rilis`, `docs-terbaru`), agents (`peninjau`), rules (`teks-arab`), dan hooks.
 

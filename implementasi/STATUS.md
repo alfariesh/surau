@@ -1,36 +1,37 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-15 · oleh agent, S01 terblokir (menunggu aplikasi Claude dibuka ulang, T-02)
+> Diperbarui: 2026-10-15 · oleh agent, S01 selesai (1 butir tertunda), menunggu merge
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** tutup aplikasi Claude sepenuhnya (**Cmd+Q**), buka lagi, lalu ketik **`/sesi`** di percakapan baru. T-00 dan T-01 sudah selesai; T-02 sudah benar di Terminal, tetapi aplikasi Claude masih membawa Node 22 dari sebelum T-02.
-- **Fase:** 0 · Fondasi (belum dimulai)
-- **Sesi berikutnya:** **S01 · Monorepo & toolchain** → [sesi/S01-monorepo-toolchain.md](sesi/S01-monorepo-toolchain.md)
-- **MENUNGGU PEMILIK (memblokir S01):** T-02 langkah 2: buka ulang aplikasi Claude (Cmd+Q) supaya `node -v` di shell agent = v24
+- **Mulai di sini (pemilik):** setujui penggabungan S01 ke `main` (diminta di chat). Setelah itu buka percakapan baru dan ketik **`/sesi`** untuk S02. Saat aplikasi Claude bertanya, setujui server MCP baru `next-devtools` (T-00 langkah 2).
+- **Fase:** 0 · Fondasi (S01 selesai, 1 butir tertunda)
+- **Sesi berikutnya:** **S02 · GitHub & CI** → [sesi/S02-github-ci.md](sesi/S02-github-ci.md) · menunggu merge S01 ke `main`
+- **Tindak lanjut kecil (awal S02):** naikkan catalog `vite-plus` → 1.2.0 (boleh mulai 15 Okt 16:21 WIB) dan `react`/`react-dom` → 19.2.9 (mulai 15 Okt 23:54 WIB), lalu `pnpm verify` dan centang butir S01 yang tertunda (ADR-023)
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Dipakai usulan bila tidak dijawab:** P-1 repo privat · P-3 font Noto Naskh · P-4 anggaran $20/bln · P-7 retensi data
-- **Gerbang X01 (Next 16.4):** belum terpenuhi · terakhir dicek 2026-10-15
+- **Gerbang X01 (Next 16.4):** belum terpenuhi (OpenNext 1.20.11 belum menyebut dukungan 16.4) · terakhir dicek 2026-10-15
 
 ## Sudah bisa dicoba
 
-- Belum ada aplikasi yang berjalan. Yang tersedia: dokumen produk (`docs/`), rencana implementasi (`implementasi/`), dan setup agent (`CLAUDE.md`, `.claude/`).
+- `pnpm dev` → http://localhost:3004: template chat HeroUI Pro (belum bertema Surau) berjalan di monorepo baru.
+- `pnpm verify` → format, lint, cek tipe, tes, dan build sekaligus.
 
 ## Perhatian (risiko aktif)
 
 - **Gerbang versi Next:** OpenNext 1.20.11 belum mendukung Next 16.4 (perkiraan patch akhir Okt 2026). Surau memakai Next 16.3.8 + mitigasi; upgrade lewat sesi sisipan X01 (ADR-003).
 - **Lisensi HeroUI Pro** melarang publikasi komponen dan template Pro. Repo privat sampai ada izin (ADR-004, P-1).
 - **Lisensi teks:** Shamela tidak memberi hak pakai ulang, jadi dipakai rantai lisensi OpenITI (ADR-018).
-- **Vite+ masih baru** (1.0 pada 28 Sep 2026). S01 adalah spike; cadangannya Biome (ADR-008).
-- Template `web/` memakai Next 16.3.4 yang **rentan** (CVE RCE `next/og`). Jangan di-deploy sebelum S01 meng-upgrade.
+- **Vite+ masih baru** (1.0 pada 28 Sep 2026). Spike S01 lolos (check, lint, type-check apps/web, test, staged); cadangan Biome tidak dipakai (ADR-023).
+- **Advisory Next 16.3.8:** 3 kritis/tinggi di Next + 1 kritis di React RSC, semuanya ditambal di Next 16.4.1. Dimitigasi dengan larangan ADR-003 (tanpa `use cache`, Server Actions, optimasi gambar) dan larangan typed array dari Server Component (ADR-023). Kerjakan X01 sebelum `/rilis 0` bila gerbangnya terbuka.
 
 ## Progres
 
 | Fase | Sesi | Judul | Status | Catatan |
 |---|---|---|---|---|
 | – | S00 | Review dokumen & setup agent | selesai | 2026-10-15 |
-| 0 | S01 | Monorepo & toolchain | terblokir | T-00, T-01 selesai · menunggu T-02 (buka ulang app) |
+| 0 | S01 | Monorepo & toolchain | selesai* | 2026-10-15 · *vite-plus 1.2.0 tertunda (ADR-023) · menunggu merge |
 | 0 | S02 | GitHub & CI | belum | butuh T-03 (P-1), T-04 |
 | 0 | S03 | Deploy ke Cloudflare | belum | butuh T-05, T-06 (T-07 opsional) |
 | 0 | S04 | Identitas & fondasi UI | belum | butuh T-08 · lalu `/rilis 0` |

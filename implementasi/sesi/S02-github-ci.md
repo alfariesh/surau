@@ -16,6 +16,7 @@ Kode tersimpan di GitHub. Setiap PR otomatis diperiksa CI (`pnpm verify`), dan `
 
 ## Langkah
 
+0. **Tindak lanjut S01 (ADR-023):** bila sudah berumur ≥24 jam, naikkan catalog `vite-plus` → 1.2.0 dan `react`/`react-dom` → 19.2.9, lalu `pnpm install` + `pnpm verify`. Centang butir S01 "vite-plus lokal 1.2.0" dengan bukti dan perbarui STACK.md. Kerjakan ini di branch S02 (commit terpisah `chore(deps): …`).
 1. **Cek MCP Next.js** (ditambahkan di S01): saat `pnpm dev` berjalan, panggil `nextjs_index` lalu `nextjs_call` (misalnya `get_errors`). Catat hasilnya di Catatan hasil S01/S02. Pastikan juga keputusan **P-1** sudah ada (T-03). Default: **privat**.
 2. Minta izin pemilik, lalu buat repo: `gh repo create <owner>/surau --private --source . --remote origin`. Push `main`, yang sudah memuat S00 dan S01. Setelah itu buat branch `sesi/s02-ci` dari `main`.
 3. Minta pemilik menjalankan T-04 (secret untuk Actions **dan** Dependabot). Verifikasi dengan `gh secret list` dan `gh secret list --app dependabot`.

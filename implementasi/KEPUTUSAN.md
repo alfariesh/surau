@@ -78,7 +78,7 @@ Keduanya dibuat dengan `--location apac`. FTS5 memakai teks yang **dinormalisasi
 - TypeScript 7.0.2: Next ≥16.3 memakai `tsc` CLI lokal untuk type-check. Kombinasi Next 16.3.8 + TS7 diverifikasi di spike S01; bila gagal, pakai TS 6. ESLint dibuang karena typescript-eslint mensyaratkan TS <6.1.
 - Node 24 LTS: dipin di `.node-version`, pnpm dipin di `packageManager`.
 
-**Ditolak:** ESLint + Prettier (bentrok dengan TS7, lambat, banyak config); Turborepo (`vp run` sudah cukup); Biome sebagai **cadangan** bila Vite+ bermasalah serius. **Konsekuensi:** di `apps/web` jangan memakai `vp dev`/`vp build`, karena itu build Vite, bukan Next. Pakai `vp run build` atau script pnpm. S01 adalah *spike* untuk memverifikasi semua ini. Bila gagal, catat ADR baru dan pakai cadangan.
+**Ditolak:** ESLint + Prettier (bentrok dengan TS7, lambat, banyak config); Turborepo (`vp run` sudah cukup); Biome sebagai **cadangan** bila Vite+ bermasalah serius. **Konsekuensi:** di `apps/web` jangan memakai `vp dev`/`vp build`, karena itu build Vite, bukan Next. Pakai `vp run build` atau script pnpm. S01 adalah *spike* untuk memverifikasi semua ini. Bila gagal, catat ADR baru dan pakai cadangan. **Hasil spike:** lolos, lihat ADR-023.
 
 ## ADR-009 · Tanpa ORM di Fase 0–4: migrasi SQL `wrangler d1 migrations` + repository bertipe (Zod) — diterima · 2026-10-15
 
@@ -197,3 +197,23 @@ Turnstile mode Managed hanya di Jawab. Token ditukar menjadi cookie anonim HMAC 
 5. Biaya transparan dan nirlaba.
 
 MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari sebagai referensi desain (nisbah ke pengucap, catatan kaki milik muhaqqiq, konten kitab adalah data dan bukan instruksi).
+
+## ADR-023 · Hasil spike toolchain S01: Vite+ dan TS7 lolos, dengan penyesuaian versi dan konfigurasi — diterima · 2026-10-15
+
+**Konteks:** S01 memverifikasi ADR-008. Hasilnya: `vp check` (Oxfmt + Oxlint + type-check tsgolint) memeriksa `apps/web` memakai tsconfig app (diuji dengan error tipe yang disengaja), `vp test` tidak mengumpulkan `docs/**`, dan `next build` 16.3.8 berjalan dengan `tsc` TypeScript 7.0.2. Cadangan Biome **tidak** dipakai. Beberapa hal menyimpang dari rencana tertulis atau belum tercatat:
+
+**Keputusan:**
+1. **Versi muda ditunda, bukan dikecualikan.** `vite-plus` 1.2.0 (terbit 14 Okt 09:21 UTC) dan `react`/`react-dom` 19.2.9 (14 Okt 16:54 UTC) berumur <24 jam saat S01, sehingga ditolak `minimumReleaseAge`. Catalog sementara memakai `vite-plus` **1.1.0** dan React **19.2.8**. Keduanya dinaikkan setelah cukup umur (cukup ubah catalog lalu `pnpm install`; lihat Catatan hasil S01). Tidak ada `minimumReleaseAgeExclude`.
+2. **`minimumReleaseAge: 1440` ditulis eksplisit** di `pnpm-workspace.yaml`. Dengan nilai bawaan, pnpm 12 diam-diam menambahkan paket yang belum cukup umur ke `minimumReleaseAgeExclude` (terjadi pada wrangler 4.151.0). Nilai eksplisit menyalakan mode strict: install gagal, tidak melonggarkan diri.
+3. **Build script `@zowe/secrets-for-zowe-sdk` ditolak** (`allowBuilds: false`). Paket ini dibawa CLI `heroui-pro` (dependensi `@heroui-pro/react`) untuk akses keychain. Postinstall Pro tetap berhasil mengunduh artefak tanpa paket itu (sudah diuji, termasuk dari `node_modules` kosong). Bila CI (S02) gagal mengunduh artefak Pro dengan `HEROUI_AUTH_TOKEN`, tinjau ulang poin ini.
+4. **`turbopack.root` di `next.config.ts`** menunjuk root monorepo. Ada `pnpm-workspace.yaml` di luar repo (folder home pemilik) yang membuat Next menebak root secara keliru dan memberi peringatan.
+5. **Lint `nextjs/no-img-element` dimatikan.** `images.unoptimized` (ADR-003) membuat `next/image` tidak memberi optimasi di Workers.
+6. **Advisory yang mengenai Next 16.3.8, dimitigasi lewat larangan ADR-003 sampai X01:**
+   - GHSA-673q-mjm6-r5xr (kritis, RCE `use cache` dengan typed array). Mitigasi: `cacheComponents: false` dan larangan `'use cache'`.
+   - GHSA-2464-fhr4-w9xw (kritis, RCE Image Optimization dengan SVG). Mitigasi: `images.unoptimized: true`.
+   - GHSA-p3m5-59mp-jv5r (DoS Server Actions). Mitigasi: tanpa Server Actions.
+   - GHSA-xqc2-xf4c-x3h3 di React (kritis, RCE pada RSC yang mengirim typed array bersama nilai dari penyerang; tambalannya React 19.2.9). App Router Next memakai salinan React **bawaan Next** (`19.3.0-canary` di `next/dist/compiled`), bukan paket `react` di catalog. Jadi menaikkan `react` ke 19.2.9 tidak menambal sisi server; tambalannya datang lewat Next 16.4.1 (X01). Mitigasi: tanpa Server Actions, tanpa `'use cache'`, dan tidak mengirim typed array (`Uint8Array` dan sejenisnya) dari Server Component ke klien.
+
+**Ditolak:** `minimumReleaseAgeExclude` untuk vite-plus/React (melemahkan pengaman rantai pasok demi versi minor); cadangan Biome (tidak perlu, Vite+ bekerja).
+**Konsekuensi:** Larangan ADR-003 sekarang juga menjadi mitigasi keamanan, bukan hanya kehati-hatian. Peninjau wajib menolak `'use server'`, `'use cache'`, dan typed array di props Server Component. X01 sebaiknya dikerjakan sebelum `/rilis 0` begitu gerbangnya terbuka.
+**Tinjau ulang bila:** X01 selesai (Next 16.4.1+), atau CI gagal mengunduh artefak HeroUI Pro.

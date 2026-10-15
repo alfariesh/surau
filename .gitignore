@@ -11,3 +11,22 @@ __pycache__/
 # Claude Code (lokal per mesin)
 .claude/settings.local.json
 CLAUDE.local.md
+
+# Build & runtime lokal
+.next/
+.open-next/
+.wrangler/
+*.tsbuildinfo
+next-env.d.ts
+
+# Data kitab & eval privat (tidak pernah di-commit)
+data/raw/
+data/build/
+evals/private/
+
+# HeroUI (berlisensi, jangan di-commit)
+.heroui-docs/
+.claude/skills/heroui-*
+
+# Vite+ hook dispatcher (dibuat ulang oleh `vp config`)
+.vite-hooks/_/

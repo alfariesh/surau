@@ -8,23 +8,23 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
-| Node.js LTS | 24.22.0 (`.node-version`) | – | https://nodejs.org/docs/latest-v24.x/api/ · `node:sqlite` https://nodejs.org/docs/latest-v24.x/api/sqlite.html · type stripping https://nodejs.org/docs/latest-v24.x/api/typescript.html | 008 |
-| pnpm | 12.11.2 (`packageManager`) | – | https://pnpm.io/settings · https://pnpm.io/catalogs · build scripts https://pnpm.io/settings/build | 008 |
-| Vite+ (`vp`) | 1.2.0 | global 1.1.0 | https://viteplus.dev/llms.txt · monorepo https://viteplus.dev/guide/monorepo · CI https://viteplus.dev/guide/ci | 008 |
-| Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | – | https://oxc.rs/llms.txt | 008 |
-| Vitest (di dalam Vite+) | 5.x | – | https://vitest.dev/llms.txt | 008 |
-| TypeScript | 7.0.2 | – | https://nextjs.org/docs/app/api-reference/config/typescript | 008 |
+| Node.js LTS | 24.22.0 (`.node-version`) | 24.22.0 (dicek 2026-10-15) | https://nodejs.org/docs/latest-v24.x/api/ · `node:sqlite` https://nodejs.org/docs/latest-v24.x/api/sqlite.html · type stripping https://nodejs.org/docs/latest-v24.x/api/typescript.html | 008 |
+| pnpm | 12.11.2 (`packageManager`) | 12.11.2 (terbaru 12.13.0; dicek 2026-10-15) | https://pnpm.io/settings · https://pnpm.io/catalogs · build scripts https://pnpm.io/settings/build | 008 |
+| Vite+ (`vp`) | 1.2.0 | lokal **1.1.0** (1.2.0 belum 24 jam, ADR-023) · global 1.1.0 · dicek 2026-10-15 | https://viteplus.dev/llms.txt · monorepo https://viteplus.dev/guide/monorepo · CI https://viteplus.dev/guide/ci | 008 |
+| Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | oxlint 1.87.0 · oxfmt 0.72.0 (lewat vite-plus 1.1.0) | https://oxc.rs/llms.txt | 008 |
+| Vitest (di dalam Vite+) | 5.x | 5.0.3 (lewat vite-plus 1.1.0) | https://vitest.dev/llms.txt | 008 |
+| TypeScript | 7.0.2 | 7.0.2 (root + apps/web; dicek 2026-10-15) | https://nextjs.org/docs/app/api-reference/config/typescript | 008 |
 | Playwright | 1.64.x (chromium saja) | – | https://playwright.dev/docs/intro | 017 |
 
 ## Web
 
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
-| Next.js | **16.3.8** sekarang (+ mitigasi ADR-003); naik ke 16.4.x lewat sesi [X01](sesi/X01-upgrade-next-16-4.md) setelah OpenNext mendukung | 16.3.4 (template, rentan) | **Utamakan** `apps/web/node_modules/next/dist/docs/` · https://nextjs.org/docs/llms.txt · agent guide https://nextjs.org/docs/app/guides/ai-agents · advisories https://github.com/vercel/next.js/security/advisories | 003 |
-| React / React DOM | 19.2.x bersama Next 16.3.8; 19.3.x bersama Next 16.4 | 19.2.6 | https://react.dev | 003 |
+| Next.js | **16.3.8** sekarang (+ mitigasi ADR-003); naik ke 16.4.x lewat sesi [X01](sesi/X01-upgrade-next-16-4.md) setelah OpenNext mendukung | **16.3.8** (dicek 2026-10-15; advisory dimitigasi, ADR-023) | **Utamakan** `apps/web/node_modules/next/dist/docs/` · https://nextjs.org/docs/llms.txt · agent guide https://nextjs.org/docs/app/guides/ai-agents · advisories https://github.com/vercel/next.js/security/advisories | 003 |
+| React / React DOM | 19.2.x bersama Next 16.3.8; 19.3.x bersama Next 16.4 | 19.2.8 (19.2.9 belum 24 jam, ADR-023) | https://react.dev | 003 |
 | @opennextjs/cloudflare | 1.20.11+ | – | https://opennext.js.org/cloudflare · rilis https://github.com/opennextjs/opennextjs-cloudflare/releases · *batas ukuran 3/10 MiB di docs ini sudah usang; yang berlaku 64 MiB* | 003 |
 | HeroUI OSS (`@heroui/react`, `@heroui/styles`) | 3.2.6 | 3.2.6 | MCP `heroui-pro` (level user, T-01) · https://heroui.com/react/llms.txt | 004 |
-| HeroUI Pro (`@heroui-pro/react`) | **1.0.0-beta.10 persis** | "latest" (harus dipin) | MCP `heroui-pro` (`list_components`, `get_component_docs`) · https://heroui.pro/docs/react/llms.txt · instalasi/CI https://heroui.pro/docs/react/getting-started/installation · terms https://heroui.pro/terms | 004 |
+| HeroUI Pro (`@heroui-pro/react`) | **1.0.0-beta.10 persis** | 1.0.0-beta.10 (catalog, dicek 2026-10-15) | MCP `heroui-pro` (`list_components`, `get_component_docs`) · https://heroui.pro/docs/react/llms.txt · instalasi/CI https://heroui.pro/docs/react/getting-started/installation · terms https://heroui.pro/terms | 004 |
 | Tailwind CSS | 4.x (ikut template) | 4.2.2 | https://tailwindcss.com/docs | 004 |
 | next-themes | 0.4.6 | – | https://heroui.com/docs/react/getting-started/dark-mode | 004 |
 | Ikon | `@gravity-ui/icons` saja | 2.18.0 | https://gravity-ui.com/icons | 004 |
@@ -34,7 +34,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
-| Wrangler | 4.151.0+ (devDependency, **jangan pakai yang global**) | global 4.126 (usang) | MCP `cloudflare-docs` · https://developers.cloudflare.com/workers/llms.txt · skill `wrangler` | 002 |
+| Wrangler | 4.151.0+ (devDependency, **jangan pakai yang global**) | 4.151.0 (devDependency root, catalog; dicek 2026-10-15) · global 4.126 (usang) | MCP `cloudflare-docs` · https://developers.cloudflare.com/workers/llms.txt · skill `wrangler` | 002 |
 | Workers (limits, pricing) | Paid | – | https://developers.cloudflare.com/workers/platform/limits/ | 002 |
 | D1 + FTS5 | – | – | https://developers.cloudflare.com/d1/llms-full.txt · limits https://developers.cloudflare.com/d1/platform/limits/ · migrasi https://developers.cloudflare.com/d1/reference/migrations/ · impor https://developers.cloudflare.com/d1/best-practices/import-export-data/ · FTS5 https://www.sqlite.org/fts5.html | 005 |
 | R2 | – | – | https://developers.cloudflare.com/r2/llms-full.txt | 005 |
@@ -61,6 +61,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 | `@anthropic-ai/sdk` | 0.134.x | – | skill `claude-api` (**wajib dimuat sebelum menulis kode Claude**) · https://platform.claude.com/docs/en/about-claude/pricing · Citations https://platform.claude.com/docs/en/build-with-claude/citations · Batches https://platform.claude.com/docs/en/build-with-claude/batch-processing | 013 |
 | Model | `claude-haiku-5-5` (utama), `claude-sonnet-5-5` (fallback refusal & pembanding) | – | lihat aturan di ADR-013 | 013 |
 | `@modelcontextprotocol/server` (+ `client` untuk tes) | 2.3.x | – | https://ts.sdk.modelcontextprotocol.io/v2/llms.txt · spec https://modelcontextprotocol.io/llms.txt | 011 |
+| `next-devtools-mcp` (MCP agent untuk dev server Next) | 0.4.0 (`.mcp.json`) | 0.4.0 · endpoint `/_next/mcp` diuji lewat curl 2026-10-15 | https://nextjs.org/docs/app/guides/mcp · `apps/web/node_modules/next/dist/docs/01-app/02-guides/mcp.md` | 003 |
 | MCP Inspector | 2.11.x | – | https://github.com/modelcontextprotocol/inspector | 011 |
 | Better Auth (ditunda) | 1.7.x (adapter D1 bawaan) | – | https://better-auth.com/docs/llms.txt · MCP https://mcp.better-auth.com/mcp | 016 |
 
