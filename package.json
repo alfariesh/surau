@@ -10,7 +10,8 @@
     "test:e2e": "pnpm --filter @surau/web test:e2e",
     "build": "vp run -r build",
     "verify": "pnpm check && pnpm test && pnpm build",
-    "prepare": "vp config --no-agent"
+    "prepare": "vp config --no-agent",
+    "bench:text": "node tools/ingest/scripts/bench-normalize.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",
