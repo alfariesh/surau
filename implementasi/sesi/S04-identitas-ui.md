@@ -82,4 +82,5 @@ Template chat berubah menjadi **Surau**: shell berbahasa Indonesia, tema dan tip
 - `SITE_URL` di `layout.tsx` dan URL di `deploy.yml` perlu diganti saat domain siap (P-2).
 - Lisensi konten di halaman Tentang ditulis "direncanakan" sampai ADR-021/P-6 disetujui; ubah kalimatnya setelah itu.
 - Fase aktif di peta Beranda diatur lewat `current: true` di `id.home.roadmap`; pindahkan saat Fase 1 dirilis.
+- Deploy pertama setelah merge gagal di smoke karena masa transisi versi Worker (lihat LOG); `deploy.yml` kini mengulang smoke sampai 200.
 - S09 (UI pembaca) memakai `ArabicText`; untuk teks panjang uji ulang `--arabic-leading` dan ukuran di ponsel.
