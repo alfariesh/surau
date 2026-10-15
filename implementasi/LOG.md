@@ -21,7 +21,7 @@ Format entri:
 - Verifikasi: `pnpm verify` → lolos · `pnpm test` → 126 tes (golden 50, property 3×2.000, Ihya 5), cakupan fungsi `packages/text/src` 100% (47/47) · smoke Node 24.22 → lolos · e2e `/api/version` → lolos (chromium + ponsel) · `pnpm bench:text` → ±0,50 dtk/5 juta karakter (sintetis), ±0,55 dtk/5 juta (Ihya 5,48 juta karakter) · Ihya hanya-baca: 4.204/4.204 penanda (١) terhubung, 0 catatan yatim, 0 tag tak dikenal, round-trip kutipan 0 gagal · peninjau: 0 blocker, temuan diterapkan.
 - Biaya API: –
 - Keputusan: ADR-028
-- Catatan untuk sesi berikutnya: S06 mengisi `meta.norm_version` dari `NORM_VERSION`. S07 menulis pemisah takhrij `//` di `packages/text`, melaporkan `unknownTags`, dan memeriksa 2 judul tanpa span (311 baris `title` vs 309 span). Agent: tulis escape `\\uXXXX` lewat skrip bash, bukan alat Write/Edit.
+- Catatan untuk sesi berikutnya: S06 mengisi `meta.norm_version` dari `NORM_VERSION`. S07 menulis pemisah takhrij `//` di `packages/text`, melaporkan `unknownTags`, dan memeriksa 2 judul tanpa span (311 baris `title` vs 309 span). Agent: tulis escape `\uXXXX` lewat skrip bash, bukan alat Write/Edit.
 
 ## 2026-10-15 · Rilis Fase 0 · Fondasi — selesai (`rilis-f0`)
 
