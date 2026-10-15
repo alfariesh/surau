@@ -13,8 +13,8 @@
   },
   "services": [
     {
-      // Self-reference untuk cache OpenNext; nama harus sama dengan `name`.
-      // Catatan: dari Preview, binding ini memanggil deployment PRODUKSI (keterbatasan Workers).
+      // Self-reference OpenNext (revalidasi/queue ISR); nama harus sama dengan `name`. Dengan queue
+      // default (`dummy`) praktis belum dipakai. Dari Preview, binding ini memanggil PRODUKSI (ADR-026).
       "binding": "WORKER_SELF_REFERENCE",
       "service": "surau-web",
     },
@@ -25,13 +25,21 @@
       "bucket_name": "surau-next-cache",
     },
   ],
+  // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
   "observability": {
     "enabled": true,
+    "redact_query_string": true,
     "logs": { "enabled": true, "head_sampling_rate": 1 },
     "traces": { "enabled": true, "head_sampling_rate": 0.1 },
   },
   "upload_source_maps": true,
   "previews": {
+    "observability": {
+      "enabled": true,
+      "redact_query_string": true,
+      "logs": { "enabled": true, "head_sampling_rate": 1 },
+      "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+    },
     "services": [
       {
         "binding": "WORKER_SELF_REFERENCE",

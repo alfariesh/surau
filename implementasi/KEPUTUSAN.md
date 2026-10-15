@@ -249,3 +249,25 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** risiko pelanggaran Terms HeroUI Pro §9 aktif. Bila HeroUI menegur, jalan keluarnya: hapus komponen/template Pro dari kode (beralih ke OSS), dan bila diminta, buat repo baru tanpa riwayat lama. Draf email izin ke HeroUI (lampiran TUGAS-PEMILIK) tetap disarankan dikirim. Kontributor tanpa lisensi Pro tetap tidak bisa mem-build `apps/web` (ADR-004). ADR-024 butir 7 (tanpa proteksi branch) diganti oleh butir 3 ADR ini.
 **Bila kembali privat:** proteksi `main` hilang lagi (akun Free, HTTP 403; kembali ke ADR-024 butir 7), CI memakai kuota menit lagi (pastikan kuota sudah pulih atau akun di-upgrade), dan salinan publik yang sempat dibuat orang lain tidak ikut tertarik.
 **Tinjau ulang bila:** tahap uji selesai (rencana kembali privat), HeroUI memberi jawaban atas permintaan izin atau menegur, atau UI beralih ke OSS-only.
+
+## ADR-026 · Deploy web: OpenNext 1.20.11 di Worker `surau-web`, cache R2 + regional, Preview per PR lewat `wrangler preview` — diterima · 2026-10-15
+
+**Konteks:** S03 memasang deploy Cloudflare (ADR-002, ADR-003, ADR-017). Fakta lapangan 15 Okt 2026: peer OpenNext 1.20.11 = `next >=15.5.27 <16 || >=16.3.8`, jadi 16.3.8 adalah versi minimum yang didukung resmi. Range itu secara peer juga mencakup 16.4, tetapi catatan rilis belum menyebut 16.4 diuji (gerbang X01 tetap tertutup). Worker Previews butuh blok `previews` yang tidak mewarisi binding dari produksi.
+
+**Keputusan:**
+1. Satu Worker `surau-web` (`apps/web/wrangler.jsonc`), `compatibility_date` 2026-10-14 (tanggal terbaru yang didukung workerd 1.20261012 di wrangler 4.151.0), flag `nodejs_compat` + `global_fetch_strictly_public`, tanpa binding `IMAGES` (`images.unoptimized`, ADR-003).
+2. Cache ISR: `withRegionalCache(r2IncrementalCache, { mode: "long-lived" })` di R2 `surau-next-cache` (produksi) dan `surau-next-cache-preview` (Preview). Queue dan tag cache dibiarkan default (`dummy`/tanpa tag cache): belum ada revalidasi berbasis waktu atau `revalidateTag`.
+3. Observability: log 100%, trace 10%, **`redact_query_string: true`** di produksi dan Preview, supaya pertanyaan pengguna di query string (cari, Jawab) tidak tercatat (P-7). `upload_source_maps: true`.
+4. CI/CD: `deploy.yml` (push ke `main` atau manual **hanya dari `main`**: build OpenNext → `opennextjs-cloudflare deploy`, yang juga mengisi cache R2 produksi → smoke `curl` 3 halaman) dan `preview.yml` (PR dari repo ini, bukan Dependabot: build → `wrangler preview --name pr-<n> --json` → smoke `curl` → satu komentar URL yang diperbarui; saat PR ditutup, Preview dihapus dan kegagalannya hanya menjadi peringatan). Langkah install bersama dipindah ke action komposit `.github/actions/siapkan` (dipakai juga oleh `ci.yml`); token HeroUI tetap hanya di cek + install (ADR-024), token Cloudflare hanya di langkah deploy/preview/hapus.
+5. Smoke test memakai `curl`, **bukan Playwright** seperti tertulis di ADR-017. Playwright baru dipasang di S04 (`test:e2e`); smoke Playwright di `preview.yml` ditambahkan saat itu.
+6. Deploy belum memigrasi D1: belum ada D1 sampai Fase 1 (S06 menambahkan migrasi `surau-app` ke `deploy.yml`).
+7. Deploy produksi pertama dilakukan dari lokal (`opennextjs-cloudflare deploy`, versi `6347e851`) sebelum Preview pertama, karena service binding self-reference dari Preview memanggil produksi.
+
+**Keterbatasan yang diketahui:**
+- `WORKER_SELF_REFERENCE` dari Preview memanggil Worker **produksi**. Dengan queue `dummy` binding ini praktis tidak dipakai. Bila kelak memakai `memoryQueue`/DO queue untuk ISR, revalidasi dari Preview akan mengenai Worker dan cache R2 produksi: tinjau ulang sebelum itu.
+- `opennextjs-cloudflare populateCache remote` membaca `bucket_name` top-level (produksi); jangan dipakai di `preview.yml`. Cache R2 Preview kosong, jadi halaman ISR di Preview dirender on-demand.
+- `pnpm --filter @surau/web preview` (wrangler dev) masih menyimpan state di `apps/web/.wrangler/state`, sedangkan `next dev` memakai `<root>/.wrangler/state` (ARSITEKTUR-TEKNIS §7 aturan 1). Isi cache-nya dibuat ulang setiap build, jadi belum berdampak; S06 wajib menyamakan lokasi ini sebelum ada D1 lokal.
+- URL produksi `surau-web.alfarieshsalman.workers.dev` ditulis di `deploy.yml` sampai ada domain (T-07, P-2).
+
+**Ditolak:** `cloudflare/wrangler-action` (lapisan tambahan; `pnpm exec wrangler` memakai versi catalog), Workers Builds (ADR-017), `npx wrangler` di job hapus (melewati `minimumReleaseAge`; diganti `pnpm dlx` dengan versi dari catalog).
+**Tinjau ulang bila:** OpenNext menyatakan dukungan Next 16.4 (X01), ISR berbasis waktu atau `revalidateTag` mulai dipakai (perlu queue + tag cache), domain sendiri siap, atau D1 masuk (S06).
