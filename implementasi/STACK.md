@@ -15,7 +15,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 | `actions/checkout`, `actions/cache` (CI) | v7.0.1 (`3d3c42e5…`), v6.1.0 (`55cc8345…`, `restore`/`save`) | idem di `ci.yml` (dicek 2026-10-15) | https://github.com/actions/checkout · https://github.com/actions/cache | 024 |
 | Dependabot | `version: 2`, npm + github-actions | `.github/dependabot.yml` (dicek 2026-10-15) · pnpm 12 + catalog belum resmi didukung | https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference | 024 |
 | Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | oxlint 1.88.0 · oxfmt 0.73.0 (lewat vite-plus 1.2.0) | https://oxc.rs/llms.txt | 008 |
-| Vitest (di dalam Vite+) | 5.x | 5.0.4 (lewat vite-plus 1.2.0) | https://vitest.dev/llms.txt | 008 |
+| Vitest (di dalam Vite+) | 5.x | 5.0.4 (lewat vite-plus 1.2.0) · cakupan `@vitest/coverage-v8` **5.0.4** (dipin sama dengan vitest bawaan, root; dicek 2026-10-15, S05) | https://vitest.dev/llms.txt · coverage https://vitest.dev/guide/coverage | 008, 028 |
 | TypeScript | 7.0.2 | 7.0.2 (root + apps/web; dicek 2026-10-15) | https://nextjs.org/docs/app/api-reference/config/typescript | 008 |
 | Playwright | 1.64.x (chromium saja) | `@playwright/test` **1.64.0** (1.64.1 belum 24 jam) + `@axe-core/playwright` 4.13.0 (MPL-2.0, dev), apps/web; dicek 2026-10-15 | https://playwright.dev/docs/intro | 017 |
 

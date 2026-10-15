@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { NORM_VERSION } from "@surau/text";
 
 import { BASMALAH } from "../src/content/basmalah";
 
@@ -78,4 +79,12 @@ test("respons HTML membawa header keamanan dasar", async ({ request }) => {
   expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
   expect(headers["x-frame-options"]).toBe("DENY");
   expect(headers["permissions-policy"]).toContain("camera=()");
+});
+
+test("API versi melaporkan NORM_VERSION dari @surau/text", async ({ request }) => {
+  const response = await request.get("/api/version");
+
+  expect(response.ok()).toBe(true);
+  expect(response.headers()["cache-control"]).toContain("no-store");
+  expect(await response.json()).toEqual({ normVersion: NORM_VERSION });
 });

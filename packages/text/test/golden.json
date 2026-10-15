@@ -1,0 +1,168 @@
+{
+  "_about": "Golden vectors normalizeArabic + stemText (@surau/text). Semua input adalah kalimat pendek buatan atau frasa umum (bukan teks Shamela, bukan kutipan OpenITI). Perubahan aturan normalisasi wajib memperbarui file ini secara sadar DAN menaikkan normVersion (lihat README paket).",
+  "normVersion": 1,
+  "cases": [
+    { "id": "harakat-dasar", "input": "الصَّبْرُ", "norm": "الصبر", "stem": "صبر" },
+    { "id": "tanwin-syaddah", "input": "عِلْمًا نَافِعًا", "norm": "علما نافعا", "stem": "علما نافعا" },
+    { "id": "hamzah-atas-alif", "input": "أَحْمَدُ", "norm": "احمد", "stem": "احمد" },
+    { "id": "hamzah-bawah-alif", "input": "إِسْلَامٌ", "norm": "اسلام", "stem": "اسلام" },
+    { "id": "alif-maddah", "input": "آمَنَ", "norm": "امن", "stem": "امن" },
+    { "id": "alif-wasla", "input": "ٱلْحَمْدُ لِلَّهِ", "norm": "الحمد لله", "stem": "حمد الله" },
+    { "id": "alif-maqsurah", "input": "مُوسَى عَلَى", "norm": "موسي علي", "stem": "موسي علي" },
+    { "id": "ta-marbuthah", "input": "صَلَاةُ الْجَمَاعَةِ", "norm": "صلاه الجماعه", "stem": "صلاه جماعه" },
+    { "id": "kursi-waw", "input": "مُؤْمِنٌ", "norm": "مومن", "stem": "مومن" },
+    { "id": "kursi-ya", "input": "مَسَائِلُ", "norm": "مسايل", "stem": "مسايل" },
+    {
+      "id": "kursi-mati",
+      "input": "مسئول مسؤول",
+      "norm": "مسئول مسؤول",
+      "stem": "مسئول مسؤول",
+      "opts": { "hamzaSeats": false }
+    },
+    { "id": "hamzah-lepas", "input": "شَيْءٌ", "norm": "شيء", "stem": "شيء" },
+    { "id": "hamzah-gabung", "input": "ا\u0654", "norm": "ا", "stem": "ا" },
+    { "id": "tatweel", "input": "ال\u0640\u0640\u0640علم", "norm": "العلم", "stem": "علم" },
+    { "id": "alif-khanjariyah", "input": "الرَّحْمٰنِ", "norm": "الرحمن", "stem": "رحمن" },
+    {
+      "id": "waqaf-lepas",
+      "input": "لَا رَيْبَ \u06DB فِيهِ \u06DB",
+      "norm": "لا ريب فيه",
+      "stem": "لا ريب فيه"
+    },
+    {
+      "id": "tanda-quran-dalam-kata",
+      "input": "كت\u06DFاب الكتاب\u06D6",
+      "norm": "كتاب الكتاب",
+      "stem": "كتاب كتاب"
+    },
+    { "id": "waw-kecil", "input": "لَهُ\u06E5", "norm": "له", "stem": "له" },
+    { "id": "tanda-kehormatan-kecil", "input": "محمد\u0610", "norm": "محمد", "stem": "محمد" },
+    {
+      "id": "akhir-ayat-pemisah",
+      "input": "الحمد\u06DDلله رب العالمين \u06DD٢",
+      "norm": "الحمد لله رب العالمين 2",
+      "stem": "حمد الله رب عالمين 2"
+    },
+    { "id": "rub-pemisah", "input": "قال\u06DEثم", "norm": "قال ثم", "stem": "قال ثم" },
+    { "id": "sajdah-pemisah", "input": "يسجدون\u06E9ثم", "norm": "يسجدون ثم", "stem": "يسجدون ثم" },
+    {
+      "id": "angka-arab-india",
+      "input": "سنة ١٤٠٢ ه\u0640",
+      "norm": "سنه 1402 ه",
+      "stem": "سنه 1402 ه"
+    },
+    { "id": "angka-persia", "input": "۱۲۳", "norm": "123", "stem": "123" },
+    {
+      "id": "ligatur-saw",
+      "input": "النبي \uFDFA قال",
+      "norm": "النبي صلي الله عليه وسلم قال",
+      "stem": "نبي صلي الله عليه وسلم قال"
+    },
+    {
+      "id": "ligatur-saw-menempel",
+      "input": "النبي\uFDFAقال",
+      "norm": "النبي صلي الله عليه وسلم قال",
+      "stem": "نبي صلي الله عليه وسلم قال"
+    },
+    {
+      "id": "ligatur-jalla",
+      "input": "الله \uFDFB",
+      "norm": "الله جل جلاله",
+      "stem": "الله جل جلاله"
+    },
+    { "id": "ligatur-allah", "input": "\uFDF2", "norm": "الله", "stem": "الله" },
+    {
+      "id": "ligatur-radhiya-u14",
+      "input": "عمر \uFD41",
+      "norm": "عمر رضي الله عنه",
+      "stem": "عمر رضي الله عنه"
+    },
+    {
+      "id": "ligatur-azza-u14",
+      "input": "الله\uFDFF",
+      "norm": "الله عز وجل",
+      "stem": "الله عز وجل"
+    },
+    {
+      "id": "ligatur-basmalah-u14",
+      "input": "\uFDFD",
+      "norm": "بسم الله الرحمن الرحيم",
+      "stem": "بسم الله رحمن رحيم"
+    },
+    {
+      "id": "presentation-huruf",
+      "input": "\uFE8D\uFEDF\uFEBC\uFE92\uFEAE",
+      "norm": "الصبر",
+      "stem": "صبر"
+    },
+    { "id": "presentation-lam-alif", "input": "\uFEB3\uFEFC\uFEE1", "norm": "سلام", "stem": "سلام" },
+    { "id": "presentation-harakat", "input": "كتب\uFE77 \uFE70", "norm": "كتب", "stem": "كتب" },
+    {
+      "id": "kurung-hias",
+      "input": "\uFD3Eقل هو الله احد\uFD3F",
+      "norm": "قل هو الله احد",
+      "stem": "قل هو الله احد"
+    },
+    {
+      "id": "html-judul",
+      "input": "<span data-type=\"title\" id=toc-6>بَابُ الصَّبْرِ</span>\rأَمَّا بَعْدُ",
+      "norm": "باب الصبر اما بعد",
+      "stem": "باب صبر اما بعد"
+    },
+    {
+      "id": "penanda-catatan-kaki",
+      "input": "قال (١) ثم ( ١٢ ) قال",
+      "norm": "قال ثم قال",
+      "stem": "قال ثم قال"
+    },
+    {
+      "id": "penanda-dipertahankan",
+      "input": "رشده (١٢) وقال",
+      "norm": "رشده 12 وقال",
+      "stem": "رشده 12 وقال",
+      "opts": { "dropFootnoteRefs": false }
+    },
+    { "id": "penanda-5-digit-bukan", "input": "(١٢٣٤٥)", "norm": "12345", "stem": "12345" },
+    {
+      "id": "tanda-baca",
+      "input": "قَالَ: «نَعَمْ»، ثُمَّ؟ {بَلَى}",
+      "norm": "قال نعم ثم بلي",
+      "stem": "قال نعم ثم بلي"
+    },
+    { "id": "lebar-nol", "input": "\uFEFFعل\u200Cم\u200F", "norm": "علم", "stem": "علم" },
+    { "id": "huruf-persia", "input": "\u06A9\u06CC", "norm": "كي", "stem": "كي" },
+    {
+      "id": "latin-kecil",
+      "input": "Ihya ULUM ad-Din",
+      "norm": "ihya ulum ad din",
+      "stem": "ihya ulum ad din"
+    },
+    { "id": "latin-diakritik-gabung", "input": "e\u0301te", "norm": "ete", "stem": "ete" },
+    { "id": "kosong", "input": " ،؛ ... \r\n ", "norm": "", "stem": "" },
+    {
+      "id": "stem-artikel",
+      "input": "والصبر بالصبر للصبر فالصبر كالصبر",
+      "norm": "والصبر بالصبر للصبر فالصبر كالصبر",
+      "stem": "صبر صبر صبر صبر صبر"
+    },
+    {
+      "id": "stem-lafaz-allah",
+      "input": "والله بالله لله تالله اللهم",
+      "norm": "والله بالله لله تالله اللهم",
+      "stem": "الله الله الله الله اللهم"
+    },
+    {
+      "id": "stem-maushul",
+      "input": "والذين بالذي للذين فالتي",
+      "norm": "والذين بالذي للذين فالتي",
+      "stem": "الذين الذي الذين التي"
+    },
+    {
+      "id": "stem-tanpa-artikel",
+      "input": "وصبر فضيلة وجوب",
+      "norm": "وصبر فضيله وجوب",
+      "stem": "وصبر فضيله وجوب"
+    },
+    { "id": "stem-sisa-pendek", "input": "إلا إلى", "norm": "الا الي", "stem": "الا الي" }
+  ]
+}

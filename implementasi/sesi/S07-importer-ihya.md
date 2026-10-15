@@ -27,11 +27,11 @@ Pipeline lokal yang mengubah Ihya dari Shamela (`book/472/9472.db`) menjadi data
 
 ## Langkah
 
-1. Buat `tools/ingest` (Node 24, type stripping, impor `@surau/text` dan `@surau/db` untuk tipe skema). Bungkus akses SQLite di `src/sqlite.ts` (`new DatabaseSync(path, { readOnly: true })`). Jangan pernah menulis ke `/Volumes`.
+1. Lanjutkan `tools/ingest` (paketnya sudah dibuat di S05 berisi `scripts/smoke-text.ts`, `scripts/bench-normalize.ts`, dan tes integrasi `test/ihya-text.test.ts`; Node 24, type stripping, impor `@surau/text` dan `@surau/db` untuk tipe skema). Bungkus akses SQLite di `src/sqlite.ts` (`new DatabaseSync(path, { readOnly: true })`). Jangan pernah menulis ke `/Volumes`.
 2. **Sumber & lisensi:**
    - Unduh dua file OpenITI yang dipin ke `data/raw/openiti/` (git-ignored). Catat sha256-nya di `data/SOURCES.md`.
    - Buat `data/LICENSE` (CC BY-NC-SA 4.0 untuk konten turunan) dan `data/ATTRIBUTION.md` (OpenITI 2025.1.9, al-Maktaba al-Shamela, Dar al-Ma'rifah Beirut 1402/1982). Teks atribusinya ada di ADR-018.
-3. **Parser Shamela** (`src/shamela/`): baca `page` dan `title`, lalu metadata karya, edisi, dan penulis dari `update/master/book.sqlite` dan `author.sqlite`. Per halaman:
+3. **Parser Shamela** (`src/shamela/`): baca `page` dan `title`, lalu metadata karya, edisi, dan penulis dari `update/master/book.sqlite` dan `author.sqlite`. Pembersihan dan pemecahan teks **memakai fungsi `@surau/text`** (`splitFootnotes`, `cleanShamelaHtml`, `splitParagraphs`, `linkFootnotes`; S05 mengukur 4.204/4.204 penanda Ihya terhubung). Logika teks baru, termasuk pemisah takhrij `//`, ditambahkan ke `packages/text/src/shamela.ts` beserta tesnya, bukan di `tools/ingest` (satu konsep, satu tempat). Per halaman:
    - Pisahkan badan teks dan catatan kaki.
    - Pisahkan takhrij yang ada setelah `//` dan beri flag.
    - Pecah paragraf; ekstrak span judul (posisinya dicatat, teksnya tetap di DB sebagai judul).

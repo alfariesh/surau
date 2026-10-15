@@ -1,13 +1,13 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-15 · oleh agent, **Fase 0 dirilis** (`rilis-f0`, deploy run 38722166900)
+> Diperbarui: 2026-10-15 · oleh agent, **S05 selesai** (paket teks Arab `@surau/text`)
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** Fase 0 sudah dirilis. Buka percakapan baru dan ketik **`/sesi`** untuk S05. Mulai 16 Okt 14:51 WIB, sesi sisipan X01 (Next 16.4) bisa dikerjakan lebih dulu.
-- **Fase:** 0 · Fondasi **dirilis 2026-10-15** (`rilis-f0`) · berikutnya Fase 1 · Pembaca Ihya
-- **Sesi berikutnya:** **S05 · Paket teks Arab** → [sesi/S05-paket-teks-arab.md](sesi/S05-paket-teks-arab.md)
+- **Mulai di sini (pemilik):** S05 selesai. Buka percakapan baru dan ketik **`/sesi`** untuk S06. Mulai 16 Okt 14:51 WIB, sesi sisipan X01 (Next 16.4) sebaiknya dikerjakan lebih dulu (`/sesi X01`).
+- **Fase:** 1 · Pembaca Ihya (berjalan; Fase 0 dirilis 2026-10-15, `rilis-f0`)
+- **Sesi berikutnya:** **S06 · Skema data & D1** → [sesi/S06-skema-data-d1.md](sesi/S06-skema-data-d1.md) (atau X01 dulu mulai 16 Okt 14:51 WIB)
 - **Tindak lanjut kecil:** `react`/`react-dom` → 19.2.9 (boleh mulai 15 Okt 23:54 WIB), atau langsung lewat X01. `vite-plus` 1.2.0 sudah dipasang (butir S01 tuntas).
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
@@ -20,7 +20,8 @@
 - https://surau-web.alfarieshsalman.workers.dev: situs Surau (Beranda, Tentang, 404; terang/gelap) online di Cloudflare; setiap merge ke `main` otomatis ter-deploy.
 - `pnpm dev` → http://localhost:3004: situs Surau lokal. `pnpm --filter @surau/web preview` → http://localhost:3005 (versi Workers lokal).
 - `pnpm test:e2e`: smoke + cek aksesibilitas (Playwright, chromium desktop & ponsel); juga berjalan otomatis di setiap preview PR.
-- `pnpm verify` → format, lint, cek tipe, tes, dan build sekaligus.
+- `pnpm verify` → format, lint, cek tipe, tes (dengan cakupan), dan build sekaligus.
+- `pnpm bench:text` → kecepatan normalisasi teks Arab (±0,5 dtk per 5 juta karakter). `/api/version` di situs → versi aturan normalisasi (`normVersion`).
 - https://github.com/alfariesh/surau (publik): setiap PR otomatis dicek CI (±1 menit) dan mendapat link preview (`pr-<nomor>-surau-web…workers.dev`) di komentar; Dependabot mengusulkan pembaruan tiap Senin.
 
 ## Perhatian (risiko aktif)
@@ -41,7 +42,7 @@
 | 0 | S02 | GitHub & CI | selesai | 2026-10-15 · PR #1 · di `main` · repo publik + proteksi `main` (ADR-025) |
 | 0 | S03 | Deploy ke Cloudflare | selesai | 2026-10-15 · PR #4 · di `main` · workers.dev, preview per PR (ADR-026) |
 | 0 | S04 | Identitas & fondasi UI | selesai | 2026-10-15 · PR #7 · palet Zaitun (ADR-027) · lalu `/rilis 0` |
-| 1 | S05 | Paket teks Arab | belum | |
+| 1 | S05 | Paket teks Arab | selesai | 2026-10-15 · `@surau/text`, NORM_VERSION 1 (ADR-028) |
 | 1 | S06 | Skema data & D1 | belum | |
 | 1 | S07 | Importer Ihya | belum | butuh T-09 |
 | 1 | S08 | Core tools baca | belum | |

@@ -1,0 +1,15 @@
+{
+  "name": "@surau/ingest",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pipeline ingest korpus (Node 24, type stripping). Isi utamanya dibangun di S07.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@surau/text": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

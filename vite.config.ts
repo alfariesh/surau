@@ -26,6 +26,8 @@ export default defineConfig({
       typeCheck: true,
     },
     rules: {
+      // Vitest menerima pesan kustom sebagai argumen kedua expect(nilai, pesan).
+      "vitest/valid-expect": ["warn", { maxArgs: 2 }],
       // images.unoptimized (ADR-003): next/image tidak memberi optimasi di Workers.
       "nextjs/no-img-element": "off",
     },
@@ -45,6 +47,17 @@ export default defineConfig({
     include: ["apps/**/*.test.{ts,tsx}", "packages/**/*.test.ts", "tools/**/*.test.ts"],
     exclude: ["**/node_modules/**", "**/.next/**", "**/.open-next/**"],
     passWithNoTests: true,
+    // `pnpm test` = `vp test --coverage`. Paket teks Arab wajib 100% fungsi teruji (S05): semua
+    // fungsi di sana menyentuh kutipan atau indeks, jadi tidak boleh ada jalur yang tak pernah diuji.
+    coverage: {
+      provider: "v8",
+      include: ["packages/*/src/**/*.ts"],
+      exclude: ["**/*.test.ts"],
+      reporter: ["text-summary", "text"],
+      thresholds: {
+        "packages/text/src/**": { functions: 100, lines: 95, branches: 90 },
+      },
+    },
   },
   staged: {
     "*.{ts,tsx,js,mjs,json,css}": "vp check --fix",
