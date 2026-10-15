@@ -1,6 +1,6 @@
 # S02 · GitHub & CI
 
-> **Fase:** 0 · **Status:** selesai (menunggu merge PR #1)
+> **Fase:** 0 · **Status:** selesai · digabung ke `main` (PR #1, squash `cd48d34`)
 > **Prasyarat:** S01 selesai dan sudah digabung ke `main` lokal · Tugas pemilik: **T-03** (publik/privat; bila tidak dijawab dipakai privat). **T-04** dikerjakan di langkah 3, setelah repo dibuat.
 > **Perkiraan:** 1 percakapan agent (pendek)
 
@@ -48,7 +48,7 @@ Kode tersimpan di GitHub. Setiap PR otomatis diperiksa CI (`pnpm verify`), dan `
 
 ## Catatan hasil
 
-**2026-10-15 · selesai (merge PR #1 menunggu izin pemilik)**
+**2026-10-15 · selesai, digabung ke `main` atas izin pemilik**
 
 *Yang dibuat*
 - Repo privat `alfariesh/surau` (P-1 privat, dijawab pemilik di chat). Nama itu sudah dipakai repo lama (Feb 2026, proyek berbeda); atas izin pemilik repo lama di-rename menjadi `alfariesh/surau-lama`, isinya utuh.
