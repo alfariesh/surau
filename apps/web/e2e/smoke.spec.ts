@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { BASMALAH } from "../src/content/basmalah";
+
 test("Beranda tampil dalam bahasa Indonesia", async ({ page }) => {
   await page.goto("/");
 
@@ -19,6 +21,16 @@ test("blok teks Arab memakai lang=ar dan dir=rtl dengan font Naskh", async ({ pa
   await expect(arabic).toHaveAttribute("lang", "ar");
   await expect(arabic).toHaveAttribute("dir", "rtl");
   await expect(arabic).toHaveCSS("font-family", /Noto Naskh Arabic/);
+  // Font benar-benar termuat (bukan sekadar tercantum di font stack).
+  const naskhLoaded = await page.evaluate(async () => {
+    await document.fonts.ready;
+    return [...document.fonts].some(
+      (f) => f.family.includes("Noto Naskh Arabic") && f.status === "loaded",
+    );
+  });
+  expect(naskhLoaded).toBe(true);
+  // Teks tampil persis sama dengan sumbernya (verbatim sampai ke layar).
+  expect(await arabic.textContent()).toBe(BASMALAH.text);
   // Halaman tetap LTR; hanya bloknya yang RTL.
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
 });

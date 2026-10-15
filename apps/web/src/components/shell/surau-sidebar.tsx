@@ -29,7 +29,6 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
     <>
       <Sidebar.Header>
         <NextLink
-          aria-label={id.brand.logoLabel}
           className="flex items-center gap-3 rounded-xl px-1 py-1 outline-none focus-visible:ring-2 focus-visible:ring-focus"
           href="/"
         >
@@ -75,6 +74,7 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
           <span className="text-muted">{id.footer.nonprofit}</span>
           <a className="link text-xs" href={SOURCE_URL} rel="noopener noreferrer" target="_blank">
             {id.footer.source}
+            <span className="sr-only"> {id.common.newTab}</span>
           </a>
         </div>
       </Sidebar.Footer>

@@ -40,18 +40,28 @@ export default function HomePage() {
             target="_blank"
           >
             {t.ctaSource}
+            <span className="sr-only"> {id.common.newTab}</span>
           </a>
         </div>
       </section>
 
-      <figure aria-label={t.demoLabel} className="m-0">
-        <Card className="items-center gap-3 py-8">
+      <Card className="py-8">
+        <figure className="m-0 flex flex-col items-center gap-3">
           <ArabicText className="text-foreground text-3xl sm:text-4xl">{BASMALAH.text}</ArabicText>
           <figcaption className="text-muted px-4 text-center text-xs">
-            {t.demoCaption} {BASMALAH.ref} · {BASMALAH.source}
+            {t.demoCaption} {BASMALAH.ref} · {t.demoSource}{" "}
+            <a
+              className="link text-xs underline"
+              href={BASMALAH.sourceUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {BASMALAH.source}
+              <span className="sr-only"> {id.common.newTab}</span>
+            </a>
           </figcaption>
-        </Card>
-      </figure>
+        </figure>
+      </Card>
 
       <section aria-labelledby="judul-prinsip" className="flex flex-col gap-4">
         <h2 className="text-foreground text-xl font-semibold" id="judul-prinsip">
@@ -79,8 +89,8 @@ export default function HomePage() {
           <p className="text-muted text-sm">{t.roadmapLead}</p>
         </div>
         <ol className="flex flex-col gap-1">
-          {t.roadmap.map((step, index) => {
-            const isNow = index === 0;
+          {t.roadmap.map((step) => {
+            const isNow = "current" in step && step.current;
 
             return (
               <li key={step.phase} className="flex items-start gap-4 rounded-2xl px-1 py-3">
@@ -96,7 +106,9 @@ export default function HomePage() {
                 </span>
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <p className="text-foreground flex flex-wrap items-center gap-2 text-sm font-medium">
-                    <span className="sr-only">Fase {step.phase}: </span>
+                    <span className="sr-only">
+                      {t.roadmapPhase} {step.phase}:{" "}
+                    </span>
                     {step.title}
                     {isNow ? (
                       <Chip color="accent" size="sm" variant="soft">

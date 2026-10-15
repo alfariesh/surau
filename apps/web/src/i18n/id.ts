@@ -12,7 +12,6 @@ export const id = {
   brand: {
     name: "Surau",
     tagline: "Pintu ke kitab klasik",
-    logoLabel: "Surau, ke Beranda",
   },
 
   nav: {
@@ -33,21 +32,24 @@ export const id = {
     toDark: "Ganti ke tema gelap",
   },
 
+  common: {
+    newTab: "(membuka tab baru)",
+  },
+
   footer: {
     nonprofit: "Nirlaba · open source",
     source: "Kode sumber di GitHub",
   },
 
   home: {
-    pageTitle: "Beranda",
     eyebrow: "Sedang dibangun",
     heading: "Asisten riset kitab klasik Islam, dalam bahasa Indonesia",
     lead: "Surau membantu Anda menemukan, membaca, dan memahami apa yang tertulis di kitab-kitab klasik. Setiap jawaban punya alamat: kitab, jilid, halaman cetak, dan kutipan Arab aslinya.",
     firstBook: "Kitab pertama: Ihya 'Ulum al-Din karya al-Ghazali.",
     ctaAbout: "Kenali Surau",
     ctaSource: "Lihat kode sumber",
-    demoLabel: "Contoh tampilan teks Arab",
     demoCaption: "Basmalah, sebagai contoh tipografi teks Arab di Surau.",
+    demoSource: "Sumber teks:",
     principlesHeading: "Tiga prinsip utama",
     principles: [
       {
@@ -67,8 +69,14 @@ export const id = {
     roadmapLead:
       "Surau dibangun bertahap. Setiap tahap bisa dipakai sebelum tahap berikutnya dimulai.",
     roadmapNow: "sekarang",
+    roadmapPhase: "Fase",
     roadmap: [
-      { phase: "0", title: "Fondasi", body: "Situs ini: tentang Surau, prinsip, dan status." },
+      {
+        phase: "0",
+        title: "Fondasi",
+        body: "Situs ini: tentang Surau, prinsip, dan status.",
+        current: true,
+      },
       {
         phase: "1",
         title: "Pembaca Ihya",
@@ -142,7 +150,7 @@ export const id = {
     licenseHeading: "Lisensi",
     licenseCode: "Kode: Apache-2.0.",
     licenseContent:
-      "Konten turunan (teks, terjemahan, ringkasan, indeks, dan dump data): CC BY-NC-SA 4.0, dengan atribusi ke sumber aslinya.",
+      "Konten turunan (teks, terjemahan, ringkasan, indeks, dan dump data) direncanakan berlisensi CC BY-NC-SA 4.0, dengan atribusi ke sumber aslinya. Keputusan akhirnya masih ditinjau.",
     sourceLink: "Kode sumber Surau di GitHub",
   },
 

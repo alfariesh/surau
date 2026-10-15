@@ -72,6 +72,7 @@ export default function AboutPage() {
               target="_blank"
             >
               {t.sourceLink}
+              <span className="sr-only"> {id.common.newTab}</span>
             </a>
           </p>
         </div>

@@ -25,7 +25,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
 export function findActiveNavItem(pathname: string | null): NavItem | undefined {
   if (!pathname) return undefined;
 
-  return NAV_ITEMS.find((item) =>
-    item.href === "/" ? pathname === "/" : item.href && pathname.startsWith(item.href),
+  return NAV_ITEMS.find(
+    (item) =>
+      item.href &&
+      (pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`))),
   );
 }
