@@ -59,10 +59,10 @@ Surau dibangun sepenuhnya oleh AI coding agent (Claude Code). Pemilik proyek, se
 | [Riset pencarian Arab](docs/riset/2026-10-15-pencarian-arab/README.md) | Eksperimen FTS5 atas teks Ihya: normalisasi, klitik, ukuran indeks, prototipe kode |
 | [Catatan riset 2026-10-15](docs/riset/2026-10-15-catatan-riset.md) | Ringkasan riset model, eval, dan proyek sejenis beserta tautan sumber |
 
-## Lisensi (rencana)
+## Lisensi
 
 - **Status:** usulan ADR-021 di [KEPUTUSAN.md](implementasi/KEPUTUSAN.md), masih menunggu keputusan pemilik (P-6).
-- **Kode:** Apache-2.0 (`LICENSE`).
+- **Kode:** Apache-2.0 ([`LICENSE`](LICENSE)), berlaku sejak S02.
 - **Konten turunan** (teks, terjemahan dan ringkasan AI, indeks, dump): CC BY-NC-SA 4.0 di `data/LICENSE`, dibuat di sesi S07. Tanpa iklan, paywall, atau penjualan akses konten.
 - **Data Shamela mentah tidak diredistribusikan** dan tidak pernah masuk git.
 - **Atribusi** dicatat di `data/ATTRIBUTION.md`: teks Ihya dari OpenITI 2025.1.9 (CC BY-NC-SA 4.0), digitalisasi asal al-Maktaba al-Shamela, edisi Dar al-Ma'rifah (tampil di setiap halaman, ADR-018); teks ayat dari Tanzil (CC BY 3.0, verbatim); terjemahan ayat dari Kemenag via QuranEnc.
