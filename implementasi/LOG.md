@@ -15,6 +15,15 @@ Format entri:
 
 ---
 
+## 2026-10-15 · Rilis Fase 0 · Fondasi — selesai (`rilis-f0`)
+
+- Dikerjakan: kesiapan (S01–S04 selesai, semua butir dicentang setelah vite-plus 1.2.0 dipasang pukul 17:20 WIB); peninjau keamanan dari commit akar (0 blocker) → PR #9: header keamanan (`nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Permissions-Policy`) + tes e2e, `verify` CI tidak lagi di-skip untuk PR fork, versi wrangler di job hapus preview dijaga; gerbang versi; preview → izin pemilik ("Ya, rilis sekarang") → merge → deploy produksi → tag `rilis-f0`; CHANGELOG.md.
+- Verifikasi: `pnpm install --frozen-lockfile` + `pnpm verify` → lolos · `pnpm test:e2e` → 24 lolos (lokal, preview PR #9, dan **produksi**) · pindai `git ls-files` untuk `.env`/`.dev.vars`/`.db` → kosong; peninjau: riwayat git bersih dari secret · gerbang versi: advisory terbuka Next 16.3.8 (673q, 2464, p3m5) dan React (xqc2, h3gv) termitigasi dan diverifikasi di build (`server-reference-manifest` kosong, tanpa middleware, `images.unoptimized: true`, `cacheComponents: false`) · Deploy run [38722166900](https://github.com/alfariesh/surau/actions/runs/38722166900) → success, smoke `/` dan `/tentang` 200 percobaan pertama.
+- Biaya API: –
+- Keputusan: – (gerbang X01 kini terbuka: OpenNext 1.20.12 mendukung Next 16.4)
+- Belum ditindaklanjuti (butuh pemilik, dilaporkan di chat): izin agent di `.claude/settings.json` (beberapa aksi berbayar/produksi kini `allow`, `git add -f`, `gh api *`, celah `npx wrangler`), celah hook hanya-baca, cakupan token Cloudflare di CI, serta deny `Read(**/.dev.vars*)`. Saran lain dari peninjau: CSP penuh sebelum Fase 4, cache browser Playwright di CI.
+- Catatan untuk sesi berikutnya: S05 (paket teks Arab), atau X01 lebih dulu mulai 16 Okt 14:51 WIB.
+
 ## 2026-10-15 · S04 · Identitas & fondasi UI — selesai (PR #7)
 
 - Dikerjakan: template chat dihapus (rute, data mock, 42 dependensi); `SurauShell`, Beranda, Tentang, 404 berbahasa Indonesia (`i18n/id.ts`); `ArabicText`/`ArabicInline` + tes; palet Zaitun (pilihan pemilik dari dua opsi di `/_desain`), Plus Jakarta Sans + Noto Naskh Arabic, mode gelap; demo basmalah Tanzil v1.1 bertaut; Playwright smoke + axe, dijalankan di preview PR.
