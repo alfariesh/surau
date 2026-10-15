@@ -1,6 +1,6 @@
 # S01 · Monorepo & toolchain
 
-> **Fase:** 0 · **Status:** selesai, 1 butir tertunda (vite-plus 1.2.0 belum cukup umur; ADR-023)
+> **Fase:** 0 · **Status:** selesai (butir vite-plus 1.2.0 dituntaskan 2026-10-15 saat `/rilis 0`)
 > **Prasyarat:** S00 ter-commit di `main` · Tugas pemilik (wajib sebelum mulai): **T-00**, **T-01**, **T-02**
 > **Perkiraan:** 1 percakapan agent (ini juga *spike*: memverifikasi pilihan toolchain ADR-008)
 
@@ -74,7 +74,7 @@ Repo menjadi monorepo pnpm yang rapi: `web/` pindah ke `apps/web`, Vite+ menjadi
 ## Selesai bila
 
 - [x] `node -v` = v24.x dan `pnpm -v` = 12.11.x di shell agent
-- [ ] `pnpm exec tsc -v` = 7.0.x di root dan `apps/web`; `pnpm exec vp --version` menunjukkan vite-plus **lokal** 1.2.0 · *tsc 7.0.2 lolos di keduanya; vp lokal masih **1.1.0** karena 1.2.0 belum berumur 24 jam (ADR-023). Belum dicentang.*
+- [x] `pnpm exec tsc -v` = 7.0.x di root dan `apps/web`; `pnpm exec vp --version` menunjukkan vite-plus **lokal** 1.2.0 · tsc 7.0.2 di keduanya · `pnpm exec vp --version` → `Local vite-plus v1.2.0` (dinaikkan 2026-10-15 17:20 WIB saat `/rilis 0`, setelah berumur 24 jam; `pnpm verify` + `pnpm test:e2e` 24 lolos)
 - [x] `pnpm install --frozen-lockfile` sukses dari keadaan bersih, dan `pnpm-lock.yaml` di-commit
 - [x] `pnpm verify` lolos (`vp check` + test + build Next dengan tsc CLI); `vp test` tidak mengumpulkan file di `docs/`
 - [x] `pnpm dev` menampilkan template chat di `http://localhost:3004` tanpa error di console (dicek lewat browser preview)

@@ -10,12 +10,12 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 |---|---|---|---|---|
 | Node.js LTS | 24.22.0 (`.node-version`) | 24.22.0 (dicek 2026-10-15) | https://nodejs.org/docs/latest-v24.x/api/ · `node:sqlite` https://nodejs.org/docs/latest-v24.x/api/sqlite.html · type stripping https://nodejs.org/docs/latest-v24.x/api/typescript.html | 008 |
 | pnpm | 12.11.2 (`packageManager`) | 12.11.2 (terbaru 12.13.0; dicek 2026-10-15) | https://pnpm.io/settings · https://pnpm.io/catalogs · build scripts https://pnpm.io/settings/build | 008 |
-| Vite+ (`vp`) | 1.2.0 | lokal **1.1.0** (1.2.0 belum 24 jam, ADR-023) · global 1.1.0 · dicek 2026-10-15 | https://viteplus.dev/llms.txt · monorepo https://viteplus.dev/guide/monorepo · CI https://viteplus.dev/guide/ci | 008 |
+| Vite+ (`vp`) | 1.2.0 | lokal **1.2.0** (dinaikkan 2026-10-15 17:20 WIB) · global 1.1.0 · dicek 2026-10-15 | https://viteplus.dev/llms.txt · monorepo https://viteplus.dev/guide/monorepo · CI https://viteplus.dev/guide/ci | 008 |
 | `voidzero-dev/setup-vp` (CI) | v1.21.2 (pin SHA `68f39c78…`) | v1.21.2 di `ci.yml` (dicek 2026-10-15) · **jangan** `@v1` (beku di v1.15.0) | https://github.com/voidzero-dev/setup-vp · https://viteplus.dev/guide/ci | 024 |
 | `actions/checkout`, `actions/cache` (CI) | v7.0.1 (`3d3c42e5…`), v6.1.0 (`55cc8345…`, `restore`/`save`) | idem di `ci.yml` (dicek 2026-10-15) | https://github.com/actions/checkout · https://github.com/actions/cache | 024 |
 | Dependabot | `version: 2`, npm + github-actions | `.github/dependabot.yml` (dicek 2026-10-15) · pnpm 12 + catalog belum resmi didukung | https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference | 024 |
-| Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | oxlint 1.87.0 · oxfmt 0.72.0 (lewat vite-plus 1.1.0) | https://oxc.rs/llms.txt | 008 |
-| Vitest (di dalam Vite+) | 5.x | 5.0.3 (lewat vite-plus 1.1.0) | https://vitest.dev/llms.txt | 008 |
+| Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | oxlint 1.88.0 · oxfmt 0.73.0 (lewat vite-plus 1.2.0) | https://oxc.rs/llms.txt | 008 |
+| Vitest (di dalam Vite+) | 5.x | 5.0.4 (lewat vite-plus 1.2.0) | https://vitest.dev/llms.txt | 008 |
 | TypeScript | 7.0.2 | 7.0.2 (root + apps/web; dicek 2026-10-15) | https://nextjs.org/docs/app/api-reference/config/typescript | 008 |
 | Playwright | 1.64.x (chromium saja) | `@playwright/test` **1.64.0** (1.64.1 belum 24 jam) + `@axe-core/playwright` 4.13.0 (MPL-2.0, dev), apps/web; dicek 2026-10-15 | https://playwright.dev/docs/intro | 017 |
 

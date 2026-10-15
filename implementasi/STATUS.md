@@ -6,9 +6,9 @@
 ## Sekarang
 
 - **Mulai di sini (pemilik):** Fase 0 selesai. Ketik **`/rilis 0`** untuk merilisnya, lalu buka percakapan baru dan ketik **`/sesi`** untuk S05.
-- **Fase:** 0 · Fondasi (S01 selesai dengan 1 butir tertunda, S02–S04 selesai) · siap `/rilis 0`
+- **Fase:** 0 · Fondasi (S01–S04 selesai) · `/rilis 0` sedang berjalan
 - **Sesi berikutnya:** **S05 · Paket teks Arab** → [sesi/S05-paket-teks-arab.md](sesi/S05-paket-teks-arab.md)
-- **Tindak lanjut kecil (belum bisa di S02/S03 karena belum 24 jam):** naikkan catalog `vite-plus` → 1.2.0 (boleh mulai 15 Okt 16:21 WIB) dan `react`/`react-dom` → 19.2.9 (mulai 15 Okt 23:54 WIB), lalu `pnpm verify` dan centang butir S01 yang tertunda (ADR-023)
+- **Tindak lanjut kecil:** `react`/`react-dom` → 19.2.9 (boleh mulai 15 Okt 23:54 WIB), atau langsung lewat X01. `vite-plus` 1.2.0 sudah dipasang (butir S01 tuntas).
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dijawab di S04:** P-3/T-08 → palet **Zaitun** + Noto Naskh Arabic (ADR-027)
@@ -25,7 +25,7 @@
 
 ## Perhatian (risiko aktif)
 
-- **Gerbang versi Next:** OpenNext 1.20.11 belum mendukung Next 16.4 (perkiraan patch akhir Okt 2026). Surau memakai Next 16.3.8 + mitigasi; upgrade lewat sesi sisipan X01 (ADR-003).
+- **Gerbang versi Next:** Surau memakai Next 16.3.8 + mitigasi (ADR-003). OpenNext 1.20.12 sudah mendukung 16.4; upgrade lewat sesi sisipan X01 mulai 16 Okt 14:51 WIB.
 - **Lisensi HeroUI Pro** melarang publikasi komponen dan template Pro, tetapi repo sudah publik atas keputusan pemilik (ADR-025). Disarankan tetap kirim email izin ke HeroUI (lampiran TUGAS-PEMILIK); bila ditegur, beralih ke HeroUI OSS.
 - **`main` terlindungi:** hanya bisa diubah lewat PR yang lolos CI `verify`, tanpa force-push (ADR-025). PR dari fork butuh persetujuan pemilik sebelum CI berjalan; jangan setujui PR fork yang mengubah `.github/`.
 - **Lisensi teks:** Shamela tidak memberi hak pakai ulang, jadi dipakai rantai lisensi OpenITI (ADR-018).
