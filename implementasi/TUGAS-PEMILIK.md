@@ -40,7 +40,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 0: Fondasi
 
-- [x] **T-03 · Putuskan repo GitHub publik atau privat (P-1)** (dibutuhkan S02; bila tidak dijawab, dipakai **privat**) · selesai 2026-10-15: **privat** (`alfariesh/surau`; repo lama menjadi `surau-lama`). Langkah 2 (email ke HeroUI) masih opsional.
+- [x] **T-03 · Putuskan repo GitHub publik atau privat (P-1)** (dibutuhkan S02; bila tidak dijawab, dipakai **privat**) · selesai 2026-10-15: semula privat, lalu **publik** atas keputusan pemilik dengan risiko lisensi diterima (ADR-025). Repo lama menjadi `surau-lama`. Langkah 2 (email ke HeroUI) tetap disarankan.
   Lisensi HeroUI Pro melarang mempublikasikan komponen dan template Pro. Usulannya:
   1. Mulai **privat**.
   2. Kirim email ke `support@heroui.pro` memakai draf di [lampiran](#lampiran-draf-email-ke-heroui).

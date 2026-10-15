@@ -234,3 +234,17 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Ditolak:** cache bawaan `setup-vp` (store pnpm saja, kuota Pro tetap terpakai); cache yang disimpan oleh post-step `actions/cache` (tidak tersimpan bila verify gagal, dan membawa sisa run); token di level job; membuat repo publik demi proteksi branch (melanggar Terms HeroUI Pro §9).
 **Konsekuensi:** run pertama per lockfile ±1 menit dengan unduhan Pro; run berikutnya memulihkan `node_modules` tanpa unduhan. Bila repo kelak publik, PR fork bisa memulihkan cache berisi artefak Pro; ini alasan tambahan repo ini tidak boleh sekadar dijadikan publik (P-1).
 **Tinjau ulang bila:** akun pindah ke GitHub Pro/Team atau repo baru dibuat publik (pasang ruleset `main`: wajib check `verify`, tanpa force-push); Dependabot resmi mendukung pnpm 12 + catalog; atau kuota unduhan HeroUI Pro mendekati batas.
+
+## ADR-025 · Repo `alfariesh/surau` dibuat publik atas keputusan pemilik, dengan risiko lisensi HeroUI Pro diterima — diterima · 2026-10-15
+
+**Konteks:** P-1 semula dijawab "privat" (ADR-004, ADR-024). Setelah S02 digabung, pemilik meminta repo dibuat publik. Agent menjelaskan risikonya: 16 file `apps/web` memakai `@heroui-pro/react` dan template chat Pro ada di riwayat git sejak S01, sedangkan Terms HeroUI Pro §9 melarang publikasi komponen dan template Pro; publikasi tidak bisa ditarik kembali. Pilihan lain yang ditawarkan: tetap privat sambil meminta izin HeroUI, repo publik terpisah tanpa `apps/web`, atau beralih ke HeroUI OSS. Pemilik memilih **tetap publikkan sekarang** dan menanggung risikonya.
+
+**Keputusan:**
+1. Repo `alfariesh/surau` **publik** sejak 2026-10-15 (`gh repo edit --visibility public`). Sebelumnya seluruh riwayat dipindai: tanpa `.env*`, `.dev.vars*`, `*.db`/`*.sqlite`, teks kitab, skill HeroUI, kunci privat, atau pola token. Email penulis commit pemilik ikut terlihat publik (riwayat `main` tidak ditulis ulang).
+2. **Persetujuan workflow untuk semua kontributor luar** (`fork-pr-contributor-approval` = `all_external_contributors`). Alasan: PR dari fork menjalankan versi workflow milik fork dan bisa memulihkan cache `node_modules` dari `main` yang berisi artefak HeroUI Pro. Pemilik harus menyetujui run semacam itu, dan sebaiknya **tidak** menyetujui PR fork yang mengubah `.github/`.
+3. **Proteksi `main` dipasang** (tersedia untuk repo publik di akun Free): wajib check `verify` lolos, berlaku juga untuk admin, tanpa force-push dan tanpa hapus branch, tanpa wajib review. Akibatnya semua perubahan ke `main` lewat PR yang hijau, termasuk catatan status; commit "docs(status): … digabung" langsung ke `main` tidak dipakai lagi.
+4. Biaya Actions untuk repo publik $0 (menit tidak dihitung kuota).
+
+**Ditolak:** tetap privat sambil menunggu izin HeroUI; repo publik terpisah; beralih ke HeroUI OSS (semuanya ditawarkan, pemilik memilih publik sekarang).
+**Konsekuensi:** risiko pelanggaran Terms HeroUI Pro §9 aktif. Bila HeroUI menegur, jalan keluarnya: hapus komponen/template Pro dari kode (beralih ke OSS), dan bila diminta, buat repo baru tanpa riwayat lama. Draf email izin ke HeroUI (lampiran TUGAS-PEMILIK) tetap disarankan dikirim. Kontributor tanpa lisensi Pro tetap tidak bisa mem-build `apps/web` (ADR-004). ADR-024 butir 7 (tanpa proteksi branch) diganti oleh butir 3 ADR ini.
+**Tinjau ulang bila:** HeroUI memberi jawaban atas permintaan izin, menegur, atau UI beralih ke OSS-only.
