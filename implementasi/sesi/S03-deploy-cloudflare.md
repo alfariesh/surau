@@ -1,6 +1,6 @@
 # S03 · Deploy ke Cloudflare
 
-> **Fase:** 0 · **Status:** berjalan (T-06 selesai) · PR #4
+> **Fase:** 0 · **Status:** selesai · PR #4 (2026-10-15)
 > **Prasyarat:** S02 selesai · Tugas pemilik: **T-05** (wrangler login), **T-06** (token CI). **T-07** (domain) opsional; tanpa domain, situs memakai `*.workers.dev`
 > **Perkiraan:** 1 percakapan agent
 
@@ -41,7 +41,7 @@ Setiap merge ke `main` otomatis ter-deploy ke Cloudflare Workers, dan setiap PR 
 
 - [x] `pnpm --filter @surau/web preview` berjalan di workerd lokal tanpa error, dan ukuran bundle tercatat · `opennextjs-cloudflare preview --port 3005` → `/explore`, `/library`, `/new`, `/pro-ai-showcase` 200, `/` 307; log tanpa error; konsol browser kosong · `wrangler deploy --dry-run` → **15.993 KiB / gzip 3.021 KiB** (batas 64 MiB)
 - [x] PR mendapat komentar URL preview yang bisa dibuka · run [38700735787](https://github.com/alfariesh/surau/actions/runs/38700735787) success → komentar `github-actions` di PR #4 berisi https://pr-4-surau-web.alfarieshsalman.workers.dev; smoke `/explore`, `/library`, `/new` → 200 (dicek ulang dari lokal)
-- [ ] Merge ke `main` men-deploy otomatis (tautan run dicatat); situs terbuka di domain atau workers.dev · **menunggu T-06**. Situs sudah terbuka di https://surau-web.alfarieshsalman.workers.dev, tapi lewat deploy manual dari lokal (versi `6347e851`), bukan otomatis
+- [x] Merge ke `main` men-deploy otomatis (tautan run dicatat); situs terbuka di domain atau workers.dev · merge PR #4 (`3f77eb1`) → run Deploy [38701138352](https://github.com/alfariesh/surau/actions/runs/38701138352) success, versi `ce2a24bf`, smoke 3 halaman 200 → https://surau-web.alfarieshsalman.workers.dev (domain belum ada, T-07)
 - [x] Workers Logs tidak menunjukkan error saat membuka 3 halaman · `wrangler tail surau-web --format json` sambil membuka `/explore`, `/library`, `/pro-ai-showcase` → outcome `ok`, status 200, 0 exception, 0 log error
 - [x] Preview tidak memakai resource produksi (dicek dari `wrangler.jsonc`) · blok `previews` → R2 `surau-next-cache-preview`; JSON `wrangler preview` uji → `NEXT_INC_CACHE_R2_BUCKET.bucket_name = surau-next-cache-preview`. Pengecualian yang dicatat: `WORKER_SELF_REFERENCE` selalu ke produksi (ADR-026)
 - [x] Versi Next dan OpenNext yang dipakai, beserta status gerbang ADR-003, dicatat di STACK.md · Next 16.3.8 + OpenNext 1.20.11 (peer `>=16.3.8`), gerbang 16.4 belum terbuka
@@ -72,3 +72,5 @@ Utang teknis / untuk sesi berikutnya:
 - Smoke di workflow memakai `curl`; ganti/ tambah Playwright di S04 (`test:e2e`).
 - `.claude/settings.json` (perubahan pemilik) memindahkan beberapa perintah berisiko ke `allow`; dilaporkan ke pemilik, tidak diubah agent.
 - Dependabot PR #3 (49 pembaruan) masih terbuka; belum ditinjau di sesi ini.
+
+**Setelah merge:** `wrangler deployments list` → 100% `ce2a24bf`. `wrangler tail` sambil membuka halaman dengan `?q=…` → outcome `ok`, 0 exception, dan URL di log sudah **tanpa** query string (`redact_query_string` bekerja). Penutupan PR #4 menjalankan job `hapus preview` (success) → `pr-4-surau-web…` sekarang 404.
