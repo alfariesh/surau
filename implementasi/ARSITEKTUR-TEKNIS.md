@@ -60,22 +60,22 @@ Folder dibuat saat sesi yang membutuhkannya. Jangan membuat paket kosong lebih a
 
 ### 3.1 Korpus (`surau-corpus-<versi>`, hanya-baca)
 
-Nama final ditetapkan di S06. Prinsipnya: **teks mentah tidak pernah diubah**, ID stabil setelah rilis, dan FTS adalah indeks turunan yang bisa dibangun ulang.
+Skema final v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029). Nama DB: `surau-corpus-staging` (sekarang) dan `surau-corpus-<versi>` blue-green (S10). Prinsipnya: **teks mentah tidak pernah diubah**, ID stabil setelah rilis, dan FTS adalah indeks turunan yang bisa dibangun ulang. Semua tabel biasa `STRICT`, dan enum serta formula ID dijaga `CHECK`. Urutan tampil tidak pernah diambil dari ID.
 
 | Tabel | Kolom utama | Catatan |
 |---|---|---|
-| `work` | `id`, `slug` (`ihya`), `openiti_uri` (`0505Ghazali.IhyaCulumDin`), `title_ar`, `title_id`, `author_id`, `attribution_status`, `original_language`, `period` | Metadata karya. Untuk Ruang Tokoh, lihat [docs/05](../docs/05-kebijakan.md#3-persona-dan-ruang-tokoh) |
+| `work` | `id`, `slug` (`ihya`, segmen URL, dibekukan), `openiti_uri` (`0505Ghazali.IhyaCulumDin`), `title_ar`, `title_id`, `author_id`, `attribution_status` (`authentic`/`disputed`/`spurious`), `original_language`, `period` | Metadata karya. Untuk Ruang Tokoh, lihat [docs/05](../docs/05-kebijakan.md#3-persona-dan-ruang-tokoh) |
 | `author` | `id`, `name_ar`, `name_id`, `death_hijri`, `shamela_author_id`, `wikidata_id` | Dimulai dari `author.sqlite` Shamela |
-| `edition` | `id`, `work_id`, `source` (`shamela`/`openiti`), `source_ref` (`9472`), `publisher`, `city`, `volumes`, `license`, `attribution` | Satu karya bisa punya beberapa edisi |
-| `page` | `id` = `edition_id·10⁵ + seq`, `edition_id`, `juz`, `page_no` (halaman cetak), `seq`, `source_page_id` (ID halaman di sumber, misalnya Shamela `page.id`, untuk tautan "lihat di Shamela" dan QA) | **Unit sitasi** |
-| `toc_node` | `id`, `edition_id`, `parent_id`, `ord`, `level`, `title_ar`, `start_page_id`, `source_title_id`, `patched` | Pohon daftar isi. Perbaikan dicatat di file patch |
-| `passage` | `id` = `edition_id·10⁷ + seq` (supaya filter per edisi memakai rentang rowid), `edition_id`, `page_id`, `toc_node_id`, `kind` (`body`/`foot`), `ord`, `text_raw` | Paragraf. Teks mentah persis (HTML dibersihkan secara deterministik) |
-| `footnote_ref` | `passage_id`, `marker` (`١`), `footnote_passage_id`, `char_start`, `char_end` | Menautkan penanda (١) di badan teks ke catatan kaki takhrij |
+| `edition` | `id` (1..899.999), `work_id`, `slug` (segmen URL `@<slug>`), `is_default` (tepat satu per karya), `source` (`shamela`/`openiti`), `source_ref` (`9472`), `publisher`, `city`, `volumes`, `license`, `attribution` | Satu karya bisa punya beberapa edisi |
+| `page` | `id` = `edition_id·10⁵ + seq`, `edition_id`, `seq`, `juz` (≥1; satu jilid = 1), `page_no` (halaman cetak), `source_page_id` (ID halaman di sumber, misalnya Shamela `page.id`, untuk tautan "lihat di Shamela" dan QA) | **Unit sitasi.** (`edition_id`, `juz`, `page_no`) unik (indeks `page_citation`) |
+| `toc_node` | `id` = `edition_id·10⁵ + seq`, `edition_id`, `parent_id`, `ord`, `level`, `title_ar`, `start_page_id`, `source_title_id`, `patched` (0/1) | Pohon daftar isi; indeks (`edition_id`, `parent_id`, `ord`). Perbaikan dicatat di file patch |
+| `passage` | `id` = `edition_id·10⁷ + seq` (supaya filter per edisi memakai rentang rowid), `edition_id`, `page_id`, `toc_node_id`, `kind` (`body`/`foot`), `ord` (urutan tampil per halaman per jenis, mulai 1; bukan jangkar), `text_raw` | Paragraf. Teks mentah persis (HTML dibersihkan secara deterministik). Unik (`page_id`, `kind`, `ord`); indeks `toc_node_id` |
+| `footnote_ref` | `passage_id`, `char_start`, `char_end`, `marker` (`١`), `footnote_passage_id` | Menautkan penanda (١) di badan teks ke catatan kaki takhrij. Offset = indeks string JS di `text_raw`; penanda yatim tidak disimpan |
 | `passage_fts` | FTS5 contentless: `body`, `foot`, `sbody`, `sfoot` | `tokenize='unicode61 remove_diacritics 0'` di atas teks ternormalisasi. Lihat [riset FTS](../docs/riset/2026-10-15-pencarian-arab/README.md) |
 | `translation` | `passage_id`, `lang`, `text`, `model`, `prompt_version`, `created_at`, `review_status` (`ai_generated`/`reviewed`/`ustadz_verified`/`rejected`) | Fase 2, berlabel "terjemahan AI" |
 | `summary` | `toc_node_id`, `lang`, `text`, `model`, `prompt_version`, … | Fase 2, berlabel "ringkasan AI" |
 | `quran_ayah`, `quran_translation`, `passage_ayah_ref` | surah, ayah, teks Tanzil (indeks + tampilan), terjemahan Kemenag/QuranEnc + versi; rujukan ayat di paragraf (`exact`/`similar`, `partial`) | Fase 2 (S12). Teks dan terjemahan verbatim (ADR-020) |
-| `meta` | `key`, `value` | `norm_version`, `corpus_version`, `schema_version`, `built_at`, `source_hash` |
+| `meta` | `key`, `value` | `schema_version` (diisi migrasi, sekarang 1), lalu `norm_version`, `corpus_version`, `built_at`, `source_hash` (diisi ingest) |
 
 **Teks ternormalisasi tidak disimpan** di tabel. `normalizeArabic(text_raw)` beserta peta offsetnya dihitung ulang saat dibutuhkan (deterministik terhadap `NORM_VERSION`, ±7 juta karakter/detik). Bentuk normal dan stem hanya ada di indeks `passage_fts` (ADR-009).
 
@@ -83,15 +83,17 @@ Nama final ditetapkan di S06. Prinsipnya: **teks mentah tidak pernah diubah**, I
 
 **Aturan:** apa pun yang dihasilkan **review manusia** (review ustadz, koreksi, status wiki `reviewed`/`ustadz_verified`) disimpan di DB app atau DB terpisah yang **tidak** ikut blue-green korpus, supaya tidak hilang saat korpus dibangun ulang ([docs/05](../docs/05-kebijakan.md) §6). Korpus hanya merujuknya lewat ID stabil.
 
-Tabel: `settings` (sakelar seperti `jawab_enabled`), `feedback` (laporan kesalahan dari UI), `quota_daily`, `llm_budget`, `llm_ledger`, `answer_cache` (kunci = pertanyaan ternormalisasi + versi korpus), `answer_log` dan `review` (eval dan tinjau ustadz, ADR-015), dan nanti tabel Better Auth. **Tanpa** tabel virtual.
+Sudah ada (S06, `packages/db/migrations/app/0001_init.sql`): `settings` (`jawab_enabled` = `0`) dan `feedback` (laporan kesalahan dari UI, tanpa PII: `path` tanpa query string, pesan 1–2.000 karakter). DB: `surau-app` (produksi) dan `surau-app-staging` (Preview). Menyusul: `quota_daily`, `llm_budget`, `llm_ledger`, `answer_cache` (kunci = pertanyaan ternormalisasi + versi korpus), `answer_log` dan `review` (eval dan tinjau ustadz, ADR-015), dan nanti tabel Better Auth. **Tanpa** tabel virtual.
 
-### 3.3 Permalink publik (usulan, final di ADR S06)
+### 3.3 Permalink publik (final, ADR-029)
 
-- Halaman: `/kitab/ihya/1/200`, dengan jangkar paragraf `#p3`.
-- Bagian daftar isi: `/kitab/ihya/bab/<id>`.
-- Edisi non-default: `/kitab/ihya@<edisi>/1/200`.
+- Halaman: `/kitab/<work.slug>/<juz>/<page_no>` → `/kitab/ihya/1/200` (edisi default).
+- Jangkar paragraf: `#p<seq>` (`seq` = `passage.id − edition_id·10⁷`, dibekukan; `passageAnchor`), bukan `ord`.
+- Satu URL kanonis per halaman; kueri pengguna tidak pernah di segmen path.
+- Bagian daftar isi: `/kitab/ihya/bab/<toc_node.id>`.
+- Edisi non-default: `/kitab/ihya@<edition.slug>/1/200`.
 
-Permalink yang sudah dirilis tidak boleh berubah tanpa pengalihan.
+Permalink dan ID yang sudah dirilis tidak boleh berubah tanpa pengalihan. ID dibekukan sejak rilis Fase 1: alokasi ID membaca peta ID yang di-commit (`data/ids/`, kunci stabil → seq, tanpa teks), unit baru mendapat `seq` setelah yang terbesar, dan unit yang hilang dialihkan lewat tabel `id_redirect` (dibuat saat pertama dibutuhkan). Repository di `packages/db/src/repo/` menerima tipe struktural `D1Db`.
 
 ## 4. Core tools (`packages/core`)
 

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Dijalankan juga oleh Node lewat type stripping (tools/ingest), jadi hanya sintaks TS yang
+    // bisa dihapus begitu saja (tanpa enum, namespace runtime, parameter property).
+    "erasableSyntaxOnly": true,
+    // Tipe ambien Workers hanya untuk tes (env.CORPUS dll.). Kode src tidak memakainya: src
+    // menerima tipe struktural D1Db (src/d1.ts) supaya bisa di-typecheck dari Node juga.
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"]
+  },
+  "include": ["src", "test"]
+}

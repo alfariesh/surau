@@ -15,6 +15,28 @@ Format entri:
 
 ---
 
+## 2026-10-15 · S06 · Skema data & D1 — selesai
+
+- Dikerjakan: `packages/db` (`@surau/db`, tanpa ORM). Isinya:
+  - migrasi korpus (10 tabel `STRICT` + `passage_fts` FTS5 contentless) dan migrasi app (`settings`, `feedback` tanpa PII);
+  - skema Zod baris, formula ID, dan repository bertipe (halaman per sitasi, halaman bertetangga, daftar isi, paragraf, catatan kaki, meta, settings, feedback);
+  - tes di workerd dengan `@cloudflare/vitest-plugin` 1.4.2;
+  - 3 DB D1 (apac) dibuat dan dimigrasi atas izin pemilik;
+  - skrip `db:migrate:local` dan `db:migrate:remote`.
+- X01 dicoba lebih dulu (18:52 WIB). Semua paket targetnya masih berumur di bawah 24 jam, jadi X01 ditunda ke 16 Okt 14:53 WIB atas persetujuan pemilik.
+- Verifikasi:
+  - `pnpm run db:migrate:local` dari nol: 17 + 5 perintah ✅, `passage_fts` terbentuk.
+  - `db:migrate:remote`: 17/5/5 ✅. Di `surau-corpus-staging`, FTS5 insert/MATCH/delete (contentless_delete) lolos dan semua tabel `strict=1`.
+  - `vp test --project db`: 46 lolos, dan uji sabotase skema terbukti tertangkap tes.
+  - Peninjau: 0 blocker; 3 perbaikan dan beberapa saran diterapkan (jangkar `#p<seq>`, peta ID di-commit, KONVENSI).
+  - `pnpm verify`: lolos (126 tes node + 46 tes db + build).
+- Biaya API: –
+- Keputusan: ADR-029
+- Catatan untuk sesi berikutnya:
+  - X01 dulu mulai 16 Okt 14:53 WIB. S07 bisa dikerjakan sebelum atau sesudahnya.
+  - S07 membuat peta ID yang di-commit (`data/ids/`), memakai fungsi ID `@surau/db`, mengisi `meta` (norm_version dll.), dan memuat lokal ke binding `CORPUS` dengan `--persist-to .wrangler/state`.
+  - Cakupan `packages/db` belum terukur (utang ADR-029).
+
 ## 2026-10-15 · S05 · Paket teks Arab — selesai
 
 - Dikerjakan: `packages/text` (`@surau/text`): normalisasi + peta offset, stem proklitik konservatif, `findQuote`, `buildFtsMatch`, pembersih HTML Shamela + pemetaan catatan kaki, README; tambahan wajib (NFKC per karakter, tanda Qur'ani pemisah, tolak kecocokan di tengah ekspansi) dan ligatur Unicode 14. `tools/ingest` lebih awal (smoke Node, benchmark, tes integrasi Ihya). `GET /api/version` di web. S06/S07 diberi catatan kecil; urutan S06–S10 tetap.

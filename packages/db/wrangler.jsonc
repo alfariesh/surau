@@ -1,0 +1,43 @@
+// Konfigurasi D1 Surau untuk perintah `wrangler d1 …` (migrasi, execute). Worker ini tidak pernah
+// di-deploy: `name` hanya syarat wrangler. Keputusan: ADR-005, ADR-009, ADR-029.
+// Top-level = PRODUKSI app + korpus STAGING (korpus produksi blue-green dibuat di S10).
+// env.staging = DB app staging (dipakai Preview per PR). ID database bukan rahasia.
+// Data lokal SELALU di <root>/.wrangler/state (ARSITEKTUR-TEKNIS §7 aturan 1): pakai skrip root
+// `pnpm run db:migrate:local`, jangan memanggil `--local` tanpa `--persist-to`.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-db",
+  "compatibility_date": "2026-10-14",
+  "d1_databases": [
+    {
+      "binding": "CORPUS",
+      "database_name": "surau-corpus-staging",
+      "database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+      "migrations_dir": "migrations/corpus",
+    },
+    {
+      "binding": "APP",
+      "database_name": "surau-app",
+      "database_id": "76b6488e-ec17-4e6d-973f-0156091edf8b",
+      "migrations_dir": "migrations/app",
+    },
+  ],
+  "env": {
+    "staging": {
+      "d1_databases": [
+        {
+          "binding": "CORPUS",
+          "database_name": "surau-corpus-staging",
+          "database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+          "migrations_dir": "migrations/corpus",
+        },
+        {
+          "binding": "APP",
+          "database_name": "surau-app-staging",
+          "database_id": "49fd36a5-9e35-4a07-960d-46cfdc5a02db",
+          "migrations_dir": "migrations/app",
+        },
+      ],
+    },
+  },
+}
