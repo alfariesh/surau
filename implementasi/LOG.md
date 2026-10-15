@@ -21,6 +21,7 @@ Format entri:
 - Verifikasi: `pnpm verify` → lolos (4 tes unit) · `pnpm test:e2e` → 22 lolos (next dev, workerd lokal, dan preview PR #7 run 38706564892) · Lighthouse a11y 100 (Beranda/Tentang, ponsel/desktop) · axe 0 pelanggaran (3 halaman × terang/gelap) · `wrangler deploy --dry-run` → 5.815 KiB / gzip 1.221 KiB (S03: 15.993 / 3.021) · peninjau: 0 blocker, 6 perbaikan diterapkan.
 - Biaya API: –
 - Keputusan: ADR-027
+- Setelah merge: Deploy run [38707337236](https://github.com/alfariesh/surau/actions/runs/38707337236) **gagal di smoke** (`/` → 307 dari versi template) padahal deploy-nya sukses: beberapa detik pertama sebagian permintaan masih dilayani versi Worker lama (kunci cache regional OpenNext memuat build ID, jadi bukan cache). Dicek ulang: produksi `/` 200, judul Surau. Smoke `deploy.yml` kini mengulang sampai 200 (±60 dtk), lewat PR terpisah.
 - Catatan untuk sesi berikutnya: pemilik bisa `/rilis 0`. Tindak lanjut kecil vite-plus 1.2.0 / React 19.2.9 masih terbuka. Utang kecil (tema "ikuti sistem", cache browser Playwright di CI, `SITE_URL` saat domain siap) ada di Catatan hasil S04.
 
 ## 2026-10-15 · Pemeliharaan · Tinjau PR Dependabot #3 — selesai
