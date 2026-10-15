@@ -1,0 +1,16 @@
+{
+  "name": "@surau/text",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Satu-satunya tempat logika teks Arab Surau: normalisasi + peta offset, stem proklitik, pembersih HTML Shamela, findQuote, dan penyusun MATCH FTS5.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

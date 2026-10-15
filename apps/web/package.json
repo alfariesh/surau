@@ -20,6 +20,7 @@
     "@heroui/styles": "catalog:",
     "@internationalized/date": "catalog:",
     "@react-aria/utils": "catalog:",
+    "@surau/text": "workspace:*",
     "motion": "catalog:",
     "next": "catalog:",
     "next-themes": "catalog:",

@@ -17,6 +17,7 @@ CLAUDE.local.md
 .open-next/
 .wrangler/
 *.tsbuildinfo
+coverage/
 next-env.d.ts
 
 # Data kitab & eval privat (tidak pernah di-commit)
