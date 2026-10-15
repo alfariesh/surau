@@ -1,13 +1,13 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-15 · oleh agent, S01 selesai (1 butir tertunda), menunggu merge
+> Diperbarui: 2026-10-15 · oleh agent, S01 selesai (1 butir tertunda) dan sudah digabung ke `main`
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** setujui penggabungan S01 ke `main` (diminta di chat). Setelah itu buka percakapan baru dan ketik **`/sesi`** untuk S02. Saat aplikasi Claude bertanya, setujui server MCP baru `next-devtools` (T-00 langkah 2).
+- **Mulai di sini (pemilik):** buka percakapan baru dan ketik **`/sesi`** untuk S02 (siapkan jawaban T-03: repo publik/privat; default privat). Saat aplikasi Claude bertanya, setujui server MCP baru `next-devtools` (T-00 langkah 2).
 - **Fase:** 0 · Fondasi (S01 selesai, 1 butir tertunda)
-- **Sesi berikutnya:** **S02 · GitHub & CI** → [sesi/S02-github-ci.md](sesi/S02-github-ci.md) · menunggu merge S01 ke `main`
+- **Sesi berikutnya:** **S02 · GitHub & CI** → [sesi/S02-github-ci.md](sesi/S02-github-ci.md)
 - **Tindak lanjut kecil (awal S02):** naikkan catalog `vite-plus` → 1.2.0 (boleh mulai 15 Okt 16:21 WIB) dan `react`/`react-dom` → 19.2.9 (mulai 15 Okt 23:54 WIB), lalu `pnpm verify` dan centang butir S01 yang tertunda (ADR-023)
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Dipakai usulan bila tidak dijawab:** P-1 repo privat · P-3 font Noto Naskh · P-4 anggaran $20/bln · P-7 retensi data
@@ -31,7 +31,7 @@
 | Fase | Sesi | Judul | Status | Catatan |
 |---|---|---|---|---|
 | – | S00 | Review dokumen & setup agent | selesai | 2026-10-15 |
-| 0 | S01 | Monorepo & toolchain | selesai* | 2026-10-15 · *vite-plus 1.2.0 tertunda (ADR-023) · menunggu merge |
+| 0 | S01 | Monorepo & toolchain | selesai* | 2026-10-15 · *vite-plus 1.2.0 tertunda (ADR-023) · di `main` |
 | 0 | S02 | GitHub & CI | belum | butuh T-03 (P-1), T-04 |
 | 0 | S03 | Deploy ke Cloudflare | belum | butuh T-05, T-06 (T-07 opsional) |
 | 0 | S04 | Identitas & fondasi UI | belum | butuh T-08 · lalu `/rilis 0` |

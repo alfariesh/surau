@@ -1,6 +1,6 @@
 # S01 · Monorepo & toolchain
 
-> **Fase:** 0 · **Status:** selesai, 1 butir tertunda (vite-plus 1.2.0 belum cukup umur; ADR-023) · menunggu merge
+> **Fase:** 0 · **Status:** selesai, 1 butir tertunda (vite-plus 1.2.0 belum cukup umur; ADR-023)
 > **Prasyarat:** S00 ter-commit di `main` · Tugas pemilik (wajib sebelum mulai): **T-00**, **T-01**, **T-02**
 > **Perkiraan:** 1 percakapan agent (ini juga *spike*: memverifikasi pilihan toolchain ADR-008)
 
@@ -85,7 +85,7 @@ Repo menjadi monorepo pnpm yang rapi: `web/` pindah ke `apps/web`, Vite+ menjadi
 - [x] Commit uji memicu `vp staged`, dan `git diff CLAUDE.md` kosong setelah `pnpm install` (`vp config --no-agent` tidak mengubah instruksi agent)
 - [x] `curl` ke `/_next/mcp` (`tools/list`) berhasil saat `pnpm dev` berjalan; `.mcp.json` memuat `next-devtools`
 - [x] `git ls-files` tidak memuat `.env*`, `*.db`, `*.sqlite`, `.dev.vars`, atau skill HeroUI
-- [ ] Branch sesi sudah digabung ke `main` lokal (dengan izin); STATUS, LOG, dan file sesi ini diperbarui
+- [x] Branch sesi sudah digabung ke `main` lokal (dengan izin); STATUS, LOG, dan file sesi ini diperbarui · *squash `71ba163`, izin pemilik di chat 2026-10-15*
 
 ## Di luar cakupan
 
