@@ -44,6 +44,7 @@ describe.skipIf(!existsSync(DB))("Ihya 9472 (DB lokal)", () => {
       const clean = cleanShamelaHtml(split.body);
       titles += clean.titles.length;
       expect(clean.text).not.toMatch(/<\/?span/);
+      expect(clean.unknownTags).toEqual([]);
       for (const t of clean.titles) expect(t.tocId).not.toBeNull();
     }
     expect(withFoot).toBe(1124);

@@ -45,7 +45,7 @@ buildFtsMatch("الصبر"); // '{sbody sfoot} : ("صبر" OR "وصبر" OR …)
 
 - `pnpm test` (root): Vitest dengan cakupan (fungsi `packages/text/src` wajib 100%), golden ≥40 kasus, property test (2.000 string acak, seed tetap), lalu smoke Node `tools/ingest/scripts/smoke-text.ts` (bukti type stripping).
 - Tes integrasi terhadap Ihya Shamela 9472 di `tools/ingest/test/ihya-text.test.ts` berjalan bila drive Shamela terpasang dan dilewati otomatis di CI. Teks kitab tidak disalin ke git.
-- `pnpm bench:text`: target < 2 detik per 5 juta karakter. Hasil 15 Okt 2026 (Node 24.22, Mac pemilik): ±0,41 dtk sintetis, ±0,43 dtk Ihya (5,48 juta karakter).
+- `pnpm bench:text`: target < 2 detik per 5 juta karakter. Hasil 15 Okt 2026 (Node 24.22, Mac pemilik): ±0,50 dtk per 5 juta karakter sintetis, ±0,55 dtk per 5 juta untuk Ihya (5,48 juta karakter, 22.159 paragraf).
 - Fixture memakai kalimat buatan dan frasa umum yang pendek, **tanpa teks Shamela**.
 
 ## Catatan pemakaian
