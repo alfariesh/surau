@@ -13,9 +13,10 @@ import {
   splitParagraphs,
   toRawSpan,
 } from "@surau/text";
-import { describe, expect, test } from "vite-plus/test";
+import { beforeAll, describe, expect, test } from "vite-plus/test";
 
-const DB = "/Volumes/Elfariesh/database/book/472/9472.db";
+// SURAU_IHYA_DB bisa menimpa lokasi (mis. path yang tidak ada, untuk menguji jalur "dilewati").
+const DB = process.env.SURAU_IHYA_DB ?? "/Volumes/Elfariesh/database/book/472/9472.db";
 
 interface PageRow {
   id: number;
@@ -24,12 +25,17 @@ interface PageRow {
   content: string | null;
 }
 
+// Isi blok describe tetap dieksekusi saat tes dikumpulkan walau di-skip, jadi DB dibuka di
+// beforeAll (hanya berjalan bila blok tidak di-skip). Regresi: CI gagal "unable to open database file".
 describe.skipIf(!existsSync(DB))("Ihya 9472 (DB lokal)", () => {
-  const db = new DatabaseSync(DB, { readOnly: true });
-  const pages = db
-    .prepare("SELECT id, part, page, content FROM page ORDER BY id")
-    .all() as unknown as PageRow[];
-  db.close();
+  let pages: PageRow[] = [];
+  beforeAll(() => {
+    const db = new DatabaseSync(DB, { readOnly: true });
+    pages = db
+      .prepare("SELECT id, part, page, content FROM page ORDER BY id")
+      .all() as unknown as PageRow[];
+    db.close();
+  });
 
   test("struktur: 1.706 halaman, 1.124 berpemisah catatan kaki, judul tanpa sisa tag", () => {
     expect(pages).toHaveLength(1706);
