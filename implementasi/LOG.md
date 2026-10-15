@@ -15,6 +15,14 @@ Format entri:
 
 ---
 
+## 2026-10-15 · Pemeliharaan · Tinjau PR Dependabot #3 — selesai
+
+- Dikerjakan: PR #3 (49 pembaruan) dibuat dari `main` lama (sebelum OpenNext), jadi lockfile-nya tidak dipakai. Dari isinya, 45 pembaruan aman diterapkan ulang ke catalog di branch baru: Tailwind 4.3.3, react-aria 3.53.1 / react-aria-components 1.22.1 / react-stately 3.51.0, tiptap 3.31.4, motion, recharts, shiki, streamdown, dll. **Ditolak:** `react`/`react-dom`/`@types/react*` 19.3.0 (React 19.3 berpasangan dengan Next 16.4, lewat X01; ADR-003). `dependabot.yml` sekarang mengabaikan minor React sampai X01.
+- Verifikasi: umur semua versi >24 jam (`npm view … time`) · peer HeroUI 3.2.6 cocok (`react-aria ^3.52.1`, `react-aria-components ^1.21.1`, `tailwindcss >=4`) · `pnpm peers check` → hanya peringatan lama `vite` · `pnpm verify` → lolos · preview workerd lokal → 4 halaman 200, konsol tanpa error, tampilan `/library` dan `/pro-ai-showcase` normal.
+- Biaya API: –
+- Keputusan: – (mengikuti ADR-003, ADR-024)
+- Catatan untuk sesi berikutnya: vite-plus 1.2.0 (boleh mulai 15 Okt 16:21 WIB) dan react/react-dom 19.2.9 (mulai 15 Okt 23:54 WIB) masih tertunda karena belum 24 jam.
+
 ## 2026-10-15 · S03 · Deploy ke Cloudflare — selesai (PR #4)
 
 - Dikerjakan: OpenNext 1.20.11 + wrangler di `apps/web`, `wrangler.jsonc` (R2 cache, `previews` terpisah, observability tanpa query string), bucket R2 produksi + preview, deploy produksi pertama dari lokal, `deploy.yml` + `preview.yml` + action `siapkan`; PR #4.

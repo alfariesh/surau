@@ -28,9 +28,9 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 | @opennextjs/cloudflare | 1.20.11+ | **1.20.11** (devDependency apps/web, catalog; dicek 2026-10-15) · peer `next >=15.5.27 <16 \|\| >=16.3.8` → Next **16.3.8 didukung resmi** (versi minimum). Gerbang ADR-003 untuk 16.4: **belum terbuka** (rilis belum menyebut 16.4 diuji) | https://opennext.js.org/cloudflare · rilis https://github.com/opennextjs/opennextjs-cloudflare/releases · *batas ukuran 3/10 MiB di docs ini sudah usang; yang berlaku 64 MiB* | 003 |
 | HeroUI OSS (`@heroui/react`, `@heroui/styles`) | 3.2.6 | 3.2.6 | MCP `heroui-pro` (level user, T-01) · https://heroui.com/react/llms.txt | 004 |
 | HeroUI Pro (`@heroui-pro/react`) | **1.0.0-beta.10 persis** | 1.0.0-beta.10 (catalog, dicek 2026-10-15) | MCP `heroui-pro` (`list_components`, `get_component_docs`) · https://heroui.pro/docs/react/llms.txt · instalasi/CI https://heroui.pro/docs/react/getting-started/installation · terms https://heroui.pro/terms | 004 |
-| Tailwind CSS | 4.x (ikut template) | 4.2.2 | https://tailwindcss.com/docs | 004 |
+| Tailwind CSS | 4.x (ikut template) | 4.3.3 (2026-10-15, dari PR Dependabot #3) | https://tailwindcss.com/docs | 004 |
 | next-themes | 0.4.6 | – | https://heroui.com/docs/react/getting-started/dark-mode | 004 |
-| Ikon | `@gravity-ui/icons` saja | 2.18.0 | https://gravity-ui.com/icons | 004 |
+| Ikon | `@gravity-ui/icons` saja | 2.22.0 | https://gravity-ui.com/icons | 004 |
 | Font Arab | Noto Naskh Arabic (+ Amiri opsional) via `next/font/google` | – | data font ada di `next/dist/compiled/@next/font` | P-3 |
 
 ## Cloudflare
