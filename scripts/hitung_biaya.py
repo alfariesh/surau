@@ -3,14 +3,25 @@
 
     python3 scripts/hitung_biaya.py
 
-Harga dalam USD per 1 juta token, dicek 2026-10-15 (lihat docs/08-biaya.md).
-Jumlah token diukur dengan tokenizer o200k (OpenAI) pada teks Ihya; tokenizer
-lain bisa menghitung teks Arab lebih banyak, jadi pakai FAKTOR_TOKEN_ARAB untuk
-uji sensitivitas.
+Harga dalam USD per 1 juta token, dicek 2026-10-15 (lihat docs/08-biaya.md dan
+implementasi/STACK.md). Jumlah token diukur dengan tokenizer o200k (OpenAI) pada
+teks Ihya; tokenizer lain bisa menghitung teks Arab lebih banyak, jadi pakai
+FAKTOR_TOKEN_ARAB untuk uji sensitivitas. Faktor yang sebenarnya untuk Claude
+diukur di sesi S13 (count_tokens), lalu angka ini diperbarui.
 """
 
 FAKTOR_TOKEN_ARAB = 1.0  # ubah ke 1.5 atau 2.0 untuk skenario tokenizer boros
 
+# Sumber harga (USD per 1 juta token), semua dicek 2026-10-15:
+# - Claude Haiku/Sonnet/Opus 5.5: https://platform.claude.com/docs/en/about-claude/pricing
+#   Baca cache Sonnet 5.5 = 0.10 (dikoreksi dari 0.20 setelah dicek ke halaman resmi);
+#   Opus 5.5 = 0.20. Haiku 5.5 di atas 100k token prompt (termasuk token cache):
+#   0.50 / 0.05 / 2.50. Tulis cache 5 menit (Haiku 0.125, Sonnet 2.50, Opus 5.00)
+#   tidak dimodelkan di sini.
+# - Model lain: halaman harga resmi tiap penyedia (Google ai.google.dev, OpenAI,
+#   DeepSeek, Alibaba Model Studio, DeepInfra), dikumpulkan 2026-10-15; rinciannya di
+#   docs/riset/2026-10-15-catatan-riset.md.
+# - Jev: https://docs.typesafe.ai/models.md (dicek 2026-10-15).
 # nama: (input, cache_read, output)
 HARGA = {
     "Qwen3.7-Flash (≤32k)":      (0.03, 0.03, 0.13),
@@ -20,12 +31,15 @@ HARGA = {
     "Gemini 3.1 Flash-Lite":     (0.25, 0.025, 1.50),
     "Gemini 3.8 Flash":          (0.75, 0.075, 3.75),
     "Gemini 3.8 Flash (Jan 2027)": (1.50, 0.15, 7.50),
-    "Claude Sonnet 5.5":         (2.00, 0.20, 10.00),
+    "Claude Sonnet 5.5":         (2.00, 0.10, 10.00),
     "Gemini 3.1 Pro":            (2.00, 0.20, 12.00),
     "Claude Opus 5.5":           (4.00, 0.20, 20.00),
     "GPT-5.5":                   (5.00, 0.50, 30.00),
 }
 JEV_PER_M = 0.042  # TypeSafe Jev: hanya token input yang dibayar
+# Fase 2: mode Cari = FTS5 di D1 tanpa LLM/Jev (biaya marginal ±$0). Ubah ke True hanya untuk
+# simulasi bila Jev kelak diuji sebagai gerbang "tidak ditemukan" (belum dijadwalkan).
+CARI_PAKAI_JEV = False
 
 # Token per pertanyaan (ribuan). "arab" = bagian yang dipengaruhi tokenizer Arab.
 SKENARIO = {
@@ -63,12 +77,13 @@ def main() -> None:
         print(f"{m:32} " + " ".join(f"{'$%.4f' % biaya(m, s):>22}" for s in SKENARIO.values()))
 
     # Campuran lalu lintas: sebagian besar pertanyaan tidak perlu LLM sama sekali.
-    campuran = {"jawaban terverifikasi (cache)": 0.30, "mode Cari (DB + Jev)": 0.30, "mode Jawab (C)": 0.40}
+    campuran = {"jawaban terverifikasi (cache)": 0.30, "mode Cari (FTS5 D1)": 0.30, "mode Jawab (C)": 0.40}
     print("\nBiaya bulanan dengan campuran:", campuran)
     print(f"{'Model untuk mode Jawab':32} {'1rb/bln':>10} {'10rb/bln':>10} {'100rb/bln':>11}")
-    cari = 15.0 * JEV_PER_M / 1000  # Jev saja
+    # Cari = FTS5 di D1 (masuk kuota Workers Paid, ±$0). Jev hanya bila CARI_PAKAI_JEV.
+    cari = 15.0 * JEV_PER_M / 1000 if CARI_PAKAI_JEV else 0.0
     for m in ["Claude Haiku 5.5 (≤100k)", "Gemini 3.1 Flash-Lite", "Gemini 3.8 Flash", "Claude Sonnet 5.5", "Gemini 3.1 Pro"]:
-        per_q = campuran["mode Cari (DB + Jev)"] * cari + campuran["mode Jawab (C)"] * biaya(m, SKENARIO["C. Haiku + Citations"])
+        per_q = campuran["mode Cari (FTS5 D1)"] * cari + campuran["mode Jawab (C)"] * biaya(m, SKENARIO["C. Haiku + Citations"])
         print(f"{m:32} " + " ".join(f"{'$%.2f' % (per_q * n):>10}" for n in (1_000, 10_000)) + f" {'$%.2f' % (per_q * 100_000):>11}")
 
     model_ingest = "Claude Haiku 5.5 (≤100k)"

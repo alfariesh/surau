@@ -1,0 +1,284 @@
+{
+ "deskripsi": "18 query uji eksperimen FTS Arab (15 Okt 2026) atas Ihya Shamela 9472, beserta hasil strategi REKOMENDASI. Gold = halaman yang memuat token cocok regex klitik; BUKAN penilaian relevansi manusia (sebagian sirkular). Dipakai sebagai tes regresi recall di S11. Tidak memuat teks kitab.",
+ "gold_definisi": {
+  "kata_tunggal": "token cocok ^(?:[وف])?(?:(?:[بكل])?(?:ال)?|لل)STEM$ setelah normalizeArabic, STEM = bentuk tanpa ال",
+  "frasa": "urutan token berturut-turut, tiap token dengan pola klitik yang sama",
+  "q05_kunyah": "token1 ^(?:[وف])?(?:ل)?(ابو|ابي|ابا)$ diikuti token هريره",
+  "g2_sufiks": "varian gold dengan sufiks pronomina (ا|ه|ها|هم|هما|هن|ك|كم|كما|كن|نا|ي) dan ة→ت sebelum sufiks"
+ },
+ "unit": "halaman (page_id Shamela)",
+ "ringkasan_strategi": [
+  {
+   "strategy": "raw_u61 (mentah, query apa adanya)",
+   "macro_recall": 0.498,
+   "micro_recall": 0.362,
+   "macro_recall_g2": 0.478,
+   "hits_outside_gold": 0,
+   "top10_ms_median": 0.057,
+   "top10_ms_worst_p95": 4.37
+  },
+  {
+   "strategy": "raw_u61_rd2",
+   "macro_recall": 0.498,
+   "micro_recall": 0.362,
+   "macro_recall_g2": 0.478,
+   "hits_outside_gold": 0,
+   "top10_ms_median": 0.049,
+   "top10_ms_worst_p95": 1.09
+  },
+  {
+   "strategy": "raw_tri (mentah, substring)",
+   "macro_recall": 0.658,
+   "micro_recall": 0.496,
+   "macro_recall_g2": 0.637,
+   "hits_outside_gold": 84,
+   "top10_ms_median": 0.17,
+   "top10_ms_worst_p95": 20.74
+  },
+  {
+   "strategy": "norm_u61 (frasa ternormalisasi)",
+   "macro_recall": 0.595,
+   "micro_recall": 0.443,
+   "macro_recall_g2": 0.572,
+   "hits_outside_gold": 0,
+   "top10_ms_median": 0.046,
+   "top10_ms_worst_p95": 0.79
+  },
+  {
+   "strategy": "norm_tri (substring ternormalisasi)",
+   "macro_recall": 0.783,
+   "micro_recall": 0.612,
+   "macro_recall_g2": 0.758,
+   "hits_outside_gold": 94,
+   "top10_ms_median": 0.177,
+   "top10_ms_worst_p95": 2.63
+  },
+  {
+   "strategy": "norm_stem_u61 (stem + ekspansi proklitik)",
+   "macro_recall": 0.928,
+   "micro_recall": 0.808,
+   "macro_recall_g2": 0.878,
+   "hits_outside_gold": 6,
+   "top10_ms_median": 0.115,
+   "top10_ms_worst_p95": 2.28
+  },
+  {
+   "strategy": "REKOMENDASI: stem + ekspansi frasa & kunyah",
+   "macro_recall": 1,
+   "micro_recall": 1,
+   "macro_recall_g2": 0.95,
+   "hits_outside_gold": 6,
+   "top10_ms_median": 0.137,
+   "top10_ms_worst_p95": 2.06
+  },
+  {
+   "strategy": "REKOMENDASI+sufiks (stem*)",
+   "macro_recall": 1,
+   "micro_recall": 1,
+   "macro_recall_g2": 0.996,
+   "hits_outside_gold": 201,
+   "top10_ms_median": 0.178,
+   "top10_ms_worst_p95": 1.85
+  }
+ ],
+ "queries": [
+  {
+   "id": "q01",
+   "query": "الصبر",
+   "catatan": "kata benda definit",
+   "gold_halaman": 205,
+   "hit_halaman": 205,
+   "recall": 1,
+   "gold_g2": 221,
+   "recall_g2": 0.928,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q02",
+   "query": "التوكل",
+   "catatan": "",
+   "gold_halaman": 86,
+   "hit_halaman": 86,
+   "recall": 1,
+   "gold_g2": 90,
+   "recall_g2": 0.956,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q03",
+   "query": "النية",
+   "catatan": "ة",
+   "gold_halaman": 133,
+   "hit_halaman": 136,
+   "recall": 1,
+   "gold_g2": 157,
+   "recall_g2": 0.847,
+   "hit_di_luar_gold": 3
+  },
+  {
+   "id": "q04",
+   "query": "صلاة العيدين",
+   "catatan": "frasa, ة",
+   "gold_halaman": 1,
+   "hit_halaman": 1,
+   "recall": 1,
+   "gold_g2": 1,
+   "recall_g2": 1,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q05",
+   "query": "أبو هريرة",
+   "catatan": "frasa kunyah (gold: ابو/ابي/ابا)",
+   "gold_halaman": 537,
+   "hit_halaman": 537,
+   "recall": 1,
+   "gold_g2": 537,
+   "recall_g2": 1,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q06",
+   "query": "الإخلاص",
+   "catatan": "hamza alef",
+   "gold_halaman": 102,
+   "hit_halaman": 102,
+   "recall": 1,
+   "gold_g2": 111,
+   "recall_g2": 0.919,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q07",
+   "query": "طلب العلم",
+   "catatan": "frasa",
+   "gold_halaman": 33,
+   "hit_halaman": 33,
+   "recall": 1,
+   "gold_g2": 33,
+   "recall_g2": 1,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q08",
+   "query": "الصَّبْرُ",
+   "catatan": "query berharakat",
+   "gold_halaman": 205,
+   "hit_halaman": 205,
+   "recall": 1,
+   "gold_g2": 221,
+   "recall_g2": 0.928,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q09",
+   "query": "إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ",
+   "catatan": "frasa hadits berharakat",
+   "gold_halaman": 9,
+   "hit_halaman": 9,
+   "recall": 1,
+   "gold_g2": 9,
+   "recall_g2": 1,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q10",
+   "query": "والصبر",
+   "catatan": "dengan klitik و",
+   "gold_halaman": 205,
+   "hit_halaman": 205,
+   "recall": 1,
+   "gold_g2": 221,
+   "recall_g2": 0.928,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q11",
+   "query": "بالنية",
+   "catatan": "dengan klitik ب",
+   "gold_halaman": 133,
+   "hit_halaman": 136,
+   "recall": 1,
+   "gold_g2": 157,
+   "recall_g2": 0.847,
+   "hit_di_luar_gold": 3
+  },
+  {
+   "id": "q12",
+   "query": "الغيبة",
+   "catatan": "",
+   "gold_halaman": 98,
+   "hit_halaman": 98,
+   "recall": 1,
+   "gold_g2": 106,
+   "recall_g2": 0.925,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q13",
+   "query": "حب الدنيا رأس كل خطيئة",
+   "catatan": "frasa panjang, ئ",
+   "gold_halaman": 5,
+   "hit_halaman": 5,
+   "recall": 1,
+   "gold_g2": 5,
+   "recall_g2": 1,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q14",
+   "query": "الرياء",
+   "catatan": "hamzah akhir",
+   "gold_halaman": 173,
+   "hit_halaman": 173,
+   "recall": 1,
+   "gold_g2": 173,
+   "recall_g2": 1,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q15",
+   "query": "ذكر الموت",
+   "catatan": "frasa",
+   "gold_halaman": 26,
+   "hit_halaman": 26,
+   "recall": 1,
+   "gold_g2": 26,
+   "recall_g2": 1,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q16",
+   "query": "صبر",
+   "catatan": "bentuk dasar tanpa ال",
+   "gold_halaman": 205,
+   "hit_halaman": 205,
+   "recall": 1,
+   "gold_g2": 221,
+   "recall_g2": 0.928,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q17",
+   "query": "التوبة",
+   "catatan": "",
+   "gold_halaman": 118,
+   "hit_halaman": 118,
+   "recall": 1,
+   "gold_g2": 122,
+   "recall_g2": 0.967,
+   "hit_di_luar_gold": 0
+  },
+  {
+   "id": "q18",
+   "query": "مسئول",
+   "catatan": "ejaan hamzah (ئ vs ؤ)",
+   "gold_halaman": 13,
+   "hit_halaman": 13,
+   "recall": 1,
+   "gold_g2": 14,
+   "recall_g2": 0.929,
+   "hit_di_luar_gold": 0
+  }
+ ]
+}

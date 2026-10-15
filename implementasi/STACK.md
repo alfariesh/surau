@@ -1,0 +1,86 @@
+# Stack & Docs Resmi
+
+**Aturan:** sebelum memasang, meng-upgrade, atau menulis kode untuk teknologi di bawah, jalankan `/docs-terbaru <paket> <pertanyaan>`. Versi di tabel adalah versi **target** saat ditulis (dicek 15 Okt 2026). Setelah dipasang, isi kolom *Terpasang* dan tanggal cek. Upgrade mayor selalu lewat ADR di [KEPUTUSAN.md](KEPUTUSAN.md).
+
+Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
+
+## Runtime & toolchain
+
+| Teknologi | Target | Terpasang | Docs untuk agent | ADR |
+|---|---|---|---|---|
+| Node.js LTS | 24.22.0 (`.node-version`) | – | https://nodejs.org/docs/latest-v24.x/api/ · `node:sqlite` https://nodejs.org/docs/latest-v24.x/api/sqlite.html · type stripping https://nodejs.org/docs/latest-v24.x/api/typescript.html | 008 |
+| pnpm | 12.11.2 (`packageManager`) | – | https://pnpm.io/settings · https://pnpm.io/catalogs · build scripts https://pnpm.io/settings/build | 008 |
+| Vite+ (`vp`) | 1.2.0 | global 1.1.0 | https://viteplus.dev/llms.txt · monorepo https://viteplus.dev/guide/monorepo · CI https://viteplus.dev/guide/ci | 008 |
+| Oxlint / Oxfmt (di dalam Vite+) | ikut Vite+ | – | https://oxc.rs/llms.txt | 008 |
+| Vitest (di dalam Vite+) | 5.x | – | https://vitest.dev/llms.txt | 008 |
+| TypeScript | 7.0.2 | – | https://nextjs.org/docs/app/api-reference/config/typescript | 008 |
+| Playwright | 1.64.x (chromium saja) | – | https://playwright.dev/docs/intro | 017 |
+
+## Web
+
+| Teknologi | Target | Terpasang | Docs untuk agent | ADR |
+|---|---|---|---|---|
+| Next.js | **16.3.8** sekarang (+ mitigasi ADR-003); naik ke 16.4.x lewat sesi [X01](sesi/X01-upgrade-next-16-4.md) setelah OpenNext mendukung | 16.3.4 (template, rentan) | **Utamakan** `apps/web/node_modules/next/dist/docs/` · https://nextjs.org/docs/llms.txt · agent guide https://nextjs.org/docs/app/guides/ai-agents · advisories https://github.com/vercel/next.js/security/advisories | 003 |
+| React / React DOM | 19.2.x bersama Next 16.3.8; 19.3.x bersama Next 16.4 | 19.2.6 | https://react.dev | 003 |
+| @opennextjs/cloudflare | 1.20.11+ | – | https://opennext.js.org/cloudflare · rilis https://github.com/opennextjs/opennextjs-cloudflare/releases · *batas ukuran 3/10 MiB di docs ini sudah usang; yang berlaku 64 MiB* | 003 |
+| HeroUI OSS (`@heroui/react`, `@heroui/styles`) | 3.2.6 | 3.2.6 | MCP `heroui-pro` (level user, T-01) · https://heroui.com/react/llms.txt | 004 |
+| HeroUI Pro (`@heroui-pro/react`) | **1.0.0-beta.10 persis** | "latest" (harus dipin) | MCP `heroui-pro` (`list_components`, `get_component_docs`) · https://heroui.pro/docs/react/llms.txt · instalasi/CI https://heroui.pro/docs/react/getting-started/installation · terms https://heroui.pro/terms | 004 |
+| Tailwind CSS | 4.x (ikut template) | 4.2.2 | https://tailwindcss.com/docs | 004 |
+| next-themes | 0.4.6 | – | https://heroui.com/docs/react/getting-started/dark-mode | 004 |
+| Ikon | `@gravity-ui/icons` saja | 2.18.0 | https://gravity-ui.com/icons | 004 |
+| Font Arab | Noto Naskh Arabic (+ Amiri opsional) via `next/font/google` | – | data font ada di `next/dist/compiled/@next/font` | P-3 |
+
+## Cloudflare
+
+| Teknologi | Target | Terpasang | Docs untuk agent | ADR |
+|---|---|---|---|---|
+| Wrangler | 4.151.0+ (devDependency, **jangan pakai yang global**) | global 4.126 (usang) | MCP `cloudflare-docs` · https://developers.cloudflare.com/workers/llms.txt · skill `wrangler` | 002 |
+| Workers (limits, pricing) | Paid | – | https://developers.cloudflare.com/workers/platform/limits/ | 002 |
+| D1 + FTS5 | – | – | https://developers.cloudflare.com/d1/llms-full.txt · limits https://developers.cloudflare.com/d1/platform/limits/ · migrasi https://developers.cloudflare.com/d1/reference/migrations/ · impor https://developers.cloudflare.com/d1/best-practices/import-export-data/ · FTS5 https://www.sqlite.org/fts5.html | 005 |
+| R2 | – | – | https://developers.cloudflare.com/r2/llms-full.txt | 005 |
+| Vectorize + Workers AI (ditunda) | – | – | https://developers.cloudflare.com/vectorize/llms-full.txt · https://developers.cloudflare.com/workers-ai/llms-full.txt | 006 |
+| Worker Previews | wrangler ≥4.135 | – | https://developers.cloudflare.com/workers/previews/get-started/ | 017 |
+| Vitest di Workers | `@cloudflare/vitest-plugin` 1.4.x (**bukan** `vitest-pool-workers`) | – | https://developers.cloudflare.com/workers/testing/vitest-integration/ | 008 |
+| AI Gateway (mode BYOK) | – | – | https://developers.cloudflare.com/ai-gateway/llms.txt · Anthropic https://developers.cloudflare.com/ai-gateway/usage/providers/anthropic/ · BYOK https://developers.cloudflare.com/ai-gateway/configuration/bring-your-own-keys/ · spend limit https://developers.cloudflare.com/ai-gateway/features/spend-limits/ | 013 |
+| Turnstile | Managed | – | https://developers.cloudflare.com/turnstile/get-started/server-side-validation/ | 014 |
+| Rate Limiting binding | – | – | https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/ | 014 |
+| Observability / Web Analytics | – | – | https://developers.cloudflare.com/workers/observability/ · https://developers.cloudflare.com/web-analytics/llms.txt | 015 |
+
+## Data & domain
+
+| Teknologi | Target | Terpasang | Docs untuk agent | ADR |
+|---|---|---|---|---|
+| Akses D1 | **Tanpa ORM**: migrasi SQL + `wrangler d1 migrations` + repository bertipe (Zod) | – | D1 Worker API https://developers.cloudflare.com/d1/worker-api/ · migrasi https://developers.cloudflare.com/d1/reference/migrations/ · (cadangan: Drizzle saat 1.0 GA, https://orm.drizzle.team/llms.txt) | 009 |
+| Zod | 4.x (≥4.2, wajib untuk MCP SDK v2) | – | https://zod.dev | 011 |
+| Hono (Worker API, Fase 4) | 4.x | – | https://hono.dev/llms.txt | 010 |
+
+## AI & MCP
+
+| Teknologi | Target | Terpasang | Docs untuk agent | ADR |
+|---|---|---|---|---|
+| `@anthropic-ai/sdk` | 0.134.x | – | skill `claude-api` (**wajib dimuat sebelum menulis kode Claude**) · https://platform.claude.com/docs/en/about-claude/pricing · Citations https://platform.claude.com/docs/en/build-with-claude/citations · Batches https://platform.claude.com/docs/en/build-with-claude/batch-processing | 013 |
+| Model | `claude-haiku-5-5` (utama), `claude-sonnet-5-5` (fallback refusal & pembanding) | – | lihat aturan di ADR-013 | 013 |
+| `@modelcontextprotocol/server` (+ `client` untuk tes) | 2.3.x | – | https://ts.sdk.modelcontextprotocol.io/v2/llms.txt · spec https://modelcontextprotocol.io/llms.txt | 011 |
+| MCP Inspector | 2.11.x | – | https://github.com/modelcontextprotocol/inspector | 011 |
+| Better Auth (ditunda) | 1.7.x (adapter D1 bawaan) | – | https://better-auth.com/docs/llms.txt · MCP https://mcp.better-auth.com/mcp | 016 |
+
+## Harga acuan (untuk kalkulator dan ledger)
+
+Sumber: https://platform.claude.com/docs/en/about-claude/pricing (dicek 15 Okt 2026). USD per juta token.
+
+| Model | Input | Tulis cache 5m | Baca cache | Output | Batch (in/out) |
+|---|---|---|---|---|---|
+| Claude Haiku 5.5 (prompt ≤100k) | 0,10 | 0,125 | 0,01 | 0,50 | 0,05 / 0,25 |
+| Claude Haiku 5.5 (prompt >100k) | 0,50 | 0,625 | 0,05 | 2,50 | 0,25 / 1,25 |
+| Claude Sonnet 5.5 | 2,00 | 2,50 | **0,10** | 10,00 | 1,00 / 5,00 |
+| Claude Opus 5.5 | 4,00 | 5,00 | 0,20 | 20,00 | 2,00 / 10,00 |
+
+Diskon batch bertumpuk dengan caching. Batas 100k Haiku dihitung dari **seluruh** token input, termasuk baca dan tulis cache.
+
+## Cloudflare: biaya yang relevan (Workers Paid $5/bln)
+
+- Workers: 10 juta request + 30 juta CPU-ms per bulan termasuk.
+- D1: 25 miliar baris dibaca, 50 juta ditulis, dan 5 GB per bulan termasuk.
+- R2: 10 GB termasuk, egress $0.
+- Workers AI: 10 ribu neuron/hari gratis. Embedding ±$0,012/juta token.
+- Log dan trace dihitung per GB mulai 1 Des 2026 (50 GB ingest termasuk).

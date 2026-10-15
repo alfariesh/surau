@@ -117,7 +117,7 @@ Ringkasan riset yang mendasari pilihan stack. Sebagian besar dikumpulkan lewat r
 - **Harga model:**
   - Sumber: halaman harga resmi Gemini (ai.google.dev, diperbarui 14 Okt 2026), Anthropic (platform.claude.com), OpenAI (developers.openai.com), DeepSeek, Alibaba Model Studio, DeepInfra, dan Cloudflare Workers AI. Dikumpulkan oleh agen riset 15 Okt 2026.
   - Harga Claude dicocokkan dengan referensi claude-api (cache 6 Okt 2026).
-  - Ada satu selisih: harga baca cache Sonnet 5.5 tertulis $0,10 di laporan agen dan $0,20 di referensi. Dokumen ini memakai $0,20.
+  - Ada satu selisih: harga baca cache Sonnet 5.5 tertulis $0,10 di laporan agen dan $0,20 di referensi. **Koreksi 15 Okt 2026 (review CTO):** halaman harga resmi menulis **$0,10** (0,05× input). Lihat [riset stack implementasi](2026-10-15-riset-stack-implementasi.md).
 - **Hosting:**
   - Vercel Hobby non-komersial, tetapi "Asking for Donations does not fall under commercial usage" (fair-use guidelines).
   - Supabase Free 500 MB, dijeda setelah 1 minggu tanpa aktivitas.

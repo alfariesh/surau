@@ -1,0 +1,177 @@
+# Tugas Pemilik
+
+Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, token, pembayaran, izin, keputusan produk, dan menilai teks Arab. Agent tidak boleh login, memasukkan password, atau membuka file rahasia atas nama Anda.
+
+**Cara pakai:**
+- Agent menyebut ID tugas (misalnya **T-03**) saat sebuah sesi membutuhkannya.
+- Centang `[x]` setelah selesai, atau bilang ke agent "T-03 sudah". Agent yang mencentang setelah memverifikasinya.
+- **Jangan pernah menempel token atau password di chat Claude.** Semua perintah di file ini diketik di aplikasi **Terminal**, dan perintah yang meminta rahasia menyembunyikan apa yang Anda tempel.
+
+**Cara membuka Terminal di folder Surau:** tekan `Cmd + Spasi`, ketik `Terminal`, lalu Enter. Di jendela yang muncul, ketik `cd ~/Documents/Surau`, lalu Enter. Ketik (atau tempel) perintah satu per satu, dan tekan Enter setelah tiap perintah.
+
+---
+
+## Mulai di sini (sebelum Sesi 1)
+
+- [ ] **T-00 · Buka repo di Claude Code pertama kali**
+  1. Buka folder Surau di Claude Code. Saat muncul dialog *trust folder*, pilih percaya. Ini mengaktifkan izin, hook, dan skill proyek.
+  2. Setujui server MCP proyek `cloudflare-docs` bila ditanya. Setelah Sesi 1, setujui juga `next-devtools`.
+  3. Opsional: supaya agent tidak terlalu sering meminta izin, pilih mode izin *auto* di pengaturan Claude Code Anda. Mode ini tidak bisa diatur dari repo. Tindakan berisiko (push, deploy, menulis ke database online) tetap akan meminta izin.
+  4. Plugin `vercel` sudah dimatikan untuk repo ini (Surau memakai Cloudflare). Bila muncul skill atau plugin `supabase`, Anda boleh mematikannya untuk repo ini lewat menu plugin, dengan memilih *Disable for me*.
+
+- [ ] **T-01 · Login HeroUI Pro dan sambungkan docs HeroUI ke Claude** (prasyarat S01)
+  1. Di Terminal (folder Surau): `pnpm dlx heroui-pro@latest login`. Browser akan terbuka; login dengan GitHub.
+  2. Buka https://heroui.pro/dashboard, masuk ke bagian **Tokens**, lalu buat **Personal token** dan **CI/CD token**. Simpan keduanya di password manager.
+  3. Sambungkan MCP HeroUI ke Claude Code (token disimpan di pengaturan Claude milik Anda, bukan di repo). Tempel perintah ini, tekan Enter, tempel **Personal token** saat diminta (tidak akan terlihat), lalu Enter lagi:
+     ```
+     read -rs "T?Tempel Personal token HeroUI lalu Enter: " && claude mcp add --scope user --transport http heroui-pro https://mcp.heroui.pro/mcp --header "x-heroui-personal-token: $T"; unset T
+     ```
+  4. Cek dengan `claude mcp list`. Baris `heroui-pro` harus bertanda ✔.
+
+- [ ] **T-02 · Pakai Node 24 dari Vite+** (prasyarat S01)
+  Saat ini perintah `node` memakai versi 22 milik tool lain, padahal Surau butuh Node 24. Perbaikannya:
+  1. Di Terminal, jalankan sekali: `echo 'export PATH="$HOME/.vite-plus/bin:$PATH"' >> ~/.zshrc`
+  2. Tutup **semua** jendela Terminal dan aplikasi Claude (Cmd+Q), lalu buka lagi.
+  3. Di Terminal baru, `node -v` harus menampilkan `v24…`. Tool lain yang memakai Node 22 tetap punya salinannya sendiri.
+
+- [ ] **T-13 · Mulai cari ustadz pendamping (P-5)** (mulai sekarang; wajib sebelum S18, dianjurkan sejak Fase 2)
+  Cari 2–5 ustadz/pengkaji yang bersedia mereview soal eval, kebijakan penolakan, dan sampel jawaban, serta membantu menilai teks Arab (T-15 s.d. T-17). Kumpulkan email mereka, karena halaman `/tinjau` dibuka dengan PIN yang dikirim ke email. Sepakati juga rubrik penilaian: Benar/Kurang/Salah + alasan, dan skor bahasa 1–5.
+
+## Fase 0: Fondasi
+
+- [ ] **T-03 · Putuskan repo GitHub publik atau privat (P-1)** (dibutuhkan S02; bila tidak dijawab, dipakai **privat**)
+  Lisensi HeroUI Pro melarang mempublikasikan komponen dan template Pro. Usulannya:
+  1. Mulai **privat**.
+  2. Kirim email ke `support@heroui.pro` memakai draf di [lampiran](#lampiran-draf-email-ke-heroui).
+
+  **Penting:** repo ini akan menyimpan template HeroUI Pro di riwayat git, jadi repo ini **tidak boleh sekadar diubah menjadi publik**. Bila nanti ingin publik tanpa izin HeroUI, kita membuat repo publik baru dari kode yang sudah ditulis ulang, tanpa riwayat lama. Selama privat, CI memakai kuota menit GitHub Actions akun Anda. Untuk akun gratis kuotanya sekitar 2.000 menit/bulan, dan itu cukup untuk proyek ini; angka pastinya bisa dicek di GitHub → Settings → Billing.
+
+- [ ] **T-04 · Simpan token CI HeroUI di GitHub** (dibutuhkan S02, setelah repo dibuat)
+  Di Terminal (folder Surau), jalankan dua perintah berikut satu per satu. Tempel **CI/CD token** dari T-01 setiap kali diminta:
+  ```
+  gh secret set HEROUI_AUTH_TOKEN
+  gh secret set HEROUI_AUTH_TOKEN --app dependabot
+  ```
+  Perintah kedua dibutuhkan supaya pembaruan otomatis dari Dependabot juga bisa di-build.
+
+- [ ] **T-05 · Login Cloudflare + aktifkan R2** (dibutuhkan S03)
+  1. Di Terminal: `pnpm dlx wrangler@latest login`. Browser terbuka; setujui akses.
+  2. Di dash.cloudflare.com → **R2 Object Storage**, aktifkan R2 (sekali saja, dengan menyetujui ketentuannya).
+  3. Disarankan: **Manage Account → Billing → Billable Usage → Create budget alert**. Isi ambang $10 dan email Anda. Satu alert ini sudah mencakup Workers, D1, dan R2.
+
+- [ ] **T-06 · Token Cloudflare untuk GitHub Actions** (dibutuhkan S03)
+  1. Buka dash.cloudflare.com → **My Profile → API Tokens → Create Token → Create Custom Token**.
+  2. Beri izin: *Account › Workers Scripts › Edit*, *Account › D1 › Edit*, *Account › Workers R2 Storage › Edit*, *Account › Account Settings › Read*, dan *Zone › Workers Routes › Edit*. Di bagian **Zone Resources**, pilih *All zones from an account*, supaya domain yang ditambahkan nanti otomatis tercakup.
+  3. Di Terminal, jalankan `gh secret set CLOUDFLARE_API_TOKEN` lalu tempel tokennya.
+  4. Untuk Account ID, jalankan `pnpm dlx wrangler@latest whoami`, salin *Account ID*-nya, lalu jalankan `gh secret set CLOUDFLARE_ACCOUNT_ID` dan tempel ID itu.
+
+- [ ] **T-07 · Pilih dan siapkan domain (P-2, wajib dijawab)** (dibutuhkan S03; sebelum itu situs bisa jalan di alamat `*.workers.dev`)
+  Daftarkan domain di Cloudflare Registrar, atau pindahkan DNS domain yang sudah ada ke Cloudflare. Beri tahu agent nama domainnya.
+
+- [ ] **T-08 · Arah desain (P-3)** (dibutuhkan S04)
+  Anda product designer, jadi bagian ini milik Anda. Tentukan:
+  - font Arab (usulan: Noto Naskh Arabic, dengan Amiri sebagai opsi);
+  - warna aksen;
+  - nuansa umum.
+
+  Opsional: buat Design System di editor HeroUI Pro (heroui.pro → Design Systems), dan agent akan mengimpornya lewat MCP.
+
+## Fase 1: Pembaca
+
+- [ ] **T-09 · Pasang drive data Shamela** (setiap kali sesi membangun ulang korpus: S07, S10–S14)
+  Pastikan drive `Elfariesh` terpasang, sehingga `/Volumes/Elfariesh/database` bisa dibuka.
+
+- [ ] **T-10 · Setujui sumber teks dan lisensi konten, lalu beri tahu Shamela (P-6, wajib dijawab)** (sebelum rilis Fase 1, S10)
+  1. **Yang perlu Anda pahami:**
+     - Teks dan catatan kaki Ihya diambil dari salinan Shamela di drive Anda.
+     - Dasar hukumnya adalah rilis OpenITI berlisensi CC BY-NC-SA 4.0, yang isinya terbukti identik untuk 1.705 dari 1.706 halaman.
+     - Risikonya: Shamela tidak memberi izin pakai ulang, dan sebagian catatan kaki takhrij tidak ada di versi OpenITI tersebut.
+     - Bila Shamela keberatan, kita beralih ke teks OpenITI saja, sehingga sebagian takhrij hilang.
+     - Konten Surau berlisensi CC BY-NC-SA 4.0: tanpa iklan dan tanpa paywall.
+
+     Detailnya ada di ADR-018 dan ADR-021 di KEPUTUSAN.md. Bila setuju, bilang ke agent "setuju ADR-018 dan ADR-021".
+  2. Kirim email pemberitahuan ke pengelola al-Maktaba al-Shamela lewat halaman kontak shamela.ws. Drafnya ada di [lampiran](#lampiran-draf-email-ke-shamela). Simpan jawabannya; agent akan mencatatnya.
+  3. Siapkan alamat email kontak publik untuk koreksi dan takedown.
+  4. Putuskan retensi **laporan kesalahan** dari pengguna (bagian dari P-7; usulan: disimpan sampai ditangani + 12 bulan).
+
+- [ ] **T-15 · Cocokkan 10 halaman dengan edisi cetak** (dibutuhkan S10, ±30 menit; bisa diwakilkan ke ustadz/santri yang membaca Arab)
+  Agent memberi daftar 10 halaman. Setiap halaman punya tiga tautan: Surau, Shamela, dan pindaian archive.org. Cek apakah teks dan catatan kakinya sama, lalu tulis "cocok" atau catatan singkat.
+
+## Fase 2: Cari
+
+- [ ] **T-11 · Akun API Anthropic dengan rem biaya (P-4)** (dibutuhkan S13)
+  1. Buka platform.claude.com. Pastikan akunnya berbentuk **Organization**. Di **Settings → Workspaces → Create workspace**, buat dua workspace:
+     - `surau-dev`: untuk terjemahan batch dan eval di Mac Anda, dengan spend limit ±$40/bulan.
+     - `surau-prod`: untuk fitur Tanya online di Fase 4, dengan spend limit ±$25/bulan.
+  2. Di **Billing**, matikan **auto-reload**.
+  3. Buat API key di workspace `surau-dev`, lalu simpan ke file `.env` dengan perintah ini di Terminal (folder Surau). Tempel kuncinya saat diminta (tidak akan terlihat):
+     ```
+     read -rs "K?Tempel API key surau-dev lalu Enter: " && printf 'ANTHROPIC_API_KEY=%s\n' "$K" > .env && chmod 600 .env; unset K
+     ```
+     File `.env` tidak pernah masuk git, dan agent tidak membacanya.
+  4. Kunci workspace `surau-prod` **tidak** disimpan di Mac maupun di Worker. Anda menempelnya sendiri di Cloudflare **AI Gateway → Provider Keys** saat T-14.
+  5. Bila Anda berlangganan Claude Max/Team, tautkan kredit API bulanannya ke organisasi ini (claude.ai → Settings → Billing).
+
+- [ ] **T-16 · Cek 20 sampel ayat** (dibutuhkan S12, ±20 menit; bisa diwakilkan)
+  Agent memberi 20 kutipan ayat yang dikenali di Ihya beserta rujukan surah:ayat. Cek apakah rujukannya benar.
+
+- [ ] **T-17 · Nilai sampel terjemahan AI** (dibutuhkan S13, dua kali ±30 menit; bisa diwakilkan)
+  Agent memberi 20 terjemahan uji (sebelum batch penuh), lalu 20 hasil batch. Beri nilai Benar, Kurang, atau Salah, beserta catatan singkat.
+
+- [ ] **T-12 · Setujui soal eval pencarian** (dibutuhkan S15)
+  Agent menyusun ±30 soal ("di mana al-Ghazali membahas X?") beserta jawaban lokasinya. Anda (atau ustadz) mengecek dan menyetujui minimal 20 soal.
+
+## Fase 3: MCP
+
+- [ ] **T-19 · Aturan WAF untuk MCP** (dibutuhkan S16; agent memandu)
+  Satu aturan rate limiting di dashboard Cloudflare (**Security → WAF → Rate limiting rules**) untuk `mcp.<domain>`, sebagai pagar luar.
+
+- [ ] **T-18 · Uji Surau dari Claude.ai** (dibutuhkan S17)
+  Di claude.ai → **Settings → Connectors → Add custom connector**, isi URL `https://mcp.<domain>/mcp`, lalu pilih *No sign in*. Coba 3 pertanyaan contoh dari agent, lalu laporkan hasilnya.
+
+## Fase 4: Jawab
+
+- [ ] **T-14 · Pengaman Fase 4** (bagian Cloudflare Access dibutuhkan S18; sisanya S19–S20; agent memandu langkah demi langkah)
+  - Widget **Turnstile** (mode Managed) untuk domain produksi dan preview.
+  - **AI Gateway** dengan gateway bernama `surau-gw`:
+    - aktifkan *Authenticated Gateway*;
+    - tempel kunci workspace `surau-prod` di **Provider Keys** (mode BYOK);
+    - atur spend limit harian dan rate limit;
+    - buat token gateway.
+  - **Cloudflare Zero Trust** (Free): aplikasi Access untuk `/admin` dan `/tinjau`, berisi email Anda dan email ustadz (login dengan PIN email).
+  - **Secrets Worker** yang Anda jalankan sendiri di Terminal (folder Surau), misalnya `pnpm wrangler secret put CF_AIG_TOKEN --name surau-api`. Agent akan memberi daftar persis: secret apa, untuk Worker mana (`surau-api` atau `surau-web`), termasuk `TURNSTILE_SECRET_KEY`, `ANON_COOKIE_SECRET`, dan `IP_HASH_SECRET`.
+  - Putuskan **P-7** (penyimpanan pertanyaan dan jawaban) bila belum.
+
+- [ ] **T-20 · (Opsional) Laporan biaya harian otomatis** (S20)
+  Buat *Admin API key* di platform.claude.com (khusus Organization), lalu simpan sendiri dengan `pnpm wrangler secret put ANTHROPIC_ADMIN_KEY --name surau-api`. Isinya dipakai untuk mencocokkan biaya harian dan mengirim email peringatan saat pemakaian lewat 80%.
+
+---
+
+## Lampiran: draf email ke HeroUI
+
+> **Subject:** Using HeroUI Pro in an open-source non-profit project
+>
+> Hi HeroUI team,
+>
+> I hold a HeroUI Pro license (account: <email>). I'm building **Surau**, a non-profit, open-source (Apache-2.0) research assistant for classical Islamic texts. I'd like to confirm what is allowed under the Pro Terms (Section 9):
+>
+> 1. May a **public** GitHub repository contain application code that imports `@heroui-pro/react` (the Pro package itself is installed via your authenticated postinstall and is never committed)?
+> 2. May our app code that was originally **derived from the Pro chat template** be published in that public repo, if it has been substantially rewritten into our own product UI?
+> 3. Contributors without a Pro license won't be able to build the web app. Is there a recommended approach (e.g., a contributor license or keeping `apps/web` private)?
+>
+> Thank you!
+
+## Lampiran: draf email ke Shamela
+
+> **الموضوع:** إشعار باستخدام نص «إحياء علوم الدين» (الكتاب رقم 9472) في مشروع غير ربحي
+>
+> السلام عليكم ورحمة الله وبركاته،
+>
+> نعمل على مشروع «سُراو» (Surau)، وهو مساعد بحثي غير ربحي ومفتوح المصدر للقراء الإندونيسيين، يتيح قراءة كتاب «إحياء علوم الدين» (طبعة دار المعرفة) والبحث فيه، مع إحالة دقيقة إلى الجزء والصفحة.
+>
+> النص والحواشي (تخريج العراقي) مأخوذة من نسخة الشاملة (الكتاب رقم 9472). ونستند في الترخيص إلى إصدار OpenITI 2025.1.9 (رخصة CC BY-NC-SA 4.0) المطابق له في المتن، ونذكر المكتبة الشاملة مصدرًا للرقمنة، ونضع رابطًا إلى صفحة الشاملة المقابلة في كل صفحة من صفحات الكتاب عندنا. لا يوجد في المشروع أي إعلانات أو اشتراكات مدفوعة.
+>
+> نود إعلامكم بذلك، ونرجو التكرم بإبداء أي ملاحظة أو اعتراض أو شرط ترونه مناسبًا، وسنلتزم به.
+>
+> جزاكم الله خيرًا،
+> <nama> — <email> — <tautan situs>

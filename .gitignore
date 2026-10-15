@@ -1,8 +1,13 @@
 .env
 .env.*
 !.env.example
+.dev.vars*
 node_modules/
 __pycache__/
 .DS_Store
 *.sqlite
 *.db
+
+# Claude Code (lokal per mesin)
+.claude/settings.local.json
+CLAUDE.local.md
