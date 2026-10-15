@@ -88,8 +88,8 @@ export default function HomePage() {
                   aria-hidden="true"
                   className={
                     isNow
-                      ? "bg-accent text-accent-foreground flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full px-2 text-xs font-semibold tabular-nums"
-                      : "bg-default text-default-foreground flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full px-2 text-xs font-semibold tabular-nums"
+                      ? "bg-accent text-accent-foreground flex h-8 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold tabular-nums"
+                      : "bg-default text-default-foreground flex h-8 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold tabular-nums"
                   }
                 >
                   {step.phase}

@@ -1,61 +1,49 @@
 # @surau/web
 
-Aplikasi web Surau. Saat ini masih berisi **template chat HeroUI Pro** (UI dan identitas Surau dibangun mulai S04). Instruksi agent ada di `CLAUDE.md`; perintah dijalankan dari root repo (lihat `../../CLAUDE.md`).
+Aplikasi web Surau: Next.js 16 (App Router) + HeroUI v3/Pro, di-deploy ke Cloudflare Workers lewat OpenNext. Instruksi agent ada di `CLAUDE.md`; perintah dijalankan dari root repo (lihat `../../CLAUDE.md`).
 
-## Template asal: HeroUI Pro - Chat Template
+Kerangka ini berasal dari template chat HeroUI Pro dan diubah menjadi Surau di S04. Kode chat template bisa diambil lagi dari riwayat git (sebelum S04) saat Fase 4 (Tanya) membutuhkannya.
 
-A conversational chat starter built with **Next.js 16** and **HeroUI Pro** components. Includes an app shell (sidebar + navbar), a dynamic thread viewer, a command-palette search dialog, and scaffolded routes for New Chat, Library, and Explore.
-
-## Quick start
-
-From the repo root:
+## Menjalankan
 
 ```bash
-pnpm install
-pnpm dev
+pnpm dev        # http://localhost:3004
+pnpm test:e2e   # smoke e2e Playwright (chromium); menyalakan dev server bila belum jalan
 ```
 
-The app will be available at `http://localhost:3004`.
+Sekali saja di mesin baru: `pnpm --filter @surau/web exec playwright install chromium`.
+Untuk menguji URL lain (misalnya preview PR): `BASE_URL=https://… pnpm test:e2e`.
 
-## Pages
+## Halaman
 
-| Route       | What's in it                                                                |
-| ----------- | --------------------------------------------------------------------------- |
-| `/`         | Redirects to the default chat thread                                        |
-| `/[chatId]` | Mock chat thread with messages, model selector, and composer                |
-| `/new`      | Empty chat landing with suggested prompts and the composer                  |
-| `/library`  | Saved prompts and reusable setups as cards that can link back into a thread |
-| `/explore`  | Starter prompt categories and cards grouped by use case                     |
+| Rute       | Isi                                                                  |
+| ---------- | -------------------------------------------------------------------- |
+| `/`        | Beranda: apa itu Surau, tiga prinsip utama, peta pembangunan         |
+| `/tentang` | Visi, untuk siapa, yang bukan Surau, prinsip, keterbukaan, lisensi   |
+| 404        | Halaman tidak ditemukan (bahasa Indonesia)                           |
 
-## Project structure
+Kitab, Cari, dan Tanya tampil di menu dengan label "segera".
+
+## Struktur
 
 ```
 src/
   app/
-    layout.tsx               # root html/body
-    globals.css
-    (app)/
-      layout.tsx             # shared shell (sidebar + navbar)
-      page.tsx               # redirects to the default thread
-      [chatId]/page.tsx      # mock dynamic chat thread
-      new/page.tsx
-      library/page.tsx
-      explore/page.tsx
-  components/                # shell, sidebar, navbar, composer, search dialog
-  data/
-    chat.ts                  # mock threads, models, nav items, library/explore data
-  views/
-    chat-page.tsx
-    new-chat-page.tsx
-    library-page.tsx
-    explore-page.tsx
+    layout.tsx           # <html lang="id">, font, metadata, Providers
+    providers.tsx        # next-themes, I18nProvider (id-ID), RouterProvider
+    globals.css          # palet Zaitun + tipografi Arab
+    icon.svg             # favicon: kitab terbuka
+    not-found.tsx
+    (app)/               # halaman di dalam SurauShell
+  components/
+    arabic/              # ArabicText, ArabicInline (+ tes)
+    shell/               # SurauShell, sidebar, navbar, tombol tema, logo
+  content/basmalah.ts    # demo tipografi (teks Tanzil, asal-usul dicatat)
+  i18n/id.ts             # semua string UI
+e2e/                     # smoke + aksesibilitas (axe), chromium desktop & ponsel
 ```
 
-## Components used
+## Prasyarat
 
-Components are imported directly from `@heroui-pro/react` and `@heroui/react`. No barrel imports, no custom wrappers.
-
-## Prerequisites
-
-- Node 24 (`.node-version` at the repo root) and pnpm 12 (`packageManager`).
-- HeroUI Pro login (`pnpm dlx heroui-pro@latest login`) or `HEROUI_AUTH_TOKEN` in CI; the `@heroui-pro/react` postinstall downloads licensed artifacts.
+- Node 24 (`.node-version` di root) dan pnpm 12 (`packageManager`).
+- Login HeroUI Pro (`pnpm dlx heroui-pro@latest login`) atau `HEROUI_AUTH_TOKEN` di CI; postinstall `@heroui-pro/react` mengunduh artefak berlisensi.

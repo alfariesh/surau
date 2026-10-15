@@ -45,6 +45,8 @@ catalog:
 
   # Tes e2e (S04): hanya chromium. 1.64.1 belum 24 jam saat dipasang.
   "@playwright/test": 1.64.0
+  # Cek aksesibilitas otomatis di e2e (MPL-2.0, hanya devDependency).
+  "@axe-core/playwright": 4.13.0
 
 # Build script dependensi harus disetujui eksplisit (pnpm >=11).
 allowBuilds:

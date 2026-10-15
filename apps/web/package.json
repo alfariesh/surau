@@ -33,6 +33,7 @@
     "tailwind-variants": "catalog:"
   },
   "devDependencies": {
+    "@axe-core/playwright": "catalog:",
     "@opennextjs/cloudflare": "catalog:",
     "@playwright/test": "catalog:",
     "@tailwindcss/postcss": "catalog:",
