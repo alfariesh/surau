@@ -14,7 +14,7 @@ Next.js 16.4.1 (App Router) + HeroUI v3/Pro, di-deploy ke Cloudflare Workers lew
 - `proxy.ts` / `middleware.ts`, `export const runtime = "edge"`, Server Actions (`"use server"`), dan `"use cache"` / `cacheComponents`. Mutasi lewat route handler atau Worker API.
 - Mengubah `images.unoptimized` atau `cacheComponents: false` di `next.config.ts`.
 - Merender kutipan Arab lewat Markdown.
-- Mengirim typed array (`Uint8Array` dan sejenisnya) dari Server Component ke klien. Advisory RCE yang dulu dimitigasi larangan ini sudah ditambal di Next 16.4.1 (X01, ADR-030); larangannya tetap sebagai pertahanan berlapis.
+- Mengirim typed array (`Uint8Array` dan sejenisnya) dari Server Component ke klien. Advisory Next terkait (GHSA-673q) sudah ditambal di 16.4.1, tetapi tambalan React RSC (GHSA-xqc2) baru indikasi (ADR-030 poin 4), jadi larangan ini **tetap wajib**.
 
 ## Aturan UI
 

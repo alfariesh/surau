@@ -18,7 +18,7 @@ updates:
       npm-minor-patch:
         update-types: [minor, patch]
     ignore:
-      # Mayor dikerjakan lewat sesi (contoh: Next lewat X01, ADR-003).
+      # Mayor dikerjakan lewat sesi (contoh: Next 17, ADR-003).
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
       # HeroUI Pro dipin persis ke beta; ada versi salah terbit 1.0.0-beta.19 (ADR-004).

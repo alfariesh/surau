@@ -1,19 +1,19 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-15 · oleh agent, **S06 selesai** (skema data & D1, `@surau/db`)
+> Diperbarui: 2026-10-16 · oleh agent, **X01 selesai** (Next 16.4.1 + React 19.3.1 + OpenNext 1.20.12)
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** S06 selesai. Mulai **16 Okt 14:53 WIB**, kerjakan dulu sesi sisipan X01 (Next 16.4): buka percakapan baru dan ketik **`/sesi X01`**. Sebelum jam itu, atau setelah X01 selesai, ketik **`/sesi`** untuk S07 (drive Shamela harus terpasang, T-09).
+- **Mulai di sini (pemilik):** X01 selesai (Next 16.4.1, tambalan keamanan). Buka percakapan baru dan ketik **`/sesi`** untuk S07 (drive Shamela harus terpasang, T-09).
 - **Fase:** 1 · Pembaca Ihya (berjalan; Fase 0 dirilis 2026-10-15, `rilis-f0`)
-- **Sesi berikutnya:** **S07 · Importer Ihya** → [sesi/S07-importer-ihya.md](sesi/S07-importer-ihya.md) (butuh T-09), atau X01 dulu mulai 16 Okt 14:53 WIB
-- **Tindak lanjut kecil:** `react`/`react-dom` → 19.3.1 lewat X01. Cakupan tes `packages/db` belum terukur (coverage v8 tidak jalan di workerd, ADR-029).
+- **Sesi berikutnya:** **S07 · Importer Ihya** → [sesi/S07-importer-ihya.md](sesi/S07-importer-ihya.md) (butuh T-09)
+- **Tindak lanjut kecil:** `next` 16.4.2 (backport non-keamanan) boleh lewat Dependabot. Log Worker **Preview** belum bisa dibaca agent (ADR-030 poin 7). Cakupan tes `packages/db` belum terukur (coverage v8 tidak jalan di workerd, ADR-029).
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dijawab di S04:** P-3/T-08 → palet **Zaitun** + Noto Naskh Arabic (ADR-027)
 - **Dipakai usulan bila tidak dijawab:** P-4 anggaran $20/bln · P-7 retensi data
-- **Gerbang X01 (Next 16.4): SIAP** (dicek 2026-10-15 saat `/rilis 0`): OpenNext **1.20.12** (15 Okt 07:51 UTC) menyatakan "Add support for Next.js 16.4", peer `>=16.4.1`. Paket boleh dipasang (umur 24 jam) mulai **16 Okt 14:53 WIB** (OpenNext 1.20.12 terbit 07:53:11 UTC), 16 Okt 00:43 WIB (Next 16.4.1), dan 15 Okt 23:49 WIB (React 19.3.1). Dicoba 15 Okt 18:52 WIB: belum bisa. Syarat kedua gerbang (smoke workerd) diuji di X01
+- **Gerbang sisipan berikutnya:** tidak ada yang terbuka. X01 selesai 2026-10-16 (ADR-030). `cacheComponents` menunggu rilis PR OpenNext #1318 (dicek 2026-10-16: belum); Next 16.5 lewat sesi sisipan baru setelah OpenNext mendukung
 
 ## Sudah bisa dicoba
 
@@ -27,12 +27,12 @@
 
 ## Perhatian (risiko aktif)
 
-- **Gerbang versi Next:** Surau memakai Next 16.3.8 + mitigasi (ADR-003). OpenNext 1.20.12 sudah mendukung 16.4; upgrade lewat sesi sisipan X01 mulai 16 Okt 14:53 WIB.
+- **Versi Next:** Next 16.4.1 + OpenNext 1.20.12 (ADR-030). Larangan ADR-003 tetap (tanpa `cacheComponents`, Server Actions, middleware, optimasi gambar).
 - **Lisensi HeroUI Pro** melarang publikasi komponen dan template Pro, tetapi repo sudah publik atas keputusan pemilik (ADR-025). Disarankan tetap kirim email izin ke HeroUI (lampiran TUGAS-PEMILIK); bila ditegur, beralih ke HeroUI OSS.
 - **`main` terlindungi:** hanya bisa diubah lewat PR yang lolos CI `verify`, tanpa force-push (ADR-025). PR dari fork butuh persetujuan pemilik sebelum CI berjalan; jangan setujui PR fork yang mengubah `.github/`.
 - **Lisensi teks:** Shamela tidak memberi hak pakai ulang, jadi dipakai rantai lisensi OpenITI (ADR-018).
 - **Vite+ masih baru** (1.0 pada 28 Sep 2026). Spike S01 lolos (check, lint, type-check apps/web, test, staged); cadangan Biome tidak dipakai (ADR-023).
-- **Advisory Next 16.3.8:** 3 kritis/tinggi di Next + 1 kritis di React RSC, semuanya ditambal di Next 16.4.1. Dimitigasi dengan larangan ADR-003 (tanpa `use cache`, Server Actions, optimasi gambar) dan larangan typed array dari Server Component (ADR-023). Kerjakan X01 sebelum `/rilis 0` bila gerbangnya terbuka.
+- **Advisory:** 3 advisory Next (673q, 2464, p3m5) ditambal di 16.4.1. Tambalan React RSC (xqc2, h3gv) di salinan React bawaan Next baru **indikasi** (ADR-030 poin 4), jadi larangan typed array dari Server Component (ADR-023) tetap wajib.
 
 ## Progres
 
@@ -61,4 +61,4 @@
 | 4 | S20 | Pengaman biaya | belum | garis besar · butuh T-14, P-4, P-7 (T-20 opsional) |
 | 4 | S21 | UI Tanya & transparansi | belum | garis besar · lalu `/rilis 4` |
 | 5–7 | – | Ruang al-Ghazali, Wiki, Kurikulum | belum | dirinci saat Fase 4 hampir selesai |
-| sisipan | X01 | Upgrade Next 16.4 + React 19.3 | **siap** | OpenNext 1.20.12 mendukung 16.4; mulai 16 Okt 14:53 WIB (umur paket; dicoba 15 Okt 18:52, belum bisa) |
+| sisipan | X01 | Upgrade Next 16.4 + React 19.3 | selesai* | 2026-10-16 · PR #13 · Next 16.4.1, React 19.3.1, OpenNext 1.20.12 (ADR-030) · *log Preview tidak terbaca agent, diganti cek log produksi |

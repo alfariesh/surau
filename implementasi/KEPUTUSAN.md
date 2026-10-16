@@ -42,6 +42,8 @@ Semua fakta versi di bawah dicek ke docs/registry resmi pada 15 Okt 2026 (riset 
 
 ## ADR-003 · Frontend: Next.js 16 App Router + OpenNext di Workers — sementara · 2026-10-15
 
+> **Pembaruan 2026-10-16 (X01, ADR-030):** gerbang versi terpenuhi: OpenNext 1.20.12 mendukung 16.4 resmi, dan `pnpm --filter @surau/web preview` (workerd) lolos smoke test (5 rute, e2e 26/26). Surau kini memakai **Next 16.4.1 + React 19.3.1 + OpenNext 1.20.12**. Aturan konservatif di bawah tetap berlaku; `cacheComponents` tetap `false` karena PR OpenNext #1318 belum dirilis.
+
 **Keputusan:** Pertahankan Next.js (template HeroUI Pro berbasis Next, dan tooling agent Next paling matang: docs dibundel di `apps/web/node_modules/next/dist/docs`, AGENTS.md, dan MCP devtools). Deploy memakai `@opennextjs/cloudflare`. Aturan konservatif:
 - `cacheComponents: false` sampai bug OpenNext (PR #1318) dirilis.
 - Tanpa `proxy.ts`/`middleware.ts`, tanpa `runtime = 'edge'`, dan tanpa Server Actions (mutasi lewat route handler atau Worker API).
@@ -216,7 +218,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Ditolak:** `minimumReleaseAgeExclude` untuk vite-plus/React (melemahkan pengaman rantai pasok demi versi minor); cadangan Biome (tidak perlu, Vite+ bekerja).
 **Konsekuensi:** Larangan ADR-003 sekarang juga menjadi mitigasi keamanan, bukan hanya kehati-hatian. Peninjau wajib menolak `'use server'`, `'use cache'`, dan typed array di props Server Component. X01 sebaiknya dikerjakan sebelum `/rilis 0` begitu gerbangnya terbuka.
-**Tinjau ulang bila:** X01 selesai (Next 16.4.1+), atau CI gagal mengunduh artefak HeroUI Pro.
+**Tinjau ulang bila:** X01 selesai (Next 16.4.1+), atau CI gagal mengunduh artefak HeroUI Pro. → X01 (2026-10-16): 3 advisory Next ditambal di 16.4.1; tambalan React RSC (xqc2/h3gv) baru **indikasi** (ADR-030 poin 4), jadi larangan typed array tetap wajib.
 
 ## ADR-024 · GitHub & CI: repo privat baru, cache `node_modules` terpisah, token sempit, Dependabot dengan cadangan manual, tanpa proteksi branch — diterima · 2026-10-15
 
@@ -362,3 +364,21 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - `packages/db/tsconfig.json` memuat tipe ambien Workers juga untuk `src`, jadi larangan `cloudflare:*` di `src` dijaga peninjau, belum oleh alat.
 - Cakupan `packages/db/src` belum diukur angkanya. Semua fungsinya dipanggil tes, tetapi tanpa angka. Tinjau saat plugin mendukung coverage v8 atau saat pindah ke istanbul.
 **Tinjau ulang bila:** satu edisi melewati 99.999 halaman atau 10⁷ paragraf, kitab berjilid memakai penomoran non-angka, atau plugin Cloudflare mendukung `fsModuleCache`/coverage v8.
+
+## ADR-030 · Upgrade Next 16.4.1 + React 19.3.1 + OpenNext 1.20.12 (sesi X01); larangan ADR-003 tetap — diterima · 2026-10-16
+
+**Konteks:** Gerbang ADR-003 terbuka: `@opennextjs/cloudflare` 1.20.12 (15 Okt 07:53 UTC) menyatakan "Add support for Next.js 16.4", issue #1448 (`loadManifest(preview-props.json)`) ditutup lewat PR opennextjs-cloudflare #1356 (perbaikan sejenis di opennextjs-aws #1285), dan `@opennextjs/aws` naik ke 4.1.11. Peer OpenNext 1.20.12 adalah `next >=15.5.28 <16 || >=16.4.1`, jadi OpenNext dan Next harus naik bersamaan. Next 16.4.1 (14 Okt) adalah rilis keamanan: GHSA-673q-mjm6-r5xr, GHSA-2464-fhr4-w9xw, GHSA-p3m5-59mp-jv5r. Next 16.4.2 (15 Okt 20:57 UTC) hanya backport Turbopack dan docs. Blog Next 16.4 tidak memuat breaking change untuk App Router tanpa Server Actions dan tanpa `cacheComponents`.
+
+**Keputusan:**
+1. Catalog: `next` **16.4.1**, `react`/`react-dom` **19.3.1**, `@types/react`/`@types/react-dom` **19.3.0**, `@opennextjs/cloudflare` **1.20.12**. **16.4.2 tidak dipasang**: saat X01 (16 Okt ±15:00 WIB) umurnya baru ±11 jam dan isinya bukan perbaikan keamanan. Dependabot boleh mengusulkannya sebagai patch.
+2. `next upgrade --agent` **tidak** dipakai: perubahan hanya kenaikan versi di catalog, tanpa codemod. Tidak ada perubahan kode aplikasi.
+3. Larangan ADR-003 **dipertahankan**: tanpa `cacheComponents`/`'use cache'` (PR OpenNext #1318 masih terbuka; issue #1450 HTTP 500 dengan Cache Components), tanpa Server Actions, `proxy.ts`/`middleware.ts`, `runtime = 'edge'`, dan `images.unoptimized: true`. Larangan typed array dari Server Component (ADR-023) juga tetap, sebagai pertahanan berlapis.
+4. **React RSC (GHSA-xqc2-xf4c-x3h3, GHSA-h3gv-c5rc-p453).** App Router memakai salinan React bawaan Next (`next/dist/compiled`, berlabel `19.3.0-canary-278794d7-20261002`), bukan paket `react` di catalog. Labelnya tidak berubah ke 19.3.1, tetapi kode `react-server-dom-turbopack` dan `react-server-dom-webpack` bawaan 16.4.1 berbeda dari 16.3.8 (antara lain fungsi `getBackingBlob` dari perbaikan "[Flight] Improve transport protocol" #37845 yang menjadi isi React 19.3.1). Ini **indikasi**, bukan bukti penuh, bahwa tambalan ikut; karena itu poin 3 tetap berlaku.
+5. Dependabot tetap mengabaikan minor `next`/`react`/`react-dom`/`@types/react*`: minor berikutnya (16.5) kembali lewat sesi sisipan setelah OpenNext mendukung.
+6. **Bukti gerbang (smoke workerd + preview):** `pnpm verify` lolos; `pnpm --filter @surau/web preview` (workerd lokal, OpenNext 1.20.12 + `@opennextjs/aws` 4.1.11) → `/` 200, `/tentang` 200, `/api/version` 200 `{"normVersion":1}`, `/tidak-ada` 404, `/icon.svg` 200, `/_next/image` 404, tanpa error di log server dan konsol; e2e 26/26 di workerd lokal, di `next dev`, dan di Preview PR #13 (CI).
+7. **Log Preview tidak bisa dibaca agent:** `wrangler tail` belum mendukung Worker Previews (docs Cloudflare "Previews › Test and debug", Okt 2026), dan pemanggilan API observability dengan token OAuth wrangler ditolak pengaman mode otomatis. Penggantinya: `wrangler tail surau-web` di **produksi** setelah merge. Bila kelak log Preview wajib dibaca otomatis, pertimbangkan `previews.tail_consumers` atau token API sempit khusus observability.
+8. `.claude/launch.json` mendapat konfigurasi `web-workers` (`pnpm --filter @surau/web preview`, :3005) supaya agent bisa menjalankan preview workerd lewat panel preview.
+
+**Ditolak:** Next 16.4.2 lewat `minimumReleaseAgeExclude` (melemahkan pengaman rantai pasok demi backport non-keamanan); mengaktifkan `cacheComponents` sekarang (#1318 belum dirilis).
+**Konsekuensi:** 3 advisory Next yang mengenai 16.3.8 (673q, 2464, p3m5) tidak lagi berlaku; untuk advisory React RSC (xqc2, h3gv) lihat poin 4. `apps/web/AGENTS.md` memakai format blok agent baru Next 16.4 (ditulis ulang oleh `next dev`).
+**Tinjau ulang bila:** OpenNext merilis #1318 (evaluasi `cacheComponents` lewat ADR baru), Next 16.5 dirilis dan didukung OpenNext, atau advisory baru mengenai 16.4.x.
