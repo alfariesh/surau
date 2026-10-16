@@ -44,4 +44,18 @@ export {
   tocNodeWithStartRow,
 } from "./repo/corpus.ts";
 export type { EditionContext, PassageWithPageRow, TocNodeWithStartRow } from "./repo/corpus.ts";
+export {
+  BM25_WEIGHTS,
+  getSearchContext,
+  rankedSearchRow,
+  searchInOrder,
+  searchPassageRow,
+  searchRankedPages,
+} from "./repo/search.ts";
+export type {
+  PassageIdSpan,
+  RankedSearchRow,
+  SearchContext,
+  SearchPassageRow,
+} from "./repo/search.ts";
 export { createFeedback, getSettings } from "./repo/app.ts";

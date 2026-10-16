@@ -24,6 +24,7 @@ import type {
   PageRow,
   PassageNeedsReviewRow,
   PassageRow,
+  TermStatRow,
   TocNodeRow,
   WorkRow,
 } from "@surau/db";
@@ -47,6 +48,7 @@ export const TABLE_ORDER = [
   "passage",
   "footnote_ref",
   "passage_needs_review",
+  "term_stat",
   "meta",
 ] as const;
 export type CorpusTable = (typeof TABLE_ORDER)[number];
@@ -60,6 +62,8 @@ export interface CorpusRows {
   passage: PassageRow[];
   footnote_ref: FootnoteRefRow[];
   passage_needs_review: PassageNeedsReviewRow[];
+  /** Stem sangat umum di indeks FTS (S11): dihitung pipeline setelah baris paragraf ada. */
+  term_stat: TermStatRow[];
   meta: MetaRow[];
 }
 
@@ -73,7 +77,8 @@ export interface RowsInput {
   meta: { normVersion: number; builtAt: string; sourceHash: string };
 }
 
-export function buildRows(input: RowsInput): CorpusRows {
+/** Baris korpus dari sumber; `term_stat` menyusul dari indeks FTS (`search-index.ts`, pipeline). */
+export function buildRows(input: RowsInput): Omit<CorpusRows, "term_stat"> {
   const { config, source, pages, toc, takhrij, ids } = input;
   const ed = config.edition.id;
   const imprint = parseImprint(source.book.bibliography);

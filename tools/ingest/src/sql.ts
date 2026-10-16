@@ -7,6 +7,8 @@ import { corpusTables } from "@surau/db";
 
 import { TABLE_ORDER } from "./rows.ts";
 import type { CorpusRows } from "./rows.ts";
+import { FTS_COLUMNS, FTS_OPTIMIZE_SQL } from "./search-index.ts";
+import type { FtsRow } from "./search-index.ts";
 
 /** Batas byte UTF-8 satu statement (batas D1 100 KB, disisakan ruang). */
 export const MAX_STATEMENT_BYTES = 90_000;
@@ -37,11 +39,13 @@ const bytes = (s: string): number => Buffer.byteLength(s, "utf8");
 /**
  * Pernyataan pengosongan korpus, anak lebih dulu. `schema_version` milik migrasi dipertahankan.
  * Ini mengosongkan SELURUH DB korpus (satu kitab per DB untuk sekarang): kitab kedua butuh reset
- * per edisi. `passage_fts` belum diisi (S11); begitu diisi, indeksnya wajib ikut dikosongkan di sini.
+ * per edisi. Indeks `passage_fts` (contentless) dikosongkan dengan `delete-all`: INSERT ke rowid
+ * yang sudah ada TIDAK menghapus token lama, jadi indeks tidak boleh dimuat di atas isi lama.
  */
 export const RESET_SQL = [
   "-- Kosongkan korpus sebelum dimuat ulang (anak lebih dulu). Tabel terjemahan/ringkasan tidak",
   "-- dihapus: bila sudah berisi, foreign key membuat pemuatan ulang GAGAL (sengaja, S13+).",
+  "INSERT INTO passage_fts (passage_fts) VALUES ('delete-all');",
   ...[...TABLE_ORDER]
     .reverse()
     .filter((t) => t !== "meta")
@@ -78,35 +82,46 @@ export function insertStatements(
   return out;
 }
 
-export function emitSql(rows: CorpusRows): SqlFile[] {
+/** Kelompokkan statement menjadi file ≤ MAX_FILE_BYTES bernama `<nomor>-<label>[-<bagian>].sql`. */
+function toFiles(files: SqlFile[], label: string, statements: readonly string[]): void {
+  const chunks: string[][] = [];
+  let current: string[] = [];
+  let size = 0;
+  for (const st of statements) {
+    if (current.length > 0 && size + bytes(st) > MAX_FILE_BYTES) {
+      chunks.push(current);
+      current = [];
+      size = 0;
+    }
+    current.push(st);
+    size += bytes(st);
+  }
+  if (current.length > 0) chunks.push(current);
+  chunks.forEach((chunk, i) => {
+    const n = String(files.length).padStart(4, "0");
+    const part = chunks.length > 1 ? `-${String(i + 1).padStart(2, "0")}` : "";
+    files.push({ name: `${n}-${label}${part}.sql`, content: chunk.join("") });
+  });
+}
+
+/**
+ * Semua file SQL korpus: reset, tabel biasa dalam `TABLE_ORDER`, lalu indeks `passage_fts` +
+ * `optimize` (S11) tepat sebelum `meta`. `meta` (versi korpus) selalu file terakhir, jadi korpus yang
+ * punya `meta.corpus_version` pasti sudah termuat penuh, termasuk indeksnya.
+ */
+export function emitSql(rows: CorpusRows, fts: readonly FtsRow[] = []): SqlFile[] {
   const files: SqlFile[] = [{ name: "0000-reset.sql", content: RESET_SQL }];
   for (const table of TABLE_ORDER) {
+    if (table === "meta" && fts.length > 0) {
+      const values = fts.map((r) => FTS_COLUMNS.map((c) => r[c]));
+      toFiles(files, "passage-fts", insertStatements("passage_fts", FTS_COLUMNS, values));
+      toFiles(files, "passage-fts-optimize", [FTS_OPTIMIZE_SQL]);
+    }
     const columns = Object.keys(corpusTables[table].shape);
     const values = (rows[table] as Record<string, Value>[]).map((r) =>
       columns.map((c) => r[c] ?? null),
     );
-    const statements = insertStatements(table, columns, values);
-    const chunks: string[][] = [];
-    let current: string[] = [];
-    let size = 0;
-    for (const st of statements) {
-      if (current.length > 0 && size + bytes(st) > MAX_FILE_BYTES) {
-        chunks.push(current);
-        current = [];
-        size = 0;
-      }
-      current.push(st);
-      size += bytes(st);
-    }
-    if (current.length > 0) chunks.push(current);
-    chunks.forEach((chunk, i) => {
-      const n = String(files.length).padStart(4, "0");
-      const part = chunks.length > 1 ? `-${String(i + 1).padStart(2, "0")}` : "";
-      files.push({
-        name: `${n}-${table.replaceAll("_", "-")}${part}.sql`,
-        content: chunk.join(""),
-      });
-    });
+    toFiles(files, table.replaceAll("_", "-"), insertStatements(table, columns, values));
   }
   return files;
 }

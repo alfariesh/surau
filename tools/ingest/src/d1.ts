@@ -6,6 +6,10 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
+import { buildFtsMatch } from "@surau/text";
+
+import { sqlLiteral } from "./sql.ts";
+
 export const repo = resolve(import.meta.dirname, "../../..");
 /** Config D1 bersama: binding CORPUS = korpus STAGING (lokal juga memakai ID ini). */
 export const DB_CONFIG = "packages/db/wrangler.jsonc";
@@ -135,6 +139,8 @@ export const COUNTED = [
   "passage",
   "footnote_ref",
   "passage_needs_review",
+  "term_stat",
+  "passage_fts",
   "meta",
 ] as const;
 // Satu baris berisi subkueri per tabel (D1 membatasi jumlah suku UNION dalam satu SELECT).
@@ -151,6 +157,12 @@ JOIN passage p ON p.page_id = pg.id
 WHERE pg.juz = 1 AND pg.page_no = 200
 GROUP BY p.kind ORDER BY p.kind`;
 
+// Indeks pencarian (S11): kueri buatan @surau/text yang sama dengan searchText harus mengenai
+// paragraf. الصبر ada di ±320 paragraf Ihya; literal MATCH dibuat kode (bukan masukan pengguna).
+const SMOKE_SEARCH = `SELECT count(*) AS n FROM passage_fts WHERE passage_fts MATCH ${sqlLiteral(
+  buildFtsMatch("الصبر") ?? "",
+)}`;
+
 export interface Smoke {
   counts: Record<(typeof COUNTED)[number], number>;
   meta: Record<string, string>;
@@ -159,7 +171,8 @@ export interface Smoke {
 }
 
 /**
- * Smoke query: jumlah baris per tabel, isi `meta`, dan j1 h200 (badan + catatan kaki + penanda).
+ * Smoke query: jumlah baris per tabel (termasuk indeks FTS), isi `meta`, j1 h200 (badan + catatan
+ * kaki + penanda), dan satu kueri pencarian.
  * Bila `expect` diberikan (hitungan dan meta dari .sqlite build), setiap angka harus sama persis.
  */
 export function smoke(
@@ -182,6 +195,9 @@ export function smoke(
   const foot = Number(page.find((r) => r.kind === "foot")?.n ?? 0);
   if (body === 0 || foot === 0 || Number(page[0]?.refs ?? 0) === 0) {
     problems.push("j1 h200 tidak punya paragraf badan, catatan kaki, atau penanda tertaut");
+  }
+  if (Number(query(target, SMOKE_SEARCH)[0]?.n ?? 0) === 0) {
+    problems.push("indeks passage_fts tidak mengenai الصبر (indeks kosong atau tidak sinkron)");
   }
   if (expect !== undefined) {
     for (const t of COUNTED) {
