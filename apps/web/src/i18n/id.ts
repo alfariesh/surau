@@ -168,7 +168,6 @@ export const id = {
     editionsLabel: "Edisi",
     open: "Buka kitab",
     startReading: "Mulai membaca",
-    workMetaTitle: "Ihya' 'Ulum ad-Din",
     volumes: (n: number) => `${n} jilid`,
     deathHijri: (n: number) => `w. ${n} H`,
     publisherLabel: "Penerbit",
@@ -178,7 +177,6 @@ export const id = {
     tocLabel: "Daftar isi kitab",
     tocOpen: "Daftar isi",
     tocActive: "(bagian ini)",
-    tocCollapse: "Ciutkan semua",
     breadcrumbLabel: "Letak di kitab",
     pageHeading: (juz: number, page: number) => `Juz ${juz} · Halaman ${page}`,
     pageMetaTitle: (bab: string | null, title: string, juz: number, page: number) =>
@@ -190,7 +188,6 @@ export const id = {
     textLabel: "Teks kitab",
     pageNavLabel: "Navigasi halaman",
     pageNavTopLabel: "Navigasi halaman (atas)",
-    toolbarLabel: "Alat baca",
     prevShort: "Sebelumnya",
     nextShort: "Berikutnya",
     pageShort: (juz: number, page: number) => `j.${juz} h.${page}`,
@@ -211,10 +208,7 @@ export const id = {
     passageActions: "Aksi paragraf",
     copyPassage: "Salin sitasi paragraf",
     reportPassage: "Laporkan kesalahan di paragraf ini",
-    footnotesHeading: "Catatan kaki · takhrij hadits al-'Iraqi",
-    footnotesLead:
-      "Catatan kaki edisi ini berisi takhrij al-Hafiz al-'Iraqi atas hadits-hadits Ihya. Status hadits hanya diambil dari teks takhrij ini, tanpa tebakan AI.",
-    footnoteOpen: (marker: string) => `Buka catatan kaki ${marker}`,
+    footnotesHeading: "Catatan kaki",
     footnoteHeading: (marker: string) => `Catatan kaki (${marker})`,
     footnoteGoto: "Lihat di daftar catatan kaki",
     footnoteBack: "Kembali ke teks",
@@ -229,6 +223,10 @@ export const id = {
     needsReviewNote:
       "Tanda “perlu ditinjau” berasal dari pemeriksaan otomatis saat impor, bukan hasil tinjauan. Teksnya tetap persis seperti sumber.",
     sourceHeading: "Sumber dan lisensi",
+    licenseText: "teks lisensi",
+    sourceDigital: "Materi sumber",
+    modified:
+      "Diolah Surau: teks dibagi per paragraf, catatan kaki takhrij dipisahkan dari teks utama, dan daftar isi diperbaiki lewat patch yang tercatat. Huruf teks Arab tidak diubah.",
     sourceShamela: "Halaman ini di al-Maktaba al-Shamela",
     report: "Laporkan kesalahan",
     reportHeading: "Laporkan kesalahan",

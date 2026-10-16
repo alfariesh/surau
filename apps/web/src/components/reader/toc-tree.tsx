@@ -7,13 +7,14 @@ import { useEffect, useMemo, useRef } from "react";
 import { Collection } from "react-aria-components";
 
 import { id } from "../../i18n/id";
+import { ArabicInline } from "../arabic";
 import { tocPath } from "../../lib/reader/toc";
 
 const t = id.reader;
 
 // Pohon daftar isi (S09 langkah 4): bisa diciutkan per node, bagian aktif tersorot dan leluhurnya
 // terbuka. Setiap baris adalah tautan ke halaman awal bagian (navigasi klien lewat RouterProvider).
-// Judul Arab persis dari DB, diisolasi arahnya dengan <bdi> (halaman tetap LTR).
+// Judul Arab persis dari DB lewat ArabicInline (<bdi>, halaman tetap LTR).
 export function TocTree({
   items,
   activeIds = [],
@@ -64,9 +65,7 @@ export function TocTree({
               textValue={isActive ? `${item.title} ${t.tocActive}` : item.title}
               title={
                 <span className="flex min-w-0 flex-col items-start">
-                  <bdi className="arabic-inline toc-title" dir="rtl" lang="ar">
-                    {item.title}
-                  </bdi>
+                  <ArabicInline className="toc-title">{item.title}</ArabicInline>
                   <span className="text-muted text-[0.7rem] tabular-nums">
                     {t.pageShort(item.juz, item.page)}
                   </span>

@@ -30,3 +30,13 @@ for (const scheme of ["light", "dark"] as const) {
     }
   });
 }
+
+// Urutan heading (aturan axe `heading-order`, bertag best-practice sehingga tidak ikut tag WCAG di
+// atas). Regresi S09: judul bagian h3 langsung sesudah h1, dan Card.Title (h3) sebelum h2.
+for (const path of ["/kitab", "/kitab/ihya", "/kitab/ihya/1/200"]) {
+  test(`urutan heading berurutan: ${path}`, async ({ page }) => {
+    await page.goto(path);
+    const result = await new AxeBuilder({ page }).withRules(["heading-order"]).analyze();
+    expect(result.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
+  });
+}

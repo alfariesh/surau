@@ -24,6 +24,19 @@ test("halaman cetak j1 h200: judul, teks Arab RTL, dan atribusi sumber", async (
   );
 });
 
+test("halaman baca tanpa galat JavaScript (regresi `__name` dari bundler Worker)", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  const response = await page.goto(PAGE);
+  // keep_names: false (ADR-034 butir 8): skrip tema dari fn.toString() tidak boleh membawa __name.
+  expect(await response?.text()).not.toContain("__name(");
+  await expect(page.getByRole("button", { name: "Salin sitasi" })).toBeVisible();
+  await page.waitForLoadState("load");
+  expect(errors).toEqual([]);
+});
+
 test("penanda (٤) membuka takhrij asli yang sama persis dengan catatan kakinya", async ({
   page,
 }) => {

@@ -573,7 +573,14 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Diukur di Preview PR #21 (halaman yang belum pernah dibuka):
      - TTFB dingin 0,71–1,02 dtk (MISS), hangat 0,10–0,18 dtk (HIT).
      - HTML j1 h200 ±200 KB mentah, ±28 KB gzip.
-   - **Risiko #1455 diterima:** kebocoran hanya terjadi pada render pertama per path per deploy (Ihya ±2.000 path), dan isolate diganti otomatis saat mendekati 128 MB. Naikkan OpenNext lewat Dependabot/ADR saat #1456 dirilis. Pantau grafik memori Worker setelah rilis Fase 1.
+   - **Risiko diterima, dengan batas yang ditulis jujur** (koreksi dari peninjau):
+     - Ruang path ISR **tidak terbatas**: `/kitab/<apa saja>`, `/kitab/ihya/1/<0..999999999>`, `/kitab/ihya/bab/<angka>`. Setiap path baru, termasuk yang berakhir 404, memicu satu render Worker dan satu tulis cache R2 (operasi Class A), lalu 404-nya ikut di-cache.
+     - Ini sudah berlaku di **produksi sejak merge**, walau `READER_ENABLED = "0"`, karena `notFound()` terjadi di dalam render ISR. Sebelum S09, `/kitab/*` jatuh ke 404 statis.
+     - Setiap render ISR juga menahan heap (#1455). Path sah Ihya sekitar 2.000 per deploy, tetapi pemindai/bot bisa membuat path unik tanpa batas. Isolate diganti otomatis saat mendekati 128 MB; error 1102 hanya di beban sangat tinggi.
+     - Mitigasi sekarang: pantau R2 Class A ops dan grafik memori Worker di dashboard. Mitigasi berikutnya:
+       - aturan rate limit/WAF untuk `/kitab/*` saat domain sendiri siap (P-2, WAF butuh zona);
+       - naikkan OpenNext saat #1456 dirilis.
+     - Ruang path tidak dipersempit (mis. folder literal `ihya` atau `dynamicParams = false`), karena keduanya memutus permalink edisi `ihya@<edisi>` (ADR-029) atau butuh D1 saat build.
 3. **Binding:**
    - `CORPUS_DB` dan `APP_DB` dengan `database_id` **eksplisit** di top-level dan di `previews`. ID-nya sama dengan `packages/db/wrangler.jsonc`, jadi `next dev` membaca D1 lokal yang dimuat `corpus:load:local`.
    - Produksi menunjuk `surau-corpus-staging` + `surau-app`. Preview menunjuk `surau-corpus-staging` + `surau-app-staging`.
@@ -582,6 +589,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
      - `/kitab/*` dan `/api/feedback` = 404;
      - sitemap tanpa halaman kitab.
    - Alasannya: korpus produksi (S10), QA, dan T-10 belum ada. Membukanya cukup dengan mengubah satu `vars` di S10/`/rilis 1`.
+   - **Menutup/membuka harus lewat commit + `deploy.yml`**, bukan dashboard atau `wrangler versions`. Halaman ISR yang sudah HIT dilayani dari cache R2/regional tanpa menjalankan `readerEnabled()`, dan hanya build baru (BUILD_ID baru) yang memulai cache dari nol. Prosedur tutup darurat (mis. bila Shamela keberatan, T-10) ditulis di S10.
    - `wrangler types --strict-vars=false`, supaya `READER_ENABLED` bertipe `string`, bukan literal `"0"`.
    - Secret `IP_HMAC_KEY` tidak dibuat `wrangler types`, jadi tipenya ditulis di `apps/web/env.d.ts` (opsional).
 4. **Halaman baca:**
@@ -591,7 +599,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Span pemicu HoverCard sendiri dijadikan tombol (`role="button"`): HoverCard memasang `aria-expanded` di span itu, dan tombol bersarang di dalamnya melanggar axe `aria-allowed-attr`.
    - Catatan kaki juga tampil di daftar bawah halaman (jangkar `#p<seq>`, tautan "kembali ke teks"), lengkap dengan tanda `needs_review` dan penjelasan bahwa tanda itu hasil pemeriksaan otomatis, bukan tinjauan.
    - Paragraf yang teksnya sama persis dengan judul node yang mulai di halaman itu ditampilkan sebagai `h2`. Ini hanya soal tampilan; teksnya tetap `text_raw`.
-   - Navigasi halaman mengikuti arah kitab Arab: **Berikutnya di kiri / ←**, **Sebelumnya di kanan / →**. Tombol panah diabaikan di kolom isian, menu, dialog, dan pohon.
+   - Navigasi halaman mengikuti arah kitab Arab: **Berikutnya di kiri / ←**, **Sebelumnya di kanan / →**. Tombol panah diabaikan di kolom isian, menu, dialog, dan pohon. Baris alat baca sengaja bukan `role="toolbar"`, karena pola itu memakai ←/→ untuk berpindah antar-kontrol.
    - Daftar isi memakai `FileTree` Pro (313 node; leluhur bagian aktif terbuka, panel menggulir sendiri ke bagian aktif) di samping (≥ lg) dan di Drawer (ponsel).
    - Ukuran huruf Arab (5 langkah) disimpan di `localStorage`. Skrip awal kecil memasangnya sebelum teks tampil.
    - T-08 hanya memberi satu font Arab, jadi tidak ada pilihan font.
@@ -601,8 +609,13 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Origin = situs yang sedang dibuka, jadi tautan dari Preview menunjuk Preview.
    - Nama pengarang ringkas dan nama penerbit berhuruf Latin diambil dari tabel nama tampilan web (`apps/web/src/content/works.ts`). DB hanya menyimpan nama lengkap dan penerbit berhuruf Arab. Karya baru tanpa entri memakai data DB apa adanya.
    - Judul mengikuti `title_id` DB (`Ihya' 'Ulum ad-Din`, dengan apostrof), bukan ejaan di contoh rencana.
-6. **Atribusi ADR-018:**
-   - Footer halaman baca berisi atribusi edisi, lisensi, dan tautan "Halaman ini di al-Maktaba al-Shamela".
+6. **Atribusi ADR-018 + CC BY-NC-SA 4.0 §3(a)(1)** (`LicenseNotice`, di halaman karya dan footer halaman baca):
+   - atribusi edisi dari DB apa adanya;
+   - nama lisensi + tautan ke teks lisensinya;
+   - tautan ke materi sumber berlisensi (OpenITI 2025.1.9 di Zenodo, `data/ATTRIBUTION.md`);
+   - pernyataan pengolahan ("Diolah Surau: … Huruf teks Arab tidak diubah");
+   - di halaman baca, tautan "Halaman ini di al-Maktaba al-Shamela".
+   - Tautan lisensi, sumber, dan judul catatan kaki "takhrij al-'Iraqi" disimpan per edisi di `apps/web/src/content/works.ts`. Edisi tanpa entri hanya mendapat "Catatan kaki", supaya catatan kaki karya lain tidak salah diatribusikan.
    - Tautan itu berasal dari field tambahan `@surau/core` `PageView.source_url` (`https://shamela.ws/book/<source_ref>/<source_page_id>`, hanya untuk edisi `shamela`). Kontrak hanya bertambah.
 7. **Laporan kesalahan** `POST /api/feedback`: route handler, bukan Server Action. Logikanya di `lib/feedback-handler.ts` (diuji tanpa Workers), dengan urutan:
    - pembaca terbuka;
@@ -641,6 +654,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Utang:**
 - Pohon daftar isi dikirim dua kali di payload RSC halaman baca (panel samping + Drawer), ±25 KB mentah. Bisa disatukan lewat konteks.
+- `/api/feedback` tidak mencocokkan `passage_id` dengan `path` (laporan bisa merujuk paragraf halaman lain; cukup ditandai saat triase). Untuk rilis publik, pertimbangkan batas global per hari selain 5/menit per IP, karena IP (terutama IPv6) mudah dirotasi.
 - Satu kali klik sebelum hidrasi tidak berbuat apa-apa (e2e memakai `toPass`).
 - Penanda di mode HoverCard berganti elemen setelah hidrasi (Popover → HoverCard) karena kemampuan hover baru diketahui di klien.
 - Pengguna yang membuka `/kitab/*` sebelum `READER_ENABLED` dinyalakan di produksi akan mendapat 404 yang ter-cache sampai deploy berikutnya. Mengubah `vars` memang selalu lewat deploy baru, yang membuang cache build lama.

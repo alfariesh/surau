@@ -38,12 +38,12 @@ export default async function KitabPage() {
             <li key={work.slug}>
               <Card>
                 <Card.Header className="gap-2">
-                  <Card.Title className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xl">
+                  <h2 className="card__title flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xl">
                     <span>{work.title_id ?? work.title_ar}</span>
                     <ArabicInline className="text-muted text-lg font-normal">
                       {work.title_ar}
                     </ArabicInline>
-                  </Card.Title>
+                  </h2>
                   {work.author ? (
                     <Card.Description>
                       {t.by} {work.author.name_id ?? work.author.name_ar}
@@ -54,7 +54,9 @@ export default async function KitabPage() {
                 {edition ? (
                   <Card.Footer className="flex flex-wrap items-center justify-between gap-3">
                     <span className="text-muted text-xs">
-                      {edition.license} · {edition.volumes ? t.volumes(edition.volumes) : null}
+                      {[edition.license, edition.volumes ? t.volumes(edition.volumes) : null]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </span>
                     <NextLink
                       className={buttonVariants({ variant: "primary" })}

@@ -6,6 +6,7 @@ import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 
 import { ArabicInline } from "../../../../components/arabic";
+import { LicenseNotice } from "../../../../components/reader/license-notice";
 import { TocTree } from "../../../../components/reader/toc-tree";
 import { id } from "../../../../i18n/id";
 import { loadToc, loadWork } from "../../../../lib/reader/data";
@@ -74,7 +75,8 @@ export default async function WorkPage({ params }: Props) {
 
       <Card>
         <Card.Header>
-          <Card.Title>{t.editionsLabel}</Card.Title>
+          {/* h2 (bukan Card.Title = h3): urutan heading h1 → h2 (axe heading-order). */}
+          <h2 className="card__title">{t.editionsLabel}</h2>
         </Card.Header>
         <Card.Content>
           <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[10rem_1fr]">
@@ -89,10 +91,15 @@ export default async function WorkPage({ params }: Props) {
               ) : null}
               {edition.volumes ? ` · ${t.volumes(edition.volumes)}` : null}
             </dd>
-            <dt className="text-muted">{t.licenseLabel}</dt>
-            <dd className="text-foreground m-0">{edition.license}</dd>
-            <dt className="text-muted">{t.attributionLabel}</dt>
-            <dd className="text-foreground m-0">{edition.attribution}</dd>
+            <dt className="text-muted">{t.sourceHeading}</dt>
+            <dd className="text-foreground m-0">
+              <LicenseNotice
+                attribution={edition.attribution}
+                editionSlug={edition.slug}
+                license={edition.license}
+                workSlug={work.slug}
+              />
+            </dd>
           </dl>
         </Card.Content>
       </Card>

@@ -55,7 +55,7 @@ Pengguna bisa membuka Ihya, menjelajah daftar isi, membaca halaman cetak per hal
 - [x] Takhrij tampil benar untuk 5 penanda yang dicek manual · j1 h200 (٢) dan (٤), j2 h50 (١), j3 h120 (١), j4 h300 (١): isi popover = catatan kaki di daftar bawah, nomornya sama, dan isinya membahas hadits di matan sebelum penanda (mis. (٤) hadits Jabir shalat malam Jumat → "باطل لا أصل له")
 - [x] "Salin sitasi" menghasilkan format yang benar, dan permalink membuka paragraf yang tepat · e2e (lokal + Preview): papan klip = `al-Ghazali, Ihya' 'Ulum ad-Din, Dar al-Ma'rifah, j.1 h.200. <origin>/kitab/ihya/1/200`; `#p2826` dan `#p2834` menggulir + menyorot paragraf yang benar
 - [x] Lighthouse ponsel: aksesibilitas ≥ 90 dan performa dicatat · Lighthouse 13.5.0, Preview j1 h200: ponsel a11y **100**, performa **80** (FCP 3,1 dtk, LCP 4,2 dtk, TBT 20 ms, CLS 0), BP 100; desktop 100/100/100; SEO 66 hanya karena `noindex` bawaan Preview. TTFB Preview dingin 0,71–1,02 dtk, hangat 0,10–0,18 dtk
-- [x] E2E lolos; `pnpm verify` lolos · `pnpm test:e2e` 56/56 lokal dan di Preview; `pnpm verify` lolos (lokal + CI `verify`)
+- [x] E2E lolos; `pnpm verify` lolos · `pnpm test:e2e` 56/56 lokal dan di Preview, lalu 64/64 lokal setelah tes regresi temuan peninjau (Preview: lihat CI PR #21); `pnpm verify` lolos (lokal + CI `verify`)
 - [ ] Pemilik menyetujui tampilan · **menunggu T-22** (tautan Preview tetap `pembaca`, tangkapan layar ponsel/desktop dikirim)
 - [x] STATUS, LOG, dan file sesi ini diperbarui
 
@@ -71,8 +71,10 @@ Pengguna bisa membuka Ihya, menjelajah daftar isi, membaca halaman cetak per hal
 - Komponen `src/components/reader/`: `footnote-marker` (HoverCard/Popover), `toc-tree` (FileTree), `reader-toolbar` (daftar isi di Drawer, lompat, salin sitasi, ukuran huruf, lapor), `page-nav` (←/→ arah kitab), `passage-actions`, `feedback-dialog`, `reader-context`, `needs-review`.
 - `/api/feedback` (`src/lib/feedback-handler.ts` + `feedback-schema.ts`), `sitemap.ts`, `robots.ts`; Toast di `providers.tsx`; menu Kitab aktif.
 - `wrangler.jsonc`: `CORPUS_DB`/`APP_DB` ber-ID, `FEEDBACK_LIMITER`, `READER_ENABLED`, `keep_names: false`; `cf-typegen --strict-vars=false`; `env.d.ts` (`IP_HMAC_KEY`). Secret `IP_HMAC_KEY` dipasang (produksi + base config Preview).
-- Paket: `@surau/core` `PageView.source_url` (README + tes); `@surau/db` `listPages` (+ tes). Dependensi web baru: `@surau/core`, `@surau/db`, `zod` (workspace/catalog, tanpa paket pihak ketiga baru).
-- Tes: 23 tes unit web (segments, work-segment, cite, toc, feedback-handler); e2e `reader.spec.ts` (9 skenario × 2 perangkat), a11y +3 halaman, smoke menu diperbarui.
+- Paket: `@surau/core` `PageView.source_url` (README + tes); `@surau/db` `listPages` (+ tes). Dependensi web baru, semuanya workspace/catalog (tanpa paket pihak ketiga baru): `@surau/core` (satu-satunya pintu baca data kitab), `@surau/db` (`listPages` untuk sitemap, `createFeedback`/`feedbackInput`/`getCorpusMeta` untuk laporan), `zod` (skema body `/api/feedback`, KONVENSI §TypeScript).
+- Atribusi `LicenseNotice` (tautan teks lisensi CC, materi sumber OpenITI, pernyataan pengolahan) di halaman karya dan footer halaman baca; data per edisi di `src/content/works.ts`.
+- Tes: 23 tes unit web (segments, work-segment, cite, toc, feedback-handler); e2e `reader.spec.ts` (10 skenario × 2 perangkat, termasuk regresi galat JS/`__name`), a11y +3 halaman kitab + aturan `heading-order` (regresi), smoke menu diperbarui. Total e2e 64.
+- Peninjau: 0 blocker, 7 "perbaiki" (analisis risiko ISR di ADR, role toolbar vs ←/→, tes regresi dua bug, atribusi CC lengkap, `ArabicInline` di daftar isi, judul takhrij al-'Iraqi per edisi, sinkron dokumen) → semuanya diperbaiki; saran opsional diambil sebagian (tanda `needs_review` di paragraf judul, id penanda dari potongan yang dirender, pemisah menggantung, string tak terpakai, breadcrumb langsung ke halaman), sisanya dicatat di ADR-034 (utang).
 
 **Penyimpangan dari rencana (terbuka):**
 - Langkah 3 "pilihan font" tidak dibuat: T-08 hanya memberi satu font Arab (Noto Naskh).
@@ -80,6 +82,6 @@ Pengguna bisa membuka Ihya, menjelajah daftar isi, membaca halaman cetak per hal
 - Sitasi memakai `title_id` DB `Ihya' 'Ulum ad-Din` (rencana menulis "Ihya 'Ulum ad-Din").
 - Di luar rencana: `keep_names: false` (skrip tema rusak di halaman yang dirender Worker), `source_url` di core, `listPages` di db.
 
-**Utang teknis:** pohon daftar isi terkirim dua kali di payload RSC (±25 KB mentah); LCP ponsel 4,2 dtk karena CSS global HeroUI render-blocking (±90 KB); risiko OpenNext #1455 (naikkan saat #1456 rilis); penanda berganti elemen setelah hidrasi pada perangkat ber-hover; Preview tetap `pembaca` dibuat manual.
+**Utang teknis:** ruang path ISR tidak terbatas (setiap path baru = satu render + satu tulis R2, juga 404; WAF/rate limit `/kitab/*` saat domain siap, ADR-034 butir 2); pohon daftar isi terkirim dua kali di payload RSC (±25 KB mentah); LCP ponsel 4,2 dtk karena CSS global HeroUI render-blocking (±90 KB); risiko OpenNext #1455 (naikkan saat #1456 rilis); penanda berganti elemen setelah hidrasi pada perangkat ber-hover; Preview tetap `pembaca` dibuat manual.
 
-**Untuk sesi berikutnya (S10):** ganti `CORPUS_DB` produksi ke korpus blue-green, lalu nyalakan `READER_ENABLED` di `/rilis 1` (setelah T-10, T-15, T-22). Retensi `feedback` (P-7, T-10 butir 4) wajib diputuskan sebelum rilis. Hapus atau perbarui Preview `pembaca`.
+**Untuk sesi berikutnya (S10):** ganti `CORPUS_DB` produksi ke korpus blue-green, lalu nyalakan `READER_ENABLED` di `/rilis 1` (setelah T-10, T-15, T-22) lewat commit + `deploy.yml` (bukan dashboard: cache ISR hanya mulai dari nol di build baru); tulis prosedur tutup darurat. Retensi `feedback` (P-7, T-10 butir 4) wajib diputuskan sebelum rilis. Hapus atau perbarui Preview `pembaca`.

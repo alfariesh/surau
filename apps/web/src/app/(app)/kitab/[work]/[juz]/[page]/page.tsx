@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@heroui/react";
 import { Fragment } from "react";
 
 import { ArabicInline, ArabicText } from "../../../../../../components/arabic";
+import { LicenseNotice } from "../../../../../../components/reader/license-notice";
 import { FootnoteMarker } from "../../../../../../components/reader/footnote-marker";
 import { NeedsReviewNote } from "../../../../../../components/reader/needs-review";
 import { PageNav } from "../../../../../../components/reader/page-nav";
@@ -12,6 +13,7 @@ import { PassageActions } from "../../../../../../components/reader/passage-acti
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
 import { ReaderToolbar } from "../../../../../../components/reader/reader-toolbar";
 import { TocTree } from "../../../../../../components/reader/toc-tree";
+import { FOOTNOTE_NOTE } from "../../../../../../content/works";
 import { id } from "../../../../../../i18n/id";
 import { citeParts } from "../../../../../../lib/reader/cite";
 import { loadPage, loadToc } from "../../../../../../lib/reader/data";
@@ -73,14 +75,20 @@ export default async function ReaderPage({ params }: Props) {
   const headings = headingPassages(toc, juz, pageNo, page.body);
   const starts = sectionStarts(toc, juz, pageNo, page.body);
   const footById = new Map(page.footnotes.map((f) => [f.id, f]));
-  // Penanda pertama untuk tiap catatan kaki diberi id, supaya catatan kaki bisa "kembali ke teks".
+  // Potongan teks per paragraf badan (penanda dipotong hanya di offset DB). Penanda pertama yang
+  // benar-benar dirender untuk tiap catatan kaki diberi id, tujuan tautan "kembali ke teks".
+  const segmentsOf = new Map(
+    page.body.map((b) => [b.id, splitByFootnotes(b.text_raw, b.footnote_refs)]),
+  );
   const markerOf = new Map<number, string>();
   for (const b of page.body) {
-    for (const r of b.footnote_refs) {
-      if (!markerOf.has(r.footnote_id))
-        markerOf.set(r.footnote_id, `ref-${b.anchor}-${r.char_start}`);
+    for (const s of segmentsOf.get(b.id) ?? []) {
+      if (s.kind === "marker" && footById.has(s.footnoteId) && !markerOf.has(s.footnoteId)) {
+        markerOf.set(s.footnoteId, `ref-${b.anchor}-${s.charStart}`);
+      }
     }
   }
+  const footNote = FOOTNOTE_NOTE[`${work.slug}/${edition.slug}`];
   const anyReview = [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0);
   const workTitle = work.title_id ?? work.title_ar;
   const ref = (p: Passage) => ({
@@ -90,7 +98,7 @@ export default async function ReaderPage({ params }: Props) {
   });
 
   function renderText(p: Passage) {
-    return splitByFootnotes(p.text_raw, p.footnote_refs).map((s, i) => {
+    return (segmentsOf.get(p.id) ?? []).map((s, i) => {
       if (s.kind === "text") return <Fragment key={i}>{s.text}</Fragment>;
       const foot = footById.get(s.footnoteId);
       if (foot === undefined) return <Fragment key={i}>{s.text}</Fragment>;
@@ -121,7 +129,8 @@ export default async function ReaderPage({ params }: Props) {
                   key={c.id}
                   // Di ponsel hanya bagian terdalam yang tampil, supaya teks kitab tidak terdorong jauh.
                   className={i < crumbs.length - 1 ? "max-sm:hidden" : undefined}
-                  href={`/kitab/${segment}/bab/${c.id}`}
+                  // Langsung ke halaman awal bagian (tanpa lompatan 307 lewat /bab/<id>).
+                  href={`${c.href}#bab-${c.id}`}
                 >
                   <ArabicInline>{c.title}</ArabicInline>
                 </Breadcrumbs.Item>
@@ -162,19 +171,19 @@ export default async function ReaderPage({ params }: Props) {
                     <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
                   ))}
                   <div className="passage flex flex-row-reverse items-start gap-1" id={p.anchor}>
-                    {heading ? (
-                      <ArabicText
-                        as="h2"
-                        className={`reader-heading min-w-0 flex-1 ${heading.level > 2 ? "reader-heading-minor" : ""}`}
-                      >
-                        {renderText(p)}
-                      </ArabicText>
-                    ) : (
-                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      {heading ? (
+                        <ArabicText
+                          as="h2"
+                          className={`reader-heading ${heading.level > 2 ? "reader-heading-minor" : ""}`}
+                        >
+                          {renderText(p)}
+                        </ArabicText>
+                      ) : (
                         <ArabicText className="text-foreground">{renderText(p)}</ArabicText>
-                        <NeedsReviewNote reasons={p.needs_review} />
-                      </div>
-                    )}
+                      )}
+                      <NeedsReviewNote reasons={p.needs_review} />
+                    </div>
                     <PassageActions passage={ref(p)} />
                   </div>
                 </Fragment>
@@ -192,9 +201,9 @@ export default async function ReaderPage({ params }: Props) {
             >
               <div className="flex flex-col gap-1">
                 <h2 className="text-foreground text-lg font-semibold" id="judul-catatan-kaki">
-                  {t.footnotesHeading}
+                  {footNote?.heading ?? t.footnotesHeading}
                 </h2>
-                <p className="text-muted text-sm">{t.footnotesLead}</p>
+                {footNote ? <p className="text-muted text-sm">{footNote.lead}</p> : null}
               </div>
               <ol className="flex list-none flex-col gap-3 p-0">
                 {page.footnotes.map((f) => {
@@ -226,21 +235,13 @@ export default async function ReaderPage({ params }: Props) {
 
           <footer className="text-muted flex flex-col gap-2 border-t border-separator pt-6 text-xs">
             <h2 className="text-foreground text-sm font-semibold">{t.sourceHeading}</h2>
-            <p>{page.citation.source.attribution}</p>
-            <p>
-              {t.licenseLabel}: {page.citation.source.license}
-            </p>
-            {page.source_url ? (
-              <a
-                className="link self-start text-xs"
-                href={page.source_url}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                {t.sourceShamela}
-                <span className="sr-only"> {id.common.newTab}</span>
-              </a>
-            ) : null}
+            <LicenseNotice
+              attribution={page.citation.source.attribution}
+              editionSlug={edition.slug}
+              license={page.citation.source.license}
+              sourceUrl={page.source_url}
+              workSlug={work.slug}
+            />
             {anyReview ? <p>{t.needsReviewNote}</p> : null}
           </footer>
         </article>

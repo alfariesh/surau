@@ -201,7 +201,9 @@ export function ReaderToolbar({
   const reader = useReader();
 
   return (
-    <div aria-label={t.toolbarLabel} className="flex flex-wrap items-center gap-2" role="toolbar">
+    // Div biasa, bukan role="toolbar": pola toolbar ARIA memakai ←/→ antar-kontrol, padahal ←/→
+    // di halaman ini membalik halaman (PageNav).
+    <div className="flex flex-wrap items-center gap-2">
       <TocDrawer activeIds={activeIds} toc={toc} />
       <JumpToPage juz={juz} page={page} segment={segment} volumes={volumes} />
       <Button size="sm" variant="tertiary" onPress={() => void reader.copyCitation(pagePath)}>
