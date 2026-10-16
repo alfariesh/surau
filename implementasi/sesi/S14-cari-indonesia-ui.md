@@ -30,7 +30,9 @@ Pengguna bisa mengetik "sabar", "adab murid kepada guru", atau الصبر, lalu 
 7. Ubah navigasi "Cari" menjadi aktif. Halaman pembaca menyorot kata yang dicari bila dibuka dari hasil Cari.
 8. **Kinerja:** cache respons API pencarian untuk query populer (Cache API, TTL panjang, kunci = query ternormalisasi + `corpus_version`).
 9. E2E: query Arab dan Indonesia menghasilkan kartu dengan tautan yang benar.
-10. Kode Cari memeriksa `meta.schema_version` sebelum memakai tabel baru (ARSITEKTUR §7 aturan 5). Promosikan korpus versi terbaru (dengan FTS, ayat, dan terjemahan) ke produksi lewat `corpus:promote`, dengan izin.
+10. Kode Cari memeriksa `meta.schema_version` sebelum memakai tabel baru (ARSITEKTUR §7 aturan 5). Promosikan korpus versi terbaru (dengan FTS, ayat, dan terjemahan) ke produksi lewat `corpus:promote`, dengan izin. Sebelum itu putuskan rollback: `--switch-only ihya-v1` (skema 3) gagal di smoke sejak S11 (ADR-039, Konsekuensi); longgarkan pemeriksaan skema di `promote.ts` bila `ihya-v1` harus tetap jadi target rollback.
+
+> Dari S11 (ADR-039): jalur Arab sudah ada sebagai `searchText` + `GET /api/search` (Server-Timing, `SEARCH_LIMITER`, 503 bila korpus tanpa indeks). UI memakai `searchView` apa adanya; `highlights`/`snippet` adalah rentang di `text_raw`. Kueri yang semua katanya umum (`warning: "common_terms"`) tidak berperingkat dan tidak punya halaman lanjut.
 
 ## Selesai bila
 
