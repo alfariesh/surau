@@ -1,6 +1,6 @@
 # S08 · Core tools baca (`packages/core`)
 
-> **Fase:** 1 · **Status:** belum
+> **Fase:** 1 · **Status:** berjalan
 > **Prasyarat:** S07 selesai (D1 lokal berisi Ihya) · Tugas pemilik: –
 > **Perkiraan:** 1 percakapan agent
 

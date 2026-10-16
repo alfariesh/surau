@@ -3,27 +3,34 @@
 // FTS belum di sini (S11). Teks yang dikembalikan adalah `text_raw` dari DB, apa adanya.
 import { D1_MAX_PARAMS, chunk, placeholders } from "../d1.ts";
 import type { D1Db } from "../d1.ts";
+import { z } from "zod";
+
 import {
+  authorRow,
   corpusMeta,
   editionRow,
   footnoteRefRow,
   metaRow,
   pageRow,
+  passageNeedsReviewRow,
   passageRow,
   tocNodeRow,
   workRow,
 } from "../schema/corpus.ts";
 import type {
+  AuthorRow,
   CorpusMeta,
   EditionRow,
   FootnoteRefRow,
   PageRow,
+  PassageNeedsReviewRow,
   PassageRow,
   TocNodeRow,
   WorkRow,
 } from "../schema/corpus.ts";
 import { allRows, firstRow } from "./rows.ts";
 
+const AUTHOR_COLS = "id, name_ar, name_id, death_hijri, shamela_author_id, wikidata_id";
 const WORK_COLS =
   "id, slug, openiti_uri, title_ar, title_id, author_id, attribution_status, original_language, period";
 const EDITION_COLS =
@@ -32,6 +39,28 @@ const PAGE_COLS = "id, edition_id, seq, juz, page_no, source_page_id";
 const TOC_COLS =
   "id, edition_id, parent_id, ord, level, title_ar, start_page_id, source_title_id, patched";
 const PASSAGE_COLS = "id, edition_id, page_id, toc_node_id, kind, ord, text_raw";
+const pos = z.number().int().positive();
+
+/** Node daftar isi + letak cetak halaman awalnya (untuk sitasi tanpa query per node). */
+export const tocNodeWithStartRow = tocNodeRow.extend({
+  start_juz: pos,
+  start_page_no: z.number().int().nonnegative(),
+});
+export type TocNodeWithStartRow = z.infer<typeof tocNodeWithStartRow>;
+
+/** Paragraf + letak cetak halamannya (juz, page_no), untuk bacaan yang melintasi halaman. */
+export const passageWithPageRow = passageRow.extend({
+  juz: pos,
+  page_no: z.number().int().nonnegative(),
+});
+export type PassageWithPageRow = z.infer<typeof passageWithPageRow>;
+
+/** Edisi beserta karya dan penulisnya: bahan sitasi (karya, edisi, lisensi, atribusi). */
+export interface EditionContext {
+  edition: EditionRow;
+  work: WorkRow;
+  author: AuthorRow | null;
+}
 
 export function listWorks(db: D1Db): Promise<WorkRow[]> {
   return allRows(db.prepare(`SELECT ${WORK_COLS} FROM work ORDER BY id`), workRow);
@@ -79,6 +108,57 @@ export function getPageByCitation(
       .prepare(`SELECT ${PAGE_COLS} FROM page WHERE edition_id = ? AND juz = ? AND page_no = ?`)
       .bind(editionId, juz, pageNo),
     pageRow,
+  );
+}
+
+/** Edisi berdasarkan ID beserta karya dan penulisnya (satu `batch`). Null bila edisi tidak ada. */
+export async function getEditionContext(
+  db: D1Db,
+  editionId: number,
+): Promise<EditionContext | null> {
+  const [editions, works, authors] = await db.batch([
+    db.prepare(`SELECT ${EDITION_COLS} FROM edition e WHERE e.id = ?`).bind(editionId),
+    db
+      .prepare(
+        `SELECT ${WORK_COLS} FROM work WHERE id = (SELECT work_id FROM edition WHERE id = ?)`,
+      )
+      .bind(editionId),
+    db
+      .prepare(
+        `SELECT ${AUTHOR_COLS} FROM author WHERE id =
+           (SELECT w.author_id FROM work w JOIN edition e ON e.work_id = w.id WHERE e.id = ?)`,
+      )
+      .bind(editionId),
+  ]);
+  const edition = editions?.results[0];
+  const work = works?.results[0];
+  if (edition === undefined || work === undefined) return null;
+  const author = authors?.results[0];
+  return {
+    edition: editionRow.parse(edition),
+    work: workRow.parse(work),
+    author: author === undefined ? null : authorRow.parse(author),
+  };
+}
+
+/**
+ * Semua edisi, dikelompokkan per karya: edisi default dulu, lalu urut ID. Tabel kecil
+ * (satu baris per edisi), jadi `listWorks` cukup satu query untuk semua karya.
+ */
+export function listEditions(db: D1Db): Promise<EditionRow[]> {
+  return allRows(
+    db.prepare(`SELECT ${EDITION_COLS} FROM edition e ORDER BY e.work_id, e.is_default DESC, e.id`),
+    editionRow,
+  );
+}
+
+/** Penulis yang dirujuk karya mana pun (untuk `listWorks`). */
+export function listWorkAuthors(db: D1Db): Promise<AuthorRow[]> {
+  return allRows(
+    db.prepare(
+      `SELECT ${AUTHOR_COLS} FROM author WHERE id IN (SELECT author_id FROM work) ORDER BY id`,
+    ),
+    authorRow,
   );
 }
 
@@ -139,6 +219,70 @@ export function getTocChildren(
   return allRows(stmt, tocNodeRow);
 }
 
+/**
+ * Seluruh daftar isi satu edisi beserta letak cetak halaman awal setiap node. Urut
+ * (`parent_id`, `ord`); pohon disusun pemanggil. Ihya: 313 node, jadi satu query lebih murah
+ * daripada satu query per tingkat.
+ */
+export function listTocNodes(db: D1Db, editionId: number): Promise<TocNodeWithStartRow[]> {
+  return allRows(
+    db
+      .prepare(
+        `SELECT t.id, t.edition_id, t.parent_id, t.ord, t.level, t.title_ar, t.start_page_id,
+                t.source_title_id, t.patched, p.juz AS start_juz, p.page_no AS start_page_no
+         FROM toc_node t JOIN page p ON p.id = t.start_page_id
+         WHERE t.edition_id = ? ORDER BY t.parent_id IS NOT NULL, t.parent_id, t.ord`,
+      )
+      .bind(editionId),
+    tocNodeWithStartRow,
+  );
+}
+
+/**
+ * Paragraf sebuah bagian daftar isi **beserta semua sub-bagiannya**, dalam urutan baca: halaman
+ * (juz, page_no), lalu badan teks sebelum catatan kaki, lalu `ord`. `from` = halaman pertama yang
+ * diambil (inklusif; paginasi keyset `readSection`). Paling banyak `limit` baris.
+ */
+export function getSectionPassages(
+  db: D1Db,
+  nodeId: number,
+  from: { juz: number; page_no: number } | null,
+  limit: number,
+): Promise<PassageWithPageRow[]> {
+  if (!Number.isInteger(limit) || limit < 1) throw new RangeError(`limit tidak sah: ${limit}`);
+  return allRows(
+    db
+      .prepare(
+        `WITH RECURSIVE sub(id) AS (
+           SELECT id FROM toc_node WHERE id = ?1
+           UNION ALL SELECT t.id FROM toc_node t JOIN sub ON t.parent_id = sub.id
+         )
+         SELECT p.id, p.edition_id, p.page_id, p.toc_node_id, p.kind, p.ord, p.text_raw,
+                pg.juz, pg.page_no
+         FROM passage p JOIN page pg ON pg.id = p.page_id
+         WHERE p.toc_node_id IN (SELECT id FROM sub) AND (pg.juz, pg.page_no) >= (?2, ?3)
+         ORDER BY pg.juz, pg.page_no, p.kind = 'foot', p.ord
+         LIMIT ?4`,
+      )
+      .bind(nodeId, from?.juz ?? 0, from?.page_no ?? 0, limit),
+    passageWithPageRow,
+  );
+}
+
+/** Paragraf berdasarkan ID beserta letak cetak halamannya (untuk `buildCitation`). */
+export function getPassageById(db: D1Db, id: number): Promise<PassageWithPageRow | null> {
+  return firstRow(
+    db
+      .prepare(
+        `SELECT p.id, p.edition_id, p.page_id, p.toc_node_id, p.kind, p.ord, p.text_raw,
+                pg.juz, pg.page_no
+         FROM passage p JOIN page pg ON pg.id = p.page_id WHERE p.id = ?`,
+      )
+      .bind(id),
+    passageWithPageRow,
+  );
+}
+
 /** Paragraf satu halaman: badan teks dulu, lalu catatan kaki, masing-masing urut `ord`. */
 // `kind = 'foot'` (0/1) dipakai, bukan urutan alfabet `kind`, supaya jenis baru tidak menyela.
 export function getPassagesByPage(db: D1Db, pageId: number): Promise<PassageRow[]> {
@@ -171,6 +315,29 @@ export async function getFootnoteRefs(
   );
   const results = await db.batch(stmts);
   return results.flatMap((r) => r.results.map((row) => footnoteRefRow.parse(row)));
+}
+
+/**
+ * Tanda "perlu ditinjau" dari ingest (ADR-032) untuk sekumpulan paragraf, urut (`passage_id`,
+ * `reason`). Dipecah per ≤100 parameter seperti `getFootnoteRefs`. Ini tanda pipeline, bukan
+ * hasil review manusia (itu di DB app, ARSITEKTUR §3.2).
+ */
+export async function getNeedsReview(
+  db: D1Db,
+  passageIds: readonly number[],
+): Promise<PassageNeedsReviewRow[]> {
+  const unique = [...new Set(passageIds)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const stmts = chunk(unique, D1_MAX_PARAMS).map((ids) =>
+    db
+      .prepare(
+        `SELECT passage_id, reason FROM passage_needs_review
+         WHERE passage_id IN (${placeholders(ids.length)}) ORDER BY passage_id, reason`,
+      )
+      .bind(...ids),
+  );
+  const results = await db.batch(stmts);
+  return results.flatMap((r) => r.results.map((row) => passageNeedsReviewRow.parse(row)));
 }
 
 /** Isi tabel `meta` sebagai objek bertipe (schema_version, norm_version, …). */
