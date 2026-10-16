@@ -15,6 +15,16 @@ Format entri:
 
 ---
 
+## 2026-10-16 · Sisipan · Log Worker Preview di CI — selesai
+
+- Dikerjakan: langkah *Ringkasan log Preview* di `preview.yml` + `.github/scripts/ringkas-log-preview.sh` (GraphQL `workersInvocationsAdaptive`, `isPreview: 1`), hasilnya di log CI, Summary, dan komentar preview PR (PR #16). Tugas pemilik T-21 (izin Account Analytics Read) ditulis dan diselesaikan pemilik. Perbaikan lanjutan: `previewSlug` ternyata `__unknown__`, jadi dipakai cadangan bertanda.
+- Verifikasi: skrip diuji dengan server GraphQL tiruan (7 skenario: izin, skema, non-JSON, kosong, ok, gagal, `__unknown__`; tiruan tidak di-commit); run Preview PR #16 → query diterima tanpa error izin, 9 putaran, 0 baris `pr-16` (slug `__unknown__`); `pnpm check` lolos; peninjau → 5 perbaikan diterapkan sebelum commit.
+- Biaya API: –
+- Keputusan: ADR-031 (ADR-030 poin 7 diberi rujukan)
+- Catatan untuk sesi berikutnya: tabel CI hanya bukti sebagian untuk "tidak ada error di Workers Logs" (tanpa HTTP 5xx/`console.error`); angka (dan status gagal) bisa tercampur trafik Preview lain selama slug `__unknown__`. Jalur cadangan dibuktikan di run PR perbaikan ini.
+
+---
+
 ## 2026-10-16 · X01 · Upgrade Next 16.4 + React 19.3 — selesai (log Preview tidak terbaca agent)
 
 - Dikerjakan: catalog dinaikkan ke `next` 16.4.1, `react`/`react-dom` 19.3.1, `@types/react(-dom)` 19.3.0, `@opennextjs/cloudflare` 1.20.12. 16.4.2 tidak dipasang (belum 24 jam, bukan rilis keamanan). Larangan ADR-003 tetap (`cacheComponents` menunggu PR OpenNext #1318). Ditambah konfigurasi preview workerd di `.claude/launch.json`. Dokumen web, Dependabot, STACK, dan ADR diperbarui.

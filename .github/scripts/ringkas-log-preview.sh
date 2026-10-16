@@ -20,7 +20,10 @@ JEDA="${JEDA:-20}"
 GRAPHQL_URL="${GRAPHQL_URL:-https://api.cloudflare.com/client/v4/graphql}"
 
 # previewSlug tidak dipakai sebagai filter server (belum terdokumentasi sebagai filter), jadi
-# disaring di jq. Status non-sukses yang dikenal: clientDisconnected, scriptThrewException,
+# disaring di jq. Teramati di PR #16 (2026-10-16): Cloudflare mengisi previewSlug `__unknown__`
+# untuk Preview dari `wrangler preview`. Bila tidak ada baris dengan slug persis, baris
+# `__unknown__` dipakai sebagai cadangan (bisa tercampur trafik Preview lain yang masih hidup di
+# jendela waktu yang sama, termasuk status gagal yang membuat job merah). Status non-sukses yang dikenal: clientDisconnected, scriptThrewException,
 # exceededResources, internalError.
 read -r -d '' QUERY <<'GQL' || true
 query PreviewLog($accountTag: String!, $since: Time!, $script: String!) {
@@ -53,6 +56,7 @@ bersihkan() { tr '\n`' '  ' | sed 's/ *$//' | cut -c1-300; }
 
 # Data analytics masuk dengan jeda: ulangi sampai jumlah request > 0 dan sama dengan putaran sebelumnya.
 sebelumnya=-1
+slug_terlihat=0
 for ((i = 1; i <= MAX_COBA; i++)); do
   sleep "$JEDA"
   if ! jawab=$(tanya) || ! jq -e 'type == "object"' >/dev/null 2>&1 <<<"$jawab"; then
@@ -73,10 +77,17 @@ for ((i = 1; i <= MAX_COBA; i++)); do
     md "### Log Preview" "" "Query ditolak GraphQL: ${pesan}. Skrip perlu diperbaiki (ADR-031)."
     exit 1
   fi
-  baris=$(jq --arg slug "$PREVIEW_SLUG" \
-    '[.data.viewer.accounts[0].workersInvocationsAdaptive[]? | select(.dimensions.previewSlug == $slug)]' <<<"$jawab")
+  semua='[.data.viewer.accounts[0].workersInvocationsAdaptive[]?]'
+  per_slug=$(jq -r "$semua"' | group_by(.dimensions.previewSlug) | map("\(.[0].dimensions.previewSlug)=\(map(.sum.requests) | add)") | join(", ")' <<<"$jawab")
+  # Begitu slug persis pernah terlihat, jangan kembali ke cadangan (perbandingan "stabil" antar slug).
+  if jq -e --arg slug "$PREVIEW_SLUG" "$semua"' | any(.dimensions.previewSlug == $slug)' >/dev/null <<<"$jawab"; then
+    slug_terlihat=1
+  fi
+  slug_dipakai=$PREVIEW_SLUG
+  [ "$slug_terlihat" = 1 ] || slug_dipakai=__unknown__
+  baris=$(jq --arg slug "$slug_dipakai" "$semua"' | map(select(.dimensions.previewSlug == $slug))' <<<"$jawab")
   total=$(jq '[.[].sum.requests] | add // 0' <<<"$baris")
-  echo "Putaran ${i}/${MAX_COBA}: ${total} request untuk ${PREVIEW_SLUG}"
+  echo "Putaran ${i}/${MAX_COBA}: ${total} request (slug ${slug_dipakai}; semua Preview: ${per_slug:-kosong})"
   if [ "$total" -gt 0 ] && [ "$total" = "$sebelumnya" ]; then break; fi
   sebelumnya=$total
 done
@@ -95,17 +106,26 @@ errors=$(jq '[.[].errors] | add // 0' <<<"$per_status")
 gagal=$(jq '[.[] | select(.status != "success" and .status != "clientDisconnected") | .requests] | add // 0' <<<"$per_status")
 putus=$(jq '[.[] | select(.status == "clientDisconnected") | .requests] | add // 0' <<<"$per_status")
 
+pembuka=()
+asal="di ${PREVIEW_SLUG}"
+if [ "$slug_dipakai" != "$PREVIEW_SLUG" ]; then
+  cadangan="Slug \`${PREVIEW_SLUG}\` tidak muncul di analytics; dipakai baris \`__unknown__\` (bisa tercampur trafik Preview lain yang masih hidup di jendela waktu ini)."
+  echo "::notice title=previewSlug tidak terisi::${cadangan//\`/}"
+  pembuka=("$cadangan" "")
+  asal="di baris __unknown__ (mungkin bukan dari ${PREVIEW_SLUG}; cocokkan waktunya di dashboard)"
+fi
+
 echo "Ringkasan ${WORKER} Preview ${PREVIEW_SLUG} sejak ${SINCE}: ${total} request, ${errors} error (gagal ${gagal}, klien putus ${putus})"
 jq -r '.[] | "  \(.status): \(.requests) request, \(.errors) error"' <<<"$per_status"
 
 md "### Log Preview \`${PREVIEW_SLUG}\`" "" \
   "Sejak ${SINCE} (GraphQL \`workersInvocationsAdaptive\`): **${total} request, ${errors} error**." "" \
-  "| Status | Request | Error |" "| --- | ---: | ---: |"
+  "${pembuka[@]}" "| Status | Request | Error |" "| --- | ---: | ---: |"
 jq -r '.[] | "| \(.status) | \(.requests) | \(.errors) |"' <<<"$per_status" >> "$RINGKASAN_MD"
 md "" "Hanya status *invocation*: respons HTTP 5xx yang ditangani Next tetap \`success\`, dan \`console.error\` tidak terhitung (ADR-031)."
 
 if [ "$gagal" -gt 0 ]; then
-  echo "::error title=Error di Worker Preview::${gagal} invocation gagal di ${PREVIEW_SLUG} (exception/melebihi batas/error internal). Detail pesan: dashboard Cloudflare → Workers → surau-web → Previews → ${PREVIEW_SLUG} → Logs."
+  echo "::error title=Error di Worker Preview::${gagal} invocation gagal ${asal} (exception/melebihi batas/error internal). Detail pesan: dashboard Cloudflare → Workers → surau-web → Previews → ${PREVIEW_SLUG} → Logs."
   exit 1
 fi
 if [ "$putus" -gt 0 ]; then

@@ -8,7 +8,7 @@
 - **Mulai di sini (pemilik):** X01 selesai (Next 16.4.1, tambalan keamanan). Buka percakapan baru dan ketik **`/sesi`** untuk S07 (drive Shamela harus terpasang, T-09).
 - **Fase:** 1 · Pembaca Ihya (berjalan; Fase 0 dirilis 2026-10-15, `rilis-f0`)
 - **Sesi berikutnya:** **S07 · Importer Ihya** → [sesi/S07-importer-ihya.md](sesi/S07-importer-ihya.md) (butuh T-09)
-- **Tindak lanjut kecil:** `next` 16.4.2 (backport non-keamanan) boleh lewat Dependabot. Log Worker **Preview**: CI kini meringkas request/error tiap PR (ADR-031), tetapi token CI butuh izin Analytics dulu (**T-21**, sebelum S09). Cakupan tes `packages/db` belum terukur (coverage v8 tidak jalan di workerd, ADR-029).
+- **Tindak lanjut kecil:** `next` 16.4.2 (backport non-keamanan) boleh lewat Dependabot. Log Worker **Preview**: CI meringkas request/error tiap PR di komentar preview (ADR-031, T-21 selesai); slug Preview tercatat `__unknown__` di analytics, jadi angkanya bisa tercampur trafik Preview lain di jendela waktu yang sama. Cakupan tes `packages/db` belum terukur (coverage v8 tidak jalan di workerd, ADR-029).
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dijawab di S04:** P-3/T-08 → palet **Zaitun** + Noto Naskh Arabic (ADR-027)
@@ -47,7 +47,7 @@
 | 1 | S06 | Skema data & D1 | selesai | 2026-10-15 · `@surau/db`, 3 DB D1 apac, ID & permalink (ADR-029) |
 | 1 | S07 | Importer Ihya | belum | butuh T-09 |
 | 1 | S08 | Core tools baca | belum | |
-| 1 | S09 | UI pembaca | belum | butuh T-21 (log Preview, ADR-031) |
+| 1 | S09 | UI pembaca | belum | log Preview via ringkasan CI (ADR-031) |
 | 1 | S10 | Korpus produksi & QA | belum | butuh T-09, T-10, T-15 · lalu `/rilis 1` |
 | 2 | S11 | Indeks FTS Arab | belum | butuh T-09 |
 | 2 | S12 | Ayat & terjemahan Kemenag | belum | butuh T-09, T-16 |
