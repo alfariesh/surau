@@ -128,7 +128,9 @@ export default async function ReaderPage({ params }: Props) {
                 <Breadcrumbs.Item
                   key={c.id}
                   // Di ponsel hanya bagian terdalam yang tampil, supaya teks kitab tidak terdorong jauh.
-                  className={i < crumbs.length - 1 ? "max-sm:hidden" : undefined}
+                  // `min-w-0 shrink`: butir HeroUI `flex-shrink: 0`, sehingga judul bab yang panjang
+                  // tidak membungkus dan meluber melewati gutter kanan di ponsel.
+                  className={`min-w-0 shrink${i < crumbs.length - 1 ? " max-sm:hidden" : ""}`}
                   // Langsung ke halaman awal bagian (tanpa lompatan 307 lewat /bab/<id>).
                   href={`${c.href}#bab-${c.id}`}
                 >

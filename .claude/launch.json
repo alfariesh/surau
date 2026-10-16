@@ -12,6 +12,22 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@surau/web", "preview"],
       "port": 3005
+    },
+    {
+      "name": "web-workers-tanpa-build",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@surau/web",
+        "exec",
+        "opennextjs-cloudflare",
+        "preview",
+        "--port",
+        "3005",
+        "--persist-to",
+        "../../.wrangler/state"
+      ],
+      "port": 3005
     }
   ]
 }

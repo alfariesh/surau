@@ -7,7 +7,7 @@
     "dev": "next dev --port 3004",
     "build": "next build",
     "start": "next start --port 3004",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview --port 3005",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview --port 3005 --persist-to ../../.wrangler/state",
     "deploy:web": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv --strict-vars=false cloudflare-env.d.ts",
