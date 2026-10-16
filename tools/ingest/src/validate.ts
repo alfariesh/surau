@@ -1,0 +1,219 @@
+// Validasi otomatis hasil ingest (S07 langkah 5). Invarian struktural yang dilanggar membuat ingest
+// GAGAL; sisanya angka untuk laporan. Laporan tidak memuat teks kitab: hanya angka, ID, dan rujukan
+// juz/halaman.
+import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
+import { MATAN_THRESHOLD } from "./openiti/verify.ts";
+import type { CorpusRows } from "./rows.ts";
+import type { ParsedPage } from "./shamela/page.ts";
+import type { ShamelaSource } from "./shamela/source.ts";
+import { MAX_STATEMENT_BYTES } from "./sql.ts";
+import type { TocBuild } from "./toc.ts";
+import type { WorkConfig } from "./works/ihya.ts";
+
+export interface Invariant {
+  name: string;
+  ok: boolean;
+  detail: string;
+}
+
+export interface LengthStats {
+  count: number;
+  min: number;
+  p50: number;
+  p90: number;
+  p99: number;
+  max: number;
+}
+
+export interface Validation {
+  ok: boolean;
+  invariants: Invariant[];
+  toc: {
+    nodes: number;
+    patched: number;
+    rub: { title: number; at: string; kitab: number }[];
+    spanless: string[];
+    pageMismatch: number[];
+    midParagraph: number;
+  };
+  passages: {
+    body: LengthStats;
+    foot: LengthStats;
+    footFromSection: number;
+    footInline: number;
+    multiLineFoot: number;
+  };
+  footnotes: { refs: number; linked: number; orphanRefs: string[]; orphanNotes: number };
+  inline: {
+    pages: number;
+    after: number;
+    before: number;
+    unsplit: string[];
+    longAfter: string[];
+  };
+  review: { reason: string; passages: number }[];
+  reviewPassages: number;
+  unknownTags: string[];
+}
+
+/** Rujukan halaman cetak untuk laporan. */
+export const cite = (p: ParsedPage): string => `j${p.source.juz} h${p.source.pageNo}`;
+
+/** Potongan takhrij "sesudah //" sepanjang ini kemungkinan ikut membawa matan lanjutan. */
+export const LONG_INLINE_CHARS = 400;
+
+export function lengthStats(lengths: readonly number[]): LengthStats {
+  const s = [...lengths].sort((a, b) => a - b);
+  const at = (q: number): number => s[Math.min(s.length - 1, Math.floor(q * s.length))] ?? 0;
+  return {
+    count: s.length,
+    min: s[0] ?? 0,
+    p50: at(0.5),
+    p90: at(0.9),
+    p99: at(0.99),
+    max: s.at(-1) ?? 0,
+  };
+}
+
+export interface ValidateInput {
+  config: WorkConfig;
+  source: ShamelaSource;
+  pages: readonly ParsedPage[];
+  toc: TocBuild;
+  matan: MatanCheck;
+  takhrij: TakhrijCheck;
+  rows: CorpusRows;
+}
+
+export function validate(input: ValidateInput): Validation {
+  const { config, source, pages, toc, matan, rows } = input;
+  const exp = config.expect;
+  const invariants: Invariant[] = [];
+  const check = (name: string, ok: boolean, detail: string): void => {
+    invariants.push({ name, ok, detail });
+  };
+
+  check("Jumlah halaman", pages.length === exp.pages, `${pages.length} (harapan ${exp.pages})`);
+  const perJuz = exp.volumes.map((_, i) => pages.filter((p) => p.source.juz === i + 1).length);
+  const juzOk =
+    perJuz.join("/") === exp.volumes.join("/") &&
+    perJuz.reduce((a, b) => a + b, 0) === pages.length;
+  check("Halaman per juz", juzOk, `${perJuz.join("/")} (harapan ${exp.volumes.join("/")})`);
+  const citations = new Set(pages.map((p) => `${p.source.juz}:${p.source.pageNo}`));
+  check(
+    "(juz, halaman) unik",
+    citations.size === pages.length,
+    `${pages.length - citations.size} ganda`,
+  );
+  check(
+    "Jumlah judul sumber",
+    source.titles.length === exp.titles,
+    `${source.titles.length} (harapan ${exp.titles})`,
+  );
+
+  const childCount = (key: string): number => toc.nodes.filter((n) => n.parentKey === key).length;
+  const rub = exp.rub.map((title) => {
+    const node = toc.nodes.find((n) => n.key === `t${title}`);
+    const page = node === undefined ? undefined : pages[node.pageIndex];
+    return {
+      title,
+      at: page === undefined ? "-" : cite(page),
+      kitab: node === undefined || node.level !== 1 ? -1 : childCount(node.key),
+    };
+  });
+  check(
+    `${exp.rub.length} rub' × ${exp.kitabPerRub} kitab setelah patch`,
+    rub.every((r) => r.kitab === exp.kitabPerRub),
+    rub.map((r) => `t${r.title}: ${r.kitab}`).join(", "),
+  );
+  const orphanIssues = toc.issues.filter((i) => !i.startsWith("urutan halaman"));
+  check(
+    "Daftar isi utuh (tanpa judul yatim, siklus, atau patch gagal)",
+    orphanIssues.length === 0 && toc.unknownSpans.length === 0,
+    orphanIssues.length + toc.unknownSpans.length === 0
+      ? "0 masalah"
+      : [...orphanIssues, ...toc.unknownSpans.map((id) => `span judul tak dikenal ${id}`)].join(
+          "; ",
+        ),
+  );
+  const order = toc.issues.filter((i) => i.startsWith("urutan halaman"));
+  check("Urutan halaman daftar isi monoton", order.length === 0, order.join("; ") || "ya");
+  const longest = rows.passage.reduce(
+    (max, p) => Math.max(max, Buffer.byteLength(p.text_raw, "utf8")),
+    0,
+  );
+  const empty = rows.passage.filter((p) => p.text_raw.trim() === "").length;
+  check(
+    "Paragraf tidak kosong dan muat satu statement D1",
+    empty === 0 && longest < MAX_STATEMENT_BYTES,
+    `${empty} kosong; terpanjang ${longest} byte (batas ${MAX_STATEMENT_BYTES})`,
+  );
+  check(
+    `Matan = OpenITI (≥${String(MATAN_THRESHOLD).replace(".", ",")} per halaman)`,
+    matan.passed >= exp.matanMinPages && matan.missing.length === 0,
+    `${matan.passed}/${pages.length} halaman (gerbang ≥${exp.matanMinPages}); ${matan.missing.length} halaman tidak ada di OpenITI`,
+  );
+
+  const midParagraph = toc.nodes.filter((n) => {
+    const d = pages[n.pageIndex]?.body[n.bodyIndex];
+    return n.offset > 0 && d !== undefined && d.start !== n.offset;
+  }).length;
+
+  const bodyLens = pages.flatMap((p) => p.body.map((d) => d.text.length));
+  const footLens = pages.flatMap((p) => p.foot.map((d) => d.text.length));
+  const inlinePages = pages.filter((p) => p.inline.length > 0);
+  const inlineAll = pages.flatMap((p) => p.inline.map((i) => ({ p, ...i })));
+  const reasons = new Map<string, number>();
+  for (const r of rows.passage_needs_review)
+    reasons.set(r.reason, (reasons.get(r.reason) ?? 0) + 1);
+
+  return {
+    ok: invariants.every((i) => i.ok),
+    invariants,
+    toc: {
+      nodes: toc.nodes.length,
+      patched: toc.nodes.filter((n) => n.patched).length,
+      rub,
+      spanless: toc.spanless.map((id) => {
+        const page = pages[toc.nodes.find((n) => n.key === `t${id}`)?.pageIndex ?? -1];
+        return `t${id} (${page === undefined ? "-" : cite(page)})`;
+      }),
+      pageMismatch: toc.pageMismatch,
+      midParagraph,
+    },
+    passages: {
+      body: lengthStats(bodyLens),
+      foot: lengthStats(footLens),
+      footFromSection: pages.reduce((a, p) => a + p.foot.filter((f) => f.line < 0).length, 0),
+      footInline: pages.reduce((a, p) => a + p.foot.filter((f) => f.line >= 0).length, 0),
+      multiLineFoot: pages.reduce(
+        (a, p) => a + p.foot.filter((f) => f.text.includes("\n")).length,
+        0,
+      ),
+    },
+    footnotes: {
+      refs: pages.reduce((a, p) => a + p.links.length + p.orphanRefs.length, 0),
+      linked: pages.reduce((a, p) => a + p.links.length, 0),
+      orphanRefs: pages.flatMap((p) => p.orphanRefs.map((m) => `${cite(p)} (${m.number})`)),
+      orphanNotes: pages.reduce((a, p) => a + p.orphanNotes, 0),
+    },
+    inline: {
+      pages: inlinePages.length,
+      after: inlineAll.filter((i) => i.direction === "after").length,
+      before: inlineAll.filter((i) => i.direction === "before").length,
+      unsplit: inlineAll.filter((i) => i.direction === null).map((i) => cite(i.p)),
+      longAfter: inlineAll
+        .filter((i) => i.direction === "after")
+        .filter((i) => {
+          const t = i.p.foot.find((f) => f.key === `t${i.line}`);
+          return t !== undefined && t.text.length >= LONG_INLINE_CHARS;
+        })
+        .map((i) => cite(i.p)),
+    },
+    review: [...reasons.entries()]
+      .sort(([a], [b]) => (a < b ? -1 : 1))
+      .map(([reason, n]) => ({ reason, passages: n })),
+    reviewPassages: new Set(rows.passage_needs_review.map((r) => r.passage_id)).size,
+    unknownTags: [...new Set(pages.flatMap((p) => p.unknownTags))].sort(),
+  };
+}
