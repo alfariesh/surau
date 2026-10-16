@@ -9,7 +9,9 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 | `pnpm ingest ihya` | Bangun korpus Ihya (±3 detik): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v1.sqlite`, `data/build/ihya-v1.sha256`, peta ID `data/ids/ihya-9472.json`, dan laporan `data/reports/ihya-9472-{validasi,openiti}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar |
 | `pnpm ingest:verify` | Hanya gerbang QA OpenITI (matan ≥0,95 per halaman di ≥1.705 halaman; takhrij vs JK000001) → laporan `…-openiti.md` |
 | `pnpm corpus:load:local` | Migrasi korpus + muat semua file SQL ke D1 lokal (`.wrangler/state`), lalu smoke query (jumlah baris, j1 h200) |
-| `pnpm corpus:load:staging` | Sama, ke `surau-corpus-staging` (remote). **Minta izin pemilik dulu**; selama impor, DB tidak melayani kueri |
+| `pnpm corpus:load:staging --confirm` | Sama, ke `surau-corpus-staging` (remote). **Minta izin pemilik dulu**; tanpa `--confirm` skrip menolak. Selama impor (±1 menit) DB tidak melayani kueri |
+
+**Peringatan:** file pertama (`0000-reset.sql`) mengosongkan **seluruh** DB korpus. Untuk sekarang satu DB berisi satu kitab; begitu ada kitab kedua, reset harus dibuat per edisi dulu. Bila `passage_fts` sudah diisi (S11), indeksnya juga harus ikut dikosongkan.
 
 Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURAU_SHAMELA_ROOT`) dan dua file OpenITI yang dipin ada di `data/raw/openiti/` (cara unduh dan sha256: `data/SOURCES.md`). Opsi `--reset-ids` membangun peta ID dari nol, **hanya** sebelum rilis Fase 1 (ADR-029).
 
@@ -35,4 +37,4 @@ Build deterministik: dua build pada commit yang sama menghasilkan sha256 yang sa
 
 ## Menambah kitab
 
-Buat `src/works/<kitab>.ts` (salin pola `ihya.ts`), patch `data/patches/<kitab>-<id>.yaml` bila daftar isinya cacat, pin versi OpenITI-nya di `data/SOURCES.md`, lalu tambahkan perintahnya di `src/cli.ts`. Kitab tanpa versi OpenITI butuh kebijakan lisensi per kitab dulu (ADR-018).
+Ubah reset menjadi per edisi dulu (lihat peringatan di atas). Lalu buat `src/works/<kitab>.ts` (salin pola `ihya.ts`), patch `data/patches/<kitab>-<id>.yaml` bila daftar isinya cacat, pin versi OpenITI-nya di `data/SOURCES.md`, lalu tambahkan perintahnya di `src/cli.ts`. Kitab tanpa versi OpenITI butuh kebijakan lisensi per kitab dulu (ADR-018).

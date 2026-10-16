@@ -77,52 +77,78 @@ Pipeline lokal yang mengubah Ihya dari Shamela (`book/472/9472.db`) menjadi data
 
 **Dibuat:**
 - `tools/ingest` (ADR-032; cara pakai di `tools/ingest/README.md`):
-  - baca Shamela hanya-baca (`src/sqlite.ts` menolak menulis di bawah `/Volumes/`);
+  - baca Shamela hanya-baca (`assertWritable` menolak apa pun di bawah `/Volumes/`, termasuk lewat symlink atau beda huruf besar-kecil);
   - pecah halaman lewat `@surau/text`;
   - daftar isi + patch YAML;
   - QA OpenITI (parser mARkdown minimal, kemiripan matan LCS token, cocok takhrij bigram vs JK000001);
-  - validasi invarian, peta ID, SQL D1, `.sqlite`, laporan, dan skrip muat D1.
-- Skrip root: `ingest`, `ingest:verify`, `corpus:load:local`, `corpus:load:staging`.
-- `@surau/text`: `splitInlineTakhrij` (takhrij menempel `//`, dua arah) dan `linkFootnoteMarkers`; fungsi tetap 100% teruji.
-- `@surau/db`: migrasi korpus **0002 `passage_needs_review`** (`schema_version` 2), skema Zod, `CORPUS_SCHEMA_VERSION` = 2. Ini **penyimpangan dari rencana**: skema v1 belum punya tempat untuk tanda `needs_review` (ADR-032 butir 2).
+  - 11 invarian, peta ID, SQL D1, `.sqlite`, laporan, dan skrip muat D1.
+- Skrip root: `ingest`, `ingest:verify`, `corpus:load:local`, `corpus:load:staging` (wajib `--confirm`).
+- `@surau/text`: `splitInlineTakhrij` (takhrij menempel `//`, dua arah, penanda pembuka tetap di matan) dan `linkFootnoteMarkers`; fungsi tetap 100% teruji.
+- `@surau/db`: migrasi korpus **0002 `passage_needs_review`** dan **0003** (lima alasan), `schema_version` 3, skema Zod. Ini **penyimpangan dari rencana**: skema v1 belum punya tempat untuk tanda `needs_review` (ADR-032 butir 2).
 - Data yang di-commit (tanpa teks kitab):
   - `data/LICENSE` (CC BY-NC-SA 4.0 resmi + pengantar);
   - `data/ATTRIBUTION.md`, `data/SOURCES.md` (sha256 OpenITI + Shamela);
   - `data/patches/ihya-9472.yaml`, `data/ids/ihya-9472.json`;
   - `data/reports/ihya-9472-validasi.md` dan `-openiti.md`.
-- `yaml` 2.9.1 masuk catalog (parser patch).
+- Dependensi baru **`yaml` 2.9.1** (catalog). Alasannya: rencana sesi menetapkan patch dalam YAML, dan Node 24 tidak punya parser YAML bawaan. Paket ini tanpa dependensi, berlisensi ISC, dan bebas advisory; dipakai ketat (kunci ganda, alias, dan kunci asing ditolak).
 
 **Bukti:**
-- `rm -rf data/build && pnpm ingest ihya` dua kali: 2,7 dan 2,8 detik; sha256 build sama (`99ea24bd…` pada HEAD yang sama). Pada HEAD akhir: `6f462829…`. Tes "deterministik" di `test/pipeline.test.ts` juga memeriksanya.
-- Laporan validasi (9 invarian ✓):
+- `rm -rf data/build && pnpm ingest ihya`: ±3 detik. Determinisme dibuktikan dua kali build dari nol pada HEAD yang sama: sha256 build identik. Buktinya diulang di HEAD akhir (lihat LOG). Tes "deterministik" di `test/pipeline.test.ts` juga memeriksanya.
+- Laporan validasi: 11 invarian ✓.
   - 1.706 halaman (361/386/413/546);
   - 4 rub' × 10 kitab setelah patch;
   - 0 judul yatim, urutan monoton;
-  - 4.064/4.064 penanda tertaut, **0 penanda yatim**, 140 catatan tak dirujuk;
-  - **203 halaman `//`** (130 sesudah, 64 sebelum, 9 tidak dipecah).
-- `verify-openiti`: **1.705/1.706 halaman ≥0,95** (j3 h116 = 0,535, tetapi 100% token matan Shamela termuat di OpenITI; OpenITI menambahkan takhrij di dalam baris). Takhrij: **190/4.398 catatan ditandai `takhrij_unmatched`**.
-- `pnpm corpus:load:local` (±12 detik) dan `pnpm corpus:load:staging` (±65 detik, atas izin pemilik 2026-10-16) menghasilkan angka yang sama di kedua DB:
-  - author 1, work 1, edition 1, page 1.706, toc_node 313, passage 20.509, footnote_ref 4.064, passage_needs_review 393;
+  - penanda tidak hilang; integritas lintas tabel;
+  - **4.117 penanda tertaut, 0 penanda yatim**. 87 penanda ada di tengah blok takhrij yang dipotong, dan 87 catatan bawah yang tak terjangkau ditandai `footnote_orphan` (semuanya karena itu). 4.117 + 87 = 4.204, sama dengan S05;
+  - **203 halaman `//`**: 130 sesudah, 64 sebelum, 9 tidak dipecah.
+- `verify-openiti`: **1.705/1.706 halaman ≥0,95**. Pengecualiannya j3 h116 (0,535): 100% token matan Shamela termuat di OpenITI, yang menambahkan takhrij di dalam baris. Takhrij: **190/4.398 catatan ditandai `takhrij_unmatched`**.
+- `pnpm corpus:load:local` dan `pnpm corpus:load:staging --confirm` (atas izin pemilik 2026-10-16; dimuat ulang setelah perbaikan peninjau) menghasilkan angka yang sama di kedua DB:
+  - author 1, work 1, edition 1, page 1.706, toc_node 313, passage 20.509, footnote_ref 4.117, passage_needs_review 705 baris (609 paragraf unik);
   - j1 h200: 7 paragraf badan, 7 catatan kaki, 7 penanda tertaut;
-  - `meta`: `schema_version` 2, `norm_version` 1, `corpus_version` ihya-v1, `source_hash` sha256:36e66c54…, `built_at`.
-- `git ls-files data/`: ATTRIBUTION.md, LICENSE, SOURCES.md, ids/ihya-9472.json, patches/ihya-9472.yaml, reports/ihya-9472-openiti.md, reports/ihya-9472-validasi.md.
-- Tes: 42 tes `tools/ingest` (unit + ujung-ke-ujung dengan kitab buatan + 2 tes integrasi Ihya asli yang dilewati di CI).
-- `pnpm verify` lolos: format, lint, tipe 92 file; 173 tes node + 47 tes db; cakupan `packages/text/src` fungsi 100%, baris 100%, cabang 97%; build.
+  - staging: `schema_version` 3, migrasi 0001–0003.
+- `git ls-files data/`: ATTRIBUTION.md, LICENSE, SOURCES.md, ids/ihya-9472.json, patches/ihya-9472.yaml, reports/ihya-9472-openiti.md, reports/ihya-9472-validasi.md. Tidak ada teks kitab; huruf Arab hanya ada pada dua kata pembuka judul di patch dan satu kata "حديث" di penjelasan metode.
+- Tes: 45 tes `tools/ingest` (unit + ujung-ke-ujung dengan kitab buatan + 2 tes integrasi Ihya asli yang dilewati di CI) dan 127 tes `@surau/text`.
+- `pnpm verify` lolos (angka akhir di LOG).
+
+**Peninjau (subagen `peninjau`):** 0 blocker, 6 "perbaiki", semuanya diperbaiki:
+1. 140 penanda ikut terpotong bersama takhrij. Sekarang penanda pembuka tetap di matan (+53 tautan), sisanya dihitung, dan catatan yatim ditandai `footnote_orphan`.
+2. Matan di sebelah batas tebakan tidak ditandai. Sekarang ditandai `takhrij_boundary` (migrasi 0003).
+3. Kunci ID berpindah arti. Sekarang kunci posisional, dan peta dibangun ulang dengan `--reset-ids`.
+4. Invarian lintas tabel dari serah terima S06 belum ada. Sudah ditambahkan, bersama invarian "penanda tidak hilang".
+5. Penjaga `/Volumes` dijalankan sesudah `rm` dan bisa dilewati lewat symlink atau huruf kecil. Sekarang `assertWritable` (realpath, tidak peka huruf) dipanggil sebelum setiap hapus/tulis.
+6. Dokumen mengklaim terlalu banyak. Cakupan langkah 5/7/8 ditulis apa adanya, dan peringatan reset global ditambahkan.
+
+Saran opsional yang diterapkan:
+- kode mati di `takhrijStartBefore` dibuang;
+- "اخرج"/"لم أقف" ikut dikenali sebagai atribusi;
+- `ReviewReason` diambil dari `@surau/db`;
+- keluaran lama dihapus di awal build;
+- rasio di bawah ambang dihitung eksak;
+- muat staging wajib `--confirm`;
+- paragraf tanpa node dilaporkan validasi, tidak crash.
+
+Saran yang **tidak** diterapkan: mensyaratkan kata atribusi untuk takhrij "sesudah `//`". Ke-130 kasusnya memang takhrij, dan 7 di antaranya tanpa kata itu sehingga akan gagal dipisah (ADR-032 butir 3).
 
 **Butir 5 tidak dicentang:** `data/ids/` (peta ID kunci → seq, tanpa teks) ikut di-commit karena ADR-029 butir 3 mewajibkannya dan catatan S06 menugaskannya ke S07. Kriteria tidak diubah. Bila pemilik ingin `data/` persis seperti kriteria, peta ini bisa dipindah, tetapi ADR-029 dan ARSITEKTUR §3.3 harus diubah dulu.
 
 **Utang teknis / catatan:**
 - **Batas akhir takhrij "sesudah `//`" tidak pasti** (sumber dan OpenITI sama-sama tidak menandainya). 23 potongan ≥400 karakter mungkin ikut membawa matan; daftarnya ada di laporan validasi. Semua potongan ditandai `takhrij_inline`. Perbaikan per paragraf sebaiknya lewat patch setelah dicek dengan pindaian (T-15/S10).
+- 87 penanda di tengah blok takhrij tidak ditautkan. Teksnya utuh di paragraf takhrij, dan catatan bawahnya ditandai `footnote_orphan`.
 - Kunci paragraf berbasis indeks baris: menyisipkan baris di tengah halaman sumber menggeser kunci sesudahnya. Ini diterima sebelum rilis; manifes ID dicek di S10.
-- `tools/ingest` tidak masuk ukuran cakupan (hanya `packages/*/src`); diuji lewat 42 tes.
+- `0000-reset.sql` mengosongkan seluruh DB korpus. Kitab kedua butuh reset per edisi; `passage_fts` wajib ikut dikosongkan di S11.
+- `tools/ingest` tidak masuk ukuran cakupan (hanya `packages/*/src`); diuji lewat 45 tes.
 - `meta.source_hash` memakai nama kunci skema S06, bukan `source_sha256` dari teks langkah 7 (ADR-032 butir 9).
-- **Kejadian saat sesi:** proses lain di folder yang sama (kemungkinan sesi yang menggabungkan PR #18) memindah checkout ke `main` dan menarik PR #18 di tengah pekerjaan, sehingga 4 commit awal sempat tercatat di `main` lokal. Sudah dipindah ke `sesi/s07-importer-ihya`, dan `main` lokal dikembalikan sama dengan `origin/main` tanpa kehilangan apa pun. Sesi paralel sebaiknya memakai worktree terpisah.
+- **Kejadian saat sesi:** proses lain di folder yang sama (kemungkinan sesi atau aplikasi yang menggabungkan PR #18) memindah checkout ke `main` dan menarik PR #18 di tengah pekerjaan, sehingga 4 commit awal sempat tercatat di `main` lokal. Commit itu dipindah ke `sesi/s07-importer-ihya`, dan `main` lokal dikembalikan sama dengan `origin/main` tanpa kehilangan apa pun. Sesi paralel sebaiknya memakai worktree terpisah.
 
 **Untuk sesi berikutnya:**
 - **S08:**
   - D1 lokal sudah berisi Ihya (`pnpm corpus:load:local` bila `.wrangler/state` dihapus; `data/build` dibangun ulang dengan `pnpm ingest ihya`, butuh drive).
-  - Tabel baru `passage_needs_review`: core tools sebaiknya ikut mengembalikan tanda ini per paragraf, misalnya `needsReview: reason[]`, supaya UI/MCP bisa memberi label "perlu ditinjau".
-  - Daftar isi: 313 node, 15 di antaranya `patched`. Jangkar paragraf `#p<seq>` diambil dari peta ID.
+  - Core tools sebaiknya ikut mengembalikan `passage_needs_review` per paragraf (mis. `needsReview: reason[]`), supaya UI/MCP bisa memberi label "perlu ditinjau".
+  - Daftar isi: 313 node, 15 di antaranya `patched`. Jangkar `#p<seq>` diambil dari peta ID.
   - Catatan kaki bisa memuat `\n` (220 catatan multi-baris).
-- **S09:** tampilkan label untuk paragraf `needs_review` (terutama `takhrij_inline`, yang bisa memuat matan) dan tautan `shamela.ws/book/9472/<source_page_id>`.
-- **S10:** pilih halaman T-15 dari daftar `//` panjang dan j3 h116; `corpus:load` produksi memakai file SQL yang sama (impor remote memblokir DB ±1 menit, jadi lakukan blue-green). Tulis prosedur rollback di README `tools/ingest`.
+  - Takhrij menempel bisa jadi tujuan `footnote_ref`.
+- **S09:** tampilkan label untuk paragraf `needs_review` (terutama `takhrij_inline` dan `takhrij_boundary`) dan tautan `shamela.ws/book/9472/<source_page_id>`.
+- **S10:**
+  - Pilih halaman T-15 dari daftar `//` panjang, `footnote_orphan`, dan j3 h116.
+  - `corpus:load` produksi memakai file SQL yang sama. Impor remote memblokir DB ±1 menit, jadi lakukan blue-green.
+  - Tulis prosedur rollback di README `tools/ingest`.
