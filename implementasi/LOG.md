@@ -15,6 +15,16 @@ Format entri:
 
 ---
 
+## 2026-10-16 · X01 · Upgrade Next 16.4 + React 19.3 — selesai (log Preview tidak terbaca agent)
+
+- Dikerjakan: catalog dinaikkan ke `next` 16.4.1, `react`/`react-dom` 19.3.1, `@types/react(-dom)` 19.3.0, `@opennextjs/cloudflare` 1.20.12. 16.4.2 tidak dipasang (belum 24 jam, bukan rilis keamanan). Larangan ADR-003 tetap (`cacheComponents` menunggu PR OpenNext #1318). Ditambah konfigurasi preview workerd di `.claude/launch.json`. Dokumen web, Dependabot, STACK, dan ADR diperbarui.
+- Verifikasi: `pnpm verify` → exit 0; preview workerd → 5 rute sesuai (200/404), tanpa error; e2e 26/26 di workerd lokal, `next dev`, dan Preview PR #13 (CI); peninjau → tanpa blocker, klaim advisory React dilunakkan.
+- Biaya API: –
+- Keputusan: ADR-030 (ADR-003 dan ADR-023 diberi catatan)
+- Catatan untuk sesi berikutnya: `wrangler tail` tidak mendukung Worker Previews; log Preview hanya lewat dashboard sampai ada Tail Worker/token observability. Tambalan React RSC di Next 16.4.1 baru indikasi, jadi larangan typed array tetap.
+
+---
+
 ## 2026-10-15 · S06 · Skema data & D1 — selesai
 
 - Dikerjakan: `packages/db` (`@surau/db`, tanpa ORM). Isinya:

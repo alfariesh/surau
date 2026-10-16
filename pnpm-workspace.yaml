@@ -14,7 +14,7 @@ catalog:
   wrangler: 4.151.0
   # Cakupan tes (S05). Dipin PERSIS sama dengan vitest bawaan vite-plus (peer 5.0.4).
   "@vitest/coverage-v8": 5.0.4
-  "@opennextjs/cloudflare": 1.20.11
+  "@opennextjs/cloudflare": 1.20.12
 
   # Data (S06, ADR-009): tanpa ORM. Zod untuk skema baris + validasi batas sistem.
   zod: 4.6.7
@@ -23,12 +23,12 @@ catalog:
   # Tipe D1Database untuk packages/* (yang tidak punya wrangler types sendiri).
   "@cloudflare/workers-types": 5.20261014.1
 
-  # Web: Next + React (ADR-003; Next 16.4 lewat sesi X01)
-  next: 16.3.8
-  react: 19.2.8
-  react-dom: 19.2.8
-  "@types/react": 19.2.18
-  "@types/react-dom": 19.2.7
+  # Web: Next + React (ADR-003; naik ke 16.4 di X01). 16.4.2 belum 24 jam saat X01 (16 Okt).
+  next: 16.4.1
+  react: 19.3.1
+  react-dom: 19.3.1
+  "@types/react": 19.3.0
+  "@types/react-dom": 19.3.0
 
   # Web: HeroUI (ADR-004). Pro dipin PERSIS: ada versi salah terbit 1.0.0-beta.19.
   "@heroui-pro/react": 1.0.0-beta.10
