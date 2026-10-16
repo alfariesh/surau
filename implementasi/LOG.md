@@ -15,6 +15,19 @@ Format entri:
 
 ---
 
+## 2026-10-16 · Tindak lanjut rilis F1 · Log STALE/antrean dummy + breadcrumb ponsel — selesai
+
+- Dikerjakan:
+  - Akar masalah log produksi "Failed to revalidate stale page … Dummy queue is not implemented": adapter cache OpenNext tidak mengembalikan `cacheControl`, Next 16.4.1 lalu memakai batas 1 dtk untuk path ISR on-demand di isolate dingin (opennextjs-aws#1250, perbaikan hulu belum dirilis). Antrean revalidasi no-op di `open-next.config.ts` + tes penjaga ISR (ADR-038).
+  - Breadcrumb: judul bab Arab panjang kini membungkus di ponsel (`min-w-0 shrink`).
+  - `preview` Workers lokal memakai D1 lokal bersama (`--persist-to ../../.wrangler/state`); konfigurasi peluncuran `web-workers-tanpa-build`.
+- Verifikasi:
+  - Lokal (Workers, `web-workers-tanpa-build` setelah server dimulai ulang): kunjungan ulang `STALE` direproduksi; log tanpa "revalidate", respons 5–7 ms dari cache.
+  - Ponsel 375 px j2 h204: tautan breadcrumb 16–344 px, `scrollWidth` 375.
+  - Tes web 38 (termasuk 3 tes penjaga ISR baru); hasil `pnpm verify`, e2e, Preview, dan log produksi: lihat PR.
+- Biaya API: –
+- Keputusan: ADR-038
+
 ## 2026-10-16 · Rilis Fase 1 · Pembaca Ihya — dirilis (`rilis-f1`)
 
 - Dikerjakan:
