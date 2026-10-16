@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "erasableSyntaxOnly": true,
+    // Tes ini berjalan di Node (project Vitest "node"): node:fs + getPlatformProxy dari wrangler.
+    "types": ["node"]
+  },
+  "include": ["."]
+}

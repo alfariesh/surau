@@ -19,13 +19,20 @@ import {
 import {
   getAdjacentPages,
   getEdition,
+  getEditionContext,
   getFootnoteRefs,
+  getNeedsReview,
   getPageByCitation,
   getPageById,
+  getPassageById,
   getPassagesByPage,
+  getSectionPassages,
   getTocChildren,
   getTocNode,
   getWorkBySlug,
+  listEditions,
+  listTocNodes,
+  listWorkAuthors,
   listWorks,
 } from "./corpus.ts";
 
@@ -48,6 +55,31 @@ describe("karya dan edisi", () => {
     expect((await getEdition(db, "uji", "openiti"))?.id).toBe(ED + 1);
     expect(await getEdition(db, "uji", "tidak-ada")).toBeNull();
     expect(await getEdition(db, "tidak-ada")).toBeNull();
+  });
+
+  test("getEditionContext: edisi + karya + penulis; null bila edisi tidak ada", async () => {
+    const ctx = await getEditionContext(db, ED);
+    expect(ctx?.edition.slug).toBe("shamela");
+    expect(ctx?.work.slug).toBe("uji");
+    expect(ctx?.author).toMatchObject({ id: 1, name_id: "Penulis Uji", death_hijri: 505 });
+    expect((await getEditionContext(db, ED + 1))?.edition.slug).toBe("openiti");
+    expect(await getEditionContext(db, 999)).toBeNull();
+  });
+
+  test("getEditionContext: karya tanpa penulis → author null", async () => {
+    onTestFinished(async () => {
+      await db.prepare("UPDATE work SET author_id = 1 WHERE id = 1").run();
+    });
+    await db.prepare("UPDATE work SET author_id = NULL WHERE id = 1").run();
+    expect((await getEditionContext(db, ED))?.author).toBeNull();
+  });
+
+  test("listEditions: per karya, edisi default dulu; listWorkAuthors", async () => {
+    expect((await listEditions(db)).map((e) => [e.id, e.is_default])).toEqual([
+      [ED, 1],
+      [ED + 1, 0],
+    ]);
+    expect((await listWorkAuthors(db)).map((a) => a.id)).toEqual([1]);
   });
 
   test("edisi default kedua untuk karya yang sama ditolak DB", async () => {
@@ -116,6 +148,16 @@ describe("daftar isi", () => {
     expect(await getTocChildren(db, ED + 1, null)).toEqual([]);
   });
 
+  test("listTocNodes: seluruh node edisi + letak cetak halaman awal, akar dulu", async () => {
+    const nodes = await listTocNodes(db, ED);
+    expect(nodes.map((n) => [n.id, n.start_juz, n.start_page_no])).toEqual([
+      [T_ROOT, 1, 1],
+      [T_CHILD_B, 1, 1],
+      [T_CHILD_A, 1, 2],
+    ]);
+    expect(await listTocNodes(db, ED + 1)).toEqual([]);
+  });
+
   test("getTocNode", async () => {
     expect(await getTocNode(db, T_CHILD_A)).toMatchObject({
       parent_id: T_ROOT,
@@ -157,6 +199,75 @@ describe("paragraf dan catatan kaki", () => {
     ];
     const refs = await getFootnoteRefs(db, ids);
     expect(refs).toHaveLength(2);
+  });
+});
+
+describe("bagian dan paragraf per ID", () => {
+  test("getSectionPassages: subpohon, urutan baca (juz, halaman, badan→catatan, ord)", async () => {
+    const all = await getSectionPassages(db, T_ROOT, null, 100);
+    expect(all.map((r) => r.id)).toEqual([
+      PASSAGES.body1,
+      PASSAGES.foot1,
+      PASSAGES.foot2,
+      PASSAGES.body2,
+      PASSAGES.body3,
+    ]);
+    expect(all.map((r) => [r.juz, r.page_no])).toEqual([
+      [1, 1],
+      [1, 1],
+      [1, 1],
+      [1, 2],
+      [2, 1],
+    ]);
+    // Node anak hanya memuat paragrafnya sendiri.
+    expect((await getSectionPassages(db, T_CHILD_B, null, 100)).map((r) => r.id)).toEqual([
+      PASSAGES.body1,
+      PASSAGES.foot1,
+      PASSAGES.foot2,
+    ]);
+  });
+
+  test("getSectionPassages: `from` inklusif dan `limit`", async () => {
+    const from = await getSectionPassages(db, T_ROOT, { juz: 1, page_no: 2 }, 100);
+    expect(from.map((r) => r.id)).toEqual([PASSAGES.body2, PASSAGES.body3]);
+    expect(await getSectionPassages(db, T_ROOT, null, 2)).toHaveLength(2);
+    expect(await getSectionPassages(db, 1, null, 10)).toEqual([]);
+    expect(() => getSectionPassages(db, T_ROOT, null, 0)).toThrow(RangeError);
+  });
+
+  test("getPassageById: paragraf + letak cetak", async () => {
+    expect(await getPassageById(db, PASSAGES.body3)).toMatchObject({
+      kind: "body",
+      text_raw: "نص الجزء الثاني",
+      juz: 2,
+      page_no: 1,
+    });
+    expect(await getPassageById(db, 1)).toBeNull();
+  });
+
+  test("getNeedsReview: urut, unik, dipecah ≤100 parameter", async () => {
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM passage_needs_review").run();
+    });
+    await db
+      .prepare(
+        `INSERT INTO passage_needs_review (passage_id, reason) VALUES
+           (?, 'takhrij_unmatched'), (?, 'footnote_orphan'), (?, 'takhrij_boundary')`,
+      )
+      .bind(PASSAGES.foot2, PASSAGES.foot1, PASSAGES.foot2)
+      .run();
+    const ids = [
+      PASSAGES.foot2,
+      ...Array.from({ length: 150 }, (_, i) => ED * 10_000_000 + 1000 + i),
+      PASSAGES.foot1,
+      PASSAGES.foot2,
+    ];
+    expect((await getNeedsReview(db, ids)).map((r) => [r.passage_id, r.reason])).toEqual([
+      [PASSAGES.foot1, "footnote_orphan"],
+      [PASSAGES.foot2, "takhrij_boundary"],
+      [PASSAGES.foot2, "takhrij_unmatched"],
+    ]);
+    expect(await getNeedsReview(db, [])).toEqual([]);
   });
 });
 

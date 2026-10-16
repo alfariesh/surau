@@ -378,6 +378,34 @@ importers:
         specifier: 'catalog:'
         version: 4.151.0(@cloudflare/workers-types@5.20261014.1)(@types/node@24.19.2)
 
+  packages/core:
+    dependencies:
+      '@surau/db':
+        specifier: workspace:*
+        version: link:../db
+      '@surau/text':
+        specifier: workspace:*
+        version: link:../text
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
+    devDependencies:
+      '@cloudflare/vitest-plugin':
+        specifier: 'catalog:'
+        version: 1.4.2(@cloudflare/workers-types@5.20261014.1)(@types/node@24.19.2)(vitest@5.0.4)
+      '@cloudflare/workers-types':
+        specifier: 'catalog:'
+        version: 5.20261014.1
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.151.0(@cloudflare/workers-types@5.20261014.1)(@types/node@24.19.2)
+
   packages/db:
     dependencies:
       zod:

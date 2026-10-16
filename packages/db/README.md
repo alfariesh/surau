@@ -10,7 +10,7 @@ Skema data Surau **tanpa ORM** ([ADR-009](../../implementasi/KEPUTUSAN.md)): mig
 | `migrations/app/` | Migrasi DB app: `settings`, `feedback` (kuota dan ledger menyusul di S20) |
 | `src/schema/` | Skema Zod baris (`corpusTables`, `appTables`). Kolomnya dijaga sama dengan migrasi oleh `test/schema.test.ts` |
 | `src/ids.ts` | `pageId`, `tocNodeId`, `passageId`, `passageIdRange`, `passageAnchor` (jangkar `#p<seq>`) |
-| `src/repo/` | `getEdition`, `getPageByCitation`, `getAdjacentPages`, `getTocChildren`, `getPassagesByPage`, `getFootnoteRefs`, `getCorpusMeta`, `getSettings`, `createFeedback`, dll. |
+| `src/repo/` | `getEdition`, `getEditionContext` (edisi + karya + penulis), `getPageByCitation`, `getAdjacentPages`, `getTocChildren`, `listTocNodes` (daftar isi satu edisi + halaman awal), `getSectionPassages` (paragraf satu bagian + sub-bagiannya, keyset per halaman), `getPassageById`, `getPassagesByPage`, `getFootnoteRefs`, `getNeedsReview`, `getCorpusMeta`, `getSettings`, `createFeedback`, dll. Dipakai `@surau/core` (S08) |
 | `wrangler.jsonc` | Binding `CORPUS` dan `APP` beserta `migrations_dir` dan ID DB remote (bukan rahasia) |
 
 Repository menerima tipe struktural `D1Db` (bukan tipe global `D1Database`), jadi paket ini bisa di-typecheck dari Worker, Next, maupun Node. `env.DB` milik Worker memenuhi tipe itu.

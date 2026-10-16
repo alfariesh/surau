@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Dijalankan juga oleh Node lewat type stripping (tools/*), jadi hanya sintaks TS yang bisa
+    // dihapus begitu saja (tanpa enum, namespace runtime, parameter property).
+    "erasableSyntaxOnly": true,
+    // Tipe ambien Workers hanya untuk tes D1 (env.CORPUS, cloudflare:test). Kode src menerima
+    // tipe struktural D1Db dari @surau/db dan tidak memakai API khusus Workers.
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"]
+  },
+  "include": ["src", "test"],
+  // Tes integrasi Ihya lokal berjalan di Node (getPlatformProxy), dengan tsconfig-nya sendiri.
+  "exclude": ["test/local"]
+}

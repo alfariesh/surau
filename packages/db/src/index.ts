@@ -24,13 +24,23 @@ export {
   getAdjacentPages,
   getCorpusMeta,
   getEdition,
+  getEditionContext,
   getFootnoteRefs,
+  getNeedsReview,
   getPageByCitation,
   getPageById,
+  getPassageById,
   getPassagesByPage,
+  getSectionPassages,
   getTocChildren,
   getTocNode,
   getWorkBySlug,
+  listEditions,
+  listTocNodes,
+  listWorkAuthors,
   listWorks,
+  passageWithPageRow,
+  tocNodeWithStartRow,
 } from "./repo/corpus.ts";
+export type { EditionContext, PassageWithPageRow, TocNodeWithStartRow } from "./repo/corpus.ts";
 export { createFeedback, getSettings } from "./repo/app.ts";
