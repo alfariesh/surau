@@ -7,7 +7,7 @@
 // atau letak membawa `Citation` lengkap (karya, edisi, juz, halaman, permalink, lisensi,
 // atribusi). Paragraf membawa `location` (juz, halaman, permalink paragraf); sitasi penuh satu
 // paragraf = `citation.source` keluaran itu + `location` paragraf (atau `buildCitation`).
-import { attributionStatus, needsReviewReason, passageKind } from "@surau/db";
+import { attributionStatus, editionRow, needsReviewReason, passageKind } from "@surau/db";
 import { z } from "zod";
 
 const id = z.number().int().positive();
@@ -157,8 +157,16 @@ export const sectionView = z.strictObject({
   ancestors: z.array(tocNodeRef),
   passages: z
     .array(passage)
-    .describe("Passages of the section and its subsections, whole printed pages only"),
-  estimated_tokens: z.number().int().nonnegative(),
+    .describe(
+      "Passages of the section and its subsections in reading order; per page, main text before footnotes. A printed page may span two chunks (split between paragraphs, never inside one), and each footnote stays in the chunk of the passage that first references it",
+    ),
+  estimated_tokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe(
+      "Estimated tokens of `passages` only (1 token ≈ 2 JSON characters); excludes citation, node and ancestors",
+    ),
   next_cursor: z.string().nullable().describe("Pass to read the next chunk; null at the end"),
 });
 export type SectionView = z.infer<typeof sectionView>;
@@ -169,7 +177,7 @@ export const editionView = z.strictObject({
   id,
   slug,
   is_default: z.boolean(),
-  source: z.enum(["shamela", "openiti"]),
+  source: editionRow.shape.source,
   source_ref: z.string(),
   publisher: z.string().nullable(),
   city: z.string().nullable(),

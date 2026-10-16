@@ -3,7 +3,8 @@
 // satu anak, 12 halaman di juz 3, setiap halaman 4 paragraf badan (kalimat contoh yang diulang)
 // + 1 catatan kaki tertaut. Halaman 1–6 kecil (±1,6 ribu token setelah JSON: batas halaman jatuh
 // di rentang 4–6 ribu), halaman 7–12 besar (±3,7 ribu token: halaman harus terbelah).
-// Tidak ada teks kitab (KONVENSI §Tes).
+// Tambahan untuk kasus tepi blok: catatan kaki yatim (tidak dirujuk) di h.8, dan h.13 yang hanya
+// berisi catatan kaki. Tidak ada teks kitab (KONVENSI §Tes).
 import { pageId, passageId, tocNodeId } from "@surau/db";
 import type { D1Db } from "@surau/db";
 
@@ -25,12 +26,21 @@ export function longBody(n: number, k: number): string {
   return `${SENTENCE.repeat(repeat)}${n}-${k}${k === 1 ? " (١)" : ""}`;
 }
 
-/** Paragraf bagian panjang dalam urutan baca: per halaman 4 badan lalu 1 catatan kaki. */
+/** Halaman yang punya catatan kaki yatim (ord 2, tidak dirujuk paragraf badan mana pun). */
+export const ORPHAN_PAGE = 8;
+export const ORPHAN_FOOT = passageId(ED, 300);
+/** Halaman (juz 3) yang hanya berisi catatan kaki, milik node anak. */
+export const FOOT_ONLY_PAGE = LONG_PAGES + 1;
+export const FOOT_ONLY = passageId(ED, 301);
+
+/** Paragraf bagian panjang dalam urutan baca: per halaman 4 badan lalu catatan kakinya. */
 export function longPassageIds(): number[] {
   const ids: number[] = [];
   for (let n = 1; n <= LONG_PAGES; n++) {
     for (let k = 1; k <= LONG_BODY_PER_PAGE + 1; k++) ids.push(longPassageId(n, k));
+    if (n === ORPHAN_PAGE) ids.push(ORPHAN_FOOT);
   }
+  ids.push(FOOT_ONLY);
   return ids;
 }
 
@@ -81,6 +91,31 @@ export async function seedCore(db: D1Db): Promise<void> {
         .bind(longPassageId(n, 1), start, start + 3, foot),
     );
   }
+  pages.push(
+    db
+      .prepare(
+        "INSERT INTO page (id, edition_id, seq, juz, page_no, source_page_id) VALUES (?, ?, ?, 3, ?, NULL)",
+      )
+      .bind(pageId(ED, 3 + FOOT_ONLY_PAGE), ED, 3 + FOOT_ONLY_PAGE, FOOT_ONLY_PAGE),
+  );
+  passages.push(
+    db
+      .prepare(
+        "INSERT INTO passage (id, edition_id, page_id, toc_node_id, kind, ord, text_raw) VALUES (?, ?, ?, ?, 'foot', 2, ?), (?, ?, ?, ?, 'foot', 1, ?)",
+      )
+      .bind(
+        ORPHAN_FOOT,
+        ED,
+        pageId(ED, 3 + ORPHAN_PAGE),
+        T_LONG_CHILD,
+        "(٢) حاشية يتيمة تجريبية",
+        FOOT_ONLY,
+        ED,
+        pageId(ED, 3 + FOOT_ONLY_PAGE),
+        T_LONG_CHILD,
+        "(٣) حاشية في صفحة بلا متن",
+      ),
+  );
   await db.batch([
     ...pages,
     db

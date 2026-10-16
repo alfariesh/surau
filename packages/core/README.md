@@ -44,6 +44,7 @@ Keduanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 - Satuan potong adalah **blok**: satu paragraf badan + catatan kaki di halaman yang sama yang pertama kali dirujuknya. Catatan kaki yang tidak dirujuk (yatim, takhrij yang dipotong dari matan) ikut blok terakhir halamannya. Jadi paragraf tidak pernah dipotong, dan penanda selalu satu potongan dengan catatan kakinya.
 - Ukuran diperkirakan dengan **1 token ≈ 2 karakter JSON keluaran** (`estimateTokens`), konservatif untuk teks Arab. Belum dikalibrasi dengan `count_tokens` (S16).
 - Potongan diisi selama ≤ 6.000 token (blok pertama selalu ikut), lalu dipotong di **batas halaman cetak terakhir yang sudah ≥ 4.000 token**. Bila tidak ada batas halaman di rentang itu, halaman terbelah di antara blok. Di dalam satu potongan, setiap halaman tampil badan dulu, lalu catatan kakinya.
+- Label edisi non-default memakai slug edisi (`Kitab, j. 1, h. 5 (openiti)`). `estimated_tokens` hanya menghitung `passages`, tanpa `citation`, `node`, dan `ancestors` (±300–500 token).
 - `next_cursor` opak (base64url, menyimpan node, juz, halaman, dan `ord` paragraf badan berikutnya) dan selalu divalidasi ulang.
 - Bagian terpanjang Ihya (Rub' al-Munjiyat, 1,68 juta karakter, 4.608 paragraf): 278 potongan, median ±5.300 token, maks. 5.997, 4 potongan di bawah 4.000.
 
@@ -323,5 +324,5 @@ Keduanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 ## Tes
 
 - `pnpm exec vp test --project core`: tes unit di workerd terhadap D1 lokal sementara, dengan migrasi korpus dari `packages/db` dan fixture buatan (fixture S06 + satu bagian panjang sintetis, `test/fixture.ts`).
-- `packages/core/test/local/ihya.test.ts` (project `node`, ikut `pnpm test`): tes integrasi terhadap D1 lokal berisi Ihya penuh lewat `getPlatformProxy`, pada **salinan** `.wrangler/state/v3` di folder sementara. Dilewati otomatis bila state D1 lokal tidak ada (CI) atau Ihya belum dimuat (`pnpm corpus:load:local`).
+- `packages/core/test/local/ihya.test.ts` (project `node`, ikut `pnpm test`): tes integrasi terhadap D1 lokal berisi Ihya penuh lewat `getPlatformProxy`, pada **salinan** `.wrangler/state/v3` di folder sementara. Dilewati otomatis bila state D1 lokal tidak ada (CI), DB korpus belum dimigrasi, atau Ihya belum dimuat (`pnpm corpus:load:local`).
 - Cakupan baris belum terukur: tes D1 berjalan di workerd, tempat coverage v8 belum didukung plugin 1.4.2 (sama dengan `packages/db`, ADR-029).

@@ -46,10 +46,11 @@ export function citeContext(ctx: EditionContext): CiteContext {
     editionSlug: edition.slug,
     isDefault: edition.is_default === 1,
   };
-  // Label memakai judul Indonesia (transliterasi) bila ada; edisi non-default diberi nama edisinya
-  // supaya dua sitasi dari edisi berbeda tidak terbaca sama.
+  // Label memakai judul Indonesia (transliterasi) bila ada; edisi non-default diberi slug edisinya
+  // (ASCII, bukan nama penerbit yang bisa berhuruf Arab) supaya dua sitasi dari edisi berbeda
+  // tidak terbaca sama dan label tetap satu arah tulis.
   const title = work.title_id ?? work.title_ar;
-  const editionNote = path.isDefault ? "" : ` (${edition.publisher ?? edition.slug})`;
+  const editionNote = path.isDefault ? "" : ` (${edition.slug})`;
   const location = (juz: number, pageNo: number, passageId?: number): Location => ({
     juz,
     page_no: pageNo,

@@ -5,7 +5,11 @@ import { beforeAll, describe, expect, test } from "vite-plus/test";
 import {
   BODY_1,
   ED,
+  FOOT_ONLY,
+  FOOT_ONLY_PAGE,
   LONG_PAGES,
+  ORPHAN_FOOT,
+  ORPHAN_PAGE,
   PASSAGES,
   T_CHILD_B,
   T_LONG,
@@ -20,7 +24,7 @@ import { encodeCursor } from "./cursor.ts";
 import { InvalidCitation, NotFound } from "./errors.ts";
 import { sectionView } from "./schema.ts";
 import type { Passage, SectionView } from "./schema.ts";
-import { pageBlocks, pickBlocks, readSection } from "./section.ts";
+import { pageBlocks, pickBlocks, readSection, readSectionWithLimit } from "./section.ts";
 import { SECTION_MAX_TOKENS, SECTION_MIN_TOKENS, estimateTokens } from "./tokens.ts";
 
 const db = env.CORPUS;
@@ -29,11 +33,14 @@ beforeAll(async () => {
   await seedCore(db);
 });
 
-async function readAll(nodeId: number): Promise<SectionView[]> {
+async function readAll(nodeId: number, rowLimit?: number): Promise<SectionView[]> {
   const chunks: SectionView[] = [];
   let cursor: string | undefined;
   do {
-    const view = await readSection(db, nodeId, cursor);
+    const view =
+      rowLimit === undefined
+        ? await readSection(db, nodeId, cursor)
+        : await readSectionWithLimit(db, nodeId, cursor, rowLimit);
     chunks.push(view);
     cursor = view.next_cursor ?? undefined;
     if (chunks.length > 100) throw new Error("paginasi tidak berhenti");
@@ -210,7 +217,7 @@ describe("readSection", () => {
     expect(split).toBe(true);
     for (const c of chunks.slice(0, -1))
       expect(c.estimated_tokens).toBeGreaterThanOrEqual(SECTION_MIN_TOKENS);
-    expect(new Set(shape.flat()).size).toBe(LONG_PAGES);
+    expect(new Set(shape.flat()).size).toBe(FOOT_ONLY_PAGE);
   });
 
   test("text_raw tidak pernah dipotong atau diubah", async () => {
@@ -226,8 +233,55 @@ describe("readSection", () => {
   test("node anak hanya memuat halamannya sendiri; leluhur", async () => {
     const chunks = await readAll(T_LONG_CHILD);
     const pages = new Set(chunks.flatMap((c) => c.passages.map((p) => p.location.page_no)));
-    expect([...pages]).toEqual([7, 8, 9, 10, 11, 12]);
+    expect([...pages]).toEqual([7, 8, 9, 10, 11, 12, 13]);
     expect(chunks[0]?.ancestors.map((a) => a.title_ar)).toEqual(["باب طويل"]);
+  });
+
+  test("catatan kaki yatim ikut paragraf badan terakhir halamannya, di potongan yang sama", async () => {
+    const chunks = await readAll(T_LONG);
+    const withOrphan = chunks.find((c) => c.passages.some((p) => p.id === ORPHAN_FOOT));
+    const lastBody = longPassageId(ORPHAN_PAGE, 4);
+    expect(withOrphan?.passages.some((p) => p.id === lastBody)).toBe(true);
+    // Di halamannya: badan dulu, lalu catatan kaki urut ord (catatan tertaut ord 1, yatim ord 2).
+    const page = withOrphan?.passages.filter((p) => p.location.page_no === ORPHAN_PAGE) ?? [];
+    expect(page.filter((p) => p.kind === "foot").map((p) => p.ord)).toEqual(
+      page.some((p) => p.id === longPassageId(ORPHAN_PAGE, 1)) ? [1, 2] : [2],
+    );
+  });
+
+  test("halaman tanpa paragraf badan tetap terkirim sebagai satu blok catatan kaki", async () => {
+    const chunks = await readAll(T_LONG_CHILD);
+    const last = chunks.at(-1);
+    expect(last?.passages.at(-1)).toMatchObject({
+      id: FOOT_ONLY,
+      kind: "foot",
+      footnote_refs: [],
+      location: { juz: 3, page_no: FOOT_ONLY_PAGE },
+    });
+    expect(chunks.flatMap((c) => c.passages).filter((p) => p.id === FOOT_ONLY)).toHaveLength(1);
+  });
+
+  test("batas baris: halaman terakhir yang terpotong diulang dari awal, tanpa hilang/ganda", async () => {
+    // 5 baris per halaman kecil: 12 baris → 2 halaman utuh + 2 baris halaman ke-3 (dibuang).
+    const first = await readSectionWithLimit(db, T_LONG, undefined, 12);
+    expect([...new Set(first.passages.map((p) => p.location.page_no))]).toEqual([1, 2]);
+    expect(first.next_cursor).toBe(encodeCursor({ nodeId: T_LONG, juz: 3, pageNo: 3, bodyOrd: 0 }));
+
+    for (const limit of [7, 12, 25]) {
+      const chunks = await readAll(T_LONG, limit);
+      const ids = chunks.flatMap((c) => c.passages.map((p) => p.id));
+      expect(new Set(ids).size, `limit ${limit}`).toBe(ids.length);
+      expect(
+        ids.toSorted((a, b) => a - b),
+        `limit ${limit}`,
+      ).toEqual(longPassageIds().toSorted((a, b) => a - b));
+    }
+  });
+
+  test("batas baris lebih kecil dari satu halaman → error internal (bukan potongan terbelah)", async () => {
+    await expect(readSectionWithLimit(db, T_LONG, undefined, 3)).rejects.toThrow(
+      /melebihi 3 paragraf/,
+    );
   });
 
   test("cursor milik node lain, versi lain, atau rusak → InvalidCitation", async () => {

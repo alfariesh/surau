@@ -1,9 +1,10 @@
 // Tes integrasi @surau/core terhadap D1 lokal berisi Ihya penuh (S07: `pnpm corpus:load:local`).
 // Berjalan di project Vitest "node" lewat getPlatformProxy (ARSITEKTUR §7 aturan 2) dan dilewati
-// bila state D1 lokal tidak ada (CI) atau Ihya belum dimuat. State disalin dulu ke folder
-// sementara: tes tidak pernah menulis ke DB dev, dan tidak berebut kunci SQLite dengan
-// `pnpm dev` yang sedang jalan. Teks kitab TIDAK disalin ke file ini; yang diperiksa adalah
-// kesamaan dengan DB, struktur, dan frasa takhrij pendek yang sudah tercantum di
+// bila state D1 lokal tidak ada (CI), DB korpus belum dimigrasi, atau Ihya belum dimuat. State
+// disalin dulu ke folder sementara: tes tidak pernah menulis ke DB dev, dan tidak berebut kunci
+// SQLite dengan `pnpm dev` yang sedang jalan (salinan saat DB sedang ditulis bisa tidak konsisten;
+// jalankan ulang bila itu terjadi). Teks kitab TIDAK disalin ke file ini; yang diperiksa adalah
+// kesamaan dengan DB, struktur, dan satu frasa takhrij ("باطل لا أصل له") yang sudah tercantum di
 // .claude/rules/teks-arab.md.
 import { cpSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -48,8 +49,11 @@ describe.skipIf(!hasState)("Ihya di D1 lokal", () => {
     });
     dispose = proxy.dispose;
     db = proxy.env.CORPUS;
+    // Belum dimuat (NotFound) atau belum dimigrasi ("no such table") → semua tes dilewati.
     const work = await getWork(db, "ihya").catch((e: unknown) => {
-      if (e instanceof NotFound) return null;
+      if (e instanceof NotFound || (e instanceof Error && /no such table/.test(e.message))) {
+        return null;
+      }
       throw e;
     });
     editionId = work?.editions.find((e) => e.is_default)?.id ?? 0;
@@ -114,12 +118,12 @@ describe.skipIf(!hasState)("Ihya di D1 lokal", () => {
       expect(foot?.text_raw.startsWith(`(${r.marker})`)).toBe(true);
     }
 
-    // Hadits shalat malam Jumat (riwayat Jabir) → takhrij al-'Iraqi "باطل لا أصل له".
-    const jumat = view.body.find((b) => b.text_raw.startsWith("ليلة الجمعة"));
-    const ref4 = jumat?.footnote_refs.find((r) => r.marker === "٤");
-    const takhrij = view.footnotes.find((f) => f.id === ref4?.footnote_id);
-    expect(takhrij?.text_raw).toContain("حديث جابر من صلى ليلة الجمعة");
-    expect(takhrij?.text_raw).toContain("باطل لا أصل له");
+    // Hadits shalat malam Jumat → takhrij al-'Iraqi "باطل لا أصل له" (contoh baku di rules):
+    // catatan kaki itu ada, dan tertaut dari penanda paragraf badan di halaman ini.
+    const takhrij = view.footnotes.filter((f) => f.text_raw.includes("باطل لا أصل له"));
+    expect(takhrij.length).toBeGreaterThan(0);
+    for (const t of takhrij) expect(refs.some(({ r }) => r.footnote_id === t.id)).toBe(true);
+    expect(view.footnotes.every((f) => f.needs_review.length === 0)).toBe(true);
 
     expect(view.prev?.page_no).toBe(199);
     expect(view.next?.page_no).toBe(201);

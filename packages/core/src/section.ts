@@ -131,7 +131,21 @@ function blocksToPassages(blocks: readonly SectionBlock[]): Passage[] {
  * potongan sebelumnya. `NotFound` bila node tidak ada; `InvalidCitation` bila cursor rusak
  * atau milik node lain.
  */
-export async function readSection(db: D1Db, nodeId: number, cursor?: string): Promise<SectionView> {
+export function readSection(db: D1Db, nodeId: number, cursor?: string): Promise<SectionView> {
+  return readSectionWithLimit(db, nodeId, cursor, SECTION_ROW_LIMIT);
+}
+
+/**
+ * `readSection` dengan batas baris per panggilan yang bisa diatur. Hanya untuk tes jalur
+ * pemotongan baris (dengan 200 baris, jalur itu praktis tidak pernah tercapai di Ihya); tidak
+ * diekspor dari index.
+ */
+export async function readSectionWithLimit(
+  db: D1Db,
+  nodeId: number,
+  cursor: string | undefined,
+  rowLimit: number,
+): Promise<SectionView> {
   const input = parseInput(readSectionInput, { node_id: nodeId, cursor });
   const from = input.cursor === undefined ? null : decodeCursor(input.cursor, input.node_id);
   const node = await getTocNode(db, input.node_id);
@@ -144,7 +158,7 @@ export async function readSection(db: D1Db, nodeId: number, cursor?: string): Pr
       db,
       node.id,
       from === null ? null : { juz: from.juz, page_no: from.pageNo },
-      SECTION_ROW_LIMIT + 1,
+      rowLimit + 1,
     ),
   ]);
   const tree = tocTree(tocRows);
@@ -152,12 +166,12 @@ export async function readSection(db: D1Db, nodeId: number, cursor?: string): Pr
   if (nodeRow === undefined)
     throw new Error("toc_node tanpa halaman awal (korpus tidak konsisten)");
 
-  // Lebih dari ROW_LIMIT baris → halaman terakhir mungkin terpotong: jangan dikirim, jadikan awal
-  // potongan berikutnya.
-  const pages = groupByPage(rows.slice(0, SECTION_ROW_LIMIT), rowPage);
-  const truncated = rows.length > SECTION_ROW_LIMIT ? pages.pop()?.[0] : undefined;
+  // Lebih dari rowLimit baris → halaman terakhir mungkin terpotong: jangan dikirim, jadikan awal
+  // potongan berikutnya (dari awal halaman).
+  const pages = groupByPage(rows.slice(0, rowLimit), rowPage);
+  const truncated = rows.length > rowLimit ? pages.pop()?.[0] : undefined;
   if (truncated !== undefined && pages.length === 0) {
-    throw new Error(`satu halaman bagian ${node.id} melebihi ${SECTION_ROW_LIMIT} paragraf`);
+    throw new Error(`satu halaman bagian ${node.id} melebihi ${rowLimit} paragraf`);
   }
 
   const assembled = await toPassages(db, cite, pages.flat());

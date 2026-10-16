@@ -70,7 +70,7 @@ describe("readPage", () => {
     const j2 = await readPage(db, ED, 2, 1);
     expect(j2.prev?.label).toBe("Kitab Uji, j. 1, h. 2");
     expect(j2.next?.permalink).toBe("/kitab/uji/3/1");
-    expect((await readPage(db, ED, 3, 12)).next).toBeNull();
+    expect((await readPage(db, ED, 3, 13)).next).toBeNull();
   });
 
   test("halaman tanpa catatan kaki: footnotes kosong", async () => {

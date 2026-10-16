@@ -45,9 +45,10 @@ export default defineConfig({
   },
   test: {
     passWithNoTests: true,
-    // Dua project: "node" (Node, semua tes selain packages/db) dan "db" (workerd + D1 lokal,
-    // packages/db/vitest.config.ts, S06). Plugin Cloudflare mengganti runtime seluruh project,
-    // jadi tes Node tidak boleh ikut project db.
+    // Tiga project: "node" (Node, semua tes selain packages/db dan packages/core/src), "db"
+    // (workerd + D1 lokal, packages/db/vitest.config.ts, S06), dan "core" (workerd + D1 lokal,
+    // packages/core/vitest.config.ts, S08). Plugin Cloudflare mengganti runtime seluruh project,
+    // jadi tes Node tidak boleh ikut project db/core.
     projects: [
       {
         extends: true,
