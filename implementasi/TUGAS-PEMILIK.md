@@ -95,7 +95,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   3. Siapkan alamat email kontak publik untuk koreksi dan takedown.
   4. Putuskan retensi **laporan kesalahan** dari pengguna (bagian dari P-7; usulan: disimpan sampai ditangani + 12 bulan).
 
-- [ ] **T-21 · Izinkan token CI membaca analytics Worker** (dibutuhkan sebelum S09, ±3 menit) · supaya CI bisa melaporkan error Worker Preview di setiap PR (ADR-031)
+- [x] **T-21 · Izinkan token CI membaca analytics Worker** (dibutuhkan sebelum S09, ±3 menit) · selesai 2026-10-16 (dicek agent: run Preview PR #16 meng-query GraphQL tanpa error izin) · supaya CI bisa melaporkan error Worker Preview di setiap PR (ADR-031)
   Token yang sama dari T-06 cukup diberi satu izin tambahan; nilainya tidak berubah, jadi secret GitHub tidak perlu diisi ulang.
   1. Buka dash.cloudflare.com → ikon profil di kanan atas → **My Profile → API Tokens**.
   2. Di daftar **API Tokens**, cari token yang Anda buat di T-06 (untuk GitHub Actions). Klik **⋯** di ujung barisnya → **Edit**.
