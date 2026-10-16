@@ -23,8 +23,18 @@ export {
 export { findQuote } from "./quote.ts";
 export type { FindQuoteOptions, QuoteMatch } from "./quote.ts";
 
-export { FTS_MAX_PHRASES, FTS_MAX_TOKENS, buildFtsMatch, ftsQuote } from "./fts.ts";
-export type { FtsColumn, FtsMatchOptions } from "./fts.ts";
+export {
+  FTS_MAX_PHRASES,
+  FTS_MAX_TOKENS,
+  buildFtsMatch,
+  ftsMatchExpression,
+  ftsQuote,
+  planFtsQuery,
+} from "./fts.ts";
+export type { FtsColumn, FtsMatchOptions, FtsQueryPlan } from "./fts.ts";
+
+export { SNIPPET_CHARS, findPlanSpans, snippetSpan } from "./highlight.ts";
+export type { RawSpan } from "./highlight.ts";
 
 export {
   cleanShamelaHtml,

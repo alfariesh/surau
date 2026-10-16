@@ -8,8 +8,16 @@ export { getToc } from "./toc.ts";
 export { readPage } from "./page.ts";
 export { readSection } from "./section.ts";
 export { buildCitation } from "./citation.ts";
+export { SEARCH_MAX_HIGHLIGHTS, searchText } from "./search.ts";
 
-export { CoreError, InvalidCitation, NotFound, isCoreError } from "./errors.ts";
+export {
+  CoreError,
+  InvalidCitation,
+  InvalidQuery,
+  NotFound,
+  Unavailable,
+  isCoreError,
+} from "./errors.ts";
 export type { CoreErrorCode } from "./errors.ts";
 
 export {

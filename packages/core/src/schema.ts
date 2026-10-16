@@ -210,6 +210,93 @@ export type WorkView = z.infer<typeof workView>;
 export const workList = z.strictObject({ works: z.array(workView) });
 export type WorkList = z.infer<typeof workList>;
 
+// ── Pencarian (S11) ──────────────────────────────────────────────────────────────────────
+
+/** Rentang di `text_raw`: indeks string JS, akhir eksklusif (sama dengan `footnote_refs`). */
+export const textSpan = z
+  .strictObject({
+    char_start: z.number().int().nonnegative(),
+    char_end: z.number().int().nonnegative(),
+  })
+  .describe("Span in the passage's text_raw (JS string index, end exclusive)");
+export type TextSpan = z.infer<typeof textSpan>;
+
+export const searchHit = z.strictObject({
+  id: id.describe("Stable passage id"),
+  anchor: z.string().describe("Stable fragment anchor, e.g. p2824"),
+  kind: passageKind.describe("body = main text, foot = footnote (takhrij for Ihya)"),
+  ord: id.describe("Display order within the page and kind (not an anchor)"),
+  toc_node_id: id.nullable(),
+  section: tocNodeRef.nullable().describe("Table-of-contents section of this passage"),
+  location,
+  score: z
+    .number()
+    .nullable()
+    .describe("BM25 relevance of this passage (higher = better); null when results are unranked"),
+  highlights: z
+    .array(textSpan)
+    .describe(
+      "Matches in text_raw in order (at most 50); text_raw.slice(char_start, char_end) is verbatim source text with its diacritics",
+    ),
+  snippet: z
+    .strictObject({ ...textSpan.shape, text: z.string() })
+    .describe(
+      "Excerpt of text_raw (~160 characters) around the first match, cut at word boundaries; text = text_raw.slice(char_start, char_end), verbatim",
+    ),
+});
+export type SearchHit = z.infer<typeof searchHit>;
+
+export const searchPage = z.strictObject({
+  citation: citation.describe("Citation of the printed page"),
+  score: z
+    .number()
+    .nullable()
+    .describe("Relevance of the page = its best passage (higher = better); null when unranked"),
+  hit_count: id.describe("Matching passages on this page"),
+  hits: z.array(searchHit).describe("All matching passages on this page in reading order"),
+});
+export type SearchPage = z.infer<typeof searchPage>;
+
+export const searchView = z.strictObject({
+  query: z.string().describe("The query as given"),
+  terms: z
+    .array(z.string())
+    .describe(
+      "Normalized, stemmed query words that were searched (proclitics and article removed)",
+    ),
+  edition_id: id.nullable().describe("Edition searched; null = all editions"),
+  ranked: z
+    .boolean()
+    .describe("False when the query has only very common words: first matches in book order"),
+  warning: z
+    .enum(["common_terms"])
+    .nullable()
+    .describe(
+      "common_terms = every query word is very common (e.g. الله); add a more specific word or filter by edition",
+    ),
+  common_terms: z
+    .array(z.strictObject({ term: z.string(), passage_count: id }))
+    .describe(
+      "Query words that are very common in the corpus, with how many passages contain them",
+    ),
+  total_pages: z
+    .number()
+    .int()
+    .nonnegative()
+    .nullable()
+    .describe("Matching pages in total; null when unranked or past the last page"),
+  total_hits: z
+    .number()
+    .int()
+    .nonnegative()
+    .nullable()
+    .describe("Matching passages in total; null when unranked or past the last page"),
+  limit: z.number().int().positive(),
+  offset: z.number().int().nonnegative(),
+  results: z.array(searchPage).describe("Pages, best first (or book order when unranked)"),
+});
+export type SearchView = z.infer<typeof searchView>;
+
 // ── Masukan (dibagikan ke route, tool MCP, CLI; KONVENSI §TypeScript) ──────────────────────
 
 export const TOC_DEFAULT_DEPTH = 2;
@@ -242,6 +329,40 @@ export type ReadSectionInput = z.infer<typeof readSectionInput>;
 
 export const buildCitationInput = z.strictObject({ passage_id: id });
 export type BuildCitationInput = z.infer<typeof buildCitationInput>;
+
+/** Batas panjang kueri pencarian (karakter), juga batas di API web (S11). */
+export const SEARCH_QUERY_MAX = 200;
+export const SEARCH_DEFAULT_LIMIT = 20;
+export const SEARCH_MAX_LIMIT = 50;
+export const SEARCH_MAX_OFFSET = 1000;
+
+export const searchTextInput = z.strictObject({
+  query: z
+    .string()
+    .min(1)
+    .max(SEARCH_QUERY_MAX)
+    .describe("Arabic query, with or without diacritics; a word or an exact phrase"),
+  edition_id: id.optional().describe("Search only this edition; default: all editions"),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(SEARCH_MAX_LIMIT)
+    .default(SEARCH_DEFAULT_LIMIT)
+    .describe("Pages to return"),
+  offset: z
+    .number()
+    .int()
+    .min(0)
+    .max(SEARCH_MAX_OFFSET)
+    .default(0)
+    .describe("Pages to skip (ranked results only)"),
+  expand: z
+    .boolean()
+    .default(false)
+    .describe("One-word queries: also match suffixed forms (صبره, صبرهم, نيته)"),
+});
+export type SearchTextInput = z.input<typeof searchTextInput>;
 
 /**
  * Segmen angka dari path URL (`/kitab/ihya/1/200`): hanya digit desimal tanpa nol di depan,

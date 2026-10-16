@@ -1,6 +1,16 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { findQuote, isDroppedChar, normalizeArabic, stemText, toRawSpan } from "../src/index.ts";
+import {
+  findPlanSpans,
+  findQuote,
+  isDroppedChar,
+  normalizeArabic,
+  planFtsQuery,
+  snippetSpan,
+  stemText,
+  stemToken,
+  toRawSpan,
+} from "../src/index.ts";
 
 // Property test sederhana: string acak dari alfabet "nakal" dengan seed tetap (deterministik,
 // tanpa dependensi). Invarian yang diuji berlaku untuk input APA PUN.
@@ -131,6 +141,42 @@ describe("invarian normalizeArabic (2000 string acak, seed tetap)", () => {
       if (hit !== null && normalizeArabic(hit.rawText).text !== quote) v.push(`findQuote ${quote}`);
       if (hit !== null && raw.slice(hit.rawStart, hit.rawEnd) !== hit.rawText)
         v.push("rawText ≠ slice");
+      return v;
+    });
+    expect(found).toEqual([]);
+  });
+});
+
+describe("invarian sorotan dan potongan pencarian (2000 string acak, seed tetap)", () => {
+  test("rentang sorotan: urut, tidak tumpang tindih, substring mentah yang memuat stem kueri", () => {
+    const found = violations(9472, 60, (raw, next) => {
+      const tokens = normalizeArabic(raw)
+        .text.split(" ")
+        .filter((t) => t !== "");
+      if (tokens.length === 0) return [];
+      const token = tokens[Math.floor(next() * tokens.length)] as string;
+      const plan = planFtsQuery(token);
+      if (plan === null) return ["rencana kosong untuk token tidak kosong"];
+      const spans = findPlanSpans(raw, plan);
+      const v: string[] = [];
+      // Token yang diambil dari teks sendiri pasti ditemukan.
+      if (spans.length === 0) v.push(`tidak ditemukan: ${token}`);
+      const wanted = new Set(plan.phrases.map((p) => p[0]));
+      spans.forEach((s, i) => {
+        if (s.start < 0 || s.end > raw.length || s.start >= s.end) v.push("rentang di luar batas");
+        if (i > 0 && s.start < (spans[i - 1]?.end ?? 0)) v.push("rentang tumpang tindih");
+        const stems = normalizeArabic(raw.slice(s.start, s.end)).text.split(" ").map(stemToken);
+        if (!stems.some((t) => wanted.has(t))) v.push(`rentang tanpa stem kueri: ${token}`);
+        // Ukuran kecil (8) supaya jalur pemotongan teks panjang ikut teruji pada string pendek.
+        for (const size of [8, 160]) {
+          const snip = snippetSpan(raw, s, size);
+          if (snip.start > s.start || snip.end < s.end) v.push("potongan tidak memuat sorotan");
+          if (snip.start > 0 && !/\s/u.test(raw[snip.start - 1] ?? ""))
+            v.push("awal kata terputus");
+          if (snip.end < raw.length && !/\s/u.test(raw[snip.end] ?? ""))
+            v.push("akhir kata terputus");
+        }
+      });
       return v;
     });
     expect(found).toEqual([]);
