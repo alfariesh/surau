@@ -104,13 +104,13 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   5. Bila Cloudflare ternyata menampilkan token **baru**, jalankan di Terminal (folder Surau) `gh secret set CLOUDFLARE_API_TOKEN` lalu tempel token itu. Bila tidak, langkah ini dilewati.
   6. Bilang ke agent "T-21 sudah". Agent memeriksa langkah *Ringkasan log Preview* di CI PR berikutnya: peringatan "Token CI butuh izin Account Analytics Read" harus hilang dan berganti tabel jumlah request/error.
 
-- [ ] **T-22 · Tinjau tampilan pembaca kitab (S09)** (sebelum rilis Fase 1, ±10 menit)
+- [x] **T-22 · Tinjau tampilan pembaca kitab (S09)** (sebelum rilis Fase 1, ±10 menit) · selesai 2026-10-16: pemilik menyatakan tampilan pembaca OK (chat S10)
   Pembaca belum dibuka di situs utama (ditutup sampai S10). Lihat di Preview khusus (data staging): **https://pembaca-surau-web.alfarieshsalman.workers.dev/kitab/ihya/1/200**.
   1. Buka tautan di ponsel dan di laptop.
   2. Coba: ketuk penanda (١) di teks Arab (takhrij muncul), tombol **Berikutnya/Sebelumnya** (atau panah ← → di laptop), **Daftar isi**, **Lompat**, **Salin sitasi**, tombol **−/+** ukuran huruf, dan tema gelap.
   3. Bilang ke agent "tampilan pembaca OK", atau tulis apa yang ingin diubah (boleh dengan tangkapan layar). Agent mencentang butir "Pemilik menyetujui tampilan" di S09.
 
-- [ ] **T-15 · Cocokkan 10 halaman dengan edisi cetak** (dibutuhkan S10 / sebelum `/rilis 1` **dan sebelum S11**, ±30 menit; bisa diwakilkan ke ustadz/santri yang membaca Arab)
+- [x] **T-15 · Cocokkan 10 halaman dengan edisi cetak** · selesai 2026-10-16: pemilik melaporkan 10/10 oke (chat S10; hasil di `data/reports/ihya-9472-qa-manusia.md`) (dibutuhkan S10 / sebelum `/rilis 1` **dan sebelum S11**, ±30 menit; bisa diwakilkan ke ustadz/santri yang membaca Arab)
   Daftarnya siap di [data/reports/ihya-9472-qa-manusia.md](../data/reports/ihya-9472-qa-manusia.md) (buka di GitHub supaya tautannya bisa diklik). Setiap halaman punya tiga tautan: Surau, Shamela, dan pindaian archive.org (sudah diarahkan ke halaman yang tepat; bila meleset, geser satu-dua halaman). Cek apakah teks dan catatan kakinya sama, lalu kirim ke agent "T-15: 1 cocok, 2 cocok, …" atau catatan singkat per nomor.
 
 ## Fase 2: Cari

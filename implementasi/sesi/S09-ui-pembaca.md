@@ -1,6 +1,6 @@
 # S09 · UI pembaca kitab
 
-> **Fase:** 1 · **Status:** selesai* (2026-10-16 · PR #21 · *persetujuan tampilan pemilik menunggu, T-22)
+> **Fase:** 1 · **Status:** selesai (2026-10-16 · PR #21 · tampilan disetujui pemilik 2026-10-16, T-22)
 > **Prasyarat:** S08 selesai · Tugas pemilik: T-21 (selesai 2026-10-16; log Preview lewat ringkasan CI, ADR-031), review tampilan di akhir
 > **Perkiraan:** 1–2 percakapan agent
 
@@ -56,7 +56,7 @@ Pengguna bisa membuka Ihya, menjelajah daftar isi, membaca halaman cetak per hal
 - [x] "Salin sitasi" menghasilkan format yang benar, dan permalink membuka paragraf yang tepat · e2e (lokal + Preview): papan klip = `al-Ghazali, Ihya' 'Ulum ad-Din, Dar al-Ma'rifah, j.1 h.200. <origin>/kitab/ihya/1/200`; `#p2826` dan `#p2834` menggulir + menyorot paragraf yang benar
 - [x] Lighthouse ponsel: aksesibilitas ≥ 90 dan performa dicatat · Lighthouse 13.5.0, Preview j1 h200: ponsel a11y **100**, performa **80** (FCP 3,1 dtk, LCP 4,2 dtk, TBT 20 ms, CLS 0), BP 100; desktop 100/100/100; SEO 66 hanya karena `noindex` bawaan Preview. TTFB Preview dingin 0,71–1,02 dtk, hangat 0,10–0,18 dtk
 - [x] E2E lolos; `pnpm verify` lolos · `pnpm test:e2e` 56/56 lokal dan di Preview, lalu **64/64** lokal dan di Preview (commit `f019bc3`, run 38903176689) setelah tes regresi temuan peninjau; ringkasan log Preview terakhir 171 request, 0 error; `pnpm verify` lolos (lokal + CI `verify`)
-- [ ] Pemilik menyetujui tampilan · **menunggu T-22** (tautan Preview tetap `pembaca`, tangkapan layar ponsel/desktop dikirim)
+- [x] Pemilik menyetujui tampilan · T-22 dijawab di chat S10 (2026-10-16): "sudah oke" (Preview tetap `pembaca`)
 - [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan

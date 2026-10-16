@@ -15,7 +15,7 @@ Format entri:
 
 ---
 
-## 2026-10-16 · S10 · Korpus produksi & QA — selesai* (QA manusia T-15, tampilan T-22, dan teks `/lisensi` menunggu pemilik)
+## 2026-10-16 · S10 · Korpus produksi & QA — selesai
 
 - Dikerjakan:
   - `pnpm run corpus:promote` (blue-green, ADR-036): rencana / `--confirm` (buat apac, migrasi lewat config sementara, muat, smoke = hitungan build) / `--switch-only` (rollback). Dijalankan untuk `ihya-v1`: `surau-corpus-ihya-v1` (`41e3033e-…`, APAC, 13,2 MB) dalam ±67 dtk; `CORPUS_DB` produksi menunjuk DB ini (+ `preview_database_id` staging untuk dev lokal). Riwayat versi di `data/SOURCES.md`; staging tidak pernah dijadikan produksi (rollback `ihya-v1` = tutup darurat).
@@ -30,6 +30,7 @@ Format entri:
   - `pnpm verify` → lolos (node 217 tes, db + core 105); `pnpm test:e2e` lokal → 70/70 (termasuk `/lisensi` smoke + axe terang/gelap). Browser: `/lisensi` desktop + ponsel gelap rapi; `pnpm dev` j1 h200 tetap membaca D1 lokal; 0 galat konsol.
   - Setelah merge PR #23 (squash 8ef5297): `deploy.yml` lolos (migrasi D1 `surau-app`, deploy, smoke `/` `/tentang` `/lisensi`); `wrangler versions view` versi produksi f9046c12 → `CORPUS_DB 41e3033e-…` (ihya-v1), `READER_ENABLED 0`; `/kitab/ihya/1/200` produksi 404 sesuai rancangan. Preview `pembaca` diperbarui dari build yang sama (`/lisensi` ada).
   - **`rows_read` per kunjungan** (Preview `pembaca`, DB staging = build yang sama; pembaca produksi masih tertutup), `wrangler d1 insights` sebelum/sesudah: 50 halaman baru → semua 200 `MISS`, 0,87 dtk rata-rata, **800 kueri / 76.502 baris = ±16 kueri dan ±1.530 baris per render** (`getToc` ±939 baris per panggilan = 93%); 50 kunjungan ulang → 0,22 dtk, **0 kueri** (kontrol: satu render baru muncul +19 kueri ±2 menit kemudian). Biaya: ±2,6 juta baris untuk merender seluruh Ihya sekali per deploy, di dalam 25 miliar/bulan Workers Paid → **±$0**.
+  - Persetujuan pemilik (chat, 2026-10-16, "1,2,3 sudah oke"): T-15 10/10 halaman oke, T-22 tampilan pembaca OK (S09 kini selesai penuh), teks `/lisensi` disetujui. Fase 1 siap `/rilis 1`.
 - Biaya API: –
 - Keputusan: ADR-036 (ADR-018 dan ADR-021 kini diterima)
 - Catatan untuk sesi berikutnya:
