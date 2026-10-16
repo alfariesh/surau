@@ -23,11 +23,11 @@ updates:
         update-types: ["version-update:semver-major"]
       # HeroUI Pro dipin persis ke beta; ada versi salah terbit 1.0.0-beta.19 (ADR-004).
       - dependency-name: "@heroui-pro/react"
-      # Next 16.4 lewat sesi sisipan X01 setelah OpenNext mendukung (ADR-003).
-      # Patch 16.3.x (backport keamanan) tetap diusulkan.
+      # Minor Next (16.5 dst.) lewat sesi sisipan setelah OpenNext mendukung (ADR-003, ADR-030).
+      # Patch 16.4.x (backport keamanan) tetap diusulkan.
       - dependency-name: next
         update-types: ["version-update:semver-minor"]
-      # React 19.3 berpasangan dengan Next 16.4, jadi ikut X01. Patch 19.2.x tetap diusulkan.
+      # Minor React berpasangan dengan minor Next, jadi ikut sesi yang sama. Patch 19.3.x tetap diusulkan.
       - dependency-name: react
         update-types: ["version-update:semver-minor"]
       - dependency-name: react-dom

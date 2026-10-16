@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],
       "port": 3004
+    },
+    {
+      "name": "web-workers",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@surau/web", "preview"],
+      "port": 3005
     }
   ]
 }
