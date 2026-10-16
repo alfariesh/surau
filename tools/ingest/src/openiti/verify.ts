@@ -38,6 +38,8 @@ export function jkTakhrijSegments(pageText: string): string[][] {
 export interface MatanCheck {
   /** Kemiripan per halaman (urutan `pages`); 0 bila halaman tidak ada di OpenITI. */
   ratios: number[];
+  /** Jumlah token [Shamela, OpenITI] per halaman. */
+  sizes: [number, number][];
   /** Halaman Shamela yang tidak punya pasangan di OpenITI. */
   missing: number[];
   passed: number;
@@ -49,17 +51,20 @@ export function checkMatan(
 ): MatanCheck {
   const byKey = new Map(openiti.map((p) => [pageKey(p.volume, p.page), p.text]));
   const missing: number[] = [];
+  const sizes: [number, number][] = [];
   const ratios = pages.map((p, i) => {
     const other = byKey.get(pageKey(p.source.juz, p.source.pageNo));
+    const a = tokens(p.bodyText);
     if (other === undefined) {
       missing.push(i);
+      sizes.push([a.length, 0]);
       return 0;
     }
-    const a = tokens(p.bodyText);
     const b = tokens(other);
+    sizes.push([a.length, b.length]);
     return tokenRatio(a, b, Math.ceil((a.length + b.length) / 2));
   });
-  return { ratios, missing, passed: ratios.filter((r) => r >= MATAN_THRESHOLD).length };
+  return { ratios, sizes, missing, passed: ratios.filter((r) => r >= MATAN_THRESHOLD).length };
 }
 
 export interface TakhrijCheck {

@@ -85,10 +85,17 @@ export function openitiReport(
   takhrij: TakhrijCheck,
 ): string {
   const { config } = ctx;
-  const below = matan.ratios
-    .map((r, i) => ({ r, p: pages[i] as ParsedPage }))
-    .filter((x) => x.r < MATAN_THRESHOLD)
-    .map((x) => `${cite(x.p)} (${dec(x.r)})`);
+  // Untuk halaman di bawah ambang: berapa bagian token Shamela yang termuat berurutan di OpenITI
+  // (LCS / token Shamela; LCS = rasio·(n+m)/2). 100% berarti matan Shamela utuh ada di OpenITI dan
+  // selisihnya hanya tambahan di sisi OpenITI.
+  const below = matan.ratios.flatMap((r, i) => {
+    if (r >= MATAN_THRESHOLD) return [];
+    const [n, m] = matan.sizes[i] ?? [0, 0];
+    const kept = n === 0 ? 0 : Math.round(((r * (n + m)) / 2 / n) * 100);
+    return [
+      `${cite(pages[i] as ParsedPage)} (${dec(r)}; ${num(n)} token Shamela, ${num(m)} token OpenITI; ${kept}% token Shamela termuat berurutan di OpenITI)`,
+    ];
+  });
   const sorted = [...matan.ratios].sort((a, b) => a - b);
   const q = (f: number): number => sorted[Math.floor(f * (sorted.length - 1))] ?? 0;
   const buckets = new Map<string, number>();

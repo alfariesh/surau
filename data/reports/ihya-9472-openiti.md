@@ -13,7 +13,7 @@
 **LOLOS**: 1.705 dari 1.706 halaman ≥0,95 (gerbang ≥1.705).
 
 - Sebaran kemiripan: min 0,535 · p1 1,000 · median 1,000.
-- Halaman di bawah ambang: j3 h116 (0,535).
+- Halaman di bawah ambang: j3 h116 (0,535; 223 token Shamela, 611 token OpenITI; 100% token Shamela termuat berurutan di OpenITI).
 - Halaman Shamela tanpa pasangan di OpenITI: 0.
 
 ## Takhrij vs JK000001
