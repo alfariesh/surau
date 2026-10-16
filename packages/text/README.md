@@ -10,7 +10,7 @@ Satu-satunya tempat logika teks Arab Surau. TypeScript murni **tanpa dependensi 
 | `stem.ts` | `stemToken`, `stemText`, `expandQueryToken`, `kunyaVariants`, `isProtectedToken`, `queryProclitics` | Stem proklitik konservatif (kolom `sbody`/`sfoot`) dan ekspansi sisi kueri |
 | `quote.ts` | `findQuote(raw, quote, opts?)` | Cari kutipan di teks mentah dan kembalikan substring mentah **verbatim** |
 | `fts.ts` | `buildFtsMatch(query, opts?)`, `ftsQuote`, `FTS_MAX_PHRASES` | Ekspresi `MATCH` FTS5 yang aman dari injeksi |
-| `shamela.ts` | `cleanShamelaHtml`, `extractTitles`, `splitFootnotes`, `splitParagraphs`, `findFootnoteMarkers`, `splitFootnoteEntries`, `linkFootnotes` | Membersihkan dan memecah `page.content` Shamela secara deterministik |
+| `shamela.ts` | `cleanShamelaHtml`, `extractTitles`, `splitFootnotes`, `splitParagraphs`, `findFootnoteMarkers`, `splitFootnoteEntries`, `linkFootnotes`, `linkFootnoteMarkers`, `splitInlineTakhrij` | Membersihkan dan memecah `page.content` Shamela secara deterministik, termasuk takhrij yang menempel ke matan lewat `//` (ADR-032) |
 
 ```ts
 import { buildFtsMatch, findQuote, normalizeArabic, stemText } from "@surau/text";
@@ -53,3 +53,4 @@ buildFtsMatch("الصبر"); // '{sbody sfoot} : ("صبر" OR "وصبر" OR …)
 - Paket diekspor langsung dari `src/index.ts`; impor relatif di dalam paket wajib berekstensi `.ts`, dan hanya sintaks TS yang bisa dihapus (`erasableSyntaxOnly`).
 - `Normalized.map` adalah `Int32Array`. Jangan dikirim dari Server Component ke klien (ADR-023).
 - Kode ini tidak membaca file Shamela. Pembacaan `node:sqlite` ada di `tools/ingest` (S07).
+- `splitInlineTakhrij` sengaja konservatif: bila awal takhrij tidak dikenali, paragraf tidak dipecah. Semua hasilnya (dipecah atau tidak) harus ditandai perlu ditinjau oleh pemanggil.

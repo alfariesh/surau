@@ -8,7 +8,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
-| Node.js LTS | 24.22.0 (`.node-version`) | 24.22.0 (dicek 2026-10-15) | https://nodejs.org/docs/latest-v24.x/api/ · `node:sqlite` https://nodejs.org/docs/latest-v24.x/api/sqlite.html · type stripping https://nodejs.org/docs/latest-v24.x/api/typescript.html | 008 |
+| Node.js LTS | 24.22.0 (`.node-version`) | 24.22.0 (dicek 2026-10-16) · `node:sqlite` *release candidate* (1.2) tanpa ExperimentalWarning, SQLite bundel **3.53.4 dengan FTS5**, opsi `readOnly`; type stripping stabil (S07) | https://nodejs.org/docs/latest-v24.x/api/ · `node:sqlite` https://nodejs.org/docs/latest-v24.x/api/sqlite.html · type stripping https://nodejs.org/docs/latest-v24.x/api/typescript.html | 008 |
 | pnpm | 12.11.2 (`packageManager`) | 12.11.2 (terbaru 12.13.0; dicek 2026-10-15) | https://pnpm.io/settings · https://pnpm.io/catalogs · build scripts https://pnpm.io/settings/build | 008 |
 | Vite+ (`vp`) | 1.2.0 | lokal **1.2.0** (dinaikkan 2026-10-15 17:20 WIB) · global 1.1.0 · dicek 2026-10-15 | https://viteplus.dev/llms.txt · monorepo https://viteplus.dev/guide/monorepo · CI https://viteplus.dev/guide/ci | 008 |
 | `voidzero-dev/setup-vp` (CI) | v1.21.2 (pin SHA `68f39c78…`) | v1.21.2 di `ci.yml` (dicek 2026-10-15) · **jangan** `@v1` (beku di v1.15.0) | https://github.com/voidzero-dev/setup-vp · https://viteplus.dev/guide/ci | 024 |
@@ -37,7 +37,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
-| Wrangler | 4.151.0+ (devDependency, **jangan pakai yang global**) | 4.151.0 (devDependency root + apps/web, catalog; dicek 2026-10-15) · global 4.126 (usang) | MCP `cloudflare-docs` · https://developers.cloudflare.com/workers/llms.txt · skill `wrangler` | 002 |
+| Wrangler | 4.151.0+ (devDependency, **jangan pakai yang global**) | 4.151.0 (devDependency root + apps/web, catalog; terbaru, dicek 2026-10-16) · global 4.126 (usang) · `d1 execute --file` lokal = satu transaksi per file; remote memakai API impor D1 (atomik, DB tak melayani kueri selama impor) | MCP `cloudflare-docs` · https://developers.cloudflare.com/workers/llms.txt · skill `wrangler` | 002 |
 | Workers (limits, pricing) | Paid | Worker `surau-web` aktif: S04 (2026-10-15) **5.815 KiB / 1.221 KiB gzip** (S03: 15.993 / 3.021 KiB) dari batas 64 MiB, startup 20 ms, `compatibility_date` 2026-10-14 | https://developers.cloudflare.com/workers/platform/limits/ | 002 |
 | D1 + FTS5 | – | `surau-corpus-staging`, `surau-app`, `surau-app-staging` (apac, 2026-10-15); STRICT + FTS5 `contentless_delete` lolos di remote (S06) | https://developers.cloudflare.com/d1/llms-full.txt · limits https://developers.cloudflare.com/d1/platform/limits/ · migrasi https://developers.cloudflare.com/d1/reference/migrations/ · impor https://developers.cloudflare.com/d1/best-practices/import-export-data/ · FTS5 https://www.sqlite.org/fts5.html | 005 |
 | R2 | – | bucket `surau-next-cache` + `surau-next-cache-preview` (cache ISR OpenNext, 2026-10-15) | https://developers.cloudflare.com/r2/llms-full.txt | 005 |
@@ -54,7 +54,8 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
 | Akses D1 | **Tanpa ORM**: migrasi SQL + `wrangler d1 migrations` + repository bertipe (Zod) | `packages/db` (S06): migrasi corpus/app 0001, tipe struktural `D1Db`; `@cloudflare/workers-types` **5.20261014.1** hanya untuk tes (dicek 2026-10-15) | D1 Worker API https://developers.cloudflare.com/d1/worker-api/ · migrasi https://developers.cloudflare.com/d1/reference/migrations/ · (cadangan: Drizzle saat 1.0 GA, https://orm.drizzle.team/llms.txt) | 009 |
-| Zod | 4.x (≥4.2, wajib untuk MCP SDK v2) | **4.6.7** (packages/db, catalog; impor dari `"zod"`; dicek 2026-10-15, S06) | https://zod.dev | 011 |
+| Zod | 4.x (≥4.2, wajib untuk MCP SDK v2) | **4.6.7** (packages/db + tools/ingest, catalog; impor dari `"zod"`; dicek 2026-10-15, S06) | https://zod.dev | 011 |
+| `yaml` (eemeli/yaml) | 2.x | **2.9.1** (tools/ingest, catalog; tanpa dependensi, ISC; dicek 2026-10-16, S07). `parseDocument` + cek `errors`/`warnings`, `toJS({ maxAliasCount: 0 })`; jangan `logLevel: "silent"` | https://eemeli.org/yaml/ | 032 |
 | Hono (Worker API, Fase 4) | 4.x | – | https://hono.dev/llms.txt | 010 |
 
 ## AI & MCP

@@ -406,3 +406,64 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** Setiap PR dari repo ini mendapat ringkasan request/error Preview, setelah T-21 selesai. Untuk butir "tidak ada error di Workers Logs" (S09 dan seterusnya), tabel ini adalah bukti **sebagian**: baris selain `success`/`clientDisconnected` harus kosong, **ditambah** e2e/smoke yang memeriksa status HTTP rute yang diuji. Ini bukan pengganti penuh Workers Logs (lihat poin 6). Kriteria S09 tidak diubah; bila butuh bukti 5xx/`console.error`, cek dashboard atau evaluasi `telemetry/query`. Langkah ini menambah ±1–3 menit per run preview.
 **Tinjau ulang bila:** `wrangler tail` mendukung Previews, `previewSlug` terisi atau didokumentasikan sebagai filter, atau sesi butuh isi pesan error otomatis (saat itu evaluasi `telemetry/query` dengan token sempit).
 
+
+## ADR-032 · Importer Ihya (S07): keluaran build, `passage_needs_review`, pemisahan takhrij `//`, daftar isi + patch, peta ID — diterima · 2026-10-16
+
+**Konteks:** S07 membangun `tools/ingest` (Shamela 9472 → korpus D1). Beberapa temuan di data nyata menuntut keputusan yang belum ada di rencana, dan ada dua penyimpangan dari teks sesi yang ditulis terbuka di sini.
+
+**Keputusan:**
+1. **Keluaran build** (`pnpm ingest ihya`, ±3 detik):
+   - `data/build/sql/NNNN-<tabel>[-kk].sql`: INSERT multi-baris ≤90 KB per statement, ≤2 MB per file, tanpa `BEGIN`/`COMMIT`, tabel induk lebih dulu, `toc_node` dalam urutan DFS (induk sebelum anak). File `0000-reset.sql` mengosongkan korpus (anak dulu; `meta.schema_version` dipertahankan) supaya pemuatan bisa diulang. `translation`/`summary` sengaja tidak dihapus: bila sudah berisi (S13+), foreign key membuat pemuatan ulang **gagal**, bukan diam-diam membuang hasil batch.
+   - `data/build/surau-corpus-ihya-v1.sqlite`: migrasi korpus yang sama (`packages/db/migrations/corpus`) + file SQL di atas lewat `node:sqlite` (SQLite 3.53.4, FTS5 ada), lalu `foreign_key_check`, `integrity_check`, dan `VACUUM`.
+   - sha256 gabungan file SQL (terurut, nama + isi) + `.sqlite` ditulis ke `data/build/<korpus>.sha256`. Hash ini **tidak** masuk laporan yang di-commit, karena `built_at` ikut tanggal commit HEAD (laporan akan berubah di setiap commit).
+   - Determinisme: dua build dari `data/build` kosong pada HEAD yang sama menghasilkan hash identik (dibuktikan di S07 dan di tes).
+2. **Tabel baru `passage_needs_review`** (migrasi korpus 0002, `schema_version` 2). Skema v1 belum punya tempat untuk tanda `needs_review` yang diwajibkan ADR-018. Kolom: (`passage_id`, `reason`), dengan `reason` ∈ `takhrij_inline` (takhrij menempel yang dipotong dari matan), `takhrij_unmatched` (catatan kaki tidak ditemukan di JK000001 halaman itu), dan `inline_unsplit` (paragraf memuat `//` tetapi takhrijnya tidak dikenali). Satu paragraf bisa punya lebih dari satu alasan. Ini tanda dari pipeline, **bukan** hasil review: hasil review manusia tetap di DB app (ARSITEKTUR §3.2). Repository untuk membacanya ditambahkan saat dibutuhkan (S08/S09).
+3. **Takhrij yang menempel lewat `//`** (`splitInlineTakhrij` di `@surau/text`). Temuan: 203 halaman, masing-masing satu `//`. Arahnya **tidak** selalu "takhrij sesudah `//`" seperti dugaan awal:
+   - 130 sesudah `//` (dibuka "حديث");
+   - 64 sebelum `//` (matan berlanjut sesudahnya);
+   - 9 tanpa takhrij yang bisa dikenali.
+
+   Aturan pemisahan:
+   - Sesudah `//`: takhrij = dari `//` sampai akhir paragraf. Akhir takhrij tidak ditandai di sumber, dan JK000001 punya cacat yang sama (dicek di j4 h171), jadi 23 potongan ≥400 karakter mungkin ikut membawa matan. Semuanya tercantum di laporan validasi.
+   - Sebelum `//`: mundur dari `//` lewat kandidat pembuka (penanda `(n)`, atau "حديث" yang tidak didahului من/في/عن…) selama setiap potongan memuat atribusi takhrij (أخرج/رواه/متفق عليه/إسناد/…). Awal paragraf ikut diambil hanya dengan atribusi kuat dan bila tidak ada kandidat lain yang ditolak.
+   - Tidak dikenali: paragraf **tidak** dipecah dan `//` tetap di `text_raw`.
+   - Bila dipecah, `//` dibuang sebagai pemisah (sama seperti `\r` dan garis `_________`); teks lain tetap persis.
+   - Potongan takhrij menjadi paragraf `foot` (sesudah catatan bagian bawah halaman) dengan alasan `takhrij_inline`.
+4. **Paragraf catatan kaki = satu catatan bernomor** (`splitFootnoteEntries`), bukan satu baris. 220 catatan memanjang beberapa baris; baris barunya diseragamkan ke `\n`, karena `\r` tidak dianggap baris baru oleh CSS.
+5. **Cek silang takhrij (JK000001):** JK dipecah per halaman di ` + `. Segmen dianggap takhrij bila dibuka "حديث" atau menyebut sumbernya. Skor sebuah catatan = bagian bigram token (setelah `normalizeArabic`) yang ada di satu segmen. Skor <0,6, atau catatan kurang dari 3 token, ditandai `takhrij_unmatched`. Hasil Ihya: 190 dari 4.398 catatan. Ukuran bigram dipilih karena segmen JK bisa menggabung beberapa takhrij (pasangan ` + ` tidak andal).
+6. **Gerbang matan:** kemiripan per halaman = 2·LCS token / jumlah token (Myers O(ND)), dibandingkan dengan teks badan Shamela sebelum `//` dipisah, karena OpenITI memuat cacat yang sama. Hasilnya 1.705/1.706 halaman ≥0,95. Satu-satunya pengecualian, j3 h116 (0,535), memuat 100% token matan Shamela secara berurutan; OpenITI menambahkan 388 token, yaitu takhrij halaman itu yang ditulis di dalam baris.
+7. **Daftar isi:**
+   - Posisi judul diambil dari span `toc-N` di teks. Judul tanpa span (t1, t2) dimulai di awal `title.page`.
+   - Paragraf ikut judul terakhir yang dimulai di/sebelum paragraf itu. Bila beberapa judul dimulai di paragraf yang sama, node terdalam yang dipakai. Span judul **induk** yang muncul sesudah span judul anaknya yang sedang berjalan (Shamela menulis "كتاب … وهو الكتاب الأول من ربع …") tidak memindahkan paragraf ke induk.
+   - Paragraf **tidak** dipotong di span judul, karena Shamela juga menaruh span di kolofon ("يتلوه … كتاب …").
+   - "Urutan monoton" dicek per halaman, bukan per paragraf.
+   - Catatan kaki ikut paragraf badan pertama yang merujuknya; takhrij menempel ikut paragraf asalnya; sisanya ikut paragraf badan terakhir di halaman.
+   - Patch YAML (`data/patches/ihya-9472.yaml`, parser `yaml` 2.9.1 yang ketat: kunci ganda, alias, dan kunci asing ditolak) hanya berisi `add` dan `move`. Node `add` diberi kata pembuka (`heading`), dan judulnya **disalin** dari paragraf halaman yang dibuka kata itu (`findQuote`, harus di awal paragraf). Teks Arab tidak pernah diambil dari patch.
+   - Setiap node yang ditambah atau dipindah ditandai `patched`.
+   - Metadata karya/edisi dan harapan validasi (1.706 halaman, 4 rub' × 10 kitab, gerbang ≥1.705) ada di `tools/ingest/src/works/ihya.ts`, bukan di patch.
+8. **Peta ID** `data/ids/ihya-9472.json` (format 1, ADR-029 butir 3; satu entri per baris, urut seq):
+   - Kunci halaman = `page.id` Shamela.
+   - Kunci node = `t<title.id>` atau `patch:<id>`.
+   - Kunci paragraf = `<page.id>:<kunci di halaman>`:
+     - `b<baris>`: baris badan ke-n;
+     - `b<baris>.<k>`: potongan ke-k bila baris dipecah `//`;
+     - `t<baris>`: takhrij menempel;
+     - `f<n>`: catatan ke-n.
+
+   Konsekuensinya: menyisipkan baris di tengah halaman sumber menggeser kunci baris sesudahnya. Hal ini diterima sebelum rilis Fase 1, lalu dicek manifes di S10. Opsi `--reset-ids` hanya untuk sebelum rilis.
+   - **Penyimpangan dari teks sesi:** butir "Selesai bila" S07 menyebut `git ls-files data/` hanya berisi LICENSE/ATTRIBUTION/SOURCES/patches/reports. Peta ID di `data/ids/` (tanpa teks kitab) diwajibkan ADR-029 yang lebih baru, jadi ikut di-commit. Butir itu dicatat apa adanya di Catatan hasil S07, tanpa mengubah kriterianya.
+9. **ID dan metadata:**
+   - `author.id` = 1, `work.id` = 1 (`slug` `ihya`, `openiti_uri` `0505Ghazali.IhyaCulumDin`), `edition.id` = 1 (`slug` `dar-al-marifah`, default).
+   - Nama, judul, penerbit (`دار المعرفة`), dan kota (`بيروت`) disalin dari `book.sqlite`/`author.sqlite`. `volumes` = jumlah juz.
+   - `wikidata_id` dibiarkan kosong (tidak ditebak).
+   - `meta.source_hash` = `sha256:<sha256 9472.db>`. Teks sesi menyebut `source_sha256`; dipakai nama kunci dari skema S06 (`corpusMeta`, ARSITEKTUR §3.1).
+   - `meta.built_at` = `SOURCE_DATE_EPOCH` atau tanggal commit HEAD (UTC).
+10. **Pemuatan D1** (`pnpm corpus:load:local` / `corpus:load:staging`): migrasi korpus, lalu setiap file SQL lewat `wrangler d1 execute --file` (per file atomik), lalu smoke query. D1 menolak `UNION ALL` panjang ("too many terms in compound SELECT"), jadi hitungan baris memakai satu SELECT dengan subkueri.
+
+**Ditolak:**
+- Memotong takhrij "sesudah `//`" dengan bantuan JK000001: JK punya cacat yang sama dan tidak menandai akhir takhrij.
+- Menyimpan `needs_review` hanya di laporan: UI (S09) dan tool MCP takhrij perlu membacanya per paragraf.
+- Memecah paragraf di posisi span judul: span sering ada di kolofon kitab sebelumnya.
+- Kunci paragraf berbasis offset karakter: satu salah ketik yang diperbaiki di sumber akan menggeser semua kunci sesudahnya di halaman itu.
+
+**Tinjau ulang bila:** ustadz/peninjau menemukan pola batas takhrij yang lebih baik (perbaikan lewat patch per paragraf), Shamela memperbarui kitab 9472 (sha256 di `data/SOURCES.md` berubah), atau kitab kedua masuk (pindahkan konfigurasi `works/` ke pola yang lebih umum).
