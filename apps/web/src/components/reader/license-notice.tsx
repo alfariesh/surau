@@ -1,3 +1,5 @@
+import NextLink from "next/link";
+
 import { EDITION_SOURCE, LICENSE_URL } from "../../content/works";
 import { id } from "../../i18n/id";
 
@@ -72,6 +74,9 @@ export function LicenseNotice({
           <span className="sr-only"> {id.common.newTab}</span>
         </a>
       ) : null}
+      <NextLink className="link self-start text-[length:inherit]" href="/lisensi">
+        {t.licenseMore}
+      </NextLink>
     </div>
   );
 }

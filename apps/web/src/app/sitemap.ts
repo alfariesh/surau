@@ -20,7 +20,11 @@ async function origin(): Promise<string> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = await origin();
-  const entries: MetadataRoute.Sitemap = [{ url: `${base}/` }, { url: `${base}/tentang` }];
+  const entries: MetadataRoute.Sitemap = [
+    { url: `${base}/` },
+    { url: `${base}/tentang` },
+    { url: `${base}/lisensi` },
+  ];
   const env = await getEnv();
   if (!readerEnabled(env)) return entries;
 

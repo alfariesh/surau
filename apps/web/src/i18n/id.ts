@@ -40,6 +40,7 @@ export const id = {
   footer: {
     nonprofit: "Nirlaba · open source",
     source: "Kode sumber di GitHub",
+    license: "Lisensi & atribusi",
   },
 
   home: {
@@ -151,8 +152,56 @@ export const id = {
     licenseHeading: "Lisensi",
     licenseCode: "Kode: Apache-2.0.",
     licenseContent:
-      "Konten turunan (teks, terjemahan, ringkasan, indeks, dan dump data) direncanakan berlisensi CC BY-NC-SA 4.0, dengan atribusi ke sumber aslinya. Keputusan akhirnya masih ditinjau.",
+      "Konten (teks kitab, struktur, terjemahan, ringkasan, indeks, dan dump data): CC BY-NC-SA 4.0, dengan atribusi ke sumber aslinya.",
+    licenseMore: "Lisensi, atribusi, dan cara meminta koreksi",
     sourceLink: "Kode sumber Surau di GitHub",
+  },
+
+  license: {
+    pageTitle: "Lisensi dan atribusi",
+    heading: "Lisensi dan atribusi",
+    lead: "Siapa pemilik teks yang tampil di Surau, apa yang boleh Anda lakukan dengannya, dan cara meminta koreksi atau penghapusan.",
+    summaryHeading: "Ringkasan",
+    codeLabel: "Kode program",
+    codeLicense: "Apache-2.0",
+    contentLabel: "Konten",
+    contentScope: "teks kitab, struktur, terjemahan, ringkasan, indeks, dan dump data",
+    contentLicense: "CC BY-NC-SA 4.0",
+    licenseFile: "teks lisensi",
+    noncommercial:
+      "Surau nirlaba: tanpa iklan, tanpa paywall, dan tanpa penjualan akses atas konten.",
+    reuseHeading: "Memakai ulang konten Surau",
+    reuseLead:
+      "Anda boleh menyalin, membagikan, dan mengadaptasi konten Surau (misalnya menerjemahkan atau mengutip panjang), dengan tiga syarat dari lisensi CC BY-NC-SA 4.0:",
+    reuseRules: [
+      {
+        title: "Sebut sumbernya",
+        body: "Cantumkan kalimat atribusi kitab yang bersangkutan (lihat di bawah), tautkan lisensinya, dan sebutkan bila Anda mengubah isinya.",
+      },
+      {
+        title: "Tidak untuk tujuan komersial",
+        body: "Konten tidak boleh dijual, dipasangi paywall, atau dipakai untuk keuntungan komersial.",
+      },
+      {
+        title: "Bagikan dengan lisensi yang sama",
+        body: "Karya turunan dari konten Surau juga dibagikan dengan CC BY-NC-SA 4.0.",
+      },
+    ],
+    sourcesHeading: "Sumber teks",
+    attributionLabel: "Kalimat atribusi",
+    partiesLabel: "Pihak yang berjasa",
+    changesLabel: "Yang diubah Surau",
+    readLink: "Baca kitab ini",
+    detailsLink: "Rincian versi dan sha256 setiap berkas sumber",
+    correctionHeading: "Koreksi dan penghapusan",
+    correctionText:
+      "Menemukan salah ketik, teks yang terpotong, atau nomor halaman yang keliru? Ketuk tombol “Laporkan kesalahan” di halaman kitab, atau buka laporan di GitHub.",
+    takedownText:
+      "Pemegang hak atas sebuah teks atau edisi yang keberatan dengan tampilannya di Surau dapat menghubungi kami lewat GitHub. Bila keberatannya beralasan, teks yang bersangkutan kami turunkan sementara selama ditinjau.",
+    issueLink: "Buka laporan di GitHub",
+    privacyHeading: "Laporan kesalahan dan privasi",
+    privacyText:
+      "Laporan kesalahan disimpan tanpa nama, email, atau alamat IP. Laporan disimpan sampai ditangani, lalu dihapus paling lambat 12 bulan kemudian.",
   },
 
   reader: {
@@ -228,6 +277,7 @@ export const id = {
     modified:
       "Diolah Surau: teks dibagi per paragraf, catatan kaki takhrij dipisahkan dari teks utama, dan daftar isi diperbaiki lewat patch yang tercatat. Huruf teks Arab tidak diubah.",
     sourceShamela: "Halaman ini di al-Maktaba al-Shamela",
+    licenseMore: "Lisensi dan atribusi lengkap",
     report: "Laporkan kesalahan",
     reportHeading: "Laporkan kesalahan",
     reportLead:
@@ -264,3 +314,5 @@ export const id = {
 } as const;
 
 export const SOURCE_URL = "https://github.com/alfariesh/surau";
+/** Laporan publik (koreksi, takedown) sampai ada email kontak (T-10 butir 3, dijawab 2026-10-16). */
+export const ISSUES_URL = `${SOURCE_URL}/issues/new`;

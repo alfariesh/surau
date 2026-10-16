@@ -45,6 +45,36 @@ test("navigasi ke Tentang", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Lisensi" })).toBeVisible();
 });
 
+test("Lisensi: kode Apache-2.0, konten CC BY-NC-SA 4.0, atribusi Ihya, dan jalur koreksi", async ({
+  page,
+}) => {
+  await page.goto("/tentang");
+  await page.getByRole("link", { name: "Lisensi, atribusi, dan cara meminta koreksi" }).click();
+  await expect(page).toHaveURL(/\/lisensi$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Lisensi dan atribusi" })).toBeVisible();
+
+  const summary = page.locator("#ringkasan");
+  await expect(summary).toContainText("Apache-2.0");
+  await expect(summary).toContainText("CC BY-NC-SA 4.0");
+  await expect(summary).toContainText("tanpa iklan, tanpa paywall");
+  await expect(summary.getByRole("link", { name: /teks lisensi/ }).last()).toHaveAttribute(
+    "href",
+    "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  );
+
+  const sources = page.locator("#sumber");
+  await expect(sources).toContainText(
+    "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009472 & JK000001",
+  );
+  for (const name of ["OpenITI", "al-Maktaba al-Shamela", "Dar al-Ma'rifah, Beirut"]) {
+    await expect(sources).toContainText(name);
+  }
+  await expect(
+    page.locator("#koreksi").getByRole("link", { name: /Buka laporan di GitHub/ }),
+  ).toHaveAttribute("href", /github\.com\/alfariesh\/surau\/issues\/new$/);
+  await expect(page.locator("#privasi")).toContainText("12 bulan");
+});
+
 test("halaman yang tidak ada menampilkan 404 berbahasa Indonesia", async ({ page }) => {
   const response = await page.goto("/tidak-ada-halaman-ini");
 

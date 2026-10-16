@@ -38,3 +38,59 @@ export const FOOTNOTE_NOTE: Readonly<Record<string, { heading: string; lead: str
     lead: "Catatan kaki edisi ini berisi takhrij al-Hafiz al-'Iraqi atas hadits-hadits Ihya. Status hadits hanya diambil dari teks takhrij ini, tanpa tebakan AI.",
   },
 };
+
+export interface EditionCredit {
+  /** `<slug karya>/<slug edisi>`; slug karya juga dipakai untuk tautan baca. */
+  key: string;
+  workSlug: string;
+  title: string;
+  author: string;
+  /** Sama persis dengan `edition.attribution` di DB dan data/ATTRIBUTION.md (dites). */
+  attribution: string;
+  parties: readonly { name: string; role: string; link?: { label: string; url: string } }[];
+  changes: readonly string[];
+}
+
+/**
+ * Rincian atribusi per edisi untuk halaman /lisensi (S10, ADR-018, ADR-021). Halaman itu statis
+ * (tanpa baca D1), jadi isinya disalin dari data/ATTRIBUTION.md; tes menjaga keduanya sama.
+ */
+export const EDITION_CREDITS: readonly EditionCredit[] = [
+  {
+    key: "ihya/dar-al-marifah",
+    workSlug: "ihya",
+    title: "Ihya' 'Ulum ad-Din",
+    author: "al-Ghazali (w. 505 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009472 & JK000001; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Ma'rifah, Beirut 1402/1982",
+    parties: [
+      {
+        name: "OpenITI (Open Islamicate Texts Initiative), rilis 2025.1.9",
+        role: "Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks.",
+        link: { label: "Zenodo", url: "https://zenodo.org/records/17767721" },
+      },
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 9472). Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/9472" },
+      },
+      {
+        name: "Dar al-Ma'rifah, Beirut",
+        role: "Penerbit edisi cetak: 4 jilid, 1402 H / 1982 M. Nomor jilid dan halaman di Surau mengikuti cetakan ini.",
+        link: {
+          label: "pindaian di archive.org (hanya ditautkan)",
+          url: "https://archive.org/details/ihya-ghazali",
+        },
+      },
+      {
+        name: "Zain ad-Din al-'Iraqi (w. 806 H)",
+        role: "Penulis takhrij al-Mughni 'an Haml al-Asfar yang menjadi catatan kaki edisi ini.",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+      "Takhrij yang tercampur ke teks utama dipindah ke catatan kaki dan ditandai “perlu ditinjau”.",
+      "Daftar isi diperbaiki lewat patch yang tercatat: dua kitab Rub' al-Munjiyat yang hilang ditambahkan dan satu bayan dikembalikan ke levelnya.",
+    ],
+  },
+];
