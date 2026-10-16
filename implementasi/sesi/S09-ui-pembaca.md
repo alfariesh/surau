@@ -1,7 +1,7 @@
 # S09 · UI pembaca kitab
 
 > **Fase:** 1 · **Status:** belum
-> **Prasyarat:** S08 selesai · Tugas pemilik: – (review tampilan di akhir)
+> **Prasyarat:** S08 selesai · Tugas pemilik: T-21 (izin Analytics token CI, untuk membaca log Preview; ADR-031), review tampilan di akhir
 > **Perkiraan:** 1–2 percakapan agent
 
 ## Tujuan
@@ -50,7 +50,7 @@ Pengguna bisa membuka Ihya, menjelajah daftar isi, membaca halaman cetak per hal
 
 ## Selesai bila
 
-- [ ] Semua rute berjalan di preview dengan data staging; tidak ada error di Workers Logs
+- [ ] Semua rute berjalan di preview dengan data staging; tidak ada error di Workers Logs (ringkasan CI ADR-031 hanya bukti sebagian: tanpa HTTP 5xx/`console.error`)
 - [ ] `wrangler.jsonc` produksi punya `database_id` eksplisit untuk semua D1; `pnpm dev` lokal menampilkan j1 h200 dari DB lokal bersama
 - [ ] Takhrij tampil benar untuk 5 penanda yang dicek manual
 - [ ] "Salin sitasi" menghasilkan format yang benar, dan permalink membuka paragraf yang tepat

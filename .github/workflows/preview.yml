@@ -3,6 +3,8 @@
 # Preview memakai binding dari blok `previews` di apps/web/wrangler.jsonc (resource khusus preview),
 # kecuali WORKER_SELF_REFERENCE yang selalu memanggil deployment produksi (keterbatasan Workers).
 # Cache R2 preview tidak diisi saat build: halaman ISR dirender on-demand. Cukup untuk smoke test.
+# Setelah e2e, ringkasan request/error Preview dibaca dari GraphQL Analytics (ADR-031), karena
+# `wrangler tail` belum mendukung Previews. Ringkasan ada di log CI, Summary job, dan komentar PR.
 name: Preview
 
 on:
@@ -53,7 +55,7 @@ jobs:
       - name: Build OpenNext
         run: pnpm --filter @surau/web exec opennextjs-cloudflare build
 
-      # Token Cloudflare hanya diberikan ke langkah ini. JSON ke stdout, log wrangler ke stderr.
+      # Token Cloudflare hanya diberikan ke langkah ini dan ke "Ringkasan log Preview" (baca analytics). JSON ke stdout, log wrangler ke stderr.
       - name: Buat Preview
         id: preview
         working-directory: apps/web
@@ -63,6 +65,8 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           WRANGLER_SEND_METRICS: "false"
         run: |
+          # Awal jendela waktu untuk ringkasan log Preview (langkah terakhir).
+          echo "mulai=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
           pnpm exec wrangler preview --name "pr-${PR_NUMBER}" --message "PR #${PR_NUMBER}" --json > "$RUNNER_TEMP/preview.out"
           # Di CI wrangler menulis teks lain (banner/telemetri) ke stdout sebelum JSON: ambil mulai baris "{".
           sed -n '/^{/,$p' "$RUNNER_TEMP/preview.out" > "$RUNNER_TEMP/preview.json"
@@ -113,6 +117,31 @@ jobs:
         env:
           BASE_URL: ${{ steps.preview.outputs.url }}
         run: pnpm test:e2e
+
+      # Juga saat e2e gagal: justru saat itu log Worker paling dibutuhkan. Gagal hanya bila ada
+      # invocation yang gagal (exception dsb.); token tanpa izin Analytics cukup peringatan (T-21).
+      - name: Ringkasan log Preview
+        if: ${{ !cancelled() && steps.preview.outcome == 'success' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SINCE: ${{ steps.preview.outputs.mulai }}
+        run: |
+          export PREVIEW_SLUG="pr-${PR_NUMBER}" RINGKASAN_MD="$RUNNER_TEMP/log-preview.md"
+          status=0
+          bash .github/scripts/ringkas-log-preview.sh || status=$?
+          # Skrip bisa berhenti sebelum menulis ringkasan (mis. env kosong): jangan sampai `cat` gagal.
+          [ -s "$RINGKASAN_MD" ] || printf '### Log Preview\n\nTidak terbaca (skrip keluar %s, lihat log CI).\n' "$status" > "$RINGKASAN_MD"
+          cat "$RINGKASAN_MD" >> "$GITHUB_STEP_SUMMARY"
+          # Tambahkan ke komentar preview yang sama. Bila smoke gagal, komentar URL tidak ditulis dan
+          # ringkasan hanya ada di log CI + Summary (komentar lama tidak ditimpa).
+          if [ -f "$RUNNER_TEMP/komentar.md" ]; then
+            { echo; cat "$RINGKASAN_MD"; } >> "$RUNNER_TEMP/komentar.md"
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/komentar.md" --edit-last --create-if-none
+          fi
+          exit "$status"
 
   hapus:
     name: hapus preview
