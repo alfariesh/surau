@@ -34,7 +34,6 @@
     "react-stately": "catalog:",
     "tailwind-merge": "catalog:",
     "tailwind-variants": "catalog:",
-    "tw-animate-css": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -47,6 +46,7 @@
     "@types/react-dom": "catalog:",
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
+    "tw-animate-css": "catalog:",
     "typescript": "catalog:",
     "wrangler": "catalog:"
   }
