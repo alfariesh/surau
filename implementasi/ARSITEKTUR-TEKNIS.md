@@ -92,24 +92,24 @@ Sudah ada (S06, `packages/db/migrations/app/0001_init.sql`): `settings` (`jawab_
 - Jangkar paragraf: `#p<seq>` (`seq` = `passage.id − edition_id·10⁷`, dibekukan; `passageAnchor`), bukan `ord`.
 - Satu URL kanonis per halaman; kueri pengguna tidak pernah di segmen path.
 - Bagian daftar isi: `/kitab/ihya/bab/<toc_node.id>`.
-- Edisi non-default: `/kitab/ihya@<edition.slug>/1/200`.
+- Edisi non-default: `/kitab/ihya@<edition.slug>/1/200` dan `/kitab/ihya@<edition.slug>/bab/<toc_node.id>` (dikeluarkan `sectionPermalink`, S08).
 
 Permalink dan ID yang sudah dirilis tidak boleh berubah tanpa pengalihan. ID dibekukan sejak rilis Fase 1: alokasi ID membaca peta ID yang di-commit (`data/ids/<kitab>-<id shamela>.json`, kunci stabil → seq, tanpa teks; format dan kuncinya di ADR-032 butir 8), unit baru mendapat `seq` setelah yang terbesar, dan unit yang hilang dialihkan lewat tabel `id_redirect` (dibuat saat pertama dibutuhkan). Repository di `packages/db/src/repo/` menerima tipe struktural `D1Db`.
 
 ## 4. Core tools (`packages/core`)
 
-Fungsi murni yang menerima `D1Database` dan mengembalikan objek bertipe dengan **teks mentah dari DB** dan **sitasi**. Nama MCP mengikuti ADR-012.
+Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai parameter pertama dan mengembalikan objek bertipe dengan **teks mentah dari DB** dan **sitasi**. Nama MCP mengikuti ADR-012. Fase 1 sudah ada di `packages/core` (S08, ADR-033); bentuk keluaran dan contoh JSON-nya di `packages/core/README.md` adalah kontrak (hanya boleh bertambah field).
 
 | Fungsi | Tool MCP | Fase | Isi |
 |---|---|---|---|
-| `listWorks()` / `getWork(slug)` | `list_works` | 1 | Metadata karya dan edisi |
-| `getToc(editionId, nodeId?, depth?)` | `get_table_of_contents` | 1 | Pohon daftar isi beserta halaman awal |
-| `readSection(nodeId, cursor?)` | `read_section` | 1 | Paragraf bagian (dipaginasi ±4–6 ribu token), catatan kaki, sitasi |
-| `readPage(editionId, juz, pageNo)` | `read_page` | 1 | Satu halaman cetak beserta catatan kakinya |
+| `listWorks()` / `getWork(slug)` | `list_works` | 1 | Metadata karya dan edisi (lisensi, atribusi, permalink) |
+| `getToc(editionId, { nodeId?, depth? })` | `get_table_of_contents` | 1 | Pohon daftar isi beserta halaman awal; `depth` bawaan 2, `child_count` untuk anak yang tidak dikirim |
+| `readSection(nodeId, cursor?)` | `read_section` | 1 | Paragraf bagian **beserta sub-bagiannya** (dipaginasi ±4–6 ribu token per blok paragraf + catatan kakinya), sitasi |
+| `readPage(editionId, juz, pageNo)` | `read_page` | 1 | Satu halaman cetak beserta catatan kakinya dan halaman sebelum/sesudah |
 | `searchText(query, opts)` | `search_text` | 2 | Hasil BM25 dengan span sorotan (dipetakan ke teks mentah), terjemahan bila ada, sitasi |
 | `verifyQuote(passageId, quote)` | `verify_quote` | 2 | `findQuote` → substring mentah verbatim atau `null` |
 | `getHadithTakhrij(passageId)` | `get_hadith_takhrij` | 3 | Teks catatan kaki takhrij asli yang ditautkan, dengan status review |
-| `buildCitation(passage)` | (di setiap hasil) | 1 | Karya, edisi, juz, halaman, permalink, lisensi/atribusi |
+| `buildCitation(passageId)` | (di setiap hasil) | 1 | Karya, edisi, juz, halaman, permalink, lisensi/atribusi |
 
 ## 5. Alur utama
 
@@ -154,8 +154,8 @@ File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha25
 | Produksi | custom domain | `surau-corpus-<versi>` (blue-green) | `surau-app` | `surau-next-cache` | `workers_dev=false`, `preview_urls=false` di produksi (Fase 4) |
 
 **Aturan lingkungan (wajib):**
-1. **Satu lokasi D1 lokal.** Semua perintah lokal memakai `--persist-to <root>/.wrangler/state`, yaitu `wrangler d1 migrations apply --local`, `wrangler d1 execute --local`, skrip `db:migrate:local`, dan `corpus:load:local`. `initOpenNextCloudflareForDev()` dan `getPlatformProxy()` diberi opsi `persist` yang sama. Tanpa ini, setiap `wrangler.jsonc` melihat DB lokal yang berbeda (kosong).
-2. **Akses D1 dari Node** (`tools/eval`, tes integrasi): pakai `getPlatformProxy({ configPath, persist })` dari `wrangler`, dengan lokasi yang sama.
+1. **Satu lokasi D1 lokal.** Semua perintah lokal memakai `--persist-to <root>/.wrangler/state`, yaitu `wrangler d1 migrations apply --local`, `wrangler d1 execute --local`, skrip `db:migrate:local`, dan `corpus:load:local`. CLI menambahkan `v3` sendiri, jadi datanya ada di `<root>/.wrangler/state/v3`. `initOpenNextCloudflareForDev()` dan `getPlatformProxy()` memakai `persist.path` **apa adanya**, sehingga keduanya wajib diberi `<root>/.wrangler/state/v3` (path absolut; dicek di S08). Tanpa ini, setiap `wrangler.jsonc` atau proxy melihat DB lokal yang berbeda (kosong).
+2. **Akses D1 dari Node** (`tools/eval`, tes integrasi): pakai `getPlatformProxy({ configPath, persist: { path: "<root>/.wrangler/state/v3" }, remoteBindings: false })` dari `wrangler`. Tes yang hanya membaca, misalnya tes integrasi Ihya `packages/core`, memakai **salinan** lokasi itu di folder sementara: beberapa proxy pada state yang sama bisa gagal `SQLITE_BUSY`, dan tes tidak boleh menulis ke DB dev.
 3. **Binding produksi wajib punya `database_id` eksplisit.** Binding D1 tanpa ID akan diprovisikan otomatis saat deploy, sehingga DB kosong dibuat tanpa izin. Sebelum korpus produksi ada (S10), arahkan ke `surau-corpus-staging` atau sembunyikan rute dengan flag di `vars`.
 4. **Deploy otomatis (`deploy.yml`) hanya memigrasi `surau-app`, tidak pernah korpus.** Korpus hanya berubah lewat `pnpm run corpus:promote` (blue-green, dengan izin).
 5. **Kode yang butuh skema korpus baru** (tabel `term_stat`, `quran_*`, `translation_fts`, dll.) memeriksa `meta.schema_version` dan menyembunyikan fitur bila korpus produksi masih versi lama. Cara lainnya: PR kode di-merge bersamaan dengan `corpus:promote`. Jangan sampai produksi error "no such table".

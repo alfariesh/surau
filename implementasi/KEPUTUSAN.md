@@ -489,3 +489,62 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - Kunci paragraf berbasis offset karakter: satu salah ketik yang diperbaiki di sumber akan menggeser semua kunci sesudahnya di halaman itu.
 
 **Tinjau ulang bila:** ustadz/peninjau menemukan pola batas takhrij yang lebih baik (perbaikan lewat patch per paragraf), Shamela memperbarui kitab 9472 (sha256 di `data/SOURCES.md` berubah), atau kitab kedua masuk (pindahkan konfigurasi `works/` ke pola yang lebih umum).
+
+## ADR-033 · Core tools baca (S08): kontrak keluaran, sitasi, error bertipe, paginasi `readSection` per blok — diterima · 2026-10-16
+
+**Konteks:** S08 membuat `packages/core` (`@surau/core`), satu-satunya pintu baca untuk web (S09), MCP (S16), dan Jawab (S19). Bentuk keluarannya akan menjadi kontrak MCP, jadi beberapa hal yang belum dirinci di ARSITEKTUR §4 harus diputuskan sekarang. Data nyata (Ihya di D1 lokal): halaman terbesar ±4.800 karakter, rata-rata ±3.200; paling banyak 41 paragraf per halaman; 0 penanda yang menunjuk catatan kaki milik bagian lain.
+
+**Keputusan:**
+1. **Bentuk keluaran** (skema Zod di `src/schema.ts`, contoh JSON di README paket):
+   - Nama field `snake_case`, sama dengan kolom DB dan JSON MCP. Deskripsi field berbahasa Inggris karena ikut ke JSON Schema tool MCP; penjelasan Indonesia di README.
+   - `Citation` = `source` (karya + penulis + edisi + lisensi + atribusi) + `location` (`juz`, `page_no`, `permalink`, `label`). `Passage` = `id`, `anchor` (`p<seq>`), `kind`, `ord`, `toc_node_id`, `text_raw` (persis dari DB), `footnote_refs` (penanda → `footnote_id`), `needs_review` (alasan ADR-032), `location`.
+   - Permalink berupa path tanpa origin, karena domain belum diputuskan (P-2): web/MCP menambahkan origin. Edisi non-default memakai `@<edisi>`, jangkar `#p<seq>` (ADR-029).
+   - `label` = `"<title_id>, j. N, h. M"`, ditambah `(<slug edisi>)` untuk edisi non-default. Slug dipakai, bukan nama penerbit, karena penerbit bisa berhuruf Arab dan membuat label Latin berarah campuran.
+   - `is_default` dan `patched` menjadi boolean di kontrak (di DB tetap 0/1).
+2. **"Setiap keluaran punya Citation lengkap"** ditafsirkan begini, dan ditulis terbuka:
+   - `readPage`, `readSection`, dan `getToc` punya field `citation` (halaman, awal potongan, atau awal node pertama), dan setiap node daftar isi punya `start`.
+   - Setiap paragraf membawa `location` saja, bukan `Citation` penuh. Sitasi penuhnya = `citation.source` keluaran itu + `location`, atau `buildCitation`. `source` Ihya = 514 karakter (±260 token perkiraan); menyalinnya ke setiap paragraf menambah ±7.700 token pada potongan 30 paragraf, lebih besar daripada batas potongan itu sendiri.
+   - `listWorks`/`getWork` tidak berhalaman, jadi tidak punya `citation`; lisensi dan atribusi ada di setiap edisi.
+3. **Tanda tangan fungsi** sedikit berbeda dari tabel ARSITEKTUR §4 (tabelnya diperbarui):
+   - D1 menjadi parameter pertama semua fungsi (`readPage(db, editionId, juz, pageNo)`).
+   - `getToc(db, editionId, { nodeId?, depth? })`: objek opsi, bukan dua parameter opsional berurutan. `depth` bawaan 2 (Ihya: 5 akar + 40 kitab, ±6 ribu token perkiraan), maks. 10, dan `child_count` memberi tahu anak yang tidak dikirim. Daftar isi utuh Ihya (313 node) diperkirakan ±43 ribu token, terlalu besar untuk satu hasil MCP.
+   - `buildCitation(db, passageId)`, bukan `buildCitation(passage)`, karena Jawab (S19) hanya memegang ID paragraf.
+   - `readSection` memuat node **beserta seluruh subpohonnya**. Node kitab atau rub' berisi hampir semua teksnya di node anak, jadi membaca hanya paragraf node itu sendiri tidak berguna.
+4. **Error bertipe** (`src/errors.ts`):
+   - `NotFound` (`not_found`) untuk alamat sah yang tidak ada, termasuk node edisi lain di `getToc`.
+   - `InvalidCitation` (`invalid_citation`) untuk alamat salah bentuk, termasuk cursor rusak/milik node lain dan `depth` di luar batas. Masukan divalidasi dengan skema Zod yang sama yang diekspor untuk route dan MCP (`parseInput`, isu pertama saja).
+   - Pesan berbahasa Inggris (kontrak publik), hanya menyebut alamat yang diminta. apps/* memetakan `code` ke 404/400 dan ke string UI Indonesia. Error lain (ZodError baris DB, D1 gagal) tidak dibungkus.
+   - Validasi kepemilikan edisi untuk URL `/kitab/<karya>/bab/<id>` (ADR-029 butir 4) tetap di S09: `SectionView.citation.source` memuat `work.slug` dan `edition.id`/`is_default` untuk pemeriksaan itu.
+5. **Paginasi `readSection`:**
+   - Satuan potong = **blok**: satu paragraf badan + catatan kaki di halaman yang sama yang pertama kali dirujuknya. Catatan kaki yang tidak dirujuk paragraf badan mana pun di bagian itu (yatim, takhrij yang dipotong dari matan) ikut blok terakhir halamannya. Halaman tanpa paragraf badan menjadi satu blok catatan kaki. Paragraf tidak pernah dipotong, dan penanda selalu satu potongan dengan catatan kakinya.
+   - Ukuran = perkiraan **1 token ≈ 2 karakter JSON keluaran** (`estimateTokens`). Angka ini konservatif untuk teks Arab dan melebih-lebihkan bagian ASCII. Belum dikalibrasi dengan `count_tokens` Anthropic, karena butuh kunci API; kalibrasi dijadwalkan di S16.
+   - Aturan: blok diisi selama ≤ 6.000 token (blok pertama selalu ikut), lalu potongan diakhiri di **batas halaman cetak terakhir yang sudah ≥ 4.000 token**. Bila tidak ada batas halaman di rentang itu, potongan diisi sampai batas atas dan halaman terbelah di antara blok. Di dalam satu potongan, setiap halaman tampil badan dulu, lalu catatan kakinya.
+   - Percobaan pertama memotong hanya di batas halaman. Hasilnya pada bagian terpanjang Ihya (Rub' al-Munjiyat, 1,68 juta karakter): 323 potongan, median 4.563 token, dan 38% di bawah 4.000, karena satu halaman Ihya rata-rata ±3.500 token. Dengan blok: 278 potongan, p5 4.143, median 5.278, maks 5.997, hanya 4 potongan di bawah 4.000.
+   - Cursor v1 = base64url JSON `{v, n, j, p, o}` (node, juz, halaman, `ord` paragraf badan berikutnya; 0 = awal halaman), selalu divalidasi ulang. Format ini belum dirilis, jadi boleh berubah sebelum S16.
+   - Per panggilan diambil ≤ 201 baris dari awal halaman cursor (keyset `(juz, page_no) >= (?, ?)`). Bila lebih dari 200, halaman terakhir yang mungkin terpotong dibuang dan menjadi awal potongan berikutnya. Satu halaman dengan >200 paragraf di satu bagian melempar error internal (Ihya maks. 41). Jalur ini diuji lewat `readSectionWithLimit` (batas baris kecil, tidak diekspor dari index), karena dengan 200 baris jalur itu praktis tidak tercapai.
+   - Catatan kaki tanpa `footnote_ref` (takhrij menempel `//` yang dipotong dari matan) ikut blok **terakhir** halamannya, bukan paragraf asalnya: hubungan asal itu tidak disimpan di DB. Di halaman yang terbelah, takhrij seperti ini bisa muncul satu potongan sesudah matannya. Simpan hubungannya di DB bila Jawab (S19) membutuhkannya.
+6. **SQL tetap di `@surau/db`:** `getEditionContext`, `listEditions`, `listWorkAuthors`, `listTocNodes`, `getSectionPassages`, `getPassageById`, `getNeedsReview` (repository `passage_needs_review` yang dijanjikan ADR-032 butir 2).
+   - `getSectionPassages` memakai recursive CTE untuk subpohon, sehingga tidak ada daftar `IN (…)` yang melewati 100 parameter.
+   - Konsekuensinya, setiap panggilan membaca semua paragraf subpohon sebelum `LIMIT` (Rub': ±4.600 baris). Untuk sekarang ini dapat diterima; tinjau ulang bila biaya *rows read* D1 terasa.
+   - Urutan tampil tetap dari (`juz`, `page_no`, `kind`, `ord`), tidak pernah dari ID (ADR-029 butir 2).
+7. **Tes:**
+   - Project Vitest `core` (workerd) memakai migrasi korpus `packages/db` dan fixture S06, ditambah satu bagian panjang sintetis: 6 halaman kecil yang menguji potongan berbatas halaman, dan 6 halaman besar yang menguji halaman terbelah.
+   - Tes integrasi Ihya (`packages/core/test/local/ihya.test.ts`) berjalan di project `node` lewat `getPlatformProxy`, pada **salinan** `.wrangler/state/v3` di folder sementara. Alasannya, beberapa proxy pada state yang sama bisa gagal `SQLITE_BUSY`, dan tes tidak boleh menulis ke DB dev. `persist.path` wajib berakhiran `v3`, karena proxy tidak menambahkannya sendiri seperti CLI. Tes dilewati bila state tidak ada (CI) atau Ihya belum dimuat.
+   - Cakupan baris `packages/core` belum terukur, sama dengan `packages/db` (ADR-029).
+   - `@surau/text` sudah menjadi dependensi sesuai rencana S08, tetapi belum diimpor; `verifyQuote` (S11) akan memakainya.
+   - Fixture core mengimpor fixture S06 lewat path relatif lintas paket (`../../db/test/fixture.ts`). Ini sengaja, supaya ada satu fixture dasar; pindahkan bila struktur paket berubah.
+8. **Perbaikan di luar cakupan, ditulis terbuka:** `apps/web/next.config.ts` memberi `initOpenNextCloudflareForDev` path `.wrangler/state` tanpa `v3`. Akibatnya state dev web (R2, cache) berada di `.wrangler/state/{r2,cache}`, dan D1 web kelak akan kosong, bukan Ihya yang dimuat `corpus:load:local`. Opsi itu diteruskan apa adanya ke `getPlatformProxy` (dicek di kode OpenNext 1.20.12). Path diganti ke `.wrangler/state/v3` dan ARSITEKTUR §7 aturan 1–2 diperbarui. `pnpm dev` dicek masih jalan; state dev kini ada di `.wrangler/state/v3/{cache,d1,r2}`. Folder lama `.wrangler/state/{r2,cache}` hanya cache lokal dan boleh dihapus.
+9. **Utang yang dicatat:** penanda yang menunjuk catatan kaki milik node daftar isi lain belum dijaga invarian ingest (Ihya: 0 kasus). Di kitab berikutnya, penanda seperti itu akan tampil di `readSection` tanpa catatan kakinya; tambahkan invarian di `tools/ingest/src/validate.ts` saat kitab kedua masuk.
+
+**Ditolak:**
+- Potongan hanya di batas halaman: 38% potongan di bawah 4.000 token pada Ihya.
+- Potongan per paragraf tanpa blok: penanda bisa terpisah dari catatan kakinya.
+- Sitasi penuh di setiap paragraf: menambah ribuan token per potongan (butir 2).
+- Cursor berbasis offset karakter atau ID paragraf: ID bukan urutan tampil (ADR-029).
+- Menghitung token lewat API saat runtime: berbayar/berkunci dan menambah latensi.
+
+**Tinjau ulang bila:**
+- Kalibrasi `count_tokens` (S16) menunjukkan rasio karakter/token jauh dari 2.
+- Klien MCP butuh batas ukuran lain.
+- Ada kitab dengan paragraf di atas ±6 ribu token.
+- Biaya *rows read* D1 dari `getSectionPassages` terasa.

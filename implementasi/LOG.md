@@ -15,6 +15,31 @@ Format entri:
 
 ---
 
+## 2026-10-16 · S08 · Core tools baca — selesai (butir 4 lewat tafsiran ADR-033)
+
+- Dikerjakan:
+  - Paket `@surau/core`: `listWorks`, `getWork`, `getToc`, `readPage`, `readSection`, `buildCitation`, dengan skema Zod kontrak (calon kontrak MCP), error bertipe `NotFound`/`InvalidCitation`, dan permalink ADR-029.
+  - `readSection` memuat bagian beserta sub-bagiannya, dipaginasi per blok (paragraf badan + catatan kakinya) di rentang 4–6 ribu token perkiraan (1 token ≈ 2 karakter JSON).
+  - Tujuh query baca baru di `@surau/db`, termasuk repository `passage_needs_review` (ADR-032).
+  - README paket dengan contoh JSON dari Ihya (teks kitab diganti "…").
+  - Di luar cakupan: path persist dev web diganti ke `.wrangler/state/v3` (ADR-033 butir 8).
+- Verifikasi:
+  - `pnpm exec vp test --project core` → 48 tes lolos (workerd, fixture buatan); `--project db` → 55 tes.
+  - Tes integrasi Ihya lokal (`packages/core/test/local/ihya.test.ts`, project node) → 4 tes lolos.
+  - **j1 h200 dicek manual dengan sumber** (Shamela 9472, readOnly): 7/7 paragraf badan dan 7/7 catatan kaki keluaran `readPage` ada di halaman Shamela (part 1, page 200); 7 penanda di matan = 7 tautan; jumlah huruf matan sama (1.660, tanpa spasi); catatan (٤), takhrij hadits Jabir tentang shalat malam Jumat, memuat "باطل لا أصل له" di sumber dan di keluaran; `needs_review` halaman ini kosong.
+  - Bagian terpanjang (node 100180, Rub' al-Munjiyat: 4.608 paragraf, 1.683.966 karakter): 278 potongan, setiap paragraf tepat sekali dan utuh, penanda selalu satu potongan dengan catatan kakinya; token/potongan p5 4.143, median 5.278, maks 5.997.
+  - `grep -rn --exclude='*.test.ts' -E "from ['\"](next/|cloudflare:|node:)" packages/core/src` → kosong.
+  - `pnpm verify` → lolos (180 tes node termasuk 4 integrasi Ihya + 103 tes workerd, build web sukses). `pnpm dev` dicek masih jalan dengan path persist baru.
+  - Peninjau: 0 blocker, 4 temuan "perbaiki" (deskripsi kontrak, ARSITEKTUR §7/path `v3`, jalur batas baris tanpa tes, tanda tafsiran butir 4) + 2 minor, semuanya diperbaiki; saran opsional diambil sebagian, sisanya dicatat sebagai utang (ADR-033 butir 5, 7, 9).
+- Biaya API: –
+- Keputusan: ADR-033
+- Catatan untuk sesi berikutnya:
+  - S09 memakai `readPage`/`getToc`/`readSection` langsung; validasi kepemilikan edisi untuk `/kitab/ihya/bab/<id>` dikerjakan di rute (data edisi ada di `citation.source`). `pnpm dev` sudah membaca D1 lokal yang sama dengan `corpus:load:local`.
+  - Heuristik token belum dikalibrasi dengan `count_tokens` (S16).
+  - `@cloudflare/vitest-plugin` 1.4.3 menyebut perbaikan coverage V8; layak dicoba lewat Dependabot supaya cakupan `packages/db`/`packages/core` bisa diukur.
+
+---
+
 ## 2026-10-16 · S07 · Importer Ihya — selesai (butir 5 dengan catatan)
 
 - Dikerjakan:
