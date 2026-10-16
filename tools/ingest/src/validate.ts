@@ -43,7 +43,15 @@ export interface Validation {
     footInline: number;
     multiLineFoot: number;
   };
-  footnotes: { refs: number; linked: number; orphanRefs: string[]; orphanNotes: number };
+  footnotes: {
+    refs: number;
+    linked: number;
+    orphanRefs: string[];
+    orphanNotes: number;
+    orphanNotesInInline: number;
+    /** Penanda di dalam takhrij menempel (tidak ditautkan). */
+    inlineMarkers: number;
+  };
   inline: {
     pages: number;
     after: number;
@@ -148,6 +156,35 @@ export function validate(input: ValidateInput): Validation {
     empty === 0 && longest < MAX_STATEMENT_BYTES,
     `${empty} kosong; terpanjang ${longest} byte (batas ${MAX_STATEMENT_BYTES})`,
   );
+  // Pemisahan `//` hanya memindah potongan teks: setiap penanda (١) di teks badan utuh harus ada di
+  // matan atau di takhrij menempel.
+  const lost = pages.filter((p) => p.markers.total !== p.markers.body + p.markers.inline);
+  check(
+    "Penanda (١) tidak hilang saat takhrij dipisah",
+    lost.length === 0,
+    lost.length === 0 ? "ya" : lost.map(cite).join(", "),
+  );
+  // Integritas lintas tabel (serah terima S06): halaman dan node satu edisi dengan paragrafnya;
+  // footnote_ref dari paragraf badan ke catatan kaki di halaman yang sama.
+  const pageEdition = new Map(rows.page.map((p) => [p.id, p.edition_id]));
+  const nodeEdition = new Map(rows.toc_node.map((n) => [n.id, n.edition_id]));
+  const byId = new Map(rows.passage.map((p) => [p.id, p]));
+  const crossEdition = rows.passage.filter(
+    (p) =>
+      pageEdition.get(p.page_id) !== p.edition_id ||
+      p.toc_node_id === null ||
+      nodeEdition.get(p.toc_node_id) !== p.edition_id,
+  ).length;
+  const badRefs = rows.footnote_ref.filter((r) => {
+    const from = byId.get(r.passage_id);
+    const to = byId.get(r.footnote_passage_id);
+    return from?.kind !== "body" || to?.kind !== "foot" || from.page_id !== to.page_id;
+  }).length;
+  check(
+    "Integritas lintas tabel (edisi halaman/node = edisi paragraf; penanda badan → catatan kaki halaman sama)",
+    crossEdition === 0 && badRefs === 0,
+    `${crossEdition} paragraf beda edisi atau tanpa node; ${badRefs} footnote_ref salah arah`,
+  );
   check(
     `Matan = OpenITI (≥${String(MATAN_THRESHOLD).replace(".", ",")} per halaman)`,
     matan.passed >= exp.matanMinPages && matan.missing.length === 0,
@@ -196,6 +233,8 @@ export function validate(input: ValidateInput): Validation {
       linked: pages.reduce((a, p) => a + p.links.length, 0),
       orphanRefs: pages.flatMap((p) => p.orphanRefs.map((m) => `${cite(p)} (${m.number})`)),
       orphanNotes: pages.reduce((a, p) => a + p.orphanNotes, 0),
+      orphanNotesInInline: pages.reduce((a, p) => a + p.orphanNotesInInline, 0),
+      inlineMarkers: pages.reduce((a, p) => a + p.markers.inline, 0),
     },
     inline: {
       pages: inlinePages.length,

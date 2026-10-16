@@ -97,8 +97,14 @@ export const footnoteRefRow = z.strictObject({
 });
 export type FootnoteRefRow = z.infer<typeof footnoteRefRow>;
 
-/** Alasan sebuah paragraf ditandai perlu ditinjau oleh ingest (migrasi 0002, ADR-032). */
-export const needsReviewReason = z.enum(["takhrij_inline", "takhrij_unmatched", "inline_unsplit"]);
+/** Alasan sebuah paragraf ditandai perlu ditinjau oleh ingest (migrasi 0002 + 0003, ADR-032). */
+export const needsReviewReason = z.enum([
+  "takhrij_inline",
+  "takhrij_boundary",
+  "takhrij_unmatched",
+  "inline_unsplit",
+  "footnote_orphan",
+]);
 export type NeedsReviewReason = z.infer<typeof needsReviewReason>;
 
 export const passageNeedsReviewRow = z.strictObject({
@@ -149,7 +155,7 @@ export const corpusMeta = z.object({
 export type CorpusMeta = z.infer<typeof corpusMeta>;
 
 /** Versi skema korpus yang dibuat migrasi di repo ini (= nilai `meta.schema_version` terbaru). */
-export const CORPUS_SCHEMA_VERSION = 2;
+export const CORPUS_SCHEMA_VERSION = 3;
 
 /** Tabel biasa korpus → skema barisnya (passage_fts tidak termasuk: tabel virtual turunan). */
 export const corpusTables = {

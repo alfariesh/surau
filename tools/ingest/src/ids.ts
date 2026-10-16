@@ -7,6 +7,8 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 import { z } from "zod";
 
+import { assertWritable } from "./sqlite.ts";
+
 const seqMap = z.record(z.string().min(1), z.number().int().positive());
 
 export const idMapFile = z.strictObject({
@@ -99,5 +101,5 @@ export function formatIdMap(map: IdMapFile): string {
 }
 
 export function writeIdMap(path: string, map: IdMapFile): void {
-  writeFileSync(path, formatIdMap(map));
+  writeFileSync(assertWritable(path), formatIdMap(map));
 }

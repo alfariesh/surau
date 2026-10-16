@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
+import { CORPUS_SCHEMA_VERSION } from "@surau/db";
 import { describe, expect, test } from "vite-plus/test";
 
 import { buildTimestamp, runIngest } from "../src/pipeline.ts";
@@ -28,8 +29,8 @@ describe("runIngest (kitab buatan)", () => {
       page: 5,
       toc_node: 6,
       passage: 18,
-      footnote_ref: 2,
-      passage_needs_review: 4,
+      footnote_ref: 3,
+      passage_needs_review: 7,
       meta: 5,
     });
 
@@ -44,7 +45,7 @@ describe("runIngest (kitab buatan)", () => {
       { key: "built_at", value: "2025-10-09T08:53:20.000Z" },
       { key: "corpus_version", value: "uji-v1" },
       { key: "norm_version", value: "1" },
-      { key: "schema_version", value: "2" },
+      { key: "schema_version", value: String(CORPUS_SCHEMA_VERSION) },
       { key: "source_hash", value: expect.stringMatching(/^sha256:[0-9a-f]{64}$/) },
     ]);
 
@@ -99,34 +100,46 @@ describe("runIngest (kitab buatan)", () => {
       "حديث الصبر ضياء أخرجه مسلم من حديث فلان",
     ]);
 
-    // Penanda (١) menunjuk catatan kaki bernomor sama; offset = indeks string di text_raw.
+    // Penanda (١) menunjuk catatan kaki bernomor sama; offset = indeks string di text_raw. Di
+    // halaman 3 penanda pembuka takhrij tetap di matan dan menunjuk takhrij yang dipotong, karena
+    // halaman itu tidak punya catatan bawah (١).
     const refs = q<{
+      page: number;
       text_raw: string;
       char_start: number;
       char_end: number;
       marker: string;
       foot: string;
     }>(
-      `SELECT b.text_raw, r.char_start, r.char_end, r.marker, f.text_raw AS foot
-       FROM footnote_ref r JOIN passage b ON b.id = r.passage_id JOIN passage f ON f.id = r.footnote_passage_id`,
+      `SELECT g.source_page_id AS page, b.text_raw, r.char_start, r.char_end, r.marker, f.text_raw AS foot
+       FROM footnote_ref r JOIN passage b ON b.id = r.passage_id JOIN passage f ON f.id = r.footnote_passage_id
+       JOIN page g ON g.id = b.page_id ORDER BY g.source_page_id`,
     );
-    expect(refs).toHaveLength(2);
-    for (const ref of refs) {
-      expect(ref.text_raw.slice(ref.char_start, ref.char_end)).toBe("(١)");
-      expect(ref.marker).toBe("١");
-      expect(ref.foot.startsWith("(١)")).toBe(true);
-    }
+    expect(refs.map((r) => [r.page, r.marker, r.text_raw.slice(r.char_start, r.char_end)])).toEqual(
+      [
+        [1, "١", "(١)"],
+        [2, "١", "(١)"],
+        [3, "١", "(١)"],
+      ],
+    );
+    expect(refs.map((r) => r.foot)).toEqual([
+      "(١) حديث العلم نور أخرجه فلان بإسناد حسن",
+      "(١) هذا كلام مصنوع للتجربة\nوله تتمة في سطر ثان",
+      "حديث الطهور شطر الايمان رواه احمد",
+    ]);
 
     const review = q<{ reason: string; text_raw: string }>(
-      "SELECT n.reason, p.text_raw FROM passage_needs_review n JOIN passage p ON p.id = n.passage_id ORDER BY n.reason",
+      "SELECT n.reason, p.text_raw FROM passage_needs_review n JOIN passage p ON p.id = n.passage_id ORDER BY n.reason, p.id",
     );
-    expect(review.map((r) => r.reason)).toEqual([
-      "inline_unsplit",
-      "takhrij_inline",
-      "takhrij_inline",
-      "takhrij_unmatched",
+    expect(review.map((r) => [r.reason, r.text_raw])).toEqual([
+      ["inline_unsplit", "الذكر حياة القلوب // وقال تعالى كذا"],
+      ["takhrij_boundary", "قال الشيخ الصبر ضياء"],
+      ["takhrij_boundary", "وقال النبي الطهور شطر الايمان (١)"],
+      ["takhrij_boundary", "ثم رجع الكلام"],
+      ["takhrij_inline", "حديث الصبر ضياء أخرجه مسلم من حديث فلان"],
+      ["takhrij_inline", "حديث الطهور شطر الايمان رواه احمد"],
+      ["takhrij_unmatched", "(١) هذا كلام مصنوع للتجربة\nوله تتمة في سطر ثان"],
     ]);
-    expect(review[0]?.text_raw).toContain("//");
     db.close();
   });
 

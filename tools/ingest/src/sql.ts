@@ -34,7 +34,11 @@ export function sqlLiteral(value: Value): string {
 
 const bytes = (s: string): number => Buffer.byteLength(s, "utf8");
 
-/** Pernyataan pengosongan korpus, anak lebih dulu. `schema_version` milik migrasi dipertahankan. */
+/**
+ * Pernyataan pengosongan korpus, anak lebih dulu. `schema_version` milik migrasi dipertahankan.
+ * Ini mengosongkan SELURUH DB korpus (satu kitab per DB untuk sekarang): kitab kedua butuh reset
+ * per edisi. `passage_fts` belum diisi (S11); begitu diisi, indeksnya wajib ikut dikosongkan di sini.
+ */
 export const RESET_SQL = [
   "-- Kosongkan korpus sebelum dimuat ulang (anak lebih dulu). Tabel terjemahan/ringkasan tidak",
   "-- dihapus: bila sudah berisi, foreign key membuat pemuatan ulang GAGAL (sengaja, S13+).",

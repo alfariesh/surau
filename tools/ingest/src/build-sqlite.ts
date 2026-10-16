@@ -6,7 +6,7 @@ import { existsSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 import type { SqlFile } from "./sql.ts";
-import { openWritable } from "./sqlite.ts";
+import { assertWritable, openWritable } from "./sqlite.ts";
 
 export interface SqliteBuild {
   /** Jumlah baris per tabel korpus. */
@@ -19,6 +19,7 @@ export function buildSqlite(
   files: readonly SqlFile[],
   tables: readonly string[],
 ): SqliteBuild {
+  assertWritable(outPath);
   for (const suffix of ["", "-journal", "-wal", "-shm"])
     rmSync(`${outPath}${suffix}`, { force: true });
   const db = openWritable(outPath);

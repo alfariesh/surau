@@ -62,7 +62,10 @@ export function checkMatan(
     }
     const b = tokens(other);
     sizes.push([a.length, b.length]);
-    return tokenRatio(a, b, Math.ceil((a.length + b.length) / 2));
+    // Batas maxD mempercepat halaman yang hampir sama. Halaman di bawah ambang (sedikit) dihitung
+    // ulang tanpa batas supaya angka di laporan pasti, bukan batas atas.
+    const ratio = tokenRatio(a, b, Math.ceil((a.length + b.length) / 2));
+    return ratio >= MATAN_THRESHOLD ? ratio : tokenRatio(a, b);
   });
   return { ratios, sizes, missing, passed: ratios.filter((r) => r >= MATAN_THRESHOLD).length };
 }

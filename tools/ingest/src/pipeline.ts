@@ -22,6 +22,7 @@ import type { ParsedPage } from "./shamela/page.ts";
 import { readShamelaBook } from "./shamela/source.ts";
 import type { ShamelaSource } from "./shamela/source.ts";
 import { emitSql } from "./sql.ts";
+import { assertWritable } from "./sqlite.ts";
 import { buildToc } from "./toc.ts";
 import { validate } from "./validate.ts";
 import type { Validation } from "./validate.ts";
@@ -101,7 +102,7 @@ export function prepare(config: WorkConfig, paths: PipelinePaths): Prepared {
 }
 
 function writeText(path: string, content: string): void {
-  mkdirSync(dirname(path), { recursive: true });
+  mkdirSync(dirname(assertWritable(path)), { recursive: true });
   writeFileSync(path, content);
 }
 
@@ -155,7 +156,16 @@ export function runIngest(
   }
   const toc = buildToc(source.titles, pages, patch);
 
-  const idsPath = join(paths.repo, config.ids);
+  // Keluaran build lama dihapus lebih dulu: bila validasi gagal, tidak ada SQL usang yang bisa
+  // termuat tanpa sadar.
+  const sqlDir = join(paths.build, "sql");
+  const sqlitePath = join(paths.build, config.output);
+  const hashPath = join(paths.build, `${config.corpusVersion}.sha256`);
+  for (const path of [sqlDir, sqlitePath, hashPath]) {
+    rmSync(assertWritable(path), { recursive: true, force: true });
+  }
+
+  const idsPath = assertWritable(join(paths.repo, config.ids));
   const idMap = opts.resetIds
     ? { format: 1 as const, edition: config.edition.id, page: {}, toc: {}, passage: {} }
     : readIdMap(idsPath, config.edition.id);
@@ -184,12 +194,9 @@ export function runIngest(
   );
   if (!validation.ok) return { validation };
 
-  const sqlDir = join(paths.build, "sql");
-  rmSync(sqlDir, { recursive: true, force: true });
   mkdirSync(sqlDir, { recursive: true });
   const files = emitSql(rows);
   for (const f of files) writeFileSync(join(sqlDir, f.name), f.content);
-  const sqlitePath = join(paths.build, config.output);
   const { counts } = buildSqlite(sqlitePath, paths.migrations, files, TABLE_ORDER);
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());
@@ -203,7 +210,7 @@ export function runIngest(
   }
   hash.update(readFileSync(sqlitePath));
   const digest = hash.digest("hex");
-  writeFileSync(join(paths.build, `${config.corpusVersion}.sha256`), `${digest}\n`);
+  writeFileSync(hashPath, `${digest}\n`);
   return {
     validation,
     output: {

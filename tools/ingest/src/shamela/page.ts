@@ -11,20 +11,20 @@ import {
   splitInlineTakhrij,
   splitParagraphs,
 } from "@surau/text";
+import type { NeedsReviewReason } from "@surau/db";
 import type { FootnoteMarker, InlineTakhrijDirection } from "@surau/text";
 
 import type { ShamelaPage } from "./source.ts";
 
-/**
- * Alasan paragraf ditandai `needs_review` (tabel `passage_needs_review`):
- * - `takhrij_inline`: takhrij yang menempel ke matan lewat `//`, dipotong ke catatan kaki;
- * - `takhrij_unmatched`: catatan kaki yang tidak ditemukan di takhrij OpenITI JK000001 halaman itu;
- * - `inline_unsplit`: paragraf badan memuat `//` tetapi takhrijnya tidak dikenali (tidak dipecah).
- */
-export type ReviewReason = "takhrij_inline" | "takhrij_unmatched" | "inline_unsplit";
+/** Alasan `needs_review` (CHECK di migrasi korpus 0003; artinya di komentar migrasi itu). */
+export type ReviewReason = NeedsReviewReason;
 
 export interface PassageDraft {
-  /** Kunci stabil di halaman sumber: `b<baris>`, `b<baris>.<potongan>`, `t<baris>`, `f<catatan>`. */
+  /**
+   * Kunci posisional di halaman sumber (peta ID, ADR-032 butir 8): `b<baris>` = baris badan, atau
+   * matan di DEPAN takhrij/`//` bila baris dipecah; `b<baris>.1` = matan SESUDAH `//`;
+   * `t<baris>` = takhrij menempel; `f<n>` = catatan ke-n di bagian bawah halaman.
+   */
   key: string;
   kind: "body" | "foot";
   text: string;
@@ -34,7 +34,10 @@ export interface PassageDraft {
   /** Badan/takhrij menempel: rentang di teks badan bersih (untuk menautkan judul); catatan: -1. */
   start: number;
   end: number;
-  /** Nomor catatan kaki (`(١)` → 1); `null` untuk catatan tanpa nomor dan takhrij menempel. */
+  /**
+   * Nomor catatan kaki (`(١)` → 1); `null` untuk catatan tanpa nomor. Takhrij menempel mendapat
+   * nomor penanda pembukanya hanya bila bagian bawah halaman tidak punya catatan bernomor sama.
+   */
   noteNumber: number | null;
 }
 
@@ -67,7 +70,12 @@ export interface ParsedPage {
   untitledSpans: number;
   links: FootnoteLink[];
   orphanRefs: FootnoteMarker[];
+  /** Catatan bawah halaman yang tidak dirujuk penanda matan (ditandai `footnote_orphan`). */
   orphanNotes: number;
+  /** Dari `orphanNotes`: yang nomornya muncul sebagai penanda di dalam takhrij menempel. */
+  orphanNotesInInline: number;
+  /** Penanda (١) di teks badan utuh: di matan + di takhrij menempel (invarian: tidak ada yang hilang). */
+  markers: { total: number; body: number; inline: number };
   /** Arah takhrij menempel di halaman ini (`null` = ada `//` tetapi tidak dipecah). */
   inline: { direction: InlineTakhrijDirection | null; line: number }[];
   unknownTags: string[];
@@ -86,7 +94,7 @@ export function parsePage(source: ShamelaPage): ParsedPage {
   const bodyText = clean.text;
 
   const body: PassageDraft[] = [];
-  const inlineTakhrij: PassageDraft[] = [];
+  const inlineTakhrij: (PassageDraft & { marker: number | null })[] = [];
   const inline: ParsedPage["inline"] = [];
   splitParagraphs(bodyText).forEach((para, line) => {
     const draft = (key: string, start: number, end: number): PassageDraft => ({
@@ -111,17 +119,28 @@ export function parsePage(source: ShamelaPage): ParsedPage {
       body.push(d);
       return;
     }
-    inl.body.forEach((s, i) => {
-      body.push(
-        draft(i === 0 ? `b${line}` : `b${line}.${i}`, para.start + s.start, para.start + s.end),
-      );
-    });
+    // Batas potongan ditebak (ADR-032 butir 3), jadi matan di sebelahnya juga ditandai.
+    for (const [key, s] of [
+      [`b${line}`, inl.before],
+      [`b${line}.1`, inl.after],
+    ] as const) {
+      if (s === null) continue;
+      const d = draft(key, para.start + s.start, para.start + s.end);
+      d.reasons.push("takhrij_boundary");
+      body.push(d);
+    }
     const t = draft(`t${line}`, para.start + inl.takhrij.start, para.start + inl.takhrij.end);
-    inlineTakhrij.push({ ...t, kind: "foot", reasons: ["takhrij_inline"] });
+    inlineTakhrij.push({
+      ...t,
+      kind: "foot",
+      reasons: ["takhrij_inline"],
+      marker: inl.marker?.number ?? null,
+    });
   });
 
   // Catatan dari bagian bawah halaman lebih dulu, lalu takhrij yang dipotong dari badan.
   const entries = splitFootnoteEntries(footClean.text);
+  const sectionNumbers = new Set(entries.map((e) => e.number));
   const foot: PassageDraft[] = [
     ...entries.map((e, i): PassageDraft => ({
       key: `f${i}`,
@@ -133,7 +152,12 @@ export function parsePage(source: ShamelaPage): ParsedPage {
       end: -1,
       noteNumber: e.number,
     })),
-    ...inlineTakhrij,
+    // Penanda pembuka takhrij menempel tetap di matan. Bila catatan bawah bernomor sama tidak ada,
+    // penanda itu ditautkan ke takhrij menempel ini.
+    ...inlineTakhrij.map(({ marker, ...d }) => ({
+      ...d,
+      noteNumber: marker !== null && !sectionNumbers.has(marker) ? marker : null,
+    })),
   ];
 
   const refs = body.flatMap((d, i) =>
@@ -148,6 +172,29 @@ export function parsePage(source: ShamelaPage): ParsedPage {
     const text = (body[r.body] as PassageDraft).text.slice(r.marker.start, r.marker.end);
     return { body: r.body, marker: r.marker, label: text.slice(1, -1).trim(), foot: note };
   });
+  // Catatan bawah halaman yang tak dirujuk dari matan (bernomor atau tidak) tidak bisa dicapai dari
+  // penanda, jadi ditandai. Penyebab yang bisa dihitung: penandanya ada di dalam takhrij menempel.
+  const referenced = new Set(links.map((l) => l.foot));
+  const inlineMarkerNumbers = new Set(
+    foot
+      .filter((f) => f.line >= 0)
+      .flatMap((f) => findFootnoteMarkers(f.text).map((m) => m.number)),
+  );
+  let orphanNotes = 0;
+  let orphanNotesInInline = 0;
+  foot.forEach((f, i) => {
+    if (f.line >= 0 || referenced.has(i)) return;
+    f.reasons.push("footnote_orphan");
+    orphanNotes++;
+    if (f.noteNumber !== null && inlineMarkerNumbers.has(f.noteNumber)) orphanNotesInInline++;
+  });
+  const markers = {
+    total: findFootnoteMarkers(bodyText).length,
+    body: refs.length,
+    inline: foot
+      .filter((f) => f.line >= 0)
+      .reduce((a, f) => a + findFootnoteMarkers(f.text).length, 0),
+  };
 
   return {
     source,
@@ -160,7 +207,9 @@ export function parsePage(source: ShamelaPage): ParsedPage {
     untitledSpans: clean.titles.filter((t) => t.tocId === null).length,
     links,
     orphanRefs: linked.orphanRefs.map((i) => (refs[i] as (typeof refs)[number]).marker),
-    orphanNotes: linked.orphanNotes.length,
+    orphanNotes,
+    orphanNotesInInline,
+    markers,
     inline,
     unknownTags: [...new Set([...clean.unknownTags, ...footClean.unknownTags])].sort(),
   };

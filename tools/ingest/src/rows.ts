@@ -171,7 +171,8 @@ export function buildRows(input: RowsInput): CorpusRows {
           id,
           edition_id: ed,
           page_id: pageIds[pi],
-          toc_node_id: tocId(node),
+          // "" = paragraf sebelum judul pertama: dilaporkan validasi (invarian gagal), bukan crash.
+          toc_node_id: node === "" ? null : tocId(node),
           kind: d.kind,
           ord,
           text_raw: d.text,
@@ -182,11 +183,11 @@ export function buildRows(input: RowsInput): CorpusRows {
       }
       return id;
     };
-    const bodyIds = p.body.map((d, i) => add(d, i + 1, toc.body[pi]?.[i] as string, []));
+    const bodyIds = p.body.map((d, i) => add(d, i + 1, toc.body[pi]?.[i] ?? "", []));
     const footIds = p.foot.map((d, i) => {
       const score = takhrij.scores[pi]?.[i] ?? 0;
       const extra: NeedsReviewReason[] = score < TAKHRIJ_THRESHOLD ? ["takhrij_unmatched"] : [];
-      return add(d, i + 1, toc.foot[pi]?.[i] as string, extra);
+      return add(d, i + 1, toc.foot[pi]?.[i] ?? "", extra);
     });
     for (const l of p.links) {
       footnote_ref.push(

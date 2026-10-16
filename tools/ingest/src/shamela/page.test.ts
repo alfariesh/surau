@@ -38,18 +38,37 @@ describe("parsePage", () => {
       { direction: "before", line: 1 },
       { direction: null, line: 2 },
     ]);
+    // Kunci posisional: b<baris> = matan di depan, b<baris>.1 = matan sesudah //. Penanda pembuka
+    // takhrij "(٢)" tetap di matan dan, karena catatan bawah (٢) tidak ada, menunjuk takhrij t1.
     expect(p.body.map((d) => [d.key, d.text, d.reasons])).toEqual([
-      ["b0", "متن اول", []],
-      ["b1", "متن ثان", []],
-      ["b1.1", "متن يستمر", []],
+      ["b0", "متن اول", ["takhrij_boundary"]],
+      ["b1", "متن ثان (٢)", ["takhrij_boundary"]],
+      ["b1.1", "متن يستمر", ["takhrij_boundary"]],
       ["b2", "متن ثالث // بلا تخريج", ["inline_unsplit"]],
     ]);
-    expect(p.foot.map((d) => [d.key, d.kind, d.text, d.reasons, d.line])).toEqual([
-      ["t0", "foot", "حديث كذا أخرجه فلان", ["takhrij_inline"], 0],
-      ["t1", "foot", "(٢) حديث كذا رواه فلان", ["takhrij_inline"], 1],
+    expect(p.foot.map((d) => [d.key, d.kind, d.text, d.reasons, d.line, d.noteNumber])).toEqual([
+      ["t0", "foot", "حديث كذا أخرجه فلان", ["takhrij_inline"], 0, null],
+      ["t1", "foot", "حديث كذا رواه فلان", ["takhrij_inline"], 1, 2],
     ]);
+    expect(p.links.map((l) => [l.body, l.label, l.foot])).toEqual([[1, "٢", 1]]);
+    expect(p.markers).toEqual({ total: 1, body: 1, inline: 0 });
     // Offset potongan menunjuk teks badan bersih yang utuh.
     for (const d of [...p.body, ...p.foot]) expect(p.bodyText.slice(d.start, d.end)).toBe(d.text);
+  });
+
+  test("catatan bawah tak dirujuk ditandai footnote_orphan; penanda di dalam takhrij dihitung", () => {
+    const p = page(
+      "متن (١) حديث كذا أخرجه فلان (٢) حديث آخر رواه فلان // يستمر\r_________\r(١) أ\r(٢) ب",
+    );
+    // (١) pembuka tetap di matan dan menunjuk catatan bawah (١); (٢) ada di dalam takhrij.
+    expect(p.links.map((l) => [l.label, l.foot])).toEqual([["١", 0]]);
+    expect(p.foot.map((f) => [f.key, f.noteNumber, f.reasons])).toEqual([
+      ["f0", 1, []],
+      ["f1", 2, ["footnote_orphan"]],
+      ["t0", null, ["takhrij_inline"]],
+    ]);
+    expect([p.orphanNotes, p.orphanNotesInInline]).toEqual([1, 1]);
+    expect(p.markers).toEqual({ total: 2, body: 1, inline: 1 });
   });
 
   test("halaman kosong", () => {

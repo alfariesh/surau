@@ -72,6 +72,14 @@ function main(mode: string | undefined): number {
     console.error("Pakai: pnpm corpus:load:local | pnpm corpus:load:staging");
     return 2;
   }
+  // Remote: file pertama mengosongkan korpus dan DB tidak melayani kueri selama impor. Penanda
+  // eksplisit bahwa pemilik sudah mengizinkan (CLAUDE.md, langkah 8 S07).
+  if (mode === "staging" && !process.argv.includes("--confirm")) {
+    console.error(
+      "Memuat ke surau-corpus-staging menimpa isinya. Minta izin pemilik, lalu jalankan:\n  pnpm corpus:load:staging --confirm",
+    );
+    return 2;
+  }
   const target = mode === "local" ? ["--local", "--persist-to", ".wrangler/state"] : ["--remote"];
   const sqlDir = join(repo, "data/build/sql");
   const files = readdirSync(sqlDir)
