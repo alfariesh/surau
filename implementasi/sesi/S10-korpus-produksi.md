@@ -40,7 +40,7 @@ Korpus Ihya berada di D1 produksi lewat prosedur blue-green yang bisa diulang da
 
 ## Selesai bila
 
-- [ ] `surau-corpus-ihya-v1` aktif di produksi; prosedur promote dan rollback terdokumentasi dan sudah dijalankan sekali · *promote dijalankan dan rollback diuji dua arah; "aktif" dicentang setelah deploy `main` memakai binding baru*
+- [x] `surau-corpus-ihya-v1` aktif di produksi; prosedur promote dan rollback terdokumentasi dan sudah dijalankan sekali · deploy `main` 8ef5297 (PR #23, 2026-10-16 15:28 UTC): `wrangler versions view f9046c12…` → `CORPUS_DB 41e3033e-…` (ihya-v1), `READER_ENABLED 0`; langkah migrasi `surau-app` + smoke `/`, `/tentang`, `/lisensi` lolos
 - [ ] QA otomatis 30/30 halaman cocok; QA manusia 10 halaman tercatat · **otomatis 30/30 ✓** (produksi dan staging, `data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md`); **manusia menunggu T-15** (daftar siap: `data/reports/ihya-9472-qa-manusia.md`)
 - [ ] `/lisensi` dan atribusi tampil, dan pemilik menyetujui teksnya · **tampil ✓** (lokal + e2e, desktop/ponsel, terang/gelap); **persetujuan teks menunggu pemilik**
 - [x] T-10 tercentang (email ke Shamela terkirim; jawabannya ditunggu, tidak memblokir bila ADR-018 sudah diterima pemilik) · dijawab di chat 2026-10-16

@@ -58,7 +58,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 - ADR-018 dan ADR-021 (sumber teks dan lisensi) sudah disetujui pemilik, dan retensi laporan kesalahan (`feedback`, bagian P-7) sudah diputuskan.
 - Lighthouse aksesibilitas ≥ 90 di ponsel.
 
-**Status R1 (2026-10-16, S10):** korpus `surau-corpus-ihya-v1` dibuat dan dimuat (binding produksi aktif setelah merge PR #23), hitungan baris = build yang lolos validasi (1.706 halaman, 311 judul + 2 node patch) ✓ · sampel 30 halaman 30/30 byte demi byte, termasuk tautan penanda takhrij ([laporan](../data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md)) ✓ · takhrij di halaman yang benar (S09: 5 penanda dicek; QA `footnote_ref` 30/30) ✓ · ADR-018/021 + retensi `feedback` disetujui pemilik ✓ · Lighthouse a11y ponsel 100 (S09) ✓. Masih ditunggu sebelum `/rilis 1`: QA manusia 10 halaman (T-15), persetujuan tampilan pembaca (T-22), dan persetujuan teks `/lisensi`.
+**Status R1 (2026-10-16, S10):** korpus `surau-corpus-ihya-v1` aktif di produksi (binding `CORPUS_DB` versi Worker f9046c12, deploy PR #23), hitungan baris = build yang lolos validasi (1.706 halaman, 311 judul + 2 node patch) ✓ · sampel 30 halaman 30/30 byte demi byte, termasuk tautan penanda takhrij ([laporan](../data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md)) ✓ · takhrij di halaman yang benar (S09: 5 penanda dicek; QA `footnote_ref` 30/30) ✓ · ADR-018/021 + retensi `feedback` disetujui pemilik ✓ · Lighthouse a11y ponsel 100 (S09) ✓. Masih ditunggu sebelum `/rilis 1`: QA manusia 10 halaman (T-15), persetujuan tampilan pembaca (T-22), dan persetujuan teks `/lisensi`.
 
 ## Fase 2 · Cari
 
