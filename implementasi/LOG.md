@@ -15,6 +15,24 @@ Format entri:
 
 ---
 
+## 2026-10-17 · S11 · Indeks FTS Arab & `searchText` — selesai
+
+- Dikerjakan:
+  - Korpus `ihya-v2` (migrasi korpus 0004 `term_stat`, skema 4): ingest mengisi `passage_fts` (stem saja, 20.509 baris, ±5,4 MB) + `optimize` + `term_stat` (39 stem >10%, dari `fts5vocab`); reset `delete-all`; smoke FTS. Dimuat ke D1 lokal dan `surau-corpus-staging` (±65 dtk). Produksi tetap `ihya-v1`.
+  - `@surau/text` (`planFtsQuery`, `findPlanSpans`, `snippetSpan`), `@surau/db` (`searchCorpus`: satu batch, pengaman kata umum di ekspresi MATCH), `@surau/core` (`searchText`, kontrak `searchView`), `apps/web` (`GET /api/search`, batas per klien + global, `Server-Timing`).
+  - Desain diubah dua kali karena ukuran staging: dua bolak-balik → satu batch (Worker SIN ↔ D1 NRT ±90 ms per bolak-balik), lalu pengaman lewat indeks `term_stat` (+±1.400 baris dibaca).
+  - Peninjau (dua putaran): 0 blocker; diperbaiki: celah pengaman lewat `expand`/varian klitik (الل → الله, سلم → وسلم), `edition_id` > 899.999 → 500, deskripsi kontrak mode tanpa peringkat, urutan batas laju (per klien dulu, juga `/api/feedback`), judul/isi ADR; saran diambil: batas global, detail `Server-Timing` hanya Preview, smoke toleran skema lama, regex penghapus build berjangkar, asersi `ranked` di tes regresi.
+- Verifikasi:
+  - `pnpm verify` → lolos (format, lint, tipe; 261 tes Node dengan cakupan fungsi 100% + 128 tes Workers; build Next, `/api/search` dinamis).
+  - Regresi recall (`packages/core/test/local/ihya-search.test.ts`, D1 lokal): 18/18 kueri recall 1,000, gold = angka riset per kueri, 6 halaman di luar gold (batas 10).
+  - Lokal + staging (`wrangler d1 execute`): skema 4, `norm_version` 1, `ihya-v2`, `passage_fts` 20.509 = `passage`, `term_stat` 39.
+  - **Latensi staging** (Preview PR #29 → `surau-corpus-staging`, 18 kueri × 10, jeda 1,1 dtk, header `Server-Timing`; metode di file sesi): SQL D1 p50 5,4 / p95 9,9 ms; handler Worker p50 107 / **p95 137 ms**; klien Indonesia p50 208 / p95 257 ms; 0 galat. Kata umum: handler p95 107 ms.
+  - **rows_read** per kueri: الصبر (4 bentuk) 2.990 · التوكل 1.490 · النية/بالنية 2.154 · صلاة العيدين 91 · أبو هريرة 7.665 · الإخلاص 1.722 · طلب العلم 570 · إنما الأعمال بالنيات 215 · الغيبة 1.640 · حب الدنيا رأس كل خطيئة 174 · الرياء 3.123 · ذكر الموت 672 · التوبة 1.788 · مسئول 289 · الله 147 · قال رسول الله 211. ±9× paragraf cocok (riset memperkirakan ±3×; tabel sementara + indeks otomatis ikut dihitung). `expand` akar 3 huruf: علم 17.090, نفس 19.275, قلب 14.884.
+  - Preview: `/kitab/ihya`, j1 h200, j4 h72 = 200 dengan korpus staging `ihya-v2`.
+- Biaya API: –
+- Keputusan: ADR-039 (ambang `term_stat` 10% bukan ±5%, `body`/`foot` kosong, pengaman di MATCH, satu bolak-balik, `ihya-v2`, `/api/search`; koreksi urutan batas ADR-037)
+- Catatan untuk sesi berikutnya: S12 membangun di atas `ihya-v2` (skema 4). Promosi `ihya-v2` ke produksi di S14 bersama UI (dengan izin); setelahnya `--switch-only ihya-v1` ditolak (skema 3) kecuali `promote.ts` dilonggarkan. Produksi `/api/search` = 503 sampai itu. Cache kueri populer dan keputusan `expand` di UI: S14.
+
 ## 2026-10-16 · Tindak lanjut rilis F1 · Log STALE/antrean dummy + breadcrumb ponsel — selesai
 
 - Dikerjakan:
