@@ -19,6 +19,8 @@
 | Daftar isi utuh (tanpa judul yatim, siklus, atau patch gagal) | ✓ | 0 masalah |
 | Urutan halaman daftar isi monoton | ✓ | ya |
 | Paragraf tidak kosong dan muat satu statement D1 | ✓ | 0 kosong; terpanjang 7812 byte (batas 90000) |
+| Penanda (١) tidak hilang saat takhrij dipisah | ✓ | ya |
+| Integritas lintas tabel (edisi halaman/node = edisi paragraf; penanda badan → catatan kaki halaman sama) | ✓ | 0 paragraf beda edisi atau tanpa node; 0 footnote_ref salah arah |
 | Matan = OpenITI (≥0,95 per halaman) | ✓ | 1705/1706 halaman (gerbang ≥1705); 0 halaman tidak ada di OpenITI |
 
 ## Daftar isi
@@ -32,16 +34,17 @@
 ## Paragraf
 
 - Badan: 16.111 paragraf; panjang (karakter) min 2 · median 154 · p90 643 · p99 1.990 · maks 4.188.
-- Catatan kaki: 4.398 paragraf; panjang (karakter) min 3 · median 148 · p90 381 · p99 1.305 · maks 2.644.
+- Catatan kaki: 4.398 paragraf; panjang (karakter) min 3 · median 148 · p90 381 · p99 1.303 · maks 2.644.
   - 4.204 dari bagian bawah halaman (setelah `_________`), 194 takhrij menempel yang dipotong dari badan.
   - 220 catatan memanjang lebih dari satu baris (baris dipisah `\n`).
 - Tag HTML tak dikenal (dibiarkan sebagai teks): –.
 
 ## Penanda catatan kaki (١)
 
-- 4.064 penanda di badan teks; 4.064 tertaut ke catatan bernomor sama (`footnote_ref`).
-- Penanda yatim (tanpa catatan): 0
-- Catatan bernomor yang tidak dirujuk dari badan: 140. Sebagian besar karena penandanya ikut terpotong bersama takhrij menempel.
+- 4.117 penanda di badan teks; 4.117 tertaut ke catatan bernomor sama (`footnote_ref`).
+- Penanda yatim (tanpa catatan): 0.
+- Penanda di dalam takhrij menempel (ikut terpotong, tidak ditautkan): 87. Penanda pembuka takhrij tetap di matan.
+- Catatan bawah halaman yang tidak dirujuk penanda matan (ditandai `footnote_orphan`): 87; 87 di antaranya karena penandanya ada di dalam takhrij menempel.
 
 ## Takhrij yang menempel ke matan (`//`)
 
@@ -54,7 +57,9 @@
 
 | Alasan | Paragraf |
 |---|---|
+| `footnote_orphan` | 87 |
 | `inline_unsplit` | 9 |
+| `takhrij_boundary` | 225 |
 | `takhrij_inline` | 194 |
 | `takhrij_unmatched` | 190 |
-| **paragraf unik** | **373** |
+| **paragraf unik** | **609** |
