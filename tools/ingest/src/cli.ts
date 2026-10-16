@@ -37,6 +37,7 @@ function main(argv: string[]): number {
     ),
     openiti: resolve(values.openiti ?? join(repo, "data/raw/openiti")),
     build: join(repo, "data/build"),
+    migrations: join(repo, "packages/db/migrations/corpus"),
   };
   if (!existsSync(join(paths.shamela, "book"))) {
     console.error(

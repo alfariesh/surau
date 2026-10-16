@@ -36,6 +36,8 @@ export interface PipelinePaths {
   openiti: string;
   /** Folder keluaran build (git-ignored). */
   build: string;
+  /** Migrasi korpus D1 (packages/db/migrations/corpus) untuk membangun .sqlite. */
+  migrations: string;
 }
 
 export function sha256(data: string | Buffer): string {
@@ -188,12 +190,7 @@ export function runIngest(
   const files = emitSql(rows);
   for (const f of files) writeFileSync(join(sqlDir, f.name), f.content);
   const sqlitePath = join(paths.build, config.output);
-  const { counts } = buildSqlite(
-    sqlitePath,
-    join(paths.repo, "packages/db/migrations/corpus"),
-    files,
-    TABLE_ORDER,
-  );
+  const { counts } = buildSqlite(sqlitePath, paths.migrations, files, TABLE_ORDER);
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());
 

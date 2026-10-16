@@ -10,18 +10,23 @@ import { join, resolve } from "node:path";
 const repo = resolve(import.meta.dirname, "../../..");
 const config = "packages/db/wrangler.jsonc";
 
-function wrangler(args: string[], capture = false): string {
+/** Jalankan wrangler. Keluaran (JSON per statement, panjang) hanya dicetak bila gagal. */
+function wrangler(args: string[]): string {
   const r = spawnSync("pnpm", ["exec", "wrangler", ...args], {
     cwd: repo,
     encoding: "utf8",
-    stdio: capture ? ["ignore", "pipe", "inherit"] : "inherit",
+    stdio: ["ignore", "pipe", "pipe"],
+    maxBuffer: 64 * 1024 * 1024,
   });
-  if (r.status !== 0)
-    throw new Error(`wrangler ${args.slice(0, 3).join(" ")} gagal (kode ${r.status})`);
+  if (r.status !== 0) {
+    process.stderr.write(`${r.stdout ?? ""}${r.stderr ?? ""}`);
+    throw new Error(`wrangler ${args.slice(0, 3).join(" ")} gagal (kode ${String(r.status)})`);
+  }
   return r.stdout ?? "";
 }
 
-const SMOKE_COUNTS = [
+// Satu baris berisi subkueri per tabel (D1 membatasi jumlah suku UNION dalam satu SELECT).
+const COUNTED = [
   "author",
   "work",
   "edition",
@@ -30,9 +35,8 @@ const SMOKE_COUNTS = [
   "passage",
   "footnote_ref",
   "passage_needs_review",
-]
-  .map((t) => `SELECT '${t}' AS tbl, count(*) AS n FROM ${t}`)
-  .join(" UNION ALL ");
+] as const;
+const SMOKE_COUNTS = `SELECT ${COUNTED.map((t) => `(SELECT count(*) FROM ${t}) AS ${t}`).join(", ")}`;
 
 // j1 h200 (contoh baku: hadits shalat malam Jumat + takhrij al-'Iraqi): paragraf badan, catatan
 // kaki, dan penanda yang tertaut.
@@ -48,10 +52,17 @@ GROUP BY p.kind ORDER BY p.kind`;
 type Row = Record<string, string | number | null>;
 
 function query(target: string[], sql: string): Row[] {
-  const out = wrangler(
-    ["d1", "execute", "CORPUS", ...target, "-c", config, "--json", "--command", sql],
-    true,
-  );
+  const out = wrangler([
+    "d1",
+    "execute",
+    "CORPUS",
+    ...target,
+    "-c",
+    config,
+    "--json",
+    "--command",
+    sql,
+  ]);
   const parsed = JSON.parse(out) as { results: Row[] }[];
   return parsed.flatMap((r) => r.results);
 }
@@ -85,8 +96,8 @@ function main(mode: string | undefined): number {
     ]);
   }
 
-  const counts = query(target, SMOKE_COUNTS);
-  console.info(`Jumlah baris: ${counts.map((r) => `${String(r.tbl)} ${String(r.n)}`).join(", ")}`);
+  const counts = query(target, SMOKE_COUNTS)[0] ?? {};
+  console.info(`Jumlah baris: ${COUNTED.map((t) => `${t} ${String(counts[t] ?? 0)}`).join(", ")}`);
   const page = query(target, SMOKE_PAGE);
   console.info(
     `j1 h200: ${page.map((r) => `${String(r.kind)} ${String(r.n)}`).join(", ")}, penanda tertaut ${String(page[0]?.refs ?? 0)}`,
