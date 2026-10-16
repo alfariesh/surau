@@ -15,6 +15,26 @@ Format entri:
 
 ---
 
+## 2026-10-16 · S10 · Korpus produksi & QA — selesai* (QA manusia T-15, tampilan T-22, dan teks `/lisensi` menunggu pemilik)
+
+- Dikerjakan:
+  - `pnpm run corpus:promote` (blue-green, ADR-036): rencana / `--confirm` (buat apac, migrasi lewat config sementara, muat, smoke = hitungan build) / `--switch-only` (rollback). Dijalankan untuk `ihya-v1`: `surau-corpus-ihya-v1` (`41e3033e-…`, APAC, 13,2 MB) dalam ±67 dtk; `CORPUS_DB` produksi menunjuk DB ini (+ `preview_database_id` staging untuk dev lokal). Riwayat versi di `data/SOURCES.md`; staging tidak pernah dijadikan produksi (rollback `ihya-v1` = tutup darurat).
+  - `pnpm run corpus:qa`: 30 halaman acak (seed 9472) di D1 dibandingkan byte demi byte dengan sumber Shamela yang diparse ulang; laporan tanpa teks kitab. Daftar QA manusia 10 halaman (T-15) dengan tautan Surau, Shamela, dan pindaian archive.org yang dikalibrasi per jilid (selisih 9/2/3/3).
+  - Halaman `/lisensi` (Apache-2.0 / CC BY-NC-SA 4.0, syarat pakai ulang, atribusi Ihya, koreksi + takedown lewat formulir dan GitHub Issues, retensi laporan) dan tautannya dari menu samping, Tentang, dan setiap halaman baca. Tautan "lihat di Shamela" per halaman sudah ada sejak S09.
+  - `deploy.yml` memigrasi D1 `surau-app` saja; tes menjaga korpus tidak pernah dimigrasi dari deploy. T-10 dijawab pemilik di chat (ADR-018/021 diterima).
+  - Prosedur promote, rollback, dan tutup darurat di `tools/ingest/README.md`; CHANGELOG draf Fase 1; FASE.md: Fase 1 siap rilis.
+- Verifikasi:
+  - `pnpm run corpus:promote ihya-v1 --confirm` → smoke: author 1, work 1, edition 1, page 1706, toc_node 313, passage 20509, footnote_ref 4117, passage_needs_review 705, meta 5 = build `2d2d87d7…`; `--switch-only` diuji dua arah; setelah perbaikan peninjau, `--reload --confirm` atas `ihya-v1` ditolak dan `--switch-only ihya-v1` lolos cek skema.
+  - `pnpm run corpus:qa ihya-v1` → **30/30** cocok byte demi byte + baris korpus (meta, edisi, 25 judul daftar isi) cocok; `corpus:qa staging` → sama. Argumen salah (`--n 0`, `--n abc`, `--human 40`, `--n 5000`) → keluar 2 tanpa menulis laporan.
+  - Peninjau: 0 blocker, 5 "perbaiki" (staging bisa jadi target rollback lalu dimuat ulang; pengaman `--reload` hanya membaca working tree; penjaga deploy.yml bisa lolos; argumen QA tanpa validasi; `meta` sumber tidak dibandingkan) → semuanya diperbaiki; saran diambil sebagian (peran Shamela di `/lisensi`, cek skema saat rollback, QA edisi + judul daftar isi, UUID staging dari config, smoke deploy `/lisensi`, draf CHANGELOG/FASE tidak mengklaim yang belum terbukti).
+  - `pnpm verify` → lolos (node 217 tes, db + core 105); `pnpm test:e2e` lokal → 70/70 (termasuk `/lisensi` smoke + axe terang/gelap). Browser: `/lisensi` desktop + ponsel gelap rapi; `pnpm dev` j1 h200 tetap membaca D1 lokal; 0 galat konsol.
+  - **`rows_read` per kunjungan** (Preview `pembaca`, DB staging = build yang sama; pembaca produksi masih tertutup), `wrangler d1 insights` sebelum/sesudah: 50 halaman baru → semua 200 `MISS`, 0,87 dtk rata-rata, **800 kueri / 76.502 baris = ±16 kueri dan ±1.530 baris per render** (`getToc` ±939 baris per panggilan = 93%); 50 kunjungan ulang → 0,22 dtk, **0 kueri** (kontrol: satu render baru muncul +19 kueri ±2 menit kemudian). Biaya: ±2,6 juta baris untuk merender seluruh Ihya sekali per deploy, di dalam 25 miliar/bulan Workers Paid → **±$0**.
+- Biaya API: –
+- Keputusan: ADR-036 (ADR-018 dan ADR-021 kini diterima)
+- Catatan untuk sesi berikutnya:
+  - `/rilis 1` setelah T-15, T-22, dan persetujuan teks `/lisensi`; perbarui Preview `pembaca` dari `main` bila perlu sebelum pemilik meninjau.
+  - Utang: `getToc` dibaca penuh per render (±939 baris, bisa dihemat); header `STALE` pada kunjungan ulang (cek Workers Logs produksi setelah rilis); pembersih retensi `feedback` belum ada; target rollback `ihya-v1` (staging) berubah setiap `corpus:load:staging` (S11 FTS akan memuatnya ulang).
+
 ## 2026-10-16 · Tindak lanjut S09 · Beban halaman baca (CSS HeroUI selektif, daftar isi) — selesai
 
 - Dikerjakan:

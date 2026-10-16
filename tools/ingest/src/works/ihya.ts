@@ -33,6 +33,11 @@ export interface WorkConfig {
     period: string;
   };
   edition: { id: number; slug: string; license: string; attribution: string };
+  /**
+   * Pindaian edisi cetak, HANYA ditautkan (ADR-018; dipakai daftar QA manusia S10). Halaman cetak
+   * `p` jilid `j` = `${details}/${volumes[j-1].file}/page/n${p + volumes[j-1].leafOffset}/mode/1up`.
+   */
+  scan?: { details: string; volumes: { file: string; leafOffset: number }[] };
   openiti: {
     release: string;
     commit: string;
@@ -73,6 +78,17 @@ export const IHYA: WorkConfig = {
     license: "CC BY-NC-SA 4.0",
     attribution:
       "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009472 & JK000001; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Ma'rifah, Beirut 1402/1982",
+  },
+  // Selisih indeks halaman pindaian (n, mulai 0) terhadap halaman cetak, dicek 2026-10-16 di dua
+  // titik per jilid (j1 n50/n200/n350, j2 n100/n350, j3 n100/n400, j4 n100/n500): tetap per jilid.
+  scan: {
+    details: "https://archive.org/details/ihya-ghazali",
+    volumes: [
+      { file: "iud-dm-001", leafOffset: 9 },
+      { file: "iud-dm-002", leafOffset: 2 },
+      { file: "iud-dm-003", leafOffset: 3 },
+      { file: "iud-dm-004", leafOffset: 3 },
+    ],
   },
   openiti: {
     release: "2025.1.9",

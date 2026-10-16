@@ -38,3 +38,13 @@ sha256 `9472.db` juga tercatat di `meta.source_hash` korpus dan di [reports/ihya
 | Berkas | Sumber | sha256 |
 |---|---|---|
 | [LICENSE](LICENSE) (bagian setelah garis) | https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.txt, diunduh 2026-10-16 | `e66c269d4819aaab34b49ef5220c4ddab6756f21bb5180761a4eb8561f2b7bbd` |
+
+## Korpus D1 produksi
+
+Versi korpus yang pernah dipasang di produksi (blue-green, ADR-005, ADR-036). Binding aktif: `CORPUS_DB` top-level di `apps/web/wrangler.jsonc`. DB di tabel ini **tidak pernah dihapus atau dimuat ulang** (`corpus:promote` dan `corpus:load` menolaknya); DB berstatus *rollback* adalah tujuan `pnpm run corpus:promote <versi> --switch-only`. Prosedur: [tools/ingest/README.md](../tools/ingest/README.md#korpus-produksi-blue-green).
+
+| Versi | DB D1 (apac) | ID | Dibuat | sha256 build (`data/build/<versi>.sha256`) | `meta.built_at` | QA | Status |
+|---|---|---|---|---|---|---|---|
+| `ihya-v1` | `surau-corpus-ihya-v1` | `41e3033e-3aa0-456c-9d60-b8967f57e89d` | 2026-10-16 (S10) | `2d2d87d732c37e3f8fdc7beda1209965a28d63f6bd2c1ab3f06069668d3caf68` | 2026-10-16T12:55:55Z | 30/30 ([laporan](reports/ihya-9472-qa-surau-corpus-ihya-v1.md)) | **aktif** |
+
+Sebelum `ihya-v1`, produksi menunjuk korpus staging dengan pembaca tertutup (ADR-034), jadi `ihya-v1` belum punya target rollback: bila bermasalah, pakai **tutup darurat** (`READER_ENABLED = "0"` lewat PR). Korpus staging tidak pernah menjadi produksi karena isinya dimuat ulang setiap sesi (S11: FTS).

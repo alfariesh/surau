@@ -3,13 +3,15 @@
 // `built_at` diambil dari SOURCE_DATE_EPOCH atau tanggal commit HEAD, bukan jam sekarang.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { NORM_VERSION } from "@surau/text";
 
 import { buildSqlite } from "./build-sqlite.ts";
+import { buildDigest } from "./corpus.ts";
 import { createAllocator, readIdMap, writeIdMap } from "./ids.ts";
+import type { IdAllocator } from "./ids.ts";
 import { parseOpenitiPages } from "./openiti/markdown.ts";
 import { checkMatan, checkTakhrij } from "./openiti/verify.ts";
 import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
@@ -17,6 +19,7 @@ import { readTocPatch } from "./patch.ts";
 import { openitiReport, validationReport } from "./report.ts";
 import type { ReportContext } from "./report.ts";
 import { TABLE_ORDER, buildRows } from "./rows.ts";
+import type { CorpusRows } from "./rows.ts";
 import { parsePage } from "./shamela/page.ts";
 import type { ParsedPage } from "./shamela/page.ts";
 import { readShamelaBook } from "./shamela/source.ts";
@@ -24,6 +27,7 @@ import type { ShamelaSource } from "./shamela/source.ts";
 import { emitSql } from "./sql.ts";
 import { assertWritable } from "./sqlite.ts";
 import { buildToc } from "./toc.ts";
+import type { TocBuild } from "./toc.ts";
 import { validate } from "./validate.ts";
 import type { Validation } from "./validate.ts";
 import type { WorkConfig } from "./works/ihya.ts";
@@ -123,6 +127,58 @@ export function runVerifyOpenIti(
   };
 }
 
+function readToc(config: WorkConfig, paths: PipelinePaths, prepared: Prepared): TocBuild {
+  const patch = readTocPatch(join(paths.repo, config.patch));
+  if (patch.shamela_book !== config.shamelaBook) {
+    throw new Error(
+      `${config.patch} untuk kitab ${patch.shamela_book}, bukan ${config.shamelaBook}`,
+    );
+  }
+  return buildToc(prepared.source.titles, prepared.pages, patch);
+}
+
+function rowsFor(
+  config: WorkConfig,
+  paths: PipelinePaths,
+  prepared: Prepared,
+  toc: TocBuild,
+  ids: IdAllocator,
+  env?: NodeJS.ProcessEnv,
+): CorpusRows {
+  const { source, pages, takhrij } = prepared;
+  return buildRows({
+    config,
+    source,
+    pages,
+    toc,
+    takhrij,
+    ids,
+    meta: {
+      normVersion: NORM_VERSION,
+      builtAt: buildTimestamp(paths.repo, env),
+      sourceHash: `sha256:${source.sha256}`,
+    },
+  });
+}
+
+/**
+ * Baris korpus yang SEHARUSNYA ada, dibangun ulang di memori dari sumber Shamela dengan peta ID
+ * yang di-commit (tanpa menulis apa pun). Dipakai QA sampel halaman (`qa.ts`, S10).
+ */
+export function expectedRows(config: WorkConfig, paths: PipelinePaths): CorpusRows {
+  const prepared = prepare(config, paths);
+  const toc = readToc(config, paths, prepared);
+  const ids = createAllocator(readIdMap(join(paths.repo, config.ids), config.edition.id));
+  const rows = rowsFor(config, paths, prepared, toc, ids);
+  const added = Object.values(ids.added).reduce((a, b) => a + b, 0);
+  if (added > 0) {
+    throw new Error(
+      `Peta ID ${config.ids} belum memuat ${added} baris sumber: build korpus tidak sesuai sumber, jalankan \`pnpm ingest ihya\``,
+    );
+  }
+  return rows;
+}
+
 export interface IngestResult {
   validation: Validation;
   /** Diisi bila validasi lolos dan keluaran ditulis. */
@@ -147,14 +203,9 @@ export function runIngest(
   paths: PipelinePaths,
   opts: IngestOptions = {},
 ): IngestResult {
-  const { source, pages, matan, takhrij, ctx } = prepare(config, paths);
-  const patch = readTocPatch(join(paths.repo, config.patch));
-  if (patch.shamela_book !== config.shamelaBook) {
-    throw new Error(
-      `${config.patch} untuk kitab ${patch.shamela_book}, bukan ${config.shamelaBook}`,
-    );
-  }
-  const toc = buildToc(source.titles, pages, patch);
+  const prepared = prepare(config, paths);
+  const { source, pages, matan, takhrij, ctx } = prepared;
+  const toc = readToc(config, paths, prepared);
 
   // Keluaran build lama dihapus lebih dulu: bila validasi gagal, tidak ada SQL usang yang bisa
   // termuat tanpa sadar.
@@ -170,19 +221,7 @@ export function runIngest(
     ? { format: 1 as const, edition: config.edition.id, page: {}, toc: {}, passage: {} }
     : readIdMap(idsPath, config.edition.id);
   const ids = createAllocator(idMap);
-  const rows = buildRows({
-    config,
-    source,
-    pages,
-    toc,
-    takhrij,
-    ids,
-    meta: {
-      normVersion: NORM_VERSION,
-      builtAt: buildTimestamp(paths.repo, opts.env),
-      sourceHash: `sha256:${source.sha256}`,
-    },
-  });
+  const rows = rowsFor(config, paths, prepared, toc, ids, opts.env);
   const validation = validate({ config, source, pages, toc, matan, takhrij, rows });
   writeText(
     join(paths.repo, `${config.reportPrefix}-validasi.md`),
@@ -201,15 +240,7 @@ export function runIngest(
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());
 
-  const hash = createHash("sha256");
-  for (const name of readdirSync(sqlDir).sort()) {
-    hash
-      .update(name)
-      .update("\0")
-      .update(readFileSync(join(sqlDir, name)));
-  }
-  hash.update(readFileSync(sqlitePath));
-  const digest = hash.digest("hex");
+  const digest = buildDigest(sqlDir, sqlitePath);
   writeFileSync(hashPath, `${digest}\n`);
   return {
     validation,

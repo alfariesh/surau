@@ -72,6 +72,9 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
       <Sidebar.Footer>
         <div className="flex flex-col gap-1 px-2 pb-2 text-xs" data-sidebar="label">
           <span className="text-muted">{id.footer.nonprofit}</span>
+          <NextLink className="link text-xs" href="/lisensi">
+            {id.footer.license}
+          </NextLink>
           <a className="link text-xs" href={SOURCE_URL} rel="noopener noreferrer" target="_blank">
             {id.footer.source}
             <span className="sr-only"> {id.common.newTab}</span>

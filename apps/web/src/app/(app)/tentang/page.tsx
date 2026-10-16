@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
 import { Card } from "@heroui/react";
+import NextLink from "next/link";
 
+import { PageSection } from "../../../components/page-section";
 import { id, SOURCE_URL } from "../../../i18n/id";
 
 const t = id.about;
@@ -21,19 +23,19 @@ export default function AboutPage() {
         <p className="text-muted text-base sm:text-lg">{t.lead}</p>
       </header>
 
-      <Section heading={t.visionHeading} id="visi">
+      <PageSection heading={t.visionHeading} id="visi">
         <p className="text-foreground text-base leading-relaxed">{t.vision}</p>
-      </Section>
+      </PageSection>
 
-      <Section heading={t.audienceHeading} id="pengguna">
+      <PageSection heading={t.audienceHeading} id="pengguna">
         <ul className="text-foreground flex list-disc flex-col gap-2 ps-5 text-base leading-relaxed">
           {t.audience.map((line) => (
             <li key={line}>{line}</li>
           ))}
         </ul>
-      </Section>
+      </PageSection>
 
-      <Section heading={t.notHeading} id="bukan">
+      <PageSection heading={t.notHeading} id="bukan">
         <ul className="flex flex-col gap-3">
           {t.not.map((item) => (
             <li key={item.title}>
@@ -46,24 +48,29 @@ export default function AboutPage() {
             </li>
           ))}
         </ul>
-      </Section>
+      </PageSection>
 
-      <Section heading={t.principlesHeading} id="prinsip">
+      <PageSection heading={t.principlesHeading} id="prinsip">
         <ol className="text-foreground flex list-decimal flex-col gap-2 ps-5 text-base leading-relaxed marker:text-muted">
           {t.principles.map((line) => (
             <li key={line}>{line}</li>
           ))}
         </ol>
-      </Section>
+      </PageSection>
 
-      <Section heading={t.openHeading} id="terbuka">
+      <PageSection heading={t.openHeading} id="terbuka">
         <p className="text-foreground text-base leading-relaxed">{t.open}</p>
-      </Section>
+      </PageSection>
 
-      <Section heading={t.licenseHeading} id="lisensi">
+      <PageSection heading={t.licenseHeading} id="lisensi">
         <div className="text-foreground flex flex-col gap-2 text-base leading-relaxed">
           <p>{t.licenseCode}</p>
           <p>{t.licenseContent}</p>
+          <p>
+            <NextLink className="link underline" href="/lisensi">
+              {t.licenseMore}
+            </NextLink>
+          </p>
           <p>
             <a
               className="link underline"
@@ -76,26 +83,7 @@ export default function AboutPage() {
             </a>
           </p>
         </div>
-      </Section>
+      </PageSection>
     </article>
-  );
-}
-
-function Section({
-  children,
-  heading,
-  id: sectionId,
-}: {
-  children: React.ReactNode;
-  heading: string;
-  id: string;
-}) {
-  return (
-    <section aria-labelledby={`judul-${sectionId}`} className="flex flex-col gap-3">
-      <h2 className="text-foreground text-xl font-semibold" id={`judul-${sectionId}`}>
-        {heading}
-      </h2>
-      {children}
-    </section>
   );
 }

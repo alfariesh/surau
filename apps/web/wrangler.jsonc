@@ -36,14 +36,16 @@
     },
   ],
   // `database_id` WAJIB eksplisit (ARSITEKTUR-TEKNIS §7 aturan 3): binding tanpa ID diprovisikan
-  // otomatis saat deploy = DB kosong baru. Korpus produksi (blue-green) baru ada di S10; sampai itu
-  // produksi menunjuk korpus staging, dan rutenya tertutup lewat READER_ENABLED. ID ini sama dengan
-  // packages/db/wrangler.jsonc, jadi `next dev` melihat D1 lokal yang dimuat `corpus:load:local`.
+  // otomatis saat deploy = DB kosong baru. CORPUS_DB = korpus PRODUKSI blue-green (ADR-005, S10):
+  // nama + ID hanya diubah oleh `pnpm run corpus:promote` lewat PR, tidak pernah dengan tangan.
+  // `preview_database_id` hanya dipakai lokal (`next dev`, `preview`): miniflare menyimpan D1 lokal
+  // per ID, dan ID staging inilah yang dimuat `corpus:load:local` (packages/db/wrangler.jsonc).
   "d1_databases": [
     {
       "binding": "CORPUS_DB",
-      "database_name": "surau-corpus-staging",
-      "database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+      "database_name": "surau-corpus-ihya-v1",
+      "database_id": "41e3033e-3aa0-456c-9d60-b8967f57e89d",
+      "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
     },
     {
       "binding": "APP_DB",
