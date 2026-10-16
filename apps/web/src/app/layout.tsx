@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Noto_Naskh_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 
 import { id } from "../i18n/id";
+import { SITE_URL } from "../lib/site";
 
 import { Providers } from "./providers";
 
@@ -24,8 +25,6 @@ const naskh = Noto_Naskh_Arabic({
   display: "swap",
   preload: false,
 });
-
-const SITE_URL = "https://surau-web.alfarieshsalman.workers.dev";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

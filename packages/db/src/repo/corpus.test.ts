@@ -18,6 +18,7 @@ import {
 } from "../../test/fixture.ts";
 import {
   getAdjacentPages,
+  listPages,
   getEdition,
   getEditionContext,
   getFootnoteRefs,
@@ -117,6 +118,15 @@ describe("halaman", () => {
     expect([first.prev, first.next?.id]).toEqual([null, P2]);
     const last = await getAdjacentPages(db, { edition_id: ED, juz: 2, page_no: 1 });
     expect([last.prev?.id, last.next]).toEqual([P2, null]);
+  });
+
+  test("listPages: semua halaman satu edisi dalam urutan cetak", async () => {
+    expect((await listPages(db, ED)).map((p) => [p.id, p.juz, p.page_no])).toEqual([
+      [P1, 1, 1],
+      [P2, 1, 2],
+      [P3, 2, 1],
+    ]);
+    expect(await listPages(db, ED + 1)).toEqual([]);
   });
 
   test("ID yang melanggar formula ditolak DB (CHECK)", async () => {

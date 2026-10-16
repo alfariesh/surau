@@ -166,6 +166,16 @@ export function getPageById(db: D1Db, id: number): Promise<PageRow | null> {
   return firstRow(db.prepare(`SELECT ${PAGE_COLS} FROM page WHERE id = ?`).bind(id), pageRow);
 }
 
+/** Semua halaman satu edisi dalam urutan cetak (juz, page_no): untuk sitemap dan navigasi (S09). */
+export function listPages(db: D1Db, editionId: number): Promise<PageRow[]> {
+  return allRows(
+    db
+      .prepare(`SELECT ${PAGE_COLS} FROM page WHERE edition_id = ? ORDER BY juz, page_no`)
+      .bind(editionId),
+    pageRow,
+  );
+}
+
 /** Halaman sebelum dan sesudah dalam urutan cetak (juz, page_no) di edisi yang sama. */
 export async function getAdjacentPages(
   db: D1Db,

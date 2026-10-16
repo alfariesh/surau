@@ -17,6 +17,7 @@
     "open-next.config.ts",
     "next-env.d.ts",
     "cloudflare-env.d.ts",
+    "env.d.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]

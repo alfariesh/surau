@@ -7,8 +7,11 @@ import type { ReactNode } from "react";
 
 export interface ArabicTextProps {
   children: ReactNode;
-  /** Elemen pembungkus. Default `p`; pakai `blockquote` untuk kutipan, `div` bila berisi blok lain. */
-  as?: "p" | "div" | "blockquote";
+  /**
+   * Elemen pembungkus. Default `p`; `blockquote` untuk kutipan, `div` bila berisi blok lain,
+   * `h2`/`h3` untuk judul bagian kitab yang berasal dari teks sumber (pembaca S09).
+   */
+  as?: "p" | "div" | "blockquote" | "h2" | "h3";
   className?: string;
   id?: string;
 }
