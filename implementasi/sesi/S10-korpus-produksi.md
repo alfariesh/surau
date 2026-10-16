@@ -1,6 +1,6 @@
 # S10 · Korpus produksi & QA rilis Fase 1
 
-> **Fase:** 1 · **Status:** selesai* (QA manusia T-15 dan persetujuan teks `/lisensi` menunggu pemilik)
+> **Fase:** 1 · **Status:** selesai (2026-10-16 · PR #23, #24 · T-15 dan teks `/lisensi` disetujui pemilik)
 > **Prasyarat:** S09 selesai · Tugas pemilik: **T-09** (drive), **T-10** (keputusan sumber dan lisensi, email ke Shamela, retensi `feedback`). **T-15** dikerjakan di langkah 4.
 > **Perkiraan:** 1 percakapan agent
 
@@ -41,8 +41,8 @@ Korpus Ihya berada di D1 produksi lewat prosedur blue-green yang bisa diulang da
 ## Selesai bila
 
 - [x] `surau-corpus-ihya-v1` aktif di produksi; prosedur promote dan rollback terdokumentasi dan sudah dijalankan sekali · deploy `main` 8ef5297 (PR #23, 2026-10-16 15:28 UTC): `wrangler versions view f9046c12…` → `CORPUS_DB 41e3033e-…` (ihya-v1), `READER_ENABLED 0`; langkah migrasi `surau-app` + smoke `/`, `/tentang`, `/lisensi` lolos
-- [ ] QA otomatis 30/30 halaman cocok; QA manusia 10 halaman tercatat · **otomatis 30/30 ✓** (produksi dan staging, `data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md`); **manusia menunggu T-15** (daftar siap: `data/reports/ihya-9472-qa-manusia.md`)
-- [ ] `/lisensi` dan atribusi tampil, dan pemilik menyetujui teksnya · **tampil ✓** (lokal + e2e, desktop/ponsel, terang/gelap); **persetujuan teks menunggu pemilik**
+- [x] QA otomatis 30/30 halaman cocok; QA manusia 10 halaman tercatat · otomatis 30/30 + baris korpus cocok (produksi dan staging, `data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md`); manusia 10/10 "oke" menurut pemilik (T-15, chat 2026-10-16, `data/reports/ihya-9472-qa-manusia.md`)
+- [x] `/lisensi` dan atribusi tampil, dan pemilik menyetujui teksnya · tampil di produksi (smoke `deploy.yml`) dan Preview `pembaca`; teks disetujui pemilik di chat 2026-10-16
 - [x] T-10 tercentang (email ke Shamela terkirim; jawabannya ditunggu, tidak memblokir bila ADR-018 sudah diterima pemilik) · dijawab di chat 2026-10-16
 - [x] `rows_read` per kunjungan halaman tercatat di LOG · ±16 kueri / ±1.530 baris per render, 0 untuk kunjungan ulang (ADR-036 butir 7)
 - [x] STATUS, LOG, dan file sesi ini diperbarui; FASE.md menandai Fase 1 siap rilis
