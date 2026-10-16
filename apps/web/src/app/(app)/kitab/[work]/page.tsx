@@ -49,7 +49,7 @@ export default async function WorkPage({ params }: Props) {
       </Breadcrumbs>
 
       <header className="flex flex-col gap-3">
-        <h1 className="text-foreground flex flex-col gap-1 text-3xl font-semibold tracking-tight">
+        <h1 className="text-foreground flex flex-col items-start gap-1 text-3xl font-semibold tracking-tight">
           <span>{title}</span>
           <ArabicInline className="text-muted text-2xl font-normal">{work.title_ar}</ArabicInline>
         </h1>

@@ -60,7 +60,8 @@ export function TocTree({
               className={isActive ? "toc-active" : undefined}
               href={item.href}
               id={item.id}
-              textValue={item.title}
+              // Nama baris untuk pembaca layar = judul (+ penanda bagian aktif).
+              textValue={isActive ? `${item.title} ${t.tocActive}` : item.title}
               title={
                 <span className="flex min-w-0 flex-col items-start">
                   <bdi className="arabic-inline toc-title" dir="rtl" lang="ar">
@@ -68,7 +69,6 @@ export function TocTree({
                   </bdi>
                   <span className="text-muted text-[0.7rem] tabular-nums">
                     {t.pageShort(item.juz, item.page)}
-                    {isActive ? <span className="sr-only"> {t.tocActive}</span> : null}
                   </span>
                 </span>
               }

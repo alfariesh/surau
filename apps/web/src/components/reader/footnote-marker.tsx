@@ -75,15 +75,25 @@ export function FootnoteMarker({ text, marker, footnote, refId }: FootnoteMarker
   if (canHover) {
     return (
       <HoverCard closeDelay={250} open={open} openDelay={250} onOpenChange={setOpen}>
-        <HoverCard.Trigger>
-          <AriaButton
-            aria-label={heading}
-            className={MARKER_CLASS}
-            id={refId}
-            onPress={() => setOpen(true)}
-          >
-            {text}
-          </AriaButton>
+        {/* Span pemicu HoverCard sendiri yang menjadi tombol: HoverCard memasang aria-expanded di
+            span ini, dan tombol bersarang di dalamnya melanggar aturan ARIA (axe aria-allowed-attr). */}
+        <HoverCard.Trigger
+          aria-label={heading}
+          className={MARKER_CLASS}
+          id={refId}
+          // HoverCard.Trigger selalu merender <span>; elemennya tidak bisa diganti <button>.
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpen(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setOpen(true);
+            }
+          }}
+        >
+          {text}
         </HoverCard.Trigger>
         <HoverCard.Content
           aria-label={heading}

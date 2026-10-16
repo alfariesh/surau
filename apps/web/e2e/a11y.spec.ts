@@ -3,7 +3,14 @@ import { expect, test } from "@playwright/test";
 
 // Aksesibilitas (WCAG 2.1 AA, termasuk kontras warna) di setiap halaman, tema terang dan gelap.
 // Melengkapi Lighthouse, yang tidak bisa menilai halaman 404 maupun mode gelap.
-const PAGES = ["/", "/tentang", "/tidak-ada-halaman-ini"];
+const PAGES = [
+  "/",
+  "/tentang",
+  "/tidak-ada-halaman-ini",
+  "/kitab",
+  "/kitab/ihya",
+  "/kitab/ihya/1/200",
+];
 
 for (const scheme of ["light", "dark"] as const) {
   test.describe(`tema ${scheme === "light" ? "terang" : "gelap"}`, () => {
