@@ -17,6 +17,7 @@ export async function POST(request: Request): Promise<Response> {
     hmacKey: env.IP_HMAC_KEY ?? (dev ? DEV_HMAC_KEY : undefined),
     ip: request.headers.get("cf-connecting-ip") ?? (dev ? "127.0.0.1" : null),
     limit: async (key) => (await env.FEEDBACK_LIMITER.limit({ key })).success,
+    limitGlobal: async () => (await env.FEEDBACK_GLOBAL_LIMITER.limit({ key: "global" })).success,
     corpusVersion: async () => (await getCorpusMeta(env.CORPUS_DB)).corpus_version ?? null,
     insert: (input) => createFeedback(env.APP_DB, input),
   });

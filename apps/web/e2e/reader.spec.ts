@@ -110,6 +110,11 @@ test("alamat yang tidak ada atau tidak kanonis = 404", async ({ request }) => {
     "/kitab/ihya/01/200",
     "/kitab/tidak-ada",
     "/kitab/ihya/bab/1",
+    // Rilis Fase 1: juz di luar jumlah jilid dan ID bab acak ditolak tanpa membaca daftar isi.
+    "/kitab/ihya/0/1",
+    "/kitab/ihya/5/1",
+    "/kitab/ihya/999999999/1",
+    "/kitab/ihya/bab/999999999",
   ]) {
     expect((await request.get(path, { maxRedirects: 0 })).status(), path).toBe(404);
   }

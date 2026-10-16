@@ -43,7 +43,9 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { work: segment, juz, page } = await params;
-  const [ctx, toc] = await Promise.all([loadPage(segment, juz, page), loadToc(segment)]);
+  // Halaman dulu, baru daftar isi: alamat yang 404 tidak ikut membaca seluruh pohon (ADR-034).
+  const ctx = await loadPage(segment, juz, page);
+  const toc = await loadToc(segment);
   const { citation, body } = ctx.page;
   const [first] = activeTocIds(toc, citation.juz, citation.page_no, body);
   const bab = first === undefined ? null : (tocPath(toc, first).at(-1)?.title ?? null);
@@ -63,10 +65,8 @@ function passageLabel(juz: number, page: number, p: Passage): string {
 
 export default async function ReaderPage({ params }: Props) {
   const { work: rawSegment, juz: rawJuz, page: rawPage } = await params;
-  const [ctx, toc] = await Promise.all([
-    loadPage(rawSegment, rawJuz, rawPage),
-    loadToc(rawSegment),
-  ]);
+  const ctx = await loadPage(rawSegment, rawJuz, rawPage);
+  const toc = await loadToc(rawSegment);
   const { page, work, edition, segment } = ctx;
   const { juz, page_no: pageNo, permalink } = page.citation;
 

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { FeedbackDeps } from "./feedback-handler";
 
-import { handleFeedback, ipKey } from "./feedback-handler";
+import { handleFeedback, ipKey, ipNetwork } from "./feedback-handler";
 
 const ORIGIN = "https://surau.example";
 
@@ -19,6 +19,7 @@ function deps(over: Partial<FeedbackDeps> = {}) {
       keys.push(key);
       return true;
     },
+    limitGlobal: async () => true,
     corpusVersion: async () => "ihya-v1",
     insert: async (input) => {
       saved.push(input);
@@ -124,5 +125,28 @@ describe("POST /api/feedback", () => {
     expect(await ipKey("a", "1.1.1.1")).toBe(await ipKey("a", "1.1.1.1"));
     expect(await ipKey("a", "1.1.1.1")).not.toBe(await ipKey("a", "1.1.1.2"));
     expect(await ipKey("a", "1.1.1.1")).not.toBe(await ipKey("b", "1.1.1.1"));
+  });
+
+  it("batas global habis → 429 sebelum batas per klien dan tanpa menyimpan", async () => {
+    const { d, saved, keys } = deps({ limitGlobal: async () => false });
+    expect((await handleFeedback(post(GOOD), d)).status).toBe(429);
+    expect(saved).toEqual([]);
+    expect(keys).toEqual([]);
+  });
+
+  it("kunci per klien: IPv6 satu /64 = satu kunci, IPv4 per alamat", async () => {
+    expect(ipNetwork("2001:db8:abcd:12::1")).toBe("2001:db8:abcd:12::/64");
+    expect(ipNetwork("2001:0db8:abcd:0012:ffff:1:2:3")).toBe("2001:db8:abcd:12::/64");
+    expect(ipNetwork("2001:db8::")).toBe("2001:db8:0:0::/64");
+    expect(ipNetwork("::1")).toBe("0:0:0:0::/64");
+    expect(ipNetwork("203.0.113.7")).toBe("203.0.113.7");
+    expect(ipNetwork("bukan-ip")).toBe("bukan-ip");
+    expect(ipNetwork("::ffff:198.51.100.9")).toBe("::ffff:198.51.100.9");
+    const a = deps({ ip: "2001:db8:abcd:12::1" });
+    const b = deps({ ip: "2001:db8:abcd:12:9999::7" });
+    await handleFeedback(post(GOOD), a.d);
+    await handleFeedback(post(GOOD), b.d);
+    expect(a.keys[0]).toBe(b.keys[0]);
+    expect(a.keys[0]).toBe(await ipKey("kunci-uji", "2001:db8:abcd:12::/64"));
   });
 });
