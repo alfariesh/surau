@@ -111,18 +111,6 @@ export default async function ReaderPage({ params }: Props) {
     <ReaderProvider cite={citeParts(page.citation.source, juz, pageNo)} pagePath={permalink}>
       <script dangerouslySetInnerHTML={{ __html: READER_SCALE_SCRIPT }} />
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 pt-6 pb-16 sm:px-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
-        <aside aria-labelledby="judul-daftar-isi" className="hidden lg:block">
-          <div
-            data-toc-scroll
-            className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
-          >
-            <h2 className="text-foreground px-2 text-sm font-semibold" id="judul-daftar-isi">
-              {t.tocHeading}
-            </h2>
-            <TocTree activeIds={activeIds} items={toc} />
-          </div>
-        </aside>
-
         <article className="flex min-w-0 flex-col gap-6">
           <header className="flex flex-col gap-3">
             <Breadcrumbs aria-label={t.breadcrumbLabel} className="flex-wrap">
@@ -176,8 +164,8 @@ export default async function ReaderPage({ params }: Props) {
                   <div className="passage flex flex-row-reverse items-start gap-1" id={p.anchor}>
                     {heading ? (
                       <ArabicText
-                        as={heading.level <= 2 ? "h2" : "h3"}
-                        className="reader-heading min-w-0 flex-1"
+                        as="h2"
+                        className={`reader-heading min-w-0 flex-1 ${heading.level > 2 ? "reader-heading-minor" : ""}`}
                       >
                         {renderText(p)}
                       </ArabicText>
@@ -256,6 +244,18 @@ export default async function ReaderPage({ params }: Props) {
             {anyReview ? <p>{t.needsReviewNote}</p> : null}
           </footer>
         </article>
+
+        <aside aria-labelledby="judul-daftar-isi" className="hidden lg:order-first lg:block">
+          <div
+            data-toc-scroll
+            className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
+          >
+            <h2 className="text-foreground px-2 text-sm font-semibold" id="judul-daftar-isi">
+              {t.tocHeading}
+            </h2>
+            <TocTree activeIds={activeIds} items={toc} />
+          </div>
+        </aside>
       </div>
     </ReaderProvider>
   );
