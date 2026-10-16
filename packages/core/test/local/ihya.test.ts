@@ -102,6 +102,7 @@ describe.skipIf(!hasState)("Ihya di D1 lokal", () => {
       label: "Ihya' 'Ulum ad-Din, j. 1, h. 200",
     });
     expect(view.citation.source.work.author?.name_id).toBe("Abu Hamid al-Ghazali");
+    expect(view.source_url).toBe("https://shamela.ws/book/9472/200");
     expect([view.body.length, view.footnotes.length]).toEqual([7, 7]);
 
     // Teks persis sama dengan DB.

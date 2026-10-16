@@ -548,3 +548,119 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - Klien MCP butuh batas ukuran lain.
 - Ada kitab dengan paragraf di atas ±6 ribu token.
 - Biaya *rows read* D1 dari `getSectionPassages` terasa.
+
+## ADR-034 · UI pembaca (S09): rute ISR on-demand, pembaca tertutup di produksi, takhrij HoverCard/Popover, laporan berpengaman, `keep_names: false` — diterima · 2026-10-16
+
+**Konteks:** S09 membangun pembaca Ihya di `apps/web` di atas `@surau/core` (ADR-033). Fakta lapangan 16 Okt 2026:
+- Next 16.4.1 tanpa `cacheComponents` masih mendukung ISR on-demand: `revalidate = false` + `generateStaticParams` yang mengembalikan `[]`. Render pertama MISS, berikutnya HIT. Hasil 404 dan redirect ikut di-cache sampai deploy berikutnya.
+- OpenNext 1.20.12 punya issue #1455 (terbuka): setiap render ISR di workerd menahan ±1,4 MB heap per render (halaman 600 KB) sampai isolate diganti. Perbaikannya ada di PR #1456, belum dirilis.
+- CI tidak punya D1. Halaman tanpa parameter atau sitemap yang di-prerender saat build akan membaca D1 kosong.
+- T-10 (sumber teks & lisensi, P-6) belum dijawab pemilik, dan korpus produksi baru dibuat di S10.
+
+**Keputusan:**
+1. **Rute** (permalink ADR-029):
+   - `/kitab`: daftar karya, `force-dynamic` (satu query kecil).
+   - `/kitab/[work]`: halaman karya dengan edisi, lisensi, atribusi, dan daftar isi.
+   - `/kitab/[work]/[juz]/[page]`: halaman cetak.
+   - `/kitab/[work]/bab/[id]`: **307** ke halaman awal bagian dengan jangkar `#bab-<id>`. Bukan 308, karena awal bagian bisa bergeser bila patch daftar isi berubah.
+   - Segmen `[work]` menerima `ihya` (edisi default) dan `ihya@<edisi>`. `ihya@<slug edisi default>` dialihkan **308** ke URL kanonis dengan sisa path yang sama; edisi milik karya lain = 404.
+   - Angka juz/halaman/ID divalidasi `uintSegment` sebelum dipakai di URL pengalihan. `01` atau `1e2` = 404.
+   - Error core dipetakan: `NotFound` dan `InvalidCitation` → 404 (`notFound()`); error lain → `error.tsx` (`retry`).
+2. **ISR on-demand** untuk tiga rute dinamis: `revalidate = false`, `dynamicParams = true`, `generateStaticParams = []`.
+   - Tidak ada render saat build, jadi CI tidak butuh D1. Render pertama saat dibuka, lalu disimpan di cache R2 (ADR-026) sampai deploy berikutnya.
+   - `getCloudflareContext({ async: true })` dipanggil di dalam fungsi, tidak pernah di top-level modul.
+   - `sitemap.xml` `force-dynamic` dengan origin dari host permintaan. Isinya: `/`, `/tentang`, `/kitab`, halaman karya, dan 1.706 halaman cetak edisi default lewat `@surau/db` `listPages` (fungsi baru). Bagian `/bab/<id>` tidak dicantumkan karena itu pengalihan. `robots.txt` statis: semua boleh kecuali `/api/`.
+   - Diukur di Preview PR #21 (halaman yang belum pernah dibuka):
+     - TTFB dingin 0,71–1,02 dtk (MISS), hangat 0,10–0,18 dtk (HIT).
+     - HTML j1 h200 ±200 KB mentah, ±28 KB gzip.
+   - **Risiko diterima, dengan batas yang ditulis jujur** (koreksi dari peninjau):
+     - Ruang path ISR **tidak terbatas**: `/kitab/<apa saja>`, `/kitab/ihya/1/<0..999999999>`, `/kitab/ihya/bab/<angka>`. Setiap path baru, termasuk yang berakhir 404, memicu satu render Worker dan satu tulis cache R2 (operasi Class A), lalu 404-nya ikut di-cache.
+     - Ini sudah berlaku di **produksi sejak merge**, walau `READER_ENABLED = "0"`, karena `notFound()` terjadi di dalam render ISR. Sebelum S09, `/kitab/*` jatuh ke 404 statis.
+     - Setiap render ISR juga menahan heap (#1455). Path sah Ihya sekitar 2.000 per deploy, tetapi pemindai/bot bisa membuat path unik tanpa batas. Isolate diganti otomatis saat mendekati 128 MB; error 1102 hanya di beban sangat tinggi.
+     - Mitigasi sekarang: pantau R2 Class A ops dan grafik memori Worker di dashboard. Mitigasi berikutnya:
+       - aturan rate limit/WAF untuk `/kitab/*` saat domain sendiri siap (P-2, WAF butuh zona);
+       - naikkan OpenNext saat #1456 dirilis.
+     - Ruang path tidak dipersempit (mis. folder literal `ihya` atau `dynamicParams = false`), karena keduanya memutus permalink edisi `ihya@<edisi>` (ADR-029) atau butuh D1 saat build.
+3. **Binding:**
+   - `CORPUS_DB` dan `APP_DB` dengan `database_id` **eksplisit** di top-level dan di `previews`. ID-nya sama dengan `packages/db/wrangler.jsonc`, jadi `next dev` membaca D1 lokal yang dimuat `corpus:load:local`.
+   - Produksi menunjuk `surau-corpus-staging` + `surau-app`. Preview menunjuk `surau-corpus-staging` + `surau-app-staging`.
+   - **Pembaca ditutup di produksi** lewat `vars.READER_ENABLED = "0"` (Preview `"1"`; `next dev` selalu terbuka). Saat tertutup:
+     - `/kitab` menampilkan "segera hadir";
+     - `/kitab/*` dan `/api/feedback` = 404;
+     - sitemap tanpa halaman kitab.
+   - Alasannya: korpus produksi (S10), QA, dan T-10 belum ada. Membukanya cukup dengan mengubah satu `vars` di S10/`/rilis 1`.
+   - **Menutup/membuka harus lewat commit + `deploy.yml`**, bukan dashboard atau `wrangler versions`. Halaman ISR yang sudah HIT dilayani dari cache R2/regional tanpa menjalankan `readerEnabled()`, dan hanya build baru (BUILD_ID baru) yang memulai cache dari nol. Prosedur tutup darurat (mis. bila Shamela keberatan, T-10) ditulis di S10.
+   - `wrangler types --strict-vars=false`, supaya `READER_ENABLED` bertipe `string`, bukan literal `"0"`.
+   - Secret `IP_HMAC_KEY` tidak dibuat `wrangler types`, jadi tipenya ditulis di `apps/web/env.d.ts` (opsional).
+4. **Halaman baca:**
+   - Setiap paragraf adalah `ArabicText` dengan `id="p<seq>"`.
+   - Penanda `(١)` dipotong **hanya di offset `footnote_ref`** (`splitByFootnotes`, diuji: gabungan potongan = `text_raw`). Teks penanda dan teks takhrij keduanya `text_raw` dari DB.
+   - Perangkat ber-hover (`(hover: hover) and (pointer: fine)`) memakai HoverCard Pro, yang juga terbuka saat diklik. Ponsel/sentuh memakai Popover.
+   - Span pemicu HoverCard sendiri dijadikan tombol (`role="button"`): HoverCard memasang `aria-expanded` di span itu, dan tombol bersarang di dalamnya melanggar axe `aria-allowed-attr`.
+   - Catatan kaki juga tampil di daftar bawah halaman (jangkar `#p<seq>`, tautan "kembali ke teks"), lengkap dengan tanda `needs_review` dan penjelasan bahwa tanda itu hasil pemeriksaan otomatis, bukan tinjauan.
+   - Paragraf yang teksnya sama persis dengan judul node yang mulai di halaman itu ditampilkan sebagai `h2`. Ini hanya soal tampilan; teksnya tetap `text_raw`.
+   - Navigasi halaman mengikuti arah kitab Arab: **Berikutnya di kiri / ←**, **Sebelumnya di kanan / →**. Tombol panah diabaikan di kolom isian, menu, dialog, dan pohon. Baris alat baca sengaja bukan `role="toolbar"`, karena pola itu memakai ←/→ untuk berpindah antar-kontrol.
+   - Daftar isi memakai `FileTree` Pro (313 node; leluhur bagian aktif terbuka, panel menggulir sendiri ke bagian aktif) di samping (≥ lg) dan di Drawer (ponsel).
+   - Ukuran huruf Arab (5 langkah) disimpan di `localStorage`. Skrip awal kecil memasangnya sebelum teks tampil.
+   - T-08 hanya memberi satu font Arab, jadi tidak ada pilihan font.
+5. **Sitasi salin:**
+   - Format: `al-Ghazali, Ihya' 'Ulum ad-Din, Dar al-Ma'rifah, j.1 h.200. <permalink>`, untuk halaman maupun paragraf (`#pN`).
+   - Isinya teks biasa + HTML (judul miring, tautan aktif).
+   - Origin = situs yang sedang dibuka, jadi tautan dari Preview menunjuk Preview.
+   - Nama pengarang ringkas dan nama penerbit berhuruf Latin diambil dari tabel nama tampilan web (`apps/web/src/content/works.ts`). DB hanya menyimpan nama lengkap dan penerbit berhuruf Arab. Karya baru tanpa entri memakai data DB apa adanya.
+   - Judul mengikuti `title_id` DB (`Ihya' 'Ulum ad-Din`, dengan apostrof), bukan ejaan di contoh rencana.
+6. **Atribusi ADR-018 + CC BY-NC-SA 4.0 §3(a)(1)** (`LicenseNotice`, di halaman karya dan footer halaman baca):
+   - atribusi edisi dari DB apa adanya;
+   - nama lisensi + tautan ke teks lisensinya;
+   - tautan ke materi sumber berlisensi (OpenITI 2025.1.9 di Zenodo, `data/ATTRIBUTION.md`);
+   - pernyataan pengolahan ("Diolah Surau: … Huruf teks Arab tidak diubah");
+   - di halaman baca, tautan "Halaman ini di al-Maktaba al-Shamela".
+   - Tautan lisensi, sumber, dan judul catatan kaki "takhrij al-'Iraqi" disimpan per edisi di `apps/web/src/content/works.ts`. Edisi tanpa entri hanya mendapat "Catatan kaki", supaya catatan kaki karya lain tidak salah diatribusikan.
+   - Tautan itu berasal dari field tambahan `@surau/core` `PageView.source_url` (`https://shamela.ws/book/<source_ref>/<source_page_id>`, hanya untuk edisi `shamela`). Kontrak hanya bertambah.
+7. **Laporan kesalahan** `POST /api/feedback`: route handler, bukan Server Action. Logikanya di `lib/feedback-handler.ts` (diuji tanpa Workers), dengan urutan:
+   - pembaca terbuka;
+   - Origin sama;
+   - `content-type` JSON;
+   - body ≤ 8 KB (header + penghitung stream);
+   - Zod `feedbackRequest`: jenis `text/citation/toc/other`, pesan memakai aturan `feedbackInput` @surau/db, path hanya `/kitab/...` tanpa `?`/`#`;
+   - honeypot `website`: bila terisi, dijawab 201 tanpa menyimpan;
+   - Rate Limiting `FEEDBACK_LIMITER` 5/60 dtk dengan kunci `HMAC-SHA256(IP_HMAC_KEY, cf-connecting-ip)` 128 bit;
+   - simpan ke `feedback` dengan `corpus_version` dan **tanpa IP**.
+
+   Ketentuan lain:
+   - `namespace_id` 1001 (produksi) dan 2001 (Preview) supaya hitungannya tidak bercampur.
+   - Secret `IP_HMAC_KEY` dipasang agent dengan nilai acak, tidak pernah dicetak: produksi lewat `wrangler secret put`, Preview lewat `wrangler preview base-config secret put`. `next dev` memakai kunci tetap khusus pengembangan; secret yang hilang = 503.
+   - Retensi `feedback` tetap menunggu P-7 / T-10 butir 4.
+8. **`keep_names: false`** di `apps/web/wrangler.jsonc`.
+   - esbuild wrangler (keepNames, bawaan) menyisipkan `__name(fn, "…")` ke kode server.
+   - Skrip tema `next-themes` dibuat dari `fn.toString()`, jadi `__name` ikut ke browser dan gagal (`ReferenceError`) di halaman yang dirender Worker saat runtime.
+   - Halaman statis Fase 0 dirender di Node saat build, jadi tidak terdampak. Halaman ISR S09 terdampak (ditemukan Lighthouse di Preview).
+   - Setelah perubahan: 0 `__name(` di HTML Preview, dan *best practices* naik dari 96 ke 100.
+9. **Kualitas** (Preview PR #21, j1 h200, Lighthouse 13.5.0):
+   - Ponsel: a11y **100**, performa 80 (FCP 3,1 dtk, LCP 4,2 dtk, TBT 20 ms, CLS 0), BP 100.
+   - Desktop: 100/100/100.
+   - SEO 66 di Preview hanya karena `x-robots-tag: noindex` bawaan Preview.
+   - axe 0 pelanggaran untuk `/kitab`, `/kitab/ihya`, dan `/kitab/ihya/1/200` (terang/gelap, desktop/ponsel).
+   - LCP ponsel terutama terhambat CSS global HeroUI (±90 KB, render-blocking) dan JS. Itu utang lintas halaman, bukan khusus pembaca.
+
+**Ditolak:**
+- `force-dynamic` untuk halaman baca: tidak bocor (#1455), tetapi setiap request merender dan membaca D1, dan butuh Workers Cache + `Cache-Control` yang belum teruji dengan OpenNext.
+- Prerender seluruh Ihya saat build: CI tidak punya D1.
+- Mengarahkan produksi ke korpus staging **dengan** pembaca terbuka: teks akan tampil publik sebelum QA S10 dan T-10.
+- IP mentah sebagai kunci rate limit (P-7).
+- `server-only` sebagai dependensi baru: rute sudah server-only lewat `next/navigation` + OpenNext.
+- Tombol penanda di dalam span HoverCard (axe).
+- Pilihan font kedua (T-08 hanya satu font).
+
+**Utang:**
+- Pohon daftar isi dikirim dua kali di payload RSC halaman baca (panel samping + Drawer), ±25 KB mentah. Bisa disatukan lewat konteks.
+- `/api/feedback` tidak mencocokkan `passage_id` dengan `path` (laporan bisa merujuk paragraf halaman lain; cukup ditandai saat triase). Untuk rilis publik, pertimbangkan batas global per hari selain 5/menit per IP, karena IP (terutama IPv6) mudah dirotasi.
+- Satu kali klik sebelum hidrasi tidak berbuat apa-apa (e2e memakai `toPass`).
+- Penanda di mode HoverCard berganti elemen setelah hidrasi (Popover → HoverCard) karena kemampuan hover baru diketahui di klien.
+- Pengguna yang membuka `/kitab/*` sebelum `READER_ENABLED` dinyalakan di produksi akan mendapat 404 yang ter-cache sampai deploy berikutnya. Mengubah `vars` memang selalu lewat deploy baru, yang membuang cache build lama.
+
+**Tinjau ulang bila:**
+- OpenNext merilis perbaikan #1455.
+- Korpus produksi blue-green siap (S10): ganti binding `CORPUS_DB` dan nyalakan `READER_ENABLED`.
+- Domain sendiri siap (`SITE_URL`, P-2).
+- Ada kitab kedua dengan edisi non-default atau satu jilid.

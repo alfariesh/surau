@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { useRouter } from "next/navigation";
 import { ThemeProvider } from "next-themes";
+import { Toast } from "@heroui/react";
 import { I18nProvider, RouterProvider } from "react-aria-components";
 
 // Provider klien Surau. Root layout tidak membaca headers() (S04 langkah 3), jadi locale
@@ -14,7 +15,11 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider disableTransitionOnChange enableSystem attribute="class" defaultTheme="system">
       <I18nProvider locale="id-ID">
-        <RouterProvider navigate={(href) => router.push(href)}>{children}</RouterProvider>
+        <RouterProvider navigate={(href) => router.push(href)}>
+          {children}
+          {/* Notifikasi singkat (mis. "Sitasi disalin" di pembaca kitab). */}
+          <Toast.Provider placement="bottom" />
+        </RouterProvider>
       </I18nProvider>
     </ThemeProvider>
   );

@@ -16,6 +16,8 @@ export interface CiteContext {
   path: EditionPath;
   location(juz: number, pageNo: number, passageId?: number): Location;
   citation(juz: number, pageNo: number, passageId?: number): Citation;
+  /** Halaman yang sama di digitalisasi asal (ADR-018: atribusi Shamela), atau `null`. */
+  sourceUrl(sourcePageId: number | null): string | null;
 }
 
 export function citeContext(ctx: EditionContext): CiteContext {
@@ -65,6 +67,11 @@ export function citeContext(ctx: EditionContext): CiteContext {
     path,
     location,
     citation: (juz, pageNo, passageId) => ({ source, ...location(juz, pageNo, passageId) }),
+    // Hanya Shamela yang punya URL per halaman (`page.id` sumber); OpenITI tidak.
+    sourceUrl: (sourcePageId) =>
+      edition.source === "shamela" && sourcePageId !== null
+        ? `https://shamela.ws/book/${encodeURIComponent(edition.source_ref)}/${sourcePageId}`
+        : null,
   };
 }
 

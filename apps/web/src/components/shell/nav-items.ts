@@ -16,7 +16,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "home", label: id.nav.home, icon: House, href: "/" },
-  { id: "books", label: id.nav.books, icon: BookOpen },
+  { id: "books", label: id.nav.books, icon: BookOpen, href: "/kitab" },
   { id: "search", label: id.nav.search, icon: Magnifier },
   { id: "ask", label: id.nav.ask, icon: CircleQuestion },
   { id: "about", label: id.nav.about, icon: CircleInfo, href: "/tentang" },

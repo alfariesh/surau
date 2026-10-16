@@ -36,6 +36,7 @@ export {
   getTocNode,
   getWorkBySlug,
   listEditions,
+  listPages,
   listTocNodes,
   listWorkAuthors,
   listWorks,

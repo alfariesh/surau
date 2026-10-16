@@ -52,21 +52,26 @@ test("halaman yang tidak ada menampilkan 404 berbahasa Indonesia", async ({ page
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Halaman tidak ditemukan");
 });
 
-test("menu samping: Tentang bisa dibuka, fitur yang belum ada berlabel segera", async ({
+test("menu samping: Kitab dan Tentang bisa dibuka, fitur yang belum ada berlabel segera", async ({
   page,
   isMobile,
 }) => {
   await page.goto("/");
 
-  if (isMobile) {
-    await page.getByRole("button", { name: "Buka menu" }).click();
-  }
+  const openMenu = async () => {
+    if (isMobile) await page.getByRole("button", { name: "Buka menu" }).click();
+    return page.getByRole("treegrid", { name: "Navigasi utama" }).last();
+  };
 
-  const menu = page.getByRole("treegrid", { name: "Navigasi utama" }).last();
-  await expect(menu.getByRole("row", { name: /Kitab \(segera\)/ })).toHaveAttribute(
+  let menu = await openMenu();
+  await expect(menu.getByRole("row", { name: /Cari \(segera\)/ })).toHaveAttribute(
     "aria-disabled",
     "true",
   );
+  await menu.getByRole("row", { name: "Kitab", exact: true }).click();
+  await expect(page).toHaveURL(/\/kitab$/);
+
+  menu = await openMenu();
   await menu.getByRole("row", { name: "Tentang" }).click();
   await expect(page).toHaveURL(/\/tentang$/);
 });

@@ -1,0 +1,263 @@
+import type { Passage } from "@surau/core";
+import type { Metadata } from "next";
+
+import { Breadcrumbs } from "@heroui/react";
+import { Fragment } from "react";
+
+import { ArabicInline, ArabicText } from "../../../../../../components/arabic";
+import { LicenseNotice } from "../../../../../../components/reader/license-notice";
+import { FootnoteMarker } from "../../../../../../components/reader/footnote-marker";
+import { NeedsReviewNote } from "../../../../../../components/reader/needs-review";
+import { PageNav } from "../../../../../../components/reader/page-nav";
+import { PassageActions } from "../../../../../../components/reader/passage-actions";
+import { ReaderProvider } from "../../../../../../components/reader/reader-context";
+import { ReaderToolbar } from "../../../../../../components/reader/reader-toolbar";
+import { TocTree } from "../../../../../../components/reader/toc-tree";
+import { FOOTNOTE_NOTE } from "../../../../../../content/works";
+import { id } from "../../../../../../i18n/id";
+import { citeParts } from "../../../../../../lib/reader/cite";
+import { loadPage, loadToc } from "../../../../../../lib/reader/data";
+import { READER_SCALE_SCRIPT } from "../../../../../../lib/reader/scale";
+import { splitByFootnotes } from "../../../../../../lib/reader/segments";
+import {
+  activeTocIds,
+  headingPassages,
+  sectionStarts,
+  tocPath,
+} from "../../../../../../lib/reader/toc";
+
+const t = id.reader;
+
+// Halaman cetak (permalink ADR-029): /kitab/ihya/1/200. ISR on-demand: tidak ada halaman yang
+// dirender saat build (CI tanpa D1); render pertama saat dibuka, lalu disimpan di cache R2 sampai
+// deploy berikutnya. Konten kitab tidak berubah per versi korpus (ARSITEKTUR-TEKNIS §5).
+export const revalidate = false;
+export const dynamicParams = true;
+export function generateStaticParams(): { work: string; juz: string; page: string }[] {
+  return [];
+}
+
+interface Props {
+  params: Promise<{ work: string; juz: string; page: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { work: segment, juz, page } = await params;
+  const [ctx, toc] = await Promise.all([loadPage(segment, juz, page), loadToc(segment)]);
+  const { citation, body } = ctx.page;
+  const [first] = activeTocIds(toc, citation.juz, citation.page_no, body);
+  const bab = first === undefined ? null : (tocPath(toc, first).at(-1)?.title ?? null);
+  const title = ctx.work.title_id ?? ctx.work.title_ar;
+  const author = ctx.work.author?.name_id ?? null;
+  return {
+    title: t.pageMetaTitle(bab, title, citation.juz, citation.page_no),
+    description: t.pageMetaDescription(title, author, citation.juz, citation.page_no),
+    alternates: { canonical: citation.permalink },
+    openGraph: { type: "article", url: citation.permalink },
+  };
+}
+
+function passageLabel(juz: number, page: number, p: Passage): string {
+  return `${t.pageShort(juz, page)} · ${p.anchor}`;
+}
+
+export default async function ReaderPage({ params }: Props) {
+  const { work: rawSegment, juz: rawJuz, page: rawPage } = await params;
+  const [ctx, toc] = await Promise.all([
+    loadPage(rawSegment, rawJuz, rawPage),
+    loadToc(rawSegment),
+  ]);
+  const { page, work, edition, segment } = ctx;
+  const { juz, page_no: pageNo, permalink } = page.citation;
+
+  const activeIds = activeTocIds(toc, juz, pageNo, page.body);
+  const crumbs = activeIds[0] === undefined ? [] : tocPath(toc, activeIds[0]);
+  const headings = headingPassages(toc, juz, pageNo, page.body);
+  const starts = sectionStarts(toc, juz, pageNo, page.body);
+  const footById = new Map(page.footnotes.map((f) => [f.id, f]));
+  // Potongan teks per paragraf badan (penanda dipotong hanya di offset DB). Penanda pertama yang
+  // benar-benar dirender untuk tiap catatan kaki diberi id, tujuan tautan "kembali ke teks".
+  const segmentsOf = new Map(
+    page.body.map((b) => [b.id, splitByFootnotes(b.text_raw, b.footnote_refs)]),
+  );
+  const markerOf = new Map<number, string>();
+  for (const b of page.body) {
+    for (const s of segmentsOf.get(b.id) ?? []) {
+      if (s.kind === "marker" && footById.has(s.footnoteId) && !markerOf.has(s.footnoteId)) {
+        markerOf.set(s.footnoteId, `ref-${b.anchor}-${s.charStart}`);
+      }
+    }
+  }
+  const footNote = FOOTNOTE_NOTE[`${work.slug}/${edition.slug}`];
+  const anyReview = [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0);
+  const workTitle = work.title_id ?? work.title_ar;
+  const ref = (p: Passage) => ({
+    id: p.id,
+    label: passageLabel(juz, pageNo, p),
+    permalink: p.location.permalink,
+  });
+
+  function renderText(p: Passage) {
+    return (segmentsOf.get(p.id) ?? []).map((s, i) => {
+      if (s.kind === "text") return <Fragment key={i}>{s.text}</Fragment>;
+      const foot = footById.get(s.footnoteId);
+      if (foot === undefined) return <Fragment key={i}>{s.text}</Fragment>;
+      const markerId = `ref-${p.anchor}-${s.charStart}`;
+      return (
+        <FootnoteMarker
+          key={i}
+          footnote={{ anchor: foot.anchor, text: foot.text_raw, needsReview: foot.needs_review }}
+          marker={s.marker}
+          refId={markerOf.get(foot.id) === markerId ? markerId : undefined}
+          text={s.text}
+        />
+      );
+    });
+  }
+
+  return (
+    <ReaderProvider cite={citeParts(page.citation.source, juz, pageNo)} pagePath={permalink}>
+      <script dangerouslySetInnerHTML={{ __html: READER_SCALE_SCRIPT }} />
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 pt-6 pb-16 sm:px-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
+        <article className="flex min-w-0 flex-col gap-6">
+          <header className="flex flex-col gap-3">
+            <Breadcrumbs aria-label={t.breadcrumbLabel} className="flex-wrap">
+              <Breadcrumbs.Item href="/kitab">{t.listTitle}</Breadcrumbs.Item>
+              <Breadcrumbs.Item href={edition.permalink}>{workTitle}</Breadcrumbs.Item>
+              {crumbs.map((c, i) => (
+                <Breadcrumbs.Item
+                  key={c.id}
+                  // Di ponsel hanya bagian terdalam yang tampil, supaya teks kitab tidak terdorong jauh.
+                  className={i < crumbs.length - 1 ? "max-sm:hidden" : undefined}
+                  // Langsung ke halaman awal bagian (tanpa lompatan 307 lewat /bab/<id>).
+                  href={`${c.href}#bab-${c.id}`}
+                >
+                  <ArabicInline>{c.title}</ArabicInline>
+                </Breadcrumbs.Item>
+              ))}
+              <Breadcrumbs.Item>{t.pageShort(juz, pageNo)}</Breadcrumbs.Item>
+            </Breadcrumbs>
+            <div className="flex flex-col gap-1">
+              <h1 className="text-foreground text-2xl font-semibold tracking-tight">
+                {t.pageHeading(juz, pageNo)}
+              </h1>
+              <p className="text-muted flex flex-wrap items-baseline gap-x-2 text-sm">
+                <span>{workTitle}</span>
+                <ArabicInline>{work.title_ar}</ArabicInline>
+              </p>
+            </div>
+            <ReaderToolbar
+              activeIds={activeIds}
+              juz={juz}
+              page={pageNo}
+              pagePath={permalink}
+              segment={segment}
+              toc={toc}
+              volumes={edition.volumes ?? juz}
+            />
+          </header>
+
+          <PageNav label={t.pageNavTopLabel} next={page.next} prev={page.prev} />
+
+          <section aria-label={t.textLabel} className="reader-text flex flex-col gap-3">
+            {starts.unplaced.map((nodeId) => (
+              <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
+            ))}
+            {page.body.map((p) => {
+              const heading = headings.get(p.id);
+              return (
+                <Fragment key={p.id}>
+                  {(starts.byPassage.get(p.id) ?? []).map((nodeId) => (
+                    <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
+                  ))}
+                  <div className="passage flex flex-row-reverse items-start gap-1" id={p.anchor}>
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      {heading ? (
+                        <ArabicText
+                          as="h2"
+                          className={`reader-heading ${heading.level > 2 ? "reader-heading-minor" : ""}`}
+                        >
+                          {renderText(p)}
+                        </ArabicText>
+                      ) : (
+                        <ArabicText className="text-foreground">{renderText(p)}</ArabicText>
+                      )}
+                      <NeedsReviewNote reasons={p.needs_review} />
+                    </div>
+                    <PassageActions passage={ref(p)} />
+                  </div>
+                </Fragment>
+              );
+            })}
+          </section>
+
+          <PageNav keyboard next={page.next} prev={page.prev} />
+          <p className="text-muted text-xs">{t.keyboardHint}</p>
+
+          {page.footnotes.length > 0 ? (
+            <section
+              aria-labelledby="judul-catatan-kaki"
+              className="flex flex-col gap-3 border-t border-separator pt-6"
+            >
+              <div className="flex flex-col gap-1">
+                <h2 className="text-foreground text-lg font-semibold" id="judul-catatan-kaki">
+                  {footNote?.heading ?? t.footnotesHeading}
+                </h2>
+                {footNote ? <p className="text-muted text-sm">{footNote.lead}</p> : null}
+              </div>
+              <ol className="flex list-none flex-col gap-3 p-0">
+                {page.footnotes.map((f) => {
+                  const back = markerOf.get(f.id);
+                  return (
+                    <li
+                      key={f.id}
+                      className="passage flex flex-row-reverse items-start gap-1"
+                      id={f.anchor}
+                    >
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <ArabicText className="text-foreground text-[0.95em]">
+                          {f.text_raw}
+                        </ArabicText>
+                        <NeedsReviewNote reasons={f.needs_review} />
+                        {back ? (
+                          <a className="link self-start text-xs" href={`#${back}`}>
+                            {t.footnoteBack}
+                          </a>
+                        ) : null}
+                      </div>
+                      <PassageActions passage={ref(f)} />
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          ) : null}
+
+          <footer className="text-muted flex flex-col gap-2 border-t border-separator pt-6 text-xs">
+            <h2 className="text-foreground text-sm font-semibold">{t.sourceHeading}</h2>
+            <LicenseNotice
+              attribution={page.citation.source.attribution}
+              editionSlug={edition.slug}
+              license={page.citation.source.license}
+              sourceUrl={page.source_url}
+              workSlug={work.slug}
+            />
+            {anyReview ? <p>{t.needsReviewNote}</p> : null}
+          </footer>
+        </article>
+
+        <aside aria-labelledby="judul-daftar-isi" className="hidden lg:order-first lg:block">
+          <div
+            data-toc-scroll
+            className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
+          >
+            <h2 className="text-foreground px-2 text-sm font-semibold" id="judul-daftar-isi">
+              {t.tocHeading}
+            </h2>
+            <TocTree activeIds={activeIds} items={toc} />
+          </div>
+        </aside>
+      </div>
+    </ReaderProvider>
+  );
+}

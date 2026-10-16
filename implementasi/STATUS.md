@@ -1,15 +1,15 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-16 · oleh agent, **S08 selesai** (`@surau/core`: fungsi baca Ihya + sitasi, kontrak calon MCP)
+> Diperbarui: 2026-10-16 · oleh agent, **S09 selesai*** (pembaca Ihya di web; *persetujuan tampilan pemilik menunggu, T-22)
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** S08 selesai: "mesin baca" Surau (`@surau/core`) sudah bisa mengambil halaman, daftar isi, dan bagian Ihya beserta sitasi lengkap. Belum ada tampilan baru; itu S09. Buka percakapan baru dan ketik **`/sesi`** untuk S09 (tidak butuh drive Shamela).
+- **Mulai di sini (pemilik):** S09 selesai: pembaca Ihya sudah jadi (daftar isi, halaman cetak, takhrij yang bisa diketuk, salin sitasi, laporan kesalahan). Di situs utama masih **ditutup** sampai rilis Fase 1. **Tolong lihat dan nilai tampilannya (T-22, ±10 menit):** https://pembaca-surau-web.alfarieshsalman.workers.dev/kitab/ihya/1/200. Setelah itu buka percakapan baru dan ketik **`/sesi`** untuk S10 (butuh T-09, T-10, T-15).
 - **Fase:** 1 · Pembaca Ihya (berjalan; Fase 0 dirilis 2026-10-15, `rilis-f0`)
-- **Sesi berikutnya:** **S09 · UI pembaca** → [sesi/S09-ui-pembaca.md](sesi/S09-ui-pembaca.md)
-- **Tindak lanjut kecil:** 609 paragraf Ihya ditandai perlu ditinjau (`passage_needs_review`: takhrij `//` dan batasnya, takhrij tak cocok JK, catatan kaki tak terjangkau). Daftarnya di `data/reports/ihya-9472-validasi.md`, ditinjau bersama T-15 (S10). `next` 16.4.2 (backport non-keamanan) boleh lewat Dependabot. Log Worker **Preview**: CI meringkas request/error tiap PR di komentar preview (ADR-031, T-21 selesai); slug Preview tercatat `__unknown__` di analytics, jadi angkanya bisa tercampur trafik Preview lain di jendela waktu yang sama. Cakupan tes `packages/db` dan `packages/core` belum terukur (coverage v8 tidak jalan di workerd, ADR-029; plugin 1.4.3 menyebut perbaikannya, coba lewat Dependabot). Heuristik token `readSection` (1 token ≈ 2 karakter) dikalibrasi di S16 (ADR-033).
-- **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
+- **Sesi berikutnya:** **S10 · Korpus produksi & QA** → [sesi/S10-korpus-produksi.md](sesi/S10-korpus-produksi.md) · lalu `/rilis 1` (nyalakan `READER_ENABLED`, ADR-034)
+- **Tindak lanjut kecil:** S09 (ADR-034): setiap path `/kitab/*` baru (termasuk 404, juga di produksi) = satu render Worker + satu tulis R2; pantau R2 Class A dan memori Worker, WAF saat domain siap; risiko OpenNext #1455 (heap per render ISR) diterima, naikkan versi saat #1456 rilis; pohon daftar isi terkirim dua kali di payload halaman baca; CSS global HeroUI memperlambat LCP ponsel (performa 80). 609 paragraf Ihya ditandai perlu ditinjau (`passage_needs_review`: takhrij `//` dan batasnya, takhrij tak cocok JK, catatan kaki tak terjangkau). Daftarnya di `data/reports/ihya-9472-validasi.md`, ditinjau bersama T-15 (S10). `next` 16.4.2 (backport non-keamanan) boleh lewat Dependabot. Log Worker **Preview**: CI meringkas request/error tiap PR di komentar preview (ADR-031, T-21 selesai); slug Preview tercatat `__unknown__` di analytics, jadi angkanya bisa tercampur trafik Preview lain di jendela waktu yang sama. Cakupan tes `packages/db` dan `packages/core` belum terukur (coverage v8 tidak jalan di workerd, ADR-029; plugin 1.4.3 menyebut perbaikannya, coba lewat Dependabot). Heuristik token `readSection` (1 token ≈ 2 karakter) dikalibrasi di S16 (ADR-033).
+- **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10) · **T-22 tinjau tampilan pembaca** (S09)
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dijawab di S04:** P-3/T-08 → palet **Zaitun** + Noto Naskh Arabic (ADR-027)
 - **Dipakai usulan bila tidak dijawab:** P-4 anggaran $20/bln · P-7 retensi data
@@ -17,7 +17,8 @@
 
 ## Sudah bisa dicoba
 
-- https://surau-web.alfarieshsalman.workers.dev: situs Surau (Beranda, Tentang, 404; terang/gelap) online di Cloudflare; setiap merge ke `main` otomatis ter-deploy.
+- https://surau-web.alfarieshsalman.workers.dev: situs Surau (Beranda, Tentang, 404; terang/gelap) online di Cloudflare; setiap merge ke `main` otomatis ter-deploy. Menu **Kitab** aktif, tetapi pembaca masih "segera hadir" di sini (ADR-034).
+- **Pembaca Ihya** (S09, data staging): https://pembaca-surau-web.alfarieshsalman.workers.dev/kitab/ihya (Preview tetap untuk T-22; dibuat manual dari `main`). Lokal: `pnpm dev` → http://localhost:3004/kitab/ihya/1/200 (D1 lokal dari `corpus:load:local`). Setiap PR juga punya pembaca di link preview-nya.
 - `pnpm dev` → http://localhost:3004: situs Surau lokal. `pnpm --filter @surau/web preview` → http://localhost:3005 (versi Workers lokal).
 - `pnpm test:e2e`: smoke + cek aksesibilitas (Playwright, chromium desktop & ponsel); juga berjalan otomatis di setiap preview PR.
 - `pnpm verify` → format, lint, cek tipe, tes (dengan cakupan), dan build sekaligus.
@@ -49,7 +50,7 @@
 | 1 | S06 | Skema data & D1 | selesai | 2026-10-15 · `@surau/db`, 3 DB D1 apac, ID & permalink (ADR-029) |
 | 1 | S07 | Importer Ihya | selesai* | 2026-10-16 · PR #19 · `tools/ingest`, migrasi 0002–0003 `passage_needs_review` (ADR-032) · *`data/ids/` ikut di-commit (ADR-029), di luar daftar butir 5 |
 | 1 | S08 | Core tools baca | selesai* | 2026-10-16 · `@surau/core`, paginasi per blok 4–6 ribu token (ADR-033) · *butir 4 lewat tafsiran ADR-033 butir 2 · persist dev web → `.wrangler/state/v3` |
-| 1 | S09 | UI pembaca | belum | log Preview via ringkasan CI (ADR-031) |
+| 1 | S09 | UI pembaca | selesai* | 2026-10-16 · PR #21 · ISR on-demand, pembaca tertutup di produksi, `/api/feedback` (ADR-034) · *persetujuan tampilan pemilik menunggu (T-22) |
 | 1 | S10 | Korpus produksi & QA | belum | butuh T-09, T-10, T-15 · lalu `/rilis 1` |
 | 2 | S11 | Indeks FTS Arab | belum | butuh T-09 |
 | 2 | S12 | Ayat & terjemahan Kemenag | belum | butuh T-09, T-16 |
