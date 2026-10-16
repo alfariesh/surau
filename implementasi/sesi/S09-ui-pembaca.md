@@ -1,6 +1,6 @@
 # S09 · UI pembaca kitab
 
-> **Fase:** 1 · **Status:** berjalan
+> **Fase:** 1 · **Status:** selesai* (2026-10-16 · PR #21 · *persetujuan tampilan pemilik menunggu, T-22)
 > **Prasyarat:** S08 selesai · Tugas pemilik: T-21 (selesai 2026-10-16; log Preview lewat ringkasan CI, ADR-031), review tampilan di akhir
 > **Perkiraan:** 1–2 percakapan agent
 
@@ -50,14 +50,14 @@ Pengguna bisa membuka Ihya, menjelajah daftar isi, membaca halaman cetak per hal
 
 ## Selesai bila
 
-- [ ] Semua rute berjalan di preview dengan data staging; tidak ada error di Workers Logs (ringkasan CI ADR-031 hanya bukti sebagian: tanpa HTTP 5xx/`console.error`)
-- [ ] `wrangler.jsonc` produksi punya `database_id` eksplisit untuk semua D1; `pnpm dev` lokal menampilkan j1 h200 dari DB lokal bersama
-- [ ] Takhrij tampil benar untuk 5 penanda yang dicek manual
-- [ ] "Salin sitasi" menghasilkan format yang benar, dan permalink membuka paragraf yang tepat
-- [ ] Lighthouse ponsel: aksesibilitas ≥ 90 dan performa dicatat
-- [ ] E2E lolos; `pnpm verify` lolos
-- [ ] Pemilik menyetujui tampilan
-- [ ] STATUS, LOG, dan file sesi ini diperbarui
+- [x] Semua rute berjalan di preview dengan data staging; tidak ada error di Workers Logs (ringkasan CI ADR-031 hanya bukti sebagian: tanpa HTTP 5xx/`console.error`) · Preview PR #21: `/kitab`, `/kitab/ihya`, `/kitab/ihya/1/200` 200; `/bab/100075` 307 ke `/1/200#bab-100075`; `ihya@dar-al-marifah/1/200` 308 ke kanonis; `/1/999` 404; sitemap 1.710 URL; e2e 56/56 terhadap Preview (dua run); ringkasan log 121 dan 135 request, **0 error**; `curl` semua rute tanpa 5xx
+- [x] `wrangler.jsonc` produksi punya `database_id` eksplisit untuk semua D1; `pnpm dev` lokal menampilkan j1 h200 dari DB lokal bersama · `CORPUS_DB` ffc5ce9a… dan `APP_DB` 76b6488e… (Preview: ffc5ce9a… + 49fd36a5…); `pnpm dev` → j1 h200 tampil dari `.wrangler/state/v3` (tangkapan layar + e2e lokal 56/56)
+- [x] Takhrij tampil benar untuk 5 penanda yang dicek manual · j1 h200 (٢) dan (٤), j2 h50 (١), j3 h120 (١), j4 h300 (١): isi popover = catatan kaki di daftar bawah, nomornya sama, dan isinya membahas hadits di matan sebelum penanda (mis. (٤) hadits Jabir shalat malam Jumat → "باطل لا أصل له")
+- [x] "Salin sitasi" menghasilkan format yang benar, dan permalink membuka paragraf yang tepat · e2e (lokal + Preview): papan klip = `al-Ghazali, Ihya' 'Ulum ad-Din, Dar al-Ma'rifah, j.1 h.200. <origin>/kitab/ihya/1/200`; `#p2826` dan `#p2834` menggulir + menyorot paragraf yang benar
+- [x] Lighthouse ponsel: aksesibilitas ≥ 90 dan performa dicatat · Lighthouse 13.5.0, Preview j1 h200: ponsel a11y **100**, performa **80** (FCP 3,1 dtk, LCP 4,2 dtk, TBT 20 ms, CLS 0), BP 100; desktop 100/100/100; SEO 66 hanya karena `noindex` bawaan Preview. TTFB Preview dingin 0,71–1,02 dtk, hangat 0,10–0,18 dtk
+- [x] E2E lolos; `pnpm verify` lolos · `pnpm test:e2e` 56/56 lokal dan di Preview; `pnpm verify` lolos (lokal + CI `verify`)
+- [ ] Pemilik menyetujui tampilan · **menunggu T-22** (tautan Preview tetap `pembaca`, tangkapan layar ponsel/desktop dikirim)
+- [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan
 
@@ -65,4 +65,21 @@ Pengguna bisa membuka Ihya, menjelajah daftar isi, membaca halaman cetak per hal
 
 ## Catatan hasil
 
-*(diisi agent)*
+**Dibuat** (keputusan lengkap: ADR-034):
+- Rute `apps/web/src/app/(app)/kitab/`: `page.tsx` (daftar karya, `force-dynamic`; "segera hadir" bila pembaca tertutup), `[work]/page.tsx` (karya, edisi, lisensi, daftar isi), `[work]/[juz]/[page]/page.tsx` (halaman cetak), `[work]/bab/[id]/page.tsx` (307 ke awal bagian `#bab-<id>`), `error.tsx`. Segmen `[work]` = `ihya` atau `ihya@<edisi>`; `ihya@<edisi default>` → 308 ke kanonis. Ketiga rute dinamis ISR on-demand (`revalidate = false`, `generateStaticParams = []`).
+- Data: `src/lib/reader/data.ts` (pemuat lewat `@surau/core`, error core → 404, `cache`), `work-segment.ts`, `segments.ts` (potong penanda per offset DB), `toc.ts` (pohon ramping, breadcrumb, bagian aktif, judul, jangkar bab), `cite.ts` + `src/content/works.ts` (sitasi salin), `scale.ts`, `src/lib/cloudflare.ts` (`getEnv`, `readerEnabled`).
+- Komponen `src/components/reader/`: `footnote-marker` (HoverCard/Popover), `toc-tree` (FileTree), `reader-toolbar` (daftar isi di Drawer, lompat, salin sitasi, ukuran huruf, lapor), `page-nav` (←/→ arah kitab), `passage-actions`, `feedback-dialog`, `reader-context`, `needs-review`.
+- `/api/feedback` (`src/lib/feedback-handler.ts` + `feedback-schema.ts`), `sitemap.ts`, `robots.ts`; Toast di `providers.tsx`; menu Kitab aktif.
+- `wrangler.jsonc`: `CORPUS_DB`/`APP_DB` ber-ID, `FEEDBACK_LIMITER`, `READER_ENABLED`, `keep_names: false`; `cf-typegen --strict-vars=false`; `env.d.ts` (`IP_HMAC_KEY`). Secret `IP_HMAC_KEY` dipasang (produksi + base config Preview).
+- Paket: `@surau/core` `PageView.source_url` (README + tes); `@surau/db` `listPages` (+ tes). Dependensi web baru: `@surau/core`, `@surau/db`, `zod` (workspace/catalog, tanpa paket pihak ketiga baru).
+- Tes: 23 tes unit web (segments, work-segment, cite, toc, feedback-handler); e2e `reader.spec.ts` (9 skenario × 2 perangkat), a11y +3 halaman, smoke menu diperbarui.
+
+**Penyimpangan dari rencana (terbuka):**
+- Langkah 3 "pilihan font" tidak dibuat: T-08 hanya memberi satu font Arab (Noto Naskh).
+- Langkah 1: produksi **menunjuk korpus staging dan** pembaca ditutup lewat flag (rencana: salah satu). Alasannya ada di ADR-034 butir 3.
+- Sitasi memakai `title_id` DB `Ihya' 'Ulum ad-Din` (rencana menulis "Ihya 'Ulum ad-Din").
+- Di luar rencana: `keep_names: false` (skrip tema rusak di halaman yang dirender Worker), `source_url` di core, `listPages` di db.
+
+**Utang teknis:** pohon daftar isi terkirim dua kali di payload RSC (±25 KB mentah); LCP ponsel 4,2 dtk karena CSS global HeroUI render-blocking (±90 KB); risiko OpenNext #1455 (naikkan saat #1456 rilis); penanda berganti elemen setelah hidrasi pada perangkat ber-hover; Preview tetap `pembaca` dibuat manual.
+
+**Untuk sesi berikutnya (S10):** ganti `CORPUS_DB` produksi ke korpus blue-green, lalu nyalakan `READER_ENABLED` di `/rilis 1` (setelah T-10, T-15, T-22). Retensi `feedback` (P-7, T-10 butir 4) wajib diputuskan sebelum rilis. Hapus atau perbarui Preview `pembaca`.

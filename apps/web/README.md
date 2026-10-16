@@ -20,9 +20,15 @@ Untuk menguji URL lain (misalnya preview PR): `BASE_URL=https://… pnpm test:e2
 | ---------- | -------------------------------------------------------------------- |
 | `/`        | Beranda: apa itu Surau, tiga prinsip utama, peta pembangunan         |
 | `/tentang` | Visi, untuk siapa, yang bukan Surau, prinsip, keterbukaan, lisensi   |
+| `/kitab`   | Daftar kitab (S09); "segera hadir" bila pembaca tertutup              |
+| `/kitab/ihya` | Halaman karya: edisi, lisensi, atribusi, daftar isi               |
+| `/kitab/ihya/<juz>/<halaman>` | Halaman cetak: teks Arab per paragraf (`#pN`), takhrij, sitasi |
+| `/kitab/ihya/bab/<id>` | 307 ke halaman awal bagian (`#bab-<id>`)                  |
+| `/api/feedback` | POST laporan kesalahan teks (Origin, Zod, honeypot, rate limit) |
+| `/sitemap.xml`, `/robots.txt` | Sitemap dinamis (halaman kitab bila pembaca terbuka) |
 | 404        | Halaman tidak ditemukan (bahasa Indonesia)                           |
 
-Kitab, Cari, dan Tanya tampil di menu dengan label "segera".
+Cari dan Tanya tampil di menu dengan label "segera". Pembaca kitab dibaca dari D1 (`CORPUS_DB`) lewat `@surau/core` dan dirender ISR on-demand; di produksi ditutup lewat `READER_ENABLED = "0"` sampai rilis Fase 1, di Preview dan `pnpm dev` terbuka (ADR-034). Lokal butuh Ihya di D1 lokal: `pnpm corpus:load:local` sekali (memigrasi + memuat; butuh `data/build/` hasil `pnpm ingest ihya`).
 
 ## Struktur
 
@@ -34,11 +40,15 @@ src/
     globals.css          # palet Zaitun + tipografi Arab
     icon.svg             # favicon: kitab terbuka
     not-found.tsx
-    (app)/               # halaman di dalam SurauShell
+    (app)/               # halaman di dalam SurauShell (termasuk kitab/)
+    api/                 # version, feedback
   components/
     arabic/              # ArabicText, ArabicInline (+ tes)
+    reader/              # pembaca kitab: penanda takhrij, daftar isi, toolbar, laporan
     shell/               # SurauShell, sidebar, navbar, tombol tema, logo
   content/basmalah.ts    # demo tipografi (teks Tanzil, asal-usul dicatat)
+  content/works.ts       # nama tampilan Latin untuk sitasi
+  lib/                   # binding Cloudflare, logika pembaca (+ tes), /api/feedback
   i18n/id.ts             # semua string UI
 e2e/                     # smoke + aksesibilitas (axe), chromium desktop & ponsel
 ```

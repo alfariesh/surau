@@ -104,6 +104,12 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   5. Bila Cloudflare ternyata menampilkan token **baru**, jalankan di Terminal (folder Surau) `gh secret set CLOUDFLARE_API_TOKEN` lalu tempel token itu. Bila tidak, langkah ini dilewati.
   6. Bilang ke agent "T-21 sudah". Agent memeriksa langkah *Ringkasan log Preview* di CI PR berikutnya: peringatan "Token CI butuh izin Account Analytics Read" harus hilang dan berganti tabel jumlah request/error.
 
+- [ ] **T-22 · Tinjau tampilan pembaca kitab (S09)** (sebelum rilis Fase 1, ±10 menit)
+  Pembaca belum dibuka di situs utama (ditutup sampai S10). Lihat di Preview khusus (data staging): **https://pembaca-surau-web.alfarieshsalman.workers.dev/kitab/ihya/1/200**.
+  1. Buka tautan di ponsel dan di laptop.
+  2. Coba: ketuk penanda (١) di teks Arab (takhrij muncul), tombol **Berikutnya/Sebelumnya** (atau panah ← → di laptop), **Daftar isi**, **Lompat**, **Salin sitasi**, tombol **−/+** ukuran huruf, dan tema gelap.
+  3. Bilang ke agent "tampilan pembaca OK", atau tulis apa yang ingin diubah (boleh dengan tangkapan layar). Agent mencentang butir "Pemilik menyetujui tampilan" di S09.
+
 - [ ] **T-15 · Cocokkan 10 halaman dengan edisi cetak** (dibutuhkan S10, ±30 menit; bisa diwakilkan ke ustadz/santri yang membaca Arab)
   Agent memberi daftar 10 halaman. Setiap halaman punya tiga tautan: Surau, Shamela, dan pindaian archive.org. Cek apakah teks dan catatan kakinya sama, lalu tulis "cocok" atau catatan singkat.
 
