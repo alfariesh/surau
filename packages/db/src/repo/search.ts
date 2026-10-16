@@ -123,9 +123,15 @@ function guardTokens(plan: SearchPlan): GuardToken[] {
   return [...seen.values()];
 }
 
-/** Kata umum `s.term` dikenai token pengaman `v` (json_each): sama persis, atau berawalan token. */
-const GUARD_HIT = `(s.term = json_extract(v.value, '$[1]') OR (json_extract(v.value, '$[2]') = 1
-  AND substr(s.term, 1, length(json_extract(v.value, '$[1]'))) = json_extract(v.value, '$[1]')))`;
+// Kata umum `s.term` dikenai token pengaman `v` (json_each): sama persis, atau (awalan) berada di
+// rentang [token, token || U+10FFFF). Keduanya pencarian indeks PRIMARY KEY `term_stat`, bukan
+// pemindaian (CROSS JOIN menjaga json_each di luar): versi `substr(...)` pertama membaca ±1.400
+// baris tambahan per kueri di staging.
+// U+10FFFF dibuang `normalizeArabic`, jadi tidak pernah muncul di stem.
+const TOKEN = "json_extract(v.value, '$[1]')";
+const EXACT = `s.term = ${TOKEN}`;
+const PREFIX = `json_extract(v.value, '$[2]') = 1 AND s.term >= ${TOKEN}
+  AND s.term < ${TOKEN} || char(1114111)`;
 
 /**
  * Ekspresi MATCH yang pasti kosong: U+E000 (private use) dibuang `normalizeArabic` (bukan
@@ -137,12 +143,13 @@ const NO_MATCH = `'"' || char(57344) || '"'`;
 /**
  * MATCH berpengaman: `match` bila jumlah POSISI kueri yang mengenai kata umum memenuhi `op`
  * terhadap jumlah posisi, selain itu `NO_MATCH`. Subkueri konstan dievaluasi sebelum indeks
- * dipindai (`term_stat` hanya puluhan baris).
+ * dipindai; `term_stat` dicari lewat indeks PRIMARY KEY (sama persis atau rentang awalan).
  */
 function guardedMatch(op: "<" | "=", match: number, guard: number, positions: number): string {
   return `(CASE WHEN (
       SELECT count(DISTINCT json_extract(v.value, '$[0]')) FROM json_each(?${guard}) v
-      WHERE EXISTS (SELECT 1 FROM term_stat s WHERE ${GUARD_HIT})
+      WHERE EXISTS (SELECT 1 FROM term_stat s WHERE ${EXACT})
+         OR EXISTS (SELECT 1 FROM term_stat s WHERE ${PREFIX})
     ) ${op} ?${positions} THEN ?${match} ELSE ${NO_MATCH} END)`;
 }
 
@@ -185,8 +192,10 @@ export async function searchCorpus(db: D1Db, req: SearchRequest): Promise<Search
       db.prepare("SELECT key, value FROM meta"),
       db
         .prepare(
-          `SELECT s.term, s.df FROM term_stat s
-           WHERE EXISTS (SELECT 1 FROM json_each(?) v WHERE ${GUARD_HIT}) ORDER BY s.term`,
+          `SELECT s.term, s.df FROM json_each(?1) v CROSS JOIN term_stat s ON ${EXACT}
+           UNION
+           SELECT s.term, s.df FROM json_each(?1) v CROSS JOIN term_stat s ON ${PREFIX}
+           ORDER BY 1`,
         )
         .bind(guardJson),
       db
