@@ -1,6 +1,6 @@
 # S09 · UI pembaca kitab
 
-> **Fase:** 1 · **Status:** belum
+> **Fase:** 1 · **Status:** berjalan
 > **Prasyarat:** S08 selesai · Tugas pemilik: T-21 (selesai 2026-10-16; log Preview lewat ringkasan CI, ADR-031), review tampilan di akhir
 > **Perkiraan:** 1–2 percakapan agent
 

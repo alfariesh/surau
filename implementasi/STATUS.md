@@ -49,7 +49,7 @@
 | 1 | S06 | Skema data & D1 | selesai | 2026-10-15 · `@surau/db`, 3 DB D1 apac, ID & permalink (ADR-029) |
 | 1 | S07 | Importer Ihya | selesai* | 2026-10-16 · PR #19 · `tools/ingest`, migrasi 0002–0003 `passage_needs_review` (ADR-032) · *`data/ids/` ikut di-commit (ADR-029), di luar daftar butir 5 |
 | 1 | S08 | Core tools baca | selesai* | 2026-10-16 · `@surau/core`, paginasi per blok 4–6 ribu token (ADR-033) · *butir 4 lewat tafsiran ADR-033 butir 2 · persist dev web → `.wrangler/state/v3` |
-| 1 | S09 | UI pembaca | belum | log Preview via ringkasan CI (ADR-031) |
+| 1 | S09 | UI pembaca | berjalan | 2026-10-16 · branch `sesi/s09-ui-pembaca` |
 | 1 | S10 | Korpus produksi & QA | belum | butuh T-09, T-10, T-15 · lalu `/rilis 1` |
 | 2 | S11 | Indeks FTS Arab | belum | butuh T-09 |
 | 2 | S12 | Ayat & terjemahan Kemenag | belum | butuh T-09, T-16 |

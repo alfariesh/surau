@@ -307,6 +307,12 @@ importers:
       '@react-aria/utils':
         specifier: 'catalog:'
         version: 3.34.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@surau/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@surau/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@surau/text':
         specifier: workspace:*
         version: link:../../packages/text
@@ -343,6 +349,9 @@ importers:
       tailwind-variants:
         specifier: 'catalog:'
         version: 3.3.1(tailwind-merge@3.7.0)(tailwindcss@4.3.3)
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
     devDependencies:
       '@axe-core/playwright':
         specifier: 'catalog:'
