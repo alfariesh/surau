@@ -17,11 +17,26 @@ Format entri:
 
 ## 2026-10-16 · S07 · Importer Ihya — selesai (butir 5 dengan catatan)
 
-- Dikerjakan: `tools/ingest` (Shamela 9472 → SQL D1 + `.sqlite`, daftar isi + patch YAML, QA OpenITI, validasi, peta ID `data/ids/`, laporan); `splitInlineTakhrij` di `@surau/text` (takhrij `//` dua arah); migrasi korpus 0002 `passage_needs_review`; `data/LICENSE`/`ATTRIBUTION`/`SOURCES`; Ihya dimuat ke D1 lokal dan `surau-corpus-staging` (izin pemilik).
-- Verifikasi: `pnpm ingest ihya` 2,7–3,0 dtk, deterministik (hash sama di dua build dari nol); 9 invarian ✓ (1.706 halaman, 4×10 kitab, 0 judul yatim, 0 penanda yatim, 203 halaman `//`); `verify-openiti` 1.705/1.706 ≥0,95, 190/4.398 takhrij `takhrij_unmatched`; `corpus:load:local` + `:staging` → passage 20.509, footnote_ref 4.064, j1 h200 7 badan/7 catatan/7 penanda; `pnpm verify` lolos (173 tes node + 47 tes db).
+- Dikerjakan:
+  - `tools/ingest`: Shamela 9472 → SQL D1 + `.sqlite`, daftar isi + patch YAML, QA OpenITI, 11 invarian, peta ID `data/ids/`, dan laporan.
+  - `splitInlineTakhrij` di `@surau/text`: takhrij `//` dua arah, penanda pembuka tetap di matan.
+  - Migrasi korpus 0002 + 0003 `passage_needs_review` (lima alasan).
+  - `data/LICENSE`/`ATTRIBUTION`/`SOURCES`.
+  - Ihya dimuat ke D1 lokal dan `surau-corpus-staging` (izin pemilik, `--confirm`).
+- Verifikasi:
+  - Determinisme: dua build dari `data/build` kosong di HEAD `7a333f1` → sha256 `9af0db3a…` identik (3,0/2,9 dtk).
+  - 11 invarian ✓: 1.706 halaman, 4×10 kitab, 0 judul yatim, 4.117 penanda tertaut + 87 di dalam takhrij = 4.204, 0 penanda yatim, integritas lintas tabel.
+  - `verify-openiti`: 1.705/1.706 ≥0,95; 190/4.398 takhrij `takhrij_unmatched`.
+  - Lokal + staging: passage 20.509, footnote_ref 4.117, passage_needs_review 705 (609 paragraf); j1 h200 7 badan/7 catatan/7 penanda; staging `schema_version` 3.
+  - `pnpm verify` lolos (176 tes node + 47 tes db; fungsi `packages/text` 100%).
+  - Peninjau: 0 blocker, 6 temuan "perbaiki", semuanya diperbaiki (satu saran opsional ditolak dengan alasan, ADR-032).
 - Biaya API: –
 - Keputusan: ADR-032
-- Catatan untuk sesi berikutnya: S08 dapat langsung memakai D1 lokal; kembalikan `passage_needs_review` per paragraf dari core tools. Batas akhir takhrij "sesudah `//`" belum pasti (23 potongan panjang, lihat laporan). Butir 5 S07 tidak dicentang karena `data/ids/` (ADR-029). Proses lain sempat memindah checkout ke `main` di tengah sesi (sudah dipulihkan); sesi paralel sebaiknya memakai worktree.
+- Catatan untuk sesi berikutnya:
+  - S08 bisa langsung memakai D1 lokal; core tools sebaiknya ikut mengembalikan `passage_needs_review` per paragraf.
+  - Batas akhir takhrij "sesudah `//`" belum pasti (23 potongan panjang, lihat laporan).
+  - Butir 5 S07 tidak dicentang karena `data/ids/` (ADR-029).
+  - Proses lain sempat memindah checkout ke `main` di tengah sesi. Sudah dipulihkan; sesi paralel sebaiknya memakai worktree.
 
 ---
 
