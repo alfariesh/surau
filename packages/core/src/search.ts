@@ -2,14 +2,8 @@
 // @surau/text (normalisasi + stem + ekspansi klitik/kunyah) dan dikirim sebagai satu parameter
 // terikat. Hasil dikelompokkan per halaman cetak; setiap paragraf membawa sorotan dan potongan
 // yang dipetakan ke `text_raw` (substring persis teks sumber, bukan teks normal atau buatan).
-// Dua bolak-balik D1: konteks (meta + kata umum + edisi), lalu satu kueri hasil + teks.
-import {
-  getSearchContext,
-  passageAnchor,
-  passageIdRange,
-  searchInOrder,
-  searchRankedPages,
-} from "@surau/db";
+// Satu bolak-balik D1 (`searchCorpus`): konteks + hasil + teks dalam satu batch (ADR-039).
+import { passageAnchor, passageIdRange, searchCorpus } from "@surau/db";
 import type { D1Db, SearchPassageRow } from "@surau/db";
 import {
   FTS_MAX_TOKENS,
@@ -141,18 +135,24 @@ export async function searchText(
     };
   }
 
-  const ctx = await getSearchContext(db, plan.stems, editionId);
-  if (!ctx.ready) throw new Unavailable("Search is not available for this corpus version");
-  if (ctx.meta.norm_version !== NORM_VERSION) {
+  const span = editionId === null ? ALL_PASSAGES : passageIdRange(editionId);
+  const found = await searchCorpus(db, {
+    stems: plan.stems,
+    match: ftsMatchExpression(plan),
+    editionId,
+    span,
+    limit: input.limit,
+    offset: input.offset,
+  });
+  if (!found.ready) throw new Unavailable("Search is not available for this corpus version");
+  if (found.meta.norm_version !== NORM_VERSION) {
     throw new Unavailable("Search index was built with a different normalization version");
   }
-  if (editionId !== null && ctx.editions.length === 0) {
+  if (editionId !== null && found.editions.length === 0) {
     throw new NotFound(`Edition not found: ${editionId}`);
   }
-  const cites = new Map(ctx.editions.map((e) => [e.edition.id, citeContext(e)]));
-  const span = editionId === null ? ALL_PASSAGES : passageIdRange(editionId);
-  const match = ftsMatchExpression(plan);
-  const common = new Map(ctx.common.map((t) => [t.term, t.df]));
+  const cites = new Map(found.editions.map((e) => [e.edition.id, citeContext(e)]));
+  const common = new Map(found.common.map((t) => [t.term, t.df]));
   const shared = {
     ...base,
     terms: plan.stems,
@@ -161,9 +161,8 @@ export async function searchText(
       .map((term) => ({ term, passage_count: common.get(term) as number })),
   };
 
-  if (plan.stems.every((t) => common.has(t))) {
+  if (found.allCommon) {
     // Pengaman: tanpa bm25 (yang membaca seluruh daftar dokumen kata itu) dan tanpa halaman lanjut.
-    const rows = input.offset > 0 ? [] : await searchInOrder(db, match, span, input.limit);
     return {
       ...shared,
       ranked: false,
@@ -171,16 +170,19 @@ export async function searchText(
       total_pages: null,
       total_hits: null,
       offset: input.offset,
-      results: groupByPage(
-        rows,
-        cites,
-        (row, cite) => hitFrom(row, cite, plan, null),
-        () => null,
-      ),
+      results:
+        input.offset > 0
+          ? []
+          : groupByPage(
+              found.inOrder,
+              cites,
+              (row, cite) => hitFrom(row, cite, plan, null),
+              () => null,
+            ),
     };
   }
 
-  const rows = await searchRankedPages(db, match, span, input.limit, input.offset);
+  const rows = found.ranked;
   const [first] = rows;
   return {
     ...shared,

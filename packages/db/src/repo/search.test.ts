@@ -4,11 +4,31 @@ import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/tes
 
 import { ED, P1, P2, P3, PASSAGES, seedCorpus } from "../../test/fixture.ts";
 import { passageIdRange } from "../ids.ts";
-import { getSearchContext, searchInOrder, searchRankedPages } from "./search.ts";
+import { searchCorpus } from "./search.ts";
+import type { SearchRequest, SearchResult } from "./search.ts";
 
 const db = env.CORPUS;
 const ALL = { min: 1, max: Number.MAX_SAFE_INTEGER };
 const match = (q: string): string => buildFtsMatch(q) ?? "";
+
+/** Permintaan untuk satu kata/frasa: stem dari bentuk normal, seperti planFtsQuery. */
+function req(q: string, over: Partial<SearchRequest> = {}): SearchRequest {
+  return {
+    stems: stemText(normalizeArabic(q).text).split(" "),
+    match: match(q),
+    editionId: null,
+    span: ALL,
+    limit: 10,
+    offset: 0,
+    ...over,
+  };
+}
+
+async function ready(r: Promise<SearchResult>): Promise<Extract<SearchResult, { ready: true }>> {
+  const result = await r;
+  if (!result.ready) throw new Error("korpus tidak siap");
+  return result;
+}
 
 // Indeks fixture dibangun dengan aturan yang sama dengan ingest (stem dari bentuk normal, kolom
 // sesuai kind; body/foot kosong, ADR-039). "نص" dicatat sebagai kata umum.
@@ -32,20 +52,19 @@ beforeAll(async () => {
   ]);
 });
 
-describe("getSearchContext", () => {
+describe("searchCorpus: konteks", () => {
   test("meta, kata umum yang dicari, dan konteks sitasi semua edisi atau satu edisi", async () => {
-    const all = await getSearchContext(db, ["نص", "صفحه", "نص"], null);
-    expect(all.ready).toBe(true);
-    if (!all.ready) return;
+    const all = await ready(searchCorpus(db, req("نص الصفحة")));
     expect(all.common).toEqual([{ term: "نص", df: 3 }]);
+    expect(all.allCommon).toBe(false);
     expect(all.editions.map((e) => e.edition.id)).toEqual([ED, ED + 1]);
     expect(all.editions[0]?.work.slug).toBe("uji");
     expect(all.editions[0]?.author?.name_id).toBe("Penulis Uji");
 
-    const one = await getSearchContext(db, [], ED + 1);
-    expect(one.ready && one.editions.map((e) => e.edition.slug)).toEqual(["openiti"]);
-    const none = await getSearchContext(db, ["صبر"], 999);
-    expect(none.ready && [none.common, none.editions]).toEqual([[], []]);
+    const one = await ready(searchCorpus(db, req("صبر", { editionId: ED + 1 })));
+    expect(one.editions.map((e) => e.edition.slug)).toEqual(["openiti"]);
+    const none = await ready(searchCorpus(db, req("صبر", { editionId: 999 })));
+    expect([none.common, none.editions, none.ranked, none.inOrder]).toEqual([[], [], [], []]);
   });
 
   test("korpus lama (skema < 4, tanpa term_stat) → ready: false, bukan error", async () => {
@@ -55,8 +74,10 @@ describe("getSearchContext", () => {
       await db.prepare("ALTER TABLE term_stat_lama RENAME TO term_stat").run();
       await db.prepare("UPDATE meta SET value = '4' WHERE key = 'schema_version'").run();
     });
-    const ctx = await getSearchContext(db, ["نص"], null);
-    expect(ctx).toEqual({ ready: false, meta: { schema_version: 3 } });
+    expect(await searchCorpus(db, req("نص"))).toEqual({
+      ready: false,
+      meta: { schema_version: 3 },
+    });
   });
 
   test("skema < 4 walau term_stat ada → ready: false", async () => {
@@ -64,18 +85,25 @@ describe("getSearchContext", () => {
     onTestFinished(async () => {
       await db.prepare("UPDATE meta SET value = '4' WHERE key = 'schema_version'").run();
     });
-    expect((await getSearchContext(db, ["نص"], null)).ready).toBe(false);
+    expect((await searchCorpus(db, req("نص"))).ready).toBe(false);
+  });
+
+  test("permintaan tidak sah ditolak sebelum menyentuh DB", async () => {
+    await expect(searchCorpus(db, req("نص", { limit: 0 }))).rejects.toThrow(RangeError);
+    await expect(searchCorpus(db, req("نص", { offset: -1 }))).rejects.toThrow(RangeError);
+    await expect(searchCorpus(db, req("نص", { stems: [] }))).rejects.toThrow(RangeError);
   });
 });
 
-describe("searchRankedPages", () => {
+describe("searchCorpus: berperingkat", () => {
   test("dikelompokkan per halaman; semua paragraf cocok di halaman itu, urut baca; total", async () => {
-    const rows = await searchRankedPages(db, match("حاشية"), ALL, 10);
-    expect(rows.map((r) => [r.page_id, r.kind, r.ord, r.page_hits])).toEqual([
+    const r = await ready(searchCorpus(db, req("حاشية")));
+    expect(r.inOrder).toEqual([]);
+    expect(r.ranked.map((x) => [x.page_id, x.kind, x.ord, x.page_hits])).toEqual([
       [P1, "foot", 1, 2],
       [P1, "foot", 2, 2],
     ]);
-    expect(rows[0]).toMatchObject({
+    expect(r.ranked[0]).toMatchObject({
       id: PASSAGES.foot1,
       juz: 1,
       page_no: 1,
@@ -84,41 +112,56 @@ describe("searchRankedPages", () => {
       toc_title: "فصل أول",
       toc_level: 2,
     });
-    expect(rows[0]?.score).toBeLessThan(0);
-    expect(rows[0]?.page_best).toBe(Math.min(...rows.map((r) => r.score)));
+    expect(r.ranked[0]?.score).toBeLessThan(0);
+    expect(r.ranked[0]?.page_best).toBe(Math.min(...r.ranked.map((x) => x.score)));
   });
 
   test("limit/offset per halaman; total tetap seluruh hasil", async () => {
-    const first = await searchRankedPages(db, match("نص"), ALL, 2);
-    expect(new Set(first.map((r) => r.page_id)).size).toBe(2);
-    expect(first[0]).toMatchObject({ total_pages: 3, total_hits: 3 });
-    const rest = await searchRankedPages(db, match("نص"), ALL, 2, 2);
-    expect(rest.map((r) => r.page_id)).toHaveLength(1);
-    const pages = new Set([...first, ...rest].map((r) => r.page_id));
-    expect(pages).toEqual(new Set([P1, P2, P3]));
+    // "الصفحة": badan halaman 1 dan 2 (tidak umum, jadi diranking).
+    const first = await ready(searchCorpus(db, req("الصفحة", { limit: 1 })));
+    expect(first.ranked.map((x) => x.page_id)).toHaveLength(1);
+    expect(first.ranked[0]).toMatchObject({ total_pages: 2, total_hits: 2 });
+    const rest = await ready(searchCorpus(db, req("الصفحة", { limit: 1, offset: 1 })));
+    const pages = new Set([...first.ranked, ...rest.ranked].map((x) => x.page_id));
+    expect(pages).toEqual(new Set([P1, P2]));
   });
 
   test("filter edisi lewat rentang rowid; kueri tanpa hasil → kosong", async () => {
-    expect(await searchRankedPages(db, match("نص"), passageIdRange(ED + 1), 10)).toEqual([]);
-    expect(await searchRankedPages(db, match("نص"), passageIdRange(ED), 10)).toHaveLength(3);
-    expect(await searchRankedPages(db, match("صبر"), ALL, 10)).toEqual([]);
-  });
-
-  test("limit/offset tidak sah ditolak sebelum menyentuh DB", () => {
-    expect(() => searchRankedPages(db, match("نص"), ALL, 0)).toThrow(RangeError);
-    expect(() => searchRankedPages(db, match("نص"), ALL, 1, -1)).toThrow(RangeError);
+    const other = await ready(searchCorpus(db, req("الصفحة", { span: passageIdRange(ED + 1) })));
+    expect(other.ranked).toEqual([]);
+    const own = await ready(searchCorpus(db, req("الصفحة", { span: passageIdRange(ED) })));
+    expect(own.ranked).toHaveLength(2);
+    expect((await ready(searchCorpus(db, req("صبر")))).ranked).toEqual([]);
   });
 });
 
-describe("searchInOrder", () => {
-  test("paragraf cocok pertama dalam urutan korpus, tanpa peringkat", async () => {
-    const rows = await searchInOrder(db, match("نص"), ALL, 2);
-    expect(rows.map((r) => r.id)).toEqual([PASSAGES.body1, PASSAGES.body2]);
-    expect(rows.map((r) => [r.juz, r.page_no])).toEqual([
+describe("searchCorpus: pengaman kata umum", () => {
+  test("semua stem umum → paragraf pertama urutan korpus, kueri berperingkat tidak memindai", async () => {
+    const r = await ready(searchCorpus(db, req("نص", { limit: 2 })));
+    expect(r.allCommon).toBe(true);
+    expect(r.ranked).toEqual([]);
+    expect(r.inOrder.map((x) => x.id)).toEqual([PASSAGES.body1, PASSAGES.body2]);
+    expect(r.inOrder.map((x) => [x.juz, x.page_no])).toEqual([
       [1, 1],
       [1, 2],
     ]);
-    expect(rows[1]).not.toHaveProperty("score");
-    expect(() => searchInOrder(db, match("نص"), ALL, 0)).toThrow(RangeError);
+    expect(r.inOrder[1]).not.toHaveProperty("score");
+    // Stem ganda dihitung sekali.
+    expect((await ready(searchCorpus(db, req("نص", { stems: ["نص", "نص"] })))).allCommon).toBe(
+      true,
+    );
+  });
+
+  test("frasa campuran (satu stem umum) → berperingkat, urutan kitab kosong", async () => {
+    const r = await ready(searchCorpus(db, req("نص الصفحة")));
+    expect(r.allCommon).toBe(false);
+    expect(r.inOrder).toEqual([]);
+    // Frasa persis: hanya "نص الصفحة الثانية" (P2); P1 memuat "نص تجريبي … الصفحة".
+    expect(r.ranked.map((x) => x.page_id)).toEqual([P2]);
+  });
+
+  test("P3 tetap terjangkau lewat kata tidak umum", async () => {
+    const r = await ready(searchCorpus(db, req("الجزء")));
+    expect(r.ranked.map((x) => x.page_id)).toEqual([P3]);
   });
 });
