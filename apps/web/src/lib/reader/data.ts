@@ -1,6 +1,7 @@
 import type { EditionView, PageView, WorkView } from "@surau/core";
 
 import { getToc, getWork, isCoreError, readPage, uintSegment } from "@surau/core";
+import { getTocNode } from "@surau/db";
 import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 
@@ -83,6 +84,10 @@ export const loadPage = cache(
     const pageNo = uintSegment.safeParse(rawPage);
     if (!juz.success || !pageNo.success) notFound();
     const ctx = await loadWork(rawSegment, `/${juz.data}/${pageNo.data}`);
+    // Juz di luar jumlah jilid edisi = 404 tanpa kueri lagi: path acak (pemindai, ISR tanpa batas,
+    // ADR-034) tidak boleh memicu baca D1 yang tidak perlu (temuan peninjau rilis Fase 1).
+    const volumes = ctx.edition.volumes;
+    if (juz.data < 1 || (volumes !== null && juz.data > volumes)) notFound();
     const page = await orNotFound(
       readPage(ctx.env.CORPUS_DB, ctx.edition.id, juz.data, pageNo.data),
     );
@@ -95,6 +100,9 @@ export const loadTocNode = cache(async (rawSegment: string, rawId: string) => {
   const id = uintSegment.safeParse(rawId);
   if (!id.success || id.data === 0) notFound();
   const ctx = await loadWork(rawSegment, `/bab/${id.data}`);
+  // Cek satu baris dulu: ID acak tidak boleh memuat seluruh pohon daftar isi (±940 baris D1).
+  const row = await getTocNode(ctx.env.CORPUS_DB, id.data);
+  if (row === null || row.edition_id !== ctx.edition.id) notFound();
   const toc = await orNotFound(
     getToc(ctx.env.CORPUS_DB, ctx.edition.id, { nodeId: id.data, depth: 1 }),
   );

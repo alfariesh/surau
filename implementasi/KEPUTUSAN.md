@@ -800,3 +800,20 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - `/lisensi` menyebut "terjemahan" sebagai konten CC BY-NC-SA. Saat Fase 2 (S12) teks ayat Tanzil (CC BY 3.0, hanya verbatim) dan terjemahan Kemenag masuk, halaman ini butuh pengecualian per sumber. Takedown sekarang lewat GitHub Issues (publik); tambahkan saluran privat begitu ada email kontak.
 
 **Tinjau ulang bila:** korpus versi kedua (`ihya-v2` atau kitab kedua: reset per edisi), Shamela membalas email T-10, atau Fase 2 menambah sumber berlisensi lain (Tanzil, Kemenag).
+
+## ADR-037 · Rilis Fase 1: pembaca dibuka di produksi, penyimpangan S07 butir 5 diterima, pengaman path acak dan batas laporan global — diterima · 2026-10-16
+
+**Konteks:** `/rilis 1` (2026-10-16). Pemeriksaan kesiapan menemukan satu butir "Selesai bila" S07 yang tidak dicentang: daftar file `data/` yang boleh di git tidak menyebut peta ID `data/ids/ihya-9472.json`, padahal peta itu diwajibkan ADR-029 (dicek: 0 huruf Arab, hanya angka). Tinjauan keamanan `rilis-f0..main` (peninjau): 0 blocker, 2 "perbaiki". Gerbang versi (docs-terbaru): Next 16.4.1 didukung resmi OpenNext 1.20.12; advisory 673q, 2464, p3m5 ditambal di 16.4.1, xqc2/h3gv kemungkinan besar ditambal di React bawaan (bukti lebih kuat dari ADR-030 poin 4: commit `a4cea6aec`, `getBackingBlob`), dan pemicunya tetap dimatikan (ADR-003). Masalah operasional terbuka: OpenNext #1455 (heap per render ISR), belum ada rilis perbaikan.
+
+**Keputusan:**
+1. **Penyimpangan S07 butir 5 diterima pemilik** di chat (FASE.md: syarat yang dilewati secara sadar dicatat di sini). Butirnya tetap tidak dicentang di file sesi S07; yang diterima adalah penyimpangannya, bukan kriteria yang diubah.
+2. **Path acak tidak lagi membaca D1 besar** (temuan peninjau): sejak pembaca terbuka, setiap path `/kitab/ihya/<juz>/<angka>` atau `/kitab/ihya/bab/<angka>` dirender ISR. Sebelumnya `getToc` (±940 baris) ikut berjalan paralel bahkan untuk 404.
+   - `loadPage`: juz < 1 atau > `edition.volumes` = 404 sebelum `readPage`.
+   - Halaman baca dan `generateMetadata`: `loadPage` dulu, baru `loadToc` (satu round-trip tambahan hanya saat render MISS).
+   - `loadTocNode`: `getTocNode` (satu baris) + cek `edition_id` sebelum `getToc`.
+   - e2e: `/kitab/ihya/0/1`, `/5/1`, `/999999999/1`, `/bab/999999999` = 404.
+3. **Batas laporan kesalahan** (temuan peninjau): binding kedua `FEEDBACK_GLOBAL_LIMITER` (kunci tetap `global`, 30/60 dtk; produksi `1002`, Preview `2002`) dicek sebelum batas per klien. Kunci per klien kini HMAC atas **jaringan** IP: IPv4 penuh, IPv6 per /64 (IPv4 tersemat tetap utuh). Rate Limiting Cloudflare dihitung per lokasi, jadi "global" berarti per lokasi. Turnstile menyusul bila spam terlihat.
+4. **`READER_ENABLED = "1"`** di top-level `apps/web/wrangler.jsonc` lewat PR + `deploy.yml` (cache ISR mulai dari nol di BUILD_ID baru). Smoke `deploy.yml` menambah `/kitab` dan `/kitab/ihya/1/200`. Secret `IP_HMAC_KEY` produksi dicek ada (`wrangler secret list`).
+5. **Risiko #1455 diterima ulang** dengan batas yang sama seperti ADR-034: isolate diganti otomatis saat memori mendekati 128 MB; pantau error 1102 dan memori Worker setelah rilis; naikkan OpenNext saat #1456 dirilis.
+
+**Tinjau ulang bila:** spam laporan terlihat (Turnstile), error 1102 muncul di log produksi, OpenNext merilis perbaikan #1455, atau domain sendiri siap (WAF/rate limit `/kitab/*`).

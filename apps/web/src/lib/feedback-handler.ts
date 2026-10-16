@@ -7,7 +7,9 @@ import { feedbackRequest } from "./feedback-schema";
 
 // Logika POST /api/feedback, dipisah dari route supaya bisa dites tanpa Workers (ADR-034).
 // Urutan pengaman: pembaca terbuka → Origin sama → JSON → ukuran body → skema Zod → honeypot →
-// Rate Limiting (kunci HMAC(IP), IP mentah tidak pernah keluar dari fungsi ini) → simpan.
+// batas global → batas per klien (kunci HMAC(jaringan IP): IPv4 penuh, IPv6 per /64; IP mentah
+// tidak pernah keluar dari fungsi ini) → simpan. Batas global (kunci tetap) menahan spam dari
+// banyak alamat sekaligus (temuan peninjau rilis Fase 1; Rate Limiting dihitung per lokasi CF).
 
 export interface FeedbackDeps {
   enabled: boolean;
@@ -15,7 +17,10 @@ export interface FeedbackDeps {
   hmacKey: string | undefined;
   /** IP klien (`cf-connecting-ip`), atau `null` bila tidak diketahui. */
   ip: string | null;
+  /** Batas per klien; `key` = HMAC jaringan IP. */
   limit: (key: string) => Promise<boolean>;
+  /** Batas bersama semua klien (kunci tetap). */
+  limitGlobal: () => Promise<boolean>;
   corpusVersion: () => Promise<string | null>;
   insert: (input: FeedbackInput) => Promise<number>;
 }
@@ -61,6 +66,27 @@ async function readLimited(request: Request, max: number): Promise<string | null
   return new TextDecoder().decode(bytes);
 }
 
+/**
+ * Jaringan klien untuk rate limit: IPv4 apa adanya, IPv6 dipotong ke /64 (satu pelanggan biasanya
+ * memegang satu /64 utuh, jadi alamat penuh mudah diganti-ganti). Masukan tak dikenal dikembalikan.
+ */
+export function ipNetwork(ip: string): string {
+  if (!ip.includes(":")) return ip;
+  const [head, tail = ""] = ip.toLowerCase().split("::", 2) as [string, string?];
+  const h = head === "" ? [] : head.split(":");
+  const t = ip.includes("::") ? (tail === "" ? [] : tail.split(":")) : [];
+  // IPv4 tersemat (`::ffff:1.2.3.4`) dikembalikan utuh, supaya tidak berbagi satu kunci /64.
+  if (h.length + t.length > 8 || [...h, ...t].some((g) => g.includes("."))) return ip;
+  const groups = ip.includes("::")
+    ? [...h, ...Array<string>(8 - h.length - t.length).fill("0"), ...t]
+    : h;
+  if (groups.length !== 8) return ip;
+  return `${groups
+    .slice(0, 4)
+    .map((g) => g.replace(/^0+(?=.)/, ""))
+    .join(":")}::/64`;
+}
+
 /** HMAC-SHA256(kunci, ip) → 32 karakter hex. Kunci rate limit tanpa menyimpan/mengirim IP mentah. */
 export async function ipKey(secret: string, ip: string): Promise<string> {
   const enc = new TextEncoder();
@@ -101,7 +127,8 @@ export async function handleFeedback(request: Request, deps: FeedbackDeps): Prom
   if (deps.hmacKey === undefined || deps.hmacKey === "") {
     return json(503, { error: "unavailable" });
   }
-  const allowed = await deps.limit(await ipKey(deps.hmacKey, deps.ip ?? "unknown"));
+  if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
+  const allowed = await deps.limit(await ipKey(deps.hmacKey, ipNetwork(deps.ip ?? "unknown")));
   if (!allowed) return json(429, { error: "rate_limited" });
 
   try {
