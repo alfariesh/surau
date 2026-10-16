@@ -6,6 +6,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
+import { SEARCH_SCHEMA_VERSION } from "@surau/db";
 import { buildFtsMatch } from "@surau/text";
 
 import { sqlLiteral } from "./sql.ts";
@@ -143,8 +144,12 @@ export const COUNTED = [
   "passage_fts",
   "meta",
 ] as const;
+/** Tabel yang baru ada (atau baru diisi) sejak skema korpus 4 (S11): tidak dihitung di korpus lama. */
+const SEARCH_TABLES: ReadonlySet<string> = new Set(["term_stat", "passage_fts"]);
+
 // Satu baris berisi subkueri per tabel (D1 membatasi jumlah suku UNION dalam satu SELECT).
-const SMOKE_COUNTS = `SELECT ${COUNTED.map((t) => `(SELECT count(*) FROM ${t}) AS ${t}`).join(", ")}`;
+const smokeCounts = (tables: readonly string[]): string =>
+  `SELECT ${tables.map((t) => `(SELECT count(*) FROM ${t}) AS ${t}`).join(", ")}`;
 
 // j1 h200 (contoh baku: hadits shalat malam Jumat + takhrij al-'Iraqi): paragraf badan, catatan
 // kaki, dan penanda yang tertaut.
@@ -179,16 +184,20 @@ export function smoke(
   target: D1Target,
   expect?: { counts: Record<string, number>; meta: Record<string, string> },
 ): Smoke {
-  const row = query(target, SMOKE_COUNTS)[0] ?? {};
-  const counts = Object.fromEntries(
-    COUNTED.map((t) => [t, Number(row[t] ?? 0)]),
-  ) as Smoke["counts"];
   const meta = Object.fromEntries(
     query(target, "SELECT key, value FROM meta ORDER BY key").map((r) => [
       String(r.key),
       String(r.value),
     ]),
   );
+  // Korpus skema < 4 (ihya-v1) tidak punya term_stat: dihitung 0 dan pencarian tidak dicoba, supaya
+  // smoke (mis. `promote --switch-only`) memberi pesan, bukan crash "no such table".
+  const search = Number(meta.schema_version ?? 0) >= SEARCH_SCHEMA_VERSION;
+  const tables = COUNTED.filter((t) => search || !SEARCH_TABLES.has(t));
+  const row = query(target, smokeCounts(tables))[0] ?? {};
+  const counts = Object.fromEntries(
+    COUNTED.map((t) => [t, Number(row[t] ?? 0)]),
+  ) as Smoke["counts"];
   const problems: string[] = [];
   const page = query(target, SMOKE_PAGE);
   const body = Number(page.find((r) => r.kind === "body")?.n ?? 0);
@@ -196,7 +205,9 @@ export function smoke(
   if (body === 0 || foot === 0 || Number(page[0]?.refs ?? 0) === 0) {
     problems.push("j1 h200 tidak punya paragraf badan, catatan kaki, atau penanda tertaut");
   }
-  if (Number(query(target, SMOKE_SEARCH)[0]?.n ?? 0) === 0) {
+  if (!search) {
+    problems.push(`skema korpus ${meta.schema_version ?? "?"} belum punya indeks pencarian (S11)`);
+  } else if (Number(query(target, SMOKE_SEARCH)[0]?.n ?? 0) === 0) {
     problems.push("indeks passage_fts tidak mengenai الصبر (indeks kosong atau tidak sinkron)");
   }
   if (expect !== undefined) {

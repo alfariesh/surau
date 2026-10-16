@@ -9,7 +9,8 @@ Satu-satunya tempat logika teks Arab Surau. TypeScript murni **tanpa dependensi 
 | `normalize.ts` | `NORM_VERSION`, `normalizeArabic(raw, opts?)` → `{ text, map }`, `toRawSpan`, `isDroppedChar` | Bentuk cocok untuk FTS dan verifikasi kutipan, beserta peta offset normal→mentah |
 | `stem.ts` | `stemToken`, `stemText`, `expandQueryToken`, `kunyaVariants`, `isProtectedToken`, `queryProclitics` | Stem proklitik konservatif (kolom `sbody`/`sfoot`) dan ekspansi sisi kueri |
 | `quote.ts` | `findQuote(raw, quote, opts?)` | Cari kutipan di teks mentah dan kembalikan substring mentah **verbatim** |
-| `fts.ts` | `buildFtsMatch(query, opts?)`, `ftsQuote`, `FTS_MAX_PHRASES` | Ekspresi `MATCH` FTS5 yang aman dari injeksi |
+| `fts.ts` | `planFtsQuery(query, opts?)`, `ftsMatchExpression(plan, columns?)`, `buildFtsMatch(query, opts?)`, `ftsQuote`, `FTS_MAX_PHRASES` | Rencana kueri (stem, frasa alternatif, awalan) dan ekspresi `MATCH` FTS5 yang aman dari injeksi |
+| `highlight.ts` | `findPlanSpans(raw, plan, limit?)`, `snippetSpan(raw, focus, size?)`, `SNIPPET_CHARS` | Sorotan hasil pencarian di **teks mentah** (S11) dengan aturan yang sama dengan indeks, dan potongan ±160 karakter di batas spasi |
 | `shamela.ts` | `cleanShamelaHtml`, `extractTitles`, `splitFootnotes`, `splitParagraphs`, `findFootnoteMarkers`, `splitFootnoteEntries`, `linkFootnotes`, `linkFootnoteMarkers`, `splitInlineTakhrij` | Membersihkan dan memecah `page.content` Shamela secara deterministik, termasuk takhrij yang menempel ke matan lewat `//` (ADR-032) |
 
 ```ts
@@ -20,7 +21,12 @@ normalizeArabic(raw).text; // "قال رسول الله صلي الله عليه
 stemText("والصبر ضياء"); // "صبر ضياء"
 findQuote(raw, "الصبر ضياء")?.rawText; // "الصَّبْرُ ضِيَاءٌ" (teks sumber, bukan teks model)
 buildFtsMatch("الصبر"); // '{sbody sfoot} : ("صبر" OR "وصبر" OR …)', kirim sebagai SATU parameter terikat
+
+const plan = planFtsQuery("الصبر"); // { stems: ["صبر"], phrases: [["صبر"], ["وصبر"], …], prefix: false }
+findPlanSpans(raw, plan); // [{ start, end }]: raw.slice(start, end) = "الصَّبْرُ" (dengan harakatnya)
 ```
+
+Indeks dan sorotan harus memakai rencana yang sama: `searchText` (`@surau/core`) mengirim `ftsMatchExpression(plan)` ke D1 dan memakai `findPlanSpans(text_raw, plan)` untuk sorotan, sehingga yang disorot persis yang dicocokkan indeks (indeks contentless tidak punya `highlight()`/`snippet()`).
 
 ## Keputusan normalisasi (NORM_VERSION 1)
 

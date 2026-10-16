@@ -1,4 +1,4 @@
-import { buildFtsMatch, normalizeArabic, stemText } from "@surau/text";
+import { ftsMatchExpression, normalizeArabic, planFtsQuery, stemText } from "@surau/text";
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/test";
 
@@ -9,18 +9,20 @@ import type { SearchRequest, SearchResult } from "./search.ts";
 
 const db = env.CORPUS;
 const ALL = { min: 1, max: Number.MAX_SAFE_INTEGER };
-const match = (q: string): string => buildFtsMatch(q) ?? "";
 
-/** Permintaan untuk satu kata/frasa: stem dari bentuk normal, seperti planFtsQuery. */
-function req(q: string, over: Partial<SearchRequest> = {}): SearchRequest {
+/** Permintaan dari rencana kueri @surau/text, sama dengan yang dikirim searchText. */
+function req(q: string, over: Partial<SearchRequest> & { expand?: boolean } = {}): SearchRequest {
+  const { expand = false, ...rest } = over;
+  const plan = planFtsQuery(q, { suffix: expand });
+  if (plan === null) throw new Error(`kueri kosong: ${q}`);
   return {
-    stems: stemText(normalizeArabic(q).text).split(" "),
-    match: match(q),
+    plan,
+    match: ftsMatchExpression(plan),
     editionId: null,
     span: ALL,
     limit: 10,
     offset: 0,
-    ...over,
+    ...rest,
   };
 }
 
@@ -91,7 +93,10 @@ describe("searchCorpus: konteks", () => {
   test("permintaan tidak sah ditolak sebelum menyentuh DB", async () => {
     await expect(searchCorpus(db, req("نص", { limit: 0 }))).rejects.toThrow(RangeError);
     await expect(searchCorpus(db, req("نص", { offset: -1 }))).rejects.toThrow(RangeError);
-    await expect(searchCorpus(db, req("نص", { stems: [] }))).rejects.toThrow(RangeError);
+    const empty = { phrases: [], prefix: false };
+    await expect(searchCorpus(db, req("نص", { plan: empty }))).rejects.toThrow(RangeError);
+    const ragged = { phrases: [["نص"], ["نص", "صفحه"]], prefix: false };
+    await expect(searchCorpus(db, req("نص", { plan: ragged }))).rejects.toThrow(RangeError);
   });
 });
 
@@ -146,10 +151,33 @@ describe("searchCorpus: pengaman kata umum", () => {
       [1, 2],
     ]);
     expect(r.inOrder[1]).not.toHaveProperty("score");
-    // Stem ganda dihitung sekali.
-    expect((await ready(searchCorpus(db, req("نص", { stems: ["نص", "نص"] })))).allCommon).toBe(
-      true,
-    );
+    // Frasa yang SETIAP posisinya kata umum juga dijaga.
+    expect((await ready(searchCorpus(db, req("نص نص")))).allCommon).toBe(true);
+  });
+
+  test("awalan expand ikut dijaga (temuan peninjau S11: الل + expand → الله)", async () => {
+    await db.prepare("INSERT INTO term_stat (term, df) VALUES ('حاشيه', 2)").run();
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM term_stat WHERE term = 'حاشيه'").run();
+    });
+    const prefix = await ready(searchCorpus(db, req("حاشي", { expand: true })));
+    expect(prefix.allCommon).toBe(true);
+    expect(prefix.common).toEqual([{ term: "حاشيه", df: 2 }]);
+    expect(prefix.ranked).toEqual([]);
+    expect(prefix.inOrder.map((x) => x.id)).toEqual([PASSAGES.foot1, PASSAGES.foot2]);
+    // Tanpa expand, "حاشي" bukan kata umum dan tidak cocok apa pun (berperingkat, kosong).
+    const plain = await ready(searchCorpus(db, req("حاشي")));
+    expect([plain.allCommon, plain.common, plain.ranked]).toEqual([false, [], []]);
+  });
+
+  test("varian proklitik kata umum ikut dijaga (سلم → وسلم)", async () => {
+    // "وصفحه" dicatat umum; kueri "صفحة" ikut mencari varian "وصفحه" (expandQueryToken).
+    await db.prepare("INSERT INTO term_stat (term, df) VALUES ('وصفحه', 9)").run();
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM term_stat WHERE term = 'وصفحه'").run();
+    });
+    const r = await ready(searchCorpus(db, req("صفحة")));
+    expect([r.allCommon, r.common.map((c) => c.term), r.ranked]).toEqual([true, ["وصفحه"], []]);
   });
 
   test("frasa campuran (satu stem umum) → berperingkat, urutan kitab kosong", async () => {

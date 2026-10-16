@@ -7,7 +7,13 @@
 // atau letak membawa `Citation` lengkap (karya, edisi, juz, halaman, permalink, lisensi,
 // atribusi). Paragraf membawa `location` (juz, halaman, permalink paragraf); sitasi penuh satu
 // paragraf = `citation.source` keluaran itu + `location` paragraf (atau `buildCitation`).
-import { attributionStatus, editionRow, needsReviewReason, passageKind } from "@surau/db";
+import {
+  EDITION_ID_MAX,
+  attributionStatus,
+  editionRow,
+  needsReviewReason,
+  passageKind,
+} from "@surau/db";
 import { z } from "zod";
 
 const id = z.number().int().positive();
@@ -252,8 +258,14 @@ export const searchPage = z.strictObject({
     .number()
     .nullable()
     .describe("Relevance of the page = its best passage (higher = better); null when unranked"),
-  hit_count: id.describe("Matching passages on this page"),
-  hits: z.array(searchHit).describe("All matching passages on this page in reading order"),
+  hit_count: id.describe(
+    "Matching passages on this page; when unranked, only those within the first `limit` matches",
+  ),
+  hits: z
+    .array(searchHit)
+    .describe(
+      "Matching passages on this page in reading order (all of them when ranked; when unranked, only those within the first `limit` matches)",
+    ),
 });
 export type SearchPage = z.infer<typeof searchPage>;
 
@@ -262,7 +274,7 @@ export const searchView = z.strictObject({
   terms: z
     .array(z.string())
     .describe(
-      "Normalized, stemmed query words that were searched (proclitics and article removed)",
+      "Normalized query words as searched (article and the conjunction/preposition attached to it removed); clitic variants are matched too",
     ),
   edition_id: id.nullable().describe("Edition searched; null = all editions"),
   ranked: z
@@ -272,12 +284,12 @@ export const searchView = z.strictObject({
     .enum(["common_terms"])
     .nullable()
     .describe(
-      "common_terms = every query word is very common (e.g. الله); add a more specific word or filter by edition",
+      "common_terms = every query word matches a very common word (e.g. الله), so results are unranked; add a more specific word",
     ),
   common_terms: z
     .array(z.strictObject({ term: z.string(), passage_count: id }))
     .describe(
-      "Query words that are very common in the corpus, with how many passages contain them",
+      "Very common words matched by the query (exactly, as a clitic variant, or by `expand` prefix), with how many passages contain them",
     ),
   total_pages: z
     .number()
@@ -291,7 +303,11 @@ export const searchView = z.strictObject({
     .nonnegative()
     .nullable()
     .describe("Matching passages in total; null when unranked or past the last page"),
-  limit: z.number().int().positive(),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .describe("Pages when ranked; passages (first matches in book order) when unranked"),
   offset: z.number().int().nonnegative(),
   results: z.array(searchPage).describe("Pages, best first (or book order when unranked)"),
 });
@@ -342,14 +358,17 @@ export const searchTextInput = z.strictObject({
     .min(1)
     .max(SEARCH_QUERY_MAX)
     .describe("Arabic query, with or without diacritics; a word or an exact phrase"),
-  edition_id: id.optional().describe("Search only this edition; default: all editions"),
+  edition_id: id
+    .max(EDITION_ID_MAX)
+    .optional()
+    .describe("Search only this edition; default: all editions"),
   limit: z
     .number()
     .int()
     .min(1)
     .max(SEARCH_MAX_LIMIT)
     .default(SEARCH_DEFAULT_LIMIT)
-    .describe("Pages to return"),
+    .describe("Pages to return (passages when the query has only very common words)"),
   offset: z
     .number()
     .int()

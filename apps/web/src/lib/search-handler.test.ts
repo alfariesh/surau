@@ -34,6 +34,7 @@ function deps(over: Partial<SearchDeps> = {}) {
       keys.push(key);
       return true;
     },
+    limitGlobal: async () => true,
     search: async (query, opts) => {
       calls.push({ query, opts });
       return { ...VIEW, query };
@@ -88,6 +89,10 @@ describe("handleSearch", () => {
     const res = await handleSearch(get("q=x"), limited.d);
     expect(res.status).toBe(429);
     expect(limited.calls).toEqual([]);
+    // Batas global dicek lebih dulu: klien tidak menghabiskan kuota per-klien.
+    const global = deps({ limitGlobal: async () => false });
+    expect((await handleSearch(get("q=x"), global.d)).status).toBe(429);
+    expect([global.calls, global.keys]).toEqual([[], []]);
   });
 
   it("error core → status HTTP + kode; error lain dilempar (500 tanpa detail)", async () => {

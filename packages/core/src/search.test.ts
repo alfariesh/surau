@@ -110,6 +110,10 @@ describe("searchText", () => {
     const other = await searchText(db, "نص", { edition_id: ED + 1 });
     expect([other.results, other.total_pages]).toEqual([[], 0]);
     await expect(searchText(db, "نص", { edition_id: 999 })).rejects.toBeInstanceOf(NotFound);
+    // Di atas batas formula ID (899.999): masukan salah bentuk (400), bukan galat internal (500).
+    await expect(searchText(db, "نص", { edition_id: 900_000 })).rejects.toBeInstanceOf(
+      InvalidQuery,
+    );
   });
 
   test("hanya kata sangat umum → peringatan, tanpa peringkat, paragraf pertama urutan kitab", async () => {
@@ -160,11 +164,24 @@ describe("searchText", () => {
   });
 
   test("expand menerima bentuk bersufiks (awalan stem); tanpa expand tidak", async () => {
-    // "جمل" hanya muncul sebagai جملة (= جمله setelah normalisasi).
-    const plain = await searchText(db, "جمل");
-    const expanded = await searchText(db, "جمل", { expand: true });
+    // "حاشي" hanya muncul sebagai حاشية (= حاشيه setelah normalisasi).
+    const plain = await searchText(db, "حاشي");
+    const expanded = await searchText(db, "حاشي", { expand: true });
     expect(plain.total_hits).toBe(0);
     expect(expanded.total_hits).toBeGreaterThan(0);
+    expect(expanded.ranked).toBe(true);
+  });
+
+  test("awalan expand yang mengenai kata umum dijaga, bukan diranking penuh", async () => {
+    // "جمل" + expand = "جمل"* mengenai "جمله" (kata umum fixture), seperti الل + expand → الله.
+    const view = await searchText(db, "جمل", { expand: true, limit: 2 });
+    expect(view).toMatchObject({
+      ranked: false,
+      warning: "common_terms",
+      common_terms: [{ term: "جمله", passage_count: LONG_PAGES * 4 }],
+      total_pages: null,
+    });
+    expect(view.results.flatMap((p) => p.hits)).toHaveLength(2);
   });
 
   test("korpus tanpa indeks pencarian atau NORM_VERSION lain → Unavailable", async () => {

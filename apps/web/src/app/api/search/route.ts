@@ -6,8 +6,8 @@ import { handleSearch } from "../../../lib/search-handler";
 
 // Pencarian Arab (S11): GET /api/search?q=&edition=&limit=&offset=&expand=1 → `SearchView`
 // @surau/core (JSON). Dipakai UI Cari (S14). Pengaman ada di handleSearch; di sini hanya merangkai
-// binding. `Server-Timing`: waktu SQL D1 (jumlah `meta.duration`), bolak-balik, baris dibaca, dan
-// total handler (S11 langkah 6). Korpus tanpa indeks pencarian (ihya-v1) → 503, bukan "kosong".
+// binding. `Server-Timing`: waktu SQL D1 (jumlah `meta.duration`) dan total handler; di Preview juga
+// bolak-balik dan baris dibaca (`SEARCH_TIMING_DETAIL`, S11 langkah 6). Korpus tanpa indeks pencarian (ihya-v1) → 503, bukan "kosong".
 const DEV_HMAC_KEY = "surau-dev-only";
 
 export async function GET(request: Request): Promise<Response> {
@@ -20,8 +20,10 @@ export async function GET(request: Request): Promise<Response> {
     hmacKey: env.IP_HMAC_KEY ?? (dev ? DEV_HMAC_KEY : undefined),
     ip: request.headers.get("cf-connecting-ip") ?? (dev ? "127.0.0.1" : null),
     limit: async (key) => (await env.SEARCH_LIMITER.limit({ key })).success,
+    limitGlobal: async () => (await env.SEARCH_GLOBAL_LIMITER.limit({ key: "global" })).success,
     search: (query, opts) => searchText(db, query, opts),
   });
-  response.headers.set("Server-Timing", serverTiming(timing, performance.now() - started));
+  const detail = env.SEARCH_TIMING_DETAIL === "1" || dev;
+  response.headers.set("Server-Timing", serverTiming(timing, performance.now() - started, detail));
   return response;
 }

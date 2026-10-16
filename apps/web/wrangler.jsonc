@@ -21,6 +21,9 @@
   // `next dev` selalu menampilkannya (ADR-034).
   "vars": {
     "READER_ENABLED": "1",
+    // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
+    // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
+    "SEARCH_TIMING_DETAIL": "0",
   },
   "services": [
     {
@@ -55,7 +58,7 @@
     },
   ],
   // Batas laporan kesalahan (/api/feedback): per klien (kunci = HMAC jaringan IP, ADR-034) dan
-  // global (kunci tetap, rilis Fase 1). Batas pencarian (/api/search, S11): per klien, sama.
+  // global (kunci tetap, rilis Fase 1). Batas pencarian (/api/search, S11): per klien dan global.
   // Dihitung per lokasi Cloudflare. `namespace_id` berbeda untuk produksi dan Preview supaya
   // hitungannya tidak bercampur.
   "ratelimits": [
@@ -74,6 +77,11 @@
       "namespace_id": "1003",
       "simple": { "limit": 60, "period": 60 },
     },
+    {
+      "name": "SEARCH_GLOBAL_LIMITER",
+      "namespace_id": "1004",
+      "simple": { "limit": 300, "period": 60 },
+    },
   ],
   // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
   "observability": {
@@ -86,6 +94,7 @@
   "previews": {
     "vars": {
       "READER_ENABLED": "1",
+      "SEARCH_TIMING_DETAIL": "1",
     },
     "observability": {
       "enabled": true,
@@ -132,6 +141,11 @@
         "name": "SEARCH_LIMITER",
         "namespace_id": "2003",
         "simple": { "limit": 60, "period": 60 },
+      },
+      {
+        "name": "SEARCH_GLOBAL_LIMITER",
+        "namespace_id": "2004",
+        "simple": { "limit": 300, "period": 60 },
       },
     ],
   },

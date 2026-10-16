@@ -107,8 +107,9 @@ function groupByPage<R extends SearchPassageRow>(
  * Hasil = halaman cetak (terbaik dulu) dengan semua paragraf cocok di halaman itu.
  *
  * - Kueri kosong setelah normalisasi (hanya tanda baca/harakat) → hasil kosong, tanpa kueri DB.
- * - Semua kata sangat umum (`term_stat`, mis. الله) → `warning: "common_terms"`, `ranked: false`,
- *   dan hanya `limit` paragraf pertama dalam urutan kitab (pengaman beban, ADR-039).
+ * - Setiap kata kueri (termasuk bentuk berklitik dan awalan `expand`) mengenai kata sangat umum
+ *   (`term_stat`, mis. الله) → `warning: "common_terms"`, `ranked: false`, dan hanya `limit`
+ *   paragraf pertama dalam urutan kitab (pengaman beban, ADR-039).
  * - `InvalidQuery`: kueri/opsi salah bentuk; `NotFound`: edisi tidak ada; `Unavailable`: korpus
  *   tanpa indeks pencarian (skema < 4) atau indeks dengan `NORM_VERSION` lain.
  */
@@ -137,7 +138,7 @@ export async function searchText(
 
   const span = editionId === null ? ALL_PASSAGES : passageIdRange(editionId);
   const found = await searchCorpus(db, {
-    stems: plan.stems,
+    plan,
     match: ftsMatchExpression(plan),
     editionId,
     span,
@@ -152,13 +153,10 @@ export async function searchText(
     throw new NotFound(`Edition not found: ${editionId}`);
   }
   const cites = new Map(found.editions.map((e) => [e.edition.id, citeContext(e)]));
-  const common = new Map(found.common.map((t) => [t.term, t.df]));
   const shared = {
     ...base,
     terms: plan.stems,
-    common_terms: [...new Set(plan.stems)]
-      .filter((t) => common.has(t))
-      .map((term) => ({ term, passage_count: common.get(term) as number })),
+    common_terms: found.common.map((t) => ({ term: t.term, passage_count: t.df })),
   };
 
   if (found.allCommon) {

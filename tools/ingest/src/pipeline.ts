@@ -220,7 +220,7 @@ export function runIngest(
   const hashPath = join(paths.build, `${config.corpusVersion}.sha256`);
   const stale = existsSync(paths.build)
     ? readdirSync(paths.build)
-        .filter((f) => /^surau-corpus-.+\.sqlite(?:-journal|-wal|-shm)?$|\.sha256$/.test(f))
+        .filter((f) => /^(?:surau-corpus-.+\.sqlite(?:-journal|-wal|-shm)?|.+\.sha256)$/.test(f))
         .map((f) => join(paths.build, f))
     : [];
   for (const path of [sqlDir, sqlitePath, hashPath, ...stale]) {

@@ -52,9 +52,11 @@ describe("timedD1", () => {
     expect(timing).toEqual({ calls: 2, duration: 0, rowsRead: 0 });
   });
 
-  it("format Server-Timing", () => {
-    expect(serverTiming({ calls: 2, duration: 3.14, rowsRead: 2929 }, 12.345)).toBe(
+  it("format Server-Timing: detail (Preview) vs tanpa detail (produksi)", () => {
+    const t = { calls: 2, duration: 3.14, rowsRead: 2929 };
+    expect(serverTiming(t, 12.345, true)).toBe(
       'd1;dur=3.1;desc="calls=2 rows_read=2929", total;dur=12.3',
     );
+    expect(serverTiming(t, 12.345)).toBe("d1;dur=3.1, total;dur=12.3");
   });
 });

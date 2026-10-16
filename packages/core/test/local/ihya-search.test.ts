@@ -179,5 +179,9 @@ describe.skipIf(!hasState)("pencarian Ihya di D1 lokal (regresi recall 18 kueri 
     expect(view).toMatchObject({ ranked: false, warning: "common_terms", total_pages: null });
     expect(view.common_terms[0]?.term).toBe("الله");
     expect(view.results.flatMap((p) => p.hits)).toHaveLength(20);
+    // Celah awalan (temuan peninjau): الل + expand = "الل"* mengenai الله → tetap dijaga.
+    const prefix = await searchText(db, "الل", { expand: true });
+    expect(prefix).toMatchObject({ ranked: false, warning: "common_terms" });
+    expect(prefix.common_terms.map((t) => t.term)).toContain("الله");
   });
 });

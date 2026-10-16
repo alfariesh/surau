@@ -19,8 +19,9 @@ Prinsipnya:
 | `readPage(db, editionId, juz, pageNo)` | `read_page` | Satu halaman cetak: `body`, `footnotes`, tautan penanda → catatan kaki, halaman sebelum/sesudah, `source_url` (halaman yang sama di Shamela untuk atribusi ADR-018; field tambahan S09) |
 | `readSection(db, nodeId, cursor?)` | `read_section` | Paragraf bagian **beserta sub-bagiannya**, dipaginasi ±4–6 ribu token dengan `next_cursor` |
 | `buildCitation(db, passageId)` | (di setiap hasil) | Sitasi lengkap satu paragraf |
+| `searchText(db, query, { edition_id?, limit?, offset?, expand? })` | `search_text` | Pencarian Arab (S11): halaman cetak berperingkat bm25 dengan semua paragraf cocok, sorotan dan potongan di `text_raw`. Lihat [Pencarian](#pencarian-searchtext) |
 
-Skema Zod masukan (`readPageInput`, `readSectionInput`, `getTocInput`, `getWorkInput`, `buildCitationInput`) dan keluaran (`pageView`, `sectionView`, `tocView`, `workList`, `workView`, `citation`, `passage`) diekspor untuk route, tool MCP, dan tes. `uintSegment` memvalidasi angka dari segmen URL (`/kitab/ihya/1/200`). Semua skema bisa diubah ke JSON Schema (`z.toJSONSchema`), sudah diuji.
+Skema Zod masukan (`readPageInput`, `readSectionInput`, `getTocInput`, `getWorkInput`, `buildCitationInput`, `searchTextInput`) dan keluaran (`pageView`, `sectionView`, `tocView`, `workList`, `workView`, `citation`, `passage`, `searchView`) diekspor untuk route, tool MCP, dan tes. `uintSegment` memvalidasi angka dari segmen URL (`/kitab/ihya/1/200`). Semua skema bisa diubah ke JSON Schema (`z.toJSONSchema`), sudah diuji.
 
 ```ts
 import { readPage, readSection, isCoreError } from "@surau/core";
@@ -36,8 +37,10 @@ while (chunk.next_cursor) chunk = await readSection(env.CORPUS, 100074, chunk.ne
 |---|---|---|---|
 | `NotFound` | `not_found` | Alamat sah tetapi tidak ada: karya, edisi, halaman, node (termasuk node edisi lain di `getToc`), paragraf | 404 |
 | `InvalidCitation` | `invalid_citation` | Alamat salah bentuk: juz/halaman/ID bukan bilangan bulat positif, `depth` di luar 1–10, slug salah, cursor rusak atau milik node lain | 400 |
+| `InvalidQuery` | `invalid_query` | Kueri pencarian salah bentuk: kosong, >200 karakter, >32 kata, `limit` di luar 1–50, `offset` di luar 0–1000, `edition_id` di luar 1–899.999 (S11) | 400 |
+| `Unavailable` | `unavailable` | Fitur belum ada di korpus terpasang: pencarian di korpus tanpa indeks (skema < 4, `ihya-v1`) atau indeks dengan `NORM_VERSION` lain (S11) | 503 |
 
-Keduanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan hanya menyebut alamat yang diminta (`Page not found: juz 1, page 999`), tanpa SQL, nama tabel, atau isi DB; UI memetakan `code` ke string Indonesia. Error lain (baris DB salah bentuk, D1 gagal) sengaja tidak dibungkus dan ditampilkan apps/* sebagai galat umum.
+Semuanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan hanya menyebut alamat yang diminta (`Page not found: juz 1, page 999`), tanpa SQL, nama tabel, atau isi DB; UI memetakan `code` ke string Indonesia. Error lain (baris DB salah bentuk, D1 gagal) sengaja tidak dibungkus dan ditampilkan apps/* sebagai galat umum.
 
 ## Paginasi `readSection`
 
@@ -47,6 +50,15 @@ Keduanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 - Label edisi non-default memakai slug edisi (`Kitab, j. 1, h. 5 (openiti)`). `estimated_tokens` hanya menghitung `passages`, tanpa `citation`, `node`, dan `ancestors` (±300–500 token).
 - `next_cursor` opak (base64url, menyimpan node, juz, halaman, dan `ord` paragraf badan berikutnya) dan selalu divalidasi ulang.
 - Bagian terpanjang Ihya (Rub' al-Munjiyat, 1,68 juta karakter, 4.608 paragraf): 278 potongan, median ±5.300 token, maks. 5.997, 4 potongan di bawah 4.000.
+
+## Pencarian `searchText`
+
+- **Kueri:** Arab, boleh bervokal. Normalisasi + stem dari `@surau/text` (`planFtsQuery`): satu kata dicari beserta bentuk berklitiknya (الصبر = صبر, والصبر, بالصبر, وصبر …, kunyah أبو/أبي/أبا disamakan); dua kata atau lebih = frasa berurutan. `expand: true` (satu kata) juga mencocokkan bentuk bersufiks (صبره, نيته). Kueri yang kosong setelah normalisasi (hanya tanda baca) → hasil kosong tanpa kueri DB.
+- **Hasil per halaman cetak:** paragraf cocok diranking bm25 (badan 1,0, catatan kaki 0,5), halaman diurutkan menurut paragraf terbaiknya lalu jumlah paragraf cocok. Setiap halaman membawa `citation` dan **semua** paragraf cocoknya dalam urutan baca. `score` = −bm25 (makin besar makin cocok). `total_pages`/`total_hits` = seluruh hasil; `limit` (1–50, bawaan 20) dan `offset` (0–1000) dihitung per halaman.
+- **Sorotan dan potongan:** `highlights` (maks. 50 per paragraf) dan `snippet` adalah rentang di `text_raw` (indeks string JS, akhir eksklusif, sama dengan `footnote_refs`): `text_raw.slice(char_start, char_end)` selalu teks sumber verbatim dengan harakatnya. `snippet.text` (±160 karakter) dipotong di batas spasi. `text_raw` penuh tidak dikirim: pakai `readPage` atau `location.permalink`.
+- **Kata sangat umum:** bila **setiap** kata kueri mengenai `term_stat` (stem di >10% paragraf, mis. الله, من, قال), termasuk lewat bentuk berklitiknya (سلم → وسلم) atau awalan `expand` (الل → الله), hasilnya `ranked: false` + `warning: "common_terms"`: `limit` **paragraf** pertama dalam urutan kitab (dikelompokkan per halaman; `hit_count` halaman terakhir bisa sebagian), tanpa total dan tanpa halaman lanjut. `common_terms` menyebut kata umum yang dikenai kueri beserta jumlah paragrafnya (juga untuk kueri campuran, yang tetap diranking).
+- **Korpus:** butuh skema korpus ≥ 4 (`SEARCH_SCHEMA_VERSION`, migrasi 0004) dan `meta.norm_version` = `NORM_VERSION`; selain itu `Unavailable`. Filter `edition_id` memakai rentang rowid paragraf.
+- **Biaya D1:** satu bolak-balik (`searchCorpus` @surau/db: konteks + kueri berperingkat + kueri urutan kitab dalam satu `batch`; pengaman ada di ekspresi MATCH sehingga hanya satu yang memindai indeks). Ihya: الصبر ±2.900 baris dibaca, الله (pengaman) ±140 baris termasuk konteks (ADR-039).
 
 ## Contoh keluaran (Ihya, DB lokal)
 
@@ -322,8 +334,69 @@ Keduanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 }
 ```
 
+
+### `searchText(db, "الصبر", { limit: 1 })` (satu paragraf dan dua sorotan ditampilkan; `snippet.text` diganti `"…"`)
+
+```json
+{
+  "query": "الصبر",
+  "terms": ["صبر"],
+  "edition_id": null,
+  "ranked": true,
+  "warning": null,
+  "common_terms": [],
+  "total_pages": 205,
+  "total_hits": 323,
+  "limit": 1,
+  "offset": 0,
+  "results": [
+    {
+      "citation": {
+        "source": "(sama dengan readPage)",
+        "juz": 4,
+        "page_no": 72,
+        "permalink": "/kitab/ihya/4/72",
+        "label": "Ihya' 'Ulum ad-Din, j. 4, h. 72"
+      },
+      "score": 14.999897141892628,
+      "hit_count": 4,
+      "hits": [
+        {
+          "id": 10016275,
+          "anchor": "p16275",
+          "kind": "body",
+          "ord": 1,
+          "toc_node_id": 100202,
+          "section": {
+            "id": 100202,
+            "title_ar": "بيان مظان الحاجة إلى الصبر وأن العبد لا يستغني عنه في حال من الأحوال",
+            "level": 4,
+            "permalink": "/kitab/ihya/bab/100202"
+          },
+          "location": {
+            "juz": 4,
+            "page_no": 72,
+            "permalink": "/kitab/ihya/4/72#p16275",
+            "label": "Ihya' 'Ulum ad-Din, j. 4, h. 72"
+          },
+          "score": 6.903101045015238,
+          "highlights": [
+            { "char_start": 89, "char_end": 95 },
+            { "char_start": 106, "char_end": 112 }
+          ],
+          "snippet": { "char_start": 12, "char_end": 167, "text": "…" }
+        }
+      ]
+    }
+  ]
+}
+```
+
+`searchText(db, "الله")` → `ranked: false`, `warning: "common_terms"`, `common_terms: [{ "term": "الله", "passage_count": 9242 }]`, `total_pages: null`, `results` = 20 paragraf pertama dalam urutan kitab.
+
 ## Tes
 
 - `pnpm exec vp test --project core`: tes unit di workerd terhadap D1 lokal sementara, dengan migrasi korpus dari `packages/db` dan fixture buatan (fixture S06 + satu bagian panjang sintetis, `test/fixture.ts`).
+- `packages/core/test/local/ihya-search.test.ts` (project `node`, S11): regresi recall 18 kueri riset ([queries.json](../../docs/riset/2026-10-15-pencarian-arab/queries.json)); gold dibangun ulang dari D1 lokal dengan definisi regex di file itu, recall per kueri harus ≥ angka riset dan total halaman di luar gold ≤ 10. Juga الصبر (halaman teratas j. 4 h. 72) dan الله (pengaman). Dilewati bila korpus lokal belum punya indeks (`pnpm ingest ihya && pnpm corpus:load:local`).
 - `packages/core/test/local/ihya.test.ts` (project `node`, ikut `pnpm test`): tes integrasi terhadap D1 lokal berisi Ihya penuh lewat `getPlatformProxy`, pada **salinan** `.wrangler/state/v3` di folder sementara. Dilewati otomatis bila state D1 lokal tidak ada (CI), DB korpus belum dimigrasi, atau Ihya belum dimuat (`pnpm corpus:load:local`).
 - Cakupan baris belum terukur: tes D1 berjalan di workerd, tempat coverage v8 belum didukung plugin 1.4.2 (sama dengan `packages/db`, ADR-029).

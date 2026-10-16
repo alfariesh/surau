@@ -58,10 +58,13 @@ export function timedD1(db: D1Db): { db: D1Db; timing: D1Timing } {
   };
 }
 
-/** Nilai header `Server-Timing`: waktu SQL D1 (+ bolak-balik, baris dibaca) dan total handler. */
-export function serverTiming(timing: D1Timing, totalMs: number): string {
-  return [
-    `d1;dur=${timing.duration.toFixed(1)};desc="calls=${timing.calls} rows_read=${timing.rowsRead}"`,
-    `total;dur=${totalMs.toFixed(1)}`,
-  ].join(", ");
+/**
+ * Nilai header `Server-Timing`: waktu SQL D1 dan total handler. `detail` (Preview) menambah jumlah
+ * bolak-balik dan baris dibaca; di produksi tidak dikirim supaya kueri termahal tidak mudah dipetakan.
+ */
+export function serverTiming(timing: D1Timing, totalMs: number, detail = false): string {
+  const desc = detail ? `;desc="calls=${timing.calls} rows_read=${timing.rowsRead}"` : "";
+  return [`d1;dur=${timing.duration.toFixed(1)}${desc}`, `total;dur=${totalMs.toFixed(1)}`].join(
+    ", ",
+  );
 }

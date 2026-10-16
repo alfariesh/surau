@@ -1,7 +1,7 @@
 // Uji ujung-ke-ujung pipeline ingest dengan kitab BUATAN (test/fixture.ts): baca Shamela tiruan,
 // daftar isi + patch, QA OpenITI tiruan, validasi, SQL, .sqlite, peta ID, dan laporan.
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
 import { CORPUS_SCHEMA_VERSION } from "@surau/db";
@@ -194,6 +194,26 @@ describe("runIngest (kitab buatan)", () => {
       for (const st of sql.split(/;\n/))
         expect(Buffer.byteLength(st, "utf8")).toBeLessThan(MAX_STATEMENT_BYTES);
     }
+  });
+
+  test("build versi lain di folder build dihapus; berkas lain tidak", () => {
+    const { config, paths } = createFixture();
+    mkdirSync(paths.build, { recursive: true });
+    const stale = ["surau-corpus-uji-v0.sqlite", "surau-corpus-uji-v0.sqlite-wal", "uji-v0.sha256"];
+    for (const f of [...stale, "catatan.txt", "sha256.txt"])
+      writeFileSync(join(paths.build, f), "x");
+    const r = runIngest(config, paths, { env });
+    const left = readdirSync(paths.build).sort();
+    for (const f of stale) expect(left).not.toContain(f);
+    expect(left).toEqual(
+      [
+        "catatan.txt",
+        "sha256.txt",
+        "sql",
+        basename(r.output?.sqlite ?? ""),
+        "uji-v1.sha256",
+      ].sort(),
+    );
   });
 
   test("ID stabil: paragraf baru mendapat seq setelah yang terbesar", () => {
