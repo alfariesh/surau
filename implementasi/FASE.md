@@ -7,7 +7,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | Fase | Nama | Yang bisa dipakai publik | Sesi | Status |
 |---|---|---|---|---|
 | 0 | Fondasi | Situs "Surau, segera hadir": tentang, prinsip, dan status pengembangan | S01–S04 | **dirilis 2026-10-15** (`rilis-f0`) |
-| 1 | Pembaca Ihya | Membaca Ihya lengkap: daftar isi, halaman cetak, takhrij al-'Iraqi, dan permalink | S05–S10 | **siap rilis** 2026-10-16 (S10) · tinggal `/rilis 1` |
+| 1 | Pembaca Ihya | Membaca Ihya lengkap: daftar isi, halaman cetak, takhrij al-'Iraqi, dan permalink | S05–S10 | **dirilis 2026-10-16** (`rilis-f1`) |
 | 2 | Cari | Pencarian Arab dan Indonesia di Ihya, ayat dengan terjemahan Kemenag, serta terjemahan dan ringkasan AI berlabel | S11–S15 | belum |
 | 3 | MCP publik | Korpus Surau bisa dipakai dari Claude, ChatGPT, dan AI lain | S16–S17 | belum |
 | 4 | Jawab | Tanya-jawab dengan kutipan Arab terverifikasi, berkuota, dengan rem biaya | S18–S21 | belum |
@@ -58,7 +58,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 - ADR-018 dan ADR-021 (sumber teks dan lisensi) sudah disetujui pemilik, dan retensi laporan kesalahan (`feedback`, bagian P-7) sudah diputuskan.
 - Lighthouse aksesibilitas ≥ 90 di ponsel.
 
-**Status R1 (2026-10-16, S10):** korpus `surau-corpus-ihya-v1` aktif di produksi (binding `CORPUS_DB` versi Worker f9046c12, deploy PR #23), hitungan baris = build yang lolos validasi (1.706 halaman, 311 judul + 2 node patch) ✓ · sampel 30 halaman 30/30 byte demi byte, termasuk tautan penanda takhrij ([laporan](../data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md)) ✓ · takhrij di halaman yang benar (S09: 5 penanda dicek; QA `footnote_ref` 30/30) ✓ · ADR-018/021 + retensi `feedback` disetujui pemilik ✓ · Lighthouse a11y ponsel 100 (S09) ✓. QA manusia 10 halaman (T-15) 10/10 oke, tampilan pembaca (T-22) dan teks `/lisensi` disetujui pemilik (2026-10-16) ✓. Tinggal `/rilis 1`.
+**Status R1 (2026-10-16, S10):** korpus `surau-corpus-ihya-v1` aktif di produksi (binding `CORPUS_DB` versi Worker f9046c12, deploy PR #23), hitungan baris = build yang lolos validasi (1.706 halaman, 311 judul + 2 node patch) ✓ · sampel 30 halaman 30/30 byte demi byte, termasuk tautan penanda takhrij ([laporan](../data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md)) ✓ · takhrij di halaman yang benar (S09: 5 penanda dicek; QA `footnote_ref` 30/30) ✓ · ADR-018/021 + retensi `feedback` disetujui pemilik ✓ · Lighthouse a11y ponsel 100 (S09) ✓. QA manusia 10 halaman (T-15) 10/10 oke, tampilan pembaca (T-22) dan teks `/lisensi` disetujui pemilik (2026-10-16) ✓. **Dirilis 2026-10-16** (`rilis-f1`, PR #26, ADR-037).
 
 ## Fase 2 · Cari
 

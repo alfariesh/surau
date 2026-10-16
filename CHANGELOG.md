@@ -2,9 +2,9 @@
 
 Ditulis untuk pengguna, dalam bahasa awam. Detail teknis ada di `implementasi/LOG.md`.
 
-## Fase 1 · Pembaca Ihya — DRAF (belum dirilis; tanggal dan tag diisi saat `/rilis 1`)
+## Fase 1 · Pembaca Ihya — 16 Oktober 2026 (`rilis-f1`)
 
-Kitab pertama Surau, *Ihya' 'Ulum ad-Din* karya al-Ghazali, bisa dibaca lengkap: 4 jilid, 1.706 halaman, dengan takhrij hadits al-'Iraqi.
+Kitab pertama Surau, *Ihya' 'Ulum ad-Din* karya al-Ghazali, bisa dibaca lengkap: 4 jilid, 1.706 halaman, dengan takhrij hadits al-'Iraqi. Mulai dari https://surau-web.alfarieshsalman.workers.dev/kitab
 
 **Yang baru**
 - **Pembaca kitab** (menu Kitab): halaman per halaman sesuai edisi cetak Dar al-Ma'rifah, daftar isi lengkap, lompat ke jilid/halaman, tombol berikutnya/sebelumnya (juga panah ← → di laptop), dan ukuran huruf yang bisa diatur.
@@ -18,6 +18,8 @@ Kitab pertama Surau, *Ihya' 'Ulum ad-Din* karya al-Ghazali, bisa dibaca lengkap:
 - Belum ada pencarian (Fase 2) dan belum ada terjemahan.
 - 609 paragraf ditandai "perlu ditinjau": sebagian takhrij yang di sumbernya tercampur ke teks utama dipisahkan otomatis, dan batasnya belum ditinjau manusia. Teksnya tetap persis seperti sumber.
 - Halaman yang pertama kali dibuka butuh ±1 detik; setelah itu cepat.
+- Alamat situs masih memakai `workers.dev`; domain sendiri menyusul.
+- Laporan koreksi atau permintaan penghapusan sementara lewat tombol "Laporkan kesalahan" dan GitHub; alamat email kontak menyusul.
 
 ## Fase 0 · Fondasi — 15 Oktober 2026 (`rilis-f0`)
 
