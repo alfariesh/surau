@@ -49,6 +49,7 @@ describe("emitSql", () => {
     passage: [],
     footnote_ref: [],
     passage_needs_review: [],
+    term_stat: [],
     meta: [{ key: "corpus_version", value: "uji" }],
   };
 
@@ -62,5 +63,25 @@ describe("emitSql", () => {
     expect(files[1]?.content).toBe(
       "INSERT INTO meta (key, value) VALUES\n('corpus_version', 'uji');\n",
     );
+  });
+
+  test("reset mengosongkan indeks FTS (delete-all) dan term_stat", () => {
+    expect(RESET_SQL).toContain("INSERT INTO passage_fts (passage_fts) VALUES ('delete-all');");
+    expect(RESET_SQL).toContain("DELETE FROM term_stat;");
+  });
+
+  test("indeks FTS + optimize dimuat tepat sebelum meta (meta tetap file terakhir)", () => {
+    const fts = [{ rowid: 10_000_001, body: "", foot: "", sbody: "صبر ضياء", sfoot: "" }];
+    const files = emitSql(empty, fts);
+    expect(files.map((f) => f.name)).toEqual([
+      "0000-reset.sql",
+      "0001-passage-fts.sql",
+      "0002-passage-fts-optimize.sql",
+      "0003-meta.sql",
+    ]);
+    expect(files[1]?.content).toBe(
+      "INSERT INTO passage_fts (rowid, body, foot, sbody, sfoot) VALUES\n(10000001, '', '', 'صبر ضياء', '');\n",
+    );
+    expect(files[2]?.content).toBe("INSERT INTO passage_fts (passage_fts) VALUES ('optimize');\n");
   });
 });

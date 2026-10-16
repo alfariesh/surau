@@ -3,7 +3,7 @@
 // `built_at` diambil dari SOURCE_DATE_EPOCH atau tanggal commit HEAD, bukan jam sekarang.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { NORM_VERSION } from "@surau/text";
@@ -20,6 +20,8 @@ import { openitiReport, validationReport } from "./report.ts";
 import type { ReportContext } from "./report.ts";
 import { TABLE_ORDER, buildRows } from "./rows.ts";
 import type { CorpusRows } from "./rows.ts";
+import { ftsRows, termStats } from "./search-index.ts";
+import type { FtsRow } from "./search-index.ts";
 import { parsePage } from "./shamela/page.ts";
 import type { ParsedPage } from "./shamela/page.ts";
 import { readShamelaBook } from "./shamela/source.ts";
@@ -137,6 +139,7 @@ function readToc(config: WorkConfig, paths: PipelinePaths, prepared: Prepared): 
   return buildToc(prepared.source.titles, prepared.pages, patch);
 }
 
+/** Baris korpus + baris indeks FTS; `term_stat` dihitung dari indeks itu (S11). */
 function rowsFor(
   config: WorkConfig,
   paths: PipelinePaths,
@@ -144,9 +147,9 @@ function rowsFor(
   toc: TocBuild,
   ids: IdAllocator,
   env?: NodeJS.ProcessEnv,
-): CorpusRows {
+): { rows: CorpusRows; fts: FtsRow[] } {
   const { source, pages, takhrij } = prepared;
-  return buildRows({
+  const base = buildRows({
     config,
     source,
     pages,
@@ -159,6 +162,8 @@ function rowsFor(
       sourceHash: `sha256:${source.sha256}`,
     },
   });
+  const fts = ftsRows(base.passage);
+  return { rows: { ...base, term_stat: termStats(fts, paths.migrations) }, fts };
 }
 
 /**
@@ -169,7 +174,7 @@ export function expectedRows(config: WorkConfig, paths: PipelinePaths): CorpusRo
   const prepared = prepare(config, paths);
   const toc = readToc(config, paths, prepared);
   const ids = createAllocator(readIdMap(join(paths.repo, config.ids), config.edition.id));
-  const rows = rowsFor(config, paths, prepared, toc, ids);
+  const { rows } = rowsFor(config, paths, prepared, toc, ids);
   const added = Object.values(ids.added).reduce((a, b) => a + b, 0);
   if (added > 0) {
     throw new Error(
@@ -208,11 +213,17 @@ export function runIngest(
   const toc = readToc(config, paths, prepared);
 
   // Keluaran build lama dihapus lebih dulu: bila validasi gagal, tidak ada SQL usang yang bisa
-  // termuat tanpa sadar.
+  // termuat tanpa sadar. Build versi lain (mis. ihya-v1 setelah naik ke ihya-v2) ikut dihapus:
+  // data/build/sql hanya memuat satu build, dan .sqlite/.sha256 versi lain tidak lagi cocok dengannya.
   const sqlDir = join(paths.build, "sql");
   const sqlitePath = join(paths.build, config.output);
   const hashPath = join(paths.build, `${config.corpusVersion}.sha256`);
-  for (const path of [sqlDir, sqlitePath, hashPath]) {
+  const stale = existsSync(paths.build)
+    ? readdirSync(paths.build)
+        .filter((f) => /^(?:surau-corpus-.+\.sqlite(?:-journal|-wal|-shm)?|.+\.sha256)$/.test(f))
+        .map((f) => join(paths.build, f))
+    : [];
+  for (const path of [sqlDir, sqlitePath, hashPath, ...stale]) {
     rmSync(assertWritable(path), { recursive: true, force: true });
   }
 
@@ -221,7 +232,7 @@ export function runIngest(
     ? { format: 1 as const, edition: config.edition.id, page: {}, toc: {}, passage: {} }
     : readIdMap(idsPath, config.edition.id);
   const ids = createAllocator(idMap);
-  const rows = rowsFor(config, paths, prepared, toc, ids, opts.env);
+  const { rows, fts } = rowsFor(config, paths, prepared, toc, ids, opts.env);
   const validation = validate({ config, source, pages, toc, matan, takhrij, rows });
   writeText(
     join(paths.repo, `${config.reportPrefix}-validasi.md`),
@@ -234,9 +245,12 @@ export function runIngest(
   if (!validation.ok) return { validation };
 
   mkdirSync(sqlDir, { recursive: true });
-  const files = emitSql(rows);
+  const files = emitSql(rows, fts);
   for (const f of files) writeFileSync(join(sqlDir, f.name), f.content);
-  const { counts } = buildSqlite(sqlitePath, paths.migrations, files, TABLE_ORDER);
+  const { counts } = buildSqlite(sqlitePath, paths.migrations, files, [
+    ...TABLE_ORDER,
+    "passage_fts",
+  ]);
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());
 

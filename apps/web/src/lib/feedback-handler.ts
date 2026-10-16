@@ -2,14 +2,16 @@ import type { FeedbackInput } from "@surau/db";
 
 import { ZodError } from "zod";
 
+import { ipKey, ipNetwork } from "./client-key";
 import { FEEDBACK_BODY_MAX_BYTES } from "./feedback";
 import { feedbackRequest } from "./feedback-schema";
 
 // Logika POST /api/feedback, dipisah dari route supaya bisa dites tanpa Workers (ADR-034).
 // Urutan pengaman: pembaca terbuka → Origin sama → JSON → ukuran body → skema Zod → honeypot →
-// batas global → batas per klien (kunci HMAC(jaringan IP): IPv4 penuh, IPv6 per /64; IP mentah
-// tidak pernah keluar dari fungsi ini) → simpan. Batas global (kunci tetap) menahan spam dari
-// banyak alamat sekaligus (temuan peninjau rilis Fase 1; Rate Limiting dihitung per lokasi CF).
+// batas per klien (kunci HMAC(jaringan IP): IPv4 penuh, IPv6 per /64; IP mentah tidak pernah keluar
+// dari fungsi ini) → batas global → simpan. Batas global (kunci tetap) menahan spam dari banyak
+// alamat sekaligus (temuan peninjau rilis Fase 1; Rate Limiting dihitung per lokasi CF); dicek
+// sesudah batas per klien supaya satu klien tidak menghabiskannya (S11).
 
 export interface FeedbackDeps {
   enabled: boolean;
@@ -66,41 +68,6 @@ async function readLimited(request: Request, max: number): Promise<string | null
   return new TextDecoder().decode(bytes);
 }
 
-/**
- * Jaringan klien untuk rate limit: IPv4 apa adanya, IPv6 dipotong ke /64 (satu pelanggan biasanya
- * memegang satu /64 utuh, jadi alamat penuh mudah diganti-ganti). Masukan tak dikenal dikembalikan.
- */
-export function ipNetwork(ip: string): string {
-  if (!ip.includes(":")) return ip;
-  const [head, tail = ""] = ip.toLowerCase().split("::", 2) as [string, string?];
-  const h = head === "" ? [] : head.split(":");
-  const t = ip.includes("::") ? (tail === "" ? [] : tail.split(":")) : [];
-  // IPv4 tersemat (`::ffff:1.2.3.4`) dikembalikan utuh, supaya tidak berbagi satu kunci /64.
-  if (h.length + t.length > 8 || [...h, ...t].some((g) => g.includes("."))) return ip;
-  const groups = ip.includes("::")
-    ? [...h, ...Array<string>(8 - h.length - t.length).fill("0"), ...t]
-    : h;
-  if (groups.length !== 8) return ip;
-  return `${groups
-    .slice(0, 4)
-    .map((g) => g.replace(/^0+(?=.)/, ""))
-    .join(":")}::/64`;
-}
-
-/** HMAC-SHA256(kunci, ip) → 32 karakter hex. Kunci rate limit tanpa menyimpan/mengirim IP mentah. */
-export async function ipKey(secret: string, ip: string): Promise<string> {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(ip)));
-  return Array.from(sig.subarray(0, 16), (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
 export async function handleFeedback(request: Request, deps: FeedbackDeps): Promise<Response> {
   if (!deps.enabled) return json(404, { error: "not_found" });
   if (!sameOrigin(request)) return json(403, { error: "forbidden_origin" });
@@ -127,9 +94,11 @@ export async function handleFeedback(request: Request, deps: FeedbackDeps): Prom
   if (deps.hmacKey === undefined || deps.hmacKey === "") {
     return json(503, { error: "unavailable" });
   }
-  if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
+  // Per klien dulu: permintaan yang sudah ditolak per klien tidak memakan kuota global, jadi satu
+  // jaringan tidak bisa menghabiskan batas global untuk semua orang (temuan peninjau S11).
   const allowed = await deps.limit(await ipKey(deps.hmacKey, ipNetwork(deps.ip ?? "unknown")));
   if (!allowed) return json(429, { error: "rate_limited" });
+  if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
 
   try {
     await deps.insert({

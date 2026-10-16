@@ -43,20 +43,32 @@ export function ftsQuote(s: string): string {
 }
 
 /**
- * Susun ekspresi MATCH dari kueri pengguna (Arab, boleh bervokal). Kembalikan `null` bila kueri
- * kosong setelah normalisasi; kueri seperti itu tidak boleh dijalankan.
+ * Rencana kueri: bentuk yang dicari di kolom stem, dipakai bersama oleh penyusun `MATCH`
+ * (`ftsMatchExpression`) dan penyorot teks mentah (`findPlanSpans`), supaya yang disorot persis
+ * yang dicocokkan indeks.
+ */
+export interface FtsQueryPlan {
+  /** Stem tiap token kueri (setelah normalisasi), urut. Dasar pengaman kata umum (`term_stat`). */
+  stems: string[];
+  /** Frasa alternatif: urutan token di kolom stem. Kueri satu kata = frasa satu token. */
+  phrases: string[][];
+  /** Token terakhir dicocokkan sebagai awalan (opsi `suffix`, hanya kueri satu kata). */
+  prefix: boolean;
+}
+
+/**
+ * Susun rencana kueri dari kueri pengguna (Arab, boleh bervokal). `null` bila kueri kosong setelah
+ * normalisasi; kueri seperti itu tidak boleh dijalankan.
  *
  * - Satu kata: stem + varian proklitik (`expandQueryToken`), atau tiga bentuk kunyah.
  * - Frasa: hanya token pertama yang diberi varian proklitik (وحب الدنيا, لطلب العلم); token
  *   berikutnya sudah ter-stem (artikel dibuang di indeks juga). Kunyah di posisi mana pun.
  *   Kombinasi dibatasi `FTS_MAX_PHRASES`.
  */
-export function buildFtsMatch(query: string, opts: FtsMatchOptions = {}): string | null {
-  const columns = opts.columns ?? ["sbody", "sfoot"];
-  if (columns.length === 0 || columns.some((c) => !FTS_COLUMNS.includes(c))) {
-    throw new TypeError(`kolom FTS tidak dikenal: ${columns.join(", ")}`);
-  }
-  const filter = `{${columns.join(" ")}}`;
+export function planFtsQuery(
+  query: string,
+  opts: Pick<FtsMatchOptions, "suffix"> = {},
+): FtsQueryPlan | null {
   const stems = normalizeArabic(query)
     .text.split(" ")
     .filter((t) => t !== "")
@@ -69,14 +81,14 @@ export function buildFtsMatch(query: string, opts: FtsMatchOptions = {}): string
 
   if (stems.length === 1) {
     const kunya = kunyaVariants(first);
-    if (kunya.length > 1) return `${filter} : (${kunya.map(ftsQuote).join(" OR ")})`;
+    if (kunya.length > 1) return { stems, phrases: kunya.map((k) => [k]), prefix: false };
     const variants = expandQueryToken(first);
     if (opts.suffix === true && first.length >= 3) {
       const extra =
         first.endsWith("ه") && !isProtectedToken(first) ? [`${first.slice(0, -1)}ت`] : [];
-      return `${filter} : (${[...variants, ...extra].map((v) => `${ftsQuote(v)}*`).join(" OR ")})`;
+      return { stems, phrases: [...variants, ...extra].map((v) => [v]), prefix: true };
     }
-    return `${filter} : (${variants.map(ftsQuote).join(" OR ")})`;
+    return { stems, phrases: variants.map((v) => [v]), prefix: false };
   }
 
   let phrases: string[][] = [[]];
@@ -88,5 +100,34 @@ export function buildFtsMatch(query: string, opts: FtsMatchOptions = {}): string
         : bases;
     phrases = phrases.flatMap((ph) => variants.map((v) => [...ph, v])).slice(0, FTS_MAX_PHRASES);
   });
-  return `${filter} : (${phrases.map((p) => ftsQuote(p.join(" "))).join(" OR ")})`;
+  return { stems, phrases, prefix: false };
+}
+
+function columnFilter(columns: readonly FtsColumn[]): string {
+  if (columns.length === 0 || columns.some((c) => !FTS_COLUMNS.includes(c))) {
+    throw new TypeError(`kolom FTS tidak dikenal: ${columns.join(", ")}`);
+  }
+  return `{${columns.join(" ")}}`;
+}
+
+/** Ekspresi MATCH dari rencana kueri; setiap frasa di-quote (`ftsQuote`). */
+export function ftsMatchExpression(
+  plan: FtsQueryPlan,
+  columns: readonly FtsColumn[] = ["sbody", "sfoot"],
+): string {
+  const star = plan.prefix ? "*" : "";
+  const alternatives = plan.phrases.map((p) => `${ftsQuote(p.join(" "))}${star}`);
+  return `${columnFilter(columns)} : (${alternatives.join(" OR ")})`;
+}
+
+/**
+ * Susun ekspresi MATCH dari kueri pengguna (Arab, boleh bervokal). Kembalikan `null` bila kueri
+ * kosong setelah normalisasi; kueri seperti itu tidak boleh dijalankan. Aturan ekspansi:
+ * `planFtsQuery`.
+ */
+export function buildFtsMatch(query: string, opts: FtsMatchOptions = {}): string | null {
+  const columns = opts.columns ?? ["sbody", "sfoot"];
+  columnFilter(columns);
+  const plan = planFtsQuery(query, opts);
+  return plan === null ? null : ftsMatchExpression(plan, columns);
 }

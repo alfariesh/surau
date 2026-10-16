@@ -1,10 +1,11 @@
 // Uji ujung-ke-ujung pipeline ingest dengan kitab BUATAN (test/fixture.ts): baca Shamela tiruan,
 // daftar isi + patch, QA OpenITI tiruan, validasi, SQL, .sqlite, peta ID, dan laporan.
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
 import { CORPUS_SCHEMA_VERSION } from "@surau/db";
+import { buildFtsMatch, normalizeArabic, stemText } from "@surau/text";
 import { describe, expect, test } from "vite-plus/test";
 
 import { buildTimestamp, runIngest } from "../src/pipeline.ts";
@@ -31,6 +32,8 @@ describe("runIngest (kitab buatan)", () => {
       passage: 18,
       footnote_ref: 3,
       passage_needs_review: 7,
+      term_stat: 20,
+      passage_fts: 18,
       meta: 5,
     });
 
@@ -140,6 +143,25 @@ describe("runIngest (kitab buatan)", () => {
       ["takhrij_inline", "حديث الطهور شطر الايمان رواه احمد"],
       ["takhrij_unmatched", "(١) هذا كلام مصنوع للتجربة\nوله تتمة في سطر ثان"],
     ]);
+
+    // Indeks pencarian (S11): satu baris per paragraf, dicari dengan kueri yang sama dengan
+    // searchText. Hasilnya = persis paragraf (badan dan catatan kaki) yang memuat stem صبر.
+    const hits = q<{ id: number }>(
+      "SELECT rowid AS id FROM passage_fts WHERE passage_fts MATCH ? ORDER BY rowid",
+      buildFtsMatch("الصبر") ?? "",
+    ).map((h) => h.id);
+    const all = q<{ id: number; kind: string; text_raw: string }>(
+      "SELECT id, kind, text_raw FROM passage ORDER BY id",
+    );
+    const withStem = all.filter((p) =>
+      stemText(normalizeArabic(p.text_raw).text).split(" ").includes("صبر"),
+    );
+    expect(hits).toEqual(withStem.map((p) => p.id));
+    expect(new Set(withStem.map((p) => p.kind))).toEqual(new Set(["body", "foot"]));
+    // term_stat: df > 10% × 18 paragraf (fixture kecil, jadi banyak stem lolos), urut term.
+    const stats = q<{ term: string; df: number }>("SELECT term, df FROM term_stat");
+    expect(stats.every((t) => t.df > 1.8)).toBe(true);
+    expect(stats.map((t) => t.term)).toEqual(stats.map((t) => t.term).sort());
     db.close();
   });
 
@@ -172,6 +194,26 @@ describe("runIngest (kitab buatan)", () => {
       for (const st of sql.split(/;\n/))
         expect(Buffer.byteLength(st, "utf8")).toBeLessThan(MAX_STATEMENT_BYTES);
     }
+  });
+
+  test("build versi lain di folder build dihapus; berkas lain tidak", () => {
+    const { config, paths } = createFixture();
+    mkdirSync(paths.build, { recursive: true });
+    const stale = ["surau-corpus-uji-v0.sqlite", "surau-corpus-uji-v0.sqlite-wal", "uji-v0.sha256"];
+    for (const f of [...stale, "catatan.txt", "sha256.txt"])
+      writeFileSync(join(paths.build, f), "x");
+    const r = runIngest(config, paths, { env });
+    const left = readdirSync(paths.build).sort();
+    for (const f of stale) expect(left).not.toContain(f);
+    expect(left).toEqual(
+      [
+        "catatan.txt",
+        "sha256.txt",
+        "sql",
+        basename(r.output?.sqlite ?? ""),
+        "uji-v1.sha256",
+      ].sort(),
+    );
   });
 
   test("ID stabil: paragraf baru mendapat seq setelah yang terbesar", () => {

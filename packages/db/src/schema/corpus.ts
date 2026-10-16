@@ -135,6 +135,13 @@ export const summaryRow = z.strictObject({
 });
 export type SummaryRow = z.infer<typeof summaryRow>;
 
+/** Stem sangat umum di `passage_fts` (migrasi 0004, S11): pengaman pencarian kata umum. */
+export const termStatRow = z.strictObject({
+  term: z.string().min(1),
+  df: id,
+});
+export type TermStatRow = z.infer<typeof termStatRow>;
+
 export const metaRow = z.strictObject({
   key: z.string(),
   value: z.string(),
@@ -155,7 +162,10 @@ export const corpusMeta = z.object({
 export type CorpusMeta = z.infer<typeof corpusMeta>;
 
 /** Versi skema korpus yang dibuat migrasi di repo ini (= nilai `meta.schema_version` terbaru). */
-export const CORPUS_SCHEMA_VERSION = 3;
+export const CORPUS_SCHEMA_VERSION = 4;
+
+/** Skema korpus pertama yang punya indeks `passage_fts` terisi dan `term_stat` (S11, migrasi 0004). */
+export const SEARCH_SCHEMA_VERSION = 4;
 
 /** Tabel biasa korpus → skema barisnya (passage_fts tidak termasuk: tabel virtual turunan). */
 export const corpusTables = {
@@ -169,5 +179,6 @@ export const corpusTables = {
   passage_needs_review: passageNeedsReviewRow,
   translation: translationRow,
   summary: summaryRow,
+  term_stat: termStatRow,
   meta: metaRow,
 } as const;

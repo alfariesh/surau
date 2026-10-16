@@ -1,6 +1,6 @@
 // Query baca dasar DB korpus. Semua fungsi menerima D1 sebagai parameter (tanpa cloudflare:*),
 // memakai prepare().bind() (tanpa interpolasi nilai ke SQL), dan mem-parse baris dengan Zod.
-// FTS belum di sini (S11). Teks yang dikembalikan adalah `text_raw` dari DB, apa adanya.
+// Pencarian FTS ada di search.ts (S11). Teks yang dikembalikan adalah `text_raw` dari DB, apa adanya.
 import { D1_MAX_PARAMS, chunk, placeholders } from "../d1.ts";
 import type { D1Db } from "../d1.ts";
 import { z } from "zod";
@@ -30,10 +30,10 @@ import type {
 } from "../schema/corpus.ts";
 import { allRows, firstRow } from "./rows.ts";
 
-const AUTHOR_COLS = "id, name_ar, name_id, death_hijri, shamela_author_id, wikidata_id";
-const WORK_COLS =
+export const AUTHOR_COLS = "id, name_ar, name_id, death_hijri, shamela_author_id, wikidata_id";
+export const WORK_COLS =
   "id, slug, openiti_uri, title_ar, title_id, author_id, attribution_status, original_language, period";
-const EDITION_COLS =
+export const EDITION_COLS =
   "e.id, e.work_id, e.slug, e.is_default, e.source, e.source_ref, e.publisher, e.city, e.volumes, e.license, e.attribution";
 const PAGE_COLS = "id, edition_id, seq, juz, page_no, source_page_id";
 const TOC_COLS =

@@ -6,6 +6,11 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
+import { SEARCH_SCHEMA_VERSION } from "@surau/db";
+import { buildFtsMatch } from "@surau/text";
+
+import { sqlLiteral } from "./sql.ts";
+
 export const repo = resolve(import.meta.dirname, "../../..");
 /** Config D1 bersama: binding CORPUS = korpus STAGING (lokal juga memakai ID ini). */
 export const DB_CONFIG = "packages/db/wrangler.jsonc";
@@ -135,10 +140,16 @@ export const COUNTED = [
   "passage",
   "footnote_ref",
   "passage_needs_review",
+  "term_stat",
+  "passage_fts",
   "meta",
 ] as const;
+/** Tabel yang baru ada (atau baru diisi) sejak skema korpus 4 (S11): tidak dihitung di korpus lama. */
+const SEARCH_TABLES: ReadonlySet<string> = new Set(["term_stat", "passage_fts"]);
+
 // Satu baris berisi subkueri per tabel (D1 membatasi jumlah suku UNION dalam satu SELECT).
-const SMOKE_COUNTS = `SELECT ${COUNTED.map((t) => `(SELECT count(*) FROM ${t}) AS ${t}`).join(", ")}`;
+const smokeCounts = (tables: readonly string[]): string =>
+  `SELECT ${tables.map((t) => `(SELECT count(*) FROM ${t}) AS ${t}`).join(", ")}`;
 
 // j1 h200 (contoh baku: hadits shalat malam Jumat + takhrij al-'Iraqi): paragraf badan, catatan
 // kaki, dan penanda yang tertaut.
@@ -151,6 +162,12 @@ JOIN passage p ON p.page_id = pg.id
 WHERE pg.juz = 1 AND pg.page_no = 200
 GROUP BY p.kind ORDER BY p.kind`;
 
+// Indeks pencarian (S11): kueri buatan @surau/text yang sama dengan searchText harus mengenai
+// paragraf. الصبر ada di ±320 paragraf Ihya; literal MATCH dibuat kode (bukan masukan pengguna).
+const SMOKE_SEARCH = `SELECT count(*) AS n FROM passage_fts WHERE passage_fts MATCH ${sqlLiteral(
+  buildFtsMatch("الصبر") ?? "",
+)}`;
+
 export interface Smoke {
   counts: Record<(typeof COUNTED)[number], number>;
   meta: Record<string, string>;
@@ -159,29 +176,39 @@ export interface Smoke {
 }
 
 /**
- * Smoke query: jumlah baris per tabel, isi `meta`, dan j1 h200 (badan + catatan kaki + penanda).
+ * Smoke query: jumlah baris per tabel (termasuk indeks FTS), isi `meta`, j1 h200 (badan + catatan
+ * kaki + penanda), dan satu kueri pencarian.
  * Bila `expect` diberikan (hitungan dan meta dari .sqlite build), setiap angka harus sama persis.
  */
 export function smoke(
   target: D1Target,
   expect?: { counts: Record<string, number>; meta: Record<string, string> },
 ): Smoke {
-  const row = query(target, SMOKE_COUNTS)[0] ?? {};
-  const counts = Object.fromEntries(
-    COUNTED.map((t) => [t, Number(row[t] ?? 0)]),
-  ) as Smoke["counts"];
   const meta = Object.fromEntries(
     query(target, "SELECT key, value FROM meta ORDER BY key").map((r) => [
       String(r.key),
       String(r.value),
     ]),
   );
+  // Korpus skema < 4 (ihya-v1) tidak punya term_stat: dihitung 0 dan pencarian tidak dicoba, supaya
+  // smoke (mis. `promote --switch-only`) memberi pesan, bukan crash "no such table".
+  const search = Number(meta.schema_version ?? 0) >= SEARCH_SCHEMA_VERSION;
+  const tables = COUNTED.filter((t) => search || !SEARCH_TABLES.has(t));
+  const row = query(target, smokeCounts(tables))[0] ?? {};
+  const counts = Object.fromEntries(
+    COUNTED.map((t) => [t, Number(row[t] ?? 0)]),
+  ) as Smoke["counts"];
   const problems: string[] = [];
   const page = query(target, SMOKE_PAGE);
   const body = Number(page.find((r) => r.kind === "body")?.n ?? 0);
   const foot = Number(page.find((r) => r.kind === "foot")?.n ?? 0);
   if (body === 0 || foot === 0 || Number(page[0]?.refs ?? 0) === 0) {
     problems.push("j1 h200 tidak punya paragraf badan, catatan kaki, atau penanda tertaut");
+  }
+  if (!search) {
+    problems.push(`skema korpus ${meta.schema_version ?? "?"} belum punya indeks pencarian (S11)`);
+  } else if (Number(query(target, SMOKE_SEARCH)[0]?.n ?? 0) === 0) {
+    problems.push("indeks passage_fts tidak mengenai الصبر (indeks kosong atau tidak sinkron)");
   }
   if (expect !== undefined) {
     for (const t of COUNTED) {

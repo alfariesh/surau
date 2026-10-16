@@ -7,6 +7,8 @@
 // berisi catatan kaki. Tidak ada teks kitab (KONVENSI §Tes).
 import { pageId, passageId, tocNodeId } from "@surau/db";
 import type { D1Db } from "@surau/db";
+import { NORM_VERSION, normalizeArabic, stemText } from "@surau/text";
+import { z } from "zod";
 
 import { ED, PASSAGES, seedCorpus } from "../../db/test/fixture.ts";
 
@@ -137,5 +139,35 @@ export async function seedCore(db: D1Db): Promise<void> {
     db
       .prepare("INSERT INTO passage_needs_review (passage_id, reason) VALUES (?, ?), (?, ?)")
       .bind(PASSAGES.foot2, "takhrij_unmatched", PASSAGES.foot2, "footnote_orphan"),
+  ]);
+}
+
+/**
+ * Indeks pencarian untuk SEMUA paragraf fixture, dengan aturan yang sama dengan ingest (S11,
+ * ADR-039): stem dari bentuk normal, kolom sesuai kind, body/foot kosong. `common` = stem yang
+ * dicatat sebagai kata sangat umum (df dihitung dari indeks). `meta.norm_version` = NORM_VERSION.
+ */
+export async function seedSearchIndex(db: D1Db, common: readonly string[] = []): Promise<void> {
+  const { results } = await db.prepare("SELECT id, kind, text_raw FROM passage ORDER BY id").all();
+  const stems = results
+    .map((r) => z.object({ id: z.number(), kind: z.string(), text_raw: z.string() }).parse(r))
+    .map((r) => ({ ...r, stem: stemText(normalizeArabic(r.text_raw).text) }));
+  const df = (term: string): number => stems.filter((r) => r.stem.split(" ").includes(term)).length;
+  await db.batch([
+    db.prepare("INSERT INTO passage_fts (passage_fts) VALUES ('delete-all')"),
+    db.prepare("DELETE FROM term_stat"),
+    db
+      .prepare("INSERT OR REPLACE INTO meta (key, value) VALUES ('norm_version', ?)")
+      .bind(String(NORM_VERSION)),
+    ...common.map((term) =>
+      db.prepare("INSERT INTO term_stat (term, df) VALUES (?, ?)").bind(term, df(term)),
+    ),
+    ...stems.map((r) =>
+      db
+        .prepare(
+          "INSERT INTO passage_fts (rowid, body, foot, sbody, sfoot) VALUES (?, '', '', ?, ?)",
+        )
+        .bind(r.id, r.kind === "body" ? r.stem : "", r.kind === "foot" ? r.stem : ""),
+    ),
   ]);
 }
