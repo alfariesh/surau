@@ -17,7 +17,7 @@ Semua fakta versi di bawah dicek ke docs/registry resmi pada 15 Okt 2026 (riset 
 
 ## Keputusan yang menunggu pemilik
 
-**Wajib dijawab pemilik:** P-2, P-5, dan P-6. **Bila tidak dijawab, usulan CTO dipakai:** P-1, P-3, P-4, dan P-7. Pemilik tetap boleh mengubahnya kapan saja.
+**Wajib dijawab pemilik:** P-2 dan P-5 (P-6 dijawab 2026-10-16). **Bila tidak dijawab, usulan CTO dipakai:** P-1, P-3, P-4, dan P-7. Pemilik tetap boleh mengubahnya kapan saja.
 
 | ID | Pertanyaan (bahasa awam) | Usulan CTO | Dibutuhkan saat |
 |---|---|---|---|
@@ -26,8 +26,8 @@ Semua fakta versi di bawah dicek ke docs/registry resmi pada 15 Okt 2026 (riset 
 | P-3 | Font Arab utama | **Dijawab 2026-10-15:** Noto Naskh Arabic, palet Zaitun (Opsi A, ADR-027). | S04 |
 | P-4 | Plafon biaya AI per bulan, dan jatah tanya gratis per pengunjung per hari | $20/bulan untuk Tanya online, 10 pertanyaan/hari per pengunjung. Batch dan eval memakai workspace terpisah (`surau-dev`, ±$40/bulan). | S13, Fase 4 |
 | P-5 | Siapa ustadz pertama untuk eval dan review | Dicari pemilik (T-13) | Rilis Fase 4 (dianjurkan sudah ada sejak Fase 2) |
-| P-6 | Sumber teks publik dan lisensi konten | ADR-018 + ADR-021: teks dan catatan kaki dari Shamela lokal, dengan dasar lisensi rilis OpenITI yang terbukti identik (CC BY-NC-SA 4.0); konten turunan CC BY-NC-SA; email pemberitahuan ke Shamela | Rilis Fase 1 |
-| P-7 | Bolehkah Surau menyimpan pertanyaan dan jawaban pengguna (tanpa alamat IP atau data pribadi) untuk memperbaiki mutu, dan berapa lama? | Pertanyaan + jawaban (`answer_log`) 12 bulan; laporan kesalahan (`feedback`) sampai ditangani + 12 bulan; penghitung kuota harian 7 hari; catatan biaya (`llm_ledger`) 24 bulan. Semua diumumkan di kebijakan privasi. | Retensi `feedback`: rilis Fase 1. Sisanya: S18, S20 |
+| P-6 | Sumber teks publik dan lisensi konten | **Dijawab 2026-10-16 (S10):** ADR-018 + ADR-021 disetujui; email pemberitahuan ke Shamela sudah dikirim pemilik (jawaban ditunggu). Kontak koreksi/takedown: formulir laporan + GitHub Issues. | Rilis Fase 1 |
+| P-7 | Bolehkah Surau menyimpan pertanyaan dan jawaban pengguna (tanpa alamat IP atau data pribadi) untuk memperbaiki mutu, dan berapa lama? | Pertanyaan + jawaban (`answer_log`) 12 bulan; laporan kesalahan (`feedback`) sampai ditangani + 12 bulan; penghitung kuota harian 7 hari; catatan biaya (`llm_ledger`) 24 bulan. Semua diumumkan di kebijakan privasi. **`feedback` dijawab 2026-10-16 (S10): sampai ditangani + 12 bulan, diumumkan di `/lisensi#privasi`.** | Retensi `feedback`: rilis Fase 1. Sisanya: S18, S20 |
 
 
 ---
@@ -155,7 +155,7 @@ Turnstile mode Managed hanya di Jawab. Token ditukar menjadi cookie anonim HMAC 
 
 **Keputusan:** Workflow memakai `ci.yml` (`pnpm verify` di setiap PR/push), `preview.yml` (PR: build lalu `wrangler preview`, smoke Playwright, komentar URL), dan `deploy.yml` (push ke `main`: migrasi D1 remote lalu deploy). Semua konfigurasi ada di repo, sehingga agent bisa membaca log lewat `gh run view --log-failed`. `node_modules` di-cache dengan kunci hash lockfile (karena unduhan HeroUI Pro). Preview di-bind ke D1/R2 **staging**, karena resource akun tidak terisolasi per preview. **Ditolak:** Workers Builds sebagai jalur utama (konfigurasi di dashboard, pnpm default 10.11.1, tanpa cache `node_modules`, log tidak terbaca agent). Workers Builds menjadi cadangan.
 
-## ADR-018 · Sumber teks Ihya: struktur dari Shamela lokal, lisensi lewat OpenITI — diusulkan · 2026-10-15
+## ADR-018 · Sumber teks Ihya: struktur dari Shamela lokal, lisensi lewat OpenITI — diterima (pemilik, 2026-10-16) · 2026-10-15
 
 **Konteks:** Syarat Shamela (diperbarui 19 Sep 2026) menyatakan hak tetap pada pemiliknya dan **tidak memberi hak pakai ulang**. OpenITI rilis 2025.1.9 (Zenodo, CC BY-NC-SA 4.0) punya dua versi Ihya dengan 1.706 penanda halaman yang identik dengan edisi Shamela 9472 (Dar al-Ma'rifah, 361/386/413/546 per jilid):
 - `Shamela0009472-ara1.completed`: matan identik dengan Shamela lokal (1.705 dari 1.706 halaman ≥0,95, median 1,0), tapi takhrijnya hilang.
@@ -179,7 +179,7 @@ Turnstile mode Managed hanya di Jawab. Token ditukar menjadi cookie anonim HMAC 
 
 **Keputusan:** Teks ayat diambil dari Tanzil 1.1 (CC BY 3.0, **hanya verbatim**, wajib pemberitahuan dan tautan tanzil.net): `simple-clean` untuk indeks pencocokan, `uthmani` untuk tampilan. Terjemahan Indonesia memakai QuranEnc `indonesian_affairs` (Kemenag, versi dicatat, verbatim, penanda catatan kaki ditampilkan apa adanya). Kutipan ayat di kitab dikenali secara deterministik; 97,2% cocok persis setelah normalisasi, sisanya dicocokkan fuzzy dengan label "mirip". **Ayat tidak pernah diterjemahkan LLM.** Dalam batch terjemahan (S13), bentang ayat diganti placeholder lalu diisi terjemahan Kemenag. **Ditolak:** API Quran Foundation sebagai sumber indeks (cache maksimal 1 minggu, dilarang dibundel); `quran-json` (deprecated, tanpa hak redistribusi); scraping situs Kemenag. **Terbuka:** apakah PMA 44/2016 (tashih) berlaku untuk aplikasi yang hanya mengutip ayat di dalam kitab. Tanyakan ke LPMQ bila perlu.
 
-## ADR-021 · Lisensi konten: CC BY-NC-SA 4.0, terpisah dari kode Apache-2.0 — diusulkan · 2026-10-15
+## ADR-021 · Lisensi konten: CC BY-NC-SA 4.0, terpisah dari kode Apache-2.0 — diterima (pemilik, 2026-10-16) · 2026-10-15
 
 **Konteks:** Teks berasal dari rilis OpenITI berlisensi CC BY-NC-SA 4.0. Terjemahan dan ringkasan buatan LLM atas teks tersebut adalah *Adapted Material*. **Keputusan:**
 - `LICENSE` (Apache-2.0) berlaku untuk kode. `data/LICENSE` (CC BY-NC-SA 4.0) berlaku untuk konten turunan: teks, terjemahan, ringkasan, indeks, dan dump. `data/ATTRIBUTION.md` mencantumkan OpenITI, Shamela, Dar al-Ma'rifah, Tanzil, dan Kemenag/QuranEnc beserta versinya.
@@ -664,3 +664,40 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - Korpus produksi blue-green siap (S10): ganti binding `CORPUS_DB` dan nyalakan `READER_ENABLED`.
 - Domain sendiri siap (`SITE_URL`, P-2).
 - Ada kitab kedua dengan edisi non-default atau satu jilid.
+
+## ADR-035 · Korpus produksi blue-green (S10): `corpus:promote`, QA sampel byte demi byte, `preview_database_id` untuk lokal, `/lisensi`, migrasi app di deploy — diterima · 2026-10-16
+
+**Konteks:** S10 memindahkan korpus Ihya ke D1 produksi dan menyiapkan syarat rilis Fase 1 (FASE.md R1). Fakta lapangan 16 Okt 2026 (wrangler 4.151.0, dibaca dari source terpasang):
+- `wrangler d1 migrations apply` hanya mengenal DB yang tercantum di config (nama atau binding). Tidak ada `--database-id`.
+- `wrangler d1 create` tidak punya `--json`; `--binding` saja sudah menulis ke config tanpa bertanya. `d1 info --json` memberi `uuid`, `running_in_region`, dan `rows_read_24h`.
+- Dev lokal (miniflare, `getPlatformProxy`, `wrangler dev`) menyimpan D1 lokal per **`preview_database_id ?? database_id`**. `wrangler deploy` hanya memakai `database_id`.
+- Pemilik menjawab T-10 di chat: ADR-018 + ADR-021 disetujui, email ke Shamela sudah dikirim, kontak koreksi = formulir + GitHub Issues, retensi `feedback` = sampai ditangani + 12 bulan. Pemilik juga mengizinkan langkah remote S10 (buat DB baru, muat, ganti binding).
+
+**Keputusan:**
+1. **`pnpm run corpus:promote <versi>`** (`tools/ingest/src/promote.ts`, prosedur di `tools/ingest/README.md`):
+   - Tanpa `--confirm` hanya rencana: sha256 build dicek ulang terhadap `data/build/<versi>.sha256` (SQL + .sqlite dari build yang sama), `meta.corpus_version` = versi, dan keadaan remote.
+   - `--confirm`: `d1 create surau-corpus-<versi> --location apac --update-config=false` → migrasi → muat `data/build/sql/*.sql` → smoke → ganti `CORPUS_DB` produksi di `apps/web/wrangler.jsonc` (file lokal; deploy lewat PR + `deploy.yml`).
+   - Migrasi dan muat ke DB yang belum ada di config memakai **config sementara** di folder temp (`migrations_dir` absolut, `src/d1.ts`), sehingga `packages/db/wrangler.jsonc` tidak berubah per versi.
+   - Smoke = hitungan **setiap** tabel dan seluruh `meta` sama persis dengan .sqlite build, plus j1 h200 (badan, catatan kaki, penanda). Bila gagal, binding tidak diubah. `corpus:load:*` memakai smoke yang sama.
+   - Pengaman: DB yang sedang aktif di produksi tidak pernah dimuat ulang (versi baru = nama baru); DB versi yang sudah ada butuh `--reload`.
+   - Rollback: `--switch-only <versi|nama-db>` (hanya baca remote + ganti binding). Target rollback `ihya-v1` adalah `surau-corpus-staging`, yang isinya ikut berubah setiap `corpus:load:staging`; cek dulu dengan `corpus:qa staging`, atau pakai tutup darurat.
+   - Dijalankan sekali untuk `ihya-v1` (±67 dtk): `surau-corpus-ihya-v1` (`41e3033e-…`, APAC, 13,2 MB), hitungan = build. Jalur `--switch-only` diuji dua arah (ke staging lalu kembali). Riwayat versi di `data/SOURCES.md`.
+2. **Binding:** `CORPUS_DB` top-level = korpus produksi (nama + ID hanya diubah skrip, lewat PR). `preview_database_id` = ID staging, khusus supaya `next dev`/`preview` lokal tetap membaca D1 lokal yang dimuat `corpus:load:local` (diverifikasi: j1 h200 tampil di `pnpm dev`). Blok `previews` tetap staging.
+3. **`deploy.yml` memigrasi `surau-app` saja** (`pnpm run db:migrate:remote`, binding APP) sebelum deploy, dan tidak pernah korpus. Tes `tools/ingest/src/corpus.test.ts` menjaga aturan ini (ARSITEKTUR-TEKNIS §7 aturan 4) dan bentuk binding di `apps/web/wrangler.jsonc`.
+4. **QA otomatis (`pnpm run corpus:qa <versi>`):**
+   - 30 halaman acak, seed **9472** (mulberry32, Fisher–Yates parsial atas `page.id` terurut).
+   - Baris harapan dibangun ulang di memori dari sumber Shamela oleh pipeline ingest (pembersihan deterministik `@surau/text`, peta ID yang di-commit, gagal bila peta ID tidak lengkap). Lalu dibandingkan dengan baris D1: `page`, setiap paragraf (kolom + `text_raw` **byte demi byte** UTF-8), `footnote_ref`, dan `passage_needs_review`.
+   - Laporan tanpa teks kitab (ID, jumlah, byte, sha256). Hasil: produksi 30/30, staging 30/30.
+   - **Batas yang ditulis jujur:** QA ini membuktikan jalur sumber → build → SQL → D1 tidak mengubah satu byte pun. Ia tidak menguji ulang pembersih itu sendiri; itu tugas golden test `@surau/text` (S05), gerbang `verify-openiti` (S07, 1.705/1.706), dan QA manusia (T-15).
+5. **QA manusia (T-15):** 10 halaman bercatatan kaki dari sampel yang sama, bergiliran per jilid, di `data/reports/ihya-9472-qa-manusia.md`. Tautan pindaian archive.org (`ihya-ghazali`, berkas `iud-dm-00N`) memakai selisih indeks halaman per jilid **9/2/3/3**, dikalibrasi dengan membaca nomor cetak di 2–3 titik per jilid (`works/ihya.ts` `scan`). Pindaian hanya ditautkan (ADR-018).
+6. **`/lisensi`** statis (tanpa baca D1, tetap terbuka saat pembaca ditutup): kode Apache-2.0, konten CC BY-NC-SA 4.0 (klausul NC: tanpa iklan/paywall/penjualan akses), syarat pakai ulang, atribusi per edisi (`EDITION_CREDITS`, dites sama dengan `data/ATTRIBUTION.md`), jalur koreksi dan takedown (formulir + GitHub Issues), dan retensi laporan kesalahan. Tautannya ada di footer menu samping, Tentang, dan catatan lisensi setiap halaman baca. Tautan "lihat di Shamela" per halaman sudah ada sejak S09 (`PageView.source_url`).
+7. **Biaya baca D1 per kunjungan** (diukur di Preview `pembaca`, DB staging berisi build yang sama; pembaca produksi masih tertutup): 50 halaman berbeda yang belum pernah dibuka → semua 200, `MISS`, rata-rata 0,87 dtk; `d1 insights` sebelum/sesudah: **800 kueri, 76.502 baris dibaca = ±16 kueri dan ±1.530 baris per render**. Kueri daftar isi (`getToc`, ±939 baris per panggilan, 76 panggilan) menyumbang 93%. 50 kunjungan ulang ke halaman yang sama → 0,22 dtk, **0 kueri D1** (dilayani cache ISR; header `x-nextjs-cache: STALE`, bukan `HIT` seperti catatan S09, tanpa render ulang yang terlihat di D1). Kontrol: satu halaman baru yang dibuka sesudahnya muncul di analytics ±2 menit kemudian (+19 kueri), jadi angka 0 bukan karena jeda analytics. Angka per bentuk kueri adalah selisih jendela 24 jam yang bergeser, jadi bisa sedikit di bawah angka sebenarnya.
+   - Biaya: Workers Paid (sudah dibayar) mencakup 25 miliar baris/bulan; satu render penuh semua halaman Ihya (±1.706) ≈ 2,6 juta baris per deploy → **±$0**. Di paket Free (5 juta/hari) masih muat, tetapi pemindai yang membuka banyak path unik bisa mendekati batas harian.
+
+**Utang / tindak lanjut:**
+- `getToc` membaca seluruh pohon per render (±939 baris) dan terpanggil ±1,5 kali per render; bisa dihemat dengan memoisasi per isolate atau pohon ringkas per edisi. Belum mendesak (±$0).
+- Header `STALE` pada kunjungan ulang belum dipahami penuh (dummy tag cache + `revalidate = false` seharusnya `HIT`). Tidak ada baca D1 tambahan, tetapi perlu dicek di produksi setelah `/rilis 1` (Workers Logs: galat "Dummy queue is not implemented"?).
+- Retensi `feedback` (12 bulan setelah ditangani) belum punya pembersih otomatis; volume kecil, ditangani manual sampai pengaman data S20.
+- `d1 insights` masih eksperimental; angka di atas dari jendela 24 jam yang bergeser (selisih per bentuk kueri).
+
+**Tinjau ulang bila:** korpus versi kedua (`ihya-v2` atau kitab kedua: reset per edisi), Shamela membalas email T-10, atau DB rollback staging dipakai ulang untuk eksperimen (S11 FTS).

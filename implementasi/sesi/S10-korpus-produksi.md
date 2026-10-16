@@ -1,6 +1,6 @@
 # S10 · Korpus produksi & QA rilis Fase 1
 
-> **Fase:** 1 · **Status:** berjalan
+> **Fase:** 1 · **Status:** selesai* (QA manusia T-15 dan persetujuan teks `/lisensi` menunggu pemilik)
 > **Prasyarat:** S09 selesai · Tugas pemilik: **T-09** (drive), **T-10** (keputusan sumber dan lisensi, email ke Shamela, retensi `feedback`). **T-15** dikerjakan di langkah 4.
 > **Perkiraan:** 1 percakapan agent
 
@@ -40,12 +40,12 @@ Korpus Ihya berada di D1 produksi lewat prosedur blue-green yang bisa diulang da
 
 ## Selesai bila
 
-- [ ] `surau-corpus-ihya-v1` aktif di produksi; prosedur promote dan rollback terdokumentasi dan sudah dijalankan sekali
-- [ ] QA otomatis 30/30 halaman cocok; QA manusia 10 halaman tercatat
-- [ ] `/lisensi` dan atribusi tampil, dan pemilik menyetujui teksnya
-- [ ] T-10 tercentang (email ke Shamela terkirim; jawabannya ditunggu, tidak memblokir bila ADR-018 sudah diterima pemilik)
-- [ ] `rows_read` per kunjungan halaman tercatat di LOG
-- [ ] STATUS, LOG, dan file sesi ini diperbarui; FASE.md menandai Fase 1 siap rilis
+- [ ] `surau-corpus-ihya-v1` aktif di produksi; prosedur promote dan rollback terdokumentasi dan sudah dijalankan sekali · *promote dijalankan dan rollback diuji dua arah; "aktif" dicentang setelah deploy `main` memakai binding baru*
+- [ ] QA otomatis 30/30 halaman cocok; QA manusia 10 halaman tercatat · **otomatis 30/30 ✓** (produksi dan staging, `data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md`); **manusia menunggu T-15** (daftar siap: `data/reports/ihya-9472-qa-manusia.md`)
+- [ ] `/lisensi` dan atribusi tampil, dan pemilik menyetujui teksnya · **tampil ✓** (lokal + e2e, desktop/ponsel, terang/gelap); **persetujuan teks menunggu pemilik**
+- [x] T-10 tercentang (email ke Shamela terkirim; jawabannya ditunggu, tidak memblokir bila ADR-018 sudah diterima pemilik) · dijawab di chat 2026-10-16
+- [x] `rows_read` per kunjungan halaman tercatat di LOG · ±16 kueri / ±1.530 baris per render, 0 untuk kunjungan ulang (ADR-035 butir 7)
+- [x] STATUS, LOG, dan file sesi ini diperbarui; FASE.md menandai Fase 1 siap rilis
 
 ## Di luar cakupan
 
@@ -53,4 +53,20 @@ Korpus Ihya berada di D1 produksi lewat prosedur blue-green yang bisa diulang da
 
 ## Catatan hasil
 
-*(diisi agent)*
+**Dibuat** (keputusan lengkap: ADR-035):
+- `tools/ingest/src/d1.ts` (pembungkus `wrangler d1`, target lokal/staging/remote per nama lewat config sementara, smoke yang membandingkan hitungan + `meta` dengan build), `corpus.ts` (info build + cek sha256, muat SQL, baca/ganti `CORPUS_DB` produksi), `promote.ts` (`pnpm run corpus:promote`), `qa-sample.ts` + `qa.ts` (`pnpm run corpus:qa`). `load.ts` dan `pipeline.ts` memakai modul bersama (`expectedRows`, `buildDigest`); build tetap identik (sha256 sama sebelum/sesudah refactor).
+- Korpus produksi `surau-corpus-ihya-v1` (`41e3033e-3aa0-456c-9d60-b8967f57e89d`, APAC). `apps/web/wrangler.jsonc`: `CORPUS_DB` produksi → DB ini, `preview_database_id` = staging (dev lokal), `previews` tetap staging. `data/SOURCES.md`: riwayat versi + target rollback.
+- `deploy.yml`: langkah migrasi D1 `surau-app` saja (`db:migrate:remote`). Tes `corpus.test.ts` menjaga aturan ini dan bentuk binding.
+- `apps/web`: halaman statis `/lisensi`, `EDITION_CREDITS` (dites sama dengan `data/ATTRIBUTION.md`), `PageSection` bersama Tentang, tautan dari menu samping/Tentang/`LicenseNotice`, sitemap, e2e smoke + axe.
+- Laporan: `data/reports/ihya-9472-qa-surau-corpus-ihya-v1.md` (30/30), `data/reports/ihya-9472-qa-manusia.md` (10 halaman untuk T-15). `works/ihya.ts` `scan`: tautan pindaian archive.org per jilid.
+- Dokumen: README `tools/ingest` (promote, rollback, tutup darurat), TUGAS-PEMILIK (T-09, T-10 ✓, T-15), STACK, FASE (siap rilis), CHANGELOG (draf Fase 1), KEPUTUSAN (ADR-018/021 diterima, P-6/P-7 `feedback`, ADR-035).
+
+**Penyimpangan dari rencana (terbuka):**
+- Langkah 1.4 "ubah `database_id` lewat PR": skrip mengubah file lokal, deploy terjadi lewat PR sesi ini (bukan PR terpisah).
+- Langkah 2: sebelum promote, produksi menunjuk `surau-corpus-staging` (ADR-034), jadi DB lama yang dicatat sebagai target rollback adalah staging, yang isinya bisa berubah. Ditulis jujur di SOURCES.md dan README.
+- Langkah 8: `rows_read` diukur di Preview `pembaca` (DB staging, isi sama, QA 30/30), bukan produksi, karena pembaca produksi masih tertutup sampai `/rilis 1`. Workers Logs produksi untuk pembaca baru bisa dipantau setelah rilis.
+- Di luar rencana: `preview_database_id` (supaya dev lokal tidak kosong), kalibrasi tautan pindaian per jilid, `PageSection` bersama.
+
+**Utang teknis:** `getToc` dibaca penuh per render (±939 baris, ±1,5 kali per render); header `x-nextjs-cache: STALE` pada kunjungan ulang (tanpa baca D1, tetapi beda dari catatan S09); pembersih retensi `feedback` belum ada (manual sampai S20); target rollback `ihya-v1` berubah saat staging dimuat ulang (S11).
+
+**Untuk sesi berikutnya:** `/rilis 1` (pemilik) setelah T-15, T-22, dan persetujuan teks `/lisensi`: nyalakan `READER_ENABLED` lewat commit, lalu cek Workers Logs + `d1 info surau-corpus-ihya-v1 --json` di produksi. S11 akan memuat ulang staging (FTS): korpus produksi berikutnya = `ihya-v2` lewat `corpus:promote`.

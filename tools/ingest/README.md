@@ -10,10 +10,28 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 | `pnpm ingest:verify` | Hanya gerbang QA OpenITI (matan ≥0,95 per halaman di ≥1.705 halaman; takhrij vs JK000001) → laporan `…-openiti.md` |
 | `pnpm corpus:load:local` | Migrasi korpus + muat semua file SQL ke D1 lokal (`.wrangler/state`), lalu smoke query (jumlah baris, j1 h200) |
 | `pnpm corpus:load:staging --confirm` | Sama, ke `surau-corpus-staging` (remote). **Minta izin pemilik dulu**; tanpa `--confirm` skrip menolak. Selama impor (±1 menit) DB tidak melayani kueri |
+| `pnpm run corpus:promote <versi> [--confirm]` | Korpus **produksi** blue-green (ADR-005, ADR-035): tanpa `--confirm` hanya rencana. Lihat [Korpus produksi](#korpus-produksi-blue-green) |
+| `pnpm run corpus:qa <versi\|staging> [--human 10]` | QA sampel: 30 halaman acak (seed 9472) di D1 remote dibandingkan byte demi byte dengan sumber Shamela yang diparse ulang → `data/reports/ihya-9472-qa-<db>.md`; `--human` menulis daftar QA manusia (T-15) sekali |
 
 **Peringatan:** file pertama (`0000-reset.sql`) mengosongkan **seluruh** DB korpus. Untuk sekarang satu DB berisi satu kitab; begitu ada kitab kedua, reset harus dibuat per edisi dulu. Bila `passage_fts` sudah diisi (S11), indeksnya juga harus ikut dikosongkan.
 
 Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURAU_SHAMELA_ROOT`) dan dua file OpenITI yang dipin ada di `data/raw/openiti/` (cara unduh dan sha256: `data/SOURCES.md`). Opsi `--reset-ids` membangun peta ID dari nol, **hanya** sebelum rilis Fase 1 (ADR-029).
+
+## Korpus produksi (blue-green)
+
+Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah setelah aktif. Binding `CORPUS_DB` top-level di `apps/web/wrangler.jsonc` menunjuk versi aktif; `deploy.yml` tidak pernah menyentuh korpus (dijaga tes `src/corpus.test.ts`). Riwayat versi dan target rollback: [data/SOURCES.md](../../data/SOURCES.md#korpus-d1-produksi).
+
+**Promote versi baru** (setiap langkah remote dengan izin pemilik):
+
+1. `pnpm ingest ihya` (build bersih), lalu `pnpm run corpus:promote <versi>`: rencana, sha256 build, dan hitungan baris. Versi baru = nama baru (`ihya-v2`); skrip menolak memuat ulang DB yang sedang aktif.
+2. `pnpm run corpus:promote <versi> --confirm` (±1 menit untuk Ihya): `d1 create --location apac` → migrasi korpus → muat `data/build/sql/*.sql` → smoke (hitungan **setiap** tabel dan `meta` = build, j1 h200) → ganti `CORPUS_DB` produksi di `apps/web/wrangler.jsonc`. Bila smoke gagal, binding tidak diubah.
+3. `pnpm run corpus:qa <versi>`: harus 30/30. Laporannya di-commit.
+4. Catat versi baru (aktif) dan versi lama (rollback) di `data/SOURCES.md`, lalu PR. Setelah CI hijau dan merge, `deploy.yml` men-deploy Worker dengan binding baru. Cache ISR ikut kosong karena build baru (ADR-034).
+5. DB lama **tidak dihapus**.
+
+**Rollback** (korpus baru bermasalah): `pnpm run corpus:promote <versi-lama|nama-db> --switch-only` (hanya baca remote: smoke DB lama, lalu ganti binding), commit, PR, merge. Target rollback `ihya-v1` adalah `surau-corpus-staging`, tetapi staging ikut berubah setiap `corpus:load:staging`; bila isinya sudah tidak cocok, pakai tutup darurat.
+
+**Tutup darurat pembaca** (teks salah tampil dan rollback belum siap): ubah `vars.READER_ENABLED` top-level di `apps/web/wrangler.jsonc` menjadi `"0"`, PR, merge (±5 menit sampai deploy). Rute `/kitab/*` kembali "segera hadir" dan cache ISR lama tidak dipakai lagi karena build baru. **Jangan** lewat dashboard Cloudflare: variabel berubah tanpa build baru, sehingga halaman yang sudah ter-cache di R2 tetap tampil (ADR-034).
 
 ## Alur dan modul
 
@@ -26,6 +44,7 @@ Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURA
 | Baris tabel (ID dari peta ID + `@surau/db`), validasi, laporan | `src/rows.ts`, `src/ids.ts`, `src/validate.ts`, `src/report.ts` |
 | SQL D1 (≤90 KB/statement, tanpa BEGIN/COMMIT), `.sqlite` dari migrasi yang sama | `src/sql.ts`, `src/build-sqlite.ts` |
 | Orkestrasi, CLI, muat ke D1 | `src/pipeline.ts`, `src/cli.ts`, `src/load.ts` |
+| D1 remote: pembungkus wrangler, smoke, build, binding produksi, promote, QA sampel | `src/d1.ts`, `src/corpus.ts`, `src/promote.ts`, `src/qa-sample.ts`, `src/qa.ts` |
 | Konfigurasi per kitab (ID, slug, harapan validasi, pin OpenITI) | `src/works/ihya.ts` |
 
 Build deterministik: dua build pada commit yang sama menghasilkan sha256 yang sama (`built_at` = `SOURCE_DATE_EPOCH` atau tanggal commit HEAD).
