@@ -25,7 +25,7 @@ Format entri:
   - Paket: `@surau/core` `PageView.source_url`; `@surau/db` `listPages`. Perbaikan di luar rencana: `keep_names: false` (skrip tema rusak di halaman runtime).
 - Verifikasi:
   - `pnpm verify` → lolos (tes web baru: 23; core 49; db 56; build: rute kitab ● ISR, sitemap ƒ).
-  - `pnpm test:e2e` lokal → 56/56 (chromium desktop + ponsel, termasuk axe 3 halaman kitab × terang/gelap); CI Preview PR #21 → 56/56 dua kali; ringkasan log Preview: 121 dan 135 request, 0 error. Setelah tes regresi temuan peninjau: 64/64 lokal.
+  - `pnpm test:e2e` lokal → 56/56 (chromium desktop + ponsel, termasuk axe 3 halaman kitab × terang/gelap); CI Preview PR #21 → 56/56 dua kali; ringkasan log Preview: 121 dan 135 request, 0 error. Setelah tes regresi temuan peninjau: 64/64 lokal dan di Preview (171 request, 0 error).
   - Peninjau: 0 blocker, 7 "perbaiki" (semua diperbaiki: koreksi risiko ISR di ADR-034, role toolbar, tes regresi `__name` + `heading-order`, atribusi CC lengkap dengan tautan lisensi/OpenITI/pernyataan pengolahan, `ArabicInline` di daftar isi, judul takhrij al-'Iraqi per edisi, sinkron dokumen), saran opsional sebagian diambil.
   - Preview: semua rute 200/307/308/404 sesuai harapan, sitemap 1.710 URL; TTFB dingin 0,71–1,02 dtk, hangat 0,10–0,18 dtk; HTML j1 h200 ±28 KB gzip.
   - Lighthouse 13.5.0 (Preview, j1 h200): ponsel a11y 100, performa 80 (LCP 4,2 dtk), BP 100; desktop 100/100/100; SEO 66 hanya karena `noindex` Preview.

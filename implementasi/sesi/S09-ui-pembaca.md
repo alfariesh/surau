@@ -55,7 +55,7 @@ Pengguna bisa membuka Ihya, menjelajah daftar isi, membaca halaman cetak per hal
 - [x] Takhrij tampil benar untuk 5 penanda yang dicek manual · j1 h200 (٢) dan (٤), j2 h50 (١), j3 h120 (١), j4 h300 (١): isi popover = catatan kaki di daftar bawah, nomornya sama, dan isinya membahas hadits di matan sebelum penanda (mis. (٤) hadits Jabir shalat malam Jumat → "باطل لا أصل له")
 - [x] "Salin sitasi" menghasilkan format yang benar, dan permalink membuka paragraf yang tepat · e2e (lokal + Preview): papan klip = `al-Ghazali, Ihya' 'Ulum ad-Din, Dar al-Ma'rifah, j.1 h.200. <origin>/kitab/ihya/1/200`; `#p2826` dan `#p2834` menggulir + menyorot paragraf yang benar
 - [x] Lighthouse ponsel: aksesibilitas ≥ 90 dan performa dicatat · Lighthouse 13.5.0, Preview j1 h200: ponsel a11y **100**, performa **80** (FCP 3,1 dtk, LCP 4,2 dtk, TBT 20 ms, CLS 0), BP 100; desktop 100/100/100; SEO 66 hanya karena `noindex` bawaan Preview. TTFB Preview dingin 0,71–1,02 dtk, hangat 0,10–0,18 dtk
-- [x] E2E lolos; `pnpm verify` lolos · `pnpm test:e2e` 56/56 lokal dan di Preview, lalu 64/64 lokal setelah tes regresi temuan peninjau (Preview: lihat CI PR #21); `pnpm verify` lolos (lokal + CI `verify`)
+- [x] E2E lolos; `pnpm verify` lolos · `pnpm test:e2e` 56/56 lokal dan di Preview, lalu **64/64** lokal dan di Preview (commit `f019bc3`, run 38903176689) setelah tes regresi temuan peninjau; ringkasan log Preview terakhir 171 request, 0 error; `pnpm verify` lolos (lokal + CI `verify`)
 - [ ] Pemilik menyetujui tampilan · **menunggu T-22** (tautan Preview tetap `pembaca`, tangkapan layar ponsel/desktop dikirim)
 - [x] STATUS, LOG, dan file sesi ini diperbarui
 
