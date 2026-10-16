@@ -1,6 +1,6 @@
 # S10 · Korpus produksi & QA rilis Fase 1
 
-> **Fase:** 1 · **Status:** belum
+> **Fase:** 1 · **Status:** berjalan
 > **Prasyarat:** S09 selesai · Tugas pemilik: **T-09** (drive), **T-10** (keputusan sumber dan lisensi, email ke Shamela, retensi `feedback`). **T-15** dikerjakan di langkah 4.
 > **Perkiraan:** 1 percakapan agent
 

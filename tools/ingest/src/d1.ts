@@ -1,0 +1,203 @@
+// Pembungkus `wrangler d1` untuk DB korpus: dipakai `load.ts` (lokal/staging), `promote.ts`
+// (blue-green produksi, ADR-005) dan `qa.ts` (sampel halaman). Satu tempat untuk memanggil
+// wrangler, membaca keluaran JSON, dan smoke query, supaya ketiganya memeriksa hal yang sama.
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+
+export const repo = resolve(import.meta.dirname, "../../..");
+/** Config D1 bersama: binding CORPUS = korpus STAGING (lokal juga memakai ID ini). */
+export const DB_CONFIG = "packages/db/wrangler.jsonc";
+/** Config Worker web: binding CORPUS_DB top-level = korpus PRODUKSI. */
+export const WEB_CONFIG = "apps/web/wrangler.jsonc";
+export const CORPUS_MIGRATIONS = "packages/db/migrations/corpus";
+
+/** Jalankan wrangler dari root repo. Keluaran (panjang) hanya dicetak bila gagal. */
+export function wrangler(args: string[]): string {
+  const r = spawnSync("pnpm", ["exec", "wrangler", ...args], {
+    cwd: repo,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    maxBuffer: 256 * 1024 * 1024,
+  });
+  if (r.status !== 0) {
+    process.stderr.write(`${r.stdout ?? ""}${r.stderr ?? ""}`);
+    throw new Error(`wrangler ${args.slice(0, 3).join(" ")} gagal (kode ${String(r.status)})`);
+  }
+  return r.stdout ?? "";
+}
+
+export type Row = Record<string, string | number | null>;
+
+/** Ke DB mana perintah `wrangler d1` diarahkan: config + nama binding/DB + flag lokasi. */
+export interface D1Target {
+  /** Nama untuk pesan dan laporan, mis. `surau-corpus-ihya-v1`. */
+  label: string;
+  config: string;
+  database: string;
+  location: string[];
+}
+
+export const LOCAL: D1Target = {
+  label: "lokal (.wrangler/state)",
+  config: DB_CONFIG,
+  database: "CORPUS",
+  location: ["--local", "--persist-to", ".wrangler/state"],
+};
+
+export const STAGING: D1Target = {
+  label: "surau-corpus-staging",
+  config: DB_CONFIG,
+  database: "CORPUS",
+  location: ["--remote"],
+};
+
+/**
+ * Target remote untuk DB korpus yang tidak tercantum di config mana pun (DB blue-green baru).
+ * `wrangler d1 migrations apply` hanya mengenal DB dari config, jadi dibuat config sementara di
+ * folder temp dengan `migrations_dir` absolut. Panggil `dispose()` setelah selesai.
+ */
+export function remoteByName(name: string, id: string): D1Target & { dispose: () => void } {
+  const dir = mkdtempSync(join(tmpdir(), "surau-d1-"));
+  const config = join(dir, "wrangler.jsonc");
+  writeFileSync(
+    config,
+    JSON.stringify(
+      {
+        name: "surau-corpus-tool",
+        compatibility_date: "2026-10-14",
+        d1_databases: [
+          {
+            binding: "CORPUS",
+            database_name: name,
+            database_id: id,
+            migrations_dir: join(repo, CORPUS_MIGRATIONS),
+          },
+        ],
+      },
+      null,
+      2,
+    ),
+  );
+  return {
+    label: name,
+    config,
+    database: "CORPUS",
+    location: ["--remote"],
+    dispose: () => rmSync(dir, { recursive: true, force: true }),
+  };
+}
+
+/** Satu kueri baca (`--command`, satu statement). Remote: satu panggilan /query, batas 30 dtk. */
+export function query(target: D1Target, sql: string): Row[] {
+  const out = wrangler([
+    "d1",
+    "execute",
+    target.database,
+    ...target.location,
+    "-c",
+    target.config,
+    "--json",
+    "--command",
+    sql,
+  ]);
+  const parsed = JSON.parse(out) as { results: Row[] }[];
+  return parsed.flatMap((r) => r.results);
+}
+
+export function applyMigrations(target: D1Target): void {
+  wrangler(["d1", "migrations", "apply", target.database, ...target.location, "-c", target.config]);
+}
+
+/** Muat satu file SQL (remote: API impor; bila gagal DB kembali ke keadaan semula). */
+export function executeFile(target: D1Target, file: string): void {
+  wrangler([
+    "d1",
+    "execute",
+    target.database,
+    ...target.location,
+    "-c",
+    target.config,
+    "--yes",
+    "--file",
+    file,
+  ]);
+}
+
+// Tabel yang dihitung smoke query (urutan = urutan sisip, induk dulu).
+export const COUNTED = [
+  "author",
+  "work",
+  "edition",
+  "page",
+  "toc_node",
+  "passage",
+  "footnote_ref",
+  "passage_needs_review",
+  "meta",
+] as const;
+// Satu baris berisi subkueri per tabel (D1 membatasi jumlah suku UNION dalam satu SELECT).
+const SMOKE_COUNTS = `SELECT ${COUNTED.map((t) => `(SELECT count(*) FROM ${t}) AS ${t}`).join(", ")}`;
+
+// j1 h200 (contoh baku: hadits shalat malam Jumat + takhrij al-'Iraqi): paragraf badan, catatan
+// kaki, dan penanda yang tertaut.
+const SMOKE_PAGE = `SELECT p.kind AS kind, count(*) AS n,
+  (SELECT count(*) FROM footnote_ref f JOIN passage b ON b.id = f.passage_id WHERE b.page_id = pg.id) AS refs
+FROM page pg
+JOIN edition e ON e.id = pg.edition_id AND e.is_default = 1
+JOIN work w ON w.id = e.work_id AND w.slug = 'ihya'
+JOIN passage p ON p.page_id = pg.id
+WHERE pg.juz = 1 AND pg.page_no = 200
+GROUP BY p.kind ORDER BY p.kind`;
+
+export interface Smoke {
+  counts: Record<(typeof COUNTED)[number], number>;
+  meta: Record<string, string>;
+  /** Pesan kegagalan; kosong = lolos. */
+  problems: string[];
+}
+
+/**
+ * Smoke query: jumlah baris per tabel, isi `meta`, dan j1 h200 (badan + catatan kaki + penanda).
+ * Bila `expect` diberikan (hitungan dan meta dari .sqlite build), setiap angka harus sama persis.
+ */
+export function smoke(
+  target: D1Target,
+  expect?: { counts: Record<string, number>; meta: Record<string, string> },
+): Smoke {
+  const row = query(target, SMOKE_COUNTS)[0] ?? {};
+  const counts = Object.fromEntries(
+    COUNTED.map((t) => [t, Number(row[t] ?? 0)]),
+  ) as Smoke["counts"];
+  const meta = Object.fromEntries(
+    query(target, "SELECT key, value FROM meta ORDER BY key").map((r) => [
+      String(r.key),
+      String(r.value),
+    ]),
+  );
+  const problems: string[] = [];
+  const page = query(target, SMOKE_PAGE);
+  const body = Number(page.find((r) => r.kind === "body")?.n ?? 0);
+  const foot = Number(page.find((r) => r.kind === "foot")?.n ?? 0);
+  if (body === 0 || foot === 0 || Number(page[0]?.refs ?? 0) === 0) {
+    problems.push("j1 h200 tidak punya paragraf badan, catatan kaki, atau penanda tertaut");
+  }
+  if (expect !== undefined) {
+    for (const t of COUNTED) {
+      if (counts[t] !== expect.counts[t]) {
+        problems.push(`${t}: ${counts[t]} baris, build ${String(expect.counts[t])}`);
+      }
+    }
+    for (const [k, v] of Object.entries(expect.meta)) {
+      if (meta[k] !== v) problems.push(`meta.${k} = ${meta[k] ?? "(tidak ada)"}, build ${v}`);
+    }
+  }
+  return { counts, meta, problems };
+}
+
+export function formatCounts(counts: Record<string, number>): string {
+  return Object.entries(counts)
+    .map(([t, n]) => `${t} ${n}`)
+    .join(", ");
+}

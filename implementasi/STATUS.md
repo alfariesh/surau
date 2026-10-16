@@ -51,7 +51,7 @@
 | 1 | S07 | Importer Ihya | selesai* | 2026-10-16 · PR #19 · `tools/ingest`, migrasi 0002–0003 `passage_needs_review` (ADR-032) · *`data/ids/` ikut di-commit (ADR-029), di luar daftar butir 5 |
 | 1 | S08 | Core tools baca | selesai* | 2026-10-16 · `@surau/core`, paginasi per blok 4–6 ribu token (ADR-033) · *butir 4 lewat tafsiran ADR-033 butir 2 · persist dev web → `.wrangler/state/v3` |
 | 1 | S09 | UI pembaca | selesai* | 2026-10-16 · PR #21 · ISR on-demand, pembaca tertutup di produksi, `/api/feedback` (ADR-034) · *persetujuan tampilan pemilik menunggu (T-22) |
-| 1 | S10 | Korpus produksi & QA | belum | butuh T-09, T-10, T-15 · lalu `/rilis 1` |
+| 1 | S10 | Korpus produksi & QA | berjalan | 2026-10-16 · T-09, T-10 selesai · lalu `/rilis 1` |
 | 2 | S11 | Indeks FTS Arab | belum | butuh T-09 |
 | 2 | S12 | Ayat & terjemahan Kemenag | belum | butuh T-09, T-16 |
 | 2 | S13 | Batch terjemahan & ringkasan | belum | butuh T-09, T-11, T-17 + persetujuan biaya |

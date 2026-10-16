@@ -1,5 +1,7 @@
 # Deploy produksi: setiap push ke main → build OpenNext → deploy Worker `surau-web`.
-# Keputusan: ADR-017 (CI/CD), ADR-026 (deploy Cloudflare). Migrasi D1 `surau-app` ditambahkan di Fase 1.
+# Keputusan: ADR-017 (CI/CD), ADR-026 (deploy Cloudflare). Migrasi D1 HANYA `surau-app` (S10): korpus
+# tidak pernah diubah dari sini, hanya lewat `pnpm run corpus:promote` (blue-green, ARSITEKTUR-TEKNIS §7
+# aturan 4; dijaga tes tools/ingest/src/corpus.test.ts).
 # `main` hanya berubah lewat PR yang lolos `verify` (ADR-025), jadi workflow ini tidak mengulang verify.
 name: Deploy
 
@@ -49,7 +51,15 @@ jobs:
       - name: Build OpenNext
         run: pnpm --filter @surau/web exec opennextjs-cloudflare build
 
-      # Token Cloudflare hanya diberikan ke langkah ini. `deploy` juga mengisi cache R2 produksi.
+      # Migrasi app sebelum kode baru aktif. `db:migrate:remote` hanya menyentuh binding APP
+      # (`surau-app`); migrasi yang sudah diterapkan dilewati, jadi aman diulang.
+      - name: Migrasi D1 surau-app
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm run db:migrate:remote
+
+      # Token Cloudflare hanya diberikan ke langkah migrasi dan deploy. `deploy` juga mengisi cache R2 produksi.
       - name: Deploy ke Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
