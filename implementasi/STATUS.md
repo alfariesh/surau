@@ -1,14 +1,14 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-16 · oleh agent, **X01 selesai** (Next 16.4.1 + React 19.3.1 + OpenNext 1.20.12)
+> Diperbarui: 2026-10-16 · oleh agent, **S07 selesai** (Ihya masuk D1 lokal + staging, lolos gerbang OpenITI)
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
 
-- **Mulai di sini (pemilik):** X01 selesai (Next 16.4.1, tambalan keamanan). Buka percakapan baru dan ketik **`/sesi`** untuk S07 (drive Shamela harus terpasang, T-09).
+- **Mulai di sini (pemilik):** S07 selesai: Ihya (1.706 halaman, 20.509 paragraf, takhrij tertaut) sudah ada di DB lokal dan staging. Buka percakapan baru dan ketik **`/sesi`** untuk S08 (tidak butuh drive Shamela).
 - **Fase:** 1 · Pembaca Ihya (berjalan; Fase 0 dirilis 2026-10-15, `rilis-f0`)
-- **Sesi berikutnya:** **S07 · Importer Ihya** → [sesi/S07-importer-ihya.md](sesi/S07-importer-ihya.md) (butuh T-09)
-- **Tindak lanjut kecil:** `next` 16.4.2 (backport non-keamanan) boleh lewat Dependabot. Log Worker **Preview**: CI meringkas request/error tiap PR di komentar preview (ADR-031, T-21 selesai); slug Preview tercatat `__unknown__` di analytics, jadi angkanya bisa tercampur trafik Preview lain di jendela waktu yang sama. Cakupan tes `packages/db` belum terukur (coverage v8 tidak jalan di workerd, ADR-029).
+- **Sesi berikutnya:** **S08 · Core tools baca** → [sesi/S08-core-tools-baca.md](sesi/S08-core-tools-baca.md)
+- **Tindak lanjut kecil:** 609 paragraf Ihya ditandai perlu ditinjau (`passage_needs_review`: takhrij `//` dan batasnya, takhrij tak cocok JK, catatan kaki tak terjangkau). Daftarnya di `data/reports/ihya-9472-validasi.md`, ditinjau bersama T-15 (S10). `next` 16.4.2 (backport non-keamanan) boleh lewat Dependabot. Log Worker **Preview**: CI meringkas request/error tiap PR di komentar preview (ADR-031, T-21 selesai); slug Preview tercatat `__unknown__` di analytics, jadi angkanya bisa tercampur trafik Preview lain di jendela waktu yang sama. Cakupan tes `packages/db` belum terukur (coverage v8 tidak jalan di workerd, ADR-029).
 - **Wajib dijawab pemilik:** P-2 domain (S03) · P-5 ustadz (rilis Fase 4; mulai cari sekarang, T-13) · P-6 sumber teks & lisensi (rilis Fase 1, T-10)
 - **Sudah dijawab:** P-1 → repo **publik sementara** (2026-10-15, `alfariesh/surau`): kuota menit CI privat habis; kembali privat setelah tahap uji. Risiko lisensi HeroUI Pro diterima pemilik (ADR-025)
 - **Dijawab di S04:** P-3/T-08 → palet **Zaitun** + Noto Naskh Arabic (ADR-027)
@@ -21,7 +21,8 @@
 - `pnpm dev` → http://localhost:3004: situs Surau lokal. `pnpm --filter @surau/web preview` → http://localhost:3005 (versi Workers lokal).
 - `pnpm test:e2e`: smoke + cek aksesibilitas (Playwright, chromium desktop & ponsel); juga berjalan otomatis di setiap preview PR.
 - `pnpm verify` → format, lint, cek tipe, tes (dengan cakupan), dan build sekaligus.
-- `pnpm run db:migrate:local` → DB D1 lokal (korpus + app) dengan skema v1 di `.wrangler/state`. `pnpm exec vp test --project db` → 46 tes DB di runtime Workers lokal. DB Cloudflare: `surau-corpus-staging`, `surau-app`, `surau-app-staging` (apac, sudah bertabel, masih kosong).
+- `pnpm run db:migrate:local` → DB D1 lokal (korpus + app) di `.wrangler/state` (korpus `schema_version` 3). `pnpm exec vp test --project db` → 47 tes DB di runtime Workers lokal. DB Cloudflare: `surau-corpus-staging` (**berisi Ihya**, S07), `surau-app`, `surau-app-staging` (apac).
+- `pnpm ingest ihya` (drive Shamela terpasang) → korpus Ihya dalam ±3 detik + laporan `data/reports/ihya-9472-*.md`; `pnpm corpus:load:local` → muat ke D1 lokal (±12 detik); staging hanya dengan izin pemilik (`pnpm corpus:load:staging --confirm`). Hasil build juga ada sebagai `data/build/surau-corpus-ihya-v1.sqlite` (buka dengan `node:sqlite`, bukan `sqlite3`).
 - `pnpm bench:text` → kecepatan normalisasi teks Arab (±0,5 dtk per 5 juta karakter). `/api/version` di situs → versi aturan normalisasi (`normVersion`).
 - https://github.com/alfariesh/surau (publik): setiap PR otomatis dicek CI (±1 menit) dan mendapat link preview (`pr-<nomor>-surau-web…workers.dev`) di komentar; Dependabot mengusulkan pembaruan tiap Senin.
 
@@ -45,7 +46,7 @@
 | 0 | S04 | Identitas & fondasi UI | selesai | 2026-10-15 · PR #7 · palet Zaitun (ADR-027) · lalu `/rilis 0` |
 | 1 | S05 | Paket teks Arab | selesai | 2026-10-15 · `@surau/text`, NORM_VERSION 1 (ADR-028) |
 | 1 | S06 | Skema data & D1 | selesai | 2026-10-15 · `@surau/db`, 3 DB D1 apac, ID & permalink (ADR-029) |
-| 1 | S07 | Importer Ihya | belum | butuh T-09 |
+| 1 | S07 | Importer Ihya | selesai* | 2026-10-16 · PR #19 · `tools/ingest`, migrasi 0002–0003 `passage_needs_review` (ADR-032) · *`data/ids/` ikut di-commit (ADR-029), di luar daftar butir 5 |
 | 1 | S08 | Core tools baca | belum | |
 | 1 | S09 | UI pembaca | belum | log Preview via ringkasan CI (ADR-031) |
 | 1 | S10 | Korpus produksi & QA | belum | butuh T-09, T-10, T-15 · lalu `/rilis 1` |

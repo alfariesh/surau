@@ -12,6 +12,10 @@
     "verify": "pnpm check && pnpm test && pnpm build",
     "prepare": "vp config --no-agent",
     "bench:text": "node tools/ingest/scripts/bench-normalize.ts",
+    "ingest": "node tools/ingest/src/cli.ts",
+    "ingest:verify": "node tools/ingest/src/cli.ts verify-openiti",
+    "corpus:load:local": "node tools/ingest/src/load.ts local",
+    "corpus:load:staging": "node tools/ingest/src/load.ts staging",
     "db:migrate:local": "wrangler d1 migrations apply CORPUS --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc",
     "db:migrate:remote": "wrangler d1 migrations apply APP --remote -c packages/db/wrangler.jsonc",
     "db:migrate:staging": "wrangler d1 migrations apply CORPUS --remote -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc"

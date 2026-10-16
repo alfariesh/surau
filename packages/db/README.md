@@ -6,7 +6,7 @@ Skema data Surau **tanpa ORM** ([ADR-009](../../implementasi/KEPUTUSAN.md)): mig
 
 | Path | Isi |
 |---|---|
-| `migrations/corpus/` | Migrasi DB korpus (hanya-baca, blue-green): `work`, `author`, `edition`, `page`, `toc_node`, `passage`, `footnote_ref`, `translation`, `summary`, `meta`, dan `passage_fts` (FTS5 contentless) |
+| `migrations/corpus/` | Migrasi DB korpus (hanya-baca, blue-green): `work`, `author`, `edition`, `page`, `toc_node`, `passage`, `footnote_ref`, `translation`, `summary`, `meta`, dan `passage_fts` (FTS5 contentless) di 0001; `passage_needs_review` (tanda dari ingest, ADR-032) di 0002, dengan alasan diperluas di 0003 |
 | `migrations/app/` | Migrasi DB app: `settings`, `feedback` (kuota dan ledger menyusul di S20) |
 | `src/schema/` | Skema Zod baris (`corpusTables`, `appTables`). Kolomnya dijaga sama dengan migrasi oleh `test/schema.test.ts` |
 | `src/ids.ts` | `pageId`, `tocNodeId`, `passageId`, `passageIdRange`, `passageAnchor` (jangkar `#p<seq>`) |

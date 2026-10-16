@@ -27,6 +27,7 @@ export const PASSAGES = {
 export async function seedCorpus(db: D1Db): Promise<void> {
   const del = [
     "footnote_ref",
+    "passage_needs_review",
     "translation",
     "summary",
     "passage",

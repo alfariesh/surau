@@ -60,7 +60,7 @@ Folder dibuat saat sesi yang membutuhkannya. Jangan membuat paket kosong lebih a
 
 ### 3.1 Korpus (`surau-corpus-<versi>`, hanya-baca)
 
-Skema final v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029). Nama DB: `surau-corpus-staging` (sekarang) dan `surau-corpus-<versi>` blue-green (S10). Prinsipnya: **teks mentah tidak pernah diubah**, ID stabil setelah rilis, dan FTS adalah indeks turunan yang bisa dibangun ulang. Semua tabel biasa `STRICT`, dan enum serta formula ID dijaga `CHECK`. Urutan tampil tidak pernah diambil dari ID.
+Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), ditambah `0002_passage_needs_review.sql` dan `0003_needs_review_reasons.sql` (S07, ADR-032). Nama DB: `surau-corpus-staging` (sekarang) dan `surau-corpus-<versi>` blue-green (S10). Prinsipnya: **teks mentah tidak pernah diubah**, ID stabil setelah rilis, dan FTS adalah indeks turunan yang bisa dibangun ulang. Semua tabel biasa `STRICT`, dan enum serta formula ID dijaga `CHECK`. Urutan tampil tidak pernah diambil dari ID.
 
 | Tabel | Kolom utama | Catatan |
 |---|---|---|
@@ -71,11 +71,12 @@ Skema final v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-02
 | `toc_node` | `id` = `edition_id·10⁵ + seq`, `edition_id`, `parent_id`, `ord`, `level`, `title_ar`, `start_page_id`, `source_title_id`, `patched` (0/1) | Pohon daftar isi; indeks (`edition_id`, `parent_id`, `ord`). Perbaikan dicatat di file patch |
 | `passage` | `id` = `edition_id·10⁷ + seq` (supaya filter per edisi memakai rentang rowid), `edition_id`, `page_id`, `toc_node_id`, `kind` (`body`/`foot`), `ord` (urutan tampil per halaman per jenis, mulai 1; bukan jangkar), `text_raw` | Paragraf. Teks mentah persis (HTML dibersihkan secara deterministik). Unik (`page_id`, `kind`, `ord`); indeks `toc_node_id` |
 | `footnote_ref` | `passage_id`, `char_start`, `char_end`, `marker` (`١`), `footnote_passage_id` | Menautkan penanda (١) di badan teks ke catatan kaki takhrij. Offset = indeks string JS di `text_raw`; penanda yatim tidak disimpan |
+| `passage_needs_review` | `passage_id`, `reason` (`takhrij_inline`/`takhrij_boundary`/`takhrij_unmatched`/`inline_unsplit`/`footnote_orphan`) | Migrasi 0002 + 0003 (S07, ADR-032). Tanda dari ingest bahwa paragraf perlu ditinjau manusia, **bukan** hasil review. Satu paragraf bisa punya beberapa alasan |
 | `passage_fts` | FTS5 contentless: `body`, `foot`, `sbody`, `sfoot` | `tokenize='unicode61 remove_diacritics 0'` di atas teks ternormalisasi. Lihat [riset FTS](../docs/riset/2026-10-15-pencarian-arab/README.md) |
 | `translation` | `passage_id`, `lang`, `text`, `model`, `prompt_version`, `created_at`, `review_status` (`ai_generated`/`reviewed`/`ustadz_verified`/`rejected`) | Fase 2, berlabel "terjemahan AI" |
 | `summary` | `toc_node_id`, `lang`, `text`, `model`, `prompt_version`, … | Fase 2, berlabel "ringkasan AI" |
 | `quran_ayah`, `quran_translation`, `passage_ayah_ref` | surah, ayah, teks Tanzil (indeks + tampilan), terjemahan Kemenag/QuranEnc + versi; rujukan ayat di paragraf (`exact`/`similar`, `partial`) | Fase 2 (S12). Teks dan terjemahan verbatim (ADR-020) |
-| `meta` | `key`, `value` | `schema_version` (diisi migrasi, sekarang 1), lalu `norm_version`, `corpus_version`, `built_at`, `source_hash` (diisi ingest) |
+| `meta` | `key`, `value` | `schema_version` (diisi migrasi, sekarang **3**), lalu `norm_version`, `corpus_version`, `built_at` (`SOURCE_DATE_EPOCH`/tanggal commit HEAD), `source_hash` (`sha256:<file sumber>`) (diisi ingest) |
 
 **Teks ternormalisasi tidak disimpan** di tabel. `normalizeArabic(text_raw)` beserta peta offsetnya dihitung ulang saat dibutuhkan (deterministik terhadap `NORM_VERSION`, ±7 juta karakter/detik). Bentuk normal dan stem hanya ada di indeks `passage_fts` (ADR-009).
 
@@ -93,7 +94,7 @@ Sudah ada (S06, `packages/db/migrations/app/0001_init.sql`): `settings` (`jawab_
 - Bagian daftar isi: `/kitab/ihya/bab/<toc_node.id>`.
 - Edisi non-default: `/kitab/ihya@<edition.slug>/1/200`.
 
-Permalink dan ID yang sudah dirilis tidak boleh berubah tanpa pengalihan. ID dibekukan sejak rilis Fase 1: alokasi ID membaca peta ID yang di-commit (`data/ids/`, kunci stabil → seq, tanpa teks), unit baru mendapat `seq` setelah yang terbesar, dan unit yang hilang dialihkan lewat tabel `id_redirect` (dibuat saat pertama dibutuhkan). Repository di `packages/db/src/repo/` menerima tipe struktural `D1Db`.
+Permalink dan ID yang sudah dirilis tidak boleh berubah tanpa pengalihan. ID dibekukan sejak rilis Fase 1: alokasi ID membaca peta ID yang di-commit (`data/ids/<kitab>-<id shamela>.json`, kunci stabil → seq, tanpa teks; format dan kuncinya di ADR-032 butir 8), unit baru mendapat `seq` setelah yang terbesar, dan unit yang hilang dialihkan lewat tabel `id_redirect` (dibuat saat pertama dibutuhkan). Repository di `packages/db/src/repo/` menerima tipe struktural `D1Db`.
 
 ## 4. Core tools (`packages/core`)
 
@@ -129,7 +130,7 @@ Fungsi murni yang menerima `D1Database` dan mengembalikan objek bertipe dengan *
 
 ```
 1 baca     Shamela book/{id%1000}/{id}.db (node:sqlite, readOnly) + update/master/book.sqlite, update/master/author.sqlite
-2 bersih   HTML → teks mentah deterministik; pisah badan/catatan kaki (garis _________ dan takhrij setelah //); paragraf per \r
+2 bersih   HTML → teks mentah deterministik; pisah badan/catatan kaki (garis _________ dan takhrij menempel di sekitar //); paragraf per \r
 3 struktur pohon judul (title.parent; title.page = page.id), terapkan patch (data/patches/<id>.yaml, di-commit)
 4 validasi jumlah kitab per rub', urutan halaman, judul yatim, penanda (١) tanpa catatan kaki → laporan
 5 turunan  normalizeArabic + stem (packages/text), footnote_ref, NORM_VERSION; QA verify-openiti (matan ≥0,95/halaman)
@@ -140,7 +141,9 @@ Fungsi murni yang menerima `D1Database` dan mengembalikan objek bertipe dengan *
 8 cek      smoke query + hitung baris + bandingkan sampel halaman acak dengan sumber
 ```
 
-File patch, laporan validasi, `SOURCES.md` (versi + sha256 sumber), `ATTRIBUTION.md`, dan `LICENSE` data **di-commit**, karena tidak memuat teks kitab. Teks kitab, unduhan OpenITI/Tanzil/QuranEnc, dan hasil build tetap di luar git (`data/raw/`, `data/build/`). Matan wajib lolos gerbang `verify-openiti` (ADR-018).
+Implementasinya `tools/ingest` (S07, ADR-032; cara pakai di `tools/ingest/README.md`): `pnpm ingest ihya` menjalankan langkah 1–4, langkah 5 **tanpa** stem/FTS (S11) dan tanpa normalisasi tersimpan, lalu langkah 6 (±3 detik); ingest gagal bila invarian dilanggar. `pnpm ingest:verify` hanya gerbang OpenITI. `pnpm corpus:load:local` / `corpus:load:staging --confirm` menjalankan langkah 7 tanpa FTS, dan langkah 8 sebatas hitung baris + j1 h200 (sampel acak menyusul di S10). File `0000-reset.sql` mengosongkan **seluruh** DB korpus dulu, jadi pemuatan bisa diulang (kitab kedua butuh reset per edisi). Paragraf yang meragukan ditandai di `passage_needs_review`.
+
+File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha256 sumber), `ATTRIBUTION.md`, dan `LICENSE` data **di-commit**, karena tidak memuat teks kitab. Teks kitab, unduhan OpenITI/Tanzil/QuranEnc, dan hasil build tetap di luar git (`data/raw/`, `data/build/`). Matan wajib lolos gerbang `verify-openiti` (ADR-018).
 
 ## 7. Lingkungan dan binding
 

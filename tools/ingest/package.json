@@ -2,11 +2,14 @@
   "name": "@surau/ingest",
   "version": "0.0.0",
   "private": true,
-  "description": "Pipeline ingest korpus (Node 24, type stripping). Isi utamanya dibangun di S07.",
+  "description": "Pipeline ingest korpus (Node 24, type stripping): Shamela lokal + verifikasi OpenITI → SQL D1 dan .sqlite (S07).",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
-    "@surau/text": "workspace:*"
+    "@surau/db": "workspace:*",
+    "@surau/text": "workspace:*",
+    "yaml": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

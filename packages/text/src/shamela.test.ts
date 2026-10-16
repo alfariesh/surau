@@ -4,9 +4,11 @@ import {
   cleanShamelaHtml,
   extractTitles,
   findFootnoteMarkers,
+  linkFootnoteMarkers,
   linkFootnotes,
   splitFootnoteEntries,
   splitFootnotes,
+  splitInlineTakhrij,
   splitParagraphs,
 } from "./shamela.ts";
 
@@ -162,10 +164,140 @@ describe("penanda dan catatan kaki", () => {
     expect(r.orphanNotes).toEqual([]);
   });
 
+  test("linkFootnoteMarkers: penanda dari beberapa paragraf; catatan tanpa nomor bukan tujuan", () => {
+    const refs = [...findFootnoteMarkers("ا (١)"), ...findFootnoteMarkers("ب (٢) ج (٣)")];
+    const r = linkFootnoteMarkers(refs, [
+      { number: 1 },
+      { number: null },
+      { number: 2 },
+      { number: 2 },
+    ]);
+    expect(r.links).toEqual([
+      { ref: 0, note: 0 },
+      { ref: 1, note: 2 },
+    ]);
+    expect(r.orphanRefs).toEqual([2]);
+    expect(r.orphanNotes).toEqual([3]);
+  });
+
   test("linkFootnotes: penanda yatim dan catatan yatim dilaporkan", () => {
     const r = linkFootnotes("ا (١) ب (٤)", "(١) اول\r(٢) ثان\rبلا رقم");
     expect(r.orphanRefs).toEqual([1]);
     expect(r.orphanNotes).toEqual([1]);
     expect(r.notes.at(-1)?.text).toBe("(٢) ثان\rبلا رقم");
+  });
+});
+
+describe("splitInlineTakhrij (takhrij bercampur ke matan lewat //)", () => {
+  // Kalimat buatan dan frasa hadits umum yang pendek; bukan teks Shamela.
+  const parts = (p: string) => {
+    const r = splitInlineTakhrij(p);
+    if (r === null) return null;
+    const text = (s: { start: number; end: number } | null) =>
+      s === null ? null : p.slice(s.start, s.end);
+    return {
+      direction: r.direction,
+      takhrij: text(r.takhrij),
+      before: text(r.before),
+      after: text(r.after),
+      marker: r.marker === null ? null : [r.marker.number, text(r.marker)],
+      slash: text(r.slash),
+    };
+  };
+
+  test("tanpa // → null", () => {
+    expect(splitInlineTakhrij("قال الشيخ كلاما حسنا")).toBeNull();
+  });
+
+  test("takhrij SESUDAH //: dari pembuka حديث sampai akhir paragraf", () => {
+    expect(parts("قال الشيخ الصبر ضياء // حديث الصبر ضياء أخرجه مسلم")).toEqual({
+      direction: "after",
+      takhrij: "حديث الصبر ضياء أخرجه مسلم",
+      before: "قال الشيخ الصبر ضياء",
+      after: null,
+      marker: null,
+      slash: "//",
+    });
+  });
+
+  test("takhrij SESUDAH //: penanda di depan, salah ketik حدديث, tanpa matan di depan", () => {
+    expect(parts("كلام حسن // (٢) حدديث كذا رواه احمد")?.takhrij).toBe("(٢) حدديث كذا رواه احمد");
+    expect(parts("// حديث كذا عزاه فلان")).toMatchObject({ direction: "after", before: null });
+  });
+
+  test("takhrij SEBELUM //: penanda pembuka tetap di matan, beberapa takhrij berurutan, matan berlanjut", () => {
+    const p =
+      "وقال النبي الصبر ضياء (١) حديث الصبر ضياء أخرجه مسلم (٢) حديث الطهور شطر الايمان رواه احمد // ثم رجع الكلام";
+    expect(parts(p)).toEqual({
+      direction: "before",
+      takhrij: "حديث الصبر ضياء أخرجه مسلم (٢) حديث الطهور شطر الايمان رواه احمد",
+      before: "وقال النبي الصبر ضياء (١)",
+      after: "ثم رجع الكلام",
+      marker: [1, "(١)"],
+      slash: "//",
+    });
+  });
+
+  test("takhrij SEBELUM //: penanda biasa di matan tidak ikut terpotong", () => {
+    expect(parts("العلم نور (١) والعمل ثمرته (٢) حديث العمل ثمرته اخرجه احمد // ثم")).toMatchObject(
+      {
+        takhrij: "حديث العمل ثمرته اخرجه احمد",
+        before: "العلم نور (١) والعمل ثمرته (٢)",
+        after: "ثم",
+      },
+    );
+  });
+
+  test("takhrij SEBELUM //: حديث tanpa penanda; 'من حديث' bukan pembuka", () => {
+    expect(parts("فقال او مسلم حديث سعد اعطى رجلا أخرجاه بنحوه من حديث سعد // وأما كذا")).toEqual({
+      direction: "before",
+      takhrij: "حديث سعد اعطى رجلا أخرجاه بنحوه من حديث سعد",
+      before: "فقال او مسلم",
+      after: "وأما كذا",
+      marker: null,
+      slash: "//",
+    });
+  });
+
+  test("takhrij SEBELUM //: awal paragraf = lanjutan takhrij hanya dengan atribusi kuat", () => {
+    expect(parts("وليلة اخرى رواه فلان بإسناد ضعيف (٥) حديث ثان أخرجه احمد // ثم")).toMatchObject({
+      takhrij: "وليلة اخرى رواه فلان بإسناد ضعيف (٥) حديث ثان أخرجه احمد",
+      before: null,
+      after: "ثم",
+      marker: null,
+    });
+    expect(parts("قال كذا ورواه بعضهم (٥) حديث ثان لم أقف له على أصل // ثم")).toMatchObject({
+      takhrij: "حديث ثان لم أقف له على أصل",
+      before: "قال كذا ورواه بعضهم (٥)",
+    });
+    // Ada kandidat yang ditolak di depan ("حديث النفس خاطر" tanpa atribusi): walau awal paragraf
+    // memuat "بإسناد", awal paragraf tidak diambil.
+    expect(parts("بإسناد كذا ثم حديث النفس خاطر (٥) حديث ثان أخرجه احمد // ثم")).toMatchObject({
+      takhrij: "حديث ثان أخرجه احمد",
+      before: "بإسناد كذا ثم حديث النفس خاطر (٥)",
+    });
+  });
+
+  test("// tanpa takhrij yang dikenali: paragraf tidak dipecah", () => {
+    const p = "وقال انما الاعمال بالنيات // وقال تعالى كذا";
+    expect(parts(p)).toEqual({
+      direction: null,
+      takhrij: null,
+      before: p,
+      after: null,
+      marker: null,
+      slash: "//",
+    });
+    // Ada pembuka حديث, tetapi tanpa atribusi (أخرجه/رواه/…) sebelum //.
+    expect(parts("حديث النفس خاطر // ثم")?.takhrij).toBeNull();
+    // "في حديث" adalah bagian kalimat.
+    expect(parts("قال في حديث طويل رواه بعضهم // ثم")?.takhrij).toBeNull();
+    // Hanya penanda tanpa isi takhrij sebelum //.
+    expect(parts("كلام (٣) رواه // ثم")?.takhrij).toBe("رواه");
+    expect(parts("كلام بإسناد (٣) // ثم")?.takhrij).toBeNull();
+  });
+
+  test("hanya // pertama yang dipakai; // berikutnya tetap di teks", () => {
+    expect(parts("ا // حديث ب أخرجه ج // د")?.takhrij).toBe("حديث ب أخرجه ج // د");
   });
 });

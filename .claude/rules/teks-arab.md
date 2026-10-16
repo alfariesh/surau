@@ -38,7 +38,7 @@ Normalisasi baku Surau (implementasi dan golden tests ada di `packages/text`; pr
 
 ## Struktur sumber Shamela (Ihya = ID 9472)
 
-- `page.content` berisi HTML. Paragraf dipisah `\r`, dan judul ditandai `<span data-type="title" id=toc-{title.id}>`. Catatan kaki ada setelah **9** garis bawah `_________`, dengan penanda `(١)` yang merujuk ke penanda yang sama di teks. Sekitar 200 halaman punya takhrij yang bercampur ke matan setelah `//`; bagian ini dipisah dan ditandai `needs_review`.
+- `page.content` berisi HTML. Paragraf dipisah `\r`, dan judul ditandai `<span data-type="title" id=toc-{title.id}>`. Catatan kaki ada setelah **9** garis bawah `_________`, dengan penanda `(١)` yang merujuk ke penanda yang sama di teks. Di 203 halaman takhrij bercampur ke matan dengan `//` sebagai batas (bisa sebelum atau sesudah `//`); bagian ini dipisah (`splitInlineTakhrij`) dan ditandai `needs_review` (ADR-032).
 - `page.part` = juz, `page.page` = halaman cetak (bertipe TEXT, harus di-cast). Pohon judul ada di tabel `title` (`parent = 0` adalah akar); `title.page` menunjuk ke `page.id`, **bukan** ke halaman cetak.
 - Daftar isi Ihya punya cacat yang diketahui (lihat [docs/03](../../docs/03-sumber-data.md#temuan-pada-ihya-id-9472)). Perbaiki lewat file patch, lalu validasi otomatis: jumlah kitab per rub', urutan halaman, dan judul yatim.
 - Data Shamela dibaca dari drive lokal pemilik (`/Volumes/Elfariesh/database`) dan **tidak pernah masuk git**. Fixture tes memakai potongan kecil berlisensi jelas (OpenITI, CC BY-NC-SA, dengan atribusi) atau teks buatan.

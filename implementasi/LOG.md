@@ -15,6 +15,31 @@ Format entri:
 
 ---
 
+## 2026-10-16 · S07 · Importer Ihya — selesai (butir 5 dengan catatan)
+
+- Dikerjakan:
+  - `tools/ingest`: Shamela 9472 → SQL D1 + `.sqlite`, daftar isi + patch YAML, QA OpenITI, 11 invarian, peta ID `data/ids/`, dan laporan.
+  - `splitInlineTakhrij` di `@surau/text`: takhrij `//` dua arah, penanda pembuka tetap di matan.
+  - Migrasi korpus 0002 + 0003 `passage_needs_review` (lima alasan).
+  - `data/LICENSE`/`ATTRIBUTION`/`SOURCES`.
+  - Ihya dimuat ke D1 lokal dan `surau-corpus-staging` (izin pemilik, `--confirm`).
+- Verifikasi:
+  - Determinisme: dua build dari `data/build` kosong di HEAD `7a333f1` → sha256 `9af0db3a…` identik (3,0/2,9 dtk).
+  - 11 invarian ✓: 1.706 halaman, 4×10 kitab, 0 judul yatim, 4.117 penanda tertaut + 87 di dalam takhrij = 4.204, 0 penanda yatim, integritas lintas tabel.
+  - `verify-openiti`: 1.705/1.706 ≥0,95; 190/4.398 takhrij `takhrij_unmatched`.
+  - Lokal + staging: passage 20.509, footnote_ref 4.117, passage_needs_review 705 (609 paragraf); j1 h200 7 badan/7 catatan/7 penanda; staging `schema_version` 3.
+  - `pnpm verify` lolos (176 tes node + 47 tes db; fungsi `packages/text` 100%).
+  - Peninjau: 0 blocker, 6 temuan "perbaiki", semuanya diperbaiki (satu saran opsional ditolak dengan alasan, ADR-032).
+- Biaya API: –
+- Keputusan: ADR-032
+- Catatan untuk sesi berikutnya:
+  - S08 bisa langsung memakai D1 lokal; core tools sebaiknya ikut mengembalikan `passage_needs_review` per paragraf.
+  - Batas akhir takhrij "sesudah `//`" belum pasti (23 potongan panjang, lihat laporan).
+  - Butir 5 S07 tidak dicentang karena `data/ids/` (ADR-029).
+  - Proses lain sempat memindah checkout ke `main` di tengah sesi. Sudah dipulihkan; sesi paralel sebaiknya memakai worktree.
+
+---
+
 ## 2026-10-16 · Sisipan · Log Worker Preview di CI — selesai
 
 - Dikerjakan: langkah *Ringkasan log Preview* di `preview.yml` + `.github/scripts/ringkas-log-preview.sh` (GraphQL `workersInvocationsAdaptive`, `isPreview: 1`), hasilnya di log CI, Summary, dan komentar preview PR (PR #16). Tugas pemilik T-21 (izin Account Analytics Read) ditulis dan diselesaikan pemilik. Perbaikan lanjutan: `previewSlug` ternyata `__unknown__`, jadi dipakai cadangan bertanda.

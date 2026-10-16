@@ -1,0 +1,26 @@
+# Patch daftar isi Ihya' 'Ulum ad-Din (Shamela 9472). Lihat docs/03-sumber-data.md#temuan-pada-ihya-id-9472.
+# Hanya ID dan struktur. Judul node tambahan TIDAK ditulis di sini: `heading` hanya kata pembuka
+# untuk menemukan paragraf judulnya di halaman sumber, lalu teks judulnya disalin dari halaman itu.
+# Setiap node yang ditambah atau dipindah ditandai `patched = 1` di toc_node.
+shamela_book: 9472
+
+add:
+  # Rub' al-Munjiyat hanya punya 8 kitab di daftar isi Shamela. Dua kitab terakhir tidak punya
+  # entri judul, sehingga subbabnya menempel ke Kitab al-Muraqabah (title 298).
+  - id: tafakkur # Kitab at-Tafakkur, kitab ke-9 (j4 h423)
+    parent: 180 # Rub' al-Munjiyat
+    page: 1582
+    heading: كتاب التفكر
+  - id: dzikr-maut # Kitab Dzikr al-Maut wa ma Ba'dahu, kitab ke-10 (j4 h448)
+    parent: 180
+    page: 1607
+    heading: كتاب ذكر الموت وما بعده
+
+move:
+  # Sifat shirath, syafa'at, haudh, neraka, surga, ru'yah, dan penutup: bagian Kitab Dzikr al-Maut.
+  - titles: [300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311]
+    parent: dzikr-maut
+  # Rub' al-Muhlikat: satu "bayan" (title 170) naik ke level kitab. Kembalikan ke bawah Kitab
+  # Syarh 'Aja'ib al-Qalb (title 169).
+  - titles: [170]
+    parent: 169
