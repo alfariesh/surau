@@ -15,6 +15,24 @@ Format entri:
 
 ---
 
+## 2026-10-16 · Rilis Fase 1 · Pembaca Ihya — dirilis (`rilis-f1`)
+
+- Dikerjakan:
+  - Kesiapan: syarat R1 terpenuhi (FASE.md). S07 butir 5 (peta ID di `data/`) tidak dicentang → penyimpangan diterima pemilik di chat (ADR-037 butir 1).
+  - Perbaikan dari tinjauan keamanan sebelum membuka pembaca (PR #26): path acak tidak lagi membaca seluruh daftar isi (juz > jilid = 404 lebih dulu, halaman dulu baru daftar isi, cek node satu baris), `/api/feedback` dapat batas global 30/60 dtk + kunci per jaringan IP (IPv6 per /64).
+  - `READER_ENABLED = "1"` lewat PR #26 (squash `0fd7f81`) setelah pemilik menjawab "ya"; tag `rilis-f1` di-push.
+- Verifikasi:
+  - `pnpm install --frozen-lockfile` + `pnpm verify` → lolos (227 + 105 tes; setelah perbaikan 229 + 105); `pnpm test:e2e` → 70/70 (dua kali); cek rahasia `git ls-files … | grep` → kosong; larangan ADR-003 (grep `use server`/`use cache`, `cacheComponents: false`, `images.unoptimized: true`, tanpa middleware) → terpenuhi.
+  - Tinjauan keamanan `rilis-f0..main` (peninjau): 0 blocker, 2 "perbaiki" (keduanya diperbaiki di PR #26).
+  - Gerbang versi (docs-terbaru): Next 16.4.1 didukung resmi OpenNext 1.20.12; advisory 673q/2464/p3m5 ditambal di 16.4.1, xqc2/h3gv kemungkinan besar ditambal di React bawaan dan pemicunya mati; tidak ada advisory tanpa mitigasi. #1455 (heap ISR) diterima ulang.
+  - Preview PR #26: CI verify + e2e lolos (212 request, 0 error); uji manual ponsel: beranda, daftar kitab, j1 h200 (RTL, Naskh, takhrij muncul), j4 h546, `/lisensi`, 404 untuk `/kitab/ihya/5/1` dan `/bab/999999999`, laporan dari origin asing 403.
+  - Produksi (versi Worker `eaaf0c91`): `deploy.yml` lolos (migrasi `surau-app`, smoke `/ /tentang /lisensi /kitab /kitab/ihya/1/200`); binding `READER_ENABLED 1`, `CORPUS_DB 41e3033e-…` (ihya-v1), dua rate limiter. Smoke manual: 11 halaman 200, 3 alamat salah 404, sitemap 1.711 URL, header keamanan ada, tautan Shamela per halaman ada. `wrangler tail` 75 dtk: 16 permintaan `ok`, 0 exception; satu log galat "Failed to revalidate stale page … Dummy queue is not implemented" pada kunjungan ulang (halaman tetap tersaji dari cache; tindak lanjut di STATUS).
+- Biaya API: –
+- Keputusan: ADR-037
+- Catatan untuk sesi berikutnya: S11 (FTS) memuat ulang staging; korpus produksi berikutnya = `ihya-v2` lewat `corpus:promote`. Tindak lanjut kecil: antrean no-op/cache control untuk menghapus log `STALE`, jarak tepi breadcrumb di ponsel, pantau 1102 dan spam laporan.
+- **Draf pengumuman (untuk pemilik, tidak diposting agent):**
+  > Alhamdulillah, *Ihya' 'Ulum ad-Din* karya al-Ghazali kini bisa dibaca lengkap di Surau: 4 jilid, 1.706 halaman, sesuai cetakan Dar al-Ma'rifah, dengan takhrij hadits al-'Iraqi yang muncul cukup dengan mengetuk nomor catatan kaki. Setiap halaman dan paragraf punya alamat tetap, sehingga kutipan mudah dirujuk dan diperiksa ulang. Teksnya dicocokkan dengan sumber huruf demi huruf, gratis, tanpa iklan, dan terbuka: https://surau-web.alfarieshsalman.workers.dev/kitab/ihya
+
 ## 2026-10-16 · S10 · Korpus produksi & QA — selesai
 
 - Dikerjakan:
