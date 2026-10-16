@@ -63,10 +63,12 @@ Korpus Ihya berada di D1 produksi lewat prosedur blue-green yang bisa diulang da
 
 **Penyimpangan dari rencana (terbuka):**
 - Langkah 1.4 "ubah `database_id` lewat PR": skrip mengubah file lokal, deploy terjadi lewat PR sesi ini (bukan PR terpisah).
-- Langkah 2: sebelum promote, produksi menunjuk `surau-corpus-staging` (ADR-034), jadi DB lama yang dicatat sebagai target rollback adalah staging, yang isinya bisa berubah. Ditulis jujur di SOURCES.md dan README.
+- Langkah 1.6/2: sebelum promote, produksi menunjuk `surau-corpus-staging` (ADR-034). Staging **tidak** dicatat sebagai target rollback (isinya dimuat ulang tiap sesi; temuan peninjau), jadi `ihya-v1` belum punya DB rollback dan rollback-nya = tutup darurat. Ditulis di SOURCES.md, README, dan ADR-036.
 - Langkah 8: `rows_read` diukur di Preview `pembaca` (DB staging, isi sama, QA 30/30), bukan produksi, karena pembaca produksi masih tertutup sampai `/rilis 1`. Workers Logs produksi untuk pembaca baru bisa dipantau setelah rilis.
 - Di luar rencana: `preview_database_id` (supaya dev lokal tidak kosong), kalibrasi tautan pindaian per jilid, `PageSection` bersama.
 
-**Utang teknis:** `getToc` dibaca penuh per render (±939 baris, ±1,5 kali per render); header `x-nextjs-cache: STALE` pada kunjungan ulang (tanpa baca D1, tetapi beda dari catatan S09); pembersih retensi `feedback` belum ada (manual sampai S20); target rollback `ihya-v1` berubah saat staging dimuat ulang (S11).
+**Utang teknis:** `getToc` dibaca penuh per render (±939 baris, ±1,5 kali per render); header `x-nextjs-cache: STALE` pada kunjungan ulang (tanpa baca D1, tetapi beda dari catatan S09); pembersih retensi `feedback` belum ada (manual sampai S20); `/lisensi` perlu pengecualian Tanzil/Kemenag di Fase 2 dan saluran takedown privat saat ada email.
+
+**Peninjau:** 0 blocker, 5 "perbaiki" (staging bisa jadi target rollback lalu dimuat ulang S11; pengaman `--reload` hanya working tree; penjaga deploy.yml bisa lolos; argumen QA tanpa validasi; `meta` sumber tidak dibandingkan) → semuanya diperbaiki dan diuji. Saran diambil sebagian (lihat LOG).
 
 **Untuk sesi berikutnya:** `/rilis 1` (pemilik) setelah T-15, T-22, dan persetujuan teks `/lisensi`: nyalakan `READER_ENABLED` lewat commit, lalu cek Workers Logs + `d1 info surau-corpus-ihya-v1 --json` di produksi. S11 akan memuat ulang staging (FTS): korpus produksi berikutnya = `ihya-v2` lewat `corpus:promote`.

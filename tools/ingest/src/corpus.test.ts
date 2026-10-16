@@ -3,7 +3,13 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vite-plus/test";
 
-import { readProductionCorpus, setProductionCorpus } from "./corpus.ts";
+import {
+  isProtected,
+  readProductionCorpus,
+  recordedCorpora,
+  setProductionCorpus,
+  stagingCorpus,
+} from "./corpus.ts";
 import { WEB_CONFIG, repo } from "./d1.ts";
 
 const STAGING_ID = "ffc5ce9a-2b5a-4d09-8487-922ff0e67827";
@@ -70,12 +76,69 @@ describe("binding korpus produksi", () => {
   });
 });
 
+describe("pengaman korpus produksi", () => {
+  test("korpus staging tidak pernah menjadi produksi (staging dimuat ulang tiap sesi)", () => {
+    const prod = readProductionCorpus(readFileSync(join(repo, WEB_CONFIG), "utf8"));
+    const staging = stagingCorpus();
+    expect(staging.id).toBe(STAGING_ID);
+    expect(prod.name).not.toBe(staging.name);
+    expect(prod.id).not.toBe(staging.id);
+  });
+
+  test("data/SOURCES.md mencatat binding produksi sebagai korpus terlindung, tanpa staging", () => {
+    const sources = readFileSync(join(repo, "data/SOURCES.md"), "utf8");
+    const recorded = recordedCorpora(sources);
+    const prod = readProductionCorpus(readFileSync(join(repo, WEB_CONFIG), "utf8"));
+    expect(recorded).toContainEqual(prod);
+    expect(recorded.map((r) => r.id)).not.toContain(STAGING_ID);
+  });
+
+  test("recordedCorpora hanya membaca baris tabel di bagian Korpus D1 produksi", () => {
+    const md = [
+      "## Lain",
+      "| `surau-corpus-x-v9` | `00000000-0000-0000-0000-000000000009` |",
+      "## Korpus D1 produksi",
+      "Catatan `surau-corpus-staging` `ffc5ce9a-2b5a-4d09-8487-922ff0e67827` bukan baris tabel.",
+      "| Versi | DB | ID |",
+      "|---|---|---|",
+      "| `ihya-v1` | `surau-corpus-ihya-v1` | `41e3033e-3aa0-456c-9d60-b8967f57e89d` |",
+      "## Sesudahnya",
+      "| `surau-corpus-y-v1` | `00000000-0000-0000-0000-000000000001` |",
+    ].join("\n");
+    const recorded = recordedCorpora(md);
+    expect(recorded).toEqual([
+      { name: "surau-corpus-ihya-v1", id: "41e3033e-3aa0-456c-9d60-b8967f57e89d" },
+    ]);
+    const guard = { all: recorded, production: [], notes: [] };
+    expect(isProtected(guard, { name: "surau-corpus-ihya-v1", id: "lain" })).toBe(true);
+    expect(isProtected(guard, { name: "lain", id: "41e3033e-3aa0-456c-9d60-b8967f57e89d" })).toBe(
+      true,
+    );
+    expect(isProtected(guard, { name: "surau-corpus-ihya-v2", id: "baru" })).toBe(false);
+  });
+});
+
 describe("deploy otomatis tidak pernah menyentuh korpus (ARSITEKTUR-TEKNIS §7 aturan 4)", () => {
-  test("deploy.yml hanya memigrasi DB app", () => {
-    const yml = readFileSync(join(repo, ".github/workflows/deploy.yml"), "utf8");
-    const commands = yml.split("\n").filter((l) => /d1|corpus|ingest/i.test(l) && !/^\s*#/.test(l));
-    for (const line of commands) {
-      expect(line).not.toMatch(/CORPUS|corpus:|ingest/);
+  const yml = readFileSync(join(repo, ".github/workflows/deploy.yml"), "utf8");
+  const scripts = (
+    JSON.parse(readFileSync(join(repo, "package.json"), "utf8")) as {
+      scripts: Record<string, string>;
     }
+  ).scripts;
+  const commands = yml.split("\n").filter((l) => !/^\s*#/.test(l));
+
+  test("tidak ada baris deploy.yml (selain komentar) yang menyebut korpus", () => {
+    expect(commands.filter((l) => /corpus/i.test(l))).toEqual([]);
+  });
+
+  test("setiap skrip pnpm yang dipanggil deploy.yml tidak menyentuh korpus; skrip D1 hanya APP", () => {
+    const called = [...commands.join("\n").matchAll(/pnpm run ([\w:-]+)/g)].map(
+      (m) => m[1] as string,
+    );
+    expect(called).toContain("db:migrate:remote");
+    const bodies = called.map((name) => `${name}: ${scripts[name] ?? ""}`);
+    expect(bodies.filter((b) => /corpus/i.test(b))).toEqual([]);
+    // Skrip yang memanggil `wrangler d1` hanya boleh menyasar binding APP.
+    expect(bodies.filter((b) => /\bd1\b/.test(b) && !/\bAPP\b/.test(b))).toEqual([]);
   });
 });

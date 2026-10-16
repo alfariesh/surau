@@ -198,3 +198,36 @@ export function scanUrl(config: WorkConfig, juz: number, pageNo: number): string
   if (config.scan === undefined || v === undefined) return null;
   return `${config.scan.details}/${v.file}/page/n${pageNo + v.leafOffset}/mode/1up`;
 }
+
+/**
+ * Bandingkan dua kumpulan baris (mis. edition, toc_node, meta) per kunci: baris hilang, baris
+ * lebih, atau kolom berbeda. Pesan hanya menyebut tabel, kunci, dan nama kolom (tanpa isi teks).
+ */
+export function compareRows<T extends object>(
+  table: string,
+  expected: readonly T[],
+  actual: readonly T[],
+  key: (row: T) => string,
+  ignore: readonly string[] = [],
+): string[] {
+  const strip = (row: T): Record<string, unknown> =>
+    Object.fromEntries(Object.entries(row).filter(([k]) => !ignore.includes(k)));
+  const act = new Map(actual.map((r) => [key(r), strip(r)]));
+  const diffs: string[] = [];
+  for (const e of expected) {
+    const k = key(e);
+    const a = act.get(k);
+    act.delete(k);
+    if (a === undefined) {
+      diffs.push(`${table} ${k}: tidak ada di D1`);
+      continue;
+    }
+    const want = strip(e);
+    const cols = [...new Set([...Object.keys(want), ...Object.keys(a)])].filter(
+      (c) => want[c] !== a[c],
+    );
+    if (cols.length > 0) diffs.push(`${table} ${k}: kolom ${cols.sort().join(", ")} berbeda`);
+  }
+  for (const k of act.keys()) diffs.push(`${table} ${k}: ada di D1, tidak ada di sumber`);
+  return diffs;
+}

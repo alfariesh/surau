@@ -5,6 +5,7 @@ import type { FootnoteRefRow, PageRow, PassageNeedsReviewRow, PassageRow } from 
 import {
   bundlePages,
   comparePage,
+  compareRows,
   mulberry32,
   pickForHuman,
   samplePages,
@@ -151,5 +152,32 @@ describe("ringkasan dan daftar QA manusia", () => {
     );
     expect(scanUrl(IHYA, 5, 1)).toBeNull();
     expect(scanUrl({ ...IHYA, scan: undefined }, 1, 1)).toBeNull();
+  });
+});
+
+describe("compareRows", () => {
+  const rowsA = [
+    { key: "corpus_version", value: "ihya-v1" },
+    { key: "built_at", value: "2026-10-16T00:00:00.000Z" },
+  ];
+
+  test("sama → kosong; kolom yang diabaikan tidak dibandingkan", () => {
+    expect(compareRows("meta", rowsA, [...rowsA].reverse(), (r) => r.key)).toEqual([]);
+    const other = [rowsA[0]!, { key: "built_at", value: "lain" }];
+    expect(compareRows("meta", rowsA, other, (r) => r.key)).toEqual([
+      "meta built_at: kolom value berbeda",
+    ]);
+    expect(
+      compareRows("meta", rowsA.slice(0, 1), other.slice(0, 1), (r) => r.key, ["value"]),
+    ).toEqual([]);
+  });
+
+  test("baris hilang dan baris lebih dilaporkan", () => {
+    expect(compareRows("meta", rowsA, rowsA.slice(1), (r) => r.key)).toEqual([
+      "meta corpus_version: tidak ada di D1",
+    ]);
+    expect(compareRows("meta", rowsA.slice(1), rowsA, (r) => r.key)).toEqual([
+      "meta corpus_version: ada di D1, tidak ada di sumber",
+    ]);
   });
 });

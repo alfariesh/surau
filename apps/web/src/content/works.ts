@@ -53,7 +53,8 @@ export interface EditionCredit {
 
 /**
  * Rincian atribusi per edisi untuk halaman /lisensi (S10, ADR-018, ADR-021). Halaman itu statis
- * (tanpa baca D1), jadi isinya disalin dari data/ATTRIBUTION.md; tes menjaga keduanya sama.
+ * (tanpa baca D1), jadi isinya diringkas dari data/ATTRIBUTION.md. Tes menjaga kalimat atribusi dan
+ * semua tautannya sama persis; teks peran dan perubahan disunting tangan bila ATTRIBUTION.md berubah.
  */
 export const EDITION_CREDITS: readonly EditionCredit[] = [
   {
@@ -71,7 +72,7 @@ export const EDITION_CREDITS: readonly EditionCredit[] = [
       },
       {
         name: "al-Maktaba al-Shamela",
-        role: "Digitalisasi asal edisi ini (kitab no. 9472). Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        role: "Digitalisasi asal edisi ini (kitab no. 9472). Teks utama, struktur judul, dan catatan kaki dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
         link: { label: "shamela.ws", url: "https://shamela.ws/book/9472" },
       },
       {

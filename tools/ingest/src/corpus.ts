@@ -1,10 +1,11 @@
 // Korpus hasil build (`data/build/`) dan binding korpus PRODUKSI di apps/web/wrangler.jsonc.
 // Dipakai `load.ts` (lokal/staging) dan `promote.ts` (blue-green produksi, ADR-005).
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-import { COUNTED, applyMigrations, executeFile, repo } from "./d1.ts";
+import { COUNTED, DB_CONFIG, WEB_CONFIG, applyMigrations, executeFile, repo } from "./d1.ts";
 import type { D1Target } from "./d1.ts";
 import { openReadOnly } from "./sqlite.ts";
 
@@ -131,4 +132,69 @@ export function setProductionCorpus(jsonc: string, next: CorpusBinding): string 
       [a, next.name, b, next.id, c].join(""),
     ) + tail
   );
+}
+
+/** Korpus staging = binding CORPUS top-level di packages/db/wrangler.jsonc (juga ID D1 lokal). */
+export function stagingCorpus(jsonc = readFileSync(join(repo, DB_CONFIG), "utf8")): CorpusBinding {
+  const m = /"binding": "CORPUS",\s*"database_name": "([^"]+)",\s*"database_id": "([^"]+)"/.exec(
+    jsonc,
+  );
+  if (m === null) throw new Error(`${DB_CONFIG}: binding CORPUS top-level tidak ditemukan`);
+  return { name: m[1] as string, id: m[2] as string };
+}
+
+/** Nama + ID DB korpus di tabel "Korpus D1 produksi" data/SOURCES.md (aktif dan rollback). */
+export function recordedCorpora(markdown: string): CorpusBinding[] {
+  const start = markdown.indexOf("## Korpus D1 produksi");
+  if (start < 0) return [];
+  const next = markdown.indexOf("\n## ", start + 1);
+  const section = markdown.slice(start, next < 0 ? undefined : next);
+  const out: CorpusBinding[] = [];
+  for (const line of section.split("\n")) {
+    if (!line.startsWith("|")) continue;
+    const name = /`(surau-corpus-[a-z0-9-]+)`/.exec(line)?.[1];
+    const id = /`([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})`/.exec(line)?.[1];
+    if (name !== undefined && id !== undefined) out.push({ name, id });
+  }
+  return out;
+}
+
+export interface ProtectedCorpora {
+  /** DB yang tidak boleh dikosongkan atau dimuat ulang (nama + ID). */
+  all: CorpusBinding[];
+  /** Binding produksi di working tree dan di `origin/main` (yang di-deploy `deploy.yml`). */
+  production: CorpusBinding[];
+  /** Peringatan, mis. `git fetch` gagal sehingga `origin/main` mungkin usang. */
+  notes: string[];
+}
+
+/**
+ * DB korpus yang sedang atau pernah melayani produksi: binding `CORPUS_DB` di working tree DAN di
+ * `origin/main` (setelah `git fetch`; rollback yang belum di-merge tetap terlindungi), ditambah
+ * semua DB yang tercatat di data/SOURCES.md. Dipakai `promote` dan `load` sebelum menimpa DB remote.
+ */
+export function protectedCorpora(opts: { fetch?: boolean } = {}): ProtectedCorpora {
+  const notes: string[] = [];
+  const production = [readProductionCorpus(readFileSync(join(repo, WEB_CONFIG), "utf8"))];
+  const git = (args: string[]): string =>
+    execFileSync("git", args, { cwd: repo, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  if (opts.fetch !== false) {
+    try {
+      git(["fetch", "--quiet", "origin", "main"]);
+    } catch {
+      notes.push("git fetch origin main gagal: origin/main lokal mungkin usang");
+    }
+  }
+  try {
+    production.push(readProductionCorpus(git(["show", `origin/main:${WEB_CONFIG}`])));
+  } catch {
+    notes.push(`origin/main:${WEB_CONFIG} tidak terbaca: hanya working tree yang diperiksa`);
+  }
+  const sources = join(repo, "data/SOURCES.md");
+  const recorded = existsSync(sources) ? recordedCorpora(readFileSync(sources, "utf8")) : [];
+  return { all: [...production, ...recorded], production, notes };
+}
+
+export function isProtected(p: ProtectedCorpora, db: CorpusBinding): boolean {
+  return p.all.some((x) => x.name === db.name || x.id === db.id);
 }

@@ -1,6 +1,7 @@
 # QA manusia (T-15): 10 halaman Ihya dibandingkan dengan edisi cetak
 
 > Dibuat oleh `pnpm run corpus:qa --human` (S10) dari sampel QA otomatis (seed 9472); hanya halaman yang punya catatan kaki, bergiliran per jilid. Kolom **Hasil** diisi agent dari jawaban pemilik/ustadz.
+> Tautan Surau: `https://pembaca-surau-web.alfarieshsalman.workers.dev`. Sebelum `/rilis 1` ini Preview `pembaca` yang membaca korpus **staging** (isinya terbukti sama dengan produksi pada sampel ini). Staging dimuat ulang di S11, jadi kerjakan sebelum S11, atau ganti tautannya ke situs produksi setelah `/rilis 1`.
 
 Cara mencocokkan (±3 menit per halaman):
 

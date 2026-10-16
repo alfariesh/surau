@@ -110,7 +110,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   2. Coba: ketuk penanda (١) di teks Arab (takhrij muncul), tombol **Berikutnya/Sebelumnya** (atau panah ← → di laptop), **Daftar isi**, **Lompat**, **Salin sitasi**, tombol **−/+** ukuran huruf, dan tema gelap.
   3. Bilang ke agent "tampilan pembaca OK", atau tulis apa yang ingin diubah (boleh dengan tangkapan layar). Agent mencentang butir "Pemilik menyetujui tampilan" di S09.
 
-- [ ] **T-15 · Cocokkan 10 halaman dengan edisi cetak** (dibutuhkan S10 / sebelum `/rilis 1`, ±30 menit; bisa diwakilkan ke ustadz/santri yang membaca Arab)
+- [ ] **T-15 · Cocokkan 10 halaman dengan edisi cetak** (dibutuhkan S10 / sebelum `/rilis 1` **dan sebelum S11**, ±30 menit; bisa diwakilkan ke ustadz/santri yang membaca Arab)
   Daftarnya siap di [data/reports/ihya-9472-qa-manusia.md](../data/reports/ihya-9472-qa-manusia.md) (buka di GitHub supaya tautannya bisa diklik). Setiap halaman punya tiga tautan: Surau, Shamela, dan pindaian archive.org (sudah diarahkan ke halaman yang tepat; bila meleset, geser satu-dua halaman). Cek apakah teks dan catatan kakinya sama, lalu kirim ke agent "T-15: 1 cocok, 2 cocok, …" atau catatan singkat per nomor.
 
 ## Fase 2: Cari

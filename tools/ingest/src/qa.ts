@@ -4,21 +4,37 @@
 //   pnpm run corpus:qa <versi>      DB surau-corpus-<versi> (remote, hanya baca) → laporan di data/reports/
 //   pnpm run corpus:qa staging      surau-corpus-staging (hanya ke layar)
 // Opsi: --n 30 · --seed 9472 · --human 10 (daftar QA manusia T-15, sekali tulis) · --surau <url dasar>
+// Selain halaman sampel, diperiksa juga baris tingkat korpus: meta (kecuali built_at), author, work,
+// edition, dan node daftar isi yang dirujuk paragraf sampel.
 // Butuh drive Shamela (T-09) dan unduhan OpenITI (data/SOURCES.md).
 import { execFileSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-import { footnoteRefRow, pageRow, passageNeedsReviewRow, passageRow } from "@surau/db";
+import {
+  CORPUS_SCHEMA_VERSION,
+  authorRow,
+  editionRow,
+  footnoteRefRow,
+  metaRow,
+  pageRow,
+  passageNeedsReviewRow,
+  passageRow,
+  tocNodeRow,
+  workRow,
+} from "@surau/db";
 import type { PageRow } from "@surau/db";
+import { z } from "zod";
 
+import { stagingCorpus } from "./corpus.ts";
 import { STAGING, query, remoteByName, repo, wrangler } from "./d1.ts";
 import type { D1Target } from "./d1.ts";
 import { expectedRows } from "./pipeline.ts";
 import {
   bundlePages,
   comparePage,
+  compareRows,
   pickForHuman,
   samplePages,
   scanUrl,
@@ -61,10 +77,62 @@ interface Checked {
   diffs: string[];
 }
 
+/** Baris tingkat korpus di D1 yang dibandingkan dengan sumber (selain halaman sampel). */
+function corpusDiffs(
+  target: D1Target,
+  expected: ReturnType<typeof expectedRows>,
+  sample: RowSet,
+): string[] {
+  const tocIds = [...new Set(sample.passage.map((p) => p.toc_node_id).filter((id) => id !== null))];
+  const ids = tocIds.map((id) => String(Math.trunc(id))).join(", ");
+  const wanted = new Set(tocIds);
+  const byId = (r: { id: number }): string => String(r.id);
+  return [
+    // built_at = tanggal commit saat build, berbeda per checkout; sisanya harus sama persis.
+    ...compareRows(
+      "meta",
+      // schema_version diisi migrasi (bukan pipeline): harapannya versi skema kode ini.
+      [...expected.meta, { key: "schema_version", value: String(CORPUS_SCHEMA_VERSION) }],
+      query(target, "SELECT key, value FROM meta").map((r) => metaRow.parse(r)),
+      (r) => r.key,
+    ).filter((d) => !d.startsWith("meta built_at:")),
+    ...compareRows(
+      "author",
+      expected.author,
+      query(target, "SELECT * FROM author").map((r) => authorRow.parse(r)),
+      byId,
+    ),
+    ...compareRows(
+      "work",
+      expected.work,
+      query(target, "SELECT * FROM work").map((r) => workRow.parse(r)),
+      byId,
+    ),
+    ...compareRows(
+      "edition",
+      expected.edition,
+      query(target, "SELECT * FROM edition").map((r) => editionRow.parse(r)),
+      byId,
+    ),
+    ...(tocIds.length === 0
+      ? []
+      : compareRows(
+          "toc_node",
+          expected.toc_node.filter((n) => wanted.has(n.id)),
+          query(target, `SELECT * FROM toc_node WHERE id IN (${ids})`).map((r) =>
+            tocNodeRow.parse(r),
+          ),
+          byId,
+        )),
+  ];
+}
+
 function autoReport(args: {
   label: string;
   uuid: string;
   meta: Record<string, string>;
+  sourceHash: string;
+  corpus: { diffs: string[]; tocNodes: number };
   seed: number;
   total: number;
   checked: Checked[];
@@ -77,13 +145,16 @@ function autoReport(args: {
     `> Dibuat oleh \`pnpm run corpus:qa\` (S10, \`tools/ingest/src/qa.ts\`). Tanpa teks kitab: hanya ID, jumlah, byte, dan sha256.`,
     "",
     `- DB: \`${args.label}\` (\`${args.uuid}\`) · korpus \`${args.meta.corpus_version ?? "?"}\` · built_at ${args.meta.built_at ?? "?"} · schema ${args.meta.schema_version ?? "?"} · NORM_VERSION ${args.meta.norm_version ?? "?"}`,
-    `- Pembanding: sumber Shamela \`${args.meta.source_hash ?? "?"}\` diparse ulang oleh pipeline ingest pada commit \`${args.commit}\` (pembersihan deterministik \`@surau/text\`, peta ID \`data/ids/ihya-9472.json\`).`,
+    `- Pembanding: sumber Shamela \`${args.sourceHash}\` diparse ulang oleh pipeline ingest pada commit \`${args.commit}\` (pembersihan deterministik \`@surau/text\`, peta ID \`data/ids/ihya-9472.json\`).`,
     `- Sampel: ${args.checked.length} dari ${args.total} halaman, acak dengan seed **${args.seed}** (mulberry32, Fisher–Yates parsial atas page.id terurut).`,
     "- Diperiksa per halaman: baris `page` (juz, halaman, `source_page_id`), setiap paragraf (id, jenis, urutan, node daftar isi, `text_raw` **byte demi byte** UTF-8), `footnote_ref` (offset, penanda, paragraf tujuan), dan `passage_needs_review`.",
+    `- Diperiksa sekali per korpus: \`meta\` (kecuali \`built_at\`), \`author\`, \`work\`, \`edition\` (termasuk lisensi dan kalimat atribusi), dan ${args.corpus.tocNodes} node daftar isi yang dirujuk paragraf sampel (judul Arab byte demi byte).`,
     `- Dijalankan: ${new Date().toISOString().slice(0, 10)}`,
     "",
-    `## Hasil: ${ok}/${args.checked.length} halaman cocok`,
+    `## Hasil: ${ok}/${args.checked.length} halaman cocok · baris korpus ${args.corpus.diffs.length === 0 ? "cocok" : "BERBEDA"}`,
     "",
+    ...args.corpus.diffs.map((d) => `- ✗ ${d}`),
+    ...(args.corpus.diffs.length > 0 ? [""] : []),
     "| # | Juz | Hal. | page.id | Shamela | Badan | Cat. kaki | Penanda | Ditinjau | Byte | sha256 (12) | Hasil |",
     "|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...args.checked.map(
@@ -100,6 +171,7 @@ function humanList(pages: Checked[], surau: string, seed: number): string {
     "# QA manusia (T-15): 10 halaman Ihya dibandingkan dengan edisi cetak",
     "",
     `> Dibuat oleh \`pnpm run corpus:qa --human\` (S10) dari sampel QA otomatis (seed ${seed}); hanya halaman yang punya catatan kaki, bergiliran per jilid. Kolom **Hasil** diisi agent dari jawaban pemilik/ustadz.`,
+    `> Tautan Surau: \`${surau}\`. Sebelum \`/rilis 1\` ini Preview \`pembaca\` yang membaca korpus **staging** (isinya terbukti sama dengan produksi pada sampel ini). Staging dimuat ulang di S11, jadi kerjakan sebelum S11, atau ganti tautannya ke situs produksi setelah \`/rilis 1\`.`,
     "",
     "Cara mencocokkan (±3 menit per halaman):",
     "",
@@ -136,8 +208,22 @@ function main(argv: string[]): number {
     console.error("Pakai: pnpm run corpus:qa <versi|staging> [--n 30] [--seed 9472] [--human 10]");
     return 2;
   }
-  const n = Number(values.n);
-  const seed = Number(values.seed);
+  // Batas sistem (KONVENSI): angka CLI divalidasi Zod; batas atas n dicek setelah jumlah halaman diketahui.
+  const parsed = z
+    .object({
+      n: z.coerce.number().int().min(1),
+      seed: z.coerce.number().int().nonnegative(),
+      human: z.coerce.number().int().min(1).optional(),
+    })
+    .refine((v) => v.human === undefined || v.human <= v.n, { message: "--human harus ≤ --n" })
+    .safeParse({ n: values.n, seed: values.seed, human: values.human });
+  if (!parsed.success) {
+    console.error(
+      `Argumen tidak sah: ${parsed.error.issues.map((i) => `${i.path.join(".") || "-"} ${i.message}`).join("; ")}`,
+    );
+    return 2;
+  }
+  const { n, seed, human } = parsed.data;
   const shamela = resolve(
     values.shamela ?? process.env.SURAU_SHAMELA_ROOT ?? "/Volumes/Elfariesh/database",
   );
@@ -147,7 +233,7 @@ function main(argv: string[]): number {
   }
 
   let target: D1Target;
-  let uuid = "ffc5ce9a-2b5a-4d09-8487-922ff0e67827";
+  let uuid = stagingCorpus().id;
   let dispose = (): void => {};
   if (arg === "staging") {
     target = STAGING;
@@ -175,6 +261,10 @@ function main(argv: string[]): number {
       build: join(repo, "data/build"),
       migrations: join(repo, "packages/db/migrations/corpus"),
     });
+    if (n > expected.page.length) {
+      console.error(`--n ${n} melebihi ${expected.page.length} halaman`);
+      return 2;
+    }
     const sample = samplePages(
       expected.page.map((p) => p.id),
       n,
@@ -184,8 +274,15 @@ function main(argv: string[]): number {
     const meta = Object.fromEntries(
       query(target, "SELECT key, value FROM meta").map((r) => [String(r.key), String(r.value)]),
     );
+    const remote = readRemote(target, sample);
+    const corpus = {
+      diffs: corpusDiffs(target, expected, remote),
+      tocNodes: new Set(remote.passage.map((p) => p.toc_node_id).filter((x) => x !== null)).size,
+    };
+    for (const d of corpus.diffs) console.error(`✗ ${d}`);
+    const sourceHash = expected.meta.find((m) => m.key === "source_hash")?.value ?? "?";
     const exp = bundlePages(expected, sample);
-    const act = bundlePages(readRemote(target, sample), sample);
+    const act = bundlePages(remote, sample);
     const checked: Checked[] = sample.map((id) => {
       const e = exp.get(id);
       if (e === undefined) throw new Error(`page.id ${id} hilang dari baris harapan`);
@@ -198,7 +295,7 @@ function main(argv: string[]): number {
         console.error(`✗ j${c.page.juz} h${c.page.page_no}: ${c.diffs.join("; ")}`);
     }
     console.info(
-      `QA ${target.label}: ${ok}/${checked.length} halaman cocok byte demi byte (seed ${seed}).`,
+      `QA ${target.label}: ${ok}/${checked.length} halaman cocok byte demi byte (seed ${seed}); baris korpus ${corpus.diffs.length === 0 ? "cocok" : `${corpus.diffs.length} beda`}.`,
     );
 
     if (arg !== "staging") {
@@ -213,6 +310,8 @@ function main(argv: string[]): number {
           label: target.label,
           uuid,
           meta,
+          sourceHash,
+          corpus,
           seed,
           total: expected.page.length,
           checked,
@@ -221,8 +320,8 @@ function main(argv: string[]): number {
       );
       console.info(`Laporan: ${path.slice(repo.length + 1)}`);
     }
-    if (values.human !== undefined) {
-      const picked = new Set(pickForHuman(checked, Number(values.human)).map((p) => p.id));
+    if (human !== undefined) {
+      const picked = new Set(pickForHuman(checked, human).map((p) => p.id));
       const list = humanList(
         checked.filter((c) => picked.has(c.page.id)),
         values.surau.replace(/\/$/, ""),
@@ -238,7 +337,7 @@ function main(argv: string[]): number {
         console.info(`Daftar QA manusia: ${path.slice(repo.length + 1)}`);
       }
     }
-    return ok === checked.length ? 0 : 1;
+    return checked.length > 0 && ok === checked.length && corpus.diffs.length === 0 ? 0 : 1;
   } finally {
     dispose();
   }

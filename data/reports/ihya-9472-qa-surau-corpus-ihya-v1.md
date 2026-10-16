@@ -3,12 +3,13 @@
 > Dibuat oleh `pnpm run corpus:qa` (S10, `tools/ingest/src/qa.ts`). Tanpa teks kitab: hanya ID, jumlah, byte, dan sha256.
 
 - DB: `surau-corpus-ihya-v1` (`41e3033e-3aa0-456c-9d60-b8967f57e89d`) · korpus `ihya-v1` · built_at 2026-10-16T12:55:55.000Z · schema 3 · NORM_VERSION 1
-- Pembanding: sumber Shamela `sha256:36e66c5498b74e6d4fd7542108a29327361cf45534794d1c5a878e7bc2b7d586` diparse ulang oleh pipeline ingest pada commit `0dc73d5` (pembersihan deterministik `@surau/text`, peta ID `data/ids/ihya-9472.json`).
+- Pembanding: sumber Shamela `sha256:36e66c5498b74e6d4fd7542108a29327361cf45534794d1c5a878e7bc2b7d586` diparse ulang oleh pipeline ingest pada commit `9a5981a` (pembersihan deterministik `@surau/text`, peta ID `data/ids/ihya-9472.json`).
 - Sampel: 30 dari 1706 halaman, acak dengan seed **9472** (mulberry32, Fisher–Yates parsial atas page.id terurut).
 - Diperiksa per halaman: baris `page` (juz, halaman, `source_page_id`), setiap paragraf (id, jenis, urutan, node daftar isi, `text_raw` **byte demi byte** UTF-8), `footnote_ref` (offset, penanda, paragraf tujuan), dan `passage_needs_review`.
+- Diperiksa sekali per korpus: `meta` (kecuali `built_at`), `author`, `work`, `edition` (termasuk lisensi dan kalimat atribusi), dan 25 node daftar isi yang dirujuk paragraf sampel (judul Arab byte demi byte).
 - Dijalankan: 2026-10-16
 
-## Hasil: 30/30 halaman cocok
+## Hasil: 30/30 halaman cocok · baris korpus cocok
 
 | # | Juz | Hal. | page.id | Shamela | Badan | Cat. kaki | Penanda | Ditinjau | Byte | sha256 (12) | Hasil |
 |---|---|---|---|---|---|---|---|---|---|---|---|

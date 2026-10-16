@@ -12,7 +12,7 @@ Kitab pertama Surau, *Ihya' 'Ulum ad-Din* karya al-Ghazali, bisa dibaca lengkap:
 - **Alamat yang tepat untuk setiap kutipan:** setiap halaman dan paragraf punya tautan tetap, dan tombol "Salin sitasi" menyalin rujukan lengkap (kitab, jilid, halaman).
 - **Laporkan kesalahan:** tombol di setiap halaman kitab untuk melaporkan salah ketik, teks terpotong, atau nomor halaman yang keliru, tanpa menyimpan nama, email, atau alamat IP.
 - **Lisensi dan atribusi** (`/lisensi`): siapa pemilik teks, apa yang boleh dilakukan dengannya (CC BY-NC-SA 4.0), dan cara meminta koreksi atau penghapusan. Setiap halaman kitab menautkan halaman yang sama di al-Maktaba al-Shamela.
-- **Teks diperiksa:** 30 halaman acak dicocokkan otomatis dengan sumbernya huruf demi huruf (30/30 cocok), dan 10 halaman dicocokkan manusia dengan edisi cetak.
+- **Teks diperiksa:** 30 halaman acak dicocokkan otomatis dengan sumbernya huruf demi huruf (30/30 cocok), dan 10 halaman dicocokkan manusia dengan edisi cetak *(DRAF: isi hasil T-15 sebelum rilis)*.
 
 **Keterbatasan yang diketahui**
 - Belum ada pencarian (Fase 2) dan belum ada terjemahan.

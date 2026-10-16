@@ -3,17 +3,27 @@
 //   pnpm run corpus:promote <versi> --confirm       1 buat surau-corpus-<versi> (apac) · 2 migrasi ·
 //                                                   3 muat SQL + smoke (= hitungan build) ·
 //                                                   4 arahkan CORPUS_DB produksi di apps/web/wrangler.jsonc
-//   pnpm run corpus:promote <versi|nama-db> --switch-only
-//                                                   rollback: arahkan produksi ke DB yang sudah ada (mis.
-//                                                   ihya-v1, atau surau-corpus-staging untuk ihya-v1)
-//   --reload   muat ulang DB versi ini bila sudah ada (menimpa isinya; DB yang aktif di produksi ditolak)
+//   pnpm run corpus:promote <versi> --switch-only   rollback: arahkan produksi ke versi lama yang sudah ada
+//   --reload   muat ulang DB versi ini bila sudah ada (menimpa isinya). DITOLAK untuk DB yang melayani
+//              atau pernah melayani produksi: binding di working tree, di origin/main, atau tercatat di
+//              data/SOURCES.md. Korpus staging tidak pernah menjadi produksi (isinya dimuat ulang tiap sesi).
 // Langkah 5 (deploy) = PR berisi wrangler.jsonc → merge → deploy.yml. Langkah 6: DB lama TIDAK
 // dihapus; catat di data/SOURCES.md sebagai target rollback. Prosedur lengkap: tools/ingest/README.md.
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 
-import { buildInfo, loadBuild, readProductionCorpus, setProductionCorpus } from "./corpus.ts";
+import { CORPUS_SCHEMA_VERSION } from "@surau/db";
+
+import {
+  buildInfo,
+  isProtected,
+  loadBuild,
+  protectedCorpora,
+  readProductionCorpus,
+  setProductionCorpus,
+  stagingCorpus,
+} from "./corpus.ts";
 import type { CorpusBinding } from "./corpus.ts";
 import { WEB_CONFIG, formatCounts, remoteByName, repo, smoke, wrangler } from "./d1.ts";
 
@@ -48,9 +58,10 @@ function nextSteps(previous: CorpusBinding, next: CorpusBinding): void {
       `Langkah 4 selesai di lokal: ${WEB_CONFIG} CORPUS_DB ${previous.name} → ${next.name}.`,
       "Berikutnya:",
       "  5. Commit + PR. Setelah CI hijau dan merge, deploy.yml men-deploy Worker dengan binding baru.",
-      `  6. JANGAN hapus ${previous.name}. Catat di data/SOURCES.md (bagian Korpus D1) sebagai target rollback:`,
-      `     | ${next.name} | ${next.id} | aktif |   dan   | ${previous.name} | ${previous.id} | rollback |`,
-      `Rollback: pnpm run corpus:promote ${previous.name} --switch-only, lalu PR + merge yang sama.`,
+      `  6. JANGAN hapus ${previous.name}. Catat ${next.name} (${next.id}) di data/SOURCES.md (bagian Korpus D1 produksi).`,
+      previous.id === stagingCorpus().id
+        ? "Sebelumnya produksi menunjuk staging, jadi versi ini belum punya target rollback: bila bermasalah, tutup darurat (README)."
+        : `Rollback: pnpm run corpus:promote <versi ${previous.name}> --switch-only, lalu PR + merge yang sama.`,
     ].join("\n"),
   );
 }
@@ -65,20 +76,25 @@ function main(argv: string[]): number {
       reload: { type: "boolean", default: false },
     },
   });
-  const arg = positionals[0] ?? "";
-  // --switch-only juga menerima nama DB lengkap (target rollback ihya-v1 = surau-corpus-staging).
-  const byName = values["switch-only"] && /^surau-corpus-[a-z0-9-]+$/.test(arg);
-  const version = byName ? arg.slice("surau-corpus-".length) : arg;
-  if (!byName && !/^[a-z][a-z0-9]*-v\d+$/.test(version)) {
+  const version = positionals[0] ?? "";
+  if (!/^[a-z][a-z0-9]*-v\d+$/.test(version)) {
     console.error(
       "Pakai: pnpm run corpus:promote <versi> [--confirm | --switch-only] [--reload]   (versi mis. ihya-v1)",
     );
     return 2;
   }
   const name = `surau-corpus-${version}`;
-  const active = readProductionCorpus(readFileSync(join(repo, WEB_CONFIG), "utf8"));
+  const guard = protectedCorpora();
+  for (const note of guard.notes) console.warn(`Peringatan: ${note}`);
+  const [active] = guard.production;
+  console.info(
+    `Produksi sekarang: ${active?.name ?? "?"} (${active?.id ?? "?"}); origin/main: ${guard.production[1]?.name ?? "?"}`,
+  );
   const existing = listDatabases().find((d) => d.name === name);
-  console.info(`Produksi sekarang: ${active.name} (${active.id})`);
+  if (existing !== undefined && existing.uuid === stagingCorpus().id) {
+    console.error(`${name} adalah korpus staging: tidak pernah dijadikan produksi.`);
+    return 1;
+  }
 
   // Rollback (atau maju ke DB yang sudah dimuat): hanya baca remote + ubah wrangler.jsonc.
   if (values["switch-only"]) {
@@ -90,6 +106,12 @@ function main(argv: string[]): number {
     try {
       const s = smoke(target);
       console.info(`${name}: ${formatCounts(s.counts)} · korpus ${s.meta.corpus_version ?? "?"}`);
+      // Kode di main mengharapkan skema terbaru (ARSITEKTUR-TEKNIS §7 aturan 5).
+      if (s.meta.schema_version !== String(CORPUS_SCHEMA_VERSION)) {
+        s.problems.push(
+          `meta.schema_version ${s.meta.schema_version ?? "–"}, kode mengharapkan ${CORPUS_SCHEMA_VERSION}`,
+        );
+      }
       if (s.problems.length > 0) {
         for (const p of s.problems) console.error(`Smoke GAGAL: ${p}`);
         return 1;
@@ -106,9 +128,9 @@ function main(argv: string[]): number {
   console.info(
     `Build ${version}: sha256 ${build.hash}\n  ${formatCounts(build.counts)}\n  built_at ${build.meta.built_at ?? "?"} · schema ${build.meta.schema_version ?? "?"} · norm ${build.meta.norm_version ?? "?"}`,
   );
-  if (existing !== undefined && existing.uuid === active.id) {
+  if (existing !== undefined && isProtected(guard, { name, id: existing.uuid })) {
     console.error(
-      `${name} sedang dipakai produksi. Korpus baru = versi baru (mis. ${version.replace(/\d+$/, (n) => String(Number(n) + 1))}).`,
+      `${name} sedang atau pernah melayani produksi (working tree, origin/main, atau data/SOURCES.md): tidak boleh dimuat ulang. Korpus baru = versi baru (mis. ${version.replace(/\d+$/, (n) => String(Number(n) + 1))}).`,
     );
     return 1;
   }

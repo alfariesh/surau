@@ -6,7 +6,7 @@
 // dimuat dari sini: pakai `pnpm run corpus:promote` (blue-green, ADR-005).
 import { LOCAL, STAGING, formatCounts, smoke } from "./d1.ts";
 import type { D1Target } from "./d1.ts";
-import { buildInfo, loadBuild } from "./corpus.ts";
+import { buildInfo, isProtected, loadBuild, protectedCorpora, stagingCorpus } from "./corpus.ts";
 
 function main(mode: string | undefined): number {
   if (mode !== "local" && mode !== "staging") {
@@ -20,6 +20,17 @@ function main(mode: string | undefined): number {
       "Memuat ke surau-corpus-staging menimpa isinya. Minta izin pemilik, lalu jalankan:\n  pnpm corpus:load:staging --confirm",
     );
     return 2;
+  }
+  // Staging tidak boleh sedang melayani produksi: file pertama mengosongkan seluruh korpus.
+  if (mode === "staging") {
+    const guard = protectedCorpora();
+    for (const note of guard.notes) console.warn(`Peringatan: ${note}`);
+    if (isProtected(guard, stagingCorpus())) {
+      console.error(
+        "surau-corpus-staging tercatat sebagai korpus produksi (apps/web/wrangler.jsonc di working tree/origin/main, atau data/SOURCES.md). Pemuatan ditolak.",
+      );
+      return 1;
+    }
   }
   const target: D1Target = mode === "local" ? LOCAL : STAGING;
   const build = buildInfo();

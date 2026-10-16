@@ -9,9 +9,9 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 | `pnpm ingest ihya` | Bangun korpus Ihya (±3 detik): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v1.sqlite`, `data/build/ihya-v1.sha256`, peta ID `data/ids/ihya-9472.json`, dan laporan `data/reports/ihya-9472-{validasi,openiti}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar |
 | `pnpm ingest:verify` | Hanya gerbang QA OpenITI (matan ≥0,95 per halaman di ≥1.705 halaman; takhrij vs JK000001) → laporan `…-openiti.md` |
 | `pnpm corpus:load:local` | Migrasi korpus + muat semua file SQL ke D1 lokal (`.wrangler/state`), lalu smoke query (jumlah baris, j1 h200) |
-| `pnpm corpus:load:staging --confirm` | Sama, ke `surau-corpus-staging` (remote). **Minta izin pemilik dulu**; tanpa `--confirm` skrip menolak. Selama impor (±1 menit) DB tidak melayani kueri |
+| `pnpm corpus:load:staging --confirm` | Sama, ke `surau-corpus-staging` (remote). **Minta izin pemilik dulu**; tanpa `--confirm` skrip menolak, dan ditolak juga bila staging tercatat sebagai korpus produksi. Selama impor (±1 menit) DB tidak melayani kueri |
 | `pnpm run corpus:promote <versi> [--confirm]` | Korpus **produksi** blue-green (ADR-005, ADR-036): tanpa `--confirm` hanya rencana. Lihat [Korpus produksi](#korpus-produksi-blue-green) |
-| `pnpm run corpus:qa <versi\|staging> [--human 10]` | QA sampel: 30 halaman acak (seed 9472) di D1 remote dibandingkan byte demi byte dengan sumber Shamela yang diparse ulang → `data/reports/ihya-9472-qa-<db>.md`; `--human` menulis daftar QA manusia (T-15) sekali |
+| `pnpm run corpus:qa <versi\|staging> [--human 10]` | QA sampel: 30 halaman acak (seed 9472) di D1 remote dibandingkan byte demi byte dengan sumber Shamela yang diparse ulang, plus `meta`, edisi, dan judul daftar isi. Untuk versi: laporan `data/reports/ihya-9472-qa-<db>.md`; untuk staging: hanya di layar. `--human` menulis daftar QA manusia (T-15) sekali |
 
 **Peringatan:** file pertama (`0000-reset.sql`) mengosongkan **seluruh** DB korpus. Untuk sekarang satu DB berisi satu kitab; begitu ada kitab kedua, reset harus dibuat per edisi dulu. Bila `passage_fts` sudah diisi (S11), indeksnya juga harus ikut dikosongkan.
 
@@ -23,13 +23,13 @@ Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah s
 
 **Promote versi baru** (setiap langkah remote dengan izin pemilik):
 
-1. `pnpm ingest ihya` (build bersih), lalu `pnpm run corpus:promote <versi>`: rencana, sha256 build, dan hitungan baris. Versi baru = nama baru (`ihya-v2`); skrip menolak memuat ulang DB yang sedang aktif.
+1. `pnpm ingest ihya` (build bersih), lalu `pnpm run corpus:promote <versi>`: rencana, sha256 build, dan hitungan baris. Versi baru = nama baru (`ihya-v2`). Skrip menolak memuat ulang DB yang melayani atau pernah melayani produksi: binding di working tree, di `origin/main` (setelah `git fetch`), atau tercatat di `data/SOURCES.md`. Korpus staging tidak pernah dijadikan produksi.
 2. `pnpm run corpus:promote <versi> --confirm` (±1 menit untuk Ihya): `d1 create --location apac` → migrasi korpus → muat `data/build/sql/*.sql` → smoke (hitungan **setiap** tabel dan `meta` = build, j1 h200) → ganti `CORPUS_DB` produksi di `apps/web/wrangler.jsonc`. Bila smoke gagal, binding tidak diubah.
 3. `pnpm run corpus:qa <versi>`: harus 30/30. Laporannya di-commit.
 4. Catat versi baru (aktif) dan versi lama (rollback) di `data/SOURCES.md`, lalu PR. Setelah CI hijau dan merge, `deploy.yml` men-deploy Worker dengan binding baru. Cache ISR ikut kosong karena build baru (ADR-034).
 5. DB lama **tidak dihapus**.
 
-**Rollback** (korpus baru bermasalah): `pnpm run corpus:promote <versi-lama|nama-db> --switch-only` (hanya baca remote: smoke DB lama, lalu ganti binding), commit, PR, merge. Target rollback `ihya-v1` adalah `surau-corpus-staging`, tetapi staging ikut berubah setiap `corpus:load:staging`; bila isinya sudah tidak cocok, pakai tutup darurat.
+**Rollback** (korpus baru bermasalah): `pnpm run corpus:promote <versi-lama> --switch-only` (hanya baca remote: smoke DB lama + `meta.schema_version` = skema kode, lalu ganti binding), commit, PR, merge. `ihya-v1` belum punya versi lama (sebelumnya pembaca tertutup), jadi rollback-nya = tutup darurat.
 
 **Tutup darurat pembaca** (teks salah tampil dan rollback belum siap): ubah `vars.READER_ENABLED` top-level di `apps/web/wrangler.jsonc` menjadi `"0"`, PR, merge (±5 menit sampai deploy). Rute `/kitab/*` kembali "segera hadir" dan cache ISR lama tidak dipakai lagi karena build baru. **Jangan** lewat dashboard Cloudflare: variabel berubah tanpa build baru, sehingga halaman yang sudah ter-cache di R2 tetap tampil (ADR-034).
 
