@@ -26,7 +26,7 @@ Format entri:
   - CSS global 815.852 → 262.005 B mentah, 82.895 → 30.034 B gzip.
   - Banding deklarasi CSS (postcss): 0 nilai berubah untuk selektor yang dipakai. Banding gaya terhitung Chromium, 42 keadaan × 19.170 elemen (+ `::before`/`::after`): 0 beda properti tampilan. Tangkapan layar penuh Preview `main` vs PR: 12/12 PNG identik.
   - HTML j1 h200 tidak berubah (203.670 B, ±28,7 KB gzip).
-  - Lighthouse 13.5.0 ponsel (Preview, diselang-seling, n=6 vs n=3): performa 80–83 (sekali 88) → 83–85, LCP 4,2 (sekali 3,5) → 3,9 dtk, a11y/BP 100.
+  - Lighthouse 13.5.0 ponsel (Preview, diselang-seling, n=9 vs n=6): median performa 81 → 85, LCP 4,2 → 3,9 dtk, FCP 2,4 → 2,2 dtk; a11y/BP 100.
   - Tes penjaga: 4 lolos; uji kontrol 5 kerusakan buatan semuanya tertangkap.
   - `pnpm verify` → lolos; `pnpm test:e2e` → 64/64.
 - Biaya API: –

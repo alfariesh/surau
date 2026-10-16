@@ -713,12 +713,12 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - HTML j1 h200 **tidak berubah**: 203.670 B mentah dan ±28,7 KB gzip, baik di Preview `main` maupun Preview PR #22. CSS tidak di-inline, dan payload RSC tetap 84 KB dengan satu array `toc`.
 - Lighthouse 13.5.0 ponsel (simulasi bawaan), j1 h200. Pengukuran diselang-seling di jendela waktu yang sama:
 
-| | Sebelum: Preview `main`, 6 kali | Sesudah: Preview PR #22, 3 kali |
+| | Sebelum: Preview `main`, 9 kali | Sesudah: Preview PR #22, 6 kali |
 |---|---|---|
-| Performa | 80–83 (sekali 88) | **83–85** |
-| LCP | 4,2 dtk (sekali 3,5) | **3,9 dtk** |
-| FCP | 2,1–2,5 dtk | 2,2–2,3 dtk |
-| TBT / CLS | 20–50 ms / 0 (sekali 0,059) | 30–50 ms / 0 |
+| Performa, median (rentang) | 81 (80–90) | **85** (83–92) |
+| LCP, median | 4,2 dtk (7 kali 4,2; 2 kali 3,5) | **3,9 dtk** (5 kali 3,9; sekali 3,2) |
+| FCP, median | 2,4 dtk | 2,2 dtk |
+| TBT / CLS | 20–50 ms / 0–0,059 | 30–50 ms / 0–0,059 |
 | Aksesibilitas / BP | 100 / 100 | 100 / 100 |
 | Perkiraan hemat render-blocking | ±1.040 ms | 750 ms |
 
