@@ -1,6 +1,6 @@
 # S11 · Indeks FTS Arab & `searchText`
 
-> **Fase:** 2 · **Status:** belum
+> **Fase:** 2 · **Status:** berjalan
 > **Prasyarat:** Fase 1 dirilis (atau S10 selesai) · Tugas pemilik: **T-09** (drive, untuk membangun ulang korpus)
 > **Perkiraan:** 1 percakapan agent
 

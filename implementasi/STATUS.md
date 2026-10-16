@@ -53,7 +53,7 @@
 | 1 | S08 | Core tools baca | selesai* | 2026-10-16 · `@surau/core`, paginasi per blok 4–6 ribu token (ADR-033) · *butir 4 lewat tafsiran ADR-033 butir 2 · persist dev web → `.wrangler/state/v3` |
 | 1 | S09 | UI pembaca | selesai | 2026-10-16 · PR #21 · ISR on-demand, pembaca tertutup di produksi, `/api/feedback` (ADR-034) · tampilan disetujui pemilik (T-22) |
 | 1 | S10 | Korpus produksi & QA | selesai | 2026-10-16 · PR #23, #24 · `surau-corpus-ihya-v1`, `corpus:promote`/`corpus:qa` (30/30), `/lisensi` (ADR-036) · T-15 + teks `/lisensi` disetujui pemilik · lalu `/rilis 1` |
-| 2 | S11 | Indeks FTS Arab | belum | butuh T-09 |
+| 2 | S11 | Indeks FTS Arab | berjalan | 2026-10-16 · T-09 terpenuhi (drive terpasang) |
 | 2 | S12 | Ayat & terjemahan Kemenag | belum | butuh T-09, T-16 |
 | 2 | S13 | Batch terjemahan & ringkasan | belum | butuh T-09, T-11, T-17 + persetujuan biaya |
 | 2 | S14 | Cari Indonesia + UI | belum | butuh T-09 (bila korpus dibangun ulang) |
