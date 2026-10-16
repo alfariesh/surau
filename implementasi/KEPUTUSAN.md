@@ -641,7 +641,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Desktop: 100/100/100.
    - SEO 66 di Preview hanya karena `x-robots-tag: noindex` bawaan Preview.
    - axe 0 pelanggaran untuk `/kitab`, `/kitab/ihya`, dan `/kitab/ihya/1/200` (terang/gelap, desktop/ponsel).
-   - LCP ponsel terutama terhambat CSS global HeroUI (±90 KB, render-blocking) dan JS. Itu utang lintas halaman, bukan khusus pembaca.
+   - LCP ponsel terutama terhambat CSS global HeroUI (±90 KB, render-blocking) dan JS. Itu utang lintas halaman, bukan khusus pembaca. → Ditangani ADR-035 (CSS 83 KB → 30 KB gzip).
 
 **Ditolak:**
 - `force-dynamic` untuk halaman baca: tidak bocor (#1455), tetapi setiap request merender dan membaca D1, dan butuh Workers Cache + `Cache-Control` yang belum teruji dengan OpenNext.
@@ -653,7 +653,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - Pilihan font kedua (T-08 hanya satu font).
 
 **Utang:**
-- Pohon daftar isi dikirim dua kali di payload RSC halaman baca (panel samping + Drawer), ±25 KB mentah. Bisa disatukan lewat konteks.
+- ~~Pohon daftar isi dikirim dua kali di payload RSC halaman baca (panel samping + Drawer), ±25 KB mentah. Bisa disatukan lewat konteks.~~ **Koreksi (ADR-035):** salah ukur. React Flight menulis array yang sama sekali saja; pemakaian kedua hanya rujukan ±80 byte.
 - `/api/feedback` tidak mencocokkan `passage_id` dengan `path` (laporan bisa merujuk paragraf halaman lain; cukup ditandai saat triase). Untuk rilis publik, pertimbangkan batas global per hari selain 5/menit per IP, karena IP (terutama IPv6) mudah dirotasi.
 - Satu kali klik sebelum hidrasi tidak berbuat apa-apa (e2e memakai `toPass`).
 - Penanda di mode HoverCard berganti elemen setelah hidrasi (Popover → HoverCard) karena kemampuan hover baru diketahui di klien.
@@ -665,7 +665,101 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - Domain sendiri siap (`SITE_URL`, P-2).
 - Ada kitab kedua dengan edisi non-default atau satu jilid.
 
-## ADR-035 · Korpus produksi blue-green (S10): `corpus:promote`, QA sampel byte demi byte, `preview_database_id` untuk lokal, `/lisensi`, migrasi app di deploy — diterima · 2026-10-16
+## ADR-035 · CSS HeroUI diimpor selektif per komponen; pohon daftar isi ternyata sudah terkirim sekali — diterima · 2026-10-16
+
+**Konteks:** Dua utang ADR-034 di halaman baca (`/kitab/ihya/1/200`), dikerjakan di luar S10:
+- Pohon daftar isi (313 node) disangka terkirim dua kali di payload RSC: sebagai `ReaderToolbar.toc` (Drawer ponsel) dan `TocTree.items` (panel samping).
+- LCP ponsel 4,2 dtk (Lighthouse 13.5.0, performa 80). `globals.css` mengimpor `@heroui/styles/css` dan `@heroui-pro/react/css` utuh, sehingga semua halaman memuat satu CSS render-blocking **815.852 B mentah / 82.895 B gzip**. Isinya 757 KB `@layer components` dari 84 berkas CSS komponen OSS dan 67 Pro, padahal Surau memakai 29 dan 8. Angka "±90 KB" di ADR-034 adalah ukuran terkompresi.
+
+**Temuan daftar isi (tanpa perubahan kode):**
+- HTML Preview `main` (`eae7707`) j1 h200: 203.670 B mentah, 28.737 B gzip. Payload RSC 84 KB, dan array `toc` muncul **sekali** (51 KB JSON, di props `ReaderToolbar`).
+- Prop `items` milik `TocTree` di panel samping ditulis React Flight sebagai rujukan jalur `"$19:props:…:toc"` (±80 byte). React 19 menulis objek yang sama sekali saja per render, dan klien memulihkannya sebagai objek yang sama.
+- Jadi utang ADR-034 ("±25 KB") salah ukur. Memindah `toc` ke `ReaderProvider` tidak menghemat byte, jadi tidak dikerjakan. Panel samping hanya merender baris yang terbuka (9 KB HTML); Drawer tidak dirender sebelum dibuka.
+
+**Keputusan:**
+1. `apps/web/src/app/globals.css` memakai **impor selektif**. Cara ini didokumentasikan HeroUI di Theming → Import Strategies, dan dicek lewat MCP `heroui-pro` serta `/docs-terbaru`:
+   - `tailwindcss`, `tw-animate-css`, `@heroui/styles/base/{base,scrollbar}.css` `layer(base)`;
+   - 29 berkas `@heroui/styles/components/*.css` `layer(components)`, urut seperti `components/index.css` (primitif dulu);
+   - `@heroui/styles/themes/default` `layer(theme)`, lalu `utilities` dan `variants`;
+   - 8 berkas Pro `@heroui-pro/react/css/components/*.css` `layer(components)`. Urutannya mengikuti urutan aturan di `@heroui-pro/react/css` (app-layout, file-tree, hover-card, native-select, navbar, sheet, resizable, sidebar), bukan abjad.
+   - Berkas Pro per komponen **tidak ber-layer** (CSS hasil kompilasi Tailwind). Tanpa `layer(components)`, aturannya akan mengalahkan utilitas Tailwind seperti `w-full`.
+   - Kriteria pilih: komponen HeroUI yang diimpor di `src/`, ditambah komponen yang diimpor dan dirender di dalamnya (impor internal di `dist` paket), ditambah `menu` (kelas `Dropdown.Menu`). Impor yang hanya mengambil `*Context` tidak dihitung. Hasilnya cocok dengan kelas BEM yang benar-benar dihasilkan `tv()` di bundle.
+   - Tidak diimpor:
+     - `surface`, `checkbox-group`, `combo-box`: Dropdown/Card/Checkbox hanya mengimpor konteksnya. Definisi `tv()`-nya ikut terbundel tetapi tidak pernah dipanggil.
+     - `header`, `field-error`, dan semua komponen yang tidak dipakai.
+   - `checkbox` tetap diimpor: FileTree mengimpor Checkbox, walau hanya merendernya bila kotak pilih aktif (`toc-tree.tsx` tidak memakainya). Ukurannya kecil dan aman bila kelak dipakai.
+2. `tw-animate-css` 1.4.0 menjadi devDependency langsung `apps/web` lewat `catalog` (hanya dipakai saat build, seperti `tailwindcss`), dengan versi yang sama dengan bawaan `@heroui/styles`. Alasannya:
+   - dropdown, modal, popover, dan tooltip memakai `@apply fade-in-0` dan sejenisnya;
+   - pnpm tidak bisa me-resolve paket transitif dari `globals.css` ("Can't resolve").
+3. **Aturan baru:** memakai komponen HeroUI yang belum ada di daftar = tambahkan berkas CSS-nya di `globals.css` dengan urutan di atas, selalu `layer(components)`. Tanpa itu, komponen tampil tanpa gaya. Aturan ini dicatat di `apps/web/CLAUDE.md` dan `KONVENSI.md`.
+4. **Penjaga otomatis** `apps/web/src/app/heroui-css.test.ts` (ikut `pnpm test` dan CI). Tes ini menelusuri komponen HeroUI yang diimpor di `src/` beserta impor internalnya di `dist`, lalu gagal bila:
+   - berkas CSS komponen yang terjangkau tidak diimpor;
+   - urutan berkas OSS/Pro menyimpang;
+   - versi `tw-animate-css` berbeda dari bawaan `@heroui/styles`.
+
+   Uji kontrol: membuang `menu-section`, `sheet`, atau `close-button`, atau menukar urutan navbar/sidebar dan button/link → gagal, dengan nama berkas dan jalurnya (mis. `oss:close-button (lewat Toast → close-button)`).
+5. **Alat banding** di `apps/web/scripts/heroui-css/`: `banding-deklarasi.mjs` (per deklarasi), `potret-gaya.mjs` dan `banding-gaya.mjs` (gaya terhitung 42 keadaan). Cara pakai ada di kepala tiap berkas.
+6. `@heroui/react`, `@heroui/styles`, dan `tw-animate-css` dikeluarkan dari Dependabot, seperti `@heroui-pro/react`. Naik versinya lewat sesi yang menjalankan langkah "Tinjau ulang" di bawah, karena CI (verify, e2e, axe) tidak memeriksa gaya.
+
+**Hasil** (build lokal; CSS sebelum identik byte per byte dengan Preview `main`):
+
+| CSS global (semua halaman) | Sebelum | Sesudah |
+|---|---|---|
+| Mentah | 815.852 B | 262.005 B (−68 %) |
+| gzip -9 (lokal) | 82.895 B | 30.034 B (−64 %) |
+| Di jaringan, `Accept-Encoding: gzip` | 82.963 B | 30.022 B |
+| Di jaringan, `Accept-Encoding: br` | 82.571 B | 30.973 B |
+
+- HTML j1 h200 **tidak berubah**: 203.670 B mentah dan ±28,7 KB gzip, baik di Preview `main` maupun Preview PR #22. CSS tidak di-inline, dan payload RSC tetap 84 KB dengan satu array `toc`.
+- Lighthouse 13.5.0 ponsel (simulasi bawaan), j1 h200. Pengukuran diselang-seling di jendela waktu yang sama:
+
+| | Sebelum: Preview `main`, 9 kali | Sesudah: Preview PR #22, 6 kali |
+|---|---|---|
+| Performa, median (rentang) | 81 (80–90) | **85** (83–92) |
+| LCP, median | 4,2 dtk (7 kali 4,2; 2 kali 3,5) | **3,9 dtk** (5 kali 3,9; sekali 3,2) |
+| FCP, median | 2,4 dtk | 2,2 dtk |
+| TBT / CLS | 20–50 ms / 0–0,059 | 30–50 ms / 0–0,059 |
+| Aksesibilitas / BP | 100 / 100 | 100 / 100 |
+| Perkiraan hemat render-blocking | ±1.040 ms | 750 ms |
+
+- Sisa LCP ponsel (3,9 dtk) adalah *render delay* elemen LCP (paragraf Arab pertama). CSS 30 KB tetap satu permintaan render-blocking, perkiraan Lighthouse ±750 ms di simulasi 4G lambat, ditambah JS hidrasi. Memangkas lebih jauh butuh kerja di JS atau font, di luar ADR ini.
+
+**Bukti tampilan sama:**
+- Banding statis per deklarasi (postcss) untuk semua selektor yang kelasnya ada di bundle: 0 nilai berubah dan 1 beda urutan. Beda urutan itu antar-`@keyframes` yang berbeda nama, jadi tidak berpengaruh.
+  - Yang hilang hanya aturan komponen tak terpakai dan fallback `@supports` browser lama (`@layer properties`).
+  - Juga hilang 35 variabel tema dan 14 `@keyframes` yang tidak dirujuk `var()`/`animation` di CSS maupun JS.
+- Banding gaya terhitung di Chromium (Playwright, `next dev`, CSS lama dan baru bergantian di server yang sama):
+  - 42 keadaan: 8 halaman, terang/gelap, desktop 1280 px dan Pixel 7. Termasuk HoverCard takhrij, popover lompat, menu paragraf, dialog laporan, tooltip, toast, sidebar diciutkan, fokus keyboard, laci daftar isi, menu ponsel, dan popover penanda.
+  - 19.170 elemen, masing-masing beserta `::before`/`::after`: **0 beda properti tampilan**.
+  - Yang beda hanya 46 properti kustom tak terpakai (`--chart-*`, `--color-red-500`, `--tw-gradient-*`, dll.), tidak dirujuk CSS maupun JS.
+  - Kontrol: dua potret dengan CSS yang sama → 0 beda.
+- Tangkapan layar halaman penuh build produksi (Preview `main` vs Preview PR #22): `/`, `/kitab/ihya`, dan `/kitab/ihya/1/200`, terang/gelap, desktop/Pixel 7. Hasilnya 12 dari 12 PNG **identik byte per byte**.
+- `pnpm verify` lolos; `pnpm test:e2e` 64/64 (termasuk axe terang/gelap).
+
+**Ditolak:**
+- Memecah CSS per rute: semua halaman memakai shell yang sama (AppLayout, Navbar, Sidebar), dan CSS global Next tetap render-blocking.
+- Menyalin aturan Pro dari `index.css` ke berkas sendiri: berlisensi (ADR-025) dan tidak ikut naik versi.
+- Inline *critical CSS*: butuh langkah build tambahan di OpenNext, dan tidak perlu lagi setelah CSS menjadi 30 KB gzip.
+- Memindah `toc` ke `ReaderProvider`: tidak menghemat byte (lihat Temuan).
+
+**Konsekuensi:**
+- Subpath `@heroui-pro/react/css/components/*.css` ada di `exports` paket tetapi **belum didokumentasikan** HeroUI. Versi Pro disematkan persis di `catalog`.
+- Impor selektif membuka jalan rusak diam-diam yang tidak ada saat impor utuh:
+  - Berkas CSS dihapus atau diganti nama: build gagal keras.
+  - Komponen mulai merender komponen lain: ditangkap tes penjaga.
+  - Aturan pindah ke berkas CSS lain, atau ke berkas bersama baru: **tidak** ditangkap build maupun tes. Karena itu kenaikan versi HeroUI lewat sesi dengan banding ulang (keputusan 6).
+- Tiap berkas Pro membawa fallback `@layer properties`, `@property`, dan `@keyframes enter/exit` sendiri (sekarang menjadi `components.properties`). Isinya identik, dan `@keyframes` tak ber-layer dari `tw-animate-css` tetap menang. Tambahan ukurannya kecil.
+- Token `--chart-1..5` dari `@heroui-pro/react/css` tidak ada lagi. Bila kelak memakai chart Pro, tambahkan tokennya.
+
+**Tinjau ulang bila:**
+- `@heroui/styles`, `@heroui/react`, `@heroui-pro/react`, atau `tw-animate-css` naik versi:
+  1. `pnpm test` (tes penjaga).
+  2. Build `main` dan branch, lalu `node apps/web/scripts/heroui-css/banding-deklarasi.mjs <css-lama> <css-baru>` (CSS terbesar di `apps/web/.next/static/chunks/`): 0 nilai berubah.
+  3. `pnpm dev`, lalu `potret-gaya.mjs lama.json` dengan CSS lama, ganti ke CSS baru, `potret-gaya.mjs baru.json`, dan `banding-gaya.mjs lama.json baru.json <css-baru>`: 0 beda properti tampilan.
+- Memakai komponen HeroUI baru.
+- HeroUI mendokumentasikan (atau menghapus) impor CSS Pro per komponen.
+
+## ADR-036 · Korpus produksi blue-green (S10): `corpus:promote`, QA sampel byte demi byte, `preview_database_id` untuk lokal, `/lisensi`, migrasi app di deploy — diterima · 2026-10-16
 
 **Konteks:** S10 memindahkan korpus Ihya ke D1 produksi dan menyiapkan syarat rilis Fase 1 (FASE.md R1). Fakta lapangan 16 Okt 2026 (wrangler 4.151.0, dibaca dari source terpasang):
 - `wrangler d1 migrations apply` hanya mengenal DB yang tercantum di config (nama atau binding). Tidak ada `--database-id`.

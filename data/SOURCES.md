@@ -41,7 +41,7 @@ sha256 `9472.db` juga tercatat di `meta.source_hash` korpus dan di [reports/ihya
 
 ## Korpus D1 produksi
 
-Versi korpus yang pernah dipasang di produksi (blue-green, ADR-005, ADR-035). Binding aktif: `CORPUS_DB` top-level di `apps/web/wrangler.jsonc`. DB lama **tidak dihapus**; DB berstatus *rollback* adalah tujuan `pnpm run corpus:promote <nama-db> --switch-only` (prosedur: [tools/ingest/README.md](../tools/ingest/README.md#korpus-produksi-blue-green)).
+Versi korpus yang pernah dipasang di produksi (blue-green, ADR-005, ADR-036). Binding aktif: `CORPUS_DB` top-level di `apps/web/wrangler.jsonc`. DB lama **tidak dihapus**; DB berstatus *rollback* adalah tujuan `pnpm run corpus:promote <nama-db> --switch-only` (prosedur: [tools/ingest/README.md](../tools/ingest/README.md#korpus-produksi-blue-green)).
 
 | Versi | DB D1 (apac) | ID | Dibuat | sha256 build (`data/build/<versi>.sha256`) | `meta.built_at` | QA | Status |
 |---|---|---|---|---|---|---|---|

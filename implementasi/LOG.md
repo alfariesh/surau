@@ -18,7 +18,7 @@ Format entri:
 ## 2026-10-16 · S10 · Korpus produksi & QA — selesai* (QA manusia T-15, tampilan T-22, dan teks `/lisensi` menunggu pemilik)
 
 - Dikerjakan:
-  - `pnpm run corpus:promote` (blue-green, ADR-035): rencana / `--confirm` (buat apac, migrasi lewat config sementara, muat, smoke = hitungan build) / `--switch-only` (rollback). Dijalankan untuk `ihya-v1`: `surau-corpus-ihya-v1` (`41e3033e-…`, APAC, 13,2 MB) dalam ±67 dtk; `CORPUS_DB` produksi menunjuk DB ini (+ `preview_database_id` staging untuk dev lokal). DB staging tidak dihapus, dicatat di `data/SOURCES.md` sebagai target rollback.
+  - `pnpm run corpus:promote` (blue-green, ADR-036): rencana / `--confirm` (buat apac, migrasi lewat config sementara, muat, smoke = hitungan build) / `--switch-only` (rollback). Dijalankan untuk `ihya-v1`: `surau-corpus-ihya-v1` (`41e3033e-…`, APAC, 13,2 MB) dalam ±67 dtk; `CORPUS_DB` produksi menunjuk DB ini (+ `preview_database_id` staging untuk dev lokal). DB staging tidak dihapus, dicatat di `data/SOURCES.md` sebagai target rollback.
   - `pnpm run corpus:qa`: 30 halaman acak (seed 9472) di D1 dibandingkan byte demi byte dengan sumber Shamela yang diparse ulang; laporan tanpa teks kitab. Daftar QA manusia 10 halaman (T-15) dengan tautan Surau, Shamela, dan pindaian archive.org yang dikalibrasi per jilid (selisih 9/2/3/3).
   - Halaman `/lisensi` (Apache-2.0 / CC BY-NC-SA 4.0, syarat pakai ulang, atribusi Ihya, koreksi + takedown lewat formulir dan GitHub Issues, retensi laporan) dan tautannya dari menu samping, Tentang, dan setiap halaman baca. Tautan "lihat di Shamela" per halaman sudah ada sejak S09.
   - `deploy.yml` memigrasi D1 `surau-app` saja; tes menjaga korpus tidak pernah dimigrasi dari deploy. T-10 dijawab pemilik di chat (ADR-018/021 diterima).
@@ -29,10 +29,28 @@ Format entri:
   - `pnpm verify` → lolos (node 217 tes, db + core 105); `pnpm test:e2e` lokal → 70/70 (termasuk `/lisensi` smoke + axe terang/gelap). Browser: `/lisensi` desktop + ponsel gelap rapi; `pnpm dev` j1 h200 tetap membaca D1 lokal; 0 galat konsol.
   - **`rows_read` per kunjungan** (Preview `pembaca`, DB staging = build yang sama; pembaca produksi masih tertutup), `wrangler d1 insights` sebelum/sesudah: 50 halaman baru → semua 200 `MISS`, 0,87 dtk rata-rata, **800 kueri / 76.502 baris = ±16 kueri dan ±1.530 baris per render** (`getToc` ±939 baris per panggilan = 93%); 50 kunjungan ulang → 0,22 dtk, **0 kueri** (kontrol: satu render baru muncul +19 kueri ±2 menit kemudian). Biaya: ±2,6 juta baris untuk merender seluruh Ihya sekali per deploy, di dalam 25 miliar/bulan Workers Paid → **±$0**.
 - Biaya API: –
-- Keputusan: ADR-035 (ADR-018 dan ADR-021 kini diterima)
+- Keputusan: ADR-036 (ADR-018 dan ADR-021 kini diterima)
 - Catatan untuk sesi berikutnya:
   - `/rilis 1` setelah T-15, T-22, dan persetujuan teks `/lisensi`; perbarui Preview `pembaca` dari `main` bila perlu sebelum pemilik meninjau.
   - Utang: `getToc` dibaca penuh per render (±939 baris, bisa dihemat); header `STALE` pada kunjungan ulang (cek Workers Logs produksi setelah rilis); pembersih retensi `feedback` belum ada; target rollback `ihya-v1` (staging) berubah setiap `corpus:load:staging` (S11 FTS akan memuatnya ulang).
+
+## 2026-10-16 · Tindak lanjut S09 · Beban halaman baca (CSS HeroUI selektif, daftar isi) — selesai
+
+- Dikerjakan:
+  - `globals.css`: impor CSS HeroUI per komponen (29 OSS + 8 Pro, `layer(components)`) menggantikan `@heroui/styles/css` + `@heroui-pro/react/css` utuh; `tw-animate-css` 1.4.0 jadi dependensi langsung.
+  - Utang "pohon daftar isi terkirim dua kali" diperiksa di payload RSC Preview: React sudah menulisnya sekali (pemakaian kedua = rujukan ±80 byte), jadi tanpa perubahan kode; ADR-034 dikoreksi.
+  - Aturan baru di `apps/web/CLAUDE.md` dan `KONVENSI.md`: komponen HeroUI baru wajib menambah berkas CSS-nya. Penjaganya tes `apps/web/src/app/heroui-css.test.ts`; alat banding ada di `apps/web/scripts/heroui-css/`.
+  - `@heroui/react`, `@heroui/styles`, dan `tw-animate-css` dikeluarkan dari Dependabot; naik versinya lewat sesi (ADR-035).
+- Verifikasi:
+  - CSS global 815.852 → 262.005 B mentah, 82.895 → 30.034 B gzip.
+  - Banding deklarasi CSS (postcss): 0 nilai berubah untuk selektor yang dipakai. Banding gaya terhitung Chromium, 42 keadaan × 19.170 elemen (+ `::before`/`::after`): 0 beda properti tampilan. Tangkapan layar penuh Preview `main` vs PR: 12/12 PNG identik.
+  - HTML j1 h200 tidak berubah (203.670 B, ±28,7 KB gzip).
+  - Lighthouse 13.5.0 ponsel (Preview, diselang-seling, n=9 vs n=6): median performa 81 → 85, LCP 4,2 → 3,9 dtk, FCP 2,4 → 2,2 dtk; a11y/BP 100.
+  - Tes penjaga: 4 lolos; uji kontrol 5 kerusakan buatan semuanya tertangkap.
+  - `pnpm verify` → lolos; `pnpm test:e2e` → 64/64.
+- Biaya API: –
+- Keputusan: ADR-035
+- Catatan untuk sesi berikutnya: naik versi HeroUI = jalankan langkah "Tinjau ulang" ADR-035 (tes penjaga + dua banding).
 
 ## 2026-10-16 · S09 · UI pembaca kitab — selesai* (persetujuan tampilan pemilik menunggu, T-22)
 

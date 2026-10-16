@@ -94,6 +94,7 @@ Agent tidak pernah membaca `.env` dan tidak pernah mencetak nilai rahasia ke log
 ## UI (apps/web)
 
 - Panggil MCP `heroui-pro` (`list_components`, lalu `get_component_docs`) sebelum memakai komponen yang belum pernah dipakai di repo.
+- CSS HeroUI diimpor per komponen di `apps/web/src/app/globals.css` (ADR-035). Komponen baru, dan komponen yang dirender di dalamnya, wajib menambah berkas CSS-nya. Tes `apps/web/src/app/heroui-css.test.ts` menjaganya.
 - Gunakan aturan HeroUI v3: `onPress` (bukan `onClick`), compound components (`Card.Header`), `Separator` (bukan `Divider`), tanpa token warna bernomor v2, dan komponen berat diimpor dari subpath (`@heroui-pro/react/markdown`, dll.).
 - Teks Arab hanya dirender lewat komponen `ArabicText`/`ArabicInline`; aturannya ada di `.claude/rules/teks-arab.md`.
 - Desain dimulai dari layar ponsel. Kontras dan fokus keyboard harus lolos aksesibilitas.

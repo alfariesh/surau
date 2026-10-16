@@ -8,6 +8,7 @@ Next.js 16.4.1 (App Router) + HeroUI v3/Pro, di-deploy ke Cloudflare Workers lew
 
 - **API Next:** baca dulu `node_modules/next/dist/docs/` (relatif dari folder ini). Jangan menulis API Next dari ingatan.
 - **Komponen HeroUI:** panggil MCP `heroui-pro` (`list_components`, lalu `get_component_docs`) sebelum memakai komponen yang belum ada di repo. Pro diimpor dari `@heroui-pro/react` (komponen berat lewat subpath, misalnya `@heroui-pro/react/markdown`), OSS dari `@heroui/react`.
+- **CSS HeroUI diimpor per komponen (ADR-035).** Komponen HeroUI yang belum dipakai di repo juga butuh berkas CSS-nya di `src/app/globals.css`, selalu `layer(components)`: OSS `@heroui/styles/components/<nama>.css`, Pro `@heroui-pro/react/css/components/<nama>.css`. Termasuk komponen yang dirender di dalamnya: Dropdown → menu, menu-item, menu-section; Sidebar Pro → sheet, button, tooltip, separator, scroll-shadow; AppLayout → resizable, sheet; FileTree → checkbox. Tanpa itu komponen tampil tanpa gaya. `pnpm test` (`src/app/heroui-css.test.ts`) menyebut berkas yang kurang beserta jalurnya, dan memeriksa urutannya. Naik versi HeroUI: ulangi banding di `scripts/heroui-css/` (ADR-035, Tinjau ulang).
 
 ## Dilarang (ADR-003)
 

@@ -10,7 +10,7 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 | `pnpm ingest:verify` | Hanya gerbang QA OpenITI (matan ≥0,95 per halaman di ≥1.705 halaman; takhrij vs JK000001) → laporan `…-openiti.md` |
 | `pnpm corpus:load:local` | Migrasi korpus + muat semua file SQL ke D1 lokal (`.wrangler/state`), lalu smoke query (jumlah baris, j1 h200) |
 | `pnpm corpus:load:staging --confirm` | Sama, ke `surau-corpus-staging` (remote). **Minta izin pemilik dulu**; tanpa `--confirm` skrip menolak. Selama impor (±1 menit) DB tidak melayani kueri |
-| `pnpm run corpus:promote <versi> [--confirm]` | Korpus **produksi** blue-green (ADR-005, ADR-035): tanpa `--confirm` hanya rencana. Lihat [Korpus produksi](#korpus-produksi-blue-green) |
+| `pnpm run corpus:promote <versi> [--confirm]` | Korpus **produksi** blue-green (ADR-005, ADR-036): tanpa `--confirm` hanya rencana. Lihat [Korpus produksi](#korpus-produksi-blue-green) |
 | `pnpm run corpus:qa <versi\|staging> [--human 10]` | QA sampel: 30 halaman acak (seed 9472) di D1 remote dibandingkan byte demi byte dengan sumber Shamela yang diparse ulang → `data/reports/ihya-9472-qa-<db>.md`; `--human` menulis daftar QA manusia (T-15) sekali |
 
 **Peringatan:** file pertama (`0000-reset.sql`) mengosongkan **seluruh** DB korpus. Untuk sekarang satu DB berisi satu kitab; begitu ada kitab kedua, reset harus dibuat per edisi dulu. Bila `passage_fts` sudah diisi (S11), indeksnya juga harus ikut dikosongkan.
