@@ -128,11 +128,21 @@ describe("POST /api/feedback", () => {
     expect(await ipKey("a", "1.1.1.1")).not.toBe(await ipKey("b", "1.1.1.1"));
   });
 
-  it("batas global habis → 429 sebelum batas per klien dan tanpa menyimpan", async () => {
+  it("batas global habis → 429 tanpa menyimpan; ditolak per klien → global tidak disentuh", async () => {
     const { d, saved, keys } = deps({ limitGlobal: async () => false });
     expect((await handleFeedback(post(GOOD), d)).status).toBe(429);
     expect(saved).toEqual([]);
-    expect(keys).toEqual([]);
+    expect(keys).toHaveLength(1);
+    let globalCalls = 0;
+    const limited = deps({
+      limit: async () => false,
+      limitGlobal: async () => {
+        globalCalls++;
+        return true;
+      },
+    });
+    expect((await handleFeedback(post(GOOD), limited.d)).status).toBe(429);
+    expect(globalCalls).toBe(0);
   });
 
   it("kunci per klien: IPv6 satu /64 = satu kunci, IPv4 per alamat", async () => {

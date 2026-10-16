@@ -6,8 +6,8 @@ import { z } from "zod";
 import { ipKey, ipNetwork } from "./client-key";
 
 // Logika GET /api/search (S11 langkah 5), dipisah dari route supaya bisa dites tanpa Workers.
-// Urutan: pembaca terbuka → parameter (Zod; kueri ≤200 karakter) → batas global → batas per
-// klien (kunci = HMAC jaringan IP, sama dengan /api/feedback) → searchText. Error core dipetakan ke
+// Urutan: pembaca terbuka → parameter (Zod; kueri ≤200 karakter) → batas per klien (kunci = HMAC
+// jaringan IP, sama dengan /api/feedback) → batas global → searchText. Error core dipetakan ke
 // status HTTP; error lain (D1 gagal) dibiarkan naik sebagai 500 tanpa detail. Kueri pengguna tidak
 // pernah dicatat (log Worker menghapus query string, P-7).
 
@@ -62,9 +62,11 @@ export async function handleSearch(request: Request, deps: SearchDeps): Promise<
   if (deps.hmacKey === undefined || deps.hmacKey === "") {
     return json(503, { error: "unavailable" });
   }
-  if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
+  // Per klien dulu: permintaan yang ditolak per klien tidak memakan kuota global (satu jaringan
+  // paling banyak memakai 60 dari 300 per menit).
   const allowed = await deps.limit(await ipKey(deps.hmacKey, ipNetwork(deps.ip ?? "unknown")));
   if (!allowed) return json(429, { error: "rate_limited" });
+  if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
 
   try {
     const view = await deps.search(p.q, {

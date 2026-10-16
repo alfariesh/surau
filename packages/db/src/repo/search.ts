@@ -79,7 +79,10 @@ export interface SearchPlan {
 export interface SearchRequest {
   /** Dasar pengaman kata umum: semua token yang benar-benar dicari, per posisi frasa. */
   plan: SearchPlan;
-  /** Ekspresi MATCH dari `ftsMatchExpression(plan)`, dikirim sebagai satu parameter terikat. */
+  /**
+   * WAJIB `ftsMatchExpression(plan)` dari rencana yang sama: pengaman kata umum memeriksa token
+   * `plan`, sedangkan indeks dipindai dengan `match`. Dikirim sebagai satu parameter terikat.
+   */
   match: string;
   /** Edisi untuk konteks sitasi; `null` = semua edisi. */
   editionId: number | null;

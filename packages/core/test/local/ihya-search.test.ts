@@ -139,7 +139,10 @@ describe.skipIf(!hasState)("pencarian Ihya di D1 lokal (regresi recall 18 kueri 
       outside += extra;
       // searchText melaporkan jumlah halaman yang sama dengan himpunan hit FTS.
       const view = await searchText(db, q.query, { limit: 1 });
-      expect(view.total_pages ?? -1, q.id).toBe(view.ranked ? hits.size : -1);
+      // Kueri riset semuanya bermakna: tidak boleh turun ke mode kata umum (mis. karena ambang
+      // `term_stat` atau aturan pengaman berubah).
+      expect(view.ranked, q.id).toBe(true);
+      expect(view.total_pages, q.id).toBe(hits.size);
       report.push(
         `${q.id} ${q.query}: gold ${gold.size} (riset ${q.gold_halaman}), hit ${hits.size}, recall ${recall.toFixed(3)}, luar gold ${extra}`,
       );

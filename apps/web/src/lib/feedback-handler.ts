@@ -8,9 +8,10 @@ import { feedbackRequest } from "./feedback-schema";
 
 // Logika POST /api/feedback, dipisah dari route supaya bisa dites tanpa Workers (ADR-034).
 // Urutan pengaman: pembaca terbuka → Origin sama → JSON → ukuran body → skema Zod → honeypot →
-// batas global → batas per klien (kunci HMAC(jaringan IP): IPv4 penuh, IPv6 per /64; IP mentah
-// tidak pernah keluar dari fungsi ini) → simpan. Batas global (kunci tetap) menahan spam dari
-// banyak alamat sekaligus (temuan peninjau rilis Fase 1; Rate Limiting dihitung per lokasi CF).
+// batas per klien (kunci HMAC(jaringan IP): IPv4 penuh, IPv6 per /64; IP mentah tidak pernah keluar
+// dari fungsi ini) → batas global → simpan. Batas global (kunci tetap) menahan spam dari banyak
+// alamat sekaligus (temuan peninjau rilis Fase 1; Rate Limiting dihitung per lokasi CF); dicek
+// sesudah batas per klien supaya satu klien tidak menghabiskannya (S11).
 
 export interface FeedbackDeps {
   enabled: boolean;
@@ -93,9 +94,11 @@ export async function handleFeedback(request: Request, deps: FeedbackDeps): Prom
   if (deps.hmacKey === undefined || deps.hmacKey === "") {
     return json(503, { error: "unavailable" });
   }
-  if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
+  // Per klien dulu: permintaan yang sudah ditolak per klien tidak memakan kuota global, jadi satu
+  // jaringan tidak bisa menghabiskan batas global untuk semua orang (temuan peninjau S11).
   const allowed = await deps.limit(await ipKey(deps.hmacKey, ipNetwork(deps.ip ?? "unknown")));
   if (!allowed) return json(429, { error: "rate_limited" });
+  if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
 
   try {
     await deps.insert({

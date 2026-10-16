@@ -89,10 +89,21 @@ describe("handleSearch", () => {
     const res = await handleSearch(get("q=x"), limited.d);
     expect(res.status).toBe(429);
     expect(limited.calls).toEqual([]);
-    // Batas global dicek lebih dulu: klien tidak menghabiskan kuota per-klien.
+    // Batas global habis → 429. Ditolak per klien → kuota global tidak disentuh, jadi satu
+    // jaringan tidak bisa menghabiskan batas global untuk semua orang.
     const global = deps({ limitGlobal: async () => false });
     expect((await handleSearch(get("q=x"), global.d)).status).toBe(429);
-    expect([global.calls, global.keys]).toEqual([[], []]);
+    expect(global.calls).toEqual([]);
+    let globalCalls = 0;
+    const perClient = deps({
+      limit: async () => false,
+      limitGlobal: async () => {
+        globalCalls++;
+        return true;
+      },
+    });
+    expect((await handleSearch(get("q=x"), perClient.d)).status).toBe(429);
+    expect(globalCalls).toBe(0);
   });
 
   it("error core → status HTTP + kode; error lain dilempar (500 tanpa detail)", async () => {
