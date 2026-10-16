@@ -73,6 +73,12 @@ describe("readPage", () => {
     expect((await readPage(db, ED, 3, 13)).next).toBeNull();
   });
 
+  test("source_url: halaman Shamela asal bila edisi Shamela dan ID halaman sumber diketahui", async () => {
+    expect((await readPage(db, ED, 1, 1)).source_url).toBe("https://shamela.ws/book/0/101");
+    // Halaman bagian panjang tidak punya source_page_id.
+    expect((await readPage(db, ED, 3, 1)).source_url).toBeNull();
+  });
+
   test("halaman tanpa catatan kaki: footnotes kosong", async () => {
     const view = await readPage(db, ED, 1, 2);
     expect(view.body.map((p) => p.text_raw)).toEqual(["نص الصفحة الثانية"]);

@@ -42,5 +42,6 @@ export async function readPage(
     footnotes: passages.filter((p) => p.kind === "foot"),
     prev: near(adjacent.prev),
     next: near(adjacent.next),
+    source_url: cite.sourceUrl(page.source_page_id),
   };
 }

@@ -107,6 +107,12 @@ export const pageView = z.strictObject({
   footnotes: z.array(passage).describe("Footnote passages in display order"),
   prev: location.nullable().describe("Previous printed page in this edition"),
   next: location.nullable().describe("Next printed page in this edition"),
+  source_url: z
+    .string()
+    .nullable()
+    .describe(
+      "The same page in the original digitization (e.g. shamela.ws), for attribution; null when unknown",
+    ),
 });
 export type PageView = z.infer<typeof pageView>;
 

@@ -16,7 +16,7 @@ Prinsipnya:
 |---|---|---|
 | `listWorks(db)` / `getWork(db, slug)` | `list_works` | Karya, penulis, dan edisi (default dulu) dengan lisensi, atribusi, permalink |
 | `getToc(db, editionId, { nodeId?, depth? })` | `get_table_of_contents` | Pohon daftar isi dari akar atau dari satu node, `depth` bawaan 2 (maks. 10). `child_count` menandai anak yang tidak dikirim |
-| `readPage(db, editionId, juz, pageNo)` | `read_page` | Satu halaman cetak: `body`, `footnotes`, tautan penanda → catatan kaki, halaman sebelum/sesudah |
+| `readPage(db, editionId, juz, pageNo)` | `read_page` | Satu halaman cetak: `body`, `footnotes`, tautan penanda → catatan kaki, halaman sebelum/sesudah, `source_url` (halaman yang sama di Shamela untuk atribusi ADR-018; field tambahan S09) |
 | `readSection(db, nodeId, cursor?)` | `read_section` | Paragraf bagian **beserta sub-bagiannya**, dipaginasi ±4–6 ribu token dengan `next_cursor` |
 | `buildCitation(db, passageId)` | (di setiap hasil) | Sitasi lengkap satu paragraf |
 
@@ -150,7 +150,8 @@ Keduanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
     "page_no": 201,
     "permalink": "/kitab/ihya/1/201",
     "label": "Ihya' 'Ulum ad-Din, j. 1, h. 201"
-  }
+  },
+  "source_url": "https://shamela.ws/book/9472/200"
 }
 ```
 
