@@ -15,6 +15,16 @@ Format entri:
 
 ---
 
+## 2026-10-16 · S07 · Importer Ihya — selesai (butir 5 dengan catatan)
+
+- Dikerjakan: `tools/ingest` (Shamela 9472 → SQL D1 + `.sqlite`, daftar isi + patch YAML, QA OpenITI, validasi, peta ID `data/ids/`, laporan); `splitInlineTakhrij` di `@surau/text` (takhrij `//` dua arah); migrasi korpus 0002 `passage_needs_review`; `data/LICENSE`/`ATTRIBUTION`/`SOURCES`; Ihya dimuat ke D1 lokal dan `surau-corpus-staging` (izin pemilik).
+- Verifikasi: `pnpm ingest ihya` 2,7–3,0 dtk, deterministik (hash sama di dua build dari nol); 9 invarian ✓ (1.706 halaman, 4×10 kitab, 0 judul yatim, 0 penanda yatim, 203 halaman `//`); `verify-openiti` 1.705/1.706 ≥0,95, 190/4.398 takhrij `takhrij_unmatched`; `corpus:load:local` + `:staging` → passage 20.509, footnote_ref 4.064, j1 h200 7 badan/7 catatan/7 penanda; `pnpm verify` lolos (173 tes node + 47 tes db).
+- Biaya API: –
+- Keputusan: ADR-032
+- Catatan untuk sesi berikutnya: S08 dapat langsung memakai D1 lokal; kembalikan `passage_needs_review` per paragraf dari core tools. Batas akhir takhrij "sesudah `//`" belum pasti (23 potongan panjang, lihat laporan). Butir 5 S07 tidak dicentang karena `data/ids/` (ADR-029). Proses lain sempat memindah checkout ke `main` di tengah sesi (sudah dipulihkan); sesi paralel sebaiknya memakai worktree.
+
+---
+
 ## 2026-10-16 · Sisipan · Log Worker Preview di CI — selesai
 
 - Dikerjakan: langkah *Ringkasan log Preview* di `preview.yml` + `.github/scripts/ringkas-log-preview.sh` (GraphQL `workersInvocationsAdaptive`, `isPreview: 1`), hasilnya di log CI, Summary, dan komentar preview PR (PR #16). Tugas pemilik T-21 (izin Account Analytics Read) ditulis dan diselesaikan pemilik. Perbaikan lanjutan: `previewSlug` ternyata `__unknown__`, jadi dipakai cadangan bertanda.
