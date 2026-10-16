@@ -23,6 +23,11 @@ updates:
         update-types: ["version-update:semver-major"]
       # HeroUI Pro dipin persis ke beta; ada versi salah terbit 1.0.0-beta.19 (ADR-004).
       - dependency-name: "@heroui-pro/react"
+      # CSS HeroUI diimpor per komponen (ADR-035): CI tidak memeriksa gaya, jadi naik versi lewat
+      # sesi yang menjalankan tes penjaga + banding di apps/web/scripts/heroui-css/.
+      - dependency-name: "@heroui/react"
+      - dependency-name: "@heroui/styles"
+      - dependency-name: tw-animate-css
       # Minor Next (16.5 dst.) lewat sesi sisipan setelah OpenNext mendukung (ADR-003, ADR-030).
       # Patch 16.4.x (backport keamanan) tetap diusulkan.
       - dependency-name: next

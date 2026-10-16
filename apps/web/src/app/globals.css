@@ -1,5 +1,59 @@
-@import "@heroui/styles/css";
-@import "@heroui-pro/react/css";
+/*
+ * HeroUI: impor selektif (ADR-035). Hanya CSS komponen yang kelasnya ada di bundle Surau, bukan
+ * seluruh `@heroui/styles/css` + `@heroui-pro/react/css` (±816 KB CSS render-blocking, memperlambat
+ * LCP ponsel). Urutan mengikuti `@heroui/styles/dist/index.css` dan `components/index.css`
+ * (primitif dulu); berkas Pro mengikuti urutan `@heroui-pro/react/css` dan wajib `layer(components)`
+ * karena berkas per komponennya tidak ber-layer. Memakai komponen HeroUI baru = tambah berkasnya di
+ * sini; tanpa itu komponen tampil tanpa gaya.
+ */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@import "@heroui/styles/base/base.css" layer(base);
+@import "@heroui/styles/base/scrollbar.css" layer(base);
+
+@import "@heroui/styles/components/close-button.css" layer(components);
+@import "@heroui/styles/components/description.css" layer(components);
+@import "@heroui/styles/components/label.css" layer(components);
+@import "@heroui/styles/components/breadcrumbs.css" layer(components);
+@import "@heroui/styles/components/link.css" layer(components);
+@import "@heroui/styles/components/button.css" layer(components);
+@import "@heroui/styles/components/button-group.css" layer(components);
+@import "@heroui/styles/components/dropdown.css" layer(components);
+@import "@heroui/styles/components/menu-item.css" layer(components);
+@import "@heroui/styles/components/menu-section.css" layer(components);
+@import "@heroui/styles/components/menu.css" layer(components);
+@import "@heroui/styles/components/chip.css" layer(components);
+@import "@heroui/styles/components/alert.css" layer(components);
+@import "@heroui/styles/components/spinner.css" layer(components);
+@import "@heroui/styles/components/toast.css" layer(components);
+@import "@heroui/styles/components/checkbox.css" layer(components);
+@import "@heroui/styles/components/input.css" layer(components);
+@import "@heroui/styles/components/number-field.css" layer(components);
+@import "@heroui/styles/components/radio-group.css" layer(components);
+@import "@heroui/styles/components/radio.css" layer(components);
+@import "@heroui/styles/components/textfield.css" layer(components);
+@import "@heroui/styles/components/textarea.css" layer(components);
+@import "@heroui/styles/components/card.css" layer(components);
+@import "@heroui/styles/components/separator.css" layer(components);
+@import "@heroui/styles/components/drawer.css" layer(components);
+@import "@heroui/styles/components/modal.css" layer(components);
+@import "@heroui/styles/components/popover.css" layer(components);
+@import "@heroui/styles/components/tooltip.css" layer(components);
+@import "@heroui/styles/components/scroll-shadow.css" layer(components);
+
+@import "@heroui/styles/themes/default" layer(theme);
+@import "@heroui/styles/utilities";
+@import "@heroui/styles/variants";
+
+@import "@heroui-pro/react/css/components/app-layout.css" layer(components);
+@import "@heroui-pro/react/css/components/file-tree.css" layer(components);
+@import "@heroui-pro/react/css/components/hover-card.css" layer(components);
+@import "@heroui-pro/react/css/components/native-select.css" layer(components);
+@import "@heroui-pro/react/css/components/navbar.css" layer(components);
+@import "@heroui-pro/react/css/components/sheet.css" layer(components);
+@import "@heroui-pro/react/css/components/resizable.css" layer(components);
+@import "@heroui-pro/react/css/components/sidebar.css" layer(components);
 
 @source "../**/*.{ts,tsx}";
 
