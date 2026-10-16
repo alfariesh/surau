@@ -4,7 +4,8 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { FeedbackDeps } from "./feedback-handler";
 
-import { handleFeedback, ipKey, ipNetwork } from "./feedback-handler";
+import { ipKey, ipNetwork } from "./client-key";
+import { handleFeedback } from "./feedback-handler";
 
 const ORIGIN = "https://surau.example";
 

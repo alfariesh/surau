@@ -55,8 +55,9 @@
     },
   ],
   // Batas laporan kesalahan (/api/feedback): per klien (kunci = HMAC jaringan IP, ADR-034) dan
-  // global (kunci tetap, rilis Fase 1). Dihitung per lokasi Cloudflare. `namespace_id` berbeda
-  // untuk produksi dan Preview supaya hitungannya tidak bercampur.
+  // global (kunci tetap, rilis Fase 1). Batas pencarian (/api/search, S11): per klien, sama.
+  // Dihitung per lokasi Cloudflare. `namespace_id` berbeda untuk produksi dan Preview supaya
+  // hitungannya tidak bercampur.
   "ratelimits": [
     {
       "name": "FEEDBACK_LIMITER",
@@ -67,6 +68,11 @@
       "name": "FEEDBACK_GLOBAL_LIMITER",
       "namespace_id": "1002",
       "simple": { "limit": 30, "period": 60 },
+    },
+    {
+      "name": "SEARCH_LIMITER",
+      "namespace_id": "1003",
+      "simple": { "limit": 60, "period": 60 },
     },
   ],
   // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
@@ -121,6 +127,11 @@
         "name": "FEEDBACK_GLOBAL_LIMITER",
         "namespace_id": "2002",
         "simple": { "limit": 30, "period": 60 },
+      },
+      {
+        "name": "SEARCH_LIMITER",
+        "namespace_id": "2003",
+        "simple": { "limit": 60, "period": 60 },
       },
     ],
   },
