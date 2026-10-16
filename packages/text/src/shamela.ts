@@ -286,6 +286,18 @@ export function splitFootnoteEntries(footnotes: string): Footnote[] {
 export function linkFootnotes(body: string, footnotes: string): FootnoteLinks {
   const refs = findFootnoteMarkers(body);
   const notes = splitFootnoteEntries(footnotes);
+  return { refs, notes, ...linkFootnoteMarkers(refs, notes) };
+}
+
+/**
+ * Inti `linkFootnotes` untuk penanda dan catatan yang sudah dipecah sendiri (misalnya penanda
+ * dari beberapa paragraf satu halaman). Hanya `number` yang dipakai; catatan bernomor sama yang
+ * pertama menang, catatan tanpa nomor tidak pernah menjadi tujuan.
+ */
+export function linkFootnoteMarkers(
+  refs: readonly Pick<FootnoteMarker, "number">[],
+  notes: readonly Pick<Footnote, "number">[],
+): Omit<FootnoteLinks, "refs" | "notes"> {
   const byNumber = new Map<number, number>();
   notes.forEach((n, i) => {
     if (n.number !== null && !byNumber.has(n.number)) byNumber.set(n.number, i);
@@ -303,5 +315,128 @@ export function linkFootnotes(body: string, footnotes: string): FootnoteLinks {
     }
   });
   const orphanNotes = notes.flatMap((n, i) => (n.number !== null && !used.has(i) ? [i] : []));
-  return { refs, notes, links, orphanRefs, orphanNotes };
+  return { links, orphanRefs, orphanNotes };
+}
+
+// ---------------------------------------------------------------------------
+// Takhrij yang bercampur ke matan (`//`)
+//
+// Di ±200 halaman Ihya, takhrij al-'Iraqi menempel ke matan dengan `//` sebagai batas (cacat yang
+// sama ada di OpenITI). Arahnya tidak seragam (S07, 203 halaman): kadang takhrij SESUDAH `//`
+// ("… // حديث … أخرجه …"), kadang SEBELUM `//` ("… (٣) حديث … أخرجه … // matan berlanjut"), dan
+// kadang `//` berdiri tanpa takhrij sama sekali. Pemisah ini konservatif: bila awal takhrij tidak
+// dikenali, paragraf TIDAK dipecah. Semua hasilnya tetap harus ditandai needs_review oleh pemanggil.
+
+export type InlineTakhrijDirection = "after" | "before";
+
+export interface InlineTakhrijSplit {
+  /** Posisi `//` pertama di paragraf (`//` berikutnya, bila ada, dibiarkan di teks). */
+  slash: Span;
+  /** Letak takhrij terhadap `//`, atau `null` bila takhrij tidak dikenali. */
+  direction: InlineTakhrijDirection | null;
+  /** Bentang takhrij tanpa `//` dan spasi tepi, atau `null` (paragraf tidak dipecah). */
+  takhrij: Span | null;
+  /**
+   * Bentang matan yang tersisa, tanpa spasi tepi, urut posisi, yang kosong dibuang. Bila `takhrij`
+   * `null`, isinya seluruh paragraf (termasuk `//`), karena teks mentah tidak boleh dipotong tanpa dasar.
+   */
+  body: Span[];
+}
+
+// Takhrij al-'Iraqi dibuka "حديث …" (kadang "{حديث}", sekali salah ketik "حدديث"), kadang didahului
+// penanda catatan kaki.
+const AFTER_START = new RegExp(
+  String.raw`^\s*(?:${FOOTNOTE_MARKER_SOURCE}\s*)?\{?حد?ديث\}?(?=\s|$)`,
+);
+// Kandidat awal takhrij sebelum `//`: penanda (beserta "حديث" sesudahnya bila ada), atau "حديث"
+// yang berdiri sendiri. Kandidat baru dipakai bila potongannya memuat atribusi (lihat di bawah).
+const MARKED_START = new RegExp(
+  String.raw`${FOOTNOTE_MARKER_SOURCE}(?:\s*\{?حديث\}?(?=\s|$))?`,
+  "g",
+);
+const BARE_HADITH = /(?<=^|\s)\{?حديث\}?(?=\s)/g;
+// "من حديث أنس", "في حديث طويل": "حديث" di sini bagian kalimat, bukan pembuka takhrij.
+const NOT_AFTER = new Set(["من", "في", "عن", "على", "ومن", "وفي", "وعن"]);
+// Takhrij selalu menyebut sumber atau statusnya. Potongan tanpa ini tidak dianggap takhrij.
+const ATTRIBUTION = /أخرج|رواه|متفق عليه|إسناد|بسند|لم أجد|لا أصل له|تقدم/;
+// Awal paragraf juga bisa berupa lanjutan takhrij dari baris/halaman sebelumnya, tetapi hanya
+// diterima dengan atribusi yang tidak lazim di matan ("رواه"/"تقدم" bisa muncul di kalimat penulis).
+const STRONG_ATTRIBUTION = /أخرج|متفق عليه|إسناد|بسند|لم أجد|لا أصل له/;
+
+function trimmed(text: string, start: number, end: number): Span | null {
+  const piece = text.slice(start, end);
+  const lead = piece.length - piece.trimStart().length;
+  const len = piece.trim().length;
+  return len === 0 ? null : { start: start + lead, end: start + lead + len };
+}
+
+function takhrijStartBefore(paragraph: string, slashAt: number): number | null {
+  const starts = new Set<number>();
+  const marked: Span[] = [];
+  for (const m of paragraph.matchAll(MARKED_START)) {
+    if (m.index >= slashAt) continue;
+    starts.add(m.index);
+    marked.push({ start: m.index, end: m.index + m[0].length });
+  }
+  for (const m of paragraph.matchAll(BARE_HADITH)) {
+    // "حديث" milik pembuka bertanda ("(٢) حديث") sudah terwakili oleh penandanya.
+    if (m.index >= slashAt || marked.some((s) => s.start <= m.index && m.index < s.end)) continue;
+    const prev = paragraph.slice(0, m.index).trimEnd().split(/\s+/).at(-1) ?? "";
+    if (!NOT_AFTER.has(prev)) starts.add(m.index);
+  }
+  const candidates = [...starts].sort((a, b) => a - b);
+  // Mundur dari `//`: setiap potongan [kandidat, batas) harus memuat atribusi takhrij. Dengan
+  // begitu beberapa takhrij berurutan ("(٢) حديث … أخرجه … (٣) حديث … رواه …") ikut terpotong,
+  // sedangkan matan sebelum takhrij pertama tidak.
+  let start: number | null = null;
+  for (let i = candidates.length - 1; i >= 0; i--) {
+    const at = candidates[i] as number;
+    if (!ATTRIBUTION.test(paragraph.slice(at, start ?? slashAt))) break;
+    start = at;
+  }
+  // Sebelum kandidat pertama yang diterima tidak boleh ada kandidat lain (yang ditolak): bila ada,
+  // potongan di depannya bercampur matan, jadi awal paragraf tidak ikut diambil.
+  const lead = paragraph.length - paragraph.trimStart().length;
+  const firstTaken = start === null ? -1 : candidates.indexOf(start);
+  const clean = firstTaken === 0 || (firstTaken === 1 && candidates[0] === lead);
+  if (
+    start !== null &&
+    start > lead &&
+    clean &&
+    STRONG_ATTRIBUTION.test(paragraph.slice(lead, start))
+  ) {
+    start = lead;
+  }
+  return start;
+}
+
+/**
+ * Pisahkan takhrij yang menempel ke matan dengan `//` di satu paragraf. `null` bila paragraf tidak
+ * memuat `//`. Offset menunjuk ke `paragraph`; `//` sendiri tidak masuk ke bentang mana pun bila
+ * paragraf dipecah.
+ */
+export function splitInlineTakhrij(paragraph: string): InlineTakhrijSplit | null {
+  const at = paragraph.indexOf("//");
+  if (at < 0) return null;
+  const slash = { start: at, end: at + 2 };
+  const whole = trimmed(paragraph, 0, paragraph.length) as Span;
+  const after = paragraph.slice(slash.end);
+  if (AFTER_START.test(after)) {
+    const body = trimmed(paragraph, 0, slash.start);
+    return {
+      slash,
+      direction: "after",
+      takhrij: trimmed(paragraph, slash.end, paragraph.length),
+      body: body === null ? [] : [body],
+    };
+  }
+  const start = takhrijStartBefore(paragraph, slash.start);
+  if (start === null) return { slash, direction: null, takhrij: null, body: [whole] };
+  const body = [trimmed(paragraph, 0, start), trimmed(paragraph, slash.end, paragraph.length)];
+  return {
+    slash,
+    direction: "before",
+    takhrij: trimmed(paragraph, start, slash.start),
+    body: body.filter((s): s is Span => s !== null),
+  };
 }

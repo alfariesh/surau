@@ -30,9 +30,11 @@ export {
   cleanShamelaHtml,
   extractTitles,
   findFootnoteMarkers,
+  linkFootnoteMarkers,
   linkFootnotes,
   splitFootnoteEntries,
   splitFootnotes,
+  splitInlineTakhrij,
   splitParagraphs,
 } from "./shamela.ts";
 export type {
@@ -41,6 +43,8 @@ export type {
   FootnoteLinks,
   FootnoteMarker,
   FootnoteSplit,
+  InlineTakhrijDirection,
+  InlineTakhrijSplit,
   Paragraph,
   Span,
   TitleSpan,
