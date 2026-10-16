@@ -15,6 +15,20 @@ Format entri:
 
 ---
 
+## 2026-10-16 · Tindak lanjut S09 · Beban halaman baca (CSS HeroUI selektif, daftar isi) — selesai
+
+- Dikerjakan:
+  - `globals.css`: impor CSS HeroUI per komponen (29 OSS + 8 Pro, `layer(components)`) menggantikan `@heroui/styles/css` + `@heroui-pro/react/css` utuh; `tw-animate-css` 1.4.0 jadi dependensi langsung.
+  - Utang "pohon daftar isi terkirim dua kali" diperiksa di payload RSC Preview: React sudah menulisnya sekali (pemakaian kedua = rujukan ±80 byte), jadi tanpa perubahan kode; ADR-034 dikoreksi.
+  - Aturan baru di `apps/web/CLAUDE.md`: komponen HeroUI baru wajib menambah berkas CSS-nya.
+- Verifikasi:
+  - CSS global 815.852 → 262.005 B mentah, 82.895 → 30.034 B gzip.
+  - Banding deklarasi CSS (postcss): 0 nilai berubah untuk selektor yang dipakai. Banding gaya terhitung Chromium, 42 keadaan × 19.170 elemen (+ `::before`/`::after`): 0 beda properti tampilan.
+  - `pnpm verify` → lolos (201 tes); `pnpm test:e2e` → 64/64.
+- Biaya API: –
+- Keputusan: ADR-035
+- Catatan untuk sesi berikutnya: saat naik versi `@heroui/styles`/`@heroui-pro/react` atau memakai komponen HeroUI baru, cek berkas CSS yang dibutuhkan (ADR-035, Tinjau ulang).
+
 ## 2026-10-16 · S09 · UI pembaca kitab — selesai* (persetujuan tampilan pemilik menunggu, T-22)
 
 - Dikerjakan:
