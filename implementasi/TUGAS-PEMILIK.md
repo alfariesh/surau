@@ -66,7 +66,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   3. Di Terminal, jalankan `gh secret set CLOUDFLARE_API_TOKEN` lalu tempel tokennya.
   4. Untuk Account ID, jalankan `pnpm dlx wrangler@latest whoami`, salin *Account ID*-nya, lalu jalankan `gh secret set CLOUDFLARE_ACCOUNT_ID` dan tempel ID itu.
 
-- [ ] **T-07 · Pilih dan siapkan domain (P-2, wajib dijawab)** (dibutuhkan S03; sebelum itu situs bisa jalan di alamat `*.workers.dev`)
+- [x] **T-07 · Pilih dan siapkan domain (P-2, wajib dijawab)** (dibutuhkan S03; sebelum itu situs bisa jalan di alamat `*.workers.dev`) · **selesai 2026-10-17:** `surau.org` di Cloudflare (NS `ned`/`raquel.ns.cloudflare.com`), `https://surau.org` sudah menyajikan Worker web, Preview PR di `pr-N.surau.org`. Kode masih memakai alamat `workers.dev` (`SITE_URL`, `deploy.yml`) sampai dipindah agent
   Daftarkan domain di Cloudflare Registrar, atau pindahkan DNS domain yang sudah ada ke Cloudflare. Beri tahu agent nama domainnya.
 
 - [x] **T-08 · Arah desain (P-3)** (dibutuhkan S04) · **selesai 2026-10-15:** pemilik memilih Opsi A · Zaitun (hijau zaitun, kertas hangat, Noto Naskh Arabic); lihat ADR-027
