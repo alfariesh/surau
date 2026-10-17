@@ -112,3 +112,62 @@ export function sectionStarts(
   }
   return { byPassage, unplaced };
 }
+
+/** Tautan unik per bagian: halaman awal + jangkar judul (`#bab-<id>`), seperti breadcrumb. */
+export function tocHref(item: Pick<TocItem, "id" | "href">): string {
+  return `${item.href}#bab-${item.id}`;
+}
+
+/**
+ * Satu kolom garis pemandu di kiri baris, satu per leluhur. `line` = garis tegak penuh (masih ada
+ * saudara di bawah), `end` = siku melengkung ke baris ini (anak terakhir), `none` = kosong.
+ * `accent` menandai jalur induk → bagian aktif: `line` = garis tegak yang dilewati jalur itu,
+ * `elbow` = siku yang masuk ke baris aktif.
+ */
+export interface TocGuide {
+  kind: "line" | "end" | "none";
+  accent: "none" | "line" | "elbow";
+}
+
+export interface TocRow {
+  guides: TocGuide[];
+  /** Sediakan ruang chevron: node ini atau salah satu saudaranya punya anak (label tetap sejajar). */
+  chevronSlot: boolean;
+}
+
+/** Garis pemandu dan ruang chevron untuk setiap node, dihitung sekali per pohon + bagian aktif. */
+export function tocRows(items: readonly TocItem[], activeId?: number): Map<number, TocRow> {
+  const path = activeId === undefined ? [] : tocPath(items, activeId);
+  const active = path.at(-1);
+  const parent = path.at(-2);
+  const activeIndex = parent && active ? parent.children.indexOf(active) : -1;
+
+  interface Step {
+    item: TocItem;
+    index: number;
+    isLast: boolean;
+    parent?: TocItem;
+  }
+  const rows = new Map<number, TocRow>();
+  const visit = (nodes: readonly TocItem[], up: TocItem | undefined, chain: Step[]) => {
+    const chevronSlot = nodes.some((n) => n.children.length > 0);
+    nodes.forEach((item, index) => {
+      const steps = [...chain, { item, index, isLast: index === nodes.length - 1, parent: up }];
+      // Kolom j menggantung dari leluhur di tingkat j+1; langkah s adalah anaknya di jalur baris ini.
+      const guides = steps.slice(1).map((s, j): TocGuide => {
+        const own = j === steps.length - 2;
+        const kind = s.isLast ? (own ? "end" : "none") : "line";
+        let accent: TocGuide["accent"] = "none";
+        if (parent !== undefined && s.parent === parent) {
+          if (s.item === active) accent = own ? "elbow" : "none";
+          else if (s.index < activeIndex) accent = "line";
+        }
+        return { kind, accent };
+      });
+      rows.set(item.id, { guides, chevronSlot });
+      visit(item.children, item, steps);
+    });
+  };
+  visit(items, undefined, []);
+  return rows;
+}

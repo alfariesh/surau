@@ -27,7 +27,6 @@
 @import "@heroui/styles/components/alert.css" layer(components);
 @import "@heroui/styles/components/spinner.css" layer(components);
 @import "@heroui/styles/components/toast.css" layer(components);
-@import "@heroui/styles/components/checkbox.css" layer(components);
 @import "@heroui/styles/components/input.css" layer(components);
 @import "@heroui/styles/components/number-field.css" layer(components);
 @import "@heroui/styles/components/radio-group.css" layer(components);
@@ -47,7 +46,6 @@
 @import "@heroui/styles/variants";
 
 @import "@heroui-pro/react/css/components/app-layout.css" layer(components);
-@import "@heroui-pro/react/css/components/file-tree.css" layer(components);
 @import "@heroui-pro/react/css/components/hover-card.css" layer(components);
 @import "@heroui-pro/react/css/components/native-select.css" layer(components);
 @import "@heroui-pro/react/css/components/navbar.css" layer(components);
@@ -177,18 +175,175 @@ h2.reader-heading-minor {
   vertical-align: baseline;
 }
 
-/* Daftar isi: judul Arab panjang dibungkus, bukan dipotong. */
-.toc-tree .file-tree__label {
-  white-space: normal;
-  overflow: visible;
+/*
+ * Daftar isi (NavigationTree react-aria, gaya HeroUI): garis pemandu per tingkat, siku melengkung di
+ * anak terakhir, satu baris aktif berlatar aksen lembut, dan jalur induk → aktif berwarna aksen.
+ * Lebar kolom garis = lebar chevron, jadi garis jatuh tepat di bawah chevron induknya. Baris rapat
+ * (tanpa celah) supaya garis tegak tidak putus; judul panjang dibungkus, bukan dipotong.
+ */
+.toc-tree {
+  --toc-indent: 1.25rem;
+  --toc-line: 1.7rem;
+  --toc-pad: 0.25rem;
+  /* Titik tengah baris pertama judul: tempat chevron dan ujung siku. */
+  --toc-anchor: calc(1px + var(--toc-pad) + var(--toc-line) / 2);
+  --toc-guide-color: var(--border);
+  display: flex;
+  flex-direction: column;
+  outline: none;
 }
 
-.toc-tree .toc-title {
+/* Sel grid react-aria memakai `display: contents`, jadi baris itu sendiri yang flex. */
+.toc-item {
+  display: flex;
+  align-items: stretch;
+  outline: none;
+}
+
+.toc-guide {
+  position: relative;
+  flex: none;
+  width: var(--toc-indent);
+}
+
+/* Garis tegak penuh (masih ada saudara di bawah). Tinggi baris ikut padding, jadi tersambung. */
+.toc-guide[data-kind="line"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(50% - 0.5px);
+  width: 1px;
+  background-color: var(--toc-guide-color);
+}
+
+/* Siku ke baris ini: anak terakhir, atau baris aktif (siku aksen di atas garis tegak abu-abu). */
+.toc-guide[data-kind="end"]::after,
+.toc-guide[data-accent="elbow"]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline-start: calc(50% - 0.5px);
+  width: calc(50% + 0.5px);
+  height: var(--toc-anchor);
+  border-inline-start: 1px solid var(--toc-guide-color);
+  border-block-end: 1px solid var(--toc-guide-color);
+  border-end-start-radius: 0.5rem;
+}
+
+.toc-guide[data-accent="line"]::before {
+  background-color: var(--accent);
+}
+
+.toc-guide[data-accent="elbow"]::after {
+  border-color: var(--accent);
+}
+
+.toc-row {
+  position: relative;
+  display: flex;
+  flex: 1;
+  margin-block: 1px;
+  min-width: 0;
+  align-items: flex-start;
+  border-radius: calc(var(--radius) * 1.5);
+  transition: background-color 0.15s;
+}
+
+/* Batang dari chevron induk yang terbuka turun ke anak pertama (judul induk bisa beberapa baris). */
+.toc-row[data-expanded]::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--toc-pad) + var(--toc-line) / 2 + 0.625rem);
+  bottom: -1px;
+  inset-inline-start: calc(var(--toc-indent) / 2 - 0.5px);
+  width: 1px;
+  background-color: var(--toc-guide-color);
+}
+
+.toc-row[data-stem-accent]::before {
+  background-color: var(--accent);
+}
+
+@media (hover: hover) {
+  .toc-row:not([data-current]):hover {
+    background-color: var(--default);
+  }
+}
+
+.toc-row[data-current] {
+  background-color: var(--accent-soft);
+}
+
+.toc-row[data-focus-visible] {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.toc-chevron {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--toc-indent);
+  height: var(--toc-line);
+  margin-block-start: var(--toc-pad);
+  border-radius: calc(var(--radius) * 0.75);
+  color: var(--muted);
+  cursor: var(--cursor-interactive, pointer);
+  outline: none;
+}
+
+@media (hover: hover) {
+  button.toc-chevron:hover {
+    color: var(--foreground);
+  }
+}
+
+.toc-chevron-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: rotate 0.15s;
+}
+
+.toc-chevron-icon[data-expanded] {
+  rotate: 90deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-row,
+  .toc-chevron-icon {
+    transition: none;
+  }
+}
+
+.toc-link {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--toc-pad) 0.5rem var(--toc-pad) 0.375rem;
+  color: var(--foreground);
+  outline: none;
+  cursor: var(--cursor-interactive, pointer);
+}
+
+.toc-title {
   font-size: 1rem;
-  line-height: 1.7;
+  line-height: var(--toc-line);
 }
 
-.toc-tree .toc-active {
-  background-color: var(--accent-soft, color-mix(in oklab, var(--accent) 12%, transparent));
+.toc-page {
+  font-size: 0.7rem;
+  line-height: 1rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.toc-row[data-current] .toc-title {
   font-weight: 600;
+}
+
+.toc-row[data-current] .toc-page {
+  color: var(--accent-soft-foreground);
 }

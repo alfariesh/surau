@@ -127,7 +127,11 @@ test("daftar isi menandai bagian aktif; halaman karya punya atribusi", async ({
   await page.goto(PAGE);
   if (isMobile) await page.getByRole("button", { name: "Daftar isi" }).click();
   const tree = page.getByRole("treegrid", { name: "Daftar isi kitab" }).last();
-  await expect(tree.getByRole("row", { name: /\(bagian ini\)/ }).first()).toBeVisible();
+  // Tepat satu bagian aktif: tautan ber-aria-current="page" ke jangkar judulnya.
+  const current = tree.locator('a[aria-current="page"]');
+  await expect(current).toHaveCount(1);
+  await expect(current).toBeVisible();
+  await expect(current).toHaveAttribute("href", /#bab-\d+$/);
 
   await page.goto("/kitab/ihya");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Ihya' 'Ulum ad-Din");
