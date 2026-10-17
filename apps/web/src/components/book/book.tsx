@@ -32,6 +32,8 @@ export interface BookProps {
   textured?: boolean;
   /** `rtl`: punggung buku di kanan dan membuka ke kiri (kitab Arab). */
   direction?: "ltr" | "rtl";
+  /** Isi punggung buku (terlihat saat buku berdiri di rak, mis. BookRing). */
+  spine?: ReactNode;
   className?: string;
 }
 
@@ -58,6 +60,7 @@ export function Book({
   width = DEFAULT_WIDTH,
   textured = false,
   direction = "ltr",
+  spine,
   className,
 }: BookProps) {
   const responsive = typeof width !== "number";
@@ -98,6 +101,15 @@ export function Book({
           </div>
           {textured ? <div aria-hidden="true" className="book__texture" /> : null}
         </div>
+        {spine ? (
+          <>
+            <div aria-hidden="true" className="book__spine">
+              <div className="book__spine-content">{spine}</div>
+            </div>
+            <div aria-hidden="true" className="book__head" />
+            <div aria-hidden="true" className="book__tail" />
+          </>
+        ) : null}
         <div aria-hidden="true" className="book__pages" />
         <div aria-hidden="true" className="book__back" />
       </div>

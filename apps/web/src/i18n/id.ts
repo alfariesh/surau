@@ -48,6 +48,10 @@ export const id = {
     heading: "Asisten riset kitab klasik Islam, dalam bahasa Indonesia",
     lead: "Surau membantu Anda menemukan, membaca, dan memahami apa yang tertulis di kitab-kitab klasik. Setiap jawaban punya alamat: kitab, jilid, halaman cetak, dan kutipan Arab aslinya.",
     firstBook: "Kitab pertama: Ihya 'Ulum al-Din karya al-Ghazali.",
+    shelfHeading: "Rak kitab",
+    shelfLabel:
+      "Rak kitab Surau: seret, gulir, atau pakai panah untuk memutar; pilih buku terdepan untuk membukanya",
+    shelfOf: "dari",
     ctaAbout: "Kenali Surau",
     ctaSource: "Lihat kode sumber",
     demoCaption: "Basmalah, sebagai contoh tipografi teks Arab di Surau.",

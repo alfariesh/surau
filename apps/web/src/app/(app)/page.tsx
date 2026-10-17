@@ -4,9 +4,13 @@ import { Card, Chip } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 
+import { listWorks } from "@surau/core";
+
 import { ArabicText } from "../../components/arabic";
+import { WorkShelf } from "../../components/book/work-shelf";
 import { BASMALAH } from "../../content/basmalah";
 import { id, SOURCE_URL } from "../../i18n/id";
+import { getEnv, readerEnabled } from "../../lib/cloudflare";
 
 export const metadata: Metadata = {
   title: { absolute: id.meta.title },
@@ -14,7 +18,27 @@ export const metadata: Metadata = {
 
 const t = id.home;
 
-export default function HomePage() {
+// Dirender per request (seperti /kitab): rak kitab membaca daftar karya dari D1 (satu query kecil),
+// dan CI tidak punya D1 saat build. Bila pembaca tertutup atau D1 gagal, rak tidak ditampilkan.
+export const dynamic = "force-dynamic";
+
+async function shelfWorks() {
+  try {
+    const env = await getEnv();
+    if (!readerEnabled(env)) return [];
+    const { works } = await listWorks(env.CORPUS_DB);
+    return works.flatMap((work) => {
+      const edition = work.editions.find((e) => e.is_default) ?? work.editions[0];
+      return edition ? [{ ...work, href: edition.permalink }] : [];
+    });
+  } catch (error) {
+    console.error("rak kitab beranda gagal dimuat", error);
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const works = await shelfWorks();
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-12 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
       <section aria-labelledby="judul-beranda" className="flex flex-col items-start gap-5">
@@ -44,6 +68,15 @@ export default function HomePage() {
           </a>
         </div>
       </section>
+
+      {works.length > 0 ? (
+        <section aria-labelledby="judul-rak" className="flex flex-col gap-2">
+          <h2 className="text-foreground text-xl font-semibold" id="judul-rak">
+            {t.shelfHeading}
+          </h2>
+          <WorkShelf label={t.shelfLabel} works={works} />
+        </section>
+      ) : null}
 
       <Card className="py-8">
         <figure className="m-0 flex flex-col items-center gap-3">
