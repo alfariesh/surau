@@ -1,0 +1,170 @@
+// `pnpm run eval:retrieval` (S15): jalankan setiap soal ke `searchText` atas D1 korpus, lalu
+// tulis laporan Markdown ke evals/reports/. Tanpa LLM, hanya SELECT.
+//
+//   pnpm run eval:retrieval                 D1 lokal (salinan <root>/.wrangler/state/v3, ARSITEKTUR §7)
+//   pnpm run eval:retrieval --remote        D1 staging lewat remote binding (CI; butuh token Cloudflare)
+//   … --label baseline                      akhiran nama berkas laporan
+//   … --gate                                keluar 1 bila set resmi belum lolos gerbang R2 (/rilis)
+//   … --summary <berkas>                    tambahkan laporan ke berkas (mis. $GITHUB_STEP_SUMMARY)
+//   … --no-write                            jangan tulis berkas laporan
+//
+// Soal publik: evals/retrieval/*.jsonl. Soal privat (holdout): evals/private/retrieval.jsonl bila
+// ada (git-ignored; salinan di R2 `surau-evals`, lihat evals/README.md).
+import { execFileSync } from "node:child_process";
+import {
+  appendFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { parseArgs } from "node:util";
+
+import { SEARCH_RESULT_VERSION, searchText } from "@surau/core";
+import type { D1Db } from "@surau/db";
+
+import { loadCorpusIndex, resolveGold } from "./corpus.ts";
+import { mergeSets, parseJsonl } from "./dataset.ts";
+import type { LoadedQuestion } from "./dataset.ts";
+import { DEPTH, aggregate, judge, passesR2Gate } from "./metrics.ts";
+import { officialRuns, renderReport } from "./report.ts";
+import type { QuestionRun } from "./report.ts";
+import { resultPages, summarize } from "./view.ts";
+
+const repo = resolve(import.meta.dirname, "../../..");
+
+function loadQuestions(): LoadedQuestion[] {
+  const dir = join(repo, "evals/retrieval");
+  const pub = readdirSync(dir)
+    .filter((f) => f.endsWith(".jsonl"))
+    .toSorted()
+    .flatMap((f) =>
+      parseJsonl(readFileSync(join(dir, f), "utf8"), `evals/retrieval/${f}`, "publik"),
+    );
+  const privFile = join(repo, "evals/private/retrieval.jsonl");
+  const priv = existsSync(privFile)
+    ? parseJsonl(readFileSync(privFile, "utf8"), "evals/private/retrieval.jsonl", "privat")
+    : [];
+  return mergeSets(pub, priv);
+}
+
+function gitSha(): string {
+  try {
+    return execFileSync("git", ["rev-parse", "--short", "HEAD"], {
+      cwd: repo,
+      encoding: "utf8",
+    }).trim();
+  } catch {
+    return "?";
+  }
+}
+
+async function openCorpus(remote: boolean) {
+  const { getPlatformProxy } = await import("wrangler");
+  const configPath = join(repo, "tools/eval/wrangler.jsonc");
+  if (remote) {
+    const proxy = await getPlatformProxy<{ CORPUS: D1Db }>({ configPath, remoteBindings: true });
+    return { db: proxy.env.CORPUS, source: "staging (remote)", dispose: proxy.dispose };
+  }
+  const state = join(repo, ".wrangler/state/v3");
+  if (!existsSync(join(state, "d1"))) {
+    throw new Error(
+      "D1 lokal belum ada: jalankan `pnpm run db:migrate:local` lalu `pnpm corpus:load:local`.",
+    );
+  }
+  // Salinan: proxy lain (pnpm dev) pada state yang sama bisa SQLITE_BUSY, dan eval tidak menulis.
+  const tmp = mkdtempSync(join(tmpdir(), "surau-eval-"));
+  cpSync(join(state, "d1"), join(tmp, "v3", "d1"), { recursive: true });
+  const proxy = await getPlatformProxy<{ CORPUS: D1Db }>({
+    configPath,
+    remoteBindings: false,
+    persist: { path: join(tmp, "v3") },
+  });
+  return {
+    db: proxy.env.CORPUS,
+    source: "lokal",
+    dispose: async () => {
+      await proxy.dispose();
+      rmSync(tmp, { recursive: true, force: true });
+    },
+  };
+}
+
+async function main(): Promise<number> {
+  const { values } = parseArgs({
+    options: {
+      remote: { type: "boolean", default: false },
+      label: { type: "string" },
+      gate: { type: "boolean", default: false },
+      summary: { type: "string" },
+      "no-write": { type: "boolean", default: false },
+    },
+  });
+  const questions = loadQuestions();
+  const corpus = await openCorpus(values.remote);
+  const runs: QuestionRun[] = [];
+  let info;
+  try {
+    const index = await loadCorpusIndex(corpus.db);
+    for (const question of questions) {
+      const golds = resolveGold(index, question);
+      const t0 = performance.now();
+      const view = await searchText(corpus.db, question.kueri, { limit: DEPTH });
+      const ms = Math.round(performance.now() - t0);
+      runs.push({
+        question,
+        judgement: judge(resultPages(view, index), golds),
+        goldCount: golds.length,
+        paths: view.paths,
+        warning: view.warning,
+        totalPages: view.total_pages,
+        top: summarize(view),
+        ms,
+      });
+    }
+    info = {
+      date: new Date().toISOString().slice(0, 10),
+      source: corpus.source,
+      meta: index.meta,
+      gitSha: gitSha(),
+      searchResultVersion: SEARCH_RESULT_VERSION,
+    };
+  } finally {
+    await corpus.dispose();
+  }
+
+  const report = renderReport(info, runs);
+  const all = aggregate(runs.map((r) => r.judgement.rank));
+  const official = aggregate(officialRuns(runs).map((r) => r.judgement.rank));
+  const fmt = (x: number) => `${(x * 100).toFixed(1)}%`;
+  console.log(
+    `eval retrieval (${info.source}, ${info.meta["corpus_version"]}): semua ${all.n} soal hit@1 ${fmt(all.hit1)} · hit@5 ${fmt(all.hit5)} · hit@10 ${fmt(all.hit10)} · MRR ${all.mrr.toFixed(3)}`,
+  );
+  console.log(
+    official.n === 0
+      ? "set resmi: belum ada soal disetujui (T-12)"
+      : `set resmi ${official.n} soal: hit@10 ${fmt(official.hit10)} → ${passesR2Gate(official) ? "LOLOS" : "BELUM LOLOS"} gerbang R2`,
+  );
+  if (!values["no-write"]) {
+    const outDir = join(repo, "evals/reports");
+    mkdirSync(outDir, { recursive: true });
+    const suffix =
+      values.label === undefined ? "" : `-${values.label.replace(/[^a-z0-9-]/giu, "-")}`;
+    const file = join(
+      outDir,
+      `retrieval-${info.date}-${info.meta["corpus_version"] ?? "korpus"}${suffix}.md`,
+    );
+    writeFileSync(file, report);
+    console.log(`laporan: ${file.slice(repo.length + 1)}`);
+  }
+  if (values.summary !== undefined) appendFileSync(values.summary, `${report}\n`);
+  return values.gate && !passesR2Gate(official) ? 1 : 0;
+}
+
+process.exitCode = await main();

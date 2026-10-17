@@ -61,7 +61,7 @@
 | 2 | S12 | Ayat & terjemahan Kemenag | selesai* | 2026-10-17 · PR #31 · korpus `ihya-v3` (staging), 1.650 rujukan ayat, `{…}` 97,3% persis, terjemahan + transliterasi Kemenag dari data pemilik (ADR-040) · *T-16 (20 sampel) menunggu pemilik |
 | 2 | S13 | Batch terjemahan & ringkasan | selesai* | 2026-10-17 · `@surau/llm`, korpus `ihya-v4` (lokal): 16.086 terjemahan (99,84%) + 626 ringkasan, $4,48; faktor token 1,84; pencocok ayat tanpa tanda (ADR-042, ADR-043) · *QA T-17 tahap 2 menunggu pemilik |
 | 2 | S14 | Cari Indonesia + UI | selesai | 2026-10-17 · PR #33, #34 · korpus `ihya-v5` (skema 6) **di produksi** (QA 30/30), stem ringan + RRF, `/cari`, ⌘K, terjemahan + ringkasan AI di pembaca, cache hasil (ADR-044); p95 staging 154 ms, a11y 100 · tampilan disetujui pemilik (T-23) |
-| 2 | S15 | Eval retrieval | belum | butuh T-12 · lalu `/rilis 2` |
+| 2 | S15 | Eval retrieval | berjalan | butuh T-12 · lalu `/rilis 2` |
 | 3 | S16 | Worker MCP | belum | garis besar · butuh T-07, T-19 |
 | 3 | S17 | Dokumentasi & rilis MCP | belum | garis besar · butuh T-18 · lalu `/rilis 3` |
 | 4 | S18 | Eval Jawab & tinjau | belum | garis besar · butuh T-13, T-14 (Access), P-7 |

@@ -1,6 +1,6 @@
 # S15 · Eval retrieval & rilis Fase 2
 
-> **Fase:** 2 · **Status:** belum
+> **Fase:** 2 · **Status:** berjalan
 > **Prasyarat:** S14 selesai · Tugas pemilik: **T-12** (review soal eval)
 > **Perkiraan:** 1 percakapan agent (ditambah waktu review pemilik/ustadz)
 
