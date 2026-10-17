@@ -1,22 +1,24 @@
-// Perkiraan ukuran keluaran untuk paginasi `readSection` (ARSITEKTUR §4: ±4–6 ribu token;
-// MCP sebaiknya ≤10 ribu token per hasil, §8).
+// Perkiraan ukuran keluaran untuk paginasi `readSection` (ARSITEKTUR §4: ±4–6 ribu token per
+// hasil; MCP sebaiknya ≤10 ribu token per hasil, §8).
 //
-// Heuristik: 1 token ≈ 2 karakter (unit UTF-16) dari JSON keluaran. Angka ini sengaja konservatif
-// untuk teks Arab, yang dipecah tokenizer jauh lebih halus daripada teks Inggris (±3,5 karakter/
-// token); untuk bagian JSON berhuruf ASCII (nama field, angka) ia melebih-lebihkan, sehingga
-// potongan cenderung lebih kecil, tidak lebih besar. Belum dikalibrasi dengan `count_tokens`
-// Anthropic (butuh kunci API); kalibrasi dijadwalkan bersama Worker MCP (S16). ADR-033.
+// Heuristik: 1 token ≈ 1,4 karakter (unit UTF-16) dari JSON keluaran. Dikalibrasi di S16 (ADR-033,
+// ADR-049) dengan `count_tokens` Claude atas 81 potongan `read_section` Ihya lewat MCP
+// (data/reports/mcp-token.md): JSON `passages` median 1,63 karakter/token, p5 1,5, minimum 1,38.
+// Angka 1,4 dipilih dekat minimum supaya perkiraan hampir selalu ≥ token sebenarnya. Batas atas
+// 5.000 token untuk `passages` menyisakan ±1.000 token untuk citation, node, ancestors, dan blok
+// lisensi MCP, sehingga seluruh hasil tool ≤ ±6 ribu token. (Sebelum S16: 2 karakter/token, belum
+// dikalibrasi; potongan sebenarnya 7,7 ribu token median.)
 
-/** Karakter JSON per token (perkiraan konservatif untuk teks Arab). */
-export const CHARS_PER_TOKEN = 2;
+/** Karakter JSON per token (dikalibrasi S16 dengan `count_tokens` Claude, konservatif). */
+export const CHARS_PER_TOKEN = 1.4;
 /** Batas bawah rentang potongan `readSection`: batas halaman cetak hanya dipakai di atas angka ini. */
-export const SECTION_MIN_TOKENS = 4_000;
+export const SECTION_MIN_TOKENS = 3_500;
 /** Batas atas: blok berikutnya tidak ditambahkan bila potongan akan melewati angka ini. */
-export const SECTION_MAX_TOKENS = 6_000;
+export const SECTION_MAX_TOKENS = 5_000;
 /**
  * Baris paragraf yang diambil per panggilan `readSection` (+1 untuk mendeteksi kelanjutan),
  * dihitung dari awal halaman cursor. Cukup untuk satu potongan penuh: paragraf terkecil ±125 token
- * setelah JSON (6.000 token ≈ 48 baris), ditambah sisa halaman cursor yang sudah terkirim
+ * setelah JSON (5.000 token ≈ 40 baris), ditambah sisa halaman cursor yang sudah terkirim
  * (halaman terpadat Ihya memuat 41 paragraf).
  */
 export const SECTION_ROW_LIMIT = 200;

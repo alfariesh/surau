@@ -1,12 +1,13 @@
 // read_section: paragraf sebuah bagian daftar isi beserta semua sub-bagiannya, dipaginasi per
-// ±4–6 ribu token (perkiraan, tokens.ts; ADR-033).
+// ±3,5–5 ribu token `passages` (perkiraan terkalibrasi, tokens.ts; ADR-033, ADR-049), sehingga
+// seluruh hasil tool MCP ≤ ±6 ribu token.
 //
 // Satuan potong = BLOK: satu paragraf badan + catatan kaki di halaman yang sama yang pertama kali
 // dirujuknya. Catatan kaki yang tidak dirujuk paragraf badan mana pun di bagian ini (catatan yatim,
 // takhrij yang dipotong dari matan) ikut blok terakhir halamannya; halaman tanpa paragraf badan
 // menjadi satu blok catatan kaki. Jadi paragraf tidak pernah dipotong, dan penanda selalu satu
 // potongan dengan catatan kakinya. Batas halaman cetak didahulukan bila jatuh di rentang
-// 4–6 ribu token; bila tidak ada, potongan diisi sampai mendekati 6 ribu dan halaman terbelah di
+// 3,5–5 ribu token; bila tidak ada, potongan diisi sampai mendekati 5 ribu dan halaman terbelah di
 // antara blok. Di dalam satu potongan, setiap halaman tampil badan dulu, lalu catatan kakinya.
 import { getSectionPassages, getTocNode, listTocNodes } from "@surau/db";
 import type { D1Db, PassageWithPageRow } from "@surau/db";

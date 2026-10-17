@@ -22,8 +22,11 @@ Prinsipnya:
 | `searchText(db, query, { edition_id?, section_id?, limit?, offset?, expand? })` | `search_text` | Pencarian Arab (S11) dan Indonesia (S14): halaman cetak berperingkat dengan paragraf cocok, sorotan dan potongan di `text_raw`, terjemahan/ringkasan AI berlabel, asal kecocokan. Lihat [Pencarian](#pencarian-searchtext) |
 | `searchCacheKey(query, opts)` | (web) | Kunci cache hasil: rencana kueri ternormalisasi + opsi + versi normalisasi; `null` bila kueri tidak sah/kosong (S14) |
 | `getAyahRefs(db, passageId)` | (bahan `read_page`/S16) | Kutipan ayat di satu paragraf + ayat utuh, terjemahan Kemenag, transliterasi, sumber (S12). Lihat [Ayat](#ayat-al-quran-s12) |
+| `verifyQuote(db, passageId, quote)` | `verify_quote` | Apakah kutipan Arab ada di paragraf itu (batas kata, setelah normalisasi; S16). `match.text` = substring **mentah** persis (`text_raw.slice(char_start, char_end)`), bukan masukan. Lihat [Kutipan dan takhrij](#kutipan-dan-takhrij-s16) |
+| `getHadithTakhrij(db, passageId)` | `get_hadith_takhrij` | Catatan kaki takhrij yang dirujuk penanda paragraf, verbatim, dengan tanda tinjau ingest; `status` `linked`/`none`/`is_footnote` (S16) |
+| `ipKey(secret, ip)` / `ipNetwork(ip)` | (web + MCP) | Kunci rate limit HMAC-SHA256 atas jaringan IP (IPv6 dipotong ke /64), tanpa IP mentah (ADR-014, ADR-034; dipindah dari web di S16) |
 
-Skema Zod masukan (`readPageInput`, `readSectionInput`, `getTocInput`, `getWorkInput`, `buildCitationInput`, `searchTextInput`, `getAyahRefsInput`) dan keluaran (`pageView`, `sectionView`, `tocView`, `workList`, `workView`, `citation`, `passage`, `ayahRef`, `quranView`, `ayahRefsView`, `searchView`) diekspor untuk route, tool MCP, dan tes. `uintSegment` memvalidasi angka dari segmen URL (`/kitab/ihya/1/200`). Semua skema bisa diubah ke JSON Schema (`z.toJSONSchema`), sudah diuji.
+Skema Zod masukan (`readPageInput`, `readSectionInput`, `getTocInput`, `getWorkInput`, `buildCitationInput`, `searchTextInput`, `getAyahRefsInput`, `verifyQuoteInput`, `getHadithTakhrijInput`) dan keluaran (`pageView`, `sectionView`, `tocView`, `workList`, `workView`, `citation`, `passage`, `ayahRef`, `quranView`, `ayahRefsView`, `searchView`, `quoteVerification`, `takhrijView`) diekspor untuk route, tool MCP, dan tes. `uintSegment` memvalidasi angka dari segmen URL (`/kitab/ihya/1/200`). Semua skema bisa diubah ke JSON Schema (`z.toJSONSchema`), sudah diuji.
 
 ```ts
 import { readPage, readSection, isCoreError } from "@surau/core";
@@ -47,11 +50,11 @@ Semuanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 ## Paginasi `readSection`
 
 - Satuan potong adalah **blok**: satu paragraf badan + catatan kaki di halaman yang sama yang pertama kali dirujuknya. Catatan kaki yang tidak dirujuk (yatim, takhrij yang dipotong dari matan) ikut blok terakhir halamannya. Jadi paragraf tidak pernah dipotong, dan penanda selalu satu potongan dengan catatan kakinya.
-- Ukuran diperkirakan dengan **1 token ≈ 2 karakter JSON keluaran** (`estimateTokens`), konservatif untuk teks Arab. Belum dikalibrasi dengan `count_tokens` (S16).
-- Potongan diisi selama ≤ 6.000 token (blok pertama selalu ikut), lalu dipotong di **batas halaman cetak terakhir yang sudah ≥ 4.000 token**. Bila tidak ada batas halaman di rentang itu, halaman terbelah di antara blok. Di dalam satu potongan, setiap halaman tampil badan dulu, lalu catatan kakinya.
-- Label edisi non-default memakai slug edisi (`Kitab, j. 1, h. 5 (openiti)`). `estimated_tokens` hanya menghitung `passages`, tanpa `citation`, `node`, dan `ancestors` (±300–500 token).
+- Ukuran diperkirakan dengan **1 token ≈ 1,4 karakter JSON keluaran** (`estimateTokens`). Dikalibrasi di S16 dengan `count_tokens` Claude atas 81 potongan `read_section` lewat MCP ([laporan](../../data/reports/mcp-token.md)): JSON `passages` median 1,63 karakter/token, minimum 1,38. Sebelumnya 2 karakter/token, yang meremehkan teks Arab (potongan sebenarnya median 7,7 ribu token).
+- Potongan diisi selama ≤ 5.000 token (blok pertama selalu ikut), lalu dipotong di **batas halaman cetak terakhir yang sudah ≥ 3.500 token**. Bila tidak ada batas halaman di rentang itu, halaman terbelah di antara blok. Di dalam satu potongan, setiap halaman tampil badan dulu, lalu catatan kakinya. Sisa ±1.000 token untuk `citation`, `node`, `ancestors`, dan blok lisensi MCP, jadi seluruh hasil tool `read_section` ≤ ±6 ribu token (diukur: median 4.983, p95 5.503, maks. 6.139).
+- Label edisi non-default memakai slug edisi (`Kitab, j. 1, h. 5 (openiti)`). `estimated_tokens` hanya menghitung `passages`, tanpa `citation`, `node`, dan `ancestors` (lewat MCP, bersama blok lisensi, median ±970 token).
 - `next_cursor` opak (base64url, menyimpan node, juz, halaman, dan `ord` paragraf badan berikutnya) dan selalu divalidasi ulang.
-- Bagian terpanjang Ihya (Rub' al-Munjiyat, 1,68 juta karakter, 4.608 paragraf): 278 potongan, median ±5.300 token, maks. 5.997, 4 potongan di bawah 4.000.
+- Bagian terpanjang Ihya (Rub' al-Munjiyat, 1,68 juta karakter, 4.608 paragraf): 523 potongan, median 4.425 token perkiraan, maks. 5.524 (potongan satu paragraf panjang), 64 potongan di bawah 3.500 (sebelum S16: 278 potongan dengan heuristik lama).
 
 ## Pencarian `searchText`
 
@@ -65,6 +68,11 @@ Semuanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 - **Teks AI di hasil:** `translation` (setiap hasil, juga kueri Arab) dan `summary` (bila jalur ringkasan cocok) membawa label, model, versi prompt, status tinjauan, `highlights` + `snippet` (±240 karakter) di teks AI. Teks terjemahan memuat placeholder `⟦QS s:a⟧` untuk kutipan ayat; potongan tidak pernah memotongnya, dan terjemahan ayatnya adalah Kemenag (lewat `getAyahRefs`/`readPage`), bukan teks model. Hasil yang hanya cocok di jalur Indonesia: `highlights` Arab kosong, `snippet` Arab dari awal paragraf.
 - **Filter bagian:** `section_id` = node daftar isi beserta turunannya (mis. satu rub' atau kitab), berlaku di semua jalur; node tidak ada atau milik edisi lain → `NotFound`.
 - **Biaya D1:** satu bolak-balik (`searchCorpus` @surau/db: konteks + kueri berperingkat + kueri urutan kitab dalam satu `batch`; pengaman ada di ekspresi MATCH sehingga hanya satu yang memindai indeks). Ihya: الصبر ±2.900 baris dibaca, الله (pengaman) ±140 baris termasuk konteks (ADR-039).
+
+## Kutipan dan takhrij (S16)
+
+- **`verifyQuote`**: kutipan (boleh bervokal atau tidak, ≤2.000 karakter) dicari dengan `findQuote` (@surau/text) di `text_raw` satu paragraf: cocok di batas kata setelah normalisasi (harakat, varian alif/ya/ta marbuta, tanda baca), tidak di tengah ekspansi satu karakter (ﷺ). `verified: false` + `match: null` = kutipan tidak ada di sumber, jangan ditampilkan sebagai kutipan. `exact` = masukan sama persis dengan `match.text`. Satu bolak-balik D1 (paragraf + edisi bersamaan; edisi terbaca dari ID paragraf).
+- **`getHadithTakhrij`**: paragraf + catatan kaki yang dirujuk penanda `(١)`-nya, urut penanda, sebagai `Passage` lengkap (`needs_review` = tanda ingest seperti `takhrij_unmatched`, bukan hasil tinjauan). `review_status: "unreviewed"` untuk setiap tautan: penanda → catatan kaki dibuat kode ingest dan belum dicek manusia (S18 menambah nilai lain). `status: "none"` = tidak ada takhrij tertaut, jadi derajat hadits **tidak diketahui** (aturan teks-arab no. 6, tidak ditebak). `unlinked_footnote_ids` = catatan kaki halaman itu yang tidak dirujuk penanda mana pun (mis. takhrij yang dipotong dari matan): mungkin terkait, mungkin tidak. Untuk Ihya, catatan kaki adalah takhrij al-'Iraqi.
 
 ## Contoh keluaran (Ihya, DB lokal)
 
