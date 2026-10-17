@@ -1,6 +1,6 @@
 # S14 · Cari bahasa Indonesia + UI Cari
 
-> **Fase:** 2 · **Status:** selesai* (2026-10-17; *promote ke produksi menunggu izin pemilik, tampilan menunggu T-23)
+> **Fase:** 2 · **Status:** selesai* (2026-10-17; *tampilan menunggu T-23; `ihya-v5` dipromosikan ke produksi atas izin pemilik)
 > **Prasyarat:** S13 selesai · Tugas pemilik: **T-09** (drive, bila korpus dibangun ulang); review tampilan di akhir
 > **Perkiraan:** 1–2 percakapan agent
 
@@ -89,7 +89,7 @@ rows_read per kueri: Indonesia 493 (adab murid kepada guru) s.d. 15.800 (allah),
 **Penyimpangan (ADR-044):** stem Tala lengkap (bukan hanya -nya/ber-/me-) dengan pengecualian dari data; filter bagian butuh parameter API baru `section`; yang dipromosikan versi terbaru `ihya-v5`, bukan `ihya-v2`.
 
 **Utang / pesan untuk sesi berikutnya**
-- **Promote `ihya-v5` ke produksi butuh izin pemilik** (langkah 10). Perintahnya `pnpm run corpus:promote ihya-v5 --confirm` → PR berisi `wrangler.jsonc` (CORPUS_DB + `SEARCH_CACHE_CORPUS`) + catatan `data/SOURCES.md` → merge. Sampai itu: produksi `/cari` menampilkan "Pencarian sedang disiapkan", `/api/search` 503, pembaca tanpa terjemahan/ayat.
+- **Langkah 10 selesai (izin pemilik di chat, 2026-10-17):** `pnpm run corpus:promote ihya-v5 --confirm` → `surau-corpus-ihya-v5` (`fb0f9660-…`, APAC, 46 MB), smoke = hitungan build, `corpus:qa ihya-v5` 30/30 byte demi byte; binding `CORPUS_DB` + `SEARCH_CACHE_CORPUS` lewat PR #34. Rollback: `pnpm run corpus:promote ihya-v1 --switch-only` (skema 3, fitur baru tersembunyi).
 - **T-23** (tinjau tampilan Cari + terjemahan di pembaca) belum; butir 4 belum dicentang karenanya.
 - Pencarian Indonesia hanya menjangkau 100 paragraf teratas per jalur; kueri Arab saja tidak memakai ringkasan/judul bagian (peringkat datar) → eval S15.
 - Tabrakan stem tersisa kecil (kehati-hatian → hati, menempatkan → empat); sinonim (pelajar ≈ murid) belum ada → S15.
