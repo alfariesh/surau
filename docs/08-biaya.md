@@ -54,10 +54,10 @@ Diputuskan 15 Okt 2026, **sementara**: Claude Haiku 5.5 (`claude-haiku-5-5`) dip
 | Per jawaban (C. Haiku + Citations) | $0,0027 | $0,0019–0,0028 |
 | 10 ribu pertanyaan/bulan (campuran) | $10,67 | $7,46–11,28 |
 | Ulangan refusal ke Sonnet 5.5 (per kejadian) | $0,0523 | $0,0362–0,0553 |
-| **Ingest Ihya lengkap:** ringkasan, terjemahan Indonesia penuh, ekstraksi wiki | **$3,21** (perkiraan kalkulator; biaya aktual S13 di bawah) | $0,92–1,28 |
+| **Ingest Ihya lengkap:** ringkasan, terjemahan Indonesia penuh, ekstraksi wiki | **$3,21** (perkiraan kalkulator; aktual S13 untuk terjemahan + ringkasan saja: $4,25, di bawah) | $0,92–1,28 |
 | Ingest ±92 kitab kurikulum | $174,54 | $50,23–69,83 |
 
-Artinya: **terjemahan dan ringkasan AI untuk seluruh Ihya cukup dibayar sekali, dengan biaya aktual $3,77** (S13, 17 Okt 2026; rincian di bawah). Perkiraan awal $0,47–0,56 untuk terjemahan terlalu rendah karena belum menghitung prompt sistem yang diulang per paragraf (±4.300 token, glosarium), konteks paragraf sebelumnya, thinking, dan faktor token Arab yang ternyata 1,84. Terjemahan per paragraf dibuat sekali, disimpan, diberi label "terjemahan AI", dan bisa direview. Ayat Al-Qur'an tidak ikut diterjemahkan LLM: terjemahannya diambil verbatim dari Kemenag (ADR-020). Jawaban tidak perlu menerjemahkan ulang, sehingga semakin murah dan konsisten.
+Artinya: **terjemahan dan ringkasan AI untuk seluruh Ihya cukup dibayar sekali, dengan biaya aktual $4,25** (S13, 17 Okt 2026; rincian di bawah). Perkiraan awal $0,47–0,56 untuk terjemahan terlalu rendah karena belum menghitung prompt sistem yang diulang per paragraf (±4.300 token, glosarium), konteks paragraf sebelumnya, thinking, dan faktor token Arab yang ternyata 1,84. Terjemahan per paragraf dibuat sekali, disimpan, diberi label "terjemahan AI", dan bisa direview. Ayat Al-Qur'an yang dikenali pencocok tidak ikut diterjemahkan LLM: terjemahannya diambil verbatim dari Kemenag (ADR-020; sisa risiko ayat yang luput: ADR-042). Jawaban tidak perlu menerjemahkan ulang, sehingga semakin murah dan konsisten.
 
 **Kredit AWS:** program nirlaba AWS (lihat bawah) bisa dipakai untuk Haiku 5.5 di Amazon Bedrock (`anthropic.claude-haiku-5-5`), tetapi **hanya untuk panggilan online** (Jawab). **Message Batches tidak tersedia di Bedrock**, jadi ingest batch tetap langsung ke Anthropic (ADR-013). Catatan:
 - Harga Claude di Bedrock ditetapkan AWS dan bisa berbeda dari tabel di bawah.
@@ -198,10 +198,10 @@ Belum diverifikasi: apakah Rate Limiting binding dikenai biaya (halaman harganya
 
 | Pekerjaan | Request | Biaya aktual | Estimasi rencana (cache 95% / 50%) |
 |---|---|---|---|
-| Terjemahan Indonesia per paragraf (16.102 dari 16.111 lolos) | 16.771 (termasuk ulangan; 181 percobaan terakhir dengan Sonnet 5.5 = $0,90) | **$2,88** | $2,16 / $5,15 (sebelum ulangan) |
-| Ringkasan ID + EN per bagian (626/626, dua putaran) | 1.095 | **$0,84** | $0,54 / $0,68 |
+| Terjemahan Indonesia per paragraf (16.096 dari 16.111 lolos; 251 dibuat Sonnet 5.5) | 17.044 (termasuk ulangan dan kirim ulang sesudah perbaikan pencocok/validasi; batch ulangan Sonnet ±$1,20) | **$3,18** | $2,16 / $5,15 (sebelum ulangan) |
+| Ringkasan ID + EN per bagian (626/626, dua putaran) | 1.317 (termasuk putaran 2 ulang sesudah ringkasan anak berubah) | **$1,02** | $0,54 / $0,68 |
 | Uji kecil lewat API biasa (langkah 5, 2 × 30 request) | 60 | $0,05 | – |
-| **Total** | | **$3,77** | disetujui pemilik ±$6 (batas berhenti $7,20) |
+| **Total** | 18.421 | **$4,25** | disetujui pemilik ±$6 (batas berhenti $7,20) |
 
 Cache prompt sistem di batch terbaca **±100%** (bukan 30–98% seperti peringatan docs). Biaya terbesar justru keluaran (thinking + terjemahan, ±0,97 token per karakter Arab) dan ulangan Sonnet untuk paragraf sulit. Rincian per batch: [data/reports/ihya-9472-terjemahan.md](../data/reports/ihya-9472-terjemahan.md).
 
@@ -210,8 +210,8 @@ Cache prompt sistem di batch terbaca **±100%** (bukan 30–98% seperti peringat
 | Pekerjaan | Ihya (±1,8 juta token o200k) | ±92 kitab kurikulum (±98 juta token) |
 |---|---|---|
 | Embedding (ditunda, ADR-006; Workers AI $0,012/juta token) | < $0,05; muat dalam kuota gratis harian (±9 juta token/hari) | ±$1 |
-| Ringkasan Indonesia + Inggris per bagian | $0,53 (aktual S13: $0,84) | ±$29 |
-| Terjemahan Indonesia per paragraf | $2,19 (aktual S13: $2,88 dengan ulangan) | ±$119 |
+| Ringkasan Indonesia + Inggris per bagian | $0,53 (aktual S13: $1,02 dengan putaran 2 ulang) | ±$29 |
+| Terjemahan Indonesia per paragraf | $2,19 (aktual S13: $3,18 dengan ulangan) | ±$119 |
 | Ekstraksi wiki TS-native, 2 putaran (ADR-007) | $0,48 (asumsi, belum diukur) | ±$26 |
 | Satu putaran eval (100 soal × 3 model frontier) | ±$25–30 (perkiraan awal, dihitung ulang di S18) | — |
 
