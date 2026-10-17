@@ -87,14 +87,20 @@ describe("indeks Indonesia (S14)", () => {
     );
   });
 
-  test("hanya bahasa id, urut rowid", () => {
+  test("hanya bahasa id dan bukan rejected, urut rowid", () => {
     const rows = latinFtsRows(
       [
         tr(10_000_002, "id", "Kesabaran"),
         tr(10_000_001, "id", "Niat"),
         tr(10_000_001, "en", "Intention"),
+        // Ditolak peninjau: tidak boleh ditemukan lewat pencarian.
+        { ...tr(10_000_003, "id", "Zuhud"), review_status: "rejected" },
       ],
-      [sm(100_002, "en", "Patience"), sm(100_001, "id", "Ringkasan tentang syukur")],
+      [
+        sm(100_002, "en", "Patience"),
+        sm(100_001, "id", "Ringkasan tentang syukur"),
+        { ...sm(100_003, "id", "Zuhud"), review_status: "rejected" },
+      ],
     );
     expect(rows).toEqual({
       translation: [
