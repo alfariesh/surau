@@ -10,6 +10,8 @@ import { Button as AriaButton } from "react-aria-components";
 import { id } from "../../i18n/id";
 import { ArabicText } from "../arabic";
 
+import { shortAyahLabel } from "../../lib/reader/ayah";
+
 import { useCanHover } from "./footnote-marker";
 
 const t = id.reader;
@@ -40,11 +42,6 @@ const CHIP_CLASS =
  */
 function ChipLabel({ text }: { text: string }) {
   return <span aria-hidden="true" className="ayah-chip-label" data-label={text} dir="ltr" />;
-}
-
-/** "QS 2:255" / "QS 2:255–257": label ringkas di dalam teks Arab. */
-export function shortAyahLabel(r: Pick<AyahRef, "surah" | "ayah_from" | "ayah_to">): string {
-  return `QS ${r.surah}:${r.ayah_to > r.ayah_from ? `${r.ayah_from}–${r.ayah_to}` : r.ayah_from}`;
 }
 
 function sourceLink(source: QuranSourceView | undefined, label: string) {

@@ -6,12 +6,21 @@ import type { TocItem } from "../../lib/reader/toc";
 
 import { CircleExclamation, Copy, ListUl, Minus, Plus } from "@gravity-ui/icons";
 import { NativeSelect } from "@heroui-pro/react";
-import { Button, ButtonGroup, Drawer, Label, NumberField, Popover, Tooltip } from "@heroui/react";
+import {
+  Button,
+  ButtonGroup,
+  Checkbox,
+  Drawer,
+  Label,
+  NumberField,
+  Popover,
+  Tooltip,
+} from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { id } from "../../i18n/id";
-import { READER_SCALE_KEY, READER_SCALES } from "../../lib/reader/scale";
+import { READER_SCALE_KEY, READER_SCALES, READER_TRANSLATION_KEY } from "../../lib/reader/scale";
 
 import { useReader } from "./reader-context";
 import { TocTree } from "./toc-tree";
@@ -82,6 +91,53 @@ function FontSizeControl() {
         <Plus className="size-4" />
       </Button>
     </ButtonGroup>
+  );
+}
+
+const TRANSLATION_EVENT = "surau:reader-translation";
+
+function translationShown(): boolean {
+  return document.documentElement.getAttribute("data-translation") !== "off";
+}
+
+function subscribeTranslation(onChange: () => void) {
+  window.addEventListener(TRANSLATION_EVENT, onChange);
+  return () => window.removeEventListener(TRANSLATION_EVENT, onChange);
+}
+
+function setTranslation(shown: boolean, persist: boolean) {
+  if (shown) document.documentElement.removeAttribute("data-translation");
+  else document.documentElement.setAttribute("data-translation", "off");
+  if (persist) {
+    try {
+      window.localStorage.setItem(READER_TRANSLATION_KEY, shown ? "1" : "0");
+    } catch {
+      // localStorage diblokir: pilihan berlaku sampai halaman ditutup.
+    }
+  }
+  window.dispatchEvent(new Event(TRANSLATION_EVENT));
+}
+
+/** Tampil/sembunyikan terjemahan AI (S14), disimpan per browser seperti ukuran huruf. */
+function TranslationToggle() {
+  const shown = useSyncExternalStore(subscribeTranslation, translationShown, () => true);
+  // Navigasi klien dari halaman lain tidak menjalankan skrip awal: pasang pilihan tersimpan di sini.
+  useEffect(() => {
+    try {
+      setTranslation(window.localStorage.getItem(READER_TRANSLATION_KEY) !== "0", false);
+    } catch {
+      // localStorage diblokir: tetap tampil.
+    }
+  }, []);
+  return (
+    <Checkbox isSelected={shown} onChange={(v) => setTranslation(v, true)}>
+      <Checkbox.Content className="text-foreground text-sm">
+        <Checkbox.Control>
+          <Checkbox.Indicator />
+        </Checkbox.Control>
+        {t.translationToggle}
+      </Checkbox.Content>
+    </Checkbox>
   );
 }
 
@@ -211,6 +267,7 @@ export function ReaderToolbar({
         {t.copyCitation}
       </Button>
       <FontSizeControl />
+      <TranslationToggle />
       <Tooltip delay={300}>
         <Button
           isIconOnly

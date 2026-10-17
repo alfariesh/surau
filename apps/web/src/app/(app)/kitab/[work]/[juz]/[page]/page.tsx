@@ -2,7 +2,7 @@ import type { AyahRef, Passage } from "@surau/core";
 import type { Metadata } from "next";
 
 import { Breadcrumbs } from "@heroui/react";
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 
 import { ArabicInline, ArabicText } from "../../../../../../components/arabic";
 import { AyahRefChip } from "../../../../../../components/reader/ayah-ref";
@@ -11,9 +11,12 @@ import { FootnoteMarker } from "../../../../../../components/reader/footnote-mar
 import { NeedsReviewNote } from "../../../../../../components/reader/needs-review";
 import { PageNav } from "../../../../../../components/reader/page-nav";
 import { PassageActions } from "../../../../../../components/reader/passage-actions";
+import { PassageTranslation } from "../../../../../../components/reader/passage-translation";
 import { QuranNotice } from "../../../../../../components/reader/quran-notice";
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
 import { ReaderToolbar } from "../../../../../../components/reader/reader-toolbar";
+import { SearchHighlighter } from "../../../../../../components/reader/search-highlighter";
+import { SectionSummary } from "../../../../../../components/reader/section-summary";
 import { TocTree } from "../../../../../../components/reader/toc-tree";
 import { FOOTNOTE_NOTE } from "../../../../../../content/works";
 import { id } from "../../../../../../i18n/id";
@@ -94,6 +97,24 @@ export default async function ReaderPage({ params }: Props) {
       }
     }
   }
+  // Penanda (١) di terjemahan AI → catatan kaki Arab yang sama di halaman ini.
+  const footAnchor = new Map<string, string>();
+  for (const b of page.body) {
+    for (const r of b.footnote_refs) {
+      const foot = footById.get(r.footnote_id);
+      if (foot !== undefined && !footAnchor.has(r.marker)) footAnchor.set(r.marker, foot.anchor);
+    }
+  }
+  // Ringkasan AI per bagian yang mulai di halaman ini (S14), ditaruh sesudah paragraf awalnya.
+  const summaryOf = new Map((page.summaries ?? []).map((s) => [s.section.id, s]));
+  const summariesAt = (nodeIds: readonly number[]) =>
+    nodeIds.flatMap((nodeId) => {
+      const summary = summaryOf.get(nodeId);
+      return summary === undefined ? [] : [<SectionSummary key={nodeId} summary={summary} />];
+    });
+  const anyAi =
+    summaryOf.size > 0 ||
+    page.body.some((p) => p.translation !== null && p.translation !== undefined);
   const footNote = FOOTNOTE_NOTE[`${work.slug}/${edition.slug}`];
   const anyReview = [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0);
   const workTitle = work.title_id ?? work.title_ar;
@@ -165,6 +186,10 @@ export default async function ReaderPage({ params }: Props) {
   return (
     <ReaderProvider cite={citeParts(page.citation.source, juz, pageNo)} pagePath={permalink}>
       <script dangerouslySetInnerHTML={{ __html: READER_SCALE_SCRIPT }} />
+      {/* Sorotan kata dari hasil Cari (?q=): klien saja, di dalam Suspense (halaman tetap ISR). */}
+      <Suspense fallback={null}>
+        <SearchHighlighter />
+      </Suspense>
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 pt-6 pb-16 sm:px-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
         <article className="flex min-w-0 flex-col gap-6">
           <header className="flex flex-col gap-3">
@@ -212,6 +237,7 @@ export default async function ReaderPage({ params }: Props) {
             {starts.unplaced.map((nodeId) => (
               <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
             ))}
+            {summariesAt(starts.unplaced)}
             {page.body.map((p) => {
               const heading = headings.get(p.id);
               return (
@@ -232,9 +258,11 @@ export default async function ReaderPage({ params }: Props) {
                         <ArabicText className="text-foreground">{renderText(p)}</ArabicText>
                       )}
                       <NeedsReviewNote reasons={p.needs_review} />
+                      <PassageTranslation footAnchor={footAnchor} passage={p} quran={quran} />
                     </div>
                     <PassageActions passage={ref(p)} />
                   </div>
+                  {summariesAt(starts.byPassage.get(p.id) ?? [])}
                 </Fragment>
               );
             })}
@@ -292,6 +320,12 @@ export default async function ReaderPage({ params }: Props) {
               workSlug={work.slug}
             />
             {quran ? <QuranNotice quran={quran} /> : null}
+            {anyAi ? (
+              <p>
+                <span className="text-foreground font-medium">{t.aiNoticeHeading}.</span>{" "}
+                {t.aiNotice}
+              </p>
+            ) : null}
             {anyReview ? <p>{t.needsReviewNote}</p> : null}
           </footer>
         </article>

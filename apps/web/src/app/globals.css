@@ -23,6 +23,8 @@
 @import "@heroui/styles/components/menu-item.css" layer(components);
 @import "@heroui/styles/components/menu-section.css" layer(components);
 @import "@heroui/styles/components/menu.css" layer(components);
+@import "@heroui/styles/components/tag-group.css" layer(components);
+@import "@heroui/styles/components/tag.css" layer(components);
 @import "@heroui/styles/components/chip.css" layer(components);
 @import "@heroui/styles/components/alert.css" layer(components);
 @import "@heroui/styles/components/spinner.css" layer(components);
@@ -33,6 +35,7 @@
 @import "@heroui/styles/components/radio-group.css" layer(components);
 @import "@heroui/styles/components/radio.css" layer(components);
 @import "@heroui/styles/components/textfield.css" layer(components);
+@import "@heroui/styles/components/search-field.css" layer(components);
 @import "@heroui/styles/components/textarea.css" layer(components);
 @import "@heroui/styles/components/card.css" layer(components);
 @import "@heroui/styles/components/separator.css" layer(components);
@@ -40,6 +43,7 @@
 @import "@heroui/styles/components/modal.css" layer(components);
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
+@import "@heroui/styles/components/kbd.css" layer(components);
 @import "@heroui/styles/components/scroll-shadow.css" layer(components);
 
 @import "@heroui/styles/themes/default" layer(theme);
@@ -47,6 +51,8 @@
 @import "@heroui/styles/variants";
 
 @import "@heroui-pro/react/css/components/app-layout.css" layer(components);
+@import "@heroui-pro/react/css/components/command.css" layer(components);
+@import "@heroui-pro/react/css/components/empty-state.css" layer(components);
 @import "@heroui-pro/react/css/components/file-tree.css" layer(components);
 @import "@heroui-pro/react/css/components/hover-card.css" layer(components);
 @import "@heroui-pro/react/css/components/native-select.css" layer(components);
@@ -216,4 +222,66 @@ h2.reader-heading-minor {
 .toc-tree .toc-active {
   background-color: var(--accent-soft, color-mix(in oklab, var(--accent) 12%, transparent));
   font-weight: 600;
+}
+
+/*
+ * Terjemahan dan ringkasan AI di pembaca (S14). Terjemahan di bawah teks Arab paragrafnya, bergaris
+ * tepi halus supaya jelas terpisah dari teks kitab; bisa disembunyikan (data-translation="off").
+ * Ukurannya tidak ikut --reader-scale (skala itu untuk huruf Arab).
+ */
+.passage-translation {
+  margin-top: 0.25rem;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 2px solid var(--separator);
+  font-size: 1rem;
+}
+
+html[data-translation="off"] .passage-translation {
+  display: none;
+}
+
+.translation-ayah {
+  color: color-mix(in oklab, var(--accent) 72%, var(--foreground));
+}
+
+.translation-ayah-label,
+.translation-ayah-missing {
+  font-size: 0.75em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.translation-marker {
+  font-size: 0.8em;
+}
+
+.section-summary {
+  font-size: 1rem;
+}
+
+/* Sorotan hasil Cari: <mark> di kartu hasil; Highlight API (::highlight) di pembaca (?q=). */
+.search-mark {
+  border-radius: 0.25rem;
+  background-color: color-mix(in oklab, var(--warning) 28%, transparent);
+  color: inherit;
+}
+
+::highlight(surau-cari) {
+  background-color: color-mix(in oklab, var(--warning) 34%, transparent);
+  color: inherit;
+}
+
+.search-snippet {
+  font-size: 1.15rem;
+}
+
+.search-ayah {
+  margin-inline: 0.15em;
+  padding-inline: 0.4em;
+  border-radius: 9999px;
+  background-color: var(--accent-soft, color-mix(in oklab, var(--accent) 12%, transparent));
+  color: var(--accent);
+  font-size: 0.8em;
+  font-weight: 600;
+  white-space: nowrap;
 }
