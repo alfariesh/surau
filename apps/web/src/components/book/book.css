@@ -493,16 +493,13 @@ a:focus-visible .book .book__rotate,
 
 .book-ring__floor {
   position: absolute;
-  left: 0;
-  top: 120px;
-  aspect-ratio: 4 / 1;
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    color-mix(in oklab, var(--foreground) 14%, transparent),
+    color-mix(in oklab, var(--foreground) 12%, transparent),
     transparent
   );
-  transform: translate(-50%, -50%);
+  transform: rotateX(90deg) translateZ(-2px);
   pointer-events: none;
 }
 
@@ -577,6 +574,46 @@ a:focus-visible .book .book__rotate,
 
 .book-ring .book__spine::after {
   position: absolute;
+}
+
+/*
+ * Bayangan lantai di bawah setiap buku (bidang datar di dasar buku), supaya buku tampak berdiri di
+ * permukaan. Hover/fokus buku terdepan: buku naik sedikit, bayangannya melebar dan memudar seperti
+ * benda yang terangkat dari meja.
+ */
+.book-ring__shadow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #00000052, #00000014 70%, #0000);
+  transform: rotateX(90deg) translateZ(-1px);
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dark .book-ring__shadow {
+  background: radial-gradient(closest-side, #00000080, #0000);
+}
+
+.book-ring .book {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.book-ring__slot[data-front] .book-ring__book:is(:hover, :focus-visible) .book {
+  transform: translateY(-6px);
+}
+
+.book-ring__slot[data-front]:has(.book-ring__book:is(:hover, :focus-visible)) .book-ring__shadow {
+  opacity: 0.5;
+  transform: rotateX(90deg) translateZ(-1px) scale(1.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-ring .book,
+  .book-ring__shadow {
+    transition: none;
+  }
 }
 
 /* Fokus keyboard: cincin di sampul buku terdepan. */

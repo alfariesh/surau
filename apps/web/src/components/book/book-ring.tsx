@@ -45,7 +45,10 @@ export interface BookRingProps {
 }
 
 const TO_RAD = Math.PI / 180;
-const SPRING = 118;
+// Pegas sedikit kurang teredam (rasio 0,72): buku melewati posisi akhir sedikit lalu menetap,
+// terasa berbobot alih-alih berhenti mekanis.
+const SPRING = 140;
+const DAMPING = 2 * 0.72 * Math.sqrt(SPRING);
 const SETTLE = 9;
 const DRAG_THRESHOLD = 5;
 const TILT = -9;
@@ -131,6 +134,7 @@ function Ring({
   const stageRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const bookRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const wakeRef = useRef<() => void>(() => {});
   const [active, setActive] = useState(0);
   const activeRef = useRef(0);
@@ -190,10 +194,17 @@ function Ring({
         // Buku berikutnya di kiri (sudut negatif): rak berputar ke kanan, arah baca Arab.
         const base = -i * g.step;
         const world = wrap(base + state.angle);
-        // 1 = tepat di depan, 0 = sudah lewat satu langkah.
-        const p = smooth(clamp(1 - Math.abs(world) / g.step, 0, 1));
-        const turn = -90 * (1 - p) - world * p;
-        el.style.transform = `rotateY(${base}deg) translateZ(${g.radius + p * g.pull}px) rotateY(${turn}deg)`;
+        // d: 1 = tepat di depan, 0 = sudah lewat satu langkah. Dua fase seperti mengambil buku
+        // dari rak: ditarik keluar dulu (pull), baru diputar menghadap pembaca (turn); saat kembali
+        // urutannya terbalik. Selama ditarik buku sedikit terangkat, lalu turun lagi saat menghadap.
+        const d = clamp(1 - Math.abs(world) / g.step, 0, 1);
+        const pull = smooth(clamp(d / 0.55, 0, 1));
+        const face = smooth(clamp((d - 0.35) / 0.65, 0, 1));
+        const turn = -90 * (1 - face) - world * face;
+        const lift = -g.pull * 0.06 * pull * (1 - face);
+        el.style.transform = `rotateY(${base}deg) translateZ(${g.radius + pull * g.pull}px) translateY(${lift}px) rotateY(${turn}deg)`;
+        // Hanya buku yang sudah diam di depan yang bereaksi pada hover/fokus (naik + bayangan).
+        el.toggleAttribute("data-front", d > 0.97 && Math.abs(state.velocity) < 4);
         const facing = Math.cos(world * TO_RAD);
         el.style.setProperty("--ring-fade", (DEPTH_FADE * ((1 - facing) / 2) ** 1.2).toFixed(3));
         el.style.zIndex = String(Math.round(facing * 100) + 100);
@@ -226,11 +237,10 @@ function Ring({
     const advance = (dt: number) => {
       if (state.drag) return true;
       if (state.target !== null) {
-        const damping = 2 * Math.sqrt(SPRING);
         let left = dt;
         while (left > 0) {
           const h = Math.min(left, 1 / 240);
-          state.velocity += (SPRING * (state.target - state.angle) - damping * state.velocity) * h;
+          state.velocity += (SPRING * (state.target - state.angle) - DAMPING * state.velocity) * h;
           state.angle += state.velocity * h;
           left -= h;
         }
@@ -330,13 +340,17 @@ function Ring({
     wakeRef.current();
   }, []);
 
+  // Panah/Home/End: pindahkan fokus ke tautan buku tujuan; onFocus-nya memutar rak ke buku itu,
+  // jadi fokus keyboard selalu berada di buku terdepan.
+  const focusBook = (index: number) => {
+    linkRefs.current[((index % count) + count) % count]?.focus({ preventScroll: true });
+  };
+
   const stepBy = (delta: number) => {
     const state = stateRef.current;
     const g = geometry.current;
     const base = state.target ?? Math.round(state.angle / g.step) * g.step;
-    state.target = base + delta * g.step;
-    state.holdUntil = performance.now() + 3000;
-    wakeRef.current();
+    focusBook(Math.round(base / g.step) + delta);
   };
 
   const onPointerDown = (event: PointerEvent<HTMLElement>) => {
@@ -421,8 +435,8 @@ function Ring({
     // Arah RTL: buku berikutnya datang dari kiri.
     if (event.key === "ArrowLeft") stepBy(1);
     else if (event.key === "ArrowRight") stepBy(-1);
-    else if (event.key === "Home") focusIndex(0);
-    else if (event.key === "End") focusIndex(count - 1);
+    else if (event.key === "Home") focusBook(0);
+    else if (event.key === "End") focusBook(count - 1);
     else return;
     event.preventDefault();
   };
@@ -453,8 +467,18 @@ function Ring({
     >
       <div className="book-ring__viewport" style={{ perspective: `${PERSPECTIVE}px` }}>
         <div ref={stageRef} className="book-ring__stage">
-          <div aria-hidden="true" className="book-ring__floor" style={{ width: radius * 2.6 }} />
           <div ref={ringRef} className="book-ring__ring">
+            {/* Lantai rak: lingkaran datar di dasar buku (ikut kemiringan kamera). */}
+            <div
+              aria-hidden="true"
+              className="book-ring__floor"
+              style={{
+                width: (radius + W * 0.75) * 2,
+                height: (radius + W * 0.75) * 2,
+                left: -(radius + W * 0.75),
+                top: H / 2 - (radius + W * 0.75),
+              }}
+            />
             {items.map((item, index) => (
               <div
                 key={item.key}
@@ -463,7 +487,20 @@ function Ring({
                 }}
                 className="book-ring__slot"
               >
+                <div
+                  aria-hidden="true"
+                  className="book-ring__shadow"
+                  style={{
+                    width: W * 1.15,
+                    height: depth * 2.2,
+                    left: (-W * 1.15) / 2,
+                    top: H / 2 - depth * 1.1,
+                  }}
+                />
                 <NextLink
+                  ref={(el) => {
+                    linkRefs.current[index] = el;
+                  }}
                   aria-label={item.label}
                   className="book-ring__book"
                   draggable={false}
