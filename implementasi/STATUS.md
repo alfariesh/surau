@@ -63,7 +63,7 @@
 | 2 | S13 | Batch terjemahan & ringkasan | selesai* | 2026-10-17 · `@surau/llm`, korpus `ihya-v4` (lokal): 16.086 terjemahan (99,84%) + 626 ringkasan, $4,48; faktor token 1,84; pencocok ayat tanpa tanda (ADR-042, ADR-043) · *QA T-17 tahap 2 menunggu pemilik |
 | 2 | S14 | Cari Indonesia + UI | selesai | 2026-10-17 · PR #33, #34 · korpus `ihya-v5` (skema 6) **di produksi** (QA 30/30), stem ringan + RRF, `/cari`, ⌘K, terjemahan + ringkasan AI di pembaca, cache hasil (ADR-044); p95 staging 154 ms, a11y 100 · tampilan disetujui pemilik (T-23) |
 | 2 | S15 | Eval retrieval | selesai | 2026-10-17 · PR #36 · `tools/eval`, 31 soal disetujui (T-12), hit@10 **100%** (baseline 96,7%), kata pembingkai kueri, CI eval staging, embedding ditunda (ADR-045, ADR-046) · dirilis `rilis-f2` (ADR-048) |
-| 3 | S16 | Worker MCP | belum | garis besar · butuh T-07, T-19 |
+| 3 | S16 | Worker MCP | berjalan | dirinci 2026-10-17 · T-07 selesai, T-19 dipandu di langkah 6 |
 | 3 | S17 | Dokumentasi & rilis MCP | belum | garis besar · butuh T-18 · lalu `/rilis 3` |
 | 4 | S18 | Eval Jawab & tinjau | belum | garis besar · butuh T-13, T-14 (Access), P-7 |
 | 4 | S19 | Pipeline Jawab | belum | garis besar · butuh T-11, T-14 (AI Gateway) |
