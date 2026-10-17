@@ -71,7 +71,7 @@ jobs:
         run: |
           # Beberapa detik setelah deploy, sebagian permintaan masih dilayani versi Worker lama
           # (S04: `/` sempat 307 dari template). Ulangi sampai 200, paling lama ±60 detik per halaman.
-          for p in / /tentang /lisensi /kitab /kitab/ihya/1/200; do
+          for p in / /tentang /lisensi /mcp /kitab /kitab/ihya/1/200; do
             for i in $(seq 1 12); do
               code=$(curl -s -o /dev/null -w '%{http_code}' "https://surau.org$p" || true)
               [ "$code" = "200" ] && break

@@ -65,7 +65,7 @@
 | 2 | S14 | Cari Indonesia + UI | selesai | 2026-10-17 · PR #33, #34 · korpus `ihya-v5` (skema 6) **di produksi** (QA 30/30), stem ringan + RRF, `/cari`, ⌘K, terjemahan + ringkasan AI di pembaca, cache hasil (ADR-044); p95 staging 154 ms, a11y 100 · tampilan disetujui pemilik (T-23) |
 | 2 | S15 | Eval retrieval | selesai | 2026-10-17 · PR #36 · `tools/eval`, 31 soal disetujui (T-12), hit@10 **100%** (baseline 96,7%), kata pembingkai kueri, CI eval staging, embedding ditunda (ADR-045, ADR-046) · dirilis `rilis-f2` (ADR-048) |
 | 3 | S16 | Worker MCP | selesai | 2026-10-17 · PR #42 · `mcp.surau.org/mcp`, 7 tool, dual-era, `verifyQuote` + `getHadithTakhrij`, kalibrasi token `readSection` (median ±5 ribu), batas `HMAC(IP):tool` + global (ADR-049) · T-19 WAF aktif |
-| 3 | S17 | Dokumentasi & rilis MCP | belum | garis besar · butuh T-18 · lalu `/rilis 3` |
+| 3 | S17 | Dokumentasi & rilis MCP | berjalan | 2026-10-17 · T-18 pencarian + baca dikonfirmasi pemilik · panduan dan uji klien sedang dikerjakan |
 | 4 | S18 | Eval Jawab & tinjau | belum | garis besar · butuh T-13, T-14 (Access), P-7 |
 | 4 | S19 | Pipeline Jawab | belum | garis besar · butuh T-11, T-14 (AI Gateway) |
 | 4 | S20 | Pengaman biaya | belum | garis besar · butuh T-14, P-4, P-7 (T-20 opsional) |

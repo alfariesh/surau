@@ -4,7 +4,17 @@
 
 Surau adalah proyek nirlaba dan open source. Tujuannya membangun AI untuk ilmu agama yang setiap jawabannya bisa ditelusuri ke teks kitab aslinya: kitab, jilid, halaman cetak, dan kutipan Arab verbatim. Pembedanya: bahasa Indonesia di semua lapisan, kedalaman per kitab (struktur diperbaiki, takhrij tertaut, ayat dengan terjemahan Kemenag), kutipan yang diverifikasi kode, permalink halaman cetak yang stabil, review ustadz, dan biaya yang transparan (lihat ADR-022 di [implementasi/KEPUTUSAN.md](implementasi/KEPUTUSAN.md)).
 
-> Status: **persiapan implementasi** (per 15 Oktober 2026). Belum ada aplikasi yang berjalan. Rencana eksekusi ada di [`implementasi/`](implementasi/); posisi terkini di [STATUS.md](implementasi/STATUS.md).
+> Status per 17 Oktober 2026: **Pembaca Ihya dan Cari sudah dirilis** di [surau.org](https://surau.org). MCP publik tersedia untuk uji klien; panduan ada di [surau.org/mcp](https://surau.org/mcp), rilis Fase 3 menyusul gerbang S17. Posisi terkini di [STATUS.md](implementasi/STATUS.md).
+
+## Pakai Surau dari AI Anda
+
+Tambahkan server MCP Streamable HTTP **https://mcp.surau.org/mcp**, tanpa autentikasi. Di Claude Code:
+
+```sh
+claude mcp add --transport http surau https://mcp.surau.org/mcp
+```
+
+Minta AI mencari di Surau, membaca konteks hasilnya, memeriksa kutipan dengan `verify_quote`, dan menyertakan sitasi serta tautan. Jawaban akhir dibuat AI pengguna dan masih bisa keliru. [Panduan Claude.ai, Desktop, Code dan ChatGPT](https://surau.org/mcp) · [tool dan batas pemakaian](apps/mcp/README.md) · [bukti uji dan pemantauan](docs/mcp-operasional.md).
 
 ## Kenapa "Surau"
 
@@ -28,7 +38,7 @@ Setiap fase bisa dirilis sendiri. Rinciannya ada di [FASE.md](implementasi/FASE.
 ## Prinsip inti
 
 - **Kutipan tidak pernah ditulis oleh AI.** Kode yang menyalin teks dari sumber, dan kutipan yang tidak cocok ditolak.
-- **Ayat dan terjemahannya dari sumber resmi, tidak diterjemahkan AI.** Teks ayat dari Tanzil, terjemahan Kemenag via QuranEnc (ADR-020).
+- **Ayat dan terjemahannya dari sumber resmi, tidak diterjemahkan AI.** Teks ayat dari Tanzil, terjemahan Kemenag dari data pemilik (ADR-040).
 - **Atribusi, bukan fatwa.** Kalimatnya "Menurut al-Ghazali dalam Ihya…", bukan "Hukumnya adalah…".
 - **Setiap fakta punya sumber dan status review:** diekstrak AI → direview → diverifikasi ustadz.
 - **Eval dibuat bersama ustadz.** Cakupan baru hanya ditambah setelah eval-nya lolos.
@@ -65,5 +75,5 @@ Surau dibangun sepenuhnya oleh AI coding agent (Claude Code). Pemilik proyek, se
 - **Kode:** Apache-2.0 ([`LICENSE`](LICENSE)), berlaku sejak S02.
 - **Konten turunan** (teks, terjemahan dan ringkasan AI, indeks, dump): CC BY-NC-SA 4.0 di `data/LICENSE`, dibuat di sesi S07. Tanpa iklan, paywall, atau penjualan akses konten.
 - **Data Shamela mentah tidak diredistribusikan** dan tidak pernah masuk git.
-- **Atribusi** dicatat di `data/ATTRIBUTION.md`: teks Ihya dari OpenITI 2025.1.9 (CC BY-NC-SA 4.0), digitalisasi asal al-Maktaba al-Shamela, edisi Dar al-Ma'rifah (tampil di setiap halaman, ADR-018); teks ayat dari Tanzil (CC BY 3.0, verbatim); terjemahan ayat dari Kemenag via QuranEnc.
+- **Atribusi** dicatat di `data/ATTRIBUTION.md`: teks Ihya dari OpenITI 2025.1.9 (CC BY-NC-SA 4.0), digitalisasi asal al-Maktaba al-Shamela, edisi Dar al-Ma'rifah (tampil di setiap halaman, ADR-018); teks ayat dari Tanzil (CC BY 3.0, verbatim); terjemahan dan transliterasi Kemenag dari data pemilik (ADR-040).
 - Komponen HeroUI Pro di aplikasi web berlisensi komersial dan tidak ikut lisensi di atas. Untuk mem-build `apps/web` dibutuhkan lisensi HeroUI Pro sendiri. Repo ini dibuat publik atas keputusan pemilik dengan risiko lisensi yang diterima (ADR-025).

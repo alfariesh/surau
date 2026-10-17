@@ -111,6 +111,32 @@ test("menu samping: Kitab, Cari, dan Tentang bisa dibuka, fitur yang belum ada b
   await expect(page).toHaveURL(/\/tentang$/);
 });
 
+test("panduan MCP bisa ditemukan dan dipakai di layar ponsel", async ({ page, isMobile }) => {
+  await page.goto("/");
+  if (isMobile) await page.getByRole("button", { name: "Buka menu" }).click();
+  await page
+    .getByRole("treegrid", { name: "Navigasi utama" })
+    .last()
+    .getByRole("row", { name: "Pakai dengan AI", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/mcp$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Pakai Surau dari AI Anda");
+  await expect(page.locator("#alamat code")).toHaveText("https://mcp.surau.org/mcp");
+  await expect(page.locator("#claude-code pre")).toHaveText(
+    "claude mcp add --transport http surau https://mcp.surau.org/mcp",
+  );
+  await expect(page.locator("#contoh li")).toHaveCount(3);
+  await expect(page.locator("#periksa")).toContainText("verify_quote");
+  await expect(page.locator("#periksa")).toContainText(
+    "Jawaban akhir ditulis oleh asisten AI Anda",
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.locator("#lisensi").getByRole("link").click();
+  await expect(page).toHaveURL(/\/lisensi$/);
+});
+
 test("respons HTML membawa header keamanan dasar", async ({ request }) => {
   const response = await request.get("/");
   const headers = response.headers();

@@ -4,7 +4,7 @@ import { BookOpen, CircleInfo, CircleQuestion, House, Magnifier } from "@gravity
 
 import { id } from "../../i18n/id";
 
-export type NavItemId = "home" | "books" | "search" | "ask" | "about";
+export type NavItemId = "home" | "books" | "search" | "ask" | "mcp" | "about";
 
 export interface NavItem {
   id: NavItemId;
@@ -19,6 +19,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "books", label: id.nav.books, icon: BookOpen, href: "/kitab" },
   { id: "search", label: id.nav.search, icon: Magnifier, href: "/cari" },
   { id: "ask", label: id.nav.ask, icon: CircleQuestion },
+  { id: "mcp", label: id.nav.mcp, icon: BookOpen, href: "/mcp" },
   { id: "about", label: id.nav.about, icon: CircleInfo, href: "/tentang" },
 ];
 

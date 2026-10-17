@@ -7,6 +7,7 @@ const PAGES = [
   "/",
   "/tentang",
   "/lisensi",
+  "/mcp",
   "/tidak-ada-halaman-ini",
   "/kitab",
   "/kitab/ihya",

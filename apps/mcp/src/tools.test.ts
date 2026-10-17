@@ -4,6 +4,7 @@ import type { D1Db } from "@surau/db";
 import { describe, expect, test, vi } from "vite-plus/test";
 
 import type { GuardEnv, Limiter } from "./guard.ts";
+import type { McpTool } from "./tools.ts";
 import { MCP_HITS_PER_PAGE, TOOLS, compactSearch, mcpSearchView, runTool } from "./tools.ts";
 
 function hit(id: number, score: number | null): SearchHit {
@@ -112,6 +113,87 @@ describe("runTool", () => {
     if (found === undefined) throw new Error(name);
     return found;
   };
+
+  test("telemetri sukses dan batas habis hanya memuat label statis, tanpa input/output/IP", async () => {
+    const log = vi.spyOn(console, "info").mockImplementation(() => {});
+    const run = vi.fn<McpTool["run"]>(async () => ({
+      view: { private: "isi hasil rahasia" },
+      sources: [],
+    }));
+    const deps = {
+      env,
+      db: {} as D1Db,
+      request: new Request("https://surau.test/mcp", {
+        headers: { "cf-connecting-ip": "192.0.2.42" },
+      }),
+      siteUrl: "https://surau.test",
+    };
+    try {
+      const out = await runTool({ ...tool("verify_quote"), run }, deps, {
+        quote: "pertanyaan rahasia",
+      } as never);
+      expect(out.isError).not.toBe(true);
+      const no: Limiter = { limit: async () => ({ success: false }) };
+      const limited = await runTool(
+        { ...tool("verify_quote"), run },
+        { ...deps, env: { ...env, MCP_TOOL_LIMITER: no } },
+        {} as never,
+      );
+      expect(limited.isError).toBe(true);
+      expect(run).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls.map(([entry]) => entry)).toEqual([
+        { event: "mcp_tool", tool: "verify_quote", outcome: "ok", duration_ms: expect.any(Number) },
+        {
+          event: "mcp_tool",
+          tool: "verify_quote",
+          outcome: "rate_limited",
+          duration_ms: expect.any(Number),
+        },
+      ]);
+      const all = JSON.stringify(log.mock.calls);
+      for (const secret of ["pertanyaan", "isi hasil", "192.0.2.42"])
+        expect(all).not.toContain(secret);
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  test("limiter melempar → internal_error dan satu event, tanpa bocor pesan error", async () => {
+    const broken: Limiter = {
+      limit: async () => {
+        throw new Error("token rahasia");
+      },
+    };
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const out = await runTool(
+        tool("verify_quote"),
+        {
+          env: { ...env, MCP_TOOL_LIMITER: broken },
+          db: {} as D1Db,
+          request: undefined,
+          siteUrl: "https://surau.test",
+        },
+        {} as never,
+      );
+      expect(out).toMatchObject({
+        isError: true,
+        content: [{ text: "internal_error: Internal error. Try again later." }],
+      });
+      expect(info).toHaveBeenCalledTimes(1);
+      expect(info.mock.calls[0]?.[0]).toMatchObject({
+        event: "mcp_tool",
+        outcome: "internal_error",
+      });
+      expect(JSON.stringify([out, info.mock.calls, error.mock.calls])).not.toContain(
+        "token rahasia",
+      );
+    } finally {
+      info.mockRestore();
+      error.mockRestore();
+    }
+  });
 
   test("D1 gagal → internal_error tanpa detail; log hanya nama tool dan nama error", async () => {
     const secret = "detail internal: SELECT * FROM passage";

@@ -1189,3 +1189,19 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** `read_page` tetap besar (median ±11,1 ribu, maks. ±14,8 ribu token; halaman = satuan sitasi, tidak dipotong), di atas peringatan 10 ribu Claude Code tetapi di bawah batas 25 ribu; deskripsi tool menyebut ukurannya. Semua pengguna claude.ai berbagi kuota per IP Anthropic. Beban baca terburuk pada batas global = 600 panggilan × ±1.000 baris ≈ 600 ribu baris D1/menit per lokasi Cloudflare (perkiraan, belum diukur di produksi). Batas WAF luar (T-19) di plan Free hanya bisa memfilter path, jadi berlaku untuk `/mcp` di seluruh zona `surau.org`; T-19 sebaiknya selesai sebelum MCP diumumkan (S17).
 
 **Tinjau ulang bila:** T-18 (uji dari claude.ai) menunjukkan batas per IP terlalu ketat atau `read_page` terlalu besar untuk konteks klien; `rows_read` D1 dari MCP naik tajam (pertimbangkan memoisasi daftar isi per isolate atau tabel turunan); kitab kedua dimuat (instruksi server menyebut Ihya sebagai satu-satunya korpus); SDK v2 mengubah `cacheHints`/era.
+
+## ADR-050 · Panduan MCP dan pemantauan tanpa isi pertanyaan
+
+**Tanggal:** 2026-10-17 · **Status:** diterapkan di S17
+
+**Konteks:** Worker MCP S16 sudah publik, tetapi belum ada panduan bagi pengguna umum atau hitungan volume per tool. R3 membutuhkan uji klien nyata, sitasi dan lisensi; pengamatan satu minggu tidak dapat selesai dalam satu hari.
+
+**Keputusan:**
+1. Panduan pengguna berada di `/mcp`, ditautkan navigasi dan sitemap, memakai Server Component statis dan pola halaman informasi yang ada. Langkah Claude.ai/Desktop/Code, ChatGPT dan klien lain ditulis dari docs resmi 17 Oktober; tidak menjanjikan paket/menu tersedia untuk semua akun. UI mengikuti bahasa Indonesia terpusat. Jawaban akhir tetap tanggung jawab AI klien: alur cari → baca konteks → verifikasi kutipan → sitasi, label AI, takhrij dan lisensi dijelaskan secara terbuka.
+2. Setiap callback tool mencatat objek `console.info({event: "mcp_tool", tool, outcome, duration_ms})` agar field diindeks Workers Logs. Tidak menyimpan argumen, hasil, alamat halaman, teks, IP atau identitas pengguna. Sampling existing 1 dan retensi layanan tetap berlaku. Request yang ditolak SDK/transport/WAF tidak terhitung sebagai callback; gunakan metrik request/error terpisah. Error limiter juga ditangkap dan dipetakan ke `internal_error` agar detail tak bocor.
+3. Uji Claude Code nyata (2.1.299, Haiku) atas izin pemilik ≤ US$0,10: search→read sukses, biaya US$0,00344562. Claude.ai dikonfirmasi pemilik (T-18), Playground diuji lewat UI dengan model demo. Hasil klien yang mengabaikan sebagian instruksi dicatat sebagai keterbatasan, bukan klaim semua jawaban terjamin.
+4. Mulai pemantauan 17–24 Oktober WIB, simpan agregat harian dan snapshot D1 tanpa isi kueri pengguna. D1 dibagi web/MCP sehingga biaya khusus MCP belum terpisah. Batas S16 tidak diubah berdasarkan satu uji. Koreksi fakta STACK: Paid mencakup **25 miliar** rows read/bulan, bukan 25 juta. Rilis/tag fase tetap lewat `/rilis 3` yang dipanggil pemilik; registry/directory/skill opsional ditunda.
+
+**Konsekuensi:** satu event log tambahan per callback memakai kuota Workers Logs; retensi 7 hari memerlukan pencatatan agregat harian. Catatan uji dan prosedur pemantauan ada di [docs/mcp-operasional.md](../docs/mcp-operasional.md). Satu minggu pengamatan masih tindak lanjut dan tidak dinyatakan selesai pada S17 hari pertama. Tidak ada dependensi baru, panggilan LLM di server, migrasi korpus, atau perubahan rate limit.
+
+**Tinjau ulang bila:** log perlu retensi lebih lama atau volume log mahal (pertimbangkan metrik agregat); `rate_limited` menghambat penggunaan normal; rows_read meningkat tajam; menu/ketentuan klien berubah.
