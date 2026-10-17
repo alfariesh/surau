@@ -149,7 +149,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     "",
     `- Korpus: \`${config.corpusVersion}\` · NORM_VERSION ${ctx.normVersion}`,
     `- Sumber Qur'an: ${sources}`,
-    `- Ambang: \`{…}\` mirip = skor penjajaran **huruf** ≥ ${String(SIMILAR_MIN_SCORE).replace(".", ",")} (alif/waw/ya/hamzah dan ه/ت = setengah biaya); tanpa kurung: jangkar ${CUE_ANCHOR_TOKENS} kata persis, minimal ${CUE_MIN_TOKENS} kata, skornya = porsi **kata** yang sama persis (metrik berbeda, jadi bisa < ${String(SIMILAR_MIN_SCORE).replace(".", ",")}). Aturan lengkap: ADR-040. Tanpa tanda (S13): ≥ ${UNMARKED_MIN_TOKENS} kata sama persis, atau ≥ ${UNMARKED_CUED_MIN_TOKENS} kata tepat sesudah kata kutip; ADR-041.`,
+    `- Ambang: \`{…}\` mirip = skor penjajaran **huruf** ≥ ${String(SIMILAR_MIN_SCORE).replace(".", ",")} (alif/waw/ya/hamzah dan ه/ت = setengah biaya); tanpa kurung: jangkar ${CUE_ANCHOR_TOKENS} kata persis, minimal ${CUE_MIN_TOKENS} kata, skornya = porsi **kata** yang sama persis (metrik berbeda, jadi bisa < ${String(SIMILAR_MIN_SCORE).replace(".", ",")}). Aturan lengkap: ADR-040. Tanpa tanda (S13): ≥ ${UNMARKED_MIN_TOKENS} kata sama persis, atau ≥ ${UNMARKED_CUED_MIN_TOKENS} kata tepat sesudah kata kutip; ADR-042.`,
     "",
     "## Ringkasan",
     "",

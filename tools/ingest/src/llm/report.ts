@@ -97,7 +97,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     "> Dibuat otomatis oleh `pnpm llm report` (`tools/ingest/src/llm`). Tanpa teks kitab: hanya angka, ID, dan permalink.",
     "",
     `- Prompt: \`${TRANSLATE_PROMPT.id}\`, \`${SUMMARY_PROMPT.id}\` (\`packages/llm/prompts/\`) · model Claude Haiku 5.5 (\`claude-haiku-5-5\`, effort low), ulangan refusal Claude Sonnet 5.5 · Message Batches`,
-    "- Ayat tidak pernah diterjemahkan model: kutipan ayat dikirim sebagai placeholder `⟦QS s:a⟧` dan diganti terjemahan Kemenag saat tampil (ADR-020, ADR-040, ADR-041).",
+    "- Ayat tidak pernah diterjemahkan model: kutipan ayat dikirim sebagai placeholder `⟦QS s:a⟧` dan diganti terjemahan Kemenag saat tampil (ADR-020, ADR-040, ADR-042).",
     "",
     "## Cakupan",
     "",

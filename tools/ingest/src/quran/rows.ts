@@ -58,7 +58,7 @@ export interface AyahStats {
   rejectedByReason: Record<RejectedSpan["reason"], number>;
   cueExact: number;
   cueSimilar: number;
-  /** Kutipan tanpa tanda (tanpa kurung dan tanpa frasa pengantar), selalu persis (S13, ADR-041). */
+  /** Kutipan tanpa tanda (tanpa kurung dan tanpa frasa pengantar), selalu persis (S13, ADR-042). */
   unmarked: number;
   partial: number;
   multiAyah: number;

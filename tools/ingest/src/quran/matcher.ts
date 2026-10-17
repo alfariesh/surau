@@ -13,7 +13,7 @@
 //    jangkar = awalan ≥3 kata yang sama persis dengan mushaf, lalu diperpanjang kata demi kata
 //    selama kata berikutnya sama atau beda ejaan kecil (kata mirip di ujung dibuang: harus diikuti
 //    kata yang sama persis); diterima bila ≥ CUE_MIN_TOKENS kata.
-// 3. Kutipan tanpa tanda (S13, ADR-041): deret ≥ UNMARKED_MIN_TOKENS kata yang sama persis dengan
+// 3. Kutipan tanpa tanda (S13, ADR-042): deret ≥ UNMARKED_MIN_TOKENS kata yang sama persis dengan
 //    mushaf di mana pun dalam paragraf, atau ≥ UNMARKED_CUED_MIN_TOKENS kata bila tepat didahului
 //    kata kutip (قال، قوله، تعالى …; termasuk "{وقال}" yang kurungnya salah tempat). Hanya cocok
 //    persis, tidak pernah mirip. Kalimat tauhid "لا إله إلا الله/هو" saja tidak dihitung (biasanya
