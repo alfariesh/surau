@@ -168,7 +168,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     `| · mirip, beda ejaan (\`similar\`) | ${num(s.similar)} (${pct(s.similar, s.validated)}) |`,
     `| · tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda; dibiarkan, tidak ditebak) | ${num(s.unmatched)} (${pct(s.unmatched, s.validated)}) |`,
     `| Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | ${num(s.cueExact)} / ${num(s.cueSimilar)} |`,
-    `| Kutipan S13, sama persis: tanpa tanda, dan pendek 2–3 kata sesudah pengantar (lafaz langka) | ${num(s.unmarked)} |`,
+    `| Kutipan S13 (paragraf badan): tanpa tanda (persis), dan pendek 2–3 kata sesudah pengantar (lafaz langka; bisa diperpanjang melewati beda ejaan) | ${num(s.unmarked)} |`,
     `| **Rujukan ayat** (\`passage_ayah_ref\`) | **${num(rows.passage_ayah_ref.length)}** di ${num(s.passages)} paragraf |`,
     `| · sebagian ayat (\`partial\`) | ${num(s.partial)} |`,
     `| · lebih dari satu ayat | ${num(s.multiAyah)} |`,

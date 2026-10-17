@@ -18,9 +18,9 @@
 | · mirip, beda ejaan (`similar`) | 25 (2,5%) |
 | · tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda; dibiarkan, tidak ditebak) | 2 (0,2%) |
 | Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | 610 / 38 |
-| Kutipan S13, sama persis: tanpa tanda, dan pendek 2–3 kata sesudah pengantar (lafaz langka) | 834 |
-| **Rujukan ayat** (`passage_ayah_ref`) | **2.484** di 1.434 paragraf |
-| · sebagian ayat (`partial`) | 1.905 |
+| Kutipan S13 (paragraf badan): tanpa tanda (persis), dan pendek 2–3 kata sesudah pengantar (lafaz langka; bisa diperpanjang melewati beda ejaan) | 832 |
+| **Rujukan ayat** (`passage_ayah_ref`) | **2.482** di 1.434 paragraf |
+| · sebagian ayat (`partial`) | 1.903 |
 | · lebih dari satu ayat | 300 |
 | · lafaz yang sama ada di letak lain (`alt_count` > 0) | 92 |
 
@@ -57,7 +57,7 @@ Buka permalink (situs atau `pnpm dev`), cocokkan kutipan dengan rujukannya, lalu
 | 19 | j4 h351 | `/kitab/ihya/4/351#p18498` | QS Yunus [10]: 7 | persis, {…}, sebagian ayat | ورضوا بالحياة الدنيا واطمأنوا بها |  |
 | 20 | j4 h518 | `/kitab/ihya/4/518#p20289` | QS Al-Ma'idah [5]: 116 | persis, {…}, sebagian ayat | أأنت قلت للناس اتخذوني وأمي إلهين … |  |
 
-## Kutipan S13: tanpa tanda + pendek sesudah pengantar (834): 20 sampel acak
+## Kutipan S13: tanpa tanda + pendek sesudah pengantar (832): 20 sampel acak
 
 Ayat yang tidak dikurung dan tidak didahului frasa pengantar yang dikenali, misalnya karena kurung di sumber salah tempat (`{وقال}`) atau pengantarnya lain (كما قال، لقوله). Dicek agent; boleh ikut diperiksa bersama T-16.
 
@@ -68,17 +68,17 @@ Ayat yang tidak dikurung dan tidak didahului frasa pengantar yang dikenali, misa
 | 3 | j1 h292 | `/kitab/ihya/1/292#p4197` | QS An-Nahl [16]: 120 | persis, tanpa tanda, sebagian ayat | إن إبراهيم كان أمة قانتاً لله |  |
 | 4 | j1 h292 | `/kitab/ihya/1/292#p4197` | QS Al-Qadr [97]: 1 | persis, tanpa tanda, ayat utuh | إنا أنزلناه في ليلة القدر |  |
 | 5 | j1 h304 | `/kitab/ihya/1/304#p4339` | QS Adh-Dhariyat [51]: 18 | persis, pendek sesudah pengantar, ayat utuh | وبالأسحار هم يستغفرون |  |
-| 6 | j2 h165 | `/kitab/ihya/2/165#p7609` | QS Ghafir [40]: 43 | persis, tanpa tanda, sebagian ayat | في الدنيا ولا في الآخرة |  |
-| 7 | j2 h289 | `/kitab/ihya/2/289#p10255` | QS As-Saffat [37]: 171 | persis, tanpa tanda, ayat utuh | ولقد سبقت كلمتنا لعبادنا المرسلين |  |
-| 8 | j3 h195 | `/kitab/ihya/3/195#p13513` | QS Al-Hijr [15]: 47 | persis, tanpa tanda, ayat utuh | ونزعنا ما في صدورهم من غل … |  |
-| 9 | j3 h199 | `/kitab/ihya/3/199#p13542` | QS Ali 'Imran [3]: 120 | persis, tanpa tanda, sebagian ayat | إن تمسسكم حسنة تسؤهم |  |
-| 10 | j3 h312 | `/kitab/ihya/3/312#p14762` | QS Al-Furqan [25]: 3 | persis, tanpa tanda, sebagian ayat | يَمْلِكُونَ لأنفسهم ضراً ولا نفعاً ولا … |  |
-| 11 | j3 h378 | `/kitab/ihya/3/378#p15551` | QS An-Nur [24]: 35 | persis, tanpa tanda, sebagian ayat | يكاد زيتها يضيء ولو لم تمسسه … |  |
-| 12 | j3 h385 | `/kitab/ihya/3/385#p15626` | QS Al-Furqan [25]: 42 | persis, tanpa tanda, sebagian ayat | وَسَوْفَ يَعْلَمُونَ حِينَ يرون العذاب من … |  |
-| 13 | j4 h80 | `/kitab/ihya/4/80#p16321` | QS Ali 'Imran [3]: 145 | persis, pendek sesudah pengantar, sebagian ayat | وسنجزي الشاكرين |  |
+| 6 | j2 h171 | `/kitab/ihya/2/171#p7689` | QS An-Najm [53]: 29 | persis, tanpa tanda, sebagian ayat | تَوَلَّى عَنْ ذِكْرِنَا وَلَمْ يُرِدْ إِلَّا … |  |
+| 7 | j2 h290 | `/kitab/ihya/2/290#p10286` | QS Al-Hajj [22]: 74 | persis, tanpa tanda, sebagian ayat | ما قدروا الله حق قدره |  |
+| 8 | j3 h196 | `/kitab/ihya/3/196#p13514` | QS An-Nur [24]: 37 | persis, tanpa tanda, sebagian ayat | رِجَالٌ لَا تُلْهِيهِمْ تِجَارَةٌ وَلَا بَيْعٌ … |  |
+| 9 | j3 h201 | `/kitab/ihya/3/201#p13550` | QS Al-Baqarah [2]: 86 | persis, tanpa tanda, sebagian ayat | اشْتَرَوُا الْحَيَاةَ الدُّنْيَا بِالْآخِرَةِ فَلَا يُخَفَّفُ … |  |
+| 10 | j3 h312 | `/kitab/ihya/3/312#p14769` | QS Ar-Ra'd [13]: 11 | persis, tanpa tanda, sebagian ayat | الله لا يغير ما بقوم حتى … |  |
+| 11 | j3 h378 | `/kitab/ihya/3/378#p15551` | QS Al-An'am [6]: 125 | persis, tanpa tanda, sebagian ayat | ضيقاً حرجاً كأنما يصعد في السماء |  |
+| 12 | j3 h385 | `/kitab/ihya/3/385#p15626` | QS As-Sajdah [32]: 12 | persis, tanpa tanda, sebagian ayat | ربنا أبصرنا وسمعنا فارجعنا نعمل صالحاً … |  |
+| 13 | j4 h80 | `/kitab/ihya/4/80#p16321` | QS Ibrahim [14]: 7 | persis, pendek sesudah pengantar, sebagian ayat | لئن شكرتم لأزيدنكم |  |
 | 14 | j4 h305 | `/kitab/ihya/4/305#p17998` | QS Al-Kahf [18]: 84 | persis, tanpa tanda, sebagian ayat | إنا مكنا له في الأرض |  |
 | 15 | j4 h380 | `/kitab/ihya/4/380#p18849` | QS Al-Kahf [18]: 103–104 | persis, tanpa tanda, ayat utuh | قل هل ننبئكم بالأخسرين أعمالاً الَّذِينَ … |  |
-| 16 | j4 h412 | `/kitab/ihya/4/412#p19234` | QS At-Tur [52]: 27 | persis, tanpa tanda, ayat utuh | فمن الله علينا ووقانا عذاب السموم |  |
+| 16 | j4 h412 | `/kitab/ihya/4/412#p19241` | QS Ali 'Imran [3]: 30 | persis, tanpa tanda, sebagian ayat | يَوْمَ تَجِدُ كُلُّ نَفْسٍ مَا عَمِلَتْ … |  |
 | 17 | j4 h453 | `/kitab/ihya/4/453#p19661` | QS Al-An'am [6]: 134 | persis, tanpa tanda, ayat utuh | إن ما توعدون لآت وما أنتم … |  |
 | 18 | j4 h500 | `/kitab/ihya/4/500#p20167` | QS Al-Mu'minun [23]: 100 | persis, tanpa tanda, sebagian ayat | لعلي أعمل صالحاً فيما تركت |  |
 | 19 | j4 h534 | `/kitab/ihya/4/534#p20397` | QS Fatir [35]: 37 | persis, tanpa tanda, sebagian ayat | ربنا أخرجنا نعمل صالحاً غير الذي … |  |
@@ -107,10 +107,10 @@ Ayat yang tidak dikurung dan tidak didahului frasa pengantar yang dikenali, misa
 | j1 h291 | `/kitab/ihya/1/291#p4189` | QS Al-A'raf [7]: 187 | mirip (kata persis 0,75), pendek sesudah pengantar, sebagian ayat | ثقلت في السموات والأرض |
 | j1 h330 | `/kitab/ihya/1/330#p4682` | QS Al-Muzzammil [73]: 6 | mirip (huruf 0,983), {…}, ayat utuh | إن ناشئة الليل هي أشد وطأ … |
 | j1 h353 | `/kitab/ihya/1/353#p4851` | QS Al-Muzzammil [73]: 6 | mirip (huruf 0,983), {…}, ayat utuh | إن ناشئة الليل هي أشد وطأ … |
-| j2 h26 | `/kitab/ihya/2/26#p5452` | QS At-Tur [52]: 21 | mirip (kata persis 0,75), pendek sesudah pengantar, sebagian ayat | ألحقنا بهم ذرياتهم وما |
+| j2 h26 | `/kitab/ihya/2/26#p5452` | QS At-Tur [52]: 21 | mirip (kata persis 0,889), pendek sesudah pengantar, sebagian ayat | ألحقنا بهم ذرياتهم وما ألتناهم من … |
 | j2 h40 | `/kitab/ihya/2/40#p5690` | QS Ar-Rum [30]: 39 | mirip (kata persis 0,875), tanpa kurung, sebagian ayat | وما آتيتم من ربا ليربوا في … |
-| j2 h159 | `/kitab/ihya/2/159#p7510` | QS At-Tur [52]: 21 | mirip (kata persis 0,75), pendek sesudah pengantar, sebagian ayat | ألحقنا بهم ذرياتهم وما |
-| j2 h167 | `/kitab/ihya/2/167#p7631` | QS An-Nur [24]: 22 | mirip (kata persis 0,75), pendek sesudah pengantar, sebagian ayat | ولا يأتل أولوا الفضل |
+| j2 h159 | `/kitab/ihya/2/159#p7510` | QS At-Tur [52]: 21 | mirip (kata persis 0,889), pendek sesudah pengantar, sebagian ayat | ألحقنا بهم ذرياتهم وما ألتناهم من … |
+| j2 h167 | `/kitab/ihya/2/167#p7631` | QS An-Nur [24]: 22 | mirip (kata persis 0,833), pendek sesudah pengantar, sebagian ayat | ولا يأتل أولوا الفضل منكم والسعة |
 | j2 h167 (catatan kaki) | `/kitab/ihya/2/167#p7634` | QS An-Nur [24]: 22 | mirip (huruf 0,976), {…}, sebagian ayat | ولا يأتل أولوا الفضل منكم |
 | j2 h224 | `/kitab/ihya/2/224#p8828` | QS Maryam [19]: 49 | mirip (kata persis 0,929), tanpa kurung, ayat utuh | فلما اعتزلهم وما يعبدون من دون … |
 | j2 h307 | `/kitab/ihya/2/307#p10607` | QS Al-Ma'idah [5]: 78–79 | mirip (kata persis 0,963), tanpa kurung, ayat utuh | لُعِنَ الَّذِينَ كَفَرُوا مِنْ بَنِي إِسْرَائِيلَ … |
@@ -124,7 +124,7 @@ Ayat yang tidak dikurung dan tidak didahului frasa pengantar yang dikenali, misa
 | j3 h38 | `/kitab/ihya/3/38#p12104` | QS Fatir [35]: 6 | mirip (kata persis 0,833), tanpa kurung, sebagian ayat | إن الشيطان لكم عدواً فاتخذوه عدواً |
 | j3 h41 | `/kitab/ihya/3/41#p12124` | QS Al-Isra [17]: 36 | mirip (huruf 0,991), {…}, ayat utuh | ولا تقف ما ليس لك به … |
 | j3 h88 | `/kitab/ihya/3/88#p12475` | QS Al-Ahzab [33]: 72 | mirip (kata persis 0,944), tanpa kurung, ayat utuh | إنا عرضنا الأمانة على السموات والأرض … |
-| j3 h181 | `/kitab/ihya/3/181#p13403` | QS An-Nur [24]: 22 | mirip (kata persis 0,75), pendek sesudah pengantar, sebagian ayat | ولا يأتل أولوا الفضل |
+| j3 h181 | `/kitab/ihya/3/181#p13403` | QS An-Nur [24]: 22 | mirip (kata persis 0,8), pendek sesudah pengantar, sebagian ayat | ولا يأتل أولوا الفضل منكم |
 | j3 h192 | `/kitab/ihya/3/192#p13494` | QS Ali 'Imran [3]: 119 | mirip (kata persis 0,933), tanpa kurung, sebagian ayat | وإذا لقوكم قالوا آمنا وإذا خلو … |
 | j3 h198 | `/kitab/ihya/3/198#p13531` | QS Fatir [35]: 43 | mirip (kata persis 0,833), tanpa kurung, sebagian ayat | ولا يحيق المكر السيء إلا بأهله |
 | j3 h252 | `/kitab/ihya/3/252#p14057` | QS Ali 'Imran [3]: 180 | mirip (kata persis 0,955), tanpa kurung, sebagian ayat | وَلَا يَحْسَبَنَّ الَّذِينَ يَبْخَلُونَ بِمَا آتاهم … |
