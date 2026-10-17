@@ -1,6 +1,6 @@
 # S14 · Cari bahasa Indonesia + UI Cari
 
-> **Fase:** 2 · **Status:** selesai* (2026-10-17; *tampilan menunggu T-23; `ihya-v5` dipromosikan ke produksi atas izin pemilik)
+> **Fase:** 2 · **Status:** selesai (2026-10-17; `ihya-v5` dipromosikan ke produksi atas izin pemilik, tampilan disetujui pemilik T-23)
 > **Prasyarat:** S13 selesai · Tugas pemilik: **T-09** (drive, bila korpus dibangun ulang); review tampilan di akhir
 > **Perkiraan:** 1–2 percakapan agent
 
@@ -39,7 +39,7 @@ Pengguna bisa mengetik "sabar", "adab murid kepada guru", atau الصبر, lalu 
 - [x] Query Indonesia ("sabar", "niat", "adab murid kepada guru") dan Arab memberi hasil relevan di 5 teratas (diperiksa manual, dicatat) · daftar 5 teratas di Catatan hasil (D1 lokal `ihya-v5` = isi staging)
 - [x] Setiap terjemahan tampil berlabel AI; teks Arab di kartu adalah substring `text_raw` · label "Terjemahan AI"/"Ringkasan AI" di kartu dan pembaca; e2e `search.spec.ts` membandingkan potongan Arab kartu dengan paragraf yang sama di pembaca (text_raw), lolos lokal + Preview PR #33
 - [x] Latensi p95 staging < 300 ms (tanpa cache) · Preview PR #33 (cache mati di Preview), 24 kueri × 10 = 240 permintaan, 0 galat: handler **p95 154 ms** (p50 113), SQL D1 p95 19,9 ms
-- [ ] E2E lolos; Lighthouse aksesibilitas ≥ 90; pemilik menyetujui tampilan · E2E lolos (lokal 93 lolos + 1 dilewati setelah perbaikan peninjau; Preview PR #33 hijau), Lighthouse 13.5.0 Preview `/cari?q=sabar` a11y **100** ponsel + desktop, pembaca j4 h61 a11y 100; **persetujuan tampilan menunggu pemilik (T-23)**
+- [x] E2E lolos; Lighthouse aksesibilitas ≥ 90; pemilik menyetujui tampilan · E2E lolos (lokal 93 lolos + 1 dilewati setelah perbaikan peninjau; Preview PR #33 hijau), Lighthouse 13.5.0 Preview `/cari?q=sabar` a11y **100** ponsel + desktop, pembaca j4 h61 a11y 100; **tampilan disetujui pemilik** di situs utama (T-23, chat 2026-10-17: "Cari ok sudah ok")
 - [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan
@@ -90,7 +90,7 @@ rows_read per kueri: Indonesia 493 (adab murid kepada guru) s.d. 15.800 (allah),
 
 **Utang / pesan untuk sesi berikutnya**
 - **Langkah 10 selesai (izin pemilik di chat, 2026-10-17):** `pnpm run corpus:promote ihya-v5 --confirm` → `surau-corpus-ihya-v5` (`fb0f9660-…`, APAC, 46 MB), smoke = hitungan build, `corpus:qa ihya-v5` 30/30 byte demi byte; binding `CORPUS_DB` + `SEARCH_CACHE_CORPUS` lewat PR #34. Rollback: `pnpm run corpus:promote ihya-v1 --switch-only` (skema 3, fitur baru tersembunyi).
-- **T-23** (tinjau tampilan Cari + terjemahan di pembaca) belum; butir 4 belum dicentang karenanya.
+- **T-23** selesai: pemilik menyetujui tampilan Cari + terjemahan di pembaca (butir 4 dicentang).
 - Pencarian Indonesia hanya menjangkau 100 paragraf teratas per jalur; kueri Arab saja tidak memakai ringkasan/judul bagian (peringkat datar) → eval S15.
 - Tabrakan stem tersisa kecil (kehati-hatian → hati, menempatkan → empat); sinonim (pelajar ≈ murid) belum ada → S15.
 - Nonaktifkan atau perluas cache bila banyak kitab (kunci per edisi).
