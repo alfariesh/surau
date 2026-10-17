@@ -1,0 +1,83 @@
+# Eval retrieval (S15, ADR-045): `pnpm run eval:retrieval --remote` = searchText atas korpus
+# STAGING (surau-corpus-staging, D1 remote lewat getPlatformProxy; hanya SELECT), karena korpus
+# tidak bisa dibangun di CI (teks Shamela tidak ada di git) dan D1 tidak bisa diekspor (FTS5).
+# Non-blocking: tidak termasuk required check, dan langkah eval memakai continue-on-error supaya
+# PR tetap hijau; hasil gagal/turun muncul sebagai peringatan + ringkasan di Summary job.
+# Gerbang rilis yang mengikat ada di skill /rilis (`--gate`), bukan di sini.
+# Soal privat (holdout) diunduh dari R2 `surau-evals` bila token boleh membacanya; laporan hanya
+# menampilkan ID dan peringkatnya (repo dan log CI publik).
+name: Eval
+
+on:
+  pull_request:
+    paths:
+      - "packages/text/**"
+      - "packages/db/**"
+      - "packages/core/**"
+      - "tools/eval/**"
+      - "evals/**"
+      - ".github/workflows/eval.yml"
+  push:
+    branches: [main]
+    paths:
+      - "packages/text/**"
+      - "packages/db/**"
+      - "packages/core/**"
+      - "tools/eval/**"
+      - "evals/**"
+      - ".github/workflows/eval.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  retrieval:
+    name: eval retrieval
+    # Sama dengan preview.yml: hanya PR dari repo ini (PR fork dan Dependabot tidak mendapat token).
+    if: >-
+      github.event_name != 'pull_request'
+      || (github.event.pull_request.head.repo.full_name == github.repository
+          && github.event.pull_request.user.login != 'dependabot[bot]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      # Kunci R2 set privat yang berlaku (berkas baru per revisi, tidak pernah ditimpa).
+      PRIVATE_KEY: retrieval/2026-10-17-draf.jsonl
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/siapkan
+        with:
+          heroui-auth-token: ${{ secrets.HEROUI_AUTH_TOKEN }}
+
+      - name: Unduh soal privat (R2)
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          mkdir -p evals/private
+          if ! pnpm exec wrangler r2 object get "surau-evals/${PRIVATE_KEY}" --file evals/private/retrieval.jsonl --remote > /dev/null 2>&1; then
+            rm -f evals/private/retrieval.jsonl
+            echo "::warning title=Soal privat tidak terunduh::Eval hanya memakai soal publik (token CI mungkin tanpa izin baca R2)."
+          fi
+
+      - name: Eval retrieval (staging)
+        id: eval
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm run eval:retrieval --remote --no-write --gate --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Peringatan bila eval gagal atau di bawah gerbang
+        if: steps.eval.outcome == 'failure'
+        run: echo "::warning title=Eval retrieval gagal atau di bawah gerbang R2::Eval tidak berjalan, atau hit@10 soal disetujui < 90%. Lihat log dan Summary. Job ini tidak memblokir merge."
