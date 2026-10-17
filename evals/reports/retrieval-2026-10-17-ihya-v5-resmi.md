@@ -2,7 +2,7 @@
 
 - **Gerbang R2:** hit@10 = 100,0% atas 31 soal disetujui → **LOLOS** (syarat ≥ 90,0%, minimal 20 soal)
 - **Korpus:** `ihya-v5` (skema 6, norm 1, latin_norm 1, dibangun 2026-10-17T06:25:29.000Z), sumber D1: lokal
-- **Kode:** `ad62dbb`, `SEARCH_RESULT_VERSION` 1 · soal privat ikut
+- **Kode:** `ac09035`, `SEARCH_RESULT_VERSION` 1 · soal privat ikut
 - **Cara ukur:** `searchText(kueri, { limit: 50 })`; hasil benar = halaman yang masuk rentang lokasi benar atau memuat paragraf cocok di bagian lokasi benar (beserta turunannya). MRR dihitung atas 50 halaman (0 bila tidak ada).
 
 ## Set resmi (disetujui, 31 soal)
@@ -15,8 +15,8 @@
 | istilah | 7 | 71,4% | 85,7% | 100,0% | 0,806 |
 | kueri arab | 6 | 100,0% | 100,0% | 100,0% | 1,000 |
 | kueri indonesia | 25 | 56,0% | 96,0% | 100,0% | 0,746 |
-| set publik | 21 | 66,7% | 100,0% | 100,0% | 0,817 |
-| set privat | 10 | 60,0% | 90,0% | 100,0% | 0,748 |
+| set publik | 22 | 63,6% | 95,5% | 100,0% | 0,787 |
+| set privat | 9 | 66,7% | 100,0% | 100,0% | 0,815 |
 
 ## Semua soal (draf + disetujui, 31 soal)
 
@@ -28,8 +28,8 @@
 | istilah | 7 | 71,4% | 85,7% | 100,0% | 0,806 |
 | kueri arab | 6 | 100,0% | 100,0% | 100,0% | 1,000 |
 | kueri indonesia | 25 | 56,0% | 96,0% | 100,0% | 0,746 |
-| set publik | 21 | 66,7% | 100,0% | 100,0% | 0,817 |
-| set privat | 10 | 60,0% | 90,0% | 100,0% | 0,748 |
+| set publik | 22 | 63,6% | 95,5% | 100,0% | 0,787 |
+| set privat | 9 | 66,7% | 100,0% | 100,0% | 0,815 |
 
 Topik tersebar: 8 dari 13 lokasi benar muncul di 10 teratas (informasi, bukan gerbang).
 
@@ -46,6 +46,7 @@ Topik tersebar: 8 dari 13 lokasi benar muncul di 10 teratas (informasi, bukan ge
 | r08 | lokasi | ilmu fardu ain | 2 | ya | j1 h4 ربع العبادات · j1 h13 الباب الثاني في العلم المحمود والمذموم وأقسامهما وأحكامهما · j1 h16 بيان العلم الذي هو فرض كفاية |
 | r10 | lokasi | kewajiban istri kepada suami | 2 | ya | j1 h211 النوع السادس في صدقة الفطر · j2 h58 كتاب آداب النكاح · j2 h42 كتاب آداب النكاح |
 | r11 | lokasi | manfaat dan bahaya menikah | 1 | ya | j2 h21 كتاب آداب النكاح · j2 h35 كتاب آداب النكاح · j2 h221 كتاب آداب الألفة والأخوة والصحبة والمعاشرة مع أصناف الخلق |
+| r12 | istilah | tingkatan wara | 7 | ya | j1 h18 بيان العلم الذي هو فرض كفاية · j2 h88 كتاب الحلال والحرام · j2 h2 كتاب آداب الأكل |
 | r13 | lokasi | bergaul dengan penguasa zalim | 1 | ya | j2 h142 كتاب الحلال والحرام · j2 h2 كتاب آداب الأكل · j2 h151 كتاب الحلال والحرام |
 | r15 | istilah | الحسبة | 1 | ya | j2 h318 كتاب الأمر بالمعروف والنهي عن المنكر · j2 h325 كتاب الأمر بالمعروف والنهي عن المنكر · j2 h323 كتاب الأمر بالمعروف والنهي عن المنكر |
 | r16 | topik tersebar | bekerja mencari nafkah dan tawakal | 1 | ya | j4 h272 بيان توكل المعيل · j2 h60 كتاب آداب الكسب والمعاش · j4 h259 الشطر الثاني من الكتاب في أحوال التوكل وأعماله |
@@ -65,7 +66,6 @@ Topik tersebar: 8 dari 13 lokasi benar muncul di 10 teratas (informasi, bukan ge
 |---|---|---|---|
 | p06 | lokasi | 2 | ya |
 | p09 | topik tersebar | 2 | ya |
-| p12 | istilah | 7 | ya |
 | p14 | lokasi | 1 | ya |
 | p18 | lokasi | 1 | ya |
 | p24 | lokasi | 1 | ya |
@@ -74,4 +74,4 @@ Topik tersebar: 8 dari 13 lokasi benar muncul di 10 teratas (informasi, bukan ge
 | p30 | topik tersebar | 3 | ya |
 | p31 | lokasi | 1 | ya |
 
-Waktu per kueri (median): 13 ms, termasuk bolak-balik D1.
+Waktu per kueri (median): 14 ms, termasuk bolak-balik D1.
