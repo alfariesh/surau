@@ -616,6 +616,64 @@ a:focus-visible .book .book__rotate,
   }
 }
 
+/*
+ * Cahaya dan kedalaman (nilai dari BookRing per bingkai): kecerahan tiap sisi menurut arah hadapnya
+ * terhadap cahaya kiri-depan; sisi atas sedikit terang, bawah gelap (cahaya dari atas). Buku di
+ * belakang diburamkan tipis. Hanya untuk perangkat dengan pointer halus (desktop): di ponsel blur
+ * dilewati supaya putaran tetap ringan.
+ */
+.book-ring .book__cover {
+  filter: brightness(var(--lit-cover, 1));
+}
+
+.book-ring .book__back {
+  filter: brightness(var(--lit-back, 1));
+}
+
+.book-ring .book__spine {
+  filter: brightness(var(--lit-spine, 1));
+}
+
+.book-ring .book__pages {
+  filter: brightness(var(--lit-pages, 1));
+}
+
+.book-ring .book__head {
+  filter: brightness(1.04);
+}
+
+.book-ring .book__tail {
+  filter: brightness(0.8);
+}
+
+@media (pointer: fine) {
+  .book-ring .book__cover {
+    filter: brightness(var(--lit-cover, 1)) blur(var(--ring-blur, 0px));
+  }
+
+  .book-ring .book__back {
+    filter: brightness(var(--lit-back, 1)) blur(var(--ring-blur, 0px));
+  }
+
+  .book-ring .book__spine {
+    filter: brightness(var(--lit-spine, 1)) blur(var(--ring-blur, 0px));
+  }
+
+  .book-ring .book__pages {
+    filter: brightness(var(--lit-pages, 1)) blur(var(--ring-blur, 0px));
+  }
+
+  .book-ring .book__head {
+    filter: brightness(1.04) blur(var(--ring-blur, 0px));
+  }
+}
+
+/* Mode gelap: kertas sedikit redup supaya sisi atas tidak menyilaukan di latar gelap. */
+.dark .book-ring .book {
+  --book-pages-light: oklch(0.84 0.012 85);
+  --book-pages-edge: oklch(0.7 0.012 85);
+}
+
 /* Fokus keyboard: cincin di sampul buku terdepan. */
 .book-ring__book:focus-visible .book__cover {
   outline: 2px solid var(--focus);

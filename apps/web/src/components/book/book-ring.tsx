@@ -54,6 +54,16 @@ const DRAG_THRESHOLD = 5;
 const TILT = -9;
 const PERSPECTIVE = 1500;
 const DEPTH_FADE = 0.7;
+// Cahaya tetap dari kiri-depan (arah hadap -35°): setiap sisi buku diberi kecerahan menurut arah
+// hadapnya, dihitung ulang tiap bingkai. Kecerahan = AMBIENT + DIFFUSE × max(0, cos selisih sudut).
+const LIGHT_YAW = -35;
+const AMBIENT = 0.74;
+const DIFFUSE = 0.32;
+// Buku di belakang sedikit diburamkan (fokus kedalaman), maksimal BLUR_MAX px.
+const BLUR_MAX = 1.5;
+
+const lit = (yaw: number) =>
+  (AMBIENT + DIFFUSE * Math.max(0, Math.cos((yaw - LIGHT_YAW) * TO_RAD))).toFixed(3);
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 const wrap = (deg: number) => ((((deg + 180) % 360) + 360) % 360) - 180;
@@ -207,6 +217,15 @@ function Ring({
         el.toggleAttribute("data-front", d > 0.97 && Math.abs(state.velocity) < 4);
         const facing = Math.cos(world * TO_RAD);
         el.style.setProperty("--ring-fade", (DEPTH_FADE * ((1 - facing) / 2) ** 1.2).toFixed(3));
+        // Arah hadap sampul di ruang kamera (0 = menghadap pembaca). Punggung kitab Arab di +x
+        // (sampul +90°), tepi kertas di −x (sampul −90°), sampul belakang +180°.
+        const yaw = state.angle + base + turn;
+        el.style.setProperty("--lit-cover", lit(yaw));
+        el.style.setProperty("--lit-back", lit(yaw + 180));
+        el.style.setProperty("--lit-spine", lit(yaw + 90));
+        el.style.setProperty("--lit-pages", lit(yaw - 90));
+        const blur = BLUR_MAX * clamp(((1 - facing) / 2 - 0.12) / 0.6, 0, 1);
+        el.style.setProperty("--ring-blur", `${blur.toFixed(2)}px`);
         el.style.zIndex = String(Math.round(facing * 100) + 100);
       }
       const index = ((Math.round(state.angle / g.step) % g.count) + g.count) % g.count;
