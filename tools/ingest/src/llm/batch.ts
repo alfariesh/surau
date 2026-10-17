@@ -159,16 +159,19 @@ function r2Request(
 /** Request yang masih perlu dikirim untuk satu putaran (yang sudah lolos dengan hash sama dilewati). */
 export function pendingRequests(work: Work, acc: Accepted, round: 1 | 2): PlannedRequest[] {
   const out: PlannedRequest[] = [];
+  // Yang pernah gagal diulang lewat `retry` (hitungan percobaan, refusal → Sonnet), bukan di sini.
+  const failed = new Set(acc.failures.map((f) => f.custom_id));
   if (round === 1) {
     for (const u of work.units.values()) {
       if (acc.translations.get(u.passageId)?.source_sha256 === u.sourceSha256) continue;
+      if (failed.has(passageCustomId(u.passageId))) continue;
       const r = translationRequest(work, u.passageId, MODELS.haiku);
       if (r !== null) out.push(r);
     }
     for (const c of work.chunks) {
       for (const lang of SUMMARY_LANGS) {
         const id = chunkCustomId(c, lang);
-        if (acc.r1.get(id)?.source_sha256 === c.sourceSha256) continue;
+        if (acc.r1.get(id)?.source_sha256 === c.sourceSha256 || failed.has(id)) continue;
         const r = r1Request(work, id, MODELS.haiku);
         if (r !== null) out.push(r);
       }
@@ -179,6 +182,7 @@ export function pendingRequests(work: Work, acc: Accepted, round: 1 | 2): Planne
     if (!n.round2) continue;
     for (const lang of SUMMARY_LANGS) {
       if (acc.final.get(`${n.tocNodeId}-${lang}`)?.source_sha256 === n.sourceSha256) continue;
+      if (failed.has(tocRound2CustomId(n.tocNodeId, lang))) continue;
       const r = r2Request(work, acc, n.tocNodeId, lang, MODELS.haiku);
       if (r !== null) out.push(r);
     }
@@ -452,24 +456,58 @@ async function submit(
   return made;
 }
 
-export async function runSubmit(ctx: LlmContext, round: 1 | 2, confirm: boolean): Promise<number> {
+/** custom_id yang sedang diproses di batch yang belum dikumpulkan (jangan dikirim dua kali). */
+function inFlight(dir: string): Set<string> {
+  const ids = new Set<string>();
+  for (const b of readBatches(dir)) {
+    if (b.collected_at !== null) continue;
+    for (const r of readJsonl(join(dir, "requests", `${b.id}.jsonl`), plannedRequest)) {
+      ids.add(r.custom_id);
+    }
+  }
+  return ids;
+}
+
+export interface SubmitOptions {
+  /** Hanya jenis ini (mis. `translation`), untuk pengiriman bertahap. */
+  kind?: BatchKind;
+  /** Kirim paling banyak N request dari rencana (urutan rencana). */
+  limit?: number;
+}
+
+export async function runSubmit(
+  ctx: LlmContext,
+  round: 1 | 2,
+  confirm: boolean,
+  opts: SubmitOptions = {},
+): Promise<number> {
   const dir = llmDir(ctx.repo);
   const path = join(dir, `plan-r${round}.jsonl`);
-  const reqs = readJsonl(path, plannedRequest);
-  if (reqs.length === 0) {
+  const planned = readJsonl(path, plannedRequest);
+  if (planned.length === 0) {
     console.error(`Tidak ada rencana di ${path}. Jalankan dulu: pnpm llm plan --round ${round}`);
     return 1;
   }
-  const open = readBatches(dir).filter((b) => b.collected_at === null);
-  if (open.length > 0) {
-    console.error(`Masih ada ${open.length} batch yang belum dikumpulkan (pnpm llm collect).`);
-    return 1;
+  // Rencana bisa lebih tua dari hasil: yang sudah lolos, gagal (→ retry), atau sedang diproses dilewati.
+  const acc = readAccepted(dir);
+  const skip = inFlight(dir);
+  for (const f of acc.failures) skip.add(f.custom_id);
+  for (const t of acc.translations.values()) skip.add(passageCustomId(t.passage_id));
+  for (const id of acc.r1.keys()) skip.add(id);
+  for (const s of acc.final.values()) skip.add(s.custom_id);
+  const remaining = planned.filter(
+    (r) => !skip.has(r.custom_id) && (opts.kind === undefined || r.kind === opts.kind),
+  );
+  const reqs = opts.limit === undefined ? remaining : remaining.slice(0, opts.limit);
+  if (reqs.length === 0) {
+    console.info(`Putaran ${round}: tidak ada request tersisa untuk dikirim.`);
+    return 0;
   }
   const meta = z
     .looseObject({ total: z.looseObject({ costUsd: z.record(z.string(), z.number()) }) })
     .parse(JSON.parse(readFileSync(join(dir, `plan-r${round}.json`), "utf8")));
   console.info(
-    `Putaran ${round}: ${reqs.length} request, estimasi ${CACHE_SCENARIOS.map((h) => `${usd(meta.total.costUsd[String(h)] ?? 0)} (cache ${h * 100}%)`).join(" / ")}`,
+    `Putaran ${round}: kirim ${reqs.length} dari ${remaining.length} request tersisa (rencana ${planned.length}); estimasi seluruh rencana ${CACHE_SCENARIOS.map((h) => `${usd(meta.total.costUsd[String(h)] ?? 0)} (cache ${h * 100}%)`).join(" / ")}`,
   );
   if (!confirm) {
     console.info(
@@ -478,8 +516,38 @@ export async function runSubmit(ctx: LlmContext, round: 1 | 2, confirm: boolean)
     return 0;
   }
   await submit(ctx.client(), dir, reqs, `r${round}`);
-  console.info("Cek: pnpm llm status · setelah selesai: pnpm llm collect");
+  console.info("Cek: pnpm llm status · tunggu: pnpm llm wait · setelah selesai: pnpm llm collect");
   return 0;
+}
+
+/** Tunggu sampai semua batch yang belum dikumpulkan selesai (poll tiap menit), lalu keluar. */
+export async function runWait(ctx: LlmContext): Promise<number> {
+  const dir = llmDir(ctx.repo);
+  const client = ctx.client();
+  for (;;) {
+    const open = readBatches(dir).filter((b) => b.collected_at === null);
+    const states = await Promise.all(open.map((b) => client.messages.batches.retrieve(b.id)));
+    const busy = states.filter((s) => s.processing_status !== "ended");
+    const done = states.reduce(
+      (a, s) => a + s.request_counts.succeeded + s.request_counts.errored,
+      0,
+    );
+    const all = states.reduce(
+      (a, s) =>
+        a +
+        s.request_counts.processing +
+        s.request_counts.succeeded +
+        s.request_counts.errored +
+        s.request_counts.canceled +
+        s.request_counts.expired,
+      0,
+    );
+    console.info(
+      `${new Date().toISOString()} · ${open.length - busy.length}/${open.length} batch selesai · ${done}/${all} request`,
+    );
+    if (busy.length === 0) return 0;
+    await new Promise((r) => setTimeout(r, 60_000));
+  }
 }
 
 export async function runStatus(ctx: LlmContext): Promise<number> {

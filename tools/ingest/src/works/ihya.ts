@@ -22,6 +22,11 @@ export interface WorkConfig {
     kitabPerRub: number;
     /** Gerbang verify-openiti: halaman minimal dengan kemiripan matan ≥ ambang. */
     matanMinPages: number;
+    /**
+     * Cakupan minimal terjemahan dan ringkasan AI yang dimuat (S13; 0 = tidak diwajibkan). Gagal
+     * bila hasil batch di data/build/llm kurang dari ini (mis. file hilang atau sebagian usang).
+     */
+    llmCoverage: number;
   };
   author: { id: number; nameId: string; wikidataId: string | null };
   work: {
@@ -53,8 +58,8 @@ export const IHYA: WorkConfig = {
   patch: "data/patches/ihya-9472.yaml",
   ids: "data/ids/ihya-9472.json",
   reportPrefix: "data/reports/ihya-9472",
-  corpusVersion: "ihya-v3",
-  output: "surau-corpus-ihya-v3.sqlite",
+  corpusVersion: "ihya-v4",
+  output: "surau-corpus-ihya-v4.sqlite",
   expect: {
     pages: 1706,
     volumes: [361, 386, 413, 546],
@@ -62,6 +67,8 @@ export const IHYA: WorkConfig = {
     rub: [2, 156, 168, 180],
     kitabPerRub: 10,
     matanMinPages: 1705,
+    // "Selesai bila" S13: daftar yang gagal < 1%.
+    llmCoverage: 0.99,
   },
   author: { id: 1, nameId: "Abu Hamid al-Ghazali", wikidataId: null },
   work: {

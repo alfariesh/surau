@@ -37,6 +37,8 @@ describe("runIngest (kitab buatan)", () => {
       quran_ayah: 6,
       quran_translation: 12,
       passage_ayah_ref: 1,
+      translation: 0,
+      summary: 0,
       term_stat: 23,
       passage_fts: 18,
       meta: 5,

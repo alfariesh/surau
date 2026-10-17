@@ -41,7 +41,9 @@ describe.skipIf(!available)("ingest Ihya 9472 (sumber lokal)", () => {
       migrations: join(repo, "packages/db/migrations/corpus"),
       quran: { root: quranRoot, files: QURAN_FILES, expect: QURAN_EXPECT },
     };
-    result = runIngest(IHYA, paths, { env: { SOURCE_DATE_EPOCH: "1760000000" } });
+    // Tes struktur korpus: tanpa hasil LLM (dimuat dan diuji terpisah, test/llm-attach.test.ts).
+    const config = { ...IHYA, expect: { ...IHYA.expect, llmCoverage: 0 } };
+    result = runIngest(config, paths, { env: { SOURCE_DATE_EPOCH: "1760000000" } });
   });
 
   test("semua invarian lolos: 1.706 halaman, 4 rub' × 10 kitab, gerbang OpenITI", () => {

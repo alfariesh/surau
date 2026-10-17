@@ -5,8 +5,11 @@
 //   tokens [--n 200]          ukur token Arab Claude (count_tokens, gratis) → laporan + faktor
 //   sample                    uji kecil lewat API biasa: 20 paragraf + 5 bagian (berbayar, ±$0,05)
 //   plan [--round 1|2]        susun semua request + count_tokens (gratis) + estimasi biaya
-//   submit --round 1|2 [--confirm]   kirim batch (berbayar; tanpa --confirm hanya ringkasan)
+//   submit --round 1|2 [--kind translation|summary-r1|summary-r2] [--limit N] [--confirm]
+//                             kirim batch (berbayar; tanpa --confirm hanya ringkasan); bertahap
+//                             dengan --kind/--limit
 //   status                    status batch yang sudah dikirim
+//   wait                      tunggu semua batch terbuka selesai (poll tiap menit)
 //   collect                   unduh hasil batch yang selesai, validasi, simpan yang lolos
 //   retry [--confirm]         kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan
 //   report                    tulis laporan data/reports/ihya-9472-terjemahan.md + sampel QA
@@ -22,9 +25,10 @@ import type { PipelinePaths } from "../pipeline.ts";
 import { QURAN_EXPECT, QURAN_FILES } from "../quran/source.ts";
 import type { CorpusRows } from "../rows.ts";
 import { IHYA } from "../works/ihya.ts";
-import { runCollect, runPlan, runRetry, runStatus, runSubmit } from "./batch.ts";
+import { runCollect, runPlan, runRetry, runStatus, runSubmit, runWait } from "./batch.ts";
 import { runReport } from "./report.ts";
 import { runSample } from "./sample.ts";
+import { batchKind } from "./store.ts";
 import { runTokens } from "./tokens.ts";
 
 const repo = resolve(import.meta.dirname, "../../../..");
@@ -83,6 +87,8 @@ async function main(argv: string[]): Promise<number> {
       shamela: { type: "string" },
       n: { type: "string" },
       round: { type: "string" },
+      kind: { type: "string" },
+      limit: { type: "string" },
       confirm: { type: "boolean", default: false },
     },
   });
@@ -95,8 +101,19 @@ async function main(argv: string[]): Promise<number> {
       return runSample(ctx);
     case "plan":
       return runPlan(ctx, round);
-    case "submit":
-      return runSubmit(ctx, round, values.confirm);
+    case "submit": {
+      const kind = batchKind.optional().parse(values.kind);
+      const limit = values.limit === undefined ? undefined : Number(values.limit);
+      if (limit !== undefined && !(Number.isInteger(limit) && limit > 0)) {
+        throw new Error(`--limit bukan bilangan bulat positif: ${values.limit}`);
+      }
+      return runSubmit(ctx, round, values.confirm, {
+        ...(kind === undefined ? {} : { kind }),
+        ...(limit === undefined ? {} : { limit }),
+      });
+    }
+    case "wait":
+      return runWait(ctx);
     case "status":
       return runStatus(ctx);
     case "collect":
@@ -107,7 +124,7 @@ async function main(argv: string[]): Promise<number> {
       return runReport(ctx);
     default:
       console.error(
-        "Pakai: pnpm llm tokens|sample|plan|submit|status|collect|retry|report [--round 1|2] [--confirm]",
+        "Pakai: pnpm llm tokens|sample|plan|submit|status|wait|collect|retry|report [--round 1|2] [--kind …] [--limit N] [--confirm]",
       );
       return 2;
   }
