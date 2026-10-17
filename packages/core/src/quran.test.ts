@@ -13,7 +13,7 @@ import {
 } from "../test/fixture.ts";
 import { NotFound, Unavailable } from "./errors.ts";
 import { readPage } from "./page.ts";
-import { ayahLabel, getAyahRefs, loadAyahRefs } from "./quran.ts";
+import { ayahLabel, getAyahRefs, loadAyahRefs, quranForRefs } from "./quran.ts";
 import { ayahRefsView, pageView } from "./schema.ts";
 
 const db = env.CORPUS;
@@ -107,6 +107,23 @@ describe("readPage + ayat", () => {
     const view = await readPage(db, ED, 1, 1);
     expect(view.quran).toBeNull();
     expect([...view.body, ...view.footnotes].every((p) => p.ayah_refs.length === 0)).toBe(true);
+  });
+});
+
+describe("quranForRefs", () => {
+  test("lebih dari 300 ayat dipecah per batch, tidak menggagalkan halaman", async () => {
+    const view = await quranForRefs(db, [
+      { surah: 1, ayah_from: 2, ayah_to: 3 },
+      { surah: 2, ayah_from: 1, ayah_to: 286 },
+      { surah: 3, ayah_from: 1, ayah_to: 200 },
+    ]);
+    // Fixture hanya punya surah 1: ayat lain tidak ada, tetapi panggilannya tidak melempar.
+    expect(view?.ayat.map((a) => `${a.surah}:${a.ayah}`)).toEqual(["1:2", "1:3"]);
+    expect(view?.sources.map((s) => s.id)).toEqual([
+      "kemenag-id",
+      "kemenag-latin",
+      "tanzil-uthmani",
+    ]);
   });
 });
 

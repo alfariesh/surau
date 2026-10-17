@@ -89,7 +89,9 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
           <li key={`${a.surah}:${a.ayah}`} className="flex flex-col gap-1">
             <ArabicText className="text-foreground text-lg">{a.text}</ArabicText>
             {a.transliteration ? (
-              <p className="text-muted text-xs italic">{a.transliteration}</p>
+              <p className="text-muted text-xs italic" lang="ar-Latn" translate="no">
+                {a.transliteration}
+              </p>
             ) : null}
             {a.translation ? (
               <p className="text-foreground">
@@ -114,9 +116,15 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
       </ol>
       <div className="text-muted flex flex-col gap-1 border-t border-separator pt-2 text-xs">
         <p>
-          {t.ayahTextSource}: {sourceLink(text, "Tanzil Project")} ({text?.license ?? "CC BY 3.0"})
-          {" · "}
-          {t.ayahTranslationSource}: {sourceLink(translation, t.ayahKemenag)}
+          {text ? (
+            <>
+              {t.ayahTextSource}: {sourceLink(text, text.name)} ({text.license}) ·{" "}
+            </>
+          ) : null}
+          {transliteration && transliteration.url === translation?.url
+            ? t.ayahTranslationAndTransliterationSource
+            : t.ayahTranslationSource}
+          : {sourceLink(translation, t.ayahKemenag)}
           {transliteration && transliteration.url !== translation?.url ? (
             <>
               {" · "}
@@ -144,7 +152,7 @@ export function AyahRefChip(props: AyahRefChipProps) {
   const [open, setOpen] = useState(false);
   const { ayahRef } = props;
   const short = shortAyahLabel(ayahRef);
-  const aria = t.ayahChipLabel(ayahRef.label);
+  const aria = t.ayahChipLabel(short, ayahRef.label);
 
   if (canHover) {
     return (
@@ -153,6 +161,8 @@ export function AyahRefChip(props: AyahRefChipProps) {
         <HoverCard.Trigger
           aria-label={aria}
           className={CHIP_CLASS}
+          // Tombol ada di dalam blok `lang="ar"`; label aksesibelnya berbahasa Indonesia.
+          lang="id"
           // HoverCard.Trigger selalu merender <span>; elemennya tidak bisa diganti <button>.
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
           role="button"
@@ -181,7 +191,7 @@ export function AyahRefChip(props: AyahRefChipProps) {
 
   return (
     <Popover isOpen={open} onOpenChange={setOpen}>
-      <AriaButton aria-label={aria} className={CHIP_CLASS}>
+      <AriaButton aria-label={aria} className={CHIP_CLASS} lang="id">
         <ChipLabel text={short} />
       </AriaButton>
       <Popover.Content

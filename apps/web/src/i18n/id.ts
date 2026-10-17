@@ -264,7 +264,10 @@ export const id = {
     footnoteHeading: (marker: string) => `Catatan kaki (${marker})`,
     footnoteGoto: "Lihat di daftar catatan kaki",
     footnoteBack: "Kembali ke teks",
-    ayahChipLabel: (label: string) => `Rujukan ayat ${label}: buka teks dan terjemahan Kemenag`,
+    // Diawali label yang terlihat ("QS 27:90"), supaya perintah suara "klik QS 27:90" bekerja
+    // (WCAG 2.5.3 Label in Name).
+    ayahChipLabel: (short: string, label: string) =>
+      `${short}: rujukan ayat ${label}, buka teks dan terjemahan Kemenag`,
     ayahPartial: "Kitab mengutip sebagian ayat ini.",
     ayahSimilar: "Lafaz di kitab sedikit berbeda ejaan dari teks mushaf.",
     ayahAlt: (n: number) => `Lafaz yang sama juga ada di ${n} tempat lain dalam Al-Qur'an.`,
@@ -274,6 +277,7 @@ export const id = {
     ayahTextSource: "Teks ayat",
     ayahTranslationSource: "Terjemahan",
     ayahTransliterationSource: "Transliterasi",
+    ayahTranslationAndTransliterationSource: "Terjemahan dan transliterasi",
     ayahKemenag: "Kementerian Agama RI",
     ayahAuto:
       "Rujukan dicocokkan otomatis ke teks mushaf, bukan oleh AI. Teks ayat, transliterasi, dan terjemahan ditampilkan tanpa diubah.",

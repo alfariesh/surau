@@ -3,8 +3,8 @@
 import { describe, expect, test } from "vite-plus/test";
 
 import {
-  AYAH_PLACEHOLDER_RE,
   ayahPlaceholder,
+  ayahPlaceholderPattern,
   checkPlaceholders,
   maskAyat,
   translationSegments,
@@ -78,7 +78,9 @@ describe("placeholder", () => {
     expect(ayahPlaceholder({ surah: 2, ayah_from: 255, ayah_to: 255 })).toBe("⟦QS 2:255⟧");
     expect(ayahPlaceholder({ surah: 2, ayah_from: 255, ayah_to: 257 })).toBe("⟦QS 2:255-257⟧");
     expect(
-      [..."x ⟦QS 2:255-257⟧ y ⟦QS 114:6⟧".matchAll(AYAH_PLACEHOLDER_RE)].map((m) => m.slice(1)),
+      [..."x ⟦QS 2:255-257⟧ y ⟦QS 114:6⟧".matchAll(ayahPlaceholderPattern())].map((m) =>
+        m.slice(1),
+      ),
     ).toEqual([
       ["2", "255", "257"],
       ["114", "6", undefined],
@@ -104,6 +106,44 @@ describe("placeholder", () => {
     const masked = maskAyat(RAW, [a as AyahRef, overlap, outside]);
     expect(masked.slots).toHaveLength(1);
     expect(unmaskAyat(masked)).toBe(RAW);
+  });
+});
+
+describe("placeholder + penanda catatan kaki", () => {
+  const TEXT = "قال {كلمة (١) أولى} ثم";
+  const marker = TEXT.indexOf("(١)");
+  const fn = { marker: "١", char_start: marker, char_end: marker + 3, footnote_id: 9 };
+  const span = "كلمة (١) أولى";
+  const ayah: AyahRef = {
+    char_start: TEXT.indexOf(span),
+    char_end: TEXT.indexOf(span) + span.length,
+    surah: 2,
+    ayah_from: 4,
+    ayah_to: 4,
+    match: "exact",
+    partial: true,
+    bracketed: true,
+    alt_count: 0,
+    label: "QS Uji [2]: 4",
+  };
+
+  test("penanda di dalam kutipan tetap ada sesudah placeholder; round-trip utuh", () => {
+    const masked = maskAyat(TEXT, [ayah], [fn]);
+    expect(masked.text).toBe("قال {⟦QS 2:4⟧ (١)} ثم");
+    expect(unmaskAyat(masked)).toBe(TEXT);
+    expect(checkPlaceholders("Dia berkata ⟦QS 2:4⟧ (١) lalu", masked)).toEqual({ ok: true });
+  });
+
+  test("rujukan yang batasnya jatuh di tengah penanda dilewati (teks dibiarkan)", () => {
+    const broken = { ...ayah, char_end: marker + 1 };
+    expect(maskAyat(TEXT, [broken], [fn])).toEqual({ text: TEXT, slots: [] });
+  });
+
+  test("pola placeholder baru di setiap panggilan (tanpa lastIndex bersama)", () => {
+    const a = ayahPlaceholderPattern();
+    a.exec("⟦QS 1:1⟧");
+    expect(ayahPlaceholderPattern().lastIndex).toBe(0);
+    expect(ayahPlaceholderPattern("").test("x ⟦QS 1:1⟧")).toBe(true);
   });
 });
 

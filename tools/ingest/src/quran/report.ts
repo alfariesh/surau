@@ -68,8 +68,13 @@ function refLabel(surahNames: Map<number, string>, s: AyahSpan): string {
 }
 
 function spanKind(s: AyahSpan): string {
+  const score = String(s.score).replace(".", ",");
   return [
-    s.match === "exact" ? "persis" : `mirip (${String(s.score).replace(".", ",")})`,
+    s.match === "exact"
+      ? "persis"
+      : s.kind === "bracketed"
+        ? `mirip (huruf ${score})`
+        : `mirip (kata persis ${score})`,
     s.kind === "bracketed" ? "{…}" : "tanpa kurung",
     s.partial ? "sebagian ayat" : "ayat utuh",
     ...(s.alt > 0 ? [`+${s.alt} letak lain`] : []),
@@ -79,7 +84,8 @@ function spanKind(s: AyahSpan): string {
 const REJECT_LABEL: Record<RejectedSpan["reason"], string> = {
   one_word: "1 kata (disaring)",
   two_words_no_cue: "2 kata tanpa pengantar (disaring)",
-  no_match: "tidak ada di mushaf",
+  short_inexact: "2–3 kata, tidak persis (cocok mirip tidak dicoba)",
+  no_match: "tidak ditemukan, persis maupun mirip",
   below_threshold: `kemiripan < ${String(SIMILAR_MIN_SCORE).replace(".", ",")}`,
   cross_surah: "melintasi batas surah",
 };
@@ -127,7 +133,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     "",
     `- Korpus: \`${config.corpusVersion}\` · NORM_VERSION ${ctx.normVersion}`,
     `- Sumber Qur'an: ${sources}`,
-    `- Ambang: mirip ≥ ${String(SIMILAR_MIN_SCORE).replace(".", ",")} (penjajaran huruf; alif/waw/ya/hamzah dan ه/ت = setengah biaya); tanpa kurung: jangkar ${CUE_ANCHOR_TOKENS} kata persis, minimal ${CUE_MIN_TOKENS} kata. Aturan lengkap: ADR-040.`,
+    `- Ambang: \`{…}\` mirip = skor penjajaran **huruf** ≥ ${String(SIMILAR_MIN_SCORE).replace(".", ",")} (alif/waw/ya/hamzah dan ه/ت = setengah biaya); tanpa kurung: jangkar ${CUE_ANCHOR_TOKENS} kata persis, minimal ${CUE_MIN_TOKENS} kata, skornya = porsi **kata** yang sama persis (metrik berbeda, jadi bisa < ${String(SIMILAR_MIN_SCORE).replace(".", ",")}). Aturan lengkap: ADR-040.`,
     "",
     "## Ringkasan",
     "",
@@ -138,7 +144,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     `| **Tervalidasi** (dicocokkan ke mushaf) | **${num(s.validated)}** |`,
     `| · cocok persis (\`exact\`) | ${num(s.exact)} (${pct(s.exact, s.validated)}) |`,
     `| · mirip, beda ejaan (\`similar\`) | ${num(s.similar)} (${pct(s.similar, s.validated)}) |`,
-    `| · tidak cocok: bukan ayat, tidak ditautkan | ${num(s.unmatched)} (${pct(s.unmatched, s.validated)}) |`,
+    `| · tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda; dibiarkan, tidak ditebak) | ${num(s.unmatched)} (${pct(s.unmatched, s.validated)}) |`,
     `| Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | ${num(s.cueExact)} / ${num(s.cueSimilar)} |`,
     `| **Rujukan ayat** (\`passage_ayah_ref\`) | **${num(rows.passage_ayah_ref.length)}** di ${num(s.passages)} paragraf |`,
     `| · sebagian ayat (\`partial\`) | ${num(s.partial)} |`,

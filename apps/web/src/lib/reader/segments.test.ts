@@ -66,14 +66,15 @@ describe("splitPassage (kutipan ayat)", () => {
   const A2 = ayah("جملة (١) ثانية", 2);
   const F = ref(at("(١)"), "١", 21);
 
-  it("potongan di dalam kutipan diberi indeks rujukan; label rujukan tepat sesudah akhir kutipan", () => {
+  it("potongan di dalam kutipan diberi indeks rujukan; label sesudah kurung tutup kutipan", () => {
     const { segments, ayat } = splitPassage(RAW, [F], [A2, A1]);
     expect(ayat).toEqual([A1, A2]);
     expect(segments).toEqual([
       { kind: "text", text: "قال {", ayah: null },
       { kind: "text", text: "كلمة أولى", ayah: 0 },
+      { kind: "text", text: "}", ayah: null },
       { kind: "ayah-end", ayah: 0 },
-      { kind: "text", text: "} ثم {", ayah: null },
+      { kind: "text", text: " ثم {", ayah: null },
       { kind: "text", text: "جملة ", ayah: 1 },
       {
         kind: "marker",
@@ -84,8 +85,15 @@ describe("splitPassage (kutipan ayat)", () => {
         ayah: 1,
       },
       { kind: "text", text: " ثانية", ayah: 1 },
+      { kind: "text", text: "}", ayah: null },
       { kind: "ayah-end", ayah: 1 },
-      { kind: "text", text: "} انتهى", ayah: null },
+      { kind: "text", text: " انتهى", ayah: null },
+    ]);
+    // Tanpa kurung (bracketed false): label tepat di akhir kutipan.
+    const plain = splitPassage(RAW, [F], [{ ...A1, bracketed: false }]).segments;
+    expect(plain.slice(1, 3)).toEqual([
+      { kind: "text", text: "كلمة أولى", ayah: 0 },
+      { kind: "ayah-end", ayah: 0 },
     ]);
   });
 

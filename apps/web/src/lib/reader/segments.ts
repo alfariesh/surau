@@ -36,6 +36,7 @@ export function splitByFootnotes(textRaw: string, refs: readonly FootnoteRef[]):
 // ── Kutipan ayat (S12) ─────────────────────────────────────────────────────────────────────
 // Potongan teks/penanda di dalam kutipan ayat diberi indeks rujukannya (untuk gaya halus), dan
 // sesudah akhir setiap kutipan disisipkan segmen `ayah-end` (tempat label rujukan "QS 2:255").
+// Kutipan berkurung yang langsung diikuti `}`: label sesudah kurung tutup, bukan di dalamnya.
 // Teks tetap hanya dipotong di offset DB: gabungan semua `text` = `text_raw` (diuji).
 
 export type PassageSegment =
@@ -75,8 +76,10 @@ export function splitPassage(
     const i = ayat.findIndex((a) => start >= a.char_start && end <= a.char_end);
     return i === -1 ? null : i;
   };
-  const endsAt = new Map(ayat.map((a, i) => [a.char_end, i]));
-  const bounds = [...new Set(ayat.flatMap((a) => [a.char_start, a.char_end]))].sort(
+  const chipAt = (a: AyahRef) =>
+    a.bracketed && textRaw[a.char_end] === "}" ? a.char_end + 1 : a.char_end;
+  const endsAt = new Map(ayat.map((a, i) => [chipAt(a), i]));
+  const bounds = [...new Set(ayat.flatMap((a) => [a.char_start, a.char_end, chipAt(a)]))].sort(
     (x, y) => x - y,
   );
   const segments: PassageSegment[] = [];

@@ -871,30 +871,33 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 3. **Pencocok** (`tools/ingest/src/quran/matcher.ts`, normalisasi `@surau/text`, `NORM_VERSION` tetap 1):
    - **Bentang `{…}`.** Shamela juga memakai `{…}` untuk menebalkan kata di hadits/takhrij (`{قال}`, `{ثم قال}`, `{وفيه}`, `{حميد مجيد}` dalam lafaz shalawat).
      - 1 kata ditolak (186 di Ihya, tidak satu pun ayat utuh).
-     - 2 kata hanya diterima bila sama persis DAN: ayat utuh, atau pengantar kuat (تعالى/عز وجل/سبحانه/قرأ/تلا/نزلت) di dua kata sebelumnya, atau "الآية" sesudahnya, atau satu surah dengan kutipan sebelumnya di paragraf. "قوله" saja tidak cukup karena dipakai juga untuk lafaz hadits.
+     - 2 kata hanya diterima bila sama persis DAN: ayat utuh, atau pengantar kuat (تعالى/عز وجل/سبحانه/قرأ/تلا/نزلت) di dua kata sebelumnya, atau "الآية" sesudahnya, atau satu surah dengan kutipan sebelumnya di paragraf. "قوله" saja tidak cukup karena dipakai juga untuk lafaz hadits. 2–3 kata yang tidak persis (3 kata tanpa pengantar) tidak dicoba cocok mirip (`short_inexact`).
      - ≥3 kata: `exact` bila sama persis. `similar` bila ≥4 kata (3 kata: syarat pengantar yang sama), dengan penjajaran huruf semi-global (alif/waw/ya/hamzah dan ه↔ت setengah biaya), skor ≥ 0,93, dan minimal separuh kata sama persis.
-     - Ambang diambil dari data. Semua beda ejaan asli Ihya berskor ≥ 0,938 (أولوا/أولو, مسئولا, ما لهذا/مال هذا, من ما/مما). Kalimat bukan ayat 3 kata bisa berskor 0,86–0,95.
+     - Ambang diambil dari data. Beda ejaan yang diterima berskor ≥ 0,938 (أولوا/أولو, مسئولا, ما لهذا/مال هذا, من ما/مما), sedangkan kalimat bukan ayat 3 kata bisa berskor 0,86–0,95. Harga ambang konservatif: **2 ayat asli tetap tidak tertaut** (39:9 أم من/أمّن, skor 0,90; 13:22 ويدرؤون, 3 kata tanpa pengantar). Laporan menyebutnya "tidak cocok, tidak ditautkan", bukan "bukan ayat".
    - **Kutipan tanpa kurung** (wujud "heuristik konservatif" di rencana):
      - Hanya sesudah frasa pengantar (`قال/قوله/يقول [الله] تعالى | عز وجل | سبحانه …`).
-     - Jangkar 3 kata sama persis, lalu diperpanjang kata demi kata. Beda ejaan kecil boleh di tengah (السموات/السماوات), tetapi kutipan dipotong di kata terakhir yang sama persis (kata mirip di ujung biasanya kata penulis: ولما/ولا).
+     - Jangkar 3 kata sama persis, lalu diperpanjang kata demi kata. Beda ejaan kecil boleh di tengah (السموات/السماوات; "kecil" = biaya ≤ 0,5, atau ≤ 1 untuk kata ≥ 5 huruf, jadi ربك/ربه tidak dianggap mirip), tetapi kutipan dipotong di kata terakhir yang sama persis (kata mirip di ujung biasanya kata penulis: ولما/ولا).
+     - Bila beberapa jangkar sama panjang, hanya yang kata persisnya terbanyak yang bersaing; label `exact`/`similar`, skor, dan `alt_count` (letak lain berlafaz mushaf identik) dihitung dari letak yang dipilih (temuan peninjau).
      - Minimal 4 kata; berhenti di `{` berikutnya.
-     - Di Ihya ada 649 kutipan seperti ini, sehingga cakupan hampir dua kali lipat (1.002 berkurung + 649).
+     - Di Ihya ada 648 kutipan seperti ini (610 persis, 38 mirip), sehingga cakupan hampir dua kali lipat (1.002 berkurung + 648).
+     - Keterbatasan yang diketahui: "قال الله تعالى" juga membuka hadits qudsi; hadits qudsi yang dimulai dengan lafaz Qur'ani ≥ 4 kata (mis. أنا الله لا إله إلا أنا = 20:14) ikut ditautkan sebagai ayat. Dijaga tinjauan T-16 dan eval S15.
    - **Lafaz di beberapa letak:** pilih ayat utuh, lalu surah kutipan sebelumnya di paragraf, lalu urutan mushaf. `alt_count` disimpan dan ditampilkan ("juga di N tempat lain"). Rentang lintas surah ditolak.
    - **Gerbang ingest** (invarian, ingest gagal bila dilanggar):
      - exact ≥ 95% dari `{…}` tervalidasi (hasil 977/1.004 = 97,3%; mirip 25; tidak cocok 2);
      - rujukan sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada);
+     - setiap kutipan `exact` benar-benar ada di teks ayat rujukannya, ayat utuh = sama persis (1.587/1.587);
      - sumber utuh;
      - beda QUL vs Tanzil ≤ 20.
-   - Tes integrasi lokal memastikan setiap kutipan `exact` benar-benar ada di teks ayat rujukannya (ayat utuh = sama persis).
 4. **Core.**
    - `Passage.ayah_refs` (juga ikut `readSection`), `PageView.quran` (ayat utuh + terjemahan + transliterasi + surah + sumber dalam satu batch D1; kunci `surah·1000+ayah` lewat `json_each` → pencarian kunci utama), dan `getAyahRefs`.
    - Korpus skema < 5 (produksi `ihya-v1`): kueri rujukan gagal, lalu `meta` dicek, lalu rujukan kosong. Halaman tetap tampil (+1 kueri gagal + 1 kueri `meta` per render ISR). `getAyahRefs` menjawab `Unavailable`.
+   - `quranForRefs` memecah per ≤ 300 ayat (`QURAN_AYAT_MAX`), jadi halaman yang merujuk banyak ayat tidak gagal; terjemahan dan transliterasi dipilih menurut ID sumber (`QURAN_SOURCE`), dan `quran.sources` hanya memuat satu sumber per jenis.
 5. **Penanda ayat S13** (`packages/core/src/ayah-placeholder.ts`).
-   - Placeholder `⟦QS s:a⟧` / `⟦QS s:a-b⟧`; `maskAyat`/`unmaskAyat` round-trip.
+   - Placeholder `⟦QS s:a⟧` / `⟦QS s:a-b⟧`; `maskAyat(text_raw, ayah_refs, footnote_refs)`/`unmaskAyat` round-trip. Penanda `(١)` di dalam kutipan dipindah tepat sesudah placeholder (tidak hilang); rujukan yang batasnya jatuh di tengah penanda dilewati (aturan sama dengan web). Pola placeholder lewat `ayahPlaceholderPattern()` (RegExp baru, tanpa `lastIndex` bersama).
    - `checkPlaceholders` menolak keluaran LLM yang kehilangan, menggandakan, atau mengarang placeholder.
    - `translationSegments` memberi label `ai_translation`, `kemenag`, atau `kemenag_full_ayah` (kutipan sebagian). Placeholder asing atau tanpa terjemahan = `invalid`, tidak dirender sebagai terjemahan.
 6. **UI pembaca.**
-   - Kutipan diberi warna halus tanpa latar. Sesudahnya ada label "QS s:a" sebagai tombol: HoverCard di desktop, Popover di layar sentuh, pola yang sama dengan penanda catatan kaki.
+   - Kutipan diberi warna halus tanpa latar. Sesudahnya (untuk `{…}`: sesudah kurung tutup) ada label "QS s:a" sebagai tombol: HoverCard di desktop, Popover di layar sentuh, pola yang sama dengan penanda catatan kaki. Nama aksesibel diawali label yang terlihat (WCAG 2.5.3) dan tombol ber-`lang="id"` di dalam blok Arab (juga penanda catatan kaki).
    - Isi popup: nama surah, catatan (sebagian ayat / beda ejaan / letak lain), teks Tanzil, transliterasi, terjemahan Kemenag + catatan kaki, sumber, dan tautan `tanzil.net/#s:a`. Kutipan sebagian = "Terjemahan ayat lengkap (Kemenag)".
    - Teks label memakai CSS `content: attr(data-label)` supaya tidak ikut tersalin bersama teks Arab; pembaca layar memakai `aria-label`.
    - Footer halaman: atribusi dari `quran_source`. `/lisensi` mendapat bagian "Ayat Al-Qur'an".

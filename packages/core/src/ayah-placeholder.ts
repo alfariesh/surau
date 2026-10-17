@@ -10,10 +10,20 @@
 //    sendiri, bukan di bawah label "terjemahan AI". Untuk kutipan sebagian (`partial`), labelnya
 //    "terjemahan ayat lengkap (Kemenag)", bukan potongan yang seolah-olah terjemahan bagian itu.
 // 4. Indeks teks terjemahan (S14) mengindeks segmen `ai` saja.
-import type { AyahRef, QuranView } from "./schema.ts";
+import { QURAN_SOURCE } from "@surau/db";
 
-/** Placeholder di teks terjemahan. Grup: surah, ayat awal, ayat akhir (opsional). */
-export const AYAH_PLACEHOLDER_RE = /⟦QS (\d{1,3}):(\d{1,3})(?:-(\d{1,3}))?⟧/g;
+import type { AyahRef, FootnoteRef, QuranView } from "./schema.ts";
+
+/** Pola placeholder. Grup: surah, ayat awal, ayat akhir (opsional). */
+const PLACEHOLDER_SOURCE = String.raw`⟦QS (\d{1,3}):(\d{1,3})(?:-(\d{1,3}))?⟧`;
+
+/**
+ * RegExp placeholder BARU di setiap panggilan (bawaan flag `g`): tidak ada `lastIndex` bersama
+ * antarpemanggil.
+ */
+export function ayahPlaceholderPattern(flags = "g"): RegExp {
+  return new RegExp(PLACEHOLDER_SOURCE, flags);
+}
 
 export function ayahPlaceholder(ref: Pick<AyahRef, "surah" | "ayah_from" | "ayah_to">): string {
   const range = ref.ayah_to > ref.ayah_from ? `${ref.ayah_from}-${ref.ayah_to}` : ref.ayah_from;
@@ -25,6 +35,11 @@ export interface AyahSlot {
   ref: AyahRef;
   /** Teks kutipan asli di text_raw (untuk round-trip, bukan untuk ditampilkan sebagai ayat). */
   original: string;
+  /**
+   * Penanda catatan kaki `(١)` yang ada DI DALAM kutipan, dipindah tepat sesudah placeholder
+   * (`" (١)"`) supaya tidak hilang dari teks terjemahan; kosong bila tidak ada.
+   */
+  trailing: string;
 }
 
 export interface MaskedPassage {
@@ -34,10 +49,18 @@ export interface MaskedPassage {
 }
 
 /**
- * Ganti setiap kutipan ayat di `textRaw` dengan placeholder. Rujukan yang offset-nya di luar teks
- * atau tumpang tindih dilewati (data rusak: teks dibiarkan, sama seperti penanda catatan kaki).
+ * Ganti setiap kutipan ayat di `textRaw` dengan placeholder. Rujukan yang offset-nya di luar teks,
+ * tumpang tindih, atau batasnya jatuh di tengah penanda catatan kaki dilewati (data rusak: teks
+ * dibiarkan, aturan yang sama dengan tampilan web). Penanda di dalam kutipan dipertahankan sesudah
+ * placeholder (`AyahSlot.trailing`).
  */
-export function maskAyat(textRaw: string, refs: readonly AyahRef[]): MaskedPassage {
+export function maskAyat(
+  textRaw: string,
+  refs: readonly AyahRef[],
+  footnoteRefs: readonly FootnoteRef[] = [],
+): MaskedPassage {
+  const inMarker = (pos: number) =>
+    footnoteRefs.some((f) => pos > f.char_start && pos < f.char_end);
   const sorted = refs.toSorted((a, b) => a.char_start - b.char_start);
   const slots: AyahSlot[] = [];
   let text = "";
@@ -46,9 +69,20 @@ export function maskAyat(textRaw: string, refs: readonly AyahRef[]): MaskedPassa
     if (ref.char_start < at || ref.char_end > textRaw.length || ref.char_end <= ref.char_start) {
       continue;
     }
+    if (inMarker(ref.char_start) || inMarker(ref.char_end)) continue;
     const placeholder = ayahPlaceholder(ref);
-    text += textRaw.slice(at, ref.char_start) + placeholder;
-    slots.push({ placeholder, ref, original: textRaw.slice(ref.char_start, ref.char_end) });
+    const trailing = footnoteRefs
+      .filter((f) => f.char_start >= ref.char_start && f.char_end <= ref.char_end)
+      .toSorted((a, b) => a.char_start - b.char_start)
+      .map((f) => ` ${textRaw.slice(f.char_start, f.char_end)}`)
+      .join("");
+    text += textRaw.slice(at, ref.char_start) + placeholder + trailing;
+    slots.push({
+      placeholder,
+      ref,
+      original: textRaw.slice(ref.char_start, ref.char_end),
+      trailing,
+    });
     at = ref.char_end;
   }
   return { text: text + textRaw.slice(at), slots };
@@ -56,15 +90,18 @@ export function maskAyat(textRaw: string, refs: readonly AyahRef[]): MaskedPassa
 
 /** Kembalikan teks bertanda ke text_raw semula (uji round-trip; urutan slot = urutan teks). */
 export function unmaskAyat(masked: MaskedPassage): string {
-  let i = 0;
-  return masked.text.replace(AYAH_PLACEHOLDER_RE, (found) => {
-    const slot = masked.slots[i];
-    if (slot === undefined || slot.placeholder !== found) {
-      throw new Error(`placeholder ${found} tidak sesuai slot ke-${i + 1}`);
-    }
-    i++;
-    return slot.original;
-  });
+  let out = "";
+  let at = 0;
+  for (const [i, slot] of masked.slots.entries()) {
+    const marked = slot.placeholder + slot.trailing;
+    const found = masked.text.indexOf(marked, at);
+    if (found === -1) throw new Error(`placeholder ${slot.placeholder} (slot ke-${i + 1}) hilang`);
+    out += masked.text.slice(at, found) + slot.original;
+    at = found + marked.length;
+  }
+  const rest = masked.text.slice(at);
+  if (ayahPlaceholderPattern("").test(rest)) throw new Error("placeholder tanpa slot");
+  return out + rest;
 }
 
 export type PlaceholderCheck =
@@ -79,7 +116,9 @@ export type PlaceholderCheck =
 
 function countPlaceholders(text: string): Map<string, number> {
   const counts = new Map<string, number>();
-  for (const m of text.matchAll(AYAH_PLACEHOLDER_RE)) counts.set(m[0], (counts.get(m[0]) ?? 0) + 1);
+  for (const m of text.matchAll(ayahPlaceholderPattern())) {
+    counts.set(m[0], (counts.get(m[0]) ?? 0) + 1);
+  }
   return counts;
 }
 
@@ -144,11 +183,12 @@ export function translationSegments(
     // Rujukan sama dengan status sebagian berbeda: label "ayat lengkap" lebih jujur untuk keduanya.
     byPlaceholder.set(s.placeholder, known === undefined || s.ref.partial ? s.ref : known);
   }
-  const source = quran?.sources.find((s) => s.kind === "translation");
+  // Terjemahan Kemenag dipilih menurut ID sumber, bukan baris pertama berjenis "translation".
+  const source = quran?.sources.find((s) => s.id === QURAN_SOURCE.translation);
   const attribution = source === undefined ? "" : `${source.name} (${source.version})`;
   const segments: TranslationSegment[] = [];
   let at = 0;
-  for (const m of text.matchAll(AYAH_PLACEHOLDER_RE)) {
+  for (const m of text.matchAll(ayahPlaceholderPattern())) {
     const start = m.index ?? 0;
     if (start > at)
       segments.push({ kind: "ai", label: "ai_translation", text: text.slice(at, start) });

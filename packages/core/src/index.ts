@@ -9,10 +9,10 @@ export { readPage } from "./page.ts";
 export { readSection } from "./section.ts";
 export { buildCitation } from "./citation.ts";
 export { SEARCH_MAX_HIGHLIGHTS, searchText } from "./search.ts";
-export { ayahLabel, getAyahRefs } from "./quran.ts";
+export { ayahLabel, getAyahRefs, quranForRefs } from "./quran.ts";
 export {
-  AYAH_PLACEHOLDER_RE,
   ayahPlaceholder,
+  ayahPlaceholderPattern,
   checkPlaceholders,
   maskAyat,
   translationSegments,

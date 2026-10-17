@@ -42,7 +42,7 @@ Entitas ayat tidak menunggu Fase 6. Ia dibangun di Fase 2 ([S12](../implementasi
 |---|---|
 | Teks ayat | Tanzil 1.1 (CC BY 3.0, **hanya verbatim**, wajib pemberitahuan dan tautan tanzil.net). `simple-clean` untuk indeks pencocokan, `uthmani` untuk tampilan. |
 | Terjemahan | Kemenag (data milik pemilik, asal quran.kemenag.go.id; menggantikan QuranEnc, ADR-040), verbatim, beserta catatan kaki dan transliterasi Latin. Penanda catatan kaki seperti `1)` ditampilkan apa adanya. |
-| Pencocokan | Hasil S12 (ADR-040): 97,3% bentang `{…}` tervalidasi di Ihya cocok persis dengan `simple-clean` setelah normalisasi, sisanya beda ejaan (أولوا/أولو) berlabel "mirip". Ditambah 649 kutipan tanpa kurung sesudah frasa pengantar (قال تعالى …). Bentang yang tidak cocok **bukan** ayat dan tidak ditautkan. |
+| Pencocokan | Hasil S12 (ADR-040): 97,3% bentang `{…}` tervalidasi di Ihya cocok persis dengan `simple-clean` setelah normalisasi, sisanya beda ejaan (أولوا/أولو) berlabel "mirip". Ditambah 648 kutipan tanpa kurung sesudah frasa pengantar (قال تعالى …). Bentang yang tidak cocok **bukan** ayat dan tidak ditautkan. |
 | Penyimpanan | Tabel korpus `quran_source`, `quran_surah`, `quran_ayah`, `quran_translation`, dan `passage_ayah_ref` (paragraf, offset, surah, ayat awal–akhir, `exact`/`similar`, sebagian, letak lain). Lihat [ARSITEKTUR-TEKNIS §3.1](../implementasi/ARSITEKTUR-TEKNIS.md). |
 | Aturan | **Ayat tidak pernah diterjemahkan atau ditulis ulang oleh LLM.** Ekstraksi wiki memakai rujukan dari `passage_ayah_ref`, misalnya untuk relasi `hukum ─berdalil→ ayat`. |
 

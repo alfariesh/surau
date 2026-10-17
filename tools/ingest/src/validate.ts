@@ -1,6 +1,8 @@
 // Validasi otomatis hasil ingest (S07 langkah 5). Invarian struktural yang dilanggar membuat ingest
 // GAGAL; sisanya angka untuk laporan. Laporan tidak memuat teks kitab: hanya angka, ID, dan rujukan
 // juz/halaman.
+import { normalizeArabic } from "@surau/text";
+
 import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
 import { MATAN_THRESHOLD } from "./openiti/verify.ts";
 import { EXACT_RATIO_MIN, NUMBERING_MISMATCH_MAX } from "./quran/rows.ts";
@@ -225,6 +227,26 @@ export function validate(input: ValidateInput): Validation {
     "Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada)",
     badAyahRefs === 0,
     `${rows.passage_ayah_ref.length} rujukan; ${badAyahRefs} tidak sah`,
+  );
+  // Kutipan `exact` harus benar-benar ada di teks ayat rujukannya (simple-clean, setelah
+  // normalisasi yang sama); ayat utuh = sama persis. Menjaga pencocok tanpa bergantung tes lokal.
+  const ayahText = new Map(rows.quran_ayah.map((a) => [`${a.surah}:${a.ayah}`, a.text_index]));
+  const norm = (t: string): string => ` ${normalizeArabic(t).text} `;
+  let wrongExact = 0;
+  for (const r of rows.passage_ayah_ref) {
+    if (r.match !== "exact") continue;
+    const text = byId.get(r.passage_id)?.text_raw ?? "";
+    const parts: string[] = [];
+    for (let a = r.ayah_from; a <= r.ayah_to; a++)
+      parts.push(ayahText.get(`${r.surah}:${a}`) ?? "");
+    const quote = norm(text.slice(r.char_start, r.char_end));
+    const ayat = norm(parts.join(" "));
+    if (r.partial === 1 ? !ayat.includes(quote) : ayat !== quote) wrongExact++;
+  }
+  check(
+    "Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis)",
+    wrongExact === 0,
+    `${rows.passage_ayah_ref.filter((r) => r.match === "exact").length} rujukan exact; ${wrongExact} tidak sesuai`,
   );
   const s = ayat.stats;
   check(

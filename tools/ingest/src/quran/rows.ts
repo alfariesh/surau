@@ -51,7 +51,7 @@ export interface AyahStats {
   validated: number;
   exact: number;
   similar: number;
-  /** Bentang tervalidasi yang tidak cocok (bukan ayat, tidak ditautkan). */
+  /** Bentang tervalidasi yang tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda). */
   unmatched: number;
   /** Bentang `{…}` yang disaring sebelum pencocokan (1 kata, 2 kata tanpa pengantar). */
   filtered: number;
@@ -132,6 +132,7 @@ export function matchAyat(
   const rejectedByReason: AyahStats["rejectedByReason"] = {
     one_word: 0,
     two_words_no_cue: 0,
+    short_inexact: 0,
     no_match: 0,
     below_threshold: 0,
     cross_surah: 0,
@@ -181,7 +182,10 @@ export function matchAyat(
   refs.sort((a, b) => a.passage_id - b.passage_id || a.char_start - b.char_start);
   const filtered = rejectedByReason.one_word + rejectedByReason.two_words_no_cue;
   const unmatched =
-    rejectedByReason.no_match + rejectedByReason.below_threshold + rejectedByReason.cross_surah;
+    rejectedByReason.short_inexact +
+    rejectedByReason.no_match +
+    rejectedByReason.below_threshold +
+    rejectedByReason.cross_surah;
   const validated = exact + similar + unmatched;
   return {
     refs,

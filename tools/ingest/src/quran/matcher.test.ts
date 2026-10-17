@@ -23,6 +23,9 @@ const AYAT = [
   { surah: 2, ayah: 3, text: "والصبر نور القلوب في الظلمات" },
   { surah: 3, ayah: 1, text: "ثم قال لهم انظروا الى السماوات والأرض وما بينهما" },
   { surah: 3, ayah: 2, text: "فطوبى للصابرين الذين يذكرون ربهم بالليل والنهار" },
+  // Dua letak sama panjang, beda satu ejaan (السماوات/السموات): uji pilihan letak tanpa kurung.
+  { surah: 4, ayah: 1, text: "فانظر إلى العرش والسماوات العالية" },
+  { surah: 5, ayah: 1, text: "فانظر إلى العرش والسموات العالية" },
 ];
 const index = buildQuranIndex(AYAT);
 
@@ -63,8 +66,10 @@ describe("kemiripan huruf", () => {
     expect(wordDistance("كتب", "قلب")).toBe(2);
     expect(similarWord("اولوا", "اولو")).toBe(true);
     expect(similarWord("كتب", "قلب")).toBe(false);
-    // Kata pendek (<3 huruf) harus sama persis.
+    // Kata pendek (<3 huruf) harus sama persis; kata ganti berbeda (ربك/ربه) bukan beda ejaan.
     expect(similarWord("في", "فا")).toBe(false);
+    expect(similarWord("ربك", "ربه")).toBe(false);
+    expect(similarWord("الصالحين", "الصالحون")).toBe(true);
   });
 
   test("semiGlobal menjajarkan pola utuh ke potongan teks", () => {
@@ -110,13 +115,16 @@ describe("bentang {…}", () => {
   });
 
   test("kurung yang bukan ayat: 1 kata, 2 kata tanpa pengantar, dan kalimat karangan ditolak", () => {
-    const raw = "قال {وفيه} ثم {ثم قال} الحديث {هذه جملة لا توجد في الكتاب أصلا}";
+    const raw =
+      "قال {وفيه} ثم {ثم قال} الحديث {هذه جملة لا توجد في الكتاب أصلا} و {العلم ثمره العمل}";
     const m = matchPassage(index, raw);
     expect(m.spans).toEqual([]);
+    // 3 kata tidak persis tanpa pengantar: cocok mirip tidak dicoba (bukan "tidak ada di mushaf").
     expect(m.rejected.map((r) => [r.reason, r.tokens])).toEqual([
       ["one_word", 1],
       ["two_words_no_cue", 2],
       ["no_match", 7],
+      ["short_inexact", 3],
     ]);
   });
 
@@ -172,6 +180,21 @@ describe("kutipan tanpa kurung sesudah pengantar", () => {
     expect(span?.score).toBeCloseTo(8 / 9, 3);
     expect(matchPassage(index, "قال تعالى قل هل يستوي").spans).toEqual([]);
     expect(matchPassage(index, "قال الله تعالى أنا عند ظن عبدي بي").spans).toEqual([]);
+  });
+
+  test("dua letak sama panjang: yang lafaznya sama persis dipilih, label dan alt mengikuti letak itu", () => {
+    const raw = "قال تعالى فانظر إلى العرش والسموات العالية ثم تفكر";
+    const [span, ...rest] = matchPassage(index, raw).spans;
+    expect(rest).toEqual([]);
+    // 4:1 lebih dulu di mushaf tetapi beda ejaan; 5:1 sama persis → exact, tanpa letak lain.
+    expect(span && brief(span)).toEqual({
+      ref: "5:1-1",
+      match: "exact",
+      partial: false,
+      kind: "cue",
+      alt: 0,
+    });
+    expect(span?.score).toBe(1);
   });
 
   test("kutipan berhenti sebelum kurung berikutnya; bentang berkurung tidak dihitung dua kali", () => {

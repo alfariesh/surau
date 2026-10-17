@@ -161,7 +161,8 @@ test("label rujukan ayat membuka teks ayat dan terjemahan Kemenag dengan atribus
   page,
 }) => {
   await page.goto("/kitab/ihya/1/119");
-  const chip = page.getByRole("button", { name: /^Rujukan ayat QS An-Naml \[27\]: 90:/ });
+  // Nama aksesibel diawali label yang terlihat (WCAG 2.5.3).
+  const chip = page.getByRole("button", { name: /^QS 27:90: rujukan ayat QS An-Naml \[27\]: 90,/ });
   await expect(chip).toBeVisible();
   // Label tampil lewat CSS, tidak ikut teks yang disalin.
   expect(await page.locator(".reader-text").innerText()).not.toContain("QS 27:90");
@@ -173,7 +174,7 @@ test("label rujukan ayat membuka teks ayat dan terjemahan Kemenag dengan atribus
     "href",
     "https://tanzil.net/#27:90",
   );
-  await expect(page.getByRole("link", { name: /Tanzil Project/ }).first()).toHaveAttribute(
+  await expect(page.getByRole("link", { name: /Tanzil Quran Text/ }).first()).toHaveAttribute(
     "href",
     "https://tanzil.net",
   );

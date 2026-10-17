@@ -3,6 +3,7 @@
 // Model tidak pernah menulis atau menerjemahkan ayat. Korpus sebelum S12 (skema < 5) tidak punya
 // tabel ayat: paragraf tetap tampil tanpa rujukan, `getAyahRefs` menjawab `Unavailable`.
 import {
+  QURAN_AYAT_MAX,
   QURAN_SCHEMA_VERSION,
   QURAN_SOURCE,
   getAyahRefs as getAyahRefRows,
@@ -11,7 +12,7 @@ import {
   getQuranAyat,
   quranFootnotes,
 } from "@surau/db";
-import type { AyahRefWithSurahRow, D1Db } from "@surau/db";
+import type { AyahRefWithSurahRow, D1Db, QuranAyat } from "@surau/db";
 
 import { NotFound, Unavailable, parseInput } from "./errors.ts";
 import { getAyahRefsInput } from "./schema.ts";
@@ -63,31 +64,64 @@ export async function loadAyahRefs(
   return by;
 }
 
+/** Sumber yang ditampilkan: teks Uthmani, terjemahan Kemenag, transliterasi Kemenag (by ID). */
+const SHOWN_SOURCES: ReadonlySet<string> = new Set([
+  QURAN_SOURCE.uthmani,
+  QURAN_SOURCE.translation,
+  QURAN_SOURCE.transliteration,
+]);
+
+/** Ayat (urut mushaf, unik) dari rujukan-rujukan, dipecah per ≤ QURAN_AYAT_MAX ayat. */
+async function loadAyat(
+  db: D1Db,
+  refs: readonly Pick<AyahRef, "surah" | "ayah_from" | "ayah_to">[],
+): Promise<QuranAyat> {
+  const keys = new Set<number>();
+  for (const r of refs) for (let a = r.ayah_from; a <= r.ayah_to; a++) keys.add(r.surah * 1000 + a);
+  const sorted = [...keys].sort((a, b) => a - b);
+  const parts: QuranAyat[] = [];
+  for (let i = 0; i < sorted.length; i += QURAN_AYAT_MAX) {
+    const chunk = sorted.slice(i, i + QURAN_AYAT_MAX);
+    parts.push(
+      await getQuranAyat(
+        db,
+        chunk.map((k) => ({ surah: Math.floor(k / 1000), from: k % 1000, to: k % 1000 })),
+      ),
+    );
+  }
+  const surahs = new Map(parts.flatMap((p) => p.surahs).map((s) => [s.surah, s]));
+  return {
+    ayat: parts.flatMap((p) => p.ayat),
+    translations: parts.flatMap((p) => p.translations),
+    surahs: [...surahs.values()].sort((a, b) => a.surah - b.surah),
+    sources: parts[0]?.sources ?? [],
+  };
+}
+
 /**
  * Teks ayat utuh (juga untuk kutipan sebagian), terjemahan + catatan kaki, transliterasi, surah,
- * dan sumber untuk rujukan-rujukan ini, dalam satu bolak-balik D1. `null` bila tidak ada rujukan.
+ * dan sumber untuk rujukan-rujukan ini. Satu bolak-balik D1 per ≤ QURAN_AYAT_MAX ayat (satu
+ * halaman kitab praktis selalu satu), jadi halaman yang merujuk banyak ayat tidak gagal. `null`
+ * bila tidak ada rujukan. Terjemahan dan transliterasi dipilih menurut ID sumber
+ * (`QURAN_SOURCE`), bukan baris pertama berjenis sama, supaya terjemahan lain kelak tidak tampil
+ * berlabel Kemenag.
  */
 export async function quranForRefs(
   db: D1Db,
   refs: readonly Pick<AyahRef, "surah" | "ayah_from" | "ayah_to">[],
 ): Promise<QuranView | null> {
   if (refs.length === 0) return null;
-  const q = await getQuranAyat(
-    db,
-    refs.map((r) => ({ surah: r.surah, from: r.ayah_from, to: r.ayah_to })),
-  );
-  const kindOf = new Map(q.sources.map((s) => [s.id, s.kind]));
+  const q = await loadAyat(db, refs);
   const key = (surah: number, ayah: number) => surah * 1000 + ayah;
   const translation = new Map<number, QuranAyahView["translation"]>();
   const transliteration = new Map<number, string>();
   for (const t of q.translations) {
-    const kind = kindOf.get(t.source_id);
-    if (kind === "translation" && !translation.has(key(t.surah, t.ayah))) {
+    if (t.source_id === QURAN_SOURCE.translation) {
       translation.set(key(t.surah, t.ayah), {
         text: t.text,
         footnotes: t.footnotes === null ? [] : quranFootnotes.parse(JSON.parse(t.footnotes)),
       });
-    } else if (kind === "transliteration" && !transliteration.has(key(t.surah, t.ayah))) {
+    } else if (t.source_id === QURAN_SOURCE.transliteration) {
       transliteration.set(key(t.surah, t.ayah), t.text);
     }
   }
@@ -107,10 +141,10 @@ export async function quranForRefs(
       translation: translation.get(key(a.surah, a.ayah)) ?? null,
       transliteration: transliteration.get(key(a.surah, a.ayah)) ?? null,
     })),
-    // Hanya sumber yang ditampilkan (teks uthmani, terjemahan, transliterasi); simple-clean dipakai
-    // untuk pencocokan saja.
+    // Hanya sumber yang ditampilkan (teks uthmani, terjemahan, transliterasi): satu per jenis.
+    // Simple-clean dipakai untuk pencocokan saja.
     sources: q.sources
-      .filter((s) => s.kind !== "text" || s.id === QURAN_SOURCE.uthmani)
+      .filter((s) => SHOWN_SOURCES.has(s.id))
       .map((s) => ({
         id: s.id,
         kind: s.kind,

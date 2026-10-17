@@ -121,12 +121,17 @@ export function wordDistance(a: string, b: string): number {
   return prev[b.length] as number;
 }
 
-/** Dua kata dianggap sama ejaan-bedanya kecil: biaya ≤1 dan ≤ sepertiga panjang. */
+/**
+ * Dua kata dianggap beda ejaan kecil: biaya ≤ 0,5 (satu huruf lemah/ه-ت), atau ≤ 1 untuk kata
+ * ≥ 5 huruf; selalu ≤ sepertiga panjang. Kata pendek yang beda satu huruf kuat (ربك/ربه: kata
+ * ganti berbeda) TIDAK dianggap mirip.
+ */
 export function similarWord(a: string, b: string): boolean {
   if (a === b) return true;
-  if (Math.min(a.length, b.length) < 3) return false;
+  const shorter = Math.min(a.length, b.length);
+  if (shorter < 3) return false;
   const d = wordDistance(a, b);
-  return d <= 1 && d / Math.max(a.length, b.length) <= 1 / 3;
+  return (d <= 0.5 || (d <= 1 && shorter >= 5)) && d / Math.max(a.length, b.length) <= 1 / 3;
 }
 
 /**
@@ -345,7 +350,19 @@ export interface RejectedSpan {
   charStart: number;
   charEnd: number;
   tokens: number;
-  reason: "one_word" | "two_words_no_cue" | "no_match" | "below_threshold" | "cross_surah";
+  /**
+   * Disaring sebelum dicocokkan: `one_word`, `two_words_no_cue`. Tervalidasi tetapi tidak cocok
+   * (tidak ditautkan; bisa saja ayat dengan ejaan jauh berbeda, dibiarkan, bukan ditebak):
+   * `short_inexact` (2–3 kata tidak persis, cocok mirip tidak dicoba), `no_match`,
+   * `below_threshold`, `cross_surah`.
+   */
+  reason:
+    | "one_word"
+    | "two_words_no_cue"
+    | "short_inexact"
+    | "no_match"
+    | "below_threshold"
+    | "cross_surah";
   score: number | null;
 }
 
@@ -453,8 +470,8 @@ function bracketed(
     };
   }
   if (exactHits(index, words).length > 0) return reject("cross_surah");
-  if (words.length < 3) return reject(cue ? "no_match" : "two_words_no_cue");
-  if (words.length === 3 && !cue) return reject("no_match");
+  if (words.length < 3) return reject(cue ? "short_inexact" : "two_words_no_cue");
+  if (words.length === 3 && !cue) return reject("short_inexact");
   const fuzzy = fuzzyMatch(index, words);
   if (fuzzy === null) return reject("no_match");
   if (fuzzy.score < SIMILAR_MIN_SCORE) return reject("below_threshold", fuzzy.score);
@@ -522,17 +539,27 @@ function cueSpans(
     const toks = tokenize(n, cueEnd, normAtOrAfter(n, rawLimit)).slice(0, CUE_MAX_TOKENS);
     const words = toks.map((t) => t.token);
     if (words.length < CUE_MIN_TOKENS) continue;
-    const anchors = exactHits(index, words.slice(0, CUE_ANCHOR_TOKENS));
-    let best: { length: number; exact: boolean; same: number; hits: QuranHit[] } | null = null;
-    for (const a of anchors) {
+    // Setiap jangkar diperpanjang sendiri; yang bersaing hanya yang terpanjang DAN paling banyak
+    // kata sama persis, jadi label exact/similar dan skor selalu milik letak yang dipilih.
+    const runs = exactHits(index, words.slice(0, CUE_ANCHOR_TOKENS)).map((a) => {
       const e = extend(index, words, a.from);
-      const hit = { from: a.from, to: a.from + e.length - 1 };
-      if (best === null || e.length > best.length) best = { ...e, hits: [hit] };
-      else if (e.length === best.length) best.hits.push(hit);
-    }
-    if (best === null || best.length < CUE_MIN_TOKENS) continue;
-    const picked = pickCandidate(index, best.hits, preferSurah());
-    if (picked === null) continue;
+      return { ...e, hit: { from: a.from, to: a.from + e.length - 1 } };
+    });
+    const length = Math.max(0, ...runs.map((r) => r.length));
+    if (length < CUE_MIN_TOKENS) continue;
+    const longest = runs.filter((r) => r.length === length);
+    const sameMax = Math.max(...longest.map((r) => r.same));
+    const top = longest.filter((r) => r.same === sameMax);
+    const picked = pickCandidate(
+      index,
+      top.map((r) => r.hit),
+      preferSurah(),
+    );
+    const best = top.find((r) => r.hit.from === picked?.best.hit.from);
+    if (picked === null || best === undefined) continue;
+    // Letak lain = lafaz mushaf yang identik dengan letak terpilih (bukan sekadar sama panjang).
+    const mushaf = index.tokens.slice(best.hit.from, best.hit.to + 1);
+    const alt = pickCandidate(index, exactHits(index, mushaf), null)?.alt ?? 0;
     const firstTok = toks[0] as TokenSpan;
     const lastTok = toks[best.length - 1] as TokenSpan;
     const [charStart, charEnd] = toRawSpan(raw, n, firstTok.start, lastTok.end);
@@ -544,7 +571,7 @@ function cueSpans(
       ...loc(picked.best.loc),
       match: best.exact ? "exact" : "similar",
       kind: "cue",
-      alt: picked.alt,
+      alt,
       // Bentang tanpa kurung: porsi kata yang sama persis (kata lain beda ejaan kecil).
       score: Math.round((best.same / best.length) * 1000) / 1000,
       tokens: best.length,

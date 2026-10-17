@@ -75,6 +75,8 @@ export interface QuranAyat {
 export async function getQuranAyat(db: D1Db, ranges: readonly AyahRange[]): Promise<QuranAyat> {
   const keys = new Set<number>();
   for (const r of ranges) {
+    // Rentang dicek sebelum diurai: rentang raksasa tidak sempat diputar dulu.
+    if (r.to - r.from >= QURAN_AYAT_MAX) throw new RangeError(`lebih dari ${QURAN_AYAT_MAX} ayat`);
     for (let a = r.from; a <= r.to; a++) keys.add(r.surah * 1000 + a);
     if (keys.size > QURAN_AYAT_MAX) throw new RangeError(`lebih dari ${QURAN_AYAT_MAX} ayat`);
   }
