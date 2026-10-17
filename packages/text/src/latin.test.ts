@@ -154,6 +154,23 @@ describe("planLatinQuery / latinMatchExpression", () => {
     });
   });
 
+  test("kata pembingkai pertanyaan dibuang bila ada kata lain (S15, ADR-045)", () => {
+    // Regresi eval S15: "cara" ikut diwajibkan sehingga bab khusyuk tidak ditemukan.
+    expect(plan("cara khusyuk dalam salat")).toEqual({
+      words: ["khusyuk", "salat"],
+      stems: ["khusyuk", "salat"],
+    });
+    expect(plan("Bagaimana al-Ghazali menjelaskan sabar?")).toEqual({
+      words: ["al", "sabar"],
+      stems: ["al", "sabar"],
+    });
+    // Hanya kata pembingkai → tetap dicari apa adanya.
+    expect(plan("cara")).toEqual({ words: ["cara"], stems: ["cara"] });
+    // Bukan pembingkai: imam (topik imamah), turunan "cara" lain tetap kata biasa.
+    expect(plan("imam salat").stems).toEqual(["imam", "salat"]);
+    expect(plan("bercara").stems).toEqual(["cara"]);
+  });
+
   test("kosong, hanya stopword, atau hanya huruf Arab → null", () => {
     expect(planLatinQuery("")).toBeNull();
     expect(planLatinQuery("yang dan di")).toBeNull();

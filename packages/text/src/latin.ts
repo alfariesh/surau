@@ -128,6 +128,42 @@ export const ID_STOPWORDS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * Kata pembingkai pertanyaan (S15, ADR-045): membentuk pertanyaan pengguna ("cara …", "bagaimana
+ * …", "di mana al-Ghazali membahas …") tetapi jarang ada di teks jawaban, jadi mewajibkannya (AND)
+ * membuang bagian yang tepat. Temuan eval S15: "cara khusyuk dalam salat" hanya cocok 5 halaman
+ * (yang memuat "cara") dan bab khusyuk tidak masuk 50 teratas. HANYA dibuang dari kueri, dan hanya
+ * bila masih ada kata lain; indeks tidak berubah, jadi `LATIN_NORM_VERSION` tetap. Dicek pada
+ * bentuk normal sebelum stem. "imam" sengaja tidak masuk (imamah salat adalah topik).
+ */
+export const ID_QUERY_FRAMING: ReadonlySet<string> = new Set([
+  "cara",
+  "caranya",
+  "bagaimana",
+  "bagaimanakah",
+  "mengapa",
+  "kenapa",
+  "dimana",
+  "dimanakah",
+  "mana",
+  "manakah",
+  "bolehkah",
+  "siapa",
+  "siapakah",
+  "kapan",
+  "kapankah",
+  "menurut",
+  "membahas",
+  "dibahas",
+  "pembahasan",
+  "menjelaskan",
+  "dijelaskan",
+  "penjelasan",
+  "menerangkan",
+  "diterangkan",
+  "ghazali",
+]);
+
+/**
  * Ejaan lain istilah keagamaan → ejaan baku terjemahan (glosarium `glossary-v1`, KBBI). Dipakai di
  * indeks DAN kueri sebelum stem, jadi "taubat" menemukan "tobat" dan "shalat" menemukan "salat".
  * Hanya varian ejaan, bukan sinonim.
@@ -404,17 +440,20 @@ export interface LatinQueryPlan {
 
 /**
  * Rencana kueri Indonesia dari bagian Latin kueri. `null` bila tidak ada kata yang dicari (kosong
- * atau hanya stopword). Lebih dari `LATIN_MAX_TERMS` kata → RangeError.
+ * atau hanya stopword). Kata pembingkai pertanyaan (`ID_QUERY_FRAMING`) dibuang bila ada kata
+ * lain. Lebih dari `LATIN_MAX_TERMS` kata → RangeError.
  */
 export function planLatinQuery(query: string): LatinQueryPlan | null {
-  const words: string[] = [];
-  const stems: string[] = [];
+  const found: { norm: string; term: string; framing: boolean }[] = [];
   for (const t of latinTokens(query)) {
     const term = latinTerm(t.norm);
-    if (term === null) continue;
-    words.push(t.norm);
-    if (!stems.includes(term)) stems.push(term);
+    if (term !== null) found.push({ norm: t.norm, term, framing: ID_QUERY_FRAMING.has(t.norm) });
   }
+  // Kata pembingkai dibuang hanya bila masih ada kata lain ("cara" saja tetap dicari).
+  const kept = found.some((f) => !f.framing) ? found.filter((f) => !f.framing) : found;
+  const words = kept.map((f) => f.norm);
+  const stems: string[] = [];
+  for (const f of kept) if (!stems.includes(f.term)) stems.push(f.term);
   if (stems.length === 0) return null;
   if (words.length > LATIN_MAX_TERMS) {
     throw new RangeError(`kueri terlalu panjang: ${words.length} kata (maks ${LATIN_MAX_TERMS})`);
