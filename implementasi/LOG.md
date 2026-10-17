@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-17 · S16 · Worker MCP publik — selesai
+- Dikerjakan:
+  - Worker `surau-mcp` (`apps/mcp`) di `https://mcp.surau.org/mcp`: MCP SDK v2 2.3.1, stateless dual-era (2025-11-25 + 2026-07-28), tanpa login dan LLM; 7 tool (`list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text` dipadatkan, `verify_quote`, `get_hadith_takhrij`), instruksi server, permalink absolut + blok lisensi (edisi + Tanzil/Kemenag).
+  - Core: `verifyQuote`, `getHadithTakhrij`, `ipKey`/`ipNetwork` pindah dari web; kalibrasi `readSection` dengan `count_tokens` (1,4 karakter/token, potongan 3.500–5.000 token `passages`).
+  - Pengaman: Origin allowlist, body 64 KiB, batas `HMAC(IP):tool` + batas global baca/cari, gagal tertutup tanpa secret; secret `IP_HMAC_KEY` dipasang (produksi + base config Preview, nilai acak tidak dicetak). T-19 (WAF) dipandu di TUGAS-PEMILIK.
+  - CI/deploy: project Vitest `mcp`, `uji-mcp.sh` (Inspector 2.11.0 dua era), job `preview mcp` + `deploy mcp`; `corpus:promote` mengganti `CORPUS_DB` web + MCP; `pnpm llm mcp-tokens`; alamat web → `https://surau.org`.
+- Verifikasi:
+  - `pnpm verify` → lolos (466 + 208 tes, termasuk 20 tes `mcp` di kedua era; build web + `wrangler deploy --dry-run` MCP).
+  - `uji-mcp.sh` → lolos di lokal (D1 Ihya), Preview PR #42 (job `preview mcp`, korpus staging), dan produksi `https://mcp.surau.org/mcp` (versi `0290a179`): tools/list + tools/call ketujuh tool + error + Origin asing 403, era modern dan legacy. `workers.dev` MCP → 404. Binding versi produksi `CORPUS_DB` = `537103c6…` (`ihya-v6`, dicek `wrangler versions view`).
+  - Token (`pnpm llm mcp-tokens`, count_tokens gratis): `read_section` 7.690 → **5.037** median (maks. 9.192 → 6.193); `read_page` median 11.095; `search_text` limit 5 median 7.317, maks. 10.907.
+  - Peninjau: 0 blocker, 7 perbaiki (semua ditangani), saran sebagian diambil (rinci di Catatan hasil S16).
+- Biaya API: – (count_tokens gratis)
+- Keputusan: ADR-049
+- Pemilik: "Deploy dari branch" (2026-10-17) untuk deploy pertama Worker MCP sebelum merge (Preview MCP butuh Worker yang sudah pernah di-deploy).
+- Catatan untuk sesi berikutnya: T-19 (WAF) sebelum MCP diumumkan; S17 = dokumentasi publik + T-18 (uji dari claude.ai: ukur batas per IP Anthropic dan ukuran `read_page` di konteks klien).
+
 ## 2026-10-17 · Rilis Fase 2 · Cari — dirilis (`rilis-f2`)
 
 - Dikerjakan:

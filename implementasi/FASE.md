@@ -9,7 +9,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | 0 | Fondasi | Situs "Surau, segera hadir": tentang, prinsip, dan status pengembangan | S01–S04 | **dirilis 2026-10-15** (`rilis-f0`) |
 | 1 | Pembaca Ihya | Membaca Ihya lengkap: daftar isi, halaman cetak, takhrij al-'Iraqi, dan permalink | S05–S10 | **dirilis 2026-10-16** (`rilis-f1`) |
 | 2 | Cari | Pencarian Arab dan Indonesia di Ihya, ayat dengan terjemahan Kemenag, serta terjemahan dan ringkasan AI berlabel | S11–S15, X02 | **dirilis 2026-10-17** (`rilis-f2`) |
-| 3 | MCP publik | Korpus Surau bisa dipakai dari Claude, ChatGPT, dan AI lain | S16–S17 | belum |
+| 3 | MCP publik | Korpus Surau bisa dipakai dari Claude, ChatGPT, dan AI lain | S16–S17 | berjalan (S16 selesai 2026-10-17) |
 | 4 | Jawab | Tanya-jawab dengan kutipan Arab terverifikasi, berkuota, dengan rem biaya | S18–S21 | belum |
 | 5 | Ruang al-Ghazali | 21+ karya al-Ghazali, agen orang ketiga, metadata atribusi | garis besar | belum |
 | 6 | Wiki | Kartu tokoh, istilah, hadits, dan indeks tematik (entitas tingkat A dan B) | garis besar | belum |
