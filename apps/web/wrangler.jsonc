@@ -26,7 +26,7 @@
     "SEARCH_TIMING_DETAIL": "0",
     // Versi korpus di kunci cache /api/search (S14, ADR-044): SELALU = database_name CORPUS_DB di
     // bawah. Diganti `corpus:promote` bersama binding (dijaga tes tools/ingest/src/corpus.test.ts).
-    "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v1",
+    "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v5",
   },
   "services": [
     {
@@ -50,8 +50,8 @@
   "d1_databases": [
     {
       "binding": "CORPUS_DB",
-      "database_name": "surau-corpus-ihya-v1",
-      "database_id": "41e3033e-3aa0-456c-9d60-b8967f57e89d",
+      "database_name": "surau-corpus-ihya-v5",
+      "database_id": "fb0f9660-69ce-412f-9e5f-7c2150cbf901",
       "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
     },
     {

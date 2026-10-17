@@ -15,17 +15,17 @@ Format entri:
 
 ---
 
-## 2026-10-17 · S14 · Cari bahasa Indonesia + UI Cari — selesai* (promote produksi menunggu izin pemilik, tampilan menunggu T-23)
+## 2026-10-17 · S14 · Cari bahasa Indonesia + UI Cari — selesai* (tampilan menunggu T-23)
 - Dikerjakan:
   - Indeks Indonesia `translation_fts` + `summary_fts` (migrasi 0006, skema 6, korpus `ihya-v5`): stem ringan Tala + stopword kecil + ejaan baku, diuji dulu pada kosakata terjemahan Ihya (sabar 173 → 404 paragraf, taubat 11 → 248).
   - `searchText`: deteksi aksara kueri; kueri Indonesia/campuran digabung RRF (Arab + terjemahan + ringkasan) dalam satu bolak-balik D1; `matched_by`, terjemahan/ringkasan berlabel AI, filter bagian.
   - Halaman `/cari` (filter rub'/kitab, kartu dengan teks Arab asli tersorot), palet ⌘K, menu Cari aktif; pembaca menampilkan terjemahan AI per paragraf (ayat = Kemenag berlabel), ringkasan AI di awal bab, dan sorotan kata dari hasil Cari.
   - Cache hasil `/api/search` (Cache API, kunci = versi korpus + rencana kueri, produksi saja); `corpus:promote --switch-only` boleh ke skema lebih lama (rollback `ihya-v1`).
-  - `ihya-v5` dimuat ke D1 lokal dan `surau-corpus-staging`; produksi tetap `ihya-v1` (Cari menampilkan "sedang disiapkan").
+  - `ihya-v5` dimuat ke D1 lokal dan `surau-corpus-staging`, lalu atas izin pemilik dipromosikan ke produksi (`surau-corpus-ihya-v5`, QA 30/30, PR #34); `ihya-v1` jadi target rollback.
 - Verifikasi: `pnpm verify` → lolos (432 + 177 tes) · e2e lokal 87 lolos + `search.spec.ts` 6/6, Preview PR #33 hijau · latensi staging (Preview, 240 kueri, cache mati) handler p95 154 ms, SQL D1 p95 19,9 ms · Lighthouse 13.5.0 Preview `/cari?q=sabar` a11y 100 (ponsel + desktop), performa 87/100; pembaca j4 h61 a11y 100 · 5 teratas sabar/niat/adab murid kepada guru relevan (dicatat di file sesi) · peninjau: 0 blocker, 7 perbaikan diterapkan (pemetaan ringkasan tanpa urutan ID, versi kunci cache, `/cari` di korpus lama, a11y status, dll.) · e2e lokal sesudahnya 93 lolos.
 - Biaya API: –
 - Keputusan: ADR-044
-- Berikutnya: izin promote `ihya-v5` + T-23 dari pemilik; lalu S15 (eval retrieval, butuh T-12).
+- Berikutnya: T-23 dari pemilik; lalu S15 (eval retrieval, butuh T-12).
 
 ## 2026-10-17 · S13 · Batch terjemahan & ringkasan (Haiku 5.5) — selesai* (QA T-17 tahap 2 menunggu pemilik)
 
