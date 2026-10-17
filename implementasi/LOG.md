@@ -27,6 +27,7 @@ Format entri:
   - Tinjauan keamanan `rilis-f1..main` (peninjau): 0 blocker, 2 "perbaiki" (batas global pencarian → diperbaiki; tautan artifact T-12 → berbagi ditutup pemilik), beberapa saran (catatan di ADR-048/STATUS).
   - Gerbang versi (docs-terbaru): Next 16.4.1 dalam peer OpenNext 1.20.12 (`>=16.4.1`); tidak ada advisory terbuka untuk Next 16.4.1, React 19.3.1, OpenNext 1.20.12, wrangler 4.151.0. Patch opsional: next 16.4.2, wrangler 4.151.1 (non-keamanan).
   - Preview PR #39 (https://pr-39.surau.org): CI verify + preview + eval lolos (446 request, 0 error); uji manual ponsel 375 px: `/cari?q=adab murid kepada guru` (5 halaman, sorotan, label Terjemahan AI), j1 h210 (RTL, Naskh, terjemahan AI), j4 h335 (QS 54:55 + terjemahan Kemenag), 404; konsol 0 error.
+  - Produksi setelah merge (squash `2645ebd`, versi Worker `4c62363e`): `deploy.yml` run 39031636567 → success; binding `SEARCH_GLOBAL_LIMITER` 1200/60s, `SEARCH_LIMITER` 60/60s, `CORPUS_DB 537103c6-…` (`ihya-v6`). Smoke curl: `/`, `/cari`, `/cari?q=sabar`, `/api/search` Arab + `niat`, `/kitab`, j1 h200, j1 h210, j4 h335, `/tentang`, `/lisensi` = 200; `/kitab/ihya/5/1`, `/tidak-ada` = 404. Tag `rilis-f2` di-push.
   - Produksi sebelum merge (curl): `/`, `/cari`, `/api/search` Arab + Indonesia, j1 h210, j4 h335, `/tentang`, `/lisensi` = 200; `/kitab/ihya/5/1`, `/tidak-ada` = 404.
 - Biaya API: –
 - Keputusan: ADR-048
