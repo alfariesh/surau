@@ -111,7 +111,7 @@ export async function handleSearch(request: Request, deps: SearchDeps): Promise<
     }
   }
   // Per klien dulu: permintaan yang ditolak per klien tidak memakan kuota global (satu jaringan
-  // paling banyak memakai 60 dari 300 per menit).
+  // paling banyak memakai 60 dari 1.200 per menit; rilis F2, ADR-048).
   const allowed = await deps.limit(await ipKey(deps.hmacKey, ipNetwork(deps.ip ?? "unknown")));
   if (!allowed) return json(429, { error: "rate_limited" });
   if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
