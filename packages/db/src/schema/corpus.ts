@@ -150,6 +150,14 @@ const ayahNo = z.number().int().positive();
 export const quranSourceKind = z.enum(["text", "translation", "transliteration"]);
 export type QuranSourceKind = z.infer<typeof quranSourceKind>;
 
+/** ID baris `quran_source` yang diisi ingest (S12); dipakai juga core untuk memilih teks tampilan. */
+export const QURAN_SOURCE = {
+  uthmani: "tanzil-uthmani",
+  simpleClean: "tanzil-simple-clean",
+  translation: "kemenag-id",
+  transliteration: "kemenag-latin",
+} as const;
+
 export const quranSourceRow = z.strictObject({
   id: z.string().regex(/^[a-z][a-z0-9-]*$/),
   kind: quranSourceKind,

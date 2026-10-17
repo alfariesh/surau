@@ -52,4 +52,6 @@ export type {
   SearchRequest,
   SearchResult,
 } from "./repo/search.ts";
+export { QURAN_AYAT_MAX, ayahRefWithSurahRow, getAyahRefs, getQuranAyat } from "./repo/quran.ts";
+export type { AyahRange, AyahRefWithSurahRow, QuranAyat } from "./repo/quran.ts";
 export { createFeedback, getSettings } from "./repo/app.ts";

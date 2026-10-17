@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { quranFootnotes } from "@surau/db";
+import { QURAN_SOURCE, quranFootnotes } from "@surau/db";
 import type { QuranFootnotes, QuranSourceRow } from "@surau/db";
 import { z } from "zod";
 
@@ -46,13 +46,8 @@ export const QURAN_FILES = {
 } as const satisfies Record<string, PinnedFile>;
 export type QuranFileKey = keyof typeof QURAN_FILES;
 
-/** ID sumber di tabel `quran_source` (dirujuk kode tampilan dan core). */
-export const QURAN_SOURCE_IDS = {
-  uthmani: "tanzil-uthmani",
-  simpleClean: "tanzil-simple-clean",
-  translation: "kemenag-id",
-  transliteration: "kemenag-latin",
-} as const;
+/** ID sumber di tabel `quran_source` (didefinisikan di @surau/db, dirujuk juga oleh core). */
+export const QURAN_SOURCE_IDS = QURAN_SOURCE;
 
 const TANZIL_ATTRIBUTION =
   "Tanzil Project (tanzil.net), CC BY 3.0. Disalin verbatim; teks tidak boleh diubah.";
