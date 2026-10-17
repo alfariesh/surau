@@ -64,7 +64,7 @@ export function SearchHighlighter() {
       }
       const ranges: Range[] = [];
       if (arabic !== null) {
-        for (const el of document.querySelectorAll(".reader-text .arabic-text")) {
+        for (const el of document.querySelectorAll(".passage .arabic-text")) {
           ranges.push(...rangesFor(el, text.findPlanSpans(el.textContent ?? "", arabic, 50)));
         }
       }
