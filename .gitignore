@@ -15,6 +15,7 @@ CLAUDE.local.md
 # Build & runtime lokal
 .next/
 .open-next/
+apps/mcp/dist/
 .wrangler/
 *.tsbuildinfo
 coverage/

@@ -29,6 +29,11 @@ catalog:
   # 2026-10-15 (>24 jam). Membawa @opentelemetry/api (Apache-2.0) sebagai dependensi.
   "@anthropic-ai/sdk": 0.135.0
 
+  # MCP publik (S16, ADR-011, ADR-049): SDK v2 server (Workers, stateless dual-era) + client untuk tes.
+  # Minimal 2.3.0 (GHSA-jm63, GHSA-46jr, GHSA-6prh). Inspector CLI dipanggil lewat `pnpm dlx` di CI.
+  "@modelcontextprotocol/server": 2.3.1
+  "@modelcontextprotocol/client": 2.3.1
+
   # Web: Next + React (ADR-003; naik ke 16.4 di X01). 16.4.2 belum 24 jam saat X01 (16 Okt).
   next: 16.4.1
   react: 19.3.1

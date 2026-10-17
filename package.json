@@ -6,7 +6,7 @@
     "dev": "pnpm --filter @surau/web dev",
     "check": "vp check",
     "fix": "vp check --fix",
-    "test": "vp test --coverage --project node && vp test --project db --project core && node tools/ingest/scripts/smoke-text.ts",
+    "test": "vp test --coverage --project node && vp test --project db --project core --project mcp && node tools/ingest/scripts/smoke-text.ts",
     "test:e2e": "pnpm --filter @surau/web test:e2e",
     "build": "vp run -r build",
     "verify": "pnpm check && pnpm test && pnpm build",
