@@ -62,6 +62,12 @@ describe("komentar model", () => {
       "Tunggu, saya ulangi.",
       "Catatan: tidak ada, sesuai instruksi.",
       "Sebenarnya bait ini berbunyi: ...",
+      "(¹) Catatan ini hanya menandai bagian sumber.",
+      "Catatan singkat: kata itu sebenarnya berarti ...",
+      "tidak ada catatan penerjemah. Terjemahan yang benar: ...",
+      "Teks ini berisi beberapa penanda ayat.",
+      "Hmm, wait: the instruction says ...",
+      "tidak perlu... (tidak ada) — yaitu",
     ]) {
       expect(hasMetaCommentary(t), t).toBe(true);
     }
@@ -70,6 +76,9 @@ describe("komentar model", () => {
       "kelahiran yang sedang ditunggu-tunggu",
       "Ia menunggu imbalannya berlipat ganda.",
       "Catatan amalnya dibuka pada hari kiamat.",
+      "membolehkan upah haji dengan catatan niat utamanya ibadah",
+      "cukup diajarkan terjemahan akidah yang telah kami sebutkan",
+      "Kitab ini saya susun atas empat rub'.",
     ]) {
       expect(hasMetaCommentary(t), t).toBe(false);
     }

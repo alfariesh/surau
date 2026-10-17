@@ -99,6 +99,10 @@ const META_ID: readonly RegExp[] = [
   /\bsesuai (?:instruksi|petunjuk)\b/i,
   /\b(?:sebenarnya|seharusnya) (?:bait|kalimat|teks) ini\b/i,
   /\b(?:maaf, saya|saya ulangi|terjemahan saya)\b/i,
+  /\bcatatan (?:ini|singkat|penerjemah)\b/i,
+  /\bterjemahan (?:yang )?(?:benar|tepat|lebih tepat)\b/i,
+  /\bteks ini (?:berisi|memuat|hanya|tidak)\b/i,
+  /\.\.\.\s*\(tidak(?: ada)?\)/i,
 ];
 
 /**
@@ -110,7 +114,7 @@ const META_ID: readonly RegExp[] = [
 export function hasMetaCommentary(text: string, lang: "id" | "en" = "id"): boolean {
   if (META_ID.some((re) => re.test(text))) return true;
   if (lang === "id") {
-    return /\b(?:let me|i will|i'll|i need to|i must|here is|here's|sorry)\b|\bwait\s*[—–-]/i.test(
+    return /\b(?:let me|i will|i'll|i need to|i must|here is|here's|sorry|hmm|wait|the instruction|translat(?:e|ion))\b/i.test(
       text,
     );
   }
