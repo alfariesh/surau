@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-17 · S17 · Dokumentasi dan uji klien MCP — selesai
+- Dikerjakan:
+  - Panduan `/mcp` berbahasa Indonesia (Claude.ai/Desktop/Code, ChatGPT, klien lain), tiga contoh, alur cari → baca → verifikasi → sitasi, keterbatasan AI pengguna, takhrij/lisensi, bantuan; navigasi/sitemap/README dan smoke deploy diperbarui. Preview: https://pr-43.surau.org/mcp (PR #43); setelah merge/deploy, tautan tinjauan berpindah ke https://surau.org/mcp.
+  - Uji nyata: Claude Code 2.1.299 + Haiku memanggil `search_text` lalu `read_page` edisi 1 j.1 h.48, hasil diperiksa langsung (sitasi, permalink, lisensi/atribusi); Claude.ai T-18 dikonfirmasi pemilik; Cloudflare AI Playground demo GLM-4.7-Flash juga kedua tool Completed. Desktop/ChatGPT hanya docs terbaru, tidak diklaim uji akun. Keterbatasan keluaran klien dicatat di [laporan](../docs/mcp-operasional.md).
+  - Event `mcp_tool` per callback (nama/outcome/durasi, tanpa input/output/IP), error limiter tertangkap aman. Snapshot D1 bersama web/MCP 365.605 baris baca dan 1.134 kueri baca/24 jam; tarif Paid dikoreksi 25 miliar termasuk. Batas S16 tetap.
+  - Pemantauan satu minggu 17–24 Oktober dimulai, automation harian 09.00 WIB tujuh kali (`pantau-mcp-surau-selama-satu-minggu`), tetap diam bila tidak ada perubahan bermakna; belum bukti stabil seminggu. Registry/directory/skill opsional ditunda.
+- Verifikasi:
+  - `pnpm verify` → lolos **466 Node + 210 Workers**, build `/mcp` statis dan MCP 1.356 KiB / 246 KiB gzip. Satu lint warning lama `search-client.tsx` tetap. Tes integrasi kedua era menjaga lisensi/atribusi semua tool dan sitasi hasil berteks.
+  - `bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp` → lengkap kedua era lolos, termasuk ketujuh tool, pencarian Arab/Indonesia, error dan Origin 403.
+  - CI commit `5d0c6e6`: verify + preview + preview mcp hijau, **e2e Workers Preview 99 lolos/1 dilewati** (desktop/ponsel, dua tema, panduan dan navigasi pembaca), log **501 request/0 error** (23 clientDisconnected); run `39043047128`/`39043047143`; slug log `__unknown__` dapat mencampur trafik Preview lain (ADR-031).
+  - Lokal sempat timeout dan ENOSPC; ±2 GB cache Next/hasil tes dibersihkan, tanpa korpus/data batch. Verify serial lolos; e2e Next dev lokal 97 lolos/1 skip/2 gagal navigasi reader ke 1/201 (RSC 200, React script tag, sebab belum ditetapkan); kasus yang sama lolos di Workers Preview. Tidak menyembunyikan kegagalan lokal.
+  - Peninjau kode + dokumen: tanpa temuan; cek berkas rahasia/data ter-track kosong. Panduan dibuka di browser Preview; uji font/RTL/a11y ponsel ada di e2e Preview.
+- Biaya API: **US$0,00344562**, diizinkan pemilik ≤ US$0,10; tidak ada panggilan model di server MCP.
+- Keputusan: ADR-050.
+- Catatan untuk sesi berikutnya: pemilik mengonfirmasi **“Panduan jelas; contoh lanjutan juga berhasil”** di chat S17 (2026-10-17), sehingga butir panduan diuji pemilik dan semua gerbang R3 terpenuhi. Sesudah S17 lengkap dan merge, pemilik `/rilis 3`, lalu S18 (T-13 ustadz, T-14 Access, P-7). Tag fase belum dibuat.
+
 ## 2026-10-17 · S16 · Worker MCP publik — selesai
 - Dikerjakan:
   - Worker `surau-mcp` (`apps/mcp`) di `https://mcp.surau.org/mcp`: MCP SDK v2 2.3.1, stateless dual-era (2025-11-25 + 2026-07-28), tanpa login dan LLM; 7 tool (`list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text` dipadatkan, `verify_quote`, `get_hadith_takhrij`), instruksi server, permalink absolut + blok lisensi (edisi + Tanzil/Kemenag).

@@ -2,6 +2,8 @@
 
 Worker MCP publik Surau (S16, [ADR-011](../../implementasi/KEPUTUSAN.md), ADR-049): **read-only, stateless, tanpa login, tanpa LLM**, di `https://mcp.surau.org/mcp`. Setiap hasil tool disalin kode dari D1 korpus (teks Arab verbatim, sitasi lengkap, permalink absolut ke `https://surau.org`, blok `license`). Logika data seluruhnya di [`@surau/core`](../../packages/core/README.md); di sini hanya skema MCP, pengaman, dan amplop.
 
+**Panduan pengguna:** [Pakai Surau dari AI Anda](https://surau.org/mcp) (Claude.ai/Desktop/Code, ChatGPT, klien MCP lain). **Operasional S17:** [uji klien nyata, keterbatasan dan pemantauan](../../docs/mcp-operasional.md), termasuk event `mcp_tool` berisi nama tool, outcome dan durasi tanpa input/output/IP (ADR-050).
+
 - SDK `@modelcontextprotocol/server` 2.3.1, `createMcpHandler` dengan `legacy: "stateless"`: klien spesifikasi **2025-11-25** (`initialize`) dan **2026-07-28** (`server/discover`, tanpa sesi) dilayani handler yang sama. Satu `McpServer` baru per permintaan.
 - D1 `CORPUS_DB` = DB korpus produksi yang **sama** dengan `apps/web` (diganti `pnpm run corpus:promote` bersama web, dijaga `tools/ingest/src/corpus.test.ts`). Preview memakai `surau-corpus-staging`.
 

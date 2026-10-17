@@ -339,19 +339,28 @@ const GUARD_MESSAGE = {
 
 /** Jalankan satu tool: batas pemakaian → core → amplop; error dipetakan tanpa detail internal. */
 export async function runTool(tool: McpTool, deps: ToolDeps, args: never): Promise<ToolResult> {
-  const gate = await guardTool(deps.env, deps.request, tool.name);
-  if (gate !== "ok") return errorResult(gate, GUARD_MESSAGE[gate]);
+  const started = performance.now();
+  let outcome = "internal_error";
   try {
+    const gate = await guardTool(deps.env, deps.request, tool.name);
+    if (gate !== "ok") {
+      outcome = gate;
+      return errorResult(gate, GUARD_MESSAGE[gate]);
+    }
     const { view, sources } = await tool.run(args, deps.db);
     const out = {
       ...(absolutize(view, deps.siteUrl) as Record<string, unknown>),
       license: licenseFor(deps.siteUrl, sources),
     };
+    outcome = "ok";
     return { content: [{ type: "text", text: JSON.stringify(out) }], structuredContent: out };
   } catch (error) {
     // Error core = pesan publik berbahasa Inggris yang hanya menyebut alamat (packages/core
     // errors.ts). Error lain (D1 gagal) tanpa detail; log tanpa masukan pengguna (P-7).
-    if (isCoreError(error)) return errorResult(error.code, error.message);
+    if (isCoreError(error)) {
+      outcome = error.code;
+      return errorResult(error.code, error.message);
+    }
     console.error(
       JSON.stringify({
         event: "tool_error",
@@ -360,6 +369,15 @@ export async function runTool(tool: McpTool, deps: ToolDeps, args: never): Promi
       }),
     );
     return errorResult("internal_error", "Internal error. Try again later.");
+  } finally {
+    // Objek terstruktur diindeks Workers Logs. Hanya label statis dan durasi: tanpa argumen,
+    // hasil, alamat halaman, pesan error, IP, atau ID pengguna (P-7 belum diputuskan).
+    console.info({
+      event: "mcp_tool",
+      tool: tool.name,
+      outcome,
+      duration_ms: Math.round(performance.now() - started),
+    });
   }
 }
 
