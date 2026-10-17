@@ -854,3 +854,15 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** hitungan smoke dan `buildInfo` kini mencakup `term_stat` dan `passage_fts`. Smoke korpus skema < 4 tidak lagi crash: tabel pencarian tidak dihitung dan smoke melaporkan "belum punya indeks pencarian", jadi `pnpm run corpus:promote ihya-v1 --switch-only` ditolak dengan pesan (bersama cek `meta.schema_version` = skema kode). Bila rollback ke korpus skema 3 dibutuhkan setelah `ihya-v2` aktif, longgarkan kedua pemeriksaan itu di `promote.ts` (S14); pencarian sendiri aman di skema lama (503).
 
 **Tinjau ulang bila:** korpus berisi lebih dari satu kitab (reset per edisi termasuk `DELETE FROM passage_fts WHERE rowid BETWEEN`, `term_stat` per korpus, rows_read kueri berperingkat), cache kueri populer di S14, atau eval S15 menunjukkan ambang 10% / bobot catatan kaki merugikan relevansi.
+
+## ADR-040 · Pohon daftar isi: `NavigationTree` react-aria + garis pemandu sendiri menggantikan `FileTree` HeroUI Pro; satu bagian aktif — diterima · 2026-10-17
+
+**Konteks:** Pemilik meminta pohon daftar isi bergaya garis pemandu induk → anak (siku melengkung di anak terakhir), hanya SATU baris aktif berlatar, dan garis menuju baris aktif berwarna aksen. `FileTree` Pro hanya punya garis tegak generik (`showGuideLines`), tanpa siku, tanpa warna per jalur, dan menyorot setiap bagian di `activeIds` (halaman dengan beberapa bagian = beberapa latar, termasuk induknya).
+
+**Keputusan:**
+1. `TocTree` memakai `NavigationTree` react-aria-components 1.22 (sudah terpasang): baris adalah tautan dengan `aria-current="page"`, navigasi panah/Enter, chevron `slot="chevron"`. Gaya ditulis di `globals.css` (`.toc-*`) dengan token HeroUI (`--border`, `--accent`, `--accent-soft`, `--default`, `--focus`, `--radius`). Impor `file-tree.css` Pro dihapus.
+2. Bagian aktif = **bagian terakhir** yang tampil di halaman (`activeIds.at(-1)`, keputusan pemilik). Breadcrumb tetap memakai bagian pertama.
+3. Tautan daftar isi kini `<halaman awal>#bab-<id>` (`tocHref`), sama seperti breadcrumb: unik per bagian (beberapa bagian bisa mulai di halaman yang sama, sedangkan `selectedRoute` dicocokkan lewat `href`) dan mendarat di judul bagiannya.
+4. Garis dihitung di `tocRows` (`lib/reader/toc.ts`, teruji): per leluhur satu kolom `line`/`end`/`none`; aksen hanya jalur induk langsung → bagian aktif (batang di bawah chevron induk, garis tegak melewati saudara sebelumnya, siku ke baris aktif).
+
+**Tinjau ulang bila:** HeroUI merilis pohon navigasi dengan garis pemandu per jalur, atau daftar isi butuh virtualisasi (kitab dengan ribuan bagian).

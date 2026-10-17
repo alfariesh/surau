@@ -225,7 +225,6 @@ export const id = {
     tocHeading: "Daftar isi",
     tocLabel: "Daftar isi kitab",
     tocOpen: "Daftar isi",
-    tocActive: "(bagian ini)",
     breadcrumbLabel: "Letak di kitab",
     pageHeading: (juz: number, page: number) => `Juz ${juz} · Halaman ${page}`,
     pageMetaTitle: (bab: string | null, title: string, juz: number, page: number) =>
