@@ -142,7 +142,7 @@ export const id = {
       "Setiap klaim ada alamatnya: kitab, edisi, jilid, halaman cetak, dan tautan tetap.",
       "Atribusi yang jujur: membedakan pendapat penulis, pendapat yang ia nukil, dan yang ia bantah.",
       "Status hadits diambil dari takhrij para ahlinya, bukan dari tebakan AI.",
-      "Ayat Al-Qur'an tidak pernah ditulis atau diterjemahkan AI: teks dari Tanzil, terjemahan dari Kemenag.",
+      "Teks ayat Al-Qur'an tidak pernah ditulis AI (dari Tanzil); kutipan ayat yang dikenali sistem memakai terjemahan Kemenag, bukan terjemahan AI.",
       "Berani bilang “tidak ditemukan”.",
       "Terjemahan dan ringkasan buatan AI selalu diberi label.",
       "Ustadz ada di dalam lingkaran: kebijakan dan sampel jawaban ditinjau ahli.",
@@ -344,7 +344,7 @@ export const id = {
     translationToggle: "Tampilkan terjemahan AI",
     aiNoticeHeading: "Terjemahan dan ringkasan AI",
     aiNotice:
-      "Terjemahan Indonesia per paragraf dan ringkasan bagian dibuat otomatis oleh model AI dari teks Arab, dan belum ditinjau manusia, jadi bisa keliru. Teks Arab tetap rujukan utamanya. Kutipan ayat tidak diterjemahkan AI: yang tampil adalah terjemahan Kemenag.",
+      "Terjemahan Indonesia per paragraf dan ringkasan bagian dibuat otomatis oleh model AI dari teks Arab, dan belum ditinjau manusia, jadi bisa keliru. Teks Arab tetap rujukan utamanya. Kutipan ayat yang dikenali sistem tidak diterjemahkan AI: yang tampil adalah terjemahan Kemenag. Kutipan ayat yang belum dikenali bisa ikut diterjemahkan AI.",
     errorHeading: "Halaman kitab gagal dimuat",
     errorBody: "Terjadi gangguan saat membaca data kitab. Coba muat ulang.",
     errorRetry: "Coba lagi",

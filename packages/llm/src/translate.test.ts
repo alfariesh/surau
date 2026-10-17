@@ -59,7 +59,13 @@ describe("request terjemahan", () => {
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ]);
-    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@2");
+    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@4");
+    // v3 (X02): aturan satuan dan ungkapan tebusan ada di prefix sistem.
+    expect(TRANSLATE_PROMPT.system).toContain("Jangan mengganti satu satuan dengan satuan lain");
+    expect(TRANSLATE_PROMPT.system).toContain("ayah dan ibuku menjadi tebusanmu");
+    // v4: raghiba (menginginkan) dibedakan dari targhib (menganjurkan).
+    expect(TRANSLATE_PROMPT.system).toContain("Raghiba fi berarti menginginkan atau menyukai");
+    expect(TRANSLATE_PROMPT.system).not.toContain("menyukai atau menganjurkan");
     expect(passageCustomId(10_000_001)).toMatch(CUSTOM_ID_PATTERN);
   });
 

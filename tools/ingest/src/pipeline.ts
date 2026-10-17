@@ -35,6 +35,7 @@ import { emitSql } from "./sql.ts";
 import { assertWritable } from "./sqlite.ts";
 import { llmRows } from "./llm/attach.ts";
 import type { LlmBuild } from "./llm/attach.ts";
+import { loadReviews } from "./llm/reviews.ts";
 import { buildToc } from "./toc.ts";
 import type { TocBuild } from "./toc.ts";
 import { validate } from "./validate.ts";
@@ -182,7 +183,7 @@ function rowsFor(
   });
   const fts = ftsRows(base.passage);
   const quran = loadQuran(paths.quran, (s) => normalizeArabic(s).text);
-  const matched = matchAyat(quran, base.passage);
+  const matched = matchAyat(quran, base.passage, base.page);
   const rows: CorpusRows = {
     ...base,
     ...quranTableRows(quran),
@@ -192,7 +193,7 @@ function rowsFor(
     term_stat: termStats(fts, paths.migrations),
   };
   // Terjemahan/ringkasan AI dicek terhadap baris yang baru dibangun ini (hash sumber, ayat).
-  const llm = paths.llm === undefined ? null : llmRows(rows, paths.llm);
+  const llm = paths.llm === undefined ? null : llmRows(rows, paths.llm, loadReviews(paths.repo));
   if (llm !== null) {
     rows.translation = llm.translation;
     rows.summary = llm.summary;

@@ -132,6 +132,8 @@ export const failure = z.strictObject({
   at: z.string(),
   /** sha256 sumber request yang gagal: kegagalan untuk sumber lama tidak dihitung percobaan. */
   source_sha256: z.string(),
+  /** `review_rejected` (X02): versi prompt hasil yang ditolak peninjau. */
+  prompt_version: z.string().optional(),
   usage: usage.nullable(),
 });
 export type Failure = z.infer<typeof failure>;

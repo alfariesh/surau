@@ -39,6 +39,8 @@ import { z } from "zod";
 
 import type { LlmContext } from "./cli.ts";
 import { mapPool } from "./pool.ts";
+import { REVIEW_FILE, loadReviews, rejectionFor } from "./reviews.ts";
+import type { ReviewRejections } from "./reviews.ts";
 import {
   acceptedSummary,
   acceptedTranslation,
@@ -751,7 +753,11 @@ const batchResult = z.looseObject({
  * dikumpulkan, dengan aturan validasi dan unit sumber SAAT INI (gratis; dipakai `collect` dan
  * `rejudge`). Urut waktu kirim: hasil batch yang lebih baru menimpa yang lama untuk custom_id sama.
  */
-export function rebuild(dir: string, work: Work): { accepted: number; failures: number } {
+export function rebuild(
+  dir: string,
+  work: Work,
+  reviews: ReviewRejections = new Map(),
+): { accepted: number; failures: number } {
   const batches = readBatches(dir).toSorted((a, b) => (a.created_at < b.created_at ? -1 : 1));
   const translations = new Map<number, AcceptedTranslation>();
   const r1 = new Map<string, AcceptedSummary>();
@@ -799,8 +805,32 @@ export function rebuild(dir: string, work: Work): { accepted: number; failures: 
         invalid++;
         continue;
       }
-      accepted++;
       const a = v.accepted;
+      // Koreksi tinjauan (X02): hasil versi prompt yang ditolak peninjau untuk paragraf ini tidak
+      // dipakai; dicatat sebagai kegagalan di posisi kronologisnya supaya `retry` mengirim ulang.
+      const rejected =
+        a !== null && "passage_id" in a
+          ? rejectionFor(reviews, a.passage_id, a.prompt_version)
+          : null;
+      if (a !== null && "passage_id" in a && rejected !== null) {
+        failures.push({
+          custom_id: r.custom_id,
+          batch_id: b.id,
+          model: a.model,
+          reason: "review_rejected",
+          details: [
+            `${rejected.verdict}: ${rejected.reason} (${rejected.reviewer}, ${rejected.date})`,
+          ],
+          output: a.text,
+          at: endedAt,
+          source_sha256: a.source_sha256,
+          usage: a.usage,
+          prompt_version: a.prompt_version,
+        });
+        invalid++;
+        continue;
+      }
+      accepted++;
       if (a === null) continue;
       if ("passage_id" in a) translations.set(a.passage_id, a);
       else if (a.round === 1) {
@@ -885,13 +915,22 @@ export async function runCollect(ctx: LlmContext): Promise<number> {
       `${b.name}: ${raw.length} hasil · biaya ${usd(totals.costUsd)} (baca cache ${totals.cache_read_input_tokens.toLocaleString("id-ID")}, tulis ${totals.cache_creation_input_tokens.toLocaleString("id-ID")})`,
     );
   }
-  printRebuild(dir, buildWork(ctx.rows()));
+  printRebuild(dir, buildWork(ctx.rows()), ctx.repo);
   if (pending > 0) console.info(`${pending} batch belum selesai; ulangi collect nanti.`);
   return 0;
 }
 
-function printRebuild(dir: string, work: Work): void {
-  rebuild(dir, work);
+function printRebuild(dir: string, work: Work, repo: string): void {
+  const reviews = loadReviews(repo);
+  rebuild(dir, work, reviews);
+  if (reviews.size > 0) console.info(`Koreksi tinjauan: ${reviews.size} paragraf (${REVIEW_FILE})`);
+  // Salah ketik ID di berkas koreksi tidak boleh diam saja.
+  const unknown = [...reviews.keys()].filter((id) => !work.units.has(id));
+  if (unknown.length > 0) {
+    console.warn(
+      `Koreksi tinjauan untuk paragraf yang bukan unit terjemahan: ${unknown.join(", ")}`,
+    );
+  }
   for (const b of readBatches(dir)) {
     if (b.outcome === null) continue;
     console.info(
@@ -902,7 +941,7 @@ function printRebuild(dir: string, work: Work): void {
 
 /** Nilai ulang semua hasil mentah dengan aturan dan sumber saat ini (tanpa API, gratis). */
 export function runRejudge(ctx: LlmContext): number {
-  printRebuild(llmDir(ctx.repo), buildWork(ctx.rows()));
+  printRebuild(llmDir(ctx.repo), buildWork(ctx.rows()), ctx.repo);
   return 0;
 }
 
@@ -912,6 +951,13 @@ export function runRejudge(ctx: LlmContext): number {
 export interface RetryState {
   attempts: number;
   refusal: boolean;
+  /** Ditolak peninjau (X02): ulangan langsung ke Sonnet 5.5, hitungan mulai dari awal sekali. */
+  reviewed?: boolean;
+  /**
+   * Peninjau menolak hasil versi prompt SAAT INI: mengulang dengan prompt yang sama tidak menolong
+   * (dan berbayar), jadi tidak diulang sampai ada versi prompt baru.
+   */
+  needsNewPrompt?: boolean;
   /** Jumlah percobaan yang memakai Sonnet 5.5. */
   sonnet: number;
   summary: boolean;
@@ -945,6 +991,24 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
           ? acc.r1.get(f.custom_id)?.source_sha256 === sha
           : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
     if (done) continue;
+    // Ditolak peninjau (X02). Versi prompt lama: hitungan mulai dari awal dan langsung ke Sonnet 5.5
+    // (sekali per versi yang ditolak, jadi terbatas). Versi prompt saat ini: tidak diulang.
+    if (f.reason === "review_rejected") {
+      const prev = out.get(f.custom_id);
+      out.set(
+        f.custom_id,
+        f.prompt_version === TRANSLATE_PROMPT.id
+          ? {
+              attempts: (prev?.attempts ?? 0) + 1,
+              refusal: prev?.refusal ?? false,
+              sonnet: (prev?.sonnet ?? 0) + (f.model === MODELS.sonnet ? 1 : 0),
+              summary: false,
+              needsNewPrompt: true,
+            }
+          : { attempts: 1, refusal: false, reviewed: true, sonnet: 0, summary: false },
+      );
+      continue;
+    }
     const prev = out.get(f.custom_id) ?? {
       attempts: 0,
       refusal: false,
@@ -952,6 +1016,7 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
       summary: parts.kind === "toc",
     };
     out.set(f.custom_id, {
+      ...prev,
       attempts: prev.attempts + 1,
       refusal: prev.refusal || f.reason === "refusal",
       sonnet: prev.sonnet + (f.model === MODELS.sonnet ? 1 : 0),
@@ -968,10 +1033,13 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
  * hanya setelah Sonnet ikut dicoba.
  */
 export function retryModel(s: RetryState): ModelId | null {
+  if (s.needsNewPrompt === true) return null;
   // Ringkasan mendapat dua percobaan Sonnet: satu ringkasan anak yang gagal menghalangi ringkasan
   // putaran 2 semua induknya (S13: ringkasan Inggris bagian doa terus ditulis dalam bahasa Indonesia).
   if (s.attempts >= MAX_ATTEMPTS && s.sonnet >= (s.summary ? 2 : 1)) return null;
-  return s.refusal || s.attempts >= MAX_ATTEMPTS - 1 ? MODELS.sonnet : MODELS.haiku;
+  return s.refusal || s.reviewed === true || s.attempts >= MAX_ATTEMPTS - 1
+    ? MODELS.sonnet
+    : MODELS.haiku;
 }
 
 export async function runRetry(

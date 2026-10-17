@@ -278,7 +278,7 @@ export function validate(input: ValidateInput): Validation {
     check(
       `Terjemahan AI: cakupan paragraf badan ≥ ${minPct}`,
       llm.translations >= exp.llmCoverage * llm.units,
-      `${llm.translations}/${llm.units} (${pctOf(llm.translations, llm.units)}); usang ${llm.staleTranslations}, tidak sah ${llm.invalidTranslations}, terblokir (rujukan ayat tak bisa ditandai) ${llm.blocked}`,
+      `${llm.translations}/${llm.units} (${pctOf(llm.translations, llm.units)}); usang ${llm.staleTranslations}, tidak sah ${llm.invalidTranslations}, ditolak tinjauan ${llm.reviewRejectedTranslations}, terblokir (rujukan ayat tak bisa ditandai) ${llm.blocked}`,
     );
     check(
       `Ringkasan AI: cakupan bagian × 2 bahasa ≥ ${minPct}`,

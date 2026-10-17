@@ -17,8 +17,8 @@ import type {
   QuranTranslationRow,
 } from "@surau/db";
 
-import { buildQuranIndex, matchPassage } from "./matcher.ts";
-import type { AyahSpan, RejectedSpan } from "./matcher.ts";
+import { buildQuranIndex, crossPassageSpans, matchPassage } from "./matcher.ts";
+import type { AyahSpan, PassageMatch, RejectedSpan } from "./matcher.ts";
 import { QURAN_SOURCE_IDS } from "./source.ts";
 import type { QuranData } from "./source.ts";
 
@@ -28,6 +28,14 @@ export interface QuranRows {
   quran_ayah: QuranAyahRow[];
   quran_translation: QuranTranslationRow[];
   passage_ayah_ref: PassageAyahRefRow[];
+}
+
+/** Letak halaman untuk urutan baca paragraf (ADR-029 butir 2: urutan tidak diambil dari ID). */
+export interface PageOrder {
+  id: number;
+  edition_id: number;
+  juz: number;
+  page_no: number;
 }
 
 export interface PassageAyat {
@@ -66,6 +74,8 @@ export interface AyahStats {
   partial: number;
   multiAyah: number;
   withAlternatives: number;
+  /** Kutipan yang terbelah dua paragraf badan berurutan (X02): jumlah pasang bentang. */
+  cross: number;
   passages: number;
   /** exact / validated (gerbang S12: ≥ 0,95). */
   exactRatio: number;
@@ -124,10 +134,14 @@ export function quranTableRows(data: QuranData): Omit<QuranRows, "passage_ayah_r
   return { quran_source, quran_surah, quran_ayah, quran_translation };
 }
 
-/** Cocokkan semua paragraf (badan dan catatan kaki) ke mushaf. */
+/**
+ * Cocokkan semua paragraf (badan dan catatan kaki) ke mushaf, lalu kutipan yang terbelah dua paragraf
+ * badan berurutan (urutan baca = jilid, halaman cetak, `ord`; X02).
+ */
 export function matchAyat(
   data: QuranData,
   passages: readonly PassageRow[],
+  pages: readonly PageOrder[],
 ): { refs: PassageAyahRefRow[]; matches: PassageAyat[]; stats: AyahStats } {
   const index = buildQuranIndex(
     data.ayat.map((a) => ({ surah: a.surah, ayah: a.ayah, text: a.simpleClean })),
@@ -151,8 +165,40 @@ export function matchAyat(
   let partial = 0;
   let multiAyah = 0;
   let withAlternatives = 0;
+  const perPassage = new Map<number, PassageMatch>();
   for (const p of passages) {
-    const m = matchPassage(index, p.text_raw, { extended: p.kind === "body" });
+    perPassage.set(p.id, matchPassage(index, p.text_raw, { extended: p.kind === "body" }));
+  }
+  let cross = 0;
+  const order = new Map(pages.map((pg) => [pg.id, pg]));
+  const bodies = passages
+    .filter((p) => p.kind === "body" && order.has(p.page_id))
+    .toSorted((x, y) => {
+      const px = order.get(x.page_id) as PageOrder;
+      const py = order.get(y.page_id) as PageOrder;
+      return (
+        px.edition_id - py.edition_id || px.juz - py.juz || px.page_no - py.page_no || x.ord - y.ord
+      );
+    });
+  for (let i = 0; i + 1 < bodies.length; i++) {
+    const a = bodies[i] as PassageRow;
+    const b = bodies[i + 1] as PassageRow;
+    // Satu edisi dan satu bagian daftar isi: ekor bab tidak dipasangkan dengan awal bab berikutnya.
+    if (a.edition_id !== b.edition_id || a.toc_node_id !== b.toc_node_id) continue;
+    const ma = perPassage.get(a.id) as PassageMatch;
+    const mb = perPassage.get(b.id) as PassageMatch;
+    const pair = crossPassageSpans(
+      index,
+      { raw: a.text_raw, taken: ma.spans },
+      { raw: b.text_raw, taken: mb.spans },
+    );
+    if (pair === null) continue;
+    cross++;
+    ma.spans.push(pair[0]);
+    mb.spans.unshift(pair[1]);
+  }
+  for (const p of passages) {
+    const m = perPassage.get(p.id) as PassageMatch;
     if (m.spans.length === 0 && m.rejected.length === 0) continue;
     matches.push({ passageId: p.id, spans: m.spans, rejected: m.rejected });
     for (const r of m.rejected) {
@@ -165,8 +211,11 @@ export function matchAyat(
         if (s.match === "exact") exact++;
         else similar++;
       } else if (s.kind === "unmarked" || s.kind === "cue_short") unmarked++;
-      else if (s.match === "exact") cueExact++;
-      else cueSimilar++;
+      else if (s.kind === "cue") {
+        if (s.match === "exact") cueExact++;
+        else cueSimilar++;
+      }
+      // "cross" dihitung per pasang di `cross`.
       if (s.partial) partial++;
       if (s.ayahTo > s.ayahFrom) multiAyah++;
       if (s.alt > 0) withAlternatives++;
@@ -211,6 +260,7 @@ export function matchAyat(
       partial,
       multiAyah,
       withAlternatives,
+      cross,
       passages: new Set(refs.map((r) => r.passage_id)).size,
       exactRatio: validated === 0 ? 1 : exact / validated,
     },

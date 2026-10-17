@@ -88,7 +88,9 @@ function spanKind(s: AyahSpan): string {
         ? "tanpa kurung"
         : s.kind === "cue_short"
           ? "pendek sesudah pengantar"
-          : "tanpa tanda",
+          : s.kind === "cross"
+            ? "terbelah dua paragraf"
+            : "tanpa tanda",
     s.partial ? "sebagian ayat" : "ayat utuh",
     ...(s.alt > 0 ? [`+${s.alt} letak lain`] : []),
   ].join(", ");
@@ -126,6 +128,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
   const unmarked = all.filter((x) => x.span.kind === "unmarked" || x.span.kind === "cue_short");
   const unmarkedSample = draw([...unmarked], UNMARKED_SAMPLE_SEED);
   const similar = all.filter((x) => x.span.match === "similar");
+  const cross = all.filter((x) => x.span.kind === "cross");
   const unmatched = ayat.matches.flatMap((m) =>
     m.rejected
       .filter((r) => r.reason !== "one_word" && r.reason !== "two_words_no_cue")
@@ -169,6 +172,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     `| · tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda; dibiarkan, tidak ditebak) | ${num(s.unmatched)} (${pct(s.unmatched, s.validated)}) |`,
     `| Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | ${num(s.cueExact)} / ${num(s.cueSimilar)} |`,
     `| Kutipan S13 (paragraf badan): tanpa tanda (persis), dan pendek 2–3 kata sesudah pengantar (lafaz langka; bisa diperpanjang melewati beda ejaan) | ${num(s.unmarked)} |`,
+    `| Kutipan terbelah dua paragraf badan berurutan (X02; aturan mode tanpa tanda, dua rujukan sebagian per pasang) | ${num(s.cross)} pasang |`,
     `| **Rujukan ayat** (\`passage_ayah_ref\`) | **${num(rows.passage_ayah_ref.length)}** di ${num(s.passages)} paragraf |`,
     `| · sebagian ayat (\`partial\`) | ${num(s.partial)} |`,
     `| · lebih dari satu ayat | ${num(s.multiAyah)} |`,
@@ -195,6 +199,14 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     "| # | Letak | Permalink | Rujukan | Jenis | Awal kutipan | Benar? |",
     "|---|---|---|---|---|---|---|",
     ...unmarkedSample.map((x, i) => `| ${row(x, i)} |`),
+    "",
+    `## Kutipan terbelah dua paragraf (X02, ${num(cross.length)} bentang, semua)`,
+    "",
+    "Satu kutipan yang mulai di ujung paragraf dan berlanjut di awal paragraf berikutnya (dua bentang per pasang). Diperiksa agent; boleh ikut diperiksa bersama T-16.",
+    "",
+    "| Letak | Permalink | Rujukan | Jenis | Awal kutipan |",
+    "|---|---|---|---|---|",
+    ...cross.map((x) => `| ${row(x)} |`),
     "",
     `## Cocok mirip (\`similar\`, ${num(similar.length)}${similar.length > LIST_MAX ? `, ${LIST_MAX} pertama` : ""})`,
     "",

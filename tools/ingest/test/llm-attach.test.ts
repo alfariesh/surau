@@ -9,6 +9,7 @@ import { contentLength } from "@surau/llm";
 import { describe, expect, test } from "vite-plus/test";
 
 import { llmRows } from "../src/llm/attach.ts";
+import { parseReviews } from "../src/llm/reviews.ts";
 import { writeJsonl } from "../src/llm/store.ts";
 import type { AcceptedSummary, AcceptedTranslation } from "../src/llm/store.ts";
 import { buildWork, chunkCustomId, round2InputSha } from "../src/llm/work.ts";
@@ -223,5 +224,29 @@ describe("hasil LLM → tabel translation/summary", () => {
     const { stats } = llmRows(without, llm);
     expect(stats.translations).toBe(1);
     expect(stats.ayahProblems).toHaveLength(1);
+  });
+
+  test("koreksi tinjauan: hasil versi prompt yang ditolak tidak dimuat walau rejudge belum dijalankan", () => {
+    const { rows, work, llm } = setup();
+    const u = [...work.units.values()][0];
+    if (u === undefined) throw new Error("fixture");
+    const line = translationLine(u, fakeTranslation(u));
+    writeJsonl(join(llm, "translation.jsonl"), [line]);
+    const reviews = parseReviews({
+      reviews: [
+        {
+          reviewer: "uji",
+          date: "2026-10-17",
+          basis: "tes",
+          rejects_prompt: line.prompt_version,
+          entries: [{ passage_id: u.passageId, verdict: "salah", reason: "uji" }],
+        },
+      ],
+    });
+    expect(llmRows(rows, llm).stats.translations).toBe(1);
+    expect(llmRows(rows, llm, reviews).stats).toMatchObject({
+      translations: 0,
+      reviewRejectedTranslations: 1,
+    });
   });
 });

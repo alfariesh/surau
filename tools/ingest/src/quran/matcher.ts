@@ -30,6 +30,8 @@
 //    ekornya tidak dicoba lagi). Mode 2b dan 3 hanya untuk paragraf badan.
 //    Tujuannya: ayat yang tidak bertanda di sumber tetap dikenali, supaya tidak diterjemahkan LLM
 //    (batch S13) dan tampil dengan terjemahan Kemenag.
+// 4. Kutipan yang terbelah dua paragraf badan berurutan (X02, `crossPassageSpans`): aturan mode 3
+//    untuk deret yang melintasi batas paragraf; ditautkan sebagai dua bentang sebagian.
 import { normalizeArabic, toRawSpan } from "@surau/text";
 import type { Normalized } from "@surau/text";
 
@@ -382,7 +384,7 @@ export function fuzzyMatch(index: QuranIndex, tokens: readonly string[]): FuzzyR
 
 // ── Bentang di paragraf ──────────────────────────────────────────────────────────────────
 
-export type SpanKind = "bracketed" | "cue" | "cue_short" | "unmarked";
+export type SpanKind = "bracketed" | "cue" | "cue_short" | "unmarked" | "cross";
 
 export interface AyahSpan {
   /** Offset di text_raw, [charStart, charEnd). */
@@ -889,6 +891,145 @@ function unmarkedSpans(
     i += best;
   }
   return out;
+}
+
+// ── Kutipan yang terbelah dua paragraf (X02) ───────────────────────────────────────────────
+
+/** Kata terakhir paragraf yang diperiksa sebagai awal kutipan lintas paragraf. */
+const CROSS_TAIL_TOKENS = 12;
+/** Kata pertama paragraf berikutnya yang diperiksa sebagai lanjutan kutipan. */
+const CROSS_HEAD_TOKENS = 40;
+/** Kata minimal kutipan lintas paragraf di tiap sisi batas. */
+export const CROSS_SIDE_MIN_TOKENS = 2;
+
+/** Satu paragraf badan untuk pencocokan lintas paragraf: teks mentah + bentang yang sudah dipakai. */
+export interface CrossSide {
+  raw: string;
+  taken: readonly { charStart: number; charEnd: number }[];
+}
+
+/**
+ * Kutipan ayat yang mulai di ujung paragraf `a` dan berlanjut di awal paragraf berikutnya `b`
+ * (sumber memecah paragraf di tengah ayat, mis. QS 54:55 di Ihya j4 h334–335). Aturannya sama
+ * ketatnya dengan mode tanpa tanda (`unmarkedSpans`, ADR-042): deret sama persis yang melintasi batas
+ * paragraf dengan ≥ CROSS_SIDE_MIN_TOKENS kata di tiap sisi, ≥ UNMARKED_MIN_TOKENS kata (≥
+ * UNMARKED_CUED_MIN_TOKENS bila tepat didahului pengantar ayat), lafaz satu-satunya di mushaf (berulang hanya bila didahului تعالى/عز وجل …), bukan kalimat
+ * tauhid/zikir, bukan basmalah, bukan konteks hadits. Hanya kata yang belum dipakai bentang lain:
+ * ekor `a` sesudah bentang terakhirnya dan kepala `b` sebelum bentang pertamanya. Hasil = dua bentang
+ * (satu di tiap paragraf) untuk letak mushaf yang bersambung, biasanya sebagian dari ayat yang sama
+ * (`partial` mengikuti letaknya, bisa juga ayat utuh bila deretnya melintasi batas ayat), atau `null`.
+ */
+export function crossPassageSpans(
+  index: QuranIndex,
+  a: CrossSide,
+  b: CrossSide,
+): [AyahSpan, AyahSpan] | null {
+  const na = normalizeArabic(a.raw);
+  const nb = normalizeArabic(b.raw);
+  const ta = tokenize(na, 0, na.text.length);
+  const tb = tokenize(nb, 0, nb.text.length);
+  const used = (raw: string, n: Normalized, t: TokenSpan, taken: CrossSide["taken"]) => {
+    const [s, e] = toRawSpan(raw, n, t.start, t.end);
+    return taken.some((x) => s < x.charEnd && x.charStart < e);
+  };
+  // Ekor a: kata sesudah bentang terakhir yang sudah dipakai, paling banyak CROSS_TAIL_TOKENS.
+  let tailStart = ta.length;
+  while (tailStart > 0 && ta.length - tailStart < CROSS_TAIL_TOKENS) {
+    if (used(a.raw, na, ta[tailStart - 1] as TokenSpan, a.taken)) break;
+    tailStart--;
+  }
+  let headEnd = 0;
+  while (headEnd < tb.length && headEnd < CROSS_HEAD_TOKENS) {
+    if (used(b.raw, nb, tb[headEnd] as TokenSpan, b.taken)) break;
+    headEnd++;
+  }
+  const wordsA = ta.map((t) => t.token);
+  const tail = wordsA.slice(tailStart);
+  const head = tb.slice(0, headEnd).map((t) => t.token);
+  if (tail.length === 0 || head.length === 0) return null;
+  const words = [...tail, ...head];
+  const boundary = tail.length;
+  const gram = UNMARKED_CUED_MIN_TOKENS;
+  for (let i = 0; i < boundary && i + gram <= words.length; i++) {
+    const starts = index.grams.get(words.slice(i, i + gram).join(" "));
+    if (starts === undefined) continue;
+    let best = 0;
+    let hits: QuranHit[] = [];
+    for (const from of starts) {
+      let len = gram;
+      while (
+        i + len < words.length &&
+        from + len < index.tokens.length &&
+        index.tokens[from + len] === words[i + len]
+      ) {
+        len++;
+      }
+      if (len > best) {
+        best = len;
+        hits = [];
+      }
+      if (len === best) hits.push({ from, to: from + len - 1 });
+    }
+    const run = words.slice(i, i + best);
+    const at = tailStart + i;
+    const prevWord = at > 0 ? (wordsA[at - 1] as string) : "";
+    const quranCued = QURAN_CUE_WORD_RE.test(prevWord);
+    const joined = run.join(" ");
+    const picked = pickCandidate(index, hits, null);
+    // Harus melintasi batas dengan ≥ CROSS_SIDE_MIN_TOKENS kata di tiap paragraf (satu kata di
+    // seberang batas sering kalimat penulis sendiri: "… دائمون" + "والذين هم يناجون …").
+    const ok =
+      i + best - boundary >= CROSS_SIDE_MIN_TOKENS &&
+      boundary - i >= CROSS_SIDE_MIN_TOKENS &&
+      best >= (quranCued ? UNMARKED_CUED_MIN_TOKENS : UNMARKED_MIN_TOKENS) &&
+      !UNMARKED_SKIP.has(joined) &&
+      !joined.startsWith(BASMALAH) &&
+      !inHadith(wordsA, at) &&
+      picked !== null &&
+      (picked.alt === 0 || quranCued);
+    if (!ok || picked === null) {
+      // Seperti mode tanpa tanda: deret yang ditolak dilompati seluruhnya, ekornya (mis. "الله
+      // الرحمن الرحيم" + "الحمد لله" sesudah بسم di pembuka khutbah) tidak dicoba lagi.
+      i += best - 1;
+      continue;
+    }
+    const hit = picked.best.hit;
+    const split = hit.from + (boundary - i);
+    const locA = locate(index, { from: hit.from, to: split - 1 });
+    const locB = locate(index, { from: split, to: hit.to });
+    if (locA === null || locB === null) continue;
+    const [aStart, aEnd] = toRawSpan(
+      a.raw,
+      na,
+      (ta[at] as TokenSpan).start,
+      (ta[ta.length - 1] as TokenSpan).end,
+    );
+    const [bStart, bEnd] = toRawSpan(
+      b.raw,
+      nb,
+      (tb[0] as TokenSpan).start,
+      (tb[best - (boundary - i) - 1] as TokenSpan).end,
+    );
+    const common = { match: "exact" as const, kind: "cross" as const, alt: picked.alt, score: 1 };
+    return [
+      {
+        charStart: aStart,
+        charEnd: aEnd,
+        ...loc(locA),
+        ...common,
+        partial: true,
+        tokens: boundary - i,
+      },
+      {
+        charStart: bStart,
+        charEnd: bEnd,
+        ...loc(locB),
+        ...common,
+        tokens: best - (boundary - i),
+      },
+    ];
+  }
+  return null;
 }
 
 export interface MatchOptions {

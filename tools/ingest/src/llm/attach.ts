@@ -11,6 +11,8 @@ import type { QuranView } from "@surau/core";
 import { checkSummary, checkTranslation } from "@surau/llm";
 
 import type { CorpusRows } from "../rows.ts";
+import { rejectionFor } from "./reviews.ts";
+import type { ReviewRejections } from "./reviews.ts";
 import { acceptedSummary, acceptedTranslation, readJsonl } from "./store.ts";
 import { buildWork, round2InputSha } from "./work.ts";
 
@@ -24,6 +26,8 @@ export interface LlmStats {
   staleTranslations: number;
   /** Hasil yang tidak lolos validasi ulang (tidak dimuat). */
   invalidTranslations: number;
+  /** Hasil yang ditolak lapisan koreksi tinjauan (X02, `data/reviews/…`; tidak dimuat). */
+  reviewRejectedTranslations: number;
   /** Simpul × bahasa yang harus punya ringkasan. */
   summaryTargets: number;
   summaries: number;
@@ -89,7 +93,11 @@ export function quranViewFromRows(rows: CorpusRows): QuranView {
 }
 
 /** Baca hasil LLM yang lolos dari `dir` dan jadikan baris korpus. Tanpa file = tanpa baris. */
-export function llmRows(rows: CorpusRows, dir: string): LlmBuild {
+export function llmRows(
+  rows: CorpusRows,
+  dir: string,
+  reviews: ReviewRejections = new Map(),
+): LlmBuild {
   const work = buildWork(rows);
   const quran = quranViewFromRows(rows);
   const stats: LlmStats = {
@@ -98,6 +106,7 @@ export function llmRows(rows: CorpusRows, dir: string): LlmBuild {
     translations: 0,
     staleTranslations: 0,
     invalidTranslations: 0,
+    reviewRejectedTranslations: 0,
     summaryTargets: work.nodes.length * 2,
     summaries: 0,
     staleSummaries: 0,
@@ -115,6 +124,11 @@ export function llmRows(rows: CorpusRows, dir: string): LlmBuild {
     const u = work.units.get(t.passage_id);
     if (u === undefined || u.sourceSha256 !== t.source_sha256) {
       stats.staleTranslations++;
+      continue;
+    }
+    // Pengaman kedua bila entri koreksi ditambah tanpa `pnpm llm rejudge` (X02, ADR-047).
+    if (rejectionFor(reviews, t.passage_id, t.prompt_version) !== null) {
+      stats.reviewRejectedTranslations++;
       continue;
     }
     const c = checkTranslation(t.text, u);

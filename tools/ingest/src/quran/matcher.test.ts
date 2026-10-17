@@ -5,6 +5,7 @@ import { describe, expect, test } from "vite-plus/test";
 
 import {
   buildQuranIndex,
+  crossPassageSpans,
   exactHits,
   locate,
   matchPassage,
@@ -345,5 +346,66 @@ describe("perbaikan tinjauan kedua S13", () => {
       matchPassage(index, "قال النبي صلى الله عليه وسلم فطوبى للصابرين الذين يذكرون ربهم بالليل")
         .spans,
     ).toEqual([]);
+  });
+});
+
+describe("kutipan terbelah dua paragraf (X02)", () => {
+  const side = (raw: string) => ({ raw, taken: [] });
+  const text = (raw: string, sp: AyahSpan) => raw.slice(sp.charStart, sp.charEnd);
+
+  test("deret persis yang melintasi batas → dua bentang sebagian untuk ayat yang sama", () => {
+    const a = "وكان يقول دائما إنما يتذكر أولو";
+    const b = "الألباب الصادقون من عباده فاعلم ذلك";
+    const pair = crossPassageSpans(index, side(a), side(b));
+    expect(pair).not.toBeNull();
+    const [sa, sb] = pair as [AyahSpan, AyahSpan];
+    expect(text(a, sa)).toBe("إنما يتذكر أولو");
+    expect(text(b, sb)).toBe("الألباب الصادقون من عباده");
+    for (const sp of [sa, sb]) {
+      expect(sp).toMatchObject({ surah: 2, ayahFrom: 2, ayahTo: 2, partial: true, kind: "cross" });
+    }
+    expect([sa.tokens, sb.tokens]).toEqual([3, 4]);
+  });
+
+  test("4 kata hanya bila didahului pengantar ayat", () => {
+    expect(
+      crossPassageSpans(index, side("وقد ذكرنا إنما يتذكر"), side("أولو الألباب ثم انصرف")),
+    ).toBeNull();
+    const pair = crossPassageSpans(
+      index,
+      side("قال تعالى إنما يتذكر"),
+      side("أولو الألباب ثم انصرف"),
+    );
+    expect(pair?.[1]).toMatchObject({ surah: 2, ayahFrom: 2, tokens: 2 });
+  });
+
+  test("ditolak: lafaz berulang tanpa pengantar, konteks hadits, tidak melintasi batas", () => {
+    // 1:2 = 2:3 (lafaz berulang).
+    expect(
+      crossPassageSpans(index, side("فقال والصبر نور"), side("القلوب في الظلمات كذلك")),
+    ).toBeNull();
+    expect(
+      crossPassageSpans(
+        index,
+        side("قال رسول الله إنما يتذكر أولو"),
+        side("الألباب الصادقون من عباده"),
+      ),
+    ).toBeNull();
+    // Satu kata di seberang batas: sering kalimat penulis sendiri.
+    expect(
+      crossPassageSpans(index, side("فقال إنما يتذكر أولو الألباب الصادقون من"), side("عباده كلهم")),
+    ).toBeNull();
+    // Seluruh kutipan di paragraf pertama: urusan matchPassage, bukan lintas paragraf.
+    expect(
+      crossPassageSpans(index, side("إنما يتذكر أولو الألباب الصادقون"), side("ثم انصرف الى بيته")),
+    ).toBeNull();
+  });
+
+  test("kata yang sudah dipakai bentang lain tidak dipakai lagi", () => {
+    const a = "وكان يقول دائما إنما يتذكر أولو";
+    const taken = [{ charStart: a.indexOf("أولو"), charEnd: a.length }];
+    expect(
+      crossPassageSpans(index, { raw: a, taken }, side("الألباب الصادقون من عباده")),
+    ).toBeNull();
   });
 });
