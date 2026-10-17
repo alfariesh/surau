@@ -15,6 +15,25 @@ Format entri:
 
 ---
 
+## 2026-10-17 · X02 · Perbaikan mutu terjemahan AI dan ayat sebelum rilis Fase 2 — selesai
+- Dikerjakan:
+  - **Hasil T-16 dan T-17 tahap 2** (diwakilkan pemilik ke agent lain, diperiksa ulang di korpus): T-16 20/20 cocok; T-17 tahap 2 14 Benar / 4 Kurang / 2 Salah (70%, target 80%). Laporan `data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md`.
+  - **Lapisan koreksi tinjauan** (`data/reviews/ihya-9472-terjemahan.json`) berisi 27 paragraf: 6 dari sampel, ditambah 21 dari pencarian pola di seluruh terjemahan (ungkapan tebusan sebagai sumpah di 17 paragraf, satuan *mann*, judul bab nikah). Hasil prompt v2 untuk paragraf itu ditolak, lalu diterjemahkan ulang Sonnet 5.5 dengan **prompt `translate-passage@3`** (aturan satuan, ungkapan, pakaian, raghiba fi/'an, kitab amal kanan/kiri, kalimat lanjutan).
+  - **Pencocok ayat lintas paragraf:** QS 54:55 di p18256–p18257 kini tertaut, terjemahannya memakai placeholder Kemenag. Ringkasan bab 100273 dan dua induknya dibuat ulang. Kaki halaman pembaca membatasi klaim ke "kutipan ayat yang dikenali".
+  - **Korpus `ihya-v6`** dibangun, dimuat ke lokal dan staging, lalu dipromosikan ke produksi `surau-corpus-ihya-v6` atas izin pemilik. `ihya-v5` menjadi rollback.
+  - **Halaman tinjauan T-12:** teks 9 soal privat dihapus dari halaman (sempat bisa dibuka lewat tautan); insidennya dicatat di ADR-047.
+- Verifikasi:
+  - **Batch:** `pnpm llm rejudge` menolak 26 hasil koreksi (p18257 sudah usang karena ayat berubah). `retry` + `submit` r1/r2 menghasilkan 34 request, semuanya lolos pada percobaan pertama.
+  - **Ingest:** `pnpm ingest ihya` → validasi ✓, rujukan ayat 2.482 → 2.484, 1.311 terjemahan berayat tanpa masalah, terjemahan 16.086, ringkasan 626.
+  - **Korpus produksi:** `corpus:promote ihya-v6 --confirm` → smoke = build. `corpus:qa ihya-v6` → 30/30 byte demi byte.
+  - **Eval:** `eval:retrieval --gate` atas ihya-v6 → hit@10 100% (kode keluar 0).
+  - **Penilaian ulang 20 sampel T-17 yang sama** (agent X02): 20/20 Benar. Angka ini bias, karena perbaikannya menyasar sampel itu; skor sebelumnya (70%) tetap berlaku sebagai ukuran mutu korpus v2.
+  - `pnpm verify` → lolos (462 + 177 tes).
+- Biaya API: **$0,25** (26 ulangan Sonnet $0,23, ringkasan $0,01, 2 terjemahan Haiku < $0,01). Izin pemilik ≤ $1. Total batch Ihya kini $4,68 (dari `usage`).
+- Keputusan: ADR-047.
+- Pemilik: "Ok go ahead" (2026-10-17) untuk biaya ≤ $1 dan promote korpus baru.
+- Berikutnya: pemilik `/rilis 2`. Opsional T-17 tahap 3 (20 sampel acak baru, penilaian tanpa bias). Lalu S16 (butuh T-07 domain).
+
 ## 2026-10-17 · S15 · Eval retrieval — selesai
 - Dikerjakan:
   - `tools/eval` + `pnpm run eval:retrieval`: soal JSONL, `searchText` atas D1 lokal (salinan state) atau staging (`--remote`), hit@1/5/10 + MRR, laporan `evals/reports/` tanpa teks soal privat, `--gate` untuk `/rilis`.

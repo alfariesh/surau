@@ -52,6 +52,8 @@ Setiap paragraf Ihya punya terjemahan Indonesia, dan setiap bagian daftar isi pu
 
 ## Catatan hasil
 
+**T-17 tahap 2 (2026-10-17, diwakilkan ke agent lain atas permintaan pemilik):** 14 Benar, 4 Kurang, 2 Salah (70%, di bawah target 80%; Salah 10% tepat di batas). Temuan + pola sejenis di seluruh korpus (27 paragraf) diterjemahkan ulang di X02 dengan prompt `translate-passage@3` lewat lapisan koreksi tinjauan (ADR-047, `ihya-v6`).
+
 **Dibuat:**
 - `packages/llm` (`@surau/llm`): klien `@anthropic-ai/sdk` 0.135.0 (dependensi baru, MIT; membawa `@opentelemetry/api` Apache-2.0, dimatikan), `custom_id`, prompt berversi `translate-passage@{1,2}`, `summarize-section@{1,2}`, `glossary-v1` (±110 istilah, prefix ±4.300 token yang di-cache), validasi keluaran, harga Haiku/Sonnet 5.5.
 - `tools/ingest/src/llm`: `pnpm llm tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report`. Hasil lolos selalu dibangun ulang dari hasil mentah per batch (`rejudge` gratis); kirim/ulang berbasis hash sumber; pengaman `--budget`; ulangan terakhir ke Sonnet 5.5.

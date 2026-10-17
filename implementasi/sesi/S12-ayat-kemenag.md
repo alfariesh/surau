@@ -55,6 +55,8 @@ Kutipan ayat di dalam Ihya dikenali secara deterministik dan ditautkan ke surah:
 
 ## Catatan hasil
 
+**T-16 (2026-10-17, diwakilkan ke agent lain atas permintaan pemilik):** 20/20 rujukan sampel cocok ([laporan](../../data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md)). Tidak mengukur ayat yang luput; kasus QS 54:55 yang terbelah dua paragraf ditangani pencocok lintas paragraf X02 (ADR-047).
+
 **Dibuat (2026-10-17, PR #31, ADR-040):**
 - **Sumber.** Tanzil 1.1 XML (`uthmani` + `simple-clean`, `data/raw/tanzil/`; basmalah pembuka surah dari atribut `bismillah`, bukan teks ayat 1) dan **data Kemenag milik pemilik** (`surau-quran-kemenag` → `data/raw/kemenag/`): terjemahan + 678 catatan kaki, transliterasi Latin, metadata surah, juz. Atas arahan pemilik, **QuranEnc tidak dipakai** (menyimpang dari langkah 1 dan ADR-020). Semua sha256 dipin (`data/SOURCES.md`, `tools/ingest/src/quran/source.ts`). Teks Arab QUL di data pemilik tidak ditampilkan; Imlaei hanya cek silang penomoran (6/6.236 beda ejaan, nomor sama).
 - **Korpus `ihya-v3`** (migrasi 0005, skema 5): `quran_source`, `quran_surah`, `quran_ayah`, `quran_translation` (terjemahan + transliterasi, dibedakan `quran_source.kind`), `passage_ayah_ref` (+ `bracketed`, `alt_count`). Dimuat ke D1 lokal (±24 dtk) dan `surau-corpus-staging` (±80 dtk). Produksi tetap `ihya-v1`. sha256 build `83d6d0af…`.
