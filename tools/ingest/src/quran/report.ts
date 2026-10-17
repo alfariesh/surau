@@ -88,7 +88,9 @@ function spanKind(s: AyahSpan): string {
         ? "tanpa kurung"
         : s.kind === "cue_short"
           ? "pendek sesudah pengantar"
-          : "tanpa tanda",
+          : s.kind === "cross"
+            ? "terbelah dua paragraf"
+            : "tanpa tanda",
     s.partial ? "sebagian ayat" : "ayat utuh",
     ...(s.alt > 0 ? [`+${s.alt} letak lain`] : []),
   ].join(", ");
@@ -169,6 +171,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     `| · tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda; dibiarkan, tidak ditebak) | ${num(s.unmatched)} (${pct(s.unmatched, s.validated)}) |`,
     `| Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | ${num(s.cueExact)} / ${num(s.cueSimilar)} |`,
     `| Kutipan S13 (paragraf badan): tanpa tanda (persis), dan pendek 2–3 kata sesudah pengantar (lafaz langka; bisa diperpanjang melewati beda ejaan) | ${num(s.unmarked)} |`,
+    `| Kutipan terbelah dua paragraf badan berurutan (X02; aturan mode tanpa tanda, dua rujukan sebagian per pasang) | ${num(s.cross)} pasang |`,
     `| **Rujukan ayat** (\`passage_ayah_ref\`) | **${num(rows.passage_ayah_ref.length)}** di ${num(s.passages)} paragraf |`,
     `| · sebagian ayat (\`partial\`) | ${num(s.partial)} |`,
     `| · lebih dari satu ayat | ${num(s.multiAyah)} |`,

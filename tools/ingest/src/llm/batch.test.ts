@@ -16,6 +16,7 @@ import {
   unresolved,
 } from "./batch.ts";
 import type { Accepted } from "./batch.ts";
+import { parseReviews } from "./reviews.ts";
 import {
   readBatches,
   readJsonl,
@@ -380,5 +381,79 @@ describe("rebuild: ringkasan putaran 2 usang bila masukannya berubah", () => {
     expect(failures.map((f) => f.reason)).toEqual(["stale_input"]);
     // Tidak dihitung sebagai percobaan gagal untuk sumber saat ini.
     expect(unresolved(work, readAccepted(dir)).has("toc-100001-id-r2")).toBe(false);
+  });
+});
+
+describe("rebuild: koreksi tinjauan (X02)", () => {
+  const reviews = parseReviews({
+    reviews: [
+      {
+        reviewer: "uji",
+        date: "2026-10-17",
+        basis: "tes",
+        rejects_prompt: "translate-passage@2",
+        entries: [{ passage_id: 10_000_001, verdict: "salah", reason: "satuan diganti" }],
+      },
+    ],
+  });
+  const good =
+    `Ini kalimat Indonesia buatan untuk pengujian yang cukup panjang ${"kata ".repeat(8)}`.trim();
+  const ok = (id: string) => [
+    {
+      custom_id: "passage-10000001",
+      result: { type: "succeeded", message: message(`${good} ${id}`) },
+    },
+  ];
+
+  test("hasil versi yang ditolak tidak dimuat; ulangan langsung Sonnet; hasil versi baru lolos", () => {
+    const dir = mkdtempSync(join(tmpdir(), "surau-review-"));
+    writeBatches(dir, [record("b1", "2026-10-17T01:00:00Z")]);
+    writeJsonl(
+      join(dir, "requests", "b1.jsonl"),
+      plan.map((r) => ({ ...r, prompt_version: "translate-passage@2" })),
+    );
+    writeJsonl(join(dir, "results", "b1.jsonl"), ok("satu"));
+    rebuild(dir, work, reviews);
+    expect(readJsonl(join(dir, "translation.jsonl"), acceptedTranslation)).toEqual([]);
+    const failures = readJsonl(join(dir, "failures.jsonl"), failure);
+    expect(failures.map((f) => [f.reason, f.details[0]])).toEqual([
+      ["review_rejected", "salah: satuan diganti (uji, 2026-10-17)"],
+    ]);
+    const state = unresolved(work, readAccepted(dir)).get("passage-10000001");
+    expect(state).toEqual({ attempts: 1, refusal: true, sonnet: 0, summary: false });
+    expect(retryModel(state as NonNullable<typeof state>)).toBe("claude-sonnet-5-5");
+    // Ulangan dengan prompt saat ini (bukan versi yang ditolak) → lolos.
+    expect(plan[0]?.prompt_version).not.toBe("translate-passage@2");
+    writeBatches(dir, [record("b1", "2026-10-17T01:00:00Z"), record("b2", "2026-10-17T02:00:00Z")]);
+    writeJsonl(join(dir, "requests", "b2.jsonl"), plan);
+    writeJsonl(join(dir, "results", "b2.jsonl"), ok("dua"));
+    rebuild(dir, work, reviews);
+    expect(
+      readJsonl(join(dir, "translation.jsonl"), acceptedTranslation).map((t) => [
+        t.batch_id,
+        t.prompt_version,
+      ]),
+    ).toEqual([["b2", plan[0]?.prompt_version]]);
+    expect(unresolved(work, readAccepted(dir)).has("passage-10000001")).toBe(false);
+    // Tanpa koreksi, hasil b1 tetap dipakai sampai b2 menggantikannya (urutan batch).
+    rebuild(dir, work);
+    expect(readJsonl(join(dir, "translation.jsonl"), acceptedTranslation)[0]?.batch_id).toBe("b2");
+  });
+
+  test("berkas koreksi: entri ganda per versi prompt ditolak", () => {
+    const entry = { passage_id: 1, verdict: "kurang", reason: "x" };
+    const one = { reviewer: "a", date: "2026-10-17", basis: "b", rejects_prompt: "p@1" };
+    expect(() => parseReviews({ reviews: [{ ...one, entries: [entry, entry] }] })).toThrow(/ganda/);
+    expect(
+      parseReviews({
+        reviews: [
+          { ...one, entries: [entry] },
+          { ...one, rejects_prompt: "p@2", entries: [entry] },
+        ],
+      }).get(1),
+    ).toHaveLength(2);
+    expect(() =>
+      parseReviews({ reviews: [{ ...one, date: "17-10-2026", entries: [entry] }] }),
+    ).toThrow(/date/);
   });
 });

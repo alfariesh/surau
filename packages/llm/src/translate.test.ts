@@ -59,7 +59,10 @@ describe("request terjemahan", () => {
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ]);
-    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@2");
+    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@3");
+    // v3 (X02): aturan satuan dan ungkapan tebusan ada di prefix sistem.
+    expect(TRANSLATE_PROMPT.system).toContain("Jangan mengganti satu satuan dengan satuan lain");
+    expect(TRANSLATE_PROMPT.system).toContain("ayah dan ibuku menjadi tebusanmu");
     expect(passageCustomId(10_000_001)).toMatch(CUSTOM_ID_PATTERN);
   });
 

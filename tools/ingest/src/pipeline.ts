@@ -182,7 +182,7 @@ function rowsFor(
   });
   const fts = ftsRows(base.passage);
   const quran = loadQuran(paths.quran, (s) => normalizeArabic(s).text);
-  const matched = matchAyat(quran, base.passage);
+  const matched = matchAyat(quran, base.passage, base.page);
   const rows: CorpusRows = {
     ...base,
     ...quranTableRows(quran),

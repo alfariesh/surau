@@ -344,7 +344,7 @@ export const id = {
     translationToggle: "Tampilkan terjemahan AI",
     aiNoticeHeading: "Terjemahan dan ringkasan AI",
     aiNotice:
-      "Terjemahan Indonesia per paragraf dan ringkasan bagian dibuat otomatis oleh model AI dari teks Arab, dan belum ditinjau manusia, jadi bisa keliru. Teks Arab tetap rujukan utamanya. Kutipan ayat tidak diterjemahkan AI: yang tampil adalah terjemahan Kemenag.",
+      "Terjemahan Indonesia per paragraf dan ringkasan bagian dibuat otomatis oleh model AI dari teks Arab, dan belum ditinjau manusia, jadi bisa keliru. Teks Arab tetap rujukan utamanya. Kutipan ayat yang dikenali sistem tidak diterjemahkan AI: yang tampil adalah terjemahan Kemenag. Kutipan ayat yang belum dikenali bisa ikut terjemahan AI.",
     errorHeading: "Halaman kitab gagal dimuat",
     errorBody: "Terjadi gangguan saat membaca data kitab. Coba muat ulang.",
     errorRetry: "Coba lagi",

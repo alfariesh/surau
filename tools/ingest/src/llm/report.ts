@@ -94,16 +94,11 @@ export async function runReport(ctx: LlmContext): Promise<number> {
   const refusals = acc.failures.filter((f) => f.reason === "refusal").length;
 
   // Sampel QA T-17 tahap 2: 20 paragraf acak (seed tetap) dari SEMUA paragraf badan, bukan dari
-  // hasil yang lolos, supaya daftarnya tidak berubah tiap kali hasil dinilai ulang. Paragraf tanpa
-  // terjemahan diganti paragraf berikutnya (urut ID) yang punya terjemahan.
+  // hasil yang lolos, supaya daftarnya tidak berubah tiap kali hasil dinilai ulang (X02: juga tidak
+  // diganti paragraf lain bila terjemahannya ditolak/belum ada; nomor itu tampil kosong dan dinilai
+  // sebagai kegagalan cakupan).
   const unitIds = [...work.units.keys()].toSorted((a, b) => a - b);
-  const okIds = new Set(tOk.map((u) => u.passageId));
-  const chosen = new Set<number>();
-  for (const id of samplePages(unitIds, QA_SIZE, QA_SEED)) {
-    let i = unitIds.indexOf(id);
-    while (i < unitIds.length && (!okIds.has(unitIds[i] ?? 0) || chosen.has(unitIds[i] ?? 0))) i++;
-    if (i < unitIds.length) chosen.add(unitIds[i] ?? 0);
-  }
+  const chosen = new Set(samplePages(unitIds, QA_SIZE, QA_SEED));
   const sample = [...chosen]
     .toSorted((a, b) => a - b)
     .flatMap((id) => {
@@ -243,7 +238,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
       join(dir, "qa", "review-batch.html"),
       reviewHtml(
         `QA terjemahan AI (T-17 tahap 2) · ${TRANSLATE_PROMPT.id}`,
-        `${items.length} paragraf acak dari hasil batch penuh. Kotak hijau = terjemahan ayat Kemenag (bukan buatan AI). Beri nilai tiap nomor: <b>Benar</b>, <b>Kurang</b>, atau <b>Salah</b>, dengan catatan singkat.`,
+        `${sample.length} paragraf acak dari hasil batch penuh (dinilai) dan ${items.length - sample.length} contoh ringkasan (tidak dinilai). Kotak hijau = terjemahan ayat Kemenag (bukan buatan AI). Beri nilai tiap nomor paragraf: <b>Benar</b>, <b>Kurang</b>, atau <b>Salah</b>, dengan catatan singkat.`,
         items,
         kemenagLookup(rows.quran_translation),
         SITE,

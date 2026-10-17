@@ -39,6 +39,8 @@ import { z } from "zod";
 
 import type { LlmContext } from "./cli.ts";
 import { mapPool } from "./pool.ts";
+import { REVIEW_FILE, loadReviews, rejectionFor } from "./reviews.ts";
+import type { ReviewRejections } from "./reviews.ts";
 import {
   acceptedSummary,
   acceptedTranslation,
@@ -751,7 +753,11 @@ const batchResult = z.looseObject({
  * dikumpulkan, dengan aturan validasi dan unit sumber SAAT INI (gratis; dipakai `collect` dan
  * `rejudge`). Urut waktu kirim: hasil batch yang lebih baru menimpa yang lama untuk custom_id sama.
  */
-export function rebuild(dir: string, work: Work): { accepted: number; failures: number } {
+export function rebuild(
+  dir: string,
+  work: Work,
+  reviews: ReviewRejections = new Map(),
+): { accepted: number; failures: number } {
   const batches = readBatches(dir).toSorted((a, b) => (a.created_at < b.created_at ? -1 : 1));
   const translations = new Map<number, AcceptedTranslation>();
   const r1 = new Map<string, AcceptedSummary>();
@@ -799,8 +805,31 @@ export function rebuild(dir: string, work: Work): { accepted: number; failures: 
         invalid++;
         continue;
       }
-      accepted++;
       const a = v.accepted;
+      // Koreksi tinjauan (X02): hasil versi prompt yang ditolak peninjau untuk paragraf ini tidak
+      // dipakai; dicatat sebagai kegagalan di posisi kronologisnya supaya `retry` mengirim ulang.
+      const rejected =
+        a !== null && "passage_id" in a
+          ? rejectionFor(reviews, a.passage_id, a.prompt_version)
+          : null;
+      if (a !== null && "passage_id" in a && rejected !== null) {
+        failures.push({
+          custom_id: r.custom_id,
+          batch_id: b.id,
+          model: a.model,
+          reason: "review_rejected",
+          details: [
+            `${rejected.verdict}: ${rejected.reason} (${rejected.reviewer}, ${rejected.date})`,
+          ],
+          output: a.text,
+          at: endedAt,
+          source_sha256: a.source_sha256,
+          usage: a.usage,
+        });
+        invalid++;
+        continue;
+      }
+      accepted++;
       if (a === null) continue;
       if ("passage_id" in a) translations.set(a.passage_id, a);
       else if (a.round === 1) {
@@ -885,13 +914,15 @@ export async function runCollect(ctx: LlmContext): Promise<number> {
       `${b.name}: ${raw.length} hasil · biaya ${usd(totals.costUsd)} (baca cache ${totals.cache_read_input_tokens.toLocaleString("id-ID")}, tulis ${totals.cache_creation_input_tokens.toLocaleString("id-ID")})`,
     );
   }
-  printRebuild(dir, buildWork(ctx.rows()));
+  printRebuild(dir, buildWork(ctx.rows()), ctx.repo);
   if (pending > 0) console.info(`${pending} batch belum selesai; ulangi collect nanti.`);
   return 0;
 }
 
-function printRebuild(dir: string, work: Work): void {
-  rebuild(dir, work);
+function printRebuild(dir: string, work: Work, repo: string): void {
+  const reviews = loadReviews(repo);
+  rebuild(dir, work, reviews);
+  if (reviews.size > 0) console.info(`Koreksi tinjauan: ${reviews.size} paragraf (${REVIEW_FILE})`);
   for (const b of readBatches(dir)) {
     if (b.outcome === null) continue;
     console.info(
@@ -902,7 +933,7 @@ function printRebuild(dir: string, work: Work): void {
 
 /** Nilai ulang semua hasil mentah dengan aturan dan sumber saat ini (tanpa API, gratis). */
 export function runRejudge(ctx: LlmContext): number {
-  printRebuild(llmDir(ctx.repo), buildWork(ctx.rows()));
+  printRebuild(llmDir(ctx.repo), buildWork(ctx.rows()), ctx.repo);
   return 0;
 }
 
@@ -945,6 +976,11 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
           ? acc.r1.get(f.custom_id)?.source_sha256 === sha
           : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
     if (done) continue;
+    // Ditolak peninjau (X02): hitungan mulai dari awal sesudah penolakan, langsung ke Sonnet 5.5.
+    if (f.reason === "review_rejected") {
+      out.set(f.custom_id, { attempts: 1, refusal: true, sonnet: 0, summary: false });
+      continue;
+    }
     const prev = out.get(f.custom_id) ?? {
       attempts: 0,
       refusal: false,

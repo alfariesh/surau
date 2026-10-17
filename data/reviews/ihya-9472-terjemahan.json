@@ -1,0 +1,155 @@
+{
+  "reviews": [
+    {
+      "reviewer": "agent lain atas permintaan pemilik (T-17 tahap 2, diwakilkan); diperiksa ulang agent X02",
+      "date": "2026-10-17",
+      "basis": "T-17 tahap 2: 20 sampel acak batch S13 (data/reports/ihya-9472-terjemahan.md). Hasil: 14 Benar, 4 Kurang, 2 Salah.",
+      "rejects_prompt": "translate-passage@2",
+      "entries": [
+        {
+          "passage_id": 10003032,
+          "verdict": "salah",
+          "reason": "Satuan mann diganti 'rithl' (1 mann = 2 rithl), besaran takaran berubah."
+        },
+        {
+          "passage_id": 10009200,
+          "verdict": "salah",
+          "reason": "Kumm (lengan baju) menjadi 'siku', dan 'pukulkan' menjadi 'letakkan'."
+        },
+        {
+          "passage_id": 10003482,
+          "verdict": "kurang",
+          "reason": "Tanda kurung sisa di akhir terjemahan; makna tepat."
+        },
+        {
+          "passage_id": 10017158,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan (bi abi anta wa ummi) diterjemahkan sebagai sumpah; kain yang sedang dipakai Nabi tidak disebut."
+        },
+        {
+          "passage_id": 10018257,
+          "verdict": "kurang",
+          "reason": "Lanjutan kalimat paragraf sebelumnya diberi subjek baru; potongan QS 54:55 ikut diterjemahkan AI (ditangani pencocok ayat lintas paragraf, X02)."
+        },
+        {
+          "passage_id": 10020304,
+          "verdict": "kurang",
+          "reason": "Menerima kitab amal dengan tangan kanan/kiri menjadi 'diberikan dari sebelah kanan/kiri'; 'saat membaca' tambahan."
+        }
+      ]
+    },
+    {
+      "reviewer": "agent X02 (sampel terarah dari temuan T-17 tahap 2)",
+      "date": "2026-10-17",
+      "basis": "Pencarian pola di seluruh terjemahan ihya-v5: satuan mann, ungkapan tebusan bi abi anta wa ummi (23 kemunculan, 17 diterjemahkan sebagai sumpah), judul at-targhib fi ... wa at-targhib 'anhu.",
+      "rejects_prompt": "translate-passage@2",
+      "entries": [
+        {
+          "passage_id": 10003031,
+          "verdict": "salah",
+          "reason": "Satuan mann diganti 'rithl'."
+        },
+        {
+          "passage_id": 10003033,
+          "verdict": "kurang",
+          "reason": "Satuan mann ditulis 'mana' (terbaca 'di mana'), tidak seragam dengan paragraf sekitarnya."
+        },
+        {
+          "passage_id": 10001592,
+          "verdict": "kurang",
+          "reason": "Satuan mann ditulis 'mana'."
+        },
+        {
+          "passage_id": 10005351,
+          "verdict": "salah",
+          "reason": "Judul terbalik: at-targhib 'anhu (anjuran menjauhi nikah) menjadi 'celaan terhadap tidak menikah'."
+        },
+        {
+          "passage_id": 10004420,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10004859,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10007754,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10008251,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10011277,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10011497,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10011519,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10011579,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10012215,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10013369,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10014021,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10014242,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10014314,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10014570,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10014573,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10019864,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        },
+        {
+          "passage_id": 10020321,
+          "verdict": "kurang",
+          "reason": "Ungkapan tebusan bi abi anta wa ummi diterjemahkan sebagai sumpah ('demi ayah dan ibuku')."
+        }
+      ]
+    }
+  ]
+}
