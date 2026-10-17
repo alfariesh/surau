@@ -363,7 +363,6 @@ export const id = {
     examples: ["sabar", "niat", "adab murid kepada guru", "cinta kedudukan", "الصبر", "التوكل"],
     filterLabel: "Bagian kitab",
     filterAll: "Seluruh kitab",
-    filterRub: "Rub'",
     filterKitab: "Kitab",
     filterKitabAll: "Semua kitab di rub' ini",
     loading: "Mencari…",
@@ -372,6 +371,7 @@ export const id = {
     soonBody:
       "Data kitab versi baru (dengan indeks pencarian dan terjemahan) belum dipasang di situs ini. Sementara itu, kitab tetap bisa dibaca dari menu Kitab.",
     summary: (pages: number, hits: number) => `${pages} halaman · ${hits} paragraf`,
+    shownPages: (pages: number) => `${pages} halaman ditampilkan`,
     summaryFused:
       "Diurutkan menurut kecocokan gabungan teks Arab, terjemahan AI, dan ringkasan bagian (100 paragraf teratas per jalur).",
     pageLabel: (label: string) => `Halaman ${label}`,
@@ -385,7 +385,6 @@ export const id = {
     },
     matchedByLabel: "Cocok di",
     partialMatch: "sebagian kata",
-    noSection: "Tanpa bagian",
     ayahPlaceholder: (ref: string) => `QS ${ref}`,
     ayahPlaceholderHint: "Kutipan ayat: terjemahannya (Kemenag) tampil di pembaca",
     commonTerms:
@@ -411,7 +410,6 @@ export const id = {
     palettePlaceholder: "Cari kata Indonesia atau Arab…",
     paletteHint: "Tekan Enter untuk mencari di seluruh kitab",
     paletteOpen: "Cari",
-    paletteShortcut: "⌘K",
     paletteLabel: "Palet pencarian",
     paletteGo: (q: string) => `Cari “${q}”`,
     paletteExamples: "Contoh pencarian",

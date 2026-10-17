@@ -208,7 +208,7 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
                     {t.filterKitabAll}
                   </NativeSelect.Option>
                   {rub.children.map((c) => (
-                    <NativeSelect.Option key={c.id} value={String(c.id)}>
+                    <NativeSelect.Option key={c.id} dir="rtl" lang="ar" value={String(c.id)}>
                       {c.title}
                     </NativeSelect.Option>
                   ))}
@@ -220,11 +220,12 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
         </div>
       ) : null}
 
-      <section
-        aria-busy={state.status === "loading"}
-        aria-live="polite"
-        className="flex flex-col gap-4"
-      >
+      {/* Pembaca layar hanya diberi tahu ringkasan (memuat / N halaman / tidak ada hasil / galat),
+          bukan seluruh isi kartu setiap kali hasil berubah. */}
+      <p className="sr-only" role="status">
+        {statusText(state)}
+      </p>
+      <section aria-busy={state.status === "loading"} className="flex flex-col gap-4">
         <h2 className="sr-only">{t.resultsHeading}</h2>
         <Results
           query={query}
@@ -235,6 +236,17 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
       </section>
     </div>
   );
+}
+
+function statusText(state: State): string {
+  if (state.status === "loading") return t.loading;
+  if (state.status === "error") return ERROR_TEXT[state.code];
+  if (state.status !== "ok") return "";
+  const { view, pages } = state;
+  if (pages.length === 0) return t.emptyHeading;
+  return view.total_pages !== null && view.total_hits !== null
+    ? t.summary(view.total_pages, view.total_hits)
+    : t.shownPages(pages.length);
 }
 
 function Results({

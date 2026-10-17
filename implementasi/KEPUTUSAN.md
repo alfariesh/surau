@@ -974,7 +974,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 2. **Teks Latin** (`packages/text/src/latin.ts`, terpisah dari normalisasi Arab dan `NORM_VERSION`):
    - **Token dan normalisasi:** huruf Latin + angka ASCII; apostrof di tengah kata ikut kata lalu dibuang (mu'amalah = muamalah); NFKD tanpa diakritik (ṣabr = sabr).
    - **Stopword kecil:** kata fungsi, kata ganti, dan preposisi berakhiran -nya/-mu/-ku; dicek sebelum stem.
-   - **Varian ejaan → ejaan glosarium S13** (taubat → tobat, shalat → salat, dzikir → zikir, …): hanya varian ejaan, bukan sinonim.
+   - **Varian ejaan → ejaan glosarium S13** (taubat → tobat, shalat → salat, dzikir → zikir, …), sebelum dan sesudah stem (bertaubat = bertobat): hanya varian ejaan, bukan sinonim.
    - **Stem ringan Tala (2003)** (partikel, kata ganti milik, awalan me-/pe-/di-/ter-/ke-/ber-/per-, akhiran -kan/-an/-i), dengan pengecualian kecil dari tinjauan kosakata terjemahan Ihya: akar mirip partikel (sedekah, masalah, …, *-llah*), akar mirip kata ganti (ilmu, tanya, …), dan kata yang awalannya tidak dibuang karena bertabrakan makna (perhatian ≠ hati, berdiri ≠ diri, kedudukan ≠ duduk, pendapat ≠ dapat).
    - **Uji sebelum dipakai** (langkah 1). Indeks tanpa stem vs dengan stem atas 16.086 terjemahan:
      - Kecocokan naik: sabar 173 → 404, niat 300 → 448, syukur 131 → 242, ikhlas 152 → 219, cinta dunia 178 → 328, keutamaan ilmu 90 → 197.
@@ -983,13 +983,13 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
      - Tabrakan yang tersisa: kecil dan dicatat (kehati-hatian → hati 56×, menempatkan → empat ±130×, mendirikan → diri 14×).
      - Kesimpulan: stem dipakai.
 3. **Deteksi bahasa kueri:**
-   - Huruf Arab saja → jalur S11 apa adanya (bm25, pengaman kata umum, total eksak).
+   - Huruf Arab saja (angka di sampingnya tidak dihitung sebagai kueri Indonesia) → jalur S11 apa adanya (bm25, pengaman kata umum, total eksak).
    - Huruf Latin saja → jalur terjemahan + ringkasan.
    - Keduanya → tiga jalur; bagian Arab yang semua katanya umum tidak dicari (`warning: "common_terms_ignored"`).
 4. **Gabungan RRF** (`searchCorpusFused`, satu `batch` D1 = satu bolak-balik, SQL disusun dari potongan konstan + parameter bernomor):
    - **Kandidat per jalur:** paragraf teratas bm25 per jalur (`FUSION_DEPTH` 100, ringkasan `SUMMARY_DEPTH` 30).
    - **Skor:** paragraf = Σ 1/(60 + peringkat).
-   - **Ringkasan → paragraf:** ringkasan yang cocok dipetakan ke paragraf badan pertama milik node itu di halaman awalnya (node tanpa paragraf sendiri → paragraf pertama turunannya di halaman itu); bila dua bagian berawal di paragraf yang sama, peringkat terbaik dipakai.
+   - **Ringkasan → paragraf:** ringkasan yang cocok dipetakan ke paragraf badan pertama milik node itu di halaman awalnya (sama dengan jangkar `#bab-<id>` pembaca). Node tanpa paragraf sendiri di sana → paragraf pertama turunannya di halaman itu, dicari lewat CTE rekursif yang hanya menelusuri turunan yang mulai di halaman yang sama (bukan urutan ID: node patch bisa ber-ID lebih besar dari anaknya). Bila dua bagian berawal di paragraf yang sama, peringkat terbaik dipakai.
    - **Halaman:** diurutkan menurut skor paragraf terbaiknya, lalu jumlah paragraf. `total_pages`/`total_hits` dihitung di atas himpunan kandidat (`fusion` di keluaran).
    - **Kata kueri Indonesia:** semua kata harus ada (AND). Bila jalur terjemahan + ringkasan bersama-sama punya < 5 kecocokan semua kata, kecocokan sebagian kata (OR) menyusul di belakangnya (`matched_by[].all_terms = false`).
 5. **Kontrak** (hanya menambah field):
@@ -1001,7 +1001,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 6. **Filter bagian** (`section_id` / `?section=`): node daftar isi + turunannya lewat CTE rekursif, berlaku di ketiga jalur. Node tidak ada atau milik edisi lain → `NotFound`. UI: rub' (TagGroup) lalu kitab (NativeSelect), URL `?bagian=`.
 7. **Cache hasil** (langkah 8):
    - **Tempat:** Cache API Workers (`caches.default`, per data center, `s-maxage` 7 hari; menurut docs Cloudflare berfungsi juga di workers.dev).
-   - **Kunci:** sha256 dari nama DB korpus produksi + rencana kueri ternormalisasi (`searchCacheKey`: stem Arab/Indonesia + opsi + versi normalisasi); teks kueri tidak masuk kunci. Kueri lain dengan rencana yang sama hanya berbeda field `query`, yang diisi ulang.
+   - **Kunci:** sha256 dari nama DB korpus produksi + rencana kueri ternormalisasi (`searchCacheKey`: stem Arab/Indonesia + opsi + versi normalisasi + konstanta peringkat/potongan + `SEARCH_RESULT_VERSION`, dinaikkan bila keluaran berubah tanpa konstanta itu berubah); teks kueri tidak masuk kunci maupun isi cache (`query` disimpan kosong dan diisi ulang saat hit).
    - **Versi korpus:** var `SEARCH_CACHE_CORPUS`, sama dengan `database_name` CORPUS_DB; `corpus:promote` mengganti keduanya, dijaga tes.
    - **Tanpa cache:** Preview (staging dimuat ulang tanpa versi baru) dan `next dev`.
    - **Urutan:** cache diperiksa sebelum rate limiter; yang lolos cache tidak menyentuh D1.
@@ -1012,7 +1012,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - **Pembaca:**
      - Terjemahan AI per paragraf, berlabel. Ayat dirender dari terjemahan Kemenag verbatim dengan labelnya sendiri; penanda (١) menaut ke catatan kaki.
      - Ringkasan AI di awal bagian (`<details>`). Bisa disembunyikan (localStorage).
-     - Status `rejected` tidak ditampilkan.
+     - Status `rejected` tidak ditampilkan, tidak diindeks, dan tidak dikirim API.
      - Sorotan `?q=` lewat CSS Custom Highlight API: DOM dan teks kitab tidak diubah, halaman tetap ISR.
 9. **Rollback** (keputusan langkah 10): `corpus:promote --switch-only` kini menerima korpus berskema LEBIH LAMA. Smoke memisahkan `limitations` (fitur yang hilang karena skema) dari `problems`. Kode memeriksa `meta.schema_version` dan menyembunyikan fiturnya: pembaca jalan di skema 3, pencarian Arab butuh ≥ 4, Indonesia ≥ 6, ayat ≥ 5. Jadi `ihya-v1` tetap target rollback. Build baru dan pemuatan tetap wajib tanpa batasan; skema lebih baru dari kode ditolak.
 
@@ -1030,6 +1030,6 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - Pencarian Indonesia hanya menjangkau 100 paragraf teratas per jalur (cukup untuk 5 halaman pertama hasil; "Muat lebih banyak" berhenti di himpunan itu).
 - Kueri Arab saja tidak memakai ringkasan atau judul bagian, jadi peringkatnya lebih datar (5 teratas الصبر/النية relevan tetapi tidak selalu bab utamanya): bahan eval S15.
 - Ukuran build ±+3 MB SQL indeks Indonesia; pemuatan staging tetap ±1,5 menit.
-- Produksi (`ihya-v1`) menjawab 503 untuk kueri Indonesia dan tidak menampilkan terjemahan sampai `corpus:promote ihya-v5`.
+- Selama produksi masih `ihya-v1` (skema 3), **semua** kueri `/api/search` menjawab 503 (Arab butuh skema ≥ 4, Indonesia ≥ 6), halaman `/cari` menampilkan "Pencarian sedang disiapkan" (cek `meta.schema_version` di server, bukan 503 per kueri), dan pembaca tidak menampilkan terjemahan/ayat, sampai `corpus:promote ihya-v5`.
 
 **Tinjau ulang bila:** eval S15 menunjukkan recall kueri Indonesia rendah (sinonim/embedding, ADR S15); tabrakan stem dilaporkan pengguna; korpus berisi banyak kitab (rows_read RRF, kedalaman per jalur, cache per edisi).

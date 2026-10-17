@@ -8,6 +8,7 @@
 // dipetakan ke `text_raw` (substring persis teks sumber), terjemahan AI-nya (berlabel), dan asal
 // kecocokannya (`matched_by`). Satu bolak-balik D1 per pencarian.
 import {
+  ANY_TERMS_BELOW,
   FUSION_DEPTH,
   RRF_K,
   SUMMARY_DEPTH,
@@ -54,6 +55,13 @@ export const SEARCH_MAX_HIGHLIGHTS = 50;
 
 /** Panjang potongan teks AI (terjemahan/ringkasan) di hasil pencarian. */
 export const AI_SNIPPET_CHARS = 240;
+
+/**
+ * Versi bentuk/isi hasil pencarian untuk kunci cache (S14): NAIKKAN bila keluaran `searchText`
+ * berubah tanpa mengubah konstanta yang sudah ikut di kunci (mis. aturan potongan, field baru,
+ * urutan hasil). Konstanta peringkat (RRF_K, kedalaman, ambang) dan normalisasi ikut otomatis.
+ */
+export const SEARCH_RESULT_VERSION = 1;
 
 /** Seluruh korpus: semua rowid paragraf/node (filter edisi memakai `passageIdRange`). */
 const ALL_IDS = { min: 1, max: Number.MAX_SAFE_INTEGER };
@@ -118,7 +126,9 @@ function translationOf(
     row.tr_model === null ||
     row.tr_prompt === null ||
     row.tr_created === null ||
-    row.tr_review === null
+    row.tr_review === null ||
+    // Ditolak peninjau (S18): tidak ditampilkan sama sekali.
+    row.tr_review === "rejected"
   ) {
     return null;
   }
@@ -146,7 +156,8 @@ function summaryOf(
     row.sm_model === null ||
     row.sm_prompt === null ||
     row.sm_created === null ||
-    row.sm_review === null
+    row.sm_review === null ||
+    row.sm_review === "rejected"
   ) {
     return null;
   }
@@ -222,8 +233,12 @@ function arabicPlan(query: string, suffix: boolean): FtsQueryPlan | null {
   }
 }
 
-/** Rencana kueri Indonesia; terlalu banyak kata → `InvalidQuery`. */
+/**
+ * Rencana kueri Indonesia; terlalu banyak kata → `InvalidQuery`. Bagian tanpa huruf Latin (mis.
+ * hanya angka di samping kata Arab: "الصبر 2") tidak dicari sebagai kueri Indonesia.
+ */
 function latinPlan(query: string): LatinQueryPlan | null {
+  if (!/\p{Script=Latin}/u.test(query)) return null;
   try {
     return planLatinQuery(query);
   } catch (error) {
@@ -368,8 +383,11 @@ export async function searchText(
   }
   assertScope(found, editionId, sectionId);
   const cites = new Map(found.editions.map((e) => [e.edition.id, citeContext(e)]));
+  // Bagian Arab yang semua katanya umum tidak dicari (pengaman, `common_terms_ignored`).
   const paths: SearchPath[] =
-    arabic === null ? ["translation", "summary"] : ["arabic", "translation", "summary"];
+    arabic === null || found.allCommon
+      ? ["translation", "summary"]
+      : ["arabic", "translation", "summary"];
   const [first] = found.rows;
   const plans = { arabic: found.allCommon ? null : arabic, latin };
   return {
@@ -504,13 +522,23 @@ export function searchCacheKey(
   let latin: LatinQueryPlan | null;
   try {
     arabic = planFtsQuery(parts.arabic, { suffix: input.data.expand });
-    latin = planLatinQuery(parts.latin);
+    latin = latinPlan(parts.latin);
   } catch {
     return null;
   }
   if (arabic === null && latin === null) return null;
   return JSON.stringify({
-    v: [NORM_VERSION, LATIN_NORM_VERSION],
+    v: [
+      SEARCH_RESULT_VERSION,
+      NORM_VERSION,
+      LATIN_NORM_VERSION,
+      RRF_K,
+      FUSION_DEPTH,
+      SUMMARY_DEPTH,
+      ANY_TERMS_BELOW,
+      AI_SNIPPET_CHARS,
+      SEARCH_MAX_HIGHLIGHTS,
+    ],
     ar: arabic === null ? null : [arabic.phrases, arabic.prefix],
     la: latin?.stems ?? null,
     e: input.data.edition_id ?? null,

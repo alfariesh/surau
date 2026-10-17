@@ -39,7 +39,7 @@ Pengguna bisa mengetik "sabar", "adab murid kepada guru", atau الصبر, lalu 
 - [x] Query Indonesia ("sabar", "niat", "adab murid kepada guru") dan Arab memberi hasil relevan di 5 teratas (diperiksa manual, dicatat) · daftar 5 teratas di Catatan hasil (D1 lokal `ihya-v5` = isi staging)
 - [x] Setiap terjemahan tampil berlabel AI; teks Arab di kartu adalah substring `text_raw` · label "Terjemahan AI"/"Ringkasan AI" di kartu dan pembaca; e2e `search.spec.ts` membandingkan potongan Arab kartu dengan paragraf yang sama di pembaca (text_raw), lolos lokal + Preview PR #33
 - [x] Latensi p95 staging < 300 ms (tanpa cache) · Preview PR #33 (cache mati di Preview), 24 kueri × 10 = 240 permintaan, 0 galat: handler **p95 154 ms** (p50 113), SQL D1 p95 19,9 ms
-- [ ] E2E lolos; Lighthouse aksesibilitas ≥ 90; pemilik menyetujui tampilan · E2E lolos (lokal 87 + `search.spec.ts`; Preview PR #33 hijau), Lighthouse 13.5.0 Preview `/cari?q=sabar` a11y **100** ponsel + desktop, pembaca j4 h61 a11y 100; **persetujuan tampilan menunggu pemilik (T-23)**
+- [ ] E2E lolos; Lighthouse aksesibilitas ≥ 90; pemilik menyetujui tampilan · E2E lolos (lokal 93 lolos + 1 dilewati setelah perbaikan peninjau; Preview PR #33 hijau), Lighthouse 13.5.0 Preview `/cari?q=sabar` a11y **100** ponsel + desktop, pembaca j4 h61 a11y 100; **persetujuan tampilan menunggu pemilik (T-23)**
 - [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan
@@ -75,6 +75,16 @@ Pengguna bisa mengetik "sabar", "adab murid kepada guru", atau الصبر, lalu 
 | Klien (Indonesia) | 195 ms | 271 ms | 827 ms |
 
 rows_read per kueri: Indonesia 493 (adab murid kepada guru) s.d. 15.800 (allah), umumnya 3–8 ribu; Arab 2–4 ribu; campuran 7.166.
+
+**Peninjau (1 putaran): 0 blocker, 7 "perbaiki", semuanya diperbaiki:**
+- Produksi `ihya-v1` (skema 3) membuat SEMUA kueri 503 (bukan hanya Indonesia): `/cari` kini memeriksa skema di server dan menampilkan "Pencarian sedang disiapkan"; kalimat ADR-044 dikoreksi.
+- Kunci cache tanpa versi kode: kini ikut `SEARCH_RESULT_VERSION` + konstanta peringkat/potongan.
+- Pemetaan ringkasan bergantung pada urutan ID (`toc_node_id >= n.id`; node patch Ihya ber-ID lebih besar dari anaknya): kini lewat CTE rekursif turunan yang mulai di halaman yang sama + tes induk ber-ID besar. Baris dibaca tetap setara (sabar 5.681 vs 5.513 semula).
+- Rekursi filter bagian tanpa indeks: kini membawa `edition_id` (indeks `toc_node_children`).
+- `aria-live` di seluruh daftar hasil: diganti region `role="status"` kecil berisi ringkasan.
+- Judul kitab Arab di `<option>` tanpa `lang`/`dir`: ditambahkan.
+- Sel tabel STACK ganda: diperbaiki.
+- Saran yang diambil: teks AI `rejected` tidak diindeks, tidak dikirim API, tidak tampil; `ORDER BY r LIMIT` di CTE peringkat; isi cache tanpa teks kueri; varian ejaan juga sesudah stem (indeks dibangun ulang, `ihya-v5` dimuat ulang ke lokal + staging); bagian Latin tanpa huruf (angka) tidak memicu jalur Indonesia; `paths` tanpa `arabic` saat `common_terms_ignored`; pola placeholder bersama; string i18n tak terpakai dihapus. Tidak diambil: pengaman kata umum Indonesia (diukur: "allah" p50 113 ms, 15,8 ribu baris; ditinjau ulang di S15), cache daftar isi `/cari` (2 kueri kecil per kunjungan).
 
 **Penyimpangan (ADR-044):** stem Tala lengkap (bukan hanya -nya/ber-/me-) dengan pengecualian dari data; filter bagian butuh parameter API baru `section`; yang dipromosikan versi terbaru `ihya-v5`, bukan `ihya-v2`.
 

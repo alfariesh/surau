@@ -106,7 +106,10 @@ export function aiIndexText(text: string): string {
   return latinIndexText(text.replace(ayahPlaceholderPattern(), " "));
 }
 
-/** Baris indeks Indonesia: hanya bahasa `id`, urut rowid (deterministik). */
+/**
+ * Baris indeks Indonesia: hanya bahasa `id` dan bukan `rejected` (teks yang ditolak peninjau tidak
+ * boleh ditemukan lewat pencarian), urut rowid (deterministik).
+ */
 export function latinFtsRows(
   translation: readonly TranslationRow[],
   summary: readonly SummaryRow[],
@@ -117,12 +120,12 @@ export function latinFtsRows(
       .sort((a, b) => a.rowid - b.rowid);
   return {
     translation: rows(
-      translation.filter((t) => t.lang === LATIN_FTS_LANG),
+      translation.filter((t) => t.lang === LATIN_FTS_LANG && t.review_status !== "rejected"),
       (t) => t.passage_id,
       (t) => t.text,
     ),
     summary: rows(
-      summary.filter((s) => s.lang === LATIN_FTS_LANG),
+      summary.filter((s) => s.lang === LATIN_FTS_LANG && s.review_status !== "rejected"),
       (s) => s.toc_node_id,
       (s) => s.text,
     ),

@@ -377,10 +377,12 @@ export function stemIndonesian(word: string): string {
   return s.word;
 }
 
-/** Istilah indeks satu token normal: `null` bila stopword; ejaan lain diseragamkan dulu. */
+/** Istilah indeks satu token normal: `null` bila stopword; ejaan lain diseragamkan sebelum dan sesudah stem. */
 export function latinTerm(norm: string): string | null {
   if (ID_STOPWORDS.has(norm)) return null;
-  return stemIndonesian(ID_VARIANTS.get(norm) ?? norm);
+  const stem = stemIndonesian(ID_VARIANTS.get(norm) ?? norm);
+  // Juga sesudah stem: bertaubat → taubat → tobat, shalatnya → shalat → salat.
+  return ID_VARIANTS.get(stem) ?? stem;
 }
 
 /**

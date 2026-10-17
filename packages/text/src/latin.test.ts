@@ -128,6 +128,9 @@ describe("latinTerm / latinIndexText", () => {
     expect(latinTerm("taubat")).toBe("tobat");
     expect(latinTerm("shalat")).toBe("salat");
     expect(latinTerm("dzikir")).toBe("zikir");
+    // Varian juga sesudah stem (temuan peninjau S14).
+    expect(latinTerm("bertaubat")).toBe(latinTerm("bertobat"));
+    expect(latinTerm("shalatnya")).toBe(latinTerm("salatnya"));
     expect(ID_STOPWORDS.has("allah")).toBe(false);
   });
 

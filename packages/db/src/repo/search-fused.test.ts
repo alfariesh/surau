@@ -10,8 +10,8 @@ import {
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/test";
 
-import { ED, P1, P2, PASSAGES, T_CHILD_A, T_ROOT, seedCorpus } from "../../test/fixture.ts";
-import { passageIdRange, tocNodeIdRange } from "../ids.ts";
+import { ED, P1, P2, P3, PASSAGES, T_CHILD_A, T_ROOT, seedCorpus } from "../../test/fixture.ts";
+import { passageIdRange, tocNodeId, tocNodeIdRange } from "../ids.ts";
 import { RRF_K, searchCorpusFused } from "./search.ts";
 import type { FusedSearchRequest, FusedSearchResult } from "./search.ts";
 
@@ -197,6 +197,43 @@ describe("searchCorpusFused", () => {
     // Node yang tidak ada: section null, tanpa hasil.
     const none = await ready(searchCorpusFused(db, req("sabar", { sectionId: 999_999 })));
     expect([none.section, none.rows]).toEqual([null, []]);
+  });
+
+  test("ringkasan node tanpa paragraf sendiri → paragraf pertama turunannya, walau ID turunan lebih kecil", async () => {
+    // Node induk ber-ID LEBIH BESAR dari anaknya (seperti node patch Ihya, seq dialokasikan
+    // sesudah yang terbesar): pemetaan tidak boleh bergantung pada urutan ID.
+    const HIGH = tocNodeId(ED, 90);
+    const LOW = tocNodeId(ED, 80);
+    await db.batch([
+      db
+        .prepare(
+          `INSERT INTO toc_node (id, edition_id, parent_id, ord, level, title_ar, start_page_id, source_title_id)
+           VALUES (?, ?, NULL, 9, 1, 'باب أعلى', ?, 90), (?, ?, ?, 1, 2, 'فصل أدنى', ?, 80)`,
+        )
+        .bind(HIGH, ED, P3, LOW, ED, HIGH, P3),
+      db.prepare("UPDATE passage SET toc_node_id = ? WHERE id = ?").bind(LOW, PASSAGES.body3),
+      db
+        .prepare(
+          `INSERT INTO summary (toc_node_id, lang, text, model, prompt_version, created_at)
+           VALUES (?, 'id', 'Ringkasan tentang zuhud.', 'model-uji', 'p@2', '2026-10-17')`,
+        )
+        .bind(HIGH),
+      db.prepare("INSERT INTO summary_fts (rowid, terms) VALUES (?, 'ringkas zuhud')").bind(HIGH),
+    ]);
+    onTestFinished(async () => {
+      await db.batch([
+        db.prepare("DELETE FROM summary_fts WHERE rowid = ?").bind(HIGH),
+        db.prepare("DELETE FROM summary WHERE toc_node_id = ?").bind(HIGH),
+        db
+          .prepare("UPDATE passage SET toc_node_id = ? WHERE id = ?")
+          .bind(T_CHILD_A, PASSAGES.body3),
+        db.prepare("DELETE FROM toc_node WHERE id IN (?, ?)").bind(LOW, HIGH),
+      ]);
+    });
+    const r = await ready(searchCorpusFused(db, req("zuhud")));
+    expect(r.rows.map((x) => [x.id, x.sm_node, x.sm_title])).toEqual([
+      [PASSAGES.body3, HIGH, "باب أعلى"],
+    ]);
   });
 
   test("korpus tanpa indeks Indonesia (skema < 6) → ready false", async () => {

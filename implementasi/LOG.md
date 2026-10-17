@@ -22,7 +22,7 @@ Format entri:
   - Halaman `/cari` (filter rub'/kitab, kartu dengan teks Arab asli tersorot), palet ⌘K, menu Cari aktif; pembaca menampilkan terjemahan AI per paragraf (ayat = Kemenag berlabel), ringkasan AI di awal bab, dan sorotan kata dari hasil Cari.
   - Cache hasil `/api/search` (Cache API, kunci = versi korpus + rencana kueri, produksi saja); `corpus:promote --switch-only` boleh ke skema lebih lama (rollback `ihya-v1`).
   - `ihya-v5` dimuat ke D1 lokal dan `surau-corpus-staging`; produksi tetap `ihya-v1` (Cari menampilkan "sedang disiapkan").
-- Verifikasi: `pnpm verify` → lolos · `pnpm exec vp test --project db --project core` → 176 tes · e2e lokal 87 lolos + `search.spec.ts` 6/6, Preview PR #33 hijau · latensi staging (Preview, 240 kueri, cache mati) handler p95 154 ms, SQL D1 p95 19,9 ms · Lighthouse 13.5.0 Preview `/cari?q=sabar` a11y 100 (ponsel + desktop), performa 87/100; pembaca j4 h61 a11y 100 · 5 teratas sabar/niat/adab murid kepada guru relevan (dicatat di file sesi) · peninjau: lihat file sesi.
+- Verifikasi: `pnpm verify` → lolos (432 + 177 tes) · e2e lokal 87 lolos + `search.spec.ts` 6/6, Preview PR #33 hijau · latensi staging (Preview, 240 kueri, cache mati) handler p95 154 ms, SQL D1 p95 19,9 ms · Lighthouse 13.5.0 Preview `/cari?q=sabar` a11y 100 (ponsel + desktop), performa 87/100; pembaca j4 h61 a11y 100 · 5 teratas sabar/niat/adab murid kepada guru relevan (dicatat di file sesi) · peninjau: 0 blocker, 7 perbaikan diterapkan (pemetaan ringkasan tanpa urutan ID, versi kunci cache, `/cari` di korpus lama, a11y status, dll.) · e2e lokal sesudahnya 93 lolos.
 - Biaya API: –
 - Keputusan: ADR-044
 - Berikutnya: izin promote `ihya-v5` + T-23 dari pemilik; lalu S15 (eval retrieval, butuh T-12).

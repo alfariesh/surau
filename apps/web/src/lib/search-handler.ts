@@ -119,11 +119,15 @@ export async function handleSearch(request: Request, deps: SearchDeps): Promise<
   try {
     const view = await deps.search(p.q, opts);
     if (key !== null && deps.cache !== null) {
+      // Teks kueri peminta tidak disimpan (P-7): `query` diisi ulang saat hit.
       deps.cache.store.put(
         key,
-        Response.json(view, {
-          headers: { "Cache-Control": `public, s-maxage=${SEARCH_CACHE_TTL}` },
-        }),
+        Response.json(
+          { ...view, query: "" },
+          {
+            headers: { "Cache-Control": `public, s-maxage=${SEARCH_CACHE_TTL}` },
+          },
+        ),
       );
       return json(200, view, "miss");
     }

@@ -1,7 +1,7 @@
 import type { Passage, QuranView } from "@surau/core";
 import type { ReactNode } from "react";
 
-import { maskAyat, translationSegments } from "@surau/core";
+import { ayahPlaceholderPattern, maskAyat, translationSegments } from "@surau/core";
 import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
 
 import { id } from "../../i18n/id";
@@ -66,7 +66,7 @@ export function PassageTranslation({
             );
           }
           if (s.kind === "invalid") {
-            const m = /⟦QS (\d+):(\d+)(?:-(\d+))?⟧/.exec(s.placeholder);
+            const m = ayahPlaceholderPattern("").exec(s.placeholder);
             const label =
               m === null
                 ? s.placeholder

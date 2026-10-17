@@ -183,12 +183,15 @@ const TRANSLATION_JOIN = `LEFT JOIN translation tl ON tl.passage_id = p.id AND t
 
 /**
  * Filter bagian daftar isi (S14): CTE rekursif `sub` = node `?n` dan semua turunannya (kosong bila
- * `?n` NULL). Dipakai bersama `IN_SECTION`/`NODE_IN_SECTION`; subkueri tidak berkorelasi, jadi
- * dievaluasi sekali, lalu setiap kecocokan FTS cukup dicek keanggotaannya.
+ * `?n` NULL). Langkah rekursif membawa `edition_id` supaya memakai indeks `toc_node_children`
+ * (edition_id, parent_id, ord), bukan memindai seluruh daftar isi per langkah. Dipakai bersama
+ * `IN_SECTION`/`NODE_IN_SECTION`; subkueri tidak berkorelasi, jadi dievaluasi sekali, lalu setiap
+ * kecocokan FTS cukup dicek keanggotaannya.
  */
-const sectionCte = (n: string) => `sub(id) AS (
-    SELECT ${n} WHERE ${n} IS NOT NULL
-    UNION ALL SELECT t.id FROM toc_node t JOIN sub ON t.parent_id = sub.id
+const sectionCte = (n: string) => `sub(id, ed) AS (
+    SELECT id, edition_id FROM toc_node WHERE id = ${n}
+    UNION ALL
+    SELECT t.id, t.edition_id FROM sub JOIN toc_node t ON t.edition_id = sub.ed AND t.parent_id = sub.id
   )`;
 const IN_SECTION = (n: string) =>
   `(${n} IS NULL OR rowid IN (SELECT id FROM passage WHERE toc_node_id IN (SELECT id FROM sub)))`;
@@ -545,11 +548,13 @@ function latinPaths(specs: readonly LatinPathSpec[], match: LatinMatch, q: Param
     ...refs.map((p) => `${p.name}_any AS MATERIALIZED (${scan(p, any)})`),
     ...refs.map(
       (p) => `${p.name} AS (
-      SELECT key, row_number() OVER (ORDER BY grp, s, key) AS r, 1 - grp AS all_terms FROM (
-        SELECT key, s, 0 AS grp FROM ${p.name}_all
-        UNION ALL
-        SELECT key, s, 1 AS grp FROM ${p.name}_any WHERE key NOT IN (SELECT key FROM ${p.name}_all)
-      ) LIMIT ${p.limit}
+      SELECT key, r, all_terms FROM (
+        SELECT key, row_number() OVER (ORDER BY grp, s, key) AS r, 1 - grp AS all_terms FROM (
+          SELECT key, s, 0 AS grp FROM ${p.name}_all
+          UNION ALL
+          SELECT key, s, 1 AS grp FROM ${p.name}_any WHERE key NOT IN (SELECT key FROM ${p.name}_all)
+        )
+      ) ORDER BY r LIMIT ${p.limit}
     )`,
     ),
   ];
@@ -623,14 +628,32 @@ export async function searchCorpusFused(
     ),
   );
   lists.push("SELECT key AS id, r FROM tr");
-  // Ringkasan → paragraf awal bagiannya; bila dua bagian berawal di paragraf yang sama, yang
-  // peringkatnya lebih baik dipakai.
-  ctes.push(`smp AS (
-      SELECT sm.key AS node, sm.r, sm.all_terms, (
-        SELECT p.id FROM toc_node n
-        JOIN passage p ON p.page_id = n.start_page_id AND p.kind = 'body' AND p.toc_node_id >= n.id
-        WHERE n.id = sm.key
-        ORDER BY p.toc_node_id <> n.id, p.ord LIMIT 1
+  // Ringkasan → paragraf awal bagiannya: paragraf badan pertama (urut tampil) di halaman awal node
+  // yang milik node itu, atau, bila node tidak punya paragraf sendiri di sana (mis. rub' yang
+  // langsung dibuka judul kitab pertamanya), milik turunannya; sama dengan jangkar #bab-<id> di
+  // pembaca (`sectionStarts`). Turunan lewat CTE rekursif (ID tidak menentukan urutan, ADR-029),
+  // hanya untuk node tanpa paragraf sendiri, dan hanya turunan yang MULAI di halaman yang sama:
+  // turunan yang mulai lebih belakang (beserta turunannya) tidak punya paragraf di halaman itu.
+  // Bila dua bagian berawal di paragraf yang sama, yang peringkatnya lebih baik dipakai.
+  // `+p.toc_node_id`: cari lewat indeks halaman (page_id, kind, ord; belasan baris), bukan lewat
+  // indeks `passage_toc`, yang membaca SEMUA paragraf bagian itu (ratusan untuk satu kitab).
+  const OWN = `SELECT p.id FROM toc_node n
+        JOIN passage p ON p.page_id = n.start_page_id AND p.kind = 'body' AND +p.toc_node_id = n.id`;
+  ctes.push(`smsub(root, id, ed, pg) AS (
+      SELECT n.id, n.id, n.edition_id, n.start_page_id FROM sm JOIN toc_node n ON n.id = sm.key
+      WHERE NOT EXISTS (${OWN} WHERE n.id = sm.key)
+      UNION ALL
+      SELECT smsub.root, t.id, t.edition_id, t.start_page_id FROM smsub
+      JOIN toc_node t ON t.edition_id = smsub.ed AND t.parent_id = smsub.id
+        AND t.start_page_id = smsub.pg
+    ),
+    smp AS (
+      SELECT sm.key AS node, sm.r, sm.all_terms, coalesce(
+        (${OWN} WHERE n.id = sm.key ORDER BY p.ord LIMIT 1),
+        (SELECT p.id FROM toc_node n
+         JOIN passage p ON p.page_id = n.start_page_id AND p.kind = 'body'
+         WHERE n.id = sm.key AND p.toc_node_id IN (SELECT id FROM smsub WHERE root = sm.key)
+         ORDER BY p.ord LIMIT 1)
       ) AS id FROM sm
     ),
     smb AS (
