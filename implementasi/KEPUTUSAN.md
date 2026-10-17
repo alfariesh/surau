@@ -1033,3 +1033,71 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - Selama produksi masih `ihya-v1` (skema 3), **semua** kueri `/api/search` menjawab 503 (Arab butuh skema ≥ 4, Indonesia ≥ 6), halaman `/cari` menampilkan "Pencarian sedang disiapkan" (cek `meta.schema_version` di server, bukan 503 per kueri), dan pembaca tidak menampilkan terjemahan/ayat, sampai `corpus:promote ihya-v5`.
 
 **Tinjau ulang bila:** eval S15 menunjukkan recall kueri Indonesia rendah (sinonim/embedding, ADR S15); tabrakan stem dilaporkan pengguna; korpus berisi banyak kitab (rows_read RRF, kedalaman per jalur, cache per edisi).
+
+## ADR-045 · Eval retrieval (S15): soal JSONL publik + holdout privat di R2, runner `searchText` atas D1 lokal/staging, gerbang R2 = hit@10 ≥ 90% atas ≥20 soal disetujui, kata pembingkai kueri Indonesia — diterima · 2026-10-17
+
+**Konteks:** S15 harus mengukur mutu Cari secara objektif sebelum rilis Fase 2 (docs/06, ADR-015), tanpa LLM. Korpus tidak bisa dibangun di CI (teks Shamela tidak di git) dan D1 berindeks FTS5 tidak bisa diekspor.
+
+**Keputusan:**
+1. **Dataset** (`evals/retrieval/*.jsonl` publik, `evals/private/retrieval.jsonl` privat; format di `evals/README.md`):
+   - Field docs/06 ditambah **`kueri`**: teks yang diketik pengguna di kotak Cari. `pertanyaan` tetap kalimat wajar untuk manusia, dan dipakai lagi di eval Jawab (S18).
+   - `lokasi_benar` = node daftar isi (beserta turunannya) atau rentang halaman cetak dalam satu jilid. Rentang dipakai karena daftar isi Shamela untuk Rub' Adat dan Muhlikat hanya sampai tingkat kitab.
+   - Setiap lokasi membawa `label` ("j2 h56–59") yang dicek runner terhadap DB, sehingga salah ID gagal keras.
+2. **Draf 31 soal** (agent, 2026-10-17):
+   - Komposisi: 4 rub' (6–10 soal per rub' menurut lokasi pertama; 5 topik tersebar lintas kitab); jenis 19 lokasi, 7 istilah, 5 topik tersebar; 6 kueri Arab, 25 Indonesia.
+   - **Kueri ditulis sebelum pencarian pernah dijalankan**, dengan kata awam (mis. "menggunjing", bukan judul bab).
+   - Lokasi diverifikasi dengan membaca judul Arab, ringkasan, dan terjemahan bab terkait.
+   - Hanya soal ber-`disetujui_oleh` (T-12) yang masuk set resmi.
+3. **Holdout privat:**
+   - 10 soal dipilih sebelum run pertama, mencakup keempat rub', kedua bahasa, dan ketiga jenis. Disimpan git-ignored dan di R2 `surau-evals` (privat, r2.dev mati). Setiap revisi diunggah sebagai berkas baru; kuncinya `PRIVATE_KEY` di `eval.yml`.
+   - Laporan, ringkasan CI, dan pesan galat hanya memuat ID, jenis, dan peringkat soal privat.
+   - **Aturan:** kegagalan soal privat dianalisis per kategori saja; perbaikan dirancang dan diuji dengan soal publik.
+   - **Salinan teks soal privat** ada di tiga tempat: mesin pemilik (`evals/private/`), R2 `surau-evals`, dan halaman tinjauan T-12 (artifact claude.ai privat milik pemilik). Salinan baru hanya dibuat dengan alasan dan dicatat.
+   - **Insiden S15** (keduanya temuan peninjau):
+     - (1) Perbaikan butir 6 dirancang dari kegagalan soal privat p03, dan teks kuerinya masuk ke kode. p03 dipindah ke publik sebagai r03 dan diganti p31 (ditulis sebelum dijalankan).
+     - (2) Catatan sesi menyebut topik soal privat p12 saat menganalisis peringkat. p12 dipindah ke publik sebagai r12, dengan isi dan persetujuan tetap, tanpa pengganti.
+     - Holdout kini 9 soal. S18 menambah soal privat bersama ustadz.
+4. **Runner** `pnpm run eval:retrieval` (`tools/eval`, Node + `getPlatformProxy`):
+   - **Sumber data:** D1 lokal (salinan state, ARSITEKTUR §7 aturan 2), atau `--remote` = staging lewat remote binding (`preview_database_id` = staging, sehingga produksi tidak pernah tersentuh; hanya SELECT).
+   - **Hasil benar:** halaman dalam rentang, atau halaman yang paragraf cocoknya ada di bagian lokasi benar.
+   - **Metrik:** hit@1/5/10 dan MRR atas 50 halaman (`limit` maksimum `searchText`), per jenis, bahasa kueri, dan set. Hasil tanpa peringkat (kata Arab sangat umum) dihitung gagal.
+   - **Laporan** di `evals/reports/` (tanggal, `corpus_version`, commit `-dirty`).
+5. **Gerbang R2:** ≥ 20 soal disetujui **dan** hit@10 ≥ 90% atas set resmi (publik + privat).
+   - `--gate` keluar dengan kode 2 bila belum lolos, dan wajib menyertakan soal privat (kecuali `--publik-saja`). Dipakai `/rilis` atas D1 lokal yang memuat korpus produksi.
+   - CI (`eval.yml`, non-blocking, hanya PR repo sendiri): staging remote, soal privat dari R2, ringkasan di Summary, peringatan dibedakan antara "di bawah gerbang" dan "gagal berjalan".
+6. **Kata pembingkai kueri Indonesia** (`ID_QUERY_FRAMING`, perbaikan murah langkah 5):
+   - **Masalah:** cara, bagaimana, mengapa, di mana, menurut, membahas/menjelaskan, serta "(Imam) al-Ghazali" yang menempel jarang ada di teks jawaban, tetapi dulu diwajibkan (AND).
+   - **Akibatnya:** r03 "cara khusyuk dalam salat" hanya cocok 5 halaman dan bab khusyuk berada di luar 50 teratas.
+   - **Perbaikan:** kata-kata itu dibuang dari kueri saja, dan hanya bila masih ada kata lain. Token berapostrof (ma'na) dikecualikan.
+   - Indeks tidak berubah: `LATIN_NORM_VERSION` tetap 1, korpus tidak perlu dibangun ulang. Kunci cache ikut berubah lewat stem rencana kueri.
+   - **Hasil:** r03 > 50 → 1, r20 2 → 1, dan tidak ada soal lain yang turun. Uji 4 kueri di luar set (mis. bagaimana cara ikhlas, cara berwudu, menurut al-Ghazali tentang riya): bab utama di 3 teratas. Ejaan Al-Ghozali dan Ghazzali ikut dianggap pembingkai.
+
+**Hasil (D1 lokal = staging = produksi `ihya-v5`):** baseline 30 soal hit@1 56,7% · hit@5 90,0% · hit@10 96,7% · MRR 0,732. Setelah butir 6 (31 soal, termasuk r03 dan p31): hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795. Kueri Arab 6/6 di peringkat 1. Satu lokasi benar dilebarkan setelah baseline, berdasarkan bacaan teks (r23: pembuka kitab j3 h231 menyebut harta sebagai fitnah dunia terbesar). Kenaikan r23 dari peringkat 7 ke 3 berasal dari pelebaran itu, bukan dari butir 6. **Set resmi** (T-12: ke-31 soal disetujui pemilik, 2026-10-17; laporan `evals/reports/retrieval-2026-10-17-ihya-v5-resmi.md`): hit@10 100% → **lolos gerbang R2**; set publik 22 soal dan set privat 9 soal sama-sama hit@10 100% (laporan dibuat ulang setelah p12 → r12).
+
+**Ditolak:**
+- Set regex/gold otomatis (riset S11): tidak mewakili relevansi manusia.
+- Ekspor D1 ke artefak CI: FTS5 tidak bisa diekspor, dan ekspor memblokir DB.
+- Menyimpan salinan korpus di R2 untuk CI: teks turunan Shamela di lokasi baru, ditambah token dan biaya tanpa manfaat dibanding staging.
+- Menaikkan ambang OR-susulan (`ANY_TERMS_BELOW`): mengubah peringkat semua kueri pendek, padahal masalahnya kata pembingkai.
+- Glosarium sinonim: tidak ada kegagalan kosakata di set ini, jadi ditunda sampai ada bukti (S18/S16).
+
+**Konsekuensi:** set kecil (31 soal, satu kitab, disusun agent) dan longgar untuk topik tersebar (benar bila satu lokasi muncul; cakupan lokasi dicatat terpisah). Holdout baru bermakna lagi setelah pengganti p31; eval Jawab S18 bersama ustadz menambah soal privat. Laporan baseline dibuat sebelum runner di-commit (commit `92f2ef8` di laporannya = kode pencarian, bukan runner).
+
+**Tinjau ulang bila:** kitab kedua masuk korpus (set per kitab), ustadz menambah/menilai soal (T-13), atau hit@10 set resmi turun di bawah 90%.
+
+## ADR-046 · Embedding/vektor tetap ditunda setelah eval S15 (hit@10 ≥ 90%); S15b tidak dijadwalkan — diterima · 2026-10-17
+
+**Konteks:** ADR-006 menunda Vectorize + Workers AI sampai eval membuktikan perlu. Langkah 6 S15: bila hit@10 < 90% setelah perbaikan murah, rencanakan S15b (embedding `qwen3-embedding-0.6b` vs `bge-m3`, Vectorize 1024 dimensi, RRF).
+
+**Keputusan:** embedding **tetap ditunda**, dan S15b tidak dijadwalkan. Dasarnya, setelah perbaikan murah (ADR-045 butir 6):
+- hit@10 = 100% atas set resmi 31 soal yang disetujui pemilik (publik 22 dan privat 9 sama-sama 100%), hit@5 96,8%, kueri Arab 6/6 di peringkat 1.
+- Tidak ada kegagalan karena kosakata Indonesia ↔ istilah Arab yang butuh kesamaan makna. Kegagalan satu-satunya adalah kata pembingkai, dan itu sudah diperbaiki secara leksikal. Ringkasan AI per bagian sudah menjembatani kueri awam ke bab yang tepat.
+- Biaya dan kompleksitas embedding (indeks Vectorize, pipeline ingest, ±+1 bolak-balik per kueri) tidak sebanding dengan selisih yang bisa diukur di set ini.
+
+**Yang belum terukur (risiko diterima):**
+- Peringkat teratas: hit@1 baru 64,5%.
+- Sinonim yang tidak ada di terjemahan (mis. pelajar ≈ murid).
+- Kueri panjang berbentuk kalimat, yang datang di Jawab (S19).
+- Kitab selain Ihya.
+
+**Tinjau ulang bila:** hit@10 set resmi < 90% pada eval berikutnya; eval Jawab S18 menunjukkan bagian yang benar tidak ditemukan karena kosakata; korpus berisi banyak kitab dengan terjemahan/ringkasan yang tidak seragam; atau pengguna melaporkan kueri bermakna sama yang tidak menemukan bab yang jelas ada.

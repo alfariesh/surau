@@ -37,6 +37,7 @@ export type { FtsColumn, FtsMatchOptions, FtsQueryPlan } from "./fts.ts";
 export { SNIPPET_CHARS, findPlanSpans, snippetSpan } from "./highlight.ts";
 
 export {
+  ID_QUERY_FRAMING,
   ID_STOPWORDS,
   ID_VARIANTS,
   LATIN_MAX_TERMS,

@@ -11,6 +11,7 @@ export { buildCitation } from "./citation.ts";
 export {
   AI_SNIPPET_CHARS,
   SEARCH_MAX_HIGHLIGHTS,
+  SEARCH_RESULT_VERSION,
   searchCacheKey,
   searchText,
   splitQueryScripts,

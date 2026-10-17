@@ -15,6 +15,26 @@ Format entri:
 
 ---
 
+## 2026-10-17 · S15 · Eval retrieval — selesai
+- Dikerjakan:
+  - `tools/eval` + `pnpm run eval:retrieval`: soal JSONL, `searchText` atas D1 lokal (salinan state) atau staging (`--remote`), hit@1/5/10 + MRR, laporan `evals/reports/` tanpa teks soal privat, `--gate` untuk `/rilis`.
+  - 31 soal (22 publik + 9 privat di R2 `surau-evals`), ditulis sebelum pencarian dijalankan dan lokasinya dicek dengan membaca bab; ke-31 disetujui pemilik (T-12) lewat halaman tinjauan + chat.
+  - Perbaikan murah: kata pembingkai pertanyaan (cara, bagaimana, di mana, menurut, "al-Ghazali", …) dibuang dari kueri Indonesia (hanya sisi kueri; indeks tetap).
+  - CI `eval.yml` non-blocking (staging remote + soal privat dari R2); gerbang di `/rilis`; syarat R2 dirinci di FASE.md (Fase 2 **siap rilis**).
+- Verifikasi:
+  - **Angka eval** (D1 lokal `ihya-v5` = staging = produksi):
+    - baseline 30 soal: hit@1 56,7% · hit@5 90,0% · hit@10 96,7% · MRR 0,732;
+    - **resmi 31 soal disetujui:** hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795 (publik 22 dan privat 9 sama-sama 100%; kueri Arab 6/6 di peringkat 1);
+    - `pnpm run eval:retrieval --gate` → kode keluar 0 (lolos).
+  - **Staging:** `--remote` lokal 12 dtk, angka sama; CI PR #36 39 dtk.
+  - **Tes dan peninjau:** `pnpm verify` → lolos (456 + 177 tes).
+    - Peninjau putaran 1: 1 blocker (soal privat p03 terpakai merancang perbaikan → dipindah ke publik r03, diganti p31) + 5 perbaiki + saran, semua ditangani.
+    - Putaran 2: 1 blocker (catatan sesi menyebut topik soal privat p12 → dipindah ke publik r12) + 2 perbaiki (teks gerbang di `/rilis`, urutan syarat R2) + saran (CI memanggil runner langsung, gerbang wajib ≥ 1 soal privat, `-dirty` ikut berkas baru, ejaan Ghozali/Ghazzali, lokasi salinan soal privat dicatat), semua ditangani.
+- Biaya API: – (tanpa LLM)
+- Keputusan: ADR-045 (eval retrieval, holdout, kata pembingkai), ADR-046 (embedding tetap ditunda; S15b tidak dijadwalkan)
+- Pemilik: T-12 "Ya setujui semua" (2026-10-17).
+- Berikutnya: pemilik T-16 + T-17 tahap 2 → `/rilis 2` → S16 (butuh T-07 domain).
+
 ## 2026-10-17 · S14 · Cari bahasa Indonesia + UI Cari — selesai
 - Dikerjakan:
   - Indeks Indonesia `translation_fts` + `summary_fts` (migrasi 0006, skema 6, korpus `ihya-v5`): stem ringan Tala + stopword kecil + ejaan baku, diuji dulu pada kosakata terjemahan Ihya (sabar 173 → 404 paragraf, taubat 11 → 248).

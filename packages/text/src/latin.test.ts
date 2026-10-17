@@ -154,6 +154,37 @@ describe("planLatinQuery / latinMatchExpression", () => {
     });
   });
 
+  test("kata pembingkai pertanyaan dibuang bila ada kata lain (S15, ADR-045)", () => {
+    // Regresi eval S15 (r03): "cara" ikut diwajibkan sehingga bab khusyuk tidak ditemukan.
+    expect(plan("cara khusyuk dalam salat")).toEqual({
+      words: ["khusyuk", "salat"],
+      stems: ["khusyuk", "salat"],
+    });
+    expect(plan("di mana dibahas sabar")).toEqual({ words: ["sabar"], stems: ["sabar"] });
+    // Hanya kata pembingkai → tetap dicari apa adanya.
+    expect(plan("cara")).toEqual({ words: ["cara"], stems: ["cara"] });
+    // Bukan pembingkai: imam (topik imamah), "ma'na" (= makna), turunan "cara" lain.
+    expect(plan("imam salat").stems).toEqual(["imam", "salat"]);
+    expect(plan("ma'na zuhud").stems).toEqual(["mana", "zuhud"]);
+    expect(plan("bercara").stems).toEqual(["cara"]);
+  });
+
+  test('"al-Ghazali" dan "Imam al-Ghazali" seluruhnya pembingkai, "al" lain tetap kata', () => {
+    expect(plan("Bagaimana al-Ghazali menjelaskan sabar?")).toEqual({
+      words: ["sabar"],
+      stems: ["sabar"],
+    });
+    expect(plan("menurut Imam al Ghazali tentang riya").stems).toEqual(["riya"]);
+    expect(plan("imam al–ghazali, sabar").stems).toEqual(["sabar"]);
+    expect(plan("Imam Al-Ghozali tentang ikhlas").stems).toEqual(["ikhlas"]);
+    expect(plan("al-Ghazzali dan riya").stems).toEqual(["riya"]);
+    // Tidak menempel (kata lain di antaranya) → "imam" tetap dicari.
+    expect(plan("imam salat al-Ghazali").stems).toEqual(["imam", "salat"]);
+    // Hanya nama penulis → tetap dicari apa adanya.
+    expect(plan("al-Ghazali").words).toEqual(["al", "ghazali"]);
+    expect(plan("al-Quran").stems).toEqual(["al", "quran"]);
+  });
+
   test("kosong, hanya stopword, atau hanya huruf Arab → null", () => {
     expect(planLatinQuery("")).toBeNull();
     expect(planLatinQuery("yang dan di")).toBeNull();

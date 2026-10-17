@@ -19,6 +19,7 @@
     "corpus:promote": "node tools/ingest/src/promote.ts",
     "corpus:qa": "node tools/ingest/src/qa.ts",
     "llm": "node tools/ingest/src/llm/cli.ts",
+    "eval:retrieval": "node tools/eval/src/retrieval.ts",
     "db:migrate:local": "wrangler d1 migrations apply CORPUS --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc",
     "db:migrate:remote": "wrangler d1 migrations apply APP --remote -c packages/db/wrangler.jsonc",
     "db:migrate:staging": "wrangler d1 migrations apply CORPUS --remote -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc"

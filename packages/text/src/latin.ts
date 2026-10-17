@@ -23,6 +23,7 @@ const WORD = new RegExp(
 );
 const MARKS = /\p{M}/gu;
 const JOINER_CHARS = new RegExp(`[${JOINERS}]`, "g");
+const HAS_JOINER = new RegExp(`[${JOINERS}]`, "u");
 
 // Kata fungsi yang sangat sering dan tidak membawa makna pencarian (dicek pada bentuk normal,
 // SEBELUM stem): preposisi + bentuk berkata gantinya (kepadanya), kata ganti orang, kata sambung,
@@ -125,6 +126,49 @@ export const ID_STOPWORDS: ReadonlySet<string> = new Set([
   ...PRONOUNS,
   ...PRONOUNS.flatMap((p) => [`${p}lah`, `${p}pun`]),
   ...FUNCTION_WORDS,
+]);
+
+/** Nama penulis dalam ejaan yang umum dipakai pengguna (kata pembingkai, lihat di bawah). */
+const AUTHOR_NAMES = ["ghazali", "ghozali", "ghazzali"] as const;
+const AUTHOR_NAME_SET: ReadonlySet<string> = new Set(AUTHOR_NAMES);
+
+/**
+ * Kata pembingkai pertanyaan (S15, ADR-045): membentuk pertanyaan pengguna ("cara …", "bagaimana
+ * …", "di mana al-Ghazali membahas …") tetapi jarang ada di teks jawaban, jadi mewajibkannya (AND)
+ * membuang bagian yang tepat. Temuan eval S15 (soal r03): "cara khusyuk dalam salat" hanya cocok 5
+ * halaman (yang memuat "cara") dan bab khusyuk tidak masuk 50 teratas. HANYA dibuang dari kueri, dan
+ * hanya bila masih ada kata lain; indeks tidak berubah, jadi `LATIN_NORM_VERSION` tetap. Dicek pada
+ * bentuk normal sebelum stem, dan hanya untuk token tanpa apostrof ("ma'na" = makna, bukan "mana").
+ * "al" dan "imam" ikut dibuang hanya bila menempel tepat sebelum nama penulis (ghazali, ghozali,
+ * ghazzali; `planLatinQuery`);
+ * "imam" sendiri tetap dicari (imamah salat adalah topik).
+ */
+export const ID_QUERY_FRAMING: ReadonlySet<string> = new Set([
+  "cara",
+  "caranya",
+  "bagaimana",
+  "bagaimanakah",
+  "mengapa",
+  "kenapa",
+  "dimana",
+  "dimanakah",
+  "mana",
+  "manakah",
+  "bolehkah",
+  "siapa",
+  "siapakah",
+  "kapan",
+  "kapankah",
+  "menurut",
+  "membahas",
+  "dibahas",
+  "pembahasan",
+  "menjelaskan",
+  "dijelaskan",
+  "penjelasan",
+  "menerangkan",
+  "diterangkan",
+  ...AUTHOR_NAMES,
 ]);
 
 /**
@@ -404,17 +448,36 @@ export interface LatinQueryPlan {
 
 /**
  * Rencana kueri Indonesia dari bagian Latin kueri. `null` bila tidak ada kata yang dicari (kosong
- * atau hanya stopword). Lebih dari `LATIN_MAX_TERMS` kata → RangeError.
+ * atau hanya stopword). Kata pembingkai pertanyaan (`ID_QUERY_FRAMING`) dibuang bila ada kata
+ * lain. Lebih dari `LATIN_MAX_TERMS` kata → RangeError.
  */
 export function planLatinQuery(query: string): LatinQueryPlan | null {
-  const words: string[] = [];
-  const stems: string[] = [];
-  for (const t of latinTokens(query)) {
-    const term = latinTerm(t.norm);
-    if (term === null) continue;
-    words.push(t.norm);
-    if (!stems.includes(term)) stems.push(term);
+  const tokens = latinTokens(query);
+  const framing = tokens.map(
+    (t) => ID_QUERY_FRAMING.has(t.norm) && !HAS_JOINER.test(query.slice(t.start, t.end)),
+  );
+  // "al-Ghazali", "Imam al-Ghazali": artikel dan gelar yang menempel (spasi/tanda hubung saja).
+  for (const [i, t] of tokens.entries()) {
+    if (!AUTHOR_NAME_SET.has(t.norm) || framing[i] !== true) continue;
+    for (let j = i; j > 0; j--) {
+      const prev = tokens[j - 1];
+      const cur = tokens[j];
+      if (prev === undefined || cur === undefined) break;
+      if (prev.norm !== "al" && prev.norm !== "imam") break;
+      if (!/^[\s\-\u2010-\u2013]*$/u.test(query.slice(prev.end, cur.start))) break;
+      framing[j - 1] = true;
+    }
   }
+  const found: { norm: string; term: string; framing: boolean }[] = [];
+  for (const [i, t] of tokens.entries()) {
+    const term = latinTerm(t.norm);
+    if (term !== null) found.push({ norm: t.norm, term, framing: framing[i] === true });
+  }
+  // Kata pembingkai dibuang hanya bila masih ada kata lain ("cara" saja tetap dicari).
+  const kept = found.some((f) => !f.framing) ? found.filter((f) => !f.framing) : found;
+  const words = kept.map((f) => f.norm);
+  const stems: string[] = [];
+  for (const f of kept) if (!stems.includes(f.term)) stems.push(f.term);
   if (stems.length === 0) return null;
   if (words.length > LATIN_MAX_TERMS) {
     throw new RangeError(`kueri terlalu panjang: ${words.length} kata (maks ${LATIN_MAX_TERMS})`);
