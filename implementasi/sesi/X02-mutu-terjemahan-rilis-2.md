@@ -30,7 +30,7 @@ Penilaian T-17 tahap 2 atas 20 sampel batch: Benar 70% (target ≥ 80%), Salah 1
 - [x] Lapisan koreksi tinjauan + prompt v3 + pengenal ayat lintas paragraf teruji (`pnpm verify` lolos; tes di `batch.test.ts`, `matcher.test.ts`, `translate.test.ts`)
 - [x] QS 54:55 di p18256–p18257 tertaut ke ayat dan tidak diterjemahkan AI (dua rujukan sebagian; terjemahan v3 berisi `⟦QS 54:55⟧`)
 - [x] Semua paragraf di daftar koreksi punya terjemahan baru (prompt v3) atau sengaja tanpa terjemahan; biaya ≤ $1 di atas biaya S13 (27/27 v3, biaya $0,25)
-- [ ] `ihya-v6` di produksi, `corpus:qa` 30/30, eval retrieval set resmi hit@10 ≥ 90% (DB produksi dibuat, QA 30/30, eval 100%; dicentang setelah deploy terbukti melayani terjemahan v3)
+- [x] `ihya-v6` di produksi, `corpus:qa` 30/30, eval retrieval set resmi hit@10 ≥ 90% (PR #37 di-merge 2026-10-17 11:43Z, deploy `0a78a24` sukses; `curl` produksi: j1 h210 "delapan ratus mann" ×6 dan "(rithl)" ×0, j2 h243 "lengan bajumu", j4 h335 rujukan QS 54:55, kaki halaman "yang dikenali sistem"; `/api/search` 200; QA 30/30; eval 100%)
 - [x] 20 sampel T-17 dinilai ulang (skor lama dan baru dicatat di LOG): 70% → 20/20 Benar (penilai agent X02, bias)
 - [x] STATUS, LOG, KEPUTUSAN (ADR-047), TUGAS-PEMILIK, dan file sesi ini diperbarui
 
