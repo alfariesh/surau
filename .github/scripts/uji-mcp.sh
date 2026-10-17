@@ -18,6 +18,7 @@ INSPECTOR="${INSPECTOR:-@modelcontextprotocol/inspector@2.11.0}"
 MAX_COBA="${MAX_COBA:-12}"
 JEDA="${JEDA:-5}"
 TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
 # Isolasi penyimpanan token Inspector (server ini tanpa auth; jangan menyentuh ~/.mcp-inspector).
 export MCP_STORAGE_DIR="$TMP/store" MCP_INSPECTOR_OAUTH_STATE_PATH="$TMP/oauth.json"
 
@@ -97,7 +98,8 @@ done
 
 # Origin asing → 403 (spec: server MUST memvalidasi Origin).
 kode=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$URL" -H 'Origin: https://evil.example' \
-  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{}')
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{}') ||
+  gagal "curl ke $URL gagal (Origin asing)"
 [ "$kode" = "403" ] || gagal "Origin asing → $kode, seharusnya 403"
 echo "  ✓ Origin asing → 403"
 echo "Uji MCP ($MODE) lolos: $URL"

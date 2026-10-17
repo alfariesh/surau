@@ -152,6 +152,22 @@ describe.each(ERAS)("era %s", (era) => {
   });
 });
 
+describe("lisensi sumber ayat (ADR-040)", () => {
+  test("read_page halaman berayat: blok license memuat lisensi + atribusi teks ayat dan terjemahan", async () => {
+    const client = await connect("modern");
+    const out = await ok(client, "read_page", { edition_id: ED, juz: 1, page_no: 2 });
+    const license = z
+      .object({ name: z.string(), url: z.string(), attribution: z.string() })
+      .parse(out.license);
+    expect(license.name).toContain("CC BY-NC-SA 4.0");
+    expect(license.name).toContain("CC BY 3.0");
+    expect(license.url).toBe(`${SITE}/lisensi`);
+    expect(license.attribution).toContain("Atribusi teks uji");
+    expect(license.attribution).toContain("Atribusi terjemahan uji");
+    await client.close();
+  });
+});
+
 describe("teks Arab = substring DB (kode menyalin, model menunjuk)", () => {
   test("read_page, read_section, get_hadith_takhrij: text_raw persis dari DB", async () => {
     const client = await connect("modern");

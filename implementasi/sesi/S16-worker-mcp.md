@@ -17,7 +17,7 @@ Server MCP read-only yang stateless di `mcp.surau.org/mcp` menyajikan core tools
 
 ## Fakta docs (dicek 2026-10-17, `/docs-terbaru`)
 
-- `@modelcontextprotocol/server` **2.3.1** + `@modelcontextprotocol/client` 2.3.1 (tes). Minimal 2.3.0: advisory GHSA-jm63 (instance bersama bocor antarklien), GHSA-46jr, GHSA-f897. Zod ^4.2 (catalog 4.6.7). Di workerd validator `@cfworker/json-schema`, tanpa `nodejs_compat`.
+- `@modelcontextprotocol/server` **2.3.1** + `@modelcontextprotocol/client` 2.3.1 (tes). Minimal 2.3.0: advisory server GHSA-jm63 (instance bersama bocor antarklien), GHSA-46jr, GHSA-rvq5, GHSA-f897 (< 2.1.0); client GHSA-6prh, GHSA-6qxp. Zod ^4.2 (catalog 4.6.7). Di workerd validator `@cfworker/json-schema`, tanpa `nodejs_compat`.
 - `createMcpHandler(factory, { legacy: 'stateless', maxRequestBodySize, maxSubscriptions, … })` → `{ fetch }`; factory dipanggil sekali per request (jangan berbagi `McpServer`). `instructions` dan `cacheHints` (`{ 'tools/list': { ttlMs, cacheScope: 'public' }, 'server/discover': … }`) adalah opsi **`new McpServer(info, opts)`**, bukan handler. `originValidationResponse(req, hostnames)` berdiri sendiri: Origin asing/`null` → 403, tanpa Origin → lolos.
 - `registerTool(name, { title, description, inputSchema: z.object, outputSchema: z.object, annotations }, cb(args, ctx))`; `ctx.http?.req` = `Request` asli (header `cf-connecting-ip`). Semua `throw` di handler menjadi `isError: true` dengan pesan error apa adanya, jadi pesan tidak boleh memuat detail internal.
 - Era modern (spec **2026-07-28**): tanpa `initialize`/sesi; header `MCP-Protocol-Version`, `Mcp-Method`, `Mcp-Name`; `server/discover` wajib. Legacy (2025-11-25): `initialize`, POST dengan `Accept: application/json, text/event-stream`.

@@ -24,6 +24,7 @@ import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resource
 import { samplePages } from "../qa-sample.ts";
 import type { LlmContext } from "./cli.ts";
 import { mapPool } from "./pool.ts";
+import { SITE } from "./report.ts";
 import { kemenagLookup, reviewHtml } from "./review.ts";
 import type { ReviewItem } from "./review.ts";
 import { llmDir, writeJsonl, writeText } from "./store.ts";
@@ -195,7 +196,7 @@ export async function runSample(ctx: LlmContext): Promise<number> {
     `${passages.length} paragraf acak Ihya (${SAMPLE_PASSAGES.withAyah} berisi ayat) dan ${sections.length} ringkasan bagian, dibuat Claude Haiku 5.5 lewat API biasa. Kotak hijau = terjemahan ayat Kemenag yang disisipkan sistem (bukan buatan AI). Beri nilai tiap nomor: <b>Benar</b>, <b>Kurang</b> (makna benar tapi ada yang janggal/hilang), atau <b>Salah</b> (makna keliru), dengan catatan singkat.`,
     items,
     kemenagLookup(rows.quran_translation),
-    "https://surau-web.alfarieshsalman.workers.dev",
+    SITE,
   );
   const reviewPath = join(dir, `review-${TRANSLATE_PROMPT.id.replace("@", "-v")}.html`);
   writeText(reviewPath, html);

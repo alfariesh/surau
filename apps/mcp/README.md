@@ -10,12 +10,12 @@ Worker MCP publik Surau (S16, [ADR-011](../../implementasi/KEPUTUSAN.md), ADR-04
 | Tool | Core | Isi | Ukuran (token Claude, [laporan](../../data/reports/mcp-token.md)) |
 |---|---|---|---|
 | `list_works` | `listWorks` | Karya + edisi, lisensi, atribusi | ±0,6 ribu |
-| `get_table_of_contents` | `getToc` | Pohon daftar isi; dari akar maks. 2 tingkat, dari `node_id` maks. 3 | ±7,7 ribu (akar) |
-| `read_page` | `readPage` | Halaman cetak: badan + catatan kaki verbatim, ayat (Tanzil + Kemenag), terjemahan AI berlabel, ringkasan AI | median ±10,6 ribu, maks. ±14 ribu |
-| `read_section` | `readSection` | Bagian + sub-bagian per potongan, `next_cursor` | median ±5 ribu, maks. ±6,1 ribu |
-| `search_text` | `searchText` | Arab/Indonesia; ≤10 halaman (bawaan 5), ≤3 paragraf terbaik per halaman, tanpa field sorotan (ADR-049) | limit 5: median ±7,3 ribu |
-| `verify_quote` | `verifyQuote` | Kutipan ada di paragraf? `match.text` = teks sumber persis | <1 ribu |
-| `get_hadith_takhrij` | `getHadithTakhrij` | Catatan kaki takhrij tertaut; tanpa takhrij = status tidak diketahui | ±1–2 ribu |
+| `get_table_of_contents` | `getToc` | Pohon daftar isi; dari akar maks. 2 tingkat, dari `node_id` maks. 3 | ±7,8 ribu (akar), ±10 ribu (satu rub' kedalaman 3) |
+| `read_page` | `readPage` | Halaman cetak: badan + catatan kaki verbatim, ayat (Tanzil + Kemenag, lisensi sendiri ikut blok `license`), terjemahan AI berlabel, ringkasan AI | median ±11,1 ribu, maks. ±14,8 ribu |
+| `read_section` | `readSection` | Bagian + sub-bagian per potongan, `next_cursor` | median ±5 ribu, maks. ±6,2 ribu |
+| `search_text` | `searchText` | Arab/Indonesia; ≤5 halaman (lanjut lewat `offset`), ≤3 paragraf terbaik per halaman, tanpa field sorotan (ADR-049) | median ±7,3 ribu, maks. ±10,9 ribu |
+| `verify_quote` | `verifyQuote` | Kutipan ada di paragraf? `match.text` = teks sumber persis | ±0,75 ribu |
+| `get_hadith_takhrij` | `getHadithTakhrij` | Catatan kaki takhrij tertaut; tanpa takhrij = status tidak diketahui | median ±0,9 ribu, maks. ±2,3 ribu |
 
 Semua tool: nama ASCII snake_case (ADR-012), deskripsi Inggris + ringkasan Indonesia setelah ` · `, anotasi `readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`, `openWorldHint: false`, `outputSchema` berakar objek (skema Zod core + `license`), `structuredContent` + salinan JSON di `content`. Error core menjadi hasil `isError` dengan teks `<code>: <pesan>` (mis. `not_found: Page not found: juz 9, page 1`); error lain `internal_error` tanpa detail. Instruksi server: [`src/instructions.ts`](src/instructions.ts).
 
@@ -26,17 +26,17 @@ Semua tool: nama ASCII snake_case (ADR-012), deskripsi Inggris + ringkasan Indon
 | Path | Hanya `/mcp` (dan `GET /` = info JSON); lainnya 404 |
 | Origin | `originValidationResponse`: `surau.org`, `www.surau.org`, `mcp.surau.org`, localhost; Origin lain atau `null` → 403; tanpa Origin (klien server-ke-server) → lolos |
 | Body | `maxRequestBodySize` 64 KiB → 413; `maxSubscriptions` 16 per isolate |
-| Batas per tool | Rate Limiting binding, kunci `HMAC(IP_HMAC_KEY, jaringan IP):tool`: tool baca 300/menit (`MCP_TOOL_LIMITER`), `search_text` 60/menit (`MCP_SEARCH_LIMITER`) + 600/menit global (`MCP_SEARCH_GLOBAL_LIMITER`, D1 dipakai bersama web). Habis → hasil `isError` `rate_limited`. Tanpa secret `IP_HMAC_KEY` → `unavailable` (gagal tertutup) |
+| Batas per tool | Rate Limiting binding, kunci `HMAC(IP_HMAC_KEY, jaringan IP):tool`: tool baca 120/menit per klien (`MCP_TOOL_LIMITER`) + 600/menit global (`MCP_READ_GLOBAL_LIMITER`; daftar isi dan `read_section` membaca ±1.000 baris per panggilan), `search_text` 60/menit per klien (`MCP_SEARCH_LIMITER`) + 600/menit global (`MCP_SEARCH_GLOBAL_LIMITER`, D1 dipakai bersama web). Habis → hasil `isError` `rate_limited`. Tanpa secret `IP_HMAC_KEY` → `unavailable` (gagal tertutup) |
 | Pagar luar | Satu aturan WAF rate limiting per IP untuk path `/mcp` (T-19, dashboard) |
 | Cache | `cacheHints` publik 1 jam untuk `tools/list` dan `server/discover` (era modern) |
 
-Batas longgar karena semua pengguna claude.ai datang dari IP Anthropic (ADR-011). `namespace_id`: produksi 3001–3003, Preview 4001–4003 (web memakai 1001–1004 / 2001–2004).
+Batas longgar karena semua pengguna claude.ai datang dari IP Anthropic (ADR-011). `namespace_id`: produksi 3001–3004, Preview 4001–4004 (web memakai 1001–1004 / 2001–2004).
 
 ## Perintah (dari root repo)
 
 - `pnpm --filter @surau/mcp dev` → http://localhost:3006/mcp (D1 lokal di `.wrangler/state`, sama dengan web; butuh `apps/mcp/.dev.vars` berisi `IP_HMAC_KEY=<nilai uji>`, git-ignored). Jangan jalankan bersamaan dengan proses lain yang menulis D1 lokal.
 - `bash .github/scripts/uji-mcp.sh http://localhost:3006/mcp` → MCP Inspector 2.11.0 CLI, era modern + legacy, ketujuh tool + kasus error + Origin 403 (sama dengan CI Preview).
-- `pnpm exec vp test --project mcp` → tes workerd (Client v2 in-process, kedua era, fixture buatan core).
+- `pnpm exec vp test --project mcp` → tes workerd: `src/index.test.ts` (Client v2 in-process, kedua era, fixture buatan core) dan tes unit `envelope`, `guard`, `tools`.
 - `pnpm --filter @surau/mcp build` → `wrangler deploy --dry-run` ke `dist/` (bundel diperiksa tanpa deploy).
 - `pnpm llm mcp-tokens [--url …] [--n 25]` → ukur token hasil tool dengan `count_tokens` (gratis) → `data/reports/mcp-token.md`.
 - `pnpm --filter @surau/mcp run cf-typegen` → `worker-configuration.d.ts` setelah mengubah `wrangler.jsonc`.

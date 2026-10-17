@@ -138,12 +138,28 @@ export async function runMcpTokens(ctx: LlmContext, url: string, n: number): Pro
   });
 
   const pageStarts = sections.map((id) => byId.get(id)?.start).filter((s) => s !== undefined);
+  const pageBody = z.object({
+    body: z.array(z.object({ id: z.number(), text_raw: z.string() })),
+  });
+  const passageTools: Measure[] = [];
   const pages = await mapPool(pageStarts, 4, async (s) => {
     const out = await callTool(url, "read_page", { edition_id: 1, juz: s.juz, page_no: s.page_no });
+    // Paragraf badan pertama halaman: takhrij-nya, dan verifikasi tiga kata pertamanya.
+    const [first] = pageBody.parse(out.structured).body;
+    if (first !== undefined) {
+      const quote = first.text_raw.split(/\s+/).slice(0, 3).join(" ");
+      for (const [tool, args] of [
+        ["get_hadith_takhrij", { passage_id: first.id }],
+        ["verify_quote", { passage_id: first.id, quote }],
+      ] as const) {
+        const r = await callTool(url, tool, args);
+        passageTools.push({ tool, chars: r.text.length, tokens: await tokensOf(r.text) });
+      }
+    }
     return { tool: "read_page", chars: out.text.length, tokens: await tokensOf(out.text) };
   });
   const searches: Measure[] = [];
-  for (const limit of [5, 10]) {
+  for (const limit of [3, 5]) {
     for (const query of SEARCH_QUERIES) {
       const out = await callTool(url, "search_text", { query, limit });
       searches.push({
@@ -176,7 +192,7 @@ export async function runMcpTokens(ctx: LlmContext, url: string, n: number): Pro
       0.95,
     )} | ${Math.max(...ms.map((m) => m.tokens))} | ${Math.max(...ms.map((m) => m.chars))} |`;
   const groups = new Map<string, Measure[]>();
-  for (const m of [...sectionMeasures, ...pages, ...searches, ...others]) {
+  for (const m of [...sectionMeasures, ...pages, ...passageTools, ...searches, ...others]) {
     groups.set(m.tool, [...(groups.get(m.tool) ?? []), m]);
   }
   const charsPerToken = sectionMeasures.map((m) => m.passageChars / m.passageTokens);

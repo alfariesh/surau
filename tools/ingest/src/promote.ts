@@ -61,8 +61,11 @@ function switchProduction(next: CorpusBinding): CorpusBinding {
       `${MCP_CONFIG} menunjuk ${mcpPrevious.name}, bukan ${previous.name} seperti ${WEB_CONFIG}: samakan dulu`,
     );
   }
-  writeFileSync(webPath, setProductionCorpus(web, next));
-  writeFileSync(mcpPath, setProductionCorpus(mcp, next, { searchCache: false }));
+  // Keduanya dihitung dulu: bila salah satu config salah bentuk, tidak ada yang ditulis.
+  const webNext = setProductionCorpus(web, next);
+  const mcpNext = setProductionCorpus(mcp, next, { searchCache: false });
+  writeFileSync(webPath, webNext);
+  writeFileSync(mcpPath, mcpNext);
   return previous;
 }
 

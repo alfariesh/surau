@@ -41,7 +41,15 @@
       // get_hadith_takhrij): per klien per tool.
       "name": "MCP_TOOL_LIMITER",
       "namespace_id": "3001",
-      "simple": { "limit": 300, "period": 60 },
+      "simple": { "limit": 120, "period": 60 },
+    },
+    {
+      // Tool baca semua klien (kunci tetap): plafon baca D1. get_table_of_contents dan read_section
+      // membaca seluruh daftar isi (±1.000 baris) per panggilan: 600/menit ≈ 600 ribu baris/menit
+      // per lokasi pada beban maksimum (ADR-049).
+      "name": "MCP_READ_GLOBAL_LIMITER",
+      "namespace_id": "3004",
+      "simple": { "limit": 600, "period": 60 },
     },
     {
       // search_text per klien: kueri FTS paling mahal di D1.
@@ -82,7 +90,12 @@
       {
         "name": "MCP_TOOL_LIMITER",
         "namespace_id": "4001",
-        "simple": { "limit": 300, "period": 60 },
+        "simple": { "limit": 120, "period": 60 },
+      },
+      {
+        "name": "MCP_READ_GLOBAL_LIMITER",
+        "namespace_id": "4004",
+        "simple": { "limit": 600, "period": 60 },
       },
       {
         "name": "MCP_SEARCH_LIMITER",

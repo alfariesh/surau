@@ -67,7 +67,9 @@ export const location = z
     page_no: pageNo,
     permalink: z
       .string()
-      .describe("Public permalink path (no origin), e.g. /kitab/ihya/1/200#p2824"),
+      .describe(
+        "Public permalink of the page or passage, e.g. https://surau.org/kitab/ihya/1/200#p2824 (a path without origin inside @surau/core)",
+      ),
     label: z.string().describe("Short citation label, e.g. \"Ihya' 'Ulum ad-Din, j. 1, h. 200\""),
   })
   .describe("Printed location of a page or passage");
@@ -85,7 +87,11 @@ export const tocNodeRef = z.strictObject({
   id: id.describe("Stable table-of-contents node id"),
   title_ar: z.string(),
   level: id,
-  permalink: z.string().describe("Section permalink path, e.g. /kitab/ihya/bab/100074"),
+  permalink: z
+    .string()
+    .describe(
+      "Section permalink, e.g. https://surau.org/kitab/ihya/bab/100074 (a path without origin inside @surau/core)",
+    ),
 });
 export type TocNodeRef = z.infer<typeof tocNodeRef>;
 

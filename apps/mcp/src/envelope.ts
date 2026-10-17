@@ -24,11 +24,12 @@ export const licenseBlock = z
 export type LicenseBlock = z.infer<typeof licenseBlock>;
 
 export const LICENSE_NOTICE =
-  "Non-commercial use only; share adaptations under the same license; credit the work, edition, volume and page, and Surau. AI translations and summaries are labelled and may contain errors.";
+  "Non-commercial use only; share adaptations under the same license; credit the work, edition, volume and page, and Surau. Quran text (Tanzil) and the Kemenag translation are reproduced verbatim under their own licenses (listed above; see quran.sources) and must not be altered. AI translations and summaries are labelled and may contain errors.";
 
 /**
- * Blok lisensi untuk satu hasil: `sources` = pasangan (lisensi, atribusi) edisi yang muncul di
- * hasil itu. Hasil tanpa edisi (mis. pencarian kosong) tetap membawa lisensi konten Surau.
+ * Blok lisensi untuk satu hasil: `sources` = pasangan (lisensi, atribusi) setiap sumber yang muncul
+ * di hasil itu: edisi kitab, dan di read_page juga teks ayat Tanzil + terjemahan Kemenag (ADR-040).
+ * Hasil tanpa sumber (mis. pencarian kosong) tetap membawa lisensi konten Surau.
  */
 export function licenseFor(
   siteUrl: string,

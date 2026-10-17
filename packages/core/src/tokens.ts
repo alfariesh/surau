@@ -2,12 +2,13 @@
 // hasil; MCP sebaiknya ≤10 ribu token per hasil, §8).
 //
 // Heuristik: 1 token ≈ 1,4 karakter (unit UTF-16) dari JSON keluaran. Dikalibrasi di S16 (ADR-033,
-// ADR-049) dengan `count_tokens` Claude atas 81 potongan `read_section` Ihya lewat MCP
-// (data/reports/mcp-token.md): JSON `passages` median 1,63 karakter/token, p5 1,5, minimum 1,38.
-// Angka 1,4 dipilih dekat minimum supaya perkiraan hampir selalu ≥ token sebenarnya. Batas atas
-// 5.000 token untuk `passages` menyisakan ±1.000 token untuk citation, node, ancestors, dan blok
-// lisensi MCP, sehingga seluruh hasil tool ≤ ±6 ribu token. (Sebelum S16: 2 karakter/token, belum
-// dikalibrasi; potongan sebenarnya 7,7 ribu token median.)
+// ADR-049) dengan `count_tokens` Claude atas potongan `read_section` Ihya lewat MCP. Sebelum: 81
+// potongan dengan heuristik lama (2 karakter/token) median 7.690 token sebenarnya; JSON `passages`
+// median 1,63 karakter/token, p5 1,5, min. 1,38, jadi 1,4 dipilih dekat minimum itu. Sesudah (84
+// potongan, data/reports/mcp-token.md): seluruh hasil tool median 5.037, maks. 6.193 token; token
+// `passages` / perkiraan median 0,88, maks. 1,11 (teks Arab terpadat ±11% di atas perkiraan).
+// Batas atas 5.000 token untuk `passages` menyisakan ±1.000 token untuk citation, node, ancestors,
+// dan blok lisensi MCP, sehingga seluruh hasil tool ≤ ±6 ribu token.
 
 /** Karakter JSON per token (dikalibrasi S16 dengan `count_tokens` Claude, konservatif). */
 export const CHARS_PER_TOKEN = 1.4;

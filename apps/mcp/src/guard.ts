@@ -1,6 +1,8 @@
 // Batas pemakaian per tool (S16 langkah 6, ADR-011, ADR-014): Rate Limiting binding dengan kunci
-// `HMAC(jaringan IP):tool`, bukan IP mentah. search_text juga dibatasi global, karena D1 korpus
-// dipakai bersama web. Batas habis = hasil tool `isError` (model melihat pesannya), bukan HTTP 429.
+// `HMAC(jaringan IP):tool`, bukan IP mentah, lalu batas global (kunci tetap) yang terpisah untuk
+// search_text dan untuk tool baca lain: D1 korpus dipakai bersama web, dan daftar isi + read_section
+// membaca seluruh pohon daftar isi (±1.000 baris) di setiap panggilan. Batas habis = hasil tool
+// `isError` (model melihat pesannya), bukan HTTP 429.
 import { ipKey, ipNetwork } from "@surau/core";
 
 export interface Limiter {
@@ -9,6 +11,7 @@ export interface Limiter {
 
 export interface GuardEnv {
   MCP_TOOL_LIMITER: Limiter;
+  MCP_READ_GLOBAL_LIMITER: Limiter;
   MCP_SEARCH_LIMITER: Limiter;
   MCP_SEARCH_GLOBAL_LIMITER: Limiter;
   /** Secret Worker; tanpa ini setiap tool menjawab `unavailable` (gagal tertutup). */
@@ -36,5 +39,8 @@ export async function guardTool(
     }
     return "ok";
   }
-  return (await env.MCP_TOOL_LIMITER.limit({ key })).success ? "ok" : "rate_limited";
+  if (!(await env.MCP_TOOL_LIMITER.limit({ key })).success) return "rate_limited";
+  return (await env.MCP_READ_GLOBAL_LIMITER.limit({ key: "global" })).success
+    ? "ok"
+    : "rate_limited";
 }

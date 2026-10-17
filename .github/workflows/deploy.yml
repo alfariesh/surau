@@ -109,5 +109,9 @@ jobs:
         run: pnpm --filter @surau/mcp run deploy:mcp
 
       # Inspector di kedua era: tools/list + list_works (data produksi tidak diuji penuh di sini).
+      # Deploy pertama menerbitkan sertifikat custom domain: coba ulang sampai ±5 menit.
       - name: Smoke MCP produksi
+        env:
+          MAX_COBA: "30"
+          JEDA: "10"
         run: bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp daftar

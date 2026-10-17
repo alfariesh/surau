@@ -155,8 +155,16 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 3: MCP
 
-- [ ] **T-19 · Aturan WAF untuk MCP** (dibutuhkan S16; agent memandu)
-  Satu aturan rate limiting di dashboard Cloudflare (**Security → WAF → Rate limiting rules**) untuk `mcp.<domain>`, sebagai pagar luar.
+- [ ] **T-19 · Aturan WAF untuk MCP** (dibutuhkan S16; agent memandu) · siap dikerjakan sejak 2026-10-17
+  Satu aturan rate limiting sebagai pagar luar untuk alamat MCP. Worker sudah punya batas sendiri per tool (ADR-049); aturan ini menahan banjir permintaan sebelum sampai ke Worker. Plan Free hanya boleh **satu** aturan dan hanya bisa memfilter path (bukan subdomain), jadi aturan berlaku untuk path `/mcp` di seluruh `surau.org` (situs web tidak memakai path itu). Sekitar 3 menit:
+  1. Buka https://dash.cloudflare.com → pilih domain **surau.org**.
+  2. Menu kiri **Security** → **Security rules** (di sebagian akun: **WAF**) → tombol **Create rule** → pilih **Rate limiting rules**.
+  3. **Rule name:** `MCP per IP`.
+  4. **If incoming requests match…:** Field **URI Path**, Operator **equals**, Value `/mcp`.
+  5. **With the same characteristics:** biarkan **IP**.
+  6. **When rate exceeds:** Requests `200`, Period `10 seconds`.
+  7. **Then take action:** **Block**, Duration `10 seconds`.
+  8. Klik **Deploy**. Beri tahu agent "T-19 selesai"; agent mengecek bahwa `https://mcp.surau.org/mcp` tetap menjawab.
 
 - [ ] **T-18 · Uji Surau dari Claude.ai** (dibutuhkan S17)
   Di claude.ai → **Settings → Connectors → Add custom connector**, isi URL `https://mcp.<domain>/mcp`, lalu pilih *No sign in*. Coba 3 pertanyaan contoh dari agent, lalu laporkan hasilnya.

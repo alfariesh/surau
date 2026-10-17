@@ -24,6 +24,7 @@ export default defineConfig({
             namespace_id: "9001",
             simple: { limit: TEST_TOOL_LIMIT, period: 60 },
           },
+          MCP_READ_GLOBAL_LIMITER: { namespace_id: "9004", simple: { limit: 1000, period: 60 } },
           MCP_SEARCH_LIMITER: {
             namespace_id: "9002",
             simple: { limit: TEST_SEARCH_LIMIT, period: 60 },
