@@ -89,7 +89,10 @@ export async function runReport(ctx: LlmContext): Promise<number> {
   const sonnet = [...acc.translations.values(), ...acc.final.values()].filter((a) =>
     a.model.startsWith("claude-sonnet"),
   ).length;
-  const arabicWarn = [...acc.translations.values()].filter((t) => t.arabic_warning).length;
+  const markersMissing = [...acc.translations.values()].filter(
+    (t) => t.markers_missing.length > 0,
+  ).length;
+  const refusals = acc.failures.filter((f) => f.reason === "refusal").length;
 
   // Sampel QA T-17 tahap 2: 20 terjemahan acak (seed tetap) dari hasil batch.
   const pool = tOk.filter((u) => acc.translations.get(u.passageId)?.batch_id !== null);
@@ -119,7 +122,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     `| Ringkasan final bahasa Inggris | ${num(finalOk("en"))} | ${num(nodes)} | ${pct(finalOk("en"), nodes)} |`,
     `| Ringkasan putaran 1 (potongan, 2 bahasa) | ${num(acc.r1.size)} | ${num(work.chunks.length * 2)} | ${pct(acc.r1.size, work.chunks.length * 2)} |`,
     "",
-    `Diulang dengan Sonnet 5.5 (refusal Haiku): ${num(sonnet)}. Terjemahan dengan huruf Arab pendek (≤2 kata, diterima): ${num(arabicWarn)}. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): ${num(work.blocked.length)}.`,
+    `Dibuat Claude Sonnet 5.5 (percobaan terakhir sesudah dua kali gagal, atau refusal Haiku): ${num(sonnet)}. Penolakan model (refusal): ${num(refusals)}. Terjemahan tanpa penanda catatan kaki (diterima, dicatat; takhrij tetap tertaut di teks Arab): ${num(markersMissing)}. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): ${num(work.blocked.length)}.`,
     "",
     `## Belum lolos (${num(stuck.size)})`,
     "",
@@ -198,6 +201,36 @@ export async function runReport(ctx: LlmContext): Promise<number> {
       problems: [],
       note: u.masked.slots.length > 0 ? `${u.masked.slots.length} kutipan ayat` : "",
     };
+  });
+  // Contoh ringkasan (tidak dinilai skor T-17): rub' pertama (putaran 2, dari ±150 ringkasan) dan
+  // empat simpul acak (seed tetap).
+  const roots = rows.toc_node.filter((n) => n.parent_id === null).toSorted((a, b) => a.ord - b.ord);
+  const others = work.nodes.filter((n) => !roots.some((r) => r.id === n.tocNodeId));
+  const pickNodes = new Set(
+    samplePages(
+      others.map((n) => n.tocNodeId),
+      4,
+      QA_SEED,
+    ),
+  );
+  const shown = [
+    ...work.nodes.filter((n) => n.tocNodeId === roots[1]?.id),
+    ...others.filter((n) => pickNodes.has(n.tocNodeId)),
+  ];
+  shown.forEach((n, i) => {
+    const sid = acc.final.get(`${n.tocNodeId}-id`);
+    const sen = acc.final.get(`${n.tocNodeId}-en`);
+    items.push({
+      kind: "summary",
+      no: sample.length + i + 1,
+      tocNodeId: n.tocNodeId,
+      permalink: link.section(n.tocNodeId),
+      heading: n.heading,
+      chars: n.subtree.reduce((a, c) => a + c.text.length, 0),
+      id: sid?.text ?? "",
+      en: sen?.text ?? "",
+      problems: [],
+    });
   });
   if (items.length > 0) {
     writeText(
