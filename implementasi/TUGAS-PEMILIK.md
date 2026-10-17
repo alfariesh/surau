@@ -167,7 +167,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   8. Klik **Deploy**. Beri tahu agent "T-19 selesai"; agent mengecek bahwa `https://mcp.surau.org/mcp` tetap menjawab.
 
 - [x] **T-18 · Uji Surau dari Claude.ai** (S17) · **selesai 2026-10-17:** pemilik mengonfirmasi “Berhasil, hasil dan tautan muncul” untuk permintaan mencari adab murid kepada guru, membaca salah satu hasil, dan menyertakan tautan. Transkrip tidak diperiksa langsung agent; [bukti dan batas uji](../docs/mcp-operasional.md).
-  Panduan [surau.org/mcp](https://surau.org/mcp): **Customize → Connectors → + Add → Add custom connector** (tampilan lain: Settings → Connectors), nama Surau, URL `https://mcp.surau.org/mcp`, autentikasi *No sign in*. Dua contoh lanjutan (baca j.1 h.200 dan verifikasi kutipan/takhrij) tersedia di panduan; tinjauan panduan pemilik dicatat terpisah di S17.
+  Panduan [surau.org/mcp](https://surau.org/mcp): **Customize → Connectors → + Add → Add custom connector** (tampilan lain: Settings → Connectors), nama Surau, URL `https://mcp.surau.org/mcp`, autentikasi *No sign in*. Dua contoh lanjutan (baca j.1 h.200 dan verifikasi kutipan/takhrij) tersedia di panduan; pemilik juga mengonfirmasi “Panduan jelas; contoh lanjutan juga berhasil” di S17 (2026-10-17).
 
 ## Fase 4: Jawab
 

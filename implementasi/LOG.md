@@ -15,7 +15,7 @@ Format entri:
 
 ---
 
-## 2026-10-17 · S17 · Dokumentasi dan uji klien MCP — sebagian (menunggu tinjauan panduan pemilik)
+## 2026-10-17 · S17 · Dokumentasi dan uji klien MCP — selesai
 - Dikerjakan:
   - Panduan `/mcp` berbahasa Indonesia (Claude.ai/Desktop/Code, ChatGPT, klien lain), tiga contoh, alur cari → baca → verifikasi → sitasi, keterbatasan AI pengguna, takhrij/lisensi, bantuan; navigasi/sitemap/README dan smoke deploy diperbarui. Preview: https://pr-43.surau.org/mcp (PR #43); setelah merge/deploy, tautan tinjauan berpindah ke https://surau.org/mcp.
   - Uji nyata: Claude Code 2.1.299 + Haiku memanggil `search_text` lalu `read_page` edisi 1 j.1 h.48, hasil diperiksa langsung (sitasi, permalink, lisensi/atribusi); Claude.ai T-18 dikonfirmasi pemilik; Cloudflare AI Playground demo GLM-4.7-Flash juga kedua tool Completed. Desktop/ChatGPT hanya docs terbaru, tidak diklaim uji akun. Keterbatasan keluaran klien dicatat di [laporan](../docs/mcp-operasional.md).
@@ -29,7 +29,7 @@ Format entri:
   - Peninjau kode + dokumen: tanpa temuan; cek berkas rahasia/data ter-track kosong. Panduan dibuka di browser Preview; uji font/RTL/a11y ponsel ada di e2e Preview.
 - Biaya API: **US$0,00344562**, diizinkan pemilik ≤ US$0,10; tidak ada panggilan model di server MCP.
 - Keputusan: ADR-050.
-- Catatan untuk sesi berikutnya: tinjauan panduan pemilik S17 masih menunggu (pertanyaan async dengan tautan Preview); semua gerbang teknis R3 terpenuhi. Sesudah S17 lengkap dan merge, pemilik `/rilis 3`, lalu S18 (T-13 ustadz, T-14 Access, P-7). Tag fase belum dibuat.
+- Catatan untuk sesi berikutnya: pemilik mengonfirmasi **“Panduan jelas; contoh lanjutan juga berhasil”** di chat S17 (2026-10-17), sehingga butir panduan diuji pemilik dan semua gerbang R3 terpenuhi. Sesudah S17 lengkap dan merge, pemilik `/rilis 3`, lalu S18 (T-13 ustadz, T-14 Access, P-7). Tag fase belum dibuat.
 
 ## 2026-10-17 · S16 · Worker MCP publik — selesai
 - Dikerjakan:

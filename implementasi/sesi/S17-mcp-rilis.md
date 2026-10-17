@@ -1,6 +1,6 @@
 # S17 · Dokumentasi, uji klien nyata & rilis MCP
 
-> **Fase:** 3 · **Status:** berjalan
+> **Fase:** 3 · **Status:** selesai (pemantauan satu minggu berjalan terpisah)
 > **Prasyarat:** S16 selesai · Tugas pemilik: **T-18** (uji connector di Claude.ai) dikerjakan di langkah 2
 > **Perkiraan:** 1 percakapan agent
 
@@ -24,13 +24,14 @@ Orang awam bisa memakai Surau dari Claude atau ChatGPT dalam 2 menit, dan MCP di
 
 ## Selesai bila
 
-- [ ] Halaman panduan MCP tayang dan diuji pemilik
+- [x] Halaman panduan MCP tayang dan diuji pemilik
 - [x] Claude Code dan Claude.ai berhasil memanggil `search_text` dan `read_page`; contoh tercatat
 - [x] Syarat rilis R3 di FASE.md terpenuhi
 - [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Catatan hasil
 
+- Pemilik menguji panduan di Preview PR #43 (2026-10-17): **“Panduan jelas; contoh lanjutan juga berhasil”**. Bersama konfirmasi awal T-18, tiga contoh (cari/baca, baca halaman, verifikasi kutipan/takhrij) telah dicoba pemilik.
 - Halaman `/mcp` statis: panduan koneksi Claude.ai/Desktop/Code, ChatGPT dan klien lain; URL tanpa login, tiga contoh, alur cari → baca → verifikasi → sitasi, batas AI pengguna, takhrij, lisensi dan bantuan. Semua string di i18n, akses dari navigasi/sitemap dan README.
 - Klien nyata: Claude Code 2.1.299 `search_text` → `read_page` j.1 h.48, hasil tool diperiksa langsung (sitasi, permalink dan lisensi/atribusi). Biaya CLI US$0,00344562 atas izin pemilik ≤ US$0,10. Claude.ai: pemilik mengonfirmasi hasil dan tautan muncul (T-18). Playground model demo GLM-4.7-Flash: server Ready, 7 tool, kedua panggilan Completed. Claude Desktop dan ChatGPT hanya docs, belum uji akun nyata.
 - Bukti rinci tanpa transkrip/teks kitab: [docs/mcp-operasional.md](../../docs/mcp-operasional.md). Hasil baik dan keluaran klien yang belum mengikuti seluruh instruksi dicatat; bukan jaminan semua kutipan AI terverifikasi. Deskripsi S16 tetap, sudah memuat ukuran dan alur yang tepat.
