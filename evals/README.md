@@ -45,7 +45,7 @@ Aturan holdout (ADR-045):
 - Mengambil ke mesin ini:
 
 ```bash
-pnpm wrangler r2 object get surau-evals/retrieval/2026-10-17-draf-2.jsonl --file evals/private/retrieval.jsonl --remote
+pnpm wrangler r2 object get surau-evals/retrieval/2026-10-17-resmi.jsonl --file evals/private/retrieval.jsonl --remote
 ```
 
 - Mengunggah revisi baru (nama berkas baru, lalu perbarui `PRIVATE_KEY`):

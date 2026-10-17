@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 10
     env:
       # Kunci R2 set privat yang berlaku (berkas baru per revisi, tidak pernah ditimpa).
-      PRIVATE_KEY: retrieval/2026-10-17-draf-2.jsonl
+      PRIVATE_KEY: retrieval/2026-10-17-resmi.jsonl
       WRANGLER_SEND_METRICS: "false"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
