@@ -97,6 +97,8 @@ export interface SearchRequest {
   /** Edisi untuk konteks sitasi; `null` = semua edisi. */
   editionId: number | null;
   span: PassageIdSpan;
+  /** Hanya paragraf di bagian daftar isi ini dan turunannya (mis. satu rub'/kitab); `null` = semua. */
+  sectionId?: number | null;
   /** Halaman (berperingkat) atau paragraf (urutan kitab) yang dikembalikan. */
   limit: number;
   /** Halaman yang dilewati (berperingkat saja). */
@@ -113,6 +115,8 @@ export type SearchResult =
       /** Setiap posisi kueri mengenai kata umum: hasil = `inOrder`, bukan `ranked`. */
       allCommon: boolean;
       editions: EditionContext[];
+      /** Node filter bagian (`sectionId`) bila ada; `null` bila tidak diminta atau tidak ada. */
+      section: { id: number; edition_id: number } | null;
       ranked: RankedSearchRow[];
       inOrder: SearchPassageRow[];
     };
@@ -177,6 +181,19 @@ const PASSAGE_SELECT = `p.id, p.edition_id, p.page_id, p.toc_node_id, p.kind, p.
 /** Terjemahan AI paragraf `p` (alias `tl`), untuk setiap kueri yang memakai `PASSAGE_SELECT`. */
 const TRANSLATION_JOIN = `LEFT JOIN translation tl ON tl.passage_id = p.id AND tl.lang = '${AI_TEXT_LANG}'`;
 
+/**
+ * Filter bagian daftar isi (S14): CTE rekursif `sub` = node `?n` dan semua turunannya (kosong bila
+ * `?n` NULL). Dipakai bersama `IN_SECTION`/`NODE_IN_SECTION`; subkueri tidak berkorelasi, jadi
+ * dievaluasi sekali, lalu setiap kecocokan FTS cukup dicek keanggotaannya.
+ */
+const sectionCte = (n: string) => `sub(id) AS (
+    SELECT ${n} WHERE ${n} IS NOT NULL
+    UNION ALL SELECT t.id FROM toc_node t JOIN sub ON t.parent_id = sub.id
+  )`;
+const IN_SECTION = (n: string) =>
+  `(${n} IS NULL OR rowid IN (SELECT id FROM passage WHERE toc_node_id IN (SELECT id FROM sub)))`;
+const NODE_IN_SECTION = (n: string) => `(${n} IS NULL OR rowid IN (SELECT id FROM sub))`;
+
 function assertWindow(limit: number, offset: number): void {
   if (!Number.isInteger(limit) || limit < 1) throw new RangeError(`limit tidak sah: ${limit}`);
   if (!Number.isInteger(offset) || offset < 0) throw new RangeError(`offset tidak sah: ${offset}`);
@@ -205,12 +222,14 @@ export async function searchCorpus(db: D1Db, req: SearchRequest): Promise<Search
   let results: { results: unknown[] }[];
   try {
     results = await db.batch([
-      ...contextStatements(db, req.editionId, guard.json),
+      ...contextStatements(db, req.editionId, guard.json, req.sectionId ?? null),
       db
         .prepare(
-          `WITH h AS MATERIALIZED (
+          `WITH RECURSIVE ${sectionCte("?8")},
+           h AS MATERIALIZED (
              SELECT rowid AS id, bm25(passage_fts, ${BM25_WEIGHTS}) AS score FROM passage_fts
              WHERE passage_fts MATCH ${guardedMatch("<", 1, 6, 7)} AND rowid BETWEEN ?2 AND ?3
+               AND ${IN_SECTION("?8")}
            ),
            hp AS MATERIALIZED (
              SELECT h.id, h.score, p.page_id, row_number() OVER (ORDER BY h.score, h.id) AS passage_rank
@@ -239,12 +258,15 @@ export async function searchCorpus(db: D1Db, req: SearchRequest): Promise<Search
           req.offset,
           guard.json,
           guard.positions,
+          req.sectionId ?? null,
         ),
       db
         .prepare(
-          `WITH h AS MATERIALIZED (
+          `WITH RECURSIVE ${sectionCte("?7")},
+           h AS MATERIALIZED (
              SELECT rowid AS id FROM passage_fts
              WHERE passage_fts MATCH ${guardedMatch("=", 1, 5, 6)} AND rowid BETWEEN ?2 AND ?3
+               AND ${IN_SECTION("?7")}
              ORDER BY rowid LIMIT ?4
            )
            SELECT ${PASSAGE_SELECT}
@@ -255,7 +277,15 @@ export async function searchCorpus(db: D1Db, req: SearchRequest): Promise<Search
            ${TRANSLATION_JOIN}
            ORDER BY p.id`,
         )
-        .bind(req.match, req.span.min, req.span.max, req.limit, guard.json, guard.positions),
+        .bind(
+          req.match,
+          req.span.min,
+          req.span.max,
+          req.limit,
+          guard.json,
+          guard.positions,
+          req.sectionId ?? null,
+        ),
     ]);
   } catch (error) {
     return notReady(db, error, SEARCH_SCHEMA_VERSION);
@@ -289,13 +319,18 @@ function guardOf(plan: SearchPlan): Guard {
 }
 
 /** Jumlah statement `contextStatements` di awal setiap batch pencarian. */
-const CONTEXT_STATEMENTS = 5;
+const CONTEXT_STATEMENTS = 6;
 
 /**
  * meta, kata `term_stat` yang dikenai token pengaman (`[]` bila `guardJson` = `"[]"`, mis. kueri
  * tanpa bagian Arab), lalu edisi, karya, dan penulis untuk sitasi (semua edisi bila `editionId` null).
  */
-function contextStatements(db: D1Db, editionId: number | null, guardJson: string) {
+function contextStatements(
+  db: D1Db,
+  editionId: number | null,
+  guardJson: string,
+  sectionId: number | null,
+) {
   return [
     db.prepare("SELECT key, value FROM meta"),
     db
@@ -322,21 +357,30 @@ function contextStatements(db: D1Db, editionId: number | null, guardJson: string
            WHERE ?1 IS NULL OR e.id = ?1) ORDER BY id`,
       )
       .bind(editionId),
+    db.prepare("SELECT id, edition_id FROM toc_node WHERE id = ?1").bind(sectionId),
   ];
 }
+
+const sectionRow = z.strictObject({ id, edition_id: id });
 
 interface SearchContext {
   meta: CorpusMeta;
   common: TermStatRow[];
   allCommon: boolean;
   editions: EditionContext[];
+  /** Node filter bagian bila diminta dan ada; `null` bila tidak diminta atau tidak ada. */
+  section: z.infer<typeof sectionRow> | null;
 }
 
 function parseContext(
   results: readonly { results: unknown[] }[],
   guard: Guard | null,
 ): SearchContext {
-  const [metaRows, termRows, editionRows, workRows, authorRows] = results.map((r) => r.results);
+  const [metaRows, termRows, editionRows, workRows, authorRows, sectionRows] = results.map(
+    (r) => r.results,
+  );
+  const [sectionFound] = (sectionRows ?? []).map((r) => sectionRow.parse(r));
+  const section = sectionFound ?? null;
   const meta = corpusMeta.parse(
     Object.fromEntries((metaRows ?? []).map((r) => metaRow.parse(r)).map((r) => [r.key, r.value])),
   );
@@ -350,12 +394,18 @@ function parseContext(
     return [{ edition, work, author }];
   });
   const common = (termRows ?? []).map((r) => termStatRow.parse(r));
-  if (guard === null) return { meta, common, allCommon: false, editions };
+  if (guard === null) return { meta, common, allCommon: false, editions, section };
   // Aturan yang sama dengan `guardedMatch`, jadi tepat satu dari `ranked`/`inOrder` yang terisi.
   const hit = ([, token, prefix]: GuardToken): boolean =>
     common.some((c) => c.term === token || (prefix === 1 && c.term.startsWith(token)));
   const commonPositions = new Set(guard.tokens.filter(hit).map(([k]) => k));
-  return { meta, common, allCommon: commonPositions.size === guard.positions, editions };
+  return {
+    meta,
+    common,
+    allCommon: commonPositions.size === guard.positions,
+    editions,
+    section,
+  };
 }
 
 /**
@@ -408,6 +458,8 @@ export interface FusedSearchRequest {
   span: PassageIdSpan;
   /** Rentang ID node daftar isi (`tocNodeIdRange`), untuk `summary_fts`. */
   tocSpan: PassageIdSpan;
+  /** Hanya bagian daftar isi ini dan turunannya; `null` = semua. */
+  sectionId?: number | null;
   /** Halaman yang dikembalikan / dilewati, di atas himpunan kandidat gabungan. */
   limit: number;
   offset: number;
@@ -460,6 +512,8 @@ interface LatinPathSpec {
   table: "translation_fts" | "summary_fts";
   span: PassageIdSpan;
   depth: number;
+  /** Filter bagian untuk rowid tabel ini (paragraf atau node). */
+  section: string;
 }
 
 /**
@@ -484,7 +538,7 @@ function latinPaths(specs: readonly LatinPathSpec[], match: LatinMatch, q: Param
            ELSE ${NO_MATCH} END)`;
   const scan = (p: (typeof refs)[number], expr: string) =>
     `SELECT rowid AS key, bm25(${p.table}) AS s FROM ${p.table}
-      WHERE ${p.table} MATCH ${expr} AND rowid BETWEEN ${p.min} AND ${p.max}
+      WHERE ${p.table} MATCH ${expr} AND rowid BETWEEN ${p.min} AND ${p.max} AND ${p.section}
       ORDER BY s, rowid LIMIT ${p.limit}`;
   return [
     ...refs.map((p) => `${p.name}_all AS MATERIALIZED (${scan(p, all)})`),
@@ -522,7 +576,8 @@ export async function searchCorpusFused(
   assertWindow(req.limit, req.offset);
   const guard = req.arabic === null ? null : guardOf(req.arabic.plan);
   const q = new Params();
-  const ctes: string[] = [];
+  const section = q.add(req.sectionId ?? null);
+  const ctes: string[] = [sectionCte(section)];
   const lists: string[] = [];
   const joins: string[] = [];
   let arCols = "NULL AS ar_rank";
@@ -537,6 +592,7 @@ export async function searchCorpusFused(
         SELECT rowid AS key, bm25(passage_fts, ${BM25_WEIGHTS}) AS s FROM passage_fts
         WHERE passage_fts MATCH ${guardedMatch("<", n(match), n(guardJson), n(positions))}
           AND rowid BETWEEN ${q.add(req.span.min)} AND ${q.add(req.span.max)}
+          AND ${IN_SECTION(section)}
         ORDER BY s, rowid LIMIT ${q.add(FUSION_DEPTH)}
       ),
       ar AS (SELECT key, row_number() OVER (ORDER BY s, key) AS r FROM ar_all)`);
@@ -547,8 +603,20 @@ export async function searchCorpusFused(
   ctes.push(
     ...latinPaths(
       [
-        { name: "tr", table: "translation_fts", span: req.span, depth: FUSION_DEPTH },
-        { name: "sm", table: "summary_fts", span: req.tocSpan, depth: SUMMARY_DEPTH },
+        {
+          name: "tr",
+          table: "translation_fts",
+          span: req.span,
+          depth: FUSION_DEPTH,
+          section: IN_SECTION(section),
+        },
+        {
+          name: "sm",
+          table: "summary_fts",
+          span: req.tocSpan,
+          depth: SUMMARY_DEPTH,
+          section: NODE_IN_SECTION(section),
+        },
       ],
       req.latin,
       q,
@@ -575,7 +643,7 @@ export async function searchCorpusFused(
   const k = q.add(RRF_K);
   const limit = q.add(req.limit);
   const offset = q.add(req.offset);
-  const sql = `WITH ${ctes.join(",\n")},
+  const sql = `WITH RECURSIVE ${ctes.join(",\n")},
     fused AS (
       SELECT id, sum(1.0 / (${k} + r)) AS rrf FROM (${lists.join(" UNION ALL ")}) GROUP BY id
     ),
@@ -607,7 +675,7 @@ export async function searchCorpusFused(
   let results: { results: unknown[] }[];
   try {
     results = await db.batch([
-      ...contextStatements(db, req.editionId, guard?.json ?? "[]"),
+      ...contextStatements(db, req.editionId, guard?.json ?? "[]", req.sectionId ?? null),
       db.prepare(sql).bind(...q.values),
     ]);
   } catch (error) {

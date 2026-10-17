@@ -6,6 +6,7 @@ import {
   AI_SUMMARIES,
   AI_TRANSLATIONS,
   BODY_2,
+  ED,
   PASSAGES,
   T_CHILD_A,
   T_ROOT,
@@ -13,10 +14,16 @@ import {
   seedCore,
   seedSearchIndex,
 } from "../test/fixture.ts";
-import { InvalidQuery, Unavailable } from "./errors.ts";
+import { InvalidQuery, NotFound, Unavailable } from "./errors.ts";
 import { searchView } from "./schema.ts";
 import type { SearchHit, SearchView } from "./schema.ts";
-import { AI_SNIPPET_CHARS, aiExcerpt, searchText, splitQueryScripts } from "./search.ts";
+import {
+  AI_SNIPPET_CHARS,
+  aiExcerpt,
+  searchCacheKey,
+  searchText,
+  splitQueryScripts,
+} from "./search.ts";
 
 const db = env.CORPUS;
 
@@ -164,6 +171,20 @@ describe("searchText: jalur Indonesia", () => {
   });
 });
 
+describe("searchText: filter bagian", () => {
+  test("section_id membatasi hasil; bagian tidak ada / edisi lain → NotFound", async () => {
+    const view = await searchText(db, "sabar", { section_id: T_CHILD_A });
+    expect(view.section_id).toBe(T_CHILD_A);
+    expect(hits(view).map((h) => h.id)).toEqual([PASSAGES.body2]);
+    const ar = await searchText(db, "الثانية", { section_id: T_ROOT });
+    expect(hits(ar).map((h) => h.id)).toContain(PASSAGES.body2);
+    await expect(searchText(db, "sabar", { section_id: 999_999 })).rejects.toBeInstanceOf(NotFound);
+    await expect(
+      searchText(db, "الثانية", { section_id: T_ROOT, edition_id: ED + 1 }),
+    ).rejects.toThrow(/Section not found/);
+  });
+});
+
 describe("aiExcerpt", () => {
   test("potongan tidak pernah memotong placeholder ayat; sorotan di placeholder dibuang", () => {
     const plan = planLatinQuery("sabar qs");
@@ -183,5 +204,28 @@ describe("aiExcerpt", () => {
       highlights: [],
       snippet: { char_start: 0, char_end: 12, text: "Teks pendek." },
     });
+  });
+});
+
+describe("searchCacheKey", () => {
+  test("rencana ternormalisasi: ejaan/harakat/huruf besar berbeda = kunci sama", () => {
+    expect(searchCacheKey("Sabar")).toBe(searchCacheKey("sabar"));
+    expect(searchCacheKey("kesabaran")).toBe(searchCacheKey("sabar"));
+    expect(searchCacheKey("الصَّبْرُ")).toBe(searchCacheKey("الصبر"));
+    expect(searchCacheKey("taubat")).toBe(searchCacheKey("tobat"));
+  });
+
+  test("opsi dan aksara membedakan kunci; kueri kosong/tidak sah = null", () => {
+    const base = searchCacheKey("sabar");
+    expect(searchCacheKey("sabar", { offset: 20 })).not.toBe(base);
+    expect(searchCacheKey("sabar", { limit: 5 })).not.toBe(base);
+    expect(searchCacheKey("sabar", { edition_id: 7 })).not.toBe(base);
+    expect(searchCacheKey("الصبر", { expand: true })).not.toBe(searchCacheKey("الصبر"));
+    expect(searchCacheKey("الصبر sabar")).not.toBe(base);
+    expect(searchCacheKey("")).toBeNull();
+    expect(searchCacheKey("yang dan")).toBeNull();
+    expect(searchCacheKey("sabar", { limit: 0 })).toBeNull();
+    expect(searchCacheKey(Array.from({ length: 17 }, (_, i) => `k${i}`).join(" "))).toBeNull();
+    expect(searchCacheKey(Array(33).fill("علم").join(" "))).toBeNull();
   });
 });

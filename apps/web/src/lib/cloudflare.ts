@@ -9,6 +9,12 @@ export async function getEnv(): Promise<CloudflareEnv> {
   return env;
 }
 
+/** Binding + `ctx` (untuk `ctx.waitUntil`, mis. menyimpan ke Cache API sesudah respons). */
+export async function getContext(): Promise<{ env: CloudflareEnv; ctx: ExecutionContext }> {
+  const { env, ctx } = await getCloudflareContext({ async: true });
+  return { env, ctx };
+}
+
 /**
  * Pembaca kitab terbuka? Produksi `READER_ENABLED = "0"` sampai rilis Fase 1; Preview `"1"`;
  * `next dev` selalu terbuka supaya D1 lokal bisa dibaca tanpa konfigurasi tambahan.

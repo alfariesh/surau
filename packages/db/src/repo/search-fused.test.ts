@@ -187,6 +187,18 @@ describe("searchCorpusFused", () => {
     await expect(searchCorpusFused(db, req("sabar", { limit: 0 }))).rejects.toThrow(RangeError);
   });
 
+  test("filter bagian: hanya node itu dan turunannya (paragraf dan ringkasan)", async () => {
+    const a = await ready(searchCorpusFused(db, req("sabar", { sectionId: T_CHILD_A })));
+    expect(a.section).toEqual({ id: T_CHILD_A, edition_id: ED });
+    expect(a.rows.map((x) => [x.id, x.sm_node])).toEqual([[PASSAGES.body2, T_CHILD_A]]);
+    // Akar mencakup semua anak.
+    const root = await ready(searchCorpusFused(db, req("sabar", { sectionId: T_ROOT })));
+    expect(root.rows.map((x) => x.id)).toEqual([PASSAGES.body2, PASSAGES.body1]);
+    // Node yang tidak ada: section null, tanpa hasil.
+    const none = await ready(searchCorpusFused(db, req("sabar", { sectionId: 999_999 })));
+    expect([none.section, none.rows]).toEqual([null, []]);
+  });
+
   test("korpus tanpa indeks Indonesia (skema < 6) → ready false", async () => {
     await db.prepare("UPDATE meta SET value = '5' WHERE key = 'schema_version'").run();
     onTestFinished(async () => {

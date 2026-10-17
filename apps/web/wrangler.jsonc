@@ -24,6 +24,9 @@
     // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
     // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
     "SEARCH_TIMING_DETAIL": "0",
+    // Versi korpus di kunci cache /api/search (S14, ADR-044): SELALU = database_name CORPUS_DB di
+    // bawah. Diganti `corpus:promote` bersama binding (dijaga tes tools/ingest/src/corpus.test.ts).
+    "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v1",
   },
   "services": [
     {
@@ -95,6 +98,8 @@
     "vars": {
       "READER_ENABLED": "1",
       "SEARCH_TIMING_DETAIL": "1",
+      // Tanpa cache hasil: korpus staging dimuat ulang tanpa versi baru (latensi diukur tanpa cache).
+      "SEARCH_CACHE_CORPUS": "",
     },
     "observability": {
       "enabled": true,

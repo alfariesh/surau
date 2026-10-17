@@ -123,14 +123,35 @@ export function readProductionCorpus(jsonc: string): CorpusBinding {
   return { name: m[2] as string, id: m[4] as string };
 }
 
-/** Ganti nama + ID DB korpus produksi; komentar, `preview_database_id`, dan `previews` tetap. */
+// Versi korpus di kunci cache /api/search (S14): var top-level, selalu = nama DB CORPUS_DB.
+const CACHE_VAR = /("SEARCH_CACHE_CORPUS": ")([^"]*)(")/g;
+
+/** Nilai `SEARCH_CACHE_CORPUS` top-level (harus tepat satu). */
+export function readSearchCacheCorpus(jsonc: string): string {
+  const [head] = splitTopLevel(jsonc);
+  const matches = [...head.matchAll(CACHE_VAR)];
+  if (matches.length !== 1) {
+    throw new Error(
+      `apps/web/wrangler.jsonc: harus ada tepat satu SEARCH_CACHE_CORPUS top-level (ditemukan ${matches.length})`,
+    );
+  }
+  return (matches[0] as RegExpMatchArray)[2] as string;
+}
+
+/**
+ * Ganti nama + ID DB korpus produksi, dan `SEARCH_CACHE_CORPUS` ke nama yang sama (kunci cache
+ * pencarian berganti bersama korpus); komentar, `preview_database_id`, dan `previews` tetap.
+ */
 export function setProductionCorpus(jsonc: string, next: CorpusBinding): string {
   readProductionCorpus(jsonc);
+  readSearchCacheCorpus(jsonc);
   const [head, tail] = splitTopLevel(jsonc);
   return (
-    head.replace(PROD_ENTRY, (_m, a: string, _n, b: string, _i, c: string) =>
-      [a, next.name, b, next.id, c].join(""),
-    ) + tail
+    head
+      .replace(PROD_ENTRY, (_m, a: string, _n, b: string, _i, c: string) =>
+        [a, next.name, b, next.id, c].join(""),
+      )
+      .replace(CACHE_VAR, (_m, a: string, _v, c: string) => [a, next.name, c].join("")) + tail
   );
 }
 

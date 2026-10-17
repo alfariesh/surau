@@ -521,6 +521,9 @@ export const searchView = z.strictObject({
       "Reciprocal Rank Fusion settings when Indonesian paths ran (totals count only these candidates); null for Arabic-only queries",
     ),
   edition_id: id.nullable().describe("Edition searched; null = all editions"),
+  section_id: id
+    .nullable()
+    .describe("Section searched (with its subsections); null = whole editions"),
   ranked: z
     .boolean()
     .describe("False when the query has only very common words: first matches in book order"),
@@ -613,6 +616,11 @@ export const searchTextInput = z.strictObject({
     .max(EDITION_ID_MAX)
     .optional()
     .describe("Search only this edition; default: all editions"),
+  section_id: id
+    .optional()
+    .describe(
+      "Search only this table-of-contents section and its subsections (e.g. one rub' or kitab of Ihya)",
+    ),
   limit: z
     .number()
     .int()

@@ -232,6 +232,23 @@ function latinPlan(query: string): LatinQueryPlan | null {
   }
 }
 
+/** Edisi dan bagian filter harus ada (dan bagian milik edisi itu bila keduanya diberikan). */
+function assertScope(
+  found: { editions: readonly unknown[]; section: { id: number; edition_id: number } | null },
+  editionId: number | null,
+  sectionId: number | null,
+): void {
+  if (editionId !== null && found.editions.length === 0) {
+    throw new NotFound(`Edition not found: ${editionId}`);
+  }
+  if (
+    sectionId !== null &&
+    (found.section === null || (editionId !== null && found.section.edition_id !== editionId))
+  ) {
+    throw new NotFound(`Section not found: ${sectionId}`);
+  }
+}
+
 /** Kelompokkan baris (sudah urut) per halaman, mempertahankan urutan kemunculan halaman. */
 function groupByPage<R extends SearchPassageRow>(
   rows: readonly R[],
@@ -299,9 +316,11 @@ export async function searchText(
   const arabic = arabicPlan(parts.arabic, input.expand);
   const latin = latinPlan(parts.latin);
   const editionId = input.edition_id ?? null;
+  const sectionId = input.section_id ?? null;
   const base = {
     query: input.query,
     edition_id: editionId,
+    section_id: sectionId,
     limit: input.limit,
     terms: arabic?.stems ?? [],
     latin_terms: latin?.stems ?? [],
@@ -332,6 +351,7 @@ export async function searchText(
     editionId,
     span,
     tocSpan: editionId === null ? ALL_IDS : tocNodeIdRange(editionId),
+    sectionId,
     limit: input.limit,
     offset: input.offset,
   });
@@ -346,9 +366,7 @@ export async function searchText(
   if (arabic !== null && found.meta.norm_version !== NORM_VERSION) {
     throw new Unavailable("Search index was built with a different normalization version");
   }
-  if (editionId !== null && found.editions.length === 0) {
-    throw new NotFound(`Edition not found: ${editionId}`);
-  }
+  assertScope(found, editionId, sectionId);
   const cites = new Map(found.editions.map((e) => [e.edition.id, citeContext(e)]));
   const paths: SearchPath[] =
     arabic === null ? ["translation", "summary"] : ["arabic", "translation", "summary"];
@@ -381,17 +399,25 @@ export async function searchText(
 /** Jalur Arab saja (S11): bm25 di `passage_fts`, pengaman kata umum. */
 async function arabicOnly(
   db: D1Db,
-  input: { query: string; offset: number; limit: number; edition_id?: number | undefined },
+  input: {
+    query: string;
+    offset: number;
+    limit: number;
+    edition_id?: number | undefined;
+    section_id?: number | undefined;
+  },
   plan: FtsQueryPlan,
-  base: Pick<SearchView, "query" | "edition_id" | "limit" | "terms" | "latin_terms">,
+  base: Pick<SearchView, "query" | "edition_id" | "section_id" | "limit" | "terms" | "latin_terms">,
   span: { min: number; max: number },
 ): Promise<SearchView> {
   const editionId = input.edition_id ?? null;
+  const sectionId = input.section_id ?? null;
   const found = await searchCorpus(db, {
     plan,
     match: ftsMatchExpression(plan),
     editionId,
     span,
+    sectionId,
     limit: input.limit,
     offset: input.offset,
   });
@@ -399,9 +425,7 @@ async function arabicOnly(
   if (found.meta.norm_version !== NORM_VERSION) {
     throw new Unavailable("Search index was built with a different normalization version");
   }
-  if (editionId !== null && found.editions.length === 0) {
-    throw new NotFound(`Edition not found: ${editionId}`);
-  }
+  assertScope(found, editionId, sectionId);
   const cites = new Map(found.editions.map((e) => [e.edition.id, citeContext(e)]));
   const shared = {
     ...base,
@@ -460,4 +484,38 @@ async function arabicOnly(
       (row) => -row.page_best,
     ),
   };
+}
+
+/**
+ * Kunci cache hasil pencarian (S14 langkah 8): rencana kueri TERNORMALISASI (bukan teks kueri),
+ * opsi, dan versi aturan normalisasi. Dua kueri dengan rencana sama ("Sabar" dan "sabar",
+ * "الصبر" dan "الصَّبْرُ") memberi hasil yang sama kecuali field `query`, yang diisi ulang
+ * pemanggil. `null` bila kueri tidak sah atau kosong (tidak di-cache). Pemanggil menambahkan versi
+ * korpus.
+ */
+export function searchCacheKey(
+  query: string,
+  opts: Omit<SearchTextInput, "query"> = {},
+): string | null {
+  const input = searchTextInput.safeParse({ ...opts, query });
+  if (!input.success) return null;
+  const parts = splitQueryScripts(input.data.query);
+  let arabic: FtsQueryPlan | null;
+  let latin: LatinQueryPlan | null;
+  try {
+    arabic = planFtsQuery(parts.arabic, { suffix: input.data.expand });
+    latin = planLatinQuery(parts.latin);
+  } catch {
+    return null;
+  }
+  if (arabic === null && latin === null) return null;
+  return JSON.stringify({
+    v: [NORM_VERSION, LATIN_NORM_VERSION],
+    ar: arabic === null ? null : [arabic.phrases, arabic.prefix],
+    la: latin?.stems ?? null,
+    e: input.data.edition_id ?? null,
+    s: input.data.section_id ?? null,
+    l: input.data.limit,
+    o: input.data.offset,
+  });
 }
