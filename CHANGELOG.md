@@ -2,7 +2,7 @@
 
 Ditulis untuk pengguna, dalam bahasa awam. Detail teknis ada di `implementasi/LOG.md`.
 
-## Fase 3 · MCP publik — calon rilis (`rilis-f3` belum dibuat)
+## Fase 3 · MCP publik — 17 Oktober 2026 (`rilis-f3`)
 
 Kini AI Anda bisa mencari dan membaca *Ihya' 'Ulum ad-Din* dari Surau melalui koneksi MCP. Panduan pemasangan dan contoh pemakaian tersedia di https://surau.org/mcp; alamat koneksinya https://mcp.surau.org/mcp, tanpa login.
 
@@ -17,8 +17,6 @@ Kini AI Anda bisa mencari dan membaca *Ihya' 'Ulum ad-Din* dari Surau melalui ko
 - Catatan takhrij disajikan sesuai teks yang tertaut. Status hadits yang tidak tersedia tetap tidak diketahui.
 - Claude Desktop dan ChatGPT belum diuji langsung dengan akun nyata. Hasil satu halaman penuh bisa besar; gunakan pembacaan per bagian bila konteks AI terbatas.
 - Ada batas pemakaian. Pengguna Claude.ai dapat berbagi batas IP penyedianya. Pemantauan 17–24 Oktober masih berjalan; kestabilan satu minggu belum dinyatakan.
-
-Calon rilis ini menunggu pemeriksaan akhir, preview, dan persetujuan pemilik sebelum rilis fase/tag.
 
 ## Fase 2 · Cari — 17 Oktober 2026 (`rilis-f2`)
 

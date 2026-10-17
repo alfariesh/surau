@@ -15,17 +15,22 @@ Format entri:
 
 ---
 
-## 2026-10-17 · Rilis Fase 3 · MCP publik — prarilis
+## 2026-10-17 · Rilis Fase 3 · MCP publik — dirilis (`rilis-f3`)
 
-- Dikerjakan: pemeriksaan kesiapan S16–S17 (semua butir selesai, PR #42/#43 merge), branch `codex/rilis-f3`, dan catatan calon rilis di CHANGELOG. `main` awal `4f88541` bersih dan sinkron dengan `origin/main`.
+- Dikerjakan: pemeriksaan kesiapan S16–S17 (semua butir selesai, PR #42/#43 merge), branch `codex/rilis-f3`, dan catatan rilis di CHANGELOG; FASE/STATUS diperbarui untuk rilis melalui PR #44. `main` awal `4f88541` bersih dan sinkron dengan `origin/main`.
 - Verifikasi:
   - `pnpm install --frozen-lockfile` → lolos; percobaan sandbox dihentikan karena DNS registry dibatasi, dijalankan ulang dengan akses yang sesuai dan memakai store lokal.
   - `pnpm verify` → lolos: **466 Node + 210 Workers**, smoke teks, build web dan MCP (1.356,01 KiB / gzip 246,11 KiB). Satu peringatan lint lama `search-client.tsx` dan peringatan CSS `::highlight` tetap.
   - Peninjau keamanan `git diff rilis-f2..main` (75 berkas, sampai `4f88541`) → **lolos, tanpa blocker/perbaiki/saran**; kutipan, lisensi, privasi, rate limit, SQL, workflow dan promote korpus ditinjau. `git diff --check` bersih, cek file data/rahasia terlacak kosong.
-  - Mitigasi ADR-003 pada build: `cacheComponents: false`, `images.unoptimized: true`, manifest Server Actions `node`/`edge` kosong. Gerbang versi `docs-terbaru` → lolos: Next 16.4.1 didukung resmi OpenNext 1.20.12; dua high transitif (`glob`/`figlet`) masih ada di audit tetapi pemicunya tidak dipakai, mitigasi dan bukti di ADR-003. Patch Next 16.4.2/Wrangler 4.151.1 opsional. E2E/preview masih diperiksa.
+  - Mitigasi ADR-003 pada build: `cacheComponents: false`, `images.unoptimized: true`, manifest Server Actions `node`/`edge` kosong. Gerbang versi `docs-terbaru` → lolos: Next 16.4.1 didukung resmi OpenNext 1.20.12; dua high transitif (`glob`/`figlet`) masih ada di audit tetapi pemicunya tidak dipakai, mitigasi dan bukti di ADR-003. Patch Next 16.4.2/Wrangler 4.151.1 opsional.
+  - Preview PR #44 commit `28f4c03`: [CI verify 39045772656](https://github.com/alfariesh/surau/actions/runs/39045772656) dan [Preview 39045772682](https://github.com/alfariesh/surau/actions/runs/39045772682) hijau. `pnpm test:e2e` **99 lolos/1 dilewati** (desktop/ponsel, dua tema, RTL/font Arab, pembaca, panduan, 404). Inspector lengkap MCP lolos kedua era, ketujuh tool, pencarian Arab/Indonesia, kasus error dan Origin asing 403. Panduan juga diperiksa di browser.
+  - Analytics Preview: **505 request/0 invocation error**, 29 clientDisconnected; slug `__unknown__` bisa tercampur Preview lain dan bukan hitungan HTTP 5xx/console.error (ADR-031).
+  - Deploy lewat `deploy.yml` (web lalu MCP); smoke produksi diulang sebelum tag. Bukti akhir run deploy, versi Worker, dan hasil smoke produksi disimpan pada anotasi tag `rilis-f3`.
 - Biaya API: – (tanpa panggilan LLM berbayar).
-- Keputusan: belum ada keputusan rilis produksi; tidak ada perubahan korpus atau migrasi baru.
-- Catatan untuk sesi berikutnya: selesaikan gerbang versi dan Preview dari `preview.yml`, lalu minta persetujuan eksplisit pemilik sesuai skill rilis sebelum merge/deploy produksi dan pembuatan tag `rilis-f3`. Pemantauan 17–24 Oktober tetap berjalan.
+- Keputusan: **ADR-051**; pemilik menjawab **"ya"** atas pertanyaan "Rilis Fase 3 ke produksi sekarang?" (2026-10-17), termasuk merge/deploy, smoke produksi, serta pembuatan dan push tag. Tidak ada perubahan korpus atau migrasi baru.
+- Catatan untuk sesi berikutnya: **S18 · Eval Jawab & halaman tinjau ustadz** (T-13, T-14, P-7). Pemantauan MCP 17–24 Oktober tetap berjalan; belum dinyatakan stabil satu minggu.
+- **Draf pengumuman (untuk pemilik, belum diposting):**
+  > Kini Surau bisa dihubungkan ke asisten AI Anda untuk mencari dan membaca Ihya karya al-Ghazali, dengan teks Arab asli serta tautan ke halaman cetaknya. Koneksi MCP tersedia tanpa login melalui panduan https://surau.org/mcp. AI tetap bisa keliru; periksa kutipan dan sumbernya, serta pertahankan atribusi dan lisensi saat memakai ulang hasil.
 
 ## 2026-10-17 · S17 · Dokumentasi dan uji klien MCP — selesai
 - Dikerjakan:

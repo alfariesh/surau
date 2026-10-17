@@ -1215,3 +1215,11 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** satu event log tambahan per callback memakai kuota Workers Logs; retensi 7 hari memerlukan pencatatan agregat harian. Catatan uji dan prosedur pemantauan ada di [docs/mcp-operasional.md](../docs/mcp-operasional.md). Satu minggu pengamatan masih tindak lanjut dan tidak dinyatakan selesai pada S17 hari pertama. Tidak ada dependensi baru, panggilan LLM di server, migrasi korpus, atau perubahan rate limit.
 
 **Tinjau ulang bila:** log perlu retensi lebih lama atau volume log mahal (pertimbangkan metrik agregat); `rate_limited` menghambat penggunaan normal; rows_read meningkat tajam; menu/ketentuan klien berubah.
+
+## ADR-051 · Rilis Fase 3: MCP publik — diterima · 2026-10-17
+
+**Konteks:** S16–S17 selesai dan merge (PR #42/#43). Gerbang R3 mencakup Inspector kedua era, uji Claude Code/Claude.ai, serta sitasi dan lisensi; bukti ada di sesi, docs/mcp-operasional.md dan prarilis PR #44. Pemeriksaan rilis atas `rilis-f2..main` sampai `4f88541` tidak menemukan masalah keamanan. Gerbang versi dan mitigasi build ADR-003 lolos; dua advisory high transitif (`glob`, `figlet`) tetap ada pada lockfile dengan pemicu yang tidak dipakai dan mitigasi tertulis di ADR-003. Preview PR #44: verify hijau, e2e 99 lolos/1 dilewati, MCP lengkap modern/legacy lolos.
+
+**Keputusan:** pemilik menjawab **"ya"** di chat setelah ditanya **"Rilis Fase 3 ke produksi sekarang?"** (2026-10-17). Rilis melalui merge PR #44 dan `deploy.yml` (web lalu MCP), smoke produksi diulang, lalu tag `rilis-f3` dibuat dan dipush hanya setelah deploy/smoke sukses. Tidak ada migrasi atau pergantian korpus baru; web dan MCP tetap memakai `ihya-v6`. CHANGELOG, FASE, STATUS dan LOG mencatat rilis ini. Bukti akhir deploy/versi/smoke disimpan pada anotasi tag. Pengumuman hanya didrafkan bagi pemilik.
+
+**Konsekuensi:** MCP sudah tersedia sejak S16, sehingga rilis ini meresmikan fase dan tag. Keterbatasan ukuran `read_page`, batas bersama IP penyedia, klien yang belum diuji langsung, serta mutu keluaran AI pengguna tetap terbuka. Pemantauan 17–24 Oktober berjalan terpisah; kestabilan satu minggu belum diklaim. S18 menjadi sesi berikutnya.
