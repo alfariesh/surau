@@ -215,7 +215,7 @@ export const id = {
     soonCta: "Kenali Surau",
     by: "karya",
     editionsLabel: "Edisi",
-    open: "Buka kitab",
+    openWork: (title: string) => `Buka kitab ${title}`,
     startReading: "Mulai membaca",
     volumes: (n: number) => `${n} jilid`,
     deathHijri: (n: number) => `w. ${n} H`,

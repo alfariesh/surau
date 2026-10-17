@@ -51,7 +51,11 @@
 @import "@heroui-pro/react/css/components/navbar.css" layer(components);
 @import "@heroui-pro/react/css/components/sheet.css" layer(components);
 @import "@heroui-pro/react/css/components/resizable.css" layer(components);
+@import "@heroui-pro/react/css/components/widget.css" layer(components);
 @import "@heroui-pro/react/css/components/sidebar.css" layer(components);
+
+/* Komponen Surau sendiri (CSS polos, di luar layer seperti gaya aplikasi lain). */
+@import "../components/book/book.css";
 
 @source "../**/*.{ts,tsx}";
 

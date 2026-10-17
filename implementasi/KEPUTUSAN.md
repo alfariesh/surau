@@ -855,7 +855,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Tinjau ulang bila:** korpus berisi lebih dari satu kitab (reset per edisi termasuk `DELETE FROM passage_fts WHERE rowid BETWEEN`, `term_stat` per korpus, rows_read kueri berperingkat), cache kueri populer di S14, atau eval S15 menunjukkan ambang 10% / bobot catatan kaki merugikan relevansi.
 
-## ADR-040 · Pohon daftar isi: `NavigationTree` react-aria + garis pemandu sendiri menggantikan `FileTree` HeroUI Pro; satu bagian aktif — diterima · 2026-10-17
+## ADR-041 · Pohon daftar isi: `NavigationTree` react-aria + garis pemandu sendiri menggantikan `FileTree` HeroUI Pro; satu bagian aktif. Sampul kitab 3D (`Book`) dan kartu kitab `Widget` — diterima · 2026-10-17
 
 **Konteks:** Pemilik meminta pohon daftar isi bergaya garis pemandu induk → anak (siku melengkung di anak terakhir), hanya SATU baris aktif berlatar, dan garis menuju baris aktif berwarna aksen. `FileTree` Pro hanya punya garis tegak generik (`showGuideLines`), tanpa siku, tanpa warna per jalur, dan menyorot setiap bagian di `activeIds` (halaman dengan beberapa bagian = beberapa latar, termasuk induknya).
 
@@ -865,4 +865,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 3. Tautan daftar isi kini `<halaman awal>#bab-<id>` (`tocHref`), sama seperti breadcrumb: unik per bagian (beberapa bagian bisa mulai di halaman yang sama, sedangkan `selectedRoute` dicocokkan lewat `href`) dan mendarat di judul bagiannya.
 4. Garis dihitung di `tocRows` (`lib/reader/toc.ts`, teruji): per leluhur satu kolom `line`/`end`/`none`; aksen hanya jalur induk langsung → bagian aktif (batang di bawah chevron induk, garis tegak melewati saudara sebelumnya, siku ke baris aktif).
 
-**Tinjau ulang bila:** HeroUI merilis pohon navigasi dengan garis pemandu per jalur, atau daftar isi butuh virtualisasi (kitab dengan ribuan bagian).
+5. Komponen `Book` (`components/book/`, permintaan pemilik): sampul buku 3D meniru Geist Book (vercel.com/geist/book), murni CSS (`book.css`, aman di Server Component). Geometri dan bayangan mengikuti Geist; warna memakai token HeroUI/Zaitun. Tambahan Surau: `direction="rtl"` (punggung di kanan seperti kitab Arab), pola khatam SVG buatan sendiri (`BookPattern`), tekstur noise SVG (gambar tekstur Vercel tidak dipakai), dan gerak mati saat "kurangi gerakan". `WorkCover` = sampul kitab Surau (judul Arab dari DB lewat `ArabicInline`, judul Latin + pengarang), warna hijau zaitun tetap di kedua tema. Dipakai di kepala halaman karya (tautan "mulai membaca") dan kartu `/kitab`.
+6. Kartu `/kitab` memakai `Widget` HeroUI Pro (impor `widget.css`): sampul di header, judul/pengarang di konten; baris lisensi dan tombol dihapus atas permintaan pemilik (lisensi tetap di halaman karya dan `/lisensi`). Seluruh kartu bisa diklik lewat tautan judul (`after:inset-0`); sampul miring saat kartu di-hover atau tautannya difokus keyboard (`book-trigger`). CSS `checkbox` (dulu untuk FileTree) dihapus.
+
+**Tinjau ulang bila:** HeroUI merilis pohon navigasi dengan garis pemandu per jalur, daftar isi butuh virtualisasi (kitab dengan ribuan bagian), atau katalog berisi banyak kitab (sampul per kitab, kinerja transform 3D di daftar panjang).

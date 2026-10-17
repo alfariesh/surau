@@ -1,0 +1,363 @@
+/*
+ * Sampul buku 3D (komponen Book). Geometri dan bayangan mengikuti Geist Book; warna memakai token
+ * HeroUI/Zaitun (--surface, --default, --foreground, --border) supaya ikut tema terang/gelap.
+ * Ukuran dalam unit `cqw`: teks sampul ikut lebar buku.
+ */
+.book {
+  --book-default-width: 196;
+  --book-color: var(--default);
+  --book-text-color: var(--foreground);
+  --book-depth: 29cqw;
+  --book-radius: 6px 4px 4px 6px;
+  --book-hover-rotate: -20deg;
+  --book-hover-scale: 1.066;
+  --book-hover-x: -8px;
+  --book-shadow-dir: 90deg;
+  --book-bind-shadow:
+    linear-gradient(
+      var(--book-shadow-dir),
+      #fff0 0%,
+      #fff0 12%,
+      #ffffff40 29.25%,
+      #fff0 50.5%,
+      #fff0 75.25%,
+      #ffffff40 91%,
+      #fff0 100%
+    ),
+    linear-gradient(
+      var(--book-shadow-dir),
+      #00000008 0%,
+      #0000001a 12%,
+      #0000 30%,
+      #00000005 50%,
+      #0003 73.5%,
+      #00000080 75.25%,
+      #00000026 85.25%,
+      #0000 100%
+    );
+  /* Hijau zaitun tetap (aksen terang Zaitun): sampul buku fisik tidak berganti warna ikut tema. */
+  --book-zaitun: oklch(0.47 0.085 150);
+  --book-pages-light: oklch(0.99 0.004 90);
+  --book-pages-edge: oklch(0.9 0.01 90);
+  display: inline-block;
+  width: fit-content;
+  perspective: 900px;
+}
+
+/* Kitab Arab: punggung di kanan, halaman terlihat di kiri saat membuka. */
+.book[data-dir="rtl"] {
+  --book-radius: 4px 6px 6px 4px;
+  --book-hover-rotate: 20deg;
+  --book-hover-x: 8px;
+  --book-shadow-dir: 270deg;
+}
+
+/* Lebar per ukuran layar (prop `width` berupa objek). */
+@media (max-width: 400px) {
+  .book[data-responsive] {
+    --book-width: var(--xs-book-width, var(--sm-book-width));
+  }
+}
+@media (min-width: 401px) and (max-width: 600px) {
+  .book[data-responsive] {
+    --book-width: var(--sm-book-width);
+  }
+}
+@media (min-width: 601px) and (max-width: 960px) {
+  .book[data-responsive] {
+    --book-width: var(--md-book-width, var(--sm-book-width));
+  }
+}
+@media (min-width: 961px) {
+  .book[data-responsive] {
+    --book-width: var(--lg-book-width, var(--md-book-width, var(--sm-book-width)));
+  }
+}
+
+.book__rotate {
+  position: relative;
+  width: fit-content;
+  min-width: calc(var(--book-width) * 1px);
+  aspect-ratio: 49 / 60;
+  container-type: inline-size;
+  transform-style: preserve-3d;
+  transform: rotate(0deg);
+  transition: transform 0.25s ease-out;
+}
+
+/*
+ * Miring saat kursor di atas buku, saat tautan pembungkusnya di-hover/difokus keyboard, atau saat
+ * wadah ber-`book-trigger` (mis. kartu yang seluruhnya bisa diklik) di-hover/memuat fokus keyboard.
+ */
+.book:hover .book__rotate,
+a:hover .book .book__rotate,
+a:focus-visible .book .book__rotate,
+.book-trigger:hover .book__rotate,
+.book-trigger:has(:focus-visible) .book__rotate {
+  transform: rotateY(var(--book-hover-rotate)) scale(var(--book-hover-scale))
+    translateX(var(--book-hover-x));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book__rotate {
+    transition: none;
+  }
+}
+
+.book__cover {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: calc(var(--book-width) * 1px);
+  min-width: calc(var(--book-width) * 1px);
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--book-radius);
+  background: var(--surface);
+  transform: translateZ(0);
+  box-shadow:
+    0 1px 1px #00000005,
+    0 4px 8px -4px #0000001a,
+    0 16px 24px -8px #00000008;
+}
+
+.book__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  border-radius: inherit;
+  box-shadow: inset 0 1px 2px #ffffff4d;
+}
+
+.dark .book__cover {
+  background: linear-gradient(#ffffff1a 0%, #fff0 50%, #fff0 100%), var(--surface);
+  box-shadow:
+    0 1.8px 3.6px #0000000d,
+    0 10.8px 21.6px #00000014,
+    inset 0 -0.9px #0000001a,
+    inset 0 1.8px 1.8px #ffffff1a,
+    inset 3.6px 0 3.6px #0000001a;
+}
+
+.dark .book__cover::after {
+  border: none;
+}
+
+.book__bind {
+  width: 8.2%;
+  height: 100%;
+}
+
+.book__body {
+  display: flex;
+  flex-direction: row;
+}
+
+.book[data-dir="rtl"] .book__body {
+  flex-direction: row-reverse;
+}
+
+.book__body .book__bind {
+  min-width: 8.2%;
+  background: var(--book-bind-shadow);
+  opacity: 0.2;
+}
+
+.book__content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 6.1%;
+  container-type: inline-size;
+}
+
+.book__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.book__title {
+  color: var(--book-text-color);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25em;
+  text-wrap: balance;
+}
+
+/* Judul Arab: tanpa letter-spacing (memutus sambungan huruf) dan baris lebih longgar. */
+.book__title :is([lang="ar"], .arabic-inline) {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+.book__subtitle {
+  color: color-mix(in oklab, var(--book-text-color) 62%, transparent);
+  font-size: 0.62em;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.book__icon {
+  display: flex;
+  color: var(--book-text-color);
+}
+
+.book__icon svg {
+  width: max(14px, 8cqw);
+  height: max(14px, 8cqw);
+}
+
+/* Varian stripe: blok warna mengisi sisa tinggi di atas badan kertas. */
+.book__rotate[data-variant="stripe"] .book__content {
+  gap: calc((24px / var(--book-default-width)) * var(--book-width));
+}
+
+.book__rotate[data-variant="stripe"] .book__title {
+  font-size: 10.5cqw;
+}
+
+.book__rotate[data-variant="stripe"] .book__back {
+  background-color: var(--default);
+}
+
+.book__stripe {
+  position: relative;
+  flex: 1 1 0%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--book-color);
+  transform: translateZ(0);
+}
+
+.book__stripe .book__bind {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--book-bind-shadow);
+  mix-blend-mode: overlay;
+}
+
+.book[data-dir="rtl"] .book__stripe .book__bind {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+.book__illustration {
+  position: absolute;
+  inset: 0;
+}
+
+.book__illustration > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Varian simple: seluruh sampul satu warna. */
+.book__rotate[data-variant="simple"] .book__body {
+  width: 100%;
+  height: 100%;
+}
+
+.book__rotate[data-variant="simple"] .book__content {
+  justify-content: space-between;
+  gap: calc((16px / var(--book-default-width)) * var(--book-width));
+}
+
+.book__rotate[data-variant="simple"] .book__title {
+  font-size: 12cqw;
+  text-shadow:
+    0 0.025em 0.5px color-mix(in srgb, var(--book-color) 80%, white 20%),
+    -0.02em -0.02em 0.5px color-mix(in srgb, var(--book-color) 80%, black 20%);
+}
+
+.book__rotate[data-variant="simple"] .book__back {
+  background: var(--book-color);
+}
+
+.book__rotate[data-variant="simple"][data-color] .book__cover {
+  background: var(--book-color);
+}
+
+.book__rotate[data-variant="simple"][data-color] .book__bind {
+  mix-blend-mode: overlay;
+  opacity: 1;
+}
+
+.dark .book__rotate[data-variant="simple"]:not([data-color]) .book__cover::after {
+  box-shadow: inset 0 1px 2px #ffffff1a;
+}
+
+/* Tekstur kertas: noise SVG (feTurbulence), tanpa berkas gambar luar. */
+.book__texture {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: var(--book-radius);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(115deg, #ffffff26 0%, #fff0 35%, #0000000f 100%);
+  background-size:
+    160px 160px,
+    100% 100%;
+  mix-blend-mode: multiply;
+  opacity: 0.45;
+}
+
+.dark .book__texture {
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
+
+/* Tebal halaman (sisi kertas) dan sampul belakang, terlihat saat buku miring. */
+.book__pages {
+  position: absolute;
+  top: 3px;
+  width: calc(var(--book-depth) - 2px);
+  height: calc(100% - 6px);
+  background:
+    linear-gradient(90deg, var(--book-pages-edge) 0%, #0000 70%),
+    linear-gradient(var(--book-pages-light), oklch(0.975 0.006 90));
+  transform: translateX(calc(var(--book-width) * 1px - var(--book-depth) / 2 - 3px)) rotateY(90deg)
+    translateX(calc(var(--book-depth) / 2));
+}
+
+.book[data-dir="rtl"] .book__pages {
+  transform: translateX(calc(5px - var(--book-depth) / 2)) rotateY(-90deg)
+    translateX(calc(var(--book-depth) / -2));
+}
+
+.book:has(.book__texture) .book__pages {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--book-pages-light),
+    oklch(0.94 0.008 90) 1px,
+    var(--book-pages-light) 3px,
+    oklch(0.68 0.01 90) 1px
+  );
+}
+
+.book__back {
+  position: absolute;
+  left: 0;
+  width: calc(var(--book-width) * 1px);
+  height: 100%;
+  border-radius: var(--book-radius);
+  background: var(--book-color);
+  transform: translateZ(calc(-1 * var(--book-depth)));
+}
+
+/* Pola sampul (BookPattern): garis tipis terang di atas warna sampul. */
+.book-pattern {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: #ffffff;
+  opacity: 0.22;
+}

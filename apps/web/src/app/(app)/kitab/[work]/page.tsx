@@ -6,6 +6,7 @@ import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 
 import { ArabicInline } from "../../../../components/arabic";
+import { WorkCover } from "../../../../components/book/work-cover";
 import { LicenseNotice } from "../../../../components/reader/license-notice";
 import { TocTree } from "../../../../components/reader/toc-tree";
 import { id } from "../../../../i18n/id";
@@ -49,28 +50,41 @@ export default async function WorkPage({ params }: Props) {
         <Breadcrumbs.Item>{title}</Breadcrumbs.Item>
       </Breadcrumbs>
 
-      <header className="flex flex-col gap-3">
-        <h1 className="text-foreground flex flex-col items-start gap-1 text-3xl font-semibold tracking-tight">
-          <span>{title}</span>
-          <ArabicInline className="text-muted text-2xl font-normal">{work.title_ar}</ArabicInline>
-        </h1>
-        {work.author ? (
-          <p className="text-foreground text-base">
-            {t.by} {work.author.name_id ?? work.author.name_ar}{" "}
-            <ArabicInline className="text-muted">{work.author.name_ar}</ArabicInline>
-            {work.author.death_hijri ? (
-              <span className="text-muted"> · {t.deathHijri(work.author.death_hijri)}</span>
-            ) : null}
-          </p>
-        ) : null}
+      <header className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
         {start ? (
-          <div>
-            <NextLink className={buttonVariants({ variant: "primary" })} href={start}>
-              <BookOpen aria-hidden="true" className="size-4" />
-              {t.startReading}
-            </NextLink>
-          </div>
-        ) : null}
+          <NextLink
+            aria-label={t.openWork(title)}
+            className="shrink-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
+            href={start}
+          >
+            <WorkCover textured width={{ xs: 150, sm: 168, md: 196 }} work={work} />
+          </NextLink>
+        ) : (
+          <WorkCover textured width={{ xs: 150, sm: 168, md: 196 }} work={work} />
+        )}
+        <div className="flex min-w-0 flex-col gap-3">
+          <h1 className="text-foreground flex flex-col items-start gap-1 text-3xl font-semibold tracking-tight">
+            <span>{title}</span>
+            <ArabicInline className="text-muted text-2xl font-normal">{work.title_ar}</ArabicInline>
+          </h1>
+          {work.author ? (
+            <p className="text-foreground text-base">
+              {t.by} {work.author.name_id ?? work.author.name_ar}{" "}
+              <ArabicInline className="text-muted">{work.author.name_ar}</ArabicInline>
+              {work.author.death_hijri ? (
+                <span className="text-muted"> · {t.deathHijri(work.author.death_hijri)}</span>
+              ) : null}
+            </p>
+          ) : null}
+          {start ? (
+            <div>
+              <NextLink className={buttonVariants({ variant: "primary" })} href={start}>
+                <BookOpen aria-hidden="true" className="size-4" />
+                {t.startReading}
+              </NextLink>
+            </div>
+          ) : null}
+        </div>
       </header>
 
       <Card>
