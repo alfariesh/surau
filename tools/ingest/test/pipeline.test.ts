@@ -32,7 +32,12 @@ describe("runIngest (kitab buatan)", () => {
       passage: 18,
       footnote_ref: 3,
       passage_needs_review: 7,
-      term_stat: 20,
+      quran_source: 4,
+      quran_surah: 2,
+      quran_ayah: 6,
+      quran_translation: 12,
+      passage_ayah_ref: 1,
+      term_stat: 23,
       passage_fts: 18,
       meta: 5,
     });
@@ -162,6 +167,60 @@ describe("runIngest (kitab buatan)", () => {
     const stats = q<{ term: string; df: number }>("SELECT term, df FROM term_stat");
     expect(stats.every((t) => t.df > 1.8)).toBe(true);
     expect(stats.map((t) => t.term)).toEqual(stats.map((t) => t.term).sort());
+
+    // Ayat (S12): kutipan berkurung di halaman 4 cocok persis ke "1:2" mushaf buatan; lafaz yang
+    // sama juga ada di 2:3 (alt_count 1). Offset = isi kurung tanpa kurungnya, teks mentah utuh.
+    const ayah = q<{
+      text_raw: string;
+      char_start: number;
+      char_end: number;
+      surah: number;
+      ayah_from: number;
+      ayah_to: number;
+      match: string;
+      partial: number;
+      bracketed: number;
+      alt_count: number;
+    }>(
+      `SELECT p.text_raw, r.char_start, r.char_end, r.surah, r.ayah_from, r.ayah_to, r.match,
+              r.partial, r.bracketed, r.alt_count
+       FROM passage_ayah_ref r JOIN passage p ON p.id = r.passage_id`,
+    );
+    expect(
+      ayah.map(({ text_raw, char_start, char_end, ...r }) => ({
+        quote: text_raw.slice(char_start, char_end),
+        ...r,
+      })),
+    ).toEqual([
+      {
+        quote: "وَالصَّبْرُ نور القلوب في الظلمات",
+        surah: 1,
+        ayah_from: 2,
+        ayah_to: 2,
+        match: "exact",
+        partial: 0,
+        bracketed: 1,
+        alt_count: 1,
+      },
+    ]);
+    // Basmalah pembuka surah (atribut `bismillah` Tanzil) bukan teks ayat 1; catatan kaki
+    // terjemahan disimpan sebagai JSON, penandanya tetap di teks.
+    expect(q("SELECT text_index FROM quran_ayah WHERE surah = 2 AND ayah = 1")).toEqual([
+      { text_index: "قل هل يستوي العالم والجاهل" },
+    ]);
+    expect(
+      q("SELECT source_id, text, footnotes FROM quran_translation WHERE surah = 1 AND ayah = 2"),
+    ).toEqual([
+      {
+        source_id: "kemenag-id",
+        text: "Terjemahan uji dua1) dengan catatan.",
+        footnotes: JSON.stringify([{ marker: "1)", text: "Catatan kaki uji." }]),
+      },
+      { source_id: "kemenag-latin", text: "Translit 1:2", footnotes: null },
+    ]);
+    const report = readFileSync(join(paths.repo, `${config.reportPrefix}-ayat.md`), "utf8");
+    expect(report).toContain("| · cocok persis (`exact`) | 1 (100,0%) |");
+    expect(report).toContain("QS Al-Ula [1]: 2");
     db.close();
   });
 

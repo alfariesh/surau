@@ -1,6 +1,6 @@
 # S12 · Ayat Al-Qur'an (Tanzil) & terjemahan Kemenag
 
-> **Fase:** 2 · **Status:** belum
+> **Fase:** 2 · **Status:** berjalan
 > **Prasyarat:** S11 selesai · Tugas pemilik: **T-09** (drive). **T-16** dikerjakan di langkah 4.
 > **Perkiraan:** 1 percakapan agent
 

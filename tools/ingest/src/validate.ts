@@ -3,6 +3,8 @@
 // juz/halaman.
 import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
 import { MATAN_THRESHOLD } from "./openiti/verify.ts";
+import { EXACT_RATIO_MIN, NUMBERING_MISMATCH_MAX } from "./quran/rows.ts";
+import type { AyatBuild } from "./quran/rows.ts";
 import type { CorpusRows } from "./rows.ts";
 import type { ParsedPage } from "./shamela/page.ts";
 import type { ShamelaSource } from "./shamela/source.ts";
@@ -91,10 +93,11 @@ export interface ValidateInput {
   matan: MatanCheck;
   takhrij: TakhrijCheck;
   rows: CorpusRows;
+  ayat: AyatBuild;
 }
 
 export function validate(input: ValidateInput): Validation {
-  const { config, source, pages, toc, matan, rows } = input;
+  const { config, source, pages, toc, matan, rows, ayat } = input;
   const exp = config.expect;
   const invariants: Invariant[] = [];
   const check = (name: string, ok: boolean, detail: string): void => {
@@ -189,6 +192,45 @@ export function validate(input: ValidateInput): Validation {
     `Matan = OpenITI (≥${String(MATAN_THRESHOLD).replace(".", ",")} per halaman)`,
     matan.passed >= exp.matanMinPages && matan.missing.length === 0,
     `${matan.passed}/${pages.length} halaman (gerbang ≥${exp.matanMinPages}); ${matan.missing.length} halaman tidak ada di OpenITI`,
+  );
+
+  // Ayat (S12): sumber Qur'an lengkap dan konsisten, rujukan menunjuk potongan teks yang sah.
+  const ayahCount = rows.quran_surah.reduce((a, s) => a + s.ayah_count, 0);
+  check(
+    "Sumber Qur'an utuh (ayat = jumlah per surah; terjemahan + transliterasi tiap ayat; penomoran QUL = Tanzil)",
+    rows.quran_ayah.length === ayahCount &&
+      rows.quran_translation.length === 2 * ayahCount &&
+      ayat.numberingMismatch.length <= NUMBERING_MISMATCH_MAX,
+    `${rows.quran_surah.length} surah, ${rows.quran_ayah.length}/${ayahCount} ayat, ${rows.quran_translation.length} baris terjemahan/transliterasi; ${ayat.numberingMismatch.length} ayat beda teks QUL vs Tanzil (batas ${NUMBERING_MISMATCH_MAX})`,
+  );
+  const ayahKeys = new Set(rows.quran_ayah.map((a) => `${a.surah}:${a.ayah}`));
+  let badAyahRefs = 0;
+  let prev: { passage: number; end: number } | null = null;
+  for (const r of rows.passage_ayah_ref) {
+    const text = byId.get(r.passage_id)?.text_raw;
+    const overlap = prev !== null && prev.passage === r.passage_id && r.char_start < prev.end;
+    if (
+      text === undefined ||
+      r.char_end > text.length ||
+      text.slice(r.char_start, r.char_end).trim() !== text.slice(r.char_start, r.char_end) ||
+      overlap ||
+      !ayahKeys.has(`${r.surah}:${r.ayah_from}`) ||
+      !ayahKeys.has(`${r.surah}:${r.ayah_to}`)
+    ) {
+      badAyahRefs++;
+    }
+    prev = { passage: r.passage_id, end: r.char_end };
+  }
+  check(
+    "Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada)",
+    badAyahRefs === 0,
+    `${rows.passage_ayah_ref.length} rujukan; ${badAyahRefs} tidak sah`,
+  );
+  const s = ayat.stats;
+  check(
+    `Kutipan {…} tervalidasi cocok persis ≥${Math.round(EXACT_RATIO_MIN * 100)}%`,
+    s.exactRatio >= EXACT_RATIO_MIN,
+    `${s.exact}/${s.validated} (${(s.exactRatio * 100).toFixed(1).replace(".", ",")}%); mirip ${s.similar}, tidak cocok ${s.unmatched}`,
   );
 
   const midParagraph = toc.nodes.filter((n) => {

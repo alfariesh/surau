@@ -30,6 +30,7 @@ import type {
 } from "@surau/db";
 
 import type { IdAllocator } from "./ids.ts";
+import type { QuranRows } from "./quran/rows.ts";
 import { TAKHRIJ_THRESHOLD } from "./openiti/verify.ts";
 import type { TakhrijCheck } from "./openiti/verify.ts";
 import type { ParsedPage, PassageDraft } from "./shamela/page.ts";
@@ -48,6 +49,11 @@ export const TABLE_ORDER = [
   "passage",
   "footnote_ref",
   "passage_needs_review",
+  "quran_source",
+  "quran_surah",
+  "quran_ayah",
+  "quran_translation",
+  "passage_ayah_ref",
   "term_stat",
   "meta",
 ] as const;
@@ -62,10 +68,19 @@ export interface CorpusRows {
   passage: PassageRow[];
   footnote_ref: FootnoteRefRow[];
   passage_needs_review: PassageNeedsReviewRow[];
+  /** Tabel Qur'an + rujukan ayat (S12): diisi pipeline dari sumber Qur'an (`quran/rows.ts`). */
+  quran_source: QuranRows["quran_source"];
+  quran_surah: QuranRows["quran_surah"];
+  quran_ayah: QuranRows["quran_ayah"];
+  quran_translation: QuranRows["quran_translation"];
+  passage_ayah_ref: QuranRows["passage_ayah_ref"];
   /** Stem sangat umum di indeks FTS (S11): dihitung pipeline setelah baris paragraf ada. */
   term_stat: TermStatRow[];
   meta: MetaRow[];
 }
+
+/** Tabel yang tidak diisi `buildRows` (menyusul di pipeline). */
+export type PipelineTables = "term_stat" | keyof QuranRows;
 
 export interface RowsInput {
   config: WorkConfig;
@@ -77,8 +92,11 @@ export interface RowsInput {
   meta: { normVersion: number; builtAt: string; sourceHash: string };
 }
 
-/** Baris korpus dari sumber; `term_stat` menyusul dari indeks FTS (`search-index.ts`, pipeline). */
-export function buildRows(input: RowsInput): Omit<CorpusRows, "term_stat"> {
+/**
+ * Baris korpus dari sumber kitab. `term_stat` menyusul dari indeks FTS (`search-index.ts`), tabel
+ * Qur'an dan rujukan ayat dari sumber Qur'an (`quran/rows.ts`); keduanya di pipeline.
+ */
+export function buildRows(input: RowsInput): Omit<CorpusRows, PipelineTables> {
   const { config, source, pages, toc, takhrij, ids } = input;
   const ed = config.edition.id;
   const imprint = parseImprint(source.book.bibliography);

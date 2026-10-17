@@ -6,7 +6,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { SEARCH_SCHEMA_VERSION } from "@surau/db";
+import { QURAN_SCHEMA_VERSION, SEARCH_SCHEMA_VERSION } from "@surau/db";
 import { buildFtsMatch } from "@surau/text";
 
 import { sqlLiteral } from "./sql.ts";
@@ -140,12 +140,24 @@ export const COUNTED = [
   "passage",
   "footnote_ref",
   "passage_needs_review",
+  "quran_source",
+  "quran_surah",
+  "quran_ayah",
+  "quran_translation",
+  "passage_ayah_ref",
   "term_stat",
   "passage_fts",
   "meta",
 ] as const;
 /** Tabel yang baru ada (atau baru diisi) sejak skema korpus 4 (S11): tidak dihitung di korpus lama. */
 const SEARCH_TABLES: ReadonlySet<string> = new Set(["term_stat", "passage_fts"]);
+const QURAN_TABLES: ReadonlySet<string> = new Set([
+  "quran_source",
+  "quran_surah",
+  "quran_ayah",
+  "quran_translation",
+  "passage_ayah_ref",
+]);
 
 // Satu baris berisi subkueri per tabel (D1 membatasi jumlah suku UNION dalam satu SELECT).
 const smokeCounts = (tables: readonly string[]): string =>
@@ -193,7 +205,11 @@ export function smoke(
   // Korpus skema < 4 (ihya-v1) tidak punya term_stat: dihitung 0 dan pencarian tidak dicoba, supaya
   // smoke (mis. `promote --switch-only`) memberi pesan, bukan crash "no such table".
   const search = Number(meta.schema_version ?? 0) >= SEARCH_SCHEMA_VERSION;
-  const tables = COUNTED.filter((t) => search || !SEARCH_TABLES.has(t));
+  // Tabel Qur'an (S12) baru ada sejak skema 5: korpus lama dihitung 0, tanpa crash.
+  const quran = Number(meta.schema_version ?? 0) >= QURAN_SCHEMA_VERSION;
+  const tables = COUNTED.filter(
+    (t) => (search || !SEARCH_TABLES.has(t)) && (quran || !QURAN_TABLES.has(t)),
+  );
   const row = query(target, smokeCounts(tables))[0] ?? {};
   const counts = Object.fromEntries(
     COUNTED.map((t) => [t, Number(row[t] ?? 0)]),
@@ -209,6 +225,11 @@ export function smoke(
     problems.push(`skema korpus ${meta.schema_version ?? "?"} belum punya indeks pencarian (S11)`);
   } else if (Number(query(target, SMOKE_SEARCH)[0]?.n ?? 0) === 0) {
     problems.push("indeks passage_fts tidak mengenai الصبر (indeks kosong atau tidak sinkron)");
+  }
+  if (!quran) {
+    problems.push(`skema korpus ${meta.schema_version ?? "?"} belum punya tabel ayat (S12)`);
+  } else if (counts.quran_ayah === 0 || counts.passage_ayah_ref === 0) {
+    problems.push("tabel quran_ayah atau passage_ayah_ref kosong");
   }
   if (expect !== undefined) {
     for (const t of COUNTED) {
