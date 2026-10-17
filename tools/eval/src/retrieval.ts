@@ -61,7 +61,11 @@ function loadQuestions(opts: { publicOnly: boolean; gate: boolean }): LoadedQues
     }
     return mergeSets(pub);
   }
-  return mergeSets(pub, parseJsonl(readFileSync(privFile, "utf8"), PRIVATE_FILE, "privat"));
+  const priv = parseJsonl(readFileSync(privFile, "utf8"), PRIVATE_FILE, "privat");
+  if (opts.gate && priv.length === 0) {
+    throw new Error(`--gate butuh soal privat, tetapi ${PRIVATE_FILE} kosong`);
+  }
+  return mergeSets(pub, priv);
 }
 
 /** Commit kode; `-dirty` bila ada perubahan yang belum di-commit (laporan harus bisa diulang). */
@@ -69,7 +73,8 @@ function gitSha(): string {
   try {
     const git = (...args: string[]) =>
       execFileSync("git", args, { cwd: repo, encoding: "utf8" }).trim();
-    const dirty = git("status", "--porcelain", "--untracked-files=no") !== "";
+    // Berkas baru yang belum di-commit (mis. soal JSONL) juga membuat laporan tidak bisa diulang.
+    const dirty = git("status", "--porcelain") !== "";
     return `${git("rev-parse", "--short", "HEAD")}${dirty ? "-dirty" : ""}`;
   } catch {
     return "?";

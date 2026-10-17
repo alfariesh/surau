@@ -27,7 +27,7 @@ Kualitas pencarian diukur secara objektif sebelum dirilis: set soal "di mana al-
 
 ## Selesai bila
 
-- [x] ≥20 soal disetujui pemilik/ustadz (nama penyetuju tercatat di dataset): 31/31, `disetujui_oleh` = "Salman Alfariesh (pemilik), 2026-10-17" di `evals/retrieval/soal.jsonl` (21) + set privat (10, R2 `retrieval/2026-10-17-resmi.jsonl`)
+- [x] ≥20 soal disetujui pemilik/ustadz (nama penyetuju tercatat di dataset): 31/31, `disetujui_oleh` = "Salman Alfariesh (pemilik), 2026-10-17" di `evals/retrieval/soal.jsonl` (22) + set privat (9, R2 `retrieval/2026-10-17-resmi-2.jsonl`)
 - [x] `pnpm run eval:retrieval` berjalan dan menghasilkan laporan; angka dicatat di LOG (`evals/reports/retrieval-2026-10-17-ihya-v5-resmi.md`; juga `--remote` di CI)
 - [x] **hit@10 (lokasi benar) ≥ 90%**: `pnpm run eval:retrieval --gate` → set resmi 31 soal hit@10 **100%**, kode keluar 0
 - [x] ADR keputusan embedding tertulis (ADR-046: tetap ditunda; ADR-045: rancangan eval)
@@ -48,7 +48,7 @@ Kualitas pencarian diukur secara objektif sebelum dirilis: set soal "di mana al-
   - hit@1/5/10 + MRR@50 per jenis, bahasa kueri, dan set;
   - laporan Markdown tanpa teks soal privat;
   - `--remote` (staging), `--gate` (kode keluar 2), dan `--publik-saja`. 22 tes di `tools/eval/src/*.test.ts`.
-- **31 soal disetujui pemilik (T-12)**: 21 publik (`evals/retrieval/soal.jsonl`) + 10 privat (git-ignored, R2 `surau-evals`). Komposisinya 4 rub', 19 lokasi / 7 istilah / 5 topik tersebar, serta 6 kueri Arab / 25 Indonesia. Kueri ditulis sebelum pencarian dijalankan, dan lokasi diverifikasi dengan membaca bab terkait. Persetujuan lewat halaman tinjauan (artifact claude.ai, `db`) dan chat ("Ya setujui semua").
+- **31 soal disetujui pemilik (T-12)**: 22 publik (`evals/retrieval/soal.jsonl`) + 9 privat (git-ignored, R2 `surau-evals`). Komposisinya 4 rub', 19 lokasi / 7 istilah / 5 topik tersebar, serta 6 kueri Arab / 25 Indonesia. Kueri ditulis sebelum pencarian dijalankan, dan lokasi diverifikasi dengan membaca bab terkait. Persetujuan lewat halaman tinjauan (artifact claude.ai, `db`) dan chat ("Ya setujui semua").
 - **Perbaikan murah (langkah 5):** kata pembingkai pertanyaan (`ID_QUERY_FRAMING`: cara, bagaimana, di mana, menurut, membahas, "(Imam) al-Ghazali" yang menempel …) dibuang dari kueri Indonesia, hanya di sisi kueri. Indeks dan `LATIN_NORM_VERSION` tidak berubah, jadi korpus tidak dibangun ulang.
 - **CI `eval.yml`** (non-blocking): staging lewat remote binding, soal privat dari R2, ringkasan di Summary job, peringatan dibedakan antara di bawah gerbang (kode 2) dan galat. Uji pertama di PR #36: berjalan 39 detik, 30 soal termasuk privat.
 - **Gerbang rilis:** skill `/rilis` (`--gate --label rilis` atas D1 lokal = korpus produksi), syarat R2 dirinci di FASE.md, `evals/README.md`.
@@ -61,7 +61,7 @@ Kualitas pencarian diukur secara objektif sebelum dirilis: set soal "di mana al-
 | **resmi** (31 disetujui) | 31 | 64,5% | 96,8% | **100%** | 0,795 |
 
 - Kueri Arab 6/6 di peringkat 1. Kueri Indonesia hit@1 56%, hit@10 100%. Topik tersebar: semua lolos, tetapi baru 8 dari 13 lokasinya yang terjangkau di 10 teratas.
-- **Analisis kegagalan:** satu-satunya kegagalan baseline (r03 "cara khusyuk dalam salat", > 50) masuk kategori kosakata, khususnya kata pembingkai: "cara" diwajibkan AND. Setelah perbaikan r03 → 1 dan r20 2 → 1, tanpa soal lain yang turun. Tidak ada kegagalan normalisasi atau peringkat yang menahan hit@10. Peringkat 1 masih lemah untuk topik tersebar dan istilah Indonesia (itsar, wara').
+- **Analisis kegagalan:** satu-satunya kegagalan baseline (r03 "cara khusyuk dalam salat", > 50) masuk kategori kosakata, khususnya kata pembingkai: "cara" diwajibkan AND. Setelah perbaikan r03 → 1 dan r20 2 → 1, tanpa soal lain yang turun. Tidak ada kegagalan normalisasi atau peringkat yang menahan hit@10. Peringkat 1 masih lemah untuk topik tersebar dan istilah Indonesia (r22 itsar, r12 wara').
 - **Keputusan embedding (ADR-046):** tetap ditunda, S15b tidak dijadwalkan.
 
 **Peninjau**
@@ -69,12 +69,12 @@ Kualitas pencarian diukur secara objektif sebelum dirilis: set soal "di mana al-
   - Blocker: perbaikan kata pembingkai dirancang dari kegagalan soal privat p03, dan teks kuerinya masuk kode. p03 dianggap terbakar, dipindah ke publik sebagai r03, dan diganti p31 yang ditulis sebelum dijalankan. Aturan holdout baru dicatat di README dan ADR-045.
   - Perbaiki: gerbang wajib ≥ 20 soal; `--gate` wajib soal privat; galat soal privat disamarkan (log CI publik); "al"/"imam" yang menempel pada "ghazali"; ADR ditulis.
   - Saran: hasil tanpa peringkat dihitung gagal; baris bahasa kueri arab/indonesia/campuran; cek rentang menurut halaman cetak; kode `-dirty`; "ma'na" dikecualikan; kode keluar CI dibedakan.
-- Putaran 2: lihat LOG.
+- Putaran 2: 1 blocker. Catatan ini semula menyebut topik soal privat p12, sehingga p12 dipindah ke publik sebagai r12 (isi dan persetujuan tetap; holdout kini 9). Ditambah 2 perbaiki (teks gerbang `/rilis`, urutan syarat R2) dan saran (CI memanggil runner langsung dengan node, `--gate` wajib ≥ 1 soal privat, `-dirty` ikut berkas baru, ejaan Ghozali/Ghazzali, lokasi salinan soal privat dicatat). Semua ditangani.
 
 **Penyimpangan (ADR-045):**
 - Field `kueri` ditambahkan di samping `pertanyaan`.
 - `lokasi_benar` boleh berupa rentang halaman, karena daftar isi Rub' Adat/Muhlikat dangkal.
-- Set 31 soal, bukan 30, karena ada soal pengganti holdout.
+- Set 31 soal, bukan 30, karena ada soal pengganti holdout (p31). Holdout 9 soal setelah dua soal terbakar.
 - CI memakai staging remote, bukan DB yang dibangun dari artefak (korpus tidak bisa dibangun atau diekspor di CI).
 - Satu lokasi benar dilebarkan setelah membaca teks (r23 + j3 h231).
 
@@ -83,5 +83,5 @@ Kualitas pencarian diukur secara objektif sebelum dirilis: set soal "di mana al-
 - Set eval kecil (31 soal, satu kitab, disusun agent). Ustadz (T-13) menambah dan menilai soal di S18. Topik tersebar dinilai longgar (benar bila satu lokasi muncul).
 - hit@1 64,5%: bila Cari dinilai kurang tajam, bahan perbaikan peringkat (bobot ringkasan vs terjemahan, judul bagian) sebelum embedding.
 - Laporan baseline dibuat sebelum runner di-commit (`92f2ef8` = kode pencarian).
-- Halaman tinjauan T-12 (artifact claude.ai) bisa dipakai ulang untuk soal baru: buat ulang datanya dari dataset.
+- Halaman tinjauan T-12 (artifact claude.ai) memuat teks soal privat (lokasi salinan ketiga, dicatat di README). Untuk soal baru, buat halaman dengan data baru dan jangan menyalin set privat ke tempat lain.
 

@@ -39,13 +39,14 @@ Sekitar sepertiga soal disimpan privat supaya tidak bocor ke data latih model da
 
 Aturan holdout (ADR-045):
 - Kegagalan soal privat hanya dianalisis per kategori (kosakata, normalisasi, peringkat). Perbaikan dirancang, diuji, dan dijelaskan memakai soal publik; teks soal privat tidak pernah ditulis di kode, tes, komentar, pesan commit, atau dokumen.
-- Soal privat yang terlanjur dipakai untuk merancang perbaikan dianggap terbakar: dipindah ke set publik (ID `r` baru) dan diganti soal privat baru yang ditulis sebelum pernah dijalankan. Contoh: p03 → r03, pengganti p31 (2026-10-17).
+- Soal privat yang terlanjur dipakai untuk merancang perbaikan, atau yang topiknya tertulis di tempat publik, dianggap terbakar: dipindah ke set publik (ID `r` baru), lalu bila perlu diganti soal privat baru yang ditulis sebelum pernah dijalankan. Contoh 2026-10-17: p03 → r03 (pengganti p31) dan p12 → r12.
+- Salinan teks soal privat hanya ada di `evals/private/` (mesin pemilik), R2 `surau-evals`, dan halaman tinjauan T-12 (artifact claude.ai privat milik pemilik). Jangan membuat salinan baru tanpa mencatatnya di sini.
 
 - Salinan resmi ada di R2 bucket privat `surau-evals` (akses r2.dev mati). Setiap revisi diunggah sebagai berkas baru (tidak menimpa): `retrieval/<tanggal>-<status>.jsonl`. Kunci yang berlaku ditulis di `PRIVATE_KEY` pada `.github/workflows/eval.yml`.
 - Mengambil ke mesin ini:
 
 ```bash
-pnpm wrangler r2 object get surau-evals/retrieval/2026-10-17-resmi.jsonl --file evals/private/retrieval.jsonl --remote
+pnpm wrangler r2 object get surau-evals/retrieval/2026-10-17-resmi-2.jsonl --file evals/private/retrieval.jsonl --remote
 ```
 
 - Mengunggah revisi baru (nama berkas baru, lalu perbarui `PRIVATE_KEY`):

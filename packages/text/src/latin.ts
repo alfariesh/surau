@@ -128,6 +128,10 @@ export const ID_STOPWORDS: ReadonlySet<string> = new Set([
   ...FUNCTION_WORDS,
 ]);
 
+/** Nama penulis dalam ejaan yang umum dipakai pengguna (kata pembingkai, lihat di bawah). */
+const AUTHOR_NAMES = ["ghazali", "ghozali", "ghazzali"] as const;
+const AUTHOR_NAME_SET: ReadonlySet<string> = new Set(AUTHOR_NAMES);
+
 /**
  * Kata pembingkai pertanyaan (S15, ADR-045): membentuk pertanyaan pengguna ("cara …", "bagaimana
  * …", "di mana al-Ghazali membahas …") tetapi jarang ada di teks jawaban, jadi mewajibkannya (AND)
@@ -135,7 +139,8 @@ export const ID_STOPWORDS: ReadonlySet<string> = new Set([
  * halaman (yang memuat "cara") dan bab khusyuk tidak masuk 50 teratas. HANYA dibuang dari kueri, dan
  * hanya bila masih ada kata lain; indeks tidak berubah, jadi `LATIN_NORM_VERSION` tetap. Dicek pada
  * bentuk normal sebelum stem, dan hanya untuk token tanpa apostrof ("ma'na" = makna, bukan "mana").
- * "al" dan "imam" ikut dibuang hanya bila menempel tepat sebelum "ghazali" (`planLatinQuery`);
+ * "al" dan "imam" ikut dibuang hanya bila menempel tepat sebelum nama penulis (ghazali, ghozali,
+ * ghazzali; `planLatinQuery`);
  * "imam" sendiri tetap dicari (imamah salat adalah topik).
  */
 export const ID_QUERY_FRAMING: ReadonlySet<string> = new Set([
@@ -163,7 +168,7 @@ export const ID_QUERY_FRAMING: ReadonlySet<string> = new Set([
   "penjelasan",
   "menerangkan",
   "diterangkan",
-  "ghazali",
+  ...AUTHOR_NAMES,
 ]);
 
 /**
@@ -453,7 +458,7 @@ export function planLatinQuery(query: string): LatinQueryPlan | null {
   );
   // "al-Ghazali", "Imam al-Ghazali": artikel dan gelar yang menempel (spasi/tanda hubung saja).
   for (const [i, t] of tokens.entries()) {
-    if (t.norm !== "ghazali" || framing[i] !== true) continue;
+    if (!AUTHOR_NAME_SET.has(t.norm) || framing[i] !== true) continue;
     for (let j = i; j > 0; j--) {
       const prev = tokens[j - 1];
       const cur = tokens[j];

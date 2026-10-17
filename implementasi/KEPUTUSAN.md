@@ -1049,10 +1049,14 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Lokasi diverifikasi dengan membaca judul Arab, ringkasan, dan terjemahan bab terkait.
    - Hanya soal ber-`disetujui_oleh` (T-12) yang masuk set resmi.
 3. **Holdout privat:**
-   - 10 soal dipilih berimbang (bahasa, jenis, rub') sebelum run pertama. Disimpan git-ignored dan di R2 `surau-evals` (privat, r2.dev mati). Setiap revisi diunggah sebagai berkas baru; kuncinya `PRIVATE_KEY` di `eval.yml`.
+   - 10 soal dipilih sebelum run pertama, mencakup keempat rub', kedua bahasa, dan ketiga jenis. Disimpan git-ignored dan di R2 `surau-evals` (privat, r2.dev mati). Setiap revisi diunggah sebagai berkas baru; kuncinya `PRIVATE_KEY` di `eval.yml`.
    - Laporan, ringkasan CI, dan pesan galat hanya memuat ID, jenis, dan peringkat soal privat.
    - **Aturan:** kegagalan soal privat dianalisis per kategori saja; perbaikan dirancang dan diuji dengan soal publik.
-   - **Insiden S15:** perbaikan butir 6 dirancang dari kegagalan soal privat p03, dan teks kuerinya masuk ke kode. Temuan peninjau: p03 dianggap terbakar, dipindah ke publik sebagai r03, dan diganti p31 (ditulis sebelum dijalankan).
+   - **Salinan teks soal privat** ada di tiga tempat: mesin pemilik (`evals/private/`), R2 `surau-evals`, dan halaman tinjauan T-12 (artifact claude.ai privat milik pemilik). Salinan baru hanya dibuat dengan alasan dan dicatat.
+   - **Insiden S15** (keduanya temuan peninjau):
+     - (1) Perbaikan butir 6 dirancang dari kegagalan soal privat p03, dan teks kuerinya masuk ke kode. p03 dipindah ke publik sebagai r03 dan diganti p31 (ditulis sebelum dijalankan).
+     - (2) Catatan sesi menyebut topik soal privat p12 saat menganalisis peringkat. p12 dipindah ke publik sebagai r12, dengan isi dan persetujuan tetap, tanpa pengganti.
+     - Holdout kini 9 soal. S18 menambah soal privat bersama ustadz.
 4. **Runner** `pnpm run eval:retrieval` (`tools/eval`, Node + `getPlatformProxy`):
    - **Sumber data:** D1 lokal (salinan state, ARSITEKTUR §7 aturan 2), atau `--remote` = staging lewat remote binding (`preview_database_id` = staging, sehingga produksi tidak pernah tersentuh; hanya SELECT).
    - **Hasil benar:** halaman dalam rentang, atau halaman yang paragraf cocoknya ada di bagian lokasi benar.
@@ -1066,9 +1070,9 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - **Akibatnya:** r03 "cara khusyuk dalam salat" hanya cocok 5 halaman dan bab khusyuk berada di luar 50 teratas.
    - **Perbaikan:** kata-kata itu dibuang dari kueri saja, dan hanya bila masih ada kata lain. Token berapostrof (ma'na) dikecualikan.
    - Indeks tidak berubah: `LATIN_NORM_VERSION` tetap 1, korpus tidak perlu dibangun ulang. Kunci cache ikut berubah lewat stem rencana kueri.
-   - **Hasil:** r03 > 50 → 1, r20 2 → 1. Uji kueri lain (cara bertobat, bagaimana cara ikhlas, cara berwudu, menurut al-Ghazali tentang riya): bab utama di 3 teratas.
+   - **Hasil:** r03 > 50 → 1, r20 2 → 1, dan tidak ada soal lain yang turun. Uji 4 kueri di luar set (mis. bagaimana cara ikhlas, cara berwudu, menurut al-Ghazali tentang riya): bab utama di 3 teratas. Ejaan Al-Ghozali dan Ghazzali ikut dianggap pembingkai.
 
-**Hasil (D1 lokal = staging = produksi `ihya-v5`):** baseline 30 soal hit@1 56,7% · hit@5 90,0% · hit@10 96,7% · MRR 0,732. Setelah butir 6 (31 soal, termasuk r03 dan p31): hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795. Kueri Arab 6/6 di peringkat 1. Satu lokasi benar dilebarkan setelah membaca teks (r23: pembuka kitab j3 h231 menyebut harta sebagai fitnah dunia terbesar). **Set resmi** (T-12: ke-31 soal disetujui pemilik, 2026-10-17; laporan `evals/reports/retrieval-2026-10-17-ihya-v5-resmi.md`): hit@10 100% → **lolos gerbang R2**; set privat 10 soal hit@10 100%, hit@5 90%.
+**Hasil (D1 lokal = staging = produksi `ihya-v5`):** baseline 30 soal hit@1 56,7% · hit@5 90,0% · hit@10 96,7% · MRR 0,732. Setelah butir 6 (31 soal, termasuk r03 dan p31): hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795. Kueri Arab 6/6 di peringkat 1. Satu lokasi benar dilebarkan setelah baseline, berdasarkan bacaan teks (r23: pembuka kitab j3 h231 menyebut harta sebagai fitnah dunia terbesar). Kenaikan r23 dari peringkat 7 ke 3 berasal dari pelebaran itu, bukan dari butir 6. **Set resmi** (T-12: ke-31 soal disetujui pemilik, 2026-10-17; laporan `evals/reports/retrieval-2026-10-17-ihya-v5-resmi.md`): hit@10 100% → **lolos gerbang R2**; set publik 22 soal dan set privat 9 soal sama-sama hit@10 100% (laporan dibuat ulang setelah p12 → r12).
 
 **Ditolak:**
 - Set regex/gold otomatis (riset S11): tidak mewakili relevansi manusia.
@@ -1086,7 +1090,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konteks:** ADR-006 menunda Vectorize + Workers AI sampai eval membuktikan perlu. Langkah 6 S15: bila hit@10 < 90% setelah perbaikan murah, rencanakan S15b (embedding `qwen3-embedding-0.6b` vs `bge-m3`, Vectorize 1024 dimensi, RRF).
 
 **Keputusan:** embedding **tetap ditunda**, dan S15b tidak dijadwalkan. Dasarnya, setelah perbaikan murah (ADR-045 butir 6):
-- hit@10 = 100% atas set resmi 31 soal yang disetujui pemilik (publik 21 dan privat 10 sama-sama 100%), hit@5 96,8%, kueri Arab 6/6 di peringkat 1.
+- hit@10 = 100% atas set resmi 31 soal yang disetujui pemilik (publik 22 dan privat 9 sama-sama 100%), hit@5 96,8%, kueri Arab 6/6 di peringkat 1.
 - Tidak ada kegagalan karena kosakata Indonesia ↔ istilah Arab yang butuh kesamaan makna. Kegagalan satu-satunya adalah kata pembingkai, dan itu sudah diperbaiki secara leksikal. Ringkasan AI per bagian sudah menjembatani kueri awam ke bab yang tepat.
 - Biaya dan kompleksitas embedding (indeks Vectorize, pipeline ingest, ±+1 bolak-balik per kueri) tidak sebanding dengan selisih yang bisa diukur di set ini.
 

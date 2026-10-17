@@ -176,6 +176,8 @@ describe("planLatinQuery / latinMatchExpression", () => {
     });
     expect(plan("menurut Imam al Ghazali tentang riya").stems).toEqual(["riya"]);
     expect(plan("imam al–ghazali, sabar").stems).toEqual(["sabar"]);
+    expect(plan("Imam Al-Ghozali tentang ikhlas").stems).toEqual(["ikhlas"]);
+    expect(plan("al-Ghazzali dan riya").stems).toEqual(["riya"]);
     // Tidak menempel (kata lain di antaranya) → "imam" tetap dicari.
     expect(plan("imam salat al-Ghazali").stems).toEqual(["imam", "salat"]);
     // Hanya nama penulis → tetap dicari apa adanya.
