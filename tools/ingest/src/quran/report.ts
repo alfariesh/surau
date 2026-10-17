@@ -6,7 +6,13 @@ import { passageAnchor } from "@surau/db";
 
 import type { CorpusRows } from "../rows.ts";
 import type { ReportContext } from "../report.ts";
-import { CUE_ANCHOR_TOKENS, CUE_MIN_TOKENS, SIMILAR_MIN_SCORE } from "./matcher.ts";
+import {
+  CUE_ANCHOR_TOKENS,
+  CUE_MIN_TOKENS,
+  SIMILAR_MIN_SCORE,
+  UNMARKED_CUED_MIN_TOKENS,
+  UNMARKED_MIN_TOKENS,
+} from "./matcher.ts";
 import type { AyahSpan, RejectedSpan } from "./matcher.ts";
 import { EXACT_RATIO_MIN, NUMBERING_MISMATCH_MAX } from "./rows.ts";
 import type { AyatBuild } from "./rows.ts";
@@ -14,6 +20,7 @@ import type { AyatBuild } from "./rows.ts";
 /** Sampel acak untuk diperiksa pemilik/ustadz (T-16). */
 export const SAMPLE_SIZE = 20;
 const SAMPLE_SEED = 9472;
+const UNMARKED_SAMPLE_SEED = 9473;
 const EXCERPT_WORDS = 6;
 const LIST_MAX = 40;
 
@@ -75,7 +82,7 @@ function spanKind(s: AyahSpan): string {
       : s.kind === "bracketed"
         ? `mirip (huruf ${score})`
         : `mirip (kata persis ${score})`,
-    s.kind === "bracketed" ? "{…}" : "tanpa kurung",
+    s.kind === "bracketed" ? "{…}" : s.kind === "cue" ? "tanpa kurung" : "tanpa tanda",
     s.partial ? "sebagian ayat" : "ayat utuh",
     ...(s.alt > 0 ? [`+${s.alt} letak lain`] : []),
   ].join(", ");
@@ -96,13 +103,22 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
   const at = locator(rows, config.work.slug);
   const surahNames = new Map(rows.quran_surah.map((x) => [x.surah, x.name_latin]));
   const all = ayat.matches.flatMap((m) => m.spans.map((span) => ({ m, span })));
-  const random = rng(SAMPLE_SEED);
-  const pool = [...all];
-  const sample: typeof all = [];
-  while (sample.length < SAMPLE_SIZE && pool.length > 0) {
-    sample.push(...pool.splice(Math.floor(random() * pool.length), 1));
-  }
-  sample.sort((a, b) => a.m.passageId - b.m.passageId || a.span.charStart - b.span.charStart);
+  const draw = (pool: typeof all, seed: number) => {
+    const random = rng(seed);
+    const out: typeof all = [];
+    while (out.length < SAMPLE_SIZE && pool.length > 0) {
+      out.push(...pool.splice(Math.floor(random() * pool.length), 1));
+    }
+    return out.sort((a, b) => a.m.passageId - b.m.passageId || a.span.charStart - b.span.charStart);
+  };
+  // Sampel T-16 hanya dari dua mode S12, supaya daftarnya tetap sama sesudah mode tanpa tanda
+  // (S13) ditambahkan; mode baru punya sampelnya sendiri.
+  const sample = draw(
+    all.filter((x) => x.span.kind !== "unmarked"),
+    SAMPLE_SEED,
+  );
+  const unmarked = all.filter((x) => x.span.kind === "unmarked");
+  const unmarkedSample = draw([...unmarked], UNMARKED_SAMPLE_SEED);
   const similar = all.filter((x) => x.span.match === "similar");
   const unmatched = ayat.matches.flatMap((m) =>
     m.rejected
@@ -133,7 +149,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     "",
     `- Korpus: \`${config.corpusVersion}\` · NORM_VERSION ${ctx.normVersion}`,
     `- Sumber Qur'an: ${sources}`,
-    `- Ambang: \`{…}\` mirip = skor penjajaran **huruf** ≥ ${String(SIMILAR_MIN_SCORE).replace(".", ",")} (alif/waw/ya/hamzah dan ه/ت = setengah biaya); tanpa kurung: jangkar ${CUE_ANCHOR_TOKENS} kata persis, minimal ${CUE_MIN_TOKENS} kata, skornya = porsi **kata** yang sama persis (metrik berbeda, jadi bisa < ${String(SIMILAR_MIN_SCORE).replace(".", ",")}). Aturan lengkap: ADR-040.`,
+    `- Ambang: \`{…}\` mirip = skor penjajaran **huruf** ≥ ${String(SIMILAR_MIN_SCORE).replace(".", ",")} (alif/waw/ya/hamzah dan ه/ت = setengah biaya); tanpa kurung: jangkar ${CUE_ANCHOR_TOKENS} kata persis, minimal ${CUE_MIN_TOKENS} kata, skornya = porsi **kata** yang sama persis (metrik berbeda, jadi bisa < ${String(SIMILAR_MIN_SCORE).replace(".", ",")}). Aturan lengkap: ADR-040. Tanpa tanda (S13): ≥ ${UNMARKED_MIN_TOKENS} kata sama persis, atau ≥ ${UNMARKED_CUED_MIN_TOKENS} kata tepat sesudah kata kutip; ADR-041.`,
     "",
     "## Ringkasan",
     "",
@@ -146,6 +162,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     `| · mirip, beda ejaan (\`similar\`) | ${num(s.similar)} (${pct(s.similar, s.validated)}) |`,
     `| · tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda; dibiarkan, tidak ditebak) | ${num(s.unmatched)} (${pct(s.unmatched, s.validated)}) |`,
     `| Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | ${num(s.cueExact)} / ${num(s.cueSimilar)} |`,
+    `| Kutipan tanpa tanda, sama persis (S13) | ${num(s.unmarked)} |`,
     `| **Rujukan ayat** (\`passage_ayah_ref\`) | **${num(rows.passage_ayah_ref.length)}** di ${num(s.passages)} paragraf |`,
     `| · sebagian ayat (\`partial\`) | ${num(s.partial)} |`,
     `| · lebih dari satu ayat | ${num(s.multiAyah)} |`,
@@ -164,6 +181,14 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     "| # | Letak | Permalink | Rujukan | Jenis | Awal kutipan | Benar? |",
     "|---|---|---|---|---|---|---|",
     ...sample.map((x, i) => `| ${row(x, i)} |`),
+    "",
+    `## Kutipan tanpa tanda (S13, ${num(unmarked.length)}): ${SAMPLE_SIZE} sampel acak`,
+    "",
+    "Ayat yang tidak dikurung dan tidak didahului frasa pengantar yang dikenali, misalnya karena kurung di sumber salah tempat (`{وقال}`) atau pengantarnya lain (كما قال، لقوله). Dicek agent; boleh ikut diperiksa bersama T-16.",
+    "",
+    "| # | Letak | Permalink | Rujukan | Jenis | Awal kutipan | Benar? |",
+    "|---|---|---|---|---|---|---|",
+    ...unmarkedSample.map((x, i) => `| ${row(x, i)} |`),
     "",
     `## Cocok mirip (\`similar\`, ${num(similar.length)}${similar.length > LIST_MAX ? `, ${LIST_MAX} pertama` : ""})`,
     "",

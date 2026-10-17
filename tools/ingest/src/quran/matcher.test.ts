@@ -1,6 +1,6 @@
 // Tes pencocok ayat dengan mushaf BUATAN (kalimat karangan, bukan teks Al-Qur'an): cocok persis,
 // multi-ayat, ejaan berbeda (mirip), kurung kurawal yang bukan ayat, letak alternatif, dan kutipan
-// tanpa kurung sesudah frasa pengantar.
+// tanpa kurung sesudah frasa pengantar, serta kutipan tanpa tanda (S13).
 import { describe, expect, test } from "vite-plus/test";
 
 import {
@@ -26,6 +26,8 @@ const AYAT = [
   // Dua letak sama panjang, beda satu ejaan (السماوات/السموات): uji pilihan letak tanpa kurung.
   { surah: 4, ayah: 1, text: "فانظر إلى العرش والسماوات العالية" },
   { surah: 5, ayah: 1, text: "فانظر إلى العرش والسموات العالية" },
+  // Memuat kalimat tauhid: uji pengecualian mode tanpa tanda.
+  { surah: 6, ayah: 1, text: "وقل للحاضرين لا إله إلا هو ربكم" },
 ];
 const index = buildQuranIndex(AYAT);
 
@@ -208,5 +210,52 @@ describe("kutipan tanpa kurung sesudah pengantar", () => {
       ],
     );
     expect(m.rejected.map((r) => r.reason)).toEqual(["one_word"]);
+  });
+});
+
+describe("kutipan tanpa tanda (S13)", () => {
+  test("≥5 kata sama persis di tengah kalimat dikenali, tanpa kurung dan tanpa pengantar", () => {
+    const raw = "كتب الشيخ في رسالته فطوبى للصابرين الذين يذكرون ربهم ثم سكت";
+    const [span, ...rest] = matchPassage(index, raw).spans;
+    expect(rest).toEqual([]);
+    expect(span && brief(span)).toEqual({
+      ref: "3:2-2",
+      match: "exact",
+      partial: true,
+      kind: "unmarked",
+      alt: 0,
+    });
+    expect(span && quoted(raw, span)).toBe("فطوبى للصابرين الذين يذكرون ربهم");
+  });
+
+  test("4 kata hanya dikenali sesudah kata kutip, termasuk kurung yang salah tempat {وقال}", () => {
+    expect(matchPassage(index, "كتب الشيخ فطوبى للصابرين الذين يذكرون").spans).toEqual([]);
+    const raw = "ثم ذكر الحال {وقال} فطوبى للصابرين الذين يذكرون";
+    const m = matchPassage(index, raw);
+    expect(m.spans.map((s) => [s.kind, quoted(raw, s)])).toEqual([
+      ["unmarked", "فطوبى للصابرين الذين يذكرون"],
+    ]);
+    expect(m.rejected.map((r) => r.reason)).toEqual(["one_word"]);
+  });
+
+  test("kalimat tauhid saja tidak dihitung sebagai kutipan ayat", () => {
+    expect(matchPassage(index, "فقال لا إله إلا هو").spans).toEqual([]);
+    const raw = "فقال لا إله إلا هو ربكم";
+    expect(matchPassage(index, raw).spans.map((s) => [s.kind, quoted(raw, s)])).toEqual([
+      ["unmarked", "لا إله إلا هو ربكم"],
+    ]);
+  });
+
+  test("tidak menumpuk bentang berkurung; sambungan ke ayat berikutnya jadi rujukan sendiri", () => {
+    const raw = "{قل هل يستوي العالم والجاهل} إنما يتذكر أولو الألباب الصادقون";
+    expect(matchPassage(index, raw).spans.map(brief)).toEqual([
+      { ref: "2:1-1", match: "exact", partial: false, kind: "bracketed", alt: 0 },
+      { ref: "2:2-2", match: "exact", partial: true, kind: "unmarked", alt: 0 },
+    ]);
+  });
+
+  test("lafaz yang ada di dua letak: alt dihitung", () => {
+    const [span] = matchPassage(index, "ويقال والصبر نور القلوب في الظلمات").spans;
+    expect(span && brief(span)).toMatchObject({ kind: "unmarked", alt: 1, partial: false });
   });
 });

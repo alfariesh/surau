@@ -13,6 +13,12 @@
 //    jangkar = awalan ≥3 kata yang sama persis dengan mushaf, lalu diperpanjang kata demi kata
 //    selama kata berikutnya sama atau beda ejaan kecil (kata mirip di ujung dibuang: harus diikuti
 //    kata yang sama persis); diterima bila ≥ CUE_MIN_TOKENS kata.
+// 3. Kutipan tanpa tanda (S13, ADR-041): deret ≥ UNMARKED_MIN_TOKENS kata yang sama persis dengan
+//    mushaf di mana pun dalam paragraf, atau ≥ UNMARKED_CUED_MIN_TOKENS kata bila tepat didahului
+//    kata kutip (قال، قوله، تعالى …; termasuk "{وقال}" yang kurungnya salah tempat). Hanya cocok
+//    persis, tidak pernah mirip. Kalimat tauhid "لا إله إلا الله/هو" saja tidak dihitung (biasanya
+//    zikir atau lafaz hadits). Tujuannya: ayat yang tidak bertanda di sumber tetap dikenali, supaya
+//    tidak pernah diterjemahkan LLM (batch S13) dan tampil dengan terjemahan Kemenag.
 import { normalizeArabic, toRawSpan } from "@surau/text";
 import type { Normalized } from "@surau/text";
 
@@ -24,6 +30,10 @@ export const CUE_MIN_TOKENS = 4;
 export const CUE_ANCHOR_TOKENS = 3;
 /** Kata maksimal yang diperiksa sesudah frasa pengantar. */
 const CUE_MAX_TOKENS = 120;
+/** Kata minimal kutipan tanpa tanda (tanpa kurung, tanpa frasa pengantar), sama persis. */
+export const UNMARKED_MIN_TOKENS = 5;
+/** Kata minimal kutipan tanpa tanda yang tepat didahului kata kutip (قال، قوله، تعالى …). */
+export const UNMARKED_CUED_MIN_TOKENS = 4;
 
 export interface IndexAyah {
   surah: number;
@@ -42,6 +52,8 @@ export interface QuranIndex {
   lastToken: Int32Array;
   /** `" " + tokens.join(" ") + " "`. */
   text: string;
+  /** Deret UNMARKED_CUED_MIN_TOKENS token (digabung spasi) → awal token di mushaf. */
+  grams: Map<string, number[]>;
   /** Offset karakter di `text` → indeks token. */
   tokenAt: Map<number, number>;
   postings: Map<string, number[]>;
@@ -72,8 +84,16 @@ export function buildQuranIndex(ayat: readonly IndexAyah[]): QuranIndex {
     if (list === undefined) postings.set(t, [i]);
     else list.push(i);
   });
+  const grams = new Map<string, number[]>();
+  for (let i = 0; i + UNMARKED_CUED_MIN_TOKENS <= tokens.length; i++) {
+    const key = tokens.slice(i, i + UNMARKED_CUED_MIN_TOKENS).join(" ");
+    const list = grams.get(key);
+    if (list === undefined) grams.set(key, [i]);
+    else list.push(i);
+  }
   return {
     ayat: ayat.map(({ surah, ayah }) => ({ surah, ayah })),
+    grams,
     tokens,
     tokenAyah: Int32Array.from(owner),
     firstToken: first,
@@ -326,7 +346,7 @@ export function fuzzyMatch(index: QuranIndex, tokens: readonly string[]): FuzzyR
 
 // ── Bentang di paragraf ──────────────────────────────────────────────────────────────────
 
-export type SpanKind = "bracketed" | "cue";
+export type SpanKind = "bracketed" | "cue" | "unmarked";
 
 export interface AyahSpan {
   /** Offset di text_raw, [charStart, charEnd). */
@@ -580,13 +600,93 @@ function cueSpans(
   return out;
 }
 
+// Kata kutip tepat sebelum kutipan tanpa tanda yang cukup untuk ambang 4 kata (bentuk normal).
+const QUOTE_WORD_RE =
+  /^(?:و|ف|ك|ل)?(?:قال|يقول|قوله|لقوله|كقوله|وقوله|تعالي|وجل|سبحانه|قرا|تلا|نزلت|انزل)$/;
+// Deret yang sama persis dengan mushaf tetapi di Ihya hampir selalu zikir atau lafaz hadits.
+const UNMARKED_SKIP = new Set(["لا اله الا الله", "لا اله الا هو"]);
+
+function unmarkedSpans(
+  index: QuranIndex,
+  raw: string,
+  n: Normalized,
+  taken: readonly { charStart: number; charEnd: number }[],
+  preferSurah: () => number | null,
+): AyahSpan[] {
+  const toks = tokenize(n, 0, n.text.length);
+  const words = toks.map((t) => t.token);
+  const blocked = toks.map((t) => {
+    const [s, e] = toRawSpan(raw, n, t.start, t.end);
+    return taken.some((x) => s < x.charEnd && x.charStart < e);
+  });
+  const out: AyahSpan[] = [];
+  const gram = UNMARKED_CUED_MIN_TOKENS;
+  let i = 0;
+  while (i + gram <= words.length) {
+    const starts = blocked.slice(i, i + gram).includes(true)
+      ? undefined
+      : index.grams.get(words.slice(i, i + gram).join(" "));
+    if (starts === undefined) {
+      i++;
+      continue;
+    }
+    // Perpanjang setiap letak ke kanan selama kata sama persis; yang dipakai hanya yang terpanjang.
+    let best = 0;
+    let hits: QuranHit[] = [];
+    for (const from of starts) {
+      let len = gram;
+      while (
+        i + len < words.length &&
+        !blocked[i + len] &&
+        from + len < index.tokens.length &&
+        index.tokens[from + len] === words[i + len]
+      ) {
+        len++;
+      }
+      if (len > best) {
+        best = len;
+        hits = [];
+      }
+      if (len === best) hits.push({ from, to: from + len - 1 });
+    }
+    const run = words.slice(i, i + best);
+    const cued = i > 0 && QUOTE_WORD_RE.test(words[i - 1] as string);
+    const min = cued ? UNMARKED_CUED_MIN_TOKENS : UNMARKED_MIN_TOKENS;
+    const picked =
+      best < min || UNMARKED_SKIP.has(run.join(" "))
+        ? null
+        : pickCandidate(index, hits, preferSurah());
+    if (picked === null) {
+      i++;
+      continue;
+    }
+    const alt = pickCandidate(index, exactHits(index, run), null)?.alt ?? 0;
+    const [charStart, charEnd] = toRawSpan(
+      raw,
+      n,
+      (toks[i] as TokenSpan).start,
+      (toks[i + best - 1] as TokenSpan).end,
+    );
+    out.push({
+      charStart,
+      charEnd,
+      ...loc(picked.best.loc),
+      match: "exact",
+      kind: "unmarked",
+      alt,
+      score: 1,
+      tokens: best,
+    });
+    i += best;
+  }
+  return out;
+}
+
 /** Semua kutipan ayat di satu paragraf, urut posisi. */
 export function matchPassage(index: QuranIndex, raw: string): PassageMatch {
-  const hasBrace = raw.includes("{");
   const n = normalizeArabic(raw);
   const hasCue = CUE_RE.test(n.text);
   CUE_RE.lastIndex = 0;
-  if (!hasBrace && !hasCue) return { spans: [], rejected: [] };
 
   const spans: AyahSpan[] = [];
   const rejected: RejectedSpan[] = [];
@@ -601,11 +701,13 @@ export function matchPassage(index: QuranIndex, raw: string): PassageMatch {
       rejected.push(r);
     }
   }
-  const cue = hasCue
-    ? cueSpans(index, raw, n, spans, () => spans.findLast((s) => s.alt === 0)?.surah ?? null)
-    : [];
+  const lastSurah = (list: readonly AyahSpan[]) => () =>
+    list.findLast((s) => s.alt === 0)?.surah ?? null;
+  const cue = hasCue ? cueSpans(index, raw, n, spans, lastSurah(spans)) : [];
+  const marked = [...spans, ...cue];
+  const unmarked = unmarkedSpans(index, raw, n, marked, lastSurah(marked));
   return {
-    spans: [...spans, ...cue].sort((a, b) => a.charStart - b.charStart),
+    spans: [...marked, ...unmarked].sort((a, b) => a.charStart - b.charStart),
     rejected,
   };
 }

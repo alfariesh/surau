@@ -58,6 +58,8 @@ export interface AyahStats {
   rejectedByReason: Record<RejectedSpan["reason"], number>;
   cueExact: number;
   cueSimilar: number;
+  /** Kutipan tanpa tanda (tanpa kurung dan tanpa frasa pengantar), selalu persis (S13, ADR-041). */
+  unmarked: number;
   partial: number;
   multiAyah: number;
   withAlternatives: number;
@@ -142,6 +144,7 @@ export function matchAyat(
   let similar = 0;
   let cueExact = 0;
   let cueSimilar = 0;
+  let unmarked = 0;
   let partial = 0;
   let multiAyah = 0;
   let withAlternatives = 0;
@@ -158,7 +161,8 @@ export function matchAyat(
         bracketedSpans++;
         if (s.match === "exact") exact++;
         else similar++;
-      } else if (s.match === "exact") cueExact++;
+      } else if (s.kind === "unmarked") unmarked++;
+      else if (s.match === "exact") cueExact++;
       else cueSimilar++;
       if (s.partial) partial++;
       if (s.ayahTo > s.ayahFrom) multiAyah++;
@@ -200,6 +204,7 @@ export function matchAyat(
       rejectedByReason,
       cueExact,
       cueSimilar,
+      unmarked,
       partial,
       multiAyah,
       withAlternatives,
