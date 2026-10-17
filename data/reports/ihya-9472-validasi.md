@@ -5,7 +5,7 @@
 
 - Sumber: Shamela `book/472/9472.db`, sha256 `36e66c5498b74e6d4fd7542108a29327361cf45534794d1c5a878e7bc2b7d586`
 - Patch daftar isi: `data/patches/ihya-9472.yaml` · peta ID: `data/ids/ihya-9472.json`
-- Korpus: `ihya-v5` · NORM_VERSION 1
+- Korpus: `ihya-v6` · NORM_VERSION 1
 
 ## Invarian (ingest gagal bila ada yang ✗)
 
@@ -23,10 +23,10 @@
 | Integritas lintas tabel (edisi halaman/node = edisi paragraf; penanda badan → catatan kaki halaman sama) | ✓ | 0 paragraf beda edisi atau tanpa node; 0 footnote_ref salah arah |
 | Matan = OpenITI (≥0,95 per halaman) | ✓ | 1705/1706 halaman (gerbang ≥1705); 0 halaman tidak ada di OpenITI |
 | Sumber Qur'an utuh (ayat = jumlah per surah; terjemahan + transliterasi tiap ayat; penomoran QUL = Tanzil) | ✓ | 114 surah, 6236/6236 ayat, 12472 baris terjemahan/transliterasi; 6 ayat beda teks QUL vs Tanzil (batas 20) |
-| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 2482 rujukan; 0 tidak sah |
-| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 2412 rujukan exact; 0 tidak sesuai |
+| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 2484 rujukan; 0 tidak sah |
+| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 2414 rujukan exact; 0 tidak sesuai |
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 977/1004 (97,3%); mirip 25, tidak cocok 2 |
-| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 1309 terjemahan berisi ayat; 0 bermasalah |
+| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 1311 terjemahan berisi ayat; 0 bermasalah |
 | Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 16086/16111 (99,84%); usang 0, tidak sah 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
 | Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 626/626 (100,00%); usang 0, tidak sah 0 |
 
