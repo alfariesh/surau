@@ -102,7 +102,7 @@ Server MCP read-only yang stateless di `mcp.surau.org/mcp` menyajikan core tools
 **Peninjau:** 0 blocker, 7 "perbaiki" (lisensi Tanzil/Kemenag di `read_page`, batas global tool baca, ukuran `search_text`, angka kalibrasi sebelum/sesudah, kata "handler tingkat modul" di ADR, daftar advisory, satu file tes untuk tiga modul), semuanya ditangani. Saran yang diambil: deskripsi `permalink` di skema, skema tool dibangun sekali per isolate, coba ulang smoke produksi ±5 menit, `promote` menghitung kedua config dulu, pesan `unavailable` dwibahasa, tes `internal_error`, `trap` di skrip uji, sisa URL `workers.dev` di alat laporan. Tidak diambil: kode error baru `invalid_argument` (core memakai `invalid_citation` untuk kedalaman), `needs: preview` di job Preview MCP, batas `subscriptions/listen` lebih kecil.
 
 **Utang teknis / untuk sesi berikutnya**
-- **T-19 (WAF) belum dikerjakan pemilik**: sebaiknya selesai sebelum MCP diumumkan (S17).
+- **T-19 (WAF) selesai 2026-10-17:** aturan `MCP per IP` (URI Path equals `/mcp`, 200 permintaan / 10 detik per IP → Block 10 detik) dibuat agent di dashboard atas permintaan pemilik; plan Free tidak bisa memfilter host, jadi berlaku untuk `/mcp` di seluruh zona.
 - `read_page` median ±11 ribu token (di atas peringatan 10 ribu Claude Code); tinjau dengan hasil T-18 (S17).
 - Beban baca terburuk ±600 ribu baris D1/menit per lokasi (daftar isi dibaca penuh per panggilan); bila `rows_read` dari MCP naik, memoisasi daftar isi per isolate.
 - Semua pengguna claude.ai berbagi kuota per IP Anthropic (120/menit per tool, 60/menit cari): ukur di T-18.

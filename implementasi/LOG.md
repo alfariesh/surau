@@ -29,7 +29,8 @@ Format entri:
 - Biaya API: – (count_tokens gratis)
 - Keputusan: ADR-049
 - Pemilik: "Deploy dari branch" (2026-10-17) untuk deploy pertama Worker MCP sebelum merge (Preview MCP butuh Worker yang sudah pernah di-deploy).
-- Catatan untuk sesi berikutnya: T-19 (WAF) sebelum MCP diumumkan; S17 = dokumentasi publik + T-18 (uji dari claude.ai: ukur batas per IP Anthropic dan ukuran `read_page` di konteks klien).
+- T-19 (2026-10-17): aturan WAF `MCP per IP` (path `/mcp`, 200/10 dtk per IP → Block 10 dtk, Active) dibuat agent lewat Chrome atas permintaan pemilik; `uji-mcp.sh https://mcp.surau.org/mcp daftar` lolos sesudahnya, situs 200.
+- Catatan untuk sesi berikutnya: S17 = dokumentasi publik + T-18 (uji dari claude.ai: ukur batas per IP Anthropic dan ukuran `read_page` di konteks klien).
 
 ## 2026-10-17 · Rilis Fase 2 · Cari — dirilis (`rilis-f2`)
 

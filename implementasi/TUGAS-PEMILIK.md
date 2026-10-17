@@ -155,7 +155,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 3: MCP
 
-- [ ] **T-19 · Aturan WAF untuk MCP** (dibutuhkan S16; agent memandu) · siap dikerjakan sejak 2026-10-17
+- [x] **T-19 · Aturan WAF untuk MCP** (dibutuhkan S16; agent memandu) · **selesai 2026-10-17:** aturan rate limiting `MCP per IP` (URI Path equals `/mcp`, IP, 200 permintaan / 10 detik → Block 10 detik, Active) dibuat agent di dashboard atas permintaan pemilik di chat; dicek: `uji-mcp.sh https://mcp.surau.org/mcp daftar` lolos dan situs 200
   Satu aturan rate limiting sebagai pagar luar untuk alamat MCP. Worker sudah punya batas sendiri per tool (ADR-049); aturan ini menahan banjir permintaan sebelum sampai ke Worker. Plan Free hanya boleh **satu** aturan dan hanya bisa memfilter path (bukan subdomain), jadi aturan berlaku untuk path `/mcp` di seluruh `surau.org` (situs web tidak memakai path itu). Sekitar 3 menit:
   1. Buka https://dash.cloudflare.com → pilih domain **surau.org**.
   2. Menu kiri **Security** → **Security rules** (di sebagian akun: **WAF**) → tombol **Create rule** → pilih **Rate limiting rules**.
