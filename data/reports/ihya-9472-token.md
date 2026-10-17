@@ -9,7 +9,7 @@ Diukur 2026-10-17 dengan `messages.countTokens` (model `claude-haiku-5-5`, grati
 | Token Claude per karakter (total) | 0.716 |
 | Token Claude per karakter (median per paragraf) | 0.675 |
 | **Faktor terhadap o200k** (`FAKTOR_TOKEN_ARAB`) | **1.84** |
-| Prompt sistem `translate-passage@1` | 4141 token |
-| Prompt sistem `summarize-section@1` | 3814 token |
+| Prompt sistem `translate-passage@2` | 4338 token |
+| Prompt sistem `summarize-section@2` | 3885 token |
 
 Prompt sistem ≥512 token = prefix bisa di-cache (minimum Haiku 5.5).

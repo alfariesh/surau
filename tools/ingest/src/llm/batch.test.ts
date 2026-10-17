@@ -192,8 +192,8 @@ describe("ulangan", () => {
       }),
     );
     expect([...todo]).toEqual([
-      ["passage-10000001", { attempts: 2, refusal: true, sonnet: false }],
-      ["toc-100002-id", { attempts: 1, refusal: false, sonnet: false }],
+      ["passage-10000001", { attempts: 2, refusal: true, sonnet: 0, summary: false }],
+      ["toc-100002-id", { attempts: 1, refusal: false, sonnet: 0, summary: true }],
     ]);
   });
 });
@@ -234,12 +234,16 @@ describe("kirim", () => {
 
 describe("model ulangan", () => {
   test("Haiku dulu, percobaan terakhir dan refusal ke Sonnet, menyerah sesudah Sonnet", () => {
-    expect(retryModel({ attempts: 1, refusal: false, sonnet: false })).toBe("claude-haiku-5-5");
-    expect(retryModel({ attempts: 2, refusal: false, sonnet: false })).toBe("claude-sonnet-5-5");
-    expect(retryModel({ attempts: 1, refusal: true, sonnet: false })).toBe("claude-sonnet-5-5");
+    const t = { refusal: false, summary: false };
+    expect(retryModel({ ...t, attempts: 1, sonnet: 0 })).toBe("claude-haiku-5-5");
+    expect(retryModel({ ...t, attempts: 2, sonnet: 0 })).toBe("claude-sonnet-5-5");
+    expect(retryModel({ ...t, attempts: 1, sonnet: 0, refusal: true })).toBe("claude-sonnet-5-5");
     // Tiga kali Haiku (sebelum aturan Sonnet) → masih satu kesempatan Sonnet.
-    expect(retryModel({ attempts: 3, refusal: false, sonnet: false })).toBe("claude-sonnet-5-5");
-    expect(retryModel({ attempts: 3, refusal: false, sonnet: true })).toBeNull();
+    expect(retryModel({ ...t, attempts: 3, sonnet: 0 })).toBe("claude-sonnet-5-5");
+    expect(retryModel({ ...t, attempts: 3, sonnet: 1 })).toBeNull();
+    // Ringkasan: dua kesempatan Sonnet (menghalangi ringkasan induk bila gagal).
+    expect(retryModel({ ...t, summary: true, attempts: 4, sonnet: 1 })).toBe("claude-sonnet-5-5");
+    expect(retryModel({ ...t, summary: true, attempts: 5, sonnet: 2 })).toBeNull();
   });
 });
 

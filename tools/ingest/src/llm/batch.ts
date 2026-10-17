@@ -909,6 +909,14 @@ export function runRejudge(ctx: LlmContext): number {
 // ── Ulangan ───────────────────────────────────────────────────────────────────────────────
 
 /** custom_id gagal yang belum pernah lolos, dengan jumlah percobaan dan apakah pernah ditolak model. */
+export interface RetryState {
+  attempts: number;
+  refusal: boolean;
+  /** Jumlah percobaan yang memakai Sonnet 5.5. */
+  sonnet: number;
+  summary: boolean;
+}
+
 /** sha256 sumber SAAT INI untuk sebuah custom_id (null bila unitnya tidak ada lagi). */
 function currentSha(work: Work, customId: string): string | null {
   const parts = parseCustomId(customId);
@@ -923,11 +931,8 @@ function currentSha(work: Work, customId: string): string | null {
  * pernah ditolak model. Kegagalan untuk sumber lama (hash berbeda) tidak dihitung: unit itu
  * dijadwalkan ulang sebagai request baru oleh `plan`.
  */
-export function unresolved(
-  work: Work,
-  acc: Accepted,
-): Map<string, { attempts: number; refusal: boolean; sonnet: boolean }> {
-  const out = new Map<string, { attempts: number; refusal: boolean; sonnet: boolean }>();
+export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
+  const out = new Map<string, RetryState>();
   for (const f of acc.failures) {
     const sha = currentSha(work, f.custom_id);
     if (sha === null || f.source_sha256 !== sha) continue;
@@ -940,11 +945,17 @@ export function unresolved(
           ? acc.r1.get(f.custom_id)?.source_sha256 === sha
           : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
     if (done) continue;
-    const prev = out.get(f.custom_id) ?? { attempts: 0, refusal: false, sonnet: false };
+    const prev = out.get(f.custom_id) ?? {
+      attempts: 0,
+      refusal: false,
+      sonnet: 0,
+      summary: parts.kind === "toc",
+    };
     out.set(f.custom_id, {
       attempts: prev.attempts + 1,
       refusal: prev.refusal || f.reason === "refusal",
-      sonnet: prev.sonnet || f.model === MODELS.sonnet,
+      sonnet: prev.sonnet + (f.model === MODELS.sonnet ? 1 : 0),
+      summary: prev.summary,
     });
   }
   return out;
@@ -956,12 +967,10 @@ export function unresolved(
  * (ADR-043): di batch S13 keluaran Haiku pada paragraf sulit yang dua kali gagal tetap rusak. Menyerah
  * hanya setelah Sonnet ikut dicoba.
  */
-export function retryModel(s: {
-  attempts: number;
-  refusal: boolean;
-  sonnet: boolean;
-}): ModelId | null {
-  if (s.attempts >= MAX_ATTEMPTS && s.sonnet) return null;
+export function retryModel(s: RetryState): ModelId | null {
+  // Ringkasan mendapat dua percobaan Sonnet: satu ringkasan anak yang gagal menghalangi ringkasan
+  // putaran 2 semua induknya (S13: ringkasan Inggris bagian doa terus ditulis dalam bahasa Indonesia).
+  if (s.attempts >= MAX_ATTEMPTS && s.sonnet >= (s.summary ? 2 : 1)) return null;
   return s.refusal || s.attempts >= MAX_ATTEMPTS - 1 ? MODELS.sonnet : MODELS.haiku;
 }
 
