@@ -133,7 +133,7 @@ export function restoreFootnoteMarkers(text: string, expected: readonly string[]
     }
     const ascii = toAsciiDigits(d);
     if (ascii === d) continue;
-    const sup = [...ascii].map((c) => SUPERSCRIPT[Number(c)] ?? c).join("");
+    const sup = ascii.replace(/[0-9]/g, (c) => SUPERSCRIPT[Number(c)] ?? c);
     const latin = new RegExp(String.raw`\(\s*(?:${ascii}|${sup})\s*\)`);
     if (latin.test(out)) out = out.replace(latin, `(${d})`);
   }

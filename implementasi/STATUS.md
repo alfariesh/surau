@@ -57,7 +57,7 @@
 | 1 | S10 | Korpus produksi & QA | selesai | 2026-10-16 · PR #23, #24 · `surau-corpus-ihya-v1`, `corpus:promote`/`corpus:qa` (30/30), `/lisensi` (ADR-036) · T-15 + teks `/lisensi` disetujui pemilik · lalu `/rilis 1` |
 | 2 | S11 | Indeks FTS Arab | selesai | 2026-10-17 · PR #29 · korpus `ihya-v2` (staging), `searchText` + `/api/search`, recall 18/18, ambang `term_stat` 10% (ADR-039) |
 | 2 | S12 | Ayat & terjemahan Kemenag | selesai* | 2026-10-17 · PR #31 · korpus `ihya-v3` (staging), 1.650 rujukan ayat, `{…}` 97,3% persis, terjemahan + transliterasi Kemenag dari data pemilik (ADR-040) · *T-16 (20 sampel) menunggu pemilik |
-| 2 | S13 | Batch terjemahan & ringkasan | belum | butuh T-09, T-11, T-17 + persetujuan biaya |
+| 2 | S13 | Batch terjemahan & ringkasan | berjalan | 2026-10-17 · branch `sesi/s13-batch-terjemahan` |
 | 2 | S14 | Cari Indonesia + UI | belum | butuh T-09 (bila korpus dibangun ulang) |
 | 2 | S15 | Eval retrieval | belum | butuh T-12 · lalu `/rilis 2` |
 | 3 | S16 | Worker MCP | belum | garis besar · butuh T-07, T-19 |

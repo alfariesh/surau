@@ -42,7 +42,6 @@ import { mapPool } from "./pool.ts";
 import {
   acceptedSummary,
   acceptedTranslation,
-  appendJsonl,
   failure,
   llmDir,
   readBatches,

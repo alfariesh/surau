@@ -1,6 +1,6 @@
 # S13 · Batch terjemahan & ringkasan (Haiku 5.5)
 
-> **Fase:** 2 · **Status:** belum
+> **Fase:** 2 · **Status:** berjalan
 > **Prasyarat:** S12 selesai · Tugas pemilik: **T-09** (drive), **T-11** (API Anthropic workspace `surau-dev`), plus **persetujuan biaya** di chat sebelum batch dikirim. **T-17** dikerjakan di langkah 5 dan 10.
 > **Perkiraan:** 1–2 percakapan agent (ada waktu tunggu batch, biasanya < 24 jam)
 
