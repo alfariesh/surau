@@ -4,7 +4,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { SUMMARY_PROMPT, TRANSLATE_PROMPT, emptyTotals, parseCustomId } from "@surau/llm";
+import {
+  SUMMARY_PROMPT,
+  TRANSLATE_PROMPT,
+  emptyTotals,
+  parseCustomId,
+  passageCustomId,
+} from "@surau/llm";
 import { z } from "zod";
 
 import { samplePages } from "../qa-sample.ts";
@@ -92,6 +98,21 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     (t) => t.markers_missing.length > 0,
   ).length;
   const refusals = acc.failures.filter((f) => f.reason === "refusal").length;
+  // Koreksi tinjauan (X02): paragraf yang hasil lamanya ditolak peninjau lalu diulang ke Sonnet.
+  const reviewed = new Set(
+    acc.failures.filter((f) => f.reason === "review_rejected").map((f) => f.custom_id),
+  );
+  const sonnetReview = [...acc.translations.values()].filter(
+    (t) => t.model.startsWith("claude-sonnet") && reviewed.has(passageCustomId(t.passage_id)),
+  ).length;
+  const byPrompt = new Map<string, number>();
+  for (const t of acc.translations.values()) {
+    byPrompt.set(t.prompt_version, (byPrompt.get(t.prompt_version) ?? 0) + 1);
+  }
+  const promptCounts = [...byPrompt]
+    .toSorted(([a], [b]) => a.localeCompare(b))
+    .map(([v, n]) => `\`${v}\` ${num(n)}`)
+    .join(", ");
 
   // Sampel QA T-17 tahap 2: 20 paragraf acak (seed tetap) dari SEMUA paragraf badan, bukan dari
   // hasil yang lolos, supaya daftarnya tidak berubah tiap kali hasil dinilai ulang (X02: juga tidak
@@ -111,7 +132,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     "",
     "> Dibuat otomatis oleh `pnpm llm report` (`tools/ingest/src/llm`). Tanpa teks kitab: hanya angka, ID, dan permalink.",
     "",
-    `- Prompt: \`${TRANSLATE_PROMPT.id}\`, \`${SUMMARY_PROMPT.id}\` (\`packages/llm/prompts/\`) · model Claude Haiku 5.5 (\`claude-haiku-5-5\`, effort low), ulangan refusal Claude Sonnet 5.5 · Message Batches`,
+    `- Prompt terjemahan per hasil: ${promptCounts} (aktif untuk paragraf baru: \`${TRANSLATE_PROMPT.id}\`) · ringkasan \`${SUMMARY_PROMPT.id}\` (\`packages/llm/prompts/\`) · model Claude Haiku 5.5 (\`claude-haiku-5-5\`, effort low), ulangan Claude Sonnet 5.5 · Message Batches`,
     '- Ayat yang dikenali pencocok tidak diterjemahkan model: kutipannya dikirim sebagai placeholder `⟦QS s:a⟧` dan diganti terjemahan Kemenag saat tampil (ADR-020, ADR-040, ADR-042). Ayat yang luput dari pencocok bisa ikut diterjemahkan model (sisa risiko ADR-042; lihat "Kemungkinan ayat belum ditandai").',
     "",
     "## Cakupan",
@@ -123,7 +144,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     `| Ringkasan final bahasa Inggris | ${num(finalOk("en"))} | ${num(nodes)} | ${pct(finalOk("en"), nodes)} |`,
     `| Ringkasan putaran 1 (potongan, 2 bahasa) | ${num(acc.r1.size)} | ${num(work.chunks.length * 2)} | ${pct(acc.r1.size, work.chunks.length * 2)} |`,
     "",
-    `Dibuat Claude Sonnet 5.5 (percobaan terakhir sesudah dua kali gagal, atau refusal Haiku): ${num(sonnet)}. Penolakan model (refusal): ${num(refusals)}. Terjemahan tanpa penanda catatan kaki (diterima, dicatat; takhrij tetap tertaut di teks Arab): ${num(markersMissing)}. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): ${num(work.blocked.length)}.`,
+    `Dibuat Claude Sonnet 5.5: ${num(sonnet)} (termasuk ${num(sonnetReview)} terjemahan ulang dari koreksi tinjauan, \`data/reviews/\`; sisanya percobaan terakhir sesudah dua kali gagal, atau refusal Haiku). Penolakan model (refusal): ${num(refusals)}. Terjemahan tanpa penanda catatan kaki (diterima, dicatat; takhrij tetap tertaut di teks Arab): ${num(markersMissing)}. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): ${num(work.blocked.length)}.`,
     "",
     `## Belum lolos (${num(stuck.size)})`,
     "",

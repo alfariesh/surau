@@ -1,7 +1,7 @@
 # X02 · Sesi sisipan: perbaikan mutu terjemahan AI dan ayat sebelum rilis Fase 2
 
 > **Fase:** sisipan (sesudah S15, sebelum `/rilis 2`) · **Status:** selesai
-> **Prasyarat:** S15 selesai · T-16 dan T-17 tahap 2 dinilai (diwakilkan ke agent lain atas permintaan pemilik, diperiksa ulang di sesi ini) · izin pemilik di chat (2026-10-17, "Ok go ahead"): biaya terjemahan ulang ≤ $1 dan promote korpus baru ke produksi setelah lolos QA
+> **Prasyarat:** S15 selesai · T-16 dan T-17 tahap 2 dinilai agent lain (laporan diteruskan pemilik sebagai lapisan koreksi, "bukan kebenaran mutlak"; diperiksa ulang di sesi ini) · izin pemilik di chat (2026-10-17, "Ok go ahead"): biaya terjemahan ulang ≤ $1 dan promote korpus baru ke produksi setelah lolos QA
 > **Perkiraan:** 1 percakapan agent
 
 ## Kenapa sesi ini ada
@@ -10,7 +10,7 @@ Penilaian T-17 tahap 2 atas 20 sampel batch: Benar 70% (target ≥ 80%), Salah 1
 - Satuan *mann* diganti "rithl" (p3031, p3032; p3033 menulis "mana").
 - "Lengan baju" menjadi "siku" (p9200).
 - Ungkapan tebusan *bi abi anta wa ummi* diterjemahkan sebagai sumpah ("demi ayah dan ibuku"), sistematis di ±18 dari 23 kemunculan.
-- Judul bab nikah terbalik (p5351, p5354).
+- Judul bab nikah terbalik (p5351; p5354 ternyata benar).
 - "Menerima kitab dengan tangan kanan/kiri" berubah (p20304).
 - Kutipan QS 54:55 terbelah di dua paragraf (p18256–p18257), sehingga tidak dikenali dan ikut diterjemahkan AI.
 - Kalimat kaki halaman "Kutipan ayat tidak diterjemahkan AI" terlalu mutlak.
@@ -30,7 +30,7 @@ Penilaian T-17 tahap 2 atas 20 sampel batch: Benar 70% (target ≥ 80%), Salah 1
 - [x] Lapisan koreksi tinjauan + prompt v3 + pengenal ayat lintas paragraf teruji (`pnpm verify` lolos; tes di `batch.test.ts`, `matcher.test.ts`, `translate.test.ts`)
 - [x] QS 54:55 di p18256–p18257 tertaut ke ayat dan tidak diterjemahkan AI (dua rujukan sebagian; terjemahan v3 berisi `⟦QS 54:55⟧`)
 - [x] Semua paragraf di daftar koreksi punya terjemahan baru (prompt v3) atau sengaja tanpa terjemahan; biaya ≤ $1 di atas biaya S13 (27/27 v3, biaya $0,25)
-- [x] `ihya-v6` di produksi, `corpus:qa` 30/30, eval retrieval set resmi hit@10 ≥ 90% (binding di PR; aktif setelah merge + deploy; eval 100%)
+- [ ] `ihya-v6` di produksi, `corpus:qa` 30/30, eval retrieval set resmi hit@10 ≥ 90% (DB produksi dibuat, QA 30/30, eval 100%; dicentang setelah deploy terbukti melayani terjemahan v3)
 - [x] 20 sampel T-17 dinilai ulang (skor lama dan baru dicatat di LOG): 70% → 20/20 Benar (penilai agent X02, bias)
 - [x] STATUS, LOG, KEPUTUSAN (ADR-047), TUGAS-PEMILIK, dan file sesi ini diperbarui
 

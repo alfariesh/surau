@@ -15,8 +15,13 @@ export const REVIEW_FILE = "data/reviews/ihya-9472-terjemahan.json";
 const reviewEntry = z.strictObject({
   passage_id: z.number().int().positive(),
   verdict: z.enum(["salah", "kurang"]),
-  /** Alasan singkat dalam bahasa Indonesia; tanpa kutipan teks kitab. */
-  reason: z.string().min(1),
+  /** Alasan singkat dalam bahasa Indonesia; tanpa kutipan teks kitab (tanpa huruf Arab). */
+  reason: z
+    .string()
+    .min(1)
+    .refine((r) => !/\p{Script=Arabic}/u.test(r), {
+      message: "alasan tidak boleh memuat huruf Arab (tulis transliterasi)",
+    }),
 });
 
 export const reviewFile = z.strictObject({

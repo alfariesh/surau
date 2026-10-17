@@ -916,7 +916,8 @@ export interface CrossSide {
  * UNMARKED_CUED_MIN_TOKENS bila tepat didahului pengantar ayat), lafaz satu-satunya di mushaf (berulang hanya bila didahului تعالى/عز وجل …), bukan kalimat
  * tauhid/zikir, bukan basmalah, bukan konteks hadits. Hanya kata yang belum dipakai bentang lain:
  * ekor `a` sesudah bentang terakhirnya dan kepala `b` sebelum bentang pertamanya. Hasil = dua bentang
- * sebagian (satu di tiap paragraf) untuk ayat yang sama, atau `null`.
+ * (satu di tiap paragraf) untuk letak mushaf yang bersambung, biasanya sebagian dari ayat yang sama
+ * (`partial` mengikuti letaknya, bisa juga ayat utuh bila deretnya melintasi batas ayat), atau `null`.
  */
 export function crossPassageSpans(
   index: QuranIndex,
@@ -1024,7 +1025,6 @@ export function crossPassageSpans(
         charEnd: bEnd,
         ...loc(locB),
         ...common,
-        partial: true,
         tokens: best - (boundary - i),
       },
     ];

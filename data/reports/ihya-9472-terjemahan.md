@@ -2,7 +2,7 @@
 
 > Dibuat otomatis oleh `pnpm llm report` (`tools/ingest/src/llm`). Tanpa teks kitab: hanya angka, ID, dan permalink.
 
-- Prompt: `translate-passage@3`, `summarize-section@2` (`packages/llm/prompts/`) · model Claude Haiku 5.5 (`claude-haiku-5-5`, effort low), ulangan refusal Claude Sonnet 5.5 · Message Batches
+- Prompt terjemahan per hasil: `translate-passage@2` 16.058, `translate-passage@3` 28 (aktif untuk paragraf baru: `translate-passage@4`) · ringkasan `summarize-section@2` (`packages/llm/prompts/`) · model Claude Haiku 5.5 (`claude-haiku-5-5`, effort low), ulangan Claude Sonnet 5.5 · Message Batches
 - Ayat yang dikenali pencocok tidak diterjemahkan model: kutipannya dikirim sebagai placeholder `⟦QS s:a⟧` dan diganti terjemahan Kemenag saat tampil (ADR-020, ADR-040, ADR-042). Ayat yang luput dari pencocok bisa ikut diterjemahkan model (sisa risiko ADR-042; lihat "Kemungkinan ayat belum ditandai").
 
 ## Cakupan
@@ -14,7 +14,7 @@
 | Ringkasan final bahasa Inggris | 313 | 313 | 100,00% |
 | Ringkasan putaran 1 (potongan, 2 bahasa) | 630 | 630 | 100,00% |
 
-Dibuat Claude Sonnet 5.5 (percobaan terakhir sesudah dua kali gagal, atau refusal Haiku): 298. Penolakan model (refusal): 0. Terjemahan tanpa penanda catatan kaki (diterima, dicatat; takhrij tetap tertaut di teks Arab): 320. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): 0.
+Dibuat Claude Sonnet 5.5: 298 (termasuk 26 terjemahan ulang dari koreksi tinjauan, `data/reviews/`; sisanya percobaan terakhir sesudah dua kali gagal, atau refusal Haiku). Penolakan model (refusal): 0. Terjemahan tanpa penanda catatan kaki (diterima, dicatat; takhrij tetap tertaut di teks Arab): 320. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): 0.
 
 ## Belum lolos (25)
 

@@ -27,7 +27,7 @@
 | Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 2414 rujukan exact; 0 tidak sesuai |
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 977/1004 (97,3%); mirip 25, tidak cocok 2 |
 | Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 1311 terjemahan berisi ayat; 0 bermasalah |
-| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 16086/16111 (99,84%); usang 0, tidak sah 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
+| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 16086/16111 (99,84%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
 | Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 626/626 (100,00%); usang 0, tidak sah 0 |
 
 ## Daftar isi

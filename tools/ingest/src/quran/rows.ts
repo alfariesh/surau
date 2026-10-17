@@ -141,7 +141,7 @@ export function quranTableRows(data: QuranData): Omit<QuranRows, "passage_ayah_r
 export function matchAyat(
   data: QuranData,
   passages: readonly PassageRow[],
-  pages: readonly PageOrder[] = [],
+  pages: readonly PageOrder[],
 ): { refs: PassageAyahRefRow[]; matches: PassageAyat[]; stats: AyahStats } {
   const index = buildQuranIndex(
     data.ayat.map((a) => ({ surah: a.surah, ayah: a.ayah, text: a.simpleClean })),
@@ -183,7 +183,8 @@ export function matchAyat(
   for (let i = 0; i + 1 < bodies.length; i++) {
     const a = bodies[i] as PassageRow;
     const b = bodies[i + 1] as PassageRow;
-    if (a.edition_id !== b.edition_id) continue;
+    // Satu edisi dan satu bagian daftar isi: ekor bab tidak dipasangkan dengan awal bab berikutnya.
+    if (a.edition_id !== b.edition_id || a.toc_node_id !== b.toc_node_id) continue;
     const ma = perPassage.get(a.id) as PassageMatch;
     const mb = perPassage.get(b.id) as PassageMatch;
     const pair = crossPassageSpans(

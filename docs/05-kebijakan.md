@@ -144,7 +144,7 @@ Pertanyaan pengguna bisa sangat pribadi. Surau menyimpan sesedikit mungkin dan *
 
 Lihat ADR-020 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md).
 
-- **Ayat tidak pernah ditulis atau diterjemahkan AI**, di lapisan mana pun: Pembaca, Cari, Jawab, maupun MCP. Bila jawaban menyinggung ayat, terjemahannya diambil dari data Kemenag, bukan dari keluaran model.
+- **Ayat tidak pernah ditulis atau diterjemahkan AI**, di lapisan mana pun: Pembaca, Cari, Jawab, maupun MCP. Bila jawaban menyinggung ayat, terjemahannya diambil dari data Kemenag, bukan dari keluaran model. Sisa risiko di terjemahan paragraf (ayat yang luput dikenali) diakui dan ditangani lewat pencocok dan koreksi tinjauan (ADR-042, ADR-047).
 - **Teks ayat** memakai Tanzil 1.1 (CC BY 3.0) dan **hanya verbatim**.
   - Tampilan memakai varian `uthmani`.
   - Varian `simple-clean` dan bentuk normalisasinya hanya dipakai sebagai indeks pencocokan, tidak pernah ditampilkan sebagai teks ayat.

@@ -8,7 +8,7 @@ Pembungkus tipis Anthropic untuk Surau (S13, ADR-013). TypeScript murni tanpa `n
 |---|---|
 | `src/client.ts` | `MODELS` (`claude-haiku-5-5`, ulangan refusal `claude-sonnet-5-5`), `createAnthropic(apiKey)` (OpenTelemetry SDK dimatikan), `MAX_PROMPT_TOKENS` = 100k |
 | `src/custom-id.ts` | `custom_id` Message Batches: `passage-<id>`, `toc-<id>-<lang>`, `toc-<id>-<lang>-p<k>` (potongan), `toc-<id>-<lang>-r2` (putaran 2); pola `^[a-zA-Z0-9_-]{1,64}$` dan `parseCustomId` |
-| `src/translate.ts` | `buildTranslateRequest` (prompt `translate-passage@3` sejak X02; v2 = batch S13) dan `checkTranslation`: placeholder ayat sama persis, penanda catatan kaki ada (angka Latin dikembalikan ke angka Arab), tanpa teks Arab ≥3 kata, rasio panjang 0,8–8, tanpa Markdown/pembuka |
+| `src/translate.ts` | `buildTranslateRequest` (prompt `translate-passage@4` sejak X02; v2 = batch S13, v3 = 28 koreksi X02) dan `checkTranslation`: placeholder ayat sama persis, penanda catatan kaki ada (angka Latin dikembalikan ke angka Arab), tanpa teks Arab ≥3 kata, rasio panjang 0,8–8, tanpa Markdown/pembuka |
 | `src/summarize.ts` | `buildSummaryRequest` (putaran 1, teks Arab bertanda), `buildSummaryRound2Request` (dari ringkasan subbagian), `checkSummary` (panjang, bahasa, tanpa placeholder/rujukan QS, tanpa teks Arab) |
 | `src/pricing.ts` | Harga Haiku/Sonnet 5.5 (dicek 2026-10-17), tarif Haiku >100k token, diskon batch 50%, tulis cache 5 menit/1 jam |
 | `src/response.ts` | `messageText` (blok `text` saja; Haiku 5.5 bisa mulai dengan blok `thinking`), `stopProblem` (`refusal`, `max_tokens`, tanpa teks) |

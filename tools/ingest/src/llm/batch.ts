@@ -825,6 +825,7 @@ export function rebuild(
           at: endedAt,
           source_sha256: a.source_sha256,
           usage: a.usage,
+          prompt_version: a.prompt_version,
         });
         invalid++;
         continue;
@@ -923,6 +924,13 @@ function printRebuild(dir: string, work: Work, repo: string): void {
   const reviews = loadReviews(repo);
   rebuild(dir, work, reviews);
   if (reviews.size > 0) console.info(`Koreksi tinjauan: ${reviews.size} paragraf (${REVIEW_FILE})`);
+  // Salah ketik ID di berkas koreksi tidak boleh diam saja.
+  const unknown = [...reviews.keys()].filter((id) => !work.units.has(id));
+  if (unknown.length > 0) {
+    console.warn(
+      `Koreksi tinjauan untuk paragraf yang bukan unit terjemahan: ${unknown.join(", ")}`,
+    );
+  }
   for (const b of readBatches(dir)) {
     if (b.outcome === null) continue;
     console.info(
@@ -943,6 +951,13 @@ export function runRejudge(ctx: LlmContext): number {
 export interface RetryState {
   attempts: number;
   refusal: boolean;
+  /** Ditolak peninjau (X02): ulangan langsung ke Sonnet 5.5, hitungan mulai dari awal sekali. */
+  reviewed?: boolean;
+  /**
+   * Peninjau menolak hasil versi prompt SAAT INI: mengulang dengan prompt yang sama tidak menolong
+   * (dan berbayar), jadi tidak diulang sampai ada versi prompt baru.
+   */
+  needsNewPrompt?: boolean;
   /** Jumlah percobaan yang memakai Sonnet 5.5. */
   sonnet: number;
   summary: boolean;
@@ -976,9 +991,22 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
           ? acc.r1.get(f.custom_id)?.source_sha256 === sha
           : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
     if (done) continue;
-    // Ditolak peninjau (X02): hitungan mulai dari awal sesudah penolakan, langsung ke Sonnet 5.5.
+    // Ditolak peninjau (X02). Versi prompt lama: hitungan mulai dari awal dan langsung ke Sonnet 5.5
+    // (sekali per versi yang ditolak, jadi terbatas). Versi prompt saat ini: tidak diulang.
     if (f.reason === "review_rejected") {
-      out.set(f.custom_id, { attempts: 1, refusal: true, sonnet: 0, summary: false });
+      const prev = out.get(f.custom_id);
+      out.set(
+        f.custom_id,
+        f.prompt_version === TRANSLATE_PROMPT.id
+          ? {
+              attempts: (prev?.attempts ?? 0) + 1,
+              refusal: prev?.refusal ?? false,
+              sonnet: (prev?.sonnet ?? 0) + (f.model === MODELS.sonnet ? 1 : 0),
+              summary: false,
+              needsNewPrompt: true,
+            }
+          : { attempts: 1, refusal: false, reviewed: true, sonnet: 0, summary: false },
+      );
       continue;
     }
     const prev = out.get(f.custom_id) ?? {
@@ -988,6 +1016,7 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
       summary: parts.kind === "toc",
     };
     out.set(f.custom_id, {
+      ...prev,
       attempts: prev.attempts + 1,
       refusal: prev.refusal || f.reason === "refusal",
       sonnet: prev.sonnet + (f.model === MODELS.sonnet ? 1 : 0),
@@ -1004,10 +1033,13 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
  * hanya setelah Sonnet ikut dicoba.
  */
 export function retryModel(s: RetryState): ModelId | null {
+  if (s.needsNewPrompt === true) return null;
   // Ringkasan mendapat dua percobaan Sonnet: satu ringkasan anak yang gagal menghalangi ringkasan
   // putaran 2 semua induknya (S13: ringkasan Inggris bagian doa terus ditulis dalam bahasa Indonesia).
   if (s.attempts >= MAX_ATTEMPTS && s.sonnet >= (s.summary ? 2 : 1)) return null;
-  return s.refusal || s.attempts >= MAX_ATTEMPTS - 1 ? MODELS.sonnet : MODELS.haiku;
+  return s.refusal || s.reviewed === true || s.attempts >= MAX_ATTEMPTS - 1
+    ? MODELS.sonnet
+    : MODELS.haiku;
 }
 
 export async function runRetry(

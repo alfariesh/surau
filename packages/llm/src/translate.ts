@@ -1,11 +1,11 @@
-// Request dan validasi terjemahan per paragraf (S13; prompt aktif `translate-passage@3`, X02). Teks yang dikirim
+// Request dan validasi terjemahan per paragraf (S13; prompt aktif `translate-passage@4`, X02). Teks yang dikirim
 // sudah bertanda: kutipan ayat diganti placeholder `⟦QS s:a⟧` (`maskAyat`, @surau/core), sehingga
 // model tidak pernah melihat atau menerjemahkan ayat (ADR-020, ADR-040).
 import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
 import { checkPlaceholders } from "@surau/core";
 import type { MaskedPassage } from "@surau/core";
 
-import { TRANSLATE_PASSAGE_V3 } from "../prompts/translate-passage-v3.ts";
+import { TRANSLATE_PASSAGE_V4 } from "../prompts/translate-passage-v4.ts";
 import {
   MAX_ARABIC_RUN_WORDS,
   footnoteMarkerDigits,
@@ -20,7 +20,7 @@ import {
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 
-export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V3;
+export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V4;
 export const TRANSLATION_LANG = "id";
 
 /** Ruang untuk thinking (effort low) + terjemahan paragraf terpanjang Ihya (±4,2 ribu karakter). */

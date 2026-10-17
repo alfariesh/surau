@@ -85,6 +85,15 @@ Ayat yang tidak dikurung dan tidak didahului frasa pengantar yang dikenali, misa
 | 19 | j4 h534 | `/kitab/ihya/4/534#p20397` | QS Fatir [35]: 37 | persis, tanpa tanda, sebagian ayat | ربنا أخرجنا نعمل صالحاً غير الذي … |  |
 | 20 | j4 h540 | `/kitab/ihya/4/540#p20444` | QS Az-Zukhruf [43]: 71 | persis, pendek sesudah pengantar, sebagian ayat | يطاف عليهم بصحاف |  |
 
+## Kutipan terbelah dua paragraf (X02, 2 bentang, semua)
+
+Satu kutipan yang mulai di ujung paragraf dan berlanjut di awal paragraf berikutnya (dua bentang per pasang). Diperiksa agent; boleh ikut diperiksa bersama T-16.
+
+| Letak | Permalink | Rujukan | Jenis | Awal kutipan |
+|---|---|---|---|---|
+| j4 h334 | `/kitab/ihya/4/334#p18256` | QS Al-Qamar [54]: 55 | persis, terbelah dua paragraf, sebagian ayat | في مقعد |
+| j4 h335 | `/kitab/ihya/4/335#p18257` | QS Al-Qamar [54]: 55 | persis, terbelah dua paragraf, sebagian ayat | صدق عند مليك مقتدر |
+
 ## Cocok mirip (`similar`, 70, 40 pertama)
 
 | Letak | Permalink | Rujukan | Jenis | Awal kutipan |

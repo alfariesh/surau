@@ -128,6 +128,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
   const unmarked = all.filter((x) => x.span.kind === "unmarked" || x.span.kind === "cue_short");
   const unmarkedSample = draw([...unmarked], UNMARKED_SAMPLE_SEED);
   const similar = all.filter((x) => x.span.match === "similar");
+  const cross = all.filter((x) => x.span.kind === "cross");
   const unmatched = ayat.matches.flatMap((m) =>
     m.rejected
       .filter((r) => r.reason !== "one_word" && r.reason !== "two_words_no_cue")
@@ -198,6 +199,14 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     "| # | Letak | Permalink | Rujukan | Jenis | Awal kutipan | Benar? |",
     "|---|---|---|---|---|---|---|",
     ...unmarkedSample.map((x, i) => `| ${row(x, i)} |`),
+    "",
+    `## Kutipan terbelah dua paragraf (X02, ${num(cross.length)} bentang, semua)`,
+    "",
+    "Satu kutipan yang mulai di ujung paragraf dan berlanjut di awal paragraf berikutnya (dua bentang per pasang). Diperiksa agent; boleh ikut diperiksa bersama T-16.",
+    "",
+    "| Letak | Permalink | Rujukan | Jenis | Awal kutipan |",
+    "|---|---|---|---|---|",
+    ...cross.map((x) => `| ${row(x)} |`),
     "",
     `## Cocok mirip (\`similar\`, ${num(similar.length)}${similar.length > LIST_MAX ? `, ${LIST_MAX} pertama` : ""})`,
     "",

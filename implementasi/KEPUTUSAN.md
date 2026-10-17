@@ -1105,7 +1105,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 ## ADR-047 · Mutu terjemahan AI sebelum rilis Fase 2 (X02): lapisan koreksi tinjauan, prompt `translate-passage@3`, pencocok ayat lintas paragraf, korpus `ihya-v6` — diterima · 2026-10-17
 
 **Konteks:**
-- T-16 (20 sampel ayat) dan T-17 tahap 2 (20 sampel terjemahan) diwakilkan pemilik ke agent lain, lalu diperiksa ulang oleh agent X02 di korpus. Laporannya: `data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md`.
+- T-16 (20 sampel ayat) dan T-17 tahap 2 (20 sampel terjemahan) dinilai agent lain. Pemilik meneruskan laporannya sebagai lapisan koreksi ("bukan kebenaran mutlak"), lalu agent X02 memeriksanya ulang di korpus; konfirmasi pemilik di `/rilis 2`. Laporannya: `data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md`.
 - T-16: 20/20 cocok.
 - T-17 tahap 2: Benar 14 (70%, target ≥ 80%), Kurang 4, Salah 2 (10%, tepat di batas). Agent X02 menilai nomor 5 (p3482) Benar karena satu-satunya cacatnya tanda kurung sisa; dengan penilaian itu Benar jadi 75%, tetap di bawah target.
 - Kesalahannya bersifat pola, bukan kebetulan:
@@ -1120,22 +1120,22 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Keputusan:**
 1. **Lapisan koreksi tinjauan** (`data/reviews/ihya-9472-terjemahan.json`, di git, tanpa teks kitab):
    - Isi: paragraf yang dinilai Salah/Kurang, alasan, penilai, dasar tinjauan, dan versi prompt yang ditolak.
-   - `pnpm llm rejudge/collect` menolak hasil versi itu (`review_rejected`, dicatat di posisi kronologisnya). Ingest tidak memuatnya.
-   - `retry` mengirim ulang ke Sonnet 5.5 dengan prompt saat ini, dengan hitungan percobaan mulai dari awal. Hasil versi prompt lain tidak ikut ditolak.
+   - `pnpm llm rejudge/collect` menolak hasil versi itu (`review_rejected`, dicatat di posisi kronologisnya). Ingest memeriksanya lagi secara mandiri (`llmRows`), jadi hasil yang ditolak tidak terbit walau `rejudge` lupa dijalankan.
+   - `retry` mengirim ulang ke Sonnet 5.5 dengan prompt saat ini, dengan hitungan percobaan mulai dari awal sekali per versi yang ditolak (terbatas `MAX_ATTEMPTS`). Bila yang ditolak justru versi prompt saat ini, paragraf itu tidak diulang (`needsNewPrompt`) sampai ada versi prompt baru. Hasil versi prompt lain tidak ikut ditolak.
    - Bila gagal, paragraf itu tampil tanpa terjemahan, bukan dengan terjemahan yang ditolak.
    - Berkas ini menjadi tempat koreksi sampai `/tinjau` + tabel `review` (S18).
-2. **Prompt `translate-passage@3`** (= v2 + bagian "Satuan, ungkapan, dan kalimat yang bersambung"):
+2. **Prompt `translate-passage@3`** (= v2 + bagian "Satuan, ungkapan, dan kalimat yang bersambung"), dipakai untuk 28 hasil X02, lalu **`translate-passage@4`** untuk paragraf berikutnya. v4 membetulkan satu aturan v3 (temuan peninjau): v3 menulis *raghiba fi* = "menyukai atau menganjurkan", padahal "menganjurkan" adalah makna *targhib*. Ke-28 hasil v3 sudah dicek dan tidak ada yang memakai pola itu.
    - Aturannya umum dan tidak menyebut paragraf tertentu.
    - Hanya dipakai untuk paragraf baru dan paragraf yang ditolak. 16 ribu hasil v2 lainnya tetap, karena versi prompt tercatat per terjemahan.
 3. **Sampel terarah** (agent X02): mencari pola kesalahan yang sama di seluruh terjemahan. Ditemukan 21 paragraf di luar sampel acak, dan semuanya masuk lapisan koreksi. Kandidat yang ternyata benar tidak dimasukkan.
 4. **Pencocok ayat lintas paragraf** (`crossPassageSpans`):
    - Berlaku untuk paragraf badan berurutan menurut jilid, halaman cetak, dan `ord`, dengan aturan mode tanpa tanda ADR-042 ditambah ≥ 2 kata di tiap sisi batas. Deret yang ditolak dilompati seluruhnya.
-   - Ditautkan sebagai dua rujukan sebagian untuk ayat yang sama, sehingga terjemahan Kemenag ayat itu tampil di kedua paragraf.
+   - Hanya pasangan di bagian daftar isi yang sama. Ditautkan sebagai dua rujukan untuk letak mushaf yang bersambung (di Ihya: dua bagian dari satu ayat), sehingga terjemahan Kemenag ayat itu tampil di kedua paragraf.
    - Di Ihya tepat 1 pasang (QS 54:55, p18256–p18257). Percobaan pertama juga menautkan 27 pembuka khutbah (basmalah + *al-hamdu lillah*) dan 1 kalimat penulis; keduanya disaring sebelum dipakai.
    - Ringkasan bab 100273 dan dua induknya ikut dibuat ulang karena teks bertandanya berubah.
 5. **Kaki halaman pembaca:** "Kutipan ayat yang dikenali sistem tidak diterjemahkan AI …; kutipan ayat yang belum dikenali bisa ikut terjemahan AI" (sebelumnya klaim mutlak).
 6. **Sampel QA T-17 dibekukan:** nomor yang terjemahannya ditolak atau belum ada tidak lagi diganti paragraf lain, dan dinilai sebagai kegagalan cakupan.
-7. **Korpus `ihya-v6`** (skema 6, tanpa migrasi baru): dibangun, dimuat ke lokal dan staging, lalu dipromosikan ke produksi. `ihya-v5` menjadi target rollback.
+7. **Korpus `ihya-v6`** (skema 6, tanpa migrasi baru): dibangun, dimuat ke lokal dan staging, lalu dibuat sebagai DB produksi `surau-corpus-ihya-v6` (QA 30/30). Binding produksi berpindah setelah PR X02 di-merge. `ihya-v5` menjadi target rollback. Perbaikan kode sesudah tinjauan tidak mengubah isi korpus: build ulang dengan `SOURCE_DATE_EPOCH` yang sama menghasilkan sha256 yang sama.
 
 **Insiden holdout eval (S15):**
 - Halaman tinjauan T-12 (artifact claude.ai) memuat teks 9 soal eval privat dan sempat dibagikan "siapa saja yang punya tautan", sementara tautannya tercantum di dokumen repo yang publik.
