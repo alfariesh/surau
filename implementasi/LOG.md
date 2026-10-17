@@ -24,7 +24,7 @@ Format entri:
 - Verifikasi:
   - `pnpm verify` → lolos **466 Node + 210 Workers**, build `/mcp` statis dan MCP 1.356 KiB / 246 KiB gzip. Satu lint warning lama `search-client.tsx` tetap. Tes integrasi kedua era menjaga lisensi/atribusi semua tool dan sitasi hasil berteks.
   - `bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp` → lengkap kedua era lolos, termasuk ketujuh tool, pencarian Arab/Indonesia, error dan Origin 403.
-  - CI commit `5d0c6e6`: verify + preview + preview mcp hijau, **e2e Workers Preview 99 lolos/1 dilewati** (desktop/ponsel, dua tema, panduan dan navigasi pembaca), log **501 request/0 error** (23 clientDisconnected); run `39043047128`/`39043047143`.
+  - CI commit `5d0c6e6`: verify + preview + preview mcp hijau, **e2e Workers Preview 99 lolos/1 dilewati** (desktop/ponsel, dua tema, panduan dan navigasi pembaca), log **501 request/0 error** (23 clientDisconnected); run `39043047128`/`39043047143`; slug log `__unknown__` dapat mencampur trafik Preview lain (ADR-031).
   - Lokal sempat timeout dan ENOSPC; ±2 GB cache Next/hasil tes dibersihkan, tanpa korpus/data batch. Verify serial lolos; e2e Next dev lokal 97 lolos/1 skip/2 gagal navigasi reader ke 1/201 (RSC 200, React script tag, sebab belum ditetapkan); kasus yang sama lolos di Workers Preview. Tidak menyembunyikan kegagalan lokal.
   - Peninjau kode + dokumen: tanpa temuan; cek berkas rahasia/data ter-track kosong. Panduan dibuka di browser Preview; uji font/RTL/a11y ponsel ada di e2e Preview.
 - Biaya API: **US$0,00344562**, diizinkan pemilik ≤ US$0,10; tidak ada panggilan model di server MCP.
