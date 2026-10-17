@@ -1,5 +1,6 @@
 // Fixture kecil BUATAN (bukan teks kitab, bukan Shamela; KONVENSI §Tes): 1 karya, 1 edisi,
-// 3 halaman di 2 juz, 2 catatan kaki. Teks Arabnya kalimat contoh netral.
+// 3 halaman di 2 juz, 2 catatan kaki. Teks Arabnya kalimat contoh netral. Ditambah "mushaf" buatan
+// 1 surah × 3 ayat (BUKAN teks Al-Qur'an) dan satu rujukan ayat di paragraf halaman 2 (S12).
 import { pageId, passageId, tocNodeId } from "../src/ids.ts";
 import type { D1Db } from "../src/d1.ts";
 
@@ -23,9 +24,31 @@ export const PASSAGES = {
   body3: passageId(ED, 5),
 } as const;
 
+export const BODY_2 = "نص الصفحة الثانية";
+/** Rujukan ayat buatan di BODY_2: "الصفحة الثانية" → 1:2–3, sebagian, berkurung. */
+export const AYAH_REF = {
+  passage_id: PASSAGES.body2,
+  char_start: BODY_2.indexOf("الصفحة"),
+  char_end: BODY_2.length,
+  surah: 1,
+  ayah_from: 2,
+  ayah_to: 3,
+  match: "exact",
+  partial: 1,
+  bracketed: 1,
+  alt_count: 0,
+} as const;
+export const QURAN_TRANSLATION_1_2 = "Terjemahan uji ayat dua1) dengan catatan.";
+export const QURAN_FOOTNOTES_1_2 = [{ marker: "1)", text: "Catatan kaki terjemahan uji." }];
+
 /** Kosongkan tabel korpus lalu isi fixture. Idempoten (boleh dipanggil di setiap beforeAll). */
 export async function seedCorpus(db: D1Db): Promise<void> {
   const del = [
+    "passage_ayah_ref",
+    "quran_translation",
+    "quran_ayah",
+    "quran_surah",
+    "quran_source",
     "footnote_ref",
     "passage_needs_review",
     "translation",
@@ -96,7 +119,7 @@ export async function seedCorpus(db: D1Db): Promise<void> {
            (?, ?, ?, ?, 'foot', 2, ?),
            (?, ?, ?, ?, 'body', 1, ?),
            (?, ?, ?, ?, 'foot', 1, ?),
-           (?, ?, ?, ?, 'body', 1, 'نص الصفحة الثانية'),
+           (?, ?, ?, ?, 'body', 1, ?),
            (?, ?, ?, ?, 'body', 1, 'نص الجزء الثاني')`,
       )
       .bind(
@@ -119,6 +142,7 @@ export async function seedCorpus(db: D1Db): Promise<void> {
         ED,
         P2,
         T_CHILD_A,
+        BODY_2,
         PASSAGES.body3,
         ED,
         P3,
@@ -138,6 +162,52 @@ export async function seedCorpus(db: D1Db): Promise<void> {
         marker2,
         marker2 + 3,
         PASSAGES.foot2,
+      ),
+    db
+      .prepare(
+        `INSERT INTO quran_source (id, kind, lang, name, version, license, attribution, url, sha256) VALUES
+           ('kemenag-id', 'translation', 'id', 'Terjemahan Uji', 'v-uji', 'Lisensi uji', 'Atribusi terjemahan uji', 'https://contoh.test', ?),
+           ('kemenag-latin', 'transliteration', 'id', 'Transliterasi Uji', 'v-uji', 'Lisensi uji', 'Atribusi transliterasi uji', 'https://contoh.test', ?),
+           ('tanzil-simple-clean', 'text', 'ar', 'Teks Indeks Uji', '1.1', 'CC BY 3.0', 'Atribusi teks uji', 'https://contoh.test', ?),
+           ('tanzil-uthmani', 'text', 'ar', 'Teks Uthmani Uji', '1.1', 'CC BY 3.0', 'Atribusi teks uji', 'https://contoh.test', ?)`,
+      )
+      .bind("a".repeat(64), "b".repeat(64), "c".repeat(64), "d".repeat(64)),
+    db.prepare(
+      "INSERT INTO quran_surah (surah, name_ar, name_latin, revelation, ayah_count) VALUES (1, 'الأولى', 'Al-Ula', 'makkah', 3)",
+    ),
+    db.prepare(
+      `INSERT INTO quran_ayah (surah, ayah, juz, text_uthmani, text_index) VALUES
+         (1, 1, 1, 'كَلِمَةٌ أُولَى', 'كلمة أولى'),
+         (1, 2, 1, 'الصَّفْحَةُ', 'الصفحة'),
+         (1, 3, 1, 'الثَّانِيَةُ', 'الثانية')`,
+    ),
+    db
+      .prepare(
+        `INSERT INTO quran_translation (surah, ayah, source_id, text, footnotes) VALUES
+           (1, 1, 'kemenag-id', 'Terjemahan uji ayat satu.', NULL),
+           (1, 1, 'kemenag-latin', 'Translit 1:1', NULL),
+           (1, 2, 'kemenag-id', ?, ?),
+           (1, 2, 'kemenag-latin', 'Translit 1:2', NULL),
+           (1, 3, 'kemenag-id', 'Terjemahan uji ayat tiga.', NULL),
+           (1, 3, 'kemenag-latin', 'Translit 1:3', NULL)`,
+      )
+      .bind(QURAN_TRANSLATION_1_2, JSON.stringify(QURAN_FOOTNOTES_1_2)),
+    db
+      .prepare(
+        `INSERT INTO passage_ayah_ref (passage_id, char_start, char_end, surah, ayah_from, ayah_to, match, partial, bracketed, alt_count)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .bind(
+        AYAH_REF.passage_id,
+        AYAH_REF.char_start,
+        AYAH_REF.char_end,
+        AYAH_REF.surah,
+        AYAH_REF.ayah_from,
+        AYAH_REF.ayah_to,
+        AYAH_REF.match,
+        AYAH_REF.partial,
+        AYAH_REF.bracketed,
+        AYAH_REF.alt_count,
       ),
   ]);
 }

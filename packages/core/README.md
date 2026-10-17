@@ -16,12 +16,13 @@ Prinsipnya:
 |---|---|---|
 | `listWorks(db)` / `getWork(db, slug)` | `list_works` | Karya, penulis, dan edisi (default dulu) dengan lisensi, atribusi, permalink |
 | `getToc(db, editionId, { nodeId?, depth? })` | `get_table_of_contents` | Pohon daftar isi dari akar atau dari satu node, `depth` bawaan 2 (maks. 10). `child_count` menandai anak yang tidak dikirim |
-| `readPage(db, editionId, juz, pageNo)` | `read_page` | Satu halaman cetak: `body`, `footnotes`, tautan penanda → catatan kaki, halaman sebelum/sesudah, `source_url` (halaman yang sama di Shamela untuk atribusi ADR-018; field tambahan S09) |
+| `readPage(db, editionId, juz, pageNo)` | `read_page` | Satu halaman cetak: `body`, `footnotes`, tautan penanda → catatan kaki, halaman sebelum/sesudah, `source_url` (halaman yang sama di Shamela untuk atribusi ADR-018; field tambahan S09), `quran` (ayat yang dikutip di halaman itu, S12) |
 | `readSection(db, nodeId, cursor?)` | `read_section` | Paragraf bagian **beserta sub-bagiannya**, dipaginasi ±4–6 ribu token dengan `next_cursor` |
 | `buildCitation(db, passageId)` | (di setiap hasil) | Sitasi lengkap satu paragraf |
 | `searchText(db, query, { edition_id?, limit?, offset?, expand? })` | `search_text` | Pencarian Arab (S11): halaman cetak berperingkat bm25 dengan semua paragraf cocok, sorotan dan potongan di `text_raw`. Lihat [Pencarian](#pencarian-searchtext) |
+| `getAyahRefs(db, passageId)` | (bahan `read_page`/S16) | Kutipan ayat di satu paragraf + ayat utuh, terjemahan Kemenag, transliterasi, sumber (S12). Lihat [Ayat](#ayat-al-quran-s12) |
 
-Skema Zod masukan (`readPageInput`, `readSectionInput`, `getTocInput`, `getWorkInput`, `buildCitationInput`, `searchTextInput`) dan keluaran (`pageView`, `sectionView`, `tocView`, `workList`, `workView`, `citation`, `passage`, `searchView`) diekspor untuk route, tool MCP, dan tes. `uintSegment` memvalidasi angka dari segmen URL (`/kitab/ihya/1/200`). Semua skema bisa diubah ke JSON Schema (`z.toJSONSchema`), sudah diuji.
+Skema Zod masukan (`readPageInput`, `readSectionInput`, `getTocInput`, `getWorkInput`, `buildCitationInput`, `searchTextInput`, `getAyahRefsInput`) dan keluaran (`pageView`, `sectionView`, `tocView`, `workList`, `workView`, `citation`, `passage`, `ayahRef`, `quranView`, `ayahRefsView`, `searchView`) diekspor untuk route, tool MCP, dan tes. `uintSegment` memvalidasi angka dari segmen URL (`/kitab/ihya/1/200`). Semua skema bisa diubah ke JSON Schema (`z.toJSONSchema`), sudah diuji.
 
 ```ts
 import { readPage, readSection, isCoreError } from "@surau/core";
@@ -393,6 +394,13 @@ Semuanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 ```
 
 `searchText(db, "الله")` → `ranked: false`, `warning: "common_terms"`, `common_terms: [{ "term": "الله", "passage_count": 9242 }]`, `total_pages: null`, `results` = 20 paragraf pertama dalam urutan kitab.
+
+## Ayat Al-Qur'an (S12)
+
+- **`Passage.ayah_refs`** (setiap paragraf, juga di `readSection`): kutipan ayat yang dikenali ingest secara deterministik (ADR-040). `text_raw.slice(char_start, char_end)` = kutipan persis di kitab. `match`: `exact`/`similar` (beda ejaan kecil); `partial`: hanya sebagian ayat; `bracketed`: bertanda `{…}` di sumber (false = dikenali sesudah frasa pengantar seperti قال تعالى); `alt_count`: letak lain dengan lafaz sama; `label`: "QS Al-Baqarah [2]: 255" (rentang "255–257").
+- **`PageView.quran`** (null bila halaman tidak mengutip ayat): ayat **utuh** untuk semua rujukan halaman (juga kutipan sebagian), `text` Tanzil Uthmani, `translation` Kemenag + `footnotes`, `transliteration`, `surahs`, dan `sources` (nama, versi, lisensi, atribusi, url). Semua verbatim dari DB, satu bolak-balik D1 tambahan hanya bila ada rujukan.
+- **Korpus lama** (skema < 5, mis. produksi `ihya-v1`): `ayah_refs` kosong dan `quran` null (kueri gagal → cek `meta.schema_version`); galat lain diteruskan. `getAyahRefs` → `Unavailable`.
+- **Penanda ayat untuk batch terjemahan (S13)**, `ayah-placeholder.ts`: `maskAyat(text_raw, ayah_refs)` mengganti kutipan dengan `⟦QS s:a⟧`/`⟦QS s:a-b⟧` (round-trip `unmaskAyat`); `checkPlaceholders(keluaranLLM, masked)` menolak placeholder yang hilang, ganda, atau dikarang; `translationSegments(text, slots, quran)` memecah terjemahan tersimpan (berisi placeholder) menjadi segmen `ai` (label `ai_translation`) dan `ayah` (label `kemenag`, atau `kemenag_full_ayah` untuk kutipan sebagian = terjemahan ayat lengkap) berisi terjemahan Kemenag verbatim + atribusi; placeholder asing = `invalid`. Indeks terjemahan (S14) hanya mengindeks segmen `ai`.
 
 ## Tes
 

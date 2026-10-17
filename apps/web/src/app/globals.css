@@ -177,6 +177,31 @@ h2.reader-heading-minor {
   vertical-align: baseline;
 }
 
+/*
+ * Kutipan ayat di teks kitab (S12): warna halus (tanpa latar, supaya kutipan panjang tetap enak
+ * dibaca) dan label rujukan "QS 2:255" sesudahnya. Label = huruf Latin kecil yang sebaris dengan
+ * teks Arab; teksnya konten CSS (`attr(data-label)`), jadi tidak ikut tersalin bersama teks kitab.
+ */
+.ayah-quote {
+  color: color-mix(in oklab, var(--accent) 72%, var(--foreground));
+}
+
+.ayah-chip {
+  display: inline-block;
+  margin-inline: 0.25em;
+  padding-inline: 0.45em;
+  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.55em;
+  line-height: 1.7;
+  vertical-align: middle;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ayah-chip-label::before {
+  content: attr(data-label);
+}
+
 /* Daftar isi: judul Arab panjang dibungkus, bukan dipotong. */
 .toc-tree .file-tree__label {
   white-space: normal;

@@ -6,11 +6,11 @@ Skema data Surau **tanpa ORM** ([ADR-009](../../implementasi/KEPUTUSAN.md)): mig
 
 | Path | Isi |
 |---|---|
-| `migrations/corpus/` | Migrasi DB korpus (hanya-baca, blue-green): `work`, `author`, `edition`, `page`, `toc_node`, `passage`, `footnote_ref`, `translation`, `summary`, `meta`, dan `passage_fts` (FTS5 contentless) di 0001; `passage_needs_review` (tanda dari ingest, ADR-032) di 0002, dengan alasan diperluas di 0003 |
+| `migrations/corpus/` | Migrasi DB korpus (hanya-baca, blue-green): `work`, `author`, `edition`, `page`, `toc_node`, `passage`, `footnote_ref`, `translation`, `summary`, `meta`, dan `passage_fts` (FTS5 contentless) di 0001; `passage_needs_review` (tanda dari ingest, ADR-032) di 0002, dengan alasan diperluas di 0003; `term_stat` (S11) di 0004; tabel Al-Qur'an `quran_source`, `quran_surah`, `quran_ayah`, `quran_translation` + `passage_ayah_ref` (S12, ADR-040, skema 5) di 0005 |
 | `migrations/app/` | Migrasi DB app: `settings`, `feedback` (kuota dan ledger menyusul di S20) |
 | `src/schema/` | Skema Zod baris (`corpusTables`, `appTables`). Kolomnya dijaga sama dengan migrasi oleh `test/schema.test.ts` |
 | `src/ids.ts` | `pageId`, `tocNodeId`, `passageId`, `passageIdRange`, `passageAnchor` (jangkar `#p<seq>`) |
-| `src/repo/` | `getEdition`, `getEditionContext` (edisi + karya + penulis), `getPageByCitation`, `getAdjacentPages`, `getTocChildren`, `listTocNodes` (daftar isi satu edisi + halaman awal), `getSectionPassages` (paragraf satu bagian + sub-bagiannya, keyset per halaman), `getPassageById`, `getPassagesByPage`, `getFootnoteRefs`, `getNeedsReview`, `getCorpusMeta`, `getSettings`, `createFeedback`, dll. Dipakai `@surau/core` (S08) |
+| `src/repo/` | `getEdition`, `getEditionContext` (edisi + karya + penulis), `getPageByCitation`, `getAdjacentPages`, `getTocChildren`, `listTocNodes` (daftar isi satu edisi + halaman awal), `getSectionPassages` (paragraf satu bagian + sub-bagiannya, keyset per halaman), `getPassageById`, `getPassagesByPage`, `getFootnoteRefs`, `getNeedsReview`, `getCorpusMeta`, `getAyahRefs` (rujukan ayat + nama surah), `getQuranAyat` (ayat + terjemahan/transliterasi + surah + sumber, satu batch, maks. 300 ayat), `getSettings`, `createFeedback`, dll. Dipakai `@surau/core` (S08) |
 | `wrangler.jsonc` | Binding `CORPUS` dan `APP` beserta `migrations_dir` dan ID DB remote (bukan rahasia) |
 
 Repository menerima tipe struktural `D1Db` (bukan tipe global `D1Database`), jadi paket ini bisa di-typecheck dari Worker, Next, maupun Node. `env.DB` milik Worker memenuhi tipe itu.

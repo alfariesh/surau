@@ -76,7 +76,7 @@ Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), di
 | `term_stat` | `term`, `df` | Migrasi 0004 (S11, ADR-039). Stem di >10% paragraf (dari `fts5vocab`): pengaman kata umum `searchText`. Turunan indeks, diisi ulang setiap pemuatan |
 | `translation` | `passage_id`, `lang`, `text`, `model`, `prompt_version`, `created_at`, `review_status` (`ai_generated`/`reviewed`/`ustadz_verified`/`rejected`) | Fase 2, berlabel "terjemahan AI" |
 | `summary` | `toc_node_id`, `lang`, `text`, `model`, `prompt_version`, … | Fase 2, berlabel "ringkasan AI" |
-| `quran_ayah`, `quran_translation`, `passage_ayah_ref` | surah, ayah, teks Tanzil (indeks + tampilan), terjemahan Kemenag/QuranEnc + versi; rujukan ayat di paragraf (`exact`/`similar`, `partial`) | Fase 2 (S12). Teks dan terjemahan verbatim (ADR-020) |
+| `quran_source`, `quran_surah`, `quran_ayah`, `quran_translation`, `passage_ayah_ref` | sumber (versi, lisensi, atribusi, sha256); surah; ayah: teks Tanzil (indeks + tampilan), juz; terjemahan + transliterasi Kemenag (catatan kaki JSON); rujukan ayat di paragraf (`exact`/`similar`, `partial`, `bracketed`, `alt_count`) | Fase 2 (S12, migrasi 0005, skema 5). Teks dan terjemahan verbatim (ADR-020, ADR-040) |
 | `meta` | `key`, `value` | `schema_version` (diisi migrasi, sekarang **4**), lalu `norm_version`, `corpus_version`, `built_at` (`SOURCE_DATE_EPOCH`/tanggal commit HEAD), `source_hash` (`sha256:<file sumber>`) (diisi ingest) |
 
 **Teks ternormalisasi tidak disimpan** di tabel. `normalizeArabic(text_raw)` beserta peta offsetnya dihitung ulang saat dibutuhkan (deterministik terhadap `NORM_VERSION`, ±7 juta karakter/detik). Bentuk normal dan stem hanya ada di indeks `passage_fts` (ADR-009).
@@ -135,7 +135,7 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 3 struktur pohon judul (title.parent; title.page = page.id), terapkan patch (data/patches/<id>.yaml, di-commit)
 4 validasi jumlah kitab per rub', urutan halaman, judul yatim, penanda (١) tanpa catatan kaki → laporan
 5 turunan  normalizeArabic + stem (packages/text), footnote_ref, NORM_VERSION; QA verify-openiti (matan ≥0,95/halaman)
-5b ayat    (Fase 2) cocokkan bentang ayat ke Tanzil; terjemahan Kemenag/QuranEnc; FTS; terjemahan & ringkasan batch
+5b ayat    (Fase 2) cocokkan bentang ayat ke Tanzil; terjemahan + transliterasi Kemenag (ADR-040); FTS; terjemahan & ringkasan batch
 6 keluaran data/build/<corpus-versi>.sqlite (dump) + data/build/sql/*.sql (≤90 KB/statement); deterministik:
            meta.built_at diambil dari SOURCE_DATE_EPOCH / tanggal commit, bukan jam sekarang
 7 muat     wrangler d1 execute <db> --local|--remote --file …  (atomik per file), lalu isi FTS per edisi
@@ -144,7 +144,7 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 
 Implementasinya `tools/ingest` (S07, ADR-032; cara pakai di `tools/ingest/README.md`): `pnpm ingest ihya` menjalankan langkah 1–4, langkah 5 termasuk indeks pencarian (S11, ADR-039: stem → `passage_fts`, `term_stat` dari `fts5vocab`; tanpa normalisasi tersimpan), lalu langkah 6 (±4 detik); ingest gagal bila invarian dilanggar. `pnpm ingest:verify` hanya gerbang OpenITI. `pnpm corpus:load:local` / `corpus:load:staging --confirm` menjalankan langkah 7 (FTS ikut, file terpisah sebelum `meta`), dan langkah 8 sebagai smoke (hitungan setiap tabel + indeks FTS + `meta` = build, j1 h200, satu kueri الصبر). Korpus produksi: `pnpm run corpus:promote <versi>` (blue-green, S10, ADR-036); sampel acak: `pnpm run corpus:qa <versi>` (30 halaman, byte demi byte terhadap sumber). File `0000-reset.sql` mengosongkan **seluruh** DB korpus dulu, jadi pemuatan bisa diulang (kitab kedua butuh reset per edisi). Paragraf yang meragukan ditandai di `passage_needs_review`.
 
-File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha256 sumber), `ATTRIBUTION.md`, dan `LICENSE` data **di-commit**, karena tidak memuat teks kitab. Teks kitab, unduhan OpenITI/Tanzil/QuranEnc, dan hasil build tetap di luar git (`data/raw/`, `data/build/`). Matan wajib lolos gerbang `verify-openiti` (ADR-018).
+File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha256 sumber), `ATTRIBUTION.md`, dan `LICENSE` data **di-commit**, karena tidak memuat teks kitab. Teks kitab, unduhan OpenITI/Tanzil, data Kemenag pemilik, dan hasil build tetap di luar git (`data/raw/`, `data/build/`). Matan wajib lolos gerbang `verify-openiti` (ADR-018).
 
 ## 7. Lingkungan dan binding
 

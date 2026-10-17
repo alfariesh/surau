@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-17 · S12 · Ayat Al-Qur'an (Tanzil) & terjemahan Kemenag — selesai* (T-16 menunggu pemilik)
+
+- Dikerjakan:
+  - Sumber: Tanzil 1.1 XML (uthmani + simple-clean; basmalah dari atribut `bismillah`) + **data Kemenag milik pemilik** (`surau-quran-kemenag`: terjemahan + 678 catatan kaki, transliterasi, metadata surah, juz) menggantikan QuranEnc atas arahan pemilik; semua sha256 dipin. Migrasi korpus 0005 (skema 5), korpus **`ihya-v3`** dimuat ke D1 lokal dan `surau-corpus-staging`; produksi tetap `ihya-v1`.
+  - Pencocok deterministik (`tools/ingest/src/quran`): `{…}` (aturan 1/2/3+ kata, mirip ≥ 0,93) + kutipan tanpa kurung sesudah "قال تعالى" (jangkar 3 kata, ≥ 4 kata). Ihya: **1.650 rujukan** di 1.037 paragraf; laporan `data/reports/ihya-9472-ayat.md` dengan 20 sampel T-16.
+  - `@surau/core`: `Passage.ayah_refs`, `PageView.quran`, `getAyahRefs`, penanda ayat S13 (`maskAyat`, `checkPlaceholders`, `translationSegments`: label Kemenag terpisah dari "terjemahan AI"). Web: kutipan berwarna halus + label "QS s:a" (HoverCard/Popover) berisi teks Tanzil, transliterasi, terjemahan Kemenag + catatan kaki, atribusi, tautan tanzil.net; footer + `/lisensi` + `data/ATTRIBUTION.md` (blok hak cipta Tanzil).
+  - Peninjau: 0 blocker, 4 "perbaiki" diperbaiki (label/`alt_count` kutipan tanpa kurung mengikuti letak terpilih, halaman > 300 ayat tidak gagal, nama aksesibel + `lang` label, laporan tidak menyebut 2 ayat tak tertaut sebagai "bukan ayat") + 11 saran diambil (rincian di file sesi).
+- Verifikasi:
+  - `pnpm ingest ihya` → semua invarian ✓, termasuk `{…}` tervalidasi 977/1.004 persis (**97,3%**, mirip 25, tidak cocok 2) dan kutipan exact ada di ayat rujukannya 1.587/1.587; penomoran QUL vs Tanzil 6/6.236 beda ejaan, nomor sama.
+  - Tes lokal Ihya: setiap kutipan exact = isi ayat rujukannya (ayat utuh sama persis).
+  - `pnpm verify` → lolos (tes Node + Workers, build); `pnpm test:e2e` lokal → 76/76 (termasuk e2e label ayat + axe j1 h119 terang/gelap, desktop/ponsel).
+  - Browser lokal + Preview PR #31 (staging `ihya-v3`): j1 h103 (QS 41:11 utuh), j1 h119 (QS 27:90 sebagian → "Terjemahan ayat lengkap (Kemenag)"), j1 h175 (ayat di catatan kaki); label tidak ikut teks tersalin; 0 galat konsol.
+- Biaya API: –
+- Keputusan: ADR-040 (data Kemenag pemilik menggantikan QuranEnc, Tanzil XML, skema 5, aturan pencocok, penanda S13, UI)
+- Catatan untuk sesi berikutnya: S13 memakai `maskAyat(text_raw, ayah_refs, footnote_refs)` + `checkPlaceholders` sebelum menyimpan `translation.text`, dan `translationSegments` saat tampil. Promote korpus ke produksi di S14 harus ≥ `ihya-v3`. T-16 menunggu pemilik; hasilnya dicatat di file sesi S12.
+
 ## 2026-10-17 · S11 · Indeks FTS Arab & `searchText` — selesai
 
 - Dikerjakan:

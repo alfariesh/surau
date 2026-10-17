@@ -31,6 +31,7 @@ import { stagingCorpus } from "./corpus.ts";
 import { STAGING, query, remoteByName, repo, wrangler } from "./d1.ts";
 import type { D1Target } from "./d1.ts";
 import { expectedRows } from "./pipeline.ts";
+import { QURAN_EXPECT, QURAN_FILES } from "./quran/source.ts";
 import {
   bundlePages,
   comparePage,
@@ -260,6 +261,7 @@ function main(argv: string[]): number {
       openiti: join(repo, "data/raw/openiti"),
       build: join(repo, "data/build"),
       migrations: join(repo, "packages/db/migrations/corpus"),
+      quran: { root: join(repo, "data/raw"), files: QURAN_FILES, expect: QURAN_EXPECT },
     });
     if (n > expected.page.length) {
       console.error(`--n ${n} melebihi ${expected.page.length} halaman`);

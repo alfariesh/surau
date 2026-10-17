@@ -66,6 +66,7 @@ function fake(id: number, kind: "body" | "foot", ord: number, refs: number[] = [
       char_end: i + 1,
       footnote_id: f,
     })),
+    ayah_refs: [],
     needs_review: [],
     location: { juz: 1, page_no: 5, permalink: "/x", label: "x" },
   };

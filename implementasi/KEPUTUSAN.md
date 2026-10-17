@@ -177,6 +177,8 @@ Turnstile mode Managed hanya di Jawab. Token ditukar menjadi cookie anonim HMAC 
 
 ## ADR-020 · Al-Qur'an: teks Tanzil, terjemahan Kemenag via QuranEnc, tidak pernah diterjemahkan LLM — diterima · 2026-10-15
 
+> **Diperbarui ADR-040 (2026-10-17):** terjemahan dan transliterasi Kemenag diambil dari data milik pemilik, bukan QuranEnc. Bagian lain tetap berlaku.
+
 **Keputusan:** Teks ayat diambil dari Tanzil 1.1 (CC BY 3.0, **hanya verbatim**, wajib pemberitahuan dan tautan tanzil.net): `simple-clean` untuk indeks pencocokan, `uthmani` untuk tampilan. Terjemahan Indonesia memakai QuranEnc `indonesian_affairs` (Kemenag, versi dicatat, verbatim, penanda catatan kaki ditampilkan apa adanya). Kutipan ayat di kitab dikenali secara deterministik; 97,2% cocok persis setelah normalisasi, sisanya dicocokkan fuzzy dengan label "mirip". **Ayat tidak pernah diterjemahkan LLM.** Dalam batch terjemahan (S13), bentang ayat diganti placeholder lalu diisi terjemahan Kemenag. **Ditolak:** API Quran Foundation sebagai sumber indeks (cache maksimal 1 minggu, dilarang dibundel); `quran-json` (deprecated, tanpa hak redistribusi); scraping situs Kemenag. **Terbuka:** apakah PMA 44/2016 (tashih) berlaku untuk aplikasi yang hanya mengutip ayat di dalam kitab. Tanyakan ke LPMQ bila perlu.
 
 ## ADR-021 · Lisensi konten: CC BY-NC-SA 4.0, terpisah dari kode Apache-2.0 — diterima (pemilik, 2026-10-16) · 2026-10-15
@@ -854,3 +856,58 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** hitungan smoke dan `buildInfo` kini mencakup `term_stat` dan `passage_fts`. Smoke korpus skema < 4 tidak lagi crash: tabel pencarian tidak dihitung dan smoke melaporkan "belum punya indeks pencarian", jadi `pnpm run corpus:promote ihya-v1 --switch-only` ditolak dengan pesan (bersama cek `meta.schema_version` = skema kode). Bila rollback ke korpus skema 3 dibutuhkan setelah `ihya-v2` aktif, longgarkan kedua pemeriksaan itu di `promote.ts` (S14); pencarian sendiri aman di skema lama (503).
 
 **Tinjau ulang bila:** korpus berisi lebih dari satu kitab (reset per edisi termasuk `DELETE FROM passage_fts WHERE rowid BETWEEN`, `term_stat` per korpus, rows_read kueri berperingkat), cache kueri populer di S14, atau eval S15 menunjukkan ambang 10% / bobot catatan kaki merugikan relevansi.
+
+## ADR-040 · Ayat (S12): teks Tanzil (XML), terjemahan + transliterasi Kemenag dari data pemilik (menggantikan QuranEnc), pencocok deterministik `{…}` + frasa pengantar, korpus `ihya-v3` (skema 5), penanda ayat S13 — diterima (pemilik, 2026-10-17) · 2026-10-17
+
+**Konteks:** ADR-020 merencanakan teks Tanzil + terjemahan Kemenag lewat QuranEnc `indonesian_affairs`. Saat memulai S12, pemilik menulis: "Untuk data quran pakai surau-quran-kemenag. Ini adalah data yg saya miliki dari kemenag resmi … Jangan terlalu perketat lisensi, saya ingin ship dulu." Folder itu berisi ekstrak tabel Al-Qur'an dari dump DB Surau lama: terjemahan Kemenag (+678 catatan kaki), transliterasi Latin Kemenag, teks Arab QPC Hafs/Imlaei (QUL), metadata surah (QUL), dan pengantar surah (QUL). Metadata lisensinya mencatat `permitted` untuk terjemahan/transliterasi berdasarkan artikel berita Kemenag tentang API Qur'an Kemenag (bukan dokumen syarat pakai), dan `needs_review` untuk teks Arab QUL.
+
+**Keputusan:**
+1. **Sumber.**
+   - Teks ayat tetap **Tanzil 1.1** (ADR-020, aturan keras CLAUDE.md), diunduh dalam format **XML**, bukan `txt-2`: basmalah pembuka surah ada di atribut `bismillah` terpisah, sedangkan format teks menempelkannya ke ayat 1 di 112 surah. `uthmani` untuk tampilan, `simple-clean` untuk pencocokan. Teks Arab QUL di data pemilik **tidak** ditampilkan; Imlaei hanya dipakai untuk cek silang penomoran (6 dari 6.236 ayat beda ejaan, semua bernomor sama).
+   - **Terjemahan (dengan catatan kaki) dan transliterasi = data Kemenag milik pemilik** (asal quran.kemenag.go.id, salinan 2026-06-03), **menggantikan QuranEnc** (menyimpang dari ADR-020 atas arahan pemilik). Sama-sama terjemahan resmi Kemenag, sudah lengkap dengan catatan kaki, tanpa unduhan/API tambahan. Edisi terjemahan tidak tercatat di data, jadi tidak diklaim; versi ditulis "quran.kemenag.go.id, salinan 2026-06-03". Risiko lisensi (belum ada syarat pakai tertulis) **diterima pemilik**.
+   - Nama Latin surah dan jenis wahyu dari metadata surah di data pemilik (QUL), nama Arab dari Tanzil, juz dari QUL. Pengantar surah QUL tidak dipakai (bukan Kemenag).
+   - Semua berkas sumber dipin sha256 (`tools/ingest/src/quran/source.ts`, `data/SOURCES.md`). Blok hak cipta Tanzil disalin dari komentar XML ke `quran_source.attribution` dan `data/ATTRIBUTION.md`: syarat Tanzil untuk berkas turunan yang memuat sebagian besar teksnya (korpus/dump).
+2. **Skema korpus 5 (migrasi 0005):** `quran_source` (id, jenis, versi, lisensi, atribusi, url, sha256), `quran_surah`, `quran_ayah` (`text_uthmani` + `text_index`, juz), `quran_translation` (terjemahan dan transliterasi dibedakan `quran_source.kind`; catatan kaki JSON `[{marker, text}]`, penanda seperti "1)" tetap di teks), `passage_ayah_ref`. Menyimpang dari rencana: kolom `lang/source/version` per baris diganti FK ke `quran_source`; ditambah `bracketed` dan `alt_count`.
+3. **Pencocok** (`tools/ingest/src/quran/matcher.ts`, normalisasi `@surau/text`, `NORM_VERSION` tetap 1):
+   - **Bentang `{…}`.** Shamela juga memakai `{…}` untuk menebalkan kata di hadits/takhrij (`{قال}`, `{ثم قال}`, `{وفيه}`, `{حميد مجيد}` dalam lafaz shalawat).
+     - 1 kata ditolak (186 di Ihya, tidak satu pun ayat utuh).
+     - 2 kata hanya diterima bila sama persis DAN: ayat utuh, atau pengantar kuat (تعالى/عز وجل/سبحانه/قرأ/تلا/نزلت) di dua kata sebelumnya, atau "الآية" sesudahnya, atau satu surah dengan kutipan sebelumnya di paragraf. "قوله" saja tidak cukup karena dipakai juga untuk lafaz hadits. 2–3 kata yang tidak persis (3 kata tanpa pengantar) tidak dicoba cocok mirip (`short_inexact`).
+     - ≥3 kata: `exact` bila sama persis. `similar` bila ≥4 kata (3 kata: syarat pengantar yang sama), dengan penjajaran huruf semi-global (alif/waw/ya/hamzah dan ه↔ت setengah biaya), skor ≥ 0,93, dan minimal separuh kata sama persis.
+     - Ambang diambil dari data. Beda ejaan yang diterima berskor ≥ 0,938 (أولوا/أولو, مسئولا, ما لهذا/مال هذا, من ما/مما), sedangkan kalimat bukan ayat 3 kata bisa berskor 0,86–0,95. Harga ambang konservatif: **2 ayat asli tetap tidak tertaut** (39:9 أم من/أمّن, skor 0,90; 13:22 ويدرؤون, 3 kata tanpa pengantar). Laporan menyebutnya "tidak cocok, tidak ditautkan", bukan "bukan ayat".
+   - **Kutipan tanpa kurung** (wujud "heuristik konservatif" di rencana):
+     - Hanya sesudah frasa pengantar (`قال/قوله/يقول [الله] تعالى | عز وجل | سبحانه …`).
+     - Jangkar 3 kata sama persis, lalu diperpanjang kata demi kata. Beda ejaan kecil boleh di tengah (السموات/السماوات; "kecil" = biaya ≤ 0,5, atau ≤ 1 untuk kata ≥ 5 huruf, jadi ربك/ربه tidak dianggap mirip), tetapi kutipan dipotong di kata terakhir yang sama persis (kata mirip di ujung biasanya kata penulis: ولما/ولا).
+     - Bila beberapa jangkar sama panjang, hanya yang kata persisnya terbanyak yang bersaing; label `exact`/`similar`, skor, dan `alt_count` (letak lain berlafaz mushaf identik) dihitung dari letak yang dipilih (temuan peninjau).
+     - Minimal 4 kata; berhenti di `{` berikutnya.
+     - Di Ihya ada 648 kutipan seperti ini (610 persis, 38 mirip), sehingga cakupan hampir dua kali lipat (1.002 berkurung + 648).
+     - Keterbatasan yang diketahui: "قال الله تعالى" juga membuka hadits qudsi; hadits qudsi yang dimulai dengan lafaz Qur'ani ≥ 4 kata (mis. أنا الله لا إله إلا أنا = 20:14) ikut ditautkan sebagai ayat. Dijaga tinjauan T-16 dan eval S15.
+   - **Lafaz di beberapa letak:** pilih ayat utuh, lalu surah kutipan sebelumnya di paragraf, lalu urutan mushaf. `alt_count` disimpan dan ditampilkan ("juga di N tempat lain"). Rentang lintas surah ditolak.
+   - **Gerbang ingest** (invarian, ingest gagal bila dilanggar):
+     - exact ≥ 95% dari `{…}` tervalidasi (hasil 977/1.004 = 97,3%; mirip 25; tidak cocok 2);
+     - rujukan sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada);
+     - setiap kutipan `exact` benar-benar ada di teks ayat rujukannya, ayat utuh = sama persis (1.587/1.587);
+     - sumber utuh;
+     - beda QUL vs Tanzil ≤ 20.
+4. **Core.**
+   - `Passage.ayah_refs` (juga ikut `readSection`), `PageView.quran` (ayat utuh + terjemahan + transliterasi + surah + sumber dalam satu batch D1; kunci `surah·1000+ayah` lewat `json_each` → pencarian kunci utama), dan `getAyahRefs`.
+   - Korpus skema < 5 (produksi `ihya-v1`): kueri rujukan gagal, lalu `meta` dicek, lalu rujukan kosong. Halaman tetap tampil (+1 kueri gagal + 1 kueri `meta` per render ISR). `getAyahRefs` menjawab `Unavailable`.
+   - `quranForRefs` memecah per ≤ 300 ayat (`QURAN_AYAT_MAX`), jadi halaman yang merujuk banyak ayat tidak gagal; terjemahan dan transliterasi dipilih menurut ID sumber (`QURAN_SOURCE`), dan `quran.sources` hanya memuat satu sumber per jenis.
+5. **Penanda ayat S13** (`packages/core/src/ayah-placeholder.ts`).
+   - Placeholder `⟦QS s:a⟧` / `⟦QS s:a-b⟧`; `maskAyat(text_raw, ayah_refs, footnote_refs)`/`unmaskAyat` round-trip. Penanda `(١)` di dalam kutipan dipindah tepat sesudah placeholder (tidak hilang); rujukan yang batasnya jatuh di tengah penanda dilewati (aturan sama dengan web). Pola placeholder lewat `ayahPlaceholderPattern()` (RegExp baru, tanpa `lastIndex` bersama).
+   - `checkPlaceholders` menolak keluaran LLM yang kehilangan, menggandakan, atau mengarang placeholder.
+   - `translationSegments` memberi label `ai_translation`, `kemenag`, atau `kemenag_full_ayah` (kutipan sebagian). Placeholder asing atau tanpa terjemahan = `invalid`, tidak dirender sebagai terjemahan.
+6. **UI pembaca.**
+   - Kutipan diberi warna halus tanpa latar. Sesudahnya (untuk `{…}`: sesudah kurung tutup) ada label "QS s:a" sebagai tombol: HoverCard di desktop, Popover di layar sentuh, pola yang sama dengan penanda catatan kaki. Nama aksesibel diawali label yang terlihat (WCAG 2.5.3) dan tombol ber-`lang="id"` di dalam blok Arab (juga penanda catatan kaki).
+   - Isi popup: nama surah, catatan (sebagian ayat / beda ejaan / letak lain), teks Tanzil, transliterasi, terjemahan Kemenag + catatan kaki, sumber, dan tautan `tanzil.net/#s:a`. Kutipan sebagian = "Terjemahan ayat lengkap (Kemenag)".
+   - Teks label memakai CSS `content: attr(data-label)` supaya tidak ikut tersalin bersama teks Arab; pembaca layar memakai `aria-label`.
+   - Footer halaman: atribusi dari `quran_source`. `/lisensi` mendapat bagian "Ayat Al-Qur'an".
+7. **Korpus `ihya-v3`** dimuat ke D1 lokal dan `surau-corpus-staging` (±80 dtk). Produksi tetap `ihya-v1` sampai promote di S14 (versi yang dipromosikan harus ≥ `ihya-v3`).
+
+**Konsekuensi:**
+- Smoke korpus skema < 5 melaporkan "belum punya tabel ayat", jadi `corpus:promote --switch-only` ke `ihya-v1`/`ihya-v2` ditolak (sama dengan catatan ADR-039), kecuali `promote.ts` dilonggarkan.
+- `.claude/rules/teks-arab.md` butir 9, docs/04, dan ARSITEKTUR-TEKNIS diperbarui (Kemenag dari data pemilik).
+
+**Tinjau ulang bila:**
+- Kemenag/LPMQ menerbitkan syarat pakai, atau pertanyaan tashih (PMA 44/2016) terjawab;
+- korpus berisi lebih dari satu kitab (tabel Qur'an bersama, reset per edisi);
+- eval S15 atau tinjauan T-16 menemukan rujukan salah.

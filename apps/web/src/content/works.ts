@@ -95,3 +95,28 @@ export const EDITION_CREDITS: readonly EditionCredit[] = [
     ],
   },
 ];
+
+/**
+ * Sumber ayat Al-Qur'an untuk /lisensi (S12, ADR-040), ringkasan data/ATTRIBUTION.md bagian Ayat
+ * (tes menjaga semua tautannya ada di sana). Halaman statis: tetap benar walau korpus produksi
+ * belum memuat tabel ayat.
+ */
+export const QURAN_CREDITS: readonly {
+  name: string;
+  role: string;
+  links: readonly { label: string; url: string }[];
+}[] = [
+  {
+    name: "Tanzil Project",
+    role: "Teks ayat: Tanzil Quran Text versi 1.1 (Uthmani untuk tampilan, Simple Clean untuk mencocokkan kutipan), CC BY 3.0. Disalin verbatim, tidak diubah.",
+    links: [
+      { label: "tanzil.net", url: "https://tanzil.net" },
+      { label: "lisensi teks Tanzil", url: "https://tanzil.net/docs/text_license" },
+    ],
+  },
+  {
+    name: "Kementerian Agama Republik Indonesia (LPMQ)",
+    role: "Terjemahan Al-Qur'an berbahasa Indonesia beserta catatan kakinya, dan transliterasi Latin. Ditampilkan verbatim.",
+    links: [{ label: "quran.kemenag.go.id", url: "https://quran.kemenag.go.id" }],
+  },
+];

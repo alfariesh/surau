@@ -10,9 +10,11 @@
 import {
   EDITION_ID_MAX,
   attributionStatus,
+  ayahMatch,
   editionRow,
   needsReviewReason,
   passageKind,
+  quranSourceKind,
 } from "@surau/db";
 import { z } from "zod";
 
@@ -90,6 +92,41 @@ export const footnoteRef = z.strictObject({
 });
 export type FootnoteRef = z.infer<typeof footnoteRef>;
 
+const surahNo = z.number().int().min(1).max(114).describe("Surah number (1–114)");
+const ayahNo = z.number().int().positive();
+
+/**
+ * Kutipan ayat di `text_raw` (S12): dikenali deterministik dengan pencocokan ke teks Tanzil, bukan
+ * oleh model. `text_raw.slice(char_start, char_end)` = kutipan persis di kitab.
+ */
+export const ayahRef = z.strictObject({
+  char_start: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe("Start offset of the quotation in text_raw (JS string index, inclusive)"),
+  char_end: z.number().int().positive().describe("End offset (exclusive)"),
+  surah: surahNo,
+  ayah_from: ayahNo,
+  ayah_to: ayahNo,
+  match: ayahMatch.describe(
+    "exact = identical to the Tanzil text after normalization; similar = minor spelling differences",
+  ),
+  partial: z.boolean().describe("The quotation covers only part of ayah_from..ayah_to"),
+  bracketed: z
+    .boolean()
+    .describe(
+      "Marked {…} in the source; false = recognized after an introducing phrase such as قال تعالى",
+    ),
+  alt_count: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe("Other places in the Quran with the identical wording (reference picks one)"),
+  label: z.string().describe('Reference label, e.g. "QS Al-Baqarah [2]: 255"'),
+});
+export type AyahRef = z.infer<typeof ayahRef>;
+
 export const passage = z.strictObject({
   id: id.describe("Stable passage id"),
   anchor: z.string().describe("Stable fragment anchor, e.g. p2824"),
@@ -98,12 +135,77 @@ export const passage = z.strictObject({
   toc_node_id: id.nullable(),
   text_raw: z.string().describe("Raw source text, verbatim from the database"),
   footnote_refs: z.array(footnoteRef).describe("Footnote markers in this passage (body only)"),
+  ayah_refs: z
+    .array(ayahRef)
+    .describe(
+      "Quran quotations in this passage, in text order; empty when none or the corpus predates them",
+    ),
   needs_review: z
     .array(needsReviewReason)
     .describe("Ingest flags that this passage needs human review; not a review result"),
   location,
 });
 export type Passage = z.infer<typeof passage>;
+
+// ── Al-Qur'an (S12) ──────────────────────────────────────────────────────────────────────
+
+export const quranFootnoteView = z.strictObject({
+  marker: z.string().describe('Marker as printed in the translation text, e.g. "4)"'),
+  text: z.string(),
+});
+
+export const quranAyahView = z.strictObject({
+  surah: surahNo,
+  ayah: ayahNo,
+  juz: z.number().int().min(1).max(30),
+  text: z.string().describe("Ayah text, Tanzil Uthmani, verbatim (never written by a model)"),
+  translation: z
+    .strictObject({
+      text: z
+        .string()
+        .describe("Official Kemenag (Ministry of Religious Affairs RI) translation, verbatim"),
+      footnotes: z.array(quranFootnoteView).describe("Footnotes of the translation, verbatim"),
+    })
+    .nullable(),
+  transliteration: z.string().nullable().describe("Kemenag Latin transliteration, verbatim"),
+});
+export type QuranAyahView = z.infer<typeof quranAyahView>;
+
+export const quranSurahView = z.strictObject({
+  surah: surahNo,
+  name_ar: z.string(),
+  name_latin: z.string(),
+  revelation: z.enum(["makkah", "madinah"]),
+  ayah_count: ayahNo,
+});
+export type QuranSurahView = z.infer<typeof quranSurahView>;
+
+export const quranSourceView = z.strictObject({
+  id: z.string(),
+  kind: quranSourceKind,
+  name: z.string(),
+  version: z.string(),
+  license: z.string(),
+  attribution: z.string().describe("Required attribution"),
+  url: z.string(),
+});
+export type QuranSourceView = z.infer<typeof quranSourceView>;
+
+export const quranView = z
+  .strictObject({
+    surahs: z.array(quranSurahView),
+    ayat: z.array(quranAyahView).describe("Ayat in mushaf order"),
+    sources: z.array(quranSourceView).describe("Text, translation and transliteration sources"),
+  })
+  .describe("Quran ayat with official translation and their sources (verbatim, never by a model)");
+export type QuranView = z.infer<typeof quranView>;
+
+export const ayahRefsView = z.strictObject({
+  passage_id: id,
+  refs: z.array(ayahRef),
+  quran: quranView.describe("The referenced ayat (full ayat, also for partial quotations)"),
+});
+export type AyahRefsView = z.infer<typeof ayahRefsView>;
 
 // ── Halaman ──────────────────────────────────────────────────────────────────────────────
 
@@ -119,6 +221,9 @@ export const pageView = z.strictObject({
     .describe(
       "The same page in the original digitization (e.g. shamela.ws), for attribution; null when unknown",
     ),
+  quran: quranView
+    .nullable()
+    .describe("Ayat quoted on this page (see ayah_refs); null when none or unavailable"),
 });
 export type PageView = z.infer<typeof pageView>;
 
@@ -345,6 +450,9 @@ export type ReadSectionInput = z.infer<typeof readSectionInput>;
 
 export const buildCitationInput = z.strictObject({ passage_id: id });
 export type BuildCitationInput = z.infer<typeof buildCitationInput>;
+
+export const getAyahRefsInput = z.strictObject({ passage_id: id });
+export type GetAyahRefsInput = z.infer<typeof getAyahRefsInput>;
 
 /** Batas panjang kueri pencarian (karakter), juga batas di API web (S11). */
 export const SEARCH_QUERY_MAX = 200;

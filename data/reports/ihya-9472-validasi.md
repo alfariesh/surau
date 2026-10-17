@@ -5,7 +5,7 @@
 
 - Sumber: Shamela `book/472/9472.db`, sha256 `36e66c5498b74e6d4fd7542108a29327361cf45534794d1c5a878e7bc2b7d586`
 - Patch daftar isi: `data/patches/ihya-9472.yaml` · peta ID: `data/ids/ihya-9472.json`
-- Korpus: `ihya-v2` · NORM_VERSION 1
+- Korpus: `ihya-v3` · NORM_VERSION 1
 
 ## Invarian (ingest gagal bila ada yang ✗)
 
@@ -22,6 +22,10 @@
 | Penanda (١) tidak hilang saat takhrij dipisah | ✓ | ya |
 | Integritas lintas tabel (edisi halaman/node = edisi paragraf; penanda badan → catatan kaki halaman sama) | ✓ | 0 paragraf beda edisi atau tanpa node; 0 footnote_ref salah arah |
 | Matan = OpenITI (≥0,95 per halaman) | ✓ | 1705/1706 halaman (gerbang ≥1705); 0 halaman tidak ada di OpenITI |
+| Sumber Qur'an utuh (ayat = jumlah per surah; terjemahan + transliterasi tiap ayat; penomoran QUL = Tanzil) | ✓ | 114 surah, 6236/6236 ayat, 12472 baris terjemahan/transliterasi; 6 ayat beda teks QUL vs Tanzil (batas 20) |
+| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 1650 rujukan; 0 tidak sah |
+| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 1587 rujukan exact; 0 tidak sesuai |
+| Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 977/1004 (97,3%); mirip 25, tidak cocok 2 |
 
 ## Daftar isi
 

@@ -1,10 +1,12 @@
-// read_page: satu halaman cetak beserta catatan kakinya dan tautan penanda → catatan kaki.
+// read_page: satu halaman cetak beserta catatan kakinya, tautan penanda → catatan kaki, dan ayat
+// yang dikutip di halaman itu (teks Tanzil + terjemahan Kemenag, S12).
 import { getAdjacentPages, getPageByCitation, getPassagesByPage } from "@surau/db";
 import type { D1Db } from "@surau/db";
 
 import { loadCiteContext } from "./citation.ts";
 import { NotFound, parseInput } from "./errors.ts";
 import { toPassages } from "./passages.ts";
+import { quranForRefs } from "./quran.ts";
 import { readPageInput } from "./schema.ts";
 import type { PageView } from "./schema.ts";
 
@@ -36,6 +38,11 @@ export async function readPage(
   );
   const near = (p: { juz: number; page_no: number } | null) =>
     p === null ? null : cite.location(p.juz, p.page_no);
+  // Bolak-balik tambahan hanya bila halaman mengutip ayat.
+  const quran = await quranForRefs(
+    db,
+    passages.flatMap((p) => p.ayah_refs),
+  );
   return {
     citation: cite.citation(page.juz, page.page_no),
     body: passages.filter((p) => p.kind === "body"),
@@ -43,5 +50,6 @@ export async function readPage(
     prev: near(adjacent.prev),
     next: near(adjacent.next),
     source_url: cite.sourceUrl(page.source_page_id),
+    quran,
   };
 }

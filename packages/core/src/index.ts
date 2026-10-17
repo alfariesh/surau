@@ -9,6 +9,22 @@ export { readPage } from "./page.ts";
 export { readSection } from "./section.ts";
 export { buildCitation } from "./citation.ts";
 export { SEARCH_MAX_HIGHLIGHTS, searchText } from "./search.ts";
+export { ayahLabel, getAyahRefs, quranForRefs } from "./quran.ts";
+export {
+  ayahPlaceholder,
+  ayahPlaceholderPattern,
+  checkPlaceholders,
+  maskAyat,
+  translationSegments,
+  unmaskAyat,
+} from "./ayah-placeholder.ts";
+export type {
+  AyahSlot,
+  MaskedPassage,
+  PlaceholderCheck,
+  TranslationLabel,
+  TranslationSegment,
+} from "./ayah-placeholder.ts";
 
 export {
   CoreError,

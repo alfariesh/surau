@@ -49,6 +49,11 @@ describe("emitSql", () => {
     passage: [],
     footnote_ref: [],
     passage_needs_review: [],
+    quran_source: [],
+    quran_surah: [],
+    quran_ayah: [],
+    quran_translation: [],
+    passage_ayah_ref: [],
     term_stat: [],
     meta: [{ key: "corpus_version", value: "uji" }],
   };
@@ -57,6 +62,13 @@ describe("emitSql", () => {
     const files = emitSql(empty);
     expect(files.map((f) => f.name)).toEqual(["0000-reset.sql", "0001-meta.sql"]);
     expect(RESET_SQL.indexOf("DELETE FROM passage_needs_review")).toBeLessThan(
+      RESET_SQL.indexOf("DELETE FROM passage;"),
+    );
+    // Rujukan ayat (anak passage dan quran_ayah) dihapus sebelum induknya.
+    expect(RESET_SQL.indexOf("DELETE FROM passage_ayah_ref")).toBeLessThan(
+      RESET_SQL.indexOf("DELETE FROM quran_ayah;"),
+    );
+    expect(RESET_SQL.indexOf("DELETE FROM passage_ayah_ref")).toBeLessThan(
       RESET_SQL.indexOf("DELETE FROM passage;"),
     );
     expect(RESET_SQL).toContain("DELETE FROM meta WHERE key <> 'schema_version';");
