@@ -15,6 +15,24 @@ Format entri:
 
 ---
 
+## 2026-10-17 · S13 · Batch terjemahan & ringkasan (Haiku 5.5) — selesai* (QA T-17 tahap 2 menunggu pemilik)
+
+- Dikerjakan:
+  - Paket `@surau/llm` (`@anthropic-ai/sdk` 0.135.0): prompt berversi `translate-passage@2` + `summarize-section@2` (glosarium ±110 istilah di prefix yang di-cache, ±4.300 token), `custom_id`, validasi keluaran, harga. CLI lokal `pnpm llm` (tokens, sample, plan + count_tokens semua request, submit bertahap dengan `--budget`, wait, collect, rejudge, retry, report) di `tools/ingest/src/llm`.
+  - **Token Arab Claude terukur:** 0,716 token/karakter = **1,84× o200k** → kalkulator (`FAKTOR_TOKEN_ARAB`, model prompt sistem per request) dan `docs/08` diperbarui; per jawaban Haiku + Citations $0,0019 → $0,0027.
+  - **Batch:** uji kecil v1/v2 (20 paragraf + 5 bagian) → prompt v2; tahap 1 (668 ringkasan + 4.000 paragraf) → sisa 12.437 → ulangan Haiku 383 → percobaan terakhir Sonnet 5.5 181 → ringkasan putaran 2 (178). Hasil: **16.102/16.111 terjemahan (99,94%)**, **626/626 ringkasan** ID+EN. Cache prompt sistem ±100%, 0 refusal.
+  - **Pencocok ayat (ADR-042):** temuan uji kecil — ayat tanpa kurung/pengantar akan diterjemahkan LLM. Mode baru `cue_short` + `unmarked` (lafaz satu-satunya di mushaf, tanpa konteks hadits/zikir/basmalah, paragraf badan): rujukan 1.650 → 2.482 (sampel T-16 tetap).
+  - Korpus **`ihya-v4`** (skema 5): `translation` + `summary` dimuat dari hasil yang lolos, dicek ulang hash sumber + validasi; invarian "ayat diisi Kemenag". Dimuat ke D1 lokal (belum staging/produksi).
+  - Peninjau 1: 1 blocker (rujukan ayat salah tunjuk untuk lafaz berulang, zikir, basmalah, hadits) + 7 perbaikan (kirim ulang berbasis hash, retry ganda, paragraf terblokir, huruf Arab apa pun, penanda karangan, model mengisi ulang ayat, laporan basi) + saran; semua diperbaiki sebelum batch tahap 2 (hasil berbayar dinilai ulang gratis lewat `rejudge`).
+- Verifikasi:
+  - `pnpm llm tokens` → faktor 1,84 (200 paragraf, seed 9472); `pnpm llm plan` → semua 17.866 request dihitung `count_tokens`, terbesar 83.231 token (< 100k).
+  - `pnpm ingest ihya` → semua invarian ✓, termasuk **1.323 terjemahan berisi ayat, 0 bermasalah** (setiap rujukan = segmen Kemenag utuh), cakupan terjemahan 99,94% dan ringkasan 100%; `pnpm corpus:load:local` → `translation` 16.102, `summary` 626.
+  - `pnpm verify` → lolos (348 tes Node, 155 tes D1/core, build web).
+  - Browser lokal (`ihya-v4`): j3 h199 rujukan baru QS 3:120 sesudah `{وقال}` (popup "terjemahan ayat lengkap (Kemenag)"), 0 galat konsol/server.
+- Biaya API: **$3,77** (batch $3,72 dari `usage`: terjemahan $2,88 termasuk Sonnet $0,90, ringkasan $0,84; uji kecil API biasa $0,05). Disetujui pemilik ±$6, batas berhenti $7,20. Estimasi rencana putaran 1 (cache 95%/50%) $1,94/$4,24 untuk sisa sesudah tahap 1.
+- Keputusan: ADR-042 (pencocok ayat S13), ADR-043 (desain batch). ADR-041 disisakan untuk PR #30.
+- Catatan untuk sesi berikutnya: S14 menampilkan terjemahan (`translationSegments`, label "terjemahan AI" vs Kemenag) dan ringkasan, memuat `ihya-v4` ke staging lalu promote. `data/build/llm/` hanya di Mac pemilik: jangan dihapus, cadangkan. 9 paragraf tanpa terjemahan (5 kemungkinan ayat belum ditandai) → bahan perbaikan pencocok.
+
 ## 2026-10-17 · S12 · Ayat Al-Qur'an (Tanzil) & terjemahan Kemenag — selesai* (T-16 menunggu pemilik)
 
 - Dikerjakan:
