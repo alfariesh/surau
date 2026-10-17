@@ -693,8 +693,10 @@ function shortCueSpans(
     if (/^[\s:،؛.-]*\{/.test(raw.slice(rawCueEnd, rawCueEnd + 8))) continue;
     const brace = raw.indexOf("{", rawCueEnd);
     const rawLimit = brace === -1 ? raw.length : brace;
-    const toks = tokenize(n, cueEnd, normAtOrAfter(n, rawLimit)).slice(0, CUE_MIN_TOKENS);
-    const words = toks.map((t) => t.token);
+    // Seluruh kata sampai kurung berikutnya (untuk perpanjangan); jangkar persis hanya 2–3 kata awal.
+    const allToks = tokenize(n, cueEnd, normAtOrAfter(n, rawLimit)).slice(0, CUE_MAX_TOKENS);
+    const allWords = allToks.map((t) => t.token);
+    const words = allWords.slice(0, CUE_MIN_TOKENS);
     if (words.length < CUE_SHORT_MIN_TOKENS) continue;
     // Deret terpanjang (< CUE_MIN_TOKENS; yang lebih panjang milik mode pengantar biasa) yang
     // sama persis di mushaf mulai kata pertama sesudah pengantar.
@@ -715,9 +717,7 @@ function shortCueSpans(
     const picked = pickCandidate(index, hits, preferSurah());
     if (picked === null) continue;
     // Jendela lebih panjang yang cocok mirip di letak lain = kutipan berejaan lain, bukan ini.
-    const window = tokenize(n, cueEnd, normAtOrAfter(n, rawLimit))
-      .slice(0, CUE_SHORT_WINDOW)
-      .map((t) => t.token);
+    const window = allWords.slice(0, CUE_SHORT_WINDOW);
     if (window.length > len) {
       const fuzzy = fuzzyMatch(index, window);
       const at = picked.best.hit;
@@ -731,21 +731,20 @@ function shortCueSpans(
     }
     // Kutipan sering berlanjut dengan ejaan lain di ayat yang sama (أينما/أين ما, أولوا/أولو):
     // perpanjang di letak terpilih supaya sisa ayat tidak tertinggal di luar placeholder.
-    const ext = extendVariants(index, words, len, picked.best.hit.from);
-    const used =
+    const short = { length: len, mushafEnd: picked.best.hit.to, same: len };
+    const ext = extendVariants(index, allWords, len, picked.best.hit.from);
+    const extLoc =
       ext.length >= CUE_MIN_TOKENS
-        ? ext
-        : { length: len, mushafEnd: picked.best.hit.to, same: len };
-    const where =
-      used.length === len
-        ? picked.best.loc
-        : locate(index, { from: picked.best.hit.from, to: used.mushafEnd });
-    if (where === null) continue;
+        ? locate(index, { from: picked.best.hit.from, to: ext.mushafEnd })
+        : null;
+    // Perpanjangan yang melintasi batas surah (locate null) dibuang; bentang pendek tetap sah.
+    const used = extLoc === null ? short : ext;
+    const where = extLoc ?? picked.best.loc;
     const [charStart, charEnd] = toRawSpan(
       raw,
       n,
-      (toks[0] as TokenSpan).start,
-      (toks[used.length - 1] as TokenSpan).end,
+      (allToks[0] as TokenSpan).start,
+      (allToks[used.length - 1] as TokenSpan).end,
     );
     if (taken.some((t) => charStart < t.charEnd && t.charStart < charEnd)) continue;
     out.push({

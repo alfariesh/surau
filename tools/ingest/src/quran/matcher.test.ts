@@ -34,6 +34,8 @@ const AYAT = [
   { surah: 7, ayah: 3, text: "يا قوم اسمعوا" },
   // Ejaan mushaf "أين ما" (dua kata) vs sumber "أينما": uji perpanjangan kutipan pendek.
   { surah: 8, ayah: 1, text: "وهو معكم أين ما كنتم تذكرون" },
+  // Kutipan pendek yang berlanjut > 4 kata dengan satu beda ejaan (أولوا/أولو) di tengah.
+  { surah: 9, ayah: 1, text: "ولا يغفل أولو النهى منكم والسعة عن ذكره" },
 ];
 const index = buildQuranIndex(AYAT);
 
@@ -314,6 +316,14 @@ describe("perbaikan tinjauan kedua S13", () => {
     expect(rest).toEqual([]);
     expect(span && quoted(raw, span)).toBe("وهو معكم أينما كنتم");
     expect(span).toMatchObject({ kind: "cue_short", match: "similar", surah: 8, ayahFrom: 1 });
+  });
+
+  test("perpanjangan kutipan pendek tidak berhenti di 4 kata; tidak ada placeholder ganda", () => {
+    const raw = "قال تعالى ولا يغفل أولوا النهى منكم والسعة عن ذكره فهذا كلام الشيخ";
+    const spans = matchPassage(index, raw).spans;
+    expect(spans.map((s) => [s.kind, quoted(raw, s), s.match])).toEqual([
+      ["cue_short", "ولا يغفل أولوا النهى منكم والسعة عن ذكره", "similar"],
+    ]);
   });
 
   test("{ثم قال} yang dikurung sumber = pengantar ayat", () => {

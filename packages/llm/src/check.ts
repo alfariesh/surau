@@ -88,13 +88,17 @@ const META_ID: readonly RegExp[] = [
   /catatan(?:\s+penerjemah)?\s*:/i,
   /\bberikut(?: ini)?(?: adalah)? (?:terjemah|versi|yang (?:benar|tepat)|perbaikan)/i,
   /<\/?(?:teks|sebelumnya|bagian)\b/i,
-  /\b(?:glosarium|placeholder|prompt)\b/i,
+  /\b(?:glosarium|placeholders?)\b/i,
   /\bterjemahan ai\b/i,
   /\bversi (?:yang )?(?:benar|tepat|lain|akhir|perbaikan)\b/i,
   /(?:^|[.!?\n]\s*)(?:maaf|tunggu|sebentar|oke)\s*[,.:—–-]/i,
   /\b(?:perlu koreksi|koreksi\s*:|ralat\s*:)/i,
   /\bsaya (?:terjemahkan|ulangi|perbaiki|koreksi|tulis ulang|menerjemahkan)\b/i,
-  /\bmari (?:saya|kita) (?:terjemah|ulang|perbaiki|coba)/i,
+  /\bmari (?:saya |kita )?(?:terjemah|ulang|perbaiki|coba|lanjut)/i,
+  /\blanjutkan (?:di bawah|terjemah)/i,
+  /\[tidak[,\]]/i,
+  /\bteks yang diberikan\b/i,
+  /\((?:diterjemahkan|terjemahan) di bawah\)/i,
   /\b(?:teks|kalimat|paragraf) (?:ini|tersebut) (?:terpotong|tidak lengkap|tidak memuat)\b/i,
   /\bsesuai (?:instruksi|petunjuk)\b/i,
   /\b(?:sebenarnya|seharusnya) (?:bait|kalimat|teks) ini\b/i,
@@ -114,7 +118,7 @@ const META_ID: readonly RegExp[] = [
 export function hasMetaCommentary(text: string, lang: "id" | "en" = "id"): boolean {
   if (META_ID.some((re) => re.test(text))) return true;
   if (lang === "id") {
-    return /\b(?:let me|i will|i'll|i need to|i must|here is|here's|sorry|hmm|wait|the instruction|translat(?:e|ion))\b/i.test(
+    return /\b(?:let me|i will|i'll|i need to|i must|here is|here's|sorry|hmm|wait|the instruction|translat(?:e|ion)|prompt)\b/i.test(
       text,
     );
   }

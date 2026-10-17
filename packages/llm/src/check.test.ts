@@ -49,6 +49,10 @@ describe("komentar model", () => {
     expect(hasMetaCommentary("The text available here is only the heading.", "en")).toBe(false);
     expect(hasMetaCommentary("He said: I will forgive you.", "en")).toBe(false);
     expect(hasMetaCommentary("Sure. Let me summarize again.", "en")).toBe(true);
+    // "prompt" wajar dalam ringkasan Inggris ("prompt payment"); hanya dicurigai di bahasa Indonesia.
+    expect(hasMetaCommentary("He urges prompt payment of zakat.", "en")).toBe(false);
+    expect(hasMetaCommentary("sesuai prompt", "id")).toBe(true);
+    expect(hasMetaCommentary("(placeholders in the text)", "en")).toBe(true);
   });
 
   test("koreksi-diri berbahasa Indonesia (temuan batch S13) ditolak, kata biasa tidak", () => {
@@ -68,6 +72,9 @@ describe("komentar model", () => {
       "Teks ini berisi beberapa penanda ayat.",
       "Hmm, wait: the instruction says ...",
       "tidak perlu... (tidak ada) — yaitu",
+      "— tidak, mari terjemahkan teks itu saja dengan benar.",
+      "Ia berkata [tidak, lanjutkan di bawah] lalu",
+      "Namun teks yang diberikan kepada saya berbeda.",
     ]) {
       expect(hasMetaCommentary(t), t).toBe(true);
     }
@@ -79,6 +86,7 @@ describe("komentar model", () => {
       "membolehkan upah haji dengan catatan niat utamanya ibadah",
       "cukup diajarkan terjemahan akidah yang telah kami sebutkan",
       "Kitab ini saya susun atas empat rub'.",
+      "Mari kita lihat keadaan orang-orang saleh.",
     ]) {
       expect(hasMetaCommentary(t), t).toBe(false);
     }

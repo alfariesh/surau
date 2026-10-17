@@ -29,7 +29,7 @@ const usage = {
 function fakeTranslation(u: TranslationUnit): string {
   const target = Math.max(40, contentLength(u.masked.text) * 2);
   let text = "";
-  while (text.length < target) text += "Ini terjemahan buatan untuk pengujian. ";
+  while (text.length < target) text += "Ini kalimat Indonesia buatan untuk pengujian. ";
   const placeholders = u.masked.slots.map((s) => s.placeholder).join(" ");
   const markers = u.markers.map((m) => `(${m})`).join(" ");
   return `${text}${placeholders} ${markers}`.trim();

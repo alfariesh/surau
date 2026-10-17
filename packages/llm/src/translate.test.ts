@@ -117,6 +117,23 @@ describe("validasi terjemahan", () => {
     expect(checkTranslation(GOOD.replace("(١)", "(¹)"), input())).toMatchObject({ text: GOOD });
   });
 
+  test("kata 'terjemah' ditolak kecuali sumbernya membahas ترجمة; kurung kurawal ditolak", () => {
+    expect(checkTranslation(`Terjemahan:\n\n${GOOD}`, input()).problems).toContain("meta");
+    expect(
+      checkTranslation(`${GOOD} (Ini ringkasan konteks, bukan terjemahan.)`, input()).problems,
+    ).toContain("meta");
+    const withTarjama: TranslateInput = {
+      ...input(),
+      masked: { ...input().masked, text: `${input().masked.text} \u062A\u0631\u062C\u0645\u0629` },
+    };
+    expect(checkTranslation(`${GOOD} terjemahan akidah`, withTarjama).problems).not.toContain(
+      "meta",
+    );
+    expect(
+      checkTranslation(GOOD.replace("⟦QS 2:255⟧", "{⟦QS 2:255⟧}"), input()).problems,
+    ).toContain("meta");
+  });
+
   test("komentar model tentang pekerjaannya ditolak", () => {
     expect(checkTranslation(`Maaf, saya ulangi dengan benar: ${GOOD}`, input()).problems).toContain(
       "meta",

@@ -13,7 +13,7 @@
 //   collect                   unduh hasil batch yang selesai, lalu nilai ulang semua hasil mentah
 //   rejudge                   nilai ulang semua hasil mentah dengan aturan/sumber saat ini (gratis)
 //   retry [--budget USD] [--confirm]  kirim ulang yang gagal (refusal/percobaan terakhir →
-//                             Sonnet 5.5), maks. 3 percobaan; --budget seperti submit
+//                             Sonnet 5.5; ringkasan dua kali Sonnet); --budget seperti submit
 //   report                    tulis laporan data/reports/ihya-9472-terjemahan.md + sampel QA
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";

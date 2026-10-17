@@ -161,7 +161,11 @@ export function checkTranslation(output: string, input: TranslateInput): Transla
   }
   if (hasMarkdown(text)) problems.push("markdown");
   if (hasPreamble(text)) problems.push("preamble");
-  if (hasMetaCommentary(text)) problems.push("meta");
+  // Kata "terjemah…" di terjemahan hampir selalu label/komentar model ("Terjemahan:", "mari
+  // terjemahkan", "bukan terjemahan"); sah hanya bila sumbernya memang membahas ترجمة (ترجم).
+  const echoesTask = /terjemah/i.test(text) && !/\u062A\u0631\u062C\u0645/.test(input.masked.text);
+  // Kurung kurawal tidak pernah ada di terjemahan yang sah (prompt melarangnya; {⟦QS …⟧} = rusak).
+  if (hasMetaCommentary(text) || echoesTask || /[{}]/.test(text)) problems.push("meta");
   return {
     ok: problems.length === 0,
     text,

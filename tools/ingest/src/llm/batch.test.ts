@@ -7,7 +7,14 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { pendingRequests, rebuild, retryModel, submittable, unresolved } from "./batch.ts";
+import {
+  pendingRequests,
+  readAccepted,
+  rebuild,
+  retryModel,
+  submittable,
+  unresolved,
+} from "./batch.ts";
 import type { Accepted } from "./batch.ts";
 import {
   readBatches,
@@ -247,45 +254,43 @@ describe("model ulangan", () => {
   });
 });
 
+const message = (text: string) => ({
+  id: "msg",
+  type: "message",
+  role: "assistant",
+  model: "claude-haiku-5-5",
+  content: [{ type: "text", text, citations: null }],
+  stop_reason: "end_turn",
+  stop_sequence: null,
+  stop_details: null,
+  usage: {
+    input_tokens: 1,
+    output_tokens: 1,
+    cache_read_input_tokens: 0,
+    cache_creation_input_tokens: 0,
+  },
+});
+const plan = pendingRequests(work, accepted(), 1).filter((r) => r.custom_id === "passage-10000001");
+const record = (id: string, created: string): BatchRecord => ({
+  name: id,
+  id,
+  kind: "translation",
+  model: "claude-haiku-5-5",
+  prompt_version: "translate-passage@2",
+  requests: 1,
+  created_at: created,
+  ended_at: created,
+  collected_at: created,
+  usage: null,
+  outcome: null,
+});
+
 describe("rebuild dari hasil mentah", () => {
   const u1 = work.units.get(10_000_001);
-  const message = (text: string) => ({
-    id: "msg",
-    type: "message",
-    role: "assistant",
-    model: "claude-haiku-5-5",
-    content: [{ type: "text", text, citations: null }],
-    stop_reason: "end_turn",
-    stop_sequence: null,
-    stop_details: null,
-    usage: {
-      input_tokens: 1,
-      output_tokens: 1,
-      cache_read_input_tokens: 0,
-      cache_creation_input_tokens: 0,
-    },
-  });
-  const plan = pendingRequests(work, accepted(), 1).filter(
-    (r) => r.custom_id === "passage-10000001",
-  );
-  const record = (id: string, created: string): BatchRecord => ({
-    name: id,
-    id,
-    kind: "translation",
-    model: "claude-haiku-5-5",
-    prompt_version: "translate-passage@2",
-    requests: 1,
-    created_at: created,
-    ended_at: created,
-    collected_at: created,
-    usage: null,
-    outcome: null,
-  });
-
   test("gagal lalu lolos di batch berikutnya → lolos; hasil untuk sumber lama → stale; outcome tercatat", () => {
     const dir = mkdtempSync(join(tmpdir(), "surau-rebuild-"));
     const good =
-      `Ini terjemahan buatan untuk pengujian yang cukup panjang ${"kata ".repeat(8)}`.trim();
+      `Ini kalimat Indonesia buatan untuk pengujian yang cukup panjang ${"kata ".repeat(8)}`.trim();
     writeBatches(dir, [record("b1", "2026-10-17T01:00:00Z"), record("b2", "2026-10-17T02:00:00Z")]);
     for (const id of ["b1", "b2"]) writeJsonl(join(dir, "requests", `${id}.jsonl`), plan);
     // b1: keluaran berisi huruf Arab → ditolak; b2: keluaran sah → lolos.
@@ -321,5 +326,59 @@ describe("rebuild dari hasil mentah", () => {
       "invalid:arabic",
       "stale",
     ]);
+  });
+});
+
+describe("rebuild: ringkasan putaran 2 usang bila masukannya berubah", () => {
+  test("hasil putaran 2 dengan hash masukan lama dibuang sebagai stale_input (bukan percobaan)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "surau-r2-"));
+    const node = work.nodeById.get(100_001);
+    if (node === undefined) throw new Error("fixture");
+    const chunkPlans = pendingRequests(work, accepted(), 1).filter((r) => r.kind === "summary-r1");
+    const r2plan = {
+      custom_id: "toc-100001-id-r2",
+      kind: "summary-r2" as const,
+      prompt_version: "summarize-section@2",
+      source_sha256: node.sourceSha256,
+      source_chars: 10,
+      input_sha256: "0".repeat(64),
+      params: chunkPlans[0]?.params ?? ({} as never),
+    };
+    const summaryText =
+      "al-Ghazali menjelaskan bahwa ilmu yang benar menuntun kepada amal dan keikhlasan hati.";
+    writeBatches(dir, [
+      { ...record("s1", "2026-10-17T01:00:00Z"), kind: "summary-r1", requests: chunkPlans.length },
+      { ...record("s2", "2026-10-17T02:00:00Z"), kind: "summary-r2" },
+    ]);
+    writeJsonl(join(dir, "requests", "s1.jsonl"), chunkPlans);
+    writeJsonl(join(dir, "requests", "s2.jsonl"), [r2plan]);
+    writeJsonl(
+      join(dir, "results", "s1.jsonl"),
+      chunkPlans.map((p) => ({
+        custom_id: p.custom_id,
+        result: {
+          type: "succeeded",
+          message: message(
+            p.custom_id.endsWith("-en")
+              ? summaryText.replace(
+                  "al-Ghazali menjelaskan bahwa ilmu yang benar menuntun kepada amal dan keikhlasan hati.",
+                  "al-Ghazali explains that the true knowledge leads to practice and sincerity of the heart.",
+                )
+              : summaryText,
+          ),
+        },
+      })),
+    );
+    writeJsonl(join(dir, "results", "s2.jsonl"), [
+      {
+        custom_id: "toc-100001-id-r2",
+        result: { type: "succeeded", message: message(summaryText) },
+      },
+    ]);
+    rebuild(dir, work);
+    const failures = readJsonl(join(dir, "failures.jsonl"), failure);
+    expect(failures.map((f) => f.reason)).toEqual(["stale_input"]);
+    // Tidak dihitung sebagai percobaan gagal untuk sumber saat ini.
+    expect(unresolved(work, readAccepted(dir)).has("toc-100001-id-r2")).toBe(false);
   });
 });

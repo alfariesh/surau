@@ -93,16 +93,23 @@ export async function runReport(ctx: LlmContext): Promise<number> {
   ).length;
   const refusals = acc.failures.filter((f) => f.reason === "refusal").length;
 
-  // Sampel QA T-17 tahap 2: 20 terjemahan acak (seed tetap) dari hasil batch.
-  const pool = tOk.filter((u) => acc.translations.get(u.passageId)?.batch_id !== null);
-  const pick = new Set(
-    samplePages(
-      pool.map((u) => u.passageId),
-      QA_SIZE,
-      QA_SEED,
-    ),
-  );
-  const sample = pool.filter((u) => pick.has(u.passageId));
+  // Sampel QA T-17 tahap 2: 20 paragraf acak (seed tetap) dari SEMUA paragraf badan, bukan dari
+  // hasil yang lolos, supaya daftarnya tidak berubah tiap kali hasil dinilai ulang. Paragraf tanpa
+  // terjemahan diganti paragraf berikutnya (urut ID) yang punya terjemahan.
+  const unitIds = [...work.units.keys()].toSorted((a, b) => a - b);
+  const okIds = new Set(tOk.map((u) => u.passageId));
+  const chosen = new Set<number>();
+  for (const id of samplePages(unitIds, QA_SIZE, QA_SEED)) {
+    let i = unitIds.indexOf(id);
+    while (i < unitIds.length && (!okIds.has(unitIds[i] ?? 0) || chosen.has(unitIds[i] ?? 0))) i++;
+    if (i < unitIds.length) chosen.add(unitIds[i] ?? 0);
+  }
+  const sample = [...chosen]
+    .toSorted((a, b) => a - b)
+    .flatMap((id) => {
+      const u = work.units.get(id);
+      return u === undefined ? [] : [u];
+    });
 
   const lines = [
     "# Terjemahan dan ringkasan AI: Ihya' 'Ulum ad-Din (S13)",
@@ -110,7 +117,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     "> Dibuat otomatis oleh `pnpm llm report` (`tools/ingest/src/llm`). Tanpa teks kitab: hanya angka, ID, dan permalink.",
     "",
     `- Prompt: \`${TRANSLATE_PROMPT.id}\`, \`${SUMMARY_PROMPT.id}\` (\`packages/llm/prompts/\`) · model Claude Haiku 5.5 (\`claude-haiku-5-5\`, effort low), ulangan refusal Claude Sonnet 5.5 · Message Batches`,
-    "- Ayat tidak pernah diterjemahkan model: kutipan ayat dikirim sebagai placeholder `⟦QS s:a⟧` dan diganti terjemahan Kemenag saat tampil (ADR-020, ADR-040, ADR-042).",
+    '- Ayat yang dikenali pencocok tidak diterjemahkan model: kutipannya dikirim sebagai placeholder `⟦QS s:a⟧` dan diganti terjemahan Kemenag saat tampil (ADR-020, ADR-040, ADR-042). Ayat yang luput dari pencocok bisa ikut diterjemahkan model (sisa risiko ADR-042; lihat "Kemungkinan ayat belum ditandai").',
     "",
     "## Cakupan",
     "",
@@ -169,7 +176,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     ),
     `| **Total** | ${num(batches.reduce((a, b) => a + b.requests, 0))} | | ${num(total.input_tokens)} | ${num(total.cache_read_input_tokens)} | ${num(total.cache_creation_input_tokens)} | ${num(total.output_tokens)} | **${usd(total.costUsd)}** |`,
     "",
-    `Estimasi rencana (cache 95% / 50% / 0%): putaran 1 ${est1 === null ? "–" : ["0.95", "0.5", "0"].map((k) => usd(est1[k] ?? 0)).join(" / ")}; putaran 2 ${est2 === null ? "–" : ["0.95", "0.5", "0"].map((k) => usd(est2[k] ?? 0)).join(" / ")}.`,
+    `Biaya yang disetujui pemilik: ±$6 (batas berhenti $7,20). Estimasi rencana TERAKHIR (sisa yang dikirim saat itu; cache 95% / 50% / 0%): putaran 1 ${est1 === null ? "–" : ["0.95", "0.5", "0"].map((k) => usd(est1[k] ?? 0)).join(" / ")}; putaran 2 ${est2 === null ? "–" : ["0.95", "0.5", "0"].map((k) => usd(est2[k] ?? 0)).join(" / ")}.`,
     "",
     `## QA terjemahan: ${QA_SIZE} sampel acak (T-17 tahap 2)`,
     "",

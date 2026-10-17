@@ -1006,7 +1006,7 @@ export async function runRetry(
   }
   const sonnet = reqs.filter((r) => r.params.model === MODELS.sonnet).length;
   console.info(
-    `Ulangan: ${reqs.length} request (${sonnet} ke Sonnet 5.5: refusal atau percobaan terakhir); menyerah (≥${MAX_ATTEMPTS} percobaan): ${givenUp.length}`,
+    `Ulangan: ${reqs.length} request (${sonnet} ke Sonnet 5.5: refusal atau percobaan terakhir); menyerah (sesudah Sonnet ikut dicoba): ${givenUp.length}`,
   );
   if (reqs.length === 0) return 0;
   // Perkiraan biaya ulangan (count_tokens gratis, cache 50%): ulangan Sonnet ±20× Haiku.
