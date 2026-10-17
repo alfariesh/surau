@@ -99,20 +99,57 @@ describe("validasi terjemahan", () => {
   });
 
   test("penanda catatan kaki wajib ada; angka lain tidak dihitung", () => {
-    expect(checkTranslation(GOOD.replace(" (١)", ""), input()).problems).toContain("markers");
-    expect(checkTranslation(`${GOOD} (٢)`, input()).ok).toBe(true);
+    // Penanda hilang = peringatan saja (takhrij tetap tertaut di teks Arab).
+    expect(checkTranslation(GOOD.replace(" (١)", ""), input())).toMatchObject({
+      ok: true,
+      markersMissing: ["١"],
+    });
+    // Angka dalam kurung berangka Latin (tahun, nomor) bukan penanda: dibiarkan.
+    expect(checkTranslation(`${GOOD} (1402)`, input()).ok).toBe(true);
   });
 
-  test("penanda berangka Latin dikembalikan ke angka Arab di teks yang disimpan", () => {
-    const c = checkTranslation(GOOD.replace("(١)", "(1)"), input());
-    expect(c).toMatchObject({ ok: true, text: GOOD });
+  test("penanda berangka Latin atau superskrip dikembalikan ke angka Arab di teks yang disimpan", () => {
+    expect(checkTranslation(GOOD.replace("(١)", "(1)"), input())).toMatchObject({
+      ok: true,
+      text: GOOD,
+      markersMissing: [],
+    });
+    expect(checkTranslation(GOOD.replace("(١)", "(¹)"), input())).toMatchObject({ text: GOOD });
   });
 
-  test("teks Arab panjang ditolak, istilah pendek hanya diberi peringatan", () => {
-    const copied = checkTranslation(`${GOOD} هذا كلام مصنوع`, input());
-    expect(copied.problems).toContain("arabic");
-    const term = checkTranslation(`${GOOD} الإخلاص`, input());
-    expect(term).toMatchObject({ ok: true, arabicWarning: true });
+  test("komentar model tentang pekerjaannya ditolak", () => {
+    expect(checkTranslation(`Maaf, saya ulangi dengan benar: ${GOOD}`, input()).problems).toContain(
+      "meta",
+    );
+    expect(checkTranslation(`${GOOD} Let me write carefully.`, input()).problems).toContain("meta");
+  });
+
+  test("harakat tidak dihitung dalam rasio panjang (judul berharakat)", () => {
+    const title = "فَضِيلَةُ الْمَسْجِدِ وَمَوْضِعُ الصَّلَاةِ وَالذِّكْرِ";
+    const t: TranslateInput = { ...input(), markers: [], masked: { text: title, slots: [] } };
+    expect(checkTranslation("Keutamaan Masjid, Tempat Salat, dan Zikir", t).problems).toEqual([]);
+  });
+
+  test("huruf Arab apa pun ditolak, termasuk satu istilah", () => {
+    expect(checkTranslation(`${GOOD} هذا كلام مصنوع`, input()).problems).toContain("arabic");
+    expect(checkTranslation(`${GOOD} الإخلاص`, input()).problems).toContain("arabic");
+  });
+
+  test("penanda catatan kaki karangan model ditolak", () => {
+    expect(checkTranslation(`${GOOD} (٣)`, input()).problems).toContain("markers_extra");
+  });
+
+  test("model menulis ulang isi ayat di sebelah placeholder → ditolak", () => {
+    // Kutipan sesudah placeholder sering ucapan berikutnya (doa, perkataan sahabat): tidak ditolak.
+    const quoted = GOOD.replace("⟦QS 2:255⟧", '⟦QS 2:255⟧ "Ya Allah, ampunilah aku"');
+    expect(checkTranslation(quoted, input()).problems).not.toContain("ayah_refill");
+    // Tafsiran penulis sesudah placeholder (أي … di sumber) dan kutipan yang DITUTUP tidak ditolak.
+    const meaning = GOOD.replace("⟦QS 2:255⟧", "⟦QS 2:255⟧, yakni Allah Maha Hidup,");
+    expect(checkTranslation(meaning, input()).problems).not.toContain("ayah_refill");
+    const closing = GOOD.replace("⟦QS 2:255⟧", '"Allah berfirman, ⟦QS 2:255⟧," katanya');
+    expect(checkTranslation(closing, input()).problems).not.toContain("ayah_refill");
+    const translit = GOOD.replace("⟦QS 2:255⟧", "wa huwa 'alā kulli syai'in qadīr ⟦QS 2:255⟧");
+    expect(checkTranslation(translit, input()).problems).toContain("ayah_refill");
   });
 
   test("rasio panjang tidak wajar ditolak", () => {

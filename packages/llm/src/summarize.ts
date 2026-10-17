@@ -5,7 +5,13 @@
 import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
 
 import { SUMMARIZE_SECTION_V2 } from "../prompts/summarize-section-v2.ts";
-import { MAX_ARABIC_RUN_WORDS, hasMarkdown, hasPreamble, longestArabicRun } from "./check.ts";
+import {
+  MAX_ARABIC_RUN_WORDS,
+  hasMarkdown,
+  hasMetaCommentary,
+  hasPreamble,
+  longestArabicRun,
+} from "./check.ts";
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 import type { SummaryLang } from "./custom-id.ts";
@@ -92,7 +98,8 @@ export type SummaryProblem =
   | "arabic"
   | "language"
   | "markdown"
-  | "preamble";
+  | "preamble"
+  | "meta";
 
 export interface SummaryCheck {
   ok: boolean;
@@ -123,5 +130,6 @@ export function checkSummary(output: string, lang: SummaryLang): SummaryCheck {
     problems.push("language");
   if (hasMarkdown(text)) problems.push("markdown");
   if (hasPreamble(text)) problems.push("preamble");
+  if (hasMetaCommentary(text, lang)) problems.push("meta");
   return { ok: problems.length === 0, problems };
 }

@@ -8,7 +8,7 @@ import { createHash } from "node:crypto";
 import { maskAyat } from "@surau/core";
 import type { AyahRef, FootnoteRef, MaskedPassage } from "@surau/core";
 import type { FootnoteRefRow, PageRow, PassageAyahRefRow, PassageRow, TocNodeRow } from "@surau/db";
-import { contentLength } from "@surau/llm";
+import { contentLength, letterLength } from "@surau/llm";
 import type { TranslateInput } from "@surau/llm";
 
 export interface UnitRows {
@@ -150,6 +150,9 @@ export function translationUnits(rows: UnitRows): TranslationUnits {
         passageId: p.id,
         detail: `${b.refCount - b.masked.slots.length} dari ${b.refCount} rujukan ayat tidak bisa ditandai`,
       });
+      // Teksnya masih memuat ayat: tidak boleh ikut terkirim sebagai konteks paragraf berikutnya.
+      prev = null;
+      continue;
     } else {
       const sameSection = prev !== null && prev.passage.toc_node_id === p.toc_node_id;
       units.push({
@@ -205,6 +208,11 @@ export interface SummaryPlan {
  * ±3 ribu token ikut dihitung), dan cukup kecil supaya model tidak kehilangan detail.
  */
 export const CHUNK_MAX_TOKENS = 50_000;
+/**
+ * Paragraf milik simpul INDUK sependek ini (huruf, tanpa harakat) biasanya hanya judulnya sendiri:
+ * tidak diringkas (17 simpul di Ihya), ringkasan induk dibuat dari subbagiannya saja.
+ */
+export const PARENT_OWN_MIN_LETTERS = 80;
 
 /**
  * Token per karakter teks Arab Ihya di tokenizer Claude Haiku 5.5: 0,716 diukur S13 dengan
@@ -275,8 +283,11 @@ export function summaryPlan(
   const tokensPerChar = opts.tokensPerChar ?? TOKENS_PER_CHAR;
   const headings = headingPaths(rows.toc_node);
   const page = new Map(rows.page.map((p) => [p.id, p]));
+  // Paragraf terblokir (rujukan ayat tak bisa ditandai) tidak ikut diringkas: teksnya memuat ayat.
   const bySection = groupBy(
-    maskedBodies(rows).filter((b) => b.passage.toc_node_id !== null),
+    maskedBodies(rows).filter(
+      (b) => b.passage.toc_node_id !== null && b.masked.slots.length === b.refCount,
+    ),
     (b) => b.passage.toc_node_id ?? 0,
   );
   const children = groupBy(
@@ -293,7 +304,10 @@ export function summaryPlan(
     const bodies = bySection.get(n.id) ?? [];
     if (bodies.length === 0) continue;
     const isLeaf = (children.get(n.id) ?? []).length === 0;
-    const split = splitPages(pageBlocks(bodies, page), opts.maxTokens, tokensPerChar);
+    const blocks = pageBlocks(bodies, page);
+    const letters = bodies.reduce((a, b) => a + letterLength(b.masked.text), 0);
+    if (!isLeaf && letters < PARENT_OWN_MIN_LETTERS) continue;
+    const split = splitPages(blocks, opts.maxTokens, tokensPerChar);
     const list = split.map((pages, i): SummaryChunk => {
       const text = pages.join("\n");
       return {

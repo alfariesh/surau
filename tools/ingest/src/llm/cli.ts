@@ -5,12 +5,13 @@
 //   tokens [--n 200]          ukur token Arab Claude (count_tokens, gratis) → laporan + faktor
 //   sample                    uji kecil lewat API biasa: 20 paragraf + 5 bagian (berbayar, ±$0,05)
 //   plan [--round 1|2]        susun semua request + count_tokens (gratis) + estimasi biaya
-//   submit --round 1|2 [--kind translation|summary-r1|summary-r2] [--limit N] [--confirm]
+//   submit --round 1|2 [--kind translation|summary-r1|summary-r2] [--limit N] [--budget USD] [--confirm]
 //                             kirim batch (berbayar; tanpa --confirm hanya ringkasan); bertahap
 //                             dengan --kind/--limit
 //   status                    status batch yang sudah dikirim
 //   wait                      tunggu semua batch terbuka selesai (poll tiap menit)
-//   collect                   unduh hasil batch yang selesai, validasi, simpan yang lolos
+//   collect                   unduh hasil batch yang selesai, lalu nilai ulang semua hasil mentah
+//   rejudge                   nilai ulang semua hasil mentah dengan aturan/sumber saat ini (gratis)
 //   retry [--confirm]         kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan
 //   report                    tulis laporan data/reports/ihya-9472-terjemahan.md + sampel QA
 import { existsSync } from "node:fs";
@@ -25,10 +26,19 @@ import type { PipelinePaths } from "../pipeline.ts";
 import { QURAN_EXPECT, QURAN_FILES } from "../quran/source.ts";
 import type { CorpusRows } from "../rows.ts";
 import { IHYA } from "../works/ihya.ts";
-import { runCollect, runPlan, runRetry, runStatus, runSubmit, runWait } from "./batch.ts";
+import {
+  runCollect,
+  runPlan,
+  runRejudge,
+  runRetry,
+  runStatus,
+  runSubmit,
+  runWait,
+} from "./batch.ts";
 import { runReport } from "./report.ts";
 import { runSample } from "./sample.ts";
 import { batchKind } from "./store.ts";
+import { z } from "zod";
 import { runTokens } from "./tokens.ts";
 
 const repo = resolve(import.meta.dirname, "../../../..");
@@ -89,27 +99,29 @@ async function main(argv: string[]): Promise<number> {
       round: { type: "string" },
       kind: { type: "string" },
       limit: { type: "string" },
+      budget: { type: "string" },
       confirm: { type: "boolean", default: false },
     },
   });
   const ctx = context(values.shamela);
-  const round = values.round === "2" ? 2 : 1;
+  // Validasi di batas CLI (KONVENSI): nilai salah ditolak, bukan diam-diam diganti.
+  const round = z.enum(["1", "2"]).default("1").transform(Number).parse(values.round) as 1 | 2;
+  const positiveInt = z.coerce.number().int().positive();
   switch (positionals[0]) {
     case "tokens":
-      return runTokens(ctx, Number(values.n ?? 200));
+      return runTokens(ctx, positiveInt.parse(values.n ?? 200));
     case "sample":
       return runSample(ctx);
     case "plan":
       return runPlan(ctx, round);
     case "submit": {
       const kind = batchKind.optional().parse(values.kind);
-      const limit = values.limit === undefined ? undefined : Number(values.limit);
-      if (limit !== undefined && !(Number.isInteger(limit) && limit > 0)) {
-        throw new Error(`--limit bukan bilangan bulat positif: ${values.limit}`);
-      }
+      const limit = positiveInt.optional().parse(values.limit);
+      const budget = z.coerce.number().positive().optional().parse(values.budget);
       return runSubmit(ctx, round, values.confirm, {
         ...(kind === undefined ? {} : { kind }),
         ...(limit === undefined ? {} : { limit }),
+        ...(budget === undefined ? {} : { budget }),
       });
     }
     case "wait":
@@ -118,13 +130,15 @@ async function main(argv: string[]): Promise<number> {
       return runStatus(ctx);
     case "collect":
       return runCollect(ctx);
+    case "rejudge":
+      return runRejudge(ctx);
     case "retry":
       return runRetry(ctx, values.confirm);
     case "report":
       return runReport(ctx);
     default:
       console.error(
-        "Pakai: pnpm llm tokens|sample|plan|submit|status|wait|collect|retry|report [--round 1|2] [--kind …] [--limit N] [--confirm]",
+        "Pakai: pnpm llm tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report [--round 1|2] [--kind …] [--limit N] [--confirm]",
       );
       return 2;
   }

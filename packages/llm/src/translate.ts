@@ -8,12 +8,14 @@ import type { MaskedPassage } from "@surau/core";
 import { TRANSLATE_PASSAGE_V2 } from "../prompts/translate-passage-v2.ts";
 import {
   MAX_ARABIC_RUN_WORDS,
-  contentLength,
   footnoteMarkerDigits,
   hasArabicLetters,
   hasMarkdown,
+  hasMetaCommentary,
   hasPreamble,
+  letterLength,
   longestArabicRun,
+  refillsAyah,
   restoreFootnoteMarkers,
 } from "./check.ts";
 import { MODELS } from "./client.ts";
@@ -74,11 +76,13 @@ export function buildTranslateRequest(
 export type TranslationProblem =
   | "empty"
   | "placeholders"
-  | "markers"
+  | "markers_extra"
+  | "ayah_refill"
   | "arabic"
   | "length_ratio"
   | "markdown"
-  | "preamble";
+  | "preamble"
+  | "meta";
 
 export interface TranslationCheck {
   ok: boolean;
@@ -89,6 +93,11 @@ export interface TranslationCheck {
   details: string[];
   /** Ada huruf Arab pendek (≤ MAX_ARABIC_RUN_WORDS kata): diterima, dicatat. */
   arabicWarning: boolean;
+  /**
+   * Penanda catatan kaki yang tidak ada di terjemahan (diterima, dicatat): takhrij tetap tertaut di
+   * teks Arab di sebelahnya. Uji batch S13: model sering membuangnya (±4% paragraf).
+   */
+  markersMissing: string[];
 }
 
 /** Rasio panjang terjemahan Indonesia ÷ teks Arab yang dianggap wajar (di luar ini ditolak). */
@@ -100,7 +109,16 @@ export function checkTranslation(output: string, input: TranslateInput): Transla
   const problems: TranslationProblem[] = [];
   const details: string[] = [];
   const text = restoreFootnoteMarkers(output.trim(), input.markers);
-  if (text === "") return { ok: false, text, problems: ["empty"], details, arabicWarning: false };
+  if (text === "") {
+    return {
+      ok: false,
+      text,
+      problems: ["empty"],
+      details,
+      arabicWarning: false,
+      markersMissing: [],
+    };
+  }
 
   const ph = checkPlaceholders(text, input.masked);
   if (!ph.ok) {
@@ -115,18 +133,29 @@ export function checkTranslation(output: string, input: TranslateInput): Transla
     const i = missing.indexOf(d);
     if (i !== -1) missing.splice(i, 1);
   }
-  if (missing.length > 0) {
-    problems.push("markers");
-    details.push(`penanda catatan kaki hilang (${missing.join(" ")})`);
+  if (missing.length > 0) details.push(`penanda catatan kaki hilang (${missing.join(" ")})`);
+  // Penanda berangka Arab yang tidak ada di sumber = karangan model (akan tertaut ke takhrij salah).
+  const extra = [...input.markers];
+  const invented = got.filter((d) => {
+    if (!/^[\u0660-\u0669\u06F0-\u06F9]+$/.test(d)) return false;
+    const i = extra.indexOf(d);
+    if (i === -1) return true;
+    extra.splice(i, 1);
+    return false;
+  });
+  if (invented.length > 0) {
+    problems.push("markers_extra");
+    details.push(`penanda catatan kaki karangan (${invented.join(" ")})`);
   }
+  if (refillsAyah(text)) problems.push("ayah_refill");
   const run = longestArabicRun(text);
   if (run > MAX_ARABIC_RUN_WORDS) {
     problems.push("arabic");
     details.push(`${run} kata Arab berturut-turut`);
   }
-  const source = contentLength(input.masked.text);
+  const source = letterLength(input.masked.text);
   if (source >= LENGTH_RATIO_MIN_CHARS) {
-    const ratio = contentLength(text) / source;
+    const ratio = letterLength(text) / source;
     if (ratio < LENGTH_RATIO.min || ratio > LENGTH_RATIO.max) {
       problems.push("length_ratio");
       details.push(`rasio panjang ${ratio.toFixed(2)}`);
@@ -134,11 +163,13 @@ export function checkTranslation(output: string, input: TranslateInput): Transla
   }
   if (hasMarkdown(text)) problems.push("markdown");
   if (hasPreamble(text)) problems.push("preamble");
+  if (hasMetaCommentary(text)) problems.push("meta");
   return {
     ok: problems.length === 0,
     text,
     problems,
     details,
     arabicWarning: run > 0 && run <= MAX_ARABIC_RUN_WORDS && hasArabicLetters(text),
+    markersMissing: missing,
   };
 }

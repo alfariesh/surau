@@ -43,12 +43,14 @@ const passage = (seq: number, pg: number, toc: number, ord: number, text: string
 
 // Pohon: A (akar, punya paragraf pengantar) → B (daun kecil), C (daun tiga halaman panjang).
 const LONG = "كلمة ".repeat(200).trim();
+// Pengantar simpul induk cukup panjang (≥ PARENT_OWN_MIN_LETTERS huruf) supaya ikut diringkas.
+const INTRO = "كلام تمهيدي مصنوع للتجربة ".repeat(4).trim();
 const rows: UnitRows = {
   page: [page(1, 1, 1), page(2, 1, 2), page(3, 1, 3), page(4, 1, 4)],
   toc_node: [node(1, null, 1, "كتاب"), node(2, 1, 1, "باب أول"), node(3, 1, 2, "باب ثان")],
   passage: [
     passage(2, 1, 2, 2, "نص الباب الأول"),
-    passage(1, 1, 1, 1, "مقدمة الكتاب قال تعالى قول مصنوع (١)"),
+    passage(1, 1, 1, 1, `مقدمة الكتاب قال تعالى قول مصنوع (١) ${INTRO}`),
     passage(3, 2, 3, 1, LONG),
     passage(4, 3, 3, 1, LONG),
     passage(5, 4, 3, 1, LONG),
@@ -117,6 +119,10 @@ describe("unit terjemahan", () => {
     const { units, blocked } = translationUnits(bad);
     expect(blocked.map((b) => b.passageId)).toEqual([ED * 10_000_000 + 1]);
     expect(units.map((u) => u.passageId)).not.toContain(ED * 10_000_000 + 1);
+    // Tidak menjadi konteks paragraf lain dan tidak ikut diringkas.
+    expect(units.some((u) => u.previous?.includes("مقدمة"))).toBe(false);
+    const plan = summaryPlan(bad, { maxTokens: 2_500, tokensPerChar: 1 });
+    expect(plan.chunks.some((c) => c.text.includes("مقدمة"))).toBe(false);
   });
 });
 
@@ -138,7 +144,7 @@ describe("rencana ringkasan", () => {
       [3, 1, 2, false],
       [3, 2, 2, false],
     ]);
-    expect(plan.chunks[0]?.text).toBe("[1/1] مقدمة الكتاب قال تعالى ⟦QS 2:3⟧ (١)");
+    expect(plan.chunks[0]?.text).toBe(`[1/1] مقدمة الكتاب قال تعالى ⟦QS 2:3⟧ (١) ${INTRO}`);
     const nodes = new Map(plan.nodes.map((n) => [n.tocNodeId % 100, n]));
     expect(nodes.get(1)?.round2).toBe(true);
     expect(nodes.get(1)?.subtree.map((c) => `${c.tocNodeId % 100}.${c.part}`)).toEqual([
@@ -163,5 +169,17 @@ describe("rencana ringkasan", () => {
     expect(other.nodes.find((n) => n.tocNodeId % 100 === 3)?.sourceSha256).toBe(
       nodes.get(3)?.sourceSha256,
     );
+    // Pengantar induk yang hanya judul pendek tidak diringkas; induk diringkas dari subbagiannya.
+    const short = summaryPlan(
+      {
+        ...rows,
+        passage: rows.passage.map((p) =>
+          p.id % 100 === 1 ? { ...p, text_raw: "مقدمة الكتاب" } : p,
+        ),
+      },
+      { maxTokens: 2_500, tokensPerChar: 1 },
+    );
+    expect(short.chunks.map((c) => c.tocNodeId % 100)).toEqual([2, 3, 3]);
+    expect(short.nodes.find((n) => n.tocNodeId % 100 === 1)?.subtree).toHaveLength(3);
   });
 });

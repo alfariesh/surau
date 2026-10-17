@@ -15,8 +15,10 @@ import { acceptedSummary, acceptedTranslation, readJsonl } from "./store.ts";
 import { buildWork } from "./work.ts";
 
 export interface LlmStats {
-  /** Paragraf badan yang harus punya terjemahan. */
+  /** Paragraf badan yang harus punya terjemahan (termasuk yang terblokir). */
   units: number;
+  /** Paragraf yang rujukan ayatnya tidak bisa ditandai: tidak pernah dikirim, dihitung belum ada. */
+  blocked: number;
   translations: number;
   /** Hasil yang teks/rujukan ayatnya sudah berubah sejak batch (tidak dimuat). */
   staleTranslations: number;
@@ -91,7 +93,8 @@ export function llmRows(rows: CorpusRows, dir: string): LlmBuild {
   const work = buildWork(rows);
   const quran = quranViewFromRows(rows);
   const stats: LlmStats = {
-    units: work.units.size,
+    units: work.units.size + work.blocked.length,
+    blocked: work.blocked.length,
     translations: 0,
     staleTranslations: 0,
     invalidTranslations: 0,

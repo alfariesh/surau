@@ -3,7 +3,7 @@ import type { PageRow, PassageRow, TocNodeRow } from "@surau/db";
 import { describe, expect, test } from "vite-plus/test";
 
 import type { CorpusRows } from "../rows.ts";
-import { pendingRequests, unresolved } from "./batch.ts";
+import { pendingRequests, submittable, unresolved } from "./batch.ts";
 import type { Accepted } from "./batch.ts";
 import type { AcceptedSummary, AcceptedTranslation, Failure } from "./store.ts";
 import { buildWork } from "./work.ts";
@@ -69,6 +69,7 @@ function translation(passageId: number, sha: string): AcceptedTranslation {
     source_sha256: sha,
     batch_id: "b",
     arabic_warning: false,
+    markers_missing: [],
     usage,
   };
 }
@@ -95,7 +96,11 @@ function summary(
   };
 }
 
-function fail(customId: string, reason: string): Failure {
+/** Kegagalan untuk sumber saat ini (hash unit/potongan sekarang), kecuali `sha` diberikan. */
+function fail(customId: string, reason: string, sha?: string): Failure {
+  const id = Number(customId.split("-")[1]);
+  const current =
+    work.units.get(id)?.sourceSha256 ?? work.chunkById.get(customId)?.sourceSha256 ?? "";
   return {
     custom_id: customId,
     batch_id: "b",
@@ -104,6 +109,7 @@ function fail(customId: string, reason: string): Failure {
     details: [],
     output: null,
     at: "t",
+    source_sha256: sha ?? current,
     usage: null,
   };
 }
@@ -168,6 +174,8 @@ describe("ulangan", () => {
           fail("passage-10000001", "refusal"),
           fail("passage-10000002", "max_tokens"),
           fail("toc-100002-id", "errored:api_error"),
+          // Gagal untuk sumber lama: tidak dihitung (unit dijadwalkan ulang oleh plan).
+          fail("toc-100003-id", "invalid:language", "0".repeat(64)),
         ],
       }),
     );
@@ -175,5 +183,39 @@ describe("ulangan", () => {
       ["passage-10000001", { attempts: 2, refusal: true }],
       ["toc-100002-id", { attempts: 1, refusal: false }],
     ]);
+  });
+});
+
+describe("kirim", () => {
+  test("hasil usang dikirim lagi; yang lolos/gagal untuk sumber sama dan yang sedang diproses tidak", () => {
+    const plan = pendingRequests(work, accepted(), 1);
+    const u1 = work.units.get(10_000_001);
+    const u2 = work.units.get(10_000_002);
+    const acc = accepted({
+      translations: new Map([
+        // Lolos untuk sumber sama → tidak dikirim.
+        [10_000_001, translation(10_000_001, u1?.sourceSha256 ?? "")],
+        // Lolos untuk sumber LAMA → dikirim lagi (dulu terlewat karena hanya dicek ID-nya).
+        [10_000_002, translation(10_000_002, "0".repeat(64))],
+      ]),
+      failures: [fail("toc-100002-id", "invalid:language")],
+    });
+    const { ready, stale } = submittable(work, acc, new Set(["toc-100003-en"]), plan);
+    expect(stale).toBe(0);
+    expect(ready.map((r) => r.custom_id)).toEqual([
+      "passage-10000002",
+      "toc-100002-en",
+      "toc-100003-id",
+    ]);
+    expect(u2).toBeDefined();
+  });
+
+  test("rencana yang sumbernya sudah berubah tidak dikirim (dihitung usang)", () => {
+    const plan = pendingRequests(work, accepted(), 1).map((r) =>
+      r.custom_id === "passage-10000001" ? { ...r, source_sha256: "0".repeat(64) } : r,
+    );
+    const { ready, stale } = submittable(work, accepted(), new Set(), plan);
+    expect(stale).toBe(1);
+    expect(ready.map((r) => r.custom_id)).not.toContain("passage-10000001");
   });
 });

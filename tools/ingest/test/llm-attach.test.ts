@@ -50,6 +50,7 @@ function translationLine(
     source_sha256: sha,
     batch_id: "msgbatch_uji",
     arabic_warning: false,
+    markers_missing: [],
     usage,
   };
 }

@@ -82,7 +82,13 @@ function spanKind(s: AyahSpan): string {
       : s.kind === "bracketed"
         ? `mirip (huruf ${score})`
         : `mirip (kata persis ${score})`,
-    s.kind === "bracketed" ? "{…}" : s.kind === "cue" ? "tanpa kurung" : "tanpa tanda",
+    s.kind === "bracketed"
+      ? "{…}"
+      : s.kind === "cue"
+        ? "tanpa kurung"
+        : s.kind === "cue_short"
+          ? "pendek sesudah pengantar"
+          : "tanpa tanda",
     s.partial ? "sebagian ayat" : "ayat utuh",
     ...(s.alt > 0 ? [`+${s.alt} letak lain`] : []),
   ].join(", ");
@@ -114,10 +120,10 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
   // Sampel T-16 hanya dari dua mode S12, supaya daftarnya tetap sama sesudah mode tanpa tanda
   // (S13) ditambahkan; mode baru punya sampelnya sendiri.
   const sample = draw(
-    all.filter((x) => x.span.kind !== "unmarked"),
+    all.filter((x) => x.span.kind === "bracketed" || x.span.kind === "cue"),
     SAMPLE_SEED,
   );
-  const unmarked = all.filter((x) => x.span.kind === "unmarked");
+  const unmarked = all.filter((x) => x.span.kind === "unmarked" || x.span.kind === "cue_short");
   const unmarkedSample = draw([...unmarked], UNMARKED_SAMPLE_SEED);
   const similar = all.filter((x) => x.span.match === "similar");
   const unmatched = ayat.matches.flatMap((m) =>
@@ -162,7 +168,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
     `| · mirip, beda ejaan (\`similar\`) | ${num(s.similar)} (${pct(s.similar, s.validated)}) |`,
     `| · tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda; dibiarkan, tidak ditebak) | ${num(s.unmatched)} (${pct(s.unmatched, s.validated)}) |`,
     `| Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | ${num(s.cueExact)} / ${num(s.cueSimilar)} |`,
-    `| Kutipan tanpa tanda, sama persis (S13) | ${num(s.unmarked)} |`,
+    `| Kutipan S13, sama persis: tanpa tanda, dan pendek 2–3 kata sesudah pengantar (lafaz langka) | ${num(s.unmarked)} |`,
     `| **Rujukan ayat** (\`passage_ayah_ref\`) | **${num(rows.passage_ayah_ref.length)}** di ${num(s.passages)} paragraf |`,
     `| · sebagian ayat (\`partial\`) | ${num(s.partial)} |`,
     `| · lebih dari satu ayat | ${num(s.multiAyah)} |`,

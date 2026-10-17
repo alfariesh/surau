@@ -96,6 +96,8 @@ export const acceptedTranslation = z.strictObject({
   source_sha256: z.string().length(64),
   batch_id: z.string().nullable(),
   arabic_warning: z.boolean(),
+  /** Penanda catatan kaki yang tidak ada di terjemahan (diterima, dicatat). */
+  markers_missing: z.array(z.string()),
   usage,
 });
 export type AcceptedTranslation = z.infer<typeof acceptedTranslation>;
@@ -127,6 +129,8 @@ export const failure = z.strictObject({
   details: z.array(z.string()),
   output: z.string().nullable(),
   at: z.string(),
+  /** sha256 sumber request yang gagal: kegagalan untuk sumber lama tidak dihitung percobaan. */
+  source_sha256: z.string(),
   usage: usage.nullable(),
 });
 export type Failure = z.infer<typeof failure>;

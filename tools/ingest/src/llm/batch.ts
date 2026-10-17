@@ -9,6 +9,7 @@ import { join } from "node:path";
 import type Anthropic from "@anthropic-ai/sdk";
 import type {
   Message,
+  MessageBatchResult,
   MessageCreateParamsNonStreaming,
 } from "@anthropic-ai/sdk/resources/messages";
 import {
@@ -74,6 +75,8 @@ export const plannedRequest = z.strictObject({
   prompt_version: z.string(),
   source_sha256: z.string().length(64),
   source_chars: z.number().int().nonnegative(),
+  /** Perkiraan biaya batch request ini (skenario cache 50%), diisi `plan`; dasar pengaman anggaran. */
+  est_usd: z.number().nonnegative().optional(),
   params: z.custom<MessageCreateParamsNonStreaming>((v) => typeof v === "object" && v !== null),
 });
 export type PlannedRequest = z.infer<typeof plannedRequest>;
@@ -159,19 +162,21 @@ function r2Request(
 /** Request yang masih perlu dikirim untuk satu putaran (yang sudah lolos dengan hash sama dilewati). */
 export function pendingRequests(work: Work, acc: Accepted, round: 1 | 2): PlannedRequest[] {
   const out: PlannedRequest[] = [];
-  // Yang pernah gagal diulang lewat `retry` (hitungan percobaan, refusal → Sonnet), bukan di sini.
-  const failed = new Set(acc.failures.map((f) => f.custom_id));
+  // Yang pernah gagal untuk sumber yang SAMA diulang lewat `retry` (hitungan percobaan, refusal →
+  // Sonnet), bukan di sini. Kegagalan untuk sumber lama (hash beda) tidak dihitung.
+  const failed = new Set(acc.failures.map((f) => `${f.custom_id}:${f.source_sha256}`));
   if (round === 1) {
     for (const u of work.units.values()) {
       if (acc.translations.get(u.passageId)?.source_sha256 === u.sourceSha256) continue;
-      if (failed.has(passageCustomId(u.passageId))) continue;
+      if (failed.has(`${passageCustomId(u.passageId)}:${u.sourceSha256}`)) continue;
       const r = translationRequest(work, u.passageId, MODELS.haiku);
       if (r !== null) out.push(r);
     }
     for (const c of work.chunks) {
       for (const lang of SUMMARY_LANGS) {
         const id = chunkCustomId(c, lang);
-        if (acc.r1.get(id)?.source_sha256 === c.sourceSha256 || failed.has(id)) continue;
+        if (acc.r1.get(id)?.source_sha256 === c.sourceSha256) continue;
+        if (failed.has(`${id}:${c.sourceSha256}`)) continue;
         const r = r1Request(work, id, MODELS.haiku);
         if (r !== null) out.push(r);
       }
@@ -182,7 +187,7 @@ export function pendingRequests(work: Work, acc: Accepted, round: 1 | 2): Planne
     if (!n.round2) continue;
     for (const lang of SUMMARY_LANGS) {
       if (acc.final.get(`${n.tocNodeId}-${lang}`)?.source_sha256 === n.sourceSha256) continue;
-      if (failed.has(tocRound2CustomId(n.tocNodeId, lang))) continue;
+      if (failed.has(`${tocRound2CustomId(n.tocNodeId, lang)}:${n.sourceSha256}`)) continue;
       const r = r2Request(work, acc, n.tocNodeId, lang, MODELS.haiku);
       if (r !== null) out.push(r);
     }
@@ -287,6 +292,29 @@ export interface Estimate {
   costUsd: Record<string, number>;
 }
 
+function expectedOutput(r: PlannedRequest, rates: OutputRates): number {
+  return r.kind === "translation"
+    ? Math.ceil(r.source_chars * rates.translationPerChar)
+    : Math.ceil(rates.summaryPerRequest);
+}
+
+/** Biaya batch satu request (USD) untuk porsi baca cache prefix sistem `h`. */
+function requestCost(
+  r: PlannedRequest,
+  prompt: number,
+  system: number,
+  out: number,
+  h: number,
+): number {
+  const model = isModelId(r.params.model) ? r.params.model : MODELS.haiku;
+  const x = ratesFor(model, prompt);
+  const perMillion =
+    (prompt - system) * x.input +
+    system * (h * x.cacheRead + (1 - h) * x.cacheWrite1h) +
+    out * x.output;
+  return (perMillion / 1_000_000) * 0.5;
+}
+
 function estimate(
   reqs: readonly PlannedRequest[],
   counts: Map<string, number>,
@@ -302,22 +330,13 @@ function estimate(
   for (const r of reqs) {
     const prompt = counts.get(r.custom_id) ?? 0;
     const system = systemTokens[r.prompt_version] ?? 0;
-    const out =
-      r.kind === "translation"
-        ? Math.ceil(r.source_chars * rates.translationPerChar)
-        : Math.ceil(rates.summaryPerRequest);
+    const out = expectedOutput(r, rates);
     promptTokens += prompt;
     outputTokens += out;
     sys += system;
     if (prompt > maxPrompt.tokens) maxPrompt = { custom_id: r.custom_id, tokens: prompt };
-    const model = isModelId(r.params.model) ? r.params.model : MODELS.haiku;
-    const x = ratesFor(model, prompt);
     for (const h of CACHE_SCENARIOS) {
-      const perMillion =
-        (prompt - system) * x.input +
-        system * (h * x.cacheRead + (1 - h) * x.cacheWrite1h) +
-        out * x.output;
-      cost[String(h)] = (cost[String(h)] ?? 0) + (perMillion / 1_000_000) * 0.5;
+      cost[String(h)] = (cost[String(h)] ?? 0) + requestCost(r, prompt, system, out, h);
     }
   }
   return {
@@ -374,7 +393,14 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
     [...byKind].map(([k, list]) => [k, estimate(list, counts, system, rates)]),
   );
   const total = estimate(reqs, counts, system, rates);
-  writeJsonl(join(dir, `plan-r${round}.jsonl`), reqs);
+  writeJsonl(
+    join(dir, `plan-r${round}.jsonl`),
+    reqs.map((r) => {
+      const prompt = counts.get(r.custom_id) ?? 0;
+      const sys = system[r.prompt_version] ?? 0;
+      return { ...r, est_usd: requestCost(r, prompt, sys, expectedOutput(r, rates), 0.5) };
+    }),
+  );
   writeText(
     join(dir, `plan-r${round}.json`),
     `${JSON.stringify({ created_at: new Date().toISOString(), round, rates, total, byKind: estimates }, null, 2)}\n`,
@@ -430,9 +456,12 @@ async function submit(
       const part = list.slice(i, i + BATCH_MAX_REQUESTS);
       const ids = new Set(part.map((r) => r.custom_id));
       if (ids.size !== part.length) throw new Error(`custom_id ganda dalam satu batch (${kind})`);
-      const b = await client.messages.batches.create({
-        requests: part.map((r) => ({ custom_id: r.custom_id, params: r.params })),
-      });
+      // Tanpa ulang otomatis: POST batch (puluhan MB) yang timeout bisa saja sudah diterima, dan
+      // ulangan SDK akan membuat batch ganda yang ikut ditagih. Bila gagal, cek `pnpm llm status`.
+      const b = await client.messages.batches.create(
+        { requests: part.map((r) => ({ custom_id: r.custom_id, params: r.params })) },
+        { maxRetries: 0 },
+      );
       writeJsonl(join(dir, "requests", `${b.id}.jsonl`), part);
       const rec: BatchRecord = {
         name: `${kind}-${label}-${Math.floor(i / BATCH_MAX_REQUESTS) + 1}`,
@@ -473,6 +502,47 @@ export interface SubmitOptions {
   kind?: BatchKind;
   /** Kirim paling banyak N request dari rencana (urutan rencana). */
   limit?: number;
+  /**
+   * Pengaman anggaran yang disetujui pemilik (USD): tolak bila biaya aktual semua batch + perkiraan
+   * request ini (cache 50%) melebihinya.
+   */
+  budget?: number;
+}
+
+/** Biaya aktual semua batch yang sudah dikumpulkan (USD, dari `usage`). */
+export function spentUsd(dir: string): number {
+  return readBatches(dir).reduce((a, b) => a + (b.usage?.costUsd ?? 0), 0);
+}
+
+/**
+ * Request rencana yang masih perlu dikirim SEKARANG: sumbernya sama dengan korpus saat ini, belum
+ * lolos untuk sumber itu, belum gagal untuk sumber itu (→ `retry`), dan tidak sedang diproses.
+ */
+export function submittable(
+  work: Work,
+  acc: Accepted,
+  busy: ReadonlySet<string>,
+  planned: readonly PlannedRequest[],
+): { ready: PlannedRequest[]; stale: number } {
+  const failed = new Set(acc.failures.map((f) => `${f.custom_id}:${f.source_sha256}`));
+  let stale = 0;
+  const ready = planned.filter((r) => {
+    const sha = currentSha(work, r.custom_id);
+    if (sha !== r.source_sha256) {
+      stale++;
+      return false;
+    }
+    if (busy.has(r.custom_id) || failed.has(`${r.custom_id}:${sha}`)) return false;
+    const parts = parseCustomId(r.custom_id);
+    if (parts?.kind === "passage")
+      return acc.translations.get(parts.passageId)?.source_sha256 !== sha;
+    if (parts?.kind === "toc" && parts.round === 1)
+      return acc.r1.get(r.custom_id)?.source_sha256 !== sha;
+    if (parts?.kind === "toc")
+      return acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 !== sha;
+    return false;
+  });
+  return { ready, stale };
 }
 
 export async function runSubmit(
@@ -488,27 +558,31 @@ export async function runSubmit(
     console.error(`Tidak ada rencana di ${path}. Jalankan dulu: pnpm llm plan --round ${round}`);
     return 1;
   }
-  // Rencana bisa lebih tua dari hasil: yang sudah lolos, gagal (→ retry), atau sedang diproses dilewati.
-  const acc = readAccepted(dir);
-  const skip = inFlight(dir);
-  for (const f of acc.failures) skip.add(f.custom_id);
-  for (const t of acc.translations.values()) skip.add(passageCustomId(t.passage_id));
-  for (const id of acc.r1.keys()) skip.add(id);
-  for (const s of acc.final.values()) skip.add(s.custom_id);
-  const remaining = planned.filter(
-    (r) => !skip.has(r.custom_id) && (opts.kind === undefined || r.kind === opts.kind),
-  );
+  const work = buildWork(ctx.rows());
+  const { ready, stale } = submittable(work, readAccepted(dir), inFlight(dir), planned);
+  if (stale > 0) {
+    console.error(
+      `${stale} request di rencana sudah usang (sumber berubah). Jalankan ulang: pnpm llm plan --round ${round}`,
+    );
+    return 1;
+  }
+  const remaining = ready.filter((r) => opts.kind === undefined || r.kind === opts.kind);
   const reqs = opts.limit === undefined ? remaining : remaining.slice(0, opts.limit);
   if (reqs.length === 0) {
     console.info(`Putaran ${round}: tidak ada request tersisa untuk dikirim.`);
     return 0;
   }
-  const meta = z
-    .looseObject({ total: z.looseObject({ costUsd: z.record(z.string(), z.number()) }) })
-    .parse(JSON.parse(readFileSync(join(dir, `plan-r${round}.json`), "utf8")));
+  const spent = spentUsd(dir);
+  const est = reqs.reduce((a, r) => a + (r.est_usd ?? 0), 0);
   console.info(
-    `Putaran ${round}: kirim ${reqs.length} dari ${remaining.length} request tersisa (rencana ${planned.length}); estimasi seluruh rencana ${CACHE_SCENARIOS.map((h) => `${usd(meta.total.costUsd[String(h)] ?? 0)} (cache ${h * 100}%)`).join(" / ")}`,
+    `Putaran ${round}: kirim ${reqs.length} dari ${remaining.length} request tersisa · perkiraan ${usd(est)} (cache 50%) · sudah terpakai ${usd(spent)}`,
   );
+  if (opts.budget !== undefined && spent + est > opts.budget) {
+    console.error(
+      `Melebihi anggaran yang disetujui ${usd(opts.budget)} (${usd(spent)} + ${usd(est)}). Tanya pemilik dulu.`,
+    );
+    return 1;
+  }
   if (!confirm) {
     console.info(
       "Belum dikirim. BERBAYAR: kirim hanya setelah pemilik menyetujui biaya di chat, lalu tambahkan --confirm.",
@@ -595,6 +669,7 @@ function judge(
       details,
       output,
       at: batch.ended_at,
+      source_sha256: planned.source_sha256,
       usage,
     },
   });
@@ -621,11 +696,19 @@ function judge(
         source_sha256: u.sourceSha256,
         batch_id: batch.id,
         arabic_warning: c.arabicWarning,
+        markers_missing: c.markersMissing,
         usage,
       },
     };
   }
   if (parts?.kind !== "toc") return fail("unknown_id", [], text);
+  const current =
+    parts.round === 1
+      ? work.chunkById.get(planned.custom_id)?.sourceSha256
+      : work.nodeById.get(parts.tocNodeId)?.sourceSha256;
+  if (current !== planned.source_sha256) {
+    return fail("stale", ["teks bagian berubah sejak request dibuat"], text);
+  }
   const c = checkSummary(text, parts.lang);
   if (!c.ok) return fail(`invalid:${c.problems.join(",")}`, [], text);
   return {
@@ -647,11 +730,93 @@ function judge(
   };
 }
 
+const batchResult = z.looseObject({
+  custom_id: z.string(),
+  result: z.looseObject({ type: z.string() }),
+});
+
+/**
+ * Bangun ulang semua hasil yang lolos dan kegagalan dari hasil mentah semua batch yang sudah
+ * dikumpulkan, dengan aturan validasi dan unit sumber SAAT INI (gratis; dipakai `collect` dan
+ * `rejudge`). Urut waktu kirim: hasil batch yang lebih baru menimpa yang lama untuk custom_id sama.
+ */
+export function rebuild(dir: string, work: Work): { accepted: number; failures: number } {
+  const batches = readBatches(dir).toSorted((a, b) => (a.created_at < b.created_at ? -1 : 1));
+  const translations = new Map<number, AcceptedTranslation>();
+  const r1 = new Map<string, AcceptedSummary>();
+  const final = new Map<string, AcceptedSummary>();
+  const failures: Failure[] = [];
+  for (const b of batches) {
+    if (b.collected_at === null || b.ended_at === null) continue;
+    const endedAt = b.ended_at;
+    const planned = new Map(
+      readJsonl(join(dir, "requests", `${b.id}.jsonl`), plannedRequest).map((r) => [
+        r.custom_id,
+        r,
+      ]),
+    );
+    let accepted = 0;
+    let invalid = 0;
+    let failed = 0;
+    for (const r of readJsonl(join(dir, "results", `${b.id}.jsonl`), batchResult)) {
+      const p = planned.get(r.custom_id);
+      const base = {
+        custom_id: r.custom_id,
+        batch_id: b.id,
+        details: [],
+        output: null,
+        at: endedAt,
+        source_sha256: p?.source_sha256 ?? "",
+        usage: null,
+      };
+      if (p === undefined) {
+        failures.push({ ...base, model: b.model, reason: "unknown_id" });
+        failed++;
+        continue;
+      }
+      const result = r.result as unknown as MessageBatchResult;
+      if (result.type !== "succeeded") {
+        const reason =
+          result.type === "errored" ? `errored:${result.error.error.type}` : result.type;
+        failures.push({ ...base, model: String(p.params.model), reason });
+        failed++;
+        continue;
+      }
+      const v = judge(work, p, result.message, { id: b.id, ended_at: endedAt });
+      if (v.failure !== null) {
+        failures.push(v.failure);
+        invalid++;
+        continue;
+      }
+      accepted++;
+      const a = v.accepted;
+      if (a === null) continue;
+      if ("passage_id" in a) translations.set(a.passage_id, a);
+      else if (a.round === 1) {
+        r1.set(a.custom_id, a);
+        if (a.part === null) final.set(`${a.toc_node_id}-${a.lang}`, a);
+      } else final.set(`${a.toc_node_id}-${a.lang}`, a);
+    }
+    b.outcome = { accepted, invalid, failed };
+  }
+  writeBatches(
+    dir,
+    readBatches(dir).map((b) => batches.find((x) => x.id === b.id) ?? b),
+  );
+  writeJsonl(
+    join(dir, "translation.jsonl"),
+    [...translations.values()].toSorted((a, b) => a.passage_id - b.passage_id),
+  );
+  writeJsonl(join(dir, "summary-r1.jsonl"), [...r1.values()]);
+  writeJsonl(join(dir, "summary.jsonl"), [...final.values()]);
+  writeJsonl(join(dir, "failures.jsonl"), failures);
+  return { accepted: translations.size + r1.size + final.size, failures: failures.length };
+}
+
 export async function runCollect(ctx: LlmContext): Promise<number> {
   const dir = llmDir(ctx.repo);
   const client = ctx.client();
   const batches = readBatches(dir);
-  const work = buildWork(ctx.rows());
   let pending = 0;
   for (const b of batches) {
     if (b.collected_at !== null) continue;
@@ -661,114 +826,89 @@ export async function runCollect(ctx: LlmContext): Promise<number> {
       console.info(`${b.name}: masih ${s.processing_status}`);
       continue;
     }
-    const planned = new Map(
+    // Hasil mentah disimpan persis seperti diterima; biaya aktual dari `usage` hasil succeeded,
+    // dengan tarif model yang DIMINTA (bukan tebakan dari ID di respons).
+    const models = new Map(
       readJsonl(join(dir, "requests", `${b.id}.jsonl`), plannedRequest).map((r) => [
         r.custom_id,
-        r,
+        r.params.model,
       ]),
     );
-    const endedAt = s.ended_at ?? new Date().toISOString();
     const raw: unknown[] = [];
-    const translations: AcceptedTranslation[] = [];
-    const r1: AcceptedSummary[] = [];
-    const final: AcceptedSummary[] = [];
-    const failures: Failure[] = [];
     const totals: UsageTotals = emptyTotals();
-    let accepted = 0;
-    let invalid = 0;
-    let failed = 0;
     for await (const r of await client.messages.batches.results(b.id)) {
       raw.push(r);
-      const p = planned.get(r.custom_id);
-      if (p === undefined) {
-        failures.push({
-          custom_id: r.custom_id,
-          batch_id: b.id,
-          model: b.model,
-          reason: "unknown_id",
-          details: [],
-          output: null,
-          at: endedAt,
-          usage: null,
-        });
-        failed++;
-        continue;
+      if (r.result.type === "succeeded") {
+        const asked = models.get(r.custom_id) ?? r.result.message.model;
+        if (!isModelId(asked))
+          throw new Error(`model tidak dikenal untuk ${r.custom_id}: ${asked}`);
+        addUsage(totals, asked, r.result.message.usage, { batch: true });
       }
-      if (r.result.type !== "succeeded") {
-        const reason =
-          r.result.type === "errored" ? `errored:${r.result.error.error.type}` : r.result.type;
-        failures.push({
-          custom_id: r.custom_id,
-          batch_id: b.id,
-          model: String(p.params.model),
-          reason,
-          details: [],
-          output: null,
-          at: endedAt,
-          usage: null,
-        });
-        failed++;
-        continue;
-      }
-      const m = r.result.message;
-      addUsage(totals, isModelId(m.model) ? m.model : MODELS.haiku, m.usage, { batch: true });
-      const v = judge(work, p, m, { id: b.id, ended_at: endedAt });
-      if (v.failure !== null) {
-        failures.push(v.failure);
-        invalid++;
-        continue;
-      }
-      accepted++;
-      const a = v.accepted;
-      if (a === null) continue;
-      if ("passage_id" in a) translations.push(a);
-      else if (a.round === 1) {
-        r1.push(a);
-        if (a.part === null) final.push(a);
-      } else final.push(a);
     }
     writeJsonl(join(dir, "results", `${b.id}.jsonl`), raw);
-    appendJsonl(join(dir, "translation.jsonl"), translations);
-    appendJsonl(join(dir, "summary-r1.jsonl"), r1);
-    appendJsonl(join(dir, "summary.jsonl"), final);
-    appendJsonl(join(dir, "failures.jsonl"), failures);
-    b.ended_at = endedAt;
+    b.ended_at = s.ended_at ?? new Date().toISOString();
     b.collected_at = new Date().toISOString();
     b.usage = totals;
-    b.outcome = { accepted, invalid, failed };
     writeBatches(dir, batches);
     console.info(
-      `${b.name}: lolos ${accepted}, ditolak ${invalid}, gagal API ${failed} · biaya ${usd(totals.costUsd)} (baca cache ${totals.cache_read_input_tokens.toLocaleString("id-ID")}, tulis ${totals.cache_creation_input_tokens.toLocaleString("id-ID")})`,
+      `${b.name}: ${raw.length} hasil · biaya ${usd(totals.costUsd)} (baca cache ${totals.cache_read_input_tokens.toLocaleString("id-ID")}, tulis ${totals.cache_creation_input_tokens.toLocaleString("id-ID")})`,
     );
   }
+  printRebuild(dir, buildWork(ctx.rows()));
   if (pending > 0) console.info(`${pending} batch belum selesai; ulangi collect nanti.`);
+  return 0;
+}
+
+function printRebuild(dir: string, work: Work): void {
+  rebuild(dir, work);
+  for (const b of readBatches(dir)) {
+    if (b.outcome === null) continue;
+    console.info(
+      `  ${b.name}: lolos ${b.outcome.accepted}, ditolak ${b.outcome.invalid}, gagal API ${b.outcome.failed}`,
+    );
+  }
+}
+
+/** Nilai ulang semua hasil mentah dengan aturan dan sumber saat ini (tanpa API, gratis). */
+export function runRejudge(ctx: LlmContext): number {
+  printRebuild(llmDir(ctx.repo), buildWork(ctx.rows()));
   return 0;
 }
 
 // ── Ulangan ───────────────────────────────────────────────────────────────────────────────
 
 /** custom_id gagal yang belum pernah lolos, dengan jumlah percobaan dan apakah pernah ditolak model. */
+/** sha256 sumber SAAT INI untuk sebuah custom_id (null bila unitnya tidak ada lagi). */
+function currentSha(work: Work, customId: string): string | null {
+  const parts = parseCustomId(customId);
+  if (parts === null) return null;
+  if (parts.kind === "passage") return work.units.get(parts.passageId)?.sourceSha256 ?? null;
+  if (parts.round === 1) return work.chunkById.get(customId)?.sourceSha256 ?? null;
+  return work.nodeById.get(parts.tocNodeId)?.sourceSha256 ?? null;
+}
+
+/**
+ * custom_id yang gagal untuk sumber saat ini dan belum lolos, dengan jumlah percobaan dan apakah
+ * pernah ditolak model. Kegagalan untuk sumber lama (hash berbeda) tidak dihitung: unit itu
+ * dijadwalkan ulang sebagai request baru oleh `plan`.
+ */
 export function unresolved(
   work: Work,
   acc: Accepted,
 ): Map<string, { attempts: number; refusal: boolean }> {
   const out = new Map<string, { attempts: number; refusal: boolean }>();
   for (const f of acc.failures) {
+    const sha = currentSha(work, f.custom_id);
+    if (sha === null || f.source_sha256 !== sha) continue;
     const parts = parseCustomId(f.custom_id);
     if (parts === null) continue;
-    if (parts.kind === "passage") {
-      const u = work.units.get(parts.passageId);
-      if (
-        u !== undefined &&
-        acc.translations.get(parts.passageId)?.source_sha256 === u.sourceSha256
-      ) {
-        continue;
-      }
-    } else if (parts.round === 1 && acc.r1.has(f.custom_id)) {
-      continue;
-    } else if (parts.round === 2 && acc.final.has(`${parts.tocNodeId}-${parts.lang}`)) {
-      continue;
-    }
+    const done =
+      parts.kind === "passage"
+        ? acc.translations.get(parts.passageId)?.source_sha256 === sha
+        : parts.round === 1
+          ? acc.r1.get(f.custom_id)?.source_sha256 === sha
+          : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
+    if (done) continue;
     const prev = out.get(f.custom_id) ?? { attempts: 0, refusal: false };
     out.set(f.custom_id, {
       attempts: prev.attempts + 1,
@@ -783,9 +923,11 @@ export async function runRetry(ctx: LlmContext, confirm: boolean): Promise<numbe
   const work = buildWork(ctx.rows());
   const acc = readAccepted(dir);
   const todo = unresolved(work, acc);
+  const busy = inFlight(dir);
   const reqs: PlannedRequest[] = [];
   const givenUp: string[] = [];
   for (const [id, s] of todo) {
+    if (busy.has(id)) continue;
     if (s.attempts >= MAX_ATTEMPTS) {
       givenUp.push(id);
       continue;

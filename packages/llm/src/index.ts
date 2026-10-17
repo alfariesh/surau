@@ -30,7 +30,10 @@ export {
   contentLength,
   footnoteMarkerDigits,
   hasArabicLetters,
+  hasMetaCommentary,
+  letterLength,
   longestArabicRun,
+  refillsAyah,
   restoreFootnoteMarkers,
   stripMarkers,
 } from "./check.ts";

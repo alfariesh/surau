@@ -11,6 +11,7 @@ import {
   buildTranslateRequest,
   checkSummary,
   checkTranslation,
+  contentLength,
   costUsd,
   messageText,
   passageCustomId,
@@ -101,7 +102,7 @@ export async function runSample(ctx: LlmContext): Promise<number> {
         const c = checkTranslation(t, u);
         return { text: c.text, problems: c.problems, details: c.details };
       },
-      sourceChars: u.masked.text.length,
+      sourceChars: contentLength(u.masked.text),
     })),
     ...sections.flatMap((c) =>
       (["id", "en"] as SummaryLang[]).map((lang): Job => ({
@@ -109,7 +110,7 @@ export async function runSample(ctx: LlmContext): Promise<number> {
         kind: "summary",
         params: buildSummaryRequest({ ...c, lang }),
         check: (t) => ({ text: t, problems: checkSummary(t, lang).problems, details: [] }),
-        sourceChars: c.text.length,
+        sourceChars: contentLength(c.text),
       })),
     ),
   ];

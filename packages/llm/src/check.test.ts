@@ -6,6 +6,7 @@ import {
   footnoteMarkerDigits,
   hasArabicLetters,
   hasMarkdown,
+  hasMetaCommentary,
   hasPreamble,
   longestArabicRun,
   restoreFootnoteMarkers,
@@ -37,6 +38,17 @@ describe("pemeriksaan keluaran", () => {
     expect(hasPreamble("Berikut ini adalah terjemahan paragraf")).toBe(true);
     expect(hasPreamble("Here is the summary")).toBe(true);
     expect(hasPreamble("Berikutnya ia berkata")).toBe(false);
+  });
+});
+
+describe("komentar model", () => {
+  test("Indonesia: frasa Inggris/permintaan maaf di mana pun; Inggris: hanya di awal kalimat", () => {
+    expect(hasMetaCommentary("Ia berkata ... Wait — I must not add content.")).toBe(true);
+    expect(hasMetaCommentary("Maaf, saya ulangi dengan benar: ...")).toBe(true);
+    expect(hasMetaCommentary("Ia berkata, kami akan datang.")).toBe(false);
+    expect(hasMetaCommentary("The text available here is only the heading.", "en")).toBe(false);
+    expect(hasMetaCommentary("He said: I will forgive you.", "en")).toBe(false);
+    expect(hasMetaCommentary("Sure. Let me summarize again.", "en")).toBe(true);
   });
 });
 
