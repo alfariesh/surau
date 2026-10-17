@@ -151,6 +151,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 - [ ] **T-12 · Setujui soal eval pencarian** (dibutuhkan S15)
   Agent menyusun ±30 soal ("di mana al-Ghazali membahas X?") beserta jawaban lokasinya. Anda (atau ustadz) mengecek dan menyetujui minimal 20 soal.
+  **Siap ditinjau (2026-10-17):** buka https://claude.ai/artifact/3BoaNKz2uL7e1ymEEaCPnH (hanya bisa dibuka akun Anda) → isi nama → untuk tiap soal klik **Setuju / Perlu diubah / Tolak** (tautan "Buka di Surau ↗" membuka halaman kitabnya). Pilihan tersimpan otomatis; agent membacanya dari halaman itu.
 
 ## Fase 3: MCP
 
