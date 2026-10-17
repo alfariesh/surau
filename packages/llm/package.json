@@ -1,0 +1,21 @@
+{
+  "name": "@surau/llm",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pembungkus tipis Anthropic untuk Surau (S13): prompt berversi, request batch terjemahan/ringkasan, validasi keluaran, dan harga token. Tanpa node:*, jadi bisa dipakai Worker (S19).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "catalog:",
+    "@surau/core": "workspace:*",
+    "@surau/text": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}
