@@ -1068,7 +1068,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Indeks tidak berubah: `LATIN_NORM_VERSION` tetap 1, korpus tidak perlu dibangun ulang. Kunci cache ikut berubah lewat stem rencana kueri.
    - **Hasil:** r03 > 50 → 1, r20 2 → 1. Uji kueri lain (cara bertobat, bagaimana cara ikhlas, cara berwudu, menurut al-Ghazali tentang riya): bab utama di 3 teratas.
 
-**Hasil (D1 lokal = staging = produksi `ihya-v5`):** baseline 30 soal hit@1 56,7% · hit@5 90,0% · hit@10 96,7% · MRR 0,732. Setelah butir 6 (31 soal, termasuk r03 dan p31): hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795. Kueri Arab 6/6 di peringkat 1. Satu lokasi benar dilebarkan setelah membaca teks (r23: pembuka kitab j3 h231 menyebut harta sebagai fitnah dunia terbesar). Angka set resmi dicatat di LOG setelah T-12.
+**Hasil (D1 lokal = staging = produksi `ihya-v5`):** baseline 30 soal hit@1 56,7% · hit@5 90,0% · hit@10 96,7% · MRR 0,732. Setelah butir 6 (31 soal, termasuk r03 dan p31): hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795. Kueri Arab 6/6 di peringkat 1. Satu lokasi benar dilebarkan setelah membaca teks (r23: pembuka kitab j3 h231 menyebut harta sebagai fitnah dunia terbesar). **Set resmi** (T-12: ke-31 soal disetujui pemilik, 2026-10-17; laporan `evals/reports/retrieval-2026-10-17-ihya-v5-resmi.md`): hit@10 100% → **lolos gerbang R2**; set privat 10 soal hit@10 100%, hit@5 90%.
 
 **Ditolak:**
 - Set regex/gold otomatis (riset S11): tidak mewakili relevansi manusia.
@@ -1086,7 +1086,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konteks:** ADR-006 menunda Vectorize + Workers AI sampai eval membuktikan perlu. Langkah 6 S15: bila hit@10 < 90% setelah perbaikan murah, rencanakan S15b (embedding `qwen3-embedding-0.6b` vs `bge-m3`, Vectorize 1024 dimensi, RRF).
 
 **Keputusan:** embedding **tetap ditunda**, dan S15b tidak dijadwalkan. Dasarnya, setelah perbaikan murah (ADR-045 butir 6):
-- hit@10 = 100% atas 31 soal (angka set resmi di LOG), hit@5 96,8%, kueri Arab 6/6 di peringkat 1.
+- hit@10 = 100% atas set resmi 31 soal yang disetujui pemilik (publik 21 dan privat 10 sama-sama 100%), hit@5 96,8%, kueri Arab 6/6 di peringkat 1.
 - Tidak ada kegagalan karena kosakata Indonesia ↔ istilah Arab yang butuh kesamaan makna. Kegagalan satu-satunya adalah kata pembingkai, dan itu sudah diperbaiki secara leksikal. Ringkasan AI per bagian sudah menjembatani kueri awam ke bab yang tepat.
 - Biaya dan kompleksitas embedding (indeks Vectorize, pipeline ingest, ±+1 bolak-balik per kueri) tidak sebanding dengan selisih yang bisa diukur di set ini.
 
