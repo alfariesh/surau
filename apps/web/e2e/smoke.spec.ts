@@ -82,7 +82,7 @@ test("halaman yang tidak ada menampilkan 404 berbahasa Indonesia", async ({ page
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Halaman tidak ditemukan");
 });
 
-test("menu samping: Kitab dan Tentang bisa dibuka, fitur yang belum ada berlabel segera", async ({
+test("menu samping: Kitab, Cari, dan Tentang bisa dibuka, fitur yang belum ada berlabel segera", async ({
   page,
   isMobile,
 }) => {
@@ -94,12 +94,17 @@ test("menu samping: Kitab dan Tentang bisa dibuka, fitur yang belum ada berlabel
   };
 
   let menu = await openMenu();
-  await expect(menu.getByRole("row", { name: /Cari \(segera\)/ })).toHaveAttribute(
+  await expect(menu.getByRole("row", { name: /Tanya \(segera\)/ })).toHaveAttribute(
     "aria-disabled",
     "true",
   );
   await menu.getByRole("row", { name: "Kitab", exact: true }).click();
   await expect(page).toHaveURL(/\/kitab$/);
+
+  // Cari aktif sejak S14.
+  menu = await openMenu();
+  await menu.getByRole("row", { name: "Cari", exact: true }).click();
+  await expect(page).toHaveURL(/\/cari$/);
 
   menu = await openMenu();
   await menu.getByRole("row", { name: "Tentang" }).click();

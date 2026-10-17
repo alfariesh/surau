@@ -367,6 +367,7 @@ export const id = {
     filterKitab: "Kitab",
     filterKitabAll: "Semua kitab di rub' ini",
     loading: "Mencari…",
+    resultsHeading: "Hasil pencarian",
     summary: (pages: number, hits: number) => `${pages} halaman · ${hits} paragraf`,
     summaryFused:
       "Diurutkan menurut kecocokan gabungan teks Arab, terjemahan AI, dan ringkasan bagian (100 paragraf teratas per jalur).",

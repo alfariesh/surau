@@ -225,6 +225,7 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
         aria-live="polite"
         className="flex flex-col gap-4"
       >
+        <h2 className="sr-only">{t.resultsHeading}</h2>
         <Results
           query={query}
           state={state}
