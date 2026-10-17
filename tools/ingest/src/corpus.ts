@@ -141,17 +141,23 @@ export function readSearchCacheCorpus(jsonc: string): string {
 /**
  * Ganti nama + ID DB korpus produksi, dan `SEARCH_CACHE_CORPUS` ke nama yang sama (kunci cache
  * pencarian berganti bersama korpus); komentar, `preview_database_id`, dan `previews` tetap.
+ * `searchCache: false` untuk config tanpa cache pencarian (Worker MCP, S16).
  */
-export function setProductionCorpus(jsonc: string, next: CorpusBinding): string {
+export function setProductionCorpus(
+  jsonc: string,
+  next: CorpusBinding,
+  { searchCache = true }: { searchCache?: boolean } = {},
+): string {
   readProductionCorpus(jsonc);
-  readSearchCacheCorpus(jsonc);
+  if (searchCache) readSearchCacheCorpus(jsonc);
   const [head, tail] = splitTopLevel(jsonc);
+  const switched = head.replace(PROD_ENTRY, (_m, a: string, _n, b: string, _i, c: string) =>
+    [a, next.name, b, next.id, c].join(""),
+  );
   return (
-    head
-      .replace(PROD_ENTRY, (_m, a: string, _n, b: string, _i, c: string) =>
-        [a, next.name, b, next.id, c].join(""),
-      )
-      .replace(CACHE_VAR, (_m, a: string, _v, c: string) => [a, next.name, c].join("")) + tail
+    (searchCache
+      ? switched.replace(CACHE_VAR, (_m, a: string, _v, c: string) => [a, next.name, c].join(""))
+      : switched) + tail
   );
 }
 

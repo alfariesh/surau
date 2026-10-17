@@ -49,17 +49,17 @@ Urutan: `plan --round 1` → `submit --round 1 --confirm` → `wait` → `collec
 
 ## Korpus produksi (blue-green)
 
-Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah setelah aktif. Binding `CORPUS_DB` top-level di `apps/web/wrangler.jsonc` menunjuk versi aktif; `deploy.yml` tidak pernah menyentuh korpus (dijaga tes `src/corpus.test.ts`). Riwayat versi dan target rollback: [data/SOURCES.md](../../data/SOURCES.md#korpus-d1-produksi).
+Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah setelah aktif. Binding `CORPUS_DB` top-level di `apps/web/wrangler.jsonc` **dan** `apps/mcp/wrangler.jsonc` (Worker MCP, S16; selalu sama, dijaga tes) menunjuk versi aktif; `deploy.yml` tidak pernah menyentuh korpus (dijaga tes `src/corpus.test.ts`). Riwayat versi dan target rollback: [data/SOURCES.md](../../data/SOURCES.md#korpus-d1-produksi).
 
 **Promote versi baru** (setiap langkah remote dengan izin pemilik):
 
 1. `pnpm ingest ihya` (build bersih), lalu `pnpm run corpus:promote <versi>`: rencana, sha256 build, dan hitungan baris. Versi baru = nama baru (`ihya-v2`). Skrip menolak memuat ulang DB yang melayani atau pernah melayani produksi: binding di working tree, di `origin/main` (setelah `git fetch`), atau tercatat di `data/SOURCES.md`. Korpus staging tidak pernah dijadikan produksi.
-2. `pnpm run corpus:promote <versi> --confirm` (±1 menit untuk Ihya): `d1 create --location apac` → migrasi korpus → muat `data/build/sql/*.sql` → smoke (hitungan **setiap** tabel dan `meta` = build, j1 h200) → ganti `CORPUS_DB` produksi di `apps/web/wrangler.jsonc`. Bila smoke gagal, binding tidak diubah.
+2. `pnpm run corpus:promote <versi> --confirm` (±1 menit untuk Ihya): `d1 create --location apac` → migrasi korpus → muat `data/build/sql/*.sql` → smoke (hitungan **setiap** tabel dan `meta` = build, j1 h200) → ganti `CORPUS_DB` produksi di `apps/web/wrangler.jsonc` dan `apps/mcp/wrangler.jsonc` (ditolak bila keduanya tidak menunjuk DB yang sama). Bila smoke gagal, binding tidak diubah.
 3. `pnpm run corpus:qa <versi>`: harus 30/30. Laporannya di-commit.
 4. Catat versi baru (aktif) dan versi lama (rollback) di `data/SOURCES.md`, lalu PR. Setelah CI hijau dan merge, `deploy.yml` men-deploy Worker dengan binding baru. Cache ISR ikut kosong karena build baru (ADR-034).
 5. DB lama **tidak dihapus**.
 
-**Rollback** (korpus baru bermasalah): `pnpm run corpus:promote <versi-lama> --switch-only` (hanya baca remote: smoke DB lama, lalu ganti binding CORPUS_DB **dan** `SEARCH_CACHE_CORPUS`, kunci cache pencarian), commit, PR, merge. Sejak S14 (ADR-044) korpus berskema **lebih lama** dari kode boleh jadi target: kode memeriksa `meta.schema_version` dan menyembunyikan fitur yang tabelnya belum ada, dan perintah mencetak fitur yang hilang sebagai peringatan (mis. `ihya-v1`, skema 3: pencarian Arab dan Indonesia 503, tanpa rujukan ayat dan terjemahan; pembaca tetap jalan). Skema yang lebih baru dari kode ditolak. Versi yang baru dibangun (`--confirm`) tetap wajib berskema terbaru.
+**Rollback** (korpus baru bermasalah): `pnpm run corpus:promote <versi-lama> --switch-only` (hanya baca remote: smoke DB lama, lalu ganti binding CORPUS_DB web + MCP **dan** `SEARCH_CACHE_CORPUS`, kunci cache pencarian web), commit, PR, merge. Sejak S14 (ADR-044) korpus berskema **lebih lama** dari kode boleh jadi target: kode memeriksa `meta.schema_version` dan menyembunyikan fitur yang tabelnya belum ada, dan perintah mencetak fitur yang hilang sebagai peringatan (mis. `ihya-v1`, skema 3: pencarian Arab dan Indonesia 503, tanpa rujukan ayat dan terjemahan; pembaca tetap jalan). Skema yang lebih baru dari kode ditolak. Versi yang baru dibangun (`--confirm`) tetap wajib berskema terbaru.
 
 **Tutup darurat pembaca** (teks salah tampil dan rollback belum siap): ubah `vars.READER_ENABLED` top-level di `apps/web/wrangler.jsonc` menjadi `"0"`, PR, merge (±5 menit sampai deploy). Rute `/kitab/*` kembali "segera hadir" dan cache ISR lama tidak dipakai lagi karena build baru. **Jangan** lewat dashboard Cloudflare: variabel berubah tanpa build baru, sehingga halaman yang sudah ter-cache di R2 tetap tampil (ADR-034).
 
