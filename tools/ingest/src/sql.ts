@@ -43,8 +43,8 @@ const bytes = (s: string): number => Buffer.byteLength(s, "utf8");
  * yang sudah ada TIDAK menghapus token lama, jadi indeks tidak boleh dimuat di atas isi lama.
  */
 export const RESET_SQL = [
-  "-- Kosongkan korpus sebelum dimuat ulang (anak lebih dulu). Tabel terjemahan/ringkasan tidak",
-  "-- dihapus: bila sudah berisi, foreign key membuat pemuatan ulang GAGAL (sengaja, S13+).",
+  "-- Kosongkan korpus sebelum dimuat ulang (anak lebih dulu), termasuk terjemahan/ringkasan AI",
+  "-- (S13): keduanya dibangun ulang dari hasil batch di data/build/llm setiap ingest.",
   "INSERT INTO passage_fts (passage_fts) VALUES ('delete-all');",
   ...[...TABLE_ORDER]
     .reverse()

@@ -25,6 +25,10 @@ catalog:
   # Tipe D1Database untuk packages/* (yang tidak punya wrangler types sendiri).
   "@cloudflare/workers-types": 5.20261014.1
 
+  # LLM (S13, ADR-013): klien resmi Anthropic untuk Message Batches + count_tokens. 0.135.0 dirilis
+  # 2026-10-15 (>24 jam). Membawa @opentelemetry/api (Apache-2.0) sebagai dependensi.
+  "@anthropic-ai/sdk": 0.135.0
+
   # Web: Next + React (ADR-003; naik ke 16.4 di X01). 16.4.2 belum 24 jam saat X01 (16 Okt).
   next: 16.4.1
   react: 19.3.1

@@ -64,8 +64,8 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 
 | Teknologi | Target | Terpasang | Docs untuk agent | ADR |
 |---|---|---|---|---|
-| `@anthropic-ai/sdk` | 0.134.x | – | skill `claude-api` (**wajib dimuat sebelum menulis kode Claude**) · https://platform.claude.com/docs/en/about-claude/pricing · Citations https://platform.claude.com/docs/en/build-with-claude/citations · Batches https://platform.claude.com/docs/en/build-with-claude/batch-processing | 013 |
-| Model | `claude-haiku-5-5` (utama), `claude-sonnet-5-5` (fallback refusal & pembanding) | – | lihat aturan di ADR-013 | 013 |
+| `@anthropic-ai/sdk` | 0.135.x | **0.135.0** (S13, `packages/llm` + `tools/ingest`; docs + tipe `batches`/`countTokens`/`output_config.effort` dicek 2026-10-17; membawa `@opentelemetry/api`, dimatikan lewat `openTelemetry: false`) | skill `claude-api` (**wajib dimuat sebelum menulis kode Claude**) · https://platform.claude.com/docs/en/about-claude/pricing · Citations https://platform.claude.com/docs/en/build-with-claude/citations · Batches https://platform.claude.com/docs/en/build-with-claude/batch-processing | 013 |
+| Model | `claude-haiku-5-5` (utama), `claude-sonnet-5-5` (fallback refusal & pembanding) | dipakai S13 (batch, effort `low`); token Arab Ihya 0,716/karakter = 1,84× o200k (`data/reports/ihya-9472-token.md`) | lihat aturan di ADR-013 | 013, 043 |
 | `@modelcontextprotocol/server` (+ `client` untuk tes) | 2.3.x | – | https://ts.sdk.modelcontextprotocol.io/v2/llms.txt · spec https://modelcontextprotocol.io/llms.txt | 011 |
 | `next-devtools-mcp` (MCP agent untuk dev server Next) | 0.4.0 (`.mcp.json`) | 0.4.0 · endpoint `/_next/mcp` diuji lewat curl 2026-10-15 | https://nextjs.org/docs/app/guides/mcp · `apps/web/node_modules/next/dist/docs/01-app/02-guides/mcp.md` | 003 |
 | MCP Inspector | 2.11.x | – | https://github.com/modelcontextprotocol/inspector | 011 |
@@ -73,14 +73,14 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 
 ## Harga acuan (untuk kalkulator dan ledger)
 
-Sumber: https://platform.claude.com/docs/en/about-claude/pricing (dicek 15 Okt 2026). USD per juta token.
+Sumber: https://platform.claude.com/docs/en/about-claude/pricing (dicek 15 Okt 2026; dicek ulang 17 Okt 2026 di S13, ditambah kolom tulis cache 1 jam). USD per juta token. Kode: `packages/llm/src/pricing.ts`.
 
-| Model | Input | Tulis cache 5m | Baca cache | Output | Batch (in/out) |
-|---|---|---|---|---|---|
-| Claude Haiku 5.5 (prompt ≤100k) | 0,10 | 0,125 | 0,01 | 0,50 | 0,05 / 0,25 |
-| Claude Haiku 5.5 (prompt >100k) | 0,50 | 0,625 | 0,05 | 2,50 | 0,25 / 1,25 |
-| Claude Sonnet 5.5 | 2,00 | 2,50 | **0,10** | 10,00 | 1,00 / 5,00 |
-| Claude Opus 5.5 | 4,00 | 5,00 | 0,20 | 20,00 | 2,00 / 10,00 |
+| Model | Input | Tulis cache 5m | Tulis cache 1j | Baca cache | Output | Batch (in/out) |
+|---|---|---|---|---|---|---|
+| Claude Haiku 5.5 (prompt ≤100k) | 0,10 | 0,125 | 0,20 | 0,01 | 0,50 | 0,05 / 0,25 |
+| Claude Haiku 5.5 (prompt >100k) | 0,50 | 0,625 | 1,00 | 0,05 | 2,50 | 0,25 / 1,25 |
+| Claude Sonnet 5.5 | 2,00 | 2,50 | 4,00 | **0,10** | 10,00 | 1,00 / 5,00 |
+| Claude Opus 5.5 | 4,00 | 5,00 | – | 0,20 | 20,00 | 2,00 / 10,00 |
 
 Diskon batch bertumpuk dengan caching. Batas 100k Haiku dihitung dari **seluruh** token input, termasuk baca dan tulis cache.
 

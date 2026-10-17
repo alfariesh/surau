@@ -1,6 +1,6 @@
 // Tes pencocok ayat dengan mushaf BUATAN (kalimat karangan, bukan teks Al-Qur'an): cocok persis,
 // multi-ayat, ejaan berbeda (mirip), kurung kurawal yang bukan ayat, letak alternatif, dan kutipan
-// tanpa kurung sesudah frasa pengantar.
+// tanpa kurung sesudah frasa pengantar, serta kutipan tanpa tanda (S13).
 import { describe, expect, test } from "vite-plus/test";
 
 import {
@@ -26,6 +26,16 @@ const AYAT = [
   // Dua letak sama panjang, beda satu ejaan (السماوات/السموات): uji pilihan letak tanpa kurung.
   { surah: 4, ayah: 1, text: "فانظر إلى العرش والسماوات العالية" },
   { surah: 5, ayah: 1, text: "فانظر إلى العرش والسموات العالية" },
+  // Memuat kalimat tauhid: uji pengecualian mode tanpa tanda.
+  { surah: 6, ayah: 1, text: "وقل للحاضرين لا إله إلا هو ربكم" },
+  // "يا قوم" di tiga letak: lafaz umum, tidak ditautkan sebagai kutipan pendek.
+  { surah: 7, ayah: 1, text: "يا قوم اعملوا" },
+  { surah: 7, ayah: 2, text: "يا قوم انظروا" },
+  { surah: 7, ayah: 3, text: "يا قوم اسمعوا" },
+  // Ejaan mushaf "أين ما" (dua kata) vs sumber "أينما": uji perpanjangan kutipan pendek.
+  { surah: 8, ayah: 1, text: "وهو معكم أين ما كنتم تذكرون" },
+  // Kutipan pendek yang berlanjut > 4 kata dengan satu beda ejaan (أولوا/أولو) di tengah.
+  { surah: 9, ayah: 1, text: "ولا يغفل أولو النهى منكم والسعة عن ذكره" },
 ];
 const index = buildQuranIndex(AYAT);
 
@@ -178,7 +188,10 @@ describe("kutipan tanpa kurung sesudah pengantar", () => {
     });
     // 8 dari 9 kata sama persis (السموات ≠ السماوات).
     expect(span?.score).toBeCloseTo(8 / 9, 3);
-    expect(matchPassage(index, "قال تعالى قل هل يستوي").spans).toEqual([]);
+    // 3 kata langka sesudah pengantar: kutipan pendek (S13), bukan mode pengantar biasa.
+    expect(matchPassage(index, "قال تعالى قل هل يستوي").spans.map(brief)).toEqual([
+      { ref: "2:1-1", match: "exact", partial: true, kind: "cue_short", alt: 0 },
+    ]);
     expect(matchPassage(index, "قال الله تعالى أنا عند ظن عبدي بي").spans).toEqual([]);
   });
 
@@ -208,5 +221,129 @@ describe("kutipan tanpa kurung sesudah pengantar", () => {
       ],
     );
     expect(m.rejected.map((r) => r.reason)).toEqual(["one_word"]);
+  });
+});
+
+describe("kutipan pendek sesudah pengantar (S13)", () => {
+  test("2 kata langka tepat sesudah قال تعالى dikenali; lafaz umum (≥3 letak) tidak", () => {
+    const raw = "ولذلك قال تعالى والعلم ثمرة لمن عقل";
+    expect(
+      matchPassage(index, raw).spans.map((s) => [s.kind, quoted(raw, s), s.surah, s.ayahFrom]),
+    ).toEqual([["cue_short", "والعلم ثمرة", 1, 3]]);
+    expect(matchPassage(index, "قال تعالى يا قوم هذا كلام").spans).toEqual([]);
+    // 2 kata berawalan kata fungsi (pola hadits qudsi "قال الله تعالى لا يزال …") tidak ditautkan,
+    // walaupun lafaznya hanya ada di satu letak (3:1).
+    expect(matchPassage(index, "قال الله تعالى إلى السماوات ثم سكت").spans).toEqual([]);
+    // Tanpa pengantar, 2 kata tidak pernah dihitung.
+    expect(matchPassage(index, "كتب والعلم ثمرة لمن عقل").spans).toEqual([]);
+  });
+});
+
+describe("kutipan tanpa tanda (S13)", () => {
+  test("≥5 kata sama persis di tengah kalimat dikenali, tanpa kurung dan tanpa pengantar", () => {
+    const raw = "كتب الشيخ في رسالته فطوبى للصابرين الذين يذكرون ربهم ثم سكت";
+    const [span, ...rest] = matchPassage(index, raw).spans;
+    expect(rest).toEqual([]);
+    expect(span && brief(span)).toEqual({
+      ref: "3:2-2",
+      match: "exact",
+      partial: true,
+      kind: "unmarked",
+      alt: 0,
+    });
+    expect(span && quoted(raw, span)).toBe("فطوبى للصابرين الذين يذكرون ربهم");
+  });
+
+  test("4 kata hanya dikenali sesudah kata kutip, termasuk kurung yang salah tempat {وقال}", () => {
+    expect(matchPassage(index, "كتب الشيخ فطوبى للصابرين الذين يذكرون").spans).toEqual([]);
+    const raw = "ثم ذكر الحال {وقال} فطوبى للصابرين الذين يذكرون";
+    const m = matchPassage(index, raw);
+    expect(m.spans.map((s) => [s.kind, quoted(raw, s)])).toEqual([
+      ["unmarked", "فطوبى للصابرين الذين يذكرون"],
+    ]);
+    expect(m.rejected.map((r) => r.reason)).toEqual(["one_word"]);
+  });
+
+  test("kalimat tauhid saja tidak dihitung sebagai kutipan ayat", () => {
+    expect(matchPassage(index, "فقال لا إله إلا هو").spans).toEqual([]);
+    const raw = "فقال لا إله إلا هو ربكم";
+    expect(matchPassage(index, raw).spans.map((s) => [s.kind, quoted(raw, s)])).toEqual([
+      ["unmarked", "لا إله إلا هو ربكم"],
+    ]);
+  });
+
+  test("tidak menumpuk bentang berkurung; sambungan ke ayat berikutnya jadi rujukan sendiri", () => {
+    const raw = "{قل هل يستوي العالم والجاهل} إنما يتذكر أولو الألباب الصادقون";
+    expect(matchPassage(index, raw).spans.map(brief)).toEqual([
+      { ref: "2:1-1", match: "exact", partial: false, kind: "bracketed", alt: 0 },
+      { ref: "2:2-2", match: "exact", partial: true, kind: "unmarked", alt: 0 },
+    ]);
+  });
+
+  test("lafaz yang ada di beberapa letak tidak ditautkan (letaknya sembarang)", () => {
+    expect(matchPassage(index, "ويقال والصبر نور القلوب في الظلمات").spans).toEqual([]);
+  });
+
+  test("قال/قوله saja bukan pengantar ayat; konteks hadits dan basmalah pembuka dikecualikan", () => {
+    // 4 kata sesudah "قال" (ucapan orang) tidak cukup; sesudah "تعالى" cukup.
+    expect(matchPassage(index, "ولكن قال فطوبى للصابرين الذين يذكرون").spans).toEqual([]);
+    expect(
+      matchPassage(index, "وقرأ فطوبى للصابرين الذين يذكرون").spans.map((s) => s.kind),
+    ).toEqual(["unmarked"]);
+    // Lafaz Qur'ani di dalam sabda Nabi (tanpa "قرأ" di antaranya) = lafaz hadits.
+    expect(
+      matchPassage(index, "قال النبي صلى الله عليه وسلم فطوبى للصابرين الذين يذكرون ربهم").spans,
+    ).toEqual([]);
+    expect(
+      matchPassage(
+        index,
+        "قال النبي صلى الله عليه وسلم ثم قرأ فطوبى للصابرين الذين يذكرون ربهم",
+      ).spans.map((s) => s.kind),
+    ).toEqual(["unmarked"]);
+  });
+
+  test("mode S13 hanya bila diminta (paragraf badan)", () => {
+    const raw = "كتب الشيخ في رسالته فطوبى للصابرين الذين يذكرون ربهم ثم سكت";
+    expect(matchPassage(index, raw, { extended: false }).spans).toEqual([]);
+    expect(matchPassage(index, "قال تعالى قل هل يستوي", { extended: false }).spans).toEqual([]);
+  });
+});
+
+describe("perbaikan tinjauan kedua S13", () => {
+  test("kutipan pendek diperpanjang melewati beda ejaan di ayat yang sama (أينما = أين ما)", () => {
+    const raw = "قال تعالى وهو معكم أينما كنتم ثم قال كذا";
+    const [span, ...rest] = matchPassage(index, raw).spans;
+    expect(rest).toEqual([]);
+    expect(span && quoted(raw, span)).toBe("وهو معكم أينما كنتم");
+    expect(span).toMatchObject({ kind: "cue_short", match: "similar", surah: 8, ayahFrom: 1 });
+  });
+
+  test("perpanjangan kutipan pendek tidak berhenti di 4 kata; tidak ada placeholder ganda", () => {
+    const raw = "قال تعالى ولا يغفل أولوا النهى منكم والسعة عن ذكره فهذا كلام الشيخ";
+    const spans = matchPassage(index, raw).spans;
+    expect(spans.map((s) => [s.kind, quoted(raw, s), s.match])).toEqual([
+      ["cue_short", "ولا يغفل أولوا النهى منكم والسعة عن ذكره", "similar"],
+    ]);
+  });
+
+  test("{ثم قال} yang dikurung sumber = pengantar ayat", () => {
+    const raw = "كتب {ثم قال} فطوبى للصابرين الذين يذكرون";
+    expect(matchPassage(index, raw).spans.map((s) => [s.kind, quoted(raw, s)])).toEqual([
+      ["unmarked", "فطوبى للصابرين الذين يذكرون"],
+    ]);
+  });
+
+  test("lafaz berulang diterima bila tepat didahului عز وجل (letak dipilih aturan S12)", () => {
+    const [span] = matchPassage(index, "كقوله عز وجل والصبر نور القلوب في الظلمات").spans;
+    expect(span).toMatchObject({ kind: "unmarked", alt: 1, partial: false });
+  });
+
+  test("zikir 'لا شريك له' dan deret dalam hadits ditolak seluruhnya (ekornya tidak dicoba)", () => {
+    expect(matchPassage(index, "لا شريك له فطوبى للصابرين الذين يذكرون ربهم").spans).toEqual([]);
+    // Tanpa lompat seluruh deret, ekor 5 kata "للصابرين الذين يذكرون ربهم بالليل" akan tertaut.
+    expect(
+      matchPassage(index, "قال النبي صلى الله عليه وسلم فطوبى للصابرين الذين يذكرون ربهم بالليل")
+        .spans,
+    ).toEqual([]);
   });
 });

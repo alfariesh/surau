@@ -33,6 +33,8 @@ import { readShamelaBook } from "./shamela/source.ts";
 import type { ShamelaSource } from "./shamela/source.ts";
 import { emitSql } from "./sql.ts";
 import { assertWritable } from "./sqlite.ts";
+import { llmRows } from "./llm/attach.ts";
+import type { LlmBuild } from "./llm/attach.ts";
 import { buildToc } from "./toc.ts";
 import type { TocBuild } from "./toc.ts";
 import { validate } from "./validate.ts";
@@ -52,6 +54,11 @@ export interface PipelinePaths {
   migrations: string;
   /** Sumber Al-Qur'an (Tanzil + Kemenag, git-ignored) dan sha256 yang dipin (S12). */
   quran: QuranConfig;
+  /**
+   * Hasil batch LLM yang lolos (S13, git-ignored, JANGAN dihapus): data/build/llm. Tanpa path =
+   * korpus tanpa terjemahan/ringkasan (QA sampel dan CLI llm tidak membutuhkannya).
+   */
+  llm?: string;
 }
 
 export function sha256(data: string | Buffer): string {
@@ -157,7 +164,7 @@ function rowsFor(
   toc: TocBuild,
   ids: IdAllocator,
   env?: NodeJS.ProcessEnv,
-): { rows: CorpusRows; fts: FtsRow[]; ayat: AyatBuild } {
+): { rows: CorpusRows; fts: FtsRow[]; ayat: AyatBuild; llm: LlmBuild | null } {
   const { source, pages, takhrij } = prepared;
   const base = buildRows({
     config,
@@ -175,13 +182,23 @@ function rowsFor(
   const fts = ftsRows(base.passage);
   const quran = loadQuran(paths.quran, (s) => normalizeArabic(s).text);
   const matched = matchAyat(quran, base.passage);
+  const rows: CorpusRows = {
+    ...base,
+    ...quranTableRows(quran),
+    passage_ayah_ref: matched.refs,
+    translation: [],
+    summary: [],
+    term_stat: termStats(fts, paths.migrations),
+  };
+  // Terjemahan/ringkasan AI dicek terhadap baris yang baru dibangun ini (hash sumber, ayat).
+  const llm = paths.llm === undefined ? null : llmRows(rows, paths.llm);
+  if (llm !== null) {
+    rows.translation = llm.translation;
+    rows.summary = llm.summary;
+  }
   return {
-    rows: {
-      ...base,
-      ...quranTableRows(quran),
-      passage_ayah_ref: matched.refs,
-      term_stat: termStats(fts, paths.migrations),
-    },
+    rows,
+    llm,
     fts,
     ayat: {
       stats: matched.stats,
@@ -195,11 +212,15 @@ function rowsFor(
  * Baris korpus yang SEHARUSNYA ada, dibangun ulang di memori dari sumber Shamela dengan peta ID
  * yang di-commit (tanpa menulis apa pun). Dipakai QA sampel halaman (`qa.ts`, S10).
  */
-export function expectedRows(config: WorkConfig, paths: PipelinePaths): CorpusRows {
+export function expectedRows(
+  config: WorkConfig,
+  paths: PipelinePaths,
+  env?: NodeJS.ProcessEnv,
+): CorpusRows {
   const prepared = prepare(config, paths);
   const toc = readToc(config, paths, prepared);
   const ids = createAllocator(readIdMap(join(paths.repo, config.ids), config.edition.id));
-  const { rows } = rowsFor(config, paths, prepared, toc, ids);
+  const { rows } = rowsFor(config, paths, prepared, toc, ids, env);
   const added = Object.values(ids.added).reduce((a, b) => a + b, 0);
   if (added > 0) {
     throw new Error(
@@ -259,8 +280,18 @@ export function runIngest(
     ? { format: 1 as const, edition: config.edition.id, page: {}, toc: {}, passage: {} }
     : readIdMap(idsPath, config.edition.id);
   const ids = createAllocator(idMap);
-  const { rows, fts, ayat } = rowsFor(config, paths, prepared, toc, ids, opts.env);
-  const validation = validate({ config, source, pages, toc, matan, takhrij, rows, ayat });
+  const { rows, fts, ayat, llm } = rowsFor(config, paths, prepared, toc, ids, opts.env);
+  const validation = validate({
+    config,
+    source,
+    pages,
+    toc,
+    matan,
+    takhrij,
+    rows,
+    ayat,
+    llm: llm?.stats ?? null,
+  });
   writeText(
     join(paths.repo, `${config.reportPrefix}-validasi.md`),
     validationReport(ctx, validation),

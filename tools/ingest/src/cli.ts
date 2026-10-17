@@ -41,6 +41,7 @@ function main(argv: string[]): number {
     openiti: resolve(values.openiti ?? join(repo, "data/raw/openiti")),
     build: join(repo, "data/build"),
     migrations: join(repo, "packages/db/migrations/corpus"),
+    llm: join(repo, "data/build/llm"),
     quran: {
       root: resolve(values.quran ?? join(repo, "data/raw")),
       files: QURAN_FILES,

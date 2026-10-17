@@ -13,6 +13,7 @@ import type { ShamelaSource } from "./shamela/source.ts";
 import { MAX_STATEMENT_BYTES } from "./sql.ts";
 import type { TocBuild } from "./toc.ts";
 import type { WorkConfig } from "./works/ihya.ts";
+import type { LlmStats } from "./llm/attach.ts";
 
 export interface Invariant {
   name: string;
@@ -96,10 +97,12 @@ export interface ValidateInput {
   takhrij: TakhrijCheck;
   rows: CorpusRows;
   ayat: AyatBuild;
+  /** Hasil batch LLM yang dimuat (S13); null = korpus dibangun tanpa path hasil LLM. */
+  llm: LlmStats | null;
 }
 
 export function validate(input: ValidateInput): Validation {
-  const { config, source, pages, toc, matan, rows, ayat } = input;
+  const { config, source, pages, toc, matan, rows, ayat, llm } = input;
   const exp = config.expect;
   const invariants: Invariant[] = [];
   const check = (name: string, ok: boolean, detail: string): void => {
@@ -254,6 +257,35 @@ export function validate(input: ValidateInput): Validation {
     s.exactRatio >= EXACT_RATIO_MIN,
     `${s.exact}/${s.validated} (${(s.exactRatio * 100).toFixed(1).replace(".", ",")}%); mirip ${s.similar}, tidak cocok ${s.unmatched}`,
   );
+
+  // Terjemahan dan ringkasan AI (S13). Ayat tidak pernah diterjemahkan model: setiap rujukan ayat
+  // paragraf yang diterjemahkan harus tampil sebagai segmen Kemenag utuh (`translationSegments`).
+  const pctOf = (a: number, b: number) =>
+    b === 0 ? "–" : `${((a / b) * 100).toFixed(2).replace(".", ",")}%`;
+  const minPct = `${(exp.llmCoverage * 100).toFixed(0)}%`;
+  if (llm === null) {
+    check(
+      "Terjemahan & ringkasan AI dimuat",
+      exp.llmCoverage === 0,
+      `tanpa path hasil LLM (harapan cakupan ${minPct})`,
+    );
+  } else {
+    check(
+      "Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model)",
+      llm.ayahProblems.length === 0,
+      `${llm.withAyat} terjemahan berisi ayat; ${llm.ayahProblems.length} bermasalah${llm.ayahProblems.length > 0 ? `: ${llm.ayahProblems.slice(0, 5).join("; ")}` : ""}`,
+    );
+    check(
+      `Terjemahan AI: cakupan paragraf badan ≥ ${minPct}`,
+      llm.translations >= exp.llmCoverage * llm.units,
+      `${llm.translations}/${llm.units} (${pctOf(llm.translations, llm.units)}); usang ${llm.staleTranslations}, tidak sah ${llm.invalidTranslations}, terblokir (rujukan ayat tak bisa ditandai) ${llm.blocked}`,
+    );
+    check(
+      `Ringkasan AI: cakupan bagian × 2 bahasa ≥ ${minPct}`,
+      llm.summaries >= exp.llmCoverage * llm.summaryTargets,
+      `${llm.summaries}/${llm.summaryTargets} (${pctOf(llm.summaries, llm.summaryTargets)}); usang ${llm.staleSummaries}, tidak sah ${llm.invalidSummaries}`,
+    );
+  }
 
   const midParagraph = toc.nodes.filter((n) => {
     const d = pages[n.pageIndex]?.body[n.bodyIndex];

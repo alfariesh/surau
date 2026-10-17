@@ -79,7 +79,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 1: Pembaca
 
-- [ ] **T-09 · Pasang drive data Shamela** (setiap kali sesi membangun ulang korpus: S07, S10–S14) · terpenuhi untuk S07 dan S10 (2026-10-16)
+- [ ] **T-09 · Pasang drive data Shamela** (setiap kali sesi membangun ulang korpus: S07, S10–S14) · terpenuhi untuk S07, S10, dan S13 (2026-10-17)
   Pastikan drive `Elfariesh` terpasang, sehingga `/Volumes/Elfariesh/database` bisa dibuka.
 
 - [x] **T-10 · Setujui sumber teks dan lisensi konten, lalu beri tahu Shamela (P-6, wajib dijawab)** (sebelum rilis Fase 1, S10) · selesai 2026-10-16 (dijawab di chat S10): ADR-018 + ADR-021 **disetujui**; email ke Shamela **sudah terkirim** (jawaban ditunggu, tidak memblokir); kontak koreksi/takedown = tombol "Laporkan kesalahan" + GitHub Issues dulu (email menyusul bila ada); retensi laporan kesalahan = sampai ditangani + 12 bulan. Bila Shamela membalas, teruskan isinya ke agent untuk dicatat.
@@ -115,7 +115,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 2: Cari
 
-- [ ] **T-11 · Akun API Anthropic dengan rem biaya (P-4)** (dibutuhkan S13)
+- [x] **T-11 · Akun API Anthropic dengan rem biaya (P-4)** (dibutuhkan S13) · selesai 2026-10-17 (dicek agent di S13: kunci di `.env` berfungsi untuk `count_tokens` dan Message Batches; spend limit workspace tidak bisa dicek agent). Kunci `surau-prod` tetap untuk T-14.
   1. Buka platform.claude.com. Pastikan akunnya berbentuk **Organization**. Di **Settings → Workspaces → Create workspace**, buat dua workspace:
      - `surau-dev`: untuk terjemahan batch dan eval di Mac Anda, dengan spend limit ±$40/bulan.
      - `surau-prod`: untuk fitur Tanya online di Fase 4, dengan spend limit ±$25/bulan.
@@ -135,8 +135,11 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   3. Bandingkan kutipan di kitab dengan teks ayat di popup. Rujukan surah:ayat-nya benar?
   4. Kirim hasilnya ke agent di chat, misalnya "T-16: 1–20 benar kecuali no. 4 (bukan ayat)". Agent mencatatnya di file sesi S12.
 
-- [ ] **T-17 · Nilai sampel terjemahan AI** (dibutuhkan S13, dua kali ±30 menit; bisa diwakilkan)
+- [ ] **T-17 · Nilai sampel terjemahan AI** (dibutuhkan S13, dua kali ±30 menit; bisa diwakilkan) · tahap 1 selesai 2026-10-17 ("sampel layak", nilai rinci menyusul) · **tahap 2 siap dikerjakan**
   Agent memberi 20 terjemahan uji (sebelum batch penuh), lalu 20 hasil batch. Beri nilai Benar, Kurang, atau Salah, beserta catatan singkat.
+  1. Buka halaman nilai yang dikirim agent di chat S13 (file lokal `data/build/llm/qa/review-batch.html`; bisa dibuka dari panel file aplikasi Claude atau browser). Isinya 20 paragraf acak hasil batch penuh: teks Arab, terjemahan AI, dan (kotak hijau) terjemahan ayat Kemenag. Ada juga 5 contoh ringkasan bagian (tidak ikut dinilai).
+  2. Untuk tiap nomor 1–20, nilai: **Benar** (makna tepat), **Kurang** (makna benar tapi ada yang janggal/hilang), atau **Salah** (makna keliru).
+  3. Kirim ke agent, misalnya "T-17 tahap 2: 1–20 B kecuali 4 K (istilah kurang tepat), 11 S (subjek tertukar)". Target: Benar ≥ 80%, Salah ≤ 10%; bila Salah > 10%, agent memperbaiki prompt dan mengulang paragraf yang terdampak.
 
 - [ ] **T-12 · Setujui soal eval pencarian** (dibutuhkan S15)
   Agent menyusun ±30 soal ("di mana al-Ghazali membahas X?") beserta jawaban lokasinya. Anda (atau ustadz) mengecek dan menyetujui minimal 20 soal.

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Dijalankan juga oleh Node lewat type stripping (tools/ingest), jadi hanya sintaks TS yang
+    // bisa dihapus begitu saja.
+    "erasableSyntaxOnly": true,
+    "types": []
+  },
+  "include": ["src", "prompts"]
+}

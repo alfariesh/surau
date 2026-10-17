@@ -6,7 +6,8 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 
 | Perintah | Isi |
 |---|---|
-| `pnpm ingest ihya` | Bangun korpus Ihya (±7 detik, termasuk indeks pencarian S11 dan ayat S12): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v3.sqlite`, `data/build/ihya-v3.sha256` (build versi lain di `data/build` dihapus), peta ID `data/ids/ihya-9472.json`, dan laporan `data/reports/ihya-9472-{validasi,openiti,ayat}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar. Opsi `--quran <dir>` (bawaan `data/raw`) |
+| `pnpm ingest ihya` | Bangun korpus Ihya (±10 detik, termasuk indeks pencarian S11, ayat S12, dan terjemahan/ringkasan AI S13): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v4.sqlite`, `data/build/ihya-v4.sha256` (build versi lain di `data/build` dihapus; `data/build/llm/` TIDAK disentuh), peta ID `data/ids/ihya-9472.json`, dan laporan `data/reports/ihya-9472-{validasi,openiti,ayat}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar, termasuk bila hasil batch LLM di `data/build/llm/` hilang atau cakupannya < 99%. Opsi `--quran <dir>` (bawaan `data/raw`) |
+| `pnpm llm <perintah>` | Batch terjemahan dan ringkasan AI (S13). Lihat [Terjemahan dan ringkasan AI](#terjemahan-dan-ringkasan-ai-s13) |
 | `pnpm ingest:verify` | Hanya gerbang QA OpenITI (matan ≥0,95 per halaman di ≥1.705 halaman; takhrij vs JK000001) → laporan `…-openiti.md` |
 | `pnpm corpus:load:local` | Migrasi korpus + muat semua file SQL ke D1 lokal (`.wrangler/state`), lalu smoke query (jumlah baris termasuk indeks FTS, j1 h200, satu kueri الصبر) |
 | `pnpm corpus:load:staging --confirm` | Sama, ke `surau-corpus-staging` (remote). **Minta izin pemilik dulu**; tanpa `--confirm` skrip menolak, dan ditolak juga bila staging tercatat sebagai korpus produksi. Selama impor (±1 menit) DB tidak melayani kueri |
@@ -20,6 +21,30 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 **Ayat Al-Qur'an (S12, ADR-040):** `src/quran/` membaca Tanzil 1.1 (XML `uthmani` + `simple-clean`, `data/raw/tanzil/`) dan data Kemenag milik pemilik (terjemahan + catatan kaki, transliterasi, metadata surah, juz; `data/raw/kemenag/`), semuanya dipin sha256. Pencocok deterministik (`src/quran/matcher.ts`) mengenali kutipan `{…}` dan kutipan tanpa kurung sesudah frasa pengantar (قال تعالى …), lalu menulis `passage_ayah_ref`. Gerbang: ≥95% kutipan `{…}` tervalidasi cocok persis (Ihya 97,3%). Laporan `data/reports/ihya-9472-ayat.md` berisi angka, daftar "mirip" dan "tidak cocok", dan 20 sampel acak untuk diperiksa pemilik (T-16).
 
 Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURAU_SHAMELA_ROOT`), dua file OpenITI yang dipin ada di `data/raw/openiti/`, dan sumber Al-Qur'an di `data/raw/tanzil/` + `data/raw/kemenag/` (cara unduh/salin dan sha256: `data/SOURCES.md`). Opsi `--reset-ids` membangun peta ID dari nol, **hanya** sebelum rilis Fase 1 (ADR-029).
+
+## Terjemahan dan ringkasan AI (S13)
+
+`src/llm/` menyusun request Message Batches dari baris korpus yang dibangun ulang dari sumber (butuh drive Shamela, T-09) dan kunci `surau-dev` di `.env` (T-11; dibaca hanya oleh perintah yang memanggil API, tidak pernah dicetak). Prompt dan validasi ada di `@surau/llm` (`packages/llm`).
+
+| Perintah | Isi | Biaya |
+|---|---|---|
+| `pnpm llm tokens` | Ukur token Arab Claude Haiku 5.5 pada 200 paragraf acak → `data/reports/ihya-9472-token.md` | gratis (`count_tokens`) |
+| `pnpm llm sample` | Uji kecil 20 paragraf + 5 bagian lewat API biasa → `data/build/llm/sample/` (halaman nilai T-17 tahap 1) | ±$0,03 |
+| `pnpm llm plan --round 1\|2` | Susun request yang masih tertunda, `count_tokens` semuanya (tolak bila ≥100k), estimasi biaya per skenario cache → `plan-r<n>.jsonl` | gratis |
+| `pnpm llm submit --round 1\|2 [--kind …] [--limit N] [--budget USD] --confirm` | Kirim batch (≤4.000 request per batch) yang sumbernya masih sama dengan korpus saat ini, belum lolos, dan tidak sedang diproses. **Berbayar: hanya setelah pemilik menyetujui biaya di chat**; `--budget` menolak bila biaya terpakai + perkiraan (cache 50%) melebihi angka yang disetujui. Tanpa `--confirm` hanya ringkasan | berbayar |
+| `pnpm llm status` · `pnpm llm wait` | Status batch; `wait` menunggu (poll tiap menit) sampai semua batch terbuka selesai | gratis |
+| `pnpm llm collect` | Unduh hasil mentah batch yang selesai (biaya aktual dari `usage`), lalu bangun ulang hasil lolos/gagal dari semua hasil mentah | gratis |
+| `pnpm llm rejudge` | Bangun ulang hasil lolos/gagal dari hasil mentah dengan aturan validasi dan sumber saat ini (setelah validasi atau pencocok ayat berubah) | gratis |
+| `pnpm llm retry --confirm` | Kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan per `custom_id` | berbayar (kecil) |
+| `pnpm llm report` | `data/reports/ihya-9472-terjemahan.md` (cakupan, gagal, biaya aktual vs estimasi, 20 sampel QA T-17 tahap 2) + halaman nilai lokal `data/build/llm/qa/review-batch.html` | gratis |
+
+Urutan: `plan --round 1` → `submit --round 1 --confirm` → `wait` → `collect` → `retry --confirm` (ulangi sampai tidak ada yang tersisa) → `plan --round 2` → `submit --round 2 --confirm` → `wait` → `collect` → `report` → `pnpm ingest ihya`.
+
+- **Satuan kerja:** satu request per paragraf badan (`passage-<id>`, dengan paragraf sebelumnya di bagian yang sama sebagai konteks) dan ringkasan dua putaran per simpul daftar isi: putaran 1 meringkas teks Arab simpul atau potongannya (≤50 ribu token perkiraan, dipotong di batas halaman), putaran 2 meringkas simpul induk dan daun yang terpecah dari ringkasan putaran 1 di subpohonnya.
+- **Ayat:** kutipan ayat diganti `⟦QS s:a⟧` (`maskAyat`) sebelum dikirim; paragraf yang rujukan ayatnya tidak bisa ditandai tidak dikirim sama sekali. `translation.text` menyimpan placeholder, UI merendernya dengan terjemahan Kemenag.
+- **Hasil usang:** setiap request menyimpan sha256 sumbernya (teks bertanda). Bila teks atau rujukan ayat berubah (mis. pencocok ayat diperbaiki), `rejudge` menandai hasil lama "stale", ingest tidak memuatnya, dan `plan` + `submit` mengirimnya lagi. Kegagalan untuk sumber lama tidak dihitung sebagai percobaan.
+- **Validasi** (`@surau/llm`): placeholder ayat sama persis; tanpa huruf Arab sama sekali; tanpa penanda catatan kaki karangan (penanda yang hilang hanya dicatat); tanpa transliterasi berdiakritik dekat placeholder (tanda model menulis ulang ayat); rasio panjang 0,8–4 (tanpa harakat); kata "terjemah…" hanya bila sumbernya membahas ترجمة; tanpa kurung kurawal; tanpa Markdown, kalimat pembuka, atau komentar model. Ringkasan: bahasa benar, tanpa placeholder/rujukan QS/huruf Arab.
+- **Penyimpanan:** `data/build/llm/` (git-ignored) berisi request terkirim, hasil mentah per batch, hasil yang lolos (`translation.jsonl`, `summary.jsonl`, `summary-r1.jsonl`), kegagalan, dan `batches.json`. **Jangan dihapus**: hasil batch berbayar dan tidak deterministik; cadangkan bersama drive data.
 
 ## Korpus produksi (blue-green)
 
@@ -47,7 +72,8 @@ Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah s
 | QA OpenITI: parser mARkdown minimal, kemiripan matan (LCS token), cocok takhrij (bigram) | `src/openiti/`, `src/similarity.ts` |
 | Baris tabel (ID dari peta ID + `@surau/db`), validasi, laporan | `src/rows.ts`, `src/ids.ts`, `src/validate.ts`, `src/report.ts` |
 | Indeks pencarian: baris `passage_fts` + `term_stat` (fts5vocab) | `src/search-index.ts` |
-| Al-Qur'an: sumber Tanzil/Kemenag, pencocok ayat, baris `quran_*` + `passage_ayah_ref`, laporan ayat | `src/quran/source.ts`, `src/quran/matcher.ts`, `src/quran/rows.ts`, `src/quran/report.ts` |
+| Al-Qur'an: sumber Tanzil/Kemenag, pencocok ayat (`{…}`, frasa pengantar, dan kutipan tanpa tanda ≥5 kata persis, S13), baris `quran_*` + `passage_ayah_ref`, laporan ayat | `src/quran/source.ts`, `src/quran/matcher.ts`, `src/quran/rows.ts`, `src/quran/report.ts` |
+| Terjemahan/ringkasan AI: unit kerja, batch, validasi, laporan, pemuatan ke `translation`/`summary` | `src/llm/*.ts` (S13) |
 | SQL D1 (≤90 KB/statement, tanpa BEGIN/COMMIT), `.sqlite` dari migrasi yang sama | `src/sql.ts`, `src/build-sqlite.ts` |
 | Orkestrasi, CLI, muat ke D1 | `src/pipeline.ts`, `src/cli.ts`, `src/load.ts` |
 | D1 remote: pembungkus wrangler, smoke, build, binding produksi, promote, QA sampel | `src/d1.ts`, `src/corpus.ts`, `src/promote.ts`, `src/qa-sample.ts`, `src/qa.ts` |

@@ -171,7 +171,15 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     reportPrefix: "reports/uji",
     corpusVersion: "uji-v1",
     output: "uji.sqlite",
-    expect: { pages: 5, volumes: [3, 2], titles: 5, rub: [1, 4], kitabPerRub: 2, matanMinPages: 5 },
+    expect: {
+      pages: 5,
+      volumes: [3, 2],
+      titles: 5,
+      rub: [1, 4],
+      kitabPerRub: 2,
+      matanMinPages: 5,
+      llmCoverage: 0,
+    },
     author: { id: 1, nameId: "Penulis Uji", wikidataId: null },
     work: {
       id: 1,

@@ -145,6 +145,9 @@ export const COUNTED = [
   "quran_ayah",
   "quran_translation",
   "passage_ayah_ref",
+  // Terjemahan/ringkasan AI (S13): tabel ada sejak skema 1, kosong di korpus sebelum ihya-v4.
+  "translation",
+  "summary",
   "term_stat",
   "passage_fts",
   "meta",
