@@ -180,8 +180,8 @@ describe("ulangan", () => {
       }),
     );
     expect([...todo]).toEqual([
-      ["passage-10000001", { attempts: 2, refusal: true }],
-      ["toc-100002-id", { attempts: 1, refusal: false }],
+      ["passage-10000001", { attempts: 2, refusal: true, sonnet: false }],
+      ["toc-100002-id", { attempts: 1, refusal: false, sonnet: false }],
     ]);
   });
 });

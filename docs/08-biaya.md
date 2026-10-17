@@ -6,14 +6,14 @@
 
 | | Biaya per pertanyaan | 10.000 pertanyaan/bulan* |
 |---|---|---|
-| Agen bebas + model frontier (desain naif; tanpa campuran: setiap pertanyaan memakai agen) | ±$0,07–0,14 | ±$680–1.360 |
-| **Desain Surau v1: Claude Haiku 5.5 + Citations** | **±$0,002–0,003** | **±$7,5–11,3** |
-| Desain hemat + model frontier (Sonnet 5.5 / Gemini 3.1 Pro) | ±$0,03–0,04 | ±$145–160 |
+| Agen bebas + model frontier (desain naif; tanpa campuran: setiap pertanyaan memakai agen) | ±$0,10–0,20 | ±$1.000–2.000 |
+| **Desain Surau v1: Claude Haiku 5.5 + Citations** | **±$0,0027** | **±$10,7** |
+| Desain hemat + model frontier (Sonnet 5.5 / Gemini 3.1 Pro) | ±$0,05–0,06 | ±$210–225 |
 | Mode Cari (FTS5 di D1, tanpa LLM) | ±$0, masuk kuota Workers Paid | ±$0 |
 | Lewat MCP (AI milik pengguna) | ±$0 untuk Surau | ±$0 |
 | Infrastruktur tetap (Cloudflare + domain) | – | ±$6/bulan |
 
-\*Kecuali baris desain naif, dengan campuran lalu lintas: 30% dilayani dari jawaban terverifikasi, 30% mode Cari, 40% mode Jawab. Rentang mengikuti faktor token Arab 1,0–2,0 (lihat di bawah). Mode Cari dihitung $0 (FTS5 di D1, masuk kuota Workers Paid; `CARI_PAKAI_JEV = False` di kalkulator). Kualitas Haiku 5.5 untuk Arab klasik **belum diuji**; eval yang memutuskan apakah ia cukup.
+\*Kecuali baris desain naif, dengan campuran lalu lintas: 30% dilayani dari jawaban terverifikasi, 30% mode Cari, 40% mode Jawab. Memakai faktor token Arab **terukur 1,84** (Claude Haiku 5.5, S13; lihat di bawah). Sebelum S13 rentangnya dihitung dengan asumsi 1,0–2,0. Mode Cari dihitung $0 (FTS5 di D1, masuk kuota Workers Paid; `CARI_PAKAI_JEV = False` di kalkulator). Kualitas Haiku 5.5 untuk Arab klasik **belum diuji**; eval yang memutuskan apakah ia cukup.
 
 Penghematan terbesar **bukan dari memilih model termurah**, tetapi dari desain:
 1. Sebagian besar pertanyaan tidak perlu LLM.
@@ -42,20 +42,20 @@ Diputuskan 15 Okt 2026, **sementara**: Claude Haiku 5.5 (`claude-haiku-5-5`) dip
   - Indeks blok yang dikutip dipetakan ke ID paragraf di DB.
   - UI menampilkan teks dari DB.
   - String match tetap dijalankan sebagai pengaman kedua.
-- **Tokenizer:** Haiku 5.5 menghitung teks sekitar 30% lebih banyak daripada Haiku 4.5. Jumlah token **Arab** di tokenizer Claude **belum diukur**; diukur di sesi S13 (Fase 2) dengan `count_tokens`. Angka di bawah memakai faktor 1,0–2,0 terhadap tokenizer OpenAI.
+- **Tokenizer:** Haiku 5.5 menghitung teks sekitar 30% lebih banyak daripada Haiku 4.5. Token **Arab** Ihya di tokenizer Claude Haiku 5.5 **terukur 0,716 token/karakter = 1,84× o200k** (S13, `count_tokens` pada 200 paragraf acak; [data/reports/ihya-9472-token.md](../data/reports/ihya-9472-token.md)). Angka di bawah memakai faktor 1,84.
 - **Penolakan (refusal):** Haiku 5.5 **tidak punya fallback di server**, dan parameter `fallbacks` tidak boleh dikirim. Bila `stop_reason` bernilai `"refusal"`, misalnya karena salah deteksi pada bab jihad atau hudud, ulangi di sisi klien dengan `claude-sonnet-5-5` atau tampilkan bagian kitabnya saja (mode Cari). Satu ulangan ke Sonnet 5.5 berbiaya ±$0,036–0,055, sekitar 19× jawaban Haiku, jadi ledger mereservasi dengan harga Sonnet sebelum mengulang.
 - **Jalur panggilan:** panggilan online (workspace `surau-prod`) lewat Cloudflare AI Gateway `surau-gw` (tanpa payload di log, custom cost, rate limit global) **setelah** uji passthrough Citations, streaming, dan `cache_control` lolos di S19. Bila gagal, panggil `api.anthropic.com` langsung. Message Batches selalu langsung ke Anthropic dari skrip lokal (workspace `surau-dev`).
 - **Risiko satu vendor:** panggilan model dibungkus satu modul tipis. Setiap kuartal, eval dijalankan ulang terhadap Sonnet 5.5 dan satu model non-Claude.
 
 **Biaya (keluaran `scripts/hitung_biaya.py`):**
 
-| | Faktor token Arab 1,0 | 1,5 | 2,0 |
-|---|---|---|---|
-| Per jawaban (C. Haiku + Citations) | $0,0019 | $0,0023 | $0,0028 |
-| 10 ribu pertanyaan/bulan (campuran) | $7,46 | $9,37 | $11,28 |
-| Ulangan refusal ke Sonnet 5.5 (per kejadian) | $0,0362 | $0,0458 | $0,0553 |
-| **Ingest Ihya lengkap:** ringkasan, terjemahan Indonesia penuh, ekstraksi wiki | **$0,92** | $1,10 | $1,28 |
-| Ingest ±92 kitab kurikulum | $50,23 | $60,02 | $69,83 |
+| | Faktor token Arab terukur 1,84 (S13) | Sebelumnya (asumsi 1,0–2,0) |
+|---|---|---|
+| Per jawaban (C. Haiku + Citations) | $0,0027 | $0,0019–0,0028 |
+| 10 ribu pertanyaan/bulan (campuran) | $10,67 | $7,46–11,28 |
+| Ulangan refusal ke Sonnet 5.5 (per kejadian) | $0,0523 | $0,0362–0,0553 |
+| **Ingest Ihya lengkap:** ringkasan, terjemahan Indonesia penuh, ekstraksi wiki | **$3,21** (perkiraan kalkulator; biaya aktual S13 di bawah) | $0,92–1,28 |
+| Ingest ±92 kitab kurikulum | $174,54 | $50,23–69,83 |
 
 Artinya: **terjemahan AI untuk seluruh Ihya hanya sekitar setengah dolar** ($0,47–0,56). Terjemahan per paragraf dibuat sekali, disimpan, diberi label "terjemahan AI", dan bisa direview. Ayat Al-Qur'an tidak ikut diterjemahkan LLM: terjemahannya diambil verbatim dari Kemenag (ADR-020). Jawaban tidak perlu menerjemahkan ulang, sehingga semakin murah dan konsisten.
 
@@ -133,20 +133,22 @@ Harga Claude bersumber dari https://platform.claude.com/docs/en/about-claude/pri
 
 Sumber dan rincian ada di [catatan riset](riset/2026-10-15-catatan-riset.md). Angka baca cache Sonnet 5.5 di catatan riset sudah dikoreksi menjadi $0,10. Kalkulator: `python3 scripts/hitung_biaya.py`. Kalkulator ini satu-satunya skrip Python di repo (pengecualian dari ADR-007); boleh diport ke TypeScript nanti.
 
-### Hitungan per pertanyaan (keluaran kalkulator, faktor 1,0)
+### Hitungan per pertanyaan (keluaran kalkulator, faktor 1,84)
+
+Faktor 1,84 terukur untuk Claude Haiku 5.5 (S13) dan dipakai untuk semua baris; tokenizer model lain belum diukur.
 
 | Model | A. Agen 3 putaran | B. Pipeline + Jev | C. Model routing sendiri + Citations |
 |---|---|---|---|
-| Qwen3.7-Flash | $0,0016 | $0,0017 | $0,0008 |
-| DeepSeek V4 Flash (DeepInfra) | $0,0021 | $0,0020 | $0,0010 |
-| **Claude Haiku 5.5** / GPT-6 Luna | $0,0035 | $0,0027 | **$0,0019** |
-| Gemini 3.1 Flash-Lite | $0,0092 | $0,0050 | $0,0050 |
-| Gemini 3.8 Flash | $0,0262 | $0,0119 | $0,0140 |
-| Gemini 3.8 Flash (mulai Jan 2027) | $0,0525 | $0,0226 | $0,0280 |
-| Claude Sonnet 5.5 | $0,0680 | $0,0295 | $0,0362 |
-| Gemini 3.1 Pro | $0,0736 | $0,0313 | $0,0401 |
-| Claude Opus 5.5 | $0,1360 | $0,0577 | $0,0725 |
-| GPT-5.5 | $0,1840 | $0,0763 | $0,1003 |
+| Qwen3.7-Flash | $0,0020 | $0,0020 | $0,0011 |
+| DeepSeek V4 Flash (DeepInfra) | $0,0030 | $0,0025 | $0,0015 |
+| **Claude Haiku 5.5** / GPT-6 Luna | $0,0051 | $0,0034 | **$0,0027** |
+| Gemini 3.1 Flash-Lite | $0,0132 | $0,0069 | $0,0070 |
+| Gemini 3.8 Flash | $0,0383 | $0,0176 | $0,0200 |
+| Gemini 3.8 Flash (mulai Jan 2027) | $0,0767 | $0,0339 | $0,0400 |
+| Claude Sonnet 5.5 | $0,1003 | $0,0446 | $0,0523 |
+| Gemini 3.1 Pro | $0,1059 | $0,0464 | $0,0561 |
+| Claude Opus 5.5 | $0,2005 | $0,0879 | $0,1046 |
+| GPT-5.5 | $0,2646 | $0,1141 | $0,1403 |
 
 Asumsi token:
 - **A:** 20k token dari cache + 24k token baru + 1,8k output.
@@ -155,7 +157,7 @@ Asumsi token:
 
 Untuk model murah seperti Haiku, C adalah pilihan termurah. Untuk model mahal, B (routing oleh Jev) lebih murah.
 
-Jumlah token diukur dengan tokenizer OpenAI (o200k) pada teks Ihya. **Tokenizer Claude dan Gemini belum diukur.** Kalau mereka menghitung teks Arab 2× lebih banyak, biaya naik sekitar 1,3–1,6× (lihat kolom 2,0 di tabel Haiku di atas). Token Claude diukur di S13 dengan `count_tokens`, lalu `FAKTOR_TOKEN_ARAB` dan tabel ini diperbarui.
+Jumlah token dasar diukur dengan tokenizer OpenAI (o200k) pada teks Ihya, lalu dikali `FAKTOR_TOKEN_ARAB` = **1,84** yang diukur di S13 dengan `count_tokens` Claude Haiku 5.5 (0,716 vs 0,39 token per karakter). Tokenizer Gemini dan model lain belum diukur.
 
 > Catatan: untuk model yang sangat murah (Qwen, Haiku), routing lewat Jev **tidak lebih murah** daripada membiarkan model menavigasi sendiri. Nilai Jev ada di **probabilitas terkalibrasi** (berani bilang "tidak ditemukan") dan **verifikasi sitasi yang murah**, bukan semata penghematan.
 

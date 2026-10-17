@@ -895,8 +895,8 @@ function currentSha(work: Work, customId: string): string | null {
 export function unresolved(
   work: Work,
   acc: Accepted,
-): Map<string, { attempts: number; refusal: boolean }> {
-  const out = new Map<string, { attempts: number; refusal: boolean }>();
+): Map<string, { attempts: number; refusal: boolean; sonnet: boolean }> {
+  const out = new Map<string, { attempts: number; refusal: boolean; sonnet: boolean }>();
   for (const f of acc.failures) {
     const sha = currentSha(work, f.custom_id);
     if (sha === null || f.source_sha256 !== sha) continue;
@@ -909,10 +909,11 @@ export function unresolved(
           ? acc.r1.get(f.custom_id)?.source_sha256 === sha
           : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
     if (done) continue;
-    const prev = out.get(f.custom_id) ?? { attempts: 0, refusal: false };
+    const prev = out.get(f.custom_id) ?? { attempts: 0, refusal: false, sonnet: false };
     out.set(f.custom_id, {
       attempts: prev.attempts + 1,
       refusal: prev.refusal || f.reason === "refusal",
+      sonnet: prev.sonnet || f.model === MODELS.sonnet,
     });
   }
   return out;
@@ -928,12 +929,15 @@ export async function runRetry(ctx: LlmContext, confirm: boolean): Promise<numbe
   const givenUp: string[] = [];
   for (const [id, s] of todo) {
     if (busy.has(id)) continue;
-    if (s.attempts >= MAX_ATTEMPTS) {
+    // Menyerah hanya setelah Sonnet 5.5 ikut dicoba (percobaan terakhir selalu Sonnet).
+    if (s.attempts >= MAX_ATTEMPTS && s.sonnet) {
       givenUp.push(id);
       continue;
     }
     // Haiku 5.5 tanpa fallback server (ADR-013): penolakan diulang di sisi klien dengan Sonnet 5.5.
-    const model = s.refusal ? MODELS.sonnet : MODELS.haiku;
+    // Percobaan terakhir juga ke Sonnet 5.5 (ADR-043): batch S13 menunjukkan keluaran Haiku pada
+    // paragraf sulit yang sudah dua kali gagal tetap rusak (Arab-Indonesia campur, komentar model).
+    const model = s.refusal || s.attempts >= MAX_ATTEMPTS - 1 ? MODELS.sonnet : MODELS.haiku;
     const parts = parseCustomId(id);
     const r =
       parts?.kind === "passage"
@@ -947,7 +951,7 @@ export async function runRetry(ctx: LlmContext, confirm: boolean): Promise<numbe
   }
   const sonnet = reqs.filter((r) => r.params.model === MODELS.sonnet).length;
   console.info(
-    `Ulangan: ${reqs.length} request (${sonnet} ke Sonnet 5.5 karena refusal); menyerah (≥${MAX_ATTEMPTS} percobaan): ${givenUp.length}`,
+    `Ulangan: ${reqs.length} request (${sonnet} ke Sonnet 5.5: refusal atau percobaan terakhir); menyerah (≥${MAX_ATTEMPTS} percobaan): ${givenUp.length}`,
   );
   if (reqs.length === 0) return 0;
   if (!confirm) {

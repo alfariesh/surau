@@ -58,6 +58,17 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     }).length;
   const nodes = work.nodes.length;
   const stuck = unresolved(work, acc);
+  const lastFailure = new Map(acc.failures.map((f) => [f.custom_id, f]));
+  // Placeholder "berlebih" pada kegagalan terakhir paragraf yang belum lolos = tebakan model.
+  const hints = [...stuck.keys()].flatMap((id) => {
+    const p = parseCustomId(id);
+    const f = lastFailure.get(id);
+    if (p?.kind !== "passage" || f === undefined) return [];
+    const refs = f.details
+      .flatMap((d) => /berlebih \[([^\]]*)\]/.exec(d)?.[1]?.split(" ") ?? [])
+      .filter((r) => r !== "");
+    return refs.length === 0 ? [] : [{ passageId: p.passageId, refs }];
+  });
   const missingT = [...work.units.keys()].filter(
     (id) => acc.translations.get(id)?.source_sha256 !== work.units.get(id)?.sourceSha256,
   );
@@ -115,9 +126,9 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     ...(stuck.size === 0
       ? ["Tidak ada."]
       : [
-          "| custom_id | Percobaan | Refusal | Tautan |",
-          "|---|---|---|---|",
-          ...[...stuck].slice(0, 200).map(([id, s]) => {
+          "| custom_id | Percobaan | Refusal | Alasan terakhir | Tautan |",
+          "|---|---|---|---|---|",
+          ...[...stuck].slice(0, 300).map(([id, s]) => {
             const p = parseCustomId(id);
             const href =
               p?.kind === "passage"
@@ -125,11 +136,26 @@ export async function runReport(ctx: LlmContext): Promise<number> {
                 : p?.kind === "toc"
                   ? link.section(p.tocNodeId)
                   : "";
-            return `| \`${id}\` | ${s.attempts} | ${s.refusal ? "ya" : "–"} | \`${href}\` |`;
+            const last = lastFailure.get(id);
+            return `| \`${id}\` | ${s.attempts} | ${s.refusal ? "ya" : "–"} | ${last?.reason.replace("invalid:", "") ?? ""} (${last?.model ?? ""}) | \`${href}\` |`;
           }),
         ]),
     "",
     `Terjemahan yang belum ada: ${num(missingT.length)} paragraf (${pct(missingT.length, work.units.size)}).`,
+    "",
+    `## Kemungkinan ayat belum ditandai (${num(hints.length)})`,
+    "",
+    "Paragraf yang belum lolos karena model menulis placeholder ayat yang tidak ada di teks bertanda: model mengenali kutipan Qur'an yang luput dari pencocok (ejaan lain, lafaz berulang, ≤3 kata). Rujukan di sini tebakan model, **bukan** rujukan terverifikasi; bahan perbaikan pencocok (ADR-042) di sesi berikut.",
+    "",
+    ...(hints.length === 0
+      ? ["Tidak ada."]
+      : [
+          "| Paragraf | Permalink | Placeholder tebakan model |",
+          "|---|---|---|",
+          ...hints.map(
+            (h) => `| ${h.passageId} | \`${link.passage(h.passageId)}\` | ${h.refs.join(" ")} |`,
+          ),
+        ]),
     "",
     "## Biaya aktual (tarif batch, dari `usage`)",
     "",
