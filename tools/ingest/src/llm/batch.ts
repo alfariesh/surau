@@ -463,7 +463,8 @@ async function submit(
       );
       writeJsonl(join(dir, "requests", `${b.id}.jsonl`), part);
       const rec: BatchRecord = {
-        name: `${kind}-${label}-${Math.floor(i / BATCH_MAX_REQUESTS) + 1}`,
+        // Nomor urut global (01-translation, 02-summary-r1, …): nama unik walau dikirim bertahap.
+        name: `${String(batches.length + 1).padStart(2, "0")}-${kind}${label.startsWith("retry") ? "-retry" : ""}`,
         id: b.id,
         kind,
         model: modelOf(part),

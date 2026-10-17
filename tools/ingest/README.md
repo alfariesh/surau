@@ -31,9 +31,10 @@ Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURA
 | `pnpm llm tokens` | Ukur token Arab Claude Haiku 5.5 pada 200 paragraf acak → `data/reports/ihya-9472-token.md` | gratis (`count_tokens`) |
 | `pnpm llm sample` | Uji kecil 20 paragraf + 5 bagian lewat API biasa → `data/build/llm/sample/` (halaman nilai T-17 tahap 1) | ±$0,03 |
 | `pnpm llm plan --round 1\|2` | Susun request yang masih tertunda, `count_tokens` semuanya (tolak bila ≥100k), estimasi biaya per skenario cache → `plan-r<n>.jsonl` | gratis |
-| `pnpm llm submit --round 1\|2 [--kind …] [--limit N] --confirm` | Kirim batch (≤4.000 request per batch). **Berbayar: hanya setelah pemilik menyetujui biaya di chat.** Tanpa `--confirm` hanya ringkasan | berbayar |
+| `pnpm llm submit --round 1\|2 [--kind …] [--limit N] [--budget USD] --confirm` | Kirim batch (≤4.000 request per batch) yang sumbernya masih sama dengan korpus saat ini, belum lolos, dan tidak sedang diproses. **Berbayar: hanya setelah pemilik menyetujui biaya di chat**; `--budget` menolak bila biaya terpakai + perkiraan (cache 50%) melebihi angka yang disetujui. Tanpa `--confirm` hanya ringkasan | berbayar |
 | `pnpm llm status` · `pnpm llm wait` | Status batch; `wait` menunggu (poll tiap menit) sampai semua batch terbuka selesai | gratis |
-| `pnpm llm collect` | Unduh hasil batch yang selesai, validasi per `custom_id`, simpan yang lolos, catat biaya aktual dari `usage` | gratis |
+| `pnpm llm collect` | Unduh hasil mentah batch yang selesai (biaya aktual dari `usage`), lalu bangun ulang hasil lolos/gagal dari semua hasil mentah | gratis |
+| `pnpm llm rejudge` | Bangun ulang hasil lolos/gagal dari hasil mentah dengan aturan validasi dan sumber saat ini (setelah validasi atau pencocok ayat berubah) | gratis |
 | `pnpm llm retry --confirm` | Kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan per `custom_id` | berbayar (kecil) |
 | `pnpm llm report` | `data/reports/ihya-9472-terjemahan.md` (cakupan, gagal, biaya aktual vs estimasi, 20 sampel QA T-17 tahap 2) + halaman nilai lokal `data/build/llm/qa/review-batch.html` | gratis |
 
@@ -41,7 +42,8 @@ Urutan: `plan --round 1` → `submit --round 1 --confirm` → `wait` → `collec
 
 - **Satuan kerja:** satu request per paragraf badan (`passage-<id>`, dengan paragraf sebelumnya di bagian yang sama sebagai konteks) dan ringkasan dua putaran per simpul daftar isi: putaran 1 meringkas teks Arab simpul atau potongannya (≤50 ribu token perkiraan, dipotong di batas halaman), putaran 2 meringkas simpul induk dan daun yang terpecah dari ringkasan putaran 1 di subpohonnya.
 - **Ayat:** kutipan ayat diganti `⟦QS s:a⟧` (`maskAyat`) sebelum dikirim; paragraf yang rujukan ayatnya tidak bisa ditandai tidak dikirim sama sekali. `translation.text` menyimpan placeholder, UI merendernya dengan terjemahan Kemenag.
-- **Hasil usang:** setiap hasil menyimpan sha256 sumbernya (teks bertanda). Bila teks atau rujukan ayat berubah (mis. pencocok ayat diperbaiki), hasil lama tidak dimuat ingest dan `plan` menjadwalkannya lagi.
+- **Hasil usang:** setiap request menyimpan sha256 sumbernya (teks bertanda). Bila teks atau rujukan ayat berubah (mis. pencocok ayat diperbaiki), `rejudge` menandai hasil lama "stale", ingest tidak memuatnya, dan `plan` + `submit` mengirimnya lagi. Kegagalan untuk sumber lama tidak dihitung sebagai percobaan.
+- **Validasi** (`@surau/llm`): placeholder ayat sama persis; tanpa huruf Arab sama sekali; tanpa penanda catatan kaki karangan (penanda yang hilang hanya dicatat); tanpa transliterasi berdiakritik dekat placeholder (tanda model menulis ulang ayat); rasio panjang 0,8–8 (tanpa harakat); tanpa Markdown, kalimat pembuka, atau komentar model. Ringkasan: bahasa benar, tanpa placeholder/rujukan QS/huruf Arab.
 - **Penyimpanan:** `data/build/llm/` (git-ignored) berisi request terkirim, hasil mentah per batch, hasil yang lolos (`translation.jsonl`, `summary.jsonl`, `summary-r1.jsonl`), kegagalan, dan `batches.json`. **Jangan dihapus**: hasil batch berbayar dan tidak deterministik; cadangkan bersama drive data.
 
 ## Korpus produksi (blue-green)
