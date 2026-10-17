@@ -6,7 +6,10 @@
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
+    "@anthropic-ai/sdk": "catalog:",
+    "@surau/core": "workspace:*",
     "@surau/db": "workspace:*",
+    "@surau/llm": "workspace:*",
     "@surau/text": "workspace:*",
     "yaml": "catalog:",
     "zod": "catalog:"

@@ -1,0 +1,755 @@
+// Alur Message Batches S13 (langkah 4, 6, 7, 9): rencana + count_tokens (gratis), kirim (berbayar,
+// butuh --confirm setelah pemilik menyetujui biaya di chat), status, kumpulkan + validasi, dan ulang.
+// Hasil datang dalam urutan acak: semua pencocokan lewat custom_id. Setiap hasil dibandingkan dengan
+// unit yang dibangun ulang dari sumber (hash sumber), jadi hasil untuk teks yang sudah berubah ditolak.
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import type Anthropic from "@anthropic-ai/sdk";
+import type {
+  Message,
+  MessageCreateParamsNonStreaming,
+} from "@anthropic-ai/sdk/resources/messages";
+import {
+  CUSTOM_ID_PATTERN,
+  MAX_PROMPT_TOKENS,
+  MODELS,
+  SUMMARY_LANGS,
+  SUMMARY_PROMPT,
+  TRANSLATE_PROMPT,
+  addUsage,
+  buildSummaryRequest,
+  buildSummaryRound2Request,
+  buildTranslateRequest,
+  checkSummary,
+  checkTranslation,
+  contentLength,
+  emptyTotals,
+  isModelId,
+  messageText,
+  passageCustomId,
+  ratesFor,
+  stopProblem,
+  tocRound2CustomId,
+} from "@surau/llm";
+import type { ModelId, SummaryLang, UsageTotals } from "@surau/llm";
+import { z } from "zod";
+
+import type { LlmContext } from "./cli.ts";
+import { mapPool } from "./pool.ts";
+import {
+  acceptedSummary,
+  acceptedTranslation,
+  appendJsonl,
+  failure,
+  llmDir,
+  readBatches,
+  readJsonl,
+  storedUsage,
+  writeBatches,
+  writeJsonl,
+  writeText,
+} from "./store.ts";
+import type {
+  AcceptedSummary,
+  AcceptedTranslation,
+  BatchKind,
+  BatchRecord,
+  Failure,
+} from "./store.ts";
+import { buildWork, chunkCustomId, parseCustomId, relativeHeading } from "./work.ts";
+import type { Work } from "./work.ts";
+
+/** Request per batch: jauh di bawah batas 100.000 request / 256 MB (±17 KB per request). */
+export const BATCH_MAX_REQUESTS = 4_000;
+/** Percobaan maksimal per custom_id (1 + 2 ulangan); sesudahnya dicatat gagal. */
+export const MAX_ATTEMPTS = 3;
+/** Skenario baca cache prefix sistem untuk estimasi (batch: best-effort, docs 30–98%). */
+export const CACHE_SCENARIOS = [0.95, 0.5, 0] as const;
+
+export const plannedRequest = z.strictObject({
+  custom_id: z.string().regex(CUSTOM_ID_PATTERN),
+  kind: z.enum(["translation", "summary-r1", "summary-r2"]),
+  prompt_version: z.string(),
+  source_sha256: z.string().length(64),
+  source_chars: z.number().int().nonnegative(),
+  params: z.custom<MessageCreateParamsNonStreaming>((v) => typeof v === "object" && v !== null),
+});
+export type PlannedRequest = z.infer<typeof plannedRequest>;
+
+interface Accepted {
+  translations: Map<number, AcceptedTranslation>;
+  /** Ringkasan putaran 1 yang lolos, per custom_id. */
+  r1: Map<string, AcceptedSummary>;
+  /** Ringkasan final per `${tocNodeId}-${lang}`. */
+  final: Map<string, AcceptedSummary>;
+  failures: Failure[];
+}
+
+function readAccepted(dir: string): Accepted {
+  const r1 = new Map<string, AcceptedSummary>();
+  for (const s of readJsonl(join(dir, "summary-r1.jsonl"), acceptedSummary)) r1.set(s.custom_id, s);
+  const final = new Map<string, AcceptedSummary>();
+  for (const s of readJsonl(join(dir, "summary.jsonl"), acceptedSummary)) {
+    final.set(`${s.toc_node_id}-${s.lang}`, s);
+  }
+  const translations = new Map<number, AcceptedTranslation>();
+  for (const t of readJsonl(join(dir, "translation.jsonl"), acceptedTranslation)) {
+    translations.set(t.passage_id, t);
+  }
+  return { translations, r1, final, failures: readJsonl(join(dir, "failures.jsonl"), failure) };
+}
+
+// ── Menyusun request ─────────────────────────────────────────────────────────────────────
+
+function translationRequest(work: Work, passageId: number, model: ModelId): PlannedRequest | null {
+  const u = work.units.get(passageId);
+  if (u === undefined) return null;
+  return {
+    custom_id: passageCustomId(passageId),
+    kind: "translation",
+    prompt_version: TRANSLATE_PROMPT.id,
+    source_sha256: u.sourceSha256,
+    source_chars: contentLength(u.masked.text),
+    params: buildTranslateRequest(u, model),
+  };
+}
+
+function r1Request(work: Work, customId: string, model: ModelId): PlannedRequest | null {
+  const c = work.chunkById.get(customId);
+  const parts = parseCustomId(customId);
+  if (c === undefined || parts?.kind !== "toc") return null;
+  return {
+    custom_id: customId,
+    kind: "summary-r1",
+    prompt_version: SUMMARY_PROMPT.id,
+    source_sha256: c.sourceSha256,
+    source_chars: contentLength(c.text),
+    params: buildSummaryRequest({ ...c, lang: parts.lang }, model),
+  };
+}
+
+/** Request putaran 2; `null` bila ada potongan subpohon yang belum punya ringkasan putaran 1. */
+function r2Request(
+  work: Work,
+  acc: Accepted,
+  tocNodeId: number,
+  lang: SummaryLang,
+  model: ModelId,
+): PlannedRequest | null {
+  const n = work.nodeById.get(tocNodeId);
+  if (n === undefined || !n.round2) return null;
+  const children: { heading: string; summary: string }[] = [];
+  for (const c of n.subtree) {
+    const s = acc.r1.get(chunkCustomId(c, lang));
+    if (s === undefined || s.source_sha256 !== c.sourceSha256) return null;
+    children.push({ heading: relativeHeading(n, c), summary: s.text });
+  }
+  return {
+    custom_id: tocRound2CustomId(tocNodeId, lang),
+    kind: "summary-r2",
+    prompt_version: SUMMARY_PROMPT.id,
+    source_sha256: n.sourceSha256,
+    source_chars: children.reduce((a, c) => a + c.summary.length, 0),
+    params: buildSummaryRound2Request({ tocNodeId, heading: n.heading, lang, children }, model),
+  };
+}
+
+/** Request yang masih perlu dikirim untuk satu putaran (yang sudah lolos dengan hash sama dilewati). */
+export function pendingRequests(work: Work, acc: Accepted, round: 1 | 2): PlannedRequest[] {
+  const out: PlannedRequest[] = [];
+  if (round === 1) {
+    for (const u of work.units.values()) {
+      if (acc.translations.get(u.passageId)?.source_sha256 === u.sourceSha256) continue;
+      const r = translationRequest(work, u.passageId, MODELS.haiku);
+      if (r !== null) out.push(r);
+    }
+    for (const c of work.chunks) {
+      for (const lang of SUMMARY_LANGS) {
+        const id = chunkCustomId(c, lang);
+        if (acc.r1.get(id)?.source_sha256 === c.sourceSha256) continue;
+        const r = r1Request(work, id, MODELS.haiku);
+        if (r !== null) out.push(r);
+      }
+    }
+    return out;
+  }
+  for (const n of work.nodes) {
+    if (!n.round2) continue;
+    for (const lang of SUMMARY_LANGS) {
+      if (acc.final.get(`${n.tocNodeId}-${lang}`)?.source_sha256 === n.sourceSha256) continue;
+      const r = r2Request(work, acc, n.tocNodeId, lang, MODELS.haiku);
+      if (r !== null) out.push(r);
+    }
+  }
+  return out;
+}
+
+// ── count_tokens + estimasi ──────────────────────────────────────────────────────────────
+
+function paramsKey(p: MessageCreateParamsNonStreaming): string {
+  return createHash("sha256")
+    .update(JSON.stringify([p.model, p.system, p.messages]))
+    .digest("hex");
+}
+
+/** Hitung token prompt setiap request (cache di counts.json supaya rencana ulang tidak menghitung ulang). */
+async function countAll(
+  client: Anthropic,
+  dir: string,
+  reqs: readonly PlannedRequest[],
+): Promise<Map<string, number>> {
+  const path = join(dir, "counts.json");
+  const cache = new Map<string, number>(
+    existsSync(path)
+      ? Object.entries(
+          z.record(z.string(), z.number()).parse(JSON.parse(readFileSync(path, "utf8"))),
+        )
+      : [],
+  );
+  const todo = reqs.filter((r) => !cache.has(paramsKey(r.params)));
+  let saved = Date.now();
+  await mapPool(
+    todo,
+    16,
+    async (r) => {
+      const { input_tokens } = await client.messages.countTokens({
+        model: r.params.model,
+        system: r.params.system,
+        messages: r.params.messages,
+      });
+      cache.set(paramsKey(r.params), input_tokens);
+      if (Date.now() - saved > 10_000) {
+        saved = Date.now();
+        writeText(path, JSON.stringify(Object.fromEntries(cache)));
+      }
+    },
+    (done) => {
+      if (done % 200 === 0 || done === todo.length) {
+        process.stdout.write(`\rcount_tokens ${done}/${todo.length}`);
+      }
+    },
+  );
+  if (todo.length > 0) process.stdout.write("\n");
+  writeText(path, JSON.stringify(Object.fromEntries(cache)));
+  return new Map(reqs.map((r) => [r.custom_id, cache.get(paramsKey(r.params)) ?? 0]));
+}
+
+interface OutputRates {
+  /** Token keluaran (termasuk thinking) per karakter Arab, terjemahan. */
+  translationPerChar: number;
+  /** Token keluaran per request ringkasan. */
+  summaryPerRequest: number;
+  source: string;
+}
+
+/** Laju keluaran dari uji kecil (langkah 5); nilai cadangan konservatif bila belum ada. */
+export function outputRates(dir: string): OutputRates {
+  const path = join(dir, "sample", `results-${TRANSLATE_PROMPT.id.replace("@", "-v")}.jsonl`);
+  const rows = readJsonl(
+    path,
+    z.looseObject({
+      kind: z.string(),
+      source_chars: z.number(),
+      usage: z.looseObject({ output_tokens: z.number() }),
+    }),
+  );
+  const tr = rows.filter((r) => r.kind === "translation");
+  const sm = rows.filter((r) => r.kind === "summary");
+  if (tr.length === 0 || sm.length === 0) {
+    return {
+      translationPerChar: 1.2,
+      summaryPerRequest: 900,
+      source: "cadangan (uji kecil belum ada)",
+    };
+  }
+  const sum = (l: typeof rows, f: (r: (typeof rows)[number]) => number) =>
+    l.reduce((a, r) => a + f(r), 0);
+  return {
+    translationPerChar: sum(tr, (r) => r.usage.output_tokens) / sum(tr, (r) => r.source_chars),
+    summaryPerRequest: sum(sm, (r) => r.usage.output_tokens) / sm.length,
+    source: `uji kecil ${TRANSLATE_PROMPT.id} (${tr.length} terjemahan, ${sm.length} ringkasan)`,
+  };
+}
+
+export interface Estimate {
+  requests: number;
+  promptTokens: number;
+  outputTokens: number;
+  systemTokens: number;
+  maxPrompt: { custom_id: string; tokens: number };
+  /** Biaya batch per skenario baca cache prefix sistem. */
+  costUsd: Record<string, number>;
+}
+
+function estimate(
+  reqs: readonly PlannedRequest[],
+  counts: Map<string, number>,
+  systemTokens: Record<string, number>,
+  rates: OutputRates,
+): Estimate {
+  const cost: Record<string, number> = {};
+  let promptTokens = 0;
+  let outputTokens = 0;
+  let sys = 0;
+  let maxPrompt = { custom_id: "", tokens: 0 };
+  for (const h of CACHE_SCENARIOS) cost[String(h)] = 0;
+  for (const r of reqs) {
+    const prompt = counts.get(r.custom_id) ?? 0;
+    const system = systemTokens[r.prompt_version] ?? 0;
+    const out =
+      r.kind === "translation"
+        ? Math.ceil(r.source_chars * rates.translationPerChar)
+        : Math.ceil(rates.summaryPerRequest);
+    promptTokens += prompt;
+    outputTokens += out;
+    sys += system;
+    if (prompt > maxPrompt.tokens) maxPrompt = { custom_id: r.custom_id, tokens: prompt };
+    const model = isModelId(r.params.model) ? r.params.model : MODELS.haiku;
+    const x = ratesFor(model, prompt);
+    for (const h of CACHE_SCENARIOS) {
+      const perMillion =
+        (prompt - system) * x.input +
+        system * (h * x.cacheRead + (1 - h) * x.cacheWrite1h) +
+        out * x.output;
+      cost[String(h)] = (cost[String(h)] ?? 0) + (perMillion / 1_000_000) * 0.5;
+    }
+  }
+  return {
+    requests: reqs.length,
+    promptTokens,
+    outputTokens,
+    systemTokens: sys,
+    maxPrompt,
+    costUsd: cost,
+  };
+}
+
+async function systemTokenCounts(client: Anthropic): Promise<Record<string, number>> {
+  const count = async (system?: string) =>
+    (
+      await client.messages.countTokens({
+        model: MODELS.haiku,
+        ...(system === undefined ? {} : { system }),
+        messages: [{ role: "user", content: "." }],
+      })
+    ).input_tokens;
+  const base = await count();
+  return {
+    [TRANSLATE_PROMPT.id]: (await count(TRANSLATE_PROMPT.system)) - base,
+    [SUMMARY_PROMPT.id]: (await count(SUMMARY_PROMPT.system)) - base,
+  };
+}
+
+const usd = (n: number) => `$${n.toFixed(2)}`;
+
+export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
+  const dir = llmDir(ctx.repo);
+  const work = buildWork(ctx.rows());
+  if (work.blocked.length > 0) {
+    console.error(
+      `${work.blocked.length} paragraf punya rujukan ayat yang tidak bisa ditandai; tidak boleh dikirim ke LLM:`,
+    );
+    for (const b of work.blocked.slice(0, 10)) console.error(`  ${b.passageId}: ${b.detail}`);
+  }
+  const acc = readAccepted(dir);
+  const reqs = pendingRequests(work, acc, round);
+  if (reqs.length === 0) {
+    console.info(`Putaran ${round}: tidak ada request tertunda.`);
+    return 0;
+  }
+  const client = ctx.client();
+  const counts = await countAll(client, dir, reqs);
+  const over = reqs.filter((r) => (counts.get(r.custom_id) ?? 0) >= MAX_PROMPT_TOKENS);
+  const system = await systemTokenCounts(client);
+  const rates = outputRates(dir);
+  const byKind = new Map<BatchKind, PlannedRequest[]>();
+  for (const r of reqs) byKind.set(r.kind, [...(byKind.get(r.kind) ?? []), r]);
+  const estimates = Object.fromEntries(
+    [...byKind].map(([k, list]) => [k, estimate(list, counts, system, rates)]),
+  );
+  const total = estimate(reqs, counts, system, rates);
+  writeJsonl(join(dir, `plan-r${round}.jsonl`), reqs);
+  writeText(
+    join(dir, `plan-r${round}.json`),
+    `${JSON.stringify({ created_at: new Date().toISOString(), round, rates, total, byKind: estimates }, null, 2)}\n`,
+  );
+
+  console.info(`Putaran ${round}: ${reqs.length} request (laju keluaran dari ${rates.source})`);
+  for (const [k, e] of Object.entries(estimates)) {
+    console.info(
+      `  ${k}: ${e.requests} request · prompt ${e.promptTokens.toLocaleString("id-ID")} token (sistem ${e.systemTokens.toLocaleString("id-ID")}) · keluaran ±${e.outputTokens.toLocaleString("id-ID")} · ` +
+        CACHE_SCENARIOS.map((h) => `cache ${h * 100}% ${usd(e.costUsd[String(h)] ?? 0)}`).join(
+          " / ",
+        ),
+    );
+  }
+  console.info(
+    `  TOTAL: ` +
+      CACHE_SCENARIOS.map((h) => `cache ${h * 100}% ${usd(total.costUsd[String(h)] ?? 0)}`).join(
+        " / ",
+      ) +
+      ` · prompt terbesar ${total.maxPrompt.tokens.toLocaleString("id-ID")} token (${total.maxPrompt.custom_id})`,
+  );
+  if (over.length > 0) {
+    console.error(
+      `${over.length} request ≥ ${MAX_PROMPT_TOKENS} token: pecah dulu, jangan dikirim.`,
+    );
+    return 1;
+  }
+  console.info(
+    `Rencana: data/build/llm/plan-r${round}.jsonl · kirim: pnpm llm submit --round ${round} --confirm`,
+  );
+  return 0;
+}
+
+// ── Kirim ─────────────────────────────────────────────────────────────────────────────────
+
+function modelOf(reqs: readonly PlannedRequest[]): string {
+  const models = new Set(reqs.map((r) => r.params.model));
+  return models.size === 1 ? ([...models][0] ?? "") : "mixed";
+}
+
+async function submit(
+  client: Anthropic,
+  dir: string,
+  reqs: readonly PlannedRequest[],
+  label: string,
+): Promise<BatchRecord[]> {
+  const batches = readBatches(dir);
+  const made: BatchRecord[] = [];
+  const byKind = new Map<BatchKind, PlannedRequest[]>();
+  for (const r of reqs) byKind.set(r.kind, [...(byKind.get(r.kind) ?? []), r]);
+  for (const [kind, list] of byKind) {
+    for (let i = 0; i < list.length; i += BATCH_MAX_REQUESTS) {
+      const part = list.slice(i, i + BATCH_MAX_REQUESTS);
+      const ids = new Set(part.map((r) => r.custom_id));
+      if (ids.size !== part.length) throw new Error(`custom_id ganda dalam satu batch (${kind})`);
+      const b = await client.messages.batches.create({
+        requests: part.map((r) => ({ custom_id: r.custom_id, params: r.params })),
+      });
+      writeJsonl(join(dir, "requests", `${b.id}.jsonl`), part);
+      const rec: BatchRecord = {
+        name: `${kind}-${label}-${Math.floor(i / BATCH_MAX_REQUESTS) + 1}`,
+        id: b.id,
+        kind,
+        model: modelOf(part),
+        prompt_version: part[0]?.prompt_version ?? "",
+        requests: part.length,
+        created_at: b.created_at,
+        ended_at: null,
+        collected_at: null,
+        usage: null,
+        outcome: null,
+      };
+      batches.push(rec);
+      made.push(rec);
+      writeBatches(dir, batches);
+      console.info(`  dikirim ${rec.name}: ${b.id} (${part.length} request)`);
+    }
+  }
+  return made;
+}
+
+export async function runSubmit(ctx: LlmContext, round: 1 | 2, confirm: boolean): Promise<number> {
+  const dir = llmDir(ctx.repo);
+  const path = join(dir, `plan-r${round}.jsonl`);
+  const reqs = readJsonl(path, plannedRequest);
+  if (reqs.length === 0) {
+    console.error(`Tidak ada rencana di ${path}. Jalankan dulu: pnpm llm plan --round ${round}`);
+    return 1;
+  }
+  const open = readBatches(dir).filter((b) => b.collected_at === null);
+  if (open.length > 0) {
+    console.error(`Masih ada ${open.length} batch yang belum dikumpulkan (pnpm llm collect).`);
+    return 1;
+  }
+  const meta = z
+    .looseObject({ total: z.looseObject({ costUsd: z.record(z.string(), z.number()) }) })
+    .parse(JSON.parse(readFileSync(join(dir, `plan-r${round}.json`), "utf8")));
+  console.info(
+    `Putaran ${round}: ${reqs.length} request, estimasi ${CACHE_SCENARIOS.map((h) => `${usd(meta.total.costUsd[String(h)] ?? 0)} (cache ${h * 100}%)`).join(" / ")}`,
+  );
+  if (!confirm) {
+    console.info(
+      "Belum dikirim. BERBAYAR: kirim hanya setelah pemilik menyetujui biaya di chat, lalu tambahkan --confirm.",
+    );
+    return 0;
+  }
+  await submit(ctx.client(), dir, reqs, `r${round}`);
+  console.info("Cek: pnpm llm status · setelah selesai: pnpm llm collect");
+  return 0;
+}
+
+export async function runStatus(ctx: LlmContext): Promise<number> {
+  const dir = llmDir(ctx.repo);
+  const client = ctx.client();
+  const batches = readBatches(dir);
+  for (const b of batches) {
+    if (b.collected_at !== null) {
+      console.info(
+        `${b.name} ${b.id}: dikumpulkan ${b.collected_at} · ${JSON.stringify(b.outcome)}`,
+      );
+      continue;
+    }
+    const s = await client.messages.batches.retrieve(b.id);
+    const c = s.request_counts;
+    console.info(
+      `${b.name} ${b.id}: ${s.processing_status} · proses ${c.processing}, sukses ${c.succeeded}, error ${c.errored}, kedaluwarsa ${c.expired}, batal ${c.canceled}`,
+    );
+  }
+  return 0;
+}
+
+// ── Kumpulkan + validasi ─────────────────────────────────────────────────────────────────
+
+interface Verdict {
+  accepted: AcceptedTranslation | AcceptedSummary | null;
+  failure: Failure | null;
+}
+
+function judge(
+  work: Work,
+  planned: PlannedRequest,
+  message: Message,
+  batch: { id: string; ended_at: string },
+): Verdict {
+  const model = message.model;
+  const usage = storedUsage(message.usage);
+  const fail = (reason: string, details: string[], output: string | null): Verdict => ({
+    accepted: null,
+    failure: {
+      custom_id: planned.custom_id,
+      batch_id: batch.id,
+      model,
+      reason,
+      details,
+      output,
+      at: batch.ended_at,
+      usage,
+    },
+  });
+  const text = messageText(message);
+  const stop = stopProblem(message);
+  if (stop !== null) return fail(stop, [], text === "" ? null : text);
+  const parts = parseCustomId(planned.custom_id);
+  if (parts?.kind === "passage") {
+    const u = work.units.get(parts.passageId);
+    if (u === undefined || u.sourceSha256 !== planned.source_sha256) {
+      return fail("stale", ["teks/rujukan ayat paragraf berubah sejak request dibuat"], text);
+    }
+    const c = checkTranslation(text, u);
+    if (!c.ok) return fail(`invalid:${c.problems.join(",")}`, c.details, text);
+    return {
+      failure: null,
+      accepted: {
+        passage_id: u.passageId,
+        lang: "id",
+        text: c.text,
+        model,
+        prompt_version: planned.prompt_version,
+        created_at: batch.ended_at,
+        source_sha256: u.sourceSha256,
+        batch_id: batch.id,
+        arabic_warning: c.arabicWarning,
+        usage,
+      },
+    };
+  }
+  if (parts?.kind !== "toc") return fail("unknown_id", [], text);
+  const c = checkSummary(text, parts.lang);
+  if (!c.ok) return fail(`invalid:${c.problems.join(",")}`, [], text);
+  return {
+    failure: null,
+    accepted: {
+      custom_id: planned.custom_id,
+      toc_node_id: parts.tocNodeId,
+      lang: parts.lang,
+      part: parts.part,
+      round: parts.round,
+      text: text.trim(),
+      model,
+      prompt_version: planned.prompt_version,
+      created_at: batch.ended_at,
+      source_sha256: planned.source_sha256,
+      batch_id: batch.id,
+      usage,
+    },
+  };
+}
+
+export async function runCollect(ctx: LlmContext): Promise<number> {
+  const dir = llmDir(ctx.repo);
+  const client = ctx.client();
+  const batches = readBatches(dir);
+  const work = buildWork(ctx.rows());
+  let pending = 0;
+  for (const b of batches) {
+    if (b.collected_at !== null) continue;
+    const s = await client.messages.batches.retrieve(b.id);
+    if (s.processing_status !== "ended") {
+      pending++;
+      console.info(`${b.name}: masih ${s.processing_status}`);
+      continue;
+    }
+    const planned = new Map(
+      readJsonl(join(dir, "requests", `${b.id}.jsonl`), plannedRequest).map((r) => [
+        r.custom_id,
+        r,
+      ]),
+    );
+    const endedAt = s.ended_at ?? new Date().toISOString();
+    const raw: unknown[] = [];
+    const translations: AcceptedTranslation[] = [];
+    const r1: AcceptedSummary[] = [];
+    const final: AcceptedSummary[] = [];
+    const failures: Failure[] = [];
+    const totals: UsageTotals = emptyTotals();
+    let accepted = 0;
+    let invalid = 0;
+    let failed = 0;
+    for await (const r of await client.messages.batches.results(b.id)) {
+      raw.push(r);
+      const p = planned.get(r.custom_id);
+      if (p === undefined) {
+        failures.push({
+          custom_id: r.custom_id,
+          batch_id: b.id,
+          model: b.model,
+          reason: "unknown_id",
+          details: [],
+          output: null,
+          at: endedAt,
+          usage: null,
+        });
+        failed++;
+        continue;
+      }
+      if (r.result.type !== "succeeded") {
+        const reason =
+          r.result.type === "errored" ? `errored:${r.result.error.error.type}` : r.result.type;
+        failures.push({
+          custom_id: r.custom_id,
+          batch_id: b.id,
+          model: String(p.params.model),
+          reason,
+          details: [],
+          output: null,
+          at: endedAt,
+          usage: null,
+        });
+        failed++;
+        continue;
+      }
+      const m = r.result.message;
+      addUsage(totals, isModelId(m.model) ? m.model : MODELS.haiku, m.usage, { batch: true });
+      const v = judge(work, p, m, { id: b.id, ended_at: endedAt });
+      if (v.failure !== null) {
+        failures.push(v.failure);
+        invalid++;
+        continue;
+      }
+      accepted++;
+      const a = v.accepted;
+      if (a === null) continue;
+      if ("passage_id" in a) translations.push(a);
+      else if (a.round === 1) {
+        r1.push(a);
+        if (a.part === null) final.push(a);
+      } else final.push(a);
+    }
+    writeJsonl(join(dir, "results", `${b.id}.jsonl`), raw);
+    appendJsonl(join(dir, "translation.jsonl"), translations);
+    appendJsonl(join(dir, "summary-r1.jsonl"), r1);
+    appendJsonl(join(dir, "summary.jsonl"), final);
+    appendJsonl(join(dir, "failures.jsonl"), failures);
+    b.ended_at = endedAt;
+    b.collected_at = new Date().toISOString();
+    b.usage = totals;
+    b.outcome = { accepted, invalid, failed };
+    writeBatches(dir, batches);
+    console.info(
+      `${b.name}: lolos ${accepted}, ditolak ${invalid}, gagal API ${failed} · biaya ${usd(totals.costUsd)} (baca cache ${totals.cache_read_input_tokens.toLocaleString("id-ID")}, tulis ${totals.cache_creation_input_tokens.toLocaleString("id-ID")})`,
+    );
+  }
+  if (pending > 0) console.info(`${pending} batch belum selesai; ulangi collect nanti.`);
+  return 0;
+}
+
+// ── Ulangan ───────────────────────────────────────────────────────────────────────────────
+
+/** custom_id gagal yang belum pernah lolos, dengan jumlah percobaan dan apakah pernah ditolak model. */
+export function unresolved(
+  work: Work,
+  acc: Accepted,
+): Map<string, { attempts: number; refusal: boolean }> {
+  const out = new Map<string, { attempts: number; refusal: boolean }>();
+  for (const f of acc.failures) {
+    const parts = parseCustomId(f.custom_id);
+    if (parts === null) continue;
+    if (parts.kind === "passage") {
+      const u = work.units.get(parts.passageId);
+      if (
+        u !== undefined &&
+        acc.translations.get(parts.passageId)?.source_sha256 === u.sourceSha256
+      ) {
+        continue;
+      }
+    } else if (parts.round === 1 && acc.r1.has(f.custom_id)) {
+      continue;
+    } else if (parts.round === 2 && acc.final.has(`${parts.tocNodeId}-${parts.lang}`)) {
+      continue;
+    }
+    const prev = out.get(f.custom_id) ?? { attempts: 0, refusal: false };
+    out.set(f.custom_id, {
+      attempts: prev.attempts + 1,
+      refusal: prev.refusal || f.reason === "refusal",
+    });
+  }
+  return out;
+}
+
+export async function runRetry(ctx: LlmContext, confirm: boolean): Promise<number> {
+  const dir = llmDir(ctx.repo);
+  const work = buildWork(ctx.rows());
+  const acc = readAccepted(dir);
+  const todo = unresolved(work, acc);
+  const reqs: PlannedRequest[] = [];
+  const givenUp: string[] = [];
+  for (const [id, s] of todo) {
+    if (s.attempts >= MAX_ATTEMPTS) {
+      givenUp.push(id);
+      continue;
+    }
+    // Haiku 5.5 tanpa fallback server (ADR-013): penolakan diulang di sisi klien dengan Sonnet 5.5.
+    const model = s.refusal ? MODELS.sonnet : MODELS.haiku;
+    const parts = parseCustomId(id);
+    const r =
+      parts?.kind === "passage"
+        ? translationRequest(work, parts.passageId, model)
+        : parts?.kind === "toc" && parts.round === 1
+          ? r1Request(work, id, model)
+          : parts?.kind === "toc"
+            ? r2Request(work, acc, parts.tocNodeId, parts.lang, model)
+            : null;
+    if (r !== null) reqs.push(r);
+  }
+  const sonnet = reqs.filter((r) => r.params.model === MODELS.sonnet).length;
+  console.info(
+    `Ulangan: ${reqs.length} request (${sonnet} ke Sonnet 5.5 karena refusal); menyerah (≥${MAX_ATTEMPTS} percobaan): ${givenUp.length}`,
+  );
+  if (reqs.length === 0) return 0;
+  if (!confirm) {
+    console.info(
+      "Belum dikirim (berbayar, termasuk dalam biaya batch yang disetujui). Tambahkan --confirm.",
+    );
+    return 0;
+  }
+  const n = readBatches(dir).filter((b) => b.name.includes("-retry")).length + 1;
+  await submit(ctx.client(), dir, reqs, `retry${n}`);
+  return 0;
+}
+
+export { readAccepted };
+export type { Accepted };
