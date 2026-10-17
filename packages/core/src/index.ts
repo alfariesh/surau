@@ -8,6 +8,8 @@ export { getToc } from "./toc.ts";
 export { readPage } from "./page.ts";
 export { readSection } from "./section.ts";
 export { buildCitation } from "./citation.ts";
+export { verifyQuote } from "./verify-quote.ts";
+export { getHadithTakhrij } from "./takhrij.ts";
 export {
   AI_SNIPPET_CHARS,
   SEARCH_MAX_HIGHLIGHTS,

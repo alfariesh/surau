@@ -7,18 +7,30 @@ import {
   citation,
   getTocInput,
   getWorkInput,
+  getHadithTakhrijInput,
   pageView,
+  quoteVerification,
   readPageInput,
   readSectionInput,
   sectionView,
+  takhrijView,
   tocView,
   uintSegment,
+  verifyQuoteInput,
   workList,
 } from "./schema.ts";
 
 describe("skema", () => {
   test("semua skema keluaran dan masukan bisa diubah ke JSON Schema", () => {
-    for (const s of [citation, pageView, sectionView, tocView, workList]) {
+    for (const s of [
+      citation,
+      pageView,
+      sectionView,
+      tocView,
+      workList,
+      quoteVerification,
+      takhrijView,
+    ]) {
       expect(z.toJSONSchema(s)).toMatchObject({ type: "object", additionalProperties: false });
     }
     for (const s of [
@@ -27,6 +39,8 @@ describe("skema", () => {
       readPageInput,
       readSectionInput,
       buildCitationInput,
+      verifyQuoteInput,
+      getHadithTakhrijInput,
     ]) {
       expect(z.toJSONSchema(s, { io: "input" })).toMatchObject({ type: "object" });
     }
