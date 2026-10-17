@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 10
     env:
       # Kunci R2 set privat yang berlaku (berkas baru per revisi, tidak pernah ditimpa).
-      PRIVATE_KEY: retrieval/2026-10-17-draf.jsonl
+      PRIVATE_KEY: retrieval/2026-10-17-draf-2.jsonl
       WRANGLER_SEND_METRICS: "false"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -70,14 +70,25 @@ jobs:
             echo "::warning title=Soal privat tidak terunduh::Eval hanya memakai soal publik (token CI mungkin tanpa izin baca R2)."
           fi
 
+      # Kode keluar runner: 0 = lolos gerbang, 2 = berjalan tetapi di bawah gerbang, lain = galat.
       - name: Eval retrieval (staging)
         id: eval
         continue-on-error: true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm run eval:retrieval --remote --no-write --gate --summary "$GITHUB_STEP_SUMMARY"
+        run: |
+          extra=""
+          [ -f evals/private/retrieval.jsonl ] || extra="--publik-saja"
+          code=0
+          pnpm run eval:retrieval --remote --no-write --gate $extra --summary "$GITHUB_STEP_SUMMARY" || code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
 
-      - name: Peringatan bila eval gagal atau di bawah gerbang
-        if: steps.eval.outcome == 'failure'
-        run: echo "::warning title=Eval retrieval gagal atau di bawah gerbang R2::Eval tidak berjalan, atau hit@10 soal disetujui < 90%. Lihat log dan Summary. Job ini tidak memblokir merge."
+      - name: Peringatan bila di bawah gerbang
+        if: steps.eval.outputs.code == '2'
+        run: echo "::warning title=Eval retrieval di bawah gerbang R2::hit@10 soal disetujui < 90% atau soal disetujui < 20. Lihat Summary. Job ini tidak memblokir merge."
+
+      - name: Peringatan bila eval gagal berjalan
+        if: steps.eval.outcome == 'failure' && steps.eval.outputs.code != '2'
+        run: echo "::warning title=Eval retrieval gagal berjalan::Lihat log langkah 'Eval retrieval (staging)'. Job ini tidak memblokir merge."

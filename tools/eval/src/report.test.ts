@@ -17,6 +17,7 @@ const q = (id: string, set: "publik" | "privat", disetujui: string | null): Load
 const run = (question: LoadedQuestion, rank: number | null): QuestionRun => ({
   question,
   judgement: { rank, foundAt10: rank !== null && rank <= 10 ? 1 : 0 },
+  unranked: false,
   goldCount: 1,
   paths: ["translation", "summary"],
   warning: null,
@@ -30,6 +31,7 @@ const info = {
   meta: { corpus_version: "ihya-v5", schema_version: "6" },
   gitSha: "abc1234",
   searchResultVersion: 1,
+  privateIncluded: true,
 };
 
 test("soal privat hanya tampil sebagai ID, jenis, dan peringkat", () => {
@@ -43,15 +45,35 @@ test("soal privat hanya tampil sebagai ID, jenis, dan peringkat", () => {
     expect(md).not.toContain(secret);
 });
 
-test("gerbang dinilai atas soal disetujui saja", () => {
+test("gerbang: hanya soal disetujui, minimal 20 soal, hit@10 ≥ 90%", () => {
   const draft = renderReport(info, [run(q("r01", "publik", null), 1)]);
   expect(draft).toContain("belum ada soal yang disetujui");
+  const ten = renderReport(
+    info,
+    Array.from({ length: 10 }, (_, i) => run(q(`r${10 + i}`, "publik", "Pemilik"), 1)),
+  );
+  expect(ten).toContain("baru 10 soal disetujui (perlu ≥ 20) → **BELUM LOLOS**");
   const md = renderReport(info, [
-    ...Array.from({ length: 9 }, (_, i) => run(q(`r${10 + i}`, "publik", "Pemilik"), 1)),
+    ...Array.from({ length: 18 }, (_, i) => run(q(`r${10 + i}`, "publik", "Pemilik"), 1)),
+    run(q("p40", "privat", "Pemilik"), 3),
     run(q("r30", "publik", "Pemilik"), 11),
     run(q("r31", "publik", null), null),
   ]);
-  expect(md).toContain("hit@10 = 90,0% atas 10 soal disetujui → **LOLOS**");
+  expect(md).toContain("hit@10 = 95,0% atas 20 soal disetujui → **LOLOS**");
   expect(md).toContain("## Soal publik yang gagal");
   expect(md).toContain("**r31**");
+});
+
+test("baris bahasa kueri menurut huruf, termasuk campuran", () => {
+  const ar = { ...q("r01", "publik", null), kueri: "الصبر" };
+  const mix = { ...q("r02", "publik", null), kueri: "الصبر sabar" };
+  const md = renderReport(info, [run(ar, 1), run(mix, 2), run(q("r03", "publik", null), 3)]);
+  expect(md).toContain("| kueri arab | 1 |");
+  expect(md).toContain("| kueri indonesia | 1 |");
+  expect(md).toContain("| kueri campuran | 1 |");
+});
+
+test("hasil tanpa peringkat ditandai", () => {
+  const md = renderReport(info, [{ ...run(q("r01", "publik", null), null), unranked: true }]);
+  expect(md).toContain("| r01 | lokasi | kueri-r01 | tanpa peringkat |");
 });

@@ -24,8 +24,9 @@ export const pageLocation = z
     sampai_page_id: id.optional().describe("Akhir rentang (inklusif), urutan halaman edisi"),
     label: z.string().regex(LABEL).describe("Halaman atau rentang, mis. j2 h56–59"),
   })
-  .refine((l) => l.sampai_page_id === undefined || l.sampai_page_id > l.page_id, {
-    message: "sampai_page_id harus lebih besar dari page_id",
+  // Urutan rentang dicek di `resolveLocation` menurut jilid + halaman cetak, bukan urutan ID.
+  .refine((l) => l.sampai_page_id !== l.page_id, {
+    message: "rentang satu halaman: hapus sampai_page_id",
   });
 
 export const location = z.union([tocLocation, pageLocation]);
@@ -56,7 +57,10 @@ export class DatasetError extends Error {
   override name = "DatasetError";
 }
 
-/** Urai satu berkas JSONL; baris kosong dilewati, kesalahan menyebut berkas dan nomor baris. */
+/**
+ * Urai satu berkas JSONL; baris kosong dilewati, kesalahan menyebut berkas dan nomor baris. Untuk
+ * soal privat pesan tidak memuat isi baris (log CI publik): hanya nama field yang salah.
+ */
 export function parseJsonl(text: string, file: string, set: QuestionSet): LoadedQuestion[] {
   const out: LoadedQuestion[] = [];
   for (const [i, line] of text.split("\n").entries()) {
@@ -65,11 +69,16 @@ export function parseJsonl(text: string, file: string, set: QuestionSet): Loaded
     try {
       raw = JSON.parse(line);
     } catch (e) {
-      throw new DatasetError(`${file}:${i + 1}: JSON tidak sah (${(e as Error).message})`);
+      const why = set === "privat" ? "isi disembunyikan" : (e as Error).message;
+      throw new DatasetError(`${file}:${i + 1}: JSON tidak sah (${why})`);
     }
     const parsed = question.safeParse(raw);
     if (!parsed.success) {
-      throw new DatasetError(`${file}:${i + 1}: ${z.prettifyError(parsed.error)}`);
+      const why =
+        set === "privat"
+          ? `field tidak sah: ${parsed.error.issues.map((x) => x.path.join(".") || "(baris)").join(", ")}`
+          : z.prettifyError(parsed.error);
+      throw new DatasetError(`${file}:${i + 1}: ${why}`);
     }
     out.push({ ...parsed.data, set });
   }

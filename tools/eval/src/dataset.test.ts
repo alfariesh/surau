@@ -45,7 +45,7 @@ describe("parseJsonl", () => {
       { ...ok, jenis: "lain" },
       { ...ok, lokasi_benar: [] },
       { ...ok, lokasi_benar: [{ toc_node_id: 1, label: "jilid 1" }] },
-      { ...ok, lokasi_benar: [{ page_id: 5, sampai_page_id: 5, label: "j1 h5" }] },
+      { ...ok, lokasi_benar: [{ page_id: 5, sampai_page_id: 5, label: "j1 h5–5" }] },
       { ...ok, id: "R1" },
       { ...ok, tambahan: 1 },
       { ...ok, disetujui_oleh: "" },
@@ -53,6 +53,20 @@ describe("parseJsonl", () => {
       expect(() => parseJsonl(line(bad), "b.jsonl", "publik")).toThrow(DatasetError);
     }
   });
+});
+
+test("soal privat: pesan galat tanpa isi baris", () => {
+  const secret = { ...ok, id: "p01", kueri: "rahasia sekali", jenis: "lain" };
+  let msg = "";
+  try {
+    parseJsonl(line(secret), "p.jsonl", "privat");
+  } catch (e) {
+    msg = (e as Error).message;
+  }
+  expect(msg).toBe("p.jsonl:1: field tidak sah: jenis");
+  expect(() => parseJsonl('{"kueri":"rahasia', "p.jsonl", "privat")).toThrow(
+    /^p\.jsonl:1: JSON tidak sah \(isi disembunyikan\)$/,
+  );
 });
 
 test("mergeSets menolak ID ganda antar set", () => {

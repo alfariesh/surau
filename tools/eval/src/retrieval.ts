@@ -4,7 +4,9 @@
 //   pnpm run eval:retrieval                 D1 lokal (salinan <root>/.wrangler/state/v3, ARSITEKTUR §7)
 //   pnpm run eval:retrieval --remote        D1 staging lewat remote binding (CI; butuh token Cloudflare)
 //   … --label baseline                      akhiran nama berkas laporan
-//   … --gate                                keluar 1 bila set resmi belum lolos gerbang R2 (/rilis)
+//   … --gate                                keluar 2 bila set resmi belum lolos gerbang R2 (/rilis);
+//                                           wajib ada soal privat kecuali --publik-saja
+//   … --publik-saja                         tanpa soal privat (mis. CI yang tidak bisa mengunduhnya)
 //   … --summary <berkas>                    tambahkan laporan ke berkas (mis. $GITHUB_STEP_SUMMARY)
 //   … --no-write                            jangan tulis berkas laporan
 //
@@ -32,14 +34,16 @@ import type { D1Db } from "@surau/db";
 import { loadCorpusIndex, resolveGold } from "./corpus.ts";
 import { mergeSets, parseJsonl } from "./dataset.ts";
 import type { LoadedQuestion } from "./dataset.ts";
-import { DEPTH, aggregate, judge, passesR2Gate } from "./metrics.ts";
+import { DEPTH, R2_MIN_OFFICIAL, aggregate, judge, passesR2Gate } from "./metrics.ts";
 import { officialRuns, renderReport } from "./report.ts";
 import type { QuestionRun } from "./report.ts";
 import { resultPages, summarize } from "./view.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
 
-function loadQuestions(): LoadedQuestion[] {
+const PRIVATE_FILE = "evals/private/retrieval.jsonl";
+
+function loadQuestions(opts: { publicOnly: boolean; gate: boolean }): LoadedQuestion[] {
   const dir = join(repo, "evals/retrieval");
   const pub = readdirSync(dir)
     .filter((f) => f.endsWith(".jsonl"))
@@ -47,19 +51,26 @@ function loadQuestions(): LoadedQuestion[] {
     .flatMap((f) =>
       parseJsonl(readFileSync(join(dir, f), "utf8"), `evals/retrieval/${f}`, "publik"),
     );
-  const privFile = join(repo, "evals/private/retrieval.jsonl");
-  const priv = existsSync(privFile)
-    ? parseJsonl(readFileSync(privFile, "utf8"), "evals/private/retrieval.jsonl", "privat")
-    : [];
-  return mergeSets(pub, priv);
+  if (opts.publicOnly) return mergeSets(pub);
+  const privFile = join(repo, PRIVATE_FILE);
+  if (!existsSync(privFile)) {
+    if (opts.gate) {
+      throw new Error(
+        `--gate butuh ${PRIVATE_FILE} (unduh dari R2, lihat evals/README.md), atau tambahkan --publik-saja`,
+      );
+    }
+    return mergeSets(pub);
+  }
+  return mergeSets(pub, parseJsonl(readFileSync(privFile, "utf8"), PRIVATE_FILE, "privat"));
 }
 
+/** Commit kode; `-dirty` bila ada perubahan yang belum di-commit (laporan harus bisa diulang). */
 function gitSha(): string {
   try {
-    return execFileSync("git", ["rev-parse", "--short", "HEAD"], {
-      cwd: repo,
-      encoding: "utf8",
-    }).trim();
+    const git = (...args: string[]) =>
+      execFileSync("git", args, { cwd: repo, encoding: "utf8" }).trim();
+    const dirty = git("status", "--porcelain", "--untracked-files=no") !== "";
+    return `${git("rev-parse", "--short", "HEAD")}${dirty ? "-dirty" : ""}`;
   } catch {
     return "?";
   }
@@ -104,9 +115,10 @@ async function main(): Promise<number> {
       gate: { type: "boolean", default: false },
       summary: { type: "string" },
       "no-write": { type: "boolean", default: false },
+      "publik-saja": { type: "boolean", default: false },
     },
   });
-  const questions = loadQuestions();
+  const questions = loadQuestions({ publicOnly: values["publik-saja"], gate: values.gate });
   const corpus = await openCorpus(values.remote);
   const runs: QuestionRun[] = [];
   let info;
@@ -117,9 +129,13 @@ async function main(): Promise<number> {
       const t0 = performance.now();
       const view = await searchText(corpus.db, question.kueri, { limit: DEPTH });
       const ms = Math.round(performance.now() - t0);
+      // Tanpa peringkat (kueri Arab yang semua katanya umum): urutan kitab, `limit` = paragraf.
+      // Tidak dinilai sebagai peringkat: dihitung gagal.
+      const judged = judge(resultPages(view, index), golds);
       runs.push({
         question,
-        judgement: judge(resultPages(view, index), golds),
+        judgement: view.ranked ? judged : { rank: null, foundAt10: 0 },
+        unranked: !view.ranked,
         goldCount: golds.length,
         paths: view.paths,
         warning: view.warning,
@@ -134,6 +150,7 @@ async function main(): Promise<number> {
       meta: index.meta,
       gitSha: gitSha(),
       searchResultVersion: SEARCH_RESULT_VERSION,
+      privateIncluded: questions.some((q) => q.set === "privat"),
     };
   } finally {
     await corpus.dispose();
@@ -149,7 +166,7 @@ async function main(): Promise<number> {
   console.log(
     official.n === 0
       ? "set resmi: belum ada soal disetujui (T-12)"
-      : `set resmi ${official.n} soal: hit@10 ${fmt(official.hit10)} → ${passesR2Gate(official) ? "LOLOS" : "BELUM LOLOS"} gerbang R2`,
+      : `set resmi ${official.n} soal (perlu ≥ ${R2_MIN_OFFICIAL}): hit@10 ${fmt(official.hit10)} → ${passesR2Gate(official) ? "LOLOS" : "BELUM LOLOS"} gerbang R2`,
   );
   if (!values["no-write"]) {
     const outDir = join(repo, "evals/reports");
@@ -164,7 +181,8 @@ async function main(): Promise<number> {
     console.log(`laporan: ${file.slice(repo.length + 1)}`);
   }
   if (values.summary !== undefined) appendFileSync(values.summary, `${report}\n`);
-  return values.gate && !passesR2Gate(official) ? 1 : 0;
+  // 2 = berjalan tetapi di bawah gerbang; galat (pengecualian) keluar 1.
+  return values.gate && !passesR2Gate(official) ? 2 : 0;
 }
 
 process.exitCode = await main();

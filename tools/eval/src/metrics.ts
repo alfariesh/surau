@@ -8,6 +8,8 @@ export const KS = [1, 5, 10] as const;
 
 /** Gerbang R2 (FASE.md, docs/06): lokasi benar ≥ 90% = hit@10 ≥ 0,9 atas set resmi. */
 export const R2_GATE_HIT10 = 0.9;
+/** Set resmi minimal 20 soal disetujui (T-12, FASE.md syarat R2). */
+export const R2_MIN_OFFICIAL = 20;
 
 /** Satu halaman hasil: ID halamannya dan node daftar isi paragraf yang cocok di halaman itu. */
 export interface ResultPage {
@@ -67,5 +69,5 @@ export function aggregate(ranks: readonly (number | null)[]): Scores {
 }
 
 export function passesR2Gate(scores: Scores): boolean {
-  return scores.n > 0 && scores.hit10 >= R2_GATE_HIT10;
+  return scores.n >= R2_MIN_OFFICIAL && scores.hit10 >= R2_GATE_HIT10;
 }

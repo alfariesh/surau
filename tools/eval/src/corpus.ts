@@ -5,7 +5,7 @@ import type { D1Db } from "@surau/db";
 import { z } from "zod";
 
 import { DatasetError, parseLabel } from "./dataset.ts";
-import type { Location, Question } from "./dataset.ts";
+import type { LoadedQuestion, Location, QuestionSet } from "./dataset.ts";
 import type { GoldMatcher } from "./metrics.ts";
 
 export interface PageRow {
@@ -99,26 +99,36 @@ export function subtree(index: CorpusIndex, rootId: number): Set<number> {
 
 const pageLabel = (p: PageRow) => `j${p.juz} h${p.page_no}`;
 
-/** Satu lokasi → pencocok. Label wajib sama dengan letak di DB. */
-export function resolveLocation(index: CorpusIndex, loc: Location, qid: string): GoldMatcher {
+/**
+ * Satu lokasi → pencocok. Label wajib sama dengan letak di DB. Untuk soal privat pesan galat tidak
+ * menyebut label atau letaknya (log CI publik), hanya ID soal dan urutan lokasinya.
+ */
+export function resolveLocation(
+  index: CorpusIndex,
+  loc: Location,
+  q: LocationOwner,
+  k = 1,
+): GoldMatcher {
+  const fail = (detail: string) =>
+    new DatasetError(
+      q.set === "privat"
+        ? `${q.id}: lokasi ke-${k} tidak cocok dengan DB (rincian disembunyikan, soal privat)`
+        : `${q.id}: ${detail}`,
+    );
   if ("toc_node_id" in loc) {
     const node = index.tocById.get(loc.toc_node_id);
-    if (node === undefined)
-      throw new DatasetError(`${qid}: toc_node_id ${loc.toc_node_id} tidak ada`);
+    if (node === undefined) throw fail(`toc_node_id ${loc.toc_node_id} tidak ada`);
     const start = index.pageById.get(node.start_page_id);
-    if (start === undefined)
-      throw new DatasetError(`${qid}: halaman awal node ${node.id} tidak ada`);
+    if (start === undefined) throw fail(`halaman awal node ${node.id} tidak ada`);
     if (pageLabel(start) !== loc.label) {
-      throw new DatasetError(
-        `${qid}: label "${loc.label}" ≠ letak node ${node.id} di DB (${pageLabel(start)})`,
-      );
+      throw fail(`label "${loc.label}" ≠ letak node ${node.id} di DB (${pageLabel(start)})`);
     }
     return { label: loc.label, pageIds: new Set(), tocNodeIds: subtree(index, node.id) };
   }
   const first = index.pageById.get(loc.page_id);
   const last = index.pageById.get(loc.sampai_page_id ?? loc.page_id);
   if (first === undefined || last === undefined) {
-    throw new DatasetError(`${qid}: page_id ${loc.page_id}/${loc.sampai_page_id} tidak ada`);
+    throw fail(`page_id ${loc.page_id}/${loc.sampai_page_id} tidak ada`);
   }
   const want = parseLabel(loc.label);
   if (
@@ -126,11 +136,10 @@ export function resolveLocation(index: CorpusIndex, loc: Location, qid: string):
     first.juz !== want.juz ||
     last.juz !== want.juz ||
     first.page_no !== want.from ||
-    last.page_no !== want.to
+    last.page_no !== want.to ||
+    (loc.sampai_page_id !== undefined && want.to <= want.from)
   ) {
-    throw new DatasetError(
-      `${qid}: label "${loc.label}" ≠ letak di DB (${pageLabel(first)}…${pageLabel(last)})`,
-    );
+    throw fail(`label "${loc.label}" ≠ letak di DB (${pageLabel(first)}…${pageLabel(last)})`);
   }
   // Rentang menurut (jilid, halaman cetak), bukan urutan ID (ADR-029 butir 2).
   const pageIds = new Set<number>();
@@ -147,6 +156,12 @@ export function resolveLocation(index: CorpusIndex, loc: Location, qid: string):
   return { label: loc.label, pageIds, tocNodeIds: new Set() };
 }
 
-export function resolveGold(index: CorpusIndex, q: Question): GoldMatcher[] {
-  return q.lokasi_benar.map((loc) => resolveLocation(index, loc, q.id));
+/** Pemilik lokasi: ID soal dan setnya (untuk pesan galat). */
+export interface LocationOwner {
+  id: string;
+  set: QuestionSet;
+}
+
+export function resolveGold(index: CorpusIndex, q: LoadedQuestion): GoldMatcher[] {
+  return q.lokasi_benar.map((loc, i) => resolveLocation(index, loc, q, i + 1));
 }

@@ -29,19 +29,23 @@ pnpm run eval:retrieval
 - Membaca D1 lokal (`<root>/.wrangler/state/v3`, disalin dulu ke folder sementara; ARSITEKTUR §7). Isi dulu dengan `pnpm run db:migrate:local` + `pnpm corpus:load:local`.
 - `--remote`: korpus **staging** lewat remote binding (`tools/eval/wrangler.jsonc`, dipakai CI). Tidak pernah menyentuh korpus produksi.
 - `--label <nama>`: akhiran nama laporan. `--no-write`: tanpa berkas laporan. `--summary <berkas>`: tambahkan laporan ke berkas (CI: `$GITHUB_STEP_SUMMARY`).
-- `--gate`: keluar dengan kode 1 bila set resmi belum lolos gerbang R2 (hit@10 ≥ 90%). Dipakai `/rilis` dan CI.
+- `--gate`: keluar dengan kode 2 bila set resmi belum lolos gerbang R2 (≥ 20 soal disetujui dan hit@10 ≥ 90%); galat lain keluar 1. Dengan `--gate` berkas soal privat wajib ada, kecuali diberi `--publik-saja` (dipakai CI bila unduhan R2 gagal). Dipakai `/rilis` dan CI.
 
-Hasil benar = halaman hasil yang masuk rentang lokasi benar, atau memuat paragraf cocok di bagian lokasi benar. hit@k dan MRR dihitung atas 50 halaman pertama (`limit` maksimum `searchText`), per jenis soal, per bahasa kueri, dan per set.
+Hasil benar = halaman hasil yang masuk rentang lokasi benar, atau memuat paragraf cocok di bagian lokasi benar. hit@k dan MRR dihitung atas 50 halaman pertama (`limit` maksimum `searchText`), per jenis soal, per bahasa kueri (menurut hurufnya: arab, indonesia, campuran), dan per set. Hasil tanpa peringkat (kueri Arab yang semua katanya sangat umum, urutan kitab) dihitung gagal.
 
 ## Soal privat (holdout)
 
-Sekitar sepertiga soal disimpan privat supaya tidak bocor ke data latih model dan tidak di-*overfit* saat pengembangan. Laporan dan ringkasan CI hanya menampilkan ID, jenis, dan peringkatnya, tanpa teks soal.
+Sekitar sepertiga soal disimpan privat supaya tidak bocor ke data latih model dan tidak di-*overfit* saat pengembangan. Laporan, ringkasan CI, dan pesan galat runner hanya menampilkan ID, jenis, dan peringkatnya, tanpa teks soal.
+
+Aturan holdout (ADR-045):
+- Kegagalan soal privat hanya dianalisis per kategori (kosakata, normalisasi, peringkat). Perbaikan dirancang, diuji, dan dijelaskan memakai soal publik; teks soal privat tidak pernah ditulis di kode, tes, komentar, pesan commit, atau dokumen.
+- Soal privat yang terlanjur dipakai untuk merancang perbaikan dianggap terbakar: dipindah ke set publik (ID `r` baru) dan diganti soal privat baru yang ditulis sebelum pernah dijalankan. Contoh: p03 → r03, pengganti p31 (2026-10-17).
 
 - Salinan resmi ada di R2 bucket privat `surau-evals` (akses r2.dev mati). Setiap revisi diunggah sebagai berkas baru (tidak menimpa): `retrieval/<tanggal>-<status>.jsonl`. Kunci yang berlaku ditulis di `PRIVATE_KEY` pada `.github/workflows/eval.yml`.
 - Mengambil ke mesin ini:
 
 ```bash
-pnpm wrangler r2 object get surau-evals/retrieval/2026-10-17-draf.jsonl --file evals/private/retrieval.jsonl --remote
+pnpm wrangler r2 object get surau-evals/retrieval/2026-10-17-draf-2.jsonl --file evals/private/retrieval.jsonl --remote
 ```
 
 - Mengunggah revisi baru (nama berkas baru, lalu perbarui `PRIVATE_KEY`):

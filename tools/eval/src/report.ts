@@ -3,7 +3,7 @@
 // ringkasan CI publik), supaya holdout tidak bocor.
 import type { LoadedQuestion, QuestionKind } from "./dataset.ts";
 import { QUESTION_KINDS } from "./dataset.ts";
-import { DEPTH, R2_GATE_HIT10, aggregate, passesR2Gate } from "./metrics.ts";
+import { DEPTH, R2_GATE_HIT10, R2_MIN_OFFICIAL, aggregate, passesR2Gate } from "./metrics.ts";
 import type { Judgement, Scores } from "./metrics.ts";
 
 export interface ResultSummary {
@@ -14,6 +14,8 @@ export interface ResultSummary {
 export interface QuestionRun {
   question: LoadedQuestion;
   judgement: Judgement;
+  /** Hasil tanpa peringkat (kata Arab sangat umum): dinilai gagal. */
+  unranked: boolean;
   goldCount: number;
   paths: string[];
   warning: string | null;
@@ -29,6 +31,15 @@ export interface RunInfo {
   meta: Record<string, string>;
   gitSha: string;
   searchResultVersion: number;
+  /** Soal privat ikut dijalankan (false = --publik-saja atau berkasnya tidak ada). */
+  privateIncluded: boolean;
+}
+
+/** Bahasa kueri menurut hurufnya (sama dengan deteksi `searchText`): Arab, Indonesia, campuran. */
+export function queryScript(kueri: string): "arab" | "indonesia" | "campuran" {
+  const ar = /\p{Script=Arabic}/u.test(kueri);
+  const la = /\p{Script=Latin}/u.test(kueri);
+  return ar && la ? "campuran" : ar ? "arab" : "indonesia";
 }
 
 const pct = (x: number) => `${(x * 100).toFixed(1).replace(".", ",")}%`;
@@ -48,12 +59,9 @@ function table(runs: readonly QuestionRun[]): string[] {
     const rs = runs.filter((r) => r.question.jenis === kind);
     if (rs.length > 0) lines.push(scoreRow(kind, aggregate(ranks(rs))));
   }
-  for (const [name, test] of [
-    ["kueri Arab", (r: QuestionRun) => r.paths.length === 1 && r.paths[0] === "arabic"],
-    ["kueri Indonesia", (r: QuestionRun) => !r.paths.includes("arabic")],
-  ] as const) {
-    const rs = runs.filter(test);
-    if (rs.length > 0) lines.push(scoreRow(name, aggregate(ranks(rs))));
+  for (const script of ["arab", "indonesia", "campuran"] as const) {
+    const rs = runs.filter((r) => queryScript(r.question.kueri) === script);
+    if (rs.length > 0) lines.push(scoreRow(`kueri ${script}`, aggregate(ranks(rs))));
   }
   for (const set of ["publik", "privat"] as const) {
     const rs = runs.filter((r) => r.question.set === set);
@@ -62,7 +70,12 @@ function table(runs: readonly QuestionRun[]): string[] {
   return lines;
 }
 
-const rankCell = (j: Judgement) => (j.rank === null ? `> ${DEPTH}` : String(j.rank));
+const rankCell = (r: QuestionRun) =>
+  r.unranked
+    ? "tanpa peringkat"
+    : r.judgement.rank === null
+      ? `> ${DEPTH}`
+      : String(r.judgement.rank);
 const cell = (s: string) => s.replaceAll("|", "\\|").replaceAll("\n", " ");
 
 export function officialRuns(runs: readonly QuestionRun[]): QuestionRun[] {
@@ -71,14 +84,14 @@ export function officialRuns(runs: readonly QuestionRun[]): QuestionRun[] {
 
 export function renderReport(info: RunInfo, runs: readonly QuestionRun[]): string {
   const official = officialRuns(runs);
-  const gateSet = official.length > 0 ? official : [];
-  const gateScores = aggregate(gateSet.map((r) => r.judgement.rank));
+  const gateScores = aggregate(official.map((r) => r.judgement.rank));
+  const verdict = `**${passesR2Gate(gateScores) ? "LOLOS" : "BELUM LOLOS"}**`;
   const gate =
-    gateSet.length === 0
+    official.length === 0
       ? "belum ada soal yang disetujui (T-12), gerbang belum bisa dinilai"
-      : `hit@10 = ${pct(gateScores.hit10)} atas ${gateScores.n} soal disetujui → **${
-          passesR2Gate(gateScores) ? "LOLOS" : "BELUM LOLOS"
-        }** (syarat ≥ ${pct(R2_GATE_HIT10)})`;
+      : official.length < R2_MIN_OFFICIAL
+        ? `baru ${official.length} soal disetujui (perlu ≥ ${R2_MIN_OFFICIAL}) → ${verdict}; hit@10 sementara ${pct(gateScores.hit10)}`
+        : `hit@10 = ${pct(gateScores.hit10)} atas ${gateScores.n} soal disetujui → ${verdict} (syarat ≥ ${pct(R2_GATE_HIT10)}, minimal ${R2_MIN_OFFICIAL} soal)`;
   const m = info.meta;
   const lines = [
     `# Eval retrieval · ${info.date} · ${m["corpus_version"] ?? "?"}`,
@@ -87,7 +100,9 @@ export function renderReport(info: RunInfo, runs: readonly QuestionRun[]): strin
     `- **Korpus:** \`${m["corpus_version"] ?? "?"}\` (skema ${m["schema_version"] ?? "?"}, norm ${
       m["norm_version"] ?? "?"
     }, latin_norm ${m["latin_norm_version"] ?? "?"}, dibangun ${m["built_at"] ?? "?"}), sumber D1: ${info.source}`,
-    `- **Kode:** \`${info.gitSha}\`, \`SEARCH_RESULT_VERSION\` ${info.searchResultVersion}`,
+    `- **Kode:** \`${info.gitSha}\`, \`SEARCH_RESULT_VERSION\` ${info.searchResultVersion} · soal privat ${
+      info.privateIncluded ? "ikut" : "**tidak ikut** (`--publik-saja` atau berkas tidak ada)"
+    }`,
     `- **Cara ukur:** \`searchText(kueri, { limit: ${DEPTH} })\`; hasil benar = halaman yang masuk rentang lokasi benar atau memuat paragraf cocok di bagian lokasi benar (beserta turunannya). MRR dihitung atas ${DEPTH} halaman (0 bila tidak ada).`,
     "",
   ];
@@ -117,7 +132,7 @@ export function renderReport(info: RunInfo, runs: readonly QuestionRun[]): strin
   for (const r of runs.filter((x) => x.question.set === "publik")) {
     const q = r.question;
     lines.push(
-      `| ${q.id} | ${q.jenis} | ${cell(q.kueri)} | ${rankCell(r.judgement)} | ${
+      `| ${q.id} | ${q.jenis} | ${cell(q.kueri)} | ${rankCell(r)} | ${
         q.disetujui_oleh === null ? "draf" : "ya"
       } | ${cell(
         r.top
@@ -138,7 +153,7 @@ export function renderReport(info: RunInfo, runs: readonly QuestionRun[]): strin
     );
     for (const r of priv) {
       lines.push(
-        `| ${r.question.id} | ${r.question.jenis} | ${rankCell(r.judgement)} | ${
+        `| ${r.question.id} | ${r.question.jenis} | ${rankCell(r)} | ${
           r.question.disetujui_oleh === null ? "draf" : "ya"
         } |`,
       );
@@ -152,7 +167,7 @@ export function renderReport(info: RunInfo, runs: readonly QuestionRun[]): strin
     for (const r of failed) {
       const q = r.question;
       lines.push(
-        `- **${q.id}** \`${cell(q.kueri)}\` (jalur ${r.paths.join("+") || "-"}${
+        `- **${q.id}** \`${cell(q.kueri)}\` (${r.unranked ? "tanpa peringkat, " : ""}jalur ${r.paths.join("+") || "-"}${
           r.warning === null ? "" : `, peringatan ${r.warning}`
         }, ${r.totalPages ?? "?"} halaman): lokasi benar ${q.lokasi_benar.map((l) => l.label).join(", ")}; 5 teratas: ${
           r.top

@@ -21,6 +21,8 @@ const index = buildCorpusIndex(
   ],
 );
 
+const pub = { id: "r01", set: "publik" } as const;
+
 test("subtree memuat node dan seluruh turunannya", () => {
   expect([...subtree(index, 10)].toSorted((a, b) => a - b)).toEqual([10, 11, 12]);
   expect([...subtree(index, 12)]).toEqual([12]);
@@ -28,7 +30,7 @@ test("subtree memuat node dan seluruh turunannya", () => {
 
 describe("resolveLocation", () => {
   test("bagian daftar isi → node + turunan; label = halaman awal node", () => {
-    const g = resolveLocation(index, { toc_node_id: 11, label: "j1 h2" }, "r01");
+    const g = resolveLocation(index, { toc_node_id: 11, label: "j1 h2" }, pub);
     expect([...g.tocNodeIds].toSorted((a, b) => a - b)).toEqual([11, 12]);
     expect(g.pageIds.size).toBe(0);
   });
@@ -37,10 +39,10 @@ describe("resolveLocation", () => {
     const g = resolveLocation(
       index,
       { page_id: 100002, sampai_page_id: 100004, label: "j1 h2–4" },
-      "r01",
+      pub,
     );
     expect([...g.pageIds].toSorted((a, b) => a - b)).toEqual([100002, 100004, 100009]);
-    const one = resolveLocation(index, { page_id: 100005, label: "j2 h1" }, "r01");
+    const one = resolveLocation(index, { page_id: 100005, label: "j2 h1" }, pub);
     expect([...one.pageIds]).toEqual([100005]);
   });
 
@@ -52,7 +54,15 @@ describe("resolveLocation", () => {
       { page_id: 100004, sampai_page_id: 100005, label: "j1 h4–1" },
       { page_id: 123, label: "j1 h1" },
     ]) {
-      expect(() => resolveLocation(index, loc, "r09")).toThrow(DatasetError);
+      expect(() => resolveLocation(index, loc, pub)).toThrow(DatasetError);
     }
+  });
+
+  test("soal privat: pesan galat tanpa label atau letak (log CI publik)", () => {
+    const loc = { page_id: 100002, sampai_page_id: 100004, label: "j1 h2–5" };
+    expect(() => resolveLocation(index, loc, pub)).toThrow(/j1 h2–5/);
+    expect(() => resolveLocation(index, loc, { id: "p07", set: "privat" }, 2)).toThrow(
+      /^p07: lokasi ke-2 tidak cocok dengan DB \(rincian disembunyikan, soal privat\)$/,
+    );
   });
 });

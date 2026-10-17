@@ -49,9 +49,11 @@ describe("aggregate", () => {
     expect(passesR2Gate(aggregate([]))).toBe(false);
   });
 
-  test("gerbang R2: hit@10 ≥ 90%", () => {
-    const nine = [...Array.from({ length: 9 }, () => 1), null];
-    expect(passesR2Gate(aggregate(nine))).toBe(true);
-    expect(passesR2Gate(aggregate([...nine, null]))).toBe(false);
+  test("gerbang R2: minimal 20 soal dan hit@10 ≥ 90%", () => {
+    const ok18 = Array.from({ length: 18 }, () => 1);
+    expect(passesR2Gate(aggregate([...ok18, 3, null]))).toBe(true); // 19/20 = 95%
+    expect(passesR2Gate(aggregate([...ok18, null, null]))).toBe(true); // 18/20 = 90%
+    expect(passesR2Gate(aggregate([...ok18, null, null, null]))).toBe(false); // 18/21
+    expect(passesR2Gate(aggregate(Array.from({ length: 19 }, () => 1)))).toBe(false); // < 20 soal
   });
 });
