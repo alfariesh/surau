@@ -6,8 +6,12 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { QURAN_SCHEMA_VERSION, SEARCH_SCHEMA_VERSION } from "@surau/db";
-import { buildFtsMatch } from "@surau/text";
+import {
+  LATIN_SEARCH_SCHEMA_VERSION,
+  QURAN_SCHEMA_VERSION,
+  SEARCH_SCHEMA_VERSION,
+} from "@surau/db";
+import { buildFtsMatch, latinMatchExpression, planLatinQuery } from "@surau/text";
 
 import { sqlLiteral } from "./sql.ts";
 
@@ -150,10 +154,14 @@ export const COUNTED = [
   "summary",
   "term_stat",
   "passage_fts",
+  // Indeks Indonesia (S14): tabel virtual baru ada sejak skema 6.
+  "translation_fts",
+  "summary_fts",
   "meta",
 ] as const;
 /** Tabel yang baru ada (atau baru diisi) sejak skema korpus 4 (S11): tidak dihitung di korpus lama. */
 const SEARCH_TABLES: ReadonlySet<string> = new Set(["term_stat", "passage_fts"]);
+const LATIN_TABLES: ReadonlySet<string> = new Set(["translation_fts", "summary_fts"]);
 const QURAN_TABLES: ReadonlySet<string> = new Set([
   "quran_source",
   "quran_surah",
@@ -183,11 +191,27 @@ const SMOKE_SEARCH = `SELECT count(*) AS n FROM passage_fts WHERE passage_fts MA
   buildFtsMatch("الصبر") ?? "",
 )}`;
 
+// Indeks Indonesia (S14): kueri "sabar" (rencana @surau/text yang sama dengan searchText) harus
+// mengenai terjemahan dan ringkasan.
+const SABAR = planLatinQuery("sabar");
+const SMOKE_LATIN = ["translation_fts", "summary_fts"].map(
+  (t) =>
+    `SELECT count(*) AS n FROM ${t} WHERE ${t} MATCH ${sqlLiteral(
+      SABAR === null ? "" : latinMatchExpression(SABAR, "all"),
+    )}`,
+);
+
 export interface Smoke {
   counts: Record<(typeof COUNTED)[number], number>;
   meta: Record<string, string>;
   /** Pesan kegagalan; kosong = lolos. */
   problems: string[];
+  /**
+   * Fitur yang tidak ada karena skema korpus lebih lama dari kode (mis. ihya-v1 tanpa indeks
+   * pencarian). Bukan kegagalan data: kode memeriksa `meta.schema_version` dan menyembunyikan
+   * fiturnya (ARSITEKTUR-TEKNIS §7 aturan 5). Build baru dan pemuatan wajib tanpa batasan.
+   */
+  limitations: string[];
 }
 
 /**
@@ -210,14 +234,20 @@ export function smoke(
   const search = Number(meta.schema_version ?? 0) >= SEARCH_SCHEMA_VERSION;
   // Tabel Qur'an (S12) baru ada sejak skema 5: korpus lama dihitung 0, tanpa crash.
   const quran = Number(meta.schema_version ?? 0) >= QURAN_SCHEMA_VERSION;
+  // Indeks Indonesia (S14) sejak skema 6.
+  const latin = Number(meta.schema_version ?? 0) >= LATIN_SEARCH_SCHEMA_VERSION;
   const tables = COUNTED.filter(
-    (t) => (search || !SEARCH_TABLES.has(t)) && (quran || !QURAN_TABLES.has(t)),
+    (t) =>
+      (search || !SEARCH_TABLES.has(t)) &&
+      (quran || !QURAN_TABLES.has(t)) &&
+      (latin || !LATIN_TABLES.has(t)),
   );
   const row = query(target, smokeCounts(tables))[0] ?? {};
   const counts = Object.fromEntries(
     COUNTED.map((t) => [t, Number(row[t] ?? 0)]),
   ) as Smoke["counts"];
   const problems: string[] = [];
+  const limitations: string[] = [];
   const page = query(target, SMOKE_PAGE);
   const body = Number(page.find((r) => r.kind === "body")?.n ?? 0);
   const foot = Number(page.find((r) => r.kind === "foot")?.n ?? 0);
@@ -225,14 +255,27 @@ export function smoke(
     problems.push("j1 h200 tidak punya paragraf badan, catatan kaki, atau penanda tertaut");
   }
   if (!search) {
-    problems.push(`skema korpus ${meta.schema_version ?? "?"} belum punya indeks pencarian (S11)`);
+    limitations.push(
+      `skema korpus ${meta.schema_version ?? "?"} belum punya indeks pencarian (S11)`,
+    );
   } else if (Number(query(target, SMOKE_SEARCH)[0]?.n ?? 0) === 0) {
     problems.push("indeks passage_fts tidak mengenai الصبر (indeks kosong atau tidak sinkron)");
   }
   if (!quran) {
-    problems.push(`skema korpus ${meta.schema_version ?? "?"} belum punya tabel ayat (S12)`);
+    limitations.push(`skema korpus ${meta.schema_version ?? "?"} belum punya tabel ayat (S12)`);
   } else if (counts.quran_ayah === 0 || counts.passage_ayah_ref === 0) {
     problems.push("tabel quran_ayah atau passage_ayah_ref kosong");
+  }
+  if (!latin) {
+    limitations.push(
+      `skema korpus ${meta.schema_version ?? "?"} belum punya indeks terjemahan Indonesia (S14)`,
+    );
+  } else if (counts.translation > 0) {
+    // Korpus tanpa terjemahan (sebelum S13) memang tidak punya isi indeks Indonesia.
+    const [tr, sm] = SMOKE_LATIN.map((sql) => Number(query(target, sql)[0]?.n ?? 0));
+    if (tr === 0 || (counts.summary > 0 && sm === 0)) {
+      problems.push('indeks translation_fts/summary_fts tidak mengenai "sabar"');
+    }
   }
   if (expect !== undefined) {
     for (const t of COUNTED) {
@@ -244,7 +287,7 @@ export function smoke(
       if (meta[k] !== v) problems.push(`meta.${k} = ${meta[k] ?? "(tidak ada)"}, build ${v}`);
     }
   }
-  return { counts, meta, problems };
+  return { counts, meta, problems, limitations };
 }
 
 export function formatCounts(counts: Record<string, number>): string {

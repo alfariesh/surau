@@ -164,12 +164,13 @@ test("label rujukan ayat membuka teks ayat dan terjemahan Kemenag dengan atribus
   // Nama aksesibel diawali label yang terlihat (WCAG 2.5.3).
   const chip = page.getByRole("button", { name: /^QS 27:90: rujukan ayat QS An-Naml \[27\]: 90,/ });
   await expect(chip).toBeVisible();
-  // Label tampil lewat CSS, tidak ikut teks yang disalin.
-  expect(await page.locator(".reader-text").innerText()).not.toContain("QS 27:90");
+  // Label tampil lewat CSS, tidak ikut teks Arab yang disalin.
+  const arabic = await page.locator(".reader-text .arabic-text").allInnerTexts();
+  expect(arabic.join("\n")).not.toContain("QS 27:90");
   await chip.click();
   // Kutipan hanya sebagian ayat: terjemahan yang tampil adalah ayat lengkap, berlabel demikian.
-  await expect(page.getByText("Terjemahan ayat lengkap (Kemenag)")).toBeVisible();
-  await expect(page.getByText("Kitab mengutip sebagian ayat ini.")).toBeVisible();
+  const card = page.getByRole("dialog").filter({ hasText: "Kitab mengutip sebagian ayat ini." });
+  await expect(card.getByText("Terjemahan ayat lengkap (Kemenag)")).toBeVisible();
   await expect(page.getByRole("link", { name: /Buka ayat ini di Tanzil/ })).toHaveAttribute(
     "href",
     "https://tanzil.net/#27:90",

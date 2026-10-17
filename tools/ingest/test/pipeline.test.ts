@@ -41,7 +41,10 @@ describe("runIngest (kitab buatan)", () => {
       summary: 0,
       term_stat: 23,
       passage_fts: 18,
-      meta: 5,
+      // Indeks Indonesia (S14): kosong karena kitab buatan tanpa terjemahan/ringkasan AI.
+      translation_fts: 0,
+      summary_fts: 0,
+      meta: 6,
     });
 
     const db = open(r.output?.sqlite ?? "");
@@ -54,6 +57,7 @@ describe("runIngest (kitab buatan)", () => {
     expect(q("SELECT key, value FROM meta ORDER BY key")).toEqual([
       { key: "built_at", value: "2025-10-09T08:53:20.000Z" },
       { key: "corpus_version", value: "uji-v1" },
+      { key: "latin_norm_version", value: "1" },
       { key: "norm_version", value: "1" },
       { key: "schema_version", value: String(CORPUS_SCHEMA_VERSION) },
       { key: "source_hash", value: expect.stringMatching(/^sha256:[0-9a-f]{64}$/) },

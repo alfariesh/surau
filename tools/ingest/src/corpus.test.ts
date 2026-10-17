@@ -6,6 +6,7 @@ import { describe, expect, test } from "vite-plus/test";
 import {
   isProtected,
   readProductionCorpus,
+  readSearchCacheCorpus,
   recordedCorpora,
   setProductionCorpus,
   stagingCorpus,
@@ -15,6 +16,7 @@ import { WEB_CONFIG, repo } from "./d1.ts";
 const STAGING_ID = "ffc5ce9a-2b5a-4d09-8487-922ff0e67827";
 
 const SAMPLE = `{
+  "vars": { "SEARCH_CACHE_CORPUS": "surau-corpus-staging" },
   "d1_databases": [
     {
       "binding": "CORPUS_DB",
@@ -26,6 +28,7 @@ const SAMPLE = `{
     { "binding": "APP_DB", "database_name": "surau-app", "database_id": "app-id" },
   ],
   "previews": {
+    "vars": { "SEARCH_CACHE_CORPUS": "" },
     "d1_databases": [
       {
         "binding": "CORPUS_DB",
@@ -41,9 +44,11 @@ describe("binding korpus produksi", () => {
     expect(readProductionCorpus(SAMPLE)).toEqual({ name: "surau-corpus-staging", id: STAGING_ID });
     const next = setProductionCorpus(SAMPLE, { name: "surau-corpus-ihya-v1", id: "new-id" });
     expect(readProductionCorpus(next)).toEqual({ name: "surau-corpus-ihya-v1", id: "new-id" });
-    // Hanya dua nilai yang berubah; sisanya (komentar, ID lokal, blok previews) identik.
+    // Versi korpus kunci cache pencarian ikut berganti (S14).
+    expect(readSearchCacheCorpus(next)).toBe("surau-corpus-ihya-v1");
+    // Hanya tiga nilai yang berubah; sisanya (komentar, ID lokal, blok previews) identik.
     expect(
-      next.replace("surau-corpus-ihya-v1", "surau-corpus-staging").replace("new-id", STAGING_ID),
+      next.replaceAll("surau-corpus-ihya-v1", "surau-corpus-staging").replace("new-id", STAGING_ID),
     ).toBe(SAMPLE);
     expect(next.slice(next.indexOf('"previews"'))).toBe(SAMPLE.slice(SAMPLE.indexOf('"previews"')));
   });
@@ -60,9 +65,20 @@ describe("binding korpus produksi", () => {
     expect(() => readProductionCorpus(dup)).toThrow(/tepat satu/);
   });
 
+  test("SEARCH_CACHE_CORPUS wajib tepat satu di top-level", () => {
+    expect(() =>
+      setProductionCorpus(
+        SAMPLE.replace('"SEARCH_CACHE_CORPUS": "surau-corpus-staging"', '"X": ""'),
+        { name: "a", id: "b" },
+      ),
+    ).toThrow(/SEARCH_CACHE_CORPUS/);
+  });
+
   test("apps/web/wrangler.jsonc: produksi punya ID eksplisit, lokal + Preview tetap korpus staging", () => {
     const text = readFileSync(join(repo, WEB_CONFIG), "utf8");
     const prod = readProductionCorpus(text);
+    // Kunci cache pencarian = korpus produksi yang sedang dipakai (S14, ADR-044).
+    expect(readSearchCacheCorpus(text)).toBe(prod.name);
     expect(prod.name).toMatch(/^surau-corpus-/);
     expect(prod.id).toMatch(/^[0-9a-f-]{36}$/);
     const head = text.slice(0, text.indexOf('"previews"'));

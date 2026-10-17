@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { NORM_VERSION, normalizeArabic } from "@surau/text";
+import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 
 import { buildSqlite } from "./build-sqlite.ts";
 import { buildDigest } from "./corpus.ts";
@@ -25,7 +25,7 @@ import { openitiReport, validationReport } from "./report.ts";
 import type { ReportContext } from "./report.ts";
 import { TABLE_ORDER, buildRows } from "./rows.ts";
 import type { CorpusRows } from "./rows.ts";
-import { ftsRows, termStats } from "./search-index.ts";
+import { ftsRows, latinFtsRows, termStats } from "./search-index.ts";
 import type { FtsRow } from "./search-index.ts";
 import { parsePage } from "./shamela/page.ts";
 import type { ParsedPage } from "./shamela/page.ts";
@@ -175,6 +175,7 @@ function rowsFor(
     ids,
     meta: {
       normVersion: NORM_VERSION,
+      latinNormVersion: LATIN_NORM_VERSION,
       builtAt: buildTimestamp(paths.repo, env),
       sourceHash: `sha256:${source.sha256}`,
     },
@@ -304,11 +305,13 @@ export function runIngest(
   if (!validation.ok) return { validation, ayat: ayat.stats };
 
   mkdirSync(sqlDir, { recursive: true });
-  const files = emitSql(rows, fts);
+  const files = emitSql(rows, fts, latinFtsRows(rows.translation, rows.summary));
   for (const f of files) writeFileSync(join(sqlDir, f.name), f.content);
   const { counts } = buildSqlite(sqlitePath, paths.migrations, files, [
     ...TABLE_ORDER,
     "passage_fts",
+    "translation_fts",
+    "summary_fts",
   ]);
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());

@@ -38,8 +38,10 @@ function main(mode: string | undefined): number {
 
   const s = smoke(target, build);
   console.info(`Jumlah baris: ${formatCounts(s.counts)}`);
-  if (s.problems.length > 0) {
-    for (const p of s.problems) console.error(`Smoke GAGAL: ${p}`);
+  // Build selalu dibuat kode ini, jadi skemanya terbaru: batasan skema = kegagalan.
+  const failed = [...s.problems, ...s.limitations];
+  if (failed.length > 0) {
+    for (const p of failed) console.error(`Smoke GAGAL: ${p}`);
     return 1;
   }
   console.info(`Korpus ${target.label} siap (${s.meta.corpus_version ?? "?"}).`);

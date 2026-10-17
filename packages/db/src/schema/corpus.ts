@@ -236,17 +236,25 @@ export const corpusMeta = z.object({
   corpus_version: z.string().optional(),
   built_at: z.string().optional(),
   source_hash: z.string().optional(),
+  /** `LATIN_NORM_VERSION` @surau/text saat indeks Indonesia dibangun (skema ≥ 6, S14). */
+  latin_norm_version: z.coerce.number().int().positive().optional(),
 });
 export type CorpusMeta = z.infer<typeof corpusMeta>;
 
 /** Versi skema korpus yang dibuat migrasi di repo ini (= nilai `meta.schema_version` terbaru). */
-export const CORPUS_SCHEMA_VERSION = 5;
+export const CORPUS_SCHEMA_VERSION = 6;
 
 /** Skema korpus pertama yang punya indeks `passage_fts` terisi dan `term_stat` (S11, migrasi 0004). */
 export const SEARCH_SCHEMA_VERSION = 4;
 
 /** Skema korpus pertama yang punya tabel Qur'an dan `passage_ayah_ref` (S12, migrasi 0005). */
 export const QURAN_SCHEMA_VERSION = 5;
+
+/**
+ * Skema korpus pertama yang punya indeks Indonesia `translation_fts`/`summary_fts` dan indeks
+ * `toc_node_start` (S14, migrasi 0006).
+ */
+export const LATIN_SEARCH_SCHEMA_VERSION = 6;
 
 /** Tabel biasa korpus → skema barisnya (passage_fts tidak termasuk: tabel virtual turunan). */
 export const corpusTables = {

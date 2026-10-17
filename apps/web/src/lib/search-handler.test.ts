@@ -5,14 +5,35 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { SearchDeps } from "./search-handler";
 
-import { handleSearch } from "./search-handler";
+import { SEARCH_CACHE_TTL, handleSearch } from "./search-handler";
+
+/** Cache API tiruan (Map) yang mencatat put. */
+function memoryCache() {
+  const store = new Map<string, Response>();
+  const puts: string[] = [];
+  return {
+    store,
+    puts,
+    cache: {
+      match: async (key: string) => store.get(key)?.clone(),
+      put: (key: string, response: Response) => {
+        puts.push(key);
+        store.set(key, response);
+      },
+    },
+  };
+}
 
 const BASE = "https://surau.example/api/search";
 
 const VIEW: SearchView = {
   query: "الصبر",
   terms: ["صبر"],
+  latin_terms: [],
+  paths: ["arabic"],
+  fusion: null,
   edition_id: null,
+  section_id: null,
   ranked: true,
   warning: null,
   common_terms: [],
@@ -39,6 +60,7 @@ function deps(over: Partial<SearchDeps> = {}) {
       calls.push({ query, opts });
       return { ...VIEW, query };
     },
+    cache: null,
     ...over,
   };
   return { d, calls, keys };
@@ -50,14 +72,19 @@ describe("handleSearch", () => {
   it("meneruskan kueri dan opsi ke searchText; JSON + no-store", async () => {
     const { d, calls, keys } = deps();
     const res = await handleSearch(
-      get(`q=${encodeURIComponent("الصبر")}&edition=1&limit=5&offset=10&expand=1&utm=x`),
+      get(
+        `q=${encodeURIComponent("الصبر")}&edition=1&section=100002&limit=5&offset=10&expand=1&utm=x`,
+      ),
       d,
     );
     expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("no-store");
     expect(((await res.json()) as SearchView).query).toBe("الصبر");
     expect(calls).toEqual([
-      { query: "الصبر", opts: { edition_id: 1, limit: 5, offset: 10, expand: true } },
+      {
+        query: "الصبر",
+        opts: { edition_id: 1, section_id: 100002, limit: 5, offset: 10, expand: true },
+      },
     ]);
     // Kunci rate limit = HMAC, bukan IP mentah.
     expect(keys).toHaveLength(1);
@@ -120,5 +147,45 @@ describe("handleSearch", () => {
     await expect(
       handleSearch(get("q=x"), deps({ search: () => Promise.reject(new Error("D1 mati")) }).d),
     ).rejects.toThrow("D1 mati");
+  });
+
+  it("cache: miss menyimpan salinan s-maxage; hit (rencana sama) tanpa D1 dan tanpa limiter", async () => {
+    const mem = memoryCache();
+    const { d, calls, keys } = deps({ cache: { store: mem.cache, corpus: "surau-corpus-uji-v1" } });
+    const miss = await handleSearch(get("q=Sabar"), d);
+    expect(miss.headers.get("x-surau-cache")).toBe("miss");
+    expect(miss.headers.get("cache-control")).toBe("no-store");
+    expect(mem.puts).toHaveLength(1);
+    expect(mem.puts[0]).toMatch(/^https:\/\/surau\.example\/__cache\/search\/[0-9a-f]{64}$/);
+    expect(mem.store.get(mem.puts[0] ?? "")?.headers.get("cache-control")).toBe(
+      `public, s-maxage=${SEARCH_CACHE_TTL}`,
+    );
+    // Kunci tidak memuat teks kueri.
+    expect(mem.puts[0]).not.toContain("sabar");
+
+    const hit = await handleSearch(get("q=kesabaran"), d);
+    expect(hit.headers.get("x-surau-cache")).toBe("hit");
+    expect(((await hit.json()) as SearchView).query).toBe("kesabaran");
+    expect(calls).toHaveLength(1);
+    expect(keys).toHaveLength(1);
+
+    // Versi korpus lain = kunci lain.
+    const other = deps({ cache: { store: mem.cache, corpus: "surau-corpus-uji-v2" } });
+    expect((await handleSearch(get("q=sabar"), other.d)).headers.get("x-surau-cache")).toBe("miss");
+  });
+
+  it("cache: error core dan kueri kosong tidak disimpan", async () => {
+    const mem = memoryCache();
+    const failing = deps({
+      cache: { store: mem.cache, corpus: "v" },
+      search: async () => {
+        throw new Unavailable("x");
+      },
+    });
+    expect((await handleSearch(get("q=sabar"), failing.d)).status).toBe(503);
+    const empty = deps({ cache: { store: mem.cache, corpus: "v" } });
+    const res = await handleSearch(get("q=yang"), empty.d);
+    expect(res.headers.get("x-surau-cache")).toBeNull();
+    expect(mem.puts).toEqual([]);
   });
 });

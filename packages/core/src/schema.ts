@@ -15,6 +15,8 @@ import {
   needsReviewReason,
   passageKind,
   quranSourceKind,
+  reviewStatus,
+  searchPathName,
 } from "@surau/db";
 import { z } from "zod";
 
@@ -76,6 +78,52 @@ export const citation = z
   .strictObject({ source: citationSource, ...location.shape })
   .describe("Full citation: work, edition, volume, page, permalink, license and attribution");
 export type Citation = z.infer<typeof citation>;
+
+// ── Bagian daftar isi (rujukan) ─────────────────────────────────────────────────────────
+
+export const tocNodeRef = z.strictObject({
+  id: id.describe("Stable table-of-contents node id"),
+  title_ar: z.string(),
+  level: id,
+  permalink: z.string().describe("Section permalink path, e.g. /kitab/ihya/bab/100074"),
+});
+export type TocNodeRef = z.infer<typeof tocNodeRef>;
+
+// ── Terjemahan dan ringkasan AI (S13, S14) ─────────────────────────────────────────────────
+
+/** Metadata teks buatan model: selalu berlabel, dengan model, versi prompt, dan status tinjauan. */
+const aiTextMeta = {
+  lang: z.string().describe('Language of the AI text, e.g. "id" (Indonesian)'),
+  model: z.string().describe("Model that wrote the text, e.g. claude-haiku-5-5"),
+  prompt_version: z.string().describe("Versioned prompt used, e.g. translate-passage@2"),
+  created_at: z.string(),
+  review_status: reviewStatus.describe(
+    "ai_generated = not reviewed by a human; reviewed / ustadz_verified / rejected after review",
+  ),
+};
+
+export const translationView = z
+  .strictObject({
+    label: z.literal("ai_translation").describe('Always shown as "AI translation"'),
+    ...aiTextMeta,
+    text: z
+      .string()
+      .describe(
+        "AI translation of text_raw. Placeholders ⟦QS s:a⟧ / ⟦QS s:a-b⟧ mark Quran quotations: render them from the official Kemenag translation (`quran`), never as model text",
+      ),
+  })
+  .describe("Machine translation of a passage, labelled as AI (never a verified translation)");
+export type TranslationView = z.infer<typeof translationView>;
+
+export const summaryView = z
+  .strictObject({
+    label: z.literal("ai_summary").describe('Always shown as "AI summary"'),
+    section: tocNodeRef.describe("The table-of-contents section summarized"),
+    ...aiTextMeta,
+    text: z.string().describe("AI summary of the section and its subsections"),
+  })
+  .describe("Machine summary of a table-of-contents section, labelled as AI");
+export type SummaryView = z.infer<typeof summaryView>;
 
 // ── Paragraf ─────────────────────────────────────────────────────────────────────────────
 
@@ -144,6 +192,12 @@ export const passage = z.strictObject({
     .array(needsReviewReason)
     .describe("Ingest flags that this passage needs human review; not a review result"),
   location,
+  translation: translationView
+    .nullable()
+    .optional()
+    .describe(
+      "AI translation (Indonesian) of this passage; present in read_page (null when none), absent elsewhere",
+    ),
 });
 export type Passage = z.infer<typeof passage>;
 
@@ -224,18 +278,16 @@ export const pageView = z.strictObject({
   quran: quranView
     .nullable()
     .describe("Ayat quoted on this page (see ayah_refs); null when none or unavailable"),
+  summaries: z
+    .array(summaryView)
+    .optional()
+    .describe(
+      "AI summaries (Indonesian) of the sections that start on this page, in table-of-contents order",
+    ),
 });
 export type PageView = z.infer<typeof pageView>;
 
 // ── Daftar isi ───────────────────────────────────────────────────────────────────────────
-
-export const tocNodeRef = z.strictObject({
-  id: id.describe("Stable table-of-contents node id"),
-  title_ar: z.string(),
-  level: id,
-  permalink: z.string().describe("Section permalink path, e.g. /kitab/ihya/bab/100074"),
-});
-export type TocNodeRef = z.infer<typeof tocNodeRef>;
 
 export type TocNode = TocNodeRef & {
   ord: number;
@@ -321,7 +373,7 @@ export type WorkView = z.infer<typeof workView>;
 export const workList = z.strictObject({ works: z.array(workView) });
 export type WorkList = z.infer<typeof workList>;
 
-// ── Pencarian (S11) ──────────────────────────────────────────────────────────────────────
+// ── Pencarian (S11, S14) ─────────────────────────────────────────────────────────────────
 
 /** Rentang di `text_raw`: indeks string JS, akhir eksklusif (sama dengan `footnote_refs`). */
 export const textSpan = z
@@ -331,6 +383,61 @@ export const textSpan = z
   })
   .describe("Span in the passage's text_raw (JS string index, end exclusive)");
 export type TextSpan = z.infer<typeof textSpan>;
+
+/** Rentang di teks AI (terjemahan/ringkasan), bukan di `text_raw`. */
+const aiTextSpan = z
+  .strictObject({
+    char_start: z.number().int().nonnegative(),
+    char_end: z.number().int().nonnegative(),
+  })
+  .describe("Span in the AI text (JS string index, end exclusive)");
+
+const aiSnippet = z
+  .strictObject({ ...aiTextSpan.shape, text: z.string() })
+  .describe(
+    "Excerpt of the AI text (~240 characters) around the first match (or from the start), cut at word boundaries and never inside a ⟦QS s:a⟧ placeholder",
+  );
+
+export const searchPath = searchPathName.describe(
+  "arabic = Arabic text index; translation = AI translation index; summary = AI section summary index",
+);
+export type SearchPath = z.infer<typeof searchPath>;
+
+export const searchMatch = z.strictObject({
+  path: searchPath,
+  rank: id
+    .nullable()
+    .describe("Rank of this passage (or its section) in that path, 1 = best; null when unranked"),
+  all_terms: z
+    .boolean()
+    .describe(
+      "Every query word matched; false = only some words (fallback when few passages match them all)",
+    ),
+});
+export type SearchMatch = z.infer<typeof searchMatch>;
+
+export const searchTranslation = z
+  .strictObject({
+    label: z.literal("ai_translation").describe('Always shown as "AI translation"'),
+    ...aiTextMeta,
+    highlights: z
+      .array(aiTextSpan)
+      .describe("Matches of the Indonesian query words in the translation text (at most 50)"),
+    snippet: aiSnippet,
+  })
+  .describe("The passage's AI translation (excerpt), labelled as AI");
+export type SearchTranslation = z.infer<typeof searchTranslation>;
+
+export const searchSummary = z
+  .strictObject({
+    label: z.literal("ai_summary").describe('Always shown as "AI summary"'),
+    section: tocNodeRef.describe("Section whose AI summary matched; this passage starts it"),
+    ...aiTextMeta,
+    highlights: z.array(aiTextSpan).describe("Matches in the summary text (at most 50)"),
+    snippet: aiSnippet,
+  })
+  .describe("AI summary of the section this passage starts, when the summary matched");
+export type SearchSummary = z.infer<typeof searchSummary>;
 
 export const searchHit = z.strictObject({
   id: id.describe("Stable passage id"),
@@ -343,17 +450,28 @@ export const searchHit = z.strictObject({
   score: z
     .number()
     .nullable()
-    .describe("BM25 relevance of this passage (higher = better); null when results are unranked"),
+    .describe(
+      "Relevance of this passage (higher = better): BM25 for Arabic-only queries, Reciprocal Rank Fusion over the paths otherwise; null when results are unranked",
+    ),
   highlights: z
     .array(textSpan)
     .describe(
-      "Matches in text_raw in order (at most 50); text_raw.slice(char_start, char_end) is verbatim source text with its diacritics",
+      "Arabic matches in text_raw in order (at most 50); text_raw.slice(char_start, char_end) is verbatim source text with its diacritics. Empty when only the Indonesian paths matched",
     ),
   snippet: z
     .strictObject({ ...textSpan.shape, text: z.string() })
     .describe(
-      "Excerpt of text_raw (~160 characters) around the first match, cut at word boundaries; text = text_raw.slice(char_start, char_end), verbatim",
+      "Excerpt of text_raw (~160 characters) around the first Arabic match (or from the start), cut at word boundaries; text = text_raw.slice(char_start, char_end), verbatim",
     ),
+  matched_by: z
+    .array(searchMatch)
+    .describe("Which search paths found this passage, with its rank in each (explains the score)"),
+  translation: searchTranslation
+    .nullable()
+    .describe("AI translation of the passage (excerpt); null when the passage has none"),
+  summary: searchSummary
+    .nullable()
+    .describe("AI summary of the section this passage starts, when the summary path matched"),
 });
 export type SearchHit = z.infer<typeof searchHit>;
 
@@ -379,17 +497,41 @@ export const searchView = z.strictObject({
   terms: z
     .array(z.string())
     .describe(
-      "Normalized query words as searched (article and the conjunction/preposition attached to it removed); clitic variants are matched too",
+      "Normalized Arabic query words as searched (article and the conjunction/preposition attached to it removed); clitic variants are matched too",
+    ),
+  latin_terms: z
+    .array(z.string())
+    .describe(
+      "Indonesian query words as searched: normalized, common function words removed, lightly stemmed (kesabaran → sabar)",
+    ),
+  paths: z
+    .array(searchPath)
+    .describe(
+      "Paths searched: Arabic letters → arabic; Latin letters → translation + summary; both → all three",
+    ),
+  fusion: z
+    .strictObject({
+      method: z.literal("rrf"),
+      k: id,
+      depth: id.describe("Top passages per passage path that are fused"),
+      summary_depth: id.describe("Top sections of the summary path that are fused"),
+    })
+    .nullable()
+    .describe(
+      "Reciprocal Rank Fusion settings when Indonesian paths ran (totals count only these candidates); null for Arabic-only queries",
     ),
   edition_id: id.nullable().describe("Edition searched; null = all editions"),
+  section_id: id
+    .nullable()
+    .describe("Section searched (with its subsections); null = whole editions"),
   ranked: z
     .boolean()
     .describe("False when the query has only very common words: first matches in book order"),
   warning: z
-    .enum(["common_terms"])
+    .enum(["common_terms", "common_terms_ignored"])
     .nullable()
     .describe(
-      "common_terms = every query word matches a very common word (e.g. الله), so results are unranked; add a more specific word",
+      "common_terms = every query word matches a very common word (e.g. الله), so results are unranked; add a more specific word. common_terms_ignored = the Arabic words of a mixed query were all very common and were not searched; results come from the Indonesian words",
     ),
   common_terms: z
     .array(z.strictObject({ term: z.string(), passage_count: id }))
@@ -401,7 +543,9 @@ export const searchView = z.strictObject({
     .int()
     .nonnegative()
     .nullable()
-    .describe("Matching pages in total; null when unranked or past the last page"),
+    .describe(
+      "Matching pages in total (within the fused candidates when `fusion` is set); null when unranked or past the last page",
+    ),
   total_hits: z
     .number()
     .int()
@@ -465,11 +609,18 @@ export const searchTextInput = z.strictObject({
     .string()
     .min(1)
     .max(SEARCH_QUERY_MAX)
-    .describe("Arabic query, with or without diacritics; a word or an exact phrase"),
+    .describe(
+      "Arabic query (with or without diacritics; a word or an exact phrase) and/or Indonesian words (searched in the AI translations and summaries)",
+    ),
   edition_id: id
     .max(EDITION_ID_MAX)
     .optional()
     .describe("Search only this edition; default: all editions"),
+  section_id: id
+    .optional()
+    .describe(
+      "Search only this table-of-contents section and its subsections (e.g. one rub' or kitab of Ihya)",
+    ),
   limit: z
     .number()
     .int()
@@ -487,7 +638,7 @@ export const searchTextInput = z.strictObject({
   expand: z
     .boolean()
     .default(false)
-    .describe("One-word queries: also match suffixed forms (صبره, صبرهم, نيته)"),
+    .describe("One-word Arabic queries: also match suffixed forms (صبره, صبرهم, نيته)"),
 });
 export type SearchTextInput = z.input<typeof searchTextInput>;
 

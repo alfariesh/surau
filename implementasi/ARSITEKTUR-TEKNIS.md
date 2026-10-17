@@ -60,7 +60,7 @@ Folder dibuat saat sesi yang membutuhkannya. Jangan membuat paket kosong lebih a
 
 ### 3.1 Korpus (`surau-corpus-<versi>`, hanya-baca)
 
-Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), ditambah `0002_passage_needs_review.sql` dan `0003_needs_review_reasons.sql` (S07, ADR-032) dan `0004_term_stat.sql` (S11, ADR-039). Nama DB: `surau-corpus-staging` (sekarang) dan `surau-corpus-<versi>` blue-green (S10). Prinsipnya: **teks mentah tidak pernah diubah**, ID stabil setelah rilis, dan FTS adalah indeks turunan yang bisa dibangun ulang. Semua tabel biasa `STRICT`, dan enum serta formula ID dijaga `CHECK`. Urutan tampil tidak pernah diambil dari ID.
+Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), ditambah `0002_passage_needs_review.sql` dan `0003_needs_review_reasons.sql` (S07, ADR-032), `0004_term_stat.sql` (S11, ADR-039), `0005_quran.sql` (S12, ADR-040), dan `0006_translation_fts.sql` (S14, ADR-044). Nama DB: `surau-corpus-staging` (sekarang) dan `surau-corpus-<versi>` blue-green (S10). Prinsipnya: **teks mentah tidak pernah diubah**, ID stabil setelah rilis, dan FTS adalah indeks turunan yang bisa dibangun ulang. Semua tabel biasa `STRICT`, dan enum serta formula ID dijaga `CHECK`. Urutan tampil tidak pernah diambil dari ID.
 
 | Tabel | Kolom utama | Catatan |
 |---|---|---|
@@ -76,8 +76,9 @@ Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), di
 | `term_stat` | `term`, `df` | Migrasi 0004 (S11, ADR-039). Stem di >10% paragraf (dari `fts5vocab`): pengaman kata umum `searchText`. Turunan indeks, diisi ulang setiap pemuatan |
 | `translation` | `passage_id`, `lang`, `text`, `model`, `prompt_version`, `created_at`, `review_status` (`ai_generated`/`reviewed`/`ustadz_verified`/`rejected`) | Fase 2, berlabel "terjemahan AI" |
 | `summary` | `toc_node_id`, `lang`, `text`, `model`, `prompt_version`, … | Fase 2, berlabel "ringkasan AI" |
+| `translation_fts`, `summary_fts` | FTS5 contentless: `terms` | Migrasi 0006 (S14, ADR-044, skema 6). rowid = `passage_id` / `toc_node_id`, hanya bahasa `id`. `terms` = `latinIndexText` (@surau/text: token Latin, tanpa kata fungsi, ejaan baku, stem ringan) dari teks AI tanpa placeholder ayat; `unicode61 remove_diacritics 2`. Juga indeks `toc_node_start` (ringkasan per halaman) |
 | `quran_source`, `quran_surah`, `quran_ayah`, `quran_translation`, `passage_ayah_ref` | sumber (versi, lisensi, atribusi, sha256); surah; ayah: teks Tanzil (indeks + tampilan), juz; terjemahan + transliterasi Kemenag (catatan kaki JSON); rujukan ayat di paragraf (`exact`/`similar`, `partial`, `bracketed`, `alt_count`) | Fase 2 (S12, migrasi 0005, skema 5). Teks dan terjemahan verbatim (ADR-020, ADR-040) |
-| `meta` | `key`, `value` | `schema_version` (diisi migrasi, sekarang **4**), lalu `norm_version`, `corpus_version`, `built_at` (`SOURCE_DATE_EPOCH`/tanggal commit HEAD), `source_hash` (`sha256:<file sumber>`) (diisi ingest) |
+| `meta` | `key`, `value` | `schema_version` (diisi migrasi, sekarang **6**), lalu `norm_version`, `latin_norm_version` (S14), `corpus_version`, `built_at` (`SOURCE_DATE_EPOCH`/tanggal commit HEAD), `source_hash` (`sha256:<file sumber>`) (diisi ingest) |
 
 **Teks ternormalisasi tidak disimpan** di tabel. `normalizeArabic(text_raw)` beserta peta offsetnya dihitung ulang saat dibutuhkan (deterministik terhadap `NORM_VERSION`, ±7 juta karakter/detik). Bentuk normal dan stem hanya ada di indeks `passage_fts` (ADR-009).
 
@@ -107,7 +108,7 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 | `getToc(editionId, { nodeId?, depth? })` | `get_table_of_contents` | 1 | Pohon daftar isi beserta halaman awal; `depth` bawaan 2, `child_count` untuk anak yang tidak dikirim |
 | `readSection(nodeId, cursor?)` | `read_section` | 1 | Paragraf bagian **beserta sub-bagiannya** (dipaginasi ±4–6 ribu token per blok paragraf + catatan kakinya), sitasi |
 | `readPage(editionId, juz, pageNo)` | `read_page` | 1 | Satu halaman cetak beserta catatan kakinya dan halaman sebelum/sesudah |
-| `searchText(query, opts)` | `search_text` | 2 | Halaman berperingkat BM25 dengan paragraf cocok, span sorotan dan potongan di teks mentah, sitasi; pengaman kata umum (S11, ADR-039). Terjemahan menyusul (S14) |
+| `searchText(query, opts)` | `search_text` | 2 | Kueri Arab: halaman berperingkat BM25 (S11, ADR-039). Kueri Indonesia/campuran: gabungan RRF jalur Arab + terjemahan AI + ringkasan AI (S14, ADR-044). Paragraf cocok dengan span sorotan dan potongan di teks mentah, terjemahan/ringkasan berlabel, `matched_by`, sitasi; filter edisi/bagian; pengaman kata umum |
 | `verifyQuote(passageId, quote)` | `verify_quote` | 2 | `findQuote` → substring mentah verbatim atau `null` |
 | `getHadithTakhrij(passageId)` | `get_hadith_takhrij` | 3 | Teks catatan kaki takhrij asli yang ditautkan, dengan status review |
 | `buildCitation(passageId)` | (di setiap hasil) | 1 | Karya, edisi, juz, halaman, permalink, lisensi/atribusi |
@@ -116,7 +117,7 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 
 **Pembaca (Fase 1):** request `/kitab/ihya/1/200` → server component memanggil `readPage` → render `ArabicText` dari `text_raw`, dengan penanda (١) yang bisa diklik untuk membuka takhrij. Halaman di-cache ISR on-demand (`revalidate=false`), karena konten kitab tidak berubah per versi korpus.
 
-**Cari (Fase 2):** query (Arab atau Indonesia; skrip dideteksi) → `buildFtsMatch` (Arab) dan/atau FTS atas terjemahan Indonesia → gabung dengan RRF → tampilkan potongan mentah yang disorot + terjemahan AI + lokasi. Query yang hanya berisi kata sangat umum diberi peringatan atau wajib difilter. Jalur Arab sudah ada (S11): `GET /api/search?q=&edition=&limit=&offset=&expand=1` → `searchText` (satu bolak-balik D1: konteks + kueri berperingkat + kueri urutan kitab dalam satu batch, pengaman kata umum di ekspresi MATCH), header `Server-Timing`, batas `SEARCH_LIMITER` per klien; korpus tanpa indeks (skema < 4) → 503.
+**Cari (Fase 2):** halaman `/cari` (klien) → `GET /api/search?q=&edition=&section=&limit=&offset=&expand=1` → cache hasil (Cache API, kunci = versi korpus `SEARCH_CACHE_CORPUS` + rencana kueri ternormalisasi; produksi saja) → batas `SEARCH_LIMITER` per klien → `searchText`. Aksara kueri dideteksi: Arab saja → jalur S11 (bm25 `passage_fts`, pengaman kata umum, satu batch); Latin/campuran → `searchCorpusFused` (S14, ADR-044): jalur Arab + `translation_fts` + `summary_fts` (ringkasan dipetakan ke paragraf awal bagiannya) digabung RRF k=60 dalam satu batch. Hasil: potongan mentah yang disorot + terjemahan/ringkasan AI berlabel + lokasi; tautan ke pembaca membawa `?q=` (sorotan klien lewat CSS Highlight API). Korpus tanpa indeks yang dibutuhkan → 503 (Arab: skema < 4; Indonesia: skema < 6). Palet ⌘K di shell membuka `/cari`.
 
 **Jawab (Fase 4):**
 1. Guard: sakelar, cookie Turnstile, burst, kuota, dan reservasi anggaran.

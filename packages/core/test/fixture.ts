@@ -7,7 +7,13 @@
 // berisi catatan kaki. Tidak ada teks kitab (KONVENSI §Tes).
 import { pageId, passageId, tocNodeId } from "@surau/db";
 import type { D1Db } from "@surau/db";
-import { NORM_VERSION, normalizeArabic, stemText } from "@surau/text";
+import {
+  LATIN_NORM_VERSION,
+  NORM_VERSION,
+  latinIndexText,
+  normalizeArabic,
+  stemText,
+} from "@surau/text";
 import { z } from "zod";
 
 import { ED, PASSAGES, seedCorpus } from "../../db/test/fixture.ts";
@@ -169,5 +175,50 @@ export async function seedSearchIndex(db: D1Db, common: readonly string[] = []):
         )
         .bind(r.id, r.kind === "body" ? r.stem : "", r.kind === "foot" ? r.stem : ""),
     ),
+  ]);
+}
+
+// ── Teks AI buatan (S14) ─────────────────────────────────────────────────────────────────
+// Terjemahan dan ringkasan BUATAN (kalimat contoh, bukan terjemahan kitab), beserta indeks
+// Indonesia yang diisi dengan aturan ingest (placeholder ayat dibuang, `latinIndexText`).
+
+/** Kalimat pengisi untuk menguji potongan (snippet) teks AI yang panjang. */
+const FILLER = "Kalimat pengisi yang cukup panjang untuk menguji potongan teks. ";
+
+export const AI_TRANSLATIONS: Readonly<Record<number, string>> = {
+  [PASSAGES.body1]: "Kesabaran adalah cahaya bagi murid yang menuntut ilmu (١) dan adab (٢).",
+  [PASSAGES.body2]: `${FILLER.repeat(3)}Guru yang sabar ⟦QS 1:2-3⟧ mengajarkan adab kepada muridnya.`,
+  [PASSAGES.body3]: "Niat yang ikhlas menjadi dasar amal.",
+};
+
+export const AI_SUMMARIES: Readonly<Record<number, string>> = {
+  [tocNodeId(ED, 1)]: "Bab ini membahas niat dan adab.",
+  [tocNodeId(ED, 2)]: "Pasal tentang sabar dan syukur.",
+};
+
+export async function seedAiText(db: D1Db): Promise<void> {
+  const ai = (table: string, key: string) =>
+    `INSERT INTO ${table} (${key}, lang, text, model, prompt_version, created_at) VALUES (?, 'id', ?, 'model-uji', ?, '2026-10-17')`;
+  const index = (text: string) => latinIndexText(text.replace(/⟦QS [^⟧]*⟧/g, " "));
+  await db.batch([
+    db.prepare("DELETE FROM translation"),
+    db.prepare("DELETE FROM summary"),
+    db.prepare("INSERT INTO translation_fts (translation_fts) VALUES ('delete-all')"),
+    db.prepare("INSERT INTO summary_fts (summary_fts) VALUES ('delete-all')"),
+    db
+      .prepare("INSERT OR REPLACE INTO meta (key, value) VALUES ('latin_norm_version', ?)")
+      .bind(String(LATIN_NORM_VERSION)),
+    ...Object.entries(AI_TRANSLATIONS).flatMap(([id, text]) => [
+      db.prepare(ai("translation", "passage_id")).bind(Number(id), text, "translate-passage@2"),
+      db
+        .prepare("INSERT INTO translation_fts (rowid, terms) VALUES (?, ?)")
+        .bind(Number(id), index(text)),
+    ]),
+    ...Object.entries(AI_SUMMARIES).flatMap(([id, text]) => [
+      db.prepare(ai("summary", "toc_node_id")).bind(Number(id), text, "summarize-section@2"),
+      db
+        .prepare("INSERT INTO summary_fts (rowid, terms) VALUES (?, ?)")
+        .bind(Number(id), index(text)),
+    ]),
   ]);
 }

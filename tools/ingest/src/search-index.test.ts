@@ -1,10 +1,17 @@
 import { resolve } from "node:path";
 
-import type { PassageRow } from "@surau/db";
+import type { PassageRow, SummaryRow, TranslationRow } from "@surau/db";
 import { buildFtsMatch, normalizeArabic, stemText } from "@surau/text";
 import { describe, expect, test } from "vite-plus/test";
 
-import { COMMON_TERM_RATIO, ftsRows, termStats } from "./search-index.ts";
+import {
+  COMMON_TERM_RATIO,
+  aiIndexText,
+  ftsOptimizeSql,
+  ftsRows,
+  latinFtsRows,
+  termStats,
+} from "./search-index.ts";
 
 const migrations = resolve(import.meta.dirname, "../../../packages/db/migrations/corpus");
 
@@ -51,5 +58,59 @@ describe("termStats", () => {
     expect(() => termStats([], migrations, 0)).toThrow(RangeError);
     expect(() => termStats([], migrations, 1)).toThrow(RangeError);
     expect(COMMON_TERM_RATIO).toBe(0.1);
+  });
+});
+
+describe("indeks Indonesia (S14)", () => {
+  const meta = {
+    model: "model-uji",
+    prompt_version: "p@1",
+    created_at: "2026-10-17",
+    review_status: "ai_generated",
+  } as const;
+  const tr = (passage_id: number, lang: string, text: string): TranslationRow => ({
+    passage_id,
+    lang,
+    text,
+    ...meta,
+  });
+  const sm = (toc_node_id: number, lang: string, text: string): SummaryRow => ({
+    toc_node_id,
+    lang,
+    text,
+    ...meta,
+  });
+
+  test("placeholder ayat dan penanda catatan kaki tidak diindeks; stem ringan", () => {
+    expect(aiIndexText("Allah berfirman, ⟦QS 2:153⟧ dan orang yang bersabar (١).")).toBe(
+      "allah firman orang sabar",
+    );
+  });
+
+  test("hanya bahasa id dan bukan rejected, urut rowid", () => {
+    const rows = latinFtsRows(
+      [
+        tr(10_000_002, "id", "Kesabaran"),
+        tr(10_000_001, "id", "Niat"),
+        tr(10_000_001, "en", "Intention"),
+        // Ditolak peninjau: tidak boleh ditemukan lewat pencarian.
+        { ...tr(10_000_003, "id", "Zuhud"), review_status: "rejected" },
+      ],
+      [
+        sm(100_002, "en", "Patience"),
+        sm(100_001, "id", "Ringkasan tentang syukur"),
+        { ...sm(100_003, "id", "Zuhud"), review_status: "rejected" },
+      ],
+    );
+    expect(rows).toEqual({
+      translation: [
+        { rowid: 10_000_001, terms: "niat" },
+        { rowid: 10_000_002, terms: "sabar" },
+      ],
+      summary: [{ rowid: 100_001, terms: "ringkas syukur" }],
+    });
+    expect(ftsOptimizeSql("summary_fts")).toBe(
+      "INSERT INTO summary_fts (summary_fts) VALUES ('optimize');\n",
+    );
   });
 });

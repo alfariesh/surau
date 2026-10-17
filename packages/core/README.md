@@ -16,10 +16,11 @@ Prinsipnya:
 |---|---|---|
 | `listWorks(db)` / `getWork(db, slug)` | `list_works` | Karya, penulis, dan edisi (default dulu) dengan lisensi, atribusi, permalink |
 | `getToc(db, editionId, { nodeId?, depth? })` | `get_table_of_contents` | Pohon daftar isi dari akar atau dari satu node, `depth` bawaan 2 (maks. 10). `child_count` menandai anak yang tidak dikirim |
-| `readPage(db, editionId, juz, pageNo)` | `read_page` | Satu halaman cetak: `body`, `footnotes`, tautan penanda → catatan kaki, halaman sebelum/sesudah, `source_url` (halaman yang sama di Shamela untuk atribusi ADR-018; field tambahan S09), `quran` (ayat yang dikutip di halaman itu, S12) |
+| `readPage(db, editionId, juz, pageNo)` | `read_page` | Satu halaman cetak: `body`, `footnotes`, tautan penanda → catatan kaki, halaman sebelum/sesudah, `source_url` (halaman yang sama di Shamela untuk atribusi ADR-018; field tambahan S09), `quran` (ayat yang dikutip di halaman itu, S12), `translation` per paragraf dan `summaries` bagian yang mulai di halaman itu (S14) |
 | `readSection(db, nodeId, cursor?)` | `read_section` | Paragraf bagian **beserta sub-bagiannya**, dipaginasi ±4–6 ribu token dengan `next_cursor` |
 | `buildCitation(db, passageId)` | (di setiap hasil) | Sitasi lengkap satu paragraf |
-| `searchText(db, query, { edition_id?, limit?, offset?, expand? })` | `search_text` | Pencarian Arab (S11): halaman cetak berperingkat bm25 dengan semua paragraf cocok, sorotan dan potongan di `text_raw`. Lihat [Pencarian](#pencarian-searchtext) |
+| `searchText(db, query, { edition_id?, section_id?, limit?, offset?, expand? })` | `search_text` | Pencarian Arab (S11) dan Indonesia (S14): halaman cetak berperingkat dengan paragraf cocok, sorotan dan potongan di `text_raw`, terjemahan/ringkasan AI berlabel, asal kecocokan. Lihat [Pencarian](#pencarian-searchtext) |
+| `searchCacheKey(query, opts)` | (web) | Kunci cache hasil: rencana kueri ternormalisasi + opsi + versi normalisasi; `null` bila kueri tidak sah/kosong (S14) |
 | `getAyahRefs(db, passageId)` | (bahan `read_page`/S16) | Kutipan ayat di satu paragraf + ayat utuh, terjemahan Kemenag, transliterasi, sumber (S12). Lihat [Ayat](#ayat-al-quran-s12) |
 
 Skema Zod masukan (`readPageInput`, `readSectionInput`, `getTocInput`, `getWorkInput`, `buildCitationInput`, `searchTextInput`, `getAyahRefsInput`) dan keluaran (`pageView`, `sectionView`, `tocView`, `workList`, `workView`, `citation`, `passage`, `ayahRef`, `quranView`, `ayahRefsView`, `searchView`) diekspor untuk route, tool MCP, dan tes. `uintSegment` memvalidasi angka dari segmen URL (`/kitab/ihya/1/200`). Semua skema bisa diubah ke JSON Schema (`z.toJSONSchema`), sudah diuji.
@@ -59,6 +60,10 @@ Semuanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 - **Sorotan dan potongan:** `highlights` (maks. 50 per paragraf) dan `snippet` adalah rentang di `text_raw` (indeks string JS, akhir eksklusif, sama dengan `footnote_refs`): `text_raw.slice(char_start, char_end)` selalu teks sumber verbatim dengan harakatnya. `snippet.text` (±160 karakter) dipotong di batas spasi. `text_raw` penuh tidak dikirim: pakai `readPage` atau `location.permalink`.
 - **Kata sangat umum:** bila **setiap** kata kueri mengenai `term_stat` (stem di >10% paragraf, mis. الله, من, قال), termasuk lewat bentuk berklitiknya (سلم → وسلم) atau awalan `expand` (الل → الله), hasilnya `ranked: false` + `warning: "common_terms"`: `limit` **paragraf** pertama dalam urutan kitab (dikelompokkan per halaman; `hit_count` halaman terakhir bisa sebagian), tanpa total dan tanpa halaman lanjut. `common_terms` menyebut kata umum yang dikenai kueri beserta jumlah paragrafnya (juga untuk kueri campuran, yang tetap diranking).
 - **Korpus:** butuh skema korpus ≥ 4 (`SEARCH_SCHEMA_VERSION`, migrasi 0004) dan `meta.norm_version` = `NORM_VERSION`; selain itu `Unavailable`. Filter `edition_id` memakai rentang rowid paragraf.
+- **Bahasa kueri (S14, ADR-044):** huruf Arab saja → jalur Arab di atas (`paths: ["arabic"]`, `fusion: null`). Huruf Latin → kata Indonesia dicari di terjemahan AI (`translation_fts`) dan ringkasan AI (`summary_fts`): token Latin → bentuk normal → tanpa kata fungsi → ejaan baku (taubat = tobat) → stem ringan (kesabaran = sabar), `latin_terms` = stem yang dicari. Semua kata harus ada; bila terjemahan + ringkasan bersama-sama punya < 5 kecocokan semua kata, kecocokan sebagian kata menyusul (`all_terms: false`). Campuran → tiga jalur; bagian Arab yang semua katanya umum tidak dicari (`warning: "common_terms_ignored"`). Butuh skema ≥ 6 dan `meta.latin_norm_version` = `LATIN_NORM_VERSION`, selain itu `Unavailable`.
+- **Gabungan:** Reciprocal Rank Fusion, `score` paragraf = Σ 1/(60 + peringkat) atas 100 paragraf teratas per jalur (ringkasan: 30 bagian teratas, dipetakan ke paragraf awal bagiannya). Halaman = skor paragraf terbaiknya; `total_pages`/`total_hits` dihitung di atas kandidat itu (`fusion`). `matched_by` menjelaskan skor: jalur + peringkat paragraf di jalur itu.
+- **Teks AI di hasil:** `translation` (setiap hasil, juga kueri Arab) dan `summary` (bila jalur ringkasan cocok) membawa label, model, versi prompt, status tinjauan, `highlights` + `snippet` (±240 karakter) di teks AI. Teks terjemahan memuat placeholder `⟦QS s:a⟧` untuk kutipan ayat; potongan tidak pernah memotongnya, dan terjemahan ayatnya adalah Kemenag (lewat `getAyahRefs`/`readPage`), bukan teks model. Hasil yang hanya cocok di jalur Indonesia: `highlights` Arab kosong, `snippet` Arab dari awal paragraf.
+- **Filter bagian:** `section_id` = node daftar isi beserta turunannya (mis. satu rub' atau kitab), berlaku di semua jalur; node tidak ada atau milik edisi lain → `NotFound`.
 - **Biaya D1:** satu bolak-balik (`searchCorpus` @surau/db: konteks + kueri berperingkat + kueri urutan kitab dalam satu `batch`; pengaman ada di ekspresi MATCH sehingga hanya satu yang memindai indeks). Ihya: الصبر ±2.900 baris dibaca, الله (pengaman) ±140 baris termasuk konteks (ADR-039).
 
 ## Contoh keluaran (Ihya, DB lokal)
@@ -394,6 +399,75 @@ Semuanya turunan `CoreError` (`isCoreError`). Pesannya berbahasa Inggris dan han
 ```
 
 `searchText(db, "الله")` → `ranked: false`, `warning: "common_terms"`, `common_terms: [{ "term": "الله", "passage_count": 9242 }]`, `total_pages: null`, `results` = 20 paragraf pertama dalam urutan kitab.
+
+Sejak S14 setiap hasil juga membawa `latin_terms: []`, `paths: ["arabic"]`, `fusion: null`, `section_id: null`, dan per paragraf `matched_by: [{ "path": "arabic", "rank": 1, "all_terms": true }]`, `translation` (potongan dari awal, tanpa sorotan), `summary: null`.
+
+### `searchText(db, "kesabaran", { limit: 1 })` (S14; satu paragraf, potongan diganti `"…"`)
+
+```json
+{
+  "query": "kesabaran",
+  "edition_id": null,
+  "section_id": null,
+  "limit": 1,
+  "terms": [],
+  "latin_terms": ["sabar"],
+  "paths": ["translation", "summary"],
+  "fusion": { "method": "rrf", "k": 60, "depth": 100, "summary_depth": 30 },
+  "ranked": true,
+  "warning": null,
+  "common_terms": [],
+  "total_pages": 71,
+  "total_hits": 114,
+  "offset": 0,
+  "results": [
+    {
+      "citation": { "source": "(sama dengan readPage)", "juz": 4, "page_no": 61, "permalink": "/kitab/ihya/4/61", "label": "Ihya' 'Ulum ad-Din, j. 4, h. 61" },
+      "score": 0.031544957774465976,
+      "hit_count": 4,
+      "hits": [
+        {
+          "id": 10016206,
+          "anchor": "p16206",
+          "kind": "body",
+          "ord": 2,
+          "toc_node_id": 100197,
+          "section": { "id": 100197, "title_ar": "بيان فضيلة الصبر", "level": 4, "permalink": "/kitab/ihya/bab/100197" },
+          "location": { "juz": 4, "page_no": 61, "permalink": "/kitab/ihya/4/61#p16206", "label": "Ihya' 'Ulum ad-Din, j. 4, h. 61" },
+          "score": 0.031544957774465976,
+          "highlights": [],
+          "snippet": { "char_start": 0, "char_end": 89, "text": "…" },
+          "matched_by": [
+            { "path": "translation", "rank": 6, "all_terms": true },
+            { "path": "summary", "rank": 1, "all_terms": true }
+          ],
+          "translation": {
+            "label": "ai_translation",
+            "lang": "id",
+            "model": "claude-haiku-5-5",
+            "prompt_version": "translate-passage@2",
+            "created_at": "2026-10-17T02:29:39.122198+00:00",
+            "review_status": "ai_generated",
+            "highlights": [{ "char_start": 29, "char_end": 34 }],
+            "snippet": { "char_start": 0, "char_end": 131, "text": "…" }
+          },
+          "summary": {
+            "label": "ai_summary",
+            "section": { "id": 100197, "title_ar": "بيان فضيلة الصبر", "level": 4, "permalink": "/kitab/ihya/bab/100197" },
+            "lang": "id",
+            "model": "claude-haiku-5-5",
+            "prompt_version": "summarize-section@2",
+            "created_at": "2026-10-17T01:54:20.281406+00:00",
+            "review_status": "ai_generated",
+            "highlights": [{ "char_start": 40, "char_end": 45 }],
+            "snippet": { "char_start": 0, "char_end": 237, "text": "…" }
+          }
+        }
+      ]
+    }
+  ]
+}
+```
 
 ## Ayat Al-Qur'an (S12)
 
