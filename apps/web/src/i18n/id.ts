@@ -368,6 +368,9 @@ export const id = {
     filterKitabAll: "Semua kitab di rub' ini",
     loading: "Mencari…",
     resultsHeading: "Hasil pencarian",
+    soonHeading: "Pencarian sedang disiapkan",
+    soonBody:
+      "Data kitab versi baru (dengan indeks pencarian dan terjemahan) belum dipasang di situs ini. Sementara itu, kitab tetap bisa dibaca dari menu Kitab.",
     summary: (pages: number, hits: number) => `${pages} halaman · ${hits} paragraf`,
     summaryFused:
       "Diurutkan menurut kecocokan gabungan teks Arab, terjemahan AI, dan ringkasan bagian (100 paragraf teratas per jalur).",

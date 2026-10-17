@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 
+import { Magnifier } from "@gravity-ui/icons";
+import { EmptyState } from "@heroui-pro/react";
+import { LATIN_SEARCH_SCHEMA_VERSION, getCorpusMeta } from "@surau/db";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -24,7 +27,12 @@ export const metadata: Metadata = {
 export default async function CariPage() {
   const env = await getEnv();
   if (!readerEnabled(env)) notFound();
-  const sections = await loadSearchSections(env.CORPUS_DB);
+  const [sections, meta] = await Promise.all([
+    loadSearchSections(env.CORPUS_DB),
+    getCorpusMeta(env.CORPUS_DB),
+  ]);
+  // Korpus produksi lama (sebelum indeks Indonesia, ARSITEKTUR §7 aturan 5): pesan, bukan 503.
+  const ready = meta.schema_version >= LATIN_SEARCH_SCHEMA_VERSION;
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
@@ -32,10 +40,27 @@ export default async function CariPage() {
         <h1 className="text-foreground text-3xl font-semibold tracking-tight">{t.heading}</h1>
         <p className="text-muted text-base text-pretty">{t.lead}</p>
       </header>
-      {/* useSearchParams di klien butuh batas Suspense (halaman tetap bisa dirender tanpa kueri). */}
-      <Suspense fallback={null}>
-        <SearchClient sections={sections} />
-      </Suspense>
+      {ready ? (
+        // useSearchParams di klien butuh batas Suspense (halaman tetap bisa dirender tanpa kueri).
+        <Suspense fallback={null}>
+          <SearchClient sections={sections} />
+        </Suspense>
+      ) : (
+        <section aria-labelledby="cari-belum">
+          <h2 className="sr-only" id="cari-belum">
+            {t.soonHeading}
+          </h2>
+          <EmptyState size="sm">
+            <EmptyState.Header>
+              <EmptyState.Media variant="icon">
+                <Magnifier />
+              </EmptyState.Media>
+              <EmptyState.Title>{t.soonHeading}</EmptyState.Title>
+              <EmptyState.Description>{t.soonBody}</EmptyState.Description>
+            </EmptyState.Header>
+          </EmptyState>
+        </section>
+      )}
     </div>
   );
 }

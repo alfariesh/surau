@@ -141,6 +141,14 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   2. Untuk tiap nomor 1–20, nilai: **Benar** (makna tepat), **Kurang** (makna benar tapi ada yang janggal/hilang), atau **Salah** (makna keliru).
   3. Kirim ke agent, misalnya "T-17 tahap 2: 1–20 B kecuali 4 K (istilah kurang tepat), 11 S (subjek tertukar)". Target: Benar ≥ 80%, Salah ≤ 10%; bila Salah > 10%, agent memperbaiki prompt dan mengulang paragraf yang terdampak.
 
+- [ ] **T-23 · Tinjau tampilan Cari dan terjemahan di pembaca (S14)** (±10 menit) · **siap dikerjakan** (2026-10-17)
+  Buka di ponsel dan laptop (data staging, versi `ihya-v5`): **https://pr-33-surau-web.alfarieshsalman.workers.dev/cari**
+  1. Ketik **sabar**, lalu **adab murid kepada guru**, lalu **الصبر**. Cek kartu hasil: teks Arab asli dengan kata yang tersorot, label **Terjemahan AI**, dan (bila ada) **Ringkasan AI**.
+  2. Coba filter **Bagian kitab** (pilih satu rub', lalu satu kitab), dan **Muat lebih banyak** di bawah.
+  3. Ketuk **Buka di pembaca** di salah satu hasil: paragraf tujuan ditandai, kata yang dicari tersorot, dan di bawah setiap paragraf Arab ada **Terjemahan AI** (ayat Al-Qur'an memakai terjemahan Kemenag berlabel). Coba centang/hapus **Tampilkan terjemahan AI**, dan buka **Ringkasan AI bagian ini** di awal bab.
+  4. Dari halaman mana pun tekan **⌘K** (laptop) atau ikon kaca pembesar di atas (ponsel), ketik kata, tekan Enter.
+  5. Bilang ke agent "tampilan Cari OK", atau tulis apa yang ingin diubah (boleh dengan tangkapan layar). Agent mencentang butir "pemilik menyetujui tampilan" di S14.
+
 - [ ] **T-12 · Setujui soal eval pencarian** (dibutuhkan S15)
   Agent menyusun ±30 soal ("di mana al-Ghazali membahas X?") beserta jawaban lokasinya. Anda (atau ustadz) mengecek dan menyetujui minimal 20 soal.
 

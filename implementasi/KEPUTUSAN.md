@@ -964,3 +964,72 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** `translation`/`summary` dibangun ulang setiap ingest dengan `review_status = 'ai_generated'`, jadi status tinjauan manusia (S18) harus disimpan di luar hasil batch dan digabung saat ingest. Biaya terbesar adalah prompt sistem yang dibaca dari cache, jadi biaya batch bergantung pada hit rate cache (perkiraan $2,6 pada 95% sampai $9,2 tanpa cache). Hasil LLM hanya ada di Mac pemilik sampai korpus dimuat ke D1; cadangkan `data/build/llm/` bersama drive data.
 
 **Tinjau ulang bila:** QA T-17 menemukan Salah >10% (prompt v3 lalu ulangi paragraf terdampak); kitab berikutnya jauh lebih besar (pertimbangkan beberapa paragraf per request); atau tinjauan ustadz membutuhkan riwayat hasil di git.
+
+## ADR-044 · Cari bahasa Indonesia (S14): indeks terjemahan/ringkasan AI dengan stem ringan, gabungan RRF tiga jalur dalam satu batch, cache hasil per versi korpus, filter bagian, korpus `ihya-v5` (skema 6) — diterima · 2026-10-17
+
+**Konteks:** S14 menambah pencarian berbahasa Indonesia di atas jalur Arab S11 (ADR-039), memakai terjemahan dan ringkasan AI dari S13 (ADR-043), lalu membangun halaman `/cari`. Batas: tanpa LLM saat mencari, p95 handler staging < 300 ms tanpa cache, dan teks Arab di hasil tetap irisan `text_raw`.
+
+**Keputusan:**
+1. **Indeks** (migrasi 0006, skema 6): `translation_fts` (rowid = `passage_id`) dan `summary_fts` (rowid = `toc_node_id`). Keduanya contentless + `contentless_delete=1`, `unicode61 remove_diacritics 2`, satu kolom `terms`, hanya bahasa `id`. Yang diindeks hanya teks AI: placeholder `⟦QS s:a⟧` dibuang, jadi terjemahan Kemenag tidak pernah dicari sebagai teks model. Indeks `toc_node_start` ditambahkan untuk ringkasan per halaman di pembaca. Isi indeks dihitung ingest dengan fungsi yang sama dengan sisi kueri; versinya disimpan di `meta.latin_norm_version`.
+2. **Teks Latin** (`packages/text/src/latin.ts`, terpisah dari normalisasi Arab dan `NORM_VERSION`):
+   - **Token dan normalisasi:** huruf Latin + angka ASCII; apostrof di tengah kata ikut kata lalu dibuang (mu'amalah = muamalah); NFKD tanpa diakritik (ṣabr = sabr).
+   - **Stopword kecil:** kata fungsi, kata ganti, dan preposisi berakhiran -nya/-mu/-ku; dicek sebelum stem.
+   - **Varian ejaan → ejaan glosarium S13** (taubat → tobat, shalat → salat, dzikir → zikir, …): hanya varian ejaan, bukan sinonim.
+   - **Stem ringan Tala (2003)** (partikel, kata ganti milik, awalan me-/pe-/di-/ter-/ke-/ber-/per-, akhiran -kan/-an/-i), dengan pengecualian kecil dari tinjauan kosakata terjemahan Ihya: akar mirip partikel (sedekah, masalah, …, *-llah*), akar mirip kata ganti (ilmu, tanya, …), dan kata yang awalannya tidak dibuang karena bertabrakan makna (perhatian ≠ hati, berdiri ≠ diri, kedudukan ≠ duduk, pendapat ≠ dapat).
+   - **Uji sebelum dipakai** (langkah 1). Indeks tanpa stem vs dengan stem atas 16.086 terjemahan:
+     - Kecocokan naik: sabar 173 → 404, niat 300 → 448, syukur 131 → 242, ikhlas 152 → 219, cinta dunia 178 → 328, keutamaan ilmu 90 → 197.
+     - Varian ejaan: taubat 11 → 248.
+     - 5 teratas "sabar", "niat", dan "adab murid kepada guru" semuanya relevan.
+     - Tabrakan yang tersisa: kecil dan dicatat (kehati-hatian → hati 56×, menempatkan → empat ±130×, mendirikan → diri 14×).
+     - Kesimpulan: stem dipakai.
+3. **Deteksi bahasa kueri:**
+   - Huruf Arab saja → jalur S11 apa adanya (bm25, pengaman kata umum, total eksak).
+   - Huruf Latin saja → jalur terjemahan + ringkasan.
+   - Keduanya → tiga jalur; bagian Arab yang semua katanya umum tidak dicari (`warning: "common_terms_ignored"`).
+4. **Gabungan RRF** (`searchCorpusFused`, satu `batch` D1 = satu bolak-balik, SQL disusun dari potongan konstan + parameter bernomor):
+   - **Kandidat per jalur:** paragraf teratas bm25 per jalur (`FUSION_DEPTH` 100, ringkasan `SUMMARY_DEPTH` 30).
+   - **Skor:** paragraf = Σ 1/(60 + peringkat).
+   - **Ringkasan → paragraf:** ringkasan yang cocok dipetakan ke paragraf badan pertama milik node itu di halaman awalnya (node tanpa paragraf sendiri → paragraf pertama turunannya di halaman itu); bila dua bagian berawal di paragraf yang sama, peringkat terbaik dipakai.
+   - **Halaman:** diurutkan menurut skor paragraf terbaiknya, lalu jumlah paragraf. `total_pages`/`total_hits` dihitung di atas himpunan kandidat (`fusion` di keluaran).
+   - **Kata kueri Indonesia:** semua kata harus ada (AND). Bila jalur terjemahan + ringkasan bersama-sama punya < 5 kecocokan semua kata, kecocokan sebagian kata (OR) menyusul di belakangnya (`matched_by[].all_terms = false`).
+5. **Kontrak** (hanya menambah field):
+   - `searchView`: `latin_terms`, `paths`, `fusion`, `section_id`, warning `common_terms_ignored`.
+   - `searchHit`: `matched_by` (jalur + peringkat, skor yang bisa dijelaskan), `translation` dan `summary` (potongan berlabel AI + sorotan; potongan tidak pernah memotong placeholder ayat).
+   - `score`: bm25 untuk kueri Arab saja, RRF untuk lainnya.
+   - Hasil Arab juga membawa terjemahan paragrafnya.
+   - `readPage`: `translation` per paragraf dan `summaries` bagian yang mulai di halaman itu.
+6. **Filter bagian** (`section_id` / `?section=`): node daftar isi + turunannya lewat CTE rekursif, berlaku di ketiga jalur. Node tidak ada atau milik edisi lain → `NotFound`. UI: rub' (TagGroup) lalu kitab (NativeSelect), URL `?bagian=`.
+7. **Cache hasil** (langkah 8):
+   - **Tempat:** Cache API Workers (`caches.default`, per data center, `s-maxage` 7 hari; menurut docs Cloudflare berfungsi juga di workers.dev).
+   - **Kunci:** sha256 dari nama DB korpus produksi + rencana kueri ternormalisasi (`searchCacheKey`: stem Arab/Indonesia + opsi + versi normalisasi); teks kueri tidak masuk kunci. Kueri lain dengan rencana yang sama hanya berbeda field `query`, yang diisi ulang.
+   - **Versi korpus:** var `SEARCH_CACHE_CORPUS`, sama dengan `database_name` CORPUS_DB; `corpus:promote` mengganti keduanya, dijaga tes.
+   - **Tanpa cache:** Preview (staging dimuat ulang tanpa versi baru) dan `next dev`.
+   - **Urutan:** cache diperiksa sebelum rate limiter; yang lolos cache tidak menyentuh D1.
+8. **UI:**
+   - **`/cari`:** kerangka + pilihan filter dirender server per request (seperti `/kitab`: CI tanpa D1). Hasil diambil klien dari `/api/search` (rate limit + cache), jadi `?q=` bisa dibagikan tanpa render server per kueri.
+   - **Kartu:** potongan Arab asli dengan `<mark>`, terjemahan AI berlabel, ringkasan bagian, asal kecocokan; maks 3 paragraf per kartu, paling relevan dulu.
+   - **Palet ⌘K/Ctrl+K** di navbar (Command Pro); menu Cari aktif.
+   - **Pembaca:**
+     - Terjemahan AI per paragraf, berlabel. Ayat dirender dari terjemahan Kemenag verbatim dengan labelnya sendiri; penanda (١) menaut ke catatan kaki.
+     - Ringkasan AI di awal bagian (`<details>`). Bisa disembunyikan (localStorage).
+     - Status `rejected` tidak ditampilkan.
+     - Sorotan `?q=` lewat CSS Custom Highlight API: DOM dan teks kitab tidak diubah, halaman tetap ISR.
+9. **Rollback** (keputusan langkah 10): `corpus:promote --switch-only` kini menerima korpus berskema LEBIH LAMA. Smoke memisahkan `limitations` (fitur yang hilang karena skema) dari `problems`. Kode memeriksa `meta.schema_version` dan menyembunyikan fiturnya: pembaca jalan di skema 3, pencarian Arab butuh ≥ 4, Indonesia ≥ 6, ayat ≥ 5. Jadi `ihya-v1` tetap target rollback. Build baru dan pemuatan tetap wajib tanpa batasan; skema lebih baru dari kode ditolak.
+
+**Penyimpangan dari rencana:** langkah 1 menyebut stemming "-nya, ber-, me-"; yang dipakai Tala lengkap (konfiks ke-…-an perlu agar "sabar" menemukan "kesabaran"), dengan pengecualian dari data. Filter per rub'/kitab butuh parameter API baru (`section`), tidak tertulis di langkah. Catatan S11 menyebut promote `ihya-v2`; yang dipromosikan adalah versi terbaru, `ihya-v5`.
+
+**Ditolak:**
+- Jalur Arab ikut RRF untuk kueri Arab saja: hasilnya sama, tetapi total eksak dan pengaman S11 hilang.
+- Selalu OR untuk kueri banyak kata: dokumen dengan satu kata langka mengalahkan dokumen dengan semua kata.
+- Memetakan ringkasan ke SEMUA paragraf bagiannya: bagian rub' membanjiri hasil.
+- Render server `/cari?q=`: melewati rate limit dan cache API.
+- Cache di R2/`unstable_cache`: satu tulis Class A per kueri unik.
+- Sorotan pembaca dengan membungkus teks di server: membuat halaman dinamis per kueri.
+
+**Konsekuensi:**
+- Pencarian Indonesia hanya menjangkau 100 paragraf teratas per jalur (cukup untuk 5 halaman pertama hasil; "Muat lebih banyak" berhenti di himpunan itu).
+- Kueri Arab saja tidak memakai ringkasan atau judul bagian, jadi peringkatnya lebih datar (5 teratas الصبر/النية relevan tetapi tidak selalu bab utamanya): bahan eval S15.
+- Ukuran build ±+3 MB SQL indeks Indonesia; pemuatan staging tetap ±1,5 menit.
+- Produksi (`ihya-v1`) menjawab 503 untuk kueri Indonesia dan tidak menampilkan terjemahan sampai `corpus:promote ihya-v5`.
+
+**Tinjau ulang bila:** eval S15 menunjukkan recall kueri Indonesia rendah (sinonim/embedding, ADR S15); tabrakan stem dilaporkan pengguna; korpus berisi banyak kitab (rows_read RRF, kedalaman per jalur, cache per edisi).
