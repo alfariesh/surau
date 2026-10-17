@@ -10,7 +10,7 @@ Fakta di dokumen ini dicek pada 15 Okt 2026. Keputusan tentang sumber teks dan l
 | **OpenITI** `…IhyaCulumDin.Shamela0009472-ara1.completed` | Pembanding matan (gerbang QA `verify-openiti`) dan dasar rantai lisensi teks publik | Rilis 2025.1.9, commit `e8dddd44…` | **CC BY-NC-SA 4.0** |
 | **OpenITI** `…IhyaCulumDin.JK000001-ara1` | Pembanding takhrij al-'Iraqi; cadangan | Rilis dan commit yang sama | **CC BY-NC-SA 4.0** |
 | **Tanzil** | Teks ayat: `simple-clean` untuk pencocokan, `uthmani` untuk tampilan | 1.1 (12 Feb 2021) | CC BY 3.0, **hanya verbatim**, wajib pemberitahuan dan tautan tanzil.net |
-| **QuranEnc** `indonesian_affairs` | Terjemahan Kemenag, ditampilkan verbatim | v1.0.1 (diperbarui 23 Jun 2025) | Tanpa perubahan; sebut Kemenag, QuranEnc.com, dan nomor versi |
+| **Kemenag** (data milik pemilik, asal quran.kemenag.go.id) | Terjemahan + catatan kaki + transliterasi Latin, ditampilkan verbatim (ADR-040, menggantikan QuranEnc `indonesian_affairs` v1.0.1) | salinan 2026-06-03 | Tanpa perubahan; sebut Kementerian Agama RI dan sumbernya |
 | **shamela.ws** dan **archive.org** | Tautan saja: halaman Shamela per `page.id` dan pindaian edisi cetak untuk verifikasi | – | Tidak disalin, tidak di-hosting ulang |
 
 Konten turunan Surau (teks, terjemahan dan ringkasan AI, indeks, dump) berlisensi CC BY-NC-SA 4.0, terpisah dari kode Apache-2.0 (lihat ADR-021 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md)). Opsi sumber yang tidak dipakai ada di [Opsi yang ditolak](#opsi-yang-ditolak).
@@ -108,6 +108,8 @@ Dikerjakan di Fase 2 ([S12](../implementasi/sesi/S12-ayat-kemenag.md)). Keputusa
 
 **Terjemahan: QuranEnc `indonesian_affairs` (Kemenag)**
 
+> **Diganti di S12 (ADR-040, 2026-10-17):** terjemahan (dengan catatan kaki) dan transliterasi Latin diambil dari data Kemenag milik pemilik (asal quran.kemenag.go.id, salinan 2026-06-03; versi dan sha256 di `data/SOURCES.md`). Catatan QuranEnc di bawah tetap sebagai riwayat dan cadangan.
+
 - Versi 1.0.1, diperbarui 23 Jun 2025. Syarat pakainya eksplisit: tanpa perubahan, menyebut penerbit dan QuranEnc.com, menyebut nomor versi, memperbarui ke versi terbaru, dan tanpa iklan yang tidak pantas.
 - Penanda catatan kaki di dalam teks terjemahan (seperti `[5]`) ditampilkan apa adanya.
 - QuranEnc juga punya `indonesian_complex` (Kemenag edisi lama, v1.0.1) dan `indonesian_sabiq` (v1.1.3). Keduanya tidak dipakai.
@@ -139,10 +141,10 @@ File `classics_db_match_report.csv`, `dkislamiyah_db_match_report.csv`, dan `has
 
 Ringkasan dari ADR-018 dan ADR-021 (keduanya masih **diusulkan** dan menunggu persetujuan pemilik, P-6) di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md).
 
-- **Tidak ada teks kitab di git.** Database Shamela, unduhan OpenITI/Tanzil/QuranEnc, dan hasil build tinggal di `data/raw/` dan `data/build/` (di luar git). Yang di-commit hanya `data/LICENSE`, `data/ATTRIBUTION.md`, `data/SOURCES.md` (versi + sha256 sumber), `data/patches/`, dan `data/reports/`. Fixture tes tidak boleh memuat teks Shamela.
+- **Tidak ada teks kitab di git.** Database Shamela, unduhan OpenITI/Tanzil, data Kemenag pemilik, dan hasil build tinggal di `data/raw/` dan `data/build/` (di luar git). Yang di-commit hanya `data/LICENSE`, `data/ATTRIBUTION.md`, `data/SOURCES.md` (versi + sha256 sumber), `data/patches/`, dan `data/reports/`. Fixture tes tidak boleh memuat teks Shamela.
 - **Teks Ihya publik:** matan dan struktur dibangun dari Shamela lokal, lalu hanya dirilis bila lolos gerbang `verify-openiti` (kemiripan ≥0,95 di ≥1.705 dari 1.706 halaman). Takhrij diambil dari catatan kaki Shamela dan dicek silang dengan JK000001; yang tidak cocok ditandai `needs_review`.
 - **Atribusi di setiap halaman:** *"Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009472 & JK000001; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Ma'rifah, Beirut 1402/1982"*, ditambah tautan ke `shamela.ws/book/9472/{page.id}`. Pindaian archive.org (edisi Dar al-Ma'rifah beserta al-Mughni, 4 jilid, tanpa lisensi eksplisit) hanya ditautkan. Selisih nomor halaman PDF terhadap halaman cetak perlu dikalibrasi per jilid.
-- **Lisensi terpisah:** kode memakai Apache-2.0 (`LICENSE`). Konten turunan (teks, terjemahan dan ringkasan AI, indeks, dump) memakai CC BY-NC-SA 4.0 (`data/LICENSE`). Terjemahan dan ringkasan AI atas teks Ihya adalah *Adapted Material*, jadi tidak boleh ditaruh di bawah Apache-2.0. `data/ATTRIBUTION.md` mencantumkan OpenITI, Shamela, Dar al-Ma'rifah, Tanzil, dan Kemenag/QuranEnc beserta versinya.
+- **Lisensi terpisah:** kode memakai Apache-2.0 (`LICENSE`). Konten turunan (teks, terjemahan dan ringkasan AI, indeks, dump) memakai CC BY-NC-SA 4.0 (`data/LICENSE`). Terjemahan dan ringkasan AI atas teks Ihya adalah *Adapted Material*, jadi tidak boleh ditaruh di bawah Apache-2.0. `data/ATTRIBUTION.md` mencantumkan OpenITI, Shamela, Dar al-Ma'rifah, Tanzil, dan Kemenag beserta versinya.
 - **Nirlaba (klausul NC):** tanpa iklan, paywall, atau penjualan akses atas konten. Donasi untuk organisasi nirlaba tetap boleh.
 - **Setiap respons MCP dan API** memuat field `license` dan `attribution`.
 - **URI OpenITI sebagai ID kanonik** bila tersedia (kolom `work.openiti_uri`, contoh `0505Ghazali.IhyaCulumDin`), supaya Surau bisa bertukar data dengan proyek digital humanities lain.

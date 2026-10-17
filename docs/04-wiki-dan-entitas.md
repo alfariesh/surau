@@ -28,7 +28,7 @@ Wiki menyimpan pengetahuan terstruktur yang diambil dari kitab (tokoh, istilah, 
 | 2 | **Karya** (كتاب) | "ذكره في الأم", "الإحياء" | Penulis, status atribusi, periode, bahasa asli, relasi syarah/hasyiyah/mukhtasar | Katalog + metadata `work` (Fase 5) + LLM untuk kitab yang dikutip di dalam teks |
 | 3 | **Tempat** (مكان) | بغداد، طوس، نيسابور | Jenis (kota/wilayah/masjid), koordinat (opsional) | LLM, prioritas rendah |
 | 4 | **Istilah** (مصطلح) | الصبر، التوكل، القصر، النجاسة | Bidang (fiqih/tasawuf/kalam/ushul/hadits), **kutipan definisi per kitab** | LLM (pola "عبارة عن"، "هو"، "حقيقته") |
-| 5 | **Ayat** (آية) | Kutipan Al-Qur'an di dalam teks | Surah:ayat, teks Tanzil (verbatim), terjemahan Kemenag (verbatim), jenis cocok (`exact`/`similar`) | **Deterministik, dibangun di Fase 2 (S12):** pencocokan ke teks Tanzil. **Tanpa LLM** (lihat di bawah) |
+| 5 | **Ayat** (آية) | Kutipan Al-Qur'an di dalam teks | Surah:ayat, teks Tanzil (verbatim), terjemahan + transliterasi Kemenag (verbatim), jenis cocok (`exact`/`similar`) | **Deterministik, dibangun di Fase 2 (S12):** pencocokan ke teks Tanzil. **Tanpa LLM** (lihat di bawah) |
 | 6 | **Hadits** (حديث) | Hadits di dalam teks | Penanda takhrij (١), teks takhrij asli, label status (sahih/dhaif/dhaif jiddan/maudhu'/la ashla lahu), perawi | **Deterministik:** tautan penanda → catatan kaki (`footnote_ref`, Fase 1). Label status dari LLM, lalu direview. |
 | 7 | **Qaul / Atsar** (قول) | "قال الحسن ...", "قالت الفلاسفة ..." | Siapa yang berkata, isi, **sikap penulis: menyetujui / membantah / sekadar menukil** | LLM + review wajib |
 | 8 | **Masalah & Hukum** (مسألة/حكم) | "صلاة العيدين وهي سنة مؤكدة" | Topik masalah; hukum taklifi (wajib/sunnah/mubah/makruh/haram) atau wad'i (syarat/rukun/sah/batal/sebab/mani'); menurut siapa (penulis/mazhab/tokoh); dalil (tautan ke ayat/hadits); syarat dan pengecualian; ada khilaf atau tidak | LLM + review wajib |
@@ -41,9 +41,9 @@ Entitas ayat tidak menunggu Fase 6. Ia dibangun di Fase 2 ([S12](../implementasi
 | Aspek | Keputusan |
 |---|---|
 | Teks ayat | Tanzil 1.1 (CC BY 3.0, **hanya verbatim**, wajib pemberitahuan dan tautan tanzil.net). `simple-clean` untuk indeks pencocokan, `uthmani` untuk tampilan. |
-| Terjemahan | Kemenag via QuranEnc `indonesian_affairs` (v1.0.1), verbatim, nomor versi dicatat. Penanda catatan kaki seperti `[5]` ditampilkan apa adanya. |
-| Pencocokan | 97,2% bentang `{…}` multi-kata di Ihya cocok persis dengan `simple-clean` setelah normalisasi. Sisanya beda ejaan (أولوا/أولو) dan dicocokkan *fuzzy* per token dengan label "mirip". Bentang yang tidak cocok **bukan** ayat dan tidak ditautkan. |
-| Penyimpanan | Tabel korpus `quran_ayah`, `quran_translation`, dan `passage_ayah_ref` (paragraf, offset, surah, ayat awal–akhir, `exact`/`similar`). Lihat [ARSITEKTUR-TEKNIS §3.1](../implementasi/ARSITEKTUR-TEKNIS.md). |
+| Terjemahan | Kemenag (data milik pemilik, asal quran.kemenag.go.id; menggantikan QuranEnc, ADR-040), verbatim, beserta catatan kaki dan transliterasi Latin. Penanda catatan kaki seperti `1)` ditampilkan apa adanya. |
+| Pencocokan | Hasil S12 (ADR-040): 97,3% bentang `{…}` tervalidasi di Ihya cocok persis dengan `simple-clean` setelah normalisasi, sisanya beda ejaan (أولوا/أولو) berlabel "mirip". Ditambah 649 kutipan tanpa kurung sesudah frasa pengantar (قال تعالى …). Bentang yang tidak cocok **bukan** ayat dan tidak ditautkan. |
+| Penyimpanan | Tabel korpus `quran_source`, `quran_surah`, `quran_ayah`, `quran_translation`, dan `passage_ayah_ref` (paragraf, offset, surah, ayat awal–akhir, `exact`/`similar`, sebagian, letak lain). Lihat [ARSITEKTUR-TEKNIS §3.1](../implementasi/ARSITEKTUR-TEKNIS.md). |
 | Aturan | **Ayat tidak pernah diterjemahkan atau ditulis ulang oleh LLM.** Ekstraksi wiki memakai rujukan dari `passage_ayah_ref`, misalnya untuk relasi `hukum ─berdalil→ ayat`. |
 
 Kurung `{…}` di teks Shamela juga dipakai untuk penomoran, jadi validasi ayat selalu lewat pencocokan ke Tanzil. Masih terbuka: apakah PMA 44/2016 (tashih) berlaku untuk aplikasi yang hanya mengutip ayat di dalam kitab (ADR-020).

@@ -6,7 +6,7 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 
 | Perintah | Isi |
 |---|---|
-| `pnpm ingest ihya` | Bangun korpus Ihya (±4 detik, termasuk indeks pencarian S11): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v2.sqlite`, `data/build/ihya-v2.sha256` (build versi lain di `data/build` dihapus), peta ID `data/ids/ihya-9472.json`, dan laporan `data/reports/ihya-9472-{validasi,openiti}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar |
+| `pnpm ingest ihya` | Bangun korpus Ihya (±7 detik, termasuk indeks pencarian S11 dan ayat S12): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v3.sqlite`, `data/build/ihya-v3.sha256` (build versi lain di `data/build` dihapus), peta ID `data/ids/ihya-9472.json`, dan laporan `data/reports/ihya-9472-{validasi,openiti,ayat}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar. Opsi `--quran <dir>` (bawaan `data/raw`) |
 | `pnpm ingest:verify` | Hanya gerbang QA OpenITI (matan ≥0,95 per halaman di ≥1.705 halaman; takhrij vs JK000001) → laporan `…-openiti.md` |
 | `pnpm corpus:load:local` | Migrasi korpus + muat semua file SQL ke D1 lokal (`.wrangler/state`), lalu smoke query (jumlah baris termasuk indeks FTS, j1 h200, satu kueri الصبر) |
 | `pnpm corpus:load:staging --confirm` | Sama, ke `surau-corpus-staging` (remote). **Minta izin pemilik dulu**; tanpa `--confirm` skrip menolak, dan ditolak juga bila staging tercatat sebagai korpus produksi. Selama impor (±1 menit) DB tidak melayani kueri |
@@ -17,7 +17,9 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 
 **Indeks pencarian (S11, ADR-039):** setelah tabel biasa, file `passage-fts-*.sql` mengisi `passage_fts` (rowid = `passage.id`, kolom `sbody`/`sfoot` = stem dari `normalizeArabic(text_raw)`, `body`/`foot` kosong), lalu `passage-fts-optimize.sql` menggabungkan segmen indeks. `meta` tetap file terakhir. `term_stat` = stem di >10% paragraf, dihitung dari `fts5vocab` di DB sementara dengan migrasi yang sama (`src/search-index.ts`). Ihya: 20.509 baris indeks, 39 stem umum, ±5,4 MB; impor staging ±65 detik untuk seluruh korpus.
 
-Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURAU_SHAMELA_ROOT`) dan dua file OpenITI yang dipin ada di `data/raw/openiti/` (cara unduh dan sha256: `data/SOURCES.md`). Opsi `--reset-ids` membangun peta ID dari nol, **hanya** sebelum rilis Fase 1 (ADR-029).
+**Ayat Al-Qur'an (S12, ADR-040):** `src/quran/` membaca Tanzil 1.1 (XML `uthmani` + `simple-clean`, `data/raw/tanzil/`) dan data Kemenag milik pemilik (terjemahan + catatan kaki, transliterasi, metadata surah, juz; `data/raw/kemenag/`), semuanya dipin sha256. Pencocok deterministik (`src/quran/matcher.ts`) mengenali kutipan `{…}` dan kutipan tanpa kurung sesudah frasa pengantar (قال تعالى …), lalu menulis `passage_ayah_ref`. Gerbang: ≥95% kutipan `{…}` tervalidasi cocok persis (Ihya 97,3%). Laporan `data/reports/ihya-9472-ayat.md` berisi angka, daftar "mirip" dan "tidak cocok", dan 20 sampel acak untuk diperiksa pemilik (T-16).
+
+Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURAU_SHAMELA_ROOT`), dua file OpenITI yang dipin ada di `data/raw/openiti/`, dan sumber Al-Qur'an di `data/raw/tanzil/` + `data/raw/kemenag/` (cara unduh/salin dan sha256: `data/SOURCES.md`). Opsi `--reset-ids` membangun peta ID dari nol, **hanya** sebelum rilis Fase 1 (ADR-029).
 
 ## Korpus produksi (blue-green)
 
@@ -45,6 +47,7 @@ Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah s
 | QA OpenITI: parser mARkdown minimal, kemiripan matan (LCS token), cocok takhrij (bigram) | `src/openiti/`, `src/similarity.ts` |
 | Baris tabel (ID dari peta ID + `@surau/db`), validasi, laporan | `src/rows.ts`, `src/ids.ts`, `src/validate.ts`, `src/report.ts` |
 | Indeks pencarian: baris `passage_fts` + `term_stat` (fts5vocab) | `src/search-index.ts` |
+| Al-Qur'an: sumber Tanzil/Kemenag, pencocok ayat, baris `quran_*` + `passage_ayah_ref`, laporan ayat | `src/quran/source.ts`, `src/quran/matcher.ts`, `src/quran/rows.ts`, `src/quran/report.ts` |
 | SQL D1 (≤90 KB/statement, tanpa BEGIN/COMMIT), `.sqlite` dari migrasi yang sama | `src/sql.ts`, `src/build-sqlite.ts` |
 | Orkestrasi, CLI, muat ke D1 | `src/pipeline.ts`, `src/cli.ts`, `src/load.ts` |
 | D1 remote: pembungkus wrangler, smoke, build, binding produksi, promote, QA sampel | `src/d1.ts`, `src/corpus.ts`, `src/promote.ts`, `src/qa-sample.ts`, `src/qa.ts` |
@@ -54,8 +57,8 @@ Build deterministik: dua build pada commit yang sama menghasilkan sha256 yang sa
 
 ## Tes
 
-- `pnpm test`: unit per modul + uji ujung-ke-ujung dengan kitab **buatan** (`test/fixture.ts`: struktur meniru Shamela/OpenITI, isi kalimat karangan).
-- `test/ihya-ingest.test.ts` dan `test/ihya-text.test.ts` memakai Ihya asli; dilewati otomatis bila drive/unduhan tidak ada (CI). Keluarannya di folder sementara, teks kitab tidak disalin ke git.
+- `pnpm test`: unit per modul + uji ujung-ke-ujung dengan kitab **buatan** (`test/fixture.ts`: struktur meniru Shamela/OpenITI, isi kalimat karangan) dan mushaf **buatan** (`test/quran-fixture.ts`: format berkas Tanzil/Kemenag, bukan teks Al-Qur'an).
+- `test/ihya-ingest.test.ts` dan `test/ihya-text.test.ts` memakai Ihya asli; dilewati otomatis bila drive/unduhan tidak ada (CI). Tes ayat memastikan setiap kutipan `exact` benar-benar ada di teks ayat rujukannya. Keluarannya di folder sementara, teks kitab tidak disalin ke git.
 
 ## Menambah kitab
 

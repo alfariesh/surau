@@ -128,8 +128,12 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   4. Kunci workspace `surau-prod` **tidak** disimpan di Mac maupun di Worker. Anda menempelnya sendiri di Cloudflare **AI Gateway → Provider Keys** saat T-14.
   5. Bila Anda berlangganan Claude Max/Team, tautkan kredit API bulanannya ke organisasi ini (claude.ai → Settings → Billing).
 
-- [ ] **T-16 · Cek 20 sampel ayat** (dibutuhkan S12, ±20 menit; bisa diwakilkan)
+- [ ] **T-16 · Cek 20 sampel ayat** (dibutuhkan S12, ±20 menit; bisa diwakilkan) · **siap dikerjakan** (2026-10-17)
   Agent memberi 20 kutipan ayat yang dikenali di Ihya beserta rujukan surah:ayat. Cek apakah rujukannya benar.
+  1. Buka [data/reports/ihya-9472-ayat.md](../data/reports/ihya-9472-ayat.md) di GitHub, bagian **20 sampel acak**.
+  2. Untuk tiap baris, buka permalink-nya di link preview PR S12 (atau di situs setelah korpus baru dipromosikan, S14). Kutipan ayatnya berwarna hijau lembut dengan label kecil "QS s:a" sesudahnya. Ketuk labelnya untuk melihat teks ayat dan terjemahan Kemenag.
+  3. Bandingkan kutipan di kitab dengan teks ayat di popup. Rujukan surah:ayat-nya benar?
+  4. Kirim hasilnya ke agent di chat, misalnya "T-16: 1–20 benar kecuali no. 4 (bukan ayat)". Agent mencatatnya di file sesi S12.
 
 - [ ] **T-17 · Nilai sampel terjemahan AI** (dibutuhkan S13, dua kali ±30 menit; bisa diwakilkan)
   Agent memberi 20 terjemahan uji (sebelum batch penuh), lalu 20 hasil batch. Beri nilai Benar, Kurang, atau Salah, beserta catatan singkat.

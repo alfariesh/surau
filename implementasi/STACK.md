@@ -57,6 +57,8 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 | Zod | 4.x (≥4.2, wajib untuk MCP SDK v2) | **4.6.7** (packages/db + packages/core + tools/ingest, catalog; impor dari `"zod"`; terbaru, dicek 2026-10-16, S08; skema rekursif lewat getter, `z.toJSONSchema` untuk kontrak MCP) | https://zod.dev | 011 |
 | `yaml` (eemeli/yaml) | 2.x | **2.9.1** (tools/ingest, catalog; tanpa dependensi, ISC; dicek 2026-10-16, S07). `parseDocument` + cek `errors`/`warnings`, `toJS({ maxAliasCount: 0 })`; jangan `logLevel: "silent"` | https://eemeli.org/yaml/ | 032 |
 | Hono (Worker API, Fase 4) | 4.x | – | https://hono.dev/llms.txt | 010 |
+| Teks Al-Qur'an (Tanzil) | 1.1, XML `uthmani` + `simple-clean` tanpa opsi | **1.1** (rilis 2021-02-12, terbaru; dicek 2026-10-17, S12): unduhan `https://tanzil.net/pub/download/index.php?quranType=<jenis>&outType=xml&agree=true`; basmalah pembuka surah di atribut `bismillah` (format `txt-2` menempelkannya ke ayat 1); blok hak cipta di komentar XML wajib ikut di salinan/berkas turunan; penomoran Kufah 6.236 = Kemenag | https://tanzil.net/docs/text_license · https://tanzil.net/download/ · https://tanzil.net/updates/ | 020, 040 |
+| Terjemahan + transliterasi Kemenag | salinan pemilik (dump DB Surau lama, asal quran.kemenag.go.id) | `data/raw/kemenag/` (salinan 2026-06-03, disalin ke repo lokal 2026-10-17, S12): 6.236 ayat, 678 dengan catatan kaki; transliterasi Latin 6.236; metadata 114 surah (QUL) | https://quran.kemenag.go.id | 040 |
 
 ## AI & MCP
 
