@@ -172,6 +172,26 @@ export interface TanzilText {
   ayat: TanzilAyah[];
 }
 
+/**
+ * Blok hak cipta Tanzil dari komentar XML (berkas unduhan), disalin apa adanya tanpa awalan `#`.
+ * Syarat Tanzil: pemberitahuan ini ikut di setiap salinan verbatim dan berkas turunan yang memuat
+ * sebagian besar teksnya (korpus/dump Surau), jadi disimpan sebagai atribusi sumber.
+ * `null` bila tidak ada (mis. fixture tes).
+ */
+export function tanzilNotice(xml: string): string | null {
+  const comment = /<!--([\s\S]*?)-->/.exec(xml)?.[1];
+  if (comment === undefined) return null;
+  const lines = comment.split("\n").map((l) => l.replace(/^#\s?/, "").trimEnd());
+  const start = lines.findIndex((l) => l.trim().startsWith("Tanzil Quran Text"));
+  const end = lines.findIndex((l, i) => i > start && l.trim().startsWith("Please check updates"));
+  if (start === -1 || end === -1) return null;
+  return lines
+    .slice(start, end + 1)
+    .map((l) => l.trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 const XML_ENTITIES: Record<string, string> = {
   amp: "&",
   lt: "<",
@@ -358,7 +378,13 @@ export function loadQuran(cfg: QuranConfig, normalize: (s: string) => string): Q
   )
     .map((k) => {
       const { file, ...meta } = SOURCE_META[k];
-      return { id: QURAN_SOURCE_IDS[k], ...meta, sha256: files[file].sha256 };
+      const notice = meta.kind === "text" ? tanzilNotice(files[file].text) : null;
+      return {
+        id: QURAN_SOURCE_IDS[k],
+        ...meta,
+        attribution: notice ?? meta.attribution,
+        sha256: files[file].sha256,
+      };
     })
     .sort((a, b) => a.id.localeCompare(b.id));
 

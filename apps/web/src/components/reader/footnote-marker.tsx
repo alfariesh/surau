@@ -27,8 +27,11 @@ function subscribe(onChange: () => void) {
   return () => query.removeEventListener("change", onChange);
 }
 
-/** `false` saat render server dan hidrasi pertama, lalu nilai sebenarnya (tanpa mismatch). */
-function useCanHover(): boolean {
+/**
+ * `false` saat render server dan hidrasi pertama, lalu nilai sebenarnya (tanpa mismatch). Dipakai
+ * juga label rujukan ayat (ayah-ref.tsx).
+ */
+export function useCanHover(): boolean {
   return useSyncExternalStore(
     subscribe,
     () => window.matchMedia(HOVER_QUERY).matches,

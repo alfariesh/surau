@@ -3,7 +3,8 @@
 // dengan unduhan resmi tanzil.net "Tanzil Quran Text (Uthmani, Version 1.1)", baris 1|1, pada
 // 2026-10-15. sha256 teks: ac1e6f8f64c2e83d0b5087625a5e1eb0067b99d4a8962d3ad30528709dcf3dd6.
 // Syarat Tanzil: teks tidak boleh diubah, sumber disebut, dan ada tautan ke tanzil.net.
-// Fase 2 (S12) mengganti ini dengan data ayat resmi dari DB.
+// S12 sengaja tetap memakai konstanta ini (bukan DB): halaman demo tidak boleh bergantung pada versi
+// korpus. Sama persis dengan quran_ayah 1:1 (text_uthmani) korpus ihya-v3, dicek 2026-10-17.
 export const BASMALAH = {
   text: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
   source: "Tanzil Quran Text (Uthmani, v1.1), CC BY 3.0",

@@ -8,7 +8,7 @@ import { normalizeArabic } from "@surau/text";
 import { describe, expect, test } from "vite-plus/test";
 
 import { FIXTURE_AYAT, FIXTURE_BISMILLAH, writeQuranFixture } from "../../test/quran-fixture.ts";
-import { loadQuran, parseTanzilXml, sha256 } from "./source.ts";
+import { loadQuran, parseTanzilXml, sha256, tanzilNotice } from "./source.ts";
 
 const norm = (s: string) => normalizeArabic(s).text;
 const fixture = () => writeQuranFixture(mkdtempSync(join(tmpdir(), "surau-quran-")));
@@ -47,6 +47,31 @@ describe("parseTanzilXml", () => {
     expect(() =>
       parseTanzilXml(sura('<aya index="1" text="س" />'), { surahs: 114, ayat: 6236 }),
     ).toThrow(/1 surah \/ 1 ayat/);
+  });
+});
+
+describe("tanzilNotice", () => {
+  test("blok hak cipta dari komentar XML disalin tanpa awalan #; tanpa blok = null", () => {
+    const xml = `<?xml version="1.0"?>
+<!--
+# JANGAN DIHAPUS
+#=====
+#
+#  Tanzil Quran Text (Uji, Version 0)
+#  Baris dua
+#
+#  - Butir satu
+#    lanjutan
+#
+#  Please check updates at: http://contoh.test/
+#
+#=====
+-->
+<quran></quran>`;
+    expect(tanzilNotice(xml)).toBe(
+      "Tanzil Quran Text (Uji, Version 0)\nBaris dua\n\n- Butir satu\nlanjutan\n\nPlease check updates at: http://contoh.test/",
+    );
+    expect(tanzilNotice("<quran></quran>")).toBeNull();
   });
 });
 
