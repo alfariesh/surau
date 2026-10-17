@@ -43,10 +43,10 @@ Kutipan ayat di dalam Ihya dikenali secara deterministik dan ditautkan ke surah:
 ## Selesai bila
 
 - [x] Rasio cocok exact ≥ 95% dari bentang kandidat yang tervalidasi; sisanya `similar` atau ditolak, tercatat di laporan — `pnpm ingest ihya`: invarian "Kutipan {…} tervalidasi cocok persis ≥95%" ✓ 977/1.004 (97,3%), mirip 25, tidak cocok 2 (tidak ditautkan; keduanya ternyata ayat berejaan jauh berbeda, 39:9 dan 13:22, harga ambang konservatif); invarian baru "kutipan exact ada di ayat rujukannya" ✓ 1.587/1.587; rincian + daftar di `data/reports/ihya-9472-ayat.md`
-- [ ] 20 sampel acak diperiksa pemilik atau ustadz, dan hasilnya dicatat — **menunggu pemilik (T-16)**: sampel sudah ada di laporan ayat (seed tetap), belum diperiksa manusia
+- [x] 20 sampel acak diperiksa pemilik atau ustadz, dan hasilnya dicatat — T-16: 20/20 rujukan cocok, dinilai agent ([laporan](../../data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md)) dan **diterima pemilik di chat saat `/rilis 2`** (2026-10-17, "Terima keduanya"; ADR-048)
 - [x] UI pembaca menampilkan rujukan dan terjemahan Kemenag verbatim dengan atribusi Tanzil dan QuranEnc *(kriteria ini ditulis sebelum ADR-040: "QuranEnc" diganti sumber Kemenag langsung atas arahan pemilik, teks kriteria tidak diubah)* — browser lokal (`pnpm dev`, korpus `ihya-v3`): j1 h103 QS 41:11 (ayat utuh), j1 h119 QS 27:90 ("Terjemahan ayat lengkap (Kemenag)"), j1 h175 (ayat di catatan kaki); desktop + ponsel 375 px, terang + gelap, 0 galat konsol. Atribusi Tanzil (tautan tanzil.net + `#s:a`) dan **Kemenag** (quran.kemenag.go.id): QuranEnc tidak dipakai atas arahan pemilik (ADR-040), jadi atribusinya Kemenag langsung
 - [x] Placeholder ayat siap dipakai S13 (tes round-trip lolos), dan aturan render label Kemenag terpisah dari label AI teruji — `packages/core/src/ayah-placeholder.test.ts` (project core): round-trip `maskAyat`/`unmaskAyat`, `checkPlaceholders` (hilang/ganda/karangan ditolak), `translationSegments` (label `ai_translation` vs `kemenag`/`kemenag_full_ayah`, placeholder asing = `invalid`)
-- [ ] `pnpm verify` lolos; STATUS, LOG, dan file sesi ini diperbarui
+- [x] `pnpm verify` lolos; STATUS, LOG, dan file sesi ini diperbarui — LOG S12: `pnpm verify` lolos + `pnpm test:e2e` 76/76; CI PR #31 `verify` sukses (dicentang saat `/rilis 2`, ADR-048)
 
 ## Di luar cakupan
 

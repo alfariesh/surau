@@ -8,7 +8,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 |---|---|---|---|---|
 | 0 | Fondasi | Situs "Surau, segera hadir": tentang, prinsip, dan status pengembangan | S01–S04 | **dirilis 2026-10-15** (`rilis-f0`) |
 | 1 | Pembaca Ihya | Membaca Ihya lengkap: daftar isi, halaman cetak, takhrij al-'Iraqi, dan permalink | S05–S10 | **dirilis 2026-10-16** (`rilis-f1`) |
-| 2 | Cari | Pencarian Arab dan Indonesia di Ihya, ayat dengan terjemahan Kemenag, serta terjemahan dan ringkasan AI berlabel | S11–S15, X02 | **siap rilis** (2026-10-17; T-16/T-17 dinilai agent, temuan diperbaiki di X02, konfirmasi pemilik di `/rilis 2`) |
+| 2 | Cari | Pencarian Arab dan Indonesia di Ihya, ayat dengan terjemahan Kemenag, serta terjemahan dan ringkasan AI berlabel | S11–S15, X02 | **dirilis 2026-10-17** (`rilis-f2`) |
 | 3 | MCP publik | Korpus Surau bisa dipakai dari Claude, ChatGPT, dan AI lain | S16–S17 | belum |
 | 4 | Jawab | Tanya-jawab dengan kutipan Arab terverifikasi, berkuota, dengan rem biaya | S18–S21 | belum |
 | 5 | Ruang al-Ghazali | 21+ karya al-Ghazali, agen orang ketiga, metadata atribusi | garis besar | belum |
@@ -79,6 +79,8 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 - Biaya batch tercatat di LOG.
 
 **Status R2 (2026-10-17, S15):** S11–S15 selesai · set eval resmi 31 soal disetujui pemilik (T-12), `pnpm run eval:retrieval --gate` atas `ihya-v5` (= produksi) **hit@10 100%** ✓ ([laporan](../evals/reports/retrieval-2026-10-17-ihya-v5-resmi.md), ADR-045) · embedding tetap ditunda (ADR-046) · terjemahan/ringkasan berlabel AI dan ayat = Kemenag (S13/S14) ✓, dengan sisa risiko ayat yang luput pencocok (ADR-042) · biaya batch $4,48 di LOG S13 ✓ · T-16 dinilai 20/20 dan T-17 tahap 2 dinilai 70% Benar (di bawah target 80%), keduanya oleh agent lain yang laporannya diteruskan pemilik; temuannya diperbaiki di **X02** (ADR-047, korpus `ihya-v6` QA 30/30 dan eval hit@10 100%, aktif di produksi sejak PR #37). Konfirmasi pemilik atas penilaian agent dilakukan di `/rilis 2`. Sisa risiko: mutu 16 ribu terjemahan v2 lainnya belum diukur ulang tanpa bias (usulan T-17 tahap 3). Pemilik bisa menjalankan `/rilis 2`.
+
+**Dirilis 2026-10-17 (`rilis-f2`, ADR-048):** gerbang eval rilis atas `ihya-v6` hit@10 100% ([laporan](../evals/reports/retrieval-2026-10-17-ihya-v6-rilis.md)); T-16 diterima pemilik; target 80% T-17 tahap 2 dilewati secara sadar (penyimpangan diterima pemilik, keterbatasan di CHANGELOG); batas global pencarian 1.200/menit.
 
 ## Fase 3 · MCP publik
 

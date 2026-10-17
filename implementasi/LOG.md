@@ -15,6 +15,25 @@ Format entri:
 
 ---
 
+## 2026-10-17 · Rilis Fase 2 · Cari — dirilis (`rilis-f2`)
+
+- Dikerjakan:
+  - Kesiapan: S11–S15 + X02 selesai; butir S12 T-16 dan S12 verify dicentang dengan bukti; butir S13 QA (T-17 tahap 2, 70% < 80%) tetap tidak dicentang, penyimpangan diterima pemilik di chat (ADR-048). PR #30 (pohon daftar isi, UI) masih terbuka dan bukan bagian Fase 2.
+  - Perbaikan dari tinjauan keamanan: `SEARCH_GLOBAL_LIMITER` 300 → 1.200/menit (produksi 1004, Preview 2004), per klien tetap 60 (PR #39).
+  - Catatan rilis di `CHANGELOG.md`; FASE, STATUS, TUGAS-PEMILIK diperbarui.
+- Verifikasi:
+  - `pnpm install --frozen-lockfile` + `pnpm verify` → lolos (464 + 177 tes, build) · `pnpm test:e2e` → 93 lolos, 1 dilewati · cek rahasia `git ls-files … | grep` → kosong · larangan ADR-003 (grep `use server`/`use cache` kosong, `cacheComponents: false`, `images.unoptimized: true`, `server-reference-manifest` kosong) → terpenuhi.
+  - Gerbang eval: `pnpm run eval:retrieval --gate --label rilis` atas D1 lokal `ihya-v6` (= `CORPUS_DB` produksi `surau-corpus-ihya-v6`), 31 soal resmi (22 publik + 9 privat dari R2 `retrieval/2026-10-17-resmi-2.jsonl`) → hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795 → LOLOS ([laporan](../evals/reports/retrieval-2026-10-17-ihya-v6-rilis.md)).
+  - Tinjauan keamanan `rilis-f1..main` (peninjau): 0 blocker, 2 "perbaiki" (batas global pencarian → diperbaiki; tautan artifact T-12 → berbagi ditutup pemilik), beberapa saran (catatan di ADR-048/STATUS).
+  - Gerbang versi (docs-terbaru): Next 16.4.1 dalam peer OpenNext 1.20.12 (`>=16.4.1`); tidak ada advisory terbuka untuk Next 16.4.1, React 19.3.1, OpenNext 1.20.12, wrangler 4.151.0. Patch opsional: next 16.4.2, wrangler 4.151.1 (non-keamanan).
+  - Preview PR #39 (https://pr-39.surau.org): CI verify + preview + eval lolos (446 request, 0 error); uji manual ponsel 375 px: `/cari?q=adab murid kepada guru` (5 halaman, sorotan, label Terjemahan AI), j1 h210 (RTL, Naskh, terjemahan AI), j4 h335 (QS 54:55 + terjemahan Kemenag), 404; konsol 0 error.
+  - Produksi sebelum merge (curl): `/`, `/cari`, `/api/search` Arab + Indonesia, j1 h210, j4 h335, `/tentang`, `/lisensi` = 200; `/kitab/ihya/5/1`, `/tidak-ada` = 404.
+- Biaya API: –
+- Keputusan: ADR-048
+- Catatan untuk sesi berikutnya: S16 (Worker MCP) menunggu T-07 domain. Pantau 429 dan baca D1 `/api/search`. T-17 tahap 3 opsional. Soal holdout baru di S18.
+- **Draf pengumuman (untuk pemilik, tidak diposting agent):**
+  > Alhamdulillah, kini Anda bisa mencari di mana al-Ghazali membahas sesuatu di *Ihya' 'Ulum ad-Din*, cukup dengan kata Indonesia seperti "sabar" atau "adab murid kepada guru", atau dengan kata Arab. Setiap hasil menunjuk ke halaman cetak dan paragrafnya, dengan teks Arab asli, terjemahan dan ringkasan berlabel AI sebagai alat bantu, serta ayat Al-Qur'an yang memakai terjemahan Kemenag apa adanya. Terjemahan AI masih bisa keliru, jadi rujuk teks Arabnya dan laporkan bila menemukan kesalahan. Gratis, tanpa iklan, dan terbuka: https://surau-web.alfarieshsalman.workers.dev/cari
+
 ## 2026-10-17 · X02 · Perbaikan mutu terjemahan AI dan ayat sebelum rilis Fase 2 — selesai
 - Dikerjakan:
   - **Hasil T-16 dan T-17 tahap 2** (penilaian agent lain yang diteruskan pemilik sebagai lapisan koreksi, "bukan kebenaran mutlak"; diperiksa ulang di korpus): T-16 20/20 cocok; T-17 tahap 2 14 Benar / 4 Kurang / 2 Salah (70%, target 80%). Laporan `data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md`.
