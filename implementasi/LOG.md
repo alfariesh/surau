@@ -17,7 +17,7 @@ Format entri:
 
 ## 2026-10-17 · S17 · Dokumentasi dan uji klien MCP — sebagian (menunggu tinjauan panduan pemilik)
 - Dikerjakan:
-  - Panduan `/mcp` berbahasa Indonesia (Claude.ai/Desktop/Code, ChatGPT, klien lain), tiga contoh, alur cari → baca → verifikasi → sitasi, keterbatasan AI pengguna, takhrij/lisensi, bantuan; navigasi/sitemap/README dan smoke deploy diperbarui. Preview: https://pr-43.surau.org/mcp (PR #43).
+  - Panduan `/mcp` berbahasa Indonesia (Claude.ai/Desktop/Code, ChatGPT, klien lain), tiga contoh, alur cari → baca → verifikasi → sitasi, keterbatasan AI pengguna, takhrij/lisensi, bantuan; navigasi/sitemap/README dan smoke deploy diperbarui. Preview: https://pr-43.surau.org/mcp (PR #43); setelah merge/deploy, tautan tinjauan berpindah ke https://surau.org/mcp.
   - Uji nyata: Claude Code 2.1.299 + Haiku memanggil `search_text` lalu `read_page` edisi 1 j.1 h.48, hasil diperiksa langsung (sitasi, permalink, lisensi/atribusi); Claude.ai T-18 dikonfirmasi pemilik; Cloudflare AI Playground demo GLM-4.7-Flash juga kedua tool Completed. Desktop/ChatGPT hanya docs terbaru, tidak diklaim uji akun. Keterbatasan keluaran klien dicatat di [laporan](../docs/mcp-operasional.md).
   - Event `mcp_tool` per callback (nama/outcome/durasi, tanpa input/output/IP), error limiter tertangkap aman. Snapshot D1 bersama web/MCP 365.605 baris baca dan 1.134 kueri baca/24 jam; tarif Paid dikoreksi 25 miliar termasuk. Batas S16 tetap.
   - Pemantauan satu minggu 17–24 Oktober dimulai, automation harian 09.00 WIB tujuh kali (`pantau-mcp-surau-selama-satu-minggu`), tetap diam bila tidak ada perubahan bermakna; belum bukti stabil seminggu. Registry/directory/skill opsional ditunda.
