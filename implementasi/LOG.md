@@ -15,6 +15,18 @@ Format entri:
 
 ---
 
+## 2026-10-17 · Rilis Fase 3 · MCP publik — prarilis
+
+- Dikerjakan: pemeriksaan kesiapan S16–S17 (semua butir selesai, PR #42/#43 merge), branch `codex/rilis-f3`, dan catatan calon rilis di CHANGELOG. `main` awal `4f88541` bersih dan sinkron dengan `origin/main`.
+- Verifikasi:
+  - `pnpm install --frozen-lockfile` → lolos; percobaan sandbox dihentikan karena DNS registry dibatasi, dijalankan ulang dengan akses yang sesuai dan memakai store lokal.
+  - `pnpm verify` → lolos: **466 Node + 210 Workers**, smoke teks, build web dan MCP (1.356,01 KiB / gzip 246,11 KiB). Satu peringatan lint lama `search-client.tsx` dan peringatan CSS `::highlight` tetap.
+  - Peninjau keamanan `git diff rilis-f2..main` (75 berkas, sampai `4f88541`) → **lolos, tanpa blocker/perbaiki/saran**; kutipan, lisensi, privasi, rate limit, SQL, workflow dan promote korpus ditinjau. `git diff --check` bersih, cek file data/rahasia terlacak kosong.
+  - Mitigasi ADR-003 pada build: `cacheComponents: false`, `images.unoptimized: true`, manifest Server Actions `node`/`edge` kosong. Gerbang versi `docs-terbaru` → lolos: Next 16.4.1 didukung resmi OpenNext 1.20.12; dua high transitif (`glob`/`figlet`) masih ada di audit tetapi pemicunya tidak dipakai, mitigasi dan bukti di ADR-003. Patch Next 16.4.2/Wrangler 4.151.1 opsional. E2E/preview masih diperiksa.
+- Biaya API: – (tanpa panggilan LLM berbayar).
+- Keputusan: belum ada keputusan rilis produksi; tidak ada perubahan korpus atau migrasi baru.
+- Catatan untuk sesi berikutnya: selesaikan gerbang versi dan Preview dari `preview.yml`, lalu minta persetujuan eksplisit pemilik sesuai skill rilis sebelum merge/deploy produksi dan pembuatan tag `rilis-f3`. Pemantauan 17–24 Oktober tetap berjalan.
+
 ## 2026-10-17 · S17 · Dokumentasi dan uji klien MCP — selesai
 - Dikerjakan:
   - Panduan `/mcp` berbahasa Indonesia (Claude.ai/Desktop/Code, ChatGPT, klien lain), tiga contoh, alur cari → baca → verifikasi → sitasi, keterbatasan AI pengguna, takhrij/lisensi, bantuan; navigasi/sitemap/README dan smoke deploy diperbarui. Preview: https://pr-43.surau.org/mcp (PR #43); setelah merge/deploy, tautan tinjauan berpindah ke https://surau.org/mcp.
