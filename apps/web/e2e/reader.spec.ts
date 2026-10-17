@@ -155,3 +155,26 @@ test("dialog Laporkan kesalahan terkirim (honeypot: server menjawab tanpa menyim
   expect((await posted).status()).toBe(201);
   await expect(dialog.getByText("Terima kasih, laporan Anda tersimpan.")).toBeVisible();
 });
+
+// S12: butuh korpus dengan tabel ayat (≥ ihya-v3: D1 lokal atau staging di Preview).
+test("label rujukan ayat membuka teks ayat dan terjemahan Kemenag dengan atribusi", async ({
+  page,
+}) => {
+  await page.goto("/kitab/ihya/1/119");
+  const chip = page.getByRole("button", { name: /^Rujukan ayat QS An-Naml \[27\]: 90:/ });
+  await expect(chip).toBeVisible();
+  // Label tampil lewat CSS, tidak ikut teks yang disalin.
+  expect(await page.locator(".reader-text").innerText()).not.toContain("QS 27:90");
+  await chip.click();
+  // Kutipan hanya sebagian ayat: terjemahan yang tampil adalah ayat lengkap, berlabel demikian.
+  await expect(page.getByText("Terjemahan ayat lengkap (Kemenag)")).toBeVisible();
+  await expect(page.getByText("Kitab mengutip sebagian ayat ini.")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Buka ayat ini di Tanzil/ })).toHaveAttribute(
+    "href",
+    "https://tanzil.net/#27:90",
+  );
+  await expect(page.getByRole("link", { name: /Tanzil Project/ }).first()).toHaveAttribute(
+    "href",
+    "https://tanzil.net",
+  );
+});

@@ -11,6 +11,8 @@ const PAGES = [
   "/kitab",
   "/kitab/ihya",
   "/kitab/ihya/1/200",
+  // Kutipan ayat + label rujukan "QS s:a" (S12, korpus ≥ ihya-v3).
+  "/kitab/ihya/1/119",
 ];
 
 for (const scheme of ["light", "dark"] as const) {
