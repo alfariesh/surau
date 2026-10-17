@@ -141,7 +141,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   2. Untuk tiap nomor 1–20, nilai: **Benar** (makna tepat), **Kurang** (makna benar tapi ada yang janggal/hilang), atau **Salah** (makna keliru).
   3. Kirim ke agent, misalnya "T-17 tahap 2: 1–20 B kecuali 4 K (istilah kurang tepat), 11 S (subjek tertukar)". Target: Benar ≥ 80%, Salah ≤ 10%; bila Salah > 10%, agent memperbaiki prompt dan mengulang paragraf yang terdampak.
 
-- [ ] **T-23 · Tinjau tampilan Cari dan terjemahan di pembaca (S14)** (±10 menit) · **siap dikerjakan** (2026-10-17)
+- [x] **T-23 · Tinjau tampilan Cari dan terjemahan di pembaca (S14)** (±10 menit) · selesai 2026-10-17: pemilik menyatakan "Cari ok sudah ok" (chat S14, di situs utama setelah promote `ihya-v5`)
   Buka di ponsel dan laptop (data staging, versi `ihya-v5`): **https://pr-33-surau-web.alfarieshsalman.workers.dev/cari**
   1. Ketik **sabar**, lalu **adab murid kepada guru**, lalu **الصبر**. Cek kartu hasil: teks Arab asli dengan kata yang tersorot, label **Terjemahan AI**, dan (bila ada) **Ringkasan AI**.
   2. Coba filter **Bagian kitab** (pilih satu rub', lalu satu kitab), dan **Muat lebih banyak** di bawah.
