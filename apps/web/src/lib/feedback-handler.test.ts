@@ -1,10 +1,10 @@
+import { ipKey, ipNetwork } from "@surau/core";
 import type { FeedbackInput } from "@surau/db";
 
 import { describe, expect, it } from "vite-plus/test";
 
 import type { FeedbackDeps } from "./feedback-handler";
 
-import { ipKey, ipNetwork } from "./client-key";
 import { handleFeedback } from "./feedback-handler";
 
 const ORIGIN = "https://surau.example";

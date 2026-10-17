@@ -1,5 +1,6 @@
-// Kunci rate limit per klien tanpa menyimpan atau mengirim IP mentah (ADR-034): HMAC(kunci,
-// jaringan IP). Dipakai /api/feedback (S09) dan /api/search (S11).
+// Kunci rate limit per klien tanpa menyimpan atau mengirim IP mentah (ADR-014, ADR-034): HMAC(kunci,
+// jaringan IP). Dipakai web (/api/feedback S09, /api/search S11) dan Worker MCP (S16, kunci
+// `HMAC(IP):tool`). Hanya Web Crypto, jadi jalan di Workers dan Node.
 
 /**
  * Jaringan klien untuk rate limit: IPv4 apa adanya, IPv6 dipotong ke /64 (satu pelanggan biasanya

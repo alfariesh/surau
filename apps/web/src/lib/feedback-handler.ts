@@ -1,8 +1,8 @@
+import { ipKey, ipNetwork } from "@surau/core";
 import type { FeedbackInput } from "@surau/db";
 
 import { ZodError } from "zod";
 
-import { ipKey, ipNetwork } from "./client-key";
 import { FEEDBACK_BODY_MAX_BYTES } from "./feedback";
 import { feedbackRequest } from "./feedback-schema";
 

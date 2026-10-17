@@ -14,7 +14,7 @@ Dokumen ini adalah **target** arsitektur. Bagian-bagiannya dibangun bertahap ses
                     │ surau-api  (Hono, Fase 4)                                        │
                     │   Jawab (SSE), kuota, ledger biaya, cron ── AI Gateway ──▶ Anthropic
                     │                                                                  │
- Claude/ChatGPT ───▶│ surau-mcp  (MCP SDK v2, Fase 3)        mcp.<domain>/mcp         │
+ Claude/ChatGPT ───▶│ surau-mcp  (MCP SDK v2, Fase 3)        mcp.surau.org/mcp        │
    (AI pengguna)    │   read-only, tanpa LLM, rate limit HMAC(IP):tool                │
                     │                                                                  │
                     │ D1  surau-corpus-<versi>  (hanya-baca, FTS5)   ◀── semua Worker  │
@@ -36,7 +36,7 @@ Semua Worker mengimpor logika domain yang sama dari `packages/core`. Aturan keam
 surau/
 ├─ apps/
 │  ├─ web/            @surau/web   Next.js 16 + HeroUI (dipindah dari web/ di S01)
-│  ├─ mcp/            @surau/mcp   Worker MCP (Fase 3)
+│  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 7 tool di atas packages/core
 │  └─ api/            @surau/api   Worker Hono: Jawab, kuota, cron (Fase 4)
 ├─ packages/
 │  ├─ text/           @surau/text  normalisasi Arab, offset map, stem, pembersih HTML Shamela, findQuote
@@ -109,8 +109,8 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 | `readSection(nodeId, cursor?)` | `read_section` | 1 | Paragraf bagian **beserta sub-bagiannya** (dipaginasi ±4–6 ribu token per blok paragraf + catatan kakinya), sitasi |
 | `readPage(editionId, juz, pageNo)` | `read_page` | 1 | Satu halaman cetak beserta catatan kakinya dan halaman sebelum/sesudah |
 | `searchText(query, opts)` | `search_text` | 2 | Kueri Arab: halaman berperingkat BM25 (S11, ADR-039). Kueri Indonesia/campuran: gabungan RRF jalur Arab + terjemahan AI + ringkasan AI (S14, ADR-044). Paragraf cocok dengan span sorotan dan potongan di teks mentah, terjemahan/ringkasan berlabel, `matched_by`, sitasi; filter edisi/bagian; pengaman kata umum |
-| `verifyQuote(passageId, quote)` | `verify_quote` | 2 | `findQuote` → substring mentah verbatim atau `null` |
-| `getHadithTakhrij(passageId)` | `get_hadith_takhrij` | 3 | Teks catatan kaki takhrij asli yang ditautkan, dengan status review |
+| `verifyQuote(passageId, quote)` | `verify_quote` | 3 (S16) | `findQuote` → `verified` + `match` (substring mentah verbatim) atau `null`, dengan sitasi |
+| `getHadithTakhrij(passageId)` | `get_hadith_takhrij` | 3 (S16) | Teks catatan kaki takhrij asli yang ditautkan, `needs_review` + `review_status: "unreviewed"`; `status: none` = derajat tidak diketahui |
 | `buildCitation(passageId)` | (di setiap hasil) | 1 | Karya, edisi, juz, halaman, permalink, lisensi/atribusi |
 
 ## 5. Alur utama
@@ -154,6 +154,7 @@ File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha25
 | Lokal | `pnpm dev` (port 3004) dan/atau `opennextjs-cloudflare preview` | D1 lokal | D1 lokal | lokal | **Satu lokasi data lokal untuk semua:** `<root>/.wrangler/state` (lihat aturan di bawah) |
 | Preview (per PR) | `wrangler preview` | `surau-corpus-staging` | `surau-app-staging` | `surau-next-cache-preview` | Resource akun **tidak** terisolasi per preview, jadi semua binding storage dideklarasikan ulang di blok `previews`. Service binding dari preview memanggil deployment **produksi** Worker tujuan. |
 | Produksi | custom domain | `surau-corpus-<versi>` (blue-green) | `surau-app` | `surau-next-cache` | `workers_dev=false`, `preview_urls=false` di produksi (Fase 4) |
+| MCP (`surau-mcp`, S16) | `mcp.surau.org` (custom domain di `routes`); Preview `pr-<n>-surau-mcp…workers.dev`; lokal `pnpm --filter @surau/mcp dev` (port 3006) | produksi: `CORPUS_DB` yang sama dengan web; Preview: `surau-corpus-staging`; lokal: D1 lokal bersama | – | – | `workers_dev=false`, `preview_urls=true`; rate limit `namespace_id` 3001–3004 / 4001–4004; secret `IP_HMAC_KEY` (ADR-049) |
 
 **Aturan lingkungan (wajib):**
 1. **Satu lokasi D1 lokal.** Semua perintah lokal memakai `--persist-to <root>/.wrangler/state`, yaitu `wrangler d1 migrations apply --local`, `wrangler d1 execute --local`, skrip `db:migrate:local`, `corpus:load:local`, dan `preview` di `apps/web` (sejak ADR-038). Jangan jalankan `next dev` dan `preview` bersamaan pada lokasi yang sama (SQLITE_BUSY). CLI menambahkan `v3` sendiri, jadi datanya ada di `<root>/.wrangler/state/v3`. `initOpenNextCloudflareForDev()` dan `getPlatformProxy()` memakai `persist.path` **apa adanya**, sehingga keduanya wajib diberi `<root>/.wrangler/state/v3` (path absolut; dicek di S08). Tanpa ini, setiap `wrangler.jsonc` atau proxy melihat DB lokal yang berbeda (kosong).
@@ -168,7 +169,7 @@ File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha25
 - **D1:** 10 GB per DB, statement ≤100 KB, ≤100 parameter, query ≤30 detik, pola LIKE ≤50 byte, single-threaded per DB.
 - **Ihya:** 11 MB data dan ±7 MB indeks FTS. 92 kitab diperkirakan ±1–1,6 GB total.
 - **Haiku 5.5:** harga naik 5× di atas 100k token prompt (termasuk cache). Jawab dibatasi ±40k.
-- **MCP:** output tool sebaiknya ≤10 ribu token (Claude Code memberi peringatan di atasnya).
+- **MCP:** output tool sebaiknya ≤10 ribu token (Claude Code memberi peringatan di atasnya, batas 25 ribu). Diukur S16 (`count_tokens`, `data/reports/mcp-token.md`): `read_section` median ±5 ribu (maks. ±6,2 ribu), `read_page` median ±11,1 ribu (maks. ±14,8 ribu), `search_text` (≤5 halaman) median ±7,3 ribu (maks. ±10,9 ribu), daftar isi dari akar ±7,8 ribu. Teks Arab Ihya ±0,7 token/karakter; JSON keluaran ±1,6 karakter/token (`CHARS_PER_TOKEN` 1,4, ADR-049).
 
 ## 9. Glosarium
 

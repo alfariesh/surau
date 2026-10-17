@@ -1,4 +1,5 @@
-# Deploy produksi: setiap push ke main → build OpenNext → deploy Worker `surau-web`.
+# Deploy produksi: setiap push ke main → build OpenNext → deploy Worker `surau-web` (https://surau.org),
+# lalu Worker MCP `surau-mcp` (https://mcp.surau.org/mcp, S16) setelah web lolos smoke.
 # Keputusan: ADR-017 (CI/CD), ADR-026 (deploy Cloudflare). Migrasi D1 HANYA `surau-app` (S10): korpus
 # tidak pernah diubah dari sini, hanya lewat `pnpm run corpus:promote` (blue-green, ARSITEKTUR-TEKNIS §7
 # aturan 4; dijaga tes tools/ingest/src/corpus.test.ts).
@@ -27,7 +28,7 @@ jobs:
     timeout-minutes: 20
     environment:
       name: produksi
-      url: https://surau-web.alfarieshsalman.workers.dev
+      url: https://surau.org
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -72,10 +73,45 @@ jobs:
           # (S04: `/` sempat 307 dari template). Ulangi sampai 200, paling lama ±60 detik per halaman.
           for p in / /tentang /lisensi /kitab /kitab/ihya/1/200; do
             for i in $(seq 1 12); do
-              code=$(curl -s -o /dev/null -w '%{http_code}' "https://surau-web.alfarieshsalman.workers.dev$p" || true)
+              code=$(curl -s -o /dev/null -w '%{http_code}' "https://surau.org$p" || true)
               [ "$code" = "200" ] && break
               sleep 5
             done
             echo "$p → $code (percobaan $i)"
             [ "$code" = "200" ] || { echo "::error title=Smoke gagal::$p mengembalikan $code"; exit 1; }
           done
+
+  # Worker MCP (S16, ADR-049): custom domain mcp.surau.org dari `routes` di apps/mcp/wrangler.jsonc
+  # (DNS + sertifikat dibuat wrangler). Tanpa migrasi D1: Worker ini hanya membaca D1 yang sama
+  # dengan web. Setelah web, supaya keduanya tidak berganti binding dengan urutan acak.
+  deploy-mcp:
+    name: deploy mcp
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: produksi-mcp
+      url: https://mcp.surau.org/mcp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/siapkan
+        with:
+          heroui-auth-token: ${{ secrets.HEROUI_AUTH_TOKEN }}
+
+      - name: Deploy Worker MCP
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm --filter @surau/mcp run deploy:mcp
+
+      # Inspector di kedua era: tools/list + list_works (data produksi tidak diuji penuh di sini).
+      # Deploy pertama menerbitkan sertifikat custom domain: coba ulang sampai ±5 menit.
+      - name: Smoke MCP produksi
+        env:
+          MAX_COBA: "30"
+          JEDA: "10"
+        run: bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp daftar

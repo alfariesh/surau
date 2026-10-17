@@ -11,7 +11,7 @@ import {
   setProductionCorpus,
   stagingCorpus,
 } from "./corpus.ts";
-import { WEB_CONFIG, repo } from "./d1.ts";
+import { MCP_CONFIG, WEB_CONFIG, repo } from "./d1.ts";
 
 const STAGING_ID = "ffc5ce9a-2b5a-4d09-8487-922ff0e67827";
 
@@ -89,6 +89,34 @@ describe("binding korpus produksi", () => {
         `"binding": "CORPUS_DB",\\s*"database_name": "surau-corpus-staging",\\s*"database_id": "${STAGING_ID}"`,
       ),
     );
+  });
+});
+
+describe("Worker MCP berbagi korpus produksi web (S16)", () => {
+  const mcp = readFileSync(join(repo, MCP_CONFIG), "utf8");
+
+  test("apps/mcp/wrangler.jsonc: CORPUS_DB produksi = web; lokal + Preview = korpus staging", () => {
+    const web = readProductionCorpus(readFileSync(join(repo, WEB_CONFIG), "utf8"));
+    expect(readProductionCorpus(mcp)).toEqual(web);
+    const head = mcp.slice(0, mcp.indexOf('"previews"'));
+    expect(head).toContain(`"preview_database_id": "${STAGING_ID}"`);
+    expect(mcp.slice(mcp.indexOf('"previews"'))).toMatch(
+      new RegExp(
+        `"binding": "CORPUS_DB",\\s*"database_name": "surau-corpus-staging",\\s*"database_id": "${STAGING_ID}"`,
+      ),
+    );
+  });
+
+  test("setProductionCorpus tanpa cache pencarian: hanya nama + ID yang berganti", () => {
+    const next = setProductionCorpus(
+      mcp,
+      { name: "surau-corpus-ihya-v9", id: "id-baru" },
+      { searchCache: false },
+    );
+    expect(readProductionCorpus(next)).toEqual({ name: "surau-corpus-ihya-v9", id: "id-baru" });
+    expect(next.slice(next.indexOf('"previews"'))).toBe(mcp.slice(mcp.indexOf('"previews"')));
+    // Config tanpa SEARCH_CACHE_CORPUS ditolak bila cache diminta (bawaan untuk web).
+    expect(() => setProductionCorpus(mcp, { name: "a", id: "b" })).toThrow(/SEARCH_CACHE_CORPUS/);
   });
 });
 

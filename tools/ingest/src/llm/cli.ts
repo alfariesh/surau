@@ -3,6 +3,8 @@
 // ingest. Kunci API dibaca dari `.env` (T-11) hanya oleh perintah yang memanggil API; nilainya tidak
 // pernah dicetak.
 //   tokens [--n 200]          ukur token Arab Claude (count_tokens, gratis) → laporan + faktor
+//   mcp-tokens [--url URL] [--n 25]  ukur token hasil tool MCP yang sedang berjalan (count_tokens,
+//                             gratis; S16) → data/reports/mcp-token.md
 //   sample                    uji kecil lewat API biasa: 20 paragraf + 5 bagian (berbayar, ±$0,05)
 //   plan [--round 1|2]        susun semua request + count_tokens (gratis) + estimasi biaya
 //   submit --round 1|2 [--kind translation|summary-r1|summary-r2] [--limit N] [--budget USD] [--confirm]
@@ -40,6 +42,7 @@ import { runReport } from "./report.ts";
 import { runSample } from "./sample.ts";
 import { batchKind } from "./store.ts";
 import { z } from "zod";
+import { runMcpTokens } from "./mcp-tokens.ts";
 import { runTokens } from "./tokens.ts";
 
 const repo = resolve(import.meta.dirname, "../../../..");
@@ -102,6 +105,7 @@ async function main(argv: string[]): Promise<number> {
       limit: { type: "string" },
       budget: { type: "string" },
       confirm: { type: "boolean", default: false },
+      url: { type: "string" },
     },
   });
   const ctx = context(values.shamela);
@@ -111,6 +115,12 @@ async function main(argv: string[]): Promise<number> {
   switch (positionals[0]) {
     case "tokens":
       return runTokens(ctx, positiveInt.parse(values.n ?? 200));
+    case "mcp-tokens":
+      return runMcpTokens(
+        ctx,
+        z.url().parse(values.url ?? "http://localhost:3006/mcp"),
+        positiveInt.parse(values.n ?? 25),
+      );
     case "sample":
       return runSample(ctx);
     case "plan":
@@ -141,7 +151,7 @@ async function main(argv: string[]): Promise<number> {
       return runReport(ctx);
     default:
       console.error(
-        "Pakai: pnpm llm tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report [--round 1|2] [--kind …] [--limit N] [--confirm]",
+        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report [--round 1|2] [--kind …] [--limit N] [--confirm]",
       );
       return 2;
   }

@@ -23,7 +23,8 @@ import { readAccepted, unresolved } from "./batch.ts";
 
 export const QA_SEED = 9473;
 export const QA_SIZE = 20;
-export const SITE = "https://surau-web.alfarieshsalman.workers.dev";
+/** Situs produksi untuk tautan di laporan dan halaman tinjauan (domain sendiri sejak S16). */
+export const SITE = "https://surau.org";
 
 const num = (n: number) => n.toLocaleString("id-ID");
 const pct = (a: number, b: number) =>

@@ -20,6 +20,8 @@ export const repo = resolve(import.meta.dirname, "../../..");
 export const DB_CONFIG = "packages/db/wrangler.jsonc";
 /** Config Worker web: binding CORPUS_DB top-level = korpus PRODUKSI. */
 export const WEB_CONFIG = "apps/web/wrangler.jsonc";
+/** Config Worker MCP (S16): CORPUS_DB top-level = korpus PRODUKSI yang sama dengan web. */
+export const MCP_CONFIG = "apps/mcp/wrangler.jsonc";
 export const CORPUS_MIGRATIONS = "packages/db/migrations/corpus";
 
 /** Jalankan wrangler dari root repo. Keluaran (panjang) hanya dicetak bila gagal. */

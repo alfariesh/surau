@@ -1,9 +1,14 @@
 import type { SearchTextInput, SearchView } from "@surau/core";
 
-import { SEARCH_QUERY_MAX, isCoreError, searchCacheKey, uintSegment } from "@surau/core";
+import {
+  ipKey,
+  ipNetwork,
+  isCoreError,
+  SEARCH_QUERY_MAX,
+  searchCacheKey,
+  uintSegment,
+} from "@surau/core";
 import { z } from "zod";
-
-import { ipKey, ipNetwork } from "./client-key";
 
 // Logika GET /api/search (S11 langkah 5, S14 langkah 8), dipisah dari route supaya bisa dites tanpa
 // Workers. Urutan: pembaca terbuka → parameter (Zod; kueri ≤200 karakter) → cache hasil (bila ada)

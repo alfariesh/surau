@@ -67,7 +67,9 @@ export const location = z
     page_no: pageNo,
     permalink: z
       .string()
-      .describe("Public permalink path (no origin), e.g. /kitab/ihya/1/200#p2824"),
+      .describe(
+        "Public permalink of the page or passage, e.g. https://surau.org/kitab/ihya/1/200#p2824 (a path without origin inside @surau/core)",
+      ),
     label: z.string().describe("Short citation label, e.g. \"Ihya' 'Ulum ad-Din, j. 1, h. 200\""),
   })
   .describe("Printed location of a page or passage");
@@ -85,7 +87,11 @@ export const tocNodeRef = z.strictObject({
   id: id.describe("Stable table-of-contents node id"),
   title_ar: z.string(),
   level: id,
-  permalink: z.string().describe("Section permalink path, e.g. /kitab/ihya/bab/100074"),
+  permalink: z
+    .string()
+    .describe(
+      "Section permalink, e.g. https://surau.org/kitab/ihya/bab/100074 (a path without origin inside @surau/core)",
+    ),
 });
 export type TocNodeRef = z.infer<typeof tocNodeRef>;
 
@@ -562,6 +568,76 @@ export const searchView = z.strictObject({
 });
 export type SearchView = z.infer<typeof searchView>;
 
+// ── Verifikasi kutipan dan takhrij (S16) ───────────────────────────────────────────────
+
+export const quoteMatch = z
+  .strictObject({
+    char_start: z
+      .number()
+      .int()
+      .nonnegative()
+      .describe("Start offset in the passage text_raw (JS string index, inclusive)"),
+    char_end: z.number().int().positive().describe("End offset (exclusive)"),
+    text: z
+      .string()
+      .describe(
+        "text_raw.slice(char_start, char_end): the verbatim source text with its own diacritics; quote this, not your input",
+      ),
+  })
+  .describe("Where the quote occurs in the passage");
+export type QuoteMatch = z.infer<typeof quoteMatch>;
+
+export const quoteVerification = z.strictObject({
+  citation: citation.describe("Citation of the passage checked"),
+  passage_id: id,
+  verified: z
+    .boolean()
+    .describe(
+      "true = the quote occurs in this passage at word boundaries, after normalizing diacritics, letter variants (alif/ya/ta marbuta) and punctuation; false = not found: do not present it as a quotation",
+    ),
+  exact: z
+    .boolean()
+    .describe("true = the quote is character-for-character identical to match.text"),
+  match: quoteMatch.nullable().describe("First occurrence; null when not verified"),
+});
+export type QuoteVerification = z.infer<typeof quoteVerification>;
+
+export const takhrijLink = z.strictObject({
+  marker: z.string().describe("Footnote marker digit as printed, e.g. ١"),
+  char_start: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe("Start offset of the marker in the passage text_raw (inclusive)"),
+  char_end: z.number().int().positive().describe("End offset (exclusive)"),
+  footnote: passage.describe("The linked footnote: takhrij text verbatim (kind = foot)"),
+  review_status: z
+    .literal("unreviewed")
+    .describe(
+      "The marker → footnote link and the footnote split were made by ingest code, not yet checked by a human reviewer",
+    ),
+});
+export type TakhrijLink = z.infer<typeof takhrijLink>;
+
+export const takhrijView = z.strictObject({
+  citation: citation.describe("Citation of the requested passage"),
+  passage: passage.describe("The requested passage, verbatim"),
+  status: z
+    .enum(["linked", "none", "is_footnote"])
+    .describe(
+      "linked = takhrij footnotes are linked to markers in this passage; none = no linked takhrij, so the hadith status is unknown (never guess it); is_footnote = the passage itself is a footnote (takhrij text)",
+    ),
+  takhrij: z
+    .array(takhrijLink)
+    .describe("Linked footnotes in marker order; the grading is whatever the takhrij text says"),
+  unlinked_footnote_ids: z
+    .array(id)
+    .describe(
+      "Footnotes on the same page not linked to any marker (e.g. takhrij cut from the main text); they may or may not concern this passage: read them with read_page",
+    ),
+});
+export type TakhrijView = z.infer<typeof takhrijView>;
+
 // ── Masukan (dibagikan ke route, tool MCP, CLI; KONVENSI §TypeScript) ──────────────────────
 
 export const TOC_DEFAULT_DEPTH = 2;
@@ -597,6 +673,24 @@ export type BuildCitationInput = z.infer<typeof buildCitationInput>;
 
 export const getAyahRefsInput = z.strictObject({ passage_id: id });
 export type GetAyahRefsInput = z.infer<typeof getAyahRefsInput>;
+
+/** Batas panjang kutipan yang diverifikasi (karakter); paragraf Ihya terpanjang ±10 ribu. */
+export const QUOTE_MAX = 2_000;
+
+export const verifyQuoteInput = z.strictObject({
+  passage_id: id.describe("Passage to check, e.g. an id from read_page or search_text"),
+  quote: z
+    .string()
+    .min(1)
+    .max(QUOTE_MAX)
+    .describe("Arabic text claimed to be in the passage (with or without diacritics)"),
+});
+export type VerifyQuoteInput = z.infer<typeof verifyQuoteInput>;
+
+export const getHadithTakhrijInput = z.strictObject({
+  passage_id: id.describe("Main-text passage containing the hadith (or a footnote passage)"),
+});
+export type GetHadithTakhrijInput = z.infer<typeof getHadithTakhrijInput>;
 
 /** Batas panjang kueri pencarian (karakter), juga batas di API web (S11). */
 export const SEARCH_QUERY_MAX = 200;

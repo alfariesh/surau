@@ -1,8 +1,8 @@
 // Fixture tes core: fixture kecil S06 (packages/db/test/fixture.ts: 1 karya, 2 edisi, 3 halaman,
 // 2 catatan kaki) ditambah satu bagian panjang BUATAN untuk paginasi: node akar "باب طويل" dengan
 // satu anak, 12 halaman di juz 3, setiap halaman 4 paragraf badan (kalimat contoh yang diulang)
-// + 1 catatan kaki tertaut. Halaman 1–6 kecil (±1,6 ribu token setelah JSON: batas halaman jatuh
-// di rentang 4–6 ribu), halaman 7–12 besar (±3,7 ribu token: halaman harus terbelah).
+// + 1 catatan kaki tertaut. Halaman 1–6 kecil (±2,3 ribu token setelah JSON: batas halaman jatuh
+// di rentang 3,5–5 ribu), halaman 7–12 besar (±5,3 ribu token: halaman harus terbelah).
 // Tambahan untuk kasus tepi blok: catatan kaki yatim (tidak dirujuk) di h.8, dan h.13 yang hanya
 // berisi catatan kaki. Tidak ada teks kitab (KONVENSI §Tes).
 import { pageId, passageId, tocNodeId } from "@surau/db";
