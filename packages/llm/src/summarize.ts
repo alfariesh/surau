@@ -109,6 +109,21 @@ export interface SummaryCheck {
 /** Panjang ringkasan yang wajar (karakter): 1 kalimat pendek sampai ±8 kalimat panjang. */
 export const SUMMARY_LENGTH = { min: 60, max: 2_400 } as const;
 
+/**
+ * Kata fungsi bahasa LAIN sebanyak ini = ringkasan campur bahasa (batch S13: ringkasan "Inggris"
+ * berisi versi Indonesia + catatan + versi Inggris lolos karena ada kata "the"). Di 1.256
+ * ringkasan S13 yang wajar jumlahnya 0; yang campur 25.
+ */
+export const MIXED_LANGUAGE_WORDS = 3;
+const OTHER_WORDS: Record<SummaryLang, RegExp> = {
+  id: /\b(?:the|and|of|that|is|with|which|his)\b/gi,
+  en: /\b(?:yang|dan|dengan|bahwa|dalam|ini|itu|tidak|untuk|dari)\b/gi,
+};
+
+function otherLanguageWords(text: string, lang: SummaryLang): number {
+  return text.match(OTHER_WORDS[lang])?.length ?? 0;
+}
+
 // Kata fungsi yang hampir pasti muncul dalam beberapa kalimat bahasa itu; cek kasar salah bahasa.
 const LANG_WORDS: Record<SummaryLang, RegExp> = {
   id: /\b(?:yang|dan|dengan|bahwa|dalam)\b/i,
@@ -123,11 +138,9 @@ export function checkSummary(output: string, lang: SummaryLang): SummaryCheck {
   if (text.length > SUMMARY_LENGTH.max) problems.push("too_long");
   if (text.includes("⟦") || /\bQS\s*\d/.test(text)) problems.push("placeholder");
   if (longestArabicRun(text) > MAX_ARABIC_RUN_WORDS) problems.push("arabic");
-  if (
-    !LANG_WORDS[lang].test(text) ||
-    (lang === "en" && LANG_WORDS.id.test(text) && !/\bthe\b/i.test(text))
-  )
+  if (!LANG_WORDS[lang].test(text) || otherLanguageWords(text, lang) >= MIXED_LANGUAGE_WORDS) {
     problems.push("language");
+  }
   if (hasMarkdown(text)) problems.push("markdown");
   if (hasPreamble(text)) problems.push("preamble");
   if (hasMetaCommentary(text, lang)) problems.push("meta");

@@ -18,11 +18,13 @@
 //    satu-satunya letak, pengantarnya bukan "يقول …" (pembuka hadits qudsi), dan tidak diawali kata
 //    fungsi (لا، في، قال، من، على، إلى …; mis. hadits qudsi "قال الله تعالى لا يزال"). Ditolak bila kata
 //    sesudahnya lebih cocok (mirip) dengan ayat lain. Lafaz umum ("إن الله", "في بعض") tidak
-//    pernah ditautkan sependek ini.
+//    pernah ditautkan sependek ini. Bila kutipan berlanjut dengan ejaan lain di ayat yang sama
+//    (أينما/أين ما, أولوا/أولو), bentang diperpanjang (`similar`).
 // 3. Kutipan tanpa tanda (S13, ADR-042): deret ≥ UNMARKED_MIN_TOKENS kata yang sama persis dengan
 //    mushaf di mana pun dalam paragraf, atau ≥ UNMARKED_CUED_MIN_TOKENS kata bila tepat didahului
 //    pengantar ayat (تعالى، عز وجل، قرأ، نزلت …, atau "{وقال}" yang kurungnya salah tempat). Hanya
-//    cocok persis dan hanya lafaz yang SATU-SATUNYA di mushaf. Tidak dihitung: kalimat tauhid saja,
+//    cocok persis dan hanya lafaz yang SATU-SATUNYA di mushaf (lafaz berulang hanya bila tepat
+//    didahului تعالى/عز وجل …). Tidak dihitung: kalimat tauhid saja,
 //    deret berawal basmalah (pembuka khutbah), dan deret dalam konteks hadits/zikir (رسول، النبي،
 //    وسلم، شريك dalam 16 kata sebelumnya tanpa pengantar ayat). Deret yang ditolak dilompati seluruhnya (sisa
 //    ekornya tidak dicoba lagi). Mode 2b dan 3 hanya untuk paragraf badan.
@@ -634,6 +636,49 @@ function cueSpans(
   return out;
 }
 
+/**
+ * Perpanjang kecocokan dari kata sumber `start` / token mushaf `mushafFrom + start`, melewati beda
+ * ejaan: kata mirip (`similarWord`), satu kata sumber = dua kata mushaf (أينما = أين ما), atau dua
+ * kata sumber = satu kata mushaf. Berakhir di kata terakhir yang sama persis (kata mirip di ujung
+ * biasanya kata penulis sendiri). `same` = jumlah kata sumber yang sama persis.
+ */
+function extendVariants(
+  index: QuranIndex,
+  words: readonly string[],
+  start: number,
+  mushafFrom: number,
+): { length: number; mushafEnd: number; same: number } {
+  let i = start;
+  let q = mushafFrom + start;
+  let same = start;
+  let best = { length: start, mushafEnd: mushafFrom + start - 1, same: start };
+  while (i < words.length && q < index.tokens.length) {
+    const w = words[i] as string;
+    const m = index.tokens[q] as string;
+    const m2 = index.tokens[q + 1] ?? "";
+    if (w === m) {
+      i += 1;
+      q += 1;
+      same += 1;
+      best = { length: i, mushafEnd: q - 1, same };
+      continue;
+    }
+    if (similarWord(w, m)) {
+      i += 1;
+      q += 1;
+    } else if (m2 !== "" && w === m + m2) {
+      i += 1;
+      q += 2;
+    } else if (i + 1 < words.length && w + (words[i + 1] as string) === m) {
+      i += 2;
+      q += 1;
+    } else {
+      break;
+    }
+  }
+  return best;
+}
+
 function shortCueSpans(
   index: QuranIndex,
   raw: string,
@@ -663,7 +708,7 @@ function shortCueSpans(
         break;
       }
     }
-    if (len === 0 || UNMARKED_SKIP.has(words.slice(0, len).join(" "))) continue;
+    if (len === 0) continue;
     if (hits.length > (len === 2 ? 1 : CUE_SHORT_MAX_PLACES)) continue;
     if (len === 2 && /(?:^| )(?:و|ف)?يقول(?= )/.test(m[0])) continue;
     if (len === 2 && SHORT_FUNCTION_START.has(words[0] as string)) continue;
@@ -684,22 +729,34 @@ function shortCueSpans(
         continue;
       }
     }
+    // Kutipan sering berlanjut dengan ejaan lain di ayat yang sama (أينما/أين ما, أولوا/أولو):
+    // perpanjang di letak terpilih supaya sisa ayat tidak tertinggal di luar placeholder.
+    const ext = extendVariants(index, words, len, picked.best.hit.from);
+    const used =
+      ext.length >= CUE_MIN_TOKENS
+        ? ext
+        : { length: len, mushafEnd: picked.best.hit.to, same: len };
+    const where =
+      used.length === len
+        ? picked.best.loc
+        : locate(index, { from: picked.best.hit.from, to: used.mushafEnd });
+    if (where === null) continue;
     const [charStart, charEnd] = toRawSpan(
       raw,
       n,
       (toks[0] as TokenSpan).start,
-      (toks[len - 1] as TokenSpan).end,
+      (toks[used.length - 1] as TokenSpan).end,
     );
     if (taken.some((t) => charStart < t.charEnd && t.charStart < charEnd)) continue;
     out.push({
       charStart,
       charEnd,
-      ...loc(picked.best.loc),
-      match: "exact",
+      ...loc(where),
+      match: used.same === used.length ? "exact" : "similar",
       kind: "cue_short",
       alt: picked.alt,
-      score: 1,
-      tokens: len,
+      score: Math.round((used.same / used.length) * 1000) / 1000,
+      tokens: used.length,
     });
   }
   return out;
@@ -716,7 +773,13 @@ const BRACED_SAID_RE = /^(?:و|ف)?قال$/;
 const HADITH_CONTEXT = new Set(["رسول", "النبي", "وسلم", "صلعم", "شريك"]);
 const HADITH_LOOKBACK = 16;
 // Deret yang sama persis dengan mushaf tetapi di Ihya hampir selalu zikir atau lafaz hadits.
-const UNMARKED_SKIP = new Set(["لا اله الا الله", "لا اله الا هو"]);
+// Istirja' dan hasbalah = ucapan/zikir (2:156, 3:173), bukan kutipan ayat di Ihya.
+const UNMARKED_SKIP = new Set([
+  "لا اله الا الله",
+  "لا اله الا هو",
+  "انا لله وانا اليه راجعون",
+  "حسبنا الله ونعم الوكيل",
+]);
 // Basmalah di awal deret tanpa tanda = pembuka kitab/khutbah/surat, bukan kutipan 1:1–2.
 const BASMALAH = "بسم الله الرحمن الرحيم";
 
@@ -777,9 +840,10 @@ function unmarkedSpans(
     const prev = i > 0 ? (toks[i - 1] as TokenSpan) : null;
     const prevWord = prev === null ? "" : (words[i - 1] as string);
     const prevRaw = prev === null ? [0, 0] : toRawSpan(raw, n, prev.start, prev.end);
+    // "{وقال}" atau "{ثم قال}": kurung ayat yang salah tempat membungkus kata pengantarnya.
     const prevBraced =
       prev !== null &&
-      /\{\s*$/.test(raw.slice(Math.max(0, prevRaw[0] - 2), prevRaw[0])) &&
+      /\{[^{}]{0,8}$/.test(raw.slice(Math.max(0, prevRaw[0] - 9), prevRaw[0])) &&
       /^\s*\}/.test(raw.slice(prevRaw[1], prevRaw[1] + 2));
     const cued = QURAN_CUE_WORD_RE.test(prevWord) || (prevBraced && BRACED_SAID_RE.test(prevWord));
     const min = cued ? UNMARKED_CUED_MIN_TOKENS : UNMARKED_MIN_TOKENS;
@@ -791,8 +855,11 @@ function unmarkedSpans(
       i++;
       continue;
     }
+    // Lafaz berulang hanya diterima bila tepat didahului pengantar ayat (تعالى، عز وجل …): itu jelas
+    // kutipan, dan letaknya dipilih dengan aturan S12 (ayat utuh, surah kutipan sebelumnya).
+    const quranCued = QURAN_CUE_WORD_RE.test(prevWord);
     const picked =
-      alt > 0 ||
+      (alt > 0 && !quranCued) ||
       UNMARKED_SKIP.has(run.join(" ")) ||
       run.join(" ").startsWith(BASMALAH) ||
       inHadith(words, i)

@@ -12,7 +12,7 @@ import { checkSummary, checkTranslation } from "@surau/llm";
 
 import type { CorpusRows } from "../rows.ts";
 import { acceptedSummary, acceptedTranslation, readJsonl } from "./store.ts";
-import { buildWork } from "./work.ts";
+import { buildWork, round2InputSha } from "./work.ts";
 
 export interface LlmStats {
   /** Paragraf badan yang harus punya terjemahan (termasuk yang terblokir). */
@@ -153,6 +153,10 @@ export function llmRows(rows: CorpusRows, dir: string): LlmBuild {
       s,
     ]),
   );
+  // Ringkasan putaran 1 yang lolos: masukan ringkasan putaran 2 harus sama dengan yang dikirim.
+  const r1 = new Map(
+    readJsonl(join(dir, "summary-r1.jsonl"), acceptedSummary).map((s) => [s.custom_id, s]),
+  );
   const summary: SummaryRow[] = [];
   for (const s of [...latestS.values()].sort(
     (a, b) => a.toc_node_id - b.toc_node_id || (a.lang < b.lang ? -1 : 1),
@@ -160,7 +164,9 @@ export function llmRows(rows: CorpusRows, dir: string): LlmBuild {
     const n = work.nodeById.get(s.toc_node_id);
     const want =
       n === undefined ? null : n.round2 ? n.sourceSha256 : (n.subtree[0]?.sourceSha256 ?? null);
-    if (want === null || want !== s.source_sha256 || s.part !== null) {
+    const inputOk =
+      n === undefined || !n.round2 || round2InputSha(n, s.lang, r1) === s.input_sha256;
+    if (want === null || want !== s.source_sha256 || s.part !== null || !inputOk) {
       stats.staleSummaries++;
       continue;
     }

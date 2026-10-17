@@ -80,15 +80,35 @@ export function hasMarkdown(text: string): boolean {
   return /\*\*|__|^\s{0,3}#{1,6}\s/m.test(text);
 }
 
+// Komentar/koreksi-diri model dalam bahasa Indonesia (batch S13: ±1,4% keluaran memuatnya walau
+// dilarang prompt, mis. "Maaf, bagian di atas keliru. Berikut terjemahannya:", "Catatan: …", dua
+// versi terjemahan, tag <teks>). Pola dibuat spesifik supaya kata biasa ("memberi maaf",
+// "ditunggu-tunggu") tidak ikut.
+const META_ID: readonly RegExp[] = [
+  /catatan(?:\s+penerjemah)?\s*:/i,
+  /\bberikut(?: ini)?(?: adalah)? (?:terjemah|versi|yang (?:benar|tepat)|perbaikan)/i,
+  /<\/?(?:teks|sebelumnya|bagian)\b/i,
+  /\b(?:glosarium|placeholder|prompt)\b/i,
+  /\bterjemahan ai\b/i,
+  /\bversi (?:yang )?(?:benar|tepat|lain|akhir|perbaikan)\b/i,
+  /(?:^|[.!?\n]\s*)(?:maaf|tunggu|sebentar|oke)\s*[,.:—–-]/i,
+  /\b(?:perlu koreksi|koreksi\s*:|ralat\s*:)/i,
+  /\bsaya (?:terjemahkan|ulangi|perbaiki|koreksi|tulis ulang|menerjemahkan)\b/i,
+  /\bmari (?:saya|kita) (?:terjemah|ulang|perbaiki|coba)/i,
+  /\b(?:teks|kalimat|paragraf) (?:ini|tersebut) (?:terpotong|tidak lengkap|tidak memuat)\b/i,
+  /\bsesuai (?:instruksi|petunjuk)\b/i,
+  /\b(?:sebenarnya|seharusnya) (?:bait|kalimat|teks) ini\b/i,
+  /\b(?:maaf, saya|saya ulangi|terjemahan saya)\b/i,
+];
+
 /**
- * Komentar model tentang pekerjaannya sendiri di dalam keluaran ("Let me write carefully",
- * "Wait — I must…", "Maaf, saya ulangi"): tanda keluaran rusak, ditolak. Untuk keluaran bahasa
- * Indonesia, frasa Inggris semacam ini di mana pun mencurigakan; untuk bahasa Inggris hanya di awal
- * kalimat ("here is" juga muncul wajar: "the text available here is only the heading").
+ * Komentar model tentang pekerjaannya sendiri di dalam keluaran: tanda keluaran rusak, ditolak.
+ * Pola Indonesia berlaku untuk kedua bahasa. Untuk keluaran bahasa Indonesia, frasa Inggris
+ * semacam "let me", "I will", "wait —" di mana pun juga mencurigakan; untuk bahasa Inggris hanya
+ * di awal kalimat ("here is" juga muncul wajar: "the text available here is only the heading").
  */
 export function hasMetaCommentary(text: string, lang: "id" | "en" = "id"): boolean {
-  if (/\b(?:maaf, saya|saya ulangi|saya akan menerjemahkan|terjemahan saya)\b/i.test(text))
-    return true;
+  if (META_ID.some((re) => re.test(text))) return true;
   if (lang === "id") {
     return /\b(?:let me|i will|i'll|i need to|i must|here is|here's|sorry)\b|\bwait\s*[—–-]/i.test(
       text,

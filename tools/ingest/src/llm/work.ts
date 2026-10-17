@@ -13,9 +13,11 @@ import type { SummaryLang } from "@surau/llm";
 
 import type { CorpusRows } from "../rows.ts";
 import { IHYA } from "../works/ihya.ts";
+import type { AcceptedSummary } from "./store.ts";
 import {
   HEADING_SEPARATOR,
   MEASURED_TOKENS_PER_CHAR,
+  sha256,
   summaryPlan,
   translationUnits,
 } from "./units.ts";
@@ -83,6 +85,25 @@ export function relativeHeading(node: SummaryNode, c: SummaryChunk): string {
       ? c.heading.slice(node.heading.length + HEADING_SEPARATOR.length)
       : c.heading;
   return c.parts > 1 ? `${rel} (potongan ${c.part} dari ${c.parts})` : rel;
+}
+
+/**
+ * sha256 masukan ringkasan putaran 2 sebuah simpul: teks ringkasan putaran 1 di subpohonnya (urut
+ * baca) yang masih sah untuk sumber saat ini. `null` bila ada yang belum ada. Ringkasan putaran 2
+ * yang dibuat dari masukan lain (anak ditolak/diulang sesudahnya) dianggap usang.
+ */
+export function round2InputSha(
+  node: SummaryNode,
+  lang: SummaryLang,
+  r1: ReadonlyMap<string, AcceptedSummary>,
+): string | null {
+  const texts: string[] = [];
+  for (const c of node.subtree) {
+    const s = r1.get(chunkCustomId(c, lang));
+    if (s === undefined || s.source_sha256 !== c.sourceSha256) return null;
+    texts.push(s.text);
+  }
+  return sha256(texts.join("\n"));
 }
 
 /** Semua custom_id yang dibutuhkan supaya korpus lengkap (dasar cakupan laporan). */

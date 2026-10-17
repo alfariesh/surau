@@ -58,7 +58,13 @@ import type {
   BatchRecord,
   Failure,
 } from "./store.ts";
-import { buildWork, chunkCustomId, parseCustomId, relativeHeading } from "./work.ts";
+import {
+  buildWork,
+  chunkCustomId,
+  parseCustomId,
+  relativeHeading,
+  round2InputSha,
+} from "./work.ts";
 import type { Work } from "./work.ts";
 
 /** Request per batch: jauh di bawah batas 100.000 request / 256 MB (±17 KB per request). */
@@ -76,6 +82,8 @@ export const plannedRequest = z.strictObject({
   source_chars: z.number().int().nonnegative(),
   /** Perkiraan biaya batch request ini (skenario cache 50%), diisi `plan`; dasar pengaman anggaran. */
   est_usd: z.number().nonnegative().optional(),
+  /** Putaran 2: sha256 teks ringkasan putaran 1 yang dikirim (lihat `round2InputSha`). */
+  input_sha256: z.string().length(64).optional(),
   params: z.custom<MessageCreateParamsNonStreaming>((v) => typeof v === "object" && v !== null),
 });
 export type PlannedRequest = z.infer<typeof plannedRequest>;
@@ -148,11 +156,14 @@ function r2Request(
     if (s === undefined || s.source_sha256 !== c.sourceSha256) return null;
     children.push({ heading: relativeHeading(n, c), summary: s.text });
   }
+  const input = round2InputSha(n, lang, acc.r1);
+  if (input === null) return null;
   return {
     custom_id: tocRound2CustomId(tocNodeId, lang),
     kind: "summary-r2",
     prompt_version: SUMMARY_PROMPT.id,
     source_sha256: n.sourceSha256,
+    input_sha256: input,
     source_chars: children.reduce((a, c) => a + c.summary.length, 0),
     params: buildSummaryRound2Request({ tocNodeId, heading: n.heading, lang, children }, model),
   };
@@ -695,7 +706,6 @@ function judge(
         created_at: batch.ended_at,
         source_sha256: u.sourceSha256,
         batch_id: batch.id,
-        arabic_warning: c.arabicWarning,
         markers_missing: c.markersMissing,
         usage,
       },
@@ -724,6 +734,7 @@ function judge(
       prompt_version: planned.prompt_version,
       created_at: batch.ended_at,
       source_sha256: planned.source_sha256,
+      input_sha256: planned.input_sha256 ?? null,
       batch_id: batch.id,
       usage,
     },
@@ -798,6 +809,26 @@ export function rebuild(dir: string, work: Work): { accepted: number; failures: 
       } else final.set(`${a.toc_node_id}-${a.lang}`, a);
     }
     b.outcome = { accepted, invalid, failed };
+  }
+  // Ringkasan putaran 2 yang masukannya (teks ringkasan putaran 1) sudah berubah = usang: dibuang
+  // dan dijadwalkan ulang oleh `plan --round 2`. Tidak dihitung sebagai percobaan gagal (hash beda).
+  for (const [key, a] of final) {
+    if (a.round !== 2) continue;
+    const n = work.nodeById.get(a.toc_node_id);
+    const input = n === undefined ? null : round2InputSha(n, a.lang, r1);
+    if (input !== null && input === a.input_sha256) continue;
+    final.delete(key);
+    failures.push({
+      custom_id: a.custom_id,
+      batch_id: a.batch_id,
+      model: a.model,
+      reason: "stale_input",
+      details: ["ringkasan putaran 1 di bawahnya berubah atau ditolak"],
+      output: a.text,
+      at: a.created_at,
+      source_sha256: a.input_sha256 ?? "",
+      usage: a.usage,
+    });
   }
   writeBatches(
     dir,
@@ -919,7 +950,26 @@ export function unresolved(
   return out;
 }
 
-export async function runRetry(ctx: LlmContext, confirm: boolean): Promise<number> {
+/**
+ * Model ulangan untuk satu custom_id; `null` = menyerah. Haiku 5.5 tanpa fallback server (ADR-013):
+ * penolakan diulang di sisi klien dengan Sonnet 5.5. Percobaan terakhir juga ke Sonnet 5.5
+ * (ADR-043): di batch S13 keluaran Haiku pada paragraf sulit yang dua kali gagal tetap rusak. Menyerah
+ * hanya setelah Sonnet ikut dicoba.
+ */
+export function retryModel(s: {
+  attempts: number;
+  refusal: boolean;
+  sonnet: boolean;
+}): ModelId | null {
+  if (s.attempts >= MAX_ATTEMPTS && s.sonnet) return null;
+  return s.refusal || s.attempts >= MAX_ATTEMPTS - 1 ? MODELS.sonnet : MODELS.haiku;
+}
+
+export async function runRetry(
+  ctx: LlmContext,
+  confirm: boolean,
+  opts: { budget?: number } = {},
+): Promise<number> {
   const dir = llmDir(ctx.repo);
   const work = buildWork(ctx.rows());
   const acc = readAccepted(dir);
@@ -929,15 +979,11 @@ export async function runRetry(ctx: LlmContext, confirm: boolean): Promise<numbe
   const givenUp: string[] = [];
   for (const [id, s] of todo) {
     if (busy.has(id)) continue;
-    // Menyerah hanya setelah Sonnet 5.5 ikut dicoba (percobaan terakhir selalu Sonnet).
-    if (s.attempts >= MAX_ATTEMPTS && s.sonnet) {
+    const model = retryModel(s);
+    if (model === null) {
       givenUp.push(id);
       continue;
     }
-    // Haiku 5.5 tanpa fallback server (ADR-013): penolakan diulang di sisi klien dengan Sonnet 5.5.
-    // Percobaan terakhir juga ke Sonnet 5.5 (ADR-043): batch S13 menunjukkan keluaran Haiku pada
-    // paragraf sulit yang sudah dua kali gagal tetap rusak (Arab-Indonesia campur, komentar model).
-    const model = s.refusal || s.attempts >= MAX_ATTEMPTS - 1 ? MODELS.sonnet : MODELS.haiku;
     const parts = parseCustomId(id);
     const r =
       parts?.kind === "passage"
@@ -954,6 +1000,31 @@ export async function runRetry(ctx: LlmContext, confirm: boolean): Promise<numbe
     `Ulangan: ${reqs.length} request (${sonnet} ke Sonnet 5.5: refusal atau percobaan terakhir); menyerah (≥${MAX_ATTEMPTS} percobaan): ${givenUp.length}`,
   );
   if (reqs.length === 0) return 0;
+  // Perkiraan biaya ulangan (count_tokens gratis, cache 50%): ulangan Sonnet ±20× Haiku.
+  const client = ctx.client();
+  const counts = await countAll(client, dir, reqs);
+  const system = await systemTokenCounts(client);
+  const rates = outputRates(dir);
+  const est = reqs.reduce(
+    (a, r) =>
+      a +
+      requestCost(
+        r,
+        counts.get(r.custom_id) ?? 0,
+        system[r.prompt_version] ?? 0,
+        expectedOutput(r, rates),
+        0.5,
+      ),
+    0,
+  );
+  const spent = spentUsd(dir);
+  console.info(`Perkiraan ulangan ${usd(est)} (cache 50%) · sudah terpakai ${usd(spent)}`);
+  if (opts.budget !== undefined && spent + est > opts.budget) {
+    console.error(
+      `Melebihi anggaran yang disetujui ${usd(opts.budget)} (${usd(spent)} + ${usd(est)}). Tanya pemilik dulu.`,
+    );
+    return 1;
+  }
   if (!confirm) {
     console.info(
       "Belum dikirim (berbayar, termasuk dalam biaya batch yang disetujui). Tambahkan --confirm.",
@@ -961,7 +1032,7 @@ export async function runRetry(ctx: LlmContext, confirm: boolean): Promise<numbe
     return 0;
   }
   const n = readBatches(dir).filter((b) => b.name.includes("-retry")).length + 1;
-  await submit(ctx.client(), dir, reqs, `retry${n}`);
+  await submit(client, dir, reqs, `retry${n}`);
   return 0;
 }
 

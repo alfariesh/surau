@@ -95,7 +95,6 @@ export const acceptedTranslation = z.strictObject({
   created_at: z.string(),
   source_sha256: z.string().length(64),
   batch_id: z.string().nullable(),
-  arabic_warning: z.boolean(),
   /** Penanda catatan kaki yang tidak ada di terjemahan (diterima, dicatat). */
   markers_missing: z.array(z.string()),
   usage,
@@ -115,6 +114,8 @@ export const acceptedSummary = z.strictObject({
   prompt_version: z.string(),
   created_at: z.string(),
   source_sha256: z.string().length(64),
+  /** Putaran 2: sha256 teks ringkasan putaran 1 yang menjadi masukannya (`round2InputSha`). */
+  input_sha256: z.string().length(64).nullable(),
   batch_id: z.string().nullable(),
   usage,
 });

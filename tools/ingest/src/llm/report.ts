@@ -57,6 +57,8 @@ export async function runReport(ctx: LlmContext): Promise<number> {
       );
     }).length;
   const nodes = work.nodes.length;
+  // Penyebut cakupan = paragraf badan termasuk yang terblokir (sama dengan invarian validate.ts).
+  const needed = work.units.size + work.blocked.length;
   const stuck = unresolved(work, acc);
   const lastFailure = new Map(acc.failures.map((f) => [f.custom_id, f]));
   // Placeholder "berlebih" pada kegagalan terakhir paragraf yang belum lolos = tebakan model.
@@ -69,9 +71,6 @@ export async function runReport(ctx: LlmContext): Promise<number> {
       .filter((r) => r !== "");
     return refs.length === 0 ? [] : [{ passageId: p.passageId, refs }];
   });
-  const missingT = [...work.units.keys()].filter(
-    (id) => acc.translations.get(id)?.source_sha256 !== work.units.get(id)?.sourceSha256,
-  );
 
   const batches = readBatches(dir);
   const total = emptyTotals();
@@ -117,7 +116,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     "",
     "| | Lolos | Dibutuhkan | Cakupan |",
     "|---|---|---|---|",
-    `| Terjemahan paragraf badan | ${num(tOk.length)} | ${num(work.units.size)} | ${pct(tOk.length, work.units.size)} |`,
+    `| Terjemahan paragraf badan | ${num(tOk.length)} | ${num(needed)} | ${pct(tOk.length, needed)} |`,
     `| Ringkasan final bahasa Indonesia | ${num(finalOk("id"))} | ${num(nodes)} | ${pct(finalOk("id"), nodes)} |`,
     `| Ringkasan final bahasa Inggris | ${num(finalOk("en"))} | ${num(nodes)} | ${pct(finalOk("en"), nodes)} |`,
     `| Ringkasan putaran 1 (potongan, 2 bahasa) | ${num(acc.r1.size)} | ${num(work.chunks.length * 2)} | ${pct(acc.r1.size, work.chunks.length * 2)} |`,
@@ -144,7 +143,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
           }),
         ]),
     "",
-    `Terjemahan yang belum ada: ${num(missingT.length)} paragraf (${pct(missingT.length, work.units.size)}).`,
+    `Terjemahan yang belum ada: ${num(needed - tOk.length)} paragraf (${pct(needed - tOk.length, needed)}), termasuk ${num(work.blocked.length)} yang terblokir.`,
     "",
     `## Kemungkinan ayat belum ditandai (${num(hints.length)})`,
     "",
@@ -245,7 +244,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     );
   }
   console.info(
-    `Laporan: data/reports/ihya-9472-terjemahan.md · terjemahan ${pct(tOk.length, work.units.size)}, ringkasan ID ${pct(finalOk("id"), nodes)}, EN ${pct(finalOk("en"), nodes)} · biaya ${usd(total.costUsd)}`,
+    `Laporan: data/reports/ihya-9472-terjemahan.md · terjemahan ${pct(tOk.length, needed)}, ringkasan ID ${pct(finalOk("id"), nodes)}, EN ${pct(finalOk("en"), nodes)} · biaya ${usd(total.costUsd)}`,
   );
   return 0;
 }

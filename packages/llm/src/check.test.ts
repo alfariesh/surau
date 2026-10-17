@@ -50,6 +50,30 @@ describe("komentar model", () => {
     expect(hasMetaCommentary("He said: I will forgive you.", "en")).toBe(false);
     expect(hasMetaCommentary("Sure. Let me summarize again.", "en")).toBe(true);
   });
+
+  test("koreksi-diri berbahasa Indonesia (temuan batch S13) ditolak, kata biasa tidak", () => {
+    for (const t of [
+      "Empat puluh hari. Maaf, bagian di atas keliru. Berikut terjemahannya: ...",
+      "Ia berkata. Catatan: teks ini terpotong pada akhir kalimat.",
+      "Versi yang benar: Adapun kaff ...",
+      "terjemahan AI\n\nTamamul haul dari waktu keislamannya.",
+      "isi <teks> saja yang diterjemahkan",
+      "Perlu koreksi: istilah itu tidak ada di glosarium.",
+      "Tunggu, saya ulangi.",
+      "Catatan: tidak ada, sesuai instruksi.",
+      "Sebenarnya bait ini berbunyi: ...",
+    ]) {
+      expect(hasMetaCommentary(t), t).toBe(true);
+    }
+    for (const t of [
+      "Engkau memerintahkan kami untuk memberi maaf kepada orang yang menzalimi kami.",
+      "kelahiran yang sedang ditunggu-tunggu",
+      "Ia menunggu imbalannya berlipat ganda.",
+      "Catatan amalnya dibuka pada hari kiamat.",
+    ]) {
+      expect(hasMetaCommentary(t), t).toBe(false);
+    }
+  });
 });
 
 describe("penanda catatan kaki", () => {

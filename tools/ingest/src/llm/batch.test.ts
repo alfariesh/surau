@@ -3,9 +3,21 @@ import type { PageRow, PassageRow, TocNodeRow } from "@surau/db";
 import { describe, expect, test } from "vite-plus/test";
 
 import type { CorpusRows } from "../rows.ts";
-import { pendingRequests, submittable, unresolved } from "./batch.ts";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { pendingRequests, rebuild, retryModel, submittable, unresolved } from "./batch.ts";
 import type { Accepted } from "./batch.ts";
-import type { AcceptedSummary, AcceptedTranslation, Failure } from "./store.ts";
+import {
+  readBatches,
+  readJsonl,
+  writeBatches,
+  writeJsonl,
+  acceptedTranslation,
+  failure,
+} from "./store.ts";
+import type { AcceptedSummary, AcceptedTranslation, BatchRecord, Failure } from "./store.ts";
 import { buildWork } from "./work.ts";
 
 const page = (seq: number): PageRow => ({
@@ -68,7 +80,6 @@ function translation(passageId: number, sha: string): AcceptedTranslation {
     created_at: "2026-10-17T00:00:00Z",
     source_sha256: sha,
     batch_id: "b",
-    arabic_warning: false,
     markers_missing: [],
     usage,
   };
@@ -91,6 +102,7 @@ function summary(
     prompt_version: "summarize-section@2",
     created_at: "2026-10-17T00:00:00Z",
     source_sha256: sha,
+    input_sha256: null,
     batch_id: "b",
     usage,
   };
@@ -217,5 +229,93 @@ describe("kirim", () => {
     const { ready, stale } = submittable(work, accepted(), new Set(), plan);
     expect(stale).toBe(1);
     expect(ready.map((r) => r.custom_id)).not.toContain("passage-10000001");
+  });
+});
+
+describe("model ulangan", () => {
+  test("Haiku dulu, percobaan terakhir dan refusal ke Sonnet, menyerah sesudah Sonnet", () => {
+    expect(retryModel({ attempts: 1, refusal: false, sonnet: false })).toBe("claude-haiku-5-5");
+    expect(retryModel({ attempts: 2, refusal: false, sonnet: false })).toBe("claude-sonnet-5-5");
+    expect(retryModel({ attempts: 1, refusal: true, sonnet: false })).toBe("claude-sonnet-5-5");
+    // Tiga kali Haiku (sebelum aturan Sonnet) → masih satu kesempatan Sonnet.
+    expect(retryModel({ attempts: 3, refusal: false, sonnet: false })).toBe("claude-sonnet-5-5");
+    expect(retryModel({ attempts: 3, refusal: false, sonnet: true })).toBeNull();
+  });
+});
+
+describe("rebuild dari hasil mentah", () => {
+  const u1 = work.units.get(10_000_001);
+  const message = (text: string) => ({
+    id: "msg",
+    type: "message",
+    role: "assistant",
+    model: "claude-haiku-5-5",
+    content: [{ type: "text", text, citations: null }],
+    stop_reason: "end_turn",
+    stop_sequence: null,
+    stop_details: null,
+    usage: {
+      input_tokens: 1,
+      output_tokens: 1,
+      cache_read_input_tokens: 0,
+      cache_creation_input_tokens: 0,
+    },
+  });
+  const plan = pendingRequests(work, accepted(), 1).filter(
+    (r) => r.custom_id === "passage-10000001",
+  );
+  const record = (id: string, created: string): BatchRecord => ({
+    name: id,
+    id,
+    kind: "translation",
+    model: "claude-haiku-5-5",
+    prompt_version: "translate-passage@2",
+    requests: 1,
+    created_at: created,
+    ended_at: created,
+    collected_at: created,
+    usage: null,
+    outcome: null,
+  });
+
+  test("gagal lalu lolos di batch berikutnya → lolos; hasil untuk sumber lama → stale; outcome tercatat", () => {
+    const dir = mkdtempSync(join(tmpdir(), "surau-rebuild-"));
+    const good =
+      `Ini terjemahan buatan untuk pengujian yang cukup panjang ${"kata ".repeat(8)}`.trim();
+    writeBatches(dir, [record("b1", "2026-10-17T01:00:00Z"), record("b2", "2026-10-17T02:00:00Z")]);
+    for (const id of ["b1", "b2"]) writeJsonl(join(dir, "requests", `${id}.jsonl`), plan);
+    // b1: keluaran berisi huruf Arab → ditolak; b2: keluaran sah → lolos.
+    writeJsonl(join(dir, "results", "b1.jsonl"), [
+      {
+        custom_id: "passage-10000001",
+        result: { type: "succeeded", message: message(`${good} نص`) },
+      },
+    ]);
+    writeJsonl(join(dir, "results", "b2.jsonl"), [
+      { custom_id: "passage-10000001", result: { type: "succeeded", message: message(good) } },
+    ]);
+    rebuild(dir, work);
+    const t = readJsonl(join(dir, "translation.jsonl"), acceptedTranslation);
+    expect(t.map((x) => [x.passage_id, x.batch_id, x.source_sha256])).toEqual([
+      [10_000_001, "b2", u1?.sourceSha256],
+    ]);
+    expect(readJsonl(join(dir, "failures.jsonl"), failure).map((f) => f.reason)).toEqual([
+      "invalid:arabic",
+    ]);
+    expect(readBatches(dir).map((b) => b.outcome)).toEqual([
+      { accepted: 0, invalid: 1, failed: 0 },
+      { accepted: 1, invalid: 0, failed: 0 },
+    ]);
+    // Sumber berubah sesudah request dibuat (hash rencana beda) → stale, tidak dimuat.
+    writeJsonl(
+      join(dir, "requests", "b2.jsonl"),
+      plan.map((r) => ({ ...r, source_sha256: "0".repeat(64) })),
+    );
+    rebuild(dir, work);
+    expect(readJsonl(join(dir, "translation.jsonl"), acceptedTranslation)).toEqual([]);
+    expect(readJsonl(join(dir, "failures.jsonl"), failure).map((f) => f.reason)).toEqual([
+      "invalid:arabic",
+      "stale",
+    ]);
   });
 });

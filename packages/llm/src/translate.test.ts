@@ -157,6 +157,9 @@ describe("validasi terjemahan", () => {
       "length_ratio",
     );
     expect(checkTranslation(GOOD.repeat(12), input()).problems).toContain("placeholders");
+    // Dua versi terjemahan ≈ dua kali panjang: rasio > 4 ditolak.
+    const twice = `${GOOD.replace("⟦QS 2:255⟧ ", "")} ${GOOD.repeat(2)}`;
+    expect(checkTranslation(twice, input()).problems).toContain("length_ratio");
   });
 
   test("kosong, Markdown, dan kalimat pembuka ditolak", () => {

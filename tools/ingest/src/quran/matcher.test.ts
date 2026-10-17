@@ -32,6 +32,8 @@ const AYAT = [
   { surah: 7, ayah: 1, text: "يا قوم اعملوا" },
   { surah: 7, ayah: 2, text: "يا قوم انظروا" },
   { surah: 7, ayah: 3, text: "يا قوم اسمعوا" },
+  // Ejaan mushaf "أين ما" (dua kata) vs sumber "أينما": uji perpanjangan kutipan pendek.
+  { surah: 8, ayah: 1, text: "وهو معكم أين ما كنتم تذكرون" },
 ];
 const index = buildQuranIndex(AYAT);
 
@@ -302,5 +304,36 @@ describe("kutipan tanpa tanda (S13)", () => {
     const raw = "كتب الشيخ في رسالته فطوبى للصابرين الذين يذكرون ربهم ثم سكت";
     expect(matchPassage(index, raw, { extended: false }).spans).toEqual([]);
     expect(matchPassage(index, "قال تعالى قل هل يستوي", { extended: false }).spans).toEqual([]);
+  });
+});
+
+describe("perbaikan tinjauan kedua S13", () => {
+  test("kutipan pendek diperpanjang melewati beda ejaan di ayat yang sama (أينما = أين ما)", () => {
+    const raw = "قال تعالى وهو معكم أينما كنتم ثم قال كذا";
+    const [span, ...rest] = matchPassage(index, raw).spans;
+    expect(rest).toEqual([]);
+    expect(span && quoted(raw, span)).toBe("وهو معكم أينما كنتم");
+    expect(span).toMatchObject({ kind: "cue_short", match: "similar", surah: 8, ayahFrom: 1 });
+  });
+
+  test("{ثم قال} yang dikurung sumber = pengantar ayat", () => {
+    const raw = "كتب {ثم قال} فطوبى للصابرين الذين يذكرون";
+    expect(matchPassage(index, raw).spans.map((s) => [s.kind, quoted(raw, s)])).toEqual([
+      ["unmarked", "فطوبى للصابرين الذين يذكرون"],
+    ]);
+  });
+
+  test("lafaz berulang diterima bila tepat didahului عز وجل (letak dipilih aturan S12)", () => {
+    const [span] = matchPassage(index, "كقوله عز وجل والصبر نور القلوب في الظلمات").spans;
+    expect(span).toMatchObject({ kind: "unmarked", alt: 1, partial: false });
+  });
+
+  test("zikir 'لا شريك له' dan deret dalam hadits ditolak seluruhnya (ekornya tidak dicoba)", () => {
+    expect(matchPassage(index, "لا شريك له فطوبى للصابرين الذين يذكرون ربهم").spans).toEqual([]);
+    // Tanpa lompat seluruh deret, ekor 5 kata "للصابرين الذين يذكرون ربهم بالليل" akan tertaut.
+    expect(
+      matchPassage(index, "قال النبي صلى الله عليه وسلم فطوبى للصابرين الذين يذكرون ربهم بالليل")
+        .spans,
+    ).toEqual([]);
   });
 });

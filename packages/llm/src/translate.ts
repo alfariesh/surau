@@ -9,7 +9,6 @@ import { TRANSLATE_PASSAGE_V2 } from "../prompts/translate-passage-v2.ts";
 import {
   MAX_ARABIC_RUN_WORDS,
   footnoteMarkerDigits,
-  hasArabicLetters,
   hasMarkdown,
   hasMetaCommentary,
   hasPreamble,
@@ -91,8 +90,6 @@ export interface TranslationCheck {
   problems: TranslationProblem[];
   /** Keterangan untuk laporan (placeholder yang hilang/berlebih, rasio, dll.). */
   details: string[];
-  /** Ada huruf Arab pendek (≤ MAX_ARABIC_RUN_WORDS kata): diterima, dicatat. */
-  arabicWarning: boolean;
   /**
    * Penanda catatan kaki yang tidak ada di terjemahan (diterima, dicatat): takhrij tetap tertaut di
    * teks Arab di sebelahnya. Uji batch S13: model sering membuangnya (±4% paragraf).
@@ -101,7 +98,9 @@ export interface TranslationCheck {
 }
 
 /** Rasio panjang terjemahan Indonesia ÷ teks Arab yang dianggap wajar (di luar ini ditolak). */
-export const LENGTH_RATIO = { min: 0.8, max: 8 } as const;
+// Batas atas 4 (S13): rasio p99 hasil batch = 3,1 dan p99,9 = 5,7; di atas 4 hampir selalu dua
+// versi terjemahan atau catatan model.
+export const LENGTH_RATIO = { min: 0.8, max: 4 } as const;
 /** Teks Arab sependek ini (judul, frasa) tidak diperiksa rasionya. */
 export const LENGTH_RATIO_MIN_CHARS = 40;
 
@@ -115,7 +114,6 @@ export function checkTranslation(output: string, input: TranslateInput): Transla
       text,
       problems: ["empty"],
       details,
-      arabicWarning: false,
       markersMissing: [],
     };
   }
@@ -169,7 +167,6 @@ export function checkTranslation(output: string, input: TranslateInput): Transla
     text,
     problems,
     details,
-    arabicWarning: run > 0 && run <= MAX_ARABIC_RUN_WORDS && hasArabicLetters(text),
     markersMissing: missing,
   };
 }

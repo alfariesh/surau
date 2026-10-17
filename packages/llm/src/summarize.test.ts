@@ -74,6 +74,12 @@ describe("validasi ringkasan", () => {
     expect(checkSummary(EN, "en")).toEqual({ ok: true, problems: [] });
   });
 
+  test("ringkasan campur bahasa ditolak (versi Indonesia + versi Inggris)", () => {
+    expect(checkSummary(`${ID} Catatan: versi Inggris berikut. ${EN}`, "en").ok).toBe(false);
+    expect(checkSummary(`${ID} ${EN}`, "en").problems).toContain("language");
+    expect(checkSummary(`${ID} ${EN}`, "id").problems).toContain("language");
+  });
+
   test("salah bahasa ditolak", () => {
     expect(checkSummary(ID, "en").problems).toContain("language");
     expect(checkSummary(EN, "id").problems).toContain("language");

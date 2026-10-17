@@ -12,7 +12,8 @@
 //   wait                      tunggu semua batch terbuka selesai (poll tiap menit)
 //   collect                   unduh hasil batch yang selesai, lalu nilai ulang semua hasil mentah
 //   rejudge                   nilai ulang semua hasil mentah dengan aturan/sumber saat ini (gratis)
-//   retry [--confirm]         kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan
+//   retry [--budget USD] [--confirm]  kirim ulang yang gagal (refusal/percobaan terakhir →
+//                             Sonnet 5.5), maks. 3 percobaan; --budget seperti submit
 //   report                    tulis laporan data/reports/ihya-9472-terjemahan.md + sampel QA
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -132,8 +133,10 @@ async function main(argv: string[]): Promise<number> {
       return runCollect(ctx);
     case "rejudge":
       return runRejudge(ctx);
-    case "retry":
-      return runRetry(ctx, values.confirm);
+    case "retry": {
+      const budget = z.coerce.number().positive().optional().parse(values.budget);
+      return runRetry(ctx, values.confirm, budget === undefined ? {} : { budget });
+    }
     case "report":
       return runReport(ctx);
     default:
