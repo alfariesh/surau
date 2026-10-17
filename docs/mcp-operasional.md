@@ -14,6 +14,10 @@ Laporan ini menyimpan alamat dan hasil pemeriksaan, bukan teks kitab atau transk
 | MCP Inspector **2.11.0** | `bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp` | `tools/list` 7 tool, `tools/call` semua tool (Arab + Indonesia), halaman tidak ada → `not_found`, kueri kosong → error validasi, Origin asing → 403, di **modern 2026-07-28 dan legacy 2025-11-25**. |
 | Claude Desktop, ChatGPT | Panduan dicocokkan dengan docs resmi terbaru; tidak mengklaim pengujian akun nyata. | Belum diuji langsung; ketersediaan mengikuti akun/organisasi. |
 
+`pnpm verify` setelah ruang cache lokal dipulihkan: **466 tes Node + 210 tes Workers lolos**, termasuk integrasi `apps/mcp/src/index.test.ts` di dua era yang memeriksa lisensi + atribusi semua tool, sitasi setiap hasil berteks dan permalink absolut (list_works hanya metadata edisi). Build `/mcp` statis dan bundel MCP lolos. Peninjau kode: tanpa temuan. Uji pertama terganggu timeout dan ENOSPC; hanya cache Next/hasil tes dibersihkan, tanpa menghapus korpus atau data batch.
+
+**Preview PR #43**, commit `5d0c6e6`: CI `verify`, `preview` dan `preview mcp` hijau. `BASE_URL=https://pr-43.surau.org pnpm test:e2e` di CI: **99 lolos, 1 dilewati** (pintasan keyboard desktop dilewati di ponsel), termasuk panduan, aksesibilitas dua tema dan navigasi pembaca. Log Preview: **501 request, 0 error**, termasuk 23 clientDisconnected. Bukti: [CI/preview](https://github.com/alfariesh/surau/actions/runs/39043047128), [verify](https://github.com/alfariesh/surau/actions/runs/39043047143). E2E Next dev lokal masih 97 lolos/1 dilewati/2 gagal navigasi ke 1/201 (RSC 200, console React script tag); penyebab belum ditetapkan, tetapi kasus yang sama lolos di deployment Workers.
+
 ### Hasil baik dan keterbatasan klien
 
 - Baik: pencarian Indonesia menunjuk j.1 h.48, lalu kedua klien membaca halaman itu. Sitasi, lisensi dan atribusi terbawa tanpa model Surau di server.

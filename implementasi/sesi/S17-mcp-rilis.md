@@ -25,10 +25,17 @@ Orang awam bisa memakai Surau dari Claude atau ChatGPT dalam 2 menit, dan MCP di
 ## Selesai bila
 
 - [ ] Halaman panduan MCP tayang dan diuji pemilik
-- [ ] Claude Code dan Claude.ai berhasil memanggil `search_text` dan `read_page`; contoh tercatat
-- [ ] Syarat rilis R3 di FASE.md terpenuhi
-- [ ] STATUS, LOG, dan file sesi ini diperbarui
+- [x] Claude Code dan Claude.ai berhasil memanggil `search_text` dan `read_page`; contoh tercatat
+- [x] Syarat rilis R3 di FASE.md terpenuhi
+- [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Catatan hasil
 
-*(diisi agent)*
+- Halaman `/mcp` statis: panduan koneksi Claude.ai/Desktop/Code, ChatGPT dan klien lain; URL tanpa login, tiga contoh, alur cari → baca → verifikasi → sitasi, batas AI pengguna, takhrij, lisensi dan bantuan. Semua string di i18n, akses dari navigasi/sitemap dan README.
+- Klien nyata: Claude Code 2.1.299 `search_text` → `read_page` j.1 h.48, hasil tool diperiksa langsung (sitasi, permalink dan lisensi/atribusi). Biaya CLI US$0,00344562 atas izin pemilik ≤ US$0,10. Claude.ai: pemilik mengonfirmasi hasil dan tautan muncul (T-18). Playground model demo GLM-4.7-Flash: server Ready, 7 tool, kedua panggilan Completed. Claude Desktop dan ChatGPT hanya docs, belum uji akun nyata.
+- Bukti rinci tanpa transkrip/teks kitab: [docs/mcp-operasional.md](../../docs/mcp-operasional.md). Hasil baik dan keluaran klien yang belum mengikuti seluruh instruksi dicatat; bukan jaminan semua kutipan AI terverifikasi. Deskripsi S16 tetap, sudah memuat ukuran dan alur yang tepat.
+- Verifikasi: `pnpm verify` → 466 Node + 210 Workers lolos dan build kedua app; `bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp` lengkap → lolos kedua era. Integrasi `index.test.ts` memeriksa lisensi + atribusi semua tool dan sitasi hasil berteks. Peninjau kode dan dokumen: tanpa temuan.
+- Lokal: putaran awal terganggu timeout dan ENOSPC; ±2 GB cache Next/hasil tes dibersihkan (tanpa menghapus korpus/data batch), verify serial lolos. E2E lokal berikutnya: 97 lolos, 1 dilewati, 2 gagal pada navigasi pembaca ke 1/201; trace RSC 200 serta galat React script tag belum menetapkan penyebab. **E2E Worker Preview PR #43: 99 lolos, 1 dilewati**, termasuk navigasi pembaca dan panduan di desktop/ponsel dua tema. CI verify + preview + preview mcp hijau; log preview 501 request, 0 error (23 clientDisconnected). Run `39043047128`/`39043047143`, commit `5d0c6e6`.
+- Observability: event `mcp_tool` per callback hanya nama/outcome/durasi, tanpa input/output/IP; error limiter tertangkap tanpa detail. Snapshot D1 bersama web/MCP: 365.605 baris baca/24 jam, 1.134 kueri baca. Tarif Paid dikoreksi 25 miliar termasuk. Batas pemakaian S16 dipertahankan.
+- Pemantauan satu minggu 17–24 Oktober **masih berjalan**, automation harian 09.00 WIB selama tujuh kali (`pantau-mcp-surau-selama-satu-minggu`) aktif di chat ini, tanpa pemberitahuan rutin yang tidak bermakna. Belum ada klaim stabil satu minggu. Registry/directory dan Agent Skill opsional ditunda.
+- ADR-050; tidak ada dependensi baru atau perubahan korpus. `/rilis 3` tetap dipanggil pemilik setelah sesi selesai; tag rilis fase belum dibuat.
