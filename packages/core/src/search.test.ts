@@ -187,7 +187,7 @@ describe("searchText", () => {
   test("korpus tanpa indeks pencarian atau NORM_VERSION lain → Unavailable", async () => {
     onTestFinished(async () => {
       await seedSearchIndex(db, ["جمله"]);
-      await db.prepare("UPDATE meta SET value = '4' WHERE key = 'schema_version'").run();
+      await db.prepare("UPDATE meta SET value = '6' WHERE key = 'schema_version'").run();
     });
     await db.prepare("UPDATE meta SET value = '999' WHERE key = 'norm_version'").run();
     await expect(searchText(db, "نص")).rejects.toBeInstanceOf(Unavailable);

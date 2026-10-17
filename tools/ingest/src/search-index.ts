@@ -7,9 +7,10 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
+import { ayahPlaceholderPattern } from "@surau/core";
 import { termStatRow } from "@surau/db";
-import type { PassageRow, TermStatRow } from "@surau/db";
-import { normalizeArabic, stemText } from "@surau/text";
+import type { PassageRow, SummaryRow, TermStatRow, TranslationRow } from "@surau/db";
+import { latinIndexText, normalizeArabic, stemText } from "@surau/text";
 
 /** Satu baris `passage_fts`: rowid = `passage.id` (filter per edisi lewat rentang rowid). */
 export interface FtsRow {
@@ -83,3 +84,52 @@ export function termStats(
 
 /** Gabungkan segmen indeks menjadi satu b-tree setelah semua baris dimuat (kueri lebih hemat baca). */
 export const FTS_OPTIMIZE_SQL = "INSERT INTO passage_fts (passage_fts) VALUES ('optimize');\n";
+
+// ── Indeks Indonesia (S14, ADR-044) ──────────────────────────────────────────────────────────
+
+/** Bahasa terjemahan/ringkasan yang diindeks `translation_fts`/`summary_fts`. */
+export const LATIN_FTS_LANG = "id";
+
+/** Satu baris `translation_fts` (rowid = passage_id) atau `summary_fts` (rowid = toc_node_id). */
+export interface LatinFtsRow {
+  rowid: number;
+  terms: string;
+}
+
+export const LATIN_FTS_COLUMNS = ["rowid", "terms"] as const;
+
+/**
+ * Isi indeks satu teks AI: placeholder ayat `⟦QS s:a⟧` dibuang (terjemahan ayat = Kemenag, tidak
+ * diindeks sebagai teks buatan model), lalu `latinIndexText` (@surau/text, sama dengan sisi kueri).
+ */
+export function aiIndexText(text: string): string {
+  return latinIndexText(text.replace(ayahPlaceholderPattern(), " "));
+}
+
+/** Baris indeks Indonesia: hanya bahasa `id`, urut rowid (deterministik). */
+export function latinFtsRows(
+  translation: readonly TranslationRow[],
+  summary: readonly SummaryRow[],
+): { translation: LatinFtsRow[]; summary: LatinFtsRow[] } {
+  const rows = <T>(items: readonly T[], id: (r: T) => number, text: (r: T) => string) =>
+    items
+      .map((r) => ({ rowid: id(r), terms: aiIndexText(text(r)) }))
+      .sort((a, b) => a.rowid - b.rowid);
+  return {
+    translation: rows(
+      translation.filter((t) => t.lang === LATIN_FTS_LANG),
+      (t) => t.passage_id,
+      (t) => t.text,
+    ),
+    summary: rows(
+      summary.filter((s) => s.lang === LATIN_FTS_LANG),
+      (s) => s.toc_node_id,
+      (s) => s.text,
+    ),
+  };
+}
+
+/** `optimize` untuk satu indeks FTS (setelah semua barisnya dimuat). */
+export function ftsOptimizeSql(table: string): string {
+  return `INSERT INTO ${table} (${table}) VALUES ('optimize');\n`;
+}

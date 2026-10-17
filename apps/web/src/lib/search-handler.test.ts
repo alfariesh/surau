@@ -12,6 +12,9 @@ const BASE = "https://surau.example/api/search";
 const VIEW: SearchView = {
   query: "الصبر",
   terms: ["صبر"],
+  latin_terms: [],
+  paths: ["arabic"],
+  fusion: null,
   edition_id: null,
   ranked: true,
   warning: null,

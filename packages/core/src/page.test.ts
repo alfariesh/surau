@@ -1,7 +1,19 @@
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, test } from "vite-plus/test";
 
-import { BODY_1, ED, FOOT_1, FOOT_2, PASSAGES, seedCore } from "../test/fixture.ts";
+import {
+  AI_SUMMARIES,
+  AI_TRANSLATIONS,
+  BODY_1,
+  ED,
+  FOOT_1,
+  FOOT_2,
+  PASSAGES,
+  T_CHILD_A,
+  T_ROOT,
+  seedAiText,
+  seedCore,
+} from "../test/fixture.ts";
 import { InvalidCitation, NotFound } from "./errors.ts";
 import { readPage } from "./page.ts";
 import { pageView } from "./schema.ts";
@@ -121,5 +133,29 @@ describe("readPage edisi non-default", () => {
     expect(view.citation.label).toBe("Kitab Uji (openiti), j. 1, h. 5");
     expect(view.citation.source.edition.is_default).toBe(false);
     expect(view.body).toEqual([]);
+  });
+});
+
+describe("readPage: terjemahan dan ringkasan AI (S14)", () => {
+  test("terjemahan per paragraf berlabel; ringkasan bagian yang mulai di halaman", async () => {
+    await seedAiText(db);
+    const view = await readPage(db, ED, 1, 1);
+    expect(pageView.parse(view)).toEqual(view);
+    expect(view.body[0]?.translation).toEqual({
+      label: "ai_translation",
+      lang: "id",
+      model: "model-uji",
+      prompt_version: "translate-passage@2",
+      created_at: "2026-10-17",
+      review_status: "ai_generated",
+      text: AI_TRANSLATIONS[PASSAGES.body1],
+    });
+    expect(view.footnotes.map((f) => f.translation)).toEqual([null, null]);
+    expect(view.summaries?.map((s) => [s.section.id, s.label, s.text])).toEqual([
+      [T_ROOT, "ai_summary", AI_SUMMARIES[T_ROOT]],
+    ]);
+    expect(view.summaries?.[0]?.section.permalink).toBe(`/kitab/uji/bab/${T_ROOT}`);
+    const p2 = await readPage(db, ED, 1, 2);
+    expect(p2.summaries?.map((s) => s.section.id)).toEqual([T_CHILD_A]);
   });
 });

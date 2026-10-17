@@ -96,7 +96,7 @@ export interface RowsInput {
   toc: TocBuild;
   takhrij: TakhrijCheck;
   ids: IdAllocator;
-  meta: { normVersion: number; builtAt: string; sourceHash: string };
+  meta: { normVersion: number; latinNormVersion: number; builtAt: string; sourceHash: string };
 }
 
 /**
@@ -238,6 +238,7 @@ export function buildRows(input: RowsInput): Omit<CorpusRows, PipelineTables> {
 
   const meta = [
     ["norm_version", String(input.meta.normVersion)],
+    ["latin_norm_version", String(input.meta.latinNormVersion)],
     ["corpus_version", config.corpusVersion],
     ["built_at", input.meta.builtAt],
     ["source_hash", input.meta.sourceHash],
