@@ -8,6 +8,7 @@ import {
   hasMarkdown,
   hasPreamble,
   longestArabicRun,
+  restoreFootnoteMarkers,
   stripMarkers,
 } from "./check.ts";
 import { messageText, stopProblem } from "./response.ts";
@@ -36,6 +37,19 @@ describe("pemeriksaan keluaran", () => {
     expect(hasPreamble("Berikut ini adalah terjemahan paragraf")).toBe(true);
     expect(hasPreamble("Here is the summary")).toBe(true);
     expect(hasPreamble("Berikutnya ia berkata")).toBe(false);
+  });
+});
+
+describe("penanda catatan kaki", () => {
+  test("hanya penanda yang diharapkan dan hilang yang dikembalikan", () => {
+    expect(restoreFootnoteMarkers("a (1) b (2) tahun (1402)", ["١", "٢"])).toBe(
+      "a (١) b (٢) tahun (1402)",
+    );
+    // (٣) sudah ada; (1) bukan penanda yang diharapkan → dibiarkan.
+    expect(restoreFootnoteMarkers("a (٣) lalu (1)", ["٣"])).toBe("a (٣) lalu (1)");
+    // Penanda dua kali: kemunculan kedua juga dikembalikan.
+    expect(restoreFootnoteMarkers("x (١) y (1)", ["١", "١"])).toBe("x (١) y (١)");
+    expect(restoreFootnoteMarkers("tanpa penanda", ["١"])).toBe("tanpa penanda");
   });
 });
 

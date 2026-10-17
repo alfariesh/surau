@@ -59,7 +59,7 @@ describe("request terjemahan", () => {
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ]);
-    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@1");
+    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@2");
     expect(passageCustomId(10_000_001)).toMatch(CUSTOM_ID_PATTERN);
   });
 
@@ -100,8 +100,12 @@ describe("validasi terjemahan", () => {
 
   test("penanda catatan kaki wajib ada; angka lain tidak dihitung", () => {
     expect(checkTranslation(GOOD.replace(" (١)", ""), input()).problems).toContain("markers");
-    expect(checkTranslation(GOOD.replace("(١)", "(1)"), input()).problems).toContain("markers");
     expect(checkTranslation(`${GOOD} (٢)`, input()).ok).toBe(true);
+  });
+
+  test("penanda berangka Latin dikembalikan ke angka Arab di teks yang disimpan", () => {
+    const c = checkTranslation(GOOD.replace("(١)", "(1)"), input());
+    expect(c).toMatchObject({ ok: true, text: GOOD });
   });
 
   test("teks Arab panjang ditolak, istilah pendek hanya diberi peringatan", () => {

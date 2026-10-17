@@ -31,6 +31,7 @@ export {
   footnoteMarkerDigits,
   hasArabicLetters,
   longestArabicRun,
+  restoreFootnoteMarkers,
   stripMarkers,
 } from "./check.ts";
 

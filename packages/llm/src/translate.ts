@@ -5,7 +5,7 @@ import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resource
 import { checkPlaceholders } from "@surau/core";
 import type { MaskedPassage } from "@surau/core";
 
-import { TRANSLATE_PASSAGE_V1 } from "../prompts/translate-passage-v1.ts";
+import { TRANSLATE_PASSAGE_V2 } from "../prompts/translate-passage-v2.ts";
 import {
   MAX_ARABIC_RUN_WORDS,
   contentLength,
@@ -14,11 +14,12 @@ import {
   hasMarkdown,
   hasPreamble,
   longestArabicRun,
+  restoreFootnoteMarkers,
 } from "./check.ts";
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 
-export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V1;
+export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V2;
 export const TRANSLATION_LANG = "id";
 
 /** Ruang untuk thinking (effort low) + terjemahan paragraf terpanjang Ihya (±4,2 ribu karakter). */
@@ -81,6 +82,8 @@ export type TranslationProblem =
 
 export interface TranslationCheck {
   ok: boolean;
+  /** Teks yang disimpan: keluaran di-trim, penanda berangka Latin dikembalikan ke angka Arab. */
+  text: string;
   problems: TranslationProblem[];
   /** Keterangan untuk laporan (placeholder yang hilang/berlebih, rasio, dll.). */
   details: string[];
@@ -96,8 +99,8 @@ export const LENGTH_RATIO_MIN_CHARS = 40;
 export function checkTranslation(output: string, input: TranslateInput): TranslationCheck {
   const problems: TranslationProblem[] = [];
   const details: string[] = [];
-  const text = output.trim();
-  if (text === "") return { ok: false, problems: ["empty"], details, arabicWarning: false };
+  const text = restoreFootnoteMarkers(output.trim(), input.markers);
+  if (text === "") return { ok: false, text, problems: ["empty"], details, arabicWarning: false };
 
   const ph = checkPlaceholders(text, input.masked);
   if (!ph.ok) {
@@ -133,6 +136,7 @@ export function checkTranslation(output: string, input: TranslateInput): Transla
   if (hasPreamble(text)) problems.push("preamble");
   return {
     ok: problems.length === 0,
+    text,
     problems,
     details,
     arabicWarning: run > 0 && run <= MAX_ARABIC_RUN_WORDS && hasArabicLetters(text),

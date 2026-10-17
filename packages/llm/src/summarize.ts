@@ -4,13 +4,13 @@
 // batas 100k).
 import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
 
-import { SUMMARIZE_SECTION_V1 } from "../prompts/summarize-section-v1.ts";
+import { SUMMARIZE_SECTION_V2 } from "../prompts/summarize-section-v2.ts";
 import { MAX_ARABIC_RUN_WORDS, hasMarkdown, hasPreamble, longestArabicRun } from "./check.ts";
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 import type { SummaryLang } from "./custom-id.ts";
 
-export const SUMMARY_PROMPT = SUMMARIZE_SECTION_V1;
+export const SUMMARY_PROMPT = SUMMARIZE_SECTION_V2;
 export const SUMMARY_MAX_TOKENS = 16_000;
 
 const LANG_NAME: Record<SummaryLang, string> = { id: "Indonesia", en: "Inggris" };

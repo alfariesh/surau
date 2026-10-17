@@ -53,3 +53,35 @@ export function hasPreamble(text: string): boolean {
     text,
   );
 }
+
+const ARABIC_INDIC = "٠١٢٣٤٥٦٧٨٩";
+const EXTENDED_INDIC = "۰۱۲۳۴۵۶۷۸۹";
+
+function toAsciiDigits(d: string): string {
+  // Digit Arab satu unit UTF-16 per karakter, jadi penggantian per karakter aman.
+  return d.replace(/[\u0660-\u0669\u06F0-\u06F9]/g, (c) =>
+    String(Math.max(ARABIC_INDIC.indexOf(c), EXTENDED_INDIC.indexOf(c))),
+  );
+}
+
+/**
+ * Model kadang menulis penanda catatan kaki "(٢)" sebagai "(2)". Untuk setiap penanda yang
+ * diharapkan tetapi tidak ada dalam angka Arab, kemunculan pertama versi angka Latinnya dikembalikan
+ * ke bentuk asli. Hanya penanda yang diharapkan yang disentuh; angka lain (tahun, nomor) dibiarkan.
+ */
+export function restoreFootnoteMarkers(text: string, expected: readonly string[]): string {
+  const have = footnoteMarkerDigits(text);
+  let out = text;
+  for (const d of expected) {
+    const i = have.indexOf(d);
+    if (i !== -1) {
+      have.splice(i, 1);
+      continue;
+    }
+    const ascii = toAsciiDigits(d);
+    if (ascii === d) continue;
+    const latin = new RegExp(String.raw`\(\s*${ascii}\s*\)`);
+    if (latin.test(out)) out = out.replace(latin, `(${d})`);
+  }
+  return out;
+}
