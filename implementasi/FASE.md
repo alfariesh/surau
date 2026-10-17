@@ -73,7 +73,8 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | [S15](sesi/S15-eval-retrieval.md) | Eval retrieval | `tools/eval`, 20+ soal yang disetujui, laporan metrik, keputusan perlu atau tidaknya embedding |
 
 **Syarat rilis R2:**
-- Lokasi benar ≥ 90% pada set eval retrieval yang disetujui pemilik atau ustadz ([docs/06](../docs/06-evaluasi.md)).
+- Lokasi benar ≥ 90% pada set eval retrieval yang disetujui pemilik atau ustadz ([docs/06](../docs/06-evaluasi.md)): **hit@10 ≥ 90%** atas set resmi (≥20 soal ber-`disetujui_oleh`, publik + privat), diukur `pnpm run eval:retrieval --gate` atas D1 lokal berisi korpus yang sama dengan produksi (ADR-045). Laporannya di `evals/reports/` dan angkanya di LOG.
+- Pemeriksaan kualitas Fase 2 lainnya sudah dinilai dan dicatat di LOG: 20 sampel ayat (S12, T-16) dan 20 sampel terjemahan AI (S13, T-17 tahap 2), sesuai tabel "Pemeriksaan kualitas lain" di docs/06.
 - Semua terjemahan dan ringkasan berlabel AI, dan tidak ada ayat yang diterjemahkan LLM.
 - Biaya batch tercatat di LOG.
 
