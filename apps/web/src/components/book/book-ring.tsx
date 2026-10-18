@@ -28,8 +28,6 @@ export interface BookRingItem {
   subtitle?: ReactNode;
   spine?: ReactNode;
   illustration?: ReactNode;
-  /** Keterangan di bawah rak saat buku ini di depan. */
-  caption: ReactNode;
 }
 
 export interface BookRingProps {
@@ -193,6 +191,9 @@ function Ring({
       const needed = 2 * (g.radius + W * 0.5) + W * 0.6;
       state.fit = Math.min(1, (width * 0.96) / needed);
       stage.style.transform = `scale(${state.fit})`;
+      // Tinggi area rak ikut skala, supaya di layar sempit tidak ada ruang kosong besar.
+      if (stage.parentElement)
+        stage.parentElement.style.height = `${Math.round(340 * state.fit)}px`;
     };
 
     const render = () => {
@@ -548,16 +549,6 @@ function Ring({
             ))}
           </div>
         </div>
-      </div>
-      <div aria-hidden="true" className="book-ring__caption">
-        <div key={active} className="book-ring__caption-text">
-          {current.caption}
-        </div>
-        <span className="book-ring__counter">
-          {String(active + 1).padStart(2, "0")}
-          <span className="book-ring__counter-sep">/</span>
-          {String(count).padStart(2, "0")}
-        </span>
       </div>
       <p aria-atomic="true" aria-live="polite" className="sr-only">
         {`${current.label}, ${active + 1} ${ofLabel} ${count}`}

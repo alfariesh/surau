@@ -680,47 +680,6 @@ a:focus-visible .book .book__rotate,
   outline-offset: 3px;
 }
 
-.book-ring__caption {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 4.5rem;
-  text-align: center;
-}
-
-.book-ring__caption-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  animation: book-ring-caption 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.book-ring__counter {
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.book-ring__counter-sep {
-  margin-inline: 0.2em;
-  opacity: 0.6;
-}
-
-@keyframes book-ring-caption {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .book-ring__caption-text {
-    animation: none;
-  }
-}
-
 /* Rak datar (kurang dari 3 buku, atau "kurangi gerakan"). */
 .book-shelf {
   display: flex;

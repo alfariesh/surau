@@ -50,13 +50,6 @@ export function WorkShelf({ works, label }: { works: readonly ShelfWork[]; label
           {author ? <span className="book-spine-author">{author}</span> : null}
         </>
       ),
-      caption: (
-        <>
-          <span className="text-foreground text-base font-semibold">{latin}</span>
-          <ArabicInline className="text-muted text-base">{work.title_ar}</ArabicInline>
-          {byline ? <span className="text-muted text-xs">{byline}</span> : null}
-        </>
-      ),
     };
   });
   return <BookRing items={items} label={label} ofLabel={id.home.shelfOf} />;
