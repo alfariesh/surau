@@ -2,19 +2,27 @@
 
 import type { TocItem } from "../../lib/reader/toc";
 
-import { FileTree } from "@heroui-pro/react";
+import { ChevronRight } from "@gravity-ui/icons";
 import { useEffect, useMemo, useRef } from "react";
-import { Collection } from "react-aria-components";
+import {
+  Button,
+  Collection,
+  Link,
+  NavigationTree,
+  NavigationTreeItem,
+  NavigationTreeItemContent,
+} from "react-aria-components";
 
 import { id } from "../../i18n/id";
 import { ArabicInline } from "../arabic";
-import { tocPath } from "../../lib/reader/toc";
+import { tocHref, tocPath, tocRows } from "../../lib/reader/toc";
 
 const t = id.reader;
 
-// Pohon daftar isi (S09 langkah 4): bisa diciutkan per node, bagian aktif tersorot dan leluhurnya
-// terbuka. Setiap baris adalah tautan ke halaman awal bagian (navigasi klien lewat RouterProvider).
-// Judul Arab persis dari DB lewat ArabicInline (<bdi>, halaman tetap LTR).
+// Pohon daftar isi (S09 langkah 4, gaya garis pemandu menyusul): bisa diciutkan per node, setiap
+// baris tautan ke judul bagian (`#bab-<id>`, navigasi klien lewat RouterProvider). Hanya SATU baris
+// aktif berlatar (bagian terakhir yang tampil di halaman ini, `activeIds.at(-1)`); garis dari
+// induknya ke baris itu berwarna aksen. Judul Arab persis dari DB lewat ArabicInline (<bdi>).
 export function TocTree({
   items,
   activeIds = [],
@@ -24,61 +32,93 @@ export function TocTree({
   activeIds?: number[];
   className?: string;
 }) {
-  const active = useMemo(() => new Set(activeIds), [activeIds]);
-  const expanded = useMemo(() => {
-    const keys = new Set<number>();
-    for (const activeId of activeIds) {
-      for (const node of tocPath(items, activeId).slice(0, -1)) keys.add(node.id);
-    }
-    return [...keys];
-  }, [items, activeIds]);
+  const activeId = activeIds.at(-1);
+  const active = useMemo(
+    () => (activeId === undefined ? undefined : tocPath(items, activeId)),
+    [items, activeId],
+  );
+  const rows = useMemo(() => tocRows(items, activeId), [items, activeId]);
+  const expanded = useMemo(() => (active ?? []).slice(0, -1).map((n) => n.id), [active]);
+  const current = active?.at(-1);
+  const currentParent = active?.at(-2);
 
   // Di panel samping (berkelas `data-toc-scroll`), gulir panel ke bagian aktif saat halaman dibuka,
   // tanpa menggulir halaman itu sendiri.
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const box = ref.current?.closest<HTMLElement>("[data-toc-scroll]");
-    const target = ref.current?.querySelector<HTMLElement>(".toc-active");
+    const target = ref.current?.querySelector<HTMLElement>("[data-current]");
     if (!box || !target) return;
     const offset = target.getBoundingClientRect().top - box.getBoundingClientRect().top;
     box.scrollTop += offset - box.clientHeight / 3;
-  }, [activeIds]);
+  }, [activeId]);
 
   return (
-    <div ref={ref}>
-      <FileTree
-        aria-label={t.tocLabel}
-        className={className ? `toc-tree ${className}` : "toc-tree"}
-        defaultExpandedKeys={expanded}
-        items={items}
-        showGuideLines="hover"
-        size="sm"
-      >
-        {function renderItem(item: TocItem) {
-          const isActive = active.has(item.id);
-          return (
-            <FileTree.Item
-              className={isActive ? "toc-active" : undefined}
-              href={item.href}
-              id={item.id}
-              // Nama baris untuk pembaca layar = judul (+ penanda bagian aktif).
-              textValue={isActive ? `${item.title} ${t.tocActive}` : item.title}
-              title={
-                <span className="flex min-w-0 flex-col items-start">
-                  <ArabicInline className="toc-title">{item.title}</ArabicInline>
-                  <span className="text-muted text-[0.7rem] tabular-nums">
-                    {t.pageShort(item.juz, item.page)}
-                  </span>
-                </span>
-              }
-            >
-              {item.children.length > 0 ? (
-                <Collection items={item.children}>{renderItem}</Collection>
-              ) : null}
-            </FileTree.Item>
-          );
-        }}
-      </FileTree>
-    </div>
+    <NavigationTree
+      ref={ref}
+      aria-label={t.tocLabel}
+      className={className ? `toc-tree ${className}` : "toc-tree"}
+      // Garis dan batang aksen dibaca dari closure: cache baris react-aria ikut diperbarui.
+      dependencies={[rows, currentParent]}
+      defaultExpandedKeys={expanded}
+      items={items}
+      selectedRoute={current ? tocHref(current) : null}
+    >
+      {function renderItem(item: TocItem) {
+        const row = rows.get(item.id);
+        return (
+          <NavigationTreeItem
+            className="toc-item"
+            href={tocHref(item)}
+            id={item.id}
+            textValue={item.title}
+          >
+            <NavigationTreeItemContent>
+              {({ hasChildItems, isExpanded, isCurrent, isFocusVisible }) => (
+                <>
+                  {row?.guides.map((g, i) => (
+                    <span
+                      key={`${i}-${g.kind}`}
+                      aria-hidden="true"
+                      className="toc-guide"
+                      data-accent={g.accent}
+                      data-kind={g.kind}
+                    />
+                  ))}
+                  <div
+                    className="toc-row"
+                    data-current={isCurrent || undefined}
+                    data-expanded={(hasChildItems && isExpanded) || undefined}
+                    data-focus-visible={isFocusVisible || undefined}
+                    data-stem-accent={item === currentParent || undefined}
+                  >
+                    {hasChildItems ? (
+                      <Button className="toc-chevron" slot="chevron">
+                        <ChevronRight
+                          aria-hidden="true"
+                          className="toc-chevron-icon"
+                          data-expanded={isExpanded || undefined}
+                        />
+                      </Button>
+                    ) : row?.chevronSlot ? (
+                      <span aria-hidden="true" className="toc-chevron" />
+                    ) : null}
+                    <Link className="toc-link">
+                      <ArabicInline className="toc-title">{item.title}</ArabicInline>
+                      <span className="toc-page">{t.pageShort(item.juz, item.page)}</span>
+                    </Link>
+                  </div>
+                </>
+              )}
+            </NavigationTreeItemContent>
+            {item.children.length > 0 ? (
+              <Collection dependencies={[rows, currentParent]} items={item.children}>
+                {renderItem}
+              </Collection>
+            ) : null}
+          </NavigationTreeItem>
+        );
+      }}
+    </NavigationTree>
   );
 }

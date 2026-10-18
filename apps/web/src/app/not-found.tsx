@@ -18,7 +18,9 @@ export default function NotFound() {
     <SurauShell>
       <div className="mx-auto flex w-full max-w-2xl flex-col items-start gap-4 px-4 pt-16 pb-16 sm:px-6">
         <p className="text-muted text-sm font-medium tabular-nums">404</p>
-        <h1 className="text-foreground text-3xl font-semibold tracking-tight">{t.heading}</h1>
+        <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
+          {t.heading}
+        </h1>
         <p className="text-muted text-base">{t.body}</p>
         <NextLink className={buttonVariants({ variant: "primary" })} href="/">
           {t.back}

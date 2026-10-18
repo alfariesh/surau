@@ -1,0 +1,700 @@
+/*
+ * Sampul buku 3D (komponen Book). Geometri dan bayangan mengikuti Geist Book; warna memakai token
+ * HeroUI/Zaitun (--surface, --default, --foreground, --border) supaya ikut tema terang/gelap.
+ * Ukuran dalam unit `cqw`: teks sampul ikut lebar buku.
+ */
+.book {
+  --book-default-width: 196;
+  --book-color: var(--default);
+  --book-text-color: var(--foreground);
+  --book-depth: 29cqw;
+  --book-radius: 6px 4px 4px 6px;
+  --book-hover-rotate: -20deg;
+  --book-hover-scale: 1.066;
+  --book-hover-x: -8px;
+  --book-shadow-dir: 90deg;
+  --book-bind-shadow:
+    linear-gradient(
+      var(--book-shadow-dir),
+      #fff0 0%,
+      #fff0 12%,
+      #ffffff40 29.25%,
+      #fff0 50.5%,
+      #fff0 75.25%,
+      #ffffff40 91%,
+      #fff0 100%
+    ),
+    linear-gradient(
+      var(--book-shadow-dir),
+      #00000008 0%,
+      #0000001a 12%,
+      #0000 30%,
+      #00000005 50%,
+      #0003 73.5%,
+      #00000080 75.25%,
+      #00000026 85.25%,
+      #0000 100%
+    );
+  /* Hijau zaitun tetap (aksen terang Zaitun): sampul buku fisik tidak berganti warna ikut tema. */
+  --book-zaitun: oklch(0.47 0.085 150);
+  --book-pages-light: oklch(0.99 0.004 90);
+  --book-pages-edge: oklch(0.9 0.01 90);
+  display: inline-block;
+  width: fit-content;
+  perspective: 900px;
+}
+
+/* Kitab Arab: punggung di kanan, halaman terlihat di kiri saat membuka. */
+.book[data-dir="rtl"] {
+  --book-radius: 4px 6px 6px 4px;
+  --book-hover-rotate: 20deg;
+  --book-hover-x: 8px;
+  --book-shadow-dir: 270deg;
+}
+
+/* Lebar per ukuran layar (prop `width` berupa objek). */
+@media (max-width: 400px) {
+  .book[data-responsive] {
+    --book-width: var(--xs-book-width, var(--sm-book-width));
+  }
+}
+@media (min-width: 401px) and (max-width: 600px) {
+  .book[data-responsive] {
+    --book-width: var(--sm-book-width);
+  }
+}
+@media (min-width: 601px) and (max-width: 960px) {
+  .book[data-responsive] {
+    --book-width: var(--md-book-width, var(--sm-book-width));
+  }
+}
+@media (min-width: 961px) {
+  .book[data-responsive] {
+    --book-width: var(--lg-book-width, var(--md-book-width, var(--sm-book-width)));
+  }
+}
+
+.book__rotate {
+  position: relative;
+  width: fit-content;
+  min-width: calc(var(--book-width) * 1px);
+  aspect-ratio: 49 / 60;
+  container-type: inline-size;
+  transform-style: preserve-3d;
+  transform: rotate(0deg);
+  transition: transform 0.25s ease-out;
+}
+
+/*
+ * Miring saat kursor di atas buku, saat tautan pembungkusnya di-hover/difokus keyboard, atau saat
+ * wadah ber-`book-trigger` (mis. kartu yang seluruhnya bisa diklik) di-hover/memuat fokus keyboard.
+ */
+.book:hover .book__rotate,
+a:hover .book .book__rotate,
+a:focus-visible .book .book__rotate,
+.book-trigger:hover .book__rotate,
+.book-trigger:has(:focus-visible) .book__rotate {
+  transform: rotateY(var(--book-hover-rotate)) scale(var(--book-hover-scale))
+    translateX(var(--book-hover-x));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book__rotate {
+    transition: none;
+  }
+}
+
+.book__cover {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: calc(var(--book-width) * 1px);
+  min-width: calc(var(--book-width) * 1px);
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--book-radius);
+  background: var(--surface);
+  transform: translateZ(0);
+  box-shadow:
+    0 1px 1px #00000005,
+    0 4px 8px -4px #0000001a,
+    0 16px 24px -8px #00000008;
+}
+
+.book__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  border-radius: inherit;
+  box-shadow: inset 0 1px 2px #ffffff4d;
+}
+
+.dark .book__cover {
+  background: linear-gradient(#ffffff1a 0%, #fff0 50%, #fff0 100%), var(--surface);
+  box-shadow:
+    0 1.8px 3.6px #0000000d,
+    0 10.8px 21.6px #00000014,
+    inset 0 -0.9px #0000001a,
+    inset 0 1.8px 1.8px #ffffff1a,
+    inset 3.6px 0 3.6px #0000001a;
+}
+
+.dark .book__cover::after {
+  border: none;
+}
+
+.book__bind {
+  width: 8.2%;
+  height: 100%;
+}
+
+.book__body {
+  display: flex;
+  flex-direction: row;
+}
+
+.book[data-dir="rtl"] .book__body {
+  flex-direction: row-reverse;
+}
+
+.book__body .book__bind {
+  min-width: 8.2%;
+  background: var(--book-bind-shadow);
+  opacity: 0.2;
+}
+
+.book__content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 6.1%;
+  container-type: inline-size;
+}
+
+.book__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.book__title {
+  color: var(--book-text-color);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25em;
+  text-wrap: balance;
+}
+
+/* Judul Arab: tanpa letter-spacing (memutus sambungan huruf) dan baris lebih longgar. */
+.book__title :is([lang="ar"], .arabic-inline) {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+.book__subtitle {
+  color: color-mix(in oklab, var(--book-text-color) 62%, transparent);
+  font-size: 0.62em;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.book__icon {
+  display: flex;
+  color: var(--book-text-color);
+}
+
+.book__icon svg {
+  width: max(14px, 8cqw);
+  height: max(14px, 8cqw);
+}
+
+/* Varian stripe: blok warna mengisi sisa tinggi di atas badan kertas. */
+.book__rotate[data-variant="stripe"] .book__content {
+  gap: calc((24px / var(--book-default-width)) * var(--book-width));
+}
+
+.book__rotate[data-variant="stripe"] .book__title {
+  font-size: 10.5cqw;
+}
+
+.book__rotate[data-variant="stripe"] .book__back {
+  background-color: var(--default);
+}
+
+.book__stripe {
+  position: relative;
+  flex: 1 1 0%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--book-color);
+  transform: translateZ(0);
+}
+
+.book__stripe .book__bind {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--book-bind-shadow);
+  mix-blend-mode: overlay;
+}
+
+.book[data-dir="rtl"] .book__stripe .book__bind {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+.book__illustration {
+  position: absolute;
+  inset: 0;
+}
+
+.book__illustration > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Varian simple: seluruh sampul satu warna. */
+.book__rotate[data-variant="simple"] .book__body {
+  width: 100%;
+  height: 100%;
+}
+
+.book__rotate[data-variant="simple"] .book__content {
+  justify-content: space-between;
+  gap: calc((16px / var(--book-default-width)) * var(--book-width));
+}
+
+.book__rotate[data-variant="simple"] .book__title {
+  font-size: 12cqw;
+  text-shadow:
+    0 0.025em 0.5px color-mix(in srgb, var(--book-color) 80%, white 20%),
+    -0.02em -0.02em 0.5px color-mix(in srgb, var(--book-color) 80%, black 20%);
+}
+
+.book__rotate[data-variant="simple"] .book__back {
+  background: var(--book-color);
+}
+
+.book__rotate[data-variant="simple"][data-color] .book__cover {
+  background: var(--book-color);
+}
+
+.book__rotate[data-variant="simple"][data-color] .book__bind {
+  mix-blend-mode: overlay;
+  opacity: 1;
+}
+
+.dark .book__rotate[data-variant="simple"]:not([data-color]) .book__cover::after {
+  box-shadow: inset 0 1px 2px #ffffff1a;
+}
+
+/* Tekstur kertas: noise SVG (feTurbulence), tanpa berkas gambar luar. */
+.book__texture {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: var(--book-radius);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(115deg, #ffffff26 0%, #fff0 35%, #0000000f 100%);
+  background-size:
+    160px 160px,
+    100% 100%;
+  mix-blend-mode: multiply;
+  opacity: 0.45;
+}
+
+.dark .book__texture {
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
+
+/* Tebal halaman (sisi kertas) dan sampul belakang, terlihat saat buku miring. */
+.book__pages {
+  position: absolute;
+  top: 3px;
+  width: calc(var(--book-depth) - 2px);
+  height: calc(100% - 6px);
+  background:
+    linear-gradient(90deg, var(--book-pages-edge) 0%, #0000 70%),
+    linear-gradient(var(--book-pages-light), oklch(0.975 0.006 90));
+  transform: translateX(calc(var(--book-width) * 1px - var(--book-depth) / 2 - 3px)) rotateY(90deg)
+    translateX(calc(var(--book-depth) / 2));
+}
+
+.book[data-dir="rtl"] .book__pages {
+  transform: translateX(calc(5px - var(--book-depth) / 2)) rotateY(-90deg)
+    translateX(calc(var(--book-depth) / -2));
+}
+
+.book:has(.book__texture) .book__pages {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--book-pages-light),
+    oklch(0.94 0.008 90) 1px,
+    var(--book-pages-light) 3px,
+    oklch(0.68 0.01 90) 1px
+  );
+}
+
+.book__back {
+  position: absolute;
+  left: 0;
+  width: calc(var(--book-width) * 1px);
+  height: 100%;
+  border-radius: var(--book-radius);
+  background: var(--book-color);
+  /* Dibalik supaya menghadap ke belakang (kotak tertutup dengan backface-visibility hidden). */
+  transform: translateZ(calc(-1 * var(--book-depth))) rotateY(180deg);
+}
+
+/*
+ * Kotak buku tertutup: setiap sisi hanya tampil dari luar. Tanpa ini sisi dalam sampul dan celah
+ * di antara sisi terlihat tembus saat buku berputar (BookRing).
+ */
+.book__cover,
+.book__back,
+.book__pages,
+.book__spine,
+.book__head,
+.book__tail {
+  backface-visibility: hidden;
+}
+
+/* Sisi atas (kepala) dan bawah (ekor) tumpukan halaman, hanya untuk buku padat (punya `spine`). */
+.book__head,
+.book__tail {
+  position: absolute;
+  left: 2px;
+  width: calc(var(--book-width) * 1px - 4px);
+  height: var(--book-depth);
+  background: repeating-linear-gradient(
+    180deg,
+    var(--book-pages-light),
+    oklch(0.95 0.008 90) 1px,
+    var(--book-pages-light) 2.5px
+  );
+  transform-origin: top center;
+}
+
+.book__head {
+  top: 3px;
+  transform: translateZ(calc(-1 * var(--book-depth))) rotateX(90deg);
+}
+
+.book__tail {
+  top: calc(100% - 3px);
+  transform: rotateX(-90deg);
+}
+
+/*
+ * Punggung buku: sisi berlawanan dengan halaman, selebar tebal buku, menghadap keluar. LTR di kiri,
+ * RTL di kanan. Terlihat saat buku berdiri di rak (BookRing); pada Book biasa tertutup sampul.
+ */
+.book__spine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--book-depth);
+  height: 100%;
+  overflow: hidden;
+  border-radius: 3px;
+  background:
+    linear-gradient(90deg, #0000002e 0%, #ffffff1f 18%, #0000 40%, #0000 70%, #00000038 100%),
+    var(--book-color);
+  transform-origin: left center;
+  transform: translateZ(calc(-1 * var(--book-depth))) rotateY(-90deg);
+}
+
+.book[data-dir="rtl"] .book__spine {
+  left: calc(var(--book-width) * 1px);
+  transform: rotateY(90deg);
+}
+
+.book__spine-content {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  max-height: 88%;
+  color: color-mix(in oklab, white 88%, var(--book-color));
+  font-size: max(9px, 7cqw);
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+
+.book-spine-author {
+  font-size: 0.8em;
+  opacity: 0.75;
+}
+
+/* Pola sampul (BookPattern): garis tipis terang di atas warna sampul. */
+.book-pattern {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: #ffffff;
+  opacity: 0.22;
+}
+
+/*
+ * Rak putar (BookRing). Buku = benda 3D padat di dalam lingkaran (preserve-3d sampai ke tiap sisi),
+ * jadi perspektif dan efek miring hover milik Book dimatikan di sini. Kedalaman: lapisan warna
+ * latar (--ring-fade) di atas setiap sisi buku, bukan opacity (opacity meratakan 3D).
+ */
+.book-ring {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  outline: none;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: grab;
+}
+
+.book-ring[data-dragging] {
+  cursor: grabbing;
+}
+
+.book-ring__viewport {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 340px;
+}
+
+.book-ring__stage,
+.book-ring__ring,
+.book-ring__slot {
+  position: absolute;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+
+.book-ring__stage {
+  top: 50%;
+  left: 50%;
+}
+
+.book-ring__floor {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--foreground) 12%, transparent),
+    transparent
+  );
+  transform: rotateX(90deg) translateZ(-2px);
+  pointer-events: none;
+}
+
+.book-ring__book {
+  position: absolute;
+  display: block;
+  transform-style: preserve-3d;
+  outline: none;
+  -webkit-user-drag: none;
+}
+
+.book-ring .book {
+  transform-style: preserve-3d;
+  perspective: none;
+  /* Kotak padat: sudut hampir siku supaya sampul, punggung, dan sisi kertas bertemu rapi. */
+  --book-radius: 2px;
+}
+
+/* Sisi kertas (buka, kepala, ekor) tepat selebar/setinggi sampul: tanpa celah di sudut. */
+.book-ring .book__pages {
+  top: 0;
+  height: 100%;
+  width: var(--book-depth);
+}
+
+.book-ring .book[data-dir="rtl"] .book__pages {
+  transform: translateX(calc(var(--book-depth) / -2)) rotateY(-90deg)
+    translateX(calc(var(--book-depth) / -2));
+}
+
+.book-ring .book__head,
+.book-ring .book__tail {
+  left: 0;
+  width: calc(var(--book-width) * 1px);
+}
+
+.book-ring .book__head {
+  top: 0;
+}
+
+.book-ring .book__tail {
+  top: 100%;
+}
+
+.book-ring .book__spine {
+  border-radius: 0;
+}
+
+.book-ring .book__rotate {
+  transform: none !important;
+  transition: none;
+}
+
+/* Di rak sampul belakang terlihat: warna buku (hardcover), bukan abu-abu varian stripe Geist. */
+.book-ring .book__rotate .book__back {
+  background: linear-gradient(270deg, #0000001f 0%, #ffffff14 10%, #0000 30%), var(--book-color);
+}
+
+.book-ring .book__cover::before,
+.book-ring .book__spine::after,
+.book-ring .book__pages::after,
+.book-ring .book__back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: var(--background);
+  opacity: var(--ring-fade, 0);
+  pointer-events: none;
+}
+
+.book-ring .book__spine::after {
+  position: absolute;
+}
+
+/*
+ * Bayangan lantai di bawah setiap buku (bidang datar di dasar buku), supaya buku tampak berdiri di
+ * permukaan. Hover/fokus buku terdepan: buku naik sedikit, bayangannya melebar dan memudar seperti
+ * benda yang terangkat dari meja.
+ */
+.book-ring__shadow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #00000052, #00000014 70%, #0000);
+  transform: rotateX(90deg) translateZ(-1px);
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dark .book-ring__shadow {
+  background: radial-gradient(closest-side, #00000080, #0000);
+}
+
+.book-ring .book {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.book-ring__slot[data-front] .book-ring__book:is(:hover, :focus-visible) .book {
+  transform: translateY(-6px);
+}
+
+.book-ring__slot[data-front]:has(.book-ring__book:is(:hover, :focus-visible)) .book-ring__shadow {
+  opacity: 0.5;
+  transform: rotateX(90deg) translateZ(-1px) scale(1.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-ring .book,
+  .book-ring__shadow {
+    transition: none;
+  }
+}
+
+/*
+ * Cahaya dan kedalaman (nilai dari BookRing per bingkai): kecerahan tiap sisi menurut arah hadapnya
+ * terhadap cahaya kiri-depan; sisi atas sedikit terang, bawah gelap (cahaya dari atas). Buku di
+ * belakang diburamkan tipis. Hanya untuk perangkat dengan pointer halus (desktop): di ponsel blur
+ * dilewati supaya putaran tetap ringan.
+ */
+.book-ring .book__cover {
+  filter: brightness(var(--lit-cover, 1));
+}
+
+.book-ring .book__back {
+  filter: brightness(var(--lit-back, 1));
+}
+
+.book-ring .book__spine {
+  filter: brightness(var(--lit-spine, 1));
+}
+
+.book-ring .book__pages {
+  filter: brightness(var(--lit-pages, 1));
+}
+
+.book-ring .book__head {
+  filter: brightness(1.04);
+}
+
+.book-ring .book__tail {
+  filter: brightness(0.8);
+}
+
+@media (pointer: fine) {
+  .book-ring .book__cover {
+    filter: brightness(var(--lit-cover, 1)) blur(var(--ring-blur, 0px));
+  }
+
+  .book-ring .book__back {
+    filter: brightness(var(--lit-back, 1)) blur(var(--ring-blur, 0px));
+  }
+
+  .book-ring .book__spine {
+    filter: brightness(var(--lit-spine, 1)) blur(var(--ring-blur, 0px));
+  }
+
+  .book-ring .book__pages {
+    filter: brightness(var(--lit-pages, 1)) blur(var(--ring-blur, 0px));
+  }
+
+  .book-ring .book__head {
+    filter: brightness(1.04) blur(var(--ring-blur, 0px));
+  }
+}
+
+/* Mode gelap: kertas sedikit redup supaya sisi atas tidak menyilaukan di latar gelap. */
+.dark .book-ring .book {
+  --book-pages-light: oklch(0.84 0.012 85);
+  --book-pages-edge: oklch(0.7 0.012 85);
+}
+
+/* Fokus keyboard: cincin di sampul buku terdepan. */
+.book-ring__book:focus-visible .book__cover {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Rak datar (kurang dari 3 buku, atau "kurangi gerakan"). */
+.book-shelf {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.book-shelf__link {
+  display: block;
+  border-radius: 6px;
+  outline: none;
+}
+
+.book-shelf__link:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus);
+}

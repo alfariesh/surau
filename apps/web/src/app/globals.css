@@ -53,13 +53,16 @@
 @import "@heroui-pro/react/css/components/app-layout.css" layer(components);
 @import "@heroui-pro/react/css/components/command.css" layer(components);
 @import "@heroui-pro/react/css/components/empty-state.css" layer(components);
-@import "@heroui-pro/react/css/components/file-tree.css" layer(components);
 @import "@heroui-pro/react/css/components/hover-card.css" layer(components);
 @import "@heroui-pro/react/css/components/native-select.css" layer(components);
 @import "@heroui-pro/react/css/components/navbar.css" layer(components);
 @import "@heroui-pro/react/css/components/sheet.css" layer(components);
 @import "@heroui-pro/react/css/components/resizable.css" layer(components);
+@import "@heroui-pro/react/css/components/widget.css" layer(components);
 @import "@heroui-pro/react/css/components/sidebar.css" layer(components);
+
+/* Komponen Surau sendiri (CSS polos, di luar layer seperti gaya aplikasi lain). */
+@import "../components/book/book.css";
 
 @source "../**/*.{ts,tsx}";
 
@@ -113,6 +116,87 @@
 
 body {
   background-color: var(--background);
+}
+
+/*
+ * Latar kertas, sama dengan portofolio pemilik: (1) serat kertas PaperTexture (PaperBackground),
+ * hanya seratnya yang tampak (multiply 55% di mode terang, screen di gelap); (2) butiran halus noise
+ * SVG 5%. Keduanya lapisan tetap di ATAS semua isi (tidak bisa diklik), supaya navbar, sidebar, dan
+ * kartu ikut bertekstur tanpa pita polos; blend multiply/screen tidak mengubah warna teks.
+ */
+.paper-fibre {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  animation: paper-fibre-in 0.6s ease-out both;
+}
+
+.paper-fibre[data-theme="dark"] {
+  mix-blend-mode: screen;
+}
+
+@keyframes paper-fibre-in {
+  from {
+    opacity: 0;
+  }
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/*
+ * Tinta di kertas. (1) Tinta meresap: bayangan 0,6 px sewarna huruf (sepertiga kekuatan), tepi
+ * huruf sedikit lembut seperti tinta terserap serat; berlaku untuk semua teks termasuk Arab.
+ * (2) Tinta tidak rata: hanya judul Latin besar (h1, h2 selain judul bab Arab). Isi huruf diisi
+ * warna teks + noise halus (background-clip: text): terang = bintik memudar (screen), gelap =
+ * bintik menggelap (multiply). Teks Arab di dalam judul tetap tinta penuh supaya harakat tajam.
+ */
+body {
+  text-shadow: 0 0 0.6px color-mix(in oklab, currentColor 32%, transparent);
+}
+
+:root {
+  --ink-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.1 -0.68 0 0 0 1.1 -0.68 0 0 0 1.1 -0.68 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23i)'/%3E%3C/svg%3E");
+  --ink-blend: screen;
+}
+
+:root.dark {
+  --ink-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 -1.6 1.95 0 0 0 -1.6 1.95 0 0 0 -1.6 1.95 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23i)'/%3E%3C/svg%3E");
+  --ink-blend: multiply;
+}
+
+:is(h1, h2):not(.reader-heading) {
+  background-image: var(--ink-noise), linear-gradient(currentColor, currentColor);
+  background-size:
+    180px 180px,
+    100% 100%;
+  background-blend-mode: var(--ink-blend), normal;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Bayangan teks akan tergambar di atas isi bertekstur; resapan memakai drop-shadow. */
+  text-shadow: none;
+  filter: drop-shadow(0 0 0.5px color-mix(in oklab, currentColor 30%, transparent));
+}
+
+:is(h1, h2):not(.reader-heading) :is(.arabic-inline, .arabic-text, [lang="ar"]) {
+  -webkit-text-fill-color: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-fibre {
+    animation: none;
+  }
 }
 
 /* Tipografi Arab (.claude/rules/teks-arab.md, Tampilan). Dipakai hanya oleh ArabicText/ArabicInline.
@@ -208,20 +292,185 @@ h2.reader-heading-minor {
   content: attr(data-label);
 }
 
-/* Daftar isi: judul Arab panjang dibungkus, bukan dipotong. */
-.toc-tree .file-tree__label {
-  white-space: normal;
-  overflow: visible;
+/*
+ * Daftar isi (NavigationTree react-aria, gaya HeroUI): garis pemandu per tingkat, siku melengkung di
+ * anak terakhir, satu baris aktif berlatar aksen lembut, dan jalur induk → aktif berwarna aksen.
+ * Lebar kolom garis = lebar chevron, jadi garis jatuh tepat di bawah chevron induknya. Baris rapat
+ * (tanpa celah) supaya garis tegak tidak putus; judul panjang dibungkus, bukan dipotong.
+ */
+.toc-tree {
+  --toc-indent: 1.25rem;
+  --toc-line: 1.7rem;
+  --toc-pad: 0.25rem;
+  /* Titik tengah baris pertama judul: tempat chevron dan ujung siku. */
+  --toc-anchor: calc(1px + var(--toc-pad) + var(--toc-line) / 2);
+  --toc-guide-color: var(--border);
+  display: flex;
+  flex-direction: column;
+  outline: none;
 }
 
-.toc-tree .toc-title {
+/* Sel grid react-aria memakai `display: contents`, jadi baris itu sendiri yang flex. */
+.toc-item {
+  display: flex;
+  align-items: stretch;
+  outline: none;
+}
+
+.toc-guide {
+  position: relative;
+  flex: none;
+  width: var(--toc-indent);
+}
+
+/* Garis tegak penuh (masih ada saudara di bawah). Tinggi baris ikut padding, jadi tersambung. */
+.toc-guide[data-kind="line"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(50% - 0.5px);
+  width: 1px;
+  background-color: var(--toc-guide-color);
+}
+
+/* Siku ke baris ini: anak terakhir, atau baris aktif (siku aksen di atas garis tegak abu-abu). */
+.toc-guide[data-kind="end"]::after,
+.toc-guide[data-accent="elbow"]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline-start: calc(50% - 0.5px);
+  width: calc(50% + 0.5px);
+  height: var(--toc-anchor);
+  border-inline-start: 1px solid var(--toc-guide-color);
+  border-block-end: 1px solid var(--toc-guide-color);
+  border-end-start-radius: 0.5rem;
+}
+
+.toc-guide[data-accent="line"]::before {
+  background-color: var(--accent);
+}
+
+.toc-guide[data-accent="elbow"]::after {
+  border-color: var(--accent);
+}
+
+.toc-row {
+  position: relative;
+  display: flex;
+  flex: 1;
+  margin-block: 1px;
+  min-width: 0;
+  align-items: flex-start;
+  border-radius: calc(var(--radius) * 1.5);
+  transition: background-color 0.15s;
+}
+
+/* Batang dari chevron induk yang terbuka turun ke anak pertama (judul induk bisa beberapa baris). */
+.toc-row[data-expanded]::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--toc-pad) + var(--toc-line) / 2 + 0.625rem);
+  bottom: -1px;
+  inset-inline-start: calc(var(--toc-indent) / 2 - 0.5px);
+  width: 1px;
+  background-color: var(--toc-guide-color);
+}
+
+.toc-row[data-stem-accent]::before {
+  background-color: var(--accent);
+}
+
+@media (hover: hover) {
+  .toc-row:not([data-current]):hover {
+    background-color: var(--default);
+  }
+}
+
+.toc-row[data-current] {
+  background-color: var(--accent-soft);
+}
+
+.toc-row[data-focus-visible] {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.toc-chevron {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--toc-indent);
+  height: var(--toc-line);
+  margin-block-start: var(--toc-pad);
+  border-radius: calc(var(--radius) * 0.75);
+  color: var(--muted);
+  cursor: var(--cursor-interactive, pointer);
+  outline: none;
+}
+
+@media (hover: hover) {
+  button.toc-chevron:hover {
+    color: var(--foreground);
+  }
+}
+
+.toc-chevron-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: rotate 0.15s;
+}
+
+.toc-chevron-icon[data-expanded] {
+  rotate: 90deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-row,
+  .toc-chevron-icon {
+    transition: none;
+  }
+}
+
+.toc-link {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--toc-pad) 0.5rem var(--toc-pad) 0.375rem;
+  color: var(--foreground);
+  outline: none;
+  cursor: var(--cursor-interactive, pointer);
+}
+
+.toc-title {
   font-size: 1rem;
-  line-height: 1.7;
+  line-height: var(--toc-line);
 }
 
-.toc-tree .toc-active {
-  background-color: var(--accent-soft, color-mix(in oklab, var(--accent) 12%, transparent));
+.toc-page {
+  font-size: 0.7rem;
+  line-height: 1rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.toc-row[data-current] .toc-title {
   font-weight: 600;
+}
+
+.toc-row[data-current] .toc-page {
+  color: var(--accent-soft-foreground);
+}
+
+/* Sidebar tanpa garis pemisah: HeroUI menggambarnya dengan box-shadow inset (varian default),
+ * dan menebalkannya saat rail disorot. Pemisahnya cukup kontras halus antarpanel. */
+.sidebar--default,
+.sidebar--default:has(.sidebar__rail:hover),
+.sidebar--default:has(.sidebar__rail:focus-visible) {
+  box-shadow: none;
 }
 
 /*

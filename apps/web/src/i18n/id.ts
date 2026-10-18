@@ -45,10 +45,11 @@ export const id = {
   },
 
   home: {
-    eyebrow: "Sedang dibangun",
-    heading: "Asisten riset kitab klasik Islam, dalam bahasa Indonesia",
+    heading: "Asisten riset kitab klasik Islam",
     lead: "Surau membantu Anda menemukan, membaca, dan memahami apa yang tertulis di kitab-kitab klasik. Setiap jawaban punya alamat: kitab, jilid, halaman cetak, dan kutipan Arab aslinya.",
-    firstBook: "Kitab pertama: Ihya 'Ulum al-Din karya al-Ghazali.",
+    shelfLabel:
+      "Rak kitab Surau: seret, gulir, atau pakai panah untuk memutar; pilih buku terdepan untuk membukanya",
+    shelfOf: "dari",
     ctaAbout: "Kenali Surau",
     ctaSource: "Lihat kode sumber",
     demoCaption: "Basmalah, sebagai contoh tipografi teks Arab di Surau.",
@@ -321,7 +322,7 @@ export const id = {
     soonCta: "Kenali Surau",
     by: "karya",
     editionsLabel: "Edisi",
-    open: "Buka kitab",
+    openWork: (title: string) => `Buka kitab ${title}`,
     startReading: "Mulai membaca",
     volumes: (n: number) => `${n} jilid`,
     deathHijri: (n: number) => `w. ${n} H`,
@@ -331,7 +332,6 @@ export const id = {
     tocHeading: "Daftar isi",
     tocLabel: "Daftar isi kitab",
     tocOpen: "Daftar isi",
-    tocActive: "(bagian ini)",
     breadcrumbLabel: "Letak di kitab",
     pageHeading: (juz: number, page: number) => `Juz ${juz} · Halaman ${page}`,
     pageMetaTitle: (bab: string | null, title: string, juz: number, page: number) =>

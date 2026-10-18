@@ -2,7 +2,16 @@ import type { TocNode } from "@surau/core";
 
 import { describe, expect, it } from "vite-plus/test";
 
-import { activeTocIds, flattenToc, headingPassages, sectionStarts, slimToc, tocPath } from "./toc";
+import {
+  activeTocIds,
+  flattenToc,
+  headingPassages,
+  sectionStarts,
+  slimToc,
+  tocHref,
+  tocPath,
+  tocRows,
+} from "./toc";
 
 function node(id: number, title: string, juz: number, page: number, children: TocNode[] = []) {
   const n: TocNode = {
@@ -76,5 +85,31 @@ describe("toc", () => {
     const h7 = sectionStarts(TREE, 1, 7, [{ id: 30, toc_node_id: 3 }]);
     expect([...h7.byPassage.entries()]).toEqual([]);
     expect(h7.unplaced).toEqual([4]);
+  });
+
+  it("tautan daftar isi unik per bagian: halaman awal + jangkar judul", () => {
+    expect(tocHref(TREE[0]!.children[1]!)).toBe("/kitab/uji/1/5#bab-3");
+  });
+
+  it("garis pemandu: tegak bila masih ada saudara, siku di anak terakhir, aksen hanya jalur induk → aktif", () => {
+    const guides = (rows: ReturnType<typeof tocRows>, id: number) =>
+      rows.get(id)!.guides.map((g) => `${g.kind}:${g.accent}`);
+
+    const deep = tocRows(TREE, 4);
+    expect(guides(deep, 1)).toEqual([]);
+    expect(guides(deep, 2)).toEqual(["line:none"]);
+    expect(guides(deep, 3)).toEqual(["end:none"]);
+    expect(guides(deep, 4)).toEqual(["none:none", "end:elbow"]);
+    expect(deep.get(2)!.chevronSlot).toBe(true);
+    expect(deep.get(4)!.chevronSlot).toBe(false);
+
+    const mid = tocRows(TREE, 3);
+    expect(guides(mid, 2)).toEqual(["line:line"]);
+    expect(guides(mid, 3)).toEqual(["end:elbow"]);
+    expect(guides(mid, 4)).toEqual(["none:none", "end:none"]);
+
+    // Bagian aktif di akar: tidak ada induk, jadi tidak ada garis beraksen.
+    const flat = [...tocRows(TREE, 5).values()].flatMap((r) => r.guides);
+    expect(flat.every((g) => g.accent === "none")).toBe(true);
   });
 });
