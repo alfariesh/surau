@@ -19,6 +19,7 @@
     "@heroui/react": "catalog:",
     "@heroui/styles": "catalog:",
     "@internationalized/date": "catalog:",
+    "@paper-design/shaders-react": "catalog:",
     "@react-aria/utils": "catalog:",
     "@surau/core": "workspace:*",
     "@surau/db": "workspace:*",

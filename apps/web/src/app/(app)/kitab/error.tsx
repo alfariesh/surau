@@ -23,7 +23,9 @@ export default function KitabError({
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col items-start gap-4 px-4 pt-16 pb-16 sm:px-6">
-      <h1 className="text-foreground text-2xl font-semibold tracking-tight">{t.errorHeading}</h1>
+      <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
+        {t.errorHeading}
+      </h1>
       <p className="text-muted text-base">{t.errorBody}</p>
       <Button onPress={() => retry()}>{t.errorRetry}</Button>
     </div>

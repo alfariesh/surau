@@ -111,6 +111,87 @@ body {
   background-color: var(--background);
 }
 
+/*
+ * Latar kertas, sama dengan portofolio pemilik: (1) serat kertas PaperTexture (PaperBackground),
+ * hanya seratnya yang tampak (multiply 55% di mode terang, screen di gelap); (2) butiran halus noise
+ * SVG 5%. Keduanya lapisan tetap di ATAS semua isi (tidak bisa diklik), supaya navbar, sidebar, dan
+ * kartu ikut bertekstur tanpa pita polos; blend multiply/screen tidak mengubah warna teks.
+ */
+.paper-fibre {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  animation: paper-fibre-in 0.6s ease-out both;
+}
+
+.paper-fibre[data-theme="dark"] {
+  mix-blend-mode: screen;
+}
+
+@keyframes paper-fibre-in {
+  from {
+    opacity: 0;
+  }
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/*
+ * Tinta di kertas. (1) Tinta meresap: bayangan 0,6 px sewarna huruf (sepertiga kekuatan), tepi
+ * huruf sedikit lembut seperti tinta terserap serat; berlaku untuk semua teks termasuk Arab.
+ * (2) Tinta tidak rata: hanya judul Latin besar (h1, h2 selain judul bab Arab). Isi huruf diisi
+ * warna teks + noise halus (background-clip: text): terang = bintik memudar (screen), gelap =
+ * bintik menggelap (multiply). Teks Arab di dalam judul tetap tinta penuh supaya harakat tajam.
+ */
+body {
+  text-shadow: 0 0 0.6px color-mix(in oklab, currentColor 32%, transparent);
+}
+
+:root {
+  --ink-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.1 -0.68 0 0 0 1.1 -0.68 0 0 0 1.1 -0.68 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23i)'/%3E%3C/svg%3E");
+  --ink-blend: screen;
+}
+
+:root.dark {
+  --ink-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 -1.6 1.95 0 0 0 -1.6 1.95 0 0 0 -1.6 1.95 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23i)'/%3E%3C/svg%3E");
+  --ink-blend: multiply;
+}
+
+:is(h1, h2):not(.reader-heading) {
+  background-image: var(--ink-noise), linear-gradient(currentColor, currentColor);
+  background-size:
+    180px 180px,
+    100% 100%;
+  background-blend-mode: var(--ink-blend), normal;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Bayangan teks akan tergambar di atas isi bertekstur; resapan memakai drop-shadow. */
+  text-shadow: none;
+  filter: drop-shadow(0 0 0.5px color-mix(in oklab, currentColor 30%, transparent));
+}
+
+:is(h1, h2):not(.reader-heading) :is(.arabic-inline, .arabic-text, [lang="ar"]) {
+  -webkit-text-fill-color: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-fibre {
+    animation: none;
+  }
+}
+
 /* Tipografi Arab (.claude/rules/teks-arab.md, Tampilan). Dipakai hanya oleh ArabicText/ArabicInline.
  * line-height sengaja di luar @layer: utilitas ukuran Tailwind (`text-3xl`) ikut menyetel
  * line-height dan akan menimpanya, padahal harakat butuh ruang. Ukuran huruf tetap boleh diubah. */
@@ -350,4 +431,12 @@ h2.reader-heading-minor {
 
 .toc-row[data-current] .toc-page {
   color: var(--accent-soft-foreground);
+}
+
+/* Sidebar tanpa garis pemisah: HeroUI menggambarnya dengan box-shadow inset (varian default),
+ * dan menebalkannya saat rail disorot. Pemisahnya cukup kontras halus antarpanel. */
+.sidebar--default,
+.sidebar--default:has(.sidebar__rail:hover),
+.sidebar--default:has(.sidebar__rail:focus-visible) {
+  box-shadow: none;
 }

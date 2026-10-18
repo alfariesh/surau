@@ -63,9 +63,11 @@ export default async function WorkPage({ params }: Props) {
           <WorkCover textured width={{ xs: 150, sm: 168, md: 196 }} work={work} />
         )}
         <div className="flex min-w-0 flex-col gap-3">
-          <h1 className="text-foreground flex flex-col items-start gap-1 text-3xl font-semibold tracking-tight">
+          <h1 className="text-foreground flex flex-col items-start gap-1 text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
             <span>{title}</span>
-            <ArabicInline className="text-muted text-2xl font-normal">{work.title_ar}</ArabicInline>
+            <ArabicInline className="text-muted text-[1.75rem] font-normal">
+              {work.title_ar}
+            </ArabicInline>
           </h1>
           {work.author ? (
             <p className="text-foreground text-base">

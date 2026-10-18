@@ -140,7 +140,7 @@ export default async function ReaderPage({ params }: Props) {
               <Breadcrumbs.Item>{t.pageShort(juz, pageNo)}</Breadcrumbs.Item>
             </Breadcrumbs>
             <div className="flex flex-col gap-1">
-              <h1 className="text-foreground text-2xl font-semibold tracking-tight">
+              <h1 className="text-foreground text-[1.75rem] leading-tight font-semibold tracking-tight sm:text-[2rem]">
                 {t.pageHeading(juz, pageNo)}
               </h1>
               <p className="text-muted flex flex-wrap items-baseline gap-x-2 text-sm">

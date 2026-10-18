@@ -29,7 +29,9 @@ export default async function KitabPage() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
       <header className="flex flex-col gap-3">
-        <h1 className="text-foreground text-3xl font-semibold tracking-tight">{t.listHeading}</h1>
+        <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
+          {t.listHeading}
+        </h1>
         <p className="text-muted text-base text-pretty">{t.listLead}</p>
       </header>
       <ul className="grid gap-4 sm:grid-cols-2">
@@ -79,7 +81,9 @@ export default async function KitabPage() {
 function ComingSoon() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col items-start gap-4 px-4 pt-16 pb-16 sm:px-6">
-      <h1 className="text-foreground text-3xl font-semibold tracking-tight">{t.soonHeading}</h1>
+      <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
+        {t.soonHeading}
+      </h1>
       <p className="text-muted text-base">{t.soonBody}</p>
       <NextLink className={buttonVariants({ variant: "primary" })} href="/tentang">
         {t.soonCta}
