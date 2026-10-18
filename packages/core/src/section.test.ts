@@ -66,6 +66,7 @@ function fake(id: number, kind: "body" | "foot", ord: number, refs: number[] = [
       char_end: i + 1,
       footnote_id: f,
     })),
+    ayah_refs: [],
     needs_review: [],
     location: { juz: 1, page_no: 5, permalink: "/x", label: "x" },
   };
@@ -73,17 +74,17 @@ function fake(id: number, kind: "body" | "foot", ord: number, refs: number[] = [
 
 describe("pickBlocks", () => {
   const b = (tokens: number, endsPage = false) => ({ tokens, endsPage });
-  test("rentang 4–6 ribu token", () => {
-    expect([SECTION_MIN_TOKENS, SECTION_MAX_TOKENS]).toEqual([4_000, 6_000]);
+  test("rentang 3,5–5 ribu token passages (kalibrasi S16: seluruh hasil ≤ ±6 ribu)", () => {
+    expect([SECTION_MIN_TOKENS, SECTION_MAX_TOKENS]).toEqual([3_500, 5_000]);
   });
 
-  test("batas halaman terakhir yang ≥ 4 ribu didahulukan", () => {
-    expect(pickBlocks([b(2_000, true), b(2_500, true), b(1_000, true), b(900)])).toBe(3);
-    expect(pickBlocks([b(4_200, true), b(1_000), b(500)])).toBe(1);
+  test("batas halaman terakhir yang ≥ 3,5 ribu didahulukan", () => {
+    expect(pickBlocks([b(2_000, true), b(1_600, true), b(1_000, true), b(900)])).toBe(3);
+    expect(pickBlocks([b(3_700, true), b(1_000), b(500)])).toBe(1);
   });
 
   test("tanpa batas halaman di rentang: diisi sampai batas atas", () => {
-    expect(pickBlocks([b(3_000, true), b(1_000), b(1_500), b(900)])).toBe(3);
+    expect(pickBlocks([b(2_500, true), b(1_000), b(1_000), b(900)])).toBe(3);
     expect(pickBlocks([b(1_000), b(1_000), b(1_000)])).toBe(3); // habis (akhir bagian)
   });
 
@@ -201,14 +202,15 @@ describe("readSection", () => {
   test("halaman kecil: potongan = halaman utuh; halaman besar: terbelah di antara paragraf", async () => {
     const chunks = await readAll(T_LONG);
     const shape = chunks.map((c) => [...Map.groupBy(c.passages, pageOf).keys()]);
-    // h.1–6 (±1,6 ribu token/halaman): batas halaman ke-3 jatuh di 4–6 ribu.
-    expect(shape.slice(0, 2)).toEqual([
-      ["3:1", "3:2", "3:3"],
-      ["3:4", "3:5", "3:6"],
+    // h.1–6 (±2,3 ribu token/halaman): batas halaman ke-2 jatuh di 3,5–5 ribu.
+    expect(shape.slice(0, 3)).toEqual([
+      ["3:1", "3:2"],
+      ["3:3", "3:4"],
+      ["3:5", "3:6"],
     ]);
-    // h.7–12 (±3,7 ribu token/halaman): tidak ada batas halaman di rentang, jadi ada halaman
+    // h.7–12 (±5,3 ribu token/halaman): tidak ada batas halaman di rentang, jadi ada halaman
     // yang muncul di dua potongan berurutan, dan setiap potongan ≥ batas bawah kecuali terakhir.
-    const later = chunks.slice(2);
+    const later = chunks.slice(3);
     const split = later.some((c, i) => {
       const nextFirst = later[i + 1]?.passages[0];
       const last = c.passages.at(-1);

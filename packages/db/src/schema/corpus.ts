@@ -142,6 +142,84 @@ export const termStatRow = z.strictObject({
 });
 export type TermStatRow = z.infer<typeof termStatRow>;
 
+// ── Al-Qur'an (migrasi 0005, S12, ADR-040) ─────────────────────────────────────────────
+
+const surahNo = z.number().int().min(1).max(114);
+const ayahNo = z.number().int().positive();
+
+export const quranSourceKind = z.enum(["text", "translation", "transliteration"]);
+export type QuranSourceKind = z.infer<typeof quranSourceKind>;
+
+/** ID baris `quran_source` yang diisi ingest (S12); dipakai juga core untuk memilih teks tampilan. */
+export const QURAN_SOURCE = {
+  uthmani: "tanzil-uthmani",
+  simpleClean: "tanzil-simple-clean",
+  translation: "kemenag-id",
+  transliteration: "kemenag-latin",
+} as const;
+
+export const quranSourceRow = z.strictObject({
+  id: z.string().regex(/^[a-z][a-z0-9-]*$/),
+  kind: quranSourceKind,
+  lang: z.string(),
+  name: z.string(),
+  version: z.string(),
+  license: z.string(),
+  attribution: z.string(),
+  url: z.string(),
+  sha256: z.string().regex(/^[0-9a-f]{64}$/),
+});
+export type QuranSourceRow = z.infer<typeof quranSourceRow>;
+
+export const quranSurahRow = z.strictObject({
+  surah: surahNo,
+  name_ar: z.string(),
+  name_latin: z.string(),
+  revelation: z.enum(["makkah", "madinah"]),
+  ayah_count: ayahNo,
+});
+export type QuranSurahRow = z.infer<typeof quranSurahRow>;
+
+export const quranAyahRow = z.strictObject({
+  surah: surahNo,
+  ayah: ayahNo,
+  juz: z.number().int().min(1).max(30),
+  text_uthmani: z.string(),
+  text_index: z.string(),
+});
+export type QuranAyahRow = z.infer<typeof quranAyahRow>;
+
+export const quranTranslationRow = z.strictObject({
+  surah: surahNo,
+  ayah: ayahNo,
+  source_id: z.string(),
+  text: z.string(),
+  /** JSON `[{ marker, text }]` (catatan kaki terjemahan, verbatim) atau null. */
+  footnotes: z.string().nullable(),
+});
+export type QuranTranslationRow = z.infer<typeof quranTranslationRow>;
+
+/** Isi kolom `quran_translation.footnotes` setelah di-parse. */
+export const quranFootnotes = z.array(z.strictObject({ marker: z.string(), text: z.string() }));
+export type QuranFootnotes = z.infer<typeof quranFootnotes>;
+
+export const ayahMatch = z.enum(["exact", "similar"]);
+export type AyahMatch = z.infer<typeof ayahMatch>;
+
+export const passageAyahRefRow = z.strictObject({
+  passage_id: id,
+  char_start: int.nonnegative(),
+  char_end: int.positive(),
+  surah: surahNo,
+  ayah_from: ayahNo,
+  ayah_to: ayahNo,
+  match: ayahMatch,
+  partial: flag,
+  bracketed: flag,
+  alt_count: int.nonnegative(),
+});
+export type PassageAyahRefRow = z.infer<typeof passageAyahRefRow>;
+
 export const metaRow = z.strictObject({
   key: z.string(),
   value: z.string(),
@@ -158,14 +236,25 @@ export const corpusMeta = z.object({
   corpus_version: z.string().optional(),
   built_at: z.string().optional(),
   source_hash: z.string().optional(),
+  /** `LATIN_NORM_VERSION` @surau/text saat indeks Indonesia dibangun (skema ≥ 6, S14). */
+  latin_norm_version: z.coerce.number().int().positive().optional(),
 });
 export type CorpusMeta = z.infer<typeof corpusMeta>;
 
 /** Versi skema korpus yang dibuat migrasi di repo ini (= nilai `meta.schema_version` terbaru). */
-export const CORPUS_SCHEMA_VERSION = 4;
+export const CORPUS_SCHEMA_VERSION = 6;
 
 /** Skema korpus pertama yang punya indeks `passage_fts` terisi dan `term_stat` (S11, migrasi 0004). */
 export const SEARCH_SCHEMA_VERSION = 4;
+
+/** Skema korpus pertama yang punya tabel Qur'an dan `passage_ayah_ref` (S12, migrasi 0005). */
+export const QURAN_SCHEMA_VERSION = 5;
+
+/**
+ * Skema korpus pertama yang punya indeks Indonesia `translation_fts`/`summary_fts` dan indeks
+ * `toc_node_start` (S14, migrasi 0006).
+ */
+export const LATIN_SEARCH_SCHEMA_VERSION = 6;
 
 /** Tabel biasa korpus → skema barisnya (passage_fts tidak termasuk: tabel virtual turunan). */
 export const corpusTables = {
@@ -180,5 +269,10 @@ export const corpusTables = {
   translation: translationRow,
   summary: summaryRow,
   term_stat: termStatRow,
+  quran_source: quranSourceRow,
+  quran_surah: quranSurahRow,
+  quran_ayah: quranAyahRow,
+  quran_translation: quranTranslationRow,
+  passage_ayah_ref: passageAyahRefRow,
   meta: metaRow,
 } as const;

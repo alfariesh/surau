@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { NORM_VERSION } from "@surau/text";
+import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 
 import { buildSqlite } from "./build-sqlite.ts";
 import { buildDigest } from "./corpus.ts";
@@ -16,11 +16,16 @@ import { parseOpenitiPages } from "./openiti/markdown.ts";
 import { checkMatan, checkTakhrij } from "./openiti/verify.ts";
 import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
 import { readTocPatch } from "./patch.ts";
+import { ayatReport } from "./quran/report.ts";
+import { matchAyat, quranTableRows } from "./quran/rows.ts";
+import type { AyahStats, AyatBuild } from "./quran/rows.ts";
+import { loadQuran } from "./quran/source.ts";
+import type { QuranConfig } from "./quran/source.ts";
 import { openitiReport, validationReport } from "./report.ts";
 import type { ReportContext } from "./report.ts";
 import { TABLE_ORDER, buildRows } from "./rows.ts";
 import type { CorpusRows } from "./rows.ts";
-import { ftsRows, termStats } from "./search-index.ts";
+import { ftsRows, latinFtsRows, termStats } from "./search-index.ts";
 import type { FtsRow } from "./search-index.ts";
 import { parsePage } from "./shamela/page.ts";
 import type { ParsedPage } from "./shamela/page.ts";
@@ -28,6 +33,9 @@ import { readShamelaBook } from "./shamela/source.ts";
 import type { ShamelaSource } from "./shamela/source.ts";
 import { emitSql } from "./sql.ts";
 import { assertWritable } from "./sqlite.ts";
+import { llmRows } from "./llm/attach.ts";
+import type { LlmBuild } from "./llm/attach.ts";
+import { loadReviews } from "./llm/reviews.ts";
 import { buildToc } from "./toc.ts";
 import type { TocBuild } from "./toc.ts";
 import { validate } from "./validate.ts";
@@ -45,6 +53,13 @@ export interface PipelinePaths {
   build: string;
   /** Migrasi korpus D1 (packages/db/migrations/corpus) untuk membangun .sqlite. */
   migrations: string;
+  /** Sumber Al-Qur'an (Tanzil + Kemenag, git-ignored) dan sha256 yang dipin (S12). */
+  quran: QuranConfig;
+  /**
+   * Hasil batch LLM yang lolos (S13, git-ignored, JANGAN dihapus): data/build/llm. Tanpa path =
+   * korpus tanpa terjemahan/ringkasan (QA sampel dan CLI llm tidak membutuhkannya).
+   */
+  llm?: string;
 }
 
 export function sha256(data: string | Buffer): string {
@@ -139,7 +154,10 @@ function readToc(config: WorkConfig, paths: PipelinePaths, prepared: Prepared): 
   return buildToc(prepared.source.titles, prepared.pages, patch);
 }
 
-/** Baris korpus + baris indeks FTS; `term_stat` dihitung dari indeks itu (S11). */
+/**
+ * Baris korpus + baris indeks FTS; `term_stat` dihitung dari indeks itu (S11), tabel Qur'an dan
+ * rujukan ayat dari sumber Qur'an (S12).
+ */
 function rowsFor(
   config: WorkConfig,
   paths: PipelinePaths,
@@ -147,7 +165,7 @@ function rowsFor(
   toc: TocBuild,
   ids: IdAllocator,
   env?: NodeJS.ProcessEnv,
-): { rows: CorpusRows; fts: FtsRow[] } {
+): { rows: CorpusRows; fts: FtsRow[]; ayat: AyatBuild; llm: LlmBuild | null } {
   const { source, pages, takhrij } = prepared;
   const base = buildRows({
     config,
@@ -158,23 +176,53 @@ function rowsFor(
     ids,
     meta: {
       normVersion: NORM_VERSION,
+      latinNormVersion: LATIN_NORM_VERSION,
       builtAt: buildTimestamp(paths.repo, env),
       sourceHash: `sha256:${source.sha256}`,
     },
   });
   const fts = ftsRows(base.passage);
-  return { rows: { ...base, term_stat: termStats(fts, paths.migrations) }, fts };
+  const quran = loadQuran(paths.quran, (s) => normalizeArabic(s).text);
+  const matched = matchAyat(quran, base.passage, base.page);
+  const rows: CorpusRows = {
+    ...base,
+    ...quranTableRows(quran),
+    passage_ayah_ref: matched.refs,
+    translation: [],
+    summary: [],
+    term_stat: termStats(fts, paths.migrations),
+  };
+  // Terjemahan/ringkasan AI dicek terhadap baris yang baru dibangun ini (hash sumber, ayat).
+  const llm = paths.llm === undefined ? null : llmRows(rows, paths.llm, loadReviews(paths.repo));
+  if (llm !== null) {
+    rows.translation = llm.translation;
+    rows.summary = llm.summary;
+  }
+  return {
+    rows,
+    llm,
+    fts,
+    ayat: {
+      stats: matched.stats,
+      matches: matched.matches,
+      numberingMismatch: quran.numberingMismatch,
+    },
+  };
 }
 
 /**
  * Baris korpus yang SEHARUSNYA ada, dibangun ulang di memori dari sumber Shamela dengan peta ID
  * yang di-commit (tanpa menulis apa pun). Dipakai QA sampel halaman (`qa.ts`, S10).
  */
-export function expectedRows(config: WorkConfig, paths: PipelinePaths): CorpusRows {
+export function expectedRows(
+  config: WorkConfig,
+  paths: PipelinePaths,
+  env?: NodeJS.ProcessEnv,
+): CorpusRows {
   const prepared = prepare(config, paths);
   const toc = readToc(config, paths, prepared);
   const ids = createAllocator(readIdMap(join(paths.repo, config.ids), config.edition.id));
-  const { rows } = rowsFor(config, paths, prepared, toc, ids);
+  const { rows } = rowsFor(config, paths, prepared, toc, ids, env);
   const added = Object.values(ids.added).reduce((a, b) => a + b, 0);
   if (added > 0) {
     throw new Error(
@@ -186,6 +234,8 @@ export function expectedRows(config: WorkConfig, paths: PipelinePaths): CorpusRo
 
 export interface IngestResult {
   validation: Validation;
+  /** Statistik pencocok ayat (S12); ada juga bila validasi gagal. */
+  ayat: AyahStats;
   /** Diisi bila validasi lolos dan keluaran ditulis. */
   output?: {
     files: string[];
@@ -232,8 +282,18 @@ export function runIngest(
     ? { format: 1 as const, edition: config.edition.id, page: {}, toc: {}, passage: {} }
     : readIdMap(idsPath, config.edition.id);
   const ids = createAllocator(idMap);
-  const { rows, fts } = rowsFor(config, paths, prepared, toc, ids, opts.env);
-  const validation = validate({ config, source, pages, toc, matan, takhrij, rows });
+  const { rows, fts, ayat, llm } = rowsFor(config, paths, prepared, toc, ids, opts.env);
+  const validation = validate({
+    config,
+    source,
+    pages,
+    toc,
+    matan,
+    takhrij,
+    rows,
+    ayat,
+    llm: llm?.stats ?? null,
+  });
   writeText(
     join(paths.repo, `${config.reportPrefix}-validasi.md`),
     validationReport(ctx, validation),
@@ -242,14 +302,17 @@ export function runIngest(
     join(paths.repo, `${config.reportPrefix}-openiti.md`),
     openitiReport(ctx, pages, matan, takhrij),
   );
-  if (!validation.ok) return { validation };
+  writeText(join(paths.repo, `${config.reportPrefix}-ayat.md`), ayatReport(ctx, ayat, rows));
+  if (!validation.ok) return { validation, ayat: ayat.stats };
 
   mkdirSync(sqlDir, { recursive: true });
-  const files = emitSql(rows, fts);
+  const files = emitSql(rows, fts, latinFtsRows(rows.translation, rows.summary));
   for (const f of files) writeFileSync(join(sqlDir, f.name), f.content);
   const { counts } = buildSqlite(sqlitePath, paths.migrations, files, [
     ...TABLE_ORDER,
     "passage_fts",
+    "translation_fts",
+    "summary_fts",
   ]);
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());
@@ -258,6 +321,7 @@ export function runIngest(
   writeFileSync(hashPath, `${digest}\n`);
   return {
     validation,
+    ayat: ayat.stats,
     output: {
       files: files.map((f) => f.name),
       sqlite: sqlitePath,

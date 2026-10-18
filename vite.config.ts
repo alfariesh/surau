@@ -7,6 +7,7 @@ const generated = [
   "**/.next/**",
   "**/.open-next/**",
   "**/.wrangler/**",
+  "apps/mcp/dist/**",
   "**/next-env.d.ts",
   "**/worker-configuration.d.ts",
   "**/cloudflare-env.d.ts",
@@ -45,10 +46,11 @@ export default defineConfig({
   },
   test: {
     passWithNoTests: true,
-    // Tiga project: "node" (Node, semua tes selain packages/db dan packages/core/src), "db"
-    // (workerd + D1 lokal, packages/db/vitest.config.ts, S06), dan "core" (workerd + D1 lokal,
-    // packages/core/vitest.config.ts, S08). Plugin Cloudflare mengganti runtime seluruh project,
-    // jadi tes Node tidak boleh ikut project db/core.
+    // Empat project: "node" (Node, semua tes selain packages/db, packages/core/src, apps/mcp/src),
+    // "db" (workerd + D1 lokal, packages/db/vitest.config.ts, S06), "core" (workerd + D1 lokal,
+    // packages/core/vitest.config.ts, S08), dan "mcp" (Worker MCP di workerd, apps/mcp, S16).
+    // Plugin Cloudflare mengganti runtime seluruh project, jadi tes Node tidak boleh ikut project
+    // workerd.
     projects: [
       {
         extends: true,
@@ -63,11 +65,13 @@ export default defineConfig({
             "**/.open-next/**",
             "packages/db/**",
             "packages/core/src/**",
+            "apps/mcp/src/**",
           ],
         },
       },
       "packages/db/vitest.config.ts",
       "packages/core/vitest.config.ts",
+      "apps/mcp/vitest.config.ts",
     ],
     // `pnpm test` = `vp test --coverage`. Paket teks Arab wajib 100% fungsi teruji (S05): semua
     // fungsi di sana menyentuh kutipan atau indeks, jadi tidak boleh ada jalur yang tak pernah diuji.

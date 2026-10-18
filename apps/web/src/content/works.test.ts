@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import { describe, expect, test } from "vite-plus/test";
 
-import { EDITION_CREDITS, EDITION_SOURCE, LICENSE_URL } from "./works";
+import { EDITION_CREDITS, EDITION_SOURCE, LICENSE_URL, QURAN_CREDITS } from "./works";
 
 const ATTRIBUTION = readFileSync(
   resolve(import.meta.dirname, "../../../../data/ATTRIBUTION.md"),
@@ -27,5 +27,11 @@ describe("atribusi /lisensi", () => {
     expect(LICENSE_URL["CC BY-NC-SA 4.0"]).toBe(
       "https://creativecommons.org/licenses/by-nc-sa/4.0/",
     );
+  });
+
+  test("sumber ayat Al-Qur'an (S12): setiap tautan tercantum di data/ATTRIBUTION.md", () => {
+    const urls = QURAN_CREDITS.flatMap((c) => c.links.map((l) => l.url));
+    expect(urls).toContain("https://tanzil.net");
+    for (const url of urls) expect(ATTRIBUTION).toContain(url);
   });
 });

@@ -7,8 +7,13 @@ import { corpusTables } from "@surau/db";
 
 import { TABLE_ORDER } from "./rows.ts";
 import type { CorpusRows } from "./rows.ts";
-import { FTS_COLUMNS, FTS_OPTIMIZE_SQL } from "./search-index.ts";
-import type { FtsRow } from "./search-index.ts";
+import {
+  FTS_COLUMNS,
+  FTS_OPTIMIZE_SQL,
+  LATIN_FTS_COLUMNS,
+  ftsOptimizeSql,
+} from "./search-index.ts";
+import type { FtsRow, LatinFtsRow } from "./search-index.ts";
 
 /** Batas byte UTF-8 satu statement (batas D1 100 KB, disisakan ruang). */
 export const MAX_STATEMENT_BYTES = 90_000;
@@ -43,9 +48,12 @@ const bytes = (s: string): number => Buffer.byteLength(s, "utf8");
  * yang sudah ada TIDAK menghapus token lama, jadi indeks tidak boleh dimuat di atas isi lama.
  */
 export const RESET_SQL = [
-  "-- Kosongkan korpus sebelum dimuat ulang (anak lebih dulu). Tabel terjemahan/ringkasan tidak",
-  "-- dihapus: bila sudah berisi, foreign key membuat pemuatan ulang GAGAL (sengaja, S13+).",
+  "-- Kosongkan korpus sebelum dimuat ulang (anak lebih dulu), termasuk terjemahan/ringkasan AI",
+  "-- (S13): keduanya dibangun ulang dari hasil batch di data/build/llm setiap ingest.",
   "INSERT INTO passage_fts (passage_fts) VALUES ('delete-all');",
+  // Indeks Indonesia (S14, skema 6).
+  "INSERT INTO translation_fts (translation_fts) VALUES ('delete-all');",
+  "INSERT INTO summary_fts (summary_fts) VALUES ('delete-all');",
   ...[...TABLE_ORDER]
     .reverse()
     .filter((t) => t !== "meta")
@@ -104,18 +112,41 @@ function toFiles(files: SqlFile[], label: string, statements: readonly string[])
   });
 }
 
+/** Baris indeks Indonesia (S14): `translation_fts` dan `summary_fts`. */
+export interface LatinFts {
+  translation: readonly LatinFtsRow[];
+  summary: readonly LatinFtsRow[];
+}
+
 /**
- * Semua file SQL korpus: reset, tabel biasa dalam `TABLE_ORDER`, lalu indeks `passage_fts` +
- * `optimize` (S11) tepat sebelum `meta`. `meta` (versi korpus) selalu file terakhir, jadi korpus yang
- * punya `meta.corpus_version` pasti sudah termuat penuh, termasuk indeksnya.
+ * Semua file SQL korpus: reset, tabel biasa dalam `TABLE_ORDER`, lalu indeks `passage_fts` (S11),
+ * `translation_fts` + `summary_fts` (S14), masing-masing dengan `optimize`, tepat sebelum `meta`.
+ * `meta` (versi korpus) selalu file terakhir, jadi korpus yang punya `meta.corpus_version` pasti
+ * sudah termuat penuh, termasuk indeksnya.
  */
-export function emitSql(rows: CorpusRows, fts: readonly FtsRow[] = []): SqlFile[] {
+export function emitSql(
+  rows: CorpusRows,
+  fts: readonly FtsRow[] = [],
+  latin: LatinFts = { translation: [], summary: [] },
+): SqlFile[] {
   const files: SqlFile[] = [{ name: "0000-reset.sql", content: RESET_SQL }];
   for (const table of TABLE_ORDER) {
     if (table === "meta" && fts.length > 0) {
       const values = fts.map((r) => FTS_COLUMNS.map((c) => r[c]));
       toFiles(files, "passage-fts", insertStatements("passage_fts", FTS_COLUMNS, values));
       toFiles(files, "passage-fts-optimize", [FTS_OPTIMIZE_SQL]);
+    }
+    if (table === "meta") {
+      for (const [name, list] of [
+        ["translation_fts", latin.translation],
+        ["summary_fts", latin.summary],
+      ] as const) {
+        if (list.length === 0) continue;
+        const values = list.map((r) => LATIN_FTS_COLUMNS.map((c) => r[c]));
+        const label = name.replaceAll("_", "-");
+        toFiles(files, label, insertStatements(name, LATIN_FTS_COLUMNS, values));
+        toFiles(files, `${label}-optimize`, [ftsOptimizeSql(name)]);
+      }
     }
     const columns = Object.keys(corpusTables[table].shape);
     const values = (rows[table] as Record<string, Value>[]).map((r) =>

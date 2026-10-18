@@ -49,6 +49,12 @@ export function passageIdRange(editionId: number): { min: number; max: number } 
   };
 }
 
+/** Rentang ID node daftar isi satu edisi, `[min, max]` inklusif (filter `summary_fts` per kitab). */
+export function tocNodeIdRange(editionId: number): { min: number; max: number } {
+  assertEdition(editionId);
+  return { min: editionId * PAGE_STRIDE + 1, max: editionId * PAGE_STRIDE + PAGE_STRIDE - 1 };
+}
+
 /** Edisi pemilik sebuah ID halaman/node daftar isi. */
 export function editionOfPageId(id: number): number {
   return Math.floor(id / PAGE_STRIDE);

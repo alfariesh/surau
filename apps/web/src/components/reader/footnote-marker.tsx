@@ -27,8 +27,11 @@ function subscribe(onChange: () => void) {
   return () => query.removeEventListener("change", onChange);
 }
 
-/** `false` saat render server dan hidrasi pertama, lalu nilai sebenarnya (tanpa mismatch). */
-function useCanHover(): boolean {
+/**
+ * `false` saat render server dan hidrasi pertama, lalu nilai sebenarnya (tanpa mismatch). Dipakai
+ * juga label rujukan ayat (ayah-ref.tsx).
+ */
+export function useCanHover(): boolean {
   return useSyncExternalStore(
     subscribe,
     () => window.matchMedia(HOVER_QUERY).matches,
@@ -81,6 +84,8 @@ export function FootnoteMarker({ text, marker, footnote, refId }: FootnoteMarker
           aria-label={heading}
           className={MARKER_CLASS}
           id={refId}
+          // Tombol ada di dalam blok `lang="ar"`; label aksesibelnya berbahasa Indonesia.
+          lang="id"
           // HoverCard.Trigger selalu merender <span>; elemennya tidak bisa diganti <button>.
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
           role="button"
@@ -109,7 +114,7 @@ export function FootnoteMarker({ text, marker, footnote, refId }: FootnoteMarker
 
   return (
     <Popover isOpen={open} onOpenChange={setOpen}>
-      <AriaButton aria-label={heading} className={MARKER_CLASS} id={refId}>
+      <AriaButton aria-label={heading} className={MARKER_CLASS} id={refId} lang="id">
         {text}
       </AriaButton>
       <Popover.Content className="w-96 max-w-[calc(100vw-2rem)]" placement="bottom">

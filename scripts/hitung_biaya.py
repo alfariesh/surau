@@ -5,12 +5,13 @@
 
 Harga dalam USD per 1 juta token, dicek 2026-10-15 (lihat docs/08-biaya.md dan
 implementasi/STACK.md). Jumlah token diukur dengan tokenizer o200k (OpenAI) pada
-teks Ihya; tokenizer lain bisa menghitung teks Arab lebih banyak, jadi pakai
-FAKTOR_TOKEN_ARAB untuk uji sensitivitas. Faktor yang sebenarnya untuk Claude
-diukur di sesi S13 (count_tokens), lalu angka ini diperbarui.
+teks Ihya. FAKTOR_TOKEN_ARAB = token Claude ÷ token o200k untuk teks Arab Ihya,
+diukur di S13 dengan count_tokens (Claude Haiku 5.5, 200 paragraf acak:
+0,716 token/karakter vs 0,39; data/reports/ihya-9472-token.md). Model lain belum
+diukur; ubah faktor untuk uji sensitivitas.
 """
 
-FAKTOR_TOKEN_ARAB = 1.0  # ubah ke 1.5 atau 2.0 untuk skenario tokenizer boros
+FAKTOR_TOKEN_ARAB = 1.84  # terukur S13 untuk Claude Haiku 5.5 (sebelumnya asumsi 1,0–2,0)
 
 # Sumber harga (USD per 1 juta token), semua dicek 2026-10-15:
 # - Claude Haiku/Sonnet/Opus 5.5: https://platform.claude.com/docs/en/about-claude/pricing
@@ -55,12 +56,22 @@ SKENARIO = {
 }
 
 # Ingest batch: harga Message Batches = 50% dari harga biasa (berlaku juga untuk cache).
-# Per 1 juta token teks utama (o200k): masukan dibaca sekian kali, keluaran sekian juta token.
+# Per 1 juta token teks utama (o200k):
+#   baca   = masukan tanpa cache (teks Arab + konteks), kelipatan teks; dikali FAKTOR_TOKEN_ARAB
+#   sistem = juta token prompt sistem yang diulang per request (dibaca dari cache, atau ditulis
+#            ulang bila cache meleset; cache batch best-effort)
+#   keluar = juta token keluaran termasuk thinking (bahasa Indonesia/Inggris, tanpa faktor Arab)
+# Terjemahan dan ringkasan TERUKUR di S13 (rencana batch: count_tokens semua request, keluaran dari
+# uji kecil 20 paragraf + 10 ringkasan). Ekstraksi wiki masih asumsi (belum dijadwalkan).
 INGEST = {
-    "Ringkasan ID+EN per bagian":     dict(baca=1.0, keluar=0.07),
-    "Terjemahan Indonesia lengkap":   dict(baca=1.0, keluar=0.85),
-    "Ekstraksi wiki (2 putaran)":     dict(baca=2.0, keluar=0.33),
+    "Ringkasan ID+EN per bagian":     dict(baca=2.13, sistem=1.83, keluar=0.33),
+    "Terjemahan Indonesia lengkap":   dict(baca=2.49, sistem=39.4, keluar=2.42),
+    "Ekstraksi wiki (2 putaran)":     dict(baca=2.0, sistem=0.0, keluar=0.33),
 }
+# Porsi prompt sistem yang terbaca dari cache di batch (S13: ±96% pada batch ringkasan pertama).
+CACHE_BACA_SISTEM = 0.95
+# Tulis cache 1 jam Claude Haiku 5.5 (≤100k), USD per 1 juta token; batch = 50%.
+TULIS_CACHE_1J_HAIKU = 0.20
 KORPUS = {"Ihya": 1.8, "±92 kitab kurikulum": 98.0}  # juta token o200k
 
 
@@ -87,14 +98,15 @@ def main() -> None:
         print(f"{m:32} " + " ".join(f"{'$%.2f' % (per_q * n):>10}" for n in (1_000, 10_000)) + f" {'$%.2f' % (per_q * 100_000):>11}")
 
     model_ingest = "Claude Haiku 5.5 (≤100k)"
-    inp, _, out = HARGA[model_ingest]
-    print(f"\nIngest batch dengan {model_ingest} (diskon 50%):")
+    inp, cr, out = HARGA[model_ingest]
+    sistem_per_m = CACHE_BACA_SISTEM * cr + (1 - CACHE_BACA_SISTEM) * TULIS_CACHE_1J_HAIKU
+    print(f"\nIngest batch dengan {model_ingest} (diskon 50%, cache prompt sistem {CACHE_BACA_SISTEM:.0%}):")
     print(f"{'Pekerjaan':32} " + " ".join(f"{k:>22}" for k in KORPUS))
     total = {k: 0.0 for k in KORPUS}
     for nama, t in INGEST.items():
         sel = []
         for k, juta in KORPUS.items():
-            c = juta * (t["baca"] * FAKTOR_TOKEN_ARAB * inp + t["keluar"] * out) * 0.5
+            c = juta * (t["baca"] * FAKTOR_TOKEN_ARAB * inp + t["sistem"] * sistem_per_m + t["keluar"] * out) * 0.5
             total[k] += c
             sel.append(f"{'$%.2f' % c:>22}")
         print(f"{nama:32} " + " ".join(sel))

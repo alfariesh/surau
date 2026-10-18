@@ -8,7 +8,33 @@ export { getToc } from "./toc.ts";
 export { readPage } from "./page.ts";
 export { readSection } from "./section.ts";
 export { buildCitation } from "./citation.ts";
-export { SEARCH_MAX_HIGHLIGHTS, searchText } from "./search.ts";
+export { verifyQuote } from "./verify-quote.ts";
+export { ipKey, ipNetwork } from "./client-key.ts";
+export { getHadithTakhrij } from "./takhrij.ts";
+export {
+  AI_SNIPPET_CHARS,
+  SEARCH_MAX_HIGHLIGHTS,
+  SEARCH_RESULT_VERSION,
+  searchCacheKey,
+  searchText,
+  splitQueryScripts,
+} from "./search.ts";
+export { ayahLabel, getAyahRefs, quranForRefs } from "./quran.ts";
+export {
+  ayahPlaceholder,
+  ayahPlaceholderPattern,
+  checkPlaceholders,
+  maskAyat,
+  translationSegments,
+  unmaskAyat,
+} from "./ayah-placeholder.ts";
+export type {
+  AyahSlot,
+  MaskedPassage,
+  PlaceholderCheck,
+  TranslationLabel,
+  TranslationSegment,
+} from "./ayah-placeholder.ts";
 
 export {
   CoreError,

@@ -2,13 +2,15 @@
 //   ihya             bangun korpus Ihya: SQL + .sqlite di data/build, peta ID, dan laporan
 //   verify-openiti   hanya gerbang QA OpenITI (laporan data/reports/…-openiti.md)
 // Opsi: --shamela <dir> (bawaan /Volumes/Elfariesh/database atau $SURAU_SHAMELA_ROOT),
-//       --openiti <dir> (bawaan data/raw/openiti), --reset-ids (HANYA sebelum rilis Fase 1).
+//       --openiti <dir> (bawaan data/raw/openiti), --quran <dir> (bawaan data/raw: tanzil/ +
+//       kemenag/), --reset-ids (HANYA sebelum rilis Fase 1).
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 import { runIngest, runVerifyOpenIti } from "./pipeline.ts";
 import type { PipelinePaths } from "./pipeline.ts";
+import { QURAN_EXPECT, QURAN_FILES } from "./quran/source.ts";
 import { IHYA } from "./works/ihya.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
@@ -20,13 +22,14 @@ function main(argv: string[]): number {
     options: {
       shamela: { type: "string" },
       openiti: { type: "string" },
+      quran: { type: "string" },
       "reset-ids": { type: "boolean", default: false },
     },
   });
   const command = positionals[0];
   if (command !== "ihya" && command !== "verify-openiti") {
     console.error(
-      "Pakai: pnpm ingest ihya | pnpm ingest:verify  [--shamela <dir>] [--openiti <dir>] [--reset-ids]",
+      "Pakai: pnpm ingest ihya | pnpm ingest:verify  [--shamela <dir>] [--openiti <dir>] [--quran <dir>] [--reset-ids]",
     );
     return 2;
   }
@@ -38,6 +41,12 @@ function main(argv: string[]): number {
     openiti: resolve(values.openiti ?? join(repo, "data/raw/openiti")),
     build: join(repo, "data/build"),
     migrations: join(repo, "packages/db/migrations/corpus"),
+    llm: join(repo, "data/build/llm"),
+    quran: {
+      root: resolve(values.quran ?? join(repo, "data/raw")),
+      files: QURAN_FILES,
+      expect: QURAN_EXPECT,
+    },
   };
   if (!existsSync(join(paths.shamela, "book"))) {
     console.error(
@@ -61,7 +70,14 @@ function main(argv: string[]): number {
   const result = runIngest(IHYA, paths, { resetIds: values["reset-ids"] });
   for (const i of result.validation.invariants)
     console.info(`${i.ok ? "✓" : "✗"} ${i.name}: ${i.detail}`);
-  console.info(`Laporan: ${IHYA.reportPrefix}-validasi.md, ${IHYA.reportPrefix}-openiti.md`);
+  const a = result.ayat;
+  console.info(
+    `Ayat: {…} tervalidasi ${a.validated} → persis ${a.exact}, mirip ${a.similar}, tidak cocok ${a.unmatched}; ` +
+      `tanpa kurung ${a.cueExact + a.cueSimilar}; ${a.partial} sebagian ayat`,
+  );
+  console.info(
+    `Laporan: ${IHYA.reportPrefix}-validasi.md, ${IHYA.reportPrefix}-openiti.md, ${IHYA.reportPrefix}-ayat.md`,
+  );
   if (result.output === undefined) {
     console.error(`Ingest GAGAL: invarian dilanggar (${seconds()} dtk). Keluaran tidak ditulis.`);
     return 1;

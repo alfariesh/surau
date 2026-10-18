@@ -77,14 +77,14 @@ Status: ADR-018 dan ADR-021 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUT
 | Kode | Apache-2.0 | `LICENSE` |
 | Konten turunan: teks kitab, terjemahan dan ringkasan AI, indeks, dump | CC BY-NC-SA 4.0 | `data/LICENSE` |
 | Teks ayat (Tanzil 1.1) | CC BY 3.0, hanya verbatim | syarat Tanzil, dicatat di `data/ATTRIBUTION.md` |
-| Terjemahan Kemenag (QuranEnc `indonesian_affairs`) | syarat QuranEnc: tanpa perubahan, menyebut Kemenag dan QuranEnc beserta nomor versi | dicatat di `data/ATTRIBUTION.md` |
+| Terjemahan + transliterasi Kemenag (data milik pemilik, asal quran.kemenag.go.id; ADR-040) | sumber resmi pemerintah: tanpa perubahan, menyebut Kementerian Agama RI dan sumbernya; syarat pakai tertulis belum ada (risiko diterima pemilik) | dicatat di `data/ATTRIBUTION.md` |
 
 **Mengapa CC BY-NC-SA 4.0.** Teks *Ihya* yang ditampilkan Surau bersandar pada rilis OpenITI 2025.1.9 yang berlisensi CC BY-NC-SA 4.0. Terjemahan dan ringkasan AI atas teks itu adalah materi adaptasi. Karena klausul ShareAlike, materi adaptasi wajib memakai lisensi yang sama dan tidak boleh ditaruh di bawah Apache-2.0.
 
 **Atribusi**
-- `data/ATTRIBUTION.md` mencantumkan OpenITI, al-Maktaba al-Shamela, Dar al-Ma'rifah, Tanzil (beserta pemberitahuannya), dan Kemenag/QuranEnc, masing-masing dengan versinya.
+- `data/ATTRIBUTION.md` mencantumkan OpenITI, al-Maktaba al-Shamela, Dar al-Ma'rifah, Tanzil (beserta pemberitahuannya), dan Kemenag, masing-masing dengan versinya.
 - Setiap halaman *Ihya* memuat: *"Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009472 & JK000001; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Ma'rifah, Beirut 1402/1982"*, ditambah tautan "lihat di Shamela" ke halaman yang sama.
-- Ayat disertai pemberitahuan Tanzil dan tautan ke tanzil.net. Terjemahan ayat disertai "Kementerian Agama RI via QuranEnc.com" dan nomor versinya.
+- Ayat disertai pemberitahuan Tanzil dan tautan ke tanzil.net. Terjemahan ayat disertai "Kementerian Agama RI" dan sumbernya (quran.kemenag.go.id, versi salinan).
 - Setiap respons MCP dan API memuat `license` dan `attribution`.
 - Halaman `/lisensi` memuat atribusi lengkap dan kontak publik untuk koreksi dan takedown.
 
@@ -144,17 +144,17 @@ Pertanyaan pengguna bisa sangat pribadi. Surau menyimpan sesedikit mungkin dan *
 
 Lihat ADR-020 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md).
 
-- **Ayat tidak pernah ditulis atau diterjemahkan AI**, di lapisan mana pun: Pembaca, Cari, Jawab, maupun MCP. Bila jawaban menyinggung ayat, terjemahannya diambil dari data Kemenag, bukan dari keluaran model.
+- **Ayat tidak pernah ditulis atau diterjemahkan AI**, di lapisan mana pun: Pembaca, Cari, Jawab, maupun MCP. Bila jawaban menyinggung ayat, terjemahannya diambil dari data Kemenag, bukan dari keluaran model. Sisa risiko di terjemahan paragraf (ayat yang luput dikenali) diakui dan ditangani lewat pencocok dan koreksi tinjauan (ADR-042, ADR-047).
 - **Teks ayat** memakai Tanzil 1.1 (CC BY 3.0) dan **hanya verbatim**.
   - Tampilan memakai varian `uthmani`.
   - Varian `simple-clean` dan bentuk normalisasinya hanya dipakai sebagai indeks pencocokan, tidak pernah ditampilkan sebagai teks ayat.
   - Setiap tampilan disertai pemberitahuan Tanzil dan tautan ke tanzil.net.
-- **Terjemahan** memakai terjemahan Kemenag dari QuranEnc `indonesian_affairs` (v1.0.1 saat dicek 15 Okt 2026), secara verbatim.
-  - Penanda catatan kaki di dalam terjemahan (misalnya `[5]`) ditampilkan apa adanya.
-  - Atribusinya "Kementerian Agama RI via QuranEnc.com" beserta nomor versi. Versi diperbarui mengikuti QuranEnc.
+- **Terjemahan** memakai terjemahan resmi Kemenag secara verbatim, dari data milik pemilik (asal quran.kemenag.go.id, salinan 2026-06-03; menggantikan rencana QuranEnc, ADR-040), beserta catatan kaki dan transliterasi Latin.
+  - Penanda catatan kaki di dalam terjemahan (misalnya `1)`) ditampilkan apa adanya, isi catatan kakinya di bawah terjemahan.
+  - Atribusinya "Kementerian Agama RI" beserta sumber dan versi salinan (`quran_source`).
 - **Teks kitab tidak dikoreksi.** Ayat yang dikutip di dalam kitab tetap tampil seperti di edisi cetak. Rujukan (misalnya "QS al-Baqarah: 255"), teks Tanzil, dan terjemahan Kemenag ditampilkan di sampingnya.
 - **Pengenalan ayat bersifat deterministik:**
-  - Bentang kandidat dinormalisasi lalu dicari di teks Tanzil. Di *Ihya*, 97,2% kutipan ayat cocok persis setelah normalisasi.
+  - Bentang kandidat dinormalisasi lalu dicari di teks Tanzil. Di *Ihya*, 97,3% kutipan ayat bertanda `{…}` yang tervalidasi cocok persis setelah normalisasi (S12); kutipan tanpa kurung hanya dikenali sesudah frasa pengantar seperti "قال تعالى" (ADR-040).
   - Sisanya berbeda ejaan (misalnya أولوا/أولو). Bentang ini dicocokkan per token dan diberi label **"mirip"**, supaya pembaca tahu ejaan di kitab berbeda dari teks Tanzil, dan tidak dilaporkan "tidak ditemukan".
   - Bentang yang tidak cocok tidak dianggap ayat dan tidak ditautkan. Tidak ada tebakan.
   - Kurung `{…}` di kitab juga dipakai untuk penomoran, sehingga validasi selalu lewat pencocokan ke Tanzil.
@@ -199,7 +199,7 @@ MCP publik dirilis di Fase 3, sebelum Jawab (ADR-019), sebagai server terpisah d
 |---|---|
 | Persetujuan sumber teks dan lisensi konten (ADR-018, ADR-021) | Diputuskan pemilik (P-6) |
 | Apakah PMA 44/2016 (tashih) berlaku untuk aplikasi yang hanya mengutip ayat di dalam kitab | Ditanyakan ke LPMQ Kemenag bila perlu |
-| Apakah QuranEnc `indonesian_affairs` sama dengan terjemahan Kemenag edisi penyempurnaan 2019 (belum dipastikan) | Konfirmasi ke QuranEnc, atau bandingkan dengan PDF resmi LPMQ |
+| Edisi terjemahan Kemenag di data pemilik (2002 atau penyempurnaan 2019) dan syarat pakai tertulisnya (ADR-040) | Bandingkan dengan PDF resmi LPMQ; tanyakan ke LPMQ bila perlu |
 | Apakah pertanyaan dan jawaban pengguna boleh disimpan di `answer_log` untuk evaluasi mutu, berapa lama, dan apakah pengguna bisa memilih keluar | Diputuskan pemilik dan dewan pengawas sebelum rilis Jawab |
 | Kebijakan retensi data API di sisi Anthropic (belum diverifikasi untuk dokumen ini) | Diverifikasi sebelum rilis Jawab, lalu dicantumkan di kebijakan privasi publik |
 | Tanggapan Shamela atas email pemberitahuan | Menunggu jawaban |

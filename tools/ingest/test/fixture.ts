@@ -1,5 +1,6 @@
 // Fixture BUATAN yang meniru struktur Shamela dan OpenITI (span judul, `\r`, 9 garis bawah,
-// penanda (١), takhrij menempel `//`, penanda halaman OpenITI di akhir halaman, segmen ` + ` JK).
+// penanda (١), takhrij menempel `//`, penanda halaman OpenITI di akhir halaman, segmen ` + ` JK),
+// plus satu kutipan "ayat" berkurung dari mushaf buatan (quran-fixture.ts).
 // Isinya kalimat karangan dan frasa hadits umum yang pendek, BUKAN teks Shamela atau OpenITI.
 // Semua file dibuat di folder sementara; tidak ada yang ditulis ke /Volumes atau ke repo.
 import { createHash } from "node:crypto";
@@ -10,6 +11,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import type { PipelinePaths } from "../src/pipeline.ts";
 import type { WorkConfig } from "../src/works/ihya.ts";
+import { writeQuranFixture } from "./quran-fixture.ts";
 
 export const BOOK_ID = 1234;
 
@@ -48,7 +50,7 @@ export const PAGES: [number, number, number, string][] = [
     1,
     'كتاب الصبر وهو الكتاب الأول من <span data-type="title" id=toc-4>ربع ثان</span>\r' +
       '<span data-type="title" id=toc-5>كتاب الصبر</span>\r' +
-      "الصبر مفتاح الفرج",
+      "الصبر مفتاح الفرج قال تعالى {وَالصَّبْرُ نور القلوب في الظلمات}",
   ],
   [5, 2, 2, "يتلوه كتاب الذكر\rكتاب الذكر وهو الكتاب الثاني\rالذكر حياة القلوب // وقال تعالى كذا"],
 ];
@@ -79,7 +81,7 @@ const MATAN = [
   "بَابُ الْعِلْمِ\nالْعِلْمُ نُورٌ (1) وَالْجَهْلُ ظُلْمَةٌ.",
   "فصل في العمل\nقال الشيخ الصبر ضياء // حديث الصبر ضياء أخرجه مسلم من حديث فلان\nوالعمل ثمرة العلم (1).",
   "بَابُ الْعَمَلِ\nوقال النبي الطهور شطر الايمان (1) حديث الطهور شطر الايمان رواه احمد // ثم رجع الكلام",
-  "كتاب الصبر وهو الكتاب الأول من ربع ثان\nكتاب الصبر\nالصبر مفتاح الفرج",
+  "كتاب الصبر وهو الكتاب الأول من ربع ثان\nكتاب الصبر\nالصبر مفتاح الفرج قال تعالى {وَالصَّبْرُ نور القلوب في الظلمات}",
   "يتلوه كتاب الذكر\nكتاب الذكر وهو الكتاب الثاني\nالذكر حياة القلوب // وقال تعالى كذا",
 ];
 
@@ -88,7 +90,7 @@ const JK = [
   "الْعِلْمُ نُورٌ + حديث العلم نور أخرجه فلان بإسناد حسن + وَالْجَهْلُ ظُلْمَةٌ.",
   "قال الشيخ الصبر ضياء + حديث الصبر ضياء أخرجه مسلم من حديث فلان + والعمل ثمرة العلم",
   "وقال النبي الطهور شطر الايمان + حديث الطهور شطر الايمان رواه احمد + ثم رجع الكلام",
-  "كتاب الصبر\nالصبر مفتاح الفرج",
+  "كتاب الصبر\nالصبر مفتاح الفرج قال تعالى {وَالصَّبْرُ نور القلوب في الظلمات}",
   "الذكر حياة القلوب",
 ];
 
@@ -169,7 +171,15 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     reportPrefix: "reports/uji",
     corpusVersion: "uji-v1",
     output: "uji.sqlite",
-    expect: { pages: 5, volumes: [3, 2], titles: 5, rub: [1, 4], kitabPerRub: 2, matanMinPages: 5 },
+    expect: {
+      pages: 5,
+      volumes: [3, 2],
+      titles: 5,
+      rub: [1, 4],
+      kitabPerRub: 2,
+      matanMinPages: 5,
+      llmCoverage: 0,
+    },
     author: { id: 1, nameId: "Penulis Uji", wikidataId: null },
     work: {
       id: 1,
@@ -195,6 +205,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
       openiti,
       build: join(root, "build"),
       migrations: resolve(import.meta.dirname, "../../../packages/db/migrations/corpus"),
+      quran: writeQuranFixture(join(root, "quran")),
     },
   };
 }

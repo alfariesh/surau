@@ -1,6 +1,6 @@
 # S13 · Batch terjemahan & ringkasan (Haiku 5.5)
 
-> **Fase:** 2 · **Status:** belum
+> **Fase:** 2 · **Status:** selesai* (2026-10-17; QA 20 sampel T-17 tahap 2 menunggu pemilik)
 > **Prasyarat:** S12 selesai · Tugas pemilik: **T-09** (drive), **T-11** (API Anthropic workspace `surau-dev`), plus **persetujuan biaya** di chat sebelum batch dikirim. **T-17** dikerjakan di langkah 5 dan 10.
 > **Perkiraan:** 1–2 percakapan agent (ada waktu tunggu batch, biasanya < 24 jam)
 
@@ -39,12 +39,12 @@ Setiap paragraf Ihya punya terjemahan Indonesia, dan setiap bagian daftar isi pu
 
 ## Selesai bila
 
-- [ ] Faktor token Arab Claude terukur; kalkulator dan `docs/08` diperbarui
-- [ ] 100% paragraf badan teks punya terjemahan dan 100% bagian punya ringkasan ID+EN (atau daftar yang gagal tercatat < 1%)
-- [ ] Tidak ada ayat yang diterjemahkan LLM (tes: semua bentang `passage_ayah_ref` di terjemahan diisi teks Kemenag)
-- [ ] Biaya aktual tercatat dan tidak melebihi estimasi yang disetujui lebih dari 20%
-- [ ] QA 20 sampel tercatat (target Benar ≥ 80%, Salah ≤ 10%)
-- [ ] `pnpm verify` lolos; STATUS, LOG, dan file sesi ini diperbarui
+- [x] Faktor token Arab Claude terukur; kalkulator dan `docs/08` diperbarui — `pnpm llm tokens`: 0,716 token/karakter = **1,84× o200k** (200 paragraf, `data/reports/ihya-9472-token.md`); `FAKTOR_TOKEN_ARAB = 1.84` + model prompt sistem per request di `scripts/hitung_biaya.py`; tabel `docs/08` diperbarui
+- [x] 100% paragraf badan teks punya terjemahan dan 100% bagian punya ringkasan ID+EN (atau daftar yang gagal tercatat < 1%) — `pnpm ingest ihya`: terjemahan **16.086/16.111 (99,84%)**, 25 gagal tercatat di `data/reports/ihya-9472-terjemahan.md` (0,16%); ringkasan **626/626** (313 bagian × ID+EN)
+- [x] Tidak ada ayat yang diterjemahkan LLM (tes: semua bentang `passage_ayah_ref` di terjemahan diisi teks Kemenag) — invarian ingest "setiap kutipan ayat diisi terjemahan Kemenag": **1.309 terjemahan berisi ayat, 0 bermasalah** (`translationSegments` merender setiap rujukan sebagai segmen Kemenag utuh); tes `test/llm-attach.test.ts`. **Catatan jujur:** tes ini sesuai definisinya hanya mencakup rujukan yang dikenali pencocok. Ayat yang luput dari pencocok (lafaz berulang tanpa pengantar, ejaan jauh berbeda, kutipan sangat pendek) bisa diterjemahkan model sebagai bagian kalimat; sisa risiko ini diterima dan dicatat di ADR-042, dengan daftar "kemungkinan ayat belum ditandai" di laporan.
+- [x] Biaya aktual tercatat dan tidak melebihi estimasi yang disetujui lebih dari 20% — aktual **$4,48** (35 batch $4,43 dari `usage` + uji kecil $0,05) vs disetujui ±$6 (batas $7,20); per batch di laporan terjemahan, LOG, `docs/08`
+- [ ] QA 20 sampel tercatat (target Benar ≥ 80%, Salah ≤ 10%) — **20 sampel siap** (`data/reports/ihya-9472-terjemahan.md`, halaman nilai lokal `data/build/llm/qa/review-batch.html`); menunggu nilai pemilik/ustadz (T-17 tahap 2). Tahap 1 (uji kecil v2): pemilik menyatakan "sampel layak" (nilai rinci menyusul) · **Tahap 2 (2026-10-17): 70% Benar (14 B, 4 K, 2 S) → target tidak tercapai; temuan diperbaiki di X02 (ADR-047). Tetap tidak dicentang: penyimpangan diterima pemilik saat `/rilis 2` (ADR-048).**
+- [x] `pnpm verify` lolos; STATUS, LOG, dan file sesi ini diperbarui — `pnpm verify` lolos (348 tes node + 155 tes db/core, build web)
 
 ## Di luar cakupan
 
@@ -52,4 +52,22 @@ Setiap paragraf Ihya punya terjemahan Indonesia, dan setiap bagian daftar isi pu
 
 ## Catatan hasil
 
-*(diisi agent)*
+**T-17 tahap 2 (2026-10-17, penilaian agent lain yang diteruskan pemilik; konfirmasi pemilik di `/rilis 2`):** 14 Benar, 4 Kurang, 2 Salah (70%, di bawah target 80%; Salah 10% tepat di batas). Temuan + pola sejenis di seluruh korpus (27 paragraf) diterjemahkan ulang di X02 dengan prompt `translate-passage@3` lewat lapisan koreksi tinjauan (ADR-047, `ihya-v6`).
+
+**Dibuat:**
+- `packages/llm` (`@surau/llm`): klien `@anthropic-ai/sdk` 0.135.0 (dependensi baru, MIT; membawa `@opentelemetry/api` Apache-2.0, dimatikan), `custom_id`, prompt berversi `translate-passage@{1,2}`, `summarize-section@{1,2}`, `glossary-v1` (±110 istilah, prefix ±4.300 token yang di-cache), validasi keluaran, harga Haiku/Sonnet 5.5.
+- `tools/ingest/src/llm`: `pnpm llm tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report`. Hasil lolos selalu dibangun ulang dari hasil mentah per batch (`rejudge` gratis); kirim/ulang berbasis hash sumber; pengaman `--budget`; ulangan terakhir ke Sonnet 5.5.
+- Pencocok ayat: mode `cue_short` (2–3 kata sesudah قال تعالى, lafaz langka) dan `unmarked` (≥5 kata persis atau ≥4 sesudah pengantar ayat, lafaz satu-satunya di mushaf, tanpa konteks hadits/zikir, tanpa basmalah pembuka), hanya paragraf badan (ADR-042). Rujukan ayat 1.650 → **2.482** di 1.434 paragraf; sampel T-16 tidak berubah.
+- Korpus **`ihya-v4`** (skema tetap 5): tabel `translation` (16.086) dan `summary` (626) terisi, dicek ulang terhadap sumber saat ingest (hash + validasi), invarian baru di laporan validasi. Dimuat ke D1 lokal; **belum** ke staging/produksi (UI terjemahan = S14; promote di S14).
+- Laporan: `data/reports/ihya-9472-token.md`, `…-terjemahan.md` (cakupan, 25 gagal, 6 "kemungkinan ayat belum ditandai", biaya per batch, 20 sampel QA), `…-ayat.md` (+ bagian kutipan S13).
+
+**Jalannya batch:** uji kecil v1 → v2 ($0,05); tahap 1 (668 ringkasan + 4.000 paragraf) → biaya terukur, proyeksi jauh di bawah batas → sisa 12.437; ulangan Haiku (383) → percobaan terakhir Sonnet (181, 172 lolos); putaran 2 (178/178). Cache prompt sistem ±100% di semua batch, 0 refusal. Temuan selama batch yang mengubah rencana (ADR-042, ADR-043): ±1.070 → (diperketat) 832 kutipan ayat tanpa tanda yang tadinya akan diterjemahkan LLM; penanda catatan kaki dibuang model di ±2% paragraf (kini peringatan); keluaran Haiku rusak pada paragraf sulit (kini Sonnet di percobaan terakhir). Peninjau 1 menemukan blocker (rujukan ayat salah tunjuk untuk lafaz berulang) + 7 perbaikan; semua diperbaiki sebelum batch tahap 2. Peninjau 2 menemukan dua blocker: ±1,4% terjemahan berisi komentar/koreksi-diri model berbahasa Indonesia ("Maaf, bagian di atas keliru…", "Catatan: …", dua versi), dan kutipan pendek yang terpotong sehingga sisa ayat diterjemahkan model. Keduanya diperbaiki (validasi v3, `extendVariants`), semua hasil dinilai ulang gratis, yang terdampak dikirim ulang (±$0,5), dan ringkasan putaran 2 dibuat ulang karena kini bergantung pada teks ringkasan anaknya. Peninjau 3 menemukan sisa: ±17 terjemahan dengan label/komentar model ("Terjemahan:", "mari terjemahkan") dan perpanjangan kutipan pendek yang mentok di 4 kata (sisa ayat 24:22 diterjemahkan model, 52:21 tampil dua kali) → validasi v4 ("terjemah…" hanya bila sumber memuat ترجم, kurung kurawal), perpanjangan sampai kurung berikutnya, sampel QA dibekukan, klaim ayat dilunakkan; dinilai ulang dan yang terdampak dikirim ulang (±$0,2). Pindaian akhir: tidak ada komentar model tersisa yang terdeteksi.
+
+**Utang teknis / untuk sesi berikutnya:**
+- **S14:** tampilkan terjemahan (segmen AI vs Kemenag lewat `translationSegments`, label "terjemahan AI") dan ringkasan ("ringkasan AI"); muat `ihya-v4` ke staging dan promote; indeks teks Indonesia hanya segmen `ai`. Bangun ulang korpus butuh `data/build/llm/` (hanya di Mac pemilik; **jangan dihapus**, cadangkan).
+- 25 paragraf tanpa terjemahan; 6 di antaranya kemungkinan ayat yang belum ditandai (daftar di laporan) → bahan perbaikan pencocok (S14/S15). Ayat dengan lafaz berulang tanpa kurung/pengantar tetap bisa diterjemahkan model sebagai bagian kalimat (sisa risiko ADR-042).
+- Status tinjauan (`review_status`) dibangun ulang `ai_generated` setiap ingest: S18 harus menyimpan hasil tinjauan di luar hasil batch.
+- `toAsciiDigits` di `packages/llm/src/check.ts` mengonversi digit Arab-India di luar `packages/text` (saran peninjau, belum dipindah).
+- Mode baca paralel Arab–Indonesia di pembaca (opsional) tidak dikerjakan.
+
+**Pesan untuk S14:** placeholder ada di `translation.text`; render dengan `translationSegments(text, maskAyat(text_raw, ayah_refs, footnote_refs).slots, quran)`. Terjemahan bisa tanpa penanda catatan kaki (320 paragraf). Model per baris (`claude-haiku-5-5` / `claude-sonnet-5-5`) dan `prompt_version` ada di tabel.

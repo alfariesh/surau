@@ -1,6 +1,6 @@
 # Sumber data Surau
 
-Berkas sumber yang dibaca pipeline ingest beserta versi dan sha256-nya. Berkas-berkas ini **tidak** masuk git (`data/raw/` dan drive Shamela pemilik); yang di-commit hanya catatan ini. Ingest memeriksa sha256 OpenITI dan gagal bila berbeda dari yang tercatat di sini (`tools/ingest/src/works/ihya.ts`). Rantai lisensi: [ATTRIBUTION.md](ATTRIBUTION.md).
+Berkas sumber yang dibaca pipeline ingest beserta versi dan sha256-nya. Berkas-berkas ini **tidak** masuk git (`data/raw/` dan drive Shamela pemilik); yang di-commit hanya catatan ini. Ingest memeriksa sha256 OpenITI dan sumber Al-Qur'an, dan gagal bila berbeda dari yang tercatat di sini (`tools/ingest/src/works/ihya.ts`, `tools/ingest/src/quran/source.ts`). Rantai lisensi: [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ## OpenITI (dipin ke commit, diunduh 2026-10-16)
 
@@ -33,6 +33,37 @@ Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struk
 
 sha256 `9472.db` juga tercatat di `meta.source_hash` korpus dan di [reports/ihya-9472-validasi.md](reports/ihya-9472-validasi.md).
 
+## Al-Qur'an: Tanzil 1.1 (diunduh 2026-10-17, S12)
+
+Teks ayat (CC BY 3.0, hanya verbatim). Disimpan di `data/raw/tanzil/`; sha256 dipin di `tools/ingest/src/quran/source.ts` (ingest gagal bila berbeda). Format XML dipakai karena basmalah pembuka surah ada di atribut `bismillah` terpisah (format teks menempelkannya ke ayat 1).
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `quran-uthmani.xml` (tampilan) | 1.516.178 | `203f0f1bf3158b1e5be4ab9f8f6870e570aab6d9a626fe6192a70b75d4afe0fd` |
+| `quran-simple-clean.xml` (pencocokan kutipan) | 926.476 | `140787b7c399b11d54bfa72c237075916084232efa8a4cddf704cc8a2a74b1fe` |
+
+Cara mengunduh ulang (dari root repo; tanpa opsi tanda waqaf/sajdah/tatweel):
+
+```bash
+mkdir -p data/raw/tanzil && cd data/raw/tanzil
+curl -fsS -o quran-uthmani.xml 'https://tanzil.net/pub/download/index.php?quranType=uthmani&outType=xml&agree=true'
+curl -fsS -o quran-simple-clean.xml 'https://tanzil.net/pub/download/index.php?quranType=simple-clean&outType=xml&agree=true'
+shasum -a 256 quran-*.xml
+```
+
+## Al-Qur'an: terjemahan dan transliterasi Kemenag (salinan pemilik, S12)
+
+Diekstrak pemilik dari dump database Surau lama (tabel Al-Qur'an saja, tanpa data pengguna) ke folder `surau-quran-kemenag` pada 2026-10-17, lalu disalin ke `data/raw/kemenag/`. Asal data: Qur'an Kemenag (https://quran.kemenag.go.id), diimpor operator lama 2026-06-03. Keputusan pemakaian: ADR-040.
+
+| Berkas | Isi yang dipakai | Byte | sha256 |
+|---|---|---|---|
+| `kemenag-terjemahan-id.json` | terjemahan 6.236 ayat + catatan kaki (678 ayat) | 1.867.230 | `6569af2c35183be2dec884ef2532bbeabf285959b9b8aa2d0b66a0e319aa6154` |
+| `kemenag-transliterasi-latin.json` | transliterasi Latin 6.236 ayat | 971.483 | `bb02c07b9bad6b8fa006c4e10307eb043027b6a890f825b445585c93ad2e018e` |
+| `surah.json` | nama Latin, jenis wahyu, jumlah ayat 114 surah (metadata QUL) | 68.590 | `2f527c1cfb93465cd1cdc17af54e136b2a4781c47ed7432754e28b17c04b5eec` |
+| `quran-arab.json` | hanya nomor juz per ayat + cek silang penomoran (teks Arab QUL di berkas ini **tidak** dipakai) | 3.290.193 | `80d9cc72bece1381102caab7851f503c726f60e8605bf575bb5cf9e8889ba028` |
+
+Tidak dipakai: pengantar surah QUL (`surah-info-id-QUL-bukan-terbukti-kemenag.json`, bukan dari Kemenag).
+
 ## Teks lisensi
 
 | Berkas | Sumber | sha256 |
@@ -45,6 +76,8 @@ Versi korpus yang pernah dipasang di produksi (blue-green, ADR-005, ADR-036). Bi
 
 | Versi | DB D1 (apac) | ID | Dibuat | sha256 build (`data/build/<versi>.sha256`) | `meta.built_at` | QA | Status |
 |---|---|---|---|---|---|---|---|
-| `ihya-v1` | `surau-corpus-ihya-v1` | `41e3033e-3aa0-456c-9d60-b8967f57e89d` | 2026-10-16 (S10) | `2d2d87d732c37e3f8fdc7beda1209965a28d63f6bd2c1ab3f06069668d3caf68` | 2026-10-16T12:55:55Z | 30/30 ([laporan](reports/ihya-9472-qa-surau-corpus-ihya-v1.md)) | **aktif** |
+| `ihya-v6` | `surau-corpus-ihya-v6` | `537103c6-378e-4880-80d6-53b3504948e8` | 2026-10-17 (X02) | `8835320f0654abf24e6b721f675e6ed48efd4ce297aa45a21ed8bec680dfcad9` | 2026-10-17T10:51:23Z | 30/30 ([laporan](reports/ihya-9472-qa-surau-corpus-ihya-v6.md)) | **aktif** (skema 6; + 27 terjemahan koreksi tinjauan dengan prompt v3, QS 54:55 lintas paragraf, ADR-047) |
+| `ihya-v5` | `surau-corpus-ihya-v5` | `fb0f9660-69ce-412f-9e5f-7c2150cbf901` | 2026-10-17 (S14) | `52b2da40da3f325f41adf5c3db3273fa03374b50576b2289d562c0941836e2c9` | 2026-10-17T06:25:29Z | 30/30 ([laporan](reports/ihya-9472-qa-surau-corpus-ihya-v5.md)) | rollback (skema 6; sebelum koreksi terjemahan X02) |
+| `ihya-v1` | `surau-corpus-ihya-v1` | `41e3033e-3aa0-456c-9d60-b8967f57e89d` | 2026-10-16 (S10) | `2d2d87d732c37e3f8fdc7beda1209965a28d63f6bd2c1ab3f06069668d3caf68` | 2026-10-16T12:55:55Z | 30/30 ([laporan](reports/ihya-9472-qa-surau-corpus-ihya-v1.md)) | rollback (skema 3: pembaca saja; Cari "sedang disiapkan", tanpa ayat/terjemahan; `--switch-only` diizinkan sejak S14, ADR-044) |
 
-Sebelum `ihya-v1`, produksi menunjuk korpus staging dengan pembaca tertutup (ADR-034), jadi `ihya-v1` belum punya target rollback: bila bermasalah, pakai **tutup darurat** (`READER_ENABLED = "0"` lewat PR). Korpus staging tidak pernah menjadi produksi karena isinya dimuat ulang setiap sesi (S11: FTS).
+Sebelum `ihya-v1`, produksi menunjuk korpus staging dengan pembaca tertutup (ADR-034), jadi `ihya-v1` belum punya target rollback: bila bermasalah, pakai **tutup darurat** (`READER_ENABLED = "0"` lewat PR). Korpus staging tidak pernah menjadi produksi karena isinya dimuat ulang setiap sesi (S11: FTS; S12: `ihya-v3` dengan tabel ayat, skema 5, sha256 build `83d6d0afdd0de139de0153671221a558142fbdef8fa982c86dacb9cda18627b9`). S13 membangun `ihya-v4` (skema 5, + `translation` 16.086 dan `summary` 626 dari hasil batch LLM di `data/build/llm/`, + rujukan ayat mode S13, ADR-042/043) dan memuatnya ke D1 lokal saja. S14 membangun `ihya-v5` (skema 6, + indeks Indonesia `translation_fts`/`summary_fts`, ADR-044), memuatnya ke lokal dan staging, lalu mempromosikannya ke produksi atas izin pemilik (2026-10-17). X02 membangun `ihya-v6` (koreksi 27 terjemahan + pencocok ayat lintas paragraf, ADR-047) dan mempromosikannya atas izin pemilik (2026-10-17). Membangun ulang `ihya-v4`/`ihya-v5` butuh `data/build/llm/` (hanya di Mac pemilik; jangan dihapus).

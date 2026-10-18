@@ -1,0 +1,112 @@
+// Worker MCP publik Surau (S16). Keputusan: ADR-010, ADR-011, ADR-014, ADR-021, ADR-049.
+// Read-only, stateless dual-era (spec 2025-11-25 + 2026-07-28), tanpa LLM, tanpa auth.
+// Top-level = PRODUKSI (custom domain mcp.surau.org). Blok `previews` = Preview per PR dan TIDAK
+// mewarisi binding produksi: setiap binding wajib dideklarasikan ulang di sana.
+// `wrangler types` hanya membaca top-level, jadi nama binding di `previews` harus sama persis.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-14",
+  // Tanpa nodejs_compat: SDK MCP v2 memilih validator @cfworker/json-schema di workerd dan tidak
+  // mengimpor node:* (dicek docs-terbaru 2026-10-17). Fetch keluar hanya ke internet publik.
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  // Produksi hanya lewat custom domain (DNS + sertifikat dibuat `wrangler deploy`); workers.dev
+  // dimatikan supaya satu alamat publik saja. URL Preview tetap dinyalakan eksplisit.
+  "workers_dev": false,
+  "preview_urls": true,
+  "routes": [{ "pattern": "mcp.surau.org", "custom_domain": true }],
+  "vars": {
+    // Origin permalink absolut di setiap hasil tool (core mengembalikan path tanpa origin).
+    "SITE_URL": "https://surau.org",
+  },
+  // CORPUS_DB = korpus PRODUKSI yang SAMA dengan apps/web (satu D1, dua Worker). Nama + ID hanya
+  // diubah `pnpm run corpus:promote` bersama apps/web/wrangler.jsonc (dijaga tes
+  // tools/ingest/src/corpus.test.ts). `preview_database_id` = staging, dipakai `wrangler dev` lokal
+  // (D1 lokal per ID, sama dengan web).
+  "d1_databases": [
+    {
+      "binding": "CORPUS_DB",
+      "database_name": "surau-corpus-ihya-v6",
+      "database_id": "537103c6-378e-4880-80d6-53b3504948e8",
+      "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+    },
+  ],
+  // Kunci = HMAC(IP_HMAC_KEY, jaringan IP) + ":" + nama tool (ADR-014). Longgar, karena semua
+  // pengguna claude.ai datang dari IP Anthropic (ADR-011). Hitungan per lokasi Cloudflare.
+  // `namespace_id` unik per akun: web memakai 1001–1004 (produksi) dan 2001–2004 (Preview).
+  "ratelimits": [
+    {
+      // Tool baca (list_works, get_table_of_contents, read_page, read_section, verify_quote,
+      // get_hadith_takhrij): per klien per tool.
+      "name": "MCP_TOOL_LIMITER",
+      "namespace_id": "3001",
+      "simple": { "limit": 120, "period": 60 },
+    },
+    {
+      // Tool baca semua klien (kunci tetap): plafon baca D1. get_table_of_contents dan read_section
+      // membaca seluruh daftar isi (±1.000 baris) per panggilan: 600/menit ≈ 600 ribu baris/menit
+      // per lokasi pada beban maksimum (ADR-049).
+      "name": "MCP_READ_GLOBAL_LIMITER",
+      "namespace_id": "3004",
+      "simple": { "limit": 600, "period": 60 },
+    },
+    {
+      // search_text per klien: kueri FTS paling mahal di D1.
+      "name": "MCP_SEARCH_LIMITER",
+      "namespace_id": "3002",
+      "simple": { "limit": 60, "period": 60 },
+    },
+    {
+      // search_text semua klien (kunci tetap): plafon beban D1, yang dipakai bersama web.
+      "name": "MCP_SEARCH_GLOBAL_LIMITER",
+      "namespace_id": "3003",
+      "simple": { "limit": 600, "period": 60 },
+    },
+  ],
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+  },
+  "upload_source_maps": true,
+  "previews": {
+    "vars": {
+      "SITE_URL": "https://surau.org",
+    },
+    "observability": {
+      "enabled": true,
+      "logs": { "enabled": true, "head_sampling_rate": 1 },
+      "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+    },
+    "d1_databases": [
+      {
+        "binding": "CORPUS_DB",
+        "database_name": "surau-corpus-staging",
+        "database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+      },
+    ],
+    "ratelimits": [
+      {
+        "name": "MCP_TOOL_LIMITER",
+        "namespace_id": "4001",
+        "simple": { "limit": 120, "period": 60 },
+      },
+      {
+        "name": "MCP_READ_GLOBAL_LIMITER",
+        "namespace_id": "4004",
+        "simple": { "limit": 600, "period": 60 },
+      },
+      {
+        "name": "MCP_SEARCH_LIMITER",
+        "namespace_id": "4002",
+        "simple": { "limit": 60, "period": 60 },
+      },
+      {
+        "name": "MCP_SEARCH_GLOBAL_LIMITER",
+        "namespace_id": "4003",
+        "simple": { "limit": 600, "period": 60 },
+      },
+    ],
+  },
+}

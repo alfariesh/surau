@@ -6,8 +6,12 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { SEARCH_SCHEMA_VERSION } from "@surau/db";
-import { buildFtsMatch } from "@surau/text";
+import {
+  LATIN_SEARCH_SCHEMA_VERSION,
+  QURAN_SCHEMA_VERSION,
+  SEARCH_SCHEMA_VERSION,
+} from "@surau/db";
+import { buildFtsMatch, latinMatchExpression, planLatinQuery } from "@surau/text";
 
 import { sqlLiteral } from "./sql.ts";
 
@@ -16,6 +20,8 @@ export const repo = resolve(import.meta.dirname, "../../..");
 export const DB_CONFIG = "packages/db/wrangler.jsonc";
 /** Config Worker web: binding CORPUS_DB top-level = korpus PRODUKSI. */
 export const WEB_CONFIG = "apps/web/wrangler.jsonc";
+/** Config Worker MCP (S16): CORPUS_DB top-level = korpus PRODUKSI yang sama dengan web. */
+export const MCP_CONFIG = "apps/mcp/wrangler.jsonc";
 export const CORPUS_MIGRATIONS = "packages/db/migrations/corpus";
 
 /** Jalankan wrangler dari root repo. Keluaran (panjang) hanya dicetak bila gagal. */
@@ -140,12 +146,31 @@ export const COUNTED = [
   "passage",
   "footnote_ref",
   "passage_needs_review",
+  "quran_source",
+  "quran_surah",
+  "quran_ayah",
+  "quran_translation",
+  "passage_ayah_ref",
+  // Terjemahan/ringkasan AI (S13): tabel ada sejak skema 1, kosong di korpus sebelum ihya-v4.
+  "translation",
+  "summary",
   "term_stat",
   "passage_fts",
+  // Indeks Indonesia (S14): tabel virtual baru ada sejak skema 6.
+  "translation_fts",
+  "summary_fts",
   "meta",
 ] as const;
 /** Tabel yang baru ada (atau baru diisi) sejak skema korpus 4 (S11): tidak dihitung di korpus lama. */
 const SEARCH_TABLES: ReadonlySet<string> = new Set(["term_stat", "passage_fts"]);
+const LATIN_TABLES: ReadonlySet<string> = new Set(["translation_fts", "summary_fts"]);
+const QURAN_TABLES: ReadonlySet<string> = new Set([
+  "quran_source",
+  "quran_surah",
+  "quran_ayah",
+  "quran_translation",
+  "passage_ayah_ref",
+]);
 
 // Satu baris berisi subkueri per tabel (D1 membatasi jumlah suku UNION dalam satu SELECT).
 const smokeCounts = (tables: readonly string[]): string =>
@@ -168,11 +193,27 @@ const SMOKE_SEARCH = `SELECT count(*) AS n FROM passage_fts WHERE passage_fts MA
   buildFtsMatch("الصبر") ?? "",
 )}`;
 
+// Indeks Indonesia (S14): kueri "sabar" (rencana @surau/text yang sama dengan searchText) harus
+// mengenai terjemahan dan ringkasan.
+const SABAR = planLatinQuery("sabar");
+const SMOKE_LATIN = ["translation_fts", "summary_fts"].map(
+  (t) =>
+    `SELECT count(*) AS n FROM ${t} WHERE ${t} MATCH ${sqlLiteral(
+      SABAR === null ? "" : latinMatchExpression(SABAR, "all"),
+    )}`,
+);
+
 export interface Smoke {
   counts: Record<(typeof COUNTED)[number], number>;
   meta: Record<string, string>;
   /** Pesan kegagalan; kosong = lolos. */
   problems: string[];
+  /**
+   * Fitur yang tidak ada karena skema korpus lebih lama dari kode (mis. ihya-v1 tanpa indeks
+   * pencarian). Bukan kegagalan data: kode memeriksa `meta.schema_version` dan menyembunyikan
+   * fiturnya (ARSITEKTUR-TEKNIS §7 aturan 5). Build baru dan pemuatan wajib tanpa batasan.
+   */
+  limitations: string[];
 }
 
 /**
@@ -193,12 +234,22 @@ export function smoke(
   // Korpus skema < 4 (ihya-v1) tidak punya term_stat: dihitung 0 dan pencarian tidak dicoba, supaya
   // smoke (mis. `promote --switch-only`) memberi pesan, bukan crash "no such table".
   const search = Number(meta.schema_version ?? 0) >= SEARCH_SCHEMA_VERSION;
-  const tables = COUNTED.filter((t) => search || !SEARCH_TABLES.has(t));
+  // Tabel Qur'an (S12) baru ada sejak skema 5: korpus lama dihitung 0, tanpa crash.
+  const quran = Number(meta.schema_version ?? 0) >= QURAN_SCHEMA_VERSION;
+  // Indeks Indonesia (S14) sejak skema 6.
+  const latin = Number(meta.schema_version ?? 0) >= LATIN_SEARCH_SCHEMA_VERSION;
+  const tables = COUNTED.filter(
+    (t) =>
+      (search || !SEARCH_TABLES.has(t)) &&
+      (quran || !QURAN_TABLES.has(t)) &&
+      (latin || !LATIN_TABLES.has(t)),
+  );
   const row = query(target, smokeCounts(tables))[0] ?? {};
   const counts = Object.fromEntries(
     COUNTED.map((t) => [t, Number(row[t] ?? 0)]),
   ) as Smoke["counts"];
   const problems: string[] = [];
+  const limitations: string[] = [];
   const page = query(target, SMOKE_PAGE);
   const body = Number(page.find((r) => r.kind === "body")?.n ?? 0);
   const foot = Number(page.find((r) => r.kind === "foot")?.n ?? 0);
@@ -206,9 +257,27 @@ export function smoke(
     problems.push("j1 h200 tidak punya paragraf badan, catatan kaki, atau penanda tertaut");
   }
   if (!search) {
-    problems.push(`skema korpus ${meta.schema_version ?? "?"} belum punya indeks pencarian (S11)`);
+    limitations.push(
+      `skema korpus ${meta.schema_version ?? "?"} belum punya indeks pencarian (S11)`,
+    );
   } else if (Number(query(target, SMOKE_SEARCH)[0]?.n ?? 0) === 0) {
     problems.push("indeks passage_fts tidak mengenai الصبر (indeks kosong atau tidak sinkron)");
+  }
+  if (!quran) {
+    limitations.push(`skema korpus ${meta.schema_version ?? "?"} belum punya tabel ayat (S12)`);
+  } else if (counts.quran_ayah === 0 || counts.passage_ayah_ref === 0) {
+    problems.push("tabel quran_ayah atau passage_ayah_ref kosong");
+  }
+  if (!latin) {
+    limitations.push(
+      `skema korpus ${meta.schema_version ?? "?"} belum punya indeks terjemahan Indonesia (S14)`,
+    );
+  } else if (counts.translation > 0) {
+    // Korpus tanpa terjemahan (sebelum S13) memang tidak punya isi indeks Indonesia.
+    const [tr, sm] = SMOKE_LATIN.map((sql) => Number(query(target, sql)[0]?.n ?? 0));
+    if (tr === 0 || (counts.summary > 0 && sm === 0)) {
+      problems.push('indeks translation_fts/summary_fts tidak mengenai "sabar"');
+    }
   }
   if (expect !== undefined) {
     for (const t of COUNTED) {
@@ -220,7 +289,7 @@ export function smoke(
       if (meta[k] !== v) problems.push(`meta.${k} = ${meta[k] ?? "(tidak ada)"}, build ${v}`);
     }
   }
-  return { counts, meta, problems };
+  return { counts, meta, problems, limitations };
 }
 
 export function formatCounts(counts: Record<string, number>): string {

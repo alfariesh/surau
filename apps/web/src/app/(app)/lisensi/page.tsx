@@ -4,7 +4,7 @@ import { Card } from "@heroui/react";
 import NextLink from "next/link";
 
 import { PageSection } from "../../../components/page-section";
-import { EDITION_CREDITS, LICENSE_URL } from "../../../content/works";
+import { EDITION_CREDITS, LICENSE_URL, QURAN_CREDITS } from "../../../content/works";
 import { id, ISSUES_URL, SOURCE_URL } from "../../../i18n/id";
 
 const t = id.license;
@@ -113,6 +113,25 @@ export default function LicensePage() {
             </p>
           </section>
         ))}
+      </PageSection>
+
+      <PageSection heading={t.quranHeading} id="quran">
+        <div className="text-foreground flex flex-col gap-3 text-base leading-relaxed">
+          <p>{t.quranLead}</p>
+          <ul className="flex list-disc flex-col gap-2 ps-5">
+            {QURAN_CREDITS.map((credit) => (
+              <li key={credit.name}>
+                <span className="font-semibold">{credit.name}</span>: {credit.role}{" "}
+                {credit.links.map((link, i) => (
+                  <span key={link.url}>
+                    {i > 0 ? " · " : ""}
+                    <ExternalLink href={link.url}>{link.label}</ExternalLink>
+                  </span>
+                ))}
+              </li>
+            ))}
+          </ul>
+        </div>
       </PageSection>
 
       <PageSection heading={t.correctionHeading} id="koreksi">

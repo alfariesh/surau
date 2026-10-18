@@ -1,4 +1,5 @@
-// @surau/text: satu-satunya tempat logika teks Arab Surau (KONVENSI, `.claude/rules/teks-arab.md`).
+// @surau/text: satu-satunya tempat logika teks Arab Surau (KONVENSI, `.claude/rules/teks-arab.md`),
+// ditambah teks Latin bahasa Indonesia untuk pencarian terjemahan AI (`latin.ts`, S14).
 // TypeScript murni tanpa dependensi runtime; dipakai Node (tools/ingest, lewat type stripping),
 // Worker, dan Next.
 
@@ -34,6 +35,23 @@ export {
 export type { FtsColumn, FtsMatchOptions, FtsQueryPlan } from "./fts.ts";
 
 export { SNIPPET_CHARS, findPlanSpans, snippetSpan } from "./highlight.ts";
+
+export {
+  ID_QUERY_FRAMING,
+  ID_STOPWORDS,
+  ID_VARIANTS,
+  LATIN_MAX_TERMS,
+  LATIN_NORM_VERSION,
+  findLatinSpans,
+  latinIndexText,
+  latinMatchExpression,
+  latinTerm,
+  latinTokens,
+  normalizeLatinWord,
+  planLatinQuery,
+  stemIndonesian,
+} from "./latin.ts";
+export type { LatinQueryPlan, LatinToken } from "./latin.ts";
 export type { RawSpan } from "./highlight.ts";
 
 export {

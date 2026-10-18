@@ -50,6 +50,16 @@ Semua fakta versi di bawah dicek ke docs/registry resmi pada 15 Okt 2026 (riset 
 - `images: { unoptimized: true }`.
 - Kutipan Arab tidak pernah dirender lewat Markdown.
 
+**Gerbang rilis F3 (dicek 2026-10-17, `docs-terbaru`):** Next 16.4.1 didukung resmi [OpenNext 1.20.12](https://github.com/opennextjs/opennextjs-cloudflare/releases/tag/@opennextjs%2Fcloudflare@1.20.12). Advisory Next 673q/2464/p3m5 ditambal di 16.4.1; placeholder versi pada advisory lain dicocokkan dengan GitHub curated API (tambalan 16.3.8). Tidak ditemukan advisory langsung yang mengenai OpenNext 1.20.12 atau Wrangler 4.151.0. Next 16.4.2 dan Wrangler 4.151.1 tersedia sebagai patch opsional; versi rilis ini tidak diubah.
+
+Mitigasi keamanan yang wajib dipertahankan dan sudah diverifikasi untuk build rilis ini:
+- `cacheComponents: false`, `images.unoptimized: true`, tanpa `'use server'`/`'use cache'`, proxy/middleware atau edge runtime. `apps/web/.next/required-server-files.json` mengonfirmasi kedua flag; `server-reference-manifest.json` memiliki `node` dan `edge` kosong. Grep sumber tidak menemukan fitur terlarang tersebut.
+- **React RSC xqc2/h3gv:** React publik 19.3.1 sudah ditambal. Salinan compiled Next masih berlabel canary, meski marker patch upstream ditemukan (`RESPONSE_SYMBOL`, `getBackingBlob`, stream namespace `S`, pengaman detached buffer). Kesetaraan seluruh patch belum dibuktikan; tetap **tanpa Server Actions dan tanpa typed array pada props Server Component** (ADR-023/030). Typed array di sumber hanya ada pada helper route server untuk HMAC, bukan props Server Component.
+- **[GHSA-5j98-mcp5-4vw2](https://github.com/advisories/GHSA-5j98-mcp5-4vw2), glob 10.3.3** (OpenNext → AWS → `@node-minify/core` 9.0.2): pemicunya CLI `glob -c`/`--cmd` dengan shell; API library tidak terkena. Paket terpasang mengimpor `globSync` di `dist/index.mjs:82` dan hanya memanggil API pada baris 176/189. Scripts proyek dan workflow tidak memanggil CLI rentan. Jangan menambahkan pemanggilan CLI tersebut sebelum dependency ditambal.
+- **[GHSA-62ch-8vmq-8xm7](https://github.com/advisories/GHSA-62ch-8vmq-8xm7), figlet 1.11.0** (CLI HeroUI Pro): pemicunya `whitespaceBreak: true` dengan `width` lebih kecil daripada satu glyph. CLI terpasang hanya memakai `textSync("HeroUI Pro")` tanpa opsi/input pengguna (`heroui-pro` 1.0.0-beta.14, `dist/cli/commands/menu.js:2`); grep CLI tidak menemukan opsi rentan. Default `whitespaceBreak` mati, sesuai workaround vendor. Jangan mengaktifkan opsi itu sebelum dependency ditambal.
+
+`pnpm audit --json` masih melaporkan dua advisory high transitif di atas; keduanya dicatat sebagai termitigasi pada jalur penggunaan ini, bukan diklaim hilang dari lockfile. Build web/MCP dan seluruh tes lolos. Tinjau kembali mitigasi saat dependency, scripts, konfigurasi, atau props Server Component berubah.
+
 **Gerbang versi:** pakai Next 16.4.x terbaru **hanya bila** rilis OpenNext sudah resmi mendukungnya **dan** `pnpm preview` (workerd) lolos smoke test. Upgrade-nya dikerjakan di sesi sisipan [X01](sesi/X01-upgrade-next-16-4.md). Per 15 Okt 2026, OpenNext 1.20.11 rusak di 16.4; patch-nya sudah di-merge dan rilisnya diperkirakan sekitar akhir Okt. Sampai saat itu, pakai **16.3.8** (versi minimum OpenNext, terbukti jalan di workerd) dengan React 19.2.x dan mitigasi di atas. Ketiga advisory 14 Okt tidak berlaku karena fiturnya dimatikan; untuk DoS Server Actions, vendor sendiri menyatakan aplikasi tanpa Server Actions tidak rentan. Catatan: pnpm ≥11 menolak paket berumur <24 jam (`minimumReleaseAge`); jangan set ke 0. **Ditolak:** vinext (direkomendasikan Cloudflare, tapi masih beta dan punya 2 advisory baru) sebagai **cadangan**, dievaluasi ulang di Fase 3 atau bila OpenNext tertinggal lebih dari satu minor; React Router v8, TanStack Start, dan Astro (butuh port template, dan agent kurang fasih). **Tinjau ulang bila:** OpenNext macet lebih dari satu rilis minor Next.
 
 ## ADR-004 · UI: HeroUI v3 OSS + HeroUI Pro (versi dipin persis) — sementara · 2026-10-15
@@ -176,6 +186,8 @@ Turnstile mode Managed hanya di Jawab. Token ditukar menjadi cookie anonim HMAC 
 **Konteks:** Roadmap lama menaruh MCP (v1.5) setelah Jawab. **Keputusan:** MCP publik dirilis di Fase 3, setelah Pembaca (Fase 1) dan Cari (Fase 2), dan sebelum Jawab (Fase 4). MCP hampir gratis dijalankan (tanpa LLM), langsung berguna bagi pengguna Claude/ChatGPT, dan menguji core tools di dunia nyata sebelum pipeline Jawab yang berbiaya. Ini sejalan dengan [docs/08](../docs/08-biaya.md#pendanaan--program): "Dahulukan MCP dan mode Cari".
 
 ## ADR-020 · Al-Qur'an: teks Tanzil, terjemahan Kemenag via QuranEnc, tidak pernah diterjemahkan LLM — diterima · 2026-10-15
+
+> **Diperbarui ADR-040 (2026-10-17):** terjemahan dan transliterasi Kemenag diambil dari data milik pemilik, bukan QuranEnc. Bagian lain tetap berlaku.
 
 **Keputusan:** Teks ayat diambil dari Tanzil 1.1 (CC BY 3.0, **hanya verbatim**, wajib pemberitahuan dan tautan tanzil.net): `simple-clean` untuk indeks pencocokan, `uthmani` untuk tampilan. Terjemahan Indonesia memakai QuranEnc `indonesian_affairs` (Kemenag, versi dicatat, verbatim, penanda catatan kaki ditampilkan apa adanya). Kutipan ayat di kitab dikenali secara deterministik; 97,2% cocok persis setelah normalisasi, sisanya dicocokkan fuzzy dengan label "mirip". **Ayat tidak pernah diterjemahkan LLM.** Dalam batch terjemahan (S13), bentang ayat diganti placeholder lalu diisi terjemahan Kemenag. **Ditolak:** API Quran Foundation sebagai sumber indeks (cache maksimal 1 minggu, dilarang dibundel); `quran-json` (deprecated, tanpa hak redistribusi); scraping situs Kemenag. **Terbuka:** apakah PMA 44/2016 (tashih) berlaku untuk aplikasi yang hanya mengutip ayat di dalam kitab. Tanyakan ke LPMQ bila perlu.
 
@@ -855,6 +867,63 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Tinjau ulang bila:** korpus berisi lebih dari satu kitab (reset per edisi termasuk `DELETE FROM passage_fts WHERE rowid BETWEEN`, `term_stat` per korpus, rows_read kueri berperingkat), cache kueri populer di S14, atau eval S15 menunjukkan ambang 10% / bobot catatan kaki merugikan relevansi.
 
+## ADR-040 · Ayat (S12): teks Tanzil (XML), terjemahan + transliterasi Kemenag dari data pemilik (menggantikan QuranEnc), pencocok deterministik `{…}` + frasa pengantar, korpus `ihya-v3` (skema 5), penanda ayat S13 — diterima (pemilik, 2026-10-17) · 2026-10-17
+
+**Konteks:** ADR-020 merencanakan teks Tanzil + terjemahan Kemenag lewat QuranEnc `indonesian_affairs`. Saat memulai S12, pemilik menulis: "Untuk data quran pakai surau-quran-kemenag. Ini adalah data yg saya miliki dari kemenag resmi … Jangan terlalu perketat lisensi, saya ingin ship dulu." Folder itu berisi ekstrak tabel Al-Qur'an dari dump DB Surau lama: terjemahan Kemenag (+678 catatan kaki), transliterasi Latin Kemenag, teks Arab QPC Hafs/Imlaei (QUL), metadata surah (QUL), dan pengantar surah (QUL). Metadata lisensinya mencatat `permitted` untuk terjemahan/transliterasi berdasarkan artikel berita Kemenag tentang API Qur'an Kemenag (bukan dokumen syarat pakai), dan `needs_review` untuk teks Arab QUL.
+
+**Keputusan:**
+1. **Sumber.**
+   - Teks ayat tetap **Tanzil 1.1** (ADR-020, aturan keras CLAUDE.md), diunduh dalam format **XML**, bukan `txt-2`: basmalah pembuka surah ada di atribut `bismillah` terpisah, sedangkan format teks menempelkannya ke ayat 1 di 112 surah. `uthmani` untuk tampilan, `simple-clean` untuk pencocokan. Teks Arab QUL di data pemilik **tidak** ditampilkan; Imlaei hanya dipakai untuk cek silang penomoran (6 dari 6.236 ayat beda ejaan, semua bernomor sama).
+   - **Terjemahan (dengan catatan kaki) dan transliterasi = data Kemenag milik pemilik** (asal quran.kemenag.go.id, salinan 2026-06-03), **menggantikan QuranEnc** (menyimpang dari ADR-020 atas arahan pemilik). Sama-sama terjemahan resmi Kemenag, sudah lengkap dengan catatan kaki, tanpa unduhan/API tambahan. Edisi terjemahan tidak tercatat di data, jadi tidak diklaim; versi ditulis "quran.kemenag.go.id, salinan 2026-06-03". Risiko lisensi (belum ada syarat pakai tertulis) **diterima pemilik**.
+   - Nama Latin surah dan jenis wahyu dari metadata surah di data pemilik (QUL), nama Arab dari Tanzil, juz dari QUL. Pengantar surah QUL tidak dipakai (bukan Kemenag).
+   - Semua berkas sumber dipin sha256 (`tools/ingest/src/quran/source.ts`, `data/SOURCES.md`). Blok hak cipta Tanzil disalin dari komentar XML ke `quran_source.attribution` dan `data/ATTRIBUTION.md`: syarat Tanzil untuk berkas turunan yang memuat sebagian besar teksnya (korpus/dump).
+2. **Skema korpus 5 (migrasi 0005):** `quran_source` (id, jenis, versi, lisensi, atribusi, url, sha256), `quran_surah`, `quran_ayah` (`text_uthmani` + `text_index`, juz), `quran_translation` (terjemahan dan transliterasi dibedakan `quran_source.kind`; catatan kaki JSON `[{marker, text}]`, penanda seperti "1)" tetap di teks), `passage_ayah_ref`. Menyimpang dari rencana: kolom `lang/source/version` per baris diganti FK ke `quran_source`; ditambah `bracketed` dan `alt_count`.
+3. **Pencocok** (`tools/ingest/src/quran/matcher.ts`, normalisasi `@surau/text`, `NORM_VERSION` tetap 1):
+   - **Bentang `{…}`.** Shamela juga memakai `{…}` untuk menebalkan kata di hadits/takhrij (`{قال}`, `{ثم قال}`, `{وفيه}`, `{حميد مجيد}` dalam lafaz shalawat).
+     - 1 kata ditolak (186 di Ihya, tidak satu pun ayat utuh).
+     - 2 kata hanya diterima bila sama persis DAN: ayat utuh, atau pengantar kuat (تعالى/عز وجل/سبحانه/قرأ/تلا/نزلت) di dua kata sebelumnya, atau "الآية" sesudahnya, atau satu surah dengan kutipan sebelumnya di paragraf. "قوله" saja tidak cukup karena dipakai juga untuk lafaz hadits. 2–3 kata yang tidak persis (3 kata tanpa pengantar) tidak dicoba cocok mirip (`short_inexact`).
+     - ≥3 kata: `exact` bila sama persis. `similar` bila ≥4 kata (3 kata: syarat pengantar yang sama), dengan penjajaran huruf semi-global (alif/waw/ya/hamzah dan ه↔ت setengah biaya), skor ≥ 0,93, dan minimal separuh kata sama persis.
+     - Ambang diambil dari data. Beda ejaan yang diterima berskor ≥ 0,938 (أولوا/أولو, مسئولا, ما لهذا/مال هذا, من ما/مما), sedangkan kalimat bukan ayat 3 kata bisa berskor 0,86–0,95. Harga ambang konservatif: **2 ayat asli tetap tidak tertaut** (39:9 أم من/أمّن, skor 0,90; 13:22 ويدرؤون, 3 kata tanpa pengantar). Laporan menyebutnya "tidak cocok, tidak ditautkan", bukan "bukan ayat".
+   - **Kutipan tanpa kurung** (wujud "heuristik konservatif" di rencana):
+     - Hanya sesudah frasa pengantar (`قال/قوله/يقول [الله] تعالى | عز وجل | سبحانه …`).
+     - Jangkar 3 kata sama persis, lalu diperpanjang kata demi kata. Beda ejaan kecil boleh di tengah (السموات/السماوات; "kecil" = biaya ≤ 0,5, atau ≤ 1 untuk kata ≥ 5 huruf, jadi ربك/ربه tidak dianggap mirip), tetapi kutipan dipotong di kata terakhir yang sama persis (kata mirip di ujung biasanya kata penulis: ولما/ولا).
+     - Bila beberapa jangkar sama panjang, hanya yang kata persisnya terbanyak yang bersaing; label `exact`/`similar`, skor, dan `alt_count` (letak lain berlafaz mushaf identik) dihitung dari letak yang dipilih (temuan peninjau).
+     - Minimal 4 kata; berhenti di `{` berikutnya.
+     - Di Ihya ada 648 kutipan seperti ini (610 persis, 38 mirip), sehingga cakupan hampir dua kali lipat (1.002 berkurung + 648).
+     - Keterbatasan yang diketahui: "قال الله تعالى" juga membuka hadits qudsi; hadits qudsi yang dimulai dengan lafaz Qur'ani ≥ 4 kata (mis. أنا الله لا إله إلا أنا = 20:14) ikut ditautkan sebagai ayat. Dijaga tinjauan T-16 dan eval S15.
+   - **Lafaz di beberapa letak:** pilih ayat utuh, lalu surah kutipan sebelumnya di paragraf, lalu urutan mushaf. `alt_count` disimpan dan ditampilkan ("juga di N tempat lain"). Rentang lintas surah ditolak.
+   - **Gerbang ingest** (invarian, ingest gagal bila dilanggar):
+     - exact ≥ 95% dari `{…}` tervalidasi (hasil 977/1.004 = 97,3%; mirip 25; tidak cocok 2);
+     - rujukan sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada);
+     - setiap kutipan `exact` benar-benar ada di teks ayat rujukannya, ayat utuh = sama persis (1.587/1.587);
+     - sumber utuh;
+     - beda QUL vs Tanzil ≤ 20.
+4. **Core.**
+   - `Passage.ayah_refs` (juga ikut `readSection`), `PageView.quran` (ayat utuh + terjemahan + transliterasi + surah + sumber dalam satu batch D1; kunci `surah·1000+ayah` lewat `json_each` → pencarian kunci utama), dan `getAyahRefs`.
+   - Korpus skema < 5 (produksi `ihya-v1`): kueri rujukan gagal, lalu `meta` dicek, lalu rujukan kosong. Halaman tetap tampil (+1 kueri gagal + 1 kueri `meta` per render ISR). `getAyahRefs` menjawab `Unavailable`.
+   - `quranForRefs` memecah per ≤ 300 ayat (`QURAN_AYAT_MAX`), jadi halaman yang merujuk banyak ayat tidak gagal; terjemahan dan transliterasi dipilih menurut ID sumber (`QURAN_SOURCE`), dan `quran.sources` hanya memuat satu sumber per jenis.
+5. **Penanda ayat S13** (`packages/core/src/ayah-placeholder.ts`).
+   - Placeholder `⟦QS s:a⟧` / `⟦QS s:a-b⟧`; `maskAyat(text_raw, ayah_refs, footnote_refs)`/`unmaskAyat` round-trip. Penanda `(١)` di dalam kutipan dipindah tepat sesudah placeholder (tidak hilang); rujukan yang batasnya jatuh di tengah penanda dilewati (aturan sama dengan web). Pola placeholder lewat `ayahPlaceholderPattern()` (RegExp baru, tanpa `lastIndex` bersama).
+   - `checkPlaceholders` menolak keluaran LLM yang kehilangan, menggandakan, atau mengarang placeholder.
+   - `translationSegments` memberi label `ai_translation`, `kemenag`, atau `kemenag_full_ayah` (kutipan sebagian). Placeholder asing atau tanpa terjemahan = `invalid`, tidak dirender sebagai terjemahan.
+6. **UI pembaca.**
+   - Kutipan diberi warna halus tanpa latar. Sesudahnya (untuk `{…}`: sesudah kurung tutup) ada label "QS s:a" sebagai tombol: HoverCard di desktop, Popover di layar sentuh, pola yang sama dengan penanda catatan kaki. Nama aksesibel diawali label yang terlihat (WCAG 2.5.3) dan tombol ber-`lang="id"` di dalam blok Arab (juga penanda catatan kaki).
+   - Isi popup: nama surah, catatan (sebagian ayat / beda ejaan / letak lain), teks Tanzil, transliterasi, terjemahan Kemenag + catatan kaki, sumber, dan tautan `tanzil.net/#s:a`. Kutipan sebagian = "Terjemahan ayat lengkap (Kemenag)".
+   - Teks label memakai CSS `content: attr(data-label)` supaya tidak ikut tersalin bersama teks Arab; pembaca layar memakai `aria-label`.
+   - Footer halaman: atribusi dari `quran_source`. `/lisensi` mendapat bagian "Ayat Al-Qur'an".
+7. **Korpus `ihya-v3`** dimuat ke D1 lokal dan `surau-corpus-staging` (±80 dtk). Produksi tetap `ihya-v1` sampai promote di S14 (versi yang dipromosikan harus ≥ `ihya-v3`).
+
+**Konsekuensi:**
+- Smoke korpus skema < 5 melaporkan "belum punya tabel ayat", jadi `corpus:promote --switch-only` ke `ihya-v1`/`ihya-v2` ditolak (sama dengan catatan ADR-039), kecuali `promote.ts` dilonggarkan.
+- `.claude/rules/teks-arab.md` butir 9, docs/04, dan ARSITEKTUR-TEKNIS diperbarui (Kemenag dari data pemilik).
+
+**Tinjau ulang bila:**
+- Kemenag/LPMQ menerbitkan syarat pakai, atau pertanyaan tashih (PMA 44/2016) terjawab;
+- korpus berisi lebih dari satu kitab (tabel Qur'an bersama, reset per edisi);
+- eval S15 atau tinjauan T-16 menemukan rujukan salah.
+
+> ADR-041 sengaja dilewati: PR #30 (pohon daftar isi, belum digabung) menulis ADR bernomor 040 yang sudah dipakai S12, jadi nomor berikutnya disisakan untuknya.
+
 ## ADR-041 · Pohon daftar isi: `NavigationTree` react-aria + garis pemandu sendiri menggantikan `FileTree` HeroUI Pro; satu bagian aktif. Sampul kitab 3D (`Book`) dan kartu kitab `Widget` — diterima · 2026-10-17
 
 **Konteks:** Pemilik meminta pohon daftar isi bergaya garis pemandu induk → anak (siku melengkung di anak terakhir), hanya SATU baris aktif berlatar, dan garis menuju baris aktif berwarna aksen. `FileTree` Pro hanya punya garis tegak generik (`showGuideLines`), tanpa siku, tanpa warna per jalur, dan menyorot setiap bagian di `activeIds` (halaman dengan beberapa bagian = beberapa latar, termasuk induknya).
@@ -872,3 +941,303 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 9. Tinta di kertas (permintaan pemilik): semua teks diberi bayangan 0,6 px sewarna huruf (sepertiga kekuatan) seperti tinta meresap; judul Latin `h1`/`h2` (selain judul bab Arab) diisi warna teks + noise halus lewat `background-clip: text` (terang: bintik memudar `screen`, gelap: bintik menggelap `multiply`) dengan resapan lewat `drop-shadow`. Teks Arab hanya mendapat resapan; bagian Arab di dalam judul tetap tinta penuh (`-webkit-text-fill-color: currentColor`) supaya harakat tajam. Cek axe terang/gelap lolos.
 
 **Tinjau ulang bila:** HeroUI merilis pohon navigasi dengan garis pemandu per jalur, daftar isi butuh virtualisasi (kitab dengan ribuan bagian), atau katalog berisi banyak kitab (sampul per kitab, kinerja transform 3D di daftar panjang).
+
+## ADR-042 · Pencocok ayat S13: kutipan pendek sesudah pengantar dan kutipan tanpa tanda (hanya lafaz satu-satunya di mushaf, paragraf badan) — diterima · 2026-10-17
+
+**Konteks:** S13 menguji 20 paragraf. Di satu paragraf, model menerjemahkan ayat 3:120 karena kurung di sumber salah tempat (`{وقال} إن تمسسكم حسنة تسؤهم`): kurungnya membungkus kata "وقال", bukan ayatnya, sehingga dua mode S12 (`{…}` dan frasa pengantar `قال تعالى …`, ADR-040) melewatkannya. Pemindaian seluruh paragraf badan Ihya menemukan **435–580 paragraf** dengan deret ≥5–6 kata yang sama persis dengan mushaf, tetapi tidak ditandai. Di batch pertama, model juga mengarang placeholder untuk ayat pendek yang luput (`قال تعالى واسجد واقترب`, 2 kata). Tanpa tanda, LLM menerjemahkan ayat-ayat itu, padahal aturan keras 2 melarangnya.
+
+**Keputusan:** dua mode baru di `tools/ingest/src/quran/matcher.ts`, hanya cocok **persis** dan hanya untuk **paragraf badan** (catatan kaki tidak diterjemahkan, jadi mode longgar di sana hanya menambah risiko):
+1. **Kutipan pendek sesudah pengantar** (`cue_short`): 2–3 kata tepat sesudah frasa pengantar kuat S12 (`قال/قوله … تعالى | عز وجل | سبحانه`) yang tidak cukup panjang untuk mode pengantar biasa (≥4).
+   - 3 kata: lafaz di ≤2 letak mushaf. 2 kata: satu-satunya letak, pengantarnya bukan "يقول …" (pembuka hadits qudsi), dan tidak diawali kata fungsi (لا، في، قال، من، على، إلى، عن، إن، أو، ثم). Contoh yang ditolak: hadits qudsi "قال الله تعالى لا يزال العبد…", "قال الله تعالى في الزبور".
+   - Bila kutipan berlanjut di ayat yang sama dengan ejaan lain, bentang **diperpanjang** (`similar`) melewati kata mirip, satu kata sumber = dua kata mushaf (أينما = أين ما), atau sebaliknya, sampai kata terakhir yang sama persis. Temuan peninjau kedua: tanpa ini hanya "وهو معكم" yang ditandai, dan sisa ayat "أينما كنتم" diterjemahkan model.
+   - Ditolak juga bila jendela 6 kata sesudah pengantar cocok mirip (skor ≥0,85) dengan letak **lain**: kutipan sebenarnya berejaan lain dan lebih panjang (وإذا لم يهتدوا = 46:11, bukan 7:203).
+2. **Kutipan tanpa tanda** (`unmarked`): deret ≥5 kata yang sama persis dengan mushaf di mana pun dalam paragraf, atau ≥4 kata tepat sesudah pengantar ayat (تعالى، عز وجل، سبحانه، قرأ، تلا، نزلت، أنزل, atau "{وقال}" yang dikurung sumber). Syarat tambahan (temuan peninjau S13: versi pertama menautkan "إن الله غفور رحيم" ke ayat larangan bangkai, zikir "وهو على كل شيء قدير", dan basmalah pembuka khutbah):
+   - **hanya lafaz yang satu-satunya di mushaf** (`alt_count = 0`), kecuali deret yang tepat didahului pengantar ayat (تعالى، عز وجل …), karena di situ jelas kutipan dan letaknya dipilih dengan aturan S12. Untuk lafaz berulang tanpa pengantar, letak mana pun praktis sembarang dan terjemahan "ayat lengkap" jadi salah konteks;
+   - "قال/قوله/يقول" saja bukan pengantar (dipakai juga untuk hadits dan ucapan orang), kecuali "{وقال}"/"{ثم قال}" yang dikurung sumber;
+   - tidak dihitung: kalimat tauhid saja, istirja' (إنا لله وإنا إليه راجعون) dan hasbalah (ucapan, bukan kutipan), deret berawal basmalah (pembuka kitab/khutbah), dan deret dalam konteks hadits/zikir (رسول، النبي، وسلم، "لا شريك له" dalam 16 kata sebelumnya tanpa pengantar ayat di antaranya). Deret yang ditolak dilompati seluruhnya.
+3. Tidak ada kolom baru: rujukan baru disimpan dengan `bracketed = 0`. Laporan ayat punya baris dan bagian sendiri (20 sampel acak dengan seed lain). **Sampel T-16 tetap diambil dari dua mode S12**, jadi daftar yang sedang diperiksa pemilik tidak berubah.
+4. Invarian S12 berlaku untuk semua mode: rujukan sah, dan setiap kutipan `exact` benar-benar ada di teks ayat rujukannya. Gerbang exact ≥95% `{…}` tidak berubah (97,3%).
+
+**Alasan:** rujukan ke ayat yang salah lebih buruk daripada tidak menandai, karena terjemahan Kemenag ayat lain tampil di tengah kalimat. Tidak menandai berarti LLM bisa menerjemahkan ayat. Syarat "lafaz satu-satunya" + "persis" menjaga rujukan benar.
+
+**Sisa risiko yang diterima (jujur):** ayat yang luput dari pencocok (lafaz berulang tanpa pengantar, ejaan jauh berbeda, ≤3 kata tanpa pengantar, pengantar yang tidak dikenali) **biasanya langsung diterjemahkan model sebagai bagian kalimat**, di bawah label "terjemahan AI". Validasi batch hanya menangkap sebagian: placeholder karangan model dan transliterasi berdiakritik dekat placeholder ditolak (ADR-043). Contoh dari data S13: 19:72 sesudah "{ثم قال}" (kini dikenali) dan "ومزاجه من تسنيم" (83:27). Jumlahnya belum terukur. Ini **tidak** melanggar invarian ingest, yang hanya memeriksa rujukan yang dikenali. Mitigasi berikutnya: daftar "kemungkinan ayat belum ditandai" di laporan terjemahan, QA T-17, eval S15, dan pemindai deret mirip panjang (bukan hanya persis) di sesi berikut.
+
+**Konsekuensi:** pembaca menampilkan lebih banyak label "QS s:a" setelah korpus baru dipromosikan (S14); angka akhir ada di laporan ayat. Ayat yang dikutip penulis dengan lafaz berulang (mis. "إن الله غفور رحيم") tanpa kurung atau pengantar tetap tidak ditandai, dan bisa diterjemahkan model sebagai bagian kalimat; ini sisa risiko yang diterima dan dipantau lewat QA T-17 dan eval S15.
+
+**Tinjau ulang bila:** tinjauan T-16 atau eval S15 menemukan rujukan baru yang salah, atau kitab kedua memakai lafaz Qur'ani dalam prosa jauh lebih sering.
+
+## ADR-043 · Batch terjemahan & ringkasan AI (S13): satu request per paragraf, prompt v2, ringkasan dua putaran, validasi berlapis, kirim bertahap, korpus `ihya-v4` — diterima · 2026-10-17
+
+**Konteks:** S13 membuat terjemahan Indonesia setiap paragraf badan Ihya (16.111) dan ringkasan ID + EN setiap simpul daftar isi (313) sekali, lewat Message Batches Claude Haiku 5.5 (ADR-013). Token Arab diukur dengan `count_tokens`: **0,716 token/karakter = 1,84× o200k** (200 paragraf acak, `data/reports/ihya-9472-token.md`).
+
+**Keputusan:**
+1. **Paket `@surau/llm`** (`packages/llm`): klien `@anthropic-ai/sdk` 0.135.0 (OpenTelemetry SDK dimatikan), `custom_id`, prompt berversi di `prompts/`, request, validasi keluaran, dan harga. Tanpa `node:*`, sehingga bisa dipakai Worker di S19. Alat lokal ada di `tools/ingest/src/llm` (`pnpm llm …`); kunci dibaca dari `.env` hanya oleh perintah yang memanggil API.
+2. **Satu request per paragraf** (`passage-<id>`), sesuai rencana. Paragraf sebelumnya di bagian yang sama ikut sebagai konteks `<sebelumnya>` (tidak diterjemahkan), begitu juga jalur judul bab. Paragraf digabung beberapa per request **ditolak** untuk v1: biaya prompt sistem per request memang tinggi (±4.300 token × 16.111 = 70 juta token), tetapi dengan cache 1 jam di batch, ringkasan putaran 1 menunjukkan cache terbaca ±96%. Penggabungan butuh keluaran JSON dan uji kualitas baru.
+3. **Prompt v2** (`translate-passage@2`, `summarize-section@2`), hasil uji kecil v1. Prompt v1 mengarang placeholder untuk lafaz hadits berkurung, mengubah penanda `(٢)` menjadi `(2)`, menulis "berfirman" untuk Nabi, dan memparafrasekan ayat di ringkasan. Glosarium ±110 istilah (transliterasi Latin, ejaan KBBI/Kemenag) ada di prefix yang di-cache. Ayat tetap dikirim sebagai placeholder (ADR-040).
+4. **Ringkasan dua putaran.** Putaran 1 meringkas teks Arab bertanda milik setiap simpul. Teks dipecah per halaman cetak menjadi potongan ≤50 ribu token perkiraan (0,72 token/karakter); di Ihya ada 315 potongan, terbesar 57.011 token termasuk prompt sistem; pembuka simpul induk yang hanya berisi judul (<80 huruf, 17 simpul) tidak diringkas. Putaran 2 meringkas simpul induk dan daun yang terpecah (89 simpul) dari **semua** ringkasan putaran 1 di subpohonnya, urut baca; prompt terbesar 83.231 token (rub' pertama). Cukup dua putaran berapa pun dalam pohonnya.
+5. **Validasi berlapis** (v2 setelah batch pertama dan tinjauan peninjau).
+   - **Saat dikumpulkan:** stop reason; placeholder sama persis; **tanpa huruf Arab sama sekali** (aturan teks-arab 1); penanda catatan kaki berangka Arab yang tidak ada di sumber ditolak, penanda yang hilang hanya dicatat (model membuangnya di ±4% paragraf; takhrij tetap tertaut di teks Arab di sebelahnya), dan penanda yang ditulis dengan angka Latin/superskrip dikembalikan deterministik; transliterasi berdiakritik (ā ī ū ḥ …) dalam 80 karakter dari placeholder ditolak (tanda model menulis ulang lafaz ayat); rasio panjang 0,8–4 tanpa harakat (v3); tanpa Markdown, kalimat pembuka, atau komentar model ("Let me…", "Maaf, saya ulangi"). Ringkasan: bahasa benar, tanpa placeholder/rujukan "QS"/huruf Arab.
+   - **Hasil lolos selalu dibangun ulang dari hasil mentah** (`collect`, `rejudge`): perubahan aturan validasi atau pencocok ayat cukup dinilai ulang tanpa membayar lagi. Heuristik "yakni/maksudnya sesudah placeholder" dan "kutipan sesudah placeholder" diuji lalu **ditolak**: semua kasusnya sah (tafsiran al-Ghazali sendiri, doa atau ucapan sesudah ayat).
+   - **Saat ingest:** setiap hasil dicek ulang terhadap sumber saat ini lewat sha256 teks bertanda (hasil usang, mis. setelah ADR-042 mengubah rujukan ayat, tidak dimuat) dan divalidasi ulang. Invarian baru: setiap kutipan ayat di paragraf yang diterjemahkan dirender sebagai segmen Kemenag utuh oleh `translationSegments` (seperti di UI); cakupan terjemahan dan ringkasan ≥99% (`expect.llmCoverage`).
+   - **v4 (temuan peninjau ketiga):** sisa ±17 terjemahan dengan label/komentar model ("Terjemahan:" di tengah teks, "mari terjemahkan", "Lanjutkan terjemahan", "bukan terjemahan"). Aturan: kata "terjemah…" di terjemahan ditolak kecuali sumbernya memuat ترجم (7 pemakaian sah semuanya menerjemahkan ترجمة); kurung kurawal di keluaran ditolak; pola "mari …", "lanjutkan di bawah", "[tidak", "teks yang diberikan". Akar masalahnya: prompt menyebut label "terjemahan AI" dan model menggemakannya; ubah di prompt v3 (sesi berikut).
+   - **v3 (temuan peninjau kedua):** ±1,4% keluaran yang lolos v2 memuat komentar atau koreksi-diri berbahasa Indonesia ("Maaf, bagian di atas keliru. Berikut terjemahannya:", "Catatan: …", dua versi terjemahan, tag `<teks>`, label "terjemahan AI"). Kini ditolak dengan pola spesifik (kata biasa seperti "memberi maaf" tidak ikut); rasio panjang maksimal 4 (p99 hasil = 3,1; versi ganda di atas 4); ringkasan dengan ≥3 kata fungsi bahasa lain ditolak (ringkasan wajar: 0). Baris kosong yang memecah satu paragraf menjadi beberapa (±4%, sumber tidak pernah punya baris baru) diterima bila tidak ada pola di atas.
+   - **Ringkasan putaran 2** menyimpan sha256 teks ringkasan putaran 1 yang dipakainya; bila salah satu anak ditolak atau diulang sesudahnya, ringkasan induk dianggap usang dan dikirim ulang.
+   - **Ulangan:** `refusal` diulang dengan Sonnet 5.5; lainnya dengan Haiku, kecuali **percobaan ke-3 yang selalu Sonnet 5.5**; ringkasan mendapat satu percobaan Sonnet lagi (maks. 4–5 percobaan) karena satu ringkasan anak yang gagal menghalangi ringkasan putaran 2 semua induknya. Alasannya, di batch S13 sebagian paragraf sulit tetap menghasilkan keluaran Haiku yang rusak setelah dua kali gagal (Arab-Indonesia campur, "Let's translate carefully"). Ini perluasan ADR-013, yang semula memakai Sonnet hanya untuk refusal. Menyerah hanya setelah Sonnet ikut dicoba. Model per baris tercatat di `translation.model`/`summary.model`. Paragraf yang gagal karena model menulis placeholder sendiri **dibiarkan tanpa terjemahan** (lebih baik kosong daripada AI menerjemahkan ayat) dan didaftar di laporan sebagai "kemungkinan ayat belum ditandai".
+6. **Kirim bertahap** (`submit --kind/--limit`): ringkasan putaran 1 dan 4.000 paragraf pertama dulu. Biaya aktualnya dipakai untuk memproyeksikan total sebelum sisanya dikirim. Pemilik menyetujui **±$6** (skenario cache 50%) dan **berhenti bila proyeksi melewati $7,20**; `submit --budget 7.2` dan `retry --budget 7.2` menolak bila biaya terpakai + perkiraan (`count_tokens`, cache 50%) melewatinya. `submit`/`retry` hanya mengirim request yang sumbernya sama dengan korpus saat ini, belum lolos untuk sumber itu, dan tidak sedang diproses; `batches.create` tanpa ulang otomatis (POST yang timeout bisa sudah diterima, ulangan = batch ganda).
+7. **Penyimpanan:** `data/build/llm/` (git-ignored, jangan dihapus) berisi request terkirim, hasil mentah per batch, hasil yang lolos, kegagalan, dan `batches.json` dengan biaya aktual dari `usage`. Laporan tanpa teks kitab: `data/reports/ihya-9472-terjemahan.md`.
+8. **Korpus `ihya-v4`, skema tetap 5:** tabel `translation`/`summary` sudah ada sejak migrasi 0001, jadi cukup masuk `TABLE_ORDER` (reset dan smoke ikut). `translation.text` menyimpan placeholder; `review_status = 'ai_generated'`; `model`, `prompt_version`, dan `created_at` (waktu selesai batch) per baris.
+
+**Ditolak:** terjemahan tanpa konteks paragraf sebelumnya (rujukan "ia/hal itu" sering salah); satu request per bahasa ringkasan digabung JSON (hemat ±$0,2, tetapi ringkasan teks polos lebih sederhana dan per bahasa bisa diulang sendiri); menyimpan hasil LLM di git (repo publik; keputusan pemilik bila nanti dibutuhkan untuk tinjauan ustadz).
+
+**Konsekuensi:** `translation`/`summary` dibangun ulang setiap ingest dengan `review_status = 'ai_generated'`, jadi status tinjauan manusia (S18) harus disimpan di luar hasil batch dan digabung saat ingest. Biaya terbesar adalah prompt sistem yang dibaca dari cache, jadi biaya batch bergantung pada hit rate cache (perkiraan $2,6 pada 95% sampai $9,2 tanpa cache). Hasil LLM hanya ada di Mac pemilik sampai korpus dimuat ke D1; cadangkan `data/build/llm/` bersama drive data.
+
+**Tinjau ulang bila:** QA T-17 menemukan Salah >10% (prompt v3 lalu ulangi paragraf terdampak); kitab berikutnya jauh lebih besar (pertimbangkan beberapa paragraf per request); atau tinjauan ustadz membutuhkan riwayat hasil di git.
+
+## ADR-044 · Cari bahasa Indonesia (S14): indeks terjemahan/ringkasan AI dengan stem ringan, gabungan RRF tiga jalur dalam satu batch, cache hasil per versi korpus, filter bagian, korpus `ihya-v5` (skema 6) — diterima · 2026-10-17
+
+**Konteks:** S14 menambah pencarian berbahasa Indonesia di atas jalur Arab S11 (ADR-039), memakai terjemahan dan ringkasan AI dari S13 (ADR-043), lalu membangun halaman `/cari`. Batas: tanpa LLM saat mencari, p95 handler staging < 300 ms tanpa cache, dan teks Arab di hasil tetap irisan `text_raw`.
+
+**Keputusan:**
+1. **Indeks** (migrasi 0006, skema 6): `translation_fts` (rowid = `passage_id`) dan `summary_fts` (rowid = `toc_node_id`). Keduanya contentless + `contentless_delete=1`, `unicode61 remove_diacritics 2`, satu kolom `terms`, hanya bahasa `id`. Yang diindeks hanya teks AI: placeholder `⟦QS s:a⟧` dibuang, jadi terjemahan Kemenag tidak pernah dicari sebagai teks model. Indeks `toc_node_start` ditambahkan untuk ringkasan per halaman di pembaca. Isi indeks dihitung ingest dengan fungsi yang sama dengan sisi kueri; versinya disimpan di `meta.latin_norm_version`.
+2. **Teks Latin** (`packages/text/src/latin.ts`, terpisah dari normalisasi Arab dan `NORM_VERSION`):
+   - **Token dan normalisasi:** huruf Latin + angka ASCII; apostrof di tengah kata ikut kata lalu dibuang (mu'amalah = muamalah); NFKD tanpa diakritik (ṣabr = sabr).
+   - **Stopword kecil:** kata fungsi, kata ganti, dan preposisi berakhiran -nya/-mu/-ku; dicek sebelum stem.
+   - **Varian ejaan → ejaan glosarium S13** (taubat → tobat, shalat → salat, dzikir → zikir, …), sebelum dan sesudah stem (bertaubat = bertobat): hanya varian ejaan, bukan sinonim.
+   - **Stem ringan Tala (2003)** (partikel, kata ganti milik, awalan me-/pe-/di-/ter-/ke-/ber-/per-, akhiran -kan/-an/-i), dengan pengecualian kecil dari tinjauan kosakata terjemahan Ihya: akar mirip partikel (sedekah, masalah, …, *-llah*), akar mirip kata ganti (ilmu, tanya, …), dan kata yang awalannya tidak dibuang karena bertabrakan makna (perhatian ≠ hati, berdiri ≠ diri, kedudukan ≠ duduk, pendapat ≠ dapat).
+   - **Uji sebelum dipakai** (langkah 1). Indeks tanpa stem vs dengan stem atas 16.086 terjemahan:
+     - Kecocokan naik: sabar 173 → 404, niat 300 → 448, syukur 131 → 242, ikhlas 152 → 219, cinta dunia 178 → 328, keutamaan ilmu 90 → 197.
+     - Varian ejaan: taubat 11 → 248.
+     - 5 teratas "sabar", "niat", dan "adab murid kepada guru" semuanya relevan.
+     - Tabrakan yang tersisa: kecil dan dicatat (kehati-hatian → hati 56×, menempatkan → empat ±130×, mendirikan → diri 14×).
+     - Kesimpulan: stem dipakai.
+3. **Deteksi bahasa kueri:**
+   - Huruf Arab saja (angka di sampingnya tidak dihitung sebagai kueri Indonesia) → jalur S11 apa adanya (bm25, pengaman kata umum, total eksak).
+   - Huruf Latin saja → jalur terjemahan + ringkasan.
+   - Keduanya → tiga jalur; bagian Arab yang semua katanya umum tidak dicari (`warning: "common_terms_ignored"`).
+4. **Gabungan RRF** (`searchCorpusFused`, satu `batch` D1 = satu bolak-balik, SQL disusun dari potongan konstan + parameter bernomor):
+   - **Kandidat per jalur:** paragraf teratas bm25 per jalur (`FUSION_DEPTH` 100, ringkasan `SUMMARY_DEPTH` 30).
+   - **Skor:** paragraf = Σ 1/(60 + peringkat).
+   - **Ringkasan → paragraf:** ringkasan yang cocok dipetakan ke paragraf badan pertama milik node itu di halaman awalnya (sama dengan jangkar `#bab-<id>` pembaca). Node tanpa paragraf sendiri di sana → paragraf pertama turunannya di halaman itu, dicari lewat CTE rekursif yang hanya menelusuri turunan yang mulai di halaman yang sama (bukan urutan ID: node patch bisa ber-ID lebih besar dari anaknya). Bila dua bagian berawal di paragraf yang sama, peringkat terbaik dipakai.
+   - **Halaman:** diurutkan menurut skor paragraf terbaiknya, lalu jumlah paragraf. `total_pages`/`total_hits` dihitung di atas himpunan kandidat (`fusion` di keluaran).
+   - **Kata kueri Indonesia:** semua kata harus ada (AND). Bila jalur terjemahan + ringkasan bersama-sama punya < 5 kecocokan semua kata, kecocokan sebagian kata (OR) menyusul di belakangnya (`matched_by[].all_terms = false`).
+5. **Kontrak** (hanya menambah field):
+   - `searchView`: `latin_terms`, `paths`, `fusion`, `section_id`, warning `common_terms_ignored`.
+   - `searchHit`: `matched_by` (jalur + peringkat, skor yang bisa dijelaskan), `translation` dan `summary` (potongan berlabel AI + sorotan; potongan tidak pernah memotong placeholder ayat).
+   - `score`: bm25 untuk kueri Arab saja, RRF untuk lainnya.
+   - Hasil Arab juga membawa terjemahan paragrafnya.
+   - `readPage`: `translation` per paragraf dan `summaries` bagian yang mulai di halaman itu.
+6. **Filter bagian** (`section_id` / `?section=`): node daftar isi + turunannya lewat CTE rekursif, berlaku di ketiga jalur. Node tidak ada atau milik edisi lain → `NotFound`. UI: rub' (TagGroup) lalu kitab (NativeSelect), URL `?bagian=`.
+7. **Cache hasil** (langkah 8):
+   - **Tempat:** Cache API Workers (`caches.default`, per data center, `s-maxage` 7 hari; menurut docs Cloudflare berfungsi juga di workers.dev).
+   - **Kunci:** sha256 dari nama DB korpus produksi + rencana kueri ternormalisasi (`searchCacheKey`: stem Arab/Indonesia + opsi + versi normalisasi + konstanta peringkat/potongan + `SEARCH_RESULT_VERSION`, dinaikkan bila keluaran berubah tanpa konstanta itu berubah); teks kueri tidak masuk kunci maupun isi cache (`query` disimpan kosong dan diisi ulang saat hit).
+   - **Versi korpus:** var `SEARCH_CACHE_CORPUS`, sama dengan `database_name` CORPUS_DB; `corpus:promote` mengganti keduanya, dijaga tes.
+   - **Tanpa cache:** Preview (staging dimuat ulang tanpa versi baru) dan `next dev`.
+   - **Urutan:** cache diperiksa sebelum rate limiter; yang lolos cache tidak menyentuh D1.
+8. **UI:**
+   - **`/cari`:** kerangka + pilihan filter dirender server per request (seperti `/kitab`: CI tanpa D1). Hasil diambil klien dari `/api/search` (rate limit + cache), jadi `?q=` bisa dibagikan tanpa render server per kueri.
+   - **Kartu:** potongan Arab asli dengan `<mark>`, terjemahan AI berlabel, ringkasan bagian, asal kecocokan; maks 3 paragraf per kartu, paling relevan dulu.
+   - **Palet ⌘K/Ctrl+K** di navbar (Command Pro); menu Cari aktif.
+   - **Pembaca:**
+     - Terjemahan AI per paragraf, berlabel. Ayat dirender dari terjemahan Kemenag verbatim dengan labelnya sendiri; penanda (١) menaut ke catatan kaki.
+     - Ringkasan AI di awal bagian (`<details>`). Bisa disembunyikan (localStorage).
+     - Status `rejected` tidak ditampilkan, tidak diindeks, dan tidak dikirim API.
+     - Sorotan `?q=` lewat CSS Custom Highlight API: DOM dan teks kitab tidak diubah, halaman tetap ISR.
+9. **Rollback** (keputusan langkah 10): `corpus:promote --switch-only` kini menerima korpus berskema LEBIH LAMA. Smoke memisahkan `limitations` (fitur yang hilang karena skema) dari `problems`. Kode memeriksa `meta.schema_version` dan menyembunyikan fiturnya: pembaca jalan di skema 3, pencarian Arab butuh ≥ 4, Indonesia ≥ 6, ayat ≥ 5. Jadi `ihya-v1` tetap target rollback. Build baru dan pemuatan tetap wajib tanpa batasan; skema lebih baru dari kode ditolak.
+
+**Penyimpangan dari rencana:** langkah 1 menyebut stemming "-nya, ber-, me-"; yang dipakai Tala lengkap (konfiks ke-…-an perlu agar "sabar" menemukan "kesabaran"), dengan pengecualian dari data. Filter per rub'/kitab butuh parameter API baru (`section`), tidak tertulis di langkah. Catatan S11 menyebut promote `ihya-v2`; yang dipromosikan adalah versi terbaru, `ihya-v5`.
+
+**Ditolak:**
+- Jalur Arab ikut RRF untuk kueri Arab saja: hasilnya sama, tetapi total eksak dan pengaman S11 hilang.
+- Selalu OR untuk kueri banyak kata: dokumen dengan satu kata langka mengalahkan dokumen dengan semua kata.
+- Memetakan ringkasan ke SEMUA paragraf bagiannya: bagian rub' membanjiri hasil.
+- Render server `/cari?q=`: melewati rate limit dan cache API.
+- Cache di R2/`unstable_cache`: satu tulis Class A per kueri unik.
+- Sorotan pembaca dengan membungkus teks di server: membuat halaman dinamis per kueri.
+
+**Konsekuensi:**
+- Pencarian Indonesia hanya menjangkau 100 paragraf teratas per jalur (cukup untuk 5 halaman pertama hasil; "Muat lebih banyak" berhenti di himpunan itu).
+- Kueri Arab saja tidak memakai ringkasan atau judul bagian, jadi peringkatnya lebih datar (5 teratas الصبر/النية relevan tetapi tidak selalu bab utamanya): bahan eval S15.
+- Ukuran build ±+3 MB SQL indeks Indonesia; pemuatan staging tetap ±1,5 menit.
+- Selama produksi masih `ihya-v1` (skema 3), **semua** kueri `/api/search` menjawab 503 (Arab butuh skema ≥ 4, Indonesia ≥ 6), halaman `/cari` menampilkan "Pencarian sedang disiapkan" (cek `meta.schema_version` di server, bukan 503 per kueri), dan pembaca tidak menampilkan terjemahan/ayat, sampai `corpus:promote ihya-v5`.
+
+**Tinjau ulang bila:** eval S15 menunjukkan recall kueri Indonesia rendah (sinonim/embedding, ADR S15); tabrakan stem dilaporkan pengguna; korpus berisi banyak kitab (rows_read RRF, kedalaman per jalur, cache per edisi).
+
+## ADR-045 · Eval retrieval (S15): soal JSONL publik + holdout privat di R2, runner `searchText` atas D1 lokal/staging, gerbang R2 = hit@10 ≥ 90% atas ≥20 soal disetujui, kata pembingkai kueri Indonesia — diterima · 2026-10-17
+
+**Konteks:** S15 harus mengukur mutu Cari secara objektif sebelum rilis Fase 2 (docs/06, ADR-015), tanpa LLM. Korpus tidak bisa dibangun di CI (teks Shamela tidak di git) dan D1 berindeks FTS5 tidak bisa diekspor.
+
+**Keputusan:**
+1. **Dataset** (`evals/retrieval/*.jsonl` publik, `evals/private/retrieval.jsonl` privat; format di `evals/README.md`):
+   - Field docs/06 ditambah **`kueri`**: teks yang diketik pengguna di kotak Cari. `pertanyaan` tetap kalimat wajar untuk manusia, dan dipakai lagi di eval Jawab (S18).
+   - `lokasi_benar` = node daftar isi (beserta turunannya) atau rentang halaman cetak dalam satu jilid. Rentang dipakai karena daftar isi Shamela untuk Rub' Adat dan Muhlikat hanya sampai tingkat kitab.
+   - Setiap lokasi membawa `label` ("j2 h56–59") yang dicek runner terhadap DB, sehingga salah ID gagal keras.
+2. **Draf 31 soal** (agent, 2026-10-17):
+   - Komposisi: 4 rub' (6–10 soal per rub' menurut lokasi pertama; 5 topik tersebar lintas kitab); jenis 19 lokasi, 7 istilah, 5 topik tersebar; 6 kueri Arab, 25 Indonesia.
+   - **Kueri ditulis sebelum pencarian pernah dijalankan**, dengan kata awam (mis. "menggunjing", bukan judul bab).
+   - Lokasi diverifikasi dengan membaca judul Arab, ringkasan, dan terjemahan bab terkait.
+   - Hanya soal ber-`disetujui_oleh` (T-12) yang masuk set resmi.
+3. **Holdout privat:**
+   - 10 soal dipilih sebelum run pertama, mencakup keempat rub', kedua bahasa, dan ketiga jenis. Disimpan git-ignored dan di R2 `surau-evals` (privat, r2.dev mati). Setiap revisi diunggah sebagai berkas baru; kuncinya `PRIVATE_KEY` di `eval.yml`.
+   - Laporan, ringkasan CI, dan pesan galat hanya memuat ID, jenis, dan peringkat soal privat.
+   - **Aturan:** kegagalan soal privat dianalisis per kategori saja; perbaikan dirancang dan diuji dengan soal publik.
+   - **Salinan teks soal privat** ada di tiga tempat: mesin pemilik (`evals/private/`), R2 `surau-evals`, dan halaman tinjauan T-12 (artifact claude.ai privat milik pemilik). Salinan baru hanya dibuat dengan alasan dan dicatat.
+   - **Insiden S15** (keduanya temuan peninjau):
+     - (1) Perbaikan butir 6 dirancang dari kegagalan soal privat p03, dan teks kuerinya masuk ke kode. p03 dipindah ke publik sebagai r03 dan diganti p31 (ditulis sebelum dijalankan).
+     - (2) Catatan sesi menyebut topik soal privat p12 saat menganalisis peringkat. p12 dipindah ke publik sebagai r12, dengan isi dan persetujuan tetap, tanpa pengganti.
+     - Holdout kini 9 soal. S18 menambah soal privat bersama ustadz.
+4. **Runner** `pnpm run eval:retrieval` (`tools/eval`, Node + `getPlatformProxy`):
+   - **Sumber data:** D1 lokal (salinan state, ARSITEKTUR §7 aturan 2), atau `--remote` = staging lewat remote binding (`preview_database_id` = staging, sehingga produksi tidak pernah tersentuh; hanya SELECT).
+   - **Hasil benar:** halaman dalam rentang, atau halaman yang paragraf cocoknya ada di bagian lokasi benar.
+   - **Metrik:** hit@1/5/10 dan MRR atas 50 halaman (`limit` maksimum `searchText`), per jenis, bahasa kueri, dan set. Hasil tanpa peringkat (kata Arab sangat umum) dihitung gagal.
+   - **Laporan** di `evals/reports/` (tanggal, `corpus_version`, commit `-dirty`).
+5. **Gerbang R2:** ≥ 20 soal disetujui **dan** hit@10 ≥ 90% atas set resmi (publik + privat).
+   - `--gate` keluar dengan kode 2 bila belum lolos, dan wajib menyertakan soal privat (kecuali `--publik-saja`). Dipakai `/rilis` atas D1 lokal yang memuat korpus produksi.
+   - CI (`eval.yml`, non-blocking, hanya PR repo sendiri): staging remote, soal privat dari R2, ringkasan di Summary, peringatan dibedakan antara "di bawah gerbang" dan "gagal berjalan".
+6. **Kata pembingkai kueri Indonesia** (`ID_QUERY_FRAMING`, perbaikan murah langkah 5):
+   - **Masalah:** cara, bagaimana, mengapa, di mana, menurut, membahas/menjelaskan, serta "(Imam) al-Ghazali" yang menempel jarang ada di teks jawaban, tetapi dulu diwajibkan (AND).
+   - **Akibatnya:** r03 "cara khusyuk dalam salat" hanya cocok 5 halaman dan bab khusyuk berada di luar 50 teratas.
+   - **Perbaikan:** kata-kata itu dibuang dari kueri saja, dan hanya bila masih ada kata lain. Token berapostrof (ma'na) dikecualikan.
+   - Indeks tidak berubah: `LATIN_NORM_VERSION` tetap 1, korpus tidak perlu dibangun ulang. Kunci cache ikut berubah lewat stem rencana kueri.
+   - **Hasil:** r03 > 50 → 1, r20 2 → 1, dan tidak ada soal lain yang turun. Uji 4 kueri di luar set (mis. bagaimana cara ikhlas, cara berwudu, menurut al-Ghazali tentang riya): bab utama di 3 teratas. Ejaan Al-Ghozali dan Ghazzali ikut dianggap pembingkai.
+
+**Hasil (D1 lokal = staging = produksi `ihya-v5`):** baseline 30 soal hit@1 56,7% · hit@5 90,0% · hit@10 96,7% · MRR 0,732. Setelah butir 6 (31 soal, termasuk r03 dan p31): hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795. Kueri Arab 6/6 di peringkat 1. Satu lokasi benar dilebarkan setelah baseline, berdasarkan bacaan teks (r23: pembuka kitab j3 h231 menyebut harta sebagai fitnah dunia terbesar). Kenaikan r23 dari peringkat 7 ke 3 berasal dari pelebaran itu, bukan dari butir 6. **Set resmi** (T-12: ke-31 soal disetujui pemilik, 2026-10-17; laporan `evals/reports/retrieval-2026-10-17-ihya-v5-resmi.md`): hit@10 100% → **lolos gerbang R2**; set publik 22 soal dan set privat 9 soal sama-sama hit@10 100% (laporan dibuat ulang setelah p12 → r12).
+
+**Ditolak:**
+- Set regex/gold otomatis (riset S11): tidak mewakili relevansi manusia.
+- Ekspor D1 ke artefak CI: FTS5 tidak bisa diekspor, dan ekspor memblokir DB.
+- Menyimpan salinan korpus di R2 untuk CI: teks turunan Shamela di lokasi baru, ditambah token dan biaya tanpa manfaat dibanding staging.
+- Menaikkan ambang OR-susulan (`ANY_TERMS_BELOW`): mengubah peringkat semua kueri pendek, padahal masalahnya kata pembingkai.
+- Glosarium sinonim: tidak ada kegagalan kosakata di set ini, jadi ditunda sampai ada bukti (S18/S16).
+
+**Konsekuensi:** set kecil (31 soal, satu kitab, disusun agent) dan longgar untuk topik tersebar (benar bila satu lokasi muncul; cakupan lokasi dicatat terpisah). Holdout baru bermakna lagi setelah pengganti p31; eval Jawab S18 bersama ustadz menambah soal privat. Laporan baseline dibuat sebelum runner di-commit (commit `92f2ef8` di laporannya = kode pencarian, bukan runner).
+
+**Tinjau ulang bila:** kitab kedua masuk korpus (set per kitab), ustadz menambah/menilai soal (T-13), atau hit@10 set resmi turun di bawah 90%.
+
+## ADR-046 · Embedding/vektor tetap ditunda setelah eval S15 (hit@10 ≥ 90%); S15b tidak dijadwalkan — diterima · 2026-10-17
+
+**Konteks:** ADR-006 menunda Vectorize + Workers AI sampai eval membuktikan perlu. Langkah 6 S15: bila hit@10 < 90% setelah perbaikan murah, rencanakan S15b (embedding `qwen3-embedding-0.6b` vs `bge-m3`, Vectorize 1024 dimensi, RRF).
+
+**Keputusan:** embedding **tetap ditunda**, dan S15b tidak dijadwalkan. Dasarnya, setelah perbaikan murah (ADR-045 butir 6):
+- hit@10 = 100% atas set resmi 31 soal yang disetujui pemilik (publik 22 dan privat 9 sama-sama 100%), hit@5 96,8%, kueri Arab 6/6 di peringkat 1.
+- Tidak ada kegagalan karena kosakata Indonesia ↔ istilah Arab yang butuh kesamaan makna. Kegagalan satu-satunya adalah kata pembingkai, dan itu sudah diperbaiki secara leksikal. Ringkasan AI per bagian sudah menjembatani kueri awam ke bab yang tepat.
+- Biaya dan kompleksitas embedding (indeks Vectorize, pipeline ingest, ±+1 bolak-balik per kueri) tidak sebanding dengan selisih yang bisa diukur di set ini.
+
+**Yang belum terukur (risiko diterima):**
+- Peringkat teratas: hit@1 baru 64,5%.
+- Sinonim yang tidak ada di terjemahan (mis. pelajar ≈ murid).
+- Kueri panjang berbentuk kalimat, yang datang di Jawab (S19).
+- Kitab selain Ihya.
+
+**Tinjau ulang bila:** hit@10 set resmi < 90% pada eval berikutnya; eval Jawab S18 menunjukkan bagian yang benar tidak ditemukan karena kosakata; korpus berisi banyak kitab dengan terjemahan/ringkasan yang tidak seragam; atau pengguna melaporkan kueri bermakna sama yang tidak menemukan bab yang jelas ada.
+
+## ADR-047 · Mutu terjemahan AI sebelum rilis Fase 2 (X02): lapisan koreksi tinjauan, prompt `translate-passage@3`, pencocok ayat lintas paragraf, korpus `ihya-v6` — diterima · 2026-10-17
+
+**Konteks:**
+- T-16 (20 sampel ayat) dan T-17 tahap 2 (20 sampel terjemahan) dinilai agent lain. Pemilik meneruskan laporannya sebagai lapisan koreksi ("bukan kebenaran mutlak"), lalu agent X02 memeriksanya ulang di korpus; konfirmasi pemilik di `/rilis 2`. Laporannya: `data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md`.
+- T-16: 20/20 cocok.
+- T-17 tahap 2: Benar 14 (70%, target ≥ 80%), Kurang 4, Salah 2 (10%, tepat di batas). Agent X02 menilai nomor 5 (p3482) Benar karena satu-satunya cacatnya tanda kurung sisa; dengan penilaian itu Benar jadi 75%, tetap di bawah target.
+- Kesalahannya bersifat pola, bukan kebetulan:
+  - satuan diganti (*mann* → "rithl");
+  - ungkapan tebusan *bi abi anta wa ummi* jadi sumpah ("demi ayah dan ibuku": 17 dari 23 kemunculan);
+  - *kumm* jadi "siku";
+  - judul *at-targhib 'anhu* terbalik;
+  - kitab amal "diberikan dari sebelah kanan".
+- Kutipan QS 54:55 terbelah dua paragraf, sehingga tidak dikenali dan ikut diterjemahkan AI.
+- Pemilik mengizinkan biaya ≤ $1 dan promote korpus baru (chat, 2026-10-17: "Ok go ahead").
+
+**Keputusan:**
+1. **Lapisan koreksi tinjauan** (`data/reviews/ihya-9472-terjemahan.json`, di git, tanpa teks kitab):
+   - Isi: paragraf yang dinilai Salah/Kurang, alasan, penilai, dasar tinjauan, dan versi prompt yang ditolak.
+   - `pnpm llm rejudge/collect` menolak hasil versi itu (`review_rejected`, dicatat di posisi kronologisnya). Ingest memeriksanya lagi secara mandiri (`llmRows`), jadi hasil yang ditolak tidak terbit walau `rejudge` lupa dijalankan.
+   - `retry` mengirim ulang ke Sonnet 5.5 dengan prompt saat ini, dengan hitungan percobaan mulai dari awal sekali per versi yang ditolak (terbatas `MAX_ATTEMPTS`). Bila yang ditolak justru versi prompt saat ini, paragraf itu tidak diulang (`needsNewPrompt`) sampai ada versi prompt baru. Hasil versi prompt lain tidak ikut ditolak.
+   - Bila gagal, paragraf itu tampil tanpa terjemahan, bukan dengan terjemahan yang ditolak.
+   - Berkas ini menjadi tempat koreksi sampai `/tinjau` + tabel `review` (S18).
+2. **Prompt `translate-passage@3`** (= v2 + bagian "Satuan, ungkapan, dan kalimat yang bersambung"), dipakai untuk 28 hasil X02, lalu **`translate-passage@4`** untuk paragraf berikutnya. v4 membetulkan satu aturan v3 (temuan peninjau): v3 menulis *raghiba fi* = "menyukai atau menganjurkan", padahal "menganjurkan" adalah makna *targhib*. Ke-28 hasil v3 sudah dicek dan tidak ada yang memakai pola itu.
+   - Aturannya umum dan tidak menyebut paragraf tertentu.
+   - Hanya dipakai untuk paragraf baru dan paragraf yang ditolak. 16 ribu hasil v2 lainnya tetap, karena versi prompt tercatat per terjemahan.
+3. **Sampel terarah** (agent X02): mencari pola kesalahan yang sama di seluruh terjemahan. Ditemukan 21 paragraf di luar sampel acak, dan semuanya masuk lapisan koreksi. Kandidat yang ternyata benar tidak dimasukkan.
+4. **Pencocok ayat lintas paragraf** (`crossPassageSpans`):
+   - Berlaku untuk paragraf badan berurutan menurut jilid, halaman cetak, dan `ord`, dengan aturan mode tanpa tanda ADR-042 ditambah ≥ 2 kata di tiap sisi batas. Deret yang ditolak dilompati seluruhnya.
+   - Hanya pasangan di bagian daftar isi yang sama. Ditautkan sebagai dua rujukan untuk letak mushaf yang bersambung (di Ihya: dua bagian dari satu ayat), sehingga terjemahan Kemenag ayat itu tampil di kedua paragraf.
+   - Di Ihya tepat 1 pasang (QS 54:55, p18256–p18257). Percobaan pertama juga menautkan 27 pembuka khutbah (basmalah + *al-hamdu lillah*) dan 1 kalimat penulis; keduanya disaring sebelum dipakai.
+   - Ringkasan bab 100273 dan dua induknya ikut dibuat ulang karena teks bertandanya berubah.
+5. **Kaki halaman pembaca:** "Kutipan ayat yang dikenali sistem tidak diterjemahkan AI …; kutipan ayat yang belum dikenali bisa ikut terjemahan AI" (sebelumnya klaim mutlak).
+6. **Sampel QA T-17 dibekukan:** nomor yang terjemahannya ditolak atau belum ada tidak lagi diganti paragraf lain, dan dinilai sebagai kegagalan cakupan.
+7. **Korpus `ihya-v6`** (skema 6, tanpa migrasi baru): dibangun, dimuat ke lokal dan staging, lalu dibuat sebagai DB produksi `surau-corpus-ihya-v6` (QA 30/30). Binding produksi berpindah setelah PR X02 di-merge. `ihya-v5` menjadi target rollback. Perbaikan kode sesudah tinjauan tidak mengubah isi korpus: build ulang dengan `SOURCE_DATE_EPOCH` yang sama menghasilkan sha256 yang sama.
+
+**Insiden holdout eval (S15):**
+- Halaman tinjauan T-12 (artifact claude.ai) memuat teks 9 soal eval privat dan sempat dibagikan "siapa saja yang punya tautan", sementara tautannya tercantum di dokumen repo yang publik.
+- Teks soal privat sudah dihapus dari halaman (versi 3). Pemilik disarankan menutup berbagi tautan.
+- Soal privat itu tetap dihitung di set resmi, tetapi diperlakukan sebagai holdout lemah (bisa saja terbaca pihak lain). S18 menyusun soal privat baru bersama ustadz.
+
+**Ditolak:**
+- Menerjemahkan ulang seluruh korpus dengan prompt v3: biaya ±$4 dan hasil v2 yang sudah dinilai Benar ikut berubah.
+- Mengedit teks terjemahan dengan tangan: teks berlabel "terjemahan AI" harus benar-benar keluaran model dengan versi prompt tercatat. Koreksi manusia butuh label sendiri (S18).
+- Menyembunyikan saja paragraf yang salah tanpa terjemahan ulang: kehilangan terjemahan di 27 paragraf, padahal perbaikannya murah.
+
+**Konsekuensi:**
+- Biaya X02 **$0,25** (batch: 26 ulangan Sonnet $0,23, ringkasan $0,01, dua terjemahan ayat Haiku < $0,01); total batch terjemahan Ihya kini $4,68 dari `usage`. Semua 27 paragraf koreksi lolos validasi pada percobaan pertama.
+- Skor T-17 sebelum perbaikan tetap tercatat (70% Benar). Sesudah perbaikan, 20 sampel yang sama dinilai ulang agent X02: 20/20 Benar. Angka ini **bias** karena perbaikannya menyasar sampel tersebut, jadi tidak mewakili mutu 16 ribu terjemahan v2 lainnya. Perkiraan mutu korpus tetap dari penilaian sebelum perbaikan, dikurangi pola yang sudah dibersihkan di seluruh korpus. Pengukuran yang tidak bias butuh sampel acak baru dengan seed baru, dinilai pemilik atau ustadz (usulan T-17 tahap 3).
+- Pola kesalahan yang belum terdeteksi bisa tersisa di 16 ribu paragraf v2. Tinjauan ustadz (S18) dan laporan pengguna menambah entri ke lapisan koreksi.
+
+**Tinjau ulang bila:** S18 membangun penyimpanan tinjauan di D1 (lapisan koreksi dipindah atau disinkronkan), atau tinjauan berikutnya menemukan Salah > 10% (perbaiki prompt dan ulangi paragraf yang terdampak, aturan T-17).
+
+## ADR-048 · Rilis Fase 2: T-16/T-17 penilaian agent diterima, target 80% T-17 dilewati secara sadar, batas global pencarian 1.200/menit — diterima · 2026-10-17
+
+**Konteks:** `/rilis 2` (2026-10-17). Fitur Fase 2 sudah tampil di produksi sejak S14/X02 (setiap merge ke `main` di-deploy, korpus `ihya-v6`), jadi rilis ini meresmikan fase, bukan membuka fitur. Pemeriksaan kesiapan menemukan tiga butir "Selesai bila" yang belum dicentang: S12 "20 sampel ayat diperiksa pemilik atau ustadz" (T-16), S12 "`pnpm verify` lolos …" (buktinya ada di LOG S12, hanya lupa dicentang), dan S13 "QA 20 sampel tercatat (target Benar ≥ 80%, Salah ≤ 10%)" (T-17 tahap 2). T-16 dan T-17 tahap 2 dinilai agent lain lalu diteruskan pemilik (ADR-047). Tinjauan keamanan `rilis-f1..main` (peninjau): 0 blocker, 2 "perbaiki". Gerbang versi (docs-terbaru): Next 16.4.1 didukung resmi OpenNext 1.20.12 (peer `>=16.4.1`), tidak ada advisory terbuka untuk Next 16.4.1, React 19.3.1, OpenNext 1.20.12, wrangler 4.151.0; larangan ADR-003 tetap terpenuhi.
+
+**Keputusan:**
+1. **T-16 diterima pemilik** di chat ("Terima keduanya"): 20/20 rujukan ayat cocok menurut penilaian agent. Butir S12 dicentang dengan bukti itu.
+2. **T-17 tahap 2 diterima sebagai penyimpangan sadar:** sampel awal 70% Benar (14 B, 4 K, 2 S), di bawah target 80%; Salah 10% tepat di batas. Temuannya sudah diperbaiki di X02 (ADR-047), tetapi skor ulang 20/20 bias. Butir S13 **tetap tidak dicentang**; yang diterima adalah penyimpangannya, bukan kriteria yang diubah. Keterbatasan ini ditulis terbuka di CHANGELOG. Pengukuran tanpa bias = T-17 tahap 3 (opsional) atau tinjauan ustadz S18.
+3. **Batas global `/api/search` 300 → 1.200 per menit** (temuan peninjau): Rate Limiting Cloudflare dihitung per lokasi, sehingga lima jaringan IP yang masing-masing memakai 60/menit sudah bisa membuat pencarian di satu kota menjawab 429. Batas per klien tetap 60/menit karena banyak pengguna ponsel di Indonesia berbagi IP (CGNAT); kini butuh 20 jaringan untuk menghabiskan kuota satu lokasi. Hasil yang ada di cache tetap dilayani tanpa limiter. Produksi `1004` dan Preview `2004`.
+4. **Holdout eval:** pemilik menyatakan berbagi tautan halaman tinjauan T-12 sudah ditutup. Tautannya tetap ada di riwayat git; soal privat tetap diperlakukan sebagai holdout lemah (ADR-047) dan diganti di S18. Gerbang rilis tetap dihitung dengan set resmi 31 soal: `pnpm run eval:retrieval --gate --label rilis` atas D1 lokal `ihya-v6` (= `CORPUS_DB` produksi) → hit@10 100%.
+
+**Ditolak:** menurunkan batas per klien ke 20/menit (pengguna di balik CGNAT ikut tertahan); menunda rilis sampai T-17 tahap 3 (pemilik memilih rilis dengan keterbatasan tertulis).
+
+**Tinjau ulang bila:** biaya baca D1 dari `/api/search` naik tajam (turunkan batas global atau pasang WAF saat domain siap), muncul laporan 429 dari pengguna, atau T-17 tahap 3/tinjauan ustadz menemukan Salah > 10%.
+
+## ADR-049 · MCP publik (S16): Worker `surau-mcp` stateless dual-era di `mcp.surau.org/mcp`, tujuh tool di atas core, amplop lisensi + permalink absolut, `search_text` dipadatkan, kalibrasi token `readSection`, batas `HMAC(IP):tool` + batas global — diterima · 2026-10-17
+
+**Konteks:** S16 membangun MCP publik read-only (ADR-010, ADR-011) setelah domain `surau.org` siap (T-07). Docs terbaru (2026-10-17): `@modelcontextprotocol/server` 2.3.1 (advisory server < 2.3.0: GHSA-jm63 instance bersama, GHSA-46jr, GHSA-rvq5; < 2.1.0: GHSA-f897; client < 2.3.0: GHSA-6prh, < 2.2.0: GHSA-6qxp), spesifikasi 2026-07-28 (tanpa sesi, `server/discover`, header `MCP-Protocol-Version`/`Mcp-Method`/`Mcp-Name`), MCP Inspector 2.11.0 (`--protocol-era`). Pengukuran dengan `count_tokens` (gratis) **sebelum** perubahan: heuristik ADR-033 (2 karakter/token) meremehkan teks Arab, 81 potongan `read_section` lewat MCP median **7.690**, maks. 9.192 token Claude; JSON `passages` median 1,63 karakter/token, p5 1,5, min. 1,38. `searchView` core apa adanya (diukur di D1 lokal tanpa amplop): kueri "sabar" limit 10 = 58.655 karakter, limit 5 = 30.586. Daftar isi dari akar kedalaman 3 = 23.981 token.
+
+**Keputusan:**
+1. **Worker `apps/mcp` (`surau-mcp`)**: `createMcpHandler(factory, { legacy: "stateless", maxRequestBodySize: 64 KiB, maxSubscriptions: 16 })` satu per isolate; pabriknya dipanggil SDK per permintaan (dengan `requestInfo`) dan membuat `McpServer` baru dengan `env` dari `cloudflare:workers`. Skema dan definisi tool dibangun sekali per isolate. Tanpa `nodejs_compat` (SDK memakai `@cfworker/json-schema` di workerd). Custom domain `mcp.surau.org` lewat `routes` (`workers_dev: false`, `preview_urls: true`). `CORPUS_DB` = D1 korpus produksi yang sama dengan web; `corpus:promote` kini mengganti binding di `apps/web` **dan** `apps/mcp` sekaligus (keduanya dihitung dulu sebelum ditulis) dan menolak bila keduanya tidak sama (tes `corpus.test.ts`).
+2. **Tujuh tool, satu core tool masing-masing** (nama ADR-012): `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, `get_hadith_takhrij`. Dua core tool baru di `@surau/core` (kontrak bertambah): `verifyQuote` (`findQuote`, `match.text` = substring mentah) dan `getHadithTakhrij` (catatan kaki tertaut, `review_status: "unreviewed"`, `status` `linked`/`none`/`is_footnote`, catatan kaki halaman yang tidak tertaut sebagai ID). Anotasi read-only lengkap; `outputSchema` = skema Zod core + `license`; `structuredContent` + salinan JSON di `content`. Error core → hasil `isError` `<code>: <pesan>`; error lain `internal_error` tanpa detail, log hanya nama tool dan nama error.
+3. **Amplop setiap hasil:** permalink path core diberi origin `SITE_URL` (`https://surau.org`), dan blok `license` (`name`, `url`, `terms_url` = `/lisensi`, `attribution`, `notice`) dari semua sumber di hasil: edisi kitab, dan di `read_page` juga teks ayat Tanzil + terjemahan Kemenag (`quran.sources`, lisensinya sendiri dan wajib verbatim, ADR-040). Butir S16 "setiap hasil memuat citation" ditafsirkan sama dengan core README, dan dirinci terbuka di awal sesi: hasil yang memuat teks/letak membawa `citation`; `list_works` (metadata) membawa lisensi + atribusi per edisi dan blok `license`.
+4. **Penyimpangan dari "bentuk core = kontrak MCP" (ARSITEKTUR §4), hanya untuk `search_text`:** limit 1–5 (bawaan 5, core 1–50; halaman berikutnya lewat `offset`), ≤3 paragraf skor tertinggi per halaman (urutan baca tetap, `hits_omitted` baru, `hit_count` tetap jumlah asli), tanpa `anchor`/`ord`/`toc_node_id`/`highlights` di paragraf dan tanpa `highlights`/`created_at` di potongan AI. Hasilnya limit 5 median 7.317, maks. 10.907 token (kueri "sabar" 21.135 karakter, dari 30.586 tanpa pemadatan). Offset sorotan tanpa teks penuh tidak berguna bagi model; teks lengkap lewat `read_page`.
+5. **`get_table_of_contents`**: dari akar maks. 2 tingkat (±7,8 ribu token), dari `node_id` maks. 3 (core sampai 10).
+6. **Kalibrasi ADR-033:** `CHARS_PER_TOKEN` 2 → **1,4** (dekat minimum pengukuran sebelum), `SECTION_MIN_TOKENS` 4.000 → **3.500**, `SECTION_MAX_TOKENS` 6.000 → **5.000** (sisa ±1.000 token untuk citation, node, ancestors, dan blok lisensi). **Sesudah** (84 potongan, `data/reports/mcp-token.md`): seluruh hasil `read_section` median **5.037**, p95 5.557, maks. 6.193 token Claude. Token `passages` / `estimated_tokens` median 0,88, maks. 1,11: perkiraan bisa ±11% di bawah token sebenarnya untuk potongan Arab yang padat (karakter/token min. 1,26), jadi "≤ ±6 ribu" berlaku dengan toleransi itu. `readSection` hanya dipakai MCP (web tidak), jadi batas potongan boleh bergeser; cursor lama tetap sah (cursor menyimpan letak, bukan nomor potongan). Alat ukurnya `pnpm llm mcp-tokens` (angka saja).
+7. **Batas pemakaian (ADR-014):** kunci `HMAC(IP_HMAC_KEY, jaringan IP):tool` dari `@surau/core` (`ipKey`/`ipNetwork` dipindah dari web supaya satu tempat). Tool baca 120/menit per klien per tool + **600/menit global** semua tool baca (`MCP_READ_GLOBAL_LIMITER`, temuan peninjau: `get_table_of_contents` dan `read_section` membaca seluruh daftar isi, ±1.000 baris, per panggilan); `search_text` 60/menit per klien + 600/menit global (D1 dipakai bersama web, yang punya 1.200/menit). `namespace_id` produksi 3001–3004, Preview 4001–4004. Habis → hasil `isError` `rate_limited` (model membaca pesannya); secret tidak ada → `unavailable` (gagal tertutup). Secret dipasang agent dengan nilai acak, tidak dicetak.
+8. **Origin:** allowlist `surau.org`, `www.surau.org`, `mcp.surau.org`, localhost (`originValidationResponse`); tanpa Origin lolos (klien server-ke-server, termasuk konektor claude.ai). `cacheHints` publik 1 jam untuk `tools/list` dan `server/discover`.
+9. **Tes dan CI:** project Vitest `mcp` (workerd, Client v2 in-process lewat `exports.default.fetch`, kedua era, fixture buatan core); `.github/scripts/uji-mcp.sh` (Inspector 2.11.0 `pnpm dlx`, era modern + legacy, ketujuh tool, error, Origin 403) di job `preview mcp` (Preview per PR, korpus staging) dan, mode `daftar` dengan coba ulang ±5 menit, di job `deploy mcp` setelah deploy web. URL Preview MCP di Summary job, bukan komentar PR (komentar web memakai `--edit-last`).
+10. **Alamat web pindah ke `https://surau.org`** (`SITE_URL` metadata/sitemap, smoke `deploy.yml`, tautan laporan `pnpm llm`). Custom domain web tetap diatur di dashboard (T-07), tidak di `apps/web/wrangler.jsonc`.
+
+**Ditolak:** `McpServer` tingkat modul yang dibagi antarpermintaan (GHSA-jm63; handler tingkat modul boleh karena pabriknya per permintaan); `agents/mcp/server` (ADR-011); meneruskan `searchView` core apa adanya (limit 10 ±58 ribu karakter); limit `search_text` 10 (sesudah dipadatkan tetap sampai ±19,9 ribu token); menulis ringkasan JSON khusus MCP untuk semua tool (kontrak core cukup kecuali pencarian); kunci rate limit per IP mentah; HTTP 429 untuk batas habis (klien MCP menganggapnya galat transport, bukan pesan untuk model); memoisasi daftar isi per isolate di core sekarang (cache basi saat korpus lokal dimuat ulang; lihat Tinjau ulang).
+
+**Konsekuensi:** `read_page` tetap besar (median ±11,1 ribu, maks. ±14,8 ribu token; halaman = satuan sitasi, tidak dipotong), di atas peringatan 10 ribu Claude Code tetapi di bawah batas 25 ribu; deskripsi tool menyebut ukurannya. Semua pengguna claude.ai berbagi kuota per IP Anthropic. Beban baca terburuk pada batas global = 600 panggilan × ±1.000 baris ≈ 600 ribu baris D1/menit per lokasi Cloudflare (perkiraan, belum diukur di produksi). Batas WAF luar (T-19) di plan Free hanya bisa memfilter path, jadi berlaku untuk `/mcp` di seluruh zona `surau.org`; T-19 sebaiknya selesai sebelum MCP diumumkan (S17).
+
+**Tinjau ulang bila:** T-18 (uji dari claude.ai) menunjukkan batas per IP terlalu ketat atau `read_page` terlalu besar untuk konteks klien; `rows_read` D1 dari MCP naik tajam (pertimbangkan memoisasi daftar isi per isolate atau tabel turunan); kitab kedua dimuat (instruksi server menyebut Ihya sebagai satu-satunya korpus); SDK v2 mengubah `cacheHints`/era.
+
+## ADR-050 · Panduan MCP dan pemantauan tanpa isi pertanyaan
+
+**Tanggal:** 2026-10-17 · **Status:** diterapkan di S17
+
+**Konteks:** Worker MCP S16 sudah publik, tetapi belum ada panduan bagi pengguna umum atau hitungan volume per tool. R3 membutuhkan uji klien nyata, sitasi dan lisensi; pengamatan satu minggu tidak dapat selesai dalam satu hari.
+
+**Keputusan:**
+1. Panduan pengguna berada di `/mcp`, ditautkan navigasi dan sitemap, memakai Server Component statis dan pola halaman informasi yang ada. Langkah Claude.ai/Desktop/Code, ChatGPT dan klien lain ditulis dari docs resmi 17 Oktober; tidak menjanjikan paket/menu tersedia untuk semua akun. UI mengikuti bahasa Indonesia terpusat. Jawaban akhir tetap tanggung jawab AI klien: alur cari → baca konteks → verifikasi kutipan → sitasi, label AI, takhrij dan lisensi dijelaskan secara terbuka.
+2. Setiap callback tool mencatat objek `console.info({event: "mcp_tool", tool, outcome, duration_ms})` agar field diindeks Workers Logs. Tidak menyimpan argumen, hasil, alamat halaman, teks, IP atau identitas pengguna. Sampling existing 1 dan retensi layanan tetap berlaku. Request yang ditolak SDK/transport/WAF tidak terhitung sebagai callback; gunakan metrik request/error terpisah. Error limiter juga ditangkap dan dipetakan ke `internal_error` agar detail tak bocor.
+3. Uji Claude Code nyata (2.1.299, Haiku) atas izin pemilik ≤ US$0,10: search→read sukses, biaya US$0,00344562. Claude.ai dikonfirmasi pemilik (T-18), Playground diuji lewat UI dengan model demo. Hasil klien yang mengabaikan sebagian instruksi dicatat sebagai keterbatasan, bukan klaim semua jawaban terjamin.
+4. Mulai pemantauan 17–24 Oktober WIB, simpan agregat harian dan snapshot D1 tanpa isi kueri pengguna. D1 dibagi web/MCP sehingga biaya khusus MCP belum terpisah. Batas S16 tidak diubah berdasarkan satu uji. Koreksi fakta STACK: Paid mencakup **25 miliar** rows read/bulan, bukan 25 juta. Rilis/tag fase tetap lewat `/rilis 3` yang dipanggil pemilik; registry/directory/skill opsional ditunda.
+
+**Konsekuensi:** satu event log tambahan per callback memakai kuota Workers Logs; retensi 7 hari memerlukan pencatatan agregat harian. Catatan uji dan prosedur pemantauan ada di [docs/mcp-operasional.md](../docs/mcp-operasional.md). Satu minggu pengamatan masih tindak lanjut dan tidak dinyatakan selesai pada S17 hari pertama. Tidak ada dependensi baru, panggilan LLM di server, migrasi korpus, atau perubahan rate limit.
+
+**Tinjau ulang bila:** log perlu retensi lebih lama atau volume log mahal (pertimbangkan metrik agregat); `rate_limited` menghambat penggunaan normal; rows_read meningkat tajam; menu/ketentuan klien berubah.
+
+## ADR-051 · Rilis Fase 3: MCP publik — diterima · 2026-10-17
+
+**Konteks:** S16–S17 selesai dan merge (PR #42/#43). Gerbang R3 mencakup Inspector kedua era, uji Claude Code/Claude.ai, serta sitasi dan lisensi; bukti ada di sesi, docs/mcp-operasional.md dan prarilis PR #44. Pemeriksaan rilis atas `rilis-f2..main` sampai `4f88541` tidak menemukan masalah keamanan. Gerbang versi dan mitigasi build ADR-003 lolos; dua advisory high transitif (`glob`, `figlet`) tetap ada pada lockfile dengan pemicu yang tidak dipakai dan mitigasi tertulis di ADR-003. Preview PR #44: verify hijau, e2e 99 lolos/1 dilewati, MCP lengkap modern/legacy lolos.
+
+**Keputusan:** pemilik menjawab **"ya"** di chat setelah ditanya **"Rilis Fase 3 ke produksi sekarang?"** (2026-10-17). Rilis melalui merge PR #44 dan `deploy.yml` (web lalu MCP), smoke produksi diulang, lalu tag `rilis-f3` dibuat dan dipush hanya setelah deploy/smoke sukses. Tidak ada migrasi atau pergantian korpus baru; web dan MCP tetap memakai `ihya-v6`. CHANGELOG, FASE, STATUS dan LOG mencatat rilis ini. Bukti akhir deploy/versi/smoke disimpan pada anotasi tag. Pengumuman hanya didrafkan bagi pemilik.
+
+**Konsekuensi:** MCP sudah tersedia sejak S16, sehingga rilis ini meresmikan fase dan tag. Keterbatasan ukuran `read_page`, batas bersama IP penyedia, klien yang belum diuji langsung, serta mutu keluaran AI pengguna tetap terbuka. Pemantauan 17–24 Oktober berjalan terpisah; kestabilan satu minggu belum diklaim. S18 menjadi sesi berikutnya.

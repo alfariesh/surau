@@ -21,6 +21,7 @@ export const id = {
     search: "Cari",
     ask: "Tanya",
     about: "Tentang",
+    mcp: "Pakai dengan AI",
     soon: "segera",
     soonHint: "Fitur ini sedang dibangun",
     openMenu: "Buka menu",
@@ -108,6 +109,108 @@ export const id = {
     ],
   },
 
+  mcp: {
+    pageTitle: "Pakai Surau dengan AI",
+    eyebrow: "Untuk pengguna Claude, ChatGPT, dan asisten AI lain",
+    heading: "Pakai Surau dari AI Anda",
+    lead: "Hubungkan asisten AI Anda ke perpustakaan Surau untuk mencari dan membaca Ihya karya al-Ghazali, dengan teks Arab asli dan tautan ke halaman cetaknya.",
+    endpointHeading: "Satu alamat, tanpa akun Surau",
+    endpointLead:
+      "MCP adalah cara asisten AI mengakses sumber tambahan. Salin alamat ini saat diminta URL server atau connector:",
+    cost: "Akses Surau gratis dan tanpa login. Paket, kuota, atau biaya asisten AI yang Anda gunakan tetap berlaku. Surau tidak menjalankan model AI saat Anda memakai koneksi ini.",
+    connectHeading: "Hubungkan asisten Anda",
+    officialGuide: "Panduan resmi",
+    clients: [
+      {
+        id: "claude",
+        name: "Claude.ai dan Claude Desktop",
+        steps: [
+          "Buka Customize → Connectors → + Add → Add custom connector. Pada tampilan lain, buka Settings → Connectors. Di akun organisasi, pengelola mungkin perlu mengaktifkan connector terlebih dahulu.",
+          "Beri nama Surau, masukkan alamat di atas, lalu pilih No sign in sebagai metode autentikasi dan simpan. Claude Desktop memakai menu connector yang sama untuk server jarak jauh.",
+          "Mulai percakapan baru, aktifkan Surau dari menu + → Connectors, lalu coba pertanyaan di bawah. Bila diminta, izinkan pencarian dan pembacaan dari Surau.",
+        ],
+        docs: "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp",
+      },
+      {
+        id: "claude-code",
+        name: "Claude Code",
+        steps: [
+          "Di aplikasi Terminal, jalankan perintah di bawah dari folder proyek Anda.",
+          "Buka Claude Code, ketik /mcp untuk memeriksa koneksi Surau, lalu coba salah satu pertanyaan contoh. Izinkan tool Surau saat diminta.",
+        ],
+        command: "claude mcp add --transport http surau https://mcp.surau.org/mcp",
+        docs: "https://code.claude.com/docs/en/mcp",
+      },
+      {
+        id: "chatgpt",
+        name: "ChatGPT",
+        steps: [
+          "Buka halaman Plugins di ChatGPT, lalu + → Add custom MCP server bila tersedia untuk akun Anda. Ketersediaan fitur mengikuti akun dan kebijakan organisasi; Developer mode mungkin perlu diaktifkan di Settings → Security and login.",
+          "Isi nama Surau, deskripsi singkat perpustakaan Ihya, dan alamat server di atas. Pilih autentikasi tanpa login, tinjau izin baca tool, lalu buat dan pasang plugin.",
+          "Di percakapan baru, ketik @ dan pilih Surau, lalu ajukan pertanyaan contoh. Ikuti panduan resmi bila nama menu di akun Anda berbeda.",
+        ],
+        docs: "https://developers.openai.com/api/docs/guides/custom-mcp-server",
+      },
+      {
+        id: "klien-lain",
+        name: "Klien MCP lain",
+        steps: [
+          "Tambahkan server jarak jauh dengan transport Streamable HTTP, alamat di atas, dan tanpa autentikasi. Pilih klien yang mendukung pemanggilan tool MCP.",
+          "Untuk mencoba di Cloudflare AI Playground, buka Model mode → Custom MCP → Add server, isi Server URL, lalu Add server. Biaya atau kuota model mengikuti layanan yang Anda pilih.",
+        ],
+        docs: "https://developers.cloudflare.com/agents/model-context-protocol/guides/test-remote-mcp-server/",
+      },
+    ],
+    examplesHeading: "Coba pertanyaan ini",
+    examplesLead:
+      "Sebut Surau supaya asisten memakai sumber yang baru Anda hubungkan. Anda bisa menyalin contoh berikut:",
+    examples: [
+      "Gunakan Surau untuk mencari adab murid kepada guru dalam Ihya. Baca salah satu halaman hasilnya dan sertakan edisi, jilid, halaman, serta tautan sumber.",
+      "Gunakan Surau untuk membaca Ihya jilid 1 halaman 200. Jelaskan isinya dalam bahasa Indonesia, tandai terjemahan AI, dan sertakan sumbernya.",
+      "Ambil satu kutipan pendek dari halaman Ihya yang tadi dibaca melalui Surau. Periksa dengan verify_quote sebelum menampilkannya, lalu sertakan teks yang cocok dan tautan paragraf. Jika membahas status hadits, periksa get_hadith_takhrij; bila tidak ada takhrij, katakan status belum diketahui.",
+    ],
+    checkHeading: "Periksa jawaban yang Anda terima",
+    checkLead:
+      "Jawaban akhir ditulis oleh asisten AI Anda. Koneksi ke Surau memberi sumber, tetapi asisten masih bisa salah memahami atau mengabaikan instruksi. Alur yang bisa Anda minta:",
+    checks: [
+      "Cari pembahasan dengan search_text, lalu baca konteksnya dengan read_page atau read_section. Potongan hasil pencarian belum tentu mewakili pendapat penulis secara utuh.",
+      "Untuk kutipan Arab, minta verify_quote dan gunakan teks hasil verifikasi. Kecocokan kutipan membuktikan teksnya ada, bukan membuktikan penafsiran AI benar.",
+      "Pastikan ada nama karya dan edisi, jilid, halaman cetak, serta tautan yang bisa dibuka di Surau. Bedakan pendapat al-Ghazali dari pendapat yang ia nukil atau bantah.",
+    ],
+    readerLink: "Coba periksa halaman tentang adab belajar di pembaca Surau",
+    limitsHeading: "Yang perlu diketahui",
+    limits: [
+      "Korpus saat ini hanya Ihya 'Ulum ad-Din, edisi Dar al-Ma'rifah, empat jilid. Bila rujukan tidak ditemukan, minta AI mengatakannya dengan jelas.",
+      "Terjemahan dan ringkasan berlabel AI bisa keliru. Kutipan ayat yang dikenali sistem menyediakan teks Tanzil serta terjemahan Kemenag; pencocokan ayat belum sempurna.",
+      "Status hadits mengikuti teks takhrij al-'Iraqi yang tertaut. Tanpa takhrij, status belum diketahui. Surau membantu riset dan belajar; keputusan hukum pribadi tetap perlu dibahas dengan ulama.",
+      "Satu halaman cetak dapat menghasilkan jawaban tool yang panjang. Untuk bacaan bertahap, minta read_section dan lanjutkan dengan next_cursor bila tersedia.",
+      "Pertanyaan Anda mengikuti kebijakan layanan AI yang dipakai. Surau membatasi frekuensi permintaan agar akses bersama tetap tersedia.",
+    ],
+    troubleHeading: "Jika belum tersambung",
+    troubles: [
+      {
+        title: "Menu connector atau plugin tidak tersedia",
+        body: "Periksa panduan resmi dan izin akun atau organisasi Anda. Nama menu dan ketersediaan fitur bisa berubah. Anda tetap bisa memakai pembaca dan pencarian di situs Surau.",
+      },
+      {
+        title: "Diminta login ke Surau",
+        body: "Periksa bahwa alamatnya berakhir dengan /mcp dan metode autentikasinya tanpa login (No sign in atau padanannya). Surau tidak meminta API key.",
+      },
+      {
+        title: "Terlalu banyak permintaan atau rate_limited",
+        body: "Tunggu sekitar satu menit, lalu coba lagi dengan satu pertanyaan. Pengguna layanan AI yang sama dapat berbagi batas jaringan.",
+      },
+      {
+        title: "Halaman tidak ditemukan atau hasil terlalu panjang",
+        body: "Minta AI mencari dengan search_text terlebih dahulu dan memakai alamat dari hasilnya. Untuk bacaan panjang, gunakan read_section per potongan.",
+      },
+    ],
+    licenseHeading: "Sumber dan lisensi tetap ikut",
+    license:
+      "Saat memakai ulang hasil Surau, pertahankan sitasi dan atribusi sumbernya. Konten kitab memakai CC BY-NC-SA 4.0: sebut sumber, gunakan untuk tujuan nonkomersial, dan bagikan adaptasi dengan lisensi yang sama. Teks Tanzil dan terjemahan Kemenag memiliki ketentuan sumber masing-masing yang ikut di hasil tool.",
+    licenseMore: "Baca lisensi, atribusi, dan cara meminta koreksi",
+  },
+
   about: {
     pageTitle: "Tentang",
     heading: "Tentang Surau",
@@ -143,7 +246,7 @@ export const id = {
       "Setiap klaim ada alamatnya: kitab, edisi, jilid, halaman cetak, dan tautan tetap.",
       "Atribusi yang jujur: membedakan pendapat penulis, pendapat yang ia nukil, dan yang ia bantah.",
       "Status hadits diambil dari takhrij para ahlinya, bukan dari tebakan AI.",
-      "Ayat Al-Qur'an tidak pernah ditulis atau diterjemahkan AI: teks dari Tanzil, terjemahan dari Kemenag.",
+      "Teks ayat Al-Qur'an tidak pernah ditulis AI (dari Tanzil); kutipan ayat yang dikenali sistem memakai terjemahan Kemenag, bukan terjemahan AI.",
       "Berani bilang “tidak ditemukan”.",
       "Terjemahan dan ringkasan buatan AI selalu diberi label.",
       "Ustadz ada di dalam lingkaran: kebijakan dan sampel jawaban ditinjau ahli.",
@@ -194,6 +297,9 @@ export const id = {
     changesLabel: "Yang diubah Surau",
     readLink: "Baca kitab ini",
     detailsLink: "Rincian versi dan sha256 setiap berkas sumber",
+    quranHeading: "Ayat Al-Qur'an",
+    quranLead:
+      "Kutipan ayat di dalam kitab dikenali otomatis dengan mencocokkannya ke teks mushaf, lalu ditautkan ke surah dan ayatnya. Teks ayat, terjemahan, dan transliterasi disalin apa adanya dari sumber di bawah; AI tidak pernah menulis atau menerjemahkan ayat.",
     correctionHeading: "Koreksi dan penghapusan",
     correctionText:
       "Menemukan salah ketik, teks yang terpotong, atau nomor halaman yang keliru? Ketuk tombol “Laporkan kesalahan” di halaman kitab, atau buka laporan di GitHub.",
@@ -261,6 +367,28 @@ export const id = {
     footnoteHeading: (marker: string) => `Catatan kaki (${marker})`,
     footnoteGoto: "Lihat di daftar catatan kaki",
     footnoteBack: "Kembali ke teks",
+    // Diawali label yang terlihat ("QS 27:90"), supaya perintah suara "klik QS 27:90" bekerja
+    // (WCAG 2.5.3 Label in Name).
+    ayahChipLabel: (short: string, label: string) =>
+      `${short}: rujukan ayat ${label}, buka teks dan terjemahan Kemenag`,
+    ayahPartial: "Kitab mengutip sebagian ayat ini.",
+    ayahSimilar: "Lafaz di kitab sedikit berbeda ejaan dari teks mushaf.",
+    ayahAlt: (n: number) => `Lafaz yang sama juga ada di ${n} tempat lain dalam Al-Qur'an.`,
+    ayahTranslation: "Terjemahan Kemenag",
+    ayahTranslationFull: "Terjemahan ayat lengkap (Kemenag)",
+    ayahNoTranslation: "Terjemahan tidak tersedia.",
+    ayahTextSource: "Teks ayat",
+    ayahTranslationSource: "Terjemahan",
+    ayahTransliterationSource: "Transliterasi",
+    ayahTranslationAndTransliterationSource: "Terjemahan dan transliterasi",
+    ayahKemenag: "Kementerian Agama RI",
+    ayahAuto:
+      "Rujukan dicocokkan otomatis ke teks mushaf, bukan oleh AI. Teks ayat, transliterasi, dan terjemahan ditampilkan tanpa diubah.",
+    ayahOpenTanzil: "Buka ayat ini di Tanzil",
+    quranNotice: "Ayat Al-Qur'an",
+    quranNoticeText: "teks dari",
+    quranNoticeTranslation: "terjemahan dan transliterasi dari",
+    quranNoticeVerbatim: "Ditampilkan tanpa diubah; rujukan ayat dicocokkan otomatis.",
     needsReview: "perlu ditinjau",
     needsReviewReasons: {
       takhrij_inline: "Takhrij ini dipisahkan otomatis dari teks utama.",
@@ -300,9 +428,94 @@ export const id = {
     reportErrorRate: "Terlalu banyak laporan dalam waktu singkat. Coba lagi sebentar lagi.",
     reportErrorInvalid: "Laporan belum lengkap atau terlalu panjang.",
     reportErrorGeneric: "Laporan gagal dikirim. Coba lagi nanti.",
+    // Terjemahan dan ringkasan AI (S13, tampil sejak S14). Selalu berlabel (teks-arab.md aturan 8).
+    aiTranslation: "Terjemahan AI",
+    aiTranslationHint:
+      "Diterjemahkan otomatis oleh AI dari teks Arab di atasnya dan belum ditinjau manusia. Rujuk selalu teks Arabnya.",
+    aiSummary: "Ringkasan AI",
+    aiSummaryOf: "Ringkasan AI bagian ini",
+    aiReview: {
+      ai_generated: "belum ditinjau manusia",
+      reviewed: "sudah ditinjau",
+      ustadz_verified: "diverifikasi ustadz",
+      rejected: "ditolak peninjau",
+    },
+    aiMeta: (model: string, review: string) => `Dibuat ${model}, ${review}.`,
+    ayahInTranslation: (label: string) => `${label} · Terjemahan Kemenag`,
+    ayahInTranslationFull: (label: string) => `${label} · Terjemahan ayat lengkap (Kemenag)`,
+    ayahInTranslationMissing: (label: string) => `${label} (terjemahan ayat tidak tersedia)`,
+    translationToggle: "Tampilkan terjemahan AI",
+    aiNoticeHeading: "Terjemahan dan ringkasan AI",
+    aiNotice:
+      "Terjemahan Indonesia per paragraf dan ringkasan bagian dibuat otomatis oleh model AI dari teks Arab, dan belum ditinjau manusia, jadi bisa keliru. Teks Arab tetap rujukan utamanya. Kutipan ayat yang dikenali sistem tidak diterjemahkan AI: yang tampil adalah terjemahan Kemenag. Kutipan ayat yang belum dikenali bisa ikut diterjemahkan AI.",
     errorHeading: "Halaman kitab gagal dimuat",
     errorBody: "Terjadi gangguan saat membaca data kitab. Coba muat ulang.",
     errorRetry: "Coba lagi",
+  },
+
+  search: {
+    pageTitle: "Cari",
+    metaDescription:
+      "Cari kata Indonesia atau Arab di kitab Ihya 'Ulum ad-Din: hasil per halaman cetak dengan teks Arab asli, terjemahan AI berlabel, dan tautan ke pembaca.",
+    heading: "Cari di kitab",
+    lead: "Ketik kata Indonesia atau Arab. Kata Indonesia dicari di terjemahan dan ringkasan AI; kata Arab dicari langsung di teks aslinya.",
+    inputLabel: "Kata yang dicari",
+    placeholder: "mis. sabar, adab murid kepada guru, الصبر",
+    submit: "Cari",
+    examplesLabel: "Contoh:",
+    examples: ["sabar", "niat", "adab murid kepada guru", "cinta kedudukan", "الصبر", "التوكل"],
+    filterLabel: "Bagian kitab",
+    filterAll: "Seluruh kitab",
+    filterKitab: "Kitab",
+    filterKitabAll: "Semua kitab di rub' ini",
+    loading: "Mencari…",
+    resultsHeading: "Hasil pencarian",
+    soonHeading: "Pencarian sedang disiapkan",
+    soonBody:
+      "Data kitab versi baru (dengan indeks pencarian dan terjemahan) belum dipasang di situs ini. Sementara itu, kitab tetap bisa dibaca dari menu Kitab.",
+    summary: (pages: number, hits: number) => `${pages} halaman · ${hits} paragraf`,
+    shownPages: (pages: number) => `${pages} halaman ditampilkan`,
+    summaryFused:
+      "Diurutkan menurut kecocokan gabungan teks Arab, terjemahan AI, dan ringkasan bagian (100 paragraf teratas per jalur).",
+    pageLabel: (label: string) => `Halaman ${label}`,
+    openInReader: "Buka di pembaca",
+    moreOnPage: (n: number) => `${n} paragraf cocok lainnya di halaman ini`,
+    openSection: "Buka bagian",
+    matchedBy: {
+      arabic: "teks Arab",
+      translation: "terjemahan AI",
+      summary: "ringkasan bagian",
+    },
+    matchedByLabel: "Cocok di",
+    partialMatch: "sebagian kata",
+    ayahPlaceholder: (ref: string) => `QS ${ref}`,
+    ayahPlaceholderHint: "Kutipan ayat: terjemahannya (Kemenag) tampil di pembaca",
+    commonTerms:
+      "Semua kata yang Anda cari sangat umum (misalnya الله), jadi hasil tidak diurutkan menurut relevansi dan hanya kemunculan pertama yang tampil. Tambahkan kata yang lebih khusus.",
+    commonTermsIgnored:
+      "Kata Arab dalam pencarian Anda sangat umum sehingga tidak ikut dicari; hasil berasal dari kata Indonesianya.",
+    emptyHeading: "Tidak ada hasil",
+    emptyTips: [
+      "Periksa ejaannya, atau pakai bentuk dasar katanya (sabar, bukan kesabarannya).",
+      "Coba kata Arabnya, misalnya الصبر untuk sabar.",
+      "Kurangi jumlah kata yang dicari.",
+      "Hapus filter bagian kitab.",
+    ],
+    idleHeading: "Mulai mencari",
+    idleBody:
+      "Hasil berupa halaman cetak kitab: teks Arab asli dengan kata yang cocok disorot, terjemahan AI berlabel, dan tautan ke paragrafnya di pembaca.",
+    loadMore: "Muat lebih banyak",
+    errorRate: "Terlalu banyak pencarian dalam waktu singkat. Coba lagi sebentar lagi.",
+    errorUnavailable: "Pencarian belum tersedia untuk versi data ini. Coba lagi nanti.",
+    errorInvalid: "Kata yang dicari terlalu panjang atau tidak bisa diproses.",
+    errorGeneric: "Pencarian gagal. Coba lagi.",
+    retry: "Coba lagi",
+    palettePlaceholder: "Cari kata Indonesia atau Arab…",
+    paletteHint: "Tekan Enter untuk mencari di seluruh kitab",
+    paletteOpen: "Cari",
+    paletteLabel: "Palet pencarian",
+    paletteGo: (q: string) => `Cari “${q}”`,
+    paletteExamples: "Contoh pencarian",
   },
 
   notFound: {
@@ -314,5 +527,6 @@ export const id = {
 } as const;
 
 export const SOURCE_URL = "https://github.com/alfariesh/surau";
+export const MCP_URL = "https://mcp.surau.org/mcp";
 /** Laporan publik (koreksi, takedown) sampai ada email kontak (T-10 butir 3, dijawab 2026-10-16). */
 export const ISSUES_URL = `${SOURCE_URL}/issues/new`;

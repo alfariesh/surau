@@ -66,7 +66,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   3. Di Terminal, jalankan `gh secret set CLOUDFLARE_API_TOKEN` lalu tempel tokennya.
   4. Untuk Account ID, jalankan `pnpm dlx wrangler@latest whoami`, salin *Account ID*-nya, lalu jalankan `gh secret set CLOUDFLARE_ACCOUNT_ID` dan tempel ID itu.
 
-- [ ] **T-07 · Pilih dan siapkan domain (P-2, wajib dijawab)** (dibutuhkan S03; sebelum itu situs bisa jalan di alamat `*.workers.dev`)
+- [x] **T-07 · Pilih dan siapkan domain (P-2, wajib dijawab)** (dibutuhkan S03; sebelum itu situs bisa jalan di alamat `*.workers.dev`) · **selesai 2026-10-17:** `surau.org` di Cloudflare (NS `ned`/`raquel.ns.cloudflare.com`), `https://surau.org` sudah menyajikan Worker web, Preview PR di `pr-N.surau.org`. Kode masih memakai alamat `workers.dev` (`SITE_URL`, `deploy.yml`) sampai dipindah agent
   Daftarkan domain di Cloudflare Registrar, atau pindahkan DNS domain yang sudah ada ke Cloudflare. Beri tahu agent nama domainnya.
 
 - [x] **T-08 · Arah desain (P-3)** (dibutuhkan S04) · **selesai 2026-10-15:** pemilik memilih Opsi A · Zaitun (hijau zaitun, kertas hangat, Noto Naskh Arabic); lihat ADR-027
@@ -79,7 +79,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 1: Pembaca
 
-- [ ] **T-09 · Pasang drive data Shamela** (setiap kali sesi membangun ulang korpus: S07, S10–S14) · terpenuhi untuk S07 dan S10 (2026-10-16)
+- [ ] **T-09 · Pasang drive data Shamela** (setiap kali sesi membangun ulang korpus: S07, S10–S14) · terpenuhi untuk S07, S10, dan S13 (2026-10-17)
   Pastikan drive `Elfariesh` terpasang, sehingga `/Volumes/Elfariesh/database` bisa dibuka.
 
 - [x] **T-10 · Setujui sumber teks dan lisensi konten, lalu beri tahu Shamela (P-6, wajib dijawab)** (sebelum rilis Fase 1, S10) · selesai 2026-10-16 (dijawab di chat S10): ADR-018 + ADR-021 **disetujui**; email ke Shamela **sudah terkirim** (jawaban ditunggu, tidak memblokir); kontak koreksi/takedown = tombol "Laporkan kesalahan" + GitHub Issues dulu (email menyusul bila ada); retensi laporan kesalahan = sampai ditangani + 12 bulan. Bila Shamela membalas, teruskan isinya ke agent untuk dicatat.
@@ -115,7 +115,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 2: Cari
 
-- [ ] **T-11 · Akun API Anthropic dengan rem biaya (P-4)** (dibutuhkan S13)
+- [x] **T-11 · Akun API Anthropic dengan rem biaya (P-4)** (dibutuhkan S13) · selesai 2026-10-17 (dicek agent di S13: kunci di `.env` berfungsi untuk `count_tokens` dan Message Batches; spend limit workspace tidak bisa dicek agent). Kunci `surau-prod` tetap untuk T-14.
   1. Buka platform.claude.com. Pastikan akunnya berbentuk **Organization**. Di **Settings → Workspaces → Create workspace**, buat dua workspace:
      - `surau-dev`: untuk terjemahan batch dan eval di Mac Anda, dengan spend limit ±$40/bulan.
      - `surau-prod`: untuk fitur Tanya online di Fase 4, dengan spend limit ±$25/bulan.
@@ -128,22 +128,46 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   4. Kunci workspace `surau-prod` **tidak** disimpan di Mac maupun di Worker. Anda menempelnya sendiri di Cloudflare **AI Gateway → Provider Keys** saat T-14.
   5. Bila Anda berlangganan Claude Max/Team, tautkan kredit API bulanannya ke organisasi ini (claude.ai → Settings → Billing).
 
-- [ ] **T-16 · Cek 20 sampel ayat** (dibutuhkan S12, ±20 menit; bisa diwakilkan)
+- [x] **T-16 · Cek 20 sampel ayat** (dibutuhkan S12, ±20 menit; bisa diwakilkan) · **dinilai agent 2026-10-17:** 20/20 rujukan cocok ([laporan](../data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md)); pemilik meneruskan penilaian agent lain ("Itu hasil dari agent lain. Jika salah anda bisa koreksi jadi itu bukan kebenaran mutlak"); diperiksa ulang agent X02. **diterima pemilik saat `/rilis 2` (2026-10-17, ADR-048)**
   Agent memberi 20 kutipan ayat yang dikenali di Ihya beserta rujukan surah:ayat. Cek apakah rujukannya benar.
+  1. Buka [data/reports/ihya-9472-ayat.md](../data/reports/ihya-9472-ayat.md) di GitHub, bagian **20 sampel acak**.
+  2. Untuk tiap baris, buka permalink-nya di link preview PR S12 (atau di situs setelah korpus baru dipromosikan, S14). Kutipan ayatnya berwarna hijau lembut dengan label kecil "QS s:a" sesudahnya. Ketuk labelnya untuk melihat teks ayat dan terjemahan Kemenag.
+  3. Bandingkan kutipan di kitab dengan teks ayat di popup. Rujukan surah:ayat-nya benar?
+  4. Kirim hasilnya ke agent di chat, misalnya "T-16: 1–20 benar kecuali no. 4 (bukan ayat)". Agent mencatatnya di file sesi S12.
 
-- [ ] **T-17 · Nilai sampel terjemahan AI** (dibutuhkan S13, dua kali ±30 menit; bisa diwakilkan)
+- [ ] **T-17 · Nilai sampel terjemahan AI** (dibutuhkan S13, dua kali ±30 menit; bisa diwakilkan) · tahap 1 selesai 2026-10-17 ("sampel layak") · **tahap 2 dinilai agent 2026-10-17:** 14 Benar, 4 Kurang, 2 Salah (70%, di bawah target 80%); pemilik meneruskan penilaian agent lain ("Itu hasil dari agent lain. Jika salah anda bisa koreksi jadi itu bukan kebenaran mutlak"). Temuan diperbaiki di X02 (27 paragraf diterjemahkan ulang, ADR-047), sehingga sampel yang sama kini 20/20 Benar (bias, penilai agent X02). **Penyimpangan target 80% diterima pemilik saat `/rilis 2` (2026-10-17, ADR-048).** Usulan **tahap 3** (opsional): nilai 20 sampel acak BARU untuk mengukur mutu tanpa bias
   Agent memberi 20 terjemahan uji (sebelum batch penuh), lalu 20 hasil batch. Beri nilai Benar, Kurang, atau Salah, beserta catatan singkat.
+  1. Buka halaman nilai yang dikirim agent di chat S13 (file lokal `data/build/llm/qa/review-batch.html`; bisa dibuka dari panel file aplikasi Claude atau browser). Isinya 20 paragraf acak hasil batch penuh: teks Arab, terjemahan AI, dan (kotak hijau) terjemahan ayat Kemenag. Ada juga 5 contoh ringkasan bagian (tidak ikut dinilai).
+  2. Untuk tiap nomor 1–20, nilai: **Benar** (makna tepat), **Kurang** (makna benar tapi ada yang janggal/hilang), atau **Salah** (makna keliru).
+  3. Kirim ke agent, misalnya "T-17 tahap 2: 1–20 B kecuali 4 K (istilah kurang tepat), 11 S (subjek tertukar)". Target: Benar ≥ 80%, Salah ≤ 10%; bila Salah > 10%, agent memperbaiki prompt dan mengulang paragraf yang terdampak.
 
-- [ ] **T-12 · Setujui soal eval pencarian** (dibutuhkan S15)
+- [x] **T-23 · Tinjau tampilan Cari dan terjemahan di pembaca (S14)** (±10 menit) · selesai 2026-10-17: pemilik menyatakan "Cari ok sudah ok" (chat S14, di situs utama setelah promote `ihya-v5`)
+  Buka di ponsel dan laptop (data staging, versi `ihya-v5`): **https://pr-33-surau-web.alfarieshsalman.workers.dev/cari**
+  1. Ketik **sabar**, lalu **adab murid kepada guru**, lalu **الصبر**. Cek kartu hasil: teks Arab asli dengan kata yang tersorot, label **Terjemahan AI**, dan (bila ada) **Ringkasan AI**.
+  2. Coba filter **Bagian kitab** (pilih satu rub', lalu satu kitab), dan **Muat lebih banyak** di bawah.
+  3. Ketuk **Buka di pembaca** di salah satu hasil: paragraf tujuan ditandai, kata yang dicari tersorot, dan di bawah setiap paragraf Arab ada **Terjemahan AI** (ayat Al-Qur'an memakai terjemahan Kemenag berlabel). Coba centang/hapus **Tampilkan terjemahan AI**, dan buka **Ringkasan AI bagian ini** di awal bab.
+  4. Dari halaman mana pun tekan **⌘K** (laptop) atau ikon kaca pembesar di atas (ponsel), ketik kata, tekan Enter.
+  5. Bilang ke agent "tampilan Cari OK", atau tulis apa yang ingin diubah (boleh dengan tangkapan layar). Agent mencentang butir "pemilik menyetujui tampilan" di S14.
+
+- [x] **T-12 · Setujui soal eval pencarian** (dibutuhkan S15) · **selesai 2026-10-17:** ke-31 soal disetujui pemilik di chat ("Ya setujui semua"); berbagi tautan halaman tinjauan ditutup pemilik (dikonfirmasi saat `/rilis 2`, 2026-10-17)
   Agent menyusun ±30 soal ("di mana al-Ghazali membahas X?") beserta jawaban lokasinya. Anda (atau ustadz) mengecek dan menyetujui minimal 20 soal.
+  **Siap ditinjau (2026-10-17):** buka https://claude.ai/artifact/3BoaNKz2uL7e1ymEEaCPnH (hanya bisa dibuka akun Anda) → isi nama → untuk tiap soal klik **Setuju / Perlu diubah / Tolak** (tautan "Buka di Surau ↗" membuka halaman kitabnya). Pilihan tersimpan otomatis; agent membacanya dari halaman itu.
 
 ## Fase 3: MCP
 
-- [ ] **T-19 · Aturan WAF untuk MCP** (dibutuhkan S16; agent memandu)
-  Satu aturan rate limiting di dashboard Cloudflare (**Security → WAF → Rate limiting rules**) untuk `mcp.<domain>`, sebagai pagar luar.
+- [x] **T-19 · Aturan WAF untuk MCP** (dibutuhkan S16; agent memandu) · **selesai 2026-10-17:** aturan rate limiting `MCP per IP` (URI Path equals `/mcp`, IP, 200 permintaan / 10 detik → Block 10 detik, Active) dibuat agent di dashboard atas permintaan pemilik di chat; dicek: `uji-mcp.sh https://mcp.surau.org/mcp daftar` lolos dan situs 200
+  Satu aturan rate limiting sebagai pagar luar untuk alamat MCP. Worker sudah punya batas sendiri per tool (ADR-049); aturan ini menahan banjir permintaan sebelum sampai ke Worker. Plan Free hanya boleh **satu** aturan dan hanya bisa memfilter path (bukan subdomain), jadi aturan berlaku untuk path `/mcp` di seluruh `surau.org` (situs web tidak memakai path itu). Sekitar 3 menit:
+  1. Buka https://dash.cloudflare.com → pilih domain **surau.org**.
+  2. Menu kiri **Security** → **Security rules** (di sebagian akun: **WAF**) → tombol **Create rule** → pilih **Rate limiting rules**.
+  3. **Rule name:** `MCP per IP`.
+  4. **If incoming requests match…:** Field **URI Path**, Operator **equals**, Value `/mcp`.
+  5. **With the same characteristics:** biarkan **IP**.
+  6. **When rate exceeds:** Requests `200`, Period `10 seconds`.
+  7. **Then take action:** **Block**, Duration `10 seconds`.
+  8. Klik **Deploy**. Beri tahu agent "T-19 selesai"; agent mengecek bahwa `https://mcp.surau.org/mcp` tetap menjawab.
 
-- [ ] **T-18 · Uji Surau dari Claude.ai** (dibutuhkan S17)
-  Di claude.ai → **Settings → Connectors → Add custom connector**, isi URL `https://mcp.<domain>/mcp`, lalu pilih *No sign in*. Coba 3 pertanyaan contoh dari agent, lalu laporkan hasilnya.
+- [x] **T-18 · Uji Surau dari Claude.ai** (S17) · **selesai 2026-10-17:** pemilik mengonfirmasi “Berhasil, hasil dan tautan muncul” untuk permintaan mencari adab murid kepada guru, membaca salah satu hasil, dan menyertakan tautan. Transkrip tidak diperiksa langsung agent; [bukti dan batas uji](../docs/mcp-operasional.md).
+  Panduan [surau.org/mcp](https://surau.org/mcp): **Customize → Connectors → + Add → Add custom connector** (tampilan lain: Settings → Connectors), nama Surau, URL `https://mcp.surau.org/mcp`, autentikasi *No sign in*. Dua contoh lanjutan (baca j.1 h.200 dan verifikasi kutipan/takhrij) tersedia di panduan; pemilik juga mengonfirmasi “Panduan jelas; contoh lanjutan juga berhasil” di S17 (2026-10-17).
 
 ## Fase 4: Jawab
 

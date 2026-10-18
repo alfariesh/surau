@@ -3,7 +3,9 @@
 //   pnpm run corpus:promote <versi> --confirm       1 buat surau-corpus-<versi> (apac) · 2 migrasi ·
 //                                                   3 muat SQL + smoke (= hitungan build) ·
 //                                                   4 arahkan CORPUS_DB produksi di apps/web/wrangler.jsonc
+//                                                     dan apps/mcp/wrangler.jsonc (S16)
 //   pnpm run corpus:promote <versi> --switch-only   rollback: arahkan produksi ke versi lama yang sudah ada
+//                                                   (skema lebih lama boleh: fitur barunya tersembunyi, S14)
 //   --reload   muat ulang DB versi ini bila sudah ada (menimpa isinya). DITOLAK untuk DB yang melayani
 //              atau pernah melayani produksi: binding di working tree, di origin/main, atau tercatat di
 //              data/SOURCES.md. Korpus staging tidak pernah menjadi produksi (isinya dimuat ulang tiap sesi).
@@ -25,7 +27,7 @@ import {
   stagingCorpus,
 } from "./corpus.ts";
 import type { CorpusBinding } from "./corpus.ts";
-import { WEB_CONFIG, formatCounts, remoteByName, repo, smoke, wrangler } from "./d1.ts";
+import { MCP_CONFIG, WEB_CONFIG, formatCounts, remoteByName, repo, smoke, wrangler } from "./d1.ts";
 
 interface RemoteDb {
   uuid: string;
@@ -43,11 +45,27 @@ function info(name: string): { running_in_region?: string; database_size?: numbe
   };
 }
 
+/**
+ * Arahkan CORPUS_DB produksi web DAN Worker MCP (S16: satu D1, dua Worker) ke `next`. Config MCP
+ * harus menunjuk korpus yang sama dengan web sebelum diganti (dijaga tes corpus.test.ts).
+ */
 function switchProduction(next: CorpusBinding): CorpusBinding {
-  const path = join(repo, WEB_CONFIG);
-  const text = readFileSync(path, "utf8");
-  const previous = readProductionCorpus(text);
-  writeFileSync(path, setProductionCorpus(text, next));
+  const webPath = join(repo, WEB_CONFIG);
+  const mcpPath = join(repo, MCP_CONFIG);
+  const web = readFileSync(webPath, "utf8");
+  const mcp = readFileSync(mcpPath, "utf8");
+  const previous = readProductionCorpus(web);
+  const mcpPrevious = readProductionCorpus(mcp);
+  if (mcpPrevious.id !== previous.id) {
+    throw new Error(
+      `${MCP_CONFIG} menunjuk ${mcpPrevious.name}, bukan ${previous.name} seperti ${WEB_CONFIG}: samakan dulu`,
+    );
+  }
+  // Keduanya dihitung dulu: bila salah satu config salah bentuk, tidak ada yang ditulis.
+  const webNext = setProductionCorpus(web, next);
+  const mcpNext = setProductionCorpus(mcp, next, { searchCache: false });
+  writeFileSync(webPath, webNext);
+  writeFileSync(mcpPath, mcpNext);
   return previous;
 }
 
@@ -55,7 +73,7 @@ function nextSteps(previous: CorpusBinding, next: CorpusBinding): void {
   console.info(
     [
       "",
-      `Langkah 4 selesai di lokal: ${WEB_CONFIG} CORPUS_DB ${previous.name} → ${next.name}.`,
+      `Langkah 4 selesai di lokal: ${WEB_CONFIG} + ${MCP_CONFIG} CORPUS_DB ${previous.name} → ${next.name}.`,
       "Berikutnya:",
       "  5. Commit + PR. Setelah CI hijau dan merge, deploy.yml men-deploy Worker dengan binding baru.",
       `  6. JANGAN hapus ${previous.name}. Catat ${next.name} (${next.id}) di data/SOURCES.md (bagian Korpus D1 produksi).`,
@@ -106,15 +124,22 @@ function main(argv: string[]): number {
     try {
       const s = smoke(target);
       console.info(`${name}: ${formatCounts(s.counts)} · korpus ${s.meta.corpus_version ?? "?"}`);
-      // Kode di main mengharapkan skema terbaru (ARSITEKTUR-TEKNIS §7 aturan 5).
-      if (s.meta.schema_version !== String(CORPUS_SCHEMA_VERSION)) {
+      // Rollback ke korpus berskema LEBIH LAMA diizinkan (keputusan S14, ADR-044): kode memeriksa
+      // meta.schema_version dan menyembunyikan fitur yang tabelnya belum ada (ARSITEKTUR-TEKNIS §7
+      // aturan 5), jadi pembaca tetap jalan; fitur yang hilang dicetak sebagai peringatan. Skema
+      // yang LEBIH BARU dari kode ditolak (kode tidak mengenal tabelnya).
+      const schema = Number(s.meta.schema_version ?? 0);
+      if (!(schema >= 1 && schema <= CORPUS_SCHEMA_VERSION)) {
         s.problems.push(
-          `meta.schema_version ${s.meta.schema_version ?? "–"}, kode mengharapkan ${CORPUS_SCHEMA_VERSION}`,
+          `meta.schema_version ${s.meta.schema_version ?? "–"}, kode mendukung 1–${CORPUS_SCHEMA_VERSION}`,
         );
       }
       if (s.problems.length > 0) {
         for (const p of s.problems) console.error(`Smoke GAGAL: ${p}`);
         return 1;
+      }
+      for (const l of s.limitations) {
+        console.warn(`Peringatan: ${l}; fitur itu tersembunyi/503 selama versi ini aktif.`);
       }
     } finally {
       target.dispose();
@@ -150,7 +175,7 @@ function main(argv: string[]): number {
           : `  1. (lewati) ${name} sudah ada; --reload memuat ulang isinya`,
         "  2. migrasi korpus (packages/db/migrations/corpus)",
         "  3. muat data/build/sql/*.sql, lalu smoke: hitungan setiap tabel + meta = build, j1 h200",
-        `  4. ${WEB_CONFIG}: CORPUS_DB produksi → ${name} (file lokal; deploy lewat PR)`,
+        `  4. ${WEB_CONFIG} + ${MCP_CONFIG}: CORPUS_DB produksi → ${name} (file lokal; deploy lewat PR)`,
         "Minta izin pemilik dulu (CLAUDE.md aturan keras 4 bila menimpa DB yang sudah ada).",
       ].join("\n"),
     );
@@ -169,8 +194,10 @@ function main(argv: string[]): number {
     loadBuild(target, (line) => console.info(`   ${line}`));
     const s = smoke(target, build);
     console.info(`Smoke: ${formatCounts(s.counts)}`);
-    if (s.problems.length > 0) {
-      for (const p of s.problems) console.error(`Smoke GAGAL: ${p}`);
+    // Versi baru dibangun kode ini: batasan skema = kegagalan.
+    const failed = [...s.problems, ...s.limitations];
+    if (failed.length > 0) {
+      for (const p of failed) console.error(`Smoke GAGAL: ${p}`);
       console.error("Binding produksi TIDAK diubah.");
       return 1;
     }

@@ -1,0 +1,169 @@
+// Pemeriksaan umum keluaran LLM (S13). Aturan teks-arab: teks Arab buatan model tidak pernah tampil
+// sebagai kutipan, jadi keluaran yang menyalin teks Arab panjang ditolak (istilah ditulis Latin).
+import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
+import { ayahPlaceholderPattern } from "@surau/core";
+
+/**
+ * Kata berhuruf Arab berturut-turut yang masih diterima: 0. Prompt melarang huruf Arab sama sekali
+ * dan aturan teks-arab 1 melarang teks Arab buatan model tampil, jadi satu kata pun ditolak (ulangan
+ * murah). Placeholder ayat dan penanda catatan kaki tidak dihitung.
+ */
+export const MAX_ARABIC_RUN_WORDS = 0;
+
+const ARABIC_LETTER = /(?=\p{L})\p{Script=Arabic}/u;
+
+/** Buang placeholder ayat dan penanda catatan kaki (angka Arab dalam kurung) dari teks. */
+export function stripMarkers(text: string): string {
+  return text
+    .replace(ayahPlaceholderPattern(), " ")
+    .replace(new RegExp(FOOTNOTE_MARKER_SOURCE, "g"), " ");
+}
+
+/** Jumlah kata berhuruf Arab berturut-turut terpanjang (placeholder dan penanda tidak dihitung). */
+export function longestArabicRun(text: string): number {
+  let best = 0;
+  let run = 0;
+  for (const token of stripMarkers(text).split(/\s+/)) {
+    if (token === "") continue;
+    run = ARABIC_LETTER.test(token) ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  return best;
+}
+
+/** Ada huruf Arab sama sekali (dicatat sebagai peringatan, bukan penolakan). */
+export function hasArabicLetters(text: string): boolean {
+  return ARABIC_LETTER.test(stripMarkers(text));
+}
+
+/** Panjang teks tanpa placeholder, penanda, dan spasi berlebih (perkiraan token, pemecahan). */
+export function contentLength(text: string): number {
+  return stripMarkers(text).replace(/\s+/g, " ").trim().length;
+}
+
+/**
+ * Panjang tanpa placeholder, penanda, harakat, dan spasi berlebih: dasar rasio panjang terjemahan.
+ * Harakat tidak dihitung supaya judul berharakat penuh tidak tampak "dua kali lebih panjang".
+ */
+export function letterLength(text: string): number {
+  return stripMarkers(text).replace(/\p{M}/gu, "").replace(/\s+/g, " ").trim().length;
+}
+
+/** Digit setiap penanda catatan kaki di teks, mis. "(١)" → "١". */
+export function footnoteMarkerDigits(text: string): string[] {
+  return [...text.matchAll(new RegExp(FOOTNOTE_MARKER_SOURCE, "g"))].map((m) => m[1] ?? "");
+}
+
+/** Jarak (karakter) dari placeholder ayat yang diperiksa untuk transliterasi berdiakritik. */
+export const REFILL_WINDOW = 80;
+const DIACRITIC_TRANSLIT = /[āīūḥṣṭẓḍĀĪŪḤṢṬẒḌ]/;
+
+/**
+ * Tanda model menulis ulang isi kutipan ayat yang sudah diganti placeholder: transliterasi
+ * berdiakritik (ā ī ū ḥ …) dekat placeholder (`wa huwa 'alā … qadīr ⟦QS …⟧`). Prompt memakai
+ * transliterasi tanpa diakritik, jadi diakritik di situ = lafaz Arab yang dialihaksarakan utuh.
+ * Tidak ditolak (uji batch S13, semuanya sah): "yakni/maksudnya …" sesudah placeholder (tafsiran
+ * al-Ghazali sendiri, أي … di sumber), kutipan sesudah placeholder (ucapan berikutnya atau doa
+ * sesudah ayat), dan transliterasi berdiakritik jauh dari placeholder (soal gaya).
+ */
+export function refillsAyah(text: string): boolean {
+  for (const m of text.matchAll(/⟦QS [^⟧]*⟧/g)) {
+    const at = m.index ?? 0;
+    const near = text.slice(Math.max(0, at - REFILL_WINDOW), at + m[0].length + REFILL_WINDOW);
+    if (DIACRITIC_TRANSLIT.test(near)) return true;
+  }
+  return false;
+}
+
+/** Markdown yang dilarang prompt (tebal, judul). */
+export function hasMarkdown(text: string): boolean {
+  return /\*\*|__|^\s{0,3}#{1,6}\s/m.test(text);
+}
+
+// Komentar/koreksi-diri model dalam bahasa Indonesia (batch S13: ±1,4% keluaran memuatnya walau
+// dilarang prompt, mis. "Maaf, bagian di atas keliru. Berikut terjemahannya:", "Catatan: …", dua
+// versi terjemahan, tag <teks>). Pola dibuat spesifik supaya kata biasa ("memberi maaf",
+// "ditunggu-tunggu") tidak ikut.
+const META_ID: readonly RegExp[] = [
+  /catatan(?:\s+penerjemah)?\s*:/i,
+  /\bberikut(?: ini)?(?: adalah)? (?:terjemah|versi|yang (?:benar|tepat)|perbaikan)/i,
+  /<\/?(?:teks|sebelumnya|bagian)\b/i,
+  /\b(?:glosarium|placeholders?)\b/i,
+  /\bterjemahan ai\b/i,
+  /\bversi (?:yang )?(?:benar|tepat|lain|akhir|perbaikan)\b/i,
+  /(?:^|[.!?\n]\s*)(?:maaf|tunggu|sebentar|oke)\s*[,.:—–-]/i,
+  /\b(?:perlu koreksi|koreksi\s*:|ralat\s*:)/i,
+  /\bsaya (?:terjemahkan|ulangi|perbaiki|koreksi|tulis ulang|menerjemahkan)\b/i,
+  /\bmari (?:saya |kita )?(?:terjemah|ulang|perbaiki|coba|lanjut)/i,
+  /\blanjutkan (?:di bawah|terjemah)/i,
+  /\[tidak[,\]]/i,
+  /\bteks yang diberikan\b/i,
+  /\((?:diterjemahkan|terjemahan) di bawah\)/i,
+  /\b(?:teks|kalimat|paragraf) (?:ini|tersebut) (?:terpotong|tidak lengkap|tidak memuat)\b/i,
+  /\bsesuai (?:instruksi|petunjuk)\b/i,
+  /\b(?:sebenarnya|seharusnya) (?:bait|kalimat|teks) ini\b/i,
+  /\b(?:maaf, saya|saya ulangi|terjemahan saya)\b/i,
+  /\bcatatan (?:ini|singkat|penerjemah)\b/i,
+  /\bterjemahan (?:yang )?(?:benar|tepat|lebih tepat)\b/i,
+  /\bteks ini (?:berisi|memuat|hanya|tidak)\b/i,
+  /\.\.\.\s*\(tidak(?: ada)?\)/i,
+];
+
+/**
+ * Komentar model tentang pekerjaannya sendiri di dalam keluaran: tanda keluaran rusak, ditolak.
+ * Pola Indonesia berlaku untuk kedua bahasa. Untuk keluaran bahasa Indonesia, frasa Inggris
+ * semacam "let me", "I will", "wait —" di mana pun juga mencurigakan; untuk bahasa Inggris hanya
+ * di awal kalimat ("here is" juga muncul wajar: "the text available here is only the heading").
+ */
+export function hasMetaCommentary(text: string, lang: "id" | "en" = "id"): boolean {
+  if (META_ID.some((re) => re.test(text))) return true;
+  if (lang === "id") {
+    return /\b(?:let me|i will|i'll|i need to|i must|here is|here's|sorry|hmm|wait|the instruction|translat(?:e|ion)|prompt)\b/i.test(
+      text,
+    );
+  }
+  return /(?:^|[.!?]\s+)(?:let me|sorry|wait\s*[—–-]|here is (?:the|a|my) (?:summary|translation))/i.test(
+    text,
+  );
+}
+
+/** Kalimat pembuka/penutup basa-basi yang dilarang prompt. */
+export function hasPreamble(text: string): boolean {
+  return /^\s*(?:berikut(?: ini)?(?: adalah)? (?:terjemah|ringkas)|terjemahan\s*:|ringkasan\s*:|here is)/i.test(
+    text,
+  );
+}
+
+const ARABIC_INDIC = "٠١٢٣٤٥٦٧٨٩";
+const SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+const EXTENDED_INDIC = "۰۱۲۳۴۵۶۷۸۹";
+
+function toAsciiDigits(d: string): string {
+  // Digit Arab satu unit UTF-16 per karakter, jadi penggantian per karakter aman.
+  return d.replace(/[\u0660-\u0669\u06F0-\u06F9]/g, (c) =>
+    String(Math.max(ARABIC_INDIC.indexOf(c), EXTENDED_INDIC.indexOf(c))),
+  );
+}
+
+/**
+ * Model kadang menulis penanda catatan kaki "(٢)" sebagai "(2)". Untuk setiap penanda yang
+ * diharapkan tetapi tidak ada dalam angka Arab, kemunculan pertama versi angka Latinnya dikembalikan
+ * ke bentuk asli. Hanya penanda yang diharapkan yang disentuh; angka lain (tahun, nomor) dibiarkan.
+ */
+export function restoreFootnoteMarkers(text: string, expected: readonly string[]): string {
+  const have = footnoteMarkerDigits(text);
+  let out = text;
+  for (const d of expected) {
+    const i = have.indexOf(d);
+    if (i !== -1) {
+      have.splice(i, 1);
+      continue;
+    }
+    const ascii = toAsciiDigits(d);
+    if (ascii === d) continue;
+    const sup = ascii.replace(/[0-9]/g, (c) => SUPERSCRIPT[Number(c)] ?? c);
+    const latin = new RegExp(String.raw`\(\s*(?:${ascii}|${sup})\s*\)`);
+    if (latin.test(out)) out = out.replace(latin, `(${d})`);
+  }
+  return out;
+}

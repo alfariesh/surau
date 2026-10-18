@@ -1,0 +1,20 @@
+// Binding D1 untuk runner eval (S15). Worker ini tidak pernah di-deploy: `name` hanya syarat
+// wrangler. CORPUS = surau-corpus-staging, SAMA dengan packages/db/wrangler.jsonc, jadi mode lokal
+// membaca D1 lokal yang sama (miniflare menyimpan D1 lokal per `preview_database_id ?? database_id`).
+// `remote: true` hanya berlaku bila runner dipanggil `--remote` (getPlatformProxy remoteBindings);
+// D1 remote memakai `preview_database_id`, yang sengaja = staging supaya eval tidak pernah
+// menyentuh korpus produksi. Runner hanya membaca (SELECT).
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-eval",
+  "compatibility_date": "2026-10-14",
+  "d1_databases": [
+    {
+      "binding": "CORPUS",
+      "database_name": "surau-corpus-staging",
+      "database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+      "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+      "remote": true,
+    },
+  ],
+}

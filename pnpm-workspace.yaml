@@ -25,6 +25,16 @@ catalog:
   # Tipe D1Database untuk packages/* (yang tidak punya wrangler types sendiri).
   "@cloudflare/workers-types": 5.20261014.1
 
+  # LLM (S13, ADR-013): klien resmi Anthropic untuk Message Batches + count_tokens. 0.135.0 dirilis
+  # 2026-10-15 (>24 jam). Membawa @opentelemetry/api (Apache-2.0) sebagai dependensi.
+  "@anthropic-ai/sdk": 0.135.0
+
+  # MCP publik (S16, ADR-011, ADR-049): SDK v2 server (Workers, stateless dual-era) + client untuk tes.
+  # Minimal 2.3.0: server GHSA-jm63, GHSA-46jr, GHSA-rvq5 (GHSA-f897 < 2.1.0); client GHSA-6prh
+  # (GHSA-6qxp < 2.2.0). Inspector CLI dipanggil lewat `pnpm dlx` di CI.
+  "@modelcontextprotocol/server": 2.3.1
+  "@modelcontextprotocol/client": 2.3.1
+
   # Web: Next + React (ADR-003; naik ke 16.4 di X01). 16.4.2 belum 24 jam saat X01 (16 Okt).
   next: 16.4.1
   react: 19.3.1

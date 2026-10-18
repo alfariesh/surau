@@ -4,6 +4,7 @@ import { AppLayout, Navbar, Sidebar } from "@heroui-pro/react";
 
 import { id } from "../../i18n/id";
 
+import { SearchPalette } from "./search-palette";
 import { ThemeSwitch } from "./theme-switch";
 
 export function SurauNavbar({ title }: { title?: string }) {
@@ -16,6 +17,7 @@ export function SurauNavbar({ title }: { title?: string }) {
           <span className="text-foreground truncate text-sm font-medium sm:text-base">{title}</span>
         ) : null}
         <Navbar.Spacer />
+        <SearchPalette />
         <ThemeSwitch />
       </Navbar.Header>
     </Navbar>

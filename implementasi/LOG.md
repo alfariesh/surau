@@ -15,6 +15,163 @@ Format entri:
 
 ---
 
+## 2026-10-17 · Rilis Fase 3 · MCP publik — dirilis (`rilis-f3`)
+
+- Dikerjakan: pemeriksaan kesiapan S16–S17 (semua butir selesai, PR #42/#43 merge), branch `codex/rilis-f3`, dan catatan rilis di CHANGELOG; FASE/STATUS diperbarui untuk rilis melalui PR #44. `main` awal `4f88541` bersih dan sinkron dengan `origin/main`.
+- Verifikasi:
+  - `pnpm install --frozen-lockfile` → lolos; percobaan sandbox dihentikan karena DNS registry dibatasi, dijalankan ulang dengan akses yang sesuai dan memakai store lokal.
+  - `pnpm verify` → lolos: **466 Node + 210 Workers**, smoke teks, build web dan MCP (1.356,01 KiB / gzip 246,11 KiB). Satu peringatan lint lama `search-client.tsx` dan peringatan CSS `::highlight` tetap.
+  - Peninjau keamanan `git diff rilis-f2..main` (75 berkas, sampai `4f88541`) → **lolos, tanpa blocker/perbaiki/saran**; kutipan, lisensi, privasi, rate limit, SQL, workflow dan promote korpus ditinjau. `git diff --check` bersih, cek file data/rahasia terlacak kosong.
+  - Mitigasi ADR-003 pada build: `cacheComponents: false`, `images.unoptimized: true`, manifest Server Actions `node`/`edge` kosong. Gerbang versi `docs-terbaru` → lolos: Next 16.4.1 didukung resmi OpenNext 1.20.12; dua high transitif (`glob`/`figlet`) masih ada di audit tetapi pemicunya tidak dipakai, mitigasi dan bukti di ADR-003. Patch Next 16.4.2/Wrangler 4.151.1 opsional.
+  - Preview PR #44 commit `28f4c03`: [CI verify 39045772656](https://github.com/alfariesh/surau/actions/runs/39045772656) dan [Preview 39045772682](https://github.com/alfariesh/surau/actions/runs/39045772682) hijau. `pnpm test:e2e` **99 lolos/1 dilewati** (desktop/ponsel, dua tema, RTL/font Arab, pembaca, panduan, 404). Inspector lengkap MCP lolos kedua era, ketujuh tool, pencarian Arab/Indonesia, kasus error dan Origin asing 403. Panduan juga diperiksa di browser.
+  - Analytics Preview: **505 request/0 invocation error**, 29 clientDisconnected; slug `__unknown__` bisa tercampur Preview lain dan bukan hitungan HTTP 5xx/console.error (ADR-031).
+  - Deploy lewat `deploy.yml` (web lalu MCP); smoke produksi diulang sebelum tag. Bukti akhir run deploy, versi Worker, dan hasil smoke produksi disimpan pada anotasi tag `rilis-f3`.
+- Biaya API: – (tanpa panggilan LLM berbayar).
+- Keputusan: **ADR-051**; pemilik menjawab **"ya"** atas pertanyaan "Rilis Fase 3 ke produksi sekarang?" (2026-10-17), termasuk merge/deploy, smoke produksi, serta pembuatan dan push tag. Tidak ada perubahan korpus atau migrasi baru.
+- Catatan untuk sesi berikutnya: **S18 · Eval Jawab & halaman tinjau ustadz** (T-13, T-14, P-7). Pemantauan MCP 17–24 Oktober tetap berjalan; belum dinyatakan stabil satu minggu.
+- **Draf pengumuman (untuk pemilik, belum diposting):**
+  > Kini Surau bisa dihubungkan ke asisten AI Anda untuk mencari dan membaca Ihya karya al-Ghazali, dengan teks Arab asli serta tautan ke halaman cetaknya. Koneksi MCP tersedia tanpa login melalui panduan https://surau.org/mcp. AI tetap bisa keliru; periksa kutipan dan sumbernya, serta pertahankan atribusi dan lisensi saat memakai ulang hasil.
+
+## 2026-10-17 · S17 · Dokumentasi dan uji klien MCP — selesai
+- Dikerjakan:
+  - Panduan `/mcp` berbahasa Indonesia (Claude.ai/Desktop/Code, ChatGPT, klien lain), tiga contoh, alur cari → baca → verifikasi → sitasi, keterbatasan AI pengguna, takhrij/lisensi, bantuan; navigasi/sitemap/README dan smoke deploy diperbarui. Preview: https://pr-43.surau.org/mcp (PR #43); setelah merge/deploy, tautan tinjauan berpindah ke https://surau.org/mcp.
+  - Uji nyata: Claude Code 2.1.299 + Haiku memanggil `search_text` lalu `read_page` edisi 1 j.1 h.48, hasil diperiksa langsung (sitasi, permalink, lisensi/atribusi); Claude.ai T-18 dikonfirmasi pemilik; Cloudflare AI Playground demo GLM-4.7-Flash juga kedua tool Completed. Desktop/ChatGPT hanya docs terbaru, tidak diklaim uji akun. Keterbatasan keluaran klien dicatat di [laporan](../docs/mcp-operasional.md).
+  - Event `mcp_tool` per callback (nama/outcome/durasi, tanpa input/output/IP), error limiter tertangkap aman. Snapshot D1 bersama web/MCP 365.605 baris baca dan 1.134 kueri baca/24 jam; tarif Paid dikoreksi 25 miliar termasuk. Batas S16 tetap.
+  - Pemantauan satu minggu 17–24 Oktober dimulai, automation harian 09.00 WIB tujuh kali (`pantau-mcp-surau-selama-satu-minggu`), tetap diam bila tidak ada perubahan bermakna; belum bukti stabil seminggu. Registry/directory/skill opsional ditunda.
+- Verifikasi:
+  - `pnpm verify` → lolos **466 Node + 210 Workers**, build `/mcp` statis dan MCP 1.356 KiB / 246 KiB gzip. Satu lint warning lama `search-client.tsx` tetap. Tes integrasi kedua era menjaga lisensi/atribusi semua tool dan sitasi hasil berteks.
+  - `bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp` → lengkap kedua era lolos, termasuk ketujuh tool, pencarian Arab/Indonesia, error dan Origin 403.
+  - CI commit `5d0c6e6`: verify + preview + preview mcp hijau, **e2e Workers Preview 99 lolos/1 dilewati** (desktop/ponsel, dua tema, panduan dan navigasi pembaca), log **501 request/0 error** (23 clientDisconnected); run `39043047128`/`39043047143`; slug log `__unknown__` dapat mencampur trafik Preview lain (ADR-031).
+  - Lokal sempat timeout dan ENOSPC; ±2 GB cache Next/hasil tes dibersihkan, tanpa korpus/data batch. Verify serial lolos; e2e Next dev lokal 97 lolos/1 skip/2 gagal navigasi reader ke 1/201 (RSC 200, React script tag, sebab belum ditetapkan); kasus yang sama lolos di Workers Preview. Tidak menyembunyikan kegagalan lokal.
+  - Peninjau kode + dokumen: tanpa temuan; cek berkas rahasia/data ter-track kosong. Panduan dibuka di browser Preview; uji font/RTL/a11y ponsel ada di e2e Preview.
+- Biaya API: **US$0,00344562**, diizinkan pemilik ≤ US$0,10; tidak ada panggilan model di server MCP.
+- Keputusan: ADR-050.
+- Catatan untuk sesi berikutnya: pemilik mengonfirmasi **“Panduan jelas; contoh lanjutan juga berhasil”** di chat S17 (2026-10-17), sehingga butir panduan diuji pemilik dan semua gerbang R3 terpenuhi. Sesudah S17 lengkap dan merge, pemilik `/rilis 3`, lalu S18 (T-13 ustadz, T-14 Access, P-7). Tag fase belum dibuat.
+
+## 2026-10-17 · S16 · Worker MCP publik — selesai
+- Dikerjakan:
+  - Worker `surau-mcp` (`apps/mcp`) di `https://mcp.surau.org/mcp`: MCP SDK v2 2.3.1, stateless dual-era (2025-11-25 + 2026-07-28), tanpa login dan LLM; 7 tool (`list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text` dipadatkan, `verify_quote`, `get_hadith_takhrij`), instruksi server, permalink absolut + blok lisensi (edisi + Tanzil/Kemenag).
+  - Core: `verifyQuote`, `getHadithTakhrij`, `ipKey`/`ipNetwork` pindah dari web; kalibrasi `readSection` dengan `count_tokens` (1,4 karakter/token, potongan 3.500–5.000 token `passages`).
+  - Pengaman: Origin allowlist, body 64 KiB, batas `HMAC(IP):tool` + batas global baca/cari, gagal tertutup tanpa secret; secret `IP_HMAC_KEY` dipasang (produksi + base config Preview, nilai acak tidak dicetak). T-19 (WAF) dipandu di TUGAS-PEMILIK.
+  - CI/deploy: project Vitest `mcp`, `uji-mcp.sh` (Inspector 2.11.0 dua era), job `preview mcp` + `deploy mcp`; `corpus:promote` mengganti `CORPUS_DB` web + MCP; `pnpm llm mcp-tokens`; alamat web → `https://surau.org`.
+- Verifikasi:
+  - `pnpm verify` → lolos (466 + 208 tes, termasuk 20 tes `mcp` di kedua era; build web + `wrangler deploy --dry-run` MCP).
+  - `uji-mcp.sh` → lolos di lokal (D1 Ihya), Preview PR #42 (job `preview mcp`, korpus staging), dan produksi `https://mcp.surau.org/mcp` (versi `0290a179`): tools/list + tools/call ketujuh tool + error + Origin asing 403, era modern dan legacy. `workers.dev` MCP → 404. Binding versi produksi `CORPUS_DB` = `537103c6…` (`ihya-v6`, dicek `wrangler versions view`).
+  - Token (`pnpm llm mcp-tokens`, count_tokens gratis): `read_section` 7.690 → **5.037** median (maks. 9.192 → 6.193); `read_page` median 11.095; `search_text` limit 5 median 7.317, maks. 10.907.
+  - Peninjau: 0 blocker, 7 perbaiki (semua ditangani), saran sebagian diambil (rinci di Catatan hasil S16).
+- Biaya API: – (count_tokens gratis)
+- Keputusan: ADR-049
+- Pemilik: "Deploy dari branch" (2026-10-17) untuk deploy pertama Worker MCP sebelum merge (Preview MCP butuh Worker yang sudah pernah di-deploy).
+- T-19 (2026-10-17): aturan WAF `MCP per IP` (path `/mcp`, 200/10 dtk per IP → Block 10 dtk, Active) dibuat agent lewat Chrome atas permintaan pemilik; `uji-mcp.sh https://mcp.surau.org/mcp daftar` lolos sesudahnya, situs 200.
+- Catatan untuk sesi berikutnya: S17 = dokumentasi publik + T-18 (uji dari claude.ai: ukur batas per IP Anthropic dan ukuran `read_page` di konteks klien).
+
+## 2026-10-17 · Rilis Fase 2 · Cari — dirilis (`rilis-f2`)
+
+- Dikerjakan:
+  - Kesiapan: S11–S15 + X02 selesai; butir S12 T-16 dan S12 verify dicentang dengan bukti; butir S13 QA (T-17 tahap 2, 70% < 80%) tetap tidak dicentang, penyimpangan diterima pemilik di chat (ADR-048). PR #30 (pohon daftar isi, UI) masih terbuka dan bukan bagian Fase 2.
+  - Perbaikan dari tinjauan keamanan: `SEARCH_GLOBAL_LIMITER` 300 → 1.200/menit (produksi 1004, Preview 2004), per klien tetap 60 (PR #39).
+  - Catatan rilis di `CHANGELOG.md`; FASE, STATUS, TUGAS-PEMILIK diperbarui.
+- Verifikasi:
+  - `pnpm install --frozen-lockfile` + `pnpm verify` → lolos (464 + 177 tes, build) · `pnpm test:e2e` → 93 lolos, 1 dilewati · cek rahasia `git ls-files … | grep` → kosong · larangan ADR-003 (grep `use server`/`use cache` kosong, `cacheComponents: false`, `images.unoptimized: true`, `server-reference-manifest` kosong) → terpenuhi.
+  - Gerbang eval: `pnpm run eval:retrieval --gate --label rilis` atas D1 lokal `ihya-v6` (= `CORPUS_DB` produksi `surau-corpus-ihya-v6`), 31 soal resmi (22 publik + 9 privat dari R2 `retrieval/2026-10-17-resmi-2.jsonl`) → hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795 → LOLOS ([laporan](../evals/reports/retrieval-2026-10-17-ihya-v6-rilis.md)).
+  - Tinjauan keamanan `rilis-f1..main` (peninjau): 0 blocker, 2 "perbaiki" (batas global pencarian → diperbaiki; tautan artifact T-12 → berbagi ditutup pemilik), beberapa saran (catatan di ADR-048/STATUS).
+  - Gerbang versi (docs-terbaru): Next 16.4.1 dalam peer OpenNext 1.20.12 (`>=16.4.1`); tidak ada advisory terbuka untuk Next 16.4.1, React 19.3.1, OpenNext 1.20.12, wrangler 4.151.0. Patch opsional: next 16.4.2, wrangler 4.151.1 (non-keamanan).
+  - Preview PR #39 (https://pr-39.surau.org): CI verify + preview + eval lolos (446 request, 0 error); uji manual ponsel 375 px: `/cari?q=adab murid kepada guru` (5 halaman, sorotan, label Terjemahan AI), j1 h210 (RTL, Naskh, terjemahan AI), j4 h335 (QS 54:55 + terjemahan Kemenag), 404; konsol 0 error.
+  - Produksi setelah merge (squash `2645ebd`, versi Worker `4c62363e`): `deploy.yml` run 39031636567 → success; binding `SEARCH_GLOBAL_LIMITER` 1200/60s, `SEARCH_LIMITER` 60/60s, `CORPUS_DB 537103c6-…` (`ihya-v6`). Smoke curl: `/`, `/cari`, `/cari?q=sabar`, `/api/search` Arab + `niat`, `/kitab`, j1 h200, j1 h210, j4 h335, `/tentang`, `/lisensi` = 200; `/kitab/ihya/5/1`, `/tidak-ada` = 404. Tag `rilis-f2` di-push.
+  - Produksi sebelum merge (curl): `/`, `/cari`, `/api/search` Arab + Indonesia, j1 h210, j4 h335, `/tentang`, `/lisensi` = 200; `/kitab/ihya/5/1`, `/tidak-ada` = 404.
+- Biaya API: –
+- Keputusan: ADR-048
+- Catatan untuk sesi berikutnya: S16 (Worker MCP) menunggu T-07 domain. Pantau 429 dan baca D1 `/api/search`. T-17 tahap 3 opsional. Soal holdout baru di S18.
+- **Draf pengumuman (untuk pemilik, tidak diposting agent):**
+  > Alhamdulillah, kini Anda bisa mencari di mana al-Ghazali membahas sesuatu di *Ihya' 'Ulum ad-Din*, cukup dengan kata Indonesia seperti "sabar" atau "adab murid kepada guru", atau dengan kata Arab. Setiap hasil menunjuk ke halaman cetak dan paragrafnya, dengan teks Arab asli, terjemahan dan ringkasan berlabel AI sebagai alat bantu, serta ayat Al-Qur'an yang memakai terjemahan Kemenag apa adanya. Terjemahan AI masih bisa keliru, jadi rujuk teks Arabnya dan laporkan bila menemukan kesalahan. Gratis, tanpa iklan, dan terbuka: https://surau-web.alfarieshsalman.workers.dev/cari
+
+## 2026-10-17 · X02 · Perbaikan mutu terjemahan AI dan ayat sebelum rilis Fase 2 — selesai
+- Dikerjakan:
+  - **Hasil T-16 dan T-17 tahap 2** (penilaian agent lain yang diteruskan pemilik sebagai lapisan koreksi, "bukan kebenaran mutlak"; diperiksa ulang di korpus): T-16 20/20 cocok; T-17 tahap 2 14 Benar / 4 Kurang / 2 Salah (70%, target 80%). Laporan `data/reports/ihya-9472-review-prarilis-f2-2026-10-17.md`.
+  - **Lapisan koreksi tinjauan** (`data/reviews/ihya-9472-terjemahan.json`) berisi 27 paragraf: 6 dari sampel, ditambah 21 dari pencarian pola di seluruh terjemahan (ungkapan tebusan sebagai sumpah di 17 paragraf, satuan *mann*, judul bab nikah). Hasil prompt v2 untuk paragraf itu ditolak, lalu diterjemahkan ulang Sonnet 5.5 dengan **prompt `translate-passage@3`** (aturan satuan, ungkapan, pakaian, raghiba fi/'an, kitab amal kanan/kiri, kalimat lanjutan).
+  - **Pencocok ayat lintas paragraf:** QS 54:55 di p18256–p18257 kini tertaut, terjemahannya memakai placeholder Kemenag. Ringkasan bab 100273 dan dua induknya dibuat ulang. Kaki halaman pembaca membatasi klaim ke "kutipan ayat yang dikenali".
+  - **Korpus `ihya-v6`** dibangun, dimuat ke lokal dan staging, lalu dibuat sebagai DB produksi `surau-corpus-ihya-v6` atas izin pemilik. Binding produksi berpindah lewat PR #37 (deploy `0a78a24`, dicek dengan `curl`: j1 h210 "mann", j2 h243 "lengan bajumu", j4 h335 QS 54:55). `ihya-v5` menjadi rollback.
+  - **Halaman tinjauan T-12:** teks 9 soal privat dihapus dari halaman (sempat bisa dibuka lewat tautan); insidennya dicatat di ADR-047.
+- Verifikasi:
+  - **Batch:** `pnpm llm rejudge` menolak 26 hasil koreksi (p18257 sudah usang karena ayat berubah). `retry` + `submit` r1/r2 menghasilkan 34 request, semuanya lolos pada percobaan pertama.
+  - **Ingest:** `pnpm ingest ihya` → validasi ✓, rujukan ayat 2.482 → 2.484, 1.311 terjemahan berayat tanpa masalah, terjemahan 16.086, ringkasan 626.
+  - **Korpus produksi:** `corpus:promote ihya-v6 --confirm` → smoke = build. `corpus:qa ihya-v6` → 30/30 byte demi byte.
+  - **Eval:** `eval:retrieval --gate` atas ihya-v6 → hit@10 100% (kode keluar 0).
+  - **Penilaian ulang 20 sampel T-17 yang sama** (agent X02): 20/20 Benar. Angka ini bias, karena perbaikannya menyasar sampel itu; skor sebelumnya (70%) tetap berlaku sebagai ukuran mutu korpus v2.
+  - `pnpm verify` → lolos (464 + 177 tes).
+  - **Peninjau:** 0 blocker, 7 perbaiki (ulangan tanpa batas bila versi prompt saat ini ditolak, ingest belum memeriksa koreksi, aturan *raghiba* v3 → prompt v4, label laporan per versi prompt, prinsip ayat di situs masih mutlak, klaim "di produksi" sebelum merge, T-16/T-17 tercatat "diterima pemilik"), semuanya ditangani; saran diambil sebagian (partial ikut letak, `pages` wajib, pasangan satu bagian daftar isi, daftar semua pasangan lintas paragraf di laporan ayat, alasan koreksi tanpa huruf Arab, peringatan ID koreksi tak dikenal). Build ulang dengan `SOURCE_DATE_EPOCH` yang sama → sha256 identik dengan DB produksi.
+- Biaya API: **$0,25** (26 ulangan Sonnet $0,23, ringkasan $0,01, 2 terjemahan Haiku < $0,01). Izin pemilik ≤ $1. Total batch Ihya kini $4,68 (dari `usage`).
+- Keputusan: ADR-047.
+- Pemilik: "Ok go ahead" (2026-10-17) untuk biaya ≤ $1 dan promote korpus baru.
+- Berikutnya: pemilik `/rilis 2`. Opsional T-17 tahap 3 (20 sampel acak baru, penilaian tanpa bias). Lalu S16 (butuh T-07 domain).
+
+## 2026-10-17 · S15 · Eval retrieval — selesai
+- Dikerjakan:
+  - `tools/eval` + `pnpm run eval:retrieval`: soal JSONL, `searchText` atas D1 lokal (salinan state) atau staging (`--remote`), hit@1/5/10 + MRR, laporan `evals/reports/` tanpa teks soal privat, `--gate` untuk `/rilis`.
+  - 31 soal (22 publik + 9 privat di R2 `surau-evals`), ditulis sebelum pencarian dijalankan dan lokasinya dicek dengan membaca bab; ke-31 disetujui pemilik (T-12) lewat halaman tinjauan + chat.
+  - Perbaikan murah: kata pembingkai pertanyaan (cara, bagaimana, di mana, menurut, "al-Ghazali", …) dibuang dari kueri Indonesia (hanya sisi kueri; indeks tetap).
+  - CI `eval.yml` non-blocking (staging remote + soal privat dari R2); gerbang di `/rilis`; syarat R2 dirinci di FASE.md (Fase 2 **siap rilis**).
+- Verifikasi:
+  - **Angka eval** (D1 lokal `ihya-v5` = staging = produksi):
+    - baseline 30 soal: hit@1 56,7% · hit@5 90,0% · hit@10 96,7% · MRR 0,732;
+    - **resmi 31 soal disetujui:** hit@1 64,5% · hit@5 96,8% · **hit@10 100%** · MRR 0,795 (publik 22 dan privat 9 sama-sama 100%; kueri Arab 6/6 di peringkat 1);
+    - `pnpm run eval:retrieval --gate` → kode keluar 0 (lolos).
+  - **Staging:** `--remote` lokal 12 dtk, angka sama; CI PR #36 39 dtk.
+  - **Tes dan peninjau:** `pnpm verify` → lolos (456 + 177 tes).
+    - Peninjau putaran 1: 1 blocker (soal privat p03 terpakai merancang perbaikan → dipindah ke publik r03, diganti p31) + 5 perbaiki + saran, semua ditangani.
+    - Putaran 2: 1 blocker (catatan sesi menyebut topik soal privat p12 → dipindah ke publik r12) + 2 perbaiki (teks gerbang di `/rilis`, urutan syarat R2) + saran (CI memanggil runner langsung, gerbang wajib ≥ 1 soal privat, `-dirty` ikut berkas baru, ejaan Ghozali/Ghazzali, lokasi salinan soal privat dicatat), semua ditangani.
+- Biaya API: – (tanpa LLM)
+- Keputusan: ADR-045 (eval retrieval, holdout, kata pembingkai), ADR-046 (embedding tetap ditunda; S15b tidak dijadwalkan)
+- Pemilik: T-12 "Ya setujui semua" (2026-10-17).
+- Berikutnya: pemilik T-16 + T-17 tahap 2 → `/rilis 2` → S16 (butuh T-07 domain).
+
+## 2026-10-17 · S14 · Cari bahasa Indonesia + UI Cari — selesai
+- Dikerjakan:
+  - Indeks Indonesia `translation_fts` + `summary_fts` (migrasi 0006, skema 6, korpus `ihya-v5`): stem ringan Tala + stopword kecil + ejaan baku, diuji dulu pada kosakata terjemahan Ihya (sabar 173 → 404 paragraf, taubat 11 → 248).
+  - `searchText`: deteksi aksara kueri; kueri Indonesia/campuran digabung RRF (Arab + terjemahan + ringkasan) dalam satu bolak-balik D1; `matched_by`, terjemahan/ringkasan berlabel AI, filter bagian.
+  - Halaman `/cari` (filter rub'/kitab, kartu dengan teks Arab asli tersorot), palet ⌘K, menu Cari aktif; pembaca menampilkan terjemahan AI per paragraf (ayat = Kemenag berlabel), ringkasan AI di awal bab, dan sorotan kata dari hasil Cari.
+  - Cache hasil `/api/search` (Cache API, kunci = versi korpus + rencana kueri, produksi saja); `corpus:promote --switch-only` boleh ke skema lebih lama (rollback `ihya-v1`).
+  - `ihya-v5` dimuat ke D1 lokal dan `surau-corpus-staging`, lalu atas izin pemilik dipromosikan ke produksi (`surau-corpus-ihya-v5`, QA 30/30, PR #34); `ihya-v1` jadi target rollback.
+- Verifikasi: `pnpm verify` → lolos (432 + 177 tes) · e2e lokal 87 lolos + `search.spec.ts` 6/6, Preview PR #33 hijau · latensi staging (Preview, 240 kueri, cache mati) handler p95 154 ms, SQL D1 p95 19,9 ms · Lighthouse 13.5.0 Preview `/cari?q=sabar` a11y 100 (ponsel + desktop), performa 87/100; pembaca j4 h61 a11y 100 · 5 teratas sabar/niat/adab murid kepada guru relevan (dicatat di file sesi) · peninjau: 0 blocker, 7 perbaikan diterapkan (pemetaan ringkasan tanpa urutan ID, versi kunci cache, `/cari` di korpus lama, a11y status, dll.) · e2e lokal sesudahnya 93 lolos.
+- Biaya API: –
+- Keputusan: ADR-044
+- Pemilik: izin promote `ihya-v5` (dipasang, PR #34) dan T-23 "Cari ok sudah ok" (2026-10-17).
+- Berikutnya: S15 (eval retrieval; T-12 disetujui di tengah sesi).
+
+## 2026-10-17 · S13 · Batch terjemahan & ringkasan (Haiku 5.5) — selesai* (QA T-17 tahap 2 menunggu pemilik)
+
+- Dikerjakan:
+  - Paket `@surau/llm` (`@anthropic-ai/sdk` 0.135.0): prompt berversi `translate-passage@2` + `summarize-section@2` (glosarium ±110 istilah di prefix yang di-cache, ±4.300 token), `custom_id`, validasi keluaran, harga. CLI lokal `pnpm llm` (tokens, sample, plan + count_tokens semua request, submit bertahap dengan `--budget`, wait, collect, rejudge, retry, report) di `tools/ingest/src/llm`.
+  - **Token Arab Claude terukur:** 0,716 token/karakter = **1,84× o200k** → kalkulator (`FAKTOR_TOKEN_ARAB`, model prompt sistem per request) dan `docs/08` diperbarui; per jawaban Haiku + Citations $0,0019 → $0,0027.
+  - **Batch:** uji kecil v1/v2 (20 paragraf + 5 bagian) → prompt v2; tahap 1 (668 ringkasan + 4.000 paragraf) → sisa 12.437 → ulangan Haiku 383 → percobaan terakhir Sonnet 5.5 181 → ringkasan putaran 2 (178). Hasil: **16.086/16.111 terjemahan (99,84%)**, **626/626 ringkasan** ID+EN. Cache prompt sistem ±100%, 0 refusal.
+  - **Pencocok ayat (ADR-042):** temuan uji kecil — ayat tanpa kurung/pengantar akan diterjemahkan LLM. Mode baru `cue_short` + `unmarked` (lafaz satu-satunya di mushaf, tanpa konteks hadits/zikir/basmalah, paragraf badan): rujukan 1.650 → 2.482 (sampel T-16 tetap).
+  - Korpus **`ihya-v4`** (skema 5): `translation` + `summary` dimuat dari hasil yang lolos, dicek ulang hash sumber + validasi; invarian "ayat diisi Kemenag". Dimuat ke D1 lokal (belum staging/produksi).
+  - Peninjau 1: 1 blocker (rujukan ayat salah tunjuk untuk lafaz berulang, zikir, basmalah, hadits) + 7 perbaikan (kirim ulang berbasis hash, retry ganda, paragraf terblokir, huruf Arab apa pun, penanda karangan, model mengisi ulang ayat, laporan basi) + saran; semua diperbaiki sebelum batch tahap 2 (hasil berbayar dinilai ulang gratis lewat `rejudge`). Peninjau 2: 2 blocker (komentar/koreksi-diri model berbahasa Indonesia ±1,4% lolos; kutipan pendek terpotong sehingga sisa ayat diterjemahkan model) → validasi v3, kutipan pendek diperpanjang melewati beda ejaan, ringkasan putaran 2 bergantung teks anak, `retry --budget`; dinilai ulang, yang terdampak dikirim ulang. Peninjau 3: sisa ±17 komentar model ("Terjemahan:", "mari terjemahkan") + perpanjangan kutipan pendek mentok 4 kata → validasi v4, perpanjangan sampai kurung berikutnya, sampel QA dibekukan; dinilai ulang, dikirim ulang.
+- Verifikasi:
+  - `pnpm llm tokens` → faktor 1,84 (200 paragraf, seed 9472); `pnpm llm plan` → semua 17.866 request dihitung `count_tokens`, terbesar 83.231 token (< 100k).
+  - `pnpm ingest ihya` → semua invarian ✓, termasuk **1.309 terjemahan berisi ayat, 0 bermasalah** (setiap rujukan = segmen Kemenag utuh), cakupan terjemahan 99,84% dan ringkasan 100%; `pnpm corpus:load:local` → `translation` 16.086, `summary` 626.
+  - `pnpm verify` → lolos (348 tes Node, 155 tes D1/core, build web).
+  - Browser lokal (`ihya-v4`): j3 h199 rujukan baru QS 3:120 sesudah `{وقال}` (popup "terjemahan ayat lengkap (Kemenag)"), 0 galat konsol/server.
+- Biaya API: **$4,48** (35 batch, $4,43 dari `usage`: terjemahan $3,35 termasuk batch ulangan Sonnet/campuran ±$1,40, ringkasan $1,08; uji kecil API biasa $0,05). Disetujui pemilik ±$6, batas berhenti $7,20. Estimasi rencana putaran 1 (cache 95%/50%) $1,94/$4,24 untuk sisa sesudah tahap 1.
+- Keputusan: ADR-042 (pencocok ayat S13), ADR-043 (desain batch). ADR-041 disisakan untuk PR #30.
+- Catatan untuk sesi berikutnya: S14 menampilkan terjemahan (`translationSegments`, label "terjemahan AI" vs Kemenag) dan ringkasan, memuat `ihya-v4` ke staging lalu promote. `data/build/llm/` hanya di Mac pemilik: jangan dihapus, cadangkan. 25 paragraf tanpa terjemahan (6 kemungkinan ayat belum ditandai); ayat yang luput dari pencocok bisa diterjemahkan model (sisa risiko ADR-042) → bahan perbaikan pencocok.
+
+## 2026-10-17 · S12 · Ayat Al-Qur'an (Tanzil) & terjemahan Kemenag — selesai* (T-16 menunggu pemilik)
+
+- Dikerjakan:
+  - Sumber: Tanzil 1.1 XML (uthmani + simple-clean; basmalah dari atribut `bismillah`) + **data Kemenag milik pemilik** (`surau-quran-kemenag`: terjemahan + 678 catatan kaki, transliterasi, metadata surah, juz) menggantikan QuranEnc atas arahan pemilik; semua sha256 dipin. Migrasi korpus 0005 (skema 5), korpus **`ihya-v3`** dimuat ke D1 lokal dan `surau-corpus-staging`; produksi tetap `ihya-v1`.
+  - Pencocok deterministik (`tools/ingest/src/quran`): `{…}` (aturan 1/2/3+ kata, mirip ≥ 0,93) + kutipan tanpa kurung sesudah "قال تعالى" (jangkar 3 kata, ≥ 4 kata). Ihya: **1.650 rujukan** di 1.037 paragraf; laporan `data/reports/ihya-9472-ayat.md` dengan 20 sampel T-16.
+  - `@surau/core`: `Passage.ayah_refs`, `PageView.quran`, `getAyahRefs`, penanda ayat S13 (`maskAyat`, `checkPlaceholders`, `translationSegments`: label Kemenag terpisah dari "terjemahan AI"). Web: kutipan berwarna halus + label "QS s:a" (HoverCard/Popover) berisi teks Tanzil, transliterasi, terjemahan Kemenag + catatan kaki, atribusi, tautan tanzil.net; footer + `/lisensi` + `data/ATTRIBUTION.md` (blok hak cipta Tanzil).
+  - Peninjau: 0 blocker, 4 "perbaiki" diperbaiki (label/`alt_count` kutipan tanpa kurung mengikuti letak terpilih, halaman > 300 ayat tidak gagal, nama aksesibel + `lang` label, laporan tidak menyebut 2 ayat tak tertaut sebagai "bukan ayat") + 11 saran diambil (rincian di file sesi).
+- Verifikasi:
+  - `pnpm ingest ihya` → semua invarian ✓, termasuk `{…}` tervalidasi 977/1.004 persis (**97,3%**, mirip 25, tidak cocok 2) dan kutipan exact ada di ayat rujukannya 1.587/1.587; penomoran QUL vs Tanzil 6/6.236 beda ejaan, nomor sama.
+  - Tes lokal Ihya: setiap kutipan exact = isi ayat rujukannya (ayat utuh sama persis).
+  - `pnpm verify` → lolos (tes Node + Workers, build); `pnpm test:e2e` lokal → 76/76 (termasuk e2e label ayat + axe j1 h119 terang/gelap, desktop/ponsel).
+  - Browser lokal + Preview PR #31 (staging `ihya-v3`): j1 h103 (QS 41:11 utuh), j1 h119 (QS 27:90 sebagian → "Terjemahan ayat lengkap (Kemenag)"), j1 h175 (ayat di catatan kaki); label tidak ikut teks tersalin; 0 galat konsol.
+- Biaya API: –
+- Keputusan: ADR-040 (data Kemenag pemilik menggantikan QuranEnc, Tanzil XML, skema 5, aturan pencocok, penanda S13, UI)
+- Catatan untuk sesi berikutnya: S13 memakai `maskAyat(text_raw, ayah_refs, footnote_refs)` + `checkPlaceholders` sebelum menyimpan `translation.text`, dan `translationSegments` saat tampil. Promote korpus ke produksi di S14 harus ≥ `ihya-v3`. T-16 menunggu pemilik; hasilnya dicatat di file sesi S12.
+
 ## 2026-10-17 · S11 · Indeks FTS Arab & `searchText` — selesai
 
 - Dikerjakan:

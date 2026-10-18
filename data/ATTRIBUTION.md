@@ -23,7 +23,41 @@ Perubahan yang dilakukan Surau atas teks tersebut (wajib disebut oleh CC BY-NC-S
 - Takhrij yang tercampur ke matan (ditandai `//` di sumber) dipindah ke catatan kaki dan ditandai perlu ditinjau.
 - Daftar isi diperbaiki lewat patch yang di-commit ([patches/ihya-9472.yaml](patches/ihya-9472.yaml)): dua kitab Rub' al-Munjiyat yang hilang ditambahkan dan satu bayan dikembalikan ke levelnya.
 
-## Menyusul (Fase 2, belum ada di korpus)
+## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 
-- **Tanzil** 1.1 (CC BY 3.0, hanya verbatim): teks ayat Al-Qur'an. Wajib menyebut Tanzil Project dan menautkan https://tanzil.net.
-- **Kementerian Agama RI** lewat **QuranEnc.com**, `indonesian_affairs` v1.0.1: terjemahan ayat, ditampilkan verbatim dengan nomor versinya.
+Kutipan ayat di dalam kitab dikenali otomatis dan ditautkan ke surah:ayat. Teks ayat, terjemahan, dan transliterasi yang tampil di Surau disalin **verbatim** dari sumber berikut. Model AI tidak pernah menulis, mengubah, atau menerjemahkan ayat (ADR-020, ADR-040).
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **Tanzil Project** | Teks ayat: *Tanzil Quran Text* versi 1.1, varian Uthmani (tampilan) dan Simple Clean (pencocokan kutipan), CC BY 3.0. Hanya boleh disalin verbatim; teks tidak diubah | https://tanzil.net · lisensi: https://tanzil.net/docs/text_license |
+| **Kementerian Agama Republik Indonesia**, Lajnah Pentashihan Mushaf Al-Qur'an (LPMQ) | Terjemahan Al-Qur'an berbahasa Indonesia (beserta catatan kakinya) dan transliterasi Latin, ditampilkan verbatim. Salinan data milik pemilik Surau dari Qur'an Kemenag (2026-06-03) | https://quran.kemenag.go.id |
+
+Pemberitahuan hak cipta Tanzil (wajib disertakan di salinan verbatim dan berkas turunan yang memuat sebagian besar teksnya, termasuk dump korpus Surau; teks lengkapnya juga tersimpan di kolom `quran_source.attribution` korpus):
+
+```
+Tanzil Quran Text (Uthmani, Version 1.1)
+Copyright (C) 2007-2026 Tanzil Project
+License: Creative Commons Attribution 3.0
+
+This copy of the Quran text is carefully produced, highly
+verified and continuously monitored by a group of specialists
+at Tanzil Project.
+
+TERMS OF USE:
+
+- Permission is granted to copy and distribute verbatim copies
+of this text, but CHANGING IT IS NOT ALLOWED.
+
+- This Quran text can be used in any website or application,
+provided that its source (Tanzil Project) is clearly indicated,
+and a link is made to tanzil.net to enable users to keep
+track of changes.
+
+- This copyright notice shall be included in all verbatim copies
+of the text, and shall be reproduced appropriately in all files
+derived from or containing substantial portion of this text.
+
+Please check updates at: http://tanzil.net/updates/
+```
+
+Yang dilakukan Surau: basmalah pembuka surah dipisah dari ayat 1 mengikuti atribut `bismillah` di XML Tanzil (teks ayat tidak diubah); teks Simple Clean dinormalisasi hanya di memori untuk mencocokkan kutipan, tidak untuk ditampilkan.

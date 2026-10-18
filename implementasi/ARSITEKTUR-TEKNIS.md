@@ -14,7 +14,7 @@ Dokumen ini adalah **target** arsitektur. Bagian-bagiannya dibangun bertahap ses
                     │ surau-api  (Hono, Fase 4)                                        │
                     │   Jawab (SSE), kuota, ledger biaya, cron ── AI Gateway ──▶ Anthropic
                     │                                                                  │
- Claude/ChatGPT ───▶│ surau-mcp  (MCP SDK v2, Fase 3)        mcp.<domain>/mcp         │
+ Claude/ChatGPT ───▶│ surau-mcp  (MCP SDK v2, Fase 3)        mcp.surau.org/mcp        │
    (AI pengguna)    │   read-only, tanpa LLM, rate limit HMAC(IP):tool                │
                     │                                                                  │
                     │ D1  surau-corpus-<versi>  (hanya-baca, FTS5)   ◀── semua Worker  │
@@ -36,7 +36,7 @@ Semua Worker mengimpor logika domain yang sama dari `packages/core`. Aturan keam
 surau/
 ├─ apps/
 │  ├─ web/            @surau/web   Next.js 16 + HeroUI (dipindah dari web/ di S01)
-│  ├─ mcp/            @surau/mcp   Worker MCP (Fase 3)
+│  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 7 tool di atas packages/core
 │  └─ api/            @surau/api   Worker Hono: Jawab, kuota, cron (Fase 4)
 ├─ packages/
 │  ├─ text/           @surau/text  normalisasi Arab, offset map, stem, pembersih HTML Shamela, findQuote
@@ -60,7 +60,7 @@ Folder dibuat saat sesi yang membutuhkannya. Jangan membuat paket kosong lebih a
 
 ### 3.1 Korpus (`surau-corpus-<versi>`, hanya-baca)
 
-Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), ditambah `0002_passage_needs_review.sql` dan `0003_needs_review_reasons.sql` (S07, ADR-032) dan `0004_term_stat.sql` (S11, ADR-039). Nama DB: `surau-corpus-staging` (sekarang) dan `surau-corpus-<versi>` blue-green (S10). Prinsipnya: **teks mentah tidak pernah diubah**, ID stabil setelah rilis, dan FTS adalah indeks turunan yang bisa dibangun ulang. Semua tabel biasa `STRICT`, dan enum serta formula ID dijaga `CHECK`. Urutan tampil tidak pernah diambil dari ID.
+Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), ditambah `0002_passage_needs_review.sql` dan `0003_needs_review_reasons.sql` (S07, ADR-032), `0004_term_stat.sql` (S11, ADR-039), `0005_quran.sql` (S12, ADR-040), dan `0006_translation_fts.sql` (S14, ADR-044). Nama DB: `surau-corpus-staging` (sekarang) dan `surau-corpus-<versi>` blue-green (S10). Prinsipnya: **teks mentah tidak pernah diubah**, ID stabil setelah rilis, dan FTS adalah indeks turunan yang bisa dibangun ulang. Semua tabel biasa `STRICT`, dan enum serta formula ID dijaga `CHECK`. Urutan tampil tidak pernah diambil dari ID.
 
 | Tabel | Kolom utama | Catatan |
 |---|---|---|
@@ -76,8 +76,9 @@ Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), di
 | `term_stat` | `term`, `df` | Migrasi 0004 (S11, ADR-039). Stem di >10% paragraf (dari `fts5vocab`): pengaman kata umum `searchText`. Turunan indeks, diisi ulang setiap pemuatan |
 | `translation` | `passage_id`, `lang`, `text`, `model`, `prompt_version`, `created_at`, `review_status` (`ai_generated`/`reviewed`/`ustadz_verified`/`rejected`) | Fase 2, berlabel "terjemahan AI" |
 | `summary` | `toc_node_id`, `lang`, `text`, `model`, `prompt_version`, … | Fase 2, berlabel "ringkasan AI" |
-| `quran_ayah`, `quran_translation`, `passage_ayah_ref` | surah, ayah, teks Tanzil (indeks + tampilan), terjemahan Kemenag/QuranEnc + versi; rujukan ayat di paragraf (`exact`/`similar`, `partial`) | Fase 2 (S12). Teks dan terjemahan verbatim (ADR-020) |
-| `meta` | `key`, `value` | `schema_version` (diisi migrasi, sekarang **4**), lalu `norm_version`, `corpus_version`, `built_at` (`SOURCE_DATE_EPOCH`/tanggal commit HEAD), `source_hash` (`sha256:<file sumber>`) (diisi ingest) |
+| `translation_fts`, `summary_fts` | FTS5 contentless: `terms` | Migrasi 0006 (S14, ADR-044, skema 6). rowid = `passage_id` / `toc_node_id`, hanya bahasa `id`. `terms` = `latinIndexText` (@surau/text: token Latin, tanpa kata fungsi, ejaan baku, stem ringan) dari teks AI tanpa placeholder ayat; `unicode61 remove_diacritics 2`. Juga indeks `toc_node_start` (ringkasan per halaman) |
+| `quran_source`, `quran_surah`, `quran_ayah`, `quran_translation`, `passage_ayah_ref` | sumber (versi, lisensi, atribusi, sha256); surah; ayah: teks Tanzil (indeks + tampilan), juz; terjemahan + transliterasi Kemenag (catatan kaki JSON); rujukan ayat di paragraf (`exact`/`similar`, `partial`, `bracketed`, `alt_count`) | Fase 2 (S12, migrasi 0005, skema 5). Teks dan terjemahan verbatim (ADR-020, ADR-040) |
+| `meta` | `key`, `value` | `schema_version` (diisi migrasi, sekarang **6**), lalu `norm_version`, `latin_norm_version` (S14), `corpus_version`, `built_at` (`SOURCE_DATE_EPOCH`/tanggal commit HEAD), `source_hash` (`sha256:<file sumber>`) (diisi ingest) |
 
 **Teks ternormalisasi tidak disimpan** di tabel. `normalizeArabic(text_raw)` beserta peta offsetnya dihitung ulang saat dibutuhkan (deterministik terhadap `NORM_VERSION`, ±7 juta karakter/detik). Bentuk normal dan stem hanya ada di indeks `passage_fts` (ADR-009).
 
@@ -107,16 +108,16 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 | `getToc(editionId, { nodeId?, depth? })` | `get_table_of_contents` | 1 | Pohon daftar isi beserta halaman awal; `depth` bawaan 2, `child_count` untuk anak yang tidak dikirim |
 | `readSection(nodeId, cursor?)` | `read_section` | 1 | Paragraf bagian **beserta sub-bagiannya** (dipaginasi ±4–6 ribu token per blok paragraf + catatan kakinya), sitasi |
 | `readPage(editionId, juz, pageNo)` | `read_page` | 1 | Satu halaman cetak beserta catatan kakinya dan halaman sebelum/sesudah |
-| `searchText(query, opts)` | `search_text` | 2 | Halaman berperingkat BM25 dengan paragraf cocok, span sorotan dan potongan di teks mentah, sitasi; pengaman kata umum (S11, ADR-039). Terjemahan menyusul (S14) |
-| `verifyQuote(passageId, quote)` | `verify_quote` | 2 | `findQuote` → substring mentah verbatim atau `null` |
-| `getHadithTakhrij(passageId)` | `get_hadith_takhrij` | 3 | Teks catatan kaki takhrij asli yang ditautkan, dengan status review |
+| `searchText(query, opts)` | `search_text` | 2 | Kueri Arab: halaman berperingkat BM25 (S11, ADR-039). Kueri Indonesia/campuran: gabungan RRF jalur Arab + terjemahan AI + ringkasan AI (S14, ADR-044). Paragraf cocok dengan span sorotan dan potongan di teks mentah, terjemahan/ringkasan berlabel, `matched_by`, sitasi; filter edisi/bagian; pengaman kata umum |
+| `verifyQuote(passageId, quote)` | `verify_quote` | 3 (S16) | `findQuote` → `verified` + `match` (substring mentah verbatim) atau `null`, dengan sitasi |
+| `getHadithTakhrij(passageId)` | `get_hadith_takhrij` | 3 (S16) | Teks catatan kaki takhrij asli yang ditautkan, `needs_review` + `review_status: "unreviewed"`; `status: none` = derajat tidak diketahui |
 | `buildCitation(passageId)` | (di setiap hasil) | 1 | Karya, edisi, juz, halaman, permalink, lisensi/atribusi |
 
 ## 5. Alur utama
 
 **Pembaca (Fase 1):** request `/kitab/ihya/1/200` → server component memanggil `readPage` → render `ArabicText` dari `text_raw`, dengan penanda (١) yang bisa diklik untuk membuka takhrij. Halaman di-cache ISR on-demand (`revalidate=false`), karena konten kitab tidak berubah per versi korpus.
 
-**Cari (Fase 2):** query (Arab atau Indonesia; skrip dideteksi) → `buildFtsMatch` (Arab) dan/atau FTS atas terjemahan Indonesia → gabung dengan RRF → tampilkan potongan mentah yang disorot + terjemahan AI + lokasi. Query yang hanya berisi kata sangat umum diberi peringatan atau wajib difilter. Jalur Arab sudah ada (S11): `GET /api/search?q=&edition=&limit=&offset=&expand=1` → `searchText` (satu bolak-balik D1: konteks + kueri berperingkat + kueri urutan kitab dalam satu batch, pengaman kata umum di ekspresi MATCH), header `Server-Timing`, batas `SEARCH_LIMITER` per klien; korpus tanpa indeks (skema < 4) → 503.
+**Cari (Fase 2):** halaman `/cari` (klien) → `GET /api/search?q=&edition=&section=&limit=&offset=&expand=1` → cache hasil (Cache API, kunci = versi korpus `SEARCH_CACHE_CORPUS` + rencana kueri ternormalisasi; produksi saja) → batas `SEARCH_LIMITER` per klien → `searchText`. Aksara kueri dideteksi: Arab saja → jalur S11 (bm25 `passage_fts`, pengaman kata umum, satu batch); Latin/campuran → `searchCorpusFused` (S14, ADR-044): jalur Arab + `translation_fts` + `summary_fts` (ringkasan dipetakan ke paragraf awal bagiannya) digabung RRF k=60 dalam satu batch. Hasil: potongan mentah yang disorot + terjemahan/ringkasan AI berlabel + lokasi; tautan ke pembaca membawa `?q=` (sorotan klien lewat CSS Highlight API). Korpus tanpa indeks yang dibutuhkan → 503 (Arab: skema < 4; Indonesia: skema < 6). Palet ⌘K di shell membuka `/cari`.
 
 **Jawab (Fase 4):**
 1. Guard: sakelar, cookie Turnstile, burst, kuota, dan reservasi anggaran.
@@ -135,7 +136,7 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 3 struktur pohon judul (title.parent; title.page = page.id), terapkan patch (data/patches/<id>.yaml, di-commit)
 4 validasi jumlah kitab per rub', urutan halaman, judul yatim, penanda (١) tanpa catatan kaki → laporan
 5 turunan  normalizeArabic + stem (packages/text), footnote_ref, NORM_VERSION; QA verify-openiti (matan ≥0,95/halaman)
-5b ayat    (Fase 2) cocokkan bentang ayat ke Tanzil; terjemahan Kemenag/QuranEnc; FTS; terjemahan & ringkasan batch
+5b ayat    (Fase 2) cocokkan bentang ayat ke Tanzil; terjemahan + transliterasi Kemenag (ADR-040); FTS; terjemahan & ringkasan batch
 6 keluaran data/build/<corpus-versi>.sqlite (dump) + data/build/sql/*.sql (≤90 KB/statement); deterministik:
            meta.built_at diambil dari SOURCE_DATE_EPOCH / tanggal commit, bukan jam sekarang
 7 muat     wrangler d1 execute <db> --local|--remote --file …  (atomik per file), lalu isi FTS per edisi
@@ -144,7 +145,7 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 
 Implementasinya `tools/ingest` (S07, ADR-032; cara pakai di `tools/ingest/README.md`): `pnpm ingest ihya` menjalankan langkah 1–4, langkah 5 termasuk indeks pencarian (S11, ADR-039: stem → `passage_fts`, `term_stat` dari `fts5vocab`; tanpa normalisasi tersimpan), lalu langkah 6 (±4 detik); ingest gagal bila invarian dilanggar. `pnpm ingest:verify` hanya gerbang OpenITI. `pnpm corpus:load:local` / `corpus:load:staging --confirm` menjalankan langkah 7 (FTS ikut, file terpisah sebelum `meta`), dan langkah 8 sebagai smoke (hitungan setiap tabel + indeks FTS + `meta` = build, j1 h200, satu kueri الصبر). Korpus produksi: `pnpm run corpus:promote <versi>` (blue-green, S10, ADR-036); sampel acak: `pnpm run corpus:qa <versi>` (30 halaman, byte demi byte terhadap sumber). File `0000-reset.sql` mengosongkan **seluruh** DB korpus dulu, jadi pemuatan bisa diulang (kitab kedua butuh reset per edisi). Paragraf yang meragukan ditandai di `passage_needs_review`.
 
-File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha256 sumber), `ATTRIBUTION.md`, dan `LICENSE` data **di-commit**, karena tidak memuat teks kitab. Teks kitab, unduhan OpenITI/Tanzil/QuranEnc, dan hasil build tetap di luar git (`data/raw/`, `data/build/`). Matan wajib lolos gerbang `verify-openiti` (ADR-018).
+File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha256 sumber), `ATTRIBUTION.md`, dan `LICENSE` data **di-commit**, karena tidak memuat teks kitab. Teks kitab, unduhan OpenITI/Tanzil, data Kemenag pemilik, dan hasil build tetap di luar git (`data/raw/`, `data/build/`). Matan wajib lolos gerbang `verify-openiti` (ADR-018).
 
 ## 7. Lingkungan dan binding
 
@@ -153,6 +154,7 @@ File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha25
 | Lokal | `pnpm dev` (port 3004) dan/atau `opennextjs-cloudflare preview` | D1 lokal | D1 lokal | lokal | **Satu lokasi data lokal untuk semua:** `<root>/.wrangler/state` (lihat aturan di bawah) |
 | Preview (per PR) | `wrangler preview` | `surau-corpus-staging` | `surau-app-staging` | `surau-next-cache-preview` | Resource akun **tidak** terisolasi per preview, jadi semua binding storage dideklarasikan ulang di blok `previews`. Service binding dari preview memanggil deployment **produksi** Worker tujuan. |
 | Produksi | custom domain | `surau-corpus-<versi>` (blue-green) | `surau-app` | `surau-next-cache` | `workers_dev=false`, `preview_urls=false` di produksi (Fase 4) |
+| MCP (`surau-mcp`, S16) | `mcp.surau.org` (custom domain di `routes`); Preview `pr-<n>-surau-mcp…workers.dev`; lokal `pnpm --filter @surau/mcp dev` (port 3006) | produksi: `CORPUS_DB` yang sama dengan web; Preview: `surau-corpus-staging`; lokal: D1 lokal bersama | – | – | `workers_dev=false`, `preview_urls=true`; rate limit `namespace_id` 3001–3004 / 4001–4004; secret `IP_HMAC_KEY` (ADR-049) |
 
 **Aturan lingkungan (wajib):**
 1. **Satu lokasi D1 lokal.** Semua perintah lokal memakai `--persist-to <root>/.wrangler/state`, yaitu `wrangler d1 migrations apply --local`, `wrangler d1 execute --local`, skrip `db:migrate:local`, `corpus:load:local`, dan `preview` di `apps/web` (sejak ADR-038). Jangan jalankan `next dev` dan `preview` bersamaan pada lokasi yang sama (SQLITE_BUSY). CLI menambahkan `v3` sendiri, jadi datanya ada di `<root>/.wrangler/state/v3`. `initOpenNextCloudflareForDev()` dan `getPlatformProxy()` memakai `persist.path` **apa adanya**, sehingga keduanya wajib diberi `<root>/.wrangler/state/v3` (path absolut; dicek di S08). Tanpa ini, setiap `wrangler.jsonc` atau proxy melihat DB lokal yang berbeda (kosong).
@@ -167,7 +169,7 @@ File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha25
 - **D1:** 10 GB per DB, statement ≤100 KB, ≤100 parameter, query ≤30 detik, pola LIKE ≤50 byte, single-threaded per DB.
 - **Ihya:** 11 MB data dan ±7 MB indeks FTS. 92 kitab diperkirakan ±1–1,6 GB total.
 - **Haiku 5.5:** harga naik 5× di atas 100k token prompt (termasuk cache). Jawab dibatasi ±40k.
-- **MCP:** output tool sebaiknya ≤10 ribu token (Claude Code memberi peringatan di atasnya).
+- **MCP:** output tool sebaiknya ≤10 ribu token (Claude Code memberi peringatan di atasnya, batas 25 ribu). Diukur S16 (`count_tokens`, `data/reports/mcp-token.md`): `read_section` median ±5 ribu (maks. ±6,2 ribu), `read_page` median ±11,1 ribu (maks. ±14,8 ribu), `search_text` (≤5 halaman) median ±7,3 ribu (maks. ±10,9 ribu), daftar isi dari akar ±7,8 ribu. Teks Arab Ihya ±0,7 token/karakter; JSON keluaran ±1,6 karakter/token (`CHARS_PER_TOKEN` 1,4, ADR-049).
 
 ## 9. Glosarium
 

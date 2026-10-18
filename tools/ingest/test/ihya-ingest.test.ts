@@ -6,19 +6,22 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
-import { findQuote } from "@surau/text";
+import { findQuote, normalizeArabic } from "@surau/text";
 import { beforeAll, describe, expect, test } from "vite-plus/test";
 
 import { runIngest } from "../src/pipeline.ts";
 import type { IngestResult, PipelinePaths } from "../src/pipeline.ts";
+import { QURAN_EXPECT, QURAN_FILES } from "../src/quran/source.ts";
 import { IHYA } from "../src/works/ihya.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
 const shamela = process.env.SURAU_SHAMELA_ROOT ?? "/Volumes/Elfariesh/database";
 const openiti = join(repo, "data/raw/openiti");
+const quranRoot = join(repo, "data/raw");
 const available =
   existsSync(join(shamela, "book/472/9472.db")) &&
-  existsSync(join(openiti, IHYA.openiti.matan.file));
+  existsSync(join(openiti, IHYA.openiti.matan.file)) &&
+  Object.values(QURAN_FILES).every((f) => existsSync(join(quranRoot, f.path)));
 
 describe.skipIf(!available)("ingest Ihya 9472 (sumber lokal)", () => {
   let result: IngestResult;
@@ -36,9 +39,13 @@ describe.skipIf(!available)("ingest Ihya 9472 (sumber lokal)", () => {
       openiti,
       build: join(work, "build"),
       migrations: join(repo, "packages/db/migrations/corpus"),
+      quran: { root: quranRoot, files: QURAN_FILES, expect: QURAN_EXPECT },
     };
-    result = runIngest(IHYA, paths, { env: { SOURCE_DATE_EPOCH: "1760000000" } });
-  });
+    // Tes struktur korpus: tanpa hasil LLM (dimuat dan diuji terpisah, test/llm-attach.test.ts).
+    const config = { ...IHYA, expect: { ...IHYA.expect, llmCoverage: 0 } };
+    result = runIngest(config, paths, { env: { SOURCE_DATE_EPOCH: "1760000000" } });
+    // Ingest penuh ±9 detik (S13: + pencocok ayat mode baru), lebih lambat di bawah coverage v8.
+  }, 120_000);
 
   test("semua invarian lolos: 1.706 halaman, 4 rub' × 10 kitab, gerbang OpenITI", () => {
     expect(result.validation.invariants.filter((i) => !i.ok)).toEqual([]);
@@ -65,5 +72,35 @@ describe.skipIf(!available)("ingest Ihya 9472 (sumber lokal)", () => {
     const foot = rows.filter((r) => r.kind === "foot");
     expect(foot.some((r) => findQuote(r.text_raw, "باطل لا أصل له") !== null)).toBe(true);
     expect(refs.n).toBeGreaterThan(0);
+  });
+
+  test("ayat (S12): gerbang exact ≥95%, dan setiap kutipan exact benar-benar ada di ayat rujukannya", () => {
+    expect(result.ayat.exactRatio).toBeGreaterThanOrEqual(0.95);
+    const db = new DatabaseSync(result.output?.sqlite ?? "", { readOnly: true });
+    const refs = db
+      .prepare(
+        `SELECT r.surah, r.ayah_from, r.ayah_to, r.match, r.partial, p.text_raw, r.char_start, r.char_end,
+           (SELECT group_concat(a.text_index, ' ') FROM (SELECT text_index FROM quran_ayah
+              WHERE surah = r.surah AND ayah BETWEEN r.ayah_from AND r.ayah_to ORDER BY ayah) a) AS ayat
+         FROM passage_ayah_ref r JOIN passage p ON p.id = r.passage_id`,
+      )
+      .all() as {
+      match: string;
+      partial: number;
+      text_raw: string;
+      char_start: number;
+      char_end: number;
+      ayat: string;
+    }[];
+    db.close();
+    expect(refs.length).toBeGreaterThan(1500);
+    const norm = (t: string) => ` ${normalizeArabic(t).text} `;
+    const bad = refs.filter((r) => {
+      if (r.match !== "exact") return false;
+      const quote = norm(r.text_raw.slice(r.char_start, r.char_end));
+      const ayat = norm(r.ayat);
+      return r.partial === 1 ? !ayat.includes(quote) : ayat !== quote;
+    });
+    expect(bad).toEqual([]);
   });
 });
