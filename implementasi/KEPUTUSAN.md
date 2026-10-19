@@ -1290,21 +1290,56 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Tinjau ulang bila:** pembaca meminta pengaturan per kitab (bukan per browser), font lain dibutuhkan untuk teks berharakat padat, atau `animation-timeline` didukung semua browser utama (efek bisa dijadikan sumber utama, bukan tambahan).
 
-## ADR-054 · Aset visual: skill `aset` dengan mesin Colorfigures (MIT) yang dikunci ke gaya Surau — diterima · 2026-10-19
+## ADR-054 · Aset visual: skill `aset` dengan mesin iso-glow (MIT) bertoken Surau; tiga ilustrasi prinsip di Beranda — diterima · 2026-10-19
 
-**Konteks:** Pemilik membutuhkan aset landing page, cover blog, konten, dan aset lain yang tidak sekadar gambar diam tetapi interaktif dan seragam gayanya. Pemilik mengusulkan skill Colorfigures (April Zhu, MIT; ilustrasi isometrik bertinta tangan, satu file HTML yang bisa ditekan). Agent memeriksa paketnya (teks dan kode biasa, MIT, tanpa permintaan jaringan) dan mengusulkan skill khusus di repo, bukan hanya pemasangan di `~/.claude/skills` laptop, karena sesi agent di cloud tidak bisa membaca folder skill laptop pemilik. Pemilik menyetujui ("Ya setuju").
+**Konteks:** Pemilik membutuhkan aset landing page, cover blog, konten, dan aset lain yang interaktif (bukan gambar diam) dan konsisten. Usulan pertama pemilik adalah skill Colorfigures (April Zhu, MIT): ilustrasi isometrik bertinta tangan dan berwarna penuh. Agent membangun skill Surau di atasnya beserta figur contoh "kitab di atas rehal". Pemilik menilai hasilnya "kurang pas" lalu mengusulkan iso-glow (karya yang sama, MIT): gambar garis tipis dengan satu aksen yang menyala. Agent membuat ulang figur yang sama dengan iso-glow beraksen Zaitun dan memberikan perbandingan berdampingan (terang/gelap). Pemilik memilih iso-glow, meminta perbaikan (WebP, tombol terlihat, demo otomatis, token warna tidak disalin manual), lalu meminta tiga aset untuk kartu "Tiga prinsip utama" di Beranda ("Ya kerjakan. Lalu buat 3 aset untuk pairing di home Tiga prinsip utama").
 
 **Keputusan:**
-1. **Skill `.claude/skills/aset/`**: `SKILL.md` (aturan Surau, alur, keluaran per kebutuhan, kriteria selesai), `REFERENSI.md` (panduan teknis asli Colorfigures dalam bahasa Inggris, disesuaikan), `mesin/core.js` + `mesin/LICENSE`, dua contoh asli di `contoh/`, serta skrip Node `skrip/bangun.mjs` (menyisipkan mesin → satu HTML mandiri) dan `skrip/potret.mjs` (Chromium Playwright dari `apps/web`; galat skrip/`NaN` → kode keluar 2). Python asli (`build.py`) diganti Node karena Python di repo hanya untuk kalkulator biaya.
-2. **Mesin dikunci ke Surau:** palet `zaitun` (aksen situs, dinaikkan terangnya untuk badan benda), `kayu`, `tanah`, `nila`, `emas`, dan `KERTAS`; token warna halaman = `globals.css` (terang, gelap, sepia lewat `?tema=` atau preferensi sistem); bayangan lewat kelas `.bayang` supaya ikut tema; font Plus Jakarta Sans (cadangan Inter/system-ui); teks UI bahasa Indonesia; penggeser wobble, pemilih palet, dan tautan kredit di gambar dihapus supaya semua aset seragam. Tambahan: mode `?sematan=1` (latar transparan untuk iframe), `?polos=1` (gambar saja, rasio mengikuti jendela), dan `?sampul=1&judul=&kecil=` (1200×630; teks lewat `textContent`, bukan HTML). "Kurangi gerakan"/`?gerak=0` melompatkan animasi ke akhir; status diumumkan lewat `role="status"`.
-3. **Aturan keras di skill:** tanpa huruf Arab (baris teks digambar sebagai garis), tanpa wajah atau sosok, tanpa permintaan ke luar dari file aset (hanya skrip potret yang memuat font situs dari Google Fonts), dan kredit MIT tetap tersisip di setiap keluaran.
-4. **Letak berkas:** sumber figur `aset/figur/`, hasil `aset/keluaran/` (HTML mandiri ±46 KiB + PNG). Contoh pertama `kitab-rehal`: kitab di atas rehal yang bisa dibuka, dibalik halamannya (kanan ke kiri, sesuai kitab Arab), dan ditutup, beserta cover blog dan gambar konten persegi.
-5. `vite.config.ts`: mesin, contoh asli, dan `aset/**` dikecualikan dari lint dan format (kode padat bergaya mesin; keluaran adalah hasil bangun).
+1. **Skill `.claude/skills/aset/`** berisi:
+   - `SKILL.md`: aturan Surau, alur, keluaran per kebutuhan, kriteria selesai.
+   - `REFERENSI.md`: kernel, kelas, kontrak, pelajaran.
+   - `mesin/iso.js` + `mesin/LICENSE`.
+   - Dua contoh asli iso-glow di `contoh/`.
+   - Skrip Node `skrip/bangun.mjs` (menyisipkan mesin dan token; `--situs` juga menyalin ke `apps/web/public/aset/`) dan `skrip/potret.mjs` (Chromium Playwright dari `apps/web`; sumber dibangun di memori; WebP lewat `sharp` milik Next, JPG/PNG; galat skrip, berkas gagal, figur kosong, atau `NaN` → kode keluar 2).
 
-**Belum dikerjakan (dicatat di skill):** sematan di situs. Berkas `apps/web/public/` disajikan Workers Static Assets tanpa melewati Worker, jadi `headers()` Next tidak berlaku di produksi; sematan pertama perlu aturan `/aset/*` di `apps/web/public/_headers` (`X-Frame-Options: SAMEORIGIN`, `frame-ancestors 'self'`, `nosniff`, diperiksa di Preview), iframe `sandbox="allow-scripts"`, CSP sendiri untuk `/aset/*` saat CSP penuh situs dipasang, penerusan tema next-themes lewat `?tema=`, font lokal di dalam iframe bila perbedaannya terlihat, kredit Colorfigures di `/lisensi`, e2e, dan axe. Aset baru dipasang di situs setelah pemilik menyetujui tampilannya.
+   Tanpa Python (Python di repo hanya untuk kalkulator biaya).
+2. **Gaya terkunci:** garis tipis, warna netral situs, satu aksen hanya pada yang hidup. Token warna dibaca `bangun.mjs` langsung dari blok `:root`, `:root.dark`, dan `:root.sepia` di `globals.css`; turunannya (`--body`, `--deck`, `--line`, `--accent-hi`, …) dihitung dengan `color-mix`. Bila warna situs berubah, bangun ulang aset dan warnanya ikut. Figur tidak boleh menulis hex/oklch sendiri.
+3. **Mesin disesuaikan untuk Surau (dibanding iso-glow):**
+   - Tanpa galeri, pemilih warna, font Google, dan kredit di gambar.
+   - Tombol berbahasa Indonesia yang terlihat (versi asli hanya keyboard/klik).
+   - Mode `?sematan=1` (latar transparan, tombol menempel di bawah), `?polos=1`, dan `?sampul=1&judul=&kecil=` (1200×630; teks lewat `textContent`).
+   - Demo otomatis saat diam dan terlihat, berhenti saat disentuh. "Kurangi gerakan" menampilkan keadaan akhir.
+   - Label `api.tag` berukuran piksel layar (±9 px) dan dijaga di dalam bingkai.
+   - Filter cahaya berskala viewBox dengan wilayah `userSpaceOnUse` (garis mendatar tidak hilang); tanpa pendar di tema terang/sepia.
+   - Tema bisa dikirim induk lewat `postMessage`.
+4. **Tiga figur prinsip di Beranda** (`aset/figur/prinsip-{verbatim,alamat,atribusi}.html` → `/aset/*.html`):
+   - **verbatim:** baris kitab disalin ke kartu dan dicocokkan. Cocok → menyala "SAMA PERSIS"; keliru → redup "TIDAK DITAMPILKAN".
+   - **alamat:** klaim ditelusuri ke jilid yang ditarik dari rak, dengan label "JILID 2 · HLM 214" (contoh ilustrasi tanpa nama kitab).
+   - **atribusi:** kabel dari pernyataan ke kitab, label "MENURUT PENULIS"; stempel "BUKAN PUTUSAN" tetap redup.
 
-**Ditolak:** memasang skill hanya di `~/.claude/skills` (tidak terlihat oleh sesi cloud dan gayanya tidak terkunci); memakai Colorfigures mentah (palet, font, dan kredit di gambar berbeda-beda per aset); menyalin mesin ke komponen React (aturan menggambar dan global mesin bertabrakan dengan aplikasi; iframe mengisolasinya); PNG statis saja (tidak memenuhi kebutuhan interaktif).
+   Tanpa huruf Arab, wajah, atau sosok.
+5. **Penyematan:**
+   - Komponen klien `AsetSemat` memasang `<iframe sandbox="allow-scripts" loading="lazy">` (tanpa `allow-same-origin`, jadi skrip aset tidak bisa menyentuh cookie atau DOM Surau). Rasio 4:3, `title` "Ilustrasi interaktif: …".
+   - Tema next-themes dikirim lewat `postMessage` saat tema berubah dan saat iframe dimuat. `color-scheme` elemen iframe disamakan dengan isinya, kalau tidak latarnya buram.
+   - Header `/aset/*` ditulis di `apps/web/public/_headers`, karena Static Assets tidak melewati Worker: `X-Frame-Options: SAMEORIGIN`, `frame-ancestors 'self'`, `nosniff`, dan `Access-Control-Allow-Origin: *` untuk font. Aturan yang sama ada di `next.config.ts` untuk `next dev`, sedangkan halaman lain tetap `DENY`.
+   - Font Plus Jakarta Sans (subset Latin, OFL) disajikan sendiri di `/aset/fonts/` beserta `OFL.txt`.
+   - Kredit iso-glow, iso-figure, dan Plus Jakarta Sans di `/lisensi#ilustrasi`.
+6. **Format gambar diam:** WebP untuk situs dan konten (cover ±27 KiB, sebelumnya PNG ±425 KiB), JPG untuk `og:image` (±41 KiB; dukungan WebP di semua aplikasi pratinjau tautan belum pasti). Tanpa PNG di situs, karena gambar tidak dioptimasi ulang di Workers (ADR-003).
+7. `vite.config.ts`: mesin, contoh asli, `aset/**`, dan `apps/web/public/aset/**` dikecualikan dari lint dan format (HTML padat hasil bangun).
 
-**Konsekuensi:** PNG berbutir kertas cukup besar (cover ±425 KiB, persegi ±800 KiB); bila perlu lebih kecil, potret ke `.jpg`. Mesin tidak mengikuti pembaruan Colorfigures secara otomatis; tarik perubahan secara manual bila dibutuhkan.
+**Ditolak:**
+- **Colorfigures** (dicoba lalu diganti): tinta tebal dan warna penuh terasa seperti merek lain di samping UI Surau yang tenang; garis tepi luar hilang di mode gelap.
+- **Gaya "Lumen" iso-glow:** gradien neon, partikel, hanya gelap; kesannya situs kripto.
+- **Mode 3D iso-glow:** three.js dari CDN, terlalu berat untuk Beranda.
+- **Memasang skill hanya di `~/.claude/skills`:** tidak terlihat oleh sesi cloud.
+- **Mesin sebagai komponen React:** global mesin bertabrakan dengan aplikasi; iframe mengisolasinya.
+- **Dua gaya sejajar:** bertentangan dengan alasan awal pemilik, yaitu konsistensi.
+- **iframe disembunyikan sampai tema terkirim:** bila iframe sudah selesai dimuat sebelum hidrasi, `onLoad` tidak terpanggil dan iframe tersembunyi selamanya.
 
-**Tinjau ulang bila:** aset pertama disematkan di situs (header, tema, font), pemilik ingin gaya lain, atau Colorfigures merilis perbaikan mesin yang dibutuhkan.
+**Konsekuensi:**
+- Tiga iframe lazy di Beranda, masing-masing ±32 KiB HTML; font ±27 KiB sekali (cache).
+- Static Assets mengalihkan `/aset/x.html` ke `/aset/x` (satu 307); jalur font relatif tetap benar.
+- Mesin tidak ikut pembaruan iso-glow secara otomatis.
+- Server dev tidak bisa dijalankan di sesi cloud (HeroUI Pro berlisensi tidak terpasang di sana). Sematan diuji lewat halaman tiruan, sedangkan Beranda asli lewat preview PR dan e2e CI.
+
+**Tinjau ulang bila:** CSP penuh situs dipasang (`/aset/*` butuh CSP sendiri untuk skrip/gaya inline), pemilik ingin gaya lain, figur dipakai di halaman berat (pertimbangkan gambar diam + tombol "coba"), atau iso-glow merilis perbaikan mesin yang dibutuhkan.

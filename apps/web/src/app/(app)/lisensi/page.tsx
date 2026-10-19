@@ -26,6 +26,7 @@ export default function LicensePage() {
     { id: "sumber", label: t.sourcesHeading },
     { id: "quran", label: t.quranHeading },
     { id: "koreksi", label: t.correctionHeading },
+    { id: "ilustrasi", label: t.artHeading },
     { id: "privasi", label: t.privacyHeading },
   ];
 
@@ -154,6 +155,20 @@ export default function LicensePage() {
           <p>
             <ExternalLink href={ISSUES_URL}>{t.issueLink}</ExternalLink>
           </p>
+        </div>
+      </PageSection>
+
+      <PageSection heading={t.artHeading} id="ilustrasi">
+        <div className="text-foreground flex flex-col gap-3 text-base leading-relaxed">
+          <p>{t.artLead}</p>
+          <ul className="flex list-disc flex-col gap-2 ps-5">
+            {t.artCredits.map((credit) => (
+              <li key={credit.name}>
+                <ExternalLink href={credit.url}>{credit.name}</ExternalLink> · {credit.by} ·{" "}
+                {credit.license}
+              </li>
+            ))}
+          </ul>
         </div>
       </PageSection>
 

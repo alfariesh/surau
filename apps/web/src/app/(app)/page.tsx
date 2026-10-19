@@ -7,6 +7,7 @@ import NextLink from "next/link";
 import { listWorks } from "@surau/core";
 
 import { ArabicText } from "../../components/arabic";
+import { AsetSemat } from "../../components/aset/aset-semat";
 import { WorkShelf } from "../../components/book/work-shelf";
 import { BASMALAH } from "../../content/basmalah";
 import { id, SOURCE_URL } from "../../i18n/id";
@@ -109,6 +110,8 @@ export default async function HomePage() {
             {t.principles.map((p) => (
               <li key={p.title} className="flex">
                 <Card className="w-full">
+                  {/* Ilustrasi interaktif per prinsip (ADR-054); dekoratif-pendukung, teks tetap di bawah. */}
+                  <AsetSemat className="-mt-1 rounded-xl" nama={p.aset} title={p.asetTitle} />
                   <Card.Header>
                     <Card.Title>{p.title}</Card.Title>
                     <Card.Description>{p.body}</Card.Description>

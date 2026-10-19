@@ -59,14 +59,21 @@ export const id = {
       {
         title: "Verbatim atau tidak sama sekali",
         body: "Teks Arab selalu disalin kode dari sumbernya, tidak pernah ditulis AI. Kutipan yang tidak cocok dengan sumber tidak ditampilkan.",
+        aset: "prinsip-verbatim",
+        asetTitle:
+          "Ilustrasi interaktif: baris kitab disalin ke kartu kutipan dan dicocokkan dengan sumbernya",
       },
       {
         title: "Setiap klaim ada alamatnya",
         body: "Kitab, edisi, jilid, halaman cetak, dan tautan tetap ke bagian teksnya, supaya Anda bisa memeriksa sendiri.",
+        aset: "prinsip-alamat",
+        asetTitle: "Ilustrasi interaktif: klaim ditelusuri ke jilid dan halaman kitabnya",
       },
       {
         title: "Atribusi, bukan fatwa",
         body: "Surau menyampaikan isi kitab beserta siapa yang mengatakannya. Keputusan hukum untuk kasus pribadi tetap di tangan ulama.",
+        aset: "prinsip-atribusi",
+        asetTitle: "Ilustrasi interaktif: pernyataan dihubungkan ke kitab dan penulisnya",
       },
     ],
     roadmapHeading: "Peta pembangunan",
@@ -306,6 +313,24 @@ export const id = {
     takedownText:
       "Pemegang hak atas sebuah teks atau edisi yang keberatan dengan tampilannya di Surau dapat menghubungi kami lewat GitHub. Bila keberatannya beralasan, teks yang bersangkutan kami turunkan sementara selama ditinjau.",
     issueLink: "Buka laporan di GitHub",
+    artHeading: "Ilustrasi dan huruf",
+    artLead:
+      "Ilustrasi interaktif di Surau dibuat dengan mesin turunan dari karya terbuka berikut. Teks lisensi MIT ikut di setiap berkas ilustrasi.",
+    artCredits: [
+      { name: "iso-glow", by: "April Zhu", license: "MIT", url: "https://iso-glow.vercel.app" },
+      {
+        name: "iso-figure",
+        by: "Tolga Cohce",
+        license: "MIT",
+        url: "https://github.com/MrBongoC/ai-iso-skill",
+      },
+      {
+        name: "Plus Jakarta Sans",
+        by: "Tokotype",
+        license: "SIL Open Font License 1.1",
+        url: "https://github.com/tokotype/PlusJakartaSans",
+      },
+    ],
     privacyHeading: "Laporan kesalahan dan privasi",
     privacyText:
       "Laporan kesalahan disimpan tanpa nama, email, atau alamat IP. Laporan disimpan sampai ditangani, lalu dihapus paling lambat 12 bulan kemudian.",

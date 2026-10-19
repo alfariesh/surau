@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Setiap klaim ada alamatnya</title>
+</head>
+<body>
+<script src="../../.claude/skills/aset/mesin/iso.js"></script>
+<script>
+/* Prinsip 2 · Setiap klaim ada alamatnya.
+   Proses: kartu klaim di alas → kabel menelusuri ke rak kitab → jilid yang dirujuk ditarik keluar →
+   label alamat (jilid dan halaman) menyala. Angka di label hanya contoh ilustrasi, tanpa nama kitab.
+   Jilid lain bisa diketuk untuk melihat alamatnya. */
+const { lerp, ease } = ISO;
+const st = { pilih: 1, tarik: 1, jalur: 1, busy: false };
+const BOOKS = [{ x: 24, h: 21 }, { x: 29.2, h: 23 }, { x: 34.4, h: 20 }, { x: 39.6, h: 22.5 }, { x: 44.8, h: 19.5 }];
+const BW = 4.6, BY = 4, BD = 14, PULL = 6;
+const HALAMAN = [38, 214, 117, 302, 66];
+
+mountFigure({
+  id: 'prinsip-alamat', title: 'Setiap klaim ada alamatnya',
+  hint: 'telusuri klaim ke jilid dan halamannya, atau ketuk jilid lain',
+  alt: 'Ilustrasi garis: kabel dari kartu klaim menelusuri ke rak kitab, satu jilid tertarik keluar dan labelnya menunjukkan jilid serta halaman.',
+  ulang: 7000,
+  tombol: [
+    { label: 'Telusuri', aksi: () => H.telusuri(st.pilih) },
+    { label: 'Kembalikan', aksi: () => H.kembalikan() },
+  ],
+  mount(stage, api) {
+    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[24,4,27],[50,4,27],[5,33,18]]);
+    const { box, FRONT } = K;
+    const CARD = [6, 32, 2, 15, 2, 14];
+    function buku(i) {
+      const b = BOOKS[i], dy = i === st.pilih ? PULL * ease(st.tarik) : 0, y = BY + dy, lit = i === st.pilih && st.tarik >= 1;
+      let s = box(b.x, y, 3, BW, BD, b.h, 0, lit ? 'hot' : '');
+      // punggung (muka depan): dua pita dan nomor jilid
+      s += `<g transform="${FRONT(b.x, y + BD, 3 + b.h)}"><line class="${lit ? 'nyala' : 'detail'}" x1=".8" y1="3" x2="${BW - .8}" y2="3"/>`
+        + `<line class="${lit ? 'nyala' : 'detail'}" x1=".8" y1="${b.h - 3}" x2="${BW - .8}" y2="${b.h - 3}"/>`
+        + `<text class="label" x="${BW / 2}" y="${b.h / 2 + 1}" text-anchor="middle" style="font-size:2.6px;font-weight:700">${i + 1}</text></g>`;
+      const c = [[b.x, y, 3], [b.x + BW, y, 3], [b.x, y + BD, 3], [b.x + BW, y + BD, 3]];
+      s += K.tepi([...c, ...c.map(p => [p[0], p[1], 3 + b.h])]);
+      return `<g class="press" data-i="${i}">${s}</g>`;
+    }
+    function draw() {
+      let s = box(0, 0, 0, 60, 46, 2, 5) + box(22, 2, 2, 30, 18, 1, 1);
+      // rak: jilid terpisah di sumbu x, jadi urut x sudah benar (x lebih besar = lebih dekat), ditarik atau tidak
+      BOOKS.forEach((_, i) => { s += buku(i); });
+      // kartu klaim berdiri di kanan depan
+      const [cx, cy, cz, cw, cd, ch] = CARD;
+      s += box(cx, cy, cz, cw, cd, ch, 0) + `<g transform="${FRONT(cx, cy + cd, cz + ch)}">`
+        + [0, 1, 2, 3].map(i => `<line class="detail" x1="2" y1="${4 + i * 2.8}" x2="${i === 3 ? 8 : 13}" y2="${4 + i * 2.8}"/>`).join('') + '</g>';
+      const c = [[cx, cy, cz], [cx + cw, cy, cz], [cx, cy + cd, cz], [cx + cw, cy + cd, cz]];
+      s += K.tepi([...c, ...c.map(p => [p[0], p[1], cz + ch])]);
+      // kabel penelusuran: dari kartu ke punggung jilid yang dipilih
+      const b = BOOKS[st.pilih], ujung = [b.x + BW / 2, BY + BD + PULL * ease(st.tarik), 3 + b.h * .8];
+      const pts = api.kurva([cx + cw - 2, cy + cd / 2, cz + ch], ujung, 9);
+      s += `<path class="wire${st.jalur > 0 ? ' hot' : ''}" d="${K.path(pts)}"/><path class="pulse" id="pa-pulse" pathLength="1000" d="${K.path(pts)}"/>`;
+      if (st.tarik >= 1) s += api.tag([b.x + BW / 2, BY + PULL, 3 + b.h], -4, -18, `JILID ${st.pilih + 1} · HLM ${HALAMAN[st.pilih]}`, true);
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.tarik >= 1 ? `Klaim menunjuk ke jilid ${st.pilih + 1}, halaman ${HALAMAN[st.pilih]}` : 'Menelusuri klaim ke kitabnya');
+    const H = window.H = {
+      telusuri(i) { if (st.busy) return; st.busy = true;
+        const lanjut = () => { st.pilih = i; st.jalur = 1; st.tarik = 0; draw(); api.replay(stage.querySelector('#pa-pulse'));
+          api.anim(900, t => { st.tarik = t; draw(); }, () => { st.busy = false; draw(); read(); }); };
+        if (st.tarik > 0) api.anim(400, t => { st.tarik = 1 - t; draw(); }, lanjut); else lanjut(); },
+      kembalikan() { if (st.busy || st.tarik <= 0) return; st.busy = true;
+        api.anim(500, t => { st.tarik = 1 - t; draw(); }, () => { st.tarik = 0; st.jalur = 0; st.busy = false; draw(); api.readout('Jilid dikembalikan ke rak'); }); },
+    };
+    stage.addEventListener('click', e => { const g = e.target.closest('[data-i]'); if (g) H.telusuri(+g.dataset.i); });
+    draw(); read();
+    return {
+      render: draw,
+      demo() { H.telusuri(1); },
+      akhir() { st.pilih = 1; st.tarik = 1; st.jalur = 1; draw(); read(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

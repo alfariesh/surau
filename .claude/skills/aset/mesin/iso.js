@@ -1,0 +1,334 @@
+/* ============================================================
+   Mesin aset Surau: gambar garis tipis isometrik dengan satu aksen yang menyala (turunan iso-glow).
+   Halaman figur memuat file ini, lalu memanggil mountFigure({...}). skrip/bangun.mjs menyisipkan
+   mesin ini dan token warna dari apps/web/src/app/globals.css menjadi satu HTML mandiri.
+   Kontrak menggambar: .claude/skills/aset/REFERENSI.md. Aturan Surau: SKILL.md.
+
+   Perubahan Surau dari iso-glow: token warna situs (terang/gelap/sepia), tanpa galeri, pemilih
+   warna, font web, atau kredit di gambar; tombol berbahasa Indonesia yang terlihat; mode sematan,
+   polos, dan sampul; demo otomatis saat diam; "kurangi gerakan" menampilkan keadaan akhir; tema
+   bisa dikirim induk lewat postMessage. Kredit ada di halaman /lisensi.
+
+   MIT License
+
+   Copyright (c) 2026 April Zhu (iso-glow: lighting, palettes, gallery shell, examples)
+   Copyright (c) 2026 Tolga Cohce (iso-figure, on which iso-glow is based)
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+   ============================================================ */
+
+/* ---------- kernel isometrik (dari iso-figure) dan geometri ----------
+   +x ke kanan-bawah, +y ke kiri-bawah, +z ke atas. Penonton melihat dari (+1,+1,+1).
+   Muka yang terlihat: atas (+z), FRONT (y maksimum, kiri-bawah), SIDE (x maksimum, kanan-bawah). */
+const ISO = (() => {
+  const C = Math.cos(Math.PI / 6), S = Math.sin(Math.PI / 6);
+  const add = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k];
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const norm = a => { const l = Math.hypot(...a) || 1; return a.map(v => v / l); };
+  const avg = ps => ps.reduce((s, p) => [s[0] + p[0] / ps.length, s[1] + p[1] / ps.length, s[2] + p[2] / ps.length], [0, 0, 0]);
+  const vis = n => n[0] + n[1] + n[2] > 1e-6;            // muka menghadap penonton?
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const n2 = v => v.toFixed(2);
+
+  function kernel(OX, OY) {
+    const P = (x, y, z) => [(x - y) * C + OX, (x + y) * S - z + OY];
+    const D = (x, y, z) => [(x - y) * C, (x + y) * S - z];
+    const plane = (O, U, V) => { const o = P(...O), u = D(...U), v = D(...V);
+      return `matrix(${n2(u[0])} ${n2(u[1])} ${n2(v[0])} ${n2(v[1])} ${n2(o[0])} ${n2(o[1])})`; };
+    const TOP = (x, y, z) => plane([x, y, z], [1, 0, 0], [0, 1, 0]);
+    const FRONT = (x, y, z) => plane([x, y, z], [1, 0, 0], [0, 0, -1]);
+    const SIDE = (x, y, z) => plane([x, y, z], [0, -1, 0], [0, 0, -1]);
+    const rect = (t, w, h, r = 0, cls = 'face') => `<g transform="${t}"><rect class="${cls}" width="${w}" height="${h}" rx="${r}"/></g>`;
+    const path = pts => 'M' + pts.map(p => P(...p).map(n2).join(' ')).join('L');
+    // kotak bersudut bulat: satu tutup atas + satu dinding samping yang menyambung (sudut rapi)
+    const rounded = (x, y, z, w, d, h, r, cls) => {
+      r = Math.min(r, w / 2, d / 2);
+      const n = 10, z1 = z + h, q = Math.PI / 4, H = Math.PI / 2, c = cls ? ' ' + cls : '';
+      const arc = (cx, cy, a0, a1) => { const o = []; for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; o.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } return o; };
+      const ring = [...arc(x + w - r, y + r, -H, 0), ...arc(x + w - r, y + d - r, 0, H), ...arc(x + r, y + d - r, H, 2 * H), ...arc(x + r, y + r, 2 * H, 3 * H)];
+      const wallArc = [...arc(x + w - r, y + r, -q, 0), ...arc(x + w - r, y + d - r, 0, H), ...arc(x + r, y + d - r, H, 3 * q)];
+      const wall = [...wallArc.map(([a, b]) => [a, b, z]), ...wallArc.slice().reverse().map(([a, b]) => [a, b, z1])];
+      return `<path class="face${c}" d="${path(wall)}Z"/><path class="face top${c}" d="${path(ring.map(([a, b]) => [a, b, z1]))}Z"/>`;
+    };
+    const box = (x, y, z, w, d, h, r = 0, cls = '') => r > 0 ? rounded(x, y, z, w, d, h, r, cls) :
+      rect(SIDE(x + w, y + d, z + h), d, h, 0, 'face ' + cls) + rect(FRONT(x, y + d, z + h), w, h, 0, 'face ' + cls) + rect(TOP(x, y, z + h), w, d, 0, 'face top ' + cls);
+    // poligon 3D datar (muka) dan garis 3D terbuka
+    const poly = (pts, cls = '') => `<path class="face ${cls}" d="${path(pts)}Z"/>`;
+    const line = (pts, cls = 'detail', extra = '') => `<path class="${cls}" d="${path(pts)}" ${extra}/>`;
+    // kotak berorientasi bebas: o + e1·u + e2·v + e3·w (u,v,w ∈ [0,1]); hanya muka yang menghadap penonton.
+    // Muka yang normalnya condong ke atas diberi kelas "top".
+    function obox(o, e1, e2, e3, cls = '') {
+      const c = (u, v, w) => add(add(add(o, e1, u), e2, v), e3, w), cen = c(.5, .5, .5);
+      const F = [[c(0,0,0),c(1,0,0),c(1,1,0),c(0,1,0)], [c(0,0,1),c(1,0,1),c(1,1,1),c(0,1,1)], [c(0,0,0),c(1,0,0),c(1,0,1),c(0,0,1)],
+                 [c(0,1,0),c(1,1,0),c(1,1,1),c(0,1,1)], [c(0,0,0),c(0,1,0),c(0,1,1),c(0,0,1)], [c(1,0,0),c(1,1,0),c(1,1,1),c(1,0,1)]];
+      let s = '';
+      for (const q of F) {
+        let n = norm(cross(sub(q[1], q[0]), sub(q[3], q[0])));
+        if (!isFinite(n[0])) continue;
+        if (dot(n, sub(avg(q), cen)) < 0) n = n.map(v => -v);
+        if (vis(n)) s += poly(q, (n[2] > .55 ? 'top ' : '') + cls);
+      }
+      return s;
+    }
+    // prisma: penampang (y,z) yang cembung, disapu sepanjang x dari x0 ke x1 (papan miring, kaki rehal)
+    function prism(uv, x0, x1, cls = '') {
+      const A = uv.map(([y, z]) => [x0, y, z]), B = uv.map(([y, z]) => [x1, y, z]), cen = avg([...A, ...B]);
+      let s = '';
+      for (let i = 0; i < uv.length; i++) {
+        const q = [A[i], A[(i + 1) % uv.length], B[(i + 1) % uv.length], B[i]];
+        let n = norm(cross(sub(q[1], q[0]), sub(q[3], q[0])));
+        if (dot(n, sub(avg(q), cen)) < 0) n = n.map(v => -v);
+        if (vis(n)) s += poly(q, (n[2] > .55 ? 'top ' : '') + cls);
+      }
+      return s + poly(B, cls);
+    }
+    // garis-garis sejajar di bidang muka (koordinat lokal muka)
+    const slits = (a0, a1, step, b0, b1, vertical = true, cls = 'detail') => {
+      let s = ''; for (let a = a0; a <= a1 + 1e-6; a += step)
+        s += vertical ? `<line class="${cls}" x1="${a}" y1="${b0}" x2="${a}" y2="${b1}"/>` : `<line class="${cls}" x1="${b0}" y1="${a}" x2="${b1}" y2="${a}"/>`;
+      return s;
+    };
+    // garis tepi (siluet) satu benda: kulit cembung titik-titik 3D-nya, sedikit lebih tebal dari garis dalam.
+    // Gambar sesudah bendanya; benda bercekung dipecah dulu supaya tepinya tidak memotong udara.
+    const tepi = pts3 => {
+      const p = pts3.map(q => P(...q)).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+      const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), lo = [], up = [];
+      for (const v of p) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], v) <= 0) lo.pop(); lo.push(v); }
+      for (const v of p.reverse()) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], v) <= 0) up.pop(); up.push(v); }
+      lo.pop(); up.pop();
+      return `<path class="tepi" d="M${lo.concat(up).map(v => v.map(n2).join(' ')).join('L')}Z"/>`;
+    };
+    return { C, S, P, D, plane, TOP, FRONT, SIDE, rect, box, path, poly, line, obox, prism, slits, tepi };
+  }
+  // bingkai: titik-titik 3D terjauh → kernel + viewBox (rasio aspect, ruang tambahan di bawah untuk tombol)
+  function frame(points, { margin = .08, aspect = 4 / 3, bawah = 0 } = {}) {
+    const d = points.map(([x, y, z]) => [(x - y) * C, (x + y) * S - z]);
+    const x0 = Math.min(...d.map(p => p[0])), x1 = Math.max(...d.map(p => p[0]));
+    const y0 = Math.min(...d.map(p => p[1])), y1 = Math.max(...d.map(p => p[1]));
+    const m = margin * Math.max(x1 - x0, y1 - y0);
+    let w = x1 - x0 + 2 * m, h = y1 - y0 + 2 * m + bawah * (y1 - y0);
+    let ox = m - x0, oy = m - y0;
+    if (w / h < aspect) { const nw = h * aspect; ox += (nw - w) / 2; w = nw; }
+    else { const nh = w / aspect; oy += (nh - h) / 2; h = nh; }
+    return { ...kernel(ox, oy), viewBox: `0 0 ${w.toFixed(1)} ${h.toFixed(1)}`, W: w, H: h };
+  }
+  return { kernel, frame, esc, add, sub, cross, dot, norm, avg, vis, lerp, ease };
+})();
+
+/* ---------- token: warna situs Surau ----------
+   bangun.mjs menyisipkan <style id="token-surau"> dari globals.css (terang, gelap, sepia). Nilai di bawah
+   hanya cadangan saat sumber figur dibuka langsung; :where() membuatnya kalah dari token sisipan. */
+const CSS_TOKEN_CADANGAN = `
+  :where(:root){--background:oklch(.975 .008 90);--foreground:oklch(.23 .015 85);--surface:oklch(.995 .004 90);--surface-secondary:oklch(.96 .01 90);--surface-tertiary:oklch(.945 .012 90);--muted:oklch(.47 .02 85);--border:oklch(.89 .012 90);--accent:oklch(.47 .085 150);--accent-foreground:oklch(.99 .005 90)}
+  :where(:root[data-tema=gelap]){--background:oklch(.17 .008 85);--foreground:oklch(.95 .008 90);--surface:oklch(.215 .01 85);--surface-secondary:oklch(.245 .01 85);--surface-tertiary:oklch(.265 .01 85);--muted:oklch(.74 .015 90);--border:oklch(.3 .01 85);--accent:oklch(.79 .1 150);--accent-foreground:oklch(.2 .03 150)}`;
+
+/* kosakata gambar (dari iso-glow), memakai token situs */
+const CSS_DASAR = `
+  @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/plus-jakarta-sans-latin.woff2) format('woff2')}
+  :root{color-scheme:light;
+    --bg:var(--background);--edge:var(--border);--ink:var(--muted);--ink-hi:var(--foreground);
+    --line:color-mix(in oklab,var(--foreground) 46%,var(--background));--detail:color-mix(in oklab,var(--foreground) 20%,var(--background));
+    --body:var(--surface-secondary);--deck:var(--surface);--recess:var(--surface-tertiary);
+    --glass:var(--surface-tertiary);--glass-on:color-mix(in oklab,var(--accent) 14%,var(--surface));
+    --accent-hi:color-mix(in oklab,var(--accent) 70%,var(--surface));--accent-dim:color-mix(in oklab,var(--accent) 12%,transparent);
+    --font:'Plus Jakarta Sans',var(--font-sans,Inter),ui-sans-serif,system-ui,sans-serif}
+  :root[data-tema=gelap]{color-scheme:dark;--body:var(--surface);--deck:var(--surface-secondary);--recess:var(--background);
+    --line:color-mix(in oklab,var(--foreground) 34%,var(--background));--detail:color-mix(in oklab,var(--foreground) 16%,var(--background));
+    --accent-hi:color-mix(in oklab,var(--accent) 60%,white);--glass-on:color-mix(in oklab,var(--accent) 18%,var(--background))}
+  *{box-sizing:border-box} html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--ink-hi);font:14px/1.45 var(--font);display:flex;flex-direction:column;align-items:center;padding:20px 16px 24px}
+  header{width:100%;max-width:760px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  header h1{font-size:15px;font-weight:700;margin:0} header span{color:var(--ink);font-size:13px}
+  .panggung{position:relative;width:100%;max-width:760px}
+  #stage{width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  #stage:focus{outline:none} #stage:focus-visible{outline:1px dashed var(--line);outline-offset:4px;border-radius:8px}
+  .aksi{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:6px}
+  .aksi button{font:inherit;font-size:13px;font-weight:600;color:var(--ink-hi);background:var(--surface);border:1px solid var(--edge);border-radius:999px;padding:6px 14px;cursor:pointer}
+  .aksi button:hover{border-color:var(--line)} .aksi button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+  .aksi button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .catatan{min-height:1.4em;margin-top:6px;color:var(--ink);font-size:12.5px;text-align:center}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  /* sematan (iframe di situs): latar transparan, tombol kecil menempel di bawah gambar */
+  html.sematan body{background:transparent;padding:0;display:block}
+  html.sematan header{display:none} html.sematan .panggung{max-width:none}
+  html.sematan .aksi{position:absolute;left:0;right:0;bottom:6px;margin:0;gap:6px}
+  html.sematan .aksi button{font-size:12px;padding:4px 11px;background:color-mix(in oklab,var(--surface) 88%,transparent)}
+  html.sematan .catatan{display:none}
+  /* polos: gambar saja; sampul: 1200 x 630 dengan judul */
+  html.polos body{padding:0;justify-content:center;overflow:hidden} html.polos header,html.polos .aksi,html.polos .catatan,html.sampul header,html.sampul .aksi,html.sampul .catatan{display:none}
+  html.polos .panggung{max-width:none}
+  html.sampul body{width:1200px;height:630px;padding:56px 64px;display:grid;grid-template-columns:430px 1fr;align-items:center;gap:24px;overflow:hidden}
+  html.sampul .panggung{max-width:none}
+  .sampul-teks{display:flex;flex-direction:column;gap:18px}
+  .sampul-teks .kecil{margin:0;font-size:20px;font-weight:700;color:var(--accent)}
+  .sampul-teks h1{margin:0;font-size:50px;line-height:1.08;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+  .sampul-teks .situs{margin:0;font-size:18px;color:var(--ink);font-weight:600}
+
+  #stage text{font-family:var(--font)}
+  .face{fill:var(--body);stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+  .face.top{fill:var(--deck)} .face.recess{fill:var(--recess)}
+  .face.kayu{fill:color-mix(in oklab,var(--body) 82%,oklch(.7 .08 70))} .face.top.kayu{fill:color-mix(in oklab,var(--deck) 86%,oklch(.75 .08 70))}
+  .tepi{fill:none;stroke:var(--line);stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+  .detail{fill:none;stroke:var(--detail);stroke-width:1;vector-effect:non-scaling-stroke;stroke-linecap:round}
+  .label{fill:var(--ink);font-family:var(--font)}
+  .glass{fill:var(--glass);transition:fill .3s,stroke .3s} .glass.hot{fill:var(--glass-on);stroke:var(--accent)}
+  .halo{fill:var(--accent);opacity:0;transition:opacity .4s} .halo.hot{opacity:.22}
+  .led{fill:var(--detail);transition:fill .2s} .led.hot{fill:var(--accent)}
+  .wire{fill:none;stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;transition:stroke .4s}
+  .wire.hot{stroke:var(--accent)}
+  .wire-under{fill:none;stroke:var(--bg);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+  .pulse{fill:none;stroke:var(--accent-hi);stroke-width:2.4;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:70 1200;stroke-dashoffset:70;opacity:0}
+  .pulse.go{animation:alir .7s linear}
+  @keyframes alir{0%{stroke-dashoffset:70;opacity:1}90%{opacity:1}100%{stroke-dashoffset:-1000;opacity:0}}
+  .nyala{fill:none;stroke:var(--accent);stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linecap:round}
+  .face.hot{fill:var(--glass-on);stroke:var(--accent)} .face.top.hot{fill:var(--accent-hi);stroke:var(--accent)}
+  .press{cursor:pointer}
+  .tag rect{fill:var(--surface);stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+  .tag text{fill:var(--ink);font-weight:700;letter-spacing:.06em}
+  .tag.hot rect{stroke:var(--accent)} .tag.hot text{fill:var(--accent)}
+  .redup{opacity:.35;transition:opacity .4s}
+  @media (prefers-reduced-motion:reduce){.glass,.halo,.wire,.redup{transition:none}.pulse.go{animation:none}}`;
+
+/* filter cahaya (skala mengikuti viewBox). Tema terang dan sepia: tanpa pendar (lewat apa adanya). */
+// Wilayah filter userSpaceOnUse: garis lurus mendatar punya kotak batas setinggi nol dan akan hilang di wilayah bawaan.
+const WIL = 'filterUnits="userSpaceOnUse" x="-5000" y="-5000" width="10000" height="10000"';
+const filterCahaya = (k, terang) => terang
+  ? `<filter id="glow" ${WIL}><feMerge><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="soft" ${WIL}><feMerge><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="bloom" ${WIL}><feFlood flood-opacity="0"/></filter>`
+  : `<filter id="glow" filterUnits="userSpaceOnUse" x="-5000" y="-5000" width="10000" height="10000"><feGaussianBlur stdDeviation="${(4 * k).toFixed(2)}" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`
+  + `<filter id="soft" filterUnits="userSpaceOnUse" x="-5000" y="-5000" width="10000" height="10000"><feGaussianBlur stdDeviation="${(2.2 * k).toFixed(2)}" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`
+  + `<filter id="bloom" filterUnits="userSpaceOnUse" x="-5000" y="-5000" width="10000" height="10000"><feGaussianBlur stdDeviation="${(9 * k).toFixed(2)}"/></filter>`;
+
+/* mountFigure({
+     id:'kitab-rehal', title:'Kitab di atas rehal', hint:'ketuk kitab untuk membalik halaman',
+     alt:'…',                                   // deskripsi untuk pembaca layar
+     tombol:[{label, aksi(api)}],               // tombol yang terlihat, urut seperti orang memakainya
+     ulang: 7000,                               // demo otomatis diulang tiap … ms selama tidak disentuh (0 = sekali)
+     mount(stage, api) → { demo(), akhir(), key(e) }   // demo: urutan singkat; akhir: keadaan akhir tanpa animasi
+   })
+   api: iso (ISO), frame(points, opsi) → K (memasang viewBox + filter), readout(teks), anim(ms, step(t), selesai),
+        after(ms, fn), diam (kurangi gerakan), replay(el, kelas), tandai() (pengguna berinteraksi → demo berhenti)
+   Parameter URL: ?tema=terang|gelap|sepia · ?sematan=1 · ?polos=1 · ?sampul=1&judul=…&kecil=… · ?gerak=0 ·
+   ?demo=0 (tanpa demo otomatis) · ?press=Label@ms,… (uji). Induk bisa mengirim postMessage
+   {type:'surau-aset', tema:'gelap'} untuk mengganti tema. */
+addEventListener('error', e => { document.documentElement.dataset.errors = (document.documentElement.dataset.errors || '') + ' ' + e.message + ';'; });
+function mountFigure(cfg) {
+  const q = new URLSearchParams(location.search), root = document.documentElement;
+  const sampul = q.get('sampul') === '1', polos = q.get('polos') === '1', sematan = q.get('sematan') === '1';
+  const temaSistem = () => matchMedia('(prefers-color-scheme: dark)').matches ? 'gelap' : 'terang';
+  const pilihTema = t => ['terang', 'gelap', 'sepia'].includes(t) ? t : temaSistem();
+  root.dataset.tema = pilihTema(q.get('tema'));
+  root.classList.toggle('sematan', sematan); root.classList.toggle('polos', polos); root.classList.toggle('sampul', sampul);
+  if (!root.lang) root.lang = 'id';
+  document.title = cfg.title;
+  const style = document.createElement('style'); style.textContent = CSS_TOKEN_CADANGAN + CSS_DASAR;
+  document.head.prepend(style);
+  document.body.innerHTML = `
+    ${sampul ? '<div class="sampul-teks"><p class="kecil"></p><h1></h1><p class="situs">surau.org</p></div>' : ''}
+    <header><h1>${ISO.esc(cfg.title)}</h1><span>${ISO.esc(cfg.hint || '')}</span></header>
+    <div class="panggung">
+      <svg id="stage" role="img" tabindex="0" data-fig="${cfg.id}"></svg>
+      ${cfg.tombol && cfg.tombol.length ? '<div class="aksi" id="aksi" role="group" aria-label="Coba"></div>' : ''}
+    </div>
+    <p class="catatan" aria-hidden="true"></p>
+    <p class="sr" id="status" role="status" aria-live="polite"></p>`;
+  // teks sampul dari URL lewat textContent, supaya ?judul= tidak bisa menyisipkan HTML
+  if (sampul) { document.querySelector('.sampul-teks .kecil').textContent = q.get('kecil') || 'Surau';
+    document.querySelector('.sampul-teks h1').textContent = q.get('judul') || cfg.title; }
+  const stage = document.getElementById('stage');
+  stage.setAttribute('aria-label', cfg.alt || cfg.title);
+  if (cfg.css) { const s = document.createElement('style'); s.textContent = cfg.css; document.head.appendChild(s); }
+
+  const diam = q.get('gerak') === '0' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const catatan = document.querySelector('.catatan'), status = document.getElementById('status');
+  let K = null, timers = [], disentuh = false, demoT = 0;
+  const pasangFilter = () => { if (!K) return; let defs = stage.querySelector('defs#cahaya');
+    if (!defs) { defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs'); defs.id = 'cahaya'; }
+    defs.innerHTML = filterCahaya(K.W / 400, root.dataset.tema !== 'gelap'); stage.prepend(defs); };
+  const api = {
+    iso: ISO, diam,
+    frame(points, opsi = {}) {
+      const ada = !sampul && !polos && cfg.tombol && cfg.tombol.length;
+      K = ISO.frame(points, { aspect: sampul ? 1.25 : polos ? innerWidth / Math.max(1, innerHeight) : 4 / 3, bawah: sematan && ada ? .16 : 0, ...opsi });
+      stage.setAttribute('viewBox', K.viewBox); return K; },
+    // isi ulang gambar: setelah innerHTML, filter cahaya dipasang lagi
+    gambar(svg) { stage.innerHTML = svg; pasangFilter(); },
+    // kabel melengkung dari a ke b (titik 3D), terangkat setinggi naik di tengah → titik-titik 3D
+    kurva(a, b, naik, n = 28) { const m = ISO.add(ISO.avg([a, b]), [0, 0, naik]); const out = [];
+      for (let i = 0; i <= n; i++) { const t = i / n, u = 1 - t; out.push([0, 1, 2].map(j => u * u * a[j] + 2 * u * t * m[j] + t * t * b[j])); }
+      return out; },
+    // satuan viewBox per piksel layar: teks dan jarak label tetap terbaca di kartu kecil maupun layar lebar
+    px() { return K.W / Math.max(200, stage.clientWidth || 480); },
+    // label pil (huruf Latin kapital saja) di titik p3 + (dx, dy). Letak mengikuti gambar (dx, dy dalam satuan
+    // seperti gambar selebar 300); huruf minimal ±9 px di layar; pil dijaga tetap di dalam bingkai.
+    tag(p3, dx, dy, teks, hot = false, garis = true) {
+      const g = K.W / 300, [X, Y] = K.P(...p3), fs = Math.max(5.4 * g, 9 * api.px());
+      const w = teks.length * fs * .72 + fs * 2.2, h = fs * 2, m = fs * .4;
+      const cx = Math.min(K.W - w / 2 - m, Math.max(w / 2 + m, X + dx * g)), cy = Math.min(K.H - h / 2 - m, Math.max(h / 2 + m, Y + dy * g));
+      return `<g class="tag${hot ? ' hot' : ''}">${garis ? `<path class="wire${hot ? ' hot' : ''}" d="M${X.toFixed(2)} ${Y.toFixed(2)}L${cx.toFixed(2)} ${cy.toFixed(2)}"/>` : ''}`
+        + `<rect x="${(cx - w / 2).toFixed(2)}" y="${(cy - h / 2).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${(h / 2).toFixed(2)}"/>`
+        + `<text x="${cx.toFixed(2)}" y="${(cy + fs * .36).toFixed(2)}" text-anchor="middle" style="font-size:${fs.toFixed(2)}px">${ISO.esc(teks)}</text></g>`; },
+    readout(t) { catatan.textContent = t; if (status.textContent !== t) status.textContent = t; },
+    after(ms, fn) { const t = setTimeout(fn, ms); timers.push(t); return t; },
+    // animasi berdurasi: step(t ∈ [0,1]); dengan "kurangi gerakan" langsung ke akhir
+    anim(ms, step, selesai) {
+      if (diam) { step(1); if (selesai) selesai(); return; }
+      const t0 = performance.now();
+      const f = now => { const t = Math.min(1, (now - t0) / ms); step(t); if (t < 1) requestAnimationFrame(f); else if (selesai) selesai(); };
+      requestAnimationFrame(f); },
+    replay(el, cls = 'go') { if (!el || diam) return; el.classList.remove(cls); void el.getBoundingClientRect(); el.classList.add(cls); },
+    tandai() { disentuh = true; clearTimeout(demoT); },
+  };
+  const handle = cfg.mount(stage, api) || {};
+  pasangFilter();
+  // ukuran label bergantung lebar tampil, jadi gambar ulang saat ukuran berubah
+  if (handle.render) { let w = stage.clientWidth;
+    new ResizeObserver(() => { if (Math.abs(stage.clientWidth - w) > 4) { w = stage.clientWidth; handle.render(); } }).observe(stage); }
+
+  // tombol
+  const aksi = document.getElementById('aksi');
+  if (aksi) cfg.tombol.forEach(b => { const el = document.createElement('button'); el.type = 'button'; el.textContent = b.label;
+    el.onclick = () => { api.tandai(); b.aksi(api); }; aksi.appendChild(el); });
+  stage.addEventListener('pointerdown', () => api.tandai());
+  stage.addEventListener('keydown', e => { api.tandai(); if (handle.key && handle.key(e)) e.preventDefault(); });
+
+  // tema: berubah bila sistem berubah (tanpa ?tema) atau induk mengirim pesan
+  const gantiTema = t => { root.dataset.tema = pilihTema(t); pasangFilter(); };
+  if (!q.has('tema')) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => gantiTema());
+  addEventListener('message', e => { const d = e.data; if (d && d.type === 'surau-aset' && typeof d.tema === 'string') gantiTema(d.tema); });
+
+  // demo: sampul/polos → keadaan akhir; kurangi gerakan → keadaan akhir; selain itu demo diulang selama tidak disentuh
+  // dan halaman terlihat
+  const terlihat = () => document.visibilityState === 'visible';
+  const putar = () => { if (disentuh || !handle.demo) return; if (terlihat()) handle.demo();
+    if (cfg.ulang) demoT = setTimeout(putar, cfg.ulang); };
+  if (sampul || polos || diam || q.get('demo') === '0') { if (handle.akhir && q.get('demo') !== '0') handle.akhir(); }
+  else demoT = setTimeout(putar, 700);
+
+  // uji: ?press=Label@ms klik tombol yang teksnya diawali Label
+  window.__api = api;
+  const starts = (el, t) => el.textContent.trim().toLowerCase().startsWith(t.trim().toLowerCase());
+  if (q.has('press')) q.get('press').split(',').forEach(item => { const [label, ms] = item.split('@');
+    setTimeout(() => { const b = [...document.querySelectorAll('.aksi button')].find(b => starts(b, label));
+      if (!b) root.dataset.errors = (root.dataset.errors || '') + ` no button "${label}";`; else b.click(); }, +ms || 0); });
+  return api;
+}

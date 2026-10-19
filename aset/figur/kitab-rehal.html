@@ -6,208 +6,123 @@
 <title>Kitab di atas rehal</title>
 </head>
 <body>
-<script src="../../.claude/skills/aset/mesin/core.js"></script>
+<script src="../../.claude/skills/aset/mesin/iso.js"></script>
 <script>
 /* Kitab terbuka di atas rehal kayu (figur contoh aset Surau).
    Proses nyata (kitab berbahasa Arab, dibaca kanan ke kiri):
    1. Tertutup: sampul depan di atas, punggung di kanan pembaca, kitab bersandar di lengan kiri rehal.
    2. Buka: sampul depan diayun ke kanan; separuh kanan (halaman yang sudah dibaca) bersandar di lengan kanan.
    3. Balik halaman: satu lembar dari tumpukan kiri diangkat dan diayun ke kanan; tumpukan kanan menebal.
-   4. Tutup: separuh kanan diayun kembali ke atas tumpukan kiri.
+   4. Tandai kutipan: dua baris di halaman kiri menyala (yang menyala = yang hidup), dengan label KUTIPAN.
+   5. Tutup: separuh kanan diayun kembali ke atas tumpukan kiri.
    Pembaca duduk di sisi +x (menghadap bentuk X rehal); kanan pembaca = +y.
-   Tidak ada huruf Arab di figur: baris teks hanya garis (aturan keras 1). */
-
-/* ---------- geometri (x = kedalaman, y = lebar, z = tinggi) ---------- */
-const RW = 36, RD = 48, RH = 40;            // size
-const BH = 2;                               // tebal alas
-const YC = 24, ZC = BH + 10;                // titik silang X rehal
+   Tidak ada huruf Arab: baris teks hanya garis (aturan keras 1). */
+const { add, lerp, ease, vis } = ISO;
+const RW = 36, RD = 48, BH = 2, YC = 24, ZC = BH + 10;
 const TH = Math.atan(0.55), CS = Math.cos(TH), SN = Math.sin(TH);
-const ARM = 23, HALF = 1.3;                 // panjang lengan atas dari titik silang, setengah tebal papan
-const RX0 = 12, RX1 = 24;                    // papan rehal sepanjang x
-const BX0 = 4, BX1 = 32;                    // kitab (sampul) sepanjang x
-const LEN = 20.5, COVER_T = .55;            // panjang halaman dari punggung, tebal sampul
-const ZS = ZC + HALF / CS;          // lipatan V tempat punggung kitab
-const SPINE = [0, YC, ZS];
-const KTEKS = '#a1967e', KBINGKAI = '#c3a35a';
+const ARM = 23, HALF = 1.3, RX0 = 12, RX1 = 24, BX0 = 4, BX1 = 32, LEN = 20.5, COVER_T = .55;
+const ZS = ZC + HALF / CS, SPINE = [0, YC, ZS];
+const UP_R = [0, -SN, CS], UP_L = [0, SN, CS];
+const dirA = a => [0, Math.cos(a), Math.sin(a)];
+const st = { open: 1, read: 5, leaf: null, mark: false, busy: false };
+const thick = () => ({ r: 1 + st.read * .07, l: 2.6 - st.read * .07 });
 
-const lerp = (a, b, t) => a + (b - a) * t;
-const add = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k];
-const dirA = a => [0, Math.cos(a), Math.sin(a)];     // arah dari punggung ke tepi halaman, sudut a dari +y
-const UP_R = [0, -SN, CS];                            // normal atas lengan kanan pembaca (+y)
-const UP_L = [0, SN, CS];                             // normal atas lengan kiri (-y)
-
-/* papan rehal: penampang miring di bidang (y, z), kaki dipotong rata di z = BH */
-function slabUV(sign){
-  const d = [sign * CS, SN], n = [-sign * SN, CS], c = [YC, ZC];
-  const at = (t, w) => [c[0] + d[0] * t + n[0] * w, c[1] + d[1] * t + n[1] * w];
-  const foot = w => (BH - ZC - n[1] * w) / d[1];
-  const pts = [at(foot(-HALF), -HALF), at(ARM, -HALF), at(ARM, HALF), at(foot(HALF), HALF)];
-  return sign > 0 ? pts : pts.reverse();
-}
-const SLAB_R = slabUV(1), SLAB_L = slabUV(-1);
-
-/* ukiran kaki: di muka lebar papan (bidang c + d·t ± n·HALF), di tengah kedalaman papan */
-function legCarving(sign, wood){
-  const d = [sign * CS, SN], n = [-sign * SN, CS];
-  let out = '';
-  for (const side of [1, -1]){
-    const nn = [0, n[0] * side, n[1] * side];
-    if (!vis(nn)) continue;
-    const at = (x, t) => [x, YC + d[0] * t + n[0] * side * HALF, ZC + d[1] * t + n[1] * side * HALF];
-    const xm = (RX0 + RX1) / 2, t0 = -9.5;
-    out += shape([at(xm, t0 - 3.4), at(xm + 2.6, t0), at(xm, t0 + 3.4), at(xm - 2.6, t0)], wood.d, .8);
-    for (const dt of [-6, 6]) out += shape(on(([u, v]) => at(u, v), ellUV(xm, t0 + dt, .9, .9, 12)), wood.d, .7);
-  }
-  return out;
-}
-
-/* kotak berorientasi bebas: o + e1·u + e2·v + e3·w, u,v,w ∈ [0,1] */
-function obox(o, e1, e2, e3, m, w = .9){
-  const c = (u, v, s) => add(add(add(o, e1, u), e2, v), e3, s);
-  const cen = c(.5, .5, .5), F = [
-    [c(0,0,0), c(1,0,0), c(1,1,0), c(0,1,0)], [c(0,0,1), c(1,0,1), c(1,1,1), c(0,1,1)],
-    [c(0,0,0), c(1,0,0), c(1,0,1), c(0,0,1)], [c(0,1,0), c(1,1,0), c(1,1,1), c(0,1,1)],
-    [c(0,0,0), c(0,1,0), c(0,1,1), c(0,0,1)], [c(1,0,0), c(1,1,0), c(1,1,1), c(1,0,1)] ];
-  let s = '';
-  for (const q of F){
-    let n = norm(cross(sub(q[1], q[0]), sub(q[3], q[0])));
-    if (!isFinite(n[0])) continue;
-    if (dot(n, sub(avg(q), cen)) < 0) n = n.map(v => -v);
-    if (vis(n)) s += shape(q, tone(n, m), w);
-  }
-  return { svg: s, pts: [c(0,0,0), c(1,0,0), c(0,1,0), c(1,1,0), c(0,0,1), c(1,0,1), c(0,1,1), c(1,1,1)] };
-}
-
-/* ---------- keadaan ---------- */
-const st = { open: 1, read: 5, leaf: null, busy: false };
-const thick = () => ({ r: 1.0 + st.read * .07, l: 2.6 - st.read * .07 });   // tumpukan kanan (sudah dibaca) / kiri
-
-/* satu separuh kitab: sampul + blok halaman. hinge = titik engsel, a = sudut, t = arah tebal (dari sampul ke halaman) */
-function half(hinge, a, t, pagesT, m, side){
-  const d = dirA(a), ex = [BX1 - BX0, 0, 0], o = [BX0, hinge[1], hinge[2]];
-  const cover = obox(o, ex, d.map(v => v * (LEN + .7)), t.map(v => v * COVER_T), m, 1);
-  const po = add(add(add(o, [.8, 0, 0]), d, .5), t, COVER_T);
-  const pex = [BX1 - BX0 - 1.6, 0, 0], ped = d.map(v => v * (LEN - .5));
-  const pages = obox(po, pex, ped, t.map(v => v * pagesT), KERTAS, .8);
-  // yang lebih dekat ke penonton digambar belakangan: sampul di atas saat kitab tertutup
-  const nCov = t.map(v => -v), coverUp = vis(nCov);
-  let s = coverUp ? pages.svg + cover.svg : cover.svg + pages.svg;
-  // muka halaman (atas blok) : bingkai emas tipis + baris teks rata kanan pembaca
-  const top = add(po, t, pagesT), nTop = t;
-  const at = (x, r) => add(add(top, [x, 0, 0]), d, r);
-  if (vis(nTop)){
-    const W = pex[0], L = LEN - .5;
-    s += line([at(1.3, 1.2), at(W - 1.3, 1.2), at(W - 1.3, L - 1.2), at(1.3, L - 1.2), at(1.3, 1.2)], .7).replace(INK, KBINGKAI);
-    const rows = 11, x0 = 2.6, x1 = W - 2.4;
-    for (let i = 0; i < rows; i++){
-      const x = lerp(x0, x1, i / (rows - 1)), r0 = 2.2, r1 = L - 2.2;
-      const short = (i + side) % 5 === 4 ? .45 : 0;
-      // kanan pembaca: separuh +y → tepi luar (r besar); separuh -y → dekat punggung (r kecil)
-      const [ra, rb] = side ? [lerp(r0, r1, short), r1] : [r0, lerp(r1, r0, short)];
-      s += `<path d="${pd([at(x, ra), at(x, rb)], false)}" stroke="${KTEKS}" stroke-width=".8" stroke-linecap="round" fill="none"/>`;
-    }
-  }
-  // sampul (muka luar) terlihat saat kitab tertutup: bingkai dan medali emas, tanpa tulisan
-  if (coverUp){
-    const at2 = (x, r) => add(add(o, [x, 0, 0]), d, r), W = BX1 - BX0, L = LEN + .7;
-    s += shape([at2(1.6, 1.6), at2(W - 1.6, 1.6), at2(W - 1.6, L - 1.6), at2(1.6, L - 1.6)], 'none', .9).replace(`stroke="${INK}"`, `stroke="${PALS.emas.l}"`);
-    const cx = W / 2, cr = L / 2;
-    s += shape([at2(cx - 5, cr), at2(cx, cr + 3.6), at2(cx + 5, cr), at2(cx, cr - 3.6)], PALS.emas.l, .9);
-    s += shape([at2(cx - 2.4, cr), at2(cx, cr + 1.7), at2(cx + 2.4, cr), at2(cx, cr - 1.7)], m.m, .7);
-  }
-  return { svg: s, pts: [...cover.pts, ...pages.pts] };
-}
-
-/* lembar yang sedang dibalik: tiga potong melengkung, dari tumpukan kiri ke kanan */
-function leafSvg(p){
-  const T = thick(), e = ease(p);
-  // engsel lembar: di atas tumpukan kiri, lalu (setelah tegak) di atas tumpukan kanan
-  const hinge = add(SPINE, e > .5 ? UP_R : UP_L, (e > .5 ? T.r : T.l) + COVER_T);
-  const a0 = Math.PI - TH, a1 = TH, a = lerp(a0, a1, e), bend = .55 * Math.sin(Math.PI * e);
-  let o = add([BX0 + .8, 0, 0], [0, hinge[1], hinge[2]]), s = '';
-  const ex = [BX1 - BX0 - 1.6, 0, 0], seg = (LEN - .5) / 3;
-  for (let i = 0; i < 3; i++){
-    const ai = a + bend * (i + 1) / 3, d = dirA(ai).map(v => v * seg);
-    const q = [o, add(o, ex), add(add(o, ex), d), add(o, d)];
-    let n = norm(cross(ex, d)); if (!vis(n)) n = n.map(v => -v);
-    s += shape(q, tone(n, KERTAS), .8);
-    o = add(o, d);
-  }
-  return s;
-}
-
-/* ---------- adegan ---------- */
-function scene(st, m){
-  const T = thick(), e = ease(st.open), wood = PALS.kayu;
-  let s = board(0, 3, RW, RD - 3, BH, 4);
-
-  // separuh kanan pembaca (+y): engsel naik dari punggung ke atas tumpukan kiri saat ditutup
-  const aR = lerp(Math.PI - TH, TH, e);            // e = 1 terbuka (sudut TH), e = 0 tertutup
-  const hingeR = add(SPINE, UP_L, (1 - e) * (T.l + T.r + 2 * COVER_T));
-  const tR = [0, -Math.sin(aR), Math.cos(aR)];
-  const left = half(SPINE, Math.PI - TH, UP_L, T.l, m, 0);
-  const right = half(hingeR, aR, tR, T.r, m, 1);
-
-  // bayangan: papan rehal + kitab
-  const slabPts = [...on(PX(RX0), SLAB_R), ...on(PX(RX1), SLAB_R), ...on(PX(RX0), SLAB_L), ...on(PX(RX1), SLAB_L)];
-  s += castShadow([...slabPts, ...left.pts, ...right.pts], BH, boardTop(0, 3, RW, RD - 3, BH, 4));
-
-  // rehal: sisi kedua papan, lalu muka depan, lalu tinta siluet
-  s += extrude(SLAB_L, RX0, RX1, wood) + extrude(SLAB_R, RX0, RX1, wood);
-  // muka depan sedikit lebih terang dari sisi papan, supaya bentuk X terbaca
-  const capC = mix(wood.l, '#ffffff', .28);
-  s += shape(on(PX(RX1), SLAB_L), capC, 1.6) + shape(on(PX(RX1), SLAB_R), capC, 1.6);
-  // ukiran di permukaan lebar kaki rehal (yang menghadap penonton): belah ketupat tembus + dua lubang kecil
-  for (const sign of [1, -1]) s += legCarving(sign, wood);
-  s += hullInk([...on(PX(RX0), SLAB_L), ...on(PX(RX1), SLAB_L)], 2.2) + hullInk([...on(PX(RX0), SLAB_R), ...on(PX(RX1), SLAB_R)], 2.2);
-
-  // kitab: separuh yang lebih jauh dulu. Saat terbuka keduanya terpisah di layar; saat menutup separuh kanan di atas
-  let book = left.svg + right.svg;
-  if (st.leaf != null) book += leafSvg(st.leaf);
-  s += act('kitab', book + hullInk(left.pts, 2.4) + hullInk(right.pts, 2.4));
-  return s;
-}
-
-/* ---------- aksi ---------- */
-let ui;
-function swing(target, then){
-  st.busy = true; const from = st.open, dur = .9; let t = 0;
-  ui.animate(dt => { t += dt; const k = Math.min(1, t / dur); st.open = lerp(from, target, k);
-    if (k >= 1){ st.busy = false; if (then) then(); return false; } return true; });
-}
-const wait = () => ui.flash('Sebentar, kitab masih bergerak');
-function turn(){
-  if (st.busy) return wait();
-  if (st.open < 1) return ui.flash('Kitab masih tertutup. Buka dulu.');
-  if (thick().l < .6) return ui.flash('Sudah sampai halaman terakhir');
-  st.busy = true; st.leaf = 0; let t = 0;
-  ui.animate(dt => { t += dt; st.leaf = Math.min(1, t / 1.1);
-    if (st.leaf >= 1){ st.leaf = null; st.read += 1; st.busy = false; return false; } return true; });
-}
-const openBook = () => st.busy ? wait() : st.open >= 1 ? ui.flash('Kitab sudah terbuka') : swing(1);
-const closeBook = () => st.busy ? wait() : st.open <= 0 ? ui.flash('Kitab sudah tertutup') : swing(0);
-
-ui = mountFigure({
-  title: 'Kitab di atas rehal',
-  hint: 'ketuk kitab untuk membalik halaman',
-  alt: 'Ilustrasi kitab terbuka di atas rehal kayu berbentuk X. Tombol di sampingnya membuka, membalik halaman, dan menutup kitab.',
-  size: [RW, RD, RH], palette: 'zaitun', state: st,
-  scene: (st, m) => scene(st, m),
-  readout: st => st.open >= 1 ? `Kitab terbuka, ${st.read} lembar sudah dibaca` : st.open <= 0 ? 'Kitab tertutup' : '',
-  buttonsLabel: 'Coba',
-  buttons: [
-    { label: 'Buka kitab', onClick: openBook },
-    { label: 'Balik halaman', onClick: turn },
-    { label: 'Tutup kitab', onClick: closeBook },
+mountFigure({
+  id: 'kitab-rehal', title: 'Kitab di atas rehal', hint: 'ketuk kitab untuk membalik halaman',
+  alt: 'Ilustrasi garis kitab terbuka di atas rehal kayu berbentuk X. Dua baris di halaman bisa menyala sebagai kutipan.',
+  ulang: 9000,
+  tombol: [
+    { label: 'Buka', aksi: () => H.swing(1) },
+    { label: 'Balik halaman', aksi: () => H.turn() },
+    { label: 'Tandai kutipan', aksi: () => H.mark() },
+    { label: 'Tutup', aksi: () => H.swing(0) },
   ],
-  acts: { kitab: () => st.open >= 1 ? turn() : openBook() },
-  params: (st, q) => {
-    // nilai bukan angka diabaikan (berkas ini publik; ?buka=x tidak boleh merusak gambar)
-    const num = (k, lo, hi) => { const v = Number(q.get(k)); return q.has(k) && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : null; };
+  mount(stage, api) {
+    const K = api.frame([[0,3,0],[RW,3,0],[0,RD-3,0],[RW,RD-3,0],[BX0,YC,ZS+LEN+2],[BX1,YC,ZS+LEN+2],[BX0,YC-20,ZS+12],[BX1,YC+20,ZS+12]]);
+    const { P, path, box, poly, line, obox, prism, tepi } = K;
+    function slab(sign) {
+      const d = [sign * CS, SN], n = [-sign * SN, CS];
+      const at = (t, w) => [YC + d[0] * t + n[0] * w, ZC + d[1] * t + n[1] * w];
+      const foot = w => (BH - ZC - n[1] * w) / d[1];
+      return [at(foot(-HALF), -HALF), at(ARM, -HALF), at(ARM, HALF), at(foot(HALF), HALF)];
+    }
+    const slabPts = uv => [...uv.map(([y, z]) => [RX0, y, z]), ...uv.map(([y, z]) => [RX1, y, z])];
+    function half(hinge, a, t, pagesT, side) {
+      const d = dirA(a), o = [BX0, hinge[1], hinge[2]], ex = [BX1 - BX0, 0, 0];
+      const coverUp = vis(t.map(v => -v));
+      const cover = obox(o, ex, d.map(v => v * (LEN + .7)), t.map(v => v * COVER_T), 'recess');
+      const po = add(add(add(o, [.8, 0, 0]), d, .5), t, COVER_T), pex = [BX1 - BX0 - 1.6, 0, 0];
+      const pages = obox(po, pex, d.map(v => v * (LEN - .5)), t.map(v => v * pagesT));
+      let s = coverUp ? pages + cover : cover + pages;
+      const top = add(po, t, pagesT), at = (x, r) => add(add(top, [x, 0, 0]), d, r);
+      if (vis(t)) {
+        const W = pex[0], L = LEN - .5;
+        s += line([at(1.3, 1.2), at(W - 1.3, 1.2), at(W - 1.3, L - 1.2), at(1.3, L - 1.2), at(1.3, 1.2)]);
+        for (let i = 0; i < 11; i++) {
+          const x = lerp(2.6, W - 2.4, i / 10), r0 = 2.2, r1 = L - 2.2, short = (i + side) % 5 === 4 ? .45 : 0;
+          // rata kanan pembaca: separuh +y → tepi luar; separuh -y → dekat punggung
+          const [ra, rb] = side ? [lerp(r0, r1, short), r1] : [r0, lerp(r1, r0, short)];
+          const hot = st.mark && side === 0 && (i === 3 || i === 4);
+          s += hot ? `<path class="nyala" filter="url(#soft)" d="${path([at(x, ra), at(x, rb)])}"/>` : line([at(x, ra), at(x, rb)]);
+        }
+      }
+      if (coverUp) {
+        const at2 = (x, r) => add(add(o, [x, 0, 0]), d, r), W = BX1 - BX0, L = LEN + .7, cx = W / 2, cr = L / 2;
+        s += line([at2(1.6, 1.6), at2(W - 1.6, 1.6), at2(W - 1.6, L - 1.6), at2(1.6, L - 1.6), at2(1.6, 1.6)], 'wire');
+        s += line([at2(cx - 5, cr), at2(cx, cr + 3.6), at2(cx + 5, cr), at2(cx, cr - 3.6), at2(cx - 5, cr)], 'wire');
+      }
+      const ends = [o, add(o, ex), add(o, d, LEN + .7), add(add(o, ex), d, LEN + .7)];
+      return { svg: s, pts: [...ends, ...ends.map(p => add(p, t, COVER_T + pagesT))] };
+    }
+    function leaf(p) {
+      const T = thick(), e = ease(p);
+      // engsel lembar: di atas tumpukan kiri, lalu (setelah tegak) di atas tumpukan kanan
+      const hinge = add(SPINE, e > .5 ? UP_R : UP_L, (e > .5 ? T.r : T.l) + COVER_T);
+      const a = lerp(Math.PI - TH, TH, e), bend = .55 * Math.sin(Math.PI * e);
+      let o = [BX0 + .8, hinge[1], hinge[2]], s = '';
+      const ex = [BX1 - BX0 - 1.6, 0, 0], seg = (LEN - .5) / 3;
+      for (let i = 0; i < 3; i++) { const dd = dirA(a + bend * (i + 1) / 3).map(v => v * seg);
+        s += poly([o, add(o, ex), add(add(o, ex), dd), add(o, dd)], 'top'); o = add(o, dd); }
+      return s;
+    }
+    function draw() {
+      const T = thick(), e = ease(st.open);
+      let s = box(0, 3, 0, RW, RD - 6, BH, 4);
+      s += `<g transform="${K.TOP(2, 5, BH)}"><rect class="detail" width="${RW - 4}" height="${RD - 10}" rx="3"/></g>`;
+      for (const sign of [-1, 1]) s += prism(slab(sign), RX0, RX1, 'kayu') + tepi(slabPts(slab(sign)));
+      const aR = lerp(Math.PI - TH, TH, e), hingeR = add(SPINE, UP_L, (1 - e) * (T.l + T.r + 2 * COVER_T));
+      const L0 = half(SPINE, Math.PI - TH, UP_L, T.l, 0), R0 = half(hingeR, aR, [0, -Math.sin(aR), Math.cos(aR)], T.r, 1);
+      let book = L0.svg + tepi(L0.pts) + R0.svg + tepi(R0.pts);
+      if (st.leaf != null) book += leaf(st.leaf);
+      s += `<g class="press" id="kr-book">${book}</g>`;
+      // label kutipan: kata Latin saja, garis penunjuk ke baris yang menyala
+      const d = dirA(Math.PI - TH), top = add(add(add([BX0 + .8, YC, ZS], d, .5), UP_L, COVER_T + T.l), [lerp(2.6, BX1 - BX0 - 4, .35), 0, 0]);
+      if (st.mark && st.open >= 1) s += api.tag(add(top, d, 15), 34, -26, 'KUTIPAN', true);
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.open <= 0 ? 'Kitab tertutup' : `Kitab terbuka, ${st.read} lembar sudah dibaca${st.mark ? ', kutipan ditandai' : ''}`);
+    const render = () => { draw(); read(); };
+    const run = (ms, step, done) => { st.busy = true; api.anim(ms, t => { step(t); draw(); }, () => { st.busy = false; if (done) done(); render(); }); };
+    const H = window.H = {
+      turn() { if (st.busy) return; if (st.open < 1) return api.readout('Kitab masih tertutup. Buka dulu.');
+        if (thick().l < .6) return api.readout('Sudah sampai halaman terakhir');
+        st.mark = false; run(1100, t => { st.leaf = t; }, () => { st.leaf = null; st.read++; }); },
+      swing(to) { if (st.busy) return; if (st.open === to) return api.readout(to ? 'Kitab sudah terbuka' : 'Kitab sudah tertutup');
+        const from = st.open; st.mark = false; run(900, t => { st.open = lerp(from, to, t); }); },
+      mark() { if (st.busy) return; if (st.open < 1) return api.readout('Buka kitab dulu'); st.mark = !st.mark; render(); },
+    };
+    stage.addEventListener('click', e => { if (e.target.closest('#kr-book')) st.open >= 1 ? H.turn() : H.swing(1); });
+    const q = new URLSearchParams(location.search), num = (k, lo, hi) => { const v = Number(q.get(k)); return q.has(k) && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : null; };
     if (q.get('tutup') === '1') st.open = 0;
-    st.open = num('buka', 0, 1) ?? st.open;
-    st.read = Math.round(num('lembar', 0, 30) ?? st.read);
     st.leaf = num('balik', 0, 1) ?? st.leaf;
+    render();
+    return {
+      render: draw,
+      // demo: halaman dibalik, lalu kutipan menyala; akhir: kutipan menyala tanpa animasi
+      demo() { if (st.open < 1 || st.busy) return; st.mark = false; render(); api.after(300, () => H.turn()); api.after(1800, () => H.mark()); },
+      akhir() { if (st.open >= 1 && st.leaf == null) { st.mark = true; render(); } },
+      key(e) { const k = e.key.toLowerCase(); if (k === ' ') return H.turn(), true; if (k === 'k') return H.mark(), true; return false; },
+    };
   },
 });
 </script>

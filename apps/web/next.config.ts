@@ -19,15 +19,28 @@ const nextConfig: NextConfig = {
   },
   // Header keamanan dasar untuk semua respons (temuan peninjau rilis Fase 0). CSP penuh menyusul
   // sebelum Fase 4: next-themes menyisipkan skrip inline, dan nonce butuh proxy (dilarang ADR-003).
+  // Aset ilustrasi (/aset/*, ADR-054) disematkan lewat iframe di halaman sendiri, jadi boleh dibingkai
+  // oleh origin yang sama. Di produksi berkas public/ dilayani Workers Static Assets tanpa melewati Next,
+  // sehingga header /aset/* yang berlaku ada di public/_headers; aturan di sini untuk `next dev`.
   headers() {
+    const base = [
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+    ];
     return [
       {
-        source: "/:path*",
+        source: "/((?!aset/).*)",
+        headers: [...base, { key: "X-Frame-Options", value: "DENY" }],
+      },
+      {
+        source: "/aset/:path*",
         headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          ...base,
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          // iframe sandbox tanpa allow-same-origin berasal dari origin "null": font perlu CORS
+          { key: "Access-Control-Allow-Origin", value: "*" },
         ],
       },
     ];

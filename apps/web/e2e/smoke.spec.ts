@@ -152,6 +152,37 @@ test("respons HTML membawa header keamanan dasar", async ({ request }) => {
   expect(headers["permissions-policy"]).toContain("camera=()");
 });
 
+test("ilustrasi prinsip di Beranda tampil di iframe sandbox dan bisa ditekan", async ({ page }) => {
+  await page.goto("/");
+
+  const frames = page.locator("#judul-prinsip ~ ul iframe");
+  await expect(frames).toHaveCount(3);
+  for (const frame of await frames.all()) {
+    await expect(frame).toHaveAttribute("sandbox", "allow-scripts");
+    await expect(frame).toHaveAttribute("title", /Ilustrasi interaktif/);
+  }
+  // Isi iframe benar-benar dimuat (tidak ditolak X-Frame-Options) dan tombolnya bekerja.
+  await frames.first().scrollIntoViewIfNeeded();
+  const verbatim = page.frameLocator("#judul-prinsip ~ ul iframe").first();
+  await expect(verbatim.locator("#stage path").first()).toBeAttached();
+  await verbatim.getByRole("button", { name: "Kutipan keliru" }).click();
+  await expect(verbatim.locator("#status")).toHaveText(/tidak ditampilkan/, { timeout: 5000 });
+});
+
+test("aset ilustrasi boleh dibingkai halaman sendiri, halaman lain tidak", async ({ request }) => {
+  const aset = await request.get("/aset/prinsip-verbatim.html");
+  expect(aset.ok()).toBe(true);
+  const headers = aset.headers();
+  expect(headers["x-frame-options"]).toBe("SAMEORIGIN");
+  expect(headers["content-security-policy"]).toContain("frame-ancestors 'self'");
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+
+  // Font aset dimuat dari origin "null" (iframe sandbox), jadi perlu CORS.
+  const font = await request.get("/aset/fonts/plus-jakarta-sans-latin.woff2");
+  expect(font.ok()).toBe(true);
+  expect(font.headers()["access-control-allow-origin"]).toBe("*");
+});
+
 test("API versi melaporkan NORM_VERSION dari @surau/text", async ({ request }) => {
   const response = await request.get("/api/version");
 

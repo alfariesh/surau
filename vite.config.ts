@@ -13,7 +13,12 @@ const generated = [
   "**/cloudflare-env.d.ts",
 ];
 
-const vendoredAset = [".claude/skills/aset/mesin/**", ".claude/skills/aset/contoh/**", "aset/**"];
+const vendoredAset = [
+  ".claude/skills/aset/mesin/**",
+  ".claude/skills/aset/contoh/**",
+  "aset/**",
+  "apps/web/public/aset/**",
+];
 
 export default defineConfig({
   // tsconfig apps/web memakai `jsx: "preserve"` (wajib untuk Next). Tes komponen (.tsx) dijalankan
@@ -23,8 +28,8 @@ export default defineConfig({
   },
   lint: {
     plugins: ["typescript", "unicorn", "oxc", "react", "nextjs", "jsx-a11y", "import", "vitest"],
-    // Mesin aset (turunan Colorfigures, MIT), contoh aslinya, serta figur dan keluaran aset (HTML padat
-    // bergaya mesin; keluaran = hasil bangun) tidak di-lint atau diformat ulang (ADR-054).
+    // Mesin aset (turunan iso-glow, MIT), contoh aslinya, serta figur dan keluaran aset (HTML padat
+    // bergaya mesin; keluaran dan public/aset = hasil bangun) tidak di-lint atau diformat ulang (ADR-054).
     ignorePatterns: [...generated, "docs/**", "implementasi/**", ...vendoredAset],
     options: {
       typeAware: true,

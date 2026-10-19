@@ -15,13 +15,13 @@ Format entri:
 
 ---
 
-## 2026-10-19 · Di luar sesi · Skill aset visual (Colorfigures bergaya Surau) — selesai
+## 2026-10-19 · Di luar sesi · Skill aset visual + tiga ilustrasi prinsip di Beranda — selesai
 
-- Dikerjakan: skill `.claude/skills/aset/` (SKILL, REFERENSI, mesin turunan Colorfigures MIT dengan palet Zaitun, tema terang/gelap/sepia, mode sematan/polos/sampul, teks Indonesia, kurangi gerakan; skrip Node `bangun.mjs` dan `potret.mjs`). Figur contoh `aset/figur/kitab-rehal.html` (buka, balik halaman kanan ke kiri, tutup), hasil `aset/keluaran/` (HTML mandiri 46 KiB, cover 1200×630, gambar konten 1080×1080).
-- Verifikasi: `potret.mjs` keadaan diam, tertutup, setengah menutup, lembar dibalik, urutan tombol `Tutup→Balik` (muncul pesan "Kitab masih tertutup. Buka dulu."), `Tutup→Buka→Balik` (status: `read` 5→6), tema gelap+sematan, sepia, ponsel 375 px → tanpa galat/`NaN`; keluaran hanya memuat URL namespace SVG. `vp check` atas skrip dan `vite.config.ts` → lolos. `pnpm check` penuh di kontainer cloud gagal karena `@heroui-pro/react` tidak punya tipe di sini (sudah ada sebelum perubahan ini; CI yang menentukan).
+- Dikerjakan: skill `.claude/skills/aset/` (mesin turunan iso-glow MIT, token warna dibaca dari `globals.css`, tombol Indonesia, mode sematan/polos/sampul, demo otomatis, kurangi gerakan; skrip Node `bangun.mjs`/`potret.mjs` dengan WebP/JPG). Colorfigures dicoba dulu lalu diganti setelah pemilik membandingkan keduanya. Figur `kitab-rehal` dan tiga figur prinsip dipasang di kartu Beranda lewat `AsetSemat` (iframe sandbox); header `/aset/*` di `public/_headers`, kredit di `/lisensi#ilustrasi`, e2e baru di `smoke.spec.ts`.
+- Verifikasi: `potret.mjs` untuk keempat figur (terang, gelap, kartu 240 px, tombol termasuk di luar urutan) → tanpa galat; halaman tiruan dengan iframe sandbox (desktop terang/gelap, ponsel 390 px) → tergambar, tema lewat postMessage, latar transparan; galat CORS font di server tiruan membuktikan header ACAO dibutuhkan (ada di `_headers`). `vp check` atas berkas yang diubah → lolos. Server dev dan `pnpm verify` penuh tidak bisa dijalankan di kontainer cloud (HeroUI Pro tidak terpasang); CI dan preview PR yang menentukan.
 - Biaya API: –
 - Keputusan: ADR-054.
-- Catatan untuk sesi berikutnya: aset belum disematkan di situs; langkahnya ada di SKILL.md bagian "Sematan pertama" (header `/aset/*`, tema, font, `/lisensi`, e2e).
+- Catatan untuk sesi berikutnya: figur "cara kerja Surau" dan video pendek media sosial (ffmpeg) diusulkan sebagai lanjutan; CSP penuh nanti perlu aturan khusus `/aset/*`.
 
 ## 2026-10-19 · S18 · Eval Jawab & halaman tinjau — sebagian
 

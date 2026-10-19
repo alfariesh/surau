@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verbatim atau tidak sama sekali</title>
+</head>
+<body>
+<script src="../../.claude/skills/aset/mesin/iso.js"></script>
+<script>
+/* Prinsip 1 · Verbatim atau tidak sama sekali.
+   Proses: kitab terbuka di alas (sumber) → satu baris ditandai → disalin kode lewat kabel ke kartu kutipan →
+   kartu dicocokkan dengan sumber. Cocok: kartu menyala, label SAMA PERSIS. Kutipan keliru (satu baris berbeda):
+   kartu meredup, label TIDAK DITAMPILKAN. Baris teks hanya garis; tidak ada huruf Arab. */
+const { lerp } = ISO;
+const st = { salin: 1, cocok: true, busy: false };
+const N = 6;
+
+mountFigure({
+  id: 'prinsip-verbatim', title: 'Verbatim atau tidak sama sekali',
+  hint: 'salin kutipan dari kitab, atau coba kutipan yang keliru',
+  alt: 'Ilustrasi garis: baris dari kitab terbuka disalin lewat kabel ke kartu kutipan. Bila sama persis, kartu menyala; bila keliru, kartu meredup dan tidak ditampilkan.',
+  ulang: 7000,
+  tombol: [
+    { label: 'Salin', aksi: () => H.salin(true) },
+    { label: 'Kutipan keliru', aksi: () => H.salin(false) },
+  ],
+  mount(stage, api) {
+    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[38,8,28],[54,8,28],[30,20,14]]);
+    const { box, line, FRONT, TOP } = K;
+    const SRC = [27, 27.5, 3.7], DST = [43, 10, 21];
+    function draw() {
+      let s = box(0, 0, 0, 60, 46, 2, 5);
+      // kitab terbuka di alas: dua halaman datar
+      for (const [x0, w] of [[6, 13], [19.4, 13]]) {
+        s += box(x0, 14, 2, w, 26, 1.6, 1);
+        let g = '';
+        for (let i = 0; i < 9; i++) {
+          const v = 3 + i * 2.5, hot = x0 > 10 && i === 5, u0 = i === 8 ? 5 : 2;
+          g += hot ? `<line class="nyala" filter="url(#soft)" x1="2" y1="${v}" x2="${w - 2}" y2="${v}"/>` : `<line class="detail" x1="${u0}" y1="${v}" x2="${w - 2}" y2="${v}"/>`;
+        }
+        s += `<g transform="${TOP(x0, 14, 3.6)}">${g}</g>`;
+      }
+      // kabel dari baris sumber ke kartu
+      const pts = api.kurva(SRC, DST, 10);
+      const lit = st.salin >= 1 && st.cocok;
+      s += `<path class="wire${st.salin > 0 ? ' hot' : ''}" d="${K.path(pts)}"/>`;
+      s += `<path class="pulse" id="pv-pulse" pathLength="1000" d="${K.path(pts)}"/>`;
+      // kartu kutipan berdiri; baris muncul satu per satu saat disalin
+      const kartu = box(38, 8, 2, 16, 2, 22, 0, lit ? 'hot' : '');
+      let g = '';
+      const tampak = Math.floor(st.salin * N + 1e-6);
+      for (let i = 0; i < N; i++) {
+        if (i >= tampak) break;
+        const v = 4 + i * 2.6, beda = !st.cocok && i === 2;
+        g += beda ? `<line class="wire" stroke-dasharray="1.2 1.2" x1="5" y1="${v}" x2="11" y2="${v}"/>`
+          : `<line class="${lit ? 'nyala' : 'detail'}" x1="2" y1="${v}" x2="${i === N - 1 ? 9 : 14}" y2="${v}"/>`;
+      }
+      s += `<g class="${!st.cocok && st.salin >= 1 ? 'redup' : ''}">${kartu}<g transform="${FRONT(38, 10, 24)}">${g}</g>${K.tepi([[38,8,2],[54,8,2],[38,10,2],[54,10,2],[38,8,24],[54,8,24],[38,10,24],[54,10,24]])}</g>`;
+      if (st.salin >= 1) s += api.tag([46, 9, 24], 14, -22, st.cocok ? 'SAMA PERSIS' : 'TIDAK DITAMPILKAN', st.cocok);
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.salin < 1 ? 'Menyalin dari kitab' : st.cocok ? 'Kutipan sama persis dengan sumber, jadi ditampilkan' : 'Kutipan tidak cocok dengan sumber, jadi tidak ditampilkan');
+    const H = window.H = {
+      salin(cocok) { if (st.busy) return; st.busy = true; st.cocok = cocok; st.salin = 0; draw();
+        api.replay(stage.querySelector('#pv-pulse'));
+        api.anim(1400, t => { st.salin = t; draw(); }, () => { st.busy = false; draw(); read(); }); },
+    };
+    draw(); read();
+    return {
+      render: draw,
+      demo() { H.salin(true); },
+      akhir() { st.salin = 1; st.cocok = true; draw(); read(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

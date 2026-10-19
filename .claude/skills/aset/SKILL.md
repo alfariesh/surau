@@ -1,66 +1,78 @@
 ---
 name: aset
-description: Buat aset visual Surau yang interaktif dan seragam gayanya, yaitu ilustrasi isometrik bergaya tinta tangan dengan warna datar (mesin Colorfigures yang dikunci ke palet Zaitun Surau). Hasilnya satu file HTML yang bisa ditekan, ditambah PNG diam bila perlu. Pakai untuk ilustrasi landing page, cover blog atau Open Graph, gambar konten media sosial, ilustrasi "cara kerja", atau aset visual lain; juga saat pemilik menyebut "aset", "ilustrasi", "cover", "gambar landing", atau "Colorfigures".
-argument-hint: "[benda/adegan] [untuk: landing | cover | konten]"
+description: Buat aset visual Surau yang interaktif dan seragam gayanya, yaitu ilustrasi isometrik garis tipis dengan satu aksen Zaitun yang menyala pada bagian yang "hidup" (mesin turunan iso-glow, warna langsung dari globals.css situs). Hasilnya satu file HTML yang bisa ditekan dan disematkan di situs, ditambah WebP/JPG diam untuk cover dan konten. Pakai untuk ilustrasi landing page atau beranda, cover blog/Open Graph, gambar dan konten media sosial, ilustrasi "cara kerja", atau aset visual lain; juga saat pemilik menyebut "aset", "ilustrasi", "cover", "gambar landing", atau "iso-glow".
+argument-hint: "[benda/adegan] [untuk: situs | cover | konten]"
 ---
 
 # Aset visual Surau: $ARGUMENTS
 
-Semua aset visual Surau memakai **satu mesin dan satu gaya**: benda isometrik dengan tinta tangan, tiga tingkat bayangan warna datar, bayangan jatuh, dan latar kertas. Mesinnya turunan Colorfigures (MIT) dan sudah dikunci ke identitas Surau di `mesin/core.js`, meliputi palet, font, tema terang/gelap/sepia, teks UI berbahasa Indonesia, dan pengaturan "kurangi gerakan". Tujuannya agar aset tidak sekadar gambar diam: di situs, aset bisa ditekan, sedangkan di tempat yang hanya menerima gambar (OG, media sosial), PNG-nya dipotret dari file yang sama.
+Semua aset visual Surau memakai **satu mesin dan satu gaya**: gambar isometrik bergaris tipis, warna netral situs, dan **satu aksen Zaitun hanya pada yang hidup**, misalnya baris yang dikutip, jilid yang dirujuk, atau kabel yang sedang menelusuri. Gaya ini dipilih pemilik setelah membandingkannya dengan Colorfigures (ADR-054). Mesinnya ada di `mesin/iso.js`, turunan iso-glow (MIT). Mesin ini membaca token warna langsung dari `apps/web/src/app/globals.css` saat dibangun, mendukung tema terang/gelap/sepia dan "kurangi gerakan", serta memakai teks UI berbahasa Indonesia. Di situs, aset bisa ditekan. Di tempat yang hanya menerima gambar (OG, media sosial), dipakai WebP/JPG yang dipotret dari file yang sama.
 
 ## Aturan Surau (keras, tidak bisa ditawar)
 
-1. **Tidak ada huruf Arab di aset.** Tidak boleh ada kaligrafi, ayat, basmalah, judul kitab Arab, atau "hiasan" berbentuk huruf (aturan keras 1; `.claude/rules/teks-arab.md`). Baris teks di halaman kitab digambar sebagai **garis polos**. Teks Arab asli hanya boleh tampil di halaman situs lewat `ArabicText` dari DB, bukan di dalam figur.
-2. **Tidak ada wajah atau sosok manusia**, termasuk ulama, santri, dan tangan (docs/05 §2–3). Agar aman, hindari juga makhluk bernyawa lain. Yang digambar adalah benda dan tempat.
-3. **Label dan tombol memakai bahasa Indonesia**, awam, dan singkat; tombol berupa kata kerja (misalnya "Buka kitab" atau "Balik halaman").
-4. **Warna hanya dari palet mesin**: `PALS.zaitun` (aksen Surau), `kayu`, `tanah`, `nila`, `emas` (ornamen), `KERTAS`, `METAL`, `CERAMIC`, `DARK`, `BOARD`/`WOOD`. Bila butuh warna baru, tambahkan ke `PALS` di `mesin/core.js` (berlaku untuk semua aset) dan catat alasannya. Jangan menulis hex lepas di figur, kecuali warna teks garis halaman dan bingkai seperti di contoh.
-5. **Tanpa permintaan ke luar.** File HTML aset tidak memuat font, gambar, atau skrip dari internet. Hanya `skrip/potret.mjs` yang boleh memuat font situs dari Google Fonts saat memotret.
-6. **Kredit tetap ada.** Komentar lisensi MIT di `mesin/core.js` ikut tersisip ke setiap file hasil dan tidak boleh dihapus. Saat aset pertama kali tampil di situs, tambahkan kredit Colorfigures (April Zhu, MIT) di halaman `/lisensi`.
-7. **Ikuti proses yang sebenarnya.** Kitab Arab dibaca dari kanan ke kiri, jadi halaman dibalik dari kiri ke kanan pembaca (contoh `kitab-rehal`). Sebelum menggambar, tulis urutan nyatanya di komentar figur.
+1. **Tidak ada huruf Arab di aset**: tidak ada kaligrafi, ayat, basmalah, judul kitab Arab, atau hiasan berbentuk huruf (aturan keras 1; `.claude/rules/teks-arab.md`). Baris teks digambar sebagai **garis polos**. Teks Arab asli hanya tampil di halaman situs lewat `ArabicText` dari DB.
+2. **Tidak ada wajah atau sosok manusia**, termasuk ulama, santri, dan tangan (docs/05 §2–3). Hindari juga makhluk bernyawa lain. Yang digambar adalah benda dan tempat.
+3. **Tidak ada klaim palsu.** Angka di label (misalnya "JILID 2 · HLM 214") hanya contoh ilustrasi, tanpa nama kitab atau ulama. Jangan pernah menggabungkan nama karya nyata dengan alamat karangan. Gunakan bahasa atribusi, bukan fatwa ("MENURUT PENULIS", bukan "HUKUMNYA").
+4. **Label dan tombol memakai bahasa Indonesia** yang awam dan singkat. Tombol berupa kata kerja ("Salin", "Telusuri"); label di gambar memakai huruf Latin kapital.
+5. **Warna hanya dari token**: `.face`, `.top`, `.recess`, `.kayu`, `.detail`, `.wire`, `.nyala`, `.hot`, `.tag`, dan sejenisnya (lihat `REFERENSI.md`). **Jangan menulis hex atau oklch di figur.** Warna baru ditambahkan ke `CSS_DASAR` di `mesin/iso.js` sebagai turunan token situs.
+6. **Aksen hanya untuk yang hidup.** Satu atau dua hal menyala per keadaan, selebihnya netral. Bila semuanya menyala, tidak ada yang menonjol.
+7. **Tanpa permintaan ke luar.** File aset tidak memuat apa pun dari internet; font Plus Jakarta Sans disajikan sendiri dari `/aset/fonts/` (OFL). Kredit iso-glow/iso-figure (MIT) ada di komentar mesin, di setiap keluaran, dan di `/lisensi#ilustrasi`. Jangan hapus.
+8. **Ikuti proses nyata.** Kitab Arab dibaca dari kanan ke kiri, jadi halaman dibalik dari kiri ke kanan pembaca (`kitab-rehal`). Sebelum menggambar, tulis urutan nyatanya di komentar figur.
 
-## Benda yang cocok untuk Surau
+## Benda yang cocok
 
-Kitab (terbuka/tertutup, bertumpuk), rehal, rak kitab, meja lesehan, lampu pelita atau lentera, pena dan dawat, kotak kartu katalog, kaca pembesar di atas halaman, timbangan (untuk "menimbang sumber"), bedug, dan bangunan surau kayu kecil. Untuk ilustrasi "cara kerja" (misalnya alur dari pertanyaan → pencarian → halaman kitab), gunakan label `tag()` berbahasa Indonesia dan nyalakan label yang sedang aktif.
+Kitab (terbuka/tertutup, bertumpuk), rehal, rak dan jilid, kartu kutipan, kabel penelusuran, lampu pelita, pena dan dawat, kotak kartu katalog, kaca pembesar, timbangan ("menimbang sumber"), dan bangunan surau kecil. Untuk "cara kerja" (pertanyaan → pencarian → halaman kitab), pakai kabel dengan denyut (`.pulse`) dan label.
 
 ## Alur kerja
 
-1. **Baca dulu:** `aset/figur/kitab-rehal.html` (contoh Surau: kotak berorientasi bebas `obox`, lembar yang dibalik, sampul yang menutup, `?param` untuk potret), `REFERENSI.md` (kontrak menggambar: koordinat, urutan pelukis, bentuk, pelajaran), dan bila perlu `mesin/core.js` beserta contoh asli di `contoh/`.
-2. **Tulis** `aset/figur/<nama>.html` (nama kebab-case bahasa Indonesia). Muat mesin dengan `<script src="../../.claude/skills/aset/mesin/core.js"></script>`, lalu tulis satu `<script>` yang memanggil `mountFigure({...})` dengan `title`, `hint`, `alt` (deskripsi untuk pembaca layar), `buttons`, `acts`, `params`, dan `readout` (status untuk pembaca layar).
-3. **Potret dan perbaiki**, maksimal dua putaran:
+1. **Baca dulu:** `REFERENSI.md` (kernel, kelas, kontrak `mountFigure`, pelajaran) dan satu contoh terdekat di `aset/figur/`. `prinsip-*.html` adalah figur kecil untuk kartu; `kitab-rehal.html` memuat kotak miring (`obox`), prisma (`prism`), lembar yang dibalik, dan sampul yang menutup. Contoh asli iso-glow ada di `contoh/`, untuk teknik saja.
+2. **Tulis** `aset/figur/<nama>.html` (kebab-case bahasa Indonesia):
+   - Muat mesin dengan `<script src="../../.claude/skills/aset/mesin/iso.js"></script>`.
+   - Tulis satu `<script>` yang memanggil `mountFigure({ id, title, hint, alt, tombol, ulang, mount })`.
+   - `mount` mengembalikan `{ render, demo, akhir, key }`: `render` menggambar ulang, `demo` adalah urutan singkat yang diputar otomatis, dan `akhir` adalah keadaan akhir untuk "kurangi gerakan", cover, dan polos.
+3. **Potret dan perbaiki**, maksimal dua putaran. Sumber dibangun otomatis, jadi tidak perlu bangun dulu:
    ```bash
-   node .claude/skills/aset/skrip/potret.mjs aset/figur/<nama>.html <scratchpad>/diam.png
-   node .claude/skills/aset/skrip/potret.mjs aset/figur/<nama>.html <scratchpad>/urutan.png --query "press=Buka@200,Balik@1500" --tunggu 2200
-   node .claude/skills/aset/skrip/potret.mjs aset/figur/<nama>.html <scratchpad>/gelap.png --query "tema=gelap&sematan=1"
-   node .claude/skills/aset/skrip/potret.mjs aset/figur/<nama>.html <scratchpad>/hp.png --lebar 375 --tinggi 560 --skala 1
+   node .claude/skills/aset/skrip/potret.mjs aset/figur/<nama>.html <scratchpad>/terang --format png --query "gerak=0"
+   node .claude/skills/aset/skrip/potret.mjs aset/figur/<nama>.html <scratchpad>/gelap --format png --query "tema=gelap&gerak=0"
+   node .claude/skills/aset/skrip/potret.mjs aset/figur/<nama>.html <scratchpad>/kartu --format png --query "sematan=1&gerak=0" --lebar 240 --tinggi 180 --skala 2
+   node .claude/skills/aset/skrip/potret.mjs aset/figur/<nama>.html <scratchpad>/tombol --format png --query "demo=0&press=Salin@200" --tunggu 2200
    ```
-   Skrip keluar dengan kode 2 dan mencetak galatnya bila ada error skrip atau `NaN` di SVG. Lihat setiap gambar seperti orang asing melihatnya: adakah bagian yang melayang, garis tinta menembus benda lain, bayangan terlepas, atau bentuk yang tidak mirip aslinya? Coba juga satu tombol yang ditekan di luar urutan; harus muncul pesan, tidak boleh diam.
-4. **Bangun** file mandiri: `node .claude/skills/aset/skrip/bangun.mjs aset/figur/<nama>.html` menghasilkan `aset/keluaran/<nama>.html`.
-5. **Kirim tangkapan layar ke pemilik** untuk disetujui sebelum aset dipasang di situs. Pemilik adalah desainer, jadi tunjukkan versi terang, gelap, dan ponsel.
+   Skrip keluar dengan kode 2 bila ada galat skrip, berkas gagal dimuat, figur kosong, atau `NaN`. Lihat gambarnya seperti orang asing:
+   - Adakah bagian yang melayang, saling tumpang tindih, atau terpotong bingkai?
+   - Apakah label terbaca di ukuran kartu?
+   - Apakah yang menyala hanya yang hidup?
+
+   Coba juga tombol yang ditekan di luar urutan; harus muncul pesan, tidak boleh diam.
+4. **Bangun:** `node .claude/skills/aset/skrip/bangun.mjs aset/figur/<nama>.html` menghasilkan `aset/keluaran/<nama>.html`. Tambahkan `--situs` untuk aset yang tampil di situs: salinannya masuk ke `apps/web/public/aset/`.
+5. **Kirim tangkapan layar ke pemilik** (terang, gelap, ponsel) sebelum aset baru dipasang di halaman situs. Kalau aset sudah dipasang di PR, tautkan juga preview PR.
 
 ## Keluaran per kebutuhan
 
 | Kebutuhan | Cara | Hasil |
 |---|---|---|
-| **Landing / halaman situs** (interaktif) | `aset/keluaran/<nama>.html` disalin ke `apps/web/public/aset/`, lalu disematkan dengan `<iframe src="/aset/<nama>.html?sematan=1&tema=…" title="…" loading="lazy" sandbox="allow-scripts" style="aspect-ratio:4/3;border:0;width:100%">` (tanpa `allow-same-origin`, supaya aset tidak bisa menyentuh cookie atau DOM situs) | Figur bisa ditekan, latar transparan, mengikuti tema situs |
-| **Cover blog / Open Graph** | `potret.mjs … --query "sampul=1&kecil=Blog%20Surau&judul=<judul>"` | PNG 1200×630, judul dengan Plus Jakarta Sans |
-| **Konten media sosial** (diam) | `potret.mjs … --query "polos=1&<keadaan>" --lebar 1080 --tinggi 1080 --skala 1` | PNG persegi tanpa tombol |
-| **Artikel blog** (interaktif) | Sama seperti landing, di dalam badan artikel | Pembaca bisa mencoba sendiri |
+| **Situs** (beranda, landing, artikel) | `bangun.mjs … --situs`, lalu `<AsetSemat nama="<nama>" title="Ilustrasi interaktif: …" />` (`apps/web/src/components/aset/aset-semat.tsx`) | iframe `sandbox="allow-scripts"`, rasio 4:3, lazy, tema mengikuti situs lewat postMessage, latar transparan |
+| **Cover blog / Open Graph** | `potret.mjs … <keluar> --format webp,jpg --query "sampul=1&kecil=Blog%20Surau&judul=<judul>"` | 1200×630. **JPG untuk `og:image`** (pasti tampil di WhatsApp, Facebook, LinkedIn), **WebP untuk di dalam situs** (±25–35 KiB) |
+| **Konten media sosial** (diam) | `potret.mjs … --format webp --query "polos=1[&tema=gelap]" --lebar 1080 --tinggi 1080 --skala 1` | Persegi tanpa tombol; gelap lebih "menyala" |
+| **Gambar di halaman situs** (diam) | `--format webp` | Jangan PNG: di Workers gambar tidak dioptimasi ulang (ADR-003) |
 
-Parameter bawaan mesin: `?tema=terang|gelap|sepia` (bawaan mengikuti sistem), `?pal=<kunci PALS>` (palet badan), `?sematan=1`, `?polos=1`, `?sampul=1&judul=…&kecil=…`, `?labels=0`, `?gerak=0` (tanpa animasi), dan `?press=Label@ms,…` (uji). Teks `judul`/`kecil` dipasang lewat `textContent`, sehingga aman dari sisipan HTML. Setiap figur juga sebaiknya membaca keadaannya sendiri lewat `params` (contoh: `?tutup=1`, `?balik=0.5`) supaya keadaan apa pun bisa dipotret.
+Parameter bawaan mesin: `?tema=terang|gelap|sepia` (bawaan mengikuti sistem), `?sematan=1`, `?polos=1`, `?sampul=1&judul=…&kecil=…` (teks lewat `textContent`, aman dari sisipan HTML), `?gerak=0`, `?demo=0`, dan `?press=Label@ms,…` (uji). Figur boleh membaca parameternya sendiri untuk memotret keadaan tertentu (contoh: `?tutup=1`, `?balik=0.5`); nilai bukan angka wajib diabaikan (`Number.isFinite`).
 
-**Sematan pertama di situs (belum dilakukan, catat ADR saat mengerjakannya):** berkas di `apps/web/public/` disajikan Workers Static Assets **tanpa melewati Worker**, jadi `headers()` di `next.config.ts` tidak berlaku untuk `/aset/*` di produksi (tetapi berlaku di `next dev`, sehingga e2e lokal bisa menipu). Tulis headernya di `apps/web/public/_headers`: aturan `/aset/*` dengan `X-Frame-Options: SAMEORIGIN`, `Content-Security-Policy: frame-ancestors 'self'`, dan `X-Content-Type-Options: nosniff`, lalu periksa header di Preview (`curl -I`). Aset memakai skrip dan `<style>` inline, jadi saat CSP penuh situs dipasang, `/aset/*` butuh CSP sendiri (hash atau `'unsafe-inline'` yang dibatasi ke path itu). Teruskan tema situs lewat `?tema=` dari komponen klien (next-themes). Font di dalam iframe saat ini memakai cadangan (Inter/system-ui), jadi sajikan Plus Jakarta Sans secara lokal bila perbedaannya terlihat. Tambahkan kredit di `/lisensi`, satu uji e2e (iframe tampil, tombol bisa ditekan), dan cek axe.
+**Penyajian di situs** (sudah terpasang sejak beranda memakai tiga figur prinsip):
+- Header `/aset/*` ditulis di `apps/web/public/_headers`, karena Static Assets tidak melewati Worker: `X-Frame-Options: SAMEORIGIN`, `frame-ancestors 'self'`, `nosniff`, dan CORS untuk font (iframe sandbox berorigin "null"). `next.config.ts` memuat aturan yang sama untuk `next dev`.
+- Uji e2e `smoke.spec.ts` memeriksa iframe, tombol di dalamnya, dan header.
+- Saat CSP penuh situs dipasang, `/aset/*` butuh CSP sendiri karena skrip dan gaya aset inline.
 
 ## Mutu yang wajib
 
-- **Aksesibilitas:** `alt` menjelaskan isi gambar. Tombol adalah `<button>` asli dengan fokus terlihat. `readout` mengumumkan perubahan keadaan. Saat "kurangi gerakan" aktif, animasi langsung lompat ke akhir (sudah ditangani mesin; jangan memakai `requestAnimationFrame` sendiri).
-- **Setiap tekanan menghasilkan sesuatu:** aksi, atau `ui.flash('…')` yang menjelaskan kenapa belum bisa, termasuk saat animasi masih berjalan.
-- **Ukuran:** file hasil ±50–80 KiB tanpa gambar raster. Jangan menyisipkan PNG/foto ke dalam figur.
-- **Konsistensi:** jangan menambah penggeser wobble, pemilih palet, atau kredit di gambar; mesin sengaja tidak menampilkannya.
-- **Gaya figur:** tetap pada satu sudut pandang tetap dan satu cahaya (lihat `REFERENSI.md`).
+- **Aksesibilitas:** `alt` menjelaskan isi gambar; iframe punya `title` "Ilustrasi interaktif: …"; tombol adalah `<button>` asli; `api.readout` mengumumkan perubahan keadaan (`role="status"`). "Kurangi gerakan" menampilkan `akhir()` tanpa animasi. Animasi hanya lewat `api.anim`, jangan memakai `requestAnimationFrame` sendiri.
+- **Setiap tekanan menghasilkan sesuatu:** aksi, atau `api.readout('…')` yang menjelaskan kenapa belum bisa, termasuk saat animasi masih berjalan.
+- **Terbaca di kartu kecil:** label memakai `api.tag` (huruf ±9 px di layar, pil dijaga di dalam bingkai). Uji di lebar 240 px.
+- **Ukuran:** HTML ±30–40 KiB, tanpa gambar raster di dalamnya.
+- **Demo otomatis** hanya saat terlihat dan belum disentuh (`ulang` ms); berhenti begitu pengunjung menekan sesuatu.
 
 ## Selesai bila
 
-- [ ] `potret.mjs` tanpa galat (kode keluar 0) untuk keadaan diam, urutan tombol, tema gelap, dan ponsel 375 px.
-- [ ] Tidak ada huruf Arab, wajah, atau sosok di figur (periksa gambar, bukan hanya kode).
-- [ ] `aset/keluaran/<nama>.html` dibangun ulang dari sumber terbaru, dan PNG yang diminta tersimpan di `aset/keluaran/`.
-- [ ] Tangkapan layar dikirim ke pemilik; aset baru dipasang di situs setelah disetujui.
+- [ ] `potret.mjs` keluar dengan kode 0 untuk keadaan terang, gelap, kartu 240 px, dan urutan tombol.
+- [ ] Tidak ada huruf Arab, wajah, sosok, atau alamat karangan yang disandingkan dengan nama karya nyata (periksa gambar, bukan hanya kode).
+- [ ] `aset/keluaran/` (dan `apps/web/public/aset/` bila `--situs`) dibangun ulang dari sumber terbaru; gambar diam berformat WebP (JPG hanya untuk OG).
+- [ ] Tangkapan layar dikirim ke pemilik; bila dipasang di situs, preview PR dan e2e hijau.
