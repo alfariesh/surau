@@ -32,7 +32,9 @@ test("halaman baca tanpa galat JavaScript (regresi `__name` dari bundler Worker)
   const response = await page.goto(PAGE);
   // keep_names: false (ADR-034 butir 8): skrip tema dari fn.toString() tidak boleh membawa __name.
   expect(await response?.text()).not.toContain("__name(");
-  await expect(page.getByRole("button", { name: "Salin sitasi" })).toBeVisible();
+  await expect(
+    page.getByRole("group", { name: "Alat baca" }).getByRole("button", { name: "Tampilan" }),
+  ).toBeVisible();
   await page.waitForLoadState("load");
   expect(errors).toEqual([]);
 });
@@ -81,11 +83,22 @@ test("navigasi halaman: tombol dan panah papan ketik mengikuti arah kitab Arab",
   await expect(page).toHaveURL(/\/kitab\/ihya\/1\/201$/);
 });
 
-test("Salin sitasi menghasilkan format sitasi + permalink", async ({ page, context, baseURL }) => {
+test("Salin sitasi menghasilkan format sitasi + permalink", async ({
+  page,
+  context,
+  baseURL,
+  isMobile,
+}) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto(PAGE);
 
-  await page.getByRole("button", { name: "Salin sitasi" }).click();
+  // Ponsel: Salin sitasi ada di menu ⋮ grup tombol.
+  if (isMobile) {
+    await page.getByRole("button", { name: "Aksi lain" }).click();
+    await page.getByRole("menuitem", { name: "Salin sitasi" }).click();
+  } else {
+    await page.getByRole("button", { name: "Salin sitasi" }).click();
+  }
   await expect(page.getByText("Sitasi disalin")).toBeVisible();
   const copied = await page.evaluate(() => navigator.clipboard.readText());
   expect(copied).toBe(

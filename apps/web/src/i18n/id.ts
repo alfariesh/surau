@@ -449,6 +449,7 @@ export const id = {
     translationToggleHint: "Terjemahan Indonesia per paragraf, dibuat AI dan belum ditinjau.",
     // Panel Tampilan (ukuran, font Arab, kertas, jarak baris, terjemahan), disimpan per browser.
     toolbarLabel: "Alat baca",
+    moreActions: "Aksi lain",
     style: "Tampilan",
     styleHeading: "Tampilan baca",
     styleFont: "Huruf Arab",
@@ -457,6 +458,8 @@ export const id = {
     stylePapers: { light: "Terang", sepia: "Sepia", dark: "Gelap" },
     styleLeading: "Jarak baris",
     styleLeadings: { tight: "Rapat", normal: "Sedang", loose: "Longgar" },
+    styleAlign: "Perataan teks",
+    styleAligns: { justify: "Rata kanan-kiri", start: "Rata kanan" },
     // Contoh huruf di panel Tampilan memakai paragraf pertama halaman ini (disalin dari DB).
     stylePreviewNote: "Contoh dari halaman ini",
     progressLabel: "Posisi baca di halaman ini",

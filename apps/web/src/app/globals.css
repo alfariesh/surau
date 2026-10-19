@@ -276,9 +276,28 @@ body {
   box-shadow: 0 0 0 0.375rem var(--accent-soft, color-mix(in oklab, var(--accent) 12%, transparent));
 }
 
+/* Judul bab di tengah seperti kitab cetak (terjemahannya juga, .passage-translation-heading). */
 .reader-heading {
   font-weight: 700;
   color: var(--foreground);
+  text-align: center;
+  text-wrap: balance;
+}
+
+/*
+ * Teks kitab rata kanan-kiri seperti kitab cetak (bawaan); pilihan "Rata kanan" di panel Tampilan
+ * (atribut data-reader-align="start"). Browser meratakan Arab dengan melebarkan spasi antarkata,
+ * bukan kashida, jadi huruf tidak diubah. Baris terakhir tetap rata kanan.
+ */
+:is(.reader-text, .reader-footnotes) .arabic-text:not(.reader-heading) {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+:root[data-reader-align="start"]
+  :is(.reader-text, .reader-footnotes)
+  .arabic-text:not(.reader-heading) {
+  text-align: start;
 }
 
 h2.reader-heading {
@@ -420,7 +439,7 @@ h2.reader-heading-minor {
 }
 
 /*
- * Aksi per paragraf (⋮): di perangkat ber-mouse hanya muncul saat paragraf disorot atau tombolnya
+ * Aksi per paragraf (⋮, sebaris di akhir teks): di perangkat ber-mouse hanya muncul saat paragraf disorot atau tombolnya
  * difokus/terbuka, supaya kolom teks bersih. Di layar sentuh tetap tampak, tapi samar.
  */
 .passage-actions {
@@ -433,8 +452,8 @@ h2.reader-heading-minor {
     opacity: 0;
   }
 
-  .passage:hover > .passage-actions,
-  .passage:focus-within > .passage-actions,
+  .passage:hover .passage-actions,
+  .passage:focus-within .passage-actions,
   .passage-actions[aria-expanded="true"],
   .passage-actions[data-focus-visible="true"] {
     opacity: 1;
@@ -686,6 +705,8 @@ h2.reader-heading-minor {
   padding-inline-start: 0;
   border-inline-start: 0;
   font-size: 0.875rem;
+  text-align: center;
+  text-wrap: balance;
 }
 
 html[data-translation="off"] .passage-translation {

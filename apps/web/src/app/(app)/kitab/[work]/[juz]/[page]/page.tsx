@@ -250,27 +250,34 @@ export default async function ReaderPage({ params }: Props) {
                   {(starts.byPassage.get(p.id) ?? []).map((nodeId) => (
                     <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
                   ))}
-                  <div className="passage flex flex-row-reverse items-start gap-1" id={p.anchor}>
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      {heading ? (
+                  {/* Satu kolom: teks Arab, terjemahan, dan ringkasan berbagi tepi yang sama. Menu ⋮
+                      ada di akhir teks (sebaris dengan kata terakhir), bukan kolom sendiri. */}
+                  <div className="passage flex flex-col gap-1" id={p.anchor}>
+                    {heading ? (
+                      // Judul bab di tengah seperti kitab cetak; ⋮ di luar <h2> supaya tidak ikut
+                      // nama judul.
+                      <div className="flex items-center justify-center gap-1">
+                        <PassageActions passage={ref(p)} />
                         <ArabicText
                           as="h2"
                           className={`reader-heading ${heading.level > 2 ? "reader-heading-minor" : ""}`}
                         >
                           {renderText(p)}
                         </ArabicText>
-                      ) : (
-                        <ArabicText className="text-foreground">{renderText(p)}</ArabicText>
-                      )}
-                      <NeedsReviewNote reasons={p.needs_review} />
-                      <PassageTranslation
-                        footAnchor={footAnchor}
-                        heading={heading !== undefined}
-                        passage={p}
-                        quran={quran}
-                      />
-                    </div>
-                    <PassageActions passage={ref(p)} />
+                      </div>
+                    ) : (
+                      <ArabicText className="text-foreground">
+                        {renderText(p)}
+                        <PassageActions passage={ref(p)} />
+                      </ArabicText>
+                    )}
+                    <NeedsReviewNote reasons={p.needs_review} />
+                    <PassageTranslation
+                      footAnchor={footAnchor}
+                      heading={heading !== undefined}
+                      passage={p}
+                      quran={quran}
+                    />
                   </div>
                   {summariesAt(starts.byPassage.get(p.id) ?? [])}
                 </Fragment>
@@ -292,21 +299,17 @@ export default async function ReaderPage({ params }: Props) {
                 {page.footnotes.map((f) => {
                   const back = markerOf.get(f.id);
                   return (
-                    <li
-                      key={f.id}
-                      className="passage flex flex-row-reverse items-start gap-1"
-                      id={f.anchor}
-                    >
-                      <div className="flex min-w-0 flex-1 flex-col gap-1">
-                        <ArabicText className="text-foreground">{renderText(f)}</ArabicText>
-                        <NeedsReviewNote reasons={f.needs_review} />
-                        {back ? (
-                          <a className="link self-start text-xs" href={`#${back}`}>
-                            {t.footnoteBack}
-                          </a>
-                        ) : null}
-                      </div>
-                      <PassageActions passage={ref(f)} />
+                    <li key={f.id} className="passage flex flex-col gap-1" id={f.anchor}>
+                      <ArabicText className="text-foreground">
+                        {renderText(f)}
+                        <PassageActions passage={ref(f)} />
+                      </ArabicText>
+                      <NeedsReviewNote reasons={f.needs_review} />
+                      {back ? (
+                        <a className="link self-start text-xs" href={`#${back}`}>
+                          {t.footnoteBack}
+                        </a>
+                      ) : null}
                     </li>
                   );
                 })}

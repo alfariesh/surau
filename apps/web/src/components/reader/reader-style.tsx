@@ -2,7 +2,7 @@
 
 import type { CSSProperties, Key } from "react";
 
-import type { ReaderFont, ReaderLeading } from "../../lib/reader/scale";
+import type { ReaderAlign, ReaderFont, ReaderLeading } from "../../lib/reader/scale";
 
 import { Segment, Sheet } from "@heroui-pro/react";
 import { Button, ButtonGroup, Description, Label, Radio, RadioGroup, Switch } from "@heroui/react";
@@ -12,6 +12,8 @@ import { useEffect, useSyncExternalStore } from "react";
 import { MinusSign, PlusSign, TextFont } from "../../icons";
 import { id } from "../../i18n/id";
 import {
+  READER_ALIGN_KEY,
+  READER_ALIGNS,
   READER_ATTR_PREFS,
   READER_FONT_KEY,
   READER_FONTS,
@@ -100,6 +102,7 @@ function applyAttr(pref: AttrPref, value: string) {
 
 const FONT_PREF = prefOf(READER_FONT_KEY);
 const LEADING_PREF = prefOf(READER_LEADING_KEY);
+const ALIGN_PREF = prefOf(READER_ALIGN_KEY);
 
 /**
  * Navigasi klien dari halaman lain tidak menjalankan skrip awal: pasang semua pilihan tersimpan
@@ -246,6 +249,40 @@ function LeadingPicker() {
   );
 }
 
+function AlignPicker() {
+  const align = useSyncExternalStore(
+    subscribe,
+    () => readAttr(ALIGN_PREF),
+    () => ALIGN_PREF.fallback,
+  );
+
+  function change(key: Key) {
+    const value = String(key);
+    applyAttr(ALIGN_PREF, value);
+    store(ALIGN_PREF.key, value);
+    notify();
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Label id="tampilan-rata">{t.styleAlign}</Label>
+      <Segment
+        aria-labelledby="tampilan-rata"
+        className="w-full"
+        selectedKey={align}
+        size="sm"
+        onSelectionChange={change}
+      >
+        {READER_ALIGNS.map((value) => (
+          <Segment.Item key={value} id={value satisfies ReaderAlign}>
+            {t.styleAligns[value]}
+          </Segment.Item>
+        ))}
+      </Segment>
+    </div>
+  );
+}
+
 const PAPERS = ["light", "sepia", "dark"] as const;
 
 function PaperPicker() {
@@ -376,6 +413,7 @@ export function ReaderStyle({
               <FontSizeControl />
               <FontPicker sample={sample} />
               <LeadingPicker />
+              <AlignPicker />
               <PaperPicker />
               <TranslationSwitch />
             </Sheet.Body>

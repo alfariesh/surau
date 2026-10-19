@@ -20,7 +20,9 @@ export function PassageActions({ passage }: { passage: PassageRef }) {
       <Button
         isIconOnly
         aria-label={`${t.passageActions} ${passage.label}`}
-        className="passage-actions shrink-0"
+        // Sebaris di akhir teks Arab; label aksesibel berbahasa Indonesia.
+        className="passage-actions ms-1 size-7 min-w-0 align-middle"
+        lang="id"
         size="sm"
         variant="ghost"
       >
