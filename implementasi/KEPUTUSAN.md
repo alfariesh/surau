@@ -1262,3 +1262,14 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** S18 **sebagian**; ≥50 persetujuan, ±30 penilaian kalibrasi, dan ≥10 uji halaman tetap tidak dicentang. S19 menunggu dasar evaluasi manusia ini. Runner gratis baseline/score/seed/golden terpisah dari judge-submit berbayar. Panduan: `evals/jawab/README.md`, `docs/tinjau-operasional.md`.
 
 **Tinjau ulang bila:** Anas mengoreksi soal/rubrik, korpus/prompt/model berubah, judge sering terpotong, akses penilai diperluas, atau S20 mengaktifkan pencatatan pertanyaan umum/pembersih retensi.
+
+
+## ADR-053 · Evaluasi agent sementara tanpa menghambat pengembangan — diterima · 2026-10-19
+
+**Konteks:** implementasi S18 sudah terpublikasi, login dan simpan–muat ulang produksi lolos. Penilaian Anas belum tersedia. Pemilik menyatakan: “Saat ini anda aja yg Eval, anas nanti belakangan. Saya gak mau hambat dev”.
+
+**Keputusan:** agent mengevaluasi 60 jawaban dengan identitas **Agent QA S18** terpisah: 30 contoh publik dibaca terhadap sumber DB, 30 baseline Cari dinilai belum lengkap tanpa menilai isi/kunci holdout. Ulasan masuk D1 secara aditif dengan pengikatan hash/expiry; tidak menimpa ulasan akun Access. Semua keputusan persetujuan soal tetap null. Penilaian agent dibekukan sebelum pembandingan dengan judge lama. Hasil 18 benar/31 kurang/11 salah; kesepakatan antarmodel 25/29 kesetiaan dan 28/29 atribusi. Tidak ada biaya LLM tambahan.
+
+**Konsekuensi:** kewajiban menunggu dasar manusia sebelum mulai **pengembangan S19** pada ADR-052 dikecualikan atas arahan pemilik. S18 selesai secara teknis, status kriteria asli tetap sebagian; T-24 Anas ditunda dan tidak menghambat dev. Ini bukan izin menandai persetujuan ustadz, kalibrasi manusia, ≥10 uji ustadz, atau gerbang rilis R4 sebagai selesai. Nama agent tidak dipakai membentuk golden resmi. Anas dapat meninjau kemudian dengan akun Access; hasil agent merupakan pembanding terpisah. Perbedaan kelengkapan dan dukungan klaim dalam rubrik perlu adjudikasi sebelum judge menjadi gerbang.
+
+**Bukti:** [laporan Agent QA](../evals/reports/jawab-s18-agent-qa-v1.md), arsip privat hash-bound, 60 ulasan Agent QA S18 + satu ulasan uji UI Agent QA di produksi; 0 ulasan Anas.

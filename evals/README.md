@@ -75,3 +75,5 @@ pnpm wrangler r2 object get surau-evals/jawab/2026-10-19-draf-v1.jsonl --file ev
 ```
 
 Ambil hanya bila file lokal belum ada. Jangan menimpa revisi lokal atau kunci R2 yang sudah dipakai laporan. Golden set resmi belum tersedia: semua 60 soal S18 masih draf sampai T-24.
+
+Ulasan agent sementara S18 tersimpan di D1 dengan identitas Agent QA S18; arsip `s18-agent-qa-v1-{reviews,export}.jsonl` dan SQL berada di `evals/private/jawab-runs/`. Ekspor lokal hanya memuat snapshot dan ulasan agent, bukan seluruh ulasan produksi. [Laporan agregat](reports/jawab-s18-agent-qa-v1.md) tidak memuat isi holdout.

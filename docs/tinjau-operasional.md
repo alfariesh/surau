@@ -2,7 +2,9 @@
 
 S18 · 2026-10-19 · Penilai yang ditunjuk pemilik: **Anas**. Halaman: [surau.org/tinjau](https://surau.org/tinjau). Ini ruang evaluasi internal; layanan Jawab belum dirilis. **Status 2026-10-19: halaman sudah terpublikasi melalui [PR #48](https://github.com/alfariesh/surau/pull/48), berisi 60 draf soal; persetujuan soal dan penilaian manusia masih T-24.**
 
-## Untuk Anas dan pemilik (T-24)
+Evaluasi sementara **Agent QA S18** telah mengisi 60 ulasan atas permintaan pemilik: 18 benar, 31 kurang, 11 salah. [Laporan dan batasannya](../evals/reports/jawab-s18-agent-qa-v1.md). T-24 Anas ditunda dan pengembangan S19 boleh lanjut (ADR-053); penilaian agent tidak dihitung sebagai persetujuan atau kalibrasi manusia.
+
+## Untuk Anas dan pemilik (T-24, tindak lanjut)
 
 1. Buka halaman tinjau, masukkan email yang sudah didaftarkan pemilik, lalu masukkan PIN dari email di halaman Cloudflare. Jangan mengirim PIN ke chat. Jika email Anas berbeda, pemilik perlu menambahkannya ke daftar izin dahulu; saat ini hanya satu email yang diberikan pemilik.
 2. Pilih soal. Baca pertanyaan, panduan penilaian, jawaban, dan sumber Arab. Tautan sumber membuka halaman kitab. Label **Contoh evaluasi** berarti jawaban buatan agent untuk menguji penilaian; sebagian sengaja salah. **Cari saja** berarti belum ada jawaban yang merangkum sumber.
@@ -50,7 +52,7 @@ Setelah izin penghapusan produksi dari pemilik, jalankan `DELETE FROM answer_log
 - Browser: komponen aktual dengan fixture Arab buatan dan API mock lokal; simpan→muat ulang mempertahankan isian; desktop dan ponsel 390 px; RTL, font Noto Naskh 20 px/line-height 40 px, tanpa overflow horizontal. Ini bukan penilaian ustadz dan bukan bukti login produksi.
 - Judge: 30 contoh dikirim atas izin ≤ US$1; **29 valid, 1 `max_tokens`**, biaya **US$0,112528**. **0 penilaian manusia**; belum terkalibrasi. Tidak ada retry berbayar otomatis.
 - [CI/Preview PR #48](https://github.com/alfariesh/surau/pull/48/checks) hijau (99 tes browser lolos/1 dilewati); [deploy produksi](https://github.com/alfariesh/surau/actions/runs/39206240675) web/MCP hijau. D1 berisi 60 soal/18 privat/30 contoh; saat seed belum ada review. Akses anonim menuju login Access; API Preview menolak 401 dengan no-store.
-- Login PIN produksi dikonfirmasi pemilik dan berhasil diperiksa. Uji simpan→muat ulang j001 mempertahankan satu ulasan **Agent QA**, dengan kelayakan soal belum diputuskan; bukan penilaian manusia. Anas boleh menggantinya dengan penilaian sendiri pada akun yang sama. ≥10 penilaian Anas masih perlu T-24. Jangan menandai S18 selesai sebelum persetujuan ≥50 soal dan kalibrasi dicatat.
+- Login PIN produksi dikonfirmasi pemilik dan berhasil diperiksa. Uji simpan→muat ulang j001 mempertahankan satu ulasan **Agent QA**, dengan kelayakan soal belum diputuskan; bukan penilaian manusia. Anas boleh mengganti ulasan uji UI itu dengan penilaian sendiri pada akun yang sama. Ulasan Agent QA S18 memakai identitas terpisah dan tetap menjadi pembanding. ≥10 penilaian Anas masih perlu T-24. Jangan menandai S18 selesai sebelum persetujuan ≥50 soal dan kalibrasi dicatat.
 
 ## Dokumentasi teknis yang diperiksa
 

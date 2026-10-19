@@ -1,6 +1,6 @@
 # S18 · Eval Jawab & halaman tinjau ustadz
 
-> **Fase:** 4 · **Status:** sebagian (2026-10-19; teknis terpublikasi PR #48; penilaian Anas/T-24 menunggu)
+> **Fase:** 4 · **Status:** sebagian (2026-10-19; teknis terpublikasi PR #48; T-24 manusia ditunda; S19 boleh lanjut, ADR-053)
 > **Prasyarat:** Fase 3 dirilis · Tugas pemilik: **T-13** (ustadz), Cloudflare Access untuk `/tinjau` (bagian dari T-14), **P-7** (penyimpanan dan retensi data)
 > **Perkiraan:** 1–2 percakapan agent, ditambah waktu ustadz
 
@@ -62,10 +62,10 @@ Sebelum ada pipeline Jawab, sudah tersedia **alat ukurnya**: set soal 50–100 b
 - `/tinjau` + API/ekspor privat; Access PIN domain utama dan JWT tiap rute. D1 app `answer_log`/`review`, snapshot/hash, expiry, Origin/batas input. Dependensi **jose 6.2.12 (MIT)** untuk verifikasi JWT.
 - `pnpm verify`: **485 Node + 218 Workers**, smoke/build lolos; peringatan lama lint/CSS tetap. `eval:retrieval --no-write`: 31 soal hit@10 100%, MRR 0,795.
 - Peninjau: 3 temuan diperbaiki (klaim hadits ganda, persetujuan golden bertentangan, receipt batch belum mengikat record). Tinjauan ulang lolos terbatas pada temuan itu.
-- Browser komponen aktual + fixture/API mock lokal: simpan→muat ulang, desktop/390 px, Noto Naskh 20 px/40 px, RTL, tanpa overflow. Tidak dihitung sebagai uji ustadz. Login produksi/10 uji Anas masih T-24.
+- Browser komponen aktual + fixture/API mock lokal: simpan→muat ulang, desktop/390 px, Noto Naskh 20 px/40 px, RTL, tanpa overflow. Tidak dihitung sebagai uji ustadz. Login produksi sudah lolos; 10 uji Anas masih T-24.
 - Retensi akses 12 bulan; penghapusan fisik manual sampai S20 (jadwalkan sebelum Oktober 2027). Pertanyaan pengguna umum belum disimpan; tanpa wildcard Access preview.
 - UI terbaru `main` PR #30/#45 dipertahankan; ukuran judul 40 px pemilik dipulihkan pada susunan beranda terbaru. Kelanjutan memakai `codex/s18-eval-jawab-final`; rencana/WIP lama tetap di `codex/s18-eval-jawab`.
-- ADR-052; [panduan penilai](../../docs/tinjau-operasional.md), [runner](../../evals/jawab/README.md). **S18 belum selesai** sampai ≥50 persetujuan, kalibrasi ±30, dan ≥10 uji manusia nyata. S19 menunggu.
+- ADR-052; [panduan penilai](../../docs/tinjau-operasional.md), [runner](../../evals/jawab/README.md). **S18 belum selesai** sampai ≥50 persetujuan, kalibrasi ±30, dan ≥10 uji manusia nyata. Ketentuan menunggu S19 kemudian dikecualikan oleh pemilik untuk pengembangan (ADR-053).
 
 ### Kelanjutan 2026-10-19
 
@@ -82,3 +82,9 @@ Sebelum ada pipeline Jawab, sudah tersedia **alat ukurnya**: set soal 50–100 b
 - Run produksi diperiksa kosong sebelum SQL aditif dijalankan. Sesudahnya: **60 soal, 18 privat, 30 contoh kalibrasi, 0 review saat seed**. Kedaluwarsa pertama `2027-10-18T13:57:58.847Z`. Tidak ada data lama ditimpa.
 - Akses anonim pada Preview: API/ekspor 401 + private/no-store/noindex, halaman menampilkan penolakan. Produksi domain utama menuju Access PIN. Login PIN berhasil dikonfirmasi pemilik dan diperiksa di produksi. Simpan→muat ulang j001 mempertahankan satu ulasan Agent QA (kelayakan soal belum diputuskan), tidak dihitung sebagai penilaian Anas. API workers.dev tanpa autentikasi tetap 401 + no-store. Penilaian manusia tetap T-24.
 - Bukti screenshot QA lokal (fixture buatan, bukan penilaian manusia) tersimpan git-ignored di `data/build/s18-qa/tinjau-desktop.png` dan `tinjau-mobile.png`; tangkapan login produksi `tinjau-login.png` dan hasil berlogin `tinjau-produksi.png`.
+
+### Evaluasi agent dan pengecualian pengembangan (ADR-053)
+
+Pemilik meminta agent melakukan eval sekarang, Anas kemudian, agar dev tidak terhambat. **60 ulasan Agent QA S18 tersimpan di produksi**: 30 contoh publik dibaca terhadap sumber, 30 baseline diperiksa sebagai jawaban belum substantif. Hasil 18 benar/31 kurang/11 salah; tidak ada persetujuan soal. [Laporan](../../evals/reports/jawab-s18-agent-qa-v1.md) mencatat kesepakatan antarmodel 25/29 kesetiaan dan 28/29 atribusi; bukan kalibrasi manusia. Biaya API tambahan US$0.
+
+Pekerjaan teknis S18 dan evaluasi agent selesai. Tiga butir manusia tetap tidak dicentang; T-24 ditunda dan tidak menghalangi pengembangan S19. Gerbang R4 tidak dinyatakan lolos.

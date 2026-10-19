@@ -181,7 +181,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   - **Secrets Worker** yang Anda jalankan sendiri di Terminal (folder Surau), misalnya `pnpm wrangler secret put CF_AIG_TOKEN --name surau-api`. Agent akan memberi daftar persis: secret apa, untuk Worker mana (`surau-api` atau `surau-web`), termasuk `TURNSTILE_SECRET_KEY`, `ANON_COOKIE_SECRET`, dan `IP_HASH_SECRET`.
   - Putuskan **P-7** (penyimpanan pertanyaan dan jawaban) bila belum.
 
-- [ ] **T-24 · Persetujuan soal dan uji tinjau oleh Anas (S18)** · halaman aktif dan 60 soal tersedia sejak 2026-10-19 (PR #48)
+- [ ] **T-24 · Persetujuan soal dan uji tinjau oleh Anas (S18)** · ditunda oleh pemilik, tidak menghambat dev S19 (ADR-053); 60 evaluasi Agent QA S18 sudah tersedia
   1. Buka [surau.org/tinjau](https://surau.org/tinjau), masuk memakai email yang sudah terdaftar dan PIN dari email. Bila email Anas berbeda, berikan kepada agent untuk penambahan Access; jangan bagikan PIN.
   Login produksi sudah dikonfirmasi pemilik. Ulasan j001 bernama Agent QA hanya uji teknis; Anas boleh menggantinya dengan penilaiannya sendiri.
   2. Ikuti [panduan tinjau](../docs/tinjau-operasional.md). Anas mengisi namanya sendiri, memeriksa sumber, lalu menyimpan minimal **10 penilaian uji**; coba muat ulang untuk memastikan tersimpan.
