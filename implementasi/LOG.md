@@ -15,6 +15,14 @@ Format entri:
 
 ---
 
+## 2026-10-19 · Di luar sesi · Skill aset visual (Colorfigures bergaya Surau) — selesai
+
+- Dikerjakan: skill `.claude/skills/aset/` (SKILL, REFERENSI, mesin turunan Colorfigures MIT dengan palet Zaitun, tema terang/gelap/sepia, mode sematan/polos/sampul, teks Indonesia, kurangi gerakan; skrip Node `bangun.mjs` dan `potret.mjs`). Figur contoh `aset/figur/kitab-rehal.html` (buka, balik halaman kanan ke kiri, tutup), hasil `aset/keluaran/` (HTML mandiri 46 KiB, cover 1200×630, gambar konten 1080×1080).
+- Verifikasi: `potret.mjs` keadaan diam, tertutup, setengah menutup, lembar dibalik, urutan tombol `Tutup→Balik` (muncul pesan "Kitab masih tertutup. Buka dulu."), `Tutup→Buka→Balik` (status: `read` 5→6), tema gelap+sematan, sepia, ponsel 375 px → tanpa galat/`NaN`; keluaran hanya memuat URL namespace SVG. `vp check` atas skrip dan `vite.config.ts` → lolos. `pnpm check` penuh di kontainer cloud gagal karena `@heroui-pro/react` tidak punya tipe di sini (sudah ada sebelum perubahan ini; CI yang menentukan).
+- Biaya API: –
+- Keputusan: ADR-054.
+- Catatan untuk sesi berikutnya: aset belum disematkan di situs; langkahnya ada di SKILL.md bagian "Sematan pertama" (header `/aset/*`, tema, font, `/lisensi`, e2e).
+
 ## 2026-10-19 · S18 · Eval Jawab & halaman tinjau — sebagian
 
 - Dikerjakan: 60 draf (42 publik/18 privat), sumber berbasis ID/offset; runner gratis baseline/score/seed/golden, judge Sonnet 5.5 dengan pagu dan manifest; D1 app snapshot/review; `/tinjau`, API/ekspor privat, Access PIN + JWT tiap rute. Panduan Anas T-24 tersedia.
