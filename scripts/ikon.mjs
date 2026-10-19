@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Ikon Surau: salin ikon dari set lokal Hugeicons (stroke-standard) lalu hasilkan komponen React.
 //   node scripts/ikon.mjs tambah <nama-ikon>...   salin SVG ke apps/web/src/icons/svg lalu hasilkan ulang
+//   node scripts/ikon.mjs tambah --duotone <nama>...  sama, dari duotone-standard (komponen berakhiran Duotone)
 //   node scripts/ikon.mjs hasilkan                hasilkan ulang apps/web/src/icons/index.tsx
-// Folder sumber: env SURAU_IKON_DIR, bawaan ~/Documents/huge-icons/svg/stroke-standard.
+// Folder sumber: env SURAU_IKON_DIR, bawaan ~/Documents/huge-icons/svg/stroke-standard;
+// duotone-standard ada di sebelahnya (atau env SURAU_IKON_DUOTONE_DIR).
 import {
   copyFileSync,
   existsSync,
@@ -17,9 +19,12 @@ import { fileURLToPath } from "node:url";
 
 const akar = join(dirname(fileURLToPath(import.meta.url)), "..");
 const folderSvg = join(akar, "apps/web/src/icons/svg");
+const folderDuotone = join(folderSvg, "duotone");
 const fileKeluaran = join(akar, "apps/web/src/icons/index.tsx");
 const sumber =
   process.env.SURAU_IKON_DIR ?? join(homedir(), "Documents/huge-icons/svg/stroke-standard");
+const sumberDuotone =
+  process.env.SURAU_IKON_DUOTONE_DIR ?? join(dirname(sumber), "duotone-standard");
 
 const namaKomponen = (nama) =>
   nama
@@ -29,13 +34,13 @@ const namaKomponen = (nama) =>
 
 const atributJsx = (nama) => nama.replace(/-([a-z])/g, (_, huruf) => huruf.toUpperCase());
 
-function cariSvg(nama) {
-  for (const kategori of readdirSync(sumber, { withFileTypes: true })) {
+function cariSvg(nama, folder) {
+  for (const kategori of readdirSync(folder, { withFileTypes: true })) {
     if (!kategori.isDirectory()) continue;
-    const jalur = join(sumber, kategori.name, `${nama}.svg`);
+    const jalur = join(folder, kategori.name, `${nama}.svg`);
     if (existsSync(jalur)) return jalur;
   }
-  throw new Error(`Ikon "${nama}" tidak ada di ${sumber}`);
+  throw new Error(`Ikon "${nama}" tidak ada di ${folder}`);
 }
 
 function isiSvg(teks) {
@@ -47,14 +52,23 @@ function isiSvg(teks) {
     .replace(/([a-z]+(?:-[a-z]+)+)=/g, (_, nama) => `${atributJsx(nama)}=`);
 }
 
-function hasilkan() {
-  const berkas = readdirSync(folderSvg)
+function daftarSvg(folder, akhiran) {
+  if (!existsSync(folder)) return [];
+  return readdirSync(folder)
     .filter((nama) => nama.endsWith(".svg"))
-    .sort();
-  const komponen = berkas.map((nama) => {
-    const dasar = nama.replace(/\.svg$/, "");
-    const isi = isiSvg(readFileSync(join(folderSvg, nama), "utf8"));
-    return `export function ${namaKomponen(dasar)}(props: IconProps) {\n  return <Ikon {...props}>${isi}</Ikon>;\n}`;
+    .sort()
+    .map((nama) => ({
+      folder,
+      nama,
+      komponen: namaKomponen(nama.replace(/\.svg$/, "")) + akhiran,
+    }));
+}
+
+function hasilkan() {
+  const berkas = [...daftarSvg(folderSvg, ""), ...daftarSvg(folderDuotone, "Duotone")];
+  const komponen = berkas.map(({ folder, nama, komponen }) => {
+    const isi = isiSvg(readFileSync(join(folder, nama), "utf8"));
+    return `export function ${komponen}(props: IconProps) {\n  return <Ikon {...props}>${isi}</Ikon>;\n}`;
   });
   const kepala = `// DIHASILKAN oleh scripts/ikon.mjs dari apps/web/src/icons/svg. Jangan sunting tangan.
 // Sumber: Hugeicons Pro stroke-standard (berlisensi; lihat CLAUDE.md).
@@ -83,17 +97,20 @@ function Ikon({ children, ...props }: IconProps & { children: ReactNode }) {
   console.log(`${berkas.length} ikon dihasilkan di apps/web/src/icons/index.tsx`);
 }
 
-const [perintah, ...nama] = process.argv.slice(2);
+const [perintah, ...argumen] = process.argv.slice(2);
+const duotone = argumen.includes("--duotone");
+const nama = argumen.filter((a) => a !== "--duotone");
 if (perintah === "tambah" && nama.length > 0) {
-  mkdirSync(folderSvg, { recursive: true });
+  const tujuan = duotone ? folderDuotone : folderSvg;
+  mkdirSync(tujuan, { recursive: true });
   for (const n of nama) {
-    copyFileSync(cariSvg(n), join(folderSvg, `${n}.svg`));
-    console.log(`+ ${n}`);
+    copyFileSync(cariSvg(n, duotone ? sumberDuotone : sumber), join(tujuan, `${n}.svg`));
+    console.log(`+ ${n}${duotone ? " (duotone)" : ""}`);
   }
   hasilkan();
 } else if (perintah === "hasilkan") {
   hasilkan();
 } else {
-  console.error("Pemakaian: node scripts/ikon.mjs tambah <nama>... | hasilkan");
+  console.error("Pemakaian: node scripts/ikon.mjs tambah [--duotone] <nama>... | hasilkan");
   process.exit(1);
 }

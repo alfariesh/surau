@@ -11,7 +11,6 @@ export const id = {
 
   brand: {
     name: "Surau",
-    tagline: "Pintu ke kitab klasik",
   },
 
   nav: {
@@ -405,6 +404,7 @@ export const id = {
     modified:
       "Diolah Surau: teks dibagi per paragraf, catatan kaki takhrij dipisahkan dari teks utama, dan daftar isi diperbaiki lewat patch yang tercatat. Huruf teks Arab tidak diubah.",
     sourceShamela: "Halaman ini di al-Maktaba al-Shamela",
+    licenseMoreShort: "Lisensi, atribusi, dan perubahan",
     licenseMore: "Lisensi dan atribusi lengkap",
     report: "Laporkan kesalahan",
     reportHeading: "Laporkan kesalahan",
@@ -459,9 +459,8 @@ export const id = {
     // Contoh huruf di panel Tampilan memakai paragraf pertama halaman ini (disalin dari DB).
     stylePreviewNote: "Contoh dari halaman ini",
     progressLabel: "Posisi baca di halaman ini",
-    aiNoticeHeading: "Terjemahan dan ringkasan AI",
     aiNotice:
-      "Terjemahan Indonesia per paragraf dan ringkasan bagian dibuat otomatis oleh model AI dari teks Arab, dan belum ditinjau manusia, jadi bisa keliru. Teks Arab tetap rujukan utamanya. Kutipan ayat yang dikenali sistem tidak diterjemahkan AI: yang tampil adalah terjemahan Kemenag. Kutipan ayat yang belum dikenali bisa ikut diterjemahkan AI.",
+      "Terjemahan dan ringkasan AI belum ditinjau manusia dan bisa keliru; teks Arab tetap rujukan utamanya.",
     errorHeading: "Halaman kitab gagal dimuat",
     errorBody: "Terjadi gangguan saat membaca data kitab. Coba muat ulang.",
     errorRetry: "Coba lagi",

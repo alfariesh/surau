@@ -51,6 +51,34 @@ export function AlertCircle(props: IconProps) {
   );
 }
 
+export function Book02(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M15.5 7H8.5M12.499 11H8.49902"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M20 22H6C4.89543 22 4 21.1046 4 20M4 20C4 18.8954 4.89543 18 6 18H20V2H6C4.89543 2 4 2.89543 4 4V20Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M19.5 18C19.5 18 18.5 18.7628 18.5 20C18.5 21.2372 19.5 22 19.5 22"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function BookOpen01(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -114,6 +142,25 @@ export function Copy01(props: IconProps) {
         d="M19.5 7.5H9.5C8.39543 7.5 7.5 8.39543 7.5 9.5V19.5C7.5 20.6046 8.39543 21.5 9.5 21.5H19.5C20.6046 21.5 21.5 20.6046 21.5 19.5V9.5C21.5 8.39543 20.6046 7.5 19.5 7.5Z"
         stroke="currentColor"
         strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function FileEmpty02(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M20 20V9L13 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M13 2V7C13 8.10457 13.8954 9 15 9H20"
+        stroke="currentColor"
         strokeLinejoin="round"
         strokeWidth="1.5"
       />
@@ -336,6 +383,200 @@ export function TextFont(props: IconProps) {
       />{" "}
       <path
         d="M16.5 11.5L16.6298 11.3053C17.1735 10.4898 18.0887 10 19.0688 10C20.6876 10 22 11.3124 22 12.9312V18.5M22 14H18.561C17.1466 14 16 15.1466 16 16.561C16 17.908 17.092 19 18.439 19H18.7408C19.2376 19 19.725 18.865 20.151 18.6094L20.3033 18.518C21.3559 17.8864 22 16.7489 22 15.5213V14Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Book02Duotone(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        opacity="0.4"
+        d="M20 18H6C4.89543 18 4 18.8954 4 20V4C4 2.89543 4.89543 2 6 2H20V18Z"
+        fill="currentColor"
+      />{" "}
+      <path
+        d="M15.501 7H8.50098M12.5 11H8.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M20 22H6C4.89543 22 4 21.1046 4 20M4 20C4 18.8954 4.89543 18 6 18H20V2H6C4.89543 2 4 2.89543 4 4V20Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M19.5 18C19.5 18 18.5 18.7628 18.5 20C18.5 21.2372 19.5 22 19.5 22"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function BookOpen01Duotone(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        opacity="0.4"
+        d="M7.99988 3.5H3.0005C2.44821 3.5 2 3.94858 2 4.50087V16.9991C2 17.5514 2.44765 18 2.99993 18H8.95053C10.433 18 11.7093 19.0464 12 20.5C12.2907 19.0464 13.5671 18 15.0495 18H21C21.5523 18 22 17.5514 22 16.9991V4.50087C22 3.94858 21.5523 3.5 21 3.5H16C14 3.5 12.9443 4.24097 12 5.5C11.0557 4.24097 10 3.5 7.99988 3.5Z"
+        fill="currentColor"
+      />{" "}
+      <path
+        d="M7.99988 3.5H3.0005C2.44821 3.5 2 3.94858 2 4.50087V16.9991C2 17.5514 2.44765 18 2.99993 18H8.95053C10.433 18 11.7093 19.0464 12 20.5V5.5C11.0557 4.24097 10 3.5 7.99988 3.5Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M16 3.5H21C21.5523 3.5 22 3.94858 22 4.50087V16.9991C22 17.5514 21.5523 18 21 18H15.0495C13.5671 18 12.2907 19.0464 12 20.5V5.5C12.9443 4.24097 14 3.5 16 3.5Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function FileEmpty02Duotone(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        opacity="0.4"
+        d="M18 22H6C4.89543 22 4 21.1046 4 20L4 4C4 2.89543 4.89543 2 6 2H13L12.998 7C12.998 8.10457 13.8935 9 14.998 9L20 9L20 20C20 21.1046 19.1046 22 18 22Z"
+        fill="currentColor"
+      />{" "}
+      <path
+        d="M20 20V9L13 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M13 2V7C13 8.10457 13.8954 9 15 9H20"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function HelpCircleDuotone(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <circle opacity="0.4" cx="12" cy="12" r="10" fill="currentColor" />{" "}
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M9.5 9.5C9.5 8.11929 10.6193 7 12 7C13.3807 7 14.5 8.11929 14.5 9.5C14.5 10.3569 14.0689 11.1131 13.4117 11.5636C12.7283 12.0319 12 12.6716 12 13.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M12.125 16.75H12M12.25 16.75C12.25 16.8881 12.1381 17 12 17C11.8619 17 11.75 16.8881 11.75 16.75C11.75 16.6119 11.8619 16.5 12 16.5C12.1381 16.5 12.25 16.6119 12.25 16.75Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Home01Duotone(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        opacity="0.4"
+        d="M3 9.98834V19.5C3 20.6046 3.89543 21.5 5 21.5H19C20.1046 21.5 21 20.6046 21 19.5V9.98834C21 9.3654 20.7097 8.77803 20.2149 8.39963L12.8972 2.80373C12.6396 2.60673 12.3243 2.5 12 2.5C11.6757 2.5 11.3604 2.60673 11.1028 2.80373L3.7851 8.39963C3.29026 8.77804 3 9.3654 3 9.98834Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M3 9.98834V19.5C3 20.6046 3.89543 21.5 5 21.5H19C20.1046 21.5 21 20.6046 21 19.5V9.98834C21 9.3654 20.7097 8.77803 20.2149 8.39963L12.8972 2.80373C12.6396 2.60673 12.3243 2.5 12 2.5C11.6757 2.5 11.3604 2.60673 11.1028 2.80373L3.7851 8.39963C3.29026 8.77804 3 9.3654 3 9.98834Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function InformationCircleDuotone(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <circle opacity="0.4" cx="12" cy="12" r="10" fill="currentColor" />{" "}
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M12 16V12"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M12.125 8.25H12M12.25 8.25C12.25 8.11193 12.1381 8 12 8C11.8619 8 11.75 8.11193 11.75 8.25C11.75 8.38807 11.8619 8.5 12 8.5C12.1381 8.5 12.25 8.38807 12.25 8.25Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Search01Duotone(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        opacity="0.4"
+        d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z"
+        fill="currentColor"
+      />{" "}
+      <path
+        d="M17 17L21 21"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"

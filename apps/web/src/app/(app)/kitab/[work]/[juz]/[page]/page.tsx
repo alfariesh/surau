@@ -1,10 +1,10 @@
 import type { AyahRef, Passage } from "@surau/core";
 import type { Metadata } from "next";
 
-import { Breadcrumbs } from "@heroui/react";
 import { Fragment, Suspense } from "react";
 
 import { ArabicInline, ArabicText } from "../../../../../../components/arabic";
+import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-ld";
 import { AyahRefChip } from "../../../../../../components/reader/ayah-ref";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
 import { FootnoteMarker } from "../../../../../../components/reader/footnote-marker";
@@ -34,6 +34,7 @@ import {
   activeTocIds,
   headingPassages,
   sectionStarts,
+  tocHref,
   tocPath,
 } from "../../../../../../lib/reader/toc";
 
@@ -206,24 +207,15 @@ export default async function ReaderPage({ params }: Props) {
       >
         <article className="flex min-w-0 flex-col gap-6">
           <header className="flex flex-col gap-3">
-            <Breadcrumbs aria-label={t.breadcrumbLabel} className="flex-wrap">
-              <Breadcrumbs.Item href="/kitab">{t.listTitle}</Breadcrumbs.Item>
-              <Breadcrumbs.Item href={edition.permalink}>{workTitle}</Breadcrumbs.Item>
-              {crumbs.map((c, i) => (
-                <Breadcrumbs.Item
-                  key={c.id}
-                  // Di ponsel hanya bagian terdalam yang tampil, supaya teks kitab tidak terdorong jauh.
-                  // `min-w-0 shrink`: butir HeroUI `flex-shrink: 0`, sehingga judul bab yang panjang
-                  // tidak membungkus dan meluber melewati gutter kanan di ponsel.
-                  className={`min-w-0 shrink${i < crumbs.length - 1 ? " max-sm:hidden" : ""}`}
-                  // Langsung ke halaman awal bagian (tanpa lompatan 307 lewat /bab/<id>).
-                  href={`${c.href}#bab-${c.id}`}
-                >
-                  <ArabicInline>{c.title}</ArabicInline>
-                </Breadcrumbs.Item>
-              ))}
-              <Breadcrumbs.Item>{t.pageShort(juz, pageNo)}</Breadcrumbs.Item>
-            </Breadcrumbs>
+            {/* Breadcrumb tidak ditampilkan di halaman baca (daftar isi menunjukkan posisi); markup untuk Google tetap ada. */}
+            <BreadcrumbJsonLd
+              crumbs={[
+                { name: t.listTitle, href: "/kitab" },
+                { name: workTitle, href: edition.permalink },
+                ...crumbs.map((c) => ({ name: c.title, href: tocHref(c) })),
+                { name: t.pageHeading(juz, pageNo), href: permalink },
+              ]}
+            />
             <div className="flex flex-col gap-1" data-reader-title>
               <h1 className="text-foreground text-[1.75rem] leading-tight font-semibold tracking-tight sm:text-[2rem]">
                 {t.pageHeading(juz, pageNo)}
@@ -325,6 +317,7 @@ export default async function ReaderPage({ params }: Props) {
           <footer className="text-muted flex flex-col gap-2 border-t border-separator pt-6 text-xs">
             <h2 className="text-foreground text-sm font-semibold">{t.sourceHeading}</h2>
             <LicenseNotice
+              compact
               attribution={page.citation.source.attribution}
               editionSlug={edition.slug}
               license={page.citation.source.license}
@@ -332,12 +325,7 @@ export default async function ReaderPage({ params }: Props) {
               workSlug={work.slug}
             />
             {quran ? <QuranNotice quran={quran} /> : null}
-            {anyAi ? (
-              <p>
-                <span className="text-foreground font-medium">{t.aiNoticeHeading}.</span>{" "}
-                {t.aiNotice}
-              </p>
-            ) : null}
+            {anyAi ? <p>{t.aiNotice}</p> : null}
             {anyReview ? <p>{t.needsReviewNote}</p> : null}
             <ReportPageButton />
           </footer>
@@ -346,7 +334,7 @@ export default async function ReaderPage({ params }: Props) {
         <aside aria-labelledby="judul-daftar-isi" className="hidden lg:order-first lg:block">
           <div
             data-toc-scroll
-            className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
+            className="scrollbar sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
           >
             <h2 className="text-foreground px-2 text-sm font-semibold" id="judul-daftar-isi">
               {t.tocHeading}

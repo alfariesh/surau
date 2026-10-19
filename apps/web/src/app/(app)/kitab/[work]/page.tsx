@@ -6,6 +6,7 @@ import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 
 import { ArabicInline } from "../../../../components/arabic";
+import { BreadcrumbJsonLd } from "../../../../components/breadcrumb-json-ld";
 import { WorkCover } from "../../../../components/book/work-cover";
 import { LicenseNotice } from "../../../../components/reader/license-notice";
 import { TocTree } from "../../../../components/reader/toc-tree";
@@ -46,6 +47,12 @@ export default async function WorkPage({ params }: Props) {
 
   return (
     <div className={`${PAGE_FRAME} flex flex-col gap-8 pt-6 pb-16`}>
+      <BreadcrumbJsonLd
+        crumbs={[
+          { name: t.listTitle, href: "/kitab" },
+          { name: title, href: edition.permalink },
+        ]}
+      />
       <Breadcrumbs aria-label={t.breadcrumbLabel}>
         <Breadcrumbs.Item href="/kitab">{t.listTitle}</Breadcrumbs.Item>
         <Breadcrumbs.Item>{title}</Breadcrumbs.Item>
