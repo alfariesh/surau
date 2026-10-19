@@ -35,8 +35,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   3. Di Terminal baru, `node -v` harus menampilkan `v24…`. Tool lain yang memakai Node 22 tetap punya salinannya sendiri.
   - *Catatan 2026-10-15:* langkah 1 sudah berlaku di Terminal baru (Node 24). Yang tersisa: tutup aplikasi Claude dengan **Cmd+Q** (bukan hanya menutup jendela), lalu buka lagi.
 
-- [ ] **T-13 · Mulai cari ustadz pendamping (P-5)** (mulai sekarang; wajib sebelum S18, dianjurkan sejak Fase 2)
-  Cari 2–5 ustadz/pengkaji yang bersedia mereview soal eval, kebijakan penolakan, dan sampel jawaban, serta membantu menilai teks Arab (T-15 s.d. T-17). Kumpulkan email mereka, karena halaman `/tinjau` dibuka dengan PIN yang dikirim ke email. Sepakati juga rubrik penilaian: Benar/Kurang/Salah + alasan, dan skor bahasa 1–5.
+- [x] **T-13 · Ustadz pendamping (P-5)** · selesai 2026-10-18: pemilik menunjuk **Anas**. Belum merupakan persetujuan soal atau penilaian jawaban; rubrik dan penggunaan halaman dilakukan di T-24. Satu email Access diberikan privat, tidak dicatat di repo.
 
 ## Fase 0: Fondasi
 
@@ -178,9 +177,15 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
     - tempel kunci workspace `surau-prod` di **Provider Keys** (mode BYOK);
     - atur spend limit harian dan rate limit;
     - buat token gateway.
-  - **Cloudflare Zero Trust** (Free): aplikasi Access untuk `/admin` dan `/tinjau`, berisi email Anda dan email ustadz (login dengan PIN email).
+  - **Cloudflare Zero Trust** (Free): bagian S18 selesai 2026-10-18, **Surau Tinjau** melindungi `/tinjau` dan `/api/review` pada domain utama, One-time PIN, satu email yang diberikan pemilik. `/admin` dan wildcard preview belum dikonfigurasi. Login nyata/penilaian Anas masih T-24.
   - **Secrets Worker** yang Anda jalankan sendiri di Terminal (folder Surau), misalnya `pnpm wrangler secret put CF_AIG_TOKEN --name surau-api`. Agent akan memberi daftar persis: secret apa, untuk Worker mana (`surau-api` atau `surau-web`), termasuk `TURNSTILE_SECRET_KEY`, `ANON_COOKIE_SECRET`, dan `IP_HASH_SECRET`.
   - Putuskan **P-7** (penyimpanan pertanyaan dan jawaban) bila belum.
+
+- [ ] **T-24 · Persetujuan soal dan uji tinjau oleh Anas (S18)**
+  1. Buka [surau.org/tinjau](https://surau.org/tinjau), masuk memakai email yang sudah terdaftar dan PIN dari email. Bila email Anas berbeda, berikan kepada agent untuk penambahan Access; jangan bagikan PIN.
+  2. Ikuti [panduan tinjau](../docs/tinjau-operasional.md). Anas mengisi namanya sendiri, memeriksa sumber, lalu menyimpan minimal **10 penilaian uji**; coba muat ulang untuk memastikan tersimpan.
+  3. Setujui setidaknya **50 dari 60 draf soal** setelah memeriksa pertanyaan dan kunci; tandai yang perlu diperbaiki. Nilai sekitar **30 Contoh evaluasi** (Benar/Kurang/Salah, bahasa 1–5, kesetiaan, atribusi, alasan) untuk kalibrasi judge.
+  4. Beri tahu agent setelah selesai agar ekspor privat, golden set, kesepakatan dan status S18 diperbarui. **Saat ini: 0 persetujuan dan 0 penilaian manusia.** Contoh agent dan QA tidak dihitung.
 
 - [ ] **T-20 · (Opsional) Laporan biaya harian otomatis** (S20)
   Buat *Admin API key* di platform.claude.com (khusus Organization), lalu simpan sendiri dengan `pnpm wrangler secret put ANTHROPIC_ADMIN_KEY --name surau-api`. Isinya dipakai untuk mencocokkan biaya harian dan mengirim email peringatan saat pemakaian lewat 80%.

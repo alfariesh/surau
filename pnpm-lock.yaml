@@ -221,6 +221,9 @@ catalogs:
     '@vitest/coverage-v8':
       specifier: 5.0.4
       version: 5.0.4
+    jose:
+      specifier: 6.2.12
+      version: 6.2.12
     motion:
       specifier: 12.43.0
       version: 12.43.0
@@ -365,6 +368,9 @@ importers:
       '@surau/text':
         specifier: workspace:*
         version: link:../../packages/text
+      jose:
+        specifier: 'catalog:'
+        version: 6.2.12
       motion:
         specifier: 'catalog:'
         version: 12.43.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -522,6 +528,9 @@ importers:
       '@surau/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@surau/llm':
+        specifier: workspace:*
+        version: link:../../packages/llm
       zod:
         specifier: 'catalog:'
         version: 4.6.7

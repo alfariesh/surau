@@ -22,7 +22,8 @@
     "eval:retrieval": "node tools/eval/src/retrieval.ts",
     "db:migrate:local": "wrangler d1 migrations apply CORPUS --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc",
     "db:migrate:remote": "wrangler d1 migrations apply APP --remote -c packages/db/wrangler.jsonc",
-    "db:migrate:staging": "wrangler d1 migrations apply CORPUS --remote -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc"
+    "db:migrate:staging": "wrangler d1 migrations apply CORPUS --remote -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc",
+    "eval:jawab": "node tools/eval/src/answer.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",

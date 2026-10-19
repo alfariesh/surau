@@ -1,0 +1,45 @@
+import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { listAnswerLogs } from "@surau/db";
+import { getEnv } from "../../../lib/cloudflare";
+import { reviewIdentity } from "../../../lib/review-auth";
+import { ReviewClient } from "../../../components/review/review-client";
+import { reviewText as t } from "../../../i18n/review";
+
+export const metadata: Metadata = { title: t.title, robots: { index: false, follow: false } };
+export const dynamic = "force-dynamic";
+
+// Waktu retensi dievaluasi pada request server, bukan pada render komponen klien.
+const reviewNow = () => new Date().toISOString();
+
+export default async function ReviewPage() {
+  const env = await getEnv();
+  const identity = await reviewIdentity((await headers()).get("cf-access-jwt-assertion"), env);
+  if (!identity)
+    return (
+      <section className="mx-auto max-w-xl space-y-4 px-4 py-12">
+        <h1 className="text-2xl font-semibold">{t.denied}</h1>
+        <p>{t.deniedBody}</p>
+        <a className="text-accent underline" href="https://surau.org/tinjau">
+          {t.login}
+        </a>
+      </section>
+    );
+  const rows = await listAnswerLogs(env.APP_DB, reviewNow());
+  const items = rows.map((r) => ({
+    id: r.id,
+    question_id: r.question_id,
+    run_id: r.run_id,
+    created_at: r.created_at,
+  }));
+  return (
+    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6">
+      <header className="space-y-2">
+        <p className="text-accent text-sm">{t.eyebrow}</p>
+        <h1 className="text-3xl font-semibold tracking-tight">{t.title}</h1>
+        <p className="text-muted">{t.intro}</p>
+      </header>
+      <ReviewClient initialItems={items} />
+    </div>
+  );
+}

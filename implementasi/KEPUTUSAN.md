@@ -17,7 +17,7 @@ Semua fakta versi di bawah dicek ke docs/registry resmi pada 15 Okt 2026 (riset 
 
 ## Keputusan yang menunggu pemilik
 
-**Wajib dijawab pemilik:** P-2 dan P-5 (P-6 dijawab 2026-10-16). **Bila tidak dijawab, usulan CTO dipakai:** P-1, P-3, P-4, dan P-7. Pemilik tetap boleh mengubahnya kapan saja.
+**Wajib dijawab pemilik:** P-2 (P-5 dijawab 2026-10-18: Anas; P-6 dijawab 2026-10-16). **Bila tidak dijawab, usulan CTO dipakai:** P-1, P-3, P-4, dan P-7. Pemilik tetap boleh mengubahnya kapan saja.
 
 | ID | Pertanyaan (bahasa awam) | Usulan CTO | Dibutuhkan saat |
 |---|---|---|---|
@@ -25,7 +25,7 @@ Semua fakta versi di bawah dicek ke docs/registry resmi pada 15 Okt 2026 (riset 
 | P-2 | Nama domain Surau | Pemilik memilih; daftar lewat Cloudflare Registrar | S03 |
 | P-3 | Font Arab utama | **Dijawab 2026-10-15:** Noto Naskh Arabic, palet Zaitun (Opsi A, ADR-027). | S04 |
 | P-4 | Plafon biaya AI per bulan, dan jatah tanya gratis per pengunjung per hari | $20/bulan untuk Tanya online, 10 pertanyaan/hari per pengunjung. Batch dan eval memakai workspace terpisah (`surau-dev`, ±$40/bulan). | S13, Fase 4 |
-| P-5 | Siapa ustadz pertama untuk eval dan review | Dicari pemilik (T-13) | Rilis Fase 4 (dianjurkan sudah ada sejak Fase 2) |
+| P-5 | Siapa ustadz pertama untuk eval dan review | **Anas** ditunjuk pemilik 2026-10-18 (T-13); persetujuan/penilaian nyata T-24 | Rilis Fase 4 (dianjurkan sudah ada sejak Fase 2) |
 | P-6 | Sumber teks publik dan lisensi konten | **Dijawab 2026-10-16 (S10):** ADR-018 + ADR-021 disetujui; email pemberitahuan ke Shamela sudah dikirim pemilik (jawaban ditunggu). Kontak koreksi/takedown: formulir laporan + GitHub Issues. | Rilis Fase 1 |
 | P-7 | Bolehkah Surau menyimpan pertanyaan dan jawaban pengguna (tanpa alamat IP atau data pribadi) untuk memperbaiki mutu, dan berapa lama? | Pertanyaan + jawaban (`answer_log`) 12 bulan; laporan kesalahan (`feedback`) sampai ditangani + 12 bulan; penghitung kuota harian 7 hari; catatan biaya (`llm_ledger`) 24 bulan. Semua diumumkan di kebijakan privasi. **`feedback` dijawab 2026-10-16 (S10): sampai ditangani + 12 bulan, diumumkan di `/lisensi#privasi`.** | Retensi `feedback`: rilis Fase 1. Sisanya: S18, S20 |
 
@@ -1241,3 +1241,24 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Keputusan:** pemilik menjawab **"ya"** di chat setelah ditanya **"Rilis Fase 3 ke produksi sekarang?"** (2026-10-17). Rilis melalui merge PR #44 dan `deploy.yml` (web lalu MCP), smoke produksi diulang, lalu tag `rilis-f3` dibuat dan dipush hanya setelah deploy/smoke sukses. Tidak ada migrasi atau pergantian korpus baru; web dan MCP tetap memakai `ihya-v6`. CHANGELOG, FASE, STATUS dan LOG mencatat rilis ini. Bukti akhir deploy/versi/smoke disimpan pada anotasi tag. Pengumuman hanya didrafkan bagi pemilik.
 
 **Konsekuensi:** MCP sudah tersedia sejak S16, sehingga rilis ini meresmikan fase dan tag. Keterbatasan ukuran `read_page`, batas bersama IP penyedia, klien yang belum diuji langsung, serta mutu keluaran AI pengguna tetap terbuka. Pemantauan 17–24 Oktober berjalan terpisah; kestabilan satu minggu belum diklaim. S18 menjadi sesi berikutnya.
+
+
+## ADR-052 · Eval Jawab dan ruang tinjau terautentikasi — diterima · 2026-10-19
+
+**Konteks:** S18 menyiapkan alat ukur sebelum pipeline S19. Pemilik menunjuk Anas, memberikan satu email Access, mempertahankan perubahan judul beranda, dan mengizinkan 30 contoh + sumber ke Anthropic dengan pagu US$1. Penunjukan penilai tidak sama dengan persetujuan soal.
+
+**Keputusan:**
+
+1. Susun 60 draf (komposisi 24/9/9/6/6/6), pisahkan 18 holdout sebelum pengujian. Git hanya memuat 42 soal publik dengan poin Indonesia dan ID/offset sumber, tanpa teks kitab. Holdout baru, arsip, SQL, plan dan alasan judge berada di penyimpanan privat (inventaris `evals/README.md`). Semua persetujuan awal null; target ≥50 soal tetap menunggu Anas.
+2. Kontrak jawaban tidak menerima teks Arab dari model. Kutipan diambil dari korpus dengan ID + offset UTF-16, diverifikasi, dan diberi sitasi/lisensi. Metrik tanpa penyebut = tidak tersedia. Lokasi harus mencakup semua lokasi gold; penolakan harus eksplisit dan tidak kosong; status hadits harus cocok dengan gold serta takhrij tertaut. Pola fatwa adalah heuristik.
+3. Judge Sonnet 5.5 memakai prompt berversi `jawab-judge-v1`, JSON terstruktur, effort low, batas 2.048 token, Message Batches. Manifest mengikat record dan request; submit menghitung pagu dengan buffer input 10%, menolak perubahan parameter, dan tidak retry otomatis. Human review tidak diberikan ke judge. Kalibrasi mencocokkan hash soal/jawaban/korpus/versi judge dan nama penilai; skor agent tidak dihitung sebagai manusia.
+4. Antrean awal berisi 30 contoh publik buatan agent (sebagian sengaja salah) dan 30 baseline Cari. Label UI menjelaskan asal contoh. Batch menghasilkan 29/30 output valid, satu `max_tokens`; biaya US$0,112528 dari batas estimasi US$0,377774. Ini evaluasi alat/rubrik, **bukan hasil pipeline S19**. Penilaian manusia 0; judge belum terkalibrasi dan gerbang R4 belum aktif.
+5. `answer_log` dan `review` memakai DB app, terpisah dari blue-green korpus. Snapshot tidak ditimpa; review mengikat hash, akun Access (hash issuer+subjek), nama tampilan dan waktu. Hash/korpus/sumber yang berbeda menutup penilaian. Golden menolak keputusan/versi/pemisahan privat yang bertentangan; ekspor/golden mula-mula tetap privat.
+6. Access One-time PIN 24 jam hanya untuk `surau.org/tinjau` dan `surau.org/api/review`, satu email yang diizinkan pemilik. Wildcard preview tidak dibuat karena perluasan cakupan tidak diizinkan. Aplikasi memverifikasi JWT RS256 (issuer/audience/exp/iat/sub/type/email) di semua host; tanpa dev bypass. Tambah `jose` 6.2.12 (MIT, WebCrypto) untuk kriptografi. API no-store/noindex, POST exact Origin dan batas input 12 KB; email/token tidak disimpan.
+7. Usulan P-7 12 bulan hanya untuk eval terkurasi; pertanyaan pengguna umum belum diterima. Expiry disaring saat baca/tulis/ekspor. **Penghapusan fisik belum otomatis**; prosedur manual tercatat, S20 menjadwalkannya sebelum Oktober 2027 termasuk salinan privat. Jangan menyebutnya retensi otomatis.
+
+**Verifikasi:** `pnpm verify` (485 Node + 218 Workers, build), retrieval 31 soal hit@10 100%; peninjau memperbaiki klaim hadits ganda, keputusan golden bertentangan, dan pengikatan receipt batch ke snapshot. Browser komponen aktual + fixture buatan: persistensi formulir, desktop/390 px, Arab RTL/Naskh. Login dan ≥10 uji Anas di produksi tetap T-24.
+
+**Konsekuensi:** S18 **sebagian**; ≥50 persetujuan, ±30 penilaian kalibrasi, dan ≥10 uji halaman tetap tidak dicentang. S19 menunggu dasar evaluasi manusia ini. Runner gratis baseline/score/seed/golden terpisah dari judge-submit berbayar. Panduan: `evals/jawab/README.md`, `docs/tinjau-operasional.md`.
+
+**Tinjau ulang bila:** Anas mengoreksi soal/rubrik, korpus/prompt/model berubah, judge sering terpotong, akses penilai diperluas, atau S20 mengaktifkan pencatatan pertanyaan umum/pembersih retensi.
