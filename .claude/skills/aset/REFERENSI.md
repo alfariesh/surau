@@ -110,7 +110,7 @@ benda yang tidak dipakai). Contoh Surau: `aset/figur/kitab-rehal.html`.
   wrap them in `act('name', svg)` and handle them in `acts`.
 - Out-of-order presses must do something sensible: run the missing step first, or say why not with
   `ui.flash('the can is empty — refill it')` (a short note under the buttons) or on the object itself (a display, a
-  sign, a blinking light). The status line (`readout`) and `idea` are hidden on the page, so don't rely on them for
+  sign, a blinking light). The status line (`readout`) is only announced to screen readers, so don't rely on it for
   anything the viewer must see. `stats` (big numbers top right) suit a measured quantity: credit, litres, height.
 - Animations: `ui.animate(dt => { ...; return stillRunning; })`, eased, mostly under ~2 s. Anything that must *finish*
   should also be safe if the user presses another button meanwhile (one state object, one source of truth).
@@ -146,7 +146,7 @@ benda yang tidak dipakai). Contoh Surau: `aset/figur/kitab-rehal.html`.
   rotV rotXY P0 P Dv depthOf byDepth f pd sp arcUV rrUV rectUV ellUV PX PY PZ on sub dot cross norm avg vis facing SHADOW_K
   AZ_MIN AZ_MAX SHADOW_LEN L SH setLight LIN tone toneI mix matOf ease ink fill face shape line loft hull hullInk box extrude
   cyl cylX rod txM tx txY castShadow BOARD WOOD boardTop board act tag clipTo INK_REF_VB INK_K inkScale CORE_CSS filterFor
-  mountFigure KERTAS FONT`. Prefix your own short names (`lampS`, `armL`).
+  mountFigure KERTAS FONT _clipN`. Prefix your own short names (`lampS`, `armL`).
 
 ## Shapes that look right
 - **Real proportions.** Before modelling, picture the real object and note its key proportions and where parts attach:

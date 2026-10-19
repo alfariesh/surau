@@ -8,7 +8,7 @@
 //     --tunggu 1500                         milidetik sebelum memotret
 //     --tanpa-font-web                      jangan muat Plus Jakarta Sans dari Google Fonts
 //
-// Mencetak galat skrip (<html data-errors>) dan "NaN" di SVG; keluar dengan kode 2 bila ada.
+// Mencetak galat skrip, berkas yang gagal dimuat, figur kosong, dan "NaN" di SVG; keluar dengan kode 2 bila ada.
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -45,9 +45,20 @@ const { chromium } = require("@playwright/test");
 // Sesi cloud memasang Chromium di /opt/pw-browsers/chromium (versinya bisa beda dari Playwright);
 // ASET_CHROMIUM menimpa jalur itu. Di laptop, Chromium bawaan Playwright yang dipakai.
 const fallback = process.env.ASET_CHROMIUM ?? "/opt/pw-browsers/chromium";
-const browser = await chromium.launch().catch(() => chromium.launch({ executablePath: fallback }));
+const browser = await chromium.launch().catch((first) =>
+  chromium.launch({ executablePath: fallback }).catch((second) => {
+    throw new Error(
+      `Chromium tidak bisa dijalankan.\n- Playwright: ${first.message}\n- ${fallback}: ${second.message}`,
+    );
+  }),
+);
 try {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: scale });
+  // Galat sebelum mesin terpasang (jalur core.js salah, galat sintaks) tidak sampai ke <html data-errors>,
+  // jadi dicatat juga dari sisi browser.
+  const pageErrors = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("requestfailed", (request) => pageErrors.push(`gagal memuat ${request.url()}`));
   const url = pathToFileURL(resolve(src)).href + (values.query ? `?${values.query}` : "");
   await page.goto(url);
   // Font situs (Plus Jakarta Sans) hanya dimuat saat memotret, supaya PNG sama dengan situs. File HTML
@@ -61,12 +72,13 @@ try {
   await page.waitForTimeout(Number(values.tunggu));
   await page.screenshot({ path: out });
   const errors = await page.evaluate(() => document.documentElement.dataset.errors ?? "");
-  const nan = await page.evaluate(() =>
-    (document.querySelector("#art")?.innerHTML ?? "").includes("NaN"),
-  );
+  const art = await page.evaluate(() => document.querySelector("#art")?.innerHTML ?? null);
+  const problems = [...pageErrors, errors.trim()].filter(Boolean);
+  if (!art) problems.push("figur tidak tergambar (#art kosong)");
+  if (art?.includes("NaN")) problems.push("ada NaN di SVG");
   console.log(`dipotret ${out} (${width}x${height} @${scale}x)`);
-  if (errors || nan) {
-    console.error(`galat: ${errors.trim() || "-"}${nan ? " · ada NaN di SVG" : ""}`);
+  if (problems.length > 0) {
+    console.error(`galat: ${problems.join(" · ")}`);
     process.exitCode = 2;
   }
 } finally {

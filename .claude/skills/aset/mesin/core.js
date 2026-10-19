@@ -2,7 +2,7 @@
    Mesin aset Surau: turunan Colorfigures (lihat lisensi MIT di bawah dan mesin/LICENSE).
    Proyeksi isometrik, bentuk 3D, bayangan warna datar, tinta, label, dan cangkang halaman.
    Halaman figur memuat file ini (skrip/bangun.mjs menyisipkannya), lalu memanggil mountFigure({...}).
-   Kontrak gambar ada di .claude/skills/aset/SKILL.md.
+   Kontrak gambar ada di .claude/skills/aset/REFERENSI.md; aturan Surau di SKILL.md.
    Satu sudut pandang tetap (depan-kiri-atas) dan satu cahaya tetap.
 
    Perubahan Surau dari Colorfigures asli: palet Zaitun, font Plus Jakarta Sans, teks UI bahasa
@@ -64,7 +64,7 @@ let OX = 0, OY = 0;
    Figures keep modelling in their own coordinates; P / Dv / vis / tone / depthOf all apply the turn. */
 let VIEW = 0, RC = [0, 0];
 const VIEW_NAMES = ['front', 'left side', 'back', 'right side'];
-const TURNS = [0, 2];                 // the views the UI offers: front and back (figures still draw correctly in all four)
+const TURNS = [0, 2];                 // sisa mesin asli (pemutar sudut pandang); UI Surau tidak memutar benda
 const rotV = ([x,y,z]) => { switch (VIEW & 3){ case 1: return [y,-x,z]; case 2: return [-x,-y,z]; case 3: return [-y,x,z]; default: return [x,y,z]; } };
 const rotXY = (x,y) => { const r = rotV([x-RC[0], y-RC[1], 0]); return [r[0]+RC[0], r[1]+RC[1]]; };
 const P0 = (x,y,z) => [(x-y)*C + OX, (x+y)*S - z + OY];                       // raw iso, no turn
@@ -345,7 +345,7 @@ function mountFigure(cfg){
   const st = cfg.state || {};            // kept as the same object, so a figure may hold on to it
   if (!st.pal) st.pal = cfg.palette || 'zaitun';
   if (st.az == null) st.az = 105;
-  if (PALS[q.get('pal')]) st.pal = q.get('pal');
+  if (Object.hasOwn(PALS, q.get('pal') ?? '')) st.pal = q.get('pal');
   if (cfg.params) cfg.params(st, q);
 
   // frame on the object itself: centred, filling ~60% of the width / ~78% of the height of a 4:3 view.

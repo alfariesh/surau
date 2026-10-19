@@ -202,10 +202,12 @@ ui = mountFigure({
   ],
   acts: { kitab: () => st.open >= 1 ? turn() : openBook() },
   params: (st, q) => {
+    // nilai bukan angka diabaikan (berkas ini publik; ?buka=x tidak boleh merusak gambar)
+    const num = (k, lo, hi) => { const v = Number(q.get(k)); return q.has(k) && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : null; };
     if (q.get('tutup') === '1') st.open = 0;
-    if (q.has('buka')) st.open = Math.max(0, Math.min(1, +q.get('buka')));
-    if (q.has('lembar')) st.read = Math.max(0, Math.min(30, +q.get('lembar')));
-    if (q.has('balik')) st.leaf = Math.max(0, Math.min(1, +q.get('balik')));
+    st.open = num('buka', 0, 1) ?? st.open;
+    st.read = Math.round(num('lembar', 0, 30) ?? st.read);
+    st.leaf = num('balik', 0, 1) ?? st.leaf;
   },
 });
 </script>
