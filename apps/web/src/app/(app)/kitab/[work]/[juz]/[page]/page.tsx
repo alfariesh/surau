@@ -14,14 +14,20 @@ import { PassageActions } from "../../../../../../components/reader/passage-acti
 import { PassageTranslation } from "../../../../../../components/reader/passage-translation";
 import { QuranNotice } from "../../../../../../components/reader/quran-notice";
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
-import { ReaderToolbar } from "../../../../../../components/reader/reader-toolbar";
+import { ReaderCompactHeader } from "../../../../../../components/reader/reader-compact-header";
+import {
+  ReaderToolbar,
+  ReportPageButton,
+} from "../../../../../../components/reader/reader-toolbar";
 import { SearchHighlighter } from "../../../../../../components/reader/search-highlighter";
 import { SectionSummary } from "../../../../../../components/reader/section-summary";
 import { TocTree } from "../../../../../../components/reader/toc-tree";
 import { FOOTNOTE_NOTE } from "../../../../../../content/works";
 import { id } from "../../../../../../i18n/id";
+import { PAGE_FRAME } from "../../../../../../lib/layout";
 import { citeParts } from "../../../../../../lib/reader/cite";
 import { loadPage, loadToc } from "../../../../../../lib/reader/data";
+import { previewSample } from "../../../../../../lib/reader/preview";
 import { READER_SCALE_SCRIPT } from "../../../../../../lib/reader/scale";
 import { splitPassage } from "../../../../../../lib/reader/segments";
 import {
@@ -118,6 +124,11 @@ export default async function ReaderPage({ params }: Props) {
   const footNote = FOOTNOTE_NOTE[`${work.slug}/${edition.slug}`];
   const anyReview = [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0);
   const workTitle = work.title_id ?? work.title_ar;
+  const bab = crumbs.at(-1)?.title ?? null;
+  // Pratinjau huruf di panel Tampilan: awal paragraf isi pertama halaman ini (lib/reader/preview).
+  const sample = previewSample(
+    (page.body.find((p) => !headings.has(p.id)) ?? page.body[0])?.text_raw,
+  );
   const ref = (p: Passage) => ({
     id: p.id,
     label: passageLabel(juz, pageNo, p),
@@ -190,7 +201,9 @@ export default async function ReaderPage({ params }: Props) {
       <Suspense fallback={null}>
         <SearchHighlighter />
       </Suspense>
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 pt-6 pb-16 sm:px-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
+      <div
+        className={`${PAGE_FRAME} grid gap-6 pt-6 pb-16 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10`}
+      >
         <article className="flex min-w-0 flex-col gap-6">
           <header className="flex flex-col gap-3">
             <Breadcrumbs aria-label={t.breadcrumbLabel} className="flex-wrap">
@@ -211,7 +224,7 @@ export default async function ReaderPage({ params }: Props) {
               ))}
               <Breadcrumbs.Item>{t.pageShort(juz, pageNo)}</Breadcrumbs.Item>
             </Breadcrumbs>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1" data-reader-title>
               <h1 className="text-foreground text-[1.75rem] leading-tight font-semibold tracking-tight sm:text-[2rem]">
                 {t.pageHeading(juz, pageNo)}
               </h1>
@@ -225,11 +238,13 @@ export default async function ReaderPage({ params }: Props) {
               juz={juz}
               page={pageNo}
               pagePath={permalink}
+              sample={sample}
               segment={segment}
               toc={toc}
               volumes={edition.volumes ?? juz}
             />
           </header>
+          <ReaderCompactHeader bab={bab} juz={juz} page={pageNo} sample={sample} />
 
           <PageNav label={t.pageNavTopLabel} next={page.next} prev={page.prev} />
 
@@ -272,17 +287,16 @@ export default async function ReaderPage({ params }: Props) {
           <p className="text-muted text-xs">{t.keyboardHint}</p>
 
           {page.footnotes.length > 0 ? (
-            <section
-              aria-labelledby="judul-catatan-kaki"
-              className="flex flex-col gap-3 border-t border-separator pt-6"
-            >
-              <div className="flex flex-col gap-1">
-                <h2 className="text-foreground text-lg font-semibold" id="judul-catatan-kaki">
+            // Seperti catatan kaki buku: garis pendek, judul kecil, huruf lebih kecil dari teks.
+            <section aria-labelledby="judul-catatan-kaki" className="flex flex-col gap-3 pt-2">
+              <div aria-hidden="true" className="reader-footnotes-rule" />
+              <div className="flex flex-col gap-0.5">
+                <h2 className="text-foreground text-sm font-semibold" id="judul-catatan-kaki">
                   {footNote?.heading ?? t.footnotesHeading}
                 </h2>
-                {footNote ? <p className="text-muted text-sm">{footNote.lead}</p> : null}
+                {footNote ? <p className="text-muted text-xs">{footNote.lead}</p> : null}
               </div>
-              <ol className="flex list-none flex-col gap-3 p-0">
+              <ol className="reader-footnotes flex list-none flex-col gap-2 p-0">
                 {page.footnotes.map((f) => {
                   const back = markerOf.get(f.id);
                   return (
@@ -292,9 +306,7 @@ export default async function ReaderPage({ params }: Props) {
                       id={f.anchor}
                     >
                       <div className="flex min-w-0 flex-1 flex-col gap-1">
-                        <ArabicText className="text-foreground text-[0.95em]">
-                          {renderText(f)}
-                        </ArabicText>
+                        <ArabicText className="text-foreground">{renderText(f)}</ArabicText>
                         <NeedsReviewNote reasons={f.needs_review} />
                         {back ? (
                           <a className="link self-start text-xs" href={`#${back}`}>
@@ -327,6 +339,7 @@ export default async function ReaderPage({ params }: Props) {
               </p>
             ) : null}
             {anyReview ? <p>{t.needsReviewNote}</p> : null}
+            <ReportPageButton />
           </footer>
         </article>
 

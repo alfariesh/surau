@@ -184,3 +184,36 @@ test("label rujukan ayat membuka teks ayat dan terjemahan Kemenag dengan atribus
     "https://tanzil.net",
   );
 });
+
+test("panel Tampilan: font Arab dan jarak baris tersimpan setelah muat ulang", async ({ page }) => {
+  await page.goto(PAGE);
+  await page
+    .getByRole("group", { name: "Alat baca" })
+    .getByRole("button", { name: "Tampilan" })
+    .click();
+  const panel = page.getByRole("dialog", { name: "Tampilan baca" });
+  await expect(panel).toBeVisible();
+  await panel.getByText("Amiri", { exact: true }).click();
+  await panel.getByRole("radio", { name: "Longgar" }).click();
+  const html = page.locator("html");
+  await expect(html).toHaveAttribute("data-reader-font", "amiri");
+  await expect(html).toHaveAttribute("data-reader-leading", "loose");
+
+  await page.reload();
+  await expect(html).toHaveAttribute("data-reader-font", "amiri");
+  await expect(html).toHaveAttribute("data-reader-leading", "loose");
+  // Font pilihan berlaku untuk teks kitab (aturan CSS dibatasi ke .reader-text).
+  const font = await page
+    .getByRole("region", { name: "Teks kitab" })
+    .locator(".arabic-text")
+    .first()
+    .evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(font).toMatch(/Amiri/);
+  await page
+    .getByRole("group", { name: "Alat baca" })
+    .getByRole("button", { name: "Tampilan" })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Tampilan baca" }).getByRole("radio", { name: "Amiri" }),
+  ).toBeChecked();
+});

@@ -11,7 +11,11 @@ export function PageSection({
   id: string;
 }) {
   return (
-    <section aria-labelledby={`judul-${sectionId}`} className="flex flex-col gap-3" id={sectionId}>
+    <section
+      aria-labelledby={`judul-${sectionId}`}
+      className="flex scroll-mt-24 flex-col gap-3"
+      id={sectionId}
+    >
       <h2 className="text-foreground text-xl font-semibold" id={`judul-${sectionId}`}>
         {heading}
       </h2>

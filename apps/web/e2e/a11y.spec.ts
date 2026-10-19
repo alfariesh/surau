@@ -46,3 +46,21 @@ for (const path of ["/kitab", "/kitab/ihya", "/kitab/ihya/1/200", "/cari"]) {
     expect(result.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
   });
 }
+
+// Panel Tampilan pembaca terbuka (Sheet + RadioGroup + Segment + Switch) dan tema kertas sepia.
+test("tanpa pelanggaran a11y: panel Tampilan terbuka dan kertas sepia", async ({ page }) => {
+  await page.goto("/kitab/ihya/1/200");
+  await page
+    .getByRole("group", { name: "Alat baca" })
+    .getByRole("button", { name: "Tampilan" })
+    .click();
+  const panel = page.getByRole("dialog", { name: "Tampilan baca" });
+  await expect(panel).toBeVisible();
+  await panel.getByRole("radio", { name: "Sepia" }).click();
+  await expect(page.locator("html")).toHaveClass(/sepia/);
+
+  const result = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(result.violations.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);
+});

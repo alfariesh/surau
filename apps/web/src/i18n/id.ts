@@ -36,6 +36,7 @@ export const id = {
   common: {
     newTab: "(membuka tab baru)",
     close: "Tutup",
+    onThisPage: "Di halaman ini",
   },
 
   footer: {
@@ -359,7 +360,6 @@ export const id = {
     copyFailedDescription: "Browser menolak akses papan klip. Salin tautan dari bilah alamat.",
     fontSmaller: "Perkecil huruf Arab",
     fontLarger: "Perbesar huruf Arab",
-    fontSize: "Ukuran huruf Arab",
     passageActions: "Aksi paragraf",
     copyPassage: "Salin sitasi paragraf",
     reportPassage: "Laporkan kesalahan di paragraf ini",
@@ -445,6 +445,20 @@ export const id = {
     ayahInTranslationFull: (label: string) => `${label} · Terjemahan ayat lengkap (Kemenag)`,
     ayahInTranslationMissing: (label: string) => `${label} (terjemahan ayat tidak tersedia)`,
     translationToggle: "Tampilkan terjemahan AI",
+    translationToggleHint: "Terjemahan Indonesia per paragraf, dibuat AI dan belum ditinjau.",
+    // Panel Tampilan (ukuran, font Arab, kertas, jarak baris, terjemahan), disimpan per browser.
+    toolbarLabel: "Alat baca",
+    style: "Tampilan",
+    styleHeading: "Tampilan baca",
+    styleFont: "Huruf Arab",
+    styleFontSize: "Ukuran huruf",
+    stylePaper: "Warna kertas",
+    stylePapers: { light: "Terang", sepia: "Sepia", dark: "Gelap" },
+    styleLeading: "Jarak baris",
+    styleLeadings: { tight: "Rapat", normal: "Sedang", loose: "Longgar" },
+    // Contoh huruf di panel Tampilan memakai paragraf pertama halaman ini (disalin dari DB).
+    stylePreviewNote: "Contoh dari halaman ini",
+    progressLabel: "Posisi baca di halaman ini",
     aiNoticeHeading: "Terjemahan dan ringkasan AI",
     aiNotice:
       "Terjemahan Indonesia per paragraf dan ringkasan bagian dibuat otomatis oleh model AI dari teks Arab, dan belum ditinjau manusia, jadi bisa keliru. Teks Arab tetap rujukan utamanya. Kutipan ayat yang dikenali sistem tidak diterjemahkan AI: yang tampil adalah terjemahan Kemenag. Kutipan ayat yang belum dikenali bisa ikut diterjemahkan AI.",

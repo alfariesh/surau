@@ -6,6 +6,7 @@ import { AppLayout } from "@heroui-pro/react";
 import { usePathname } from "next/navigation";
 
 import { findActiveNavItem } from "./nav-items";
+import { NavbarSlotProvider } from "./navbar-slot";
 import { SurauNavbar } from "./surau-navbar";
 import { SurauSidebar } from "./surau-sidebar";
 
@@ -16,12 +17,14 @@ export function SurauShell({ children }: { children: ReactNode }) {
   const active = findActiveNavItem(pathname);
 
   return (
-    <AppLayout
-      navbar={<SurauNavbar title={active?.label} />}
-      sidebar={<SurauSidebar activeId={active?.id} />}
-      sidebarCollapsible="offcanvas"
-    >
-      {children}
-    </AppLayout>
+    <NavbarSlotProvider>
+      <AppLayout
+        navbar={<SurauNavbar title={active?.label} />}
+        sidebar={<SurauSidebar activeId={active?.id} />}
+        sidebarCollapsible="offcanvas"
+      >
+        {children}
+      </AppLayout>
+    </NavbarSlotProvider>
   );
 }

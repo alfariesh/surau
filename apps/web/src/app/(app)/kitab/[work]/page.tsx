@@ -10,6 +10,7 @@ import { WorkCover } from "../../../../components/book/work-cover";
 import { LicenseNotice } from "../../../../components/reader/license-notice";
 import { TocTree } from "../../../../components/reader/toc-tree";
 import { id } from "../../../../i18n/id";
+import { PAGE_FRAME } from "../../../../lib/layout";
 import { loadToc, loadWork } from "../../../../lib/reader/data";
 
 const t = id.reader;
@@ -44,7 +45,7 @@ export default async function WorkPage({ params }: Props) {
   const start = toc[0]?.href;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 pt-6 pb-16 sm:px-6">
+    <div className={`${PAGE_FRAME} flex flex-col gap-8 pt-6 pb-16`}>
       <Breadcrumbs aria-label={t.breadcrumbLabel}>
         <Breadcrumbs.Item href="/kitab">{t.listTitle}</Breadcrumbs.Item>
         <Breadcrumbs.Item>{title}</Breadcrumbs.Item>
@@ -89,43 +90,47 @@ export default async function WorkPage({ params }: Props) {
         </div>
       </header>
 
-      <Card>
-        <Card.Header>
-          {/* h2 (bukan Card.Title = h3): urutan heading h1 → h2 (axe heading-order). */}
-          <h2 className="card__title">{t.editionsLabel}</h2>
-        </Card.Header>
-        <Card.Content>
-          <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[10rem_1fr]">
-            <dt className="text-muted">{t.publisherLabel}</dt>
-            <dd className="text-foreground m-0">
-              {edition.publisher ? <ArabicInline>{edition.publisher}</ArabicInline> : null}
-              {edition.city ? (
-                <>
-                  {", "}
-                  <ArabicInline>{edition.city}</ArabicInline>
-                </>
-              ) : null}
-              {edition.volumes ? ` · ${t.volumes(edition.volumes)}` : null}
-            </dd>
-            <dt className="text-muted">{t.sourceHeading}</dt>
-            <dd className="text-foreground m-0">
-              <LicenseNotice
-                attribution={edition.attribution}
-                editionSlug={edition.slug}
-                license={edition.license}
-                workSlug={work.slug}
-              />
-            </dd>
-          </dl>
-        </Card.Content>
-      </Card>
-
-      <section aria-labelledby="judul-daftar-isi" className="flex flex-col gap-3">
-        <h2 className="text-foreground text-xl font-semibold" id="judul-daftar-isi">
-          {t.tocHeading}
-        </h2>
-        <TocTree items={toc} />
-      </section>
+      {/* Desktop: daftar isi di kolom utama, info edisi di samping. Ponsel: edisi sesudahnya. */}
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-10">
+        <section aria-labelledby="judul-daftar-isi" className="flex flex-col gap-3">
+          <h2 className="text-foreground text-xl font-semibold" id="judul-daftar-isi">
+            {t.tocHeading}
+          </h2>
+          <TocTree items={toc} />
+        </section>
+        <aside aria-label={t.editionsLabel}>
+          <Card className="lg:sticky lg:top-20">
+            <Card.Header>
+              {/* h2 (bukan Card.Title = h3): urutan heading h1 → h2 (axe heading-order). */}
+              <h2 className="card__title">{t.editionsLabel}</h2>
+            </Card.Header>
+            <Card.Content>
+              <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[10rem_1fr] lg:grid-cols-1 lg:gap-y-1 lg:[&>dt:not(:first-child)]:mt-3">
+                <dt className="text-muted">{t.publisherLabel}</dt>
+                <dd className="text-foreground m-0">
+                  {edition.publisher ? <ArabicInline>{edition.publisher}</ArabicInline> : null}
+                  {edition.city ? (
+                    <>
+                      {", "}
+                      <ArabicInline>{edition.city}</ArabicInline>
+                    </>
+                  ) : null}
+                  {edition.volumes ? ` · ${t.volumes(edition.volumes)}` : null}
+                </dd>
+                <dt className="text-muted">{t.sourceHeading}</dt>
+                <dd className="text-foreground m-0">
+                  <LicenseNotice
+                    attribution={edition.attribution}
+                    editionSlug={edition.slug}
+                    license={edition.license}
+                    workSlug={work.slug}
+                  />
+                </dd>
+              </dl>
+            </Card.Content>
+          </Card>
+        </aside>
+      </div>
     </div>
   );
 }

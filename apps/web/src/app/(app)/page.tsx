@@ -10,6 +10,7 @@ import { ArabicText } from "../../components/arabic";
 import { WorkShelf } from "../../components/book/work-shelf";
 import { BASMALAH } from "../../content/basmalah";
 import { id, SOURCE_URL } from "../../i18n/id";
+import { PAGE_FRAME } from "../../lib/layout";
 import { getEnv, readerEnabled } from "../../lib/cloudflare";
 
 export const metadata: Metadata = {
@@ -50,7 +51,7 @@ async function shelfWorks() {
 export default async function HomePage() {
   const works = await shelfWorks();
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
+    <div className={`${PAGE_FRAME} flex flex-col gap-12 pt-8 pb-16 sm:pt-12`}>
       {/* Hero: teks di kiri, rak kitab putar di kanan (ponsel: rak di bawah teks). */}
       <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
         <section aria-labelledby="judul-beranda" className="flex flex-col items-start gap-5">

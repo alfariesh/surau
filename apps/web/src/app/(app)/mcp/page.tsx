@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import NextLink from "next/link";
 
 import { PageSection } from "../../../components/page-section";
+import { TextPage } from "../../../components/text-page";
 import { id, MCP_URL } from "../../../i18n/id";
 
 const t = id.mcp;
@@ -13,16 +14,29 @@ export const metadata: Metadata = {
 };
 
 export default function McpPage() {
-  return (
-    <article className="mx-auto flex w-full max-w-2xl flex-col gap-10 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
-      <header className="flex flex-col gap-3">
-        <p className="text-muted text-sm">{t.eyebrow}</p>
-        <h1 className="text-foreground text-3xl font-semibold tracking-tight sm:text-4xl">
-          {t.heading}
-        </h1>
-        <p className="text-muted text-base leading-relaxed sm:text-lg">{t.lead}</p>
-      </header>
+  const sections = [
+    { id: "alamat", label: t.endpointHeading },
+    { id: "hubungkan", label: t.connectHeading },
+    { id: "contoh", label: t.examplesHeading },
+    { id: "periksa", label: t.checkHeading },
+    { id: "batasan", label: t.limitsHeading },
+    { id: "bantuan", label: t.troubleHeading },
+    { id: "lisensi", label: t.licenseHeading },
+  ];
 
+  return (
+    <TextPage
+      header={
+        <header className="flex flex-col gap-3">
+          <p className="text-muted text-sm">{t.eyebrow}</p>
+          <h1 className="text-foreground text-3xl font-semibold tracking-tight sm:text-4xl">
+            {t.heading}
+          </h1>
+          <p className="text-muted text-base leading-relaxed sm:text-lg">{t.lead}</p>
+        </header>
+      }
+      sections={sections}
+    >
       <PageSection heading={t.endpointHeading} id="alamat">
         <p className="text-foreground leading-relaxed">{t.endpointLead}</p>
         <code className="bg-default text-default-foreground block rounded-xl p-4 text-sm break-all select-all">
@@ -104,6 +118,6 @@ export default function McpPage() {
           {t.licenseMore}
         </NextLink>
       </PageSection>
-    </article>
+    </TextPage>
   );
 }
