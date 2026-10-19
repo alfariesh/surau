@@ -263,7 +263,12 @@ export default async function ReaderPage({ params }: Props) {
                         <ArabicText className="text-foreground">{renderText(p)}</ArabicText>
                       )}
                       <NeedsReviewNote reasons={p.needs_review} />
-                      <PassageTranslation footAnchor={footAnchor} passage={p} quran={quran} />
+                      <PassageTranslation
+                        footAnchor={footAnchor}
+                        heading={heading !== undefined}
+                        passage={p}
+                        quran={quran}
+                      />
                     </div>
                     <PassageActions passage={ref(p)} />
                   </div>

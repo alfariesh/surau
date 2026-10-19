@@ -433,6 +433,8 @@ export const id = {
       "Diterjemahkan otomatis oleh AI dari teks Arab di atasnya dan belum ditinjau manusia. Rujuk selalu teks Arabnya.",
     aiSummary: "Ringkasan AI",
     aiSummaryOf: "Ringkasan AI bagian ini",
+    summaryMore: "Baca selengkapnya",
+    summaryLess: "Tutup ringkasan",
     aiReview: {
       ai_generated: "belum ditinjau manusia",
       reviewed: "sudah ditinjau",

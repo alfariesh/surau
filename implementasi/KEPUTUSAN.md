@@ -1259,6 +1259,8 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 8. **Catatan kaki:** penanda `(١)` 0,62em superskrip (`line-height: 1`, bukan 0, supaya tetap bisa diketuk di ponsel); daftar catatan kaki 0,875rem × skala pembaca, garis pendek 6rem dan judul kecil.
 9. **Navigasi halaman** hanya sekali, di akhir halaman (sesudah catatan kaki), tanpa label j./h. yang terlihat (nomor halaman tetap ada di nama aksesibel). Lingkar progres ukuran `sm` (20 px).
 10. PR ini juga membawa PR #46 (daftar isi berikon, breadcrumb dipindah ke JSON-LD, footer pembaca ringkas, sidebar ikon/duotone, "Tentang" di bawah sidebar) yang di-merge ke branch ini; uji asap menu samping disesuaikan (Tentang di menu bawah).
+11. **Ringkasan AI** (pilihan pemilik): catatan tipis di bawah judul bab, bukan kotak `<details>` berbingkai. Garis aksen di tepi awal, label "Ringkasan AI · <judul bab>", dua baris pertama (`line-clamp`), tombol "Baca selengkapnya" (hanya bila teks memang terpotong) yang juga menampilkan model dan status tinjau. Teks lengkap tetap di HTML.
+12. **Terjemahan AI judul bab** (pilihan pemilik): satu baris kecil abu-abu di bawah judul Arab, tanpa garis tepi, dengan label kecil "· Terjemahan AI" di akhir baris (aturan 8 tetap: terjemahan selalu berlabel). Judul yang memuat kutipan ayat tetap memakai tampilan lengkap berlabel Kemenag.
 
 **Ditolak:** `Drawer` OSS untuk panel (Sheet Pro sudah dipakai AppLayout, punya latar blur, handle, dan seret-tutup); bilah progres (pemilik memilih lingkar); header lengket yang menyusut di tempat (tingginya berubah dan menggeser teks saat melewati ambang); `line-height: 0` untuk penanda (tombol ponsel jadi tak terlihat oleh uji e2e dan sulit diketuk).
 

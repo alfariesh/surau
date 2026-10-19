@@ -680,6 +680,14 @@ h2.reader-heading-minor {
   font-size: 1rem;
 }
 
+/* Terjemahan judul bab: satu baris kecil di bawah judul Arab, tanpa garis tepi. */
+.passage-translation-heading {
+  margin-top: 0;
+  padding-inline-start: 0;
+  border-inline-start: 0;
+  font-size: 0.875rem;
+}
+
 html[data-translation="off"] .passage-translation {
   display: none;
 }
@@ -699,8 +707,13 @@ html[data-translation="off"] .passage-translation {
   font-size: 0.8em;
 }
 
+/* Ringkasan AI: catatan tipis dengan garis aksen di tepi awal, bukan kotak berbingkai, supaya
+ * tidak bersaing dengan teks kitab. */
 .section-summary {
   font-size: 1rem;
+  margin-block: 0.25rem 0.5rem;
+  padding-inline-start: 0.875rem;
+  border-inline-start: 2px solid color-mix(in oklab, var(--accent) 45%, transparent);
 }
 
 /* Sorotan hasil Cari: <mark> di kartu hasil; Highlight API (::highlight) di pembaca (?q=). */
