@@ -20,11 +20,15 @@
 @import "@heroui/styles/components/button.css" layer(components);
 @import "@heroui/styles/components/button-group.css" layer(components);
 @import "@heroui/styles/components/dropdown.css" layer(components);
+@import "@heroui/styles/components/list-box-item.css" layer(components);
+@import "@heroui/styles/components/list-box-section.css" layer(components);
+@import "@heroui/styles/components/list-box.css" layer(components);
 @import "@heroui/styles/components/menu-item.css" layer(components);
 @import "@heroui/styles/components/menu-section.css" layer(components);
 @import "@heroui/styles/components/menu.css" layer(components);
 @import "@heroui/styles/components/tag-group.css" layer(components);
 @import "@heroui/styles/components/tag.css" layer(components);
+@import "@heroui/styles/components/slider.css" layer(components);
 @import "@heroui/styles/components/switch.css" layer(components);
 @import "@heroui/styles/components/chip.css" layer(components);
 @import "@heroui/styles/components/alert.css" layer(components);
@@ -43,6 +47,7 @@
 @import "@heroui/styles/components/modal.css" layer(components);
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
+@import "@heroui/styles/components/select.css" layer(components);
 @import "@heroui/styles/components/kbd.css" layer(components);
 @import "@heroui/styles/components/scroll-shadow.css" layer(components);
 
@@ -51,6 +56,8 @@
 @import "@heroui/styles/variants";
 
 @import "@heroui-pro/react/css/components/app-layout.css" layer(components);
+@import "@heroui-pro/react/css/components/cell-select.css" layer(components);
+@import "@heroui-pro/react/css/components/cell-slider.css" layer(components);
 @import "@heroui-pro/react/css/components/command.css" layer(components);
 @import "@heroui-pro/react/css/components/empty-state.css" layer(components);
 @import "@heroui-pro/react/css/components/hover-card.css" layer(components);

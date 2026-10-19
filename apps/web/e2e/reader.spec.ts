@@ -206,7 +206,8 @@ test("panel Tampilan: font Arab dan jarak baris tersimpan setelah muat ulang", a
     .click();
   const panel = page.getByRole("dialog", { name: "Tampilan baca" });
   await expect(panel).toBeVisible();
-  await panel.getByText("Amiri", { exact: true }).click();
+  await panel.getByRole("button", { name: /Huruf Arab/ }).click();
+  await page.getByRole("option", { name: "Amiri" }).click();
   await panel.getByRole("radio", { name: "Longgar" }).click();
   const html = page.locator("html");
   await expect(html).toHaveAttribute("data-reader-font", "amiri");
@@ -227,6 +228,6 @@ test("panel Tampilan: font Arab dan jarak baris tersimpan setelah muat ulang", a
     .getByRole("button", { name: "Tampilan" })
     .click();
   await expect(
-    page.getByRole("dialog", { name: "Tampilan baca" }).getByRole("radio", { name: "Amiri" }),
-  ).toBeChecked();
+    page.getByRole("dialog", { name: "Tampilan baca" }).getByRole("button", { name: /Huruf Arab/ }),
+  ).toContainText("Amiri");
 });

@@ -1,15 +1,15 @@
 "use client";
 
-import type { CSSProperties, Key } from "react";
+import type { Key } from "react";
 
 import type { ReaderAlign, ReaderFont, ReaderLeading } from "../../lib/reader/scale";
 
-import { Segment, Sheet } from "@heroui-pro/react";
-import { Button, ButtonGroup, Description, Label, Radio, RadioGroup, Switch } from "@heroui/react";
+import { CellSelect, CellSlider, Segment, Sheet, Widget } from "@heroui-pro/react";
+import { Button, ButtonGroup, Description, Label, ListBox, Switch } from "@heroui/react";
 import { useTheme } from "next-themes";
 import { useEffect, useSyncExternalStore } from "react";
 
-import { MinusSign, PlusSign, TextFont } from "../../icons";
+import { TextFont } from "../../icons";
 import { id } from "../../i18n/id";
 import {
   READER_ALIGN_KEY,
@@ -126,92 +126,68 @@ const noopSubscribe = () => () => {};
 
 function FontSizeControl() {
   const index = useSyncExternalStore(subscribe, scaleIndex, () => 1);
-  const scale = READER_SCALES[index] ?? 1;
 
-  function change(delta: number) {
-    const next = READER_SCALES[Math.min(READER_SCALES.length - 1, Math.max(0, index + delta))] ?? 1;
+  function change(value: number | number[]) {
+    const next = READER_SCALES[Array.isArray(value) ? (value[0] ?? 1) : value] ?? 1;
     applyScale(next);
     store(READER_SCALE_KEY, String(next));
     notify();
   }
 
   return (
-    <div className="flex items-center justify-between gap-4">
-      <Label id="tampilan-ukuran">{t.styleFontSize}</Label>
-      <div className="flex items-center gap-3">
-        <span className="text-muted w-10 text-end text-sm tabular-nums">
-          {Math.round(scale * 100)}%
-        </span>
-        <ButtonGroup aria-labelledby="tampilan-ukuran" size="sm" variant="tertiary">
-          <Button
-            isIconOnly
-            aria-label={t.fontSmaller}
-            isDisabled={index === 0}
-            onPress={() => change(-1)}
-          >
-            <MinusSign className="size-4" />
-          </Button>
-          <Button
-            isIconOnly
-            aria-label={t.fontLarger}
-            isDisabled={index === READER_SCALES.length - 1}
-            onPress={() => change(1)}
-          >
-            <ButtonGroup.Separator />
-            <PlusSign className="size-4" />
-          </Button>
-        </ButtonGroup>
-      </div>
-    </div>
+    <CellSlider
+      aria-label={t.styleFontSize}
+      maxValue={READER_SCALES.length - 1}
+      minValue={0}
+      step={1}
+      value={index}
+      onChange={change}
+    >
+      <CellSlider.Track>
+        <CellSlider.Fill />
+        <CellSlider.Thumb />
+        <CellSlider.Label>{t.styleFontSize}</CellSlider.Label>
+        <CellSlider.Output>
+          {({ state }) => `${Math.round((READER_SCALES[state.values[0] ?? 1] ?? 1) * 100)}%`}
+        </CellSlider.Output>
+      </CellSlider.Track>
+    </CellSlider>
   );
 }
 
-function FontPicker({ sample }: { sample: string | null }) {
+function FontPicker() {
   const font = useSyncExternalStore(
     subscribe,
     () => readAttr(FONT_PREF),
     () => FONT_PREF.fallback,
   );
 
-  function change(value: string) {
+  function change(key: Key | null) {
+    if (key === null) return;
+    const value = String(key);
     applyAttr(FONT_PREF, value);
     store(FONT_PREF.key, value);
     notify();
   }
 
   return (
-    <RadioGroup value={font} onChange={change}>
-      <Label>{t.styleFont}</Label>
-      <div className="flex flex-col gap-2">
-        {READER_FONTS.map((f) => (
-          <Radio
-            key={f.id}
-            className="border-border data-[selected=true]:border-accent data-[selected=true]:bg-accent-soft rounded-xl border px-3 py-2 transition-colors"
-            value={f.id satisfies ReaderFont}
-          >
-            <Radio.Content className="flex w-full min-w-0 items-center gap-3">
-              <Radio.Control>
-                <Radio.Indicator />
-              </Radio.Control>
-              <span className="text-foreground shrink-0 text-sm">{f.name}</span>
-              {sample ? (
-                // Contoh huruf = awal paragraf halaman ini (disalin dari DB, bukan ketikan), dengan
-                // --font-arabic diganti hanya di pembungkus ini.
-                <span
-                  aria-hidden="true"
-                  className="min-w-0 flex-1"
-                  style={{ "--font-arabic": `var(${f.cssVar})` } as CSSProperties}
-                >
-                  <ArabicText className="text-foreground truncate text-lg leading-normal">
-                    {sample}
-                  </ArabicText>
-                </span>
-              ) : null}
-            </Radio.Content>
-          </Radio>
-        ))}
-      </div>
-    </RadioGroup>
+    <CellSelect aria-label={t.styleFont} value={font} onChange={(v) => change(v as Key | null)}>
+      <CellSelect.Trigger>
+        <CellSelect.Label>{t.styleFont}</CellSelect.Label>
+        <CellSelect.Value />
+        <CellSelect.Indicator />
+      </CellSelect.Trigger>
+      <CellSelect.Popover>
+        <ListBox>
+          {READER_FONTS.map((f) => (
+            <ListBox.Item key={f.id} id={f.id satisfies ReaderFont} textValue={f.name}>
+              {f.name}
+              <ListBox.ItemIndicator />
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </CellSelect.Popover>
+    </CellSelect>
   );
 }
 
@@ -342,6 +318,15 @@ function TranslationSwitch() {
   );
 }
 
+const PREVIEW_MAX_CHARS = 60;
+
+/** Potong di batas kata (bukan di tengah huruf + harakat) supaya contoh tetap pendek. */
+function previewText(sample: string): string {
+  if (sample.length <= PREVIEW_MAX_CHARS) return sample;
+  const cut = sample.lastIndexOf(" ", PREVIEW_MAX_CHARS);
+  return `${sample.slice(0, cut > 0 ? cut : PREVIEW_MAX_CHARS).trimEnd()}…`;
+}
+
 const DESKTOP_QUERY = "(min-width: 1024px)";
 
 function subscribeDesktop(onChange: () => void) {
@@ -374,6 +359,7 @@ export function ReaderStyle({
     () => false,
   );
   const placement = isDesktop ? "right" : "bottom";
+  const preview = sample ? previewText(sample) : null;
 
   return (
     <Sheet placement={placement}>
@@ -399,19 +385,20 @@ export function ReaderStyle({
               <Sheet.Heading>{t.styleHeading}</Sheet.Heading>
             </Sheet.Header>
             <Sheet.Body className="flex flex-col gap-6 pb-6">
-              {sample ? (
-                <figure
-                  aria-hidden="true"
-                  className="bg-surface border-border m-0 flex flex-col gap-1 rounded-2xl border p-4"
-                >
-                  <figcaption className="text-muted text-xs">{t.stylePreviewNote}</figcaption>
-                  <div className="reader-text">
-                    <ArabicText className="text-foreground line-clamp-3">{sample}</ArabicText>
-                  </div>
-                </figure>
+              {preview ? (
+                <Widget aria-hidden="true">
+                  <Widget.Header>
+                    <Widget.Title>{t.stylePreviewNote}</Widget.Title>
+                  </Widget.Header>
+                  <Widget.Content>
+                    <div className="reader-text">
+                      <ArabicText className="text-foreground">{preview}</ArabicText>
+                    </div>
+                  </Widget.Content>
+                </Widget>
               ) : null}
               <FontSizeControl />
-              <FontPicker sample={sample} />
+              <FontPicker />
               <LeadingPicker />
               <AlignPicker />
               <PaperPicker />
