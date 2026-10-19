@@ -5,7 +5,10 @@
 
 # Aset ilustrasi (ADR-054): disematkan lewat iframe sandbox di halaman Surau sendiri.
 # Berkas public/ tidak melewati Worker, jadi header di next.config.ts tidak berlaku di sini.
+# no-transform: Cloudflare tidak menyisipkan beacon Web Analytics ke HTML aset (tanpa itu setiap
+# iframe tercatat sebagai kunjungan halaman dan beacon gagal CORS dari origin "null").
 /aset/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN

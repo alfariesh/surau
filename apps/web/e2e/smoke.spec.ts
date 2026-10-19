@@ -176,6 +176,8 @@ test("aset ilustrasi boleh dibingkai halaman sendiri, halaman lain tidak", async
   expect(headers["x-frame-options"]).toBe("SAMEORIGIN");
   expect(headers["content-security-policy"]).toContain("frame-ancestors 'self'");
   expect(headers["x-content-type-options"]).toBe("nosniff");
+  // Tanpa sisipan beacon Web Analytics (di produksi: no-transform dari public/_headers)
+  expect(await aset.text()).not.toContain("cloudflareinsights");
 
   // Font aset dimuat dari origin "null" (iframe sandbox), jadi perlu CORS.
   const font = await request.get("/aset/fonts/plus-jakarta-sans-latin.woff2");
