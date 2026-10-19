@@ -1,6 +1,6 @@
 # S18 · Eval Jawab & halaman tinjau ustadz
 
-> **Fase:** 4 · **Status:** sebagian (2026-10-19; implementasi teknis siap; penilaian Anas/T-24 menunggu)
+> **Fase:** 4 · **Status:** sebagian (2026-10-19; teknis terpublikasi PR #48; penilaian Anas/T-24 menunggu)
 > **Prasyarat:** Fase 3 dirilis · Tugas pemilik: **T-13** (ustadz), Cloudflare Access untuk `/tinjau` (bagian dari T-14), **P-7** (penyimpanan dan retensi data)
 > **Perkiraan:** 1–2 percakapan agent, ditambah waktu ustadz
 
@@ -75,3 +75,10 @@ Sebelum ada pipeline Jawab, sudah tersedia **alat ukurnya**: set soal 50–100 b
 - Isi D1 harus 60 (42 publik/18 privat) dan 0 review manusia sebelum T-24. Verifikasi akses anonim ditolak di domain utama/workers.dev, kemudian minta pemilik/Anas login PIN untuk uji nyata. QA lokal tidak menggantikan uji ini.
 
 - Pemilik meminta penyelesaian seluruh S18. Layanan persetujuan pulih pada percobaan berikutnya; verifikasi dan publikasi dilanjutkan. Izin data/biaya sebelumnya tetap berlaku.
+
+### Publikasi dan pengisian antrean 2026-10-19
+
+- [PR #48](https://github.com/alfariesh/surau/pull/48) squash merge menjadi `1f476b3`. CI verify, eval retrieval, Preview web dan MCP hijau. Preview e2e **99 lolos/1 dilewati**. [Deploy produksi](https://github.com/alfariesh/surau/actions/runs/39206240675) web + MCP hijau; migrasi app `0002` dan smoke lolos.
+- Run produksi diperiksa kosong sebelum SQL aditif dijalankan. Sesudahnya: **60 soal, 18 privat, 30 contoh kalibrasi, 0 review saat seed**. Kedaluwarsa pertama `2027-10-18T13:57:58.847Z`. Tidak ada data lama ditimpa.
+- Akses anonim pada Preview: API/ekspor 401 + private/no-store/noindex, halaman menampilkan penolakan. Produksi domain utama menuju Access PIN. Login PIN berhasil dikonfirmasi pemilik dan diperiksa di produksi. Simpan→muat ulang j001 mempertahankan satu ulasan Agent QA (kelayakan soal belum diputuskan), tidak dihitung sebagai penilaian Anas. API workers.dev tanpa autentikasi tetap 401 + no-store. Penilaian manusia tetap T-24.
+- Bukti screenshot QA lokal (fixture buatan, bukan penilaian manusia) tersimpan git-ignored di `data/build/s18-qa/tinjau-desktop.png` dan `tinjau-mobile.png`; tangkapan login produksi `tinjau-login.png` dan hasil berlogin `tinjau-produksi.png`.

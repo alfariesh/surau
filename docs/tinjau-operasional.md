@@ -1,6 +1,6 @@
 # Panduan tinjau jawaban
 
-S18 · 2026-10-19 · Penilai yang ditunjuk pemilik: **Anas**. Halaman: [surau.org/tinjau](https://surau.org/tinjau). Ini ruang evaluasi internal; layanan Jawab belum dirilis. **Status 2026-10-19: implementasi teknis siap; persetujuan soal dan penilaian manusia masih T-24.**
+S18 · 2026-10-19 · Penilai yang ditunjuk pemilik: **Anas**. Halaman: [surau.org/tinjau](https://surau.org/tinjau). Ini ruang evaluasi internal; layanan Jawab belum dirilis. **Status 2026-10-19: halaman sudah terpublikasi melalui [PR #48](https://github.com/alfariesh/surau/pull/48), berisi 60 draf soal; persetujuan soal dan penilaian manusia masih T-24.**
 
 ## Untuk Anas dan pemilik (T-24)
 
@@ -32,7 +32,7 @@ pnpm wrangler d1 execute APP --config packages/db/wrangler.jsonc --remote --comm
 pnpm wrangler d1 execute APP --config packages/db/wrangler.jsonc --remote --file evals/private/jawab-runs/s18-tinjau-v1-seed.sql
 ```
 
-Antrean awal `s18-tinjau-v1`: 60 soal, 18 privat; 30 contoh kalibrasi publik dan 30 baseline Cari. Ekspor API menggunakan `offset=0`, `offset=50`, dan seterusnya; `X-Next-Offset` memberi halaman berikutnya. Ekspor tidak memuat kunci akun, tetapi masih memuat nama/alasan penilai dan soal privat. Cara golden dan laporan ada di [README eval Jawab](../evals/jawab/README.md).
+Antrean `s18-tinjau-v1` sudah dimasukkan pada 2026-10-19 dan diverifikasi: 60 soal, 18 privat; 30 contoh kalibrasi publik dan 30 baseline Cari. Ekspor API menggunakan `offset=0`, `offset=50`, dan seterusnya; `X-Next-Offset` memberi halaman berikutnya. Ekspor tidak memuat kunci akun, tetapi masih memuat nama/alasan penilai dan soal privat. Cara golden dan laporan ada di [README eval Jawab](../evals/jawab/README.md).
 
 Untuk pembersihan retensi, baca jumlahnya terlebih dahulu:
 
@@ -49,7 +49,8 @@ Setelah izin penghapusan produksi dari pemilik, jalankan `DELETE FROM answer_log
 - Unit/integrasi: JWT palsu/kedaluwarsa/issuer-audience salah; API anonim tidak membaca DB; Origin asing/input berlebih; persistensi/upsert; hash kedaluwarsa; ekspor privat; kutipan invalid; klaim hadits ganda; persetujuan soal bertentangan; manifest judge berubah.
 - Browser: komponen aktual dengan fixture Arab buatan dan API mock lokal; simpan→muat ulang mempertahankan isian; desktop dan ponsel 390 px; RTL, font Noto Naskh 20 px/line-height 40 px, tanpa overflow horizontal. Ini bukan penilaian ustadz dan bukan bukti login produksi.
 - Judge: 30 contoh dikirim atas izin ≤ US$1; **29 valid, 1 `max_tokens`**, biaya **US$0,112528**. **0 penilaian manusia**; belum terkalibrasi. Tidak ada retry berbayar otomatis.
-- Login PIN dan ≥10 penilaian Anas pada produksi masih perlu T-24. Jangan menandai S18 selesai sebelum persetujuan ≥50 soal dan kalibrasi dicatat.
+- [CI/Preview PR #48](https://github.com/alfariesh/surau/pull/48/checks) hijau (99 tes browser lolos/1 dilewati); [deploy produksi](https://github.com/alfariesh/surau/actions/runs/39206240675) web/MCP hijau. D1 berisi 60 soal/18 privat/30 contoh; saat seed belum ada review. Akses anonim menuju login Access; API Preview menolak 401 dengan no-store.
+- Login PIN produksi dikonfirmasi pemilik dan berhasil diperiksa. Uji simpan→muat ulang j001 mempertahankan satu ulasan **Agent QA**, dengan kelayakan soal belum diputuskan; bukan penilaian manusia. Anas boleh menggantinya dengan penilaian sendiri pada akun yang sama. ≥10 penilaian Anas masih perlu T-24. Jangan menandai S18 selesai sebelum persetujuan ≥50 soal dan kalibrasi dicatat.
 
 ## Dokumentasi teknis yang diperiksa
 
