@@ -2,7 +2,7 @@
 
 import type { Location } from "@surau/core";
 
-import { ChevronLeft, ChevronRight } from "@gravity-ui/icons";
+import { ChevronLeft, ChevronRight } from "../../icons";
 import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";

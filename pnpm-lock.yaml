@@ -176,9 +176,6 @@ catalogs:
     '@cloudflare/workers-types':
       specifier: 5.20261014.1
       version: 5.20261014.1
-    '@gravity-ui/icons':
-      specifier: 2.22.1
-      version: 2.22.1
     '@heroui-pro/react':
       specifier: 1.0.0-beta.10
       version: 1.0.0-beta.10
@@ -341,9 +338,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@gravity-ui/icons':
-        specifier: 'catalog:'
-        version: 2.22.1(react@19.3.1)
       '@heroui-pro/react':
         specifier: 'catalog:'
         version: 1.0.0-beta.10
@@ -1116,14 +1110,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@gravity-ui/icons@2.22.1':
-    resolution: {integrity: sha512-OIlyApn2z0qt4nfrKkvBizQOUuytzDe3g8oHt0xlJa/lcc7VnOvbrQJUHApHPjSUH4TlxpPIbAqSF/ABEQRVvQ==}
-    peerDependencies:
-      react: '*'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@heroui-pro/react@1.0.0-beta.10':
     resolution: {integrity: sha512-3Vxf4m72WyjG1RIMtSlAn8ZNs//JtEZBUXUbki5Xo23InOdgukY/nEYGqPWLKoSIUrXx1ZH6ykNJXyhIUut1xg==}
@@ -5060,12 +5046,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
-
-  '@gravity-ui/icons@2.22.1(react@19.3.1)':
-    dependencies:
-      tslib: 2.8.1
-    optionalDependencies:
-      react: 19.3.1
 
   '@heroui-pro/react@1.0.0-beta.10':
     dependencies:

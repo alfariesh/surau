@@ -4,7 +4,7 @@ import type { FormEvent } from "react";
 
 import type { TocItem } from "../../lib/reader/toc";
 
-import { CircleExclamation, Copy, ListUl, Minus, Plus } from "@gravity-ui/icons";
+import { AlertCircle, Copy01, LeftToRightListBullet, MinusSign, PlusSign } from "../../icons";
 import { NativeSelect } from "@heroui-pro/react";
 import {
   Button,
@@ -80,7 +80,7 @@ function FontSizeControl() {
         isDisabled={index === 0}
         onPress={() => change(-1)}
       >
-        <Minus className="size-4" />
+        <MinusSign className="size-4" />
       </Button>
       <Button
         isIconOnly
@@ -88,7 +88,7 @@ function FontSizeControl() {
         isDisabled={index === READER_SCALES.length - 1}
         onPress={() => change(1)}
       >
-        <Plus className="size-4" />
+        <PlusSign className="size-4" />
       </Button>
     </ButtonGroup>
   );
@@ -217,7 +217,7 @@ function TocDrawer({ toc, activeIds }: { toc: TocItem[]; activeIds: number[] }) 
   return (
     <Drawer>
       <Button className="lg:hidden" size="sm" variant="tertiary">
-        <ListUl className="size-4" />
+        <LeftToRightListBullet className="size-4" />
         {t.tocOpen}
       </Button>
       <Drawer.Backdrop>
@@ -263,7 +263,7 @@ export function ReaderToolbar({
       <TocDrawer activeIds={activeIds} toc={toc} />
       <JumpToPage juz={juz} page={page} segment={segment} volumes={volumes} />
       <Button size="sm" variant="tertiary" onPress={() => void reader.copyCitation(pagePath)}>
-        <Copy className="size-4" />
+        <Copy01 className="size-4" />
         {t.copyCitation}
       </Button>
       <FontSizeControl />
@@ -276,7 +276,7 @@ export function ReaderToolbar({
           variant="tertiary"
           onPress={() => reader.openReport(null)}
         >
-          <CircleExclamation className="size-4" />
+          <AlertCircle className="size-4" />
         </Button>
         <Tooltip.Content>{t.report}</Tooltip.Content>
       </Tooltip>

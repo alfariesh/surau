@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun } from "@gravity-ui/icons";
+import { Moon02, Sun01 } from "../../icons";
 import { Button, Tooltip } from "@heroui/react";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
@@ -30,7 +30,7 @@ export function ThemeSwitch() {
         variant="ghost"
         onPress={() => setTheme(isDark ? "light" : "dark")}
       >
-        {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+        {isDark ? <Sun01 className="size-4" /> : <Moon02 className="size-4" />}
       </Button>
       <Tooltip.Content placement="bottom">{label}</Tooltip.Content>
     </Tooltip>

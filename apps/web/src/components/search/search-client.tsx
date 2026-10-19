@@ -3,7 +3,7 @@
 import type { SearchPage as ResultPage, SearchView } from "@surau/core";
 import type { FormEvent } from "react";
 
-import { Magnifier } from "@gravity-ui/icons";
+import { Search01 } from "../../icons";
 import { Alert, Button, SearchField, Spinner, Tag, TagGroup } from "@heroui/react";
 import { EmptyState, NativeSelect } from "@heroui-pro/react";
 import NextLink from "next/link";
@@ -265,7 +265,7 @@ function Results({
       <EmptyState size="sm">
         <EmptyState.Header>
           <EmptyState.Media variant="icon">
-            <Magnifier />
+            <Search01 />
           </EmptyState.Media>
           <EmptyState.Title>{t.idleHeading}</EmptyState.Title>
           <EmptyState.Description>{t.idleBody}</EmptyState.Description>
@@ -316,7 +316,7 @@ function Results({
         <EmptyState size="sm">
           <EmptyState.Header>
             <EmptyState.Media variant="icon">
-              <Magnifier />
+              <Search01 />
             </EmptyState.Media>
             <EmptyState.Title>{t.emptyHeading}</EmptyState.Title>
             <EmptyState.Description>

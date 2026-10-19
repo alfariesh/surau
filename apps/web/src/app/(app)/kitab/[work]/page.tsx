@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { BookOpen } from "@gravity-ui/icons";
+import { BookOpen01 } from "../../../../icons";
 import { Breadcrumbs, Card } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
@@ -81,7 +81,7 @@ export default async function WorkPage({ params }: Props) {
           {start ? (
             <div>
               <NextLink className={buttonVariants({ variant: "primary" })} href={start}>
-                <BookOpen aria-hidden="true" className="size-4" />
+                <BookOpen01 aria-hidden="true" className="size-4" />
                 {t.startReading}
               </NextLink>
             </div>
