@@ -8,6 +8,7 @@ import NextLink from "next/link";
 import { ArabicInline } from "../../../components/arabic";
 import { WorkCover } from "../../../components/book/work-cover";
 import { id } from "../../../i18n/id";
+import { PAGE_FRAME } from "../../../lib/layout";
 import { getEnv, readerEnabled } from "../../../lib/cloudflare";
 
 const t = id.reader;
@@ -27,14 +28,14 @@ export default async function KitabPage() {
   const { works } = await listWorks(env.CORPUS_DB);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
-      <header className="flex flex-col gap-3">
+    <div className={`${PAGE_FRAME} flex flex-col gap-8 pt-8 pb-16 sm:pt-12`}>
+      <header className="flex max-w-2xl flex-col gap-3">
         <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
           {t.listHeading}
         </h1>
         <p className="text-muted text-base text-pretty">{t.listLead}</p>
       </header>
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {works.map((work) => {
           const edition = work.editions[0];
           const title = work.title_id ?? work.title_ar;
@@ -80,7 +81,7 @@ export default async function KitabPage() {
 
 function ComingSoon() {
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col items-start gap-4 px-4 pt-16 pb-16 sm:px-6">
+    <div className={`${PAGE_FRAME} flex flex-col items-start gap-4 pt-16 pb-16`}>
       <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
         {t.soonHeading}
       </h1>

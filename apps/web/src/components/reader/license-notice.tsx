@@ -14,6 +14,7 @@ export function LicenseNotice({
   attribution,
   license,
   sourceUrl,
+  compact = false,
 }: {
   workSlug: string;
   editionSlug: string;
@@ -22,9 +23,47 @@ export function LicenseNotice({
   license: string;
   /** Halaman yang sama di Shamela (`PageView.source_url`), bila ada. */
   sourceUrl?: string | null;
+  /** Satu paragraf ringkas (footer pembaca); rincian lengkap ada di /lisensi. */
+  compact?: boolean;
 }) {
   const licenseUrl = LICENSE_URL[license];
   const source = EDITION_SOURCE[`${workSlug}/${editionSlug}`];
+
+  if (compact) {
+    const linkClass = "link text-[length:inherit]";
+    return (
+      <p>
+        {attribution}
+        {licenseUrl ? (
+          <>
+            {" · "}
+            <a
+              className={linkClass}
+              href={licenseUrl}
+              rel="license noopener noreferrer"
+              target="_blank"
+            >
+              {t.licenseText}
+              <span className="sr-only"> {id.common.newTab}</span>
+            </a>
+          </>
+        ) : null}
+        {sourceUrl ? (
+          <>
+            {" · "}
+            <a className={linkClass} href={sourceUrl} rel="noopener noreferrer" target="_blank">
+              {t.sourceShamela}
+              <span className="sr-only"> {id.common.newTab}</span>
+            </a>
+          </>
+        ) : null}
+        {" · "}
+        <NextLink className={linkClass} href="/lisensi">
+          {t.licenseMoreShort}
+        </NextLink>
+      </p>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2">

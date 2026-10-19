@@ -5,6 +5,7 @@ import NextLink from "next/link";
 
 import { SurauShell } from "../components/shell/surau-shell";
 import { id } from "../i18n/id";
+import { PAGE_FRAME } from "../lib/layout";
 
 const t = id.notFound;
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <SurauShell>
-      <div className="mx-auto flex w-full max-w-2xl flex-col items-start gap-4 px-4 pt-16 pb-16 sm:px-6">
+      <div className={`${PAGE_FRAME} flex flex-col items-start gap-4 pt-16 pb-16`}>
         <p className="text-muted text-sm font-medium tabular-nums">404</p>
         <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
           {t.heading}

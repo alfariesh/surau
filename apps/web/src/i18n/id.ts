@@ -11,7 +11,6 @@ export const id = {
 
   brand: {
     name: "Surau",
-    tagline: "Pintu ke kitab klasik",
   },
 
   nav: {
@@ -36,6 +35,7 @@ export const id = {
   common: {
     newTab: "(membuka tab baru)",
     close: "Tutup",
+    onThisPage: "Di halaman ini",
   },
 
   footer: {
@@ -342,7 +342,6 @@ export const id = {
       `Baca ${title}${author ? ` karya ${author}` : ""} di Surau: teks Arab asli per halaman cetak, daftar isi, takhrij hadits, dan sitasi.`,
     textLabel: "Teks kitab",
     pageNavLabel: "Navigasi halaman",
-    pageNavTopLabel: "Navigasi halaman (atas)",
     prevShort: "Sebelumnya",
     nextShort: "Berikutnya",
     pageShort: (juz: number, page: number) => `j.${juz} h.${page}`,
@@ -359,7 +358,6 @@ export const id = {
     copyFailedDescription: "Browser menolak akses papan klip. Salin tautan dari bilah alamat.",
     fontSmaller: "Perkecil huruf Arab",
     fontLarger: "Perbesar huruf Arab",
-    fontSize: "Ukuran huruf Arab",
     passageActions: "Aksi paragraf",
     copyPassage: "Salin sitasi paragraf",
     reportPassage: "Laporkan kesalahan di paragraf ini",
@@ -405,6 +403,7 @@ export const id = {
     modified:
       "Diolah Surau: teks dibagi per paragraf, catatan kaki takhrij dipisahkan dari teks utama, dan daftar isi diperbaiki lewat patch yang tercatat. Huruf teks Arab tidak diubah.",
     sourceShamela: "Halaman ini di al-Maktaba al-Shamela",
+    licenseMoreShort: "Lisensi, atribusi, dan perubahan",
     licenseMore: "Lisensi dan atribusi lengkap",
     report: "Laporkan kesalahan",
     reportHeading: "Laporkan kesalahan",
@@ -434,6 +433,8 @@ export const id = {
       "Diterjemahkan otomatis oleh AI dari teks Arab di atasnya dan belum ditinjau manusia. Rujuk selalu teks Arabnya.",
     aiSummary: "Ringkasan AI",
     aiSummaryOf: "Ringkasan AI bagian ini",
+    summaryMore: "Baca selengkapnya",
+    summaryLess: "Tutup ringkasan",
     aiReview: {
       ai_generated: "belum ditinjau manusia",
       reviewed: "sudah ditinjau",
@@ -445,9 +446,25 @@ export const id = {
     ayahInTranslationFull: (label: string) => `${label} · Terjemahan ayat lengkap (Kemenag)`,
     ayahInTranslationMissing: (label: string) => `${label} (terjemahan ayat tidak tersedia)`,
     translationToggle: "Tampilkan terjemahan AI",
-    aiNoticeHeading: "Terjemahan dan ringkasan AI",
+    translationToggleHint: "Terjemahan Indonesia per paragraf, dibuat AI dan belum ditinjau.",
+    // Panel Tampilan (ukuran, font Arab, kertas, jarak baris, terjemahan), disimpan per browser.
+    toolbarLabel: "Alat baca",
+    moreActions: "Aksi lain",
+    style: "Tampilan",
+    styleHeading: "Tampilan baca",
+    styleFont: "Huruf Arab",
+    styleFontSize: "Ukuran huruf",
+    stylePaper: "Warna kertas",
+    stylePapers: { light: "Terang", sepia: "Sepia", dark: "Gelap" },
+    styleLeading: "Jarak baris",
+    styleLeadings: { tight: "Rapat", normal: "Sedang", loose: "Longgar" },
+    styleAlign: "Perataan teks",
+    styleAligns: { justify: "Rata kanan-kiri", start: "Rata kanan" },
+    // Contoh huruf di panel Tampilan memakai paragraf pertama halaman ini (disalin dari DB).
+    stylePreviewNote: "Contoh dari halaman ini",
+    progressLabel: "Posisi baca di halaman ini",
     aiNotice:
-      "Terjemahan Indonesia per paragraf dan ringkasan bagian dibuat otomatis oleh model AI dari teks Arab, dan belum ditinjau manusia, jadi bisa keliru. Teks Arab tetap rujukan utamanya. Kutipan ayat yang dikenali sistem tidak diterjemahkan AI: yang tampil adalah terjemahan Kemenag. Kutipan ayat yang belum dikenali bisa ikut diterjemahkan AI.",
+      "Terjemahan dan ringkasan AI belum ditinjau manusia dan bisa keliru; teks Arab tetap rujukan utamanya.",
     errorHeading: "Halaman kitab gagal dimuat",
     errorBody: "Terjadi gangguan saat membaca data kitab. Coba muat ulang.",
     errorRetry: "Coba lagi",

@@ -2,7 +2,7 @@
 
 import type { PassageRef } from "./reader-context";
 
-import { MoreHorizontal } from "../../icons";
+import { MoreVertical } from "../../icons";
 import { Button, Dropdown, Label } from "@heroui/react";
 
 import { id } from "../../i18n/id";
@@ -20,11 +20,13 @@ export function PassageActions({ passage }: { passage: PassageRef }) {
       <Button
         isIconOnly
         aria-label={`${t.passageActions} ${passage.label}`}
-        className="passage-actions shrink-0"
+        // Sebaris di akhir teks Arab; label aksesibel berbahasa Indonesia.
+        className="passage-actions ms-1 size-7 min-w-0 align-middle"
+        lang="id"
         size="sm"
         variant="ghost"
       >
-        <MoreHorizontal className="size-4" />
+        <MoreVertical className="size-4" />
       </Button>
       <Dropdown.Popover placement="bottom start">
         <Dropdown.Menu

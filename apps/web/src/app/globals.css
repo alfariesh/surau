@@ -25,11 +25,12 @@
 @import "@heroui/styles/components/menu.css" layer(components);
 @import "@heroui/styles/components/tag-group.css" layer(components);
 @import "@heroui/styles/components/tag.css" layer(components);
+@import "@heroui/styles/components/switch.css" layer(components);
 @import "@heroui/styles/components/chip.css" layer(components);
 @import "@heroui/styles/components/alert.css" layer(components);
+@import "@heroui/styles/components/progress-circle.css" layer(components);
 @import "@heroui/styles/components/spinner.css" layer(components);
 @import "@heroui/styles/components/toast.css" layer(components);
-@import "@heroui/styles/components/checkbox.css" layer(components);
 @import "@heroui/styles/components/input.css" layer(components);
 @import "@heroui/styles/components/number-field.css" layer(components);
 @import "@heroui/styles/components/radio-group.css" layer(components);
@@ -39,7 +40,6 @@
 @import "@heroui/styles/components/textarea.css" layer(components);
 @import "@heroui/styles/components/card.css" layer(components);
 @import "@heroui/styles/components/separator.css" layer(components);
-@import "@heroui/styles/components/drawer.css" layer(components);
 @import "@heroui/styles/components/modal.css" layer(components);
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
@@ -58,11 +58,23 @@
 @import "@heroui-pro/react/css/components/navbar.css" layer(components);
 @import "@heroui-pro/react/css/components/sheet.css" layer(components);
 @import "@heroui-pro/react/css/components/resizable.css" layer(components);
+@import "@heroui-pro/react/css/components/segment.css" layer(components);
 @import "@heroui-pro/react/css/components/widget.css" layer(components);
 @import "@heroui-pro/react/css/components/sidebar.css" layer(components);
 
 /* Komponen Surau sendiri (CSS polos, di luar layer seperti gaya aplikasi lain). */
 @import "../components/book/book.css";
+
+/*
+ * Scrollbar HeroUI untuk semua area gulir, termasuk halaman (<html>): tipis, warna dari token tema
+ * `--scrollbar-*`. Utilitas `scrollbar-none` / `scrollbar-default` (layer utilities) tetap menang.
+ */
+@layer base {
+  html,
+  * {
+    @apply scrollbar;
+  }
+}
 
 @source "../**/*.{ts,tsx}";
 
@@ -112,6 +124,24 @@
   --field-background: var(--surface);
   --accent: oklch(0.79 0.1 150);
   --accent-foreground: oklch(0.2 0.03 150);
+}
+
+/* Kertas sepia (panel Tampilan, tema next-themes "sepia"): kertas krem kecokelatan, tinta cokelat
+ * tua. Turunan dari palet terang; kontras teks tetap di atas AA. */
+:root.sepia {
+  color-scheme: light;
+  --background: oklch(0.955 0.016 78);
+  --foreground: oklch(0.27 0.03 60);
+  --surface: oklch(0.97 0.013 78);
+  --surface-secondary: oklch(0.93 0.024 78);
+  --surface-tertiary: oklch(0.915 0.026 78);
+  --overlay: oklch(0.97 0.013 78);
+  --default: oklch(0.91 0.024 78);
+  --muted: oklch(0.44 0.04 62);
+  --border: oklch(0.86 0.024 76);
+  --separator: oklch(0.88 0.022 76);
+  --field-background: var(--surface);
+  --accent: oklch(0.44 0.08 150);
 }
 
 body {
@@ -246,9 +276,28 @@ body {
   box-shadow: 0 0 0 0.375rem var(--accent-soft, color-mix(in oklab, var(--accent) 12%, transparent));
 }
 
+/* Judul bab di tengah seperti kitab cetak (terjemahannya juga, .passage-translation-heading). */
 .reader-heading {
   font-weight: 700;
   color: var(--foreground);
+  text-align: center;
+  text-wrap: balance;
+}
+
+/*
+ * Teks kitab rata kanan-kiri seperti kitab cetak (bawaan); pilihan "Rata kanan" di panel Tampilan
+ * (atribut data-reader-align="start"). Browser meratakan Arab dengan melebarkan spasi antarkata,
+ * bukan kashida, jadi huruf tidak diubah. Baris terakhir tetap rata kanan.
+ */
+:is(.reader-text, .reader-footnotes) .arabic-text:not(.reader-heading) {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+:root[data-reader-align="start"]
+  :is(.reader-text, .reader-footnotes)
+  .arabic-text:not(.reader-heading) {
+  text-align: start;
 }
 
 h2.reader-heading {
@@ -259,12 +308,156 @@ h2.reader-heading-minor {
   font-size: 1.15em;
 }
 
-/* Penanda (١) di dalam teks Arab: tetap sebaris, tidak ikut ukuran tombol bawaan. */
+/* Penanda (١) di dalam teks Arab: kecil dan terangkat seperti catatan kaki buku cetak. line-height 1
+ * (bukan 0): tombol tetap punya tinggi untuk diketuk, dan karena hurufnya kecil baris tidak
+ * bertambah tinggi. */
 .footnote-marker {
   display: inline;
-  font-size: inherit;
-  line-height: inherit;
-  vertical-align: baseline;
+  font-size: 0.62em;
+  line-height: 1;
+  vertical-align: super;
+}
+
+/* Daftar catatan kaki: huruf lebih kecil dari teks bacaan (tetap ikut --reader-scale) dan garis
+ * pemisah pendek di atasnya, seperti catatan kaki di halaman buku. */
+.reader-footnotes {
+  font-size: calc(0.875rem * var(--reader-scale, 1));
+  --arabic-leading: 1.9;
+}
+
+/*
+ * Judul ringkas di navbar (pembaca): judul halaman navbar dan judul ringkas bertumpuk di satu sel
+ * grid lalu bertukar dengan geser + pudar. Judul besar halaman ikut mengecil dan memudar saat
+ * tergulir keluar (animasi berbasis gulir; browser tanpa dukungan cukup menggulirnya biasa).
+ */
+.navbar-title-stack > * {
+  grid-area: 1 / 1;
+}
+
+.navbar-page-title,
+.reader-compact {
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.reader-compact[data-visible="false"] {
+  opacity: 0;
+  transform: translateY(0.5rem);
+  pointer-events: none;
+}
+
+/* visibility menyusul setelah pudar: judul "Kitab" keluar dari pohon aksesibilitas saat tertutup. */
+.navbar-page-title {
+  transition-property: opacity, transform, visibility;
+}
+
+.navbar-title-stack:has(.reader-compact[data-visible="true"]) .navbar-page-title {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+  visibility: hidden;
+}
+
+@supports (animation-timeline: view()) {
+  [data-reader-title] {
+    transform-origin: left center;
+    animation: reader-title-shrink linear both;
+    /* Inset atas 4rem = tinggi navbar: animasi terjadi saat judul masuk ke balik navbar. */
+    animation-timeline: view(block 4rem 0rem);
+    animation-range: exit-crossing 0% exit-crossing 100%;
+  }
+}
+
+@keyframes reader-title-shrink {
+  to {
+    opacity: 0;
+    transform: scale(0.8) translateY(0.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-page-title,
+  .reader-compact {
+    transition: none;
+  }
+
+  [data-reader-title] {
+    animation: none;
+  }
+}
+
+/* Contoh warna di pilihan Warna kertas (panel Tampilan). */
+.paper-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, currentColor 30%, transparent);
+}
+
+.paper-swatch-light {
+  background: oklch(0.975 0.008 90);
+}
+
+.paper-swatch-sepia {
+  background: oklch(0.955 0.016 78);
+}
+
+.paper-swatch-dark {
+  background: oklch(0.17 0.008 85);
+}
+
+.reader-footnotes-rule {
+  width: 6rem;
+  border-top: 1px solid var(--border);
+}
+
+/*
+ * Panel Tampilan: font Arab dan jarak baris pilihan pembaca (lib/reader/scale.ts). Atribut di <html>
+ * dipasang skrip awal halaman baca dan panel; tanpa atribut = Noto Naskh Arabic, jarak 2. Font
+ * hanya untuk teks kitab dan catatan kaki (juga pratinjau panel), bukan judul atau daftar isi,
+ * supaya halaman lain tidak berganti font tergantung halaman yang terakhir dibuka.
+ */
+:root[data-reader-font="amiri"] :is(.reader-text, .reader-footnotes) {
+  --font-arabic: var(--font-amiri), "Amiri", serif;
+}
+
+:root[data-reader-font="scheherazade"] :is(.reader-text, .reader-footnotes) {
+  --font-arabic: var(--font-scheherazade), "Scheherazade New", serif;
+}
+
+:root[data-reader-font="sans"] :is(.reader-text, .reader-footnotes) {
+  --font-arabic: var(--font-noto-sans-arabic), "Noto Sans Arabic", sans-serif;
+}
+
+:root[data-reader-leading="tight"] .reader-text {
+  --arabic-leading: 1.75;
+}
+
+:root[data-reader-leading="loose"] .reader-text {
+  --arabic-leading: 2.45;
+}
+
+/*
+ * Aksi per paragraf (⋮, sebaris di akhir teks): di perangkat ber-mouse hanya muncul saat paragraf disorot atau tombolnya
+ * difokus/terbuka, supaya kolom teks bersih. Di layar sentuh tetap tampak, tapi samar.
+ */
+.passage-actions {
+  color: var(--muted);
+  transition: opacity 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .passage-actions {
+    opacity: 0;
+  }
+
+  .passage:hover .passage-actions,
+  .passage:focus-within .passage-actions,
+  .passage-actions[aria-expanded="true"],
+  .passage-actions[data-focus-visible="true"] {
+    opacity: 1;
+  }
 }
 
 /*
@@ -301,9 +494,15 @@ h2.reader-heading-minor {
 .toc-tree {
   --toc-indent: 1.25rem;
   --toc-line: 1.7rem;
-  --toc-pad: 0.25rem;
+  /* Padding baris: 12px (kiri 8px). Kolom garis selebar chevron + padding, supaya garis jatuh di
+   * bawah pusat chevron induknya. */
+  --toc-pad: 0.75rem;
+  --toc-pad-start: 0.5rem;
+  /* Padding atas/bawah dan sudut sama dengan menu sidebar HeroUI (6px, 16px). */
+  --toc-pad-y: 0.375rem;
+  --toc-col: calc(var(--toc-indent) + var(--toc-pad-start));
   /* Titik tengah baris pertama judul: tempat chevron dan ujung siku. */
-  --toc-anchor: calc(1px + var(--toc-pad) + var(--toc-line) / 2);
+  --toc-anchor: calc(1px + var(--toc-pad-y) + var(--toc-line) / 2);
   --toc-guide-color: var(--border);
   display: flex;
   flex-direction: column;
@@ -320,7 +519,7 @@ h2.reader-heading-minor {
 .toc-guide {
   position: relative;
   flex: none;
-  width: var(--toc-indent);
+  width: var(--toc-col);
 }
 
 /* Garis tegak penuh (masih ada saudara di bawah). Tinggi baris ikut padding, jadi tersambung. */
@@ -328,7 +527,7 @@ h2.reader-heading-minor {
   content: "";
   position: absolute;
   inset-block: 0;
-  inset-inline-start: calc(50% - 0.5px);
+  inset-inline-start: calc(var(--toc-pad-start) + var(--toc-indent) / 2 - 0.5px);
   width: 1px;
   background-color: var(--toc-guide-color);
 }
@@ -339,8 +538,8 @@ h2.reader-heading-minor {
   content: "";
   position: absolute;
   top: 0;
-  inset-inline-start: calc(50% - 0.5px);
-  width: calc(50% + 0.5px);
+  inset-inline-start: calc(var(--toc-pad-start) + var(--toc-indent) / 2 - 0.5px);
+  width: calc(var(--toc-indent) / 2 + 0.5px);
   height: var(--toc-anchor);
   border-inline-start: 1px solid var(--toc-guide-color);
   border-block-end: 1px solid var(--toc-guide-color);
@@ -360,9 +559,11 @@ h2.reader-heading-minor {
   display: flex;
   flex: 1;
   margin-block: 1px;
+  padding: var(--toc-pad-y) var(--toc-pad);
+  padding-inline-start: var(--toc-pad-start);
   min-width: 0;
   align-items: flex-start;
-  border-radius: calc(var(--radius) * 1.5);
+  border-radius: 1rem;
   transition: background-color 0.15s;
 }
 
@@ -370,9 +571,9 @@ h2.reader-heading-minor {
 .toc-row[data-expanded]::before {
   content: "";
   position: absolute;
-  top: calc(var(--toc-pad) + var(--toc-line) / 2 + 0.625rem);
+  top: calc(var(--toc-pad-y) + var(--toc-line) / 2 + 0.625rem);
   bottom: -1px;
-  inset-inline-start: calc(var(--toc-indent) / 2 - 0.5px);
+  inset-inline-start: calc(var(--toc-pad-start) + var(--toc-indent) / 2 - 0.5px);
   width: 1px;
   background-color: var(--toc-guide-color);
 }
@@ -383,12 +584,13 @@ h2.reader-heading-minor {
 
 @media (hover: hover) {
   .toc-row:not([data-current]):hover {
-    background-color: var(--default);
+    background-color: color-mix(in oklab, var(--default) 50%, transparent);
   }
 }
 
+/* Sama dengan menu aktif di sidebar HeroUI (`--default`). */
 .toc-row[data-current] {
-  background-color: var(--accent-soft);
+  background-color: var(--default);
 }
 
 .toc-row[data-focus-visible] {
@@ -403,7 +605,6 @@ h2.reader-heading-minor {
   justify-content: center;
   width: var(--toc-indent);
   height: var(--toc-line);
-  margin-block-start: var(--toc-pad);
   border-radius: calc(var(--radius) * 0.75);
   color: var(--muted);
   cursor: var(--cursor-interactive, pointer);
@@ -437,9 +638,9 @@ h2.reader-heading-minor {
   display: flex;
   flex: 1;
   min-width: 0;
-  flex-direction: column;
   align-items: flex-start;
-  padding: var(--toc-pad) 0.5rem var(--toc-pad) 0.375rem;
+  gap: 0.5rem;
+  padding-inline-start: 0.375rem;
   color: var(--foreground);
   outline: none;
   cursor: var(--cursor-interactive, pointer);
@@ -450,18 +651,19 @@ h2.reader-heading-minor {
   line-height: var(--toc-line);
 }
 
-.toc-page {
-  font-size: 0.7rem;
-  line-height: 1rem;
+.toc-icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin-block: calc((var(--toc-line) - 1rem) / 2);
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
 
 .toc-row[data-current] .toc-title {
   font-weight: 600;
 }
 
-.toc-row[data-current] .toc-page {
+.toc-row[data-current] .toc-icon {
   color: var(--accent-soft-foreground);
 }
 
@@ -471,6 +673,18 @@ h2.reader-heading-minor {
 .sidebar--default:has(.sidebar__rail:hover),
 .sidebar--default:has(.sidebar__rail:focus-visible) {
   box-shadow: none;
+}
+
+/* Header sidebar: padding 16px di semua sisi (bawaan HeroUI: 16px 16px 8px). */
+.sidebar .sidebar__header {
+  padding-bottom: 1rem;
+}
+
+/* Sidebar menciut ke rail ikon: logo di header ditengahkan, sejajar dengan ikon menu di bawahnya. */
+.sidebar[data-state="collapsed"][data-collapsible="icon"] .sidebar__header a {
+  width: 100%;
+  justify-content: center;
+  gap: 0;
 }
 
 /*
@@ -483,6 +697,16 @@ h2.reader-heading-minor {
   padding-inline-start: 0.75rem;
   border-inline-start: 2px solid var(--separator);
   font-size: 1rem;
+}
+
+/* Terjemahan judul bab: satu baris kecil di bawah judul Arab, tanpa garis tepi. */
+.passage-translation-heading {
+  margin-top: 0;
+  padding-inline-start: 0;
+  border-inline-start: 0;
+  font-size: 0.875rem;
+  text-align: center;
+  text-wrap: balance;
 }
 
 html[data-translation="off"] .passage-translation {
@@ -504,8 +728,13 @@ html[data-translation="off"] .passage-translation {
   font-size: 0.8em;
 }
 
+/* Ringkasan AI: catatan tipis dengan garis aksen di tepi awal, bukan kotak berbingkai, supaya
+ * tidak bersaing dengan teks kitab. */
 .section-summary {
   font-size: 1rem;
+  margin-block: 0.25rem 0.5rem;
+  padding-inline-start: 0.875rem;
+  border-inline-start: 2px solid color-mix(in oklab, var(--accent) 45%, transparent);
 }
 
 /* Sorotan hasil Cari: <mark> di kartu hasil; Highlight API (::highlight) di pembaca (?q=). */

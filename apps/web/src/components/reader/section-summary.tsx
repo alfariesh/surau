@@ -1,4 +1,8 @@
+"use client";
+
 import type { SummaryView } from "@surau/core";
+
+import { useId, useLayoutEffect, useRef, useState } from "react";
 
 import { id } from "../../i18n/id";
 import { ArabicInline } from "../arabic";
@@ -6,26 +10,54 @@ import { ArabicInline } from "../arabic";
 const t = id.reader;
 
 // Ringkasan AI bagian daftar isi yang mulai di halaman ini (S13 dibuat, S14 tampil), berlabel
-// "Ringkasan AI". <details> bawaan: terlipat, bisa dibuka tanpa JS, dan tidak menggeser teks kitab.
+// "Ringkasan AI". Catatan tipis di bawah judul bab: garis aksen di tepi, dua baris pertama, lalu
+// "Baca selengkapnya". Seluruh teks tetap ada di HTML (hanya dipotong secara visual), jadi tetap
+// terbaca tanpa JS dan oleh mesin pencari.
 export function SectionSummary({ summary }: { summary: SummaryView }) {
+  const [expanded, setExpanded] = useState(false);
+  const [clamped, setClamped] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const textId = useId();
+
+  // Tombol hanya muncul bila teksnya memang lebih dari dua baris.
+  useLayoutEffect(() => {
+    const el = textRef.current;
+    if (el !== null && !expanded) setClamped(el.scrollHeight > el.clientHeight + 1);
+  }, [expanded]);
+
   if (summary.review_status === "rejected") return null;
   return (
-    <details className="section-summary rounded-xl border border-separator px-4 py-2" lang="id">
-      <summary className="text-foreground cursor-pointer py-1 text-sm font-medium">
-        {t.aiSummaryOf}
-        <span className="text-muted font-normal">
+    <aside aria-label={t.aiSummaryOf} className="section-summary" lang="id">
+      <p className="text-muted mb-1 text-xs font-medium">
+        {t.aiSummary}
+        <span className="font-normal">
           {" · "}
           <ArabicInline>{summary.section.title_ar}</ArabicInline>
         </span>
-      </summary>
-      <div className="flex flex-col gap-2 pt-1 pb-2">
-        <p className="text-foreground text-sm leading-relaxed whitespace-pre-line">
-          {summary.text}
+      </p>
+      <p
+        ref={textRef}
+        className={`text-foreground text-[0.95rem] leading-relaxed whitespace-pre-line ${expanded ? "" : "line-clamp-2"}`}
+        id={textId}
+      >
+        {summary.text}
+      </p>
+      {clamped || expanded ? (
+        <button
+          aria-controls={textId}
+          aria-expanded={expanded}
+          className="link mt-1 cursor-pointer text-xs font-medium"
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+        >
+          {expanded ? t.summaryLess : t.summaryMore}
+        </button>
+      ) : null}
+      {expanded ? (
+        <p className="text-muted mt-1 text-xs">
+          {t.aiMeta(summary.model, t.aiReview[summary.review_status])}
         </p>
-        <p className="text-muted text-xs">
-          {t.aiSummary} · {t.aiMeta(summary.model, t.aiReview[summary.review_status])}
-        </p>
-      </div>
-    </details>
+      ) : null}
+    </aside>
   );
 }

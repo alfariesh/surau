@@ -9,13 +9,23 @@ import { I18nProvider, RouterProvider } from "react-aria-components";
 
 import { PaperBackground } from "../components/shell/paper-background";
 
+// Tema: terang, gelap, dan kertas sepia (panel Tampilan di halaman baca). Sepia = palet terang
+// yang lebih hangat (globals.css `:root.sepia`).
+const THEMES = ["light", "dark", "sepia"];
+
 // Provider klien Surau. Root layout tidak membaca headers() (S04 langkah 3), jadi locale
 // ditetapkan statis ke id-ID dan tema dipulihkan next-themes di klien.
 export function Providers({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   return (
-    <ThemeProvider disableTransitionOnChange enableSystem attribute="class" defaultTheme="system">
+    <ThemeProvider
+      disableTransitionOnChange
+      enableSystem
+      attribute="class"
+      defaultTheme="system"
+      themes={THEMES}
+    >
       <I18nProvider locale="id-ID">
         <RouterProvider navigate={(href) => router.push(href)}>
           <PaperBackground />

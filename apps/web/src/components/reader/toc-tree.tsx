@@ -2,7 +2,7 @@
 
 import type { TocItem } from "../../lib/reader/toc";
 
-import { ChevronRight } from "../../icons";
+import { Book02, Book02Duotone, ChevronRight, FileEmpty02, FileEmpty02Duotone } from "../../icons";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Button,
@@ -40,6 +40,8 @@ export function TocTree({
   const rows = useMemo(() => tocRows(items, activeId), [items, activeId]);
   const expanded = useMemo(() => (active ?? []).slice(0, -1).map((n) => n.id), [active]);
   const current = active?.at(-1);
+  // Baris aktif dan semua induknya (jalur dari akar) berikon duotone, supaya posisi pembaca terlihat.
+  const pathIds = useMemo(() => new Set((active ?? []).map((n) => n.id)), [active]);
   const currentParent = active?.at(-2);
 
   // Di panel samping (berkelas `data-toc-scroll`), gulir panel ke bagian aktif saat halaman dibuka,
@@ -59,7 +61,7 @@ export function TocTree({
       aria-label={t.tocLabel}
       className={className ? `toc-tree ${className}` : "toc-tree"}
       // Garis dan batang aksen dibaca dari closure: cache baris react-aria ikut diperbarui.
-      dependencies={[rows, currentParent]}
+      dependencies={[rows, currentParent, pathIds]}
       defaultExpandedKeys={expanded}
       items={items}
       selectedRoute={current ? tocHref(current) : null}
@@ -104,15 +106,27 @@ export function TocTree({
                       <span aria-hidden="true" className="toc-chevron" />
                     ) : null}
                     <Link className="toc-link">
+                      {/* Tingkat pertama (kitab/rub') berikon buku, tingkat di bawahnya berikon berkas;
+                          baris aktif dan induknya memakai gaya duotone seperti menu aktif di sidebar. */}
+                      {(() => {
+                        const Icon =
+                          row && row.guides.length > 0
+                            ? pathIds.has(item.id)
+                              ? FileEmpty02Duotone
+                              : FileEmpty02
+                            : pathIds.has(item.id)
+                              ? Book02Duotone
+                              : Book02;
+                        return <Icon aria-hidden="true" className="toc-icon" />;
+                      })()}
                       <ArabicInline className="toc-title">{item.title}</ArabicInline>
-                      <span className="toc-page">{t.pageShort(item.juz, item.page)}</span>
                     </Link>
                   </div>
                 </>
               )}
             </NavigationTreeItemContent>
             {item.children.length > 0 ? (
-              <Collection dependencies={[rows, currentParent]} items={item.children}>
+              <Collection dependencies={[rows, currentParent, pathIds]} items={item.children}>
                 {renderItem}
               </Collection>
             ) : null}
