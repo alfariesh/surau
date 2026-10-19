@@ -64,6 +64,17 @@
 /* Komponen Surau sendiri (CSS polos, di luar layer seperti gaya aplikasi lain). */
 @import "../components/book/book.css";
 
+/*
+ * Scrollbar HeroUI untuk semua area gulir, termasuk halaman (<html>): tipis, warna dari token tema
+ * `--scrollbar-*`. Utilitas `scrollbar-none` / `scrollbar-default` (layer utilities) tetap menang.
+ */
+@layer base {
+  html,
+  * {
+    @apply scrollbar;
+  }
+}
+
 @source "../**/*.{ts,tsx}";
 
 /* Font dari next/font (layout.tsx): --font-jakarta (UI) dan --font-naskh (Arab). */
@@ -301,12 +312,15 @@ h2.reader-heading-minor {
 .toc-tree {
   --toc-indent: 1.25rem;
   --toc-line: 1.7rem;
-  /* Padding baris: 12px di semua sisi. Kolom garis selebar chevron + padding, supaya garis jatuh di
+  /* Padding baris: 12px (kiri 8px). Kolom garis selebar chevron + padding, supaya garis jatuh di
    * bawah pusat chevron induknya. */
   --toc-pad: 0.75rem;
-  --toc-col: calc(var(--toc-indent) + var(--toc-pad));
+  --toc-pad-start: 0.5rem;
+  /* Padding atas/bawah dan sudut sama dengan menu sidebar HeroUI (6px, 16px). */
+  --toc-pad-y: 0.375rem;
+  --toc-col: calc(var(--toc-indent) + var(--toc-pad-start));
   /* Titik tengah baris pertama judul: tempat chevron dan ujung siku. */
-  --toc-anchor: calc(1px + var(--toc-pad) + var(--toc-line) / 2);
+  --toc-anchor: calc(1px + var(--toc-pad-y) + var(--toc-line) / 2);
   --toc-guide-color: var(--border);
   display: flex;
   flex-direction: column;
@@ -331,7 +345,7 @@ h2.reader-heading-minor {
   content: "";
   position: absolute;
   inset-block: 0;
-  inset-inline-start: calc(var(--toc-pad) + var(--toc-indent) / 2 - 0.5px);
+  inset-inline-start: calc(var(--toc-pad-start) + var(--toc-indent) / 2 - 0.5px);
   width: 1px;
   background-color: var(--toc-guide-color);
 }
@@ -342,7 +356,7 @@ h2.reader-heading-minor {
   content: "";
   position: absolute;
   top: 0;
-  inset-inline-start: calc(var(--toc-pad) + var(--toc-indent) / 2 - 0.5px);
+  inset-inline-start: calc(var(--toc-pad-start) + var(--toc-indent) / 2 - 0.5px);
   width: calc(var(--toc-indent) / 2 + 0.5px);
   height: var(--toc-anchor);
   border-inline-start: 1px solid var(--toc-guide-color);
@@ -363,10 +377,11 @@ h2.reader-heading-minor {
   display: flex;
   flex: 1;
   margin-block: 1px;
-  padding: var(--toc-pad);
+  padding: var(--toc-pad-y) var(--toc-pad);
+  padding-inline-start: var(--toc-pad-start);
   min-width: 0;
   align-items: flex-start;
-  border-radius: calc(var(--radius) * 1.5);
+  border-radius: 1rem;
   transition: background-color 0.15s;
 }
 
@@ -374,9 +389,9 @@ h2.reader-heading-minor {
 .toc-row[data-expanded]::before {
   content: "";
   position: absolute;
-  top: calc(var(--toc-pad) + var(--toc-line) / 2 + 0.625rem);
+  top: calc(var(--toc-pad-y) + var(--toc-line) / 2 + 0.625rem);
   bottom: -1px;
-  inset-inline-start: calc(var(--toc-pad) + var(--toc-indent) / 2 - 0.5px);
+  inset-inline-start: calc(var(--toc-pad-start) + var(--toc-indent) / 2 - 0.5px);
   width: 1px;
   background-color: var(--toc-guide-color);
 }
@@ -387,12 +402,13 @@ h2.reader-heading-minor {
 
 @media (hover: hover) {
   .toc-row:not([data-current]):hover {
-    background-color: var(--default);
+    background-color: color-mix(in oklab, var(--default) 50%, transparent);
   }
 }
 
+/* Sama dengan menu aktif di sidebar HeroUI (`--default`). */
 .toc-row[data-current] {
-  background-color: var(--accent-soft);
+  background-color: var(--default);
 }
 
 .toc-row[data-focus-visible] {
@@ -475,6 +491,18 @@ h2.reader-heading-minor {
 .sidebar--default:has(.sidebar__rail:hover),
 .sidebar--default:has(.sidebar__rail:focus-visible) {
   box-shadow: none;
+}
+
+/* Header sidebar: padding 16px di semua sisi (bawaan HeroUI: 16px 16px 8px). */
+.sidebar .sidebar__header {
+  padding-bottom: 1rem;
+}
+
+/* Sidebar menciut ke rail ikon: logo di header ditengahkan, sejajar dengan ikon menu di bawahnya. */
+.sidebar[data-state="collapsed"][data-collapsible="icon"] .sidebar__header a {
+  width: 100%;
+  justify-content: center;
+  gap: 0;
 }
 
 /*

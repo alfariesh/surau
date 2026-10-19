@@ -11,7 +11,6 @@ export const id = {
 
   brand: {
     name: "Surau",
-    tagline: "Pintu ke kitab klasik",
   },
 
   nav: {

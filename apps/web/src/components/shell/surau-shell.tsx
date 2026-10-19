@@ -19,7 +19,7 @@ export function SurauShell({ children }: { children: ReactNode }) {
     <AppLayout
       navbar={<SurauNavbar title={active?.label} />}
       sidebar={<SurauSidebar activeId={active?.id} />}
-      sidebarCollapsible="offcanvas"
+      sidebarCollapsible="icon"
     >
       {children}
     </AppLayout>
