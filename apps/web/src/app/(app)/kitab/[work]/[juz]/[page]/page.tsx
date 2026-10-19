@@ -333,7 +333,7 @@ export default async function ReaderPage({ params }: Props) {
         <aside aria-labelledby="judul-daftar-isi" className="hidden lg:order-first lg:block">
           <div
             data-toc-scroll
-            className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
+            className="scrollbar sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
           >
             <h2 className="text-foreground px-2 text-sm font-semibold" id="judul-daftar-isi">
               {t.tocHeading}

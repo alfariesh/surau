@@ -301,7 +301,10 @@ h2.reader-heading-minor {
 .toc-tree {
   --toc-indent: 1.25rem;
   --toc-line: 1.7rem;
-  --toc-pad: 0.25rem;
+  /* Padding baris: 12px di semua sisi. Kolom garis selebar chevron + padding, supaya garis jatuh di
+   * bawah pusat chevron induknya. */
+  --toc-pad: 0.75rem;
+  --toc-col: calc(var(--toc-indent) + var(--toc-pad));
   /* Titik tengah baris pertama judul: tempat chevron dan ujung siku. */
   --toc-anchor: calc(1px + var(--toc-pad) + var(--toc-line) / 2);
   --toc-guide-color: var(--border);
@@ -320,7 +323,7 @@ h2.reader-heading-minor {
 .toc-guide {
   position: relative;
   flex: none;
-  width: var(--toc-indent);
+  width: var(--toc-col);
 }
 
 /* Garis tegak penuh (masih ada saudara di bawah). Tinggi baris ikut padding, jadi tersambung. */
@@ -328,7 +331,7 @@ h2.reader-heading-minor {
   content: "";
   position: absolute;
   inset-block: 0;
-  inset-inline-start: calc(50% - 0.5px);
+  inset-inline-start: calc(var(--toc-pad) + var(--toc-indent) / 2 - 0.5px);
   width: 1px;
   background-color: var(--toc-guide-color);
 }
@@ -339,8 +342,8 @@ h2.reader-heading-minor {
   content: "";
   position: absolute;
   top: 0;
-  inset-inline-start: calc(50% - 0.5px);
-  width: calc(50% + 0.5px);
+  inset-inline-start: calc(var(--toc-pad) + var(--toc-indent) / 2 - 0.5px);
+  width: calc(var(--toc-indent) / 2 + 0.5px);
   height: var(--toc-anchor);
   border-inline-start: 1px solid var(--toc-guide-color);
   border-block-end: 1px solid var(--toc-guide-color);
@@ -360,6 +363,7 @@ h2.reader-heading-minor {
   display: flex;
   flex: 1;
   margin-block: 1px;
+  padding: var(--toc-pad);
   min-width: 0;
   align-items: flex-start;
   border-radius: calc(var(--radius) * 1.5);
@@ -372,7 +376,7 @@ h2.reader-heading-minor {
   position: absolute;
   top: calc(var(--toc-pad) + var(--toc-line) / 2 + 0.625rem);
   bottom: -1px;
-  inset-inline-start: calc(var(--toc-indent) / 2 - 0.5px);
+  inset-inline-start: calc(var(--toc-pad) + var(--toc-indent) / 2 - 0.5px);
   width: 1px;
   background-color: var(--toc-guide-color);
 }
@@ -403,7 +407,6 @@ h2.reader-heading-minor {
   justify-content: center;
   width: var(--toc-indent);
   height: var(--toc-line);
-  margin-block-start: var(--toc-pad);
   border-radius: calc(var(--radius) * 0.75);
   color: var(--muted);
   cursor: var(--cursor-interactive, pointer);
@@ -437,9 +440,9 @@ h2.reader-heading-minor {
   display: flex;
   flex: 1;
   min-width: 0;
-  flex-direction: column;
   align-items: flex-start;
-  padding: var(--toc-pad) 0.5rem var(--toc-pad) 0.375rem;
+  gap: 0.5rem;
+  padding-inline-start: 0.375rem;
   color: var(--foreground);
   outline: none;
   cursor: var(--cursor-interactive, pointer);
@@ -450,18 +453,19 @@ h2.reader-heading-minor {
   line-height: var(--toc-line);
 }
 
-.toc-page {
-  font-size: 0.7rem;
-  line-height: 1rem;
+.toc-icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin-block: calc((var(--toc-line) - 1rem) / 2);
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
 
 .toc-row[data-current] .toc-title {
   font-weight: 600;
 }
 
-.toc-row[data-current] .toc-page {
+.toc-row[data-current] .toc-icon {
   color: var(--accent-soft-foreground);
 }
 

@@ -2,7 +2,7 @@
 
 import type { TocItem } from "../../lib/reader/toc";
 
-import { ChevronRight } from "../../icons";
+import { Book02, ChevronRight, FileEmpty02 } from "../../icons";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Button,
@@ -104,8 +104,13 @@ export function TocTree({
                       <span aria-hidden="true" className="toc-chevron" />
                     ) : null}
                     <Link className="toc-link">
+                      {/* Tingkat pertama (kitab/rub') berikon buku, tingkat di bawahnya berikon berkas. */}
+                      {row && row.guides.length > 0 ? (
+                        <FileEmpty02 aria-hidden="true" className="toc-icon" />
+                      ) : (
+                        <Book02 aria-hidden="true" className="toc-icon" />
+                      )}
                       <ArabicInline className="toc-title">{item.title}</ArabicInline>
-                      <span className="toc-page">{t.pageShort(item.juz, item.page)}</span>
                     </Link>
                   </div>
                 </>
