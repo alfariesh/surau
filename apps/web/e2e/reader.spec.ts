@@ -208,7 +208,8 @@ test("panel Tampilan: font Arab dan jarak baris tersimpan setelah muat ulang", a
   await expect(panel).toBeVisible();
   await panel.getByRole("button", { name: /Huruf Arab/ }).click();
   await page.getByRole("option", { name: "Amiri" }).click();
-  await panel.getByRole("radio", { name: "Longgar" }).click();
+  await panel.getByRole("button", { name: /Jarak baris/ }).click();
+  await page.getByRole("option", { name: "Longgar" }).click();
   const html = page.locator("html");
   await expect(html).toHaveAttribute("data-reader-font", "amiri");
   await expect(html).toHaveAttribute("data-reader-leading", "loose");

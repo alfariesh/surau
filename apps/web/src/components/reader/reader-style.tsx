@@ -1,11 +1,11 @@
 "use client";
 
-import type { Key } from "react";
+import type { ReactNode } from "react";
 
 import type { ReaderAlign, ReaderFont, ReaderLeading } from "../../lib/reader/scale";
 
-import { CellSelect, CellSlider, Segment, Sheet, Widget } from "@heroui-pro/react";
-import { Button, ButtonGroup, Description, Label, ListBox, Switch } from "@heroui/react";
+import { CellSelect, CellSlider, CellSwitch, Sheet, Widget } from "@heroui-pro/react";
+import { Button, ButtonGroup, ListBox } from "@heroui/react";
 import { useTheme } from "next-themes";
 import { useEffect, useSyncExternalStore } from "react";
 
@@ -141,6 +141,7 @@ function FontSizeControl() {
       minValue={0}
       step={1}
       value={index}
+      variant="secondary"
       onChange={change}
     >
       <CellSlider.Track>
@@ -155,33 +156,51 @@ function FontSizeControl() {
   );
 }
 
-function FontPicker() {
-  const font = useSyncExternalStore(
-    subscribe,
-    () => readAttr(FONT_PREF),
-    () => FONT_PREF.fallback,
-  );
+type CellOption = { id: string; label: string; icon?: ReactNode };
 
-  function change(key: Key | null) {
-    if (key === null) return;
-    const value = String(key);
-    applyAttr(FONT_PREF, value);
-    store(FONT_PREF.key, value);
-    notify();
-  }
-
+/** Satu baris pilihan bergaya sel (CellSelect secondary): label di kiri, nilai terpilih di kanan. */
+function CellPicker({
+  label,
+  value,
+  options,
+  onSelect,
+}: {
+  label: string;
+  value: string | null;
+  options: readonly CellOption[];
+  onSelect: (value: string) => void;
+}) {
   return (
-    <CellSelect aria-label={t.styleFont} value={font} onChange={(v) => change(v as Key | null)}>
+    <CellSelect
+      aria-label={label}
+      value={value}
+      variant="secondary"
+      onChange={(key) => {
+        if (key !== null) onSelect(String(key));
+      }}
+    >
       <CellSelect.Trigger>
-        <CellSelect.Label>{t.styleFont}</CellSelect.Label>
-        <CellSelect.Value />
+        <CellSelect.Label>{label}</CellSelect.Label>
+        <CellSelect.Value>
+          {({ defaultChildren, isPlaceholder, state }: any) => {
+            const selected = options.find((o) => o.id === state.selectedItems[0]?.key);
+            if (isPlaceholder || selected === undefined) return defaultChildren;
+            return (
+              <span className="flex items-center justify-end gap-1.5 text-end">
+                {selected.icon}
+                {selected.label}
+              </span>
+            );
+          }}
+        </CellSelect.Value>
         <CellSelect.Indicator />
       </CellSelect.Trigger>
       <CellSelect.Popover>
         <ListBox>
-          {READER_FONTS.map((f) => (
-            <ListBox.Item key={f.id} id={f.id satisfies ReaderFont} textValue={f.name}>
-              {f.name}
+          {options.map((o) => (
+            <ListBox.Item key={o.id} id={o.id} textValue={o.label}>
+              {o.icon}
+              {o.label}
               <ListBox.ItemIndicator />
             </ListBox.Item>
           ))}
@@ -191,75 +210,49 @@ function FontPicker() {
   );
 }
 
-function LeadingPicker() {
-  const leading = useSyncExternalStore(
+const FONT_OPTIONS: readonly CellOption[] = READER_FONTS.map((f) => ({
+  id: f.id satisfies ReaderFont,
+  label: f.name,
+}));
+const LEADING_OPTIONS: readonly CellOption[] = READER_LEADINGS.map((v) => ({
+  id: v satisfies ReaderLeading,
+  label: t.styleLeadings[v],
+}));
+const ALIGN_OPTIONS: readonly CellOption[] = READER_ALIGNS.map((v) => ({
+  id: v satisfies ReaderAlign,
+  label: t.styleAligns[v],
+}));
+
+function AttrPicker({
+  pref,
+  label,
+  options,
+}: {
+  pref: AttrPref;
+  label: string;
+  options: readonly CellOption[];
+}) {
+  const value = useSyncExternalStore(
     subscribe,
-    () => readAttr(LEADING_PREF),
-    () => LEADING_PREF.fallback,
+    () => readAttr(pref),
+    () => pref.fallback,
   );
 
-  function change(key: Key) {
-    const value = String(key);
-    applyAttr(LEADING_PREF, value);
-    store(LEADING_PREF.key, value);
+  function change(next: string) {
+    applyAttr(pref, next);
+    store(pref.key, next);
     notify();
   }
 
-  return (
-    <div className="flex flex-col gap-2">
-      <Label id="tampilan-jarak">{t.styleLeading}</Label>
-      <Segment
-        aria-labelledby="tampilan-jarak"
-        className="w-full"
-        selectedKey={leading}
-        size="sm"
-        onSelectionChange={change}
-      >
-        {READER_LEADINGS.map((value) => (
-          <Segment.Item key={value} id={value satisfies ReaderLeading}>
-            {t.styleLeadings[value]}
-          </Segment.Item>
-        ))}
-      </Segment>
-    </div>
-  );
-}
-
-function AlignPicker() {
-  const align = useSyncExternalStore(
-    subscribe,
-    () => readAttr(ALIGN_PREF),
-    () => ALIGN_PREF.fallback,
-  );
-
-  function change(key: Key) {
-    const value = String(key);
-    applyAttr(ALIGN_PREF, value);
-    store(ALIGN_PREF.key, value);
-    notify();
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <Label id="tampilan-rata">{t.styleAlign}</Label>
-      <Segment
-        aria-labelledby="tampilan-rata"
-        className="w-full"
-        selectedKey={align}
-        size="sm"
-        onSelectionChange={change}
-      >
-        {READER_ALIGNS.map((value) => (
-          <Segment.Item key={value} id={value satisfies ReaderAlign}>
-            {t.styleAligns[value]}
-          </Segment.Item>
-        ))}
-      </Segment>
-    </div>
-  );
+  return <CellPicker label={label} options={options} value={value} onSelect={change} />;
 }
 
 const PAPERS = ["light", "sepia", "dark"] as const;
+const PAPER_OPTIONS: readonly CellOption[] = PAPERS.map((v) => ({
+  id: v,
+  label: t.stylePapers[v],
+  icon: <span aria-hidden="true" className={`paper-swatch paper-swatch-${v}`} />,
+}));
 
 function PaperPicker() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -272,23 +265,7 @@ function PaperPicker() {
   const paper = mounted ? (resolvedTheme ?? null) : null;
 
   return (
-    <div className="flex flex-col gap-2">
-      <Label id="tampilan-kertas">{t.stylePaper}</Label>
-      <Segment
-        aria-labelledby="tampilan-kertas"
-        className="w-full"
-        selectedKey={paper}
-        size="sm"
-        onSelectionChange={(key) => setTheme(String(key))}
-      >
-        {PAPERS.map((value) => (
-          <Segment.Item key={value} id={value}>
-            <span aria-hidden="true" className={`paper-swatch paper-swatch-${value}`} />
-            {t.stylePapers[value]}
-          </Segment.Item>
-        ))}
-      </Segment>
-    </div>
+    <CellPicker label={t.stylePaper} options={PAPER_OPTIONS} value={paper} onSelect={setTheme} />
   );
 }
 
@@ -302,19 +279,20 @@ function TranslationSwitch() {
   }
 
   return (
-    <Switch
-      className="flex w-full flex-row items-center justify-between gap-4"
-      isSelected={shown}
-      onChange={change}
-    >
-      <Switch.Content className="flex flex-col items-start gap-0.5">
-        <Label>{t.translationToggle}</Label>
-        <Description>{t.translationToggleHint}</Description>
-      </Switch.Content>
-      <Switch.Control>
-        <Switch.Thumb />
-      </Switch.Control>
-    </Switch>
+    <div className="flex flex-col gap-1.5">
+      <CellSwitch
+        aria-label={t.translationToggle}
+        isSelected={shown}
+        variant="secondary"
+        onChange={change}
+      >
+        <CellSwitch.Trigger>
+          <CellSwitch.Label>{t.translationToggle}</CellSwitch.Label>
+          <CellSwitch.Control />
+        </CellSwitch.Trigger>
+      </CellSwitch>
+      <p className="text-muted px-1 text-xs">{t.translationToggleHint}</p>
+    </div>
   );
 }
 
@@ -398,9 +376,9 @@ export function ReaderStyle({
                 </Widget>
               ) : null}
               <FontSizeControl />
-              <FontPicker />
-              <LeadingPicker />
-              <AlignPicker />
+              <AttrPicker label={t.styleFont} options={FONT_OPTIONS} pref={FONT_PREF} />
+              <AttrPicker label={t.styleLeading} options={LEADING_OPTIONS} pref={LEADING_PREF} />
+              <AttrPicker label={t.styleAlign} options={ALIGN_OPTIONS} pref={ALIGN_PREF} />
               <PaperPicker />
               <TranslationSwitch />
             </Sheet.Body>

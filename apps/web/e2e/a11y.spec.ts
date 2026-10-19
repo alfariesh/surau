@@ -47,7 +47,7 @@ for (const path of ["/kitab", "/kitab/ihya", "/kitab/ihya/1/200", "/cari"]) {
   });
 }
 
-// Panel Tampilan pembaca terbuka (Sheet + RadioGroup + Segment + Switch) dan tema kertas sepia.
+// Panel Tampilan pembaca terbuka (Sheet + CellSlider + CellSelect + CellSwitch) dan tema kertas sepia.
 test("tanpa pelanggaran a11y: panel Tampilan terbuka dan kertas sepia", async ({ page }) => {
   await page.goto("/kitab/ihya/1/200");
   await page
@@ -56,7 +56,8 @@ test("tanpa pelanggaran a11y: panel Tampilan terbuka dan kertas sepia", async ({
     .click();
   const panel = page.getByRole("dialog", { name: "Tampilan baca" });
   await expect(panel).toBeVisible();
-  await panel.getByRole("radio", { name: "Sepia" }).click();
+  await panel.getByRole("button", { name: /Warna kertas/ }).click();
+  await page.getByRole("option", { name: "Sepia" }).click();
   await expect(page.locator("html")).toHaveClass(/sepia/);
 
   const result = await new AxeBuilder({ page })
