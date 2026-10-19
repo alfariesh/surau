@@ -90,6 +90,8 @@
  * tema bawaan HeroUI (@layer base). `next-themes` memasang `.light`/`.dark` di <html>.
  */
 :root {
+  /* Aksen emas ornamen judul bab (desain pemilik #C1914A); lebih terang di mode gelap. */
+  --ornament-gold: #c1914a;
   --font-arabic: var(--font-naskh), "Noto Naskh Arabic", serif;
   --arabic-leading: 2;
 
@@ -111,6 +113,7 @@
 }
 
 :root.dark {
+  --ornament-gold: #d6ad6c;
   --background: oklch(0.17 0.008 85);
   --foreground: oklch(0.95 0.008 90);
   --surface: oklch(0.215 0.01 85);
@@ -301,11 +304,32 @@ body {
 }
 
 h2.reader-heading {
-  font-size: 1.35em;
+  font-size: 1.4em;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* Ornamen kiri-kanan judul bab (heading-ornament.tsx). Ukuran tetap (rasio 33,4 : 6,3) dan tidak
+ * ikut menyusut: judul panjang membungkus ke beberapa baris, ornamen tetap utuh. */
+.heading-ornament {
+  flex: none;
+  width: 2.25rem;
+  height: auto;
+  color: color-mix(in oklab, var(--foreground) 70%, var(--accent));
+}
+
+@media (min-width: 640px) {
+  .heading-ornament {
+    width: 6.5rem;
+  }
+
+  h2.reader-heading {
+    font-size: 1.6em;
+  }
 }
 
 h2.reader-heading-minor {
-  font-size: 1.15em;
+  font-size: 1.3em;
 }
 
 /* Penanda (١) di dalam teks Arab: kecil dan terangkat seperti catatan kaki buku cetak. line-height 1
@@ -697,6 +721,22 @@ h2.reader-heading-minor {
   padding-inline-start: 0.75rem;
   border-inline-start: 2px solid var(--separator);
   font-size: 1rem;
+}
+
+/* Lencana label AI (mis. "Terjemahan AI" di terjemahan judul bab). */
+.ai-badge {
+  display: inline-block;
+  margin-inline-start: 0.25rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+  vertical-align: 0.15em;
+  white-space: nowrap;
 }
 
 /* Terjemahan judul bab: satu baris kecil di bawah judul Arab, tanpa garis tepi. */

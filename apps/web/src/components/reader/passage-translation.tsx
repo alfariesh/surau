@@ -62,9 +62,9 @@ export function PassageTranslation({
       <p className="passage-translation passage-translation-heading text-muted" lang="id">
         <span data-ai-text="">
           {withMarkers(segments.map((s) => (s.kind === "ai" ? s.text : "")).join(""), footAnchor)}
-        </span>
-        <span className="text-xs" title={t.aiTranslationHint}>
-          {" · "}
+        </span>{" "}
+        {/* Label sebagai lencana kecil, supaya tidak terbaca sebagai bagian terjemahannya. */}
+        <span className="ai-badge" title={t.aiTranslationHint}>
           {t.aiTranslation}
           <span className="sr-only">: {t.aiTranslationHint}</span>
         </span>
