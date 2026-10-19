@@ -5,10 +5,11 @@ import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 
 // Ilustrasi interaktif (/aset/*, ADR-054) disematkan lewat iframe sandbox: skrip ilustrasi berjalan di
-// origin "null", tidak bisa menyentuh cookie atau DOM Surau. Tema situs dikirim lewat postMessage (iframe
-// tidak bisa membaca kelas tema induk), saat tema berubah dan saat iframe selesai dimuat (mana pun yang
-// lebih dulu). Sebelum itu ilustrasi mengikuti tema sistem, sama dengan bawaan situs (defaultTheme
-// "system"). color-scheme elemen iframe diwarisi dari <html> (next-themes), jadi latarnya tetap transparan.
+// origin "null", tidak bisa menyentuh cookie atau DOM Surau. Ilustrasi tanpa kata dan tanpa tombol (situs
+// tiga bahasa; maknanya ada di teks kartu), jadi iframe dekoratif: aria-hidden dan tidak bisa difokus.
+// Ceritanya diputar sekali saat terlihat; kartu induk ([data-art-card]) yang di-hover atau diketuk memutarnya
+// ulang lewat postMessage. Tema situs juga dikirim lewat postMessage (iframe tidak bisa membaca kelas tema
+// induk), saat tema berubah dan saat iframe dimuat. color-scheme iframe diwarisi dari <html> (next-themes).
 const THEME_PARAM: Record<string, string> = { light: "terang", dark: "gelap", sepia: "sepia" };
 
 export function ArtEmbed({
@@ -24,20 +25,44 @@ export function ArtEmbed({
   const { resolvedTheme } = useTheme();
   const theme = THEME_PARAM[resolvedTheme ?? ""] ?? null;
 
-  // targetOrigin "*": origin iframe sandbox memang "null"; isinya hanya nama tema.
+  // targetOrigin "*": origin iframe sandbox memang "null"; isinya hanya nama tema atau perintah putar.
+  const post = (message: { tema?: string; putar?: true }) =>
+    ref.current?.contentWindow?.postMessage({ type: "surau-aset", ...message }, "*");
   const postTheme = () => {
-    if (theme) ref.current?.contentWindow?.postMessage({ type: "surau-aset", tema: theme }, "*");
+    if (theme) post({ tema: theme });
   };
   useEffect(postTheme, [theme]);
+
+  useEffect(() => {
+    const card = ref.current?.closest("[data-art-card]");
+    if (!card) return;
+    const play = (event: Event) => {
+      if (
+        event instanceof PointerEvent &&
+        event.type === "pointerenter" &&
+        event.pointerType !== "mouse"
+      )
+        return;
+      post({ putar: true });
+    };
+    card.addEventListener("pointerenter", play);
+    card.addEventListener("click", play);
+    return () => {
+      card.removeEventListener("pointerenter", play);
+      card.removeEventListener("click", play);
+    };
+  }, []);
 
   return (
     <iframe
       ref={ref}
+      aria-hidden="true"
       className={`block aspect-[4/3] w-full border-0 bg-transparent ${className ?? ""}`}
       loading="lazy"
       onLoad={postTheme}
       sandbox="allow-scripts"
-      src={`/aset/${name}.html?sematan=1`}
+      src={`/aset/${name}.html?sematan=1&tombol=0`}
+      tabIndex={-1}
       title={title}
     />
   );

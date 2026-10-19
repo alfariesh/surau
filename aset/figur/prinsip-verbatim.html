@@ -10,8 +10,9 @@
 <script>
 /* Prinsip 1 · Verbatim atau tidak sama sekali.
    Proses: kitab terbuka di alas (sumber) → satu baris ditandai → disalin kode lewat kabel ke kartu kutipan →
-   kartu dicocokkan dengan sumber. Cocok: kartu menyala, label SAMA PERSIS. Kutipan keliru (satu baris berbeda):
-   kartu meredup, label TIDAK DITAMPILKAN. Baris teks hanya garis; tidak ada huruf Arab. */
+   kartu dicocokkan dengan sumber. Cerita (sekali jalan): salinan keliru (satu baris berbeda) → kartu meredup dengan
+   lencana silang; lalu salinan yang sama persis → kartu menyala dengan lencana centang. Tanpa kata di gambar
+   (situs tiga bahasa); baris teks hanya garis; tidak ada huruf Arab. */
 const { lerp } = ISO;
 const st = { salin: 1, cocok: true, busy: false };
 const N = 6;
@@ -20,7 +21,6 @@ mountFigure({
   id: 'prinsip-verbatim', title: 'Verbatim atau tidak sama sekali',
   hint: 'salin kutipan dari kitab, atau coba kutipan yang keliru',
   alt: 'Ilustrasi garis: baris dari kitab terbuka disalin lewat kabel ke kartu kutipan. Bila sama persis, kartu menyala; bila keliru, kartu meredup dan tidak ditampilkan.',
-  ulang: 7000,
   tombol: [
     { label: 'Salin', aksi: () => H.salin(true) },
     { label: 'Kutipan keliru', aksi: () => H.salin(false) },
@@ -56,20 +56,20 @@ mountFigure({
           : `<line class="${lit ? 'nyala' : 'detail'}" x1="2" y1="${v}" x2="${i === N - 1 ? 9 : 14}" y2="${v}"/>`;
       }
       s += `<g class="${!st.cocok && st.salin >= 1 ? 'redup' : ''}">${kartu}<g transform="${FRONT(38, 10, 24)}">${g}</g>${K.tepi([[38,8,2],[54,8,2],[38,10,2],[54,10,2],[38,8,24],[54,8,24],[38,10,24],[54,10,24]])}</g>`;
-      if (st.salin >= 1) s += api.tag([46, 9, 24], 14, -22, st.cocok ? 'SAMA PERSIS' : 'TIDAK DITAMPILKAN', st.cocok);
+      if (st.salin >= 1) s += api.lencana(st.cocok ? 'centang' : 'silang', [54, 9, 24], 16, -14, st.cocok);
       api.gambar(s);
     }
     const read = () => api.readout(st.salin < 1 ? 'Menyalin dari kitab' : st.cocok ? 'Kutipan sama persis dengan sumber, jadi ditampilkan' : 'Kutipan tidak cocok dengan sumber, jadi tidak ditampilkan');
     const H = window.H = {
-      salin(cocok) { if (st.busy) return api.readout('Sebentar, masih menyalin'); st.busy = true; st.cocok = cocok; st.salin = 0; draw();
+      salin(cocok, lalu) { if (st.busy) return api.readout('Sebentar, masih menyalin'); st.busy = true; st.cocok = cocok; st.salin = 0; draw();
         api.denyut(K.path(api.kurva(SRC, DST, 10)));
-        api.anim(1400, t => { st.salin = t; draw(); }, () => { st.busy = false; draw(); read(); }); },
+        api.anim(1100, t => { st.salin = t; draw(); }, () => { st.busy = false; draw(); read(); if (lalu) lalu(); }); },
     };
     draw(); read();
     return {
       render: draw,
       batal() { st.busy = false; },
-      demo() { H.salin(true); },
+      demo() { H.salin(false, () => api.after(900, () => H.salin(true))); },
       akhir() { st.salin = 1; st.cocok = true; draw(); read(); },
     };
   },

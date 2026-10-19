@@ -10,19 +10,17 @@
 <script>
 /* Prinsip 2 · Setiap klaim ada alamatnya.
    Proses: kartu klaim di alas → kabel menelusuri ke rak kitab → jilid yang dirujuk ditarik keluar →
-   label alamat (jilid dan halaman) menyala. Angka di label hanya contoh ilustrasi, tanpa nama kitab.
-   Jilid lain bisa diketuk untuk melihat alamatnya. */
+   jilid itu menyala dan pita penandanya terangkat (alamat: jilid + halaman). Tanpa kata atau angka di gambar
+   (situs tiga bahasa); tanpa nama kitab. Dengan tombol, jilid lain bisa diketuk. */
 const { lerp, ease } = ISO;
 const st = { pilih: 1, tarik: 1, jalur: 1, busy: false };
 const BOOKS = [{ x: 24, h: 21 }, { x: 29.2, h: 23 }, { x: 34.4, h: 20 }, { x: 39.6, h: 22.5 }, { x: 44.8, h: 19.5 }];
 const BW = 4.6, BY = 4, BD = 14, PULL = 6;
-const HALAMAN = [38, 214, 117, 302, 66];
 
 mountFigure({
   id: 'prinsip-alamat', title: 'Setiap klaim ada alamatnya',
   hint: 'telusuri klaim ke jilid dan halamannya, atau ketuk jilid lain',
   alt: 'Ilustrasi garis: kabel dari kartu klaim menelusuri ke rak kitab, satu jilid tertarik keluar dan labelnya menunjukkan jilid serta halaman.',
-  ulang: 7000,
   tombol: [
     { label: 'Telusuri', aksi: () => H.telusuri(st.pilih) },
     { label: 'Kembalikan', aksi: () => H.kembalikan() },
@@ -36,10 +34,11 @@ mountFigure({
       let s = box(b.x, y, 3, BW, BD, b.h, 0, lit ? 'hot' : '');
       // punggung (muka depan): dua pita dan nomor jilid
       s += `<g transform="${FRONT(b.x, y + BD, 3 + b.h)}"><line class="${lit ? 'nyala' : 'detail'}" x1=".8" y1="3" x2="${BW - .8}" y2="3"/>`
-        + `<line class="${lit ? 'nyala' : 'detail'}" x1=".8" y1="${b.h - 3}" x2="${BW - .8}" y2="${b.h - 3}"/>`
-        + `<text class="label" x="${BW / 2}" y="${b.h / 2 + 1}" text-anchor="middle" style="font-size:2.6px;font-weight:700">${i + 1}</text></g>`;
+        + `<line class="${lit ? 'nyala' : 'detail'}" x1=".8" y1="${b.h - 3}" x2="${BW - .8}" y2="${b.h - 3}"/></g>`;
       const c = [[b.x, y, 3], [b.x + BW, y, 3], [b.x, y + BD, 3], [b.x + BW, y + BD, 3]];
       s += K.tepi([...c, ...c.map(p => [p[0], p[1], 3 + b.h])]);
+      // pita penanda halaman: terangkat dari atas jilid yang dirujuk
+      if (i === st.pilih && st.tarik > 0) s += box(b.x + 1.3, y + BD - 3.8, 3 + b.h - 1, 2, .5, 1 + 6.5 * ease(st.tarik), 0, lit ? "hot" : "");
       return `<g class="press" data-i="${i}">${s}</g>`;
     }
     // kabel penelusuran: dari kartu klaim ke punggung jilid yang dipilih
@@ -58,10 +57,9 @@ mountFigure({
       // kabel penelusuran: dari kartu ke punggung jilid yang dipilih
       const b = BOOKS[st.pilih], pts = jalur();
       s += `<path class="wire${st.jalur > 0 ? ' hot' : ''}" d="${K.path(pts)}"/>`;
-      if (st.tarik >= 1) s += api.tag([b.x + BW / 2, BY + PULL, 3 + b.h], -4, -18, `JILID ${st.pilih + 1} · HLM ${HALAMAN[st.pilih]}`, true);
       api.gambar(s);
     }
-    const read = () => api.readout(st.tarik >= 1 ? `Klaim menunjuk ke jilid ${st.pilih + 1}, halaman ${HALAMAN[st.pilih]}` : 'Menelusuri klaim ke kitabnya');
+    const read = () => api.readout(st.tarik >= 1 ? `Klaim menunjuk ke jilid ${st.pilih + 1} dan halamannya` : 'Menelusuri klaim ke kitabnya');
     const H = window.H = {
       telusuri(i) { if (st.busy) return api.readout('Sebentar, masih menelusuri'); st.busy = true;
         const lanjut = () => { st.pilih = i; st.jalur = 1; st.tarik = 0; draw(); api.denyut(K.path(jalur()));

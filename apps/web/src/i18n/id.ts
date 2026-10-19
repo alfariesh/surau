@@ -55,25 +55,23 @@ export const id = {
     demoCaption: "Basmalah, sebagai contoh tipografi teks Arab di Surau.",
     demoSource: "Sumber teks:",
     principlesHeading: "Tiga prinsip utama",
+    // judul iframe ilustrasi (dekoratif, aria-hidden); tetap diisi supaya pemeriksa aksesibilitas tidak menandainya
+    principleArtTitle: "Ilustrasi prinsip",
     principles: [
       {
         title: "Verbatim atau tidak sama sekali",
         body: "Teks Arab selalu disalin kode dari sumbernya, tidak pernah ditulis AI. Kutipan yang tidak cocok dengan sumber tidak ditampilkan.",
         art: "prinsip-verbatim",
-        artTitle:
-          "Ilustrasi interaktif: baris kitab disalin ke kartu kutipan dan dicocokkan dengan sumbernya",
       },
       {
         title: "Setiap klaim ada alamatnya",
         body: "Kitab, edisi, jilid, halaman cetak, dan tautan tetap ke bagian teksnya, supaya Anda bisa memeriksa sendiri.",
         art: "prinsip-alamat",
-        artTitle: "Ilustrasi interaktif: klaim ditelusuri ke jilid dan halaman kitabnya",
       },
       {
         title: "Atribusi, bukan fatwa",
         body: "Surau menyampaikan isi kitab beserta siapa yang mengatakannya. Keputusan hukum untuk kasus pribadi tetap di tangan ulama.",
         art: "prinsip-atribusi",
-        artTitle: "Ilustrasi interaktif: pernyataan dihubungkan ke kitab dan penulisnya",
       },
     ],
     roadmapHeading: "Peta pembangunan",

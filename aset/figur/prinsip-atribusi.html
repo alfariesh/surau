@@ -9,10 +9,9 @@
 <script src="../../.claude/skills/aset/mesin/iso.js"></script>
 <script>
 /* Prinsip 3 · Atribusi, bukan fatwa.
-   Proses: kartu pernyataan di alas → "siapa yang mengatakan?" → kabel menyala dari kartu ke kitab sumbernya,
-   label MENURUT PENULIS muncul. Surau menyampaikan isi kitab beserta penuturnya; ia tidak mengeluarkan putusan,
-   jadi stempel "putusan" di alas tetap redup dan tidak pernah menyala.
-   Tanpa nama ulama, wajah, atau huruf Arab. */
+   Proses: kartu pernyataan di alas → kabel menyala dari kartu ke kitab sumbernya → papan nama penulis di punggung
+   kitab menyala (penuturnya disebut). Surau tidak mengeluarkan putusan, jadi stempel di alas tetap redup dan
+   dicoret. Tanpa kata di gambar (situs tiga bahasa), tanpa nama ulama, wajah, atau huruf Arab. */
 const { ease } = ISO;
 const st = { atribusi: 1, busy: false };
 
@@ -20,7 +19,6 @@ mountFigure({
   id: 'prinsip-atribusi', title: 'Atribusi, bukan fatwa',
   hint: 'tunjukkan siapa yang mengatakan',
   alt: 'Ilustrasi garis: kartu pernyataan dihubungkan kabel yang menyala ke kitab sumbernya dengan label "menurut penulis". Stempel putusan di sampingnya tetap redup.',
-  ulang: 7000,
   tombol: [{ label: 'Siapa yang mengatakan?', aksi: () => H.tunjukkan() }],
   mount(stage, api) {
     const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[8,6,30],[16,6,30],[46,26,20]]);
@@ -34,10 +32,14 @@ mountFigure({
       // stempel putusan: silinder pendek yang sengaja redup (Surau tidak memutus perkara)
       const [sx, sy, sz, sr, sh] = STAMP;
       s += `<g class="redup">${box(sx - sr / 2, sy - sr / 2, sz, sr, sr, 2, sr / 2)}${box(sx - 1.2, sy - 1.2, sz + 2, 2.4, 2.4, 4.5, 1.2)}${box(sx - 2.2, sy - 2.2, sz + 6.5, 4.4, 4.4, 1.6, 2.2)}</g>`;
+      // coretan: stempel "putusan" tidak dipakai
+      s += api.lencana('silang', [sx, sy, sz + 8], -16, 4, false, false);
       // kitab sumber berdiri
       const [bx, by, bz, bw, bd, bh] = BOOK;
-      s += box(bx, by, bz, bw, bd, bh, 0, on ? 'hot' : '');
-      s += `<g transform="${FRONT(bx, by + bd, bz + bh)}"><line class="${on ? 'nyala' : 'detail'}" x1="1" y1="3.5" x2="${bw - 1}" y2="3.5"/><line class="${on ? 'nyala' : 'detail'}" x1="1" y1="${bh - 3.5}" x2="${bw - 1}" y2="${bh - 3.5}"/></g>`;
+      s += box(bx, by, bz, bw, bd, bh, 0);
+      // punggung kitab: dua pita dan papan nama penulis (menyala saat penuturnya disebut)
+      s += `<g transform="${FRONT(bx, by + bd, bz + bh)}"><line class="detail" x1="1" y1="3.5" x2="${bw - 1}" y2="3.5"/><line class="detail" x1="1" y1="${bh - 3.5}" x2="${bw - 1}" y2="${bh - 3.5}"/>`
+        + `<rect class="face${on ? ' hot' : ''}" x="1.3" y="${bh / 2 - 3}" width="${bw - 2.6}" height="6" rx=".6"/></g>`;
       s += kotakTepi(bx, by, bz, bw, bd, bh);
       // kartu pernyataan: tanda kutip Latin + baris
       const [cx, cy, cz, cw, cd, ch] = CARD;
@@ -48,8 +50,6 @@ mountFigure({
       const pts = kabel();
       const k = Math.max(2, Math.round(pts.length * ease(st.atribusi)));
       if (st.atribusi > 0) s += `<path class="wire hot" d="${K.path(pts.slice(0, k))}"/>`;
-      if (on) s += api.tag(pts[Math.floor(pts.length / 2)], 24, -10, 'MENURUT PENULIS', true, false);
-      s += api.tag([sx - 2, sy + 2, sz + 2], -14, 22, 'BUKAN PUTUSAN', false);
       api.gambar(s);
       void TOP;
     }

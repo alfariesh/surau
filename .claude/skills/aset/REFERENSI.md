@@ -24,7 +24,8 @@ Isi `K`:
 
 Lain-lain:
 - `api.kurva(a, b, naik)`: kabel melengkung (titik 3D).
-- `api.tag(p3, dx, dy, TEKS, hot, garis)`: label pil yang terbaca di segala ukuran.
+- `api.lencana('centang'|'silang', p3, dx, dy, hot, garis)`: lencana bebas bahasa (pilihan utama untuk figur situs).
+- `api.tag(p3, dx, dy, TEKS, hot, garis)`: label pil berkata, hanya untuk cover/konten berbahasa tunggal (lihat aturan 4 di SKILL.md).
 - `api.px()`: satuan viewBox per piksel layar.
 - `ISO.add/sub/cross/dot/norm/avg/vis/lerp/ease`: alat vektor.
 
@@ -41,7 +42,8 @@ Lain-lain:
 | `.pulse` + `api.replay(el)` | Denyut cahaya berjalan di kabel (`path` dengan `pathLength="1000"`) |
 | `.nyala` (+ `filter="url(#soft)"`) | Garis yang menyala, misalnya baris yang dikutip |
 | `.face.hot`, `.face.top.hot` | Benda yang hidup, misalnya kartu yang cocok atau jilid yang dirujuk |
-| `.tag`, `.tag.hot` | Label pil |
+| `.lencana`, `.lencana.hot` | Lencana centang/silang (dari `api.lencana`) |
+| `.tag`, `.tag.hot` | Label pil (hanya untuk cover/konten berbahasa tunggal) |
 | `.redup` | Yang sengaja dimatikan (kutipan keliru, "bukan putusan") |
 | `.label` | Teks kecil di muka (nomor jilid, tanda kutip Latin) |
 | `.glass`/`.hot`, `.halo`/`.hot`, `.led`/`.hot` | Kaca layar, cahaya latar, lampu indikator |
@@ -53,8 +55,7 @@ Filter `#glow`, `#soft`, dan `#bloom` dipasang mesin dengan skala viewBox dan wi
 ```js
 mountFigure({
   id: 'prinsip-alamat', title: '…', hint: '…', alt: '…',
-  ulang: 7000,                                   // demo diulang tiap … ms selama tidak disentuh
-  tombol: [{ label: 'Telusuri', aksi: api => … }],
+  tombol: [{ label: 'Telusuri', aksi: api => … }], // opsional; disembunyikan di kartu situs (?tombol=0)
   mount(stage, api) {
     const K = api.frame([...]);
     const st = { … };                             // satu objek keadaan
@@ -84,7 +85,8 @@ Fungsi `api`:
 - **Kotak bulat:** pakai `box(..., r)` (satu tutup + satu dinding). Jangan membulatkan FRONT dan SIDE terpisah karena sudutnya tidak akan bertemu.
 - **List tipis atau pita di dinding:** gambar sebagai garis atau persegi di bidang FRONT/SIDE, bukan `box` (tutup `box` menutupi apa yang di atasnya).
 - **Kabel:** lengkungkan ke atas (`api.kurva`) supaya tidak menembus benda; mulai dan akhiri tepat di permukaan.
-- **Label di kartu kecil:** pakai `api.tag`, bukan teks berukuran viewBox. Uji di 240 px.
+- **Tanpa kata di figur situs:** situs tiga bahasa dan huruf Arab dilarang di aset. Pakai lencana, pita, papan nama yang menyala, dan coretan. Uji di 240 px.
+- **Satu cerita utuh:** `demo()` memuat kedua sisi (keliru → benar) lalu berhenti. Lebih jelas daripada tombol, dan tidak mengulang tanpa henti.
 - **Escape teks** sebelum masuk SVG (`ISO.esc`; `api.tag` sudah melakukannya).
 - **iframe:** `color-scheme` elemen iframe harus sama dengan isinya, kalau tidak latarnya buram. Di situs, nilainya diwarisi dari `<html>` (next-themes), dan isi iframe mengikuti tema yang dikirim induk.
 - **Animasi bisa dihentikan:** `api.anim` dihentikan `api.tandai()` saat pengunjung menekan sesuatu. Figur wajib punya `batal()` (lepas `st.busy`, rapikan keadaan setengah jalan) supaya aksi pengunjung tidak tertelan.

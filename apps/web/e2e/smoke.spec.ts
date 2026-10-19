@@ -152,23 +152,30 @@ test("respons HTML membawa header keamanan dasar", async ({ request }) => {
   expect(headers["permissions-policy"]).toContain("camera=()");
 });
 
-test("ilustrasi prinsip di Beranda tampil di iframe sandbox dan bisa ditekan", async ({ page }) => {
+test("ilustrasi prinsip di Beranda: iframe sandbox dekoratif, cerita diputar saat terlihat dan saat kartu disentuh", async ({
+  page,
+}) => {
   await page.goto("/");
 
   const frames = page.locator("#judul-prinsip ~ ul iframe");
   await expect(frames).toHaveCount(3);
   for (const frame of await frames.all()) {
     await expect(frame).toHaveAttribute("sandbox", "allow-scripts");
-    await expect(frame).toHaveAttribute("title", /Ilustrasi interaktif/);
+    await expect(frame).toHaveAttribute("aria-hidden", "true");
+    await expect(frame).toHaveAttribute("tabindex", "-1");
   }
-  // Isi iframe benar-benar dimuat (tidak ditolak X-Frame-Options) dan tombolnya bekerja.
   await frames.first().scrollIntoViewIfNeeded();
   const verbatim = page.frameLocator("#judul-prinsip ~ ul iframe").first();
-  await expect(verbatim.locator("#stage path").first()).toBeAttached();
-  // ?sematan=1 tetap ada setelah pengalihan /aset/x.html → /aset/x di Static Assets
+  // ?sematan=1 tetap ada setelah pengalihan /aset/x.html → /aset/x di Static Assets; tanpa tombol, tanpa kata
   await expect(verbatim.locator("html.sematan")).toBeAttached();
-  await verbatim.getByRole("button", { name: "Kutipan keliru" }).click();
-  await expect(verbatim.locator("#status")).toHaveText(/tidak ditampilkan/, { timeout: 5000 });
+  await expect(verbatim.locator("button")).toHaveCount(0);
+  await expect(verbatim.locator("#stage text")).toHaveCount(0);
+  // cerita berakhir di keadaan "sama persis" (keliru dulu, lalu benar)
+  await expect(verbatim.locator("#status")).toHaveText(/sama persis/, { timeout: 10_000 });
+  // kartu disentuh → cerita diputar ulang (melewati keadaan "tidak cocok" lagi)
+  await page.locator("[data-art-card]").first().click();
+  await expect(verbatim.locator("#status")).toHaveText(/tidak cocok/, { timeout: 5000 });
+  await expect(verbatim.locator("#status")).toHaveText(/sama persis/, { timeout: 10_000 });
 });
 
 test("aset ilustrasi hanya boleh dibingkai halaman Surau sendiri dan berjalan tersandbox", async ({

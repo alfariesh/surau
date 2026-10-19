@@ -216,6 +216,9 @@ const CSS_DASAR = `
   .tag rect{fill:var(--surface);stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
   .tag text{fill:var(--ink);font-weight:700;letter-spacing:.06em}
   .tag.hot rect{stroke:var(--accent)} .tag.hot text{fill:var(--accent)}
+  .lencana circle{fill:var(--surface);stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+  .lencana .tanda{fill:none;stroke:var(--ink);stroke-width:2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+  .lencana.hot circle{stroke:var(--accent);fill:var(--glass-on)} .lencana.hot .tanda{stroke:var(--accent)}
   .redup{opacity:.35;transition:opacity .4s}
   @media (prefers-reduced-motion:reduce){.glass,.halo,.wire,.redup{transition:none}.pulse.go{animation:none}}`;
 
@@ -231,22 +234,25 @@ const filterCahaya = (k, terang) => terang
 /* mountFigure({
      id:'kitab-rehal', title:'Kitab di atas rehal', hint:'ketuk kitab untuk membalik halaman',
      alt:'…',                                   // deskripsi untuk pembaca layar
-     tombol:[{label, aksi(api)}],               // tombol yang terlihat, urut seperti orang memakainya
-     ulang: 7000,                               // demo otomatis diulang tiap … ms selama tidak disentuh (0 = sekali)
+     tombol:[{label, aksi(api)}],               // opsional, untuk halaman "coba sendiri"; ?tombol=0 menyembunyikannya
      mount(stage, api) → { render(), demo(), akhir(), batal(), key(e) }
-       // render: gambar ulang; demo: urutan singkat; akhir: keadaan akhir tanpa animasi;
-       // batal: animasi dihentikan karena pengunjung menekan sesuatu (lepas st.busy dan keadaan setengah jalan)
+       // render: gambar ulang; demo: SATU cerita utuh (±3–4 dtk) dari keadaan awal ke keadaan akhir;
+       // akhir: keadaan akhir tanpa animasi; batal: animasi dihentikan (lepas st.busy, rapikan setengah jalan)
    })
+   Interaksi: cerita diputar sekali saat figur pertama kali terlihat, lalu berhenti di keadaan akhir. Diputar
+   ulang saat kursor masuk ke figur, saat figur diketuk (bila tanpa tombol), atau saat induk mengirim
+   {type:'surau-aset', putar:true} (mis. kartu di-hover atau diketuk). Tidak ada perulangan tanpa henti.
    api: iso (ISO), frame(points, opsi) → K (memasang viewBox + filter), gambar(svg), denyut(d), readout(teks),
         anim(ms, step(t), selesai), after(ms, fn), diam (kurangi gerakan), tandai() (pengguna berinteraksi:
         animasi dan timer dihentikan, demo berhenti, lalu aksi pengunjung yang dijalankan)
    Parameter URL: ?tema=terang|gelap|sepia · ?sematan=1 · ?polos=1 · ?sampul=1&judul=…&kecil=… · ?gerak=0 ·
-   ?demo=0 (tanpa demo otomatis) · ?press=Label@ms,… (uji). Induk bisa mengirim postMessage
-   {type:'surau-aset', tema:'gelap'} untuk mengganti tema. */
+   ?tombol=0 · ?demo=0 (tanpa cerita otomatis) · ?press=Label@ms,… (uji). Induk bisa mengirim postMessage
+   {type:'surau-aset', tema:'gelap'} untuk mengganti tema dan {type:'surau-aset', putar:true} untuk memutar cerita. */
 addEventListener('error', e => { document.documentElement.dataset.errors = (document.documentElement.dataset.errors || '') + ' ' + e.message + ';'; });
 function mountFigure(cfg) {
   const q = new URLSearchParams(location.search), root = document.documentElement;
   const sampul = q.get('sampul') === '1', polos = q.get('polos') === '1', sematan = q.get('sematan') === '1';
+  const adaTombol = !!(cfg.tombol && cfg.tombol.length) && !sampul && !polos && q.get('tombol') !== '0';
   const temaSistem = () => matchMedia('(prefers-color-scheme: dark)').matches ? 'gelap' : 'terang';
   const pilihTema = t => ['terang', 'gelap', 'sepia'].includes(t) ? t : temaSistem();
   root.dataset.tema = pilihTema(q.get('tema'));
@@ -260,7 +266,7 @@ function mountFigure(cfg) {
     <header><h1>${ISO.esc(cfg.title)}</h1><span>${ISO.esc(cfg.hint || '')}</span></header>
     <div class="panggung">
       <svg id="stage" role="img" data-fig="${cfg.id}"><defs id="cahaya"></defs><g id="lukis"></g><g id="denyut"></g></svg>
-      ${cfg.tombol && cfg.tombol.length ? '<div class="aksi" id="aksi" role="group" aria-label="Coba"></div>' : ''}
+      ${adaTombol ? '<div class="aksi" id="aksi" role="group" aria-label="Coba"></div>' : ''}
     </div>
     <p class="catatan" aria-hidden="true"></p>
     <p class="sr" id="status" role="status" aria-live="polite"></p>`;
@@ -273,7 +279,7 @@ function mountFigure(cfg) {
 
   const diam = q.get('gerak') === '0' || matchMedia('(prefers-reduced-motion: reduce)').matches;
   const catatan = document.querySelector('.catatan'), status = document.getElementById('status');
-  let K = null, handle = {}, timers = [], disentuh = false, demoT = 0, temaInduk = false;
+  let K = null, handle = {}, timers = [], disentuh = false, temaInduk = false;
   const anims = new Set();
   // tiga lapis: filter (tetap), lukisan (ditulis ulang tiap gambar), denyut (tetap, supaya animasi CSS-nya tidak
   // terulang dari awal setiap kali lukisan digambar ulang)
@@ -282,8 +288,7 @@ function mountFigure(cfg) {
   const api = {
     iso: ISO, diam,
     frame(points, opsi = {}) {
-      const ada = !sampul && !polos && cfg.tombol && cfg.tombol.length;
-      K = ISO.frame(points, { aspect: sampul ? 1.25 : polos ? innerWidth / Math.max(1, innerHeight) : 4 / 3, bawah: sematan && ada ? .16 : 0, ...opsi });
+      K = ISO.frame(points, { aspect: sampul ? 1.25 : polos ? innerWidth / Math.max(1, innerHeight) : 4 / 3, bawah: sematan && adaTombol ? .16 : 0, ...opsi });
       stage.setAttribute('viewBox', K.viewBox); return K; },
     gambar(svg) { lukis.innerHTML = svg; },
     // denyut cahaya sekali jalan di sepanjang jalur d (K.path(...)); lapisnya tidak ikut digambar ulang
@@ -304,8 +309,19 @@ function mountFigure(cfg) {
       return `<g class="tag${hot ? ' hot' : ''}">${garis ? `<path class="wire${hot ? ' hot' : ''}" d="M${X.toFixed(2)} ${Y.toFixed(2)}L${cx.toFixed(2)} ${cy.toFixed(2)}"/>` : ''}`
         + `<rect x="${(cx - w / 2).toFixed(2)}" y="${(cy - h / 2).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${(h / 2).toFixed(2)}"/>`
         + `<text x="${cx.toFixed(2)}" y="${(cy + fs * .36).toFixed(2)}" text-anchor="middle" style="font-size:${fs.toFixed(2)}px">${ISO.esc(teks)}</text></g>`; },
+    // lencana tanpa kata (bebas bahasa): 'centang' atau 'silang' di titik p3 + (dx, dy), garis penunjuk opsional.
+    // Ukuran minimal ±18 px di layar; dijaga di dalam bingkai. Pakai ini, bukan label teks, di figur untuk situs.
+    lencana(jenis, p3, dx, dy, hot = false, garis = true) {
+      const g = K.W / 300, [X, Y] = K.P(...p3), r = Math.max(7 * g, 9 * api.px()), m = r * .3;
+      const cx = Math.min(K.W - r - m, Math.max(r + m, X + dx * g)), cy = Math.min(K.H - r - m, Math.max(r + m, Y + dy * g));
+      const f = v => v.toFixed(2), k = r * .45;
+      const tanda = jenis === 'centang'
+        ? `M${f(cx - k)} ${f(cy)}L${f(cx - k * .25)} ${f(cy + k * .75)}L${f(cx + k)} ${f(cy - k * .7)}`
+        : `M${f(cx - k * .75)} ${f(cy - k * .75)}L${f(cx + k * .75)} ${f(cy + k * .75)}M${f(cx + k * .75)} ${f(cy - k * .75)}L${f(cx - k * .75)} ${f(cy + k * .75)}`;
+      return `<g class="lencana${hot ? ' hot' : ''}">${garis ? `<path class="wire${hot ? ' hot' : ''}" d="M${f(X)} ${f(Y)}L${f(cx)} ${f(cy)}"/>` : ''}`
+        + `<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r)}"/><path class="tanda" d="${tanda}"/></g>`; },
     readout(t) { catatan.textContent = t; if (status.textContent !== t) status.textContent = t; },
-    after(ms, fn) { const t = setTimeout(fn, ms); timers.push(t); return t; },
+    after(ms, fn) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; },
     // animasi berdurasi: step(t ∈ [0,1]); dengan "kurangi gerakan" langsung ke akhir. Bisa dihentikan tandai().
     anim(ms, step, selesai) {
       if (diam) { step(1); if (selesai) selesai(); return; }
@@ -313,10 +329,12 @@ function mountFigure(cfg) {
       const f = now => { if (!a.hidup) return; const t = Math.min(1, (now - t0) / ms); step(t);
         if (t < 1) requestAnimationFrame(f); else { anims.delete(a); if (selesai) selesai(); } };
       requestAnimationFrame(f); },
-    // pengunjung menekan sesuatu: demo berhenti selamanya, animasi dan timer yang berjalan dihentikan, figur
-    // melepas keadaan setengah jalan (batal), lalu aksi pengunjung dijalankan oleh pemanggil
-    tandai() { disentuh = true; clearTimeout(demoT); timers.forEach(clearTimeout); timers = [];
+    // hentikan animasi dan timer yang berjalan; figur melepas keadaan setengah jalan (batal)
+    hentikan() { timers.forEach(clearTimeout); timers = [];
       if (anims.size) { anims.forEach(a => { a.hidup = false; }); anims.clear(); if (handle.batal) handle.batal(); } },
+    // pengunjung menekan tombol: cerita otomatis tidak diputar lagi, lalu aksi pengunjung dijalankan pemanggil
+    tandai() { disentuh = true; api.hentikan(); },
+    berjalan() { return anims.size > 0 || timers.length > 0; },
   };
   handle = cfg.mount(stage, api) || {};
   pasangFilter();
@@ -330,27 +348,37 @@ function mountFigure(cfg) {
   const aksi = document.getElementById('aksi');
   if (aksi) cfg.tombol.forEach(b => { const el = document.createElement('button'); el.type = 'button'; el.textContent = b.label;
     el.onclick = () => { api.tandai(); b.aksi(api); }; aksi.appendChild(el); });
-  stage.addEventListener('pointerdown', () => api.tandai());
-  // pengguna keyboard juga bisa menghentikan demo (WCAG 2.2.2): masuk fokus ke figur = berinteraksi
-  document.addEventListener('focusin', () => { if (!disentuh) { disentuh = true; clearTimeout(demoT); } });
+  // dengan tombol: ketukan di gambar adalah aksi figur (acts sendiri). Tanpa tombol: ketukan memutar ulang cerita.
+  stage.addEventListener('pointerdown', () => { if (adaTombol) api.tandai(); else putarCerita(); });
   stage.addEventListener('keydown', e => { api.tandai(); if (handle.key && handle.key(e)) e.preventDefault(); });
+  // kursor masuk ke figur → cerita diputar ulang (bila sedang tidak berjalan)
+  document.documentElement.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && !api.berjalan()) putarCerita(); });
 
   // tema: dari induk (postMessage) bila ada; selain itu mengikuti sistem (tanpa ?tema). Setelah induk mengirim
   // tema, perubahan sistem diabaikan: pilihan tema di situs yang berlaku.
   const gantiTema = t => { root.dataset.tema = pilihTema(t); pasangFilter(); };
   if (!q.has('tema')) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (!temaInduk) gantiTema(); });
   addEventListener('message', e => { const d = e.data;
-    if (d && d.type === 'surau-aset' && ['terang', 'gelap', 'sepia'].includes(d.tema)) { temaInduk = true; gantiTema(d.tema); } });
+    if (!d || d.type !== 'surau-aset') return;
+    if (['terang', 'gelap', 'sepia'].includes(d.tema)) { temaInduk = true; gantiTema(d.tema); }
+    if (d.putar === true && !api.berjalan()) putarCerita(); });
 
-  // demo: sampul/polos → keadaan akhir; kurangi gerakan → keadaan akhir; selain itu demo diulang selama tidak disentuh
-  // dan figur benar-benar terlihat di layar (IntersectionObserver dari dalam iframe menghitung viewport teratas)
-  let diLayar = true;
-  if ('IntersectionObserver' in window) new IntersectionObserver(es => { diLayar = es[es.length - 1].isIntersecting; }).observe(stage);
-  const terlihat = () => document.visibilityState === 'visible' && diLayar;
-  const putar = () => { if (disentuh || !handle.demo) return; if (terlihat()) handle.demo();
-    if (cfg.ulang) demoT = setTimeout(putar, cfg.ulang); };
+  // cerita: sampul/polos/kurangi gerakan → langsung keadaan akhir. Selain itu diputar sekali saat figur pertama
+  // kali terlihat di layar (IntersectionObserver dari dalam iframe menghitung viewport teratas), lalu hanya
+  // diputar ulang atas permintaan (kursor, ketukan, pesan induk). Tidak ada perulangan tanpa henti (WCAG 2.2.2).
+  function putarCerita() {
+    if (!handle.demo || (disentuh && adaTombol)) return;
+    if (diam) { if (handle.akhir) handle.akhir(); return; }
+    api.hentikan(); handle.demo(); }
   if (sampul || polos || diam || q.get('demo') === '0') { if (handle.akhir && q.get('demo') !== '0') handle.akhir(); }
-  else demoT = setTimeout(putar, 700);
+  else {
+    let sudah = false;
+    const coba = () => { if (!sudah && document.visibilityState === 'visible') { sudah = true; setTimeout(putarCerita, 250); } };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(es => { if (es[es.length - 1].isIntersecting) { coba(); if (sudah) io.disconnect(); } });
+      io.observe(stage);
+    } else coba();
+  }
 
   // uji: ?press=Label@ms klik tombol yang teksnya diawali Label
   window.__api = api;
@@ -364,10 +392,9 @@ function mountFigure(cfg) {
 </script>
 <script>
 /* Prinsip 3 · Atribusi, bukan fatwa.
-   Proses: kartu pernyataan di alas → "siapa yang mengatakan?" → kabel menyala dari kartu ke kitab sumbernya,
-   label MENURUT PENULIS muncul. Surau menyampaikan isi kitab beserta penuturnya; ia tidak mengeluarkan putusan,
-   jadi stempel "putusan" di alas tetap redup dan tidak pernah menyala.
-   Tanpa nama ulama, wajah, atau huruf Arab. */
+   Proses: kartu pernyataan di alas → kabel menyala dari kartu ke kitab sumbernya → papan nama penulis di punggung
+   kitab menyala (penuturnya disebut). Surau tidak mengeluarkan putusan, jadi stempel di alas tetap redup dan
+   dicoret. Tanpa kata di gambar (situs tiga bahasa), tanpa nama ulama, wajah, atau huruf Arab. */
 const { ease } = ISO;
 const st = { atribusi: 1, busy: false };
 
@@ -375,7 +402,6 @@ mountFigure({
   id: 'prinsip-atribusi', title: 'Atribusi, bukan fatwa',
   hint: 'tunjukkan siapa yang mengatakan',
   alt: 'Ilustrasi garis: kartu pernyataan dihubungkan kabel yang menyala ke kitab sumbernya dengan label "menurut penulis". Stempel putusan di sampingnya tetap redup.',
-  ulang: 7000,
   tombol: [{ label: 'Siapa yang mengatakan?', aksi: () => H.tunjukkan() }],
   mount(stage, api) {
     const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[8,6,30],[16,6,30],[46,26,20]]);
@@ -389,10 +415,14 @@ mountFigure({
       // stempel putusan: silinder pendek yang sengaja redup (Surau tidak memutus perkara)
       const [sx, sy, sz, sr, sh] = STAMP;
       s += `<g class="redup">${box(sx - sr / 2, sy - sr / 2, sz, sr, sr, 2, sr / 2)}${box(sx - 1.2, sy - 1.2, sz + 2, 2.4, 2.4, 4.5, 1.2)}${box(sx - 2.2, sy - 2.2, sz + 6.5, 4.4, 4.4, 1.6, 2.2)}</g>`;
+      // coretan: stempel "putusan" tidak dipakai
+      s += api.lencana('silang', [sx, sy, sz + 8], -16, 4, false, false);
       // kitab sumber berdiri
       const [bx, by, bz, bw, bd, bh] = BOOK;
-      s += box(bx, by, bz, bw, bd, bh, 0, on ? 'hot' : '');
-      s += `<g transform="${FRONT(bx, by + bd, bz + bh)}"><line class="${on ? 'nyala' : 'detail'}" x1="1" y1="3.5" x2="${bw - 1}" y2="3.5"/><line class="${on ? 'nyala' : 'detail'}" x1="1" y1="${bh - 3.5}" x2="${bw - 1}" y2="${bh - 3.5}"/></g>`;
+      s += box(bx, by, bz, bw, bd, bh, 0);
+      // punggung kitab: dua pita dan papan nama penulis (menyala saat penuturnya disebut)
+      s += `<g transform="${FRONT(bx, by + bd, bz + bh)}"><line class="detail" x1="1" y1="3.5" x2="${bw - 1}" y2="3.5"/><line class="detail" x1="1" y1="${bh - 3.5}" x2="${bw - 1}" y2="${bh - 3.5}"/>`
+        + `<rect class="face${on ? ' hot' : ''}" x="1.3" y="${bh / 2 - 3}" width="${bw - 2.6}" height="6" rx=".6"/></g>`;
       s += kotakTepi(bx, by, bz, bw, bd, bh);
       // kartu pernyataan: tanda kutip Latin + baris
       const [cx, cy, cz, cw, cd, ch] = CARD;
@@ -403,8 +433,6 @@ mountFigure({
       const pts = kabel();
       const k = Math.max(2, Math.round(pts.length * ease(st.atribusi)));
       if (st.atribusi > 0) s += `<path class="wire hot" d="${K.path(pts.slice(0, k))}"/>`;
-      if (on) s += api.tag(pts[Math.floor(pts.length / 2)], 24, -10, 'MENURUT PENULIS', true, false);
-      s += api.tag([sx - 2, sy + 2, sz + 2], -14, 22, 'BUKAN PUTUSAN', false);
       api.gambar(s);
       void TOP;
     }

@@ -13,7 +13,7 @@
    1. Tertutup: sampul depan di atas, punggung di kanan pembaca, kitab bersandar di lengan kiri rehal.
    2. Buka: sampul depan diayun ke kanan; separuh kanan (halaman yang sudah dibaca) bersandar di lengan kanan.
    3. Balik halaman: satu lembar dari tumpukan kiri diangkat dan diayun ke kanan; tumpukan kanan menebal.
-   4. Tandai kutipan: dua baris di halaman kiri menyala (yang menyala = yang hidup), dengan label KUTIPAN.
+   4. Tandai kutipan: dua baris di halaman kiri menyala (yang menyala = yang hidup); tanpa kata di gambar.
    5. Tutup: separuh kanan diayun kembali ke atas tumpukan kiri.
    Pembaca duduk di sisi +x (menghadap bentuk X rehal); kanan pembaca = +y.
    Tidak ada huruf Arab: baris teks hanya garis (aturan keras 1). */
@@ -30,7 +30,6 @@ const thick = () => ({ r: 1 + st.read * .07, l: 2.6 - st.read * .07 });
 mountFigure({
   id: 'kitab-rehal', title: 'Kitab di atas rehal', hint: 'ketuk kitab untuk membalik halaman',
   alt: 'Ilustrasi garis kitab terbuka di atas rehal kayu berbentuk X. Dua baris di halaman bisa menyala sebagai kutipan.',
-  ulang: 9000,
   tombol: [
     { label: 'Buka', aksi: () => H.swing(1) },
     { label: 'Balik halaman', aksi: () => H.turn() },
@@ -95,9 +94,6 @@ mountFigure({
       let book = L0.svg + tepi(L0.pts) + R0.svg + tepi(R0.pts);
       if (st.leaf != null) book += leaf(st.leaf);
       s += `<g class="press" id="kr-book">${book}</g>`;
-      // label kutipan: kata Latin saja, garis penunjuk ke baris yang menyala
-      const d = dirA(Math.PI - TH), top = add(add(add([BX0 + .8, YC, ZS], d, .5), UP_L, COVER_T + T.l), [lerp(2.6, BX1 - BX0 - 4, .35), 0, 0]);
-      if (st.mark && st.open >= 1) s += api.tag(add(top, d, 15), 34, -26, 'KUTIPAN', true);
       api.gambar(s);
     }
     const read = () => api.readout(st.open <= 0 ? 'Kitab tertutup' : `Kitab terbuka, ${st.read} lembar sudah dibaca${st.mark ? ', kutipan ditandai' : ''}`);

@@ -1312,14 +1312,14 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Label `api.tag` berukuran piksel layar (±9 px) dan dijaga di dalam bingkai.
    - Filter cahaya berskala viewBox dengan wilayah `userSpaceOnUse` (garis mendatar tidak hilang); tanpa pendar di tema terang/sepia.
    - Tema bisa dikirim induk lewat `postMessage`.
-4. **Tiga figur prinsip di Beranda** (`aset/figur/prinsip-{verbatim,alamat,atribusi}.html` → `/aset/*.html`):
-   - **verbatim:** baris kitab disalin ke kartu dan dicocokkan. Cocok → menyala "SAMA PERSIS"; keliru → redup "TIDAK DITAMPILKAN".
-   - **alamat:** klaim ditelusuri ke jilid yang ditarik dari rak, dengan label "JILID 2 · HLM 214" (contoh ilustrasi tanpa nama kitab).
-   - **atribusi:** kabel dari pernyataan ke kitab, label "MENURUT PENULIS"; stempel "BUKAN PUTUSAN" tetap redup.
+4. **Tiga figur prinsip di Beranda** (`aset/figur/prinsip-{verbatim,alamat,atribusi}.html` → `/aset/*.html`), **tanpa kata, angka, atau tombol**:
+   - **verbatim:** salinan keliru meredup dengan lencana silang, lalu salinan yang sama persis menyala dengan lencana centang.
+   - **alamat:** kabel dari klaim ke rak; jilid yang dirujuk ditarik keluar dan pita penanda halamannya terangkat dan menyala.
+   - **atribusi:** kabel dari pernyataan ke kitab; papan nama penulis di punggung kitab menyala; stempel putusan redup dan dicoret.
 
    Tanpa huruf Arab, wajah, atau sosok.
 5. **Penyematan:**
-   - Komponen klien `ArtEmbed` (`components/art/art-embed.tsx`) memasang `<iframe sandbox="allow-scripts" loading="lazy">` (tanpa `allow-same-origin`, jadi skrip aset tidak bisa menyentuh cookie atau DOM Surau). Rasio 4:3, `title` "Ilustrasi interaktif: …".
+   - Komponen klien `ArtEmbed` (`components/art/art-embed.tsx`) memasang `<iframe sandbox="allow-scripts" loading="lazy" aria-hidden tabindex=-1>` (tanpa `allow-same-origin`, jadi skrip aset tidak bisa menyentuh cookie atau DOM Surau). Iframe ini dekoratif, karena maknanya ada di teks kartu. Rasio 4:3.
    - Tema next-themes dikirim lewat `postMessage` saat tema berubah dan saat iframe dimuat; setelah itu aset mengabaikan perubahan tema sistem. `color-scheme` iframe diwarisi dari `<html>`. Gaya inline dari `resolvedTheme` tidak dipakai, karena menimbulkan ketidakcocokan hidrasi.
    - Header `/aset/*` ditulis di `apps/web/public/_headers`, karena Static Assets tidak melewati Worker:
      - `X-Frame-Options: SAMEORIGIN` dan CSP `frame-ancestors 'self'; sandbox allow-scripts`, sehingga dibuka langsung pun tetap berorigin "null".
@@ -1333,7 +1333,12 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Kredit iso-glow, iso-figure, dan Plus Jakarta Sans di `/lisensi#ilustrasi`.
 6. **Format gambar diam:** WebP untuk situs dan konten (cover ±27 KiB, sebelumnya PNG ±425 KiB), JPG untuk `og:image` (±41 KiB; dukungan WebP di semua aplikasi pratinjau tautan belum pasti). Tanpa PNG di situs, karena gambar tidak dioptimasi ulang di Workers (ADR-003).
 7. `vite.config.ts`: mesin, contoh asli, `aset/**`, dan `apps/web/public/aset/**` dikecualikan dari lint dan format (HTML padat hasil bangun).
-8. **Penamaan (menyimpang dari ADR-012, terbuka):** kode aplikasi web memakai identifier Inggris (`ArtEmbed`, `name`, kunci `art`/`artTitle`). Mesin, figur, dan skrip skill memakai identifier Indonesia (`mountFigure` tetap dari asalnya), sama seperti skill dan perkakas pemilik lainnya (`scripts/ikon.mjs`), karena dibaca dan disunting dalam bahasa kerja skill. Jalur publik `/aset/<nama>` mengikuti rute situs yang berbahasa Indonesia (`/kitab`, `/cari`).
+8. **Tanpa kata, tanpa tombol, satu cerita** (permintaan pemilik, 2026-10-19: "Saya merasa kurang pas ada button di ilustrasi"; situs akan tiga bahasa):
+   - Teks di gambar harus diterjemahkan di luar i18n, terlalu kecil di kartu, dan untuk bahasa Arab bertabrakan dengan aturan tanpa huruf Arab di aset. Karena itu figur situs memakai tanda visual bebas bahasa (`api.lencana`, pita, papan nama, redup, coret).
+   - Tombol diganti **cerita sekali jalan**: diputar saat terlihat, lalu diam. Hover atau ketuk kartu (`data-art-card` → `postMessage {putar:true}`), atau kursor dan ketukan di figur, memutarnya ulang. Tidak ada perulangan tanpa henti.
+   - Hover saja ditolak karena ponsel dan keyboard tidak punya hover.
+   - Tombol tetap ada di mesin untuk halaman "coba sendiri" (`?tombol=0` menyembunyikannya).
+9. **Penamaan (menyimpang dari ADR-012, terbuka):** kode aplikasi web memakai identifier Inggris (`ArtEmbed`, `name`, kunci `art`/`artTitle`). Mesin, figur, dan skrip skill memakai identifier Indonesia (`mountFigure` tetap dari asalnya), sama seperti skill dan perkakas pemilik lainnya (`scripts/ikon.mjs`), karena dibaca dan disunting dalam bahasa kerja skill. Jalur publik `/aset/<nama>` mengikuti rute situs yang berbahasa Indonesia (`/kitab`, `/cari`).
 
 **Ditolak:**
 - **Colorfigures** (dicoba lalu diganti): tinta tebal dan warna penuh terasa seperti merek lain di samping UI Surau yang tenang; garis tepi luar hilang di mode gelap.

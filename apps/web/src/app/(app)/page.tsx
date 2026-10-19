@@ -108,10 +108,10 @@ export default async function HomePage() {
           </h2>
           <ul className="grid gap-4 sm:grid-cols-3">
             {t.principles.map((p) => (
-              <li key={p.title} className="flex">
+              <li key={p.title} className="flex" data-art-card>
                 <Card className="w-full">
-                  {/* Ilustrasi interaktif per prinsip (ADR-054); dekoratif-pendukung, teks tetap di bawah. */}
-                  <ArtEmbed className="-mt-1 rounded-xl" name={p.art} title={p.artTitle} />
+                  {/* Ilustrasi per prinsip (ADR-054): tanpa kata, dekoratif; hover/ketuk kartu memutar ulang. */}
+                  <ArtEmbed className="-mt-1 rounded-xl" name={p.art} title={t.principleArtTitle} />
                   <Card.Header>
                     <Card.Title>{p.title}</Card.Title>
                     <Card.Description>{p.body}</Card.Description>
