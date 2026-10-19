@@ -5,6 +5,7 @@ Set soal untuk mengukur mutu Surau secara objektif. Prinsip dan metrik: [docs/06
 | Folder | Isi | Di git? |
 |---|---|---|
 | `retrieval/` | Soal publik eval pencarian (`*.jsonl`, ID berawalan `r`) | ya |
+| `jawab/` | Draf soal Jawab publik; [panduan runner](jawab/README.md) | ya |
 | `private/` | Soal privat/holdout (`retrieval.jsonl`, ID berawalan `p`) | **tidak** (git-ignored; salinan di R2 `surau-evals`) |
 | `reports/` | Laporan Markdown per run (`retrieval-<tanggal>-<korpus>[-label].md`) | ya |
 
@@ -40,7 +41,7 @@ Sekitar sepertiga soal disimpan privat supaya tidak bocor ke data latih model da
 Aturan holdout (ADR-045):
 - Kegagalan soal privat hanya dianalisis per kategori (kosakata, normalisasi, peringkat). Perbaikan dirancang, diuji, dan dijelaskan memakai soal publik; teks soal privat tidak pernah ditulis di kode, tes, komentar, pesan commit, atau dokumen.
 - Soal privat yang terlanjur dipakai untuk merancang perbaikan, atau yang topiknya tertulis di tempat publik, dianggap terbakar: dipindah ke set publik (ID `r` baru), lalu bila perlu diganti soal privat baru yang ditulis sebelum pernah dijalankan. Contoh 2026-10-17: p03 → r03 (pengganti p31) dan p12 → r12.
-- Salinan teks soal privat hanya ada di `evals/private/` (mesin pemilik), R2 `surau-evals`, dan halaman tinjauan T-12 (artifact claude.ai privat milik pemilik). Jangan membuat salinan baru tanpa mencatatnya di sini.
+- Salinan teks soal privat retrieval hanya ada di `evals/private/` (mesin pemilik), R2 `surau-evals`, dan halaman tinjauan T-12 (artifact claude.ai privat milik pemilik). Jangan membuat salinan baru tanpa mencatatnya di sini.
 
 - Salinan resmi ada di R2 bucket privat `surau-evals` (akses r2.dev mati). Setiap revisi diunggah sebagai berkas baru (tidak menimpa): `retrieval/<tanggal>-<status>.jsonl`. Kunci yang berlaku ditulis di `PRIVATE_KEY` pada `.github/workflows/eval.yml`.
 - Mengambil ke mesin ini:
@@ -58,3 +59,19 @@ pnpm wrangler r2 object put surau-evals/retrieval/<tanggal>-<status>.jsonl --fil
 ## CI
 
 Workflow `eval.yml` (non-blocking) menjalankan `eval:retrieval --remote --gate` atas staging setiap PR/push yang menyentuh `packages/text`, `packages/db`, `packages/core`, `tools/eval`, atau `evals/`. Hasilnya ada di Summary job; bila gagal atau di bawah gerbang, muncul peringatan tanpa memblokir merge.
+
+## Penyimpanan privat S18
+
+18 soal Jawab baru berada di `evals/private/jawab.jsonl`. Arsip/SQL/plan/judge lokal berada di `evals/private/jawab-runs/`; ekspor tinjauan harus disimpan di folder privat ini. Jangan menaruh salinannya di artifact publik atau log CI.
+
+Cadangan sudah diunggah ke R2 privat `surau-evals/jawab/2026-10-19-draf-v1.jsonl`; antrean `s18-tinjau-v1` direncanakan di D1 `surau-app` yang hanya dibaca melalui Access `/tinjau`. Pemilik mengizinkan kedua penyimpanan privat pada 2026-10-19. Unggahan R2 selesai tanpa menimpa kunci lama; pengisian D1 menyusul deploy/migrasi.
+
+Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke Anthropic atas izin pemilik (pagu US$1); tidak mengirim 18 holdout. Plan dan hasil yang memuat sumber disimpan privat. Salinan server Anthropic mengikuti kebijakan retensi API vendor, terpisah dari app. Retensi app 12 bulan, expiry baca aktif, penghapusan fisik manual sampai S20. Inventaris ini wajib diperbarui bila dibuat salinan lain.
+
+Pemulihan holdout memakai:
+
+```bash
+pnpm wrangler r2 object get surau-evals/jawab/2026-10-19-draf-v1.jsonl --file evals/private/jawab.jsonl --remote
+```
+
+Ambil hanya bila file lokal belum ada. Jangan menimpa revisi lokal atau kunci R2 yang sudah dipakai laporan. Golden set resmi belum tersedia: semua 60 soal S18 masih draf sampai T-24.

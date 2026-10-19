@@ -18,6 +18,8 @@ catalog:
 
   # Data (S06, ADR-009): tanpa ORM. Zod untuk skema baris + validasi batas sistem.
   zod: 4.6.7
+  # Access JWT (S18): WebCrypto, ESM, MIT; memverifikasi signature/issuer/audience/expiration.
+  jose: 6.2.12
   # Ingest (S07): parser file patch daftar isi (data/patches/*.yaml). Tanpa dependensi, ISC.
   yaml: 2.9.1
   # Tes D1 di workerd (S06). Pengganti @cloudflare/vitest-pool-workers (deprecated); peer vitest ^5.

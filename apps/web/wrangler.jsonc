@@ -20,6 +20,8 @@
   // ubah ke "0" lewat PR + deploy, BUKAN dashboard (cache ISR per BUILD_ID; tools/ingest/README.md).
   // `next dev` selalu menampilkannya (ADR-034).
   "vars": {
+    "REVIEW_ACCESS_ISSUER": "https://misty-moon-bf34.cloudflareaccess.com",
+    "REVIEW_ACCESS_AUD": "e123af2da26c3ef34fad7be2ce79480a6232edd72bf2c16d076030563f638bc4",
     "READER_ENABLED": "1",
     // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
     // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
@@ -96,6 +98,9 @@
   "upload_source_maps": true,
   "previews": {
     "vars": {
+      // Preview tetap gagal tertutup. Login Access baru dikonfigurasi untuk surau.org.
+      "REVIEW_ACCESS_ISSUER": "https://misty-moon-bf34.cloudflareaccess.com",
+      "REVIEW_ACCESS_AUD": "e123af2da26c3ef34fad7be2ce79480a6232edd72bf2c16d076030563f638bc4",
       "READER_ENABLED": "1",
       "SEARCH_TIMING_DETAIL": "1",
       // Tanpa cache hasil: korpus staging dimuat ulang tanpa versi baru (latensi diukur tanpa cache).

@@ -63,3 +63,6 @@ export {
 } from "./tokens.ts";
 
 export * from "./schema.ts";
+export * from "./eval-schema.ts";
+export { resolveEvalSource, evalHash } from "./eval-source.ts";
+export type { EvalSource } from "./eval-source.ts";

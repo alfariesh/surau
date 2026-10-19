@@ -15,6 +15,15 @@ Format entri:
 
 ---
 
+## 2026-10-19 · S18 · Eval Jawab & halaman tinjau — sebagian
+
+- Dikerjakan: 60 draf (42 publik/18 privat), sumber berbasis ID/offset; runner gratis baseline/score/seed/golden, judge Sonnet 5.5 dengan pagu dan manifest; D1 app snapshot/review; `/tinjau`, API/ekspor privat, Access PIN + JWT tiap rute. Panduan Anas T-24 tersedia.
+- Verifikasi: `pnpm verify` lolos **485 Node + 218 Workers**, smoke/build; peringatan lint `search-client.tsx` dan CSS `::highlight` lama tetap. Retrieval 31 soal hit@10 100%, MRR 0,795. Peninjau memperbaiki 3 temuan, tinjauan ulang lolos terbatas. Browser desktop/390 px memakai komponen aktual dan fixture buatan: simpan→muat ulang, RTL/Naskh, tanpa overflow.
+- Baseline Cari: 562/562 kutipan valid, lokasi 35/48 (72,9%), penolakan 0/12, takhrij 0/9. Set masih draf. 30 contoh kalibrasi publik sengaja mencakup kesalahan; bukan mutu pipeline S19.
+- Biaya API: **US$0,112528** dari izin ≤ US$1; 29/30 judge valid, satu `max_tokens`. **0 penilaian manusia**, belum terkalibrasi. Tidak retry otomatis.
+- Keputusan: ADR-052. `jose` 6.2.12 (MIT), tanpa upgrade lainnya. Retensi akses 12 bulan, penghapusan fisik manual sampai S20; pertanyaan umum belum diterima. Holdout tidak dikirim ke judge.
+- Catatan: UI PR #30/#45 dari `main` dipertahankan; lanjut di `codex/s18-eval-jawab-final`, WIP lama tetap ada. Pemilik mengizinkan kedua penyimpanan privat; upload R2 selesai dan hash unduhan cocok. Verifikasi akhir sempat tertahan layanan persetujuan otomatis, lalu berhasil setelah pulih: 485 Node + 218 Workers dan build lolos. Publikasi melalui PR/CI; seed D1 sesudah migrasi. Peninjau akhir lolos tanpa blocker; perubahan ukuran judul 40 px dipulihkan setelah itu. S18 belum selesai sampai T-24 (≥50 soal disetujui, ±30 penilaian kalibrasi, ≥10 uji halaman); S19 menunggu.
+
 ## 2026-10-17 · Rilis Fase 3 · MCP publik — dirilis (`rilis-f3`)
 
 - Dikerjakan: pemeriksaan kesiapan S16–S17 (semua butir selesai, PR #42/#43 merge), branch `codex/rilis-f3`, dan catatan rilis di CHANGELOG; FASE/STATUS diperbarui untuk rilis melalui PR #44. `main` awal `4f88541` bersih dan sinkron dengan `origin/main`.
