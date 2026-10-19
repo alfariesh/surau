@@ -2,7 +2,7 @@
 
 import type { TocItem } from "../../lib/reader/toc";
 
-import { ChevronRight } from "@gravity-ui/icons";
+import { ChevronRight } from "../../icons";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Button,

@@ -1,6 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 
-import { BookOpen, CircleInfo, CircleQuestion, House, Magnifier } from "@gravity-ui/icons";
+import { BookOpen01, InformationCircle, HelpCircle, Home01, Search01 } from "../../icons";
 
 import { id } from "../../i18n/id";
 
@@ -15,12 +15,12 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { id: "home", label: id.nav.home, icon: House, href: "/" },
-  { id: "books", label: id.nav.books, icon: BookOpen, href: "/kitab" },
-  { id: "search", label: id.nav.search, icon: Magnifier, href: "/cari" },
-  { id: "ask", label: id.nav.ask, icon: CircleQuestion },
-  { id: "mcp", label: id.nav.mcp, icon: BookOpen, href: "/mcp" },
-  { id: "about", label: id.nav.about, icon: CircleInfo, href: "/tentang" },
+  { id: "home", label: id.nav.home, icon: Home01, href: "/" },
+  { id: "books", label: id.nav.books, icon: BookOpen01, href: "/kitab" },
+  { id: "search", label: id.nav.search, icon: Search01, href: "/cari" },
+  { id: "ask", label: id.nav.ask, icon: HelpCircle },
+  { id: "mcp", label: id.nav.mcp, icon: BookOpen01, href: "/mcp" },
+  { id: "about", label: id.nav.about, icon: InformationCircle, href: "/tentang" },
 ];
 
 export function findActiveNavItem(pathname: string | null): NavItem | undefined {

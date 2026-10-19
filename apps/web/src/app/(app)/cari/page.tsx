@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Magnifier } from "@gravity-ui/icons";
+import { Search01 } from "../../../icons";
 import { EmptyState } from "@heroui-pro/react";
 import { LATIN_SEARCH_SCHEMA_VERSION, getCorpusMeta } from "@surau/db";
 import { notFound } from "next/navigation";
@@ -53,7 +53,7 @@ export default async function CariPage() {
           <EmptyState size="sm">
             <EmptyState.Header>
               <EmptyState.Media variant="icon">
-                <Magnifier />
+                <Search01 />
               </EmptyState.Media>
               <EmptyState.Title>{t.soonHeading}</EmptyState.Title>
               <EmptyState.Description>{t.soonBody}</EmptyState.Description>

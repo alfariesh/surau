@@ -2,7 +2,7 @@
 
 import type { PassageRef } from "./reader-context";
 
-import { Ellipsis } from "@gravity-ui/icons";
+import { MoreHorizontal } from "../../icons";
 import { Button, Dropdown, Label } from "@heroui/react";
 
 import { id } from "../../i18n/id";
@@ -24,7 +24,7 @@ export function PassageActions({ passage }: { passage: PassageRef }) {
         size="sm"
         variant="ghost"
       >
-        <Ellipsis className="size-4" />
+        <MoreHorizontal className="size-4" />
       </Button>
       <Dropdown.Popover placement="bottom start">
         <Dropdown.Menu

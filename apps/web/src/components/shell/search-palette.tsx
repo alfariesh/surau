@@ -1,6 +1,6 @@
 "use client";
 
-import { Magnifier } from "@gravity-ui/icons";
+import { Search01 } from "../../icons";
 import { Button, Kbd } from "@heroui/react";
 import { Command } from "@heroui-pro/react";
 import { useRouter } from "next/navigation";
@@ -69,7 +69,7 @@ export function SearchPalette() {
         variant="tertiary"
         onPress={() => open(true)}
       >
-        <Magnifier className="size-4" />
+        <Search01 className="size-4" />
         <span className="max-sm:hidden">{t.paletteOpen}</span>
         <Kbd className="max-sm:hidden" variant="light">
           <Kbd.Abbr keyValue={mac ? "command" : "ctrl"} />
@@ -82,7 +82,7 @@ export function SearchPalette() {
             <Command.Dialog aria-label={t.paletteLabel} inputValue={query} onInputChange={setQuery}>
               <Command.InputGroup aria-label={t.inputLabel} onSubmit={go}>
                 <Command.InputGroup.Prefix>
-                  <Magnifier className="size-4" />
+                  <Search01 className="size-4" />
                 </Command.InputGroup.Prefix>
                 <Command.InputGroup.Input
                   dir="auto"
@@ -95,7 +95,7 @@ export function SearchPalette() {
                 {q !== "" ? (
                   <Command.Group heading={t.paletteHint}>
                     <Command.Item id="cari" textValue={q} onAction={() => go(q)}>
-                      <Magnifier className="size-4" />
+                      <Search01 className="size-4" />
                       <bdi>{t.paletteGo(q)}</bdi>
                     </Command.Item>
                   </Command.Group>
