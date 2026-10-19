@@ -59,21 +59,21 @@ export const id = {
       {
         title: "Verbatim atau tidak sama sekali",
         body: "Teks Arab selalu disalin kode dari sumbernya, tidak pernah ditulis AI. Kutipan yang tidak cocok dengan sumber tidak ditampilkan.",
-        aset: "prinsip-verbatim",
-        asetTitle:
+        art: "prinsip-verbatim",
+        artTitle:
           "Ilustrasi interaktif: baris kitab disalin ke kartu kutipan dan dicocokkan dengan sumbernya",
       },
       {
         title: "Setiap klaim ada alamatnya",
         body: "Kitab, edisi, jilid, halaman cetak, dan tautan tetap ke bagian teksnya, supaya Anda bisa memeriksa sendiri.",
-        aset: "prinsip-alamat",
-        asetTitle: "Ilustrasi interaktif: klaim ditelusuri ke jilid dan halaman kitabnya",
+        art: "prinsip-alamat",
+        artTitle: "Ilustrasi interaktif: klaim ditelusuri ke jilid dan halaman kitabnya",
       },
       {
         title: "Atribusi, bukan fatwa",
         body: "Surau menyampaikan isi kitab beserta siapa yang mengatakannya. Keputusan hukum untuk kasus pribadi tetap di tangan ulama.",
-        aset: "prinsip-atribusi",
-        asetTitle: "Ilustrasi interaktif: pernyataan dihubungkan ke kitab dan penulisnya",
+        art: "prinsip-atribusi",
+        artTitle: "Ilustrasi interaktif: pernyataan dihubungkan ke kitab dan penulisnya",
       },
     ],
     roadmapHeading: "Peta pembangunan",
@@ -315,7 +315,7 @@ export const id = {
     issueLink: "Buka laporan di GitHub",
     artHeading: "Ilustrasi dan huruf",
     artLead:
-      "Ilustrasi interaktif di Surau dibuat dengan mesin turunan dari karya terbuka berikut. Teks lisensi MIT ikut di setiap berkas ilustrasi.",
+      "Ilustrasi interaktif di Surau dibuat dengan mesin turunan karya terbuka berikut, dengan huruf Plus Jakarta Sans. Teks lisensi MIT ikut di setiap berkas ilustrasi.",
     artCredits: [
       { name: "iso-glow", by: "April Zhu", license: "MIT", url: "https://iso-glow.vercel.app" },
       {

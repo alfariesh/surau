@@ -27,6 +27,7 @@ mountFigure({
     const { box, FRONT, TOP } = K;
     const BOOK = [8, 6, 2, 7, 16, 22], CARD = [34, 24, 2, 18, 2, 16], STAMP = [14, 36, 2, 9, 9];
     const kotakTepi = (x, y, z, w, d, h) => { const c = [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]; return K.tepi([...c, ...c.map(p => [p[0], p[1], z + h])]); };
+    const kabel = () => api.kurva([CARD[0] + 3, CARD[1], CARD[2] + CARD[5] - 1], [BOOK[0] + BOOK[3] / 2, BOOK[1] + BOOK[4] / 2, BOOK[2] + BOOK[5]], 8);
     function draw() {
       const on = st.atribusi >= 1;
       let s = box(0, 0, 0, 60, 46, 2, 5);
@@ -44,10 +45,9 @@ mountFigure({
         + [0, 1, 2].map(i => `<line class="detail" x1="2" y1="${8 + i * 2.6}" x2="${i === 2 ? 9 : cw - 2}" y2="${8 + i * 2.6}"/>`).join('') + '</g>';
       s += kotakTepi(cx, cy, cz, cw, cd, ch);
       // kabel atribusi: dari kartu ke kitab
-      const pts = api.kurva([cx + 3, cy, cz + ch - 1], [bx + bw / 2, by + bd / 2, bz + bh], 8);
+      const pts = kabel();
       const k = Math.max(2, Math.round(pts.length * ease(st.atribusi)));
       if (st.atribusi > 0) s += `<path class="wire hot" d="${K.path(pts.slice(0, k))}"/>`;
-      s += `<path class="pulse" id="pt-pulse" pathLength="1000" d="${K.path(pts)}"/>`;
       if (on) s += api.tag(pts[Math.floor(pts.length / 2)], 24, -10, 'MENURUT PENULIS', true, false);
       s += api.tag([sx - 2, sy + 2, sz + 2], -14, 22, 'BUKAN PUTUSAN', false);
       api.gambar(s);
@@ -55,12 +55,13 @@ mountFigure({
     }
     const read = () => api.readout(st.atribusi >= 1 ? 'Pernyataan disampaikan bersama penuturnya: menurut penulis kitab' : 'Pernyataan belum diberi sumber');
     const H = window.H = {
-      tunjukkan() { if (st.busy) return; st.busy = true; st.atribusi = 0; draw();
-        api.anim(1000, t => { st.atribusi = t; draw(); }, () => { st.busy = false; draw(); read(); api.replay(stage.querySelector('#pt-pulse')); }); },
+      tunjukkan() { if (st.busy) return api.readout('Sebentar, masih menelusuri sumber'); st.busy = true; st.atribusi = 0; draw();
+        api.anim(1000, t => { st.atribusi = t; draw(); }, () => { st.busy = false; draw(); read(); api.denyut(K.path(kabel())); }); },
     };
     draw(); read();
     return {
       render: draw,
+      batal() { st.busy = false; },
       demo() { H.tunjukkan(); },
       akhir() { st.atribusi = 1; draw(); read(); },
     };

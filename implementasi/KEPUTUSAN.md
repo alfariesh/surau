@@ -1319,13 +1319,21 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
    Tanpa huruf Arab, wajah, atau sosok.
 5. **Penyematan:**
-   - Komponen klien `AsetSemat` memasang `<iframe sandbox="allow-scripts" loading="lazy">` (tanpa `allow-same-origin`, jadi skrip aset tidak bisa menyentuh cookie atau DOM Surau). Rasio 4:3, `title` "Ilustrasi interaktif: …".
-   - Tema next-themes dikirim lewat `postMessage` saat tema berubah dan saat iframe dimuat. `color-scheme` elemen iframe disamakan dengan isinya, kalau tidak latarnya buram.
-   - Header `/aset/*` ditulis di `apps/web/public/_headers`, karena Static Assets tidak melewati Worker: `X-Frame-Options: SAMEORIGIN`, `frame-ancestors 'self'`, `nosniff`, dan `Access-Control-Allow-Origin: *` untuk font. Aturan yang sama ada di `next.config.ts` untuk `next dev`, sedangkan halaman lain tetap `DENY`.
+   - Komponen klien `ArtEmbed` (`components/art/art-embed.tsx`) memasang `<iframe sandbox="allow-scripts" loading="lazy">` (tanpa `allow-same-origin`, jadi skrip aset tidak bisa menyentuh cookie atau DOM Surau). Rasio 4:3, `title` "Ilustrasi interaktif: …".
+   - Tema next-themes dikirim lewat `postMessage` saat tema berubah dan saat iframe dimuat; setelah itu aset mengabaikan perubahan tema sistem. `color-scheme` iframe diwarisi dari `<html>`. Gaya inline dari `resolvedTheme` tidak dipakai, karena menimbulkan ketidakcocokan hidrasi.
+   - Header `/aset/*` ditulis di `apps/web/public/_headers`, karena Static Assets tidak melewati Worker:
+     - `X-Frame-Options: SAMEORIGIN` dan CSP `frame-ancestors 'self'; sandbox allow-scripts`, sehingga dibuka langsung pun tetap berorigin "null".
+     - `Cache-Control: … no-transform`, karena tanpanya Cloudflare menyisipkan beacon Web Analytics: setiap iframe tercatat sebagai kunjungan dan beacon gagal CORS. Ditemukan dan diperbaiki di preview.
+     - `nosniff` dan `Permissions-Policy`.
+     - `Access-Control-Allow-Origin: *` hanya untuk `/aset/fonts/*`.
+
+     Aturan yang sama ada di `next.config.ts` untuk `next dev`, sedangkan halaman lain tetap `DENY`.
+   - Tekanan pengunjung menghentikan animasi demo yang sedang berjalan (`api.tandai` → `batal()`), jadi tidak ada ketukan yang tertelan. Demo hanya berjalan saat figur ada di layar (IntersectionObserver) dan berhenti saat fokus keyboard masuk (WCAG 2.2.2).
    - Font Plus Jakarta Sans (subset Latin, OFL) disajikan sendiri di `/aset/fonts/` beserta `OFL.txt`.
    - Kredit iso-glow, iso-figure, dan Plus Jakarta Sans di `/lisensi#ilustrasi`.
 6. **Format gambar diam:** WebP untuk situs dan konten (cover ±27 KiB, sebelumnya PNG ±425 KiB), JPG untuk `og:image` (±41 KiB; dukungan WebP di semua aplikasi pratinjau tautan belum pasti). Tanpa PNG di situs, karena gambar tidak dioptimasi ulang di Workers (ADR-003).
 7. `vite.config.ts`: mesin, contoh asli, `aset/**`, dan `apps/web/public/aset/**` dikecualikan dari lint dan format (HTML padat hasil bangun).
+8. **Penamaan (menyimpang dari ADR-012, terbuka):** kode aplikasi web memakai identifier Inggris (`ArtEmbed`, `name`, kunci `art`/`artTitle`). Mesin, figur, dan skrip skill memakai identifier Indonesia (`mountFigure` tetap dari asalnya), sama seperti skill dan perkakas pemilik lainnya (`scripts/ikon.mjs`), karena dibaca dan disunting dalam bahasa kerja skill. Jalur publik `/aset/<nama>` mengikuti rute situs yang berbahasa Indonesia (`/kitab`, `/cari`).
 
 **Ditolak:**
 - **Colorfigures** (dicoba lalu diganti): tinta tebal dan warna penuh terasa seperti merek lain di samping UI Surau yang tenang; garis tepi luar hilang di mode gelap.

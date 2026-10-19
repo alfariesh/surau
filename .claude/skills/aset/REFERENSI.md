@@ -60,12 +60,21 @@ mountFigure({
     const st = { … };                             // satu objek keadaan
     function draw() { let s = …; api.gambar(s); } // satu fungsi gambar
     draw(); api.readout('…');
-    return { render: draw, demo() { … }, akhir() { … }, key(e) { … } };
+    return { render: draw, demo() { … }, akhir() { … }, batal() { st.busy = false; }, key(e) { … } };
   },
 });
 ```
 
-`api.anim(ms, step(t), selesai)` menjalankan animasi; dengan "kurangi gerakan" langsung ke akhir. `api.after(ms, fn)` adalah timer. `api.diam` bernilai benar bila gerakan dikurangi. `api.tandai()` menghentikan demo otomatis (dipanggil otomatis saat tombol atau gambar ditekan).
+Fungsi `api`:
+
+| Fungsi | Gunanya |
+|---|---|
+| `api.gambar(svg)` | Menulis ulang lapis lukisan |
+| `api.denyut(d)` | Menjalankan satu denyut cahaya di lapis tersendiri yang tidak ikut digambar ulang |
+| `api.anim(ms, step(t), selesai)` | Animasi; dengan "kurangi gerakan" langsung ke akhir |
+| `api.after(ms, fn)` | Timer |
+| `api.diam` | Benar bila gerakan dikurangi |
+| `api.tandai()` | Menghentikan demo, timer, dan animasi, lalu memanggil `batal()` milik figur. Dipanggil otomatis saat tombol atau gambar ditekan dan saat fokus masuk; demo juga hanya berjalan saat figur ada di layar |
 
 ## Pelajaran (dari iso-glow dan figur Surau)
 
@@ -77,4 +86,5 @@ mountFigure({
 - **Kabel:** lengkungkan ke atas (`api.kurva`) supaya tidak menembus benda; mulai dan akhiri tepat di permukaan.
 - **Label di kartu kecil:** pakai `api.tag`, bukan teks berukuran viewBox. Uji di 240 px.
 - **Escape teks** sebelum masuk SVG (`ISO.esc`; `api.tag` sudah melakukannya).
-- **iframe:** `color-scheme` elemen iframe harus sama dengan isinya, kalau tidak latarnya buram (sudah ditangani `AsetSemat`).
+- **iframe:** `color-scheme` elemen iframe harus sama dengan isinya, kalau tidak latarnya buram. Di situs, nilainya diwarisi dari `<html>` (next-themes), dan isi iframe mengikuti tema yang dikirim induk.
+- **Animasi bisa dihentikan:** `api.anim` dihentikan `api.tandai()` saat pengunjung menekan sesuatu. Figur wajib punya `batal()` (lepas `st.busy`, rapikan keadaan setengah jalan) supaya aksi pengunjung tidak tertelan.

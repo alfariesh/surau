@@ -45,7 +45,6 @@ mountFigure({
       const pts = api.kurva(SRC, DST, 10);
       const lit = st.salin >= 1 && st.cocok;
       s += `<path class="wire${st.salin > 0 ? ' hot' : ''}" d="${K.path(pts)}"/>`;
-      s += `<path class="pulse" id="pv-pulse" pathLength="1000" d="${K.path(pts)}"/>`;
       // kartu kutipan berdiri; baris muncul satu per satu saat disalin
       const kartu = box(38, 8, 2, 16, 2, 22, 0, lit ? 'hot' : '');
       let g = '';
@@ -62,13 +61,14 @@ mountFigure({
     }
     const read = () => api.readout(st.salin < 1 ? 'Menyalin dari kitab' : st.cocok ? 'Kutipan sama persis dengan sumber, jadi ditampilkan' : 'Kutipan tidak cocok dengan sumber, jadi tidak ditampilkan');
     const H = window.H = {
-      salin(cocok) { if (st.busy) return; st.busy = true; st.cocok = cocok; st.salin = 0; draw();
-        api.replay(stage.querySelector('#pv-pulse'));
+      salin(cocok) { if (st.busy) return api.readout('Sebentar, masih menyalin'); st.busy = true; st.cocok = cocok; st.salin = 0; draw();
+        api.denyut(K.path(api.kurva(SRC, DST, 10)));
         api.anim(1400, t => { st.salin = t; draw(); }, () => { st.busy = false; draw(); read(); }); },
     };
     draw(); read();
     return {
       render: draw,
+      batal() { st.busy = false; },
       demo() { H.salin(true); },
       akhir() { st.salin = 1; st.cocok = true; draw(); read(); },
     };

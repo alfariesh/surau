@@ -104,12 +104,12 @@ mountFigure({
     const render = () => { draw(); read(); };
     const run = (ms, step, done) => { st.busy = true; api.anim(ms, t => { step(t); draw(); }, () => { st.busy = false; if (done) done(); render(); }); };
     const H = window.H = {
-      turn() { if (st.busy) return; if (st.open < 1) return api.readout('Kitab masih tertutup. Buka dulu.');
+      turn() { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open < 1) return api.readout('Kitab masih tertutup. Buka dulu.');
         if (thick().l < .6) return api.readout('Sudah sampai halaman terakhir');
         st.mark = false; run(1100, t => { st.leaf = t; }, () => { st.leaf = null; st.read++; }); },
-      swing(to) { if (st.busy) return; if (st.open === to) return api.readout(to ? 'Kitab sudah terbuka' : 'Kitab sudah tertutup');
+      swing(to) { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open === to) return api.readout(to ? 'Kitab sudah terbuka' : 'Kitab sudah tertutup');
         const from = st.open; st.mark = false; run(900, t => { st.open = lerp(from, to, t); }); },
-      mark() { if (st.busy) return; if (st.open < 1) return api.readout('Buka kitab dulu'); st.mark = !st.mark; render(); },
+      mark() { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open < 1) return api.readout('Buka kitab dulu'); st.mark = !st.mark; render(); },
     };
     stage.addEventListener('click', e => { if (e.target.closest('#kr-book')) st.open >= 1 ? H.turn() : H.swing(1); });
     const q = new URLSearchParams(location.search), num = (k, lo, hi) => { const v = Number(q.get(k)); return q.has(k) && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : null; };
@@ -118,6 +118,8 @@ mountFigure({
     render();
     return {
       render: draw,
+      // dihentikan pengunjung: lembar yang sedang dibalik dikembalikan, kitab dibulatkan ke terbuka/tertutup
+      batal() { st.busy = false; st.leaf = null; st.open = Math.round(st.open); render(); },
       // demo: halaman dibalik, lalu kutipan menyala; akhir: kutipan menyala tanpa animasi
       demo() { if (st.open < 1 || st.busy) return; st.mark = false; render(); api.after(300, () => H.turn()); api.after(1800, () => H.mark()); },
       akhir() { if (st.open >= 1 && st.leaf == null) { st.mark = true; render(); } },

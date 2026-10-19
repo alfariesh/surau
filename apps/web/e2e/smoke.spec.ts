@@ -165,16 +165,21 @@ test("ilustrasi prinsip di Beranda tampil di iframe sandbox dan bisa ditekan", a
   await frames.first().scrollIntoViewIfNeeded();
   const verbatim = page.frameLocator("#judul-prinsip ~ ul iframe").first();
   await expect(verbatim.locator("#stage path").first()).toBeAttached();
+  // ?sematan=1 tetap ada setelah pengalihan /aset/x.html → /aset/x di Static Assets
+  await expect(verbatim.locator("html.sematan")).toBeAttached();
   await verbatim.getByRole("button", { name: "Kutipan keliru" }).click();
   await expect(verbatim.locator("#status")).toHaveText(/tidak ditampilkan/, { timeout: 5000 });
 });
 
-test("aset ilustrasi boleh dibingkai halaman sendiri, halaman lain tidak", async ({ request }) => {
+test("aset ilustrasi hanya boleh dibingkai halaman Surau sendiri dan berjalan tersandbox", async ({
+  request,
+}) => {
   const aset = await request.get("/aset/prinsip-verbatim.html");
   expect(aset.ok()).toBe(true);
   const headers = aset.headers();
   expect(headers["x-frame-options"]).toBe("SAMEORIGIN");
   expect(headers["content-security-policy"]).toContain("frame-ancestors 'self'");
+  expect(headers["content-security-policy"]).toContain("sandbox allow-scripts");
   expect(headers["x-content-type-options"]).toBe("nosniff");
   // Tanpa sisipan beacon Web Analytics (di produksi: no-transform dari public/_headers)
   expect(await aset.text()).not.toContain("cloudflareinsights");

@@ -42,6 +42,9 @@ mountFigure({
       s += K.tepi([...c, ...c.map(p => [p[0], p[1], 3 + b.h])]);
       return `<g class="press" data-i="${i}">${s}</g>`;
     }
+    // kabel penelusuran: dari kartu klaim ke punggung jilid yang dipilih
+    function jalur() { const [cx, cy, cz, cw, cd, ch] = CARD, b = BOOKS[st.pilih];
+      return api.kurva([cx + cw - 2, cy + cd / 2, cz + ch], [b.x + BW / 2, BY + BD + PULL * ease(st.tarik), 3 + b.h * .8], 9); }
     function draw() {
       let s = box(0, 0, 0, 60, 46, 2, 5) + box(22, 2, 2, 30, 18, 1, 1);
       // rak: jilid terpisah di sumbu x, jadi urut x sudah benar (x lebih besar = lebih dekat), ditarik atau tidak
@@ -53,25 +56,26 @@ mountFigure({
       const c = [[cx, cy, cz], [cx + cw, cy, cz], [cx, cy + cd, cz], [cx + cw, cy + cd, cz]];
       s += K.tepi([...c, ...c.map(p => [p[0], p[1], cz + ch])]);
       // kabel penelusuran: dari kartu ke punggung jilid yang dipilih
-      const b = BOOKS[st.pilih], ujung = [b.x + BW / 2, BY + BD + PULL * ease(st.tarik), 3 + b.h * .8];
-      const pts = api.kurva([cx + cw - 2, cy + cd / 2, cz + ch], ujung, 9);
-      s += `<path class="wire${st.jalur > 0 ? ' hot' : ''}" d="${K.path(pts)}"/><path class="pulse" id="pa-pulse" pathLength="1000" d="${K.path(pts)}"/>`;
+      const b = BOOKS[st.pilih], pts = jalur();
+      s += `<path class="wire${st.jalur > 0 ? ' hot' : ''}" d="${K.path(pts)}"/>`;
       if (st.tarik >= 1) s += api.tag([b.x + BW / 2, BY + PULL, 3 + b.h], -4, -18, `JILID ${st.pilih + 1} · HLM ${HALAMAN[st.pilih]}`, true);
       api.gambar(s);
     }
     const read = () => api.readout(st.tarik >= 1 ? `Klaim menunjuk ke jilid ${st.pilih + 1}, halaman ${HALAMAN[st.pilih]}` : 'Menelusuri klaim ke kitabnya');
     const H = window.H = {
-      telusuri(i) { if (st.busy) return; st.busy = true;
-        const lanjut = () => { st.pilih = i; st.jalur = 1; st.tarik = 0; draw(); api.replay(stage.querySelector('#pa-pulse'));
+      telusuri(i) { if (st.busy) return api.readout('Sebentar, masih menelusuri'); st.busy = true;
+        const lanjut = () => { st.pilih = i; st.jalur = 1; st.tarik = 0; draw(); api.denyut(K.path(jalur()));
           api.anim(900, t => { st.tarik = t; draw(); }, () => { st.busy = false; draw(); read(); }); };
         if (st.tarik > 0) api.anim(400, t => { st.tarik = 1 - t; draw(); }, lanjut); else lanjut(); },
-      kembalikan() { if (st.busy || st.tarik <= 0) return; st.busy = true;
+      kembalikan() { if (st.busy) return api.readout('Sebentar, masih menelusuri');
+        if (st.tarik <= 0) return api.readout('Semua jilid sudah di rak'); st.busy = true;
         api.anim(500, t => { st.tarik = 1 - t; draw(); }, () => { st.tarik = 0; st.jalur = 0; st.busy = false; draw(); api.readout('Jilid dikembalikan ke rak'); }); },
     };
     stage.addEventListener('click', e => { const g = e.target.closest('[data-i]'); if (g) H.telusuri(+g.dataset.i); });
     draw(); read();
     return {
       render: draw,
+      batal() { st.busy = false; },
       demo() { H.telusuri(1); },
       akhir() { st.pilih = 1; st.tarik = 1; st.jalur = 1; draw(); read(); },
     };

@@ -50,7 +50,7 @@ Kitab (terbuka/tertutup, bertumpuk), rehal, rak dan jilid, kartu kutipan, kabel 
 
 | Kebutuhan | Cara | Hasil |
 |---|---|---|
-| **Situs** (beranda, landing, artikel) | `bangun.mjs … --situs`, lalu `<AsetSemat nama="<nama>" title="Ilustrasi interaktif: …" />` (`apps/web/src/components/aset/aset-semat.tsx`) | iframe `sandbox="allow-scripts"`, rasio 4:3, lazy, tema mengikuti situs lewat postMessage, latar transparan |
+| **Situs** (beranda, landing, artikel) | `bangun.mjs … --situs`, lalu `<ArtEmbed name="<nama>" title="Ilustrasi interaktif: …" />` (`apps/web/src/components/art/art-embed.tsx`) | iframe `sandbox="allow-scripts"`, rasio 4:3, lazy, tema mengikuti situs lewat postMessage, latar transparan |
 | **Cover blog / Open Graph** | `potret.mjs … <keluar> --format webp,jpg --query "sampul=1&kecil=Blog%20Surau&judul=<judul>"` | 1200×630. **JPG untuk `og:image`** (pasti tampil di WhatsApp, Facebook, LinkedIn), **WebP untuk di dalam situs** (±25–35 KiB) |
 | **Konten media sosial** (diam) | `potret.mjs … --format webp --query "polos=1[&tema=gelap]" --lebar 1080 --tinggi 1080 --skala 1` | Persegi tanpa tombol; gelap lebih "menyala" |
 | **Gambar di halaman situs** (diam) | `--format webp` | Jangan PNG: di Workers gambar tidak dioptimasi ulang (ADR-003) |
@@ -58,14 +58,21 @@ Kitab (terbuka/tertutup, bertumpuk), rehal, rak dan jilid, kartu kutipan, kabel 
 Parameter bawaan mesin: `?tema=terang|gelap|sepia` (bawaan mengikuti sistem), `?sematan=1`, `?polos=1`, `?sampul=1&judul=…&kecil=…` (teks lewat `textContent`, aman dari sisipan HTML), `?gerak=0`, `?demo=0`, dan `?press=Label@ms,…` (uji). Figur boleh membaca parameternya sendiri untuk memotret keadaan tertentu (contoh: `?tutup=1`, `?balik=0.5`); nilai bukan angka wajib diabaikan (`Number.isFinite`).
 
 **Penyajian di situs** (sudah terpasang sejak beranda memakai tiga figur prinsip):
-- Header `/aset/*` ditulis di `apps/web/public/_headers`, karena Static Assets tidak melewati Worker: `X-Frame-Options: SAMEORIGIN`, `frame-ancestors 'self'`, `nosniff`, dan CORS untuk font (iframe sandbox berorigin "null"). `next.config.ts` memuat aturan yang sama untuk `next dev`.
+- Header `/aset/*` ditulis di `apps/web/public/_headers`, karena Static Assets tidak melewati Worker:
+  - `X-Frame-Options: SAMEORIGIN` dan CSP `frame-ancestors 'self'; sandbox allow-scripts` (dibuka langsung pun tetap tersandbox).
+  - `Cache-Control … no-transform`, supaya Cloudflare tidak menyisipkan beacon Web Analytics.
+  - `nosniff` dan `Permissions-Policy`.
+  - CORS hanya untuk `/aset/fonts/*` (iframe sandbox berorigin "null").
+
+  `next.config.ts` memuat aturan yang sama untuk `next dev`.
 - Uji e2e `smoke.spec.ts` memeriksa iframe, tombol di dalamnya, dan header.
 - Saat CSP penuh situs dipasang, `/aset/*` butuh CSP sendiri karena skrip dan gaya aset inline.
 
 ## Mutu yang wajib
 
 - **Aksesibilitas:** `alt` menjelaskan isi gambar; iframe punya `title` "Ilustrasi interaktif: …"; tombol adalah `<button>` asli; `api.readout` mengumumkan perubahan keadaan (`role="status"`). "Kurangi gerakan" menampilkan `akhir()` tanpa animasi. Animasi hanya lewat `api.anim`, jangan memakai `requestAnimationFrame` sendiri.
-- **Setiap tekanan menghasilkan sesuatu:** aksi, atau `api.readout('…')` yang menjelaskan kenapa belum bisa, termasuk saat animasi masih berjalan.
+- **Setiap tekanan menghasilkan sesuatu:** aksi, atau `api.readout('…')` yang menjelaskan kenapa belum bisa. Tekanan pengunjung menghentikan animasi demo yang sedang berjalan (`api.tandai` → `batal()` di figur), lalu aksinya dijalankan. Karena itu setiap figur wajib punya `batal()` yang melepas `st.busy`.
+- **Denyut cahaya** lewat `api.denyut(K.path(titik))`, jangan sebagai `<path class="pulse">` di dalam `gambar()`: lukisan digambar ulang setiap frame, jadi animasinya tidak akan pernah berjalan.
 - **Terbaca di kartu kecil:** label memakai `api.tag` (huruf ±9 px di layar, pil dijaga di dalam bingkai). Uji di lebar 240 px.
 - **Ukuran:** HTML ±30–40 KiB, tanpa gambar raster di dalamnya.
 - **Demo otomatis** hanya saat terlihat dan belum disentuh (`ulang` ms); berhenti begitu pengunjung menekan sesuatu.

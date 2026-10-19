@@ -233,10 +233,13 @@ const filterCahaya = (k, terang) => terang
      alt:'…',                                   // deskripsi untuk pembaca layar
      tombol:[{label, aksi(api)}],               // tombol yang terlihat, urut seperti orang memakainya
      ulang: 7000,                               // demo otomatis diulang tiap … ms selama tidak disentuh (0 = sekali)
-     mount(stage, api) → { demo(), akhir(), key(e) }   // demo: urutan singkat; akhir: keadaan akhir tanpa animasi
+     mount(stage, api) → { render(), demo(), akhir(), batal(), key(e) }
+       // render: gambar ulang; demo: urutan singkat; akhir: keadaan akhir tanpa animasi;
+       // batal: animasi dihentikan karena pengunjung menekan sesuatu (lepas st.busy dan keadaan setengah jalan)
    })
-   api: iso (ISO), frame(points, opsi) → K (memasang viewBox + filter), readout(teks), anim(ms, step(t), selesai),
-        after(ms, fn), diam (kurangi gerakan), replay(el, kelas), tandai() (pengguna berinteraksi → demo berhenti)
+   api: iso (ISO), frame(points, opsi) → K (memasang viewBox + filter), gambar(svg), denyut(d), readout(teks),
+        anim(ms, step(t), selesai), after(ms, fn), diam (kurangi gerakan), tandai() (pengguna berinteraksi:
+        animasi dan timer dihentikan, demo berhenti, lalu aksi pengunjung yang dijalankan)
    Parameter URL: ?tema=terang|gelap|sepia · ?sematan=1 · ?polos=1 · ?sampul=1&judul=…&kecil=… · ?gerak=0 ·
    ?demo=0 (tanpa demo otomatis) · ?press=Label@ms,… (uji). Induk bisa mengirim postMessage
    {type:'surau-aset', tema:'gelap'} untuk mengganti tema. */
@@ -256,7 +259,7 @@ function mountFigure(cfg) {
     ${sampul ? '<div class="sampul-teks"><p class="kecil"></p><h1></h1><p class="situs">surau.org</p></div>' : ''}
     <header><h1>${ISO.esc(cfg.title)}</h1><span>${ISO.esc(cfg.hint || '')}</span></header>
     <div class="panggung">
-      <svg id="stage" role="img" tabindex="0" data-fig="${cfg.id}"></svg>
+      <svg id="stage" role="img" data-fig="${cfg.id}"><defs id="cahaya"></defs><g id="lukis"></g><g id="denyut"></g></svg>
       ${cfg.tombol && cfg.tombol.length ? '<div class="aksi" id="aksi" role="group" aria-label="Coba"></div>' : ''}
     </div>
     <p class="catatan" aria-hidden="true"></p>
@@ -270,18 +273,22 @@ function mountFigure(cfg) {
 
   const diam = q.get('gerak') === '0' || matchMedia('(prefers-reduced-motion: reduce)').matches;
   const catatan = document.querySelector('.catatan'), status = document.getElementById('status');
-  let K = null, timers = [], disentuh = false, demoT = 0;
-  const pasangFilter = () => { if (!K) return; let defs = stage.querySelector('defs#cahaya');
-    if (!defs) { defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs'); defs.id = 'cahaya'; }
-    defs.innerHTML = filterCahaya(K.W / 400, root.dataset.tema !== 'gelap'); stage.prepend(defs); };
+  let K = null, handle = {}, timers = [], disentuh = false, demoT = 0, temaInduk = false;
+  const anims = new Set();
+  // tiga lapis: filter (tetap), lukisan (ditulis ulang tiap gambar), denyut (tetap, supaya animasi CSS-nya tidak
+  // terulang dari awal setiap kali lukisan digambar ulang)
+  const lukis = stage.querySelector('#lukis'), lapisDenyut = stage.querySelector('#denyut');
+  const pasangFilter = () => { if (K) stage.querySelector('#cahaya').innerHTML = filterCahaya(K.W / 400, root.dataset.tema !== 'gelap'); };
   const api = {
     iso: ISO, diam,
     frame(points, opsi = {}) {
       const ada = !sampul && !polos && cfg.tombol && cfg.tombol.length;
       K = ISO.frame(points, { aspect: sampul ? 1.25 : polos ? innerWidth / Math.max(1, innerHeight) : 4 / 3, bawah: sematan && ada ? .16 : 0, ...opsi });
       stage.setAttribute('viewBox', K.viewBox); return K; },
-    // isi ulang gambar: setelah innerHTML, filter cahaya dipasang lagi
-    gambar(svg) { stage.innerHTML = svg; pasangFilter(); },
+    gambar(svg) { lukis.innerHTML = svg; },
+    // denyut cahaya sekali jalan di sepanjang jalur d (K.path(...)); lapisnya tidak ikut digambar ulang
+    denyut(d) { lapisDenyut.innerHTML = diam ? '' : `<path class="pulse" pathLength="1000" d="${d}"/>`;
+      const el = lapisDenyut.firstChild; if (el) { void el.getBoundingClientRect(); el.classList.add('go'); } },
     // kabel melengkung dari a ke b (titik 3D), terangkat setinggi naik di tengah → titik-titik 3D
     kurva(a, b, naik, n = 28) { const m = ISO.add(ISO.avg([a, b]), [0, 0, naik]); const out = [];
       for (let i = 0; i <= n; i++) { const t = i / n, u = 1 - t; out.push([0, 1, 2].map(j => u * u * a[j] + 2 * u * t * m[j] + t * t * b[j])); }
@@ -299,17 +306,22 @@ function mountFigure(cfg) {
         + `<text x="${cx.toFixed(2)}" y="${(cy + fs * .36).toFixed(2)}" text-anchor="middle" style="font-size:${fs.toFixed(2)}px">${ISO.esc(teks)}</text></g>`; },
     readout(t) { catatan.textContent = t; if (status.textContent !== t) status.textContent = t; },
     after(ms, fn) { const t = setTimeout(fn, ms); timers.push(t); return t; },
-    // animasi berdurasi: step(t ∈ [0,1]); dengan "kurangi gerakan" langsung ke akhir
+    // animasi berdurasi: step(t ∈ [0,1]); dengan "kurangi gerakan" langsung ke akhir. Bisa dihentikan tandai().
     anim(ms, step, selesai) {
       if (diam) { step(1); if (selesai) selesai(); return; }
-      const t0 = performance.now();
-      const f = now => { const t = Math.min(1, (now - t0) / ms); step(t); if (t < 1) requestAnimationFrame(f); else if (selesai) selesai(); };
+      const t0 = performance.now(), a = { hidup: true }; anims.add(a);
+      const f = now => { if (!a.hidup) return; const t = Math.min(1, (now - t0) / ms); step(t);
+        if (t < 1) requestAnimationFrame(f); else { anims.delete(a); if (selesai) selesai(); } };
       requestAnimationFrame(f); },
-    replay(el, cls = 'go') { if (!el || diam) return; el.classList.remove(cls); void el.getBoundingClientRect(); el.classList.add(cls); },
-    tandai() { disentuh = true; clearTimeout(demoT); },
+    // pengunjung menekan sesuatu: demo berhenti selamanya, animasi dan timer yang berjalan dihentikan, figur
+    // melepas keadaan setengah jalan (batal), lalu aksi pengunjung dijalankan oleh pemanggil
+    tandai() { disentuh = true; clearTimeout(demoT); timers.forEach(clearTimeout); timers = [];
+      if (anims.size) { anims.forEach(a => { a.hidup = false; }); anims.clear(); if (handle.batal) handle.batal(); } },
   };
-  const handle = cfg.mount(stage, api) || {};
+  handle = cfg.mount(stage, api) || {};
   pasangFilter();
+  // fokus keyboard hanya bila figur punya pintasan tombol
+  if (handle.key) stage.setAttribute('tabindex', '0');
   // ukuran label bergantung lebar tampil, jadi gambar ulang saat ukuran berubah
   if (handle.render) { let w = stage.clientWidth;
     new ResizeObserver(() => { if (Math.abs(stage.clientWidth - w) > 4) { w = stage.clientWidth; handle.render(); } }).observe(stage); }
@@ -319,16 +331,22 @@ function mountFigure(cfg) {
   if (aksi) cfg.tombol.forEach(b => { const el = document.createElement('button'); el.type = 'button'; el.textContent = b.label;
     el.onclick = () => { api.tandai(); b.aksi(api); }; aksi.appendChild(el); });
   stage.addEventListener('pointerdown', () => api.tandai());
+  // pengguna keyboard juga bisa menghentikan demo (WCAG 2.2.2): masuk fokus ke figur = berinteraksi
+  document.addEventListener('focusin', () => { if (!disentuh) { disentuh = true; clearTimeout(demoT); } });
   stage.addEventListener('keydown', e => { api.tandai(); if (handle.key && handle.key(e)) e.preventDefault(); });
 
-  // tema: berubah bila sistem berubah (tanpa ?tema) atau induk mengirim pesan
+  // tema: dari induk (postMessage) bila ada; selain itu mengikuti sistem (tanpa ?tema). Setelah induk mengirim
+  // tema, perubahan sistem diabaikan: pilihan tema di situs yang berlaku.
   const gantiTema = t => { root.dataset.tema = pilihTema(t); pasangFilter(); };
-  if (!q.has('tema')) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => gantiTema());
-  addEventListener('message', e => { const d = e.data; if (d && d.type === 'surau-aset' && typeof d.tema === 'string') gantiTema(d.tema); });
+  if (!q.has('tema')) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (!temaInduk) gantiTema(); });
+  addEventListener('message', e => { const d = e.data;
+    if (d && d.type === 'surau-aset' && ['terang', 'gelap', 'sepia'].includes(d.tema)) { temaInduk = true; gantiTema(d.tema); } });
 
   // demo: sampul/polos → keadaan akhir; kurangi gerakan → keadaan akhir; selain itu demo diulang selama tidak disentuh
-  // dan halaman terlihat
-  const terlihat = () => document.visibilityState === 'visible';
+  // dan figur benar-benar terlihat di layar (IntersectionObserver dari dalam iframe menghitung viewport teratas)
+  let diLayar = true;
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { diLayar = es[es.length - 1].isIntersecting; }).observe(stage);
+  const terlihat = () => document.visibilityState === 'visible' && diLayar;
   const putar = () => { if (disentuh || !handle.demo) return; if (terlihat()) handle.demo();
     if (cfg.ulang) demoT = setTimeout(putar, cfg.ulang); };
   if (sampul || polos || diam || q.get('demo') === '0') { if (handle.akhir && q.get('demo') !== '0') handle.akhir(); }
@@ -441,12 +459,12 @@ mountFigure({
     const render = () => { draw(); read(); };
     const run = (ms, step, done) => { st.busy = true; api.anim(ms, t => { step(t); draw(); }, () => { st.busy = false; if (done) done(); render(); }); };
     const H = window.H = {
-      turn() { if (st.busy) return; if (st.open < 1) return api.readout('Kitab masih tertutup. Buka dulu.');
+      turn() { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open < 1) return api.readout('Kitab masih tertutup. Buka dulu.');
         if (thick().l < .6) return api.readout('Sudah sampai halaman terakhir');
         st.mark = false; run(1100, t => { st.leaf = t; }, () => { st.leaf = null; st.read++; }); },
-      swing(to) { if (st.busy) return; if (st.open === to) return api.readout(to ? 'Kitab sudah terbuka' : 'Kitab sudah tertutup');
+      swing(to) { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open === to) return api.readout(to ? 'Kitab sudah terbuka' : 'Kitab sudah tertutup');
         const from = st.open; st.mark = false; run(900, t => { st.open = lerp(from, to, t); }); },
-      mark() { if (st.busy) return; if (st.open < 1) return api.readout('Buka kitab dulu'); st.mark = !st.mark; render(); },
+      mark() { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open < 1) return api.readout('Buka kitab dulu'); st.mark = !st.mark; render(); },
     };
     stage.addEventListener('click', e => { if (e.target.closest('#kr-book')) st.open >= 1 ? H.turn() : H.swing(1); });
     const q = new URLSearchParams(location.search), num = (k, lo, hi) => { const v = Number(q.get(k)); return q.has(k) && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : null; };
@@ -455,6 +473,8 @@ mountFigure({
     render();
     return {
       render: draw,
+      // dihentikan pengunjung: lembar yang sedang dibalik dikembalikan, kitab dibulatkan ke terbuka/tertutup
+      batal() { st.busy = false; st.leaf = null; st.open = Math.round(st.open); render(); },
       // demo: halaman dibalik, lalu kutipan menyala; akhir: kutipan menyala tanpa animasi
       demo() { if (st.open < 1 || st.busy) return; st.mark = false; render(); api.after(300, () => H.turn()); api.after(1800, () => H.mark()); },
       akhir() { if (st.open >= 1 && st.leaf == null) { st.mark = true; render(); } },

@@ -38,10 +38,16 @@ const nextConfig: NextConfig = {
         headers: [
           ...base,
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
-          // iframe sandbox tanpa allow-same-origin berasal dari origin "null": font perlu CORS
-          { key: "Access-Control-Allow-Origin", value: "*" },
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'self'; sandbox allow-scripts",
+          },
         ],
+      },
+      {
+        // iframe sandbox tanpa allow-same-origin berasal dari origin "null": font perlu CORS
+        source: "/aset/fonts/:path*",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
       },
     ];
   },

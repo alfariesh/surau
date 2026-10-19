@@ -12,7 +12,7 @@
 //
 // Font situs (Plus Jakarta Sans) dipasang dari apps/web/public/aset/fonts, tanpa internet.
 // Mencetak galat skrip, berkas yang gagal dimuat, figur kosong, dan "NaN" di SVG; keluar dengan kode 2 bila ada.
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
@@ -49,8 +49,9 @@ const scale = Number(values.skala ?? (sampul ? 1 : 2));
 
 // Figur sumber (memuat iso.js lewat <script src>) dibangun ke folder sementara di samping font-nya.
 let page = resolve(src);
+let tmp = null;
 if (/<script\s+src=["'][^"']*iso\.js["']/.test(readFileSync(page, "utf8"))) {
-  const tmp = mkdtempSync(join(tmpdir(), "aset-"));
+  tmp = mkdtempSync(join(tmpdir(), "aset-"));
   page = join(tmp, basename(src));
   writeFileSync(page, bangunHtml(src));
 }
@@ -108,4 +109,5 @@ try {
   }
 } finally {
   await browser.close();
+  if (tmp) rmSync(tmp, { recursive: true, force: true });
 }
