@@ -1,5 +1,6 @@
 // Skema Zod baris DB app (migrations/app). Kolom dijaga sama dengan migrasi oleh schema.test.ts.
 import { z } from "zod";
+import { answerLogRow, reviewRow } from "./review.ts";
 
 export const settingRow = z.strictObject({
   key: z.string(),
@@ -61,4 +62,6 @@ export type Settings = z.infer<typeof settingsValues>;
 export const appTables = {
   settings: settingRow,
   feedback: feedbackRow,
+  answer_log: answerLogRow,
+  review: reviewRow,
 } as const;

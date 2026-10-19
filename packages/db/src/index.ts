@@ -20,6 +20,14 @@ export {
 
 export * from "./schema/corpus.ts";
 export * from "./schema/app.ts";
+export * from "./schema/review.ts";
+export {
+  insertAnswerLog,
+  listAnswerLogs,
+  getAnswerLog,
+  getReviews,
+  saveReview,
+} from "./repo/review.ts";
 
 export {
   getAdjacentPages,

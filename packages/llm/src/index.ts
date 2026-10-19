@@ -69,3 +69,5 @@ export type {
   SummaryProblem,
   SummaryRound2Input,
 } from "./summarize.ts";
+
+export { JUDGE_VERSION, JUDGE_MAX_TOKENS, JUDGE_PROMPT } from "../prompts/jawab-judge-v1.ts";

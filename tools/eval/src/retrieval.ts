@@ -15,21 +15,17 @@
 import { execFileSync } from "node:child_process";
 import {
   appendFileSync,
-  cpSync,
   existsSync,
   mkdirSync,
-  mkdtempSync,
   readFileSync,
   readdirSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 import { SEARCH_RESULT_VERSION, searchText } from "@surau/core";
-import type { D1Db } from "@surau/db";
+import { openCorpus } from "./open-corpus.ts";
 
 import { loadCorpusIndex, resolveGold } from "./corpus.ts";
 import { mergeSets, parseJsonl } from "./dataset.ts";
@@ -81,37 +77,6 @@ function gitSha(): string {
   }
 }
 
-async function openCorpus(remote: boolean) {
-  const { getPlatformProxy } = await import("wrangler");
-  const configPath = join(repo, "tools/eval/wrangler.jsonc");
-  if (remote) {
-    const proxy = await getPlatformProxy<{ CORPUS: D1Db }>({ configPath, remoteBindings: true });
-    return { db: proxy.env.CORPUS, source: "staging (remote)", dispose: proxy.dispose };
-  }
-  const state = join(repo, ".wrangler/state/v3");
-  if (!existsSync(join(state, "d1"))) {
-    throw new Error(
-      "D1 lokal belum ada: jalankan `pnpm run db:migrate:local` lalu `pnpm corpus:load:local`.",
-    );
-  }
-  // Salinan: proxy lain (pnpm dev) pada state yang sama bisa SQLITE_BUSY, dan eval tidak menulis.
-  const tmp = mkdtempSync(join(tmpdir(), "surau-eval-"));
-  cpSync(join(state, "d1"), join(tmp, "v3", "d1"), { recursive: true });
-  const proxy = await getPlatformProxy<{ CORPUS: D1Db }>({
-    configPath,
-    remoteBindings: false,
-    persist: { path: join(tmp, "v3") },
-  });
-  return {
-    db: proxy.env.CORPUS,
-    source: "lokal",
-    dispose: async () => {
-      await proxy.dispose();
-      rmSync(tmp, { recursive: true, force: true });
-    },
-  };
-}
-
 async function main(): Promise<number> {
   const { values } = parseArgs({
     options: {
@@ -124,7 +89,7 @@ async function main(): Promise<number> {
     },
   });
   const questions = loadQuestions({ publicOnly: values["publik-saja"], gate: values.gate });
-  const corpus = await openCorpus(values.remote);
+  const corpus = await openCorpus(repo, values.remote);
   const runs: QuestionRun[] = [];
   let info;
   try {

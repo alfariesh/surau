@@ -55,7 +55,7 @@ export default async function HomePage() {
       <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
         <section aria-labelledby="judul-beranda" className="flex flex-col items-start gap-5">
           <h1
-            className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight text-balance sm:text-[2.75rem] lg:text-5xl"
+            className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight text-balance sm:text-[40px]"
             id="judul-beranda"
           >
             {t.heading}

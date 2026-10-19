@@ -23,6 +23,7 @@
     "@surau/core": "workspace:*",
     "@surau/db": "workspace:*",
     "@surau/text": "workspace:*",
+    "jose": "catalog:",
     "motion": "catalog:",
     "next": "catalog:",
     "next-themes": "catalog:",
