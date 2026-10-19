@@ -342,7 +342,6 @@ export const id = {
       `Baca ${title}${author ? ` karya ${author}` : ""} di Surau: teks Arab asli per halaman cetak, daftar isi, takhrij hadits, dan sitasi.`,
     textLabel: "Teks kitab",
     pageNavLabel: "Navigasi halaman",
-    pageNavTopLabel: "Navigasi halaman (atas)",
     prevShort: "Sebelumnya",
     nextShort: "Berikutnya",
     pageShort: (juz: number, page: number) => `j.${juz} h.${page}`,

@@ -81,7 +81,12 @@ export function ReaderCompactHeader({
         data-visible={visible}
         inert={!visible}
       >
-        <ProgressCircle aria-label={t.progressLabel} className="shrink-0" value={progress}>
+        <ProgressCircle
+          aria-label={t.progressLabel}
+          className="shrink-0"
+          size="sm"
+          value={progress}
+        >
           <ProgressCircle.Track>
             <ProgressCircle.TrackCircle />
             <ProgressCircle.FillCircle />

@@ -238,8 +238,6 @@ export default async function ReaderPage({ params }: Props) {
           </header>
           <ReaderCompactHeader bab={bab} juz={juz} page={pageNo} sample={sample} />
 
-          <PageNav label={t.pageNavTopLabel} next={page.next} prev={page.prev} />
-
           <section aria-label={t.textLabel} className="reader-text flex flex-col gap-3">
             {starts.unplaced.map((nodeId) => (
               <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
@@ -274,9 +272,6 @@ export default async function ReaderPage({ params }: Props) {
               );
             })}
           </section>
-
-          <PageNav keyboard next={page.next} prev={page.prev} />
-          <p className="text-muted text-xs">{t.keyboardHint}</p>
 
           {page.footnotes.length > 0 ? (
             // Seperti catatan kaki buku: garis pendek, judul kecil, huruf lebih kecil dari teks.
@@ -313,6 +308,12 @@ export default async function ReaderPage({ params }: Props) {
               </ol>
             </section>
           ) : null}
+
+          {/* Navigasi halaman hanya di akhir halaman (sesudah catatan kaki), seperti membalik kitab. */}
+          <div className="flex flex-col gap-2">
+            <PageNav keyboard next={page.next} prev={page.prev} />
+            <p className="text-muted text-xs">{t.keyboardHint}</p>
+          </div>
 
           <footer className="text-muted flex flex-col gap-2 border-t border-separator pt-6 text-xs">
             <h2 className="text-foreground text-sm font-semibold">{t.sourceHeading}</h2>

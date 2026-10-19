@@ -61,20 +61,14 @@ export function PageNav({
       {next ? (
         <NextLink
           aria-keyshortcuts={keyboard ? "ArrowLeft" : undefined}
-          className={buttonVariants({
-            variant: "secondary",
-            className: "h-auto min-w-0 flex-col items-start gap-0 py-2",
-          })}
+          // Nomor halaman tidak ditampilkan (lebih bersih), tetapi tetap dibacakan.
+          aria-label={`${t.nextShort} (${t.pageShort(next.juz, next.page_no)})`}
+          className={buttonVariants({ variant: "secondary", className: "min-w-0 gap-1" })}
           href={next.permalink}
           rel="next"
         >
-          <span className="flex items-center gap-1 text-sm">
-            <ChevronLeft aria-hidden="true" className="size-4 shrink-0" />
-            {t.nextShort}
-          </span>
-          <span className="text-muted ps-5 text-xs tabular-nums">
-            {t.pageShort(next.juz, next.page_no)}
-          </span>
+          <ChevronLeft aria-hidden="true" className="size-4 shrink-0" />
+          {t.nextShort}
         </NextLink>
       ) : (
         <span />
@@ -82,20 +76,13 @@ export function PageNav({
       {prev ? (
         <NextLink
           aria-keyshortcuts={keyboard ? "ArrowRight" : undefined}
-          className={buttonVariants({
-            variant: "secondary",
-            className: "h-auto min-w-0 flex-col items-end gap-0 py-2",
-          })}
+          aria-label={`${t.prevShort} (${t.pageShort(prev.juz, prev.page_no)})`}
+          className={buttonVariants({ variant: "secondary", className: "min-w-0 gap-1" })}
           href={prev.permalink}
           rel="prev"
         >
-          <span className="flex items-center gap-1 text-sm">
-            {t.prevShort}
-            <ChevronRight aria-hidden="true" className="size-4 shrink-0" />
-          </span>
-          <span className="text-muted pe-5 text-xs tabular-nums">
-            {t.pageShort(prev.juz, prev.page_no)}
-          </span>
+          {t.prevShort}
+          <ChevronRight aria-hidden="true" className="size-4 shrink-0" />
         </NextLink>
       ) : (
         <span />
