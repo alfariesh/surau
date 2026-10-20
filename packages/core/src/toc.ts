@@ -78,7 +78,12 @@ export async function getToc(
     loadCiteContext(db, input.edition_id),
     tocNodesOf(db, input.edition_id),
   ]);
-  const tree = tocTree(rows);
+  let tree = tocTree(rows);
+  // Node tidak ada di pohon memo: bisa jadi memo lama (korpus dimuat ulang dari commit yang sama,
+  // toc-memo.ts). Baca ulang sekali tanpa memo sebelum menyatakan NotFound.
+  if (input.node_id !== undefined && !tree.byId.has(input.node_id)) {
+    tree = tocTree(await tocNodesOf(db, input.edition_id, { fresh: true }));
+  }
   let start: TocNodeWithStartRow[];
   let ancestors: TocNodeRef[] = [];
   if (input.node_id === undefined) {

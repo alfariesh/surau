@@ -163,7 +163,11 @@ export async function readSectionWithLimit(
       rowLimit + 1,
     ),
   ]);
-  const tree = tocTree(tocRows);
+  let tree = tocTree(tocRows);
+  // Node ada di DB tetapi tidak di pohon memo = memo lama (toc-memo.ts): baca ulang sekali.
+  if (!tree.byId.has(node.id)) {
+    tree = tocTree(await tocNodesOf(db, node.edition_id, { fresh: true }));
+  }
   const nodeRow = tree.byId.get(node.id);
   if (nodeRow === undefined)
     throw new Error("toc_node tanpa halaman awal (korpus tidak konsisten)");

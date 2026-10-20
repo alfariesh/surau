@@ -46,6 +46,25 @@ describe("memo daftar isi per versi korpus (#66)", () => {
     expect(await rootTitle()).toBe("عنوان ثان");
   });
 
+  test("node baru yang belum ada di memo (korpus dimuat ulang, commit sama) → dibaca ulang, bukan NotFound", async () => {
+    await setMeta("2026-10-22T00:00:00.000Z");
+    await rootTitle();
+    await db
+      .prepare(
+        `INSERT INTO toc_node (id, edition_id, parent_id, ord, level, title_ar, start_page_id, source_title_id, patched)
+         SELECT edition_id * 100000 + 999, edition_id, id, 99, level + 1, title_ar, start_page_id, NULL, 1
+         FROM toc_node WHERE id = ?`,
+      )
+      .bind(T_ROOT)
+      .run();
+    const fresh = await getToc(db, ED, { nodeId: ED * 100000 + 999, depth: 1 });
+    expect(fresh.nodes[0]?.id).toBe(ED * 100000 + 999);
+    await db
+      .prepare("DELETE FROM toc_node WHERE id = ?")
+      .bind(ED * 100000 + 999)
+      .run();
+  });
+
   test("tanpa corpus_version/built_at/source_hash (fixture, korpus lama) → tanpa memo", async () => {
     await db.batch(KEYS.map((k) => db.prepare("DELETE FROM meta WHERE key = ?").bind(k)));
     await rename("عنوان ثالث");
