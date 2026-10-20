@@ -2,6 +2,7 @@
 import type { SearchHit, SearchView } from "@surau/core";
 import type { D1Db } from "@surau/db";
 import { describe, expect, test, vi } from "vite-plus/test";
+import { z } from "zod";
 
 import type { GuardEnv, Limiter } from "./guard.ts";
 import type { McpTool } from "./tools.ts";
@@ -129,13 +130,15 @@ describe("runTool", () => {
       siteUrl: "https://surau.test",
     };
     try {
-      const out = await runTool({ ...tool("verify_quote"), run }, deps, {
+      // Skema longgar: tes ini tentang telemetri, bukan bentuk keluaran (lihat tes output_invalid).
+      const loose = { ...tool("verify_quote"), run, outputSchema: z.looseObject({}) };
+      const out = await runTool(loose, deps, {
         quote: "pertanyaan rahasia",
       } as never);
       expect(out.isError).not.toBe(true);
       const no: Limiter = { limit: async () => ({ success: false }) };
       const limited = await runTool(
-        { ...tool("verify_quote"), run },
+        loose,
         { ...deps, env: { ...env, MCP_TOOL_LIMITER: no } },
         {} as never,
       );
@@ -153,6 +156,25 @@ describe("runTool", () => {
       const all = JSON.stringify(log.mock.calls);
       for (const secret of ["pertanyaan", "isi hasil", "192.0.2.42"])
         expect(all).not.toContain(secret);
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  test("keluaran yang tidak lolos outputSchema → internal_error, tercatat output_invalid (#74)", async () => {
+    const log = vi.spyOn(console, "info").mockImplementation(() => {});
+    const run = vi.fn<McpTool["run"]>(async () => ({ view: { bentuk: "bergeser" }, sources: [] }));
+    try {
+      const out = await runTool(
+        { ...tool("verify_quote"), run },
+        { env, db: {} as D1Db, request: undefined, siteUrl: "https://surau.test" },
+        {} as never,
+      );
+      expect(out.isError).toBe(true);
+      expect(JSON.stringify(out.content)).toContain("internal_error");
+      expect(log.mock.calls.map(([entry]) => (entry as { outcome: string }).outcome)).toEqual([
+        "output_invalid",
+      ]);
     } finally {
       log.mockRestore();
     }

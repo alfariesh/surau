@@ -39,7 +39,7 @@ Sejak deploy S17, callback tool mencatat satu objek Workers Logs:
 {"event":"mcp_tool","tool":"search_text","outcome":"ok","duration_ms":12}
 ```
 
-Contoh di atas hanya bentuk event, bukan pengukuran produksi. Tidak mencatat argumen, hasil, alamat halaman, teks/kueri, pesan error, IP, atau identitas pengguna. `outcome`: `ok`, `rate_limited`, `unavailable`, kode error core, atau `internal_error`. Galat limiter juga menghasilkan `internal_error`, bukan detail internal.
+Contoh di atas hanya bentuk event, bukan pengukuran produksi. Tidak mencatat argumen, hasil, alamat halaman, teks/kueri, pesan error, IP, atau identitas pengguna. `outcome`: `ok`, `rate_limited`, `not_configured` (secret `IP_HMAC_KEY` hilang), kode error core (termasuk `unavailable`: korpus tanpa indeks atau `NORM_VERSION` berbeda), `output_invalid` (keluaran core tidak lolos `outputSchema`), atau `internal_error`. Event `mcp_error` (galat tingkat HTTP/SDK) memuat `error` (nama kelas), `kind` (label dari awalan pesan SDK: `unsupported_media_type`, `inbound_rejected`, `era_rejected`, `subscription_limit`, `request_state_rejected`, atau `other`), dan `code` bila ada; pesannya tidak pernah dicatat. Galat limiter juga menghasilkan `internal_error`, bukan detail internal.
 
 Cloudflare → Workers & Pages → **surau-mcp → Observability → Overview**: pilih rentang waktu, filter `event = mcp_tool`, visualization **Count**, **Group By tool + outcome**, lalu **Run**. Durasi: Average/P95 `duration_ms`. Sampling log konfigurasi tetap 1; retensi Workers Logs saat dicek 7 hari, jadi simpan agregat harian sebelum habis. Event ini menghitung callback yang lolos validasi SDK, **bukan** JSON-RPC invalid, tool tak dikenal, gagal transport/Origin/WAF, atau total HTTP. Untuk itu baca metrik request/error Worker dan WAF secara terpisah. Hasil `isError` dapat memakai HTTP 200: status HTTP saja tidak cukup.
 
@@ -63,7 +63,7 @@ Tarif Paid yang dicek: **25 miliar** baris baca/bulan termasuk, lalu **US$0,001 
 ### Tindak lanjut
 
 - Ambil agregat harian per tool/outcome dan metrik error Worker, `rows_read_24h`, serta status smoke endpoint; simpan tanggal, zona waktu, periode, dan bedakan data tidak tersedia dari angka nol.
-- Selidiki `internal_error`/`unavailable`, 429/WAF, `rate_limited` yang berulang pada penggunaan normal, atau kenaikan rows_read yang tidak sebanding pemakaian. Ubah batas melalui PR dengan bukti; jangan menghapus/menimpa data produksi.
+- Selidiki `internal_error`/`output_invalid`/`not_configured`/`unavailable`, 429/WAF, `rate_limited` yang berulang pada penggunaan normal, atau kenaikan rows_read yang tidak sebanding pemakaian. Ubah batas melalui PR dengan bukti; jangan menghapus/menimpa data produksi.
 - Pada 24 Oktober: simpulkan kestabilan dan kebutuhan batas/memoisasi, lalu tutup pemantauan. Bila data hilang karena retensi atau akses dashboard tak tersedia, tulis keterbatasannya; jangan klaim satu minggu lolos.
 - Registry, Anthropic Directory, dan Agent Skill Surau opsional, belum diajukan. `/rilis 3` dipanggil pemilik setelah seluruh gerbang R3 dan tinjauan panduan terpenuhi; tag rilis fase tidak dibuat di sesi ini.
 

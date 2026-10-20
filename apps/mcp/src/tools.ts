@@ -1,8 +1,10 @@
 // Tujuh tool MCP Surau (S16 langkah 4, ARSITEKTUR-TEKNIS §4, ADR-012): satu tool = satu core tool.
 // Logika data seluruhnya di @surau/core; di sini hanya skema masukan/keluaran MCP, batas pemakaian,
 // amplop (permalink absolut + lisensi), dan pemetaan error. Keluaran = bentuk core apa adanya,
-// kecuali search_text yang dipadatkan untuk anggaran token (ADR-049). Skema dan definisi tool
-// dibangun sekali per isolate; per permintaan hanya pendaftaran ke McpServer baru.
+// kecuali search_text yang dipadatkan untuk anggaran token (ADR-049). Objek Zod dan definisi tool
+// dibangun sekali per isolate; per permintaan hanya pendaftaran ke McpServer baru. Konversi Zod →
+// JSON Schema SDK di-memo di dalam McpServer, yang dibuat baru per permintaan (GHSA-jm63), jadi
+// konversi itu berulang di setiap tools/list dan tools/call (belum diukur, #75).
 import type { McpServer } from "@modelcontextprotocol/server";
 import {
   InvalidCitation,
@@ -187,7 +189,7 @@ export const TOOLS: readonly McpTool[] = [
   defineTool({
     name: "get_table_of_contents",
     title: "Table of contents",
-    description: `Table of contents of an edition as a tree. Each section has an id (use it with read_section, or as section_id in search_text), its Arabic title and where it starts (juz, page, permalink). Returns \`depth\` levels from the roots (default and max ${MCP_TOC_ROOT_MAX_DEPTH}, about 8,000 tokens) or from node_id (max ${MCP_TOC_MAX_DEPTH}); child_count shows children not returned. · Daftar isi edisi (pohon bab) dengan halaman awal setiap bagian.`,
+    description: `Table of contents of an edition as a tree. Each section has an id (use it with read_section, or as section_id in search_text), its Arabic title and where it starts (juz, page, permalink). Returns \`depth\` levels from the roots (default and max ${MCP_TOC_ROOT_MAX_DEPTH}, about 8,000 tokens) or from node_id (a section id: the same id that read_section and search_text call section_id; max ${MCP_TOC_MAX_DEPTH}); child_count shows children not returned. · Daftar isi edisi (pohon bab) dengan halaman awal setiap bagian.`,
     input: getTocInput.extend({
       depth: z
         .number()
@@ -333,7 +335,7 @@ function errorResult(code: string, message: string): ToolResult {
 const GUARD_MESSAGE = {
   rate_limited:
     "Too many requests for this tool from your network. Wait a minute and retry. · Terlalu banyak permintaan; coba lagi sebentar lagi.",
-  unavailable:
+  not_configured:
     "The Surau MCP server is not fully configured yet. Try again later. · Server MCP Surau belum siap; coba lagi nanti.",
 } as const;
 
@@ -352,6 +354,12 @@ export async function runTool(tool: McpTool, deps: ToolDeps, args: never): Promi
       ...(absolutize(view, deps.siteUrl) as Record<string, unknown>),
       license: licenseFor(deps.siteUrl, sources),
     };
+    // SDK memvalidasi structuredContent terhadap outputSchema SETELAH callback ini; tanpa cek di sini,
+    // keluaran core yang bergeser tercatat "ok" padahal klien menerima isError teknis SDK (#74).
+    if (!tool.outputSchema.safeParse(out).success) {
+      outcome = "output_invalid";
+      return errorResult("internal_error", "Internal error. Try again later.");
+    }
     outcome = "ok";
     return { content: [{ type: "text", text: JSON.stringify(out) }], structuredContent: out };
   } catch (error) {

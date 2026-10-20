@@ -14,11 +14,15 @@ export interface GuardEnv {
   MCP_READ_GLOBAL_LIMITER: Limiter;
   MCP_SEARCH_LIMITER: Limiter;
   MCP_SEARCH_GLOBAL_LIMITER: Limiter;
-  /** Secret Worker; tanpa ini setiap tool menjawab `unavailable` (gagal tertutup). */
+  /** Secret Worker; tanpa ini setiap tool menjawab `not_configured` (gagal tertutup). */
   IP_HMAC_KEY?: string;
 }
 
-export type GuardResult = "ok" | "rate_limited" | "unavailable";
+/**
+ * `not_configured` (secret hilang) sengaja beda dari kode core `unavailable` (korpus tanpa indeks /
+ * NORM_VERSION beda): penanganannya beda, telemetrinya tidak boleh menyatu (#74).
+ */
+export type GuardResult = "ok" | "rate_limited" | "not_configured";
 
 /** IP klien dari Cloudflare; permintaan tanpa header (tes in-process) berbagi satu ember. */
 export function clientIp(request: Request | undefined): string {
@@ -30,7 +34,7 @@ export async function guardTool(
   request: Request | undefined,
   tool: string,
 ): Promise<GuardResult> {
-  if (env.IP_HMAC_KEY === undefined || env.IP_HMAC_KEY === "") return "unavailable";
+  if (env.IP_HMAC_KEY === undefined || env.IP_HMAC_KEY === "") return "not_configured";
   const key = `${await ipKey(env.IP_HMAC_KEY, ipNetwork(clientIp(request)))}:${tool}`;
   if (tool === "search_text") {
     if (!(await env.MCP_SEARCH_LIMITER.limit({ key })).success) return "rate_limited";
