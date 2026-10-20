@@ -251,10 +251,16 @@ test("golden menolak persetujuan lama yang bertentangan dan menjaga set privat",
 
 describe("judge tidak mengirim holdout privat (#69)", () => {
   test("arsip campur ditolak tanpa --termasuk-privat; arsip publik lolos", () => {
-    const publik = [{ private: false }, { private: false }];
-    const campur = [...publik, { private: true }];
+    const publik = [
+      { private: false, question: { id: "j001" } },
+      { private: false, question: { id: "j002" } },
+    ];
+    const campur = [...publik, { private: true, question: { id: "p001" } }];
     expect(() => assertJudgePublic(publik, false)).not.toThrow();
     expect(() => assertJudgePublic(campur, false)).toThrow(/1 jawaban holdout privat/);
     expect(() => assertJudgePublic(campur, true)).not.toThrow();
+    // Flag tersunting: ID holdout tetap dikenali.
+    const tersunting = [...publik, { private: false, question: { id: "p002" } }];
+    expect(() => assertJudgePublic(tersunting, false)).toThrow(/1 jawaban holdout privat/);
   });
 });

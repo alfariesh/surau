@@ -115,10 +115,12 @@ export async function estimateJudge(client: Client, requests: JudgeRequest[]) {
  * arsip yang memuat satu saja jawaban privat ditolak sebelum ada panggilan API.
  */
 export function assertJudgePublic(
-  records: readonly { private: boolean }[],
+  records: readonly { private: boolean; question: { id: string } }[],
   includePrivate: boolean,
 ): void {
-  const count = records.filter((r) => r.private).length;
+  // Flag `private` tidak ikut di-hash arsip: soal ber-ID `p…` (konvensi holdout, answer-data.ts)
+  // tetap dianggap privat walau flag-nya tersunting/keliru.
+  const count = records.filter((r) => r.private || r.question.id.startsWith("p")).length;
   if (count === 0 || includePrivate) return;
   throw new Error(
     `Arsip memuat ${count} jawaban holdout privat; judge tidak mengirimnya ke Anthropic. ` +
