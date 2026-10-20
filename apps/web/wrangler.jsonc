@@ -8,6 +8,13 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-14",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Produksi hanya di https://surau.org (custom domain diatur di dashboard, T-07): workers.dev
+  // dimatikan (#64, ADR-062). Docs Cloudflare: domain yang dikelola dashboard = tanpa `routes` +
+  // `workers_dev: false`. `preview_urls` eksplisit true: Preview per PR (`pr-N-surau-web…workers.dev`)
+  // memakainya. Sisa yang diketahui: setelan yang sama membuat Version URL produksi
+  // (`<versi>-surau-web…workers.dev`) tetap hidup di luar WAF zona (ADR-062).
+  "workers_dev": false,
+  "preview_urls": true,
   // esbuild wrangler (keepNames) menyisipkan `__name(fn, "…")` ke kode server. Skrip inline yang
   // dibuat dari `fn.toString()` (next-themes) lalu ikut membawa `__name` ke browser dan gagal
   // (ReferenceError) di halaman yang dirender Worker saat runtime (ISR /kitab, S09, ADR-034).
@@ -29,6 +36,8 @@
     // Versi korpus di kunci cache /api/search (S14, ADR-044): SELALU = database_name CORPUS_DB di
     // bawah. Diganti `corpus:promote` bersama binding (dijaga tes tools/ingest/src/corpus.test.ts).
     "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v6",
+    // Origin sitemap.xml: produksi selalu alamat kanonis, juga bila diminta lewat Version URL (#64).
+    "SITEMAP_ORIGIN": "https://surau.org",
   },
   "services": [
     {
@@ -105,6 +114,8 @@
       "SEARCH_TIMING_DETAIL": "1",
       // Tanpa cache hasil: korpus staging dimuat ulang tanpa versi baru (latensi diukur tanpa cache).
       "SEARCH_CACHE_CORPUS": "",
+      // Kosong = origin dari host permintaan, supaya sitemap Preview menunjuk dirinya sendiri.
+      "SITEMAP_ORIGIN": "",
     },
     "observability": {
       "enabled": true,
