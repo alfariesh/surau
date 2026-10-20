@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { evalAnswer, evalHash, resolveEvalSource, searchText } from "@surau/core";
-import { createAnthropic } from "@surau/llm";
+import { createAnthropic, createGatewayAnthropic } from "@surau/llm";
 import { z } from "zod";
 import { loadCorpusIndex } from "./corpus.ts";
 import { openCorpus } from "./open-corpus.ts";
@@ -26,6 +26,7 @@ import {
   judgeRequest,
 } from "./answer-judge.ts";
 import { answerReport } from "./answer-report.ts";
+import { questionCeilingUsd, runQuestions } from "./answer-run.ts";
 import { approvedQuestions, reviewExport, seedSql } from "./answer-review.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
@@ -44,6 +45,9 @@ const { positionals, values } = parseArgs({
     remote: { type: "boolean", default: false },
     "budget-usd": { type: "string" },
     confirm: { type: "boolean", default: false },
+    gateway: { type: "boolean", default: false },
+    concurrency: { type: "string", default: "3" },
+    only: { type: "string" },
   },
 });
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/u);
@@ -155,6 +159,120 @@ async function main() {
         console.warn(
           `Arsip ini memuat ${holdout} soal holdout privat: judge-plan menolaknya. Untuk judge, buat arsip dengan --publik-saja.`,
         );
+    });
+    return;
+  }
+  if (command === "answer") {
+    // Berbayar (S19): pipeline Jawab yang sama dengan Worker surau-api. Bawaan hanya soal publik;
+    // holdout hanya dengan --termasuk-privat (izin pemilik + catatan salinan di evals/README.md).
+    const run = id.parse(required(values.run, "--run"));
+    const out = join(privateDir, `${run}.jsonl`);
+    if (existsSync(out)) throw new Error("Run sudah ada; pilih --run baru agar arsip tetap utuh.");
+    const budget = Number(values["budget-usd"]);
+    if (!Number.isFinite(budget) || budget <= 0 || budget > 3)
+      throw new Error("--budget-usd wajib (0 < pagu ≤ 3, izin pemilik S19).");
+    const ceiling = questionCeilingUsd();
+    let items = loadAnswerQuestions(repo, false).filter(
+      (q) => !q.private || values["termasuk-privat"],
+    );
+    if (values.only) {
+      const wanted = new Set(values.only.split(","));
+      items = items.filter((q) => wanted.has(q.question.id));
+    }
+    if (!values.confirm) {
+      console.log(
+        JSON.stringify({
+          run,
+          questions: items.length,
+          private: items.filter((q) => q.private).length,
+          ceiling_per_question_usd: Number(ceiling.haiku.toFixed(4)),
+          sonnet_reserve_usd: Number(ceiling.sonnetReserve.toFixed(4)),
+          note: "Belum ada panggilan berbayar; tambahkan --confirm setelah izin pemilik.",
+        }),
+      );
+      return;
+    }
+    if (existsSync(join(repo, ".env"))) process.loadEnvFile(join(repo, ".env"));
+    const api = values.gateway
+      ? createGatewayAnthropic(
+          process.env.SURAU_AI_GATEWAY_URL ??
+            "https://gateway.ai.cloudflare.com/v1/8be116534f7237b451f28adec91fbbbd/surau-gw/anthropic",
+          required(process.env.CF_AIG_TOKEN, "CF_AIG_TOKEN"),
+          { maxRetries: 1 },
+        )
+      : createAnthropic(required(process.env.ANTHROPIC_API_KEY, "ANTHROPIC_API_KEY"), {
+          maxRetries: 1,
+        });
+    await withCorpus(async (corpus, index) => {
+      for (const q of items) await validateQuestion(corpus.db, index, q.question, q.private);
+      const { outputs, spent, skipped } = await runQuestions(corpus.db, api, items, {
+        budgetUsd: budget,
+        concurrency: Math.min(6, Math.max(1, Number(values.concurrency) || 1)),
+        onDone: (o, total) => {
+          // Soal privat tidak dicetak per soal (aturan holdout).
+          if (!o.item.private)
+            console.log(
+              `${o.item.question.id} ${o.result.outcome}${o.result.reason ? `/${o.result.reason}` : ""} sitasi ${o.result.citations.length} $${o.result.cost_usd.toFixed(5)} (total $${total.toFixed(4)})`,
+            );
+        },
+      });
+      const order = new Map(items.map((q, i) => [q.question.id, i]));
+      outputs.sort((a, b) => order.get(a.item.question.id)! - order.get(b.item.question.id)!);
+      const all: AnswerRecord[] = [];
+      const scored = [];
+      const diagnostics = [];
+      for (const o of outputs) {
+        const record = answerRecord.parse({
+          id: `${run}_${o.item.question.id}`,
+          run_id: run,
+          private: o.item.private,
+          corpus_version: index.meta.corpus_version,
+          question: o.item.question,
+          answer: o.answer,
+          question_hash: await evalHash(o.item.question),
+          answer_hash: await evalHash(o.answer),
+          created_at: new Date().toISOString(),
+        });
+        all.push(record);
+        const scores = await scoreAnswer(
+          corpus.db,
+          index,
+          o.item.question,
+          o.answer,
+          o.item.private,
+        );
+        scored.push({ record, scores });
+        if (!o.item.private)
+          diagnostics.push({
+            id: o.item.question.id,
+            jenis: o.item.question.jenis,
+            outcome: o.result.outcome,
+            reason: o.result.reason,
+            model: o.result.model,
+            cost_usd: o.result.cost_usd,
+            latency_ms: Math.round(o.result.latency_ms),
+            usage: o.result.usage,
+            diagnostics: o.result.diagnostics,
+            scores,
+          });
+      }
+      output(out, jsonl(all));
+      output(join(privateDir, `${run}-diagnostik-publik.jsonl`), jsonl(diagnostics));
+      const report = join(repo, "evals/reports", `jawab-${run}.md`);
+      output(report, answerReport(scored, [], [], values.reviewer));
+      const n = outputs.length;
+      console.log(
+        JSON.stringify({
+          run,
+          answered: n,
+          skipped_budget: skipped,
+          private: outputs.filter((o) => o.item.private).length,
+          spent_usd: Number(spent.toFixed(6)),
+          avg_usd: n ? Number((spent / n).toFixed(6)) : null,
+          report,
+          archive: out,
+        }),
+      );
     });
     return;
   }
@@ -343,7 +461,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat] [--gateway] [--only j001,j002] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

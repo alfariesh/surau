@@ -4,6 +4,7 @@
 //                                                   3 muat SQL + smoke (= hitungan build) ·
 //                                                   4 arahkan CORPUS_DB produksi di apps/web/wrangler.jsonc
 //                                                     dan apps/mcp/wrangler.jsonc (S16)
+//                                                     dan apps/api/wrangler.jsonc (S19)
 //   pnpm run corpus:promote <versi> --switch-only   rollback: arahkan produksi ke versi lama yang sudah ada
 //                                                   (skema lebih lama boleh: fitur barunya tersembunyi, S14)
 //   --reload   muat ulang DB versi ini bila sudah ada (menimpa isinya). DITOLAK untuk DB yang melayani
@@ -27,7 +28,16 @@ import {
   stagingCorpus,
 } from "./corpus.ts";
 import type { CorpusBinding } from "./corpus.ts";
-import { MCP_CONFIG, WEB_CONFIG, formatCounts, remoteByName, repo, smoke, wrangler } from "./d1.ts";
+import {
+  API_CONFIG,
+  MCP_CONFIG,
+  WEB_CONFIG,
+  formatCounts,
+  remoteByName,
+  repo,
+  smoke,
+  wrangler,
+} from "./d1.ts";
 
 interface RemoteDb {
   uuid: string;
@@ -51,21 +61,24 @@ function info(name: string): { running_in_region?: string; database_size?: numbe
  */
 function switchProduction(next: CorpusBinding): CorpusBinding {
   const webPath = join(repo, WEB_CONFIG);
-  const mcpPath = join(repo, MCP_CONFIG);
   const web = readFileSync(webPath, "utf8");
-  const mcp = readFileSync(mcpPath, "utf8");
   const previous = readProductionCorpus(web);
-  const mcpPrevious = readProductionCorpus(mcp);
-  if (mcpPrevious.id !== previous.id) {
-    throw new Error(
-      `${MCP_CONFIG} menunjuk ${mcpPrevious.name}, bukan ${previous.name} seperti ${WEB_CONFIG}: samakan dulu`,
-    );
-  }
-  // Keduanya dihitung dulu: bila salah satu config salah bentuk, tidak ada yang ditulis.
+  // Worker lain (MCP S16, Jawab S19) harus menunjuk korpus yang sama dengan web sebelum diganti.
+  const others = [MCP_CONFIG, API_CONFIG].map((config) => {
+    const path = join(repo, config);
+    const text = readFileSync(path, "utf8");
+    const current = readProductionCorpus(text);
+    if (current.id !== previous.id) {
+      throw new Error(
+        `${config} menunjuk ${current.name}, bukan ${previous.name} seperti ${WEB_CONFIG}: samakan dulu`,
+      );
+    }
+    return { path, next: setProductionCorpus(text, next, { searchCache: false }) };
+  });
+  // Semua dihitung dulu: bila salah satu config salah bentuk, tidak ada yang ditulis.
   const webNext = setProductionCorpus(web, next);
-  const mcpNext = setProductionCorpus(mcp, next, { searchCache: false });
   writeFileSync(webPath, webNext);
-  writeFileSync(mcpPath, mcpNext);
+  for (const o of others) writeFileSync(o.path, o.next);
   return previous;
 }
 
@@ -73,7 +86,7 @@ function nextSteps(previous: CorpusBinding, next: CorpusBinding): void {
   console.info(
     [
       "",
-      `Langkah 4 selesai di lokal: ${WEB_CONFIG} + ${MCP_CONFIG} CORPUS_DB ${previous.name} → ${next.name}.`,
+      `Langkah 4 selesai di lokal: ${WEB_CONFIG} + ${MCP_CONFIG} + ${API_CONFIG} CORPUS_DB ${previous.name} → ${next.name}.`,
       "Berikutnya:",
       "  5. Commit + PR. Setelah CI hijau dan merge, deploy.yml men-deploy Worker dengan binding baru.",
       `  6. JANGAN hapus ${previous.name}. Catat ${next.name} (${next.id}) di data/SOURCES.md (bagian Korpus D1 produksi).`,
@@ -175,7 +188,7 @@ function main(argv: string[]): number {
           : `  1. (lewati) ${name} sudah ada; --reload memuat ulang isinya`,
         "  2. migrasi korpus (packages/db/migrations/corpus)",
         "  3. muat data/build/sql/*.sql, lalu smoke: hitungan setiap tabel + meta = build, j1 h200",
-        `  4. ${WEB_CONFIG} + ${MCP_CONFIG}: CORPUS_DB produksi → ${name} (file lokal; deploy lewat PR)`,
+        `  4. ${WEB_CONFIG} + ${MCP_CONFIG} + ${API_CONFIG}: CORPUS_DB produksi → ${name} (file lokal; deploy lewat PR)`,
         "Minta izin pemilik dulu (CLAUDE.md aturan keras 4 bila menimpa DB yang sudah ada).",
       ].join("\n"),
     );

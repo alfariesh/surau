@@ -3,7 +3,13 @@ import { describe, expect, onTestFinished, test } from "vite-plus/test";
 import { ZodError } from "zod";
 
 import { feedbackRow } from "../schema/app.ts";
-import { createFeedback, getSettings } from "./app.ts";
+import {
+  createFeedback,
+  getAnswerCache,
+  getSettings,
+  putAnswerCache,
+  touchAnswerCache,
+} from "./app.ts";
 
 const db = env.APP;
 
@@ -76,5 +82,41 @@ describe("feedback", () => {
     await expect(
       db.prepare("INSERT INTO feedback (kind, path, message) VALUES ('other', '/a?b', 'x')").run(),
     ).rejects.toThrow(/CHECK/);
+  });
+});
+
+describe("answer_cache", () => {
+  const key = "a".repeat(64);
+  const row = {
+    key,
+    corpus_version: "ihya-uji",
+    prompt_version: "answer@1+answer-route@1",
+    model: "claude-haiku-5-5",
+    outcome: "answer" as const,
+    result_json: JSON.stringify({ text: "Jawaban uji." }),
+    created_at: "2026-10-20T00:00:00.000Z",
+    expires_at: "2026-11-19T00:00:00.000Z",
+  };
+
+  test("simpan, baca sebelum kedaluwarsa, dan hitung pemakaian", async () => {
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM answer_cache").run();
+    });
+    await putAnswerCache(db, row);
+    expect(await getAnswerCache(db, key, "2026-10-21T00:00:00.000Z")).toMatchObject({
+      outcome: "answer",
+      hits: 0,
+    });
+    await touchAnswerCache(db, key);
+    expect((await getAnswerCache(db, key, "2026-10-21T00:00:00.000Z"))?.hits).toBe(1);
+    expect(await getAnswerCache(db, key, "2026-11-20T00:00:00.000Z")).toBeNull();
+    expect(await getAnswerCache(db, "b".repeat(64), "2026-10-21T00:00:00.000Z")).toBeNull();
+  });
+
+  test("kunci bukan hash atau hasil gagal tidak bisa disimpan", async () => {
+    await expect(putAnswerCache(db, { ...row, key: "pendek" })).rejects.toBeInstanceOf(ZodError);
+    await expect(
+      putAnswerCache(db, { ...row, outcome: "fallback" as unknown as "answer" }),
+    ).rejects.toBeInstanceOf(ZodError);
   });
 });

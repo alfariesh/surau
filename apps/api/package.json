@@ -1,0 +1,31 @@
+{
+  "name": "@surau/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Worker Jawab Surau (S19): pipeline Haiku + Citations + verifikasi kutipan, SSE; tanpa route publik, dipanggil web lewat service binding.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 3007 --persist-to ../../.wrangler/state",
+    "build": "wrangler deploy --dry-run --outdir dist --env=\"\"",
+    "deploy:api": "wrangler deploy --env=\"\"",
+    "deploy:api-staging": "wrangler deploy --env staging",
+    "cf-typegen": "wrangler types --include-runtime=false --strict-vars=false worker-configuration.d.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "catalog:",
+    "@surau/core": "workspace:*",
+    "@surau/db": "workspace:*",
+    "@surau/llm": "workspace:*",
+    "hono": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "catalog:",
+    "@cloudflare/workers-types": "catalog:",
+    "@surau/text": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

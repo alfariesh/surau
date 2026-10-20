@@ -296,3 +296,15 @@ describe("kandidat", () => {
     expect(q.endsWith("kata")).toBe(true);
   });
 });
+
+describe("kunci cache", () => {
+  test("perapian huruf kecil, spasi, tanda baca akhir; versi ikut kunci", async () => {
+    const { answerCacheKey, tidyQuestion } = await import("./cache-key.ts");
+    expect(tidyQuestion("  Apa itu   SABAR?? ")).toBe("apa itu sabar");
+    const a = await answerCacheKey("Apa itu sabar?", "ihya-v6", "answer@1");
+    expect(a).toMatch(/^[a-f0-9]{64}$/u);
+    expect(await answerCacheKey("apa itu  sabar", "ihya-v6", "answer@1")).toBe(a);
+    expect(await answerCacheKey("Apa itu sabar?", "ihya-v7", "answer@1")).not.toBe(a);
+    expect(await answerCacheKey("Apa itu sabar?", "ihya-v6", "answer@2")).not.toBe(a);
+  });
+});

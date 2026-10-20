@@ -38,6 +38,9 @@
     "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v6",
     // Origin sitemap.xml: produksi selalu alamat kanonis, juga bila diminta lewat Version URL (#64).
     "SITEMAP_ORIGIN": "https://surau.org",
+    // POST /api/jawab (S19): MATI di produksi sampai guard biaya S20 (Turnstile, kuota, ledger) ada.
+    // Lapis kedua: `settings.jawab_enabled` di surau-app (dicek surau-api) juga "0".
+    "JAWAB_ROUTE_ENABLED": "0",
   },
   "services": [
     {
@@ -45,6 +48,12 @@
       // default (`dummy`) praktis belum dipakai. Dari Preview, binding ini memanggil PRODUKSI (ADR-026).
       "binding": "WORKER_SELF_REFERENCE",
       "service": "surau-web",
+    },
+    {
+      // Worker Jawab tanpa route publik (S19, ADR-010): satu-satunya jalan ke pipeline LLM.
+      // surau-api wajib ter-deploy sebelum web (deploy.yml: job deploy-api lebih dulu).
+      "binding": "API",
+      "service": "surau-api",
     },
   ],
   "r2_buckets": [
@@ -96,6 +105,18 @@
       "namespace_id": "1004",
       "simple": { "limit": 1200, "period": 60 },
     },
+    // Jawab (S19): rem sementara per klien dan global sebelum kuota/ledger S20. Gateway surau-gw
+    // juga membatasi 50 request/menit dan US$1/hari (T-14).
+    {
+      "name": "JAWAB_LIMITER",
+      "namespace_id": "1005",
+      "simple": { "limit": 5, "period": 60 },
+    },
+    {
+      "name": "JAWAB_GLOBAL_LIMITER",
+      "namespace_id": "1006",
+      "simple": { "limit": 30, "period": 60 },
+    },
   ],
   // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
   "observability": {
@@ -116,6 +137,8 @@
       "SEARCH_CACHE_CORPUS": "",
       // Kosong = origin dari host permintaan, supaya sitemap Preview menunjuk dirinya sendiri.
       "SITEMAP_ORIGIN": "",
+      // Preview: /api/jawab menyala ke surau-api-staging (lapis kedua: jawab_enabled surau-app-staging).
+      "JAWAB_ROUTE_ENABLED": "1",
     },
     "observability": {
       "enabled": true,
@@ -127,6 +150,13 @@
       {
         "binding": "WORKER_SELF_REFERENCE",
         "service": "surau-web",
+      },
+      {
+        // Service binding dari Preview selalu memanggil deployment PRODUKSI Worker tujuan
+        // (docs Workers Previews). Karena itu Preview diarahkan ke Worker staging tersendiri
+        // (data staging, apps/api env.staging), bukan surau-api produksi (S19).
+        "binding": "API",
+        "service": "surau-api-staging",
       },
     ],
     "r2_buckets": [
@@ -167,6 +197,16 @@
         "name": "SEARCH_GLOBAL_LIMITER",
         "namespace_id": "2004",
         "simple": { "limit": 1200, "period": 60 },
+      },
+      {
+        "name": "JAWAB_LIMITER",
+        "namespace_id": "2005",
+        "simple": { "limit": 5, "period": 60 },
+      },
+      {
+        "name": "JAWAB_GLOBAL_LIMITER",
+        "namespace_id": "2006",
+        "simple": { "limit": 30, "period": 60 },
       },
     ],
   },

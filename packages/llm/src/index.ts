@@ -136,3 +136,4 @@ export type { CitedSpan } from "./jawab/citations.ts";
 export { fuse, questionQuery, searchLists, withPairs } from "./jawab/retrieve.ts";
 export type { SearchList } from "./jawab/retrieve.ts";
 export { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../prompts/answer-v1.ts";
+export { answerCacheKey, tidyQuestion } from "./jawab/cache-key.ts";

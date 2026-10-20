@@ -61,6 +61,7 @@ interface StreamReport {
   gateway_headers: Record<string, string>;
 }
 
+const arabicCount = (text: string) => (text.match(/\p{Script=Arabic}/gu) ?? []).length;
 const inc = (o: Record<string, number>, k: string) => {
   o[k] = (o[k] ?? 0) + 1;
 };
@@ -181,18 +182,12 @@ async function main() {
       sizes.push({
         docs: subset.length,
         blocks: subset.reduce((n, d) => n + d.segments.length, 0),
-        arabic_chars: subset.reduce(
-          (n, d) =>
-            n +
-            [...(d.passage.text_raw + d.context)].filter((c) => /\p{Script=Arabic}/u.test(c))
-              .length,
-          0,
-        ),
+        arabic_chars: subset.reduce((n, d) => n + arabicCount(d.passage.text_raw + d.context), 0),
         other_chars: subset.reduce(
           (n, d) =>
             n +
-            [...(d.passage.text_raw + d.context)].filter((c) => !/\p{Script=Arabic}/u.test(c))
-              .length,
+            (d.passage.text_raw + d.context).length -
+            arabicCount(d.passage.text_raw + d.context),
           0,
         ),
         estimate: subset.reduce((n, d) => n + d.tokens, 0),
@@ -312,10 +307,10 @@ try {
   if (error instanceof ReferenceError || error instanceof TypeError) console.error(error);
   console.error(
     typeof e.status === "number"
-      ? `Gagal: HTTP ${e.status} (${String(e.name)}).`
+      ? `Gagal: HTTP ${e.status} (${typeof e.name === "string" ? e.name : "galat"}).`
       : error instanceof Error && error.constructor === Error
         ? error.message
-        : `Gagal: ${String(e.name ?? "galat")}.`,
+        : `Gagal: ${typeof e.name === "string" ? e.name : "galat"}.`,
   );
   process.exitCode = 1;
 }

@@ -125,17 +125,20 @@ export interface JawabDeps {
   signal?: AbortSignal;
   emit?: (event: JawabEvent) => void | Promise<void>;
   now?: () => number;
+  /** Edisi yang daftar isinya dikirim ke routing (bawaan Ihya, edisi 1). */
+  editionId?: number;
 }
 
 // Daftar isi per versi korpus disimpan di isolate: sama untuk semua pertanyaan (313 node Ihya).
 const tocMemo = new Map<string, { text: string; nodes: Map<number, AnswerTocNode> }>();
-async function loadToc(db: D1Db, corpusVersion: string) {
-  const hit = tocMemo.get(corpusVersion);
+async function loadToc(db: D1Db, corpusVersion: string, editionId: number) {
+  const memoKey = `${corpusVersion}:${editionId}`;
+  const hit = tocMemo.get(memoKey);
   if (hit) return hit;
-  const nodes = await answerToc(db, JAWAB_EDITION_ID);
+  const nodes = await answerToc(db, editionId);
   const value = { text: tocText(nodes), nodes: new Map(nodes.map((n) => [n.id, n])) };
   if (tocMemo.size >= 2) tocMemo.clear();
-  tocMemo.set(corpusVersion, value);
+  tocMemo.set(memoKey, value);
   return value;
 }
 
@@ -239,7 +242,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 
   // 1. Routing.
   await emit({ type: "stage", stage: "route" });
-  const toc = await loadToc(db, corpusVersion);
+  const toc = await loadToc(db, corpusVersion, deps.editionId ?? JAWAB_EDITION_ID);
   let route: Route | null = null;
   try {
     const msg = await deps.anthropic.messages.create(

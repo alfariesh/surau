@@ -18,7 +18,8 @@ const OK = {
 function capture() {
   const calls: { url: string; headers: Headers }[] = [];
   const fake: typeof fetch = async (input, init) => {
-    calls.push({ url: String(input), headers: new Headers(init?.headers) });
+    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    calls.push({ url, headers: new Headers(init?.headers) });
     return Response.json(OK);
   };
   return { calls, fake };

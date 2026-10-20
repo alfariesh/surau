@@ -8,6 +8,7 @@ const generated = [
   "**/.open-next/**",
   "**/.wrangler/**",
   "apps/mcp/dist/**",
+  "apps/api/dist/**",
   "**/next-env.d.ts",
   "**/worker-configuration.d.ts",
   "**/cloudflare-env.d.ts",
@@ -77,12 +78,14 @@ export default defineConfig({
             "packages/db/**",
             "packages/core/src/**",
             "apps/mcp/src/**",
+            "apps/api/src/**",
           ],
         },
       },
       "packages/db/vitest.config.ts",
       "packages/core/vitest.config.ts",
       "apps/mcp/vitest.config.ts",
+      "apps/api/vitest.config.ts",
     ],
     // `pnpm test` = `vp test --coverage`. Paket teks Arab wajib 100% fungsi teruji (S05): semua
     // fungsi di sana menyentuh kutipan atau indeks, jadi tidak boleh ada jalur yang tak pernah diuji.

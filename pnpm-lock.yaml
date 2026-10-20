@@ -246,6 +246,9 @@ catalogs:
     '@vitest/coverage-v8':
       specifier: 5.0.5
       version: 5.0.5
+    hono:
+      specifier: 4.13.13
+      version: 4.13.13
     jose:
       specifier: 6.2.12
       version: 6.2.12
@@ -332,6 +335,46 @@ importers:
       vite-plus:
         specifier: 'catalog:'
         version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(terser@5.36.0)(typescript@7.0.2)(yaml@2.9.0)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.151.1(@cloudflare/workers-types@5.20261016.1)(@types/node@24.19.2)
+
+  apps/api:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: 'catalog:'
+        version: 0.135.0(zod@4.6.7)
+      '@surau/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@surau/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@surau/llm':
+        specifier: workspace:*
+        version: link:../../packages/llm
+      hono:
+        specifier: 'catalog:'
+        version: 4.13.13
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
+    devDependencies:
+      '@cloudflare/vitest-plugin':
+        specifier: 'catalog:'
+        version: 1.4.4(@cloudflare/workers-types@5.20261016.1)(@types/node@24.19.2)(vitest@5.0.5)
+      '@cloudflare/workers-types':
+        specifier: 'catalog:'
+        version: 5.20261016.1
+      '@surau/text':
+        specifier: workspace:*
+        version: link:../../packages/text
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
       wrangler:
         specifier: 'catalog:'
         version: 4.151.1(@cloudflare/workers-types@5.20261016.1)(@types/node@24.19.2)
@@ -3194,6 +3237,10 @@ packages:
   heroui-pro@1.0.0-beta.14:
     resolution: {integrity: sha512-Q56lE9bVb92HTsqZRUVTaCF6NRMaC4l/BdR7dZp/t3B0vhNYtAKxNinKn5P+g8/vt5YZagjKriU05c+PCmWcGQ==}
     hasBin: true
+
+  hono@4.13.13:
+    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
+    engines: {node: '>=16.9.0'}
 
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
@@ -6822,6 +6869,8 @@ snapshots:
       yaml: 2.9.0
     optionalDependencies:
       '@zowe/secrets-for-zowe-sdk': 8.29.4
+
+  hono@4.13.13: {}
 
   http-errors@2.0.1:
     dependencies:

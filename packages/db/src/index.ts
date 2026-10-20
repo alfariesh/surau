@@ -85,4 +85,10 @@ export { getSummariesStartingOn, getTranslations, sectionSummaryRow } from "./re
 export type { SectionSummaryRow } from "./repo/translation.ts";
 export { QURAN_AYAT_MAX, ayahRefWithSurahRow, getAyahRefs, getQuranAyat } from "./repo/quran.ts";
 export type { AyahRange, AyahRefWithSurahRow, QuranAyat } from "./repo/quran.ts";
-export { createFeedback, getSettings } from "./repo/app.ts";
+export {
+  createFeedback,
+  getAnswerCache,
+  getSettings,
+  putAnswerCache,
+  touchAnswerCache,
+} from "./repo/app.ts";

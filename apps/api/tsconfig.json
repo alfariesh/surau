@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Runtime Workers dari @cloudflare/workers-types (wrangler types --include-runtime=false hanya
+    // menulis Env). Tipe tes (cloudflare:test) untuk project "mcp". vitest.config.ts berjalan di
+    // Node dan tidak ikut di sini (sama dengan packages/core).
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"]
+  },
+  "include": ["src", "test", "env.d.ts", "worker-configuration.d.ts"]
+}
