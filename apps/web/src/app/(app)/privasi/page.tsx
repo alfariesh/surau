@@ -67,7 +67,10 @@ export default function PrivacyPage() {
         <Typography>{t.retentionLead}</Typography>
         <dl className="divide-separator flex flex-col divide-y">
           {t.retention.map((row) => (
-            <div key={row.data} className="grid gap-1 py-3 sm:grid-cols-[1fr_10rem_12rem] sm:gap-4">
+            <div
+              key={row.data}
+              className="grid gap-1 py-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-4"
+            >
               <dt>
                 <Typography weight="semibold">{row.data}</Typography>
               </dt>

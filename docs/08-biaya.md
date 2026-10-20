@@ -219,7 +219,9 @@ Untuk ±92 kitab, satu request per paragraf membuat prompt sistem mendominasi; m
 
 ## Pengaman anggaran
 
-Desain lengkap ada di ADR-014 ([implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md)) dan dibangun di S20 (Fase 4). Prinsipnya: rem keras di penyedia, rem harian di edge, akuntansi real-time di aplikasi, dan sakelar manual.
+Desain lengkap ada di ADR-014 dan dibangun di S20 (ADR-065, [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md)). Prinsipnya: rem keras di penyedia, rem harian di edge, akuntansi real-time di aplikasi, dan sakelar manual.
+
+**Yang berjalan sejak S20 (ADR-065):** semua guard di Worker `surau-api`. Reservasi = biaya **terburuk** (seluruh prompt dengan tarif tulis-cache 1 jam, keluaran `max_tokens`): ±US$0,0162 untuk routing + jawaban Haiku, ditambah ±US$0,24 hanya bila Haiku menolak dan Sonnet perlu dipanggil (direservasi terpisah; gagal → turun ke Cari). Biaya aktual dari `usage` dikomit sesudahnya, dalam mikro-USD bulat. Batal atau galat = reservasi dihitung terpakai (perkiraan konservatif); cron tiap 10 menit membereskan reservasi basi. `cf-aig-custom-cost` tidak dipakai, karena gateway sudah mengenali harga Haiku 5.5 (ADR-064). Plafon dan kuota bisa diubah pemilik di `/admin`.
 
 **Empat lapis rem biaya:**
 
@@ -230,7 +232,7 @@ Desain lengkap ada di ADR-014 ([implementasi/KEPUTUSAN.md](../implementasi/KEPUT
 | 3. Ledger anggaran | D1 `surau-app` | Sebelum memanggil LLM, biaya maksimum direservasi dengan satu `UPDATE … WHERE spent+reserved+est <= cap RETURNING` yang atomik. Setelah respons, biaya aktual dari `usage` dikomit. Cron tiap 10 menit melepas reservasi basi. | Jawab ditolak → hasil Cari |
 | 4. Kill switch | D1 `settings.jawab_enabled`, diubah dari `/admin` (Cloudflare Access) | Pemilik mematikan Jawab secara manual. | Jawab mati, situs tetap berjalan sebagai Cari |
 
-- **Plafon:** usulan $20/bulan dan 10 Jawab/hari per pengunjung (P-4, menunggu pemilik). Ledger memakai plafon ini; spend limit workspace dipasang sedikit di atasnya (contoh riset: $25) sebagai rem cadangan.
+- **Plafon:** $20/bulan dan 10 Jawab/hari per pengunjung (usulan P-4, dipakai sejak S20 karena belum dijawab; ubah di `/admin`). Ledger memakai plafon ini; spend limit workspace dipasang sedikit di atasnya (contoh riset: $25) sebagai rem cadangan, dan gateway `surau-gw` US$1/hari.
 - Spend cap Anthropic direset tanggal 1 tiap bulan kalender, jadi ledger juga memakai bulan kalender UTC.
 - **Setiap kegagalan penyedia** (429, 400, 5xx, "credit balance is too low") turun dengan anggun ke mode Cari, bukan error 500.
 - Pasang **budget alert** penggunaan D1, Workers AI, dan Vectorize di dashboard Cloudflare.

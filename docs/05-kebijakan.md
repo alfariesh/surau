@@ -108,11 +108,12 @@ Status: ADR-018 dan ADR-021 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUT
 Pertanyaan pengguna bisa sangat pribadi. Surau menyimpan sesedikit mungkin dan **tidak pernah menyimpan alamat IP mentah**. Desain teknisnya ada di ADR-014, ADR-015, dan ADR-016 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md).
 
 - **Tanpa akun.** Fase 0–4 berjalan tanpa login. Bila login ditambahkan kelak, bagian ini diperbarui lebih dulu.
-- **Tanpa IP mentah.** Kuota harian dihitung per HMAC(IP atau prefiks /64, salt harian). Karena salt berganti setiap hari, data kuota tidak bisa dipakai menautkan kunjungan lintas hari. IP hanya dipakai sesaat: untuk menghitung hash kuota, verifikasi Turnstile, dan pembatasan laju.
-- **Turnstile** (Cloudflare) mode Managed, hanya di Jawab. Tokennya sekali pakai. Setelah lolos, browser menerima cookie anonim `surau_anon` yang berisi ID acak, ditandatangani HMAC, dan berlaku 24 jam. Pembaca, Cari, dan MCP tidak memakai Turnstile.
-- **Pemrosesan oleh pihak ketiga.** Pertanyaan Jawab dikirim ke Anthropic (model Claude) untuk diproses, lewat Cloudflare AI Gateway bila uji passthrough lolos (ADR-013). Log AI Gateway dikonfigurasi **tanpa payload**, sehingga pertanyaan dan jawaban tidak tersimpan di sana; yang tercatat hanya token, model, status, biaya, dan durasi.
+- **Tanpa IP mentah.** Kuota harian dihitung per HMAC(IP atau prefiks /64) dengan kunci yang berganti setiap hari (turunan satu secret Worker, ADR-065). Tanpa secret itu, data kuota tidak bisa dipakai menautkan kunjungan lintas hari, dan ID cookie juga hanya tersimpan sebagai HMAC. IP hanya dipakai sesaat: untuk menghitung hash kuota, verifikasi Turnstile, dan pembatasan laju.
+- **Turnstile** (Cloudflare) mode Managed, hanya di Jawab dan hanya saat server memintanya. Tokennya sekali pakai. Setelah lolos, browser menerima cookie anonim `surau_anon` yang berisi ID acak, ditandatangani HMAC, berlaku 24 jam, `HttpOnly`, dan hanya dikirim ke `/api/jawab`. Pembaca, Cari, dan MCP tidak memakai Turnstile atau cookie.
+- **Pemrosesan oleh pihak ketiga.** Pertanyaan Jawab dikirim ke Anthropic (model Claude) untuk diproses, lewat Cloudflare AI Gateway (uji passthrough lolos, ADR-064). Log gateway `surau-gw` **dimatikan** dan setiap permintaan juga membawa `cf-aig-collect-log-payload: false`, sehingga pertanyaan dan jawaban tidak tersimpan di Cloudflare; yang terlihat hanya angka agregat (token, biaya, status).
+- **Retensi Anthropic (dicek 2026-10-21, privacy.claude.com + Commercial Terms):** input dan output API dihapus dalam 30 hari dan tidak dipakai melatih model. Konten yang ditandai sistem keamanan Anthropic sebagai pelanggaran Usage Policy bisa disimpan hingga 2 tahun. Data diproses di server global Anthropic dan disimpan di AS. Surau tidak memakai Zero Data Retention (butuh perjanjian dengan Anthropic); permintaan hapus per item tidak tersedia untuk API, jadi kebijakan publik tidak menjanjikannya.
 - **Log Worker** tidak memuat IP mentah atau teks pertanyaan. Hal ini diperiksa sebelum rilis Jawab.
-- **`answer_log` tanpa PII.** Log jawaban menyimpan pertanyaan, jawaban, sitasi, hasil verifikasi, dan versi prompt, tanpa IP dan tanpa ID cookie. Data identitas yang ikut terketik di pertanyaan (nama, nomor telepon, alamat) dihapus sebelum disimpan atau ditampilkan di halaman `/tinjau`.
+- **`answer_log` tanpa PII.** Log jawaban menyimpan pertanyaan, jawaban, sitasi, hasil verifikasi, dan versi prompt, tanpa IP dan tanpa ID cookie. **Pertanyaan pengguna umum belum disimpan** (hanya arsip eval terkurasi, ADR-052/064/065) sampai pemilik dan dewan memutuskan (Pertanyaan terbuka); S21 hanya menyimpan bila pengguna sendiri melaporkan jawaban. Data identitas yang ikut terketik (email, nomor telepon, NIK/rekening, tautan luar, akun `@`) disamarkan otomatis (`redactPii`, S20) sebelum disimpan atau ditampilkan di `/admin` dan `/tinjau`. Nama orang belum bisa dikenali otomatis, dan ini disebut di kebijakan publik.
 - **Analitik situs** memakai Cloudflare Web Analytics, yang tanpa cookie dan tidak mengumpulkan data pribadi.
 - **Tidak ada pelatihan model** memakai pertanyaan pengguna tanpa persetujuan.
 
@@ -123,14 +124,15 @@ Pertanyaan pengguna bisa sangat pribadi. Surau menyimpan sesedikit mungkin dan *
 | Token Turnstile | tidak disimpan | – | sekali pakai, berlaku 300 detik |
 | Cookie `surau_anon` | browser pengguna | ID acak bertanda tangan | 24 jam |
 | Batas laju (Rate Limiting binding) | penghitung sementara Cloudflare | – | jendela 10 atau 60 detik; tidak ditulis ke database |
-| Kuota harian (`quota_daily`) | D1 `surau-app` | anon-id atau HMAC IP, beserta jumlah | sesuai P-7 (usulan 7 hari); datanya hanya dibutuhkan untuk hari berjalan |
-| Log AI Gateway | Cloudflare | metadata token, biaya, dan status (tanpa payload) | 7 hari |
+| Kuota harian (`quota_daily`) | D1 `surau-app` | HMAC anon-id dan HMAC jaringan IP (kunci harian), beserta jumlah | 7 hari (P-7 usulan, dihapus cron harian S20); datanya hanya dibutuhkan untuk hari berjalan |
+| AI Gateway | Cloudflare | log per permintaan **mati**; hanya angka agregat (token, biaya, status) di Analytics | tanpa log per permintaan |
+| Pemrosesan model | Anthropic | input dan output API | hingga 30 hari; konten bertanda pelanggaran hingga 2 tahun; tidak dipakai melatih model |
 | Workers Logs dan Traces | Cloudflare | log teknis tanpa IP mentah dan tanpa teks pertanyaan | 7 hari (default) |
 | Web Analytics | Cloudflare | statistik kunjungan tanpa data pribadi | data tak tersampel 7 hari, lalu diagregasi |
-| `answer_log` dan `review` | D1 `surau-app` | pertanyaan, jawaban, sitasi, hasil verifikasi, penilaian ustadz; tanpa PII | sesuai P-7 (usulan 12 bulan), arsip untuk eval (ADR-015); perlu persetujuan dewan (lihat Pertanyaan terbuka) |
-| Laporan kesalahan (`feedback`) | D1 `surau-app` | laporan pengguna atas jawaban atau data yang keliru, tanpa PII | sesuai P-7 (usulan: sampai ditangani + 12 bulan); diputuskan sebelum rilis Fase 1, karena feedback dikumpulkan sejak S09 |
-| `llm_ledger` | D1 `surau-app` | catatan token dan biaya per panggilan LLM, tanpa teks pertanyaan | sesuai P-7 (usulan 24 bulan), untuk audit biaya |
-| `answer_cache` | D1 `surau-app` | hash pertanyaan yang dirapikan (bukan teks pertanyaannya) + jawaban terverifikasi (teks Indonesia, ID + offset kutipan), per versi korpus dan prompt. Teks jawaban bisa mengulang detail yang diketik pengguna (mis. kasus pribadi), jadi diperlakukan seperti `answer_log` | sesuai P-7 (usulan 30 hari, S19, ADR-064); kedaluwarsa disaring saat baca, penghapusan fisik terjadwal dan penyamaran PII menyusul di S20 sebelum Jawab dibuka |
+| `answer_log` dan `review` | D1 `surau-app` | pertanyaan, jawaban, sitasi, hasil verifikasi, penilaian ustadz; tanpa PII. Saat ini hanya arsip eval terkurasi | 12 bulan lewat `expires_at` (ADR-052), dihapus fisik oleh cron harian sejak S20 (tinjauannya ikut terhapus); pertanyaan pengguna umum perlu persetujuan dewan (lihat Pertanyaan terbuka) |
+| Laporan kesalahan (`feedback`) | D1 `surau-app` | laporan pengguna atas jawaban atau data yang keliru, tanpa PII (email/telepon/NIK/tautan luar disamarkan sejak S20) | sampai ditangani + 12 bulan (diputuskan pemilik 2026-10-16); laporan `fixed`/`rejected` dihapus fisik oleh cron harian (S20) |
+| `llm_budget` + `llm_ledger` | D1 `surau-app` | anggaran per bulan dan catatan token + biaya per panggilan LLM (jenis, model, hasil), tanpa teks pertanyaan, IP, atau ID | 24 bulan (P-7 usulan, dihapus cron harian S20), untuk audit biaya dan halaman transparansi |
+| `answer_cache` | D1 `surau-app` | HMAC (secret Worker, S20) pertanyaan yang dirapikan, bukan teks pertanyaannya + jawaban terverifikasi (teks Indonesia, ID + offset kutipan), per versi korpus dan prompt. Teks jawaban bisa mengulang detail yang diketik pengguna (mis. kasus pribadi), jadi diperlakukan seperti `answer_log` | 30 hari (P-7 usulan, ADR-064); kedaluwarsa disaring saat baca dan dihapus fisik oleh cron harian (S20) |
 
 ## 9. Tata kelola
 
@@ -201,7 +203,7 @@ MCP publik dirilis di Fase 3, sebelum Jawab (ADR-019), sebagai server terpisah d
 | Apakah PMA 44/2016 (tashih) berlaku untuk aplikasi yang hanya mengutip ayat di dalam kitab | Ditanyakan ke LPMQ Kemenag bila perlu |
 | Edisi terjemahan Kemenag di data pemilik (2002 atau penyempurnaan 2019) dan syarat pakai tertulisnya (ADR-040) | Bandingkan dengan PDF resmi LPMQ; tanyakan ke LPMQ bila perlu |
 | Apakah pertanyaan dan jawaban pengguna boleh disimpan di `answer_log` untuk evaluasi mutu, berapa lama, dan apakah pengguna bisa memilih keluar | Diputuskan pemilik dan dewan pengawas sebelum rilis Jawab |
-| Kebijakan retensi data API di sisi Anthropic (belum diverifikasi untuk dokumen ini) | Diverifikasi sebelum rilis Jawab, lalu dicantumkan di kebijakan privasi publik |
+| Kebijakan retensi data API di sisi Anthropic | **Terjawab 2026-10-21 (S20):** 30 hari, tanpa pelatihan, konten bertanda pelanggaran hingga 2 tahun; dicantumkan di §8 dan halaman publik `/privasi` |
 | Tanggapan Shamela atas email pemberitahuan | Menunggu jawaban |
 
 ## Opsi yang ditolak

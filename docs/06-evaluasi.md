@@ -110,7 +110,7 @@ Semua alat utama dibangun sendiri, dengan biaya alat $0 (ADR-015).
 
 - **`tools/eval`:** runner TypeScript di repo, dengan dataset JSONL dan pemeriksaan deterministik (kutipan verbatim, lokasi, takhrij, penolakan) yang berjalan di CI.
 - **Halaman `/tinjau`:** UI berbahasa Indonesia, teks Arab kanan-ke-kiri (`lang="ar" dir="rtl"`), tombol Benar/Kurang/Salah, komentar, dan alasan. Dilindungi Cloudflare Access dengan login PIN lewat email. Email ustadz didaftarkan oleh pemilik (T-13).
-- **Tabel D1 `answer_log` dan `review`** di DB `surau-app`: arsip eval dengan retensi sesuai P-7 (lihat [05 Kebijakan §8](05-kebijakan.md#8-privasi)). Log AI Gateway hanya bertahan 7 hari dan dikonfigurasi tanpa payload, sehingga bukan arsip eval.
+- **Tabel D1 `answer_log` dan `review`** di DB `surau-app`: arsip eval dengan retensi sesuai P-7 (lihat [05 Kebijakan §8](05-kebijakan.md#8-privasi)). Log per permintaan AI Gateway dimatikan (tanpa payload; hanya angka agregat di Analytics, ADR-065), sehingga bukan arsip eval.
 - **Dataset pihak ketiga** dengan lisensi lain (misalnya IslamicEval) hanya dipakai internal dan tidak diredistribusikan (ADR-021).
 
 ### Cadangan dan opsi yang ditolak
