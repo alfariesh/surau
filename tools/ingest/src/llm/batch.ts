@@ -441,7 +441,7 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
     return 1;
   }
   console.info(
-    `Rencana: data/build/llm/plan-r${round}.jsonl · kirim: pnpm llm submit --round ${round} --confirm`,
+    `Rencana: data/build/llm/plan-r${round}.jsonl · kirim: pnpm llm submit --round ${round} --budget <USD> --confirm`,
   );
   return 0;
 }
@@ -516,8 +516,9 @@ export interface SubmitOptions {
   /** Kirim paling banyak N request dari rencana (urutan rencana). */
   limit?: number;
   /**
-   * Pengaman anggaran yang disetujui pemilik (USD): tolak bila biaya aktual semua batch + perkiraan
-   * request ini (cache 50%) melebihinya.
+   * Pengaman anggaran yang disetujui pemilik (USD): tolak bila biaya aktual batch yang sudah
+   * dikumpulkan + perkiraan batch yang masih diproses + perkiraan request ini (cache 50%)
+   * melebihinya. Wajib bersama `--confirm` (#62).
    */
   budget?: number;
 }
@@ -525,6 +526,54 @@ export interface SubmitOptions {
 /** Biaya aktual semua batch yang sudah dikumpulkan (USD, dari `usage`). */
 export function spentUsd(dir: string): number {
   return readBatches(dir).reduce((a, b) => a + (b.usage?.costUsd ?? 0), 0);
+}
+
+/**
+ * Perkiraan biaya batch yang sudah dikirim tetapi belum dikumpulkan (USD, dari `est_usd` request
+ * yang disimpan saat kirim). `usage` baru diisi `collect`, jadi tanpa ini batch yang masih diproses
+ * terhitung $0 dan dua kiriman bertahap bisa melewati pagu bersama (#62). `unknown` = request tanpa
+ * perkiraan (catatan lama); pengaman menolak kirim selama ada.
+ */
+export function pendingUsd(dir: string): { usd: number; unknown: number } {
+  let usd = 0;
+  let unknown = 0;
+  for (const b of readBatches(dir)) {
+    if (b.collected_at !== null) continue;
+    for (const r of readJsonl(join(dir, "requests", `${b.id}.jsonl`), plannedRequest)) {
+      if (r.est_usd === undefined) unknown++;
+      else usd += r.est_usd;
+    }
+  }
+  return { usd, unknown };
+}
+
+/**
+ * Pengaman anggaran `submit`/`retry` (#62): pesan galat, atau null bila boleh lanjut. `--confirm`
+ * tanpa `--budget` ditolak, karena setiap kiriman berbayar butuh pagu yang disetujui pemilik.
+ */
+export function budgetProblem(
+  dir: string,
+  est: number,
+  confirm: boolean,
+  budget: number | undefined,
+): string | null {
+  const spent = spentUsd(dir);
+  const pending = pendingUsd(dir);
+  const committed = spent + pending.usd;
+  console.info(
+    `Sudah terpakai ${usd(spent)} · masih diproses ±${usd(pending.usd)} · kiriman ini ±${usd(est)}`,
+  );
+  if (budget !== undefined && committed + est > budget) {
+    return `Melebihi anggaran yang disetujui ${usd(budget)} (${usd(spent)} + ${usd(pending.usd)} + ${usd(est)}). Tanya pemilik dulu.`;
+  }
+  if (!confirm) return null;
+  if (budget === undefined) {
+    return "--confirm wajib bersama --budget <USD> (anggaran yang disetujui pemilik di chat).";
+  }
+  if (pending.unknown > 0) {
+    return `${pending.unknown} request di batch yang belum dikumpulkan tanpa perkiraan biaya; jalankan pnpm llm collect dulu.`;
+  }
+  return null;
 }
 
 /**
@@ -585,20 +634,25 @@ export async function runSubmit(
     console.info(`Putaran ${round}: tidak ada request tersisa untuk dikirim.`);
     return 0;
   }
-  const spent = spentUsd(dir);
+  const missing = reqs.filter((r) => r.est_usd === undefined).length;
+  if (missing > 0) {
+    console.error(
+      `${missing} request di rencana tanpa perkiraan biaya. Jalankan ulang: pnpm llm plan --round ${round}`,
+    );
+    return 1;
+  }
   const est = reqs.reduce((a, r) => a + (r.est_usd ?? 0), 0);
   console.info(
-    `Putaran ${round}: kirim ${reqs.length} dari ${remaining.length} request tersisa · perkiraan ${usd(est)} (cache 50%) · sudah terpakai ${usd(spent)}`,
+    `Putaran ${round}: kirim ${reqs.length} dari ${remaining.length} request tersisa · perkiraan ${usd(est)} (cache 50%)`,
   );
-  if (opts.budget !== undefined && spent + est > opts.budget) {
-    console.error(
-      `Melebihi anggaran yang disetujui ${usd(opts.budget)} (${usd(spent)} + ${usd(est)}). Tanya pemilik dulu.`,
-    );
+  const problem = budgetProblem(dir, est, confirm, opts.budget);
+  if (problem !== null) {
+    console.error(problem);
     return 1;
   }
   if (!confirm) {
     console.info(
-      "Belum dikirim. BERBAYAR: kirim hanya setelah pemilik menyetujui biaya di chat, lalu tambahkan --confirm.",
+      "Belum dikirim. BERBAYAR: kirim hanya setelah pemilik menyetujui biaya di chat, lalu tambahkan --budget <USD> --confirm.",
     );
     return 0;
   }
@@ -1082,34 +1136,33 @@ export async function runRetry(
   const counts = await countAll(client, dir, reqs);
   const system = await systemTokenCounts(client);
   const rates = outputRates(dir);
-  const est = reqs.reduce(
-    (a, r) =>
-      a +
-      requestCost(
-        r,
-        counts.get(r.custom_id) ?? 0,
-        system[r.prompt_version] ?? 0,
-        expectedOutput(r, rates),
-        0.5,
-      ),
-    0,
-  );
-  const spent = spentUsd(dir);
-  console.info(`Perkiraan ulangan ${usd(est)} (cache 50%) · sudah terpakai ${usd(spent)}`);
-  if (opts.budget !== undefined && spent + est > opts.budget) {
-    console.error(
-      `Melebihi anggaran yang disetujui ${usd(opts.budget)} (${usd(spent)} + ${usd(est)}). Tanya pemilik dulu.`,
-    );
+  // Perkiraan disimpan per request (requests/<id>.jsonl), supaya pagu kiriman berikutnya menghitung
+  // ulangan ini selama belum dikumpulkan (#62).
+  const priced = reqs.map((r) => ({
+    ...r,
+    est_usd: requestCost(
+      r,
+      counts.get(r.custom_id) ?? 0,
+      system[r.prompt_version] ?? 0,
+      expectedOutput(r, rates),
+      0.5,
+    ),
+  }));
+  const est = priced.reduce((a, r) => a + r.est_usd, 0);
+  console.info(`Perkiraan ulangan ${usd(est)} (cache 50%)`);
+  const problem = budgetProblem(dir, est, confirm, opts.budget);
+  if (problem !== null) {
+    console.error(problem);
     return 1;
   }
   if (!confirm) {
     console.info(
-      "Belum dikirim (berbayar, termasuk dalam biaya batch yang disetujui). Tambahkan --confirm.",
+      "Belum dikirim (berbayar, termasuk dalam biaya batch yang disetujui). Tambahkan --budget <USD> --confirm.",
     );
     return 0;
   }
   const n = readBatches(dir).filter((b) => b.name.includes("-retry")).length + 1;
-  await submit(client, dir, reqs, `retry${n}`);
+  await submit(client, dir, priced, `retry${n}`);
   return 0;
 }
 

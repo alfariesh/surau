@@ -29,13 +29,13 @@ Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURA
 | Perintah | Isi | Biaya |
 |---|---|---|
 | `pnpm llm tokens` | Ukur token Arab Claude Haiku 5.5 pada 200 paragraf acak → `data/reports/ihya-9472-token.md` | gratis (`count_tokens`) |
-| `pnpm llm sample` | Uji kecil 20 paragraf + 5 bagian lewat API biasa → `data/build/llm/sample/` (halaman nilai T-17 tahap 1) | ±$0,03 |
+| `pnpm llm sample --confirm` | Uji kecil 20 paragraf + 5 bagian lewat API biasa → `data/build/llm/sample/` (halaman nilai T-17 tahap 1). Tanpa `--confirm` hanya ringkasan | ±$0,03 |
 | `pnpm llm plan --round 1\|2` | Susun request yang masih tertunda, `count_tokens` semuanya (tolak bila ≥100k), estimasi biaya per skenario cache → `plan-r<n>.jsonl` | gratis |
-| `pnpm llm submit --round 1\|2 [--kind …] [--limit N] [--budget USD] --confirm` | Kirim batch (≤4.000 request per batch) yang sumbernya masih sama dengan korpus saat ini, belum lolos, dan tidak sedang diproses. **Berbayar: hanya setelah pemilik menyetujui biaya di chat**; `--budget` menolak bila biaya terpakai + perkiraan (cache 50%) melebihi angka yang disetujui. Tanpa `--confirm` hanya ringkasan | berbayar |
+| `pnpm llm submit --round 1\|2 [--kind …] [--limit N] --budget USD --confirm` | Kirim batch (≤4.000 request per batch) yang sumbernya masih sama dengan korpus saat ini, belum lolos, dan tidak sedang diproses. **Berbayar: hanya setelah pemilik menyetujui biaya di chat**; `--budget` wajib bersama `--confirm` dan menolak bila biaya terpakai + perkiraan batch yang belum di-`collect` + perkiraan kiriman ini (cache 50%) melebihi angka yang disetujui. Tanpa `--confirm` hanya ringkasan | berbayar |
 | `pnpm llm status` · `pnpm llm wait` | Status batch; `wait` menunggu (poll tiap menit) sampai semua batch terbuka selesai | gratis |
 | `pnpm llm collect` | Unduh hasil mentah batch yang selesai (biaya aktual dari `usage`), lalu bangun ulang hasil lolos/gagal dari semua hasil mentah | gratis |
 | `pnpm llm rejudge` | Bangun ulang hasil lolos/gagal dari hasil mentah dengan aturan validasi dan sumber saat ini (setelah validasi atau pencocok ayat berubah) | gratis |
-| `pnpm llm retry --confirm` | Kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan per `custom_id` | berbayar (kecil) |
+| `pnpm llm retry --budget USD --confirm` | Kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan per `custom_id` | berbayar (kecil) |
 | `pnpm llm report` | `data/reports/ihya-9472-terjemahan.md` (cakupan, gagal, biaya aktual vs estimasi, 20 sampel QA T-17 tahap 2) + halaman nilai lokal `data/build/llm/qa/review-batch.html` | gratis |
 
 Urutan: `plan --round 1` → `submit --round 1 --confirm` → `wait` → `collect` → `retry --confirm` (ulangi sampai tidak ada yang tersisa) → `plan --round 2` → `submit --round 2 --confirm` → `wait` → `collect` → `report` → `pnpm ingest ihya`.

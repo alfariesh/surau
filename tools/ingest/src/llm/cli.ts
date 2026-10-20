@@ -5,11 +5,13 @@
 //   tokens [--n 200]          ukur token Arab Claude (count_tokens, gratis) → laporan + faktor
 //   mcp-tokens [--url URL] [--n 25]  ukur token hasil tool MCP yang sedang berjalan (count_tokens,
 //                             gratis; S16) → data/reports/mcp-token.md
-//   sample                    uji kecil lewat API biasa: 20 paragraf + 5 bagian (berbayar, ±$0,05)
+//   sample [--confirm]        uji kecil lewat API biasa: 20 paragraf + 5 bagian (berbayar, ±$0,05;
+//                             tanpa --confirm hanya ringkasan)
 //   plan [--round 1|2]        susun semua request + count_tokens (gratis) + estimasi biaya
 //   submit --round 1|2 [--kind translation|summary-r1|summary-r2] [--limit N] [--budget USD] [--confirm]
-//                             kirim batch (berbayar; tanpa --confirm hanya ringkasan); bertahap
-//                             dengan --kind/--limit
+//                             kirim batch (berbayar; tanpa --confirm hanya ringkasan; --confirm wajib
+//                             bersama --budget, yang juga menghitung batch yang belum di-collect);
+//                             bertahap dengan --kind/--limit
 //   status                    status batch yang sudah dikirim
 //   wait                      tunggu semua batch terbuka selesai (poll tiap menit)
 //   collect                   unduh hasil batch yang selesai, lalu nilai ulang semua hasil mentah
@@ -122,7 +124,7 @@ async function main(argv: string[]): Promise<number> {
         positiveInt.parse(values.n ?? 25),
       );
     case "sample":
-      return runSample(ctx);
+      return runSample(ctx, values.confirm);
     case "plan":
       return runPlan(ctx, round);
     case "submit": {
@@ -151,7 +153,7 @@ async function main(argv: string[]): Promise<number> {
       return runReport(ctx);
     default:
       console.error(
-        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report [--round 1|2] [--kind …] [--limit N] [--confirm]",
+        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report [--round 1|2] [--kind …] [--limit N] [--budget USD] [--confirm]",
       );
       return 2;
   }
