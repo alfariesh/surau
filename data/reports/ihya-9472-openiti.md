@@ -6,7 +6,7 @@
 - OpenITI rilis 2025.1.9, repo `OpenITI/0525AH` commit `e8dddd44c7998cefce72e4f37fad471634dd9d1e`.
 - Matan: `0505Ghazali.IhyaCulumDin.Shamela0009472-ara1.completed` (sha256 `e60d73c72033e5ca1be5ac3bf52f5fa5057aa4a3d1c750f26b9301b6b97e8997`, cocok).
 - Takhrij: `0505Ghazali.IhyaCulumDin.JK000001-ara1` (sha256 `0780031c3e4a55b65bdf45d7cca890869757cbedaa46a21273e9378428466018`, cocok).
-- Pembanding: teks badan halaman Shamela (sebelum takhrij `//` dipisah) vs teks halaman OpenITI yang sama (penanda `PageVxxPyyy` di akhir halaman), keduanya `normalizeArabic` (NORM_VERSION 1). Kemiripan = 2·LCS token / (jumlah token kedua sisi).
+- Pembanding: teks badan halaman Shamela (sebelum takhrij `//` dipisah) vs teks halaman OpenITI yang sama (penanda `PageVxxPyyy` di akhir halaman), keduanya `normalizeArabic` (NORM_VERSION 2). Kemiripan = 2·LCS token / (jumlah token kedua sisi).
 
 ## Gerbang matan
 

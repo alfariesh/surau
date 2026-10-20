@@ -16,6 +16,7 @@ export {
   expandQueryToken,
   isProtectedToken,
   kunyaVariants,
+  lamMergedVariant,
   queryProclitics,
   stemText,
   stemToken,

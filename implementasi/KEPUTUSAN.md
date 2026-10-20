@@ -1496,3 +1496,36 @@ Kedua jalur ini berada di luar zona `surau.org`, sehingga pagar tingkat zona (WA
 **Tambahan 2026-10-20 (#76):** web mengirim `Strict-Transport-Security: max-age=31536000` dari `next.config.ts`; sebelumnya tidak aktif di edge. Tanpa `includeSubDomains`, karena isi zona DNS belum diperiksa: satu subdomain yang hanya HTTP akan terkunci setahun. Tanpa `preload`, karena sulit ditarik. Header ini tidak ikut pada berkas `public/` (Static Assets), tetapi satu respons HTML sudah cukup bagi peramban.
 
 **Tinjau ulang bila:** Cloudflare memisahkan setelan Version URL dari Preview URL; atau web mendapat titik masuk Worker sendiri (pembungkus OpenNext) tempat penjaga host bisa dipasang.
+
+## ADR-063 · Stem Arab: sisa dua huruf sesudah artikel tidak dipotong, varian lam melebur di kueri; NORM_VERSION 2, korpus `ihya-v7` — diterima · 2026-10-20
+
+**Konteks:** issue #61. `stemToken` membuang artikel selama sisanya minimal dua huruf. Karena normalisasi melipat أ/إ/آ → ا, hasilnya bertabrakan dengan kata lain:
+- الهم → هم ("mereka");
+- الآن → ان (= أن/إن);
+- إليه → يه;
+- الأم → ام.
+
+Bentuk ل + kata berartikel yang huruf pertamanya ل (لِلَّيْل, لِلِّسَان) ditulis dengan lam melebur dan ter-stem menjadi يل/سان, sehingga varian kueri لليل/للسان tidak pernah cocok.
+
+**Keputusan:**
+1. **Indeks dan kueri:** bila sisa sesudah artikel tepat dua huruf, artikel tidak dibuang. Bentuknya diseragamkan menjadi `ال` + sisa, sehingga بالهم/والهم/للهم → الهم. Sisa ≥ 3 huruf tetap dipotong seperti dulu, dan sisa satu huruf (الا) tidak disentuh. `NORM_VERSION` naik ke 2, dan korpus dibangun ulang sebagai `ihya-v7`.
+2. **Kueri saja:** stem berawalan ل mendapat varian `lamMergedVariant`, yaitu stem dari bentuk tulisan "لل" + sisa (ليل → اليل, لسان → سان). Varian ini berlaku di posisi mana pun dalam frasa. Stem kanonis `ال` + dua huruf tidak diberi varian proklitik, karena semua bentuk berklitiknya sudah sama di indeks.
+3. **Tidak diselesaikan:** tabrakan verba berhamzah dengan kata benda berartikel (ألحق/الحق, ألهم/الهم) dan bentuk VIII (التفت) butuh analisis morfologi. Diterima secara sadar.
+
+**Ukuran** (build lokal yang sama, jumlah paragraf cocok, v6 → v7):
+
+| Kueri | v6 | v7 |
+|---|---|---|
+| الهم | 365 | 70 |
+| الآن | 8.335 | 230 |
+| إليه | 1.536 | 1.537 |
+| اللسان | 305 | 309 |
+| الليل | 356 | 356 |
+
+Eval retrieval resmi (31 soal, lokal) tidak berubah: hit@1 64,5%, hit@5 96,8%, hit@10 100%, MRR 0,795.
+
+**Urutan rilis:** kode `NORM_VERSION` 2 dengan korpus `norm_version` 1 membuat Cari Arab menjawab `unavailable`. Karena itu PR ini baru di-merge **bersama** perpindahan binding produksi ke `ihya-v7` (`corpus:promote ihya-v7 --confirm`, butuh izin pemilik). `ihya-v6` tetap menjadi target rollback. Kode lama tetap bisa membaca v6, jadi rollback = revert kode + `--switch-only ihya-v6`. Staging (norm 1) perlu dimuat ulang dari build v7 supaya eval CI dan Preview kembali jalan.
+
+**Ditolak:** sisa minimal tiga huruf tanpa penyeragaman. Cara ini memisahkan الحج dari بالحج/والحج, karena hanya sebagian bentuk yang terpotong, sehingga recall antarproklitik hilang. Juga ditolak daftar pengecualian kata per kata (PROTECTED), karena tidak menjangkau kata dua huruf yang belum terdaftar.
+
+**Tinjau ulang bila:** kitab kedua memuat banyak kata dasar dua huruf yang dicari tanpa artikel (يد, دم); atau analisis morfologi ringan tersedia untuk memisahkan verba berhamzah.

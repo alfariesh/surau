@@ -8,6 +8,7 @@ import {
   expandQueryToken,
   isProtectedToken,
   kunyaVariants,
+  lamMergedVariant,
   queryProclitics,
   stemToken,
 } from "./stem.ts";
@@ -93,7 +94,10 @@ export function planFtsQuery(
 
   let phrases: string[][] = [[]];
   stems.forEach((token, i) => {
-    const bases = kunyaVariants(token);
+    const kunya = kunyaVariants(token);
+    // Varian lam melebur (لليل untuk ليل, #61) berlaku di posisi mana pun.
+    const lam = lamMergedVariant(token);
+    const bases = lam === null ? kunya : [...kunya, lam];
     const variants =
       i === 0 && !isProtectedToken(token)
         ? bases.flatMap((b) => queryProclitics.map((p) => p + b))

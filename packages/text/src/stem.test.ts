@@ -4,6 +4,7 @@ import {
   expandQueryToken,
   isProtectedToken,
   kunyaVariants,
+  lamMergedVariant,
   queryProclitics,
   stemText,
   stemToken,
@@ -47,6 +48,20 @@ describe("stemToken (konservatif)", () => {
     expect(stemToken("اللهم")).toBe("اللهم");
   });
 
+  test("sisa dua huruf: artikel tidak dibuang, bentuk diseragamkan ke ال (#61)", () => {
+    const cases: [string, string][] = [
+      ["الهم", "الهم"],
+      ["بالهم", "الهم"],
+      ["والهم", "الهم"],
+      ["للهم", "الهم"],
+      ["الان", "الان"],
+      ["اليه", "اليه"],
+      ["للام", "الام"],
+      ["هم", "هم"],
+    ];
+    for (const [input, want] of cases) expect(stemToken(input), input).toBe(want);
+  });
+
   test("sisa minimal dua huruf; token kosong aman", () => {
     expect(stemToken("الي")).toBe("الي");
     expect(stemToken("ال")).toBe("ال");
@@ -88,6 +103,15 @@ describe("expandQueryToken", () => {
   test("kata dilindungi dan stem pendek tidak diekspansi", () => {
     expect(expandQueryToken("الله")).toEqual(["الله"]);
     expect(expandQueryToken("في")).toEqual(["في"]);
+  });
+
+  test("stem kanonis ال + dua huruf tidak diekspansi; stem berawalan ل dapat varian lam melebur (#61)", () => {
+    expect(expandQueryToken("الهم")).toEqual(["الهم"]);
+    expect(lamMergedVariant("ليل")).toBe("اليل");
+    expect(lamMergedVariant("لسان")).toBe("سان");
+    expect(lamMergedVariant("صبر")).toBeNull();
+    expect(expandQueryToken("ليل").at(-1)).toBe("اليل");
+    expect(expandQueryToken("لسان")).toContain("سان");
   });
 });
 

@@ -1,6 +1,6 @@
 {
   "_about": "Golden vectors normalizeArabic + stemText (@surau/text). Semua input adalah kalimat pendek buatan atau frasa umum (bukan teks Shamela, bukan kutipan OpenITI). Perubahan aturan normalisasi wajib memperbarui file ini secara sadar DAN menaikkan normVersion (lihat README paket).",
-  "normVersion": 1,
+  "normVersion": 2,
   "cases": [
     { "id": "harakat-dasar", "input": "الصَّبْرُ", "norm": "الصبر", "stem": "صبر" },
     { "id": "tanwin-syaddah", "input": "عِلْمًا نَافِعًا", "norm": "علما نافعا", "stem": "علما نافعا" },
@@ -163,6 +163,25 @@
       "norm": "وصبر فضيله وجوب",
       "stem": "وصبر فضيله وجوب"
     },
-    { "id": "stem-sisa-pendek", "input": "إلا إلى", "norm": "الا الي", "stem": "الا الي" }
+    { "id": "stem-sisa-pendek", "input": "إلا إلى", "norm": "الا الي", "stem": "الا الي" },
+    {
+      "id": "sisa-dua-huruf-artikel",
+      "input": "الْهَمُّ وَالْآنَ إِلَيْهِ",
+      "norm": "الهم والان اليه",
+      "stem": "الهم الان اليه"
+    },
+    {
+      "id": "sisa-dua-huruf-klitik",
+      "input": "بِالْهَمِّ لِلْأُمِّ",
+      "norm": "بالهم للام",
+      "stem": "الهم الام"
+    },
+    {
+      "id": "sisa-tiga-huruf-tetap-dipotong",
+      "input": "بِالصَّبْرِ وَاللَّيْلِ",
+      "norm": "بالصبر والليل",
+      "stem": "صبر ليل"
+    },
+    { "id": "lam-melebur", "input": "لِلَّيْلِ لِلِّسَانِ", "norm": "لليل للسان", "stem": "اليل سان" }
   ]
 }

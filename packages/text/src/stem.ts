@@ -48,7 +48,12 @@ function protectedBase(t: string): string | undefined {
 
 /**
  * Stem satu token ternormalisasi: والصبر/بالصبر/للصبر/فالصبر → صبر; وصبر tetap وصبر.
- * Sisa minimal 2 huruf (الا = إلا tidak dipotong menjadi ا). Identik di sisi indeks dan kueri.
+ * Identik di sisi indeks dan kueri. Sisa sesudah artikel:
+ * - ≥ 3 huruf: artikel dibuang (صبر).
+ * - 2 huruf (الهم, الان, اليه, الام): artikel TIDAK dibuang, karena sisa dua huruf bertabrakan
+ *   dengan kata lain (هم "mereka", ان = أن/إن). Bentuknya diseragamkan ke `ال` + sisa, supaya
+ *   بالهم/والهم/للهم tetap sama dengan الهم (#61, NORM_VERSION 2).
+ * - 1 huruf (الا = إلا): tidak disentuh.
  */
 export function stemToken(token: string): string {
   const protectedForm = protectedBase(token);
@@ -60,9 +65,28 @@ export function stemToken(token: string): string {
     if (afterConj !== undefined) return afterConj;
   }
   for (const prefix of ARTICLE_PREFIXES) {
-    if (t.startsWith(prefix) && t.length - prefix.length >= 2) return t.slice(prefix.length);
+    if (!t.startsWith(prefix)) continue;
+    const rest = t.slice(prefix.length);
+    if (rest.length >= 3) return rest;
+    if (rest.length === 2) return `ال${rest}`;
   }
   return t;
+}
+
+/**
+ * Bentuk ل + kata berartikel yang huruf pertamanya ل ditulis dengan lam melebur: لِلَّيْل (ل + الليل)
+ * = "لليل", yang di indeks menjadi stem lain dari الليل (ليل). Varian kueri untuk stem berawalan ل
+ * = stem dari bentuk tulisan itu; `null` bila tidak ada bedanya (#61).
+ */
+export function lamMergedVariant(stem: string): string | null {
+  if (!stem.startsWith("ل") || stem.length < 3 || PROTECTED.has(stem)) return null;
+  const merged = stemToken(`لل${stem.slice(1)}`);
+  return merged === stem ? null : merged;
+}
+
+/** Stem kanonis berartikel (`ال` + dua huruf): semua bentuk berklitiknya sudah sama di indeks. */
+function isCanonicalArticleStem(stem: string): boolean {
+  return stem.length === 4 && stem.startsWith("ال");
 }
 
 /** Stem setiap token teks ternormalisasi (dipisah spasi). Dipakai untuk kolom sbody/sfoot. */
@@ -83,8 +107,9 @@ const QUERY_PROCLITICS = ["", "و", "ف", "ب", "ك", "ل", "وب", "فب", "و�
  * menambahkannya. Stem < 3 huruf dan kata dilindungi tidak diekspansi (terlalu banyak hit acak).
  */
 export function expandQueryToken(stem: string): string[] {
-  if (PROTECTED.has(stem) || stem.length < 3) return [stem];
-  return QUERY_PROCLITICS.map((p) => p + stem);
+  if (PROTECTED.has(stem) || stem.length < 3 || isCanonicalArticleStem(stem)) return [stem];
+  const lam = lamMergedVariant(stem);
+  return [...QUERY_PROCLITICS.map((p) => p + stem), ...(lam === null ? [] : [lam])];
 }
 
 /** Daftar proklitik kueri (dipakai penyusun frasa FTS), diawali string kosong. */
