@@ -28,7 +28,7 @@ import { ArabicText } from "../arabic";
 const t = id.reader;
 
 // Semua preferensi tampilan hidup di <html> (variabel CSS dan atribut data-*), dipasang skrip awal
-// halaman baca (READER_SCALE_SCRIPT) supaya tidak berkedip. Komponen membaca nilainya lewat
+// root layout (READER_SCALE_SCRIPT) supaya tidak berkedip. Komponen membaca nilainya lewat
 // useSyncExternalStore dan memberi tahu pembaca lain lewat satu event.
 
 const PREFS_EVENT = "surau:reader-prefs";

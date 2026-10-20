@@ -104,7 +104,7 @@
   --font-arabic: var(--font-naskh), "Noto Naskh Arabic", serif;
   --arabic-leading: 2;
 
-  --background: oklch(0.975 0.008 90);
+  --background: oklch(0.985 0.007 90);
   --foreground: oklch(0.23 0.015 85);
   --surface: oklch(0.995 0.004 90);
   --surface-secondary: oklch(0.96 0.01 90);
@@ -172,13 +172,14 @@ body {
 :root {
   --paper-shadow: #cdc8bb;
   --paper-blend: multiply;
-  --paper-strength: 0.55;
+  --paper-strength: 0.45;
   --paper-tile: 768px;
 }
 
 :root.dark {
   --paper-shadow: #3a362e;
   --paper-blend: screen;
+  --paper-strength: 0.55;
 }
 
 :root.sepia {
