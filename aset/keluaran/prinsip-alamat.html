@@ -306,6 +306,8 @@ function mountFigure(cfg) {
       }
       out.push(titik[titik.length - 1]);
       return out; },
+    // simpul: cakram kecil tergeletak di bidang datar setinggi p3[2] (ujung jejak di alas)
+    simpul(p3, hot = true, r = .9) { return `<g transform="${K.TOP(0, 0, p3[2])}"><circle class="led${hot ? ' hot' : ''}" cx="${p3[0].toFixed(2)}" cy="${p3[1].toFixed(2)}" r="${r}"/></g>`; },
     // titik-titik merata menurut panjang (untuk kabel yang "tumbuh": ambil sebagian depannya)
     sampel(pts, n = 60) {
       const len = [0]; for (let i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(...ISO.sub(pts[i], pts[i - 1])));
@@ -423,7 +425,7 @@ function mountFigure(cfg) {
 </script>
 <script>
 /* Prinsip 2 · Setiap klaim ada alamatnya.
-   Proses: kartu klaim di alas → kabel menelusuri ke rak kitab → jilid yang dirujuk ditarik keluar →
+   Proses: kartu klaim di alas → jejak di alas menelusuri ke rak kitab → jilid yang dirujuk ditarik keluar →
    jilid itu menyala dan pita penandanya terangkat (alamat: jilid + halaman). Tanpa kata atau angka di gambar
    (situs tiga bahasa); tanpa nama kitab. Dengan tombol, jilid lain bisa diketuk. */
 const { lerp, ease } = ISO;
@@ -440,7 +442,7 @@ mountFigure({
     { label: 'Kembalikan', aksi: () => H.kembalikan() },
   ],
   mount(stage, api) {
-    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[24,4,27],[50,4,27],[5,33,18]]);
+    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[24,4,27],[50,4,27],[6,32,17]]);
     const { box, FRONT } = K;
     const CARD = [6, 32, 2, 15, 2, 14];
     function buku(i) {
@@ -456,9 +458,10 @@ mountFigure({
       return `<g class="press" data-i="${i}">${s}</g>`;
     }
     // kabel penelusuran: dari kartu klaim ke punggung jilid yang dipilih
-    // jalur isometrik: naik dari kartu, sejajar x di depan rak, lalu sejajar y masuk ke punggung jilid
-    function jalur() { const [cx, cy, cz, cw, cd, ch] = CARD, b = BOOKS[st.pilih], bx = b.x + BW / 2, z = 20;
-      return api.jalur([[cx + cw / 2, cy + cd / 2, cz + ch], [cx + cw / 2, cy + cd / 2, z], [bx, cy + cd / 2, z], [bx, BY + BD + PULL * ease(st.tarik), z]]); }
+    // jejak di alas: dari sisi kartu klaim, sejajar x di depan rak, lalu sejajar y ke kaki punggung jilid
+    const Z = 2.05;
+    function jalur() { const [cx, cy, cz, cw, cd] = CARD, b = BOOKS[st.pilih], bx = b.x + BW / 2, yb = Math.max(20.6, BY + BD + PULL * ease(st.tarik) + .6);
+      return api.jalur([[cx + cw + .5, cy + cd / 2, Z], [bx, cy + cd / 2, Z], [bx, yb, Z]], 2.2); }
     function draw() {
       let s = box(0, 0, 0, 60, 46, 2, 5) + box(22, 2, 2, 30, 18, 1, 1);
       // rak: jilid terpisah di sumbu x, jadi urut x sudah benar (x lebih besar = lebih dekat), ditarik atau tidak
@@ -469,9 +472,9 @@ mountFigure({
         + [0, 1, 2, 3].map(i => `<line class="detail" x1="2" y1="${4 + i * 2.8}" x2="${i === 3 ? 8 : 13}" y2="${4 + i * 2.8}"/>`).join('') + '</g>';
       const c = [[cx, cy, cz], [cx + cw, cy, cz], [cx, cy + cd, cz], [cx + cw, cy + cd, cz]];
       s += K.tepi([...c, ...c.map(p => [p[0], p[1], cz + ch])]);
-      // kabel penelusuran: dari kartu ke punggung jilid yang dipilih
-      const b = BOOKS[st.pilih], pts = jalur();
-      s += `<path class="wire${st.jalur > 0 ? ' hot' : ''}" d="${K.path(pts)}"/>`;
+      // jejak penelusuran di alas: dari kartu ke kaki punggung jilid yang dipilih (digambar terakhir: ia di depan rak)
+      const pts = jalur(), on = st.jalur > 0;
+      s += `<path class="wire${on ? ' hot' : ''}" d="${K.path(pts)}"/>` + api.simpul(pts[0], on) + api.simpul(pts[pts.length - 1], on && st.tarik >= 1);
       api.gambar(s);
     }
     const read = () => api.readout(st.tarik >= 1 ? `Klaim menunjuk ke jilid ${st.pilih + 1} dan halamannya` : 'Menelusuri klaim ke kitabnya');

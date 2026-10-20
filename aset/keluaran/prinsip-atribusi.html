@@ -306,6 +306,8 @@ function mountFigure(cfg) {
       }
       out.push(titik[titik.length - 1]);
       return out; },
+    // simpul: cakram kecil tergeletak di bidang datar setinggi p3[2] (ujung jejak di alas)
+    simpul(p3, hot = true, r = .9) { return `<g transform="${K.TOP(0, 0, p3[2])}"><circle class="led${hot ? ' hot' : ''}" cx="${p3[0].toFixed(2)}" cy="${p3[1].toFixed(2)}" r="${r}"/></g>`; },
     // titik-titik merata menurut panjang (untuk kabel yang "tumbuh": ambil sebagian depannya)
     sampel(pts, n = 60) {
       const len = [0]; for (let i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(...ISO.sub(pts[i], pts[i - 1])));
@@ -423,7 +425,7 @@ function mountFigure(cfg) {
 </script>
 <script>
 /* Prinsip 3 · Atribusi, bukan fatwa.
-   Proses: kartu pernyataan di alas → kabel menyala dari kartu ke kitab sumbernya → papan nama penulis di punggung
+   Proses: kartu pernyataan di alas → jejak di alas menyala dari kartu ke kitab sumbernya → papan nama penulis di punggung
    kitab menyala (penuturnya disebut). Surau tidak mengeluarkan putusan, jadi stempel di alas tetap redup dan
    dicoret. Tanpa kata di gambar (situs tiga bahasa), tanpa nama ulama, wajah, atau huruf Arab. */
 const { ease } = ISO;
@@ -435,21 +437,17 @@ mountFigure({
   alt: 'Ilustrasi garis: kartu pernyataan dihubungkan kabel yang menyala ke kitab sumbernya dengan label "menurut penulis". Stempel putusan di sampingnya tetap redup.',
   tombol: [{ label: 'Siapa yang mengatakan?', aksi: () => H.tunjukkan() }],
   mount(stage, api) {
-    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[8,6,30],[16,6,30],[46,26,20]]);
+    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[8,6,26],[15,6,26],[34,24,19],[52,26,19]]);
     const { box, FRONT, TOP } = K;
     const BOOK = [8, 6, 2, 7, 16, 22], CARD = [34, 24, 2, 18, 2, 16], STAMP = [14, 36, 2, 9, 9];
     const kotakTepi = (x, y, z, w, d, h) => { const c = [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]; return K.tepi([...c, ...c.map(p => [p[0], p[1], z + h])]); };
-    // jalur isometrik: naik dari kartu, sejajar x, sejajar y, lalu turun ke atas kitab sumber
-    const bxm = BOOK[0] + BOOK[3] / 2, bym = BOOK[1] + BOOK[4] / 2, cx0 = CARD[0] + 4, cy0 = CARD[1] + 1;
-    const kabel = () => api.sampel(api.jalur([[cx0, cy0, CARD[2] + CARD[5]], [cx0, cy0, 28], [bxm, cy0, 28], [bxm, bym, 28], [bxm, bym, BOOK[2] + BOOK[5]]]), 80);
+    // jejak di alas: dari kaki muka kartu, sejajar x di belakang stempel, lalu sejajar y ke kaki punggung kitab
+    const Z = 2.05, bxm = BOOK[0] + BOOK[3] / 2, ky = CARD[1] + CARD[4] + .6, A = [CARD[0] + 4, ky, Z], B = [bxm, BOOK[1] + BOOK[4] + .6, Z];
+    const RUTE = api.sampel(api.jalur([A, [bxm, ky, Z], B], 2.2), 80);
+    const kabel = () => RUTE;
     function draw() {
       const on = st.atribusi >= 1;
       let s = box(0, 0, 0, 60, 46, 2, 5);
-      // stempel putusan: silinder pendek yang sengaja redup (Surau tidak memutus perkara)
-      const [sx, sy, sz, sr, sh] = STAMP;
-      s += `<g class="redup">${box(sx - sr / 2, sy - sr / 2, sz, sr, sr, 2, sr / 2)}${box(sx - 1.2, sy - 1.2, sz + 2, 2.4, 2.4, 4.5, 1.2)}${box(sx - 2.2, sy - 2.2, sz + 6.5, 4.4, 4.4, 1.6, 2.2)}</g>`;
-      // coretan: lencana silang tergeletak di alas di samping stempel "putusan" (tidak dipakai)
-      s += api.lencanaBidang('silang', TOP(0, 0, 2.01), sx + 8, sy + 1, 3.2, false, true);
       // kitab sumber berdiri
       const [bx, by, bz, bw, bd, bh] = BOOK;
       s += box(bx, by, bz, bw, bd, bh, 0);
@@ -462,10 +460,16 @@ mountFigure({
       s += box(cx, cy, cz, cw, cd, ch, 0) + `<g transform="${FRONT(cx, cy + cd, cz + ch)}"><text class="label" x="2" y="6.5" style="font-size:7px;font-weight:800">&#8220;</text>`
         + [0, 1, 2].map(i => `<line class="detail" x1="2" y1="${8 + i * 2.6}" x2="${i === 2 ? 9 : cw - 2}" y2="${8 + i * 2.6}"/>`).join('') + '</g>';
       s += kotakTepi(cx, cy, cz, cw, cd, ch);
-      // kabel atribusi: dari kartu ke kitab
+      // jejak atribusi di alas: tumbuh dari kartu ke kitab
       const pts = kabel();
       const k = Math.max(2, Math.round(pts.length * ease(st.atribusi)));
-      if (st.atribusi > 0) s += `<path class="wire hot" d="${K.path(pts.slice(0, k))}"/>`;
+      s += `<path class="wire" d="${K.path(pts)}"/>` + (st.atribusi > 0 ? `<path class="wire hot" d="${K.path(pts.slice(0, k))}"/>` : '');
+      s += api.simpul(A, st.atribusi > 0) + api.simpul(B, on);
+      // stempel putusan: silinder pendek yang sengaja redup (Surau tidak memutus perkara)
+      const [sx, sy, sz, sr, sh] = STAMP;
+      s += `<g class="redup">${box(sx - sr / 2, sy - sr / 2, sz, sr, sr, 2, sr / 2)}${box(sx - 1.2, sy - 1.2, sz + 2, 2.4, 2.4, 4.5, 1.2)}${box(sx - 2.2, sy - 2.2, sz + 6.5, 4.4, 4.4, 1.6, 2.2)}</g>`;
+      // coretan: lencana silang tergeletak di alas di samping stempel "putusan" (tidak dipakai)
+      s += api.lencanaBidang('silang', TOP(0, 0, 2.01), sx + 8, sy + 1, 3.2, false, true);
       api.gambar(s);
     }
     const read = () => api.readout(st.atribusi >= 1 ? 'Pernyataan disampaikan bersama penuturnya: menurut penulis kitab' : 'Pernyataan belum diberi sumber');

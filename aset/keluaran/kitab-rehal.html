@@ -306,6 +306,8 @@ function mountFigure(cfg) {
       }
       out.push(titik[titik.length - 1]);
       return out; },
+    // simpul: cakram kecil tergeletak di bidang datar setinggi p3[2] (ujung jejak di alas)
+    simpul(p3, hot = true, r = .9) { return `<g transform="${K.TOP(0, 0, p3[2])}"><circle class="led${hot ? ' hot' : ''}" cx="${p3[0].toFixed(2)}" cy="${p3[1].toFixed(2)}" r="${r}"/></g>`; },
     // titik-titik merata menurut panjang (untuk kabel yang "tumbuh": ambil sebagian depannya)
     sampel(pts, n = 60) {
       const len = [0]; for (let i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(...ISO.sub(pts[i], pts[i - 1])));

@@ -24,7 +24,8 @@ Isi `K`:
 
 Lain-lain:
 - `api.kurva(a, b, naik)`: kabel melengkung (titik 3D).
-- `api.jalur([titik3D…], r)`: penghubung isometrik (ruas sejajar sumbu, sudut dibulatkan). Ini cara baku menggambar kabel; `api.kurva` (lengkung bebas) hanya untuk gaya lama.
+- `api.jalur([titik3D…], r)`: penghubung isometrik (ruas sejajar sumbu, sudut dibulatkan). Untuk figur situs dipakai sebagai **jejak di alas** (semua titik setinggi permukaan alas). `api.kurva` (lengkung bebas) hanya untuk gaya lama.
+- `api.simpul(p3, hot)`: cakram kecil di ujung jejak, tergeletak di bidang datar.
 - `api.sampel(titik, n)`: titik merata menurut panjang, untuk kabel yang "tumbuh" (ambil sebagian depannya).
 - `api.lencanaBidang('centang'|'silang', K.FRONT(...)|K.TOP(...), u, v, r, hot, datar)`: lencana bebas bahasa yang menempel di bidang (pilihan utama untuk figur situs).
 - `api.lencana(...)`: lencana menghadap layar (gaya lama).
@@ -87,7 +88,7 @@ Fungsi `api`:
 - **Garis lurus mendatar dan filter:** kotak batasnya setinggi nol, jadi filter dengan wilayah bawaan menghapusnya. Mesin sudah memakai `userSpaceOnUse`; jangan membuat filter sendiri.
 - **Kotak bulat:** pakai `box(..., r)` (satu tutup + satu dinding). Jangan membulatkan FRONT dan SIDE terpisah karena sudutnya tidak akan bertemu.
 - **List tipis atau pita di dinding:** gambar sebagai garis atau persegi di bidang FRONT/SIDE, bukan `box` (tutup `box` menutupi apa yang di atasnya).
-- **Kabel:** pakai `api.jalur`: naik dari permukaan asal, berjalan sejajar sumbu di atas benda lain, lalu turun atau masuk tepat di permukaan tujuan. Gambar kabel sesudah benda yang dituju bila ujungnya berada di tutup atas benda itu.
+- **Penghubung = jejak di alas:** `api.jalur` dengan semua titik di permukaan alas (z ≈ 2,05), dari kaki benda asal ke kaki benda tujuan, ujungnya diberi `api.simpul`. Simpul diletakkan sedikit di depan muka yang terlihat (y + 0,6 atau x + 0,5) supaya tidak tertutup benda. Kabel yang melayang terlihat tidak berpijak (ditolak pemilik).
 - **Tanpa kata di figur situs:** situs tiga bahasa dan huruf Arab dilarang di aset. Pakai lencana, pita, papan nama yang menyala, dan coretan. Uji di 240 px.
 - **Satu cerita utuh:** `demo()` memuat kedua sisi (keliru → benar) lalu berhenti. Lebih jelas daripada tombol, dan tidak mengulang tanpa henti.
 - **Escape teks** sebelum masuk SVG (`ISO.esc`; `api.tag` sudah melakukannya).
