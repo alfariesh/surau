@@ -6,11 +6,18 @@ import type { ReactNode } from "react";
 export interface ArabicInlineProps {
   children: ReactNode;
   className?: string;
+  /** Skala ukuran (lihat ArabicText): `md` bawaan 1,15×, `lg` 1,3×, `display` 30/36 px. */
+  size?: "md" | "lg" | "display";
 }
 
-export function ArabicInline({ children, className }: ArabicInlineProps) {
+export function ArabicInline({ children, className, size }: ArabicInlineProps) {
   return (
-    <bdi className={className ? `arabic-inline ${className}` : "arabic-inline"} dir="rtl" lang="ar">
+    <bdi
+      className={className ? `arabic-inline ${className}` : "arabic-inline"}
+      data-size={size === "md" ? undefined : size}
+      dir="rtl"
+      lang="ar"
+    >
       {children}
     </bdi>
   );

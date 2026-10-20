@@ -22,6 +22,14 @@ describe("ArabicText", () => {
     expect(html).toMatch(/^<blockquote class="arabic-text text-2xl" dir="rtl" lang="ar">/);
   });
 
+  it("memakai skala ukuran lewat data-size; md (bawaan) tidak menambah atribut", () => {
+    const lg = renderToStaticMarkup(<ArabicText size="lg">{BASMALAH.text}</ArabicText>);
+    const md = renderToStaticMarkup(<ArabicText size="md">{BASMALAH.text}</ArabicText>);
+
+    expect(lg).toContain('data-size="lg"');
+    expect(md).not.toContain("data-size");
+  });
+
   it("tidak mengubah teks sumber sedikit pun", () => {
     const html = renderToStaticMarkup(<ArabicText>{BASMALAH.text}</ArabicText>);
 
@@ -38,5 +46,11 @@ describe("ArabicInline", () => {
     );
 
     expect(html).toContain(`<bdi class="arabic-inline" dir="rtl" lang="ar">${BASMALAH.text}</bdi>`);
+  });
+
+  it("memakai skala ukuran lewat data-size", () => {
+    const html = renderToStaticMarkup(<ArabicInline size="display">{BASMALAH.text}</ArabicInline>);
+
+    expect(html).toContain('data-size="display"');
   });
 });

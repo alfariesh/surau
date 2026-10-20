@@ -63,9 +63,7 @@ export default async function KitabPage() {
                     ) : (
                       <span>{title}</span>
                     )}
-                    <ArabicInline className="text-muted text-base font-normal">
-                      {work.title_ar}
-                    </ArabicInline>
+                    <ArabicInline className="text-muted font-normal">{work.title_ar}</ArabicInline>
                   </Typography.Heading>
                   {work.author ? (
                     <Typography type="body-sm" color="muted">

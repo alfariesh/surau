@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import type { ReaderAlign, ReaderFont, ReaderLeading } from "../../lib/reader/scale";
 
 import { CellSelect, CellSlider, CellSwitch, Sheet, Widget } from "@heroui-pro/react";
-import { Button, ButtonGroup, ListBox } from "@heroui/react";
+import { Button, ButtonGroup, ListBox, Typography } from "@heroui/react";
 import { useTheme } from "next-themes";
 import { useEffect, useSyncExternalStore } from "react";
 
@@ -291,7 +291,9 @@ function TranslationSwitch() {
           <CellSwitch.Control />
         </CellSwitch.Trigger>
       </CellSwitch>
-      <p className="text-muted px-1 text-xs">{t.translationToggleHint}</p>
+      <Typography type="body-xs" color="muted" className="px-1">
+        {t.translationToggleHint}
+      </Typography>
     </div>
   );
 }
