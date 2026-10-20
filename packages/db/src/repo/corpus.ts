@@ -293,6 +293,30 @@ export function getPassageById(db: D1Db, id: number): Promise<PassageWithPageRow
   );
 }
 
+/**
+ * Paragraf berdasarkan banyak ID beserta letak cetak halamannya (Jawab S19: kandidat dokumen).
+ * ID unik diurutkan; dipecah per ≤100 parameter dalam satu `batch`. ID yang tidak ada dilewati.
+ */
+export async function getPassagesByIds(
+  db: D1Db,
+  ids: readonly number[],
+): Promise<PassageWithPageRow[]> {
+  const unique = [...new Set(ids)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const stmts = chunk(unique, D1_MAX_PARAMS).map((part) =>
+    db
+      .prepare(
+        `SELECT p.id, p.edition_id, p.page_id, p.toc_node_id, p.kind, p.ord, p.text_raw,
+                pg.juz, pg.page_no
+         FROM passage p JOIN page pg ON pg.id = p.page_id
+         WHERE p.id IN (${placeholders(part.length)}) ORDER BY p.id`,
+      )
+      .bind(...part),
+  );
+  const results = await db.batch(stmts);
+  return results.flatMap((r) => r.results.map((row) => passageWithPageRow.parse(row)));
+}
+
 /** Paragraf satu halaman: badan teks dulu, lalu catatan kaki, masing-masing urut `ord`. */
 // `kind = 'foot'` (0/1) dipakai, bukan urutan alfabet `kind`, supaya jenis baru tidak menyela.
 export function getPassagesByPage(db: D1Db, pageId: number): Promise<PassageRow[]> {
@@ -320,6 +344,29 @@ export async function getFootnoteRefs(
       .prepare(
         `SELECT passage_id, char_start, char_end, marker, footnote_passage_id FROM footnote_ref
          WHERE passage_id IN (${placeholders(ids.length)}) ORDER BY passage_id, char_start`,
+      )
+      .bind(...ids),
+  );
+  const results = await db.batch(stmts);
+  return results.flatMap((r) => r.results.map((row) => footnoteRefRow.parse(row)));
+}
+
+/**
+ * Kebalikan `getFootnoteRefs`: penanda yang MENUNJUK sekumpulan catatan kaki (paragraf badan
+ * mana yang dirujuk takhrij itu). Urut (`footnote_passage_id`, `passage_id`, `char_start`).
+ */
+export async function getFootnoteRefsTo(
+  db: D1Db,
+  footnoteIds: readonly number[],
+): Promise<FootnoteRefRow[]> {
+  const unique = [...new Set(footnoteIds)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const stmts = chunk(unique, D1_MAX_PARAMS).map((ids) =>
+    db
+      .prepare(
+        `SELECT passage_id, char_start, char_end, marker, footnote_passage_id FROM footnote_ref
+         WHERE footnote_passage_id IN (${placeholders(ids.length)})
+         ORDER BY footnote_passage_id, passage_id, char_start`,
       )
       .bind(...ids),
   );

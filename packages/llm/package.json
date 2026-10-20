@@ -12,7 +12,9 @@
   "dependencies": {
     "@anthropic-ai/sdk": "catalog:",
     "@surau/core": "workspace:*",
-    "@surau/text": "workspace:*"
+    "@surau/db": "workspace:*",
+    "@surau/text": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

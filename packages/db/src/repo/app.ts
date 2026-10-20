@@ -1,7 +1,7 @@
 // Query DB app: sakelar dan laporan kesalahan. Input pengguna divalidasi Zod sebelum ditulis.
 import type { D1Db } from "../d1.ts";
-import { feedbackInput, settingRow, settingsValues } from "../schema/app.ts";
-import type { FeedbackInput, Settings } from "../schema/app.ts";
+import { answerCacheRow, feedbackInput, settingRow, settingsValues } from "../schema/app.ts";
+import type { AnswerCacheRow, FeedbackInput, Settings } from "../schema/app.ts";
 import { allRows, firstRow } from "./rows.ts";
 import { z } from "zod";
 
@@ -25,4 +25,42 @@ export async function createFeedback(db: D1Db, input: FeedbackInput): Promise<nu
   );
   if (row === null) throw new Error("INSERT feedback tidak mengembalikan id");
   return row.id;
+}
+
+const ANSWER_CACHE_COLS =
+  "key, corpus_version, prompt_version, model, outcome, result_json, created_at, expires_at, hits";
+
+/** Entri cache Jawab yang belum kedaluwarsa (`now` = ISO), atau null. */
+export function getAnswerCache(db: D1Db, key: string, now: string): Promise<AnswerCacheRow | null> {
+  return firstRow(
+    db
+      .prepare(`SELECT ${ANSWER_CACHE_COLS} FROM answer_cache WHERE key = ? AND expires_at > ?`)
+      .bind(key, now),
+    answerCacheRow,
+  );
+}
+
+/** Simpan (atau ganti) entri cache; `hits` mulai 0. */
+export async function putAnswerCache(db: D1Db, row: Omit<AnswerCacheRow, "hits">): Promise<void> {
+  const r = answerCacheRow.parse({ ...row, hits: 0 });
+  await db
+    .prepare(
+      `INSERT OR REPLACE INTO answer_cache (${ANSWER_CACHE_COLS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+    )
+    .bind(
+      r.key,
+      r.corpus_version,
+      r.prompt_version,
+      r.model,
+      r.outcome,
+      r.result_json,
+      r.created_at,
+      r.expires_at,
+    )
+    .all();
+}
+
+/** Tambah hitungan pemakaian cache (statistik; tanpa data pengguna). */
+export async function touchAnswerCache(db: D1Db, key: string): Promise<void> {
+  await db.prepare("UPDATE answer_cache SET hits = hits + 1 WHERE key = ?").bind(key).all();
 }

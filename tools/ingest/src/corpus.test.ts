@@ -11,7 +11,7 @@ import {
   setProductionCorpus,
   stagingCorpus,
 } from "./corpus.ts";
-import { MCP_CONFIG, WEB_CONFIG, repo } from "./d1.ts";
+import { API_CONFIG, MCP_CONFIG, WEB_CONFIG, repo } from "./d1.ts";
 
 const STAGING_ID = "ffc5ce9a-2b5a-4d09-8487-922ff0e67827";
 
@@ -117,6 +117,35 @@ describe("Worker MCP berbagi korpus produksi web (S16)", () => {
     expect(next.slice(next.indexOf('"previews"'))).toBe(mcp.slice(mcp.indexOf('"previews"')));
     // Config tanpa SEARCH_CACHE_CORPUS ditolak bila cache diminta (bawaan untuk web).
     expect(() => setProductionCorpus(mcp, { name: "a", id: "b" })).toThrow(/SEARCH_CACHE_CORPUS/);
+  });
+});
+
+describe("Worker Jawab berbagi korpus produksi web (S19)", () => {
+  const api = readFileSync(join(repo, API_CONFIG), "utf8");
+
+  test("apps/api/wrangler.jsonc: CORPUS_DB produksi = web; lokal + env.staging = korpus staging", () => {
+    const web = readProductionCorpus(readFileSync(join(repo, WEB_CONFIG), "utf8"));
+    expect(readProductionCorpus(api)).toEqual(web);
+    const at = api.indexOf('"env": {');
+    expect(at).toBeGreaterThan(0);
+    expect(api.slice(0, at)).toContain(`"preview_database_id": "${STAGING_ID}"`);
+    expect(api.slice(at)).toMatch(
+      new RegExp(
+        `"binding": "CORPUS_DB",\\s*"database_name": "surau-corpus-staging",\\s*"database_id": "${STAGING_ID}"`,
+      ),
+    );
+    expect(api.slice(at)).toContain('"database_name": "surau-app-staging"');
+  });
+
+  test("setProductionCorpus hanya mengganti top-level, env.staging tetap", () => {
+    const next = setProductionCorpus(
+      api,
+      { name: "surau-corpus-ihya-v9", id: "id-baru" },
+      { searchCache: false },
+    );
+    expect(readProductionCorpus(next)).toEqual({ name: "surau-corpus-ihya-v9", id: "id-baru" });
+    const at = api.indexOf('"env": {');
+    expect(next.slice(next.indexOf('"env": {'))).toBe(api.slice(at));
   });
 });
 

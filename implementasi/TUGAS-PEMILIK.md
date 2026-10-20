@@ -171,13 +171,15 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 ## Fase 4: Jawab
 
 - [ ] **T-14 · Pengaman Fase 4** (bagian Cloudflare Access dibutuhkan S18; sisanya S19–S20; agent memandu langkah demi langkah)
-  - Widget **Turnstile** (mode Managed) untuk domain produksi dan preview.
+  - Widget **Turnstile** (mode Managed) untuk domain produksi dan preview. **Dibuat 2026-10-20:** `Surau`, site key `0x4AAAAAAFdyEf4rqoAMrG1j`, hostnames `surau.org` dan `alfarieshsalman.workers.dev` (termasuk subdomain preview); pre-clearance OFF. Secret belum dipasang ke Worker.
   - **AI Gateway** dengan gateway bernama `surau-gw`:
+    - **Dibuat 2026-10-20:** authenticated ON, collect logs OFF, cache OFF, retry OFF, rate limit 50/menit (fixed), spend limit US$1/hari (sliding, semua provider/model), Require Provider Credentials ON (tanpa fallback Unified Billing untuk provider pihak ketiga). BYOK Anthropic sudah diisi pemilik dan ditandai valid oleh dashboard; token `surau-api-gateway` dibuat setelah persetujuan pemilik (AI Gateway Run, cakupan seluruh akun), sudah disalin pemilik; belum dipasang ke Worker; belum diuji end-to-end dengan permintaan model.
     - aktifkan *Authenticated Gateway*;
     - tempel kunci workspace `surau-prod` di **Provider Keys** (mode BYOK);
     - atur spend limit harian dan rate limit;
     - buat token gateway.
-  - **Cloudflare Zero Trust** (Free): bagian S18 selesai 2026-10-18, **Surau Tinjau** melindungi `/tinjau` dan `/api/review` pada domain utama, One-time PIN, satu email yang diberikan pemilik. `/admin` dan wildcard preview belum dikonfigurasi. Login nyata/penilaian Anas masih T-24.
+  - **Cloudflare Zero Trust** (Free): bagian S18 selesai 2026-10-18, **Surau Tinjau** melindungi `/tinjau` dan `/api/review` pada domain utama, One-time PIN, satu email yang diberikan pemilik. **2026-10-20:** aplikasi `Surau Admin` dibuat untuk `surau.org/admin` dan `surau.org/api/admin`, kebijakan `Pemilik Surau` hanya email pemilik yang dikonfirmasi di chat, One-time PIN, sesi 24 jam. Wildcard preview disetujui pemilik dan tersimpan: `*-surau-web.alfarieshsalman.workers.dev/admin` + `/api/admin` pada `Surau Admin`, serta `/tinjau` + `/api/review` pada `Surau Tinjau` (kebijakan penilai yang sudah ada). Gerbang login terverifikasi di Chrome: produksi `/admin`, preview PR-33 `/admin` dan `/api/review` mengarah ke aplikasi login yang sesuai. Login admin sampai selesai belum diuji; halaman admin dibangun di S20. Login nyata/penilaian Anas masih T-24.
+  - **S19 (2026-10-20):** token gateway disimpan pemilik di `.env` (`CF_AIG_TOKEN`, untuk uji lokal) dan dipasang sebagai secret `surau-api-staging` ("Success"). Uji passthrough gateway lolos (ADR-064); pemilik melihat biaya Haiku tercatat di Analytics. **Masih perlu:** secret yang sama untuk Worker produksi `surau-api` setelah PR S19 di-merge (Worker dibuat `deploy.yml`), dengan perintah di Terminal (folder Surau): `grep '^CF_AIG_TOKEN=' .env | cut -d= -f2- | tr -d '\n' | pnpm wrangler secret put CF_AIG_TOKEN --name surau-api`. Tanpa secret ini Jawab produksi menjawab `not_configured`, dan sampai S20 memang tetap mati.
   - **Secrets Worker** yang Anda jalankan sendiri di Terminal (folder Surau), misalnya `pnpm wrangler secret put CF_AIG_TOKEN --name surau-api`. Agent akan memberi daftar persis: secret apa, untuk Worker mana (`surau-api` atau `surau-web`), termasuk `TURNSTILE_SECRET_KEY`, `ANON_COOKIE_SECRET`, dan `IP_HASH_SECRET`.
   - Putuskan **P-7** (penyimpanan pertanyaan dan jawaban) bila belum.
 

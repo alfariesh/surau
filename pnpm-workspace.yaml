@@ -37,6 +37,10 @@ catalog:
   "@modelcontextprotocol/server": 2.3.1
   "@modelcontextprotocol/client": 2.3.1
 
+  # Worker Jawab `surau-api` (S19, ADR-010): router + streamSSE. MIT, tanpa dependensi. 4.13.13
+  # dirilis 2026-10-04; ≥4.13.11 untuk GHSA-5r4p (serveStatic, tidak dipakai). Hono 5 masih RC.
+  hono: 4.13.13
+
   # Web: Next + React (ADR-003; naik ke 16.4 di X01). 16.4.2 belum 24 jam saat X01 (16 Okt).
   next: 16.4.2
   react: 19.3.1

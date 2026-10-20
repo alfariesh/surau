@@ -22,6 +22,8 @@ export const DB_CONFIG = "packages/db/wrangler.jsonc";
 export const WEB_CONFIG = "apps/web/wrangler.jsonc";
 /** Config Worker MCP (S16): CORPUS_DB top-level = korpus PRODUKSI yang sama dengan web. */
 export const MCP_CONFIG = "apps/mcp/wrangler.jsonc";
+/** Config Worker Jawab (S19): CORPUS_DB top-level = korpus PRODUKSI yang sama; `env.staging` = staging. */
+export const API_CONFIG = "apps/api/wrangler.jsonc";
 export const CORPUS_MIGRATIONS = "packages/db/migrations/corpus";
 
 /** Jalankan wrangler dari root repo. Keluaran (panjang) hanya dicetak bila gagal. */

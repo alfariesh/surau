@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-20 · S19 · Pipeline Jawab — selesai
+
+- Dikerjakan:
+  - Pipeline Jawab `packages/llm/src/jawab`: routing Haiku atas daftar isi ter-cache, kandidat `searchText` RRF, jawaban Citations *custom content* per paragraf, kutipan dipetakan ke ID + offset lalu diverifikasi ke DB, huruf Arab model dibuang, status hadits hanya dari takhrij tersitasi, refusal → Sonnet → Cari, galat → Cari.
+  - Worker `surau-api` + `surau-api-staging` (Hono SSE, tanpa alamat publik); `/api/jawab` web (mati di produksi); `answer_cache`; klien AI Gateway BYOK + `jawab:gateway-check`; `eval:jawab answer`.
+  - Prompt `answer@1→5` dan `answer-route@1→2` diiterasi hanya dengan soal publik; holdout sekali (v4).
+- Verifikasi:
+  - Uji passthrough gateway 12/12 sama dengan langsung; biaya tercatat di Analytics (pemilik).
+  - E2E Preview `pr-98.surau.org/api/jawab`: SSE bertahap, sitasi terverifikasi, cache, `not_found`, status hadits; sakelar staging dimatikan lagi.
+  - Eval final-3 (ihya-v7, 42 publik): kutipan valid 100% (159/159), lokasi 76,5%, penolakan 100% (8/8), tidak salah menolak 100%, tanpa pola fatwa 100%, US$0,00259/jawaban. Holdout v4: kutipan 100% (74/74), lokasi 57,1%. Judge (belum terkalibrasi): v4 kesetiaan 52,4%/atribusi 69,0%, v5 39,0%/63,4%.
+  - `pnpm verify` lolos; sesudah perbaikan akhir `pnpm test` 579 Node + 256 Workers, `pnpm check` bersih. Peninjau tiga putaran; blocker diperbaiki dan dites.
+  - Produksi: `jawab_enabled` = 0, `POST surau.org/api/jawab` = 404.
+- Biaya API: ±**US$1,51** dari izin ≤ US$3. Rinciannya: gateway-check 0,0055; uji kecil 0,0142; publik v1–v4 0,5037; holdout 0,0483; judge v4 0,2267 + v5 0,2323; v5 0,1101; final-2 0,1082; final-3 0,1090; E2E ±0,012. Sekitar 0,147 terbuang di run terputus/dihentikan (remote 0,0665, final 0,0807).
+- Keputusan: ADR-064.
+- Catatan untuk sesi berikutnya: S20 (guard biaya, HMAC kunci cache, PII, penghapusan fisik). Pemilik memasang secret `surau-api` produksi (T-14). Hambatan kualitas: pencarian (lokasi) dan kesetiaan judge; metrik status hadits perlu label.
+
 ## 2026-10-19 · Di luar sesi · Skill aset visual + tiga ilustrasi prinsip di Beranda — selesai
 
 - Dikerjakan: skill `.claude/skills/aset/` (mesin turunan iso-glow MIT, token warna dibaca dari `globals.css`, tombol Indonesia, mode sematan/polos/sampul, demo otomatis, kurangi gerakan; skrip Node `bangun.mjs`/`potret.mjs` dengan WebP/JPG). Colorfigures dicoba dulu lalu diganti setelah pemilik membandingkan keduanya. Figur contoh `kitab-rehal` (hanya di `aset/keluaran/`, untuk cover dan konten) dan tiga figur prinsip yang dipasang di kartu Beranda lewat `ArtEmbed` (iframe sandbox); header `/aset/*` di `public/_headers` (termasuk `no-transform` supaya beacon Web Analytics tidak tersisip, ditemukan di preview), kredit di `/lisensi#ilustrasi`, e2e baru di `smoke.spec.ts`. Peninjau: tanpa blocker; semua temuan perbaiki dan saran diterapkan (ketukan saat demo tidak lagi tertelan, denyut di lapis tetap, hidrasi, penamaan Inggris di web, tema induk menang atas sistem, timer dibersihkan, CSP sandbox, CORS hanya font).

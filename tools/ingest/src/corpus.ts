@@ -99,14 +99,18 @@ export interface CorpusBinding {
   id: string;
 }
 
-// Entri CORPUS_DB top-level (produksi). Blok `previews` (staging) sengaja tidak tersentuh: pola
-// hanya dicari di teks SEBELUM `"previews"`.
+// Entri CORPUS_DB top-level (produksi). Blok `previews` (staging Preview, web/MCP) atau `env`
+// (Worker staging terpisah, apps/api S19) sengaja tidak tersentuh: pola hanya dicari di teks
+// SEBELUM penanda pertama itu.
 const PROD_ENTRY =
   /("binding": "CORPUS_DB",\s*"database_name": ")([^"]+)(",\s*"database_id": ")([^"]+)(")/g;
+const NON_PROD_MARKERS = ['"previews"', '"env": {'];
 
 function splitTopLevel(jsonc: string): [string, string] {
-  const at = jsonc.indexOf('"previews"');
-  if (at < 0) throw new Error(`${"apps/web/wrangler.jsonc"}: blok "previews" tidak ditemukan`);
+  const found = NON_PROD_MARKERS.map((m) => jsonc.indexOf(m)).filter((i) => i >= 0);
+  if (found.length === 0)
+    throw new Error('wrangler.jsonc Worker: blok "previews"/"env" tidak ditemukan');
+  const at = Math.min(...found);
   return [jsonc.slice(0, at), jsonc.slice(at)];
 }
 

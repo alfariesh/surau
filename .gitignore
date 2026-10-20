@@ -16,6 +16,7 @@ CLAUDE.local.md
 .next/
 .open-next/
 apps/mcp/dist/
+apps/api/dist/
 .wrangler/
 *.tsbuildinfo
 coverage/

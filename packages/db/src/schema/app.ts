@@ -59,9 +59,24 @@ export const settingsValues = z.object({
 });
 export type Settings = z.infer<typeof settingsValues>;
 
+/** Cache jawaban Jawab (S19, migrasi 0003). Tanpa teks pertanyaan: kunci = hash. */
+export const answerCacheRow = z.strictObject({
+  key: z.string().regex(/^[a-f0-9]{64}$/u),
+  corpus_version: z.string().min(1),
+  prompt_version: z.string().min(1),
+  model: z.string().min(1),
+  outcome: z.enum(["answer", "not_found"]),
+  result_json: z.string(),
+  created_at: z.string(),
+  expires_at: z.string(),
+  hits: z.number().int().nonnegative(),
+});
+export type AnswerCacheRow = z.infer<typeof answerCacheRow>;
+
 export const appTables = {
   settings: settingRow,
   feedback: feedbackRow,
   answer_log: answerLogRow,
   review: reviewRow,
+  answer_cache: answerCacheRow,
 } as const;

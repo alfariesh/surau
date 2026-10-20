@@ -1,0 +1,75 @@
+// Worker Jawab Surau (S19). Keputusan: ADR-010 (tanpa route publik, service binding dari web),
+// ADR-013 (Haiku 5.5 lewat AI Gateway BYOK), ADR-064 (pipeline S19).
+// Top-level = PRODUKSI `surau-api`. `env.staging` = Worker terpisah `surau-api-staging` (data
+// staging) yang dipanggil Preview web: service binding dari Preview selalu memanggil deployment
+// PRODUKSI Worker tujuan, jadi Preview diarahkan ke Worker staging ini (blok `previews` web).
+// Secret (dipasang pemilik, tidak di file ini): CF_AIG_TOKEN (token gateway `surau-gw`, T-14).
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-14",
+  // Tanpa nodejs_compat: SDK Anthropic, Hono, dan core memakai Web API saja (bundel + tes workerd
+  // lolos tanpa flag, dicek S19). Fetch keluar hanya ke internet publik (gateway).
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  // Tanpa alamat publik sama sekali: tidak ada route, workers.dev mati, Preview/Version URL mati.
+  // Satu-satunya pintu = service binding `API` milik surau-web.
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "ENVIRONMENT": "production",
+    // gateway = AI Gateway `surau-gw` mode BYOK (uji passthrough S19 lolos, ADR-064).
+    "LLM_MODE": "gateway",
+    "AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/8be116534f7237b451f28adec91fbbbd/surau-gw/anthropic",
+  },
+  // CORPUS_DB = korpus PRODUKSI yang SAMA dengan apps/web dan apps/mcp. Nama + ID hanya diubah
+  // `pnpm run corpus:promote` bersama config web/MCP (dijaga tes tools/ingest/src/corpus.test.ts).
+  // `preview_database_id` = staging, dipakai `wrangler dev` lokal (D1 lokal per ID, sama dengan web).
+  // APP_DB = surau-app (sakelar jawab_enabled, answer_cache), sama dengan web.
+  "d1_databases": [
+    {
+      "binding": "CORPUS_DB",
+      "database_name": "surau-corpus-ihya-v7",
+      "database_id": "91d6fdba-106b-43a7-9565-ee8e850c5046",
+      "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+    },
+    {
+      "binding": "APP_DB",
+      "database_name": "surau-app",
+      "database_id": "76b6488e-ec17-4e6d-973f-0156091edf8b",
+    },
+  ],
+  // Teks pertanyaan tidak pernah di-log (P-7); event `jawab` hanya metrik (src/log.ts).
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+  },
+  "upload_source_maps": true,
+  "env": {
+    "staging": {
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "LLM_MODE": "gateway",
+        "AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/8be116534f7237b451f28adec91fbbbd/surau-gw/anthropic",
+      },
+      "d1_databases": [
+        {
+          "binding": "CORPUS_DB",
+          "database_name": "surau-corpus-staging",
+          "database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+        },
+        {
+          "binding": "APP_DB",
+          "database_name": "surau-app-staging",
+          "database_id": "49fd36a5-9e35-4a07-960d-46cfdc5a02db",
+        },
+      ],
+      "observability": {
+        "enabled": true,
+        "logs": { "enabled": true, "head_sampling_rate": 1 },
+        "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+      },
+    },
+  },
+}
