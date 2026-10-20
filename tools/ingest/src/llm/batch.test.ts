@@ -3,19 +3,26 @@ import type { PageRow, PassageRow, TocNodeRow } from "@surau/db";
 import { describe, expect, test } from "vite-plus/test";
 
 import type { CorpusRows } from "../rows.ts";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, renameSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+import type Anthropic from "@anthropic-ai/sdk";
 
 import {
   budgetProblem,
   pendingRequests,
   pendingUsd,
+  plannedRequest,
   readAccepted,
+  readSubmitting,
+  reconcile,
   rebuild,
   retryModel,
   spentUsd,
+  submit,
   submittable,
+  unreconciledProblem,
   unresolved,
 } from "./batch.ts";
 import type { Accepted } from "./batch.ts";
@@ -570,5 +577,205 @@ describe("pagu anggaran (#62)", () => {
     const dir = setup(undefined);
     expect(pendingUsd(dir)).toEqual({ usd: 0, unknown: 1 });
     expect(budgetProblem(dir, 1, true, 100)).toMatch(/tanpa perkiraan biaya/);
+  });
+});
+
+describe("tanda terima pengiriman (#63)", () => {
+  type Listed = {
+    id: string;
+    created_at: string;
+    total: number;
+    ended?: boolean;
+    firstCustomId?: string;
+  };
+  const fakeClient = (opts: { create?: () => Promise<unknown>; list?: Listed[] }) => {
+    const calls = { create: 0 };
+    const client = {
+      messages: {
+        batches: {
+          create: async () => {
+            calls.create++;
+            if (opts.create === undefined) throw new Error("create tidak diharapkan");
+            return opts.create();
+          },
+          list: async function* () {
+            for (const b of opts.list ?? []) {
+              yield {
+                id: b.id,
+                created_at: b.created_at,
+                processing_status: b.ended === true ? "ended" : "in_progress",
+                request_counts: {
+                  processing: b.total,
+                  succeeded: 0,
+                  errored: 0,
+                  canceled: 0,
+                  expired: 0,
+                },
+              };
+            }
+          },
+          results: async (id: string) =>
+            (async function* () {
+              const b = opts.list?.find((x) => x.id === id);
+              if (b?.firstCustomId !== undefined) yield { custom_id: b.firstCustomId };
+            })(),
+        },
+      },
+    } as unknown as Anthropic;
+    return { client, calls };
+  };
+  const plan = () =>
+    pendingRequests(work, accepted(), 1)
+      .slice(0, 2)
+      .map((r) => ({ ...r, est_usd: 1.5 }));
+  const dead = () => false;
+  const MIN_AGE = 16 * 60_000;
+
+  /** Kirim yang timeout: catatan tertinggal, tidak ada batch tercatat. */
+  async function timedOut() {
+    const dir = mkdtempSync(join(tmpdir(), "surau-terima-"));
+    const { client } = fakeClient({
+      create: async () => {
+        throw new Error("timeout");
+      },
+    });
+    await expect(submit(client, dir, plan(), "r1")).rejects.toThrow("timeout");
+    const started = Date.parse(readSubmitting(dir)?.started_at ?? "");
+    const at = (ms: number) => new Date(started + ms).toISOString();
+    return { dir, started, at };
+  }
+
+  test("POST gagal → catatan tetap ada, ikut pagu, dan kiriman berikutnya ditolak tanpa POST", async () => {
+    const { dir } = await timedOut();
+    expect(readBatches(dir)).toEqual([]);
+    expect(readSubmitting(dir)).toMatchObject({
+      requests: 2,
+      est_usd: 3,
+      name: "01-translation",
+      pid: process.pid,
+    });
+    expect(pendingUsd(dir).usd).toBe(3);
+    expect(unreconciledProblem(dir)).toMatch(/pnpm llm reconcile/);
+    const again = fakeClient({ create: async () => ({ id: "b-x", created_at: "x" }) });
+    await expect(submit(again.client, dir, plan(), "r1")).rejects.toThrow(/reconcile/);
+    expect(again.calls.create).toBe(0);
+  });
+
+  test("reconcile tidak menyentuh catatan selama proses pengirim masih hidup", async () => {
+    const { dir, started } = await timedOut();
+    const empty = fakeClient({ list: [] }).client;
+    // Proses tes ini sendiri = pengirim yang masih hidup.
+    expect(await reconcile(empty, dir, { now: started + MIN_AGE })).toEqual({
+      status: "busy",
+      pid: process.pid,
+    });
+    expect(readSubmitting(dir)).not.toBeNull();
+  });
+
+  test("reconcile: hanya batch yang cocok yang dicatat; di luar jendela, jumlah beda, atau milik kiriman lain dilewati", async () => {
+    const { dir, started, at } = await timedOut();
+    const { client } = fakeClient({
+      list: [
+        { id: "b-terlambat", created_at: at(60 * 60_000), total: 2 },
+        { id: "b-eval", created_at: at(3_000), total: 2, ended: true, firstCustomId: "q-001" },
+        { id: "b-lain-jumlah", created_at: at(2_000), total: 5 },
+        {
+          id: "b-cocok",
+          created_at: at(1_000),
+          total: 2,
+          ended: true,
+          firstCustomId: plan()[1]?.custom_id ?? "",
+        },
+        { id: "b-lama", created_at: at(-3_600_000), total: 2 },
+      ],
+    });
+    const r = await reconcile(client, dir, { now: started + 10_000, alive: dead });
+    expect(r).toMatchObject({ status: "adopted", record: { id: "b-cocok", requests: 2 } });
+    expect(readSubmitting(dir)).toBeNull();
+    expect(readBatches(dir).map((b) => b.id)).toEqual(["b-cocok"]);
+    expect(readJsonl(join(dir, "requests", "b-cocok.jsonl"), plannedRequest)).toHaveLength(2);
+    expect(pendingUsd(dir)).toEqual({ usd: 3, unknown: 0 });
+  });
+
+  test("reconcile: tidak ada di server → dilepas hanya setelah batas umur; ambigu → pilih dengan --id", async () => {
+    const { dir, started } = await timedOut();
+    const empty = fakeClient({ list: [] }).client;
+    expect(await reconcile(empty, dir, { now: started + 3 * 60_000, alive: dead })).toEqual({
+      status: "too-early",
+    });
+    expect(await reconcile(empty, dir, { now: started + MIN_AGE, alive: dead })).toEqual({
+      status: "released",
+    });
+    expect(unreconciledProblem(dir)).toBeNull();
+
+    const second = await timedOut();
+    const two = fakeClient({
+      list: [
+        { id: "b-1", created_at: second.at(1_000), total: 2 },
+        { id: "b-2", created_at: second.at(2_000), total: 2 },
+      ],
+    }).client;
+    const now = second.started + MIN_AGE;
+    expect(await reconcile(two, second.dir, { now, alive: dead })).toEqual({
+      status: "ambiguous",
+      ids: ["b-1", "b-2"],
+    });
+    expect(await reconcile(two, second.dir, { now, alive: dead, chosenId: "b-9" })).toMatchObject({
+      status: "rejected",
+    });
+    expect(await reconcile(two, second.dir, { now, alive: dead, chosenId: "b-2" })).toMatchObject({
+      status: "adopted",
+      record: { id: "b-2" },
+    });
+  });
+
+  test("pencatatan idempoten: proses mati setelah request dipindah atau setelah batches.json ditulis", async () => {
+    const { dir, started, at } = await timedOut();
+    const receipt = readSubmitting(dir);
+    if (receipt === null) throw new Error("catatan hilang");
+    // Mati setelah rename, sebelum batches.json: berkas sumber sudah tidak ada.
+    renameSync(join(dir, receipt.file), join(dir, "requests", "b-a.jsonl"));
+    const list = [{ id: "b-a", created_at: at(1_000), total: 2 }];
+    const r = await reconcile(fakeClient({ list }).client, dir, {
+      now: started + 10_000,
+      alive: dead,
+    });
+    expect(r).toMatchObject({ status: "adopted", record: { id: "b-a" } });
+
+    // Mati setelah batches.json, sebelum catatan dilepas: batch sudah dikenal → catatan dilepas.
+    const next = await timedOut();
+    const rec = readSubmitting(next.dir);
+    if (rec === null) throw new Error("catatan hilang");
+    writeBatches(next.dir, [
+      {
+        name: rec.name,
+        id: "b-b",
+        kind: rec.kind,
+        model: rec.model,
+        prompt_version: rec.prompt_version,
+        requests: rec.requests,
+        created_at: next.at(1_000),
+        ended_at: null,
+        collected_at: null,
+        usage: null,
+        outcome: null,
+      },
+    ]);
+    const known = fakeClient({ list: [{ id: "b-b", created_at: next.at(1_000), total: 2 }] });
+    expect(
+      await reconcile(known.client, next.dir, { now: next.started + MIN_AGE, alive: dead }),
+    ).toEqual({ status: "released" });
+    expect(readBatches(next.dir).map((b) => b.id)).toEqual(["b-b"]);
+  });
+
+  test("POST berhasil → tercatat dengan request dari memori dan catatan dilepas", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "surau-terima-"));
+    const { client } = fakeClient({
+      create: async () => ({ id: "b-ok", created_at: "2026-10-20T00:00:00Z" }),
+    });
+    const made = await submit(client, dir, plan(), "r1");
+    expect(made.map((b) => b.id)).toEqual(["b-ok"]);
+    expect(readSubmitting(dir)).toBeNull();
+    expect(readJsonl(join(dir, "requests", "b-ok.jsonl"), plannedRequest)).toHaveLength(2);
   });
 });

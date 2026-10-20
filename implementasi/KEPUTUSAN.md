@@ -1453,3 +1453,23 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Ditolak (untuk sekarang):** rollback otomatis bila smoke produksi gagal (usulan opsional di issue). Butuh keputusan terpisah soal migrasi `surau-app` yang sudah jalan.
 
 **Tinjau ulang bila:** ada berkas Markdown atau isi `docs/` yang mulai dibundel ke Worker (mis. halaman yang merender Markdown dari repo); atau `aset/` mulai disalin ke `apps/web/public` lewat build.
+
+## ADR-061 · Tanda terima sebelum mengirim batch LLM, dan `pnpm llm reconcile` — diterima · 2026-10-20
+
+**Konteks:** issue #63. Pada keputusan batch S13, butir 6 hanya menyebut "tanpa ulang otomatis" untuk POST batch. Namun catatan batch baru ditulis **setelah** `batches.create` berhasil. Bila POST (puluhan MB) timeout atau proses mati padahal server sudah menerima batch, batch itu yatim: tidak ada di `batches.json`, tidak dihitung pagu (ADR #62), dan `submit` berikutnya mengirim request yang sama lagi, sehingga tertagih ganda.
+
+**Keputusan:**
+1. Sebelum POST, `submit` menulis request ke `requests/submitting-*.jsonl` dan catatan `submitting.json` (nama, jumlah request, perkiraan biaya, waktu mulai, PID pengirim). Penulisan berkas JSON di `data/build/llm/` kini atomik (tulis berkas sementara lalu rename).
+2. Setelah POST berhasil, batch dicatat di `batches.json`. Request ditulis ulang dari memori ke `requests/<id>.jsonl`, lalu catatan dilepas. Pencatatan ini idempoten, jadi aman diulang bila proses mati di langkah mana pun.
+3. Selama catatan ada: `submit` dan `retry` menolak jalan sebelum POST, pagu ikut menghitung perkiraan biayanya, dan `status` memberi peringatan.
+4. `pnpm llm reconcile` (gratis) membaca `batches.list` (terbaru dulu) dan mencari kandidat yang memenuhi semua syarat ini:
+   - belum tercatat;
+   - jumlah request sama;
+   - dibuat antara 1 menit sebelum dan 15 menit sesudah catatan;
+   - bila batch sudah selesai, `custom_id` hasil pertamanya milik catatan. Syarat ini mencegah batch `tools/eval` di workspace yang sama ikut diadopsi.
+   
+   Hasilnya: satu kandidat dicatat; lebih dari satu dipilih manual dengan `--id`; tidak ada kandidat berarti catatan dilepas, **hanya** bila proses pengirim sudah mati dan catatan berumur ≥ 15 menit (batas tunggu POST eksplisit 10 menit + 5). Dengan begitu, reconcile di terminal lain tidak bisa melepas pengiriman yang masih berjalan.
+
+**Ditolak:** idempotency key (opsi `idempotencyKey` di SDK 0.135 ditandai deprecated dan tanpa efek); mengulang POST otomatis (justru sumber tagihan ganda).
+
+**Tinjau ulang bila:** API batch mendukung idempotency key atau metadata per batch (pencocokan bisa memakai penanda, tidak lagi jendela waktu dan jumlah request); atau `tools/eval` dan `tools/ingest` mulai mengirim batch berukuran sama secara bersamaan.
