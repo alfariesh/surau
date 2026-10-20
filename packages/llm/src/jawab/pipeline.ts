@@ -48,7 +48,13 @@ export const QUESTION_MAX_CHARS = 1000;
 const FALLBACK_HITS = 5;
 
 export type JawabStage = "route" | "retrieve" | "answer" | "retry" | "verify";
-export type FallbackReason = "no_candidates" | "unverified" | "refusal" | "provider_error";
+/** `budget` (S20): ledger menolak reservasi ulangan Sonnet (anggaran bulan ini tidak cukup). */
+export type FallbackReason =
+  | "no_candidates"
+  | "unverified"
+  | "refusal"
+  | "provider_error"
+  | "budget";
 /** Alasan hasil: turun ke Cari, atau jenis penolakan (`false_premise` = premis keliru). */
 export type JawabReason = FallbackReason | "false_premise";
 
@@ -137,6 +143,11 @@ export interface JawabDeps {
   now?: () => number;
   /** Edisi yang daftar isinya dikirim ke routing (bawaan Ihya, edisi 1). */
   editionId?: number;
+  /**
+   * Dipanggil sebelum ulangan Sonnet (biaya tambahan, S20) dengan salinan pemakaian sejauh ini.
+   * `false` = anggaran tidak cukup → `fallback` alasan `budget` tanpa memanggil Sonnet.
+   */
+  beforeRetry?: (usageSoFar: UsageTotals) => Promise<boolean>;
 }
 
 // Daftar isi per versi korpus disimpan di isolate: sama untuk semua pertanyaan (313 node Ihya).
@@ -432,6 +443,12 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   let model: ModelId = MODELS.haiku;
   let message: Message | null = null;
   for (const candidate of [MODELS.haiku, MODELS.sonnet] as const) {
+    if (
+      candidate === MODELS.sonnet &&
+      deps.beforeRetry !== undefined &&
+      !(await deps.beforeRetry({ ...usage }))
+    )
+      return fallback("budget", model);
     model = candidate;
     try {
       message = await attempt(candidate);

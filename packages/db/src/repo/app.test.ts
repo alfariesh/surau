@@ -14,8 +14,13 @@ import {
 const db = env.APP;
 
 describe("settings", () => {
-  test("migrasi mengisi jawab_enabled = mati", async () => {
-    expect(await getSettings(db)).toEqual({ jawab_enabled: false });
+  test("migrasi mengisi jawab_enabled = mati dan angka P-4 (S20)", async () => {
+    expect(await getSettings(db)).toEqual({
+      jawab_enabled: false,
+      budget_monthly_usd: 20,
+      quota_anon_daily: 10,
+      quota_ip_daily: 30,
+    });
   });
 
   test("sakelar dibaca sebagai boolean", async () => {
@@ -23,7 +28,7 @@ describe("settings", () => {
       await db.prepare("UPDATE settings SET value = '0' WHERE key = 'jawab_enabled'").run();
     });
     await db.prepare("UPDATE settings SET value = '1' WHERE key = 'jawab_enabled'").run();
-    expect(await getSettings(db)).toEqual({ jawab_enabled: true });
+    expect((await getSettings(db)).jawab_enabled).toBe(true);
   });
 });
 

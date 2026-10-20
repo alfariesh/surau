@@ -1,35 +1,67 @@
-// Worker Jawab Surau (S19, ADR-010, ADR-064). Satu route kerja: POST /jawab → SSE. Tanpa alamat
-// publik (wrangler.jsonc): hanya surau-web yang memanggilnya lewat service binding. Guard biaya
-// pengguna umum (Turnstile, kuota, ledger) menyusul di S20; di sini: sakelar `jawab_enabled`,
-// validasi masukan, cache jawaban terverifikasi, dan log tanpa teks pertanyaan.
+// Worker Jawab Surau (S19–S20; ADR-010, ADR-064, ADR-065). Route kerja: `POST /jawab` → SSE dan
+// `GET /jawab/status`. Tanpa alamat publik (wrangler.jsonc): hanya surau-web yang memanggilnya lewat
+// service binding, dan web meneruskan nilai cookie anon (`x-surau-anon`) serta IP klien
+// (`x-surau-ip`). Guard S20 berurutan: masukan → sakelar + secret → cookie anon / Turnstile → burst
+// → kuota harian → cache → reservasi anggaran → pipeline (ulangan Sonnet direservasi terpisah) →
+// komit biaya aktual. Log tanpa teks pertanyaan, tanpa IP, tanpa ID anon.
 import type Anthropic from "@anthropic-ai/sdk";
+import { JAWAB_BODY_MAX_BYTES, jawabRequest } from "@surau/core";
+import type { JawabRequest, JawabStatus } from "@surau/core";
 import {
+  EMPTY_LEDGER_USAGE,
+  MICRO,
+  budgetPeriod,
+  consumeQuota,
   getAnswerCache,
+  getBudget,
   getCorpusMeta,
   getSettings,
+  markBudgetWarning,
   putAnswerCache,
+  quotaDay,
+  quotaUsed,
+  reserveBudget,
+  settleLedger,
+  toMicro,
   touchAnswerCache,
 } from "@surau/db";
+import type { D1Db, LedgerOutcome, LedgerUsage } from "@surau/db";
 import {
   JAWAB_PIPELINE_VERSION,
   JAWAB_PROMPT_VERSION,
-  QUESTION_MAX_CHARS,
+  MODELS,
   answerCacheKey,
   createAnthropic,
   createGatewayAnthropic,
+  jawabReserveUsd,
+  retryReserveUsd,
   runJawab,
 } from "@surau/llm";
-import type { JawabEvent, JawabResult } from "@surau/llm";
+import type { JawabEvent, JawabResult, UsageTotals } from "@surau/llm";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
-import { z } from "zod";
 
-import { emptyLog, resultLog } from "./log.ts";
+import { runCron } from "./cron.ts";
+import {
+  ANON_TTL_SECONDS,
+  SECRET_MIN_LENGTH,
+  anonSetCookie,
+  cacheKey,
+  newAnonId,
+  quotaSubjects,
+  signAnon,
+  verifyAnon,
+} from "./keys.ts";
+import { emptyLog, rejectedLog, resultLog } from "./log.ts";
+import { TURNSTILE_TEST_SECRETS, verifyTurnstile } from "./turnstile.ts";
 
-export const BODY_MAX_BYTES = 8 * 1024;
+export const BODY_MAX_BYTES = JAWAB_BODY_MAX_BYTES;
 /** Umur cache jawaban (ADR-064). Kunci juga berganti bila korpus/prompt berganti. */
 export const CACHE_TTL_DAYS = 30;
 const HEARTBEAT_MS = 10_000;
+/** Header internal dari surau-web (service binding); tidak pernah datang dari internet. */
+export const ANON_HEADER = "x-surau-anon";
+export const IP_HEADER = "x-surau-ip";
 
 /** Hasil yang dikirim ke web: tanpa diagnostik (memuat kueri turunan pertanyaan) dan usage. */
 export type PublicResult = Omit<JawabResult, "diagnostics" | "usage" | "cost_usd" | "latency_ms">;
@@ -38,14 +70,8 @@ export function publicResult(r: JawabResult): PublicResult {
   return rest;
 }
 
-export const jawabRequest = z.strictObject({
-  question: z
-    .string()
-    .trim()
-    .min(3)
-    .max(QUESTION_MAX_CHARS)
-    .refine((s) => !/\p{Cc}/u.test(s.replaceAll(/[\n\t]/gu, " ")), "karakter kontrol"),
-});
+/** Skema masukan bersama web dan Worker (`@surau/core`). */
+export { jawabRequest };
 
 export interface AppDeps {
   /** Klien Anthropic untuk env ini; `null` = belum dikonfigurasi (secret belum dipasang). */
@@ -53,6 +79,10 @@ export interface AppDeps {
   now: () => Date;
   /** Edisi daftar isi routing (tes memakai fixture edisi lain); bawaan Ihya. */
   editionId?: number;
+  /** `fetch` untuk siteverify Turnstile (tes menyuntikkan tiruan; bawaan `fetch` global). */
+  turnstileFetch?: typeof fetch;
+  /** UUID baris ledger (tes). */
+  uuid?: () => string;
 }
 
 export function defaultAnthropic(env: Cloudflare.Env): Anthropic | null {
@@ -64,8 +94,48 @@ export function defaultAnthropic(env: Cloudflare.Env): Anthropic | null {
   return null;
 }
 
-const json = (status: number, body: Record<string, unknown>) =>
-  Response.json(body, { status, headers: { "cache-control": "no-store" } });
+/** Sitekey uji resmi Turnstile (lolos/gagal/interaktif); tidak boleh dipakai produksi. */
+const TEST_SITEKEY = /^[123]x0{20}[A-F]{2}$/u;
+
+export interface GuardConfig {
+  secret: string;
+  turnstileSecret: string;
+  siteKey: string;
+  hostnames: string[];
+}
+
+/** Konfigurasi guard; `null` = belum lengkap (Jawab mati, gagal tertutup). */
+export function guardConfig(env: Cloudflare.Env): GuardConfig | null {
+  const secret = env.SURAU_API_SECRET ?? "";
+  const turnstileSecret = (env.TURNSTILE_SECRET_KEY ?? "").trim();
+  const siteKey = (env.TURNSTILE_SITE_KEY ?? "").trim();
+  const hostnames = (env.TURNSTILE_HOSTNAMES ?? "")
+    .split(",")
+    .map((h) => h.trim().toLowerCase())
+    .filter((h) => h !== "");
+  if (
+    secret.length < SECRET_MIN_LENGTH ||
+    turnstileSecret === "" ||
+    siteKey === "" ||
+    hostnames.length === 0
+  )
+    return null;
+  // Kunci uji menerima token apa pun: produksi menolaknya, juga localhost sebagai hostname.
+  if (
+    env.ENVIRONMENT === "production" &&
+    (TURNSTILE_TEST_SECRETS.has(turnstileSecret) ||
+      TEST_SITEKEY.test(siteKey) ||
+      hostnames.some((h) => h === "localhost" || h.endsWith(".localhost")))
+  )
+    return null;
+  return { secret, turnstileSecret, siteKey, hostnames };
+}
+
+const json = (status: number, body: Record<string, unknown>, cookie: string | null = null) => {
+  const headers = new Headers({ "cache-control": "no-store" });
+  if (cookie !== null) headers.append("set-cookie", cookie);
+  return Response.json(body, { status, headers });
+};
 
 async function readBody(req: Request): Promise<string | null> {
   if (Number(req.headers.get("content-length") ?? "0") > BODY_MAX_BYTES) return null;
@@ -73,36 +143,243 @@ async function readBody(req: Request): Promise<string | null> {
   return new TextEncoder().encode(text).byteLength > BODY_MAX_BYTES ? null : text;
 }
 
+function ledgerUsage(u: UsageTotals): LedgerUsage {
+  return {
+    requests: u.requests,
+    input_tokens: u.input_tokens,
+    output_tokens: u.output_tokens,
+    cache_read_tokens: u.cache_read_input_tokens,
+    cache_write_tokens: u.cache_creation_input_tokens,
+  };
+}
+
+function minusUsage(a: UsageTotals, b: UsageTotals): UsageTotals {
+  return {
+    requests: a.requests - b.requests,
+    input_tokens: a.input_tokens - b.input_tokens,
+    output_tokens: a.output_tokens - b.output_tokens,
+    cache_read_input_tokens: a.cache_read_input_tokens - b.cache_read_input_tokens,
+    cache_creation_input_tokens: a.cache_creation_input_tokens - b.cache_creation_input_tokens,
+    costUsd: Math.max(0, a.costUsd - b.costUsd),
+  };
+}
+
+interface Reserved {
+  id: string;
+  amountMicro: number;
+}
+interface RetryReserved extends Reserved {
+  /** Pemakaian routing + Haiku sebelum ulangan Sonnet. */
+  before: UsageTotals;
+}
+
+/** Komit biaya aktual satu pertanyaan (baris `jawab`, dan baris `retry` bila Sonnet dipanggil). */
+async function commitResult(
+  db: D1Db,
+  primary: Reserved,
+  retry: RetryReserved | null,
+  r: JawabResult,
+  now: string,
+): Promise<void> {
+  const outcome: LedgerOutcome = r.outcome;
+  if (retry === null) {
+    await settleLedger(db, {
+      id: primary.id,
+      outcome,
+      reason: r.reason,
+      model: r.usage.requests > 0 ? MODELS.haiku : null,
+      costMicro: toMicro(r.usage.costUsd),
+      estimated: false,
+      usage: ledgerUsage(r.usage),
+      now,
+    });
+    return;
+  }
+  await settleLedger(db, {
+    id: primary.id,
+    outcome,
+    reason: "retried",
+    model: MODELS.haiku,
+    costMicro: toMicro(retry.before.costUsd),
+    estimated: false,
+    usage: ledgerUsage(retry.before),
+    now,
+  });
+  const after = minusUsage(r.usage, retry.before);
+  await settleLedger(db, {
+    id: retry.id,
+    outcome,
+    reason: r.reason,
+    model: MODELS.sonnet,
+    costMicro: toMicro(after.costUsd),
+    estimated: false,
+    usage: ledgerUsage(after),
+    now,
+  });
+}
+
+/**
+ * Batal klien atau galat tak terduga: biaya aktual tidak diketahui di sini (request Anthropic
+ * terpotong), jadi seluruh reservasi dihitung terpakai (`estimated`). Konservatif: plafon tidak
+ * pernah terlewati oleh biaya yang tidak tercatat.
+ */
+async function commitUnknown(
+  db: D1Db,
+  outcome: "aborted" | "error",
+  reserved: Reserved[],
+  now: string,
+): Promise<void> {
+  for (const r of reserved)
+    await settleLedger(db, {
+      id: r.id,
+      outcome,
+      reason: null,
+      model: null,
+      costMicro: r.amountMicro,
+      estimated: true,
+      usage: EMPTY_LEDGER_USAGE,
+      now,
+    });
+}
+
 export function createApp(deps: Partial<AppDeps> = {}) {
   const anthropicFor = deps.anthropic ?? defaultAnthropic;
   const now = deps.now ?? (() => new Date());
+  const uuid = deps.uuid ?? (() => crypto.randomUUID());
   const app = new Hono<{ Bindings: Cloudflare.Env }>();
+  const log = (entry: object) => console.info(JSON.stringify(entry));
 
   app.get("/health", (c) => c.json({ ok: true, environment: c.env.ENVIRONMENT }));
 
+  // Status untuk UI (S21): apakah Jawab bisa dipakai sekarang, perlu Turnstile, dan sisa kuota.
+  // Tanpa biaya LLM dan tanpa menulis apa pun.
+  app.get("/jawab/status", async (c) => {
+    const env = c.env;
+    const off = (reason: JawabStatus["reason"]): JawabStatus => ({
+      available: false,
+      reason,
+      challenge: false,
+      sitekey: null,
+      quota: null,
+    });
+    const settings = await getSettings(env.APP_DB);
+    if (!settings.jawab_enabled) return json(200, { ...off("disabled") });
+    const cfg = guardConfig(env);
+    if (cfg === null || anthropicFor(env) === null) return json(200, { ...off("not_configured") });
+    const at = now();
+    const anon = await verifyAnon(
+      cfg.secret,
+      c.req.header(ANON_HEADER) ?? null,
+      Math.floor(at.getTime() / 1000),
+    );
+    const budget = await getBudget(env.APP_DB, budgetPeriod(at));
+    const cap = budget?.cap_micro ?? settings.budget_monthly_usd * MICRO;
+    const committed = (budget?.spent_micro ?? 0) + (budget?.reserved_micro ?? 0);
+    if (committed + toMicro(jawabReserveUsd()) > cap) {
+      const status: JawabStatus = { ...off("budget"), sitekey: cfg.siteKey };
+      return json(200, { ...status });
+    }
+    let quota: JawabStatus["quota"] = null;
+    if (anon !== null) {
+      const day = quotaDay(at);
+      const used = await quotaUsed(
+        env.APP_DB,
+        day,
+        await quotaSubjects(cfg.secret, day, anon, c.req.header(IP_HEADER) ?? null),
+      );
+      quota = { used: used.anon, limit: settings.quota_anon_daily };
+      if (used.anon >= settings.quota_anon_daily || used.ip >= settings.quota_ip_daily) {
+        const status: JawabStatus = { ...off("quota"), sitekey: cfg.siteKey, quota };
+        return json(200, { ...status });
+      }
+    }
+    const status: JawabStatus = {
+      available: true,
+      reason: null,
+      challenge: anon === null,
+      sitekey: cfg.siteKey,
+      quota,
+    };
+    return json(200, { ...status });
+  });
+
   app.post("/jawab", async (c) => {
     const env = c.env;
-    const log = (entry: object) => console.info(JSON.stringify(entry));
     if (!(c.req.header("content-type") ?? "").toLowerCase().startsWith("application/json"))
       return json(415, { error: "unsupported_media_type" });
     const raw = await readBody(c.req.raw);
     if (raw === null) return json(413, { error: "too_large" });
-    let parsed: z.infer<typeof jawabRequest>;
+    let parsed: JawabRequest;
     try {
       parsed = jawabRequest.parse(JSON.parse(raw));
     } catch {
       return json(400, { error: "invalid" });
     }
+
+    // 1. Sakelar dan konfigurasi (gagal tertutup).
     const settings = await getSettings(env.APP_DB);
     if (!settings.jawab_enabled) {
       log(emptyLog(env.ENVIRONMENT, "disabled", "switch_off"));
       return json(503, { error: "disabled" });
     }
+    const cfg = guardConfig(env);
     const anthropic = anthropicFor(env);
-    if (anthropic === null) {
+    if (cfg === null || anthropic === null) {
       log(emptyLog(env.ENVIRONMENT, "disabled", "not_configured"));
       return json(503, { error: "not_configured" });
     }
+    const at = now();
+    const nowIso = at.toISOString();
+    const nowSec = Math.floor(at.getTime() / 1000);
+    const ip = c.req.header(IP_HEADER) ?? null;
+
+    // 2. Cookie anon 24 jam; tanpa cookie sah, token Turnstile wajib dan ditukar cookie baru.
+    let anon = await verifyAnon(cfg.secret, c.req.header(ANON_HEADER) ?? null, nowSec);
+    let cookie: string | null = null;
+    if (anon === null) {
+      if (parsed.turnstile === undefined) {
+        log(rejectedLog(env.ENVIRONMENT, "challenge_required"));
+        return json(401, { error: "challenge_required", sitekey: cfg.siteKey });
+      }
+      const verdict = await verifyTurnstile({
+        secret: cfg.turnstileSecret,
+        token: parsed.turnstile,
+        ip,
+        hostnames: cfg.hostnames,
+        ...(deps.turnstileFetch ? { fetcher: deps.turnstileFetch } : {}),
+      });
+      if (verdict === "unavailable") {
+        log(rejectedLog(env.ENVIRONMENT, "challenge_unavailable"));
+        return json(503, { error: "challenge_unavailable" });
+      }
+      if (verdict === "rejected") {
+        log(rejectedLog(env.ENVIRONMENT, "challenge_failed"));
+        return json(403, { error: "challenge_failed", sitekey: cfg.siteKey });
+      }
+      anon = newAnonId();
+      cookie = anonSetCookie(await signAnon(cfg.secret, anon, nowSec + ANON_TTL_SECONDS));
+    }
+
+    // 3. Burst per anon-id (binding Rate Limiting, jendela 60 detik, per lokasi).
+    if (!(await env.JAWAB_BURST.limit({ key: anon })).success) {
+      log(rejectedLog(env.ENVIRONMENT, "rate_limited"));
+      return json(429, { error: "rate_limited" }, cookie);
+    }
+
+    // 4. Kuota harian anon DAN jaringan IP (satu statement atomik; subjek = HMAC harian).
+    const day = quotaDay(at);
+    const quota = await consumeQuota(
+      env.APP_DB,
+      day,
+      await quotaSubjects(cfg.secret, day, anon, ip),
+      { anon: settings.quota_anon_daily, ip: settings.quota_ip_daily },
+    );
+    if (!quota.ok) {
+      log(rejectedLog(env.ENVIRONMENT, quota.scope === "anon" ? "quota_anon" : "quota_ip"));
+      return json(429, { error: "quota_exceeded", scope: quota.scope }, cookie);
+    }
+
+    // 5. Cache jawaban terverifikasi (tanpa biaya LLM). Kunci = HMAC (S20), bukan SHA-256 polos.
     const question = parsed.question;
     const meta = await getCorpusMeta(env.CORPUS_DB);
     // `built_at` ikut kunci: korpus yang dimuat ulang tanpa versi baru (staging) tidak memakai
@@ -112,17 +389,19 @@ export function createApp(deps: Partial<AppDeps> = {}) {
       question,
       corpusKey,
       `${JAWAB_PROMPT_VERSION}+pipeline@${JAWAB_PIPELINE_VERSION}`,
+      await cacheKey(cfg.secret),
     );
-    const cached = await getAnswerCache(env.APP_DB, key, now().toISOString());
-
-    return streamSSE(c, async (stream) => {
-      const send = (event: string, data: unknown) =>
-        stream.writeSSE({ event, data: JSON.stringify(data) });
-      if (cached !== null) {
+    const cached = await getAnswerCache(env.APP_DB, key, nowIso);
+    if (cookie !== null) c.header("Set-Cookie", cookie);
+    if (cached !== null) {
+      return streamSSE(c, async (stream) => {
         c.executionCtx.waitUntil(touchAnswerCache(env.APP_DB, key));
-        await send("done", {
-          result: JSON.parse(cached.result_json) as PublicResult,
-          cached: true,
+        await stream.writeSSE({
+          event: "done",
+          data: JSON.stringify({
+            result: JSON.parse(cached.result_json) as PublicResult,
+            cached: true,
+          }),
         });
         log({
           ...emptyLog(env.ENVIRONMENT, cached.outcome, null),
@@ -131,13 +410,46 @@ export function createApp(deps: Partial<AppDeps> = {}) {
           prompt_version: cached.prompt_version,
           corpus_version: cached.corpus_version,
         });
-        return;
-      }
+      });
+    }
+
+    // 6. Reservasi anggaran atomik sebesar biaya terburuk routing + jawaban Haiku.
+    const period = budgetPeriod(at);
+    const capMicro = settings.budget_monthly_usd * MICRO;
+    const primary: Reserved = { id: uuid(), amountMicro: toMicro(jawabReserveUsd()) };
+    const reserved = await reserveBudget(env.APP_DB, {
+      id: primary.id,
+      kind: "jawab",
+      period,
+      capMicro,
+      amountMicro: primary.amountMicro,
+      now: nowIso,
+    });
+    if (!reserved) {
+      log(rejectedLog(env.ENVIRONMENT, "budget"));
+      return json(503, { error: "budget" }, cookie);
+    }
+
+    // 7. Pipeline + komit biaya aktual.
+    return streamSSE(c, async (stream) => {
+      const send = (event: string, data: unknown) =>
+        stream.writeSSE({ event, data: JSON.stringify(data) });
       const controller = new AbortController();
       stream.onAbort(() => controller.abort());
       const heartbeat = setInterval(() => {
         if (!stream.aborted) void stream.write(": hb\n\n");
       }, HEARTBEAT_MS);
+      // Pemegang (bukan `let`) supaya pengisian dari callback tetap terbaca TypeScript.
+      const ledger: { retry: RetryReserved | null } = { retry: null };
+      const settleLater = (work: Promise<void>) =>
+        c.executionCtx.waitUntil(
+          work.catch((error: unknown) =>
+            log({
+              event: "jawab_ledger_error",
+              name: error instanceof Error ? error.name : "unknown",
+            }),
+          ),
+        );
       const emit = async (e: JawabEvent) => {
         if (stream.aborted) return;
         if (e.type === "stage") await send("stage", { stage: e.stage });
@@ -159,10 +471,47 @@ export function createApp(deps: Partial<AppDeps> = {}) {
             headers: {
               "cf-aig-metadata": JSON.stringify({ app: "surau-api", env: env.ENVIRONMENT }),
             },
+            // Ulangan Sonnet = biaya tambahan: direservasi terpisah sebelum dipanggil.
+            beforeRetry: async (before) => {
+              const retry: RetryReserved = {
+                id: uuid(),
+                amountMicro: toMicro(retryReserveUsd()),
+                before,
+              };
+              const ok = await reserveBudget(env.APP_DB, {
+                id: retry.id,
+                kind: "retry",
+                period,
+                capMicro,
+                amountMicro: retry.amountMicro,
+                now: now().toISOString(),
+              });
+              if (ok) ledger.retry = retry;
+              return ok;
+            },
           },
           question,
         );
         log(resultLog(env.ENVIRONMENT, result, false));
+        settleLater(
+          (async () => {
+            const settledAt = now().toISOString();
+            await commitResult(env.APP_DB, primary, ledger.retry, result, settledAt);
+            const warned = await markBudgetWarning(env.APP_DB, period, settledAt);
+            if (warned !== null)
+              console.warn(
+                JSON.stringify({
+                  event: "jawab_budget_warning",
+                  environment: env.ENVIRONMENT,
+                  period,
+                  used_pct: Math.round(
+                    ((warned.spent_micro + warned.reserved_micro) / Math.max(warned.cap_micro, 1)) *
+                      100,
+                  ),
+                }),
+              );
+          })(),
+        );
         // Hanya hasil utuh yang di-cache: jawaban terpotong (`max_tokens`) atau prompt di atas batas
         // tidak disajikan ulang selama 30 hari.
         const complete = !result.diagnostics.truncated && !result.diagnostics.over_prompt_limit;
@@ -189,9 +538,18 @@ export function createApp(deps: Partial<AppDeps> = {}) {
           );
         }
       } catch (error) {
-        if (controller.signal.aborted) {
-          // Klien membatalkan: request Anthropic ikut dibatalkan; biaya parsial tidak diketahui di
-          // sini (lihat Analytics gateway), tetapi kejadiannya tercatat.
+        const aborted = controller.signal.aborted;
+        settleLater(
+          commitUnknown(
+            env.APP_DB,
+            aborted ? "aborted" : "error",
+            ledger.retry === null ? [primary] : [primary, ledger.retry],
+            now().toISOString(),
+          ),
+        );
+        if (aborted) {
+          // Klien membatalkan: request Anthropic ikut dibatalkan; biaya parsialnya tidak diketahui
+          // di sini (Analytics gateway), jadi reservasinya dihitung terpakai.
           log(emptyLog(env.ENVIRONMENT, "aborted", null));
         } else {
           // Pesan internal (bisa memuat isi) tidak pernah dikirim ke klien atau log.
@@ -212,4 +570,9 @@ export function createApp(deps: Partial<AppDeps> = {}) {
   return app;
 }
 
-export default { fetch: createApp().fetch } satisfies ExportedHandler<Cloudflare.Env>;
+export default {
+  fetch: createApp().fetch,
+  async scheduled(controller, env) {
+    await runCron(env, new Date(controller.scheduledTime));
+  },
+} satisfies ExportedHandler<Cloudflare.Env>;

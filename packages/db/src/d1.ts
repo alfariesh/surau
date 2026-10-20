@@ -6,15 +6,21 @@
 /** Nilai yang bisa diikat ke parameter `?` D1. */
 export type D1Value = string | number | null | ArrayBuffer;
 
+/** Hasil `all()`/`batch()`; `meta.changes` = baris yang diubah statement tulis (D1 asli mengisinya). */
+export interface D1Result {
+  results: unknown[];
+  meta?: { changes?: number; [key: string]: unknown };
+}
+
 export interface D1Statement {
   bind(...values: D1Value[]): D1Statement;
-  all(): Promise<{ results: unknown[] }>;
+  all(): Promise<D1Result>;
   first(): Promise<unknown>;
 }
 
 export interface D1Db {
   prepare(query: string): D1Statement;
-  batch(statements: D1Statement[]): Promise<{ results: unknown[] }[]>;
+  batch(statements: D1Statement[]): Promise<D1Result[]>;
 }
 
 /** Batas D1: maksimal 100 parameter terikat per query (ARSITEKTUR-TEKNIS §8). */

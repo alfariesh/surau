@@ -111,6 +111,7 @@ export {
   buildAnswerRequest,
   fitDocs,
 } from "./jawab/answer.ts";
+export { ROUTE_PROMPT_TOKENS_MAX, jawabReserveUsd, retryReserveUsd } from "./jawab/budget.ts";
 export {
   ROUTE_MAX_TOKENS,
   ROUTE_PROMPT,

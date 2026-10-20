@@ -69,6 +69,19 @@ describe("POST /api/feedback", () => {
     expect(JSON.stringify(saved)).not.toContain("203.0.113.7");
   });
 
+  it("email dan nomor telepon di pesan disamarkan sebelum disimpan (S20)", async () => {
+    const { d, saved } = deps();
+    const res = await handleFeedback(
+      post({
+        ...GOOD,
+        message: "Salah ketik. Hubungi saya di budi@contoh.id atau 0812 3456 7890.",
+      }),
+      d,
+    );
+    expect(res.status).toBe(201);
+    expect(saved[0]?.message).toBe("Salah ketik. Hubungi saya di [email] atau [nomor].");
+  });
+
   it("jenis translation (terjemahan/ringkasan AI, #73) diterima dan disimpan apa adanya", async () => {
     const { d, saved } = deps();
     const res = await handleFeedback(post({ ...GOOD, kind: "translation" }), d);

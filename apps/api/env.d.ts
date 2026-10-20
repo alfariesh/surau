@@ -6,5 +6,9 @@ declare namespace Cloudflare {
     CF_AIG_TOKEN?: string;
     /** Hanya mode `LLM_MODE = "direct"` (dev lokal/uji); tidak dipasang di produksi. */
     ANTHROPIC_API_KEY?: string;
+    /** Secret widget Turnstile `Surau` (T-14). Staging: secret uji resmi. */
+    TURNSTILE_SECRET_KEY?: string;
+    /** Acak ≥32 karakter (S20, ADR-065): sumber kunci HMAC cookie anon, cache, kuota harian. */
+    SURAU_API_SECRET?: string;
   }
 }

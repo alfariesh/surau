@@ -53,11 +53,82 @@ export const feedbackInput = z.strictObject({
 });
 export type FeedbackInput = z.input<typeof feedbackInput>;
 
+/** Bilangan bulat non-negatif dalam teks (`"10"`), maksimal `max`. */
+const intText = (max: number) =>
+  z
+    .string()
+    .regex(/^(0|[1-9][0-9]{0,6})$/u)
+    .transform(Number)
+    .pipe(z.number().int().min(0).max(max));
+
 /** Sakelar yang dikenal beserta tipe nilainya. Nilai di DB selalu teks. */
 export const settingsValues = z.object({
   jawab_enabled: z.enum(["0", "1"]).transform((v) => v === "1"),
+  // S20 (migrasi 0004, P-4): plafon bulanan dalam USD utuh dan kuota harian Jawab.
+  budget_monthly_usd: intText(1000),
+  quota_anon_daily: intText(1000),
+  quota_ip_daily: intText(10_000),
 });
 export type Settings = z.infer<typeof settingsValues>;
+
+/** Nilai yang boleh ditulis /admin untuk setiap kunci (teks seperti di DB). */
+export const settingsInput = {
+  jawab_enabled: z.enum(["0", "1"]),
+  budget_monthly_usd: intText(1000).transform(String),
+  quota_anon_daily: intText(1000).transform(String),
+  quota_ip_daily: intText(10_000).transform(String),
+} as const;
+export type SettingKey = keyof typeof settingsInput;
+
+/** Kuota harian Jawab (S20). `subject` = HMAC hex dengan kunci harian, bukan ID/IP mentah. */
+export const quotaScope = z.enum(["anon", "ip"]);
+export type QuotaScope = z.infer<typeof quotaScope>;
+export const quotaDailyRow = z.strictObject({
+  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
+  scope: quotaScope,
+  subject: z.string().regex(/^[a-f0-9]{64}$/u),
+  used: z.number().int().nonnegative(),
+});
+export type QuotaDailyRow = z.infer<typeof quotaDailyRow>;
+
+/** Anggaran LLM per bulan kalender UTC, mikro-USD bulat (S20). */
+export const llmBudgetRow = z.strictObject({
+  period: z.string().regex(/^\d{4}-\d{2}$/u),
+  cap_micro: z.number().int().nonnegative(),
+  spent_micro: z.number().int().nonnegative(),
+  reserved_micro: z.number().int().nonnegative(),
+  warned_at: z.string().nullable(),
+  updated_at: z.string(),
+});
+export type LlmBudgetRow = z.infer<typeof llmBudgetRow>;
+
+export const ledgerKind = z.enum(["jawab", "retry"]);
+export type LedgerKind = z.infer<typeof ledgerKind>;
+export const ledgerStatus = z.enum(["reserved", "committed", "expired"]);
+export const ledgerOutcome = z.enum(["answer", "not_found", "fallback", "aborted", "error"]);
+export type LedgerOutcome = z.infer<typeof ledgerOutcome>;
+
+/** Satu panggilan berbiaya Jawab (S20). Tanpa teks pertanyaan atau jawaban. */
+export const llmLedgerRow = z.strictObject({
+  id: z.uuid(),
+  kind: ledgerKind,
+  period: z.string().regex(/^\d{4}-\d{2}$/u),
+  created_at: z.string(),
+  settled_at: z.string().nullable(),
+  status: ledgerStatus,
+  outcome: ledgerOutcome.nullable(),
+  reason: z.string().max(32).nullable(),
+  model: z.string().max(64).nullable(),
+  reserved_micro: z.number().int().nonnegative(),
+  cost_micro: z.number().int().nonnegative().nullable(),
+  estimated: z.literal([0, 1]),
+  requests: z.number().int().nonnegative(),
+  input_tokens: z.number().int().nonnegative(),
+  output_tokens: z.number().int().nonnegative(),
+  cache_read_tokens: z.number().int().nonnegative(),
+  cache_write_tokens: z.number().int().nonnegative(),
+});
+export type LlmLedgerRow = z.infer<typeof llmLedgerRow>;
 
 /** Cache jawaban Jawab (S19, migrasi 0003). Tanpa teks pertanyaan: kunci = hash. */
 export const answerCacheRow = z.strictObject({
@@ -79,4 +150,7 @@ export const appTables = {
   answer_log: answerLogRow,
   review: reviewRow,
   answer_cache: answerCacheRow,
+  quota_daily: quotaDailyRow,
+  llm_budget: llmBudgetRow,
+  llm_ledger: llmLedgerRow,
 } as const;

@@ -17,8 +17,9 @@ import {
 } from "../../../packages/core/test/fixture.ts";
 import { docIndex, fakeAnthropic, readSse } from "../test/fake-anthropic.ts";
 import type { FakeAnswer, FakeRoute } from "../test/fake-anthropic.ts";
-import { createApp } from "./index.ts";
+import { ANON_HEADER, IP_HEADER, createApp } from "./index.ts";
 import type { PublicResult } from "./index.ts";
+import { ANON_TTL_SECONDS, newAnonId, signAnon } from "./keys.ts";
 
 const QUESTION = "Apa kata al-Ghazali tentang kesabaran?";
 const ROUTE: FakeRoute = { sections: [], queries: ["sabar", "صبر"], hadith: false };
@@ -33,8 +34,21 @@ beforeEach(async () => {
   await env.APP_DB.batch([
     env.APP_DB.prepare("UPDATE settings SET value = '1' WHERE key = 'jawab_enabled'"),
     env.APP_DB.prepare("DELETE FROM answer_cache"),
+    env.APP_DB.prepare("DELETE FROM quota_daily"),
+    env.APP_DB.prepare("DELETE FROM llm_ledger"),
+    env.APP_DB.prepare("DELETE FROM llm_budget"),
   ]);
 });
+
+/** Header internal dari web: cookie anon sah (ID baru tiap panggilan) + IP uji unik (S20). */
+let ipSeq = 0;
+async function guestHeaders(): Promise<Record<string, string>> {
+  const exp = Math.floor(Date.now() / 1000) + ANON_TTL_SECONDS;
+  return {
+    [ANON_HEADER]: await signAnon(env.SURAU_API_SECRET!, newAnonId(), exp),
+    [IP_HEADER]: `198.51.100.${(ipSeq++ % 250) + 1}`,
+  };
+}
 
 function setup(
   answer: (
@@ -52,7 +66,7 @@ function setup(
       "https://api.internal/jawab",
       {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...(await guestHeaders()) },
         body: JSON.stringify(body),
         ...init,
       },
@@ -396,15 +410,16 @@ describe("degradasi ke Cari", () => {
     try {
       const fake = fakeAnthropic({ route: () => ROUTE, answer: () => ({ hold: true }) });
       const app = createApp({ anthropic: () => fake.client, editionId: ED });
+      const ctx = createExecutionContext();
       const res = await app.request(
         "https://api.internal/jawab",
         {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: { "content-type": "application/json", ...(await guestHeaders()) },
           body: JSON.stringify({ question: QUESTION }),
         },
         env,
-        createExecutionContext(),
+        ctx,
       );
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
@@ -420,6 +435,17 @@ describe("degradasi ke Cari", () => {
       expect(logs.some((l) => l.includes('"outcome":"aborted"'))).toBe(true);
       // Log tidak memuat teks pertanyaan.
       expect(logs.some((l) => l.includes("kesabaran"))).toBe(false);
+      // S20: biaya aktual tidak diketahui → seluruh reservasi dihitung terpakai (estimated).
+      await waitOnExecutionContext(ctx);
+      const row = await env.APP_DB.prepare(
+        "SELECT status, outcome, estimated, cost_micro, reserved_micro FROM llm_ledger",
+      ).first<Record<string, unknown>>();
+      expect(row).toMatchObject({ status: "committed", outcome: "aborted", estimated: 1 });
+      expect(row?.cost_micro).toBe(row?.reserved_micro);
+      const budget = await env.APP_DB.prepare(
+        "SELECT spent_micro, reserved_micro FROM llm_budget",
+      ).first<Record<string, number>>();
+      expect(budget).toEqual({ spent_micro: row?.cost_micro, reserved_micro: 0 });
     } finally {
       spy.mockRestore();
     }

@@ -6,6 +6,7 @@ import { describe, expect, test } from "vite-plus/test";
 import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
 import { ANSWER_FALSE_PREMISE } from "../../prompts/answer-v3.ts";
 import { buildAnswerRequest, fitDocs } from "./answer.ts";
+import { ROUTE_PROMPT_TOKENS_MAX, jawabReserveUsd, retryReserveUsd } from "./budget.ts";
 import {
   SPAN_MAX_CHARS,
   citationSpans,
@@ -319,12 +320,33 @@ describe("kandidat", () => {
 describe("kunci cache", () => {
   test("perapian huruf kecil, spasi, tanda baca akhir; versi ikut kunci", async () => {
     const { answerCacheKey, tidyQuestion } = await import("./cache-key.ts");
+    const hmac = (secret: string) =>
+      crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(secret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"],
+      );
+    const key = await hmac("kunci-uji-pertama-0123456789abcdef");
     expect(tidyQuestion("  Apa itu   SABAR?? ")).toBe("apa itu sabar");
-    const a = await answerCacheKey("Apa itu sabar?", "ihya-v6", "answer@1");
+    const a = await answerCacheKey("Apa itu sabar?", "ihya-v6", "answer@1", key);
     expect(a).toMatch(/^[a-f0-9]{64}$/u);
-    expect(await answerCacheKey("apa itu  sabar", "ihya-v6", "answer@1")).toBe(a);
-    expect(await answerCacheKey("Apa itu sabar?", "ihya-v7", "answer@1")).not.toBe(a);
-    expect(await answerCacheKey("Apa itu sabar?", "ihya-v6", "answer@2")).not.toBe(a);
+    expect(await answerCacheKey("apa itu  sabar", "ihya-v6", "answer@1", key)).toBe(a);
+    expect(await answerCacheKey("Apa itu sabar?", "ihya-v7", "answer@1", key)).not.toBe(a);
+    expect(await answerCacheKey("Apa itu sabar?", "ihya-v6", "answer@2", key)).not.toBe(a);
+    // Kunci lain (secret lain) = hash lain: tanpa secret, pertanyaan tebakan tidak bisa dicocokkan.
+    const other = await hmac("kunci-uji-kedua-0123456789abcdef00");
+    expect(await answerCacheKey("Apa itu sabar?", "ihya-v6", "answer@1", other)).not.toBe(a);
+    // Bukan SHA-256 polos (S19) dari masukan yang sama.
+    const plain = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode("ihya-v6\nanswer@1\napa itu sabar"),
+    );
+    const plainHex = Array.from(new Uint8Array(plain), (b) => b.toString(16).padStart(2, "0")).join(
+      "",
+    );
+    expect(a).not.toBe(plainHex);
   });
 });
 
@@ -522,5 +544,19 @@ describe("klaim hadits", () => {
     expect(checked.blocks.map((b) => b.text).join("")).toBe(`Teks pertama. ${HADITH_UNKNOWN}`);
     expect(checked.citations.map((c) => c.n)).toEqual([1]);
     expect(hadithClaims(blocks, citations, passages)).toEqual([]);
+  });
+});
+
+describe("perkiraan biaya terburuk (reservasi ledger S20)", () => {
+  test("routing + jawaban Haiku dan ulangan Sonnet", () => {
+    // Routing 16k × $0,2/M + 2.048 × $0,5/M; jawaban 40k × $0,2/M + 8.000 × $0,5/M.
+    expect(jawabReserveUsd()).toBeCloseTo(0.004224 + 0.012, 9);
+    // Sonnet: 40k × $4/M (tulis cache 1 jam) + 8.000 × $10/M.
+    expect(retryReserveUsd()).toBeCloseTo(0.24, 9);
+  });
+
+  test("reservasi jauh di atas biaya nyata rata-rata (±$0,0026, ADR-064)", () => {
+    expect(jawabReserveUsd()).toBeGreaterThan(0.0026 * 5);
+    expect(ROUTE_PROMPT_TOKENS_MAX).toBeGreaterThan(11_800 + 1_000);
   });
 });

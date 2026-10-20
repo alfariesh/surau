@@ -1,4 +1,4 @@
-import { ipKey, ipNetwork } from "@surau/core";
+import { ipKey, ipNetwork, redactPii } from "@surau/core";
 import type { FeedbackInput } from "@surau/db";
 
 import { ZodError } from "zod";
@@ -103,7 +103,9 @@ export async function handleFeedback(request: Request, deps: FeedbackDeps): Prom
   try {
     await deps.insert({
       kind: f.kind,
-      message: f.message,
+      // Email, nomor telepon/NIK, dan tautan luar yang ikut terketik disamarkan sebelum disimpan
+      // (docs/05 §8, S20); /admin hanya pernah melihat teks yang sudah disamarkan.
+      message: redactPii(f.message).text,
       path: f.path,
       passage_id: f.passage_id,
       page_id: null,
