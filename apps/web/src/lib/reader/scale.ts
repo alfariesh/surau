@@ -56,7 +56,7 @@ export const READER_ATTR_PREFS = [
 ] as const;
 
 /**
- * Skrip kecil di awal halaman baca: pasang skala, pilihan terjemahan, font, jarak baris, dan perataan
+ * Skrip kecil di awal setiap halaman (root layout): pasang skala, pilihan terjemahan, font, jarak baris, dan perataan
  * tersimpan sebelum teks tampil, supaya tidak berkedip. Gagal diam-diam bila localStorage diblokir.
  */
 export const READER_SCALE_SCRIPT = `try{var d=document.documentElement,l=localStorage,s=Number(l.getItem(${JSON.stringify(READER_SCALE_KEY)}));if(${JSON.stringify(READER_SCALES)}.indexOf(s)>-1)d.style.setProperty("--reader-scale",String(s));if(l.getItem(${JSON.stringify(READER_TRANSLATION_KEY)})==="0")d.setAttribute("data-translation","off");${JSON.stringify(READER_ATTR_PREFS)}.forEach(function(p){var v=l.getItem(p.key);if(v&&v!==p.fallback&&p.values.indexOf(v)>-1)d.setAttribute(p.attr,v)})}catch(e){}`;

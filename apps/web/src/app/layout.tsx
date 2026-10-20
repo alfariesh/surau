@@ -3,8 +3,10 @@ import type { ReactNode } from "react";
 
 import { Amiri, Noto_Naskh_Arabic, Noto_Sans_Arabic, Scheherazade_New } from "next/font/google";
 import localFont from "next/font/local";
+import Script from "next/script";
 
 import { id } from "../i18n/id";
+import { READER_SCALE_SCRIPT } from "../lib/reader/scale";
 import { SITE_URL } from "../lib/site";
 
 import { Providers } from "./providers";
@@ -93,6 +95,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="id"
     >
       <body className="bg-background text-foreground font-sans antialiased">
+        {/* Preferensi tampilan pembaca dipasang di <html> sebelum teks tampil (tidak berkedip). Harus di
+            root layout: <script> di dalam halaman tidak dijalankan saat navigasi klien dan memicu
+            peringatan React. Selektornya hanya mengenai kelas pembaca, jadi aman di semua halaman. */}
+        <Script id="reader-prefs" strategy="beforeInteractive">
+          {READER_SCALE_SCRIPT}
+        </Script>
         <Providers>{children}</Providers>
       </body>
     </html>

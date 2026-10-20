@@ -29,7 +29,6 @@ import { PAGE_FRAME } from "../../../../../../lib/layout";
 import { citeParts } from "../../../../../../lib/reader/cite";
 import { loadPage, loadToc } from "../../../../../../lib/reader/data";
 import { previewSample } from "../../../../../../lib/reader/preview";
-import { READER_SCALE_SCRIPT } from "../../../../../../lib/reader/scale";
 import { splitPassage } from "../../../../../../lib/reader/segments";
 import {
   activeTocIds,
@@ -199,7 +198,6 @@ export default async function ReaderPage({ params }: Props) {
 
   return (
     <ReaderProvider cite={citeParts(page.citation.source, juz, pageNo)} pagePath={permalink}>
-      <script dangerouslySetInnerHTML={{ __html: READER_SCALE_SCRIPT }} />
       {/* Sorotan kata dari hasil Cari (?q=): klien saja, di dalam Suspense (halaman tetap ISR). */}
       <Suspense fallback={null}>
         <SearchHighlighter />
