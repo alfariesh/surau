@@ -4,6 +4,7 @@ import {
   expandQueryToken,
   isProtectedToken,
   kunyaVariants,
+  lamMergedVariant,
   queryProclitics,
   stemText,
   stemToken,
@@ -47,6 +48,26 @@ describe("stemToken (konservatif)", () => {
     expect(stemToken("اللهم")).toBe("اللهم");
   });
 
+  test("sisa dua huruf: kata fungsi tidak terpotong (diseragamkan ke ال), kata benda tetap terpotong (#61)", () => {
+    const cases: [string, string][] = [
+      ["الهم", "الهم"],
+      ["بالهم", "الهم"],
+      ["والهم", "الهم"],
+      ["للهم", "الهم"],
+      ["الان", "الان"],
+      ["للام", "الام"],
+      ["المن", "المن"],
+      ["هم", "هم"],
+      // Kata benda dua huruf: sama seperti NORM_VERSION 1, jadi الحق dan حق tetap saling ditemukan.
+      ["الحق", "حق"],
+      ["بالحق", "حق"],
+      ["الحج", "حج"],
+      ["الشك", "شك"],
+      ["اليه", "يه"],
+    ];
+    for (const [input, want] of cases) expect(stemToken(input), input).toBe(want);
+  });
+
   test("sisa minimal dua huruf; token kosong aman", () => {
     expect(stemToken("الي")).toBe("الي");
     expect(stemToken("ال")).toBe("ال");
@@ -88,6 +109,16 @@ describe("expandQueryToken", () => {
   test("kata dilindungi dan stem pendek tidak diekspansi", () => {
     expect(expandQueryToken("الله")).toEqual(["الله"]);
     expect(expandQueryToken("في")).toEqual(["في"]);
+  });
+
+  test("stem kanonis ال + kata fungsi tidak diekspansi; varian lam melebur hanya untuk token berartikel (#61)", () => {
+    expect(expandQueryToken("الهم")).toEqual(["الهم"]);
+    expect(lamMergedVariant("الليل")).toBe("يل");
+    expect(lamMergedVariant("اللسان")).toBe("سان");
+    expect(lamMergedVariant("الصبر")).toBeNull();
+    // Tanpa artikel: tidak ada varian (لان → الان, لهم → الهم akan membuka tabrakan lagi).
+    for (const token of ["لان", "لهم", "ليس", "ليل"])
+      expect(lamMergedVariant(token), token).toBeNull();
   });
 });
 

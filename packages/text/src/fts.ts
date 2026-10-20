@@ -6,8 +6,10 @@
 import { normalizeArabic } from "./normalize.ts";
 import {
   expandQueryToken,
+  isCanonicalArticleStem,
   isProtectedToken,
   kunyaVariants,
+  lamMergedVariant,
   queryProclitics,
   stemToken,
 } from "./stem.ts";
@@ -69,10 +71,10 @@ export function planFtsQuery(
   query: string,
   opts: Pick<FtsMatchOptions, "suffix"> = {},
 ): FtsQueryPlan | null {
-  const stems = normalizeArabic(query)
+  const tokens = normalizeArabic(query)
     .text.split(" ")
-    .filter((t) => t !== "")
-    .map(stemToken);
+    .filter((t) => t !== "");
+  const stems = tokens.map(stemToken);
   const [first] = stems;
   if (first === undefined) return null;
   if (stems.length > FTS_MAX_TOKENS) {
@@ -82,7 +84,9 @@ export function planFtsQuery(
   if (stems.length === 1) {
     const kunya = kunyaVariants(first);
     if (kunya.length > 1) return { stems, phrases: kunya.map((k) => [k]), prefix: false };
-    const variants = expandQueryToken(first);
+    // Varian lam melebur (لليل untuk الليل, #61): hanya untuk token berartikel, tanpa proklitik.
+    const lam = lamMergedVariant(tokens[0] ?? "");
+    const variants = [...expandQueryToken(first), ...(lam === null ? [] : [lam])];
     if (opts.suffix === true && first.length >= 3) {
       const extra =
         first.endsWith("ه") && !isProtectedToken(first) ? [`${first.slice(0, -1)}ت`] : [];
@@ -94,10 +98,14 @@ export function planFtsQuery(
   let phrases: string[][] = [[]];
   stems.forEach((token, i) => {
     const bases = kunyaVariants(token);
-    const variants =
-      i === 0 && !isProtectedToken(token)
+    // Proklitik hanya untuk token pertama yang bisa memakainya; stem kanonis ال + kata fungsi
+    // sudah mencakup semua bentuk berklitiknya. Varian lam melebur (#61) tanpa proklitik.
+    const withProclitics =
+      i === 0 && !isProtectedToken(token) && !isCanonicalArticleStem(token)
         ? bases.flatMap((b) => queryProclitics.map((p) => p + b))
         : bases;
+    const lam = lamMergedVariant(tokens[i] ?? "");
+    const variants = lam === null ? withProclitics : [...withProclitics, lam];
     phrases = phrases.flatMap((ph) => variants.map((v) => [...ph, v])).slice(0, FTS_MAX_PHRASES);
   });
   return { stems, phrases, prefix: false };

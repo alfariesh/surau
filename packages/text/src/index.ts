@@ -14,8 +14,10 @@ export type { NormalizeOptions, Normalized } from "./normalize.ts";
 
 export {
   expandQueryToken,
+  isCanonicalArticleStem,
   isProtectedToken,
   kunyaVariants,
+  lamMergedVariant,
   queryProclitics,
   stemText,
   stemToken,

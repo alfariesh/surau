@@ -10,7 +10,7 @@
  * karena indeks FTS dan kueri harus memakai aturan yang identik. Kenaikan = reindex penuh.
  * Aturan perubahannya ada di README paket.
  */
-export const NORM_VERSION = 1;
+export const NORM_VERSION = 2;
 
 export interface NormalizeOptions {
   /**
