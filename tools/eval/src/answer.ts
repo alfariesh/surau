@@ -1,5 +1,5 @@
 // S18: baseline gratis; judge berbayar hanya lewat submit --confirm --budget-usd setelah izin.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { evalAnswer, evalHash, resolveEvalSource, searchText } from "@surau/core";
@@ -208,10 +208,23 @@ async function main() {
         });
     await withCorpus(async (corpus, index) => {
       for (const q of items) await validateQuestion(corpus.db, index, q.question, q.private);
-      const { outputs, spent, skipped } = await runQuestions(corpus.db, api, items, {
+      // Setiap jawaban langsung disimpan (privat) supaya biaya tidak hilang bila run terputus.
+      const partial = join(privateDir, `${run}-sebagian.jsonl`);
+      if (existsSync(partial))
+        throw new Error("Berkas sebagian run ini sudah ada; pilih --run baru.");
+      const { outputs, spent, skipped, failed } = await runQuestions(corpus.db, api, items, {
         budgetUsd: budget,
         concurrency: Math.min(6, Math.max(1, Number(values.concurrency) || 1)),
+        onError: (item, error) =>
+          console.error(
+            `${item.private ? "(privat)" : item.question.id} GAGAL: ${error instanceof Error ? error.name : "galat"}`,
+          ),
         onDone: (o, total) => {
+          appendFileSync(
+            partial,
+            `${JSON.stringify({ id: o.item.question.id, private: o.item.private, answer: o.answer, cost_usd: o.result.cost_usd })}\n`,
+            { mode: 0o600 },
+          );
           // Soal privat tidak dicetak per soal (aturan holdout).
           if (!o.item.private)
             console.log(
@@ -269,6 +282,7 @@ async function main() {
           run,
           answered: n,
           skipped_budget: skipped,
+          failed,
           private: outputs.filter((o) => o.item.private).length,
           spent_usd: Number(spent.toFixed(6)),
           avg_usd: n ? Number((spent / n).toFixed(6)) : null,

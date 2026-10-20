@@ -33,7 +33,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Worker Jawab (S19, ADR-064): migrasi app dulu (answer_cache), lalu produksi dan staging. Jawab
+  # Worker Jawab (S19, ADR-064): migrasi app dulu (answer_cache), lalu Worker produksi. Jawab
   # produksi tetap mati (`settings.jawab_enabled` = 0, `JAWAB_ROUTE_ENABLED` web = "0") sampai S20.
   deploy-api:
     name: deploy api
@@ -61,22 +61,47 @@ jobs:
         with:
           heroui-auth-token: ${{ secrets.HEROUI_AUTH_TOKEN }}
 
-      # `surau-app` (produksi) dan `surau-app-staging` (Worker staging + Preview): hanya binding APP;
-      # korpus tidak pernah dimigrasi dari sini (ARSITEKTUR-TEKNIS §7 aturan 4).
-      - name: Migrasi D1 surau-app + surau-app-staging
+      # Hanya binding APP (`surau-app`); korpus tidak pernah dimigrasi dari sini (ARSITEKTUR-TEKNIS §7
+      # aturan 4). Migrasi app sudah ada sebelum kode yang membaca tabel barunya aktif.
+      - name: Migrasi D1 surau-app
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          pnpm run db:migrate:remote
-          pnpm run db:migrate:app-staging
+        run: pnpm run db:migrate:remote
 
       - name: Deploy Worker Jawab
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm --filter @surau/api run deploy:api
+
+  # Worker staging yang dipanggil Preview web (`previews.services`). Terpisah supaya kegagalannya
+  # tidak memblokir deploy web produksi. Catatan: staging mengikuti `main`, jadi Preview sebuah PR
+  # memanggil kode API versi main, bukan kode API dari PR itu (ADR-064); PR yang mengubah apps/api
+  # menguji API-nya dengan deploy staging dari branch atas izin pemilik.
+  deploy-api-staging:
+    name: deploy api staging
+    needs: deploy-api
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: staging-api
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/siapkan
+        with:
+          heroui-auth-token: ${{ secrets.HEROUI_AUTH_TOKEN }}
+
+      - name: Migrasi D1 surau-app-staging + deploy surau-api-staging
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          pnpm --filter @surau/api run deploy:api
+          pnpm run db:migrate:app-staging
           pnpm --filter @surau/api run deploy:api-staging
 
   deploy:

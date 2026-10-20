@@ -130,7 +130,7 @@ Pertanyaan pengguna bisa sangat pribadi. Surau menyimpan sesedikit mungkin dan *
 | `answer_log` dan `review` | D1 `surau-app` | pertanyaan, jawaban, sitasi, hasil verifikasi, penilaian ustadz; tanpa PII | sesuai P-7 (usulan 12 bulan), arsip untuk eval (ADR-015); perlu persetujuan dewan (lihat Pertanyaan terbuka) |
 | Laporan kesalahan (`feedback`) | D1 `surau-app` | laporan pengguna atas jawaban atau data yang keliru, tanpa PII | sesuai P-7 (usulan: sampai ditangani + 12 bulan); diputuskan sebelum rilis Fase 1, karena feedback dikumpulkan sejak S09 |
 | `llm_ledger` | D1 `surau-app` | catatan token dan biaya per panggilan LLM, tanpa teks pertanyaan | sesuai P-7 (usulan 24 bulan), untuk audit biaya |
-| `answer_cache` | D1 `surau-app` | hash pertanyaan yang dirapikan (bukan teks pertanyaannya) + jawaban terverifikasi (teks Indonesia, ID + offset kutipan), per versi korpus dan prompt | 30 hari (S19, ADR-064); kedaluwarsa disaring saat baca, penghapusan fisik terjadwal menyusul di S20 |
+| `answer_cache` | D1 `surau-app` | hash pertanyaan yang dirapikan (bukan teks pertanyaannya) + jawaban terverifikasi (teks Indonesia, ID + offset kutipan), per versi korpus dan prompt. Teks jawaban bisa mengulang detail yang diketik pengguna (mis. kasus pribadi), jadi diperlakukan seperti `answer_log` | sesuai P-7 (usulan 30 hari, S19, ADR-064); kedaluwarsa disaring saat baca, penghapusan fisik terjadwal dan penyamaran PII menyusul di S20 sebelum Jawab dibuka |
 
 ## 9. Tata kelola
 

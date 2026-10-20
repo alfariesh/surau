@@ -37,7 +37,9 @@ Event SSE (`data` = JSON):
 
 Secret (dipasang pemilik, T-14): `CF_AIG_TOKEN` untuk kedua Worker. `ANTHROPIC_API_KEY` hanya untuk `LLM_MODE = "direct"` (dev lokal), tidak dipasang di produksi.
 
-Cache: tabel `answer_cache` di DB app (migrasi 0003), kunci SHA-256 versi korpus + versi prompt + pertanyaan dirapikan, **tanpa teks pertanyaan**, 30 hari. Log Worker: satu event `jawab` per pertanyaan berisi metrik (outcome, token, biaya, sitasi, refusal), tanpa pertanyaan, kueri routing, atau jawaban.
+Cache: tabel `answer_cache` di DB app (migrasi 0003), kunci SHA-256 versi korpus (+ `built_at`) + versi prompt + pertanyaan dirapikan, **tanpa teks pertanyaan**, usulan 30 hari (P-7); hanya hasil utuh (bukan terpotong `max_tokens`). Log Worker: satu event `jawab` per pertanyaan berisi metrik (outcome termasuk `aborted`, token, biaya, sitasi, refusal), tanpa pertanyaan, kueri routing, atau jawaban.
+
+Kalimat "Status hadits: …" tanpa takhrij tersitasi diganti "belum diketahui" dan tidak dipratinjau. `surau-api-staging` di-deploy `deploy.yml` dari `main`: Preview sebuah PR memanggil kode API versi main, bukan kode API PR itu.
 
 ## Perintah
 

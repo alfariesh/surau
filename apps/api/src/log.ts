@@ -5,7 +5,7 @@ import type { JawabResult } from "@surau/llm";
 export interface JawabLog {
   event: "jawab";
   environment: string;
-  outcome: JawabResult["outcome"] | "disabled" | "error";
+  outcome: JawabResult["outcome"] | "disabled" | "error" | "aborted";
   reason: string | null;
   cached: boolean;
   model: string | null;
@@ -25,6 +25,8 @@ export interface JawabLog {
   citations_dropped: number;
   blocks_dropped: number;
   arabic_removed: number;
+  hadith_unsupported: number;
+  truncated: boolean;
   refusals: { model: string; category: string | null }[];
   provider_error: { status: number | null; type: string } | null;
 }
@@ -54,6 +56,8 @@ export function resultLog(environment: string, r: JawabResult, cached: boolean):
     citations_dropped: d.citations_dropped,
     blocks_dropped: d.blocks_dropped,
     arabic_removed: d.arabic_removed,
+    hadith_unsupported: d.hadith_unsupported,
+    truncated: d.truncated,
     refusals: d.refusals,
     provider_error: d.provider_error,
   };
@@ -87,6 +91,8 @@ export function emptyLog(
     citations_dropped: 0,
     blocks_dropped: 0,
     arabic_removed: 0,
+    hadith_unsupported: 0,
+    truncated: false,
     refusals: [],
     provider_error: null,
   };

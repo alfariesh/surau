@@ -16,7 +16,7 @@ import {
 } from "./citations.ts";
 import { buildDoc, docContext, segmentText, toDocumentBlock } from "./documents.ts";
 import { fuse, questionQuery, withPairs } from "./retrieve.ts";
-import { hadithClaims } from "./pipeline.ts";
+import { HADITH_UNKNOWN, hadithCheck, hadithClaims } from "./pipeline.ts";
 import { buildRouteRequest, parseRoute, tocText } from "./route.ts";
 
 const SENT = "هذه جملة تجريبية طويلة لاختبار التقسيم. ";
@@ -367,12 +367,74 @@ describe("klaim hadits", () => {
         label: "ai_extracted",
       },
     ]);
-    // Paragraf berbeda: tidak dipasangkan.
+    // Paragraf berbeda: tidak dipasangkan, dan kalimatnya diganti "belum diketahui".
     const far = [
       blocks[0]!,
       blocks[1]!,
       { text: "\n\nStatus hadits: sanad lemah.", citations: [] },
     ];
-    expect(hadithClaims(far, citations, passages)).toEqual([]);
+    const checked = hadithCheck(far, citations, passages);
+    expect(checked.claims).toEqual([]);
+    expect(checked.unsupported).toBe(1);
+    const text = checked.blocks.map((b) => b.text).join("");
+    expect(text).not.toContain("sanad lemah");
+    expect(text.endsWith(HADITH_UNKNOWN)).toBe(true);
+  });
+
+  test("status tanpa takhrij di tengah blok bersitasi: hanya kalimatnya yang diganti", () => {
+    const passages = new Map([[1, passage(1, SENT)]]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 1,
+        char_start: 0,
+        char_end: 10,
+        kind: "body" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "Al-Ghazali menukilnya. Status hadits: sahih. Lalu ia berkata.", citations: [1] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.blocks.map((b) => b.text)).toEqual([
+      `Al-Ghazali menukilnya. ${HADITH_UNKNOWN} Lalu ia berkata.`,
+    ]);
+    expect(checked.citations).toHaveLength(1);
+  });
+
+  test("blok yang seluruhnya kalimat status tak didukung dibuang beserta sitasinya", () => {
+    const passages = new Map([[1, passage(1, SENT)]]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 1,
+        char_start: 0,
+        char_end: 10,
+        kind: "body" as const,
+        label: "",
+        permalink: "",
+      },
+      {
+        n: 2,
+        passage_id: 1,
+        char_start: 20,
+        char_end: 30,
+        kind: "body" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "Teks pertama.", citations: [1] },
+      { text: " Status hadits: ", citations: [] },
+      { text: "sahih", citations: [2] },
+      { text: ".", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.blocks.map((b) => b.text).join("")).toBe(`Teks pertama. ${HADITH_UNKNOWN}`);
+    expect(checked.citations.map((c) => c.n)).toEqual([1]);
+    expect(hadithClaims(blocks, citations, passages)).toEqual([]);
   });
 });

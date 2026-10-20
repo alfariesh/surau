@@ -21,7 +21,9 @@ export interface FakeBlock {
 }
 export type FakeAnswer =
   | { blocks: FakeBlock[]; stop?: "end_turn" | "refusal" | "max_tokens" }
-  | { status: number };
+  | { status: number }
+  /** Stream yang tidak pernah selesai sampai request dibatalkan (uji abort klien). */
+  | { hold: true };
 export type FakeRoute =
   | { sections: number[]; queries: string[]; hadith: boolean }
   | { status: number };
@@ -157,6 +159,17 @@ export function fakeAnthropic(handlers: {
         { type: "error", error: { type: "overloaded_error", message: "x" } },
         { status: a.status },
       );
+    if ("hold" in a) {
+      const signal = init?.signal;
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          signal?.addEventListener("abort", () =>
+            controller.error(new DOMException("dibatalkan", "AbortError")),
+          );
+        },
+      });
+      return new Response(body, { headers: { "content-type": "text/event-stream" } });
+    }
     return answerStream(model, a, documents);
   };
   return { client: createAnthropic("kunci-uji", { fetch: fake, maxRetries: 0 }), sent };

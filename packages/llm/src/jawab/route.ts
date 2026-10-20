@@ -58,7 +58,9 @@ export function buildRouteRequest(toc: string, question: string): MessageCreateP
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ],
-    messages: [{ role: "user", content: `<pertanyaan>${question}</pertanyaan>` }],
+    messages: [
+      { role: "user", content: `<pertanyaan>${question.replaceAll(/[<>]/gu, " ")}</pertanyaan>` },
+    ],
   };
 }
 

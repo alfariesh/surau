@@ -43,7 +43,9 @@ export async function openCorpus(repo: string, remote: boolean) {
     const proxy = await getPlatformProxy<{ CORPUS: D1Db }>({ configPath, remoteBindings: true });
     return { db: limitD1(proxy.env.CORPUS, 2), source: "staging (remote)", dispose: proxy.dispose };
   }
-  const state = join(repo, ".wrangler/state/v3/d1");
+  // SURAU_EVAL_STATE = folder `--persist-to` lain (mis. korpus build baru yang dimuat terpisah,
+  // tanpa menimpa D1 lokal bersama yang mungkin sedang dipakai dev server).
+  const state = join(process.env.SURAU_EVAL_STATE ?? join(repo, ".wrangler/state"), "v3/d1");
   if (!existsSync(state))
     throw new Error("D1 lokal belum ada; jalankan db:migrate:local dan corpus:load:local.");
   const tmp = mkdtempSync(join(tmpdir(), "surau-eval-"));

@@ -109,7 +109,7 @@ const NON_PROD_MARKERS = ['"previews"', '"env": {'];
 function splitTopLevel(jsonc: string): [string, string] {
   const found = NON_PROD_MARKERS.map((m) => jsonc.indexOf(m)).filter((i) => i >= 0);
   if (found.length === 0)
-    throw new Error(`${"apps/web/wrangler.jsonc"}: blok "previews"/"env" tidak ditemukan`);
+    throw new Error('wrangler.jsonc Worker: blok "previews"/"env" tidak ditemukan');
   const at = Math.min(...found);
   return [jsonc.slice(0, at), jsonc.slice(at)];
 }

@@ -44,10 +44,13 @@ export function questionCeilingUsd(): { haiku: number; sonnetReserve: number } {
   return { haiku: route + answer(MODELS.haiku), sonnetReserve: answer(MODELS.sonnet) };
 }
 
-/** Pagu: soal berikutnya hanya dijalankan bila biaya terpakai + terburuknya + cadangan ≤ pagu. */
+/**
+ * Pagu: soal berikutnya hanya dijalankan bila biaya terpakai + biaya terburuk SETIAP soal yang
+ * sedang berjalan (termasuk ulangan Sonnet masing-masing) ≤ pagu.
+ */
 export function canRun(spent: number, inflight: number, budget: number): boolean {
   const c = questionCeilingUsd();
-  return spent + (inflight + 1) * c.haiku + c.sonnetReserve <= budget;
+  return spent + (inflight + 1) * (c.haiku + c.sonnetReserve) <= budget;
 }
 
 /** Hasil pipeline → kontrak eval S18 (Latin saja, kutipan = pointer DB). */
@@ -88,33 +91,55 @@ export async function runQuestions(
   db: D1Db,
   client: Anthropic,
   items: readonly RunItem[],
-  opts: { budgetUsd: number; concurrency: number; onDone?: (o: RunOutput, spent: number) => void },
-): Promise<{ outputs: RunOutput[]; spent: number; skipped: number }> {
+  opts: {
+    budgetUsd: number;
+    concurrency: number;
+    onDone?: (o: RunOutput, spent: number) => void;
+    /** Galat non-API (mis. D1 putus) pada satu soal: dicatat, soal lain tetap jalan. */
+    onError?: (item: RunItem, error: unknown) => void;
+    /** Pengganti `runJawab` (tes). */
+    run?: (question: string) => Promise<JawabResult>;
+  },
+): Promise<{ outputs: RunOutput[]; spent: number; skipped: number; failed: number }> {
+  const run = opts.run ?? ((q: string) => runJawab({ corpus: db, anthropic: client }, q));
   const outputs: RunOutput[] = [];
   let spent = 0;
   let inflight = 0;
   let next = 0;
+  let failed = 0;
   let stopped = false;
+  const waiters: (() => void)[] = [];
   const worker = async () => {
     for (;;) {
       if (stopped || next >= items.length) return;
       if (!canRun(spent, inflight, opts.budgetUsd)) {
+        // Masih ada soal berjalan: tunggu salah satunya selesai (cadangannya kembali).
+        if (inflight > 0) {
+          await new Promise<void>((resolve) => waiters.push(resolve));
+          continue;
+        }
         stopped = true;
         return;
       }
       const item = items[next++]!;
       inflight++;
       try {
-        const result = await runJawab({ corpus: db, anthropic: client }, item.question.pertanyaan);
+        const result = await run(item.question.pertanyaan);
         spent += result.cost_usd;
         const out = { item, result, answer: toEvalAnswer(result) };
         outputs.push(out);
         opts.onDone?.(out, spent);
+      } catch (error) {
+        // Biaya soal yang gagal di tengah (sesudah panggilan LLM) tidak terhitung di sini;
+        // pagu tetap menyisakan cadangan, dan galat dilaporkan supaya dicek manual.
+        failed++;
+        opts.onError?.(item, error);
       } finally {
         inflight--;
+        for (const w of waiters.splice(0)) w();
       }
     }
   };
   await Promise.all(Array.from({ length: Math.max(1, opts.concurrency) }, () => worker()));
-  return { outputs, spent, skipped: items.length - outputs.length };
+  return { outputs, spent, skipped: items.length - outputs.length - failed, failed };
 }

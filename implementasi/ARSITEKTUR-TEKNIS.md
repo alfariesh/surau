@@ -124,11 +124,11 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 2. Cache `answer_cache` (hash pertanyaan + versi korpus + versi prompt). Bila kena, `done` langsung tanpa LLM.
 3. Routing: Haiku membaca daftar isi yang di-cache 1 jam (`answer-route@2`, keluaran JSON), lalu memilih bagian dan kata kunci.
 4. Kandidat: `searchText` atas pertanyaan + kata kunci (global dan per bagian), digabung RRF, ditambah pasangan paragraf ↔ takhrij.
-5. Haiku menjawab dengan Citations (`answer@4`, effort low, stream). Dokumen *custom content* berisi satu dokumen per paragraf; bloknya potongan `text_raw` persis, dengan konteks lokasi, bagian, ayat, dan terjemahan AI (12 teratas). Anggaran dokumen 20 ribu token, prompt ≤40 ribu.
+5. Haiku menjawab dengan Citations (`answer@5`, effort low, stream). Dokumen *custom content* berisi satu dokumen per paragraf; bloknya potongan `text_raw` persis, dengan konteks lokasi, bagian, ayat, dan terjemahan AI (12 teratas). Anggaran dokumen 20 ribu token, prompt ≤40 ribu.
 6. Kode memetakan indeks blok ke `{passage_id, char_start, char_end}`. `cited_text` wajib sama dengan teks DB, lalu `verifyQuote`. Blok yang semua sitasinya gagal dibuang. Huruf Arab buatan model dihapus.
 7. UI menampilkan teks dari DB. Biaya dikomit ke ledger (S20); di S19 dicatat di log metrik `jawab`.
 8. Bila terjadi refusal, ulangi sekali dengan Sonnet 5.5 (tanpa `fallbacks` server); bila menolak lagi, turun ke Cari. Galat penyedia juga turun ke Cari. Bila anggaran habis, turun ke Cari (S20).
-9. Bila **tidak satu pun** sitasi lolos verifikasi, jawaban **tidak** ditampilkan. Sebagai gantinya tampilkan "Surau tidak dapat memverifikasi kutipan untuk pertanyaan ini" + hasil Cari (`fallback/unverified`), dan catat kasusnya. Bila sebagian lolos, tampilkan hanya blok yang didukung sitasi yang lolos, ditambah blok kata sambung tanpa sitasi.
+9. Bila **tidak satu pun** sitasi lolos verifikasi, jawaban **tidak** ditampilkan. Sebagai gantinya tampilkan "Surau tidak dapat memverifikasi kutipan untuk pertanyaan ini" + hasil Cari (`fallback/unverified`), dan catat kasusnya. Bila sebagian lolos, blok yang semua sitasinya gagal dibuang; blok tanpa sitasi tetap ada (penyimpangan dari versi awal butir ini, ADR-064) dan dirender berbeda dari klaim bersitasi di S21. Kalimat "Status hadits:" tanpa takhrij tersitasi diganti "belum diketahui".
 10. Penolakan baku: "Tidak ditemukan di kitab yang dicakup." atau "Anggapan dalam pertanyaan ini tidak didukung teks Ihya." (premis keliru), keduanya `not_found`, disertai hasil Cari.
 
 ## 6. Pipeline ingest (`tools/ingest`)

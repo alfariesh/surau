@@ -103,8 +103,11 @@ export function createApp(deps: Partial<AppDeps> = {}) {
       return json(503, { error: "not_configured" });
     }
     const question = parsed.question;
-    const corpusVersion = (await getCorpusMeta(env.CORPUS_DB)).corpus_version ?? "unknown";
-    const key = await answerCacheKey(question, corpusVersion, JAWAB_PROMPT_VERSION);
+    const meta = await getCorpusMeta(env.CORPUS_DB);
+    // `built_at` ikut kunci: korpus yang dimuat ulang tanpa versi baru (staging) tidak memakai
+    // sitasi lama dari cache.
+    const corpusKey = `${meta.corpus_version ?? "unknown"}@${meta.built_at ?? ""}`;
+    const key = await answerCacheKey(question, corpusKey, JAWAB_PROMPT_VERSION);
     const cached = await getAnswerCache(env.APP_DB, key, now().toISOString());
 
     return streamSSE(c, async (stream) => {
@@ -155,7 +158,10 @@ export function createApp(deps: Partial<AppDeps> = {}) {
           question,
         );
         log(resultLog(env.ENVIRONMENT, result, false));
-        if (result.outcome !== "fallback" && result.model !== null) {
+        // Hanya hasil utuh yang di-cache: jawaban terpotong (`max_tokens`) atau prompt di atas batas
+        // tidak disajikan ulang selama 30 hari.
+        const complete = !result.diagnostics.truncated && !result.diagnostics.over_prompt_limit;
+        if (complete && result.outcome !== "fallback" && result.model !== null) {
           const created = now();
           const expires = new Date(created.getTime() + CACHE_TTL_DAYS * 86_400_000);
           c.executionCtx.waitUntil(
@@ -168,11 +174,21 @@ export function createApp(deps: Partial<AppDeps> = {}) {
               result_json: JSON.stringify(publicResult(result)),
               created_at: created.toISOString(),
               expires_at: expires.toISOString(),
-            }).catch(() => undefined),
+            }).catch((error: unknown) => {
+              // Mis. CHECK panjang result_json; hanya nama galat yang dicatat.
+              log({
+                event: "jawab_cache_error",
+                name: error instanceof Error ? error.name : "unknown",
+              });
+            }),
           );
         }
       } catch (error) {
-        if (!controller.signal.aborted) {
+        if (controller.signal.aborted) {
+          // Klien membatalkan: request Anthropic ikut dibatalkan; biaya parsial tidak diketahui di
+          // sini (lihat Analytics gateway), tetapi kejadiannya tercatat.
+          log(emptyLog(env.ENVIRONMENT, "aborted", null));
+        } else {
           // Pesan internal (bisa memuat isi) tidak pernah dikirim ke klien atau log.
           log(emptyLog(env.ENVIRONMENT, "error", error instanceof Error ? error.name : "unknown"));
           await send("error", { error: "internal" });

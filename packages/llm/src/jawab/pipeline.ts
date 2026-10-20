@@ -14,7 +14,7 @@ import type { AnswerPassage, AnswerTocNode, SourceSpan } from "@surau/core";
 import { getCorpusMeta } from "@surau/db";
 import type { D1Db } from "@surau/db";
 
-import { ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
+import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
 import { MODELS } from "../client.ts";
 import type { ModelId } from "../client.ts";
 import { addUsage, emptyTotals, promptTokens } from "../pricing.ts";
@@ -90,6 +90,8 @@ export interface JawabDiagnostics {
   citations_dropped: number;
   blocks_dropped: number;
   arabic_removed: number;
+  /** Kalimat "Status hadits:" tanpa takhrij tersitasi, diganti `HADITH_UNKNOWN`. */
+  hadith_unsupported: number;
   truncated: boolean;
   refusals: JawabRefusal[];
   provider_error: { status: number | null; type: string } | null;
@@ -191,6 +193,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     citations_dropped: 0,
     blocks_dropped: 0,
     arabic_removed: 0,
+    hadith_unsupported: 0,
     truncated: false,
     refusals: [],
     provider_error: null,
@@ -315,10 +318,11 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   // 3. Jawaban (Haiku, lalu Sonnet sekali bila Haiku menolak).
   const verified = new Map<string, JawabCitation>();
   const verifySpan = async (span: CitedSpan): Promise<JawabCitation | null> => {
+    // `cited_text` dicek dulu: sitasi yang teksnya tidak cocok tidak boleh lolos lewat entri lama.
+    if (!span.matches_cited_text) return null;
     const key = `${span.passage_id}:${span.char_start}:${span.char_end}`;
     const known = verified.get(key);
     if (known) return known;
-    if (!span.matches_cited_text) return null;
     const source = await resolveEvalSource(db, {
       passage_id: span.passage_id,
       char_start: span.char_start,
@@ -373,6 +377,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     if (cleaned.text.trim() === "" && ns.length === 0) return;
     const block: JawabBlock = { text: cleaned.text, citations: ns };
     kept.push(block);
+    // Kalimat status hadits baru diputuskan di akhir (`hadithCheck`): tidak dipratinjau.
+    if (block.text.includes(ANSWER_HADITH_PREFIX)) return;
     const cites = () => [...verified.values()].filter((c) => block.citations.includes(c.n));
     if (ns.length > 0 && !previewing) {
       previewing = true;
@@ -445,9 +451,11 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 
   // 4. Hasil.
   await emit({ type: "stage", stage: "verify" });
-  const citations = [...verified.values()];
+  const checked = hadithCheck(kept, [...verified.values()], passages);
+  diagnostics.hadith_unsupported = checked.unsupported;
+  const citations = checked.citations;
   diagnostics.citations_valid = citations.length;
-  const text = kept
+  const text = checked.blocks
     .map((b) => b.text)
     .join("")
     .trim();
@@ -458,9 +466,9 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     outcome: notFound ? "not_found" : "answer",
     reason: refusal === "false_premise" ? "false_premise" : null,
     text,
-    blocks: kept,
+    blocks: checked.blocks,
     citations,
-    hadith: hadithClaims(kept, citations, passages),
+    hadith: checked.claims,
     search: notFound ? searchHits() : [],
     model,
     ...base(),
@@ -469,16 +477,27 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   return result;
 }
 
+/** Pengganti kalimat status hadits yang tidak didukung takhrij tersitasi (aturan teks-arab no. 6). */
+export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ada takhrij al-'Iraqi yang tersitasi untuk kalimat ini).`;
+
 /**
- * Klaim status hadits: kalimat "Status hadits: …" yang didukung sitasi catatan kaki terverifikasi.
- * `passage_id` = paragraf badan yang merujuk catatan kaki itu (takhrij tertaut, S16).
+ * Klaim status hadits: kalimat "Status hadits: …" yang didukung sitasi catatan kaki terverifikasi
+ * (di kalimat itu, atau takhrij terakhir yang disitasi sebelumnya di paragraf yang sama).
+ * `passage_id` = paragraf badan yang merujuk catatan kaki itu (takhrij tertaut, S16). Kalimat
+ * status yang TIDAK didukung diganti `HADITH_UNKNOWN` di blok jawaban, sehingga status tanpa
+ * takhrij tidak pernah tampil (temuan peninjau S19). Sitasi yang tak lagi dirujuk blok dibuang.
  */
-export function hadithClaims(
+export function hadithCheck(
   blocks: readonly JawabBlock[],
   citations: readonly JawabCitation[],
   passages: ReadonlyMap<number, AnswerPassage>,
-): JawabHadith[] {
-  const out: JawabHadith[] = [];
+): {
+  claims: JawabHadith[];
+  blocks: JawabBlock[];
+  citations: JawabCitation[];
+  unsupported: number;
+} {
+  const claims: JawabHadith[] = [];
   const full = blocks.map((b) => b.text).join("");
   let offset = 0;
   const ranges = blocks.map((b) => {
@@ -490,6 +509,7 @@ export function hadithClaims(
     ns
       .map((n) => citations.find((x) => x.n === n))
       .filter((c): c is JawabCitation => c !== undefined && c.kind === "foot");
+  const unpaired: { start: number; end: number }[] = [];
   for (const st of hadithStatements(full)) {
     let foots = footOf(
       ranges
@@ -504,24 +524,57 @@ export function hadithClaims(
       const prev = footOf(before.flatMap((r) => r.block.citations)).at(-1);
       foots = prev ? [prev] : [];
     }
+    let paired = false;
     for (const c of foots) {
       const body = passages.get(c.passage_id)?.referenced_by[0];
       if (body === undefined) continue;
+      paired = true;
       if (
-        out.some(
+        claims.some(
           (h) => h.footnote.passage_id === c.passage_id && h.footnote.char_start === c.char_start,
         )
       )
         continue;
-      out.push({
+      claims.push({
         passage_id: body,
         footnote: { passage_id: c.passage_id, char_start: c.char_start, char_end: c.char_end },
         status: st.status,
         label: "ai_extracted",
       });
     }
+    if (!paired)
+      unpaired.push({ start: st.start, end: full[st.end] === "." ? st.end + 1 : st.end });
   }
-  return out.slice(0, 5);
+  // Ganti dari belakang supaya offset kalimat sebelumnya tetap berlaku.
+  const texts = blocks.map((b) => b.text);
+  for (const u of [...unpaired].reverse()) {
+    ranges.forEach((r, i) => {
+      if (r.end <= u.start || r.start >= u.end) return;
+      const ls = Math.max(u.start, r.start) - r.start;
+      const le = Math.min(u.end, r.end) - r.start;
+      const insert = u.start >= r.start && u.start < r.end ? HADITH_UNKNOWN : "";
+      texts[i] = texts[i]!.slice(0, ls) + insert + texts[i]!.slice(le);
+    });
+  }
+  const kept = blocks
+    .map((b, i) => ({ text: texts[i]!, citations: b.citations }))
+    .filter((b) => b.text.trim() !== "");
+  const used = new Set(kept.flatMap((b) => b.citations));
+  return {
+    claims: claims.slice(0, 5),
+    blocks: kept,
+    citations: citations.filter((c) => used.has(c.n)),
+    unsupported: unpaired.length,
+  };
+}
+
+/** Klaim status hadits saja (lihat `hadithCheck`). */
+export function hadithClaims(
+  blocks: readonly JawabBlock[],
+  citations: readonly JawabCitation[],
+  passages: ReadonlyMap<number, AnswerPassage>,
+): JawabHadith[] {
+  return hadithCheck(blocks, citations, passages).claims;
 }
 
 export type { AnswerDoc };

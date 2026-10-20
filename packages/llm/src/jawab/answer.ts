@@ -24,8 +24,13 @@ export const DOC_BUDGET_TOKENS = 20_000;
 /** Dokumen teratas yang membawa terjemahan AI di konteksnya; sisanya teks Arab saja. */
 export const TRANSLATED_DOCS = 12;
 
+/** Pertanyaan sebagai data: tanda `<`/`>` dibuang supaya tidak bisa menutup tag pembungkus. */
+export function questionData(question: string): string {
+  return question.replaceAll(/[<>]/gu, " ");
+}
+
 export function answerUserText(question: string): string {
-  return `<pertanyaan>${question}</pertanyaan>`;
+  return `<pertanyaan>${questionData(question)}</pertanyaan>`;
 }
 
 /**
