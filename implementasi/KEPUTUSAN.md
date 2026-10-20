@@ -1443,3 +1443,13 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Batas yang diketahui:** pergeseran di antara paragraf yang teksnya identik di halaman yang sama tidak tertangkap. Sidik juga tidak menjaga permalink halaman (`juz/page_no` per `source_page_id`) maupun ID node daftar isi (`/bab/<id>`).
 
 **Tinjau ulang bila:** ada kitab kedua (sidik per edisi sudah mendukungnya); patch pertama yang menghapus atau menggabungkan paragraf (buat `id_redirect`); kunci paragraf diganti menjadi tidak posisional; atau ada perubahan sumber yang menggeser halaman atau daftar isi.
+
+## ADR-060 · Deploy produksi melewati push yang hanya mengubah prosa — diterima · 2026-10-20
+
+**Konteks:** issue #68. `deploy.yml` berjalan di setiap push ke `main`. Dari 59 commit terakhir, 16 hanya mengubah prosa (STATUS, LOG, ADR, laporan). Setiap deploy seperti itu membangun ulang OpenNext, men-deploy web dan MCP beserta smoke-nya (±10 menit Actions), mengisi ulang cache R2, dan menghasilkan versi Worker baru yang isinya identik.
+
+**Keputusan:** pemicu `push` di `deploy.yml` diberi `paths-ignore`: `docs/**`, `implementasi/**`, `evals/reports/**`, `data/reports/**`, `.claude/**`, dan `**/*.md`. Tidak ada berkas dari jalur itu yang dibundel ke Worker (sudah dicek: tidak ada impor `.md` di `apps/` maupun `packages/`). Push yang mencampur kode dan prosa tetap men-deploy, karena `paths-ignore` hanya melewati push yang **semua** berkasnya cocok. `workflow_dispatch` tetap tersedia untuk deploy manual. `ci.yml` tidak diubah: `verify` adalah required check, dan workflow yang dilewati akan memblokir merge.
+
+**Ditolak (untuk sekarang):** rollback otomatis bila smoke produksi gagal (usulan opsional di issue). Butuh keputusan terpisah soal migrasi `surau-app` yang sudah jalan.
+
+**Tinjau ulang bila:** ada berkas Markdown atau isi `docs/` yang mulai dibundel ke Worker (mis. halaman yang merender Markdown dari repo); atau `aset/` mulai disalin ke `apps/web/public` lewat build.
