@@ -85,7 +85,12 @@ export async function readPage(
       AI_TEXT_LANG,
     ),
   ]);
-  const translationOf = new Map(translations.map((t) => [t.passage_id, translationView(t)]));
+  // Ditolak peninjau (ADR-044 §8): tidak dikirim ke web, API, maupun MCP; sama dengan `searchText`.
+  const translationOf = new Map(
+    translations
+      .filter((t) => t.review_status !== "rejected")
+      .map((t) => [t.passage_id, translationView(t)]),
+  );
   const withTranslation = passages.map((p) => ({
     ...p,
     translation: translationOf.get(p.id) ?? null,
@@ -105,6 +110,8 @@ export async function readPage(
     next: near(adjacent.next),
     source_url: cite.sourceUrl(page.source_page_id),
     quran,
-    summaries: summaries.map((s) => summaryView(s, cite)),
+    summaries: summaries
+      .filter((s) => s.review_status !== "rejected")
+      .map((s) => summaryView(s, cite)),
   };
 }
