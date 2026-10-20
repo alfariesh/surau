@@ -1,12 +1,15 @@
 import { answerPassages, ayahPlaceholderPattern, ipKey, ipNetwork } from "@surau/core";
 import type { AnswerPassage } from "@surau/core";
 import type { D1Db } from "@surau/db";
+import { takhrijHasWeakTerms } from "@surau/text";
 
 // GET /api/kutipan (S21): teks kutipan untuk kartu sitasi /tanya. Hasil Jawab hanya memuat
 // `{passage_id, char_start, char_end}` (ADR-064); teks Arab di kartu DISALIN KODE dari `text_raw` DB
 // di sini (aturan teks-arab no. 1), tidak pernah dari keluaran model. Terjemahan AI paragraf ikut
 // berlabel; placeholder ayat `⟦QS s:a⟧` ditampilkan sebagai rujukan saja (ayat tidak diterjemahkan
 // model, no. 9; terjemahan Kemenag ada di pembaca). Tanpa data pengguna: kueri hanya ID + offset.
+// Catatan kaki takhrij diberi `weak` bila teks lengkapnya (DB) memuat istilah kelemahan/tanpa asal
+// (`takhrijHasWeakTerms`, docs/05 §4): tanda peringatan dari teks sumber, bukan dari ringkasan AI.
 
 export const KUTIPAN_MAX_RANGES = 20;
 const SPAN_MAX = 2000;
@@ -25,13 +28,19 @@ export interface KutipanItem extends KutipanRange {
   permalink: string;
   /** Terjemahan AI seluruh paragraf (bukan hanya potongan), atau null. */
   translation: { label: "ai_translation"; review_status: string; text: string } | null;
+  /** Takhrij (catatan kaki) yang teks lengkapnya memuat istilah kelemahan; selalu false untuk matan. */
+  weak: boolean;
 }
 
 export interface KutipanDeps {
+  /** Pembaca terbuka (`READER_ENABLED`); mati → 404 seperti /api/search. */
+  enabled: boolean;
   db: D1Db;
   hmacKey: string | undefined;
   ip: string | null;
   limit: (key: string) => Promise<boolean>;
+  /** Batas global bersama Cari (`SEARCH_GLOBAL_LIMITER`). */
+  limitGlobal: () => Promise<boolean>;
 }
 
 const json = (status: number, body: unknown, cache = "no-store") =>
@@ -69,11 +78,14 @@ export function ayahRefsOnly(text: string): string {
 }
 
 export async function handleKutipan(request: Request, deps: KutipanDeps): Promise<Response> {
+  if (!deps.enabled) return json(404, { error: "not_found" });
   const ranges = parseRanges(new URL(request.url).searchParams.get("r"));
   if (ranges === null) return json(400, { error: "invalid" });
   if (deps.hmacKey === undefined || deps.hmacKey === "") return json(503, { error: "unavailable" });
   if (!(await deps.limit(await ipKey(deps.hmacKey, ipNetwork(deps.ip ?? "unknown")))))
     return json(429, { error: "rate_limited" });
+  // Per klien dulu: permintaan yang ditolak per klien tidak memakan kuota global (sama dengan Cari).
+  if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
   const passages = new Map(
     (await answerPassages(deps.db, [...new Set(ranges.map((r) => r.passage_id))])).map((p) => [
       p.id,
@@ -99,6 +111,7 @@ export async function handleKutipan(request: Request, deps: KutipanDeps): Promis
               review_status: p.translation.review_status,
               text: ayahRefsOnly(p.translation.text),
             },
+      weak: p.kind === "foot" && takhrijHasWeakTerms(p.text_raw),
     };
   });
   // Isi = fungsi ID + offset atas korpus yang ID-nya stabil (ADR-059): aman di-cache singkat.

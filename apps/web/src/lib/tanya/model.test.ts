@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { displayText, isWeakHadith, kutipanQuery, parseSseFrame, readSse } from "./model";
+import { displayText, kutipanQuery, parseSseFrame, readSse } from "./model";
 
 const RESULT = {
   outcome: "answer",
@@ -58,13 +58,9 @@ describe("tampilan", () => {
     expect(displayText("**Menurut al-Ghazali**, sabar _wajib_ dijaga.\n## Catatan\nisi")).toBe(
       "Menurut al-Ghazali, sabar wajib dijaga.\nCatatan\nisi",
     );
-  });
-
-  it("status hadits lemah/palsu diberi tanda", () => {
-    for (const s of ["sanadnya lemah", "dhaif jiddan", "maudhu'", "tidak ada asalnya", "batil"])
-      expect(isWeakHadith(s), s).toBe(true);
-    for (const s of ["sahih", "hasan", "diriwayatkan al-Bukhari"])
-      expect(isWeakHadith(s), s).toBe(false);
+    expect(displayText('menuntut <cite index="17-1">kerja sama</cite>.')).toBe(
+      "menuntut kerja sama.",
+    );
   });
 
   it("kueri kutipan unik dan dibatasi 20", () => {

@@ -6,26 +6,43 @@ import { expect, test } from "@playwright/test";
 test("Tanya: label asisten riset, komposer, privasi, dan arahan ke Cari bila Jawab tidak tersedia", async ({
   page,
 }) => {
+  // Status Jawab dimuat klien dari GET /api/jawab sesudah hidrasi: tunggu jawabannya dulu supaya
+  // cabang yang diuji ditentukan oleh status sebenarnya, bukan oleh waktu muat.
+  const statusResponse = page.waitForResponse(
+    (r) => new URL(r.url()).pathname === "/api/jawab" && r.request().method() === "GET",
+  );
   await page.goto("/tanya");
   await expect(page.getByRole("heading", { level: 1, name: "Tanya kitab" })).toBeVisible();
   await expect(page.getByText("Surau adalah asisten riset, bukan pemberi fatwa.")).toBeVisible();
-  await expect(page.getByRole("textbox", { name: "Pertanyaan" })).toBeVisible();
+  const textbox = page.getByRole("textbox", { name: "Pertanyaan" });
+  await expect(textbox).toBeVisible();
   await expect(page.getByRole("link", { name: "Kebijakan privasi" })).toHaveAttribute(
     "href",
     "/privasi",
   );
-  // Status Jawab dimuat dari /api/jawab; bila tidak tersedia, komposer mati dan ada tautan Cari.
-  const unavailable = page.getByText(
-    /Tanya (sedang dimatikan|belum siap|belum dibuka)|Anggaran AI|Kuota pertanyaan/,
-  );
+  const res = await statusResponse;
+  const body = res.status() === 200 ? ((await res.json()) as { available?: boolean }) : null;
+  const unavailable = res.status() === 404 || body?.available === false;
   const submit = page.getByRole("button", { name: "Tanya", exact: true });
-  await expect(unavailable.or(submit)).toBeVisible();
-  if (await unavailable.isVisible()) {
+  if (unavailable) {
+    // Produksi (rute mati → "belum dibuka") atau Preview (sakelar staging mati → "dimatikan").
+    await expect(
+      page.getByText(
+        /Tanya (sedang dimatikan|belum siap|belum dibuka)|Anggaran AI|Kuota pertanyaan/,
+      ),
+    ).toBeVisible();
     await expect(page.getByRole("link", { name: "Cari di Surau" }).first()).toHaveAttribute(
       "href",
       /^\/cari/,
     );
-    await expect(page.getByRole("textbox", { name: "Pertanyaan" })).toBeDisabled();
+    await expect(textbox).toBeDisabled();
+    await expect(submit).toBeDisabled();
+  } else {
+    // Jawab menyala (atau status sementara tidak diketahui): komposer aktif, tombol menunggu teks.
+    await expect(textbox).toBeEnabled();
+    await expect(submit).toBeDisabled();
+    await textbox.fill("Apa kata al-Ghazali tentang sabar?");
+    await expect(submit).toBeEnabled();
   }
 });
 

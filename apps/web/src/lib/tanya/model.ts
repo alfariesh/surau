@@ -148,16 +148,10 @@ export async function readSse(
  */
 export function displayText(text: string): string {
   return text
+    .replaceAll(/<\/?cite\b[^<>]*>/giu, "")
     .replaceAll(/\*\*|__/gu, "")
     .replaceAll(/(^|\n)#{1,6}[ \t]+/gu, "$1")
     .replaceAll(/(^|[\s(])[*_](\S[^*_\n]*?\S|\S)[*_](?=[\s).,;:!?]|$)/gu, "$1$2");
-}
-
-/** Status hadits yang wajib diberi tanda jelas (docs/05 §4): lemah, palsu, tidak ada asalnya. */
-export function isWeakHadith(status: string): boolean {
-  return /lemah|da'?if|dha'?if|ḍa['ʿ]?īf|palsu|maudhu|mawdu|munkar|matruk|bat(h)?il|tidak ada asal|la asla|dusta/iu.test(
-    status,
-  );
 }
 
 /** Rentang kutipan → parameter `r` untuk /api/kutipan (maks 20, unik). */

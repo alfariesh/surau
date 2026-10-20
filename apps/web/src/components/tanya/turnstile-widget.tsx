@@ -58,7 +58,13 @@ export function TurnstileWidget({
     let cancelled = false;
     loadTurnstile()
       .then(() => {
-        if (cancelled || box.current === null || window.turnstile === undefined) return;
+        if (cancelled || box.current === null) return;
+        // Skrip termuat tetapi API tidak ada (diblokir/rusak): jangan macet di fase tantangan.
+        if (window.turnstile === undefined) {
+          window.__surauTurnstile = undefined; // percobaan berikutnya memuat ulang skrip
+          handlers.current.onError();
+          return;
+        }
         id = window.turnstile.render(box.current, {
           sitekey,
           action: "jawab",

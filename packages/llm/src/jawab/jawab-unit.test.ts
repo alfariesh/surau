@@ -14,6 +14,7 @@ import {
   isNotFound,
   refusalKind,
   stripArabic,
+  stripCiteTags,
 } from "./citations.ts";
 import { buildDoc, docContext, segmentText, toDocumentBlock } from "./documents.ts";
 import { fuse, questionQuery, withPairs } from "./retrieve.ts";
@@ -350,8 +351,19 @@ describe("kunci cache", () => {
   });
 });
 
+/** Catatan kaki takhrij uji: n 1 → paragraf 2 (dirujuk paragraf badan 1). */
+const FOOT1 = {
+  n: 1,
+  passage_id: 2,
+  char_start: 0,
+  char_end: 10,
+  kind: "foot" as const,
+  label: "",
+  permalink: "",
+};
+
 describe("klaim hadits", () => {
-  test("kalimat status tanpa sitasi sendiri memakai takhrij yang disitasi sebelumnya", () => {
+  test("kalimat status wajib menyitasi takhrij SENDIRI; takhrij kalimat sebelumnya tidak dipinjam", () => {
     const passages = new Map([
       [1, passage(1, SENT, { footnote_ids: [2] })],
       [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
@@ -376,12 +388,13 @@ describe("klaim hadits", () => {
         permalink: "",
       },
     ];
-    const blocks = [
+    // Bersitasi sendiri (sesuai prompt): dipasangkan.
+    const own = [
       { text: "Al-Ghazali menukil hadits itu.", citations: [1] },
-      { text: " Al-'Iraqi menilainya.", citations: [2] },
-      { text: " Status hadits: sanad lemah.", citations: [] },
+      { text: " Status hadits: sanad lemah", citations: [2] },
+      { text: ".", citations: [] },
     ];
-    expect(hadithClaims(blocks, citations, passages)).toEqual([
+    expect(hadithClaims(own, citations, passages)).toEqual([
       {
         passage_id: 1,
         footnote: { passage_id: 2, char_start: 0, char_end: 12 },
@@ -389,21 +402,22 @@ describe("klaim hadits", () => {
         label: "ai_extracted",
       },
     ]);
-    // Paragraf berbeda: tidak dipasangkan, dan kalimatnya diganti "belum diketahui".
-    const far = [
-      blocks[0]!,
-      blocks[1]!,
-      { text: "\n\nStatus hadits: sanad lemah.", citations: [] },
+    // Takhrij hanya disitasi kalimat sebelumnya: tidak dipinjam, kalimatnya diganti.
+    const borrowed = [
+      { text: "Al-Ghazali menukil hadits itu.", citations: [1] },
+      { text: " Al-'Iraqi menilainya.", citations: [2] },
+      { text: " Status hadits: sanad lemah.", citations: [] },
     ];
-    const checked = hadithCheck(far, citations, passages);
+    const checked = hadithCheck(borrowed, citations, passages);
     expect(checked.claims).toEqual([]);
     expect(checked.unsupported).toBe(1);
+    expect(checked.unresolved).toBe(false);
     const text = checked.blocks.map((b) => b.text).join("");
     expect(text).not.toContain("sanad lemah");
     expect(text.endsWith(HADITH_UNKNOWN)).toBe(true);
   });
 
-  test("takhrij yang disitasi SESUDAH kalimat status di paragraf yang sama ikut dipasangkan", () => {
+  test("takhrij yang disitasi kalimat SESUDAH status juga tidak dipakai; sisa baris ikut diganti", () => {
     const passages = new Map([
       [1, passage(1, SENT, { footnote_ids: [2] })],
       [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
@@ -424,9 +438,10 @@ describe("klaim hadits", () => {
       { text: " Takhrijnya menyebut riwayat Ibnu Majah.", citations: [1] },
     ];
     const checked = hadithCheck(blocks, citations, passages);
-    expect(checked.unsupported).toBe(0);
-    expect(checked.claims.map((c) => c.status)).toEqual(["sanad lemah"]);
-    expect(checked.blocks.map((b) => b.text).join("")).toContain("sanad lemah");
+    expect(checked.unsupported).toBe(1);
+    expect(checked.claims).toEqual([]);
+    expect(checked.blocks.map((b) => b.text).join("")).toBe(HADITH_UNKNOWN);
+    expect(checked.citations).toEqual([]);
   });
 
   test("paragraf dua hadits: status hadits pertama tidak menempel ke takhrij hadits kedua", () => {
@@ -485,8 +500,15 @@ describe("klaim hadits", () => {
       { text: "\n\n**Status hadits:** sahih.", citations: [] },
     ];
     const checked = hadithCheck(blocks, citations, passages);
-    expect(checked.blocks).toHaveLength(3);
-    expect(checked.blocks[2]?.text).toBe(`\n\n${HADITH_UNKNOWN}`);
+    // Blok spasi bersitasi asli tetap; baris baru dipertahankan, "belum diketahui" tanpa sitasi.
+    expect(checked.blocks[1]).toEqual({ text: " ", citations: [1] });
+    expect(
+      checked.blocks
+        .slice(2)
+        .map((b) => b.text)
+        .join(""),
+    ).toBe(`\n\n${HADITH_UNKNOWN}`);
+    expect(checked.blocks.slice(2).every((b) => b.citations.length === 0)).toBe(true);
   });
 
   test("status tanpa takhrij di tengah blok bersitasi: diganti sampai akhir baris", () => {
@@ -506,7 +528,11 @@ describe("klaim hadits", () => {
       { text: "Al-Ghazali menukilnya. Status hadits: sahih. Lalu ia berkata.", citations: [1] },
     ];
     const checked = hadithCheck(blocks, citations, passages);
-    expect(checked.blocks.map((b) => b.text)).toEqual([`Al-Ghazali menukilnya. ${HADITH_UNKNOWN}`]);
+    // "Belum diketahui" menjadi blok tersendiri TANPA sitasi (penanda [1] tidak menempel padanya).
+    expect(checked.blocks).toEqual([
+      { text: "Al-Ghazali menukilnya. ", citations: [1] },
+      { text: HADITH_UNKNOWN, citations: [] },
+    ]);
     expect(checked.citations).toHaveLength(1);
   });
 
@@ -524,11 +550,57 @@ describe("klaim hadits", () => {
     expect(hadithStatements("Statusnya hadits sahih.")).toEqual([]);
   });
 
-  test("awalan diikuti baris baru: status diambil dari baris berikutnya", () => {
-    const text = "Pembuka.\nStatus hadits:\nsanadnya lemah menurut al-'Iraqi.\nBaris lain.";
-    const [st] = hadithStatements(text);
-    expect(st?.status).toBe("sanadnya lemah menurut al-'Iraqi");
-    expect(text.slice(st!.lineEnd)).toBe("\nBaris lain.");
+  test("awalan diikuti baris baru: tiap baris sesudahnya pernyataan sendiri", () => {
+    const text =
+      "Pembuka.\nStatus hadits:\nsanadnya lemah menurut al-'Iraqi.\n- Hadits B: palsu.\n\nParagraf lain.";
+    const sts = hadithStatements(text);
+    expect(sts.map((x) => x.status)).toEqual([
+      "sanadnya lemah menurut al-'Iraqi",
+      "Hadits B: palsu",
+    ]);
+    expect(text.slice(sts[1]!.end)).toBe("\n\nParagraf lain.");
+    // Satu baris kosong tepat sesudah awalan dilewati.
+    expect(hadithStatements("Status hadits:\n\n- A: lemah.").map((x) => x.status)).toEqual([
+      "A: lemah",
+    ]);
+  });
+
+  test('titik sesudah lokasi "(j. 1, h. 5)." atau angka adalah akhir kalimat; awalan kedua memotong', () => {
+    const [a] = hadithStatements("Status hadits: lemah (j. 1, h. 5). Hadits kedua diriwayatkan.");
+    expect(a?.status).toBe("lemah (j. 1, h. 5)");
+    const sts = hadithStatements("Status hadits: dhaif menurut al-'Iraqi Status hadits: palsu.");
+    expect(sts.map((x) => x.status)).toEqual(["dhaif menurut al-'Iraqi", "palsu"]);
+    expect(sts[0]!.end).toBeLessThanOrEqual(sts[1]!.start);
+  });
+
+  test("varian awalan lain dikenali", () => {
+    for (const text of [
+      "Status hadits ini: lemah.",
+      "Status hadits tersebut: lemah.",
+      "Status hadist: lemah.",
+      "Status hadith: lemah.",
+      "Status ḥadīts: lemah.",
+      "Status\u00A0hadits: lemah.",
+      "Derajat hadits: lemah.",
+      "Kualitas hadis: lemah.",
+    ])
+      expect(
+        hadithStatements(text).map((x) => x.status),
+        text,
+      ).toEqual(["lemah"]);
+  });
+
+  test("status panjang dipotong di batas kata dengan elipsis", () => {
+    const [st] = hadithStatements(`Status hadits: ${"kata ".repeat(40)}akhir.`);
+    expect(st!.status.length).toBeLessThanOrEqual(121);
+    expect(st!.status.endsWith("…")).toBe(true);
+  });
+
+  test("tag <cite> tiruan model dibuang, isinya tetap", () => {
+    expect(
+      stripCiteTags('menuntut <cite index="17-1">kerja sama</cite>. Lalu <CITE>x</CITE>'),
+    ).toBe("menuntut kerja sama. Lalu x");
+    expect(stripCiteTags("a < b dan c > d")).toBe("a < b dan c > d");
   });
 
   test("singkatan (HR., w., r.a., no.) tidak memotong kalimat status", () => {
@@ -552,6 +624,132 @@ describe("klaim hadits", () => {
     const text = checked.blocks.map((b) => b.text).join("");
     expect(text).toBe(`Pembuka.\n${HADITH_UNKNOWN}\nBaris berikut.`);
     expect(text).not.toContain("palsu");
+  });
+
+  test("paragraf badan dengan dua catatan kaki: status tanpa sitasi sendiri tidak dipasangkan", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2, 5] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+      [5, passage(5, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const cite = (n: number, passage_id: number, kind: "body" | "foot") => ({
+      n,
+      passage_id,
+      char_start: 0,
+      char_end: 10,
+      kind,
+      label: "",
+      permalink: "",
+    });
+    const blocks = [
+      { text: "Dua hadits dinukil", citations: [1] },
+      { text: " dan takhrij pertama", citations: [2] },
+      { text: ". Status hadits: palsu.", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, [cite(1, 1, "body"), cite(2, 2, "foot")], passages);
+    expect(checked.claims).toEqual([]);
+    expect(checked.blocks.map((b) => b.text).join("")).not.toContain("palsu");
+  });
+
+  test("butir daftar beda baris tidak saling meminjam takhrij", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 1,
+        char_start: 0,
+        char_end: 10,
+        kind: "body" as const,
+        label: "",
+        permalink: "",
+      },
+      {
+        n: 2,
+        passage_id: 2,
+        char_start: 0,
+        char_end: 10,
+        kind: "foot" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "- Hadits A dinukil", citations: [1] },
+      { text: " dan ditakhrij.", citations: [2] },
+      { text: "\n- Hadits B. Status hadits: palsu.", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.claims).toEqual([]);
+    expect(checked.blocks.map((b) => b.text).join("")).not.toContain("palsu");
+  });
+
+  test("dua kalimat status di satu baris: yang tanpa sitasi tidak meminjam takhrij yang lain", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 2,
+        char_start: 0,
+        char_end: 10,
+        kind: "foot" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "Status hadits: palsu. ", citations: [] },
+      { text: "Status hadits: lemah", citations: [1] },
+      { text: ".", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.claims.map((c) => c.status)).toEqual(["lemah"]);
+    const text = checked.blocks.map((b) => b.text).join("");
+    expect(text).not.toContain("palsu");
+    expect(text).toContain("lemah");
+  });
+
+  test("daftar sesudah awalan: butir tanpa takhrij sendiri diganti, butir bersitasi dipasangkan", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 2,
+        char_start: 0,
+        char_end: 10,
+        kind: "foot" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "Status hadits:\n- Hadits A: dha'if", citations: [1] },
+      { text: ".\n- Hadits B: palsu.\n\nPenutup.", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.claims.map((c) => c.status)).toEqual(["Hadits A: dha'if"]);
+    const text = checked.blocks.map((b) => b.text).join("");
+    expect(text).not.toContain("palsu");
+    expect(text).toContain(HADITH_UNKNOWN);
+    expect(text.endsWith("\n\nPenutup.")).toBe(true);
+  });
+
+  test("dua status tak didukung berdampingan: digabung jadi satu pemberitahuan, tanpa tumpang tindih", () => {
+    const passages = new Map([[1, passage(1, SENT)]]);
+    const checked = hadithCheck(
+      [{ text: "A. Status hadits: palsu. Status hadits: lemah.\nB.", citations: [] }],
+      [],
+      passages,
+    );
+    expect(checked.blocks.map((b) => b.text).join("")).toBe(`A. ${HADITH_UNKNOWN}\nB.`);
   });
 
   test("paragraf yang menyitasi dua paragraf badan: status tanpa sitasi takhrij sendiri tidak dipasangkan", () => {
@@ -579,6 +777,174 @@ describe("klaim hadits", () => {
     const checked = hadithCheck(blocks, citations, passages);
     expect(checked.claims).toEqual([]);
     expect(checked.blocks.map((b) => b.text).join("")).toContain(HADITH_UNKNOWN);
+  });
+
+  test("bentuk daftar: kalimat pengantar, daftar longgar, baris lanjutan, dan CRLF dikenali", () => {
+    const statuses = (t: string) => hadithStatements(t).map((x) => x.status);
+    // Pengantar tanpa istilah penilaian bukan pernyataan; butir tetap diperiksa.
+    expect(
+      statuses("Status hadits: sebagai berikut.\n- Hadits A: sahih.\n- Hadits B: palsu."),
+    ).toEqual(["Hadits A: sahih", "Hadits B: palsu"]);
+    // Status yang ditulis sebaris sebelum daftar TETAP pernyataan.
+    expect(statuses("Status hadits: kedua hadits lemah:\n- A: lemah.")).toEqual([
+      "kedua hadits lemah",
+      "A: lemah",
+    ]);
+    // Daftar longgar (baris kosong di antara butir).
+    expect(statuses("Status hadits:\n\n- A: lemah.\n\n- B: palsu.\n\nPenutup.")).toEqual([
+      "A: lemah",
+      "B: palsu",
+    ]);
+    // Baris lanjutan menempel ke butirnya; baris kosong lalu teks biasa mengakhiri daftar.
+    expect(statuses("Status hadits:\n- A: sahih menurut\n  al-'Iraqi.\n\nPenutup.")).toEqual([
+      "A: sahih menurut\n  al-'Iraqi",
+    ]);
+    expect(statuses("Status hadits:\r\n- A: palsu.")).toEqual(["A: palsu"]);
+    // Baris kosong sesudah awalan kosong: baris isi pertama tetap pernyataan.
+    expect(statuses("Status hadits:\n\nsanadnya lemah.")).toEqual(["sanadnya lemah"]);
+  });
+
+  test("varian awalan yang lebih bebas dikenali", () => {
+    for (const text of [
+      "Status haditsnya: palsu.",
+      "Status kedua hadits: palsu.",
+      "Status hadits (menurut al-'Iraqi): palsu.",
+      "Status hadits menurut al-'Iraqi: palsu.",
+      "Status hadits — palsu.",
+      "Status hadits - palsu.",
+    ])
+      expect(
+        hadithStatements(`Pembuka. ${text}`).map((x) => x.status),
+        text,
+      ).toEqual(["palsu"]);
+    expect(
+      hadithStatements("Status hadits-hadits tersebut:\n- A: palsu.").map((x) => x.status),
+    ).toEqual(["A: palsu"]);
+  });
+
+  test("daftar dengan pengantar: butir bersitasi takhrij dipasangkan, butir lain diganti", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const citations = [FOOT1];
+    const blocks = [
+      { text: "Status hadits: sebagai berikut.\n- Hadits A: sahih", citations: [1] },
+      { text: "\n- Hadits B: palsu.\n\nPenutup.", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.claims.map((c) => c.status)).toEqual(["Hadits A: sahih"]);
+    const text = checked.blocks.map((b) => b.text).join("");
+    expect(text).not.toContain("palsu");
+    // Penanda daftar tetap; isi butir B diganti.
+    expect(text).toContain(`\n- ${HADITH_UNKNOWN}`);
+    expect(text.endsWith("\n\nPenutup.")).toBe(true);
+  });
+
+  test("baris dengan beberapa takhrij: kalimat status tanpa sitasi sendiri tidak meminjam (peninjau S21)", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+      [3, passage(3, SENT, { footnote_ids: [4] })],
+      [4, passage(4, SENT, { kind: "foot", referenced_by: [3] })],
+    ]);
+    const cite = (n: number, passage_id: number, kind: "body" | "foot") => ({
+      n,
+      passage_id,
+      char_start: 0,
+      char_end: 10,
+      kind,
+      label: "",
+      permalink: "",
+    });
+    const citations = [cite(1, 1, "body"), cite(2, 2, "foot"), cite(3, 4, "foot")];
+    const blocks = [
+      { text: "Al-Ghazali menukil hadits niat", citations: [1] },
+      { text: "; al-'Iraqi menyebutnya riwayat al-Bukhari", citations: [2] },
+      { text: ". Ia juga menyebut hadits X yang sanadnya tidak ditemukan", citations: [3] },
+      { text: ". Status hadits: tidak ditemukan sanadnya.", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.claims).toEqual([]);
+    expect(checked.blocks.map((b) => b.text).join("")).toContain(HADITH_UNKNOWN);
+  });
+
+  test("singkatan di akhir kalimat status (saw.) tidak menyedot takhrij kalimat berikutnya", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const blocks = [
+      {
+        text: "Status hadits: tidak berasal dari Nabi saw. Hadits kedua tentang ilmu ",
+        citations: [],
+      },
+      { text: "diriwayatkan Muslim", citations: [1] },
+      { text: ".", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, [FOOT1], passages);
+    expect(checked.claims).toEqual([]);
+    expect(checked.blocks.map((b) => b.text).join("")).not.toContain("tidak berasal");
+    // "HR. Muslim" bukan akhir kalimat: takhrij sesudahnya tetap milik pernyataan.
+    const hr = [
+      { text: "Status hadits: sahih, HR. ", citations: [] },
+      { text: "Muslim", citations: [1] },
+      { text: ".", citations: [] },
+    ];
+    expect(hadithCheck(hr, [FOOT1], passages).claims.map((c) => c.status)).toEqual([
+      "sahih, HR. Muslim",
+    ]);
+  });
+
+  test("blok bersitasi yang menyentuh dua pernyataan ambigu; satu takhrij satu klaim; satu pernyataan boleh dua takhrij", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2, 4] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+      [4, passage(4, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const footN = (n: number, pid: number) => ({
+      n,
+      passage_id: pid,
+      char_start: 0,
+      char_end: 10,
+      kind: "foot" as const,
+      label: "",
+      permalink: "",
+    });
+    const citations = [footN(1, 2), footN(2, 4)];
+    // Satu blok bersitasi memuat dua pernyataan: tidak jelas takhrij milik siapa → keduanya diganti.
+    const amb = hadithCheck(
+      [{ text: "Status hadits: A sahih. Status hadits: B palsu.", citations: [2] }],
+      citations,
+      passages,
+    );
+    expect(amb.claims).toEqual([]);
+    expect(amb.blocks.map((b) => b.text).join("")).not.toMatch(/sahih|palsu/u);
+    // Dua pernyataan menyitasi takhrij yang sama: yang kedua tidak didukung.
+    const same = hadithCheck(
+      [
+        { text: "Status hadits: lemah", citations: [1] },
+        { text: ".\nStatus hadits: palsu", citations: [1] },
+        { text: ".", citations: [] },
+      ],
+      citations,
+      passages,
+    );
+    expect(same.claims.map((c) => c.status)).toEqual(["lemah"]);
+    expect(same.blocks.map((b) => b.text).join("")).not.toContain("palsu");
+    // Satu pernyataan, dua takhrij: dua klaim.
+    const two = hadithCheck(
+      [
+        { text: "Status hadits: keduanya lemah", citations: [1, 2] },
+        { text: ".", citations: [] },
+      ],
+      citations,
+      passages,
+    );
+    expect(two.claims.map((c) => [c.status, c.footnote.passage_id])).toEqual([
+      ["keduanya lemah", 2],
+      ["keduanya lemah", 4],
+    ]);
   });
 
   test("blok yang seluruhnya kalimat status tak didukung dibuang beserta sitasinya", () => {

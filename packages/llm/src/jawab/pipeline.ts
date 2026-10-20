@@ -34,7 +34,9 @@ import {
   hasHadithPrefix,
   refusalKind,
   stripArabic,
+  stripCiteTags,
 } from "./citations.ts";
+import type { HadithStatement } from "./citations.ts";
 import type { CitedSpan } from "./citations.ts";
 import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
@@ -47,7 +49,7 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * Versi pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu
  * berubah: ikut kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 2;
+export const JAWAB_PIPELINE_VERSION = 3;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -396,7 +398,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   let holdPreview = false;
   let pending: JawabBlock[] = [];
   const processBlock = async (raw: RawBlock) => {
-    const cleaned = stripArabic(raw.text);
+    const cleaned = stripArabic(stripCiteTags(raw.text));
     diagnostics.arabic_removed += cleaned.removed;
     const ns: number[] = [];
     let total = 0;
@@ -519,6 +521,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   await emit({ type: "stage", stage: "verify" });
   const checked = hadithCheck(kept, [...verified.values()], passages);
   diagnostics.hadith_unsupported = checked.unsupported;
+  // Status hadits tidak stabil sesudah pemeriksaan ulang: jangan tampilkan apa pun (ragu = tahan).
+  if (checked.unresolved) return fallback("unverified", model);
   const citations = checked.citations;
   diagnostics.citations_valid = citations.length;
   const text = checked.blocks
@@ -546,12 +550,22 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 /** Pengganti kalimat status hadits yang tidak didukung takhrij tersitasi (aturan teks-arab no. 6). */
 export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ada takhrij al-'Iraqi yang tersitasi untuk kalimat ini).`;
 
+/** Status yang dibaca `hadithStatements` dari `HADITH_UNKNOWN` (pengganti tidak diperiksa ulang). */
+const UNKNOWN_STATUS = hadithStatements(HADITH_UNKNOWN)[0]?.status;
+
+/** Batas putaran pemeriksaan ulang; bila belum stabil, jawaban tidak ditampilkan (fallback). */
+const HADITH_MAX_PASSES = 6;
+
 /**
- * Klaim status hadits: kalimat "Status hadits: …" yang didukung sitasi catatan kaki terverifikasi
- * (di kalimat itu, atau satu-satunya takhrij yang jelas di paragraf yang sama, lihat di bawah).
- * `passage_id` = paragraf badan yang merujuk catatan kaki itu (takhrij tertaut, S16). Kalimat
- * status yang TIDAK didukung diganti `HADITH_UNKNOWN` di blok jawaban, sehingga status tanpa
- * takhrij tidak pernah tampil (temuan peninjau S19). Sitasi yang tak lagi dirujuk blok dibuang.
+ * Klaim status hadits (aturan teks-arab no. 6, ADR-066 butir 1): kalimat/butir "Status hadits: …"
+ * hanya sah bila KALIMAT ITU SENDIRI menyitasi catatan kaki takhrij terverifikasi (sesuai prompt:
+ * "kalimat itu sendiri harus bersitasi ke dokumen takhrij"). Tidak ada lagi pemasangan dengan
+ * takhrij dari kalimat lain di baris/paragraf yang sama (peninjau S21: celah "meminjam" takhrij
+ * hadits lain). `passage_id` = paragraf badan yang merujuk catatan kaki itu (takhrij tertaut, S16).
+ * Pernyataan yang tidak didukung diganti `HADITH_UNKNOWN` (blok tersendiri tanpa sitasi). Teks
+ * hasil penggantian diperiksa ulang sampai stabil; klaim selalu dihitung dari teks akhir. Bila
+ * tetap belum stabil sesudah `HADITH_MAX_PASSES` putaran, `unresolved` = true dan pipeline tidak
+ * menampilkan jawaban.
  */
 export function hadithCheck(
   blocks: readonly JawabBlock[],
@@ -562,70 +576,90 @@ export function hadithCheck(
   blocks: JawabBlock[];
   citations: JawabCitation[];
   unsupported: number;
+  unresolved: boolean;
 } {
-  const claims: JawabHadith[] = [];
+  const byN = new Map(citations.map((c) => [c.n, c]));
+  let current = blocks.map((b) => ({ ...b }));
+  let unsupported = 0;
+  for (let pass = 0; pass < HADITH_MAX_PASSES; pass++) {
+    const { claims, unpaired } = pairStatements(current, byN, passages);
+    if (unpaired.length === 0) {
+      const used = new Set(current.flatMap((b) => b.citations));
+      return {
+        claims,
+        blocks: current,
+        citations: citations.filter((c) => used.has(c.n)),
+        unsupported,
+        unresolved: false,
+      };
+    }
+    unsupported += unpaired.length;
+    current = replaceRanges(current, unpaired);
+  }
+  const used = new Set(current.flatMap((b) => b.citations));
+  return {
+    claims: [],
+    blocks: current,
+    citations: citations.filter((c) => used.has(c.n)),
+    unsupported,
+    unresolved: true,
+  };
+}
+
+interface Span {
+  start: number;
+  end: number;
+}
+
+/** Rentang yang diganti untuk status tak didukung: penanda Markdown di depan s.d. akhir kalimat. */
+function replacementRange(full: string, st: HadithStatement): Span {
+  let start = st.start;
+  while (start > 0 && /[*_]/u.test(full[start - 1]!)) start--;
+  return { start, end: st.end };
+}
+
+/**
+ * Satu putaran: setiap pernyataan (selain pengganti `HADITH_UNKNOWN`) dipasangkan dengan catatan
+ * kaki takhrij yang disitasi blok-blok yang menyentuh rentang kepemilikannya ([start, ownEnd)).
+ * Blok bersitasi yang menyentuh rentang lebih dari satu pernyataan ambigu dan tidak dipakai siapa
+ * pun. Satu catatan kaki (per `passage_id`) hanya untuk satu klaim; satu pernyataan boleh
+ * menyitasi beberapa takhrij (satu klaim per takhrij).
+ */
+function pairStatements(
+  blocks: readonly JawabBlock[],
+  byN: ReadonlyMap<number, JawabCitation>,
+  passages: ReadonlyMap<number, AnswerPassage>,
+): { claims: JawabHadith[]; unpaired: Span[] } {
   const full = blocks.map((b) => b.text).join("");
   let offset = 0;
   const ranges = blocks.map((b) => {
-    const r = { start: offset, end: offset + b.text.length, block: b };
+    const r = { start: offset, end: offset + b.text.length, citations: b.citations };
     offset = r.end;
     return r;
   });
-  const footOf = (ns: readonly number[]) =>
-    ns
-      .map((n) => citations.find((x) => x.n === n))
-      .filter((c): c is JawabCitation => c !== undefined && c.kind === "foot");
-  const unpaired: { start: number; end: number }[] = [];
-  for (const st of hadithStatements(full)) {
-    const stEnd = full[st.end] === "." ? st.end + 1 : st.end;
-    let foots = footOf(
-      ranges.filter((r) => r.end > st.start && r.start < stEnd).flatMap((r) => r.block.citations),
-    );
-    // Kalimat status tanpa sitasi takhrij sendiri: pasangkan dengan takhrij yang disitasi di
-    // paragraf yang sama HANYA bila jelas: tepat satu catatan kaki yang hadits-nya (paragraf
-    // badan perujuk) ikut disitasi di paragraf itu, atau, bila paragraf tidak menyitasi hadits
-    // apa pun, tepat satu catatan kaki. Selain itu status dianggap tidak didukung (temuan
-    // peninjau: paragraf dua hadits).
-    if (foots.length === 0) {
-      const paragraphStart = full.lastIndexOf("\n\n", st.start) + 1;
-      const nextBreak = full.indexOf("\n\n", stEnd);
-      const paragraphEnd = nextBreak < 0 ? full.length : nextBreak;
-      const inParagraph = ranges.filter((r) => r.end > paragraphStart && r.start < paragraphEnd);
-      const cited = inParagraph.flatMap((r) => r.block.citations);
-      const distinctFoots = [...new Map(footOf(cited).map((c) => [c.passage_id, c])).values()];
-      const citedBodies = new Set(
-        cited
-          .map((n) => citations.find((x) => x.n === n))
-          .filter((c) => c !== undefined && c.kind === "body")
-          .map((c) => c!.passage_id),
-      );
-      const linked = distinctFoots.filter((c) =>
-        (passages.get(c.passage_id)?.referenced_by ?? []).some((b) => citedBodies.has(b)),
-      );
-      // Bila paragraf menyitasi hadits (paragraf badan), takhrijnya wajib tertaut ke hadits itu,
-      // dan paragraf itu hanya boleh menyitasi SATU paragraf badan: dengan dua hadits, status tanpa
-      // sitasi sendiri bisa milik hadits mana pun (peninjau S19 putaran 3, S21).
-      const pick =
-        citedBodies.size === 1
-          ? linked.length === 1
-            ? linked[0]
-            : undefined
-          : citedBodies.size === 0 && distinctFoots.length === 1
-            ? distinctFoots[0]
-            : undefined;
-      foots = pick ? [pick] : [];
-    }
+  const statements = hadithStatements(full).filter((st) => st.status !== UNKNOWN_STATUS);
+  const touches = (r: { start: number; end: number }, st: HadithStatement) =>
+    r.end > st.start && r.start < st.ownEnd;
+  const ambiguous = new Set(
+    ranges.filter(
+      (r) => r.citations.length > 0 && statements.filter((st) => touches(r, st)).length > 1,
+    ),
+  );
+  const taken = new Set<number>();
+  const claims: JawabHadith[] = [];
+  const unpaired: Span[] = [];
+  for (const st of statements) {
+    const own = ranges
+      .filter((r) => !ambiguous.has(r) && touches(r, st))
+      .flatMap((r) => r.citations)
+      .map((n) => byN.get(n))
+      .filter((c): c is JawabCitation => c?.kind === "foot");
     let paired = false;
-    for (const c of foots) {
+    for (const c of own) {
       const body = passages.get(c.passage_id)?.referenced_by[0];
-      if (body === undefined) continue;
+      if (body === undefined || taken.has(c.passage_id)) continue;
+      taken.add(c.passage_id);
       paired = true;
-      if (
-        claims.some(
-          (h) => h.footnote.passage_id === c.passage_id && h.footnote.char_start === c.char_start,
-        )
-      )
-        continue;
       claims.push({
         passage_id: body,
         footnote: { passage_id: c.passage_id, char_start: c.char_start, char_end: c.char_end },
@@ -633,38 +667,51 @@ export function hadithCheck(
         label: "ai_extracted",
       });
     }
-    if (!paired) {
-      // Penanda Markdown di depan awalan (`**Status hadits:**`) ikut diganti, dan penggantian
-      // berjalan sampai AKHIR BARIS: sisa kalimat sesudah singkatan atau kalimat lanjutan di baris
-      // yang sama tidak boleh tampil tanpa takhrij (S21, ADR-064 butir 7).
-      let start = st.start;
-      while (start > 0 && /[*_]/u.test(full[start - 1]!)) start--;
-      unpaired.push({ start, end: Math.max(stEnd, st.lineEnd) });
+    if (!paired) unpaired.push(replacementRange(full, st));
+  }
+  return { claims, unpaired };
+}
+
+/**
+ * Ganti rentang (digabung bila tumpang tindih) dengan `HADITH_UNKNOWN` sebagai blok TANPA sitasi,
+ * supaya penanda [n] blok asli tidak menempel pada "belum diketahui". Potongan blok yang tersisa
+ * mempertahankan sitasinya; potongan kosong dibuang.
+ */
+function replaceRanges(blocks: readonly JawabBlock[], spans: readonly Span[]): JawabBlock[] {
+  if (spans.length === 0) return blocks.map((b) => ({ ...b }));
+  const merged: Span[] = [];
+  for (const s of [...spans].sort((a, b) => a.start - b.start)) {
+    const last = merged.at(-1);
+    if (last !== undefined && s.start <= last.end) last.end = Math.max(last.end, s.end);
+    else merged.push({ ...s });
+  }
+  const out: JawabBlock[] = [];
+  let offset = 0;
+  for (const b of blocks) {
+    const rs = offset;
+    const re = offset + b.text.length;
+    offset = re;
+    const hits = merged.filter((u) => u.end > rs && u.start < re);
+    if (hits.length === 0) {
+      out.push({ ...b });
+      continue;
+    }
+    let cursor = rs;
+    for (const u of hits) {
+      if (u.start > cursor) {
+        const text = b.text.slice(cursor - rs, Math.min(u.start, re) - rs);
+        // Spasi/baris baru dipertahankan (tanpa sitasi, supaya tidak ada penanda [n] yatim).
+        if (text !== "") out.push({ text, citations: text.trim() === "" ? [] : b.citations });
+      }
+      if (u.start >= rs && u.start < re) out.push({ text: HADITH_UNKNOWN, citations: [] });
+      cursor = Math.max(cursor, Math.min(u.end, re));
+    }
+    if (cursor < re) {
+      const text = b.text.slice(cursor - rs);
+      out.push({ text, citations: text.trim() === "" ? [] : b.citations });
     }
   }
-  // Ganti dari belakang supaya offset kalimat sebelumnya tetap berlaku.
-  const texts = blocks.map((b) => b.text);
-  for (const u of [...unpaired].reverse()) {
-    ranges.forEach((r, i) => {
-      if (r.end <= u.start || r.start >= u.end) return;
-      const ls = Math.max(u.start, r.start) - r.start;
-      const le = Math.min(u.end, r.end) - r.start;
-      const insert = u.start >= r.start && u.start < r.end ? HADITH_UNKNOWN : "";
-      texts[i] = texts[i]!.slice(0, ls) + insert + texts[i]!.slice(le);
-    });
-  }
-  // Hanya blok yang DIKOSONGKAN penggantian yang dibuang (blok spasi bersitasi asli tetap).
-  const kept = blocks
-    .map((b, i) => ({ text: texts[i]!, citations: b.citations, changed: texts[i] !== b.text }))
-    .filter((b) => !b.changed || b.text.trim() !== "")
-    .map(({ text, citations: ns }) => ({ text, citations: ns }));
-  const used = new Set(kept.flatMap((b) => b.citations));
-  return {
-    claims: claims.slice(0, 5),
-    blocks: kept,
-    citations: citations.filter((c) => used.has(c.n)),
-    unsupported: unpaired.length,
-  };
+  return out;
 }
 
 /** Klaim status hadits saja (lihat `hadithCheck`). */

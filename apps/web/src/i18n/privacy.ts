@@ -11,7 +11,7 @@ export const privacyText = {
   summary: [
     "Tanpa akun dan tanpa login.",
     "Alamat IP tidak disimpan mentah. Log teknis lama yang sempat memuatnya terhapus otomatis paling lambat 28 Oktober 2026.",
-    "Teks pertanyaan Tanya tidak disimpan di database Surau.",
+    "Teks pertanyaan Tanya tidak disimpan di database Surau, kecuali Anda sendiri melaporkan jawabannya sebagai keliru.",
     "Pertanyaan Anda tidak dipakai untuk melatih model AI.",
   ],
   readHeading: "Membaca dan Cari",
@@ -28,7 +28,7 @@ export const privacyText = {
   ],
   reportHeading: "Laporan kesalahan",
   reportText:
-    "Formulir laporan tidak meminta nama atau email, dan alamat IP tidak disimpan. Email, nomor telepon, nomor identitas, dan tautan luar yang ikut terketik disamarkan otomatis sebelum disimpan. Nama orang belum bisa dikenali otomatis, jadi jangan menuliskannya. Laporan disimpan sampai ditangani, lalu dihapus otomatis 12 bulan kemudian.",
+    "Formulir laporan tidak meminta nama atau email, dan alamat IP tidak disimpan. Laporan jawaban Tanya berisi komentar Anda, pertanyaan Anda, dan awal jawabannya (paling banyak sekitar 900 huruf), supaya kesalahannya bisa diperiksa; isinya terlihat sebelum Anda mengirim. Email, nomor telepon, nomor identitas, dan tautan luar yang ikut terketik disamarkan otomatis sebelum disimpan. Nama orang belum bisa dikenali otomatis, jadi jangan menuliskannya. Laporan disimpan sampai ditangani, lalu dihapus otomatis 12 bulan kemudian.",
   retentionHeading: "Lama penyimpanan",
   retentionLead: "Penghapusan berjalan otomatis setiap hari.",
   retention: [
@@ -41,7 +41,11 @@ export const privacyText = {
       where: "Database Surau",
       how: "24 bulan (dibulatkan per bulan)",
     },
-    { data: "Laporan kesalahan", where: "Database Surau", how: "Sampai ditangani + 12 bulan" },
+    {
+      data: "Laporan kesalahan (laporan jawaban: komentar, pertanyaan, dan awal jawaban)",
+      where: "Database Surau",
+      how: "Sampai ditangani + 12 bulan",
+    },
     {
       data: "Log teknis (tanpa IP dan tanpa teks pertanyaan; jejak kinerja mencatat perkiraan negara/kota dan jenis peramban)",
       where: "Cloudflare",

@@ -11,6 +11,7 @@ Satu-satunya tempat logika teks Arab Surau. TypeScript murni **tanpa dependensi 
 | `quote.ts` | `findQuote(raw, quote, opts?)` | Cari kutipan di teks mentah dan kembalikan substring mentah **verbatim** |
 | `fts.ts` | `planFtsQuery(query, opts?)`, `ftsMatchExpression(plan, columns?)`, `buildFtsMatch(query, opts?)`, `ftsQuote`, `FTS_MAX_PHRASES` | Rencana kueri (stem, frasa alternatif, awalan) dan ekspresi `MATCH` FTS5 yang aman dari injeksi |
 | `highlight.ts` | `findPlanSpans(raw, plan, limit?)`, `snippetSpan(raw, focus, size?)`, `SNIPPET_CHARS` | Sorotan hasil pencarian di **teks mentah** (S11) dengan aturan yang sama dengan indeks, dan potongan ±160 karakter di batas spasi |
+| `takhrij.ts` | `takhrijHasWeakTerms(raw)` | Tanda peringatan (S21): teks takhrij memuat istilah lemah/palsu/tanpa asal/tidak ditemukan, dicocokkan atas bentuk `normalizeArabic`. Heuristik kata kunci, **bukan** status hadits (ADR-066) |
 | `shamela.ts` | `cleanShamelaHtml`, `extractTitles`, `splitFootnotes`, `splitParagraphs`, `findFootnoteMarkers`, `splitFootnoteEntries`, `linkFootnotes`, `linkFootnoteMarkers`, `splitInlineTakhrij` | Membersihkan dan memecah `page.content` Shamela secara deterministik, termasuk takhrij yang menempel ke matan lewat `//` (ADR-032) |
 
 ```ts

@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import { tanyaText as t } from "../../i18n/tanya";
 import type { KutipanItem } from "../../lib/kutipan-handler";
 import type { JawabCitation, JawabResult, JawabSearchHit } from "../../lib/tanya/model";
-import { displayText, isWeakHadith, kutipanQuery, spanKey } from "../../lib/tanya/model";
+import { displayText, kutipanQuery, spanKey } from "../../lib/tanya/model";
 import { ArabicText } from "../arabic";
 
 // Tampilan hasil Jawab (S21). Teks Indonesia dari model tampil sebagai teks biasa per blok: blok
@@ -49,7 +49,8 @@ function useKutipan(
         setState({ query, data });
       })
       .catch(() => {
-        if (!cancelled) setState({ query, data: new Map() });
+        // Galat jaringan: semua kartu menampilkan `quoteMissing` (bukan kosong tanpa keterangan).
+        if (!cancelled) setState({ query, data: new Map(query.split(",").map((k) => [k, null])) });
       });
     return () => {
       cancelled = true;
@@ -71,7 +72,11 @@ export function AnswerText({ result }: { result: Pick<JawabResult, "blocks"> }) 
               {displayText(b.text)}
               {b.citations.map((n) => (
                 <sup key={n} className="ms-0.5">
-                  <a className="text-accent no-underline hover:underline" href={`#kutipan-${n}`}>
+                  <a
+                    aria-label={t.citationLink(n)}
+                    className="text-accent no-underline hover:underline"
+                    href={`#kutipan-${n}`}
+                  >
                     [{n}]
                   </a>
                 </sup>
@@ -107,8 +112,18 @@ function CitationCard({ c, item }: { c: JawabCitation; item: KutipanItem | null 
           <Chip size="sm" variant="soft" color={c.kind === "foot" ? "warning" : "default"}>
             {c.kind === "foot" ? t.takhrij : t.matan}
           </Chip>
+          {item?.weak ? (
+            <Chip size="sm" variant="soft" color="danger">
+              {t.takhrijWeak}
+            </Chip>
+          ) : null}
         </Card.Header>
         <Card.Content className="flex flex-col gap-3">
+          {item?.weak ? (
+            <Typography type="body-sm" color="muted">
+              {t.takhrijWeakNote}
+            </Typography>
+          ) : null}
           {item === undefined ? null : item === null ? (
             <Typography type="body-sm" color="muted">
               {t.quoteMissing}
@@ -131,7 +146,7 @@ function CitationCard({ c, item }: { c: JawabCitation; item: KutipanItem | null 
   );
 }
 
-function HadithClaims({ result }: { result: JawabResult }) {
+function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutipan | null }) {
   if (result.hadith.length === 0) return null;
   const citeOf = (f: JawabResult["hadith"][number]["footnote"]) =>
     result.citations.find(
@@ -143,22 +158,37 @@ function HadithClaims({ result }: { result: JawabResult }) {
       <Typography.Heading level={3} id="judul-hadits" className="text-base">
         {t.hadithHeading}
       </Typography.Heading>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-4">
         {result.hadith.map((h, i) => {
           const c = citeOf(h.footnote);
+          // Tanda kelemahan HANYA dari teks takhrij DB (`weak` dari /api/kutipan), bukan dari
+          // pencocokan kata pada ringkasan AI (bisa menandai hadits sahih, peninjau S21).
+          const item = kutipan?.get(spanKey(h.footnote));
           return (
-            <li key={i} className="flex flex-col gap-1">
+            <li key={i} className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Typography type="body-sm">{h.status}</Typography>
                 <Chip size="sm" variant="soft">
                   {t.hadithAi}
                 </Chip>
-                {isWeakHadith(h.status) ? (
+                {item?.weak ? (
                   <Chip size="sm" variant="soft" color="danger">
-                    {t.hadithWeak}
+                    {t.takhrijWeak}
                   </Chip>
                 ) : null}
               </div>
+              {item === undefined ? null : item === null ? (
+                <Typography type="body-sm" color="muted">
+                  {t.quoteMissing}
+                </Typography>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  <Typography type="body-xs" color="muted">
+                    {t.takhrijText}
+                  </Typography>
+                  <ArabicText as="blockquote">{item.text}</ArabicText>
+                </div>
+              )}
               {c ? (
                 <a className="text-accent text-sm underline" href={`#kutipan-${c.n}`}>
                   {t.hadithSource} [{c.n}]
@@ -182,7 +212,7 @@ function RelatedHits({
   if (hits.length === 0) return null;
   return (
     <section aria-labelledby="judul-terkait" className="flex flex-col gap-3">
-      <Typography.Heading level={3} id="judul-terkait" className="text-base">
+      <Typography.Heading level={2} id="judul-terkait" className="text-lg">
         {t.relatedHeading}
       </Typography.Heading>
       <ul className="flex flex-col gap-3">
@@ -320,7 +350,10 @@ export function AnswerView({
       ) : (
         <Card>
           <Card.Header>
-            <Card.Title>{notFound ? t.notFoundHeading : t.answerHeading}</Card.Title>
+            {/* h2 (bukan Card.Title = h3): urutan judul h1 → h2 (a11y.spec, pola regresi S09). */}
+            <Typography.Heading level={2} className="text-lg">
+              {notFound ? t.notFoundHeading : t.answerHeading}
+            </Typography.Heading>
             {result.model ? (
               <Card.Description>
                 {t.meta(MODEL_NAMES[result.model] ?? result.model, cached)}
@@ -329,7 +362,7 @@ export function AnswerView({
           </Card.Header>
           <Card.Content className="flex flex-col gap-5">
             <AnswerText result={result} />
-            <HadithClaims result={result} />
+            <HadithClaims result={result} kutipan={kutipan} />
             <ReportForm question={question} result={result} />
           </Card.Content>
         </Card>
@@ -348,7 +381,7 @@ export function AnswerView({
       ) : null}
       <RelatedHits hits={result.search} kutipan={kutipan} />
       {notFound || fallback ? (
-        <NextLink className="text-accent self-start underline" href={cari}>
+        <NextLink className="text-accent self-start underline" href={cari} prefetch={false}>
           {t.searchInstead}
         </NextLink>
       ) : null}

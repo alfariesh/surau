@@ -57,6 +57,14 @@ beforeEach(async () => {
 
 let ipSeq = 0;
 const freshIp = () => `203.0.113.${(ipSeq++ % 250) + 1}`;
+const B64URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+/**
+ * Tanda tangan HMAC-SHA256 = 32 byte = 43 karakter base64url: 2 bit terendah karakter terakhir
+ * adalah bit pengisi. Membalik bit terendahnya memberi ejaan lain untuk byte yang sama.
+ */
+const nonCanonical = (cookie: string) =>
+  cookie.replace(/.$/u, (ch) => B64URL[B64URL.indexOf(ch) ^ 1]!);
+
 const cookieFor = async (
   id = newAnonId(),
   exp = Math.floor(Date.now() / 1000) + ANON_TTL_SECONDS,
@@ -216,6 +224,13 @@ describe("cookie anon dan Turnstile", () => {
     const { ask } = setup();
     const now = Math.floor(Date.now() / 1000);
     const id = newAnonId();
+    // Ejaan non-kanonis memang mendekode ke byte tanda tangan yang sama (bukan sekadar tanda tangan
+    // rusak), jadi tes ini benar-benar menguji pemeriksaan bentuk kanonis.
+    const good = await cookieFor(id);
+    const sigBytes = (c: string) =>
+      atob(c.split(".")[3]!.replaceAll("-", "+").replaceAll("_", "/"));
+    expect(nonCanonical(good)).not.toBe(good);
+    expect(sigBytes(nonCanonical(good))).toBe(sigBytes(good));
     const bad = [
       "v1.bukan-id.1.x",
       await cookieFor(id, now - 1),
@@ -225,7 +240,7 @@ describe("cookie anon dan Turnstile", () => {
         /(.{10})(.)(.{20})$/u,
         (_m, a: string, ch: string, b: string) => `${a}${ch === "A" ? "B" : "A"}${b}`,
       ),
-      (await cookieFor(id)).replace(/.$/u, (ch) => String.fromCharCode(ch.charCodeAt(0) ^ 1)),
+      nonCanonical(await cookieFor(id)),
       await signAnon("secret-lain-0123456789abcdef0123456789", id, now + 3600),
       await cookieFor(id, now + ANON_TTL_SECONDS * 5),
     ];

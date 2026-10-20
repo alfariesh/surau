@@ -16,6 +16,10 @@ const PAGES = [
   "/kitab/ihya/1/119",
   // Halaman Cari tanpa kueri (S14); dengan hasil: e2e/search.spec.ts.
   "/cari",
+  // Tanya (keadaan awal, tanpa LLM), privasi, dan transparansi biaya (S20–S21).
+  "/tanya",
+  "/privasi",
+  "/transparansi",
 ];
 
 for (const scheme of ["light", "dark"] as const) {
@@ -39,7 +43,15 @@ for (const scheme of ["light", "dark"] as const) {
 
 // Urutan heading (aturan axe `heading-order`, bertag best-practice sehingga tidak ikut tag WCAG di
 // atas). Regresi S09: judul bagian h3 langsung sesudah h1, dan Card.Title (h3) sebelum h2.
-for (const path of ["/kitab", "/kitab/ihya", "/kitab/ihya/1/200", "/cari"]) {
+for (const path of [
+  "/kitab",
+  "/kitab/ihya",
+  "/kitab/ihya/1/200",
+  "/cari",
+  "/tanya",
+  "/privasi",
+  "/transparansi",
+]) {
   test(`urutan heading berurutan: ${path}`, async ({ page }) => {
     await page.goto(path);
     const result = await new AxeBuilder({ page }).withRules(["heading-order"]).analyze();

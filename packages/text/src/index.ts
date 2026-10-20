@@ -24,6 +24,7 @@ export {
 } from "./stem.ts";
 
 export { findQuote } from "./quote.ts";
+export { takhrijHasWeakTerms } from "./takhrij.ts";
 export type { FindQuoteOptions, QuoteMatch } from "./quote.ts";
 
 export {

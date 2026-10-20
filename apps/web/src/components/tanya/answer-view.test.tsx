@@ -51,7 +51,7 @@ const base: JawabResult = {
 };
 
 describe("AnswerView", () => {
-  it("jawaban: penanda sitasi, blok tanpa sitasi redup, status hadits AI + tanda lemah", () => {
+  it("jawaban: penanda sitasi, blok tanpa sitasi redup, status hadits AI tanpa tanda dari ringkasan", () => {
     const html = renderToStaticMarkup(
       <AnswerView question="Apa itu sabar?" result={base} cached={false} />,
     );
@@ -59,9 +59,14 @@ describe("AnswerView", () => {
     expect(html).toContain("Menurut al-Ghazali dalam Ihya, sabar adalah cahaya.");
     expect(html).not.toContain("**");
     expect(html).toMatch(/class="text-muted"[^>]*> Ini kalimat penghubung\./u);
-    expect(html).toContain("Teks redup adalah kalimat penghubung");
+    expect(html).toContain("Teks redup tidak didukung kutipan langsung");
+    expect(html).toContain('aria-label="Kutipan 1"');
+    // Urutan judul: judul pertama di hasil adalah h2 "Jawaban" (bukan h3 Card.Title).
+    expect(html.match(/<h[1-6]\b[^>]*>/u)?.[0]).toMatch(/^<h2/u);
+    expect(html).toMatch(/<h2[^>]*>Jawaban<\/h2>/u);
     expect(html).toContain("diekstrak AI");
-    expect(html).toContain("lemah atau tidak berdasar");
+    // Tanpa teks takhrij dari DB (dimuat sesudah render), tidak ada tanda kelemahan dari ringkasan AI.
+    expect(html).not.toContain("istilah kelemahan");
     expect(html).toContain('id="kutipan-2"');
     expect(html).toContain("Takhrij al-&#x27;Iraqi");
     expect(html).toContain("Claude Haiku 5.5");
@@ -94,7 +99,7 @@ describe("AnswerView", () => {
       />,
     );
     expect(fb).toContain("tidak dapat memverifikasi kutipan");
-    expect(fb).toContain("Paragraf yang mungkin terkait");
+    expect(fb).toMatch(/<h2[^>]*>Paragraf yang mungkin terkait/u);
     expect(fb).toContain('href="/cari?q=Apa%3F"');
     const nf = renderToStaticMarkup(
       <AnswerView

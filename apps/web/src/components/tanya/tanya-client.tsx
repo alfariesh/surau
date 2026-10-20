@@ -35,13 +35,17 @@ type Phase =
   | { kind: "result"; result: JawabResult; cached: boolean }
   | { kind: "error"; code: string };
 
-/** Status Jawab untuk UI; rute mati (404) atau galat = "closed" (UI mengarahkan ke Cari). */
-async function loadStatus(): Promise<JawabStatus | "closed"> {
+/**
+ * Status Jawab untuk UI: rute mati (404) = "closed" (UI mengarahkan ke Cari); galat sementara
+ * (429/5xx/jaringan) = null (tidak diketahui: komposer tetap aktif, server yang memutuskan).
+ */
+async function loadStatus(): Promise<JawabStatus | "closed" | null> {
   try {
     const res = await fetch("/api/jawab", { cache: "no-store" });
-    return res.ok ? ((await res.json()) as JawabStatus) : "closed";
+    if (res.status === 404) return "closed";
+    return res.ok ? ((await res.json()) as JawabStatus) : null;
   } catch {
-    return "closed";
+    return null;
   }
 }
 
@@ -148,6 +152,18 @@ export function TanyaClient() {
         : null;
   const cari = (q: string) =>
     q.trim() === "" ? "/cari" : `/cari?q=${encodeURIComponent(q.trim())}`;
+  const tooShort = question.trim().length > 0 && question.trim().length < 3;
+  // Pengumuman singkat untuk pembaca layar (region selalu ada supaya perubahan terbaca).
+  const announce =
+    phase.kind === "error"
+      ? (t.errors[phase.code] ?? t.errors.internal)
+      : phase.kind === "result"
+        ? phase.result.outcome === "answer"
+          ? t.announceAnswer
+          : phase.result.outcome === "not_found"
+            ? t.notFoundHeading
+            : (t.fallback[phase.result.reason ?? ""] ?? t.fallback.unverified)
+        : "";
 
   return (
     <div className="flex flex-col gap-6">
@@ -165,7 +181,7 @@ export function TanyaClient() {
           <Alert.Content>
             <Alert.Title>{t.errors[unavailable] ?? t.errors.closed}</Alert.Title>
             <Alert.Description>
-              <NextLink className="text-accent underline" href={cari(question)}>
+              <NextLink className="text-accent underline" href={cari(question)} prefetch={false}>
                 {t.searchInstead}
               </NextLink>
             </Alert.Description>
@@ -194,7 +210,11 @@ export function TanyaClient() {
               </Description>
             </TextField>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              {status !== null && status !== "closed" && status.quota !== null ? (
+              {tooShort ? (
+                <Typography type="body-xs" color="muted">
+                  {t.tooShort}
+                </Typography>
+              ) : status !== null && status !== "closed" && status.quota !== null ? (
                 <Typography type="body-xs" color="muted">
                   {t.quota(status.quota.used, status.quota.limit)}
                 </Typography>
@@ -260,7 +280,7 @@ export function TanyaClient() {
           <Alert.Content>
             <Alert.Title>{t.errors[phase.code] ?? t.errors.internal}</Alert.Title>
             <Alert.Description>
-              <NextLink className="text-accent underline" href={cari(asked)}>
+              <NextLink className="text-accent underline" href={cari(asked)} prefetch={false}>
                 {t.searchInstead}
               </NextLink>
             </Alert.Description>
@@ -271,6 +291,10 @@ export function TanyaClient() {
       {phase.kind === "result" ? (
         <AnswerView question={asked} result={phase.result} cached={phase.cached} />
       ) : null}
+
+      <output aria-live="polite" className="sr-only">
+        {announce}
+      </output>
     </div>
   );
 }

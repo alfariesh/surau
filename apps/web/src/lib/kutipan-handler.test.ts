@@ -45,10 +45,12 @@ function passage(over: Partial<AnswerPassage> = {}): AnswerPassage {
 }
 
 const deps = (over: Partial<Parameters<typeof handleKutipan>[1]> = {}) => ({
+  enabled: true,
   db: {} as D1Db,
   hmacKey: "kunci-uji",
   ip: "203.0.113.9",
   limit: async () => true,
+  limitGlobal: async () => true,
   ...over,
 });
 const req = (r: string) => new Request(`https://surau.example/api/kutipan?r=${r}`);
@@ -95,13 +97,42 @@ describe("GET /api/kutipan", () => {
     expect(((await res.json()) as { items: unknown[] }).items).toEqual([null, null]);
   });
 
-  it("batas per klien dan secret HMAC", async () => {
+  it("sakelar pembaca, batas per klien, batas global, dan secret HMAC", async () => {
+    expect((await handleKutipan(req("10000001:0:5"), deps({ enabled: false }))).status).toBe(404);
     expect(
       (await handleKutipan(req("10000001:0:5"), deps({ limit: async () => false }))).status,
     ).toBe(429);
+    // Ditolak per klien → batas global tidak tersentuh.
+    let global = 0;
+    const counting = async () => {
+      global += 1;
+      return false;
+    };
+    await handleKutipan(
+      req("10000001:0:5"),
+      deps({ limit: async () => false, limitGlobal: counting }),
+    );
+    expect(global).toBe(0);
+    expect((await handleKutipan(req("10000001:0:5"), deps({ limitGlobal: counting }))).status).toBe(
+      429,
+    );
+    expect(answerPassages).not.toHaveBeenCalled();
     expect((await handleKutipan(req("10000001:0:5"), deps({ hmacKey: undefined }))).status).toBe(
       503,
     );
+  });
+
+  it("takhrij dengan istilah kelemahan diberi `weak`; matan tidak pernah", async () => {
+    // Takhrij BUATAN (bukan teks kitab).
+    const FOOT = "أخرجه فلان بإسناد ضعيف";
+    vi.mocked(answerPassages).mockResolvedValue([
+      passage({ id: 10000002, kind: "foot", text_raw: FOOT, translation: null }),
+      passage({ id: 10000003, kind: "body", text_raw: FOOT, translation: null }),
+      passage({ id: 10000004, kind: "foot", text_raw: "أخرجه فلان", translation: null }),
+    ]);
+    const res = await handleKutipan(req("10000002:0:5,10000003:0:5,10000004:0:5"), deps());
+    const { items } = (await res.json()) as { items: KutipanItem[] };
+    expect(items.map((i) => i.weak)).toEqual([true, false, false]);
   });
 
   it("sliceRaw tidak memotong pasangan surrogate; ayahRefsOnly", () => {
