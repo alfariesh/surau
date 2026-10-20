@@ -87,9 +87,10 @@
 
 @source "../**/*.{ts,tsx}";
 
-/* Font dari next/font (layout.tsx): --font-harmony (UI) dan --font-naskh (Arab). */
+/* Font dari next/font (layout.tsx): --font-harmony (UI) dan --font-naskh (Arab). Nilai cadangan di
+   var(): global-error.tsx tidak memasang variabel font, dan var() kosong membatalkan deklarasinya. */
 @theme inline {
-  --font-sans: var(--font-harmony), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-harmony, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
@@ -549,7 +550,7 @@ h2.reader-heading-minor {
   display: inline-block;
   margin-inline: 0.25em;
   padding-inline: 0.45em;
-  font-family: var(--font-harmony), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-harmony, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.55em;
   line-height: 1.7;
   vertical-align: middle;

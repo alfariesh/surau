@@ -4,7 +4,7 @@ import { Typography } from "@heroui/react";
 
 // Judul halaman (h1) dan paragraf pembuka: satu definisi supaya skala tipografi semua halaman
 // konsisten. Berbasis Typography HeroUI; hanya ukuran responsif yang diatur di sini.
-// Judul halaman baca dan halaman galat memakai Typography langsung karena skalanya sengaja lain.
+// Judul halaman baca memakai Typography langsung karena skalanya sengaja lain.
 export function PageTitle({ className, ...props }: ComponentProps<typeof Typography.Heading>) {
   return (
     <Typography.Heading

@@ -25,6 +25,24 @@ export default function GlobalError({
     console.error(error);
   }, [error]);
 
+  // Tanpa Providers, next-themes tidak memasang kelas tema. Pulihkan pilihan pembaca (kunci bawaan
+  // next-themes "theme") atau ikuti sistem, supaya mode gelap tidak berubah terang saat galat.
+  useEffect(() => {
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem("theme");
+    } catch {
+      // localStorage diblokir: ikuti sistem.
+    }
+    const theme =
+      saved === "light" || saved === "dark" || saved === "sepia"
+        ? saved
+        : matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+    document.documentElement.classList.add(theme);
+  }, []);
+
   return (
     <html dir="ltr" lang="id">
       <body className="bg-background text-foreground font-sans antialiased">
