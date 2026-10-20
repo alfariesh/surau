@@ -123,21 +123,24 @@ export async function runQuestions(
       }
       const item = items[next++]!;
       inflight++;
+      let out: RunOutput | null = null;
       try {
         const result = await run(item.question.pertanyaan);
         spent += result.cost_usd;
-        const out = { item, result, answer: toEvalAnswer(result) };
+        out = { item, result, answer: toEvalAnswer(result) };
         outputs.push(out);
-        opts.onDone?.(out, spent);
       } catch (error) {
-        // Biaya soal yang gagal di tengah (sesudah panggilan LLM) tidak terhitung di sini;
-        // pagu tetap menyisakan cadangan, dan galat dilaporkan supaya dicek manual.
+        // Soal yang gagal di tengah bisa sudah memakai panggilan berbayar yang biayanya tidak
+        // diketahui di sini: dihitung biaya terburuknya supaya pagu izin tidak terlampaui.
+        const c = questionCeilingUsd();
+        spent += c.haiku + c.sonnetReserve;
         failed++;
         opts.onError?.(item, error);
       } finally {
         inflight--;
         for (const w of waiters.splice(0)) w();
       }
+      if (out !== null) opts.onDone?.(out, spent);
     }
   };
   await Promise.all(Array.from({ length: Math.max(1, opts.concurrency) }, () => worker()));

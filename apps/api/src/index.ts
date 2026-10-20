@@ -11,6 +11,7 @@ import {
   touchAnswerCache,
 } from "@surau/db";
 import {
+  JAWAB_PIPELINE_VERSION,
   JAWAB_PROMPT_VERSION,
   QUESTION_MAX_CHARS,
   answerCacheKey,
@@ -107,7 +108,11 @@ export function createApp(deps: Partial<AppDeps> = {}) {
     // `built_at` ikut kunci: korpus yang dimuat ulang tanpa versi baru (staging) tidak memakai
     // sitasi lama dari cache.
     const corpusKey = `${meta.corpus_version ?? "unknown"}@${meta.built_at ?? ""}`;
-    const key = await answerCacheKey(question, corpusKey, JAWAB_PROMPT_VERSION);
+    const key = await answerCacheKey(
+      question,
+      corpusKey,
+      `${JAWAB_PROMPT_VERSION}+pipeline@${JAWAB_PIPELINE_VERSION}`,
+    );
     const cached = await getAnswerCache(env.APP_DB, key, now().toISOString());
 
     return streamSSE(c, async (stream) => {

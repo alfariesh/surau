@@ -171,6 +171,23 @@ describe("jawaban terverifikasi", () => {
     expect(row?.result_json).not.toContain("kesabaran?");
   });
 
+  test("korpus dimuat ulang (built_at berubah) → cache lama tidak dipakai", async () => {
+    const { ask, sent } = setup((_n, docs) => ({
+      blocks: [{ text: "Jawaban.", cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }] }],
+    }));
+    await ask();
+    expect(final((await ask()).events).data).toMatchObject({ cached: true });
+    await env.CORPUS_DB.prepare(
+      "INSERT OR REPLACE INTO meta (key, value) VALUES ('built_at', '2099-01-01T00:00:00.000Z')",
+    ).run();
+    try {
+      expect(final((await ask()).events).data).toMatchObject({ cached: false });
+      expect(sent.filter((s) => s.kind === "answer")).toHaveLength(2);
+    } finally {
+      await env.CORPUS_DB.prepare("DELETE FROM meta WHERE key = 'built_at'").run();
+    }
+  });
+
   test("klaim status hadits dari sitasi catatan kaki takhrij", async () => {
     const { ask } = setup((_n, docs) => ({
       blocks: [
@@ -221,6 +238,26 @@ describe("jawaban terverifikasi", () => {
     // Pratinjau juga tidak pernah memuat kalimat status itu.
     const previews = events.filter((e) => e.event === "block").map((e) => JSON.stringify(e.data));
     expect(previews.some((p) => p.includes("sahih"))).toBe(false);
+  });
+
+  test("pratinjau ditahan sejak awalan status muncul, juga bila isinya di blok berikutnya", async () => {
+    const { ask } = setup((_n, docs) => ({
+      blocks: [
+        {
+          text: "Al-Ghazali menukil hadits.",
+          cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+        },
+        { text: " Status hadits: " },
+        { text: "sahih", cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }] },
+        { text: "." },
+      ],
+    }));
+    const { events } = await ask();
+    const previews = events.filter((e) => e.event === "block").map((e) => JSON.stringify(e.data));
+    expect(previews.some((p) => p.includes("sahih"))).toBe(false);
+    const { result } = final(events);
+    expect(result.text).not.toContain("sahih");
+    expect(result.text).toContain("belum diketahui");
   });
 
   test("pertanyaan bertag tidak bisa menutup pembungkus <pertanyaan>", async () => {

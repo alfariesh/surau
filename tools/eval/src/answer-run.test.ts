@@ -72,7 +72,7 @@ describe("pagu eval", () => {
     let maxActive = 0;
     const items = ["j001", "j002", "j003", "j004"].map(item);
     const out = await runQuestions({} as D1Db, {} as Anthropic, items, {
-      budgetUsd: per * 2 + 0.001,
+      budgetUsd: per * 2 + 0.05,
       concurrency: 4,
       run: async (q) => {
         active++;
@@ -87,6 +87,8 @@ describe("pagu eval", () => {
     expect(out.outputs).toHaveLength(3);
     expect(out.failed).toBe(1);
     expect(out.skipped).toBe(0);
+    // Soal gagal dihitung biaya terburuknya.
+    expect(out.spent).toBeGreaterThanOrEqual(per);
   });
 
   test("pagu di bawah satu soal: tidak ada yang dijalankan", async () => {
@@ -138,16 +140,31 @@ describe("limitD1", () => {
       all: () => slow({ results: [{ q, bound }] }),
       first: () => slow({ q, bound }),
     });
+    const received: D1Statement[][] = [];
     const db: D1Db = {
       prepare: (q) => stmt(q),
-      batch: (s) => slow(s.map(() => ({ results: [] }))),
+      batch: (list) => {
+        received.push(list);
+        return slow(list.map(() => ({ results: [] })));
+      },
     };
     const limited = limitD1(db, 2);
+    const limitedStatements = new WeakSet<D1Statement>();
+    const prepare = limited.prepare.bind(limited);
+    limited.prepare = (q) => {
+      const st = prepare(q);
+      limitedStatements.add(st);
+      return st;
+    };
     const runs = await Promise.all(
       Array.from({ length: 6 }, (_, i) => limited.prepare(`q${i}`).bind(i).all()),
     );
     expect(max).toBe(2);
     expect(runs[3]).toEqual({ results: [{ q: "q3", bound: [3] }] });
     expect(await limited.batch([limited.prepare("a"), limited.prepare("b")])).toHaveLength(2);
+    // batch menerima statement asli (dibuka dari bungkusnya), bukan bungkus limitD1.
+    const raws = received.at(-1) ?? [];
+    expect(raws).toHaveLength(2);
+    expect(raws.every((x) => !limitedStatements.has(x))).toBe(true);
   });
 });

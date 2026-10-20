@@ -37,6 +37,11 @@ import { ROUTE_PROMPT, buildRouteRequest, parseRoute, tocText } from "./route.ts
 import type { Route } from "./route.ts";
 
 export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
+/**
+ * Versi pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu
+ * berubah: ikut kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
+ */
+export const JAWAB_PIPELINE_VERSION = 1;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -343,6 +348,9 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   };
   const kept: JawabBlock[] = [];
   let previewing = false;
+  // Begitu "Status hadits:" muncul, semua blok sesudahnya tidak dipratinjau: isi statusnya bisa
+  // berada di blok berikutnya, dan baru diputuskan `hadithCheck` di hasil akhir.
+  let holdPreview = false;
   let pending: JawabBlock[] = [];
   const processBlock = async (raw: RawBlock) => {
     const cleaned = stripArabic(raw.text);
@@ -369,7 +377,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     }
     diagnostics.citations_total += total;
     diagnostics.citations_dropped += dropped;
-    // Klaim yang semua sitasinya gagal tidak ditampilkan (ARSITEKTUR §5 butir 7).
+    // Klaim yang semua sitasinya gagal tidak ditampilkan (ARSITEKTUR §5 butir 9).
     if (total > 0 && ns.length === 0) {
       diagnostics.blocks_dropped++;
       return;
@@ -377,8 +385,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     if (cleaned.text.trim() === "" && ns.length === 0) return;
     const block: JawabBlock = { text: cleaned.text, citations: ns };
     kept.push(block);
-    // Kalimat status hadits baru diputuskan di akhir (`hadithCheck`): tidak dipratinjau.
-    if (block.text.includes(ANSWER_HADITH_PREFIX)) return;
+    if (block.text.includes(ANSWER_HADITH_PREFIX)) holdPreview = true;
+    if (holdPreview) return;
     const cites = () => [...verified.values()].filter((c) => block.citations.includes(c.n));
     if (ns.length > 0 && !previewing) {
       previewing = true;
@@ -444,6 +452,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     verified.clear();
     if (previewing) await emit({ type: "reset" });
     previewing = false;
+    holdPreview = false;
     if (candidate === MODELS.haiku) await emit({ type: "stage", stage: "retry" });
   }
   if (message === null || message.stop_reason === "refusal") return fallback("refusal", model);
@@ -482,7 +491,7 @@ export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ad
 
 /**
  * Klaim status hadits: kalimat "Status hadits: …" yang didukung sitasi catatan kaki terverifikasi
- * (di kalimat itu, atau takhrij yang disitasi di paragraf yang sama: terdekat sebelum, lalu sesudah).
+ * (di kalimat itu, atau satu-satunya takhrij yang jelas di paragraf yang sama, lihat di bawah).
  * `passage_id` = paragraf badan yang merujuk catatan kaki itu (takhrij tertaut, S16). Kalimat
  * status yang TIDAK didukung diganti `HADITH_UNKNOWN` di blok jawaban, sehingga status tanpa
  * takhrij tidak pernah tampil (temuan peninjau S19). Sitasi yang tak lagi dirujuk blok dibuang.
@@ -511,23 +520,40 @@ export function hadithCheck(
       .filter((c): c is JawabCitation => c !== undefined && c.kind === "foot");
   const unpaired: { start: number; end: number }[] = [];
   for (const st of hadithStatements(full)) {
+    const stEnd = full[st.end] === "." ? st.end + 1 : st.end;
     let foots = footOf(
-      ranges
-        .filter((r) => r.end > st.start && r.start < st.end + 1)
-        .flatMap((r) => r.block.citations),
+      ranges.filter((r) => r.end > st.start && r.start < stEnd).flatMap((r) => r.block.citations),
     );
-    // Kalimat status tanpa sitasi sendiri: pakai takhrij yang disitasi di paragraf yang sama,
-    // yang terdekat sebelumnya, atau bila tidak ada, yang terdekat sesudahnya (model sering
-    // menyitasi takhrij di kalimat sebelum atau sesudah "Status hadits:").
+    // Kalimat status tanpa sitasi takhrij sendiri: pasangkan dengan takhrij yang disitasi di
+    // paragraf yang sama HANYA bila jelas: tepat satu catatan kaki yang hadits-nya (paragraf
+    // badan perujuk) ikut disitasi di paragraf itu, atau, bila paragraf tidak menyitasi hadits
+    // apa pun, tepat satu catatan kaki. Selain itu status dianggap tidak didukung (temuan
+    // peninjau: paragraf dua hadits).
     if (foots.length === 0) {
       const paragraphStart = full.lastIndexOf("\n\n", st.start) + 1;
-      const nextBreak = full.indexOf("\n\n", st.end);
+      const nextBreak = full.indexOf("\n\n", stEnd);
       const paragraphEnd = nextBreak < 0 ? full.length : nextBreak;
-      const before = ranges.filter((r) => r.start >= paragraphStart - 1 && r.end <= st.start);
-      const after = ranges.filter((r) => r.start >= st.end && r.start < paragraphEnd);
-      const prev = footOf(before.flatMap((r) => r.block.citations)).at(-1);
-      const nextFoot = footOf(after.flatMap((r) => r.block.citations))[0];
-      const pick = prev ?? nextFoot;
+      const inParagraph = ranges.filter((r) => r.end > paragraphStart && r.start < paragraphEnd);
+      const cited = inParagraph.flatMap((r) => r.block.citations);
+      const distinctFoots = [...new Map(footOf(cited).map((c) => [c.passage_id, c])).values()];
+      const citedBodies = new Set(
+        cited
+          .map((n) => citations.find((x) => x.n === n))
+          .filter((c) => c !== undefined && c.kind === "body")
+          .map((c) => c!.passage_id),
+      );
+      const linked = distinctFoots.filter((c) =>
+        (passages.get(c.passage_id)?.referenced_by ?? []).some((b) => citedBodies.has(b)),
+      );
+      // Bila paragraf menyitasi hadits (paragraf badan), takhrijnya wajib tertaut ke hadits itu.
+      const pick =
+        citedBodies.size > 0
+          ? linked.length === 1
+            ? linked[0]
+            : undefined
+          : distinctFoots.length === 1
+            ? distinctFoots[0]
+            : undefined;
       foots = pick ? [pick] : [];
     }
     let paired = false;
@@ -548,8 +574,12 @@ export function hadithCheck(
         label: "ai_extracted",
       });
     }
-    if (!paired)
-      unpaired.push({ start: st.start, end: full[st.end] === "." ? st.end + 1 : st.end });
+    if (!paired) {
+      // Penanda Markdown di depan awalan (`**Status hadits:**`) ikut diganti.
+      let start = st.start;
+      while (start > 0 && /[*_]/u.test(full[start - 1]!)) start--;
+      unpaired.push({ start, end: stEnd });
+    }
   }
   // Ganti dari belakang supaya offset kalimat sebelumnya tetap berlaku.
   const texts = blocks.map((b) => b.text);
@@ -562,9 +592,11 @@ export function hadithCheck(
       texts[i] = texts[i]!.slice(0, ls) + insert + texts[i]!.slice(le);
     });
   }
+  // Hanya blok yang DIKOSONGKAN penggantian yang dibuang (blok spasi bersitasi asli tetap).
   const kept = blocks
-    .map((b, i) => ({ text: texts[i]!, citations: b.citations }))
-    .filter((b) => b.text.trim() !== "");
+    .map((b, i) => ({ text: texts[i]!, citations: b.citations, changed: texts[i] !== b.text }))
+    .filter((b) => !b.changed || b.text.trim() !== "")
+    .map(({ text, citations: ns }) => ({ text, citations: ns }));
   const used = new Set(kept.flatMap((b) => b.citations));
   return {
     claims: claims.slice(0, 5),

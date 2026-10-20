@@ -407,6 +407,66 @@ describe("klaim hadits", () => {
     expect(checked.blocks.map((b) => b.text).join("")).toContain("sanad lemah");
   });
 
+  test("paragraf dua hadits: status hadits pertama tidak menempel ke takhrij hadits kedua", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [] })],
+      [3, passage(3, SENT, { footnote_ids: [4] })],
+      [4, passage(4, SENT, { kind: "foot", referenced_by: [3] })],
+    ]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 1,
+        char_start: 0,
+        char_end: 10,
+        kind: "body" as const,
+        label: "",
+        permalink: "",
+      },
+      {
+        n: 2,
+        passage_id: 4,
+        char_start: 0,
+        char_end: 12,
+        kind: "foot" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "Hadits pertama dinukil", citations: [1] },
+      { text: ". Status hadits: lemah. Hadits kedua ", citations: [] },
+      { text: "diriwayatkan at-Tirmidzi", citations: [2] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.claims).toEqual([]);
+    expect(checked.blocks.map((b) => b.text).join("")).toContain(HADITH_UNKNOWN);
+    expect(checked.blocks.map((b) => b.text).join("")).not.toContain("lemah");
+  });
+
+  test("Markdown tebal di depan awalan ikut diganti; blok spasi bersitasi asli tetap", () => {
+    const passages = new Map([[1, passage(1, SENT)]]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 1,
+        char_start: 0,
+        char_end: 10,
+        kind: "body" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "Teks.", citations: [] },
+      { text: " ", citations: [1] },
+      { text: "\n\n**Status hadits:** sahih.", citations: [] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.blocks).toHaveLength(3);
+    expect(checked.blocks[2]?.text).toBe(`\n\n${HADITH_UNKNOWN}`);
+  });
+
   test("status tanpa takhrij di tengah blok bersitasi: hanya kalimatnya yang diganti", () => {
     const passages = new Map([[1, passage(1, SENT)]]);
     const citations = [

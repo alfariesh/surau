@@ -11,6 +11,7 @@ import { z } from "zod";
 import { ANSWER_ROUTE_SCHEMA } from "../../prompts/answer-route-v1.ts";
 import { ANSWER_ROUTE_V2 } from "../../prompts/answer-route-v2.ts";
 import { MODELS } from "../client.ts";
+import { questionData } from "./answer.ts";
 import { messageText } from "../response.ts";
 
 export const ROUTE_PROMPT = ANSWER_ROUTE_V2;
@@ -58,9 +59,7 @@ export function buildRouteRequest(toc: string, question: string): MessageCreateP
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ],
-    messages: [
-      { role: "user", content: `<pertanyaan>${question.replaceAll(/[<>]/gu, " ")}</pertanyaan>` },
-    ],
+    messages: [{ role: "user", content: `<pertanyaan>${questionData(question)}</pertanyaan>` }],
   };
 }
 

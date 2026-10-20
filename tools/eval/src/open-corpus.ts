@@ -21,17 +21,21 @@ export function limitD1(db: D1Db, max: number): D1Db {
       waiting.shift()?.();
     }
   };
-  const wrap = (stmt: D1Statement): D1Statement =>
-    ({
+  // Statement asli disimpan di WeakMap (bukan properti `raw`, yang bentrok dengan
+  // D1PreparedStatement.raw()) supaya `batch` menerima statement milik binding aslinya.
+  const original = new WeakMap<D1Statement, D1Statement>();
+  const wrap = (stmt: D1Statement): D1Statement => {
+    const wrapped: D1Statement = {
       bind: (...values) => wrap(stmt.bind(...values)),
       all: () => run(() => stmt.all()),
       first: () => run(() => stmt.first()),
-      raw: stmt,
-    }) as D1Statement & { raw: D1Statement };
+    };
+    original.set(wrapped, stmt);
+    return wrapped;
+  };
   return {
     prepare: (q) => wrap(db.prepare(q)),
-    batch: (stmts) =>
-      run(() => db.batch(stmts.map((s) => (s as D1Statement & { raw?: D1Statement }).raw ?? s))),
+    batch: (stmts) => run(() => db.batch(stmts.map((s) => original.get(s) ?? s))),
   };
 }
 

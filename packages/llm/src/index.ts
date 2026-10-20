@@ -81,8 +81,11 @@ export { JUDGE_VERSION, JUDGE_MAX_TOKENS, JUDGE_PROMPT } from "../prompts/jawab-
 // S19: pipeline Jawab (routing + Citations + verifikasi sitasi ke DB).
 export {
   JAWAB_EDITION_ID,
+  JAWAB_PIPELINE_VERSION,
   JAWAB_PROMPT_VERSION,
   QUESTION_MAX_CHARS,
+  HADITH_UNKNOWN,
+  hadithCheck,
   hadithClaims,
   runJawab,
 } from "./jawab/pipeline.ts";
