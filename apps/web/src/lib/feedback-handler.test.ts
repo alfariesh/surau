@@ -69,6 +69,13 @@ describe("POST /api/feedback", () => {
     expect(JSON.stringify(saved)).not.toContain("203.0.113.7");
   });
 
+  it("jenis translation (terjemahan/ringkasan AI, #73) diterima dan disimpan apa adanya", async () => {
+    const { d, saved } = deps();
+    const res = await handleFeedback(post({ ...GOOD, kind: "translation" }), d);
+    expect(res.status).toBe(201);
+    expect(saved.map((s) => s.kind)).toEqual(["translation"]);
+  });
+
   it("menolak Origin lain atau tanpa Origin (403)", async () => {
     const { d, saved } = deps();
     expect((await handleFeedback(post(GOOD, { origin: "https://jahat.example" }), d)).status).toBe(
