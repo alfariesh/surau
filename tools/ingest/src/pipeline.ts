@@ -10,6 +10,13 @@ import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 
 import { buildSqlite } from "./build-sqlite.ts";
 import { buildDigest } from "./corpus.ts";
+import {
+  compareFingerprints,
+  fingerprintPath,
+  fingerprints,
+  readFingerprints,
+  writeFingerprints,
+} from "./fingerprint.ts";
 import { createAllocator, readIdMap, writeIdMap } from "./ids.ts";
 import type { IdAllocator } from "./ids.ts";
 import { parseOpenitiPages } from "./openiti/markdown.ts";
@@ -248,8 +255,13 @@ export interface IngestResult {
 }
 
 export interface IngestOptions {
-  /** Abaikan peta ID yang ada dan bangun dari nol (HANYA sebelum rilis Fase 1, ADR-029). */
+  /** Abaikan peta ID yang ada dan bangun dari nol (HANYA sebelum rilis, ADR-029; ditolak bila sidik teks ada). */
   resetIds?: boolean;
+  /**
+   * Terima ID lama yang teksnya berubah (koreksi teks yang disengaja). ID yang HILANG tetap
+   * ditolak. Periksa daftar di laporan validasi dulu: paragraf bergeser juga tampil sebagai "berubah".
+   */
+  acceptTextChanges?: boolean;
   env?: NodeJS.ProcessEnv;
 }
 
@@ -278,6 +290,13 @@ export function runIngest(
   }
 
   const idsPath = assertWritable(join(paths.repo, config.ids));
+  const printsPath = assertWritable(fingerprintPath(idsPath));
+  // Sidik ada = korpus sudah dirilis (#59): ID tidak boleh dibangun ulang dan peta ID wajib ada.
+  const released = readFingerprints(printsPath, config.edition.id);
+  if (released !== null && opts.resetIds)
+    throw new Error(`--reset-ids ditolak: ${config.ids} sudah dirilis (${printsPath} ada)`);
+  if (released !== null && !existsSync(idsPath))
+    throw new Error(`Peta ID ${idsPath} tidak ada padahal korpus sudah dirilis; pulihkan dari git`);
   const idMap = opts.resetIds
     ? { format: 1 as const, edition: config.edition.id, page: {}, toc: {}, passage: {} }
     : readIdMap(idsPath, config.edition.id);
@@ -294,6 +313,30 @@ export function runIngest(
     ayat,
     llm: llm?.stats ?? null,
   });
+  const prints = fingerprints(config.edition.id, rows.passage);
+  if (released !== null) {
+    const diff = compareFingerprints(released, prints);
+    const sample = (ids: number[]) => ids.slice(0, 10).join(", ") + (ids.length > 10 ? ", …" : "");
+    const ok = diff.missing.length === 0 && (diff.changed.length === 0 || opts.acceptTextChanges);
+    validation.invariants.push({
+      name: "ID paragraf rilis stabil (ADR-029)",
+      ok: ok === true,
+      detail:
+        diff.missing.length === 0 && diff.changed.length === 0
+          ? `${Object.keys(released.passage).length} ID lama ada dengan teks sama`
+          : [
+              diff.missing.length > 0
+                ? `hilang ${diff.missing.length}: ${sample(diff.missing)}`
+                : "",
+              diff.changed.length > 0
+                ? `teks berubah ${diff.changed.length}${opts.acceptTextChanges ? " (diterima)" : ""}: ${sample(diff.changed)}`
+                : "",
+            ]
+              .filter((x) => x !== "")
+              .join("; "),
+    });
+    validation.ok &&= ok === true;
+  }
   writeText(
     join(paths.repo, `${config.reportPrefix}-validasi.md`),
     validationReport(ctx, validation),
@@ -316,6 +359,7 @@ export function runIngest(
   ]);
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());
+  writeFingerprints(printsPath, prints);
 
   const digest = buildDigest(sqlDir, sqlitePath);
   writeFileSync(hashPath, `${digest}\n`);

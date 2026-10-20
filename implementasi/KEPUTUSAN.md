@@ -336,7 +336,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - S07 membuat peta dari build pertama. Sejak rilis Fase 1, ingest hanya boleh **menambah** entri ke peta itu.
    - Unit baru (paragraf atau node hasil patch) mendapat `seq` setelah yang terbesar. Nomor tidak pernah dipakai ulang.
    - Unit yang hilang atau digabung dialihkan lewat tabel redirect korpus (`id_redirect`: `old_id` → `new_id`). Tabel ini dibuat dengan migrasi baru saat pertama kali dibutuhkan, sebelum perubahannya dirilis.
-   - Pemeriksaan "ID lama masih ada atau dialihkan" terhadap manifes rilis sebelumnya dikerjakan di S10 (`corpus:promote`).
+   - Pemeriksaan "ID lama masih ada atau dialihkan" terhadap manifes rilis sebelumnya dikerjakan di S10 (`corpus:promote`). **Tidak pernah dibuat di S10; diwujudkan di ingest sebagai sidik teks (ADR-059, #59).**
    - Slug karya dan edisi juga dibekukan.
 4. **Permalink publik:**
    - Halaman: `/kitab/<work.slug>/<juz>/<page_no>`, misalnya `/kitab/ihya/1/200`, memakai edisi default (`edition.is_default`, tepat satu per karya, dijaga unique index parsial).
@@ -1424,3 +1424,20 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Ditolak:** mempercepat shader runtime (render saat mount, preload chunk) karena tetap menunggu hidrasi + kompilasi WebGL dan tidak memperbaiki skala per viewport; cache hasil render di `localStorage` (kunjungan pertama tetap terlambat, menambah JS); tile WebP 1536 px (±430–840 KB).
 
 **Tinjau ulang bila:** pengulangan tile 768 px terasa di layar sangat lebar; pemilik ingin setelan lain (jalankan `pnpm kertas`); atau `@paper-design/shaders` naik versi.
+
+## ADR-059 · Stabilitas ID paragraf dijaga sidik teks yang di-commit, diperiksa saat ingest — diterima · 2026-10-20
+
+**Konteks:** issue #59 (audit agent). ADR-029 butir 3 menjanjikan pemeriksaan "ID lama masih ada atau dialihkan" di `corpus:promote` (S10), tetapi pemeriksaan itu tidak pernah dibuat. Kunci paragraf di peta ID bersifat posisional (`<halaman Shamela>:b<baris>`). Akibatnya, perubahan parser atau sumber yang menyisipkan baris di **tengah** halaman membuat ID lama tetap ada tetapi menunjuk paragraf lain, dan tidak ada yang menolaknya. Peta ID yang hilang juga diperlakukan sebagai peta kosong, dan `--reset-ids` tidak dijaga setelah rilis. Dampaknya: permalink `#p<seq>`, laporan `feedback`, tinjauan berkunci `passage_id`, dan klien MCP bisa menunjuk teks yang salah.
+
+**Keputusan:**
+1. Berkas baru `data/ids/<kitab>-<id shamela>.teks.json` (contoh: `ihya-9472.teks.json`) memetakan `passage.id` → 16 hex awal sha256(`text_raw`). Berkas ini tidak memuat teks kitab, hanya sidik. Satu entri per baris, urut ID, ±0,7 MB untuk Ihya.
+2. `runIngest` membandingkan build baru dengan sidik itu. Setiap ID lama wajib ada dengan teks yang sama. Bila tidak, invarian "ID paragraf rilis stabil" gagal dan tidak ada keluaran: SQL, peta ID, dan sidik tidak ditulis. ID **baru** boleh ditambahkan karena peta hanya bertambah dan tidak menggeser ID lama, jadi usulan `--allow-new-ids` dari issue tidak dipakai.
+3. Koreksi teks yang disengaja (patch) diterima hanya dengan `--terima-teks-berubah`. Daftar ID yang berubah tercantum di laporan validasi. ID yang **hilang** tetap ditolak walau opsi ini dipakai; jalan keluarnya kelak adalah `id_redirect` (ADR-029), dibuat saat pertama kali dibutuhkan.
+4. Bila sidik ada, korpus dianggap sudah dirilis: `--reset-ids` ditolak, dan peta ID yang hilang menjadi galat (dulu peta kosong).
+5. Sidik Ihya awal diambil dari build `surau-corpus-ihya-v6` (yang sedang di produksi). Sebelumnya dicek bahwa build itu sama dengan D1 produksi lewat kueri baca: 20.509 paragraf, jumlah ID dan panjang `text_raw` sama. Ingest penuh dengan kode saat ini ke folder sementara lolos dengan 20.509 ID dan teks yang sama, dan peta ID tidak berubah.
+
+**Menyimpang dari ADR-029:** pemeriksaan dilakukan di ingest, bukan di `corpus:promote`. Alasannya, build hanya bisa dibuat lewat `runIngest`, sehingga gerbang di sana menolak lebih awal tanpa membaca D1 produksi. `promote` tetap hanya menjalankan smoke hitungan. Celah yang tersisa: berkas `.sqlite` yang diubah tangan setelah ingest tidak tertangkap.
+
+**Ditolak:** membandingkan langsung dengan D1 produksi di `promote` (butuh unduh ±5 MB teks per promote, dan promote sudah diblokir mode otomatis); menyimpan sidik di dalam peta ID (mengubah format peta yang sudah di-commit).
+
+**Tinjau ulang bila:** ada kitab kedua (sidik per edisi sudah mendukungnya); patch pertama yang menghapus atau menggabungkan paragraf (buat `id_redirect`); atau kunci paragraf diganti menjadi tidak posisional.
