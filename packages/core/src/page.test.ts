@@ -158,4 +158,20 @@ describe("readPage: terjemahan dan ringkasan AI (S14)", () => {
     const p2 = await readPage(db, ED, 1, 2);
     expect(p2.summaries?.map((s) => s.section.id)).toEqual([T_CHILD_A]);
   });
+
+  test("terjemahan dan ringkasan berstatus rejected tidak dikirim (ADR-044 §8)", async () => {
+    await seedAiText(db);
+    await db.batch([
+      db
+        .prepare("UPDATE translation SET review_status = 'rejected' WHERE passage_id = ?")
+        .bind(PASSAGES.body1),
+      db
+        .prepare("UPDATE summary SET review_status = 'rejected' WHERE toc_node_id = ?")
+        .bind(T_ROOT),
+    ]);
+    const view = await readPage(db, ED, 1, 1);
+    expect(view.body[0]?.translation).toBeNull();
+    expect(view.summaries).toEqual([]);
+    await seedAiText(db);
+  });
 });
