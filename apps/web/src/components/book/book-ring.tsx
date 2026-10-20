@@ -94,15 +94,20 @@ export function BookRing({
       <ul aria-label={label} className={className ? `book-shelf ${className}` : "book-shelf"}>
         {items.map((item) => (
           <li key={item.key}>
-            <NextLink aria-label={item.label} className="book-shelf__link" href={item.href}>
-              <Book
-                color={item.color}
-                direction="rtl"
-                illustration={item.illustration}
-                subtitle={item.subtitle}
-                title={item.title}
-                width={bookWidth}
-              />
+            <NextLink className="book-shelf__link" href={item.href}>
+              {/* Nama tautan dari teks tersembunyi, bukan aria-label: teks sampul tidak memuat label
+                  (WCAG 2.5.3, axe label-content-name-mismatch). Sampulnya hanya gambar. */}
+              <span className="sr-only">{item.label}</span>
+              <div aria-hidden="true" className="contents">
+                <Book
+                  color={item.color}
+                  direction="rtl"
+                  illustration={item.illustration}
+                  subtitle={item.subtitle}
+                  title={item.title}
+                  width={bookWidth}
+                />
+              </div>
             </NextLink>
           </li>
         ))}
@@ -522,7 +527,6 @@ function Ring({
                   ref={(el) => {
                     linkRefs.current[index] = el;
                   }}
-                  aria-label={item.label}
                   className="book-ring__book"
                   draggable={false}
                   href={item.href}
@@ -536,15 +540,18 @@ function Ring({
                   onClick={(e) => onLinkClick(e, index)}
                   onFocus={() => focusIndex(index)}
                 >
-                  <Book
-                    color={item.color}
-                    direction="rtl"
-                    illustration={item.illustration}
-                    spine={item.spine}
-                    subtitle={item.subtitle}
-                    title={item.title}
-                    width={W}
-                  />
+                  <span className="sr-only">{item.label}</span>
+                  <div aria-hidden="true" className="contents">
+                    <Book
+                      color={item.color}
+                      direction="rtl"
+                      illustration={item.illustration}
+                      spine={item.spine}
+                      subtitle={item.subtitle}
+                      title={item.title}
+                      width={W}
+                    />
+                  </div>
                 </NextLink>
               </div>
             ))}

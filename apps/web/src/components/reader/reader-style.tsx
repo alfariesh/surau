@@ -158,7 +158,11 @@ function FontSizeControl() {
 
 type CellOption = { id: string; label: string; icon?: ReactNode };
 
-/** Satu baris pilihan bergaya sel (CellSelect secondary): label di kiri, nilai terpilih di kanan. */
+/**
+ * Satu baris pilihan bergaya sel (CellSelect secondary): label di kiri, nilai terpilih di kanan.
+ * Tanpa aria-label: nama pemicu diambil dari isinya (label + nilai) lewat aria-labelledby bawaan, sehingga
+ * memuat seluruh teks yang terlihat (WCAG 2.5.3, axe label-content-name-mismatch sejak axe 4.14).
+ */
 function CellPicker({
   label,
   value,
@@ -172,7 +176,6 @@ function CellPicker({
 }) {
   return (
     <CellSelect
-      aria-label={label}
       value={value}
       variant="secondary"
       onChange={(key) => {

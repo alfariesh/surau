@@ -64,14 +64,15 @@ export function SearchPalette() {
     <>
       <Button
         aria-keyshortcuts={mac ? "Meta+K" : "Control+K"}
-        aria-label={t.paletteOpen}
         size="sm"
         variant="tertiary"
         onPress={() => open(true)}
       >
         <Search01 className="size-4" />
-        <span className="max-sm:hidden">{t.paletteOpen}</span>
-        <Kbd className="max-sm:hidden" variant="light">
+        {/* Nama tombol dari teks terlihat (WCAG 2.5.3, aturan axe label-content-name-mismatch); di ponsel
+            teksnya hanya untuk pembaca layar. Pintasan sudah diumumkan lewat aria-keyshortcuts. */}
+        <span className="max-sm:sr-only">{t.paletteOpen}</span>
+        <Kbd aria-hidden="true" className="max-sm:hidden" variant="light">
           <Kbd.Abbr keyValue={mac ? "command" : "ctrl"} />
           <Kbd.Content>K</Kbd.Content>
         </Kbd>
