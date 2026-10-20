@@ -38,7 +38,7 @@ Indeks dan sorotan harus memakai rencana yang sama: `searchText` (`@surau/core`)
 - **Ligatur formula kehormatan Unicode 14** (﵀–﵏, ﷏, ﷽, ﷾, ﷿) tidak punya dekomposisi NFKC, jadi diekspansi lewat tabel (`رضي الله عنه`, `عز وجل`, …). Ligatur ini sering muncul di kitab Shamela lain.
 - **Tag HTML dan penanda catatan kaki `(١)`** menjadi pemisah (opsi `dropFootnoteRefs: false` mempertahankan angkanya).
 - **Stem hanya membuang proklitik yang menempel pada artikel** (والصبر/بالصبر/للصبر → صبر). Stem agresif merusak kata dasar berawalan و/ف (فضيله → ضيله), jadi proklitik tanpa artikel (وصبر) ditangani di sisi kueri lewat `expandQueryToken`. Lafaz Allah dan isim maushul dilindungi (والذين → الذين, bukan ذين).
-- **NORM_VERSION 2 (#61, ADR-063): sisa dua huruf sesudah artikel tidak dipotong.** الهم, الان, اليه, dan الام dulu menjadi هم, ان, يه, dan ام, sehingga bertabrakan dengan kata ganti dan أن/إن. Sekarang bentuknya diseragamkan ke `ال` + sisa (بالهم/والهم/للهم → الهم). Di sisi kueri, stem berawalan ل mendapat varian lam melebur (`lamMergedVariant`: ليل → اليل, stem dari لليل = ل + الليل).
+- **NORM_VERSION 2 (#61, ADR-063): artikel tidak dipotong bila sisanya kata fungsi dua huruf.** الهم, الان, dan الام dulu menjadi هم, ان, dan ام, sehingga bertabrakan dengan kata ganti dan أن/إن/أم. Sekarang bentuknya diseragamkan ke `ال` + sisa (بالهم/والهم/للهم → الهم). Kata benda dua huruf (الحق → حق, الحج → حج) tetap seperti NORM_VERSION 1. Di sisi kueri, token berartikel yang stemnya berawalan ل mendapat varian lam melebur (`lamMergedVariant`: اللسان → سان, stem dari للسان = ل + اللسان).
 
 ## Aturan mengubah normalisasi
 

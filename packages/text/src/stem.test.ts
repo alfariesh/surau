@@ -48,16 +48,22 @@ describe("stemToken (konservatif)", () => {
     expect(stemToken("اللهم")).toBe("اللهم");
   });
 
-  test("sisa dua huruf: artikel tidak dibuang, bentuk diseragamkan ke ال (#61)", () => {
+  test("sisa dua huruf: kata fungsi tidak terpotong (diseragamkan ke ال), kata benda tetap terpotong (#61)", () => {
     const cases: [string, string][] = [
       ["الهم", "الهم"],
       ["بالهم", "الهم"],
       ["والهم", "الهم"],
       ["للهم", "الهم"],
       ["الان", "الان"],
-      ["اليه", "اليه"],
       ["للام", "الام"],
+      ["المن", "المن"],
       ["هم", "هم"],
+      // Kata benda dua huruf: sama seperti NORM_VERSION 1, jadi الحق dan حق tetap saling ditemukan.
+      ["الحق", "حق"],
+      ["بالحق", "حق"],
+      ["الحج", "حج"],
+      ["الشك", "شك"],
+      ["اليه", "يه"],
     ];
     for (const [input, want] of cases) expect(stemToken(input), input).toBe(want);
   });
@@ -105,13 +111,14 @@ describe("expandQueryToken", () => {
     expect(expandQueryToken("في")).toEqual(["في"]);
   });
 
-  test("stem kanonis ال + dua huruf tidak diekspansi; stem berawalan ل dapat varian lam melebur (#61)", () => {
+  test("stem kanonis ال + kata fungsi tidak diekspansi; varian lam melebur hanya untuk token berartikel (#61)", () => {
     expect(expandQueryToken("الهم")).toEqual(["الهم"]);
-    expect(lamMergedVariant("ليل")).toBe("اليل");
-    expect(lamMergedVariant("لسان")).toBe("سان");
-    expect(lamMergedVariant("صبر")).toBeNull();
-    expect(expandQueryToken("ليل").at(-1)).toBe("اليل");
-    expect(expandQueryToken("لسان")).toContain("سان");
+    expect(lamMergedVariant("الليل")).toBe("يل");
+    expect(lamMergedVariant("اللسان")).toBe("سان");
+    expect(lamMergedVariant("الصبر")).toBeNull();
+    // Tanpa artikel: tidak ada varian (لان → الان, لهم → الهم akan membuka tabrakan lagi).
+    for (const token of ["لان", "لهم", "ليس", "ليل"])
+      expect(lamMergedVariant(token), token).toBeNull();
   });
 });
 
