@@ -64,7 +64,7 @@ Workflow `eval.yml` (non-blocking) menjalankan `eval:retrieval --remote --gate` 
 
 18 soal Jawab baru berada di `evals/private/jawab.jsonl`. Arsip/SQL/plan/judge lokal berada di `evals/private/jawab-runs/`; ekspor tinjauan harus disimpan di folder privat ini. Jangan menaruh salinannya di artifact publik atau log CI.
 
-Cadangan sudah diunggah ke R2 privat `surau-evals/jawab/2026-10-19-draf-v1.jsonl`; antrean `s18-tinjau-v1` direncanakan di D1 `surau-app` yang hanya dibaca melalui Access `/tinjau`. Pemilik mengizinkan kedua penyimpanan privat pada 2026-10-19. Unggahan R2 selesai tanpa menimpa kunci lama; pengisian D1 menyusul deploy/migrasi.
+Cadangan sudah diunggah ke R2 privat `surau-evals/jawab/2026-10-19-draf-v1.jsonl`; antrean `s18-tinjau-v1` tersimpan di D1 `surau-app` yang hanya dibaca melalui Access `/tinjau`. Pemilik mengizinkan kedua penyimpanan privat pada 2026-10-19. Unggahan R2 selesai tanpa menimpa kunci lama; pengisian D1 selesai setelah migrasi/deploy PR #48. Agregat terverifikasi: 60 soal, 18 privat, 30 contoh kalibrasi; 0 review saat seed.
 
 Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke Anthropic atas izin pemilik (pagu US$1); tidak mengirim 18 holdout. Plan dan hasil yang memuat sumber disimpan privat. Salinan server Anthropic mengikuti kebijakan retensi API vendor, terpisah dari app. Retensi app 12 bulan, expiry baca aktif, penghapusan fisik manual sampai S20. Inventaris ini wajib diperbarui bila dibuat salinan lain.
 
@@ -75,3 +75,5 @@ pnpm wrangler r2 object get surau-evals/jawab/2026-10-19-draf-v1.jsonl --file ev
 ```
 
 Ambil hanya bila file lokal belum ada. Jangan menimpa revisi lokal atau kunci R2 yang sudah dipakai laporan. Golden set resmi belum tersedia: semua 60 soal S18 masih draf sampai T-24.
+
+Ulasan agent sementara S18 tersimpan di D1 dengan identitas Agent QA S18; arsip `s18-agent-qa-v1-{reviews,export}.jsonl` dan SQL berada di `evals/private/jawab-runs/`. Ekspor lokal hanya memuat snapshot dan ulasan agent, bukan seluruh ulasan produksi. [Laporan agregat](reports/jawab-s18-agent-qa-v1.md) tidak memuat isi holdout.

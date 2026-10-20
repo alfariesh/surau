@@ -1289,3 +1289,14 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** CSS baru `switch`, `progress-circle`, `segment` (urutan ADR-035). Deklarasi `@font-face` tiga keluarga font baru (beserta fallback buatan `next/font`) ikut di CSS awal; berkasnya tidak diunduh sampai dipakai. CSS `checkbox` dan `drawer` dihapus (tidak dipakai lagi). Tes: unit `previewSample`, e2e simpan font/jarak baris setelah muat ulang, axe dengan panel terbuka dan kertas sepia. Atribusi lisensi font belum ditampilkan di `/lisensi` (sama dengan font yang sudah ada).
 
 **Tinjau ulang bila:** pembaca meminta pengaturan per kitab (bukan per browser), font lain dibutuhkan untuk teks berharakat padat, atau `animation-timeline` didukung semua browser utama (efek bisa dijadikan sumber utama, bukan tambahan).
+
+
+## ADR-054 · Evaluasi agent sementara tanpa menghambat pengembangan — diterima · 2026-10-19
+
+**Konteks:** implementasi S18 sudah terpublikasi, login dan simpan–muat ulang produksi lolos. Penilaian Anas belum tersedia. Pemilik menyatakan: “Saat ini anda aja yg Eval, anas nanti belakangan. Saya gak mau hambat dev”.
+
+**Keputusan:** agent mengevaluasi 60 jawaban dengan identitas **Agent QA S18** terpisah: 30 contoh publik dibaca terhadap sumber DB, 30 baseline Cari dinilai belum lengkap tanpa menilai isi/kunci holdout. Ulasan masuk D1 secara aditif dengan pengikatan hash/expiry; tidak menimpa ulasan akun Access. Semua keputusan persetujuan soal tetap null. Penilaian agent dibekukan sebelum pembandingan dengan judge lama. Hasil 18 benar/31 kurang/11 salah; kesepakatan antarmodel 25/29 kesetiaan dan 28/29 atribusi. Tidak ada biaya LLM tambahan.
+
+**Konsekuensi:** kewajiban menunggu dasar manusia sebelum mulai **pengembangan S19** pada ADR-052 dikecualikan atas arahan pemilik. S18 selesai secara teknis, status kriteria asli tetap sebagian; T-24 Anas ditunda dan tidak menghambat dev. Ini bukan izin menandai persetujuan ustadz, kalibrasi manusia, ≥10 uji ustadz, atau gerbang rilis R4 sebagai selesai. Nama agent tidak dipakai membentuk golden resmi. Anas dapat meninjau kemudian dengan akun Access; hasil agent merupakan pembanding terpisah. Perbedaan kelengkapan dan dukungan klaim dalam rubrik perlu adjudikasi sebelum judge menjadi gerbang.
+
+**Bukti:** [laporan Agent QA](../evals/reports/jawab-s18-agent-qa-v1.md), arsip privat hash-bound, 60 ulasan Agent QA S18 + satu ulasan uji UI Agent QA di produksi; 0 ulasan Anas.

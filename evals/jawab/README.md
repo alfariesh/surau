@@ -55,3 +55,7 @@ Golden menolak persetujuan yang bertentangan, versi soal ganda, atau klasifikasi
 Kalibrasi hanya memasangkan hash soal, hash jawaban, versi korpus, dan versi judge yang sama, dengan dua skor manusia tersedia. Saat ini **0 pasangan**, sehingga belum ada angka kesepakatan. Target ±30 penilaian manusia; keluaran judge yang gagal tetap dikeluarkan dari penyebut dan dilaporkan.
 
 Metrik tanpa sampel = `—`, bukan 100%. Lokasi harus memenuhi semua lokasi gold. Penolakan membutuhkan teks dan flag eksplisit; pemeriksaan semantik tetap milik manusia/judge. Status hadits harus cocok dengan gold dan catatan takhrij yang tertaut; klaim ganda yang bertentangan gagal. Pola bahasa fatwa hanya heuristik, bukan penilaian kebijakan lengkap. S18 belum memasang gerbang rilis R4 karena set resmi dan kalibrasinya belum tersedia.
+
+## Evaluasi agent sementara
+
+Atas permintaan pemilik, 60 ulasan **Agent QA S18** sudah tersedia, terpisah dari Anas. [Laporan](../reports/jawab-s18-agent-qa-v1.md) mencatat 30 pemeriksaan semantik publik dan 30 baseline belum lengkap; tidak ada persetujuan soal. Kesepakatan antarmodel bukan kalibrasi manusia. T-24 ditunda tanpa menghalangi dev S19 (ADR-054). Jangan menjalankan `golden --reviewer "Agent QA S18"` sebagai set resmi.
