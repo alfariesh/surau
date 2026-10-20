@@ -556,6 +556,15 @@ export const id = {
     paletteExamples: "Contoh pencarian",
   },
 
+  // Galat tak terduga di luar /kitab (D1 gagal, timeout): (app)/error.tsx dan global-error.tsx.
+  error: {
+    pageTitle: "Terjadi gangguan",
+    heading: "Halaman gagal dimuat",
+    body: "Terjadi gangguan saat memuat data. Coba muat ulang.",
+    retry: "Coba lagi",
+    home: "Kembali ke Beranda",
+  },
+
   notFound: {
     pageTitle: "Halaman tidak ditemukan",
     heading: "Halaman tidak ditemukan",
