@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Setiap klaim ada alamatnya</title>
+</head>
+<body>
+<style id="token-surau">:root{--ornament-gold:#c1914a;--background:oklch(0.975 0.008 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--ornament-gold:#d6ad6c;--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
+<script src="/aset-mesin/iso-c45506718b.js"></script>
+<script>
+/* Prinsip 2 · Setiap klaim ada alamatnya.
+   Proses: kartu klaim di alas → jejak di alas menelusuri ke rak kitab → jilid yang dirujuk ditarik keluar →
+   jilid itu menyala dan pita penandanya terangkat (alamat: jilid + halaman). Tanpa kata atau angka di gambar
+   (situs direncanakan multibahasa); tanpa nama kitab. Dengan tombol, jilid lain bisa diketuk. */
+const { lerp, ease } = ISO;
+const st = { pilih: 1, tarik: 1, jalur: 1, busy: false };
+const BOOKS = [{ x: 24, h: 21 }, { x: 29.2, h: 23 }, { x: 34.4, h: 20 }, { x: 39.6, h: 22.5 }, { x: 44.8, h: 19.5 }];
+const BW = 4.6, BY = 4, BD = 14, PULL = 6;
+
+mountFigure({
+  id: 'prinsip-alamat', title: 'Setiap klaim ada alamatnya',
+  hint: 'telusuri klaim ke jilid dan halamannya, atau ketuk jilid lain',
+  alt: 'Ilustrasi garis: jejak di alas dari kartu klaim menelusuri ke rak kitab; satu jilid tertarik keluar, menyala, dan pita penanda halamannya terangkat.',
+  tombol: [
+    { label: 'Telusuri', aksi: () => H.telusuri(st.pilih) },
+    { label: 'Kembalikan', aksi: () => H.kembalikan() },
+  ],
+  mount(stage, api) {
+    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[24,4,27],[50,4,27],[6,32,17]]);
+    const { box, FRONT } = K;
+    const CARD = [6, 32, 2, 15, 2, 14];
+    function buku(i) {
+      const b = BOOKS[i], dy = i === st.pilih ? PULL * ease(st.tarik) : 0, y = BY + dy, lit = i === st.pilih && st.tarik >= 1;
+      let s = box(b.x, y, 3, BW, BD, b.h, 0, lit ? 'hot' : '');
+      // punggung (muka depan): dua pita dan nomor jilid
+      s += `<g transform="${FRONT(b.x, y + BD, 3 + b.h)}"><line class="${lit ? 'nyala' : 'detail'}" x1=".8" y1="3" x2="${BW - .8}" y2="3"/>`
+        + `<line class="${lit ? 'nyala' : 'detail'}" x1=".8" y1="${b.h - 3}" x2="${BW - .8}" y2="${b.h - 3}"/></g>`;
+      const c = [[b.x, y, 3], [b.x + BW, y, 3], [b.x, y + BD, 3], [b.x + BW, y + BD, 3]];
+      s += K.tepi([...c, ...c.map(p => [p[0], p[1], 3 + b.h])]);
+      // pita penanda halaman: terangkat dari atas jilid yang dirujuk
+      if (i === st.pilih && st.tarik > 0) s += box(b.x + 1.3, y + BD - 3.8, 3 + b.h - 1, 2, .5, 1 + 6.5 * ease(st.tarik), 0, lit ? "hot" : "");
+      return `<g class="press" data-i="${i}">${s}</g>`;
+    }
+    // kabel penelusuran: dari kartu klaim ke punggung jilid yang dipilih
+    // jejak di alas: dari sisi kartu klaim, sejajar x di depan rak, lalu sejajar y ke kaki punggung jilid
+    const Z = 2.05;
+    function jalur() { const [cx, cy, cz, cw, cd] = CARD, b = BOOKS[st.pilih], bx = b.x + BW / 2, yb = Math.max(20.6, BY + BD + PULL * ease(st.tarik) + .6);
+      return api.jalur([[cx + cw + .5, cy + cd / 2, Z], [bx, cy + cd / 2, Z], [bx, yb, Z]], 2.2); }
+    function draw() {
+      let s = box(0, 0, 0, 60, 46, 2, 5) + box(22, 2, 2, 30, 18, 1, 1);
+      // rak: jilid terpisah di sumbu x, jadi urut x sudah benar (x lebih besar = lebih dekat), ditarik atau tidak
+      BOOKS.forEach((_, i) => { s += buku(i); });
+      // kartu klaim berdiri di kanan depan
+      const [cx, cy, cz, cw, cd, ch] = CARD;
+      s += box(cx, cy, cz, cw, cd, ch, 0) + `<g transform="${FRONT(cx, cy + cd, cz + ch)}">`
+        + [0, 1, 2, 3].map(i => `<line class="detail" x1="2" y1="${4 + i * 2.8}" x2="${i === 3 ? 8 : 13}" y2="${4 + i * 2.8}"/>`).join('') + '</g>';
+      const c = [[cx, cy, cz], [cx + cw, cy, cz], [cx, cy + cd, cz], [cx + cw, cy + cd, cz]];
+      s += K.tepi([...c, ...c.map(p => [p[0], p[1], cz + ch])]);
+      // jejak penelusuran di alas: dari kartu ke kaki punggung jilid yang dipilih (digambar terakhir: ia di depan rak)
+      const pts = jalur(), on = st.jalur > 0;
+      s += `<path class="wire${on ? ' hot' : ''}" d="${K.path(pts)}"/>` + api.simpul(pts[0], on) + api.simpul(pts[pts.length - 1], on && st.tarik >= 1);
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.tarik >= 1 ? `Klaim menunjuk ke jilid ${st.pilih + 1} dan halamannya` : 'Menelusuri klaim ke kitabnya');
+    const H = window.H = {
+      telusuri(i) { if (st.busy) return api.readout('Sebentar, masih menelusuri'); st.busy = true;
+        const lanjut = () => { st.pilih = i; st.jalur = 1; st.tarik = 0; draw(); api.denyut(K.path(jalur()));
+          api.anim(900, t => { st.tarik = t; draw(); }, () => { st.busy = false; draw(); read(); }); };
+        if (st.tarik > 0) api.anim(400, t => { st.tarik = 1 - t; draw(); }, lanjut); else lanjut(); },
+      kembalikan() { if (st.busy) return api.readout('Sebentar, masih menelusuri');
+        if (st.tarik <= 0) return api.readout('Semua jilid sudah di rak'); st.busy = true;
+        api.anim(500, t => { st.tarik = 1 - t; draw(); }, () => { st.tarik = 0; st.jalur = 0; st.busy = false; draw(); api.readout('Jilid dikembalikan ke rak'); }); },
+    };
+    // jilid lain bisa diketuk hanya bila figur bertombol (halaman "coba sendiri"); di kartu situs ketukan memutar ulang cerita
+    if (document.getElementById('aksi')) stage.addEventListener('click', e => { const g = e.target.closest('[data-i]'); if (g) H.telusuri(+g.dataset.i); });
+    draw(); read();
+    return {
+      render: draw,
+      batal() { st.busy = false; },
+      demo() { H.telusuri(1); },
+      akhir() { st.pilih = 1; st.tarik = 1; st.jalur = 1; draw(); read(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

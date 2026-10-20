@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atribusi, bukan fatwa</title>
+</head>
+<body>
+<script src="../../.claude/skills/aset/mesin/iso.js"></script>
+<script>
+/* Prinsip 3 · Atribusi, bukan fatwa.
+   Proses: kartu pernyataan di alas → jejak di alas menyala dari kartu ke kitab sumbernya → papan nama penulis di punggung
+   kitab menyala (penuturnya disebut). Surau tidak mengeluarkan putusan, jadi stempel di alas tetap redup dan
+   dicoret. Tanpa kata di gambar (situs direncanakan multibahasa), tanpa nama ulama, wajah, atau huruf Arab. */
+const { ease } = ISO;
+const st = { atribusi: 1, busy: false };
+
+mountFigure({
+  id: 'prinsip-atribusi', title: 'Atribusi, bukan fatwa',
+  hint: 'tunjukkan siapa yang mengatakan',
+  alt: 'Ilustrasi garis: jejak di alas menyala dari kartu pernyataan ke kitab sumbernya, dan papan nama penulis di punggung kitab menyala. Stempel putusan di sampingnya redup dan dicoret.',
+  tombol: [{ label: 'Siapa yang mengatakan?', aksi: () => H.tunjukkan() }],
+  mount(stage, api) {
+    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[8,6,26],[15,6,26],[34,24,19],[52,26,19]]);
+    const { box, FRONT, TOP } = K;
+    const BOOK = [8, 6, 2, 7, 16, 22], CARD = [34, 24, 2, 18, 2, 16], STAMP = [14, 36, 2, 9, 9];
+    const kotakTepi = (x, y, z, w, d, h) => { const c = [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]; return K.tepi([...c, ...c.map(p => [p[0], p[1], z + h])]); };
+    // jejak di alas: dari kaki muka kartu, sejajar x di belakang stempel, lalu sejajar y ke kaki punggung kitab
+    const Z = 2.05, bxm = BOOK[0] + BOOK[3] / 2, ky = CARD[1] + CARD[4] + .6, A = [CARD[0] + 4, ky, Z], B = [bxm, BOOK[1] + BOOK[4] + .6, Z];
+    const RUTE = api.sampel(api.jalur([A, [bxm, ky, Z], B], 2.2), 80);
+    const kabel = () => RUTE;
+    function draw() {
+      const on = st.atribusi >= 1;
+      let s = box(0, 0, 0, 60, 46, 2, 5);
+      // kitab sumber berdiri
+      const [bx, by, bz, bw, bd, bh] = BOOK;
+      s += box(bx, by, bz, bw, bd, bh, 0);
+      // punggung kitab: dua pita dan papan nama penulis (menyala saat penuturnya disebut)
+      s += `<g transform="${FRONT(bx, by + bd, bz + bh)}"><line class="detail" x1="1" y1="3.5" x2="${bw - 1}" y2="3.5"/><line class="detail" x1="1" y1="${bh - 3.5}" x2="${bw - 1}" y2="${bh - 3.5}"/>`
+        + `<rect class="face${on ? ' hot' : ''}" x="1.3" y="${bh / 2 - 3}" width="${bw - 2.6}" height="6" rx=".6"/></g>`;
+      s += kotakTepi(bx, by, bz, bw, bd, bh);
+      // kartu pernyataan: tanda kutip Latin + baris
+      const [cx, cy, cz, cw, cd, ch] = CARD;
+      s += box(cx, cy, cz, cw, cd, ch, 0) + `<g transform="${FRONT(cx, cy + cd, cz + ch)}"><text class="label" x="2" y="6.5" style="font-size:7px;font-weight:800">&#8220;</text>`
+        + [0, 1, 2].map(i => `<line class="detail" x1="2" y1="${8 + i * 2.6}" x2="${i === 2 ? 9 : cw - 2}" y2="${8 + i * 2.6}"/>`).join('') + '</g>';
+      s += kotakTepi(cx, cy, cz, cw, cd, ch);
+      // jejak atribusi di alas: tumbuh dari kartu ke kitab
+      const pts = kabel();
+      const k = Math.max(2, Math.round(pts.length * ease(st.atribusi)));
+      s += `<path class="wire" d="${K.path(pts)}"/>` + (st.atribusi > 0 ? `<path class="wire hot" d="${K.path(pts.slice(0, k))}"/>` : '');
+      s += api.simpul(A, st.atribusi > 0) + api.simpul(B, on);
+      // stempel putusan: silinder pendek yang sengaja redup (Surau tidak memutus perkara)
+      const [sx, sy, sz, sr, sh] = STAMP;
+      s += `<g class="redup">${box(sx - sr / 2, sy - sr / 2, sz, sr, sr, 2, sr / 2)}${box(sx - 1.2, sy - 1.2, sz + 2, 2.4, 2.4, 4.5, 1.2)}${box(sx - 2.2, sy - 2.2, sz + 6.5, 4.4, 4.4, 1.6, 2.2)}</g>`;
+      // coretan: lencana silang tergeletak di alas di samping stempel "putusan" (tidak dipakai)
+      s += api.lencanaBidang('silang', TOP(0, 0, 2.01), sx + 8, sy + 1, 3.2, false, true);
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.atribusi >= 1 ? 'Pernyataan disampaikan bersama penuturnya: menurut penulis kitab' : 'Pernyataan belum diberi sumber');
+    const H = window.H = {
+      tunjukkan() { if (st.busy) return api.readout('Sebentar, masih menelusuri sumber'); st.busy = true; st.atribusi = 0; draw();
+        api.anim(1000, t => { st.atribusi = t; draw(); }, () => { st.busy = false; draw(); read(); api.denyut(K.path(kabel())); }); },
+    };
+    draw(); read();
+    return {
+      render: draw,
+      batal() { st.busy = false; },
+      demo() { H.tunjukkan(); },
+      akhir() { st.atribusi = 1; draw(); read(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

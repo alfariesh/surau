@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pencarian kosong</title>
+</head>
+<body>
+<script src="../../.claude/skills/aset/mesin/iso.js"></script>
+<script>
+/* Empty state · pencarian tanpa hasil (contoh mode berulang).
+   Cerita: kaca pembesar menyisir rak dari kiri ke kanan; lensanya menyala selama mencari; di rak hanya ada
+   tempat kosong (garis putus-putus) dan dua jilid yang bersandar. Kaca pembesar berhenti di kanan, lensanya padam.
+   Diulang 2 kali dengan jeda (cfg.ulang), hanya selama terlihat: total gerak ±5 detik (WCAG 2.2.2, tanpa tombol jeda);
+   "kurangi gerakan" → gambar diam. Nada ramah, bukan galat: tanpa silang, tanpa kata (situs direncanakan multibahasa). */
+const { ease, lerp } = ISO;
+const st = { t: 1, cari: false };
+const X0 = 20, X1 = 40, YK = 25, ZK = 14, R = 4.6;
+
+mountFigure({
+  id: 'kosong-pencarian', title: 'Pencarian kosong',
+  alt: 'Ilustrasi garis: kaca pembesar menyisir rak kitab yang kosong.',
+  ulang: { kali: 2, jeda: 1000 },
+  mount(stage, api) {
+    const K = api.frame([[0, 0, 0], [60, 0, 0], [0, 40, 0], [60, 40, 0], [12, 8, 23], [46, 8, 23], [X1 + 7, YK, ZK + R]]);
+    const { box, FRONT } = K;
+    const kotakTepi = (x, y, z, w, d, h) => { const c = [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]; return K.tepi([...c, ...c.map(p => [p[0], p[1], z + h])]); };
+    function draw() {
+      let s = box(0, 0, 0, 60, 40, 2, 5);
+      // rak: papan belakang, dua sisi, papan tengah dan atas
+      s += box(12, 8, 2, 34, 1.2, 20) + box(12, 8, 2, 1.2, 12, 20) + box(12, 8, 2, 34, 12, 1) + box(12, 8, 11.5, 34, 12, 1) + box(12, 8, 21, 34, 12, 1);
+      // dua jilid tersisa di rak bawah (kiri)
+      s += box(13.4, 10, 3, 2.6, 9, 7.8) + box(16.2, 10, 3, 2.6, 9, 7.2);
+      // tempat kosong: garis putus-putus di depan rak atas dan bawah
+      s += `<g transform="${FRONT(14, 20, 20.9)}">` + [0, 1, 2, 3, 4].map(i => `<rect class="detail" style="stroke-dasharray:1 1" x="${i * 6 + .6}" y=".6" width="4.6" height="7.8" rx=".3"/>`).join('') + '</g>';
+      s += `<g transform="${FRONT(14, 20, 11.4)}">` + [1, 2, 3, 4].map(i => `<rect class="detail" style="stroke-dasharray:1 1" x="${i * 6 + .6}" y=".6" width="4.6" height="7.8" rx=".3"/>`).join('') + '</g>';
+      s += box(46, 8, 2, 1.2, 12, 20);
+      s += kotakTepi(12, 8, 2, 35.2, 12, 20);
+      // kaca pembesar berdiri di bidang depan, menyisir rak
+      const cx = lerp(X0, X1, ease(st.t));
+      s += `<g transform="${FRONT(0, YK, 0)}">`
+        + `<g transform="rotate(-40 ${cx.toFixed(2)} ${(-ZK).toFixed(2)})"><rect class="face" x="${(cx - .7).toFixed(2)}" y="${(-ZK + R + .2).toFixed(2)}" width="1.4" height="5" rx=".7"/></g>`
+        + `<circle class="glass${st.cari ? ' hot' : ''}" cx="${cx.toFixed(2)}" cy="${(-ZK).toFixed(2)}" r="${R}"/>`
+        + `<circle class="tepi" cx="${cx.toFixed(2)}" cy="${(-ZK).toFixed(2)}" r="${R}"/>`
+        + `<path class="detail" d="M${(cx - 2.2).toFixed(2)} ${(-ZK - .8).toFixed(2)}a2.4 2.4 0 0 1 1.6 -1.6"/></g>`;
+      api.gambar(s);
+    }
+    const H = window.H = {
+      sisir() { st.cari = true; st.t = 0; draw();
+        api.anim(1800, t => { st.t = t; draw(); }, () => { st.cari = false; draw(); api.readout('Belum ada hasil'); }); },
+    };
+    draw();
+    return {
+      render: draw,
+      batal() { st.cari = false; st.t = 1; draw(); },
+      demo() { H.sisir(); },
+      akhir() { st.cari = false; st.t = 1; draw(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

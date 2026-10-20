@@ -46,7 +46,8 @@ Semua dijalankan dari root repo.
 - `implementasi/`: rencana eksekusi (STATUS, FASE, `sesi/`, STACK, ARSITEKTUR-TEKNIS, KONVENSI, KEPUTUSAN, LOG, TUGAS-PEMILIK).
 - `apps/`, `packages/`, `tools/`: kode. Web ada di `apps/web` (punya `CLAUDE.md` + `AGENTS.md` sendiri). Paket dibuat saat sesi yang membutuhkannya.
 - `data/`: lisensi, atribusi, sumber, patch, dan laporan. Teks kitab tidak masuk git.
-- `.claude/`: skills (`sesi`, `posisi`, `rilis`, `docs-terbaru`), agents (`peninjau`), rules (`teks-arab`), dan hooks.
+- `aset/`: aset visual interaktif (sumber `figur/`, hasil `keluaran/`), dibuat dengan skill `aset`.
+- `.claude/`: skills (`sesi`, `posisi`, `rilis`, `docs-terbaru`, `aset`), agents (`peninjau`), rules (`teks-arab`), dan hooks.
 
 ## Bicara dengan pemilik
 

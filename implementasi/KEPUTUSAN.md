@@ -1334,3 +1334,74 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Ditolak:** tetap Plus Jakarta Sans dengan italic asli (aman lisensi, tetapi bukan pilihan pemilik); konversi ke WOFF2 (bisa dianggap mengubah berkas).
 
 **Tinjau ulang bila:** repo akan dibuat publik; lisensi HarmonyOS Sans berubah; judul terasa terlalu tebal tanpa SemiBold; atau italic Medium/Bold dibutuhkan.
+
+
+## ADR-057 · Aset visual: skill `aset` dengan mesin iso-glow (MIT) bertoken Surau; tiga ilustrasi prinsip di Beranda — diterima · 2026-10-19
+
+**Konteks:** Pemilik membutuhkan aset landing page, cover blog, konten, dan aset lain yang interaktif (bukan gambar diam) dan konsisten. Usulan pertama pemilik adalah skill Colorfigures (April Zhu, MIT): ilustrasi isometrik bertinta tangan dan berwarna penuh. Agent membangun skill Surau di atasnya beserta figur contoh "kitab di atas rehal". Pemilik menilai hasilnya "kurang pas" lalu mengusulkan iso-glow (karya yang sama, MIT): gambar garis tipis dengan satu aksen yang menyala. Agent membuat ulang figur yang sama dengan iso-glow beraksen Zaitun dan memberikan perbandingan berdampingan (terang/gelap). Pemilik memilih iso-glow, meminta perbaikan (WebP, tombol terlihat, demo otomatis, token warna tidak disalin manual), lalu meminta tiga aset untuk kartu "Tiga prinsip utama" di Beranda ("Ya kerjakan. Lalu buat 3 aset untuk pairing di home Tiga prinsip utama").
+
+**Keputusan:**
+1. **Skill `.claude/skills/aset/`** berisi:
+   - `SKILL.md`: aturan Surau, alur, keluaran per kebutuhan, kriteria selesai.
+   - `REFERENSI.md`: kernel, kelas, kontrak, pelajaran.
+   - `mesin/iso.js` + `mesin/LICENSE`.
+   - Dua contoh asli iso-glow di `contoh/`.
+   - Skrip Node `skrip/bangun.mjs` (menyisipkan mesin dan token; `--situs` menulis figur ke `apps/web/public/aset/` dan mesin bersama ke `apps/web/public/aset-mesin/`, butir 11) dan `skrip/potret.mjs` (Chromium Playwright dari `apps/web`; sumber dibangun di memori; WebP lewat `sharp` milik Next, JPG/PNG; galat skrip, berkas gagal, figur kosong, atau `NaN` → kode keluar 2).
+
+   Tanpa Python (Python di repo hanya untuk kalkulator biaya).
+2. **Gaya terkunci:** garis tipis, warna netral situs, satu aksen hanya pada yang hidup. Token warna dibaca `bangun.mjs` langsung dari blok `:root`, `:root.dark`, dan `:root.sepia` di `globals.css`; turunannya (`--body`, `--deck`, `--line`, `--accent-hi`, …) dihitung dengan `color-mix`. Bila warna situs berubah, bangun ulang aset dan warnanya ikut. Figur tidak boleh menulis hex/oklch sendiri.
+3. **Mesin disesuaikan untuk Surau (dibanding iso-glow):**
+   - Tanpa galeri, pemilih warna, font Google, dan kredit di gambar.
+   - Tombol berbahasa Indonesia yang terlihat (versi asli hanya keyboard/klik).
+   - Mode `?sematan=1` (latar transparan, tombol menempel di bawah), `?polos=1`, dan `?sampul=1&judul=&kecil=` (1200×630; teks lewat `textContent`).
+   - Demo otomatis saat diam dan terlihat, berhenti saat disentuh. "Kurangi gerakan" menampilkan keadaan akhir.
+   - Label `api.tag` berukuran piksel layar (±9 px) dan dijaga di dalam bingkai.
+   - Filter cahaya berskala viewBox dengan wilayah `userSpaceOnUse` (garis mendatar tidak hilang); tanpa pendar di tema terang/sepia.
+   - Tema bisa dikirim induk lewat `postMessage`.
+4. **Tiga figur prinsip di Beranda** (`aset/figur/prinsip-{verbatim,alamat,atribusi}.html` → `/aset/*.html`), **tanpa kata, angka, atau tombol**:
+   - **verbatim:** salinan keliru meredup dengan lencana silang, lalu salinan yang sama persis menyala dengan lencana centang.
+   - **alamat:** jejak di alas dari klaim ke rak; jilid yang dirujuk ditarik keluar dan pita penanda halamannya terangkat dan menyala.
+   - **atribusi:** jejak di alas dari pernyataan ke kitab; papan nama penulis di punggung kitab menyala; stempel putusan redup dan dicoret.
+
+   Tanpa huruf Arab, wajah, atau sosok.
+5. **Penyematan:**
+   - Komponen klien `ArtEmbed` (`components/art/art-embed.tsx`) memasang `<iframe sandbox="allow-scripts" loading="lazy" aria-hidden tabindex=-1>` (tanpa `allow-same-origin`, jadi skrip aset tidak bisa menyentuh cookie atau DOM Surau). Iframe ini dekoratif, karena maknanya ada di teks kartu. Rasio 4:3.
+   - Tema next-themes dikirim lewat `postMessage` saat tema berubah dan saat iframe dimuat; setelah itu aset mengabaikan perubahan tema sistem. `color-scheme` iframe diwarisi dari `<html>`. Gaya inline dari `resolvedTheme` tidak dipakai, karena menimbulkan ketidakcocokan hidrasi.
+   - Header `/aset/*` ditulis di `apps/web/public/_headers`, karena Static Assets tidak melewati Worker:
+     - `X-Frame-Options: SAMEORIGIN` dan CSP `frame-ancestors 'self'; sandbox allow-scripts`, sehingga dibuka langsung pun tetap berorigin "null".
+     - `Cache-Control: … no-transform`, karena tanpanya Cloudflare menyisipkan beacon Web Analytics: setiap iframe tercatat sebagai kunjungan dan beacon gagal CORS. Ditemukan dan diperbaiki di preview.
+     - `nosniff` dan `Permissions-Policy`.
+
+     Aturan yang sama ada di `next.config.ts` untuk `next dev`, sedangkan halaman lain tetap `DENY`.
+   - Pada figur bertombol, tekanan pengunjung (tombol, ketukan gambar, tombol keyboard) menghentikan animasi demo yang sedang berjalan (`api.tandai` → `batal()`), jadi tidak ada ketukan yang tertelan. Demo hanya berjalan saat figur ada di layar (IntersectionObserver).
+   - **Tanpa berkas font di aset** (setelah ADR-056): figur situs tidak memuat kata, jadi mesin cukup memakai `'HarmonyOS Sans', system-ui`. Berkas HarmonyOS tidak disalin ke `public/aset/` (lisensinya melarang dibagikan sebagai paket tersendiri, dan iframe origin "null" butuh CORS). `potret.mjs` membaca TTF dari `apps/web/src/fonts/harmonyos-sans/` dan menyuntikkannya hanya ke browser pemotret, untuk cover dan konten yang memuat judul.
+   - Kredit iso-glow dan iso-figure di `/lisensi#ilustrasi`.
+6. **Format gambar diam:** WebP untuk situs dan konten (cover ±27 KiB, sebelumnya PNG ±425 KiB), JPG untuk `og:image` (±41 KiB; dukungan WebP di semua aplikasi pratinjau tautan belum pasti). Tanpa PNG di situs, karena gambar tidak dioptimasi ulang di Workers (ADR-003).
+7. `vite.config.ts`: mesin, contoh asli, `aset/**`, `apps/web/public/aset/**`, dan `apps/web/public/aset-mesin/**` dikecualikan dari lint dan format (HTML padat hasil bangun).
+8. **Tanpa kata, tanpa tombol, satu cerita** (permintaan pemilik, 2026-10-19: "Saya merasa kurang pas ada button di ilustrasi"; situs direncanakan bisa berbahasa Indonesia, Inggris, dan Arab):
+   - Teks di gambar harus diterjemahkan di luar i18n, terlalu kecil di kartu, dan untuk bahasa Arab bertabrakan dengan aturan tanpa huruf Arab di aset. Karena itu figur situs memakai tanda visual bebas bahasa (`api.lencanaBidang`, pita, papan nama, redup, coret).
+   - Tombol diganti **cerita sekali jalan**: diputar saat terlihat, lalu diam. Hover atau ketuk kartu (`data-art-card` → `postMessage {putar:true}`), atau kursor dan ketukan (`click`, jadi menggulir di ponsel tidak memicunya) di figur, memutarnya ulang. Satu cerita ±2–3 detik, tanpa perulangan tanpa henti.
+   - Hover saja ditolak karena ponsel dan keyboard tidak punya hover.
+   - Tombol tetap ada di mesin untuk halaman "coba sendiri" (`?tombol=0` menyembunyikannya).
+9. **Penamaan (menyimpang dari ADR-012, terbuka):** kode aplikasi web memakai identifier Inggris (`ArtEmbed`, `name`, kunci `art` dan `principleArtTitle`). Mesin, figur, dan skrip skill memakai identifier Indonesia (`mountFigure` tetap dari asalnya), sama seperti skill dan perkakas pemilik lainnya (`scripts/ikon.mjs`), karena dibaca dan disunting dalam bahasa kerja skill. Jalur publik `/aset/<nama>` mengikuti rute situs yang berbahasa Indonesia (`/kitab`, `/cari`).
+10. **Penghubung dan tanda ikut kisi isometrik** (dua putaran masukan pemilik): kabel lengkung bebas dan lencana yang menghadap layar terbaca sebagai gambar 2D di atas gambar isometrik. Kabel ortogonal yang melayang juga terasa tidak alami, karena tidak berpijak. Dari tiga opsi yang dibandingkan (A: jejak di alas, B: diangkat atau tampilan urai, C: tanpa penghubung), pemilik memilih **A**. Penghubung kini berupa jejak di permukaan alas (`api.jalur` setinggi alas + `api.simpul` di ujung), seperti jalur papan sirkuit sekaligus metafora jalur penelusuran. Lencana ✓/✗ menempel di bidang (`api.lencanaBidang`).
+11. **Siap production** (cek akhir pemilik):
+    - **Mode berulang** untuk empty state dan indikator memuat (`cfg.ulang`/`?ulang=N&jeda`, `ArtEmbed repeat`). Diputar N kali hanya selama figur terlihat, berhenti saat tab disembunyikan atau figur keluar layar, dan diam saat "kurangi gerakan". Empty state: total gerak ≤5 detik supaya tidak butuh tombol jeda (WCAG 2.2.2), contohnya `kosong-pencarian` (2 kali). 0 (terus) hanya untuk indikator memuat selama proses berjalan (gerak yang memang bagian dari prosesnya). Nilai `?ulang` yang tidak valid diabaikan (kembali ke bawaan figur), bukan dianggap 0.
+    - **Mesin bersama:** di situs, mesin dimuat dari `/aset-mesin/iso-<hash>.js` (`Cache-Control: immutable` di `_headers`), sehingga HTML tiap figur turun dari ±32 KiB ke ±6 KiB. `bangun.mjs --situs` menghapus mesin lama dan membangun ulang semua figur situs supaya tidak ada rujukan yang patah. Konsekuensinya, satu jendela singkat saat deploy: halaman HTML lama yang masih ter-cache bisa merujuk mesin yang sudah dihapus; figur hanya tidak tergambar sampai dimuat ulang.
+
+**Ditolak:**
+- **Colorfigures** (dicoba lalu diganti): tinta tebal dan warna penuh terasa seperti merek lain di samping UI Surau yang tenang; garis tepi luar hilang di mode gelap.
+- **Gaya "Lumen" iso-glow:** gradien neon, partikel, hanya gelap; kesannya situs kripto.
+- **Mode 3D iso-glow:** three.js dari CDN, terlalu berat untuk Beranda.
+- **Memasang skill hanya di `~/.claude/skills`:** tidak terlihat oleh sesi cloud.
+- **Mesin sebagai komponen React:** global mesin bertabrakan dengan aplikasi; iframe mengisolasinya.
+- **Dua gaya sejajar:** bertentangan dengan alasan awal pemilik, yaitu konsistensi.
+- **iframe disembunyikan sampai tema terkirim:** bila iframe sudah selesai dimuat sebelum hidrasi, `onLoad` tidak terpanggil dan iframe tersembunyi selamanya.
+
+**Konsekuensi:**
+- Tiga iframe lazy di Beranda, masing-masing ±6 KiB HTML ditambah satu mesin bersama ±34 KiB (cache selamanya), tanpa berkas font.
+- Static Assets mengalihkan `/aset/x.html` ke `/aset/x` (satu 307); mesin dirujuk dengan jalur absolut `/aset-mesin/…`.
+- Mesin tidak ikut pembaruan iso-glow secara otomatis.
+- Server dev tidak bisa dijalankan di sesi cloud (HeroUI Pro berlisensi tidak terpasang di sana). Sematan diuji lewat halaman tiruan, sedangkan Beranda asli lewat preview PR dan e2e CI.
+
+**Tinjau ulang bila:** CSP penuh situs dipasang (`/aset/*` butuh CSP sendiri untuk skrip/gaya inline), pemilik ingin gaya lain, figur dipakai di halaman berat (pertimbangkan gambar diam + tombol "coba"), atau iso-glow merilis perbaikan mesin yang dibutuhkan.
