@@ -39,7 +39,7 @@ Secret (dipasang pemilik, T-14): `CF_AIG_TOKEN` untuk kedua Worker. `ANTHROPIC_A
 
 Cache: tabel `answer_cache` di DB app (migrasi 0003), kunci SHA-256 versi korpus (+ `built_at`) + versi prompt + pertanyaan dirapikan, **tanpa teks pertanyaan**, usulan 30 hari (P-7); hanya hasil utuh (bukan terpotong `max_tokens`). Log Worker: satu event `jawab` per pertanyaan berisi metrik (outcome termasuk `aborted`, token, biaya, sitasi, refusal), tanpa pertanyaan, kueri routing, atau jawaban.
 
-Kalimat "Status hadits: …" tanpa takhrij tersitasi diganti "belum diketahui"; sejak awalan itu muncul, blok sesudahnya tidak dipratinjau (isi akhir lewat `done`). Kunci cache juga memuat `JAWAB_PIPELINE_VERSION`. `surau-api-staging` di-deploy `deploy.yml` dari `main`: Preview sebuah PR memanggil kode API versi main, bukan kode API PR itu.
+Kalimat "Status hadits: …" tanpa takhrij tersitasi diganti "belum diketahui"; sejak awalan itu muncul, blok sesudahnya tidak dipratinjau (isi akhir lewat `done`). Deteksinya masih awalan persis; variasi penulisan dan beberapa kasus tepi belum tertangani (ADR-064 butir 7, wajib sebelum S21). Kunci cache juga memuat `JAWAB_PIPELINE_VERSION`. `surau-api-staging` di-deploy `deploy.yml` dari `main`: Preview sebuah PR memanggil kode API versi main, bukan kode API PR itu.
 
 ## Perintah
 

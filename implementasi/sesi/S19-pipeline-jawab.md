@@ -73,12 +73,13 @@ Izin pemilik di chat (2026-10-20): biaya LLM sesi ini **maksimal US$3**, termasu
   - Validitas kutipan 100% di setiap run (final-3: 159/159; holdout v4: 74/74); metrik R4 lain di tabel ADR-064 (lokasi 76,5%, penolakan 100%, kesetiaan judge 39–52% belum terkalibrasi).
   - Refusal/galat penyedia: tes Worker `apps/api/src/index.test.ts` (Haiku → Sonnet, dua kali refusal → Cari, 529/500 → Cari, unverified → Cari, abort).
   - Biaya rata-rata **US$0,0026/jawaban** (final-3 US$0,00259).
-  - `pnpm verify` lolos (577 Node + 254 Workers sebelum perbaikan akhir; sesudahnya `pnpm test` 579 + 256, `pnpm check` bersih); peninjau tiga putaran, blocker (status hadits tanpa takhrij, prompt belum dieval, pratinjau status) diperbaiki dan dites.
+  - `pnpm verify` lolos (577 Node + 254 Workers sebelum perbaikan akhir; sesudahnya `pnpm test` 579 + 256, `pnpm check` bersih); peninjau tiga putaran; semua blocker (status hadits tanpa takhrij, prompt belum dieval, pratinjau status) diperbaiki dan dites, putaran 3 tanpa blocker (sisa celah tepi status hadits dicatat sebagai utang wajib sebelum S21).
   - Teks Arab: tes `stripArabic` (harakat ikut), tes Worker memeriksa `result.text` tanpa huruf Arab dan setiap sitasi = potongan DB.
   - Produksi: `jawab_enabled` `surau-app` = 0 dan `POST surau.org/api/jawab` = 404 (dicek dengan request, juga sesudah merge).
 - **Biaya LLM:** ±US$1,51 dari izin ≤ US$3 (rincian di LOG); ±US$0,15 terbuang di run terputus/dihentikan.
 - **Penyimpangan (ADR-064):** premis keliru memakai kalimat baku kedua; blok tanpa sitasi tetap tampil (S21 merender beda); pertanyaan umum belum disimpan ke `answer_log` (P-7/PII, S20); Sonnet tanpa `fallbacks` server.
 - **Utang/pesan untuk sesi berikutnya:**
+  - **Wajib sebelum S21 (aturan teks-arab no. 6):** deteksi status hadits toleran (regex untuk variasi "Status Hadits/hadis", titik dua di luar tebal), awalan + baris baru, singkatan ("HR.", "w.", "dkk."), ganti sampai akhir baris untuk status tak didukung, pemasangan paragraf dua hadits yang lebih ketat, `holdPreview` dari gabungan teks; lalu eval ulang (peninjau putaran 3, ADR-064 butir 7).
   - Lokasi (pencarian) dan kesetiaan judge jauh dari target R4: pencarian makna atau routing dua langkah, kalibrasi judge, metrik status hadits berlabel (sekarang cocok string persis → 0%).
   - S20: ledger + reservasi (termasuk Sonnet), Turnstile, kuota, HMAC kunci `answer_cache`, penyamaran PII, penghapusan fisik `answer_cache`/`answer_log`, skema Zod `/api/jawab` bersama.
   - Pemilik: secret `CF_AIG_TOKEN` untuk `surau-api` produksi (T-14).
