@@ -1300,3 +1300,37 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Konsekuensi:** kewajiban menunggu dasar manusia sebelum mulai **pengembangan S19** pada ADR-052 dikecualikan atas arahan pemilik. S18 selesai secara teknis, status kriteria asli tetap sebagian; T-24 Anas ditunda dan tidak menghambat dev. Ini bukan izin menandai persetujuan ustadz, kalibrasi manusia, ≥10 uji ustadz, atau gerbang rilis R4 sebagai selesai. Nama agent tidak dipakai membentuk golden resmi. Anas dapat meninjau kemudian dengan akun Access; hasil agent merupakan pembanding terpisah. Perbedaan kelengkapan dan dukungan klaim dalam rubrik perlu adjudikasi sebelum judge menjadi gerbang.
 
 **Bukti:** [laporan Agent QA](../evals/reports/jawab-s18-agent-qa-v1.md), arsip privat hash-bound, 60 ulasan Agent QA S18 + satu ulasan uji UI Agent QA di produksi; 0 ulasan Anas.
+
+
+## ADR-055 · Tipografi UI memakai Typography HeroUI — diterima · 2026-10-20
+
+**Konteks:** audit tipografi menemukan teks UI ditulis dengan tag mentah (`<p>`, `<h1>`–`<h6>`, `li`/`dd`/`dt`) dan kelas ukuran sembarang (`text-[2rem]`, `leading-[1.12]`, `text-[0.95rem]`). Akibatnya judul halaman berukuran 30–48 px tergantung halaman, paragraf pembuka 16 atau 18 px, dan tinggi baris isi 24–28 px.
+
+**Keputusan:**
+1. Teks UI memakai komponen `Typography` HeroUI OSS (`type="body" | "body-sm" | "body-xs" | "h1"–"h6"`, `color="muted"`, `weight`). Heading memakai `Typography.Heading level={n}` supaya level semantik benar; ukuran yang berbeda dari bawaan level diatur dengan token Tailwind (`text-xl`), bukan nilai sembarang. `elementType` tidak ada di tipe `Typography` dan `render` tidak bisa dilewatkan dari Server Component (komponennya `"use client"`).
+2. CSS `typography.css` diimpor di `globals.css` (ADR-035), setelah `kbd`.
+3. `components/page-title.tsx`: `PageTitle` (h1 30/36/48 px, tinggi baris 1,1 di `lg`) dan `PageLead` (paragraf pembuka 16 px, 18 px di `sm`) menjadi satu-satunya definisi judul dan pembuka halaman. Judul halaman baca (24/30 px) dan halaman galat sengaja memakai `Typography` langsung.
+4. Isi `li`, `dt`, `dd`, dan `blockquote` dibungkus `Typography` supaya ikut skala HeroUI.
+
+**Dikecualikan:** teks Arab (`ArabicText`/`ArabicInline`), CSS kustom pembaca, daftar isi, dan sampul buku (bergantung pada skala pembaca, `cqw`, dan harakat); `h2.card__title` di panel Edisi (`Card.Title` adalah h3); paragraf judul terjemahan bab dengan kelas `passage-translation-heading`; `pre`/`blockquote` (tanpa padanan HeroUI OSS). `Card.Description` tetap bertinggi baris 20 px (bawaan komponen).
+
+**Konsekuensi:** `body-sm` bertinggi baris 24 px (dulu 20 px) dan `body` 28 px; teks ringkasan/terjemahan pembaca 14 px (dulu 15 px); `h2` bagian memakai `tracking-tight`.
+
+**Tinjau ulang bila:** HeroUI menambahkan prop `elementType`/`as` pada `Typography`, atau `CodeBlock` Pro dipakai untuk blok kode halaman MCP.
+
+
+## ADR-056 · Font UI HarmonyOS Sans menggantikan Plus Jakarta Sans — diterima · 2026-10-20
+
+**Konteks:** pemilik memilih HarmonyOS Sans untuk teks antarmuka dan membutuhkan italic asli (Plus Jakarta Sans sebelumnya hanya dimuat gaya normal, jadi teks miring adalah italic buatan browser). Lisensi HarmonyOS Sans (Huawei) bukan OFL: gratis, termasuk komersial, boleh dibundel dengan software, dengan syarat berkas tidak diubah, ada pemberitahuan mencolok bahwa font dipakai, `LICENSE.txt` ikut disertakan, dan font tidak dibagikan sebagai paket tersendiri.
+
+**Keputusan:**
+1. UI memakai HarmonyOS Sans lewat `next/font/local` (`layout.tsx`, variabel `--font-harmony`), TTF dipakai apa adanya (tanpa konversi WOFF2, supaya tidak dianggap modifikasi). Berkas yang dibawa hanya yang dipakai: Regular, Regular Italic, Medium, Bold, beserta `LICENSE.txt`, di `apps/web/src/fonts/harmonyos-sans/`.
+2. Berkasnya statis dan tidak punya SemiBold: weight 600 (semua judul `Typography`) dan 700 memakai berkas Bold. Judul tampil sedikit lebih tebal daripada sebelumnya. Italic hanya Regular; Medium/Bold italic ditambahkan bila dibutuhkan.
+3. Pemberitahuan penggunaan ada di `/lisensi` (bagian "Font") dengan tautan ke berkas lisensinya.
+4. Font Arab tidak berubah (ADR-027). HarmonyOS Sans hanya dipakai untuk Latin.
+
+**Risiko:** TTF berada di repo git. Pemilik menyatakan repo hanya privat sampai alpha dirilis; **repo kini berstatus publik (dicek 2026-10-20)**, sehingga berkas font tidak boleh di-push sebelum repo dijadikan privat atau berkasnya dikeluarkan dari git. Sebelum repo dibuat publik lagi, berkas di `apps/web/src/fonts/harmonyos-sans/` harus ditinjau ulang: dikeluarkan dari git dan diambil saat build, atau diganti font OFL (Plus Jakarta Sans).
+
+**Ditolak:** tetap Plus Jakarta Sans dengan italic asli (aman lisensi, tetapi bukan pilihan pemilik); konversi ke WOFF2 (bisa dianggap mengubah berkas).
+
+**Tinjau ulang bila:** repo akan dibuat publik; lisensi HarmonyOS Sans berubah; judul terasa terlalu tebal tanpa SemiBold; atau italic Medium/Bold dibutuhkan.

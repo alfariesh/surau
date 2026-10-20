@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { Button, Description, Input, Label, TextArea, TextField } from "@heroui/react";
+import { Button, Description, Input, Label, TextArea, TextField, Typography } from "@heroui/react";
 import { NativeSelect } from "@heroui-pro/react";
 import type { ReviewInput } from "@surau/db";
 import type { EvalSource } from "@surau/core";
@@ -67,9 +67,9 @@ function Sources({ items }: { items: EvalSource[] }) {
             >
               {s.citation.label} · {t.sourceLink}
             </a>
-            <p>
+            <Typography type="body-xs" color="muted">
               {s.citation.source.license} · {s.citation.source.attribution}
-            </p>
+            </Typography>
           </figcaption>
         </figure>
       ))}
@@ -244,73 +244,91 @@ export function ReviewClient({ initialItems }: { initialItems: ReviewSummary[] }
           </Button>
         </div>
       </div>
-      {error && <p role="alert">{error}</p>}
-      {!selected && <p>{t.empty}</p>}
+      {error && <Typography role="alert">{error}</Typography>}
+      {!selected && <Typography>{t.empty}</Typography>}
       {selected && !item && !error && <output>{t.loading}</output>}
       {item && (
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="min-w-0 space-y-8">
             <section className="space-y-3">
-              <p className="text-accent text-xs font-semibold tracking-wide">
+              <Typography type="body-xs" weight="semibold" className="text-accent tracking-wide">
                 {item.private ? t.private : t.draft} · {item.question.jenis}
-              </p>
-              <h2 className="text-xl font-semibold">{item.question.pertanyaan}</h2>
-              <p className="text-muted text-xs">
+              </Typography>
+              <Typography.Heading level={2} className="text-xl">
+                {item.question.pertanyaan}
+              </Typography.Heading>
+              <Typography type="body-xs" color="muted">
                 {item.corpusVersion} ·{" "}
                 {item.answer.model === "agent-draft" ? t.example : t.modes[item.answer.mode]}
-              </p>
+              </Typography>
             </section>
             <section className="space-y-4">
-              <h3 className="font-semibold">{t.answer}</h3>
+              <Typography.Heading level={3} className="text-base">
+                {t.answer}
+              </Typography.Heading>
               {item.answer.model === "agent-draft" && (
-                <p className="text-muted text-sm">{t.exampleHint}</p>
+                <Typography type="body-sm" color="muted">
+                  {t.exampleHint}
+                </Typography>
               )}
-              <p className="whitespace-pre-wrap leading-relaxed">
+              <Typography className="whitespace-pre-wrap">
                 {item.answer.text || t.noAnswer}
-              </p>
+              </Typography>
               {item.invalidCitations > 0 && (
-                <p role="alert" className="text-danger">
+                <Typography className="text-danger" role="alert">
                   {t.invalid}
-                </p>
+                </Typography>
               )}
               <Sources items={item.citations} />
             </section>
             <section className="border-separator space-y-3 border-t pt-6">
-              <h3 className="font-semibold">{t.key}</h3>
+              <Typography.Heading level={3} className="text-base">
+                {t.key}
+              </Typography.Heading>
               <ul className="list-disc space-y-2 ps-5">
                 {item.question.poin_kunci.map((p, i) => (
                   <li key={i}>{p}</li>
                 ))}
               </ul>
-              <p className="text-muted text-sm">{item.question.catatan}</p>
+              <Typography type="body-sm" color="muted">
+                {item.question.catatan}
+              </Typography>
             </section>
             <section className="space-y-4">
-              <h3 className="font-semibold">{t.sources}</h3>
+              <Typography.Heading level={3} className="text-base">
+                {t.sources}
+              </Typography.Heading>
               <Sources items={item.sources} />
             </section>
             <section className="border-separator space-y-3 border-t pt-6">
-              <h3 className="font-semibold">{t.past}</h3>
+              <Typography.Heading level={3} className="text-base">
+                {t.past}
+              </Typography.Heading>
               {item.reviews.length ? (
                 item.reviews.map((r, i) => (
                   <div className="text-sm" key={i}>
-                    <p className="font-medium">
+                    <Typography weight="medium">
                       {r.reviewer_name} ·{" "}
                       {r.verdict ?? (r.question_verdict && t.approvals[r.question_verdict])}
-                    </p>
-                    <p>{r.reason}</p>
+                    </Typography>
+                    <Typography type="body-sm">{r.reason}</Typography>
                   </div>
                 ))
               ) : (
-                <p className="text-muted text-sm">{t.noReviews}</p>
+                <Typography type="body-sm" color="muted">
+                  {t.noReviews}
+                </Typography>
               )}
             </section>
           </div>
           <aside className="bg-surface border-border space-y-5 rounded-2xl border p-5">
-            <p className="text-muted text-sm leading-relaxed">{t.rubric}</p>
+            <Typography type="body-sm" color="muted">
+              {t.rubric}
+            </Typography>
             {item.stale && (
-              <p role="alert" className="text-danger text-sm">
+              <Typography type="body-sm" className="text-danger" role="alert">
                 {t.stale}
-              </p>
+              </Typography>
             )}
             <ReviewForm key={item.id} item={item} onSaved={() => setVersion((v) => v + 1)} />
           </aside>
@@ -320,8 +338,12 @@ export function ReviewClient({ initialItems }: { initialItems: ReviewSummary[] }
         <a href={`/api/review/export?offset=${offset}`} className="text-accent underline">
           {t.export}
         </a>
-        <p>{t.exportHint}</p>
-        <p>{t.retention}</p>
+        <Typography type="body-xs" color="muted">
+          {t.exportHint}
+        </Typography>
+        <Typography type="body-xs" color="muted">
+          {t.retention}
+        </Typography>
       </footer>
     </div>
   );

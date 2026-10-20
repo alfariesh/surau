@@ -6,6 +6,7 @@ import NextLink from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Book } from "./book";
+import { Typography } from "@heroui/react";
 
 // Rak putar (BookRing): buku berdiri melingkar dengan punggung menghadap keluar; buku terdepan
 // berputar menghadap pembaca dan maju, seperti ditarik dari rak. Diputar dengan seret (momentum +
@@ -550,9 +551,9 @@ function Ring({
           </div>
         </div>
       </div>
-      <p aria-atomic="true" aria-live="polite" className="sr-only">
+      <Typography className="sr-only" aria-atomic="true" aria-live="polite">
         {`${current.label}, ${active + 1} ${ofLabel} ${count}`}
-      </p>
+      </Typography>
     </section>
   );
 }

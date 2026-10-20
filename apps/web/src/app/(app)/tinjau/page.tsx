@@ -5,6 +5,8 @@ import { getEnv } from "../../../lib/cloudflare";
 import { reviewIdentity } from "../../../lib/review-auth";
 import { ReviewClient } from "../../../components/review/review-client";
 import { reviewText as t } from "../../../i18n/review";
+import { Typography } from "@heroui/react";
+import { PageTitle } from "../../../components/page-title";
 
 export const metadata: Metadata = { title: t.title, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -18,8 +20,10 @@ export default async function ReviewPage() {
   if (!identity)
     return (
       <section className="mx-auto max-w-xl space-y-4 px-4 py-12">
-        <h1 className="text-2xl font-semibold">{t.denied}</h1>
-        <p>{t.deniedBody}</p>
+        <Typography.Heading level={1} className="text-2xl">
+          {t.denied}
+        </Typography.Heading>
+        <Typography>{t.deniedBody}</Typography>
         <a className="text-accent underline" href="https://surau.org/tinjau">
           {t.login}
         </a>
@@ -35,9 +39,11 @@ export default async function ReviewPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6">
       <header className="space-y-2">
-        <p className="text-accent text-sm">{t.eyebrow}</p>
-        <h1 className="text-3xl font-semibold tracking-tight">{t.title}</h1>
-        <p className="text-muted">{t.intro}</p>
+        <Typography type="body-sm" className="text-accent">
+          {t.eyebrow}
+        </Typography>
+        <PageTitle>{t.title}</PageTitle>
+        <Typography color="muted">{t.intro}</Typography>
       </header>
       <ReviewClient initialItems={items} />
     </div>

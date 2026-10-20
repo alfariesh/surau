@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { BookOpen01 } from "../../../../icons";
-import { Breadcrumbs, Card } from "@heroui/react";
+import { Breadcrumbs, Card, Typography } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 
@@ -13,6 +13,7 @@ import { TocTree } from "../../../../components/reader/toc-tree";
 import { id } from "../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../lib/layout";
 import { loadToc, loadWork } from "../../../../lib/reader/data";
+import { PageTitle } from "../../../../components/page-title";
 
 const t = id.reader;
 
@@ -71,20 +72,18 @@ export default async function WorkPage({ params }: Props) {
           <WorkCover textured width={{ xs: 150, sm: 168, md: 196 }} work={work} />
         )}
         <div className="flex min-w-0 flex-col gap-3">
-          <h1 className="text-foreground flex flex-col items-start gap-1 text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
+          <PageTitle className="flex flex-col items-start gap-1">
             <span>{title}</span>
-            <ArabicInline className="text-muted text-[1.75rem] font-normal">
-              {work.title_ar}
-            </ArabicInline>
-          </h1>
+            <ArabicInline className="text-muted text-3xl font-normal">{work.title_ar}</ArabicInline>
+          </PageTitle>
           {work.author ? (
-            <p className="text-foreground text-base">
+            <Typography>
               {t.by} {work.author.name_id ?? work.author.name_ar}{" "}
               <ArabicInline className="text-muted">{work.author.name_ar}</ArabicInline>
               {work.author.death_hijri ? (
                 <span className="text-muted"> · {t.deathHijri(work.author.death_hijri)}</span>
               ) : null}
-            </p>
+            </Typography>
           ) : null}
           {start ? (
             <div>
@@ -100,9 +99,9 @@ export default async function WorkPage({ params }: Props) {
       {/* Desktop: daftar isi di kolom utama, info edisi di samping. Ponsel: edisi sesudahnya. */}
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-10">
         <section aria-labelledby="judul-daftar-isi" className="flex flex-col gap-3">
-          <h2 className="text-foreground text-xl font-semibold" id="judul-daftar-isi">
+          <Typography.Heading level={2} id="judul-daftar-isi" className="text-xl">
             {t.tocHeading}
-          </h2>
+          </Typography.Heading>
           <TocTree items={toc} />
         </section>
         <aside aria-label={t.editionsLabel}>

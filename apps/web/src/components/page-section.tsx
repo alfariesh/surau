@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Typography } from "@heroui/react";
 
 /** Bagian halaman teks (Tentang, Lisensi): judul h2 + isi, dengan jangkar `#<id>`. */
 export function PageSection({
@@ -16,9 +17,9 @@ export function PageSection({
       className="flex scroll-mt-24 flex-col gap-3"
       id={sectionId}
     >
-      <h2 className="text-foreground text-xl font-semibold" id={`judul-${sectionId}`}>
+      <Typography.Heading level={2} id={`judul-${sectionId}`} className="text-xl">
         {heading}
-      </h2>
+      </Typography.Heading>
       {children}
     </section>
   );

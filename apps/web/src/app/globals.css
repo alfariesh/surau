@@ -49,6 +49,7 @@
 @import "@heroui/styles/components/tooltip.css" layer(components);
 @import "@heroui/styles/components/select.css" layer(components);
 @import "@heroui/styles/components/kbd.css" layer(components);
+@import "@heroui/styles/components/typography.css" layer(components);
 @import "@heroui/styles/components/scroll-shadow.css" layer(components);
 
 @import "@heroui/styles/themes/default" layer(theme);
@@ -86,9 +87,9 @@
 
 @source "../**/*.{ts,tsx}";
 
-/* Font dari next/font (layout.tsx): --font-jakarta (UI) dan --font-naskh (Arab). */
+/* Font dari next/font (layout.tsx): --font-harmony (UI) dan --font-naskh (Arab). */
 @theme inline {
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-harmony), ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
@@ -505,7 +506,7 @@ h2.reader-heading-minor {
   display: inline-block;
   margin-inline: 0.25em;
   padding-inline: 0.45em;
-  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-harmony), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.55em;
   line-height: 1.7;
   vertical-align: middle;
