@@ -7,15 +7,22 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+import type Anthropic from "@anthropic-ai/sdk";
+
 import {
   budgetProblem,
   pendingRequests,
   pendingUsd,
+  plannedRequest,
   readAccepted,
+  readSubmitting,
+  reconcile,
   rebuild,
   retryModel,
   spentUsd,
+  submit,
   submittable,
+  unreconciledProblem,
   unresolved,
 } from "./batch.ts";
 import type { Accepted } from "./batch.ts";
@@ -570,5 +577,118 @@ describe("pagu anggaran (#62)", () => {
     const dir = setup(undefined);
     expect(pendingUsd(dir)).toEqual({ usd: 0, unknown: 1 });
     expect(budgetProblem(dir, 1, true, 100)).toMatch(/tanpa perkiraan biaya/);
+  });
+});
+
+describe("tanda terima pengiriman (#63)", () => {
+  type Listed = { id: string; created_at: string; total: number };
+  const fakeClient = (opts: { create?: () => Promise<unknown>; list?: Listed[] }) => {
+    const calls = { create: 0 };
+    const client = {
+      messages: {
+        batches: {
+          create: async () => {
+            calls.create++;
+            if (opts.create === undefined) throw new Error("create tidak diharapkan");
+            return opts.create();
+          },
+          list: async function* () {
+            for (const b of opts.list ?? []) {
+              yield {
+                id: b.id,
+                created_at: b.created_at,
+                request_counts: {
+                  processing: b.total,
+                  succeeded: 0,
+                  errored: 0,
+                  canceled: 0,
+                  expired: 0,
+                },
+              };
+            }
+          },
+        },
+      },
+    } as unknown as Anthropic;
+    return { client, calls };
+  };
+  const plan = () =>
+    pendingRequests(work, accepted(), 1)
+      .slice(0, 2)
+      .map((r) => ({ ...r, est_usd: 1.5 }));
+
+  /** Kirim yang timeout: catatan tertinggal, tidak ada batch tercatat. */
+  async function timedOut() {
+    const dir = mkdtempSync(join(tmpdir(), "surau-terima-"));
+    const { client } = fakeClient({
+      create: async () => {
+        throw new Error("timeout");
+      },
+    });
+    await expect(submit(client, dir, plan(), "r1")).rejects.toThrow("timeout");
+    return dir;
+  }
+
+  test("POST gagal → catatan tetap ada, ikut pagu, dan kiriman berikutnya ditolak tanpa POST", async () => {
+    const dir = await timedOut();
+    expect(readBatches(dir)).toEqual([]);
+    expect(readSubmitting(dir)).toMatchObject({ requests: 2, est_usd: 3, name: "01-translation" });
+    expect(pendingUsd(dir).usd).toBe(3);
+    expect(unreconciledProblem(dir)).toMatch(/pnpm llm reconcile/);
+    const again = fakeClient({ create: async () => ({ id: "b-x", created_at: "x" }) });
+    await expect(submit(again.client, dir, plan(), "r1")).rejects.toThrow(/reconcile/);
+    expect(again.calls.create).toBe(0);
+  });
+
+  test("reconcile: batch yang cocok di server dicatat; request dipindah ke requests/<id>.jsonl", async () => {
+    const dir = await timedOut();
+    const started = Date.parse(readSubmitting(dir)?.started_at ?? "");
+    const at = (ms: number) => new Date(started + ms).toISOString();
+    const { client } = fakeClient({
+      list: [
+        { id: "b-lain-jumlah", created_at: at(2_000), total: 5 },
+        { id: "b-cocok", created_at: at(1_000), total: 2 },
+        { id: "b-lama", created_at: at(-3_600_000), total: 2 },
+      ],
+    });
+    const r = await reconcile(client, dir, started + 10_000);
+    expect(r).toMatchObject({ status: "adopted", record: { id: "b-cocok", requests: 2 } });
+    expect(readSubmitting(dir)).toBeNull();
+    expect(readBatches(dir).map((b) => b.id)).toEqual(["b-cocok"]);
+    expect(pendingUsd(dir)).toEqual({ usd: 3, unknown: 0 });
+  });
+
+  test("reconcile: tidak ada di server → dilepas (setelah 2 menit); lebih dari satu → ambigu", async () => {
+    const dir = await timedOut();
+    const started = Date.parse(readSubmitting(dir)?.started_at ?? "");
+    const empty = fakeClient({ list: [] }).client;
+    expect(await reconcile(empty, dir, started + 30_000)).toEqual({ status: "too-early" });
+    expect(await reconcile(empty, dir, started + 180_000)).toEqual({ status: "released" });
+    expect(unreconciledProblem(dir)).toBeNull();
+
+    const dir2 = await timedOut();
+    const s2 = Date.parse(readSubmitting(dir2)?.started_at ?? "");
+    const two = fakeClient({
+      list: [
+        { id: "b-1", created_at: new Date(s2 + 1_000).toISOString(), total: 2 },
+        { id: "b-2", created_at: new Date(s2 + 2_000).toISOString(), total: 2 },
+      ],
+    }).client;
+    expect(await reconcile(two, dir2, s2 + 180_000)).toEqual({
+      status: "ambiguous",
+      ids: ["b-1", "b-2"],
+    });
+    expect(readSubmitting(dir2)).not.toBeNull();
+  });
+
+  test("POST berhasil → tercatat dan catatan dilepas", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "surau-terima-"));
+    const { client } = fakeClient({
+      create: async () => ({ id: "b-ok", created_at: "2026-10-20T00:00:00Z" }),
+    });
+    const made = await submit(client, dir, plan(), "r1");
+    expect(made.map((b) => b.id)).toEqual(["b-ok"]);
+    expect(readSubmitting(dir)).toBeNull();
+    expect(readJsonl(join(dir, "requests", "b-ok.jsonl"), plannedRequest)).toHaveLength(2);
   });
 });
