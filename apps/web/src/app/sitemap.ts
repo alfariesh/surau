@@ -32,7 +32,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
   if (!readerEnabled(env)) return entries;
 
-  entries.push({ url: `${base}/kitab` });
+  // /cari ikut tertutup bila pembaca nonaktif (notFound), jadi dicantumkan di sini, bukan di atas.
+  entries.push({ url: `${base}/kitab` }, { url: `${base}/cari` });
   const { works } = await listWorks(env.CORPUS_DB);
   for (const work of works) {
     const edition = work.editions.find((e) => e.is_default);

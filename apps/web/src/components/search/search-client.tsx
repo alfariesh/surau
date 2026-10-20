@@ -146,9 +146,10 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tanpa JS: formulir GET biasa ke /cari?q=. */}
+      {/* Tanpa JS: formulir GET biasa ke /cari?q=, filter bagian ikut lewat input tersembunyi (#76). */}
       <search>
         <form action="/cari" className="flex flex-col gap-3" method="get" onSubmit={submit}>
+          {section !== null ? <input name="bagian" type="hidden" value={section} /> : null}
           <div className="flex items-end gap-2">
             <SearchField
               fullWidth

@@ -30,6 +30,7 @@ import { citeParts } from "../../../../../../lib/reader/cite";
 import { loadPage, loadToc } from "../../../../../../lib/reader/data";
 import { previewSample } from "../../../../../../lib/reader/preview";
 import { splitPassage } from "../../../../../../lib/reader/segments";
+import { OPEN_GRAPH_BASE } from "../../../../../../lib/site";
 import {
   activeTocIds,
   headingPassages,
@@ -68,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: t.pageMetaTitle(bab, title, citation.juz, citation.page_no),
     description: t.pageMetaDescription(title, author, citation.juz, citation.page_no),
     alternates: { canonical: citation.permalink },
-    openGraph: { type: "article", url: citation.permalink },
+    openGraph: { ...OPEN_GRAPH_BASE, type: "article", url: citation.permalink },
   };
 }
 

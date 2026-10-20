@@ -1493,4 +1493,6 @@ Kedua jalur ini berada di luar zona `surau.org`, sehingga pagar tingkat zona (WA
 
 **Sisa yang diketahui:** Version URL **web** produksi (`<versi>-surau-web…workers.dev`) masih melayani situs. Web tidak boleh memakai middleware (ADR-003), jadi penjaga host seperti di MCP tidak dipasang. Cloudflare otomatis menambah `X-Robots-Tag: noindex` di URL Preview `workers.dev`, dan sitemap kini selalu menunjuk `surau.org`. Bila perlu ditutup penuh, pemilik bisa menyalakan Cloudflare Access untuk Version/Preview URL di dashboard (tab Domains Worker). Dengan begitu Preview per PR juga butuh login.
 
+**Tambahan 2026-10-20 (#76):** web mengirim `Strict-Transport-Security: max-age=31536000` dari `next.config.ts`; sebelumnya tidak aktif di edge. Tanpa `includeSubDomains`, karena isi zona DNS belum diperiksa: satu subdomain yang hanya HTTP akan terkunci setahun. Tanpa `preload`, karena sulit ditarik. Header ini tidak ikut pada berkas `public/` (Static Assets), tetapi satu respons HTML sudah cukup bagi peramban.
+
 **Tinjau ulang bila:** Cloudflare memisahkan setelan Version URL dari Preview URL; atau web mendapat titik masuk Worker sendiri (pembungkus OpenNext) tempat penjaga host bisa dipasang.

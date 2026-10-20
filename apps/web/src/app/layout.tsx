@@ -7,7 +7,7 @@ import Script from "next/script";
 
 import { id } from "../i18n/id";
 import { READER_SCALE_SCRIPT } from "../lib/reader/scale";
-import { SITE_URL } from "../lib/site";
+import { OPEN_GRAPH_BASE, SITE_URL } from "../lib/site";
 
 import { Providers } from "./providers";
 
@@ -73,9 +73,8 @@ export const metadata: Metadata = {
   description: id.meta.description,
   applicationName: id.meta.siteName,
   openGraph: {
+    ...OPEN_GRAPH_BASE,
     type: "website",
-    locale: "id_ID",
-    siteName: id.meta.siteName,
     title: id.meta.title,
     description: id.meta.description,
     url: "/",

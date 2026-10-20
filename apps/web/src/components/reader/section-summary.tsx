@@ -20,10 +20,16 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
   const textRef = useRef<HTMLParagraphElement>(null);
   const textId = useId();
 
-  // Tombol hanya muncul bila teksnya memang lebih dari dua baris.
+  // Tombol hanya muncul bila teksnya memang lebih dari dua baris. Diukur ulang saat ukuran elemen
+  // berubah (jendela menyempit, skala teks dari panel Tampilan), bukan hanya saat pasang (#76).
   useLayoutEffect(() => {
     const el = textRef.current;
-    if (el !== null && !expanded) setClamped(el.scrollHeight > el.clientHeight + 1);
+    if (el === null || expanded) return;
+    const measure = () => setClamped(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [expanded]);
 
   if (summary.review_status === "rejected") return null;
