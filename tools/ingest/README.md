@@ -78,7 +78,7 @@ Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah s
 | Terjemahan/ringkasan AI: unit kerja, batch, validasi, laporan, pemuatan ke `translation`/`summary` | `src/llm/*.ts` (S13) |
 | SQL D1 (≤90 KB/statement, tanpa BEGIN/COMMIT), `.sqlite` dari migrasi yang sama | `src/sql.ts`, `src/build-sqlite.ts` |
 | Orkestrasi, CLI, muat ke D1 | `src/pipeline.ts`, `src/cli.ts`, `src/load.ts` |
-| D1 remote: pembungkus wrangler, smoke, build, binding produksi, promote, QA sampel | `src/d1.ts`, `src/corpus.ts`, `src/promote.ts`, `src/qa-sample.ts`, `src/qa.ts` |
+| D1 remote: pembungkus wrangler, smoke, build, binding produksi, promote, QA sampel | `src/d1.ts`, `src/corpus.ts`, `src/promote.ts` (keputusan murni yang teruji: `src/promote-plan.ts`), `src/qa-sample.ts`, `src/qa.ts` |
 | Konfigurasi per kitab (ID, slug, harapan validasi, pin OpenITI) | `src/works/ihya.ts` |
 
 Build deterministik: dua build pada commit yang sama menghasilkan sha256 yang sama (`built_at` = `SOURCE_DATE_EPOCH` atau tanggal commit HEAD).
