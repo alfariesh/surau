@@ -9,7 +9,7 @@
 // potongan dengan catatan kakinya. Batas halaman cetak didahulukan bila jatuh di rentang
 // 3,5–5 ribu token; bila tidak ada, potongan diisi sampai mendekati 5 ribu dan halaman terbelah di
 // antara blok. Di dalam satu potongan, setiap halaman tampil badan dulu, lalu catatan kakinya.
-import { getSectionPassages, getTocNode, listTocNodes } from "@surau/db";
+import { getSectionPassages, getTocNode } from "@surau/db";
 import type { D1Db, PassageWithPageRow } from "@surau/db";
 
 import { loadCiteContext } from "./citation.ts";
@@ -19,6 +19,7 @@ import { toPassages } from "./passages.ts";
 import { readSectionInput } from "./schema.ts";
 import type { Passage, SectionView } from "./schema.ts";
 import { tocAncestors, tocNodeRef, tocTree } from "./toc.ts";
+import { tocNodesOf } from "./toc-memo.ts";
 import {
   SECTION_MAX_TOKENS,
   SECTION_MIN_TOKENS,
@@ -154,7 +155,7 @@ export async function readSectionWithLimit(
 
   const [cite, tocRows, rows] = await Promise.all([
     loadCiteContext(db, node.edition_id),
-    listTocNodes(db, node.edition_id),
+    tocNodesOf(db, node.edition_id),
     getSectionPassages(
       db,
       node.id,

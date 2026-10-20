@@ -1,7 +1,6 @@
 // get_table_of_contents: pohon daftar isi satu edisi, dipotong pada kedalaman tertentu supaya
 // keluaran MCP tetap kecil (Ihya utuh = 313 node). `child_count` memberi tahu bahwa ada anak
 // yang tidak ikut dikirim, sehingga pemanggil bisa turun lewat `nodeId`.
-import { listTocNodes } from "@surau/db";
 import type { D1Db, TocNodeWithStartRow } from "@surau/db";
 
 import { loadCiteContext } from "./citation.ts";
@@ -10,6 +9,7 @@ import { NotFound, parseInput } from "./errors.ts";
 import { sectionPermalink } from "./permalink.ts";
 import { getTocInput } from "./schema.ts";
 import type { TocNode, TocNodeRef, TocView } from "./schema.ts";
+import { tocNodesOf } from "./toc-memo.ts";
 
 /** Pohon daftar isi sebuah edisi dalam memori (anak urut `ord`). */
 export interface TocTree {
@@ -76,7 +76,7 @@ export async function getToc(
   });
   const [cite, rows] = await Promise.all([
     loadCiteContext(db, input.edition_id),
-    listTocNodes(db, input.edition_id),
+    tocNodesOf(db, input.edition_id),
   ]);
   const tree = tocTree(rows);
   let start: TocNodeWithStartRow[];
