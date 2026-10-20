@@ -14,9 +14,11 @@ export const NORM_VERSION = 1;
 
 export interface NormalizeOptions {
   /**
-   * ؤ → و dan ئ → ي (default `true`). Ejaan kursi hamzah tidak konsisten antarcetakan
-   * (مسئول/مسؤول, شيئا/شيءا), jadi untuk pencarian keduanya disamakan dengan huruf kursinya.
-   * Hamzah lepas (ء) dan hamzah di atas alif (أ → ا) tetap ditangani terpisah.
+   * ؤ → و dan ئ → ي (default `true`): hamzah di atas kursi disamakan dengan huruf kursinya.
+   * Ini TIDAK menyamakan ejaan kursi yang berbeda antarcetakan: مسئول → مسيول dan مسؤول → مسوول
+   * tetap berbeda, begitu juga شيئا → شييا dan شيءا (#77). Menyamakannya butuh aturan baru
+   * (`NORM_VERSION` naik + reindex, diputuskan di ADR). Hamzah lepas (ء) dan hamzah di atas alif
+   * (أ → ا) ditangani terpisah.
    */
   hamzaSeats?: boolean;
   /** Buang penanda catatan kaki `(١)`/`(12)` di badan teks (default `true`); menjadi pemisah. */
@@ -274,7 +276,9 @@ export function toRawSpan(
     throw new RangeError(`span normal tidak valid: [${nStart}, ${nEnd}) dari ${n.map.length}`);
   }
   const rStart = n.map[nStart] as number;
-  let rEnd = (n.map[nEnd - 1] as number) + 1;
+  // Karakter mentah terakhir bisa di luar BMP (2 unit UTF-16): jangan memotong pasangan surrogate (#71).
+  const last = n.map[nEnd - 1] as number;
+  let rEnd = last + (raw.codePointAt(last)! > 0xffff ? 2 : 1);
   while (rEnd < raw.length && isTrailingMark(raw, rEnd))
     rEnd += raw.codePointAt(rEnd)! > 0xffff ? 2 : 1;
   return [rStart, rEnd];

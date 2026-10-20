@@ -29,6 +29,9 @@ function rng(seed: number): () => number {
 
 const PIECES = [
   ..."ابتثجحخدذرسشصضطظعغفقكلمنهوي".split(""),
+  // Huruf di luar BMP (Arabic Mathematical Alphabetic Symbols): span mentah tidak boleh memotong
+  // pasangan surrogate (#71).
+  "\u{1EE01}",
   ..."ءآأإؤئىةٱ".split(""),
   "\u064E",
   "\u064F",

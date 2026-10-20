@@ -161,6 +161,24 @@ describe("searchText", () => {
     );
     await expect(searchText(db, "نص", { limit: 0 })).rejects.toBeInstanceOf(InvalidQuery);
     await expect(searchText(db, "نص", { limit: 51 })).rejects.toThrow(/limit/);
+    // Kueri Indonesia kepanjangan: pesan publik berbahasa Inggris, seperti jalur Arab (#77).
+    const long = searchText(
+      db,
+      Array(17)
+        .fill("sabar")
+        .map((w, i) => `${w}${i}`)
+        .join(" "),
+    );
+    await expect(long).rejects.toBeInstanceOf(InvalidQuery);
+    await expect(
+      searchText(
+        db,
+        Array(17)
+          .fill("sabar")
+          .map((w, i) => `${w}${i}`)
+          .join(" "),
+      ),
+    ).rejects.toThrow("Invalid query: at most 16 words");
   });
 
   test("expand menerima bentuk bersufiks (awalan stem); tanpa expand tidak", async () => {

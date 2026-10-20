@@ -21,6 +21,7 @@ import {
 import type { D1Db, FusedSearchRow, SearchPassageRow } from "@surau/db";
 import {
   FTS_MAX_TOKENS,
+  LATIN_MAX_TERMS,
   LATIN_NORM_VERSION,
   NORM_VERSION,
   findLatinSpans,
@@ -242,7 +243,11 @@ function latinPlan(query: string): LatinQueryPlan | null {
   try {
     return planLatinQuery(query);
   } catch (error) {
-    if (error instanceof RangeError) throw new InvalidQuery(`Invalid query: ${error.message}`);
+    // Pesan publik CoreError berbahasa Inggris (errors.ts), seperti jalur Arab; pesan RangeError
+    // @surau/text berbahasa Indonesia tidak diteruskan (#77).
+    if (error instanceof RangeError) {
+      throw new InvalidQuery(`Invalid query: at most ${LATIN_MAX_TERMS} words`);
+    }
     throw error;
   }
 }
