@@ -333,7 +333,8 @@ export function AnswerView({
   cached: boolean;
 }) {
   const footSpans = result.hadith.map((h) => h.footnote);
-  const kutipan = useKutipan([...result.citations, ...footSpans, ...result.search]);
+  // Takhrij klaim didahulukan supaya selalu termuat walau kueri dibatasi 20 rentang.
+  const kutipan = useKutipan([...footSpans, ...result.citations, ...result.search]);
   const cari = `/cari?q=${encodeURIComponent(question)}`;
   const notFound = result.outcome === "not_found";
   const fallback = result.outcome === "fallback";

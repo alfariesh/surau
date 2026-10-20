@@ -4,7 +4,7 @@
 // model di luar sitasi dibuang dan dihitung.
 import type { TextCitation } from "@anthropic-ai/sdk/resources/messages";
 
-import { ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
+import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
 import { ANSWER_FALSE_PREMISE } from "../../prompts/answer-v3.ts";
 import type { AnswerDoc } from "./documents.ts";
 
@@ -118,6 +118,22 @@ export function isNotFound(text: string): boolean {
   return refusalKind(text) !== null;
 }
 
+/** Pengganti kalimat status hadits yang tidak didukung takhrij tersitasi (aturan teks-arab no. 6). */
+export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ada takhrij al-'Iraqi yang tersitasi untuk kalimat ini).`;
+
+/**
+ * Pengganti bila jawaban SUDAH menyitasi takhrij di tempat lain (peninjau S21: "belum diketahui"
+ * keliru bila takhrijnya ada di kutipan): ringkasan kalimat itu tidak ditampilkan, pembaca
+ * diarahkan ke teks takhrij asli.
+ */
+export const HADITH_SEE_TAKHRIJ = `${ANSWER_HADITH_PREFIX} lihat teks takhrij al-'Iraqi pada kutipan (ringkasan status di kalimat ini tidak menyitasi takhrij, jadi tidak ditampilkan).`;
+
+const NOTICES = [HADITH_UNKNOWN, HADITH_SEE_TAKHRIJ] as const;
+/** Pemberitahuan pengganti dimulai di `pos`: bukan label dan bukan pernyataan (tidak diperiksa ulang). */
+const noticeAt = (text: string, pos: number) => NOTICES.some((n) => text.startsWith(n, pos));
+const withoutNotices = (line: string) =>
+  NOTICES.reduce((acc, n) => acc.replaceAll(n, " ".repeat(n.length)), line);
+
 export interface HadithStatement {
   /** Status ringkas berbahasa Latin, ≤120 karakter (label AI, `ai_extracted`): isi KALIMAT itu saja. */
   status: string;
@@ -147,7 +163,8 @@ const LABEL_HEAD = "(?<![\\p{L}\\p{N}])(?:status|derajat|kualitas)";
  *   kurung, atau kutipan sebelum pemisah ("tersebut adalah sebagai berikut", "(menurut al-'Iraqi)");
  *   pemisah titik dua (biasa/lebar), "—", "–", "-" berspasi, atau akhir baris (baris label
  *   "**Status hadits**");
- * - "Status:"/"Statusnya:" tanpa kata hadits (wajib titik dua).
+ * - "Status:"/"Statusnya:" tanpa kata hadits (wajib titik dua). "Derajat:"/"Kualitas:" tanpa kata
+ *   hadits TIDAK, karena lazim untuk tingkatan amal ("tiga derajat: puasa umum, …").
  * Penanda tebal/miring hanya ikut bila menempel pada label ("**Status"), supaya penanda daftar "* "
  * tidak ikut terganti. Batas kata Unicode (garis bawah dianggap huruf oleh `\b`).
  */
@@ -156,7 +173,7 @@ const PREFIX_SOURCE =
   `${LABEL_HEAD}(?:${SP}+${WORD}){0,2}?${SP}+${HADITH_WORD}(?:-${HADITH_WORD})?(?:nya)?(?![\\p{L}\\p{N}])` +
   `(?:${SP}*,?${SP}+(?:\\([^()\\n]{0,80}\\)|"[^"\\n]{0,80}"|“[^”\\n]{0,80}”|${WORD})){0,8}?` +
   `${SP}*(?:[*_]{1,3}${SP}*)?(?:[:\\uFF1A]|[—–]|-(?=${SP})|(?=${SP}*\\r?(?:\\n|$)))` +
-  `|${LABEL_HEAD}(?:nya)?(?![\\p{L}\\p{N}])${SP}*(?:[*_]{1,3}${SP}*)?[:\\uFF1A]` +
+  `|(?<![p{L}p{N}])status(?:nya)?(?![p{L}p{N}])${SP}*(?:[*_]{1,3}${SP}*)?[:\uFF1A]` +
   `)(?:${SP}*[*_]{1,3})?`;
 const prefixRe = (flags: string) => new RegExp(PREFIX_SOURCE, flags);
 
@@ -214,9 +231,9 @@ const CITE_ABBREVIATIONS = new Set(["hr", "no", "h", "hlm", "j", "jil", "juz", "
 
 /**
  * Akhir kalimat TERDEKAT (untuk kepemilikan sitasi dan pemenggalan kalimat): tanda baca yang
- * diikuti akhir baris/teks, atau spasi + huruf besar/penanda pembuka — juga sesudah singkatan
- * seperti "saw." atau "dkk." — kecuali singkatan rujukan ("HR. Muslim"). Tidak pernah melewati
- * akhir konservatif.
+ * diikuti akhir baris/teks, atau spasi + huruf besar/penanda tebal/kutip pembuka — juga sesudah
+ * singkatan seperti "saw." atau "dkk." — kecuali singkatan rujukan ("HR. Muslim"). Kurung sesudah
+ * titik ("r.a. (w. 59 H)") bukan awal kalimat baru. Tidak pernah melewati akhir konservatif.
  */
 function nearestEnd(text: string, from: number, limit: number): number {
   const conservative = sentenceEnd(text, from, limit);
@@ -224,7 +241,7 @@ function nearestEnd(text: string, from: number, limit: number): number {
   re.lastIndex = from;
   for (let m = re.exec(text); m !== null && m.index < conservative; m = re.exec(text)) {
     if (/^[ \t\u00A0\r]*$/u.test(text.slice(m.index + 1, limit))) return m.index;
-    if (!/^[ \t\u00A0]+[\p{Lu}*_"“‘(]/u.test(text.slice(m.index + 1, m.index + 4))) continue;
+    if (!/^[ \t\u00A0]+[\p{Lu}*_"“‘]/u.test(text.slice(m.index + 1, m.index + 4))) continue;
     const word = /(\p{L}+)$/u.exec(text.slice(from, m.index))?.[1]?.toLowerCase();
     if (text[m.index] === "." && word !== undefined && CITE_ABBREVIATIONS.has(word)) continue;
     return m.index;
@@ -361,7 +378,7 @@ function itemsAfter(
     const nl = text.indexOf("\n", lineStart);
     const lineEnd = nl < 0 ? text.length : nl;
     const line = text.slice(lineStart, lineEnd);
-    if (lineStart >= limit || lineEnd > limit || prefixRe("iu").test(line)) break;
+    if (lineStart >= limit || lineEnd > limit || prefixRe("iu").test(withoutNotices(line))) break;
     at = lineEnd;
     if (isBlank(line)) {
       if (mode === "tight") break;
@@ -387,35 +404,42 @@ function itemsAfter(
  * Pernyataan status hadits di teks gabungan, satu per KALIMAT:
  * - kalimat sesudah label "Status hadits: …" (status = isi kalimat itu saja), ditambah kalimat
  *   berikutnya di baris yang sama yang memuat istilah penilaian;
- * - bila label berada di awal baris: butir/paragraf sesudahnya (lihat `itemsAfter`): kalimat
- *   pertama tiap butir selalu pernyataan, kalimat berikutnya bila memuat istilah penilaian.
- *   Kalimat pengantar ("sebagai berikut:") sebelum butir bukan pernyataan.
+ * - butir/paragraf sesudah label yang mengakhiri baris atau berupa pengantar, atau sesudah label di
+ *   awal baris (lihat `itemsAfter`): kalimat pertama tiap butir selalu pernyataan, kalimat
+ *   berikutnya bila memuat istilah penilaian. Kalimat pengantar ("sebagai berikut:") sebelum butir
+ *   bukan pernyataan.
  * Setiap pernyataan wajib menyitasi takhrijnya sendiri (`hadithCheck`).
  */
 export function hadithStatements(text: string): HadithStatement[] {
   const out: HadithStatement[] = [];
   const push = (start: number, from: number, s: Sentence) => {
+    if (noticeAt(text, s.start) || noticeAt(text, start)) return;
     const status = cleanStatus(text.slice(from, s.ownEnd));
     if (status !== "")
       out.push({ status: shortStatus(status), start, end: s.end, ownEnd: s.ownEnd });
   };
-  const prefixes = [...text.matchAll(prefixRe("giu"))].map((m) => ({
-    start: m.index,
-    bodyStart: m.index + m[0].length,
-  }));
+  const prefixes = [...text.matchAll(prefixRe("giu"))]
+    .filter((m) => !noticeAt(text, m.index))
+    .map((m) => ({ start: m.index, bodyStart: m.index + m[0].length }));
   prefixes.forEach((p, i) => {
     const nextPrefix = prefixes[i + 1]?.start ?? text.length;
     const nl = text.indexOf("\n", p.bodyStart);
     const lineEnd = Math.min(nl < 0 ? text.length : nl, nextPrefix);
-    const inline = text.slice(p.bodyStart, lineEnd);
+    const inline = withoutNotices(text.slice(p.bodyStart, lineEnd));
     const blank = isBlank(inline);
     const atLineStart = LINE_LEAD.test(
       text.slice(text.lastIndexOf("\n", p.start - 1) + 1, p.start),
     );
     const intro = !blank && isIntro(inline);
-    const items = atLineStart
-      ? itemsAfter(text, lineEnd, nextPrefix, blank ? "first" : intro ? "section" : "tight")
-      : [];
+    // Label yang mengakhiri baris atau berupa pengantar selalu membuka butir di bawahnya (juga
+    // "Adapun status hadits-hadits …:"); mode rapat hanya untuk label di awal baris, supaya awalan
+    // di dalam butir daftar tidak menelan butir saudaranya.
+    const items =
+      blank || intro
+        ? itemsAfter(text, lineEnd, nextPrefix, blank ? "first" : "section")
+        : atLineStart
+          ? itemsAfter(text, lineEnd, nextPrefix, "tight")
+          : [];
     if (!blank && !(intro && items.length > 0))
       sentencesIn(text, p.bodyStart, lineEnd).forEach((s, k) => {
         if (k === 0) push(p.start, p.bodyStart, s);
