@@ -73,7 +73,7 @@
 | 4 | S18 | Eval Jawab & tinjau | sebagian | 2026-10-19 · PR #48 · ADR-052 · teknis terpublikasi, D1 60 draf/18 privat; 60 ulasan agent selesai; T-24 manusia ditunda, S19 boleh lanjut (ADR-054) |
 | 4 | S19 | Pipeline Jawab | selesai | 2026-10-20 · PR #98 · ADR-064 · `surau-api` + staging, AI Gateway BYOK lolos uji, kutipan valid 100%, lokasi 76,5%, ±US$0,0026/jawaban; Jawab produksi mati sampai S20 |
 | 4 | S20 | Pengaman biaya | selesai | 2026-10-21 · PR #99 · ADR-065 · guard di `surau-api`, ledger + cron, `/admin`, `/privasi`; log otomatis ber-IP dimatikan (log lama habis ≤10-28); secret produksi T-14 menyusul |
-| 4 | S21 | UI Tanya & transparansi | belum | garis besar · lalu `/rilis 4` |
+| 4 | S21 | UI Tanya & transparansi | berjalan | 2026-10-21 · rinci · lalu `/rilis 4` |
 | 5–7 | – | Ruang al-Ghazali, Wiki, Kurikulum | belum | dirinci saat Fase 4 hampir selesai |
 | sisipan | X01 | Upgrade Next 16.4 + React 19.3 | selesai* | 2026-10-16 · PR #13 · Next 16.4.1, React 19.3.1, OpenNext 1.20.12 (ADR-030) · *log Preview tidak terbaca agent; log produksi setelah merge bersih (6 event ok, 0 error) |
 | sisipan | X02 | Mutu terjemahan AI + ayat sebelum rilis 2 | selesai | 2026-10-17 · PR #37 · lapisan koreksi tinjauan (27 paragraf), prompt `translate-passage@3`, ayat lintas paragraf (QS 54:55), korpus produksi `ihya-v6` (QA 30/30), $0,25 (ADR-047) · T-17 sampel 70% → 20/20 (bias) |

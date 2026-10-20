@@ -1,6 +1,6 @@
 # S21 · UI Tanya, transparansi biaya & rilis Fase 4
 
-> **Fase:** 4 · **Status:** belum (garis besar)
+> **Fase:** 4 · **Status:** berjalan (mulai 2026-10-21)
 > **Prasyarat:** S20 selesai · Tugas pemilik: review ustadz atas prompt, kebijakan penolakan, dan sampel jawaban (T-13)
 > **Perkiraan:** 1–2 percakapan agent
 
@@ -29,6 +29,19 @@ Halaman Tanya yang jujur: jawaban Indonesia dengan kartu kutipan Arab verbatim, 
 6. Eval final: `pnpm run eval:jawab` (berbayar, dengan izin) memenuhi target R4. Ustadz mereview prompt sistem, kebijakan penolakan, dan ≥20 sampel jawaban di `/tinjau`.
 7. E2E: tanya → jawaban dengan kutipan → klik kutipan membuka pembaca. Uji juga sakelar mati.
 8. Sarankan `/rilis 4`.
+
+## Langkah (rinci, 2026-10-21)
+
+Prasyarat: S20 selesai (PR #99, ADR-065). Pemilik menyetujui semua tindakan sesi ini di chat (2026-10-20 malam); biaya LLM sesi ini dibatasi agent **≤ US$0,50** (eval ulang + uji staging). Review ustadz (T-13/T-24) dan persetujuan tampilan oleh pemilik tidak bisa dikerjakan agent malam ini, jadi dua butir itu tetap terbuka.
+
+1. **Status hadits (wajib sebelum Jawab dibuka, ADR-064 butir 7):** deteksi toleran (Status/status, hadits/hadis, penanda tebal di dalam/luar, spasi sebelum titik dua), awalan + baris baru (status di baris berikutnya), singkatan (HR., w., r.a., saw., dkk., no., h., j.) tidak memotong kalimat, status yang tidak didukung takhrij diganti sampai akhir baris, pemasangan paragraf lebih ketat (paragraf yang menyitasi >1 paragraf badan wajib menyitasi takhrij sendiri), dan penahanan pratinjau dari gabungan teks (awalan yang terbelah di dua blok). Tes regresi; `JAWAB_PIPELINE_VERSION` naik; eval ulang 42 soal publik (berbayar kecil).
+2. **`GET /api/kutipan`** (web): teks Arab + label lokasi + permalink untuk rentang `{passage_id, char_start, char_end}` dari hasil Jawab, disalin kode dari DB dan diverifikasi (`resolveEvalSource`), plus terjemahan AI paragrafnya (berlabel). Maks 20 rentang, batas per klien.
+3. **`/tanya`** (klien, HeroUI OSS: TextArea, Button, Card, Chip, Alert): status Jawab → komposer → Turnstile `interaction-only` hanya bila server meminta (sitekey dari status) → SSE (`stage`, `block`, `reset`, `done`, `fallback`, `error`) → hasil. Penjelasan Indonesia per blok: blok bersitasi dengan penanda `[n]`, blok tanpa sitasi tampil redup dengan keterangan (ADR-064); kartu kutipan Arab dari DB (bukan Markdown). Label tetap "asisten riset, bukan pemberi fatwa" + saran bertanya ke ulama setempat untuk kasus pribadi. Status hadits: label "diekstrak AI" + teks takhrij asli dari DB; status sangat lemah/palsu diberi tanda jelas.
+4. **Keadaan khusus:** `not_found` (kalimat baku + hasil Cari), `fallback` (tidak terverifikasi/penyedia/anggaran/klien pergi → hasil Cari), galat sebelum stream (`disabled`, `not_configured`, `budget`, `quota_exceeded`, `rate_limited`, tantangan gagal) → pesan + tautan Cari dengan pertanyaan yang sama.
+5. **Laporkan jawaban keliru:** formulir kecil → `POST /api/feedback` jenis `answer`, pesan berisi komentar + pertanyaan + awal jawaban, disamarkan `redactPii` dan dipotong 2.000 karakter (persetujuan eksplisit pengguna saat melapor); tampil di `/admin`. Integrasi `/tinjau` (answer_log) ditunda dan dicatat.
+6. **`/transparansi`:** biaya AI bulan ini dan sebelumnya dari ledger (terpakai, perkiraan, jumlah pertanyaan berbiaya), plafon, biaya hosting tetap (Workers Paid US$5/bulan), prinsip tanpa iklan/paywall (klausul NC), dan cara mendukung.
+7. **Navigasi:** menu "Tanya" tetap "segera" di produksi sampai `/rilis 4`; halaman `/tanya` bisa dibuka langsung dan menampilkan keadaan "belum dibuka" bila rute produksi mati.
+8. **Uji:** tes unit/komponen, e2e Playwright `/tanya` (keadaan mati di Preview), dan uji manual ujung ke ujung di Preview dengan sakelar staging dinyalakan sementara (tantangan uji → cookie → jawaban → kartu kutipan → buka pembaca), lalu sakelar dimatikan lagi. Sarankan `/rilis 4` hanya bila syarat R4 terpenuhi (diperkirakan belum: lokasi dan kesetiaan di bawah target).
 
 ## Selesai bila
 
