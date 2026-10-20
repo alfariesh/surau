@@ -1292,6 +1292,31 @@ function currentSha(work: Work, customId: string): string | null {
 }
 
 /**
+ * custom_id yang belum lolos dan hanya pernah gagal dengan versi prompt LAMA (bukan penolakan
+ * peninjau): tidak ada di `unresolved`, tetapi juga belum lolos sampai `plan` + `submit` dijalankan
+ * dengan prompt saat ini (#70). Dipakai laporan supaya unit ini tidak hilang dari hitungan.
+ */
+export function awaitingReplan(work: Work, acc: Accepted): string[] {
+  const stuck = unresolved(work, acc);
+  const out = new Set<string>();
+  for (const f of acc.failures) {
+    if (stuck.has(f.custom_id) || f.reason === "review_rejected" || isCurrentPrompt(f)) continue;
+    const sha = currentSha(work, f.custom_id);
+    if (sha === null || f.source_sha256 !== sha) continue;
+    const parts = parseCustomId(f.custom_id);
+    if (parts === null) continue;
+    const done =
+      parts.kind === "passage"
+        ? acc.translations.get(parts.passageId)?.source_sha256 === sha
+        : parts.round === 1
+          ? acc.r1.get(f.custom_id)?.source_sha256 === sha
+          : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
+    if (!done) out.add(f.custom_id);
+  }
+  return [...out].sort();
+}
+
+/**
  * custom_id yang gagal untuk sumber saat ini dan belum lolos, dengan jumlah percobaan dan apakah
  * pernah ditolak model. Kegagalan untuk sumber lama (hash berbeda) tidak dihitung: unit itu
  * dijadwalkan ulang sebagai request baru oleh `plan`.

@@ -19,7 +19,7 @@ import { kemenagLookup, reviewHtml } from "./review.ts";
 import type { ReviewItem } from "./review.ts";
 import { llmDir, readBatches, writeText } from "./store.ts";
 import { buildWork, expectedIds, links } from "./work.ts";
-import { readAccepted, unresolved } from "./batch.ts";
+import { awaitingReplan, readAccepted, unresolved } from "./batch.ts";
 
 export const QA_SEED = 9473;
 export const QA_SIZE = 20;
@@ -67,6 +67,8 @@ export async function runReport(ctx: LlmContext): Promise<number> {
   // Penyebut cakupan = paragraf badan termasuk yang terblokir (sama dengan invarian validate.ts).
   const needed = work.units.size + work.blocked.length;
   const stuck = unresolved(work, acc);
+  // Gagal hanya dengan prompt lama (#70): menunggu `plan` + `submit` dengan prompt saat ini.
+  const replan = awaitingReplan(work, acc);
   const lastFailure = new Map(acc.failures.map((f) => [f.custom_id, f]));
   // Placeholder "berlebih" pada kegagalan terakhir paragraf yang belum lolos = tebakan model.
   const hints = [...stuck.keys()].flatMap((id) => {
@@ -147,8 +149,14 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     "",
     `Dibuat Claude Sonnet 5.5: ${num(sonnet)} (termasuk ${num(sonnetReview)} terjemahan ulang dari koreksi tinjauan, \`data/reviews/\`; sisanya percobaan terakhir sesudah dua kali gagal, atau refusal Haiku). Penolakan model (refusal): ${num(refusals)}. Terjemahan tanpa penanda catatan kaki (diterima, dicatat; takhrij tetap tertaut di teks Arab): ${num(markersMissing)}. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): ${num(work.blocked.length)}.`,
     "",
-    `## Belum lolos (${num(stuck.size)})`,
+    `## Belum lolos (${num(stuck.size + replan.length)})`,
     "",
+    ...(replan.length === 0
+      ? []
+      : [
+          `${num(replan.length)} unit hanya pernah gagal dengan versi prompt lama; mereka menunggu rencana ulang (\`pnpm llm plan\` lalu \`submit\`, berbayar) dan tidak dihitung sebagai percobaan prompt saat ini.`,
+          "",
+        ]),
     ...(stuck.size === 0
       ? ["Tidak ada."]
       : [

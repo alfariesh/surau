@@ -9,7 +9,10 @@ import { join } from "node:path";
 
 import type Anthropic from "@anthropic-ai/sdk";
 
+import { TRANSLATE_PROMPT } from "@surau/llm";
+
 import {
+  awaitingReplan,
   budgetProblem,
   pendingRequests,
   pendingUsd,
@@ -242,7 +245,17 @@ describe("ulangan", () => {
         (r) => r.custom_id,
       ),
     ).toContain("passage-10000001");
-    // Kegagalan dengan versi prompt SAAT INI tetap dihitung dan tetap di luar rencana.
+    // Unit yang hanya gagal di prompt lama tidak hilang dari laporan: menunggu rencana ulang.
+    expect(awaitingReplan(work, acc)).toEqual(["passage-10000001"]);
+    // Kegagalan dengan versi prompt SAAT INI tetap dihitung dan tetap di luar rencana, baik tanpa
+    // prompt_version (berkas lama) maupun dengan versi saat ini yang eksplisit.
+    const explicit = accepted({
+      failures: [
+        { ...fail("passage-10000001", "invalid:meta"), prompt_version: TRANSLATE_PROMPT.id },
+      ],
+    });
+    expect(unresolved(work, explicit).get("passage-10000001")?.attempts).toBe(1);
+    expect(awaitingReplan(work, explicit)).toEqual([]);
     const now = accepted({ failures: [fail("passage-10000001", "invalid:meta")] });
     expect(unresolved(work, now).get("passage-10000001")?.attempts).toBe(1);
     expect(pendingRequests(work, now, 1).map((r) => r.custom_id)).not.toContain("passage-10000001");
