@@ -1,6 +1,6 @@
 # S19 · Pipeline Jawab (`packages/llm` + `apps/api`)
 
-> **Fase:** 4 · **Status:** sebagian (2026-10-20; PR #98 belum di-merge, lihat Catatan hasil)
+> **Fase:** 4 · **Status:** selesai (2026-10-20; PR #98, ADR-064)
 > **Prasyarat:** teknis S18 selesai; T-24 manusia ditunda dan tidak menghambat pengembangan atas arahan pemilik (ADR-054), bukan kelulusan gerbang R4 · Tugas pemilik: T-11, dan bagian AI Gateway dari T-14 (kunci Anthropic di Provider Keys/BYOK, token gateway sebagai Worker secret)
 > **Perkiraan:** 2 percakapan agent
 
@@ -53,10 +53,10 @@ Izin pemilik di chat (2026-10-20): biaya LLM sesi ini **maksimal US$3**, termasu
 - [x] Validitas kutipan 100% di eval; metrik lain dicatat terhadap target R4
 - [x] Refusal dan error penyedia teruji (tes dengan mock), dengan degradasi ke Cari
 - [x] Biaya rata-rata per jawaban tercatat (target ±$0,002–0,003, [docs/08](../../docs/08-biaya.md))
-- [ ] STATUS, LOG, dan file sesi ini diperbarui
-- [ ] `pnpm verify` lolos; peninjau tanpa temuan blocker
+- [x] STATUS, LOG, dan file sesi ini diperbarui
+- [x] `pnpm verify` lolos; peninjau tanpa temuan blocker
 - [x] Teks Arab tidak pernah berasal dari model: tes membuktikan kutipan hanya dari DB (ID + offset) dan teks Arab buatan model dibuang
-- [ ] Produksi tidak bisa memicu biaya LLM sebelum S20: `/api/jawab` produksi mati dan `jawab_enabled` produksi tetap `0` (dibuktikan dengan request)
+- [x] Produksi tidak bisa memicu biaya LLM sebelum S20: `/api/jawab` produksi mati dan `jawab_enabled` produksi tetap `0` (dibuktikan dengan request)
 
 ## Di luar cakupan
 
@@ -66,8 +66,20 @@ Izin pemilik di chat (2026-10-20): biaya LLM sesi ini **maksimal US$3**, termasu
 
 ## Catatan hasil
 
-- **Belum selesai (batas pemakaian tercapai):** tinjauan ulang peninjau atas commit perbaikan dihentikan sebelum selesai; judge v5 (`s19-publik-v5-judge`) belum di-collect; PR #98 belum di-merge; verifikasi produksi pasca-merge (`/api/jawab` 404) dan secret `CF_AIG_TOKEN` untuk `surau-api` produksi (T-14) belum dilakukan.
-- Selesai: pipeline `packages/llm/src/jawab` (answer@5 + answer-route@2), Worker `surau-api` + `surau-api-staging`, `/api/jawab` web (mati di produksi), `answer_cache`, uji passthrough gateway 12/12 (ADR-064), uji ujung-ke-ujung Preview (stream, cache, not_found, staging dimatikan lagi), tes Worker refusal/galat/abort/status hadits.
-- Eval final (kode terakhir, ihya-v7, 42 publik): kutipan valid **100% (154/154)**, lokasi 67,6% (23/34), penolakan tepat 100% (8/8), tidak salah menolak 97,1%, tanpa pola fatwa 100%, **US$0,00258/jawaban**. Holdout v4 sekali: kutipan 100% (74/74). Judge v4 (belum terkalibrasi): kesetiaan 52,4%, atribusi 69,0%. Detail: ADR-064.
-- Biaya LLM S19 ±US$1,17 terhitung (+ judge v5 ±US$0,23 belum di-collect) dari izin ≤ US$3; termasuk ±US$0,15 terbuang di run yang terputus/dihentikan.
-- Berikutnya: collect judge v5, peninjau ulang, CI hijau → squash merge, cek produksi, pemilik pasang secret produksi.
+- **Dibuat:** pipeline `packages/llm/src/jawab` (routing `answer-route@2` atas daftar isi ter-cache → kandidat `searchText` RRF + pasangan takhrij → jawaban `answer@5` dengan Citations *custom content* → pemetaan blok ke `{passage_id, char_start, char_end}` + `cited_text` = DB + `verifyQuote` → hasil atau Cari); `core.answerPassages/answerToc`; repo `getPassagesByIds`, `getFootnoteRefsTo`; migrasi app 0003 `answer_cache`; Worker `surau-api` + `surau-api-staging` (Hono 4.13.13, SSE, tanpa alamat publik); `POST /api/jawab` web (mati di produksi); klien AI Gateway BYOK; `pnpm run jawab:gateway-check`; `eval:jawab answer`; `corpus:promote` mencakup apps/api; `deploy.yml` job `deploy-api` (+ `deploy-api-staging` terpisah).
+- **Bukti butir "Selesai bila":**
+  - ADR passthrough: ADR-064 butir 1 (12/12 sama, biaya tercatat di Analytics gateway, dikonfirmasi pemilik).
+  - Preview → produksi: web Preview memakai `previews.services` → `surau-api-staging`; uji ujung-ke-ujung `pr-98.surau.org/api/jawab` lolos (SSE bertahap, 7 sitasi, cache, `not_found`, status hadits). Keterbatasan: staging mengikuti `main` (ADR-064 butir 10).
+  - Validitas kutipan 100% di setiap run (final-3: 159/159; holdout v4: 74/74); metrik R4 lain di tabel ADR-064 (lokasi 76,5%, penolakan 100%, kesetiaan judge 39–52% belum terkalibrasi).
+  - Refusal/galat penyedia: tes Worker `apps/api/src/index.test.ts` (Haiku → Sonnet, dua kali refusal → Cari, 529/500 → Cari, unverified → Cari, abort).
+  - Biaya rata-rata **US$0,0026/jawaban** (final-3 US$0,00259).
+  - `pnpm verify` lolos (577 Node + 254 Workers sebelum perbaikan akhir; sesudahnya `pnpm test` 579 + 256, `pnpm check` bersih); peninjau tiga putaran, blocker (status hadits tanpa takhrij, prompt belum dieval, pratinjau status) diperbaiki dan dites.
+  - Teks Arab: tes `stripArabic` (harakat ikut), tes Worker memeriksa `result.text` tanpa huruf Arab dan setiap sitasi = potongan DB.
+  - Produksi: `jawab_enabled` `surau-app` = 0 dan `POST surau.org/api/jawab` = 404 (dicek dengan request, juga sesudah merge).
+- **Biaya LLM:** ±US$1,51 dari izin ≤ US$3 (rincian di LOG); ±US$0,15 terbuang di run terputus/dihentikan.
+- **Penyimpangan (ADR-064):** premis keliru memakai kalimat baku kedua; blok tanpa sitasi tetap tampil (S21 merender beda); pertanyaan umum belum disimpan ke `answer_log` (P-7/PII, S20); Sonnet tanpa `fallbacks` server.
+- **Utang/pesan untuk sesi berikutnya:**
+  - Lokasi (pencarian) dan kesetiaan judge jauh dari target R4: pencarian makna atau routing dua langkah, kalibrasi judge, metrik status hadits berlabel (sekarang cocok string persis → 0%).
+  - S20: ledger + reservasi (termasuk Sonnet), Turnstile, kuota, HMAC kunci `answer_cache`, penyamaran PII, penghapusan fisik `answer_cache`/`answer_log`, skema Zod `/api/jawab` bersama.
+  - Pemilik: secret `CF_AIG_TOKEN` untuk `surau-api` produksi (T-14).
+  - Arsip eval S19 di `evals/private/jawab-runs/s19-*` belum disalin ke R2; D1 lokal bersama masih `ihya-v6` (eval memakai folder terpisah `SURAU_EVAL_STATE`).
