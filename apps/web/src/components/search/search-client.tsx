@@ -8,11 +8,13 @@ import { Alert, Button, SearchField, Spinner, Tag, TagGroup, Typography } from "
 import { EmptyState, NativeSelect } from "@heroui-pro/react";
 import NextLink from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import type { Keyed } from "../../lib/search/keyed";
 import type { SectionOption } from "../../lib/search/sections";
 
 import { id } from "../../i18n/id";
+import { keepCurrent } from "../../lib/search/keyed";
 import { selectedSection } from "../../lib/search/sections";
 import { parseSection, searchApiUrl, searchPageHref } from "../../lib/search/segments";
 import { ArabicInline } from "../arabic";
@@ -38,8 +40,7 @@ type State =
       more: "idle" | "loading" | ErrorCode;
     };
 
-/** Hasil fetch terakhir beserta kunci permintaannya (kueri + bagian + percobaan). */
-type Loaded = { key: string; state: State };
+type Loaded = Keyed<State>;
 
 class SearchError extends Error {
   constructor(readonly code: ErrorCode) {
@@ -86,6 +87,7 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
   const [shownQuery, setShownQuery] = useState(query);
   const [attempt, setAttempt] = useState(0);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
+  const moreController = useRef<AbortController | null>(null);
   const key = `${attempt}|${section ?? ""}|${query}`;
 
   // Kueri di URL berubah (kembali/maju, contoh, palet ⌘K): kolom ikut (disetel saat render).
@@ -106,12 +108,16 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
         }
       },
     );
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      // "Muat lebih banyak" milik kueri lama ikut dibatalkan (#60).
+      moreController.current?.abort();
+    };
   }, [key, query, section]);
 
   const state: State =
     query === "" ? { status: "idle" } : loaded?.key === key ? loaded.state : { status: "loading" };
-  const setState = (next: State) => setLoaded({ key, state: next });
+  const setState = (next: State) => setLoaded((prev) => keepCurrent(prev, { key, state: next }));
 
   function go(nextQuery: string, nextSection: number | null) {
     router.push(searchPageHref(nextQuery, nextSection));
@@ -126,11 +132,13 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
     if (state.status !== "ok") return;
     const { view, pages } = state;
     setState({ ...state, more: "loading" });
+    const controller = new AbortController();
+    moreController.current = controller;
     try {
-      const next = await fetchView(query, section, pages.length);
+      const next = await fetchView(query, section, pages.length, controller.signal);
       setState({ status: "ok", view, pages: [...pages, ...next.results], more: "idle" });
     } catch (error) {
-      setState({ status: "ok", view, pages, more: codeOf(error) });
+      if (!controller.signal.aborted) setState({ status: "ok", view, pages, more: codeOf(error) });
     }
   }
 
