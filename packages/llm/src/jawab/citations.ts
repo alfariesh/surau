@@ -4,7 +4,7 @@
 // model di luar sitasi dibuang dan dihitung.
 import type { TextCitation } from "@anthropic-ai/sdk/resources/messages";
 
-import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
+import { ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
 import { ANSWER_FALSE_PREMISE } from "../../prompts/answer-v3.ts";
 import type { AnswerDoc } from "./documents.ts";
 
@@ -113,22 +113,89 @@ export function isNotFound(text: string): boolean {
 export interface HadithStatement {
   /** Status ringkas berbahasa Latin, ≤120 karakter (label AI, `ai_extracted`). */
   status: string;
-  /** Rentang [start, end) di teks gabungan blok. */
+  /** Rentang kalimat [start, end) di teks gabungan blok (`start` termasuk penanda Markdown). */
   start: number;
   end: number;
+  /** Akhir baris tempat status berakhir: batas penggantian bila status tidak didukung takhrij. */
+  lineEnd: number;
 }
 
-/** Kalimat "Status hadits: …" di teks gabungan, sampai akhir kalimat atau baris. */
+/**
+ * Awalan "Status hadits:" yang toleran (S21, ADR-064 butir 7): huruf besar/kecil, "hadits"/"hadis",
+ * penanda tebal/miring di dalam atau di luar ("**Status hadits**:", "**Status hadits:**"), spasi
+ * sebelum titik dua, dan titik dua lebar.
+ */
+const HADITH_PREFIX =
+  /(?:[*_]{1,3}[ \t]*)?(?<![\p{L}\p{N}])status[ \t]+hadi(?:t)?s(?![\p{L}\p{N}])[ \t]*(?:[*_]{1,3}[ \t]*)?[:\uFF1A](?:[ \t]*[*_]{1,3})?/giu;
+
+/** Ada awalan status hadits (untuk menahan pratinjau sejak awalan muncul, juga bila terbelah). */
+export function hasHadithPrefix(text: string): boolean {
+  HADITH_PREFIX.lastIndex = 0;
+  const found = HADITH_PREFIX.test(text);
+  HADITH_PREFIX.lastIndex = 0;
+  return found;
+}
+
+/** Singkatan yang titiknya bukan akhir kalimat (HR. Bukhari, w. 505 H, r.a., saw., dkk.). */
+const ABBREVIATIONS = new Set([
+  "al",
+  "ibn",
+  "bin",
+  "hr",
+  "r",
+  "ra",
+  "w",
+  "saw",
+  "swt",
+  "as",
+  "dkk",
+  "dll",
+  "dsb",
+  "no",
+  "h",
+  "hlm",
+  "j",
+  "jil",
+  "juz",
+  "cet",
+  "m",
+]);
+
+/** Indeks akhir kalimat (posisi tanda baca, eksklusif sebelum), atau akhir baris. */
+function sentenceEnd(text: string, from: number, lineEnd: number): number {
+  const re = /[.!?](?=\s|$)/gu;
+  re.lastIndex = from;
+  for (let m = re.exec(text); m !== null && m.index < lineEnd; m = re.exec(text)) {
+    if (text[m.index] !== ".") return m.index;
+    // Kata tepat sebelum titik (mis. "HR", "w", "r.a" → "a"): singkatan = bukan akhir kalimat.
+    const word = /(\p{L}+)['’"”)\]]*$/u.exec(text.slice(from, m.index))?.[1]?.toLowerCase() ?? "";
+    if (word === "" || ABBREVIATIONS.has(word) || word.length === 1) continue;
+    return m.index;
+  }
+  return lineEnd;
+}
+
+/**
+ * Kalimat "Status hadits: …" di teks gabungan. Status = sisa kalimat sesudah awalan (bila awalan
+ * diikuti baris baru, baris berikutnya yang tidak kosong), sampai akhir kalimat yang sadar
+ * singkatan, atau akhir baris.
+ */
 export function hadithStatements(text: string): HadithStatement[] {
   const out: HadithStatement[] = [];
-  let from = 0;
-  for (;;) {
-    const at = text.indexOf(ANSWER_HADITH_PREFIX, from);
-    if (at < 0) return out;
-    const bodyStart = at + ANSWER_HADITH_PREFIX.length;
-    const rest = text.slice(bodyStart);
-    const stop = rest.search(/(?<!\b(?:al|ibn|Ibn|no|h|j))\.(?:\s|$)|\n/u);
-    const end = stop < 0 ? text.length : bodyStart + stop;
+  HADITH_PREFIX.lastIndex = 0;
+  for (let m = HADITH_PREFIX.exec(text); m !== null; m = HADITH_PREFIX.exec(text)) {
+    const start = m.index;
+    let bodyStart = m.index + m[0].length;
+    // Awalan di akhir baris: status ada di baris berikutnya yang tidak kosong.
+    const sameLine = /^[ \t*_]*(?=\r?\n|$)/u.exec(text.slice(bodyStart));
+    if (sameLine !== null) {
+      const next = /\S/u.exec(text.slice(bodyStart + sameLine[0].length));
+      if (next === null) break;
+      bodyStart += sameLine[0].length + next.index;
+    }
+    const nl = text.indexOf("\n", bodyStart);
+    const lineEnd = nl < 0 ? text.length : nl;
+    const end = sentenceEnd(text, bodyStart, lineEnd);
     const status = text
       .slice(bodyStart, end)
       .replace(/[*_]/gu, "")
@@ -136,7 +203,9 @@ export function hadithStatements(text: string): HadithStatement[] {
       .replace(/[.;,]+$/u, "")
       .slice(0, 120)
       .trim();
-    if (status !== "") out.push({ status, start: at, end });
-    from = end + 1;
+    if (status !== "") out.push({ status, start, end, lineEnd });
+    HADITH_PREFIX.lastIndex = Math.max(HADITH_PREFIX.lastIndex, end);
   }
+  HADITH_PREFIX.lastIndex = 0;
+  return out;
 }

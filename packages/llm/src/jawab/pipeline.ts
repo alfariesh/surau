@@ -28,7 +28,13 @@ import {
   fitDocs,
   fixedPromptTokens,
 } from "./answer.ts";
-import { citationSpans, hadithStatements, refusalKind, stripArabic } from "./citations.ts";
+import {
+  citationSpans,
+  hadithStatements,
+  hasHadithPrefix,
+  refusalKind,
+  stripArabic,
+} from "./citations.ts";
 import type { CitedSpan } from "./citations.ts";
 import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
@@ -41,7 +47,7 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * Versi pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu
  * berubah: ikut kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 1;
+export const JAWAB_PIPELINE_VERSION = 2;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -422,7 +428,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     if (cleaned.text.trim() === "" && ns.length === 0) return;
     const block: JawabBlock = { text: cleaned.text, citations: ns };
     kept.push(block);
-    if (block.text.includes(ANSWER_HADITH_PREFIX)) holdPreview = true;
+    // Diperiksa atas gabungan teks: awalan bisa terbelah di dua blok ("Status " | "hadits: …").
+    if (!holdPreview && hasHadithPrefix(kept.map((b) => b.text).join(""))) holdPreview = true;
     if (holdPreview) return;
     const cites = () => [...verified.values()].filter((c) => block.citations.includes(c.n));
     if (ns.length > 0 && !previewing) {
@@ -595,13 +602,15 @@ export function hadithCheck(
       const linked = distinctFoots.filter((c) =>
         (passages.get(c.passage_id)?.referenced_by ?? []).some((b) => citedBodies.has(b)),
       );
-      // Bila paragraf menyitasi hadits (paragraf badan), takhrijnya wajib tertaut ke hadits itu.
+      // Bila paragraf menyitasi hadits (paragraf badan), takhrijnya wajib tertaut ke hadits itu,
+      // dan paragraf itu hanya boleh menyitasi SATU paragraf badan: dengan dua hadits, status tanpa
+      // sitasi sendiri bisa milik hadits mana pun (peninjau S19 putaran 3, S21).
       const pick =
-        citedBodies.size > 0
+        citedBodies.size === 1
           ? linked.length === 1
             ? linked[0]
             : undefined
-          : distinctFoots.length === 1
+          : citedBodies.size === 0 && distinctFoots.length === 1
             ? distinctFoots[0]
             : undefined;
       foots = pick ? [pick] : [];
@@ -625,10 +634,12 @@ export function hadithCheck(
       });
     }
     if (!paired) {
-      // Penanda Markdown di depan awalan (`**Status hadits:**`) ikut diganti.
+      // Penanda Markdown di depan awalan (`**Status hadits:**`) ikut diganti, dan penggantian
+      // berjalan sampai AKHIR BARIS: sisa kalimat sesudah singkatan atau kalimat lanjutan di baris
+      // yang sama tidak boleh tampil tanpa takhrij (S21, ADR-064 butir 7).
       let start = st.start;
       while (start > 0 && /[*_]/u.test(full[start - 1]!)) start--;
-      unpaired.push({ start, end: stEnd });
+      unpaired.push({ start, end: Math.max(stEnd, st.lineEnd) });
     }
   }
   // Ganti dari belakang supaya offset kalimat sebelumnya tetap berlaku.
