@@ -333,7 +333,7 @@ export const id = {
     ],
     privacyHeading: "Laporan kesalahan dan privasi",
     privacyText:
-      "Laporan kesalahan disimpan tanpa nama, email, atau alamat IP. Laporan disimpan sampai ditangani, lalu dihapus paling lambat 12 bulan kemudian.",
+      "Formulir laporan kesalahan tidak meminta nama atau email, dan alamat IP tidak disimpan. Email dan nomor telepon yang ikut terketik disamarkan otomatis. Laporan disimpan sampai ditangani, lalu dihapus paling lambat 12 bulan kemudian.",
     privacyMore: "Baca kebijakan privasi lengkap",
   },
 

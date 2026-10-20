@@ -365,6 +365,21 @@ describe("degradasi ke Cari", () => {
     expect(result.reason).toBe("refusal");
   });
 
+  test("galat penyedia 400 (saldo/limit) dan 429 (spend limit gateway) → fallback provider_error", async () => {
+    for (const status of [400, 429]) {
+      const answerFail = setup(() => ({ status }));
+      const a = final((await answerFail.ask()).events);
+      expect(a.event).toBe("fallback");
+      expect(a.result.reason).toBe("provider_error");
+      expect(a.result.search.length).toBeGreaterThan(0);
+      const routeFail = setup(
+        () => ({ blocks: [] }),
+        () => ({ status }),
+      );
+      expect(final((await routeFail.ask()).events).result.reason).toBe("provider_error");
+    }
+  });
+
   test("galat penyedia (529 saat menjawab, 500 saat routing) → fallback provider_error", async () => {
     const answerFail = setup(() => ({ status: 529 }));
     expect(final((await answerFail.ask()).events).result.reason).toBe("provider_error");
@@ -402,13 +417,19 @@ describe("degradasi ke Cari", () => {
     ).toEqual({ n: 0 });
   });
 
-  test("klien membatalkan → request Anthropic dibatalkan dan tercatat 'aborted'", async () => {
+  test("klien memutus koneksi → pipeline selesai di latar; biaya NYATA dikomit dan hasil di-cache", async () => {
     const logs: string[] = [];
     const spy = vi.spyOn(console, "info").mockImplementation((line: unknown) => {
       logs.push(String(line));
     });
     try {
-      const fake = fakeAnthropic({ route: () => ROUTE, answer: () => ({ hold: true }) });
+      const fake = fakeAnthropic({
+        route: () => ROUTE,
+        answer: (_n, docs) => ({
+          blocks: [{ text: "Jawaban.", cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }] }],
+          delayMs: 150,
+        }),
+      });
       const app = createApp({ anthropic: () => fake.client, editionId: ED });
       const ctx = createExecutionContext();
       const res = await app.request(
@@ -429,23 +450,32 @@ describe("degradasi ke Cari", () => {
         if (done) break;
         seen += decoder.decode(value);
       }
+      // Putus saat model masih "berpikir" (sebelum respons jawaban datang).
       await reader.cancel();
-      for (let i = 0; i < 50 && !logs.some((l) => l.includes('"aborted"')); i++)
-        await new Promise((r) => setTimeout(r, 20));
-      expect(logs.some((l) => l.includes('"outcome":"aborted"'))).toBe(true);
+      await waitOnExecutionContext(ctx);
+      expect(
+        logs.some((l) => l.includes('"outcome":"answer"') && l.includes('"client_gone":true')),
+      ).toBe(true);
       // Log tidak memuat teks pertanyaan.
       expect(logs.some((l) => l.includes("kesabaran"))).toBe(false);
-      // S20: biaya aktual tidak diketahui → seluruh reservasi dihitung terpakai (estimated).
-      await waitOnExecutionContext(ctx);
+      // Biaya nyata (routing + jawaban tiruan = 310 µ$), bukan reservasi terburuk; bukan perkiraan.
       const row = await env.APP_DB.prepare(
-        "SELECT status, outcome, estimated, cost_micro, reserved_micro FROM llm_ledger",
+        "SELECT status, outcome, estimated, cost_micro FROM llm_ledger",
       ).first<Record<string, unknown>>();
-      expect(row).toMatchObject({ status: "committed", outcome: "aborted", estimated: 1 });
-      expect(row?.cost_micro).toBe(row?.reserved_micro);
+      expect(row).toMatchObject({
+        status: "committed",
+        outcome: "answer",
+        estimated: 0,
+        cost_micro: 310,
+      });
       const budget = await env.APP_DB.prepare(
         "SELECT spent_micro, reserved_micro FROM llm_budget",
       ).first<Record<string, number>>();
-      expect(budget).toEqual({ spent_micro: row?.cost_micro, reserved_micro: 0 });
+      expect(budget).toEqual({ spent_micro: 310, reserved_micro: 0 });
+      // Hasil utuh tetap masuk cache: pertanyaan yang sama berikutnya gratis.
+      expect(
+        await env.APP_DB.prepare("SELECT count(*) AS n FROM answer_cache").first<{ n: number }>(),
+      ).toEqual({ n: 1 });
     } finally {
       spy.mockRestore();
     }

@@ -105,7 +105,16 @@ export interface JawabDiagnostics {
   hadith_unsupported: number;
   truncated: boolean;
   refusals: JawabRefusal[];
-  provider_error: { status: number | null; type: string } | null;
+  /**
+   * Galat penyedia: `status` HTTP (null = timeout, koneksi putus, atau galat di tengah stream;
+   * request itu mungkin sudah ditagih), tahap, dan model panggilan yang gagal (ledger S20).
+   */
+  provider_error: {
+    status: number | null;
+    type: string;
+    stage: "route" | "answer";
+    model: ModelId;
+  } | null;
 }
 export interface JawabResult {
   outcome: "answer" | "not_found" | "fallback";
@@ -281,7 +290,12 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   } catch (error) {
     const failure = providerFailure(error);
     if (failure === null) throw error;
-    diagnostics.provider_error = { status: failure.status, type: failure.kind };
+    diagnostics.provider_error = {
+      status: failure.status,
+      type: failure.kind,
+      stage: "route",
+      model: MODELS.haiku,
+    };
     await emit({ type: "stage", stage: "retrieve" });
     ranked = fuse(await searchLists(db, question, null));
     passages = new Map((await answerPassages(db, ranked)).map((p) => [p.id, p]));
@@ -455,7 +469,12 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     } catch (error) {
       const failure = providerFailure(error);
       if (failure === null) throw error;
-      diagnostics.provider_error = { status: failure.status, type: failure.kind };
+      diagnostics.provider_error = {
+        status: failure.status,
+        type: failure.kind,
+        stage: "answer",
+        model: candidate,
+      };
       return fallback("provider_error", candidate);
     }
     if (message.stop_reason !== "refusal") break;

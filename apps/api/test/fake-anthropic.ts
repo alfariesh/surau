@@ -20,8 +20,15 @@ export interface FakeBlock {
   cite?: { doc: number; from: number; to: number; cited?: string }[];
 }
 export type FakeAnswer =
-  | { blocks: FakeBlock[]; stop?: "end_turn" | "refusal" | "max_tokens" }
+  | {
+      blocks: FakeBlock[];
+      stop?: "end_turn" | "refusal" | "max_tokens";
+      /** Jeda sebelum respons datang (uji klien memutus koneksi saat menunggu model). */
+      delayMs?: number;
+    }
   | { status: number }
+  /** `fetch` gagal tanpa respons HTTP (koneksi putus/timeout): status galat = null. */
+  | { throws: true }
   /** Stream yang tidak pernah selesai sampai request dibatalkan (uji abort klien). */
   | { hold: true };
 export type FakeRoute =
@@ -154,6 +161,7 @@ export function fakeAnthropic(handlers: {
       });
     }
     const a = handlers.answer(answers++, documents, model);
+    if ("throws" in a) throw new TypeError("koneksi putus (tiruan)");
     if ("status" in a)
       return Response.json(
         { type: "error", error: { type: "overloaded_error", message: "x" } },
@@ -170,6 +178,7 @@ export function fakeAnthropic(handlers: {
       });
       return new Response(body, { headers: { "content-type": "text/event-stream" } });
     }
+    if (a.delayMs !== undefined) await new Promise((r) => setTimeout(r, a.delayMs));
     return answerStream(model, a, documents);
   };
   return { client: createAnthropic("kunci-uji", { fetch: fake, maxRetries: 0 }), sent };

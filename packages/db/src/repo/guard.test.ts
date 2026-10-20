@@ -12,9 +12,11 @@ import {
   consumeQuota,
   expireStaleReservations,
   getBudget,
+  lastPurgeDay,
   ledgerSummary,
   listRecentFeedback,
   markBudgetWarning,
+  markPurged,
   purgeExpired,
   quotaDay,
   quotaStats,
@@ -22,6 +24,7 @@ import {
   reserveBudget,
   setBudgetCap,
   setFeedbackStatus,
+  setQuotaLimits,
   setSetting,
   settleLedger,
   toMicro,
@@ -294,6 +297,21 @@ describe("anggaran dan ledger", () => {
 });
 
 describe("pengaturan dan laporan", () => {
+  test("setQuotaLimits menulis kedua kuota dalam satu transaksi (nilai salah = tidak ada yang berubah)", async () => {
+    await setQuotaLimits(db, { anon: 4, ip: 12 }, NOW);
+    expect(await getSettings(db)).toMatchObject({ quota_anon_daily: 4, quota_ip_daily: 12 });
+    await expect(setQuotaLimits(db, { anon: 5, ip: -1 }, NOW)).rejects.toBeInstanceOf(ZodError);
+    expect(await getSettings(db)).toMatchObject({ quota_anon_daily: 4, quota_ip_daily: 12 });
+    await setQuotaLimits(db, { anon: 10, ip: 30 }, NOW);
+  });
+
+  test("penanda hapus fisik harian", async () => {
+    await markPurged(db, "2026-10-21", NOW);
+    expect(await lastPurgeDay(db)).toBe("2026-10-21");
+    await markPurged(db, "", NOW);
+    expect(await lastPurgeDay(db)).toBe("");
+  });
+
   test("setSetting memvalidasi nilai per kunci", async () => {
     await setSetting(db, "quota_anon_daily", "7", NOW);
     expect((await getSettings(db)).quota_anon_daily).toBe(7);

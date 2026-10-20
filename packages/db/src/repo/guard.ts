@@ -392,6 +392,20 @@ export async function setSetting(
     .all();
 }
 
+/** Ubah kuota harian anon dan IP sekaligus (satu transaksi). */
+export async function setQuotaLimits(db: D1Db, limits: QuotaLimits, now: string): Promise<void> {
+  const anon = settingsInput.quota_anon_daily.parse(String(limits.anon));
+  const ip = settingsInput.quota_ip_daily.parse(String(limits.ip));
+  const upsert = (key: SettingKey, value: string) =>
+    db
+      .prepare(
+        `INSERT INTO settings (key, value, updated_at) VALUES (?1, ?2, ?3)
+         ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+      )
+      .bind(key, value, now);
+  await db.batch([upsert("quota_anon_daily", anon), upsert("quota_ip_daily", ip)]);
+}
+
 /** Ubah plafon bulanan: pengaturan + periode berjalan (bila sudah ada) dalam satu transaksi. */
 export async function setBudgetCap(
   db: D1Db,
@@ -458,6 +472,28 @@ export const RETENTION_DAYS = {
   llm_ledger: 730,
 } as const;
 
+const purgeDayRow = z.strictObject({ value: z.string() });
+
+/** Tanggal UTC terakhir hapus fisik berhasil (`""` = belum pernah). */
+export async function lastPurgeDay(db: D1Db): Promise<string> {
+  const row = await firstRow(
+    db.prepare("SELECT value FROM settings WHERE key = 'purge_day'"),
+    purgeDayRow,
+  );
+  return row?.value ?? "";
+}
+
+/** Catat hapus fisik hari `day` sudah berhasil (dipanggil SESUDAH `purgeExpired`). */
+export async function markPurged(db: D1Db, day: string, now: string): Promise<void> {
+  await db
+    .prepare(
+      `INSERT INTO settings (key, value, updated_at) VALUES ('purge_day', ?1, ?2)
+       ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+    )
+    .bind(day, now)
+    .all();
+}
+
 export interface PurgeResult {
   answer_cache: number;
   answer_log: number;
@@ -493,9 +529,10 @@ export async function purgeExpired(db: D1Db, at: Date): Promise<PurgeResult> {
          WHERE status IN ('fixed', 'rejected') AND resolved_at IS NOT NULL AND resolved_at < ?`,
       )
       .bind(daysBefore(at, RETENTION_DAYS.feedback_after_resolved).toISOString()),
+    // Per bulan (indeks period), supaya tidak memindai seluruh ledger.
     db
-      .prepare("DELETE FROM llm_ledger WHERE status <> 'reserved' AND created_at < ?")
-      .bind(daysBefore(at, RETENTION_DAYS.llm_ledger).toISOString()),
+      .prepare("DELETE FROM llm_ledger WHERE period < ? AND status <> 'reserved'")
+      .bind(budgetPeriod(daysBefore(at, RETENTION_DAYS.llm_ledger))),
   ]);
   return {
     answer_cache: changes(results[0]),

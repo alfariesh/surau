@@ -8,7 +8,7 @@ import {
   waitOnExecutionContext,
 } from "cloudflare:test";
 import { env } from "cloudflare:workers";
-import { MODELS, jawabReserveUsd, retryReserveUsd } from "@surau/llm";
+import { MODELS, answerWorstUsd, jawabReserveUsd, retryReserveUsd } from "@surau/llm";
 import { toMicro } from "@surau/db";
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
@@ -416,6 +416,40 @@ describe("ledger anggaran", () => {
   });
 });
 
+describe("galat penyedia dan ledger", () => {
+  test("galat berstatus HTTP tidak ditagih: hanya biaya routing nyata", async () => {
+    const { ask } = setup({ answer: () => ({ status: 529 }) });
+    await ask({ [ANON_HEADER]: await cookieFor(), [IP_HEADER]: freshIp() });
+    expect(await ledgerRows()).toEqual([
+      expect.objectContaining({
+        outcome: "fallback",
+        reason: "provider_error",
+        cost_micro: 150,
+        estimated: 0,
+      }),
+    ]);
+  });
+
+  test("koneksi putus/timeout (tanpa status) → biaya terburuk panggilan itu × percobaan SDK, perkiraan", async () => {
+    const { ask } = setup({ answer: () => ({ throws: true }) });
+    const { events } = await ask({ [ANON_HEADER]: await cookieFor(), [IP_HEADER]: freshIp() });
+    expect((lastEvent(events)!.data as { result: { reason: string } }).result.reason).toBe(
+      "provider_error",
+    );
+    // Routing nyata 150 µ$ + jawaban Haiku terburuk 12.000 µ$ × (1 + 1 ulangan SDK).
+    expect(await ledgerRows()).toEqual([
+      expect.objectContaining({
+        outcome: "fallback",
+        reason: "provider_error",
+        model: MODELS.haiku,
+        cost_micro: 150 + 2 * toMicro(answerWorstUsd(MODELS.haiku)),
+        estimated: 1,
+      }),
+    ]);
+    expect(await budgetRow()).toMatchObject({ reserved_micro: 0 });
+  });
+});
+
 describe("anggaran habis → Jawab mati otomatis, situs tetap berjalan", () => {
   test("POST 503 budget, status available=false, kesehatan Worker tetap OK", async () => {
     await setSetting("budget_monthly_usd", "0");
@@ -500,6 +534,15 @@ describe("status", () => {
       reason: "quota",
       quota: { used: 1, limit: 1 },
     });
+    // Jaringan IP penuh: pengunjung TANPA cookie langsung tahu (tidak diminta Turnstile dulu).
+    await setSetting("quota_anon_daily", "10");
+    await setSetting("quota_ip_daily", "1");
+    expect(await status({ [IP_HEADER]: headers[IP_HEADER]! })).toMatchObject({
+      available: false,
+      reason: "quota",
+      challenge: false,
+      quota: null,
+    });
   });
 });
 
@@ -522,15 +565,15 @@ describe("konfigurasi gagal tertutup", () => {
     expect(guardConfig({ ...base, TURNSTILE_HOSTNAMES: "surau.org,localhost" })).toBeNull();
     expect(guardConfig({ ...base, SURAU_API_SECRET: "pendek" })).toBeNull();
     expect(guardConfig({ ...base, TURNSTILE_SECRET_KEY: undefined })).toBeNull();
-    // Staging/tes boleh memakai kunci uji.
-    expect(
-      guardConfig({
-        ...base,
-        ENVIRONMENT: "staging",
-        TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
-        TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
-      }),
-    ).not.toBeNull();
+    // Staging/tes boleh memakai kunci uji; nilai ENVIRONMENT lain (salah ketik) tetap ditolak.
+    const testKeys = {
+      TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
+      TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
+    };
+    expect(guardConfig({ ...base, ...testKeys, ENVIRONMENT: "staging" })).not.toBeNull();
+    expect(guardConfig({ ...base, ...testKeys, ENVIRONMENT: "development" })).not.toBeNull();
+    expect(guardConfig({ ...base, ...testKeys, ENVIRONMENT: "produksi" })).toBeNull();
+    expect(guardConfig({ ...base, ...testKeys, ENVIRONMENT: "" })).toBeNull();
   });
 
   test("secret HMAC hilang → 503 not_configured sebelum Turnstile", async () => {
@@ -551,7 +594,25 @@ describe("konfigurasi gagal tertutup", () => {
 });
 
 describe("cron", () => {
-  test("reservasi basi dibereskan (dihitung terpakai); hapus fisik hanya di putaran harian", async () => {
+  const run = async (at: Date) => {
+    const ctx = createExecutionContext();
+    await worker.scheduled(
+      createScheduledController({ scheduledTime: at.getTime(), cron: "*/10 * * * *" }),
+      env,
+    );
+    await waitOnExecutionContext(ctx);
+  };
+  const expiredCache = (c: string) =>
+    env.APP_DB.prepare(
+      `INSERT INTO answer_cache (key, corpus_version, prompt_version, model, outcome, result_json, created_at, expires_at)
+       VALUES (?, 'v', 'p', 'm', 'answer', '{}', '2000-01-01T00:00:00Z', '2000-02-01T00:00:00Z')`,
+    )
+      .bind(c.repeat(64))
+      .run();
+  const cacheCount = async () =>
+    (await env.APP_DB.prepare("SELECT count(*) AS n FROM answer_cache").first<{ n: number }>())?.n;
+
+  test("reservasi basi dibereskan tiap putaran (dihitung terpakai)", async () => {
     const period = new Date().toISOString().slice(0, 7);
     await env.APP_DB.batch([
       env.APP_DB.prepare(
@@ -561,34 +622,29 @@ describe("cron", () => {
         `INSERT INTO llm_ledger (id, kind, period, created_at, status, reserved_micro)
          VALUES ('00000000-0000-4000-8000-0000000000aa', 'jawab', ?, '2000-01-01T00:00:00.000Z', 'reserved', 5000)`,
       ).bind(period),
-      env.APP_DB.prepare(
-        `INSERT INTO answer_cache (key, corpus_version, prompt_version, model, outcome, result_json, created_at, expires_at)
-         VALUES (?, 'v', 'p', 'm', 'answer', '{}', '2000-01-01T00:00:00Z', '2000-02-01T00:00:00Z')`,
-      ).bind("c".repeat(64)),
     ]);
-    const run = async (at: Date) => {
-      const ctx = createExecutionContext();
-      await worker.scheduled(
-        createScheduledController({ scheduledTime: at.getTime(), cron: "*/10 * * * *" }),
-        env,
-      );
-      await waitOnExecutionContext(ctx);
-    };
-    const now = new Date();
-    const notDaily = new Date(now);
-    notDaily.setUTCHours(13, 20, 0, 0);
-    await run(notDaily);
+    const at = new Date();
+    at.setUTCHours(13, 20, 0, 0);
+    await run(at);
     expect(await budgetRow()).toMatchObject({ reserved_micro: 0, spent_micro: 5000 });
     expect(await ledgerRows()).toEqual([
       expect.objectContaining({ status: "expired", cost_micro: 5000, estimated: 1 }),
     ]);
-    const cacheCount = () =>
-      env.APP_DB.prepare("SELECT count(*) AS n FROM answer_cache").first<{ n: number }>();
-    expect(await cacheCount()).toEqual({ n: 1 });
-    const daily = new Date(now);
-    daily.setUTCHours(0, 0, 0, 0);
-    await run(daily);
-    expect(await cacheCount()).toEqual({ n: 0 });
+  });
+
+  test("hapus fisik sekali per hari UTC, di putaran mana pun yang pertama", async () => {
+    await env.APP_DB.prepare("UPDATE settings SET value = '' WHERE key = 'purge_day'").run();
+    const day1 = new Date("2026-10-21T13:20:00.000Z");
+    await expiredCache("a");
+    await run(day1);
+    expect(await cacheCount()).toBe(0);
+    // Putaran berikutnya di hari yang sama tidak menghapus lagi.
+    await expiredCache("b");
+    await run(new Date("2026-10-21T13:30:00.000Z"));
+    expect(await cacheCount()).toBe(1);
+    // Hari berikutnya: dihapus pada putaran pertama.
+    await run(new Date("2026-10-22T05:40:00.000Z"));
+    expect(await cacheCount()).toBe(0);
   });
 });
 

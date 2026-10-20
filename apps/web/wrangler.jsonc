@@ -133,10 +133,14 @@
     },
   ],
   // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
+  // `invocation_logs: false` (S20, ADR-065): log otomatis per permintaan merekam header termasuk IP
+  // mentah (`cf-connecting-ip`, `x-real-ip`; diperiksa dengan `wrangler tail --ip self`). Yang
+  // tersisa: event JSON buatan kode (tanpa IP) dan traces (negara/kota, ASN, user agent; tanpa IP).
+  // Dijaga tes tools/ingest/src/corpus.test.ts.
   "observability": {
     "enabled": true,
     "redact_query_string": true,
-    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
     "traces": { "enabled": true, "head_sampling_rate": 0.1 },
   },
   "upload_source_maps": true,
@@ -159,7 +163,7 @@
     "observability": {
       "enabled": true,
       "redact_query_string": true,
-      "logs": { "enabled": true, "head_sampling_rate": 1 },
+      "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
       "traces": { "enabled": true, "head_sampling_rate": 0.1 },
     },
     "services": [

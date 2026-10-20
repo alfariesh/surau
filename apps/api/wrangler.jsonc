@@ -60,9 +60,11 @@
     },
   ],
   // Teks pertanyaan tidak pernah di-log (P-7); event `jawab` hanya metrik (src/log.ts).
+  // `invocation_logs: false` (S20): log otomatis per permintaan merekam semua header, termasuk
+  // `x-surau-ip`/`x-surau-anon` dari web. Dijaga tes tools/ingest/src/corpus.test.ts.
   "observability": {
     "enabled": true,
-    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
     "traces": { "enabled": true, "head_sampling_rate": 0.1 },
   },
   "upload_source_maps": true,
@@ -103,7 +105,7 @@
       ],
       "observability": {
         "enabled": true,
-        "logs": { "enabled": true, "head_sampling_rate": 1 },
+        "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
         "traces": { "enabled": true, "head_sampling_rate": 0.1 },
       },
     },

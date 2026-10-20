@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from "vite-plus/test";
-import { setBudgetCap, setFeedbackStatus, setSetting } from "@surau/db";
+import { setBudgetCap, setFeedbackStatus, setQuotaLimits, setSetting } from "@surau/db";
 import { adminIdentity } from "../../../lib/review-auth";
 import { adminOverview } from "../../../lib/admin-data";
 import { GET, POST } from "./route";
@@ -15,6 +15,7 @@ vi.mock("@surau/db", async (original) => ({
   setSetting: vi.fn<typeof setSetting>(),
   setBudgetCap: vi.fn<typeof setBudgetCap>(),
   setFeedbackStatus: vi.fn<typeof setFeedbackStatus>(),
+  setQuotaLimits: vi.fn<typeof setQuotaLimits>(),
 }));
 
 const ORIGIN = "https://surau.example";
@@ -80,8 +81,7 @@ test("aksi sah menulis pengaturan lalu mengembalikan ringkasan terbaru", async (
     expect.any(String),
   );
   expect((await POST(post({ action: "quota", anon: 5, ip: 20 }))).status).toBe(200);
-  expect(setSetting).toHaveBeenCalledWith({}, "quota_anon_daily", "5", expect.any(String));
-  expect(setSetting).toHaveBeenCalledWith({}, "quota_ip_daily", "20", expect.any(String));
+  expect(setQuotaLimits).toHaveBeenCalledWith({}, { anon: 5, ip: 20 }, expect.any(String));
   const res = await POST(post({ action: "feedback_status", id: 3, status: "fixed" }));
   expect(res.status).toBe(200);
   expect(await res.json()).toEqual({ ok: true });

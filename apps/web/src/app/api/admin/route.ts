@@ -1,4 +1,10 @@
-import { budgetPeriod, setBudgetCap, setFeedbackStatus, setSetting } from "@surau/db";
+import {
+  budgetPeriod,
+  setBudgetCap,
+  setFeedbackStatus,
+  setQuotaLimits,
+  setSetting,
+} from "@surau/db";
 import { adminAction } from "../../../lib/admin-action";
 import { adminOverview } from "../../../lib/admin-data";
 import { getEnv } from "../../../lib/cloudflare";
@@ -44,10 +50,8 @@ export async function POST(request: Request) {
   const db = env.APP_DB;
   if (a.action === "jawab_enabled") await setSetting(db, "jawab_enabled", a.value ? "1" : "0", now);
   else if (a.action === "budget") await setBudgetCap(db, a.usd, budgetPeriod(at), now);
-  else if (a.action === "quota") {
-    await setSetting(db, "quota_anon_daily", String(a.anon), now);
-    await setSetting(db, "quota_ip_daily", String(a.ip), now);
-  } else if (!(await setFeedbackStatus(db, a.id, a.status, now)))
+  else if (a.action === "quota") await setQuotaLimits(db, { anon: a.anon, ip: a.ip }, now);
+  else if (!(await setFeedbackStatus(db, a.id, a.status, now)))
     return json({ error: "not_found" }, 404);
   // Hanya jenis aksi yang dicatat (tanpa nilai atau identitas).
   console.info(JSON.stringify({ event: "admin_action", action: a.action }));

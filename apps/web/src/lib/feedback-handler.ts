@@ -104,8 +104,9 @@ export async function handleFeedback(request: Request, deps: FeedbackDeps): Prom
     await deps.insert({
       kind: f.kind,
       // Email, nomor telepon/NIK, dan tautan luar yang ikut terketik disamarkan sebelum disimpan
-      // (docs/05 §8, S20); /admin hanya pernah melihat teks yang sudah disamarkan.
-      message: redactPii(f.message).text,
+      // (docs/05 §8, S20); /admin hanya pernah melihat teks yang sudah disamarkan. Penanda seperti
+      // "[email]" bisa lebih panjang dari aslinya, jadi dipotong lagi ke batas 2.000 karakter.
+      message: redactPii(f.message).text.slice(0, 2000),
       path: f.path,
       passage_id: f.passage_id,
       page_id: null,

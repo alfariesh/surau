@@ -22,15 +22,22 @@ function worstCase(model: ModelId, prompt: number, output: number): number {
   );
 }
 
+/** Biaya terburuk satu panggilan routing (Haiku), USD. */
+export function routeWorstUsd(): number {
+  return worstCase(MODELS.haiku, ROUTE_PROMPT_TOKENS_MAX, ROUTE_MAX_TOKENS);
+}
+
+/** Biaya terburuk satu panggilan jawaban dengan `model`, USD. */
+export function answerWorstUsd(model: ModelId): number {
+  return worstCase(model, JAWAB_MAX_PROMPT_TOKENS, ANSWER_MAX_TOKENS);
+}
+
 /** Reservasi awal: routing + jawaban Haiku (USD). */
 export function jawabReserveUsd(): number {
-  return (
-    worstCase(MODELS.haiku, ROUTE_PROMPT_TOKENS_MAX, ROUTE_MAX_TOKENS) +
-    worstCase(MODELS.haiku, JAWAB_MAX_PROMPT_TOKENS, ANSWER_MAX_TOKENS)
-  );
+  return routeWorstUsd() + answerWorstUsd(MODELS.haiku);
 }
 
 /** Reservasi tambahan sebelum ulangan Sonnet (USD). */
 export function retryReserveUsd(): number {
-  return worstCase(MODELS.sonnet, JAWAB_MAX_PROMPT_TOKENS, ANSWER_MAX_TOKENS);
+  return answerWorstUsd(MODELS.sonnet);
 }

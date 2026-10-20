@@ -9,6 +9,8 @@ INSERT OR IGNORE INTO settings (key, value) VALUES
   ('budget_monthly_usd', '20'),
   ('quota_anon_daily', '10'),
   ('quota_ip_daily', '30');
+-- Tanggal UTC terakhir hapus fisik P-7 berhasil (cron: sekali per hari, diulang bila gagal).
+INSERT OR IGNORE INTO settings (key, value) VALUES ('purge_day', '');
 
 -- Kuota harian (hari UTC). Dihapus fisik setelah 7 hari (P-7, cron surau-api).
 CREATE TABLE quota_daily (

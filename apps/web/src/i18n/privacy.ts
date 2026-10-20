@@ -16,7 +16,7 @@ export const privacyText = {
   ],
   readHeading: "Membaca dan Cari",
   readText:
-    "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari diproses untuk menampilkan hasil dan tidak disimpan; log teknis Surau mencatat alamat halaman tanpa kata yang dicari.",
+    "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari tidak disimpan di database Surau. Supaya pencarian yang sama cepat, hasilnya disimpan sementara di cache Cloudflare paling lama 7 hari dalam bentuk kata yang sudah dinormalkan, tanpa keterangan siapa yang mencari. Log teknis mencatat alamat halaman tanpa kata yang dicari.",
   askHeading: "Tanya (jawaban AI)",
   askNotice: "Fitur Tanya belum dibuka untuk umum. Bagian ini berlaku saat fitur tersebut dibuka.",
   ask: [
@@ -28,7 +28,7 @@ export const privacyText = {
   ],
   reportHeading: "Laporan kesalahan",
   reportText:
-    "Laporan disimpan tanpa nama, email, atau alamat IP. Email, nomor telepon, nomor identitas, dan tautan luar yang ikut terketik disamarkan otomatis sebelum disimpan. Nama orang belum bisa dikenali otomatis, jadi jangan menuliskannya. Laporan disimpan sampai ditangani, lalu dihapus otomatis 12 bulan kemudian.",
+    "Formulir laporan tidak meminta nama atau email, dan alamat IP tidak disimpan. Email, nomor telepon, nomor identitas, dan tautan luar yang ikut terketik disamarkan otomatis sebelum disimpan. Nama orang belum bisa dikenali otomatis, jadi jangan menuliskannya. Laporan disimpan sampai ditangani, lalu dihapus otomatis 12 bulan kemudian.",
   retentionHeading: "Lama penyimpanan",
   retentionLead: "Penghapusan berjalan otomatis setiap hari.",
   retention: [
@@ -43,9 +43,14 @@ export const privacyText = {
     },
     { data: "Laporan kesalahan", where: "Database Surau", how: "Sampai ditangani + 12 bulan" },
     {
-      data: "Log teknis (tanpa IP dan tanpa teks pertanyaan)",
+      data: "Log teknis (tanpa IP dan tanpa teks pertanyaan; jejak kinerja mencatat perkiraan negara/kota dan jenis peramban)",
       where: "Cloudflare",
       how: "7 hari",
+    },
+    {
+      data: "Hasil pencarian (kata yang sudah dinormalkan, tanpa identitas)",
+      where: "Cache Cloudflare",
+      how: "Paling lama 7 hari",
     },
     {
       data: "Pertanyaan dan jawaban saat diproses AI",

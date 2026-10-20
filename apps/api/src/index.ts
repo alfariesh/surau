@@ -33,11 +33,13 @@ import {
   answerCacheKey,
   createAnthropic,
   createGatewayAnthropic,
+  answerWorstUsd,
   jawabReserveUsd,
   retryReserveUsd,
+  routeWorstUsd,
   runJawab,
 } from "@surau/llm";
-import type { JawabEvent, JawabResult, UsageTotals } from "@surau/llm";
+import type { JawabEvent, JawabResult, ModelId, UsageTotals } from "@surau/llm";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 
@@ -85,8 +87,11 @@ export interface AppDeps {
   uuid?: () => string;
 }
 
+/** Ulangan SDK per panggilan (retry gateway mati, ADR-064); dipakai juga hitungan biaya galat. */
+export const ANTHROPIC_MAX_RETRIES = 1;
+
 export function defaultAnthropic(env: Cloudflare.Env): Anthropic | null {
-  const opts = { maxRetries: 1, timeout: 60_000 };
+  const opts = { maxRetries: ANTHROPIC_MAX_RETRIES, timeout: 60_000 };
   if (env.LLM_MODE === "gateway" && env.CF_AIG_TOKEN)
     return createGatewayAnthropic(env.AI_GATEWAY_URL, env.CF_AIG_TOKEN, opts);
   if (env.LLM_MODE === "direct" && env.ANTHROPIC_API_KEY)
@@ -96,6 +101,8 @@ export function defaultAnthropic(env: Cloudflare.Env): Anthropic | null {
 
 /** Sitekey uji resmi Turnstile (lolos/gagal/interaktif); tidak boleh dipakai produksi. */
 const TEST_SITEKEY = /^[123]x0{20}[A-F]{2}$/u;
+/** Lingkungan yang boleh memakai kunci uji Turnstile. */
+const TEST_ENVIRONMENTS: ReadonlySet<string> = new Set(["staging", "test", "development"]);
 
 export interface GuardConfig {
   secret: string;
@@ -120,9 +127,12 @@ export function guardConfig(env: Cloudflare.Env): GuardConfig | null {
     hostnames.length === 0
   )
     return null;
-  // Kunci uji menerima token apa pun: produksi menolaknya, juga localhost sebagai hostname.
+  // Kunci uji menerima token apa pun dan hostname localhost tidak boleh untuk pengunjung sungguhan:
+  // keduanya hanya diizinkan di lingkungan non-produksi yang disebut eksplisit (daftar izin, jadi
+  // salah ketik ENVIRONMENT tetap gagal tertutup).
+  const nonProduction = TEST_ENVIRONMENTS.has(env.ENVIRONMENT);
   if (
-    env.ENVIRONMENT === "production" &&
+    !nonProduction &&
     (TURNSTILE_TEST_SECRETS.has(turnstileSecret) ||
       TEST_SITEKEY.test(siteKey) ||
       hostnames.some((h) => h === "localhost" || h.endsWith(".localhost")))
@@ -173,6 +183,19 @@ interface RetryReserved extends Reserved {
   before: UsageTotals;
 }
 
+/**
+ * Galat penyedia TANPA status HTTP (timeout, koneksi putus, galat di tengah stream): request itu
+ * mungkin sudah ditagih, dan SDK bisa mengulangnya sekali (`maxRetries`). Biaya terburuk panggilan
+ * itu × percobaan dihitung terpakai (`estimated`), konservatif. Galat berstatus HTTP (400/429/5xx)
+ * = request ditolak penyedia, tidak ditagih.
+ */
+export function unknownProviderCost(r: JawabResult): { model: ModelId; micro: number } | null {
+  const pe = r.diagnostics.provider_error;
+  if (r.reason !== "provider_error" || pe === null || pe.status !== null) return null;
+  const usd = pe.stage === "route" ? routeWorstUsd() : answerWorstUsd(pe.model);
+  return { model: pe.model, micro: toMicro(usd * (1 + ANTHROPIC_MAX_RETRIES)) };
+}
+
 /** Komit biaya aktual satu pertanyaan (baris `jawab`, dan baris `retry` bila Sonnet dipanggil). */
 async function commitResult(
   db: D1Db,
@@ -182,57 +205,46 @@ async function commitResult(
   now: string,
 ): Promise<void> {
   const outcome: LedgerOutcome = r.outcome;
-  if (retry === null) {
-    await settleLedger(db, {
-      id: primary.id,
-      outcome,
-      reason: r.reason,
-      model: r.usage.requests > 0 ? MODELS.haiku : null,
-      costMicro: toMicro(r.usage.costUsd),
-      estimated: false,
-      usage: ledgerUsage(r.usage),
-      now,
-    });
-    return;
-  }
+  const unknown = unknownProviderCost(r);
+  const extra = (model: ModelId) =>
+    unknown !== null && unknown.model === model ? unknown.micro : 0;
+  const haikuUsage = retry === null ? r.usage : retry.before;
+  const haikuExtra = extra(MODELS.haiku);
   await settleLedger(db, {
     id: primary.id,
     outcome,
-    reason: "retried",
-    model: MODELS.haiku,
-    costMicro: toMicro(retry.before.costUsd),
-    estimated: false,
-    usage: ledgerUsage(retry.before),
+    reason: retry === null ? r.reason : "retried",
+    model: haikuUsage.requests > 0 || haikuExtra > 0 ? MODELS.haiku : null,
+    costMicro: toMicro(haikuUsage.costUsd) + haikuExtra,
+    estimated: haikuExtra > 0,
+    usage: ledgerUsage(haikuUsage),
     now,
   });
+  if (retry === null) return;
   const after = minusUsage(r.usage, retry.before);
+  const sonnetExtra = extra(MODELS.sonnet);
   await settleLedger(db, {
     id: retry.id,
     outcome,
     reason: r.reason,
     model: MODELS.sonnet,
-    costMicro: toMicro(after.costUsd),
-    estimated: false,
+    costMicro: toMicro(after.costUsd) + sonnetExtra,
+    estimated: sonnetExtra > 0,
     usage: ledgerUsage(after),
     now,
   });
 }
 
 /**
- * Batal klien atau galat tak terduga: biaya aktual tidak diketahui di sini (request Anthropic
- * terpotong), jadi seluruh reservasi dihitung terpakai (`estimated`). Konservatif: plafon tidak
- * pernah terlewati oleh biaya yang tidak tercatat.
+ * Galat tak terduga (bug, bukan galat penyedia): biaya aktual tidak diketahui, jadi seluruh
+ * reservasi dihitung terpakai (`estimated`). Konservatif: plafon tidak terlewati oleh biaya yang
+ * tidak tercatat. Klien yang memutus koneksi TIDAK masuk ke sini: pipeline diselesaikan di latar.
  */
-async function commitUnknown(
-  db: D1Db,
-  outcome: "aborted" | "error",
-  reserved: Reserved[],
-  now: string,
-): Promise<void> {
+async function commitUnknown(db: D1Db, reserved: Reserved[], now: string): Promise<void> {
   for (const r of reserved)
     await settleLedger(db, {
       id: r.id,
-      outcome,
+      outcome: "error",
       reason: null,
       model: null,
       costMicro: r.amountMicro,
@@ -279,19 +291,23 @@ export function createApp(deps: Partial<AppDeps> = {}) {
       const status: JawabStatus = { ...off("budget"), sitekey: cfg.siteKey };
       return json(200, { ...status });
     }
-    let quota: JawabStatus["quota"] = null;
-    if (anon !== null) {
-      const day = quotaDay(at);
-      const used = await quotaUsed(
-        env.APP_DB,
-        day,
-        await quotaSubjects(cfg.secret, day, anon, c.req.header(IP_HEADER) ?? null),
-      );
-      quota = { used: used.anon, limit: settings.quota_anon_daily };
-      if (used.anon >= settings.quota_anon_daily || used.ip >= settings.quota_ip_daily) {
-        const status: JawabStatus = { ...off("quota"), sitekey: cfg.siteKey, quota };
-        return json(200, { ...status });
-      }
+    // Kuota jaringan IP diperiksa juga tanpa cookie, supaya pengunjung tidak diminta Turnstile lalu
+    // ditolak 429 (temuan peninjau). Tanpa cookie, subjek anon diisi ID kosong yang tidak pernah
+    // dipakai (hitungan anon-nya diabaikan).
+    const day = quotaDay(at);
+    const used = await quotaUsed(
+      env.APP_DB,
+      day,
+      await quotaSubjects(cfg.secret, day, anon ?? "", c.req.header(IP_HEADER) ?? null),
+    );
+    const quota: JawabStatus["quota"] =
+      anon === null ? null : { used: used.anon, limit: settings.quota_anon_daily };
+    if (
+      (anon !== null && used.anon >= settings.quota_anon_daily) ||
+      used.ip >= settings.quota_ip_daily
+    ) {
+      const status: JawabStatus = { ...off("quota"), sitekey: cfg.siteKey, quota };
+      return json(200, { ...status });
     }
     const status: JawabStatus = {
       available: true,
@@ -434,22 +450,21 @@ export function createApp(deps: Partial<AppDeps> = {}) {
     return streamSSE(c, async (stream) => {
       const send = (event: string, data: unknown) =>
         stream.writeSSE({ event, data: JSON.stringify(data) });
-      const controller = new AbortController();
-      stream.onAbort(() => controller.abort());
+      // Klien yang memutus koneksi TIDAK membatalkan pipeline (temuan peninjau S20): bila dibatalkan,
+      // biaya aktualnya tidak diketahui dan harus dihitung sebesar reservasi, sehingga putus-sambung
+      // berulang bisa menghabiskan plafon dengan biaya semu. Pipeline diselesaikan di latar
+      // (`waitUntil`), biaya nyatanya dikomit, dan hasil utuh masuk cache.
+      let clientGone = false;
+      stream.onAbort(() => {
+        clientGone = true;
+      });
       const heartbeat = setInterval(() => {
         if (!stream.aborted) void stream.write(": hb\n\n");
       }, HEARTBEAT_MS);
       // Pemegang (bukan `let`) supaya pengisian dari callback tetap terbaca TypeScript.
       const ledger: { retry: RetryReserved | null } = { retry: null };
-      const settleLater = (work: Promise<void>) =>
-        c.executionCtx.waitUntil(
-          work.catch((error: unknown) =>
-            log({
-              event: "jawab_ledger_error",
-              name: error instanceof Error ? error.name : "unknown",
-            }),
-          ),
-        );
+      const logError = (event: string) => (error: unknown) =>
+        log({ event, name: error instanceof Error ? error.name : "unknown" });
       const emit = async (e: JawabEvent) => {
         if (stream.aborted) return;
         if (e.type === "stage") await send("stage", { stage: e.stage });
@@ -460,66 +475,64 @@ export function createApp(deps: Partial<AppDeps> = {}) {
           await send("done", { result: publicResult(e.result), cached: false });
         else await send("fallback", { result: publicResult(e.result) });
       };
-      try {
-        const result = await runJawab(
-          {
-            corpus: env.CORPUS_DB,
-            anthropic,
-            emit,
-            signal: controller.signal,
-            ...(deps.editionId === undefined ? {} : { editionId: deps.editionId }),
-            headers: {
-              "cf-aig-metadata": JSON.stringify({ app: "surau-api", env: env.ENVIRONMENT }),
-            },
-            // Ulangan Sonnet = biaya tambahan: direservasi terpisah sebelum dipanggil.
-            beforeRetry: async (before) => {
-              const retry: RetryReserved = {
-                id: uuid(),
-                amountMicro: toMicro(retryReserveUsd()),
-                before,
-              };
-              const ok = await reserveBudget(env.APP_DB, {
-                id: retry.id,
-                kind: "retry",
-                period,
-                capMicro,
-                amountMicro: retry.amountMicro,
-                now: now().toISOString(),
-              });
-              if (ok) ledger.retry = retry;
-              return ok;
-            },
-          },
-          question,
-        );
-        log(resultLog(env.ENVIRONMENT, result, false));
-        settleLater(
-          (async () => {
-            const settledAt = now().toISOString();
-            await commitResult(env.APP_DB, primary, ledger.retry, result, settledAt);
-            const warned = await markBudgetWarning(env.APP_DB, period, settledAt);
-            if (warned !== null)
-              console.warn(
-                JSON.stringify({
-                  event: "jawab_budget_warning",
-                  environment: env.ENVIRONMENT,
+      const work = (async () => {
+        try {
+          const result = await runJawab(
+            {
+              corpus: env.CORPUS_DB,
+              anthropic,
+              emit,
+              ...(deps.editionId === undefined ? {} : { editionId: deps.editionId }),
+              headers: {
+                "cf-aig-metadata": JSON.stringify({ app: "surau-api", env: env.ENVIRONMENT }),
+              },
+              // Ulangan Sonnet = biaya tambahan: direservasi terpisah sebelum dipanggil.
+              beforeRetry: async (before) => {
+                const retry: RetryReserved = {
+                  id: uuid(),
+                  amountMicro: toMicro(retryReserveUsd()),
+                  before,
+                };
+                const ok = await reserveBudget(env.APP_DB, {
+                  id: retry.id,
+                  kind: "retry",
                   period,
-                  used_pct: Math.round(
-                    ((warned.spent_micro + warned.reserved_micro) / Math.max(warned.cap_micro, 1)) *
-                      100,
-                  ),
-                }),
-              );
-          })(),
-        );
-        // Hanya hasil utuh yang di-cache: jawaban terpotong (`max_tokens`) atau prompt di atas batas
-        // tidak disajikan ulang selama 30 hari.
-        const complete = !result.diagnostics.truncated && !result.diagnostics.over_prompt_limit;
-        if (complete && result.outcome !== "fallback" && result.model !== null) {
-          const created = now();
-          const expires = new Date(created.getTime() + CACHE_TTL_DAYS * 86_400_000);
-          c.executionCtx.waitUntil(
-            putAnswerCache(env.APP_DB, {
+                  capMicro,
+                  amountMicro: retry.amountMicro,
+                  now: now().toISOString(),
+                });
+                if (ok) ledger.retry = retry;
+                return ok;
+              },
+            },
+            question,
+          );
+          log({ ...resultLog(env.ENVIRONMENT, result, false), client_gone: clientGone });
+          const settledAt = now().toISOString();
+          await commitResult(env.APP_DB, primary, ledger.retry, result, settledAt).catch(
+            logError("jawab_ledger_error"),
+          );
+          const warned = await markBudgetWarning(env.APP_DB, period, settledAt).catch(() => null);
+          if (warned !== null)
+            console.warn(
+              JSON.stringify({
+                event: "jawab_budget_warning",
+                environment: env.ENVIRONMENT,
+                period,
+                used_pct: Math.round(
+                  ((warned.spent_micro + warned.reserved_micro) / Math.max(warned.cap_micro, 1)) *
+                    100,
+                ),
+              }),
+            );
+          // Hanya hasil utuh yang di-cache: jawaban terpotong (`max_tokens`) atau prompt di atas
+          // batas tidak disajikan ulang selama 30 hari.
+          const complete = !result.diagnostics.truncated && !result.diagnostics.over_prompt_limit;
+          if (complete && result.outcome !== "fallback" && result.model !== null) {
+            const created = now();
+            const expires = new Date(created.getTime() + CACHE_TTL_DAYS * 86_400_000);
+            // Mis. CHECK panjang result_json; hanya nama galat yang dicatat.
+            await putAnswerCache(env.APP_DB, {
               key,
               corpus_version: result.corpus_version,
               prompt_version: result.prompt_version,
@@ -528,37 +541,26 @@ export function createApp(deps: Partial<AppDeps> = {}) {
               result_json: JSON.stringify(publicResult(result)),
               created_at: created.toISOString(),
               expires_at: expires.toISOString(),
-            }).catch((error: unknown) => {
-              // Mis. CHECK panjang result_json; hanya nama galat yang dicatat.
-              log({
-                event: "jawab_cache_error",
-                name: error instanceof Error ? error.name : "unknown",
-              });
-            }),
-          );
-        }
-      } catch (error) {
-        const aborted = controller.signal.aborted;
-        settleLater(
-          commitUnknown(
+            }).catch(logError("jawab_cache_error"));
+          }
+        } catch (error) {
+          // Galat tak terduga (bug): reservasi dihitung terpakai. Pesan internal (bisa memuat isi)
+          // tidak pernah dikirim ke klien atau log.
+          await commitUnknown(
             env.APP_DB,
-            aborted ? "aborted" : "error",
             ledger.retry === null ? [primary] : [primary, ledger.retry],
             now().toISOString(),
-          ),
-        );
-        if (aborted) {
-          // Klien membatalkan: request Anthropic ikut dibatalkan; biaya parsialnya tidak diketahui
-          // di sini (Analytics gateway), jadi reservasinya dihitung terpakai.
-          log(emptyLog(env.ENVIRONMENT, "aborted", null));
-        } else {
-          // Pesan internal (bisa memuat isi) tidak pernah dikirim ke klien atau log.
+          ).catch(logError("jawab_ledger_error"));
           log(emptyLog(env.ENVIRONMENT, "error", error instanceof Error ? error.name : "unknown"));
-          await send("error", { error: "internal" });
+          if (!stream.aborted) await send("error", { error: "internal" });
+        } finally {
+          clearInterval(heartbeat);
         }
-      } finally {
-        clearInterval(heartbeat);
-      }
+      })();
+      // Tetap berjalan sampai selesai walau klien sudah pergi (batas waitUntil ±30 dtk sesudah
+      // respons berakhir; reservasi yang tidak sempat dikomit dibereskan cron).
+      c.executionCtx.waitUntil(work);
+      await work;
     });
   });
 

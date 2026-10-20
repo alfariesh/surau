@@ -29,7 +29,7 @@ export interface JawabLog {
   hadith_unsupported: number;
   truncated: boolean;
   refusals: { model: string; category: string | null }[];
-  provider_error: { status: number | null; type: string } | null;
+  provider_error: JawabResult["diagnostics"]["provider_error"];
 }
 
 export function resultLog(environment: string, r: JawabResult, cached: boolean): JawabLog {
