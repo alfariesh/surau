@@ -158,7 +158,12 @@ function FontSizeControl() {
 
 type CellOption = { id: string; label: string; icon?: ReactNode };
 
-/** Satu baris pilihan bergaya sel (CellSelect secondary): label di kiri, nilai terpilih di kanan. */
+/**
+ * Satu baris pilihan bergaya sel (CellSelect secondary): label di kiri, nilai terpilih di kanan.
+ * Nama pemicu harus memuat teks terlihat "label nilai" secara berurutan (WCAG 2.5.3, axe
+ * label-content-name-mismatch sejak axe 4.14). React Aria menyusunnya sebagai "nilai + aria-label",
+ * jadi aria-label berisi label dan nilai, dan ada spasi di antara keduanya di DOM.
+ */
 function CellPicker({
   label,
   value,
@@ -170,9 +175,10 @@ function CellPicker({
   options: readonly CellOption[];
   onSelect: (value: string) => void;
 }) {
+  const selectedLabel = options.find((o) => o.id === value)?.label;
   return (
     <CellSelect
-      aria-label={label}
+      aria-label={selectedLabel ? `${label} ${selectedLabel}` : label}
       value={value}
       variant="secondary"
       onChange={(key) => {
@@ -180,7 +186,7 @@ function CellPicker({
       }}
     >
       <CellSelect.Trigger>
-        <CellSelect.Label>{label}</CellSelect.Label>
+        <CellSelect.Label>{label}</CellSelect.Label>{" "}
         <CellSelect.Value>
           {({ defaultChildren, isPlaceholder, state }: any) => {
             const selected = options.find((o) => o.id === state.selectedItems[0]?.key);

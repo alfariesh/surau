@@ -13,6 +13,14 @@ const generated = [
   "**/cloudflare-env.d.ts",
 ];
 
+const vendoredAset = [
+  ".claude/skills/aset/mesin/**",
+  ".claude/skills/aset/contoh/**",
+  "aset/**",
+  "apps/web/public/aset/**",
+  "apps/web/public/aset-mesin/**",
+];
+
 export default defineConfig({
   // tsconfig apps/web memakai `jsx: "preserve"` (wajib untuk Next). Tes komponen (.tsx) dijalankan
   // Vitest, jadi JSX ditransformasi di sini dengan runtime otomatis React.
@@ -21,7 +29,9 @@ export default defineConfig({
   },
   lint: {
     plugins: ["typescript", "unicorn", "oxc", "react", "nextjs", "jsx-a11y", "import", "vitest"],
-    ignorePatterns: [...generated, "docs/**", "implementasi/**"],
+    // Mesin aset (turunan iso-glow, MIT), contoh aslinya, serta figur dan keluaran aset (HTML padat
+    // bergaya mesin; keluaran dan public/aset = hasil bangun) tidak di-lint atau diformat ulang (ADR-057).
+    ignorePatterns: [...generated, "docs/**", "implementasi/**", ...vendoredAset],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -41,6 +51,7 @@ export default defineConfig({
       "**/*.md",
       "data/raw/**",
       "data/build/**",
+      ...vendoredAset,
     ],
     sortPackageJson: true,
   },

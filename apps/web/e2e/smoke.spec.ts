@@ -152,6 +152,60 @@ test("respons HTML membawa header keamanan dasar", async ({ request }) => {
   expect(headers["permissions-policy"]).toContain("camera=()");
 });
 
+test("ilustrasi prinsip di Beranda: iframe sandbox dekoratif, cerita diputar saat terlihat dan saat kartu disentuh", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const frames = page.locator("#judul-prinsip ~ ul iframe");
+  await expect(frames).toHaveCount(3);
+  for (const frame of await frames.all()) {
+    await expect(frame).toHaveAttribute("sandbox", "allow-scripts");
+    await expect(frame).toHaveAttribute("aria-hidden", "true");
+    await expect(frame).toHaveAttribute("tabindex", "-1");
+  }
+  await frames.first().scrollIntoViewIfNeeded();
+  const verbatim = page.frameLocator("#judul-prinsip ~ ul iframe").first();
+  // ?sematan=1 tetap ada setelah pengalihan /aset/x.html → /aset/x di Static Assets; tanpa tombol, tanpa kata
+  await expect(verbatim.locator("html.sematan")).toBeAttached();
+  await expect(verbatim.locator("button")).toHaveCount(0);
+  await expect(verbatim.locator("#stage text")).toHaveCount(0);
+  // cerita: keliru dulu ("tidak cocok"), lalu berakhir benar ("sama persis")
+  await expect(verbatim.locator("#status")).toHaveText(/tidak cocok/, { timeout: 10_000 });
+  await expect(verbatim.locator("#status")).toHaveText(/sama persis/, { timeout: 10_000 });
+  // judul kartu diketuk → cerita diputar ulang (melewati keadaan "tidak cocok" lagi)
+  await page
+    .locator("[data-art-card]")
+    .first()
+    .getByText("Verbatim atau tidak sama sekali")
+    .click();
+  await expect(verbatim.locator("#status")).toHaveText(/tidak cocok/, { timeout: 5000 });
+  await expect(verbatim.locator("#status")).toHaveText(/sama persis/, { timeout: 10_000 });
+});
+
+test("aset ilustrasi hanya boleh dibingkai halaman Surau sendiri dan berjalan tersandbox", async ({
+  request,
+}) => {
+  const aset = await request.get("/aset/prinsip-verbatim.html");
+  expect(aset.ok()).toBe(true);
+  const headers = aset.headers();
+  expect(headers["x-frame-options"]).toBe("SAMEORIGIN");
+  expect(headers["content-security-policy"]).toContain("frame-ancestors 'self'");
+  expect(headers["content-security-policy"]).toContain("sandbox allow-scripts");
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  // Tanpa sisipan beacon Web Analytics (di produksi: no-transform dari public/_headers)
+  const html = await aset.text();
+  expect(html).not.toContain("cloudflareinsights");
+
+  // Mesin bersama: nama ber-hash, di-cache selamanya.
+  const mesin = html.match(/\/aset-mesin\/iso-[0-9a-f]+\.js/)?.[0];
+  expect(mesin).toBeTruthy();
+  const engine = await request.get(mesin!);
+  expect(engine.ok()).toBe(true);
+  expect(engine.headers()["cache-control"]).toContain("immutable");
+  expect(engine.headers()["x-content-type-options"]).toBe("nosniff");
+});
+
 test("API versi melaporkan NORM_VERSION dari @surau/text", async ({ request }) => {
   const response = await request.get("/api/version");
 

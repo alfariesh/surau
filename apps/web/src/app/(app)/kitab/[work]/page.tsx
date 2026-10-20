@@ -62,11 +62,15 @@ export default async function WorkPage({ params }: Props) {
       <header className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
         {start ? (
           <NextLink
-            aria-label={t.openWork(title)}
             className="shrink-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
             href={start}
           >
-            <WorkCover textured width={{ xs: 150, sm: 168, md: 196 }} work={work} />
+            {/* Nama tautan dari teks tersembunyi, bukan aria-label: teks di sampul tidak memuat
+                "Buka kitab", jadi aria-label melanggar WCAG 2.5.3 (axe label-content-name-mismatch). */}
+            <span className="sr-only">{t.openWork(title)}</span>
+            <div aria-hidden="true" className="contents">
+              <WorkCover textured width={{ xs: 150, sm: 168, md: 196 }} work={work} />
+            </div>
           </NextLink>
         ) : (
           <WorkCover textured width={{ xs: 150, sm: 168, md: 196 }} work={work} />

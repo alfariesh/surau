@@ -7,6 +7,7 @@ import NextLink from "next/link";
 import { listWorks } from "@surau/core";
 
 import { ArabicText } from "../../components/arabic";
+import { ArtEmbed } from "../../components/art/art-embed";
 import { WorkShelf } from "../../components/book/work-shelf";
 import { BASMALAH } from "../../content/basmalah";
 import { id, SOURCE_URL } from "../../i18n/id";
@@ -105,8 +106,10 @@ export default async function HomePage() {
           </Typography.Heading>
           <ul className="grid gap-4 sm:grid-cols-3">
             {t.principles.map((p) => (
-              <li key={p.title} className="flex">
+              <li key={p.title} className="flex" data-art-card>
                 <Card className="w-full">
+                  {/* Ilustrasi per prinsip (ADR-057): tanpa kata, dekoratif; hover/ketuk kartu memutar ulang. */}
+                  <ArtEmbed className="-mt-1 rounded-xl" name={p.art} title={t.principleArtTitle} />
                   <Card.Header>
                     <Card.Title>{p.title}</Card.Title>
                     <Card.Description>{p.body}</Card.Description>
