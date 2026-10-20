@@ -4,156 +4,36 @@ import type { FormEvent } from "react";
 
 import type { TocItem } from "../../lib/reader/toc";
 
-import { AlertCircle, Copy01, LeftToRightListBullet, MinusSign, PlusSign } from "../../icons";
-import { NativeSelect } from "@heroui-pro/react";
 import {
-  Button,
-  ButtonGroup,
-  Checkbox,
-  Drawer,
-  Label,
-  NumberField,
-  Popover,
-  Tooltip,
-} from "@heroui/react";
+  AlertCircle,
+  ArrowRightDouble,
+  Copy01,
+  LeftToRightListBullet,
+  MoreVertical,
+} from "../../icons";
+import { NativeSelect, Sheet } from "@heroui-pro/react";
+import { Button, ButtonGroup, Dropdown, Label, NumberField, Popover } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 
 import { id } from "../../i18n/id";
-import { READER_SCALE_KEY, READER_SCALES, READER_TRANSLATION_KEY } from "../../lib/reader/scale";
 
 import { useReader } from "./reader-context";
+import { ReaderStyle } from "./reader-style";
 import { TocTree } from "./toc-tree";
 
 const t = id.reader;
 
-const SCALE_EVENT = "surau:reader-scale";
-
-function storedScale(): number {
-  try {
-    const stored = Number(window.localStorage.getItem(READER_SCALE_KEY));
-    return READER_SCALES.some((s) => s === stored) ? stored : 1;
-  } catch {
-    return 1;
-  }
-}
-
-function setScale(scale: number, persist: boolean) {
-  document.documentElement.style.setProperty("--reader-scale", String(scale));
-  if (persist) {
-    try {
-      window.localStorage.setItem(READER_SCALE_KEY, String(scale));
-    } catch {
-      // Mode privat / penyimpanan diblokir: ukuran tetap berlaku sampai halaman ditutup.
-    }
-  }
-  window.dispatchEvent(new Event(SCALE_EVENT));
-}
-
-function subscribeScale(onChange: () => void) {
-  window.addEventListener(SCALE_EVENT, onChange);
-  return () => window.removeEventListener(SCALE_EVENT, onChange);
-}
-
-/** Skala yang sedang berlaku = variabel CSS di <html> (dipasang skrip awal atau tombol ini). */
-function currentScaleIndex(): number {
-  const value = Number(document.documentElement.style.getPropertyValue("--reader-scale") || "1");
-  const i = READER_SCALES.findIndex((s) => s === value);
-  return i === -1 ? 1 : i;
-}
-
-function FontSizeControl() {
-  const index = useSyncExternalStore(subscribeScale, currentScaleIndex, () => 1);
-  // Navigasi klien dari halaman lain tidak menjalankan skrip awal: pasang skala tersimpan di sini.
-  useEffect(() => setScale(storedScale(), false), []);
-
-  function change(delta: number) {
-    const next = Math.min(READER_SCALES.length - 1, Math.max(0, index + delta));
-    setScale(READER_SCALES[next] ?? 1, true);
-  }
-
-  return (
-    <ButtonGroup aria-label={t.fontSize} size="sm" variant="tertiary">
-      <Button
-        isIconOnly
-        aria-label={t.fontSmaller}
-        isDisabled={index === 0}
-        onPress={() => change(-1)}
-      >
-        <MinusSign className="size-4" />
-      </Button>
-      <Button
-        isIconOnly
-        aria-label={t.fontLarger}
-        isDisabled={index === READER_SCALES.length - 1}
-        onPress={() => change(1)}
-      >
-        <PlusSign className="size-4" />
-      </Button>
-    </ButtonGroup>
-  );
-}
-
-const TRANSLATION_EVENT = "surau:reader-translation";
-
-function translationShown(): boolean {
-  return document.documentElement.getAttribute("data-translation") !== "off";
-}
-
-function subscribeTranslation(onChange: () => void) {
-  window.addEventListener(TRANSLATION_EVENT, onChange);
-  return () => window.removeEventListener(TRANSLATION_EVENT, onChange);
-}
-
-function setTranslation(shown: boolean, persist: boolean) {
-  if (shown) document.documentElement.removeAttribute("data-translation");
-  else document.documentElement.setAttribute("data-translation", "off");
-  if (persist) {
-    try {
-      window.localStorage.setItem(READER_TRANSLATION_KEY, shown ? "1" : "0");
-    } catch {
-      // localStorage diblokir: pilihan berlaku sampai halaman ditutup.
-    }
-  }
-  window.dispatchEvent(new Event(TRANSLATION_EVENT));
-}
-
-/** Tampil/sembunyikan terjemahan AI (S14), disimpan per browser seperti ukuran huruf. */
-function TranslationToggle() {
-  const shown = useSyncExternalStore(subscribeTranslation, translationShown, () => true);
-  // Navigasi klien dari halaman lain tidak menjalankan skrip awal: pasang pilihan tersimpan di sini.
-  useEffect(() => {
-    try {
-      setTranslation(window.localStorage.getItem(READER_TRANSLATION_KEY) !== "0", false);
-    } catch {
-      // localStorage diblokir: tetap tampil.
-    }
-  }, []);
-  return (
-    <Checkbox isSelected={shown} onChange={(v) => setTranslation(v, true)}>
-      <Checkbox.Content className="text-foreground text-sm">
-        <Checkbox.Control>
-          <Checkbox.Indicator />
-        </Checkbox.Control>
-        {t.translationToggle}
-      </Checkbox.Content>
-    </Checkbox>
-  );
-}
-
-function JumpToPage({
-  segment,
-  volumes,
-  juz,
-  page,
-}: {
+interface JumpProps {
   segment: string;
   volumes: number;
   juz: number;
   page: number;
-}) {
+}
+
+/** Isi "Lompat ke halaman": pilih juz + nomor halaman cetak. */
+function JumpForm({ segment, volumes, juz, page, onDone }: JumpProps & { onDone: () => void }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -161,13 +41,56 @@ function JumpToPage({
     const toJuz = Number(form.get("juz"));
     const toPage = Number(form.get("page"));
     if (!Number.isInteger(toJuz) || !Number.isInteger(toPage) || toJuz < 1 || toPage < 0) return;
-    setOpen(false);
+    onDone();
     router.push(`/kitab/${segment}/${toJuz}/${toPage}`);
   }
 
   return (
+    <form className="flex items-end gap-2" onSubmit={submit}>
+      <div className="flex flex-col gap-1">
+        <label className="text-foreground text-sm font-medium" htmlFor={`lompat-juz-${segment}`}>
+          {t.jumpJuz}
+        </label>
+        <NativeSelect>
+          <NativeSelect.Trigger defaultValue={String(juz)} id={`lompat-juz-${segment}`} name="juz">
+            {Array.from({ length: Math.max(volumes, juz) }, (_, i) => (
+              <NativeSelect.Option key={i + 1} value={String(i + 1)}>
+                {i + 1}
+              </NativeSelect.Option>
+            ))}
+            <NativeSelect.Indicator />
+          </NativeSelect.Trigger>
+        </NativeSelect>
+      </div>
+      <NumberField
+        isRequired
+        className="w-24"
+        defaultValue={page}
+        formatOptions={{ useGrouping: false }}
+        maxValue={9999}
+        minValue={0}
+        name="page"
+      >
+        <Label>{t.jumpPage}</Label>
+        <NumberField.Group>
+          <NumberField.Input />
+        </NumberField.Group>
+      </NumberField>
+      <Button type="submit">{t.jumpGo}</Button>
+    </form>
+  );
+}
+
+/** Tablet/desktop: tombol "Lompat" (ikon + teks) dengan popover. */
+function JumpToPage(props: JumpProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
     <Popover isOpen={open} onOpenChange={setOpen}>
-      <Button size="sm" variant="tertiary">
+      {/* Di desktop tombol Daftar isi tersembunyi, jadi tombol ini menjadi ujung awal grup. */}
+      <Button className="lg:rounded-s-3xl" size="sm" variant="tertiary">
+        <ButtonGroup.Separator className="lg:hidden" />
+        <ArrowRightDouble className="size-4" />
         {t.jump}
       </Button>
       <Popover.Content className="w-72" placement="bottom">
@@ -175,65 +98,105 @@ function JumpToPage({
           <Popover.Heading className="text-foreground mb-3 text-sm font-semibold">
             {t.jumpHeading}
           </Popover.Heading>
-          <form className="flex items-end gap-2" onSubmit={submit}>
-            <div className="flex flex-col gap-1">
-              <label className="text-foreground text-sm font-medium" htmlFor="lompat-juz">
-                {t.jumpJuz}
-              </label>
-              <NativeSelect>
-                <NativeSelect.Trigger defaultValue={String(juz)} id="lompat-juz" name="juz">
-                  {Array.from({ length: Math.max(volumes, juz) }, (_, i) => (
-                    <NativeSelect.Option key={i + 1} value={String(i + 1)}>
-                      {i + 1}
-                    </NativeSelect.Option>
-                  ))}
-                  <NativeSelect.Indicator />
-                </NativeSelect.Trigger>
-              </NativeSelect>
-            </div>
-            <NumberField
-              isRequired
-              className="w-24"
-              defaultValue={page}
-              formatOptions={{ useGrouping: false }}
-              maxValue={9999}
-              minValue={0}
-              name="page"
-            >
-              <Label>{t.jumpPage}</Label>
-              <NumberField.Group>
-                <NumberField.Input />
-              </NumberField.Group>
-            </NumberField>
-            <Button type="submit">{t.jumpGo}</Button>
-          </form>
+          <JumpForm {...props} onDone={() => setOpen(false)} />
         </Popover.Dialog>
       </Popover.Content>
     </Popover>
   );
 }
 
-function TocDrawer({ toc, activeIds }: { toc: TocItem[]; activeIds: number[] }) {
+/**
+ * Ponsel: menu ⋮ di ujung grup (Lompat ke halaman, Salin sitasi, Laporkan kesalahan). "Lompat ke
+ * halaman" membuka sheet bawah berisi formulir yang sama.
+ */
+function MobileMenu({ pagePath, ...jump }: JumpProps & { pagePath: string }) {
+  const reader = useReader();
+  const [jumpOpen, setJumpOpen] = useState(false);
+
   return (
-    <Drawer>
-      <Button className="lg:hidden" size="sm" variant="tertiary">
-        <LeftToRightListBullet className="size-4" />
-        {t.tocOpen}
-      </Button>
-      <Drawer.Backdrop>
-        <Drawer.Content placement="left">
-          <Drawer.Dialog>
-            <Drawer.CloseTrigger />
-            <Drawer.Header>
-              <Drawer.Heading>{t.tocHeading}</Drawer.Heading>
-            </Drawer.Header>
-            <Drawer.Body data-toc-scroll>
+    <>
+      <Dropdown>
+        <Button isIconOnly aria-label={t.moreActions} size="sm" variant="tertiary">
+          <ButtonGroup.Separator />
+          <MoreVertical className="size-4" />
+        </Button>
+        <Dropdown.Popover className="min-w-56" placement="bottom end">
+          <Dropdown.Menu
+            aria-label={t.moreActions}
+            onAction={(key) => {
+              if (key === "jump") setJumpOpen(true);
+              if (key === "copy") void reader.copyCitation(pagePath);
+              if (key === "report") reader.openReport(null);
+            }}
+          >
+            <Dropdown.Item id="jump" textValue={t.jumpHeading}>
+              <ArrowRightDouble className="size-4" />
+              <Label>{t.jumpHeading}</Label>
+            </Dropdown.Item>
+            <Dropdown.Item id="copy" textValue={t.copyCitation}>
+              <Copy01 className="size-4" />
+              <Label>{t.copyCitation}</Label>
+            </Dropdown.Item>
+            <Dropdown.Item id="report" textValue={t.report}>
+              <AlertCircle className="size-4" />
+              <Label>{t.report}</Label>
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown.Popover>
+      </Dropdown>
+      <Sheet isOpen={jumpOpen} onOpenChange={setJumpOpen}>
+        <Sheet.Backdrop variant="blur">
+          <Sheet.Content>
+            <Sheet.Dialog>
+              <Sheet.Handle />
+              <Sheet.CloseTrigger />
+              <Sheet.Header>
+                <Sheet.Heading>{t.jumpHeading}</Sheet.Heading>
+              </Sheet.Header>
+              <Sheet.Body className="pb-8">
+                <JumpForm {...jump} onDone={() => setJumpOpen(false)} />
+              </Sheet.Body>
+            </Sheet.Dialog>
+          </Sheet.Content>
+        </Sheet.Backdrop>
+      </Sheet>
+    </>
+  );
+}
+
+/** Ponsel/tablet: daftar isi di sheet bawah berlatar buram (desktop: kolom kiri halaman). */
+function TocSheet({
+  toc,
+  activeIds,
+  className,
+}: {
+  toc: TocItem[];
+  activeIds: number[];
+  className?: string;
+}) {
+  return (
+    <Sheet>
+      <Sheet.Trigger>
+        <Button className={className} size="sm" variant="tertiary">
+          <LeftToRightListBullet className="size-4" />
+          {t.tocOpen}
+        </Button>
+      </Sheet.Trigger>
+      <Sheet.Backdrop variant="blur">
+        <Sheet.Content className="max-h-[85dvh]">
+          <Sheet.Dialog>
+            <Sheet.Handle />
+            <Sheet.CloseTrigger />
+            <Sheet.Header>
+              <Sheet.Heading>{t.tocHeading}</Sheet.Heading>
+            </Sheet.Header>
+            <Sheet.Body data-toc-scroll className="pb-6">
               <TocTree activeIds={activeIds} items={toc} />
-            </Drawer.Body>
-          </Drawer.Dialog>
-        </Drawer.Content>
-      </Drawer.Backdrop>
-    </Drawer>
+            </Sheet.Body>
+          </Sheet.Dialog>
+        </Sheet.Content>
+      </Sheet.Backdrop>
+    </Sheet>
   );
 }
 
@@ -245,6 +208,7 @@ export function ReaderToolbar({
   juz,
   page,
   pagePath,
+  sample,
 }: {
   toc: TocItem[];
   activeIds: number[];
@@ -253,33 +217,60 @@ export function ReaderToolbar({
   juz: number;
   page: number;
   pagePath: string;
+  /** Awal paragraf pertama halaman (teks DB) untuk pratinjau di panel Tampilan. */
+  sample: string | null;
 }) {
   const reader = useReader();
+  const jump = { juz, page, segment, volumes };
 
+  // Dua susunan (CSS memilih salah satu): ponsel = Daftar isi · Tampilan (melebar) · ⋮ menu;
+  // tablet/desktop = Daftar isi (sampai lg) · Lompat · Salin sitasi · Tampilan. role="group" dari
+  // ButtonGroup, bukan role="toolbar": pola toolbar ARIA memakai ←/→ antar-kontrol, padahal ←/→
+  // di halaman ini membalik halaman (PageNav).
   return (
-    // Div biasa, bukan role="toolbar": pola toolbar ARIA memakai ←/→ antar-kontrol, padahal ←/→
-    // di halaman ini membalik halaman (PageNav).
-    <div className="flex flex-wrap items-center gap-2">
-      <TocDrawer activeIds={activeIds} toc={toc} />
-      <JumpToPage juz={juz} page={page} segment={segment} volumes={volumes} />
-      <Button size="sm" variant="tertiary" onPress={() => void reader.copyCitation(pagePath)}>
-        <Copy01 className="size-4" />
-        {t.copyCitation}
-      </Button>
-      <FontSizeControl />
-      <TranslationToggle />
-      <Tooltip delay={300}>
-        <Button
-          isIconOnly
-          aria-label={t.report}
-          size="sm"
-          variant="tertiary"
-          onPress={() => reader.openReport(null)}
-        >
-          <AlertCircle className="size-4" />
+    <>
+      <ButtonGroup
+        fullWidth
+        aria-label={t.toolbarLabel}
+        className="sm:hidden"
+        size="sm"
+        variant="tertiary"
+      >
+        <TocSheet activeIds={activeIds} className="flex-1" toc={toc} />
+        <ReaderStyle separator className="flex-1" sample={sample} />
+        <MobileMenu pagePath={pagePath} {...jump} />
+      </ButtonGroup>
+      <ButtonGroup
+        aria-label={t.toolbarLabel}
+        className="self-start max-sm:hidden"
+        size="sm"
+        variant="tertiary"
+      >
+        <TocSheet activeIds={activeIds} className="lg:hidden" toc={toc} />
+        <JumpToPage {...jump} />
+        <Button onPress={() => void reader.copyCitation(pagePath)}>
+          <ButtonGroup.Separator />
+          <Copy01 className="size-4" />
+          {t.copyCitation}
         </Button>
-        <Tooltip.Content>{t.report}</Tooltip.Content>
-      </Tooltip>
-    </div>
+        <ReaderStyle separator sample={sample} />
+      </ButtonGroup>
+    </>
+  );
+}
+
+/** Lapor kesalahan untuk seluruh halaman (di bagian Sumber, bawah halaman). */
+export function ReportPageButton() {
+  const reader = useReader();
+  return (
+    <Button
+      className="self-start"
+      size="sm"
+      variant="ghost"
+      onPress={() => reader.openReport(null)}
+    >
+      <AlertCircle className="size-4" />
+      {t.report}
+    </Button>
   );
 }

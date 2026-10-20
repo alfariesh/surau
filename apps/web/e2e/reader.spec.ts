@@ -32,7 +32,9 @@ test("halaman baca tanpa galat JavaScript (regresi `__name` dari bundler Worker)
   const response = await page.goto(PAGE);
   // keep_names: false (ADR-034 butir 8): skrip tema dari fn.toString() tidak boleh membawa __name.
   expect(await response?.text()).not.toContain("__name(");
-  await expect(page.getByRole("button", { name: "Salin sitasi" })).toBeVisible();
+  await expect(
+    page.getByRole("group", { name: "Alat baca" }).getByRole("button", { name: "Tampilan" }),
+  ).toBeVisible();
   await page.waitForLoadState("load");
   expect(errors).toEqual([]);
 });
@@ -81,11 +83,22 @@ test("navigasi halaman: tombol dan panah papan ketik mengikuti arah kitab Arab",
   await expect(page).toHaveURL(/\/kitab\/ihya\/1\/201$/);
 });
 
-test("Salin sitasi menghasilkan format sitasi + permalink", async ({ page, context, baseURL }) => {
+test("Salin sitasi menghasilkan format sitasi + permalink", async ({
+  page,
+  context,
+  baseURL,
+  isMobile,
+}) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto(PAGE);
 
-  await page.getByRole("button", { name: "Salin sitasi" }).click();
+  // Ponsel: Salin sitasi ada di menu ⋮ grup tombol.
+  if (isMobile) {
+    await page.getByRole("button", { name: "Aksi lain" }).click();
+    await page.getByRole("menuitem", { name: "Salin sitasi" }).click();
+  } else {
+    await page.getByRole("button", { name: "Salin sitasi" }).click();
+  }
   await expect(page.getByText("Sitasi disalin")).toBeVisible();
   const copied = await page.evaluate(() => navigator.clipboard.readText());
   expect(copied).toBe(
@@ -183,4 +196,37 @@ test("label rujukan ayat membuka teks ayat dan terjemahan Kemenag dengan atribus
     "href",
     "https://tanzil.net",
   );
+});
+
+test("panel Tampilan: font Arab dan jarak baris tersimpan setelah muat ulang", async ({ page }) => {
+  await page.goto(PAGE);
+  await page
+    .getByRole("group", { name: "Alat baca" })
+    .getByRole("button", { name: "Tampilan" })
+    .click();
+  const panel = page.getByRole("dialog", { name: "Tampilan baca" });
+  await expect(panel).toBeVisible();
+  await panel.getByText("Amiri", { exact: true }).click();
+  await panel.getByRole("radio", { name: "Longgar" }).click();
+  const html = page.locator("html");
+  await expect(html).toHaveAttribute("data-reader-font", "amiri");
+  await expect(html).toHaveAttribute("data-reader-leading", "loose");
+
+  await page.reload();
+  await expect(html).toHaveAttribute("data-reader-font", "amiri");
+  await expect(html).toHaveAttribute("data-reader-leading", "loose");
+  // Font pilihan berlaku untuk teks kitab (aturan CSS dibatasi ke .reader-text).
+  const font = await page
+    .getByRole("region", { name: "Teks kitab" })
+    .locator(".arabic-text")
+    .first()
+    .evaluate((el) => getComputedStyle(el).fontFamily);
+  expect(font).toMatch(/Amiri/);
+  await page
+    .getByRole("group", { name: "Alat baca" })
+    .getByRole("button", { name: "Tampilan" })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Tampilan baca" }).getByRole("radio", { name: "Amiri" }),
+  ).toBeChecked();
 });

@@ -4,6 +4,7 @@ import { Card } from "@heroui/react";
 import NextLink from "next/link";
 
 import { PageSection } from "../../../components/page-section";
+import { TextPage } from "../../../components/text-page";
 import { id, SOURCE_URL } from "../../../i18n/id";
 
 const t = id.about;
@@ -14,15 +15,27 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
-  return (
-    <article className="mx-auto flex w-full max-w-2xl flex-col gap-10 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
-      <header className="flex flex-col gap-3">
-        <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
-          {t.heading}
-        </h1>
-        <p className="text-muted text-base sm:text-lg">{t.lead}</p>
-      </header>
+  const sections = [
+    { id: "visi", label: t.visionHeading },
+    { id: "pengguna", label: t.audienceHeading },
+    { id: "bukan", label: t.notHeading },
+    { id: "prinsip", label: t.principlesHeading },
+    { id: "terbuka", label: t.openHeading },
+    { id: "lisensi", label: t.licenseHeading },
+  ];
 
+  return (
+    <TextPage
+      header={
+        <header className="flex flex-col gap-3">
+          <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
+            {t.heading}
+          </h1>
+          <p className="text-muted text-base sm:text-lg">{t.lead}</p>
+        </header>
+      }
+      sections={sections}
+    >
       <PageSection heading={t.visionHeading} id="visi">
         <p className="text-foreground text-base leading-relaxed">{t.vision}</p>
       </PageSection>
@@ -84,6 +97,6 @@ export default function AboutPage() {
           </p>
         </div>
       </PageSection>
-    </article>
+    </TextPage>
   );
 }

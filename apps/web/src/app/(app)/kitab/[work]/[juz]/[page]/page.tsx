@@ -1,10 +1,10 @@
 import type { AyahRef, Passage } from "@surau/core";
 import type { Metadata } from "next";
 
-import { Breadcrumbs } from "@heroui/react";
 import { Fragment, Suspense } from "react";
 
 import { ArabicInline, ArabicText } from "../../../../../../components/arabic";
+import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-ld";
 import { AyahRefChip } from "../../../../../../components/reader/ayah-ref";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
 import { FootnoteMarker } from "../../../../../../components/reader/footnote-marker";
@@ -14,20 +14,27 @@ import { PassageActions } from "../../../../../../components/reader/passage-acti
 import { PassageTranslation } from "../../../../../../components/reader/passage-translation";
 import { QuranNotice } from "../../../../../../components/reader/quran-notice";
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
-import { ReaderToolbar } from "../../../../../../components/reader/reader-toolbar";
+import { ReaderCompactHeader } from "../../../../../../components/reader/reader-compact-header";
+import {
+  ReaderToolbar,
+  ReportPageButton,
+} from "../../../../../../components/reader/reader-toolbar";
 import { SearchHighlighter } from "../../../../../../components/reader/search-highlighter";
 import { SectionSummary } from "../../../../../../components/reader/section-summary";
 import { TocTree } from "../../../../../../components/reader/toc-tree";
 import { FOOTNOTE_NOTE } from "../../../../../../content/works";
 import { id } from "../../../../../../i18n/id";
+import { PAGE_FRAME } from "../../../../../../lib/layout";
 import { citeParts } from "../../../../../../lib/reader/cite";
 import { loadPage, loadToc } from "../../../../../../lib/reader/data";
+import { previewSample } from "../../../../../../lib/reader/preview";
 import { READER_SCALE_SCRIPT } from "../../../../../../lib/reader/scale";
 import { splitPassage } from "../../../../../../lib/reader/segments";
 import {
   activeTocIds,
   headingPassages,
   sectionStarts,
+  tocHref,
   tocPath,
 } from "../../../../../../lib/reader/toc";
 
@@ -118,6 +125,11 @@ export default async function ReaderPage({ params }: Props) {
   const footNote = FOOTNOTE_NOTE[`${work.slug}/${edition.slug}`];
   const anyReview = [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0);
   const workTitle = work.title_id ?? work.title_ar;
+  const bab = crumbs.at(-1)?.title ?? null;
+  // Pratinjau huruf di panel Tampilan: awal paragraf isi pertama halaman ini (lib/reader/preview).
+  const sample = previewSample(
+    (page.body.find((p) => !headings.has(p.id)) ?? page.body[0])?.text_raw,
+  );
   const ref = (p: Passage) => ({
     id: p.id,
     label: passageLabel(juz, pageNo, p),
@@ -190,28 +202,21 @@ export default async function ReaderPage({ params }: Props) {
       <Suspense fallback={null}>
         <SearchHighlighter />
       </Suspense>
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 pt-6 pb-16 sm:px-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
+      <div
+        className={`${PAGE_FRAME} grid gap-6 pt-6 pb-16 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10`}
+      >
         <article className="flex min-w-0 flex-col gap-6">
           <header className="flex flex-col gap-3">
-            <Breadcrumbs aria-label={t.breadcrumbLabel} className="flex-wrap">
-              <Breadcrumbs.Item href="/kitab">{t.listTitle}</Breadcrumbs.Item>
-              <Breadcrumbs.Item href={edition.permalink}>{workTitle}</Breadcrumbs.Item>
-              {crumbs.map((c, i) => (
-                <Breadcrumbs.Item
-                  key={c.id}
-                  // Di ponsel hanya bagian terdalam yang tampil, supaya teks kitab tidak terdorong jauh.
-                  // `min-w-0 shrink`: butir HeroUI `flex-shrink: 0`, sehingga judul bab yang panjang
-                  // tidak membungkus dan meluber melewati gutter kanan di ponsel.
-                  className={`min-w-0 shrink${i < crumbs.length - 1 ? " max-sm:hidden" : ""}`}
-                  // Langsung ke halaman awal bagian (tanpa lompatan 307 lewat /bab/<id>).
-                  href={`${c.href}#bab-${c.id}`}
-                >
-                  <ArabicInline>{c.title}</ArabicInline>
-                </Breadcrumbs.Item>
-              ))}
-              <Breadcrumbs.Item>{t.pageShort(juz, pageNo)}</Breadcrumbs.Item>
-            </Breadcrumbs>
-            <div className="flex flex-col gap-1">
+            {/* Breadcrumb tidak ditampilkan di halaman baca (daftar isi menunjukkan posisi); markup untuk Google tetap ada. */}
+            <BreadcrumbJsonLd
+              crumbs={[
+                { name: t.listTitle, href: "/kitab" },
+                { name: workTitle, href: edition.permalink },
+                ...crumbs.map((c) => ({ name: c.title, href: tocHref(c) })),
+                { name: t.pageHeading(juz, pageNo), href: permalink },
+              ]}
+            />
+            <div className="flex flex-col gap-1" data-reader-title>
               <h1 className="text-foreground text-[1.75rem] leading-tight font-semibold tracking-tight sm:text-[2rem]">
                 {t.pageHeading(juz, pageNo)}
               </h1>
@@ -225,13 +230,13 @@ export default async function ReaderPage({ params }: Props) {
               juz={juz}
               page={pageNo}
               pagePath={permalink}
+              sample={sample}
               segment={segment}
               toc={toc}
               volumes={edition.volumes ?? juz}
             />
           </header>
-
-          <PageNav label={t.pageNavTopLabel} next={page.next} prev={page.prev} />
+          <ReaderCompactHeader bab={bab} juz={juz} page={pageNo} sample={sample} />
 
           <section aria-label={t.textLabel} className="reader-text flex flex-col gap-3">
             {starts.unplaced.map((nodeId) => (
@@ -245,22 +250,34 @@ export default async function ReaderPage({ params }: Props) {
                   {(starts.byPassage.get(p.id) ?? []).map((nodeId) => (
                     <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
                   ))}
-                  <div className="passage flex flex-row-reverse items-start gap-1" id={p.anchor}>
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      {heading ? (
+                  {/* Satu kolom: teks Arab, terjemahan, dan ringkasan berbagi tepi yang sama. Menu ⋮
+                      ada di akhir teks (sebaris dengan kata terakhir), bukan kolom sendiri. */}
+                  <div className="passage flex flex-col gap-1" id={p.anchor}>
+                    {heading ? (
+                      // Judul bab di tengah seperti kitab cetak; ⋮ di luar <h2> supaya tidak ikut
+                      // nama judul.
+                      <div className="flex items-center justify-center gap-1">
+                        <PassageActions passage={ref(p)} />
                         <ArabicText
                           as="h2"
                           className={`reader-heading ${heading.level > 2 ? "reader-heading-minor" : ""}`}
                         >
                           {renderText(p)}
                         </ArabicText>
-                      ) : (
-                        <ArabicText className="text-foreground">{renderText(p)}</ArabicText>
-                      )}
-                      <NeedsReviewNote reasons={p.needs_review} />
-                      <PassageTranslation footAnchor={footAnchor} passage={p} quran={quran} />
-                    </div>
-                    <PassageActions passage={ref(p)} />
+                      </div>
+                    ) : (
+                      <ArabicText className="text-foreground">
+                        {renderText(p)}
+                        <PassageActions passage={ref(p)} />
+                      </ArabicText>
+                    )}
+                    <NeedsReviewNote reasons={p.needs_review} />
+                    <PassageTranslation
+                      footAnchor={footAnchor}
+                      heading={heading !== undefined}
+                      passage={p}
+                      quran={quran}
+                    />
                   </div>
                   {summariesAt(starts.byPassage.get(p.id) ?? [])}
                 </Fragment>
@@ -268,41 +285,31 @@ export default async function ReaderPage({ params }: Props) {
             })}
           </section>
 
-          <PageNav keyboard next={page.next} prev={page.prev} />
-          <p className="text-muted text-xs">{t.keyboardHint}</p>
-
           {page.footnotes.length > 0 ? (
-            <section
-              aria-labelledby="judul-catatan-kaki"
-              className="flex flex-col gap-3 border-t border-separator pt-6"
-            >
-              <div className="flex flex-col gap-1">
-                <h2 className="text-foreground text-lg font-semibold" id="judul-catatan-kaki">
+            // Seperti catatan kaki buku: garis pendek, judul kecil, huruf lebih kecil dari teks.
+            <section aria-labelledby="judul-catatan-kaki" className="flex flex-col gap-3 pt-2">
+              <div aria-hidden="true" className="reader-footnotes-rule" />
+              <div className="flex flex-col gap-0.5">
+                <h2 className="text-foreground text-sm font-semibold" id="judul-catatan-kaki">
                   {footNote?.heading ?? t.footnotesHeading}
                 </h2>
-                {footNote ? <p className="text-muted text-sm">{footNote.lead}</p> : null}
+                {footNote ? <p className="text-muted text-xs">{footNote.lead}</p> : null}
               </div>
-              <ol className="flex list-none flex-col gap-3 p-0">
+              <ol className="reader-footnotes flex list-none flex-col gap-2 p-0">
                 {page.footnotes.map((f) => {
                   const back = markerOf.get(f.id);
                   return (
-                    <li
-                      key={f.id}
-                      className="passage flex flex-row-reverse items-start gap-1"
-                      id={f.anchor}
-                    >
-                      <div className="flex min-w-0 flex-1 flex-col gap-1">
-                        <ArabicText className="text-foreground text-[0.95em]">
-                          {renderText(f)}
-                        </ArabicText>
-                        <NeedsReviewNote reasons={f.needs_review} />
-                        {back ? (
-                          <a className="link self-start text-xs" href={`#${back}`}>
-                            {t.footnoteBack}
-                          </a>
-                        ) : null}
-                      </div>
-                      <PassageActions passage={ref(f)} />
+                    <li key={f.id} className="passage flex flex-col gap-1" id={f.anchor}>
+                      <ArabicText className="text-foreground">
+                        {renderText(f)}
+                        <PassageActions passage={ref(f)} />
+                      </ArabicText>
+                      <NeedsReviewNote reasons={f.needs_review} />
+                      {back ? (
+                        <a className="link self-start text-xs" href={`#${back}`}>
+                          {t.footnoteBack}
+                        </a>
+                      ) : null}
                     </li>
                   );
                 })}
@@ -310,9 +317,16 @@ export default async function ReaderPage({ params }: Props) {
             </section>
           ) : null}
 
+          {/* Navigasi halaman hanya di akhir halaman (sesudah catatan kaki), seperti membalik kitab. */}
+          <div className="flex flex-col gap-2">
+            <PageNav keyboard next={page.next} prev={page.prev} />
+            <p className="text-muted text-xs">{t.keyboardHint}</p>
+          </div>
+
           <footer className="text-muted flex flex-col gap-2 border-t border-separator pt-6 text-xs">
             <h2 className="text-foreground text-sm font-semibold">{t.sourceHeading}</h2>
             <LicenseNotice
+              compact
               attribution={page.citation.source.attribution}
               editionSlug={edition.slug}
               license={page.citation.source.license}
@@ -320,20 +334,16 @@ export default async function ReaderPage({ params }: Props) {
               workSlug={work.slug}
             />
             {quran ? <QuranNotice quran={quran} /> : null}
-            {anyAi ? (
-              <p>
-                <span className="text-foreground font-medium">{t.aiNoticeHeading}.</span>{" "}
-                {t.aiNotice}
-              </p>
-            ) : null}
+            {anyAi ? <p>{t.aiNotice}</p> : null}
             {anyReview ? <p>{t.needsReviewNote}</p> : null}
+            <ReportPageButton />
           </footer>
         </article>
 
         <aside aria-labelledby="judul-daftar-isi" className="hidden lg:order-first lg:block">
           <div
             data-toc-scroll
-            className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
+            className="scrollbar sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
           >
             <h2 className="text-foreground px-2 text-sm font-semibold" id="judul-daftar-isi">
               {t.tocHeading}

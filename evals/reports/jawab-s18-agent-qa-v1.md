@@ -2,7 +2,7 @@
 
 2026-10-19 · Korpus `ihya-v6` · Run `s18-tinjau-v1` · Penilai **Agent QA S18**.
 
-Pemilik meminta evaluasi agent agar pengembangan tidak menunggu Anas (ADR-053). Ini pemeriksaan sementara, **bukan persetujuan ustadz, kalibrasi manusia, atau mutu pipeline S19**. Contoh sengaja mencakup kesalahan; pipeline Jawab belum tersedia. Tidak ada panggilan API berbayar tambahan.
+Pemilik meminta evaluasi agent agar pengembangan tidak menunggu Anas (ADR-054). Ini pemeriksaan sementara, **bukan persetujuan ustadz, kalibrasi manusia, atau mutu pipeline S19**. Contoh sengaja mencakup kesalahan; pipeline Jawab belum tersedia. Tidak ada panggilan API berbayar tambahan.
 
 | Kelompok | Benar | Kurang | Salah | Jumlah |
 |---|---:|---:|---:|---:|

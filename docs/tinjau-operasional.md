@@ -2,7 +2,7 @@
 
 S18 · 2026-10-19 · Penilai yang ditunjuk pemilik: **Anas**. Halaman: [surau.org/tinjau](https://surau.org/tinjau). Ini ruang evaluasi internal; layanan Jawab belum dirilis. **Status 2026-10-19: halaman sudah terpublikasi melalui [PR #48](https://github.com/alfariesh/surau/pull/48), berisi 60 draf soal; persetujuan soal dan penilaian manusia masih T-24.**
 
-Evaluasi sementara **Agent QA S18** telah mengisi 60 ulasan atas permintaan pemilik: 18 benar, 31 kurang, 11 salah. [Laporan dan batasannya](../evals/reports/jawab-s18-agent-qa-v1.md). T-24 Anas ditunda dan pengembangan S19 boleh lanjut (ADR-053); penilaian agent tidak dihitung sebagai persetujuan atau kalibrasi manusia.
+Evaluasi sementara **Agent QA S18** telah mengisi 60 ulasan atas permintaan pemilik: 18 benar, 31 kurang, 11 salah. [Laporan dan batasannya](../evals/reports/jawab-s18-agent-qa-v1.md). T-24 Anas ditunda dan pengembangan S19 boleh lanjut (ADR-054); penilaian agent tidak dihitung sebagai persetujuan atau kalibrasi manusia.
 
 ## Untuk Anas dan pemilik (T-24, tindak lanjut)
 

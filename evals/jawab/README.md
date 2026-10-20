@@ -58,4 +58,4 @@ Metrik tanpa sampel = `—`, bukan 100%. Lokasi harus memenuhi semua lokasi gold
 
 ## Evaluasi agent sementara
 
-Atas permintaan pemilik, 60 ulasan **Agent QA S18** sudah tersedia, terpisah dari Anas. [Laporan](../reports/jawab-s18-agent-qa-v1.md) mencatat 30 pemeriksaan semantik publik dan 30 baseline belum lengkap; tidak ada persetujuan soal. Kesepakatan antarmodel bukan kalibrasi manusia. T-24 ditunda tanpa menghalangi dev S19 (ADR-053). Jangan menjalankan `golden --reviewer "Agent QA S18"` sebagai set resmi.
+Atas permintaan pemilik, 60 ulasan **Agent QA S18** sudah tersedia, terpisah dari Anas. [Laporan](../reports/jawab-s18-agent-qa-v1.md) mencatat 30 pemeriksaan semantik publik dan 30 baseline belum lengkap; tidak ada persetujuan soal. Kesepakatan antarmodel bukan kalibrasi manusia. T-24 ditunda tanpa menghalangi dev S19 (ADR-054). Jangan menjalankan `golden --reviewer "Agent QA S18"` sebagai set resmi.

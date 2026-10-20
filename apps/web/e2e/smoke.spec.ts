@@ -106,8 +106,13 @@ test("menu samping: Kitab, Cari, dan Tentang bisa dibuka, fitur yang belum ada b
   await menu.getByRole("row", { name: "Cari", exact: true }).click();
   await expect(page).toHaveURL(/\/cari$/);
 
-  menu = await openMenu();
-  await menu.getByRole("row", { name: "Tentang" }).click();
+  // Tentang ada di menu bawah sidebar (footer), terpisah dari navigasi utama.
+  await openMenu();
+  await page
+    .getByRole("treegrid", { name: "Tentang", exact: true })
+    .last()
+    .getByRole("row", { name: "Tentang" })
+    .click();
   await expect(page).toHaveURL(/\/tentang$/);
 });
 

@@ -40,16 +40,37 @@ export function PassageTranslation({
   passage,
   quran,
   footAnchor,
+  heading = false,
 }: {
   passage: Passage;
   quran: QuranView | null;
   /** Digit penanda (١) → jangkar catatan kaki di halaman ini. */
   footAnchor: ReadonlyMap<string, string>;
+  /**
+   * Terjemahan judul bab: satu baris kecil di bawah judul Arab, tanpa garis tepi; labelnya tetap
+   * ada ("· Terjemahan AI", kecil di akhir baris).
+   */
+  heading?: boolean;
 }) {
   const tr = passage.translation;
   if (tr === null || tr === undefined || tr.review_status === "rejected") return null;
   const { slots } = maskAyat(passage.text_raw, passage.ayah_refs, passage.footnote_refs);
   const segments = translationSegments(tr.text, slots, quran);
+  // Judul yang memuat kutipan ayat tetap memakai tampilan lengkap (label Kemenag per ayat).
+  if (heading && segments.every((s) => s.kind === "ai")) {
+    return (
+      <p className="passage-translation passage-translation-heading text-muted" lang="id">
+        <span data-ai-text="">
+          {withMarkers(segments.map((s) => (s.kind === "ai" ? s.text : "")).join(""), footAnchor)}
+        </span>
+        <span className="text-xs" title={t.aiTranslationHint}>
+          {" · "}
+          {t.aiTranslation}
+          <span className="sr-only">: {t.aiTranslationHint}</span>
+        </span>
+      </p>
+    );
+  }
   return (
     <div className="passage-translation" lang="id">
       <p className="text-muted mb-1 text-xs font-medium" title={t.aiTranslationHint}>

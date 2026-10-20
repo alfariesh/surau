@@ -4,6 +4,7 @@ import { Card } from "@heroui/react";
 import NextLink from "next/link";
 
 import { PageSection } from "../../../components/page-section";
+import { TextPage } from "../../../components/text-page";
 import { EDITION_CREDITS, LICENSE_URL, QURAN_CREDITS } from "../../../content/works";
 import { id, ISSUES_URL, SOURCE_URL } from "../../../i18n/id";
 
@@ -19,15 +20,27 @@ export const metadata: Metadata = {
 const CONTENT_LICENSE = "CC BY-NC-SA 4.0";
 
 export default function LicensePage() {
-  return (
-    <article className="mx-auto flex w-full max-w-2xl flex-col gap-10 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
-      <header className="flex flex-col gap-3">
-        <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
-          {t.heading}
-        </h1>
-        <p className="text-muted text-base sm:text-lg">{t.lead}</p>
-      </header>
+  const sections = [
+    { id: "ringkasan", label: t.summaryHeading },
+    { id: "pakai-ulang", label: t.reuseHeading },
+    { id: "sumber", label: t.sourcesHeading },
+    { id: "quran", label: t.quranHeading },
+    { id: "koreksi", label: t.correctionHeading },
+    { id: "privasi", label: t.privacyHeading },
+  ];
 
+  return (
+    <TextPage
+      header={
+        <header className="flex flex-col gap-3">
+          <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
+            {t.heading}
+          </h1>
+          <p className="text-muted text-base sm:text-lg">{t.lead}</p>
+        </header>
+      }
+      sections={sections}
+    >
       <PageSection heading={t.summaryHeading} id="ringkasan">
         <dl className="text-foreground grid gap-x-6 gap-y-3 text-base leading-relaxed sm:grid-cols-[max-content_1fr]">
           <dt className="font-semibold">{t.codeLabel}</dt>
@@ -147,7 +160,7 @@ export default function LicensePage() {
       <PageSection heading={t.privacyHeading} id="privasi">
         <p className="text-foreground text-base leading-relaxed">{t.privacyText}</p>
       </PageSection>
-    </article>
+    </TextPage>
   );
 }
 
