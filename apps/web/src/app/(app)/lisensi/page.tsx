@@ -26,6 +26,7 @@ export default function LicensePage() {
     { id: "pakai-ulang", label: t.reuseHeading },
     { id: "sumber", label: t.sourcesHeading },
     { id: "quran", label: t.quranHeading },
+    { id: "font", label: t.fontHeading },
     { id: "koreksi", label: t.correctionHeading },
     { id: "privasi", label: t.privacyHeading },
   ];
@@ -163,6 +164,19 @@ export default function LicensePage() {
               </li>
             ))}
           </ul>
+        </div>
+      </PageSection>
+
+      <PageSection heading={t.fontHeading} id="font">
+        <div className="flex flex-col gap-3">
+          <Typography>{t.fontText}</Typography>
+          <Typography>
+            <ExternalLink
+              href={`${SOURCE_URL}/blob/main/apps/web/src/fonts/harmonyos-sans/LICENSE.txt`}
+            >
+              {t.fontLicenseLink}
+            </ExternalLink>
+          </Typography>
         </div>
       </PageSection>
 

@@ -300,6 +300,10 @@ export const id = {
     quranHeading: "Ayat Al-Qur'an",
     quranLead:
       "Kutipan ayat di dalam kitab dikenali otomatis dengan mencocokkannya ke teks mushaf, lalu ditautkan ke surah dan ayatnya. Teks ayat, terjemahan, dan transliterasi disalin apa adanya dari sumber di bawah; AI tidak pernah menulis atau menerjemahkan ayat.",
+    fontHeading: "Font",
+    fontText:
+      "Teks antarmuka Surau memakai HarmonyOS Sans (hak cipta Huawei Device Co., Ltd.), dipakai tanpa diubah di bawah Perjanjian Lisensi HarmonyOS Sans Fonts. Teks Arab memakai Noto Naskh Arabic, Amiri, Scheherazade New, dan Noto Sans Arabic (SIL OFL 1.1).",
+    fontLicenseLink: "Perjanjian lisensi font",
     correctionHeading: "Koreksi dan penghapusan",
     correctionText:
       "Menemukan salah ketik, teks yang terpotong, atau nomor halaman yang keliru? Ketuk tombol “Laporkan kesalahan” di halaman kitab, atau buka laporan di GitHub.",

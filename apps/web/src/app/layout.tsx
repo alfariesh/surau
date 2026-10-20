@@ -1,13 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
-import {
-  Amiri,
-  Noto_Naskh_Arabic,
-  Noto_Sans_Arabic,
-  Plus_Jakarta_Sans,
-  Scheherazade_New,
-} from "next/font/google";
+import { Amiri, Noto_Naskh_Arabic, Noto_Sans_Arabic, Scheherazade_New } from "next/font/google";
+import localFont from "next/font/local";
 
 import { id } from "../i18n/id";
 import { SITE_URL } from "../lib/site";
@@ -16,12 +11,22 @@ import { Providers } from "./providers";
 
 import "./globals.css";
 
-// Font UI: Plus Jakarta Sans (karya Tokotype, Indonesia). Font Arab: Noto Naskh Arabic (T-08,
-// ADR-027). Keduanya diunduh saat build dan di-host sendiri oleh next/font. Naskh tidak di-preload:
-// teks Arab belum ada di setiap halaman, jadi tidak perlu membebani halaman lain.
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
+// Font UI: HarmonyOS Sans (Huawei; lisensi khusus, ADR-056), disalin apa adanya dari TTF resmi tanpa
+// diubah. Berkasnya statis: tidak ada SemiBold, jadi weight 600 (judul) memakai berkas Bold. Font
+// Arab: Noto Naskh Arabic (T-08, ADR-027), diunduh saat build dan di-host sendiri oleh next/font.
+// Naskh tidak di-preload: teks Arab belum ada di setiap halaman, jadi tidak perlu membebani halaman lain.
+const harmony = localFont({
+  src: [
+    { path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Regular.ttf", weight: "400", style: "normal" },
+    {
+      path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Regular_Italic.ttf",
+      weight: "400",
+      style: "italic",
+    },
+    { path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Medium.ttf", weight: "500", style: "normal" },
+    { path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Bold.ttf", weight: "600 700", style: "normal" },
+  ],
+  variable: "--font-harmony",
   display: "swap",
 });
 
@@ -83,7 +88,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       suppressHydrationWarning
-      className={`${jakarta.variable} ${naskh.variable} ${amiri.variable} ${scheherazade.variable} ${notoSansArabic.variable}`}
+      className={`${harmony.variable} ${naskh.variable} ${amiri.variable} ${scheherazade.variable} ${notoSansArabic.variable}`}
       dir="ltr"
       lang="id"
     >

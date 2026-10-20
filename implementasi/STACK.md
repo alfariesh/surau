@@ -32,7 +32,7 @@ Alasan setiap pilihan ada di KEPUTUSAN.md (nomor ADR di kolom terakhir).
 | Tailwind CSS | 4.x (ikut template) | 4.3.3 (2026-10-15, dari PR Dependabot #3) | https://tailwindcss.com/docs | 004 |
 | next-themes | 0.4.6 | 0.4.6 (apps/web, catalog; peer React ≤19; dicek 2026-10-15) | https://heroui.com/docs/react/getting-started/dark-mode | 004 |
 | Ikon | `@gravity-ui/icons` saja | 2.22.0 | https://gravity-ui.com/icons | 004 |
-| Font | Arab: Noto Naskh Arabic (T-08) · UI: Plus Jakarta Sans, via `next/font/google` | Noto Naskh Arabic (variable 400–700, subset arabic, `preload: false`) + Plus Jakarta Sans (latin), Next 16.4.1; dicek 2026-10-16 · Amiri dicoba lalu tidak dipilih (ADR-027) | data font ada di `next/dist/compiled/@next/font` | P-3 |
+| Font | Arab: Noto Naskh Arabic (T-08) · UI: HarmonyOS Sans (TTF lokal, `next/font/local`, ADR-056) | Noto Naskh Arabic (variable 400–700, subset arabic, `preload: false`) + HarmonyOS Sans (statis: Regular, Italic, Medium, Bold; 600 memakai Bold), Next 16.4.1; dicek 2026-10-16 · Amiri dicoba lalu tidak dipilih (ADR-027) | data font ada di `next/dist/compiled/@next/font` | P-3 |
 
 ## Cloudflare
 
