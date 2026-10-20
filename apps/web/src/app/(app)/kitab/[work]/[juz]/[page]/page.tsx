@@ -6,6 +6,7 @@ import { Fragment, Suspense } from "react";
 import { ArabicInline, ArabicText } from "../../../../../../components/arabic";
 import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-ld";
 import { AyahRefChip } from "../../../../../../components/reader/ayah-ref";
+import { HeadingOrnament } from "../../../../../../components/reader/heading-ornament";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
 import { FootnoteMarker } from "../../../../../../components/reader/footnote-marker";
 import { NeedsReviewNote } from "../../../../../../components/reader/needs-review";
@@ -256,14 +257,20 @@ export default async function ReaderPage({ params }: Props) {
                     {heading ? (
                       // Judul bab di tengah seperti kitab cetak; ⋮ di luar <h2> supaya tidak ikut
                       // nama judul.
-                      <div className="flex items-center justify-center gap-1">
-                        <PassageActions passage={ref(p)} />
+                      <div className="relative flex items-center justify-center gap-2 px-7 sm:gap-3 sm:px-9">
+                        {/* ⋮ di ruang tepi kiri (padding sama di kanan), supaya judul dan ornamen tetap
+                            simetris dan tidak bertumpuk dengan ⋮. */}
+                        <span className="absolute start-0 top-1/2 -translate-y-1/2">
+                          <PassageActions passage={ref(p)} />
+                        </span>
+                        <HeadingOrnament side="start" />
                         <ArabicText
                           as="h2"
                           className={`reader-heading ${heading.level > 2 ? "reader-heading-minor" : ""}`}
                         >
                           {renderText(p)}
                         </ArabicText>
+                        <HeadingOrnament side="end" />
                       </div>
                     ) : (
                       <ArabicText className="text-foreground">

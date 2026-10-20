@@ -1,15 +1,15 @@
 "use client";
 
-import type { CSSProperties, Key } from "react";
+import type { ReactNode } from "react";
 
 import type { ReaderAlign, ReaderFont, ReaderLeading } from "../../lib/reader/scale";
 
-import { Segment, Sheet } from "@heroui-pro/react";
-import { Button, ButtonGroup, Description, Label, Radio, RadioGroup, Switch } from "@heroui/react";
+import { CellSelect, CellSlider, CellSwitch, Sheet, Widget } from "@heroui-pro/react";
+import { Button, ButtonGroup, ListBox } from "@heroui/react";
 import { useTheme } from "next-themes";
 import { useEffect, useSyncExternalStore } from "react";
 
-import { MinusSign, PlusSign, TextFont } from "../../icons";
+import { TextFont } from "../../icons";
 import { id } from "../../i18n/id";
 import {
   READER_ALIGN_KEY,
@@ -126,164 +126,133 @@ const noopSubscribe = () => () => {};
 
 function FontSizeControl() {
   const index = useSyncExternalStore(subscribe, scaleIndex, () => 1);
-  const scale = READER_SCALES[index] ?? 1;
 
-  function change(delta: number) {
-    const next = READER_SCALES[Math.min(READER_SCALES.length - 1, Math.max(0, index + delta))] ?? 1;
+  function change(value: number | number[]) {
+    const next = READER_SCALES[Array.isArray(value) ? (value[0] ?? 1) : value] ?? 1;
     applyScale(next);
     store(READER_SCALE_KEY, String(next));
     notify();
   }
 
   return (
-    <div className="flex items-center justify-between gap-4">
-      <Label id="tampilan-ukuran">{t.styleFontSize}</Label>
-      <div className="flex items-center gap-3">
-        <span className="text-muted w-10 text-end text-sm tabular-nums">
-          {Math.round(scale * 100)}%
-        </span>
-        <ButtonGroup aria-labelledby="tampilan-ukuran" size="sm" variant="tertiary">
-          <Button
-            isIconOnly
-            aria-label={t.fontSmaller}
-            isDisabled={index === 0}
-            onPress={() => change(-1)}
-          >
-            <MinusSign className="size-4" />
-          </Button>
-          <Button
-            isIconOnly
-            aria-label={t.fontLarger}
-            isDisabled={index === READER_SCALES.length - 1}
-            onPress={() => change(1)}
-          >
-            <ButtonGroup.Separator />
-            <PlusSign className="size-4" />
-          </Button>
-        </ButtonGroup>
-      </div>
-    </div>
+    <CellSlider
+      aria-label={t.styleFontSize}
+      maxValue={READER_SCALES.length - 1}
+      minValue={0}
+      step={1}
+      value={index}
+      variant="secondary"
+      onChange={change}
+    >
+      <CellSlider.Track>
+        <CellSlider.Fill />
+        <CellSlider.Thumb />
+        <CellSlider.Label>{t.styleFontSize}</CellSlider.Label>
+        <CellSlider.Output>
+          {({ state }) => `${Math.round((READER_SCALES[state.values[0] ?? 1] ?? 1) * 100)}%`}
+        </CellSlider.Output>
+      </CellSlider.Track>
+    </CellSlider>
   );
 }
 
-function FontPicker({ sample }: { sample: string | null }) {
-  const font = useSyncExternalStore(
-    subscribe,
-    () => readAttr(FONT_PREF),
-    () => FONT_PREF.fallback,
-  );
+type CellOption = { id: string; label: string; icon?: ReactNode };
 
-  function change(value: string) {
-    applyAttr(FONT_PREF, value);
-    store(FONT_PREF.key, value);
-    notify();
-  }
-
+/** Satu baris pilihan bergaya sel (CellSelect secondary): label di kiri, nilai terpilih di kanan. */
+function CellPicker({
+  label,
+  value,
+  options,
+  onSelect,
+}: {
+  label: string;
+  value: string | null;
+  options: readonly CellOption[];
+  onSelect: (value: string) => void;
+}) {
   return (
-    <RadioGroup value={font} onChange={change}>
-      <Label>{t.styleFont}</Label>
-      <div className="flex flex-col gap-2">
-        {READER_FONTS.map((f) => (
-          <Radio
-            key={f.id}
-            className="border-border data-[selected=true]:border-accent data-[selected=true]:bg-accent-soft rounded-xl border px-3 py-2 transition-colors"
-            value={f.id satisfies ReaderFont}
-          >
-            <Radio.Content className="flex w-full min-w-0 items-center gap-3">
-              <Radio.Control>
-                <Radio.Indicator />
-              </Radio.Control>
-              <span className="text-foreground shrink-0 text-sm">{f.name}</span>
-              {sample ? (
-                // Contoh huruf = awal paragraf halaman ini (disalin dari DB, bukan ketikan), dengan
-                // --font-arabic diganti hanya di pembungkus ini.
-                <span
-                  aria-hidden="true"
-                  className="min-w-0 flex-1"
-                  style={{ "--font-arabic": `var(${f.cssVar})` } as CSSProperties}
-                >
-                  <ArabicText className="text-foreground truncate text-lg leading-normal">
-                    {sample}
-                  </ArabicText>
-                </span>
-              ) : null}
-            </Radio.Content>
-          </Radio>
-        ))}
-      </div>
-    </RadioGroup>
+    <CellSelect
+      aria-label={label}
+      value={value}
+      variant="secondary"
+      onChange={(key) => {
+        if (key !== null) onSelect(String(key));
+      }}
+    >
+      <CellSelect.Trigger>
+        <CellSelect.Label>{label}</CellSelect.Label>
+        <CellSelect.Value>
+          {({ defaultChildren, isPlaceholder, state }: any) => {
+            const selected = options.find((o) => o.id === state.selectedItems[0]?.key);
+            if (isPlaceholder || selected === undefined) return defaultChildren;
+            return (
+              <span className="flex items-center justify-end gap-1.5 text-end">
+                {selected.icon}
+                {selected.label}
+              </span>
+            );
+          }}
+        </CellSelect.Value>
+        <CellSelect.Indicator />
+      </CellSelect.Trigger>
+      <CellSelect.Popover>
+        <ListBox>
+          {options.map((o) => (
+            <ListBox.Item key={o.id} id={o.id} textValue={o.label}>
+              {o.icon}
+              {o.label}
+              <ListBox.ItemIndicator />
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </CellSelect.Popover>
+    </CellSelect>
   );
 }
 
-function LeadingPicker() {
-  const leading = useSyncExternalStore(
+const FONT_OPTIONS: readonly CellOption[] = READER_FONTS.map((f) => ({
+  id: f.id satisfies ReaderFont,
+  label: f.name,
+}));
+const LEADING_OPTIONS: readonly CellOption[] = READER_LEADINGS.map((v) => ({
+  id: v satisfies ReaderLeading,
+  label: t.styleLeadings[v],
+}));
+const ALIGN_OPTIONS: readonly CellOption[] = READER_ALIGNS.map((v) => ({
+  id: v satisfies ReaderAlign,
+  label: t.styleAligns[v],
+}));
+
+function AttrPicker({
+  pref,
+  label,
+  options,
+}: {
+  pref: AttrPref;
+  label: string;
+  options: readonly CellOption[];
+}) {
+  const value = useSyncExternalStore(
     subscribe,
-    () => readAttr(LEADING_PREF),
-    () => LEADING_PREF.fallback,
+    () => readAttr(pref),
+    () => pref.fallback,
   );
 
-  function change(key: Key) {
-    const value = String(key);
-    applyAttr(LEADING_PREF, value);
-    store(LEADING_PREF.key, value);
+  function change(next: string) {
+    applyAttr(pref, next);
+    store(pref.key, next);
     notify();
   }
 
-  return (
-    <div className="flex flex-col gap-2">
-      <Label id="tampilan-jarak">{t.styleLeading}</Label>
-      <Segment
-        aria-labelledby="tampilan-jarak"
-        className="w-full"
-        selectedKey={leading}
-        size="sm"
-        onSelectionChange={change}
-      >
-        {READER_LEADINGS.map((value) => (
-          <Segment.Item key={value} id={value satisfies ReaderLeading}>
-            {t.styleLeadings[value]}
-          </Segment.Item>
-        ))}
-      </Segment>
-    </div>
-  );
-}
-
-function AlignPicker() {
-  const align = useSyncExternalStore(
-    subscribe,
-    () => readAttr(ALIGN_PREF),
-    () => ALIGN_PREF.fallback,
-  );
-
-  function change(key: Key) {
-    const value = String(key);
-    applyAttr(ALIGN_PREF, value);
-    store(ALIGN_PREF.key, value);
-    notify();
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <Label id="tampilan-rata">{t.styleAlign}</Label>
-      <Segment
-        aria-labelledby="tampilan-rata"
-        className="w-full"
-        selectedKey={align}
-        size="sm"
-        onSelectionChange={change}
-      >
-        {READER_ALIGNS.map((value) => (
-          <Segment.Item key={value} id={value satisfies ReaderAlign}>
-            {t.styleAligns[value]}
-          </Segment.Item>
-        ))}
-      </Segment>
-    </div>
-  );
+  return <CellPicker label={label} options={options} value={value} onSelect={change} />;
 }
 
 const PAPERS = ["light", "sepia", "dark"] as const;
+const PAPER_OPTIONS: readonly CellOption[] = PAPERS.map((v) => ({
+  id: v,
+  label: t.stylePapers[v],
+  icon: <span aria-hidden="true" className={`paper-swatch paper-swatch-${v}`} />,
+}));
 
 function PaperPicker() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -296,23 +265,7 @@ function PaperPicker() {
   const paper = mounted ? (resolvedTheme ?? null) : null;
 
   return (
-    <div className="flex flex-col gap-2">
-      <Label id="tampilan-kertas">{t.stylePaper}</Label>
-      <Segment
-        aria-labelledby="tampilan-kertas"
-        className="w-full"
-        selectedKey={paper}
-        size="sm"
-        onSelectionChange={(key) => setTheme(String(key))}
-      >
-        {PAPERS.map((value) => (
-          <Segment.Item key={value} id={value}>
-            <span aria-hidden="true" className={`paper-swatch paper-swatch-${value}`} />
-            {t.stylePapers[value]}
-          </Segment.Item>
-        ))}
-      </Segment>
-    </div>
+    <CellPicker label={t.stylePaper} options={PAPER_OPTIONS} value={paper} onSelect={setTheme} />
   );
 }
 
@@ -326,20 +279,30 @@ function TranslationSwitch() {
   }
 
   return (
-    <Switch
-      className="flex w-full flex-row items-center justify-between gap-4"
-      isSelected={shown}
-      onChange={change}
-    >
-      <Switch.Content className="flex flex-col items-start gap-0.5">
-        <Label>{t.translationToggle}</Label>
-        <Description>{t.translationToggleHint}</Description>
-      </Switch.Content>
-      <Switch.Control>
-        <Switch.Thumb />
-      </Switch.Control>
-    </Switch>
+    <div className="flex flex-col gap-1.5">
+      <CellSwitch
+        aria-label={t.translationToggle}
+        isSelected={shown}
+        variant="secondary"
+        onChange={change}
+      >
+        <CellSwitch.Trigger>
+          <CellSwitch.Label>{t.translationToggle}</CellSwitch.Label>
+          <CellSwitch.Control />
+        </CellSwitch.Trigger>
+      </CellSwitch>
+      <p className="text-muted px-1 text-xs">{t.translationToggleHint}</p>
+    </div>
   );
+}
+
+const PREVIEW_MAX_CHARS = 60;
+
+/** Potong di batas kata (bukan di tengah huruf + harakat) supaya contoh tetap pendek. */
+function previewText(sample: string): string {
+  if (sample.length <= PREVIEW_MAX_CHARS) return sample;
+  const cut = sample.lastIndexOf(" ", PREVIEW_MAX_CHARS);
+  return `${sample.slice(0, cut > 0 ? cut : PREVIEW_MAX_CHARS).trimEnd()}…`;
 }
 
 const DESKTOP_QUERY = "(min-width: 1024px)";
@@ -374,6 +337,7 @@ export function ReaderStyle({
     () => false,
   );
   const placement = isDesktop ? "right" : "bottom";
+  const preview = sample ? previewText(sample) : null;
 
   return (
     <Sheet placement={placement}>
@@ -399,21 +363,22 @@ export function ReaderStyle({
               <Sheet.Heading>{t.styleHeading}</Sheet.Heading>
             </Sheet.Header>
             <Sheet.Body className="flex flex-col gap-6 pb-6">
-              {sample ? (
-                <figure
-                  aria-hidden="true"
-                  className="bg-surface border-border m-0 flex flex-col gap-1 rounded-2xl border p-4"
-                >
-                  <figcaption className="text-muted text-xs">{t.stylePreviewNote}</figcaption>
-                  <div className="reader-text">
-                    <ArabicText className="text-foreground line-clamp-3">{sample}</ArabicText>
-                  </div>
-                </figure>
+              {preview ? (
+                <Widget aria-hidden="true">
+                  <Widget.Header>
+                    <Widget.Title>{t.stylePreviewNote}</Widget.Title>
+                  </Widget.Header>
+                  <Widget.Content>
+                    <div className="reader-text">
+                      <ArabicText className="text-foreground">{preview}</ArabicText>
+                    </div>
+                  </Widget.Content>
+                </Widget>
               ) : null}
               <FontSizeControl />
-              <FontPicker sample={sample} />
-              <LeadingPicker />
-              <AlignPicker />
+              <AttrPicker label={t.styleFont} options={FONT_OPTIONS} pref={FONT_PREF} />
+              <AttrPicker label={t.styleLeading} options={LEADING_OPTIONS} pref={LEADING_PREF} />
+              <AttrPicker label={t.styleAlign} options={ALIGN_OPTIONS} pref={ALIGN_PREF} />
               <PaperPicker />
               <TranslationSwitch />
             </Sheet.Body>
