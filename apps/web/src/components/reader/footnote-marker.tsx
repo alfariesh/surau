@@ -60,7 +60,7 @@ function FootnoteBody({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <ArabicText className="text-foreground text-base">{footnote.text}</ArabicText>
+      <ArabicText className="text-foreground">{footnote.text}</ArabicText>
       <NeedsReviewNote reasons={footnote.needsReview} />
       <a className="link text-xs" href={`#${footnote.anchor}`}>
         {t.footnoteGoto}

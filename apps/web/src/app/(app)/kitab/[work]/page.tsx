@@ -74,7 +74,9 @@ export default async function WorkPage({ params }: Props) {
         <div className="flex min-w-0 flex-col gap-3">
           <PageTitle className="flex flex-col items-start gap-1">
             <span>{title}</span>
-            <ArabicInline className="text-muted text-3xl font-normal">{work.title_ar}</ArabicInline>
+            <ArabicInline className="text-muted font-normal" size="display">
+              {work.title_ar}
+            </ArabicInline>
           </PageTitle>
           {work.author ? (
             <Typography>

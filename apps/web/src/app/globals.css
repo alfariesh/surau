@@ -251,6 +251,27 @@ body {
     font-size: 1.15em;
     letter-spacing: normal;
   }
+
+  /* Skala ukuran Arab (prop `size`). em = relatif terhadap teks di sekitarnya. */
+  .arabic-text[data-size="lg"] {
+    font-size: 1.45em;
+  }
+
+  .arabic-inline[data-size="lg"] {
+    font-size: 1.3em;
+  }
+
+  .arabic-text[data-size="display"],
+  .arabic-inline[data-size="display"] {
+    font-size: 1.875rem;
+  }
+
+  @media (width >= 40rem) {
+    .arabic-text[data-size="display"],
+    .arabic-inline[data-size="display"] {
+      font-size: 2.25rem;
+    }
+  }
 }
 
 /*

@@ -69,7 +69,7 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
             <Chip color="accent" size="sm" variant="soft">
               {r.aiSummary}
             </Chip>
-            <ArabicInline className="text-foreground text-sm">{sm.section.title_ar}</ArabicInline>
+            <ArabicInline className="text-foreground">{sm.section.title_ar}</ArabicInline>
           </div>
           <Typography type="body-sm">
             {render(aiSegments(sm.snippet.text, sm.snippet.char_start, sm.highlights))}
@@ -114,7 +114,7 @@ export function ResultCard({ page, query }: { page: ResultPage; query: string })
               {t.pageLabel(r.pageShort(juz, pageNo))}
             </NextLink>
             {section ? (
-              <ArabicInline className="text-foreground text-base font-normal">
+              <ArabicInline className="text-foreground font-normal">
                 {section.title_ar}
               </ArabicInline>
             ) : null}

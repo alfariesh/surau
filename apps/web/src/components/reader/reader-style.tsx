@@ -202,7 +202,7 @@ function FontPicker({ sample }: { sample: string | null }) {
                   className="min-w-0 flex-1"
                   style={{ "--font-arabic": `var(${f.cssVar})` } as CSSProperties}
                 >
-                  <ArabicText className="text-foreground truncate text-lg leading-normal">
+                  <ArabicText className="text-foreground truncate leading-normal">
                     {sample}
                   </ArabicText>
                 </span>
