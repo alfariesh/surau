@@ -30,7 +30,7 @@ import {
 } from "./answer.ts";
 import {
   citationSpans,
-  HADITH_SEE_TAKHRIJ,
+  HADITH_NOT_CITED,
   HADITH_UNKNOWN,
   hadithStatements,
   hasHadithPrefix,
@@ -561,8 +561,9 @@ const HADITH_MAX_PASSES = 6;
  * Pernyataan yang tidak didukung diganti pemberitahuan (blok tersendiri tanpa sitasi). Teks hasil
  * penggantian diperiksa ulang sampai stabil; klaim selalu dihitung dari teks akhir. Bila tetap
  * belum stabil sesudah `HADITH_MAX_PASSES` putaran, `unresolved` = true dan pipeline tidak
- * menampilkan jawaban. Pemberitahuan akhir: `HADITH_SEE_TAKHRIJ` bila jawaban menyitasi takhrij,
- * selain itu `HADITH_UNKNOWN`.
+ * menampilkan jawaban. Pemberitahuan: "belum diketahui" bila model sendiri menulis begitu atau
+ * jawaban tidak menyitasi takhrij sama sekali; selain itu pemberitahuan netral `HADITH_NOT_CITED`
+ * (tidak menunjuk takhrij mana pun, karena takhrij yang tersitasi bisa milik hadits lain).
  */
 export function hadithCheck(
   blocks: readonly JawabBlock[],
@@ -583,10 +584,11 @@ export function hadithCheck(
     const { claims, unpaired } = pairStatements(current, byN, passages);
     if (unpaired.length === 0) {
       const used = new Set(current.flatMap((b) => b.citations));
-      if ([...used].some(isFoot))
+      // Tanpa takhrij tersitasi sama sekali, pemberitahuan netral menjadi "belum diketahui".
+      if (![...used].some(isFoot))
         current = current.map((b) =>
-          b.citations.length === 0 && b.text.trim() === HADITH_UNKNOWN
-            ? { ...b, text: b.text.replace(HADITH_UNKNOWN, HADITH_SEE_TAKHRIJ) }
+          b.citations.length === 0 && b.text.trim() === HADITH_NOT_CITED
+            ? { ...b, text: b.text.replace(HADITH_NOT_CITED, HADITH_UNKNOWN) }
             : b,
         );
       return {
@@ -613,13 +615,19 @@ export function hadithCheck(
 interface Span {
   start: number;
   end: number;
+  /** Teks pengganti: `HADITH_UNKNOWN` atau `HADITH_NOT_CITED`. */
+  notice: string;
 }
 
-/** Rentang yang diganti untuk status tak didukung: penanda Markdown di depan s.d. akhir kalimat. */
+/**
+ * Rentang yang diganti untuk status tak didukung: penanda Markdown di depan s.d. akhir kalimat.
+ * Pernyataan model yang sendiri berbunyi "belum diketahui" tetap diganti "belum diketahui";
+ * selain itu pemberitahuan netral (lihat `HADITH_NOT_CITED`).
+ */
 function replacementRange(full: string, st: HadithStatement): Span {
   let start = st.start;
   while (start > 0 && /[*_]/u.test(full[start - 1]!)) start--;
-  return { start, end: st.end };
+  return { start, end: st.end, notice: st.unknown ? HADITH_UNKNOWN : HADITH_NOT_CITED };
 }
 
 /** Tanda baca, spasi, dan penanda Markdown/daftar di tepi blok: tidak dihitung "menyentuh". */
@@ -630,10 +638,10 @@ const CONTENT = /[^\s.,;:!?*_\-–—•·()]/u;
 /**
  * Satu putaran: setiap pernyataan (selain pemberitahuan pengganti) dipasangkan dengan catatan kaki
  * takhrij yang disitasi blok-blok yang ISINYA (tanpa tanda baca/spasi di tepi) menyentuh rentang
- * kepemilikannya ([start, ownEnd)). Blok bersitasi yang menyentuh lebih dari satu pernyataan ambigu
- * dan tidak dipakai siapa pun. Catatan kaki (per `passage_id`) yang disitasi lebih dari satu
- * pernyataan tidak mendukung satu pun. Satu pernyataan boleh menyitasi beberapa takhrij (satu
- * klaim per takhrij).
+ * kepemilikannya ([start, ownEnd)). Kelompok = kalimat dari satu baris label atau satu butir
+ * (satu hadits). Blok bersitasi yang menyentuh lebih dari satu kelompok ambigu; catatan kaki (per
+ * `passage_id`) yang disitasi lebih dari satu kelompok tidak mendukung siapa pun. Satu pernyataan
+ * boleh menyitasi beberapa takhrij; satu klaim per (kelompok, takhrij).
  */
 function pairStatements(
   blocks: readonly JawabBlock[],
@@ -653,9 +661,13 @@ function pairStatements(
   const statements = hadithStatements(full);
   const touches = (r: { start: number; end: number }, st: HadithStatement) =>
     r.end > r.start && r.end > st.start && r.start < st.ownEnd;
+  // Blok bersitasi yang menyentuh pernyataan dari lebih dari satu KELOMPOK: tidak jelas takhrijnya
+  // milik hadits mana, jadi tidak dipakai siapa pun. Dua kalimat satu kelompok tidak ambigu.
   const ambiguous = new Set(
     ranges.filter(
-      (r) => r.citations.length > 0 && statements.filter((st) => touches(r, st)).length > 1,
+      (r) =>
+        r.citations.length > 0 &&
+        new Set(statements.filter((st) => touches(r, st)).map((st) => st.group)).size > 1,
     ),
   );
   const owned = statements.map((st) => [
@@ -668,18 +680,29 @@ function pairStatements(
         .map((c) => [c.passage_id, c]),
     ).values(),
   ]);
-  const claimants = new Map<number, number>();
-  for (const own of owned)
-    for (const c of own) claimants.set(c.passage_id, (claimants.get(c.passage_id) ?? 0) + 1);
+  // Takhrij (per paragraf catatan kaki) yang disitasi lebih dari satu KELOMPOK (baris label/butir):
+  // paling banyak satu yang benar, jadi tidak mendukung siapa pun. Dalam satu kelompok boleh.
+  const groupsOf = new Map<number, Set<number>>();
+  statements.forEach((st, k) => {
+    for (const c of owned[k]!) {
+      const set = groupsOf.get(c.passage_id) ?? new Set<number>();
+      set.add(st.group);
+      groupsOf.set(c.passage_id, set);
+    }
+  });
+  const claimed = new Set<string>();
   const claims: JawabHadith[] = [];
   const unpaired: Span[] = [];
   statements.forEach((st, k) => {
-    let paired = false;
+    let supported = false;
     for (const c of owned[k]!) {
       const body = passages.get(c.passage_id)?.referenced_by[0];
-      // Takhrij yang sama untuk dua pernyataan: paling banyak satu yang benar, jadi keduanya ditolak.
-      if (body === undefined || claimants.get(c.passage_id)! > 1) continue;
-      paired = true;
+      if (body === undefined || groupsOf.get(c.passage_id)!.size > 1) continue;
+      supported = true;
+      // Satu klaim per (kelompok, takhrij): status dari kalimat pertama kelompok yang menyitasinya.
+      const key = `${st.group}:${c.passage_id}`;
+      if (claimed.has(key)) continue;
+      claimed.add(key);
       claims.push({
         passage_id: body,
         footnote: { passage_id: c.passage_id, char_start: c.char_start, char_end: c.char_end },
@@ -687,7 +710,7 @@ function pairStatements(
         label: "ai_extracted",
       });
     }
-    if (!paired) unpaired.push(replacementRange(full, st));
+    if (!supported) unpaired.push(replacementRange(full, st));
   });
   return { claims, unpaired };
 }
@@ -717,12 +740,13 @@ function replaceRanges(
     if (
       last !== undefined &&
       /^[ \t\u00A0]*$/u.test(full.slice(last.end, Math.max(last.end, s.start)))
-    )
+    ) {
       last.end = Math.max(last.end, s.end);
-    else merged.push({ ...s });
+      if (s.notice !== last.notice) last.notice = HADITH_NOT_CITED;
+    } else merged.push({ ...s });
   }
   const notice = (u: Span) =>
-    u.end < full.length && !/\s/u.test(full[u.end]!) ? `${HADITH_UNKNOWN} ` : HADITH_UNKNOWN;
+    u.end < full.length && !/\s/u.test(full[u.end]!) ? `${u.notice} ` : u.notice;
   const out: JawabBlock[] = [];
   let offset = 0;
   for (const b of blocks) {
@@ -764,5 +788,5 @@ export function hadithClaims(
   return hadithCheck(blocks, citations, passages).claims;
 }
 
-export { HADITH_SEE_TAKHRIJ, HADITH_UNKNOWN };
+export { HADITH_NOT_CITED, HADITH_UNKNOWN };
 export type { AnswerDoc };

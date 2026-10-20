@@ -122,13 +122,14 @@ export function isNotFound(text: string): boolean {
 export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ada takhrij al-'Iraqi yang tersitasi untuk kalimat ini).`;
 
 /**
- * Pengganti bila jawaban SUDAH menyitasi takhrij di tempat lain (peninjau S21: "belum diketahui"
- * keliru bila takhrijnya ada di kutipan): ringkasan kalimat itu tidak ditampilkan, pembaca
- * diarahkan ke teks takhrij asli.
+ * Pengganti NETRAL (peninjau S21 putaran 3–4): dipakai bila jawaban menyitasi takhrij di tempat
+ * lain, karena "belum diketahui" bisa keliru (takhrijnya ada) dan "lihat takhrij pada kutipan" bisa
+ * menunjuk takhrij hadits lain; juga untuk pernyataan yang takhrijnya ambigu atau diklaim kelompok
+ * lain. Tanpa takhrij tersitasi sama sekali, `hadithCheck` memakai `HADITH_UNKNOWN`.
  */
-export const HADITH_SEE_TAKHRIJ = `${ANSWER_HADITH_PREFIX} lihat teks takhrij al-'Iraqi pada kutipan (ringkasan status di kalimat ini tidak menyitasi takhrij, jadi tidak ditampilkan).`;
+export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} tidak ditampilkan (takhrij al-'Iraqi untuk kalimat ini tidak dapat dipastikan).`;
 
-const NOTICES = [HADITH_UNKNOWN, HADITH_SEE_TAKHRIJ] as const;
+const NOTICES = [HADITH_UNKNOWN, HADITH_NOT_CITED] as const;
 /** Pemberitahuan pengganti dimulai di `pos`: bukan label dan bukan pernyataan (tidak diperiksa ulang). */
 const noticeAt = (text: string, pos: number) => NOTICES.some((n) => text.startsWith(n, pos));
 const withoutNotices = (line: string) =>
@@ -149,6 +150,13 @@ export interface HadithStatement {
    * sitasi kalimat sesudahnya tidak ikut dihitung milik pernyataan ini.
    */
   ownEnd: number;
+  /**
+   * Kelompok: kalimat-kalimat dari satu baris label atau satu butir (dianggap satu hadits). Satu
+   * takhrij boleh disitasi beberapa kalimat dalam SATU kelompok; dua kelompok = konflik.
+   */
+  group: number;
+  /** Pernyataan model sendiri berbunyi "belum/tidak diketahui": penggantinya tetap "belum diketahui". */
+  unknown: boolean;
 }
 
 const SP = "[ \\t\\u00A0]";
@@ -161,19 +169,24 @@ const LABEL_HEAD = "(?<![\\p{L}\\p{N}])(?:status|derajat|kualitas)";
  * - "Status/Derajat/Kualitas", ≤2 kata sisipan ("Status masing-masing hadits"), "hadits/hadis/
  *   hadist/hadith/ḥadīts", bentuk ulang ("hadits-hadits"), akhiran "-nya", lalu ≤8 kata, koma, satu
  *   kurung, atau kutipan sebelum pemisah ("tersebut adalah sebagai berikut", "(menurut al-'Iraqi)");
- *   pemisah titik dua (biasa/lebar), "—", "–", "-" berspasi, atau akhir baris (baris label
- *   "**Status hadits**");
+ *   pemisah titik dua (biasa/lebar), "—", "–", atau "-" berspasi;
+ * - baris label tanpa pemisah ("**Status hadits**", "Status hadits ini"): hanya di awal baris dan
+ *   ≤2 kata sesudah kata hadits, supaya kalimat biasa yang kebetulan berakhir di "… derajat hadits
+ *   tersebut dalam catatan kaki" tidak menjadi label;
  * - "Status:"/"Statusnya:" tanpa kata hadits (wajib titik dua). "Derajat:"/"Kualitas:" tanpa kata
  *   hadits TIDAK, karena lazim untuk tingkatan amal ("tiga derajat: puasa umum, …").
  * Penanda tebal/miring hanya ikut bila menempel pada label ("**Status"), supaya penanda daftar "* "
  * tidak ikut terganti. Batas kata Unicode (garis bawah dianggap huruf oleh `\b`).
  */
+const HEAD_HADITH = `${LABEL_HEAD}(?:${SP}+${WORD}){0,2}?${SP}+${HADITH_WORD}(?:-${HADITH_WORD})?(?:nya)?(?![\\p{L}\\p{N}])`;
+/** Tepat sesudah awal baris (+ penanda daftar/tebal opsional): syarat label tanpa pemisah. */
+const AT_LINE_START = `(?<=(?:^|\\n)${SP}*(?:(?:[-*•·–]|\\d{1,2}[.)]|[a-z][.)])${SP}+)?(?:[*_]{1,3})?)`;
 const PREFIX_SOURCE =
   `(?:[*_]{1,3}(?=\\p{L}))?(?:` +
-  `${LABEL_HEAD}(?:${SP}+${WORD}){0,2}?${SP}+${HADITH_WORD}(?:-${HADITH_WORD})?(?:nya)?(?![\\p{L}\\p{N}])` +
-  `(?:${SP}*,?${SP}+(?:\\([^()\\n]{0,80}\\)|"[^"\\n]{0,80}"|“[^”\\n]{0,80}”|${WORD})){0,8}?` +
-  `${SP}*(?:[*_]{1,3}${SP}*)?(?:[:\\uFF1A]|[—–]|-(?=${SP})|(?=${SP}*\\r?(?:\\n|$)))` +
-  `|(?<![p{L}p{N}])status(?:nya)?(?![p{L}p{N}])${SP}*(?:[*_]{1,3}${SP}*)?[:\uFF1A]` +
+  `${HEAD_HADITH}(?:${SP}*,?${SP}+(?:\\([^()\\n]{0,80}\\)|"[^"\\n]{0,80}"|“[^”\\n]{0,80}”|${WORD})){0,8}?` +
+  `${SP}*(?:[*_]{1,3}${SP}*)?(?:[:\\uFF1A]|[—–]|-(?=${SP}))` +
+  `|${AT_LINE_START}${HEAD_HADITH}(?:${SP}+${WORD}){0,2}?${SP}*(?:[*_]{1,3})?(?=${SP}*\\r?(?:\\n|$))` +
+  `|(?<![\\p{L}\\p{N}])status(?:nya)?(?![\\p{L}\\p{N}])${SP}*(?:[*_]{1,3}${SP}*)?[:\\uFF1A]` +
   `)(?:${SP}*[*_]{1,3})?`;
 const prefixRe = (flags: string) => new RegExp(PREFIX_SOURCE, flags);
 
@@ -299,6 +312,10 @@ const isBlank = (s: string) => /^[ \t\u00A0\r*_]*$/u.test(s);
 const GRADING =
   /(?<!\p{L})(?:s[h]?[aoā]h[iī]h|ṣaḥīḥ|[hḥ]asan|[dḍ][hl]?[aoā]['ʿ’‘ʻ]?[iīy]f|lemah|palsu|dusta|ma[uw][dḍ]h?[uū]|mun(?:g)?kar|matr[uū]k|munq[aā][tṭ]h?[iī]|majh[uū]l|b[aā][tṭ]h?il|mursal|ma[uw]q[uū]f|marf[uū]|muttafaq|mu['ʿ’‘ʻ]?allaq|gharib|jayyid|kuat|hujjah|tidak|tanpa|belum)(?!\p{L})/iu;
 
+/** Pernyataan model yang sendiri menyatakan statusnya belum/tidak diketahui atau tidak bisa ditentukan. */
+const UNKNOWN_STATEMENT =
+  /^(?:masih\s+)?(?:belum|tidak)\s+(?:diketahui|dapat\s+(?:ditentukan|dipastikan|diketahui))(?!\p{L})/iu;
+
 /** Kata yang boleh ada di kalimat pengantar daftar ("sebagai berikut", "menurut al-'Iraqi:"). */
 const INTRO_WORDS = new Set([
   "sebagai",
@@ -386,7 +403,9 @@ function itemsAfter(
       continue;
     }
     const marker = LIST_MARKER.exec(line);
-    const grading = GRADING.test(line);
+    // Baris pemberitahuan pengganti (putaran ulang) tetap bagian dari bagian status, tetapi kata
+    // "belum/tidak" di dalamnya tidak dihitung istilah penilaian.
+    const grading = NOTICES.some((n) => line.includes(n)) || GRADING.test(withoutNotices(line));
     if (marker !== null && (mode !== "tight" || grading))
       items.push({ start: lineStart + marker[0].length, end: lineEnd });
     else if (expectFirst) items.push({ start: lineStart, end: lineEnd });
@@ -412,11 +431,19 @@ function itemsAfter(
  */
 export function hadithStatements(text: string): HadithStatement[] {
   const out: HadithStatement[] = [];
-  const push = (start: number, from: number, s: Sentence) => {
+  let groups = 0;
+  const push = (start: number, from: number, s: Sentence, group: number) => {
     if (noticeAt(text, s.start) || noticeAt(text, start)) return;
     const status = cleanStatus(text.slice(from, s.ownEnd));
     if (status !== "")
-      out.push({ status: shortStatus(status), start, end: s.end, ownEnd: s.ownEnd });
+      out.push({
+        status: shortStatus(status),
+        start,
+        end: s.end,
+        ownEnd: s.ownEnd,
+        group,
+        unknown: UNKNOWN_STATEMENT.test(status),
+      });
   };
   const prefixes = [...text.matchAll(prefixRe("giu"))]
     .filter((m) => !noticeAt(text, m.index))
@@ -440,15 +467,20 @@ export function hadithStatements(text: string): HadithStatement[] {
         : atLineStart
           ? itemsAfter(text, lineEnd, nextPrefix, "tight")
           : [];
-    if (!blank && !(intro && items.length > 0))
+    if (!blank && !(intro && items.length > 0)) {
+      const group = groups++;
       sentencesIn(text, p.bodyStart, lineEnd).forEach((s, k) => {
-        if (k === 0) push(p.start, p.bodyStart, s);
-        else if (GRADING.test(text.slice(s.start, s.ownEnd))) push(s.start, s.start, s);
+        if (k === 0) push(p.start, p.bodyStart, s, group);
+        else if (GRADING.test(text.slice(s.start, s.ownEnd))) push(s.start, s.start, s, group);
       });
-    for (const it of items)
+    }
+    for (const it of items) {
+      const group = groups++;
       sentencesIn(text, it.start, it.end).forEach((s, k) => {
-        if (k === 0 || GRADING.test(text.slice(s.start, s.ownEnd))) push(s.start, s.start, s);
+        if (k === 0 || GRADING.test(text.slice(s.start, s.ownEnd)))
+          push(s.start, s.start, s, group);
       });
+    }
   });
   return out;
 }
