@@ -381,6 +381,32 @@ describe("klaim hadits", () => {
     expect(text.endsWith(HADITH_UNKNOWN)).toBe(true);
   });
 
+  test("takhrij yang disitasi SESUDAH kalimat status di paragraf yang sama ikut dipasangkan", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 2,
+        char_start: 0,
+        char_end: 12,
+        kind: "foot" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "Status hadits: sanad lemah.", citations: [] },
+      { text: " Takhrijnya menyebut riwayat Ibnu Majah.", citations: [1] },
+    ];
+    const checked = hadithCheck(blocks, citations, passages);
+    expect(checked.unsupported).toBe(0);
+    expect(checked.claims.map((c) => c.status)).toEqual(["sanad lemah"]);
+    expect(checked.blocks.map((b) => b.text).join("")).toContain("sanad lemah");
+  });
+
   test("status tanpa takhrij di tengah blok bersitasi: hanya kalimatnya yang diganti", () => {
     const passages = new Map([[1, passage(1, SENT)]]);
     const citations = [

@@ -482,7 +482,7 @@ export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ad
 
 /**
  * Klaim status hadits: kalimat "Status hadits: …" yang didukung sitasi catatan kaki terverifikasi
- * (di kalimat itu, atau takhrij terakhir yang disitasi sebelumnya di paragraf yang sama).
+ * (di kalimat itu, atau takhrij yang disitasi di paragraf yang sama: terdekat sebelum, lalu sesudah).
  * `passage_id` = paragraf badan yang merujuk catatan kaki itu (takhrij tertaut, S16). Kalimat
  * status yang TIDAK didukung diganti `HADITH_UNKNOWN` di blok jawaban, sehingga status tanpa
  * takhrij tidak pernah tampil (temuan peninjau S19). Sitasi yang tak lagi dirujuk blok dibuang.
@@ -516,13 +516,19 @@ export function hadithCheck(
         .filter((r) => r.end > st.start && r.start < st.end + 1)
         .flatMap((r) => r.block.citations),
     );
-    // Kalimat status tanpa sitasi sendiri: pakai takhrij terakhir yang disitasi sebelumnya dalam
-    // paragraf yang sama (model sering menyitasi takhrij di kalimat sebelum "Status hadits:").
+    // Kalimat status tanpa sitasi sendiri: pakai takhrij yang disitasi di paragraf yang sama,
+    // yang terdekat sebelumnya, atau bila tidak ada, yang terdekat sesudahnya (model sering
+    // menyitasi takhrij di kalimat sebelum atau sesudah "Status hadits:").
     if (foots.length === 0) {
       const paragraphStart = full.lastIndexOf("\n\n", st.start) + 1;
+      const nextBreak = full.indexOf("\n\n", st.end);
+      const paragraphEnd = nextBreak < 0 ? full.length : nextBreak;
       const before = ranges.filter((r) => r.start >= paragraphStart - 1 && r.end <= st.start);
+      const after = ranges.filter((r) => r.start >= st.end && r.start < paragraphEnd);
       const prev = footOf(before.flatMap((r) => r.block.citations)).at(-1);
-      foots = prev ? [prev] : [];
+      const nextFoot = footOf(after.flatMap((r) => r.block.citations))[0];
+      const pick = prev ?? nextFoot;
+      foots = pick ? [pick] : [];
     }
     let paired = false;
     for (const c of foots) {
