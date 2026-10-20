@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 
-import { Card } from "@heroui/react";
+import { Card, Typography } from "@heroui/react";
 import NextLink from "next/link";
 
 import { PageSection } from "../../../components/page-section";
 import { TextPage } from "../../../components/text-page";
 import { id, SOURCE_URL } from "../../../i18n/id";
+import { PageLead, PageTitle } from "../../../components/page-title";
 
 const t = id.about;
 
@@ -28,22 +29,22 @@ export default function AboutPage() {
     <TextPage
       header={
         <header className="flex flex-col gap-3">
-          <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
-            {t.heading}
-          </h1>
-          <p className="text-muted text-base sm:text-lg">{t.lead}</p>
+          <PageTitle>{t.heading}</PageTitle>
+          <PageLead>{t.lead}</PageLead>
         </header>
       }
       sections={sections}
     >
       <PageSection heading={t.visionHeading} id="visi">
-        <p className="text-foreground text-base leading-relaxed">{t.vision}</p>
+        <Typography>{t.vision}</Typography>
       </PageSection>
 
       <PageSection heading={t.audienceHeading} id="pengguna">
-        <ul className="text-foreground flex list-disc flex-col gap-2 ps-5 text-base leading-relaxed">
+        <ul className="flex list-disc flex-col gap-2 ps-5">
           {t.audience.map((line) => (
-            <li key={line}>{line}</li>
+            <li key={line}>
+              <Typography>{line}</Typography>
+            </li>
           ))}
         </ul>
       </PageSection>
@@ -64,27 +65,29 @@ export default function AboutPage() {
       </PageSection>
 
       <PageSection heading={t.principlesHeading} id="prinsip">
-        <ol className="text-foreground flex list-decimal flex-col gap-2 ps-5 text-base leading-relaxed marker:text-muted">
+        <ol className="flex list-decimal flex-col gap-2 ps-5 marker:text-muted">
           {t.principles.map((line) => (
-            <li key={line}>{line}</li>
+            <li key={line}>
+              <Typography>{line}</Typography>
+            </li>
           ))}
         </ol>
       </PageSection>
 
       <PageSection heading={t.openHeading} id="terbuka">
-        <p className="text-foreground text-base leading-relaxed">{t.open}</p>
+        <Typography>{t.open}</Typography>
       </PageSection>
 
       <PageSection heading={t.licenseHeading} id="lisensi">
-        <div className="text-foreground flex flex-col gap-2 text-base leading-relaxed">
-          <p>{t.licenseCode}</p>
-          <p>{t.licenseContent}</p>
-          <p>
+        <div className="flex flex-col gap-2">
+          <Typography>{t.licenseCode}</Typography>
+          <Typography>{t.licenseContent}</Typography>
+          <Typography>
             <NextLink className="link underline" href="/lisensi">
               {t.licenseMore}
             </NextLink>
-          </p>
-          <p>
+          </Typography>
+          <Typography>
             <a
               className="link underline"
               href={SOURCE_URL}
@@ -94,7 +97,7 @@ export default function AboutPage() {
               {t.sourceLink}
               <span className="sr-only"> {id.common.newTab}</span>
             </a>
-          </p>
+          </Typography>
         </div>
       </PageSection>
     </TextPage>

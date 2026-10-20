@@ -3,7 +3,7 @@
 import type { AyahRef, QuranAyahView, QuranSourceView } from "@surau/core";
 
 import { HoverCard } from "@heroui-pro/react";
-import { Popover } from "@heroui/react";
+import { Popover, Typography } from "@heroui/react";
 import { useState } from "react";
 import { Button as AriaButton } from "react-aria-components";
 
@@ -70,7 +70,7 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
   ].filter((n) => n !== null);
   return (
     <div className="flex flex-col gap-3 text-sm">
-      {surahNameAr ? <ArabicText className="text-muted text-base">{surahNameAr}</ArabicText> : null}
+      {surahNameAr ? <ArabicText className="text-muted">{surahNameAr}</ArabicText> : null}
       {notes.length > 0 ? (
         <ul className="text-muted flex list-none flex-col gap-0.5 p-0 text-xs">
           {notes.map((n) => (
@@ -78,25 +78,35 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
           ))}
         </ul>
       ) : null}
-      <p className="text-muted text-xs font-medium">
+      <Typography type="body-xs" color="muted" weight="medium">
         {ayahRef.partial ? t.ayahTranslationFull : t.ayahTranslation}
-      </p>
+      </Typography>
       <ol className="flex list-none flex-col gap-3 p-0">
         {ayat.map((a) => (
           <li key={`${a.surah}:${a.ayah}`} className="flex flex-col gap-1">
-            <ArabicText className="text-foreground text-lg">{a.text}</ArabicText>
+            <ArabicText className="text-foreground" size="lg">
+              {a.text}
+            </ArabicText>
             {a.transliteration ? (
-              <p className="text-muted text-xs italic" lang="ar-Latn" translate="no">
+              <Typography
+                type="body-xs"
+                color="muted"
+                className="italic"
+                lang="ar-Latn"
+                translate="no"
+              >
                 {a.transliteration}
-              </p>
+              </Typography>
             ) : null}
             {a.translation ? (
-              <p className="text-foreground">
+              <Typography>
                 <span className="text-muted mr-1 tabular-nums">{a.ayah}.</span>
                 {a.translation.text}
-              </p>
+              </Typography>
             ) : (
-              <p className="text-muted text-xs">{t.ayahNoTranslation}</p>
+              <Typography type="body-xs" color="muted">
+                {t.ayahNoTranslation}
+              </Typography>
             )}
             {a.translation && a.translation.footnotes.length > 0 ? (
               <ul className="text-muted flex list-none flex-col gap-1 border-l border-separator p-0 pl-2 text-xs">
@@ -112,7 +122,7 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
         ))}
       </ol>
       <div className="text-muted flex flex-col gap-1 border-t border-separator pt-2 text-xs">
-        <p>
+        <Typography type="body-xs" color="muted">
           {text ? (
             <>
               {t.ayahTextSource}: {sourceLink(text, text.name)} ({text.license}) ·{" "}
@@ -128,8 +138,10 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
               {t.ayahTransliterationSource}: {sourceLink(transliteration, t.ayahKemenag)}
             </>
           ) : null}
-        </p>
-        <p>{t.ayahAuto}</p>
+        </Typography>
+        <Typography type="body-xs" color="muted">
+          {t.ayahAuto}
+        </Typography>
         <a
           className="link self-start text-[length:inherit]"
           href={`https://tanzil.net/#${ayahRef.surah}:${ayahRef.ayah_from}`}
@@ -179,7 +191,9 @@ export function AyahRefChip(props: AyahRefChipProps) {
           className="max-h-[70vh] w-[26rem] max-w-[calc(100vw-2rem)] overflow-y-auto"
           placement="bottom"
         >
-          <p className="text-foreground mb-2 text-sm font-semibold">{ayahRef.label}</p>
+          <Typography type="body-sm" weight="semibold" className="mb-2">
+            {ayahRef.label}
+          </Typography>
           <AyahBody {...props} />
         </HoverCard.Content>
       </HoverCard>

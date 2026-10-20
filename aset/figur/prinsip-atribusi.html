@@ -11,14 +11,14 @@
 /* Prinsip 3 · Atribusi, bukan fatwa.
    Proses: kartu pernyataan di alas → jejak di alas menyala dari kartu ke kitab sumbernya → papan nama penulis di punggung
    kitab menyala (penuturnya disebut). Surau tidak mengeluarkan putusan, jadi stempel di alas tetap redup dan
-   dicoret. Tanpa kata di gambar (situs tiga bahasa), tanpa nama ulama, wajah, atau huruf Arab. */
+   dicoret. Tanpa kata di gambar (situs direncanakan multibahasa), tanpa nama ulama, wajah, atau huruf Arab. */
 const { ease } = ISO;
 const st = { atribusi: 1, busy: false };
 
 mountFigure({
   id: 'prinsip-atribusi', title: 'Atribusi, bukan fatwa',
   hint: 'tunjukkan siapa yang mengatakan',
-  alt: 'Ilustrasi garis: kartu pernyataan dihubungkan kabel yang menyala ke kitab sumbernya dengan label "menurut penulis". Stempel putusan di sampingnya tetap redup.',
+  alt: 'Ilustrasi garis: jejak di alas menyala dari kartu pernyataan ke kitab sumbernya, dan papan nama penulis di punggung kitab menyala. Stempel putusan di sampingnya redup dan dicoret.',
   tombol: [{ label: 'Siapa yang mengatakan?', aksi: () => H.tunjukkan() }],
   mount(stage, api) {
     const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[8,6,26],[15,6,26],[34,24,19],[52,26,19]]);

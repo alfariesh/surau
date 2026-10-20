@@ -6,6 +6,7 @@ import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
 
 import { id } from "../../i18n/id";
 import { shortAyahLabel } from "../../lib/reader/ayah";
+import { Typography } from "@heroui/react";
 
 const t = id.reader;
 
@@ -62,9 +63,9 @@ export function PassageTranslation({
       <p className="passage-translation passage-translation-heading text-muted" lang="id">
         <span data-ai-text="">
           {withMarkers(segments.map((s) => (s.kind === "ai" ? s.text : "")).join(""), footAnchor)}
-        </span>
-        <span className="text-xs" title={t.aiTranslationHint}>
-          {" · "}
+        </span>{" "}
+        {/* Label sebagai lencana kecil, supaya tidak terbaca sebagai bagian terjemahannya. */}
+        <span className="ai-badge" title={t.aiTranslationHint}>
           {t.aiTranslation}
           <span className="sr-only">: {t.aiTranslationHint}</span>
         </span>
@@ -73,11 +74,17 @@ export function PassageTranslation({
   }
   return (
     <div className="passage-translation" lang="id">
-      <p className="text-muted mb-1 text-xs font-medium" title={t.aiTranslationHint}>
+      <Typography
+        type="body-xs"
+        color="muted"
+        weight="medium"
+        className="mb-1"
+        title={t.aiTranslationHint}
+      >
         {t.aiTranslation}
         <span className="sr-only">: {t.aiTranslationHint}</span>
-      </p>
-      <p className="text-foreground text-[0.95rem] leading-relaxed">
+      </Typography>
+      <Typography type="body-sm">
         {segments.map((s, i) => {
           if (s.kind === "ai") {
             return (
@@ -114,7 +121,7 @@ export function PassageTranslation({
             </span>
           );
         })}
-      </p>
+      </Typography>
     </div>
   );
 }

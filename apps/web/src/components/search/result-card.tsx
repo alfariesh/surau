@@ -3,7 +3,7 @@
 import type { SearchHit, SearchPage as ResultPage } from "@surau/core";
 import type { ReactNode } from "react";
 
-import { Card, Chip } from "@heroui/react";
+import { Card, Chip, Typography } from "@heroui/react";
 import NextLink from "next/link";
 
 import { id } from "../../i18n/id";
@@ -58,9 +58,9 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
           <Chip className="self-start" size="sm" variant="soft">
             {r.aiTranslation}
           </Chip>
-          <p className="text-foreground text-sm leading-relaxed">
+          <Typography type="body-sm">
             {render(aiSegments(tr.snippet.text, tr.snippet.char_start, tr.highlights))}
-          </p>
+          </Typography>
         </div>
       ) : null}
       {sm ? (
@@ -69,11 +69,11 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
             <Chip color="accent" size="sm" variant="soft">
               {r.aiSummary}
             </Chip>
-            <ArabicInline className="text-foreground text-sm">{sm.section.title_ar}</ArabicInline>
+            <ArabicInline className="text-foreground">{sm.section.title_ar}</ArabicInline>
           </div>
-          <p className="text-foreground text-sm leading-relaxed">
+          <Typography type="body-sm">
             {render(aiSegments(sm.snippet.text, sm.snippet.char_start, sm.highlights))}
-          </p>
+          </Typography>
           <NextLink className="link self-start text-xs" href={sm.section.permalink}>
             {t.openSection}
           </NextLink>
@@ -114,7 +114,7 @@ export function ResultCard({ page, query }: { page: ResultPage; query: string })
               {t.pageLabel(r.pageShort(juz, pageNo))}
             </NextLink>
             {section ? (
-              <ArabicInline className="text-foreground text-base font-normal">
+              <ArabicInline className="text-foreground font-normal">
                 {section.title_ar}
               </ArabicInline>
             ) : null}

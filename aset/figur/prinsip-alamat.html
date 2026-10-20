@@ -11,7 +11,7 @@
 /* Prinsip 2 · Setiap klaim ada alamatnya.
    Proses: kartu klaim di alas → jejak di alas menelusuri ke rak kitab → jilid yang dirujuk ditarik keluar →
    jilid itu menyala dan pita penandanya terangkat (alamat: jilid + halaman). Tanpa kata atau angka di gambar
-   (situs tiga bahasa); tanpa nama kitab. Dengan tombol, jilid lain bisa diketuk. */
+   (situs direncanakan multibahasa); tanpa nama kitab. Dengan tombol, jilid lain bisa diketuk. */
 const { lerp, ease } = ISO;
 const st = { pilih: 1, tarik: 1, jalur: 1, busy: false };
 const BOOKS = [{ x: 24, h: 21 }, { x: 29.2, h: 23 }, { x: 34.4, h: 20 }, { x: 39.6, h: 22.5 }, { x: 44.8, h: 19.5 }];
@@ -20,7 +20,7 @@ const BW = 4.6, BY = 4, BD = 14, PULL = 6;
 mountFigure({
   id: 'prinsip-alamat', title: 'Setiap klaim ada alamatnya',
   hint: 'telusuri klaim ke jilid dan halamannya, atau ketuk jilid lain',
-  alt: 'Ilustrasi garis: kabel dari kartu klaim menelusuri ke rak kitab, satu jilid tertarik keluar dan labelnya menunjukkan jilid serta halaman.',
+  alt: 'Ilustrasi garis: jejak di alas dari kartu klaim menelusuri ke rak kitab; satu jilid tertarik keluar, menyala, dan pita penanda halamannya terangkat.',
   tombol: [
     { label: 'Telusuri', aksi: () => H.telusuri(st.pilih) },
     { label: 'Kembalikan', aksi: () => H.kembalikan() },
@@ -71,7 +71,8 @@ mountFigure({
         if (st.tarik <= 0) return api.readout('Semua jilid sudah di rak'); st.busy = true;
         api.anim(500, t => { st.tarik = 1 - t; draw(); }, () => { st.tarik = 0; st.jalur = 0; st.busy = false; draw(); api.readout('Jilid dikembalikan ke rak'); }); },
     };
-    stage.addEventListener('click', e => { const g = e.target.closest('[data-i]'); if (g) H.telusuri(+g.dataset.i); });
+    // jilid lain bisa diketuk hanya bila figur bertombol (halaman "coba sendiri"); di kartu situs ketukan memutar ulang cerita
+    if (document.getElementById('aksi')) stage.addEventListener('click', e => { const g = e.target.closest('[data-i]'); if (g) H.telusuri(+g.dataset.i); });
     draw(); read();
     return {
       render: draw,

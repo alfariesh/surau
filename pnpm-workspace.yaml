@@ -10,10 +10,10 @@ catalog:
   # Toolchain (root)
   "@types/node": 24.19.2
   typescript: 7.0.2
-  vite-plus: 1.2.0
-  wrangler: 4.151.0
+  vite-plus: 1.3.0
+  wrangler: 4.151.1
   # Cakupan tes (S05). Dipin PERSIS sama dengan vitest bawaan vite-plus (peer 5.0.4).
-  "@vitest/coverage-v8": 5.0.4
+  "@vitest/coverage-v8": 5.0.5
   "@opennextjs/cloudflare": 1.20.12
 
   # Data (S06, ADR-009): tanpa ORM. Zod untuk skema baris + validasi batas sistem.
@@ -23,9 +23,9 @@ catalog:
   # Ingest (S07): parser file patch daftar isi (data/patches/*.yaml). Tanpa dependensi, ISC.
   yaml: 2.9.1
   # Tes D1 di workerd (S06). Pengganti @cloudflare/vitest-pool-workers (deprecated); peer vitest ^5.
-  "@cloudflare/vitest-plugin": 1.4.2
+  "@cloudflare/vitest-plugin": 1.4.4
   # Tipe D1Database untuk packages/* (yang tidak punya wrangler types sendiri).
-  "@cloudflare/workers-types": 5.20261014.1
+  "@cloudflare/workers-types": 5.20261016.1
 
   # LLM (S13, ADR-013): klien resmi Anthropic untuk Message Batches + count_tokens. 0.135.0 dirilis
   # 2026-10-15 (>24 jam). Membawa @opentelemetry/api (Apache-2.0) sebagai dependensi.
@@ -38,7 +38,7 @@ catalog:
   "@modelcontextprotocol/client": 2.3.1
 
   # Web: Next + React (ADR-003; naik ke 16.4 di X01). 16.4.2 belum 24 jam saat X01 (16 Okt).
-  next: 16.4.1
+  next: 16.4.2
   react: 19.3.1
   react-dom: 19.3.1
   "@types/react": 19.3.0
@@ -71,9 +71,9 @@ catalog:
   "@paper-design/shaders-react": 0.0.81
 
   # Tes e2e (S04): hanya chromium. 1.64.1 belum 24 jam saat dipasang.
-  "@playwright/test": 1.64.0
+  "@playwright/test": 1.64.1
   # Cek aksesibilitas otomatis di e2e (MPL-2.0, hanya devDependency).
-  "@axe-core/playwright": 4.13.0
+  "@axe-core/playwright": 4.14.0
 
 # Build script dependensi harus disetujui eksplisit (pnpm >=11).
 allowBuilds:

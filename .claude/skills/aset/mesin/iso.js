@@ -144,14 +144,13 @@ const CSS_TOKEN_CADANGAN = `
 
 /* kosakata gambar (dari iso-glow), memakai token situs */
 const CSS_DASAR = `
-  @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/plus-jakarta-sans-latin.woff2) format('woff2')}
   :root{color-scheme:light;
     --bg:var(--background);--edge:var(--border);--ink:var(--muted);--ink-hi:var(--foreground);
     --line:color-mix(in oklab,var(--foreground) 46%,var(--background));--detail:color-mix(in oklab,var(--foreground) 20%,var(--background));
     --body:var(--surface-secondary);--deck:var(--surface);--recess:var(--surface-tertiary);
     --glass:var(--surface-tertiary);--glass-on:color-mix(in oklab,var(--accent) 14%,var(--surface));
     --accent-hi:color-mix(in oklab,var(--accent) 70%,var(--surface));--accent-dim:color-mix(in oklab,var(--accent) 12%,transparent);
-    --font:'Plus Jakarta Sans',var(--font-sans,Inter),ui-sans-serif,system-ui,sans-serif}
+    --font:'HarmonyOS Sans',ui-sans-serif,system-ui,sans-serif}
   :root[data-tema=gelap]{color-scheme:dark;--body:var(--surface);--deck:var(--surface-secondary);--recess:var(--background);
     --line:color-mix(in oklab,var(--foreground) 34%,var(--background));--detail:color-mix(in oklab,var(--foreground) 16%,var(--background));
     --accent-hi:color-mix(in oklab,var(--accent) 60%,white);--glass-on:color-mix(in oklab,var(--accent) 18%,var(--background))}
@@ -269,7 +268,7 @@ function mountFigure(cfg) {
 
   const diam = q.get('gerak') === '0' || matchMedia('(prefers-reduced-motion: reduce)').matches;
   const catatan = document.querySelector('.catatan'), status = document.getElementById('status');
-  let K = null, handle = {}, timers = [], disentuh = false, temaInduk = false;
+  let K = null, handle = {}, timers = [], disentuh = false, temaInduk = false, putaran = 0;
   const anims = new Set();
   // tiga lapis: filter (tetap), lukisan (ditulis ulang tiap gambar), denyut (tetap, supaya animasi CSS-nya tidak
   // terulang dari awal setiap kali lukisan digambar ulang)
@@ -362,7 +361,7 @@ function mountFigure(cfg) {
   handle = cfg.mount(stage, api) || {};
   pasangFilter();
   // fokus keyboard hanya bila figur punya pintasan tombol
-  if (handle.key) stage.setAttribute('tabindex', '0');
+  if (handle.key && adaTombol) stage.setAttribute('tabindex', '0');
   // ukuran label bergantung lebar tampil, jadi gambar ulang saat ukuran berubah
   if (handle.render) { let w = stage.clientWidth;
     new ResizeObserver(() => { if (Math.abs(stage.clientWidth - w) > 4) { w = stage.clientWidth; handle.render(); } }).observe(stage); }
@@ -371,8 +370,10 @@ function mountFigure(cfg) {
   const aksi = document.getElementById('aksi');
   if (aksi) cfg.tombol.forEach(b => { const el = document.createElement('button'); el.type = 'button'; el.textContent = b.label;
     el.onclick = () => { api.tandai(); b.aksi(api); }; aksi.appendChild(el); });
-  // dengan tombol: ketukan di gambar adalah aksi figur (acts sendiri). Tanpa tombol: ketukan memutar ulang cerita.
-  stage.addEventListener('pointerdown', () => { if (adaTombol) api.tandai(); else putarCerita(); });
+  // dengan tombol: ketukan di gambar adalah aksi figur (hentikan demo dulu, figur menangani klik-nya sendiri).
+  // Tanpa tombol: ketukan memutar ulang cerita; lewat click, jadi mulai menggulir di ponsel tidak memicunya.
+  if (adaTombol) stage.addEventListener('pointerdown', () => api.tandai());
+  else stage.addEventListener('click', () => putarCerita());
   stage.addEventListener('keydown', e => { api.tandai(); if (handle.key && handle.key(e)) e.preventDefault(); });
   // kursor masuk ke figur → cerita diputar ulang (bila sedang tidak berjalan)
   document.documentElement.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && !api.berjalan()) putarCerita(); });
@@ -389,23 +390,27 @@ function mountFigure(cfg) {
   // cerita: sampul/polos/kurangi gerakan → langsung keadaan akhir. Selain itu diputar sekali saat figur pertama
   // kali terlihat di layar (IntersectionObserver dari dalam iframe menghitung viewport teratas), lalu hanya
   // diputar ulang atas permintaan (kursor, ketukan, pesan induk). Tidak ada perulangan tanpa henti (WCAG 2.2.2).
+  // Setiap putaran (otomatis atau atas permintaan) dihitung, jadi cerita yang dipicu sebelum figur terlihat
+  // tidak diputar dua kali dan mode berulang tidak melebihi N.
   function putarCerita() {
     if (!handle.demo || (disentuh && adaTombol)) return;
     if (diam) { if (handle.akhir) handle.akhir(); return; }
-    api.hentikan(); handle.demo(); }
+    putaran++; api.hentikan(); handle.demo(); }
   // mode berulang (empty state, indikator memuat): ?ulang=N memutar cerita N kali (0 = terus) dengan jeda
   // ?jeda=ms (bawaan 2500), hanya selama figur terlihat; berhenti saat tab disembunyikan atau figur keluar
   // layar, lalu lanjut saat terlihat lagi. Bawaan figur: cfg.ulang = { kali, jeda }. Tanpa ini: sekali saja.
   const ulangCfg = cfg.ulang || {};
-  const ulangKali = q.has('ulang') ? Math.max(0, Math.floor(Number(q.get('ulang')) || 0)) : ulangCfg.kali ?? null;
+  // ?ulang yang tidak valid (bukan bilangan ≥ 0) diabaikan, bukan dianggap 0 (= terus)
+  const ulangQ = q.has('ulang') && /^\d+$/.test(q.get('ulang')) ? Number(q.get('ulang')) : null;
+  const ulangKali = ulangQ ?? ulangCfg.kali ?? null;
   const jeda = Math.max(800, Number(q.get('jeda')) || ulangCfg.jeda || 2500);
-  let diLayar = false, putaran = 0, tungguT = 0;
+  let diLayar = false, tungguT = 0;
   const bolehUlang = () => ulangKali !== null && (ulangKali === 0 || putaran < ulangKali);
   const siklus = () => { clearTimeout(tungguT);
     if (!diLayar || document.visibilityState !== 'visible' || (disentuh && adaTombol)) return;
     if (api.berjalan()) { tungguT = setTimeout(siklus, 200); return; }
     if (putaran > 0 && !bolehUlang()) return;
-    putaran++; putarCerita();
+    putarCerita();
     if (bolehUlang()) { const tunggu = () => { if (api.berjalan()) tungguT = setTimeout(tunggu, 200); else tungguT = setTimeout(siklus, jeda); }; tungguT = setTimeout(tunggu, 200); } };
   if (sampul || polos || diam || q.get('demo') === '0') { if (handle.akhir && q.get('demo') !== '0') handle.akhir(); }
   else {

@@ -305,15 +305,19 @@ export const id = {
     quranHeading: "Ayat Al-Qur'an",
     quranLead:
       "Kutipan ayat di dalam kitab dikenali otomatis dengan mencocokkannya ke teks mushaf, lalu ditautkan ke surah dan ayatnya. Teks ayat, terjemahan, dan transliterasi disalin apa adanya dari sumber di bawah; AI tidak pernah menulis atau menerjemahkan ayat.",
+    fontHeading: "Font",
+    fontText:
+      "Teks antarmuka Surau memakai HarmonyOS Sans (hak cipta Huawei Device Co., Ltd.), dipakai tanpa diubah di bawah Perjanjian Lisensi HarmonyOS Sans Fonts. Teks Arab memakai Noto Naskh Arabic, Amiri, Scheherazade New, dan Noto Sans Arabic (SIL OFL 1.1).",
+    fontLicenseLink: "Perjanjian lisensi font",
     correctionHeading: "Koreksi dan penghapusan",
     correctionText:
       "Menemukan salah ketik, teks yang terpotong, atau nomor halaman yang keliru? Ketuk tombol “Laporkan kesalahan” di halaman kitab, atau buka laporan di GitHub.",
     takedownText:
       "Pemegang hak atas sebuah teks atau edisi yang keberatan dengan tampilannya di Surau dapat menghubungi kami lewat GitHub. Bila keberatannya beralasan, teks yang bersangkutan kami turunkan sementara selama ditinjau.",
     issueLink: "Buka laporan di GitHub",
-    artHeading: "Ilustrasi dan huruf",
+    artHeading: "Ilustrasi",
     artLead:
-      "Ilustrasi interaktif di Surau dibuat dengan mesin turunan karya terbuka berikut, dengan huruf Plus Jakarta Sans. Teks lisensi MIT ikut di setiap berkas ilustrasi.",
+      "Ilustrasi interaktif di Surau dibuat dengan mesin turunan karya terbuka berikut. Teks lisensi MIT ikut di setiap berkas ilustrasi.",
     artCredits: [
       { name: "iso-glow", by: "April Zhu", license: "MIT", url: "https://iso-glow.vercel.app" },
       {
@@ -321,12 +325,6 @@ export const id = {
         by: "Tolga Cohce",
         license: "MIT",
         url: "https://github.com/MrBongoC/ai-iso-skill",
-      },
-      {
-        name: "Plus Jakarta Sans",
-        by: "Tokotype",
-        license: "SIL Open Font License 1.1",
-        url: "https://github.com/tokotype/PlusJakartaSans",
       },
     ],
     privacyHeading: "Laporan kesalahan dan privasi",

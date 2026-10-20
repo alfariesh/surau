@@ -4,7 +4,7 @@ import type { SearchPage as ResultPage, SearchView } from "@surau/core";
 import type { FormEvent } from "react";
 
 import { Search01 } from "../../icons";
-import { Alert, Button, SearchField, Spinner, Tag, TagGroup } from "@heroui/react";
+import { Alert, Button, SearchField, Spinner, Tag, TagGroup, Typography } from "@heroui/react";
 import { EmptyState, NativeSelect } from "@heroui-pro/react";
 import NextLink from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -157,14 +157,18 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
             </SearchField>
             <Button type="submit">{t.submit}</Button>
           </div>
-          <p className="text-muted flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+          <Typography
+            type="body-sm"
+            color="muted"
+            className="flex flex-wrap items-center gap-x-2 gap-y-1"
+          >
             <span>{t.examplesLabel}</span>
             {t.examples.map((ex) => (
               <NextLink key={ex} className="link text-sm" href={searchPageHref(ex, section)}>
                 <ExampleText text={ex} />
               </NextLink>
             ))}
-          </p>
+          </Typography>
         </form>
       </search>
 
@@ -222,11 +226,11 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
 
       {/* Pembaca layar hanya diberi tahu ringkasan (memuat / N halaman / tidak ada hasil / galat),
           bukan seluruh isi kartu setiap kali hasil berubah. */}
-      <p className="sr-only" role="status">
-        {statusText(state)}
-      </p>
+      <output className="sr-only">{statusText(state)}</output>
       <section aria-busy={state.status === "loading"} className="flex flex-col gap-4">
-        <h2 className="sr-only">{t.resultsHeading}</h2>
+        <Typography.Heading level={2} className="text-base sr-only">
+          {t.resultsHeading}
+        </Typography.Heading>
         <Results
           query={query}
           state={state}
@@ -275,10 +279,10 @@ function Results({
   }
   if (state.status === "loading") {
     return (
-      <p className="text-muted flex items-center gap-2 text-sm">
+      <Typography type="body-sm" color="muted" className="flex items-center gap-2">
         <Spinner size="sm" />
         {t.loading}
-      </p>
+      </Typography>
     );
   }
   if (state.status === "error") {
@@ -331,10 +335,10 @@ function Results({
       ) : (
         <>
           {view.total_pages !== null && view.total_hits !== null ? (
-            <p className="text-muted text-sm">
+            <Typography type="body-sm" color="muted">
               {t.summary(view.total_pages, view.total_hits)}
               {view.fusion ? <span className="block text-xs">{t.summaryFused}</span> : null}
-            </p>
+            </Typography>
           ) : null}
           <ol aria-label={t.heading} className="flex list-none flex-col gap-4 p-0">
             {pages.map((page) => (
@@ -347,7 +351,9 @@ function Results({
                 {t.loadMore}
               </Button>
               {more !== "idle" && more !== "loading" ? (
-                <p className="text-danger text-sm">{ERROR_TEXT[more]}</p>
+                <Typography type="body-sm" className="text-danger">
+                  {ERROR_TEXT[more]}
+                </Typography>
               ) : null}
             </div>
           ) : null}

@@ -6,18 +6,18 @@ argument-hint: "[benda/adegan] [untuk: situs | cover | konten]"
 
 # Aset visual Surau: $ARGUMENTS
 
-Semua aset visual Surau memakai **satu mesin dan satu gaya**: gambar isometrik bergaris tipis, warna netral situs, dan **satu aksen Zaitun hanya pada yang hidup**, misalnya baris yang dikutip, jilid yang dirujuk, atau kabel yang sedang menelusuri. Gaya ini dipilih pemilik setelah membandingkannya dengan Colorfigures (ADR-054). Mesinnya ada di `mesin/iso.js`, turunan iso-glow (MIT). Mesin ini membaca token warna langsung dari `apps/web/src/app/globals.css` saat dibangun, mendukung tema terang/gelap/sepia dan "kurangi gerakan", serta memakai teks UI berbahasa Indonesia. Di situs, aset bisa ditekan. Di tempat yang hanya menerima gambar (OG, media sosial), dipakai WebP/JPG yang dipotret dari file yang sama.
+Semua aset visual Surau memakai **satu mesin dan satu gaya**: gambar isometrik bergaris tipis, warna netral situs, dan **satu aksen Zaitun hanya pada yang hidup**, misalnya baris yang dikutip, jilid yang dirujuk, atau kabel yang sedang menelusuri. Gaya ini dipilih pemilik setelah membandingkannya dengan Colorfigures (ADR-057). Mesinnya ada di `mesin/iso.js`, turunan iso-glow (MIT). Mesin ini membaca token warna langsung dari `apps/web/src/app/globals.css` saat dibangun, mendukung tema terang/gelap/sepia dan "kurangi gerakan", serta memakai teks UI berbahasa Indonesia. Di situs, aset bisa ditekan. Di tempat yang hanya menerima gambar (OG, media sosial), dipakai WebP/JPG yang dipotret dari file yang sama.
 
 ## Aturan Surau (keras, tidak bisa ditawar)
 
 1. **Tidak ada huruf Arab di aset**: tidak ada kaligrafi, ayat, basmalah, judul kitab Arab, atau hiasan berbentuk huruf (aturan keras 1; `.claude/rules/teks-arab.md`). Baris teks digambar sebagai **garis polos**. Teks Arab asli hanya tampil di halaman situs lewat `ArabicText` dari DB.
 2. **Tidak ada wajah atau sosok manusia**, termasuk ulama, santri, dan tangan (docs/05 §2–3). Hindari juga makhluk bernyawa lain. Yang digambar adalah benda dan tempat.
 3. **Tidak ada klaim palsu.** Ilustrasi tidak menyebut nama kitab, ulama, atau alamat (jilid/halaman) nyata. Jangan pernah menggabungkan nama karya nyata dengan alamat karangan. Bila ada label kata (cover atau konten), gunakan bahasa atribusi, bukan fatwa ("MENURUT PENULIS", bukan "HUKUMNYA").
-4. **Tanpa kata di gambar untuk situs.** Situs Surau tiga bahasa (Indonesia, Inggris, Arab), dan aturan 1 melarang huruf Arab di aset. Karena itu figur untuk situs tidak memuat kata atau angka. Makna disampaikan dengan tanda visual yang bebas bahasa, misalnya lencana centang/silang (`api.lencanaBidang`), pita penanda, papan nama yang menyala, kabel, redup, atau coretan. Teks penjelasnya ada di halaman (kartu, judul), lewat i18n situs. `api.tag` (label kata) hanya untuk cover atau konten berbahasa tunggal, dan teks status pembaca layar (`api.readout`) cukup bahasa Indonesia, karena iframe di situs bersifat dekoratif (`aria-hidden`).
+4. **Tanpa kata di gambar untuk situs.** Situs Surau direncanakan bisa berbahasa Indonesia, Inggris, dan Arab, dan aturan 1 melarang huruf Arab di aset. Karena itu figur untuk situs tidak memuat kata atau angka. Makna disampaikan dengan tanda visual yang bebas bahasa, misalnya lencana centang/silang (`api.lencanaBidang`), pita penanda, papan nama yang menyala, kabel, redup, atau coretan. Teks penjelasnya ada di halaman (kartu, judul), lewat i18n situs. `api.tag` (label kata) hanya untuk cover atau konten berbahasa tunggal, dan teks status pembaca layar (`api.readout`) cukup bahasa Indonesia, karena iframe di situs bersifat dekoratif (`aria-hidden`).
 5. **Warna hanya dari token**: `.face`, `.top`, `.recess`, `.kayu`, `.detail`, `.wire`, `.nyala`, `.hot`, `.tag`, dan sejenisnya (lihat `REFERENSI.md`). **Jangan menulis hex atau oklch di figur.** Warna baru ditambahkan ke `CSS_DASAR` di `mesin/iso.js` sebagai turunan token situs.
 6. **Semua ikut kisi isometrik, termasuk penghubung dan tanda.** Penghubung adalah **jejak di alas** (pilihan pemilik): `api.jalur([...titik])` setinggi permukaan alas (z ≈ 2,05), ruasnya sejajar sumbu x/y dengan sudut dibulatkan, seperti jalur di papan sirkuit. Jejak keluar dari kaki benda asal dan berakhir di kaki benda tujuan, dengan `api.simpul` di kedua ujungnya. Jangan pakai kabel yang melayang di udara atau lengkung bebas. Gambar jejak sesudah benda yang ada di belakangnya dan sebelum benda yang ada di depannya. Lencana ✓/✗ dibuat dengan `api.lencanaBidang(...)` dan menempel di muka benda (`FRONT`/`SIDE`) atau tergeletak di alas (`TOP`, `datar = true`). Jangan pakai lingkaran yang menghadap layar.
 7. **Aksen hanya untuk yang hidup.** Satu atau dua hal menyala per keadaan, selebihnya netral. Bila semuanya menyala, tidak ada yang menonjol.
-8. **Tanpa permintaan ke luar.** File aset tidak memuat apa pun dari internet; font Plus Jakarta Sans disajikan sendiri dari `/aset/fonts/` (OFL). Kredit iso-glow/iso-figure (MIT) ada di komentar mesin, di setiap keluaran, dan di `/lisensi#ilustrasi`. Jangan hapus.
+8. **Tanpa permintaan ke luar.** File aset tidak memuat apa pun dari internet, termasuk font: figur situs tanpa kata cukup memakai `'HarmonyOS Sans', system-ui`. Jangan menyalin berkas font ke `public/aset/` (lisensi HarmonyOS, ADR-056). `potret.mjs` menyuntikkan HarmonyOS Sans dari `apps/web/src/fonts/harmonyos-sans/` hanya ke browser pemotret, untuk cover dan konten berjudul. Kredit iso-glow/iso-figure (MIT) ada di komentar mesin, di setiap keluaran, dan di `/lisensi#ilustrasi`. Jangan hapus.
 9. **Ikuti proses nyata.** Kitab Arab dibaca dari kanan ke kiri, jadi halaman dibalik dari kiri ke kanan pembaca (`kitab-rehal`). Sebelum menggambar, tulis urutan nyatanya di komentar figur.
 
 ## Benda yang cocok
@@ -64,9 +64,9 @@ Kitab (terbuka/tertutup, bertumpuk), rehal, rak dan jilid, kartu kutipan, kabel 
 | **Konten media sosial** (diam) | `potret.mjs … --format webp --query "polos=1[&tema=gelap]" --lebar 1080 --tinggi 1080 --skala 1` | Persegi tanpa tombol; gelap lebih "menyala" |
 | **Gambar di halaman situs** (diam) | `--format webp` | Jangan PNG: di Workers gambar tidak dioptimasi ulang (ADR-003) |
 
-**Interaksi:** cerita diputar **sekali** saat figur pertama kali terlihat, lalu berhenti di keadaan akhir. Cerita diputar ulang bila kursor masuk ke figur atau ke kartu induknya, bila figur atau kartu diketuk (ponsel), atau bila induk mengirim `{type:'surau-aset', putar:true}`. Tidak ada perulangan tanpa henti (WCAG 2.2.2). "Kurangi gerakan" langsung menampilkan keadaan akhir. Jangan mengandalkan hover saja, karena ponsel dan keyboard tidak punya hover; karena itu cerita juga diputar saat terlihat.
+**Interaksi:** cerita diputar **sekali** saat figur pertama kali terlihat, lalu berhenti di keadaan akhir. Cerita diputar ulang bila kursor masuk ke figur atau ke kartu induknya, bila figur atau kartu diketuk (ponsel), atau bila induk mengirim `{type:'surau-aset', putar:true}`. Satu cerita berlangsung ±2–3 detik, tanpa perulangan tanpa henti (WCAG 2.2.2). Ketukan memakai `click`, jadi mulai menggulir di ponsel tidak memutarnya. "Kurangi gerakan" langsung menampilkan keadaan akhir. Jangan mengandalkan hover saja, karena ponsel dan keyboard tidak punya hover; karena itu cerita juga diputar saat terlihat.
 
-**Mode berulang** (empty state, indikator memuat): `cfg.ulang = { kali: 3, jeda: 1800 }` di figur, atau `?ulang=N&jeda=ms` (`<ArtEmbed repeat={N} />`). Cerita diputar N kali (0 = terus) dengan jeda, hanya selama figur terlihat. Putaran berhenti saat tab disembunyikan atau figur keluar layar, lalu lanjut saat terlihat lagi. "Kurangi gerakan" tetap menampilkan gambar diam.
+**Mode berulang** (empty state, indikator memuat): `cfg.ulang = { kali: 2, jeda: 1000 }` di figur, atau `?ulang=N&jeda=ms` (`<ArtEmbed repeat={N} />`). Cerita diputar total N kali (termasuk putaran atas permintaan; 0 = terus) dengan jeda, hanya selama figur terlihat. Empty state: total gerak ≤5 detik (WCAG 2.2.2, karena tidak ada tombol jeda). 0 hanya untuk indikator memuat selama prosesnya berjalan. Nilai `?ulang` yang tidak valid diabaikan. Putaran berhenti saat tab disembunyikan atau figur keluar layar, lalu lanjut saat terlihat lagi. "Kurangi gerakan" tetap menampilkan gambar diam.
 - **Empty state:** 2–3 kali lalu diam. Nadanya ramah, jadi tanpa silang atau kesan galat. Contohnya `aset/figur/kosong-pencarian.html`: kaca pembesar menyisir rak kosong.
 - **Indikator memuat:** `0` (terus) boleh dipakai, karena gerakannya bagian dari proses yang sedang berjalan dan berhenti sendiri begitu figur dilepas.
 - **Kartu dan landing:** tetap sekali jalan.
@@ -78,10 +78,10 @@ Parameter bawaan mesin: `?tema=terang|gelap|sepia` (bawaan mengikuti sistem), `?
   - `X-Frame-Options: SAMEORIGIN` dan CSP `frame-ancestors 'self'; sandbox allow-scripts` (dibuka langsung pun tetap tersandbox).
   - `Cache-Control … no-transform`, supaya Cloudflare tidak menyisipkan beacon Web Analytics.
   - `nosniff` dan `Permissions-Policy`.
-  - CORS hanya untuk `/aset/fonts/*` (iframe sandbox berorigin "null").
+  - `/aset-mesin/*`: `immutable` (nama berisi hash isi).
 
   `next.config.ts` memuat aturan yang sama untuk `next dev`.
-- Uji e2e `smoke.spec.ts` memeriksa iframe (sandbox, dekoratif, tanpa tombol, tanpa teks), cerita saat terlihat, putar ulang saat kartu diketuk, dan header.
+- Uji e2e `smoke.spec.ts` memeriksa iframe (sandbox, dekoratif, tanpa tombol, tanpa teks), cerita saat terlihat (keliru → benar), putar ulang saat judul kartu diketuk, header aset, dan mesin bersama.
 - Saat CSP penuh situs dipasang, `/aset/*` butuh CSP sendiri karena skrip dan gaya aset inline.
 
 ## Mutu yang wajib
@@ -91,7 +91,7 @@ Parameter bawaan mesin: `?tema=terang|gelap|sepia` (bawaan mengikuti sistem), `?
 - **Denyut cahaya** lewat `api.denyut(K.path(titik))`, jangan sebagai `<path class="pulse">` di dalam `gambar()`: lukisan digambar ulang setiap frame, jadi animasinya tidak akan pernah berjalan.
 - **Terbaca di kartu kecil:** tanda visual minimal ±18 px di layar (lencana r ≥ 3 satuan pada figur selebar ±60 satuan). Uji di lebar 240 px.
 - **Ukuran:** HTML ±30–40 KiB, tanpa gambar raster di dalamnya.
-- **Satu cerita, lalu diam:** jangan memakai timer berulang. Putar ulang hanya atas permintaan pengunjung.
+- **Satu cerita, lalu diam:** jangan memakai timer berulang di figur. Putar ulang atas permintaan pengunjung; perulangan hanya lewat mode berulang mesin (`cfg.ulang`), dengan total gerak ≤5 detik kecuali indikator memuat.
 
 ## Selesai bila
 

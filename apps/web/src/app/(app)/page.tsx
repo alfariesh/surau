@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Card, Chip } from "@heroui/react";
+import { Card, Chip, Typography } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 
@@ -13,6 +13,7 @@ import { BASMALAH } from "../../content/basmalah";
 import { id, SOURCE_URL } from "../../i18n/id";
 import { PAGE_FRAME } from "../../lib/layout";
 import { getEnv, readerEnabled } from "../../lib/cloudflare";
+import { PageLead, PageTitle } from "../../components/page-title";
 
 export const metadata: Metadata = {
   title: { absolute: id.meta.title },
@@ -56,13 +57,10 @@ export default async function HomePage() {
       {/* Hero: teks di kiri, rak kitab putar di kanan (ponsel: rak di bawah teks). */}
       <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
         <section aria-labelledby="judul-beranda" className="flex flex-col items-start gap-5">
-          <h1
-            className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight text-balance sm:text-[40px]"
-            id="judul-beranda"
-          >
+          <PageTitle className="text-balance" id="judul-beranda">
             {t.heading}
-          </h1>
-          <p className="text-muted text-base text-pretty sm:text-lg">{t.lead}</p>
+          </PageTitle>
+          <PageLead>{t.lead}</PageLead>
           <div className="flex flex-wrap gap-3">
             <NextLink className={buttonVariants({ variant: "primary" })} href="/tentang">
               {t.ctaAbout}
@@ -84,7 +82,7 @@ export default async function HomePage() {
       <div className="flex w-full max-w-3xl flex-col gap-12">
         <Card className="py-8">
           <figure className="m-0 flex flex-col items-center gap-3">
-            <ArabicText className="text-foreground text-3xl sm:text-4xl">
+            <ArabicText className="text-foreground" size="display">
               {BASMALAH.text}
             </ArabicText>
             <figcaption className="text-muted px-4 text-center text-xs">
@@ -103,14 +101,14 @@ export default async function HomePage() {
         </Card>
 
         <section aria-labelledby="judul-prinsip" className="flex flex-col gap-4">
-          <h2 className="text-foreground text-xl font-semibold" id="judul-prinsip">
+          <Typography.Heading level={2} id="judul-prinsip" className="text-xl">
             {t.principlesHeading}
-          </h2>
+          </Typography.Heading>
           <ul className="grid gap-4 sm:grid-cols-3">
             {t.principles.map((p) => (
               <li key={p.title} className="flex" data-art-card>
                 <Card className="w-full">
-                  {/* Ilustrasi per prinsip (ADR-054): tanpa kata, dekoratif; hover/ketuk kartu memutar ulang. */}
+                  {/* Ilustrasi per prinsip (ADR-057): tanpa kata, dekoratif; hover/ketuk kartu memutar ulang. */}
                   <ArtEmbed className="-mt-1 rounded-xl" name={p.art} title={t.principleArtTitle} />
                   <Card.Header>
                     <Card.Title>{p.title}</Card.Title>
@@ -124,10 +122,12 @@ export default async function HomePage() {
 
         <section aria-labelledby="judul-peta" className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <h2 className="text-foreground text-xl font-semibold" id="judul-peta">
+            <Typography.Heading level={2} id="judul-peta" className="text-xl">
               {t.roadmapHeading}
-            </h2>
-            <p className="text-muted text-sm">{t.roadmapLead}</p>
+            </Typography.Heading>
+            <Typography type="body-sm" color="muted">
+              {t.roadmapLead}
+            </Typography>
           </div>
           <ol className="flex flex-col gap-1">
             {t.roadmap.map((step) => {
@@ -146,7 +146,11 @@ export default async function HomePage() {
                     {step.phase}
                   </span>
                   <div className="flex min-w-0 flex-col gap-0.5">
-                    <p className="text-foreground flex flex-wrap items-center gap-2 text-sm font-medium">
+                    <Typography
+                      type="body-sm"
+                      weight="medium"
+                      className="flex flex-wrap items-center gap-2"
+                    >
                       <span className="sr-only">
                         {t.roadmapPhase} {step.phase}:{" "}
                       </span>
@@ -156,8 +160,10 @@ export default async function HomePage() {
                           {t.roadmapNow}
                         </Chip>
                       ) : null}
-                    </p>
-                    <p className="text-muted text-sm">{step.body}</p>
+                    </Typography>
+                    <Typography type="body-sm" color="muted">
+                      {step.body}
+                    </Typography>
                   </div>
                 </li>
               );

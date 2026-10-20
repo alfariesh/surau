@@ -3,7 +3,7 @@
 import type { NeedsReviewReason } from "@surau/db";
 
 import { HoverCard } from "@heroui-pro/react";
-import { Popover } from "@heroui/react";
+import { Popover, Typography } from "@heroui/react";
 import { useState, useSyncExternalStore } from "react";
 import { Button as AriaButton } from "react-aria-components";
 
@@ -60,7 +60,7 @@ function FootnoteBody({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <ArabicText className="text-foreground text-base">{footnote.text}</ArabicText>
+      <ArabicText className="text-foreground">{footnote.text}</ArabicText>
       <NeedsReviewNote reasons={footnote.needsReview} />
       <a className="link text-xs" href={`#${footnote.anchor}`}>
         {t.footnoteGoto}
@@ -105,7 +105,9 @@ export function FootnoteMarker({ text, marker, footnote, refId }: FootnoteMarker
           className="w-96 max-w-[calc(100vw-2rem)]"
           placement="bottom"
         >
-          <p className="text-muted mb-1 text-xs font-medium">{heading}</p>
+          <Typography type="body-xs" color="muted" weight="medium" className="mb-1">
+            {heading}
+          </Typography>
           <FootnoteBody footnote={footnote} heading={heading} />
         </HoverCard.Content>
       </HoverCard>

@@ -11,6 +11,8 @@ import { id } from "../../../i18n/id";
 import { PAGE_FRAME } from "../../../lib/layout";
 import { getEnv, readerEnabled } from "../../../lib/cloudflare";
 import { loadSearchSections } from "../../../lib/search/sections";
+import { Typography } from "@heroui/react";
+import { PageLead, PageTitle } from "../../../components/page-title";
 
 const t = id.search;
 
@@ -38,8 +40,8 @@ export default async function CariPage() {
   return (
     <div className={`${PAGE_FRAME} flex flex-col gap-6 pt-8 pb-16 sm:pt-12 [&>*]:max-w-3xl`}>
       <header className="flex flex-col gap-2">
-        <h1 className="text-foreground text-3xl font-semibold tracking-tight">{t.heading}</h1>
-        <p className="text-muted text-base text-pretty">{t.lead}</p>
+        <PageTitle>{t.heading}</PageTitle>
+        <PageLead>{t.lead}</PageLead>
       </header>
       {ready ? (
         // useSearchParams di klien butuh batas Suspense (halaman tetap bisa dirender tanpa kueri).
@@ -48,9 +50,9 @@ export default async function CariPage() {
         </Suspense>
       ) : (
         <section aria-labelledby="cari-belum">
-          <h2 className="sr-only" id="cari-belum">
+          <Typography.Heading level={2} className="text-base sr-only" id="cari-belum">
             {t.soonHeading}
-          </h2>
+          </Typography.Heading>
           <EmptyState size="sm">
             <EmptyState.Header>
               <EmptyState.Media variant="icon">

@@ -170,10 +170,15 @@ test("ilustrasi prinsip di Beranda: iframe sandbox dekoratif, cerita diputar saa
   await expect(verbatim.locator("html.sematan")).toBeAttached();
   await expect(verbatim.locator("button")).toHaveCount(0);
   await expect(verbatim.locator("#stage text")).toHaveCount(0);
-  // cerita berakhir di keadaan "sama persis" (keliru dulu, lalu benar)
+  // cerita: keliru dulu ("tidak cocok"), lalu berakhir benar ("sama persis")
+  await expect(verbatim.locator("#status")).toHaveText(/tidak cocok/, { timeout: 10_000 });
   await expect(verbatim.locator("#status")).toHaveText(/sama persis/, { timeout: 10_000 });
-  // kartu disentuh → cerita diputar ulang (melewati keadaan "tidak cocok" lagi)
-  await page.locator("[data-art-card]").first().click();
+  // judul kartu diketuk → cerita diputar ulang (melewati keadaan "tidak cocok" lagi)
+  await page
+    .locator("[data-art-card]")
+    .first()
+    .getByText("Verbatim atau tidak sama sekali")
+    .click();
   await expect(verbatim.locator("#status")).toHaveText(/tidak cocok/, { timeout: 5000 });
   await expect(verbatim.locator("#status")).toHaveText(/sama persis/, { timeout: 10_000 });
 });
@@ -189,12 +194,16 @@ test("aset ilustrasi hanya boleh dibingkai halaman Surau sendiri dan berjalan te
   expect(headers["content-security-policy"]).toContain("sandbox allow-scripts");
   expect(headers["x-content-type-options"]).toBe("nosniff");
   // Tanpa sisipan beacon Web Analytics (di produksi: no-transform dari public/_headers)
-  expect(await aset.text()).not.toContain("cloudflareinsights");
+  const html = await aset.text();
+  expect(html).not.toContain("cloudflareinsights");
 
-  // Font aset dimuat dari origin "null" (iframe sandbox), jadi perlu CORS.
-  const font = await request.get("/aset/fonts/plus-jakarta-sans-latin.woff2");
-  expect(font.ok()).toBe(true);
-  expect(font.headers()["access-control-allow-origin"]).toBe("*");
+  // Mesin bersama: nama ber-hash, di-cache selamanya.
+  const mesin = html.match(/\/aset-mesin\/iso-[0-9a-f]+\.js/)?.[0];
+  expect(mesin).toBeTruthy();
+  const engine = await request.get(mesin!);
+  expect(engine.ok()).toBe(true);
+  expect(engine.headers()["cache-control"]).toContain("immutable");
+  expect(engine.headers()["x-content-type-options"]).toBe("nosniff");
 });
 
 test("API versi melaporkan NORM_VERSION dari @surau/text", async ({ request }) => {

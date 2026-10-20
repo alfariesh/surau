@@ -20,11 +20,15 @@
 @import "@heroui/styles/components/button.css" layer(components);
 @import "@heroui/styles/components/button-group.css" layer(components);
 @import "@heroui/styles/components/dropdown.css" layer(components);
+@import "@heroui/styles/components/list-box-item.css" layer(components);
+@import "@heroui/styles/components/list-box-section.css" layer(components);
+@import "@heroui/styles/components/list-box.css" layer(components);
 @import "@heroui/styles/components/menu-item.css" layer(components);
 @import "@heroui/styles/components/menu-section.css" layer(components);
 @import "@heroui/styles/components/menu.css" layer(components);
 @import "@heroui/styles/components/tag-group.css" layer(components);
 @import "@heroui/styles/components/tag.css" layer(components);
+@import "@heroui/styles/components/slider.css" layer(components);
 @import "@heroui/styles/components/switch.css" layer(components);
 @import "@heroui/styles/components/chip.css" layer(components);
 @import "@heroui/styles/components/alert.css" layer(components);
@@ -43,7 +47,9 @@
 @import "@heroui/styles/components/modal.css" layer(components);
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
+@import "@heroui/styles/components/select.css" layer(components);
 @import "@heroui/styles/components/kbd.css" layer(components);
+@import "@heroui/styles/components/typography.css" layer(components);
 @import "@heroui/styles/components/scroll-shadow.css" layer(components);
 
 @import "@heroui/styles/themes/default" layer(theme);
@@ -51,6 +57,9 @@
 @import "@heroui/styles/variants";
 
 @import "@heroui-pro/react/css/components/app-layout.css" layer(components);
+@import "@heroui-pro/react/css/components/cell-select.css" layer(components);
+@import "@heroui-pro/react/css/components/cell-switch.css" layer(components);
+@import "@heroui-pro/react/css/components/cell-slider.css" layer(components);
 @import "@heroui-pro/react/css/components/command.css" layer(components);
 @import "@heroui-pro/react/css/components/empty-state.css" layer(components);
 @import "@heroui-pro/react/css/components/hover-card.css" layer(components);
@@ -78,9 +87,9 @@
 
 @source "../**/*.{ts,tsx}";
 
-/* Font dari next/font (layout.tsx): --font-jakarta (UI) dan --font-naskh (Arab). */
+/* Font dari next/font (layout.tsx): --font-harmony (UI) dan --font-naskh (Arab). */
 @theme inline {
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-harmony), ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
@@ -90,6 +99,8 @@
  * tema bawaan HeroUI (@layer base). `next-themes` memasang `.light`/`.dark` di <html>.
  */
 :root {
+  /* Aksen emas ornamen judul bab (desain pemilik #C1914A); lebih terang di mode gelap. */
+  --ornament-gold: #c1914a;
   --font-arabic: var(--font-naskh), "Noto Naskh Arabic", serif;
   --arabic-leading: 2;
 
@@ -111,6 +122,7 @@
 }
 
 :root.dark {
+  --ornament-gold: #d6ad6c;
   --background: oklch(0.17 0.008 85);
   --foreground: oklch(0.95 0.008 90);
   --surface: oklch(0.215 0.01 85);
@@ -250,6 +262,27 @@ body {
     font-size: 1.15em;
     letter-spacing: normal;
   }
+
+  /* Skala ukuran Arab (prop `size`). em = relatif terhadap teks di sekitarnya. */
+  .arabic-text[data-size="lg"] {
+    font-size: 1.45em;
+  }
+
+  .arabic-inline[data-size="lg"] {
+    font-size: 1.3em;
+  }
+
+  .arabic-text[data-size="display"],
+  .arabic-inline[data-size="display"] {
+    font-size: 1.875rem;
+  }
+
+  @media (width >= 40rem) {
+    .arabic-text[data-size="display"],
+    .arabic-inline[data-size="display"] {
+      font-size: 2.25rem;
+    }
+  }
 }
 
 /*
@@ -301,11 +334,32 @@ body {
 }
 
 h2.reader-heading {
-  font-size: 1.35em;
+  font-size: 1.4em;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* Ornamen kiri-kanan judul bab (heading-ornament.tsx). Ukuran tetap (rasio 33,4 : 6,3) dan tidak
+ * ikut menyusut: judul panjang membungkus ke beberapa baris, ornamen tetap utuh. */
+.heading-ornament {
+  flex: none;
+  width: 2.25rem;
+  height: auto;
+  color: color-mix(in oklab, var(--foreground) 70%, var(--accent));
+}
+
+@media (min-width: 640px) {
+  .heading-ornament {
+    width: 6.5rem;
+  }
+
+  h2.reader-heading {
+    font-size: 1.6em;
+  }
 }
 
 h2.reader-heading-minor {
-  font-size: 1.15em;
+  font-size: 1.3em;
 }
 
 /* Penanda (١) di dalam teks Arab: kecil dan terangkat seperti catatan kaki buku cetak. line-height 1
@@ -473,7 +527,7 @@ h2.reader-heading-minor {
   display: inline-block;
   margin-inline: 0.25em;
   padding-inline: 0.45em;
-  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-harmony), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.55em;
   line-height: 1.7;
   vertical-align: middle;
@@ -697,6 +751,22 @@ h2.reader-heading-minor {
   padding-inline-start: 0.75rem;
   border-inline-start: 2px solid var(--separator);
   font-size: 1rem;
+}
+
+/* Lencana label AI (mis. "Terjemahan AI" di terjemahan judul bab). */
+.ai-badge {
+  display: inline-block;
+  margin-inline-start: 0.25rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+  vertical-align: 0.15em;
+  white-space: nowrap;
 }
 
 /* Terjemahan judul bab: satu baris kecil di bawah judul Arab, tanpa garis tepi. */

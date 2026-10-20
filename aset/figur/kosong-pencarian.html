@@ -11,8 +11,8 @@
 /* Empty state · pencarian tanpa hasil (contoh mode berulang).
    Cerita: kaca pembesar menyisir rak dari kiri ke kanan; lensanya menyala selama mencari; di rak hanya ada
    tempat kosong (garis putus-putus) dan dua jilid yang bersandar. Kaca pembesar berhenti di kanan, lensanya padam.
-   Diulang 3 kali dengan jeda (cfg.ulang), hanya selama terlihat; "kurangi gerakan" → gambar diam.
-   Nada ramah, bukan galat: tanpa silang, tanpa kata (situs tiga bahasa). */
+   Diulang 2 kali dengan jeda (cfg.ulang), hanya selama terlihat: total gerak ±5 detik (WCAG 2.2.2, tanpa tombol jeda);
+   "kurangi gerakan" → gambar diam. Nada ramah, bukan galat: tanpa silang, tanpa kata (situs direncanakan multibahasa). */
 const { ease, lerp } = ISO;
 const st = { t: 1, cari: false };
 const X0 = 20, X1 = 40, YK = 25, ZK = 14, R = 4.6;
@@ -20,7 +20,7 @@ const X0 = 20, X1 = 40, YK = 25, ZK = 14, R = 4.6;
 mountFigure({
   id: 'kosong-pencarian', title: 'Pencarian kosong',
   alt: 'Ilustrasi garis: kaca pembesar menyisir rak kitab yang kosong.',
-  ulang: { kali: 3, jeda: 1800 },
+  ulang: { kali: 2, jeda: 1000 },
   mount(stage, api) {
     const K = api.frame([[0, 0, 0], [60, 0, 0], [0, 40, 0], [60, 40, 0], [12, 8, 23], [46, 8, 23], [X1 + 7, YK, ZK + R]]);
     const { box, FRONT } = K;
@@ -47,7 +47,7 @@ mountFigure({
     }
     const H = window.H = {
       sisir() { st.cari = true; st.t = 0; draw();
-        api.anim(2200, t => { st.t = t; draw(); }, () => { st.cari = false; draw(); api.readout('Belum ada hasil'); }); },
+        api.anim(1800, t => { st.t = t; draw(); }, () => { st.cari = false; draw(); api.readout('Belum ada hasil'); }); },
     };
     draw();
     return {

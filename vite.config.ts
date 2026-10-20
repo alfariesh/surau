@@ -30,7 +30,7 @@ export default defineConfig({
   lint: {
     plugins: ["typescript", "unicorn", "oxc", "react", "nextjs", "jsx-a11y", "import", "vitest"],
     // Mesin aset (turunan iso-glow, MIT), contoh aslinya, serta figur dan keluaran aset (HTML padat
-    // bergaya mesin; keluaran dan public/aset = hasil bangun) tidak di-lint atau diformat ulang (ADR-054).
+    // bergaya mesin; keluaran dan public/aset = hasil bangun) tidak di-lint atau diformat ulang (ADR-057).
     ignorePatterns: [...generated, "docs/**", "implementasi/**", ...vendoredAset],
     options: {
       typeAware: true,

@@ -1,7 +1,7 @@
 # S19 · Pipeline Jawab (`packages/llm` + `apps/api`)
 
 > **Fase:** 4 · **Status:** belum (garis besar; rinci ulang di awal fase)
-> **Prasyarat:** S18 selesai · Tugas pemilik: T-11, dan bagian AI Gateway dari T-14 (kunci Anthropic di Provider Keys/BYOK, token gateway sebagai Worker secret)
+> **Prasyarat:** teknis S18 selesai; T-24 manusia ditunda dan tidak menghambat pengembangan atas arahan pemilik (ADR-054), bukan kelulusan gerbang R4 · Tugas pemilik: T-11, dan bagian AI Gateway dari T-14 (kunci Anthropic di Provider Keys/BYOK, token gateway sebagai Worker secret)
 > **Perkiraan:** 2 percakapan agent
 
 ## Tujuan

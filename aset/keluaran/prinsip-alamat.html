@@ -6,7 +6,7 @@
 <title>Setiap klaim ada alamatnya</title>
 </head>
 <body>
-<style id="token-surau">:root{--background:oklch(0.975 0.008 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
+<style id="token-surau">:root{--ornament-gold:#c1914a;--background:oklch(0.975 0.008 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--ornament-gold:#d6ad6c;--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
 <script>
 /* ============================================================
    Mesin aset Surau: gambar garis tipis isometrik dengan satu aksen yang menyala (turunan iso-glow).
@@ -154,14 +154,13 @@ const CSS_TOKEN_CADANGAN = `
 
 /* kosakata gambar (dari iso-glow), memakai token situs */
 const CSS_DASAR = `
-  @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/plus-jakarta-sans-latin.woff2) format('woff2')}
   :root{color-scheme:light;
     --bg:var(--background);--edge:var(--border);--ink:var(--muted);--ink-hi:var(--foreground);
     --line:color-mix(in oklab,var(--foreground) 46%,var(--background));--detail:color-mix(in oklab,var(--foreground) 20%,var(--background));
     --body:var(--surface-secondary);--deck:var(--surface);--recess:var(--surface-tertiary);
     --glass:var(--surface-tertiary);--glass-on:color-mix(in oklab,var(--accent) 14%,var(--surface));
     --accent-hi:color-mix(in oklab,var(--accent) 70%,var(--surface));--accent-dim:color-mix(in oklab,var(--accent) 12%,transparent);
-    --font:'Plus Jakarta Sans',var(--font-sans,Inter),ui-sans-serif,system-ui,sans-serif}
+    --font:'HarmonyOS Sans',ui-sans-serif,system-ui,sans-serif}
   :root[data-tema=gelap]{color-scheme:dark;--body:var(--surface);--deck:var(--surface-secondary);--recess:var(--background);
     --line:color-mix(in oklab,var(--foreground) 34%,var(--background));--detail:color-mix(in oklab,var(--foreground) 16%,var(--background));
     --accent-hi:color-mix(in oklab,var(--accent) 60%,white);--glass-on:color-mix(in oklab,var(--accent) 18%,var(--background))}
@@ -279,7 +278,7 @@ function mountFigure(cfg) {
 
   const diam = q.get('gerak') === '0' || matchMedia('(prefers-reduced-motion: reduce)').matches;
   const catatan = document.querySelector('.catatan'), status = document.getElementById('status');
-  let K = null, handle = {}, timers = [], disentuh = false, temaInduk = false;
+  let K = null, handle = {}, timers = [], disentuh = false, temaInduk = false, putaran = 0;
   const anims = new Set();
   // tiga lapis: filter (tetap), lukisan (ditulis ulang tiap gambar), denyut (tetap, supaya animasi CSS-nya tidak
   // terulang dari awal setiap kali lukisan digambar ulang)
@@ -372,7 +371,7 @@ function mountFigure(cfg) {
   handle = cfg.mount(stage, api) || {};
   pasangFilter();
   // fokus keyboard hanya bila figur punya pintasan tombol
-  if (handle.key) stage.setAttribute('tabindex', '0');
+  if (handle.key && adaTombol) stage.setAttribute('tabindex', '0');
   // ukuran label bergantung lebar tampil, jadi gambar ulang saat ukuran berubah
   if (handle.render) { let w = stage.clientWidth;
     new ResizeObserver(() => { if (Math.abs(stage.clientWidth - w) > 4) { w = stage.clientWidth; handle.render(); } }).observe(stage); }
@@ -381,8 +380,10 @@ function mountFigure(cfg) {
   const aksi = document.getElementById('aksi');
   if (aksi) cfg.tombol.forEach(b => { const el = document.createElement('button'); el.type = 'button'; el.textContent = b.label;
     el.onclick = () => { api.tandai(); b.aksi(api); }; aksi.appendChild(el); });
-  // dengan tombol: ketukan di gambar adalah aksi figur (acts sendiri). Tanpa tombol: ketukan memutar ulang cerita.
-  stage.addEventListener('pointerdown', () => { if (adaTombol) api.tandai(); else putarCerita(); });
+  // dengan tombol: ketukan di gambar adalah aksi figur (hentikan demo dulu, figur menangani klik-nya sendiri).
+  // Tanpa tombol: ketukan memutar ulang cerita; lewat click, jadi mulai menggulir di ponsel tidak memicunya.
+  if (adaTombol) stage.addEventListener('pointerdown', () => api.tandai());
+  else stage.addEventListener('click', () => putarCerita());
   stage.addEventListener('keydown', e => { api.tandai(); if (handle.key && handle.key(e)) e.preventDefault(); });
   // kursor masuk ke figur → cerita diputar ulang (bila sedang tidak berjalan)
   document.documentElement.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && !api.berjalan()) putarCerita(); });
@@ -399,23 +400,27 @@ function mountFigure(cfg) {
   // cerita: sampul/polos/kurangi gerakan → langsung keadaan akhir. Selain itu diputar sekali saat figur pertama
   // kali terlihat di layar (IntersectionObserver dari dalam iframe menghitung viewport teratas), lalu hanya
   // diputar ulang atas permintaan (kursor, ketukan, pesan induk). Tidak ada perulangan tanpa henti (WCAG 2.2.2).
+  // Setiap putaran (otomatis atau atas permintaan) dihitung, jadi cerita yang dipicu sebelum figur terlihat
+  // tidak diputar dua kali dan mode berulang tidak melebihi N.
   function putarCerita() {
     if (!handle.demo || (disentuh && adaTombol)) return;
     if (diam) { if (handle.akhir) handle.akhir(); return; }
-    api.hentikan(); handle.demo(); }
+    putaran++; api.hentikan(); handle.demo(); }
   // mode berulang (empty state, indikator memuat): ?ulang=N memutar cerita N kali (0 = terus) dengan jeda
   // ?jeda=ms (bawaan 2500), hanya selama figur terlihat; berhenti saat tab disembunyikan atau figur keluar
   // layar, lalu lanjut saat terlihat lagi. Bawaan figur: cfg.ulang = { kali, jeda }. Tanpa ini: sekali saja.
   const ulangCfg = cfg.ulang || {};
-  const ulangKali = q.has('ulang') ? Math.max(0, Math.floor(Number(q.get('ulang')) || 0)) : ulangCfg.kali ?? null;
+  // ?ulang yang tidak valid (bukan bilangan ≥ 0) diabaikan, bukan dianggap 0 (= terus)
+  const ulangQ = q.has('ulang') && /^\d+$/.test(q.get('ulang')) ? Number(q.get('ulang')) : null;
+  const ulangKali = ulangQ ?? ulangCfg.kali ?? null;
   const jeda = Math.max(800, Number(q.get('jeda')) || ulangCfg.jeda || 2500);
-  let diLayar = false, putaran = 0, tungguT = 0;
+  let diLayar = false, tungguT = 0;
   const bolehUlang = () => ulangKali !== null && (ulangKali === 0 || putaran < ulangKali);
   const siklus = () => { clearTimeout(tungguT);
     if (!diLayar || document.visibilityState !== 'visible' || (disentuh && adaTombol)) return;
     if (api.berjalan()) { tungguT = setTimeout(siklus, 200); return; }
     if (putaran > 0 && !bolehUlang()) return;
-    putaran++; putarCerita();
+    putarCerita();
     if (bolehUlang()) { const tunggu = () => { if (api.berjalan()) tungguT = setTimeout(tunggu, 200); else tungguT = setTimeout(siklus, jeda); }; tungguT = setTimeout(tunggu, 200); } };
   if (sampul || polos || diam || q.get('demo') === '0') { if (handle.akhir && q.get('demo') !== '0') handle.akhir(); }
   else {
@@ -440,7 +445,7 @@ function mountFigure(cfg) {
 /* Prinsip 2 · Setiap klaim ada alamatnya.
    Proses: kartu klaim di alas → jejak di alas menelusuri ke rak kitab → jilid yang dirujuk ditarik keluar →
    jilid itu menyala dan pita penandanya terangkat (alamat: jilid + halaman). Tanpa kata atau angka di gambar
-   (situs tiga bahasa); tanpa nama kitab. Dengan tombol, jilid lain bisa diketuk. */
+   (situs direncanakan multibahasa); tanpa nama kitab. Dengan tombol, jilid lain bisa diketuk. */
 const { lerp, ease } = ISO;
 const st = { pilih: 1, tarik: 1, jalur: 1, busy: false };
 const BOOKS = [{ x: 24, h: 21 }, { x: 29.2, h: 23 }, { x: 34.4, h: 20 }, { x: 39.6, h: 22.5 }, { x: 44.8, h: 19.5 }];
@@ -449,7 +454,7 @@ const BW = 4.6, BY = 4, BD = 14, PULL = 6;
 mountFigure({
   id: 'prinsip-alamat', title: 'Setiap klaim ada alamatnya',
   hint: 'telusuri klaim ke jilid dan halamannya, atau ketuk jilid lain',
-  alt: 'Ilustrasi garis: kabel dari kartu klaim menelusuri ke rak kitab, satu jilid tertarik keluar dan labelnya menunjukkan jilid serta halaman.',
+  alt: 'Ilustrasi garis: jejak di alas dari kartu klaim menelusuri ke rak kitab; satu jilid tertarik keluar, menyala, dan pita penanda halamannya terangkat.',
   tombol: [
     { label: 'Telusuri', aksi: () => H.telusuri(st.pilih) },
     { label: 'Kembalikan', aksi: () => H.kembalikan() },
@@ -500,7 +505,8 @@ mountFigure({
         if (st.tarik <= 0) return api.readout('Semua jilid sudah di rak'); st.busy = true;
         api.anim(500, t => { st.tarik = 1 - t; draw(); }, () => { st.tarik = 0; st.jalur = 0; st.busy = false; draw(); api.readout('Jilid dikembalikan ke rak'); }); },
     };
-    stage.addEventListener('click', e => { const g = e.target.closest('[data-i]'); if (g) H.telusuri(+g.dataset.i); });
+    // jilid lain bisa diketuk hanya bila figur bertombol (halaman "coba sendiri"); di kartu situs ketukan memutar ulang cerita
+    if (document.getElementById('aksi')) stage.addEventListener('click', e => { const g = e.target.closest('[data-i]'); if (g) H.telusuri(+g.dataset.i); });
     draw(); read();
     return {
       render: draw,

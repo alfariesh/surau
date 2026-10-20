@@ -6,20 +6,20 @@
 <title>Atribusi, bukan fatwa</title>
 </head>
 <body>
-<style id="token-surau">:root{--background:oklch(0.975 0.008 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
-<script src="/aset-mesin/iso-56d096dded.js"></script>
+<style id="token-surau">:root{--ornament-gold:#c1914a;--background:oklch(0.975 0.008 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--ornament-gold:#d6ad6c;--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
+<script src="/aset-mesin/iso-c45506718b.js"></script>
 <script>
 /* Prinsip 3 · Atribusi, bukan fatwa.
    Proses: kartu pernyataan di alas → jejak di alas menyala dari kartu ke kitab sumbernya → papan nama penulis di punggung
    kitab menyala (penuturnya disebut). Surau tidak mengeluarkan putusan, jadi stempel di alas tetap redup dan
-   dicoret. Tanpa kata di gambar (situs tiga bahasa), tanpa nama ulama, wajah, atau huruf Arab. */
+   dicoret. Tanpa kata di gambar (situs direncanakan multibahasa), tanpa nama ulama, wajah, atau huruf Arab. */
 const { ease } = ISO;
 const st = { atribusi: 1, busy: false };
 
 mountFigure({
   id: 'prinsip-atribusi', title: 'Atribusi, bukan fatwa',
   hint: 'tunjukkan siapa yang mengatakan',
-  alt: 'Ilustrasi garis: kartu pernyataan dihubungkan kabel yang menyala ke kitab sumbernya dengan label "menurut penulis". Stempel putusan di sampingnya tetap redup.',
+  alt: 'Ilustrasi garis: jejak di alas menyala dari kartu pernyataan ke kitab sumbernya, dan papan nama penulis di punggung kitab menyala. Stempel putusan di sampingnya redup dan dicoret.',
   tombol: [{ label: 'Siapa yang mengatakan?', aksi: () => H.tunjukkan() }],
   mount(stage, api) {
     const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[8,6,26],[15,6,26],[34,24,19],[52,26,19]]);

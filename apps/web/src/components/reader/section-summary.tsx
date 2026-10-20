@@ -6,6 +6,7 @@ import { useId, useLayoutEffect, useRef, useState } from "react";
 
 import { id } from "../../i18n/id";
 import { ArabicInline } from "../arabic";
+import { Typography } from "@heroui/react";
 
 const t = id.reader;
 
@@ -28,20 +29,21 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
   if (summary.review_status === "rejected") return null;
   return (
     <aside aria-label={t.aiSummaryOf} className="section-summary" lang="id">
-      <p className="text-muted mb-1 text-xs font-medium">
+      <Typography type="body-xs" color="muted" weight="medium" className="mb-1">
         {t.aiSummary}
         <span className="font-normal">
           {" · "}
           <ArabicInline>{summary.section.title_ar}</ArabicInline>
         </span>
-      </p>
-      <p
+      </Typography>
+      <Typography
         ref={textRef}
-        className={`text-foreground text-[0.95rem] leading-relaxed whitespace-pre-line ${expanded ? "" : "line-clamp-2"}`}
+        type="body-sm"
+        className={`whitespace-pre-line ${expanded ? "" : "line-clamp-2"}`}
         id={textId}
       >
         {summary.text}
-      </p>
+      </Typography>
       {clamped || expanded ? (
         <button
           aria-controls={textId}
@@ -54,9 +56,9 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
         </button>
       ) : null}
       {expanded ? (
-        <p className="text-muted mt-1 text-xs">
+        <Typography type="body-xs" color="muted" className="mt-1">
           {t.aiMeta(summary.model, t.aiReview[summary.review_status])}
-        </p>
+        </Typography>
       ) : null}
     </aside>
   );

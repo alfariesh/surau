@@ -4,9 +4,9 @@ import { useEffect, useRef } from "react";
 
 import { useTheme } from "next-themes";
 
-// Ilustrasi interaktif (/aset/*, ADR-054) disematkan lewat iframe sandbox: skrip ilustrasi berjalan di
+// Ilustrasi interaktif (/aset/*, ADR-057) disematkan lewat iframe sandbox: skrip ilustrasi berjalan di
 // origin "null", tidak bisa menyentuh cookie atau DOM Surau. Ilustrasi tanpa kata dan tanpa tombol (situs
-// tiga bahasa; maknanya ada di teks kartu), jadi iframe dekoratif: aria-hidden dan tidak bisa difokus.
+// direncanakan multibahasa; maknanya ada di teks kartu), jadi iframe dekoratif: aria-hidden dan tidak bisa difokus.
 // Ceritanya diputar sekali saat terlihat; kartu induk ([data-art-card]) yang di-hover atau diketuk memutarnya
 // ulang lewat postMessage. Tema situs juga dikirim lewat postMessage (iframe tidak bisa membaca kelas tema
 // induk), saat tema berubah dan saat iframe dimuat. color-scheme iframe diwarisi dari <html> (next-themes).

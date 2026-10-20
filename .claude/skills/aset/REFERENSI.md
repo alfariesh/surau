@@ -60,7 +60,7 @@ Filter `#glow`, `#soft`, dan `#bloom` dipasang mesin dengan skala viewBox dan wi
 mountFigure({
   id: 'prinsip-alamat', title: '…', hint: '…', alt: '…',
   tombol: [{ label: 'Telusuri', aksi: api => … }], // opsional; disembunyikan di kartu situs (?tombol=0)
-  ulang: { kali: 3, jeda: 1800 },                 // opsional: mode berulang (empty state); tanpa ini sekali jalan
+  ulang: { kali: 2, jeda: 1000 },                 // opsional: mode berulang (empty state, total gerak ≤5 dtk); tanpa ini sekali jalan
   mount(stage, api) {
     const K = api.frame([...]);
     const st = { … };                             // satu objek keadaan
@@ -80,7 +80,7 @@ Fungsi `api`:
 | `api.anim(ms, step(t), selesai)` | Animasi; dengan "kurangi gerakan" langsung ke akhir |
 | `api.after(ms, fn)` | Timer |
 | `api.diam` | Benar bila gerakan dikurangi |
-| `api.tandai()` | Menghentikan demo, timer, dan animasi, lalu memanggil `batal()` milik figur. Dipanggil otomatis saat tombol atau gambar ditekan dan saat fokus masuk; demo juga hanya berjalan saat figur ada di layar |
+| `api.tandai()` | Menghentikan demo, timer, dan animasi, lalu memanggil `batal()` milik figur. Dipanggil otomatis (hanya pada figur bertombol) saat tombol, gambar, atau tombol keyboard ditekan; demo juga hanya berjalan saat figur ada di layar |
 
 ## Pelajaran (dari iso-glow dan figur Surau)
 
@@ -90,7 +90,7 @@ Fungsi `api`:
 - **Kotak bulat:** pakai `box(..., r)` (satu tutup + satu dinding). Jangan membulatkan FRONT dan SIDE terpisah karena sudutnya tidak akan bertemu.
 - **List tipis atau pita di dinding:** gambar sebagai garis atau persegi di bidang FRONT/SIDE, bukan `box` (tutup `box` menutupi apa yang di atasnya).
 - **Penghubung = jejak di alas:** `api.jalur` dengan semua titik di permukaan alas (z ≈ 2,05), dari kaki benda asal ke kaki benda tujuan, ujungnya diberi `api.simpul`. Simpul diletakkan sedikit di depan muka yang terlihat (y + 0,6 atau x + 0,5) supaya tidak tertutup benda. Kabel yang melayang terlihat tidak berpijak (ditolak pemilik).
-- **Tanpa kata di figur situs:** situs tiga bahasa dan huruf Arab dilarang di aset. Pakai lencana, pita, papan nama yang menyala, dan coretan. Uji di 240 px.
+- **Tanpa kata di figur situs:** situs direncanakan bisa berbahasa Indonesia, Inggris, dan Arab, sedangkan huruf Arab dilarang di aset. Pakai lencana, pita, papan nama yang menyala, dan coretan. Uji di 240 px.
 - **Satu cerita utuh:** `demo()` memuat kedua sisi (keliru → benar) lalu berhenti. Lebih jelas daripada tombol, dan tidak mengulang tanpa henti.
 - **Escape teks** sebelum masuk SVG (`ISO.esc`; `api.tag` sudah melakukannya).
 - **iframe:** `color-scheme` elemen iframe harus sama dengan isinya, kalau tidak latarnya buram. Di situs, nilainya diwarisi dari `<html>` (next-themes), dan isi iframe mengikuti tema yang dikirim induk.

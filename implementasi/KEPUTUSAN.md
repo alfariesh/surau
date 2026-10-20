@@ -1290,7 +1290,53 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Tinjau ulang bila:** pembaca meminta pengaturan per kitab (bukan per browser), font lain dibutuhkan untuk teks berharakat padat, atau `animation-timeline` didukung semua browser utama (efek bisa dijadikan sumber utama, bukan tambahan).
 
-## ADR-054 · Aset visual: skill `aset` dengan mesin iso-glow (MIT) bertoken Surau; tiga ilustrasi prinsip di Beranda — diterima · 2026-10-19
+
+## ADR-054 · Evaluasi agent sementara tanpa menghambat pengembangan — diterima · 2026-10-19
+
+**Konteks:** implementasi S18 sudah terpublikasi, login dan simpan–muat ulang produksi lolos. Penilaian Anas belum tersedia. Pemilik menyatakan: “Saat ini anda aja yg Eval, anas nanti belakangan. Saya gak mau hambat dev”.
+
+**Keputusan:** agent mengevaluasi 60 jawaban dengan identitas **Agent QA S18** terpisah: 30 contoh publik dibaca terhadap sumber DB, 30 baseline Cari dinilai belum lengkap tanpa menilai isi/kunci holdout. Ulasan masuk D1 secara aditif dengan pengikatan hash/expiry; tidak menimpa ulasan akun Access. Semua keputusan persetujuan soal tetap null. Penilaian agent dibekukan sebelum pembandingan dengan judge lama. Hasil 18 benar/31 kurang/11 salah; kesepakatan antarmodel 25/29 kesetiaan dan 28/29 atribusi. Tidak ada biaya LLM tambahan.
+
+**Konsekuensi:** kewajiban menunggu dasar manusia sebelum mulai **pengembangan S19** pada ADR-052 dikecualikan atas arahan pemilik. S18 selesai secara teknis, status kriteria asli tetap sebagian; T-24 Anas ditunda dan tidak menghambat dev. Ini bukan izin menandai persetujuan ustadz, kalibrasi manusia, ≥10 uji ustadz, atau gerbang rilis R4 sebagai selesai. Nama agent tidak dipakai membentuk golden resmi. Anas dapat meninjau kemudian dengan akun Access; hasil agent merupakan pembanding terpisah. Perbedaan kelengkapan dan dukungan klaim dalam rubrik perlu adjudikasi sebelum judge menjadi gerbang.
+
+**Bukti:** [laporan Agent QA](../evals/reports/jawab-s18-agent-qa-v1.md), arsip privat hash-bound, 60 ulasan Agent QA S18 + satu ulasan uji UI Agent QA di produksi; 0 ulasan Anas.
+
+
+## ADR-055 · Tipografi UI memakai Typography HeroUI — diterima · 2026-10-20
+
+**Konteks:** audit tipografi menemukan teks UI ditulis dengan tag mentah (`<p>`, `<h1>`–`<h6>`, `li`/`dd`/`dt`) dan kelas ukuran sembarang (`text-[2rem]`, `leading-[1.12]`, `text-[0.95rem]`). Akibatnya judul halaman berukuran 30–48 px tergantung halaman, paragraf pembuka 16 atau 18 px, dan tinggi baris isi 24–28 px.
+
+**Keputusan:**
+1. Teks UI memakai komponen `Typography` HeroUI OSS (`type="body" | "body-sm" | "body-xs" | "h1"–"h6"`, `color="muted"`, `weight`). Heading memakai `Typography.Heading level={n}` supaya level semantik benar; ukuran yang berbeda dari bawaan level diatur dengan token Tailwind (`text-xl`), bukan nilai sembarang. `elementType` tidak ada di tipe `Typography` dan `render` tidak bisa dilewatkan dari Server Component (komponennya `"use client"`).
+2. CSS `typography.css` diimpor di `globals.css` (ADR-035), setelah `kbd`.
+3. `components/page-title.tsx`: `PageTitle` (h1 30/36/48 px, tinggi baris 1,1 di `lg`) dan `PageLead` (paragraf pembuka 16 px, 18 px di `sm`) menjadi satu-satunya definisi judul dan pembuka halaman. Judul halaman baca (24/30 px) dan halaman galat sengaja memakai `Typography` langsung.
+4. Isi `li`, `dt`, `dd`, dan `blockquote` dibungkus `Typography` supaya ikut skala HeroUI.
+
+**Dikecualikan:** teks Arab (`ArabicText`/`ArabicInline`), CSS kustom pembaca, daftar isi, dan sampul buku (bergantung pada skala pembaca, `cqw`, dan harakat); `h2.card__title` di panel Edisi (`Card.Title` adalah h3); paragraf judul terjemahan bab dengan kelas `passage-translation-heading`; `pre`/`blockquote` (tanpa padanan HeroUI OSS). `Card.Description` tetap bertinggi baris 20 px (bawaan komponen).
+
+**Konsekuensi:** `body-sm` bertinggi baris 24 px (dulu 20 px) dan `body` 28 px; teks ringkasan/terjemahan pembaca 14 px (dulu 15 px); `h2` bagian memakai `tracking-tight`.
+
+**Tinjau ulang bila:** HeroUI menambahkan prop `elementType`/`as` pada `Typography`, atau `CodeBlock` Pro dipakai untuk blok kode halaman MCP.
+
+
+## ADR-056 · Font UI HarmonyOS Sans menggantikan Plus Jakarta Sans — diterima · 2026-10-20
+
+**Konteks:** pemilik memilih HarmonyOS Sans untuk teks antarmuka dan membutuhkan italic asli (Plus Jakarta Sans sebelumnya hanya dimuat gaya normal, jadi teks miring adalah italic buatan browser). Lisensi HarmonyOS Sans (Huawei) bukan OFL: gratis, termasuk komersial, boleh dibundel dengan software, dengan syarat berkas tidak diubah, ada pemberitahuan mencolok bahwa font dipakai, `LICENSE.txt` ikut disertakan, dan font tidak dibagikan sebagai paket tersendiri.
+
+**Keputusan:**
+1. UI memakai HarmonyOS Sans lewat `next/font/local` (`layout.tsx`, variabel `--font-harmony`), TTF dipakai apa adanya (tanpa konversi WOFF2, supaya tidak dianggap modifikasi). Berkas yang dibawa hanya yang dipakai: Regular, Regular Italic, Medium, Bold, beserta `LICENSE.txt`, di `apps/web/src/fonts/harmonyos-sans/`.
+2. Berkasnya statis dan tidak punya SemiBold: weight 600 (semua judul `Typography`) dan 700 memakai berkas Bold. Judul tampil sedikit lebih tebal daripada sebelumnya. Italic hanya Regular; Medium/Bold italic ditambahkan bila dibutuhkan.
+3. Pemberitahuan penggunaan ada di `/lisensi` (bagian "Font") dengan tautan ke berkas lisensinya.
+4. Font Arab tidak berubah (ADR-027). HarmonyOS Sans hanya dipakai untuk Latin.
+
+**Risiko:** TTF berada di repo git. Pemilik menyatakan repo hanya privat sampai alpha dirilis; **repo kini berstatus publik (dicek 2026-10-20)**, sehingga berkas font tidak boleh di-push sebelum repo dijadikan privat atau berkasnya dikeluarkan dari git. Sebelum repo dibuat publik lagi, berkas di `apps/web/src/fonts/harmonyos-sans/` harus ditinjau ulang: dikeluarkan dari git dan diambil saat build, atau diganti font OFL (Plus Jakarta Sans).
+
+**Ditolak:** tetap Plus Jakarta Sans dengan italic asli (aman lisensi, tetapi bukan pilihan pemilik); konversi ke WOFF2 (bisa dianggap mengubah berkas).
+
+**Tinjau ulang bila:** repo akan dibuat publik; lisensi HarmonyOS Sans berubah; judul terasa terlalu tebal tanpa SemiBold; atau italic Medium/Bold dibutuhkan.
+
+
+## ADR-057 · Aset visual: skill `aset` dengan mesin iso-glow (MIT) bertoken Surau; tiga ilustrasi prinsip di Beranda — diterima · 2026-10-19
 
 **Konteks:** Pemilik membutuhkan aset landing page, cover blog, konten, dan aset lain yang interaktif (bukan gambar diam) dan konsisten. Usulan pertama pemilik adalah skill Colorfigures (April Zhu, MIT): ilustrasi isometrik bertinta tangan dan berwarna penuh. Agent membangun skill Surau di atasnya beserta figur contoh "kitab di atas rehal". Pemilik menilai hasilnya "kurang pas" lalu mengusulkan iso-glow (karya yang sama, MIT): gambar garis tipis dengan satu aksen yang menyala. Agent membuat ulang figur yang sama dengan iso-glow beraksen Zaitun dan memberikan perbandingan berdampingan (terang/gelap). Pemilik memilih iso-glow, meminta perbaikan (WebP, tombol terlihat, demo otomatis, token warna tidak disalin manual), lalu meminta tiga aset untuk kartu "Tiga prinsip utama" di Beranda ("Ya kerjakan. Lalu buat 3 aset untuk pairing di home Tiga prinsip utama").
 
@@ -1300,7 +1346,7 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - `REFERENSI.md`: kernel, kelas, kontrak, pelajaran.
    - `mesin/iso.js` + `mesin/LICENSE`.
    - Dua contoh asli iso-glow di `contoh/`.
-   - Skrip Node `skrip/bangun.mjs` (menyisipkan mesin dan token; `--situs` juga menyalin ke `apps/web/public/aset/`) dan `skrip/potret.mjs` (Chromium Playwright dari `apps/web`; sumber dibangun di memori; WebP lewat `sharp` milik Next, JPG/PNG; galat skrip, berkas gagal, figur kosong, atau `NaN` → kode keluar 2).
+   - Skrip Node `skrip/bangun.mjs` (menyisipkan mesin dan token; `--situs` menulis figur ke `apps/web/public/aset/` dan mesin bersama ke `apps/web/public/aset-mesin/`, butir 11) dan `skrip/potret.mjs` (Chromium Playwright dari `apps/web`; sumber dibangun di memori; WebP lewat `sharp` milik Next, JPG/PNG; galat skrip, berkas gagal, figur kosong, atau `NaN` → kode keluar 2).
 
    Tanpa Python (Python di repo hanya untuk kalkulator biaya).
 2. **Gaya terkunci:** garis tipis, warna netral situs, satu aksen hanya pada yang hidup. Token warna dibaca `bangun.mjs` langsung dari blok `:root`, `:root.dark`, dan `:root.sepia` di `globals.css`; turunannya (`--body`, `--deck`, `--line`, `--accent-hi`, …) dihitung dengan `color-mix`. Bila warna situs berubah, bangun ulang aset dan warnanya ikut. Figur tidak boleh menulis hex/oklch sendiri.
@@ -1314,8 +1360,8 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
    - Tema bisa dikirim induk lewat `postMessage`.
 4. **Tiga figur prinsip di Beranda** (`aset/figur/prinsip-{verbatim,alamat,atribusi}.html` → `/aset/*.html`), **tanpa kata, angka, atau tombol**:
    - **verbatim:** salinan keliru meredup dengan lencana silang, lalu salinan yang sama persis menyala dengan lencana centang.
-   - **alamat:** kabel dari klaim ke rak; jilid yang dirujuk ditarik keluar dan pita penanda halamannya terangkat dan menyala.
-   - **atribusi:** kabel dari pernyataan ke kitab; papan nama penulis di punggung kitab menyala; stempel putusan redup dan dicoret.
+   - **alamat:** jejak di alas dari klaim ke rak; jilid yang dirujuk ditarik keluar dan pita penanda halamannya terangkat dan menyala.
+   - **atribusi:** jejak di alas dari pernyataan ke kitab; papan nama penulis di punggung kitab menyala; stempel putusan redup dan dicoret.
 
    Tanpa huruf Arab, wajah, atau sosok.
 5. **Penyematan:**
@@ -1325,24 +1371,23 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
      - `X-Frame-Options: SAMEORIGIN` dan CSP `frame-ancestors 'self'; sandbox allow-scripts`, sehingga dibuka langsung pun tetap berorigin "null".
      - `Cache-Control: … no-transform`, karena tanpanya Cloudflare menyisipkan beacon Web Analytics: setiap iframe tercatat sebagai kunjungan dan beacon gagal CORS. Ditemukan dan diperbaiki di preview.
      - `nosniff` dan `Permissions-Policy`.
-     - `Access-Control-Allow-Origin: *` hanya untuk `/aset/fonts/*`.
 
      Aturan yang sama ada di `next.config.ts` untuk `next dev`, sedangkan halaman lain tetap `DENY`.
-   - Tekanan pengunjung menghentikan animasi demo yang sedang berjalan (`api.tandai` → `batal()`), jadi tidak ada ketukan yang tertelan. Demo hanya berjalan saat figur ada di layar (IntersectionObserver) dan berhenti saat fokus keyboard masuk (WCAG 2.2.2).
-   - Font Plus Jakarta Sans (subset Latin, OFL) disajikan sendiri di `/aset/fonts/` beserta `OFL.txt`.
-   - Kredit iso-glow, iso-figure, dan Plus Jakarta Sans di `/lisensi#ilustrasi`.
+   - Pada figur bertombol, tekanan pengunjung (tombol, ketukan gambar, tombol keyboard) menghentikan animasi demo yang sedang berjalan (`api.tandai` → `batal()`), jadi tidak ada ketukan yang tertelan. Demo hanya berjalan saat figur ada di layar (IntersectionObserver).
+   - **Tanpa berkas font di aset** (setelah ADR-056): figur situs tidak memuat kata, jadi mesin cukup memakai `'HarmonyOS Sans', system-ui`. Berkas HarmonyOS tidak disalin ke `public/aset/` (lisensinya melarang dibagikan sebagai paket tersendiri, dan iframe origin "null" butuh CORS). `potret.mjs` membaca TTF dari `apps/web/src/fonts/harmonyos-sans/` dan menyuntikkannya hanya ke browser pemotret, untuk cover dan konten yang memuat judul.
+   - Kredit iso-glow dan iso-figure di `/lisensi#ilustrasi`.
 6. **Format gambar diam:** WebP untuk situs dan konten (cover ±27 KiB, sebelumnya PNG ±425 KiB), JPG untuk `og:image` (±41 KiB; dukungan WebP di semua aplikasi pratinjau tautan belum pasti). Tanpa PNG di situs, karena gambar tidak dioptimasi ulang di Workers (ADR-003).
-7. `vite.config.ts`: mesin, contoh asli, `aset/**`, dan `apps/web/public/aset/**` dikecualikan dari lint dan format (HTML padat hasil bangun).
-8. **Tanpa kata, tanpa tombol, satu cerita** (permintaan pemilik, 2026-10-19: "Saya merasa kurang pas ada button di ilustrasi"; situs akan tiga bahasa):
-   - Teks di gambar harus diterjemahkan di luar i18n, terlalu kecil di kartu, dan untuk bahasa Arab bertabrakan dengan aturan tanpa huruf Arab di aset. Karena itu figur situs memakai tanda visual bebas bahasa (`api.lencana`, pita, papan nama, redup, coret).
-   - Tombol diganti **cerita sekali jalan**: diputar saat terlihat, lalu diam. Hover atau ketuk kartu (`data-art-card` → `postMessage {putar:true}`), atau kursor dan ketukan di figur, memutarnya ulang. Tidak ada perulangan tanpa henti.
+7. `vite.config.ts`: mesin, contoh asli, `aset/**`, `apps/web/public/aset/**`, dan `apps/web/public/aset-mesin/**` dikecualikan dari lint dan format (HTML padat hasil bangun).
+8. **Tanpa kata, tanpa tombol, satu cerita** (permintaan pemilik, 2026-10-19: "Saya merasa kurang pas ada button di ilustrasi"; situs direncanakan bisa berbahasa Indonesia, Inggris, dan Arab):
+   - Teks di gambar harus diterjemahkan di luar i18n, terlalu kecil di kartu, dan untuk bahasa Arab bertabrakan dengan aturan tanpa huruf Arab di aset. Karena itu figur situs memakai tanda visual bebas bahasa (`api.lencanaBidang`, pita, papan nama, redup, coret).
+   - Tombol diganti **cerita sekali jalan**: diputar saat terlihat, lalu diam. Hover atau ketuk kartu (`data-art-card` → `postMessage {putar:true}`), atau kursor dan ketukan (`click`, jadi menggulir di ponsel tidak memicunya) di figur, memutarnya ulang. Satu cerita ±2–3 detik, tanpa perulangan tanpa henti.
    - Hover saja ditolak karena ponsel dan keyboard tidak punya hover.
    - Tombol tetap ada di mesin untuk halaman "coba sendiri" (`?tombol=0` menyembunyikannya).
 9. **Penamaan (menyimpang dari ADR-012, terbuka):** kode aplikasi web memakai identifier Inggris (`ArtEmbed`, `name`, kunci `art` dan `principleArtTitle`). Mesin, figur, dan skrip skill memakai identifier Indonesia (`mountFigure` tetap dari asalnya), sama seperti skill dan perkakas pemilik lainnya (`scripts/ikon.mjs`), karena dibaca dan disunting dalam bahasa kerja skill. Jalur publik `/aset/<nama>` mengikuti rute situs yang berbahasa Indonesia (`/kitab`, `/cari`).
 10. **Penghubung dan tanda ikut kisi isometrik** (dua putaran masukan pemilik): kabel lengkung bebas dan lencana yang menghadap layar terbaca sebagai gambar 2D di atas gambar isometrik. Kabel ortogonal yang melayang juga terasa tidak alami, karena tidak berpijak. Dari tiga opsi yang dibandingkan (A: jejak di alas, B: diangkat atau tampilan urai, C: tanpa penghubung), pemilik memilih **A**. Penghubung kini berupa jejak di permukaan alas (`api.jalur` setinggi alas + `api.simpul` di ujung), seperti jalur papan sirkuit sekaligus metafora jalur penelusuran. Lencana ✓/✗ menempel di bidang (`api.lencanaBidang`).
 11. **Siap production** (cek akhir pemilik):
-    - **Mode berulang** untuk empty state dan indikator memuat (`cfg.ulang`/`?ulang=N&jeda`, `ArtEmbed repeat`). Diputar N kali hanya selama figur terlihat, berhenti saat tab disembunyikan atau figur keluar layar, dan diam saat "kurangi gerakan". Empty state 2–3 kali; 0 (terus) hanya untuk indikator memuat. Contohnya `kosong-pencarian`.
-    - **Mesin bersama:** di situs, mesin dimuat dari `/aset-mesin/iso-<hash>.js` (`Cache-Control: immutable` di `_headers`), sehingga HTML tiap figur turun dari ±32 KiB ke ±6 KiB. `bangun.mjs --situs` menghapus mesin lama dan membangun ulang semua figur situs supaya tidak ada rujukan yang patah.
+    - **Mode berulang** untuk empty state dan indikator memuat (`cfg.ulang`/`?ulang=N&jeda`, `ArtEmbed repeat`). Diputar N kali hanya selama figur terlihat, berhenti saat tab disembunyikan atau figur keluar layar, dan diam saat "kurangi gerakan". Empty state: total gerak ≤5 detik supaya tidak butuh tombol jeda (WCAG 2.2.2), contohnya `kosong-pencarian` (2 kali). 0 (terus) hanya untuk indikator memuat selama proses berjalan (gerak yang memang bagian dari prosesnya). Nilai `?ulang` yang tidak valid diabaikan (kembali ke bawaan figur), bukan dianggap 0.
+    - **Mesin bersama:** di situs, mesin dimuat dari `/aset-mesin/iso-<hash>.js` (`Cache-Control: immutable` di `_headers`), sehingga HTML tiap figur turun dari ±32 KiB ke ±6 KiB. `bangun.mjs --situs` menghapus mesin lama dan membangun ulang semua figur situs supaya tidak ada rujukan yang patah. Konsekuensinya, satu jendela singkat saat deploy: halaman HTML lama yang masih ter-cache bisa merujuk mesin yang sudah dihapus; figur hanya tidak tergambar sampai dimuat ulang.
 
 **Ditolak:**
 - **Colorfigures** (dicoba lalu diganti): tinta tebal dan warna penuh terasa seperti merek lain di samping UI Surau yang tenang; garis tepi luar hilang di mode gelap.
@@ -1354,8 +1399,8 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 - **iframe disembunyikan sampai tema terkirim:** bila iframe sudah selesai dimuat sebelum hidrasi, `onLoad` tidak terpanggil dan iframe tersembunyi selamanya.
 
 **Konsekuensi:**
-- Tiga iframe lazy di Beranda, masing-masing ±32 KiB HTML; font ±27 KiB sekali (cache).
-- Static Assets mengalihkan `/aset/x.html` ke `/aset/x` (satu 307); jalur font relatif tetap benar.
+- Tiga iframe lazy di Beranda, masing-masing ±6 KiB HTML ditambah satu mesin bersama ±34 KiB (cache selamanya), tanpa berkas font.
+- Static Assets mengalihkan `/aset/x.html` ke `/aset/x` (satu 307); mesin dirujuk dengan jalur absolut `/aset-mesin/…`.
 - Mesin tidak ikut pembaruan iso-glow secara otomatis.
 - Server dev tidak bisa dijalankan di sesi cloud (HeroUI Pro berlisensi tidak terpasang di sana). Sematan diuji lewat halaman tiruan, sedangkan Beranda asli lewat preview PR dan e2e CI.
 

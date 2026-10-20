@@ -6,6 +6,7 @@ import { Fragment, Suspense } from "react";
 import { ArabicInline, ArabicText } from "../../../../../../components/arabic";
 import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-ld";
 import { AyahRefChip } from "../../../../../../components/reader/ayah-ref";
+import { HeadingOrnament } from "../../../../../../components/reader/heading-ornament";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
 import { FootnoteMarker } from "../../../../../../components/reader/footnote-marker";
 import { NeedsReviewNote } from "../../../../../../components/reader/needs-review";
@@ -37,6 +38,7 @@ import {
   tocHref,
   tocPath,
 } from "../../../../../../lib/reader/toc";
+import { Typography } from "@heroui/react";
 
 const t = id.reader;
 
@@ -217,13 +219,17 @@ export default async function ReaderPage({ params }: Props) {
               ]}
             />
             <div className="flex flex-col gap-1" data-reader-title>
-              <h1 className="text-foreground text-[1.75rem] leading-tight font-semibold tracking-tight sm:text-[2rem]">
+              <Typography type="h1" className="text-2xl sm:text-3xl">
                 {t.pageHeading(juz, pageNo)}
-              </h1>
-              <p className="text-muted flex flex-wrap items-baseline gap-x-2 text-sm">
+              </Typography>
+              <Typography
+                type="body-sm"
+                color="muted"
+                className="flex flex-wrap items-baseline gap-x-2"
+              >
                 <span>{workTitle}</span>
                 <ArabicInline>{work.title_ar}</ArabicInline>
-              </p>
+              </Typography>
             </div>
             <ReaderToolbar
               activeIds={activeIds}
@@ -256,14 +262,20 @@ export default async function ReaderPage({ params }: Props) {
                     {heading ? (
                       // Judul bab di tengah seperti kitab cetak; ⋮ di luar <h2> supaya tidak ikut
                       // nama judul.
-                      <div className="flex items-center justify-center gap-1">
-                        <PassageActions passage={ref(p)} />
+                      <div className="relative flex items-center justify-center gap-2 px-7 sm:gap-3 sm:px-9">
+                        {/* ⋮ di ruang tepi kiri (padding sama di kanan), supaya judul dan ornamen tetap
+                            simetris dan tidak bertumpuk dengan ⋮. */}
+                        <span className="absolute start-0 top-1/2 -translate-y-1/2">
+                          <PassageActions passage={ref(p)} />
+                        </span>
+                        <HeadingOrnament side="start" />
                         <ArabicText
                           as="h2"
                           className={`reader-heading ${heading.level > 2 ? "reader-heading-minor" : ""}`}
                         >
                           {renderText(p)}
                         </ArabicText>
+                        <HeadingOrnament side="end" />
                       </div>
                     ) : (
                       <ArabicText className="text-foreground">
@@ -290,10 +302,19 @@ export default async function ReaderPage({ params }: Props) {
             <section aria-labelledby="judul-catatan-kaki" className="flex flex-col gap-3 pt-2">
               <div aria-hidden="true" className="reader-footnotes-rule" />
               <div className="flex flex-col gap-0.5">
-                <h2 className="text-foreground text-sm font-semibold" id="judul-catatan-kaki">
+                <Typography.Heading
+                  level={2}
+
+                  id="judul-catatan-kaki"
+                  className="text-sm"
+                >
                   {footNote?.heading ?? t.footnotesHeading}
-                </h2>
-                {footNote ? <p className="text-muted text-xs">{footNote.lead}</p> : null}
+                </Typography.Heading>
+                {footNote ? (
+                  <Typography type="body-xs" color="muted">
+                    {footNote.lead}
+                  </Typography>
+                ) : null}
               </div>
               <ol className="reader-footnotes flex list-none flex-col gap-2 p-0">
                 {page.footnotes.map((f) => {
@@ -320,11 +341,15 @@ export default async function ReaderPage({ params }: Props) {
           {/* Navigasi halaman hanya di akhir halaman (sesudah catatan kaki), seperti membalik kitab. */}
           <div className="flex flex-col gap-2">
             <PageNav keyboard next={page.next} prev={page.prev} />
-            <p className="text-muted text-xs">{t.keyboardHint}</p>
+            <Typography type="body-xs" color="muted">
+              {t.keyboardHint}
+            </Typography>
           </div>
 
           <footer className="text-muted flex flex-col gap-2 border-t border-separator pt-6 text-xs">
-            <h2 className="text-foreground text-sm font-semibold">{t.sourceHeading}</h2>
+            <Typography.Heading level={2} className="text-sm">
+              {t.sourceHeading}
+            </Typography.Heading>
             <LicenseNotice
               compact
               attribution={page.citation.source.attribution}
@@ -334,8 +359,16 @@ export default async function ReaderPage({ params }: Props) {
               workSlug={work.slug}
             />
             {quran ? <QuranNotice quran={quran} /> : null}
-            {anyAi ? <p>{t.aiNotice}</p> : null}
-            {anyReview ? <p>{t.needsReviewNote}</p> : null}
+            {anyAi ? (
+              <Typography type="body-xs" color="muted">
+                {t.aiNotice}
+              </Typography>
+            ) : null}
+            {anyReview ? (
+              <Typography type="body-xs" color="muted">
+                {t.needsReviewNote}
+              </Typography>
+            ) : null}
             <ReportPageButton />
           </footer>
         </article>
@@ -345,9 +378,14 @@ export default async function ReaderPage({ params }: Props) {
             data-toc-scroll
             className="scrollbar sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-y-auto pe-1"
           >
-            <h2 className="text-foreground px-2 text-sm font-semibold" id="judul-daftar-isi">
+            <Typography.Heading
+              level={2}
+
+              className="text-sm px-2"
+              id="judul-daftar-isi"
+            >
               {t.tocHeading}
-            </h2>
+            </Typography.Heading>
             <TocTree activeIds={activeIds} items={toc} />
           </div>
         </aside>

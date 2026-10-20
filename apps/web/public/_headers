@@ -3,7 +3,7 @@
 /_next/static/*
   Cache-Control: public,max-age=31536000,immutable
 
-# Aset ilustrasi (ADR-054): disematkan lewat iframe sandbox di halaman Surau sendiri.
+# Aset ilustrasi (ADR-057): disematkan lewat iframe sandbox di halaman Surau sendiri.
 # Berkas public/ tidak melewati Worker, jadi header di next.config.ts tidak berlaku di sini.
 # no-transform: Cloudflare tidak menyisipkan beacon Web Analytics ke HTML aset (tanpa itu setiap
 # iframe tercatat sebagai kunjungan halaman dan beacon gagal CORS dari origin "null").
@@ -15,10 +15,6 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Frame-Options: SAMEORIGIN
   Content-Security-Policy: frame-ancestors 'self'; sandbox allow-scripts
-
-# Font ilustrasi dimuat dari origin "null", jadi perlu CORS (hanya font).
-/aset/fonts/*
-  Access-Control-Allow-Origin: *
 
 # Mesin ilustrasi bersama (nama berisi hash isi, jadi aman di-cache selamanya).
 /aset-mesin/*
