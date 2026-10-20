@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Dropdown, Label } from "@heroui/react";
+import { Button, Dropdown, Label, Typography } from "@heroui/react";
 import { useEffect, useState } from "react";
 
 import { LeftToRightListBullet } from "../icons";
@@ -89,7 +89,9 @@ export function OnThisPageNav({ items }: { items: OnThisPageItem[] }) {
 
   return (
     <nav aria-label={heading} className="sticky top-24 hidden flex-col gap-3 lg:flex">
-      <p className="text-foreground text-sm font-semibold">{heading}</p>
+      <Typography type="body-sm" weight="semibold">
+        {heading}
+      </Typography>
       <ul className="border-separator flex flex-col border-s">
         {items.map((item) => {
           const isActive = item.id === active;

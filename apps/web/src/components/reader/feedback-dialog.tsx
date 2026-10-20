@@ -15,6 +15,7 @@ import {
   RadioGroup,
   TextArea,
   TextField,
+  Typography,
 } from "@heroui/react";
 import { useState } from "react";
 
@@ -103,9 +104,11 @@ export function FeedbackDialog({
           ) : (
             <form className="contents" onSubmit={submit}>
               <Modal.Body className="flex flex-col gap-4">
-                <p className="text-muted text-sm">{t.reportLead}</p>
+                <Typography type="body-sm" color="muted">
+                  {t.reportLead}
+                </Typography>
                 {passage ? (
-                  <p className="text-foreground text-sm">{t.reportPassageNote(passage.label)}</p>
+                  <Typography type="body-sm">{t.reportPassageNote(passage.label)}</Typography>
                 ) : null}
                 <RadioGroup isRequired defaultValue="text" name="kind">
                   <Label>{t.reportKind}</Label>

@@ -1,3 +1,4 @@
+import { Typography } from "@heroui/react";
 import NextLink from "next/link";
 
 import { EDITION_SOURCE, LICENSE_URL } from "../../content/works";
@@ -32,7 +33,7 @@ export function LicenseNotice({
   if (compact) {
     const linkClass = "link text-[length:inherit]";
     return (
-      <p>
+      <Typography type="body-xs" color="muted">
         {attribution}
         {licenseUrl ? (
           <>
@@ -61,14 +62,16 @@ export function LicenseNotice({
         <NextLink className={linkClass} href="/lisensi">
           {t.licenseMoreShort}
         </NextLink>
-      </p>
+      </Typography>
     );
   }
 
   return (
     <div className="flex flex-col gap-2">
-      <p>{attribution}</p>
-      <p>
+      <Typography type="body-xs" color="muted">
+        {attribution}
+      </Typography>
+      <Typography type="body-xs" color="muted">
         {t.licenseLabel}: {license}
         {licenseUrl ? (
           <>
@@ -86,9 +89,9 @@ export function LicenseNotice({
             )
           </>
         ) : null}
-      </p>
+      </Typography>
       {source ? (
-        <p>
+        <Typography type="body-xs" color="muted">
           {t.sourceDigital}:{" "}
           <a
             className="link text-[length:inherit]"
@@ -99,9 +102,11 @@ export function LicenseNotice({
             {source.label}
             <span className="sr-only"> {id.common.newTab}</span>
           </a>
-        </p>
+        </Typography>
       ) : null}
-      <p>{t.modified}</p>
+      <Typography type="body-xs" color="muted">
+        {t.modified}
+      </Typography>
       {sourceUrl ? (
         <a
           className="link self-start text-[length:inherit]"

@@ -10,6 +10,8 @@ import { WorkCover } from "../../../components/book/work-cover";
 import { id } from "../../../i18n/id";
 import { PAGE_FRAME } from "../../../lib/layout";
 import { getEnv, readerEnabled } from "../../../lib/cloudflare";
+import { Typography } from "@heroui/react";
+import { PageLead, PageTitle } from "../../../components/page-title";
 
 const t = id.reader;
 
@@ -30,10 +32,8 @@ export default async function KitabPage() {
   return (
     <div className={`${PAGE_FRAME} flex flex-col gap-8 pt-8 pb-16 sm:pt-12`}>
       <header className="flex max-w-2xl flex-col gap-3">
-        <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
-          {t.listHeading}
-        </h1>
-        <p className="text-muted text-base text-pretty">{t.listLead}</p>
+        <PageTitle>{t.listHeading}</PageTitle>
+        <PageLead>{t.listLead}</PageLead>
       </header>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {works.map((work) => {
@@ -48,7 +48,11 @@ export default async function KitabPage() {
                   <WorkCover width={{ xs: 132, sm: 140, md: 156 }} work={work} />
                 </Widget.Header>
                 <Widget.Content className="flex flex-1 flex-col gap-2">
-                  <h2 className="text-foreground flex flex-col items-start gap-1 text-lg font-semibold">
+                  <Typography.Heading
+                    level={2}
+
+                    className="text-lg flex flex-col items-start gap-1"
+                  >
                     {edition ? (
                       <NextLink
                         className="outline-none after:absolute after:inset-0 after:rounded-[inherit]"
@@ -62,12 +66,12 @@ export default async function KitabPage() {
                     <ArabicInline className="text-muted text-base font-normal">
                       {work.title_ar}
                     </ArabicInline>
-                  </h2>
+                  </Typography.Heading>
                   {work.author ? (
-                    <p className="text-muted text-sm">
+                    <Typography type="body-sm" color="muted">
                       {t.by} {work.author.name_id ?? work.author.name_ar}
                       {work.author.death_hijri ? ` (${t.deathHijri(work.author.death_hijri)})` : ""}
-                    </p>
+                    </Typography>
                   ) : null}
                 </Widget.Content>
               </Widget>
@@ -82,10 +86,8 @@ export default async function KitabPage() {
 function ComingSoon() {
   return (
     <div className={`${PAGE_FRAME} flex flex-col items-start gap-4 pt-16 pb-16`}>
-      <h1 className="text-foreground text-[2rem] leading-[1.12] font-semibold tracking-tight sm:text-[2.75rem] lg:text-5xl">
-        {t.soonHeading}
-      </h1>
-      <p className="text-muted text-base">{t.soonBody}</p>
+      <PageTitle>{t.soonHeading}</PageTitle>
+      <Typography color="muted">{t.soonBody}</Typography>
       <NextLink className={buttonVariants({ variant: "primary" })} href="/tentang">
         {t.soonCta}
       </NextLink>

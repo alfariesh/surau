@@ -44,6 +44,7 @@
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
 @import "@heroui/styles/components/kbd.css" layer(components);
+@import "@heroui/styles/components/typography.css" layer(components);
 @import "@heroui/styles/components/scroll-shadow.css" layer(components);
 
 @import "@heroui/styles/themes/default" layer(theme);

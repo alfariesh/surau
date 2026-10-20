@@ -1,5 +1,7 @@
 import type { QuranView } from "@surau/core";
 
+import { Typography } from "@heroui/react";
+
 import { id } from "../../i18n/id";
 
 const t = id.reader;
@@ -17,7 +19,7 @@ export function QuranNotice({ quran }: { quran: QuranView }) {
     </a>
   );
   return (
-    <p>
+    <Typography type="body-xs" color="muted">
       {t.quranNotice}:
       {text ? (
         <>
@@ -32,6 +34,6 @@ export function QuranNotice({ quran }: { quran: QuranView }) {
         </>
       ) : null}
       . {t.quranNoticeVerbatim}
-    </p>
+    </Typography>
   );
 }
