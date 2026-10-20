@@ -326,6 +326,14 @@ describe("pengaman HTTP", () => {
       mcp_endpoint: "https://mcp.surau.org/mcp",
       website: SITE,
     });
+    // Host selain PUBLIC_HOST (Version URL workers.dev produksi) tidak dilayani sama sekali (#64).
+    for (const url of [
+      "https://1a2b3c4d-surau-mcp.contoh.workers.dev/mcp",
+      "https://1a2b3c4d-surau-mcp.contoh.workers.dev/",
+    ]) {
+      const res = await exports.default.fetch(new Request(url, { method: "GET" }));
+      expect(res.status).toBe(404);
+    }
   });
 });
 

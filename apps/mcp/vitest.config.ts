@@ -33,6 +33,7 @@ export default defineConfig({
         },
         bindings: {
           SITE_URL: "https://surau.test",
+          PUBLIC_HOST: "mcp.surau.test",
           IP_HMAC_KEY: "kunci-tes",
           CORPUS_MIGRATIONS: await readD1Migrations(dir("../../packages/db/migrations/corpus")),
         },

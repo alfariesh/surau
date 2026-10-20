@@ -12,13 +12,18 @@
   // mengimpor node:* (dicek docs-terbaru 2026-10-17). Fetch keluar hanya ke internet publik.
   "compatibility_flags": ["global_fetch_strictly_public"],
   // Produksi hanya lewat custom domain (DNS + sertifikat dibuat `wrangler deploy`); workers.dev
-  // dimatikan supaya satu alamat publik saja. URL Preview tetap dinyalakan eksplisit.
+  // dimatikan. `preview_urls` tetap true karena Preview per PR (`pr-N-surau-mcp…workers.dev`)
+  // memakainya, padahal setelan yang sama juga menyalakan Version URL produksi
+  // (`<versi>-surau-mcp…workers.dev`, binding produksi, di luar WAF). Karena itu Worker produksi
+  // menolak host selain PUBLIC_HOST (#64, ADR-062).
   "workers_dev": false,
   "preview_urls": true,
   "routes": [{ "pattern": "mcp.surau.org", "custom_domain": true }],
   "vars": {
     // Origin permalink absolut di setiap hasil tool (core mengembalikan path tanpa origin).
     "SITE_URL": "https://surau.org",
+    // Satu-satunya host yang dilayani produksi; host lain (Version URL) → 404 (#64).
+    "PUBLIC_HOST": "mcp.surau.org",
   },
   // CORPUS_DB = korpus PRODUKSI yang SAMA dengan apps/web (satu D1, dua Worker). Nama + ID hanya
   // diubah `pnpm run corpus:promote` bersama apps/web/wrangler.jsonc (dijaga tes
@@ -73,6 +78,8 @@
   "previews": {
     "vars": {
       "SITE_URL": "https://surau.org",
+      // Kosong = semua host (Preview dilayani di workers.dev).
+      "PUBLIC_HOST": "",
     },
     "observability": {
       "enabled": true,

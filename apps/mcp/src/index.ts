@@ -42,7 +42,12 @@ function info(siteUrl: string): Response {
 
 export default {
   async fetch(request: Request): Promise<Response> {
-    const { pathname } = new URL(request.url);
+    const { hostname, pathname } = new URL(request.url);
+    // Produksi hanya di mcp.surau.org: Version URL workers.dev (binding produksi, di luar WAF zona)
+    // ditolak. Preview mengosongkan PUBLIC_HOST (#64, ADR-062).
+    if (env.PUBLIC_HOST !== "" && hostname !== env.PUBLIC_HOST) {
+      return new Response("Not found", { status: 404 });
+    }
     if (pathname === MCP_PATH) {
       const rejected = originValidationResponse(request, ALLOWED_ORIGIN_HOSTS);
       if (rejected !== undefined) return rejected;

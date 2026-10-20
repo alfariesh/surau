@@ -1473,3 +1473,23 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Ditolak:** idempotency key (opsi `idempotencyKey` di SDK 0.135 ditandai deprecated dan tanpa efek); mengulang POST otomatis (justru sumber tagihan ganda).
 
 **Tinjau ulang bila:** API batch mendukung idempotency key atau metadata per batch (pencocokan bisa memakai penanda, tidak lagi jendela waktu dan jumlah request); atau `tools/eval` dan `tools/ingest` mulai mengirim batch berukuran sama secara bersamaan.
+
+## ADR-062 · Satu alamat publik produksi: workers.dev web dimatikan, MCP menolak host selain mcp.surau.org — diterima · 2026-10-20
+
+**Konteks:** issue #64. Ada dua celah, keduanya sudah dicek langsung pada 2026-10-20:
+- **Web:** `https://surau-web.alfarieshsalman.workers.dev/` melayani situs penuh (200), dan `sitemap.xml` di sana menunjuk ke alamat `workers.dev`.
+- **MCP:** Version URL produksi (`7e7cc2bd-surau-mcp.alfarieshsalman.workers.dev/mcp`) menjawab `tools/list` dengan binding produksi.
+
+Kedua jalur ini berada di luar zona `surau.org`, sehingga pagar tingkat zona (WAF/rate limit T-19, Access) tidak berlaku. Batas di dalam Worker tetap berjalan.
+
+**Temuan docs (Cloudflare, Sep 2026):** `preview_urls` mengatur Version URL **dan** URL Preview per PR di `workers.dev`, dengan satu setelan. Usulan issue (`preview_urls: false` di MCP) akan mematikan Preview per PR. Untuk domain yang dikelola dari dashboard, docs menganjurkan konfigurasi tanpa `routes` dengan `workers_dev: false`.
+
+**Keputusan:**
+1. **Web:** `"workers_dev": false` dan `"preview_urls": true` ditulis eksplisit, supaya Preview per PR tetap jalan. Custom domain `surau.org` tetap diatur di dashboard (T-07).
+   - `sitemap.xml` memakai var `SITEMAP_ORIGIN`: produksi `https://surau.org`; Preview kosong, artinya origin diambil dari host permintaan.
+2. **MCP:** `preview_urls` tetap `true`. Var baru `PUBLIC_HOST` berisi `mcp.surau.org` di produksi dan kosong di Preview. Worker produksi mengembalikan 404 untuk host lain sebelum memproses apa pun, sehingga Version URL produksi tidak melayani MCP.
+3. Tautan `workers.dev` di STATUS diganti `surau.org`.
+
+**Sisa yang diketahui:** Version URL **web** produksi (`<versi>-surau-web…workers.dev`) masih melayani situs. Web tidak boleh memakai middleware (ADR-003), jadi penjaga host seperti di MCP tidak dipasang. Cloudflare otomatis menambah `X-Robots-Tag: noindex` di URL Preview `workers.dev`, dan sitemap kini selalu menunjuk `surau.org`. Bila perlu ditutup penuh, pemilik bisa menyalakan Cloudflare Access untuk Version/Preview URL di dashboard (tab Domains Worker). Dengan begitu Preview per PR juga butuh login.
+
+**Tinjau ulang bila:** Cloudflare memisahkan setelan Version URL dari Preview URL; atau web mendapat titik masuk Worker sendiri (pembungkus OpenNext) tempat penjaga host bisa dipasang.
