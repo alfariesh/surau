@@ -48,7 +48,17 @@ export const QUESTION_MAX_CHARS = 1000;
 const FALLBACK_HITS = 5;
 
 export type JawabStage = "route" | "retrieve" | "answer" | "retry" | "verify";
-export type FallbackReason = "no_candidates" | "unverified" | "refusal" | "provider_error";
+/**
+ * `budget` (S20): ledger menolak reservasi ulangan Sonnet (anggaran bulan ini tidak cukup).
+ * `cancelled` (S20): peminta sudah pergi, jadi panggilan LLM baru (jawaban/ulangan) tidak dimulai.
+ */
+export type FallbackReason =
+  | "no_candidates"
+  | "unverified"
+  | "refusal"
+  | "provider_error"
+  | "budget"
+  | "cancelled";
 /** Alasan hasil: turun ke Cari, atau jenis penolakan (`false_premise` = premis keliru). */
 export type JawabReason = FallbackReason | "false_premise";
 
@@ -99,7 +109,16 @@ export interface JawabDiagnostics {
   hadith_unsupported: number;
   truncated: boolean;
   refusals: JawabRefusal[];
-  provider_error: { status: number | null; type: string } | null;
+  /**
+   * Galat penyedia: `status` HTTP (null = timeout, koneksi putus, atau galat di tengah stream;
+   * request itu mungkin sudah ditagih), tahap, dan model panggilan yang gagal (ledger S20).
+   */
+  provider_error: {
+    status: number | null;
+    type: string;
+    stage: "route" | "answer";
+    model: ModelId;
+  } | null;
 }
 export interface JawabResult {
   outcome: "answer" | "not_found" | "fallback";
@@ -137,6 +156,16 @@ export interface JawabDeps {
   now?: () => number;
   /** Edisi yang daftar isinya dikirim ke routing (bawaan Ihya, edisi 1). */
   editionId?: number;
+  /**
+   * Dipanggil sebelum ulangan Sonnet (biaya tambahan, S20) dengan salinan pemakaian sejauh ini.
+   * `false` = anggaran tidak cukup → `fallback` alasan `budget` tanpa memanggil Sonnet.
+   */
+  beforeRetry?: (usageSoFar: UsageTotals) => Promise<boolean>;
+  /**
+   * `true` = peminta sudah pergi (S20): panggilan LLM yang sedang berjalan diselesaikan, tetapi
+   * panggilan baru (jawaban, ulangan Sonnet) tidak dimulai → `fallback` alasan `cancelled`.
+   */
+  isCancelled?: () => boolean;
 }
 
 // Daftar isi per versi korpus disimpan di isolate: sama untuk semua pertanyaan (313 node Ihya).
@@ -163,6 +192,9 @@ function providerFailure(error: unknown): ProviderFailure | null {
   if (error instanceof Anthropic.APIConnectionError) return { status: null, kind: "connection" };
   if (error instanceof Anthropic.APIError)
     return { status: typeof error.status === "number" ? error.status : null, kind: "api" };
+  // Body stream yang putus di tengah jawaban dibungkus `MessageStream` menjadi `AnthropicError`
+  // dasar (bukan APIError/APIConnectionError): tetap galat penyedia, turun ke Cari (S20 peninjau).
+  if (error instanceof Anthropic.AnthropicError) return { status: null, kind: "connection" };
   return null;
 }
 
@@ -270,7 +302,12 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   } catch (error) {
     const failure = providerFailure(error);
     if (failure === null) throw error;
-    diagnostics.provider_error = { status: failure.status, type: failure.kind };
+    diagnostics.provider_error = {
+      status: failure.status,
+      type: failure.kind,
+      stage: "route",
+      model: MODELS.haiku,
+    };
     await emit({ type: "stage", stage: "retrieve" });
     ranked = fuse(await searchLists(db, question, null));
     passages = new Map((await answerPassages(db, ranked)).map((p) => [p.id, p]));
@@ -428,17 +465,30 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     return message;
   };
 
+  if (deps.isCancelled?.()) return fallback("cancelled", null);
   await emit({ type: "stage", stage: "answer" });
   let model: ModelId = MODELS.haiku;
   let message: Message | null = null;
   for (const candidate of [MODELS.haiku, MODELS.sonnet] as const) {
+    if (candidate === MODELS.sonnet && deps.isCancelled?.()) return fallback("cancelled", model);
+    if (
+      candidate === MODELS.sonnet &&
+      deps.beforeRetry !== undefined &&
+      !(await deps.beforeRetry({ ...usage }))
+    )
+      return fallback("budget", model);
     model = candidate;
     try {
       message = await attempt(candidate);
     } catch (error) {
       const failure = providerFailure(error);
       if (failure === null) throw error;
-      diagnostics.provider_error = { status: failure.status, type: failure.kind };
+      diagnostics.provider_error = {
+        status: failure.status,
+        type: failure.kind,
+        stage: "answer",
+        model: candidate,
+      };
       return fallback("provider_error", candidate);
     }
     if (message.stop_reason !== "refusal") break;

@@ -3,7 +3,10 @@
 // Top-level = PRODUKSI `surau-api`. `env.staging` = Worker terpisah `surau-api-staging` (data
 // staging) yang dipanggil Preview web: service binding dari Preview selalu memanggil deployment
 // PRODUKSI Worker tujuan, jadi Preview diarahkan ke Worker staging ini (blok `previews` web).
-// Secret (dipasang pemilik, tidak di file ini): CF_AIG_TOKEN (token gateway `surau-gw`, T-14).
+// Secret (dipasang pemilik, tidak di file ini; env.d.ts): CF_AIG_TOKEN (token gateway `surau-gw`,
+// T-14), TURNSTILE_SECRET_KEY (widget `Surau`), SURAU_API_SECRET (acak ≥32 karakter; sumber kunci
+// HMAC cookie anon, cache jawaban, dan kuota harian, S20/ADR-065). Tanpa salah satunya Jawab
+// menjawab 503 `not_configured` (gagal tertutup).
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "surau-api",
@@ -21,7 +24,24 @@
     // gateway = AI Gateway `surau-gw` mode BYOK (uji passthrough S19 lolos, ADR-064).
     "LLM_MODE": "gateway",
     "AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/8be116534f7237b451f28adec91fbbbd/surau-gw/anthropic",
+    // Turnstile (S20, T-14): widget `Surau` mode Managed. Sitekey publik (dikirim ke browser lewat
+    // GET /jawab/status); hostname token harus surau.org atau subdomainnya.
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFdyEf4rqoAMrG1j",
+    "TURNSTILE_HOSTNAMES": "surau.org",
   },
+  // Burst Jawab per anon-id (S20, ADR-014): 3 pertanyaan / 60 detik, dihitung per lokasi. Kuota
+  // harian TIDAK di sini (binding hanya 10/60 detik) tetapi di D1 (`quota_daily`). Namespace unik
+  // per Worker: `ratelimits` tidak diwariskan ke env.staging, jadi dideklarasikan ulang di sana.
+  "ratelimits": [
+    {
+      "name": "JAWAB_BURST",
+      "namespace_id": "5001",
+      "simple": { "limit": 3, "period": 60 },
+    },
+  ],
+  // Cron UTC (S20): reservasi basi, periode anggaran, peringatan 80%, dan hapus fisik harian P-7
+  // (src/cron.ts). Diwariskan ke env.staging (data staging).
+  "triggers": { "crons": ["*/10 * * * *"] },
   // CORPUS_DB = korpus PRODUKSI yang SAMA dengan apps/web dan apps/mcp. Nama + ID hanya diubah
   // `pnpm run corpus:promote` bersama config web/MCP (dijaga tes tools/ingest/src/corpus.test.ts).
   // `preview_database_id` = staging, dipakai `wrangler dev` lokal (D1 lokal per ID, sama dengan web).
@@ -40,9 +60,11 @@
     },
   ],
   // Teks pertanyaan tidak pernah di-log (P-7); event `jawab` hanya metrik (src/log.ts).
+  // `invocation_logs: false` (S20): log otomatis per permintaan merekam semua header, termasuk
+  // `x-surau-ip`/`x-surau-anon` dari web. Dijaga tes tools/ingest/src/corpus.test.ts.
   "observability": {
     "enabled": true,
-    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
     "traces": { "enabled": true, "head_sampling_rate": 0.1 },
   },
   "upload_source_maps": true,
@@ -52,7 +74,23 @@
         "ENVIRONMENT": "staging",
         "LLM_MODE": "gateway",
         "AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/8be116534f7237b451f28adec91fbbbd/surau-gw/anthropic",
+        // Staging memakai sitekey UJI resmi (selalu lolos, terlihat) bersama secret uji: Preview
+        // bisa diuji ujung ke ujung tanpa secret produksi. Biaya staging dibatasi plafon
+        // `surau-app-staging`, sakelar staging (0 kecuali diuji), dan batas gateway. Produksi
+        // menolak kunci uji (guardConfig).
+        "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+        // Secret UJI resmi Cloudflare (publik di docs, menerima token apa pun), bukan rahasia:
+        // sengaja di vars supaya staging tidak butuh `secret put`. Produksi memakai secret asli.
+        "TURNSTILE_SECRET_KEY": "1x0000000000000000000000000000000AA",
+        "TURNSTILE_HOSTNAMES": "alfarieshsalman.workers.dev,surau.org",
       },
+      "ratelimits": [
+        {
+          "name": "JAWAB_BURST",
+          "namespace_id": "6001",
+          "simple": { "limit": 3, "period": 60 },
+        },
+      ],
       "d1_databases": [
         {
           "binding": "CORPUS_DB",
@@ -67,7 +105,7 @@
       ],
       "observability": {
         "enabled": true,
-        "logs": { "enabled": true, "head_sampling_rate": 1 },
+        "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
         "traces": { "enabled": true, "head_sampling_rate": 0.1 },
       },
     },

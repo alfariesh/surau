@@ -6,16 +6,40 @@ export interface ReviewAccessConfig {
   REVIEW_ACCESS_ISSUER?: string;
   REVIEW_ACCESS_AUD?: string;
 }
+/** /admin (S20): aplikasi Access `Surau Admin`, issuer tim yang sama dengan /tinjau. */
+export interface AdminAccessConfig {
+  REVIEW_ACCESS_ISSUER?: string;
+  ADMIN_ACCESS_AUD?: string;
+}
 let cached: { issuer: string; keys: JWTVerifyGetKey } | undefined;
 
 /** Fail closed pada SEMUA host, termasuk workers.dev/preview. Tidak ada bypass development. */
-export async function reviewIdentity(
+export function reviewIdentity(
   token: string | null,
   config: ReviewAccessConfig,
   testKeys?: JWTVerifyGetKey,
 ): Promise<string | null> {
-  const issuer = config.REVIEW_ACCESS_ISSUER;
-  const audience = config.REVIEW_ACCESS_AUD;
+  return accessIdentity(token, config.REVIEW_ACCESS_ISSUER, config.REVIEW_ACCESS_AUD, testKeys);
+}
+
+/**
+ * Identitas pemilik untuk /admin dan /api/admin (S20). AUD = aplikasi `Surau Admin` saja, jadi token
+ * aplikasi Tinjau (penilai) ditolak di sini. Fail closed seperti `reviewIdentity`.
+ */
+export function adminIdentity(
+  token: string | null,
+  config: AdminAccessConfig,
+  testKeys?: JWTVerifyGetKey,
+): Promise<string | null> {
+  return accessIdentity(token, config.REVIEW_ACCESS_ISSUER, config.ADMIN_ACCESS_AUD, testKeys);
+}
+
+async function accessIdentity(
+  token: string | null,
+  issuer: string | undefined,
+  audience: string | undefined,
+  testKeys?: JWTVerifyGetKey,
+): Promise<string | null> {
   if (
     !issuer ||
     !/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/u.test(issuer) ||

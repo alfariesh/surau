@@ -1,11 +1,12 @@
 // Event log `jawab` (Workers Logs, retensi 7 hari): metrik saja. Teks pertanyaan, kueri routing
-// (turunan pertanyaan), teks jawaban, IP, dan isi kitab TIDAK pernah dicatat (docs/05 §8, P-7).
+// (turunan pertanyaan), teks jawaban, IP, ID/cookie anon, token Turnstile, dan isi kitab TIDAK
+// pernah dicatat (docs/05 §8, P-7). Penolakan guard S20 = outcome `rejected` + kode alasan.
 import type { JawabResult } from "@surau/llm";
 
 export interface JawabLog {
   event: "jawab";
   environment: string;
-  outcome: JawabResult["outcome"] | "disabled" | "error" | "aborted";
+  outcome: JawabResult["outcome"] | "disabled" | "error" | "rejected";
   reason: string | null;
   cached: boolean;
   model: string | null;
@@ -28,7 +29,7 @@ export interface JawabLog {
   hadith_unsupported: number;
   truncated: boolean;
   refusals: { model: string; category: string | null }[];
-  provider_error: { status: number | null; type: string } | null;
+  provider_error: JawabResult["diagnostics"]["provider_error"];
 }
 
 export function resultLog(environment: string, r: JawabResult, cached: boolean): JawabLog {
@@ -96,4 +97,18 @@ export function emptyLog(
     refusals: [],
     provider_error: null,
   };
+}
+
+/** Alasan penolakan guard S20 (sebelum pipeline). */
+export type RejectReason =
+  | "challenge_required"
+  | "challenge_failed"
+  | "challenge_unavailable"
+  | "rate_limited"
+  | "quota_anon"
+  | "quota_ip"
+  | "budget";
+
+export function rejectedLog(environment: string, reason: RejectReason): JawabLog {
+  return emptyLog(environment, "rejected", reason);
 }

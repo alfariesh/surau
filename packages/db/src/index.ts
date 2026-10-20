@@ -2,7 +2,7 @@
 // modul ini mengekspor skema Zod baris, formula ID (ADR-029), dan repository bertipe.
 
 export { D1_MAX_PARAMS, chunk, placeholders } from "./d1.ts";
-export type { D1Db, D1Statement, D1Value } from "./d1.ts";
+export type { D1Db, D1Result, D1Statement, D1Value } from "./d1.ts";
 
 export {
   EDITION_ID_MAX,
@@ -92,3 +92,39 @@ export {
   putAnswerCache,
   touchAnswerCache,
 } from "./repo/app.ts";
+export {
+  EMPTY_LEDGER_USAGE,
+  MICRO,
+  RETENTION_DAYS,
+  budgetPeriod,
+  consumeQuota,
+  ensureBudgetPeriod,
+  expireStaleReservations,
+  getBudget,
+  lastPurgeDay,
+  ledgerSummary,
+  listRecentFeedback,
+  markBudgetWarning,
+  markPurged,
+  purgeExpired,
+  quotaDay,
+  quotaStats,
+  quotaUsed,
+  reserveBudget,
+  setBudgetCap,
+  setFeedbackStatus,
+  setQuotaLimits,
+  setSetting,
+  settleLedger,
+  toMicro,
+} from "./repo/guard.ts";
+export type {
+  LedgerSummaryRow,
+  LedgerUsage,
+  PurgeResult,
+  QuotaLimits,
+  QuotaResult,
+  QuotaSubjects,
+  Reservation,
+  Settlement,
+} from "./repo/guard.ts";

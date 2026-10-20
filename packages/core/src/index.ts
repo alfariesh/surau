@@ -10,6 +10,17 @@ export { readSection } from "./section.ts";
 export { buildCitation } from "./citation.ts";
 export { verifyQuote } from "./verify-quote.ts";
 export { ipKey, ipNetwork } from "./client-key.ts";
+export { redactPii } from "./pii.ts";
+export type { RedactResult } from "./pii.ts";
+export {
+  JAWAB_BODY_MAX_BYTES,
+  JAWAB_QUESTION_MAX,
+  JAWAB_QUESTION_MIN,
+  TURNSTILE_TOKEN_MAX,
+  jawabRequest,
+  jawabStatus,
+} from "./jawab-request.ts";
+export type { JawabErrorCode, JawabRequest, JawabStatus } from "./jawab-request.ts";
 export { getHadithTakhrij } from "./takhrij.ts";
 export { answerPassages, answerToc } from "./answer-context.ts";
 export type { AnswerPassage, AnswerTocNode } from "./answer-context.ts";

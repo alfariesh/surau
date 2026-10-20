@@ -29,6 +29,9 @@
   "vars": {
     "REVIEW_ACCESS_ISSUER": "https://misty-moon-bf34.cloudflareaccess.com",
     "REVIEW_ACCESS_AUD": "e123af2da26c3ef34fad7be2ce79480a6232edd72bf2c16d076030563f638bc4",
+    // /admin + /api/admin (S20): aplikasi Access `Surau Admin` (T-14), AUD dibaca dari parameter
+    // `kid` redirect login Access 2026-10-20. Token aplikasi Tinjau TIDAK berlaku di sini.
+    "ADMIN_ACCESS_AUD": "a7f9052cd2ce712ad14811208826bc2f5e4af04de1cc5f261949e79a851d65a4",
     "READER_ENABLED": "1",
     // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
     // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
@@ -38,8 +41,8 @@
     "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v7",
     // Origin sitemap.xml: produksi selalu alamat kanonis, juga bila diminta lewat Version URL (#64).
     "SITEMAP_ORIGIN": "https://surau.org",
-    // POST /api/jawab (S19): MATI di produksi sampai guard biaya S20 (Turnstile, kuota, ledger) ada.
-    // Lapis kedua: `settings.jawab_enabled` di surau-app (dicek surau-api) juga "0".
+    // /api/jawab (S19–S20): MATI di produksi sampai `/rilis 4`. Guard biaya S20 (Turnstile, kuota,
+    // ledger) sudah ada di surau-api; lapis kedua `settings.jawab_enabled` di surau-app juga "0".
     "JAWAB_ROUTE_ENABLED": "0",
   },
   "services": [
@@ -117,12 +120,27 @@
       "namespace_id": "1006",
       "simple": { "limit": 30, "period": 60 },
     },
+    // GET /api/jawab (status UI, S20): tanpa biaya LLM, jadi lebih longgar dari POST.
+    {
+      "name": "JAWAB_STATUS_LIMITER",
+      "namespace_id": "1007",
+      "simple": { "limit": 30, "period": 60 },
+    },
+    {
+      "name": "JAWAB_STATUS_GLOBAL_LIMITER",
+      "namespace_id": "1008",
+      "simple": { "limit": 600, "period": 60 },
+    },
   ],
   // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
+  // `invocation_logs: false` (S20, ADR-065): log otomatis per permintaan merekam header termasuk IP
+  // mentah (`cf-connecting-ip`, `x-real-ip`; diperiksa dengan `wrangler tail --ip self`). Yang
+  // tersisa: event JSON buatan kode (tanpa IP) dan traces (negara/kota, ASN, user agent; tanpa IP).
+  // Dijaga tes tools/ingest/src/corpus.test.ts.
   "observability": {
     "enabled": true,
     "redact_query_string": true,
-    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
     "traces": { "enabled": true, "head_sampling_rate": 0.1 },
   },
   "upload_source_maps": true,
@@ -131,6 +149,8 @@
       // Preview tetap gagal tertutup. Login Access baru dikonfigurasi untuk surau.org.
       "REVIEW_ACCESS_ISSUER": "https://misty-moon-bf34.cloudflareaccess.com",
       "REVIEW_ACCESS_AUD": "e123af2da26c3ef34fad7be2ce79480a6232edd72bf2c16d076030563f638bc4",
+      // Wildcard Preview `*-surau-web…/admin` anggota aplikasi `Surau Admin` yang sama (T-14).
+      "ADMIN_ACCESS_AUD": "a7f9052cd2ce712ad14811208826bc2f5e4af04de1cc5f261949e79a851d65a4",
       "READER_ENABLED": "1",
       "SEARCH_TIMING_DETAIL": "1",
       // Tanpa cache hasil: korpus staging dimuat ulang tanpa versi baru (latensi diukur tanpa cache).
@@ -143,7 +163,7 @@
     "observability": {
       "enabled": true,
       "redact_query_string": true,
-      "logs": { "enabled": true, "head_sampling_rate": 1 },
+      "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
       "traces": { "enabled": true, "head_sampling_rate": 0.1 },
     },
     "services": [
@@ -207,6 +227,16 @@
         "name": "JAWAB_GLOBAL_LIMITER",
         "namespace_id": "2006",
         "simple": { "limit": 30, "period": 60 },
+      },
+      {
+        "name": "JAWAB_STATUS_LIMITER",
+        "namespace_id": "2007",
+        "simple": { "limit": 30, "period": 60 },
+      },
+      {
+        "name": "JAWAB_STATUS_GLOBAL_LIMITER",
+        "namespace_id": "2008",
+        "simple": { "limit": 600, "period": 60 },
       },
     ],
   },

@@ -16,9 +16,16 @@ export default defineConfig({
         compatibilityDate: "2026-10-14",
         compatibilityFlags: ["global_fetch_strictly_public"],
         d1Databases: ["CORPUS_DB", "APP_DB"],
+        // Burst Jawab (S20): sama dengan wrangler.jsonc; hitungan lokal sungguhan (kunci unik per tes).
+        ratelimits: { JAWAB_BURST: { namespace_id: "9501", simple: { limit: 3, period: 60 } } },
         bindings: {
           ENVIRONMENT: "test",
           LLM_MODE: "direct",
+          // Kunci uji (bukan rahasia): secret uji Turnstile resmi + secret HMAC buatan tes.
+          SURAU_API_SECRET: "secret-uji-surau-api-0123456789abcdef",
+          TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
+          TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
+          TURNSTILE_HOSTNAMES: "surau.org",
           AI_GATEWAY_URL:
             "https://gateway.ai.cloudflare.com/v1/0123456789abcdef0123456789abcdef/surau-gw/anthropic",
           CORPUS_MIGRATIONS: await readD1Migrations(dir("../../packages/db/migrations/corpus")),
