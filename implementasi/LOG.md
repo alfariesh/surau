@@ -15,6 +15,14 @@ Format entri:
 
 ---
 
+## 2026-10-20 · S19 · Pipeline Jawab — sebagian
+
+- Dikerjakan: pipeline Jawab (routing + Citations + verifikasi kutipan ke DB), Worker `surau-api`/`surau-api-staging`, `/api/jawab` (mati di produksi), `answer_cache`, uji passthrough AI Gateway BYOK, eval berulang v1–v5 + holdout sekali + judge.
+- Verifikasi: `pnpm verify` lolos (sebelum perbaikan akhir); tes sesudah perbaikan 576 Node + 254 Workers lolos; CI PR #98 hijau pada commit sebelumnya; E2E Preview lolos. Eval final kutipan valid 100% (154/154), lokasi 67,6%.
+- Biaya API: ±US$1,17 (+ judge v5 belum di-collect) dari izin ≤ US$3.
+- Keputusan: ADR-064.
+- Catatan untuk sesi berikutnya: batas pemakaian tercapai sebelum merge; lanjutkan dari Catatan hasil S19.
+
 ## 2026-10-19 · Di luar sesi · Skill aset visual + tiga ilustrasi prinsip di Beranda — selesai
 
 - Dikerjakan: skill `.claude/skills/aset/` (mesin turunan iso-glow MIT, token warna dibaca dari `globals.css`, tombol Indonesia, mode sematan/polos/sampul, demo otomatis, kurangi gerakan; skrip Node `bangun.mjs`/`potret.mjs` dengan WebP/JPG). Colorfigures dicoba dulu lalu diganti setelah pemilik membandingkan keduanya. Figur contoh `kitab-rehal` (hanya di `aset/keluaran/`, untuk cover dan konten) dan tiga figur prinsip yang dipasang di kartu Beranda lewat `ArtEmbed` (iframe sandbox); header `/aset/*` di `public/_headers` (termasuk `no-transform` supaya beacon Web Analytics tidak tersisip, ditemukan di preview), kredit di `/lisensi#ilustrasi`, e2e baru di `smoke.spec.ts`. Peninjau: tanpa blocker; semua temuan perbaiki dan saran diterapkan (ketukan saat demo tidak lagi tertelan, denyut di lapis tetap, hidrasi, penamaan Inggris di web, tema induk menang atas sistem, timer dibersihkan, CSP sandbox, CORS hanya font).
