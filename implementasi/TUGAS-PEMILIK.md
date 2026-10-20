@@ -196,7 +196,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   4. Beri tahu agent setelah selesai agar ekspor privat, golden set, kesepakatan dan status S18 diperbarui. **Saat ini: 0 persetujuan dan 0 penilaian manusia.** Contoh agent dan QA tidak dihitung.
 
 - [ ] **T-25 · Lihat dan setujui tampilan Tanya (S21)** · syarat "pemilik menyetujui tampilan" sebelum `/rilis 4`
-  1. Buka tautan Preview PR #100 (komentar bot di https://github.com/alfariesh/surau/pull/100), lalu tambahkan `/tanya` di ujung alamatnya. Di Preview, Tanya memakai data staging dan biasanya **mati**; minta agent menyalakannya sebentar bila ingin mencoba bertanya (biaya ±US$0,003 per pertanyaan).
+  1. Ketik ke agent: **"siapkan Preview Tanya"**. Agent membuka PR kecil supaya ada alamat Preview (`pr-NNN.surau.org/tanya`, data staging), menyalakan Jawab staging sebentar selama Anda mencoba (biaya ±US$0,003 per pertanyaan), lalu mematikannya lagi. (Preview PR #100 sudah terhapus otomatis sesudah digabung; di https://surau.org/tanya Tanya masih tampil "belum dibuka" sampai `/rilis 4`.)
   2. Periksa: label "asisten riset, bukan pemberi fatwa", jawaban dengan nomor kutipan [n], kalimat redup tanpa kutipan, kartu kutipan Arab (huruf dan harakat rapi, kanan-ke-kiri), status hadits "diekstrak AI", tombol "Laporkan jawaban keliru", dan tampilan di ponsel.
   3. Buka juga https://surau.org/transparansi dan https://surau.org/privasi (setelah PR digabung).
   4. Beri tahu agent: "T-25 setuju" atau catatan perbaikannya.
