@@ -456,9 +456,19 @@ function modelOf(reqs: readonly PlannedRequest[]): string {
 
 // ── Tanda terima pengiriman (#63) ─────────────────────────────────────────────────────────
 // POST batch (puluhan MB) bisa timeout/putus SETELAH server menerimanya. Karena itu catatan
-// "sedang mengirim" (request + perkiraan biaya) ditulis SEBELUM `batches.create`, dan dilepas begitu
-// batch tercatat di batches.json. Selama catatan itu ada, submit/retry menolak kirim (kirim ulang =
-// tagihan ganda) sampai `pnpm llm reconcile` mencocokkannya dengan daftar batch di server.
+// "sedang mengirim" (request + perkiraan biaya + PID pengirim) ditulis SEBELUM `batches.create`, dan
+// dilepas begitu batch tercatat di batches.json. Selama catatan itu ada, submit/retry menolak kirim
+// (kirim ulang = tagihan ganda) sampai `pnpm llm reconcile` mencocokkannya dengan daftar batch server.
+
+/** Batas tunggu satu POST batch (eksplisit; bawaan SDK juga 10 menit). */
+export const SUBMIT_TIMEOUT_MS = 10 * 60_000;
+/**
+ * Umur minimal catatan sebelum "tidak ada di server" dipercaya: lebih lama dari batas tunggu POST,
+ * supaya reconcile di terminal lain tidak melepas catatan pengiriman yang masih berjalan.
+ */
+export const RECONCILE_MIN_AGE_MS = SUBMIT_TIMEOUT_MS + 5 * 60_000;
+/** Batch di server boleh dianggap milik catatan bila dibuat dalam jendela ini sejak `started_at`. */
+const RECONCILE_WINDOW_MS = { before: 60_000, after: SUBMIT_TIMEOUT_MS + 5 * 60_000 };
 
 const submittingRecord = z.strictObject({
   name: z.string(),
@@ -468,7 +478,9 @@ const submittingRecord = z.strictObject({
   requests: z.number().int().positive(),
   est_usd: z.number().nonnegative(),
   started_at: z.string(),
-  /** Request yang dikirim, relatif ke folder llm (diganti nama jadi requests/<batch id>.jsonl). */
+  /** PID proses pengirim: selama hidup, reconcile tidak menyentuh catatan. */
+  pid: z.number().int().positive(),
+  /** Request yang dikirim, relatif ke folder llm. */
   file: z.string(),
 });
 export type SubmittingRecord = z.infer<typeof submittingRecord>;
@@ -481,6 +493,16 @@ export function readSubmitting(dir: string): SubmittingRecord | null {
   return submittingRecord.parse(JSON.parse(readFileSync(path, "utf8")));
 }
 
+/** Proses `pid` masih hidup (sinyal 0 hanya memeriksa; EPERM = hidup milik pengguna lain). */
+export function processAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === "EPERM";
+  }
+}
+
 /** Pesan galat bila ada pengiriman yang belum tercatat; submit/retry tidak boleh jalan. */
 export function unreconciledProblem(dir: string): string | null {
   const r = readSubmitting(dir);
@@ -491,25 +513,44 @@ export function unreconciledProblem(dir: string): string | null {
   );
 }
 
-/** Catat batch yang sudah ada di server: request → requests/<id>.jsonl, batches.json, lepas catatan. */
-function adopt(dir: string, r: SubmittingRecord, id: string, createdAt: string): BatchRecord {
-  renameSync(join(dir, r.file), join(dir, "requests", `${id}.jsonl`));
+/**
+ * Catat batch yang sudah ada di server lalu lepas catatan. Idempoten: aman diulang setelah proses
+ * mati di langkah mana pun (request sudah dipindah, batch sudah tercatat). `part` (dari memori
+ * pengirim) dipakai bila berkas catatan tidak ada lagi.
+ */
+function adopt(
+  dir: string,
+  r: SubmittingRecord,
+  id: string,
+  createdAt: string,
+  part?: readonly PlannedRequest[],
+): BatchRecord {
+  const target = join(dir, "requests", `${id}.jsonl`);
+  const source = join(dir, r.file);
+  if (!existsSync(target)) {
+    if (part !== undefined) writeJsonl(target, part);
+    else renameSync(source, target);
+  }
+  rmSync(source, { force: true });
   const batches = readBatches(dir);
-  const rec: BatchRecord = {
-    name: r.name,
-    id,
-    kind: r.kind,
-    model: r.model,
-    prompt_version: r.prompt_version,
-    requests: r.requests,
-    created_at: createdAt,
-    ended_at: null,
-    collected_at: null,
-    usage: null,
-    outcome: null,
-  };
-  writeBatches(dir, [...batches, rec]);
-  rmSync(submittingPath(dir));
+  let rec = batches.find((b) => b.id === id);
+  if (rec === undefined) {
+    rec = {
+      name: r.name,
+      id,
+      kind: r.kind,
+      model: r.model,
+      prompt_version: r.prompt_version,
+      requests: r.requests,
+      created_at: createdAt,
+      ended_at: null,
+      collected_at: null,
+      usage: null,
+      outcome: null,
+    };
+    writeBatches(dir, [...batches, rec]);
+  }
+  rmSync(submittingPath(dir), { force: true });
   return rec;
 }
 
@@ -539,79 +580,103 @@ export async function submit(
         requests: part.length,
         est_usd: part.reduce((a, r) => a + (r.est_usd ?? 0), 0),
         started_at: startedAt,
+        pid: process.pid,
         file: join("requests", `submitting-${startedAt.replace(/[:.]/g, "-")}.jsonl`),
       };
       writeJsonl(join(dir, receipt.file), part);
       writeText(submittingPath(dir), `${JSON.stringify(receipt, null, 2)}\n`);
       // Tanpa ulang otomatis: ulangan SDK atas POST yang sudah diterima membuat batch ganda yang ikut
       // ditagih. Bila gagal, catatan di atas tetap ada dan kiriman berikutnya ditolak sampai reconcile.
-      let b: Awaited<ReturnType<typeof client.messages.batches.create>>;
+      let rec: BatchRecord;
       try {
-        b = await client.messages.batches.create(
+        const b = await client.messages.batches.create(
           { requests: part.map((r) => ({ custom_id: r.custom_id, params: r.params })) },
-          { maxRetries: 0 },
+          { maxRetries: 0, timeout: SUBMIT_TIMEOUT_MS },
         );
+        rec = adopt(dir, receipt, b.id, b.created_at, part);
       } catch (error) {
         console.error(
-          `Pengiriman ${receipt.name} gagal atau tidak jelas hasilnya. Jalankan pnpm llm reconcile (gratis) sebelum mengirim lagi.`,
+          `Pengiriman ${receipt.name} gagal, tidak jelas hasilnya, atau belum tercatat. Jalankan pnpm llm reconcile (gratis) sebelum mengirim lagi.`,
         );
         throw error;
       }
-      const rec = adopt(dir, receipt, b.id, b.created_at);
       made.push(rec);
-      console.info(`  dikirim ${rec.name}: ${b.id} (${part.length} request)`);
+      console.info(`  dikirim ${rec.name}: ${rec.id} (${part.length} request)`);
     }
   }
   return made;
 }
 
-/** Batch di server boleh dianggap milik catatan bila dibuat dalam jendela ini sejak `started_at`. */
-const RECONCILE_WINDOW_MS = { before: 60_000, after: 30 * 60_000 };
-/** Server butuh sesaat sebelum batch baru muncul di daftar; "tidak ada" baru dipercaya sesudahnya. */
-const RECONCILE_MIN_AGE_MS = 2 * 60_000;
+export type ReconcileResult =
+  | { status: "none-open" }
+  | { status: "adopted"; record: BatchRecord }
+  | { status: "released" }
+  | { status: "busy"; pid: number }
+  | { status: "too-early" }
+  | { status: "ambiguous"; ids: string[] }
+  | { status: "rejected"; reason: string };
 
 /**
- * Cocokkan catatan "sedang mengirim" dengan daftar batch di server (gratis, terbaru dulu). Satu
- * kandidat (belum tercatat, jumlah request sama, dalam jendela waktu) → dicatat. Tidak ada → catatan
- * dilepas (aman kirim ulang). Lebih dari satu → periksa manual di Console.
+ * Cocokkan catatan "sedang mengirim" dengan daftar batch di server (gratis, terbaru dulu).
+ * Kandidat = belum tercatat, jumlah request sama, dibuat dalam jendela waktu, dan (bila sudah
+ * selesai) hasil pertamanya ber-custom_id milik catatan, supaya batch lain di workspace yang sama
+ * (mis. tools/eval) tidak ikut diadopsi. Satu kandidat → dicatat. Tidak ada → catatan dilepas
+ * (aman kirim ulang) hanya bila pengirimnya sudah mati dan catatan cukup tua. Lebih dari satu →
+ * pilih sendiri dengan `chosenId`.
  */
 export async function reconcile(
   client: Anthropic,
   dir: string,
-  now = Date.now(),
-): Promise<
-  | { status: "none-open" }
-  | { status: "adopted"; record: BatchRecord }
-  | { status: "released" }
-  | { status: "too-early" }
-  | { status: "ambiguous"; ids: string[] }
-> {
+  opts: { now?: number; alive?: (pid: number) => boolean; chosenId?: string } = {},
+): Promise<ReconcileResult> {
   const r = readSubmitting(dir);
   if (r === null) return { status: "none-open" };
+  if ((opts.alive ?? processAlive)(r.pid)) return { status: "busy", pid: r.pid };
   const start = Date.parse(r.started_at);
   const known = new Set(readBatches(dir).map((b) => b.id));
+  const ours = new Set(readJsonl(join(dir, r.file), plannedRequest).map((q) => q.custom_id));
   const candidates: { id: string; created_at: string }[] = [];
   for await (const b of client.messages.batches.list({ limit: 100 })) {
     const t = Date.parse(b.created_at);
     if (t < start - RECONCILE_WINDOW_MS.before) break;
+    if (opts.chosenId !== undefined && b.id !== opts.chosenId) continue;
     if (known.has(b.id) || t > start + RECONCILE_WINDOW_MS.after) continue;
     const c = b.request_counts;
     const total = c.processing + c.succeeded + c.errored + c.canceled + c.expired;
-    if (total === r.requests) candidates.push({ id: b.id, created_at: b.created_at });
+    if (total !== r.requests) continue;
+    if (b.processing_status === "ended" && ours.size > 0) {
+      let first: string | undefined;
+      for await (const res of await client.messages.batches.results(b.id)) {
+        first = res.custom_id;
+        break;
+      }
+      if (first !== undefined && !ours.has(first)) continue;
+    }
+    candidates.push({ id: b.id, created_at: b.created_at });
+  }
+  if (opts.chosenId !== undefined && candidates.length === 0) {
+    return {
+      status: "rejected",
+      reason: `${opts.chosenId} tidak cocok dengan catatan (sudah tercatat, jumlah request beda, di luar jendela waktu, atau hasilnya milik kiriman lain).`,
+    };
   }
   if (candidates.length > 1) return { status: "ambiguous", ids: candidates.map((c) => c.id) };
   const [found] = candidates;
   if (found !== undefined) {
     return { status: "adopted", record: adopt(dir, r, found.id, found.created_at) };
   }
-  if (now - start < RECONCILE_MIN_AGE_MS) return { status: "too-early" };
+  if ((opts.now ?? Date.now()) - start < RECONCILE_MIN_AGE_MS) return { status: "too-early" };
   rmSync(join(dir, r.file), { force: true });
-  rmSync(submittingPath(dir));
+  rmSync(submittingPath(dir), { force: true });
   return { status: "released" };
 }
 
-export async function runReconcile(ctx: LlmContext): Promise<number> {
-  const result = await reconcile(ctx.client(), llmDir(ctx.repo));
+export async function runReconcile(ctx: LlmContext, chosenId?: string): Promise<number> {
+  const result = await reconcile(
+    ctx.client(),
+    llmDir(ctx.repo),
+    chosenId === undefined ? {} : { chosenId },
+  );
   switch (result.status) {
     case "none-open":
       console.info("Tidak ada pengiriman yang menggantung.");
@@ -624,13 +689,23 @@ export async function runReconcile(ctx: LlmContext): Promise<number> {
     case "released":
       console.info("Tidak ada batch yang cocok di server: catatan dilepas, boleh kirim ulang.");
       return 0;
+    case "busy":
+      console.error(
+        `Proses pengirim (PID ${result.pid}) masih berjalan; tunggu selesai, lalu ulangi reconcile.`,
+      );
+      return 1;
     case "too-early":
-      console.error("Pengiriman baru saja dimulai; ulangi reconcile 2 menit lagi.");
+      console.error(
+        `Pengiriman dimulai kurang dari ${RECONCILE_MIN_AGE_MS / 60_000} menit lalu; batch bisa belum tampil di server. Ulangi nanti.`,
+      );
       return 1;
     case "ambiguous":
       console.error(
-        `Lebih dari satu batch cocok (${result.ids.join(", ")}). Periksa di Console Anthropic; jangan kirim ulang.`,
+        `Lebih dari satu batch cocok (${result.ids.join(", ")}). Periksa di Console Anthropic, lalu: pnpm llm reconcile --id <batch>. Jangan kirim ulang.`,
       );
+      return 1;
+    case "rejected":
+      console.error(result.reason);
       return 1;
   }
 }

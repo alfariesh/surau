@@ -13,8 +13,8 @@
 //                             bersama --budget, yang juga menghitung batch yang belum di-collect);
 //                             bertahap dengan --kind/--limit
 //   status                    status batch yang sudah dikirim
-//   reconcile                 cocokkan pengiriman yang terputus dengan daftar batch di server (gratis,
-//                             #63): dicatat bila ada, dilepas bila tidak ada
+//   reconcile [--id BATCH]    cocokkan pengiriman yang terputus dengan daftar batch di server (gratis,
+//                             #63): dicatat bila ada, dilepas bila tidak ada; --id bila ambigu
 //   wait                      tunggu semua batch terbuka selesai (poll tiap menit)
 //   collect                   unduh hasil batch yang selesai, lalu nilai ulang semua hasil mentah
 //   rejudge                   nilai ulang semua hasil mentah dengan aturan/sumber saat ini (gratis)
@@ -111,6 +111,7 @@ async function main(argv: string[]): Promise<number> {
       budget: { type: "string" },
       confirm: { type: "boolean", default: false },
       url: { type: "string" },
+      id: { type: "string" },
     },
   });
   const ctx = context(values.shamela);
@@ -145,7 +146,7 @@ async function main(argv: string[]): Promise<number> {
     case "status":
       return runStatus(ctx);
     case "reconcile":
-      return runReconcile(ctx);
+      return runReconcile(ctx, values.id);
     case "collect":
       return runCollect(ctx);
     case "rejudge":

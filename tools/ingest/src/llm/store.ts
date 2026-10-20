@@ -8,7 +8,14 @@
 //   summary-r1.jsonl           ringkasan putaran 1 yang lolos (masukan putaran 2)
 //   failures.jsonl             keluaran yang ditolak + alasannya (bahan ulangan)
 //   sample/                    uji kecil lewat API biasa (langkah 5)
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 
 import { z } from "zod";
@@ -47,8 +54,12 @@ export function appendJsonl(path: string, rows: readonly unknown[]): void {
   appendFileSync(ensureDir(path), rows.map((r) => `${JSON.stringify(r)}\n`).join(""));
 }
 
+/** Atomik (tulis ke berkas sementara lalu rename): proses yang mati di tengah tidak meninggalkan JSON
+ * terpotong di batches.json/submitting.json, yang dibaca semua perintah termasuk pemulihan (#63). */
 export function writeText(path: string, text: string): void {
-  writeFileSync(ensureDir(path), text);
+  const tmp = `${ensureDir(path)}.${process.pid}.tmp`;
+  writeFileSync(tmp, text);
+  renameSync(tmp, path);
 }
 
 const usage = z.strictObject({
