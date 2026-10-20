@@ -23,6 +23,18 @@ describe("buildFtsMatch", () => {
     expect(buildFtsMatch("في", { suffix: true })).toBe('{sbody sfoot} : ("في")');
   });
 
+  test("sisa dua huruf tidak bertabrakan dengan kata ganti; lam melebur ikut dicari (#61)", () => {
+    expect(buildFtsMatch("الهم")).toBe('{sbody sfoot} : ("الهم")');
+    expect(buildFtsMatch("بالهم")).toBe(buildFtsMatch("الهم"));
+    expect(buildFtsMatch("الليل")).toMatch(/ OR "يل"\)$/);
+    expect(buildFtsMatch("نصف الليل")).toMatch(/"نصف يل"/);
+    // Kata benda dua huruf tetap seperti dulu; kata fungsi tanpa artikel tidak diberi varian lam.
+    expect(buildFtsMatch("الحق")).toBe(buildFtsMatch("حق"));
+    expect(buildFtsMatch("لان")).not.toMatch(/"الان"/);
+    // Stem kanonis di awal frasa tidak diberi proklitik (bentuk itu tidak ada di indeks).
+    expect(buildFtsMatch("الهم والحزن")).toBe('{sbody sfoot} : ("الهم حزن")');
+  });
+
   test("frasa: token pertama dilindungi tidak diberi varian proklitik", () => {
     expect(buildFtsMatch("الله اكبر")).toBe('{sbody sfoot} : ("الله اكبر")');
   });

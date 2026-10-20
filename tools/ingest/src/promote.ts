@@ -16,8 +16,6 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 
-import { CORPUS_SCHEMA_VERSION } from "@surau/db";
-
 import {
   buildInfo,
   isProtected,
@@ -38,11 +36,14 @@ import {
   smoke,
   wrangler,
 } from "./d1.ts";
-
-interface RemoteDb {
-  uuid: string;
-  name: string;
-}
+import {
+  corpusName,
+  decidePromote,
+  VERSION_PATTERN,
+  loadSmokeFailures,
+  rollbackSchemaProblem,
+} from "./promote-plan.ts";
+import type { RemoteDb } from "./promote-plan.ts";
 
 function listDatabases(): RemoteDb[] {
   return JSON.parse(wrangler(["d1", "list", "--json"])) as RemoteDb[];
@@ -108,82 +109,76 @@ function main(argv: string[]): number {
     },
   });
   const version = positionals[0] ?? "";
-  if (!/^[a-z][a-z0-9]*-v\d+$/.test(version)) {
+  const args = {
+    version,
+    confirm: values.confirm,
+    switchOnly: values["switch-only"],
+    reload: values.reload,
+  };
+  if (!VERSION_PATTERN.test(version)) {
     console.error(
       "Pakai: pnpm run corpus:promote <versi> [--confirm | --switch-only] [--reload]   (versi mis. ihya-v1)",
     );
     return 2;
   }
-  const name = `surau-corpus-${version}`;
+  const name = corpusName(version);
   const guard = protectedCorpora();
   for (const note of guard.notes) console.warn(`Peringatan: ${note}`);
   const [active] = guard.production;
   console.info(
     `Produksi sekarang: ${active?.name ?? "?"} (${active?.id ?? "?"}); origin/main: ${guard.production[1]?.name ?? "?"}`,
   );
-  const existing = listDatabases().find((d) => d.name === name);
-  if (existing !== undefined && existing.uuid === stagingCorpus().id) {
-    console.error(`${name} adalah korpus staging: tidak pernah dijadikan produksi.`);
-    return 1;
-  }
+  const plan = decidePromote(args, {
+    existing: listDatabases().find((d) => d.name === name),
+    stagingId: stagingCorpus().id,
+    isProtected: (db) => isProtected(guard, db),
+  });
 
-  // Rollback (atau maju ke DB yang sudah dimuat): hanya baca remote + ubah wrangler.jsonc.
-  if (values["switch-only"]) {
-    if (existing === undefined) {
-      console.error(`${name} tidak ada di akun Cloudflare: tidak bisa dijadikan produksi.`);
+  switch (plan.kind) {
+    case "usage":
+      return 2;
+    case "refuse":
+      console.error(plan.message);
       return 1;
-    }
-    const target = remoteByName(name, existing.uuid);
-    try {
-      const s = smoke(target);
-      console.info(`${name}: ${formatCounts(s.counts)} · korpus ${s.meta.corpus_version ?? "?"}`);
-      // Rollback ke korpus berskema LEBIH LAMA diizinkan (keputusan S14, ADR-044): kode memeriksa
-      // meta.schema_version dan menyembunyikan fitur yang tabelnya belum ada (ARSITEKTUR-TEKNIS §7
-      // aturan 5), jadi pembaca tetap jalan; fitur yang hilang dicetak sebagai peringatan. Skema
-      // yang LEBIH BARU dari kode ditolak (kode tidak mengenal tabelnya).
-      const schema = Number(s.meta.schema_version ?? 0);
-      if (!(schema >= 1 && schema <= CORPUS_SCHEMA_VERSION)) {
-        s.problems.push(
-          `meta.schema_version ${s.meta.schema_version ?? "–"}, kode mendukung 1–${CORPUS_SCHEMA_VERSION}`,
+    case "switch": {
+      // Rollback (atau maju ke DB yang sudah dimuat): hanya baca remote + ubah wrangler.jsonc.
+      const target = remoteByName(plan.name, plan.db.uuid);
+      try {
+        const s = smoke(target);
+        console.info(
+          `${plan.name}: ${formatCounts(s.counts)} · korpus ${s.meta.corpus_version ?? "?"}`,
         );
+        const schema = rollbackSchemaProblem(s.meta.schema_version);
+        const problems = schema === null ? s.problems : [...s.problems, schema];
+        if (problems.length > 0) {
+          for (const p of problems) console.error(`Smoke GAGAL: ${p}`);
+          return 1;
+        }
+        for (const l of s.limitations) {
+          console.warn(`Peringatan: ${l}; fitur itu tersembunyi/503 selama versi ini aktif.`);
+        }
+      } finally {
+        target.dispose();
       }
-      if (s.problems.length > 0) {
-        for (const p of s.problems) console.error(`Smoke GAGAL: ${p}`);
-        return 1;
-      }
-      for (const l of s.limitations) {
-        console.warn(`Peringatan: ${l}; fitur itu tersembunyi/503 selama versi ini aktif.`);
-      }
-    } finally {
-      target.dispose();
+      const next = { name: plan.name, id: plan.db.uuid };
+      nextSteps(switchProduction(next), next);
+      return 0;
     }
-    const next = { name, id: existing.uuid };
-    nextSteps(switchProduction(next), next);
-    return 0;
+    case "preview":
+    case "load":
+      break;
   }
 
   const build = buildInfo(version);
   console.info(
     `Build ${version}: sha256 ${build.hash}\n  ${formatCounts(build.counts)}\n  built_at ${build.meta.built_at ?? "?"} · schema ${build.meta.schema_version ?? "?"} · norm ${build.meta.norm_version ?? "?"}`,
   );
-  if (existing !== undefined && isProtected(guard, { name, id: existing.uuid })) {
-    console.error(
-      `${name} sedang atau pernah melayani produksi (working tree, origin/main, atau data/SOURCES.md): tidak boleh dimuat ulang. Korpus baru = versi baru (mis. ${version.replace(/\d+$/, (n) => String(Number(n) + 1))}).`,
-    );
-    return 1;
-  }
-  if (existing !== undefined && !values.reload) {
-    console.error(
-      `${name} sudah ada (${existing.uuid}). Pakai --reload untuk memuat ulang (menimpa isinya), atau --switch-only untuk langsung memakainya.`,
-    );
-    return 1;
-  }
-  if (!values.confirm) {
+  if (plan.kind === "preview") {
     console.info(
       [
         "",
         "Rencana (belum ada yang diubah). Dengan --confirm, langkah remote berikut dijalankan:",
-        existing === undefined
+        plan.create
           ? `  1. wrangler d1 create ${name} --location apac`
           : `  1. (lewati) ${name} sudah ada; --reload memuat ulang isinya`,
         "  2. migrasi korpus (packages/db/migrations/corpus)",
@@ -195,7 +190,7 @@ function main(argv: string[]): number {
     return 0;
   }
 
-  if (existing === undefined) {
+  if (plan.create) {
     console.info(`1. Membuat ${name} (apac)…`);
     wrangler(["d1", "create", name, "--location", "apac", "--update-config=false"]);
   }
@@ -207,8 +202,7 @@ function main(argv: string[]): number {
     loadBuild(target, (line) => console.info(`   ${line}`));
     const s = smoke(target, build);
     console.info(`Smoke: ${formatCounts(s.counts)}`);
-    // Versi baru dibangun kode ini: batasan skema = kegagalan.
-    const failed = [...s.problems, ...s.limitations];
+    const failed = loadSmokeFailures(s);
     if (failed.length > 0) {
       for (const p of failed) console.error(`Smoke GAGAL: ${p}`);
       console.error("Binding produksi TIDAK diubah.");

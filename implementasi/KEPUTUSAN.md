@@ -1217,6 +1217,8 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Konsekuensi:** `read_page` tetap besar (median ±11,1 ribu, maks. ±14,8 ribu token; halaman = satuan sitasi, tidak dipotong), di atas peringatan 10 ribu Claude Code tetapi di bawah batas 25 ribu; deskripsi tool menyebut ukurannya. Semua pengguna claude.ai berbagi kuota per IP Anthropic. Beban baca terburuk pada batas global = 600 panggilan × ±1.000 baris ≈ 600 ribu baris D1/menit per lokasi Cloudflare (perkiraan, belum diukur di produksi). Batas WAF luar (T-19) di plan Free hanya bisa memfilter path, jadi berlaku untuk `/mcp` di seluruh zona `surau.org`; T-19 sebaiknya selesai sebelum MCP diumumkan (S17).
 
+**Pembaruan 2026-10-20 (#66):** daftar isi kini di-memo per isolate di `@surau/core` (`tocNodesOf`, dipakai `getToc` dan `readSection`, jadi juga web `/cari` dan pembaca). Kunci memo = `meta` korpus (`corpus_version`, `built_at`, `source_hash`) + edisi. Di produksi, korpus baru selalu berarti DB baru dan deploy baru. `built_at` adalah tanggal commit, jadi build dari commit yang sama di D1 lokal atau staging bisa berkunci sama. Untuk kasus itu, `getToc`/`readSection` membaca ulang tanpa memo bila node tidak ditemukan di pohon memo. Tanpa ketiga nilai itu, atau bila `meta` tidak terbaca, tidak ada memo; hasil kosong juga tidak di-memo. Biayanya satu baca `meta` (±6 baris) per panggilan, menggantikan ±1.000 baris. Yang disimpan adalah hasilnya, bukan Promise, karena I/O lintas permintaan dilarang di Workers. Maksimal 8 entri.
+
 **Tinjau ulang bila:** T-18 (uji dari claude.ai) menunjukkan batas per IP terlalu ketat atau `read_page` terlalu besar untuk konteks klien; `rows_read` D1 dari MCP naik tajam (pertimbangkan memoisasi daftar isi per isolate atau tabel turunan); kitab kedua dimuat (instruksi server menyebut Ihya sebagai satu-satunya korpus); SDK v2 mengubah `cacheHints`/era.
 
 ## ADR-050 · Panduan MCP dan pemantauan tanpa isi pertanyaan
@@ -1496,6 +1498,38 @@ Kedua jalur ini berada di luar zona `surau.org`, sehingga pagar tingkat zona (WA
 **Tambahan 2026-10-20 (#76):** web mengirim `Strict-Transport-Security: max-age=31536000` dari `next.config.ts`; sebelumnya tidak aktif di edge. Tanpa `includeSubDomains`, karena isi zona DNS belum diperiksa: satu subdomain yang hanya HTTP akan terkunci setahun. Tanpa `preload`, karena sulit ditarik. Header ini tidak ikut pada berkas `public/` (Static Assets), tetapi satu respons HTML sudah cukup bagi peramban.
 
 **Tinjau ulang bila:** Cloudflare memisahkan setelan Version URL dari Preview URL; atau web mendapat titik masuk Worker sendiri (pembungkus OpenNext) tempat penjaga host bisa dipasang.
+
+## ADR-063 · Stem Arab: artikel tidak dipotong bila sisanya kata fungsi dua huruf, varian lam melebur untuk kueri berartikel; NORM_VERSION 2, korpus `ihya-v7` — diterima · 2026-10-20
+
+**Konteks:** issue #61. `stemToken` membuang artikel selama sisanya minimal dua huruf. Karena normalisasi melipat أ/إ/آ → ا, kata berartikel bersisa dua huruf bertabrakan dengan kata fungsi: الهم → هم ("mereka"), الآن → ان (= أن/إن), dan الأم → ام ("atau"). Bentuk ل + kata berartikel yang huruf pertamanya ل ditulis dengan lam melebur (لِلِّسَان = "للسان") dan ter-stem menjadi سان, sehingga tidak cocok dengan kueri اللسان (stem لسان).
+
+**Keputusan:**
+1. **Indeks dan kueri:** bila sisa sesudah artikel adalah **kata fungsi dua huruf**, artikel tidak dibuang. Daftarnya ada di `FUNCTION_TWO`, antara lain هم, ان, ام, من, ما, في, له, dan عن. Bentuknya diseragamkan menjadi `ال` + sisa (بالهم/والهم/للهم → الهم). Sisa dua huruf lain (الحق → حق, الحج, الشك, الظن, الحب) tetap dipotong seperti `NORM_VERSION` 1. `NORM_VERSION` naik ke 2, dan korpus dibangun ulang sebagai `ihya-v7`.
+2. **Kueri saja:** token kueri **berartikel** yang stemnya berawalan ل mendapat varian `lamMergedVariant` (اللسان → سان, الليل → يل). Token tanpa artikel (لان, لهم, ليس) tidak diberi varian, supaya tidak membuka tabrakan الان/الهم/اليس dari arah kueri. Stem kanonis `ال` + kata fungsi tidak diberi varian proklitik, karena semua bentuk berklitiknya sudah sama di indeks.
+3. **Tidak diselesaikan:** tabrakan verba berhamzah dengan kata benda berartikel (ألحق/الحق, ألهم/الهم) dan bentuk VIII (التفت) butuh analisis morfologi. Diterima secara sadar.
+
+**Ukuran** (jumlah paragraf cocok; v6 = kode lama + build v6, v7 = kode baru + build v7):
+
+| Kueri | v6 | v7 | Keterangan |
+|---|---|---|---|
+| الهم | 365 | 70 | tidak lagi tercampur هم |
+| هم | 365 | 299 | tidak lagi tercampur الهم |
+| الآن | 8.335 | 230 | tidak lagi tercampur أن/إن |
+| الأم | 363 | 37 | tidak lagi tercampur أم |
+| الحق, حق | 882, 882 | 882, 882 | kata benda dua huruf tidak berubah |
+| الحج, الشك, الظن, الحب | 212, 155, 215, 425 | sama | |
+| إليه, لان, الليل | 1.536, 934, 356 | sama | |
+| اللسان | 305 | 309 | bentuk للسان kini ikut ditemukan |
+
+Eval retrieval resmi (31 soal, lokal) tidak berubah: hit@1 64,5%, hit@5 96,8%, hit@10 100%, MRR 0,795.
+
+**Urutan rilis:** kode `NORM_VERSION` 2 dengan korpus `norm_version` 1 membuat Cari Arab menjawab `unavailable`. Karena itu PR ini di-merge **bersama** perpindahan binding produksi ke `ihya-v7` (`corpus:promote ihya-v7 --confirm`, diizinkan pemilik 2026-10-20). `ihya-v6` tetap menjadi target rollback: revert kode lalu `--switch-only ihya-v6`. Staging (norm 1) dimuat ulang dari build v7 sesudah PR lain yang berbasis kode norm 1 sudah masuk, supaya Preview dan eval CI tetap jalan.
+
+**Ditolak:**
+- **Semua sisa dua huruf tidak dipotong** (rancangan pertama, ditolak peninjau). Cara ini memisahkan الحق dari حق dan menghilangkan recall kata benda inti Ihya.
+- **Sisa minimal tiga huruf tanpa penyeragaman.** Cara ini memisahkan الحج dari بالحج/والحج.
+
+**Tinjau ulang bila:** ada kata fungsi dua huruf lain yang bertabrakan (tambahkan ke `FUNCTION_TWO` = `NORM_VERSION` naik + reindex); atau analisis morfologi ringan tersedia untuk memisahkan verba berhamzah.
 
 ## ADR-064 · Pipeline Jawab (S19): AI Gateway BYOK lolos uji, routing + Citations per paragraf, verifikasi kutipan ke DB, Worker `surau-api` tanpa alamat publik — diterima · 2026-10-20
 

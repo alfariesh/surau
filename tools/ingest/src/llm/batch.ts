@@ -172,12 +172,38 @@ function r2Request(
   };
 }
 
+/** Versi prompt yang dipakai request SAAT INI untuk sebuah custom_id. */
+function currentPromptVersion(customId: string): string | null {
+  const parts = parseCustomId(customId);
+  if (parts === null) return null;
+  return parts.kind === "passage" ? TRANSLATE_PROMPT.id : SUMMARY_PROMPT.id;
+}
+
+/** Kegagalan dengan versi prompt saat ini (tanpa versi = berkas lama, dianggap saat ini). */
+function isCurrentPrompt(f: Failure): boolean {
+  return f.prompt_version === undefined || f.prompt_version === currentPromptVersion(f.custom_id);
+}
+
+/**
+ * Kunci `custom_id:source_sha256` yang tidak boleh masuk rencana karena ditangani `retry`:
+ * kegagalan versi prompt saat ini, dan SEMUA penolakan peninjau (punya jalur ulangan sendiri ke
+ * Sonnet; tanpa ini paragraf yang sama terkirim dua kali, lewat plan dan retry).
+ */
+function failedKeys(failures: readonly Failure[]): Set<string> {
+  return new Set(
+    failures
+      .filter((f) => f.reason === "review_rejected" || isCurrentPrompt(f))
+      .map((f) => `${f.custom_id}:${f.source_sha256}`),
+  );
+}
+
 /** Request yang masih perlu dikirim untuk satu putaran (yang sudah lolos dengan hash sama dilewati). */
 export function pendingRequests(work: Work, acc: Accepted, round: 1 | 2): PlannedRequest[] {
   const out: PlannedRequest[] = [];
-  // Yang pernah gagal untuk sumber yang SAMA diulang lewat `retry` (hitungan percobaan, refusal →
-  // Sonnet), bukan di sini. Kegagalan untuk sumber lama (hash beda) tidak dihitung.
-  const failed = new Set(acc.failures.map((f) => `${f.custom_id}:${f.source_sha256}`));
+  // Yang pernah gagal untuk sumber yang SAMA dengan versi prompt SAAT INI diulang lewat `retry`
+  // (hitungan percobaan, refusal → Sonnet), bukan di sini. Kegagalan untuk sumber lama (hash beda)
+  // atau versi prompt lama tidak dihitung: unitnya masuk rencana lagi dengan prompt baru (#70).
+  const failed = failedKeys(acc.failures);
   if (round === 1) {
     for (const u of work.units.values()) {
       if (acc.translations.get(u.passageId)?.source_sha256 === u.sourceSha256) continue;
@@ -816,7 +842,7 @@ export function submittable(
   busy: ReadonlySet<string>,
   planned: readonly PlannedRequest[],
 ): { ready: PlannedRequest[]; stale: number } {
-  const failed = new Set(acc.failures.map((f) => `${f.custom_id}:${f.source_sha256}`));
+  const failed = failedKeys(acc.failures);
   let stale = 0;
   const ready = planned.filter((r) => {
     const sha = currentSha(work, r.custom_id);
@@ -974,6 +1000,7 @@ function judge(
       output,
       at: batch.ended_at,
       source_sha256: planned.source_sha256,
+      prompt_version: planned.prompt_version,
       usage,
     },
   });
@@ -1075,6 +1102,7 @@ export function rebuild(
         output: null,
         at: endedAt,
         source_sha256: p?.source_sha256 ?? "",
+        ...(p === undefined ? {} : { prompt_version: p.prompt_version }),
         usage: null,
       };
       if (p === undefined) {
@@ -1264,6 +1292,31 @@ function currentSha(work: Work, customId: string): string | null {
 }
 
 /**
+ * custom_id yang belum lolos dan hanya pernah gagal dengan versi prompt LAMA (bukan penolakan
+ * peninjau): tidak ada di `unresolved`, tetapi juga belum lolos sampai `plan` + `submit` dijalankan
+ * dengan prompt saat ini (#70). Dipakai laporan supaya unit ini tidak hilang dari hitungan.
+ */
+export function awaitingReplan(work: Work, acc: Accepted): string[] {
+  const stuck = unresolved(work, acc);
+  const out = new Set<string>();
+  for (const f of acc.failures) {
+    if (stuck.has(f.custom_id) || f.reason === "review_rejected" || isCurrentPrompt(f)) continue;
+    const sha = currentSha(work, f.custom_id);
+    if (sha === null || f.source_sha256 !== sha) continue;
+    const parts = parseCustomId(f.custom_id);
+    if (parts === null) continue;
+    const done =
+      parts.kind === "passage"
+        ? acc.translations.get(parts.passageId)?.source_sha256 === sha
+        : parts.round === 1
+          ? acc.r1.get(f.custom_id)?.source_sha256 === sha
+          : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
+    if (!done) out.add(f.custom_id);
+  }
+  return [...out].sort();
+}
+
+/**
  * custom_id yang gagal untuk sumber saat ini dan belum lolos, dengan jumlah percobaan dan apakah
  * pernah ditolak model. Kegagalan untuk sumber lama (hash berbeda) tidak dihitung: unit itu
  * dijadwalkan ulang sebagai request baru oleh `plan`.
@@ -1300,6 +1353,8 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
       );
       continue;
     }
+    // Kegagalan dengan versi prompt lama tidak dihitung: unitnya masuk rencana lagi (#70).
+    if (!isCurrentPrompt(f)) continue;
     const prev = out.get(f.custom_id) ?? {
       attempts: 0,
       refusal: false,

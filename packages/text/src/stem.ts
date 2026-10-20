@@ -35,6 +35,42 @@ export function isProtectedToken(token: string): boolean {
 }
 
 const CONJ_BEFORE_ARTICLE = /^[وف](?:ال|لل|بال|كال)/;
+
+// Kata fungsi dua huruf (setelah normalisasi; أ/إ → ا) yang bertabrakan bila artikel dipotong dari
+// kata berartikel bersisa dua huruf: الهم (kegelisahan) → هم (mereka), الان (sekarang) → ان (أن/إن),
+// الام (ibu) → ام (atau), المن (manna) → من. Sisa dua huruf lain (حق, حج, شك, ظن) tetap dipotong
+// seperti NORM_VERSION 1, supaya الحق dan حق tetap saling ditemukan (#61).
+const FUNCTION_TWO: ReadonlySet<string> = new Set([
+  "هم",
+  "هن",
+  "هو",
+  "هي",
+  "ان",
+  "ام",
+  "او",
+  "اي",
+  "اذ",
+  "من",
+  "ما",
+  "مع",
+  "لا",
+  "لم",
+  "لن",
+  "لو",
+  "له",
+  "لي",
+  "في",
+  "به",
+  "بي",
+  "بل",
+  "عن",
+  "كم",
+  "كي",
+  "قد",
+  "ثم",
+  "ذا",
+  "يا",
+]);
 const ARTICLE_PREFIXES = ["بال", "كال", "لل", "ال"] as const;
 
 /** Bentuk dasar kata dilindungi yang diawali ب/ك/ل (بالذي → الذي, للذين → الذين). */
@@ -48,7 +84,12 @@ function protectedBase(t: string): string | undefined {
 
 /**
  * Stem satu token ternormalisasi: والصبر/بالصبر/للصبر/فالصبر → صبر; وصبر tetap وصبر.
- * Sisa minimal 2 huruf (الا = إلا tidak dipotong menjadi ا). Identik di sisi indeks dan kueri.
+ * Identik di sisi indeks dan kueri. Sisa sesudah artikel:
+ * - ≥ 3 huruf: artikel dibuang (صبر).
+ * - 2 huruf: artikel dibuang (الحق → حق, الحج → حج), KECUALI sisanya kata fungsi dua huruf
+ *   (`FUNCTION_TWO`: الهم ≠ هم "mereka", الان ≠ ان = أن/إن, الام ≠ ام). Bentuk itu diseragamkan ke
+ *   `ال` + sisa, supaya بالهم/والهم/للهم tetap sama dengan الهم (#61, NORM_VERSION 2).
+ * - 1 huruf (الا = إلا): tidak disentuh.
  */
 export function stemToken(token: string): string {
   const protectedForm = protectedBase(token);
@@ -60,9 +101,33 @@ export function stemToken(token: string): string {
     if (afterConj !== undefined) return afterConj;
   }
   for (const prefix of ARTICLE_PREFIXES) {
-    if (t.startsWith(prefix) && t.length - prefix.length >= 2) return t.slice(prefix.length);
+    if (!t.startsWith(prefix)) continue;
+    const rest = t.slice(prefix.length);
+    if (rest.length === 2 && FUNCTION_TWO.has(rest)) return `ال${rest}`;
+    if (rest.length >= 2) return rest;
   }
   return t;
+}
+
+/**
+ * Varian lam melebur untuk token kueri BERARTIKEL yang stemnya berawalan ل: لِلَّيْل (ل + الليل)
+ * ditulis "لليل" dan di indeks menjadi stem lain (يل) dari الليل (ليل). Varian = stem dari bentuk
+ * tulisan itu. Hanya untuk token yang memang kehilangan artikel saat di-stem: token tanpa artikel
+ * (لان, لهم, ليس) tidak diberi varian, supaya tidak membuka tabrakan الان/الهم/اليس (#61).
+ * `token` = token kueri ternormalisasi (sebelum stem); `null` bila tidak ada varian.
+ */
+export function lamMergedVariant(token: string): string | null {
+  const stem = stemToken(token);
+  if (stem === token || !stem.startsWith("ل") || stem.length < 3 || PROTECTED.has(stem)) {
+    return null;
+  }
+  const merged = stemToken(`لل${stem.slice(1)}`);
+  return merged === stem ? null : merged;
+}
+
+/** Stem kanonis `ال` + kata fungsi dua huruf: semua bentuk berklitiknya sudah sama di indeks. */
+export function isCanonicalArticleStem(stem: string): boolean {
+  return stem.length === 4 && stem.startsWith("ال") && FUNCTION_TWO.has(stem.slice(2));
 }
 
 /** Stem setiap token teks ternormalisasi (dipisah spasi). Dipakai untuk kolom sbody/sfoot. */
@@ -83,7 +148,7 @@ const QUERY_PROCLITICS = ["", "و", "ف", "ب", "ك", "ل", "وب", "فب", "و�
  * menambahkannya. Stem < 3 huruf dan kata dilindungi tidak diekspansi (terlalu banyak hit acak).
  */
 export function expandQueryToken(stem: string): string[] {
-  if (PROTECTED.has(stem) || stem.length < 3) return [stem];
+  if (PROTECTED.has(stem) || stem.length < 3 || isCanonicalArticleStem(stem)) return [stem];
   return QUERY_PROCLITICS.map((p) => p + stem);
 }
 

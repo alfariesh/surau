@@ -6,7 +6,7 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 
 | Perintah | Isi |
 |---|---|
-| `pnpm ingest ihya` | Bangun korpus Ihya (±10 detik, termasuk indeks pencarian S11, ayat S12, terjemahan/ringkasan AI S13, dan indeks Indonesia S14): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v6.sqlite`, `data/build/ihya-v6.sha256` (build versi lain di `data/build` dihapus; `data/build/llm/` TIDAK disentuh), peta ID `data/ids/ihya-9472.json`, sidik teks paragraf `data/ids/ihya-9472.teks.json` (ADR-059), dan laporan `data/reports/ihya-9472-{validasi,openiti,ayat}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar, termasuk bila hasil batch LLM di `data/build/llm/` hilang atau cakupannya < 99%. Opsi `--quran <dir>` (bawaan `data/raw`) |
+| `pnpm ingest ihya` | Bangun korpus Ihya (±10 detik, termasuk indeks pencarian S11, ayat S12, terjemahan/ringkasan AI S13, dan indeks Indonesia S14): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v7.sqlite`, `data/build/ihya-v7.sha256` (build versi lain di `data/build` dihapus; `data/build/llm/` TIDAK disentuh), peta ID `data/ids/ihya-9472.json`, sidik teks paragraf `data/ids/ihya-9472.teks.json` (ADR-059), dan laporan `data/reports/ihya-9472-{validasi,openiti,ayat}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar, termasuk bila hasil batch LLM di `data/build/llm/` hilang atau cakupannya < 99%. Opsi `--quran <dir>` (bawaan `data/raw`) |
 | `pnpm llm <perintah>` | Batch terjemahan dan ringkasan AI (S13). Lihat [Terjemahan dan ringkasan AI](#terjemahan-dan-ringkasan-ai-s13) |
 | `pnpm ingest:verify` | Hanya gerbang QA OpenITI (matan ≥0,95 per halaman di ≥1.705 halaman; takhrij vs JK000001) → laporan `…-openiti.md` |
 | `pnpm corpus:load:local` | Migrasi korpus + muat semua file SQL ke D1 lokal (`.wrangler/state`), lalu smoke query (jumlah baris termasuk indeks FTS, j1 h200, satu kueri الصبر) |
@@ -78,7 +78,7 @@ Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah s
 | Terjemahan/ringkasan AI: unit kerja, batch, validasi, laporan, pemuatan ke `translation`/`summary` | `src/llm/*.ts` (S13) |
 | SQL D1 (≤90 KB/statement, tanpa BEGIN/COMMIT), `.sqlite` dari migrasi yang sama | `src/sql.ts`, `src/build-sqlite.ts` |
 | Orkestrasi, CLI, muat ke D1 | `src/pipeline.ts`, `src/cli.ts`, `src/load.ts` |
-| D1 remote: pembungkus wrangler, smoke, build, binding produksi, promote, QA sampel | `src/d1.ts`, `src/corpus.ts`, `src/promote.ts`, `src/qa-sample.ts`, `src/qa.ts` |
+| D1 remote: pembungkus wrangler, smoke, build, binding produksi, promote, QA sampel | `src/d1.ts`, `src/corpus.ts`, `src/promote.ts` (keputusan murni yang teruji: `src/promote-plan.ts`), `src/qa-sample.ts`, `src/qa.ts` |
 | Konfigurasi per kitab (ID, slug, harapan validasi, pin OpenITI) | `src/works/ihya.ts` |
 
 Build deterministik: dua build pada commit yang sama menghasilkan sha256 yang sama (`built_at` = `SOURCE_DATE_EPOCH` atau tanggal commit HEAD).

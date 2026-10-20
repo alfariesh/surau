@@ -35,7 +35,7 @@
     "SEARCH_TIMING_DETAIL": "0",
     // Versi korpus di kunci cache /api/search (S14, ADR-044): SELALU = database_name CORPUS_DB di
     // bawah. Diganti `corpus:promote` bersama binding (dijaga tes tools/ingest/src/corpus.test.ts).
-    "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v6",
+    "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v7",
     // Origin sitemap.xml: produksi selalu alamat kanonis, juga bila diminta lewat Version URL (#64).
     "SITEMAP_ORIGIN": "https://surau.org",
     // POST /api/jawab (S19): MATI di produksi sampai guard biaya S20 (Turnstile, kuota, ledger) ada.
@@ -70,8 +70,8 @@
   "d1_databases": [
     {
       "binding": "CORPUS_DB",
-      "database_name": "surau-corpus-ihya-v6",
-      "database_id": "537103c6-378e-4880-80d6-53b3504948e8",
+      "database_name": "surau-corpus-ihya-v7",
+      "database_id": "91d6fdba-106b-43a7-9565-ee8e850c5046",
       "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
     },
     {

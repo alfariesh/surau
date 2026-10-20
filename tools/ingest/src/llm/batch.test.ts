@@ -9,7 +9,10 @@ import { join } from "node:path";
 
 import type Anthropic from "@anthropic-ai/sdk";
 
+import { TRANSLATE_PROMPT } from "@surau/llm";
+
 import {
+  awaitingReplan,
   budgetProblem,
   pendingRequests,
   pendingUsd,
@@ -214,6 +217,48 @@ describe("ulangan", () => {
       ["passage-10000001", { attempts: 2, refusal: true, sonnet: 0, summary: false }],
       ["toc-100002-id", { attempts: 1, refusal: false, sonnet: 0, summary: true }],
     ]);
+  });
+
+  test("versi prompt baru = jatah percobaan baru; penolakan peninjau tidak ikut masuk rencana (#70)", () => {
+    const old = (customId: string, reason: string): Failure => ({
+      ...fail(customId, reason),
+      prompt_version: "translate-passage@1",
+    });
+    const acc = accepted({
+      failures: [
+        // Tiga kali gagal dengan prompt LAMA: tidak dihitung, unitnya masuk rencana lagi.
+        old("passage-10000001", "invalid:placeholders"),
+        old("passage-10000001", "invalid:meta"),
+        old("passage-10000001", "invalid:length_ratio"),
+        // Ditolak peninjau di versi lama: jalur retry sendiri, bukan rencana.
+        { ...old("passage-10000002", "review_rejected") },
+      ],
+    });
+    const todo = unresolved(work, acc);
+    expect(todo.has("passage-10000001")).toBe(false);
+    expect(todo.get("passage-10000002")).toMatchObject({ reviewed: true });
+    const plan = pendingRequests(work, acc, 1).map((r) => r.custom_id);
+    expect(plan).toContain("passage-10000001");
+    expect(plan).not.toContain("passage-10000002");
+    expect(
+      submittable(work, acc, new Set(), pendingRequests(work, acc, 1)).ready.map(
+        (r) => r.custom_id,
+      ),
+    ).toContain("passage-10000001");
+    // Unit yang hanya gagal di prompt lama tidak hilang dari laporan: menunggu rencana ulang.
+    expect(awaitingReplan(work, acc)).toEqual(["passage-10000001"]);
+    // Kegagalan dengan versi prompt SAAT INI tetap dihitung dan tetap di luar rencana, baik tanpa
+    // prompt_version (berkas lama) maupun dengan versi saat ini yang eksplisit.
+    const explicit = accepted({
+      failures: [
+        { ...fail("passage-10000001", "invalid:meta"), prompt_version: TRANSLATE_PROMPT.id },
+      ],
+    });
+    expect(unresolved(work, explicit).get("passage-10000001")?.attempts).toBe(1);
+    expect(awaitingReplan(work, explicit)).toEqual([]);
+    const now = accepted({ failures: [fail("passage-10000001", "invalid:meta")] });
+    expect(unresolved(work, now).get("passage-10000001")?.attempts).toBe(1);
+    expect(pendingRequests(work, now, 1).map((r) => r.custom_id)).not.toContain("passage-10000001");
   });
 });
 

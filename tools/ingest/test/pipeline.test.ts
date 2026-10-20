@@ -5,7 +5,7 @@ import { basename, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
 import { CORPUS_SCHEMA_VERSION } from "@surau/db";
-import { buildFtsMatch, normalizeArabic, stemText } from "@surau/text";
+import { NORM_VERSION, buildFtsMatch, normalizeArabic, stemText } from "@surau/text";
 import { describe, expect, test } from "vite-plus/test";
 
 import { buildTimestamp, runIngest } from "../src/pipeline.ts";
@@ -58,7 +58,7 @@ describe("runIngest (kitab buatan)", () => {
       { key: "built_at", value: "2025-10-09T08:53:20.000Z" },
       { key: "corpus_version", value: "uji-v1" },
       { key: "latin_norm_version", value: "1" },
-      { key: "norm_version", value: "1" },
+      { key: "norm_version", value: String(NORM_VERSION) },
       { key: "schema_version", value: String(CORPUS_SCHEMA_VERSION) },
       { key: "source_hash", value: expect.stringMatching(/^sha256:[0-9a-f]{64}$/) },
     ]);

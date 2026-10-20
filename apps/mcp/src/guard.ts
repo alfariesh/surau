@@ -1,8 +1,8 @@
 // Batas pemakaian per tool (S16 langkah 6, ADR-011, ADR-014): Rate Limiting binding dengan kunci
 // `HMAC(jaringan IP):tool`, bukan IP mentah, lalu batas global (kunci tetap) yang terpisah untuk
 // search_text dan untuk tool baca lain: D1 korpus dipakai bersama web, dan daftar isi + read_section
-// membaca seluruh pohon daftar isi (±1.000 baris) di setiap panggilan. Batas habis = hasil tool
-// `isError` (model melihat pesannya), bukan HTTP 429.
+// membaca seluruh pohon daftar isi (±1.000 baris; kini di-memo per isolate dan versi korpus, #66).
+// Batas habis = hasil tool `isError` (model melihat pesannya), bukan HTTP 429.
 import { ipKey, ipNetwork } from "@surau/core";
 
 export interface Limiter {

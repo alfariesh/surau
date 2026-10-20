@@ -5,7 +5,7 @@
 
 - Sumber: Shamela `book/472/9472.db`, sha256 `36e66c5498b74e6d4fd7542108a29327361cf45534794d1c5a878e7bc2b7d586`
 - Patch daftar isi: `data/patches/ihya-9472.yaml` · peta ID: `data/ids/ihya-9472.json`
-- Korpus: `ihya-v6` · NORM_VERSION 1
+- Korpus: `ihya-v7` · NORM_VERSION 2
 
 ## Invarian (ingest gagal bila ada yang ✗)
 
