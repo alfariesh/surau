@@ -68,6 +68,8 @@ Cadangan sudah diunggah ke R2 privat `surau-evals/jawab/2026-10-19-draf-v1.jsonl
 
 Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke Anthropic atas izin pemilik (pagu US$1); tidak mengirim 18 holdout. Sejak #69 hal ini dijaga kode: `judge-plan` (yang sudah memanggil `countTokens`, artinya isi soal sudah terkirim ke Anthropic) dan `judge-submit` menolak arsip yang memuat jawaban privat, kecuali dengan `--termasuk-privat`. Opsi itu hanya dipakai dengan izin pemilik, dan salinan barunya wajib dicatat di bagian ini. Untuk judge, buat arsip dengan `baseline --publik-saja`. Plan dan hasil yang memuat sumber disimpan privat. Salinan server Anthropic mengikuti kebijakan retensi API vendor, terpisah dari app. Retensi app 12 bulan, expiry baca aktif, penghapusan fisik manual sampai S20. Inventaris ini wajib diperbarui bila dibuat salinan lain.
 
+**S19 (2026-10-20, izin pemilik di chat: biaya ≤ US$3 termasuk holdout sekali):** `eval:jawab answer` menjalankan pipeline Jawab (sama dengan Worker `surau-api`) dan mengirim **teks pertanyaan** + paragraf Ihya kandidat ke Anthropic (klien langsung, `.env`). Soal publik v1–v5 dipakai untuk iterasi prompt. **18 holdout dikirim sekali** (`s19-holdout-v4`, prompt `answer@4`) dan hanya dibaca agregatnya; holdout tidak dikirim ke judge. Judge `s19-publik-v4-judge` hanya memuat 42 soal publik. Arsip per soal (`evals/private/jawab-runs/s19-*`, termasuk `*-diagnostik-publik.jsonl` tanpa soal privat) tetap lokal privat dan belum disalin ke R2. Laporan agregat: `evals/reports/jawab-s19-*.md`.
+
 Pemulihan holdout memakai:
 
 ```bash

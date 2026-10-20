@@ -132,10 +132,12 @@ export function docContext(
   return lines.join("\n");
 }
 
-/** Label pendek lokasi untuk judul dokumen dan rujukan antar dokumen, mis. "j. 1, h. 55 ¶629". */
+/**
+ * Label lokasi untuk judul dokumen dan rujukan antar dokumen, mis. "Ihya j. 1, h. 55". Tanpa
+ * nomor paragraf: model menyalinnya ke jawaban (eval S19), padahal pembaca merujuk halaman cetak.
+ */
 export function docLabel(p: AnswerPassage): string {
-  const seq = p.location.permalink.split("#p")[1] ?? String(p.id);
-  return `Ihya j. ${p.location.juz}, h. ${p.location.page_no}, ¶${seq}${p.kind === "foot" ? " (catatan kaki)" : ""}`;
+  return `Ihya j. ${p.location.juz}, h. ${p.location.page_no}${p.kind === "foot" ? " (catatan kaki)" : ""}`;
 }
 
 export function buildDoc(passage: AnswerPassage, context: string): AnswerDoc {

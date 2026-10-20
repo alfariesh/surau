@@ -99,14 +99,14 @@ describe("dokumen dan request", () => {
       },
     });
     const foot = passage(10000002, "(١) حاشية", { kind: "foot", referenced_by: [10000001] });
-    const labels = new Map([[10000001, "j. 1, h. 55 ¶1"]]);
+    const labels = new Map([[10000001, "Ihya j. 1, h. 55"]]);
     const ctx = docContext(body, toc, labels);
     expect(ctx).toContain("matan Ihya");
     expect(ctx).toContain("ربع تجريبي › كتاب تجريبي");
     expect(ctx).toContain("QS 2:153");
     expect(ctx).toContain("Terjemahan AI");
     expect(docContext(foot, toc, labels)).toContain(
-      "takhrij hadits oleh al-'Iraqi untuk hadits di paragraf j. 1, h. 55 ¶1",
+      "takhrij hadits oleh al-'Iraqi untuk hadits di paragraf Ihya j. 1, h. 55",
     );
   });
 

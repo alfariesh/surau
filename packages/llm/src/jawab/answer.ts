@@ -1,16 +1,16 @@
-// Request jawaban Jawab (S19): prompt `answer@4` (di-cache 1 jam), dokumen custom content
+// Request jawaban Jawab (S19): prompt `answer@5` (di-cache 1 jam), dokumen custom content
 // bercitations, lalu pertanyaan. Aturan ADR-013: effort `low` eksplisit, thinking adaptif bawaan,
 // tanpa parameter sampling, tanpa prefill, tanpa `output_config.format` (tidak bisa bersama
 // Citations).
 import type { MessageCreateParamsBase } from "@anthropic-ai/sdk/resources/messages";
 
-import { ANSWER_V4 } from "../../prompts/answer-v4.ts";
+import { ANSWER_V5 } from "../../prompts/answer-v5.ts";
 import { MODELS } from "../client.ts";
 import type { ModelId } from "../client.ts";
 import { estimateTextTokens, toDocumentBlock } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
 
-export const ANSWER_PROMPT = ANSWER_V4;
+export const ANSWER_PROMPT = ANSWER_V5;
 /** Ruang thinking (effort low) + jawaban beberapa paragraf. */
 export const ANSWER_MAX_TOKENS = 8000;
 /** Batas keras prompt Jawab (ADR-013; harga Haiku naik 5× di atas 100k). */
