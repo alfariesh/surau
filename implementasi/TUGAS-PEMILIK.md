@@ -195,6 +195,13 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   3. Setujui setidaknya **50 dari 60 draf soal** setelah memeriksa pertanyaan dan kunci; tandai yang perlu diperbaiki. Nilai sekitar **30 Contoh evaluasi** (Benar/Kurang/Salah, bahasa 1–5, kesetiaan, atribusi, alasan) untuk kalibrasi judge.
   4. Beri tahu agent setelah selesai agar ekspor privat, golden set, kesepakatan dan status S18 diperbarui. **Saat ini: 0 persetujuan dan 0 penilaian manusia.** Contoh agent dan QA tidak dihitung.
 
+- [ ] **T-25 · Lihat dan setujui tampilan Tanya (S21)** · syarat "pemilik menyetujui tampilan" sebelum `/rilis 4`
+  1. Buka tautan Preview PR #100 (komentar bot di https://github.com/alfariesh/surau/pull/100), lalu tambahkan `/tanya` di ujung alamatnya. Di Preview, Tanya memakai data staging dan biasanya **mati**; minta agent menyalakannya sebentar bila ingin mencoba bertanya (biaya ±US$0,003 per pertanyaan).
+  2. Periksa: label "asisten riset, bukan pemberi fatwa", jawaban dengan nomor kutipan [n], kalimat redup tanpa kutipan, kartu kutipan Arab (huruf dan harakat rapi, kanan-ke-kiri), status hadits "diekstrak AI", tombol "Laporkan jawaban keliru", dan tampilan di ponsel.
+  3. Buka juga https://surau.org/transparansi dan https://surau.org/privasi (setelah PR digabung).
+  4. Beri tahu agent: "T-25 setuju" atau catatan perbaikannya.
+  - Bersama T-24 (Anas): review prompt sistem, kebijakan penolakan, dan ≥20 sampel jawaban nyata di `/tinjau` (agent bisa memuat 42 jawaban eval S21 ke `/tinjau` atas aba-aba Anda).
+
 - [ ] **T-20 · (Opsional) Laporan biaya harian otomatis** (S20)
   Buat *Admin API key* di platform.claude.com (khusus Organization), lalu simpan sendiri dengan `pnpm wrangler secret put ANTHROPIC_ADMIN_KEY --name surau-api`. Isinya dipakai untuk mencocokkan biaya harian dan mengirim email peringatan saat pemakaian lewat 80%.
 

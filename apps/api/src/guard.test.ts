@@ -219,7 +219,13 @@ describe("cookie anon dan Turnstile", () => {
     const bad = [
       "v1.bukan-id.1.x",
       await cookieFor(id, now - 1),
-      (await cookieFor(id)).replace(/.$/u, (ch) => (ch === "A" ? "B" : "A")),
+      // Karakter di tengah tanda tangan diganti (selalu mengubah byte), dan karakter terakhir
+      // diganti ejaan non-kanonis (bit pengisi saja) yang tetap ditolak.
+      (await cookieFor(id)).replace(
+        /(.{10})(.)(.{20})$/u,
+        (_m, a: string, ch: string, b: string) => `${a}${ch === "A" ? "B" : "A"}${b}`,
+      ),
+      (await cookieFor(id)).replace(/.$/u, (ch) => String.fromCharCode(ch.charCodeAt(0) ^ 1)),
       await signAnon("secret-lain-0123456789abcdef0123456789", id, now + 3600),
       await cookieFor(id, now + ANON_TTL_SECONDS * 5),
     ];
