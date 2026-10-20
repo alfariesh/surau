@@ -216,12 +216,13 @@ body::after {
 
 /*
  * Tinta di kertas. (1) Tinta meresap: bayangan 0,6 px sewarna huruf (sepertiga kekuatan), tepi
- * huruf sedikit lembut seperti tinta terserap serat; berlaku untuk semua teks termasuk Arab.
+ * huruf sedikit lembut seperti tinta terserap serat; hanya judul Latin (ADR-058). Teks isi, judul
+ * bab Arab (.reader-heading), catatan kaki, dan teks kecil tetap tajam: harakat tidak dilunakkan.
  * (2) Tinta tidak rata: hanya judul Latin besar (h1, h2 selain judul bab Arab). Isi huruf diisi
  * warna teks + noise halus (background-clip: text): terang = bintik memudar (screen), gelap =
  * bintik menggelap (multiply). Teks Arab di dalam judul tetap tinta penuh supaya harakat tajam.
  */
-body {
+:is(h1, h2, h3, h4, h5, h6):not(.reader-heading) {
   text-shadow: 0 0 0.6px color-mix(in oklab, currentColor 32%, transparent);
 }
 
