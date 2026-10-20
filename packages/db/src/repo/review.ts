@@ -4,6 +4,13 @@ import { answerLogRow, reviewInput, reviewRow } from "../schema/review.ts";
 import type { AnswerLogRow, ReviewInput, ReviewRow } from "../schema/review.ts";
 import { allRows, firstRow } from "./rows.ts";
 
+// Daftar kolom eksplisit, bukan SELECT *: skema Zod-nya strictObject, jadi kolom baru dari migrasi app
+// tidak boleh langsung membuat parse gagal (500) sebelum skemanya ikut diubah (#77).
+const ANSWER_LOG_COLS =
+  "id, run_id, question_id, question_hash, answer_hash, corpus_version, prompt_version, model, private, question_json, answer_json, created_at, expires_at";
+const REVIEW_COLS =
+  "answer_id, reviewer_key, reviewer_name, question_verdict, verdict, language_score, faithfulness, attribution, reason, updated_at";
+
 /** Hanya pemuat eval terkurasi (CLI), tidak pernah endpoint tulis publik. Tidak ada upsert. */
 export async function insertAnswerLog(db: D1Db, row: AnswerLogRow): Promise<void> {
   const r = answerLogRow.parse(row);
@@ -34,7 +41,7 @@ export async function listAnswerLogs(db: D1Db, now: string, offset = 0): Promise
   z.number().int().min(0).max(100000).parse(offset);
   return allRows(
     db
-      .prepare(`SELECT * FROM answer_log WHERE expires_at > ?
+      .prepare(`SELECT ${ANSWER_LOG_COLS} FROM answer_log WHERE expires_at > ?
     ORDER BY created_at DESC, id LIMIT 50 OFFSET ?`)
       .bind(now, offset),
     answerLogRow,
@@ -46,13 +53,17 @@ export async function getAnswerLog(
   now: string,
 ): Promise<AnswerLogRow | null> {
   return firstRow(
-    db.prepare("SELECT * FROM answer_log WHERE id = ? AND expires_at > ?").bind(id, now),
+    db
+      .prepare(`SELECT ${ANSWER_LOG_COLS} FROM answer_log WHERE id = ? AND expires_at > ?`)
+      .bind(id, now),
     answerLogRow,
   );
 }
 export async function getReviews(db: D1Db, id: string): Promise<ReviewRow[]> {
   return allRows(
-    db.prepare("SELECT * FROM review WHERE answer_id = ? ORDER BY updated_at DESC").bind(id),
+    db
+      .prepare(`SELECT ${REVIEW_COLS} FROM review WHERE answer_id = ? ORDER BY updated_at DESC`)
+      .bind(id),
     reviewRow,
   );
 }
