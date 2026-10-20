@@ -37,12 +37,12 @@ surau/
 ├─ apps/
 │  ├─ web/            @surau/web   Next.js 16 + HeroUI (dipindah dari web/ di S01)
 │  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 7 tool di atas packages/core
-│  └─ api/            @surau/api   Worker Hono: Jawab, kuota, cron (Fase 4)
+│  └─ api/            @surau/api   Worker Hono `surau-api` (S19): Jawab SSE, cache; kuota/ledger/cron (S20)
 ├─ packages/
 │  ├─ text/           @surau/text  normalisasi Arab, offset map, stem, pembersih HTML Shamela, findQuote
 │  ├─ db/             @surau/db    migrasi SQL (corpus + app), skema Zod baris, repository bertipe (tanpa ORM, ADR-009)
 │  ├─ core/           @surau/core  core tools + skema Zod + pembangun sitasi
-│  └─ llm/            @surau/llm   (Fase 2+) klien Anthropic, prompt berversi, verifikasi sitasi
+│  └─ llm/            @surau/llm   klien Anthropic (langsung + AI Gateway BYOK), prompt berversi, batch S13, pipeline Jawab S19 (src/jawab)
 ├─ tools/
 │  ├─ ingest/         CLI Node: Shamela → validasi → patch → SQL/dump (node:sqlite, type stripping)
 │  └─ eval/           (Fase 2+) runner eval retrieval & jawaban
@@ -86,7 +86,7 @@ Skema v1 ada di `packages/db/migrations/corpus/0001_init.sql` (S06, ADR-029), di
 
 **Aturan:** apa pun yang dihasilkan **review manusia** (review ustadz, koreksi, status wiki `reviewed`/`ustadz_verified`) disimpan di DB app atau DB terpisah yang **tidak** ikut blue-green korpus, supaya tidak hilang saat korpus dibangun ulang ([docs/05](../docs/05-kebijakan.md) §6). Korpus hanya merujuknya lewat ID stabil.
 
-Sudah ada (S06, `packages/db/migrations/app/0001_init.sql`): `settings` (`jawab_enabled` = `0`) dan `feedback` (laporan kesalahan dari UI, tanpa PII: `path` tanpa query string, pesan 1–2.000 karakter). DB: `surau-app` (produksi) dan `surau-app-staging` (Preview). Menyusul: `quota_daily`, `llm_budget`, `llm_ledger`, `answer_cache` (kunci = pertanyaan ternormalisasi + versi korpus), `answer_log` dan `review` (eval dan tinjau ustadz, ADR-015), dan nanti tabel Better Auth. **Tanpa** tabel virtual.
+Sudah ada (S06, `packages/db/migrations/app/0001_init.sql`): `settings` (`jawab_enabled` = `0`) dan `feedback` (laporan kesalahan dari UI, tanpa PII: `path` tanpa query string, pesan 1–2.000 karakter). DB: `surau-app` (produksi) dan `surau-app-staging` (Preview). S18: `answer_log` dan `review` (eval dan tinjau ustadz, ADR-015, ADR-052). S19: `answer_cache` (kunci = SHA-256 versi korpus + versi prompt + pertanyaan dirapikan, tanpa teks pertanyaan, 30 hari, ADR-064). Menyusul: `quota_daily`, `llm_budget`, `llm_ledger` (S20), dan nanti tabel Better Auth. **Tanpa** tabel virtual.
 
 ### 3.3 Permalink publik (final, ADR-029)
 
@@ -119,14 +119,17 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 
 **Cari (Fase 2):** halaman `/cari` (klien) → `GET /api/search?q=&edition=&section=&limit=&offset=&expand=1` → cache hasil (Cache API, kunci = versi korpus `SEARCH_CACHE_CORPUS` + rencana kueri ternormalisasi; produksi saja) → batas `SEARCH_LIMITER` per klien → `searchText`. Aksara kueri dideteksi: Arab saja → jalur S11 (bm25 `passage_fts`, pengaman kata umum, satu batch); Latin/campuran → `searchCorpusFused` (S14, ADR-044): jalur Arab + `translation_fts` + `summary_fts` (ringkasan dipetakan ke paragraf awal bagiannya) digabung RRF k=60 dalam satu batch. Hasil: potongan mentah yang disorot + terjemahan/ringkasan AI berlabel + lokasi; tautan ke pembaca membawa `?q=` (sorotan klien lewat CSS Highlight API). Korpus tanpa indeks yang dibutuhkan → 503 (Arab: skema < 4; Indonesia: skema < 6). Palet ⌘K di shell membuka `/cari`.
 
-**Jawab (Fase 4):**
-1. Guard: sakelar, cookie Turnstile, burst, kuota, dan reservasi anggaran.
-2. Haiku memilih bagian dari daftar isi yang di-cache, ditambah kandidat BM25.
-3. Haiku menjawab dengan Citations. Dokumen *custom content* berisi satu blok per paragraf beserta ID-nya.
-4. Kode memetakan indeks blok ke `passage_id`, lalu menjalankan `verifyQuote`.
-5. UI menampilkan teks dari DB. Biaya dikomit ke ledger.
-6. Bila terjadi refusal, ulangi dengan Sonnet 5.5 atau turun ke Cari. Bila anggaran habis, turun ke Cari.
-7. Bila **tidak satu pun** sitasi lolos verifikasi, jawaban **tidak** ditampilkan. Sebagai gantinya tampilkan "Surau tidak dapat memverifikasi kutipan untuk pertanyaan ini" + hasil Cari, dan catat kasusnya untuk eval. Bila sebagian lolos, tampilkan hanya kalimat yang didukung sitasi yang lolos.
+**Jawab (Fase 4; pipeline S19, ADR-064):** browser → `POST /api/jawab` (web, penerus; produksi mati sampai S20) → service binding `API` → Worker `surau-api` `POST /jawab` (SSE) → `runJawab` (`packages/llm/src/jawab`).
+1. Guard: sakelar `jawab_enabled` (S19). Cookie Turnstile, burst, kuota, dan reservasi anggaran menyusul di S20.
+2. Cache `answer_cache` (hash pertanyaan + versi korpus + versi prompt). Bila kena, `done` langsung tanpa LLM.
+3. Routing: Haiku membaca daftar isi yang di-cache 1 jam (`answer-route@2`, keluaran JSON), lalu memilih bagian dan kata kunci.
+4. Kandidat: `searchText` atas pertanyaan + kata kunci (global dan per bagian), digabung RRF, ditambah pasangan paragraf ↔ takhrij.
+5. Haiku menjawab dengan Citations (`answer@4`, effort low, stream). Dokumen *custom content* berisi satu dokumen per paragraf; bloknya potongan `text_raw` persis, dengan konteks lokasi, bagian, ayat, dan terjemahan AI (12 teratas). Anggaran dokumen 20 ribu token, prompt ≤40 ribu.
+6. Kode memetakan indeks blok ke `{passage_id, char_start, char_end}`. `cited_text` wajib sama dengan teks DB, lalu `verifyQuote`. Blok yang semua sitasinya gagal dibuang. Huruf Arab buatan model dihapus.
+7. UI menampilkan teks dari DB. Biaya dikomit ke ledger (S20); di S19 dicatat di log metrik `jawab`.
+8. Bila terjadi refusal, ulangi sekali dengan Sonnet 5.5 (tanpa `fallbacks` server); bila menolak lagi, turun ke Cari. Galat penyedia juga turun ke Cari. Bila anggaran habis, turun ke Cari (S20).
+9. Bila **tidak satu pun** sitasi lolos verifikasi, jawaban **tidak** ditampilkan. Sebagai gantinya tampilkan "Surau tidak dapat memverifikasi kutipan untuk pertanyaan ini" + hasil Cari (`fallback/unverified`), dan catat kasusnya. Bila sebagian lolos, tampilkan hanya blok yang didukung sitasi yang lolos, ditambah blok kata sambung tanpa sitasi.
+10. Penolakan baku: "Tidak ditemukan di kitab yang dicakup." atau "Anggapan dalam pertanyaan ini tidak didukung teks Ihya." (premis keliru), keduanya `not_found`, disertai hasil Cari.
 
 ## 6. Pipeline ingest (`tools/ingest`)
 
@@ -155,6 +158,7 @@ File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha25
 | Preview (per PR) | `wrangler preview` | `surau-corpus-staging` | `surau-app-staging` | `surau-next-cache-preview` | Resource akun **tidak** terisolasi per preview, jadi semua binding storage dideklarasikan ulang di blok `previews`. Service binding dari preview memanggil deployment **produksi** Worker tujuan. |
 | Produksi | custom domain | `surau-corpus-<versi>` (blue-green) | `surau-app` | `surau-next-cache` | `workers_dev=false`, `preview_urls=false` di produksi (Fase 4) |
 | MCP (`surau-mcp`, S16) | `mcp.surau.org` (custom domain di `routes`); Preview `pr-<n>-surau-mcp…workers.dev`; lokal `pnpm --filter @surau/mcp dev` (port 3006) | produksi: `CORPUS_DB` yang sama dengan web; Preview: `surau-corpus-staging`; lokal: D1 lokal bersama | – | – | `workers_dev=false`, `preview_urls=true`; rate limit `namespace_id` 3001–3004 / 4001–4004; secret `IP_HMAC_KEY` (ADR-049) |
+| Jawab (`surau-api`, S19) | tanpa alamat publik (`workers_dev=false`, `preview_urls=false`, tanpa route); dipanggil web lewat service binding `API`; lokal `pnpm --filter @surau/api dev` (port 3007, dev registry) | produksi: `CORPUS_DB` yang sama dengan web; `surau-api-staging` (env `staging`): `surau-corpus-staging` | `surau-app` / `surau-app-staging` (`answer_cache`, `jawab_enabled`) | – | LLM lewat AI Gateway `surau-gw` (BYOK, secret `CF_AIG_TOKEN`). Preview web → `surau-api-staging`, karena service binding dari Preview memanggil deployment produksi Worker tujuan (ADR-064) |
 
 **Aturan lingkungan (wajib):**
 1. **Satu lokasi D1 lokal.** Semua perintah lokal memakai `--persist-to <root>/.wrangler/state`, yaitu `wrangler d1 migrations apply --local`, `wrangler d1 execute --local`, skrip `db:migrate:local`, `corpus:load:local`, dan `preview` di `apps/web` (sejak ADR-038). Jangan jalankan `next dev` dan `preview` bersamaan pada lokasi yang sama (SQLITE_BUSY). CLI menambahkan `v3` sendiri, jadi datanya ada di `<root>/.wrangler/state/v3`. `initOpenNextCloudflareForDev()` dan `getPlatformProxy()` memakai `persist.path` **apa adanya**, sehingga keduanya wajib diberi `<root>/.wrangler/state/v3` (path absolut; dicek di S08). Tanpa ini, setiap `wrangler.jsonc` atau proxy melihat DB lokal yang berbeda (kosong).
