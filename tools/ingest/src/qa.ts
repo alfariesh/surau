@@ -19,6 +19,7 @@ import {
   footnoteRefRow,
   metaRow,
   pageRow,
+  passageAyahRefRow,
   passageNeedsReviewRow,
   passageRow,
   tocNodeRow,
@@ -42,10 +43,11 @@ import {
   summarize,
 } from "./qa-sample.ts";
 import type { PageSummary, RowSet } from "./qa-sample.ts";
+import { SITE } from "./llm/report.ts";
 import { IHYA } from "./works/ihya.ts";
 
-/** Pembaca yang bisa dibuka sebelum rilis Fase 1 (Preview tetap `pembaca`, data = build yang sama). */
-const DEFAULT_SURAU = "https://pembaca-surau-web.alfarieshsalman.workers.dev";
+/** Pembaca untuk tautan daftar QA manusia: situs produksi (sama dengan laporan LLM, #78). */
+const DEFAULT_SURAU = SITE;
 
 function readRemote(target: D1Target, pageIds: readonly number[]): RowSet {
   const ids = pageIds.map((id) => String(Math.trunc(id))).join(", ");
@@ -69,6 +71,12 @@ function readRemote(target: D1Target, pageIds: readonly number[]): RowSet {
       `SELECT r.passage_id, r.reason
        FROM passage_needs_review r JOIN passage p ON p.id = r.passage_id WHERE p.page_id ${inPages}`,
     ).map((r) => passageNeedsReviewRow.parse(r)),
+    passage_ayah_ref: query(
+      target,
+      `SELECT a.passage_id, a.char_start, a.char_end, a.surah, a.ayah_from, a.ayah_to, a.match,
+              a.partial, a.bracketed, a.alt_count
+       FROM passage_ayah_ref a JOIN passage p ON p.id = a.passage_id WHERE p.page_id ${inPages}`,
+    ).map((r) => passageAyahRefRow.parse(r)),
   };
 }
 
@@ -172,7 +180,7 @@ function humanList(pages: Checked[], surau: string, seed: number): string {
     "# QA manusia (T-15): 10 halaman Ihya dibandingkan dengan edisi cetak",
     "",
     `> Dibuat oleh \`pnpm run corpus:qa --human\` (S10) dari sampel QA otomatis (seed ${seed}); hanya halaman yang punya catatan kaki, bergiliran per jilid. Kolom **Hasil** diisi agent dari jawaban pemilik/ustadz.`,
-    `> Tautan Surau: \`${surau}\`. Sebelum \`/rilis 1\` ini Preview \`pembaca\` yang membaca korpus **staging** (isinya terbukti sama dengan produksi pada sampel ini). Staging dimuat ulang di S11, jadi kerjakan sebelum S11, atau ganti tautannya ke situs produksi setelah \`/rilis 1\`.`,
+    `> Tautan Surau: \`${surau}\` (ganti dengan \`--surau <url>\` bila mencocokkan korpus selain produksi).`,
     "",
     "Cara mencocokkan (±3 menit per halaman):",
     "",

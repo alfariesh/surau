@@ -380,6 +380,20 @@ async function systemTokenCounts(client: Anthropic): Promise<Record<string, numb
 
 const usd = (n: number) => `$${n.toFixed(2)}`;
 
+/** Pisahkan request yang prompt-nya ≥ MAX_PROMPT_TOKENS: tidak boleh masuk rencana (#78). */
+export function splitOversized(
+  reqs: readonly PlannedRequest[],
+  counts: ReadonlyMap<string, number>,
+): { kept: PlannedRequest[]; over: PlannedRequest[] } {
+  const kept: PlannedRequest[] = [];
+  const over: PlannedRequest[] = [];
+  for (const r of reqs) {
+    if ((counts.get(r.custom_id) ?? 0) >= MAX_PROMPT_TOKENS) over.push(r);
+    else kept.push(r);
+  }
+  return { kept, over };
+}
+
 export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
   const dir = llmDir(ctx.repo);
   const work = buildWork(ctx.rows());
@@ -397,18 +411,20 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
   }
   const client = ctx.client();
   const counts = await countAll(client, dir, reqs);
-  const over = reqs.filter((r) => (counts.get(r.custom_id) ?? 0) >= MAX_PROMPT_TOKENS);
+  // Request ≥ MAX_PROMPT_TOKENS tidak masuk berkas rencana maupun estimasinya (tarif 5× dan harus
+  // dipecah dulu), jadi submit tidak mungkin mengirimnya walau peringatan di bawah terlewat (#78).
+  const { kept, over } = splitOversized(reqs, counts);
   const system = await systemTokenCounts(client);
   const rates = outputRates(dir);
   const byKind = new Map<BatchKind, PlannedRequest[]>();
-  for (const r of reqs) byKind.set(r.kind, [...(byKind.get(r.kind) ?? []), r]);
+  for (const r of kept) byKind.set(r.kind, [...(byKind.get(r.kind) ?? []), r]);
   const estimates = Object.fromEntries(
     [...byKind].map(([k, list]) => [k, estimate(list, counts, system, rates)]),
   );
-  const total = estimate(reqs, counts, system, rates);
+  const total = estimate(kept, counts, system, rates);
   writeJsonl(
     join(dir, `plan-r${round}.jsonl`),
-    reqs.map((r) => {
+    kept.map((r) => {
       const prompt = counts.get(r.custom_id) ?? 0;
       const sys = system[r.prompt_version] ?? 0;
       return { ...r, est_usd: requestCost(r, prompt, sys, expectedOutput(r, rates), 0.5) };
@@ -419,7 +435,7 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
     `${JSON.stringify({ created_at: new Date().toISOString(), round, rates, total, byKind: estimates }, null, 2)}\n`,
   );
 
-  console.info(`Putaran ${round}: ${reqs.length} request (laju keluaran dari ${rates.source})`);
+  console.info(`Putaran ${round}: ${kept.length} request (laju keluaran dari ${rates.source})`);
   for (const [k, e] of Object.entries(estimates)) {
     console.info(
       `  ${k}: ${e.requests} request · prompt ${e.promptTokens.toLocaleString("id-ID")} token (sistem ${e.systemTokens.toLocaleString("id-ID")}) · keluaran ±${e.outputTokens.toLocaleString("id-ID")} · ` +
@@ -437,7 +453,7 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
   );
   if (over.length > 0) {
     console.error(
-      `${over.length} request ≥ ${MAX_PROMPT_TOKENS} token: pecah dulu, jangan dikirim.`,
+      `${over.length} request ≥ ${MAX_PROMPT_TOKENS} token: tidak dimasukkan ke rencana; pecah dulu.`,
     );
     return 1;
   }

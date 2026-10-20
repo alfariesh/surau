@@ -20,6 +20,7 @@ import {
   rebuild,
   retryModel,
   spentUsd,
+  splitOversized,
   submit,
   submittable,
   unreconciledProblem,
@@ -777,5 +778,18 @@ describe("tanda terima pengiriman (#63)", () => {
     expect(made.map((b) => b.id)).toEqual(["b-ok"]);
     expect(readSubmitting(dir)).toBeNull();
     expect(readJsonl(join(dir, "requests", "b-ok.jsonl"), plannedRequest)).toHaveLength(2);
+  });
+});
+
+describe("rencana tanpa request terlalu besar (#78)", () => {
+  test("prompt >= batas dikeluarkan dari rencana; sisanya tetap urut", () => {
+    const plan = pendingRequests(work, accepted(), 1);
+    const [big, ...rest] = plan;
+    if (big === undefined) throw new Error("rencana kosong");
+    const counts = new Map(plan.map((r) => [r.custom_id, 1_000]));
+    counts.set(big.custom_id, 100_000);
+    const { kept, over } = splitOversized(plan, counts);
+    expect(over.map((r) => r.custom_id)).toEqual([big.custom_id]);
+    expect(kept.map((r) => r.custom_id)).toEqual(rest.map((r) => r.custom_id));
   });
 });
