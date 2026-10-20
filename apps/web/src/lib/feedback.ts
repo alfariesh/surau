@@ -2,7 +2,7 @@
 // Sengaja tanpa Zod supaya tidak ikut ke bundel klien; skemanya di `feedback-schema.ts`.
 
 /** Jenis laporan dari pembaca kitab (subset `feedback.kind` di DB app). */
-export const FEEDBACK_KINDS = ["text", "citation", "toc", "other"] as const;
+export const FEEDBACK_KINDS = ["text", "translation", "citation", "toc", "other"] as const;
 export type ReaderFeedbackKind = (typeof FEEDBACK_KINDS)[number];
 
 /** Sama dengan CHECK `feedback.message` (DB app, ADR-029). */

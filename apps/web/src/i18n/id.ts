@@ -434,6 +434,7 @@ export const id = {
     reportKind: "Jenis kesalahan",
     reportKinds: {
       text: "Teks (salah ketik, terpotong, bercampur)",
+      translation: "Terjemahan atau ringkasan AI",
       citation: "Nomor halaman atau sitasi",
       toc: "Daftar isi atau judul bab",
       other: "Lainnya",
