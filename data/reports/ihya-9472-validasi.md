@@ -29,7 +29,7 @@
 | Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 1311 terjemahan berisi ayat; 0 bermasalah |
 | Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 16086/16111 (99,84%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
 | Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 626/626 (100,00%); usang 0, tidak sah 0 |
-| ID paragraf rilis stabil (ADR-029) | ✓ | 20509 ID lama ada dengan teks sama |
+| ID paragraf rilis stabil (ADR-059) | ✓ | 20509 ID lama ada dengan teks sama |
 
 ## Daftar isi
 

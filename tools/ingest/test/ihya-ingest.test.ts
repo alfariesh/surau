@@ -9,6 +9,7 @@ import { DatabaseSync } from "node:sqlite";
 import { findQuote, normalizeArabic } from "@surau/text";
 import { beforeAll, describe, expect, test } from "vite-plus/test";
 
+import { fingerprintPath } from "../src/fingerprint.ts";
 import { runIngest } from "../src/pipeline.ts";
 import type { IngestResult, PipelinePaths } from "../src/pipeline.ts";
 import { QURAN_EXPECT, QURAN_FILES } from "../src/quran/source.ts";
@@ -28,8 +29,9 @@ describe.skipIf(!available)("ingest Ihya 9472 (sumber lokal)", () => {
   let paths: PipelinePaths;
   beforeAll(() => {
     const work = mkdtempSync(join(tmpdir(), "surau-ihya-"));
-    // Patch dan peta ID yang di-commit disalin, supaya ID hasil tes sama dengan build sungguhan.
-    for (const file of [IHYA.patch, IHYA.ids]) {
+    // Patch, peta ID, dan sidik teks yang di-commit disalin, supaya ID hasil tes sama dengan build
+    // sungguhan dan gerbang stabilitas ID (ADR-059) ikut diuji terhadap rilis.
+    for (const file of [IHYA.patch, IHYA.ids, fingerprintPath(IHYA.ids)]) {
       mkdirSync(dirname(join(work, file)), { recursive: true });
       copyFileSync(join(repo, file), join(work, file));
     }
@@ -51,6 +53,9 @@ describe.skipIf(!available)("ingest Ihya 9472 (sumber lokal)", () => {
     expect(result.validation.invariants.filter((i) => !i.ok)).toEqual([]);
     expect(result.output?.counts).toMatchObject({ page: 1706, toc_node: 313 });
     expect(result.output?.idsAdded).toEqual({ page: 0, toc: 0, passage: 0 });
+    expect(result.validation.invariants.find((i) => i.name.startsWith("ID paragraf"))?.ok).toBe(
+      true,
+    );
   });
 
   test("j1 h200: paragraf badan, catatan kaki takhrij 'باطل لا أصل له', penanda tertaut", () => {

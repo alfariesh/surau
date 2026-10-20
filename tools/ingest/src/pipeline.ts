@@ -11,7 +11,7 @@ import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 import { buildSqlite } from "./build-sqlite.ts";
 import { buildDigest } from "./corpus.ts";
 import {
-  compareFingerprints,
+  checkStability,
   fingerprintPath,
   fingerprints,
   readFingerprints,
@@ -258,10 +258,11 @@ export interface IngestOptions {
   /** Abaikan peta ID yang ada dan bangun dari nol (HANYA sebelum rilis, ADR-029; ditolak bila sidik teks ada). */
   resetIds?: boolean;
   /**
-   * Terima ID lama yang teksnya berubah (koreksi teks yang disengaja). ID yang HILANG tetap
-   * ditolak. Periksa daftar di laporan validasi dulu: paragraf bergeser juga tampil sebagai "berubah".
+   * `passage.id` lama yang teksnya boleh berubah (koreksi teks yang disengaja), satu per satu. ID
+   * yang HILANG tetap ditolak. Periksa daftar lengkap di laporan validasi dulu: paragraf bergeser
+   * juga tampil sebagai "berubah".
    */
-  acceptTextChanges?: boolean;
+  acceptTextChanges?: readonly number[];
   env?: NodeJS.ProcessEnv;
 }
 
@@ -300,6 +301,11 @@ export function runIngest(
   const idMap = opts.resetIds
     ? { format: 1 as const, edition: config.edition.id, page: {}, toc: {}, passage: {} }
     : readIdMap(idsPath, config.edition.id);
+  if (released === null && Object.keys(idMap.passage).length > 0)
+    throw new Error(
+      `Sidik teks ${printsPath} tidak ada padahal peta ID berisi paragraf; pulihkan dari git ` +
+        "(kitab yang belum pernah dirilis: --reset-ids)",
+    );
   const ids = createAllocator(idMap);
   const { rows, fts, ayat, llm } = rowsFor(config, paths, prepared, toc, ids, opts.env);
   const validation = validate({
@@ -314,32 +320,19 @@ export function runIngest(
     llm: llm?.stats ?? null,
   });
   const prints = fingerprints(config.edition.id, rows.passage);
-  if (released !== null) {
-    const diff = compareFingerprints(released, prints);
-    const sample = (ids: number[]) => ids.slice(0, 10).join(", ") + (ids.length > 10 ? ", …" : "");
-    const ok = diff.missing.length === 0 && (diff.changed.length === 0 || opts.acceptTextChanges);
+  const stability =
+    released === null ? null : checkStability(released, prints, opts.acceptTextChanges);
+  if (stability !== null) {
     validation.invariants.push({
-      name: "ID paragraf rilis stabil (ADR-029)",
-      ok: ok === true,
-      detail:
-        diff.missing.length === 0 && diff.changed.length === 0
-          ? `${Object.keys(released.passage).length} ID lama ada dengan teks sama`
-          : [
-              diff.missing.length > 0
-                ? `hilang ${diff.missing.length}: ${sample(diff.missing)}`
-                : "",
-              diff.changed.length > 0
-                ? `teks berubah ${diff.changed.length}${opts.acceptTextChanges ? " (diterima)" : ""}: ${sample(diff.changed)}`
-                : "",
-            ]
-              .filter((x) => x !== "")
-              .join("; "),
+      name: "ID paragraf rilis stabil (ADR-059)",
+      ok: stability.ok,
+      detail: stability.detail,
     });
-    validation.ok &&= ok === true;
+    validation.ok &&= stability.ok;
   }
   writeText(
     join(paths.repo, `${config.reportPrefix}-validasi.md`),
-    validationReport(ctx, validation),
+    [validationReport(ctx, validation), ...(stability?.report ?? [])].join("\n"),
   );
   writeText(
     join(paths.repo, `${config.reportPrefix}-openiti.md`),

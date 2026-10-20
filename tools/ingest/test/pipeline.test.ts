@@ -301,43 +301,78 @@ describe("runIngest (kitab buatan)", () => {
     expect(after.output?.hash).not.toBe(before.output?.hash);
   });
 
+  const stability = (r: ReturnType<typeof runIngest>) =>
+    r.validation.invariants.find((i) => i.name.startsWith("ID paragraf rilis"));
+  const editPage = (paths: { shamela: string }, from: string, to: string) => {
+    const book = new DatabaseSync(join(paths.shamela, "book", "234", "1234.db"));
+    book.prepare("UPDATE page SET content = replace(content, ?, ?) WHERE id = 1").run(from, to);
+    book.close();
+  };
+
   test("paragraf bergeser di tengah halaman setelah rilis → ditolak (#59)", () => {
     const { config, paths } = createFixture();
     config.expect.matanMinPages = 4;
-    runIngest(config, paths, { env });
+    const first = runIngest(config, paths, { env });
+    expect(stability(first)).toBeUndefined();
     const printsPath = join(paths.repo, config.ids.replace(/\.json$/, ".teks.json"));
     const prints = readFileSync(printsPath, "utf8");
     const ids = readFileSync(join(paths.repo, config.ids), "utf8");
+    const map = JSON.parse(ids) as { passage: Record<string, number> };
+    const shiftedId = 7 * 10 ** 7 + (map.passage["1:b1"] ?? 0);
     // Baris baru tepat setelah judul: paragraf lama 1:b1 kini 1:b2, dan 1:b1 menunjuk baris baru.
-    const book = new DatabaseSync(join(paths.shamela, "book", "234", "1234.db"));
-    book
-      .prepare("UPDATE page SET content = replace(content, ?, ?) WHERE id = 1")
-      .run("</span>\r", "</span>\rسطر جديد مصنوع\r");
-    book.close();
+    editPage(paths, "</span>\r", "</span>\rسطر جديد مصنوع\r");
     const shifted = runIngest(config, paths, { env });
     expect(shifted.output).toBeUndefined();
-    const check = shifted.validation.invariants.find((i) => i.name.startsWith("ID paragraf rilis"));
-    expect(check).toMatchObject({
+    expect(stability(shifted)).toMatchObject({
       ok: false,
-      detail: expect.stringMatching(/^teks berubah 1: \d+$/),
+      detail: expect.stringMatching(/^teks berubah 1 /),
     });
+    // Daftar LENGKAP ada di laporan validasi.
+    const report = readFileSync(join(paths.repo, `${config.reportPrefix}-validasi.md`), "utf8");
+    expect(report).toContain(`### Teks berubah, belum diterima (1)\n\n${shiftedId}\n`);
     // Gagal = peta ID dan sidik tidak ditulis ulang.
     expect(readFileSync(printsPath, "utf8")).toBe(prints);
     expect(readFileSync(join(paths.repo, config.ids), "utf8")).toBe(ids);
-    // Koreksi teks yang disengaja: diterima hanya dengan opsi eksplisit, lalu sidik diperbarui.
-    const accepted = runIngest(config, paths, { env, acceptTextChanges: true });
+    // ID yang diterima tetapi tidak berubah juga gagal (daftar basi).
+    const wrong = runIngest(config, paths, { env, acceptTextChanges: [shiftedId, shiftedId + 1] });
+    expect(wrong.output).toBeUndefined();
+    // Koreksi teks yang disengaja: diterima hanya per ID, lalu sidik diperbarui.
+    const accepted = runIngest(config, paths, { env, acceptTextChanges: [shiftedId] });
+    expect(stability(accepted)?.ok).toBe(true);
     expect(accepted.output).toBeDefined();
     expect(readFileSync(printsPath, "utf8")).not.toBe(prints);
   });
 
-  test("setelah rilis: --reset-ids dan peta ID yang hilang ditolak (#59)", () => {
+  test("paragraf lama hilang → ditolak walau koreksi diterima (#59)", () => {
+    const { config, paths } = createFixture();
+    config.expect.matanMinPages = 4;
+    runIngest(config, paths, { env });
+    const map = JSON.parse(readFileSync(join(paths.repo, config.ids), "utf8")) as {
+      passage: Record<string, number>;
+    };
+    const lost = 7 * 10 ** 7 + (map.passage["1:b1"] ?? 0);
+    // Baris badan terakhir halaman 1 dihapus: kunci 1:b1 tidak muncul lagi.
+    editPage(paths, "الْعِلْمُ نُورٌ (١) وَالْجَهْلُ ظُلْمَةٌ.\r", "");
+    const r = runIngest(config, paths, { env, acceptTextChanges: [lost] });
+    expect(r.output).toBeUndefined();
+    expect(stability(r)).toMatchObject({ ok: false, detail: expect.stringMatching(/hilang 1/) });
+  });
+
+  test("setelah rilis: --reset-ids, peta ID hilang, dan sidik hilang ditolak (#59)", () => {
     const { config, paths } = createFixture();
     runIngest(config, paths, { env });
     expect(() => runIngest(config, paths, { env, resetIds: true })).toThrow(/--reset-ids ditolak/);
-    rmSync(join(paths.repo, config.ids));
+    const idsPath = join(paths.repo, config.ids);
+    const ids = readFileSync(idsPath, "utf8");
+    rmSync(idsPath);
     expect(() => runIngest(config, paths, { env })).toThrow(
       /tidak ada padahal korpus sudah dirilis/,
     );
+    writeFileSync(idsPath, ids);
+    rmSync(idsPath.replace(/\.json$/, ".teks.json"));
+    expect(() => runIngest(config, paths, { env })).toThrow(/Sidik teks .* tidak ada/);
+    // Kitab yang belum pernah dirilis: --reset-ids membangun peta dan sidik dari nol.
+    expect(runIngest(config, paths, { env, resetIds: true }).output).toBeDefined();
   });
 
   test("gerbang matan gagal → laporan ditulis, keluaran tidak", () => {

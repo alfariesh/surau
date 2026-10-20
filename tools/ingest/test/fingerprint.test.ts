@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vite-plus/test";
 
 import {
+  checkStability,
   compareFingerprints,
   fingerprintFile,
   fingerprintPath,
@@ -35,5 +36,24 @@ describe("sidik teks paragraf (#59)", () => {
     expect(Object.keys(fingerprintFile.parse(JSON.parse(text)).passage)).toEqual(["2", "10"]);
     expect(text.indexOf('"2"')).toBeLessThan(text.indexOf('"10"'));
     expect(fingerprintPath("data/ids/ihya-9472.json")).toBe("data/ids/ihya-9472.teks.json");
+  });
+
+  test("checkStability: koreksi hanya diterima per ID, ID hilang tidak pernah", () => {
+    const next = fingerprints(7, [
+      { id: 1, text_raw: "أ" },
+      { id: 3, text_raw: "ج!" },
+    ]);
+    expect(checkStability(old, old)).toEqual({
+      ok: true,
+      detail: "3 ID lama ada dengan teks sama",
+      report: [],
+    });
+    const r = checkStability(old, next, [2, 3]);
+    expect(r.ok).toBe(false);
+    expect(r.detail).toBe(
+      "hilang 1; koreksi diterima 1; diterima tetapi tidak berubah 1 (daftar di bawah)",
+    );
+    expect(r.report).toContain("### Hilang (1)");
+    expect(() => fingerprintPath("data/ids/peta")).toThrow(/\.json/);
   });
 });
