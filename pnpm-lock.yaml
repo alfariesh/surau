@@ -197,7 +197,7 @@ catalogs:
     '@opennextjs/cloudflare':
       specifier: 1.20.12
       version: 1.20.12
-    '@paper-design/shaders-react':
+    '@paper-design/shaders':
       specifier: 0.0.81
       version: 0.0.81
     '@playwright/test':
@@ -254,6 +254,9 @@ catalogs:
     react-stately:
       specifier: 3.51.0
       version: 3.51.0
+    sharp:
+      specifier: 0.35.5
+      version: 0.35.5
     tailwind-merge:
       specifier: 3.7.0
       version: 3.7.0
@@ -286,12 +289,18 @@ importers:
 
   .:
     devDependencies:
+      '@paper-design/shaders':
+        specifier: 'catalog:'
+        version: 0.0.81
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 5.0.5(@vitest/browser@5.0.5)(vitest@5.0.5)
+      sharp:
+        specifier: 'catalog:'
+        version: 0.35.5(@types/node@24.19.2)
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -353,9 +362,6 @@ importers:
       '@internationalized/date':
         specifier: 'catalog:'
         version: 3.12.4
-      '@paper-design/shaders-react':
-        specifier: 'catalog:'
-        version: 0.0.81(@types/react@19.3.0)(react@19.3.1)
       '@react-aria/utils':
         specifier: 'catalog:'
         version: 3.34.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -1726,15 +1732,6 @@ packages:
   '@oxlint/plugins@1.88.0':
     resolution: {integrity: sha512-G2xbfWTrbqYRhR/vfeKNMQf/sS3/ti0iKJAAkRxHuXWZH/hne/dyIb9QKk5LuR6cJLARxsL6FMoAYmfspd74MQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-
-  '@paper-design/shaders-react@0.0.81':
-    resolution: {integrity: sha512-3FMkeZqj9sSvK/WkgekGu3crnOQd4R2iH8IT+jVBuQmq1m8p88VFvxh63s9bSt2exBwjBNaRfSo0FSCeNxqh3w==}
-    peerDependencies:
-      '@types/react': ^18 || ^19
-      react: ^18 || ^19
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@paper-design/shaders@0.0.81':
     resolution: {integrity: sha512-jeGdyjMscZ2bxmQdo8lhwUufHUf4iq3s1ayjh8PXU7Go42Rw8E3I0It1FZdc3HuWt5J82m//DRWaxsRqRfA4Gg==}
@@ -5493,13 +5490,6 @@ snapshots:
     optional: true
 
   '@oxlint/plugins@1.88.0': {}
-
-  '@paper-design/shaders-react@0.0.81(@types/react@19.3.0)(react@19.3.1)':
-    dependencies:
-      '@paper-design/shaders': 0.0.81
-      react: 19.3.1
-    optionalDependencies:
-      '@types/react': 19.3.0
 
   '@paper-design/shaders@0.0.81': {}
 
