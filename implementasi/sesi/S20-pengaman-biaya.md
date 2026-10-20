@@ -1,6 +1,6 @@
 # S20 · Pengaman biaya & penyalahgunaan
 
-> **Fase:** 4 · **Status:** berjalan (mulai 2026-10-21)
+> **Fase:** 4 · **Status:** selesai (2026-10-21; PR #99, ADR-065) · satu butir menunggu kedaluwarsa log lama (≤2026-10-28)
 > **Prasyarat:** S19 selesai · Tugas pemilik: **T-14** (Turnstile, AI Gateway `surau-gw`, Cloudflare Access, secrets), **P-4** (angka anggaran dan kuota), **P-7** (retensi). Opsional: **T-20** (Admin key untuk rekonsiliasi biaya).
 > **Status prasyarat (2026-10-21):** S19 merge (#98). T-14: widget Turnstile, gateway `surau-gw`, dan aplikasi Access `Surau Admin` sudah dibuat pemilik; secret produksi (`TURNSTILE_SECRET_KEY`, `CF_AIG_TOKEN`, dan secret baru S20) belum dipasang, dan itu tidak menghambat pengembangan karena Jawab produksi tetap mati sampai `/rilis 4`. P-4 dan P-7 belum dijawab, jadi dipakai usulan (STATUS: "Dipakai usulan bila tidak dijawab"). T-20 tidak dikerjakan (opsional). Pemilik menyetujui semua tindakan sesi ini di chat (2026-10-20 malam).
 > **Perkiraan:** 1–2 percakapan agent
@@ -58,10 +58,10 @@ Angka P-4 (usulan dipakai): plafon **US$20/bulan** (bulan kalender UTC), **10 Ja
 
 ## Selesai bila
 
-- [ ] Semua tes guard lolos, termasuk simulasi anggaran habis → Jawab mati otomatis → situs tetap berfungsi
-- [ ] Tidak ada IP mentah atau pertanyaan pengguna di log (diperiksa)
-- [ ] `/admin` hanya bisa dibuka pemilik
-- [ ] STATUS, LOG, dan file sesi ini diperbarui
+- [x] Semua tes guard lolos, termasuk simulasi anggaran habis → Jawab mati otomatis → situs tetap berfungsi
+- [ ] Tidak ada IP mentah atau pertanyaan pengguna di log (diperiksa) — **diperiksa; log baru tanpa IP sejak deploy S20, log lama berisi IP habis sendiri ≤2026-10-28** (lihat Catatan hasil)
+- [x] `/admin` hanya bisa dibuka pemilik
+- [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan
 
@@ -72,4 +72,17 @@ Angka P-4 (usulan dipakai): plafon **US$20/bulan** (bulan kalender UTC), **10 Ja
 
 ## Catatan hasil
 
-*(diisi agent)*
+- **Dibuat:** migrasi app 0004 (`quota_daily`, `llm_budget`, `llm_ledger`, pengaturan P-4, `purge_day`); repo `packages/db/src/repo/guard.ts` (kuota atomik anon + IP, reservasi atomik, komit idempoten, reservasi basi, hapus fisik P-7, pengaturan/laporan admin); guard di Worker `surau-api` (kunci HKDF dari `SURAU_API_SECRET`, cookie anon, Turnstile, burst `JAWAB_BURST`, kuota, cache HMAC, reservasi Haiku + reservasi terpisah Sonnet lewat `beforeRetry`, komit biaya nyata, `GET /jawab/status`, cron `*/10`); penerus web (skema bersama `jawabRequest` di `@surau/core`, cookie anon + IP sebagai header internal, Set-Cookie anon saja, `GET /api/jawab`); `/admin` + `/api/admin` (Access `Surau Admin` + JWT AUD admin); `redactPii` untuk pesan laporan; halaman publik `/privasi`; docs/05 §8, docs/08, ADR-065.
+- **Bukti butir "Selesai bila":**
+  - Tes guard: `pnpm verify` lolos; sesudah perbaikan peninjau `pnpm test` 596 Node + 310 Workers, `pnpm check` bersih. Tes `apps/api/src/guard.test.ts` (22) + `packages/db/src/repo/guard.test.ts`: Turnstile (lolos/ditolak/mati/secret salah), cookie palsu/kedaluwarsa/secret lain, burst, kuota anon/IP (IPv6 /64), 40 reservasi D1 paralel dan 6 permintaan Worker paralel di ujung plafon tidak melewatinya, ulangan Sonnet terbagi biaya, anggaran tidak cukup untuk Sonnet → `fallback/budget`, **plafon 0 → POST 503 `budget` + status `available: false` + `/health` tetap 200, periode baru terbuka lagi**, galat berstatus HTTP tidak ditagih, koneksi putus = biaya terburuk × 2 (`estimated`), klien putus → pipeline selesai di latar dengan biaya nyata, cron (reservasi basi, hapus fisik sekali per hari), konfigurasi produksi gagal tertutup. Situs lain (pembaca, Cari, MCP) tidak menyentuh ledger.
+  - Log: event buatan kode tanpa IP/pertanyaan/ID/token (tes "log tanpa data pribadi" atas alur tantangan → jawaban → kuota habis). **Temuan:** `wrangler tail surau-web --format json --ip self` (permintaan sendiri, nilai disamarkan saat dibaca) menunjukkan log otomatis per permintaan merekam `cf-connecting-ip` dan `x-real-ip` mentah (cookie disamarkan Cloudflare, query string sudah dihapus). Perbaikan: `invocation_logs: false` di web, MCP, API (semua lingkungan), dijaga tes `tools/ingest/src/corpus.test.ts`; traces tidak memuat IP (atribut resmi). Log Workers lama (sebelum deploy S20) tidak bisa dihapus dari sisi kita dan habis sendiri dalam 7 hari, jadi butir ini baru dicentang setelah ±2026-10-28.
+  - `/admin`: produksi `curl -I https://surau.org/admin` dan `/api/admin` → 302 ke login Access dengan `kid` = AUD `Surau Admin` (kebijakan "Pemilik Surau" hanya email pemilik, T-14); di aplikasi tanpa JWT → halaman "Akses khusus pemilik" / 401, token aplikasi Tinjau ditolak (tes `review-auth.test.ts`, `api/admin/route.test.ts`); tampilan berlogin dites render server (`admin-client.test.tsx`), dicek lokal tanpa login (ponsel).
+- **Secret:** `SURAU_API_SECRET` dipasang agent (acak, nilai tidak pernah ditampilkan) di `surau-api` dan `surau-api-staging`. Staging memakai kunci uji Turnstile di `vars`. Produksi masih butuh `CF_AIG_TOKEN` + `TURNSTILE_SECRET_KEY` dari pemilik (T-14) sebelum `/rilis 4`; tanpa itu Jawab produksi `not_configured` (dan rute web tetap "0").
+- **Peninjau:** putaran 1 tanpa blocker, 4 temuan penting diperbaiki (biaya semu saat klien putus → pipeline diselesaikan di latar; IP mentah di log otomatis → dimatikan; galat tanpa status tercatat 0 → konservatif; klaim dokumen) + saran (kuota IP di status, daftar izin kunci uji, potong pesan, satu batch kuota admin, hapus fisik harian dengan penanda, tes 400/429).
+- **Biaya LLM:** US$0 (semua tes memakai Anthropic tiruan).
+- **Penyimpangan (ADR-065):** satu secret berturunan HKDF menggantikan `ANON_COOKIE_SECRET` + `IP_HASH_SECRET` (T-14 lama); jawaban dari cache tetap memakai kuota; rekonsiliasi Cost API + email peringatan tidak dibuat (T-20 opsional); pertanyaan pengguna umum tetap tidak disimpan ke `answer_log`.
+- **Utang/pesan untuk sesi berikutnya (S21):**
+  - Uji ujung ke ujung guard di staging (Preview S21 memanggil `surau-api-staging` versi `main` yang kini berisi S20): status → tantangan uji → cookie → jawaban → baris ledger staging; sakelar staging dinyalakan hanya saat diuji.
+  - UI: tangani semua kode galat (`challenge_required` → Turnstile `interaction-only` dengan sitekey dari status, `quota_exceeded`, `budget`, `disabled`, `not_configured`, `rate_limited`, `challenge_failed/unavailable`) dan arahkan ke Cari; render blok tanpa sitasi berbeda (ADR-064).
+  - Celah status hadits ADR-064 butir 7 (wajib sebelum Jawab dibuka).
+  - `ROUTE_PROMPT_TOKENS_MAX` (16 ribu) hanya dites terhadap konstanta; naikkan bila korpus bertambah kitab.
