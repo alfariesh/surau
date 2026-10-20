@@ -22,9 +22,12 @@ export function answerUserText(question: string): string {
   return `<pertanyaan>${question}</pertanyaan>`;
 }
 
-/** Perkiraan token prompt di luar dokumen (sistem + pertanyaan + overhead Citations). */
+/**
+ * Perkiraan token prompt di luar dokumen: sistem + pertanyaan + tambahan Citations (terukur
+ * ±2.360 token untuk `answer@1` dengan satu pertanyaan pendek, 2026-10-20).
+ */
 export function fixedPromptTokens(question: string): number {
-  return estimateTextTokens(ANSWER_PROMPT.system) + estimateTextTokens(question) + 300;
+  return estimateTextTokens(ANSWER_PROMPT.system) + estimateTextTokens(question) + 650;
 }
 
 /** Ambil dokumen berurutan selama total perkiraan ≤ anggaran (dokumen pertama selalu ikut). */

@@ -76,15 +76,22 @@ export function segmentText(text: string, target = SEGMENT_TARGET): DocSegment[]
   return merged;
 }
 
-// Perkiraan token (dikalibrasi dengan count_tokens di S19, lihat ADR): teks Arab Ihya ±0,7
-// token/karakter (ARSITEKTUR §8), teks Latin ±0,3, ditambah overhead dokumen dan blok.
+// Perkiraan token, dikalibrasi 2026-10-20 dengan count_tokens Haiku 5.5 atas 1–19 dokumen Ihya
+// (`pnpm run jawab:gateway-check`, regresi linear, galat ≤9 token): huruf Arab 0,7 token/karakter
+// (sama dengan ARSITEKTUR §8), huruf lain (Indonesia/Latin) ±0,51, ±93 token per dokumen
+// (judul, konteks, pembungkus Citations), dan ±2.360 token tetap (sistem + pertanyaan + tambahan
+// Citations). Faktor dibulatkan ke atas supaya anggaran tidak terlampaui.
 const ARABIC = /\p{Script=Arabic}/u;
 export function estimateTextTokens(text: string): number {
   let arabic = 0;
-  for (const ch of text) if (ARABIC.test(ch)) arabic++;
-  return Math.ceil(arabic * 0.7 + (text.length - arabic) * 0.3);
+  let other = 0;
+  for (const ch of text) {
+    if (ARABIC.test(ch)) arabic++;
+    else other++;
+  }
+  return Math.ceil(arabic * 0.7 + other * 0.53);
 }
-const DOC_OVERHEAD = 40;
+const DOC_OVERHEAD = 95;
 const BLOCK_OVERHEAD = 8;
 
 function sectionPath(

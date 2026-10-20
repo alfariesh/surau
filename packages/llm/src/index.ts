@@ -2,8 +2,14 @@
 // ringkasan, validasi keluaran, harga token. S19 menambah pipeline Jawab. Tanpa node:* atau
 // cloudflare:*: kunci API selalu diberikan pemanggil.
 
-export { MAX_PROMPT_TOKENS, MODELS, createAnthropic, isModelId } from "./client.ts";
-export type { ModelId } from "./client.ts";
+export {
+  MAX_PROMPT_TOKENS,
+  MODELS,
+  createAnthropic,
+  createGatewayAnthropic,
+  isModelId,
+} from "./client.ts";
+export type { ClientOptions, ModelId } from "./client.ts";
 
 export {
   CUSTOM_ID_PATTERN,

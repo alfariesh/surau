@@ -24,6 +24,7 @@
     "db:migrate:remote": "wrangler d1 migrations apply APP --remote -c packages/db/wrangler.jsonc",
     "db:migrate:staging": "wrangler d1 migrations apply CORPUS --remote -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc",
     "eval:jawab": "node tools/eval/src/answer.ts",
+    "jawab:gateway-check": "node tools/eval/src/gateway-check.ts",
     "kertas": "node scripts/kertas.mjs"
   },
   "devDependencies": {
