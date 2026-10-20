@@ -70,7 +70,7 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
   ].filter((n) => n !== null);
   return (
     <div className="flex flex-col gap-3 text-sm">
-      {surahNameAr ? <ArabicText className="text-muted text-base">{surahNameAr}</ArabicText> : null}
+      {surahNameAr ? <ArabicText className="text-muted">{surahNameAr}</ArabicText> : null}
       {notes.length > 0 ? (
         <ul className="text-muted flex list-none flex-col gap-0.5 p-0 text-xs">
           {notes.map((n) => (
@@ -84,7 +84,9 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
       <ol className="flex list-none flex-col gap-3 p-0">
         {ayat.map((a) => (
           <li key={`${a.surah}:${a.ayah}`} className="flex flex-col gap-1">
-            <ArabicText className="text-foreground text-lg">{a.text}</ArabicText>
+            <ArabicText className="text-foreground" size="lg">
+              {a.text}
+            </ArabicText>
             {a.transliteration ? (
               <Typography
                 type="body-xs"

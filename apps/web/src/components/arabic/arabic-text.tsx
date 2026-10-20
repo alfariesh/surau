@@ -14,12 +14,19 @@ export interface ArabicTextProps {
   as?: "p" | "div" | "blockquote" | "h2" | "h3";
   className?: string;
   id?: string;
+  /**
+   * Skala ukuran huruf Arab (satu-satunya cara mengubahnya; jangan memberi kelas `text-*`):
+   * `md` (bawaan) 1,25× teks di sekitarnya, `lg` 1,45×, `display` ukuran tetap untuk judul besar
+   * (30 px, 36 px di layar lebar). Pembaca tetap mengikuti `--reader-scale`.
+   */
+  size?: "md" | "lg" | "display";
 }
 
-export function ArabicText({ as: Tag = "p", children, className, id }: ArabicTextProps) {
+export function ArabicText({ as: Tag = "p", children, className, id, size }: ArabicTextProps) {
   return (
     <Tag
       className={className ? `arabic-text ${className}` : "arabic-text"}
+      data-size={size === "md" ? undefined : size}
       dir="rtl"
       id={id}
       lang="ar"

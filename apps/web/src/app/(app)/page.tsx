@@ -81,7 +81,7 @@ export default async function HomePage() {
       <div className="flex w-full max-w-3xl flex-col gap-12">
         <Card className="py-8">
           <figure className="m-0 flex flex-col items-center gap-3">
-            <ArabicText className="text-foreground text-3xl sm:text-4xl">
+            <ArabicText className="text-foreground" size="display">
               {BASMALAH.text}
             </ArabicText>
             <figcaption className="text-muted px-4 text-center text-xs">
