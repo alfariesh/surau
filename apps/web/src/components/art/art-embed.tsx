@@ -12,13 +12,16 @@ import { useTheme } from "next-themes";
 // induk), saat tema berubah dan saat iframe dimuat. color-scheme iframe diwarisi dari <html> (next-themes).
 const THEME_PARAM: Record<string, string> = { light: "terang", dark: "gelap", sepia: "sepia" };
 
+// repeat: putar cerita berulang N kali (0 = terus selama terlihat), untuk empty state atau indikator memuat.
 export function ArtEmbed({
   className,
   name,
+  repeat,
   title,
 }: {
   className?: string;
   name: string;
+  repeat?: number;
   title: string;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
@@ -61,7 +64,7 @@ export function ArtEmbed({
       loading="lazy"
       onLoad={postTheme}
       sandbox="allow-scripts"
-      src={`/aset/${name}.html?sematan=1&tombol=0`}
+      src={`/aset/${name}.html?sematan=1&tombol=0${repeat === undefined ? "" : `&ulang=${repeat}`}`}
       tabIndex={-1}
       title={title}
     />

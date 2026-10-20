@@ -60,6 +60,7 @@ Filter `#glow`, `#soft`, dan `#bloom` dipasang mesin dengan skala viewBox dan wi
 mountFigure({
   id: 'prinsip-alamat', title: '…', hint: '…', alt: '…',
   tombol: [{ label: 'Telusuri', aksi: api => … }], // opsional; disembunyikan di kartu situs (?tombol=0)
+  ulang: { kali: 3, jeda: 1800 },                 // opsional: mode berulang (empty state); tanpa ini sekali jalan
   mount(stage, api) {
     const K = api.frame([...]);
     const st = { … };                             // satu objek keadaan

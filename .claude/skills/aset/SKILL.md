@@ -49,7 +49,10 @@ Kitab (terbuka/tertutup, bertumpuk), rehal, rak dan jilid, kartu kutipan, kabel 
    - Apakah yang menyala hanya yang hidup?
 
    Coba juga tombol yang ditekan di luar urutan; harus muncul pesan, tidak boleh diam.
-4. **Bangun:** `node .claude/skills/aset/skrip/bangun.mjs aset/figur/<nama>.html` menghasilkan `aset/keluaran/<nama>.html`. Tambahkan `--situs` untuk aset yang tampil di situs: salinannya masuk ke `apps/web/public/aset/`.
+4. **Bangun:** `node .claude/skills/aset/skrip/bangun.mjs aset/figur/<nama>.html` menghasilkan `aset/keluaran/<nama>.html` (mandiri, mesin disisipkan). Tambahkan `--situs` untuk aset yang tampil di situs:
+   - Mesin ditulis sekali ke `apps/web/public/aset-mesin/iso-<hash>.js` (cache immutable, sekali unduh untuk semua ilustrasi), dan versi lamanya dihapus.
+   - **Semua** figur di `apps/web/public/aset/` dibangun ulang (±6 KiB per figur) supaya merujuk mesin yang sama.
+   - Setelah mengubah `mesin/iso.js` atau warna situs, jalankan sekali `bangun.mjs <figur mana saja> --situs`.
 5. **Kirim tangkapan layar ke pemilik** (terang, gelap, ponsel) sebelum aset baru dipasang di halaman situs. Kalau aset sudah dipasang di PR, tautkan juga preview PR.
 
 ## Keluaran per kebutuhan
@@ -62,6 +65,11 @@ Kitab (terbuka/tertutup, bertumpuk), rehal, rak dan jilid, kartu kutipan, kabel 
 | **Gambar di halaman situs** (diam) | `--format webp` | Jangan PNG: di Workers gambar tidak dioptimasi ulang (ADR-003) |
 
 **Interaksi:** cerita diputar **sekali** saat figur pertama kali terlihat, lalu berhenti di keadaan akhir. Cerita diputar ulang bila kursor masuk ke figur atau ke kartu induknya, bila figur atau kartu diketuk (ponsel), atau bila induk mengirim `{type:'surau-aset', putar:true}`. Tidak ada perulangan tanpa henti (WCAG 2.2.2). "Kurangi gerakan" langsung menampilkan keadaan akhir. Jangan mengandalkan hover saja, karena ponsel dan keyboard tidak punya hover; karena itu cerita juga diputar saat terlihat.
+
+**Mode berulang** (empty state, indikator memuat): `cfg.ulang = { kali: 3, jeda: 1800 }` di figur, atau `?ulang=N&jeda=ms` (`<ArtEmbed repeat={N} />`). Cerita diputar N kali (0 = terus) dengan jeda, hanya selama figur terlihat. Putaran berhenti saat tab disembunyikan atau figur keluar layar, lalu lanjut saat terlihat lagi. "Kurangi gerakan" tetap menampilkan gambar diam.
+- **Empty state:** 2–3 kali lalu diam. Nadanya ramah, jadi tanpa silang atau kesan galat. Contohnya `aset/figur/kosong-pencarian.html`: kaca pembesar menyisir rak kosong.
+- **Indikator memuat:** `0` (terus) boleh dipakai, karena gerakannya bagian dari proses yang sedang berjalan dan berhenti sendiri begitu figur dilepas.
+- **Kartu dan landing:** tetap sekali jalan.
 
 Parameter bawaan mesin: `?tema=terang|gelap|sepia` (bawaan mengikuti sistem), `?sematan=1`, `?tombol=0`, `?polos=1`, `?sampul=1&judul=…&kecil=…` (teks lewat `textContent`, aman dari sisipan HTML), `?gerak=0`, `?demo=0`, dan `?press=Label@ms,…` (uji). Figur boleh membaca parameternya sendiri untuk memotret keadaan tertentu (contoh: `?tutup=1`, `?balik=0.5`); nilai bukan angka wajib diabaikan (`Number.isFinite`).
 

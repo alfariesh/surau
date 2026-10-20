@@ -19,3 +19,8 @@
 # Font ilustrasi dimuat dari origin "null", jadi perlu CORS (hanya font).
 /aset/fonts/*
   Access-Control-Allow-Origin: *
+
+# Mesin ilustrasi bersama (nama berisi hash isi, jadi aman di-cache selamanya).
+/aset-mesin/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff

@@ -236,7 +236,7 @@ const filterCahaya = (k, terang) => terang
         anim(ms, step(t), selesai), after(ms, fn), diam (kurangi gerakan), tandai() (pengguna berinteraksi:
         animasi dan timer dihentikan, demo berhenti, lalu aksi pengunjung yang dijalankan)
    Parameter URL: ?tema=terang|gelap|sepia · ?sematan=1 · ?polos=1 · ?sampul=1&judul=…&kecil=… · ?gerak=0 ·
-   ?tombol=0 · ?demo=0 (tanpa cerita otomatis) · ?press=Label@ms,… (uji). Induk bisa mengirim postMessage
+   ?tombol=0 · ?ulang=N&jeda=ms (mode berulang) · ?demo=0 (tanpa cerita otomatis) · ?press=Label@ms,… (uji). Induk bisa mengirim postMessage
    {type:'surau-aset', tema:'gelap'} untuk mengganti tema dan {type:'surau-aset', putar:true} untuk memutar cerita. */
 addEventListener('error', e => { document.documentElement.dataset.errors = (document.documentElement.dataset.errors || '') + ' ' + e.message + ';'; });
 function mountFigure(cfg) {
@@ -393,14 +393,27 @@ function mountFigure(cfg) {
     if (!handle.demo || (disentuh && adaTombol)) return;
     if (diam) { if (handle.akhir) handle.akhir(); return; }
     api.hentikan(); handle.demo(); }
+  // mode berulang (empty state, indikator memuat): ?ulang=N memutar cerita N kali (0 = terus) dengan jeda
+  // ?jeda=ms (bawaan 2500), hanya selama figur terlihat; berhenti saat tab disembunyikan atau figur keluar
+  // layar, lalu lanjut saat terlihat lagi. Bawaan figur: cfg.ulang = { kali, jeda }. Tanpa ini: sekali saja.
+  const ulangCfg = cfg.ulang || {};
+  const ulangKali = q.has('ulang') ? Math.max(0, Math.floor(Number(q.get('ulang')) || 0)) : ulangCfg.kali ?? null;
+  const jeda = Math.max(800, Number(q.get('jeda')) || ulangCfg.jeda || 2500);
+  let diLayar = false, putaran = 0, tungguT = 0;
+  const bolehUlang = () => ulangKali !== null && (ulangKali === 0 || putaran < ulangKali);
+  const siklus = () => { clearTimeout(tungguT);
+    if (!diLayar || document.visibilityState !== 'visible' || (disentuh && adaTombol)) return;
+    if (api.berjalan()) { tungguT = setTimeout(siklus, 200); return; }
+    if (putaran > 0 && !bolehUlang()) return;
+    putaran++; putarCerita();
+    if (bolehUlang()) { const tunggu = () => { if (api.berjalan()) tungguT = setTimeout(tunggu, 200); else tungguT = setTimeout(siklus, jeda); }; tungguT = setTimeout(tunggu, 200); } };
   if (sampul || polos || diam || q.get('demo') === '0') { if (handle.akhir && q.get('demo') !== '0') handle.akhir(); }
   else {
-    let sudah = false;
-    const coba = () => { if (!sudah && document.visibilityState === 'visible') { sudah = true; setTimeout(putarCerita, 250); } };
+    const mulai = () => { diLayar = true; if (putaran === 0) tungguT = setTimeout(siklus, 250); else if (bolehUlang()) siklus(); };
     if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(es => { if (es[es.length - 1].isIntersecting) { coba(); if (sudah) io.disconnect(); } });
-      io.observe(stage);
-    } else coba();
+      new IntersectionObserver(es => { if (es[es.length - 1].isIntersecting) mulai(); else { diLayar = false; clearTimeout(tungguT); } }).observe(stage);
+    } else mulai();
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && diLayar && bolehUlang()) siklus(); });
   }
 
   // uji: ?press=Label@ms klik tombol yang teksnya diawali Label

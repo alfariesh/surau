@@ -18,6 +18,7 @@ const vendoredAset = [
   ".claude/skills/aset/contoh/**",
   "aset/**",
   "apps/web/public/aset/**",
+  "apps/web/public/aset-mesin/**",
 ];
 
 export default defineConfig({
