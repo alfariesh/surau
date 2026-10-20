@@ -172,7 +172,7 @@ body {
 :root {
   --paper-shadow: #cdc8bb;
   --paper-blend: multiply;
-  --paper-strength: 0.45;
+  --paper-strength: 0.6;
   --paper-tile: 768px;
 }
 
