@@ -35,7 +35,8 @@ CREATE TABLE llm_budget (
 
 -- Satu baris per panggilan berbiaya: `jawab` (routing + jawaban Haiku) dan `retry` (ulangan
 -- Sonnet). Tanpa teks pertanyaan atau jawaban. `estimated` = 1 bila biaya aktual tidak diketahui
--- (batal, galat, reservasi basi) dan reservasi dihitung terpakai. Dihapus setelah 24 bulan (P-7).
+-- (galat tanpa status HTTP, galat tak terduga, reservasi basi) dan dihitung konservatif. Dihapus
+-- setelah 24 bulan, dibulatkan per bulan kalender (P-7).
 CREATE TABLE llm_ledger (
   id                 TEXT PRIMARY KEY CHECK (length(id) = 36),
   kind               TEXT NOT NULL CHECK (kind IN ('jawab', 'retry')),
@@ -43,7 +44,7 @@ CREATE TABLE llm_ledger (
   created_at         TEXT NOT NULL,
   settled_at         TEXT,
   status             TEXT NOT NULL CHECK (status IN ('reserved', 'committed', 'expired')),
-  outcome            TEXT CHECK (outcome IN ('answer', 'not_found', 'fallback', 'aborted', 'error')),
+  outcome            TEXT CHECK (outcome IN ('answer', 'not_found', 'fallback', 'error')),
   reason             TEXT CHECK (reason IS NULL OR length(reason) <= 32),
   model              TEXT CHECK (model IS NULL OR length(model) <= 64),
   reserved_micro     INTEGER NOT NULL CHECK (reserved_micro >= 0),

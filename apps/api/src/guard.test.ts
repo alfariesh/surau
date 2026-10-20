@@ -450,6 +450,69 @@ describe("galat penyedia dan ledger", () => {
   });
 });
 
+describe("galat di tengah stream dan klien yang pergi", () => {
+  test("body jawaban putus sesudah message_start → fallback provider_error (bukan galat), biaya konservatif", async () => {
+    const { ask } = setup({ answer: () => ({ breakAfterStart: true }) });
+    const { events } = await ask({ [ANON_HEADER]: await cookieFor(), [IP_HEADER]: freshIp() });
+    const last = lastEvent(events)!;
+    expect(last.event).toBe("fallback");
+    expect((last.data as { result: { reason: string; search: unknown[] } }).result.reason).toBe(
+      "provider_error",
+    );
+    expect(await ledgerRows()).toEqual([
+      expect.objectContaining({
+        outcome: "fallback",
+        reason: "provider_error",
+        cost_micro: 150 + 2 * toMicro(answerWorstUsd(MODELS.haiku)),
+        estimated: 1,
+      }),
+    ]);
+  });
+
+  test("klien pergi saat routing → jawaban tidak dimulai; hanya biaya routing nyata", async () => {
+    const fake = fakeAnthropic({
+      route: () => ({ ...ROUTE, delayMs: 120 }),
+      answer: () => ({ blocks: [{ text: "x" }] }),
+    });
+    const app = createApp({ anthropic: () => fake.client, editionId: ED });
+    const ctx = createExecutionContext();
+    const res = await app.request(
+      "https://api.internal/jawab",
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          [ANON_HEADER]: await cookieFor(),
+          [IP_HEADER]: freshIp(),
+        },
+        body: JSON.stringify({ question: QUESTION }),
+      },
+      env,
+      ctx,
+    );
+    const reader = res.body!.getReader();
+    const decoder = new TextDecoder();
+    let seen = "";
+    while (!seen.includes('"stage":"route"')) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      seen += decoder.decode(value);
+    }
+    await reader.cancel();
+    await waitOnExecutionContext(ctx);
+    expect(fake.sent.map((x) => x.kind)).toEqual(["route"]);
+    expect(await ledgerRows()).toEqual([
+      expect.objectContaining({
+        outcome: "fallback",
+        reason: "cancelled",
+        cost_micro: 150,
+        estimated: 0,
+      }),
+    ]);
+    expect(await budgetRow()).toMatchObject({ spent_micro: 150, reserved_micro: 0 });
+  });
+});
+
 describe("anggaran habis → Jawab mati otomatis, situs tetap berjalan", () => {
   test("POST 503 budget, status available=false, kesehatan Worker tetap OK", async () => {
     await setSetting("budget_monthly_usd", "0");

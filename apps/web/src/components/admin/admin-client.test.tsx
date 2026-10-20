@@ -25,7 +25,7 @@ const overview: AdminOverview = {
   questions: 4,
   outcomes: [
     { outcome: "answer", calls: 3, cost_usd: 0.0099, estimated: 0 },
-    { outcome: "aborted", calls: 1, cost_usd: 0.0162, estimated: 1 },
+    { outcome: "error", calls: 1, cost_usd: 0.0162, estimated: 1 },
   ],
   quota: {
     day: "2026-10-21",
@@ -53,7 +53,7 @@ describe("AdminClient", () => {
     const html = renderToStaticMarkup(<AdminClient initial={overview} routeEnabled={false} />);
     expect(html).toContain("Jawab aktif");
     expect(html).toContain("2026-10");
-    expect(html).toContain("Dibatalkan pengunjung");
+    expect(html).toContain("Galat");
     expect(html).toContain("perkiraan");
     expect(html).toContain("Nomor halaman salah. Hubungi [email].");
     expect(html).toContain('href="/kitab/ihya/1/200"');

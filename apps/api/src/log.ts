@@ -6,7 +6,7 @@ import type { JawabResult } from "@surau/llm";
 export interface JawabLog {
   event: "jawab";
   environment: string;
-  outcome: JawabResult["outcome"] | "disabled" | "error" | "aborted" | "rejected";
+  outcome: JawabResult["outcome"] | "disabled" | "error" | "rejected";
   reason: string | null;
   cached: boolean;
   model: string | null;

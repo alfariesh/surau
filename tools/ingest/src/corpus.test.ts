@@ -218,15 +218,48 @@ describe("deploy otomatis tidak pernah menyentuh korpus (ARSITEKTUR-TEKNIS §7 a
 
 describe("Log Worker tanpa IP mentah (S20, ADR-065)", () => {
   // Log otomatis per permintaan (invocation logs) merekam semua header, termasuk `cf-connecting-ip`
-  // dan `x-real-ip` (diperiksa 2026-10-21 dengan `wrangler tail --ip self`). Setiap blok `logs`
-  // (produksi, Preview, env.staging) wajib mematikannya.
+  // dan `x-real-ip` (diperiksa 2026-10-21 dengan `wrangler tail --ip self`). Setiap blok
+  // `observability` (produksi, Preview, env.staging) wajib mematikannya; blok tanpa `logs` berarti
+  // bawaan (menyala) dan ikut ditolak.
+  function parseJsonc(text: string): unknown {
+    let out = "";
+    for (let i = 0, str = false, esc = false; i < text.length; i++) {
+      const c = text[i]!;
+      if (str) {
+        out += c;
+        if (esc) esc = false;
+        else if (c === "\\") esc = true;
+        else if (c === '"') str = false;
+      } else if (c === '"') {
+        str = true;
+        out += c;
+      } else if (c === "/" && text[i + 1] === "/") {
+        while (i < text.length && text[i] !== "\n") i++;
+        out += "\n";
+      } else if (c === "/" && text[i + 1] === "*") {
+        i = text.indexOf("*/", i + 2) + 1;
+      } else out += c;
+    }
+    return JSON.parse(out.replaceAll(/,(\s*[}\]])/gu, "$1"));
+  }
+  function observabilityBlocks(node: unknown, path = "$"): [string, unknown][] {
+    if (node === null || typeof node !== "object") return [];
+    return Object.entries(node).flatMap(([k, v]): [string, unknown][] =>
+      k === "observability"
+        ? [[`${path}.${k}`, v], ...observabilityBlocks(v, `${path}.${k}`)]
+        : observabilityBlocks(v, `${path}.${k}`),
+    );
+  }
+
   for (const config of [WEB_CONFIG, MCP_CONFIG, API_CONFIG]) {
-    test(`${config}: semua blok observability.logs memakai invocation_logs false`, () => {
-      const lines = readFileSync(join(repo, config), "utf8")
-        .split("\n")
-        .filter((l) => /"logs":\s*\{/u.test(l));
-      expect(lines.length).toBeGreaterThanOrEqual(2);
-      for (const l of lines) expect(l).toContain('"invocation_logs": false');
+    test(`${config}: setiap blok observability memakai logs.invocation_logs false`, () => {
+      const blocks = observabilityBlocks(parseJsonc(readFileSync(join(repo, config), "utf8")));
+      expect(blocks.length).toBeGreaterThanOrEqual(2);
+      for (const [where, block] of blocks)
+        expect(
+          (block as { logs?: { invocation_logs?: unknown } }).logs?.invocation_logs,
+          where,
+        ).toBe(false);
     });
   }
 });

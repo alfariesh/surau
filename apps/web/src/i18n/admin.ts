@@ -34,7 +34,6 @@ export const adminText = {
       answer: "Dijawab",
       not_found: "Tidak ditemukan",
       fallback: "Turun ke Cari",
-      aborted: "Dibatalkan pengunjung",
       error: "Galat",
       berjalan: "Sedang berjalan",
       basi: "Reservasi basi",

@@ -105,7 +105,7 @@ export type LlmBudgetRow = z.infer<typeof llmBudgetRow>;
 export const ledgerKind = z.enum(["jawab", "retry"]);
 export type LedgerKind = z.infer<typeof ledgerKind>;
 export const ledgerStatus = z.enum(["reserved", "committed", "expired"]);
-export const ledgerOutcome = z.enum(["answer", "not_found", "fallback", "aborted", "error"]);
+export const ledgerOutcome = z.enum(["answer", "not_found", "fallback", "error"]);
 export type LedgerOutcome = z.infer<typeof ledgerOutcome>;
 
 /** Satu panggilan berbiaya Jawab (S20). Tanpa teks pertanyaan atau jawaban. */

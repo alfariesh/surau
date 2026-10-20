@@ -23,11 +23,11 @@ Format entri:
   - Web: penerus `/api/jawab` (skema bersama, header internal, Set-Cookie anon), `/admin` + `/api/admin` (Access `Surau Admin` + JWT AUD admin), `/privasi`, `redactPii` untuk laporan.
   - Privasi: ditemukan log otomatis per permintaan Workers merekam IP mentah (`wrangler tail --ip self`) → `invocation_logs: false` di web/MCP/API, dijaga tes.
 - Verifikasi:
-  - `pnpm verify` lolos; sesudah perbaikan peninjau `pnpm test` 596 Node + 310 Workers, `pnpm check` bersih; CI PR #99 hijau.
+  - `pnpm verify` lolos; sesudah perbaikan peninjau dua putaran `pnpm test` 596 Node + 312 Workers, `pnpm check` bersih; CI PR #99 hijau.
   - Tes guard workerd (Turnstile, cookie, burst, kuota anon/IP, reservasi paralel tidak melewati plafon, anggaran habis → 503 `budget` + status tidak tersedia + `/health` 200, Sonnet, galat penyedia, klien putus, cron, log tanpa data pribadi).
   - Produksi: `/admin` dan `/api/admin` → 302 login Access (`kid` = AUD Surau Admin); `POST /api/jawab` → 404.
   - Tampilan `/privasi` (desktop + ponsel) dan `/admin` tanpa login dicek di pratinjau Workers lokal; panel admin berlogin dites render server.
-  - Peninjau: putaran 1 tanpa blocker, 4 temuan penting + saran diperbaiki.
+  - Peninjau: dua putaran tanpa blocker; semua temuan penting + saran diperbaiki (biaya semu saat klien putus, IP di log otomatis, galat tanpa status, body putus di tengah stream, dokumen).
 - Biaya API: – (Anthropic tiruan).
 - Keputusan: ADR-065.
 - Catatan untuk sesi berikutnya: S21 (celah status hadits dulu, lalu UI Tanya + uji staging guard). Pemilik: secret produksi `CF_AIG_TOKEN` + `TURNSTILE_SECRET_KEY` (T-14) sebelum `/rilis 4`. Butir "tanpa IP di log" dicentang setelah log lama habis (±2026-10-28).

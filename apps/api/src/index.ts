@@ -486,6 +486,8 @@ export function createApp(deps: Partial<AppDeps> = {}) {
               headers: {
                 "cf-aig-metadata": JSON.stringify({ app: "surau-api", env: env.ENVIRONMENT }),
               },
+              // Klien sudah pergi: panggilan yang sedang berjalan diselesaikan, panggilan baru tidak.
+              isCancelled: () => clientGone,
               // Ulangan Sonnet = biaya tambahan: direservasi terpisah sebelum dipanggil.
               beforeRetry: async (before) => {
                 const retry: RetryReserved = {
@@ -512,7 +514,12 @@ export function createApp(deps: Partial<AppDeps> = {}) {
           await commitResult(env.APP_DB, primary, ledger.retry, result, settledAt).catch(
             logError("jawab_ledger_error"),
           );
-          const warned = await markBudgetWarning(env.APP_DB, period, settledAt).catch(() => null);
+          const warned = await markBudgetWarning(env.APP_DB, period, settledAt).catch(
+            (error: unknown) => {
+              logError("jawab_budget_warning_error")(error);
+              return null;
+            },
+          );
           if (warned !== null)
             console.warn(
               JSON.stringify({

@@ -29,10 +29,12 @@ export type FakeAnswer =
   | { status: number }
   /** `fetch` gagal tanpa respons HTTP (koneksi putus/timeout): status galat = null. */
   | { throws: true }
+  /** Body SSE putus sesudah `message_start` (koneksi gateway hilang di tengah jawaban). */
+  | { breakAfterStart: true }
   /** Stream yang tidak pernah selesai sampai request dibatalkan (uji abort klien). */
   | { hold: true };
 export type FakeRoute =
-  | { sections: number[]; queries: string[]; hadith: boolean }
+  | { sections: number[]; queries: string[]; hadith: boolean; delayMs?: number }
   | { status: number };
 
 const usage = {
@@ -144,6 +146,8 @@ export function fakeAnthropic(handlers: {
     sent.push({ model, kind: isRoute ? "route" : "answer", body, documents });
     if (isRoute) {
       const r = handlers.route(routes++);
+      if ("delayMs" in r && r.delayMs !== undefined)
+        await new Promise((resolve) => setTimeout(resolve, r.delayMs));
       if ("status" in r)
         return Response.json(
           { type: "error", error: { type: "api_error", message: "x" } },
@@ -162,6 +166,30 @@ export function fakeAnthropic(handlers: {
     }
     const a = handlers.answer(answers++, documents, model);
     if ("throws" in a) throw new TypeError("koneksi putus (tiruan)");
+    if ("breakAfterStart" in a) {
+      const start = sse([
+        {
+          type: "message_start",
+          message: {
+            id: "msg_t",
+            type: "message",
+            role: "assistant",
+            model,
+            content: [],
+            stop_reason: null,
+            stop_sequence: null,
+            usage,
+          },
+        },
+      ]);
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(start));
+          controller.error(new TypeError("Network connection lost (tiruan)"));
+        },
+      });
+      return new Response(body, { headers: { "content-type": "text/event-stream" } });
+    }
     if ("status" in a)
       return Response.json(
         { type: "error", error: { type: "overloaded_error", message: "x" } },

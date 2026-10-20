@@ -469,6 +469,7 @@ export async function setFeedbackStatus(
 export const RETENTION_DAYS = {
   quota_daily: 7,
   feedback_after_resolved: 365,
+  /** Dihapus per bulan kalender (`period`), jadi baris bisa bertahan sampai ±25 bulan. */
   llm_ledger: 730,
 } as const;
 

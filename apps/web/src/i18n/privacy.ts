@@ -10,7 +10,7 @@ export const privacyText = {
   summaryHeading: "Ringkasan",
   summary: [
     "Tanpa akun dan tanpa login.",
-    "Alamat IP tidak pernah disimpan mentah.",
+    "Alamat IP tidak disimpan mentah. Log teknis lama yang sempat memuatnya terhapus otomatis paling lambat 28 Oktober 2026.",
     "Teks pertanyaan Tanya tidak disimpan di database Surau.",
     "Pertanyaan Anda tidak dipakai untuk melatih model AI.",
   ],
@@ -39,7 +39,7 @@ export const privacyText = {
     {
       data: "Catatan biaya per pertanyaan (token dan biaya, tanpa teks)",
       where: "Database Surau",
-      how: "24 bulan",
+      how: "24 bulan (dibulatkan per bulan)",
     },
     { data: "Laporan kesalahan", where: "Database Surau", how: "Sampai ditangani + 12 bulan" },
     {
