@@ -50,8 +50,8 @@ Cloudflare → Workers & Pages → **surau-mcp → Observability → Overview**:
 Perintah baca-saja dari root:
 
 ```sh
-pnpm exec wrangler d1 info surau-corpus-ihya-v6 -c apps/mcp/wrangler.jsonc --json
-pnpm exec wrangler d1 insights surau-corpus-ihya-v6 -c apps/mcp/wrangler.jsonc --time-period 1d --sort-type sum --sort-by reads --sort-direction DESC --limit 5 --json
+pnpm exec wrangler d1 info surau-corpus-ihya-v7 -c apps/mcp/wrangler.jsonc --json
+pnpm exec wrangler d1 insights surau-corpus-ihya-v7 -c apps/mcp/wrangler.jsonc --time-period 1d --sort-type sum --sort-by reads --sort-direction DESC --limit 5 --json
 ```
 
 Snapshot 17 Oktober, sekitar 21:48 WIB (`d1 info`, jendela bergulir 24 jam): **365.605 rows_read**, **1.134 read_queries**, 145.771 rows_written, 82 write_queries. Ini seluruh DB bersama web/MCP, termasuk ingest, smoke dan uji hari itu; **bukan biaya khusus MCP** dan bukan angka penggunaan publik saja.
