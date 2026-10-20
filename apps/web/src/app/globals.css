@@ -161,28 +161,46 @@ body {
 }
 
 /*
- * Latar kertas, sama dengan portofolio pemilik: (1) serat kertas PaperTexture (PaperBackground),
- * hanya seratnya yang tampak (multiply 55% di mode terang, screen di gelap); (2) butiran halus noise
- * SVG 5%. Keduanya lapisan tetap di ATAS semua isi (tidak bisa diklik), supaya navbar, sidebar, dan
- * kartu ikut bertekstur tanpa pita polos; blend multiply/screen tidak mengubah warna teks.
+ * Latar kertas (ADR-041 poin 8, ADR-058): (1) serat kertas = shader PaperTexture yang dipanggang
+ * sekali jadi tile AVIF abu-abu (scripts/kertas.mjs, `pnpm kertas`), dipakai sebagai mask luminans
+ * pada warna bayangan kertas: terang/sepia `multiply`, gelap `screen`; (2) butiran halus noise SVG 5%.
+ * Keduanya lapisan tetap di ATAS semua isi (tidak bisa diklik), supaya navbar, sidebar, dan kartu ikut
+ * bertekstur tanpa pita polos; blend multiply/screen tidak mengubah warna teks. Tanpa JavaScript dan
+ * WebGL, jadi tekstur ikut tampil sejak cat pertama (setelah tile ter-cache) dan skalanya sama di
+ * semua viewport (tile 1024 px selebar 768 px CSS; di layar 2x diperbesar 1,5x, serat tetap lembut). `?v=` diperbarui otomatis oleh `pnpm kertas` saat tile dipanggang ulang.
  */
-.paper-fibre {
-  position: fixed;
-  inset: 0;
-  z-index: 99;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  opacity: 0.55;
-  animation: paper-fibre-in 0.6s ease-out both;
+:root {
+  --paper-shadow: #cdc8bb;
+  --paper-blend: multiply;
+  --paper-strength: 0.55;
+  --paper-tile: 768px;
 }
 
-.paper-fibre[data-theme="dark"] {
-  mix-blend-mode: screen;
+:root.dark {
+  --paper-shadow: #3a362e;
+  --paper-blend: screen;
 }
 
-@keyframes paper-fibre-in {
-  from {
-    opacity: 0;
+:root.sepia {
+  --paper-shadow: #c4b396;
+}
+
+@supports (mask-mode: luminance) {
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    pointer-events: none;
+    background-color: var(--paper-shadow);
+    mix-blend-mode: var(--paper-blend);
+    opacity: var(--paper-strength);
+    /* Longhand tanpa var() kecuali ukuran: var() yang gagal di shorthand mengosongkan seluruh mask. */
+    mask-image: url("/kertas/serat.avif?v=4fcb341c");
+    mask-mode: luminance;
+    mask-repeat: repeat;
+    mask-position: 0 0;
+    mask-size: var(--paper-tile);
   }
 }
 
@@ -198,12 +216,13 @@ body::after {
 
 /*
  * Tinta di kertas. (1) Tinta meresap: bayangan 0,6 px sewarna huruf (sepertiga kekuatan), tepi
- * huruf sedikit lembut seperti tinta terserap serat; berlaku untuk semua teks termasuk Arab.
+ * huruf sedikit lembut seperti tinta terserap serat; hanya judul Latin (ADR-058). Teks isi, judul
+ * bab Arab (.reader-heading), catatan kaki, dan teks kecil tetap tajam: harakat tidak dilunakkan.
  * (2) Tinta tidak rata: hanya judul Latin besar (h1, h2 selain judul bab Arab). Isi huruf diisi
  * warna teks + noise halus (background-clip: text): terang = bintik memudar (screen), gelap =
  * bintik menggelap (multiply). Teks Arab di dalam judul tetap tinta penuh supaya harakat tajam.
  */
-body {
+:is(h1, h2, h3, h4, h5, h6):not(.reader-heading) {
   text-shadow: 0 0 0.6px color-mix(in oklab, currentColor 32%, transparent);
 }
 
@@ -235,9 +254,11 @@ body {
   -webkit-text-fill-color: currentColor;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .paper-fibre {
-    animation: none;
+/* Tekstur kertas hanya hiasan layar: tidak ikut dicetak dan mengalah pada mode kontras tinggi. */
+@media print, (forced-colors: active) {
+  body::before,
+  body::after {
+    display: none;
   }
 }
 

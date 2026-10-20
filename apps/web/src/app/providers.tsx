@@ -7,8 +7,6 @@ import { ThemeProvider } from "next-themes";
 import { Toast } from "@heroui/react";
 import { I18nProvider, RouterProvider } from "react-aria-components";
 
-import { PaperBackground } from "../components/shell/paper-background";
-
 // Tema: terang, gelap, dan kertas sepia (panel Tampilan di halaman baca). Sepia = palet terang
 // yang lebih hangat (globals.css `:root.sepia`).
 const THEMES = ["light", "dark", "sepia"];
@@ -28,7 +26,6 @@ export function Providers({ children }: { children: ReactNode }) {
     >
       <I18nProvider locale="id-ID">
         <RouterProvider navigate={(href) => router.push(href)}>
-          <PaperBackground />
           {children}
           {/* Notifikasi singkat (mis. "Sitasi disalin" di pembaca kitab). */}
           <Toast.Provider placement="bottom" />

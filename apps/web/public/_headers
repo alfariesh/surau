@@ -20,3 +20,7 @@
 /aset-mesin/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
+
+# Tile tekstur kertas (scripts/kertas.mjs); URL di globals.css memakai ?v=<hash> isi berkas.
+/kertas/*
+  Cache-Control: public,max-age=31536000,immutable

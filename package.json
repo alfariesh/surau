@@ -23,11 +23,14 @@
     "db:migrate:local": "wrangler d1 migrations apply CORPUS --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc",
     "db:migrate:remote": "wrangler d1 migrations apply APP --remote -c packages/db/wrangler.jsonc",
     "db:migrate:staging": "wrangler d1 migrations apply CORPUS --remote -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc",
-    "eval:jawab": "node tools/eval/src/answer.ts"
+    "eval:jawab": "node tools/eval/src/answer.ts",
+    "kertas": "node scripts/kertas.mjs"
   },
   "devDependencies": {
+    "@paper-design/shaders": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
+    "sharp": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:",
     "wrangler": "catalog:"
