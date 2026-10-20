@@ -1,6 +1,6 @@
 # S21 · UI Tanya, transparansi biaya & rilis Fase 4
 
-> **Fase:** 4 · **Status:** berjalan (mulai 2026-10-21)
+> **Fase:** 4 · **Status:** sebagian (2026-10-21; PR #100, ADR-066) · butir manusia (ustadz, persetujuan tampilan) dan syarat R4 belum terpenuhi
 > **Prasyarat:** S20 selesai · Tugas pemilik: review ustadz atas prompt, kebijakan penolakan, dan sampel jawaban (T-13)
 > **Perkiraan:** 1–2 percakapan agent
 
@@ -45,11 +45,19 @@ Prasyarat: S20 selesai (PR #99, ADR-065). Pemilik menyetujui semua tindakan sesi
 
 ## Selesai bila
 
-- [ ] Semua syarat R4 (FASE.md) terpenuhi dan tercatat dengan angka
-- [ ] Review ustadz atas prompt, kebijakan, dan sampel tercatat (nama dan tanggal)
-- [ ] E2E lolos; pemilik menyetujui tampilan
-- [ ] STATUS, LOG, dan file sesi ini diperbarui
+- [ ] Semua syarat R4 (FASE.md) terpenuhi dan tercatat dengan angka — **belum** (angka di Catatan hasil: lokasi 73,5% < 90%, kesetiaan/atribusi/bahasa belum terukur oleh judge terkalibrasi atau ustadz)
+- [ ] Review ustadz atas prompt, kebijakan, dan sampel tercatat (nama dan tanggal) — **belum** (T-24 ditunda pemilik, ADR-054)
+- [ ] E2E lolos; pemilik menyetujui tampilan — **E2E lolos** (CI Preview + uji manual staging), **persetujuan pemilik belum** (T-25)
+- [x] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Catatan hasil
 
-*(diisi agent)*
+- **Dibuat:** deteksi status hadits toleran + `JAWAB_PIPELINE_VERSION` 2 (`packages/llm/src/jawab/citations.ts`, `pipeline.ts`); `/tanya` (`components/tanya/*`, `lib/tanya/model.ts`, Turnstile sesuai permintaan, SSE, blok bersitasi vs penghubung, kartu kutipan, status hadits AI + tanda lemah, laporan jawaban); `GET /api/kutipan` (teks Arab dari DB); laporan jawaban lewat `/api/feedback` (jenis `answer` hanya dari `/tanya`); `/transparansi` (biaya AI per bulan dari ledger); tautan sidebar + sitemap; e2e `apps/web/e2e/tanya.spec.ts`; T-25; ADR-066. Perbaikan S20 yang ikut: tanda tangan cookie anon wajib base64 kanonis (tes perusakan yang kadang lolos di CI).
+- **Bukti:**
+  - Status hadits: tes unit (variasi penulisan, baris baru, singkatan, ganti sampai akhir baris, dua paragraf badan) + tes Worker (awalan terbelah di dua blok tidak bocor ke pratinjau). Eval ulang `s21-publik-hadits-v1` (42 soal publik, US$0,1167): kutipan valid **100%** (171/171), lokasi **73,5%** (25/34), penolakan tepat 100% (8/8), tidak salah menolak 97,1% (33/34), tanpa pola fatwa 100%; 5 kalimat status hadits → 2 didukung takhrij, 3 "belum diketahui", **0 tanpa takhrij yang tampil**. Laporan: `evals/reports/jawab-s21-publik-hadits-v1.md`.
+  - UI: tes render server (`answer-view.test.tsx`), pengurai SSE (`model.test.ts`), `/api/kutipan` (`kutipan-handler.test.ts`), transparansi (`transparency-data.test.ts`), laporan jawaban (`feedback-handler.test.ts`). CSS HeroUI lengkap (`heroui-css.test.ts`).
+  - Uji ujung ke ujung di Preview `pr-100.surau.org/tanya` (sakelar `surau-app-staging` dinyalakan sebentar lalu dimatikan, biaya ±US$0,003): status `challenge: true` → Turnstile uji lolos → jawaban bertahap ("Menyusun jawaban…") → hasil Claude Haiku 5.5 dengan penanda [n], kalimat penghubung redup, kartu kutipan Arab dari DB (RTL, Naskh) + terjemahan AI berlabel → "Buka di pembaca" ke `/kitab/ihya/4/62#p16215` (paragraf yang sama); pertanyaan ulang di ponsel 375 px "Dari jawaban tersimpan", kuota 2 dari 10; ledger staging 2.792 µ$ `committed`.
+  - `pnpm verify` + CI PR #100: lihat LOG.
+- **Biaya LLM S21:** ±US$0,12 (eval ulang US$0,1167 + uji staging ±US$0,003), di bawah batas agent US$0,50.
+- **Belum / ditunda:** syarat R4 (lokasi < 90%, judge belum terkalibrasi, kualitas bahasa belum dinilai); review ustadz (T-24) dan persetujuan tampilan pemilik (T-25); laporan jawaban ke `/tinjau` (`answer_log`) menunggu keputusan pemilik + dewan soal penyimpanan pertanyaan; menu "Tanya" tetap "segera" dan `/tanya` `noindex` sampai `/rilis 4`; `/rilis 4` **belum disarankan**.
+- **Pesan untuk sesi berikutnya:** hambatan mutu terbesar tetap pencarian (lokasi gold tidak masuk dokumen ±25%); usul sesi sisipan pencarian makna/routing dua langkah sebelum `/rilis 4`; muat 42 jawaban eval S21 ke `/tinjau` saat Anas siap (T-24); tes batas laju MCP (`apps/mcp/src/index.test.ts` "tool baca") sesekali gagal bila melewati pergantian menit (jendela tetap) — perlu dibuat tahan waktu.
