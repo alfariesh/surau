@@ -19,8 +19,13 @@ export const LIST_CACHE_TTL_MS = 60 * 60 * 1000;
 
 export function buildServer(deps: ToolDeps): McpServer {
   const server = new McpServer(
-    { ...SERVER_INFO },
+    // websiteUrl dari SITE_URL Worker, bukan konstanta produksi (#75).
+    { ...SERVER_INFO, websiteUrl: deps.siteUrl },
     {
+      // Daftar tool statis dan server ini tidak pernah mengirim notifikasi perubahan. Tanpa nilai
+      // eksplisit SDK mengiklankan listChanged: true, sehingga klien modern membuka aliran
+      // `subscriptions/listen` sia-sia yang dibatasi MAX_SUBSCRIPTIONS per isolate (#65).
+      capabilities: { tools: { listChanged: false } },
       instructions: SERVER_INSTRUCTIONS,
       cacheHints: {
         "tools/list": { ttlMs: LIST_CACHE_TTL_MS, cacheScope: "public" },

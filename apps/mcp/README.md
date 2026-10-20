@@ -28,7 +28,7 @@ Semua tool: nama ASCII snake_case (ADR-012), deskripsi Inggris + ringkasan Indon
 | Path | Hanya `/mcp` (dan `GET /` = info JSON); lainnya 404 |
 | Origin | `originValidationResponse`: `surau.org`, `www.surau.org`, `mcp.surau.org`, localhost; Origin lain atau `null` → 403; tanpa Origin (klien server-ke-server) → lolos |
 | Body | `maxRequestBodySize` 64 KiB → 413; `maxSubscriptions` 16 per isolate |
-| Batas per tool | Rate Limiting binding, kunci `HMAC(IP_HMAC_KEY, jaringan IP):tool`: tool baca 120/menit per klien (`MCP_TOOL_LIMITER`) + 600/menit global (`MCP_READ_GLOBAL_LIMITER`; daftar isi dan `read_section` membaca ±1.000 baris per panggilan), `search_text` 60/menit per klien (`MCP_SEARCH_LIMITER`) + 600/menit global (`MCP_SEARCH_GLOBAL_LIMITER`, D1 dipakai bersama web). Habis → hasil `isError` `rate_limited`. Tanpa secret `IP_HMAC_KEY` → `unavailable` (gagal tertutup) |
+| Batas per tool | Rate Limiting binding, kunci `HMAC(IP_HMAC_KEY, jaringan IP):tool`: tool baca 120/menit per klien (`MCP_TOOL_LIMITER`) + 600/menit per lokasi Cloudflare, bukan global akun (`MCP_READ_GLOBAL_LIMITER`; daftar isi dan `read_section` membaca ±1.000 baris per panggilan), `search_text` 60/menit per klien (`MCP_SEARCH_LIMITER`) + 600/menit per lokasi Cloudflare (`MCP_SEARCH_GLOBAL_LIMITER`, D1 dipakai bersama web). Habis → hasil `isError` `rate_limited`. Tanpa secret `IP_HMAC_KEY` → `not_configured` (gagal tertutup) |
 | Pagar luar | Satu aturan WAF rate limiting per IP untuk path `/mcp` (T-19, dashboard) |
 | Cache | `cacheHints` publik 1 jam untuk `tools/list` dan `server/discover` (era modern) |
 

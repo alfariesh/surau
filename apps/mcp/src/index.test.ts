@@ -277,6 +277,14 @@ describe("error tool", () => {
   });
 });
 
+describe.each(ERAS)("kemampuan era %s", (era) => {
+  test("tools.listChanged: false (daftar tool statis, tanpa aliran langganan sia-sia, #65)", async () => {
+    const client = await connect(era);
+    expect(client.getServerCapabilities()?.tools?.listChanged).toBe(false);
+    await client.close();
+  });
+});
+
 describe("pengaman HTTP", () => {
   const post = (headers: Record<string, string>, body = "{}") =>
     exports.default.fetch(
@@ -301,6 +309,16 @@ describe("pengaman HTTP", () => {
     },
   });
 
+  // Perilaku milik SDK yang didokumentasikan README; upgrade SDK bisa mengubahnya diam-diam (#79).
+  test("body bukan JSON → 400; Content-Type bukan JSON → 415; GET/DELETE /mcp → 405", async () => {
+    expect((await post({}, "{bukan json")).status).toBe(400);
+    expect((await post({ "Content-Type": "text/plain" }, init)).status).toBe(415);
+    for (const method of ["GET", "DELETE"]) {
+      const res = await exports.default.fetch(new Request(ENDPOINT, { method }));
+      expect(res.status, method).toBe(405);
+    }
+  });
+
   test("Origin asing atau null → 403; Origin sendiri, localhost, atau tanpa Origin → dilayani", async () => {
     expect((await post({ Origin: "https://evil.example" }, init)).status).toBe(403);
     expect((await post({ Origin: "null" }, init)).status).toBe(403);
@@ -323,7 +341,8 @@ describe("pengaman HTTP", () => {
     const info = await exports.default.fetch(new Request("https://mcp.surau.test/"));
     expect(info.status).toBe(200);
     expect(await info.json()).toMatchObject({
-      mcp_endpoint: "https://mcp.surau.org/mcp",
+      // Dari host permintaan (#75), bukan alamat produksi yang ditulis mati.
+      mcp_endpoint: "https://mcp.surau.test/mcp",
       website: SITE,
     });
     // Host selain PUBLIC_HOST (Version URL workers.dev produksi) tidak dilayani sama sekali (#64).

@@ -22,7 +22,7 @@ describe("guardTool", () => {
       ip === undefined ? {} : { headers: { "cf-connecting-ip": ip } },
     );
 
-  test("tanpa secret IP_HMAC_KEY → unavailable (gagal tertutup), limiter tidak dipanggil", async () => {
+  test("tanpa secret IP_HMAC_KEY → not_configured (gagal tertutup), limiter tidak dipanggil", async () => {
     const { keys, limiter } = counting();
     const env: GuardEnv = {
       MCP_TOOL_LIMITER: limiter,
@@ -30,9 +30,9 @@ describe("guardTool", () => {
       MCP_SEARCH_LIMITER: limiter,
       MCP_SEARCH_GLOBAL_LIMITER: limiter,
     };
-    expect(await guardTool(env, req("203.0.113.9"), "read_page")).toBe("unavailable");
+    expect(await guardTool(env, req("203.0.113.9"), "read_page")).toBe("not_configured");
     expect(await guardTool({ ...env, IP_HMAC_KEY: "" }, req("203.0.113.9"), "read_page")).toBe(
-      "unavailable",
+      "not_configured",
     );
     expect(keys).toEqual([]);
   });

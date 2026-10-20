@@ -12,6 +12,7 @@ import {
   MCP_PATH,
 } from "./http-config.ts";
 import { SERVER_INFO, buildServer } from "./server.ts";
+import { errorLabel } from "./telemetry.ts";
 
 // Satu handler per isolate (bus langganan + batas langganan); pabriknya dipanggil per permintaan
 // dan membuat McpServer baru dengan request asli (kunci batas pemakaian) dan binding Worker.
@@ -21,18 +22,20 @@ const handler = createMcpHandler(
     legacy: "stateless",
     maxRequestBodySize: MAX_REQUEST_BODY,
     maxSubscriptions: MAX_SUBSCRIPTIONS,
-    // Hanya nama error: pesan bisa memuat potongan body permintaan (masukan pengguna, P-7).
-    onerror: (error) => console.warn(JSON.stringify({ event: "mcp_error", error: error.name })),
+    // Hanya label statis (nama kelas, jenis dari awalan pesan SDK, kode): pesannya bisa memuat
+    // potongan body permintaan (masukan pengguna, P-7), jadi tidak pernah dicatat (#74).
+    onerror: (error) => console.warn(JSON.stringify({ event: "mcp_error", ...errorLabel(error) })),
   },
 );
 
-function info(siteUrl: string): Response {
+function info(siteUrl: string, requestUrl: string): Response {
   return Response.json(
     {
       name: SERVER_INFO.title,
       description:
         "Surau MCP server: classical Islamic texts with verbatim Arabic, citations, takhrij and labelled Indonesian aids. Read-only, no sign-in.",
-      mcp_endpoint: new URL(MCP_PATH, "https://mcp.surau.org").href,
+      // Dari host permintaan: Preview dan `wrangler dev` menunjuk dirinya sendiri (#75).
+      mcp_endpoint: new URL(MCP_PATH, requestUrl).href,
       website: siteUrl,
       license: `${siteUrl}/lisensi`,
     },
@@ -54,7 +57,7 @@ export default {
       return handler.fetch(request);
     }
     if (pathname === "/" && (request.method === "GET" || request.method === "HEAD")) {
-      return info(env.SITE_URL);
+      return info(env.SITE_URL, request.url);
     }
     return new Response("Not found", { status: 404 });
   },
