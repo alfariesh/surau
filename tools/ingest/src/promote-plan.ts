@@ -1,8 +1,9 @@
 // Keputusan `corpus:promote` tanpa efek samping (#78): dari argumen dan keadaan remote yang sudah
 // dibaca, tentukan rencana tindakan. `promote.ts` hanya membaca keadaan, memanggil `decidePromote`,
-// lalu menjalankan rencananya (wrangler, smoke, tulis wrangler.jsonc). Urutan pemeriksaan sama
-// dengan sebelum dipisah: format versi → korpus staging → --switch-only → korpus terlindungi →
-// sudah ada tanpa --reload → tanpa --confirm (rencana saja) → muat.
+// lalu menjalankan rencananya (wrangler, smoke, tulis wrangler.jsonc). Urutan pemeriksaan: format
+// versi → korpus staging → --switch-only → korpus terlindungi → sudah ada tanpa --reload → tanpa
+// --confirm (rencana saja) → muat. Beda dengan sebelum dipisah: info build (`buildInfo`) kini dibaca
+// SESUDAH penolakan, jadi build yang hilang tidak lagi mendahului pesan tolak.
 import { CORPUS_SCHEMA_VERSION } from "@surau/db";
 
 import type { CorpusBinding } from "./corpus.ts";

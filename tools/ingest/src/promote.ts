@@ -29,6 +29,7 @@ import { MCP_CONFIG, WEB_CONFIG, formatCounts, remoteByName, repo, smoke, wrangl
 import {
   corpusName,
   decidePromote,
+  VERSION_PATTERN,
   loadSmokeFailures,
   rollbackSchemaProblem,
 } from "./promote-plan.ts";
@@ -101,10 +102,7 @@ function main(argv: string[]): number {
     switchOnly: values["switch-only"],
     reload: values.reload,
   };
-  if (
-    decidePromote(args, { existing: undefined, stagingId: "", isProtected: () => false }).kind ===
-    "usage"
-  ) {
+  if (!VERSION_PATTERN.test(version)) {
     console.error(
       "Pakai: pnpm run corpus:promote <versi> [--confirm | --switch-only] [--reload]   (versi mis. ihya-v1)",
     );
