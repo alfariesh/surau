@@ -42,8 +42,9 @@ mountFigure({
       return `<g class="press" data-i="${i}">${s}</g>`;
     }
     // kabel penelusuran: dari kartu klaim ke punggung jilid yang dipilih
-    function jalur() { const [cx, cy, cz, cw, cd, ch] = CARD, b = BOOKS[st.pilih];
-      return api.kurva([cx + cw - 2, cy + cd / 2, cz + ch], [b.x + BW / 2, BY + BD + PULL * ease(st.tarik), 3 + b.h * .8], 9); }
+    // jalur isometrik: naik dari kartu, sejajar x di depan rak, lalu sejajar y masuk ke punggung jilid
+    function jalur() { const [cx, cy, cz, cw, cd, ch] = CARD, b = BOOKS[st.pilih], bx = b.x + BW / 2, z = 20;
+      return api.jalur([[cx + cw / 2, cy + cd / 2, cz + ch], [cx + cw / 2, cy + cd / 2, z], [bx, cy + cd / 2, z], [bx, BY + BD + PULL * ease(st.tarik), z]]); }
     function draw() {
       let s = box(0, 0, 0, 60, 46, 2, 5) + box(22, 2, 2, 30, 18, 1, 1);
       // rak: jilid terpisah di sumbu x, jadi urut x sudah benar (x lebih besar = lebih dekat), ditarik atau tidak

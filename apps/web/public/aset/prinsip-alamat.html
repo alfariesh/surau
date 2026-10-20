@@ -294,7 +294,27 @@ function mountFigure(cfg) {
     // denyut cahaya sekali jalan di sepanjang jalur d (K.path(...)); lapisnya tidak ikut digambar ulang
     denyut(d) { lapisDenyut.innerHTML = diam ? '' : `<path class="pulse" pathLength="1000" d="${d}"/>`;
       const el = lapisDenyut.firstChild; if (el) { void el.getBoundingClientRect(); el.classList.add('go'); } },
-    // kabel melengkung dari a ke b (titik 3D), terangkat setinggi naik di tengah → titik-titik 3D
+    // jalur isometrik: titik-titik 3D yang tiap ruasnya sejajar satu sumbu (x, y, atau z); sudut dibulatkan
+    // dengan jari-jari r. Ini cara baku menggambar kabel/penghubung, supaya ikut kisi isometrik.
+    jalur(titik, r = 1.6) {
+      const out = [titik[0]];
+      for (let i = 1; i < titik.length - 1; i++) {
+        const A = titik[i - 1], Pp = titik[i], B = titik[i + 1];
+        const la = Math.hypot(...ISO.sub(A, Pp)), lb = Math.hypot(...ISO.sub(B, Pp)), rr = Math.min(r, la / 2, lb / 2);
+        const p1 = ISO.add(Pp, ISO.norm(ISO.sub(A, Pp)), rr), p2 = ISO.add(Pp, ISO.norm(ISO.sub(B, Pp)), rr);
+        for (let k = 0; k <= 6; k++) { const t = k / 6, u = 1 - t; out.push([0, 1, 2].map(j => u * u * p1[j] + 2 * u * t * Pp[j] + t * t * p2[j])); }
+      }
+      out.push(titik[titik.length - 1]);
+      return out; },
+    // titik-titik merata menurut panjang (untuk kabel yang "tumbuh": ambil sebagian depannya)
+    sampel(pts, n = 60) {
+      const len = [0]; for (let i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(...ISO.sub(pts[i], pts[i - 1])));
+      const L = len[len.length - 1] || 1, out = []; let j = 0;
+      for (let k = 0; k <= n; k++) { const d = L * k / n; while (j < len.length - 2 && len[j + 1] < d) j++;
+        const t = (d - len[j]) / ((len[j + 1] - len[j]) || 1); out.push([0, 1, 2].map(c => pts[j][c] + (pts[j + 1][c] - pts[j][c]) * t)); }
+      return out; },
+    // kabel melengkung dari a ke b (titik 3D), terangkat setinggi naik di tengah → titik-titik 3D (gaya lama; untuk
+    // figur situs pakai api.jalur supaya penghubung ikut kisi isometrik)
     kurva(a, b, naik, n = 28) { const m = ISO.add(ISO.avg([a, b]), [0, 0, naik]); const out = [];
       for (let i = 0; i <= n; i++) { const t = i / n, u = 1 - t; out.push([0, 1, 2].map(j => u * u * a[j] + 2 * u * t * m[j] + t * t * b[j])); }
       return out; },
@@ -309,6 +329,17 @@ function mountFigure(cfg) {
       return `<g class="tag${hot ? ' hot' : ''}">${garis ? `<path class="wire${hot ? ' hot' : ''}" d="M${X.toFixed(2)} ${Y.toFixed(2)}L${cx.toFixed(2)} ${cy.toFixed(2)}"/>` : ''}`
         + `<rect x="${(cx - w / 2).toFixed(2)}" y="${(cy - h / 2).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${(h / 2).toFixed(2)}"/>`
         + `<text x="${cx.toFixed(2)}" y="${(cy + fs * .36).toFixed(2)}" text-anchor="middle" style="font-size:${fs.toFixed(2)}px">${ISO.esc(teks)}</text></g>`; },
+    // lencana isometrik: 'centang'/'silang' di dalam lingkaran yang menempel pada bidang muka (transform dari
+    // K.TOP/K.FRONT/K.SIDE), di koordinat lokal (u, v) bidang itu dengan jari-jari r (satuan model).
+    // datar = true untuk bidang TOP: silang digambar sejajar sumbu lokal, supaya di layar tetap tampak ✗ (bukan +).
+    lencanaBidang(jenis, bidang, u, v, r, hot = false, datar = false) {
+      const k = r * .45, f = x => x.toFixed(2), q = k * 1.05;
+      const tanda = jenis === 'silang' && datar
+        ? `M${f(u - q)} ${f(v)}L${f(u + q)} ${f(v)}M${f(u)} ${f(v - q)}L${f(u)} ${f(v + q)}`
+        : jenis === 'centang'
+        ? `M${f(u - k)} ${f(v)}L${f(u - k * .25)} ${f(v + k * .75)}L${f(u + k)} ${f(v - k * .7)}`
+        : `M${f(u - k * .75)} ${f(v - k * .75)}L${f(u + k * .75)} ${f(v + k * .75)}M${f(u + k * .75)} ${f(v - k * .75)}L${f(u - k * .75)} ${f(v + k * .75)}`;
+      return `<g class="lencana${hot ? ' hot' : ''}" transform="${bidang}"><circle cx="${f(u)}" cy="${f(v)}" r="${f(r)}"/><path class="tanda" d="${tanda}"/></g>`; },
     // lencana tanpa kata (bebas bahasa): 'centang' atau 'silang' di titik p3 + (dx, dy), garis penunjuk opsional.
     // Ukuran minimal ±18 px di layar; dijaga di dalam bingkai. Pakai ini, bukan label teks, di figur untuk situs.
     lencana(jenis, p3, dx, dy, hot = false, garis = true) {
@@ -425,8 +456,9 @@ mountFigure({
       return `<g class="press" data-i="${i}">${s}</g>`;
     }
     // kabel penelusuran: dari kartu klaim ke punggung jilid yang dipilih
-    function jalur() { const [cx, cy, cz, cw, cd, ch] = CARD, b = BOOKS[st.pilih];
-      return api.kurva([cx + cw - 2, cy + cd / 2, cz + ch], [b.x + BW / 2, BY + BD + PULL * ease(st.tarik), 3 + b.h * .8], 9); }
+    // jalur isometrik: naik dari kartu, sejajar x di depan rak, lalu sejajar y masuk ke punggung jilid
+    function jalur() { const [cx, cy, cz, cw, cd, ch] = CARD, b = BOOKS[st.pilih], bx = b.x + BW / 2, z = 20;
+      return api.jalur([[cx + cw / 2, cy + cd / 2, cz + ch], [cx + cw / 2, cy + cd / 2, z], [bx, cy + cd / 2, z], [bx, BY + BD + PULL * ease(st.tarik), z]]); }
     function draw() {
       let s = box(0, 0, 0, 60, 46, 2, 5) + box(22, 2, 2, 30, 18, 1, 1);
       // rak: jilid terpisah di sumbu x, jadi urut x sudah benar (x lebih besar = lebih dekat), ditarik atau tidak
