@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { id } from "../i18n/id";
 
 // Origin kanonis situs (metadataBase, sitemap, robots): domain sendiri sejak S16 (T-07, ADR-049).
@@ -6,7 +8,12 @@ export const SITE_URL = "https://surau.org";
 
 /**
  * Field `openGraph` bersama. Next menggabung metadata antarsegmen secara dangkal: `openGraph` di
- * halaman MENGGANTI seluruh objek layout, jadi halaman yang menulis `openGraph` sendiri menyebar ini
- * supaya og:site_name dan og:locale tidak hilang (#76).
+ * halaman MENGGANTI seluruh objek layout, termasuk gambar dari berkas `opengraph-image.jpg` root
+ * (hanya disuntik di segmen tempat berkas itu berada). Halaman yang menulis `openGraph` sendiri
+ * menyebar ini supaya og:site_name, og:locale, dan og:image tidak hilang (#76).
  */
-export const OPEN_GRAPH_BASE = { siteName: id.meta.siteName, locale: "id_ID" } as const;
+export const OPEN_GRAPH_BASE = {
+  siteName: id.meta.siteName,
+  locale: "id_ID",
+  images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630, alt: id.meta.ogImageAlt }],
+} satisfies NonNullable<Metadata["openGraph"]>;

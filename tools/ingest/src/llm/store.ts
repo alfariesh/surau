@@ -143,7 +143,11 @@ export const failure = z.strictObject({
   at: z.string(),
   /** sha256 sumber request yang gagal: kegagalan untuk sumber lama tidak dihitung percobaan. */
   source_sha256: z.string(),
-  /** `review_rejected` (X02): versi prompt hasil yang ditolak peninjau. */
+  /**
+   * Versi prompt request yang gagal (semua kegagalan sejak #70; dulu hanya `review_rejected`, X02).
+   * Percobaan dihitung per versi prompt: versi baru mendapat jatah percobaan baru. Kosong pada
+   * berkas lama yang belum dibangun ulang (`rejudge`) = dianggap versi saat ini.
+   */
   prompt_version: z.string().optional(),
   usage: usage.nullable(),
 });
