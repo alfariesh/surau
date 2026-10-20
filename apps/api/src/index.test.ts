@@ -274,6 +274,27 @@ describe("jawaban terverifikasi", () => {
     expect(result.text).toContain("belum diketahui");
   });
 
+  test("awalan status terbelah di dua blok tetap menahan pratinjau (S21)", async () => {
+    const { ask } = setup((_n, docs) => ({
+      blocks: [
+        {
+          text: "Al-Ghazali menukil hadits.",
+          cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+        },
+        { text: " **Status " },
+        { text: "hadis**: sahih", cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }] },
+        { text: "." },
+      ],
+    }));
+    const { events } = await ask();
+    const previews = events.filter((e) => e.event === "block").map((e) => JSON.stringify(e.data));
+    expect(previews.some((p) => p.includes("sahih"))).toBe(false);
+    const { result } = final(events);
+    expect(result.text).not.toContain("sahih");
+    expect(result.text).toContain("belum diketahui");
+    expect(result.hadith).toEqual([]);
+  });
+
   test("pertanyaan bertag tidak bisa menutup pembungkus <pertanyaan>", async () => {
     const { ask, sent } = setup((_n, docs) => ({
       blocks: [{ text: "Jawaban.", cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }] }],

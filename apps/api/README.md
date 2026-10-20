@@ -45,7 +45,7 @@ Ledger (migrasi app 0004): sebelum LLM, reservasi atomik biaya terburuk routing 
 
 Cache: tabel `answer_cache` di DB app (migrasi 0003), kunci **HMAC** (sejak S20; dulu SHA-256) versi korpus (+ `built_at`) + versi prompt + pertanyaan dirapikan, **tanpa teks pertanyaan**, 30 hari (P-7); hanya hasil utuh (bukan terpotong `max_tokens`). Jawaban dari cache tetap memakai kuota, tetapi tanpa reservasi biaya. Log Worker: satu event `jawab` per pertanyaan berisi metrik (outcome termasuk `rejected` + alasan guard, `client_gone`, token, biaya, sitasi, refusal), tanpa pertanyaan, kueri routing, jawaban, IP, ID anon, atau token.
 
-Kalimat "Status hadits: …" tanpa takhrij tersitasi diganti "belum diketahui"; sejak awalan itu muncul, blok sesudahnya tidak dipratinjau (isi akhir lewat `done`). Deteksinya masih awalan persis; variasi penulisan dan beberapa kasus tepi belum tertangani (ADR-064 butir 7, wajib sebelum S21). Kunci cache juga memuat `JAWAB_PIPELINE_VERSION`. `surau-api-staging` di-deploy `deploy.yml` dari `main`: Preview sebuah PR memanggil kode API versi main, bukan kode API PR itu.
+Kalimat atau butir "Status hadits: …" hanya tampil bila ia **sendiri** menyitasi catatan kaki takhrij; selain itu diganti "belum diketahui" (blok tanpa sitasi), diperiksa ulang sampai stabil, dan bila tidak stabil jawaban jatuh ke `fallback/unverified` (ADR-066 butir 1). Sejak awalan itu muncul, blok sesudahnya tidak dipratinjau (isi akhir lewat `done`). Klaim status yang ditulis bebas tanpa awalan belum diperiksa. Kunci cache juga memuat `JAWAB_PIPELINE_VERSION`. `surau-api-staging` di-deploy `deploy.yml` dari `main`: Preview sebuah PR memanggil kode API versi main, bukan kode API PR itu.
 
 ## Perintah
 

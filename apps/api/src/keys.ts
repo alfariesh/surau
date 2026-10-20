@@ -53,7 +53,10 @@ function fromB64url(s: string): Uint8Array<ArrayBuffer> | null {
   if (!/^[A-Za-z0-9_-]+$/u.test(s)) return null;
   try {
     const bin = atob(s.replaceAll("-", "+").replaceAll("_", "/"));
-    return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    // Hanya bentuk kanonis: karakter terakhir dengan bit pengisi tidak nol (mis. "…B" alih-alih
+    // "…A") didekode ke byte yang sama, jadi satu tanda tangan punya beberapa ejaan. Ditolak.
+    return b64url(bytes) === s ? bytes : null;
   } catch {
     return null;
   }

@@ -269,6 +269,14 @@ async function main() {
             latency_ms: Math.round(o.result.latency_ms),
             usage: o.result.usage,
             diagnostics: o.result.diagnostics,
+            // Blok + sitasinya (privat, soal publik saja): audit klaim status hadits yang ditulis
+            // bebas (bersitasi matan atau takhrij), yang tidak terlihat dari teks gabungan (S21).
+            blocks: o.result.blocks,
+            citations: o.result.citations.map((c) => ({
+              n: c.n,
+              passage_id: c.passage_id,
+              kind: c.kind,
+            })),
             scores,
           });
       }

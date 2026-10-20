@@ -97,6 +97,9 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
           <NextLink className="link text-xs" href="/privasi">
             {id.footer.privacy}
           </NextLink>
+          <NextLink className="link text-xs" href="/transparansi">
+            {id.footer.transparency}
+          </NextLink>
         </div>
       </Sidebar.Footer>
     </>

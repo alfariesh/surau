@@ -46,6 +46,7 @@ export const id = {
     source: "Kode sumber di GitHub",
     license: "Lisensi & atribusi",
     privacy: "Privasi",
+    transparency: "Transparansi biaya",
   },
 
   home: {
