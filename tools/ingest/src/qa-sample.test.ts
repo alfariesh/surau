@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import type { FootnoteRefRow, PageRow, PassageNeedsReviewRow, PassageRow } from "@surau/db";
+import type {
+  FootnoteRefRow,
+  PageRow,
+  PassageAyahRefRow,
+  PassageNeedsReviewRow,
+  PassageRow,
+} from "@surau/db";
 
 import {
   bundlePages,
@@ -36,6 +42,7 @@ interface Rows {
   passage: PassageRow[];
   footnote_ref: FootnoteRefRow[];
   passage_needs_review: PassageNeedsReviewRow[];
+  passage_ayah_ref: PassageAyahRefRow[];
 }
 
 function rows(): Rows {
@@ -57,6 +64,20 @@ function rows(): Rows {
       },
     ],
     passage_needs_review: [{ passage_id: 10_000_003, reason: "takhrij_unmatched" }],
+    passage_ayah_ref: [
+      {
+        passage_id: 10_000_002,
+        char_start: 0,
+        char_end: 4,
+        surah: 2,
+        ayah_from: 153,
+        ayah_to: 153,
+        match: "exact",
+        partial: 0,
+        bracketed: 1,
+        alt_count: 0,
+      },
+    ],
   };
 }
 
@@ -116,6 +137,18 @@ describe("comparePage", () => {
     expect(diffs.join("\n")).toMatch(/tautan penanda berbeda/);
     expect(diffs.join("\n")).toMatch(/tanda perlu ditinjau berbeda/);
     expect(comparePage(e, undefined)).toEqual(["halaman tidak ada di D1"]);
+  });
+
+  test("rujukan ayat dibandingkan per kolom, termasuk surah dan offset (#78)", () => {
+    const e = bundlePages(rows(), [100_001]).get(100_001)!;
+    expect(comparePage(e, bundlePages(rows(), [100_001]).get(100_001))).toEqual([]);
+    for (const change of [{ surah: 3 }, { char_end: 5 }, { ayah_to: 154 }]) {
+      const r = rows();
+      r.passage_ayah_ref[0] = { ...r.passage_ayah_ref[0]!, ...change };
+      expect(comparePage(e, bundlePages(r, [100_001]).get(100_001))).toEqual([
+        "rujukan ayat berbeda (1 di D1, harapan 1)",
+      ]);
+    }
   });
 });
 

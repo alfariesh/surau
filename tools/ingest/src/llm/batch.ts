@@ -406,13 +406,18 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
     [...byKind].map(([k, list]) => [k, estimate(list, counts, system, rates)]),
   );
   const total = estimate(reqs, counts, system, rates);
+  // Request ≥ MAX_PROMPT_TOKENS tidak masuk berkas rencana sama sekali (tarif 5× dan harus dipecah
+  // dulu), jadi submit tidak mungkin mengirimnya walau peringatan di bawah terlewat (#78).
+  const tooBig = new Set(over.map((r) => r.custom_id));
   writeJsonl(
     join(dir, `plan-r${round}.jsonl`),
-    reqs.map((r) => {
-      const prompt = counts.get(r.custom_id) ?? 0;
-      const sys = system[r.prompt_version] ?? 0;
-      return { ...r, est_usd: requestCost(r, prompt, sys, expectedOutput(r, rates), 0.5) };
-    }),
+    reqs
+      .filter((r) => !tooBig.has(r.custom_id))
+      .map((r) => {
+        const prompt = counts.get(r.custom_id) ?? 0;
+        const sys = system[r.prompt_version] ?? 0;
+        return { ...r, est_usd: requestCost(r, prompt, sys, expectedOutput(r, rates), 0.5) };
+      }),
   );
   writeText(
     join(dir, `plan-r${round}.json`),
@@ -437,7 +442,7 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
   );
   if (over.length > 0) {
     console.error(
-      `${over.length} request ≥ ${MAX_PROMPT_TOKENS} token: pecah dulu, jangan dikirim.`,
+      `${over.length} request ≥ ${MAX_PROMPT_TOKENS} token: tidak dimasukkan ke rencana; pecah dulu.`,
     );
     return 1;
   }

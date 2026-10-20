@@ -3,7 +3,13 @@
 // Modul ini murni (tanpa wrangler/fs), supaya bisa diuji dengan baris buatan.
 import { createHash } from "node:crypto";
 
-import type { FootnoteRefRow, PageRow, PassageNeedsReviewRow, PassageRow } from "@surau/db";
+import type {
+  FootnoteRefRow,
+  PageRow,
+  PassageAyahRefRow,
+  PassageNeedsReviewRow,
+  PassageRow,
+} from "@surau/db";
 
 import type { WorkConfig } from "./works/ihya.ts";
 
@@ -37,6 +43,8 @@ export interface PageBundle {
   passages: PassageRow[];
   refs: FootnoteRefRow[];
   review: PassageNeedsReviewRow[];
+  /** Rujukan ayat (deterministik sejak skema 5), dibandingkan per kolom (#78). */
+  ayat: PassageAyahRefRow[];
 }
 
 export interface RowSet {
@@ -44,6 +52,7 @@ export interface RowSet {
   passage: readonly PassageRow[];
   footnote_ref: readonly FootnoteRefRow[];
   passage_needs_review: readonly PassageNeedsReviewRow[];
+  passage_ayah_ref: readonly PassageAyahRefRow[];
 }
 
 const KIND_ORDER = { body: 0, foot: 1 } as const;
@@ -53,7 +62,9 @@ export function bundlePages(rows: RowSet, pageIds: readonly number[]): Map<numbe
   const wanted = new Set(pageIds);
   const out = new Map<number, PageBundle>();
   for (const page of rows.page) {
-    if (wanted.has(page.id)) out.set(page.id, { page, passages: [], refs: [], review: [] });
+    if (wanted.has(page.id)) {
+      out.set(page.id, { page, passages: [], refs: [], review: [], ayat: [] });
+    }
   }
   const pageOf = new Map<number, PageBundle>();
   for (const p of rows.passage) {
@@ -64,10 +75,12 @@ export function bundlePages(rows: RowSet, pageIds: readonly number[]): Map<numbe
   }
   for (const r of rows.footnote_ref) pageOf.get(r.passage_id)?.refs.push(r);
   for (const r of rows.passage_needs_review) pageOf.get(r.passage_id)?.review.push(r);
+  for (const r of rows.passage_ayah_ref) pageOf.get(r.passage_id)?.ayat.push(r);
   for (const b of out.values()) {
     b.passages.sort((x, y) => KIND_ORDER[x.kind] - KIND_ORDER[y.kind] || x.ord - y.ord);
     b.refs.sort((x, y) => x.passage_id - y.passage_id || x.char_start - y.char_start);
     b.review.sort((x, y) => x.passage_id - y.passage_id || x.reason.localeCompare(y.reason));
+    b.ayat.sort((x, y) => x.passage_id - y.passage_id || x.char_start - y.char_start);
   }
   return out;
 }
@@ -131,6 +144,13 @@ export function comparePage(expected: PageBundle, actual: PageBundle | undefined
   if (expected.review.map(revKey).join("|") !== actual.review.map(revKey).join("|")) {
     diffs.push(
       `tanda perlu ditinjau berbeda (${actual.review.length} di D1, harapan ${expected.review.length})`,
+    );
+  }
+  const ayahKey = (r: PassageAyahRefRow): string =>
+    `${r.passage_id}:${r.char_start}-${r.char_end}:${r.surah}:${r.ayah_from}-${r.ayah_to}:${r.match}:${r.partial}:${r.bracketed}:${r.alt_count}`;
+  if (expected.ayat.map(ayahKey).join("|") !== actual.ayat.map(ayahKey).join("|")) {
+    diffs.push(
+      `rujukan ayat berbeda (${actual.ayat.length} di D1, harapan ${expected.ayat.length})`,
     );
   }
   return diffs;

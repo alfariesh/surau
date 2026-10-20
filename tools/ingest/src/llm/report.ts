@@ -193,7 +193,9 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     ),
     `| **Total** | ${num(batches.reduce((a, b) => a + b.requests, 0))} | | ${num(total.input_tokens)} | ${num(total.cache_read_input_tokens)} | ${num(total.cache_creation_input_tokens)} | ${num(total.output_tokens)} | **${usd(total.costUsd)}** |`,
     "",
-    `Biaya yang disetujui pemilik: ±$6 (batas berhenti $7,20). Estimasi rencana TERAKHIR (sisa yang dikirim saat itu; cache 95% / 50% / 0%): putaran 1 ${est1 === null ? "–" : ["0.95", "0.5", "0"].map((k) => usd(est1[k] ?? 0)).join(" / ")}; putaran 2 ${est2 === null ? "–" : ["0.95", "0.5", "0"].map((k) => usd(est2[k] ?? 0)).join(" / ")}.`,
+    // Pagu yang disetujui tidak ditulis mati di sini: tiap kiriman memakai --budget yang disetujui
+    // pemilik di chat (#62), dan angka lama di laporan yang di-commit cepat usang (#78).
+    `Pagu biaya per kiriman: \`--budget\` yang disetujui pemilik (lihat KEPUTUSAN, keputusan batch S13). Estimasi rencana TERAKHIR (sisa yang dikirim saat itu; cache 95% / 50% / 0%): putaran 1 ${est1 === null ? "–" : ["0.95", "0.5", "0"].map((k) => usd(est1[k] ?? 0)).join(" / ")}; putaran 2 ${est2 === null ? "–" : ["0.95", "0.5", "0"].map((k) => usd(est2[k] ?? 0)).join(" / ")}.`,
     "",
     `## QA terjemahan: ${QA_SIZE} sampel acak (T-17 tahap 2)`,
     "",
