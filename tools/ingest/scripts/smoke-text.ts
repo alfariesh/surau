@@ -5,7 +5,7 @@ import { NORM_VERSION, buildFtsMatch, findQuote, normalizeArabic, stemText } fro
 
 const raw = "قَالَ رَسُولُ اللَّهِ ﷺ: الصَّبْرُ ضِيَاءٌ (١)";
 const checks: [string, unknown, unknown][] = [
-  ["NORM_VERSION", NORM_VERSION, 1],
+  ["NORM_VERSION", NORM_VERSION, 2],
   ["normalizeArabic", normalizeArabic(raw).text, "قال رسول الله صلي الله عليه وسلم الصبر ضياء"],
   ["stemText", stemText("والصبر ضياء"), "صبر ضياء"],
   ["findQuote", findQuote(raw, "الصبر ضياء")?.rawText, "الصَّبْرُ ضِيَاءٌ"],
