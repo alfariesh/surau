@@ -153,7 +153,7 @@ async function main(argv: string[]): Promise<number> {
       return runReport(ctx);
     default:
       console.error(
-        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report [--round 1|2] [--kind …] [--limit N] [--confirm]",
+        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|wait|collect|rejudge|retry|report [--round 1|2] [--kind …] [--limit N] [--budget USD] [--confirm]",
       );
       return 2;
   }

@@ -35,7 +35,7 @@ Syarat: drive Shamela terpasang (T-09; bisa ditimpa `--shamela <dir>` atau `SURA
 | `pnpm llm status` · `pnpm llm wait` | Status batch; `wait` menunggu (poll tiap menit) sampai semua batch terbuka selesai | gratis |
 | `pnpm llm collect` | Unduh hasil mentah batch yang selesai (biaya aktual dari `usage`), lalu bangun ulang hasil lolos/gagal dari semua hasil mentah | gratis |
 | `pnpm llm rejudge` | Bangun ulang hasil lolos/gagal dari hasil mentah dengan aturan validasi dan sumber saat ini (setelah validasi atau pencocok ayat berubah) | gratis |
-| `pnpm llm retry --confirm` | Kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan per `custom_id` | berbayar (kecil) |
+| `pnpm llm retry --budget USD --confirm` | Kirim ulang yang gagal (refusal → Sonnet 5.5), maks. 3 percobaan per `custom_id` | berbayar (kecil) |
 | `pnpm llm report` | `data/reports/ihya-9472-terjemahan.md` (cakupan, gagal, biaya aktual vs estimasi, 20 sampel QA T-17 tahap 2) + halaman nilai lokal `data/build/llm/qa/review-batch.html` | gratis |
 
 Urutan: `plan --round 1` → `submit --round 1 --confirm` → `wait` → `collect` → `retry --confirm` (ulangi sampai tidak ada yang tersisa) → `plan --round 2` → `submit --round 2 --confirm` → `wait` → `collect` → `report` → `pnpm ingest ihya`.

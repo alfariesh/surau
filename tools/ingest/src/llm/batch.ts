@@ -441,7 +441,7 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
     return 1;
   }
   console.info(
-    `Rencana: data/build/llm/plan-r${round}.jsonl · kirim: pnpm llm submit --round ${round} --confirm`,
+    `Rencana: data/build/llm/plan-r${round}.jsonl · kirim: pnpm llm submit --round ${round} --budget <USD> --confirm`,
   );
   return 0;
 }
@@ -652,7 +652,7 @@ export async function runSubmit(
   }
   if (!confirm) {
     console.info(
-      "Belum dikirim. BERBAYAR: kirim hanya setelah pemilik menyetujui biaya di chat, lalu tambahkan --confirm.",
+      "Belum dikirim. BERBAYAR: kirim hanya setelah pemilik menyetujui biaya di chat, lalu tambahkan --budget <USD> --confirm.",
     );
     return 0;
   }
@@ -1157,7 +1157,7 @@ export async function runRetry(
   }
   if (!confirm) {
     console.info(
-      "Belum dikirim (berbayar, termasuk dalam biaya batch yang disetujui). Tambahkan --confirm.",
+      "Belum dikirim (berbayar, termasuk dalam biaya batch yang disetujui). Tambahkan --budget <USD> --confirm.",
     );
     return 0;
   }
