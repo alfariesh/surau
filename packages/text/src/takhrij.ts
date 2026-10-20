@@ -7,7 +7,7 @@ import { queryProclitics } from "./stem.ts";
 // takhrij bisa menyebut satu jalur lemah lalu jalur lain yang sahih, atau "tidak menemukannya dengan
 // lafaz ini". UI karena itu menyebutnya "memuat istilah kelemahan" dan mengarahkan ke teks takhrij.
 // Kata kunci ditulis dalam bentuk normal (tanpa harakat, أ/إ/آ → ا, ة → ه, ى → ي).
-// Batas yang diketahui (ihya-v7, 2026-10-21): 1.346 dari 4.398 catatan kaki bertanda; dari 522 yang
+// Batas yang diketahui (ihya-v7, 2026-10-21): 1.350 dari 4.398 catatan kaki bertanda; dari 522 yang
 // menyebut "متفق عليه", 21 bertanda, kebanyakan takhrij campuran (satu jalur sahih, jalur lain
 // lemah), sebagian kecil karena lafaz hadits itu sendiri memuat kata kunci (mis. "باطل" dalam syair
 // Labid). Negasi "ليس ب…"/"غير …" tidak dihitung.
