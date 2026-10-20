@@ -9,9 +9,10 @@
   "compatibility_date": "2026-10-14",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   // Produksi hanya di https://surau.org (custom domain diatur di dashboard, T-07): workers.dev
-  // dimatikan supaya pagar zona (WAF, Access /tinjau) tidak bisa dilewati (#64, ADR-062). Docs
-  // Cloudflare: domain yang dikelola dashboard = tanpa `routes` + `workers_dev: false`.
-  // `preview_urls` eksplisit true: Preview per PR (`pr-N-surau-web…workers.dev`) memakainya.
+  // dimatikan (#64, ADR-062). Docs Cloudflare: domain yang dikelola dashboard = tanpa `routes` +
+  // `workers_dev: false`. `preview_urls` eksplisit true: Preview per PR (`pr-N-surau-web…workers.dev`)
+  // memakainya. Sisa yang diketahui: setelan yang sama membuat Version URL produksi
+  // (`<versi>-surau-web…workers.dev`) tetap hidup di luar WAF zona (ADR-062).
   "workers_dev": false,
   "preview_urls": true,
   // esbuild wrangler (keepNames) menyisipkan `__name(fn, "…")` ke kode server. Skrip inline yang

@@ -9,7 +9,8 @@ import { getEnv, readerEnabled } from "../lib/cloudflare";
 // sitemap.xml: halaman statis + (bila pembaca terbuka) halaman karya dan semua halaman cetak edisi
 // default. Dinamis, bukan dibekukan saat build: datanya dari D1, yang tidak ada di CI. Origin dari
 // `SITEMAP_ORIGIN` (produksi: https://surau.org, juga bila diminta lewat Version URL, #64); Preview
-// mengosongkannya sehingga origin diambil dari host permintaan dan menunjuk dirinya sendiri. Bagian (/bab/<id>) tidak dicantumkan:
+// mengosongkannya sehingga origin diambil dari host permintaan dan menunjuk dirinya sendiri. `pnpm dev`
+// membaca var top-level, jadi sitemap lokal pun menunjuk surau.org (cabang localhost hanya untuk var kosong). Bagian (/bab/<id>) tidak dicantumkan:
 // itu pengalihan ke halaman cetak. Ihya ±1.700 URL, jauh di bawah batas 50.000 per sitemap.
 export const dynamic = "force-dynamic";
 
