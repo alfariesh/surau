@@ -82,6 +82,21 @@ describe("POST /api/feedback", () => {
     expect(saved[0]?.message).toBe("Salah ketik. Hubungi saya di [email] atau [nomor].");
   });
 
+  it("laporan jawaban (S21): jenis answer hanya dari /tanya", async () => {
+    const { d, saved } = deps();
+    const ok = await handleFeedback(
+      post({ kind: "answer", message: "Kutipan kedua tidak cocok.", path: "/tanya", website: "" }),
+      d,
+    );
+    expect(ok.status).toBe(201);
+    expect(saved[0]).toMatchObject({ kind: "answer", path: "/tanya", passage_id: null });
+    for (const bad of [
+      { kind: "answer", message: "x", path: "/kitab/ihya/1/200", website: "" },
+      { kind: "text", message: "x", path: "/tanya", website: "" },
+    ])
+      expect((await handleFeedback(post(bad), d)).status).toBe(400);
+  });
+
   it("jenis translation (terjemahan/ringkasan AI, #73) diterima dan disimpan apa adanya", async () => {
     const { d, saved } = deps();
     const res = await handleFeedback(post({ ...GOOD, kind: "translation" }), d);
