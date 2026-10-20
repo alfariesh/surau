@@ -4,7 +4,12 @@ import type { Citation } from "@surau/core";
 import type { D1Db } from "@surau/db";
 import { aggregateAnswers, hasFatwaLanguage, metric, scoreAnswer } from "./answer-metrics.ts";
 import { buildCorpusIndex } from "./corpus.ts";
-import { assertJudgeBudget, judgeRequest, JUDGE_VERSION } from "./answer-judge.ts";
+import {
+  assertJudgeBudget,
+  assertJudgePublic,
+  judgeRequest,
+  JUDGE_VERSION,
+} from "./answer-judge.ts";
 import { answerReport } from "./answer-report.ts";
 import { approvedQuestions, calibration, seedSql } from "./answer-review.ts";
 import type { AnswerRecord } from "./answer-data.ts";
@@ -242,4 +247,14 @@ test("golden menolak persetujuan lama yang bertentangan dan menjaga set privat",
     ),
   ).rejects.toThrow(/bertentangan/u);
   expect(await approvedQuestions([exported], "Agent QA")).toEqual([]);
+});
+
+describe("judge tidak mengirim holdout privat (#69)", () => {
+  test("arsip campur ditolak tanpa --termasuk-privat; arsip publik lolos", () => {
+    const publik = [{ private: false }, { private: false }];
+    const campur = [...publik, { private: true }];
+    expect(() => assertJudgePublic(publik, false)).not.toThrow();
+    expect(() => assertJudgePublic(campur, false)).toThrow(/1 jawaban holdout privat/);
+    expect(() => assertJudgePublic(campur, true)).not.toThrow();
+  });
 });

@@ -19,6 +19,7 @@ import { scoreAnswer, validateQuestion } from "./answer-metrics.ts";
 import {
   JUDGE_VERSION,
   assertJudgeBudget,
+  assertJudgePublic,
   collectJudge,
   estimateJudge,
   judgePlanHash,
@@ -39,6 +40,7 @@ const { positionals, values } = parseArgs({
     judge: { type: "string" },
     reviewer: { type: "string", default: "Anas" },
     "publik-saja": { type: "boolean", default: false },
+    "termasuk-privat": { type: "boolean", default: false },
     remote: { type: "boolean", default: false },
     "budget-usd": { type: "string" },
     confirm: { type: "boolean", default: false },
@@ -148,6 +150,11 @@ async function main() {
       console.log(
         `Baseline ${mode}: ${all.length} soal; biaya $0. Laporan ${report}. Arsip privat ${out}.`,
       );
+      const holdout = all.filter((r) => r.private).length;
+      if (holdout > 0)
+        console.warn(
+          `Arsip ini memuat ${holdout} soal holdout privat: judge-plan menolaknya. Untuk judge, buat arsip dengan --publik-saja.`,
+        );
     });
     return;
   }
@@ -205,6 +212,7 @@ async function main() {
   }
   if (command === "judge-plan") {
     const rows = await records();
+    assertJudgePublic(rows, values["termasuk-privat"]);
     const run = id.parse(required(values.run, "--run"));
     await withCorpus(async (corpus, index) => {
       const requests = [];
@@ -255,6 +263,7 @@ async function main() {
     if (plan.version !== JUDGE_VERSION || (await judgePlanHash(plan.requests)) !== plan.hash)
       throw new Error("Plan berubah atau versinya lama; buat plan baru.");
     for (const r of plan.records) await verifyRecord(answerRecord.parse(r));
+    if (command === "judge-submit") assertJudgePublic(plan.records, values["termasuk-privat"]);
     const receiptFile = join(privateDir, `${run}-batch.json`);
     if (command === "judge-submit") {
       const rebuilt = await withCorpus(async (corpus, index) => {
@@ -334,7 +343,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID (gratis)\njudge-submit --run ID --budget-usd USD --confirm (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

@@ -66,7 +66,7 @@ Workflow `eval.yml` (non-blocking) menjalankan `eval:retrieval --remote --gate` 
 
 Cadangan sudah diunggah ke R2 privat `surau-evals/jawab/2026-10-19-draf-v1.jsonl`; antrean `s18-tinjau-v1` tersimpan di D1 `surau-app` yang hanya dibaca melalui Access `/tinjau`. Pemilik mengizinkan kedua penyimpanan privat pada 2026-10-19. Unggahan R2 selesai tanpa menimpa kunci lama; pengisian D1 selesai setelah migrasi/deploy PR #48. Agregat terverifikasi: 60 soal, 18 privat, 30 contoh kalibrasi; 0 review saat seed.
 
-Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke Anthropic atas izin pemilik (pagu US$1); tidak mengirim 18 holdout. Plan dan hasil yang memuat sumber disimpan privat. Salinan server Anthropic mengikuti kebijakan retensi API vendor, terpisah dari app. Retensi app 12 bulan, expiry baca aktif, penghapusan fisik manual sampai S20. Inventaris ini wajib diperbarui bila dibuat salinan lain.
+Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke Anthropic atas izin pemilik (pagu US$1); tidak mengirim 18 holdout. Sejak #69 hal ini dijaga kode: `judge-plan` (yang sudah memanggil `countTokens`, artinya isi soal sudah terkirim ke Anthropic) dan `judge-submit` menolak arsip yang memuat jawaban privat, kecuali dengan `--termasuk-privat`. Opsi itu hanya dipakai dengan izin pemilik, dan salinan barunya wajib dicatat di bagian ini. Untuk judge, buat arsip dengan `baseline --publik-saja`. Plan dan hasil yang memuat sumber disimpan privat. Salinan server Anthropic mengikuti kebijakan retensi API vendor, terpisah dari app. Retensi app 12 bulan, expiry baca aktif, penghapusan fisik manual sampai S20. Inventaris ini wajib diperbarui bila dibuat salinan lain.
 
 Pemulihan holdout memakai:
 

@@ -108,6 +108,25 @@ export async function estimateJudge(client: Client, requests: JudgeRequest[]) {
     ),
   };
 }
+/**
+ * Holdout privat tidak dikirim ke Anthropic (evals/README "Penyimpanan privat S18", #69): bukan hanya
+ * batch judge, `countTokens` di judge-plan pun mengirim isinya. Tanpa `includePrivate` (opsi eksplisit
+ * `--termasuk-privat`, yang wajib dicatat sebagai salinan baru di evals/README dengan izin pemilik),
+ * arsip yang memuat satu saja jawaban privat ditolak sebelum ada panggilan API.
+ */
+export function assertJudgePublic(
+  records: readonly { private: boolean }[],
+  includePrivate: boolean,
+): void {
+  const count = records.filter((r) => r.private).length;
+  if (count === 0 || includePrivate) return;
+  throw new Error(
+    `Arsip memuat ${count} jawaban holdout privat; judge tidak mengirimnya ke Anthropic. ` +
+      "Pakai arsip dari baseline --publik-saja. Mengirim holdout butuh izin pemilik, --termasuk-privat, " +
+      "dan catatan salinan baru di evals/README.md.",
+  );
+}
+
 export function assertJudgeBudget(ceiling: number, budget: number, confirmed: boolean) {
   if (!confirmed || !Number.isFinite(budget) || budget <= 0 || ceiling > budget)
     throw new Error(
