@@ -10,6 +10,13 @@ import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 
 import { buildSqlite } from "./build-sqlite.ts";
 import { buildDigest } from "./corpus.ts";
+import {
+  checkStability,
+  fingerprintPath,
+  fingerprints,
+  readFingerprints,
+  writeFingerprints,
+} from "./fingerprint.ts";
 import { createAllocator, readIdMap, writeIdMap } from "./ids.ts";
 import type { IdAllocator } from "./ids.ts";
 import { parseOpenitiPages } from "./openiti/markdown.ts";
@@ -248,8 +255,14 @@ export interface IngestResult {
 }
 
 export interface IngestOptions {
-  /** Abaikan peta ID yang ada dan bangun dari nol (HANYA sebelum rilis Fase 1, ADR-029). */
+  /** Abaikan peta ID yang ada dan bangun dari nol (HANYA sebelum rilis, ADR-029; ditolak bila sidik teks ada). */
   resetIds?: boolean;
+  /**
+   * `passage.id` lama yang teksnya boleh berubah (koreksi teks yang disengaja), satu per satu. ID
+   * yang HILANG tetap ditolak. Periksa daftar lengkap di laporan validasi dulu: paragraf bergeser
+   * juga tampil sebagai "berubah".
+   */
+  acceptTextChanges?: readonly number[];
   env?: NodeJS.ProcessEnv;
 }
 
@@ -278,9 +291,21 @@ export function runIngest(
   }
 
   const idsPath = assertWritable(join(paths.repo, config.ids));
+  const printsPath = assertWritable(fingerprintPath(idsPath));
+  // Sidik ada = korpus sudah dirilis (#59): ID tidak boleh dibangun ulang dan peta ID wajib ada.
+  const released = readFingerprints(printsPath, config.edition.id);
+  if (released !== null && opts.resetIds)
+    throw new Error(`--reset-ids ditolak: ${config.ids} sudah dirilis (${printsPath} ada)`);
+  if (released !== null && !existsSync(idsPath))
+    throw new Error(`Peta ID ${idsPath} tidak ada padahal korpus sudah dirilis; pulihkan dari git`);
   const idMap = opts.resetIds
     ? { format: 1 as const, edition: config.edition.id, page: {}, toc: {}, passage: {} }
     : readIdMap(idsPath, config.edition.id);
+  if (released === null && Object.keys(idMap.passage).length > 0)
+    throw new Error(
+      `Sidik teks ${printsPath} tidak ada padahal peta ID berisi paragraf; pulihkan dari git ` +
+        "(kitab yang belum pernah dirilis: --reset-ids)",
+    );
   const ids = createAllocator(idMap);
   const { rows, fts, ayat, llm } = rowsFor(config, paths, prepared, toc, ids, opts.env);
   const validation = validate({
@@ -294,9 +319,20 @@ export function runIngest(
     ayat,
     llm: llm?.stats ?? null,
   });
+  const prints = fingerprints(config.edition.id, rows.passage);
+  const stability =
+    released === null ? null : checkStability(released, prints, opts.acceptTextChanges);
+  if (stability !== null) {
+    validation.invariants.push({
+      name: "ID paragraf rilis stabil (ADR-059)",
+      ok: stability.ok,
+      detail: stability.detail,
+    });
+    validation.ok &&= stability.ok;
+  }
   writeText(
     join(paths.repo, `${config.reportPrefix}-validasi.md`),
-    validationReport(ctx, validation),
+    [validationReport(ctx, validation), ...(stability?.report ?? [])].join("\n"),
   );
   writeText(
     join(paths.repo, `${config.reportPrefix}-openiti.md`),
@@ -316,6 +352,7 @@ export function runIngest(
   ]);
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());
+  writeFingerprints(printsPath, prints);
 
   const digest = buildDigest(sqlDir, sqlitePath);
   writeFileSync(hashPath, `${digest}\n`);

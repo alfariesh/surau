@@ -1,8 +1,8 @@
 // Peta ID yang di-commit (ADR-029 butir 3): kunci stabil → seq, tanpa teks kitab, di
 // `data/ids/<kitab>-<id shamela>.json`. Alokasi ID MEMBACA peta ini: kunci yang sudah ada selalu
 // mendapat seq yang sama, kunci baru mendapat seq setelah yang terbesar, dan seq tidak pernah dipakai
-// ulang. Kunci yang tidak muncul lagi tetap disimpan (pemeriksaan "ID lama masih ada atau dialihkan"
-// dikerjakan di S10). Sebelum rilis Fase 1 peta boleh dibuang dan dibangun ulang (`--reset-ids`).
+// ulang. Kunci yang tidak muncul lagi tetap disimpan. Pemeriksaan "ID lama masih ada dengan teks yang
+// sama" ada di sidik teks (`fingerprint.ts`, #59); sebelum rilis peta boleh dibangun ulang (`--reset-ids`).
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 import { z } from "zod";

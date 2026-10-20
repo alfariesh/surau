@@ -3,7 +3,9 @@
 //   verify-openiti   hanya gerbang QA OpenITI (laporan data/reports/…-openiti.md)
 // Opsi: --shamela <dir> (bawaan /Volumes/Elfariesh/database atau $SURAU_SHAMELA_ROOT),
 //       --openiti <dir> (bawaan data/raw/openiti), --quran <dir> (bawaan data/raw: tanzil/ +
-//       kemenag/), --reset-ids (HANYA sebelum rilis Fase 1).
+//       kemenag/), --reset-ids (HANYA sebelum rilis; ditolak bila data/ids/…teks.json ada),
+//       --terima-teks-berubah <id,…> (passage.id lama yang teksnya boleh berubah, satu per satu;
+//       ID hilang tetap ditolak, ADR-059).
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -24,12 +26,13 @@ function main(argv: string[]): number {
       openiti: { type: "string" },
       quran: { type: "string" },
       "reset-ids": { type: "boolean", default: false },
+      "terima-teks-berubah": { type: "string" },
     },
   });
   const command = positionals[0];
   if (command !== "ihya" && command !== "verify-openiti") {
     console.error(
-      "Pakai: pnpm ingest ihya | pnpm ingest:verify  [--shamela <dir>] [--openiti <dir>] [--quran <dir>] [--reset-ids]",
+      "Pakai: pnpm ingest ihya | pnpm ingest:verify  [--shamela <dir>] [--openiti <dir>] [--quran <dir>] [--reset-ids] [--terima-teks-berubah <id,…>]",
     );
     return 2;
   }
@@ -67,7 +70,14 @@ function main(argv: string[]): number {
     return ok ? 0 : 1;
   }
 
-  const result = runIngest(IHYA, paths, { resetIds: values["reset-ids"] });
+  const result = runIngest(IHYA, paths, {
+    resetIds: values["reset-ids"],
+    acceptTextChanges: values["terima-teks-berubah"]?.split(",").map((id) => {
+      const n = Number(id.trim());
+      if (!Number.isSafeInteger(n) || n <= 0) throw new Error(`ID paragraf tidak sah: ${id}`);
+      return n;
+    }),
+  });
   for (const i of result.validation.invariants)
     console.info(`${i.ok ? "✓" : "✗"} ${i.name}: ${i.detail}`);
   const a = result.ayat;
