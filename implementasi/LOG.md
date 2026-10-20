@@ -19,13 +19,13 @@ Format entri:
 
 - Dikerjakan:
   - `/tanya`: status → Turnstile sesuai permintaan → SSE → jawaban per blok (bersitasi `[n]` vs penghubung redup), kartu kutipan Arab dari DB (`/api/kutipan`), teks takhrij asli + tanda "takhrij memuat istilah kelemahan" (dari teks DB), laporan jawaban, semua penolakan → Cari; aksesibilitas.
-  - Status hadits versi 3 sesudah tiga putaran peninjau: hanya tampil bila kalimat itu sendiri menyitasi takhrij; pengganti "lihat teks takhrij"/"belum diketahui"; tidak stabil → jawaban tidak ditampilkan.
+  - Status hadits versi 3 sesudah empat putaran peninjau: hanya tampil bila kalimat itu sendiri menyitasi takhrij; klaim per kelompok; pengganti netral "tidak ditampilkan"/"belum diketahui"; tidak stabil → jawaban tidak ditampilkan.
   - `/transparansi`, `/privasi` jujur soal laporan jawaban, pagar `/api/kutipan`, arsip eval menyimpan blok + sitasi; perbaikan S20: cookie anon base64 kanonis.
 - Verifikasi:
-  - Eval `s21-publik-hadits-v3` (42 soal publik): kutipan valid 100% (163/163), lokasi 76,5%, penolakan 100%, tidak salah menolak 94,1%, tanpa pola fatwa 100%; audit: 2 ringkasan status tampil (bersitasi takhrij sendiri, sesuai gold), 4 ditahan, 0 klaim penilaian bersitasi matan; tanda kelemahan DB 5/5 soal lemah, soal sahih tidak; US$0,0026/jawaban.
+  - Eval final `s21-publik-hadits-v5` (42 soal publik): kutipan valid 100% (159/159), lokasi 73,5% (antar-run 73,5–76,5%), penolakan 100%, tidak salah menolak 94,1%, tanpa pola fatwa 100%; audit: 3 ringkasan status tampil (bersitasi takhrij sendiri), 2 ditahan, 0 klaim penilaian bersitasi matan; tanda kelemahan DB pada takhrij gold yang disitasi, soal sahih tidak; US$0,0026/jawaban.
   - Uji ujung ke ujung di Preview `pr-100.surau.org/tanya` dengan Jawab staging dinyalakan sebentar; produksi pasca-merge S20: `/privasi` 200, `/admin` 302 Access, `/api/jawab` 404.
-  - `pnpm verify` lolos (638 + 313 tes, build 3/3); Playwright lokal a11y + Tanya 12/12.
-- Biaya API: ±US$0,23 (eval v2 0,1167 + eval v3 0,1096 + uji staging ±0,003), batas agent US$0,50.
+  - `pnpm verify` lolos (641 + 313 tes, build 3/3); Playwright lokal a11y + Tanya 12/12.
+- Biaya API: ±US$0,37 (eval v1 0,1167 + v3 0,1096 + v4 terhenti 0,0299 + v5 0,1091 + uji staging ±0,003), batas agent US$0,50.
 - Keputusan: ADR-066.
 - Catatan untuk sesi berikutnya: R4 belum terpenuhi (status hadits belum terbukti — deteksi pola teks bebas punya batas, lokasi < 90%, judge, ustadz, tampilan) → `/rilis 4` belum disarankan; usul: status hadits dari label takhrij yang ditinjau + pencarian makna. Pemilik: T-25, T-24, secret produksi T-14.
 
