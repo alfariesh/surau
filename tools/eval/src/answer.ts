@@ -48,6 +48,7 @@ const { positionals, values } = parseArgs({
     gateway: { type: "boolean", default: false },
     concurrency: { type: "string", default: "3" },
     only: { type: "string" },
+    "privat-saja": { type: "boolean", default: false },
   },
 });
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/u);
@@ -172,9 +173,11 @@ async function main() {
     if (!Number.isFinite(budget) || budget <= 0 || budget > 3)
       throw new Error("--budget-usd wajib (0 < pagu ≤ 3, izin pemilik S19).");
     const ceiling = questionCeilingUsd();
-    let items = loadAnswerQuestions(repo, false).filter(
-      (q) => !q.private || values["termasuk-privat"],
-    );
+    if (values["privat-saja"] && !values["termasuk-privat"])
+      throw new Error("--privat-saja hanya bersama --termasuk-privat (izin pemilik).");
+    let items = loadAnswerQuestions(repo, false)
+      .filter((q) => !q.private || values["termasuk-privat"])
+      .filter((q) => q.private || !values["privat-saja"]);
     if (values.only) {
       const wanted = new Set(values.only.split(","));
       items = items.filter((q) => wanted.has(q.question.id));
@@ -461,7 +464,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat] [--gateway] [--only j001,j002] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

@@ -8,15 +8,16 @@ import type {
 import type { AnswerTocNode } from "@surau/core";
 import { z } from "zod";
 
-import { ANSWER_ROUTE_SCHEMA, ANSWER_ROUTE_V1 } from "../../prompts/answer-route-v1.ts";
+import { ANSWER_ROUTE_SCHEMA } from "../../prompts/answer-route-v1.ts";
+import { ANSWER_ROUTE_V2 } from "../../prompts/answer-route-v2.ts";
 import { MODELS } from "../client.ts";
 import { messageText } from "../response.ts";
 
-export const ROUTE_PROMPT = ANSWER_ROUTE_V1;
+export const ROUTE_PROMPT = ANSWER_ROUTE_V2;
 /** Ruang thinking (effort low) + JSON kecil. */
 export const ROUTE_MAX_TOKENS = 2048;
 export const ROUTE_MAX_SECTIONS = 4;
-export const ROUTE_MAX_QUERIES = 4;
+export const ROUTE_MAX_QUERIES = 6;
 /** Batas `searchText` (InvalidQuery di atasnya). */
 export const QUERY_MAX_CHARS = 200;
 

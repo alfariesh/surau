@@ -20,6 +20,8 @@ export interface SearchList {
   query: string;
   section_id: number | null;
   passage_ids: number[];
+  /** Bobot RRF (bawaan 1). */
+  weight?: number;
 }
 
 /** Pertanyaan dipotong di batas kata supaya lolos batas panjang `searchText`. */
@@ -31,13 +33,17 @@ export function questionQuery(question: string): string {
 }
 
 function rankedIds(view: SearchView): number[] {
+  // Hasil tak berperingkat (semua kata sangat umum) = urutan kitab, bukan relevansi: dilewati.
+  if (!view.ranked) return [];
   const hits = view.results.flatMap((p) => p.hits);
-  // Peringkat per paragraf (skor tertinggi dulu); tanpa skor (hasil tak berperingkat) = urutan kitab.
   return hits
     .map((h, i) => ({ id: h.id, score: h.score ?? -i }))
     .sort((a, b) => b.score - a.score)
     .map((h) => h.id);
 }
+
+/** Batas pencarian per pertanyaan (beban D1). */
+export const MAX_SEARCHES = 20;
 
 async function safeSearch(
   db: D1Db,
@@ -60,14 +66,22 @@ export async function searchLists(
   question: string,
   route: Route | null,
 ): Promise<SearchList[]> {
-  const plans: { query: string; section_id: number | null; limit: number }[] = [
-    { query: questionQuery(question), section_id: null, limit: GLOBAL_LIMIT },
-  ];
-  for (const q of route?.queries ?? [])
-    plans.push({ query: q, section_id: null, limit: GLOBAL_LIMIT });
-  for (const s of route?.sections ?? [])
-    for (const q of (route?.queries ?? []).slice(0, 2))
-      plans.push({ query: q, section_id: s, limit: SECTION_LIMIT });
+  const q = questionQuery(question);
+  const queries = route?.queries ?? [];
+  const planned = new Map<string, { query: string; section_id: number | null; limit: number }>();
+  const add = (query: string, section_id: number | null, limit: number) => {
+    const key = `${section_id ?? ""}|${query}`;
+    if (!planned.has(key) && planned.size < MAX_SEARCHES)
+      planned.set(key, { query, section_id, limit });
+  };
+  add(q, null, GLOBAL_LIMIT);
+  for (const rq of queries) add(rq, null, GLOBAL_LIMIT);
+  // Pertanyaan pengguna (Indonesia) dan kueri routing di setiap bagian pilihan routing.
+  for (const s of route?.sections ?? []) {
+    add(q, s, SECTION_LIMIT);
+    for (const rq of queries.slice(0, 3)) add(rq, s, SECTION_LIMIT);
+  }
+  const plans = [...planned.values()];
   const views = await Promise.all(
     plans.map((p) =>
       safeSearch(db, p.query, {

@@ -23,11 +23,12 @@ import {
   ANSWER_PROMPT,
   DOC_BUDGET_TOKENS,
   JAWAB_MAX_PROMPT_TOKENS,
+  TRANSLATED_DOCS,
   buildAnswerRequest,
   fitDocs,
   fixedPromptTokens,
 } from "./answer.ts";
-import { citationSpans, hadithStatements, isNotFound, stripArabic } from "./citations.ts";
+import { citationSpans, hadithStatements, refusalKind, stripArabic } from "./citations.ts";
 import type { CitedSpan } from "./citations.ts";
 import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
@@ -43,6 +44,8 @@ const FALLBACK_HITS = 5;
 
 export type JawabStage = "route" | "retrieve" | "answer" | "retry" | "verify";
 export type FallbackReason = "no_candidates" | "unverified" | "refusal" | "provider_error";
+/** Alasan hasil: turun ke Cari, atau jenis penolakan (`false_premise` = premis keliru). */
+export type JawabReason = FallbackReason | "false_premise";
 
 export interface JawabCitation {
   n: number;
@@ -93,7 +96,7 @@ export interface JawabDiagnostics {
 }
 export interface JawabResult {
   outcome: "answer" | "not_found" | "fallback";
-  reason: FallbackReason | null;
+  reason: JawabReason | null;
   text: string;
   blocks: JawabBlock[];
   citations: JawabCitation[];
@@ -299,9 +302,10 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     JAWAB_MAX_PROMPT_TOKENS - fixedPromptTokens(question) - 2000,
   );
   const docs = fitDocs(
-    order.map((id) => {
+    order.map((id, i) => {
       const p = passages.get(id)!;
-      return buildDoc(p, docContext(p, toc.nodes, labels));
+      const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
+      return buildDoc(shown, docContext(shown, toc.nodes, labels));
     }),
     budget,
   );
@@ -447,11 +451,12 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     .map((b) => b.text)
     .join("")
     .trim();
-  const notFound = isNotFound(text);
+  const refusal = refusalKind(text);
+  const notFound = refusal !== null;
   if (!notFound && citations.length === 0) return fallback("unverified", model);
   const result: JawabResult = {
     outcome: notFound ? "not_found" : "answer",
-    reason: null,
+    reason: refusal === "false_premise" ? "false_premise" : null,
     text,
     blocks: kept,
     citations,
@@ -481,13 +486,25 @@ export function hadithClaims(
     offset = r.end;
     return r;
   });
+  const footOf = (ns: readonly number[]) =>
+    ns
+      .map((n) => citations.find((x) => x.n === n))
+      .filter((c): c is JawabCitation => c !== undefined && c.kind === "foot");
   for (const st of hadithStatements(full)) {
-    const ns = ranges
-      .filter((r) => r.end > st.start && r.start < st.end + 1)
-      .flatMap((r) => r.block.citations);
-    for (const n of new Set(ns)) {
-      const c = citations.find((x) => x.n === n);
-      if (c === undefined || c.kind !== "foot") continue;
+    let foots = footOf(
+      ranges
+        .filter((r) => r.end > st.start && r.start < st.end + 1)
+        .flatMap((r) => r.block.citations),
+    );
+    // Kalimat status tanpa sitasi sendiri: pakai takhrij terakhir yang disitasi sebelumnya dalam
+    // paragraf yang sama (model sering menyitasi takhrij di kalimat sebelum "Status hadits:").
+    if (foots.length === 0) {
+      const paragraphStart = full.lastIndexOf("\n\n", st.start) + 1;
+      const before = ranges.filter((r) => r.start >= paragraphStart - 1 && r.end <= st.start);
+      const prev = footOf(before.flatMap((r) => r.block.citations)).at(-1);
+      foots = prev ? [prev] : [];
+    }
+    for (const c of foots) {
       const body = passages.get(c.passage_id)?.referenced_by[0];
       if (body === undefined) continue;
       if (

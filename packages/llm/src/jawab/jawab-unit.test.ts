@@ -4,16 +4,19 @@ import type { AnswerPassage, AnswerTocNode } from "@surau/core";
 import { describe, expect, test } from "vite-plus/test";
 
 import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
+import { ANSWER_FALSE_PREMISE } from "../../prompts/answer-v3.ts";
 import { buildAnswerRequest, fitDocs } from "./answer.ts";
 import {
   SPAN_MAX_CHARS,
   citationSpans,
   hadithStatements,
   isNotFound,
+  refusalKind,
   stripArabic,
 } from "./citations.ts";
 import { buildDoc, docContext, segmentText, toDocumentBlock } from "./documents.ts";
 import { fuse, questionQuery, withPairs } from "./retrieve.ts";
+import { hadithClaims } from "./pipeline.ts";
 import { buildRouteRequest, parseRoute, tocText } from "./route.ts";
 
 const SENT = "هذه جملة تجريبية طويلة لاختبار التقسيم. ";
@@ -178,7 +181,7 @@ describe("parseRoute", () => {
       valid,
     );
     expect(r?.sections).toEqual([100002, 100001, 100003, 100004]);
-    expect(r?.queries).toEqual(["sabar", "الصبر", "x".repeat(200), "a"]);
+    expect(r?.queries).toEqual(["sabar", "الصبر", "x".repeat(200), "a", "b"]);
   });
 
   test("refusal, terpotong, atau JSON rusak → null", () => {
@@ -254,10 +257,26 @@ describe("teks model", () => {
     expect(stripArabic("Tanpa huruf Arab.")).toEqual({ text: "Tanpa huruf Arab.", removed: 0 });
   });
 
+  test("harakat (Script=Inherited) ikut terbuang bersama hurufnya", () => {
+    // Fathatan U+064B dan sukun U+0652 sesudah huruf; teks buatan untuk tes.
+    const r = stripArabic("Lafaz \u0639\u0650\u0644\u0652\u0645\u064b dibahas.");
+    expect(r.text).toBe("Lafaz … dibahas.");
+    expect(r.text).not.toMatch(/[\u064B-\u065F]/u);
+  });
+
   test("penolakan baku hanya di awal jawaban", () => {
     expect(isNotFound(`${ANSWER_NOT_FOUND} Dokumen membahas hal lain.`)).toBe(true);
     expect(isNotFound(`  **${ANSWER_NOT_FOUND}**`)).toBe(true);
-    expect(isNotFound(`Menurut al-Ghazali ... ${ANSWER_NOT_FOUND}`)).toBe(false);
+    expect(isNotFound(`Menurut al-Ghazali ...\n\n${ANSWER_NOT_FOUND}`)).toBe(false);
+    // Satu kalimat pengantar di paragraf pertama masih dihitung penolakan.
+    expect(isNotFound(`Pertanyaan ini keliru. ${ANSWER_NOT_FOUND}`)).toBe(true);
+  });
+
+  test("dua jenis penolakan baku: tidak ditemukan dan premis keliru", () => {
+    expect(refusalKind(`${ANSWER_NOT_FOUND} Lain.`)).toBe("not_found");
+    expect(refusalKind(`${ANSWER_FALSE_PREMISE} Justru sebaliknya.`)).toBe("false_premise");
+    expect(isNotFound(ANSWER_FALSE_PREMISE)).toBe(true);
+    expect(refusalKind("Menurut al-Ghazali, ...")).toBeNull();
   });
 
   test("kalimat status hadits diambil sampai akhir kalimat", () => {
@@ -306,5 +325,54 @@ describe("kunci cache", () => {
     expect(await answerCacheKey("apa itu  sabar", "ihya-v6", "answer@1")).toBe(a);
     expect(await answerCacheKey("Apa itu sabar?", "ihya-v7", "answer@1")).not.toBe(a);
     expect(await answerCacheKey("Apa itu sabar?", "ihya-v6", "answer@2")).not.toBe(a);
+  });
+});
+
+describe("klaim hadits", () => {
+  test("kalimat status tanpa sitasi sendiri memakai takhrij yang disitasi sebelumnya", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, SENT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 1,
+        char_start: 0,
+        char_end: 10,
+        kind: "body" as const,
+        label: "",
+        permalink: "",
+      },
+      {
+        n: 2,
+        passage_id: 2,
+        char_start: 0,
+        char_end: 12,
+        kind: "foot" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const blocks = [
+      { text: "Al-Ghazali menukil hadits itu.", citations: [1] },
+      { text: " Al-'Iraqi menilainya.", citations: [2] },
+      { text: " Status hadits: sanad lemah.", citations: [] },
+    ];
+    expect(hadithClaims(blocks, citations, passages)).toEqual([
+      {
+        passage_id: 1,
+        footnote: { passage_id: 2, char_start: 0, char_end: 12 },
+        status: "sanad lemah",
+        label: "ai_extracted",
+      },
+    ]);
+    // Paragraf berbeda: tidak dipasangkan.
+    const far = [
+      blocks[0]!,
+      blocks[1]!,
+      { text: "\n\nStatus hadits: sanad lemah.", citations: [] },
+    ];
+    expect(hadithClaims(far, citations, passages)).toEqual([]);
   });
 });

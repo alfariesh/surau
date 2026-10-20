@@ -5,6 +5,7 @@
 import type { TextCitation } from "@anthropic-ai/sdk/resources/messages";
 
 import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
+import { ANSWER_FALSE_PREMISE } from "../../prompts/answer-v3.ts";
 import type { AnswerDoc } from "./documents.ts";
 
 /** Batas bentang kutipan eval/tampilan (sourceSpan @surau/core). */
@@ -69,8 +70,11 @@ export function citationSpans(
   return out;
 }
 
-// Huruf Arab (termasuk angka Arab-India, harakat, dan bentuk presentasi) dalam satu rentang.
-const ARABIC_RUN = /[\p{Script=Arabic}٠-٩]+(?:[\sـ]+[\p{Script=Arabic}٠-٩]+)*/gu;
+// Huruf Arab (termasuk angka Arab-India) beserta tanda yang menempel (harakat, tatweel, dan tanda
+// gabung lain: harakat ber-Script=Inherited, bukan Arabic), dalam satu rentang yang boleh dipisah
+// spasi. Tanda gabung yang berdiri sendiri sesudah huruf Arab yang sudah dibuang ikut terbuang.
+const ARABIC_RUN =
+  /(?:[\p{Script=Arabic}\u0660-\u0669][\p{M}\u0640]*)+(?:\s+(?:[\p{Script=Arabic}\u0660-\u0669][\p{M}\u0640]*)+)*/gu;
 
 /** Buang huruf Arab buatan model dari teks (bukan dari kutipan DB). */
 export function stripArabic(text: string): { text: string; removed: number } {
@@ -88,10 +92,22 @@ export function stripArabic(text: string): { text: string; removed: number } {
   };
 }
 
-/** Jawaban penolakan baku (prompt `answer@1`). */
+/**
+ * Jenis penolakan baku: `not_found` (prompt `answer@1`+) atau `false_premise` (`answer@3`+), bila
+ * kalimat bakunya ada di paragraf pertama (model kadang menulis satu kalimat pengantar dulu);
+ * `null` bila jawaban biasa. Kalimat baku di paragraf berikutnya tidak dihitung.
+ */
+export function refusalKind(text: string): "not_found" | "false_premise" | null {
+  const first = text.trimStart().split(/\n\s*\n/u)[0] ?? "";
+  const flat = first.replaceAll(/[*_#>]/gu, "");
+  if (flat.includes(ANSWER_NOT_FOUND.slice(0, -1))) return "not_found";
+  if (flat.includes(ANSWER_FALSE_PREMISE.slice(0, -1))) return "false_premise";
+  return null;
+}
+
+/** Jawaban diawali salah satu kalimat penolakan baku. */
 export function isNotFound(text: string): boolean {
-  const head = text.trimStart().replace(/^[*_#>\s]+/u, "");
-  return head.startsWith(ANSWER_NOT_FOUND.slice(0, -1));
+  return refusalKind(text) !== null;
 }
 
 export interface HadithStatement {

@@ -1,22 +1,28 @@
-// Request jawaban Jawab (S19): prompt `answer@1` (di-cache 1 jam), dokumen custom content
+// Request jawaban Jawab (S19): prompt `answer@4` (di-cache 1 jam), dokumen custom content
 // bercitations, lalu pertanyaan. Aturan ADR-013: effort `low` eksplisit, thinking adaptif bawaan,
 // tanpa parameter sampling, tanpa prefill, tanpa `output_config.format` (tidak bisa bersama
 // Citations).
 import type { MessageCreateParamsBase } from "@anthropic-ai/sdk/resources/messages";
 
-import { ANSWER_V1 } from "../../prompts/answer-v1.ts";
+import { ANSWER_V4 } from "../../prompts/answer-v4.ts";
 import { MODELS } from "../client.ts";
 import type { ModelId } from "../client.ts";
 import { estimateTextTokens, toDocumentBlock } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
 
-export const ANSWER_PROMPT = ANSWER_V1;
+export const ANSWER_PROMPT = ANSWER_V4;
 /** Ruang thinking (effort low) + jawaban beberapa paragraf. */
 export const ANSWER_MAX_TOKENS = 8000;
 /** Batas keras prompt Jawab (ADR-013; harga Haiku naik 5× di atas 100k). */
 export const JAWAB_MAX_PROMPT_TOKENS = 40_000;
-/** Anggaran perkiraan dokumen; sisanya untuk prompt sistem, pertanyaan, dan galat perkiraan. */
-export const DOC_BUDGET_TOKENS = 30_000;
+/**
+ * Anggaran perkiraan dokumen (S19, eval publik): 20 ribu token + terjemahan AI hanya di 12
+ * dokumen teratas memberi cakupan lokasi gold lebih tinggi (29/34) daripada 27 ribu token dengan
+ * terjemahan di semua dokumen (28/34), dengan prompt ±22 ribu token (biaya ±US$0,003/jawaban).
+ */
+export const DOC_BUDGET_TOKENS = 20_000;
+/** Dokumen teratas yang membawa terjemahan AI di konteksnya; sisanya teks Arab saja. */
+export const TRANSLATED_DOCS = 12;
 
 export function answerUserText(question: string): string {
   return `<pertanyaan>${question}</pertanyaan>`;
