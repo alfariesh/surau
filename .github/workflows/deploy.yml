@@ -4,11 +4,22 @@
 # tidak pernah diubah dari sini, hanya lewat `pnpm run corpus:promote` (blue-green, ARSITEKTUR-TEKNIS §7
 # aturan 4; dijaga tes tools/ingest/src/corpus.test.ts).
 # `main` hanya berubah lewat PR yang lolos `verify` (ADR-025), jadi workflow ini tidak mengulang verify.
+# Push yang HANYA mengubah prosa (dokumen, rencana, laporan, Markdown) tidak men-deploy (#68): tidak ada
+# yang dibundel ke Worker dari sana. Push campuran kode + prosa tetap deploy. Deploy manual: Actions →
+# Deploy → Run workflow. `paths-ignore` sengaja tidak dipasang di ci.yml: `verify` adalah required
+# check, dan workflow yang dilewati akan memblokir merge.
 name: Deploy
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "implementasi/**"
+      - "evals/reports/**"
+      - "data/reports/**"
+      - ".claude/**"
+      - "**/*.md"
   workflow_dispatch:
 
 permissions:

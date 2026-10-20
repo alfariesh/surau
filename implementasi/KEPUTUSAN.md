@@ -1444,6 +1444,16 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 
 **Tinjau ulang bila:** ada kitab kedua (sidik per edisi sudah mendukungnya); patch pertama yang menghapus atau menggabungkan paragraf (buat `id_redirect`); kunci paragraf diganti menjadi tidak posisional; atau ada perubahan sumber yang menggeser halaman atau daftar isi.
 
+## ADR-060 · Deploy produksi melewati push yang hanya mengubah prosa — diterima · 2026-10-20
+
+**Konteks:** issue #68. `deploy.yml` berjalan di setiap push ke `main`. Dari 59 commit terakhir, 16 hanya mengubah prosa (STATUS, LOG, ADR, laporan). Setiap deploy seperti itu membangun ulang OpenNext, men-deploy web dan MCP beserta smoke-nya (±10 menit Actions), mengisi ulang cache R2, dan menghasilkan versi Worker baru yang isinya identik.
+
+**Keputusan:** pemicu `push` di `deploy.yml` diberi `paths-ignore`: `docs/**`, `implementasi/**`, `evals/reports/**`, `data/reports/**`, `.claude/**`, dan `**/*.md`. Tidak ada berkas dari jalur itu yang dibundel ke Worker (sudah dicek: tidak ada impor `.md` di `apps/` maupun `packages/`). Push yang mencampur kode dan prosa tetap men-deploy, karena `paths-ignore` hanya melewati push yang **semua** berkasnya cocok. `workflow_dispatch` tetap tersedia untuk deploy manual. `ci.yml` tidak diubah: `verify` adalah required check, dan workflow yang dilewati akan memblokir merge.
+
+**Ditolak (untuk sekarang):** rollback otomatis bila smoke produksi gagal (usulan opsional di issue). Butuh keputusan terpisah soal migrasi `surau-app` yang sudah jalan.
+
+**Tinjau ulang bila:** ada berkas Markdown atau isi `docs/` yang mulai dibundel ke Worker (mis. halaman yang merender Markdown dari repo); atau `aset/` mulai disalin ke `apps/web/public` lewat build.
+
 ## ADR-061 · Tanda terima sebelum mengirim batch LLM, dan `pnpm llm reconcile` — diterima · 2026-10-20
 
 **Konteks:** issue #63. Pada keputusan batch S13, butir 6 hanya menyebut "tanpa ulang otomatis" untuk POST batch. Namun catatan batch baru ditulis **setelah** `batches.create` berhasil. Bila POST (puluhan MB) timeout atau proses mati padahal server sudah menerima batch, batch itu yatim: tidak ada di `batches.json`, tidak dihitung pagu (ADR #62), dan `submit` berikutnya mengirim request yang sama lagi, sehingga tertagih ganda.
