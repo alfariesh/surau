@@ -8,10 +8,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
+  budgetProblem,
   pendingRequests,
+  pendingUsd,
   readAccepted,
   rebuild,
   retryModel,
+  spentUsd,
   submittable,
   unresolved,
 } from "./batch.ts";
@@ -508,5 +511,64 @@ describe("rebuild: koreksi tinjauan (X02)", () => {
     expect(() =>
       parseReviews({ reviews: [{ ...one, date: "17-10-2026", entries: [entry] }] }),
     ).toThrow(/date/);
+  });
+});
+
+describe("pagu anggaran (#62)", () => {
+  const record = (id: string, collected: boolean, costUsd: number | null): BatchRecord => ({
+    name: `01-translation-${id}`,
+    id,
+    kind: "translation",
+    model: "model-uji",
+    prompt_version: "translate-passage@2",
+    requests: 1,
+    created_at: "2026-10-20T00:00:00Z",
+    ended_at: collected ? "2026-10-20T01:00:00Z" : null,
+    collected_at: collected ? "2026-10-20T01:00:00Z" : null,
+    usage:
+      costUsd === null
+        ? null
+        : {
+            requests: 1,
+            input_tokens: 0,
+            output_tokens: 0,
+            cache_read_input_tokens: 0,
+            cache_creation_input_tokens: 0,
+            costUsd,
+          },
+    outcome: null,
+  });
+  const setup = (estUsd: number | undefined) => {
+    const dir = mkdtempSync(join(tmpdir(), "surau-pagu-"));
+    const [plan] = pendingRequests(work, accepted(), 1);
+    if (plan === undefined) throw new Error("rencana kosong");
+    writeBatches(dir, [record("b-lama", true, 4), record("b-jalan", false, null)]);
+    const { est_usd: _, ...bare } = plan;
+    writeJsonl(join(dir, "requests", "b-jalan.jsonl"), [
+      estUsd === undefined ? bare : { ...bare, est_usd: estUsd },
+    ]);
+    return dir;
+  };
+
+  test("batch yang belum di-collect ikut dihitung dengan perkiraannya", () => {
+    const dir = setup(5);
+    expect(spentUsd(dir)).toBe(4);
+    expect(pendingUsd(dir)).toEqual({ usd: 5, unknown: 0 });
+    // $4 terpakai + $5 masih diproses + $2 kiriman ini > pagu $10.
+    expect(budgetProblem(dir, 2, true, 10)).toMatch(/Melebihi anggaran/);
+    expect(budgetProblem(dir, 2, false, 10)).toMatch(/Melebihi anggaran/);
+    expect(budgetProblem(dir, 1, true, 10)).toBeNull();
+  });
+
+  test("--confirm tanpa --budget ditolak; tanpa --confirm hanya ringkasan", () => {
+    const dir = setup(5);
+    expect(budgetProblem(dir, 1, true, undefined)).toMatch(/wajib bersama --budget/);
+    expect(budgetProblem(dir, 1, false, undefined)).toBeNull();
+  });
+
+  test("batch terbuka tanpa perkiraan biaya → kirim ditolak sampai di-collect", () => {
+    const dir = setup(undefined);
+    expect(pendingUsd(dir)).toEqual({ usd: 0, unknown: 1 });
+    expect(budgetProblem(dir, 1, true, 100)).toMatch(/tanpa perkiraan biaya/);
   });
 });

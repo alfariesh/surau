@@ -56,9 +56,8 @@ export interface SampleResult {
   source_chars: number;
 }
 
-export async function runSample(ctx: LlmContext): Promise<number> {
+export async function runSample(ctx: LlmContext, confirm: boolean): Promise<number> {
   const rows = ctx.rows();
-  const client = ctx.client();
   const { units } = translationUnits(rows);
   const withAyah = units.filter((u) => u.masked.slots.length > 0);
   const other = units.filter((u) => u.masked.slots.length === 0);
@@ -119,6 +118,14 @@ export async function runSample(ctx: LlmContext): Promise<number> {
   console.info(
     `Uji kecil: ${passages.length} paragraf + ${sections.length} bagian × 2 bahasa (${jobs.length} request, API biasa)`,
   );
+  // Berbayar (harga penuh, S13: ±$0,05) seperti perintah berbayar lain: hanya dengan --confirm (#62).
+  if (!confirm) {
+    console.info(
+      "Belum dikirim. BERBAYAR (API biasa, ±$0,05): kirim hanya setelah pemilik menyetujui biaya di chat, lalu tambahkan --confirm.",
+    );
+    return 0;
+  }
+  const client = ctx.client();
   const results = await mapPool(
     jobs,
     4,
