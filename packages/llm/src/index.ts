@@ -71,3 +71,62 @@ export type {
 } from "./summarize.ts";
 
 export { JUDGE_VERSION, JUDGE_MAX_TOKENS, JUDGE_PROMPT } from "../prompts/jawab-judge-v1.ts";
+
+// S19: pipeline Jawab (routing + Citations + verifikasi sitasi ke DB).
+export {
+  JAWAB_EDITION_ID,
+  JAWAB_PROMPT_VERSION,
+  QUESTION_MAX_CHARS,
+  hadithClaims,
+  runJawab,
+} from "./jawab/pipeline.ts";
+export type {
+  FallbackReason,
+  JawabBlock,
+  JawabCitation,
+  JawabDeps,
+  JawabDiagnostics,
+  JawabEvent,
+  JawabHadith,
+  JawabRefusal,
+  JawabResult,
+  JawabSearchHit,
+  JawabStage,
+} from "./jawab/pipeline.ts";
+export {
+  ANSWER_MAX_TOKENS,
+  ANSWER_PROMPT,
+  DOC_BUDGET_TOKENS,
+  JAWAB_MAX_PROMPT_TOKENS,
+  buildAnswerRequest,
+  fitDocs,
+} from "./jawab/answer.ts";
+export {
+  ROUTE_MAX_TOKENS,
+  ROUTE_PROMPT,
+  buildRouteRequest,
+  parseRoute,
+  tocText,
+} from "./jawab/route.ts";
+export type { Route } from "./jawab/route.ts";
+export {
+  SEGMENT_SINGLE_MAX,
+  buildDoc,
+  docContext,
+  docLabel,
+  estimateTextTokens,
+  segmentText,
+  toDocumentBlock,
+} from "./jawab/documents.ts";
+export type { AnswerDoc, DocSegment } from "./jawab/documents.ts";
+export {
+  SPAN_MAX_CHARS,
+  citationSpans,
+  hadithStatements,
+  isNotFound,
+  stripArabic,
+} from "./jawab/citations.ts";
+export type { CitedSpan } from "./jawab/citations.ts";
+export { fuse, questionQuery, searchLists, withPairs } from "./jawab/retrieve.ts";
+export type { SearchList } from "./jawab/retrieve.ts";
+export { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../prompts/answer-v1.ts";

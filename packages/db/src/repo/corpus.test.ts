@@ -22,10 +22,12 @@ import {
   getEdition,
   getEditionContext,
   getFootnoteRefs,
+  getFootnoteRefsTo,
   getNeedsReview,
   getPageByCitation,
   getPageById,
   getPassageById,
+  getPassagesByIds,
   getPassagesByPage,
   getSectionPassages,
   getTocChildren,
@@ -253,6 +255,31 @@ describe("bagian dan paragraf per ID", () => {
       page_no: 1,
     });
     expect(await getPassageById(db, 1)).toBeNull();
+  });
+
+  test("getPassagesByIds: unik, urut ID, letak cetak, ID asing dilewati, >100 ID", async () => {
+    const ids = [
+      PASSAGES.body3,
+      PASSAGES.foot1,
+      PASSAGES.body3,
+      ...Array.from({ length: 150 }, (_, i) => ED * 10_000_000 + 1000 + i),
+    ];
+    const rows = await getPassagesByIds(db, ids);
+    expect(rows.map((r) => [r.id, r.juz, r.page_no])).toEqual([
+      [PASSAGES.foot1, 1, 1],
+      [PASSAGES.body3, 2, 1],
+    ]);
+    expect(rows[0]?.text_raw).toBe(FOOT_1);
+    expect(await getPassagesByIds(db, [])).toEqual([]);
+  });
+
+  test("getFootnoteRefsTo: paragraf badan yang menunjuk catatan kaki", async () => {
+    const refs = await getFootnoteRefsTo(db, [PASSAGES.foot2, PASSAGES.foot1, PASSAGES.body2]);
+    expect(refs.map((r) => [r.footnote_passage_id, r.passage_id, r.marker])).toEqual([
+      [PASSAGES.foot1, PASSAGES.body1, "١"],
+      [PASSAGES.foot2, PASSAGES.body1, "٢"],
+    ]);
+    expect(await getFootnoteRefsTo(db, [])).toEqual([]);
   });
 
   test("getNeedsReview: urut, unik, dipecah ≤100 parameter", async () => {

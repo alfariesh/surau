@@ -11,6 +11,8 @@ export { buildCitation } from "./citation.ts";
 export { verifyQuote } from "./verify-quote.ts";
 export { ipKey, ipNetwork } from "./client-key.ts";
 export { getHadithTakhrij } from "./takhrij.ts";
+export { answerPassages, answerToc } from "./answer-context.ts";
+export type { AnswerPassage, AnswerTocNode } from "./answer-context.ts";
 export {
   AI_SNIPPET_CHARS,
   SEARCH_MAX_HIGHLIGHTS,

@@ -509,9 +509,15 @@ importers:
       '@surau/core':
         specifier: workspace:*
         version: link:../core
+      '@surau/db':
+        specifier: workspace:*
+        version: link:../db
       '@surau/text':
         specifier: workspace:*
         version: link:../text
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
