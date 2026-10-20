@@ -69,7 +69,7 @@
 | 3 | S16 | Worker MCP | selesai | 2026-10-17 · PR #42 · `mcp.surau.org/mcp`, 7 tool, dual-era, `verifyQuote` + `getHadithTakhrij`, kalibrasi token `readSection` (median ±5 ribu), batas `HMAC(IP):tool` + global (ADR-049) · T-19 WAF aktif |
 | 3 | S17 | Dokumentasi & rilis MCP | selesai | 2026-10-17 · PR #43, panduan diuji pemilik, R3 lolos · ADR-050 · monitor 17–24 Oktober · dirilis `rilis-f3` (PR #44, ADR-051) |
 | 4 | S18 | Eval Jawab & tinjau | sebagian | 2026-10-19 · PR #48 · ADR-052 · teknis terpublikasi, D1 60 draf/18 privat; 60 ulasan agent selesai; T-24 manusia ditunda, S19 boleh lanjut (ADR-054) |
-| 4 | S19 | Pipeline Jawab | belum | garis besar · butuh T-11, T-14 (AI Gateway) |
+| 4 | S19 | Pipeline Jawab | berjalan | 2026-10-20 · dirinci; gateway `surau-gw` dibuat pemilik (T-14); izin biaya ≤ US$3 + holdout sekali |
 | 4 | S20 | Pengaman biaya | belum | garis besar · butuh T-14, P-4, P-7 (T-20 opsional) |
 | 4 | S21 | UI Tanya & transparansi | belum | garis besar · lalu `/rilis 4` |
 | 5–7 | – | Ruang al-Ghazali, Wiki, Kurikulum | belum | dirinci saat Fase 4 hampir selesai |
