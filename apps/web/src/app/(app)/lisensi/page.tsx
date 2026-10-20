@@ -209,6 +209,9 @@ export default function LicensePage() {
 
       <PageSection heading={t.privacyHeading} id="privasi">
         <Typography>{t.privacyText}</Typography>
+        <NextLink className="link self-start" href="/privasi">
+          {t.privacyMore}
+        </NextLink>
       </PageSection>
     </TextPage>
   );

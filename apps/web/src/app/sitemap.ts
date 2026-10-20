@@ -28,6 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/` },
     { url: `${base}/tentang` },
     { url: `${base}/lisensi` },
+    { url: `${base}/privasi` },
     { url: `${base}/mcp` },
   ];
   if (!readerEnabled(env)) return entries;

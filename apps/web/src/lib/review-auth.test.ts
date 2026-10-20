@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vite-plus/test";
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from "jose";
-import { reviewIdentity, reviewSameOrigin } from "./review-auth";
+import { adminIdentity, reviewIdentity, reviewSameOrigin } from "./review-auth";
 
 const config = {
   REVIEW_ACCESS_ISSUER: "https://test.cloudflareaccess.com",
@@ -59,6 +59,30 @@ describe("Access JWT", () => {
       keys: [{ ...(await exportJWK(other.publicKey)), kid: "test", alg: "RS256" }],
     });
     expect(await reviewIdentity(await token(), config, wrong)).toBeNull();
+  });
+  test("/admin (S20): hanya token aplikasi Surau Admin; token Tinjau ditolak dan sebaliknya", async () => {
+    const admin = {
+      REVIEW_ACCESS_ISSUER: config.REVIEW_ACCESS_ISSUER,
+      ADMIN_ACCESS_AUD: "b".repeat(64),
+    };
+    const adminToken = await token({ aud: [admin.ADMIN_ACCESS_AUD] });
+    expect(await adminIdentity(adminToken, admin, keys)).toMatch(/^[a-f0-9]{64}$/u);
+    // Token penilai (/tinjau) tidak membuka /admin.
+    expect(await adminIdentity(await token(), admin, keys)).toBeNull();
+    // Token admin tidak membuka /tinjau.
+    expect(await reviewIdentity(adminToken, config, keys)).toBeNull();
+    // Tanpa AUD admin, kedaluwarsa, atau issuer lain: gagal tertutup.
+    expect(await adminIdentity(adminToken, { ...admin, ADMIN_ACCESS_AUD: "" }, keys)).toBeNull();
+    expect(
+      await adminIdentity(await token({ aud: [admin.ADMIN_ACCESS_AUD], exp: 1 }), admin, keys),
+    ).toBeNull();
+    expect(
+      await adminIdentity(
+        await token({ aud: [admin.ADMIN_ACCESS_AUD], iss: "https://evil.example" }),
+        admin,
+        keys,
+      ),
+    ).toBeNull();
   });
   test("Origin wajib persis termasuk skema/port", () => {
     for (const origin of [

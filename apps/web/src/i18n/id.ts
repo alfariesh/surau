@@ -45,6 +45,7 @@ export const id = {
     nonprofit: "Nirlaba · open source",
     source: "Kode sumber di GitHub",
     license: "Lisensi & atribusi",
+    privacy: "Privasi",
   },
 
   home: {
@@ -333,6 +334,7 @@ export const id = {
     privacyHeading: "Laporan kesalahan dan privasi",
     privacyText:
       "Laporan kesalahan disimpan tanpa nama, email, atau alamat IP. Laporan disimpan sampai ditangani, lalu dihapus paling lambat 12 bulan kemudian.",
+    privacyMore: "Baca kebijakan privasi lengkap",
   },
 
   reader: {
