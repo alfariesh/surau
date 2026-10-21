@@ -15,6 +15,20 @@ Format entri:
 
 ---
 
+## 2026-10-21 · UI · Orb tahap di halaman Tanya — selesai
+
+- Dikerjakan:
+  - Spinner di baris tahap Tanya diganti `TanyaOrb`: satu orb titik yang berganti bentuk per tahap Jawab (Sathr, Himpun, Khatam, Anyam, Untai), warna dari tema (tinta, aksen Zaitun, emas ornamen), ditambah penanda "Tahap n dari 4".
+  - Geometri murni di `orb-frames.ts` + tes; komponen kanvas sendiri (thinking-orbs tidak mendukung lebih dari satu warna per orb maupun tema sepia).
+- Verifikasi:
+  - Peninjau: 0 blocker, 1 penting (tahap SSE tak dikenal bisa membuat orb/halaman galat) + 4 kecil (kedip saat tahap berganti di tengah peralihan, Untai mulai dengan butir emas, setelan gerak dikurangi tidak diikuti langsung, sepia belum dicek visual); semua ditutup.
+  - `orb-frames.test.ts` (7 tes) dan tes SSE (tahap tak dikenal diabaikan) lolos.
+  - Pratinjau di browser lokal lewat halaman sementara dengan `/api/jawab` tiruan (SSE lima tahap; tidak di-commit): bentuk berganti sesuai tahap, animasi berjalan saat terlihat dan berhenti saat di luar layar, tema terang dan gelap, ponsel 375 px tanpa gulir samping. Tema sepia tidak dicek visual (warnanya dari variabel `:root.sepia` yang sama). Ditemukan + diperbaiki: tahap yang berganti saat orb di luar layar sempat menampilkan bentuk lama.
+  - `pnpm verify` lolos.
+- Biaya API: –
+- Keputusan: ADR-072
+- Catatan untuk sesi berikutnya: PR Maknaz (#109, ADR-071) mengganti teks halaman yang sama; orb tidak bergantung pada nama.
+
 ## 2026-10-21 · X07 · Sisipan: antrean tinjauan label status hadits di `/tinjau` — selesai
 
 - Dikerjakan:

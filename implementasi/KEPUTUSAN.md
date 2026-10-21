@@ -1827,3 +1827,21 @@ Yang gagal (j024): takhrij gold tidak masuk jawaban (lokasi, ADR-068), bukan lab
 - Kenaikan `TAKHRIJ_TERMS_VERSION` membuat semua tinjauan tidak berlaku sampai ditinjau ulang; skrip pemindahan untuk label yang tidak berubah menyusul bila perlu.
 
 **Tinjau ulang bila:** peninjau bertambah atau akses Access diperluas; aturan istilah naik versi; label perlu dibekukan ke korpus; atau tool MCP `get_hadith_takhrij` menampilkan label.
+
+## ADR-072 · Orb tahap di halaman Tanya: satu orb titik yang berganti bentuk per tahap Jawab, komponen kanvas sendiri (bukan paket `thinking-orbs`) — diterima · 2026-10-21
+
+**Konteks:** saat Jawab berjalan, halaman Tanya hanya menampilkan spinner HeroUI di samping teks tahap. Pemilik meminta indikator "thinking orb" ala [thinking-orbs](https://libraries.dev/orbs) (Jakub Antalik, MIT), dengan desain yang sesuai Surau, dan memilih **satu orb yang berganti bentuk per tahap** dari lima konsep yang diusulkan.
+
+**Keputusan:**
+1. Lima bentuk titik, satu per tahap (`STAGE_SHAPE`, `apps/web/src/components/tanya/orb-frames.ts`): `route` = **Sathr** (garis pindai menyapu baris titik dari kanan ke kiri, arah baca Arab; satu baris tetap menyala = bagian terpilih), `retrieve` = **Himpun** (titik berserakan berkumpul jadi blok paragraf), `answer` = **Khatam** (lingkaran → bintang delapan girih/rub' al-hizb, "ujung pena" berjalan, titik emas di pusat), `retry` = **Anyam** (dua helai menganyam = model lain), `verify` = **Untai** (butir diperiksa satu per satu, yang sudah diperiksa menjadi emas). Peralihan antartahap memakai crossfade 0,45 detik dengan skala; bila tahap berganti lagi di tengah peralihan, bentuk lama memudar dari opasitasnya saat itu. Waktu animasi tiap bentuk dihitung sejak tahapnya mulai, jadi Untai selalu mulai dari nol butir emas (bingkai diamnya juga paling banyak satu butir emas).
+2. Warna hanya dari tema: tinta `--foreground`, satu aksen Zaitun `--accent` pada bagian yang "hidup", dan `--ornament-gold` hanya untuk "sudah diperiksa" serta pusat khatam. Warna dibaca ulang saat kelas tema di `<html>` berubah (terang, gelap, sepia). Tanpa wajah, sosok, bulan sabit, atau Ka'bah (`.claude/rules/teks-arab.md`, bagian Tampilan).
+3. **Komponen sendiri** `TanyaOrb` (kanvas 2D, 44 px di baris tahap) dengan pola dari thinking-orbs: berhenti saat tidak terlihat (IntersectionObserver, tab tersembunyi), satu bingkai diam saat `prefers-reduced-motion` (diikuti langsung bila setelan berubah), dan DPR dibatasi 2. Tahap SSE yang tidak dikenal web diabaikan `parseSseFrame` (tahap sebelumnya tetap tampil), dan komponen tetap jatuh ke Sathr bila tahap tak terpetakan. Kanvas `aria-hidden`, karena teks tahap di sebelahnya sudah ada di wilayah `aria-live`. Di bawah teks tahap ada penanda "Tahap n dari 4" (`retry` dihitung sebagai langkah 3).
+
+**Tidak dipilih:**
+- **Memasang paket `thinking-orbs` + prop `frame`:** painter-nya hanya punya satu warna tinta per orb (rampa satu tint), jadi tinta + Zaitun + emas dalam satu orb tidak bisa. Tema otomatisnya juga hanya mengenal `dark`/`light`, sehingga sepia akan salah tebak. Geometri lima bentuk ditulis ulang, tidak ada kode yang disalin dari paket itu.
+- **Satu orb tetap untuk semua tahap:** pengguna tidak merasakan kemajuan. Pemilik memilih orb yang berganti bentuk.
+- **Centang emas di akhir Untai:** bisa terbaca sebagai "kutipan sudah terverifikasi" padahal animasinya berulang. Dibuang.
+
+**Konsekuensi:** tahap baru di pipeline Jawab baru tampil di web setelah ditambahkan ke `JAWAB_STAGES` (web, `lib/tanya/model.ts`); typecheck lalu memaksa entri `STAGE_SHAPE`/`STAGE_STEP`. Tipe tahap web dan pipeline tidak dibagi, jadi menambah tahap di pipeline saja tidak menggagalkan typecheck web (tahapnya hanya diabaikan). Orb hanya tampil selama fase `asking`. Tes geometri (`orb-frames.test.ts`) memeriksa batas kanvas, determinisme, keliling bintang, dan urutan butir emas.
+
+**Tinjau ulang bila:** halaman Tanya didesain ulang (nama Maknaz, ADR-071), orb dipakai di tempat lain (MCP, admin), atau tahap Jawab berubah.

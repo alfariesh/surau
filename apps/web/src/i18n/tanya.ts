@@ -22,6 +22,7 @@ export const tanyaText = {
     retry: "Mencoba lagi dengan model lain…",
     verify: "Memeriksa setiap kutipan ke teks sumber…",
   } as Record<string, string>,
+  step: (n: number, total: number) => `Tahap ${n} dari ${total}`,
   preview: "Pratinjau: kutipan sedang diperiksa, isi akhir bisa berubah.",
   answerHeading: "Jawaban",
   announceAnswer: "Jawaban selesai disusun.",

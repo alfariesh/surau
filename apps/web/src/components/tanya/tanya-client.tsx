@@ -8,7 +8,6 @@ import {
   Card,
   Description,
   Label,
-  Spinner,
   TextArea,
   TextField,
   Typography,
@@ -20,6 +19,8 @@ import { tanyaText as t } from "../../i18n/tanya";
 import type { JawabBlock, JawabResult, JawabStage, JawabStatus } from "../../lib/tanya/model";
 import { readSse } from "../../lib/tanya/model";
 import { AnswerText, AnswerView } from "./answer-view";
+import { STAGE_STEP, STAGE_TOTAL } from "./orb-frames";
+import { TanyaOrb } from "./tanya-orb";
 import { TurnstileWidget } from "./turnstile-widget";
 
 // Halaman Tanya (S21): status Jawab → komposer → (Turnstile bila server memintanya) → SSE bertahap →
@@ -258,10 +259,13 @@ export function TanyaClient() {
       {phase.kind === "asking" ? (
         <div aria-live="polite" className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <Spinner size="sm" />
-            <Typography type="body-sm" color="muted">
-              {t.stages[phase.stage ?? "route"]}
-            </Typography>
+            <TanyaOrb stage={phase.stage ?? "route"} size={44} />
+            <div className="flex flex-col">
+              <Typography type="body-sm">{t.stages[phase.stage ?? "route"]}</Typography>
+              <Typography type="body-xs" color="muted">
+                {t.step(STAGE_STEP[phase.stage ?? "route"] ?? 1, STAGE_TOTAL)}
+              </Typography>
+            </div>
           </div>
           {phase.preview.length > 0 ? (
             <div className="flex flex-col gap-2 opacity-80">
