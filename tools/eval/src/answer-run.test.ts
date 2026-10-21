@@ -1,5 +1,6 @@
 import type { EvalQuestion } from "@surau/core";
 import type { D1Db, D1Statement } from "@surau/db";
+import { JAWAB_PIPELINE_VERSION } from "@surau/llm";
 import type { JawabResult } from "@surau/llm";
 import type Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, test } from "vite-plus/test";
@@ -108,6 +109,7 @@ describe("hasil → kontrak eval", () => {
       mode: "answer",
       refused: false,
       citations: [{ passage_id: 10000629 }],
+      prompt_version: `answer@5+answer-route@2+pipeline@${JAWAB_PIPELINE_VERSION}`,
     });
     expect(
       toEvalAnswer(result({ outcome: "not_found", text: "Tidak ditemukan di kitab yang dicakup." }))

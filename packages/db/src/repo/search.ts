@@ -710,3 +710,56 @@ export async function searchCorpusFused(
   const rows = results[CONTEXT_STATEMENTS]?.results ?? [];
   return { ready: true, ...ctx, rows: rows.map((r) => fusedSearchRow.parse(r)) };
 }
+
+// ── Bagian dari ringkasan AI (sisipan X03, routing kedua Jawab) ─────────────────────────────
+
+export type SummaryNodesResult =
+  | { ready: false; meta: CorpusMeta }
+  | { ready: true; meta: CorpusMeta; nodes: number[] };
+
+/**
+ * Node daftar isi yang ringkasan AI-nya (bahasa `id`, `summary_fts`) cocok dengan bagian Indonesia
+ * kueri, terbaik dulu: kecocokan SEMUA kata (bm25), lalu kecocokan SEBAGIAN kata yang belum ada,
+ * paling banyak `limit` node di rentang `tocSpan`. Satu batch (meta + kueri). `ready: false` bila
+ * korpus belum punya indeks Indonesia (skema < `LATIN_SEARCH_SCHEMA_VERSION`).
+ */
+export async function searchSummaryNodes(
+  db: D1Db,
+  req: { latin: LatinMatch; tocSpan: PassageIdSpan; limit: number },
+): Promise<SummaryNodesResult> {
+  assertWindow(req.limit, 0);
+  const q = new Params();
+  const [all, min, max, limit] = [
+    q.add(req.latin.all),
+    q.add(req.tocSpan.min),
+    q.add(req.tocSpan.max),
+    q.add(req.limit),
+  ];
+  const any = req.latin.any === null ? `(${NO_MATCH})` : q.add(req.latin.any);
+  const scan = (expr: string) =>
+    `SELECT rowid AS node, bm25(summary_fts) AS s FROM summary_fts
+      WHERE summary_fts MATCH ${expr} AND rowid BETWEEN ${min} AND ${max}
+      ORDER BY s, rowid LIMIT ${limit}`;
+  const sql = `WITH a AS MATERIALIZED (${scan(all)}), b AS MATERIALIZED (${scan(any)})
+    SELECT node FROM (
+      SELECT node, s, 0 AS grp FROM a
+      UNION ALL
+      SELECT node, s, 1 AS grp FROM b WHERE node NOT IN (SELECT node FROM a)
+    ) ORDER BY grp, s, node LIMIT ${limit}`;
+  let results: { results: unknown[] }[];
+  try {
+    results = await db.batch([
+      db.prepare("SELECT key, value FROM meta"),
+      db.prepare(sql).bind(...q.values),
+    ]);
+  } catch (error) {
+    return notReady(db, error, LATIN_SEARCH_SCHEMA_VERSION);
+  }
+  const [metaRows, nodeRows] = results.map((r) => r.results);
+  const meta = corpusMeta.parse(
+    Object.fromEntries((metaRows ?? []).map((r) => metaRow.parse(r)).map((r) => [r.key, r.value])),
+  );
+  if (meta.schema_version < LATIN_SEARCH_SCHEMA_VERSION) return { ready: false, meta };
+  const node = z.strictObject({ node: id });
+  return { ready: true, meta, nodes: (nodeRows ?? []).map((r) => node.parse(r).node) };
+}

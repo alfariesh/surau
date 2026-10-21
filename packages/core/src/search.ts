@@ -16,6 +16,7 @@ import {
   passageIdRange,
   searchCorpus,
   searchCorpusFused,
+  searchSummaryNodes,
   tocNodeIdRange,
 } from "@surau/db";
 import type { D1Db, FusedSearchRow, SearchPassageRow } from "@surau/db";
@@ -417,6 +418,57 @@ export async function searchText(
       (row) => row.page_best,
     ),
   };
+}
+
+const summarySectionsInput = searchTextInput.pick({ query: true, edition_id: true, limit: true });
+
+/**
+ * Aksara kueri yang melebihi batas kata `searchText` (Arab: `FTS_MAX_TOKENS` token; Indonesia:
+ * `LATIN_MAX_TERMS` kata sesudah kata fungsi dibuang), atau null bila lolos. Aturannya sama
+ * persis dengan validasi `searchText`, supaya pemanggil (Jawab, X03) bisa memotong kueri panjang
+ * alih-alih kehilangannya karena `InvalidQuery`.
+ */
+export function queryWordOverflow(query: string): "arabic" | "latin" | null {
+  const parts = splitQueryScripts(query);
+  const overflows = (plan: () => unknown) => {
+    try {
+      plan();
+      return false;
+    } catch (error) {
+      if (error instanceof InvalidQuery) return true;
+      throw error;
+    }
+  };
+  if (overflows(() => arabicPlan(parts.arabic, false))) return "arabic";
+  if (overflows(() => latinPlan(parts.latin))) return "latin";
+  return null;
+}
+
+/**
+ * Bagian daftar isi yang ringkasan AI-nya cocok dengan bagian Indonesia kueri (sisipan X03,
+ * ADR-067: routing kedua Jawab), terbaik dulu: semua kata, lalu sebagian kata; paling banyak
+ * `limit` node. Kosong bila kueri tanpa kata Indonesia, korpus belum punya indeks ringkasan, atau
+ * indeksnya berversi normalisasi lain. `InvalidQuery`: kueri/opsi salah bentuk (termasuk kata
+ * Indonesia lebih dari batas). Galat D1 tetap dilempar, sama dengan `searchText`.
+ */
+export async function searchSummarySections(
+  db: D1Db,
+  query: string,
+  opts: { edition_id?: number; limit: number },
+): Promise<number[]> {
+  const input = parseInput(summarySectionsInput, { ...opts, query }, InvalidQuery);
+  const latin = latinPlan(splitQueryScripts(input.query).latin);
+  if (latin === null) return [];
+  const found = await searchSummaryNodes(db, {
+    latin: {
+      all: latinMatchExpression(latin, "all"),
+      any: latin.stems.length > 1 ? latinMatchExpression(latin, "any") : null,
+    },
+    tocSpan: input.edition_id === undefined ? ALL_IDS : tocNodeIdRange(input.edition_id),
+    limit: input.limit,
+  });
+  if (!found.ready || found.meta.latin_norm_version !== LATIN_NORM_VERSION) return [];
+  return found.nodes;
 }
 
 /** Jalur Arab saja (S11): bm25 di `passage_fts`, pengaman kata umum. */

@@ -12,7 +12,8 @@ import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/tes
 
 import { ED, P1, P2, P3, PASSAGES, T_CHILD_A, T_ROOT, seedCorpus } from "../../test/fixture.ts";
 import { passageIdRange, tocNodeId, tocNodeIdRange } from "../ids.ts";
-import { RRF_K, searchCorpusFused } from "./search.ts";
+import { CORPUS_SCHEMA_VERSION } from "../schema/corpus.ts";
+import { RRF_K, searchCorpusFused, searchSummaryNodes } from "./search.ts";
 import type { FusedSearchRequest, FusedSearchResult } from "./search.ts";
 
 const db = env.CORPUS;
@@ -242,6 +243,51 @@ describe("searchCorpusFused", () => {
       await db.prepare("UPDATE meta SET value = '6' WHERE key = 'schema_version'").run();
     });
     const r = await searchCorpusFused(db, req("sabar"));
+    expect(r).toMatchObject({ ready: false, meta: { schema_version: 5 } });
+  });
+});
+
+describe("searchSummaryNodes", () => {
+  const nodes = async (q: string, tocSpan = ALL, limit = 5) => {
+    const r = await searchSummaryNodes(db, { latin: req(q).latin, tocSpan, limit });
+    if (!r.ready) throw new Error("korpus tidak siap");
+    return r.nodes;
+  };
+
+  test("semua kata dulu, lalu sebagian kata yang belum ada; batas dan rentang node", async () => {
+    // Ringkasan buatan: T_ROOT "niat dan adab", T_CHILD_A "sabar dan syukur", dan node X
+    // sementara (hanya di indeks) yang memuat kedua kata kueri.
+    const x = tocNodeId(ED, 9);
+    await db
+      .prepare("INSERT INTO summary_fts (rowid, terms) VALUES (?, ?)")
+      .bind(x, latinIndexText("Niat orang yang sabar."))
+      .run();
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM summary_fts WHERE rowid = ?").bind(x).run();
+    });
+    const both = await nodes("sabar niat");
+    expect(both[0]).toBe(x);
+    const byId = (a: number, b: number) => a - b;
+    expect(both.slice(1).toSorted(byId)).toEqual([T_ROOT, T_CHILD_A].toSorted(byId));
+    // Kecocokan semua kata (T_CHILD_A) mendahului kecocokan sebagian kata (X: "sabar" saja).
+    expect(await nodes("sabar syukur")).toEqual([T_CHILD_A, x]);
+    expect(await nodes("sabar niat", ALL, 2)).toHaveLength(2);
+    expect(await nodes("sabar", tocNodeIdRange(ED + 1))).toEqual([]);
+    expect(await nodes("zuhud")).toEqual([]);
+    await expect(
+      searchSummaryNodes(db, { latin: req("sabar").latin, tocSpan: ALL, limit: 0 }),
+    ).rejects.toThrow(RangeError);
+  });
+
+  test("korpus tanpa indeks Indonesia (skema < 6) → ready false", async () => {
+    await db.prepare("UPDATE meta SET value = '5' WHERE key = 'schema_version'").run();
+    onTestFinished(async () => {
+      await db
+        .prepare("UPDATE meta SET value = ? WHERE key = 'schema_version'")
+        .bind(String(CORPUS_SCHEMA_VERSION))
+        .run();
+    });
+    const r = await searchSummaryNodes(db, { latin: req("sabar").latin, tocSpan: ALL, limit: 3 });
     expect(r).toMatchObject({ ready: false, meta: { schema_version: 5 } });
   });
 });

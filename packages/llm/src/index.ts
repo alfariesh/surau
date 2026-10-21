@@ -88,10 +88,12 @@ export {
   HADITH_UNKNOWN,
   hadithCheck,
   hadithClaims,
+  jawabCandidates,
   runJawab,
 } from "./jawab/pipeline.ts";
 export type {
   FallbackReason,
+  JawabCandidates,
   JawabReason,
   JawabBlock,
   JawabCitation,
