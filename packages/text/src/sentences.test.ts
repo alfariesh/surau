@@ -32,6 +32,11 @@ describe("indonesianSentences", () => {
     ]);
   });
 
+  test("titik sesudah angka tetap batas; titik tanpa spasi sesudahnya bukan batas", () => {
+    expect(texts("Nomor 3. Lalu ia pergi.")).toEqual(["Nomor 3.", "Lalu ia pergi."]);
+    expect(texts("Lihat a.B dan seterusnya.")).toEqual(["Lihat a.B dan seterusnya."]);
+  });
+
   test("huruf kecil sesudah titik bukan batas", () => {
     expect(texts("Ini 1.000 dirham. dan seterusnya")).toEqual(["Ini 1.000 dirham. dan seterusnya"]);
   });

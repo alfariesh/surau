@@ -47,6 +47,28 @@ function startsAtOrBefore(item: TocItem, juz: number, page: number): boolean {
 }
 
 /**
+ * Node yang mulai di halaman cetak ini, urut baca, beserta induknya (bahan `buildPageModel`, X04).
+ * Halaman sambungan (gulir bersambung) memperoleh daftar yang sama lewat kueri per halaman.
+ */
+export function pageSections(
+  items: readonly TocItem[],
+  juz: number,
+  page: number,
+): { id: number; parentId: number | null; level: number; title: string }[] {
+  const out: { id: number; parentId: number | null; level: number; title: string }[] = [];
+  const visit = (nodes: readonly TocItem[], parentId: number | null) => {
+    for (const n of nodes) {
+      if (n.juz === juz && n.page === page) {
+        out.push({ id: n.id, parentId, level: n.level, title: n.title });
+      }
+      visit(n.children, n.id);
+    }
+  };
+  visit(items, null);
+  return out;
+}
+
+/**
  * Bagian yang tampil di halaman ini, urut kemunculan: node paragraf badan (`toc_node_id`).
  * Halaman tanpa paragraf bernode (mis. hanya catatan kaki) memakai node terakhir dalam urutan
  * baca yang mulai di halaman ini atau sebelumnya.
@@ -64,53 +86,6 @@ export function activeTocIds(
   const before = flattenToc(items).filter((i) => startsAtOrBefore(i, juz, page));
   const last = before.at(-1);
   return last === undefined ? [] : [last.id];
-}
-
-/**
- * Paragraf badan yang merupakan judul bagian: teksnya sama persis dengan judul node-nya dan node
- * itu mulai di halaman ini. Hanya memengaruhi tampilan (elemen heading); teksnya tetap `text_raw`.
- */
-export function headingPassages(
-  items: readonly TocItem[],
-  juz: number,
-  page: number,
-  body: readonly Pick<Passage, "id" | "toc_node_id" | "text_raw">[],
-): Map<number, TocItem> {
-  const byId = new Map(flattenToc(items).map((i) => [i.id, i]));
-  const headings = new Map<number, TocItem>();
-  const seen = new Set<number>();
-  for (const p of body) {
-    if (p.toc_node_id === null || seen.has(p.toc_node_id)) continue;
-    seen.add(p.toc_node_id);
-    const node = byId.get(p.toc_node_id);
-    if (node && node.juz === juz && node.page === page && p.text_raw.trim() === node.title.trim()) {
-      headings.set(p.id, node);
-    }
-  }
-  return headings;
-}
-
-/**
- * Jangkar `#bab-<id>` untuk node yang mulai di halaman ini (tujuan `/kitab/<karya>/bab/<id>`):
- * diletakkan sebelum paragraf badan pertama milik node itu atau turunannya. Node yang tidak punya
- * paragraf di halaman ini masuk `unplaced` (jangkar di awal teks).
- */
-export function sectionStarts(
-  items: readonly TocItem[],
-  juz: number,
-  page: number,
-  body: readonly Pick<Passage, "id" | "toc_node_id">[],
-): { byPassage: Map<number, number[]>; unplaced: number[] } {
-  const byPassage = new Map<number, number[]>();
-  const unplaced: number[] = [];
-  for (const node of flattenToc(items)) {
-    if (node.juz !== juz || node.page !== page) continue;
-    const subtree = new Set(flattenToc([node]).map((i) => i.id));
-    const first = body.find((p) => p.toc_node_id !== null && subtree.has(p.toc_node_id));
-    if (first === undefined) unplaced.push(node.id);
-    else byPassage.set(first.id, [...(byPassage.get(first.id) ?? []), node.id]);
-  }
-  return { byPassage, unplaced };
 }
 
 /** Tautan unik per bagian: halaman awal + jangkar judul (`#bab-<id>`), seperti breadcrumb. */

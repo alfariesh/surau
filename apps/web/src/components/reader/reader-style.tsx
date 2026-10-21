@@ -2,7 +2,12 @@
 
 import type { ReactNode } from "react";
 
-import type { ReaderAlign, ReaderFont, ReaderLeading } from "../../lib/reader/scale";
+import type {
+  ReaderAlign,
+  ReaderFont,
+  ReaderLeading,
+  ReaderTrLayout,
+} from "../../lib/reader/scale";
 
 import { CellSelect, CellSlider, CellSwitch, Sheet, Widget } from "@heroui-pro/react";
 import { Button, ButtonGroup, ListBox, Typography } from "@heroui/react";
@@ -21,6 +26,10 @@ import {
   READER_LEADINGS,
   READER_SCALE_KEY,
   READER_SCALES,
+  READER_TR_LAYOUT_KEY,
+  READER_TR_LAYOUTS,
+  READER_TR_SCALE_KEY,
+  READER_TR_SCALES,
   READER_TRANSLATION_KEY,
 } from "../../lib/reader/scale";
 import { ArabicText } from "../arabic";
@@ -70,6 +79,18 @@ function applyScale(scale: number) {
   document.documentElement.style.setProperty("--reader-scale", String(scale));
 }
 
+// --- Ukuran huruf terjemahan (--reader-tr-scale, X04 W1) ---
+
+function trScaleIndex(): number {
+  const value = Number(document.documentElement.style.getPropertyValue("--reader-tr-scale") || "1");
+  const i = READER_TR_SCALES.findIndex((s) => s === value);
+  return i === -1 ? 1 : i;
+}
+
+function applyTrScale(scale: number) {
+  document.documentElement.style.setProperty("--reader-tr-scale", String(scale));
+}
+
 // --- Terjemahan AI (data-translation="off") ---
 
 function translationShown(): boolean {
@@ -103,6 +124,7 @@ function applyAttr(pref: AttrPref, value: string) {
 const FONT_PREF = prefOf(READER_FONT_KEY);
 const LEADING_PREF = prefOf(READER_LEADING_KEY);
 const ALIGN_PREF = prefOf(READER_ALIGN_KEY);
+const TR_LAYOUT_PREF = prefOf(READER_TR_LAYOUT_KEY);
 
 /**
  * Navigasi klien dari halaman lain tidak menjalankan skrip awal: pasang semua pilihan tersimpan
@@ -112,6 +134,8 @@ function useRestorePrefs() {
   useEffect(() => {
     const scale = Number(stored(READER_SCALE_KEY));
     applyScale(READER_SCALES.some((s) => s === scale) ? scale : 1);
+    const trScale = Number(stored(READER_TR_SCALE_KEY));
+    applyTrScale(READER_TR_SCALES.some((s) => s === trScale) ? trScale : 1);
     applyTranslation(stored(READER_TRANSLATION_KEY) !== "0");
     for (const pref of READER_ATTR_PREFS) {
       const value = stored(pref.key);
@@ -150,6 +174,38 @@ function FontSizeControl() {
         <CellSlider.Label>{t.styleFontSize}</CellSlider.Label>
         <CellSlider.Output>
           {({ state }) => `${Math.round((READER_SCALES[state.values[0] ?? 1] ?? 1) * 100)}%`}
+        </CellSlider.Output>
+      </CellSlider.Track>
+    </CellSlider>
+  );
+}
+
+function TrSizeControl() {
+  const index = useSyncExternalStore(subscribe, trScaleIndex, () => 1);
+
+  function change(value: number | number[]) {
+    const next = READER_TR_SCALES[Array.isArray(value) ? (value[0] ?? 1) : value] ?? 1;
+    applyTrScale(next);
+    store(READER_TR_SCALE_KEY, String(next));
+    notify();
+  }
+
+  return (
+    <CellSlider
+      aria-label={t.styleTrSize}
+      maxValue={READER_TR_SCALES.length - 1}
+      minValue={0}
+      step={1}
+      value={index}
+      variant="secondary"
+      onChange={change}
+    >
+      <CellSlider.Track>
+        <CellSlider.Fill />
+        <CellSlider.Thumb />
+        <CellSlider.Label>{t.styleTrSize}</CellSlider.Label>
+        <CellSlider.Output>
+          {({ state }) => `${Math.round((READER_TR_SCALES[state.values[0] ?? 1] ?? 1) * 100)}%`}
         </CellSlider.Output>
       </CellSlider.Track>
     </CellSlider>
@@ -227,6 +283,10 @@ const LEADING_OPTIONS: readonly CellOption[] = READER_LEADINGS.map((v) => ({
 const ALIGN_OPTIONS: readonly CellOption[] = READER_ALIGNS.map((v) => ({
   id: v satisfies ReaderAlign,
   label: t.styleAligns[v],
+}));
+const TR_LAYOUT_OPTIONS: readonly CellOption[] = READER_TR_LAYOUTS.map((v) => ({
+  id: v satisfies ReaderTrLayout,
+  label: t.styleTrLayouts[v],
 }));
 
 function AttrPicker({
@@ -386,9 +446,25 @@ export function ReaderStyle({
               <FontSizeControl />
               <AttrPicker label={t.styleFont} options={FONT_OPTIONS} pref={FONT_PREF} />
               <AttrPicker label={t.styleLeading} options={LEADING_OPTIONS} pref={LEADING_PREF} />
-              <AttrPicker label={t.styleAlign} options={ALIGN_OPTIONS} pref={ALIGN_PREF} />
+              <div className="flex flex-col gap-1.5">
+                <AttrPicker label={t.styleAlign} options={ALIGN_OPTIONS} pref={ALIGN_PREF} />
+                <Typography type="body-xs" color="muted" className="px-1">
+                  {t.styleAlignHint}
+                </Typography>
+              </div>
               <PaperPicker />
               <TranslationSwitch />
+              <TrSizeControl />
+              <div className="flex flex-col gap-1.5">
+                <AttrPicker
+                  label={t.styleTrLayout}
+                  options={TR_LAYOUT_OPTIONS}
+                  pref={TR_LAYOUT_PREF}
+                />
+                <Typography type="body-xs" color="muted" className="px-1">
+                  {t.styleTrLayoutHint}
+                </Typography>
+              </div>
             </Sheet.Body>
           </Sheet.Dialog>
         </Sheet.Content>

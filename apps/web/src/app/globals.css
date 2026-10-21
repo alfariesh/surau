@@ -349,19 +349,53 @@ body::after {
 }
 
 /*
- * Teks kitab rata kanan-kiri seperti kitab cetak (bawaan); pilihan "Rata kanan" di panel Tampilan
- * (atribut data-reader-align="start"). Browser meratakan Arab dengan melebarkan spasi antarkata,
- * bukan kashida, jadi huruf tidak diubah. Baris terakhir tetap rata kanan.
+ * Teks kitab rata kanan-kiri seperti kitab cetak; pilihan di panel Tampilan (atribut
+ * data-reader-align). Bawaan "Otomatis" (X04): rata kanan-kiri di layar ≥ 640 px, rata kanan di
+ * ponsel, karena di kolom sempit browser melebarkan spasi antarkata secara mencolok. Browser
+ * meratakan Arab dengan melebarkan spasi, bukan kashida, jadi huruf tidak diubah.
  */
 :is(.reader-text, .reader-footnotes) .arabic-text:not(.reader-heading) {
   text-align: justify;
   text-justify: inter-word;
 }
 
+@media (width < 40rem) {
+  :root:not([data-reader-align="justify"])
+    :is(.reader-text, .reader-footnotes)
+    .arabic-text:not(.reader-heading) {
+    text-align: start;
+  }
+}
+
 :root[data-reader-align="start"]
   :is(.reader-text, .reader-footnotes)
   .arabic-text:not(.reader-heading) {
   text-align: start;
+}
+
+/*
+ * Ritme baca (X04 W1): paragraf berjarak lega satu sama lain, terjemahan menempel ke Arabnya.
+ * Jangkar bab (#bab-N) diletakkan absolut di dalam paragraf, jadi tidak menambah celah.
+ */
+.reader-text {
+  container: reader-text / inline-size;
+  row-gap: 1.75rem;
+}
+
+:root[data-translation="off"] .reader-text {
+  row-gap: 1rem;
+}
+
+.reader-text .passage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reader-text .passage > .section-anchor {
+  position: absolute;
+  inset-block-start: 0;
 }
 
 h2.reader-heading {
@@ -773,18 +807,34 @@ h2.reader-heading-minor {
 }
 
 /*
- * Terjemahan dan ringkasan AI di pembaca (S14). Terjemahan di bawah teks Arab paragrafnya, bergaris
- * tepi halus supaya jelas terpisah dari teks kitab; bisa disembunyikan (data-translation="off").
- * Ukurannya tidak ikut --reader-scale (skala itu untuk huruf Arab).
+ * Terjemahan dan ringkasan AI di pembaca (S14; X04 W1–W3). Terjemahan di bawah teks Arab paragrafnya,
+ * bergaris tepi halus supaya jelas terpisah dari teks kitab; bisa disembunyikan
+ * (data-translation="off"). Ukurannya ikut --reader-tr-scale (panel Tampilan), bukan skala Arab.
+ * Lebar dibatasi ±70 karakter per baris; pemenggalan kata dan baris terakhir yang tidak yatim
+ * hanya untuk teks berbahasa Indonesia (lang="id").
  */
 .passage-translation {
-  margin-top: 0.25rem;
-  padding-inline-start: 0.75rem;
+  margin-top: 0.125rem;
+  padding-inline-start: 0.875rem;
   border-inline-start: 2px solid var(--separator);
-  font-size: 1rem;
+  font-size: calc(1rem * var(--reader-tr-scale, 1));
+  line-height: 1.7;
+  max-width: 64ch;
 }
 
-/* Lencana label AI (mis. "Terjemahan AI" di terjemahan judul bab). */
+@media (width >= 40rem) {
+  .passage-translation {
+    font-size: calc(1.0625rem * var(--reader-tr-scale, 1));
+  }
+}
+
+:is(.passage-translation, .section-summary)[lang="id"] {
+  hyphens: auto;
+  text-wrap: pretty;
+}
+
+/* Lencana label AI di akhir terjemahan (dan terjemahan judul bab): tidak ikut terseleksi/tersalin;
+ * salinan diberi label sendiri (reader-enhancements.tsx). */
 .ai-badge {
   display: inline-block;
   margin-inline-start: 0.25rem;
@@ -798,20 +848,36 @@ h2.reader-heading-minor {
   color: var(--muted);
   vertical-align: 0.15em;
   white-space: nowrap;
+  user-select: none;
 }
 
-/* Terjemahan judul bab: satu baris kecil di bawah judul Arab, tanpa garis tepi. */
+[data-copy-skip] {
+  user-select: none;
+}
+
+/* Terjemahan judul bab dan subjudul: satu baris di bawah judul Arab, tebal, tanpa garis tepi. */
 .passage-translation-heading {
   margin-top: 0;
+  margin-inline: auto;
   padding-inline-start: 0;
   border-inline-start: 0;
-  font-size: 0.875rem;
+  font-size: calc(0.9375rem * var(--reader-tr-scale, 1));
+  font-weight: 600;
   text-align: center;
   text-wrap: balance;
 }
 
-html[data-translation="off"] .passage-translation {
+:root[data-translation="off"] :is(.passage-translation, .ai-notice) {
   display: none;
+}
+
+/* Kutipan langsung "…" yang berpasangan di terjemahan: petik melengkung, warna sedikit berbeda. */
+.tr-quote {
+  color: color-mix(in oklab, var(--foreground) 78%, var(--accent));
+}
+
+.tr-strong {
+  font-weight: 650;
 }
 
 .translation-ayah {
@@ -829,13 +895,205 @@ html[data-translation="off"] .passage-translation {
   font-size: 0.8em;
 }
 
+/* Mode "Dilipat" (data-tr-layout="fold"): terjemahan tertutup, dibuka per paragraf lewat tombolnya. */
+.translation-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--muted);
+  cursor: var(--cursor-interactive, pointer);
+}
+
+.translation-toggle::after {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-block-end: 1.5px solid currentColor;
+  border-inline-end: 1.5px solid currentColor;
+  rotate: 45deg;
+  translate: 0 -0.1rem;
+  transition: rotate 0.15s;
+}
+
+.translation-toggle[aria-expanded="true"]::after {
+  rotate: 225deg;
+  translate: 0 0.1rem;
+}
+
+.translation-toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .translation-toggle:hover {
+    color: var(--foreground);
+  }
+}
+
+:root[data-tr-layout="fold"] .translation-toggle {
+  display: inline-flex;
+}
+
+:root[data-tr-layout="fold"] .passage-translation:not(.passage-translation-heading) {
+  border-inline-start: 0;
+  padding-inline-start: 0;
+}
+
+:root[data-tr-layout="fold"] .passage:not([data-tr-open]) .passage-translation-body {
+  display: none;
+}
+
+:root[data-tr-layout="fold"] .passage[data-tr-open] .passage-translation-body {
+  margin-top: 0.375rem;
+  padding-inline-start: 0.875rem;
+  border-inline-start: 2px solid var(--separator);
+}
+
+/* Mode "Berdampingan" (data-tr-layout="side"): Arab kanan, terjemahan kiri, sejajar per paragraf,
+ * bila kolom teks cukup lebar (±1280 px layar dengan daftar isi); di kolom sempit tetap di bawah. */
+@container reader-text (width >= 52rem) {
+  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "tr ar"
+      "tr nr";
+    column-gap: 2.5rem;
+    align-items: start;
+  }
+
+  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) > .arabic-text {
+    grid-area: ar;
+  }
+
+  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) > .passage-translation {
+    grid-area: tr;
+    max-width: none;
+    margin-top: 0.4rem;
+  }
+
+  :root[data-tr-layout="side"]
+    .reader-text
+    .passage:not(.passage-heading)
+    > :not(.arabic-text, .passage-translation, .section-anchor) {
+    grid-area: nr;
+  }
+}
+
+/* Catatan terjemahan AI di awal teks (X04 W3): bisa ditutup, diingat per browser. */
+:root[data-ai-notice="off"] .ai-notice {
+  display: none;
+}
+
 /* Ringkasan AI: catatan tipis dengan garis aksen di tepi awal, bukan kotak berbingkai, supaya
  * tidak bersaing dengan teks kitab. */
 .section-summary {
-  font-size: 1rem;
-  margin-block: 0.25rem 0.5rem;
+  font-size: calc(1rem * var(--reader-tr-scale, 1));
+  margin-block: -0.75rem 0;
   padding-inline-start: 0.875rem;
   border-inline-start: 2px solid color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
+/*
+ * Subjudul kurasi (X04 W4): paragraf "bayan" utuh (h2/h3 di tengah, lebih kecil dari judul bab,
+ * tanpa ornamen) dan subjudul yang menempel di awal/akhir paragraf (baris sendiri, tebal). Teksnya
+ * tetap text_raw yang hanya dipotong di offset kurasi.
+ */
+.reader-subheading {
+  font-size: 1.15em;
+}
+
+h2.reader-subheading,
+h3.reader-subheading {
+  font-size: 1.15em;
+}
+
+h2.reader-inline-subheading,
+h3.reader-inline-subheading {
+  margin-block: 0 0.25em;
+  font-size: 1.05em;
+}
+
+.arabic-text > p + h2.reader-inline-subheading,
+.arabic-text > p + h3.reader-inline-subheading {
+  margin-block: 0.5em 0;
+}
+
+/* Lanjutan judul yang terpotong di sumber (paragraf sendiri, jangkarnya tetap #pN). */
+.passage-cont {
+  scroll-margin-top: 5rem;
+}
+
+.passage-cont:target {
+  border-radius: 0.375rem;
+  background-color: var(--accent-soft, color-mix(in oklab, var(--accent) 12%, transparent));
+}
+
+/*
+ * Syair (X04 W4): paragraf yang seluruhnya bait ditata per syatr, dua kolom sejajar seperti kitab
+ * cetak. Pemisah " ... " sumber tetap di DOM dan ikut tersalin, tetapi tidak terlihat. Di kolom
+ * sempit kedua syatr bertumpuk: yang pertama rata kanan, yang kedua rata kiri.
+ */
+.arabic-text.verse {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  text-align: center;
+}
+
+.verse-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: baseline;
+}
+
+.syatr {
+  text-align: center;
+}
+
+.syatr-sep {
+  color: transparent;
+  padding-inline: 0.75em;
+}
+
+.syatr-sep-row {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@container reader-text (width < 36rem) {
+  .verse-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .verse-row > .syatr:first-child {
+    text-align: start;
+  }
+
+  .verse-row > .syatr:last-child:not(:first-child) {
+    text-align: end;
+  }
+
+  .verse-row > .syatr-sep {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    padding: 0;
+  }
 }
 
 /* Sorotan hasil Cari: <mark> di kartu hasil; Highlight API (::highlight) di pembaca (?q=). */

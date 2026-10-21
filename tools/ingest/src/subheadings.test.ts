@@ -106,17 +106,13 @@ describe("buildSubheadings", () => {
     });
     expect(e[String(excluded.seq)]).toBeUndefined();
     const l = e[String(lead.seq)];
-    expect(l?.kind).toBe("lead");
-    if (l?.kind === "lead") {
-      expect(lead.text.slice(0, l.end)).toBe(`${BAYAN_V} ${W1} ${W2_V}`);
-      expect(l.tr).toEqual({ start: 0, end: 27, sha: sha16(lead.translation!) });
-    }
+    if (l?.kind !== "lead") throw new Error("subjudul awal tidak terbentuk");
+    expect(lead.text.slice(0, l.end)).toBe(`${BAYAN_V} ${W1} ${W2_V}`);
+    expect(l.tr).toEqual({ start: 0, end: 27, sha: sha16(lead.translation!) });
     const t = e[String(tail.seq)];
-    expect(t?.kind).toBe("tail");
-    if (t?.kind === "tail") {
-      expect(tail.text.slice(t.start)).toBe(`${BAYAN} ${W1}`);
-      expect(tail.translation!.slice(t.tr!.start, t.tr!.end)).toBe("Penjelasan keutamaan.");
-    }
+    if (t?.kind !== "tail") throw new Error("subjudul akhir tidak terbentuk");
+    expect(tail.text.slice(t.start)).toBe(`${BAYAN} ${W1}`);
+    expect(tail.translation!.slice(t.tr!.start, t.tr!.end)).toBe("Penjelasan keutamaan.");
     expect(built.stats).toMatchObject({ bayanCandidates: 3, bayanExcluded: 1, bayanHeadings: 1 });
     expect(subheadingFile.safeParse(built.file).success).toBe(true);
   });

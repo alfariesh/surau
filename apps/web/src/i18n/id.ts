@@ -387,6 +387,9 @@ export const id = {
     fontLarger: "Perbesar huruf Arab",
     passageActions: "Aksi paragraf",
     copyPassage: "Salin sitasi paragraf",
+    sharePassage: "Bagikan tautan paragraf",
+    linkCopied: "Tautan disalin",
+    linkCopiedDescription: "Tautan paragraf sudah ada di papan klip.",
     reportPassage: "Laporkan kesalahan di paragraf ini",
     footnotesHeading: "Catatan kaki",
     footnoteHeading: (marker: string) => `Catatan kaki (${marker})`,
@@ -458,7 +461,14 @@ export const id = {
     // Terjemahan dan ringkasan AI (S13, tampil sejak S14). Selalu berlabel (teks-arab.md aturan 8).
     aiTranslation: "Terjemahan AI",
     aiTranslationHint:
-      "Diterjemahkan otomatis oleh AI dari teks Arab di atasnya dan belum ditinjau manusia. Rujuk selalu teks Arabnya.",
+      "Diterjemahkan otomatis oleh AI dari teks Arab paragraf ini dan belum ditinjau manusia. Rujuk selalu teks Arabnya.",
+    // Catatan di awal teks halaman (X04 W3), menggantikan baris label di setiap paragraf; lencana
+    // "Terjemahan AI" per paragraf tetap ada.
+    aiNoticeTitle: "Terjemahan Indonesia dibuat AI",
+    aiNoticeBody:
+      "Terjemahan di halaman ini dibuat AI dan belum ditinjau manusia, jadi bisa keliru. Teks Arab adalah rujukannya.",
+    aiNoticeMore: "Prinsip Surau",
+    aiNoticeClose: "Tutup catatan terjemahan AI",
     aiSummary: "Ringkasan AI",
     aiSummaryOf: "Ringkasan AI bagian ini",
     summaryMore: "Baca selengkapnya",
@@ -487,7 +497,13 @@ export const id = {
     styleLeading: "Jarak baris",
     styleLeadings: { tight: "Rapat", normal: "Sedang", loose: "Longgar" },
     styleAlign: "Perataan teks",
-    styleAligns: { justify: "Rata kanan-kiri", start: "Rata kanan" },
+    styleAligns: { auto: "Otomatis", justify: "Rata kanan-kiri", start: "Rata kanan" },
+    styleAlignHint: "Otomatis: rata kanan-kiri di layar lebar, rata kanan di ponsel.",
+    styleTrSize: "Ukuran terjemahan",
+    styleTrLayout: "Tata letak terjemahan",
+    styleTrLayouts: { interleave: "Di bawah paragraf", fold: "Dilipat", side: "Berdampingan" },
+    styleTrLayoutHint:
+      "Dilipat: ketuk Terjemahan AI di bawah paragraf untuk membukanya. Berdampingan hanya di layar lebar.",
     // Contoh huruf di panel Tampilan memakai paragraf pertama halaman ini (disalin dari DB).
     stylePreviewNote: "Contoh dari halaman ini",
     progressLabel: "Posisi baca di halaman ini",
