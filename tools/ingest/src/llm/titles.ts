@@ -11,9 +11,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type Anthropic from "@anthropic-ai/sdk";
-import { subheadingPartText, subheadingTocTargets } from "@surau/core";
+import { subheadingTitle, subheadingTocTargets } from "@surau/core";
 import type { SubheadingSpanEntry } from "@surau/core";
-import { subheadingTranslationRow, tocTitleTranslationRow } from "@surau/db";
+import { passageId, subheadingTranslationRow, tocTitleTranslationRow } from "@surau/db";
 import type { SubheadingTranslationRow, TocTitleTranslationRow } from "@surau/db";
 import {
   MODELS,
@@ -71,7 +71,7 @@ export function titleUnits(
   entries: SubheadingEntries,
   editionId: number,
 ): TitleUnit[] {
-  const base = editionId * 10_000_000;
+  const pid = (seq: number) => passageId(editionId, seq);
   const nodes = rows.toc_node.filter((n) => n.edition_id === editionId);
   const kids = new Map<number | null, typeof nodes>();
   for (const n of nodes) kids.set(n.parent_id, [...(kids.get(n.parent_id) ?? []), n]);
@@ -84,23 +84,22 @@ export function titleUnits(
     markers.set(r.passage_id, [...(markers.get(r.passage_id) ?? []), r]);
   }
   const fresh = (seq: number) => {
-    const p = passages.get(base + seq);
+    const p = passages.get(pid(seq));
     const e = entries.get(seq);
     return p !== undefined && e !== undefined && sha256(p.text_raw).slice(0, 16) === e.sha;
   };
 
   const subsOf = new Map<number, { seq: number; title: string; page: number; ord: number }[]>();
   for (const target of subheadingTocTargets(entries)) {
-    const head = passages.get(base + target.seq);
+    const head = passages.get(pid(target.seq));
     if (head === undefined || head.kind !== "body" || head.toc_node_id === null) continue;
     if (!byId.has(head.toc_node_id) || !fresh(target.seq)) continue;
-    const parts: string[] = [];
-    for (const part of target.parts) {
-      const p = passages.get(base + part.seq);
-      if (p === undefined || !fresh(part.seq)) break;
-      parts.push(subheadingPartText(p.text_raw, part, markers.get(p.id) ?? []));
-    }
-    const title = parts.filter((t) => t !== "").join(" ");
+    const title = subheadingTitle(target, (seq) => {
+      const p = passages.get(pid(seq));
+      return p === undefined || !fresh(seq)
+        ? null
+        : { text: p.text_raw, markers: markers.get(p.id) ?? [] };
+    });
     if (title === "") continue;
     const list = subsOf.get(head.toc_node_id) ?? [];
     list.push({ seq: target.seq, title, page: pageSeq.get(head.page_id) ?? 0, ord: head.ord });
@@ -131,7 +130,7 @@ export function titleUnits(
           kind: "sub",
           title: s.title,
           target: "passage",
-          targetId: base + s.seq,
+          targetId: pid(s.seq),
           sourceSha256: sha256(s.title),
           path: inner,
         });
@@ -261,7 +260,14 @@ export function titleRows(units: readonly TitleUnit[], dir: string): TitleRowsBu
     };
     if (u.target === "toc_node")
       toc.push(tocTitleTranslationRow.parse({ toc_node_id: u.targetId, ...common }));
-    else sub.push(subheadingTranslationRow.parse({ passage_id: u.targetId, ...common }));
+    else
+      sub.push(
+        subheadingTranslationRow.parse({
+          passage_id: u.targetId,
+          ...common,
+          source_sha256: a.source_sha256,
+        }),
+      );
   }
   toc.sort((a, b) => a.toc_node_id - b.toc_node_id);
   sub.sort((a, b) => a.passage_id - b.passage_id);

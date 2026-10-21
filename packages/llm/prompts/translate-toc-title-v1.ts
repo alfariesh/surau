@@ -27,24 +27,3 @@ ${GLOSSARY_V1}
 
 Think the problem through before you answer.`,
 } as const;
-
-/** Keluaran terstruktur (`output_config.format`): array, karena kunci dinamis tidak didukung. */
-export const TOC_TITLE_SCHEMA = {
-  type: "object",
-  properties: {
-    judul: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          indonesia: { type: "string" },
-        },
-        required: ["id", "indonesia"],
-        additionalProperties: false,
-      },
-    },
-  },
-  required: ["judul"],
-  additionalProperties: false,
-} as const;

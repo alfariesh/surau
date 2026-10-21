@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { subheadingPartText, subheadingTocTargets } from "./subheading-title.ts";
+import { subheadingPartText, subheadingTitle, subheadingTocTargets } from "./subheading-title.ts";
 import type { SubheadingSpanEntry } from "./subheading-title.ts";
 
 // Teks buatan (bukan teks kitab).
@@ -42,5 +42,26 @@ describe("subheadingPartText", () => {
     expect(subheadingPartText(text, { start: null, end: at }, markers)).toBe("باب فضل");
     expect(subheadingPartText(text, { start: at + 4, end: null }, markers)).toBe("العلم وأهله");
     expect(subheadingPartText(" نص ", { start: null, end: null })).toBe("نص");
+  });
+});
+
+describe("subheadingTitle", () => {
+  test("bagian disambung satu spasi; berhenti di bagian pertama yang usang", () => {
+    const target = {
+      seq: 1,
+      parts: [
+        { seq: 1, start: null, end: null },
+        { seq: 2, start: null, end: null },
+        { seq: 3, start: null, end: null },
+      ],
+    };
+    const rows = new Map([
+      [1, { text: "باب ", markers: [] }],
+      [2, { text: "العلم", markers: [] }],
+      [3, { text: "وأهله", markers: [] }],
+    ]);
+    expect(subheadingTitle(target, (s) => rows.get(s) ?? null)).toBe("باب العلم وأهله");
+    expect(subheadingTitle(target, (s) => (s === 2 ? null : (rows.get(s) ?? null)))).toBe("باب");
+    expect(subheadingTitle(target, () => null)).toBe("");
   });
 });

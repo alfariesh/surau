@@ -236,6 +236,11 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
   const headings = tocHeadings(ctx.sections, page.body, plain);
   const starts = sectionStarts(ctx.sections, page.body);
   const sectionById = new Map(ctx.sections.map((s) => [s.id, s]));
+  // Judul node_tail hanya berlaku bila butir daftar node itu juga terverifikasi `plain` di halaman
+  // ini; tanpa itu butirnya tetap h2 (tocHeadings) dan judul kedua tidak boleh ikut jadi h2.
+  const plainNodes = new Set(
+    page.body.flatMap((p) => (plain.has(p.id) && p.toc_node_id !== null ? [p.toc_node_id] : [])),
+  );
   const summaryOf = new Map((page.summaries ?? []).map((s) => [s.section.id, s]));
   const summariesAt = (ids: readonly number[]) =>
     ids.flatMap((nodeId) => {
@@ -258,7 +263,9 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
     }
     const toc = headings.get(p.id);
     const node =
-      entry?.kind === "tail" && entry.node !== undefined ? sectionById.get(entry.node) : undefined;
+      entry?.kind === "tail" && entry.node !== undefined && plainNodes.has(entry.node)
+        ? sectionById.get(entry.node)
+        : undefined;
     return {
       id: p.id,
       anchor: p.anchor,

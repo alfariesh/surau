@@ -74,11 +74,13 @@ export function subheadingOf(editionId: number, seq: number): SubheadingEntry | 
   return editionId === file.edition ? entries.get(seq) : undefined;
 }
 
+/** SHA-256 (UTF-8) heksadesimal penuh, sama dengan `source_sha256` judul subjudul (ingest). */
+export async function sha256(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 /** 16 hex awal SHA-256 (UTF-8), sama dengan `data/ids/*.teks.json` dan `pnpm subjudul`. */
 export async function sha16(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return [...new Uint8Array(digest)]
-    .slice(0, 8)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return (await sha256(text)).slice(0, 16);
 }

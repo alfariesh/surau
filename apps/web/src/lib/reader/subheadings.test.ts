@@ -8,6 +8,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { SubSpan } from "./blocks";
 
 import { blocksText, passageBlocks, VERSE_SEPARATOR } from "./blocks";
+import { tocHeadings } from "./page-model";
 import { splitPassage } from "./segments";
 import { sha16, subheadingFile, subheadingOf } from "./subheadings";
 
@@ -79,6 +80,47 @@ describe.skipIf(files.length !== 1)("korpus lokal", () => {
     expect(cut.filter((k) => k === "lead")).toHaveLength(16);
     // 6 subjudul akhir + 2 judul node yang dipindah dari butir daftar (node_tail, X04 bagian B).
     expect(cut.filter((k) => k === "tail")).toHaveLength(8);
+  });
+
+  it("judul node: 8 node berjangkar terlalu awal dikenali di paragraf judulnya; butir daftar node_tail bukan h2", async () => {
+    const nodes = db!
+      .prepare("SELECT id, parent_id, level, title_ar, start_page_id FROM toc_node ORDER BY id")
+      .all();
+    const late: number[] = [];
+    const plainIds = new Set<number>();
+    for (const [key, e] of Object.entries(raw.entries)) {
+      const seq = Number(key);
+      if (e.kind === "plain" && (await sha16(passageRow(seq).text)) === e.sha)
+        plainIds.add(10_000_000 + seq);
+    }
+    const viaPlain: number[] = [];
+    for (const n of nodes) {
+      const body = db!
+        .prepare(
+          "SELECT id, toc_node_id, text_raw FROM passage WHERE page_id = ? AND kind = 'body' AND toc_node_id = ? ORDER BY ord",
+        )
+        .all(Number(n.start_page_id), Number(n.id))
+        .map((r) => ({
+          id: Number(r.id),
+          toc_node_id: Number(r.toc_node_id),
+          text_raw: String(r.text_raw),
+        }));
+      const section = {
+        id: Number(n.id),
+        parentId: n.parent_id === null ? null : Number(n.parent_id),
+        level: Number(n.level),
+        title: String(n.title_ar),
+      };
+      const found = [...tocHeadings([section], body, plainIds).keys()][0];
+      if (found !== undefined && found !== body[0]?.id) late.push(section.id);
+      if (body.some((p) => plainIds.has(p.id)) && found === undefined) viaPlain.push(section.id);
+    }
+    // ADR-078: judul kitab sesudah kolofon kitab sebelumnya (6) + 100223 + 100243.
+    expect(late).toEqual([100077, 100092, 100098, 100117, 100122, 100164, 100223, 100243]);
+    // Butir daftar pembuka (node_tail): node-nya tanpa h2 paragraf utuh; judulnya di akhir p16600/p18645.
+    expect(viaPlain).toEqual([100224, 100285]);
+    expect(subheadingOf(1, 16600)).toMatchObject({ kind: "tail", node: 100224 });
+    expect(subheadingOf(1, 18645)).toMatchObject({ kind: "tail", node: 100285 });
   });
 
   it("syair: paragraf berpemisah ' ... ' tetap utuh (round-trip); paragraf bait utuh ditata per syatr", () => {

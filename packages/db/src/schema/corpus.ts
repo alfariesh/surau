@@ -147,11 +147,15 @@ export const tocTitleTranslationRow = z.strictObject({
 });
 export type TocTitleTranslationRow = z.infer<typeof tocTitleTranslationRow>;
 
-/** Subjudul kurasi pembaca berbahasa Indonesia, terjemahan AI; kunci = paragraf yang memuatnya. */
+/**
+ * Subjudul kurasi pembaca berbahasa Indonesia, terjemahan AI; kunci = paragraf yang memuatnya.
+ * `source_sha256` = sha256 judul Arab yang diterjemahkan (dicocokkan pembaca dengan judul yang tampil).
+ */
 export const subheadingTranslationRow = z.strictObject({
   passage_id: id,
   lang: z.string(),
   text: z.string(),
+  source_sha256: z.string().regex(/^[0-9a-f]{64}$/),
   model: z.string(),
   prompt_version: z.string(),
   created_at: z.string(),

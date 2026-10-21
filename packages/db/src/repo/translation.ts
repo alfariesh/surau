@@ -103,7 +103,7 @@ export async function listTitleTranslations(
         .bind(lang, node.min, node.max),
       db
         .prepare(
-          `SELECT passage_id, ${TITLE_COLS} FROM subheading_translation
+          `SELECT passage_id, ${TITLE_COLS}, source_sha256 FROM subheading_translation
            WHERE lang = ?1 AND passage_id BETWEEN ?2 AND ?3 ORDER BY passage_id`,
         )
         .bind(lang, passage.min, passage.max),

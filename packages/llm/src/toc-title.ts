@@ -5,7 +5,7 @@
 import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
 import { z } from "zod";
 
-import { TOC_TITLE_SCHEMA } from "../prompts/translate-toc-title-v1.ts";
+import { TOC_TITLE_SCHEMA } from "../prompts/toc-title-schema.ts";
 import { TRANSLATE_TOC_TITLE_V2 } from "../prompts/translate-toc-title-v2.ts";
 import { hasArabicLetters, hasMarkdown } from "./check.ts";
 import { MODELS } from "./client.ts";

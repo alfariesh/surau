@@ -33,8 +33,10 @@ beforeAll(async () => {
     db.prepare(ai("toc_title_translation", "toc_node_id")).bind(T_ROOT, "id", "Bab Uji"),
     db.prepare(ai("toc_title_translation", "toc_node_id")).bind(T_ROOT, "en", "Test Chapter"),
     db
-      .prepare(ai("subheading_translation", "passage_id"))
-      .bind(PASSAGES.body2, "id", "Penjelasan uji"),
+      .prepare(
+        "INSERT INTO subheading_translation (passage_id, lang, text, source_sha256, model, prompt_version, created_at) VALUES (?, 'id', 'Penjelasan uji', ?, 'model-uji', 'p@1', '2026-10-17')",
+      )
+      .bind(PASSAGES.body2, "a".repeat(64)),
   ]);
 });
 
@@ -82,8 +84,8 @@ describe("listTitleTranslations", () => {
       [T_ROOT, "Bab Uji"],
       [T_CHILD_A, "Pasal Kedua"],
     ]);
-    expect(t?.sub.map((r) => [r.passage_id, r.text, r.model])).toEqual([
-      [PASSAGES.body2, "Penjelasan uji", "model-uji"],
+    expect(t?.sub.map((r) => [r.passage_id, r.text, r.model, r.source_sha256])).toEqual([
+      [PASSAGES.body2, "Penjelasan uji", "model-uji", "a".repeat(64)],
     ]);
     expect(await listTitleTranslations(db, ED + 1, "id")).toEqual({ toc: [], sub: [] });
   });

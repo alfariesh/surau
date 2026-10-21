@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { TOC_TITLE_SCHEMA } from "../prompts/translate-toc-title-v1.ts";
+import { TOC_TITLE_SCHEMA } from "../prompts/toc-title-schema.ts";
 import {
   TOC_TITLE_PROMPT,
   buildTocTitleRequest,

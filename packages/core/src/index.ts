@@ -5,7 +5,7 @@
 
 export { listWorks, getWork } from "./works.ts";
 export { getToc } from "./toc.ts";
-export { subheadingPartText, subheadingTocTargets } from "./subheading-title.ts";
+export { subheadingPartText, subheadingTitle, subheadingTocTargets } from "./subheading-title.ts";
 export type { SubheadingSpanEntry, SubheadingTocTarget } from "./subheading-title.ts";
 export { readPage } from "./page.ts";
 export { readSection } from "./section.ts";

@@ -787,8 +787,9 @@ h2.reader-heading-minor {
   font-weight: 600;
 }
 
-/* Judul Indonesia (terjemahan AI, X04 W8) di atas judul Arabnya. Baris pertama setinggi
- * --toc-line supaya ikon, chevron, dan siku tetap sejajar dengan baris pertama judul. */
+/* Judul Indonesia (terjemahan AI, X04 W8) di atas judul Arabnya. Baris lipatan judul Indonesia
+ * rapat (1.4); padding atas memusatkan baris pertamanya di tinggi --toc-line, supaya ikon, chevron,
+ * dan siku tetap sejajar dengan baris pertama judul. Ukuran Arab ikut .toc-title (tanpa diperkecil). */
 .toc-titles {
   display: flex;
   min-width: 0;
@@ -797,12 +798,12 @@ h2.reader-heading-minor {
 
 .toc-title-id {
   font-size: 0.875rem;
-  line-height: var(--toc-line);
+  line-height: 1.4;
+  padding-block-start: calc((var(--toc-line) - 1.4em) / 2);
   hyphens: auto;
 }
 
 .toc-titles .toc-title-ar {
-  font-size: 0.875rem;
   line-height: 1.6;
   color: var(--muted);
 }

@@ -43,7 +43,12 @@ function TitleNote({ id: noteId, source }: { id: string; source: TitleSource }) 
       <span aria-hidden="true" className="ai-badge">
         {t.tocTitleBadge}
       </span>{" "}
-      {t.tocTitleNote(source.models.map(modelName).join(", "), source.prompts.join(", "), dates)}
+      {t.tocTitleNote(
+        source.models.map(modelName).join(", "),
+        source.prompts.join(", "),
+        dates,
+        source.statuses.map((st) => t.aiReview[st]).join(" / "),
+      )}
     </Typography>
   );
 }

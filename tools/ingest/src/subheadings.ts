@@ -368,9 +368,15 @@ export function buildSubheadings(
       problems.push(`node_tail p${d.p}: butir p${d.butir} bukan paragraf judul node daftar isi`);
       continue;
     }
-    if (at === undefined || at.i !== item.i + 1 || at.p.tocNodeId !== node.id) {
+    // Sehalaman: model halaman web hanya mengenali node yang mulai di halaman itu.
+    if (
+      at === undefined ||
+      at.i !== item.i + 1 ||
+      at.p.tocNodeId !== node.id ||
+      at.p.pageId !== item.p.pageId
+    ) {
       problems.push(
-        `node_tail p${d.p}: bukan paragraf badan tepat sesudah p${d.butir} di node ${node.id}`,
+        `node_tail p${d.p}: bukan paragraf badan tepat sesudah p${d.butir} di node ${node.id} (halaman sama)`,
       );
       continue;
     }

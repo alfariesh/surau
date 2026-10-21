@@ -204,7 +204,15 @@ describe("buildSubheadings · node_tail (judul node dari butir daftar)", () => {
       sha16,
     );
     expect(gap.problems.join("\n")).toMatch(/tepat sesudah/);
-    for (const b of [wrongWords, notHeading, gap]) expect(b.file.entries).toEqual({});
+    const otherPage = buildSubheadings(
+      1,
+      [item, { ...list, pageId: 4 }],
+      nodes,
+      decisions({ node_tail: [{ p: list.seq, kata: 3, butir: item.seq, terjemahan: false }] }),
+      sha16,
+    );
+    expect(otherPage.problems.join("\n")).toMatch(/halaman sama/);
+    for (const b of [wrongWords, notHeading, gap, otherPage]) expect(b.file.entries).toEqual({});
   });
 });
 

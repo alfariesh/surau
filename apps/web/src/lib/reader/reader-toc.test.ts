@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import type { SubheadingEntry } from "./subheadings";
 import type { TocItem } from "./toc";
 
-import { readerToc, subheadingItems } from "./reader-toc";
+import { readerToc, shownTitles, subheadingItems } from "./reader-toc";
 import { subheadingEntries } from "./subheadings";
 
 vi.mock("./subheadings", async (original) => ({
@@ -115,5 +115,51 @@ describe("readerToc", () => {
   it("korpus tanpa judul Indonesia (skema < 7): pohon + subjudul saja", () => {
     const shown = readerToc([node(5)], { subs: [], titles: null }, "uji");
     expect(shown).toEqual([node(5)]);
+  });
+});
+
+describe("shownTitles", () => {
+  const meta = {
+    lang: "id",
+    model: "claude-sonnet-5-5",
+    prompt_version: "translate-toc-title@2",
+    created_at: "2026-10-21T10:00:00.000Z",
+    review_status: "ai_generated" as const,
+  };
+  const sha256 = (t: string) => createHash("sha256").update(t).digest("hex");
+
+  it("judul subjudul hanya dipakai bila sidik judul Arab yang tampil sama; ditolak/kosong dilewati", async () => {
+    const subs = [
+      { id: BASE + 1, seq: 1, parentId: 5, title: "بيان فضل", juz: 1, page: 1, ord: 1 },
+      { id: BASE + 2, seq: 2, parentId: 5, title: "بيان آخر", juz: 1, page: 1, ord: 2 },
+    ];
+    const shown = await shownTitles(
+      {
+        toc: [
+          { toc_node_id: 5, text: "Kitab Uji", ...meta },
+          { toc_node_id: 6, text: "Ditolak", ...meta, review_status: "rejected" },
+        ],
+        sub: [
+          {
+            passage_id: BASE + 1,
+            text: "Penjelasan keutamaan",
+            source_sha256: sha256("بيان فضل"),
+            ...meta,
+          },
+          // Daftar kurasi berubah sesudah judul diterjemahkan: judul Arab yang tampil lain.
+          { passage_id: BASE + 2, text: "Penjelasan lama", source_sha256: sha256("بيان"), ...meta },
+        ],
+      },
+      subs,
+    );
+    expect([...shown.node]).toEqual([[5, "Kitab Uji"]]);
+    expect([...shown.sub]).toEqual([[BASE + 1, "Penjelasan keutamaan"]]);
+    expect(shown.source).toEqual({
+      models: ["claude-sonnet-5-5"],
+      prompts: ["translate-toc-title@2"],
+      statuses: ["ai_generated"],
+      from: "2026-10-21",
+      to: "2026-10-21",
+    });
   });
 });

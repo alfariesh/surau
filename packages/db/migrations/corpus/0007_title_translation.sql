@@ -20,10 +20,13 @@ CREATE TABLE toc_title_translation (
 -- Subjudul kurasi pembaca (`data/patches/<kitab>-subjudul.json`, ADR-074): satu subjudul per
 -- paragraf, judulnya = paragraf utuh (+ lanjutannya) atau bagian awal/akhirnya menurut offset kurasi.
 -- Subjudulnya sendiri bukan baris korpus (lapisan pembaca), jadi kuncinya paragraf yang memuatnya.
+-- `source_sha256` = sha256 judul Arab yang diterjemahkan: daftar kurasi bisa berubah tanpa korpus
+-- baru, jadi pembaca hanya menampilkan terjemahan bila judul Arab yang tampil masih sama.
 CREATE TABLE subheading_translation (
   passage_id     INTEGER NOT NULL REFERENCES passage (id),
   lang           TEXT NOT NULL,
   text           TEXT NOT NULL,
+  source_sha256  TEXT NOT NULL CHECK (length(source_sha256) = 64),
   model          TEXT NOT NULL,
   prompt_version TEXT NOT NULL,
   created_at     TEXT NOT NULL,

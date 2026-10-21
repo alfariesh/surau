@@ -74,3 +74,23 @@ export function subheadingPartText(
   out += text.slice(at, to);
   return out.trim();
 }
+
+/**
+ * Judul lengkap satu subjudul daftar isi: bagian-bagian `target` disambung satu spasi, berhenti di
+ * paragraf pertama yang tidak ada atau usang (`part` = null). Dipakai web dan ingest, jadi sidik
+ * judul yang diterjemahkan (ingest) sama dengan judul yang tampil (web). Kosong = tidak ada judul.
+ */
+export function subheadingTitle(
+  target: SubheadingTocTarget,
+  part: (
+    seq: number,
+  ) => { text: string; markers: readonly { char_start: number; char_end: number }[] } | null,
+): string {
+  const texts: string[] = [];
+  for (const p of target.parts) {
+    const row = part(p.seq);
+    if (row === null) break;
+    texts.push(subheadingPartText(row.text, p, row.markers));
+  }
+  return texts.filter((t) => t !== "").join(" ");
+}

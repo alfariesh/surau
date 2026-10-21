@@ -208,6 +208,24 @@ describe("buildPageModel: judul node dari butir daftar (node_tail)", () => {
     expect(c!.nodeHeading).toBeNull();
   });
 
+  it("butir usang (sidik lain) tetapi judul akhir sah: satu h2 saja (butir), judul akhir subjudul biasa", async () => {
+    const title = "بيان حقيقة";
+    const listText = `وبيان فضل ${title}`;
+    const sections: SectionNode[] = [{ id: 7, parentId: null, level: 4, title }];
+    const item = passage(200, title, { toc_node_id: 7 });
+    const list = passage(201, listText, { toc_node_id: 7 });
+    vi.mocked(subheadingOf).mockImplementation((_edition, seq) => {
+      if (seq === 200) return { kind: "plain", sha: "0".repeat(16) };
+      if (seq === 201)
+        return { kind: "tail", start: listText.indexOf(title), sha: sha16(listText), node: 7 };
+      return undefined;
+    });
+    const model = await buildPageModel(page([item, list]), { editionId: 1, sections });
+    expect(model.body[0]!.heading).toEqual({ kind: "toc", level: 4 });
+    expect(model.body[1]!.nodeHeading).toBeNull();
+    expect(model.body[0]!.sectionAnchors).toEqual([7]);
+  });
+
   it("tanpa entri kurasi (atau sidik lain): butir tetap judul node seperti sebelumnya", async () => {
     const title = "بيان حقيقة";
     const sections: SectionNode[] = [{ id: 7, parentId: null, level: 4, title }];

@@ -1,11 +1,18 @@
-import type { D1Db, TitleTranslations } from "@surau/db";
+import type { D1Db, ReviewStatus, TitleTranslations } from "@surau/db";
 
-import { subheadingPartText, subheadingTocTargets } from "@surau/core";
-import { getCorpusMeta, getFootnoteRefs, getPassagesByIds, listTitleTranslations } from "@surau/db";
+import { subheadingTitle, subheadingTocTargets } from "@surau/core";
+import {
+  TITLE_SCHEMA_VERSION,
+  getCorpusMeta,
+  getFootnoteRefs,
+  getPassagesByIds,
+  listTitleTranslations,
+  passageId,
+} from "@surau/db";
 
 import type { TocItem } from "./toc";
 
-import { SUBHEADING_DIGEST, sha16, subheadingEntries } from "./subheadings";
+import { SUBHEADING_DIGEST, sha16, sha256, subheadingEntries } from "./subheadings";
 
 // Daftar isi PEMBACA (X04 bagian B): pohon `toc_node` (sama dengan MCP) + subjudul kurasi sebagai
 // anak node-nya (W7) + judul Indonesia terjemahan AI (W8, korpus skema ≥ 7). Hanya untuk tampilan
@@ -34,6 +41,8 @@ export interface SubheadingItem {
 export interface TitleSource {
   models: string[];
   prompts: string[];
+  /** Status tinjau judul yang tampil (label "belum ditinjau" / "sudah ditinjau" …). */
+  statuses: ReviewStatus[];
   /** Tanggal ISO (YYYY-MM-DD) paling awal dan paling akhir. */
   from: string;
   to: string;
@@ -63,31 +72,24 @@ export async function subheadingItems(
   markers: readonly { passage_id: number; char_start: number; char_end: number }[],
 ): Promise<SubheadingItem[]> {
   const entries = subheadingEntries(editionId);
-  const base = editionId * 10_000_000;
+  const pid = (seq: number) => passageId(editionId, seq);
   const byId = new Map(rows.map((r) => [r.id, r]));
   const ok = new Set<number>();
   for (const [seq, e] of entries) {
-    const row = byId.get(base + seq);
+    const row = byId.get(pid(seq));
     if (row !== undefined && (await sha16(row.text_raw)) === e.sha) ok.add(seq);
   }
   const out: SubheadingItem[] = [];
   for (const target of subheadingTocTargets(entries)) {
-    const head = byId.get(base + target.seq);
+    const head = byId.get(pid(target.seq));
     if (head === undefined || head.toc_node_id === null || !ok.has(target.seq)) continue;
-    // Lanjutan berlaku berurutan: berhenti di lanjutan pertama yang sidiknya tidak cocok.
-    const parts: string[] = [];
-    for (const part of target.parts) {
-      const row = byId.get(base + part.seq);
-      if (row === undefined || !ok.has(part.seq)) break;
-      parts.push(
-        subheadingPartText(
-          row.text_raw,
-          part,
-          markers.filter((m) => m.passage_id === row.id),
-        ),
-      );
-    }
-    const title = parts.filter((p) => p !== "").join(" ");
+    // Sama dengan ingest (`titleUnits`): lanjutan berhenti di yang pertama tidak cocok sidiknya.
+    const title = subheadingTitle(target, (seq) => {
+      const row = byId.get(pid(seq));
+      return row === undefined || !ok.has(seq)
+        ? null
+        : { text: row.text_raw, markers: markers.filter((m) => m.passage_id === row.id) };
+    });
     if (title === "") continue;
     out.push({
       id: head.id,
@@ -102,38 +104,67 @@ export async function subheadingItems(
   return out;
 }
 
-function titleSource(t: TitleTranslations): TitleSource | null {
-  const rows = [...t.toc, ...t.sub].filter((r) => r.review_status !== "rejected");
+function titleSource(
+  rows: readonly {
+    model: string;
+    prompt_version: string;
+    created_at: string;
+    review_status: ReviewStatus;
+  }[],
+): TitleSource | null {
   if (rows.length === 0) return null;
   const dates = rows.map((r) => r.created_at.slice(0, 10)).sort();
   return {
     models: [...new Set(rows.map((r) => r.model))].sort(),
     prompts: [...new Set(rows.map((r) => r.prompt_version))].sort(),
+    statuses: [...new Set(rows.map((r) => r.review_status))].sort(),
     from: dates[0]!,
     to: dates.at(-1)!,
   };
 }
 
-async function loadExtras(db: D1Db, editionId: number): Promise<ReaderTocExtras> {
-  const seqs = [...subheadingEntries(editionId).keys()];
-  const ids = seqs.map((s) => editionId * 10_000_000 + s);
+/**
+ * Judul Indonesia yang tampil: bukan `rejected`, tidak kosong, dan untuk subjudul hanya bila sidik
+ * judul Arab yang diterjemahkan sama dengan judul yang tampil sekarang (daftar kurasi bisa berubah
+ * tanpa korpus baru; temuan peninjau X04 bagian B).
+ */
+export async function shownTitles(
+  titles: TitleTranslations,
+  subs: readonly SubheadingItem[],
+): Promise<NonNullable<ReaderTocExtras["titles"]>> {
+  const usable = <R extends { review_status: string; text: string }>(list: readonly R[]) =>
+    list.filter((r) => r.review_status !== "rejected" && r.text.trim() !== "");
+  const arabic = new Map(subs.map((s) => [s.id, s.title]));
+  const sub = [];
+  for (const r of usable(titles.sub)) {
+    const title = arabic.get(r.passage_id);
+    if (title !== undefined && (await sha256(title)) === r.source_sha256) sub.push(r);
+  }
+  const toc = usable(titles.toc);
+  return {
+    node: new Map(toc.map((r) => [r.toc_node_id, r.text])),
+    sub: new Map(sub.map((r) => [r.passage_id, r.text])),
+    source: titleSource([...toc, ...sub]),
+  };
+}
+
+async function loadExtras(
+  db: D1Db,
+  editionId: number,
+  schema: number | null,
+): Promise<ReaderTocExtras> {
+  const ids = [...subheadingEntries(editionId).keys()].map((s) => passageId(editionId, s));
+  // Korpus lama (skema < 7, mis. ihya-v7): kueri judul tidak dijalankan sama sekali (tanpa galat
+  // "no such table" di log); meta tak terbaca = coba, `listTitleTranslations` menanganinya.
+  const wantTitles = schema === null || schema >= TITLE_SCHEMA_VERSION;
   const [rows, refs, titles] = await Promise.all([
     getPassagesByIds(db, ids),
     getFootnoteRefs(db, ids),
-    listTitleTranslations(db, editionId, TITLE_LANG),
+    wantTitles ? listTitleTranslations(db, editionId, TITLE_LANG) : Promise.resolve(null),
   ]);
   const subs = await subheadingItems(editionId, rows, refs);
   if (titles === null) return { subs, titles: null };
-  const shown = <R extends { review_status: string; text: string }>(list: readonly R[]) =>
-    list.filter((r) => r.review_status !== "rejected" && r.text.trim() !== "");
-  return {
-    subs,
-    titles: {
-      node: new Map(shown(titles.toc).map((r) => [r.toc_node_id, r.text])),
-      sub: new Map(shown(titles.sub).map((r) => [r.passage_id, r.text])),
-      source: titleSource(titles),
-    },
-  };
+  return { subs, titles: await shownTitles(titles, subs) };
 }
 
 // Memo per isolate, seperti memo daftar isi core (#66): kunci = isi `meta` korpus + edisi + sidik
@@ -143,8 +174,10 @@ const memo = new Map<string, ReaderTocExtras>();
 
 export async function readerTocExtras(db: D1Db, editionId: number): Promise<ReaderTocExtras> {
   let key: string | null = null;
+  let schema: number | null = null;
   try {
     const meta = await getCorpusMeta(db);
+    schema = meta.schema_version;
     if (meta.corpus_version && meta.built_at && meta.source_hash) {
       key = `${meta.corpus_version}|${meta.built_at}|${meta.source_hash}|${editionId}|${SUBHEADING_DIGEST}`;
     }
@@ -153,7 +186,7 @@ export async function readerTocExtras(db: D1Db, editionId: number): Promise<Read
   }
   const hit = key === null ? undefined : memo.get(key);
   if (hit !== undefined) return hit;
-  const extras = await loadExtras(db, editionId);
+  const extras = await loadExtras(db, editionId, schema);
   if (key !== null) {
     if (memo.size >= MEMO_MAX && !memo.has(key)) memo.clear();
     memo.set(key, extras);
