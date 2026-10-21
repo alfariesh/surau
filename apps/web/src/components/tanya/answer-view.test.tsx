@@ -201,7 +201,7 @@ describe("answerPlainText", () => {
     expect(text).toContain("[2] Ihya, j. 1, h. 200 — https://surau.org/kitab/ihya/1/200#p2");
     expect(text).not.toContain("**");
     // Label AI dan keterangan kalimat tanpa kutipan ikut tersalin (teks bisa diteruskan ke luar Surau).
-    expect(text).toContain("Disusun AI oleh Surau");
+    expect(text).toContain("Disusun AI oleh Maknaz");
     expect(text).toContain("Kalimat tanpa nomor [n] tidak didukung kutipan langsung.");
   });
 });

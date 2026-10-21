@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 // /tanya (S21). Di Preview, Jawab memakai surau-api-staging dengan sakelar staging biasanya MATI,
 // jadi tes ini tidak bergantung pada LLM: label, komposer, dan arahan ke Cari bila tidak tersedia.
 
-test("Tanya: label asisten riset, komposer, privasi, dan arahan ke Cari bila Jawab tidak tersedia", async ({
+test("Maknaz: label asisten riset, komposer, privasi, dan arahan ke Cari bila Jawab tidak tersedia", async ({
   page,
 }) => {
   // Status Jawab dimuat klien dari GET /api/jawab sesudah hidrasi: tunggu jawabannya dulu supaya
@@ -12,7 +12,7 @@ test("Tanya: label asisten riset, komposer, privasi, dan arahan ke Cari bila Jaw
     (r) => new URL(r.url()).pathname === "/api/jawab" && r.request().method() === "GET",
   );
   await page.goto("/tanya");
-  await expect(page.getByRole("heading", { level: 1, name: "Tanya kitab" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Maknaz" })).toBeVisible();
   await expect(page.getByText("Surau adalah asisten riset, bukan pemberi fatwa.")).toBeVisible();
   const textbox = page.getByRole("textbox", { name: "Pertanyaan" });
   await expect(textbox).toBeVisible();
@@ -23,12 +23,12 @@ test("Tanya: label asisten riset, komposer, privasi, dan arahan ke Cari bila Jaw
   const res = await statusResponse;
   const body = res.status() === 200 ? ((await res.json()) as { available?: boolean }) : null;
   const unavailable = res.status() === 404 || body?.available === false;
-  const submit = page.getByRole("button", { name: "Tanya", exact: true });
+  const submit = page.getByRole("button", { name: "Tanya Maknaz", exact: true });
   if (unavailable) {
     // Produksi (rute mati → "belum dibuka") atau Preview (sakelar staging mati → "dimatikan").
     await expect(
       page.getByText(
-        /Tanya (sedang dimatikan|belum siap|belum dibuka)|Anggaran AI|Kuota pertanyaan/,
+        /Maknaz (sedang dimatikan|belum siap|belum dibuka)|Anggaran AI|Kuota pertanyaan/,
       ),
     ).toBeVisible();
     await expect(page.getByRole("link", { name: "Cari di Surau" }).first()).toHaveAttribute(
@@ -52,7 +52,7 @@ test("Privasi dan transparansi biaya tampil", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Lama penyimpanan" })).toBeVisible();
   await page.goto("/transparansi");
   await expect(page.getByRole("heading", { level: 1, name: "Transparansi biaya" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Biaya AI untuk Tanya" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Biaya AI untuk Maknaz" })).toBeVisible();
 });
 
 test("API kutipan menolak rentang tidak sah dan tidak pernah mengarang teks", async ({

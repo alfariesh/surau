@@ -16,7 +16,7 @@ const PAGES = [
   "/kitab/ihya/1/119",
   // Halaman Cari tanpa kueri (S14); dengan hasil: e2e/search.spec.ts.
   "/cari",
-  // Tanya (keadaan awal, tanpa LLM), privasi, dan transparansi biaya (S20–S21).
+  // Maknaz (keadaan awal, tanpa LLM), privasi, dan transparansi biaya (S20–S21).
   "/tanya",
   "/privasi",
   "/transparansi",

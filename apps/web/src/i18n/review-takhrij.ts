@@ -11,7 +11,7 @@ export const takhrijReviewText = {
     'Koreksi bila ada istilah yang keliru (misalnya kata itu bagian dari lafaz hadits) atau ada penilaian yang terlewat. Pilih jenis istilah yang benar; teks takhrij tidak perlu diketik ulang. Jenis yang tidak tertulis sebagai istilah di teks tampil di Jawab sebagai "menurut peninjau", bukan isi takhrij.',
     "Koreksi berlaku per jenis istilah: bila satu jenis muncul dua kali (satu di lafaz, satu penilaian), keduanya ikut dipilih atau dibuang. Jelaskan kasus seperti ini di catatan.",
     "Pilih ragu bila perlu dibahas. Label otomatis tetap dipakai sampai ada keputusan.",
-    "Keputusan ustadz peninjau dipakai Jawab: label yang disetujui tampil sebagai ditinjau ustadz, dan koreksi menggantikan label otomatis.",
+    "Keputusan ustadz peninjau dipakai Maknaz: label yang disetujui tampil sebagai ditinjau ustadz, dan koreksi menggantikan label otomatis.",
   ],
   filter: "Tampilkan",
   filters: {
@@ -34,7 +34,7 @@ export const takhrijReviewText = {
   footnote: "Catatan kaki takhrij",
   openReader: "Buka di pembaca",
   hadithAt: "Hadits di matan",
-  cites: (n: number) => `Dikutip Jawab ${n}×`,
+  cites: (n: number) => `Dikutip Maknaz ${n}×`,
   mixed: "Berbeda per jalur",
   weak: "Memuat istilah kelemahan",
   staleReview: "Label berubah sejak ditinjau; tinjau ulang",
@@ -43,7 +43,7 @@ export const takhrijReviewText = {
   terms: "Istilah yang dikenali",
   noTerms:
     "Tidak ada istilah penilaian yang dikenali; takhrij ini hanya menyebut sumber atau merujuk takhrij lain.",
-  currentLabel: "Yang dipakai Jawab sekarang",
+  currentLabel: "Yang dipakai Maknaz sekarang",
   current: {
     rule: "dikenali otomatis, belum ditinjau",
     approved: "ditinjau ustadz",
@@ -52,9 +52,9 @@ export const takhrijReviewText = {
   added: "Ditetapkan peninjau (tanpa istilah baku di teks)",
   reviewer: "Nama penilai",
   reviewerHint:
-    "Isi nama Anda sendiri dengan huruf Latin. Keputusan dipakai Jawab hanya dari akun ustadz peninjau yang didaftarkan pemilik dengan nama Anas; nama atau akun lain tersimpan sebagai uji.",
+    "Isi nama Anda sendiri dengan huruf Latin. Keputusan dipakai Maknaz hanya dari akun ustadz peninjau yang didaftarkan pemilik dengan nama Anas; nama atau akun lain tersimpan sebagai uji.",
   notUstadz:
-    "Akun ini belum terdaftar sebagai ustadz peninjau: keputusan tersimpan, tetapi belum dipakai Jawab. Setelah Anas menyimpan keputusan pertamanya, pemilik meminta agent mendaftarkan akunnya (T-24).",
+    "Akun ini belum terdaftar sebagai ustadz peninjau: keputusan tersimpan, tetapi belum dipakai Maknaz. Setelah Anas menyimpan keputusan pertamanya, pemilik meminta agent mendaftarkan akunnya (T-24).",
   decision: "Keputusan",
   decisions: {
     approved: "Setujui label",
@@ -66,7 +66,7 @@ export const takhrijReviewText = {
     "Centang semua penilaian yang memang disebut takhrij ini. Yang terdeteksi kode sudah dicentang.",
   detected: "terdeteksi",
   preview: "Label sesudah koreksi",
-  note: "Catatan (tidak tampil di Jawab)",
+  note: "Catatan (tidak tampil di Maknaz)",
   noteHint:
     "Opsional, huruf Latin (rujuk istilah dengan transliterasi). Jelaskan alasan koreksi atau keraguan. Jangan memasukkan data pribadi.",
   save: "Simpan dan lanjut",

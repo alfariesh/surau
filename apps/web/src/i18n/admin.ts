@@ -2,18 +2,18 @@
 export const adminText = {
   title: "Admin Surau",
   eyebrow: "Ruang pemilik",
-  intro: "Sakelar Jawab, biaya AI bulan ini, kuota pengunjung, dan laporan kesalahan terbaru.",
+  intro: "Sakelar Maknaz, biaya AI bulan ini, kuota pengunjung, dan laporan kesalahan terbaru.",
   denied: "Akses khusus pemilik",
   deniedBody:
     "Masuk melalui alamat utama Surau dengan email pemilik yang terdaftar di Cloudflare Access.",
   login: "Buka halaman admin Surau",
   jawab: {
-    heading: "Jawab",
-    toggle: "Jawab aktif",
+    heading: "Maknaz",
+    toggle: "Maknaz aktif",
     toggleHint:
       "Bila dimatikan, pertanyaan langsung diarahkan ke Cari. Situs lain tetap berjalan seperti biasa.",
-    routeOn: "Jalur Jawab di situs: terbuka.",
-    routeOff: "Jalur Jawab di situs: masih tertutup sampai rilis Fase 4 (lapis pengaman kedua).",
+    routeOn: "Jalur Maknaz di situs: terbuka.",
+    routeOff: "Jalur Maknaz di situs: masih tertutup sampai rilis Fase 4 (lapis pengaman kedua).",
   },
   budget: {
     heading: "Biaya AI bulan ini",
@@ -26,7 +26,7 @@ export const adminText = {
     warned: "Peringatan 80% tercatat pada",
     capLabel: "Plafon bulanan (USD)",
     capHint:
-      "Bila terpakai + sedang berjalan mencapai plafon, Jawab otomatis berhenti sampai bulan berikutnya dan pengunjung diarahkan ke Cari.",
+      "Bila terpakai + sedang berjalan mencapai plafon, Maknaz otomatis berhenti sampai bulan berikutnya dan pengunjung diarahkan ke Cari.",
     save: "Simpan plafon",
     outcomes: "Rincian per hasil",
     estimated: "perkiraan",

@@ -1828,6 +1828,19 @@ Yang gagal (j024): takhrij gold tidak masuk jawaban (lokasi, ADR-068), bukan lab
 
 **Tinjau ulang bila:** peninjau bertambah atau akses Access diperluas; aturan istilah naik versi; label perlu dibekukan ke korpus; atau tool MCP `get_hadith_takhrij` menampilkan label.
 
+## ADR-071 · Nama agent AI Surau: **Maknaz** (pengganti "Tanya" di tampilan) — diterima · 2026-10-21
+
+**Konteks:** Pemilik menamai agent AI Surau "Maknaz" (chat 2026-10-21: "ubah nama Tanya ke Maknaz ini nama Agent surau AI"). Sebelumnya fitur tanya-jawab tampil sebagai "Tanya" (menu, judul, pesan) dan "Jawab" di halaman pemilik/peninjau.
+
+**Keputusan:**
+1. Semua teks yang tampil ke pengguna, pemilik, dan peninjau memakai **Maknaz**: menu sidebar, judul halaman, tombol "Tanya Maknaz", pesan galat/keadaan, beranda (peta jalan), `/privasi`, `/transparansi`, `/admin`, `/tinjau` dan `/tinjau/takhrij`.
+2. **Alamat tetap `/tanya`** ("tanya" tetap wajar sebagai kata kerja di alamat; belum dirilis sehingga bisa dipindah ke `/maknaz` kapan saja lewat PR + pengalihan bila pemilik mau).
+3. **Nama internal kode tidak berubah:** pipeline `packages/llm/src/jawab`, Worker `surau-api` rute `/jawab`, `/api/jawab`, `JAWAB_*`, metrik dan eval `eval:jawab`. Dokumen implementasi lama tetap menyebut "Jawab"/"Tanya" sebagai nama fitur historis.
+
+**Konsekuensi:** e2e dan tes komponen mengikuti teks baru. Dokumen produk (docs/) memakai nama baru saat bagian terkait berikutnya disentuh.
+
+**Tinjau ulang bila:** pemilik ingin alamat `/maknaz`, atau nama dipakai juga di MCP/server (instruksi server, nama tool).
+
 ## ADR-072 · Orb tahap di halaman Tanya: satu orb titik yang berganti bentuk per tahap Jawab, komponen kanvas sendiri (bukan paket `thinking-orbs`) — diterima · 2026-10-21
 
 **Konteks:** saat Jawab berjalan, halaman Tanya hanya menampilkan spinner HeroUI di samping teks tahap. Pemilik meminta indikator "thinking orb" ala [thinking-orbs](https://libraries.dev/orbs) (Jakub Antalik, MIT), dengan desain yang sesuai Surau, dan memilih **satu orb yang berganti bentuk per tahap** dari lima konsep yang diusulkan.

@@ -3,9 +3,9 @@ export const transparencyText = {
   pageTitle: "Transparansi biaya",
   heading: "Transparansi biaya",
   lead: "Surau nirlaba, tanpa iklan dan tanpa paywall. Halaman ini menampilkan berapa biaya yang dipakai untuk menjalankannya.",
-  aiHeading: "Biaya AI untuk Tanya",
+  aiHeading: "Biaya AI untuk Maknaz",
   aiLead:
-    "Dihitung otomatis dari catatan biaya setiap pertanyaan (tanpa teks pertanyaan). Bila anggaran bulanan habis, Tanya berhenti sampai bulan berikutnya dan Cari tetap berjalan.",
+    "Dihitung otomatis dari catatan biaya setiap pertanyaan (tanpa teks pertanyaan). Bila anggaran bulanan habis, Maknaz berhenti sampai bulan berikutnya dan Cari tetap berjalan.",
   period: "Bulan",
   questions: "Pertanyaan berbiaya",
   cost: "Biaya AI",
@@ -15,7 +15,7 @@ export const transparencyText = {
     "Jawaban yang diambil dari jawaban tersimpan tidak memakai biaya AI dan tidak dihitung di sini.",
   fixedHeading: "Biaya tetap",
   fixed: [
-    { item: "Cloudflare Workers (hosting situs, MCP, dan Tanya)", cost: "US$5 per bulan" },
+    { item: "Cloudflare Workers (hosting situs, MCP, dan Maknaz)", cost: "US$5 per bulan" },
     { item: "Database D1, Turnstile, AI Gateway", cost: "termasuk paket di atas atau gratis" },
     { item: "Domain surau.org", cost: "biaya registrasi tahunan" },
   ],
