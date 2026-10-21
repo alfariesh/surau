@@ -170,7 +170,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 4: Jawab
 
-- [ ] **T-14 · Pengaman Fase 4** (bagian Cloudflare Access dibutuhkan S18; sisanya S19–S20; agent memandu langkah demi langkah)
+- [x] **T-14 · Pengaman Fase 4** · secret produksi `surau-api` lengkap 2026-10-21 (`CF_AIG_TOKEN`, `TURNSTILE_SECRET_KEY`, `SURAU_API_SECRET`; dicek pemilik dengan `wrangler secret list`) (bagian Cloudflare Access dibutuhkan S18; sisanya S19–S20; agent memandu langkah demi langkah)
   - Widget **Turnstile** (mode Managed) untuk domain produksi dan preview. **Dibuat 2026-10-20:** `Surau`, site key `0x4AAAAAAFdyEf4rqoAMrG1j`, hostnames `surau.org` dan `alfarieshsalman.workers.dev` (termasuk subdomain preview); pre-clearance OFF. Secret belum dipasang ke Worker.
   - **AI Gateway** dengan gateway bernama `surau-gw`:
     - **Dibuat 2026-10-20:** authenticated ON, collect logs OFF, cache OFF, retry OFF, rate limit 50/menit (fixed), spend limit US$1/hari (sliding, semua provider/model), Require Provider Credentials ON (tanpa fallback Unified Billing untuk provider pihak ketiga). BYOK Anthropic sudah diisi pemilik dan ditandai valid oleh dashboard; token `surau-api-gateway` dibuat setelah persetujuan pemilik (AI Gateway Run, cakupan seluruh akun), sudah disalin pemilik; belum dipasang ke Worker; belum diuji end-to-end dengan permintaan model.
@@ -196,7 +196,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   4. Beri tahu agent setelah selesai agar ekspor privat, golden set, kesepakatan dan status S18 diperbarui. **Saat ini: 0 persetujuan dan 0 penilaian manusia.** Contoh agent dan QA tidak dihitung.
 
 - [ ] **T-25 · Lihat dan setujui tampilan Tanya (S21)** · syarat "pemilik menyetujui tampilan" sebelum `/rilis 4`
-  1. Buka tautan Preview PR #100 (komentar bot di https://github.com/alfariesh/surau/pull/100), lalu tambahkan `/tanya` di ujung alamatnya. Di Preview, Tanya memakai data staging dan biasanya **mati**; minta agent menyalakannya sebentar bila ingin mencoba bertanya (biaya ±US$0,003 per pertanyaan).
+  1. Ketik ke agent: **"siapkan Preview Tanya"**. Agent membuka PR kecil supaya ada alamat Preview (`pr-NNN.surau.org/tanya`, data staging), menyalakan Jawab staging sebentar selama Anda mencoba (biaya ±US$0,003 per pertanyaan), lalu mematikannya lagi. (Preview PR #100 sudah terhapus otomatis sesudah digabung; di https://surau.org/tanya Tanya masih tampil "belum dibuka" sampai `/rilis 4`.)
   2. Periksa: label "asisten riset, bukan pemberi fatwa", jawaban dengan nomor kutipan [n], kalimat redup tanpa kutipan, kartu kutipan Arab (huruf dan harakat rapi, kanan-ke-kiri), status hadits "diekstrak AI", tombol "Laporkan jawaban keliru", dan tampilan di ponsel.
   3. Buka juga https://surau.org/transparansi dan https://surau.org/privasi (setelah PR digabung).
   4. Beri tahu agent: "T-25 setuju" atau catatan perbaikannya.
