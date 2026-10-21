@@ -15,6 +15,19 @@ Format entri:
 
 ---
 
+## 2026-10-21 · X08 · Rencana koreksi terjemahan oleh editor/ustadz — sebagian (rencana, menunggu pemilik)
+- Dikerjakan: rencana `implementasi/sesi/X08-koreksi-terjemahan.md`, ditulis di sesi X04 atas permintaan pemilik:
+  - format teks polos + `[…]`;
+  - alur usulan → persetujuan ustadz di `/tinjau/terjemahan`, dengan penyetuju berupa kunci akun terdaftar (pola X07/ADR-070);
+  - tayang lewat korpus berikutnya (teks revisi di DB app + R2 privat, git hanya metadata);
+  - validasi ulang saat ingest, status terikat hash, label per status;
+  - editor textarea tanpa Tiptap di tahap pertama.
+  Nomor X05–X07 sudah dipakai sesi lain, jadi rencana ini X08.
+- Temuan: terjemahan dipakai pembaca, kartu `/cari` + `translation_fts`, MCP, kartu kutipan Tanya, dan dokumen Jawab, jadi koreksi harus lewat korpus agar semuanya sama; batch `retry` belum melindungi paragraf yang dikoreksi manusia.
+- Verifikasi: pembacaan kode (`review-auth.ts`, `takhrij-review.ts`, `reviews.ts`, `search-index.ts`, `page.ts`, `documents.ts`); panjang terjemahan dari `ihya-v7` (maks 7.966 karakter, rasio maks 19×); `peninjau` → 0 blocker, 10 perbaikan sudah dimasukkan.
+- Biaya API: –
+- Keputusan: – (ADR menyusul saat X08 dikerjakan)
+
 ## 2026-10-21 · X07 · Sisipan: antrean tinjauan label status hadits di `/tinjau` — selesai
 
 - Dikerjakan:

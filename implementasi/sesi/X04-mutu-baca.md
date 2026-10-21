@@ -2,7 +2,7 @@
 
 > **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `/tanya`, `apps/api`, maupun `packages/llm/src/jawab`) · **Status:** rencana, menunggu persetujuan pemilik
 > **Prasyarat:** pemilik menjawab pertanyaan desain di bawah · izin biaya judul daftar isi (≤ US$1) · izin promote korpus baru (bagian B)
-> **Perkiraan:** 2 percakapan agent. Bagian A (tampilan, $0, tanpa korpus baru) dan bagian B (struktur + judul Indonesia, korpus baru). Bila bagian A menghabiskan satu percakapan, bagian B menjadi X05.
+> **Perkiraan:** 2 percakapan agent. Bagian A (tampilan, $0, tanpa korpus baru) dan bagian B (struktur + judul Indonesia, korpus baru). Bila bagian A menghabiskan satu percakapan, bagian B menjadi sesi sisipan bernomor berikutnya yang masih bebas (X05–X08 sudah dipakai).
 
 Nomor X03 sudah dipakai sesi kandidat Jawab (ADR-067, PR #102), jadi sesi ini X04.
 
