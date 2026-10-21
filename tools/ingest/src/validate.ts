@@ -285,6 +285,14 @@ export function validate(input: ValidateInput): Validation {
       llm.summaries >= exp.llmCoverage * llm.summaryTargets,
       `${llm.summaries}/${llm.summaryTargets} (${pctOf(llm.summaries, llm.summaryTargets)}); usang ${llm.staleSummaries}, tidak sah ${llm.invalidSummaries}`,
     );
+    // Judul daftar isi Indonesia (X04 bagian B): node + subjudul kurasi, dicek ulang terhadap judul
+    // Arab saat ini (`llm/titles.ts`); judul yang usang atau belum ada dihitung kurang.
+    const titles = llm.tocTitles + llm.subheadingTitles;
+    check(
+      `Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ ${minPct}`,
+      titles >= exp.llmCoverage * llm.titleTargets,
+      `${titles}/${llm.titleTargets} (${pctOf(titles, llm.titleTargets)}): node ${llm.tocTitles}, subjudul ${llm.subheadingTitles}${llm.titlesMissing.length > 0 ? `; belum ada ${llm.titlesMissing.slice(0, 8).join(", ")}${llm.titlesMissing.length > 8 ? " …" : ""}` : ""}`,
+    );
   }
 
   const midParagraph = toc.nodes.filter((n) => {

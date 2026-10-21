@@ -150,7 +150,7 @@ function subLevels(body: readonly PassageModel[], afterH2: boolean): (2 | 3)[] {
   let seen = afterH2;
   for (const p of body) {
     levels.push(seen ? 3 : 2);
-    if (p.heading?.kind === "toc") seen = true;
+    if (p.heading?.kind === "toc" || p.nodeHeading !== null) seen = true;
   }
   return levels;
 }
@@ -221,7 +221,8 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
   }
   const verse = p.blocks.some((b) => b.kind === "syatr");
   const sub = p.blocks.findIndex((b) => b.kind === "subheading");
-  const SubTag = level === 3 ? "h3" : "h2";
+  // Judul node yang menempel di akhir paragraf daftar (node_tail) tetap h2 seperti judul node lain.
+  const SubTag = p.nodeHeading !== null || level === 2 ? "h2" : "h3";
   return (
     <div className={`passage ${verse ? "passage-verse" : ""}`} id={p.anchor}>
       {anchors}

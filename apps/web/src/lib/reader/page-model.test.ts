@@ -67,6 +67,16 @@ describe("judul node dan jangkar bab (dari node yang mulai di halaman ini)", () 
     expect([...tocHeadings(SECTIONS, body).keys()]).toEqual([10]);
   });
 
+  it("judul node yang bukan paragraf pertamanya (jangkar sumber terlalu awal) tetap dikenali, sekali", () => {
+    const body = [
+      { id: 30, toc_node_id: 1, text_raw: "يتلوه باب" },
+      { id: 31, toc_node_id: 1, text_raw: "باب" },
+      { id: 32, toc_node_id: 1, text_raw: "باب" },
+    ];
+    expect([...tocHeadings(SECTIONS, body).keys()]).toEqual([31]);
+    expect([...tocHeadings(SECTIONS, body, new Set([31])).keys()]).toEqual([32]);
+  });
+
   it("jangkar sebelum paragraf pertama node atau turunannya; tanpa paragraf = unplaced", () => {
     const starts = sectionStarts(SECTIONS, [
       { id: 20, toc_node_id: 2 },
@@ -146,6 +156,84 @@ describe("buildPageModel: subjudul kurasi", () => {
     const model = await buildPageModel(page([lead]), { editionId: 1, sections: [] });
     expect(model.body[0]!.blocks.map((b) => b.kind)).toEqual(["subheading", "text"]);
     expect(model.body[0]!.translation?.bold).toBeNull();
+  });
+});
+
+describe("buildPageModel: jangkar node pindah ke paragraf judulnya", () => {
+  beforeEach(() => vi.mocked(subheadingOf).mockReset());
+
+  it("kolofon sebelum judul kitab: jangkar + ringkasan di paragraf judul, bukan di kolofon", async () => {
+    const sections: SectionNode[] = [{ id: 1, parentId: null, level: 2, title: "باب" }];
+    const colophon = passage(300, "يتلوه باب", { toc_node_id: 1 });
+    const heading = passage(301, "باب", { toc_node_id: 1 });
+    const summary = { section: { id: 1 }, review_status: "ai_generated" };
+    const view = { ...page([colophon, heading]), summaries: [summary] } as unknown as PageView;
+    const model = await buildPageModel(view, { editionId: 1, sections });
+    expect(model.body.map((p) => [p.anchor, p.heading, p.sectionAnchors])).toEqual([
+      ["p300", null, []],
+      ["p301", { kind: "toc", level: 2 }, [1]],
+    ]);
+    expect(model.body[1]!.summaries).toEqual([summary]);
+  });
+});
+
+describe("buildPageModel: judul node dari butir daftar (node_tail)", () => {
+  beforeEach(() => vi.mocked(subheadingOf).mockReset());
+
+  it("butir daftar = teks biasa; judul node di akhir paragraf berikutnya = h2 dengan jangkar + ringkasan", async () => {
+    const title = "بيان حقيقة"; // judul node (buatan)
+    const listText = `وبيان فضل ${title}`;
+    const sections: SectionNode[] = [{ id: 7, parentId: null, level: 4, title }];
+    const item = passage(200, title, { toc_node_id: 7 });
+    const list = passage(201, listText, { toc_node_id: 7 });
+    const body = passage(202, "نص", { toc_node_id: 7 });
+    vi.mocked(subheadingOf).mockImplementation((_edition, seq) => {
+      if (seq === 200) return { kind: "plain", sha: sha16(title) };
+      if (seq === 201)
+        return { kind: "tail", start: listText.indexOf(title), sha: sha16(listText), node: 7 };
+      return undefined;
+    });
+    const summary = { section: { id: 7 }, review_status: "ai_generated" };
+    const view = { ...page([item, list, body]), summaries: [summary] } as unknown as PageView;
+    const model = await buildPageModel(view, { editionId: 1, sections });
+    const [a, b, c] = model.body;
+    expect(a!.heading).toBeNull();
+    expect(a!.sectionAnchors).toEqual([]);
+    expect(a!.summaries).toEqual([]);
+    expect(b!.nodeHeading).toEqual({ id: 7, level: 4 });
+    expect(b!.blocks.map((x) => x.kind)).toEqual(["text", "subheading"]);
+    expect(blocksText(b!.blocks)).toBe(listText);
+    expect(b!.sectionAnchors).toEqual([7]);
+    expect(b!.summaries).toEqual([summary]);
+    expect(c!.nodeHeading).toBeNull();
+  });
+
+  it("butir usang (sidik lain) tetapi judul akhir sah: satu h2 saja (butir), judul akhir subjudul biasa", async () => {
+    const title = "بيان حقيقة";
+    const listText = `وبيان فضل ${title}`;
+    const sections: SectionNode[] = [{ id: 7, parentId: null, level: 4, title }];
+    const item = passage(200, title, { toc_node_id: 7 });
+    const list = passage(201, listText, { toc_node_id: 7 });
+    vi.mocked(subheadingOf).mockImplementation((_edition, seq) => {
+      if (seq === 200) return { kind: "plain", sha: "0".repeat(16) };
+      if (seq === 201)
+        return { kind: "tail", start: listText.indexOf(title), sha: sha16(listText), node: 7 };
+      return undefined;
+    });
+    const model = await buildPageModel(page([item, list]), { editionId: 1, sections });
+    expect(model.body[0]!.heading).toEqual({ kind: "toc", level: 4 });
+    expect(model.body[1]!.nodeHeading).toBeNull();
+    expect(model.body[0]!.sectionAnchors).toEqual([7]);
+  });
+
+  it("tanpa entri kurasi (atau sidik lain): butir tetap judul node seperti sebelumnya", async () => {
+    const title = "بيان حقيقة";
+    const sections: SectionNode[] = [{ id: 7, parentId: null, level: 4, title }];
+    const item = passage(200, title, { toc_node_id: 7 });
+    vi.mocked(subheadingOf).mockReturnValue({ kind: "plain", sha: "0".repeat(16) });
+    const model = await buildPageModel(page([item]), { editionId: 1, sections });
+    expect(model.body[0]!.heading).toEqual({ kind: "toc", level: 4 });
+    expect(model.body[0]!.sectionAnchors).toEqual([7]);
   });
 });
 

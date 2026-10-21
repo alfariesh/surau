@@ -56,6 +56,8 @@ describe("emitSql", () => {
     passage_ayah_ref: [],
     translation: [],
     summary: [],
+    toc_title_translation: [],
+    subheading_translation: [],
     term_stat: [],
     meta: [{ key: "corpus_version", value: "uji" }],
   };

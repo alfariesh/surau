@@ -13,7 +13,7 @@ import { LicenseNotice } from "../../../../components/reader/license-notice";
 import { TocTree } from "../../../../components/reader/toc-tree";
 import { id } from "../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../lib/layout";
-import { loadToc, loadWork } from "../../../../lib/reader/data";
+import { loadReaderToc, loadToc, loadWork } from "../../../../lib/reader/data";
 import { PageTitle } from "../../../../components/page-title";
 
 const t = id.reader;
@@ -43,9 +43,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function WorkPage({ params }: Props) {
   const { work: segment } = await params;
-  const [{ work, edition, segment: canonical }, toc] = await Promise.all([
+  const [{ work, edition, segment: canonical }, toc, shown] = await Promise.all([
     loadWork(segment),
     loadToc(segment),
+    loadReaderToc(segment),
   ]);
   const title = work.title_id ?? work.title_ar;
   const start = toc[0]?.href;
@@ -113,7 +114,7 @@ export default async function WorkPage({ params }: Props) {
           <Typography.Heading level={2} id="judul-daftar-isi" className="text-xl">
             {t.tocHeading}
           </Typography.Heading>
-          <TocTree items={toc} />
+          <TocTree items={shown.items} titleSource={shown.titleSource} />
         </section>
         <aside aria-label={t.editionsLabel}>
           <Card className="lg:sticky lg:top-20">

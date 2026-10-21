@@ -1,7 +1,7 @@
 {
   "format": 1,
   "edition": 1,
-  "corpus": "ihya-v7",
+  "corpus": "ihya-v8",
   "entries": {
     "2101": {
       "kind": "heading",
@@ -1045,6 +1045,21 @@
       "src": "bayan",
       "sha": "224193d42329c0ea"
     },
+    "16599": {
+      "kind": "plain",
+      "sha": "2d0116628650e539"
+    },
+    "16600": {
+      "kind": "tail",
+      "start": 65,
+      "sha": "b9b4d44f50dcd9f1",
+      "tr": {
+        "start": 110,
+        "end": 137,
+        "sha": "9d6ea2e14df24cd9"
+      },
+      "node": 100224
+    },
     "16732": {
       "kind": "tail",
       "start": 220,
@@ -1137,6 +1152,21 @@
       "src": "kurasi",
       "sha": "1075c4d140390363",
       "of": 18534
+    },
+    "18644": {
+      "kind": "plain",
+      "sha": "11f2bb78d3045dd6"
+    },
+    "18645": {
+      "kind": "tail",
+      "start": 114,
+      "sha": "90acbc863dd52bab",
+      "tr": {
+        "start": 208,
+        "end": 242,
+        "sha": "e1011dd8987e70aa"
+      },
+      "node": 100285
     },
     "18707": {
       "kind": "heading",

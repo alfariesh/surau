@@ -5,7 +5,12 @@
 import { join } from "node:path";
 
 import { QURAN_SOURCE, quranFootnotes, summaryRow, translationRow } from "@surau/db";
-import type { SummaryRow, TranslationRow } from "@surau/db";
+import type {
+  SubheadingTranslationRow,
+  SummaryRow,
+  TocTitleTranslationRow,
+  TranslationRow,
+} from "@surau/db";
 import { translationSegments } from "@surau/core";
 import type { QuranView } from "@surau/core";
 import { checkSummary, checkTranslation } from "@surau/llm";
@@ -14,6 +19,8 @@ import type { CorpusRows } from "../rows.ts";
 import { rejectionFor } from "./reviews.ts";
 import type { ReviewRejections } from "./reviews.ts";
 import { acceptedSummary, acceptedTranslation, readJsonl } from "./store.ts";
+import { titleRows, titleUnits } from "./titles.ts";
+import type { SubheadingEntries } from "./titles.ts";
 import { buildWork, round2InputSha } from "./work.ts";
 
 export interface LlmStats {
@@ -40,11 +47,18 @@ export interface LlmStats {
    * sebagai segmen Kemenag utuh di terjemahan, atau placeholder yang tidak bisa dirender. Harus 0.
    */
   ayahProblems: string[];
+  /** Judul daftar isi Indonesia (X04 bagian B): unit node + subjudul, dan yang belum punya judul. */
+  titleTargets: number;
+  tocTitles: number;
+  subheadingTitles: number;
+  titlesMissing: string[];
 }
 
 export interface LlmBuild {
   translation: TranslationRow[];
   summary: SummaryRow[];
+  toc_title_translation: TocTitleTranslationRow[];
+  subheading_translation: SubheadingTranslationRow[];
   stats: LlmStats;
 }
 
@@ -92,11 +106,15 @@ export function quranViewFromRows(rows: CorpusRows): QuranView {
   };
 }
 
-/** Baca hasil LLM yang lolos dari `dir` dan jadikan baris korpus. Tanpa file = tanpa baris. */
+/**
+ * Baca hasil LLM yang lolos dari `dir` dan jadikan baris korpus. Tanpa file = tanpa baris.
+ * `subheadings` = daftar kurasi subjudul (unit judul daftar isi Indonesia, X04 bagian B).
+ */
 export function llmRows(
   rows: CorpusRows,
   dir: string,
   reviews: ReviewRejections = new Map(),
+  subheadings: SubheadingEntries = new Map(),
 ): LlmBuild {
   const work = buildWork(rows);
   const quran = quranViewFromRows(rows);
@@ -113,6 +131,10 @@ export function llmRows(
     invalidSummaries: 0,
     withAyat: 0,
     ayahProblems: [],
+    titleTargets: 0,
+    tocTitles: 0,
+    subheadingTitles: 0,
+    titlesMissing: [],
   };
 
   // Baris terakhir per paragraf menang (ulangan menimpa hasil lama).
@@ -201,5 +223,22 @@ export function llmRows(
     );
   }
   stats.summaries = summary.length;
-  return { translation, summary, stats };
+
+  // Judul daftar isi Indonesia (X04 bagian B): dicek ulang terhadap judul Arab saat ini.
+  const edition = rows.edition[0]?.id;
+  const titles = titleRows(
+    edition === undefined ? [] : titleUnits(rows, subheadings, edition),
+    dir,
+  );
+  stats.titleTargets = titles.stats.targets;
+  stats.tocTitles = titles.stats.tocTitles;
+  stats.subheadingTitles = titles.stats.subheadingTitles;
+  stats.titlesMissing = titles.stats.missing;
+  return {
+    translation,
+    summary,
+    toc_title_translation: titles.toc,
+    subheading_translation: titles.sub,
+    stats,
+  };
 }

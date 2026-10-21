@@ -787,6 +787,46 @@ h2.reader-heading-minor {
   font-weight: 600;
 }
 
+/* Judul Indonesia (terjemahan AI, X04 W8) di atas judul Arabnya. Baris lipatan judul Indonesia
+ * rapat (1.4); padding atas memusatkan baris pertamanya di tinggi --toc-line, supaya ikon, chevron,
+ * dan siku tetap sejajar dengan baris pertama judul. Ukuran Arab ikut .toc-title (tanpa diperkecil). */
+.toc-titles {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.toc-title-id {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  padding-block-start: calc((var(--toc-line) - 1.4em) / 2);
+  hyphens: auto;
+}
+
+.toc-titles .toc-title-ar {
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.toc-row[data-current] .toc-title-id {
+  font-weight: 600;
+}
+
+.toc-row[data-current] .toc-title-ar {
+  color: var(--foreground);
+  font-weight: 400;
+}
+
+/* Subjudul kurasi (X04 W7): sedikit lebih tenang dari node daftar isi. */
+.toc-row[data-sub] .toc-icon {
+  opacity: 0.6;
+}
+
+.toc-title-note {
+  padding-inline: 0.5rem;
+  padding-block-end: 0.25rem;
+}
+
 .toc-row[data-current] .toc-icon {
   color: var(--accent-soft-foreground);
 }

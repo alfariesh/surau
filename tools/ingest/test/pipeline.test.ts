@@ -39,6 +39,8 @@ describe("runIngest (kitab buatan)", () => {
       passage_ayah_ref: 1,
       translation: 0,
       summary: 0,
+      toc_title_translation: 0,
+      subheading_translation: 0,
       term_stat: 23,
       passage_fts: 18,
       // Indeks Indonesia (S14): kosong karena kitab buatan tanpa terjemahan/ringkasan AI.

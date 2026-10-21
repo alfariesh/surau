@@ -98,8 +98,13 @@ export type {
   SearchRequest,
   SearchResult,
 } from "./repo/search.ts";
-export { getSummariesStartingOn, getTranslations, sectionSummaryRow } from "./repo/translation.ts";
-export type { SectionSummaryRow } from "./repo/translation.ts";
+export {
+  getSummariesStartingOn,
+  getTranslations,
+  listTitleTranslations,
+  sectionSummaryRow,
+} from "./repo/translation.ts";
+export type { SectionSummaryRow, TitleTranslations } from "./repo/translation.ts";
 export { QURAN_AYAT_MAX, ayahRefWithSurahRow, getAyahRefs, getQuranAyat } from "./repo/quran.ts";
 export type { AyahRange, AyahRefWithSurahRow, QuranAyat } from "./repo/quran.ts";
 export {

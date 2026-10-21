@@ -33,7 +33,11 @@ const entry = z.union([
     start: z.number().int().positive(),
     sha,
     tr: mark.optional(),
+    /** Subjudul akhir ini judul node daftar isi (butir daftar sebelumnya = `plain`, X04 bagian B). */
+    node: z.number().int().positive().optional(),
   }),
+  /** Teksnya sama dengan judul node, tetapi butir daftar pembuka: dirender sebagai teks biasa. */
+  z.strictObject({ kind: z.literal("plain"), sha }),
 ]);
 export type SubheadingEntry = z.infer<typeof entry>;
 
@@ -60,16 +64,23 @@ function fnv1a(text: string): string {
 /** Sidik daftar kurasi yang sedang dipakai (berubah bila berkas JSON berubah). */
 export const SUBHEADING_DIGEST = fnv1a(JSON.stringify(file));
 
+/** Semua entri daftar kurasi edisi ini (kunci = nomor jangkar `#pN`); kosong untuk edisi lain. */
+export function subheadingEntries(editionId: number): ReadonlyMap<number, SubheadingEntry> {
+  return editionId === file.edition ? entries : new Map();
+}
+
 /** Entri subjudul paragraf `#p<seq>` edisi ini, atau `undefined`. */
 export function subheadingOf(editionId: number, seq: number): SubheadingEntry | undefined {
   return editionId === file.edition ? entries.get(seq) : undefined;
 }
 
+/** SHA-256 (UTF-8) heksadesimal penuh, sama dengan `source_sha256` judul subjudul (ingest). */
+export async function sha256(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 /** 16 hex awal SHA-256 (UTF-8), sama dengan `data/ids/*.teks.json` dan `pnpm subjudul`. */
 export async function sha16(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return [...new Uint8Array(digest)]
-    .slice(0, 8)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return (await sha256(text)).slice(0, 16);
 }

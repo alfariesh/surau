@@ -6,7 +6,8 @@
 #
 # Aturan otomatis (tanpa entri di sini): paragraf badan < 200 karakter yang kata pertamanya "bayan"
 # dan bukan judul node daftar isi = subjudul utuh. Calon di ihya-v7: 191 (80 lain sudah judul node).
-corpus: ihya-v7
+# ihya-v8 (X04 bagian B): teks semua entri sama dengan ihya-v7 (sidik cocok, `pnpm subjudul --cek`).
+corpus: ihya-v8
 
 # Calon "bayan" yang BUKAN subjudul. Kelimanya butir pertama daftar bagian di pembuka kitab: kalimat
 # daftarnya bersambung ke paragraf berikutnya ("wa bayan …"), dan subjudul aslinya menempel di akhir
@@ -87,9 +88,8 @@ lead:
 
 # Subjudul menempel di AKHIR paragraf (`kata` kata terakhir; `terjemahan: true` = kalimat terakhir
 # terjemahan AI padanannya): sesudah daftar bagian di pembuka kitab,
-# sumber menyambung subjudul bagian pertama ke paragraf daftar. Tidak dimasukkan: p16600 dan p18645
-# (pola sama, tetapi node daftar isinya sudah menunjuk butir daftar p16599/p18644 sebagai judul, jadi
-# subjudul kedua akan tampil ganda; diperbaiki lewat patch daftar isi di bagian B).
+# sumber menyambung subjudul bagian pertama ke paragraf daftar. p16600 dan p18645 (pola sama) ada di
+# `node_tail`, karena subjudulnya adalah judul node daftar isi.
 tail:
   - { p: 13205, kata: 3, terjemahan: true } # bayan dzamm al-ghadab
   - { p: 14545, kata: 3, terjemahan: true } # bayan dzamm ar-riya'
@@ -97,3 +97,15 @@ tail:
   - { p: 15444, kata: 4, terjemahan: true } # bayan dzamm al-'ujb wa afatih
   - { p: 15912, kata: 9, terjemahan: true } # ar-rukn al-awwal fi nafs at-tawbah + bayan haqiqat at-tawbah wa hadduha
   - { p: 16732, kata: 3, terjemahan: true } # bayan haqiqat al-khawf
+
+# Node daftar isi yang di sumber menunjuk BUTIR PERTAMA daftar bagian pembuka sebagai judulnya (teks
+# butir = judul node), padahal judul bagiannya menempel di akhir paragraf daftar berikutnya (X04
+# bagian B). Pembaca: `butir` tampil sebagai teks biasa (bukan h2), dan `kata` kata terakhir `p`
+# menjadi judul node itu (h2, jangkar #bab-<id> pindah ke `p`). `pnpm subjudul` mengecek bahwa kata-kata
+# itu = judul node (bentuk normal). toc_node (judul, halaman awal; MCP dan Jawab) tidak berubah, dan
+# paragraf tidak dipindah node, supaya ringkasan AI per bagian tetap sah.
+node_tail:
+  # Kitab al-Khawf wa ar-Raja', paruh raja' (node 100224 "bayan haqiqat ar-raja'", j4/142).
+  - { p: 16600, kata: 3, butir: 16599, terjemahan: true }
+  # Kitab an-Niyyah wa al-Ikhlash wa ash-Shidq, bab niat (node 100285 "bayan fadhilat an-niyyah", j4/362).
+  - { p: 18645, kata: 3, butir: 18644, terjemahan: true }

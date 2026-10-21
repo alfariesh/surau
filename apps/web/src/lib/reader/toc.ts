@@ -4,9 +4,17 @@ import type { Passage, TocNode } from "@surau/core";
 // jadi tanpa sitasi/lisensi per node), pencarian jalur untuk breadcrumb, dan bagian aktif.
 
 export interface TocItem {
+  /** `toc_node.id`, atau `passage.id` untuk subjudul kurasi (`kind: "sub"`). */
   id: number;
-  /** Judul Arab persis dari DB (`toc_node.title_ar`). */
+  /**
+   * `node` = node daftar isi korpus; `sub` = subjudul kurasi pembaca (X04 W7, hanya di pohon
+   * tampilan `readerToc`, tidak pernah di pohon untuk breadcrumb/bagian aktif/model halaman).
+   */
+  kind: "node" | "sub";
+  /** Judul Arab persis dari DB (`toc_node.title_ar`, atau potongan `text_raw` subjudul). */
   title: string;
+  /** Judul Indonesia terjemahan AI (X04 W8, korpus skema ≥ 7), hanya di pohon tampilan. */
+  titleId?: string;
   level: number;
   /** Permalink halaman awal bagian, mis. `/kitab/ihya/1/197`. */
   href: string;
@@ -18,6 +26,7 @@ export interface TocItem {
 export function slimToc(nodes: readonly TocNode[]): TocItem[] {
   return nodes.map((n) => ({
     id: n.id,
+    kind: "node",
     title: n.title_ar,
     level: n.level,
     href: n.start.permalink,
@@ -88,9 +97,12 @@ export function activeTocIds(
   return last === undefined ? [] : [last.id];
 }
 
-/** Tautan unik per bagian: halaman awal + jangkar judul (`#bab-<id>`), seperti breadcrumb. */
-export function tocHref(item: Pick<TocItem, "id" | "href">): string {
-  return `${item.href}#bab-${item.id}`;
+/**
+ * Tautan unik per bagian: halaman awal + jangkar judul (`#bab-<id>`), seperti breadcrumb. Subjudul
+ * kurasi sudah membawa permalink paragrafnya (`#pN`).
+ */
+export function tocHref(item: Pick<TocItem, "id" | "href"> & { kind?: TocItem["kind"] }): string {
+  return item.kind === "sub" ? item.href : `${item.href}#bab-${item.id}`;
 }
 
 /**

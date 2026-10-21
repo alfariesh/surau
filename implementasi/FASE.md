@@ -15,7 +15,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | 6 | Wiki | Kartu tokoh, istilah, hadits, dan indeks tematik (entitas tingkat A dan B) | garis besar | belum |
 | 7 | Kurikulum & data terbuka | ±92 kitab, dump data dan benchmark terbuka | garis besar | belum |
 | – | Sisipan | [X01](sesi/X01-upgrade-next-16-4.md) upgrade Next 16.4 + React 19.3 setelah OpenNext mendukung | X01 | menunggu gerbang |
-| – | Sisipan | [X04](sesi/X04-mutu-baca.md) mutu baca pembaca Ihya: ritme dan tipografi, label AI tenang, subjudul, gulir bersambung, lanjutkan membaca, daftar isi Indonesia, T-17 tahap 3 | X04 | bagian A + T-17 tahap 3 dikerjakan 2026-10-21 (PR #115, ADR-074–076); bagian B (daftar isi Indonesia, korpus baru) belum |
+| – | Sisipan | [X04](sesi/X04-mutu-baca.md) mutu baca pembaca Ihya: ritme dan tipografi, label AI tenang, subjudul, gulir bersambung, lanjutkan membaca, daftar isi Indonesia, T-17 tahap 3 | X04 | bagian A + T-17 tahap 3 dikerjakan 2026-10-21 (PR #115, ADR-074–076); bagian B dikerjakan 2026-10-21/22 (PR #116, ADR-077–078: daftar isi pembaca + subjudul, judul Indonesia, korpus `ihya-v8` di staging; promote menunggu izin pemilik) |
 | – | Sisipan | [X08](sesi/X08-koreksi-terjemahan.md) koreksi terjemahan Indonesia oleh editor dan ustadz di `/tinjau/terjemahan`: teks polos, revisi langsung oleh ustadz terdaftar (pola ADR-070) dengan nama tampil, tayang lewat korpus berikutnya | X08 | rencana, siap dikerjakan |
 
 **Catatan urutan:**

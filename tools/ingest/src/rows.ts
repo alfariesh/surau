@@ -24,9 +24,11 @@ import type {
   PageRow,
   PassageNeedsReviewRow,
   PassageRow,
+  SubheadingTranslationRow,
   SummaryRow,
   TermStatRow,
   TocNodeRow,
+  TocTitleTranslationRow,
   TranslationRow,
   WorkRow,
 } from "@surau/db";
@@ -58,6 +60,8 @@ export const TABLE_ORDER = [
   "passage_ayah_ref",
   "translation",
   "summary",
+  "toc_title_translation",
+  "subheading_translation",
   "term_stat",
   "meta",
 ] as const;
@@ -81,13 +85,22 @@ export interface CorpusRows {
   /** Terjemahan dan ringkasan AI (S13): hasil batch yang lolos, dimuat pipeline (`llm/attach.ts`). */
   translation: TranslationRow[];
   summary: SummaryRow[];
+  /** Judul daftar isi Indonesia (X04 bagian B, skema 7): node + subjudul kurasi (`llm/titles.ts`). */
+  toc_title_translation: TocTitleTranslationRow[];
+  subheading_translation: SubheadingTranslationRow[];
   /** Stem sangat umum di indeks FTS (S11): dihitung pipeline setelah baris paragraf ada. */
   term_stat: TermStatRow[];
   meta: MetaRow[];
 }
 
 /** Tabel yang tidak diisi `buildRows` (menyusul di pipeline). */
-export type PipelineTables = "term_stat" | "translation" | "summary" | keyof QuranRows;
+export type PipelineTables =
+  | "term_stat"
+  | "translation"
+  | "summary"
+  | "toc_title_translation"
+  | "subheading_translation"
+  | keyof QuranRows;
 
 export interface RowsInput {
   config: WorkConfig;

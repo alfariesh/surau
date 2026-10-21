@@ -23,6 +23,7 @@ import type { JawabCitation, JawabResult, JawabSearchHit } from "../../lib/tanya
 import { displayText, kutipanQuery, spanKey, termPhrase } from "../../lib/tanya/model";
 import { ArabicInline, ArabicText } from "../arabic";
 import { TanyaOrb } from "./tanya-orb";
+import { modelName } from "../../lib/model-names";
 
 // Tampilan hasil Jawab (S21; sebagai balasan di percakapan, ADR-073). Teks Indonesia dari model tampil sebagai teks biasa per blok: blok
 // bersitasi diberi penanda [n], blok tanpa sitasi redup (ADR-064 butir 5). Kutipan Arab SELALU dari
@@ -418,11 +419,6 @@ function ReportForm({
   );
 }
 
-const MODEL_NAMES: Record<string, string> = {
-  "claude-haiku-5-5": "Claude Haiku 5.5",
-  "claude-sonnet-5-5": "Claude Sonnet 5.5",
-};
-
 /**
  * Teks jawaban untuk disalin: kalimat + penanda [n], keterangan kalimat tanpa kutipan, atribusi AI,
  * lalu daftar sumber dengan tautan. Label AI ikut tersalin (teks ini bisa diteruskan ke luar Surau);
@@ -566,7 +562,7 @@ export function AnswerView({
             {/* Segel: orb selesai (bintang delapan diam), tanda tangan jawaban. */}
             <TanyaOrb stage="done" size={20} />
             <Typography type="body-xs" color="muted">
-              {t.meta(MODEL_NAMES[result.model] ?? result.model, cached)}
+              {t.meta(modelName(result.model), cached)}
             </Typography>
           </div>
         ) : null}

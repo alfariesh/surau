@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 
+import type { TitleSource } from "../../lib/reader/reader-toc";
 import type { TocItem } from "../../lib/reader/toc";
 
 import {
@@ -167,11 +168,13 @@ function MobileMenu({ pagePath, ...jump }: JumpProps & { pagePath: string }) {
 /** Ponsel/tablet: daftar isi di sheet bawah berlatar buram (desktop: kolom kiri halaman). */
 function TocSheet({
   toc,
+  titleSource,
   activeIds,
   className,
   scope,
 }: {
   toc: TocItem[];
+  titleSource: TitleSource | null;
   activeIds: number[];
   className?: string;
   /** Permalink halaman baca: sorotan mengikuti halaman sambungan yang sedang dibaca. */
@@ -194,7 +197,7 @@ function TocSheet({
               <Sheet.Heading>{t.tocHeading}</Sheet.Heading>
             </Sheet.Header>
             <Sheet.Body data-toc-scroll className="pb-6">
-              <TocTree activeIds={activeIds} items={toc} scope={scope} />
+              <TocTree activeIds={activeIds} items={toc} scope={scope} titleSource={titleSource} />
             </Sheet.Body>
           </Sheet.Dialog>
         </Sheet.Content>
@@ -205,6 +208,7 @@ function TocSheet({
 
 export function ReaderToolbar({
   toc,
+  titleSource,
   activeIds,
   segment,
   volumes,
@@ -213,7 +217,9 @@ export function ReaderToolbar({
   pagePath,
   sample,
 }: {
+  /** Pohon daftar isi TAMPILAN (`loadReaderToc`: + subjudul kurasi + judul Indonesia). */
   toc: TocItem[];
+  titleSource: TitleSource | null;
   activeIds: number[];
   segment: string;
   volumes: number;
@@ -239,7 +245,13 @@ export function ReaderToolbar({
         size="sm"
         variant="tertiary"
       >
-        <TocSheet activeIds={activeIds} className="flex-1" scope={pagePath} toc={toc} />
+        <TocSheet
+          activeIds={activeIds}
+          className="flex-1"
+          scope={pagePath}
+          titleSource={titleSource}
+          toc={toc}
+        />
         <ReaderStyle separator className="flex-1" sample={sample} />
         <MobileMenu pagePath={pagePath} {...jump} />
       </ButtonGroup>
@@ -249,7 +261,13 @@ export function ReaderToolbar({
         size="sm"
         variant="tertiary"
       >
-        <TocSheet activeIds={activeIds} className="lg:hidden" scope={pagePath} toc={toc} />
+        <TocSheet
+          activeIds={activeIds}
+          className="lg:hidden"
+          scope={pagePath}
+          titleSource={titleSource}
+          toc={toc}
+        />
         <JumpToPage {...jump} />
         <Button onPress={() => void reader.copyCitation(pagePath)}>
           <ButtonGroup.Separator />

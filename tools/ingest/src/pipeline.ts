@@ -43,6 +43,7 @@ import { assertWritable } from "./sqlite.ts";
 import { llmRows } from "./llm/attach.ts";
 import type { LlmBuild } from "./llm/attach.ts";
 import { loadReviews } from "./llm/reviews.ts";
+import { readSubheadings } from "./llm/titles.ts";
 import { buildToc } from "./toc.ts";
 import type { TocBuild } from "./toc.ts";
 import { validate } from "./validate.ts";
@@ -197,13 +198,20 @@ function rowsFor(
     passage_ayah_ref: matched.refs,
     translation: [],
     summary: [],
+    toc_title_translation: [],
+    subheading_translation: [],
     term_stat: termStats(fts, paths.migrations),
   };
   // Terjemahan/ringkasan AI dicek terhadap baris yang baru dibangun ini (hash sumber, ayat).
-  const llm = paths.llm === undefined ? null : llmRows(rows, paths.llm, loadReviews(paths.repo));
+  const llm =
+    paths.llm === undefined
+      ? null
+      : llmRows(rows, paths.llm, loadReviews(paths.repo), readSubheadings(paths.repo, config));
   if (llm !== null) {
     rows.translation = llm.translation;
     rows.summary = llm.summary;
+    rows.toc_title_translation = llm.toc_title_translation;
+    rows.subheading_translation = llm.subheading_translation;
   }
   return {
     rows,

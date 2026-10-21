@@ -4,8 +4,20 @@ import { D1_MAX_PARAMS, chunk, placeholders } from "../d1.ts";
 import type { D1Db } from "../d1.ts";
 import { z } from "zod";
 
-import { summaryRow, translationRow } from "../schema/corpus.ts";
-import type { TranslationRow } from "../schema/corpus.ts";
+import { passageIdRange, tocNodeIdRange } from "../ids.ts";
+import {
+  TITLE_SCHEMA_VERSION,
+  subheadingTranslationRow,
+  summaryRow,
+  tocTitleTranslationRow,
+  translationRow,
+} from "../schema/corpus.ts";
+import type {
+  SubheadingTranslationRow,
+  TocTitleTranslationRow,
+  TranslationRow,
+} from "../schema/corpus.ts";
+import { getCorpusMeta } from "./corpus.ts";
 import { allRows } from "./rows.ts";
 
 const SUMMARY_COLS =
@@ -59,4 +71,50 @@ export function getSummariesStartingOn(
       .bind(pageId, lang),
     sectionSummaryRow,
   );
+}
+
+const TITLE_COLS = "lang, text, model, prompt_version, created_at, review_status";
+
+export interface TitleTranslations {
+  toc: TocTitleTranslationRow[];
+  sub: SubheadingTranslationRow[];
+}
+
+/**
+ * Judul daftar isi Indonesia satu edisi (X04 bagian B): judul node + subjudul kurasi, urut ID, dalam
+ * satu batch (filter rentang ID edisi). `null` bila korpus belum punya tabelnya (skema < 7): kueri
+ * gagal "no such table", lalu skema dicek dengan satu kueri `meta` (pola `loadAyahRefs`). Galat lain
+ * diteruskan.
+ */
+export async function listTitleTranslations(
+  db: D1Db,
+  editionId: number,
+  lang: string,
+): Promise<TitleTranslations | null> {
+  const node = tocNodeIdRange(editionId);
+  const passage = passageIdRange(editionId);
+  try {
+    const [toc, sub] = await db.batch([
+      db
+        .prepare(
+          `SELECT toc_node_id, ${TITLE_COLS} FROM toc_title_translation
+           WHERE lang = ?1 AND toc_node_id BETWEEN ?2 AND ?3 ORDER BY toc_node_id`,
+        )
+        .bind(lang, node.min, node.max),
+      db
+        .prepare(
+          `SELECT passage_id, ${TITLE_COLS}, source_sha256 FROM subheading_translation
+           WHERE lang = ?1 AND passage_id BETWEEN ?2 AND ?3 ORDER BY passage_id`,
+        )
+        .bind(lang, passage.min, passage.max),
+    ]);
+    return {
+      toc: (toc?.results ?? []).map((r) => tocTitleTranslationRow.parse(r)),
+      sub: (sub?.results ?? []).map((r) => subheadingTranslationRow.parse(r)),
+    };
+  } catch (error) {
+    const meta = await getCorpusMeta(db).catch(() => null);
+    if (meta !== null && meta.schema_version < TITLE_SCHEMA_VERSION) return null;
+    throw error;
+  }
 }
