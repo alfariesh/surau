@@ -1953,7 +1953,7 @@ Yang gagal (j024): takhrij gold tidak masuk jawaban (lokasi, ADR-068), bukan lab
 
 **Tidak dipilih:** memakai terjemahan paragraf judul yang sudah ada (gaya tidak seragam, ada salah tafsir); Message Batches (hemat ±50% dari biaya yang sudah kecil, hasil baru beberapa menit–jam kemudian); judul Indonesia di breadcrumb/<title>/OG (labelnya tidak bisa ikut); menyunting tangan judul yang keliru (bukan lagi "terjemahan AI"; koreksi lewat lapisan koreksi X08/ADR-047 bila perlu).
 
-**Konsekuensi:** pohon daftar isi yang dikirim ke klien bertambah (522 baris, masing-masing dengan judul Indonesia). Judul Indonesia ikut gaya prompt v2; bila T-17/tinjauan menemukan pola salah, buat v3 dan kirim ulang dalam pagu baru. Kunci memo daftar isi pembaca = meta korpus + sidik daftar kurasi.
+**Konsekuensi:** pohon daftar isi yang dikirim ke klien bertambah (522 baris, masing-masing dengan judul Indonesia; tetap terkirim satu kali di data RSC). Diukur di j1/200: HTML Preview PR #116 (`ihya-v8`) **350.864 byte / 60.980 gzip** vs produksi `ihya-v7` 253.739 / 40.516 (+38% / +50%); usul untuk sesi kinerja LCP: pohon daftar isi dimuat malas (per kitab atau sesudah halaman tampil). Judul Indonesia ikut gaya prompt v2; bila T-17/tinjauan menemukan pola salah, buat v3 dan kirim ulang dalam pagu baru. Kunci memo daftar isi pembaca = meta korpus + sidik daftar kurasi.
 
 **Tinjau ulang bila:** ada tinjauan manusia atas judul (label per status), kitab kedua masuk, atau ukuran HTML/LCP halaman baca naik berarti karena pohon daftar isi.
 

@@ -224,9 +224,9 @@ Setiap butir dibuktikan dengan perintah atau tangkapan layar; angka "sebelum" da
 - [x] Teks Arab tidak berubah: tes yang ada (verifikasi kutipan, QA korpus) tetap lolos, dan tidak ada string Arab baru di `apps/web` selain dari DB (`rg` atas diff). *Bukti: `pnpm verify` lolos (termasuk tes verifikasi kutipan core/MCP); grep Arab atas `git diff origin/main...HEAD -- apps/web`: tidak ada string Arab di kode yang tampil, hanya komentar penanda (١) dan data tes buatan; berkas `data/` yang di-commit tanpa huruf Arab; tes round-trip seluruh daftar kurasi + 450 paragraf syair = `text_raw` byte demi byte.*
 
 **Bagian B**
-- [ ] Daftar isi pembaca menampilkan subjudul *bayan*; jumlah kitab tanpa subbab turun dari 19 ke ≤ 6 (6 kitab tanpa calon *bayan*; hitung dari data pohon). Daftar isi MCP dan routing Jawab tidak berubah (`get_table_of_contents` = 313 node, tes kontrak MCP lolos).
-- [ ] Semua 313 node (dan subjudul, bila dipilih) punya judul Indonesia berlabel AI dengan model + versi prompt + tanggal; biaya aktual ≤ pagu yang diizinkan (dicatat di LOG).
-- [ ] Breadcrumb, `<title>`, dan metadata/OG halaman baca tidak memuat judul Indonesia tanpa label (cek HTML Preview j1/200); judul Indonesia di daftar isi dan kepala halaman berlabel "Terjemahan AI".
+- [x] Daftar isi pembaca menampilkan subjudul *bayan*; jumlah kitab tanpa subbab turun dari 19 ke ≤ 6 (6 kitab tanpa calon *bayan*; hitung dari data pohon). Daftar isi MCP dan routing Jawab tidak berubah (`get_table_of_contents` = 313 node, tes kontrak MCP lolos). *Bukti: unit pohon pembaca atas `ihya-v8` (`titleUnits`, logika sama dengan `readerToc`): 209 subjudul, kitab tanpa anak **6 dari 40** (anak node saja: 19). Browser lokal j3/202: kitab Dzamm ad-Dunya (tanpa subbab di korpus) → subjudul "Penjelasan tercelanya dunia" dst. bertaut `#p13553`, `#p13653`, …; e2e `reader-x04b` (subjudul `#p13553` di pohon samping). `getToc` atas `ihya-v8` lokal = **313 node**, field node tidak bertambah (tanpa judul Indonesia); `git diff origin/main` kosong untuk `apps/mcp`, `apps/api`, `packages/llm/src/jawab`; tes MCP ikut `pnpm verify`.*
+- [x] Semua 313 node (dan subjudul, bila dipilih) punya judul Indonesia berlabel AI dengan model + versi prompt + tanggal; biaya aktual ≤ pagu yang diizinkan (dicatat di LOG). *Bukti: `pnpm ingest ihya` → invarian "Judul daftar isi Indonesia … 522/522 (100,00%): node 313, subjudul 209"; baris `toc_title_translation`/`subheading_translation` berisi `claude-sonnet-5-5`, `translate-toc-title@2`, `created_at` 2026-10-21, `ai_generated`; label di kepala pohon menyebut model, versi prompt, dan tanggal. Biaya aktual **US$0,4117** (10 request, `toc-title-runs.jsonl`) ≤ pagu US$1.*
+- [x] Breadcrumb, `<title>`, dan metadata/OG halaman baca tidak memuat judul Indonesia tanpa label (cek HTML Preview j1/200); judul Indonesia di daftar isi dan kepala halaman berlabel "Terjemahan AI". *Bukti (HTML `pr-116.surau.org/kitab/ihya/1/200`, staging = `ihya-v8`): `<title>` dan `og:title` = "القسم الثاني ما يتكرر بتكرر الأسابيع · Ihya' 'Ulum ad-Din j. 1 h. 200 · Surau" (judul Arab dari DB); JSON-LD breadcrumb tidak memuat judul Indonesia bagian itu ("Bagian Kedua: Yang berulang dengan berulangnya pekan"); kepala halaman = judul Indonesia + lencana "Terjemahan AI" + judul Arab; kepala pohon daftar isi = satu catatan "Terjemahan AI" dengan Claude Sonnet 5.5, `translate-toc-title@2`, 21 Oktober 2026. e2e `reader-x04b` memeriksa hal yang sama di j3/202.*
 - [ ] `ihya-v8` di produksi atas izin, `corpus:qa` 30/30, eval retrieval `--gate` hit@10 tidak turun dari `ihya-v7` (100%).
 
 **T-17 tahap 3**
@@ -235,7 +235,7 @@ Setiap butir dibuktikan dengan perintah atau tangkapan layar; angka "sebelum" da
 - [ ] Hasil penilai manusia + interval Wilson + keputusan menurut aturan tercatat di LOG dan TUGAS-PEMILIK (boleh menyusul sesudah sesi).
 
 **Umum**
-- [x] ADR baru, STATUS, LOG, FASE, dan file sesi ini diperbarui. *(Bagian A: ADR-074–076, STATUS, LOG, FASE, STACK, TUGAS-PEMILIK T-17; bagian B menyusul.)*
+- [x] ADR baru, STATUS, LOG, FASE, dan file sesi ini diperbarui. *(Bagian A: ADR-074–076, STATUS, LOG, FASE, STACK, TUGAS-PEMILIK T-17. Bagian B: ADR-077, ADR-078, STATUS, LOG, FASE, STACK, file ini.)*
 
 ## Di luar cakupan
 
