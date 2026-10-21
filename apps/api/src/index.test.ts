@@ -3,7 +3,9 @@
 // hasil dicocokkan dengan DB; teks Arab tidak pernah berasal dari model.
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env } from "cloudflare:workers";
+import { takhrijLabel } from "@surau/core";
 import { ANSWER_NOT_FOUND, MODELS, runJawab } from "@surau/llm";
+import { TAKHRIJ_TERMS_VERSION } from "@surau/text";
 import { beforeAll, beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 import {
@@ -203,7 +205,61 @@ describe("jawaban terverifikasi", () => {
     }
   });
 
-  test("klaim status hadits dari sitasi catatan kaki takhrij", async () => {
+  test("klaim status hadits dari sitasi catatan kaki takhrij: status = label kode, bukan kalimat model (X06)", async () => {
+    // Takhrij BUATAN untuk tes ini (bukan teks kitab); fixture bersama dipulihkan sesudahnya.
+    const TAKHRIJ = "(١) حديث تجريبي رواه فلان بإسناد ضعيف";
+    const setFoot = (text: string) =>
+      env.CORPUS_DB.prepare("UPDATE passage SET text_raw = ? WHERE id = ?")
+        .bind(text, PASSAGES.foot1)
+        .run();
+    await setFoot(TAKHRIJ);
+    try {
+      const { ask } = setup((_n, docs) => ({
+        blocks: [
+          {
+            text: "Al-Ghazali menukil sebuah hadits.",
+            cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+          },
+          {
+            text: " Status hadits: sanad sahih sekali.",
+            cite: [{ doc: docIndex(docs, TAKHRIJ), from: 0, to: 1 }],
+          },
+        ],
+      }));
+      const { result } = final((await ask()).events);
+      expect(result.outcome).toBe("answer");
+      const foot = result.citations.find((c) => c.kind === "foot")!;
+      expect(await dbSlice(foot.passage_id, foot.char_start, foot.char_end)).toBe(TAKHRIJ);
+      const label = takhrijLabel(TAKHRIJ);
+      expect(label.text).toBe("takhrij menyebut: lemah");
+      expect(result.hadith).toEqual([
+        {
+          passage_id: PASSAGES.body1,
+          footnote: {
+            passage_id: PASSAGES.foot1,
+            char_start: foot.char_start,
+            char_end: foot.char_end,
+          },
+          status: label.text,
+          label: "rule_extracted",
+          rules_version: TAKHRIJ_TERMS_VERSION,
+          mixed: false,
+          terms: label.terms.map((t) => ({
+            ...t,
+            char_start: t.char_start + foot.char_start,
+            char_end: t.char_end + foot.char_start,
+          })),
+        },
+      ]);
+      // Kalimat status model diganti teks label; "sahih" tulisan model tidak tampil.
+      expect(result.text).toContain("Status hadits: takhrij menyebut: lemah (hadits di ");
+      expect(result.text).not.toContain("sahih");
+    } finally {
+      await setFoot(FOOT_1);
+    }
+  });
+
+  test("catatan kaki yang bukan takhrij tidak mendukung status hadits (X06)", async () => {
     const { ask } = setup((_n, docs) => ({
       blocks: [
         {
@@ -217,21 +273,8 @@ describe("jawaban terverifikasi", () => {
       ],
     }));
     const { result } = final((await ask()).events);
-    expect(result.outcome).toBe("answer");
-    const foot = result.citations.find((c) => c.kind === "foot")!;
-    expect(await dbSlice(foot.passage_id, foot.char_start, foot.char_end)).toBe(FOOT_1);
-    expect(result.hadith).toEqual([
-      {
-        passage_id: PASSAGES.body1,
-        footnote: {
-          passage_id: PASSAGES.foot1,
-          char_start: foot.char_start,
-          char_end: foot.char_end,
-        },
-        status: "sanad lemah",
-        label: "ai_extracted",
-      },
-    ]);
+    expect(result.hadith).toEqual([]);
+    expect(result.text).not.toContain("sanad lemah");
   });
 
   test("status hadits tanpa takhrij tersitasi tidak pernah tampil (aturan teks-arab no. 6)", async () => {

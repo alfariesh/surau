@@ -2,10 +2,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { JawabResult } from "../../lib/tanya/model";
-import { AnswerView } from "./answer-view";
+import { AnswerView, HadithTerms } from "./answer-view";
 
 // Render server: blok bersitasi vs tanpa sitasi, kartu kutipan (teks Arab dimuat terpisah dari
-// /api/kutipan, jadi saat render awal belum ada), status hadits diekstrak AI + tanda lemah, keadaan
+// /api/kutipan, jadi saat render awal belum ada), status hadits dari label istilah takhrij + tanda lemah, keadaan
 // fallback/not_found menampilkan hasil Cari. Teks di sini buatan (bukan teks kitab).
 const base: JawabResult = {
   outcome: "answer",
@@ -40,8 +40,11 @@ const base: JawabResult = {
     {
       passage_id: 10,
       footnote: { passage_id: 11, char_start: 0, char_end: 9 },
-      status: "sanadnya lemah",
-      label: "ai_extracted",
+      status: "takhrij menyebut: lemah",
+      label: "rule_extracted",
+      rules_version: 1,
+      mixed: false,
+      terms: [{ kind: "daif", char_start: 2, char_end: 9, gloss: "lemah" }],
     },
   ],
   search: [],
@@ -51,7 +54,7 @@ const base: JawabResult = {
 };
 
 describe("AnswerView", () => {
-  it("jawaban: penanda sitasi, blok tanpa sitasi redup, status hadits AI tanpa tanda dari ringkasan", () => {
+  it("jawaban: penanda sitasi, blok tanpa sitasi redup, status hadits berlabel otomatis tanpa tanda dari ringkasan", () => {
     const html = renderToStaticMarkup(
       <AnswerView question="Apa itu sabar?" result={base} cached={false} />,
     );
@@ -64,7 +67,8 @@ describe("AnswerView", () => {
     // Urutan judul: judul pertama di hasil adalah h2 "Jawaban" (bukan h3 Card.Title).
     expect(html.match(/<h[1-6]\b[^>]*>/u)?.[0]).toMatch(/^<h2/u);
     expect(html).toMatch(/<h2[^>]*>Jawaban<\/h2>/u);
-    expect(html).toContain("diekstrak AI");
+    expect(html).toContain("dikenali otomatis dari teks takhrij");
+    expect(html).toContain("takhrij menyebut: lemah");
     // Tanpa teks takhrij dari DB (dimuat sesudah render), tidak ada tanda kelemahan dari ringkasan AI.
     expect(html).not.toContain("istilah kelemahan");
     expect(html).toContain('id="kutipan-2"');
@@ -117,5 +121,47 @@ describe("AnswerView", () => {
     );
     expect(nf).toContain("Tidak ditemukan di kitab yang dicakup");
     expect(nf).toContain('href="/kitab/ihya/2/3#p4"');
+  });
+});
+
+describe("status hadits X06", () => {
+  it("bentuk lama dari API sebelum X06 (tanpa terms/mixed) tidak merusak tampilan", () => {
+    const old = {
+      ...base,
+      hadith: [
+        {
+          passage_id: 10,
+          footnote: { passage_id: 11, char_start: 0, char_end: 9 },
+          status: "sanadnya lemah",
+          label: "ai_extracted" as const,
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(
+      <AnswerView question="Apa itu sabar?" result={old} cached={false} />,
+    );
+    expect(html).toContain("diekstrak AI");
+    expect(html).not.toContain("dikenali otomatis");
+  });
+
+  it("istilah takhrij: frasa Arab disalin dari teks DB lewat rentang, plus arti; tanpa istilah → kosong", () => {
+    // Teks takhrij BUATAN (bukan teks kitab), potongan mulai offset 0.
+    const text = "رواه فلان بإسناد ضعيف";
+    const html = renderToStaticMarkup(
+      <HadithTerms
+        text={text}
+        footnoteStart={0}
+        terms={[
+          { kind: "daif", char_start: 10, char_end: 21, gloss: "lemah" },
+          { kind: "daif", char_start: 10, char_end: 21, gloss: "lemah" },
+          { kind: "sahih", char_start: 30, char_end: 40, gloss: "sahih" },
+        ]}
+      />,
+    );
+    expect(html).toContain("بإسناد ضعيف");
+    expect(html).toContain("lemah");
+    expect(html.match(/<li/gu)).toHaveLength(1);
+    expect(html).not.toContain("sahih");
+    expect(renderToStaticMarkup(<HadithTerms text={text} footnoteStart={0} terms={[]} />)).toBe("");
   });
 });

@@ -1,7 +1,12 @@
-import { answerPassages, ayahPlaceholderPattern, ipKey, ipNetwork } from "@surau/core";
+import {
+  answerPassages,
+  ayahPlaceholderPattern,
+  ipKey,
+  ipNetwork,
+  takhrijLabel,
+} from "@surau/core";
 import type { AnswerPassage } from "@surau/core";
 import type { D1Db } from "@surau/db";
-import { takhrijHasWeakTerms } from "@surau/text";
 
 // GET /api/kutipan (S21): teks kutipan untuk kartu sitasi /tanya. Hasil Jawab hanya memuat
 // `{passage_id, char_start, char_end}` (ADR-064); teks Arab di kartu DISALIN KODE dari `text_raw` DB
@@ -9,7 +14,8 @@ import { takhrijHasWeakTerms } from "@surau/text";
 // berlabel; placeholder ayat `⟦QS s:a⟧` ditampilkan sebagai rujukan saja (ayat tidak diterjemahkan
 // model, no. 9; terjemahan Kemenag ada di pembaca). Tanpa data pengguna: kueri hanya ID + offset.
 // Catatan kaki takhrij diberi `weak` bila teks lengkapnya (DB) memuat istilah kelemahan/tanpa asal
-// (`takhrijHasWeakTerms`, docs/05 §4): tanda peringatan dari teks sumber, bukan dari ringkasan AI.
+// (`takhrijLabel(...).weak`, docs/05 §4; sejak X06 dari istilah yang sama dengan label status,
+// bagian lafaz hadits tidak dipindai): tanda peringatan dari teks sumber, bukan dari ringkasan AI.
 
 export const KUTIPAN_MAX_RANGES = 20;
 const SPAN_MAX = 2000;
@@ -111,7 +117,7 @@ export async function handleKutipan(request: Request, deps: KutipanDeps): Promis
               review_status: p.translation.review_status,
               text: ayahRefsOnly(p.translation.text),
             },
-      weak: p.kind === "foot" && takhrijHasWeakTerms(p.text_raw),
+      weak: p.kind === "foot" && takhrijLabel(p.text_raw).weak,
     };
   });
   // Isi = fungsi ID + offset atas korpus yang ID-nya stabil (ADR-059): aman di-cache singkat.

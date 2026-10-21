@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { displayText, kutipanQuery, parseSseFrame, readSse } from "./model";
+import { displayText, kutipanQuery, parseSseFrame, readSse, termPhrase } from "./model";
 
 const RESULT = {
   outcome: "answer",
@@ -70,5 +70,15 @@ describe("tampilan", () => {
       char_end: i + 1,
     }));
     expect(kutipanQuery([...spans, spans[0]!]).split(",")).toHaveLength(20);
+  });
+});
+
+describe("termPhrase", () => {
+  it("frasa istilah disalin dari potongan takhrij DB lewat rentang relatif; di luar potongan → null", () => {
+    // Teks buatan (bukan teks kitab); potongan catatan kaki mulai offset 3.
+    const text = "رواه فلان بإسناد ضعيف";
+    expect(termPhrase(text, 3, { char_start: 13, char_end: 24 })).toBe("بإسناد ضعيف");
+    expect(termPhrase(text, 3, { char_start: 1, char_end: 5 })).toBeNull();
+    expect(termPhrase(text, 3, { char_start: 20, char_end: 40 })).toBeNull();
   });
 });

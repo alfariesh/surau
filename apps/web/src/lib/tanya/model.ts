@@ -18,11 +18,27 @@ export interface JawabBlock {
   citations: number[];
 }
 
+/** Istilah di teks takhrij: rentang mentah di catatan kaki + arti baku (X06). */
+export interface JawabHadithTerm {
+  kind: string;
+  char_start: number;
+  char_end: number;
+  gloss: string;
+}
+
 export interface JawabHadith {
   passage_id: number;
   footnote: { passage_id: number; char_start: number; char_end: number };
+  /** Teks status dari istilah takhrij, dibuat kode (bukan tulisan model). */
   status: string;
-  label: "ai_extracted";
+  /**
+   * `rule_extracted` sejak X06; `ai_extracted` = bentuk lama (API sebelum X06, mis. staging yang
+   * melayani Preview dari `main`), tanpa `mixed`/`terms`.
+   */
+  label: "rule_extracted" | "ai_extracted";
+  rules_version?: number;
+  mixed?: boolean;
+  terms?: JawabHadithTerm[];
 }
 
 export interface JawabSearchHit {
@@ -164,3 +180,18 @@ export function kutipanQuery(
 
 export const spanKey = (s: { passage_id: number; char_start: number; char_end: number }) =>
   `${s.passage_id}:${s.char_start}:${s.char_end}`;
+
+/**
+ * Frasa Arab satu istilah, disalin dari teks takhrij DB (`text` = potongan catatan kaki mulai
+ * `footnoteStart`) lewat rentangnya; null bila di luar potongan itu.
+ */
+export function termPhrase(
+  text: string,
+  footnoteStart: number,
+  term: { char_start: number; char_end: number },
+): string | null {
+  const start = term.char_start - footnoteStart;
+  const end = term.char_end - footnoteStart;
+  if (start < 0 || end > text.length || end <= start) return null;
+  return text.slice(start, end);
+}

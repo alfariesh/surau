@@ -136,7 +136,10 @@ const withoutNotices = (line: string) =>
   NOTICES.reduce((acc, n) => acc.replaceAll(n, " ".repeat(n.length)), line);
 
 export interface HadithStatement {
-  /** Status ringkas berbahasa Latin, ≤120 karakter (label AI, `ai_extracted`): isi KALIMAT itu saja. */
+  /**
+   * Isi KALIMAT itu saja, ringkas (≤120 karakter). Sejak X06 tidak lagi menjadi status yang tampil:
+   * status klaim dibuat kode dari istilah takhrij (`takhrijLabel`), kalimatnya diganti teks label.
+   */
   status: string;
   /**
    * Awal rentang penggantian: awalan "Status hadits:" (termasuk penanda Markdown yang menempel)
@@ -157,6 +160,8 @@ export interface HadithStatement {
   group: number;
   /** Pernyataan model sendiri berbunyi "belum/tidak diketahui": penggantinya tetap "belum diketahui". */
   unknown: boolean;
+  /** Rentang penggantian dimulai di awalan "Status hadits:" (bukan kalimat butir/lanjutan). */
+  prefixed: boolean;
 }
 
 const SP = "[ \\t\\u00A0]";
@@ -443,6 +448,7 @@ export function hadithStatements(text: string): HadithStatement[] {
         ownEnd: s.ownEnd,
         group,
         unknown: UNKNOWN_STATEMENT.test(status),
+        prefixed: start !== from,
       });
   };
   const prefixes = [...text.matchAll(prefixRe("giu"))]
