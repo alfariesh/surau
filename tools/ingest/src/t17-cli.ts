@@ -189,7 +189,7 @@ h1{font-size:1.4rem}h2{font-size:1rem;margin:0 0 6px}a{color:var(--accent)}
 .id{margin:0 0 8px}.ayah{background:var(--ayah);border-radius:4px;padding:1px 4px;font-size:.92em}
 fieldset{border:1px solid var(--line);border-radius:10px;padding:8px 12px}legend{font-size:.85rem;color:var(--muted)}
 fieldset label{margin-inline-end:14px;white-space:nowrap}.cats{font-size:.85rem;color:var(--muted);margin:6px 0}
-.note{display:block;font-size:.85rem;color:var(--muted)}textarea{width:100%;font:inherit;color:inherit;background:transparent;border:1px solid var(--line);border-radius:6px}
+.note{display:block;font-size:.85rem;color:var(--muted)}textarea{display:block;box-sizing:border-box;margin-top:4px;width:100%;font:inherit;color:inherit;background:transparent;border:1px solid var(--line);border-radius:6px}
 .bar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;z-index:1}
 button{font:inherit;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
 .muted{color:var(--muted);font-size:.9rem}
