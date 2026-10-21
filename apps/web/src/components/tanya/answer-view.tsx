@@ -19,8 +19,8 @@ import { useEffect, useState } from "react";
 import { tanyaText as t } from "../../i18n/tanya";
 import type { KutipanItem } from "../../lib/kutipan-handler";
 import type { JawabCitation, JawabResult, JawabSearchHit } from "../../lib/tanya/model";
-import { displayText, kutipanQuery, spanKey } from "../../lib/tanya/model";
-import { ArabicText } from "../arabic";
+import { displayText, kutipanQuery, spanKey, termPhrase } from "../../lib/tanya/model";
+import { ArabicInline, ArabicText } from "../arabic";
 
 // Tampilan hasil Jawab (S21). Teks Indonesia dari model tampil sebagai teks biasa per blok: blok
 // bersitasi diberi penanda [n], blok tanpa sitasi redup (ADR-064 butir 5). Kutipan Arab SELALU dari
@@ -146,6 +146,43 @@ function CitationCard({ c, item }: { c: JawabCitation; item: KutipanItem | null 
   );
 }
 
+/** Istilah takhrij: frasa Arab disalin dari teks DB lewat rentangnya, plus arti bakunya. */
+export function HadithTerms({
+  text,
+  footnoteStart,
+  terms,
+}: {
+  text: string;
+  footnoteStart: number;
+  terms: NonNullable<JawabResult["hadith"][number]["terms"]>;
+}) {
+  const rows = [
+    ...new Map(
+      terms.flatMap((term) => {
+        const phrase = termPhrase(text, footnoteStart, term);
+        return phrase === null ? [] : [[`${phrase}|${term.gloss}`, { phrase, gloss: term.gloss }]];
+      }) as [string, { phrase: string; gloss: string }][],
+    ).values(),
+  ];
+  if (rows.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1">
+      <Typography type="body-xs" color="muted">
+        {t.hadithTerms}
+      </Typography>
+      <ul className="flex flex-col gap-1">
+        {rows.map((r) => (
+          <li key={`${r.phrase}|${r.gloss}`}>
+            <Typography type="body-sm">
+              <ArabicInline>{r.phrase}</ArabicInline> — {r.gloss}
+            </Typography>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutipan | null }) {
   if (result.hadith.length === 0) return null;
   const citeOf = (f: JawabResult["hadith"][number]["footnote"]) =>
@@ -169,7 +206,7 @@ function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutip
               <div className="flex flex-wrap items-center gap-2">
                 <Typography type="body-sm">{h.status}</Typography>
                 <Chip size="sm" variant="soft">
-                  {t.hadithAi}
+                  {h.label === "rule_extracted" ? t.hadithRule : t.hadithAi}
                 </Chip>
                 {item?.weak ? (
                   <Chip size="sm" variant="soft" color="danger">
@@ -177,12 +214,22 @@ function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutip
                   </Chip>
                 ) : null}
               </div>
+              {h.mixed === true ? (
+                <Typography type="body-sm" color="muted">
+                  {t.hadithMixed}
+                </Typography>
+              ) : null}
               {item === undefined ? null : item === null ? (
                 <Typography type="body-sm" color="muted">
                   {t.quoteMissing}
                 </Typography>
               ) : (
                 <div className="flex flex-col gap-1">
+                  <HadithTerms
+                    text={item.text}
+                    footnoteStart={h.footnote.char_start}
+                    terms={h.terms ?? []}
+                  />
                   <Typography type="body-xs" color="muted">
                     {t.takhrijText}
                   </Typography>
@@ -191,7 +238,7 @@ function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutip
               )}
               {c ? (
                 <a className="text-accent text-sm underline" href={`#kutipan-${c.n}`}>
-                  {t.hadithSource} [{c.n}]
+                  {t.hadithSource} [{c.n}] · {c.label}
                 </a>
               ) : null}
             </li>

@@ -30,7 +30,11 @@ export const tanyaText = {
   citationLink: (n: number) => `Kutipan ${n}`,
   sourcesHeading: "Kutipan",
   hadithHeading: "Status hadits",
+  hadithRule: "dikenali otomatis dari teks takhrij, belum ditinjau",
   hadithAi: "diekstrak AI",
+  hadithMixed:
+    "Takhrij menyebut penilaian yang berbeda untuk jalur atau lafaz yang berbeda. Baca teks takhrijnya.",
+  hadithTerms: "Istilah di teks takhrij",
   takhrijWeak: "Takhrij memuat istilah kelemahan",
   takhrijWeakNote:
     "Teks takhrij ini memuat istilah lemah, palsu, tidak ada asalnya, atau sanad yang tidak ditemukan. Istilah itu dikenali otomatis dari kata kuncinya: bisa hanya mengenai satu jalur, atau kebetulan muncul di lafaz hadits yang dikutip. Baca teks takhrijnya sebelum memakai hadits ini.",

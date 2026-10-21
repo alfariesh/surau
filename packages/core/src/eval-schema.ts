@@ -62,7 +62,8 @@ export const evalAnswer = z
     text: latin(20000),
     refused: z.boolean(),
     citations: z.array(sourceSpan).max(20),
-    hadith: z.array(hadithGold).max(5),
+    // Sejak X06 setiap takhrij yang disitasi mendapat klaim (struktur), jadi batasnya = sitasi.
+    hadith: z.array(hadithGold).max(20),
     model: z.string().min(1).max(80),
     prompt_version: z.string().min(1).max(80),
     latency_ms: z.number().finite().nonnegative(),

@@ -27,6 +27,7 @@ import {
   judgeRequest,
 } from "./answer-judge.ts";
 import { isComplete, readSavedRoutes, replayCandidates, summarize } from "./answer-candidates.ts";
+import { replayHadith } from "./answer-hadith.ts";
 import { answerReport } from "./answer-report.ts";
 import { questionCeilingUsd, runQuestions, savedRoutesFor } from "./answer-run.ts";
 import { approvedQuestions, reviewExport, seedSql } from "./answer-review.ts";
@@ -352,6 +353,38 @@ async function main() {
     });
     return;
   }
+  if (command === "hadits") {
+    // Gratis (tanpa LLM): ulang pascaproses status hadits atas arsip run publik (X06).
+    const run = id.parse(required(values.run, "--run"));
+    const questions = new Map(
+      loadAnswerQuestions(repo, true).map(({ question }) => [question.id, question]),
+    );
+    await withCorpus(async (corpus, index) => {
+      const rows = await replayHadith(
+        corpus.db,
+        index,
+        questions,
+        join(privateDir, `${run}-diagnostik-publik.jsonl`),
+        join(privateDir, `${run}.jsonl`),
+      );
+      const sum = (k: "passed" | "total" | "claims" | "extra" | "labeled") =>
+        rows.reduce((n, r) => n + r[k], 0);
+      for (const r of rows.filter((x) => x.total > 0))
+        console.log(`${r.id} takhrij ${r.passed}/${r.total} klaim ${r.claims}`);
+      console.log(
+        JSON.stringify({
+          run,
+          takhrij: `${sum("passed")}/${sum("total")}`,
+          claims: sum("claims"),
+          claims_outside_gold: sum("extra"),
+          statements_labeled: sum("labeled"),
+          unresolved: rows.filter((r) => r.unresolved).length,
+          answers_changed: rows.filter((r) => r.changed).length,
+        }),
+      );
+    });
+    return;
+  }
   if (command === "golden") {
     const exports = readJsonl(resolve(required(values.reviews, "--reviews")), reviewExport);
     const selected = await approvedQuestions(exports, values.reviewer);
@@ -537,7 +570,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] (gratis; rute tersimpan, soal publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] (gratis; rute tersimpan, soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

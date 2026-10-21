@@ -25,6 +25,7 @@
     "db:migrate:app-staging": "wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc",
     "db:migrate:staging": "wrangler d1 migrations apply CORPUS --remote -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc",
     "eval:jawab": "node tools/eval/src/answer.ts",
+    "eval:takhrij": "node tools/eval/src/takhrij-report.ts",
     "jawab:gateway-check": "node tools/eval/src/gateway-check.ts",
     "kertas": "node scripts/kertas.mjs"
   },

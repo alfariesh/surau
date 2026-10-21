@@ -76,7 +76,7 @@ export function toEvalAnswer(r: JawabResult, opts: { savedRoute?: boolean } = {}
     refused: r.outcome === "not_found",
     citations: spans,
     hadith: r.hadith
-      .slice(0, 5)
+      .slice(0, 20)
       .map((h) => ({ passage_id: h.passage_id, footnote: h.footnote, status: h.status })),
     model: r.model ?? "none",
     // Sama dengan kunci cache Worker: versi pipeline (kandidat + pascaproses, X03) ikut tercatat,

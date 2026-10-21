@@ -74,6 +74,8 @@ Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke
 
 **X05 (2026-10-21, izin pemilik di chat):** `x05-publik-jawaban-v1` (42 soal publik) dan ulangan `x05-publik-tolak-v1` (8 soal jebakan publik), tanpa holdout; teks pertanyaan + paragraf Ihya kandidat dikirim ke Anthropic (panggilan jawaban saja). `eval:jawab answer --rute <diagnostik>` memakai ulang rute routing arsip publik, jadi tidak ada panggilan routing; arsipnya bertanda `+rute-tersimpan` dan biaya/latensinya tanpa routing. `--rute` ditolak bersama `--termasuk-privat`. Arsip di folder privat yang sama.
 
+**X06 (2026-10-21, izin pemilik di chat):** satu run publik `x06-publik-takhrij-v1` (42 soal publik, tanpa holdout, rute dari `x05-publik-jawaban-v1`; teks pertanyaan + paragraf Ihya kandidat dikirim ke Anthropic). Arsip di folder privat yang sama. `eval:jawab hadits` dan `eval:takhrij` gratis dan tidak memanggil LLM.
+
 Pemulihan holdout memakai:
 
 ```bash

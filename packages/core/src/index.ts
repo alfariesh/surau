@@ -22,6 +22,8 @@ export {
 } from "./jawab-request.ts";
 export type { JawabErrorCode, JawabRequest, JawabStatus } from "./jawab-request.ts";
 export { getHadithTakhrij } from "./takhrij.ts";
+export { TAKHRIJ_STATUS_MAX, TAKHRIJ_TERM_GLOSS, takhrijLabel } from "./takhrij-label.ts";
+export type { TakhrijLabel, TakhrijLabelTerm } from "./takhrij-label.ts";
 export { answerPassages, answerToc } from "./answer-context.ts";
 export type { AnswerPassage, AnswerTocNode } from "./answer-context.ts";
 export {
