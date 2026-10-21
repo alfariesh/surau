@@ -46,6 +46,8 @@
 @import "@heroui/styles/components/textarea.css" layer(components);
 @import "@heroui/styles/components/card.css" layer(components);
 @import "@heroui/styles/components/separator.css" layer(components);
+@import "@heroui/styles/components/avatar.css" layer(components);
+@import "@heroui/styles/components/avatar-group.css" layer(components);
 @import "@heroui/styles/components/modal.css" layer(components);
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
@@ -59,6 +61,8 @@
 @import "@heroui/styles/variants";
 
 @import "@heroui-pro/react/css/components/app-layout.css" layer(components);
+@import "@heroui-pro/react/css/components/chat-message-actions.css" layer(components);
+@import "@heroui-pro/react/css/components/chat-message.css" layer(components);
 @import "@heroui-pro/react/css/components/cell-select.css" layer(components);
 @import "@heroui-pro/react/css/components/cell-switch.css" layer(components);
 @import "@heroui-pro/react/css/components/cell-slider.css" layer(components);
@@ -68,8 +72,10 @@
 @import "@heroui-pro/react/css/components/native-select.css" layer(components);
 @import "@heroui-pro/react/css/components/navbar.css" layer(components);
 @import "@heroui-pro/react/css/components/sheet.css" layer(components);
+@import "@heroui-pro/react/css/components/prompt-input.css" layer(components);
 @import "@heroui-pro/react/css/components/resizable.css" layer(components);
 @import "@heroui-pro/react/css/components/segment.css" layer(components);
+@import "@heroui-pro/react/css/components/text-shimmer.css" layer(components);
 @import "@heroui-pro/react/css/components/widget.css" layer(components);
 @import "@heroui-pro/react/css/components/sidebar.css" layer(components);
 
@@ -857,4 +863,19 @@ html[data-translation="off"] .passage-translation {
   font-size: 0.8em;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* Teks tahap Tanya (TextShimmer HeroUI Pro, ADR-072): bawaannya teks dasar 45% tinta (2,84:1 di kertas,
+ * di bawah AA); dinaikkan ke 70% supaya tetap terbaca, sorotan yang bergerak tetap penuh. Tanpa gerak,
+ * HeroUI sudah menampilkan teks penuh. */
+@media (prefers-reduced-motion: no-preference) {
+  .tanya-stage .text-shimmer__text {
+    color: oklch(from currentColor l c h / calc(alpha * 0.7));
+  }
+}
+
+/* Tanya (ADR-073): hilal di keadaan kosong berpindah ke orb balasan pertama lewat View Transitions. */
+::view-transition-group(tanya-orb) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }

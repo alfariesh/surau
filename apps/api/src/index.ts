@@ -5,7 +5,13 @@
 // → kuota harian → cache → reservasi anggaran → pipeline (ulangan Sonnet direservasi terpisah) →
 // komit biaya aktual. Log tanpa teks pertanyaan, tanpa IP, tanpa ID anon.
 import type Anthropic from "@anthropic-ai/sdk";
-import { JAWAB_BODY_MAX_BYTES, TAKHRIJ_TERMS_VERSION, jawabRequest } from "@surau/core";
+import {
+  JAWAB_BODY_MAX_BYTES,
+  TAKHRIJ_TERMS_VERSION,
+  evalHash,
+  jawabRequest,
+  parseUstadzKeys,
+} from "@surau/core";
 import type { JawabRequest, JawabStatus } from "@surau/core";
 import {
   EMPTY_LEDGER_USAGE,
@@ -198,21 +204,32 @@ export function unknownProviderCost(r: JawabResult): { model: ModelId; micro: nu
   return { model: pe.model, micro: toMicro(usd * (1 + ANTHROPIC_MAX_RETRIES)) };
 }
 
+/** Selisih jam antar-Worker (web menulis tinjauan, api menulis cache): tinjauan sekitar waktu cache = basi. */
+const REVIEW_CLOCK_SKEW_MS = 5_000;
+
 /**
- * Hasil cache yang masih boleh disajikan (X07): bila tinjauan label salah satu takhrij yang diklaimnya
- * berubah sesudah jawaban di-cache, label di hasil itu bisa usang ("ditinjau ustadz" yang sudah
- * dikoreksi), jadi tidak disajikan dan pipeline dijalankan ulang (hasil baru menimpa cache).
- * Galat DB = anggap basi.
+ * Hasil cache yang masih boleh disajikan (X07): bila tinjauan label (oleh ustadz peninjau
+ * terdaftar) salah satu takhrij yang diklaimnya berubah sesudah jawaban di-cache, label di hasil
+ * itu bisa usang ("ditinjau ustadz" yang sudah dikoreksi), jadi tidak disajikan dan pipeline
+ * dijalankan ulang (hasil baru menimpa cache). Galat DB = anggap basi (`onError` mencatat namanya).
  */
 export async function freshCachedResult(
   db: D1Db,
   resultJson: string,
   createdAt: string,
+  ustadzKeys: ReadonlySet<string>,
+  onError: (error: unknown) => void = () => {},
 ): Promise<PublicResult | null> {
   const result = JSON.parse(resultJson) as PublicResult;
   const footnotes = (result.hadith ?? []).map((h) => h.footnote.passage_id);
   if (footnotes.length === 0) return result;
-  const changed = await takhrijReviewsChangedSince(db, footnotes, createdAt).catch(() => true);
+  const since = new Date(Date.parse(createdAt) - REVIEW_CLOCK_SKEW_MS).toISOString();
+  const changed = await takhrijReviewsChangedSince(db, footnotes, since, ustadzKeys).catch(
+    (error: unknown) => {
+      onError(error);
+      return true;
+    },
+  );
   return changed ? null : result;
 }
 
@@ -421,10 +438,14 @@ export function createApp(deps: Partial<AppDeps> = {}) {
     // `built_at` ikut kunci: korpus yang dimuat ulang tanpa versi baru (staging) tidak memakai
     // sitasi lama dari cache.
     const corpusKey = `${meta.corpus_version ?? "unknown"}@${meta.built_at ?? ""}`;
+    // Daftar ustadz peninjau ikut kunci: mendaftarkan peninjau baru membuat label tertinjaunya
+    // langsung dipakai, bukan menunggu cache lama kedaluwarsa (X07).
+    const ustadzKeys = parseUstadzKeys(env.TAKHRIJ_USTADZ_KEYS);
+    const ustadzTag = (await evalHash([...ustadzKeys].sort())).slice(0, 12);
     const key = await answerCacheKey(
       question,
       corpusKey,
-      `${JAWAB_PROMPT_VERSION}+pipeline@${JAWAB_PIPELINE_VERSION}`,
+      `${JAWAB_PROMPT_VERSION}+pipeline@${JAWAB_PIPELINE_VERSION}+ustadz@${ustadzTag}`,
       await cacheKey(cfg.secret),
     );
     const cached = await getAnswerCache(env.APP_DB, key, nowIso);
@@ -432,7 +453,20 @@ export function createApp(deps: Partial<AppDeps> = {}) {
     const cachedResult =
       cached === null
         ? null
-        : await freshCachedResult(env.APP_DB, cached.result_json, cached.created_at);
+        : await freshCachedResult(
+            env.APP_DB,
+            cached.result_json,
+            cached.created_at,
+            ustadzKeys,
+            (error) =>
+              log({
+                event: "jawab_review_check_error",
+                name: error instanceof Error ? error.name : "unknown",
+              }),
+          );
+    // Cache ada tetapi tinjauan takhrijnya berubah: dijalankan ulang (biaya satu jawaban).
+    if (cached !== null && cachedResult === null)
+      log({ event: "jawab_cache_stale", environment: env.ENVIRONMENT });
     if (cached !== null && cachedResult !== null) {
       return streamSSE(c, async (stream) => {
         c.executionCtx.waitUntil(touchAnswerCache(env.APP_DB, key));
@@ -510,7 +544,10 @@ export function createApp(deps: Partial<AppDeps> = {}) {
               // Klien sudah pergi: panggilan yang sedang berjalan diselesaikan, panggilan baru tidak.
               isCancelled: () => clientGone,
               // Tinjauan label takhrij (X07) dari DB app; gagal dimuat = label kode.
-              takhrijReviews: (ids) => getTakhrijReviews(env.APP_DB, ids, TAKHRIJ_TERMS_VERSION),
+              takhrijReviews: {
+                load: (ids) => getTakhrijReviews(env.APP_DB, ids, TAKHRIJ_TERMS_VERSION),
+                ustadzKeys,
+              },
               // Ulangan Sonnet = biaya tambahan: direservasi terpisah sebelum dipanggil.
               beforeRetry: async (before) => {
                 const retry: RetryReserved = {

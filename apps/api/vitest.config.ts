@@ -26,6 +26,8 @@ export default defineConfig({
           TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
           TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
           TURNSTILE_HOSTNAMES: "surau.org",
+          // Satu kunci penilai uji terdaftar sebagai ustadz peninjau (X07); kunci lain = uji.
+          TAKHRIJ_USTADZ_KEYS: "e".repeat(64),
           AI_GATEWAY_URL:
             "https://gateway.ai.cloudflare.com/v1/0123456789abcdef0123456789abcdef/surau-gw/anthropic",
           CORPUS_MIGRATIONS: await readD1Migrations(dir("../../packages/db/migrations/corpus")),

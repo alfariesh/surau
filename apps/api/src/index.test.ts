@@ -21,7 +21,7 @@ import {
 } from "../../../packages/core/test/fixture.ts";
 import { docIndex, fakeAnthropic, readSse } from "../test/fake-anthropic.ts";
 import type { FakeAnswer, FakeRoute } from "../test/fake-anthropic.ts";
-import { ANON_HEADER, IP_HEADER, createApp } from "./index.ts";
+import { ANON_HEADER, IP_HEADER, createApp, freshCachedResult } from "./index.ts";
 import type { PublicResult } from "./index.ts";
 import { ANON_TTL_SECONDS, newAnonId, signAnon } from "./keys.ts";
 
@@ -299,12 +299,12 @@ describe("jawaban terverifikasi", () => {
       expect(first.result.hadith).toMatchObject([
         {
           label: "ustadz_corrected",
-          status: "takhrij menyebut: mursal",
+          status: "menurut peninjau: mursal",
           terms: [],
           added_terms: [{ kind: "mursal", gloss: "mursal" }],
         },
       ]);
-      expect(first.result.text).toContain("Status hadits: takhrij menyebut: mursal (hadits di ");
+      expect(first.result.text).toContain("Status hadits: menurut peninjau: mursal (hadits di ");
       // Tinjauan tidak berubah: cache disajikan.
       expect(final((await ask()).events).data).toMatchObject({ cached: true });
       const answers = sent.filter((x) => x.kind === "answer").length;
@@ -321,17 +321,40 @@ describe("jawaban terverifikasi", () => {
       expect(again.result.hadith).toMatchObject([
         { label: "ustadz_reviewed", status: label.text, added_terms: [] },
       ]);
-      // Hanya ustadz peninjau yang ditunjuk (bukan Agent QA/uji pemilik) yang dipakai Jawab.
-      await env.APP_DB.prepare("DELETE FROM takhrij_review").run();
-      await env.APP_DB.prepare("DELETE FROM answer_cache").run();
-      await saveTakhrijReview(env.APP_DB, { ...review, reviewer_name: "Agent QA" });
-      expect(final((await ask()).events).result.hadith).toMatchObject([
-        { label: "rule_extracted", status: label.text },
-      ]);
+      // Hanya ustadz peninjau terdaftar (kunci akun DAN nama) yang dipakai Jawab: nama "Anas"
+      // dari akun lain, atau akun terdaftar dengan nama uji, tidak dipakai.
+      for (const other of [{ reviewer_name: "Agent QA" }, { reviewer_key: "f".repeat(64) }]) {
+        await env.APP_DB.prepare("DELETE FROM takhrij_review").run();
+        await env.APP_DB.prepare("DELETE FROM answer_cache").run();
+        await saveTakhrijReview(env.APP_DB, { ...review, ...other });
+        expect(final((await ask()).events).result.hadith).toMatchObject([
+          { label: "rule_extracted", status: label.text },
+        ]);
+      }
     } finally {
       await env.APP_DB.prepare("DELETE FROM takhrij_review").run();
       await setFoot(FOOT_1);
     }
+  });
+
+  test("cek tinjauan untuk cache gagal = basi dan nama galatnya dicatat (X07)", async () => {
+    const errors: unknown[] = [];
+    const broken = {
+      prepare: () => {
+        throw new Error("app db");
+      },
+      batch: async () => [],
+    };
+    const keys = new Set(["e".repeat(64)]);
+    const withClaim = JSON.stringify({ hadith: [{ footnote: { passage_id: 5 } }] });
+    const at = new Date().toISOString();
+    expect(await freshCachedResult(broken, withClaim, at, keys, (e) => errors.push(e))).toBeNull();
+    expect(errors).toHaveLength(1);
+    // Tanpa klaim status atau tanpa peninjau terdaftar: tidak perlu cek DB.
+    expect(
+      await freshCachedResult(broken, JSON.stringify({ hadith: [] }), at, keys),
+    ).not.toBeNull();
+    expect(await freshCachedResult(broken, withClaim, at, new Set())).not.toBeNull();
   });
 
   test("catatan kaki yang bukan takhrij tidak mendukung status hadits (X06)", async () => {

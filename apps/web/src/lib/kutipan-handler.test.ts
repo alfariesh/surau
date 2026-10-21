@@ -1,6 +1,6 @@
 import { answerPassages, takhrijLabel, takhrijLabelHash } from "@surau/core";
 import type { AnswerPassage } from "@surau/core";
-import type { D1Db } from "@surau/db";
+import type { D1Db, TakhrijReview } from "@surau/db";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { KutipanItem } from "./kutipan-handler";
@@ -154,17 +154,25 @@ describe("GET /api/kutipan", () => {
       corpus_version: "uji",
       updated_at: "2026-10-21T00:00:00.000Z",
     };
-    const weak = async (reviews: Parameters<typeof handleKutipan>[1]["reviews"]) => {
-      const res = await handleKutipan(req("10000002:0:5"), deps({ reviews }));
+    const keys = new Set([row.reviewer_key]);
+    const weak = async (load: () => Promise<TakhrijReview[]>, ustadzKeys = keys) => {
+      const res = await handleKutipan(req("10000002:0:5"), deps({ reviews: { load, ustadzKeys } }));
       return ((await res.json()) as { items: KutipanItem[] }).items[0]?.weak;
     };
     expect(await weak(async () => [row])).toBe(false);
-    expect(await weak(async () => [{ ...row, decision: "approved", kinds: null }])).toBe(true);
+    expect(await weak(async () => [{ ...row, decision: "approved" as const, kinds: null }])).toBe(
+      true,
+    );
+    // Penilai tidak terdaftar: koreksinya tidak dipakai.
+    expect(await weak(async () => [row], new Set(["c".repeat(64)]))).toBe(true);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(
       await weak(async () => {
         throw new Error("app db");
       }),
     ).toBe(true);
+    expect(warn).toHaveBeenCalledOnce();
+    warn.mockRestore();
   });
 
   it("sliceRaw tidak memotong pasangan surrogate; ayahRefsOnly", () => {

@@ -8,7 +8,8 @@ export const takhrijReviewText = {
   how: [
     "Istilah yang disorot dikenali kode dari kata kuncinya. Arti di sampingnya adalah arti baku yang dipakai label.",
     "Setujui bila semua istilah yang disorot memang penilaian takhrij dan artinya tepat.",
-    "Koreksi bila ada istilah yang keliru (misalnya kata itu bagian dari lafaz hadits) atau ada penilaian yang terlewat. Pilih jenis istilah yang benar; teks takhrij tidak perlu diketik ulang.",
+    'Koreksi bila ada istilah yang keliru (misalnya kata itu bagian dari lafaz hadits) atau ada penilaian yang terlewat. Pilih jenis istilah yang benar; teks takhrij tidak perlu diketik ulang. Jenis yang tidak tertulis sebagai istilah di teks tampil di Jawab sebagai "menurut peninjau", bukan isi takhrij.',
+    "Koreksi berlaku per jenis istilah: bila satu jenis muncul dua kali (satu di lafaz, satu penilaian), keduanya ikut dipilih atau dibuang. Jelaskan kasus seperti ini di catatan.",
     "Pilih ragu bila perlu dibahas. Label otomatis tetap dipakai sampai ada keputusan.",
     "Keputusan ustadz peninjau dipakai Maknaz: label yang disetujui tampil sebagai ditinjau ustadz, dan koreksi menggantikan label otomatis.",
   ],
@@ -51,7 +52,9 @@ export const takhrijReviewText = {
   added: "Ditetapkan peninjau (tanpa istilah baku di teks)",
   reviewer: "Nama penilai",
   reviewerHint:
-    "Isi nama Anda sendiri. Keputusan dipakai Maknaz hanya atas nama ustadz peninjau yang ditunjuk pemilik (saat ini Anas); nama lain tersimpan sebagai uji. Penilaian uji agent diberi nama Agent QA.",
+    "Isi nama Anda sendiri dengan huruf Latin. Keputusan dipakai Maknaz hanya dari akun ustadz peninjau yang didaftarkan pemilik dengan nama Anas; nama atau akun lain tersimpan sebagai uji.",
+  notUstadz:
+    "Akun ini belum terdaftar sebagai ustadz peninjau: keputusan tersimpan, tetapi belum dipakai Maknaz. Setelah Anas menyimpan keputusan pertamanya, pemilik meminta agent mendaftarkan akunnya (T-24).",
   decision: "Keputusan",
   decisions: {
     approved: "Setujui label",
@@ -64,7 +67,8 @@ export const takhrijReviewText = {
   detected: "terdeteksi",
   preview: "Label sesudah koreksi",
   note: "Catatan (tidak tampil di Maknaz)",
-  noteHint: "Opsional. Jelaskan alasan koreksi atau keraguan. Jangan memasukkan data pribadi.",
+  noteHint:
+    "Opsional, huruf Latin (rujuk istilah dengan transliterasi). Jelaskan alasan koreksi atau keraguan. Jangan memasukkan data pribadi.",
   save: "Simpan dan lanjut",
   saved: "Keputusan tersimpan.",
   saveFailed: "Keputusan belum tersimpan. Periksa isian atau masuk ulang bila sesi berakhir.",

@@ -21,6 +21,7 @@ describe("SSE Jawab", () => {
       event: "stage",
       stage: "route",
     });
+    expect(parseSseFrame('event: stage\ndata: {"stage":"tahap-baru"}')).toBeNull();
     expect(parseSseFrame(": hb")).toBeNull();
     expect(parseSseFrame("event: done\ndata: {rusak")).toBeNull();
     expect(parseSseFrame('event: done\ndata: {"result":{"outcome":"x"}}')).toBeNull();

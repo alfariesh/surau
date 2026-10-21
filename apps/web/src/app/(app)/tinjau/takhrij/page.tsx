@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Typography } from "@heroui/react";
+import { parseUstadzKeys } from "@surau/core";
 import { getEnv } from "../../../../lib/cloudflare";
 import { reviewIdentity } from "../../../../lib/review-auth";
 import { takhrijQueue } from "../../../../lib/takhrij-queue";
@@ -22,7 +23,13 @@ export default async function TakhrijReviewPage() {
   const identity = await reviewIdentity((await headers()).get("cf-access-jwt-assertion"), env);
   if (!identity) return <ReviewDenied href="https://surau.org/tinjau/takhrij" />;
   const queue = await takhrijQueue(
-    { corpus: env.CORPUS_DB, app: env.APP_DB, identity, now: reviewNow() },
+    {
+      corpus: env.CORPUS_DB,
+      app: env.APP_DB,
+      identity,
+      now: reviewNow(),
+      ustadzKeys: parseUstadzKeys(env.TAKHRIJ_USTADZ_KEYS),
+    },
     "todo",
     0,
   );

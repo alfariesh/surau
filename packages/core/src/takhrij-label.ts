@@ -88,7 +88,11 @@ export interface TakhrijLabel {
 const SOURCES_ONLY = "takhrij hanya menyebut sumber riwayat, tanpa istilah penilaian";
 const REFERS_BACK = "takhrij merujuk ke takhrij di tempat lain";
 const NOT_TAKHRIJ = "catatan kaki ini tidak memuat istilah takhrij yang dikenali";
-const RANGE_WITHOUT_TERMS = "bagian takhrij yang dikutip tidak memuat istilah penilaian";
+/** Bagian yang disitasi tidak memuat istilah, padahal catatan kaki utuhnya memuat. */
+export const TAKHRIJ_RANGE_WITHOUT_TERMS =
+  "bagian takhrij yang dikutip tidak memuat istilah penilaian";
+const RANGE_WITHOUT_TERMS = TAKHRIJ_RANGE_WITHOUT_TERMS;
+const BY_REVIEWER = "menurut peninjau: ";
 const MIXED = " (berbeda per jalur)";
 
 /**
@@ -118,36 +122,53 @@ export function takhrijLabel(raw: string, range?: { start: number; end: number }
 
 /**
  * Teks status dari jenis istilah (urut kemunculan; duplikat diabaikan), dibuat kode. Dipakai label
- * kode dan label koreksi penilai (X07), supaya keduanya disusun dengan aturan yang sama.
+ * kode dan label koreksi penilai (X07), supaya keduanya disusun dengan aturan yang sama. `added` =
+ * jenis yang DITETAPKAN penilai tanpa istilah baku di teks: disebut terpisah sebagai "menurut
+ * peninjau: …", tidak pernah sebagai isi takhrij (bahasa atribusi, ADR-070).
  */
-export function takhrijStatus(list: readonly TakhrijTermKind[]): {
+export function takhrijStatus(
+  list: readonly TakhrijTermKind[],
+  added: readonly TakhrijTermKind[] = [],
+): {
   kind: "terms" | "sources_only" | "refers_back";
   text: string;
   mixed: boolean;
 } {
   let kinds = [...new Set(list)];
+  let extra = [...new Set(added)].filter((k) => !kinds.includes(k));
   // "muttafaq" sudah mencakup al-Bukhari dan Muslim; rujukan hanya disebut bila sendirian.
-  if (kinds.includes("muttafaq")) kinds = kinds.filter((k) => k !== "bukhari" && k !== "muslim");
+  if (kinds.includes("muttafaq") || extra.includes("muttafaq")) {
+    kinds = kinds.filter((k) => k !== "bukhari" && k !== "muslim");
+    extra = extra.filter((k) => k !== "bukhari" && k !== "muslim");
+  }
   const refersBack = kinds.includes("rujukan");
   kinds = kinds.filter((k) => k !== "rujukan");
-  if (kinds.length === 0)
+  extra = extra.filter((k) => k !== "rujukan");
+  if (kinds.length === 0 && extra.length === 0)
     return refersBack
       ? { kind: "refers_back", text: REFERS_BACK, mixed: false }
       : { kind: "sources_only", text: SOURCES_ONLY, mixed: false };
-  const mixed = kinds.some((k) => POSITIVE.has(k)) && kinds.some((k) => NEGATIVE.has(k));
-  const head = "takhrij menyebut: ";
+  const all = [...kinds, ...extra];
+  const mixed = all.some((k) => POSITIVE.has(k)) && all.some((k) => NEGATIVE.has(k));
   const tail = mixed ? MIXED : "";
   // Setiap istilah hanya masuk bila sisa ruang masih cukup untuk "; dan lainnya" sesudahnya.
   const more = "; dan lainnya";
-  let body = "";
-  for (const [i, k] of kinds.entries()) {
-    const next = body === "" ? TAKHRIJ_TERM_GLOSS[k] : `${body}; ${TAKHRIJ_TERM_GLOSS[k]}`;
-    const reserve = i < kinds.length - 1 ? more.length : 0;
-    if (head.length + next.length + tail.length + reserve > TAKHRIJ_STATUS_MAX) {
-      body += more;
+  const items = [
+    ...kinds.map((k, i) => ({ k, lead: i === 0 ? "takhrij menyebut: " : "; " })),
+    ...extra.map((k, i) => ({
+      k,
+      lead: i > 0 ? "; " : kinds.length > 0 ? `; ${BY_REVIEWER}` : BY_REVIEWER,
+    })),
+  ];
+  let text = "";
+  for (const [i, { k, lead }] of items.entries()) {
+    const next = `${text}${lead}${TAKHRIJ_TERM_GLOSS[k]}`;
+    const reserve = i < items.length - 1 ? more.length : 0;
+    if (next.length + tail.length + reserve > TAKHRIJ_STATUS_MAX) {
+      text = i === 0 ? `${lead}${more}` : `${text}${more}`;
       break;
     }
-    body = next;
+    text = next;
   }
-  return { kind: "terms", mixed, text: `${head}${body}${tail}` };
+  return { kind: "terms", mixed, text: `${text}${tail}` };
 }

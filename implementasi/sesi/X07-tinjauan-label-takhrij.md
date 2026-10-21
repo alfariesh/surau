@@ -22,10 +22,10 @@ Sejak X06 status hadits di Jawab adalah label kode dari istilah yang tertulis di
 
 ## Selesai bila
 
-- [x] Anas bisa membuka antrean di `/tinjau/takhrij` dan menyetujui/mengoreksi label (route + halaman di balik Access `Surau Tinjau` dan verifikasi JWT; diuji dengan tes route + pratinjau komponen di browser lokal desktop/ponsel/gelap; login nyata Anas tetap T-24)
-- [x] Keputusan tersimpan di DB app (`takhrij_review`, migrasi app 0005, tes D1 workerd) dan dipakai Jawab (`surau-api`: label `ustadz_reviewed`/`ustadz_corrected`, baris status ikut label tertinjau, cache basi bila tinjauan berubah; tes Worker)
+- [x] Halaman dan route antrean siap untuk penilai: `/tinjau/takhrij` di balik Access `Surau Tinjau` (produksi mengalihkan ke login Access, dicek 2026-10-21) dan verifikasi JWT; setuju/koreksi/ragu diuji lewat tes route + pratinjau komponen di browser lokal (desktop/ponsel/gelap). **Login dan tinjauan Anas sendiri belum** (T-24 butir 5), jadi "Anas bisa" belum dibuktikan oleh Anas.
+- [x] Keputusan tersimpan di DB app (`takhrij_review`, migrasi app 0005 diterapkan di produksi dan staging oleh deploy PR #108, tes D1 workerd) dan dipakai Jawab (`surau-api`: label `ustadz_reviewed`/`ustadz_corrected`, baris status ikut label tertinjau, cache basi bila tinjauan berubah; tes Worker) — sejak PR lanjutan hanya dari akun terdaftar (`TAKHRIJ_USTADZ_KEYS`, diisi sesudah keputusan pertama Anas)
 - [x] `pnpm verify` lolos
-- [ ] PR di-merge (squash) setelah CI hijau — dicentang sesudah merge
+- [x] PR di-merge (squash) setelah CI hijau: PR #108 (2026-10-21, deploy produksi sukses); perbaikan temuan peninjau di PR lanjutan
 
 ## Di luar cakupan
 
@@ -40,5 +40,6 @@ Sejak X06 status hadits di Jawab adalah label kode dari istilah yang tertulis di
 - **Label tertinjau** (`reviewedTakhrijLabel`): setuju = label kode utuh; koreksi = istilah terdeteksi yang tidak dipilih dibuang, jenis tambahan tanpa frasa (`added`), teks status disusun kode dengan aturan yang sama (`takhrijStatus`). Sitasi sebagian memakai tinjauan hanya bila memuat semua istilah yang ditinjau.
 - **Pipeline `pipeline@7`**: tinjauan dimuat dari DB app untuk catatan kaki yang dikutip (`takhrijReviews`, gagal = label kode); klaim `label` = `rule_extracted` | `ustadz_reviewed` | `ustadz_corrected` + `added_terms`; diagnostik `hadith_reviewed`, `takhrij_reviews_error`. Cache: entri yang takhrijnya ditinjau sesudah di-cache tidak disajikan (`created_at` = waktu permintaan). Tanda kelemahan `/api/kutipan` ikut label tertinjau.
 - **Antrean** (`lib/takhrij-queue.ts`): label 4.201 catatan kaki takhrij dihitung sekali per isolate per versi korpus; urut kutipan Jawab (`answer_log` tanpa contoh agent + `answer_cache` × sajian), lalu `mixed`, lalu urutan kitab; filter belum/ragu/sudah per penilai; label berubah = kembali ke "belum". Refaktor `takhrijLabel` terbukti identik atas 13.194 kombinasi (catatan kaki × rentang) korpus `ihya-v7`.
-- **Untuk sesi berikutnya:** prioritas "paling sering dikutip" di produksi baru berisi data setelah Jawab menyala atau arsip eval dimuat ke `answer_log`; tambah peninjau = PR + ADR; label MCP.
+- **Peninjau** (sesudah PR #108 ter-merge, ditutup di PR lanjutan): 0 blocker, 5 penting (gerbang nama saja → kunci akun + nama; jenis tambahan → "menurut peninjau"; istilah yang ditolak tidak muncul lagi di sitasi sebagian; sidik ikut arti + teks; holdout tidak ikut prioritas), 5 kecil (huruf Arab di nama/catatan ditolak, galat dicatat, paginasi sesudah simpan, butir "Selesai bila" dirumuskan ulang, cadangan chip), plus saran (selisih jam 5 dtk, cache hanya basi oleh penilai terdaftar, log `jawab_cache_stale`, Typography, pesan tersimpan). Karakter kontrol arah teks U+202E literal di tes diganti escape.
+- **Untuk sesi berikutnya:** daftarkan kunci akun Anas (`TAKHRIJ_USTADZ_KEYS`) sesudah keputusan pertamanya; prioritas "paling sering dikutip" di produksi baru berisi data setelah Jawab menyala atau arsip eval dimuat ke `answer_log`; tambah peninjau = PR + ADR; label MCP.
 - Biaya API sesi: US$0.
