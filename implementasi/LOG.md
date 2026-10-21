@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-21 · X05 · Rencana koreksi terjemahan oleh editor/ustadz — sebagian (rencana, menunggu pemilik)
+- Dikerjakan: rencana `implementasi/sesi/X05-koreksi-terjemahan.md` di sesi X04 atas permintaan pemilik: format teks polos + `[…]`, alur usulan → persetujuan ustadz di `/tinjau/terjemahan`, tayang lewat korpus berikutnya (teks revisi di DB app + R2 privat, git hanya metadata), label per status, editor textarea tanpa Tiptap di tahap pertama
+- Temuan: terjemahan dipakai pembaca, kartu `/cari` + `translation_fts`, MCP, kartu kutipan Tanya, dan dokumen Jawab, jadi koreksi harus lewat korpus agar semuanya sama; batch `retry` belum melindungi paragraf yang dikoreksi manusia
+- Verifikasi: pembacaan kode (`review-auth.ts`, `reviews.ts`, `search-index.ts`, `page.ts`, `documents.ts`); panjang terjemahan dari `ihya-v7` (maks 7.966 karakter, rasio maks 19×); `peninjau` → 0 blocker, 10 perbaikan (peran penyetuju lewat Access per peran, teks dasar berantai, validasi ulang saat ingest, status terikat hash, validasi terhadap teks Arab, petik tunggal, pemeriksa dipindah ke `@surau/core`, tag/tautan, uji dua identitas) sudah dimasukkan
+- Biaya API: –
+- Keputusan: – (ADR menyusul saat X05 dikerjakan)
+
 ## 2026-10-21 · X04 · Audit + rencana mutu baca pembaca Ihya — sebagian (rencana, menunggu pemilik)
 - Dikerjakan: audit pembaca produksi (j1/200, j3/202; desktop + ponsel, 7 tangkapan layar di `implementasi/sesi/bukti/X04/`), struktur korpus `ihya-v7` (read-only), dan sumber Shamela/OpenITI (read-only); rencana `implementasi/sesi/X04-mutu-baca.md` (bagian A tampilan $0, bagian B subjudul + judul daftar isi Indonesia, rancangan T-17 tahap 3, 8 pertanyaan desain); bagian X04 di `scripts/hitung_biaya.py`
 - Temuan utama: 191 dari 271 subjudul *bayan* tampil sebagai paragraf biasa (80 sudah judul node); 19/40 kitab tanpa subbab (terpanjang 70 halaman); subjudul menempel di awal paragraf tanpa penanda di sumber; terjemahan 14 px, CPL 94–113, 24 baris vs 15 baris Arab di ponsel; label "Terjemahan AI" ±16 ribu kali; takhrij ±5,7 layar dari penanda di ponsel; 207/313 judul daftar isi sudah punya terjemahan paragraf judul
