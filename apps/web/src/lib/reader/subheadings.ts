@@ -64,6 +64,11 @@ function fnv1a(text: string): string {
 /** Sidik daftar kurasi yang sedang dipakai (berubah bila berkas JSON berubah). */
 export const SUBHEADING_DIGEST = fnv1a(JSON.stringify(file));
 
+/** Semua entri daftar kurasi edisi ini (kunci = nomor jangkar `#pN`); kosong untuk edisi lain. */
+export function subheadingEntries(editionId: number): ReadonlyMap<number, SubheadingEntry> {
+  return editionId === file.edition ? entries : new Map();
+}
+
 /** Entri subjudul paragraf `#p<seq>` edisi ini, atau `undefined`. */
 export function subheadingOf(editionId: number, seq: number): SubheadingEntry | undefined {
   return editionId === file.edition ? entries.get(seq) : undefined;

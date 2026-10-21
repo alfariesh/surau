@@ -23,11 +23,17 @@ import { FOOTNOTE_NOTE } from "../../../../../../content/works";
 import { id } from "../../../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../../../lib/layout";
 import { citeParts } from "../../../../../../lib/reader/cite";
-import { loadPage, loadToc } from "../../../../../../lib/reader/data";
+import { loadPage, loadReaderToc, loadToc } from "../../../../../../lib/reader/data";
 import { buildPageModel } from "../../../../../../lib/reader/page-model";
 import { previewSample } from "../../../../../../lib/reader/preview";
 import { OPEN_GRAPH_BASE } from "../../../../../../lib/site";
-import { activeTocIds, pageSections, tocHref, tocPath } from "../../../../../../lib/reader/toc";
+import {
+  activeTocIds,
+  flattenToc,
+  pageSections,
+  tocHref,
+  tocPath,
+} from "../../../../../../lib/reader/toc";
 import { Typography } from "@heroui/react";
 
 const t = id.reader;
@@ -67,6 +73,9 @@ export default async function ReaderPage({ params }: Props) {
   const { work: rawSegment, juz: rawJuz, page: rawPage } = await params;
   const ctx = await loadPage(rawSegment, rawJuz, rawPage);
   const toc = await loadToc(rawSegment);
+  // Pohon TAMPILAN (subjudul kurasi + judul Indonesia, X04 bagian B); breadcrumb, judul tab, dan
+  // OG tetap dari `toc` (judul Arab).
+  const shown = await loadReaderToc(rawSegment);
   const { page, work, edition, segment } = ctx;
   const { juz, page_no: pageNo, permalink } = page.citation;
 
@@ -81,6 +90,12 @@ export default async function ReaderPage({ params }: Props) {
   const footNote = FOOTNOTE_NOTE[`${work.slug}/${edition.slug}`];
   const workTitle = work.title_id ?? work.title_ar;
   const bab = crumbs.at(-1)?.title ?? null;
+  const babNode = crumbs.at(-1);
+  // Judul Indonesia bagian ini hanya di kepala halaman, berlencana "Terjemahan AI" (W8).
+  const babId =
+    babNode === undefined
+      ? undefined
+      : flattenToc(shown.items).find((i) => i.kind === "node" && i.id === babNode.id)?.titleId;
   // Pratinjau huruf di panel Tampilan: awal paragraf isi pertama halaman ini (lib/reader/preview).
   const firstText = model.body.find((p) => p.heading === null);
   const sample = previewSample(
@@ -120,6 +135,17 @@ export default async function ReaderPage({ params }: Props) {
                 <span>{workTitle}</span>
                 <ArabicInline>{work.title_ar}</ArabicInline>
               </Typography>
+              {bab !== null && babId !== undefined ? (
+                <Typography type="body-sm" className="flex flex-wrap items-baseline gap-x-2">
+                  <span lang="id">
+                    {babId}
+                    <span className="ai-badge" title={t.tocTitleHint}>
+                      {t.tocTitleBadge}
+                    </span>
+                  </span>
+                  <ArabicInline>{bab}</ArabicInline>
+                </Typography>
+              ) : null}
             </div>
             <ReaderToolbar
               activeIds={activeIds}
@@ -128,7 +154,8 @@ export default async function ReaderPage({ params }: Props) {
               pagePath={permalink}
               sample={sample}
               segment={segment}
-              toc={toc}
+              titleSource={shown.titleSource}
+              toc={shown.items}
               volumes={edition.volumes ?? juz}
             />
           </header>
@@ -202,7 +229,12 @@ export default async function ReaderPage({ params }: Props) {
             >
               {t.tocHeading}
             </Typography.Heading>
-            <TocTree activeIds={activeIds} items={toc} scope={permalink} />
+            <TocTree
+              activeIds={activeIds}
+              items={shown.items}
+              scope={permalink}
+              titleSource={shown.titleSource}
+            />
           </div>
         </aside>
       </div>

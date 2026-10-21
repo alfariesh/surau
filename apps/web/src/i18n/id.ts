@@ -358,6 +358,12 @@ export const id = {
     attributionLabel: "Atribusi",
     tocHeading: "Daftar isi",
     tocLabel: "Daftar isi kitab",
+    // Judul daftar isi Indonesia (X04 W8): satu label di kepala pohon untuk semua judul Indonesia.
+    tocTitleBadge: "Terjemahan AI",
+    tocTitleHint:
+      "Judul Indonesia ini diterjemahkan otomatis oleh AI dari judul Arabnya dan belum ditinjau manusia.",
+    tocTitleNote: (models: string, prompts: string, dates: string) =>
+      `Judul Indonesia diterjemahkan AI (${models}, ${prompts}, ${dates}) dan belum ditinjau manusia; judul Arab di bawahnya adalah rujukannya.`,
     tocOpen: "Daftar isi",
     breadcrumbLabel: "Letak di kitab",
     pageHeading: (juz: number, page: number) => `Juz ${juz} · Halaman ${page}`,

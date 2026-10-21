@@ -1,8 +1,18 @@
 import { env } from "cloudflare:workers";
+import type { D1Db } from "../d1.ts";
 import { beforeAll, describe, expect, test } from "vite-plus/test";
 
-import { P1, P2, PASSAGES, T_CHILD_A, T_CHILD_B, T_ROOT, seedCorpus } from "../../test/fixture.ts";
-import { getSummariesStartingOn, getTranslations } from "./translation.ts";
+import {
+  ED,
+  P1,
+  P2,
+  PASSAGES,
+  T_CHILD_A,
+  T_CHILD_B,
+  T_ROOT,
+  seedCorpus,
+} from "../../test/fixture.ts";
+import { getSummariesStartingOn, getTranslations, listTitleTranslations } from "./translation.ts";
 
 const db = env.CORPUS;
 
@@ -19,6 +29,12 @@ beforeAll(async () => {
     db.prepare(ai("summary", "toc_node_id")).bind(T_ROOT, "id", "Ringkasan bab."),
     db.prepare(ai("summary", "toc_node_id")).bind(T_ROOT, "en", "Chapter summary."),
     db.prepare(ai("summary", "toc_node_id")).bind(T_CHILD_A, "id", "Ringkasan pasal kedua."),
+    db.prepare(ai("toc_title_translation", "toc_node_id")).bind(T_CHILD_A, "id", "Pasal Kedua"),
+    db.prepare(ai("toc_title_translation", "toc_node_id")).bind(T_ROOT, "id", "Bab Uji"),
+    db.prepare(ai("toc_title_translation", "toc_node_id")).bind(T_ROOT, "en", "Test Chapter"),
+    db
+      .prepare(ai("subheading_translation", "passage_id"))
+      .bind(PASSAGES.body2, "id", "Penjelasan uji"),
   ]);
 });
 
@@ -56,5 +72,41 @@ describe("getSummariesStartingOn", () => {
     expect((await getSummariesStartingOn(db, P2, "id")).map((r) => r.toc_node_id)).toEqual([
       T_CHILD_A,
     ]);
+  });
+});
+
+describe("listTitleTranslations", () => {
+  test("judul node + subjudul satu bahasa dan edisi, urut ID", async () => {
+    const t = await listTitleTranslations(db, ED, "id");
+    expect(t?.toc.map((r) => [r.toc_node_id, r.text])).toEqual([
+      [T_ROOT, "Bab Uji"],
+      [T_CHILD_A, "Pasal Kedua"],
+    ]);
+    expect(t?.sub.map((r) => [r.passage_id, r.text, r.model])).toEqual([
+      [PASSAGES.body2, "Penjelasan uji", "model-uji"],
+    ]);
+    expect(await listTitleTranslations(db, ED + 1, "id")).toEqual({ toc: [], sub: [] });
+  });
+
+  test("korpus lama (skema < 7) → null; galat lain di korpus baru diteruskan", async () => {
+    const fake = (schema: number): D1Db => ({
+      prepare(sql: string) {
+        const stmt = {
+          bind: () => stmt,
+          all: async () => {
+            if (sql.includes("FROM meta"))
+              return { results: [{ key: "schema_version", value: String(schema) }] };
+            throw new Error("D1_ERROR: no such table: toc_title_translation");
+          },
+          first: async () => null,
+        };
+        return stmt;
+      },
+      batch: async () => {
+        throw new Error("D1_ERROR: no such table: toc_title_translation");
+      },
+    });
+    expect(await listTitleTranslations(fake(6), ED, "id")).toBeNull();
+    await expect(listTitleTranslations(fake(7), ED, "id")).rejects.toThrow(/no such table/);
   });
 });
