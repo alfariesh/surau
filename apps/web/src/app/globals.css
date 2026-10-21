@@ -1096,6 +1096,27 @@ h3.reader-inline-subheading {
   }
 }
 
+/* Pemisah halaman sambungan gulir bersambung (X04 W6): garis tipis + "Juz 1 · Halaman 201". */
+.reader-page-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  color: var(--muted);
+}
+
+.reader-page-divider::before,
+.reader-page-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--separator);
+}
+
+.reader-page-divider-link {
+  color: inherit;
+  white-space: nowrap;
+}
+
 /*
  * "Lanjutkan membaca" (X04 W5): ruang kartu dipesan sebelum tampil bila browser punya posisi baca
  * (`data-reading` dari skrip awal), supaya kartu yang muncul sesudah hidrasi tidak menggeser isi.

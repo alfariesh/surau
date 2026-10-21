@@ -58,6 +58,7 @@ export {
   listFootnoteTexts,
   listPages,
   listTocNodes,
+  listTocNodesStartingAt,
   listWorkAuthors,
   listWorks,
   passageWithPageRow,

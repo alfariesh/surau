@@ -28,6 +28,12 @@ import { sha16, subheadingOf } from "./subheadings";
 
 const t = id.reader;
 
+/**
+ * Versi bentuk `PageModel`. Naikkan bila bentuk atau isinya berubah: ikut kunci cache /api/halaman,
+ * jadi salinan model lama tidak dipakai komponen baru.
+ */
+export const PAGE_MODEL_VERSION = "1";
+
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {
   id: number;

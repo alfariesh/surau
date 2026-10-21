@@ -3,7 +3,7 @@
 import type { TocItem } from "../../lib/reader/toc";
 
 import { Book02, Book02Duotone, ChevronRight, FileEmpty02, FileEmpty02Duotone } from "../../icons";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Collection,
@@ -15,6 +15,7 @@ import {
 
 import { id } from "../../i18n/id";
 import { ArabicInline } from "../arabic";
+import { onReaderPage } from "../../lib/reader/reader-page-event";
 import { tocHref, tocPath, tocRows } from "../../lib/reader/toc";
 
 const t = id.reader;
@@ -32,7 +33,10 @@ export function TocTree({
   activeIds?: number[];
   className?: string;
 }) {
-  const activeId = activeIds.at(-1);
+  // Gulir bersambung (X04 W6): bagian aktif mengikuti halaman yang sedang dibaca.
+  const [live, setLive] = useState<number[] | null>(null);
+  useEffect(() => onReaderPage((d) => setLive(d.activeIds)), []);
+  const activeId = (live ?? activeIds).at(-1);
   const active = useMemo(
     () => (activeId === undefined ? undefined : tocPath(items, activeId)),
     [items, activeId],

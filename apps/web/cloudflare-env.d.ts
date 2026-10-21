@@ -13,6 +13,8 @@ interface __BaseEnv_CloudflareEnv {
 	JAWAB_GLOBAL_LIMITER: RateLimit;
 	JAWAB_STATUS_LIMITER: RateLimit;
 	JAWAB_STATUS_GLOBAL_LIMITER: RateLimit;
+	PAGE_LIMITER: RateLimit;
+	PAGE_GLOBAL_LIMITER: RateLimit;
 	ASSETS: Fetcher;
 	REVIEW_ACCESS_ISSUER: string;
 	REVIEW_ACCESS_AUD: string;

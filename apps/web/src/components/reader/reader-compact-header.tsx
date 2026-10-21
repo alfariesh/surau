@@ -4,6 +4,7 @@ import { ProgressCircle } from "@heroui/react";
 import { useEffect, useState } from "react";
 
 import { id } from "../../i18n/id";
+import { onReaderPage } from "../../lib/reader/reader-page-event";
 import { ArabicInline } from "../arabic";
 import { NavbarSlot } from "../shell/navbar-slot";
 
@@ -41,10 +42,16 @@ export function ReaderCompactHeader({
 }) {
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
+  // Halaman yang sedang dibaca (gulir bersambung X04 W6 mengumumkan halaman sambungan).
+  const [at, setAt] = useState({ juz, page, bab });
+
+  useEffect(() => onReaderPage((d) => setAt({ juz: d.juz, page: d.page, bab: d.bab })), []);
 
   useEffect(() => {
     const title = document.querySelector("[data-reader-title]");
-    const text = document.querySelector(".reader-text");
+    const text =
+      document.querySelector(`.reader-text[data-page="${at.juz}/${at.page}"]`) ??
+      document.querySelector(".reader-text");
     if (title === null || text === null) return;
 
     // Batas atas = bawah navbar (4rem): judul dianggap tergulir saat masuk ke balik navbar.
@@ -71,7 +78,7 @@ export function ReaderCompactHeader({
       window.removeEventListener("scroll", schedule, { capture: true });
       window.removeEventListener("resize", schedule);
     };
-  }, []);
+  }, [at.juz, at.page]);
 
   return (
     <NavbarSlot>
@@ -93,12 +100,12 @@ export function ReaderCompactHeader({
           </ProgressCircle.Track>
         </ProgressCircle>
         <span className="text-foreground shrink-0 text-sm font-medium tabular-nums sm:text-base">
-          <span className="sm:hidden">{t.pageShort(juz, page)}</span>
-          <span className="hidden sm:inline">{t.pageHeading(juz, page)}</span>
+          <span className="sm:hidden">{t.pageShort(at.juz, at.page)}</span>
+          <span className="hidden sm:inline">{t.pageHeading(at.juz, at.page)}</span>
         </span>
-        {bab ? (
+        {at.bab ? (
           <span className="text-muted hidden min-w-0 truncate text-sm md:inline">
-            <ArabicInline>{bab}</ArabicInline>
+            <ArabicInline>{at.bab}</ArabicInline>
           </span>
         ) : null}
         <ReaderStyle iconOnly className="ms-auto shrink-0" sample={sample} />

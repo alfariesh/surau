@@ -388,6 +388,13 @@ export const id = {
     passageActions: "Aksi paragraf",
     copyPassage: "Salin sitasi paragraf",
     sharePassage: "Bagikan tautan paragraf",
+    // Gulir bersambung (X04 W6): halaman cetak berikutnya dimuat di bawah halaman ini.
+    continuedRegion: (juz: number, page: number) => `Halaman sambungan, juz ${juz} halaman ${page}`,
+    loadingNext: "Memuat halaman berikutnya…",
+    loadNext: "Muat halaman berikutnya",
+    loadNextFailed: "Halaman berikutnya gagal dimuat.",
+    loadNextRate: "Terlalu banyak permintaan dalam waktu singkat. Tunggu sebentar, lalu coba lagi.",
+    loadNextRetry: "Coba lagi",
     // Posisi baca terakhir di browser ini (X04 W5).
     continueReading: "Lanjutkan membaca",
     continueWhere: (title: string, juz: number, page: number) =>

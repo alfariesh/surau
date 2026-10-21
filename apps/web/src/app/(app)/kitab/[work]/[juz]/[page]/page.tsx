@@ -6,7 +6,7 @@ import { ArabicInline } from "../../../../../../components/arabic";
 import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-ld";
 import { AiNotice } from "../../../../../../components/reader/ai-notice";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
-import { PageNav } from "../../../../../../components/reader/page-nav";
+import { ContinuousReader } from "../../../../../../components/reader/continuous-reader";
 import { PageText } from "../../../../../../components/reader/page-text";
 import { QuranNotice } from "../../../../../../components/reader/quran-notice";
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
@@ -138,13 +138,22 @@ export default async function ReaderPage({ params }: Props) {
           <ReadingTracker title={workTitle} work={segment} />
           <PageText model={model} footNote={footNote} notice={model.anyAi ? <AiNotice /> : null} />
 
-          {/* Navigasi halaman hanya di akhir halaman (sesudah catatan kaki), seperti membalik kitab. */}
-          <div className="flex flex-col gap-2">
-            <PageNav keyboard next={page.next} prev={page.prev} />
-            <Typography type="body-xs" color="muted">
-              {t.keyboardHint}
-            </Typography>
-          </div>
+          {/* Gulir bersambung (X04 W6): halaman berikutnya dimuat di bawah saat pembaca sampai di
+              akhir halaman; navigasi halaman (dan pintasan ←/→) tetap di akhir, seperti membalik
+              kitab. */}
+          <ContinuousReader
+            first={{
+              juz,
+              page: pageNo,
+              prev: page.prev,
+              next: page.next,
+              bab,
+              activeIds,
+            }}
+            footNote={footNote}
+            segment={segment}
+            workTitle={workTitle}
+          />
 
           <footer className="text-muted flex flex-col gap-2 border-t border-separator pt-6 text-xs">
             <Typography.Heading level={2} className="text-sm">

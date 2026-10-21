@@ -134,6 +134,18 @@
       "namespace_id": "1008",
       "simple": { "limit": 600, "period": 60 },
     },
+    // GET /api/halaman (X04 W6, gulir bersambung): satu halaman cetak per permintaan, dipicu
+    // pembaca yang menggulir; per klien dan global seperti /api/search.
+    {
+      "name": "PAGE_LIMITER",
+      "namespace_id": "1009",
+      "simple": { "limit": 60, "period": 60 },
+    },
+    {
+      "name": "PAGE_GLOBAL_LIMITER",
+      "namespace_id": "1010",
+      "simple": { "limit": 1200, "period": 60 },
+    },
   ],
   // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
   // `invocation_logs: false` (S20, ADR-065): log otomatis per permintaan merekam header termasuk IP
@@ -241,6 +253,16 @@
         "name": "JAWAB_STATUS_GLOBAL_LIMITER",
         "namespace_id": "2008",
         "simple": { "limit": 600, "period": 60 },
+      },
+      {
+        "name": "PAGE_LIMITER",
+        "namespace_id": "2009",
+        "simple": { "limit": 60, "period": 60 },
+      },
+      {
+        "name": "PAGE_GLOBAL_LIMITER",
+        "namespace_id": "2010",
+        "simple": { "limit": 1200, "period": 60 },
       },
     ],
   },
