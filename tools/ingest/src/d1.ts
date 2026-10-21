@@ -10,6 +10,7 @@ import {
   LATIN_SEARCH_SCHEMA_VERSION,
   QURAN_SCHEMA_VERSION,
   SEARCH_SCHEMA_VERSION,
+  TITLE_SCHEMA_VERSION,
 } from "@surau/db";
 import { buildFtsMatch, latinMatchExpression, planLatinQuery } from "@surau/text";
 
@@ -156,6 +157,9 @@ export const COUNTED = [
   // Terjemahan/ringkasan AI (S13): tabel ada sejak skema 1, kosong di korpus sebelum ihya-v4.
   "translation",
   "summary",
+  // Judul daftar isi Indonesia (X04 bagian B): tabel baru ada sejak skema 7.
+  "toc_title_translation",
+  "subheading_translation",
   "term_stat",
   "passage_fts",
   // Indeks Indonesia (S14): tabel virtual baru ada sejak skema 6.
@@ -166,6 +170,10 @@ export const COUNTED = [
 /** Tabel yang baru ada (atau baru diisi) sejak skema korpus 4 (S11): tidak dihitung di korpus lama. */
 const SEARCH_TABLES: ReadonlySet<string> = new Set(["term_stat", "passage_fts"]);
 const LATIN_TABLES: ReadonlySet<string> = new Set(["translation_fts", "summary_fts"]);
+const TITLE_TABLES: ReadonlySet<string> = new Set([
+  "toc_title_translation",
+  "subheading_translation",
+]);
 const QURAN_TABLES: ReadonlySet<string> = new Set([
   "quran_source",
   "quran_surah",
@@ -240,11 +248,14 @@ export function smoke(
   const quran = Number(meta.schema_version ?? 0) >= QURAN_SCHEMA_VERSION;
   // Indeks Indonesia (S14) sejak skema 6.
   const latin = Number(meta.schema_version ?? 0) >= LATIN_SEARCH_SCHEMA_VERSION;
+  // Judul daftar isi Indonesia (X04 bagian B) sejak skema 7.
+  const titles = Number(meta.schema_version ?? 0) >= TITLE_SCHEMA_VERSION;
   const tables = COUNTED.filter(
     (t) =>
       (search || !SEARCH_TABLES.has(t)) &&
       (quran || !QURAN_TABLES.has(t)) &&
-      (latin || !LATIN_TABLES.has(t)),
+      (latin || !LATIN_TABLES.has(t)) &&
+      (titles || !TITLE_TABLES.has(t)),
   );
   const row = query(target, smokeCounts(tables))[0] ?? {};
   const counts = Object.fromEntries(
@@ -280,6 +291,11 @@ export function smoke(
     if (tr === 0 || (counts.summary > 0 && sm === 0)) {
       problems.push('indeks translation_fts/summary_fts tidak mengenai "sabar"');
     }
+  }
+  if (!titles) {
+    limitations.push(
+      `skema korpus ${meta.schema_version ?? "?"} belum punya judul daftar isi Indonesia (X04)`,
+    );
   }
   if (expect !== undefined) {
     for (const t of COUNTED) {

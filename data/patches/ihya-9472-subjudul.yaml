@@ -6,7 +6,8 @@
 #
 # Aturan otomatis (tanpa entri di sini): paragraf badan < 200 karakter yang kata pertamanya "bayan"
 # dan bukan judul node daftar isi = subjudul utuh. Calon di ihya-v7: 191 (80 lain sudah judul node).
-corpus: ihya-v7
+# ihya-v8 (X04 bagian B): teks semua entri sama dengan ihya-v7 (sidik cocok, `pnpm subjudul --cek`).
+corpus: ihya-v8
 
 # Calon "bayan" yang BUKAN subjudul. Kelimanya butir pertama daftar bagian di pembuka kitab: kalimat
 # daftarnya bersambung ke paragraf berikutnya ("wa bayan …"), dan subjudul aslinya menempel di akhir

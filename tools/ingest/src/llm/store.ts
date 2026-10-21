@@ -62,7 +62,7 @@ export function writeText(path: string, text: string): void {
   renameSync(tmp, path);
 }
 
-const usage = z.strictObject({
+export const usageSchema = z.strictObject({
   input_tokens: z.number(),
   output_tokens: z.number(),
   cache_read_input_tokens: z.number().nullable(),
@@ -71,7 +71,7 @@ const usage = z.strictObject({
     .strictObject({ ephemeral_5m_input_tokens: z.number(), ephemeral_1h_input_tokens: z.number() })
     .nullable(),
 });
-export type StoredUsage = z.infer<typeof usage>;
+export type StoredUsage = z.infer<typeof usageSchema>;
 
 /** Bagian `usage` respons yang disimpan (dasar biaya aktual; field lain SDK tidak dibawa). */
 export function storedUsage(u: {
@@ -108,7 +108,7 @@ export const acceptedTranslation = z.strictObject({
   batch_id: z.string().nullable(),
   /** Penanda catatan kaki yang tidak ada di terjemahan (diterima, dicatat). */
   markers_missing: z.array(z.string()),
-  usage,
+  usage: usageSchema,
 });
 export type AcceptedTranslation = z.infer<typeof acceptedTranslation>;
 
@@ -128,7 +128,7 @@ export const acceptedSummary = z.strictObject({
   /** Putaran 2: sha256 teks ringkasan putaran 1 yang menjadi masukannya (`round2InputSha`). */
   input_sha256: z.string().length(64).nullable(),
   batch_id: z.string().nullable(),
-  usage,
+  usage: usageSchema,
 });
 export type AcceptedSummary = z.infer<typeof acceptedSummary>;
 
@@ -149,7 +149,7 @@ export const failure = z.strictObject({
    * berkas lama yang belum dibangun ulang (`rejudge`) = dianggap versi saat ini.
    */
   prompt_version: z.string().optional(),
-  usage: usage.nullable(),
+  usage: usageSchema.nullable(),
 });
 export type Failure = z.infer<typeof failure>;
 

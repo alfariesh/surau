@@ -76,6 +76,18 @@ export type {
   SummaryRound2Input,
 } from "./summarize.ts";
 
+export {
+  TOC_TITLE_LANG,
+  TOC_TITLE_MAX_CHARS,
+  TOC_TITLE_MAX_TOKENS,
+  TOC_TITLE_PROMPT,
+  buildTocTitleRequest,
+  checkTocTitle,
+  judgeTocTitles,
+  tocTitleUserText,
+} from "./toc-title.ts";
+export type { TocTitleItem, TocTitleProblem, TocTitleResult } from "./toc-title.ts";
+
 export { JUDGE_VERSION, JUDGE_MAX_TOKENS, JUDGE_PROMPT } from "../prompts/jawab-judge-v1.ts";
 
 // S19: pipeline Jawab (routing + Citations + verifikasi sitasi ke DB).

@@ -11,6 +11,8 @@ import { describe, expect, test } from "vite-plus/test";
 import { llmRows } from "../src/llm/attach.ts";
 import { parseReviews } from "../src/llm/reviews.ts";
 import { writeJsonl } from "../src/llm/store.ts";
+import { TITLES_FILE, titleUnits } from "../src/llm/titles.ts";
+import type { AcceptedTitle } from "../src/llm/titles.ts";
 import type { AcceptedSummary, AcceptedTranslation } from "../src/llm/store.ts";
 import { buildWork, chunkCustomId, round2InputSha } from "../src/llm/work.ts";
 import type { TranslationUnit } from "../src/llm/units.ts";
@@ -205,6 +207,7 @@ describe("hasil LLM → tabel translation/summary", () => {
     expect(r.validation.invariants.filter((i) => !i.ok).map((i) => i.name)).toEqual([
       "Terjemahan AI: cakupan paragraf badan ≥ 99%",
       "Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99%",
+      "Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99%",
     ]);
   });
 
@@ -248,5 +251,54 @@ describe("hasil LLM → tabel translation/summary", () => {
       translations: 0,
       reviewRejectedTranslations: 1,
     });
+  });
+
+  test("judul daftar isi Indonesia: yang berlaku dimuat; judul Arab berubah, prompt lama, atau tidak sah ditolak", () => {
+    const { config, paths, rows, llm } = setup();
+    const units = titleUnits(rows, new Map(), rows.edition[0]!.id);
+    expect(units.length).toBe(rows.toc_node.length);
+    const [stale, oldPrompt, broken, ...ok] = units;
+    if (stale === undefined || oldPrompt === undefined || broken === undefined)
+      throw new Error("fixture");
+    const line = (u: (typeof units)[number], over: Partial<AcceptedTitle> = {}): AcceptedTitle => ({
+      key: u.id,
+      target: u.target,
+      target_id: u.targetId,
+      lang: "id",
+      text: `Judul buatan ${u.id}`,
+      model: "claude-sonnet-5-5",
+      prompt_version: "translate-toc-title@2",
+      created_at: "2026-10-21T00:00:00.000Z",
+      source_sha256: u.sourceSha256,
+      ...over,
+    });
+    writeJsonl(join(llm, TITLES_FILE), [
+      ...ok.map((u) => line(u)),
+      line(stale, { source_sha256: "0".repeat(64) }),
+      line(oldPrompt, { prompt_version: "translate-toc-title@1" }),
+      line(broken, { text: "Judul berakhir titik." }),
+    ]);
+    const built = llmRows(rows, llm);
+    expect(built.stats).toMatchObject({
+      titleTargets: units.length,
+      tocTitles: ok.length,
+      subheadingTitles: 0,
+      titlesMissing: [stale.id, oldPrompt.id, broken.id],
+    });
+    const r = runIngest(config, { ...paths, llm }, { env });
+    expect(r.output?.counts.toc_title_translation).toBe(ok.length);
+    const db = new DatabaseSync(r.output?.sqlite ?? "", { readOnly: true });
+    const row = db
+      .prepare(
+        "SELECT text, model, prompt_version, review_status FROM toc_title_translation WHERE toc_node_id = ?",
+      )
+      .get(ok[0]!.targetId) as Record<string, string>;
+    expect(row).toEqual({
+      text: `Judul buatan ${ok[0]!.id}`,
+      model: "claude-sonnet-5-5",
+      prompt_version: "translate-toc-title@2",
+      review_status: "ai_generated",
+    });
+    db.close();
   });
 });
