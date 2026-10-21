@@ -1,7 +1,7 @@
 # X03 · Sesi sisipan: cakupan lokasi gold di kandidat Jawab
 
-> **Fase:** sisipan Fase 4 (sesudah S21, sebelum `/rilis 4`) · **Status:** berjalan
-> **Prasyarat:** S19–S21 selesai · izin pemilik di chat untuk satu eval publik berbayar (±US$0,11, pagu run 0,3)
+> **Fase:** sisipan Fase 4 (sesudah S21, sebelum `/rilis 4`) · **Status:** selesai
+> **Prasyarat:** S19–S21 selesai · izin pemilik di chat untuk satu eval publik berbayar (±US$0,11, pagu run 0,3): "ya saya izinkan" (2026-10-21)
 > **Perkiraan:** 1 percakapan agent
 
 ## Kenapa sesi ini ada
@@ -22,11 +22,12 @@ Syarat R4 "lokasi benar ≥ 90%" belum terpenuhi: eval publik S19/S21 memberi lo
 
 ## Selesai bila
 
-- [ ] Cakupan gold di dokumen dan lokasi eval sebelum/sesudah tercatat di ADR baru (ADR-067)
-- [ ] Kutipan valid tetap 100% pada eval publik berbayar
-- [ ] Biaya per jawaban tetap ±US$0,002–0,003
-- [ ] `pnpm verify` lolos (format, lint, typecheck, tes, build)
-- [ ] STATUS, LOG, dan file sesi ini sudah diperbarui; PR di-merge (squash) setelah CI hijau
+- [x] Cakupan gold di dokumen dan lokasi eval sebelum/sesudah tercatat di ADR baru (ADR-067): dokumen 27,0 → 30,5/34 (uji gratis, 6 set rute), lokasi eval 73,5–76,5% → 82,4%
+- [x] Kutipan valid tetap 100% pada eval publik berbayar (`x03-publik-lokasi-v1`: 156/156)
+- [x] Biaya per jawaban tetap ±US$0,002–0,003 (US$0,0027 rata-rata)
+- [x] `pnpm verify` lolos (format, lint, typecheck, tes, build)
+- [x] STATUS, LOG, dan file sesi ini sudah diperbarui
+- [ ] PR di-merge (squash) setelah CI hijau — menunggu (file ini ikut PR itu; dicentang sesudah merge)
 
 ## Di luar cakupan
 
@@ -36,4 +37,9 @@ Syarat R4 "lokasi benar ≥ 90%" belum terpenuhi: eval publik S19/S21 memberi lo
 
 ## Catatan hasil
 
-*(diisi agent di akhir sesi)*
+- **Ukur gratis:** `pnpm run eval:jawab kandidat --input <diagnostik,…>` (baru) mengulang langkah 2 pipeline (`jawabCandidates`, diekstrak dari `runJawab`) atas rute tersimpan. Baseline kode S21: 27,0/34 (6 set rute desain), 26,25/34 (4 set rute lama untuk validasi).
+- **Dipakai (ADR-067):** daftar pertanyaan global ×3 di RRF, bagian 3 halaman, ≤ 3 bagian dari ringkasan AI bagian (routing kedua tanpa LLM, hanya sisa jatah 20), pertanyaan panjang dipotong per aksara (`queryWordOverflow`), `JAWAB_PIPELINE_VERSION` 4, arsip eval mencatat `+pipeline@4`. Hasil gratis 30,5/34 (validasi 30,0/34).
+- **Eval berbayar sekali** (US$0,1134): kutipan valid 100%, lokasi 82,4% (28/34), penolakan tepat 100%, tidak salah menolak 100%, US$0,0027/jawaban. Sisa: 3 soal topik tersebar tak terjangkau leksikal (j018, j019, j021), 3 soal gold ada di dokumen tetapi jawaban menyitasi sebagian (j014, j020, j023).
+- **Tidak dipakai:** routing dua langkah dengan LLM (±2–3× biaya), pembersihan kata pembingkai (+0), round robin (+0 sesudah bobot), lebih banyak kueri per bagian (lebih buruk), saran peninjau saring turunan/ambang sebagian kata (+0).
+- **Untuk sesi berikutnya:** R4 lokasi ≥ 90% belum (82,4%). Dua jalur: (1) prompt jawaban untuk pertanyaan perbandingan agar menyitasi tiap lokasi (3 soal; eval ulang berbayar), (2) pencarian makna lewat ADR baru (ADR-046) atau gold topik tersebar yang ditinjau Anas (T-24). Kenaikan ini in-sample (soal publik yang sama); bukti akhir R4 tetap butuh holdout.
+- Biaya API sesi: US$0,1134. Holdout tidak dipakai.

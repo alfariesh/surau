@@ -1679,7 +1679,14 @@ Temuan bedah soal gagal:
 
 **Hasil gratis (kode akhir):** lengkap 31 31 31 30 30 30 dari 34 (rata-rata 30,5 = 89,7%; baseline 27 27 28 28 27 25, rata-rata 27,0 = 79,4%). Per jenis (rata-rata): lokasi+isi 15,7 → 16,5 dari 17, topik tersebar 1,0 → 3,0 dari 6, status hadits 5,3 → 6,0 dari 6, atribusi 5,0 → 5,0 dari 5. Tidak ada soal yang memburuk; tersisa j018/j019/j021 (0/6, tak terjangkau leksikal), j015 (gagal 2/6, sama dengan baseline), j016 (1/6). **Validasi atas rute yang tidak dipakai merancang:** empat set rute lama (s19-publik-v1–v4, routing atas korpus `ihya-v6`, diulang di `ihya-v7`): baseline 27 29 24 25 → kode akhir 29 31 29 31 (rata-rata 26,25 → 30,0). Token dokumen tetap ±19,9 ribu per soal (anggaran sama), jadi biaya jawaban tidak naik; beban D1 +1 kueri kecil (`summary_fts`, 313 node) per pertanyaan, pencarian tetap ≤ 20.
 
-**Eval publik berbayar (sekali):** _(diisi sesudah run)_
+**Eval publik berbayar (sekali, izin pemilik di chat 2026-10-21 "ya saya izinkan"):** `x03-publik-lokasi-v1` (42 soal publik, tanpa holdout, korpus lokal `ihya-v7`, US$0,1134, rerata **US$0,0027/jawaban**, maks US$0,0051, prompt rata-rata 22,3 ribu token, 0 di atas batas, 0 refusal; laporan `evals/reports/jawab-x03-publik-lokasi-v1.md`):
+
+| Run | Kutipan valid | Lokasi | Penolakan tepat | Tidak salah menolak | Tanpa pola fatwa | Biaya/jawaban |
+|---|---|---|---|---|---|---|
+| S19 final-3 / S21 v5 (sebelum) | 100% | 76,5% / 73,5% | 100% (8/8) | 100% / 94,1% | 100% | $0,0026 |
+| **X03 (sesudah)** | **100% (156/156)** | **82,4% (28/34)** | 100% (8/8) | **100% (34/34)** | 100% | **$0,0027** |
+
+Per jenis: lokasi+isi 94,1% (16/17), atribusi 100% (5/5), status hadits 100% (6/6, lokasi), topik tersebar 16,7% (1/6). Cakupan gold di dokumen pada rute run ini 31/34 (sama dengan uji gratis): dari 6 soal yang gagal lokasi, **3 gagal di pencarian** (j018, j019, j021: halaman gold tak terjangkau leksikal) dan **3 gagal di tahap jawaban** (j014, j020, j023: semua lokasi gold ada di dokumen, tetapi jawaban hanya menyitasi sebagian; dua di antaranya topik tersebar yang menuntut dua lokasi). Bagian ringkasan terpakai di 38/42 soal. Metrik "Takhrij" 0/7 tetap pencocokan string persis (catatan S18/S19), tidak diubah.
 
 **Tidak dipilih:**
 - **Routing dua langkah dengan LLM** (ringkasan bagian kandidat sebagai konteks panggilan routing kedua): ringkasan Ihya ±1.200 karakter (±640 token) per bagian; 10 kandidat = ±6 ribu token tak ter-cache per pertanyaan (±US$0,006), dua sampai tiga kali biaya jawaban sekarang, dan tidak bisa diukur gratis. Ringkasan semua 313 bagian di prefix routing ±200 ribu token, di atas batas. Versi tanpa LLM (butir 3) mengambil manfaat ringkasan tanpa biaya. Uji gratis juga menunjukkan ringkasan menempatkan bagian gold kedua soal topik tersebar di peringkat 22–34 atau tidak sama sekali, jadi panggilan kedua pun belum tentu menolong soal tersulit.
@@ -1691,6 +1698,6 @@ Temuan bedah soal gagal:
 **Konsekuensi:**
 - Konstanta dipilih dan diukur di 34 soal publik yang sama, dan eval berbayar juga memakai set itu: kenaikan ini **in-sample**. Holdout tidak disentuh; bukti R4 akhir tetap butuh holdout dan gold yang disetujui (T-24). Mekanismenya umum (bobot, kedalaman, ringkasan), tanpa kata kunci soal, dan validasi atas 4 set rute yang tidak dipakai merancang memberi kenaikan serupa.
 - Tiga soal topik tersebar memakai halaman gold yang tidak terjangkau BM25 (j019 dan j021 butuh j1 h55, j018 butuh j1 h13); gold masih draf sampai T-24.
-- Batas leksikal: target lokasi ≥ 90% kemungkinan butuh pencarian makna atau gold yang ditinjau.
+- Target R4 lokasi ≥ 90% **belum tercapai** (82,4%). Sisa kegagalan terbagi dua: batas leksikal (3 soal topik tersebar, butuh pencarian makna atau gold yang ditinjau) dan tahap jawaban yang tidak menyitasi semua lokasi untuk pertanyaan perbandingan (3 soal; bahan sesi prompt berikutnya, mis. instruksi "sitasi tiap bagian yang dibandingkan", dengan eval ulang).
 
 **Tinjau ulang bila:** prompt routing berubah (rute tersimpan tidak lagi mewakili), korpus bertambah kitab (bobot dan jatah per bagian), eval berbayar menunjukkan penolakan keliru naik, atau pencarian makna dipertimbangkan lagi.
