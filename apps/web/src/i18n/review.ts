@@ -18,7 +18,7 @@ export const reviewText = {
   noAnswer: "Jawaban kosong (baseline)",
   example: "Contoh evaluasi",
   exampleHint:
-    "Contoh ini disusun agent untuk menguji penilaian sebelum layanan Jawab tersedia. Sebagian contoh sengaja memuat kesalahan. Periksa semua klaim terhadap sumber.",
+    "Contoh ini disusun agent untuk menguji penilaian sebelum Maknaz tersedia. Sebagian contoh sengaja memuat kesalahan. Periksa semua klaim terhadap sumber.",
   modes: { empty: "Jawaban kosong", search: "Cari saja", answer: "Jawaban AI" },
   sourceLink: "Buka di pembaca",
   invalid: "Ada kutipan yang tidak valid dan disembunyikan.",

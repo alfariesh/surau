@@ -1,8 +1,8 @@
-// String UI /tanya (S21). Bahasa atribusi, bukan fatwa (docs/05 §2); label AI selalu eksplisit.
+// String UI /tanya (S21): agent AI Surau bernama Maknaz (ADR-071). Bahasa atribusi, bukan fatwa (docs/05 §2); label AI selalu eksplisit.
 export const tanyaText = {
-  pageTitle: "Tanya",
-  heading: "Tanya kitab",
-  lead: "Ajukan pertanyaan tentang isi Ihya' 'Ulum ad-Din. Jawaban disusun AI dari paragraf kitab, dan setiap kutipan Arabnya disalin dari teks sumber lalu diperiksa kode.",
+  pageTitle: "Maknaz",
+  heading: "Maknaz",
+  lead: "Maknaz adalah asisten AI Surau. Ajukan pertanyaan tentang isi Ihya' 'Ulum ad-Din: jawabannya disusun AI dari paragraf kitab, dan setiap kutipan Arabnya disalin dari teks sumber lalu diperiksa kode.",
   notice: "Surau adalah asisten riset, bukan pemberi fatwa.",
   noticeBody:
     "Jawaban menyampaikan apa yang tertulis di kitab beserta sumbernya. Untuk kasus pribadi (keluarga, harta, ibadah tertentu), tanyakan kepada ulama setempat.",
@@ -10,7 +10,7 @@ export const tanyaText = {
   privacyLink: "Kebijakan privasi",
   label: "Pertanyaan",
   placeholder: "Contoh: Apa kata al-Ghazali tentang sabar?",
-  submit: "Tanya",
+  submit: "Tanya Maknaz",
   asking: "Sedang menjawab…",
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
   tooShort: "Tulis pertanyaan minimal 3 huruf.",
@@ -64,17 +64,17 @@ export const tanyaText = {
   } as Record<string, string>,
   fallbackTail: "Berikut hasil Cari untuk pertanyaan Anda.",
   errors: {
-    disabled: "Tanya sedang dimatikan. Anda tetap bisa memakai Cari.",
-    not_configured: "Tanya belum siap. Anda tetap bisa memakai Cari.",
+    disabled: "Maknaz sedang dimatikan. Anda tetap bisa memakai Cari.",
+    not_configured: "Maknaz belum siap. Anda tetap bisa memakai Cari.",
     budget:
-      "Anggaran AI bulan ini sudah habis. Tanya dibuka lagi bulan depan; sementara itu pakai Cari.",
+      "Anggaran AI bulan ini sudah habis. Maknaz dibuka lagi bulan depan; sementara itu pakai Cari.",
     quota: "Kuota pertanyaan hari ini sudah habis. Coba lagi besok, atau pakai Cari.",
     quota_exceeded: "Kuota pertanyaan hari ini sudah habis. Coba lagi besok, atau pakai Cari.",
     rate_limited: "Terlalu banyak pertanyaan dalam waktu singkat. Tunggu sekitar satu menit.",
     challenge_failed: "Pemeriksaan keamanan gagal. Muat ulang halaman lalu coba lagi.",
     challenge_unavailable: "Pemeriksaan keamanan sedang tidak tersedia. Coba lagi nanti.",
     closed:
-      "Tanya belum dibuka untuk umum. Sementara itu, pakai Cari untuk menemukan paragraf kitab.",
+      "Maknaz belum dibuka untuk umum. Sementara itu, pakai Cari untuk menemukan paragraf kitab.",
     internal: "Terjadi galat. Coba lagi, atau pakai Cari.",
     network: "Koneksi terputus. Periksa jaringan lalu coba lagi.",
   } as Record<string, string>,

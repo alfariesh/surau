@@ -10,7 +10,7 @@ export const takhrijReviewText = {
     "Setujui bila semua istilah yang disorot memang penilaian takhrij dan artinya tepat.",
     "Koreksi bila ada istilah yang keliru (misalnya kata itu bagian dari lafaz hadits) atau ada penilaian yang terlewat. Pilih jenis istilah yang benar; teks takhrij tidak perlu diketik ulang.",
     "Pilih ragu bila perlu dibahas. Label otomatis tetap dipakai sampai ada keputusan.",
-    "Keputusan ustadz peninjau dipakai Jawab: label yang disetujui tampil sebagai ditinjau ustadz, dan koreksi menggantikan label otomatis.",
+    "Keputusan ustadz peninjau dipakai Maknaz: label yang disetujui tampil sebagai ditinjau ustadz, dan koreksi menggantikan label otomatis.",
   ],
   filter: "Tampilkan",
   filters: {
@@ -33,7 +33,7 @@ export const takhrijReviewText = {
   footnote: "Catatan kaki takhrij",
   openReader: "Buka di pembaca",
   hadithAt: "Hadits di matan",
-  cites: (n: number) => `Dikutip Jawab ${n}×`,
+  cites: (n: number) => `Dikutip Maknaz ${n}×`,
   mixed: "Berbeda per jalur",
   weak: "Memuat istilah kelemahan",
   staleReview: "Label berubah sejak ditinjau; tinjau ulang",
@@ -42,7 +42,7 @@ export const takhrijReviewText = {
   terms: "Istilah yang dikenali",
   noTerms:
     "Tidak ada istilah penilaian yang dikenali; takhrij ini hanya menyebut sumber atau merujuk takhrij lain.",
-  currentLabel: "Yang dipakai Jawab sekarang",
+  currentLabel: "Yang dipakai Maknaz sekarang",
   current: {
     rule: "dikenali otomatis, belum ditinjau",
     approved: "ditinjau ustadz",
@@ -51,7 +51,7 @@ export const takhrijReviewText = {
   added: "Ditetapkan peninjau (tanpa istilah baku di teks)",
   reviewer: "Nama penilai",
   reviewerHint:
-    "Isi nama Anda sendiri. Keputusan dipakai Jawab hanya atas nama ustadz peninjau yang ditunjuk pemilik (saat ini Anas); nama lain tersimpan sebagai uji. Penilaian uji agent diberi nama Agent QA.",
+    "Isi nama Anda sendiri. Keputusan dipakai Maknaz hanya atas nama ustadz peninjau yang ditunjuk pemilik (saat ini Anas); nama lain tersimpan sebagai uji. Penilaian uji agent diberi nama Agent QA.",
   decision: "Keputusan",
   decisions: {
     approved: "Setujui label",
@@ -63,7 +63,7 @@ export const takhrijReviewText = {
     "Centang semua penilaian yang memang disebut takhrij ini. Yang terdeteksi kode sudah dicentang.",
   detected: "terdeteksi",
   preview: "Label sesudah koreksi",
-  note: "Catatan (tidak tampil di Jawab)",
+  note: "Catatan (tidak tampil di Maknaz)",
   noteHint: "Opsional. Jelaskan alasan koreksi atau keraguan. Jangan memasukkan data pribadi.",
   save: "Simpan dan lanjut",
   saved: "Keputusan tersimpan.",
