@@ -1,7 +1,7 @@
 # X04 · Sesi sisipan: mutu baca pembaca Ihya (tanpa bergantung pada AI)
 
-> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `/tanya`, `apps/api`, maupun `packages/llm/src/jawab`) · **Status:** rencana, menunggu persetujuan pemilik
-> **Prasyarat:** pemilik menjawab pertanyaan desain di bawah · izin biaya judul daftar isi (≤ US$1) · izin promote korpus baru (bagian B)
+> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `/tanya`, `apps/api`, maupun `packages/llm/src/jawab`) · **Status:** bagian A berjalan (2026-10-21); bagian B belum
+> **Prasyarat:** pemilik menjawab pertanyaan desain di bawah (dijawab 2026-10-21, lihat *Jawaban pemilik*) · izin biaya judul daftar isi (≤ US$1) · izin promote korpus baru (bagian B)
 > **Perkiraan:** 2 percakapan agent. Bagian A (tampilan, $0, tanpa korpus baru) dan bagian B (struktur + judul Indonesia, korpus baru). Bila bagian A menghabiskan satu percakapan, bagian B menjadi sesi sisipan bernomor berikutnya yang masih bebas (X05–X08 sudah dipakai).
 
 Nomor X03 sudah dipakai sesi kandidat Jawab (ADR-067, PR #102), jadi sesi ini X04.
@@ -169,6 +169,19 @@ Tujuan: memperkirakan mutu seluruh 16.092 terjemahan, bukan sampel yang sudah di
 6. **Takhrij:** cukup popup penanda + daftar di bawah halaman (sekarang), atau juga tombol "Takhrij" yang bisa dibuka sesudah paragraf?
 7. **T-17 tahap 3:** siapa penilainya (Anda, Anas, atau orang lain), dan setuju 60 sampel (±60–90 menit)?
 8. **Lanjutkan membaca:** tampil juga di beranda, atau cukup di `/kitab`?
+
+### Jawaban pemilik (2026-10-21)
+
+Pemilik di chat: "Untuk 8 pertanyaan desain X04 saya ikut usulan agent semua. Sekalian siapkan halaman nilai T-17 tahap 3 (60 sampel)." Untuk pertanyaan yang belum memuat usulan tertulis (3, 5 posisi, 6, 7 penilai, 8), agent memutuskan di sesi ini dan menuliskannya di bawah.
+
+1. **Tata letak:** bawaan berselang-seling (dengan W1), plus pilihan *terjemahan dilipat* dan *berdampingan* (layar ≥ 1280 px) di panel Tampilan. *Arab saja* tetap lewat sakelar terjemahan.
+2. **Label AI:** satu catatan di awal teks halaman (bisa ditutup, diingat browser) + lencana kecil per terjemahan. Teks lencana tetap **"Terjemahan AI"** (W3: tidak disingkat menjadi "AI").
+3. **Subjudul menempel:** di **baris sendiri** seperti judul kecil, masih di dalam paragrafnya (teks tetap satu `text_raw`, dipotong hanya di offset kurasi). Alasan: batas subbab terlihat saat memindai, seperti kitab cetak; menebalkan di tengah aliran teks lebih mudah terlewat.
+4. **Membaca bersambung:** gulir bersambung antarhalaman cetak (W6).
+5. **Daftar isi Indonesia (bagian B):** opsi (b), semua judul + subjudul diterjemahkan ulang dengan gaya seragam (±US$0,26, pagu US$1); **Indonesia di atas, Arab di bawahnya** (urutan pertama W8). Opsi berbiaya ini ikut disetujui lewat jawaban yang sama; tetap tidak ada yang dikirim di bagian A.
+6. **Takhrij:** tetap popover penanda + daftar di bawah halaman, tanpa tombol baru (tidak ada paket kerja untuk tombol takhrij; A7 masalah keterlihatan, bukan fungsi).
+7. **T-17 tahap 3:** 60 sampel. Penilai = manusia yang bisa membaca Arab (pemilik, Anas, atau orang yang ditunjuk pemilik; namanya diisi di halaman nilai), bukan agent.
+8. **Lanjutkan membaca:** tampil juga di beranda, selain `/kitab` dan `/kitab/ihya` ("dan beranda bila disetujui" di W5).
 
 ## Baca dulu (hanya ini)
 
