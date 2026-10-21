@@ -32,6 +32,7 @@
 @import "@heroui/styles/components/switch.css" layer(components);
 @import "@heroui/styles/components/chip.css" layer(components);
 @import "@heroui/styles/components/alert.css" layer(components);
+@import "@heroui/styles/components/progress-bar.css" layer(components);
 @import "@heroui/styles/components/progress-circle.css" layer(components);
 @import "@heroui/styles/components/spinner.css" layer(components);
 @import "@heroui/styles/components/toast.css" layer(components);

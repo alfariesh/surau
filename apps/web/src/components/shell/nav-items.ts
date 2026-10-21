@@ -25,6 +25,8 @@ export interface NavItem {
   activeIcon: ComponentType<SVGProps<SVGSVGElement>>;
   /** Tanpa `href` berarti fitur belum tersedia (label "segera"). */
   href?: string;
+  /** Lencana kecil di kanan label. */
+  badge?: string;
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
@@ -44,7 +46,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: "/cari",
   },
   { id: "ask", label: id.nav.ask, icon: HelpCircle, activeIcon: HelpCircleDuotone },
-  { id: "mcp", label: id.nav.mcp, icon: BookOpen01, activeIcon: BookOpen01Duotone, href: "/mcp" },
+  {
+    id: "mcp",
+    label: id.nav.mcp,
+    icon: BookOpen01,
+    activeIcon: BookOpen01Duotone,
+    href: "/mcp",
+    badge: id.nav.mcpBadge,
+  },
   {
     id: "about",
     label: id.nav.about,

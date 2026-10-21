@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Card, Typography } from "@heroui/react";
 import NextLink from "next/link";
 
+import { groupedCardClass } from "../../../lib/grouped-card";
 import { PageSection } from "../../../components/page-section";
 import { TextPage } from "../../../components/text-page";
 import { EDITION_CREDITS, LICENSE_URL, QURAN_CREDITS } from "../../../content/works";
@@ -71,10 +72,10 @@ export default function LicensePage() {
 
       <PageSection heading={t.reuseHeading} id="pakai-ulang">
         <Typography>{t.reuseLead}</Typography>
-        <ul className="flex flex-col gap-3">
-          {t.reuseRules.map((rule) => (
+        <ul className="flex flex-col gap-2">
+          {t.reuseRules.map((rule, i) => (
             <li key={rule.title}>
-              <Card>
+              <Card className={groupedCardClass(i, t.reuseRules.length)}>
                 <Card.Header>
                   <Card.Title>{rule.title}</Card.Title>
                   <Card.Description>{rule.body}</Card.Description>

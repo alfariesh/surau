@@ -2,17 +2,29 @@
 
 import type { NavItem } from "./nav-items";
 
+import { Chip, Dropdown, Label } from "@heroui/react";
 import { Sidebar } from "@heroui-pro/react";
 import NextLink from "next/link";
+import { usePathname } from "next/navigation";
 
 import { id } from "../../i18n/id";
+import { Copyright, HandHeart, InformationCircle, LockKeyhole } from "../../icons";
 
 import { SurauMark } from "./logo";
 import { NAV_ITEMS } from "./nav-items";
 
 // "Tentang" ada di bawah sidebar (footer), menu lainnya di atas.
-const MAIN_ITEMS = NAV_ITEMS.filter((item) => item.id !== "about");
-const FOOTER_ITEMS = NAV_ITEMS.filter((item) => item.id === "about");
+const MAIN_ITEMS = NAV_ITEMS.filter((item) => item.id !== "about" && item.id !== "mcp");
+const MCP_ITEM = NAV_ITEMS.find((item) => item.id === "mcp");
+const ABOUT_ITEM = NAV_ITEMS.find((item) => item.id === "about");
+
+// Menu "Seputar Surau" di footer: Tentang + halaman informasi (lisensi, privasi, transparansi).
+const HELP_LINKS = [
+  { id: "about", icon: InformationCircle, label: id.nav.about, href: "/tentang" },
+  { id: "license", icon: Copyright, label: id.footer.license, href: "/lisensi" },
+  { id: "privacy", icon: LockKeyhole, label: id.footer.privacy, href: "/privasi" },
+  { id: "transparency", icon: HandHeart, label: id.footer.transparency, href: "/transparansi" },
+] as const;
 
 function NavMenuItem({
   item,
@@ -41,6 +53,11 @@ function NavMenuItem({
       </Sidebar.MenuIcon>
       <Sidebar.MenuLabel>{item.label}</Sidebar.MenuLabel>
       {isSoon ? <Sidebar.MenuChip>{id.nav.soon}</Sidebar.MenuChip> : null}
+      {item.badge ? (
+        <Chip color="accent" size="sm" variant="soft">
+          {item.badge}
+        </Chip>
+      ) : null}
     </Sidebar.MenuItem>
   );
 }
@@ -85,23 +102,51 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
         </Sidebar.Group>
       </Sidebar.Content>
       <Sidebar.Footer>
-        <Sidebar.Menu aria-label={id.nav.about}>
-          {FOOTER_ITEMS.map((item) => (
-            <NavMenuItem key={item.id} activeId={activeId} idPrefix={idPrefix} item={item} />
-          ))}
-        </Sidebar.Menu>
-        <div className="flex flex-col gap-1 px-2 pb-2 text-xs" data-sidebar="label">
-          <NextLink className="link text-xs" href="/lisensi">
-            {id.footer.license}
-          </NextLink>
-          <NextLink className="link text-xs" href="/privasi">
-            {id.footer.privacy}
-          </NextLink>
-          <NextLink className="link text-xs" href="/transparansi">
-            {id.footer.transparency}
-          </NextLink>
-        </div>
+        {MCP_ITEM ? (
+          <Sidebar.Menu aria-label={MCP_ITEM.label}>
+            <NavMenuItem activeId={activeId} idPrefix={idPrefix} item={MCP_ITEM} />
+          </Sidebar.Menu>
+        ) : null}
+        <HelpMenu />
       </Sidebar.Footer>
     </>
+  );
+}
+
+function HelpMenu() {
+  const pathname = usePathname();
+  const isCurrent = HELP_LINKS.some(
+    (link) => pathname === link.href || pathname?.startsWith(`${link.href}/`),
+  );
+  const Icon = isCurrent ? ABOUT_ITEM?.activeIcon : ABOUT_ITEM?.icon;
+  return (
+    <Dropdown>
+      <Dropdown.Trigger
+        aria-label={id.nav.help}
+        className="sidebar__menu-item"
+        data-current={isCurrent || undefined}
+      >
+        <span className="sidebar__menu-item-content">
+          {Icon ? (
+            <span className="sidebar__menu-icon">
+              <Icon className="size-4" />
+            </span>
+          ) : null}
+          <span className="sidebar__menu-label" data-sidebar="label">
+            {id.nav.help}
+          </span>
+        </span>
+      </Dropdown.Trigger>
+      <Dropdown.Popover className="w-56" offset={6} placement="top start">
+        <Dropdown.Menu aria-label={id.nav.help}>
+          {HELP_LINKS.map((link) => (
+            <Dropdown.Item key={link.id} href={link.href} id={link.id} textValue={link.label}>
+              <link.icon className="text-muted size-4 shrink-0" />
+              <Label>{link.label}</Label>
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+      </Dropdown.Popover>
+    </Dropdown>
   );
 }
