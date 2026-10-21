@@ -16,7 +16,7 @@ export interface ReviewSummary {
   created_at: string;
 }
 
-function Choice({
+export function Choice({
   label,
   value,
   onChange,

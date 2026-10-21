@@ -183,6 +183,26 @@ export function HadithTerms({
   );
 }
 
+const HADITH_LABEL: Record<JawabResult["hadith"][number]["label"], string> = {
+  rule_extracted: t.hadithRule,
+  ustadz_reviewed: t.hadithReviewed,
+  ustadz_corrected: t.hadithCorrected,
+  ai_extracted: t.hadithAi,
+};
+
+/** Jenis istilah dari koreksi penilai yang tidak punya frasa baku di teks: arti Latin saja. */
+export function AddedTerms({ terms }: { terms: readonly { kind: string; gloss: string }[] }) {
+  if (terms.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1">
+      <Typography type="body-xs" color="muted">
+        {t.hadithAdded}
+      </Typography>
+      <Typography type="body-sm">{terms.map((a) => a.gloss).join("; ")}</Typography>
+    </div>
+  );
+}
+
 function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutipan | null }) {
   if (result.hadith.length === 0) return null;
   const citeOf = (f: JawabResult["hadith"][number]["footnote"]) =>
@@ -205,8 +225,12 @@ function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutip
             <li key={i} className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Typography type="body-sm">{h.status}</Typography>
-                <Chip size="sm" variant="soft">
-                  {h.label === "rule_extracted" ? t.hadithRule : t.hadithAi}
+                <Chip
+                  size="sm"
+                  variant="soft"
+                  color={h.label.startsWith("ustadz_") ? "success" : "default"}
+                >
+                  {HADITH_LABEL[h.label]}
                 </Chip>
                 {item?.weak ? (
                   <Chip size="sm" variant="soft" color="danger">
@@ -230,6 +254,7 @@ function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutip
                     footnoteStart={h.footnote.char_start}
                     terms={h.terms ?? []}
                   />
+                  <AddedTerms terms={h.added_terms ?? []} />
                   <Typography type="body-xs" color="muted">
                     {t.takhrijText}
                   </Typography>

@@ -2,6 +2,7 @@
 // memakai prepare().bind() (tanpa interpolasi nilai ke SQL), dan mem-parse baris dengan Zod.
 // Pencarian FTS ada di search.ts (S11). Teks yang dikembalikan adalah `text_raw` dari DB, apa adanya.
 import { D1_MAX_PARAMS, chunk, placeholders } from "../d1.ts";
+import { passageIdRange } from "../ids.ts";
 import type { D1Db } from "../d1.ts";
 import { z } from "zod";
 
@@ -315,6 +316,32 @@ export async function getPassagesByIds(
   );
   const results = await db.batch(stmts);
   return results.flatMap((r) => r.results.map((row) => passageWithPageRow.parse(row)));
+}
+
+const footnoteTextRow = z.strictObject({ id: pos, text_raw: z.string() });
+export type FootnoteTextRow = z.infer<typeof footnoteTextRow>;
+
+/**
+ * Teks catatan kaki satu edisi, urut ID, per halaman keyset (`afterId` = ID terakhir halaman
+ * sebelumnya). Antrean tinjauan label status hadits (X07) menghitung label semua catatan kaki.
+ */
+export function listFootnoteTexts(
+  db: D1Db,
+  editionId: number,
+  afterId = 0,
+  limit = 1000,
+): Promise<FootnoteTextRow[]> {
+  const { min, max } = passageIdRange(editionId);
+  z.number().int().min(1).max(2000).parse(limit);
+  return allRows(
+    db
+      .prepare(
+        `SELECT id, text_raw FROM passage
+         WHERE id >= ? AND id <= ? AND id > ? AND kind = 'foot' ORDER BY id LIMIT ?`,
+      )
+      .bind(min, max, afterId, limit),
+    footnoteTextRow,
+  );
 }
 
 /** Paragraf satu halaman: badan teks dulu, lalu catatan kaki, masing-masing urut `ord`. */

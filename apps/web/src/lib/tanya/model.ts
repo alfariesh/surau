@@ -32,13 +32,16 @@ export interface JawabHadith {
   /** Teks status dari istilah takhrij, dibuat kode (bukan tulisan model). */
   status: string;
   /**
-   * `rule_extracted` sejak X06; `ai_extracted` = bentuk lama (API sebelum X06, mis. staging yang
-   * melayani Preview dari `main`), tanpa `mixed`/`terms`.
+   * `rule_extracted` sejak X06; `ustadz_reviewed`/`ustadz_corrected` = label kode yang disetujui /
+   * dikoreksi penilai /tinjau (X07); `ai_extracted` = bentuk lama (API sebelum X06, mis. staging
+   * yang melayani Preview dari `main`), tanpa `mixed`/`terms`.
    */
-  label: "rule_extracted" | "ai_extracted";
+  label: "rule_extracted" | "ustadz_reviewed" | "ustadz_corrected" | "ai_extracted";
   rules_version?: number;
   mixed?: boolean;
   terms?: JawabHadithTerm[];
+  /** Koreksi (X07): jenis istilah dari penilai tanpa frasa baku di teks; tidak pernah teks Arab. */
+  added_terms?: { kind: string; gloss: string }[];
 }
 
 export interface JawabSearchHit {

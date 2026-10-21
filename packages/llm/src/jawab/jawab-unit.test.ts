@@ -582,6 +582,48 @@ describe("klaim hadits", () => {
     expect(again.labeled).toBe(0);
   });
 
+  test("X07: label tertinjau menggantikan label kode di klaim dan baris status; sitasi sebagian tetap label kode", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, FOOT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const blocks = [
+      { text: "Status hadits: ", citations: [] },
+      { text: "dha'if", citations: [1] },
+      { text: ".", citations: [] },
+    ];
+    const at = (start: number, end: number) => [{ ...FOOT1, char_start: start, char_end: end }];
+    const corrected = new Map([
+      [2, { decision: "corrected" as const, kinds: ["mursal" as const], reviewed_at: "x" }],
+    ]);
+    const checked = hadithCheck(blocks, at(0, FOOT.length), passages, corrected);
+    expect(checked.blocks.map((b) => b.text).join("")).toBe(
+      "Status hadits: takhrij menyebut: mursal (hadits di Ihya j. 1, h. 55).",
+    );
+    expect(checked.claims).toMatchObject([
+      {
+        label: "ustadz_corrected",
+        status: "takhrij menyebut: mursal",
+        terms: [],
+        added_terms: [{ kind: "mursal", gloss: "mursal" }],
+      },
+    ]);
+    const approved = new Map([
+      [2, { decision: "approved" as const, kinds: ["daif" as const], reviewed_at: "x" }],
+    ]);
+    expect(hadithCheck(blocks, at(0, FOOT.length), passages, approved).claims).toMatchObject([
+      { label: "ustadz_reviewed", status: LABEL },
+    ]);
+    // Bagian sitasi tidak memuat istilah yang ditinjau ("وضعفه"): label kode bagian itu.
+    expect(hadithCheck(blocks, at(0, 4), passages, approved).claims).toMatchObject([
+      { label: "rule_extracted", added_terms: [] },
+    ]);
+    // Tanpa tinjauan = perilaku X06.
+    expect(hadithCheck(blocks, at(0, FOOT.length), passages).claims).toMatchObject([
+      { label: "rule_extracted", status: LABEL, added_terms: [] },
+    ]);
+  });
+
   test("X06: dua hadits — butir tanpa takhrij sendiri mendapat pemberitahuan yang tidak mengaitkan takhrij hadits lain", () => {
     const passages = new Map([
       [1, passage(1, SENT, { footnote_ids: [2] })],

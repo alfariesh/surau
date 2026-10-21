@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { JawabResult } from "../../lib/tanya/model";
-import { AnswerView, HadithTerms } from "./answer-view";
+import { AddedTerms, AnswerView, HadithTerms } from "./answer-view";
 
 // Render server: blok bersitasi vs tanpa sitasi, kartu kutipan (teks Arab dimuat terpisah dari
 // /api/kutipan, jadi saat render awal belum ada), status hadits dari label istilah takhrij + tanda lemah, keadaan
@@ -163,5 +163,27 @@ describe("status hadits X06", () => {
     expect(html.match(/<li/gu)).toHaveLength(1);
     expect(html).not.toContain("sahih");
     expect(renderToStaticMarkup(<HadithTerms text={text} footnoteStart={0} terms={[]} />)).toBe("");
+  });
+
+  it("X07: label tertinjau ustadz diberi chip sendiri; jenis tambahan penilai tampil tanpa teks Arab", () => {
+    const claim = base.hadith[0]!;
+    const view = (label: (typeof claim)["label"], added: { kind: string; gloss: string }[] = []) =>
+      renderToStaticMarkup(
+        <AnswerView
+          question="Apa itu sabar?"
+          result={{ ...base, hadith: [{ ...claim, label, added_terms: added }] }}
+          cached={false}
+        />,
+      );
+    expect(view("ustadz_reviewed")).toContain("ditinjau ustadz");
+    expect(view("ustadz_reviewed")).not.toContain("belum ditinjau");
+    expect(view("ustadz_corrected")).toContain("dikoreksi ustadz");
+    const added = renderToStaticMarkup(
+      <AddedTerms terms={[{ kind: "mursal", gloss: "mursal" }]} />,
+    );
+    expect(added).toContain("Ditetapkan peninjau");
+    expect(added).toContain("mursal");
+    expect(added).not.toMatch(/\p{Script=Arabic}/u);
+    expect(renderToStaticMarkup(<AddedTerms terms={[]} />)).toBe("");
   });
 });

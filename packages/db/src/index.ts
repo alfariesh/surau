@@ -21,6 +21,7 @@ export {
 export * from "./schema/corpus.ts";
 export * from "./schema/app.ts";
 export * from "./schema/review.ts";
+export * from "./schema/takhrij-review.ts";
 export {
   insertAnswerLog,
   listAnswerLogs,
@@ -28,6 +29,13 @@ export {
   getReviews,
   saveReview,
 } from "./repo/review.ts";
+export {
+  getTakhrijReviews,
+  listTakhrijReviews,
+  saveTakhrijReview,
+  takhrijCitedCounts,
+  takhrijReviewsChangedSince,
+} from "./repo/takhrij-review.ts";
 
 export {
   getAdjacentPages,
@@ -47,6 +55,7 @@ export {
   getTocNode,
   getWorkBySlug,
   listEditions,
+  listFootnoteTexts,
   listPages,
   listTocNodes,
   listWorkAuthors,
@@ -54,7 +63,12 @@ export {
   passageWithPageRow,
   tocNodeWithStartRow,
 } from "./repo/corpus.ts";
-export type { EditionContext, PassageWithPageRow, TocNodeWithStartRow } from "./repo/corpus.ts";
+export type {
+  EditionContext,
+  FootnoteTextRow,
+  PassageWithPageRow,
+  TocNodeWithStartRow,
+} from "./repo/corpus.ts";
 export {
   AI_TEXT_LANG,
   ANY_TERMS_BELOW,

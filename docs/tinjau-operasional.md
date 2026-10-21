@@ -15,6 +15,21 @@ Evaluasi sementara **Agent QA S18** telah mengisi 60 ulasan atas permintaan pemi
 
 Penilaian dapat diperbarui oleh akun yang sama. Jangan memakai satu akun untuk dua penilai yang ingin memiliki catatan terpisah: kunci penilai diturunkan dari akun Access. Jangan memasukkan email, nomor telepon, atau pertanyaan pribadi ke alasan. Ekspor memuat soal privat: simpan untuk evaluasi internal, jangan unggah ke repo atau tautan publik.
 
+## Tinjau label status hadits (X07)
+
+Halaman: [surau.org/tinjau/takhrij](https://surau.org/tinjau/takhrij) (tautan "Label status hadits" di atas halaman tinjau; login sama). Setiap butir adalah **satu catatan kaki takhrij al-'Iraqi**. Labelnya disusun kode dari istilah yang tertulis di teks takhrij (ADR-069); satu keputusan berlaku untuk setiap jawaban Jawab yang mengutip takhrij itu.
+
+1. Pilih daftar **Belum ditinjau** (bawaan). Urutannya: takhrij yang paling sering dikutip Jawab, lalu yang penilaiannya berbeda per jalur, lalu urutan kitab.
+2. Baca teks takhrij. Istilah yang dikenali kode **disorot**; di bawahnya ada label otomatis dan arti baku tiap istilah. Tautan "Buka di pembaca" dan "Hadits di matan" membuka halaman kitab.
+3. Isi nama sendiri (**Anas**). Keputusan dipakai Jawab hanya atas nama ustadz peninjau yang ditunjuk pemilik; nama lain (uji pemilik, Agent QA) tersimpan tetapi tidak dipakai.
+4. Pilih keputusan:
+   - **Setujui label** bila semua istilah yang disorot memang penilaian takhrij dan artinya tepat. Di Jawab, label tampil "ditinjau ustadz".
+   - **Koreksi jenis istilah** bila ada istilah keliru (misalnya kata itu bagian dari lafaz hadits) atau penilaian yang terlewat. Centang jenis yang benar; pratinjau label hasil koreksi muncul di bawahnya. Teks takhrij tidak perlu diketik ulang; jenis yang tidak punya istilah baku di teks tampil di Jawab tanpa teks Arab ("ditetapkan peninjau"). Di Jawab, label tampil "dikoreksi ustadz".
+   - **Ragu, perlu dibahas** bila belum yakin. Label otomatis tetap dipakai dan butir pindah ke daftar **Perlu dibahas**.
+5. Catatan boleh diisi (tidak tampil di Jawab). Tekan **Simpan dan lanjut**; butir berikutnya terbuka. Keputusan bisa diubah kapan saja dari daftar **Sudah ditinjau**.
+
+Bila teks takhrij atau aturan istilah berubah, label berubah dan butir kembali ke **Belum ditinjau** (keputusan lama tetap terlihat "untuk label lama"). Tabel `takhrij_review` di **surau-app** menyimpan keputusan, jenis istilah, catatan, nama, kunci akun (hash), dan waktu; tidak ada teks Arab dari penilai dan tidak ada kedaluwarsa (anotasi korpus).
+
 ## Akses dan penyimpanan
 
 Cloudflare Access **Surau Tinjau** melindungi `surau.org/tinjau` dan `surau.org/api/review` beserta turunannya. Login hanya One-time PIN, sesi 24 jam, satu email yang diberikan pemilik. Email hanya ada di kebijakan Cloudflare. Wildcard preview dan `/admin` belum dikonfigurasi.

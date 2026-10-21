@@ -30,6 +30,9 @@ export const TAKHRIJ_TERM_GLOSS: Readonly<Record<TakhrijTermKind, string>> = {
   rujukan: "lihat takhrij di tempat lain",
 };
 
+/** Urutan baku jenis istilah (urutan `TAKHRIJ_TERM_GLOSS`; pilihan koreksi penilai, X07). */
+export const TAKHRIJ_TERM_KINDS = Object.keys(TAKHRIJ_TERM_GLOSS) as readonly TakhrijTermKind[];
+
 const POSITIVE: ReadonlySet<TakhrijTermKind> = new Set([
   "muttafaq",
   "sahih",
@@ -46,6 +49,9 @@ const NEGATIVE: ReadonlySet<TakhrijTermKind> = new Set([
   "la_asl",
   "lam_ajid",
 ]);
+
+/** Istilah kelemahan, palsu, tanpa asal, atau tidak ditemukan (dasar tanda `weak`). */
+export const isWeakTakhrijKind = (kind: TakhrijTermKind): boolean => NEGATIVE.has(kind);
 
 /** Batas panjang teks status (skema eval `status`, `latin(120)`). */
 export const TAKHRIJ_STATUS_MAX = 120;
@@ -104,18 +110,30 @@ export function takhrijLabel(raw: string, range?: { start: number; end: number }
   const weak = terms.some((t) => NEGATIVE.has(t.kind));
   const base = { version: TAKHRIJ_TERMS_VERSION, mixed: false, weak, terms };
   if (found.kind !== "takhrij") return { ...base, kind: "not_takhrij", text: NOT_TAKHRIJ };
-  let kinds = [...new Set(terms.map((t) => t.kind))];
+  const status = takhrijStatus(terms.map((t) => t.kind));
+  if (status.kind !== "terms" && found.terms.some((t) => !inRange(t) && t.kind !== "rujukan"))
+    return { ...base, kind: "sources_only", text: RANGE_WITHOUT_TERMS };
+  return { ...base, ...status };
+}
+
+/**
+ * Teks status dari jenis istilah (urut kemunculan; duplikat diabaikan), dibuat kode. Dipakai label
+ * kode dan label koreksi penilai (X07), supaya keduanya disusun dengan aturan yang sama.
+ */
+export function takhrijStatus(list: readonly TakhrijTermKind[]): {
+  kind: "terms" | "sources_only" | "refers_back";
+  text: string;
+  mixed: boolean;
+} {
+  let kinds = [...new Set(list)];
   // "muttafaq" sudah mencakup al-Bukhari dan Muslim; rujukan hanya disebut bila sendirian.
   if (kinds.includes("muttafaq")) kinds = kinds.filter((k) => k !== "bukhari" && k !== "muslim");
   const refersBack = kinds.includes("rujukan");
   kinds = kinds.filter((k) => k !== "rujukan");
-  if (kinds.length === 0) {
-    if (found.terms.some((t) => !inRange(t) && t.kind !== "rujukan"))
-      return { ...base, kind: "sources_only", text: RANGE_WITHOUT_TERMS };
+  if (kinds.length === 0)
     return refersBack
-      ? { ...base, kind: "refers_back", text: REFERS_BACK }
-      : { ...base, kind: "sources_only", text: SOURCES_ONLY };
-  }
+      ? { kind: "refers_back", text: REFERS_BACK, mixed: false }
+      : { kind: "sources_only", text: SOURCES_ONLY, mixed: false };
   const mixed = kinds.some((k) => POSITIVE.has(k)) && kinds.some((k) => NEGATIVE.has(k));
   const head = "takhrij menyebut: ";
   const tail = mixed ? MIXED : "";
@@ -131,5 +149,5 @@ export function takhrijLabel(raw: string, range?: { start: number; end: number }
     }
     body = next;
   }
-  return { ...base, kind: "terms", mixed, text: `${head}${body}${tail}` };
+  return { kind: "terms", mixed, text: `${head}${body}${tail}` };
 }

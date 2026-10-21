@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-21 · X07 · Sisipan: antrean tinjauan label status hadits di `/tinjau` — selesai
+
+- Dikerjakan:
+  - DB app `takhrij_review` (migrasi 0005): keputusan setuju/koreksi (kode jenis istilah)/ragu per (catatan kaki, versi aturan, penilai), terikat sidik label kode yang dilihat penilai; repo + hitungan kutipan takhrij dari `answer_log`/`answer_cache`.
+  - Core: `takhrijStatus` (diekstrak dari `takhrijLabel`, keluaran identik), `effectiveTakhrijReview` (hanya ustadz peninjau yang ditunjuk, ragu/beda pendapat = tidak berlaku), `reviewedTakhrijLabel`, `takhrijReviewInput`.
+  - Jawab `pipeline@7`: tinjauan dari DB app dipakai untuk klaim dan baris "Status hadits:" (`ustadz_reviewed`/`ustadz_corrected` + `added_terms`); cache basi bila tinjauan berubah; tanda kelemahan `/api/kutipan` ikut label tertinjau; UI Tanya menampilkan chip "ditinjau ustadz"/"dikoreksi ustadz".
+  - Halaman `/tinjau/takhrij` + `/api/review/takhrij`: antrean prioritas (kutipan Jawab → berbeda per jalur → urutan kitab), teks takhrij dari DB dengan istilah disorot, label yang dipakai Jawab, formulir setuju/koreksi (kotak centang + pratinjau label)/ragu; navigasi antar halaman tinjau.
+- Verifikasi:
+  - Tes baru: D1 workerd (repo, CHECK), core, pipeline, Worker `surau-api` (label tertinjau dipakai; cache dipakai/dijalankan ulang; Agent QA tidak dipakai), web (antrean, route, kutipan, tampilan).
+  - Refaktor `takhrijLabel` vs versi X06 atas korpus `ihya-v7`: 13.194 kombinasi (catatan kaki × rentang), 0 beda.
+  - Pratinjau komponen antrean di browser lokal (catatan kaki Ihya nyata, halaman sementara tidak di-commit): desktop, ponsel 375 px tanpa gulir samping, mode gelap; ditemukan + diperbaiki: butir yang sama tidak dimuat ulang sesudah simpan, kontrol formulir tak terlihat di panel (varian `secondary`).
+  - `pnpm verify` lolos.
+- Biaya API: –
+- Keputusan: ADR-070
+- Catatan untuk sesi berikutnya: login nyata dan tinjauan Anas tetap T-24 (butir 5 baru). Prioritas "paling sering dikutip" di produksi butuh data (`answer_cache` setelah Jawab menyala, atau arsip eval dimuat ke `answer_log` atas aba-aba pemilik). Label di MCP `get_hadith_takhrij` belum.
+
 ## 2026-10-21 · X06 · Sisipan: status hadits dari label istilah takhrij — selesai
 
 - Dikerjakan:

@@ -22,8 +22,31 @@ export {
 } from "./jawab-request.ts";
 export type { JawabErrorCode, JawabRequest, JawabStatus } from "./jawab-request.ts";
 export { getHadithTakhrij } from "./takhrij.ts";
-export { TAKHRIJ_STATUS_MAX, TAKHRIJ_TERM_GLOSS, takhrijLabel } from "./takhrij-label.ts";
+export {
+  TAKHRIJ_STATUS_MAX,
+  TAKHRIJ_TERM_GLOSS,
+  TAKHRIJ_TERM_KINDS,
+  isWeakTakhrijKind,
+  takhrijLabel,
+  takhrijStatus,
+} from "./takhrij-label.ts";
 export type { TakhrijLabel, TakhrijLabelTerm } from "./takhrij-label.ts";
+/** Versi aturan istilah takhrij (label dan tinjauannya terikat versi ini). */
+export { TAKHRIJ_TERMS_VERSION } from "@surau/text";
+export {
+  TAKHRIJ_USTADZ_REVIEWERS,
+  effectiveTakhrijReview,
+  isUstadzReviewer,
+  reviewedTakhrijLabel,
+  takhrijLabelHash,
+  takhrijReviewInput,
+  takhrijReviewsFor,
+} from "./takhrij-review.ts";
+export type {
+  EffectiveTakhrijReview,
+  ReviewedTakhrijLabel,
+  TakhrijReviewInput,
+} from "./takhrij-review.ts";
 export { answerPassages, answerToc } from "./answer-context.ts";
 export type { AnswerPassage, AnswerTocNode } from "./answer-context.ts";
 export {
