@@ -169,10 +169,13 @@ function TocSheet({
   toc,
   activeIds,
   className,
+  scope,
 }: {
   toc: TocItem[];
   activeIds: number[];
   className?: string;
+  /** Permalink halaman baca: sorotan mengikuti halaman sambungan yang sedang dibaca. */
+  scope: string;
 }) {
   return (
     <Sheet>
@@ -191,7 +194,7 @@ function TocSheet({
               <Sheet.Heading>{t.tocHeading}</Sheet.Heading>
             </Sheet.Header>
             <Sheet.Body data-toc-scroll className="pb-6">
-              <TocTree activeIds={activeIds} items={toc} />
+              <TocTree activeIds={activeIds} items={toc} scope={scope} />
             </Sheet.Body>
           </Sheet.Dialog>
         </Sheet.Content>
@@ -236,7 +239,7 @@ export function ReaderToolbar({
         size="sm"
         variant="tertiary"
       >
-        <TocSheet activeIds={activeIds} className="flex-1" toc={toc} />
+        <TocSheet activeIds={activeIds} className="flex-1" scope={pagePath} toc={toc} />
         <ReaderStyle separator className="flex-1" sample={sample} />
         <MobileMenu pagePath={pagePath} {...jump} />
       </ButtonGroup>
@@ -246,7 +249,7 @@ export function ReaderToolbar({
         size="sm"
         variant="tertiary"
       >
-        <TocSheet activeIds={activeIds} className="lg:hidden" toc={toc} />
+        <TocSheet activeIds={activeIds} className="lg:hidden" scope={pagePath} toc={toc} />
         <JumpToPage {...jump} />
         <Button onPress={() => void reader.copyCitation(pagePath)}>
           <ButtonGroup.Separator />

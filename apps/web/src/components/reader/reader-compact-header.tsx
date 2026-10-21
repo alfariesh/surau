@@ -1,9 +1,10 @@
 "use client";
 
 import { ProgressCircle } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { id } from "../../i18n/id";
+import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 import { ArabicInline } from "../arabic";
 import { NavbarSlot } from "../shell/navbar-slot";
 
@@ -32,19 +33,30 @@ export function ReaderCompactHeader({
   page,
   bab,
   sample,
+  scope,
 }: {
   juz: number;
   page: number;
   /** Judul bab terdalam (teks DB) atau null. */
   bab: string | null;
   sample: string | null;
+  /** Permalink halaman baca: navbar mengikuti halaman sambungan yang sedang dibaca (X04 W6). */
+  scope: string;
 }) {
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
+  const live = useSyncExternalStore(
+    subscribeReaderPage,
+    () => readerPageFor(scope),
+    () => null,
+  );
+  const at = live ?? { juz, page, bab };
 
   useEffect(() => {
     const title = document.querySelector("[data-reader-title]");
-    const text = document.querySelector(".reader-text");
+    const text =
+      document.querySelector(`.reader-text[data-page="${at.juz}/${at.page}"]`) ??
+      document.querySelector(".reader-text");
     if (title === null || text === null) return;
 
     // Batas atas = bawah navbar (4rem): judul dianggap tergulir saat masuk ke balik navbar.
@@ -71,7 +83,7 @@ export function ReaderCompactHeader({
       window.removeEventListener("scroll", schedule, { capture: true });
       window.removeEventListener("resize", schedule);
     };
-  }, []);
+  }, [at.juz, at.page]);
 
   return (
     <NavbarSlot>
@@ -93,12 +105,12 @@ export function ReaderCompactHeader({
           </ProgressCircle.Track>
         </ProgressCircle>
         <span className="text-foreground shrink-0 text-sm font-medium tabular-nums sm:text-base">
-          <span className="sm:hidden">{t.pageShort(juz, page)}</span>
-          <span className="hidden sm:inline">{t.pageHeading(juz, page)}</span>
+          <span className="sm:hidden">{t.pageShort(at.juz, at.page)}</span>
+          <span className="hidden sm:inline">{t.pageHeading(at.juz, at.page)}</span>
         </span>
-        {bab ? (
+        {at.bab ? (
           <span className="text-muted hidden min-w-0 truncate text-sm md:inline">
-            <ArabicInline>{bab}</ArabicInline>
+            <ArabicInline>{at.bab}</ArabicInline>
           </span>
         ) : null}
         <ReaderStyle iconOnly className="ms-auto shrink-0" sample={sample} />

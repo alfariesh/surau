@@ -184,10 +184,16 @@ test("label rujukan ayat membuka teks ayat dan terjemahan Kemenag dengan atribus
   // Label tampil lewat CSS, tidak ikut teks Arab yang disalin.
   const arabic = await page.locator(".reader-text .arabic-text").allInnerTexts();
   expect(arabic.join("\n")).not.toContain("QS 27:90");
-  await chip.click();
   // Kutipan hanya sebagian ayat: terjemahan yang tampil adalah ayat lengkap, berlabel demikian.
   const card = page.getByRole("dialog").filter({ hasText: "Kitab mengutip sebagian ayat ini." });
-  await expect(card.getByText("Terjemahan ayat lengkap (Kemenag)")).toBeVisible();
+  // Klik diulang bila terjadi sebelum hidrasi (tombol sudah terlihat dari HTML server, tetapi belum
+  // aktif): sekali flaky di Preview PR #115.
+  await expect(async () => {
+    await chip.click();
+    await expect(card.getByText("Terjemahan ayat lengkap (Kemenag)")).toBeVisible({
+      timeout: 1500,
+    });
+  }).toPass({ timeout: 15_000 });
   await expect(page.getByRole("link", { name: /Buka ayat ini di Tanzil/ })).toHaveAttribute(
     "href",
     "https://tanzil.net/#27:90",

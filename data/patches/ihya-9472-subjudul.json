@@ -1,0 +1,1269 @@
+{
+  "format": 1,
+  "edition": 1,
+  "corpus": "ihya-v7",
+  "entries": {
+    "2101": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "162047c56bd50e1e"
+    },
+    "2155": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "818b47cc8acbdf42"
+    },
+    "2190": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b32b6d6b0a73b905"
+    },
+    "2529": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "30d0b6ecc37f532c"
+    },
+    "2792": {
+      "kind": "lead",
+      "end": 9,
+      "sha": "18c7d5c3c4450264"
+    },
+    "2793": {
+      "kind": "lead",
+      "end": 11,
+      "sha": "72c39fb86a06d181"
+    },
+    "2801": {
+      "kind": "lead",
+      "end": 12,
+      "sha": "75452a99b86fbb4d"
+    },
+    "2802": {
+      "kind": "lead",
+      "end": 12,
+      "sha": "b807119d46b6a556",
+      "tr": {
+        "start": 0,
+        "end": 10,
+        "sha": "6612f49fb0e15255"
+      }
+    },
+    "2803": {
+      "kind": "lead",
+      "end": 10,
+      "sha": "76028c04cb09abcd",
+      "tr": {
+        "start": 0,
+        "end": 11,
+        "sha": "9d1b4fbae2efc2e3"
+      }
+    },
+    "2804": {
+      "kind": "lead",
+      "end": 10,
+      "sha": "42560bced4398ddd",
+      "tr": {
+        "start": 0,
+        "end": 11,
+        "sha": "5e0ad607e8402299"
+      }
+    },
+    "2812": {
+      "kind": "lead",
+      "end": 9,
+      "sha": "d8b6e3a4eb660e9a",
+      "tr": {
+        "start": 0,
+        "end": 11,
+        "sha": "e7f4b1616280bb2e"
+      }
+    },
+    "2814": {
+      "kind": "lead",
+      "end": 10,
+      "sha": "9f76e3c83462de90",
+      "tr": {
+        "start": 0,
+        "end": 11,
+        "sha": "bb78b1aa5a731f1f"
+      }
+    },
+    "2815": {
+      "kind": "lead",
+      "end": 12,
+      "sha": "7de7cd7bd668a3ec"
+    },
+    "2816": {
+      "kind": "lead",
+      "end": 13,
+      "sha": "3e3de6b8907f5bf9",
+      "tr": {
+        "start": 0,
+        "end": 13,
+        "sha": "095ad8f66d3fadf4"
+      }
+    },
+    "2818": {
+      "kind": "lead",
+      "end": 13,
+      "sha": "48aa0c1f6d65979b",
+      "tr": {
+        "start": 0,
+        "end": 17,
+        "sha": "6a8ded8af83e127e"
+      }
+    },
+    "2825": {
+      "kind": "lead",
+      "end": 11,
+      "sha": "9363f38a99f5b804",
+      "tr": {
+        "start": 0,
+        "end": 18,
+        "sha": "750157ede10f68ea"
+      }
+    },
+    "2826": {
+      "kind": "lead",
+      "end": 11,
+      "sha": "5be138996ea50e19",
+      "tr": {
+        "start": 0,
+        "end": 12,
+        "sha": "4908d217838999e0"
+      }
+    },
+    "2827": {
+      "kind": "lead",
+      "end": 10,
+      "sha": "0ea229144a81e813",
+      "tr": {
+        "start": 0,
+        "end": 22,
+        "sha": "742fffeaa0e814a3"
+      }
+    },
+    "3257": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "d23189b303aebc1a"
+    },
+    "3289": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "50a64d613d4acaa6"
+    },
+    "3335": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b50233bdfa2c7e25"
+    },
+    "4685": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "8d4e6439dcd1a255"
+    },
+    "4754": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "2f26a7dd875cf723"
+    },
+    "4821": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "0855cebf21a79aae"
+    },
+    "4876": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "631a36a9d466b700"
+    },
+    "4897": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "0e2cf9b576f52d40"
+    },
+    "4909": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "456bdfe6ed235d32"
+    },
+    "7555": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b94328aefe14f287"
+    },
+    "7616": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "ffb2f0aa74e475ca"
+    },
+    "7642": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "46778a4cf986f3f2"
+    },
+    "7666": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "0b318c5e256a57d5"
+    },
+    "9809": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "0a2650cb6dfe9faa"
+    },
+    "9836": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "637dd9b742fdfa23"
+    },
+    "10143": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "37c6818cb597030c"
+    },
+    "11362": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "d7b8ab4671c9b817"
+    },
+    "11378": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "e9b9bfcba10784fb"
+    },
+    "11379": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "62d6fd3d98fceaf2",
+      "of": 11378
+    },
+    "11446": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b11860c4c79ae0dd"
+    },
+    "11482": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "6bd497c68877a3a3"
+    },
+    "11510": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "a149d09bc589604a"
+    },
+    "11607": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "abf9875d865ffb23"
+    },
+    "11618": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "bb186d5c5d25d7b0"
+    },
+    "11631": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "ecb5216ce2bc2b21"
+    },
+    "11642": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "1b9b8e1096f8d22b"
+    },
+    "11646": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "3bcc5ccf3ff398ab"
+    },
+    "11662": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "e011a05119ceb2a6"
+    },
+    "11689": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "cb2fdfb676ac9432"
+    },
+    "11798": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "ac5c1441fe01ddb4"
+    },
+    "11816": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "0bdc63e56a2034d5"
+    },
+    "11826": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "2859fb4e0e6b0492"
+    },
+    "11873": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "430b5e5c2706c451"
+    },
+    "11907": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "8a0f95e05ec33496"
+    },
+    "11963": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "0f4679017e903862"
+    },
+    "11964": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "603c6415bcd8c999",
+      "of": 11963
+    },
+    "11987": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "bd93b2b395d5fec5"
+    },
+    "11988": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "1d5a9af2ab5e99b8",
+      "of": 11987
+    },
+    "12001": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "cb48c73467fc82a6"
+    },
+    "12021": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "ad18689a1fe7c4f8"
+    },
+    "12022": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "11b829674dd1efe5",
+      "of": 12021
+    },
+    "12047": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "2974fd31ed60540a"
+    },
+    "12072": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "296a102b0886952a"
+    },
+    "12122": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "07d23aa67e04afa5"
+    },
+    "12123": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "690f29690f9b1e73",
+      "of": 12122
+    },
+    "12137": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "72c3a0c88fdf42a7"
+    },
+    "12156": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "1f29a3d8d63ba7cc"
+    },
+    "12185": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "d5a6ca3e63f77a14"
+    },
+    "12217": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "711f079050fdf863"
+    },
+    "12251": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "293f34ec5d569d36"
+    },
+    "12276": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "a0446729448d2054"
+    },
+    "12287": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "4b70fbe110b2c853"
+    },
+    "12295": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "66f13fcc6df24dc8"
+    },
+    "12302": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "fdcbede11e9a2b14"
+    },
+    "12314": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "4e4296f3ed23e530"
+    },
+    "12315": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "d91bb9a1d61833ff",
+      "of": 12314
+    },
+    "12351": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "668a72d777c1bee4"
+    },
+    "12377": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "9f30774548b5d96d"
+    },
+    "12378": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "fa03dd276f012767",
+      "of": 12377
+    },
+    "12385": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "a3998e88aed89f57"
+    },
+    "12386": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "9cd51d8bb97953a5",
+      "of": 12385
+    },
+    "12413": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "1843827928337366"
+    },
+    "12445": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "216ef66da4e7febd"
+    },
+    "12480": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "753d6a30b6b24791"
+    },
+    "12517": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "f65209f85fd65063"
+    },
+    "12536": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "64050d8944823aac"
+    },
+    "12561": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "5b86ea2ca2444dc9"
+    },
+    "12584": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "c48304f9a6984803"
+    },
+    "12604": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "df7babdad3a208ab"
+    },
+    "12912": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "56824c281773f1f4"
+    },
+    "12932": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "e620b0d99c51725d"
+    },
+    "12977": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "766e1df211760755"
+    },
+    "12984": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "1ebfe164ed53c673"
+    },
+    "13003": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "8b34d58f83333b10"
+    },
+    "13027": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "f4c43d6a442b958d"
+    },
+    "13053": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "ba1d2aadbdbe9aa0"
+    },
+    "13064": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "5897a5f727f9ad79"
+    },
+    "13080": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "381dc89364600065"
+    },
+    "13106": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "e20158ae608fc4cf"
+    },
+    "13160": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "cb27ad61994720ae"
+    },
+    "13205": {
+      "kind": "tail",
+      "start": 561,
+      "sha": "8d5dac0f29acec07",
+      "tr": {
+        "start": 1208,
+        "end": 1250,
+        "sha": "07af93a056bbed1f"
+      }
+    },
+    "13237": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "7c52f0a264331c31"
+    },
+    "13259": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "3efcdb8beade1a08"
+    },
+    "13287": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b7cbcddd0dbc16d8"
+    },
+    "13297": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "11226b6e8ce61bfc"
+    },
+    "13343": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b14f5aa92287fa15"
+    },
+    "13384": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "d6813d2e9c89840f"
+    },
+    "13450": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "d5d99819f4dc1a35"
+    },
+    "13451": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "b12f8d44aa1ef211",
+      "of": 13450
+    },
+    "13470": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "dad3e03e22f4739a"
+    },
+    "13492": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "acc5b3ed89cd829b"
+    },
+    "13508": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "c53af6f4e4a194cb"
+    },
+    "13509": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "e519d3190503167a",
+      "of": 13508
+    },
+    "13515": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "a9fc77b84787a86a"
+    },
+    "13541": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "9101db81cd36e4d3"
+    },
+    "13553": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "6cbeb9d3acc5d86e"
+    },
+    "13653": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "dca39b55b1d1346f"
+    },
+    "13666": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "e958fdf84f1ba900"
+    },
+    "13717": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "ed6bf0738569a1dc"
+    },
+    "13757": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b998663ad28062b6"
+    },
+    "13758": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "a44dfcb11e67d5f3",
+      "of": 13757
+    },
+    "13801": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "6c51c1f8a0b2faf3"
+    },
+    "13836": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b3526ebef286014d"
+    },
+    "13847": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "fc9f62a0aaf8612e"
+    },
+    "13869": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "c6fab794cdefe2cd"
+    },
+    "13921": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "7c271a006eec3984"
+    },
+    "13953": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "22eec650fdc2d1c0"
+    },
+    "14056": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "02227ace80e4b681"
+    },
+    "14127": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "103ba10da24d16a9"
+    },
+    "14151": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "f0d2e008deb83ce4"
+    },
+    "14186": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "1bca18ca5cde3712"
+    },
+    "14213": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "1873ec4299d8ea12"
+    },
+    "14231": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "c699f298462b9236"
+    },
+    "14341": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "945d3c48b682a801"
+    },
+    "14366": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "e56e0f6406cfea47"
+    },
+    "14372": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "4719b2da927eb5c8"
+    },
+    "14383": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "61071b45755a8224"
+    },
+    "14384": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "2d3113cb5c214003",
+      "of": 14383
+    },
+    "14420": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "d9f3cd1bfc0f96b8"
+    },
+    "14441": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "2ec548ddd4da701b"
+    },
+    "14454": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "9ef4fc7d1d1a4c77"
+    },
+    "14455": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "303ff122a183c8e1",
+      "of": 14454
+    },
+    "14467": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "efd1321da4fb21e3"
+    },
+    "14484": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "73ce5b0ee2c08679"
+    },
+    "14501": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "60fb815381a252a4"
+    },
+    "14519": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "f2a01fc591d29dd9"
+    },
+    "14545": {
+      "kind": "tail",
+      "start": 29,
+      "sha": "d528955d21e898a2",
+      "tr": {
+        "start": 67,
+        "end": 103,
+        "sha": "836986e46136464f"
+      }
+    },
+    "14595": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b2b87a46f4dae755"
+    },
+    "14645": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "9e052bb501b73cc2"
+    },
+    "14692": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "930ecfc8e8407c37"
+    },
+    "14740": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "39109e6f6b7b31cc"
+    },
+    "14827": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "c45453788c5282de"
+    },
+    "14852": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "7ef1e8e95932d41a"
+    },
+    "14853": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "54bc2461cc61b98f",
+      "of": 14852
+    },
+    "14890": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "73eb7c0a0f5d072c"
+    },
+    "14984": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "7fe40ea626fadc48"
+    },
+    "15010": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "8178d757190a8986"
+    },
+    "15050": {
+      "kind": "tail",
+      "start": 74,
+      "sha": "8a71c4bad50fdf02"
+    },
+    "15084": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "c146512138dd3f08"
+    },
+    "15095": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "280e9d53a5b66b71"
+    },
+    "15157": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "b18cd9193fae267a"
+    },
+    "15173": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "3db14916c98bf560"
+    },
+    "15253": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "41c63888d986f91e"
+    },
+    "15266": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "bae2a38af780f602"
+    },
+    "15310": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "8fb1ce0344f1c167"
+    },
+    "15431": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "cbbb852544c95ea8"
+    },
+    "15444": {
+      "kind": "tail",
+      "start": 99,
+      "sha": "a41d0dae0e4890b0",
+      "tr": {
+        "start": 201,
+        "end": 250,
+        "sha": "1d0d4c7a6c0bcfaa"
+      }
+    },
+    "15468": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "fc044eff64d8aee6"
+    },
+    "15474": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "69edb052ca0c23d1"
+    },
+    "15485": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "186a4b2a462515e2"
+    },
+    "15510": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "16086f92a32e2bf4"
+    },
+    "15561": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "46b30c2e17b8860d"
+    },
+    "15648": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "e53ce45d1ecf66be"
+    },
+    "15912": {
+      "kind": "tail",
+      "start": 53,
+      "sha": "d29106fa4bb2d71d",
+      "tr": {
+        "start": 100,
+        "end": 209,
+        "sha": "d2d97fcddc601ba7"
+      }
+    },
+    "15917": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "043b23789c93c3e3"
+    },
+    "15950": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "592ad319dccf271c"
+    },
+    "16007": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "234bc0ffbefb157b"
+    },
+    "16008": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "b64e3707f113e48c",
+      "of": 16007
+    },
+    "16043": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "1bda7c3cf83fe7df"
+    },
+    "16098": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "69186cf18338c310"
+    },
+    "16114": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "a73b8c53f2ced93d"
+    },
+    "16115": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "26d005f85abab65e",
+      "of": 16114
+    },
+    "16206": {
+      "kind": "lead",
+      "end": 16,
+      "sha": "00af064863e89058",
+      "tr": {
+        "start": 0,
+        "end": 35,
+        "sha": "ffc7c537f7ad999d"
+      }
+    },
+    "16258": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "edec8a75ca5ef30c"
+    },
+    "16288": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "84d861d95c206126"
+    },
+    "16320": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "a9a03ca170c797b7"
+    },
+    "16422": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "70e3a17bcdb2b911"
+    },
+    "16423": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "5c843e8506a7161e",
+      "of": 16422
+    },
+    "16465": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "cee3cc97831c6e93"
+    },
+    "16492": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "326e9bc82212f651"
+    },
+    "16537": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "3ab3b7f41b14d99b"
+    },
+    "16555": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "224193d42329c0ea"
+    },
+    "16732": {
+      "kind": "tail",
+      "start": 220,
+      "sha": "226c4db1550256ad",
+      "tr": {
+        "start": 439,
+        "end": 471,
+        "sha": "2171f3a017c3716a"
+      }
+    },
+    "16743": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "5cad88cccf50ac98"
+    },
+    "16751": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "68baf35a3e76423f"
+    },
+    "16764": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "c8ab5d141bc95e4b"
+    },
+    "16822": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "e25108a98d940090"
+    },
+    "17000": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "2d1fc83d9ab66a7d"
+    },
+    "17109": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "8a488fd981d2615c"
+    },
+    "17245": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "7d5cef4e26d52134"
+    },
+    "17257": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "43ad5afeab131607"
+    },
+    "17436": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "a8e2f7f4755b1325"
+    },
+    "17437": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "c5fe941fb57aa36c",
+      "of": 17436
+    },
+    "17640": {
+      "kind": "lead",
+      "end": 17,
+      "sha": "a15a3727d0247f61",
+      "tr": {
+        "start": 0,
+        "end": 29,
+        "sha": "c89fbc5e4506743a"
+      }
+    },
+    "17895": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "484f877ff015bc0f"
+    },
+    "17896": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "bacf5020ffadfe1b",
+      "of": 17895
+    },
+    "18534": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "9ca5b96c3c46c307"
+    },
+    "18535": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "1075c4d140390363",
+      "of": 18534
+    },
+    "18707": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "4a25b6f08efcb2e9"
+    },
+    "18881": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "d0e8dd98070aaee1"
+    },
+    "19088": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "651ebc1ceb3848eb"
+    },
+    "19164": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "07d690287dcc3194"
+    },
+    "19344": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "dae55c097293d9b5"
+    },
+    "19384": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "ff0511716b311603"
+    },
+    "19493": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "fa63e1bcaa47e0f2"
+    },
+    "19612": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "19d04f49f8e19f0b"
+    },
+    "19640": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "9f2aca36c67aa22c"
+    },
+    "19696": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "082018053032b49f"
+    },
+    "19715": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "cfa964b8c912516b"
+    },
+    "19726": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "3e856c4dc9ed9905"
+    },
+    "19804": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "7060f99d3beec746"
+    },
+    "19827": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "f4419d0d2bb67b78"
+    },
+    "19940": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "d1db6f20382c9ecd"
+    },
+    "19941": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "8083d0642ee867e9",
+      "of": 19940
+    },
+    "20016": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "36987f012b191ba0"
+    },
+    "20090": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "92bd8c3b8fd37fe3"
+    },
+    "20102": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "8f23ba2092879db2"
+    },
+    "20128": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "250fcb2c6baea1c0"
+    },
+    "20129": {
+      "kind": "heading",
+      "src": "kurasi",
+      "sha": "53e890fc448e5f70",
+      "of": 20128
+    },
+    "20163": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "07a74bf1116cb224"
+    },
+    "20177": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "3569ce5cda898b5e"
+    },
+    "20199": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "9cc163431270900c"
+    },
+    "20207": {
+      "kind": "heading",
+      "src": "bayan",
+      "sha": "74cb3df45128225c"
+    }
+  }
+}

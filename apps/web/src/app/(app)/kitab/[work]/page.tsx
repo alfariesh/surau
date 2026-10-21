@@ -5,6 +5,7 @@ import { Breadcrumbs, Card, Typography } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 
+import { ContinueReading } from "../../../../components/reader/continue-reading";
 import { ArabicInline } from "../../../../components/arabic";
 import { BreadcrumbJsonLd } from "../../../../components/breadcrumb-json-ld";
 import { WorkCover } from "../../../../components/book/work-cover";
@@ -42,7 +43,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function WorkPage({ params }: Props) {
   const { work: segment } = await params;
-  const [{ work, edition }, toc] = await Promise.all([loadWork(segment), loadToc(segment)]);
+  const [{ work, edition, segment: canonical }, toc] = await Promise.all([
+    loadWork(segment),
+    loadToc(segment),
+  ]);
   const title = work.title_id ?? work.title_ar;
   const start = toc[0]?.href;
 
@@ -99,6 +103,7 @@ export default async function WorkPage({ params }: Props) {
               </NextLink>
             </div>
           ) : null}
+          <ContinueReading work={canonical} />
         </div>
       </header>
 
