@@ -30,7 +30,7 @@ Syarat R4 "status hadits benar 100%" belum terbukti: sejak S21 status hadits dit
 - [x] Biaya per jawaban tetap ±US$0,002–0,003 (US$0,0026 tanpa routing)
 - [x] `pnpm verify` lolos (format, lint, typecheck, tes, build)
 - [x] STATUS, LOG, dan file sesi ini sudah diperbarui
-- [ ] PR di-merge (squash) setelah CI hijau — menunggu (file ini ikut PR itu; dicentang sesudah merge)
+- [x] PR di-merge (squash) setelah CI hijau: PR #106, CI 4/4 lolos (1 dilewati), merge 2026-10-21 `bc7b480`
 
 ## Di luar cakupan
 
