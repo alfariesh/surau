@@ -154,13 +154,13 @@ export async function runQuestions(
         },
         q,
       ));
-  const routeFor = (item: RunItem): Route | null | undefined => {
-    if (routes === undefined) return undefined;
-    const route = routes.get(item.question.id);
-    // Rute hilang tidak boleh diam-diam menjadi rute kosong (dokumen berbeda dari run asal).
-    if (route === undefined) throw new Error(`${item.question.id}: tanpa rute tersimpan.`);
-    return route;
-  };
+  // Rute hilang tidak boleh diam-diam menjadi rute kosong (dokumen berbeda dari run asal), dan
+  // diperiksa sebelum soal pertama supaya tidak ada panggilan berbayar yang sia-sia.
+  const unrouted = routes ? items.filter((i) => !routes.has(i.question.id)) : [];
+  if (unrouted.length > 0)
+    throw new Error(`Tanpa rute tersimpan: ${unrouted.map((i) => i.question.id).join(", ")}.`);
+  const routeFor = (item: RunItem): Route | null | undefined =>
+    routes === undefined ? undefined : (routes.get(item.question.id) ?? null);
   const outputs: RunOutput[] = [];
   let spent = 0;
   let inflight = 0;

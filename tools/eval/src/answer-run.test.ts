@@ -127,7 +127,7 @@ describe("rute tersimpan (--rute, X05)", () => {
     );
   });
 
-  test("runner meneruskan rute tiap soal, menandai arsip, dan rute hilang = soal gagal", async () => {
+  test("runner meneruskan rute tiap soal, menandai arsip, dan rute hilang ditolak di awal", async () => {
     const seen: [string, unknown][] = [];
     const routes = savedRoutesFor([item("j001"), item("j002")], saved);
     const out = await runQuestions({} as D1Db, {} as Anthropic, [item("j001"), item("j002")], {
@@ -146,16 +146,19 @@ describe("rute tersimpan (--rute, X05)", () => {
     expect(out.outputs.every((o) => o.answer.prompt_version.endsWith(SAVED_ROUTE_SUFFIX))).toBe(
       true,
     );
-    const errors: string[] = [];
-    const missing = await runQuestions({} as D1Db, {} as Anthropic, [item("j009")], {
-      budgetUsd: 3,
-      concurrency: 1,
-      routes,
-      run: async () => result(),
-      onError: (i) => errors.push(i.question.id),
-    });
-    expect(missing.failed).toBe(1);
-    expect(errors).toEqual(["j009"]);
+    let called = 0;
+    await expect(
+      runQuestions({} as D1Db, {} as Anthropic, [item("j001"), item("j009")], {
+        budgetUsd: 3,
+        concurrency: 1,
+        routes,
+        run: async () => {
+          called++;
+          return result();
+        },
+      }),
+    ).rejects.toThrow("j009");
+    expect(called).toBe(0);
     // Tanpa `routes`: argumen rute tidak diisi dan arsip tanpa akhiran.
     const plain = await runQuestions({} as D1Db, {} as Anthropic, [item("j001")], {
       budgetUsd: 3,

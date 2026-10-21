@@ -90,7 +90,8 @@ export function parseRoute(message: Message, validIds: ReadonlySet<number>): Rou
 /**
  * Pembersihan rute (routing langsung, atau rute tersimpan eval X05): hanya ID bagian yang ada di
  * daftar isi, unik, ≤ `ROUTE_MAX_SECTIONS`; kueri unik, tidak kosong, ≤200 karakter,
- * ≤ `ROUTE_MAX_QUERIES`. Idempoten, jadi rute arsip yang sudah bersih tidak berubah.
+ * ≤ `ROUTE_MAX_QUERIES`. Rute arsip yang sudah dibersihkan tidak berubah kecuali di kasus tepi
+ * kueri >200 karakter (potongan bisa berakhir di spasi atau menyamai kueri lain).
  */
 export function normalizeRoute(route: Route, validIds: ReadonlySet<number>): Route {
   const sections = [...new Set(route.sections.filter((id) => validIds.has(id)))].slice(
