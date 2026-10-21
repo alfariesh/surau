@@ -3,7 +3,8 @@
 // hasil dicocokkan dengan DB; teks Arab tidak pernah berasal dari model.
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env } from "cloudflare:workers";
-import { takhrijLabel } from "@surau/core";
+import { takhrijLabel, takhrijLabelHash } from "@surau/core";
+import { saveTakhrijReview } from "@surau/db";
 import { ANSWER_NOT_FOUND, MODELS, runJawab } from "@surau/llm";
 import { TAKHRIJ_TERMS_VERSION } from "@surau/text";
 import { beforeAll, beforeEach, describe, expect, test, vi } from "vite-plus/test";
@@ -249,12 +250,86 @@ describe("jawaban terverifikasi", () => {
             char_start: t.char_start + foot.char_start,
             char_end: t.char_end + foot.char_start,
           })),
+          added_terms: [],
         },
       ]);
       // Kalimat status model diganti teks label; "sahih" tulisan model tidak tampil.
       expect(result.text).toContain("Status hadits: takhrij menyebut: lemah (hadits di ");
       expect(result.text).not.toContain("sahih");
     } finally {
+      await setFoot(FOOT_1);
+    }
+  });
+
+  test("label yang ditinjau penilai dipakai Jawab; cache yang tinjauannya berubah tidak disajikan (X07)", async () => {
+    const TAKHRIJ = "(١) حديث تجريبي رواه فلان بإسناد ضعيف";
+    const setFoot = (text: string) =>
+      env.CORPUS_DB.prepare("UPDATE passage SET text_raw = ? WHERE id = ?")
+        .bind(text, PASSAGES.foot1)
+        .run();
+    await setFoot(TAKHRIJ);
+    const label = takhrijLabel(TAKHRIJ);
+    const review = {
+      passage_id: PASSAGES.foot1,
+      rules_version: TAKHRIJ_TERMS_VERSION,
+      label_hash: await takhrijLabelHash(label),
+      reviewer_key: "e".repeat(64),
+      reviewer_name: "Anas",
+      decision: "corrected" as const,
+      kinds: ["mursal"],
+      note: "",
+      corpus_version: "fixture",
+      updated_at: "2026-01-01T00:00:00.000Z",
+    };
+    await saveTakhrijReview(env.APP_DB, review);
+    try {
+      const { ask, sent } = setup((_n, docs) => ({
+        blocks: [
+          {
+            text: "Al-Ghazali menukil sebuah hadits.",
+            cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+          },
+          {
+            text: " Status hadits: sanad sahih sekali.",
+            cite: [{ doc: docIndex(docs, TAKHRIJ), from: 0, to: 1 }],
+          },
+        ],
+      }));
+      const first = final((await ask()).events);
+      expect(first.result.hadith).toMatchObject([
+        {
+          label: "ustadz_corrected",
+          status: "takhrij menyebut: mursal",
+          terms: [],
+          added_terms: [{ kind: "mursal", gloss: "mursal" }],
+        },
+      ]);
+      expect(first.result.text).toContain("Status hadits: takhrij menyebut: mursal (hadits di ");
+      // Tinjauan tidak berubah: cache disajikan.
+      expect(final((await ask()).events).data).toMatchObject({ cached: true });
+      const answers = sent.filter((x) => x.kind === "answer").length;
+      // Penilai mengubah keputusan sesudah jawaban di-cache: cache basi, pipeline dijalankan ulang.
+      await saveTakhrijReview(env.APP_DB, {
+        ...review,
+        decision: "approved",
+        kinds: null,
+        updated_at: new Date(Date.now() + 1000).toISOString(),
+      });
+      const again = final((await ask()).events);
+      expect(again.data).toMatchObject({ cached: false });
+      expect(sent.filter((x) => x.kind === "answer").length).toBe(answers + 1);
+      expect(again.result.hadith).toMatchObject([
+        { label: "ustadz_reviewed", status: label.text, added_terms: [] },
+      ]);
+      // Hanya ustadz peninjau yang ditunjuk (bukan Agent QA/uji pemilik) yang dipakai Jawab.
+      await env.APP_DB.prepare("DELETE FROM takhrij_review").run();
+      await env.APP_DB.prepare("DELETE FROM answer_cache").run();
+      await saveTakhrijReview(env.APP_DB, { ...review, reviewer_name: "Agent QA" });
+      expect(final((await ask()).events).result.hadith).toMatchObject([
+        { label: "rule_extracted", status: label.text },
+      ]);
+    } finally {
+      await env.APP_DB.prepare("DELETE FROM takhrij_review").run();
       await setFoot(FOOT_1);
     }
   });

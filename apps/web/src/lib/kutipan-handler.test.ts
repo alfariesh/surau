@@ -1,4 +1,4 @@
-import { answerPassages } from "@surau/core";
+import { answerPassages, takhrijLabel, takhrijLabelHash } from "@surau/core";
 import type { AnswerPassage } from "@surau/core";
 import type { D1Db } from "@surau/db";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -134,6 +134,37 @@ describe("GET /api/kutipan", () => {
     const res = await handleKutipan(req("10000002:0:5,10000003:0:5,10000004:0:5"), deps());
     const { items } = (await res.json()) as { items: KutipanItem[] };
     expect(items.map((i) => i.weak)).toEqual([true, false, false]);
+  });
+
+  it("tanda `weak` mengikuti koreksi penilai (X07); galat DB app = label kode", async () => {
+    const FOOT = "أخرجه فلان بإسناد ضعيف";
+    const label = takhrijLabel(FOOT);
+    vi.mocked(answerPassages).mockResolvedValue([
+      passage({ id: 10000002, kind: "foot", text_raw: FOOT, translation: null }),
+    ]);
+    const row = {
+      passage_id: 10000002,
+      rules_version: label.version,
+      label_hash: await takhrijLabelHash(label),
+      reviewer_key: "b".repeat(64),
+      reviewer_name: "Anas",
+      decision: "corrected" as const,
+      kinds: ["mursal"],
+      note: "",
+      corpus_version: "uji",
+      updated_at: "2026-10-21T00:00:00.000Z",
+    };
+    const weak = async (reviews: Parameters<typeof handleKutipan>[1]["reviews"]) => {
+      const res = await handleKutipan(req("10000002:0:5"), deps({ reviews }));
+      return ((await res.json()) as { items: KutipanItem[] }).items[0]?.weak;
+    };
+    expect(await weak(async () => [row])).toBe(false);
+    expect(await weak(async () => [{ ...row, decision: "approved", kinds: null }])).toBe(true);
+    expect(
+      await weak(async () => {
+        throw new Error("app db");
+      }),
+    ).toBe(true);
   });
 
   it("sliceRaw tidak memotong pasangan surrogate; ayahRefsOnly", () => {

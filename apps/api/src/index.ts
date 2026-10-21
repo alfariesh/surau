@@ -5,7 +5,7 @@
 // → kuota harian → cache → reservasi anggaran → pipeline (ulangan Sonnet direservasi terpisah) →
 // komit biaya aktual. Log tanpa teks pertanyaan, tanpa IP, tanpa ID anon.
 import type Anthropic from "@anthropic-ai/sdk";
-import { JAWAB_BODY_MAX_BYTES, jawabRequest } from "@surau/core";
+import { JAWAB_BODY_MAX_BYTES, TAKHRIJ_TERMS_VERSION, jawabRequest } from "@surau/core";
 import type { JawabRequest, JawabStatus } from "@surau/core";
 import {
   EMPTY_LEDGER_USAGE,
@@ -16,12 +16,14 @@ import {
   getBudget,
   getCorpusMeta,
   getSettings,
+  getTakhrijReviews,
   markBudgetWarning,
   putAnswerCache,
   quotaDay,
   quotaUsed,
   reserveBudget,
   settleLedger,
+  takhrijReviewsChangedSince,
   toMicro,
   touchAnswerCache,
 } from "@surau/db";
@@ -194,6 +196,24 @@ export function unknownProviderCost(r: JawabResult): { model: ModelId; micro: nu
   if (r.reason !== "provider_error" || pe === null || pe.status !== null) return null;
   const usd = pe.stage === "route" ? routeWorstUsd() : answerWorstUsd(pe.model);
   return { model: pe.model, micro: toMicro(usd * (1 + ANTHROPIC_MAX_RETRIES)) };
+}
+
+/**
+ * Hasil cache yang masih boleh disajikan (X07): bila tinjauan label salah satu takhrij yang diklaimnya
+ * berubah sesudah jawaban di-cache, label di hasil itu bisa usang ("ditinjau ustadz" yang sudah
+ * dikoreksi), jadi tidak disajikan dan pipeline dijalankan ulang (hasil baru menimpa cache).
+ * Galat DB = anggap basi.
+ */
+export async function freshCachedResult(
+  db: D1Db,
+  resultJson: string,
+  createdAt: string,
+): Promise<PublicResult | null> {
+  const result = JSON.parse(resultJson) as PublicResult;
+  const footnotes = (result.hadith ?? []).map((h) => h.footnote.passage_id);
+  if (footnotes.length === 0) return result;
+  const changed = await takhrijReviewsChangedSince(db, footnotes, createdAt).catch(() => true);
+  return changed ? null : result;
 }
 
 /** Komit biaya aktual satu pertanyaan (baris `jawab`, dan baris `retry` bila Sonnet dipanggil). */
@@ -409,15 +429,16 @@ export function createApp(deps: Partial<AppDeps> = {}) {
     );
     const cached = await getAnswerCache(env.APP_DB, key, nowIso);
     if (cookie !== null) c.header("Set-Cookie", cookie);
-    if (cached !== null) {
+    const cachedResult =
+      cached === null
+        ? null
+        : await freshCachedResult(env.APP_DB, cached.result_json, cached.created_at);
+    if (cached !== null && cachedResult !== null) {
       return streamSSE(c, async (stream) => {
         c.executionCtx.waitUntil(touchAnswerCache(env.APP_DB, key));
         await stream.writeSSE({
           event: "done",
-          data: JSON.stringify({
-            result: JSON.parse(cached.result_json) as PublicResult,
-            cached: true,
-          }),
+          data: JSON.stringify({ result: cachedResult, cached: true }),
         });
         log({
           ...emptyLog(env.ENVIRONMENT, cached.outcome, null),
@@ -488,6 +509,8 @@ export function createApp(deps: Partial<AppDeps> = {}) {
               },
               // Klien sudah pergi: panggilan yang sedang berjalan diselesaikan, panggilan baru tidak.
               isCancelled: () => clientGone,
+              // Tinjauan label takhrij (X07) dari DB app; gagal dimuat = label kode.
+              takhrijReviews: (ids) => getTakhrijReviews(env.APP_DB, ids, TAKHRIJ_TERMS_VERSION),
               // Ulangan Sonnet = biaya tambahan: direservasi terpisah sebelum dipanggil.
               beforeRetry: async (before) => {
                 const retry: RetryReserved = {
@@ -536,7 +559,9 @@ export function createApp(deps: Partial<AppDeps> = {}) {
           // batas tidak disajikan ulang selama 30 hari.
           const complete = !result.diagnostics.truncated && !result.diagnostics.over_prompt_limit;
           if (complete && result.outcome !== "fallback" && result.model !== null) {
-            const created = now();
+            // Waktu permintaan, bukan waktu selesai: tinjauan label yang tersimpan selama pipeline
+            // berjalan (sesudah tinjauan dimuat) membuat entri ini basi (`freshCachedResult`).
+            const created = at;
             const expires = new Date(created.getTime() + CACHE_TTL_DAYS * 86_400_000);
             // Mis. CHECK panjang result_json; hanya nama galat yang dicatat.
             await putAnswerCache(env.APP_DB, {

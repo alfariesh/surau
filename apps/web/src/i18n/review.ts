@@ -66,3 +66,9 @@ export const reviewText = {
   noReviews: "Belum ada penilaian.",
   sourceLicense: "Sumber dan lisensi",
 } as const;
+
+export const reviewNavText = {
+  label: "Bagian ruang penilai",
+  answers: "Jawaban",
+  takhrij: "Label status hadits",
+} as const;

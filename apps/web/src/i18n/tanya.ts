@@ -31,6 +31,9 @@ export const tanyaText = {
   sourcesHeading: "Kutipan",
   hadithHeading: "Status hadits",
   hadithRule: "dikenali otomatis dari teks takhrij, belum ditinjau",
+  hadithReviewed: "ditinjau ustadz",
+  hadithCorrected: "dikoreksi ustadz",
+  hadithAdded: "Ditetapkan peninjau (tidak tertulis sebagai istilah baku di teks takhrij)",
   hadithAi: "diekstrak AI",
   hadithMixed:
     "Takhrij menyebut penilaian yang berbeda untuk jalur atau lafaz yang berbeda. Baca teks takhrijnya.",
