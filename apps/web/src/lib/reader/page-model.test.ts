@@ -67,6 +67,16 @@ describe("judul node dan jangkar bab (dari node yang mulai di halaman ini)", () 
     expect([...tocHeadings(SECTIONS, body).keys()]).toEqual([10]);
   });
 
+  it("judul node yang bukan paragraf pertamanya (jangkar sumber terlalu awal) tetap dikenali, sekali", () => {
+    const body = [
+      { id: 30, toc_node_id: 1, text_raw: "يتلوه باب" },
+      { id: 31, toc_node_id: 1, text_raw: "باب" },
+      { id: 32, toc_node_id: 1, text_raw: "باب" },
+    ];
+    expect([...tocHeadings(SECTIONS, body).keys()]).toEqual([31]);
+    expect([...tocHeadings(SECTIONS, body, new Set([31])).keys()]).toEqual([32]);
+  });
+
   it("jangkar sebelum paragraf pertama node atau turunannya; tanpa paragraf = unplaced", () => {
     const starts = sectionStarts(SECTIONS, [
       { id: 20, toc_node_id: 2 },
@@ -146,6 +156,24 @@ describe("buildPageModel: subjudul kurasi", () => {
     const model = await buildPageModel(page([lead]), { editionId: 1, sections: [] });
     expect(model.body[0]!.blocks.map((b) => b.kind)).toEqual(["subheading", "text"]);
     expect(model.body[0]!.translation?.bold).toBeNull();
+  });
+});
+
+describe("buildPageModel: jangkar node pindah ke paragraf judulnya", () => {
+  beforeEach(() => vi.mocked(subheadingOf).mockReset());
+
+  it("kolofon sebelum judul kitab: jangkar + ringkasan di paragraf judul, bukan di kolofon", async () => {
+    const sections: SectionNode[] = [{ id: 1, parentId: null, level: 2, title: "باب" }];
+    const colophon = passage(300, "يتلوه باب", { toc_node_id: 1 });
+    const heading = passage(301, "باب", { toc_node_id: 1 });
+    const summary = { section: { id: 1 }, review_status: "ai_generated" };
+    const view = { ...page([colophon, heading]), summaries: [summary] } as unknown as PageView;
+    const model = await buildPageModel(view, { editionId: 1, sections });
+    expect(model.body.map((p) => [p.anchor, p.heading, p.sectionAnchors])).toEqual([
+      ["p300", null, []],
+      ["p301", { kind: "toc", level: 2 }, [1]],
+    ]);
+    expect(model.body[1]!.summaries).toEqual([summary]);
   });
 });
 

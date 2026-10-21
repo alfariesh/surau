@@ -32,7 +32,7 @@ import { z } from "zod";
 import type { CorpusRows } from "../rows.ts";
 import { subheadingFile } from "../subheadings.ts";
 import type { WorkConfig } from "../works/ihya.ts";
-import { appendJsonl, llmDir, readJsonl, storedUsage, usageSchema } from "./store.ts";
+import { appendJsonl, readJsonl, storedUsage, usageSchema } from "./store.ts";
 
 export const TITLES_FILE = "toc-title.jsonl";
 export const TITLE_RUNS_FILE = "toc-title-runs.jsonl";

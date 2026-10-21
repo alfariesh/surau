@@ -125,9 +125,11 @@ function preorder(nodes: readonly SectionNode[]): SectionNode[] {
 }
 
 /**
- * Judul node (h2): paragraf yang teksnya sama dengan judul node-nya dan node itu mulai di halaman
- * ini (sama dengan `headingPassages` lama, kini dari node halaman ini saja). `plain` = paragraf
- * kurasi yang teksnya sama dengan judul node tetapi butir daftar pembuka (bukan judul).
+ * Judul node (h2): paragraf PERTAMA milik node di halaman awalnya yang teksnya sama dengan judul
+ * node (aturan yang sama dengan `isTocHeading` ingest). Biasanya paragraf pertama node, tetapi di 8
+ * node Ihya jangkar Shamela jatuh satu-dua paragraf lebih awal (kolofon kitab sebelumnya, kalimat
+ * pengantar daftar; X04 bagian B). `plain` = paragraf kurasi yang teksnya sama dengan judul node
+ * tetapi butir daftar pembuka (bukan judul).
  */
 export function tocHeadings(
   sections: readonly SectionNode[],
@@ -136,12 +138,14 @@ export function tocHeadings(
 ): Map<number, SectionNode> {
   const byId = new Map(sections.map((s) => [s.id, s]));
   const out = new Map<number, SectionNode>();
-  const seen = new Set<number>();
+  const done = new Set<number>();
   for (const p of body) {
-    if (plain.has(p.id) || p.toc_node_id === null || seen.has(p.toc_node_id)) continue;
-    seen.add(p.toc_node_id);
+    if (plain.has(p.id) || p.toc_node_id === null || done.has(p.toc_node_id)) continue;
     const node = byId.get(p.toc_node_id);
-    if (node && p.text_raw.trim() === node.title.trim()) out.set(p.id, node);
+    if (node && p.text_raw.trim() === node.title.trim()) {
+      out.set(p.id, node);
+      done.add(node.id);
+    }
   }
   return out;
 }
@@ -281,10 +285,11 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
   }
 
   const models = page.body.map((p) => model(p, "body"));
-  // Judul node di akhir paragraf (node_tail): jangkar dan ringkasan node pindah dari butir daftar
-  // (paragraf pertama node menurut sectionStarts) ke paragraf yang memuat judulnya.
-  for (const m of models) {
-    const nodeId = m.nodeHeading?.id;
+  // Jangkar `#bab-<id>` dan ringkasan node pindah dari paragraf pertama node (sectionStarts) ke
+  // paragraf yang memuat judulnya: judul node yang bukan paragraf pertamanya (lihat tocHeadings) dan
+  // judul node di akhir paragraf (node_tail).
+  for (const [i, m] of models.entries()) {
+    const nodeId = m.nodeHeading?.id ?? headings.get(page.body[i]!.id)?.id;
     if (nodeId === undefined) continue;
     for (const o of models) {
       if (o === m || !o.sectionAnchors.includes(nodeId)) continue;
