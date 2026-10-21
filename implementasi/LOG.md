@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-21 · X05 · Sisipan: lokasi benar di tahap jawaban Jawab — selesai (satu butir tidak dicentang)
+
+- Dikerjakan:
+  - Bedah gratis arsip X03 untuk j014, j020, j023 (dokumen direkonstruksi dari rute tersimpan). Paragraf gold ada di dokumen tetapi tercecer di peringkat RRF, sering tanpa terjemahan AI; jawaban menyitasi kesimpulan atau halaman tetangga di bagian yang sama.
+  - Dokumen dikelompokkan per bagian, urut kitab (`orderBySection`, `AnswerPassage.ord`, `pipeline@5`); prompt `answer@6`; `eval:jawab answer --rute` (rute routing tersimpan, tanpa panggilan routing; `normalizeRoute`, `savedRoutesFor`, arsip `+rute-tersimpan`).
+  - Peninjau dua putaran: 4 temuan penting (urutan dari ID melanggar ADR-029, kalimat prompt, penanda arsip `--rute`, gerbang proses) dan temuan kecil ditutup sebelum eval.
+  - Nomor sesi semula X04; diganti X05 karena X04 (mutu baca, #104) ter-merge di tengah sesi.
+- Verifikasi:
+  - Dokumen dari rute X03 identik dengan arsip X03: 42/42 (jumlah dokumen, token, daftar, kandidat).
+  - Eval publik `x05-publik-jawaban-v1` (42 soal, tanpa holdout, `--rute` X03): kutipan valid 100% (176/176), lokasi 85,3% (29/34; X03 82,4%), tidak salah menolak 100% (34/34), tanpa pola fatwa 100%, penolakan tepat 7/8 (j033 turun ke Cari), jawaban US$0,00257/soal tanpa routing (perkiraan penuh ±US$0,0028). j014, j020 kini benar; j024 1 → 0 artefak halaman (takhrij gold tidak ada di dokumen pada kedua run).
+  - Ulangan 8 soal jebakan `x05-publik-tolak-v1` atas izin pemilik: penolakan tepat 8/8.
+  - `pnpm verify` lolos.
+- Biaya API: US$0,1239 (US$0,1078 + US$0,0162; izin pemilik di chat "Ya, saya izinkan" dan "Cek kecil dulu").
+- Keputusan: ADR-068.
+- Catatan untuk sesi berikutnya: R4 lokasi ≥ 90% belum (85,3%, in-sample, holdout belum). Sisa: j018/j019/j021 (leksikal), j023 (gold h290 vs h292 di bagian yang sama, tinjau T-24), j024 (takhrij gold tidak terambil). Simpan teks mentah fallback soal publik bila penolakan baku gagal lagi.
+
 ## 2026-10-21 · X04 · Audit + rencana mutu baca pembaca Ihya — sebagian (rencana, menunggu pemilik)
 - Dikerjakan: audit pembaca produksi (j1/200, j3/202; desktop + ponsel, 7 tangkapan layar di `implementasi/sesi/bukti/X04/`), struktur korpus `ihya-v7` (read-only), dan sumber Shamela/OpenITI (read-only); rencana `implementasi/sesi/X04-mutu-baca.md` (bagian A tampilan $0, bagian B subjudul + judul daftar isi Indonesia, rancangan T-17 tahap 3, 8 pertanyaan desain); bagian X04 di `scripts/hitung_biaya.py`
 - Temuan utama: 191 dari 271 subjudul *bayan* tampil sebagai paragraf biasa (80 sudah judul node); 19/40 kitab tanpa subbab (terpanjang 70 halaman); subjudul menempel di awal paragraf tanpa penanda di sumber; terjemahan 14 px, CPL 94–113, 24 baris vs 15 baris Arab di ponsel; label "Terjemahan AI" ±16 ribu kali; takhrij ±5,7 layar dari penanda di ponsel; 207/313 judul daftar isi sudah punya terjemahan paragraf judul

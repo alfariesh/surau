@@ -6,7 +6,7 @@ import { describe, expect, test } from "vite-plus/test";
 
 import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
 import { ANSWER_FALSE_PREMISE } from "../../prompts/answer-v3.ts";
-import { buildAnswerRequest, fitDocs } from "./answer.ts";
+import { buildAnswerRequest, fitDocs, orderBySection } from "./answer.ts";
 import { ROUTE_PROMPT_TOKENS_MAX, jawabReserveUsd, retryReserveUsd } from "./budget.ts";
 import {
   SPAN_MAX_CHARS,
@@ -41,6 +41,7 @@ function passage(id: number, text: string, over: Partial<AnswerPassage> = {}): A
     page_id: 100001,
     kind: "body",
     toc_node_id: null,
+    ord: 1,
     text_raw: text,
     location: {
       juz: 1,
@@ -161,6 +162,48 @@ describe("dokumen dan request", () => {
     const docs = [1, 2, 3].map((i) => ({ ...buildDoc(passage(i, SENT), ""), tokens: 100 * i }));
     expect(fitDocs(docs, 350).map((d) => d.passage.id)).toEqual([1, 2]);
     expect(fitDocs(docs, 10).map((d) => d.passage.id)).toEqual([1]);
+  });
+
+  test("orderBySection: per bagian (urut peringkat terbaik), di dalam bagian urut kitab", () => {
+    const doc = (id: number, page: number, ord: number, over: Partial<AnswerPassage> = {}) =>
+      buildDoc(
+        passage(id, SENT, {
+          ord,
+          location: { juz: 1, page_no: page, permalink: `/kitab/ihya/1/${page}`, label: "-" },
+          ...over,
+        }),
+        "",
+      );
+    // Urutan masukan = peringkat (RRF + pasangan). Kelompok urut kemunculan pertama: bagian 7,
+    // bagian 9, tanpa bagian per halaman (page_id 5, lalu 6), bagian 11. Di dalam kelompok urut
+    // halaman, badan sebelum catatan kaki, lalu `ord` — bukan ID: paragraf 60 (ID besar, mis.
+    // hasil patch) ber-ord 1 sehingga paling depan (ADR-029).
+    const docs = [
+      doc(25, 56, 3, { toc_node_id: 7 }),
+      doc(11, 40, 2, { toc_node_id: 9 }),
+      doc(21, 56, 2, { toc_node_id: 7 }),
+      doc(30, 70, 2, { page_id: 5 }),
+      // Catatan kaki ikut perujuk pertama yang ada di dokumen (99 tidak ada → 11, bagian 9).
+      doc(13, 40, 1, { kind: "foot", toc_node_id: 8, referenced_by: [99, 11] }),
+      doc(10, 40, 1, { toc_node_id: 9 }),
+      doc(31, 71, 1, { page_id: 6 }),
+      doc(29, 70, 1, { page_id: 5 }),
+      // Perujuk tidak ada di dokumen → tetap di bagiannya sendiri.
+      doc(40, 57, 1, { kind: "foot", toc_node_id: 7, referenced_by: [39] }),
+      doc(60, 56, 1, { toc_node_id: 7 }),
+      // Catatan kaki berperingkat lebih tinggi daripada perujuknya di bagian lain: kelompok
+      // perujuk (bagian 11) dibuka di posisi catatan kaki, dan perujuknya tetap didahulukan.
+      doc(50, 80, 1, { kind: "foot", toc_node_id: 12, referenced_by: [51] }),
+      doc(51, 80, 1, { toc_node_id: 11 }),
+    ];
+    const ordered = orderBySection(docs);
+    expect(ordered.map((d) => d.passage.id)).toEqual([
+      60, 21, 25, 40, 10, 11, 13, 29, 30, 31, 51, 50,
+    ]);
+    // Hanya urutan yang berubah: himpunan dan objek dokumen sama (terjemahan tidak dipindah).
+    expect(new Set(ordered)).toEqual(new Set(docs));
+    expect(orderBySection([])).toEqual([]);
+    expect(orderBySection([docs[0]!])).toEqual([docs[0]]);
   });
 
   test("request routing: JSON terstruktur, daftar isi di-cache, pertanyaan sebagai data", () => {

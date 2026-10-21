@@ -84,12 +84,22 @@ export function parseRoute(message: Message, validIds: ReadonlySet<number>): Rou
   }
   const parsed = routeOutput.safeParse(raw);
   if (!parsed.success) return null;
-  const sections = [...new Set(parsed.data.sections.filter((id) => validIds.has(id)))].slice(
+  return normalizeRoute(parsed.data, validIds);
+}
+
+/**
+ * Pembersihan rute (routing langsung, atau rute tersimpan eval X05): hanya ID bagian yang ada di
+ * daftar isi, unik, ≤ `ROUTE_MAX_SECTIONS`; kueri unik, tidak kosong, ≤200 karakter,
+ * ≤ `ROUTE_MAX_QUERIES`. Rute arsip yang sudah dibersihkan tidak berubah kecuali di kasus tepi
+ * kueri >200 karakter (potongan bisa berakhir di spasi atau menyamai kueri lain).
+ */
+export function normalizeRoute(route: Route, validIds: ReadonlySet<number>): Route {
+  const sections = [...new Set(route.sections.filter((id) => validIds.has(id)))].slice(
     0,
     ROUTE_MAX_SECTIONS,
   );
-  const queries = [...new Set(parsed.data.queries.map((q) => q.trim()).filter((q) => q.length > 0))]
+  const queries = [...new Set(route.queries.map((q) => q.trim()).filter((q) => q.length > 0))]
     .map((q) => q.slice(0, QUERY_MAX_CHARS))
     .slice(0, ROUTE_MAX_QUERIES);
-  return { sections, queries, hadith: parsed.data.hadith };
+  return { sections, queries, hadith: route.hadith };
 }

@@ -4,6 +4,7 @@ import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { answerToc, evalAnswer, evalHash, resolveEvalSource, searchText } from "@surau/core";
 import { JAWAB_EDITION_ID, createAnthropic, createGatewayAnthropic } from "@surau/llm";
+import type { Route } from "@surau/llm";
 import { z } from "zod";
 import { loadCorpusIndex } from "./corpus.ts";
 import { openCorpus } from "./open-corpus.ts";
@@ -27,7 +28,7 @@ import {
 } from "./answer-judge.ts";
 import { isComplete, readSavedRoutes, replayCandidates, summarize } from "./answer-candidates.ts";
 import { answerReport } from "./answer-report.ts";
-import { questionCeilingUsd, runQuestions } from "./answer-run.ts";
+import { questionCeilingUsd, runQuestions, savedRoutesFor } from "./answer-run.ts";
 import { approvedQuestions, reviewExport, seedSql } from "./answer-review.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
@@ -50,6 +51,7 @@ const { positionals, values } = parseArgs({
     concurrency: { type: "string", default: "3" },
     only: { type: "string" },
     "privat-saja": { type: "boolean", default: false },
+    rute: { type: "string" },
   },
 });
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/u);
@@ -183,12 +185,21 @@ async function main() {
       const wanted = new Set(values.only.split(","));
       items = items.filter((q) => wanted.has(q.question.id));
     }
+    // X05: `--rute <diagnostik>` memakai ulang rute routing arsip publik (tanpa panggilan
+    // routing), jadi dokumen sama dengan run itu dan selisih hasil hanya dari tahap jawaban.
+    let routes: Map<string, Route | null> | undefined;
+    if (values.rute) {
+      if (values["termasuk-privat"])
+        throw new Error("--rute hanya untuk soal publik (arsip diagnostik tanpa holdout).");
+      routes = savedRoutesFor(items, readSavedRoutes(resolve(values.rute)));
+    }
     if (!values.confirm) {
       console.log(
         JSON.stringify({
           run,
           questions: items.length,
           private: items.filter((q) => q.private).length,
+          saved_routes: routes !== undefined,
           ceiling_per_question_usd: Number(ceiling.haiku.toFixed(4)),
           sonnet_reserve_usd: Number(ceiling.sonnetReserve.toFixed(4)),
           note: "Belum ada panggilan berbayar; tambahkan --confirm setelah izin pemilik.",
@@ -216,6 +227,7 @@ async function main() {
       const { outputs, spent, skipped, failed } = await runQuestions(corpus.db, api, items, {
         budgetUsd: budget,
         concurrency: Math.min(6, Math.max(1, Number(values.concurrency) || 1)),
+        ...(routes ? { routes } : {}),
         onError: (item, error) =>
           console.error(
             `${item.private ? "(privat)" : item.question.id} GAGAL: ${error instanceof Error ? error.name : "galat"}`,
@@ -293,6 +305,7 @@ async function main() {
           skipped_budget: skipped,
           failed,
           private: outputs.filter((o) => o.item.private).length,
+          saved_routes: values.rute ?? null,
           spent_usd: Number(spent.toFixed(6)),
           avg_usd: n ? Number((spent / n).toFixed(6)) : null,
           report,
@@ -524,7 +537,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] (gratis; rute tersimpan, soal publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] (gratis; rute tersimpan, soal publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {
