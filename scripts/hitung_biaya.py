@@ -74,6 +74,25 @@ CACHE_BACA_SISTEM = 0.95
 TULIS_CACHE_1J_HAIKU = 0.20
 KORPUS = {"Ihya": 1.8, "±92 kitab kurikulum": 98.0}  # juta token o200k
 
+# Sesi X04 (mutu baca): judul daftar isi Indonesia. Token ABSOLUT, bukan per juta token korpus.
+# Karakter judul Arab diukur dari korpus ihya-v7 (2026-10-21, node:sqlite): 313 node daftar isi =
+# 11.651 karakter, 106 di antaranya tanpa paragraf judul berterjemahan = 3.825 karakter; 271 calon
+# subjudul "bayan" (paragraf pendek di teks, belum masuk daftar isi) = 11.294 karakter.
+# Asumsi (belum diukur): satu request per rub' (5), prompt sistem + glosarium ±2 ribu token per
+# request, keluaran ±30 token per judul (teks + ID dalam JSON) ditambah thinking ±40%.
+X04_O200K_PER_KARAKTER = 0.39
+X04_SISTEM_PER_REQUEST = 2_000
+X04_REQUEST = 5
+X04_KELUAR_PER_JUDUL = 30 * 1.4
+X04_JUDUL = {
+    "106 node tanpa terjemahan judul": dict(karakter=3_825, judul=106),
+    "semua 313 node daftar isi": dict(karakter=11_651, judul=313),
+    "313 node + 271 subjudul bayan": dict(karakter=22_945, judul=584),
+}
+# Pembanding untuk keputusan terjemahan ulang (T-17 tahap 3): tulis cache 1 jam Sonnet 5.5
+# diasumsikan 2× harga input (USD per 1 juta token); batch = 50%.
+TULIS_CACHE_1J_SONNET = 4.00
+
 
 def biaya(model: str, s: dict) -> float:
     inp, cr, out = HARGA[model]
@@ -111,6 +130,22 @@ def main() -> None:
             sel.append(f"{'$%.2f' % c:>22}")
         print(f"{nama:32} " + " ".join(sel))
     print(f"{'TOTAL':32} " + " ".join(f"{'$%.2f' % v:>22}" for v in total.values()))
+
+    # Terjemahan ulang penuh dengan Sonnet 5.5 (batch), hanya pembanding bila T-17 tahap 3 buruk.
+    s_inp, s_cr, s_out = HARGA["Claude Sonnet 5.5"]
+    s_sistem = CACHE_BACA_SISTEM * s_cr + (1 - CACHE_BACA_SISTEM) * TULIS_CACHE_1J_SONNET
+    t = INGEST["Terjemahan Indonesia lengkap"]
+    ulang = KORPUS["Ihya"] * (t["baca"] * FAKTOR_TOKEN_ARAB * s_inp + t["sistem"] * s_sistem + t["keluar"] * s_out) * 0.5
+    print(f"\nPembanding X04: terjemahan ulang Ihya penuh dengan Claude Sonnet 5.5 (batch): ${ulang:.2f}")
+
+    print("\nX04 · judul daftar isi Indonesia (token absolut; tanpa batch = langsung, batch = 50%):")
+    print(f"{'Cakupan':34} {'tok masuk':>10} {'tok keluar':>11} {'Sonnet langsung':>16} {'Haiku batch':>12}")
+    for nama, j in X04_JUDUL.items():
+        masuk = j["karakter"] * X04_O200K_PER_KARAKTER * FAKTOR_TOKEN_ARAB + X04_SISTEM_PER_REQUEST * X04_REQUEST
+        keluar = j["judul"] * X04_KELUAR_PER_JUDUL
+        sonnet = (masuk * s_inp + keluar * s_out) / 1e6
+        haiku = (masuk * inp + keluar * out) / 1e6 * 0.5
+        print(f"{nama:34} {masuk:>10,.0f} {keluar:>11,.0f} {'$%.3f' % sonnet:>16} {'$%.4f' % haiku:>12}")
 
 
 if __name__ == "__main__":
