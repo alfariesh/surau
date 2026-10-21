@@ -170,7 +170,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Fase 4: Jawab
 
-- [ ] **T-14 · Pengaman Fase 4** (bagian Cloudflare Access dibutuhkan S18; sisanya S19–S20; agent memandu langkah demi langkah)
+- [x] **T-14 · Pengaman Fase 4** · secret produksi `surau-api` lengkap 2026-10-21 (`CF_AIG_TOKEN`, `TURNSTILE_SECRET_KEY`, `SURAU_API_SECRET`; dicek pemilik dengan `wrangler secret list`) (bagian Cloudflare Access dibutuhkan S18; sisanya S19–S20; agent memandu langkah demi langkah)
   - Widget **Turnstile** (mode Managed) untuk domain produksi dan preview. **Dibuat 2026-10-20:** `Surau`, site key `0x4AAAAAAFdyEf4rqoAMrG1j`, hostnames `surau.org` dan `alfarieshsalman.workers.dev` (termasuk subdomain preview); pre-clearance OFF. Secret belum dipasang ke Worker.
   - **AI Gateway** dengan gateway bernama `surau-gw`:
     - **Dibuat 2026-10-20:** authenticated ON, collect logs OFF, cache OFF, retry OFF, rate limit 50/menit (fixed), spend limit US$1/hari (sliding, semua provider/model), Require Provider Credentials ON (tanpa fallback Unified Billing untuk provider pihak ketiga). BYOK Anthropic sudah diisi pemilik dan ditandai valid oleh dashboard; token `surau-api-gateway` dibuat setelah persetujuan pemilik (AI Gateway Run, cakupan seluruh akun), sudah disalin pemilik; belum dipasang ke Worker; belum diuji end-to-end dengan permintaan model.
