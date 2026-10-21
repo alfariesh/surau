@@ -13,6 +13,8 @@ import { REST_TIME, STAGE_SHAPE, orbFrame } from "./orb-frames";
 // sebelahnya yang dibacakan.
 
 const FADE = 0.45;
+/** `enterFrom`: tahan bentuk awal selama transisi terbang (sama dengan `::view-transition-group(tanya-orb)`). */
+const ENTER_HOLD = 0.55;
 
 type Palette = Record<OrbRole, string>;
 
@@ -80,12 +82,15 @@ export function TanyaOrb({
     const a = anim.current;
     if (a.shape === shape) return;
     const now = performance.now() / 1000;
+    // Mount dengan `enterFrom` (since belum diisi): bentuk awal mulai sekarang dan bertahan selama
+    // terbang, baru kemudian beralih.
+    const entering = a.since < 0;
     // Berganti lagi di tengah peralihan: bentuk lama memudar dari opasitasnya saat itu, bukan dari penuh.
-    a.prevAlpha = a.prev === null ? 1 : Math.min(1, (now - a.since) / FADE);
+    a.prevAlpha = a.prev === null ? 1 : Math.min(1, Math.max(0, (now - a.since) / FADE));
     a.prev = a.shape;
-    a.prevSince = a.since;
+    a.prevSince = entering ? now : a.since;
     a.shape = shape;
-    a.since = now;
+    a.since = now + (entering ? ENTER_HOLD : 0);
     redraw.current();
   }, [shape]);
 
@@ -107,7 +112,7 @@ export function TanyaOrb({
       ctx.clearRect(0, 0, size, size);
       const time = (s: OrbShape, since: number) =>
         reduced ? REST_TIME[s] : Math.max(0, now - since);
-      const p = reduced || a.prev === null ? 1 : Math.min(1, (now - a.since) / FADE);
+      const p = reduced || a.prev === null ? 1 : Math.min(1, Math.max(0, (now - a.since) / FADE));
       if (p < 1 && a.prev !== null) {
         const fade = a.prevAlpha * (1 - p);
         drawDots(

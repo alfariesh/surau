@@ -14,7 +14,7 @@ import { useCanHover } from "../reader/footnote-marker";
 // ber-hover (juga terbuka saat diklik/Enter), Popover yang dibuka dengan ketukan di layar sentuh.
 
 const TRIGGER_CLASS =
-  "text-muted inline-flex size-6 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-default focus-visible:ring-2 focus-visible:ring-focus";
+  "text-muted inline-flex size-8 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-default focus-visible:ring-2 focus-visible:ring-focus";
 
 function Detail() {
   return (

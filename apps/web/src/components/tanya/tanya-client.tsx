@@ -150,6 +150,7 @@ export function TanyaClient() {
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const nextId = useRef(1);
+  const submitting = useRef(false);
   // Ref di pembungkus, bukan di PromptInput.TextArea: ref di sana menimpa ref internal HeroUI
   // (ukuran otomatis + fokus saat Shell diklik).
   const composerRef = useRef<HTMLDivElement>(null);
@@ -263,7 +264,10 @@ export function TanyaClient() {
   const tooShort = trimmed.length > 0 && trimmed.length < 3;
 
   function submit() {
-    if (trimmed.length < 3 || busy || unavailable !== null) return;
+    // `submitting` = kunci sinkron: callback view transition berjalan asinkron, jadi tanpa kunci ini
+    // Enter kedua sebelum giliran terpasang mengirim pertanyaan dua kali (dua kuota).
+    if (trimmed.length < 3 || busy || unavailable !== null || submitting.current) return;
+    submitting.current = true;
     const id = nextId.current++;
     const challenge = status !== null && status !== "closed" && status.challenge && status.sitekey;
     const add = () => {
@@ -278,6 +282,9 @@ export function TanyaClient() {
         },
       ]);
       setQuestion("");
+      submitting.current = false;
+      // Mulai SESUDAH giliran terpasang: setPhase(id) memetakan giliran yang sudah ada.
+      if (!challenge) void ask(id, trimmed);
     };
     // Pertanyaan pertama: hilal di tengah berpindah mulus ke orb balasan (bila didukung dan gerak
     // tidak dikurangi). flushSync supaya DOM baru sudah ada saat browser memotret keadaan akhir.
@@ -288,7 +295,6 @@ export function TanyaClient() {
       !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (moving) document.startViewTransition(() => flushSync(add));
     else add();
-    if (!challenge) void ask(id, trimmed);
   }
 
   // Pengumuman singkat untuk pembaca layar (region selalu ada supaya perubahan terbaca).
@@ -310,9 +316,9 @@ export function TanyaClient() {
           dari atas (ADR-073). */}
       <div ref={scrollRef} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="flex min-h-full flex-col">
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 pt-8 pb-6 sm:px-6">
+          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 pt-8 pb-6 sm:px-6">
             {turns.length === 0 ? (
-              <div className="flex min-h-full flex-col items-center justify-center gap-6 py-6 text-center">
+              <div className="flex flex-1 flex-col items-center justify-center gap-6 py-6 text-center">
                 <header className="flex flex-col items-center gap-3">
                   {/* Orb diam "siap" (hilal): belum ada pertanyaan, Surau menunggu. */}
                   <span style={{ viewTransitionName: ORB_TRANSITION }}>
@@ -414,7 +420,8 @@ export function TanyaClient() {
                 <PromptInput.TextArea
                   aria-label={t.label}
                   maxLength={QUESTION_MAX}
-                  placeholder={t.composerPlaceholder}
+                  // Sesudah giliran pertama: ingatkan bahwa pertanyaan sebelumnya tidak ikut dibaca.
+                  placeholder={turns.length > 0 ? t.composerPlaceholderNext : t.composerPlaceholder}
                 />
               </PromptInput.Content>
               <PromptInput.Toolbar>
