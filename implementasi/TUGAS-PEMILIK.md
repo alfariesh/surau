@@ -198,7 +198,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 - [ ] **T-25 · Lihat dan setujui tampilan Tanya (S21)** · syarat "pemilik menyetujui tampilan" sebelum `/rilis 4`
   1. Ketik ke agent: **"siapkan Preview Tanya"**. Agent membuka PR kecil supaya ada alamat Preview (`pr-NNN.surau.org/tanya`, data staging), menyalakan Jawab staging sebentar selama Anda mencoba (biaya ±US$0,003 per pertanyaan), lalu mematikannya lagi. (Preview PR #100 sudah terhapus otomatis sesudah digabung; di https://surau.org/tanya Tanya masih tampil "belum dibuka" sampai `/rilis 4`.)
-  2. Periksa: label "asisten riset, bukan pemberi fatwa", jawaban dengan nomor kutipan [n], kalimat redup tanpa kutipan, kartu kutipan Arab (huruf dan harakat rapi, kanan-ke-kiri), status hadits "diekstrak AI", tombol "Laporkan jawaban keliru", dan tampilan di ponsel.
+  2. Periksa: layar percakapan Maknaz (ADR-071, ADR-073): hilal di tengah, chip contoh pertanyaan, bulan yang "terbang" ke balasan pertama, orb yang berganti bentuk per tahap + teks berkilau, gelembung pertanyaan beraksen; label "asisten riset, bukan pemberi fatwa"; jawaban dengan nomor kutipan [n], kalimat redup tanpa kutipan, kartu kutipan Arab (huruf dan harakat rapi, kanan-ke-kiri), status hadits, tombol salin dan "Laporkan jawaban keliru", pertanyaan kedua di percakapan yang sama, dan tampilan di ponsel.
   3. Buka juga https://surau.org/transparansi dan https://surau.org/privasi (setelah PR digabung).
   4. Beri tahu agent: "T-25 setuju" atau catatan perbaikannya.
   - Bersama T-24 (Anas): review prompt sistem, kebijakan penolakan, dan ≥20 sampel jawaban nyata di `/tinjau` (agent bisa memuat 42 jawaban eval S21 ke `/tinjau` atas aba-aba Anda).
