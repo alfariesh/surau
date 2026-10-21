@@ -5,11 +5,12 @@ import type { ReactNode } from "react";
 import type { CiteParts } from "../../lib/reader/cite";
 
 import { toast } from "@heroui/react";
-import { createContext, use, useCallback, useMemo, useState } from "react";
+import { createContext, use, useCallback, useMemo, useState, useSyncExternalStore } from "react";
 
 import { id } from "../../i18n/id";
 import { copyRich } from "../../lib/clipboard";
-import { citeHtml, citeText } from "../../lib/reader/cite";
+import { citeForPath, citeHtml, citeText, escapeHtml } from "../../lib/reader/cite";
+import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 
 import { FeedbackDialog } from "./feedback-dialog";
 
@@ -69,7 +70,9 @@ export function ReaderProvider({
       // Origin dari situs yang sedang dibuka: tautan Preview tetap menunjuk Preview-nya.
       const url = new URL(permalink, window.location.origin).href;
       try {
-        await copyRich(citeText(cite, url), citeHtml(cite, url));
+        // Juz/halaman dari permalink: paragraf halaman sambungan disitasi dengan halamannya sendiri.
+        const parts = citeForPath(cite, permalink);
+        await copyRich(citeText(parts, url), citeHtml(parts, url));
         toast.success(t.copied, { description: t.copiedDescription });
       } catch {
         toast.danger(t.copyFailed, { description: t.copyFailedDescription });
@@ -91,12 +94,20 @@ export function ReaderProvider({
       }
     }
     try {
-      await copyRich(url, `<a href="${url}">${url}</a>`);
+      const href = escapeHtml(url);
+      await copyRich(url, `<a href="${href}">${href}</a>`);
       toast.success(t.linkCopied, { description: t.linkCopiedDescription });
     } catch {
       toast.danger(t.copyFailed, { description: t.copyFailedDescription });
     }
   }, []);
+
+  // Laporan untuk seluruh halaman memakai halaman yang sedang dibaca (gulir bersambung, X04 W6).
+  const readingPath = useSyncExternalStore(
+    subscribeReaderPage,
+    () => readerPageFor(pagePath)?.permalink ?? pagePath,
+    () => pagePath,
+  );
 
   const value = useMemo<ReaderContextValue>(
     () => ({
@@ -114,7 +125,7 @@ export function ReaderProvider({
         key={report.round}
         isOpen={report.open}
         // Paragraf halaman sambungan (gulir bersambung) dilaporkan dengan path halamannya sendiri.
-        pagePath={report.passage ? report.passage.permalink.split("#")[0]! : pagePath}
+        pagePath={report.passage ? report.passage.permalink.split("#")[0]! : readingPath}
         passage={report.passage}
         onOpenChange={(open) => setReport((r) => ({ ...r, open }))}
       />

@@ -132,7 +132,13 @@ export default async function ReaderPage({ params }: Props) {
               volumes={edition.volumes ?? juz}
             />
           </header>
-          <ReaderCompactHeader bab={bab} juz={juz} page={pageNo} sample={sample} />
+          <ReaderCompactHeader
+            bab={bab}
+            juz={juz}
+            page={pageNo}
+            sample={sample}
+            scope={permalink}
+          />
 
           <ReaderEnhancements />
           <ReadingTracker title={workTitle} work={segment} />
@@ -145,6 +151,7 @@ export default async function ReaderPage({ params }: Props) {
             first={{
               juz,
               page: pageNo,
+              permalink,
               prev: page.prev,
               next: page.next,
               bab,
@@ -195,7 +202,7 @@ export default async function ReaderPage({ params }: Props) {
             >
               {t.tocHeading}
             </Typography.Heading>
-            <TocTree activeIds={activeIds} items={toc} />
+            <TocTree activeIds={activeIds} items={toc} scope={permalink} />
           </div>
         </aside>
       </div>

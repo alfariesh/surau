@@ -398,6 +398,11 @@ body::after {
   inset-block-start: 0;
 }
 
+/* Jangkar bagian tanpa paragraf di halaman ini (di awal teks): absolut, tanpa menambah celah. */
+.reader-text > .section-anchor {
+  position: absolute;
+}
+
 h2.reader-heading {
   font-size: 1.4em;
   flex: 0 1 auto;

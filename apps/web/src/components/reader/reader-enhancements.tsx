@@ -11,8 +11,9 @@ const t = id.reader;
 
 // Perilaku halaman baca yang bekerja lewat satu pendengar di dokumen (X04), sehingga berlaku juga
 // untuk halaman sambungan gulir bersambung tanpa memasang ulang apa pun:
-// 1. Salin teks: bila seleksi menyentuh terjemahan, salinan diberi label per segmen
-//    ("(Terjemahan AI, <permalink>)" / label ayat Kemenag), teks lain (Arab) tetap apa adanya.
+// 1. Salin teks: bila seleksi menyentuh terjemahan atau ringkasan AI, salinan diberi label per
+//    segmen ("(Terjemahan AI, <permalink>)", "(Ringkasan AI, …)", label ayat Kemenag); teks lain
+//    (Arab) tetap apa adanya. Skrip, gaya, dan teks yang tidak dirender tidak ikut.
 //    Seleksi yang hanya berisi teks Arab memakai salin bawaan browser (verbatim).
 // 2. Mode "terjemahan dilipat": tombol `.translation-toggle` membuka/menutup terjemahan paragrafnya.
 
@@ -53,7 +54,16 @@ export function selectionPieces(selection: Selection, origin: string): CopyPiece
   for (; node !== null; node = walker.nextNode()) {
     if (!range.intersectsNode(node)) continue;
     const parent = node.parentElement;
-    if (parent === null || parent.closest('[data-copy-skip], [aria-hidden="true"]') !== null) {
+    if (
+      parent === null ||
+      parent.closest(
+        '[data-copy-skip], [aria-hidden="true"], script, style, noscript, template',
+      ) !== null ||
+      // Teks yang tidak dirender (display: none, mis. terjemahan dilipat atau duplikat responsif)
+      // tidak ikut, sama dengan salin bawaan browser.
+      (typeof parent.checkVisibility === "function" &&
+        !parent.checkVisibility({ checkVisibilityCSS: true }))
+    ) {
       continue;
     }
     let text = node.textContent ?? "";
@@ -62,8 +72,9 @@ export function selectionPieces(selection: Selection, origin: string): CopyPiece
     if (text === "") continue;
     const seg = parent.closest<HTMLElement>("[data-tr-seg]");
     const block = parent.closest(BLOCKS) ?? rootEl;
+    const segKind = seg?.dataset.trSeg;
     const kind =
-      seg?.dataset.trSeg === "ai" ? "ai" : seg?.dataset.trSeg === "ayah" ? "ayah" : "plain";
+      segKind === "ai" || segKind === "ayah" || segKind === "summary" ? segKind : "plain";
     const group = seg === null ? `b${blockId(block)}` : `s${groupId(seg)}`;
     const permalink = seg?.closest<HTMLElement>("[data-permalink]")?.dataset.permalink;
     if (kind === "ayah" && parent.closest("[data-copy-label]") !== null) labelled.add(group);
@@ -72,7 +83,10 @@ export function selectionPieces(selection: Selection, origin: string): CopyPiece
       kind,
       group,
       block: blockId(block),
-      url: kind === "ai" && permalink ? new URL(permalink, origin).href : undefined,
+      url:
+        (kind === "ai" || kind === "summary") && permalink
+          ? new URL(permalink, origin).href
+          : undefined,
       label:
         kind === "ayah"
           ? (seg?.querySelector("[data-copy-label]")?.textContent ?? undefined)
@@ -89,7 +103,10 @@ export function ReaderEnhancements() {
       if (selection === null || event.clipboardData === null) return;
       const pieces = selectionPieces(selection, window.location.origin);
       if (pieces === null) return;
-      event.clipboardData.setData("text/plain", labelledCopy(pieces, t.aiTranslation));
+      event.clipboardData.setData(
+        "text/plain",
+        labelledCopy(pieces, { ai: t.aiTranslation, summary: t.aiSummary }),
+      );
       event.preventDefault();
     }
     function onClick(event: MouseEvent) {

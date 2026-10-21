@@ -23,12 +23,15 @@ export function PageNav({
   prev,
   next,
   keyboard = false,
+  shortcuts = keyboard,
   label = t.pageNavLabel,
 }: {
   prev: Location | null;
   next: Location | null;
   /** Pasang pintasan ←/→ (cukup sekali per halaman). */
   keyboard?: boolean;
+  /** Umumkan pintasan ←/→ (aria-keyshortcuts) walau pendengarnya dipasang komponen lain. */
+  shortcuts?: boolean;
   label?: string;
 }) {
   const router = useRouter();
@@ -60,7 +63,7 @@ export function PageNav({
     <nav aria-label={label} className="flex items-stretch justify-between gap-3">
       {next ? (
         <NextLink
-          aria-keyshortcuts={keyboard ? "ArrowLeft" : undefined}
+          aria-keyshortcuts={shortcuts ? "ArrowLeft" : undefined}
           // Nomor halaman tidak ditampilkan (lebih bersih), tetapi tetap dibacakan.
           aria-label={`${t.nextShort} (${t.pageShort(next.juz, next.page_no)})`}
           className={buttonVariants({ variant: "secondary", className: "min-w-0 gap-1" })}
@@ -75,7 +78,7 @@ export function PageNav({
       )}
       {prev ? (
         <NextLink
-          aria-keyshortcuts={keyboard ? "ArrowRight" : undefined}
+          aria-keyshortcuts={shortcuts ? "ArrowRight" : undefined}
           aria-label={`${t.prevShort} (${t.pageShort(prev.juz, prev.page_no)})`}
           className={buttonVariants({ variant: "secondary", className: "min-w-0 gap-1" })}
           href={prev.permalink}

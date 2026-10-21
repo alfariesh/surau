@@ -9,16 +9,15 @@ import type {
 } from "@surau/core";
 import type { NeedsReviewReason } from "@surau/db";
 
-import { maskAyat, translationSegments } from "@surau/core";
-
-import { id } from "../../i18n/id";
+import { ayahPlaceholderPattern, maskAyat, translationSegments } from "@surau/core";
 
 import type { Block, SubSpan } from "./blocks";
 import type { SubheadingEntry } from "./subheadings";
 
+import { shortAyahLabel } from "./ayah";
 import { passageBlocks } from "./blocks";
 import { splitPassage } from "./segments";
-import { sha16, subheadingOf } from "./subheadings";
+import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
 
 // Model halaman baca siap render (X04): satu bentuk untuk halaman cetak yang dirender server (ISR)
 // dan halaman berikutnya yang dimuat gulir bersambung (W6, lewat JSON). Disusun di server dari
@@ -26,13 +25,12 @@ import { sha16, subheadingOf } from "./subheadings";
 // komponen render tidak butuh pohon daftar isi, `@surau/core`, maupun hash. Teks tetap `text_raw`
 // dan terjemahan dari DB; model hanya menambah batas potong dan peran tampil.
 
-const t = id.reader;
-
 /**
- * Versi bentuk `PageModel`. Naikkan bila bentuk atau isinya berubah: ikut kunci cache /api/halaman,
- * jadi salinan model lama tidak dipakai komponen baru.
+ * Versi bentuk `PageModel` + sidik daftar kurasi subjudul: ikut kunci cache /api/halaman, jadi
+ * salinan model lama tidak dipakai komponen baru dan perubahan daftar kurasi langsung berlaku.
+ * Naikkan angka depan bila bentuk model berubah. Model tidak memuat teks UI (i18n).
  */
-export const PAGE_MODEL_VERSION = "1";
+export const PAGE_MODEL_VERSION = `2.${SUBHEADING_DIGEST}`;
 
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {
@@ -43,8 +41,16 @@ export interface SectionNode {
   title: string;
 }
 
+/**
+ * Segmen terjemahan siap render: sama dengan `TranslationSegment` core, tetapi placeholder ayat yang
+ * tidak bisa dirender membawa label rujukannya ("QS 2:255"), supaya komponen tidak perlu pola core.
+ */
+export type TranslationSegmentView =
+  | Exclude<TranslationSegment, { kind: "invalid" }>
+  | { kind: "invalid"; placeholder: string; label: string };
+
 export interface TranslationModel {
-  segments: TranslationSegment[];
+  segments: TranslationSegmentView[];
   /** Rentang tebal di teks terjemahan lengkap (padanan subjudul awal/akhir), atau `null`. */
   bold: { start: number; end: number } | null;
 }
@@ -54,8 +60,6 @@ export interface PassageModel {
   anchor: string;
   /** Permalink paragraf (path + `#pN`). */
   permalink: string;
-  /** Label lokasi singkat untuk menu ⋮ dan laporan, mis. "j.1 h.200 · p2826". */
-  label: string;
   needsReview: NeedsReviewReason[];
   /**
    * Peran paragraf utuh: judul node daftar isi (`toc`, h2), subjudul kurasi (`sub`), atau teks.
@@ -182,7 +186,20 @@ function translationModel(
   const tr = p.translation;
   if (tr === null || tr === undefined || tr.review_status === "rejected") return null;
   const { slots } = maskAyat(p.text_raw, p.ayah_refs, p.footnote_refs);
-  return { segments: translationSegments(tr.text, slots, quran), bold };
+  const segments = translationSegments(tr.text, slots, quran).map((seg): TranslationSegmentView => {
+    if (seg.kind !== "invalid") return seg;
+    const m = ayahPlaceholderPattern("").exec(seg.placeholder);
+    const label =
+      m === null
+        ? seg.placeholder
+        : shortAyahLabel({
+            surah: Number(m[1]),
+            ayah_from: Number(m[2]),
+            ayah_to: Number(m[3] ?? m[2]),
+          });
+    return { ...seg, label };
+  });
+  return { segments, bold };
 }
 
 export interface ModelContext {
@@ -225,7 +242,6 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
       id: p.id,
       anchor: p.anchor,
       permalink: p.location.permalink,
-      label: `${t.pageShort(juz, pageNo)} · ${p.anchor}`,
       needsReview: p.needs_review,
       heading:
         toc !== undefined
@@ -233,7 +249,11 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
           : entry?.kind === "heading"
             ? { kind: "sub" }
             : null,
-      blocks: passageBlocks(p.text_raw, split.segments, sub),
+      // Syair hanya di teks badan (ADR-074): elipsis ` ... ` di takhrij bukan pemisah bait.
+      blocks:
+        kind === "body"
+          ? passageBlocks(p.text_raw, split.segments, sub)
+          : [{ kind: "text", segments: split.segments }],
       ayat: split.ayat,
       continuations: [],
       translation: translationModel(p, page.quran, bold),

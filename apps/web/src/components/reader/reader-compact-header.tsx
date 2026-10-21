@@ -1,10 +1,10 @@
 "use client";
 
 import { ProgressCircle } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { id } from "../../i18n/id";
-import { onReaderPage } from "../../lib/reader/reader-page-event";
+import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 import { ArabicInline } from "../arabic";
 import { NavbarSlot } from "../shell/navbar-slot";
 
@@ -33,19 +33,24 @@ export function ReaderCompactHeader({
   page,
   bab,
   sample,
+  scope,
 }: {
   juz: number;
   page: number;
   /** Judul bab terdalam (teks DB) atau null. */
   bab: string | null;
   sample: string | null;
+  /** Permalink halaman baca: navbar mengikuti halaman sambungan yang sedang dibaca (X04 W6). */
+  scope: string;
 }) {
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
-  // Halaman yang sedang dibaca (gulir bersambung X04 W6 mengumumkan halaman sambungan).
-  const [at, setAt] = useState({ juz, page, bab });
-
-  useEffect(() => onReaderPage((d) => setAt({ juz: d.juz, page: d.page, bab: d.bab })), []);
+  const live = useSyncExternalStore(
+    subscribeReaderPage,
+    () => readerPageFor(scope),
+    () => null,
+  );
+  const at = live ?? { juz, page, bab };
 
   useEffect(() => {
     const title = document.querySelector("[data-reader-title]");

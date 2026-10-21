@@ -1,4 +1,3 @@
-import type { TranslationSegment } from "@surau/core";
 import type { ReactNode } from "react";
 
 import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
@@ -6,19 +5,19 @@ import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
 import { id } from "../../i18n/id";
 import { shortAyahLabel } from "../../lib/reader/ayah";
 import { aiRuns } from "../../lib/reader/id-text";
-import type { TranslationModel } from "../../lib/reader/page-model";
+import type { TranslationModel, TranslationSegmentView } from "../../lib/reader/page-model";
 
 const t = id.reader;
 
 // Terjemahan AI satu paragraf (S13 dibuat, S14 tampil, X04 ditata ulang). Selalu berlabel
 // (teks-arab.md aturan 8): pembaca layar mendengar "Terjemahan AI:" di awal, mata melihat lencana
 // "Terjemahan AI" di akhir (title = penjelasan lengkap), dan salinan teks mendapat label + permalink
-// (reader-copy.tsx). Placeholder ayat ⟦QS s:a⟧ dirender dari terjemahan Kemenag VERBATIM dengan
+// (reader-enhancements.tsx). Placeholder ayat ⟦QS s:a⟧ dirender dari terjemahan Kemenag VERBATIM dengan
 // labelnya sendiri, bukan sebagai teks model. Kutipan langsung "…" yang berpasangan tampil sebagai
 // “…” bergaya kutipan; padanan subjudul ditebalkan (rentang dari daftar kurasi). Penanda catatan
 // kaki (١) menaut ke catatan kaki Arab halaman ini. Bagian AI diberi `data-ai-text` (sorotan Cari).
 // Mode "terjemahan dilipat" (panel Tampilan) memakai tombol `.translation-toggle`; buka-tutupnya
-// ditangani satu pendengar klik di halaman (reader-copy.tsx), jadi komponen ini tetap komponen server.
+// ditangani satu pendengar klik di halaman (reader-enhancements.tsx), jadi komponen ini tetap komponen server.
 
 const MARKER = new RegExp(FOOTNOTE_MARKER_SOURCE, "g");
 
@@ -83,7 +82,7 @@ function Segments({
     if (s.kind === "invalid") {
       return (
         <span key={i} className="translation-ayah-missing">
-          {t.ayahInTranslationMissing(invalidLabel(s.placeholder))}
+          {t.ayahInTranslationMissing(s.label)}
         </span>
       );
     }
@@ -96,16 +95,6 @@ function Segments({
         <q>{s.ayat.map((a) => a.text).join(" ")}</q>
       </span>
     );
-  });
-}
-
-function invalidLabel(placeholder: string): string {
-  const m = /⟦QS (\d+):(\d+)(?:-(\d+))?⟧/.exec(placeholder);
-  if (m === null) return placeholder;
-  return shortAyahLabel({
-    surah: Number(m[1]),
-    ayah_from: Number(m[2]),
-    ayah_to: Number(m[3] ?? m[2]),
   });
 }
 
@@ -123,7 +112,7 @@ export function joinTranslations(list: readonly TranslationModel[]): Translation
   const [first, ...rest] = list;
   if (first === undefined) return null;
   if (rest.length === 0) return first;
-  const segments: TranslationSegment[] = [...first.segments];
+  const segments: TranslationSegmentView[] = [...first.segments];
   for (const tr of rest)
     segments.push({ kind: "ai", label: "ai_translation", text: " " }, ...tr.segments);
   return { segments, bold: null };

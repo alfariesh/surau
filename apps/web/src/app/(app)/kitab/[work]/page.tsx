@@ -43,7 +43,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function WorkPage({ params }: Props) {
   const { work: segment } = await params;
-  const [{ work, edition }, toc] = await Promise.all([loadWork(segment), loadToc(segment)]);
+  const [{ work, edition, segment: canonical }, toc] = await Promise.all([
+    loadWork(segment),
+    loadToc(segment),
+  ]);
   const title = work.title_id ?? work.title_ar;
   const start = toc[0]?.href;
 
@@ -100,7 +103,7 @@ export default async function WorkPage({ params }: Props) {
               </NextLink>
             </div>
           ) : null}
-          <ContinueReading />
+          <ContinueReading work={canonical} />
         </div>
       </header>
 

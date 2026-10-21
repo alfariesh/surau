@@ -66,14 +66,15 @@ export function saveLastRead(r: LastRead): void {
   }
 }
 
-/** Rekaman terbaru dari semua karya, atau null. */
-export function latestLastRead(): LastRead | null {
+/** Rekaman terbaru (dari satu karya bila `work` diberikan, selain itu dari semua karya), atau null. */
+export function latestLastRead(work?: string): LastRead | null {
   try {
     const store = window.localStorage;
     let best: LastRead | null = null;
     for (let i = 0; i < store.length; i++) {
       const key = store.key(i);
       if (key === null || !key.startsWith(LAST_READ_PREFIX)) continue;
+      if (work !== undefined && key !== `${LAST_READ_PREFIX}${work}`) continue;
       const r = parseLastRead(store.getItem(key));
       if (r !== null && (best === null || r.at > best.at)) best = r;
     }

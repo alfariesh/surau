@@ -142,9 +142,9 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   **Tahap 3 (±60–90 menit, boleh dicicil):**
   1. Buka file `data/build/llm/qa/t17-tahap3.html` di folder Surau (dari panel file aplikasi Claude, atau klik dua kali di Finder: terbuka di browser). File ini tidak masuk git karena berisi teks kitab.
   2. Isi **Nama penilai** di atas. Untuk tiap nomor 1–60: baca teks Arab, lalu terjemahan AI di bawahnya; pilih **Benar**, **Kurang**, atau **Salah**. Untuk Kurang/Salah, centang kategorinya (mis. *istilah fikih/tasawuf*, *bagian hilang*) dan tulis catatan singkat bila perlu. Kotak hijau = terjemahan Kemenag, tidak dinilai. Tautan "konteks di Surau" membuka paragraf itu di pembaca.
-  3. Isian tersimpan otomatis di browser yang sama, jadi bisa ditutup dan dilanjutkan nanti.
+  3. Isian tersimpan otomatis di browser yang sama, **per nama penilai**, jadi bisa ditutup dan dilanjutkan nanti (buka di browser yang sama; nama terakhir dimuat otomatis).
   4. Bila selesai (atau berhenti di tengah), tekan **Salin hasil** lalu tempel ke chat agent ("T-17 tahap 3: …"), atau tekan **Unduh hasil** dan beri tahu agent letak filenya. Agent menghitung persentase per strata dan tertimbang (`pnpm t17 hasil`) dan menerapkan aturan keputusan yang sudah ditulis sebelumnya (lolos / terjemahan ulang terarah / luas).
-  5. Bila ada penilai kedua, nomor 1–20 dinilai keduanya (untuk mengukur kesepakatan).
+  5. Bila ada penilai kedua, nomor 1–20 dinilai keduanya (untuk mengukur kesepakatan). Di komputer yang sama: tekan **Penilai baru**, isi nama penilai kedua, lalu nilai; isian penilai pertama tidak terlihat dan tidak tertimpa (kembali ke penilai pertama = ketik namanya lagi). Kirim hasil keduanya; agent menghitung kesepakatan + kappa (`pnpm t17 hasil a b`).
 
 - [x] **T-23 · Tinjau tampilan Cari dan terjemahan di pembaca (S14)** (±10 menit) · selesai 2026-10-17: pemilik menyatakan "Cari ok sudah ok" (chat S14, di situs utama setelah promote `ihya-v5`)
   Buka di ponsel dan laptop (data staging, versi `ihya-v5`): **https://pr-33-surau-web.alfarieshsalman.workers.dev/cari**

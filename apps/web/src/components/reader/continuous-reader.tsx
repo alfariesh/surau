@@ -33,6 +33,8 @@ type Status = "idle" | "loading" | "error" | "rate";
 interface First {
   juz: number;
   page: number;
+  /** Permalink halaman cetak (path). */
+  permalink: string;
   prev: Location | null;
   next: Location | null;
   bab: string | null;
@@ -61,6 +63,18 @@ export function ContinuousReader({
   const loading = useRef(false);
   const initialUrl = useRef<string | null>(null);
   const current = useRef({ juz: first.juz, page: first.page });
+
+  // Halaman baru: lupakan halaman terbaca milik halaman sebelumnya. Bila URL tidak cocok dengan
+  // halaman yang dirender (Back sesudah replaceState: Next memulihkan isi halaman pertama dengan
+  // URL halaman sambungan terakhir), muat halaman yang ditunjuk URL supaya isi dan alamat sama.
+  useEffect(() => {
+    announceReaderPage(null);
+    const here = window.location.pathname;
+    if (decodeURIComponent(here) !== decodeURIComponent(first.permalink.split("#")[0]!)) {
+      router.replace(`${here}${window.location.search}${window.location.hash}`);
+    }
+    return () => announceReaderPage(null);
+  }, [first.permalink, router]);
 
   const last = pages.at(-1)?.model;
   const next = last ? last.next : first.next;
@@ -121,6 +135,7 @@ export function ContinuousReader({
             {
               juz: p.model.juz,
               page: p.model.pageNo,
+              permalink: p.model.permalink,
               prev: p.model.prev,
               next: p.model.next,
               bab: p.bab,
@@ -145,8 +160,10 @@ export function ContinuousReader({
           if (url) window.history.replaceState(null, "", url);
           document.title = `${t.pageMetaTitle(page.bab, workTitle, page.juz, page.page)} · ${id.meta.siteName}`;
           announceReaderPage({
+            scope: first.permalink,
             juz: page.juz,
             page: page.page,
+            permalink: page.permalink,
             bab: page.bab,
             activeIds: page.activeIds,
           });
@@ -217,7 +234,7 @@ export function ContinuousReader({
       {/* Navigasi halaman di akhir: Sebelumnya = sebelum halaman pertama, Berikutnya = sesudah
           halaman terakhir yang dimuat. Pintasan ←/→ dipasang di atas, relatif ke halaman terbaca. */}
       <div className="flex flex-col gap-2">
-        <PageNav next={next} prev={first.prev} />
+        <PageNav shortcuts next={next} prev={first.prev} />
         <Typography color="muted" type="body-xs">
           {t.keyboardHint}
         </Typography>

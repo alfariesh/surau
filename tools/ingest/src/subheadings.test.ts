@@ -15,13 +15,13 @@ import {
 } from "./subheadings.ts";
 
 // Teks buatan (bukan teks kitab). Kata "bayan" ditulis dengan escape: berharakat dan tanpa harakat.
-const BAYAN = "بيان";
-const BAYAN_V = "بَيَانُ"; // بَيَانُ
-const W1 = "فضل"; // فضل
-const W2 = "الصبر"; // الصبر
-const W2_V = "الصَّبْرِ"; // الصَّبْرِ
-const W3 = "قال"; // قال
-const W4 = "النبي"; // النبي
+const BAYAN = "\u0628\u064a\u0627\u0646";
+const BAYAN_V = "\u0628\u064e\u064a\u064e\u0627\u0646\u064f"; // بَيَانُ
+const W1 = "\u0641\u0636\u0644"; // فضل
+const W2 = "\u0627\u0644\u0635\u0628\u0631"; // الصبر
+const W2_V = "\u0627\u0644\u0635\u0651\u064e\u0628\u0652\u0631\u0650"; // الصَّبْرِ
+const W3 = "\u0642\u0627\u0644"; // قال
+const W4 = "\u0627\u0644\u0646\u0628\u064a"; // النبي
 
 const sha16 = (text: string) => createHash("sha256").update(text).digest("hex").slice(0, 16);
 

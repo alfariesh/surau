@@ -47,6 +47,19 @@ export const subheadingFile = z.strictObject({
 const file = subheadingFile.parse(raw);
 const entries = new Map(Object.entries(file.entries).map(([k, v]) => [Number(k), v]));
 
+/** FNV-1a 32 bit (hex): sidik ringan isi daftar kurasi untuk kunci cache /api/halaman. */
+function fnv1a(text: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
+/** Sidik daftar kurasi yang sedang dipakai (berubah bila berkas JSON berubah). */
+export const SUBHEADING_DIGEST = fnv1a(JSON.stringify(file));
+
 /** Entri subjudul paragraf `#p<seq>` edisi ini, atau `undefined`. */
 export function subheadingOf(editionId: number, seq: number): SubheadingEntry | undefined {
   return editionId === file.edition ? entries.get(seq) : undefined;

@@ -5,6 +5,7 @@ import {
   drawT17Sample,
   parseT17Grades,
   stratumOf,
+  t17Agreement,
   t17Report,
   wilson,
   type T17GradeRow,
@@ -114,16 +115,51 @@ describe("analisis", () => {
     ]);
     const json = parseT17Grades(
       JSON.stringify({
+        sample: "344d2b8f695d",
         rater: "Anas",
-        grades: [
-          { no: 4, grade: "S", categories: ["dalil"], note: "x" },
-          { no: 5, grade: "X" },
-        ],
+        grades: [{ no: 4, grade: "S", categories: ["dalil"], note: "x" }],
       }),
     );
     expect(json).toEqual({
       rater: "Anas",
+      sample: "344d2b8f695d",
       grades: [{ no: 4, grade: "S", categories: ["dalil"], note: "x" }],
     });
+  });
+
+  test("kesepakatan dua penilai: persentase sama dan kappa Cohen", () => {
+    const g = (no: number, grade: "B" | "K" | "S") => ({ no, grade, categories: [], note: "" });
+    const a = [g(1, "B"), g(2, "B"), g(3, "K"), g(4, "S"), g(5, "B")];
+    const b = [g(1, "B"), g(2, "K"), g(3, "K"), g(4, "S"), g(6, "B")];
+    const r = t17Agreement(a, b)!;
+    expect(r.n).toBe(4);
+    expect(r.agree).toBeCloseTo(0.75, 5);
+    // Kesepakatan harapan: (2/4·1/4) + (1/4·2/4) + (1/4·1/4) = 5/16 → kappa = (0,75 − 0,3125)/(1 − 0,3125).
+    expect(r.kappa).toBeCloseTo((0.75 - 0.3125) / 0.6875, 5);
+    expect(t17Agreement(a, [g(9, "B")])).toBeNull();
+  });
+
+  test("berkas JSON hasil divalidasi (nilai/kategori tidak dikenal = galat) dan membawa sidik sampel", () => {
+    expect(
+      parseT17Grades(
+        JSON.stringify({
+          sample: "344d2b8f695d",
+          rater: "A",
+          grades: [{ no: 1, grade: "B", categories: [], note: "" }],
+        }),
+      ).sample,
+    ).toBe("344d2b8f695d");
+    expect(() =>
+      parseT17Grades(
+        JSON.stringify({
+          sample: "344d2b8f695d",
+          rater: "A",
+          grades: [{ no: 1, grade: "X", categories: [], note: "" }],
+        }),
+      ),
+    ).toThrow(/invalid_value/);
+    expect(parseT17Grades("T-17 tahap 3 · sampel 344d2b8f695d · penilai: A\n1 B").sample).toBe(
+      "344d2b8f695d",
+    );
   });
 });

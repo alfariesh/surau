@@ -1,7 +1,9 @@
 // `pnpm t17 …` (X04): T-17 tahap 3 sesuai pra-registrasi data/reports/ihya-9472-t17-tahap3.md.
-//   pnpm t17 sampel            → data/reviews/ihya-9472-t17-tahap3-sampel.json (ID saja, di-commit)
+//   pnpm t17 sampel [--force]  → data/reviews/ihya-9472-t17-tahap3-sampel.json (ID saja, di-commit;
+//                                menolak menimpa daftar yang sudah ada tanpa --force)
 //   pnpm t17 halaman [--out f] → halaman nilai HTML lokal (teks kitab; data/build/llm/qa, git-ignored)
-//   pnpm t17 hasil <berkas>    → laporan dari hasil penilai (JSON "Unduh hasil" atau teks "Salin hasil")
+//   pnpm t17 hasil <a> [b]     → laporan dari hasil penilai (JSON "Unduh hasil" atau teks "Salin
+//                                hasil"); dengan dua berkas: kesepakatan + kappa Cohen
 //   --db <path>                → .sqlite korpus (bawaan: satu-satunya data/build/surau-corpus-*.sqlite)
 // Halaman nilai BUTA: tanpa model, versi prompt, status koreksi, atau strata.
 import { createHash } from "node:crypto";
@@ -20,6 +22,7 @@ import {
   T17_SEED,
   drawT17Sample,
   parseT17Grades,
+  t17Agreement,
   t17Report,
   type T17Item,
   type T17Stratum,
@@ -56,7 +59,13 @@ const esc = (s: string) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 
-function sample(dbPath: string): number {
+function sample(dbPath: string, force: boolean): number {
+  if (existsSync(SAMPLE) && !force) {
+    console.error(
+      `${SAMPLE} sudah ada (daftar pra-registrasi yang di-commit). Menarik ulang hanya dengan --force dan dicatat sebagai penyimpangan.`,
+    );
+    return 1;
+  }
   const db = openReadOnly(dbPath);
   try {
     const corpus = String(
@@ -121,6 +130,15 @@ function page(dbPath: string, out: string): number {
   const file = readSample();
   const db = openReadOnly(dbPath);
   try {
+    const corpus = String(
+      db.prepare("SELECT value FROM meta WHERE key = 'corpus_version'").get()?.value ?? "?",
+    );
+    if (corpus !== file.corpus) {
+      console.error(
+        `Korpus DB ${corpus} ≠ korpus daftar sampel ${file.corpus}: pakai --db korpus yang sama.`,
+      );
+      return 1;
+    }
     // Hanya sumber terjemahan Kemenag (bukan transliterasinya), sama dengan halaman QA lama.
     const kemenagRows = db
       .prepare("SELECT surah, ayah, text FROM quran_translation WHERE source_id = ?")
@@ -177,14 +195,16 @@ button{font:inherit;padding:6px 12px;border-radius:999px;border:1px solid var(--
 .muted{color:var(--muted);font-size:.9rem}
 </style></head><body>
 <h1>T-17 tahap 3 · Nilai terjemahan AI Ihya (60 sampel)</h1>
-<p>Untuk setiap nomor, baca teks Arab lalu terjemahan AI di bawahnya, dan pilih <b>Benar</b> (makna setia; gaya boleh kurang halus), <b>Kurang</b> (makna utama benar, tetapi ada yang janggal, istilah kurang tepat, atau bagian kecil hilang/bertambah tanpa membalik makna), atau <b>Salah</b> (makna keliru di bagian penting). Untuk Kurang dan Salah, centang kategorinya dan tulis catatan singkat bila perlu. Kotak hijau = terjemahan ayat Kemenag: <b>tidak dinilai</b>. Model dan versi terjemahan sengaja tidak ditampilkan. Isian tersimpan otomatis di browser ini; bila selesai (atau berhenti di tengah), tekan <b>Salin hasil</b> lalu tempel ke chat agent, atau <b>Unduh hasil</b>.</p>
+<p>Untuk setiap nomor, baca teks Arab lalu terjemahan AI di bawahnya, dan pilih <b>Benar</b> (makna setia; gaya boleh kurang halus), <b>Kurang</b> (makna utama benar, tetapi ada yang janggal, istilah kurang tepat, atau bagian kecil hilang/bertambah tanpa membalik makna), atau <b>Salah</b> (makna keliru di bagian penting). Untuk Kurang dan Salah, centang kategorinya dan tulis catatan singkat bila perlu. Kotak hijau = terjemahan ayat Kemenag: <b>tidak dinilai</b>. Model dan versi terjemahan sengaja tidak ditampilkan. Isian tersimpan otomatis di browser ini, per nama penilai (penilai kedua: tekan <b>Penilai baru</b> lalu isi namanya); bila selesai (atau berhenti di tengah), tekan <b>Salin hasil</b> lalu tempel ke chat agent, atau <b>Unduh hasil</b>.</p>
 <p class="muted">Sampel ${esc(hash)} · korpus ${esc(file.corpus)} · pra-registrasi: data/reports/ihya-9472-t17-tahap3.md · perkiraan 60–90 menit.</p>
 <div class="bar"><label>Nama penilai <input id="rater" autocomplete="name"></label>
 <span id="progress" class="muted"></span>
-<button type="button" id="copy">Salin hasil</button><button type="button" id="download">Unduh hasil</button></div>
+<button type="button" id="copy">Salin hasil</button><button type="button" id="download">Unduh hasil</button><button type="button" id="newrater">Penilai baru</button></div>
 ${sections}
 <script>
-const KEY = "surau:t17-tahap3:${hash}";
+const BASE = "surau:t17-tahap3:${hash}";
+// Isian disimpan per nama penilai: penilai kedua di browser yang sama tidak melihat nilai penilai pertama.
+const keyFor = (rater) => BASE + ":" + rater.trim().toLowerCase();
 const items = [...document.querySelectorAll(".item")];
 function collect() {
   return {
@@ -198,16 +218,32 @@ function collect() {
     }),
   };
 }
+const raterInput = document.getElementById("rater");
+function clearForm() {
+  for (const s of items) {
+    for (const input of s.querySelectorAll("input")) input.checked = false;
+    s.querySelector("textarea").value = "";
+  }
+}
 function save() {
   const data = collect();
-  document.getElementById("progress").textContent = data.grades.length + "/" + items.length + " dinilai";
-  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {}
+  const progress = document.getElementById("progress");
+  progress.textContent = data.grades.length + "/" + items.length + " dinilai";
+  if (!data.rater) { progress.textContent += " · isi nama penilai supaya tersimpan"; return; }
+  try { localStorage.setItem(keyFor(data.rater), JSON.stringify(data)); localStorage.setItem(BASE + ":last", data.rater); } catch {}
 }
-function restore() {
+// Penilai yang isiannya sedang tampil di formulir ("" = belum bernama, belum tersimpan).
+let current = "";
+function restore(rater) {
   let data = null;
-  try { data = JSON.parse(localStorage.getItem(KEY) || "null"); } catch {}
+  try { data = JSON.parse(localStorage.getItem(keyFor(rater)) || "null"); } catch {}
+  // Isian tanpa nama (sebelum nama diketik) ikut ke nama itu; isian penilai lain tidak.
+  const keep = !data && current === "";
+  current = rater;
+  raterInput.value = rater;
+  if (keep) return;
+  clearForm();
   if (!data) return;
-  document.getElementById("rater").value = data.rater || "";
   for (const g of data.grades || []) {
     const s = document.getElementById("n" + g.no);
     if (!s) continue;
@@ -222,8 +258,11 @@ function asText(data) {
     .concat(data.grades.map((g) => g.no + " " + g.grade + (g.categories.length ? " " + g.categories.join(",") : "") + (g.note ? " — " + g.note.replace(/\\s+/g, " ") : "")))
     .join("\\n");
 }
-document.addEventListener("input", save);
-document.addEventListener("change", save);
+document.addEventListener("input", (e) => { if (e.target !== raterInput) save(); });
+document.addEventListener("change", (e) => { if (e.target !== raterInput) save(); });
+// Ganti nama = ganti penilai: muat isian penilai itu (atau formulir kosong).
+raterInput.addEventListener("change", () => { restore(raterInput.value.trim()); save(); });
+document.getElementById("newrater").addEventListener("click", () => { clearForm(); current = ""; raterInput.value = ""; save(); raterInput.focus(); });
 document.getElementById("copy").addEventListener("click", async () => {
   const text = asText(collect());
   try { await navigator.clipboard.writeText(text); alert("Hasil disalin. Tempel ke chat agent."); }
@@ -236,7 +275,9 @@ document.getElementById("download").addEventListener("click", () => {
   a.download = "t17-tahap3-hasil.json";
   a.click();
 });
-restore();
+let lastRater = "";
+try { lastRater = localStorage.getItem(BASE + ":last") || ""; } catch {}
+restore(lastRater);
 save();
 </script>
 </body></html>
@@ -251,9 +292,17 @@ save();
   }
 }
 
-function result(path: string): number {
+function result(path: string, second: string | undefined): number {
   const file = readSample();
-  const { rater, grades } = parseT17Grades(readFileSync(path, "utf8"));
+  const hash = sampleHash(file);
+  const read = (f: string) => {
+    const parsed = parseT17Grades(readFileSync(f, "utf8"));
+    if (parsed.sample !== undefined && parsed.sample !== hash) {
+      throw new Error(`${f}: hasil untuk sampel ${parsed.sample}, bukan ${hash}`);
+    }
+    return parsed;
+  };
+  const { rater, grades } = read(path);
   const r = t17Report(file.items, file.population, grades);
   const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
   const prop = (x: { p: number; lo: number; hi: number }) =>
@@ -261,10 +310,16 @@ function result(path: string): number {
   console.info(`Penilai: ${rater || "(tanpa nama)"} · dinilai ${r.graded}/${file.items.length}`);
   console.info("| Strata | n | Benar | Kurang | Salah |\n|---|---:|---|---|---|");
   for (const [k, s] of Object.entries(r.perStratum)) {
-    console.info(`| ${k} | ${s.n} | ${prop(s.benar)} | ${prop(s.kurang)} | ${prop(s.salah)} |`);
+    const cells =
+      s.n === 0 ? "– | – | –" : `${prop(s.benar)} | ${prop(s.kurang)} | ${prop(s.salah)}`;
+    console.info(`| ${k} | ${s.n} | ${cells} |`);
   }
+  // Estimasi tertimbang tanpa satu strata pun menyesatkan: tampilkan hanya bila semua strata terisi.
+  const complete = Object.values(r.perStratum).every((s) => s.n > 0);
   console.info(
-    `| **tertimbang** | ${r.graded} | ${prop(r.weighted.benar)} | ${prop(r.weighted.kurang)} | ${prop(r.weighted.salah)} |`,
+    complete
+      ? `| **tertimbang** | ${r.graded} | ${prop(r.weighted.benar)} | ${prop(r.weighted.kurang)} | ${prop(r.weighted.salah)} |`
+      : `| **tertimbang** | ${r.graded} | – (ada strata tanpa nilai) | – | – |`,
   );
   console.info(
     `Kategori: ${
@@ -275,20 +330,35 @@ function result(path: string): number {
     }`,
   );
   console.info(`Keputusan (aturan pra-registrasi): ${r.decision}`);
+  if (second !== undefined) {
+    const other = read(second);
+    // Pra-registrasi: nomor 1–20 dinilai kedua penilai.
+    const overlap = (g: typeof grades) => g.filter((x) => x.no <= 20);
+    const a = t17Agreement(overlap(grades), overlap(other.grades));
+    console.info(
+      a === null
+        ? "Kesepakatan: tidak ada nomor 1–20 yang dinilai keduanya."
+        : `Kesepakatan ${rater || "penilai 1"} vs ${other.rater || "penilai 2"} (nomor 1–20, n=${a.n}): sama ${pct(a.agree)}, kappa Cohen ${a.kappa === null ? "–" : a.kappa.toFixed(2)}`,
+    );
+  }
   return 0;
 }
 
 function main(): number {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
-    options: { db: { type: "string" }, out: { type: "string" } },
+    options: {
+      db: { type: "string" },
+      out: { type: "string" },
+      force: { type: "boolean", default: false },
+    },
   });
-  const [cmd, arg] = positionals;
-  if (cmd === "sampel") return sample(values.db ?? defaultDb());
+  const [cmd, arg, arg2] = positionals;
+  if (cmd === "sampel") return sample(values.db ?? defaultDb(), values.force);
   if (cmd === "halaman") return page(values.db ?? defaultDb(), values.out ?? PAGE);
-  if (cmd === "hasil" && arg !== undefined) return result(arg);
+  if (cmd === "hasil" && arg !== undefined) return result(arg, arg2);
   console.error(
-    "Pakai: pnpm t17 sampel | pnpm t17 halaman [--out berkas.html] | pnpm t17 hasil <berkas>",
+    "Pakai: pnpm t17 sampel [--force] | pnpm t17 halaman [--out berkas.html] | pnpm t17 hasil <berkas> [berkas penilai 2]",
   );
   return 2;
 }

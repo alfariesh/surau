@@ -36,7 +36,12 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
 
   if (summary.review_status === "rejected") return null;
   return (
-    <aside aria-label={t.aiSummaryOf} className="section-summary" lang="id">
+    <aside
+      aria-label={t.aiSummaryOf}
+      className="section-summary"
+      data-permalink={summary.section.permalink}
+      lang="id"
+    >
       <Typography type="body-xs" color="muted" weight="medium" className="mb-1">
         {t.aiSummary}
         <span className="font-normal">
@@ -45,7 +50,7 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
         </span>
       </Typography>
       {expanded ? (
-        <div className="section-summary-text flex flex-col gap-2" id={textId}>
+        <div className="section-summary-text flex flex-col gap-2" data-tr-seg="summary" id={textId}>
           {summaryParagraphs(summary.text).map((para, i) => (
             <Typography key={i} type="body-sm">
               {para}
@@ -57,6 +62,7 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
           ref={textRef}
           type="body-sm"
           className="section-summary-text line-clamp-2 whitespace-pre-line"
+          data-tr-seg="summary"
           id={textId}
         >
           {summary.text}

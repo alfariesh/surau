@@ -11,10 +11,16 @@ import { parseWorkSegment, resolveEdition } from "../../../lib/reader/work-segme
 
 // Halaman sambungan gulir bersambung (X04 W6): GET /api/halaman?work=ihya&juz=1&page=201 → model
 // siap render (`PageData`, JSON). Membaca halaman + node daftar isi yang mulai di halaman itu saja
-// (bukan seluruh daftar isi, ±93% baris D1 render halaman, S10). Pengaman di handlePage; di sini
-// hanya merangkai binding. Cache sama dengan /api/search: Cache API per data center, hanya bila
+// (bukan seluruh daftar isi, ±82–93% baris D1 render halaman). Pengaman di handlePage (tanpa baca D1
+// sebelum batas laju); di sini hanya merangkai binding. Cache sama dengan /api/search: Cache API per data center, hanya bila
 // `SEARCH_CACHE_CORPUS` (nama DB korpus produksi) terisi; Preview dan `next dev` tanpa cache.
 const DEV_HMAC_KEY = "surau-dev-only";
+
+/**
+ * Edisi kanonis per segmen, diingat per isolate dan per korpus (hanya yang ditemukan, jadi segmen
+ * acak tidak menumpuk memori): halaman sambungan berikutnya tidak membaca karya/edisi lagi.
+ */
+const editionMemo = new Map<string, { id: number; volumes: number | null }>();
 
 function workersCache(ctx: ExecutionContext): SearchCache | null {
   const cache = typeof caches === "undefined" ? undefined : (caches as { default?: Cache }).default;
@@ -41,12 +47,16 @@ export async function GET(request: Request): Promise<Response> {
       // Hanya segmen kanonis (`ihya`, `ihya@<edisi non-default>`): halaman baca selalu memakainya.
       const parsed = parseWorkSegment(segment);
       if (parsed === null) return null;
+      const memoKey = `${env.SEARCH_CACHE_CORPUS ?? ""}\n${segment}`;
+      const known = editionMemo.get(memoKey);
+      if (known !== undefined) return known;
       try {
         const work = await getWork(db, parsed.workSlug);
         const resolved = resolveEdition(work, parsed.editionSlug);
-        return resolved.kind === "ok"
-          ? { id: resolved.edition.id, volumes: resolved.edition.volumes }
-          : null;
+        if (resolved.kind !== "ok") return null;
+        const found = { id: resolved.edition.id, volumes: resolved.edition.volumes };
+        editionMemo.set(memoKey, found);
+        return found;
       } catch (error) {
         if (isCoreError(error)) return null;
         throw error;

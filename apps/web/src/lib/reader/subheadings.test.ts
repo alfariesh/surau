@@ -21,7 +21,7 @@ describe("daftar kurasi subjudul", () => {
   });
 
   it("sha16 web sama dengan sha256 Node (16 hex awal)", async () => {
-    const text = "بَيَانُ Penjelasan";
+    const text = "\u0628\u064e\u064a\u064e\u0627\u0646\u064f Penjelasan";
     expect(await sha16(text)).toBe(createHash("sha256").update(text).digest("hex").slice(0, 16));
   });
 });

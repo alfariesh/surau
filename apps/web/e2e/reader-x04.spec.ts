@@ -158,3 +158,56 @@ test("gulir bersambung: halaman 201 termuat di bawah j1/200 dan URL berganti saa
   await page.mouse.wheel(0, 100);
   await expect(page).toHaveURL(/\/kitab\/ihya\/1\/200$/);
 });
+
+test("gulir bersambung: sitasi paragraf halaman sambungan menyebut halaman cetaknya sendiri", async ({
+  page,
+  context,
+  baseURL,
+  isMobile,
+}) => {
+  test.skip(isMobile, "menu paragraf dibuka lewat hover");
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto(PAGE);
+  const next = page.getByRole("region", { name: "Halaman sambungan, juz 1 halaman 201" });
+  await expect(async () => {
+    await page.mouse.wheel(0, 4000);
+    await expect(next).toBeAttached({ timeout: 1500 });
+  }).toPass({ timeout: 30_000 });
+  const passage = next.locator(".passage[id^='p']").first();
+  await passage.scrollIntoViewIfNeeded();
+  const id = await passage.getAttribute("id");
+  expect(id).toMatch(/^p\d+$/);
+  await passage.hover();
+  await passage.getByRole("button", { name: /Aksi paragraf/ }).click();
+  await page.getByRole("menuitem", { name: "Salin sitasi paragraf" }).click();
+  await expect(page.getByText("Sitasi disalin")).toBeVisible();
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toContain("j.1 h.201.");
+  expect(copied).toContain(new URL(`/kitab/ihya/1/201#${id}`, baseURL).href);
+});
+
+test("gulir bersambung: Back sesudah pindah halaman menampilkan halaman yang ditunjuk URL", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "daftar isi samping hanya di desktop");
+  await page.goto(PAGE);
+  const next = page.getByRole("region", { name: "Halaman sambungan, juz 1 halaman 201" });
+  await expect(async () => {
+    await page.mouse.wheel(0, 4000);
+    await expect(next).toBeAttached({ timeout: 1500 });
+  }).toPass({ timeout: 30_000 });
+  await next.locator(".passage").first().scrollIntoViewIfNeeded();
+  await page.mouse.wheel(0, 200);
+  await expect(page).toHaveURL(/\/kitab\/ihya\/1\/201$/);
+  // Navigasi klien ke halaman lain lewat daftar isi samping, lalu Back.
+  const link = page.locator("aside a[href^='/kitab/ihya/']").first();
+  const target = await link.getAttribute("href");
+  await link.click();
+  await expect(page).toHaveURL(
+    new RegExp(`${target!.split("#")[0]!.replaceAll("/", "\\/")}(#.*)?$`),
+  );
+  await page.goBack();
+  await expect(page).toHaveURL(/\/kitab\/ihya\/1\/201$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Juz 1 · Halaman 201");
+});

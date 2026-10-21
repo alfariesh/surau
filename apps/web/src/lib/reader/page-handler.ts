@@ -8,10 +8,11 @@ import type { PageModel } from "./page-model";
 import { PAGE_MODEL_VERSION } from "./page-model";
 
 // Logika GET /api/halaman (X04 W6, gulir bersambung): model siap render satu halaman cetak tanpa
-// daftar isi lengkap. Dipisah dari route supaya bisa dites tanpa Workers. Urutan sama dengan
-// /api/search (ADR-048): pembaca terbuka → parameter (Zod) → karya/edisi + batas juz SEBELUM
-// membaca halaman → cache (Cache API, bila ada) → batas per klien (HMAC jaringan IP) → batas global
-// → baca → simpan ke cache. Alamat tidak sah atau tidak ada = 404 tanpa menulis cache.
+// daftar isi lengkap. Dipisah dari route supaya bisa dites tanpa Workers. Urutan seperti /api/search
+// (ADR-048), tanpa membaca D1 sebelum batas laju: pembaca terbuka → parameter (Zod) → cache (Cache
+// API, kunci = korpus + versi model + segmen + juz + halaman) → batas per klien (HMAC jaringan IP)
+// → batas global → edisi + batas jilid → baca halaman → simpan ke cache. Alamat tidak sah atau
+// tidak ada = 400/404 tanpa menulis cache.
 
 /** Umur salinan cache: isi halaman tetap per versi korpus, dan versi korpus + model ada di kunci. */
 export const PAGE_CACHE_TTL = 7 * 24 * 60 * 60;
@@ -66,15 +67,11 @@ export async function handlePage(request: Request, deps: PageDeps): Promise<Resp
   if (deps.hmacKey === undefined || deps.hmacKey === "") return json(503, { error: "unavailable" });
   const { work, juz, page } = parsed.data;
 
-  const edition = await deps.edition(work);
-  if (edition === null || juz < 1 || (edition.volumes !== null && juz > edition.volumes)) {
-    return json(404, { error: "not_found" });
-  }
   const key =
     deps.cache === null
       ? null
       : `${url.origin}/__cache/halaman/${await sha256Hex(
-          `${deps.cache.corpus}\n${PAGE_MODEL_VERSION}\n${edition.id}\n${juz}\n${page}`,
+          `${deps.cache.corpus}\n${PAGE_MODEL_VERSION}\n${work}\n${juz}\n${page}`,
         )}`;
   if (key !== null && deps.cache !== null) {
     const hit = await deps.cache.store.match(key);
@@ -84,6 +81,10 @@ export async function handlePage(request: Request, deps: PageDeps): Promise<Resp
   if (!allowed) return json(429, { error: "rate_limited" });
   if (!(await deps.limitGlobal())) return json(429, { error: "rate_limited" });
 
+  const edition = await deps.edition(work);
+  if (edition === null || juz < 1 || (edition.volumes !== null && juz > edition.volumes)) {
+    return json(404, { error: "not_found" });
+  }
   let data: PageData;
   try {
     data = await deps.load(edition.id, juz, page);

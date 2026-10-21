@@ -95,8 +95,11 @@ export function summaryParagraphs(text: string): string[] {
 /** Potongan teks yang disalin, beserta asalnya (untuk label salinan). */
 export interface CopyPiece {
   text: string;
-  /** "ai" = terjemahan AI, "ayah" = terjemahan Kemenag, "plain" = teks lain (mis. Arab). */
-  kind: "ai" | "ayah" | "plain";
+  /**
+   * "ai" = terjemahan AI, "summary" = ringkasan AI, "ayah" = terjemahan Kemenag, "plain" = teks
+   * lain (mis. Arab).
+   */
+  kind: "ai" | "summary" | "ayah" | "plain";
   /** Identitas segmen: label ditambahkan setiap kali satu segmen AI/ayat selesai. */
   group: string;
   /** Blok asal (paragraf, terjemahan): antarblok dipisah baris baru. */
@@ -111,10 +114,14 @@ export interface CopyPiece {
 
 /**
  * Teks salinan dengan label per segmen (teks-arab.md aturan 8–9): sesudah setiap potongan
- * terjemahan AI ditambahkan "(Terjemahan AI, <permalink>)", sesudah terjemahan ayat
- * "(QS s:a · Terjemahan Kemenag)" bila labelnya belum ikut terseleksi. Teks lain apa adanya.
+ * terjemahan AI ditambahkan "(Terjemahan AI, <permalink>)", sesudah ringkasan AI "(Ringkasan AI, …)",
+ * sesudah terjemahan ayat "(QS s:a · Terjemahan Kemenag)" bila labelnya belum ikut terseleksi. Teks
+ * lain apa adanya.
  */
-export function labelledCopy(pieces: readonly CopyPiece[], aiLabel: string): string {
+export function labelledCopy(
+  pieces: readonly CopyPiece[],
+  labels: { ai: string; summary: string },
+): string {
   let out = "";
   let prev: CopyPiece | undefined;
   // Label disisipkan sebelum spasi penutup segmen, supaya jarak ke teks berikutnya tetap.
@@ -124,7 +131,8 @@ export function labelledCopy(pieces: readonly CopyPiece[], aiLabel: string): str
   };
   const close = (p: CopyPiece | undefined) => {
     if (p === undefined) return;
-    if (p.kind === "ai") insert(`${aiLabel}${p.url ? `, ${p.url}` : ""}`);
+    if (p.kind === "ai") insert(`${labels.ai}${p.url ? `, ${p.url}` : ""}`);
+    if (p.kind === "summary") insert(`${labels.summary}${p.url ? `, ${p.url}` : ""}`);
     if (p.kind === "ayah" && !p.labelIncluded && p.label) insert(p.label);
   };
   for (const p of pieces) {

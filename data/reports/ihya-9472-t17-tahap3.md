@@ -87,6 +87,20 @@ ayat/hadits; lainnya (tulis di catatan). Perkiraan waktu 60–90 menit.
 3. **Salah > 15%:** usulan terjemahan ulang luas (Sonnet ±US$40–65 penuh, atau per rub') sebagai
    keputusan anggaran pemilik.
 
+## Klarifikasi dan penyimpangan (bertanggal)
+
+- **2026-10-21, sebelum ada hasil yang terlihat (temuan peninjau X04):** frasa "masing-masing ±13–14
+  sampel menurut bobot" di aturan keputusan 1 bisa dibaca dua cara (alokasi sama seperti sampel pertama,
+  atau proporsional bobot = 14/20/6). Yang berlaku, mengikuti angka yang tertulis: tambahan 40 dibagi
+  **13/14/13** (pendek/sedang/panjang); "menurut bobot" hanya menentukan strata yang mendapat sisa satu
+  sampel (sedang, bobot terbesar). Strata ke-k ditarik dengan `samplePages(id strata itu sesudah
+  mengeluarkan 20 ID sampel pertamanya, n, 20261024 + k)`. Analisis gabungan memakai bobot populasi yang
+  sama; di rumus n_eff, pembagi 20 menjadi n strata itu (33/34/33) dan batasnya 100. Seed, strata,
+  rubrik, dan sampel pertama tidak berubah.
+- **2026-10-21, alat (sebelum hasil):** isian halaman nilai disimpan per nama penilai (penilai kedua
+  tidak melihat nilai penilai pertama); `pnpm t17 hasil a b` menghitung kesepakatan + kappa Cohen untuk
+  nomor 1–20; berkas hasil divalidasi dan dicocokkan dengan sidik sampel (`344d2b8f695d`).
+
 ## Hasil
 
 *Belum ada. Diisi setelah penilai mengirim hasil.*

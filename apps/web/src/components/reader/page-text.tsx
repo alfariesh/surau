@@ -155,8 +155,13 @@ function subLevels(body: readonly PassageModel[], afterH2: boolean): (2 | 3)[] {
   return levels;
 }
 
-function passageRef(p: PassageModel) {
-  return { id: p.id, label: p.label, permalink: p.permalink };
+/** Rujukan paragraf untuk menu ⋮ dan laporan; label lokasi dari halaman model ini. */
+function passageRef(p: PassageModel, model: PageModel) {
+  return {
+    id: p.id,
+    label: `${t.pageShort(model.juz, model.pageNo)} · ${p.anchor}`,
+    permalink: p.permalink,
+  };
 }
 
 /**
@@ -180,7 +185,7 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
         {/* Judul di tengah seperti kitab cetak; ⋮ di ruang tepi (padding sama di kedua sisi). */}
         <div className="relative flex items-center justify-center gap-2 px-7 sm:gap-3 sm:px-9">
           <span className="absolute start-0 top-1/2 -translate-y-1/2">
-            <PassageActions passage={passageRef(p)} />
+            <PassageActions passage={passageRef(p, ctx.model)} />
           </span>
           {toc ? <HeadingOrnament side="start" /> : null}
           <ArabicText
@@ -223,7 +228,7 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
       {sub === -1 ? (
         <ArabicText className={`text-foreground ${verse ? "verse" : ""}`}>
           {renderBlocks(p, ctx)}
-          <PassageActions passage={passageRef(p)} />
+          <PassageActions passage={passageRef(p, ctx.model)} />
         </ArabicText>
       ) : (
         // Subjudul yang menempel di awal/akhir paragraf: baris judul sendiri + sisa paragrafnya.
@@ -237,7 +242,7 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
             ) : (
               <p key={i}>
                 {renderBlocks(p, ctx, [b])}
-                <PassageActions passage={passageRef(p)} />
+                <PassageActions passage={passageRef(p, ctx.model)} />
               </p>
             ),
           )}
@@ -308,6 +313,10 @@ export function PageText({
           <div className="flex flex-col gap-0.5">
             <Typography.Heading className="text-sm" id={footnotesHeadingId} level={afterH2 ? 3 : 2}>
               {footNote?.heading ?? t.footnotesHeading}
+              {/* Halaman sambungan: nama wilayah catatan kaki dibedakan per halaman (pembaca layar). */}
+              {afterH2 ? (
+                <span className="sr-only"> · {t.pageShort(model.juz, model.pageNo)}</span>
+              ) : null}
             </Typography.Heading>
             {footNote ? (
               <Typography color="muted" type="body-xs">
@@ -322,7 +331,7 @@ export function PageText({
                 <li key={f.id} className="passage flex flex-col gap-1" id={f.anchor}>
                   <ArabicText className="text-foreground">
                     {renderBlocks(f, ctx)}
-                    <PassageActions passage={passageRef(f)} />
+                    <PassageActions passage={passageRef(f, model)} />
                   </ArabicText>
                   <NeedsReviewNote reasons={f.needsReview} />
                   {back ? (

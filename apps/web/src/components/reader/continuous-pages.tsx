@@ -6,13 +6,15 @@ import { id } from "../../i18n/id";
 import type { PageData } from "../../lib/reader/page-handler";
 
 import { PageText } from "./page-text";
+import { QuranNotice } from "./quran-notice";
 
 const t = id.reader;
 
 /**
  * Halaman sambungan gulir bersambung (X04 W6), dimuat malas oleh ContinuousReader: setiap halaman
  * cetak berikutnya dirender dengan komponen yang sama dengan halaman server (PageText), di bawah
- * pemisah tipis "Juz 1 · Halaman 201" (h2). Teks dan terjemahan dari model JSON /api/halaman.
+ * pemisah tipis "Juz 1 · Halaman 201" (h2). Teks dan terjemahan dari model JSON /api/halaman;
+ * atribusi ayat ikut per halaman bila halaman itu mengutip ayat.
  */
 export function ContinuousPages({
   pages,
@@ -44,6 +46,12 @@ export function ContinuousPages({
           label={t.continuedRegion(model.juz, model.pageNo)}
           model={model}
         />
+        {/* Atribusi ayat (Tanzil, Kemenag) untuk halaman sambungan yang mengutip ayat. */}
+        {model.quran ? (
+          <div className="text-muted text-xs">
+            <QuranNotice quran={model.quran} />
+          </div>
+        ) : null}
       </section>
     );
   });

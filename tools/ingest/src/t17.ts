@@ -2,6 +2,8 @@
 // `data/reports/ihya-9472-t17-tahap3.md`. Modul murni: strata, penarikan sampel (seed tetap), urutan
 // tampil acak, interval Wilson, estimasi tertimbang, dan aturan keputusan. Halaman nilai dan
 // berkas sampel dibuat t17-cli.ts.
+import { z } from "zod";
+
 import { mulberry32, samplePages } from "./qa-sample.ts";
 
 /** Seed pra-registrasi (jangan diganti sesudah sampel terlihat). */
@@ -190,24 +192,68 @@ const GRADE_WORDS: Record<string, T17Grade> = {
   salah: "S",
 };
 
+/** Berkas JSON "Unduh hasil" halaman nilai (divalidasi Zod; baris yang tidak sah = galat). */
+export const t17ResultFile = z.object({
+  sample: z.string().regex(/^[0-9a-f]{12}$/),
+  rater: z.string().max(120),
+  grades: z.array(
+    z.strictObject({
+      no: z.number().int().positive(),
+      grade: z.enum(T17_GRADES),
+      categories: z.array(z.enum(Object.keys(T17_CATEGORIES) as [T17Category, ...T17Category[]])),
+      note: z.string().max(2000),
+    }),
+  ),
+});
+
+/**
+ * Kesepakatan dua penilai atas nomor yang dinilai keduanya: persentase sama dan kappa Cohen
+ * (tiga kelas B/K/S). `null` bila tidak ada nomor bersama.
+ */
+export function t17Agreement(
+  a: readonly T17GradeRow[],
+  b: readonly T17GradeRow[],
+): { n: number; agree: number; kappa: number | null } | null {
+  const byNo = new Map(b.map((g) => [g.no, g.grade]));
+  const pairs = a.flatMap((g) => {
+    const other = byNo.get(g.no);
+    return other === undefined ? [] : [[g.grade, other] as const];
+  });
+  const n = pairs.length;
+  if (n === 0) return null;
+  const agree = pairs.filter(([x, y]) => x === y).length / n;
+  const expected = T17_GRADES.reduce((sum, g) => {
+    const pa = pairs.filter(([x]) => x === g).length / n;
+    const pb = pairs.filter(([, y]) => y === g).length / n;
+    return sum + pa * pb;
+  }, 0);
+  const kappa = expected === 1 ? null : (agree - expected) / (1 - expected);
+  return { n, agree, kappa };
+}
+
 /**
  * Hasil penilai: JSON dari tombol "Unduh hasil" halaman nilai, atau teks dari "Salin hasil"
  * (satu baris per nomor: `12 K istilah,hilang — catatan`).
  */
-export function parseT17Grades(input: string): { rater: string; grades: T17GradeRow[] } {
+export function parseT17Grades(input: string): {
+  rater: string;
+  grades: T17GradeRow[];
+  /** Sidik sampel dari berkas hasil (bila ada), untuk dicocokkan dengan daftar sampel. */
+  sample?: string;
+} {
   const trimmed = input.trim();
   if (trimmed.startsWith("{")) {
-    const v = JSON.parse(trimmed) as { rater?: string; grades?: T17GradeRow[] };
-    return {
-      rater: String(v.rater ?? ""),
-      grades: (v.grades ?? []).filter((g) => T17_GRADES.includes(g.grade)),
-    };
+    const v = t17ResultFile.parse(JSON.parse(trimmed));
+    return { rater: v.rater, grades: v.grades, sample: v.sample };
   }
   let rater = "";
+  let sample: string | undefined;
   const grades: T17GradeRow[] = [];
   for (const line of trimmed.split("\n")) {
     const who = /penilai:\s*(.+)$/i.exec(line);
     if (who) rater = who[1]!.trim();
+    const tag = /sampel ([0-9a-f]{12})/.exec(line);
+    if (tag) sample = tag[1];
     const m = /^\s*(\d+)\s+(benar|kurang|salah|b|k|s)\b\s*([a-z,]*)\s*(?:—\s*(.*))?$/i.exec(line);
     if (!m) continue;
     const categories = (m[3] ?? "")
@@ -221,5 +267,5 @@ export function parseT17Grades(input: string): { rater: string; grades: T17Grade
       note: (m[4] ?? "").trim(),
     });
   }
-  return { rater, grades };
+  return { rater, grades, ...(sample === undefined ? {} : { sample }) };
 }

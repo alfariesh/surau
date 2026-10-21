@@ -27,6 +27,7 @@ const url = (q: string) => new Request(`https://surau.example/api/halaman?${q}`)
 function deps(over: Partial<PageDeps> = {}) {
   const loads: string[] = [];
   const limited: string[] = [];
+  const editions: string[] = [];
   const d: PageDeps = {
     enabled: true,
     hmacKey: "kunci-uji",
@@ -36,7 +37,10 @@ function deps(over: Partial<PageDeps> = {}) {
       return true;
     },
     limitGlobal: async () => true,
-    edition: async (segment) => (segment === "ihya" ? { id: 1, volumes: 4 } : null),
+    edition: async (segment) => {
+      editions.push(segment);
+      return segment === "ihya" ? { id: 1, volumes: 4 } : null;
+    },
     load: async (ed, juz, page) => {
       loads.push(`${ed}/${juz}/${page}`);
       return DATA;
@@ -44,7 +48,7 @@ function deps(over: Partial<PageDeps> = {}) {
     cache: null,
     ...over,
   };
-  return { d, loads, limited };
+  return { d, loads, limited, editions };
 }
 
 describe("handlePage (GET /api/halaman)", () => {
@@ -59,8 +63,8 @@ describe("handlePage (GET /api/halaman)", () => {
     expect(limited[0]).toMatch(/^[0-9a-f]{32}$/);
   });
 
-  it("parameter salah bentuk = 400; karya/juz tidak ada = 404, keduanya tanpa membaca halaman", async () => {
-    const { d, loads } = deps();
+  it("parameter salah bentuk = 400 tanpa D1; karya/juz tidak ada = 404 tanpa membaca halaman", async () => {
+    const { d, loads, editions } = deps();
     for (const q of [
       "work=ihya&juz=01&page=2",
       "work=ihya&juz=1",
@@ -69,6 +73,7 @@ describe("handlePage (GET /api/halaman)", () => {
     ]) {
       expect((await handlePage(url(q), d)).status, q).toBe(400);
     }
+    expect(editions).toEqual([]);
     for (const q of [
       "work=lain&juz=1&page=2",
       "work=ihya&juz=0&page=2",
@@ -100,13 +105,15 @@ describe("handlePage (GET /api/halaman)", () => {
     expect(mem.puts).toEqual([]);
   });
 
-  it("batas per klien dan global = 429 sebelum membaca D1", async () => {
+  it("batas per klien dan global = 429 sebelum membaca D1 (edisi maupun halaman)", async () => {
     const perClient = deps({ limit: async () => false });
     expect((await handlePage(url("work=ihya&juz=1&page=2"), perClient.d)).status).toBe(429);
     expect(perClient.loads).toEqual([]);
+    expect(perClient.editions).toEqual([]);
     const global = deps({ limitGlobal: async () => false });
     expect((await handlePage(url("work=ihya&juz=1&page=2"), global.d)).status).toBe(429);
     expect(global.loads).toEqual([]);
+    expect(global.editions).toEqual([]);
   });
 
   it("cache: simpan sekali (s-maxage), permintaan berikutnya dari cache tanpa batas laju/baca", async () => {
@@ -126,6 +133,7 @@ describe("handlePage (GET /api/halaman)", () => {
     expect(hit.status).toBe(200);
     expect(hit.headers.get("X-Surau-Cache")).toBe("hit");
     expect(second.loads).toEqual([]);
+    expect(second.editions).toEqual([]);
     // Versi korpus lain = kunci lain.
     const other = deps({ cache: { store: mem.cache, corpus: "surau-corpus-lain" } });
     expect(

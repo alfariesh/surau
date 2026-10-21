@@ -2,6 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import { aiRuns, labelledCopy, quotePairs, summaryParagraphs } from "./id-text";
 
+const LABELS = { ai: "Terjemahan AI", summary: "Ringkasan AI" };
 const plain = (runs: ReturnType<typeof aiRuns>) => runs.map((r) => r.text).join("");
 const straight = (text: string) => text.replaceAll("“", '"').replaceAll("”", '"');
 
@@ -83,7 +84,7 @@ describe("labelledCopy", () => {
           url: "https://surau.org/kitab/ihya/1/200#p1",
         },
       ],
-      "Terjemahan AI",
+      LABELS,
     );
     expect(text).toBe(
       "نص\nIa berkata, (Terjemahan AI, https://surau.org/kitab/ihya/1/200#p1) terjemahan ayat (QS 2:255 · Terjemahan Kemenag) lalu pergi. (Terjemahan AI, https://surau.org/kitab/ihya/1/200#p1)",
@@ -103,11 +104,26 @@ describe("labelledCopy", () => {
             labelIncluded: true,
           },
         ],
-        "Terjemahan AI",
+        LABELS,
       ),
     ).toBe("QS 2:255 · Terjemahan Kemenag ayat");
+    // Ringkasan AI ikut berlabel saat disalin.
     expect(
-      labelledCopy([{ text: "نص عربي", kind: "plain", group: "b0", block: "0" }], "Terjemahan AI"),
+      labelledCopy(
+        [
+          {
+            text: "Bab ini membahas sabar.",
+            kind: "summary",
+            group: "s9",
+            block: "0",
+            url: "https://surau.org/kitab/ihya/4/61",
+          },
+        ],
+        LABELS,
+      ),
+    ).toBe("Bab ini membahas sabar. (Ringkasan AI, https://surau.org/kitab/ihya/4/61)");
+    expect(
+      labelledCopy([{ text: "نص عربي", kind: "plain", group: "b0", block: "0" }], LABELS),
     ).toBe("نص عربي");
   });
 });
