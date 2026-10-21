@@ -1,4 +1,4 @@
-import { takhrijReviewInput } from "@surau/core";
+import { parseUstadzKeys, takhrijReviewInput } from "@surau/core";
 import { getEnv } from "../../../../lib/cloudflare";
 import { REVIEW_HEADERS, reviewIdentity, reviewSameOrigin } from "../../../../lib/review-auth";
 import { readJsonBody } from "../../../../lib/review-body";
@@ -24,6 +24,7 @@ export async function GET(request: Request) {
     app: env.APP_DB,
     identity,
     now: new Date().toISOString(),
+    ustadzKeys: parseUstadzKeys(env.TAKHRIJ_USTADZ_KEYS),
   };
   const query = new URL(request.url).searchParams;
   const id = query.get("id");
@@ -54,7 +55,13 @@ export async function POST(request: Request) {
   const input = takhrijReviewInput.safeParse(body.value);
   if (!input.success) return json({ error: "invalid" }, 400);
   const saved = await saveTakhrijDecision(
-    { corpus: env.CORPUS_DB, app: env.APP_DB, identity, now: new Date().toISOString() },
+    {
+      corpus: env.CORPUS_DB,
+      app: env.APP_DB,
+      identity,
+      now: new Date().toISOString(),
+      ustadzKeys: parseUstadzKeys(env.TAKHRIJ_USTADZ_KEYS),
+    },
     input.data,
   );
   if (saved === "not_found") return json({ error: "not_found" }, 404);

@@ -230,7 +230,7 @@ function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutip
                   variant="soft"
                   color={h.label.startsWith("ustadz_") ? "success" : "default"}
                 >
-                  {HADITH_LABEL[h.label]}
+                  {HADITH_LABEL[h.label] ?? t.hadithRule}
                 </Chip>
                 {item?.weak ? (
                   <Chip size="sm" variant="soft" color="danger">

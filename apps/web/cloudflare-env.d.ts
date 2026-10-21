@@ -17,6 +17,7 @@ interface __BaseEnv_CloudflareEnv {
 	REVIEW_ACCESS_ISSUER: string;
 	REVIEW_ACCESS_AUD: string;
 	ADMIN_ACCESS_AUD: string;
+	TAKHRIJ_USTADZ_KEYS: string;
 	READER_ENABLED: string;
 	SEARCH_TIMING_DETAIL: string;
 	SEARCH_CACHE_CORPUS: string;
@@ -34,7 +35,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "REVIEW_ACCESS_ISSUER" | "REVIEW_ACCESS_AUD" | "ADMIN_ACCESS_AUD" | "READER_ENABLED" | "SEARCH_TIMING_DETAIL" | "SEARCH_CACHE_CORPUS" | "SITEMAP_ORIGIN" | "JAWAB_ROUTE_ENABLED" | "NEXTJS_ENV">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "REVIEW_ACCESS_ISSUER" | "REVIEW_ACCESS_AUD" | "ADMIN_ACCESS_AUD" | "TAKHRIJ_USTADZ_KEYS" | "READER_ENABLED" | "SEARCH_TIMING_DETAIL" | "SEARCH_CACHE_CORPUS" | "SITEMAP_ORIGIN" | "JAWAB_ROUTE_ENABLED" | "NEXTJS_ENV">> {}
 }
 declare module "*.txt" {
 	const value: string;

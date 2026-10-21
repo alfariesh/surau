@@ -35,7 +35,13 @@ const MIXED = "حديث تجريبي رواه فلان بإسناد صحيح و�
 const PLAIN = "حديث تجريبي أخرجه فلان";
 const NOTE = "(٤) وقال فلان كلاما تجريبيا";
 const ME = "a".repeat(64);
-const deps = { corpus: {} as D1Db, app: {} as D1Db, identity: ME, now: "2026-10-21T00:00:00Z" };
+const deps = {
+  corpus: {} as D1Db,
+  app: {} as D1Db,
+  identity: ME,
+  now: "2026-10-21T00:00:00Z",
+  ustadzKeys: new Set([ME]),
+};
 let built = 0;
 
 const review = async (passage_id: number, text: string, over: Partial<TakhrijReview> = {}) => ({
@@ -89,6 +95,10 @@ describe("antrean label takhrij", () => {
     expect(q.items.map((i) => i.passage_id)).toEqual([12, 11, 10]);
     expect(q.items[0]).toMatchObject({ location: "j. 1, h. 12", cites: 3, weak: true, own: null });
     expect(q.counts).toEqual({ todo: 3, unsure: 0, done: 0 });
+    expect(q.ustadz_account).toBe(true);
+    expect((await takhrijQueue({ ...deps, ustadzKeys: new Set() }, "todo", 0)).ustadz_account).toBe(
+      false,
+    );
     vi.mocked(getCorpusMeta).mockResolvedValue({
       schema_version: 7,
       corpus_version: `uji-${++built}`,
@@ -125,11 +135,15 @@ describe("antrean label takhrij", () => {
     expect(item).toMatchObject({
       text: WEAK,
       label: { text: "takhrij menyebut: lemah" },
-      current: { review: "corrected", text: "takhrij menyebut: mursal" },
+      current: { review: "corrected", text: "menurut peninjau: mursal" },
       cites: 3,
     });
     expect(item?.own).toMatchObject({ decision: "corrected", stale: false });
     expect(JSON.stringify(item)).not.toContain(ME);
+    // Akun tidak terdaftar: keputusannya tersimpan, label yang dipakai Jawab tetap label kode.
+    expect((await takhrijReviewItem({ ...deps, ustadzKeys: new Set() }, 12))?.current.review).toBe(
+      "rule",
+    );
     vi.mocked(answerPassages).mockResolvedValue([passage(13, NOTE)]);
     expect(await takhrijReviewItem(deps, 13)).toBeNull();
     vi.mocked(answerPassages).mockResolvedValue([passage(14, WEAK, "body")]);

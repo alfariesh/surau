@@ -21,14 +21,16 @@ Halaman: [surau.org/tinjau/takhrij](https://surau.org/tinjau/takhrij) (tautan "L
 
 1. Pilih daftar **Belum ditinjau** (bawaan). Urutannya: takhrij yang paling sering dikutip Jawab, lalu yang penilaiannya berbeda per jalur, lalu urutan kitab.
 2. Baca teks takhrij. Istilah yang dikenali kode **disorot**; di bawahnya ada label otomatis dan arti baku tiap istilah. Tautan "Buka di pembaca" dan "Hadits di matan" membuka halaman kitab.
-3. Isi nama sendiri (**Anas**). Keputusan dipakai Jawab hanya atas nama ustadz peninjau yang ditunjuk pemilik; nama lain (uji pemilik, Agent QA) tersimpan tetapi tidak dipakai.
+3. Isi nama sendiri (**Anas**) dengan huruf Latin. Keputusan dipakai Jawab hanya dari **akun ustadz peninjau terdaftar** dengan nama yang ditunjuk pemilik; akun atau nama lain (uji pemilik, Agent QA) tersimpan tetapi tidak dipakai. Akun Anas didaftarkan sekali: sesudah keputusan pertamanya tersimpan, pemilik meminta agent "daftarkan akun Anas sebagai peninjau label"; agent membaca kuncinya (hash akun, bukan email) dari DB app, pemilik memastikan, lalu agent membuka PR. Sebelum itu halaman menampilkan pemberitahuan "belum terdaftar".
 4. Pilih keputusan:
    - **Setujui label** bila semua istilah yang disorot memang penilaian takhrij dan artinya tepat. Di Jawab, label tampil "ditinjau ustadz".
-   - **Koreksi jenis istilah** bila ada istilah keliru (misalnya kata itu bagian dari lafaz hadits) atau penilaian yang terlewat. Centang jenis yang benar; pratinjau label hasil koreksi muncul di bawahnya. Teks takhrij tidak perlu diketik ulang; jenis yang tidak punya istilah baku di teks tampil di Jawab tanpa teks Arab ("ditetapkan peninjau"). Di Jawab, label tampil "dikoreksi ustadz".
+   - **Koreksi jenis istilah** bila ada istilah keliru (misalnya kata itu bagian dari lafaz hadits) atau penilaian yang terlewat. Centang jenis yang benar; pratinjau label hasil koreksi muncul di bawahnya. Teks takhrij tidak perlu diketik ulang; jenis yang tidak punya istilah baku di teks disebut "menurut peninjau: …" (bukan isi takhrij) dan tampil tanpa teks Arab. Di Jawab, label tampil "dikoreksi ustadz". Koreksi berlaku per jenis: bila satu jenis muncul dua kali (di lafaz dan di penilaian), keduanya dipilih atau dibuang bersama; jelaskan di catatan.
    - **Ragu, perlu dibahas** bila belum yakin. Label otomatis tetap dipakai dan butir pindah ke daftar **Perlu dibahas**.
-5. Catatan boleh diisi (tidak tampil di Jawab). Tekan **Simpan dan lanjut**; butir berikutnya terbuka. Keputusan bisa diubah kapan saja dari daftar **Sudah ditinjau**.
+5. Catatan boleh diisi dengan huruf Latin (tidak tampil di Jawab; rujuk istilah dengan transliterasi). Tekan **Simpan dan lanjut**; butir berikutnya terbuka. Keputusan bisa diubah kapan saja dari daftar **Sudah ditinjau**.
 
-Bila teks takhrij atau aturan istilah berubah, label berubah dan butir kembali ke **Belum ditinjau** (keputusan lama tetap terlihat "untuk label lama"). Tabel `takhrij_review` di **surau-app** menyimpan keputusan, jenis istilah, catatan, nama, kunci akun (hash), dan waktu; tidak ada teks Arab dari penilai dan tidak ada kedaluwarsa (anotasi korpus).
+Bila teks takhrij atau aturan istilah berubah, label berubah dan butir kembali ke **Belum ditinjau** (keputusan lama tetap terlihat "untuk label lama"). Tabel `takhrij_review` di **surau-app** menyimpan keputusan, jenis istilah, catatan, nama, kunci akun (hash), dan waktu; tidak ada teks Arab dari penilai (ditolak server) dan tidak ada kedaluwarsa (anotasi korpus). Urutan prioritas tidak memakai soal privat (holdout).
+
+**Operasi agent (daftarkan peninjau):** baca kunci dengan `pnpm wrangler d1 execute APP --config packages/db/wrangler.jsonc --remote --command "SELECT reviewer_key, reviewer_name, COUNT(*) AS n, MIN(updated_at) AS pertama FROM takhrij_review GROUP BY 1, 2"` (hanya baca), tunjukkan nama + waktu keputusan pertama ke pemilik, lalu isi `TAKHRIJ_USTADZ_KEYS` di bagian atas `apps/web/wrangler.jsonc` dan `apps/api/wrangler.jsonc` (produksi; `previews`/staging tetap kosong) lewat PR.
 
 ## Akses dan penyimpanan
 

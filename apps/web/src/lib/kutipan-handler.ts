@@ -51,7 +51,10 @@ export interface KutipanDeps {
   /** Batas global bersama Cari (`SEARCH_GLOBAL_LIMITER`). */
   limitGlobal: () => Promise<boolean>;
   /** Tinjauan label takhrij (X07) dari DB app; tanpa ini tanda `weak` dari label kode saja. */
-  reviews?: (footnoteIds: number[]) => Promise<TakhrijReview[]>;
+  reviews?: {
+    load: (footnoteIds: number[]) => Promise<TakhrijReview[]>;
+    ustadzKeys: ReadonlySet<string>;
+  };
 }
 
 const json = (status: number, body: unknown, cache = "no-store") =>
@@ -104,13 +107,22 @@ export async function handleKutipan(request: Request, deps: KutipanDeps): Promis
     ]),
   );
   const feet = [...passages.values()].filter((p) => p.kind === "foot");
+  const source = deps.reviews;
   const reviews =
-    deps.reviews === undefined || feet.length === 0
+    source === undefined || source.ustadzKeys.size === 0 || feet.length === 0
       ? new Map<number, EffectiveTakhrijReview>()
-      : await deps
-          .reviews(feet.map((p) => p.id))
-          .then((rows) => takhrijReviewsFor(feet, rows))
-          .catch(() => new Map<number, EffectiveTakhrijReview>());
+      : await source
+          .load(feet.map((p) => p.id))
+          .then((rows) => takhrijReviewsFor(feet, rows, source.ustadzKeys))
+          .catch((error: unknown) => {
+            console.warn(
+              JSON.stringify({
+                event: "kutipan_reviews_error",
+                name: error instanceof Error ? error.name : "unknown",
+              }),
+            );
+            return new Map<number, EffectiveTakhrijReview>();
+          });
   const items: (KutipanItem | null)[] = ranges.map((r) => {
     const p = passages.get(r.passage_id);
     const text = p === undefined ? null : sliceRaw(p.text_raw, r.char_start, r.char_end);

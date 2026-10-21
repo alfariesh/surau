@@ -34,6 +34,8 @@ export interface QueueDeps {
   /** Kunci penilai (hash issuer + subjek Access). */
   identity: string;
   now: string;
+  /** Kunci akun ustadz peninjau terdaftar (`TAKHRIJ_USTADZ_KEYS`). */
+  ustadzKeys: ReadonlySet<string>;
   editionId?: number;
 }
 
@@ -124,6 +126,10 @@ export interface TakhrijQueue {
   rules_version: number;
   filter: QueueFilter;
   offset: number;
+  /** Ukuran halaman (`QUEUE_PAGE`). */
+  page: number;
+  /** Akun penilai ini terdaftar sebagai ustadz peninjau (keputusannya dipakai Jawab). */
+  ustadz_account: boolean;
   counts: Record<QueueFilter, number>;
   items: QueueSummary[];
   next: number | null;
@@ -160,6 +166,8 @@ export async function takhrijQueue(
     rules_version: TAKHRIJ_TERMS_VERSION,
     filter,
     offset,
+    page: QUEUE_PAGE,
+    ustadz_account: deps.ustadzKeys.has(deps.identity),
     counts,
     items: page.map((e) => {
       const p = pages.get(e.id);
@@ -216,7 +224,10 @@ export async function takhrijReviewItem(
       ? Promise.resolve([])
       : answerPassages(deps.corpus, [p.referenced_by[0]]),
   ]);
-  const current = reviewedTakhrijLabel(p.text_raw, effectiveTakhrijReview(label, hash, rows));
+  const current = reviewedTakhrijLabel(
+    p.text_raw,
+    effectiveTakhrijReview(label, hash, rows, deps.ustadzKeys),
+  );
   const shown = rows.map(({ reviewer_key: _key, ...r }) => ({
     ...r,
     stale: r.label_hash !== hash,

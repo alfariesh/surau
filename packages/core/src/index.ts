@@ -23,6 +23,7 @@ export {
 export type { JawabErrorCode, JawabRequest, JawabStatus } from "./jawab-request.ts";
 export { getHadithTakhrij } from "./takhrij.ts";
 export {
+  TAKHRIJ_RANGE_WITHOUT_TERMS,
   TAKHRIJ_STATUS_MAX,
   TAKHRIJ_TERM_GLOSS,
   TAKHRIJ_TERM_KINDS,
@@ -37,6 +38,7 @@ export {
   TAKHRIJ_USTADZ_REVIEWERS,
   effectiveTakhrijReview,
   isUstadzReviewer,
+  parseUstadzKeys,
   reviewedTakhrijLabel,
   takhrijLabelHash,
   takhrijReviewInput,
