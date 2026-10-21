@@ -46,6 +46,12 @@ Yang sudah ada dan tetap dipakai: panel Tampilan (ukuran Arab 85–150%, 4 font 
 
 Yang belum ada: ukuran huruf terjemahan, tata letak berdampingan, terjemahan dilipat per paragraf, dan batas lebar kolom terjemahan.
 
+Teks Indonesia sendiri (hitungan atas 16.092 terjemahan dan 313 ringkasan `ihya-v7`) seluruhnya tampil sebagai teks polos:
+- 6.404 terjemahan (40%) memuat tanda petik ganda lurus `"` untuk kutipan langsung (sabda, perkataan ulama), dan 2.982 memuat petik tunggal.
+- Ringkasan AI rata-rata ±1.100 karakter tanpa satu pun jeda paragraf (0 dari 313).
+- Belum ada pemenggalan kata maupun pencegahan kata yatim di baris terakhir.
+- Hanya 4 terjemahan yang memuat tanda `*`/`_` mirip Markdown; teks itu tetap ditampilkan apa adanya.
+
 ### C. Label "Terjemahan AI"
 
 Setiap paragraf punya baris label sendiri. Ini memenuhi aturan 8 (selalu berlabel), tetapi labelnya menjadi elemen paling sering di halaman dan memecah ritme baca. Kejujurannya bisa dipertahankan dengan cara lain, karena terjemahan juga berbeda bahasa, huruf, dan warna, serta bergaris tepi. Usulan W3 di bawah.
@@ -80,6 +86,12 @@ Prioritas = dampak ke kenyamanan baca ÷ risiko. Bagian A tidak butuh korpus bar
   - Ukuran terjemahan ikut skala tersendiri di panel Tampilan.
   - Jarak antarparagraf 1,5–2 rem; terjemahan menempel ke Arab-nya, berjarak dari paragraf berikutnya.
   - Ponsel < 640 px: bawaan "Rata kanan" (pilihan rata kanan-kiri tetap ada), atau `text-wrap: pretty`. Diputuskan dengan tangkapan layar sebelum/sesudah.
+  - **Penyajian teks Indonesia (disetujui pemilik 2026-10-21, "setuju").** Semuanya lewat kode yang deterministik dan diuji; model tidak diminta menulis markup, dan isi kata tidak berubah:
+    - *Kutipan langsung:* pasangan `"…"` yang seimbang dalam satu segmen AI dirender dengan petik melengkung “…” dan warna sedikit berbeda (tidak miring). Segmen dengan petik tidak berpasangan dibiarkan apa adanya. Segmen ayat Kemenag tidak disentuh.
+    - *Subjudul tebal:* hanya terjemahan paragraf yang ada di daftar kurasi subjudul (W4). Untuk subjudul menempel, yang ditebalkan hanya kalimat pertama terjemahan, dan hanya bila kalimat itu memang padanan subjudulnya (diperiksa per paragraf saat kurasi, bukan aturan otomatis).
+    - *Ringkasan AI:* dipecah menjadi paragraf per 2–3 kalimat saat dibuka penuh (pemecah kalimat sederhana di titik + spasi + huruf kapital, dengan pengecualian singkatan seperti "saw.", "swt.", "ra.").
+    - *Pemenggalan dan baris yatim:* `hyphens: auto` pada teks `lang="id"` (bila browser mendukung bahasa Indonesia) dan `text-wrap: pretty`.
+    - *Sengaja tidak dilakukan:* huruf miring untuk istilah Arab (banyak sudah baku KBBI, jadi hasilnya tidak konsisten), menebalkan nama atau "kata kunci" (memilih penekanan sama dengan menafsir), mengubah "Pertama… Kedua…" menjadi daftar bernomor (441 paragraf; mengubah susunan yang tidak ada di teks Arab), dan mengganti "saw." dengan simbol Arab.
 - **W2 · Tata letak Arab–terjemahan** (pilihan di panel Tampilan, disimpan per browser):
   - (a) *Berselang-seling*: bawaan sekarang.
   - (b) *Terjemahan dilipat*: tombol kecil "Terjemahan" di bawah paragraf, buka per paragraf atau semua.
@@ -192,6 +204,7 @@ Setiap butir dibuktikan dengan perintah atau tangkapan layar; angka "sebelum" da
 - [ ] Pilihan tata letak sesuai jawaban pemilik tersedia dan tersimpan per browser (e2e: ganti pilihan → muat ulang → tetap).
 - [ ] Subjudul: semua ID di daftar kurasi *bayan* dirender sebagai subjudul (target ≥ 180 dari 191 kandidat di luar daftar isi; sisanya dicatat alasannya; 80 yang sudah menjadi judul node tetap h2). j3/202 `#p13553` tampil sebagai heading (cek HTML Preview). Daftar subjudul menempel memuat 15 paragraf pola hari pekan (j1/197–200). Semua lolos tes round-trip `text_raw` byte demi byte.
 - [ ] Syair: paragraf dengan ` ... ` tampil per *syatr* (tes round-trip yang sama, contoh di Preview).
+- [ ] Teks Indonesia: kutipan berpasangan tampil dengan petik melengkung dan gaya kutipan; teks yang dirender (tanpa tag) sama kata demi kata dengan `translation.text`, kecuali bentuk tanda petik (tes); petik tidak berpasangan dan segmen Kemenag tidak berubah (tes). Ringkasan AI yang dibuka penuh terbagi ≥ 2 paragraf bila > 3 kalimat (tes pemecah, termasuk "saw."). `hyphens: auto` dan `text-wrap: pretty` aktif di teks `lang="id"` pembaca (`getComputedStyle` di Preview).
 - [ ] "Bagikan tautan paragraf" bekerja (e2e: URL `#pN` yang disalin = permalink paragraf). "Lanjutkan membaca" muncul di `/kitab/ihya` sesudah membuka satu halaman, dan tidak error bila `localStorage` diblokir (e2e).
 - [ ] Gulir bersambung: dari j1/200, halaman 201 termuat di bawah; URL berganti ke `/kitab/ihya/1/201` saat dibaca; tanpa daftar isi di respons data (cek `rows_read` lokal per halaman tambahan ≤ 15% render penuh).
 - [ ] LCP ponsel median di Preview tidak lebih buruk dari baseline (3,9 dtk, ADR-035) + 10%.
