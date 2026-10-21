@@ -57,12 +57,23 @@ describe("readSavedRoutes / summarize", () => {
       ok,
       [
         JSON.stringify({ id: "j001", diagnostics: { route } }),
-        JSON.stringify({ id: "j002", diagnostics: { route: null } }),
+        JSON.stringify({ id: "j002", diagnostics: { route: null, provider_error: null } }),
+        // Routing gagal karena galat penyedia: ditandai (X05: --rute menolaknya).
+        JSON.stringify({
+          id: "j003",
+          diagnostics: { route: null, provider_error: { stage: "route", status: 529 } },
+        }),
+        JSON.stringify({
+          id: "j004",
+          diagnostics: { route, provider_error: { stage: "answer", status: null } },
+        }),
       ].join("\n"),
     );
     expect(readSavedRoutes(ok)).toEqual([
-      { id: "j001", route },
-      { id: "j002", route: null },
+      { id: "j001", route, routeFailed: false },
+      { id: "j002", route: null, routeFailed: false },
+      { id: "j003", route: null, routeFailed: true },
+      { id: "j004", route, routeFailed: false },
     ]);
     const privat = join(dir, "privat.jsonl");
     writeFileSync(privat, JSON.stringify({ id: "p001", diagnostics: { route } }));

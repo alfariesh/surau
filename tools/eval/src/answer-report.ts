@@ -5,6 +5,7 @@ import type { AnswerScores, Metric } from "./answer-metrics.ts";
 import { calibration } from "./answer-review.ts";
 import type { ReviewExport } from "./answer-review.ts";
 import { JUDGE_VERSION } from "./answer-judge.ts";
+import { SAVED_ROUTE_SUFFIX } from "./answer-run.ts";
 
 const pct = (m: Metric) =>
   m.rate === null ? "— (0 sampel)" : `${(m.rate * 100).toFixed(1)}% (${m.passed}/${m.total})`;
@@ -72,6 +73,11 @@ export function answerReport(
     `Bahasa Indonesia: ${cal.language.mean?.toFixed(2) ?? "—"}/5, n=${cal.language.n}.`,
     `Jawaban berisi teks: ${rows.filter((r) => r.scores.answered).length}/${rows.length}.`,
     `Biaya jawaban: $${records.reduce((n, r) => n + r.answer.cost_usd, 0).toFixed(6)}; latensi rerata ${(records.reduce((n, r) => n + r.answer.latency_ms, 0) / rows.length).toFixed(0)} ms. Biaya judge dicatat terpisah di manifest batch.`,
+    ...(records.some((r) => r.answer.prompt_version.endsWith(SAVED_ROUTE_SUFFIX))
+      ? [
+          "Rute routing diambil dari arsip run lain (`--rute`, akhiran `+rute-tersimpan`): biaya dan latensi tanpa panggilan routing, dan angka ini mengukur tahap jawaban atas dokumen yang sama, bukan pipeline penuh.",
+        ]
+      : []),
     "",
     "Soal privat dan teks kitab tidak dimuat dalam laporan ini. Arsip per soal, alasan judge, dan penilaian manusia berada di penyimpanan privat.",
     "",

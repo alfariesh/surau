@@ -3,7 +3,7 @@
 // hasil dicocokkan dengan DB; teks Arab tidak pernah berasal dari model.
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env } from "cloudflare:workers";
-import { ANSWER_NOT_FOUND, MODELS } from "@surau/llm";
+import { ANSWER_NOT_FOUND, MODELS, runJawab } from "@surau/llm";
 import { beforeAll, beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 import {
@@ -11,6 +11,7 @@ import {
   ED,
   FOOT_1,
   PASSAGES,
+  T_ROOT,
   seedAiText,
   seedCore,
   seedSearchIndex,
@@ -511,5 +512,64 @@ describe("degradasi ke Cari", () => {
     expect(result.outcome).toBe("not_found");
     expect(result.reason).toBe("no_candidates");
     expect(sent.map((s) => s.kind)).toEqual(["route"]);
+  });
+});
+
+describe("rute tersimpan (hanya eval, X05)", () => {
+  const cite = (
+    _n: number,
+    docs: Parameters<Parameters<typeof fakeAnthropic>[0]["answer"]>[1],
+  ) => ({
+    blocks: [
+      { text: "Menurut al-Ghazali dalam Ihya, " },
+      {
+        text: "kesabaran disebut cahaya bagi penuntut ilmu",
+        cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+      },
+    ],
+  });
+
+  test("savedRoute: tanpa panggilan routing, dibersihkan seperti routing, dokumen identik", async () => {
+    const live: FakeRoute = { sections: [T_ROOT], queries: ["sabar", "صبر"], hadith: false };
+    const fake = fakeAnthropic({ route: () => live, answer: cite });
+    // Bagian asing dibuang, kueri dirapikan/unik (normalizeRoute), sama dengan keluaran routing.
+    const saved = {
+      sections: [999_999_999, T_ROOT],
+      queries: [" sabar ", "sabar", "صبر"],
+      hadith: false,
+    };
+    const result = await runJawab(
+      { corpus: env.CORPUS_DB, anthropic: fake.client, editionId: ED, savedRoute: saved },
+      QUESTION,
+    );
+    expect(fake.sent.map((s) => s.kind)).toEqual(["answer"]);
+    expect(result.outcome).toBe("answer");
+    expect(result.diagnostics.route).toEqual({
+      sections: [T_ROOT],
+      queries: ["sabar", "صبر"],
+      hadith: false,
+    });
+    expect(result.citations[0]?.passage_id).toBe(PASSAGES.body1);
+
+    // Pipeline biasa yang routing-nya mengembalikan rute yang sama → dokumen identik (urutan juga).
+    const viaRouting = fakeAnthropic({ route: () => live, answer: () => ({ blocks: [] }) });
+    await runJawab(
+      { corpus: env.CORPUS_DB, anthropic: viaRouting.client, editionId: ED },
+      QUESTION,
+    );
+    expect(viaRouting.sent.map((s) => s.kind)).toEqual(["route", "answer"]);
+    expect(fake.sent[0]?.documents.length).toBeGreaterThan(0);
+    expect(viaRouting.sent[1]?.documents).toEqual(fake.sent[0]?.documents);
+  });
+
+  test("savedRoute null: tanpa routing, pencarian pertanyaan saja", async () => {
+    const fake = fakeAnthropic({ route: () => ROUTE, answer: cite });
+    const result = await runJawab(
+      { corpus: env.CORPUS_DB, anthropic: fake.client, editionId: ED, savedRoute: null },
+      QUESTION,
+    );
+    expect(fake.sent.map((s) => s.kind)).toEqual(["answer"]);
+    expect(result.diagnostics.route).toBeNull();
+    expect(result.outcome).toBe("answer");
   });
 });

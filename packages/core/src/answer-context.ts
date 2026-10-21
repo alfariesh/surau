@@ -22,6 +22,8 @@ export interface AnswerPassage {
   page_id: number;
   kind: Passage["kind"];
   toc_node_id: number | null;
+  /** Urutan di halamannya (per jenis: badan lalu catatan kaki; ADR-029, bukan dari ID). */
+  ord: number;
   text_raw: string;
   location: Location;
   /** Terjemahan AI bahasa Indonesia (berlabel `ai_translation`), atau null. */
@@ -89,6 +91,7 @@ export async function answerPassages(db: D1Db, ids: readonly number[]): Promise<
       page_id: row.page_id,
       kind: p.kind,
       toc_node_id: p.toc_node_id,
+      ord: row.ord,
       text_raw: p.text_raw,
       location: p.location,
       translation: translationBy.get(p.id) ?? null,

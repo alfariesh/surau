@@ -40,6 +40,7 @@ function passage(over: Partial<AnswerPassage> = {}): AnswerPassage {
     footnote_ids: [],
     referenced_by: [],
     ayah_labels: [],
+    ord: 1,
     ...over,
   };
 }

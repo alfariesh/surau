@@ -22,12 +22,17 @@ const savedRoute = z
   .nullable();
 const diagnosticRow = z.object({
   id: z.string().regex(/^j[0-9]{3}$/u),
-  diagnostics: z.object({ route: savedRoute }),
+  diagnostics: z.object({
+    route: savedRoute,
+    provider_error: z.object({ stage: z.string() }).nullable().optional(),
+  }),
 });
 
 export interface SavedRoute {
   id: string;
   route: Route | null;
+  /** Routing run itu gagal karena galat penyedia (rute `null` bukan keluaran routing). */
+  routeFailed: boolean;
 }
 
 /** Rute tersimpan satu run. Hanya soal publik (`j…`): arsip diagnostik tidak memuat holdout. */
@@ -38,7 +43,11 @@ export function readSavedRoutes(file: string): SavedRoute[] {
     .map((s, i) => {
       const parsed = diagnosticRow.safeParse(JSON.parse(s));
       if (!parsed.success) throw new Error(`Baris ${i + 1} bukan diagnostik soal publik.`);
-      return { id: parsed.data.id, route: parsed.data.diagnostics.route };
+      return {
+        id: parsed.data.id,
+        route: parsed.data.diagnostics.route,
+        routeFailed: parsed.data.diagnostics.provider_error?.stage === "route",
+      };
     });
 }
 

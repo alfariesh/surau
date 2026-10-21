@@ -27,6 +27,7 @@ import {
   buildAnswerRequest,
   fitDocs,
   fixedPromptTokens,
+  orderBySection,
 } from "./answer.ts";
 import {
   citationSpans,
@@ -44,16 +45,16 @@ import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
 import { fuse, pairIds, searchLists, withPairs } from "./retrieve.ts";
 import type { SearchList } from "./retrieve.ts";
-import { ROUTE_PROMPT, buildRouteRequest, parseRoute, tocText } from "./route.ts";
+import { ROUTE_PROMPT, buildRouteRequest, normalizeRoute, parseRoute, tocText } from "./route.ts";
 import type { Route } from "./route.ts";
 
 export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
 /**
- * Versi kode pipeline di luar prompt: pencarian kandidat (X03: 4) dan pascaproses (pemetaan/
- * verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut kunci `answer_cache`,
- * jadi cache lama tidak disajikan dengan aturan lama.
+ * Versi kode pipeline di luar prompt: pencarian kandidat (X03: 4), urutan dokumen (X05: 5), dan
+ * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
+ * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 4;
+export const JAWAB_PIPELINE_VERSION = 5;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -180,6 +181,12 @@ export interface JawabDeps {
    * panggilan baru (jawaban, ulangan Sonnet) tidak dimulai → `fallback` alasan `cancelled`.
    */
   isCancelled?: () => boolean;
+  /**
+   * Hanya eval (X05): rute routing tersimpan dari arsip eval dipakai ulang tanpa panggilan routing,
+   * supaya dua versi tahap jawaban dibandingkan atas dokumen yang sama. `null` = tanpa rute
+   * (pencarian pertanyaan saja). Worker `surau-api` tidak pernah mengisinya.
+   */
+  savedRoute?: Route | null;
 }
 
 // Daftar isi per versi korpus disimpan di isolate: sama untuk semua pertanyaan (313 node Ihya).
@@ -223,7 +230,10 @@ export interface JawabCandidates {
   ranked: number[];
   /** Paragraf kandidat beserta pasangannya. */
   passages: Map<number, AnswerPassage>;
-  /** Dokumen jawaban (urutan RRF + pasangan, dipangkas anggaran token); kosong = tanpa kandidat. */
+  /**
+   * Dokumen jawaban: urutan RRF + pasangan dipangkas anggaran token, lalu dikelompokkan per bagian
+   * (`orderBySection`, X05); kosong = tanpa kandidat.
+   */
   docs: AnswerDoc[];
 }
 
@@ -251,13 +261,15 @@ export async function jawabCandidates(
     DOC_BUDGET_TOKENS,
     JAWAB_MAX_PROMPT_TOKENS - fixedPromptTokens(question) - 2000,
   );
-  const docs = fitDocs(
-    order.map((id, i) => {
-      const p = passages.get(id)!;
-      const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
-      return buildDoc(shown, docContext(shown, toc, labels));
-    }),
-    budget,
+  const docs = orderBySection(
+    fitDocs(
+      order.map((id, i) => {
+        const p = passages.get(id)!;
+        const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
+        return buildDoc(shown, docContext(shown, toc, labels));
+      }),
+      budget,
+    ),
   );
   return { lists, ranked, passages, docs };
 }
@@ -348,31 +360,37 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   const editionId = deps.editionId ?? JAWAB_EDITION_ID;
   const toc = await loadToc(db, corpusVersion, editionId);
   let route: Route | null = null;
-  try {
-    const msg = await deps.anthropic.messages.create(
-      buildRouteRequest(toc.text, question),
-      reqOpts,
-    );
-    addUsage(usage, MODELS.haiku, msg.usage, { batch: false });
-    if (msg.stop_reason === "refusal")
-      diagnostics.refusals.push({
+  if (deps.savedRoute !== undefined) {
+    // Rute tersimpan (eval) dibersihkan dengan aturan yang sama dengan keluaran routing.
+    route =
+      deps.savedRoute === null ? null : normalizeRoute(deps.savedRoute, new Set(toc.nodes.keys()));
+  } else {
+    try {
+      const msg = await deps.anthropic.messages.create(
+        buildRouteRequest(toc.text, question),
+        reqOpts,
+      );
+      addUsage(usage, MODELS.haiku, msg.usage, { batch: false });
+      if (msg.stop_reason === "refusal")
+        diagnostics.refusals.push({
+          model: MODELS.haiku,
+          category: msg.stop_details?.category ?? null,
+        });
+      route = parseRoute(msg, new Set(toc.nodes.keys()));
+    } catch (error) {
+      const failure = providerFailure(error);
+      if (failure === null) throw error;
+      diagnostics.provider_error = {
+        status: failure.status,
+        type: failure.kind,
+        stage: "route",
         model: MODELS.haiku,
-        category: msg.stop_details?.category ?? null,
-      });
-    route = parseRoute(msg, new Set(toc.nodes.keys()));
-  } catch (error) {
-    const failure = providerFailure(error);
-    if (failure === null) throw error;
-    diagnostics.provider_error = {
-      status: failure.status,
-      type: failure.kind,
-      stage: "route",
-      model: MODELS.haiku,
-    };
-    await emit({ type: "stage", stage: "retrieve" });
-    ranked = fuse(await searchLists(db, question, null, editionId));
-    passages = new Map((await answerPassages(db, ranked)).map((p) => [p.id, p]));
-    return fallback("provider_error", null);
+      };
+      await emit({ type: "stage", stage: "retrieve" });
+      ranked = fuse(await searchLists(db, question, null, editionId));
+      passages = new Map((await answerPassages(db, ranked)).map((p) => [p.id, p]));
+      return fallback("provider_error", null);
+    }
   }
   diagnostics.route = route;
 
