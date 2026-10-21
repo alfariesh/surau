@@ -76,8 +76,9 @@ KORPUS = {"Ihya": 1.8, "±92 kitab kurikulum": 98.0}  # juta token o200k
 
 # Sesi X04 (mutu baca): judul daftar isi Indonesia. Token ABSOLUT, bukan per juta token korpus.
 # Karakter judul Arab diukur dari korpus ihya-v7 (2026-10-21, node:sqlite): 313 node daftar isi =
-# 11.651 karakter, 106 di antaranya tanpa paragraf judul berterjemahan = 3.825 karakter; 271 calon
-# subjudul "bayan" (paragraf pendek di teks, belum masuk daftar isi) = 11.294 karakter.
+# 11.651 karakter, 106 di antaranya tanpa paragraf judul berterjemahan = 3.825 karakter; 191 calon
+# subjudul "bayan" baru (paragraf pendek di teks yang tidak sama dengan judul node mana pun; 80 lainnya
+# sudah menjadi node) = 8.418 karakter.
 # Asumsi (belum diukur): satu request per rub' (5), prompt sistem + glosarium ±2 ribu token per
 # request, keluaran ±30 token per judul (teks + ID dalam JSON) ditambah thinking ±40%.
 X04_O200K_PER_KARAKTER = 0.39
@@ -87,7 +88,7 @@ X04_KELUAR_PER_JUDUL = 30 * 1.4
 X04_JUDUL = {
     "106 node tanpa terjemahan judul": dict(karakter=3_825, judul=106),
     "semua 313 node daftar isi": dict(karakter=11_651, judul=313),
-    "313 node + 271 subjudul bayan": dict(karakter=22_945, judul=584),
+    "313 node + 191 subjudul bayan baru": dict(karakter=20_069, judul=504),
 }
 # Pembanding untuk keputusan terjemahan ulang (T-17 tahap 3): tulis cache 1 jam Sonnet 5.5
 # diasumsikan 2× harga input (USD per 1 juta token); batch = 50%.
@@ -144,7 +145,8 @@ def main() -> None:
         masuk = j["karakter"] * X04_O200K_PER_KARAKTER * FAKTOR_TOKEN_ARAB + X04_SISTEM_PER_REQUEST * X04_REQUEST
         keluar = j["judul"] * X04_KELUAR_PER_JUDUL
         sonnet = (masuk * s_inp + keluar * s_out) / 1e6
-        haiku = (masuk * inp + keluar * out) / 1e6 * 0.5
+        h_inp, _, h_out = HARGA["Claude Haiku 5.5 (≤100k)"]
+        haiku = (masuk * h_inp + keluar * h_out) / 1e6 * 0.5
         print(f"{nama:34} {masuk:>10,.0f} {keluar:>11,.0f} {'$%.3f' % sonnet:>16} {'$%.4f' % haiku:>12}")
 
 
