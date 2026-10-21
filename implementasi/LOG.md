@@ -15,6 +15,19 @@ Format entri:
 
 ---
 
+## 2026-10-21 · X04 · Mutu baca pembaca Ihya bagian A + T-17 tahap 3 — sebagian (PR #115)
+- Dikerjakan:
+  - Pemilik menjawab 8 pertanyaan desain ("ikut usulan agent semua"); jawaban + keputusan agent untuk pertanyaan tanpa usulan tertulis dicatat di file sesi.
+  - **W4** kurasi subjudul tanpa teks Arab (`pnpm subjudul`, `data/patches/ihya-9472-subjudul.{yaml,json}`): 186/191 *bayan*, 22 lanjutan judul, 16 subjudul di awal + 6 di akhir paragraf, dipakai web hanya bila sidik sha256 cocok; syair per syatr 437/450. Model halaman siap render (`buildPageModel`) + `PageText` bersama.
+  - **W1–W3** terjemahan 16/17 px, CPL ≤ 75, jarak 28 px, ukuran terjemahan di panel; satu catatan AI (bisa ditutup) + lencana per terjemahan; salinan berlabel (AI + permalink, Kemenag); kutipan “…”, ringkasan berparagraf, perataan Otomatis; tata letak di bawah/dilipat/berdampingan.
+  - **W5–W6** bagikan tautan paragraf, Lanjutkan membaca (localStorage; beranda, /kitab, halaman karya; /privasi), gulir bersambung lewat `GET /api/halaman` (rate limit baru, Cache API, tanpa daftar isi lengkap).
+  - **T-17 tahap 3**: pra-registrasi → alat `pnpm t17` → 60 ID sampel (tiga commit berurutan), halaman nilai buta lokal.
+- Verifikasi: `pnpm verify` → lolos (744 + 345 tes, build) · e2e lokal `reader-x04` 8/8 + reader/a11y/search/smoke lolos (kecuali uji header `/aset` khusus Workers) · CI PR #115 hijau, e2e Preview 145 lolos · Preview j1/200: 17 px, CPL 69–73, jarak 28 px, `hyphens: auto`, `text-wrap: pretty`, 1 catatan + 7 lencana, `#p13553` heading, syair j4/107 per syatr · `/api/halaman` Preview 200 (203 baris dibaca) · Lighthouse 13.5.0 ponsel n=5 berselang-seling: Preview median LCP 6,11 dtk vs produksi 5,66 dtk · `peninjau` → (lihat di bawah).
+- Belum lolos (kriteria tidak diubah): hari pekan 14/15 (p2811 bukan subjudul), syair 437/450, `rows_read` halaman sambungan 17,6% > 15%, LCP ponsel > 3,9 dtk + 10% (produksi sendiri kini 5,66 dtk).
+- Biaya API: – (tanpa LLM)
+- Keputusan: ADR-074, ADR-075, ADR-076.
+- Catatan untuk sesi berikutnya: T-17 tahap 3 menunggu penilai manusia (`data/build/llm/qa/t17-tahap3.html`, hasil → `pnpm t17 hasil`); bagian B memakai daftar kurasi + pagu US$1 yang sudah disetujui; usul sesi kinerja LCP ponsel.
+
 ## 2026-10-21 · X08 · Rencana koreksi terjemahan oleh editor/ustadz — sebagian (rencana, menunggu pemilik)
 - Dikerjakan: rencana `implementasi/sesi/X08-koreksi-terjemahan.md`, ditulis di sesi X04 atas permintaan pemilik:
   - format teks polos + `[…]`;
