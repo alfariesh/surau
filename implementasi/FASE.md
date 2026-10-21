@@ -16,7 +16,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | 7 | Kurikulum & data terbuka | ±92 kitab, dump data dan benchmark terbuka | garis besar | belum |
 | – | Sisipan | [X01](sesi/X01-upgrade-next-16-4.md) upgrade Next 16.4 + React 19.3 setelah OpenNext mendukung | X01 | menunggu gerbang |
 | – | Sisipan | [X04](sesi/X04-mutu-baca.md) mutu baca pembaca Ihya: ritme dan tipografi, label AI tenang, subjudul, gulir bersambung, lanjutkan membaca, daftar isi Indonesia, T-17 tahap 3 | X04 | rencana, menunggu persetujuan pemilik |
-| – | Sisipan | [X08](sesi/X08-koreksi-terjemahan.md) koreksi terjemahan Indonesia oleh editor dan ustadz di `/tinjau/terjemahan`: teks polos, revisi + persetujuan ustadz terdaftar (pola ADR-070), tayang lewat korpus berikutnya | X08 | rencana, menunggu persetujuan pemilik |
+| – | Sisipan | [X08](sesi/X08-koreksi-terjemahan.md) koreksi terjemahan Indonesia oleh editor dan ustadz di `/tinjau/terjemahan`: teks polos, revisi langsung oleh ustadz terdaftar (pola ADR-070) dengan nama tampil, tayang lewat korpus berikutnya | X08 | rencana, siap dikerjakan |
 
 **Catatan urutan:**
 - MCP hanya butuh D1 korpus. Bila pemilik ingin, **MCP v0.1** (tool baca: `list_works`, `get_table_of_contents`, `read_page`, `read_section`) boleh dirilis lebih awal setelah Fase 1, sejajar dengan Fase 2. Tool `search_text` menyusul setelah S11/S14. Keputusan ini dicatat di KEPUTUSAN bila diambil.

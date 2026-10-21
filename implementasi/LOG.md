@@ -26,6 +26,7 @@ Format entri:
 - Temuan: terjemahan dipakai pembaca, kartu `/cari` + `translation_fts`, MCP, kartu kutipan Tanya, dan dokumen Jawab, jadi koreksi harus lewat korpus agar semuanya sama; batch `retry` belum melindungi paragraf yang dikoreksi manusia.
 - Verifikasi: pembacaan kode (`review-auth.ts`, `takhrij-review.ts`, `reviews.ts`, `search-index.ts`, `page.ts`, `documents.ts`); panjang terjemahan dari `ihya-v7` (maks 7.966 karakter, rasio maks 19×); `peninjau` → 0 blocker, 10 perbaikan sudah dimasukkan.
 - Biaya API: –
+- Jawaban pemilik (2026-10-21): "Editor itu ustaz", "Nama ustaz ditampilkan", "gak terlalu sering", "gak perlu approval buat saat ini", no. 6 ikut saran agent (paragraf dulu). Rencana disesuaikan: satu peran editor terdaftar, revisi langsung aktif + batalkan + daftar koreksi di `/admin`, label "dikoreksi {nama}" (gelar Ust. hanya untuk akun ustadz), tayang ±sebulan sekali atau ≥ 50 koreksi.
 - Keputusan: – (ADR menyusul saat X08 dikerjakan)
 
 ## 2026-10-21 · UI · Halaman Tanya sebagai percakapan — selesai (PR #112)
