@@ -1,6 +1,6 @@
 # Status Implementasi
 
-> Diperbarui: 2026-10-21 · **X03 selesai** (ADR-067): pencarian kandidat Jawab, lokasi eval 73,5–76,5% → 82,4%, kutipan valid 100%. **S21 sebagian** (PR #100, ADR-066): halaman `/tanya`, kartu kutipan dari DB, status hadits toleran, `/transparansi`; butir manusia + R4 belum. **S20 selesai** (PR #99, ADR-065): pengaman biaya Jawab. Jawab produksi tetap **mati** sampai `/rilis 4`. S19 selesai (ADR-064). S18 sebagian (T-24 ditunda, ADR-054). Fase 0–3 dirilis; korpus produksi `ihya-v7` (ADR-063).
+> Diperbarui: 2026-10-21 · **X03 selesai** (PR #102, ADR-067): pencarian kandidat Jawab, lokasi eval 73,5–76,5% → 82,4%, kutipan valid 100%. **S21 sebagian** (PR #100, ADR-066): halaman `/tanya`, kartu kutipan dari DB, status hadits toleran, `/transparansi`; butir manusia + R4 belum. **S20 selesai** (PR #99, ADR-065): pengaman biaya Jawab. Jawab produksi tetap **mati** sampai `/rilis 4`. S19 selesai (ADR-064). S18 sebagian (T-24 ditunda, ADR-054). Fase 0–3 dirilis; korpus produksi `ihya-v7` (ADR-063).
 > Agent: bagian *Sekarang* sampai sebelum *Progres* otomatis disuntikkan ke setiap sesi baru. Jaga tetap ringkas (≤35 baris).
 
 ## Sekarang
@@ -78,4 +78,4 @@
 | 5–7 | – | Ruang al-Ghazali, Wiki, Kurikulum | belum | dirinci saat Fase 4 hampir selesai |
 | sisipan | X01 | Upgrade Next 16.4 + React 19.3 | selesai* | 2026-10-16 · PR #13 · Next 16.4.1, React 19.3.1, OpenNext 1.20.12 (ADR-030) · *log Preview tidak terbaca agent; log produksi setelah merge bersih (6 event ok, 0 error) |
 | sisipan | X02 | Mutu terjemahan AI + ayat sebelum rilis 2 | selesai | 2026-10-17 · PR #37 · lapisan koreksi tinjauan (27 paragraf), prompt `translate-passage@3`, ayat lintas paragraf (QS 54:55), korpus produksi `ihya-v6` (QA 30/30), $0,25 (ADR-047) · T-17 sampel 70% → 20/20 (bias) |
-| sisipan | X03 | Cakupan lokasi gold di kandidat Jawab | selesai | 2026-10-21 · ADR-067 · RRF berbobot (pertanyaan ×3), bagian 3 halaman, bagian dari ringkasan AI, `eval:jawab kandidat` gratis; gold di dokumen 27,0 → 30,5/34; eval publik lokasi 82,4%, kutipan valid 100%, US$0,0027/jawaban, biaya sesi US$0,11 |
+| sisipan | X03 | Cakupan lokasi gold di kandidat Jawab | selesai | 2026-10-21 · PR #102 · ADR-067 · RRF berbobot (pertanyaan ×3), bagian 3 halaman, bagian dari ringkasan AI, `eval:jawab kandidat` gratis; gold di dokumen 27,0 → 30,5/34; eval publik lokasi 82,4%, kutipan valid 100%, US$0,0027/jawaban, biaya sesi US$0,11 |
