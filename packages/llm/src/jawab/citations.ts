@@ -123,11 +123,14 @@ export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ad
 
 /**
  * Pengganti NETRAL (peninjau S21 putaran 3–4): dipakai bila jawaban menyitasi takhrij di tempat
- * lain, karena "belum diketahui" bisa keliru (takhrijnya ada) dan "lihat takhrij pada kutipan" bisa
+ * lain, karena "belum diketahui" bisa keliru (takhrijnya ada) dan menunjuk takhrij pada kutipan bisa
  * menunjuk takhrij hadits lain; juga untuk pernyataan yang takhrijnya ambigu atau diklaim kelompok
- * lain. Tanpa takhrij tersitasi sama sekali, `hadithCheck` memakai `HADITH_UNKNOWN`.
+ * lain. Sejak X06 menyebut bahwa status tiap takhrij yang dikutip ada di bagian "Status hadits"
+ * beserta lokasi haditsnya, TANPA mengaitkannya dengan kalimat ini (bagian itu bisa hanya memuat
+ * hadits lain, peninjau X06). Tanpa klaim status sama sekali, `hadithCheck` memakai
+ * `HADITH_UNKNOWN`.
  */
-export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} tidak ditampilkan (takhrij al-'Iraqi untuk kalimat ini tidak dapat dipastikan).`;
+export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} tidak dipastikan untuk kalimat ini; status tiap takhrij yang dikutip ada di bagian "Status hadits" beserta lokasi haditsnya.`;
 
 const NOTICES = [HADITH_UNKNOWN, HADITH_NOT_CITED] as const;
 /** Pemberitahuan pengganti dimulai di `pos`: bukan label dan bukan pernyataan (tidak diperiksa ulang). */

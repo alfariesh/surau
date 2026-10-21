@@ -668,7 +668,6 @@ export function hadithCheck(
 } {
   const byN = new Map(citations.map((c) => [c.n, c]));
   const isFoot = (n: number) => byN.get(n)?.kind === "foot";
-  const isTakhrij = (n: number) => isTakhrijCitation(byN.get(n), passages);
   let current = blocks.map((b) => ({ ...b }));
   let unsupported = 0;
   let labeled = 0;
@@ -680,8 +679,9 @@ export function hadithCheck(
         citations.filter((c) => used.has(c.n)),
         passages,
       );
-      // Tanpa takhrij tersitasi sama sekali, pemberitahuan netral menjadi "belum diketahui".
-      if (![...used].some(isTakhrij))
+      // Tanpa klaim status sama sekali (tidak ada takhrij tersitasi yang berpemilik), pemberitahuan
+      // yang menunjuk bagian "Status hadits" menjadi "belum diketahui".
+      if (claims.length === 0)
         current = current.map((b) =>
           b.citations.length === 0 && b.text.trim() === HADITH_NOT_CITED
             ? { ...b, text: b.text.replace(HADITH_NOT_CITED, HADITH_UNKNOWN) }

@@ -582,6 +582,38 @@ describe("klaim hadits", () => {
     expect(again.labeled).toBe(0);
   });
 
+  test("X06: dua hadits — butir tanpa takhrij sendiri mendapat pemberitahuan yang tidak mengaitkan takhrij hadits lain", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, FOOT, { kind: "foot", referenced_by: [1] })],
+      [3, passage(3, SENT)],
+    ]);
+    const checked = hadithCheck(
+      [
+        { text: "Status hadits:\n- Hadits A: ", citations: [] },
+        { text: "lemah", citations: [1] },
+        { text: ".\n- Hadits B: sahih.", citations: [] },
+      ],
+      [
+        {
+          n: 1,
+          passage_id: 2,
+          char_start: 0,
+          char_end: 12,
+          kind: "foot" as const,
+          label: "",
+          permalink: "",
+        },
+      ],
+      passages,
+    );
+    const text = checked.blocks.map((b) => b.text).join("");
+    // Butir A: label + lokasi hadits A. Butir B: tidak dipastikan, tanpa menunjuk status hadits A.
+    expect(text).toBe(`Status hadits:\n- ${IN_TEXT}.\n- ${HADITH_NOT_CITED}`);
+    expect(HADITH_NOT_CITED).toContain("tidak dipastikan untuk kalimat ini");
+    expect(checked.claims.map((c) => c.passage_id)).toEqual([1]);
+  });
+
   test("X06: catatan kaki yang bukan takhrij tidak mendukung status dan tidak menjadi klaim", () => {
     const passages = new Map([
       [1, passage(1, SENT, { footnote_ids: [2] })],

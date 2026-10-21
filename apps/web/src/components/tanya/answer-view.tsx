@@ -238,7 +238,7 @@ function HadithClaims({ result, kutipan }: { result: JawabResult; kutipan: Kutip
               )}
               {c ? (
                 <a className="text-accent text-sm underline" href={`#kutipan-${c.n}`}>
-                  {t.hadithSource} [{c.n}]
+                  {t.hadithSource} [{c.n}] · {c.label}
                 </a>
               ) : null}
             </li>

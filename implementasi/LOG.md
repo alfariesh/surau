@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-21 · X06 · Sisipan: status hadits dari label istilah takhrij — selesai
+
+- Dikerjakan:
+  - `takhrijTerms` (packages/text): pengenal frasa baku takhrij al-'Iraqi per kata atas `normalizeArabic`, dengan rentang mentah; bagian lafaz sebelum penanda takhrij pertama tidak dipindai. `takhrijLabel` (core): arti baku, teks status kode ≤120 karakter, `mixed`, `weak`.
+  - Pipeline `pipeline@6`: klaim status dari struktur catatan kaki per takhrij yang disitasi (`rule_extracted`, `terms`); baris "Status hadits:" bersitasi diganti label + lokasi hadits; pemberitahuan netral menunjuk bagian "Status hadits". Tanda kelemahan UI dari label yang sama; `takhrijHasWeakTerms` dihapus. UI Tanya menampilkan istilah + frasa Arab dari DB, menerima bentuk lama dari API sebelum X06.
+  - Eval: metrik Takhrij berbasis label (klaim di luar gold dilaporkan), batas klaim arsip 5 → 20, `pnpm run eval:takhrij` (laporan korpus), `eval:jawab hadits --run` (ulang gratis atas arsip).
+  - Peninjau dua putaran: 1 blocker + 8 penting + 11 kecil, lalu 5 kecil; semua ditutup sebelum eval berbayar.
+- Verifikasi:
+  - Korpus `ihya-v7`: 95,5% catatan kaki dikenali sebagai takhrij (76,8% memuat istilah, 8,1% hanya sumber, 10,6% hanya rujukan), 4,5% bukan takhrij; tanpa batch AI. Sampel acak agent: 70 → 2 istilah keliru (diperbaiki), 50 → 0 keliru; 6/6 takhrij gold publik sesuai kategori gold.
+  - Ulang gratis (`eval:jawab hadits`): X05 0/6 → 5/6, X03 5/6, S21 v5 4/6; 0 tidak stabil.
+  - Eval publik berbayar sekali `x06-publik-takhrij-v1` (rute X05): kutipan valid 100% (166/166), lokasi 85,3%, penolakan tepat 100% (8/8), tidak salah menolak 100%, Takhrij 83,3% (5/6), tanpa pola fatwa 100%, US$0,0026/jawaban tanpa routing.
+  - `pnpm verify` lolos (662 + 327 tes, build 3/3); dua run sebelumnya gagal hanya karena tes Ihya lokal `ihya-text` melewati batas 5 dtk (area tidak diubah, lolos sendiri).
+- Biaya API: US$0,1092 (satu eval publik; izin pemilik di chat "ya jalankan").
+- Keputusan: ADR-069.
+- Catatan untuk sesi berikutnya: antrean tinjauan label di `/tinjau` (Anas menyetujui/mengoreksi per catatan kaki, terikat `rules_version`) dan label di MCP `get_hadith_takhrij`; model terus menaruh penilaian di kalimat bebas bersitasi takhrij (tidak dicek terhadap label). Disk pemilik sempat penuh (±145 MB tersisa) di tengah sesi. Tes `tools/ingest/test/ihya-text.test.ts` kadang melewati 5 dtk saat suite penuh di mesin sibuk.
+
 ## 2026-10-21 · X05 · Sisipan: lokasi benar di tahap jawaban Jawab — selesai (satu butir tidak dicentang)
 
 - Dikerjakan:

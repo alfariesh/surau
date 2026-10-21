@@ -1776,7 +1776,14 @@ Per jenis: lokasi+isi 94,1% (16/17), atribusi 100% (5/5), status hadits 100% (6/
 
 **Ulang gratis atas arsip run nyata** (`eval:jawab hadits`): metrik Takhrij 0/6 → **5/6** (X05 dan X03) dan 0/6 → 4/6 (S21 v5); semua yang gagal karena takhrij gold tidak masuk jawaban (masalah lokasi, ADR-068). Tidak ada jawaban yang menjadi tidak stabil (`unresolved` 0); klaim untuk takhrij di luar gold: 4 (X05), 10 (X03), 7 (S21 v5). Pola yang terlihat di X05: model menaruh penilaian di kalimat bebas yang menyitasi takhrij, sedangkan baris "Status hadits:" tanpa sitasi; karena itu klaim dibuat dari struktur, bukan dari baris status.
 
-**Eval publik berbayar (sekali):** _(diisi sesudah run)_
+**Eval publik berbayar (sekali, izin pemilik di chat 2026-10-21 "ya jalankan"):** `x06-publik-takhrij-v1` (42 soal publik, tanpa holdout, korpus lokal `ihya-v7`, rute dari `x05-publik-jawaban-v1` lewat `--rute` sehingga dokumen sama dengan X05; US$0,1092, rerata US$0,0026/jawaban tanpa routing; laporan `evals/reports/jawab-x06-publik-takhrij-v1.md`):
+
+| Run | Kutipan valid | Lokasi | Penolakan tepat | Tidak salah menolak | Takhrij | Tanpa pola fatwa |
+|---|---|---|---|---|---|---|
+| X05 `x05-publik-jawaban-v1` (`pipeline@5`, status tulisan model) | 100% (176/176) | 85,3% (29/34) | 87,5% (7/8) | 100% | 0% (0/6, pencocokan string) | 100% |
+| **X06 `x06-publik-takhrij-v1`** (`pipeline@6`, label kode) | **100% (166/166)** | **85,3% (29/34)** | **100% (8/8)** | **100% (34/34)** | **83,3% (5/6)** | **100%** |
+
+Yang gagal (j024): takhrij gold tidak masuk jawaban (lokasi, ADR-068), bukan label keliru. Klaim untuk takhrij di luar gold: 3. Pada kelima soal yang lolos, model kembali menaruh sitasi takhrij di kalimat penilaian bebas dan menulis baris "Status hadits:" tanpa sitasi, sehingga baris itu diganti pemberitahuan sementara klaim struktur menampilkan label. **Sesudah eval**, teks pemberitahuan netral `HADITH_NOT_CITED` diubah dari "tidak ditampilkan (takhrij … tidak dapat dipastikan)" menjadi "tidak dipastikan untuk kalimat ini; status tiap takhrij yang dikutip ada di bagian "Status hadits" beserta lokasi haditsnya" (dan menjadi "belum diketahui" bila tidak ada klaim sama sekali), supaya teks jawaban tidak terkesan bertentangan dengan bagian status. Kalimatnya sengaja tidak mengaitkan takhrij mana pun dengan kalimat itu: versi antara "lihat bagian Status hadits di bawah" ditolak peninjau karena pada jawaban dua hadits bisa menunjuk label hadits lain (celah "meminjam" S21). Ini hanya pascaproses teks; diverifikasi gratis dengan `eval:jawab hadits --run x06-publik-takhrij-v1`: Takhrij tetap 5/6, 0 tidak stabil, 5 jawaban berubah teks pemberitahuannya saja. UI kini juga menampilkan lokasi tiap takhrij di bagian status.
 
 **Tidak dipilih:**
 - **Batch AI untuk label**: tidak perlu (butir 8), dan label AI tetap butuh tinjauan per butir.
