@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-21 · X04 · Audit + rencana mutu baca pembaca Ihya — sebagian (rencana, menunggu pemilik)
+- Dikerjakan: audit pembaca produksi (j1/200, j3/202; desktop + ponsel, 7 tangkapan layar di `implementasi/sesi/bukti/X04/`), struktur korpus `ihya-v7` (read-only), dan sumber Shamela/OpenITI (read-only); rencana `implementasi/sesi/X04-mutu-baca.md` (bagian A tampilan $0, bagian B subjudul + judul daftar isi Indonesia, rancangan T-17 tahap 3, 8 pertanyaan desain); bagian X04 di `scripts/hitung_biaya.py`
+- Temuan utama: 191 dari 271 subjudul *bayan* tampil sebagai paragraf biasa (80 sudah judul node); 19/40 kitab tanpa subbab (terpanjang 70 halaman); subjudul menempel di awal paragraf tanpa penanda di sumber; terjemahan 14 px, CPL 94–113, 24 baris vs 15 baris Arab di ponsel; label "Terjemahan AI" ±16 ribu kali; takhrij ±5,7 layar dari penanda di ponsel; 207/313 judul daftar isi sudah punya terjemahan paragraf judul
+- Verifikasi: ukuran `getComputedStyle` di https://surau.org/kitab/ihya/1/200; hitungan `node:sqlite`; `python3 scripts/hitung_biaya.py` → judul daftar isi Sonnet 5.5 US$0,07–0,26, terjemahan ulang penuh Sonnet batch US$40,49
+- Biaya API: –
+- Keputusan: – (ADR menyusul saat X04 dikerjakan); nomor X03 sudah terpakai (ADR-067), jadi sesi ini X04
+
 ## 2026-10-21 · X03 · Sisipan: cakupan lokasi gold di kandidat Jawab — selesai
 
 - Dikerjakan:
