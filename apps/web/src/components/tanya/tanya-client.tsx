@@ -12,6 +12,7 @@ import {
   TextField,
   Typography,
 } from "@heroui/react";
+import { TextShimmer } from "@heroui-pro/react";
 import NextLink from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -261,7 +262,11 @@ export function TanyaClient() {
           <div className="flex items-center gap-3">
             <TanyaOrb stage={phase.stage ?? "route"} size={44} />
             <div className="flex flex-col">
-              <Typography type="body-sm">{t.stages[phase.stage ?? "route"]}</Typography>
+              <Typography type="body-sm">
+                <TextShimmer className="tanya-stage">
+                  {t.stages[phase.stage ?? "route"]}
+                </TextShimmer>
+              </Typography>
               <Typography type="body-xs" color="muted">
                 {t.step(STAGE_STEP[phase.stage ?? "route"] ?? 1, STAGE_TOTAL)}
               </Typography>

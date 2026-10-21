@@ -18,7 +18,7 @@ Format entri:
 ## 2026-10-21 · UI · Orb tahap di halaman Tanya — selesai
 
 - Dikerjakan:
-  - Spinner di baris tahap Tanya diganti `TanyaOrb`: satu orb titik yang berganti bentuk per tahap Jawab (Sathr, Himpun, Khatam, Anyam, Untai), warna dari tema (tinta, aksen Zaitun, emas ornamen), ditambah penanda "Tahap n dari 4".
+  - Spinner di baris tahap Tanya diganti `TanyaOrb`: satu orb titik yang berganti bentuk per tahap Jawab (Sathr, Himpun, Khatam, Anyam, Untai), warna dari tema (tinta, aksen Zaitun, emas ornamen), ditambah penanda "Tahap n dari 4". Teks tahap memakai `TextShimmer` HeroUI Pro, dengan teks dasar dinaikkan dari 45% ke 70% supaya kontrasnya lolos AA (6,11:1 terang, 8,34:1 gelap diukur; sepia ±5,3:1 dihitung).
   - Geometri murni di `orb-frames.ts` + tes; komponen kanvas sendiri (thinking-orbs tidak mendukung lebih dari satu warna per orb maupun tema sepia).
 - Verifikasi:
   - Peninjau: 0 blocker, 1 penting (tahap SSE tak dikenal bisa membuat orb/halaman galat) + 4 kecil (kedip saat tahap berganti di tengah peralihan, Untai mulai dengan butir emas, setelan gerak dikurangi tidak diikuti langsung, sepia belum dicek visual); semua ditutup.
