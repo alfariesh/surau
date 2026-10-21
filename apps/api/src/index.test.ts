@@ -21,8 +21,8 @@ import {
 } from "../../../packages/core/test/fixture.ts";
 import { docIndex, fakeAnthropic, readSse } from "../test/fake-anthropic.ts";
 import type { FakeAnswer, FakeRoute } from "../test/fake-anthropic.ts";
-import { ANON_HEADER, IP_HEADER, createApp, freshCachedResult } from "./index.ts";
-import type { PublicResult } from "./index.ts";
+import { ANON_HEADER, IP_HEADER, createApp, freshCachedResult } from "./app.ts";
+import type { PublicResult } from "./app.ts";
 import { ANON_TTL_SECONDS, newAnonId, signAnon } from "./keys.ts";
 
 const QUESTION = "Apa kata al-Ghazali tentang kesabaran?";
