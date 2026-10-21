@@ -28,6 +28,37 @@ Format entri:
 - Biaya API: –
 - Keputusan: – (ADR menyusul saat X08 dikerjakan)
 
+## 2026-10-21 · UI · Halaman Tanya sebagai percakapan — selesai (PR #112)
+
+- Dikerjakan:
+  - `/tanya` menjadi layar chat (ADR-073; orb "siap" Hilal dan "selesai" Segel): gelembung pertanyaan + balasan Surau per giliran, komposer `PromptInput` menempel di bawah, chip contoh pertanyaan (`Button` bulat; `PromptSuggestion` tidak dipakai), aksi salin/laporkan `ChatMessageActions`, dan riwayat giliran di memori tab. Setiap pertanyaan tetap dijawab terpisah, dan UI mengatakannya.
+  - Jawaban: kartu "Jawaban" diganti badan pesan, jangkar unik per giliran, dan judul disesuaikan (h2 tersembunyi, h3).
+- Verifikasi:
+  - Tes unit Tanya (jangkar per giliran, teks salin) dan tes CSS HeroUI lolos.
+  - Pratinjau browser lokal dengan `/api/jawab` + `/api/kutipan` tiruan (kutipan dari DB lokal; halaman dan fixture sementara dihapus, tidak di-commit): dua giliran berurutan, gulir ke awal jawaban tanpa menggulir halaman, fokus ke komposer setelah memilih contoh, formulir laporan, keadaan tutup (komposer nonaktif + arahan Cari), mode gelap, dan ponsel 375 px tanpa gulir samping.
+  - Peninjau: 0 blocker, 5 penting (ref TextArea menimpa ref HeroUI, fokus hilang saat kotak dikunci, tombol kirim aktif saat Jawab mati, teks salin tanpa label AI, klaim e2e belum dibuktikan) ditutup; temuan kecil sebagian ditutup.
+  - e2e `tanya.spec.ts` terhadap dev server cabang ini (`BASE_URL=http://localhost:3017`): tes halaman Tanya lolos (desktop + ponsel). Dua tes lain di berkas yang sama (privasi/transparansi, API kutipan) gagal karena D1 lokal worktree kosong (`/transparansi` dan `/api/kutipan` 500), dan berkas keduanya tidak diubah cabang ini; akan diuji CI Preview.
+  - Orb `rest` (Hilal) dan `done` (Segel) dicek di galeri sementara (160/64/20 px) dan di keadaan kosong.
+  - Keadaan kosong rata tengah + chip contoh + "?" (HoverCard muncul saat hover) dan transisi hilal → orb balasan pertama dicek di browser (animasi diperlambat untuk dilihat di tengah gerak; animasi `::view-transition-group(tanya-orb)` tercatat jalan), ponsel 375 px tanpa gulir samping.
+  - Peninjau kedua: 0 blocker, 2 penting (race view transition × `ask`: giliran bisa macet atau terkirim dua kali; LOG tidak cocok dengan kode) + 6 kecil (orb `enterFrom` beralih sambil terbang, rata tengah vertikal, pengingat "dijawab terpisah" hilang setelah giliran pertama, area ketuk "?", string tak terpakai, ADR soal Turnstile) ditutup.
+  - e2e `tanya.spec.ts` (tes halaman Tanya) dan `a11y.spec.ts` untuk `/tanya` (tema terang + gelap, urutan judul) lolos, desktop + ponsel.
+- Biaya API: –
+- Keputusan: ADR-073
+
+## 2026-10-21 · UI · Orb tahap di halaman Tanya — selesai
+
+- Dikerjakan:
+  - Spinner di baris tahap Tanya diganti `TanyaOrb`: satu orb titik yang berganti bentuk per tahap Jawab (Sathr, Himpun, Khatam, Anyam, Untai), warna dari tema (tinta, aksen Zaitun, emas ornamen), ditambah penanda "Tahap n dari 4". Teks tahap memakai `TextShimmer` HeroUI Pro, dengan teks dasar dinaikkan dari 45% ke 70% supaya kontrasnya lolos AA (6,11:1 terang, 8,34:1 gelap diukur; sepia ±5,3:1 dihitung).
+  - Geometri murni di `orb-frames.ts` + tes; komponen kanvas sendiri (thinking-orbs tidak mendukung lebih dari satu warna per orb maupun tema sepia).
+- Verifikasi:
+  - Peninjau: 0 blocker, 1 penting (tahap SSE tak dikenal bisa membuat orb/halaman galat) + 4 kecil (kedip saat tahap berganti di tengah peralihan, Untai mulai dengan butir emas, setelan gerak dikurangi tidak diikuti langsung, sepia belum dicek visual); semua ditutup.
+  - `orb-frames.test.ts` (7 tes) dan tes SSE (tahap tak dikenal diabaikan) lolos.
+  - Pratinjau di browser lokal lewat halaman sementara dengan `/api/jawab` tiruan (SSE lima tahap; tidak di-commit): bentuk berganti sesuai tahap, animasi berjalan saat terlihat dan berhenti saat di luar layar, tema terang dan gelap, ponsel 375 px tanpa gulir samping. Tema sepia tidak dicek visual (warnanya dari variabel `:root.sepia` yang sama). Ditemukan + diperbaiki: tahap yang berganti saat orb di luar layar sempat menampilkan bentuk lama.
+  - `pnpm verify` lolos.
+- Biaya API: –
+- Keputusan: ADR-072
+- Catatan untuk sesi berikutnya: PR Maknaz (#109, ADR-071) mengganti teks halaman yang sama; orb tidak bergantung pada nama.
+
 ## 2026-10-21 · X07 · Sisipan: antrean tinjauan label status hadits di `/tinjau` — selesai
 
 - Dikerjakan:

@@ -21,7 +21,7 @@ export const id = {
     home: "Beranda",
     books: "Kitab",
     search: "Cari",
-    ask: "Tanya",
+    ask: "Maknaz",
     about: "Tentang",
     mcp: "Pakai dengan AI",
     soon: "segera",
@@ -108,8 +108,8 @@ export const id = {
       },
       {
         phase: "4",
-        title: "Tanya",
-        body: "Tanya-jawab dengan kutipan Arab yang diperiksa kode.",
+        title: "Maknaz",
+        body: "Asisten AI Surau: tanya-jawab dengan kutipan Arab yang diperiksa kode.",
       },
       {
         phase: "5–7",

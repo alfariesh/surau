@@ -51,7 +51,7 @@ const overview: AdminOverview = {
 describe("AdminClient", () => {
   it("merender sakelar, biaya, kuota, dan laporan tanpa galat", () => {
     const html = renderToStaticMarkup(<AdminClient initial={overview} routeEnabled={false} />);
-    expect(html).toContain("Jawab aktif");
+    expect(html).toContain("Maknaz aktif");
     expect(html).toContain("2026-10");
     expect(html).toContain("Galat");
     expect(html).toContain("perkiraan");

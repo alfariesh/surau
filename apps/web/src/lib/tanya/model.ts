@@ -1,7 +1,12 @@
 // Bentuk data Jawab di sisi web (S21). Sengaja struktural (bukan impor dari apps/api): web hanya
 // menerima JSON/SSE dari `/api/jawab`, dan hasilnya divalidasi ringan sebelum dirender.
 
-export type JawabStage = "route" | "retrieve" | "answer" | "retry" | "verify";
+export const JAWAB_STAGES = ["route", "retrieve", "answer", "retry", "verify"] as const;
+export type JawabStage = (typeof JAWAB_STAGES)[number];
+
+function isStage(v: unknown): v is JawabStage {
+  return typeof v === "string" && (JAWAB_STAGES as readonly string[]).includes(v);
+}
 
 export interface JawabCitation {
   n: number;
@@ -112,7 +117,8 @@ export function parseSseFrame(frame: string): SseEvent | null {
   const p = (payload ?? {}) as Record<string, unknown>;
   switch (name) {
     case "stage":
-      return typeof p.stage === "string" ? { event: "stage", stage: p.stage as JawabStage } : null;
+      // Tahap yang belum dikenal web (API ter-deploy lebih dulu) diabaikan: tahap sebelumnya tetap tampil.
+      return isStage(p.stage) ? { event: "stage", stage: p.stage } : null;
     case "block":
       return p.block !== null && typeof p.block === "object"
         ? {
