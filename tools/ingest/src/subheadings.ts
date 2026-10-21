@@ -69,6 +69,23 @@ export const subheadingDecisions = z.strictObject({
       z.strictObject({ p: seq, kata: z.number().int().min(1).max(12), terjemahan: z.boolean() }),
     )
     .default([]),
+  /**
+   * Node daftar isi yang di sumber menunjuk BUTIR DAFTAR pembuka kitab sebagai judulnya (teks butir
+   * = judul node), padahal judul bagiannya menempel di akhir paragraf daftar berikutnya (X04 bagian
+   * B, ADR-074). Paragraf `butir` dirender sebagai teks biasa, dan `kata` kata terakhir paragraf `p`
+   * menjadi judul node itu (h2, jangkar `#bab-<id>`). `toc_node` (judul, halaman awal) tidak
+   * berubah: hanya paragraf judul yang dipilih pembaca.
+   */
+  node_tail: z
+    .array(
+      z.strictObject({
+        p: seq,
+        kata: z.number().int().min(1).max(12),
+        butir: seq,
+        terjemahan: z.boolean(),
+      }),
+    )
+    .default([]),
 });
 export type SubheadingDecisions = z.infer<typeof subheadingDecisions>;
 
@@ -90,7 +107,16 @@ export type SubheadingEntry =
       of?: number;
     }
   | { kind: "lead"; end: number; sha: string; tr?: TranslationMark }
-  | { kind: "tail"; start: number; sha: string; tr?: TranslationMark };
+  | {
+      kind: "tail";
+      start: number;
+      sha: string;
+      tr?: TranslationMark;
+      /** Subjudul akhir ini adalah judul node daftar isi `node` (keputusan `node_tail`). */
+      node?: number;
+    }
+  /** Paragraf yang teksnya sama dengan judul node, tetapi butir daftar (bukan judul): teks biasa. */
+  | { kind: "plain"; sha: string };
 
 export interface SubheadingFile {
   format: typeof SUBHEADING_FORMAT;
@@ -136,6 +162,11 @@ export const subheadingFile = z.strictObject({
             sha: z.string().regex(/^[0-9a-f]{16}$/),
           })
           .optional(),
+        node: z.number().int().positive().optional(),
+      }),
+      z.strictObject({
+        kind: z.literal("plain"),
+        sha: z.string().regex(/^[0-9a-f]{16}$/),
       }),
     ]),
   ),
@@ -151,6 +182,12 @@ function tokens(text: string) {
     at += word.length + 1;
   }
   return { norm, tokens: out };
+}
+
+/** `n` kata terakhir (bentuk normal, dipisah satu spasi); semua kata bila `n` tidak diberikan. */
+export function lastWords(text: string, n?: number): string {
+  const list = tokens(text).tokens.map((t) => t.word);
+  return (n === undefined ? list : list.slice(-n)).join(" ");
 }
 
 /** Kata pertama paragraf (bentuk normal), atau "" bila tidak ada huruf. */
@@ -207,6 +244,8 @@ export interface SubheadingBuild {
     continuations: number;
     lead: number;
     tail: number;
+    /** Judul node yang dipindah dari butir daftar ke akhir paragraf berikutnya (`node_tail`). */
+    nodeTails: number;
   };
 }
 
@@ -320,6 +359,47 @@ export function buildSubheadings(
     entries.set(d.p, { kind: "tail", start, sha: sha16(p.text), ...(tr ? { tr } : {}) });
   }
 
+  const nodeById = new Map(nodes.map((n) => [n.id, n]));
+  for (const d of decisions.node_tail) {
+    const item = bySeq.get(d.butir);
+    const at = bySeq.get(d.p);
+    const node = item?.p.tocNodeId == null ? undefined : nodeById.get(item.p.tocNodeId);
+    if (item === undefined || node === undefined || !isTocHeading(item.p, nodeById)) {
+      problems.push(`node_tail p${d.p}: butir p${d.butir} bukan paragraf judul node daftar isi`);
+      continue;
+    }
+    if (at === undefined || at.i !== item.i + 1 || at.p.tocNodeId !== node.id) {
+      problems.push(
+        `node_tail p${d.p}: bukan paragraf badan tepat sesudah p${d.butir} di node ${node.id}`,
+      );
+      continue;
+    }
+    // Pengaman deterministik: kata-kata akhir paragraf = judul node (bentuk normal).
+    if (lastWords(at.p.text, d.kata) !== lastWords(node.title)) {
+      problems.push(`node_tail p${d.p}: ${d.kata} kata terakhir ≠ judul node ${node.id}`);
+      continue;
+    }
+    const butir = claim(d.butir, "node_tail butir");
+    const p = claim(d.p, "node_tail");
+    if (butir === null || p === null) continue;
+    const start = wordCut(p.text, d.kata, "end");
+    if (start === null || inside(start, p.locked)) {
+      problems.push(
+        `node_tail p${d.p}: ${d.kata} kata tidak menyisakan isi atau memotong penanda/ayat`,
+      );
+      continue;
+    }
+    const tr = mark(p, "last", d.terjemahan);
+    entries.set(d.butir, { kind: "plain", sha: sha16(butir.text) });
+    entries.set(d.p, {
+      kind: "tail",
+      start,
+      sha: sha16(p.text),
+      ...(tr ? { tr } : {}),
+      node: node.id,
+    });
+  }
+
   const sorted = [...entries.entries()].sort((a, b) => a[0] - b[0]);
   const values = sorted.map(([, e]) => e);
   return {
@@ -339,7 +419,8 @@ export function buildSubheadings(
       ).length,
       continuations: values.filter((e) => e.kind === "heading" && e.of !== undefined).length,
       lead: values.filter((e) => e.kind === "lead").length,
-      tail: values.filter((e) => e.kind === "tail").length,
+      tail: values.filter((e) => e.kind === "tail" && e.node === undefined).length,
+      nodeTails: values.filter((e) => e.kind === "tail" && e.node !== undefined).length,
     },
   };
 }

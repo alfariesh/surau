@@ -1,6 +1,6 @@
 # X04 · Sesi sisipan: mutu baca pembaca Ihya (tanpa bergantung pada AI)
 
-> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `/tanya`, `apps/api`, maupun `packages/llm/src/jawab`) · **Status:** bagian A selesai sebagian (2026-10-21, PR #115: 4 butir *Selesai bila* belum lolos, dicatat apa adanya) + T-17 tahap 3 siap dinilai; bagian B belum
+> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `/tanya`, `apps/api`, maupun `packages/llm/src/jawab`) · **Status:** bagian A selesai sebagian (2026-10-21, PR #115: 4 butir *Selesai bila* belum lolos, dicatat apa adanya) + T-17 tahap 3 siap dinilai; **bagian B berjalan** (2026-10-21, branch `sesi/x04b-mutu-baca`)
 > **Prasyarat:** pemilik menjawab pertanyaan desain di bawah (dijawab 2026-10-21, lihat *Jawaban pemilik*) · izin biaya judul daftar isi (≤ US$1) · izin promote korpus baru (bagian B)
 > **Perkiraan:** 2 percakapan agent. Bagian A (tampilan, $0, tanpa korpus baru) dan bagian B (struktur + judul Indonesia, korpus baru). Bila bagian A menghabiskan satu percakapan, bagian B menjadi sesi sisipan bernomor berikutnya yang masih bebas (X05–X08 sudah dipakai).
 

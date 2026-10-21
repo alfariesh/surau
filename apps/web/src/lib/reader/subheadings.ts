@@ -33,7 +33,11 @@ const entry = z.union([
     start: z.number().int().positive(),
     sha,
     tr: mark.optional(),
+    /** Subjudul akhir ini judul node daftar isi (butir daftar sebelumnya = `plain`, X04 bagian B). */
+    node: z.number().int().positive().optional(),
   }),
+  /** Teksnya sama dengan judul node, tetapi butir daftar pembuka: dirender sebagai teks biasa. */
+  z.strictObject({ kind: z.literal("plain"), sha }),
 ]);
 export type SubheadingEntry = z.infer<typeof entry>;
 

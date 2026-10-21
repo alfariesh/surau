@@ -126,7 +126,7 @@ function main(): number {
   const built = buildSubheadings(EDITION, passages, nodes, decisions, sha16);
   const { stats } = built;
   console.info(
-    `Calon "bayan": ${stats.bayanCandidates} (dikecualikan ${stats.bayanExcluded}) → subjudul bayan ${stats.bayanHeadings}, subjudul kurasi ${stats.kurasiHeadings}, lanjutan judul ${stats.continuations}, menempel di awal ${stats.lead}, di akhir ${stats.tail}.`,
+    `Calon "bayan": ${stats.bayanCandidates} (dikecualikan ${stats.bayanExcluded}) → subjudul bayan ${stats.bayanHeadings}, subjudul kurasi ${stats.kurasiHeadings}, lanjutan judul ${stats.continuations}, menempel di awal ${stats.lead}, di akhir ${stats.tail}, judul node dari butir daftar ${stats.nodeTails}.`,
   );
   for (const p of built.problems) console.error(`MASALAH: ${p}`);
 
@@ -134,7 +134,9 @@ function main(): number {
     const bySeq = new Map(passages.map((p) => [p.seq, p]));
     for (const [key, e] of Object.entries(built.file.entries)) {
       const p = bySeq.get(Number(key))!;
-      if (e.kind === "heading") {
+      if (e.kind === "plain") {
+        console.info(`p${key} butir daftar (teks biasa): ${p.text}`);
+      } else if (e.kind === "heading") {
         console.info(`p${key} ${e.src}${e.of ? ` lanjutan p${e.of}` : ""}: ${p.text}`);
       } else if (e.kind === "lead") {
         console.info(
@@ -145,7 +147,7 @@ function main(): number {
         );
       } else {
         console.info(
-          `p${key} akhir: …${p.text.slice(Math.max(0, e.start - 40), e.start)} | [${p.text.slice(e.start)}]`,
+          `p${key} akhir${e.node ? ` (judul node ${e.node})` : ""}: …${p.text.slice(Math.max(0, e.start - 40), e.start)} | [${p.text.slice(e.start)}]`,
         );
         console.info(
           `    terjemahan: ${e.tr ? `[${p.translation!.slice(e.tr.start, e.tr.end)}]` : "(tidak ditebalkan)"} …${p.translation?.slice(-110)}`,

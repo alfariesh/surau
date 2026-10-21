@@ -144,6 +144,70 @@ describe("buildSubheadings", () => {
   });
 });
 
+describe("buildSubheadings · node_tail (judul node dari butir daftar)", () => {
+  const nodeTitle = `${BAYAN} ${W1} ${W2}`;
+  const setup = () => {
+    const item = passage(nodeTitle, { tocNodeId: 7, pageId: 3 });
+    const list = passage(`${W3} ${W4} ${BAYAN} ${W1} ${W2_V}`, {
+      tocNodeId: 7,
+      pageId: 3,
+      translation: "Nabi bersabda. Penjelasan keutamaan sabar.",
+    });
+    const nodes = [{ id: 7, title: nodeTitle, startPageId: 3 }];
+    return { item, list, nodes };
+  };
+
+  test("butir → teks biasa, kata akhir paragraf berikutnya → judul node", () => {
+    const { item, list, nodes } = setup();
+    const built = buildSubheadings(
+      1,
+      [item, list],
+      nodes,
+      decisions({ node_tail: [{ p: list.seq, kata: 3, butir: item.seq, terjemahan: true }] }),
+      sha16,
+    );
+    expect(built.problems).toEqual([]);
+    expect(built.file.entries[String(item.seq)]).toEqual({ kind: "plain", sha: sha16(item.text) });
+    const t = built.file.entries[String(list.seq)];
+    if (t?.kind !== "tail") throw new Error("judul node tidak terbentuk");
+    expect(t.node).toBe(7);
+    expect(list.text.slice(t.start)).toBe(`${BAYAN} ${W1} ${W2_V}`);
+    expect(list.translation!.slice(t.tr!.start, t.tr!.end)).toBe("Penjelasan keutamaan sabar.");
+    expect(built.stats).toMatchObject({ tail: 0, nodeTails: 1 });
+    expect(subheadingFile.safeParse(built.file).success).toBe(true);
+  });
+
+  test("kata akhir ≠ judul node, butir bukan judul node, atau tidak bersebelahan = masalah", () => {
+    const { item, list, nodes } = setup();
+    const other = passage(`${W3} ${W4}`, { tocNodeId: 7, pageId: 3 });
+    const wrongWords = buildSubheadings(
+      1,
+      [item, list],
+      nodes,
+      decisions({ node_tail: [{ p: list.seq, kata: 2, butir: item.seq, terjemahan: false }] }),
+      sha16,
+    );
+    expect(wrongWords.problems.join("\n")).toMatch(/≠ judul node/);
+    const notHeading = buildSubheadings(
+      1,
+      [other, list],
+      nodes,
+      decisions({ node_tail: [{ p: list.seq, kata: 3, butir: other.seq, terjemahan: false }] }),
+      sha16,
+    );
+    expect(notHeading.problems.join("\n")).toMatch(/bukan paragraf judul node/);
+    const gap = buildSubheadings(
+      1,
+      [item, other, list],
+      nodes,
+      decisions({ node_tail: [{ p: list.seq, kata: 3, butir: item.seq, terjemahan: false }] }),
+      sha16,
+    );
+    expect(gap.problems.join("\n")).toMatch(/tepat sesudah/);
+    for (const b of [wrongWords, notHeading, gap]) expect(b.file.entries).toEqual({});
+  });
+});
+
 // Berkas di repo = hasil bangun ulang dari korpus build lokal (dilewati bila korpus tidak ada, mis. CI).
 const repo = resolve(import.meta.dirname, "../../..");
 const build = join(repo, "data/build");

@@ -32,7 +32,7 @@ import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
  * syair, subjudul): tanpa itu, halaman sambungan di produksi memakai model lama sampai 7 hari per
  * data center. Model tidak memuat teks UI (i18n).
  */
-export const PAGE_MODEL_VERSION = `2.${SUBHEADING_DIGEST}`;
+export const PAGE_MODEL_VERSION = `3.${SUBHEADING_DIGEST}`;
 
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {
@@ -67,6 +67,11 @@ export interface PassageModel {
    * Peran paragraf utuh: judul node daftar isi (`toc`, h2), subjudul kurasi (`sub`), atau teks.
    */
   heading: { kind: "toc"; level: number } | { kind: "sub" } | null;
+  /**
+   * Subjudul di akhir paragraf ini adalah judul node daftar isi (kurasi `node_tail`, X04 bagian B):
+   * dirender h2, dan jangkar `#bab-<id>` + ringkasan node itu dipindah ke paragraf ini.
+   */
+  nodeHeading: { id: number; level: number } | null;
   blocks: Block[];
   /** Rujukan ayat yang dirender (indeks `ayah` di segmen). */
   ayat: AyahRef[];
@@ -121,17 +126,19 @@ function preorder(nodes: readonly SectionNode[]): SectionNode[] {
 
 /**
  * Judul node (h2): paragraf yang teksnya sama dengan judul node-nya dan node itu mulai di halaman
- * ini (sama dengan `headingPassages` lama, kini dari node halaman ini saja).
+ * ini (sama dengan `headingPassages` lama, kini dari node halaman ini saja). `plain` = paragraf
+ * kurasi yang teksnya sama dengan judul node tetapi butir daftar pembuka (bukan judul).
  */
 export function tocHeadings(
   sections: readonly SectionNode[],
   body: readonly Pick<Passage, "id" | "toc_node_id" | "text_raw">[],
+  plain: ReadonlySet<number> = new Set(),
 ): Map<number, SectionNode> {
   const byId = new Map(sections.map((s) => [s.id, s]));
   const out = new Map<number, SectionNode>();
   const seen = new Set<number>();
   for (const p of body) {
-    if (p.toc_node_id === null || seen.has(p.toc_node_id)) continue;
+    if (plain.has(p.id) || p.toc_node_id === null || seen.has(p.toc_node_id)) continue;
     seen.add(p.toc_node_id);
     const node = byId.get(p.toc_node_id);
     if (node && p.text_raw.trim() === node.title.trim()) out.set(p.id, node);
@@ -174,7 +181,7 @@ async function verified(
   p: Passage,
 ): Promise<{ entry: SubheadingEntry; trOk: boolean } | null> {
   if (entry === undefined || (await sha16(p.text_raw)) !== entry.sha) return null;
-  const tr = entry.kind === "heading" ? undefined : entry.tr;
+  const tr = entry.kind === "lead" || entry.kind === "tail" ? entry.tr : undefined;
   const text = p.translation?.text;
   const trOk = tr !== undefined && text !== undefined && (await sha16(text)) === tr.sha;
   return { entry, trOk };
@@ -213,22 +220,28 @@ export interface ModelContext {
 /** Model siap render untuk satu halaman cetak. */
 export async function buildPageModel(page: PageView, ctx: ModelContext): Promise<PageModel> {
   const { juz, page_no: pageNo, permalink } = page.citation;
-  const headings = tocHeadings(ctx.sections, page.body);
+  const seqOf = (p: Passage) => Number(p.anchor.slice(1));
+  // Entri kurasi yang sidiknya cocok dengan teks halaman ini (paragraf badan).
+  const checked = await Promise.all(
+    page.body.map((p) => verified(subheadingOf(ctx.editionId, seqOf(p)), p)),
+  );
+  const checks = new Map(
+    page.body.flatMap((p, i) => (checked[i] ? [[p.id, checked[i]] as const] : [])),
+  );
+  const plain = new Set([...checks].filter(([, c]) => c.entry.kind === "plain").map(([id]) => id));
+  const headings = tocHeadings(ctx.sections, page.body, plain);
   const starts = sectionStarts(ctx.sections, page.body);
+  const sectionById = new Map(ctx.sections.map((s) => [s.id, s]));
   const summaryOf = new Map((page.summaries ?? []).map((s) => [s.section.id, s]));
   const summariesAt = (ids: readonly number[]) =>
     ids.flatMap((nodeId) => {
       const s = summaryOf.get(nodeId);
       return s === undefined || s.review_status === "rejected" ? [] : [s];
     });
-  const seqOf = (p: Passage) => Number(p.anchor.slice(1));
 
-  async function model(p: Passage, kind: "body" | "foot"): Promise<PassageModel> {
+  function model(p: Passage, kind: "body" | "foot"): PassageModel {
     const split = splitPassage(p.text_raw, p.footnote_refs, p.ayah_refs);
-    const check =
-      kind === "body" && !headings.has(p.id)
-        ? await verified(subheadingOf(ctx.editionId, seqOf(p)), p)
-        : null;
+    const check = kind === "body" && !headings.has(p.id) ? checks.get(p.id) : undefined;
     const entry = check?.entry;
     let sub: SubSpan | null = null;
     let bold: TranslationModel["bold"] = null;
@@ -240,6 +253,8 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
       if (check?.trOk && entry.tr) bold = { start: entry.tr.start, end: entry.tr.end };
     }
     const toc = headings.get(p.id);
+    const node =
+      entry?.kind === "tail" && entry.node !== undefined ? sectionById.get(entry.node) : undefined;
     return {
       id: p.id,
       anchor: p.anchor,
@@ -251,6 +266,7 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
           : entry?.kind === "heading"
             ? { kind: "sub" }
             : null,
+      nodeHeading: node === undefined ? null : { id: node.id, level: node.level },
       // Syair hanya di teks badan (ADR-074): elipsis ` ... ` di takhrij bukan pemisah bait.
       blocks:
         kind === "body"
@@ -264,7 +280,21 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
     };
   }
 
-  const models = await Promise.all(page.body.map((p) => model(p, "body")));
+  const models = page.body.map((p) => model(p, "body"));
+  // Judul node di akhir paragraf (node_tail): jangkar dan ringkasan node pindah dari butir daftar
+  // (paragraf pertama node menurut sectionStarts) ke paragraf yang memuat judulnya.
+  for (const m of models) {
+    const nodeId = m.nodeHeading?.id;
+    if (nodeId === undefined) continue;
+    for (const o of models) {
+      if (o === m || !o.sectionAnchors.includes(nodeId)) continue;
+      o.sectionAnchors = o.sectionAnchors.filter((id) => id !== nodeId);
+      m.sectionAnchors = [...m.sectionAnchors, nodeId];
+      const moved = o.summaries.filter((s) => s.section.id === nodeId);
+      o.summaries = o.summaries.filter((s) => s.section.id !== nodeId);
+      m.summaries = [...m.summaries, ...moved];
+    }
+  }
   // Lanjutan judul (kurasi `of`): digabung ke subjudul tepat sebelumnya di halaman yang sama. Bila
   // judulnya ada di halaman lain (tidak terjadi di Ihya), lanjutan tampil sebagai subjudul sendiri.
   const body: PassageModel[] = [];
@@ -286,7 +316,7 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
     }
     body.push(m);
   }
-  const footnotes = await Promise.all(page.footnotes.map((p) => model(p, "foot")));
+  const footnotes = page.footnotes.map((p) => model(p, "foot"));
 
   const footIds = new Set(page.footnotes.map((f) => f.id));
   const markerIds: Record<number, string> = {};

@@ -77,7 +77,8 @@ describe.skipIf(files.length !== 1)("korpus lokal", () => {
     expect(bayan + 2).toBeGreaterThanOrEqual(180);
     // Setiap subjudul awal/akhir benar-benar terpotong (offset sah, tidak di tengah penanda).
     expect(cut.filter((k) => k === "lead")).toHaveLength(16);
-    expect(cut.filter((k) => k === "tail")).toHaveLength(6);
+    // 6 subjudul akhir + 2 judul node yang dipindah dari butir daftar (node_tail, X04 bagian B).
+    expect(cut.filter((k) => k === "tail")).toHaveLength(8);
   });
 
   it("syair: paragraf berpemisah ' ... ' tetap utuh (round-trip); paragraf bait utuh ditata per syatr", () => {
