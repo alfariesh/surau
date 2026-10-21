@@ -68,6 +68,7 @@ export {
   searchCorpusFused,
   searchPassageRow,
   searchPathName,
+  searchSummaryNodes,
 } from "./repo/search.ts";
 export type {
   FusedSearchRequest,
@@ -78,6 +79,7 @@ export type {
   RankedSearchRow,
   SearchPassageRow,
   SearchPathName,
+  SummaryNodesResult,
   SearchRequest,
   SearchResult,
 } from "./repo/search.ts";

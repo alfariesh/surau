@@ -1,6 +1,7 @@
 // Tes unit Jawab tanpa D1 (project "node"). Teks Arab di sini BUATAN (bukan teks kitab).
 import type { CitationContentBlockLocation, Message } from "@anthropic-ai/sdk/resources/messages";
 import type { AnswerPassage, AnswerTocNode } from "@surau/core";
+import { FTS_MAX_TOKENS, LATIN_MAX_TERMS, planFtsQuery, planLatinQuery } from "@surau/text";
 import { describe, expect, test } from "vite-plus/test";
 
 import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
@@ -17,7 +18,16 @@ import {
   stripCiteTags,
 } from "./citations.ts";
 import { buildDoc, docContext, segmentText, toDocumentBlock } from "./documents.ts";
-import { fuse, questionQuery, withPairs } from "./retrieve.ts";
+import {
+  MAX_SEARCHES,
+  QUESTION_WEIGHT,
+  SECTION_LIMIT,
+  fuse,
+  questionQuery,
+  routePlans,
+  summaryPlans,
+  withPairs,
+} from "./retrieve.ts";
 import { HADITH_NOT_CITED, HADITH_UNKNOWN, hadithCheck, hadithClaims } from "./pipeline.ts";
 import { buildRouteRequest, parseRoute, tocText } from "./route.ts";
 
@@ -311,10 +321,96 @@ describe("kandidat", () => {
     expect(withPairs([1, 4, 99], map)).toEqual([1, 2, 3, 4]);
   });
 
+  test("RRF berbobot: daftar berbobot 3 mengalahkan paragraf yang muncul di dua daftar", () => {
+    const lists = [
+      { query: "pertanyaan", section_id: null, passage_ids: [9, 1], weight: QUESTION_WEIGHT },
+      { query: "a", section_id: 7, passage_ids: [1, 2] },
+      { query: "b", section_id: 7, passage_ids: [2, 1] },
+    ];
+    // 9: 3/61; 1: 3/62 + 1/61 + 1/62; 2: 1/62 + 1/61.
+    expect(fuse(lists)).toEqual([1, 9, 2]);
+    expect(fuse(lists.map((l) => ({ ...l, weight: 1 })))).toEqual([1, 2, 9]);
+  });
+
   test("pertanyaan panjang dipotong di batas kata ≤200 karakter", () => {
     const q = questionQuery(`${"kata ".repeat(60)}akhir`);
     expect(q.length).toBeLessThanOrEqual(200);
     expect(q.endsWith("kata")).toBe(true);
+  });
+
+  test("pertanyaan dengan kata isi melebihi batas searchText dipotong dari belakang", () => {
+    // 18 kata isi Indonesia sesudah kata fungsi dibuang (batas 16): dulu InvalidQuery, sehingga
+    // semua daftar pertanyaan hilang diam-diam.
+    const long =
+      "Saya ingin memahami hubungan antara niat tulus, keikhlasan hati, amal perbuatan " +
+      "sehari-hari seorang murid ketika belajar kepada guru, serta adab murid terhadap guru " +
+      "menurut kitab ini";
+    expect(() => planLatinQuery(long)).toThrow(RangeError);
+    const q = questionQuery(long);
+    expect(long.startsWith(q)).toBe(true);
+    expect(planLatinQuery(q)?.words.length).toBe(LATIN_MAX_TERMS);
+    expect(questionQuery("sabar")).toBe("sabar");
+    expect(questionQuery("  sabar \n  syukur ")).toBe("sabar syukur");
+  });
+
+  test("yang dipotong kata terakhir dari aksara yang meluap: kutipan Arab panjang tidak menghabiskan kata Indonesia", () => {
+    // 40 token Arab (batas 32), total < 200 karakter: yang meluap hanya jumlah token Arab.
+    const arabic = Array.from({ length: 40 }, () => "علم").join(" ");
+    const q = questionQuery(`${arabic} artinya sabar`);
+    expect(q.endsWith("artinya sabar")).toBe(true);
+    const arabicPart = q.replace(/[\p{Script=Latin}]+/gu, " ");
+    expect(() => planFtsQuery(arabicPart)).not.toThrow();
+    expect(planFtsQuery(arabicPart)?.stems.length).toBe(FTS_MAX_TOKENS);
+  });
+});
+
+describe("rencana pencarian", () => {
+  const route = (sections: number[], queries: string[]) => ({ sections, queries, hadith: false });
+
+  test("routing: pertanyaan global berbobot, kueri routing global, lalu per bagian 3 halaman", () => {
+    const plans = routePlans("guru murid", route([7, 8], ["المعلم", "adab"]));
+    expect(plans[0]).toEqual({
+      query: "guru murid",
+      section_id: null,
+      limit: 10,
+      weight: QUESTION_WEIGHT,
+    });
+    expect(plans.slice(1, 3).map((p) => [p.query, p.section_id, p.weight])).toEqual([
+      ["المعلم", null, 1],
+      ["adab", null, 1],
+    ]);
+    expect(plans.filter((p) => p.section_id === 7).map((p) => p.query)).toEqual([
+      "guru murid",
+      "المعلم",
+      "adab",
+    ]);
+    expect(plans.filter((p) => p.section_id !== null).every((p) => p.limit === SECTION_LIMIT)).toBe(
+      true,
+    );
+    expect(plans).toHaveLength(9);
+  });
+
+  test("routing: unik, kueri kosong dilewati, rute null = pertanyaan saja, batas 20", () => {
+    expect(routePlans("sabar", null)).toHaveLength(1);
+    expect(routePlans("", route([7], ["sabar"])).map((p) => p.query)).toEqual(["sabar", "sabar"]);
+    expect(routePlans("sabar", route([], ["sabar", " ", "sabar"]))).toHaveLength(1);
+    const full = routePlans("q", route([1, 2, 3, 4], ["a", "b", "c", "d", "e", "f"]));
+    expect(full).toHaveLength(MAX_SEARCHES);
+    // Bagian terakhir terpotong jatah: 1 + 6 global + 3 × 4 = 19, sisa 1 untuk bagian 4.
+    expect(full.at(-1)).toMatchObject({ query: "q", section_id: 4 });
+  });
+
+  test("ringkasan: bukan bagian routing, unik, ≤3, hanya sisa jatah; pertanyaan kosong = tanpa", () => {
+    const r = route([7], ["a"]);
+    expect(summaryPlans("sabar", [7, 9, 9, 10, 11, 12], r, 3)).toEqual(
+      [9, 10, 11].map((s) => ({ query: "sabar", section_id: s, limit: SECTION_LIMIT, weight: 1 })),
+    );
+    expect(
+      summaryPlans("sabar", [9, 10, 11], r, MAX_SEARCHES - 1).map((p) => p.section_id),
+    ).toEqual([9]);
+    expect(summaryPlans("sabar", [9, 10], r, MAX_SEARCHES)).toEqual([]);
+    expect(summaryPlans("", [9], null, 1)).toEqual([]);
+    expect(summaryPlans("sabar", [9], null, 1)).toHaveLength(1);
   });
 });
 

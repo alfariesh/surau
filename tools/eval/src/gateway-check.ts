@@ -16,6 +16,7 @@ import type {
 import { answerPassages, answerToc } from "@surau/core";
 import type { AnswerTocNode } from "@surau/core";
 import {
+  JAWAB_EDITION_ID,
   MODELS,
   addUsage,
   buildAnswerRequest,
@@ -145,7 +146,7 @@ async function main() {
     const nodes = await answerToc(db, 1);
     const toc = new Map<number, AnswerTocNode>(nodes.map((n) => [n.id, n]));
     const tocString = tocText(nodes);
-    const ranked = fuse(await searchLists(db, QUESTION, null));
+    const ranked = fuse(await searchLists(db, QUESTION, null, JAWAB_EDITION_ID));
     const passages = new Map((await answerPassages(db, ranked)).map((p) => [p.id, p]));
     const labels = new Map([...passages.values()].map((p) => [p.id, docLabel(p)]));
     const allDocs = withPairs(ranked, passages).map((id) => {
