@@ -7,6 +7,7 @@ import type { D1Db } from "@surau/db";
 import {
   ANSWER_MAX_TOKENS,
   JAWAB_MAX_PROMPT_TOKENS,
+  JAWAB_PIPELINE_VERSION,
   MODELS,
   ROUTE_MAX_TOKENS,
   costUsd,
@@ -70,7 +71,9 @@ export function toEvalAnswer(r: JawabResult): EvalAnswer {
       .slice(0, 5)
       .map((h) => ({ passage_id: h.passage_id, footnote: h.footnote, status: h.status })),
     model: r.model ?? "none",
-    prompt_version: r.prompt_version,
+    // Sama dengan kunci cache Worker: versi pipeline (kandidat + pascaproses, X03) ikut tercatat,
+    // supaya arsip dan laporan membedakan kode yang berbeda dengan prompt yang sama.
+    prompt_version: `${r.prompt_version}+pipeline@${JAWAB_PIPELINE_VERSION}`,
     latency_ms: r.latency_ms,
     cost_usd: r.cost_usd,
   });

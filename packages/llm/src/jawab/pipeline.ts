@@ -43,15 +43,17 @@ import type { CitedSpan } from "./citations.ts";
 import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
 import { fuse, pairIds, searchLists, withPairs } from "./retrieve.ts";
+import type { SearchList } from "./retrieve.ts";
 import { ROUTE_PROMPT, buildRouteRequest, parseRoute, tocText } from "./route.ts";
 import type { Route } from "./route.ts";
 
 export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
 /**
- * Versi pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu
- * berubah: ikut kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
+ * Versi kode pipeline di luar prompt: pencarian kandidat (X03: 4) dan pascaproses (pemetaan/
+ * verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut kunci `answer_cache`,
+ * jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 3;
+export const JAWAB_PIPELINE_VERSION = 4;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -104,6 +106,8 @@ export interface JawabRefusal {
 export interface JawabDiagnostics {
   route: Route | null;
   search_lists: number;
+  /** Bagian tambahan dari ringkasan AI bagian (routing kedua tanpa LLM, X03), urut pencarian. */
+  summary_sections: number[];
   candidates: number;
   docs: number;
   doc_tokens_est: number;
@@ -213,6 +217,51 @@ interface RawBlock {
   citations: TextCitation[];
 }
 
+export interface JawabCandidates {
+  lists: SearchList[];
+  /** Paragraf hasil RRF, sebelum pasangan takhrij ditambahkan. */
+  ranked: number[];
+  /** Paragraf kandidat beserta pasangannya. */
+  passages: Map<number, AnswerPassage>;
+  /** Dokumen jawaban (urutan RRF + pasangan, dipangkas anggaran token); kosong = tanpa kandidat. */
+  docs: AnswerDoc[];
+}
+
+/**
+ * Langkah 2 tanpa LLM: pencarian, RRF, pasangan takhrij, dan dokumen dalam anggaran token.
+ * Dipakai pipeline dan pengukuran gratis `eval:jawab kandidat` atas rute tersimpan, jadi
+ * keduanya selalu menghitung kandidat yang sama.
+ */
+export async function jawabCandidates(
+  db: D1Db,
+  question: string,
+  route: Route | null,
+  toc: ReadonlyMap<number, AnswerTocNode>,
+  editionId: number = JAWAB_EDITION_ID,
+): Promise<JawabCandidates> {
+  const lists = await searchLists(db, question, route, editionId);
+  const ranked = fuse(lists);
+  const first = await answerPassages(db, ranked);
+  const missing = pairIds(first).filter((id) => !ranked.includes(id));
+  const extra = missing.length ? await answerPassages(db, missing) : [];
+  const passages = new Map([...first, ...extra].map((p) => [p.id, p]));
+  const order = withPairs(ranked, passages);
+  const labels = new Map([...passages.values()].map((p) => [p.id, docLabel(p)]));
+  const budget = Math.min(
+    DOC_BUDGET_TOKENS,
+    JAWAB_MAX_PROMPT_TOKENS - fixedPromptTokens(question) - 2000,
+  );
+  const docs = fitDocs(
+    order.map((id, i) => {
+      const p = passages.get(id)!;
+      const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
+      return buildDoc(shown, docContext(shown, toc, labels));
+    }),
+    budget,
+  );
+  return { lists, ranked, passages, docs };
+}
+
 export async function runJawab(deps: JawabDeps, question: string): Promise<JawabResult> {
   const now = deps.now ?? (() => performance.now());
   const started = now();
@@ -230,6 +279,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   const diagnostics: JawabDiagnostics = {
     route: null,
     search_lists: 0,
+    summary_sections: [],
     candidates: 0,
     docs: 0,
     doc_tokens_est: 0,
@@ -295,7 +345,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 
   // 1. Routing.
   await emit({ type: "stage", stage: "route" });
-  const toc = await loadToc(db, corpusVersion, deps.editionId ?? JAWAB_EDITION_ID);
+  const editionId = deps.editionId ?? JAWAB_EDITION_ID;
+  const toc = await loadToc(db, corpusVersion, editionId);
   let route: Route | null = null;
   try {
     const msg = await deps.anthropic.messages.create(
@@ -319,7 +370,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
       model: MODELS.haiku,
     };
     await emit({ type: "stage", stage: "retrieve" });
-    ranked = fuse(await searchLists(db, question, null));
+    ranked = fuse(await searchLists(db, question, null, editionId));
     passages = new Map((await answerPassages(db, ranked)).map((p) => [p.id, p]));
     return fallback("provider_error", null);
   }
@@ -327,16 +378,20 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 
   // 2. Kandidat.
   await emit({ type: "stage", stage: "retrieve" });
-  const lists = await searchLists(db, question, route);
-  diagnostics.search_lists = lists.length;
-  ranked = fuse(lists);
+  const found = await jawabCandidates(db, question, route, toc.nodes, editionId);
+  diagnostics.search_lists = found.lists.length;
+  diagnostics.summary_sections = [
+    ...new Set(
+      found.lists
+        .map((l) => l.section_id)
+        .filter((id): id is number => id !== null && !(route?.sections ?? []).includes(id)),
+    ),
+  ];
+  ranked = found.ranked;
   diagnostics.candidates = ranked.length;
-  const first = await answerPassages(db, ranked);
-  const missing = pairIds(first).filter((id) => !ranked.includes(id));
-  const extra = missing.length ? await answerPassages(db, missing) : [];
-  passages = new Map([...first, ...extra].map((p) => [p.id, p]));
-  const order = withPairs(ranked, passages);
-  if (order.length === 0) {
+  passages = found.passages;
+  const docs = found.docs;
+  if (docs.length === 0) {
     const result: JawabResult = {
       outcome: "not_found",
       reason: "no_candidates",
@@ -351,19 +406,6 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     await emit({ type: "done", result });
     return result;
   }
-  const labels = new Map([...passages.values()].map((p) => [p.id, docLabel(p)]));
-  const budget = Math.min(
-    DOC_BUDGET_TOKENS,
-    JAWAB_MAX_PROMPT_TOKENS - fixedPromptTokens(question) - 2000,
-  );
-  const docs = fitDocs(
-    order.map((id, i) => {
-      const p = passages.get(id)!;
-      const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
-      return buildDoc(shown, docContext(shown, toc.nodes, labels));
-    }),
-    budget,
-  );
   diagnostics.docs = docs.length;
   diagnostics.doc_tokens_est = docs.reduce((n, d) => n + d.tokens, 0);
 

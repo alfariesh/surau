@@ -28,7 +28,9 @@ export {
   AI_SNIPPET_CHARS,
   SEARCH_MAX_HIGHLIGHTS,
   SEARCH_RESULT_VERSION,
+  queryWordOverflow,
   searchCacheKey,
+  searchSummarySections,
   searchText,
   splitQueryScripts,
 } from "./search.ts";

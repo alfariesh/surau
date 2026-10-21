@@ -2,8 +2,8 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { evalAnswer, evalHash, resolveEvalSource, searchText } from "@surau/core";
-import { createAnthropic, createGatewayAnthropic } from "@surau/llm";
+import { answerToc, evalAnswer, evalHash, resolveEvalSource, searchText } from "@surau/core";
+import { JAWAB_EDITION_ID, createAnthropic, createGatewayAnthropic } from "@surau/llm";
 import { z } from "zod";
 import { loadCorpusIndex } from "./corpus.ts";
 import { openCorpus } from "./open-corpus.ts";
@@ -25,6 +25,7 @@ import {
   judgePlanHash,
   judgeRequest,
 } from "./answer-judge.ts";
+import { isComplete, readSavedRoutes, replayCandidates, summarize } from "./answer-candidates.ts";
 import { answerReport } from "./answer-report.ts";
 import { questionCeilingUsd, runQuestions } from "./answer-run.ts";
 import { approvedQuestions, reviewExport, seedSql } from "./answer-review.ts";
@@ -301,6 +302,43 @@ async function main() {
     });
     return;
   }
+  if (command === "kandidat") {
+    // Gratis (tanpa LLM): ulang pencarian kandidat atas rute tersimpan satu run atau lebih.
+    const files = required(values.input, "--input").split(",");
+    const questions = new Map(
+      loadAnswerQuestions(repo, true).map(({ question }) => [question.id, question]),
+    );
+    await withCorpus(async (corpus, index) => {
+      const toc = new Map(
+        (await answerToc(corpus.db, JAWAB_EDITION_ID)).map((n) => [n.id, n] as const),
+      );
+      const perQuestion = new Map<string, { complete: number; runs: number }>();
+      for (const file of files) {
+        const rows = await replayCandidates(
+          corpus.db,
+          index,
+          toc,
+          questions,
+          readSavedRoutes(resolve(file)),
+        );
+        for (const r of rows) {
+          const q = perQuestion.get(r.id) ?? { complete: 0, runs: 0 };
+          q.runs++;
+          if (isComplete(r)) q.complete++;
+          perQuestion.set(r.id, q);
+        }
+        console.log(
+          JSON.stringify({ input: file, corpus: index.meta.corpus_version, ...summarize(rows) }),
+        );
+      }
+      // Soal yang lokasi gold-nya tidak lengkap di dokumen pada minimal satu rute.
+      const misses = [...perQuestion]
+        .filter(([, q]) => q.complete < q.runs)
+        .map(([id, q]) => `${id} ${q.complete}/${q.runs}`);
+      console.log(`Belum lengkap: ${misses.join(", ") || "tidak ada"}`);
+    });
+    return;
+  }
   if (command === "golden") {
     const exports = readJsonl(resolve(required(values.reviews, "--reviews")), reviewExport);
     const selected = await approvedQuestions(exports, values.reviewer);
@@ -486,7 +524,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] (gratis; rute tersimpan, soal publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

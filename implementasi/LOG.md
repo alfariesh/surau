@@ -15,6 +15,20 @@ Format entri:
 
 ---
 
+## 2026-10-21 · X03 · Sisipan: cakupan lokasi gold di kandidat Jawab — selesai
+
+- Dikerjakan:
+  - `eval:jawab kandidat` (gratis): ulang langkah 2 pipeline (`jawabCandidates`, diekstrak dari `runJawab`) atas rute routing tersimpan, metrik "semua lokasi gold ada di dokumen"; bedah soal gagal → halaman gold sering ditemukan pencarian pertanyaan (peringkat 2–8) tetapi tenggelam di RRF oleh banyak daftar bagian.
+  - ±40 varian diukur gratis (bobot per jenis daftar, round robin, kedalaman/kueri per bagian, ringkasan bagian, kata pembingkai). Dipakai: pertanyaan global ×3, bagian 3 halaman, ≤ 3 bagian dari ringkasan AI (`searchSummarySections`/`searchSummaryNodes`, routing kedua tanpa LLM), pemotongan pertanyaan panjang per aksara (`queryWordOverflow`; dulu `InvalidQuery` diam-diam), `JAWAB_PIPELINE_VERSION` 4, arsip eval mencatat `+pipeline@4`.
+  - Peninjau dua putaran: 3 temuan penting (tes orkestrasi → `routePlans`/`summaryPlans` murni, ADR, label sesi) + temuan kecil ditutup sebelum eval berbayar.
+- Verifikasi:
+  - Uji gratis 6 set rute × 34 soal publik: lengkap 27 27 28 28 27 25 → 31 31 31 30 30 30 (rata-rata 27,0 → 30,5); 4 set rute lama yang tidak dipakai merancang: 26,25 → 30,0. Token dokumen tetap ±19,9 ribu.
+  - Eval publik berbayar sekali `x03-publik-lokasi-v1` (42 soal, tanpa holdout): kutipan valid 100% (156/156), lokasi 82,4% (28/34; sebelumnya 73,5–76,5%), penolakan tepat 100%, tidak salah menolak 100% (34/34), tanpa pola fatwa 100%, US$0,0027/jawaban; gold di dokumen 31/34 pada rute run ini.
+  - `pnpm verify` lolos (643 + 318 tes, build 3/3).
+- Biaya API: US$0,1134 (satu eval publik; izin pemilik di chat "ya saya izinkan").
+- Keputusan: ADR-067.
+- Catatan untuk sesi berikutnya: R4 lokasi ≥ 90% belum. Sisa: 3 soal topik tersebar tak terjangkau BM25 (pencarian makna lewat ADR baru, atau gold ditinjau T-24) dan 3 soal yang gold-nya ada di dokumen tetapi jawaban menyitasi sebagian (prompt perbandingan + eval ulang). Kenaikan in-sample; bukti R4 butuh holdout.
+
 ## 2026-10-21 · S21 · UI Tanya, transparansi biaya & rilis Fase 4 — sebagian
 
 - Dikerjakan:
