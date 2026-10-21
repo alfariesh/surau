@@ -1,8 +1,8 @@
 # X08 · Sesi sisipan: koreksi terjemahan Indonesia oleh editor dan ustadz
 
-> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `/tanya`, `apps/api`, maupun `packages/llm/src/jawab`) · **Status:** rencana, arah dijawab pemilik 2026-10-21 (lihat "Jawaban pemilik"), siap dikerjakan
+> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `apps/api` maupun `packages/llm/src/jawab`; di Tanya/Maknaz hanya kartu kutipan memakai fungsi label bersama) · **Status:** rencana, arah dijawab pemilik 2026-10-21 (lihat "Jawaban pemilik"), siap dikerjakan
 > **Prasyarat:** nama dan gelar editor pertama untuk didaftarkan · T-17 tahap 3 (X04) sebaiknya selesai dulu, karena hasilnya menentukan antrean koreksi · X04 W1 (penyajian teks Indonesia) membantu tetapi tidak wajib
-> **Perkiraan:** 1–2 percakapan agent (teknis), ditambah uji coba oleh editor sungguhan
+> **Perkiraan:** 2–3 percakapan agent dalam dua tahap (lihat "Tahapan"), ditambah uji coba oleh editor sungguhan
 
 Rencana ini ditulis di sesi audit X04 atas permintaan pemilik ("Do this task here", 2026-10-21). Belum ada implementasi. Nomor X05–X07 sudah dipakai sesi Jawab/takhrij (ADR-068–070), jadi rencana ini X08. Mekanisme peninjau mengikuti X07 (`/tinjau/takhrij`, ADR-070).
 
@@ -37,7 +37,7 @@ Pemilik ingin editor atau ustadz bisa memperbaiki terjemahan langsung, dengan ha
 - Tidak ada HTML, Markdown, tebal, atau miring yang disimpan. Gaya tampilan dibuat kode (X04 W1).
 - Validasi saat simpan:
   - placeholder ayat dan penanda catatan kaki dibandingkan dengan **teks Arab** paragraf (`maskAyat` + `checkPlaceholders` di `packages/core/src/ayah-placeholder.ts`), bukan dengan terjemahan dasar. Setiap placeholder wajib ada persis sekali. Penanda catatan kaki hanya boleh yang ada di teks Arab, dan editor boleh melengkapi yang hilang (320 terjemahan AI tanpa penanda, S13);
-  - tanpa huruf Arab (istilah ditulis transliterasi);
+  - tanpa huruf Arab (istilah ditulis transliterasi). Penanda catatan kaki `(١)` memakai angka Arab-India, jadi pemeriksaan dilakukan sesudah penanda dan placeholder dibuang (`stripMarkers`, seperti `hasArabicLetters` sekarang). Pemeriksa yang sekarang hanya **peringatan** di batch AI menjadi **penolakan** untuk teks manusia;
   - kurung siku dan **petik ganda** berpasangan. Petik tunggal tidak diperiksa, karena dipakai untuk 'ain/hamzah (Mu'adz). Bila terjemahan dasar pun tidak berpasangan (kutipan lintas paragraf), cukup peringatan;
   - panjang wajar: ≤ 8.000 karakter (terjemahan terpanjang sekarang 7.966). Tanpa batas rasio ke teks Arab, karena judul pendek wajar jauh lebih panjang terjemahannya (rasio tertinggi sekarang 19×);
   - tanpa tag `<…>`, tanpa Markdown (`**`, `__`, `#` judul, `*miring*`), dan tanpa tautan `[teks](url)`.
@@ -49,10 +49,15 @@ Pemilik ingin editor atau ustadz bisa memperbaiki terjemahan langsung, dengan ha
 2. **Editor terdaftar** (ustadz yang ditunjuk pemilik, §5) membuka paragraf di `/tinjau/terjemahan`:
    - Arab dari DB tampil di kanan dan hanya bisa dibaca; terjemahan sekarang di kiri.
    - Editor memilih "Sudah benar" (tanpa ubah) atau "Perbaiki" (textarea + pratinjau persis seperti pembaca + alasan singkat wajib).
+   - Di atas textarea ada petunjuk singkat: `⟦QS 2:255⟧` adalah tempat terjemahan ayat Kemenag (jangan diubah atau diterjemahkan), dan `(١)` adalah penanda catatan kaki.
 3. Setiap simpanan menjadi **revisi aktif** paragraf itu, langsung tanpa persetujuan kedua (keputusan pemilik). Revisi menyimpan penulis (hash), nama tampilan terdaftar, waktu, alasan, `base_sha256`, dan `source_sha256` (hash `text_raw` Arab saat itu). Revisi lama tidak dihapus; status lama menjadi `superseded`.
    - **Teks dasar** = revisi aktif terakhir bila ada (walau belum tayang), selain itu teks korpus. Koreksi berantai sebelum korpus baru tidak memicu 409 palsu dan tidak mengulang dari teks AI lama.
-   - **Batalkan:** editor (atau pemilik lewat `/admin`) bisa mengembalikan ke versi sebelumnya. Pembatalan juga revisi baru (`reverted`), jadi riwayat tetap utuh.
-4. **Pengganti persetujuan:** `/admin` mendapat daftar "koreksi terbaru" (paragraf, nama editor, alasan, diff kata). Pemilik bisa memeriksa sekilas dan membatalkan sebelum korpus berikutnya dibangun. Persetujuan dua orang (editor → ustadz penyetuju) tetap disiapkan di skema (`status`), tetapi tidak dipakai sampai pemilik memintanya.
+   - **Batalkan:** editor (atau pemilik lewat `/admin`) bisa mengembalikan ke keadaan sebelumnya. Pembatalan juga revisi baru (`reverted`) yang menunjuk revisi yang dipulihkan, jadi riwayat tetap utuh. Teks **dan label** ikut keadaan yang dipulihkan: kembali ke revisi Ust. A berarti label "dikoreksi Ust. A"; kembali ke teks AI berarti label "Terjemahan AI" tanpa nama. Pembatal tidak pernah tampil sebagai pengoreksi.
+4. **Pengganti persetujuan:**
+   - `/admin` mendapat daftar "koreksi terbaru" (paragraf, nama editor, alasan, diff kata). Pemilik bisa memeriksa sekilas dan membatalkan sebelum korpus berikutnya dibangun.
+   - Ada tombol "batalkan semua koreksi editor X sejak tanggal T", untuk berjaga-jaga bila akun editor disalahgunakan.
+   - Batas simpanan per editor ±200 per hari (gagal-tertutup, 429). Ukurannya cukup untuk kerja wajar dan menahan kerusakan massal.
+   - Akun pemilik boleh terdaftar sebagai editor, tetapi disarankan hanya untuk salah ketik dan ejaan, bukan makna. Persetujuan dua orang (editor → ustadz penyetuju) tetap disiapkan di skema (`status`), tetapi tidak dipakai sampai pemilik memintanya.
 5. Revisi aktif **diekspor** dan masuk korpus versi berikutnya (§3). Status di korpus diterapkan **hanya bila sha256 teks korpus = `base_sha256` revisi**. Bila draf AI sudah diterjemahkan ulang, label "diperiksa/dikoreksi" tidak menempel ke teks yang belum dibaca manusia.
 
    | Kejadian | `review_status` korpus | Catatan |
@@ -64,14 +69,16 @@ Pemilik ingin editor atau ustadz bisa memperbaiki terjemahan langsung, dengan ha
 ### 3. Jalan koreksi ke situs
 
 - **Usul agent: lewat korpus (ingest).**
-  - Ekspor revisi aktif dari D1 app ke file lokal git-ignored (`data/build/reviews/…`) + salinan R2 privat (pola arsip eval S18).
+  - Ekspor revisi aktif dari D1 app produksi (hanya **baca**) ke file lokal git-ignored (`data/build/reviews/…`) + salinan R2 privat bernama unik per ekspor (bertanggal, tidak menimpa objek lama; pola arsip eval S18).
+  - sha256 berkas ekspor dicatat di `meta` korpus dan `data/SOURCES.md`, jadi setiap `ihya-vN` bisa dibangun ulang persis.
   - Ingest menimpa teks AI dengan revisi itu.
   - Korpus baru dipromosikan, sehingga pembaca, pencarian, MCP, dan Jawab berubah bersamaan (K1).
   - Di git hanya ada **metadata**: ID paragraf, ID revisi, sha256 teks, `source_sha256`, status, tanggal. Tidak ada teksnya (K3). Ingest gagal bila hash di git tidak cocok dengan file ekspor, jadi koreksi tidak bisa hilang diam-diam.
   - Ekspor hanya revisi **aktif terbaru** per paragraf (yang dibatalkan tidak ikut).
-  - Saat ingest, setiap revisi **divalidasi ulang** (§1) terhadap teks Arab dan rujukan ayat versi korpus yang sedang dibangun. Bila `source_sha256` berbeda (patch teks) atau placeholder ayat berubah (pencocok ayat diperbarui, seperti S13/X02), revisi ditandai **usang**: tidak dipakai, dilaporkan, dan kembali ke antrean editor. Terjemahan buatan editor tidak boleh menempati tempat yang kini menjadi segmen Kemenag (aturan 9).
+  - Saat ingest, setiap revisi **divalidasi ulang** (§1) terhadap teks Arab dan rujukan ayat versi korpus yang sedang dibangun. Bila `source_sha256` berbeda (patch teks) atau placeholder ayat berubah (pencocok ayat diperbarui, seperti S13/X02), revisi dianggap **usang**: tidak dipakai, dan dilaporkan di laporan ingest. Status usang **dihitung**, tidak ditulis balik ke DB app produksi oleh ingest (aturan keras 4: tidak menimpa data produksi). `/tinjau/terjemahan` menampilkannya di antrean dengan membandingkan `source_sha256` revisi dengan teks korpus aktif. Terjemahan buatan editor tidak boleh menempati tempat yang kini menjadi segmen Kemenag (aturan 9).
   - Data uji di staging memakai `surau-app-staging` (`apps/web/wrangler.jsonc`), jadi tidak menyentuh produksi.
   - Sesudah korpus berisi revisi dibangun, jalankan `eval:retrieval` (gratis), karena `translation_fts` berubah.
+  - Rollback (`corpus:promote --switch-only ihya-v7`) menyembunyikan semua koreksi sampai korpus berikutnya. Revisi di DB app tetap aman. Aturan skema minimum `--switch-only` dicek saat skema korpus naik.
 - **Alternatif yang tidak diusulkan sekarang: overlay langsung** dari D1 app di pembaca.
   - Lebih cepat tayang, tetapi menambah kueri D1 per render dan merusak cache ISR halaman.
   - Pencarian, MCP, dan Jawab tetap memakai teks lama sampai korpus berikutnya.
@@ -92,7 +99,8 @@ Pemilik memutuskan **nama editor ditampilkan**. Nama dan gelar diambil dari daft
 - Nama di label bisa diketuk untuk melihat tanggal koreksi. Tidak ada tautan profil atau kontak.
 - Persetujuan orangnya agar namanya tampil dicatat di TUGAS-PEMILIK sebelum namanya didaftarkan.
 - Label yang sama dipakai di kartu `/cari` dan kartu kutipan Tanya/Maknaz, lewat satu fungsi label bersama. Kartu Tanya hanya membaca status; komponennya tidak diubah selain itu.
-- Ke MCP, `review_status` sudah ada. Ditambah `revised: true`, tanggal, dan `reviewer_name` (nama tampilan terdaftar, sama dengan di situs). Hash, email, atau identitas lain tidak dikirim. Kalimat instruksi MCP (`instructions.ts`) disesuaikan: terjemahan tetap "AI-based", sebagian sudah dikoreksi manusia.
+- Dokumen Jawab tetap memberi label "Terjemahan AI (bisa keliru…)" juga untuk teks yang sudah dikoreksi. Ini tidak keliru, hanya kurang tepat; diperbaiki di sesi Jawab (tindak lanjut, di luar cakupan).
+- Ke MCP, `review_status` sudah ada. Ditambah `revised: true`, tanggal, dan `reviewer_name` (nama tampilan terdaftar, sama dengan di situs). Hash, email, atau identitas lain tidak dikirim. Field baru hanya **tambahan** (klien lama tidak rusak; kontrak ADR-049/050). Persetujuan tampil nama mencakup situs **dan** AI lain lewat MCP; bila ustadz hanya setuju untuk situs, MCP mengirim peran ("ustadz"/"editor") tanpa nama. Kalimat instruksi MCP (`instructions.ts`) disesuaikan: terjemahan tetap "AI-based", sebagian sudah dikoreksi manusia.
 
 ### 5. Peran dan akses
 
@@ -100,7 +108,8 @@ Pemilik memutuskan **nama editor ditampilkan**. Nama dan gelar diambil dari daft
 - **Cara mendaftarkan (pola X07/ADR-070):**
   - Semua masuk lewat aplikasi Access `Surau Tinjau`. Simpanan hanya diterima bila kunci akun (hash issuer + subjek Access) ada di daftar `TRANSLATION_EDITORS` di konfigurasi Worker: kunci → nama tampilan + gelar + apakah ustadz.
   - Menambah orang = PR + ADR, seperti X07.
-  - Kunci seseorang dicatat sesudah ia membuka `/tinjau/terjemahan` pertama kali. Halaman menampilkan "akun Anda belum terdaftar" beserta kodenya, lalu pemilik mendaftarkannya setelah memastikan langsung bahwa itu memang orangnya. Nama yang diketik sendiri tidak pernah dipakai.
+  - Kunci seseorang dicatat sesudah ia membuka `/tinjau/terjemahan` pertama kali. Halaman menampilkan "akun Anda belum terdaftar" beserta kodenya. Orangnya mengirim kode itu ke pemilik lewat jalur yang pemilik kenal (mis. WhatsApp pribadinya), lalu pemilik meminta agent mendaftarkannya. Nama yang diketik sendiri tidak pernah dipakai.
+  - Daftar ini ada di `wrangler.jsonc` (repo publik), sama seperti `TAKHRIJ_USTADZ_KEYS`. Nama memang tampil publik atas keputusan pemilik; kunci adalah hash, bukan rahasia dan bukan email.
   - Bila ustadz yang sama juga peninjau takhrij (`TAKHRIJ_USTADZ_KEYS`), kuncinya cukup dicatat sekali di daftar bersama (dirapikan di ADR).
 - Pemeriksaan peran di server gagal-tertutup, bukan hanya disembunyikan di UI.
 
@@ -109,13 +118,20 @@ Pemilik memutuskan **nama editor ditampilkan**. Nama dan gelar diambil dari daft
 - **Tahap pertama: textarea biasa + validasi + pratinjau.** Tiptap/ProseMirror tidak dipasang. Gaya tampilan diatur kode, jadi tombol format justru tidak diinginkan.
 - Tiptap baru dipertimbangkan bila uji coba menunjukkan editor sering merusak placeholder. Di situ ia berguna untuk menjadikan `⟦QS⟧` dan `(١)` "chip" terkunci, dengan semua tombol format dimatikan. Butuh ADR tersendiri (dependensi baru, ukuran bundel, lisensi).
 
+## Tahapan
+
+Supaya ustadz bisa mulai bekerja secepatnya, sesi dibagi dua. Masing-masing PR sendiri.
+
+- **Tahap 1 · Simpan koreksi** (±1 percakapan): validator bersama, migrasi app `0006`, API, `/tinjau/terjemahan`, daftar koreksi + batalkan di `/admin`, pendaftaran editor. Hasilnya: ustadz sudah bisa mengoreksi dan semua tersimpan, **belum tampil** di situs. Label belum berubah, jadi belum ada klaim apa pun ke pembaca.
+- **Tahap 2 · Tayangkan** (±1–2 percakapan): ekspor, ingest + skema korpus, label pembaca/`/cari`/kartu kutipan, MCP, batch melewati paragraf berevisi, korpus baru atas izin promote.
+
 ## Skema (usulan, dirinci saat sesi)
 
 - DB app, migrasi `0006_translation_revision.sql` (`0005` sudah dipakai `takhrij_review`, X07):
   - `translation_revision` berisi:
     - id, passage_id, base_sha256, source_sha256, text (NULL untuk "sudah benar"), reason;
     - author_key, author_name (nama terdaftar saat itu), created_at;
-    - `kind` `confirmed|revised|reverted`, `status` `active|superseded|stale` (cadangan `proposed|approved|rejected` untuk persetujuan dua orang kelak).
+    - `kind` `confirmed|revised|reverted` (+ `restores_id` untuk pembatalan), `status` `active|superseded` (cadangan `proposed|approved|rejected` untuk persetujuan dua orang kelak; "usang" dihitung, tidak disimpan).
   - `CHECK` pada panjang, jenis, dan status.
   - Indeks per paragraf dan per waktu (daftar "koreksi terbaru" di `/admin`).
   - DB app tidak ikut blue-green korpus (sama seperti `answer_log`).
@@ -144,7 +160,7 @@ Pemilik memutuskan **nama editor ditampilkan**. Nama dan gelar diambil dari daft
 
 ## Langkah
 
-1. Branch `sesi/x08-koreksi-terjemahan`.
+1. Branch `sesi/x08-koreksi-terjemahan`. **Tahap 1** = langkah 2–5 (+ verifikasi langkah 9), PR sendiri. **Tahap 2** = langkah 6–9.
 2. Pindahkan pemeriksa teks murni ke `validateTranslationText` (§1). Lalu migrasi app `0006` + repository bertipe + tes (jenis/status, `CHECK`, revisi berantai, batalkan).
 3. API `/api/review/terjemahan` (GET antrean/paragraf, POST simpan "sudah benar"/perbaikan/batalkan), dengan Access + daftar editor terdaftar di server, batas ukuran, validasi teks (§1), dan konflik versi dasar (409 bila teks dasar berubah sejak dibuka).
 4. UI `/tinjau/terjemahan`:
@@ -162,7 +178,7 @@ Pemilik memutuskan **nama editor ditampilkan**. Nama dan gelar diambil dari daft
 - [ ] `pnpm verify` lolos; tes `validateTranslationText`:
   - placeholder ayat hilang/berubah/ganda → ditolak;
   - penanda catatan kaki yang tidak ada di Arab → ditolak, melengkapi penanda yang ada di Arab → diterima;
-  - huruf Arab → ditolak;
+  - huruf Arab → ditolak, tetapi penanda `(١)` (angka Arab-India) → diterima;
   - `[` atau petik ganda tidak berpasangan → ditolak, kecuali dasar juga tidak berpasangan (peringatan);
   - petik tunggal transliterasi → diterima;
   - tag, `*miring*`, tautan Markdown → ditolak;
@@ -177,18 +193,20 @@ Pemilik memutuskan **nama editor ditampilkan**. Nama dan gelar diambil dari daft
   - simpanan atas teks dasar yang sudah berubah sejak dibuka ditolak 409;
   - dua koreksi berantai sebelum korpus baru: yang kedua berdasar revisi pertama;
   - ekspor hanya memuat revisi aktif terakhir; revisi yang dibatalkan tidak ikut.
-- [ ] Riwayat dan batalkan: setiap simpanan tersimpan; tidak ada `UPDATE` yang menimpa teks revisi (tes repository); batalkan membuat revisi `reverted` dan mengembalikan teks sebelumnya (tes); `/admin` menampilkan koreksi terbaru (tes route).
+- [ ] Riwayat dan batalkan: setiap simpanan tersimpan; tidak ada `UPDATE` yang menimpa teks revisi (tes repository); batalkan membuat revisi `reverted` dan mengembalikan teks **dan nama label** keadaan yang dipulihkan (tes: kembali ke AI → tanpa nama); `/admin` menampilkan koreksi terbaru dan bisa membatalkan semua koreksi satu editor sejak tanggal tertentu (tes route); simpanan ke-201 seorang editor dalam sehari → 429 (tes).
 - [ ] Ekspor + ingest:
   - korpus uji memuat teks revisi untuk paragraf uji;
   - `review_status` dan `reviewer_name` sesuai tabel §2;
   - hash di metadata git cocok;
   - ingest gagal bila file ekspor hilang atau hash berbeda (tes);
-  - revisi dengan `source_sha256` beda atau placeholder ayat yang kini tidak cocok ditandai usang dan tidak dimuat (tes);
+  - revisi dengan `source_sha256` beda atau placeholder ayat yang kini tidak cocok dianggap usang dan tidak dimuat, tanpa menulis ke DB app produksi (tes);
+  - sha256 berkas ekspor tercatat di `meta` korpus (tes);
   - status hanya diterapkan bila hash teks korpus = `base_sha256` (tes: draf AI diganti → label kembali "Terjemahan AI");
   - file metadata git tidak memuat teks (tes skema).
 - [ ] Konsistensi K1: untuk paragraf uji, pembaca, `/api/search` (kata dari teks revisi), dan MCP `read_page` lokal menampilkan teks yang sama (perintah + keluaran dicatat); `eval:retrieval --gate` atas korpus uji tidak turun dari `ihya-v7`.
 - [ ] Batch AI melewati paragraf berevisi (`plan`/`retry` tidak memasukkannya; tes).
-- [ ] Label pembaca, kartu `/cari`, dan kartu kutipan Tanya/Maknaz sesuai tabel §4 lewat satu fungsi label. Gelar "Ust." hanya untuk akun terdaftar sebagai ustadz (tes komponen + tangkapan layar). Kurung siku redup hanya pada teks revisi (tes). MCP `read_page` memuat `review_status` + `revised` + `reviewer_name` tanpa hash/email (tes kontrak).
+- [ ] Tahap 1 bisa di-merge sendiri: koreksi tersimpan di DB app staging lewat `/tinjau/terjemahan`, dan pembaca belum berubah (cek HTML j1/200 sama dengan sebelum).
+- [ ] Label pembaca, kartu `/cari`, dan kartu kutipan Tanya/Maknaz sesuai tabel §4 lewat satu fungsi label. Gelar "Ust." hanya untuk akun terdaftar sebagai ustadz (tes komponen + tangkapan layar). Kurung siku redup hanya pada teks revisi (tes). MCP `read_page` memuat `review_status` + `revised` + `reviewer_name` tanpa hash/email, dan klien yang mengabaikan field baru tetap berfungsi (tes kontrak).
 - [ ] Tidak ada email atau identitas mentah di DB/log (cek skema + `grep` diff); teks Arab di UI tinjau berasal dari DB.
 - [ ] ADR baru, STATUS, LOG, TUGAS-PEMILIK, dan file sesi ini diperbarui.
 - [ ] (Manusia, boleh menyusul) Uji coba ustadz sungguhan: ≥ 10 paragraf dari antrean dikoreksi atau ditandai benar, lalu tayang di produksi lewat korpus berikutnya atas izin promote, dengan label nama.

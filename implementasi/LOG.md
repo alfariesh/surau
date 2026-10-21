@@ -27,6 +27,17 @@ Format entri:
 - Verifikasi: pembacaan kode (`review-auth.ts`, `takhrij-review.ts`, `reviews.ts`, `search-index.ts`, `page.ts`, `documents.ts`); panjang terjemahan dari `ihya-v7` (maks 7.966 karakter, rasio maks 19×); `peninjau` → 0 blocker, 10 perbaikan sudah dimasukkan.
 - Biaya API: –
 - Jawaban pemilik (2026-10-21): "Editor itu ustaz", "Nama ustaz ditampilkan", "gak terlalu sering", "gak perlu approval buat saat ini", no. 6 ikut saran agent (paragraf dulu). Rencana disesuaikan: satu peran editor terdaftar, revisi langsung aktif + batalkan + daftar koreksi di `/admin`, label "dikoreksi {nama}" (gelar Ust. hanya untuk akun ustadz), tayang ±sebulan sekali atau ≥ 50 koreksi.
+- Tinjauan ulang rencana (atas permintaan pemilik), 10 perbaikan:
+  - dua tahap: simpan koreksi dulu, lalu tayangkan;
+  - status usang dihitung, tidak ditulis balik ke DB produksi;
+  - batalkan memulihkan teks + label;
+  - batas harian, dan batalkan massal per editor;
+  - sha256 ekspor di `meta` korpus;
+  - penanda `(١)` lolos cek huruf Arab;
+  - jalur kirim kode pendaftaran;
+  - field MCP hanya tambahan, nama di MCP sesuai persetujuan;
+  - lingkup kartu Tanya diselaraskan;
+  - catatan rollback dan label Jawab.
 - Keputusan: – (ADR menyusul saat X08 dikerjakan)
 
 ## 2026-10-21 · UI · Halaman Tanya sebagai percakapan — selesai (PR #112)
