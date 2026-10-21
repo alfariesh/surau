@@ -5,6 +5,7 @@ import { Breadcrumbs, Card, Typography } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
 
+import { ContinueReading } from "../../../../components/reader/continue-reading";
 import { ArabicInline } from "../../../../components/arabic";
 import { BreadcrumbJsonLd } from "../../../../components/breadcrumb-json-ld";
 import { WorkCover } from "../../../../components/book/work-cover";
@@ -99,6 +100,7 @@ export default async function WorkPage({ params }: Props) {
               </NextLink>
             </div>
           ) : null}
+          <ContinueReading />
         </div>
       </header>
 

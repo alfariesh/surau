@@ -958,7 +958,7 @@ h2.reader-heading-minor {
 
 /* Mode "Berdampingan" (data-tr-layout="side"): Arab kanan, terjemahan kiri, sejajar per paragraf,
  * bila kolom teks cukup lebar (±1280 px layar dengan daftar isi); di kolom sempit tetap di bawah. */
-@container reader-text (width >= 52rem) {
+@container reader-text (width >= 48rem) {
   :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -1094,6 +1094,44 @@ h3.reader-inline-subheading {
     white-space: nowrap;
     padding: 0;
   }
+}
+
+/*
+ * "Lanjutkan membaca" (X04 W5): ruang kartu dipesan sebelum tampil bila browser punya posisi baca
+ * (`data-reading` dari skrip awal), supaya kartu yang muncul sesudah hidrasi tidak menggeser isi.
+ */
+.continue-slot {
+  display: none;
+}
+
+:root[data-reading] .continue-slot {
+  display: block;
+  height: 3.75rem;
+}
+
+.continue-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 100%;
+  max-width: 26rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background-color: var(--surface);
+  outline: none;
+  transition: background-color 0.15s;
+}
+
+@media (hover: hover) {
+  .continue-card:hover {
+    background-color: var(--surface-secondary);
+  }
+}
+
+.continue-card:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* Sorotan hasil Cari: <mark> di kartu hasil; Highlight API (::highlight) di pembaca (?q=). */

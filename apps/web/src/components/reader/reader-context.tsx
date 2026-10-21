@@ -27,6 +27,11 @@ export interface PassageRef {
 interface ReaderContextValue {
   /** Salin sitasi untuk path ini (halaman atau paragraf); origin = situs yang sedang dibuka. */
   copyCitation: (permalink: string) => Promise<void>;
+  /**
+   * Bagikan tautan path ini: lembar bagi bawaan di perangkat sentuh (`navigator.share`), selain itu
+   * salin URL-nya ke papan klip.
+   */
+  shareLink: (permalink: string) => Promise<void>;
   openReport: (passage: PassageRef | null) => void;
 }
 
@@ -73,12 +78,33 @@ export function ReaderProvider({
     [cite],
   );
 
+  const shareLink = useCallback(async (permalink: string) => {
+    const url = new URL(permalink, window.location.origin).href;
+    const touch = window.matchMedia("(pointer: coarse)").matches;
+    if (touch && typeof navigator.share === "function") {
+      try {
+        await navigator.share({ url });
+        return;
+      } catch (error) {
+        // Dibatalkan pengguna: selesai. Gagal karena hal lain: salin tautannya saja.
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+    try {
+      await copyRich(url, `<a href="${url}">${url}</a>`);
+      toast.success(t.linkCopied, { description: t.linkCopiedDescription });
+    } catch {
+      toast.danger(t.copyFailed, { description: t.copyFailedDescription });
+    }
+  }, []);
+
   const value = useMemo<ReaderContextValue>(
     () => ({
       copyCitation,
+      shareLink,
       openReport: (passage) => setReport((r) => ({ open: true, passage, round: r.round + 1 })),
     }),
-    [copyCitation],
+    [copyCitation, shareLink],
   );
 
   return (
@@ -87,7 +113,8 @@ export function ReaderProvider({
       <FeedbackDialog
         key={report.round}
         isOpen={report.open}
-        pagePath={pagePath}
+        // Paragraf halaman sambungan (gulir bersambung) dilaporkan dengan path halamannya sendiri.
+        pagePath={report.passage ? report.passage.permalink.split("#")[0]! : pagePath}
         passage={report.passage}
         onOpenChange={(open) => setReport((r) => ({ ...r, open }))}
       />

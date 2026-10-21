@@ -280,7 +280,11 @@ export function PageText({
 
   return (
     <>
-      <section aria-label={label} className="reader-text flex flex-col">
+      <section
+        aria-label={label}
+        className="reader-text flex flex-col"
+        data-page={`${model.juz}/${model.pageNo}`}
+      >
         {notice}
         {model.unplaced.map((nodeId) => (
           <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />

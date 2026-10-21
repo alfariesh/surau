@@ -12,6 +12,7 @@ import { QuranNotice } from "../../../../../../components/reader/quran-notice";
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
 import { ReaderCompactHeader } from "../../../../../../components/reader/reader-compact-header";
 import { ReaderEnhancements } from "../../../../../../components/reader/reader-enhancements";
+import { ReadingTracker } from "../../../../../../components/reader/reading-tracker";
 import {
   ReaderToolbar,
   ReportPageButton,
@@ -134,6 +135,7 @@ export default async function ReaderPage({ params }: Props) {
           <ReaderCompactHeader bab={bab} juz={juz} page={pageNo} sample={sample} />
 
           <ReaderEnhancements />
+          <ReadingTracker title={workTitle} work={segment} />
           <PageText model={model} footNote={footNote} notice={model.anyAi ? <AiNotice /> : null} />
 
           {/* Navigasi halaman hanya di akhir halaman (sesudah catatan kaki), seperti membalik kitab. */}

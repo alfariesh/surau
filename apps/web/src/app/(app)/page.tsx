@@ -8,6 +8,7 @@ import { listWorks } from "@surau/core";
 
 import { ArabicText } from "../../components/arabic";
 import { ArtEmbed } from "../../components/art/art-embed";
+import { ContinueReading } from "../../components/reader/continue-reading";
 import { WorkShelf } from "../../components/book/work-shelf";
 import { BASMALAH } from "../../content/basmalah";
 import { id, SOURCE_URL } from "../../i18n/id";
@@ -75,6 +76,7 @@ export default async function HomePage() {
               <span className="sr-only"> {id.common.newTab}</span>
             </a>
           </div>
+          <ContinueReading className="w-full" />
         </section>
         {works.length > 0 ? <WorkShelf label={t.shelfLabel} works={works} /> : null}
       </div>

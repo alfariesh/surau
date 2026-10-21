@@ -16,7 +16,7 @@ export const privacyText = {
   ],
   readHeading: "Membaca dan Cari",
   readText:
-    "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari tidak disimpan di database Surau. Supaya pencarian yang sama cepat, hasilnya disimpan sementara di cache Cloudflare paling lama 7 hari dalam bentuk kata yang sudah dinormalkan, tanpa keterangan siapa yang mencari. Log teknis mencatat alamat halaman tanpa kata yang dicari.",
+    "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari tidak disimpan di database Surau. Supaya pencarian yang sama cepat, hasilnya disimpan sementara di cache Cloudflare paling lama 7 hari dalam bentuk kata yang sudah dinormalkan, tanpa keterangan siapa yang mencari. Log teknis mencatat alamat halaman tanpa kata yang dicari. Pilihan tampilan dan posisi baca terakhir (untuk “Lanjutkan membaca”) hanya disimpan di browser Anda (localStorage) dan tidak dikirim ke Surau.",
   askHeading: "Maknaz (asisten AI)",
   askNotice: "Maknaz belum dibuka untuk umum. Bagian ini berlaku saat fitur tersebut dibuka.",
   ask: [
@@ -34,6 +34,11 @@ export const privacyText = {
   retention: [
     { data: "Token Turnstile", where: "Tidak disimpan", how: "Sekali pakai, berlaku 5 menit" },
     { data: "Cookie surau_anon", where: "Browser Anda", how: "24 jam" },
+    {
+      data: "Pilihan tampilan dan posisi baca terakhir",
+      where: "Browser Anda (localStorage)",
+      how: "Sampai Anda menghapus data situs",
+    },
     { data: "Kuota harian (kode acak)", where: "Database Surau", how: "7 hari" },
     { data: "Cache jawaban (tanpa teks pertanyaan)", where: "Database Surau", how: "30 hari" },
     {

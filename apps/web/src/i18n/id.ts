@@ -388,6 +388,10 @@ export const id = {
     passageActions: "Aksi paragraf",
     copyPassage: "Salin sitasi paragraf",
     sharePassage: "Bagikan tautan paragraf",
+    // Posisi baca terakhir di browser ini (X04 W5).
+    continueReading: "Lanjutkan membaca",
+    continueWhere: (title: string, juz: number, page: number) =>
+      `${title} · Juz ${juz} · Halaman ${page}`,
     linkCopied: "Tautan disalin",
     linkCopiedDescription: "Tautan paragraf sudah ada di papan klip.",
     reportPassage: "Laporkan kesalahan di paragraf ini",

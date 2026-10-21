@@ -6,6 +6,7 @@ import { listWorks } from "@surau/core";
 import NextLink from "next/link";
 
 import { ArabicInline } from "../../../components/arabic";
+import { ContinueReading } from "../../../components/reader/continue-reading";
 import { WorkCover } from "../../../components/book/work-cover";
 import { id } from "../../../i18n/id";
 import { PAGE_FRAME } from "../../../lib/layout";
@@ -34,6 +35,7 @@ export default async function KitabPage() {
       <header className="flex max-w-2xl flex-col gap-3">
         <PageTitle>{t.listHeading}</PageTitle>
         <PageLead>{t.listLead}</PageLead>
+        <ContinueReading className="w-full" />
       </header>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {works.map((work) => {
