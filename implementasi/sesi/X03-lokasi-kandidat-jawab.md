@@ -27,7 +27,7 @@ Syarat R4 "lokasi benar ≥ 90%" belum terpenuhi: eval publik S19/S21 memberi lo
 - [x] Biaya per jawaban tetap ±US$0,002–0,003 (US$0,0027 rata-rata)
 - [x] `pnpm verify` lolos (format, lint, typecheck, tes, build)
 - [x] STATUS, LOG, dan file sesi ini sudah diperbarui
-- [ ] PR di-merge (squash) setelah CI hijau — menunggu (file ini ikut PR itu; dicentang sesudah merge)
+- [x] PR di-merge (squash) setelah CI hijau: PR #102, CI 4/4 lolos (1 dilewati), merge 2026-10-21 `d3b85b3`
 
 ## Di luar cakupan
 
