@@ -236,7 +236,6 @@ function DecisionForm({
             return;
           }
           if (!response.ok) throw new Error("save_failed");
-          setStatus(t.saved);
           onSaved();
         } catch {
           setStatus(t.saveFailed);
@@ -336,7 +335,9 @@ export function TakhrijReviewClient({ initial }: { initial: TakhrijQueue }) {
       });
     return () => controller.abort();
   }, [selected, version]);
-  const load = async (filter: QueueFilter, offset: number, keepIndex = 0) => {
+  // Pesan sesudah simpan di tingkat daftar: formulir butir lama sudah diganti butir berikutnya.
+  const [notice, setNotice] = useState("");
+  const load = async (filter: QueueFilter, offset: number, keepIndex = 0): Promise<void> => {
     setError("");
     try {
       const response = await fetch(`/api/review/takhrij?filter=${filter}&offset=${offset}`, {
@@ -344,6 +345,9 @@ export function TakhrijReviewClient({ initial }: { initial: TakhrijQueue }) {
       });
       if (!response.ok) throw new Error("load_failed");
       const data = (await response.json()) as TakhrijQueue;
+      // Butir terakhir halaman ini baru saja keluar dari daftar: mundur satu halaman.
+      if (data.items.length === 0 && offset > 0)
+        return load(filter, Math.max(0, offset - data.page), data.page - 1);
       setQueue(data);
       const nextItem = data.items[Math.min(keepIndex, data.items.length - 1)];
       setItem(null);
@@ -357,7 +361,11 @@ export function TakhrijReviewClient({ initial }: { initial: TakhrijQueue }) {
   return (
     <div className="space-y-8">
       <details className="bg-surface border-border rounded-2xl border p-4">
-        <summary className="cursor-pointer text-sm font-medium">{t.howTitle}</summary>
+        <summary className="cursor-pointer">
+          <Typography type="body-sm" weight="medium" className="inline">
+            {t.howTitle}
+          </Typography>
+        </summary>
         <ul className="mt-3 list-disc space-y-2 ps-5">
           {t.how.map((line) => (
             <li key={line}>
@@ -366,6 +374,11 @@ export function TakhrijReviewClient({ initial }: { initial: TakhrijQueue }) {
           ))}
         </ul>
       </details>
+      {queue.ustadz_account ? null : (
+        <Typography type="body-sm" className="text-warning" role="note">
+          {t.notUstadz}
+        </Typography>
+      )}
       <Typography type="body-sm" color="muted">
         {t.progress(queue.counts.done, total)}
       </Typography>
@@ -385,6 +398,7 @@ export function TakhrijReviewClient({ initial }: { initial: TakhrijQueue }) {
             setSelected(Number(id));
             setItem(null);
             setError("");
+            setNotice("");
           }}
           options={queue.items.map(
             (i) => [String(i.passage_id), t.itemOption(i.location, i.cites, i.mixed)] as const,
@@ -394,7 +408,7 @@ export function TakhrijReviewClient({ initial }: { initial: TakhrijQueue }) {
           <Button
             variant="secondary"
             isDisabled={queue.offset === 0}
-            onPress={() => void load(queue.filter, Math.max(0, queue.offset - 20))}
+            onPress={() => void load(queue.filter, Math.max(0, queue.offset - queue.page))}
           >
             {t.previous}
           </Button>
@@ -408,6 +422,11 @@ export function TakhrijReviewClient({ initial }: { initial: TakhrijQueue }) {
         </div>
       </div>
       {error && <Typography role="alert">{error}</Typography>}
+      {notice ? (
+        <output className="block">
+          <Typography type="body-sm">{notice}</Typography>
+        </output>
+      ) : null}
       {!selected && <Typography>{t.empty}</Typography>}
       {selected && !item && !error ? <output>{t.loading}</output> : null}
       {item && (
@@ -420,6 +439,7 @@ export function TakhrijReviewClient({ initial }: { initial: TakhrijQueue }) {
               name={name}
               onName={setName}
               onSaved={() => {
+                setNotice(t.saved);
                 const index = queue.items.findIndex((i) => i.passage_id === item.passage_id);
                 void load(queue.filter, queue.offset, Math.max(0, index));
               }}

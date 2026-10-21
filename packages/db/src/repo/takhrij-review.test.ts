@@ -78,20 +78,32 @@ test("koreksi wajib berisi jenis istilah; jenis lain tidak boleh", async () => {
 
 test("perubahan tinjauan sesudah waktu cache terdeteksi", async () => {
   await saveTakhrijReview(db, { ...base, updated_at: later });
-  expect(await takhrijReviewsChangedSince(db, [base.passage_id], now)).toBe(true);
-  expect(await takhrijReviewsChangedSince(db, [base.passage_id], later)).toBe(false);
-  expect(await takhrijReviewsChangedSince(db, [123], now)).toBe(false);
-  expect(await takhrijReviewsChangedSince(db, [], now)).toBe(false);
+  const keys = new Set([base.reviewer_key]);
+  expect(await takhrijReviewsChangedSince(db, [base.passage_id], now, keys)).toBe(true);
+  expect(await takhrijReviewsChangedSince(db, [base.passage_id], later, keys)).toBe(false);
+  expect(await takhrijReviewsChangedSince(db, [123], now, keys)).toBe(false);
+  expect(await takhrijReviewsChangedSince(db, [], now, keys)).toBe(false);
+  // Tinjauan penilai yang tidak terdaftar (uji) tidak membuat cache basi.
+  expect(
+    await takhrijReviewsChangedSince(db, [base.passage_id], now, new Set(["f".repeat(64)])),
+  ).toBe(false);
+  expect(await takhrijReviewsChangedSince(db, [base.passage_id], now, new Set())).toBe(false);
 });
 
-test("hitungan kutipan takhrij dari answer_log dan answer_cache (tanpa contoh agent)", async () => {
+test("hitungan kutipan takhrij dari answer_log publik dan answer_cache (tanpa contoh agent/holdout)", async () => {
   const hadith = (ids: number[]) =>
     ids.map((id) => ({
       passage_id: 1,
       footnote: { passage_id: id, char_start: 0, char_end: 5 },
       status: "x",
     }));
-  const row = (id: string, model: string, ids: number[], expires = "2027-10-21T00:00:00.000Z") => ({
+  const row = (
+    id: string,
+    model: string,
+    ids: number[],
+    expires = "2027-10-21T00:00:00.000Z",
+    priv: 0 | 1 = 0,
+  ) => ({
     id,
     run_id: "uji",
     question_id: id.slice(-4),
@@ -100,7 +112,7 @@ test("hitungan kutipan takhrij dari answer_log dan answer_cache (tanpa contoh ag
     corpus_version: "fixture",
     prompt_version: "p",
     model,
-    private: 0 as const,
+    private: priv,
     question_json: "{}",
     // Takhrij yang sama dua kali dalam satu jawaban dihitung sekali.
     answer_json: JSON.stringify({ hadith: hadith(ids) }),
@@ -111,6 +123,7 @@ test("hitungan kutipan takhrij dari answer_log dan answer_cache (tanpa contoh ag
   await insertAnswerLog(db, row("uji_j002", "claude-haiku-5-5", [11]));
   await insertAnswerLog(db, row("uji_j003", "agent-draft", [11, 13]));
   await insertAnswerLog(db, row("uji_j004", "claude-haiku-5-5", [14], "2026-10-20T00:00:00.000Z"));
+  await insertAnswerLog(db, row("uji_p001", "claude-haiku-5-5", [11, 15], undefined, 1));
   await putAnswerCache(db, {
     key: "d".repeat(64),
     corpus_version: "fixture",

@@ -222,10 +222,14 @@ export interface JawabDeps {
    */
   savedRoute?: Route | null;
   /**
-   * Tinjauan label takhrij (X07) untuk catatan kaki yang disitasi, dari DB app (`surau-api`). Tanpa
-   * ini (eval, tes) label kode dipakai apa adanya. Galat pemuatan = label kode ("belum ditinjau").
+   * Tinjauan label takhrij (X07) untuk catatan kaki yang disitasi, dari DB app (`surau-api`), dan
+   * kunci akun ustadz peninjau terdaftar. Tanpa ini (eval, tes) label kode dipakai apa adanya.
+   * Galat pemuatan = label kode ("belum ditinjau").
    */
-  takhrijReviews?: (footnoteIds: number[]) => Promise<TakhrijReview[]>;
+  takhrijReviews?: {
+    load: (footnoteIds: number[]) => Promise<TakhrijReview[]>;
+    ustadzKeys: ReadonlySet<string>;
+  };
 }
 
 // Daftar isi per versi korpus disimpan di isolate: sama untuk semua pertanyaan (313 node Ihya).
@@ -673,8 +677,14 @@ async function loadReviews(
         }),
     ).values(),
   ];
-  if (deps.takhrijReviews === undefined || footnotes.length === 0) return new Map();
-  return takhrijReviewsFor(footnotes, await deps.takhrijReviews(footnotes.map((f) => f.id)));
+  const source = deps.takhrijReviews;
+  if (source === undefined || source.ustadzKeys.size === 0 || footnotes.length === 0)
+    return new Map();
+  return takhrijReviewsFor(
+    footnotes,
+    await source.load(footnotes.map((f) => f.id)),
+    source.ustadzKeys,
+  );
 }
 
 /** Batas putaran pemeriksaan ulang; bila belum stabil, jawaban tidak ditampilkan (fallback). */

@@ -597,13 +597,14 @@ describe("klaim hadits", () => {
       [2, { decision: "corrected" as const, kinds: ["mursal" as const], reviewed_at: "x" }],
     ]);
     const checked = hadithCheck(blocks, at(0, FOOT.length), passages, corrected);
+    // Jenis tambahan penilai tidak pernah disebut sebagai isi takhrij.
     expect(checked.blocks.map((b) => b.text).join("")).toBe(
-      "Status hadits: takhrij menyebut: mursal (hadits di Ihya j. 1, h. 55).",
+      "Status hadits: menurut peninjau: mursal (hadits di Ihya j. 1, h. 55).",
     );
     expect(checked.claims).toMatchObject([
       {
         label: "ustadz_corrected",
-        status: "takhrij menyebut: mursal",
+        status: "menurut peninjau: mursal",
         terms: [],
         added_terms: [{ kind: "mursal", gloss: "mursal" }],
       },
@@ -614,10 +615,23 @@ describe("klaim hadits", () => {
     expect(hadithCheck(blocks, at(0, FOOT.length), passages, approved).claims).toMatchObject([
       { label: "ustadz_reviewed", status: LABEL },
     ]);
-    // Bagian sitasi tidak memuat istilah yang ditinjau ("وضعفه"): label kode bagian itu.
+    // Sitasi sebagian: tinjauan diterapkan pada istilah di bagian itu ("وضعفه" di luar bagian).
     expect(hadithCheck(blocks, at(0, 4), passages, approved).claims).toMatchObject([
-      { label: "rule_extracted", added_terms: [] },
+      {
+        label: "ustadz_reviewed",
+        status: "bagian takhrij yang dikutip tidak memuat istilah penilaian",
+      },
     ]);
+    // Istilah yang ditolak penilai tidak muncul lagi di sitasi sebagian.
+    const rejected = new Map([
+      [2, { decision: "corrected" as const, kinds: [], reviewed_at: "x" }],
+    ]);
+    expect(hadithCheck(blocks, at(4, FOOT.length), passages, rejected).claims).toMatchObject([
+      { label: "ustadz_corrected", terms: [], added_terms: [] },
+    ]);
+    expect(
+      hadithCheck(blocks, at(4, FOOT.length), passages, rejected).claims[0]?.status,
+    ).not.toContain("lemah");
     // Tanpa tinjauan = perilaku X06.
     expect(hadithCheck(blocks, at(0, FOOT.length), passages).claims).toMatchObject([
       { label: "rule_extracted", status: LABEL, added_terms: [] },

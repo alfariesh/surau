@@ -1,4 +1,4 @@
-import { TAKHRIJ_TERMS_VERSION } from "@surau/core";
+import { TAKHRIJ_TERMS_VERSION, parseUstadzKeys } from "@surau/core";
 import { getTakhrijReviews } from "@surau/db";
 import { getEnv, readerEnabled } from "../../../lib/cloudflare";
 import { handleKutipan } from "../../../lib/kutipan-handler";
@@ -18,6 +18,9 @@ export async function GET(request: Request): Promise<Response> {
     ip: request.headers.get("cf-connecting-ip") ?? (dev ? "127.0.0.1" : null),
     limit: async (key) => (await env.SEARCH_LIMITER.limit({ key })).success,
     limitGlobal: async () => (await env.SEARCH_GLOBAL_LIMITER.limit({ key: "global" })).success,
-    reviews: (ids) => getTakhrijReviews(env.APP_DB, ids, TAKHRIJ_TERMS_VERSION),
+    reviews: {
+      load: (ids) => getTakhrijReviews(env.APP_DB, ids, TAKHRIJ_TERMS_VERSION),
+      ustadzKeys: parseUstadzKeys(env.TAKHRIJ_USTADZ_KEYS),
+    },
   });
 }

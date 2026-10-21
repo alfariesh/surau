@@ -32,6 +32,9 @@
     // /admin + /api/admin (S20): aplikasi Access `Surau Admin` (T-14), AUD dibaca dari parameter
     // `kid` redirect login Access 2026-10-20. Token aplikasi Tinjau TIDAK berlaku di sini.
     "ADMIN_ACCESS_AUD": "a7f9052cd2ce712ad14811208826bc2f5e4af04de1cc5f261949e79a851d65a4",
+    // Kunci akun ustadz peninjau label takhrij (X07, ADR-070), sama dengan apps/api. Kosong =
+    // tinjauan tersimpan tetapi belum dipakai (Jawab, tanda kelemahan /api/kutipan).
+    "TAKHRIJ_USTADZ_KEYS": "",
     "READER_ENABLED": "1",
     // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
     // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
@@ -151,6 +154,7 @@
       "REVIEW_ACCESS_AUD": "e123af2da26c3ef34fad7be2ce79480a6232edd72bf2c16d076030563f638bc4",
       // Wildcard Preview `*-surau-web…/admin` anggota aplikasi `Surau Admin` yang sama (T-14).
       "ADMIN_ACCESS_AUD": "a7f9052cd2ce712ad14811208826bc2f5e4af04de1cc5f261949e79a851d65a4",
+      "TAKHRIJ_USTADZ_KEYS": "",
       "READER_ENABLED": "1",
       "SEARCH_TIMING_DETAIL": "1",
       // Tanpa cache hasil: korpus staging dimuat ulang tanpa versi baru (latensi diukur tanpa cache).

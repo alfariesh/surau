@@ -29,7 +29,8 @@ Format entri:
   - `pnpm verify` lolos.
 - Biaya API: –
 - Keputusan: ADR-070
-- Catatan untuk sesi berikutnya: login nyata dan tinjauan Anas tetap T-24 (butir 5 baru). Prioritas "paling sering dikutip" di produksi butuh data (`answer_cache` setelah Jawab menyala, atau arsip eval dimuat ke `answer_log` atas aba-aba pemilik). Label di MCP `get_hadith_takhrij` belum.
+- PR #108 ter-merge, deploy produksi sukses (migrasi 0005 di `surau-app` dan staging; `/tinjau/takhrij` produksi dialihkan ke login Access). Peninjau (sesudah merge): 0 blocker, 5 penting, 5 kecil → PR lanjutan: kunci akun ustadz terdaftar (`TAKHRIJ_USTADZ_KEYS`) + nama sebagai gerbang, jenis tambahan disebut "menurut peninjau", istilah yang ditolak tidak muncul lagi di sitasi sebagian, sidik label ikut arti + teks, holdout tidak ikut prioritas, huruf Arab di nama/catatan ditolak, galat dicatat, paginasi, karakter U+202E literal di tes diganti escape. Label otomatis tetap identik atas 13.194 kombinasi.
+- Catatan untuk sesi berikutnya: login nyata dan tinjauan Anas tetap T-24 (butir 5 baru); daftarkan kunci akunnya sesudah keputusan pertama. Prioritas "paling sering dikutip" di produksi butuh data (`answer_cache` setelah Jawab menyala, atau arsip eval dimuat ke `answer_log` atas aba-aba pemilik). Label di MCP `get_hadith_takhrij` belum.
 
 ## 2026-10-21 · X06 · Sisipan: status hadits dari label istilah takhrij — selesai
 
