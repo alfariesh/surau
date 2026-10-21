@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-21 · UI · Halaman Tanya sebagai percakapan — sebagian (belum di-commit, menunggu pemilik)
+
+- Dikerjakan:
+  - `/tanya` menjadi layar chat (ADR-073; orb "siap" Hilal dan "selesai" Segel): gelembung pertanyaan + balasan Surau per giliran, komposer `PromptInput` menempel di bawah, contoh pertanyaan `PromptSuggestion`, aksi salin/laporkan `ChatMessageActions`, dan riwayat giliran di memori tab. Setiap pertanyaan tetap dijawab terpisah, dan UI mengatakannya.
+  - Jawaban: kartu "Jawaban" diganti badan pesan, jangkar unik per giliran, dan judul disesuaikan (h2 tersembunyi, h3).
+- Verifikasi:
+  - Tes unit Tanya (jangkar per giliran, teks salin) dan tes CSS HeroUI lolos.
+  - Pratinjau browser lokal dengan `/api/jawab` + `/api/kutipan` tiruan (kutipan dari DB lokal; halaman dan fixture sementara dihapus, tidak di-commit): dua giliran berurutan, gulir ke awal jawaban tanpa menggulir halaman, fokus ke komposer setelah memilih contoh, formulir laporan, keadaan tutup (komposer nonaktif + arahan Cari), mode gelap, dan ponsel 375 px tanpa gulir samping.
+  - Peninjau: 0 blocker, 5 penting (ref TextArea menimpa ref HeroUI, fokus hilang saat kotak dikunci, tombol kirim aktif saat Jawab mati, teks salin tanpa label AI, klaim e2e belum dibuktikan) ditutup; temuan kecil sebagian ditutup.
+  - e2e `tanya.spec.ts` terhadap dev server cabang ini (`BASE_URL=http://localhost:3017`): tes halaman Tanya lolos (desktop + ponsel). Dua tes lain di berkas yang sama (privasi/transparansi, API kutipan) gagal karena D1 lokal worktree kosong (`/transparansi` dan `/api/kutipan` 500), dan berkas keduanya tidak diubah cabang ini; akan diuji CI Preview.
+  - Orb `rest` (Hilal) dan `done` (Segel) dicek di galeri sementara (160/64/20 px) dan di keadaan kosong.
+  - Keadaan kosong rata tengah + chip contoh + "?" (HoverCard muncul saat hover) dan transisi hilal → orb balasan pertama dicek di browser (animasi diperlambat untuk dilihat di tengah gerak; animasi `::view-transition-group(tanya-orb)` tercatat jalan), ponsel 375 px tanpa gulir samping.
+  - e2e `tanya.spec.ts` (tes halaman Tanya) dan `a11y.spec.ts` untuk `/tanya` (tema terang + gelap, urutan judul) lolos, desktop + ponsel.
+- Biaya API: –
+- Keputusan: ADR-073
+
 ## 2026-10-21 · UI · Orb tahap di halaman Tanya — selesai
 
 - Dikerjakan:

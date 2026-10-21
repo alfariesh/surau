@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import type { JawabStage } from "../../lib/tanya/model";
-import type { OrbDot, OrbRole, OrbShape } from "./orb-frames";
+import type { OrbDot, OrbRole, OrbShape, OrbState } from "./orb-frames";
 import { REST_TIME, STAGE_SHAPE, orbFrame } from "./orb-frames";
 
 // Orb tahap Tanya (ADR-072): satu orb yang berganti bentuk per tahap Jawab, dengan peralihan silang
@@ -48,7 +47,16 @@ function drawDots(
   }
 }
 
-export function TanyaOrb({ stage, size = 40 }: { stage: JawabStage; size?: number }) {
+export function TanyaOrb({
+  stage,
+  size = 40,
+  enterFrom,
+}: {
+  stage: OrbState;
+  size?: number;
+  /** Mulai dari bentuk keadaan lain lalu beralih (mis. hilal yang "terbang" ke balasan pertama). */
+  enterFrom?: OrbState;
+}) {
   const ref = useRef<HTMLCanvasElement | null>(null);
   const shape = STAGE_SHAPE[stage] ?? "sathr";
   // Peralihan dibaca tiap bingkai lewat ref, jadi pergantian tahap tidak memulai ulang loop.
@@ -59,7 +67,13 @@ export function TanyaOrb({ stage, size = 40 }: { stage: JawabStage; size?: numbe
     prev: OrbShape | null;
     prevSince: number;
     prevAlpha: number;
-  }>({ shape, since: -1, prev: null, prevSince: 0, prevAlpha: 1 });
+  }>({
+    shape: enterFrom ? (STAGE_SHAPE[enterFrom] ?? shape) : shape,
+    since: -1,
+    prev: null,
+    prevSince: 0,
+    prevAlpha: 1,
+  });
   const redraw = useRef<() => void>(() => {});
 
   useEffect(() => {

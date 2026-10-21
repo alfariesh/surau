@@ -15,6 +15,24 @@ export const tanyaText = {
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
   tooShort: "Tulis pertanyaan minimal 3 huruf.",
   challenge: "Memeriksa bahwa Anda bukan program otomatis…",
+  composerPlaceholder: "Tanyakan isi Ihya' 'Ulum ad-Din…",
+  suggestions: [
+    "Apa kata al-Ghazali tentang sabar?",
+    "Bagaimana adab menuntut ilmu menurut Ihya?",
+    "Apa keutamaan ikhlas dalam beramal?",
+    "Apa yang dimaksud dengan tawakal?",
+  ],
+  separate:
+    "Setiap pertanyaan dijawab terpisah: jawaban sebelumnya tidak ikut dibaca, jadi tulis pertanyaan lengkap.",
+  newChat: "Percakapan baru",
+  noticeShort: "Bukan fatwa · tiap pertanyaan dijawab terpisah",
+  noticeMore: "Tentang jawaban Surau",
+  copy: "Salin jawaban",
+  copyAttribution:
+    "Disusun AI oleh Surau dari Ihya' 'Ulum ad-Din; bukan fatwa. Periksa kutipannya di tautan sumber.",
+  copyUncited: "Kalimat tanpa nomor [n] tidak didukung kutipan langsung.",
+  copied: "Jawaban disalin.",
+  copyFailed: "Jawaban tidak bisa disalin.",
   stages: {
     route: "Memilih bagian kitab yang relevan…",
     retrieve: "Mengumpulkan paragraf kitab…",

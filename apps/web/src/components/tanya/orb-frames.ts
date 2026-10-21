@@ -7,7 +7,9 @@
 import type { JawabStage } from "../../lib/tanya/model";
 
 export type OrbRole = "ink" | "accent" | "gold";
-export type OrbShape = "sathr" | "himpun" | "khatam" | "untai" | "anyam";
+export type OrbShape = "hilal" | "sathr" | "himpun" | "khatam" | "untai" | "anyam" | "segel";
+/** Keadaan orb: tahap Jawab, ditambah `rest` (siap, belum ada pertanyaan) dan `done` (jawaban selesai). */
+export type OrbState = JawabStage | "rest" | "done";
 
 export interface OrbDot {
   x: number;
@@ -18,8 +20,10 @@ export interface OrbDot {
   role: OrbRole;
 }
 
-/** Tahap Jawab → bentuk orb. `retry` (model lain) memakai anyaman dua helai. */
-export const STAGE_SHAPE: Record<JawabStage, OrbShape> = {
+/** Keadaan → bentuk orb. `retry` (model lain) memakai anyaman dua helai. */
+export const STAGE_SHAPE: Record<OrbState, OrbShape> = {
+  rest: "hilal",
+  done: "segel",
   route: "sathr",
   retrieve: "himpun",
   answer: "khatam",
@@ -39,6 +43,8 @@ export const STAGE_TOTAL = 4;
 
 /** Waktu (detik) untuk bingkai diam saat `prefers-reduced-motion`: bentuk paling terbaca. */
 export const REST_TIME: Record<OrbShape, number> = {
+  hilal: 1.5,
+  segel: 0,
   sathr: 1.4,
   himpun: 1.9,
   khatam: 2.6,
@@ -50,6 +56,29 @@ const TAU = Math.PI * 2;
 const smooth = (x: number) => x * x * (3 - 2 * x);
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const frac = (x: number) => x - Math.floor(x);
+
+type Path = (u: number) => [number, number];
+
+/** Garis tertutup lewat titik-titik → titik pada pecahan panjang `u` (0..1), jarak antartitik rata. */
+function polyPath(pts: ReadonlyArray<readonly [number, number]>): Path {
+  const len = pts.map((a, j) => {
+    const b = pts[(j + 1) % pts.length]!;
+    return Math.hypot(b[0] - a[0], b[1] - a[1]);
+  });
+  const total = len.reduce((sum, l) => sum + l, 0);
+  return (u) => {
+    let rest = frac(u) * total;
+    let j = 0;
+    while (j < pts.length - 1 && rest > len[j]!) {
+      rest -= len[j]!;
+      j++;
+    }
+    const a = pts[j]!;
+    const b = pts[(j + 1) % pts.length]!;
+    const q = len[j] ? rest / len[j]! : 0;
+    return [a[0] + (b[0] - a[0]) * q, a[1] + (b[1] - a[1]) * q];
+  };
+}
 
 // Sathr (baris): garis pindai menyapu baris-baris titik dari kanan ke kiri, seperti arah baca Arab;
 // satu baris (bergantian per putaran) tetap menyala sesudah dilewati = bagian kitab yang dipilih.
@@ -217,7 +246,74 @@ function anyam(t: number): OrbDot[] {
   return dots.sort((p, q) => p.z - q.z).map(({ z: _z, ...d }) => d);
 }
 
-const SHAPES: Record<OrbShape, (t: number) => OrbDot[]> = { sathr, himpun, khatam, untai, anyam };
+const SHAPES: Record<OrbShape, (t: number) => OrbDot[]> = {
+  hilal,
+  sathr,
+  himpun,
+  khatam,
+  untai,
+  anyam,
+  segel,
+};
+
+// Hilal (siap): garis titik bulan sabit muda yang "bernapas" pelan (sedikit menebal dan menipis),
+// dengan kilau Zaitun yang menyusuri lengkung luarnya. Tanda awal: siap menerima pertanyaan.
+const HILAL_R = 0.3;
+const HILAL_r = 0.26;
+function hilalPath(dx: number): Path {
+  // Titik potong lingkaran luar (pusat 0,0) dan lingkaran dalam (pusat dx,0).
+  const ix = (HILAL_R ** 2 - HILAL_r ** 2 + dx ** 2) / (2 * dx);
+  const iy = Math.sqrt(Math.max(0, HILAL_R ** 2 - ix ** 2));
+  const t0 = Math.atan2(iy, ix);
+  const p0 = Math.atan2(iy, ix - dx);
+  const pts: Array<[number, number]> = [];
+  const steps = 48;
+  // Lengkung luar: dari potongan atas memutar lewat sisi kiri ke potongan bawah.
+  for (let i = 0; i <= steps; i++) {
+    const a = t0 + ((TAU - 2 * t0) * i) / steps;
+    pts.push([Math.cos(a) * HILAL_R, Math.sin(a) * HILAL_R]);
+  }
+  // Lengkung dalam: dari potongan bawah kembali ke atas, juga lewat sisi kiri.
+  for (let i = 1; i < steps; i++) {
+    const a = TAU - p0 - ((TAU - 2 * p0) * i) / steps;
+    pts.push([dx + Math.cos(a) * HILAL_r, Math.sin(a) * HILAL_r]);
+  }
+  return polyPath(pts);
+}
+
+function hilal(t: number): OrbDot[] {
+  const n = 30;
+  const dx = 0.13 + 0.025 * Math.sin((t / 6) * TAU);
+  const path = hilalPath(dx);
+  const tilt = -0.45;
+  const glowAt = 0.08 + 0.42 * (0.5 + 0.5 * Math.sin((t / 4) * TAU));
+  const dots: OrbDot[] = [];
+  for (let i = 0; i < n; i++) {
+    const u = i / n;
+    const [px, py] = path(u);
+    const x = px + 0.06;
+    const glow = Math.exp(-(((u - glowAt) / 0.09) ** 2));
+    dots.push({
+      x: x * Math.cos(tilt) - py * Math.sin(tilt),
+      y: x * Math.sin(tilt) + py * Math.cos(tilt),
+      r: 0.028 + glow * 0.01,
+      a: 0.45 + glow * 0.55,
+      role: glow > 0.45 ? "accent" : "ink",
+    });
+  }
+  return dots;
+}
+
+// Segel (selesai): bintang delapan utuh dan diam dengan pusat emas; tanda tangan kecil di bawah jawaban.
+function segel(_t: number): OrbDot[] {
+  const n = 24;
+  const dots: OrbDot[] = Array.from({ length: n }, (_, i) => {
+    const [x, y] = starPoint(i / n);
+    return { x, y, r: 0.03, a: 0.7, role: "ink" as const };
+  });
+  dots.push({ x: 0, y: 0, r: 0.05, a: 0.95, role: "gold" });
+  return dots;
+}
 
 // Bentuk digambar di lingkaran ±0,35; diperbesar supaya mengisi kanvas kecil tanpa terpotong.
 const SPREAD = 1.15;

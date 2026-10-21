@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { JawabResult } from "../../lib/tanya/model";
-import { AddedTerms, AnswerView, HadithTerms } from "./answer-view";
+import { AddedTerms, AnswerView, HadithTerms, answerPlainText } from "./answer-view";
 
 // Render server: blok bersitasi vs tanpa sitasi, kartu kutipan (teks Arab dimuat terpisah dari
 // /api/kutipan, jadi saat render awal belum ada), status hadits dari label istilah takhrij + tanda lemah, keadaan
@@ -67,6 +67,12 @@ describe("AnswerView", () => {
     // Urutan judul: judul pertama di hasil adalah h2 "Jawaban" (bukan h3 Card.Title).
     expect(html.match(/<h[1-6]\b[^>]*>/u)?.[0]).toMatch(/^<h2/u);
     expect(html).toMatch(/<h2[^>]*>Jawaban<\/h2>/u);
+    // Jangkar unik per giliran percakapan.
+    const turn = renderToStaticMarkup(
+      <AnswerView question="Apa itu sabar?" result={base} cached={false} idPrefix="g2-" />,
+    );
+    expect(turn).toContain('href="#kutipan-g2-1"');
+    expect(turn).toContain('id="kutipan-g2-2"');
     expect(html).toContain("dikenali otomatis dari teks takhrij");
     expect(html).toContain("takhrij menyebut: lemah");
     // Tanpa teks takhrij dari DB (dimuat sesudah render), tidak ada tanda kelemahan dari ringkasan AI.
@@ -103,7 +109,7 @@ describe("AnswerView", () => {
       />,
     );
     expect(fb).toContain("tidak dapat memverifikasi kutipan");
-    expect(fb).toMatch(/<h2[^>]*>Paragraf yang mungkin terkait/u);
+    expect(fb).toMatch(/<h3[^>]*>Paragraf yang mungkin terkait/u);
     expect(fb).toContain('href="/cari?q=Apa%3F"');
     const nf = renderToStaticMarkup(
       <AnswerView
@@ -185,5 +191,17 @@ describe("status hadits X06", () => {
     expect(added).toContain("mursal");
     expect(added).not.toMatch(/\p{Script=Arabic}/u);
     expect(renderToStaticMarkup(<AddedTerms terms={[]} />)).toBe("");
+  });
+});
+
+describe("answerPlainText", () => {
+  it("menyalin kalimat + penanda dan daftar sumber, tanpa markdown", () => {
+    const text = answerPlainText(base, "https://surau.org");
+    expect(text).toContain("Menurut al-Ghazali dalam Ihya, sabar adalah cahaya.[1]");
+    expect(text).toContain("[2] Ihya, j. 1, h. 200 — https://surau.org/kitab/ihya/1/200#p2");
+    expect(text).not.toContain("**");
+    // Label AI dan keterangan kalimat tanpa kutipan ikut tersalin (teks bisa diteruskan ke luar Surau).
+    expect(text).toContain("Disusun AI oleh Surau");
+    expect(text).toContain("Kalimat tanpa nomor [n] tidak didukung kutipan langsung.");
   });
 });
