@@ -28,7 +28,9 @@ import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
 /**
  * Versi bentuk `PageModel` + sidik daftar kurasi subjudul: ikut kunci cache /api/halaman, jadi
  * salinan model lama tidak dipakai komponen baru dan perubahan daftar kurasi langsung berlaku.
- * Naikkan angka depan bila bentuk model berubah. Model tidak memuat teks UI (i18n).
+ * Naikkan angka depan bila bentuk model **atau logika isinya** berubah (blok, segmen terjemahan,
+ * syair, subjudul): tanpa itu, halaman sambungan di produksi memakai model lama sampai 7 hari per
+ * data center. Model tidak memuat teks UI (i18n).
  */
 export const PAGE_MODEL_VERSION = `2.${SUBHEADING_DIGEST}`;
 

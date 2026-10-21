@@ -62,6 +62,8 @@ export function ContinuousReader({
   const sentinel = useRef<HTMLDivElement>(null);
   const loading = useRef(false);
   const initialUrl = useRef<string | null>(null);
+  // Sedang dialihkan ke halaman yang ditunjuk URL (lihat efek di bawah): jangan memuat sambungan.
+  const redirecting = useRef(false);
   const current = useRef({ juz: first.juz, page: first.page });
 
   // Halaman baru: lupakan halaman terbaca milik halaman sebelumnya. Bila URL tidak cocok dengan
@@ -70,7 +72,9 @@ export function ContinuousReader({
   useEffect(() => {
     announceReaderPage(null);
     const here = window.location.pathname;
-    if (decodeURIComponent(here) !== decodeURIComponent(first.permalink.split("#")[0]!)) {
+    redirecting.current =
+      decodeURIComponent(here) !== decodeURIComponent(first.permalink.split("#")[0]!);
+    if (redirecting.current) {
       router.replace(`${here}${window.location.search}${window.location.hash}`);
     }
     return () => announceReaderPage(null);
@@ -81,7 +85,7 @@ export function ContinuousReader({
   const auto = pages.length < AUTO_PAGES;
 
   const load = useCallback(async () => {
-    if (loading.current || next === null) return;
+    if (loading.current || redirecting.current || next === null) return;
     loading.current = true;
     setStatus("loading");
     try {
@@ -232,9 +236,10 @@ export function ContinuousReader({
         </div>
       ) : null}
       {/* Navigasi halaman di akhir: Sebelumnya = sebelum halaman pertama, Berikutnya = sesudah
-          halaman terakhir yang dimuat. Pintasan ←/→ dipasang di atas, relatif ke halaman terbaca. */}
+          halaman terakhir yang dimuat. Pintasan ←/→ dipasang di atas, relatif ke halaman terbaca;
+          `aria-keyshortcuts` hanya bila tujuannya sama (belum ada halaman sambungan). */}
       <div className="flex flex-col gap-2">
-        <PageNav shortcuts next={next} prev={first.prev} />
+        <PageNav next={next} prev={first.prev} shortcuts={pages.length === 0} />
         <Typography color="muted" type="body-xs">
           {t.keyboardHint}
         </Typography>

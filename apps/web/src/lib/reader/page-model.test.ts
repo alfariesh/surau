@@ -148,3 +148,41 @@ describe("buildPageModel: subjudul kurasi", () => {
     expect(model.body[0]!.translation?.bold).toBeNull();
   });
 });
+
+describe("buildPageModel: syair dan placeholder ayat", () => {
+  beforeEach(() => vi.mocked(subheadingOf).mockReset());
+  const aiTr = (text: string) => ({
+    label: "ai_translation" as const,
+    lang: "id",
+    model: "uji",
+    prompt_version: "uji@1",
+    created_at: "2026-10-21",
+    review_status: "ai_generated" as const,
+    text,
+  });
+
+  it("syair (` ... `) ditata per syatr hanya di paragraf badan; catatan kaki tetap satu teks", async () => {
+    const verse = `${T_CONT} ... ${T_HEAD}`;
+    const body = passage(200, verse);
+    const foot = passage(201, verse, { kind: "foot" });
+    const model = await buildPageModel({ ...page([body]), footnotes: [foot] } as PageView, {
+      editionId: 1,
+      sections: [],
+    });
+    expect(model.body[0]!.blocks.map((b) => b.kind)).toContain("syatr");
+    expect(model.footnotes[0]!.blocks.map((b) => b.kind)).toEqual(["text"]);
+    // Teks tidak berubah: gabungan blok = text_raw, di badan maupun catatan kaki.
+    expect(blocksText(model.body[0]!.blocks)).toBe(verse);
+    expect(blocksText(model.footnotes[0]!.blocks)).toBe(verse);
+  });
+
+  it("placeholder ayat tanpa terjemahan Kemenag: segmen invalid berlabel rujukan ringkas", async () => {
+    const p = passage(202, T_HEAD, { translation: aiTr("Lalu ⟦QS 2:255⟧ dibaca.") });
+    const model = await buildPageModel(page([p]), { editionId: 1, sections: [] });
+    expect(model.body[0]!.translation!.segments).toContainEqual({
+      kind: "invalid",
+      placeholder: "⟦QS 2:255⟧",
+      label: "QS 2:255",
+    });
+  });
+});

@@ -21,6 +21,7 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
   const [clamped, setClamped] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
   const textId = useId();
+  const labelId = useId();
 
   // Tombol hanya muncul bila teksnya memang lebih dari dua baris. Diukur ulang saat ukuran elemen
   // berubah (jendela menyempit, skala teks dari panel Tampilan), bukan hanya saat pasang (#76).
@@ -37,12 +38,14 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
   if (summary.review_status === "rejected") return null;
   return (
     <aside
-      aria-label={t.aiSummaryOf}
+      // Nama dari label yang terlihat ("Ringkasan AI · <judul bagian>"), unik per bagian, jadi
+      // beberapa ringkasan di satu halaman (termasuk halaman sambungan) tidak bernama sama.
+      aria-labelledby={labelId}
       className="section-summary"
       data-permalink={summary.section.permalink}
       lang="id"
     >
-      <Typography type="body-xs" color="muted" weight="medium" className="mb-1">
+      <Typography id={labelId} type="body-xs" color="muted" weight="medium" className="mb-1">
         {t.aiSummary}
         <span className="font-normal">
           {" · "}

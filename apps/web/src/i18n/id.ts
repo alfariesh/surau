@@ -481,7 +481,6 @@ export const id = {
     aiNoticeMore: "Prinsip Surau",
     aiNoticeClose: "Tutup catatan terjemahan AI",
     aiSummary: "Ringkasan AI",
-    aiSummaryOf: "Ringkasan AI bagian ini",
     summaryMore: "Baca selengkapnya",
     summaryLess: "Tutup ringkasan",
     aiReview: {

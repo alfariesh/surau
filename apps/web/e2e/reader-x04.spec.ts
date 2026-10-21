@@ -153,6 +153,8 @@ test("gulir bersambung: halaman 201 termuat di bawah j1/200 dan URL berganti saa
   await page.mouse.wheel(0, 200);
   await expect(page).toHaveURL(/\/kitab\/ihya\/1\/201$/);
   await expect(page).toHaveTitle(/j\. 1 h\. 201/);
+  // replaceState tidak memicu navigasi: halaman pertama tetap terpasang di bawah URL baru.
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Juz 1 · Halaman 200");
   // Kembali ke halaman pertama: URL awal dipulihkan.
   await page.locator("[data-reader-title]").scrollIntoViewIfNeeded();
   await page.mouse.wheel(0, 100);
@@ -210,4 +212,41 @@ test("gulir bersambung: Back sesudah pindah halaman menampilkan halaman yang dit
   await page.goBack();
   await expect(page).toHaveURL(/\/kitab\/ihya\/1\/201$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Juz 1 · Halaman 201");
+});
+
+test("salin seluruh halaman (⌘A): tanpa isi skrip, JSON-LD, atau payload RSC", async ({
+  page,
+  context,
+  isMobile,
+}) => {
+  test.skip(isMobile, "seleksi teks dengan mouse");
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto(PAGE);
+  await page.evaluate(() => {
+    const range = document.createRange();
+    range.selectNodeContents(document.body);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  await page.keyboard.press("ControlOrMeta+c");
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  // Jalur salin berlabel yang dipakai (seleksi menyentuh terjemahan), tetapi tanpa isi <script>.
+  expect(copied).toContain("(Terjemahan AI, ");
+  expect(copied).not.toContain("self.__next_f");
+  expect(copied).not.toContain("BreadcrumbList");
+});
+
+test("gulir bersambung: atribusi ayat (Tanzil, Kemenag) ikut di halaman sambungan yang mengutip ayat", async ({
+  page,
+}) => {
+  await page.goto("/kitab/ihya/1/118");
+  const next = page.getByRole("region", { name: "Halaman sambungan, juz 1 halaman 119" });
+  await expect(async () => {
+    await page.mouse.wheel(0, 4000);
+    await expect(next).toBeAttached({ timeout: 1500 });
+  }).toPass({ timeout: 30_000 });
+  // Atribusi ada di bagian halaman sambungan itu (di bawah teksnya), bukan di kaki halaman pertama.
+  const section = page.locator('[data-continued="1/119"]');
+  await expect(section.getByText(/^Ayat Al-Qur'an:/)).toBeVisible();
 });

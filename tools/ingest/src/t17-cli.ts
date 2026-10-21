@@ -171,7 +171,7 @@ function page(dbPath: string, out: string): number {
 <label><input type="radio" name="g${it.no}" value="K"> Kurang</label>
 <label><input type="radio" name="g${it.no}" value="S"> Salah</label>
 <div class="cats">${cats.replaceAll('name="cat"', `name="c${it.no}"`)}</div>
-<label class="note">Catatan <textarea name="n${it.no}" rows="2"></textarea></label>
+<label class="note">Catatan <textarea name="n${it.no}" rows="2" maxlength="2000"></textarea></label>
 </fieldset></section>`;
       })
       .join("\n");
@@ -193,23 +193,54 @@ fieldset label{margin-inline-end:14px;white-space:nowrap}.cats{font-size:.85rem;
 .bar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;z-index:1}
 button{font:inherit;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
 .muted{color:var(--muted);font-size:.9rem}
+.saved{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;color:var(--muted);font-size:.9rem}fieldset:disabled{opacity:.55}
 </style></head><body>
 <h1>T-17 tahap 3 · Nilai terjemahan AI Ihya (60 sampel)</h1>
-<p>Untuk setiap nomor, baca teks Arab lalu terjemahan AI di bawahnya, dan pilih <b>Benar</b> (makna setia; gaya boleh kurang halus), <b>Kurang</b> (makna utama benar, tetapi ada yang janggal, istilah kurang tepat, atau bagian kecil hilang/bertambah tanpa membalik makna), atau <b>Salah</b> (makna keliru di bagian penting). Untuk Kurang dan Salah, centang kategorinya dan tulis catatan singkat bila perlu. Kotak hijau = terjemahan ayat Kemenag: <b>tidak dinilai</b>. Model dan versi terjemahan sengaja tidak ditampilkan. Isian tersimpan otomatis di browser ini, per nama penilai (penilai kedua: tekan <b>Penilai baru</b> lalu isi namanya); bila selesai (atau berhenti di tengah), tekan <b>Salin hasil</b> lalu tempel ke chat agent, atau <b>Unduh hasil</b>.</p>
+<p>Untuk setiap nomor, baca teks Arab lalu terjemahan AI di bawahnya, dan pilih <b>Benar</b> (makna setia; gaya boleh kurang halus), <b>Kurang</b> (makna utama benar, tetapi ada yang janggal, istilah kurang tepat, atau bagian kecil hilang/bertambah tanpa membalik makna), atau <b>Salah</b> (makna keliru di bagian penting). Untuk Kurang dan Salah, centang kategorinya dan tulis catatan singkat bila perlu. Kotak hijau = terjemahan ayat Kemenag: <b>tidak dinilai</b>. Model dan versi terjemahan sengaja tidak ditampilkan. Isi <b>Nama penilai</b> dulu untuk mulai. Isian tersimpan otomatis di browser ini per nama; untuk melanjutkan nanti, tekan <b>Lanjutkan sebagai …</b> (formulir tidak pernah terisi sendiri saat dibuka). Penilai kedua: tekan <b>Penilai baru</b>, lalu isi namanya sendiri. Bila selesai (atau berhenti di tengah), tekan <b>Salin hasil</b> lalu tempel ke chat agent, atau <b>Unduh hasil</b>.</p>
 <p class="muted">Sampel ${esc(hash)} · korpus ${esc(file.corpus)} · pra-registrasi: data/reports/ihya-9472-t17-tahap3.md · perkiraan 60–90 menit.</p>
-<div class="bar"><label>Nama penilai <input id="rater" autocomplete="name"></label>
+<div class="bar"><label>Nama penilai <input id="rater" autocomplete="off" maxlength="120"></label>
 <span id="progress" class="muted"></span>
 <button type="button" id="copy">Salin hasil</button><button type="button" id="download">Unduh hasil</button><button type="button" id="newrater">Penilai baru</button></div>
+<div id="saved" class="saved" hidden></div>
 ${sections}
 <script>
 const BASE = "surau:t17-tahap3:${hash}";
-// Isian disimpan per nama penilai: penilai kedua di browser yang sama tidak melihat nilai penilai pertama.
+// Isian disimpan per nama penilai (kunci BASE + ":" + nama huruf kecil). Saat dibuka, formulir selalu
+// kosong dan terkunci sampai nama diisi; isian tersimpan dibuka lewat tombol "Lanjutkan sebagai …",
+// supaya penilai kedua di browser yang sama tidak melihat (atau menimpa) nilai penilai pertama.
 const keyFor = (rater) => BASE + ":" + rater.trim().toLowerCase();
 const items = [...document.querySelectorAll(".item")];
+const raterInput = document.getElementById("rater");
+const progress = document.getElementById("progress");
+const savedBox = document.getElementById("saved");
+let bound = null; // kunci isian yang sedang tampil di formulir (null = belum ada penilai)
+function read(key) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key) || "null");
+    return v && typeof v === "object" && Array.isArray(v.grades) ? v : null;
+  } catch { return null; }
+}
+function write(key, data) { try { localStorage.setItem(key, JSON.stringify(data)); } catch {} }
+function remove(key) { try { localStorage.removeItem(key); } catch {} }
+// Halaman versi pertama menyimpan satu isian di BASE: pindahkan sekali ke kunci nama penilainya
+// (digabung per nomor bila nama itu sudah punya isian; isian yang lebih baru menang).
+(function migrate() {
+  const old = read(BASE);
+  if (old) {
+    const key = keyFor(old.rater || "");
+    const now = read(key);
+    const byNo = new Map(old.grades.map((g) => [g.no, g]));
+    if (now) for (const g of now.grades) byNo.set(g.no, g);
+    write(key, { sample: old.sample, rater: (now && now.rater) || old.rater || "", grades: [...byNo.values()].sort((a, b) => a.no - b.no) });
+    if (read(key)) remove(BASE);
+  }
+  // Penunjuk "penilai terakhir" versi kedua tidak dipakai lagi (bukan isian).
+  if (!read(BASE + ":last")) remove(BASE + ":last");
+})();
 function collect() {
   return {
     sample: "${hash}",
-    rater: document.getElementById("rater").value.trim(),
+    rater: raterInput.value.trim(),
     grades: items.flatMap((s) => {
       const no = Number(s.dataset.no);
       const g = s.querySelector('input[type=radio]:checked');
@@ -218,33 +249,15 @@ function collect() {
     }),
   };
 }
-const raterInput = document.getElementById("rater");
 function clearForm() {
   for (const s of items) {
     for (const input of s.querySelectorAll("input")) input.checked = false;
     s.querySelector("textarea").value = "";
   }
 }
-function save() {
-  const data = collect();
-  const progress = document.getElementById("progress");
-  progress.textContent = data.grades.length + "/" + items.length + " dinilai";
-  if (!data.rater) { progress.textContent += " · isi nama penilai supaya tersimpan"; return; }
-  try { localStorage.setItem(keyFor(data.rater), JSON.stringify(data)); localStorage.setItem(BASE + ":last", data.rater); } catch {}
-}
-// Penilai yang isiannya sedang tampil di formulir ("" = belum bernama, belum tersimpan).
-let current = "";
-function restore(rater) {
-  let data = null;
-  try { data = JSON.parse(localStorage.getItem(keyFor(rater)) || "null"); } catch {}
-  // Isian tanpa nama (sebelum nama diketik) ikut ke nama itu; isian penilai lain tidak.
-  const keep = !data && current === "";
-  current = rater;
-  raterInput.value = rater;
-  if (keep) return;
+function fill(data) {
   clearForm();
-  if (!data) return;
-  for (const g of data.grades || []) {
+  for (const g of data.grades) {
     const s = document.getElementById("n" + g.no);
     if (!s) continue;
     const r = s.querySelector('input[type=radio][value="' + g.grade + '"]');
@@ -253,16 +266,89 @@ function restore(rater) {
     s.querySelector("textarea").value = g.note || "";
   }
 }
+function setEnabled(on) { for (const f of document.querySelectorAll(".item fieldset")) f.disabled = !on; }
+function show() {
+  const data = collect();
+  progress.textContent = bound === null
+    ? "Isi nama penilai untuk mulai menilai."
+    : data.grades.length + "/" + items.length + " dinilai" + (data.rater ? " · tersimpan sebagai " + data.rater : " · isi nama penilai");
+  const list = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith(BASE + ":") || k === bound) continue;
+      const v = read(k);
+      if (v && v.grades.length > 0) list.push({ key: k, rater: v.rater || "", n: v.grades.length });
+    }
+  } catch {}
+  list.sort((a, b) => a.rater.localeCompare(b.rater));
+  // Gambar ulang hanya bila isinya berubah: klik tombol sesudah mengedit nama memicu "change" (blur)
+  // lebih dulu, dan tombol yang diganti di tengah klik membuat klik itu hilang.
+  const sig = JSON.stringify(list);
+  if (savedBox.dataset.sig === sig) return;
+  savedBox.dataset.sig = sig;
+  savedBox.replaceChildren();
+  savedBox.hidden = list.length === 0;
+  if (list.length === 0) return;
+  const label = document.createElement("span");
+  label.textContent = "Isian tersimpan di browser ini:";
+  savedBox.append(label);
+  for (const r of list) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = (r.rater ? "Lanjutkan sebagai " + r.rater : "Lanjutkan isian tanpa nama") + " (" + r.n + "/" + items.length + ")";
+    b.addEventListener("click", () => {
+      raterInput.value = r.rater;
+      if (r.rater) { switchTo(r.rater); return; }
+      // Isian tanpa nama (versi pertama halaman): buka, lalu nama yang diketik mengambil alih isiannya.
+      fill(read(r.key) || { grades: [] }); bound = r.key; setEnabled(true); show(); raterInput.focus();
+    });
+    savedBox.append(b);
+  }
+}
+// Ganti penilai: buka isian nama itu, atau mulai kosong. Bila isian penilai lain sedang terbuka dan
+// nama baru belum punya isian, tanyakan dulu: ganti nama (isian ikut) atau penilai baru.
+function switchTo(name) {
+  if (name === "") { clearForm(); bound = null; setEnabled(false); show(); return; }
+  const key = keyFor(name);
+  if (key === bound) { save(); return; }
+  const existing = read(key);
+  if (existing) fill(existing);
+  else if (bound !== null) {
+    const from = (read(bound) || {}).rater || "";
+    const has = collect().grades.length > 0;
+    if (has && (from === "" || confirm("Pindahkan isian “" + from + "” ke nama “" + name + "”?\\n\\nOK = ganti nama (isian ikut).\\nBatal = “" + name + "” penilai baru (formulir kosong; isian “" + from + "” tetap tersimpan)."))) {
+      write(key, { ...collect(), rater: name });
+      remove(bound);
+    } else clearForm();
+  }
+  // Formulir baru (bound === null) tanpa isian tersimpan: isiannya (bila ada) milik nama ini.
+  bound = key;
+  setEnabled(true);
+  save();
+}
+function save() {
+  if (bound === null) {
+    const name = raterInput.value.trim();
+    if (name !== "") switchTo(name);
+    return;
+  }
+  const data = collect();
+  if (data.grades.length > 0) write(bound, data);
+  show();
+}
 function asText(data) {
   return ["T-17 tahap 3 · sampel " + data.sample + " · penilai: " + (data.rater || "(tanpa nama)")]
     .concat(data.grades.map((g) => g.no + " " + g.grade + (g.categories.length ? " " + g.categories.join(",") : "") + (g.note ? " — " + g.note.replace(/\\s+/g, " ") : "")))
     .join("\\n");
 }
-document.addEventListener("input", (e) => { if (e.target !== raterInput) save(); });
+document.addEventListener("input", (e) => {
+  if (e.target === raterInput) { if (raterInput.value.trim() !== "") setEnabled(true); else if (bound === null) setEnabled(false); }
+  else save();
+});
 document.addEventListener("change", (e) => { if (e.target !== raterInput) save(); });
-// Ganti nama = ganti penilai: muat isian penilai itu (atau formulir kosong).
-raterInput.addEventListener("change", () => { restore(raterInput.value.trim()); save(); });
-document.getElementById("newrater").addEventListener("click", () => { clearForm(); current = ""; raterInput.value = ""; save(); raterInput.focus(); });
+raterInput.addEventListener("change", () => switchTo(raterInput.value.trim()));
+document.getElementById("newrater").addEventListener("click", () => { clearForm(); raterInput.value = ""; bound = null; setEnabled(false); show(); raterInput.focus(); });
 document.getElementById("copy").addEventListener("click", async () => {
   const text = asText(collect());
   try { await navigator.clipboard.writeText(text); alert("Hasil disalin. Tempel ke chat agent."); }
@@ -275,10 +361,8 @@ document.getElementById("download").addEventListener("click", () => {
   a.download = "t17-tahap3-hasil.json";
   a.click();
 });
-let lastRater = "";
-try { lastRater = localStorage.getItem(BASE + ":last") || ""; } catch {}
-restore(lastRater);
-save();
+setEnabled(false);
+show();
 </script>
 </body></html>
 `;

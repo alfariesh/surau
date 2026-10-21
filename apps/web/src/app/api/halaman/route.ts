@@ -7,7 +7,7 @@ import { getContext, readerEnabled } from "../../../lib/cloudflare";
 import { serverTiming, timedD1 } from "../../../lib/d1-timing";
 import { handlePage } from "../../../lib/reader/page-handler";
 import { buildPageModel } from "../../../lib/reader/page-model";
-import { parseWorkSegment, resolveEdition } from "../../../lib/reader/work-segment";
+import { editionSegment, parseWorkSegment, resolveEdition } from "../../../lib/reader/work-segment";
 
 // Halaman sambungan gulir bersambung (X04 W6): GET /api/halaman?work=ihya&juz=1&page=201 → model
 // siap render (`PageData`, JSON). Membaca halaman + node daftar isi yang mulai di halaman itu saja
@@ -17,10 +17,12 @@ import { parseWorkSegment, resolveEdition } from "../../../lib/reader/work-segme
 const DEV_HMAC_KEY = "surau-dev-only";
 
 /**
- * Edisi kanonis per segmen, diingat per isolate dan per korpus (hanya yang ditemukan, jadi segmen
- * acak tidak menumpuk memori): halaman sambungan berikutnya tidak membaca karya/edisi lagi.
+ * Edisi kanonis per segmen, diingat per isolate dan per korpus (hanya segmen kanonis yang
+ * ditemukan, jadi varian ejaan/encoding tidak menumpuk memori): halaman sambungan berikutnya tidak
+ * membaca karya/edisi lagi.
  */
 const editionMemo = new Map<string, { id: number; volumes: number | null }>();
+const EDITION_MEMO_MAX = 64;
 
 function workersCache(ctx: ExecutionContext): SearchCache | null {
   const cache = typeof caches === "undefined" ? undefined : (caches as { default?: Cache }).default;
@@ -53,8 +55,12 @@ export async function GET(request: Request): Promise<Response> {
       try {
         const work = await getWork(db, parsed.workSlug);
         const resolved = resolveEdition(work, parsed.editionSlug);
-        if (resolved.kind !== "ok") return null;
+        // Hanya bentuk kanonis (yang dikirim pembaca): varian lain = 404, tidak di-memo/di-cache.
+        if (resolved.kind !== "ok" || editionSegment(work, resolved.edition) !== segment) {
+          return null;
+        }
         const found = { id: resolved.edition.id, volumes: resolved.edition.volumes };
+        if (editionMemo.size >= EDITION_MEMO_MAX) editionMemo.clear();
         editionMemo.set(memoKey, found);
         return found;
       } catch (error) {

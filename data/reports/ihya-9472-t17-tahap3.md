@@ -87,7 +87,11 @@ ayat/hadits; lainnya (tulis di catatan). Perkiraan waktu 60–90 menit.
 3. **Salah > 15%:** usulan terjemahan ulang luas (Sonnet ±US$40–65 penuh, atau per rub') sebagai
    keputusan anggaran pemilik.
 
-## Klarifikasi dan penyimpangan (bertanggal)
+## Hasil
+
+*Belum ada. Diisi setelah penilai mengirim hasil.*
+
+### Klarifikasi dan penyimpangan (bertanggal)
 
 - **2026-10-21, sebelum ada hasil yang terlihat (temuan peninjau X04):** frasa "masing-masing ±13–14
   sampel menurut bobot" di aturan keputusan 1 bisa dibaca dua cara (alokasi sama seperti sampel pertama,
@@ -100,7 +104,9 @@ ayat/hadits; lainnya (tulis di catatan). Perkiraan waktu 60–90 menit.
 - **2026-10-21, alat (sebelum hasil):** isian halaman nilai disimpan per nama penilai (penilai kedua
   tidak melihat nilai penilai pertama); `pnpm t17 hasil a b` menghitung kesepakatan + kappa Cohen untuk
   nomor 1–20; berkas hasil divalidasi dan dicocokkan dengan sidik sampel (`344d2b8f695d`).
-
-## Hasil
-
-*Belum ada. Diisi setelah penilai mengirim hasil.*
+- **2026-10-21, alat (sebelum hasil, tinjauan ulang peninjau):** versi halaman nilai sebelumnya memuat
+  isian penilai terakhir saat dibuka, jadi penilai kedua di browser yang sama bisa melihat nilai penilai
+  pertama sebelum menekan *Penilai baru*. Kini formulir selalu kosong dan terkunci sampai nama diisi,
+  isian tersimpan dibuka lewat tombol *Lanjutkan sebagai …*, dan isian dari versi halaman sebelumnya
+  dipindahkan otomatis ke nama penilainya. Saat perubahan ini dibuat, agent belum menerima isian penilai
+  mana pun.
