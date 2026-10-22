@@ -29,6 +29,16 @@ describe("kamus UI per bagian", () => {
     expect(offenders).toEqual([]);
   });
 
+  test("berkas klien di app/ juga tidak mengimpor objek kamus lengkap", () => {
+    const offenders = files(join(src, "app"))
+      .filter((f) => {
+        const text = readFileSync(f, "utf8");
+        return text.startsWith('"use client"') && /from "(?:\.\.?\/)+i18n\/id"/.test(text);
+      })
+      .map((f) => relative(src, f));
+    expect(offenders).toEqual([]);
+  });
+
   test("objek `id` memuat setiap berkas bagian dengan nama yang sama", () => {
     const parts = readdirSync(join(import.meta.dirname, "id"))
       .filter((n) => n.endsWith(".ts"))

@@ -145,12 +145,15 @@ export function TocTree({
     if (!box || !target) return;
     const offset = target.getBoundingClientRect().top - box.getBoundingClientRect().top;
     box.scrollTop += offset - box.clientHeight / 3;
-  }, [activeId]);
+  }, [activeId, full]);
 
   return (
     <>
       {titleSource ? <TitleNote id={noteId} source={titleSource} /> : null}
       <NavigationTree
+        // Pohon ringkas → lengkap dipasang ulang: `defaultExpandedKeys` hanya dibaca saat pasang,
+        // padahal bagian aktif (gulir bersambung) bisa belum ada di pohon ringkas.
+        key={full === null ? "ringkas" : "lengkap"}
         ref={ref}
         aria-describedby={titleSource ? noteId : undefined}
         aria-label={t.tocLabel}

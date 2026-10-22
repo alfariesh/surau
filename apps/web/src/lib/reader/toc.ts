@@ -23,7 +23,7 @@ export interface TocItem {
   children: TocItem[];
   /**
    * Node punya anak yang sengaja tidak dikirim (`pruneToc`, X09): HTML halaman baca hanya membawa
-   * baris yang tampil terbuka; pohon lengkap dimuat klien belakangan (`/kitab/<karya>/daftar-isi`).
+   * baris yang tampil terbuka; pohon lengkap dimuat klien belakangan (`/kitab/<karya>/daftar-isi.json`).
    */
   more?: true;
 }

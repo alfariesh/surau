@@ -5,4 +5,5 @@ export const common = {
   newTab: "(membuka tab baru)",
   close: "Tutup",
   onThisPage: "Di halaman ini",
+  loading: "Memuat",
 } as const;

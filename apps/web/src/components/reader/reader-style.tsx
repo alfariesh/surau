@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useSyncExternalStore } from "react";
 
 import { TextFont } from "../../icons";
+import { common as commonText } from "../../i18n/id/common";
 import { reader as readerText } from "../../i18n/id/reader";
 
 import { useRestorePrefs } from "./reader-style-prefs";
@@ -22,7 +23,7 @@ const ReaderStylePanel = dynamic(() => loadPanel().then((m) => m.ReaderStylePane
   ssr: false,
   loading: () => (
     <div className="flex min-h-48 items-center justify-center">
-      <Spinner size="sm" />
+      <Spinner aria-label={commonText.loading} size="sm" />
     </div>
   ),
 });

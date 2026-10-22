@@ -1,6 +1,6 @@
 import { loadReaderToc, loadWork } from "../../../../../lib/reader/data";
 
-// Pohon daftar isi pembaca lengkap (X09): GET /kitab/ihya/daftar-isi → `{ items, titleSource }`
+// Pohon daftar isi pembaca lengkap (X09): GET /kitab/ihya/daftar-isi.json → `{ items, titleSource }`
 // (JSON, bentuk `loadReaderToc`). HTML halaman baca hanya membawa baris yang tampil terbuka
 // (`pruneToc`); klien mengambil pohon lengkap ini saat panel daftar isi tampil (desktop) atau sheet
 // daftar isi dibuka (ponsel). ISR on-demand seperti halaman baca (ADR-034): render pertama membaca
@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: Promise<{ work: string }> },
 ): Promise<Response> {
   const { work } = await params;
-  await loadWork(work, "/daftar-isi");
+  await loadWork(work, "/daftar-isi.json");
   const toc = await loadReaderToc(work);
   return Response.json(toc, { headers: { "X-Robots-Tag": "noindex" } });
 }

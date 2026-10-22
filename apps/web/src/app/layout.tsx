@@ -17,8 +17,9 @@ import "./globals.css";
 // Font UI: HarmonyOS Sans (Huawei; lisensi khusus, ADR-056), disalin apa adanya dari TTF resmi tanpa
 // diubah. Berkasnya statis: tidak ada SemiBold, jadi weight 600 (judul) memakai berkas Bold. Font
 // Arab: Noto Naskh Arabic (T-08, ADR-027), diunduh saat build dan di-host sendiri oleh next/font.
-// Naskh tidak di-preload di sini: teks Arab belum ada di setiap halaman; halaman baca mem-preload-nya
-// sendiri (components/reader/naskh-preload.ts, X09). HarmonyOS juga tanpa preload (X09): empat TTF
+// Naskh tidak di-preload: teks Arab belum ada di setiap halaman, jadi tidak perlu membebani halaman
+// lain (preload khusus halaman baca ditolak di X09: next/font memberi berkas preload URL lain, jadi
+// berkas yang sama bisa terunduh dua kali). HarmonyOS juga tanpa preload (X09): empat TTF
 // ±230 KB yang di-preload berebut jaringan dengan CSS dan teks halaman di ponsel; berkas tetap dimuat
 // begitu teksnya tampil (Italic hanya bila ada teks miring).
 const harmony = localFont({
@@ -99,15 +100,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="id"
     >
       <body className="bg-background text-foreground font-sans antialiased">
+        {/* Tekstur kertas (X09, lib/paper.ts): skrip mentah supaya dijalankan saat HTML diurai, sebelum
+            isi tampil; bila tile belum pernah terunduh, tekstur ditunda sampai halaman dimuat. */}
+        <script dangerouslySetInnerHTML={{ __html: PAPER_SCRIPT }} suppressHydrationWarning />
         {/* Preferensi tampilan pembaca dipasang di <html> sebelum teks tampil (tidak berkedip). Harus di
             root layout: <script> di dalam halaman tidak dijalankan saat navigasi klien dan memicu
             peringatan React. Selektornya hanya mengenai kelas pembaca, jadi aman di semua halaman. */}
         <Script id="reader-prefs" strategy="beforeInteractive">
           {READER_SCALE_SCRIPT}
-        </Script>
-        {/* Tekstur kertas: langsung bila tile sudah di cache, sesudah halaman dimuat bila belum (X09). */}
-        <Script id="kertas" strategy="beforeInteractive">
-          {PAPER_SCRIPT}
         </Script>
         <Providers>{children}</Providers>
       </body>

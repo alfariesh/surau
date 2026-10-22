@@ -15,6 +15,7 @@ import { Button, ButtonGroup, Dropdown, Label, Popover, Spinner } from "@heroui/
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
+import { common as commonText } from "../../i18n/id/common";
 import { reader as readerText } from "../../i18n/id/reader";
 
 import { useReader } from "./reader-context";
@@ -29,7 +30,7 @@ const JumpForm = dynamic(() => import("./jump-form").then((m) => m.JumpForm), {
   ssr: false,
   loading: () => (
     <div className="flex min-h-16 items-center justify-center">
-      <Spinner size="sm" />
+      <Spinner aria-label={commonText.loading} size="sm" />
     </div>
   ),
 });

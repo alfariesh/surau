@@ -2,7 +2,7 @@ import type { TitleSource } from "./reader-toc";
 import type { TocItem } from "./toc";
 
 // Pohon daftar isi pembaca lengkap di klien (X09). HTML halaman baca hanya membawa baris yang
-// tampil terbuka (`pruneToc`); pohon lengkap diambil sekali per karya dari `/kitab/<karya>/daftar-isi`
+// tampil terbuka (`pruneToc`); pohon lengkap diambil sekali per karya dari `/kitab/<karya>/daftar-isi.json`
 // (ISR) saat pohon benar-benar tampil, lalu dipakai semua TocTree (panel samping, sheet ponsel) dan
 // halaman berikutnya selama tab terbuka. Gagal ambil = tetap pohon ringkas, boleh dicoba lagi.
 
@@ -42,7 +42,7 @@ export function loadFullToc(segment: string): void {
   if (known?.data || known?.loading) return;
   const entry: Entry = { data: null, loading: true };
   entries.set(segment, entry);
-  fetch(`/kitab/${segment}/daftar-isi`)
+  fetch(`/kitab/${segment}/daftar-isi.json`)
     .then((r) => (r.ok ? r.json() : null))
     .then((body: unknown) => {
       if (isTocData(body) && body.items.length > 0) {
