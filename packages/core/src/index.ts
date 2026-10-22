@@ -79,6 +79,38 @@ export type {
   TranslationLabel,
   TranslationSegment,
 } from "./ayah-placeholder.ts";
+export {
+  TRANSLATION_TEXT_MAX,
+  footnoteMarkerDigits,
+  hasArabicLetters,
+  hasMarkdown,
+  stripMarkers,
+  validateTranslationText,
+} from "./translation-text.ts";
+export type {
+  TranslationIssue,
+  TranslationIssueCode,
+  TranslationTextCheck,
+  TranslationTextContext,
+} from "./translation-text.ts";
+export {
+  TINJAU_ROOMS,
+  canUseTinjauRoom,
+  parseTranslationEditors,
+  previousState,
+  referencedRevisionIds,
+  stateOf,
+  textSha256,
+  translationRevisionInput,
+  underlyingRevision,
+} from "./translation-revision.ts";
+export type {
+  CorpusTranslation,
+  TinjauRoom,
+  TranslationEditor,
+  TranslationRevisionInput,
+  TranslationState,
+} from "./translation-revision.ts";
 
 export {
   CoreError,

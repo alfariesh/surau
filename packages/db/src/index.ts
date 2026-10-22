@@ -22,6 +22,7 @@ export * from "./schema/corpus.ts";
 export * from "./schema/app.ts";
 export * from "./schema/review.ts";
 export * from "./schema/takhrij-review.ts";
+export * from "./schema/translation-revision.ts";
 export {
   insertAnswerLog,
   listAnswerLogs,
@@ -36,6 +37,22 @@ export {
   takhrijCitedCounts,
   takhrijReviewsChangedSince,
 } from "./repo/takhrij-review.ts";
+export {
+  countTranslationRevisionsSince,
+  getActiveTranslationRevisions,
+  getTranslationRevisionHistory,
+  getTranslationRevisionsByIds,
+  listActiveTranslationRevisions,
+  listRecentTranslationRevisions,
+  listTranslationRevisionAuthors,
+  listTranslationRevisionsByAuthorSince,
+  saveTranslationRevision,
+} from "./repo/translation-revision.ts";
+export type {
+  SaveTranslationRevisionOptions,
+  SaveTranslationRevisionResult,
+  TranslationEditorSeen,
+} from "./repo/translation-revision.ts";
 
 export {
   getAdjacentPages,
