@@ -153,10 +153,11 @@ function AiBadge({ label, anchor }: { label: TranslationLabel; anchor: string })
   const id = `tr-review-${anchor}`;
   return (
     <>
-      {/* Nama aksesibel = rincian (awalan sr-only sudah membacakan lencananya), tanpa `title`
-          ganda dengan popover. */}
+      {/* Nama aksesibel = teks lencana yang terlihat (WCAG 2.5.3 "label dalam nama", X10: perintah
+          suara menyebut teks yang tampil), rinciannya sebagai deskripsi (`aria-describedby` tetap
+          terbaca walau popover tertutup); tanpa `title` ganda dengan popover. */}
       <button
-        aria-label={label.detail}
+        aria-describedby={id}
         className="ai-badge ai-badge-review"
         data-copy-skip=""
         popoverTarget={id}

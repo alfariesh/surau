@@ -2095,3 +2095,26 @@ JS halaman baca 455 → 405 KB br (lokal), HTML 54 → 26 KB br. Bundle Worker 2
 - Dokumen Jawab tetap menyebut "Terjemahan AI (bisa keliru…)" juga untuk teks yang dikoreksi (rencana: tindak lanjut sesi Jawab).
 
 **Tinjau ulang bila:** jeda tayang terasa terlalu lama (overlay), persetujuan nama hanya-situs diminta, editor bertambah banyak (daftar di `/admin`), atau koreksi ringkasan AI/judul daftar isi menyusul (jawaban pemilik no. 6).
+
+## ADR-083 · Rapikan pembaca (X10): skrip preferensi mentah, baris aktif daftar isi = subjudul kurasi + cabang terbuka terkendali, kaki halaman sambungan per halaman, catatan AI hanya untuk konten AI yang belum ditinjau manusia, rincian label lewat CSS anchor positioning — diterima · 2026-10-22
+
+**Konteks:** utang kecil pembaca dari X04 (leluhur bagian aktif tidak dibuka di halaman sambungan, subjudul tidak disorot, catatan kaki halaman menurut halaman pertama), X09 (preferensi pembaca bisa berkedip di ponsel lambat) dan X08 (rincian label "dikoreksi …" di tengah layar). Batas: $0 LLM, tanpa korpus baru, hanya `apps/web`.
+
+**Keputusan:**
+1. **Skrip preferensi pembaca mentah.** `READER_SCALE_SCRIPT` ditulis root layout sebagai `<script>` mentah di awal `<body>` (sesudah skrip kertas), bukan `<Script strategy="beforeInteractive">`, yang di App Router baru dijalankan runtime Next sesudah chunk JS terunduh (`self.__next_s`; ADR-079 poin 3). e2e memblokir semua chunk JS Next dan memeriksa atribut `<html>` (uji mutasi: dengan `<Script>` tes gagal).
+2. **Baris aktif daftar isi = subjudul kurasi terakhir node aktif yang mulai di halaman ini atau sebelumnya** (`activeRowId`), selain itu node aktif. Aturannya sama dengan bagian aktif ("bagian terakhir yang tampil di halaman ini"); paragraf subjudul milik node itu sendiri. Hanya pohon TAMPILAN: breadcrumb, `<title>`, OG, judul ringkas, model halaman, dan MCP tetap memakai node. Server memakai baris yang sama untuk `pruneToc`, jadi cabang node aktif yang bersubjudul ikut terkirim (j3/202: 15 → 20 baris, +0,9 KB gzip; j1/200 tidak berubah).
+3. **Cabang terbuka dikendalikan** (`expandedKeys` + `onExpandedChange` NavigationTree, React Aria 1.22.1): leluhur baris aktif ditambahkan setiap kali jalurnya berubah (halaman sambungan, pohon ringkas → lengkap), lewat penyesuaian state saat render (bukan efek, tanpa satu cat dengan cabang tertutup); cabang lain tidak ditutup, dan cabang yang ditutup pembaca tetap tertutup selama baris aktif sama. Pemasangan ulang pohon (`key` ringkas/lengkap, X09) tidak diperlukan lagi.
+4. **Kaki halaman sambungan per halaman:** atribusi ayat (sudah sejak X04), catatan AI, dan catatan "perlu ditinjau" menurut isi halaman sambungan itu sendiri; kaki halaman pertama (server) tetap menurut halaman pertama. Dipilih per halaman (bukan satu kaki gabungan di akhir) supaya setiap halaman cetak membawa catatannya sendiri, seperti atribusi ayat; harganya satu kalimat kecil yang berulang di halaman sambungan berterjemahan.
+5. **Catatan AI hanya untuk konten AI yang belum ditinjau manusia** (`anyAi`): ringkasan AI, atau terjemahan tampil tanpa `human_review`. Kalimatnya ("dibuat AI dan belum ditinjau manusia") tidak benar untuk terjemahan berlabel "Terjemahan AI · dikoreksi/diperiksa …" (ADR-082); lencana per paragraf tetap menyebut asal AI (aturan 8). Terjemahan `rejected` (tidak tampil) tidak lagi memicu catatan. `PAGE_MODEL_VERSION` 4 → 5.
+6. **Rincian label tinjauan berjangkar** ke lencananya dengan CSS anchor positioning di dalam `@supports (position-area: bottom) and (position-try-fallbacks: flip-block)`: anchor implisit dari tombol `popovertarget` (`position-anchor: auto`), `position-area: bottom` (dipusatkan pada lencana, dijepit `inset-inline: 1rem`), `flip-block` bila tidak muat di bawah. Didukung Chrome 133+, Safari 26+, Firefox 147+ (BCD 8.1.6); browser lain tetap memakai posisi bawaan popover (tengah layar). Tetap popover HTML bawaan tanpa JavaScript.
+
+**Tidak dipilih:**
+- `anchor-name` per lencana (gaya inline atau `:has(:popover-open)`): anchor implisit sudah ada di ketiga mesin; `position-area: bottom span-right` menyempitkan popover di lencana dekat tepi kanan (teruji 65 px).
+- Menyorot subjudul menurut posisi gulir di dalam halaman: aturan per halaman cetak sudah sama dengan bagian aktif dan tidak butuh pengamat gulir baru.
+- Tombol daftar isi di kepala ringkas ponsel: di luar cakupan. Membuka sheet dari toolbar di atas halaman berarti menggulir kembali ke halaman pertama, jadi bagian aktif saat itu memang halaman pertama.
+
+**Konsekuensi:**
+- Model `/api/halaman` lama (cache ≤ 7 hari per data center) tidak dipakai komponen baru (versi 5).
+- Halaman yang semua terjemahannya sudah ditinjau manusia dan tanpa ringkasan AI tidak menampilkan catatan AI; belum terjadi di korpus produksi (`ihya-v8` belum punya tinjauan manusia).
+
+**Tinjau ulang bila:** pembaca meminta penyorotan subjudul menurut posisi gulir, ringkasan AI mendapat tinjauan manusia (catatan AI ikut menyesuaikan), atau statistik browser menunjukkan pengguna yang belum mendukung anchor positioning cukup banyak.
