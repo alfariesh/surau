@@ -101,3 +101,63 @@ describe("PassageTranslation (X04 W3)", () => {
     ).toBe("");
   });
 });
+
+describe("PassageTranslation: tinjauan manusia (X08, ADR-082)", () => {
+  const review = {
+    revised: true,
+    reviewed_at: "2026-10-22T03:00:00.000Z",
+    reviewer_role: "ustadz" as const,
+    reviewer_name: "Ust. Uji Lc.",
+    reviewer_short: "Ust. Uji",
+  };
+  const seg = (text: string) => [{ kind: "ai" as const, label: "ai_translation" as const, text }];
+
+  it("dikoreksi: lencana tombol + popover nama lengkap & tanggal, label salinan, [..] redup", () => {
+    const html = render(
+      <PassageTranslation
+        anchor="p7"
+        footAnchor={{}}
+        permalink="/kitab/uji/1/5#p7"
+        translation={{ segments: seg("Allah [Ta'ala] berfirman."), bold: null, review }}
+      />,
+    );
+    expect(html).toContain("Terjemahan AI · dikoreksi Ust. Uji: </span>");
+    expect(html).toMatch(
+      /<button[^>]*class="ai-badge ai-badge-review"[^>]*popoverTarget="tr-review-p7"|<button[^>]*popovertarget="tr-review-p7"[^>]*class="ai-badge ai-badge-review"/u,
+    );
+    expect(html).toContain('id="tr-review-p7" popover="auto"');
+    expect(html).toMatch(/aria-label="Terjemahan AI ini dikoreksi Ust\. Uji Lc\./u);
+    expect(html).toContain("dikoreksi Ust. Uji Lc. pada 22 Oktober 2026");
+    expect(html).toContain('data-tr-label="Terjemahan AI · dikoreksi Ust. Uji"');
+    expect(html).toMatch(/<span class="tr-added"[^>]*>\[Ta&#x27;ala\]<\/span>/u);
+  });
+
+  it("kurung siku tulisan AI (bukan perbaikan) tidak diberi gaya tambahan; label AI biasa", () => {
+    const html = render(
+      <PassageTranslation
+        anchor="p8"
+        footAnchor={{}}
+        permalink="/kitab/uji/1/5#p8"
+        translation={{ segments: seg("Lihat [ayat 26]."), bold: null, review: null }}
+      />,
+    );
+    expect(html).not.toContain("tr-added");
+    expect(html).not.toContain("popover");
+    expect(html).not.toContain("data-tr-label");
+    // Diperiksa (bukan dikoreksi): kurung siku pun tidak redup.
+    const checked = render(
+      <PassageTranslation
+        anchor="p9"
+        footAnchor={{}}
+        permalink="/kitab/uji/1/5#p9"
+        translation={{
+          segments: seg("Lihat [ayat 26]."),
+          bold: null,
+          review: { ...review, revised: false },
+        }}
+      />,
+    );
+    expect(checked).toContain("Terjemahan AI · diperiksa Ust. Uji");
+    expect(checked).not.toContain("tr-added");
+  });
+});

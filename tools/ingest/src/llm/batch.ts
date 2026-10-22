@@ -37,9 +37,12 @@ import {
 import type { ModelId, SummaryLang, UsageTotals } from "@surau/llm";
 import { z } from "zod";
 
+import type { CorpusRows } from "../rows.ts";
 import type { LlmContext } from "./cli.ts";
 import { mapPool } from "./pool.ts";
 import { REVIEW_FILE, loadReviews, rejectionFor } from "./reviews.ts";
+import { loadRevisions, protectedRevisions } from "./revisions.ts";
+import type { LoadedRevisions } from "./revisions.ts";
 import type { ReviewRejections } from "./reviews.ts";
 import {
   acceptedSummary,
@@ -195,6 +198,35 @@ function failedKeys(failures: readonly Failure[]): Set<string> {
       .filter((f) => f.reason === "review_rejected" || isCurrentPrompt(f))
       .map((f) => `${f.custom_id}:${f.source_sha256}`),
   );
+}
+
+/**
+ * Unit kerja tanpa paragraf yang revisi manusianya masih berlaku (X08, ADR-082): batch AI tidak
+ * menerjemahkan ulang (atau menimpa) terjemahan yang diperiksa/dikoreksi editor terdaftar. Rencana
+ * lama yang memuatnya menjadi "usang" (unitnya tidak ada) dan harus disusun ulang.
+ */
+export function withoutReviewed(work: Work, reviewed: ReadonlySet<number>): Work {
+  if (reviewed.size === 0) return work;
+  return { ...work, units: new Map([...work.units].filter(([id]) => !reviewed.has(id))) };
+}
+
+/**
+ * Paragraf yang dilindungi revisi manusia yang masih berlaku terhadap baris korpus + draf AI lolos
+ * yang sumbernya sama dengan unit sekarang (`protectedRevisions`). Revisi usang tidak melindungi,
+ * jadi paragrafnya tetap mendapat draf baru. Metadata revisi tanpa berkas ekspor = GAGAL (sama
+ * dengan ingest).
+ */
+export function reviewProtected(
+  rows: CorpusRows,
+  work: Work,
+  acc: Accepted,
+  loaded: LoadedRevisions | null,
+): ReadonlySet<number> {
+  return protectedRevisions(rows, loaded, (id) => {
+    const t = acc.translations.get(id);
+    const u = work.units.get(id);
+    return t !== undefined && u !== undefined && t.source_sha256 === u.sourceSha256 ? t.text : null;
+  });
 }
 
 /** Request yang masih perlu dikirim untuk satu putaran (yang sudah lolos dengan hash sama dilewati). */
@@ -422,14 +454,15 @@ export function splitOversized(
 
 export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
   const dir = llmDir(ctx.repo);
-  const work = buildWork(ctx.rows());
+  const all = buildWork(ctx.rows());
+  const acc = readAccepted(dir);
+  const work = withoutReviewed(all, reviewProtected(ctx.rows(), all, acc, loadRevisions(ctx.repo)));
   if (work.blocked.length > 0) {
     console.error(
       `${work.blocked.length} paragraf punya rujukan ayat yang tidak bisa ditandai; tidak boleh dikirim ke LLM:`,
     );
     for (const b of work.blocked.slice(0, 10)) console.error(`  ${b.passageId}: ${b.detail}`);
   }
-  const acc = readAccepted(dir);
   const reqs = pendingRequests(work, acc, round);
   if (reqs.length === 0) {
     console.info(`Putaran ${round}: tidak ada request tertunda.`);
@@ -881,8 +914,13 @@ export async function runSubmit(
     console.error(`Tidak ada rencana di ${path}. Jalankan dulu: pnpm llm plan --round ${round}`);
     return 1;
   }
-  const work = buildWork(ctx.rows());
-  const { ready, stale } = submittable(work, readAccepted(dir), inFlight(dir), planned);
+  const all = buildWork(ctx.rows());
+  const accepted = readAccepted(dir);
+  const work = withoutReviewed(
+    all,
+    reviewProtected(ctx.rows(), all, accepted, loadRevisions(ctx.repo)),
+  );
+  const { ready, stale } = submittable(work, accepted, inFlight(dir), planned);
   if (stale > 0) {
     console.error(
       `${stale} request di rencana sudah usang (sumber berubah). Jalankan ulang: pnpm llm plan --round ${round}`,
@@ -1399,8 +1437,9 @@ export async function runRetry(
     console.error(unreconciled);
     return 1;
   }
-  const work = buildWork(ctx.rows());
+  const all = buildWork(ctx.rows());
   const acc = readAccepted(dir);
+  const work = withoutReviewed(all, reviewProtected(ctx.rows(), all, acc, loadRevisions(ctx.repo)));
   const todo = unresolved(work, acc);
   const busy = inFlight(dir);
   const reqs: PlannedRequest[] = [];

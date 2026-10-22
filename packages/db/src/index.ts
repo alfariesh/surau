@@ -120,7 +120,10 @@ export type {
 } from "./repo/search.ts";
 export {
   getSummariesStartingOn,
+  getTranslationReviewers,
+  getTranslationReviewsWithDraft,
   getTranslations,
+  isHumanReviewed,
   listTitleTranslations,
   listTranslatedPassages,
   sectionSummaryRow,

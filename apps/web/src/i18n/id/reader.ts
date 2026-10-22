@@ -142,6 +142,15 @@ export const reader = {
   aiTranslation: "Terjemahan AI",
   aiTranslationHint:
     "Diterjemahkan otomatis oleh AI dari teks Arab paragraf ini dan belum ditinjau manusia. Rujuk selalu teks Arabnya.",
+  // Tinjauan manusia (X08, ADR-082): asal AI tetap disebut; nama dari daftar editor terdaftar.
+  trChecked: (by: string) => `Terjemahan AI · diperiksa ${by}`,
+  trCorrected: (by: string) => `Terjemahan AI · dikoreksi ${by}`,
+  trCheckedDetail: (by: string, date: string) =>
+    `Terjemahan AI ini diperiksa ${by} pada ${date} dan dinyatakan sesuai teks Arabnya.`,
+  trCorrectedDetail: (by: string, date: string) =>
+    `Terjemahan AI ini dikoreksi ${by} pada ${date}. Kata dalam kurung siku [ … ] adalah tambahan penerjemah.`,
+  trReviewer: { ustadz: "ustadz", editor: "editor" },
+  trAdded: "tambahan penerjemah, tidak ada di teks Arab",
   // Catatan di awal teks halaman (X04 W3), menggantikan baris label di setiap paragraf; lencana
   // "Terjemahan AI" per paragraf tetap ada.
   aiNoticeTitle: "Terjemahan Indonesia dibuat AI",

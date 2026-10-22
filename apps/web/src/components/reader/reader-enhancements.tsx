@@ -76,7 +76,8 @@ export function selectionPieces(selection: Selection, origin: string): CopyPiece
     const kind =
       segKind === "ai" || segKind === "ayah" || segKind === "summary" ? segKind : "plain";
     const group = seg === null ? `b${blockId(block)}` : `s${groupId(seg)}`;
-    const permalink = seg?.closest<HTMLElement>("[data-permalink]")?.dataset.permalink;
+    const owner = seg?.closest<HTMLElement>("[data-permalink]");
+    const permalink = owner?.dataset.permalink;
     if (kind === "ayah" && parent.closest("[data-copy-label]") !== null) labelled.add(group);
     pieces.push({
       text,
@@ -87,6 +88,7 @@ export function selectionPieces(selection: Selection, origin: string): CopyPiece
         (kind === "ai" || kind === "summary") && permalink
           ? new URL(permalink, origin).href
           : undefined,
+      aiLabel: kind === "ai" ? owner?.dataset.trLabel : undefined,
       label:
         kind === "ayah"
           ? (seg?.querySelector("[data-copy-label]")?.textContent ?? undefined)

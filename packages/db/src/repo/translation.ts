@@ -10,11 +10,15 @@ import {
   subheadingTranslationRow,
   summaryRow,
   tocTitleTranslationRow,
+  translationReviewRow,
+  translationReviewerRow,
   translationRow,
 } from "../schema/corpus.ts";
 import type {
   SubheadingTranslationRow,
   TocTitleTranslationRow,
+  TranslationReviewRow,
+  TranslationReviewerRow,
   TranslationRow,
 } from "../schema/corpus.ts";
 import { getCorpusMeta } from "./corpus.ts";
@@ -126,8 +130,9 @@ const translatedRow = z.strictObject({
 export type TranslatedPassage = z.infer<typeof translatedRow>;
 
 /**
- * ID + jenis semua paragraf satu edisi yang punya terjemahan (bukan `rejected`), urut ID = urutan
- * kitab. Antrean koreksi terjemahan (X08); ±16 ribu baris Ihya, dihitung sekali per isolate.
+ * ID + jenis semua paragraf satu edisi yang punya terjemahan (bukan `rejected`), dalam urutan baca
+ * (juz, halaman cetak, jenis, urutan; bukan menurut ID, yang bisa bertambah lewat patch). Antrean
+ * koreksi terjemahan (X08); ±16 ribu baris Ihya, dihitung sekali per isolate.
  */
 export function listTranslatedPassages(
   db: D1Db,
@@ -138,11 +143,58 @@ export function listTranslatedPassages(
   return allRows(
     db
       .prepare(
-        `SELECT t.passage_id AS id, p.kind FROM translation t JOIN passage p ON p.id = t.passage_id
+        `SELECT t.passage_id AS id, p.kind FROM translation t
+         JOIN passage p ON p.id = t.passage_id JOIN page pg ON pg.id = p.page_id
          WHERE t.lang = ?1 AND t.review_status <> 'rejected' AND t.passage_id BETWEEN ?2 AND ?3
-         ORDER BY t.passage_id`,
+         ORDER BY pg.juz, pg.page_no, p.kind, p.ord, p.id`,
       )
       .bind(lang, range.min, range.max),
     translatedRow,
   );
+}
+
+const REVIEWER_COLS =
+  "passage_id, lang, revision_id, revised, reviewed_at, reviewer_name, reviewer_short, reviewer_role, reviewer_public";
+
+/** Status yang hanya ada bila korpus memuat asal tinjauannya (skema ≥ 8, X08 tahap 2). */
+export const isHumanReviewed = (status: string): boolean =>
+  status === "reviewed" || status === "ustadz_verified";
+
+function reviewStatements(db: D1Db, cols: string, ids: readonly number[], lang: string) {
+  return chunk(ids, D1_MAX_PARAMS - 1).map((part) =>
+    db
+      .prepare(
+        `SELECT ${cols} FROM translation_review
+         WHERE lang = ? AND passage_id IN (${placeholders(part.length)}) ORDER BY passage_id`,
+      )
+      .bind(lang, ...part),
+  );
+}
+
+/**
+ * Asal tinjauan manusia terjemahan (nama terdaftar, peran, tanggal; tanpa draf AI). Dipanggil HANYA
+ * untuk paragraf yang statusnya tinjauan manusia (`isHumanReviewed`): status itu hanya ada di korpus
+ * skema ≥ 8 yang punya tabelnya, jadi korpus lama tidak pernah menjalankan kueri ini.
+ */
+export async function getTranslationReviewers(
+  db: D1Db,
+  passageIds: readonly number[],
+  lang: string,
+): Promise<TranslationReviewerRow[]> {
+  const unique = [...new Set(passageIds)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const results = await db.batch(reviewStatements(db, REVIEWER_COLS, unique, lang));
+  return results.flatMap((r) => r.results.map((row) => translationReviewerRow.parse(row)));
+}
+
+/** Seperti `getTranslationReviewers` + draf AI yang digantikan (ruang editor /tinjau saja). */
+export async function getTranslationReviewsWithDraft(
+  db: D1Db,
+  passageIds: readonly number[],
+  lang: string,
+): Promise<TranslationReviewRow[]> {
+  const unique = [...new Set(passageIds)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const results = await db.batch(reviewStatements(db, `${REVIEWER_COLS}, ai_text`, unique, lang));
+  return results.flatMap((r) => r.results.map((row) => translationReviewRow.parse(row)));
 }

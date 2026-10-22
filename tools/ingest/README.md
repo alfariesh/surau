@@ -48,6 +48,21 @@ Urutan: `plan --round 1` → `submit --round 1 --confirm` → `wait` → `collec
 - **Validasi** (`@surau/llm`): placeholder ayat sama persis; tanpa huruf Arab sama sekali; tanpa penanda catatan kaki karangan (penanda yang hilang hanya dicatat); tanpa transliterasi berdiakritik dekat placeholder (tanda model menulis ulang ayat); rasio panjang 0,8–4 (tanpa harakat); kata "terjemah…" hanya bila sumbernya membahas ترجمة; tanpa kurung kurawal; tanpa Markdown, kalimat pembuka, atau komentar model. Ringkasan: bahasa benar, tanpa placeholder/rujukan QS/huruf Arab.
 - **Penyimpanan:** `data/build/llm/` (git-ignored) berisi request terkirim, hasil mentah per batch, hasil yang lolos (`translation.jsonl`, `summary.jsonl`, `summary-r1.jsonl`), kegagalan, dan `batches.json`. **Jangan dihapus**: hasil batch berbayar dan tidak deterministik; cadangkan bersama drive data.
 
+## Koreksi terjemahan manusia (X08, ADR-081/082)
+
+Editor terdaftar mengoreksi atau menandai benar terjemahan di `/tinjau/terjemahan`; revisinya tersimpan di DB app (`translation_revision`) dan **baru tampil lewat korpus berikutnya**, sehingga pembaca, Cari (`translation_fts`), MCP, dan Maknaz berubah bersamaan.
+
+| Perintah | Isi | Biaya |
+|---|---|---|
+| `pnpm review:export-terjemahan` | BACA DB app produksi `surau-app` → revisi berlaku per paragraf (aktif terakhir; pembatalan → versi yang dipulihkan; kembali ke AI = tidak ikut) → `data/build/reviews/<nama bertanggal>.jsonl` (git-ignored, berisi teks) + salinan R2 privat `surau-revisi/terjemahan/<nama>` (tidak pernah menimpa) + metadata `data/reviews/ihya-9472-revisi.json` (di git: ID, hash, jenis, nama tampil, tanggal; **tanpa teks**). `--staging` / `--lokal` = sumber uji tanpa R2 (metadatanya **jangan di-commit**; ingest hanya memuatnya dengan `SURAU_REVISI_UJI=1`, dan tes repo menolak metadata uji ter-commit); `--tanpa-r2` melewati salinan R2. Nama berkas = cap waktu + awal sha256 isi | gratis |
+
+Urutan korpus berikutnya: `pnpm review:export-terjemahan` → commit metadata → (bila ada batch AI: `pnpm llm plan …`, paragraf berevisi otomatis dilewati) → `pnpm ingest ihya` (naikkan `corpusVersion`) → `pnpm corpus:load:local` + cek → `eval:retrieval --gate` → promote **atas izin pemilik**. Catat `revisions_sha256` (meta korpus) di `data/SOURCES.md`.
+
+- **Ingest** memuat berkas ekspor hanya bila sha256-nya sama dengan metadata git dan isinya sama persis (berkas hilang/beda = GAGAL; unduh dengan `pnpm wrangler r2 object get surau-revisi/<r2_key> --file data/build/reviews/<export_file> --remote`). Setiap revisi divalidasi ulang terhadap teks Arab + rujukan ayat korpus yang sedang dibangun: teks Arab berubah, placeholder ayat tidak cocok lagi, atau draf AI yang dinyatakan benar sudah diganti = **usang** (tidak dimuat, dilaporkan di invarian laporan validasi; tidak pernah ditulis balik ke DB app). Perbaikan manusia tetap menang walau draf AI berubah.
+- **Korpus:** `translation.text` = teks perbaikan, `review_status` = `ustadz_verified` (akun ustadz) / `reviewed` (editor lain); `model`/`prompt_version` tetap draf AI asalnya; asal tinjauan di `translation_review` (skema 8: revisi, nama terdaftar, peran, izin nama MCP, draf AI yang digantikan). `meta.revisions_sha256` + `revisions_count`. Tanpa izin nama, metadata dan korpus hanya menyimpan peran.
+- **Batch AI** (`plan`/`submit`/`retry`) tidak mengirim paragraf yang revisi manusianya **masih berlaku** (teks Arab, rujukan ayat, dan draf AI lolos sama). Revisi usang tidak melindungi, supaya paragrafnya tetap mendapat draf baru (perbaikan manusia berlaku lagi di atasnya, "sudah benar" perlu ditinjau ulang). Revisi yang belum diekspor belum terlindung: ekspor dulu sebelum batch.
+- **`meta.revisions_count`** = jumlah revisi di berkas ekspor (deterministik, supaya `corpus:qa` cocok); jumlah yang dimuat/usang ada di laporan validasi.
+
 ## Korpus produksi (blue-green)
 
 Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah setelah aktif. Binding `CORPUS_DB` top-level di `apps/web/wrangler.jsonc` **dan** `apps/mcp/wrangler.jsonc` (Worker MCP, S16; selalu sama, dijaga tes) menunjuk versi aktif; `deploy.yml` tidak pernah menyentuh korpus (dijaga tes `src/corpus.test.ts`). Riwayat versi dan target rollback: [data/SOURCES.md](../../data/SOURCES.md#korpus-d1-produksi).

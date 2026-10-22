@@ -12,7 +12,7 @@ import type { D1Db, PassageWithPageRow } from "@surau/db";
 
 import { loadCiteContext } from "./citation.ts";
 import type { CiteContext } from "./citation.ts";
-import { translationView } from "./page.ts";
+import { reviewersFor, translationView } from "./page.ts";
 import { toPassages } from "./passages.ts";
 import type { Location, Passage, TranslationView } from "./schema.ts";
 
@@ -73,7 +73,10 @@ export async function answerPassages(db: D1Db, ids: readonly number[]): Promise<
   ).flat();
   const passageBy = new Map(passages.map((p) => [p.id, p]));
   const rowBy = new Map(rows.map((r) => [r.id, r]));
-  const translationBy = new Map(translations.map((t) => [t.passage_id, translationView(t)]));
+  const reviewers = await reviewersFor(db, translations);
+  const translationBy = new Map(
+    translations.map((t) => [t.passage_id, translationView(t, reviewers.get(t.passage_id))]),
+  );
   const refsTo = new Map<number, number[]>();
   for (const ref of backRefs)
     refsTo.set(ref.footnote_passage_id, [

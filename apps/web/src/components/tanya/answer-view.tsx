@@ -24,6 +24,7 @@ import { displayText, kutipanQuery, spanKey, termPhrase } from "../../lib/tanya/
 import { ArabicInline, ArabicText } from "../arabic";
 import { TanyaOrb } from "./tanya-orb";
 import { modelName } from "../../lib/model-names";
+import { translationLabel } from "../../lib/translation-label";
 
 // Tampilan hasil Jawab (S21; sebagai balasan di percakapan, ADR-073). Teks Indonesia dari model tampil sebagai teks biasa per blok: blok
 // bersitasi diberi penanda [n], blok tanpa sitasi redup (ADR-064 butir 5). Kutipan Arab SELALU dari
@@ -152,7 +153,11 @@ function CitationCard({
           )}
           {item?.translation ? (
             <details className="flex flex-col gap-1">
-              <summary className="text-muted cursor-pointer text-sm">{t.translationAi}</summary>
+              <summary className="text-muted cursor-pointer text-sm">
+                {item.translation.human_review
+                  ? translationLabel(item.translation.human_review).badge
+                  : t.translationAi}
+              </summary>
               <Typography type="body-sm">{item.translation.text}</Typography>
             </details>
           ) : null}

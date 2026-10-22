@@ -23,7 +23,7 @@ export const translationReviewText = {
     "Perbaiki: tulis ulang terjemahannya dan alasan singkat, misalnya istilah wara' kurang tepat.",
     "⟦QS 2:255⟧ adalah tempat terjemahan ayat dari Kemenag. Jangan diubah, dihapus, atau diterjemahkan sendiri.",
     "(١) adalah penanda catatan kaki. Boleh dipindah ke kata yang tepat, atau ditambahkan bila ada di teks Arab.",
-    "Kata tambahan Anda yang tidak ada di teks Arab ditulis dalam kurung siku, misalnya [yaitu shalat]. Di pembaca, kurung ini tampil redup.",
+    "Kata tambahan Anda yang tidak ada di teks Arab ditulis dalam kurung siku, misalnya [yaitu shalat]. Di pembaca, semua kurung siku di teks perbaikan tampil redup sebagai tambahan penerjemah; kurung siku dari terjemahan AI yang bukan tambahan, misalnya [ayat 26], ubah menjadi kurung biasa (ayat 26).",
     "Tanpa huruf Arab: tulis istilah dengan huruf Latin.",
     "Koreksi tersimpan langsung, lalu tampil di situs setelah korpus berikutnya dibangun (sekitar sebulan sekali), dengan label nama Anda.",
     "Salah tekan? Tombol Batalkan mengembalikan keadaan sebelumnya. Riwayat tidak pernah dihapus.",

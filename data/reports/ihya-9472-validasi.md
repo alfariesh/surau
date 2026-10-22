@@ -30,6 +30,7 @@
 | Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 16097/16111 (99,91%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
 | Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 626/626 (100,00%); usang 0, tidak sah 0 |
 | Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 522/522 (100,00%): node 313, subjudul 209 |
+| Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | ID paragraf rilis stabil (ADR-059) | ✓ | 20509 ID lama ada dengan teks sama |
 
 ## Daftar isi

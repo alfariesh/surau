@@ -124,6 +124,40 @@ export const translationRow = z.strictObject({
 });
 export type TranslationRow = z.infer<typeof translationRow>;
 
+/** Peran penulis tinjauan terjemahan di korpus (pembatalan pemilik tidak pernah sampai ke korpus). */
+export const translationReviewerRole = z.enum(["ustadz", "editor"]);
+
+/**
+ * Asal tinjauan manusia satu terjemahan (X08 tahap 2, migrasi 0008, ADR-082). Nama dari daftar
+ * editor terdaftar saat menyimpan; `reviewer_public` = nama boleh dikirim ke AI lain lewat MCP (situs
+ * dan MCP sama: tanpa izin, keduanya menampilkan peran saja). `ai_text` = draf AI yang digantikan
+ * perbaikan (hanya dibaca ruang editor). Gelar "Ust." tidak pernah untuk peran editor.
+ */
+const reviewerShape = {
+  passage_id: id,
+  lang: z.string(),
+  revision_id: id,
+  revised: z.union([z.literal(0), z.literal(1)]),
+  reviewed_at: z.string(),
+  reviewer_name: z.string().min(1).max(120),
+  reviewer_short: z.string().min(1).max(80),
+  reviewer_role: translationReviewerRole,
+  reviewer_public: z.union([z.literal(0), z.literal(1)]),
+};
+const noUstadzTitle = (r: { reviewer_role: string; reviewer_short: string }) =>
+  r.reviewer_role === "ustadz" || !/^\s*ust(?:adz|az|\.)?\b/iu.test(r.reviewer_short);
+
+export const translationReviewRow = z
+  .strictObject({ ...reviewerShape, ai_text: z.string().nullable() })
+  .refine((r) => (r.revised === 1) === (r.ai_text !== null), "ai_text hanya untuk perbaikan")
+  .refine(noUstadzTitle, "gelar ustadz hanya untuk peran ustadz");
+/** Tanpa draf AI (pembaca, Cari, MCP, Maknaz). */
+export const translationReviewerRow = z
+  .strictObject(reviewerShape)
+  .refine(noUstadzTitle, "gelar ustadz hanya untuk peran ustadz");
+export type TranslationReviewerRow = z.infer<typeof translationReviewerRow>;
+export type TranslationReviewRow = z.infer<typeof translationReviewRow>;
+
 export const summaryRow = z.strictObject({
   toc_node_id: id,
   lang: z.string(),
@@ -266,11 +300,15 @@ export const corpusMeta = z.object({
   source_hash: z.string().optional(),
   /** `LATIN_NORM_VERSION` @surau/text saat indeks Indonesia dibangun (skema ≥ 6, S14). */
   latin_norm_version: z.coerce.number().int().positive().optional(),
+  /** sha256 berkas ekspor revisi terjemahan manusia yang dimuat (skema ≥ 8, X08). */
+  revisions_sha256: z.string().optional(),
+  /** Jumlah revisi manusia yang diterapkan (skema ≥ 8, X08). */
+  revisions_count: z.coerce.number().int().nonnegative().optional(),
 });
 export type CorpusMeta = z.infer<typeof corpusMeta>;
 
 /** Versi skema korpus yang dibuat migrasi di repo ini (= nilai `meta.schema_version` terbaru). */
-export const CORPUS_SCHEMA_VERSION = 7;
+export const CORPUS_SCHEMA_VERSION = 8;
 
 /** Skema korpus pertama yang punya indeks `passage_fts` terisi dan `term_stat` (S11, migrasi 0004). */
 export const SEARCH_SCHEMA_VERSION = 4;
@@ -290,6 +328,12 @@ export const LATIN_SEARCH_SCHEMA_VERSION = 6;
  */
 export const TITLE_SCHEMA_VERSION = 7;
 
+/**
+ * Skema korpus pertama yang punya asal tinjauan manusia terjemahan `translation_review` (X08 tahap 2,
+ * migrasi 0008). Korpus lama tidak pernah berstatus tinjauan manusia, jadi pembaca tidak perlu cek.
+ */
+export const REVIEW_SCHEMA_VERSION = 8;
+
 /** Tabel biasa korpus → skema barisnya (passage_fts tidak termasuk: tabel virtual turunan). */
 export const corpusTables = {
   author: authorRow,
@@ -301,6 +345,7 @@ export const corpusTables = {
   footnote_ref: footnoteRefRow,
   passage_needs_review: passageNeedsReviewRow,
   translation: translationRow,
+  translation_review: translationReviewRow,
   summary: summaryRow,
   toc_title_translation: tocTitleTranslationRow,
   subheading_translation: subheadingTranslationRow,
