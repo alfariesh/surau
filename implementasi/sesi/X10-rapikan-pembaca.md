@@ -1,6 +1,6 @@
 # X10 · Sesi sisipan: rapikan sisa kecil pembaca
 
-> **Fase:** sisipan (lepas dari Fase 4; hanya `apps/web`, tidak menyentuh `/tanya`, `apps/api`, `apps/mcp`, maupun `packages/llm`) · **Status:** berjalan (2026-10-22; kode selesai, menunggu PR + ukur LCP sesudah deploy)
+> **Fase:** sisipan (lepas dari Fase 4; hanya `apps/web`, tidak menyentuh `/tanya`, `apps/api`, `apps/mcp`, maupun `packages/llm`) · **Status:** selesai (2026-10-22, PR #122, ADR-083: 10 dari 10 butir lolos)
 > **Prasyarat:** X04 (PR #115–#117), X09 (PR #118), ADR-080 (PR #119), X08 (PR #120, #121) di `main` · Tugas pemilik: –
 > **Perkiraan:** 1 percakapan agent · $0 LLM · tanpa korpus baru
 
@@ -38,13 +38,13 @@ Sumber utang:
 
 ## Selesai bila
 
-- [ ] `pnpm verify` lolos; e2e pembaca (`reader`, `reader-x04`, `reader-x04b`, `reader-x09`, tes baru sesi ini, termasuk axe) lolos.
+- [x] `pnpm verify` lolos; e2e pembaca (`reader`, `reader-x04`, `reader-x04b`, `reader-x09`, tes baru sesi ini, termasuk axe) lolos. *Bukti: `pnpm verify` lokal exit 0 (822 + 387 tes, build); CI PR #122 commit `1bb9533`: verify, preview, preview mcp hijau; e2e terhadap Preview **178 lolos**, 12 dilewati, 0 gagal (termasuk 9 skenario `reader-x10`).*
 - [x] Preferensi pembaca tersimpan (skala, tata letak terjemahan, font) sudah terpasang di `<html>` walau semua chunk JS Next diblokir (e2e), dan HTML j1/200 tidak lagi memuat `reader-prefs` lewat `self.__next_s`. *Bukti: e2e `reader-x10` "preferensi pembaca terpasang …" lolos (desktop + ponsel); uji mutasi dengan `layout.tsx` lama → gagal (`data-tr-layout` kosong); HTML j1/200 lokal tanpa `__next_s`, produksi sebelum X10 masih `self.__next_s=…push([0,{"children":"try{var d=…`.*
 - [x] Daftar isi: sesudah gulir bersambung masuk ke bagian yang leluhurnya tertutup, baris aktif terlihat tanpa klik di panel samping dan di sheet ponsel; subjudul kurasi disorot sebagai baris aktif di halaman yang memuatnya (e2e). *Bukti: e2e `reader-x10`: j3/202 baris aktif = subjudul `#p13553` (panel + sheet); 3/201 → 3/202 membuka cabang kitab, cabang yang ditutup tetap tertutup di 3/203; 1/147 → 1/148 membuka lagi induk saudara; sheet ponsel yang dibuka sesudah gulir bersambung (aktivasi virtual tanpa menggulir; lihat Catatan hasil) menyorot `#p13553`.*
 - [x] Halaman sambungan menampilkan catatan AI/tinjau sesuai isinya sendiri (e2e: halaman sambungan dengan tanda "perlu ditinjau" menampilkan catatan tinjau di kakinya). *Bukti: e2e "kaki halaman menurut halamannya sendiri": kaki j1/200 (tepat di bawah teksnya) tanpa catatan tinjau, kaki j1/201 dengan catatan tinjau + catatan AI, urutan DOM 200 → 201, kaki artikel tanpa catatan AI; tes unit `PageFoot` 5 kasus.*
 - [x] Popover label tinjauan tampil berdekatan dengan lencananya dan tidak keluar layar di 375 px (Chromium, cek posisi kotak), tetap terbuka/tertutup tanpa JS, axe lolos. *Bukti: e2e "rincian label …375 px" (markup sama dengan `AiBadge` disisipkan ke halaman pembaca, berjalan juga di CI tanpa data tinjauan): lencana kiri dan kanan → rincian < 16 px di bawah lencana, di dalam 0–375 px, lebar > 300 px; dekat dasar layar → pindah ke atas. Data uji lokal (dua terjemahan j1/200 "Ust. Uji", tidak di-commit): rincian 6 px di bawah lencana di desktop/ponsel/gelap (tangkapan 08–10), Escape menutup dan fokus kembali ke lencana, axe 0 pelanggaran dengan popover terbuka sesudah perbaikan label dalam nama.*
 - [x] HTML `<main>` j1/200 sebelum/sesudah hanya berbeda pada perubahan yang disengaja (dicatat). *Bukti: banding `next dev` lokal, korpus `ihya-v8` sama, ID otomatis React Aria dinormalisasi: j1/200 hanya catatan AI yang pindah dari kaki artikel ke kaki halaman (teks sama); j3/202 itu + cabang kitab aktif terbuka (pohon 15 → 20 baris, gzip 36,4 → 37,3 KB).*
-- [ ] LCP ponsel produksi j1/200 dan j3/202 sebelum dan sesudah deploy tercatat (n=5, berselang-seling) di X09 dan STATUS.
+- [x] LCP ponsel produksi j1/200 dan j3/202 sebelum dan sesudah deploy tercatat (n=5, berselang-seling) di X09 dan STATUS. *Bukti: sebelum (`main` `0f892b8`): j1/200 4,24 dtk, j3/202 3,94 dtk; sesudah deploy X10 (`a24d6ef`, 15:50 WIB): j1/200 **3,95 dtk** (2,16–4,79), j3/202 **4,02 dtk** (3,55–5,05). Lighthouse 13.5.0 ponsel n=5 berselang-seling; dicatat di X09 dan STATUS.*
 - [x] Tangkapan layar desktop, ponsel, dan gelap untuk W2–W4 dilampirkan di PR. *Bukti: `bukti/X10/01`–`10` (08–10 data uji lokal), ditautkan di badan PR.*
 - [x] Teks Arab tetap dari DB (tidak ada string Arab baru di diff `apps/web` selain data tes). *Bukti: grep huruf Arab atas `git diff origin/main...HEAD -- apps/web`: hanya "عنوان" di data tes buatan `toc.test.ts`.*
 - [x] Peninjau dijalankan dan temuannya dikerjakan; ADR bila ada keputusan baru; STATUS, LOG, STACK, dan file ini diperbarui. *Bukti: peninjau 0 blocker, 4 perbaikan dikerjakan (ADR-083 bagian Peninjau); ADR-083, STATUS, LOG, STACK (`react-aria-components` 1.22.1), X09, file ini.*
@@ -63,7 +63,8 @@ Mode baca per bab, koreksi judul daftar isi/ringkasan AI, navigasi tanpa Sidebar
   - W4: CSS anchor positioning untuk rincian label tinjauan (`@supports`, fallback tengah layar); lencana bernama teks yang terlihat + `aria-describedby` (WCAG 2.5.3, temuan axe).
   - Tes: unit `activeRowId`, `PageModel.ai`, `PageFoot`, lencana; e2e baru `reader-x10.spec.ts` (9 skenario).
 - **LCP ponsel produksi sebelum deploy X10** (Lighthouse 13.5.0, Chrome for Testing 1248, n=5 berselang-seling, 2026-10-22 ±14:45 WIB, `main` `0f892b8` = X09 + font Google Sans + X08): j1/200 **4,24 dtk** (3,56–4,40), FCP 1,25, CLS 0,040, TBT 55 ms, skor 85; j3/202 **3,94 dtk** (2,50–4,46), FCP 1,72, CLS 0,001, TBT 66 ms, skor 86. Keduanya ≤ 4,29 dtk.
-- **Verifikasi:** `pnpm check` + `pnpm test` (822 + 387 tes) lolos; e2e pembaca lokal (`reader`, `reader-x04`, `reader-x04b`, `reader-x09`, `reader-x10`, `a11y`) 139 lolos, 11 dilewati.
+- **LCP ponsel produksi sesudah deploy X10** (`a24d6ef`, 15:50 WIB, cara ukur sama): j1/200 **3,95 dtk** (2,16–4,79), FCP 1,74, CLS 0,040, TBT 47 ms, skor 87; j3/202 **4,02 dtk** (3,55–5,05), FCP 1,71, CLS 0,001, TBT 41 ms, skor 86. Perubahan X10 tidak menambah beban halaman berarti; selisih sebelum/sesudah masih di dalam variasi antarputaran (±0,8 dtk).
+- **Verifikasi:** `pnpm check` + `pnpm test` (822 + 387 tes) lolos; CI PR #122 hijau, e2e Preview 178 lolos / 12 dilewati / 0 gagal; e2e pembaca lokal (`reader`, `reader-x04`, `reader-x04b`, `reader-x09`, `reader-x10`, `a11y`) 139 lolos, 11 dilewati.
 - **Peninjau** (`git diff origin/main...HEAD`): 0 blocker, 4 perbaikan, 7 saran; semua perbaikan dikerjakan (lihat ADR-083).
 - **Temuan di lapangan:**
   - Di ponsel tidak ada tombol daftar isi di kepala ringkas; sheet hanya dibuka dari toolbar di atas halaman, dan menggulir ke sana membuat halaman pertama kembali menjadi halaman terbaca. Jadi "sheet sesudah gulir bersambung" diuji dengan aktivasi virtual (seperti pembaca layar). Ini bukan bug, tetapi layak jadi usulan desain: tombol daftar isi di kepala ringkas.
@@ -71,6 +72,5 @@ Mode baca per bab, koreksi judul daftar isi/ringkasan AI, navigasi tanpa Sidebar
   - Kaki halaman kini ada di antara teks dua halaman, jadi celahnya lebih tinggi; bantu gulir e2e `reader-x10` menaruh awal teks di 20% tinggi layar.
   - Label tombol buka/tutup cabang React Aria berbahasa Inggris ("Collapse"/"Expand"): sudah ada sebelum X10, React Aria belum punya terjemahan Indonesia. Belum dikerjakan.
 - **Utang / pesan untuk sesi berikutnya:**
-  - Ukur LCP produksi sesudah deploy X10 (butir di atas), lalu catat di sini, X09, dan STATUS.
   - Tombol daftar isi di kepala ringkas ponsel (usulan, butuh keputusan desain pemilik).
   - Label chevron React Aria berbahasa Inggris (pembaca layar).
