@@ -353,6 +353,8 @@ export interface TrItem {
   anchor: string;
   kind: "body" | "foot";
   location: { label: string; permalink: string };
+  /** "j. 1, h. 200 · p2824" (format daftar antrean). */
+  short_location: string;
   corpus_version: string;
   /** `text_raw` paragraf persis dari DB (teks Arab hanya dari sini). */
   arabic: string;
@@ -394,6 +396,7 @@ export async function translationReviewItem(deps: TrDeps, id: number): Promise<T
     anchor: p.anchor,
     kind: p.kind,
     location: { label: p.location.label, permalink: p.location.permalink },
+    short_location: `j. ${p.location.juz}, h. ${p.location.page_no} · ${p.anchor}`,
     corpus_version: ctx.corpusVersion,
     arabic: p.text_raw,
     ayah_refs: p.ayah_refs,

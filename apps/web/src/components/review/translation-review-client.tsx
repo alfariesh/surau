@@ -416,6 +416,18 @@ export function TranslationReviewClient({ initial }: { initial: TrQueue }) {
     }
   };
 
+  // Hitungan + daftar halaman ini diperbarui tanpa mengganti butir yang sedang dibuka.
+  const refreshQueue = async () => {
+    try {
+      const response = await fetch(`${API}?filter=${queue.filter}&offset=${queue.offset}`, {
+        cache: "no-store",
+      });
+      if (response.ok) setQueue((await response.json()) as TrQueue);
+    } catch {
+      // Hitungan lama tetap tampil; butir sudah tersimpan.
+    }
+  };
+
   const openRef = async () => {
     setError("");
     setNotice("");
@@ -433,7 +445,7 @@ export function TranslationReviewClient({ initial }: { initial: TrQueue }) {
       }
       if (!response.ok) throw new Error("load_failed");
       const data = (await response.json()) as TrItem;
-      setOpened({ id: data.passage_id, label: `${data.location.label} · ${data.anchor}` });
+      setOpened({ id: data.passage_id, label: data.short_location });
       setItem(data);
       setSelected(data.passage_id);
     } catch {
@@ -526,13 +538,7 @@ export function TranslationReviewClient({ initial }: { initial: TrQueue }) {
           if (ref.trim() !== "") void openRef();
         }}
       >
-        <TextField
-          value={ref}
-          onChange={setRef}
-          maxLength={300}
-          variant="secondary"
-          className="flex-1"
-        >
+        <TextField value={ref} onChange={setRef} maxLength={300} className="flex-1">
           <Label>{t.openLabel}</Label>
           <Input />
           <Description>{t.openHint}</Description>
@@ -558,6 +564,7 @@ export function TranslationReviewClient({ initial }: { initial: TrQueue }) {
               if (opened !== null && opened.id === item.passage_id) {
                 setItem(null);
                 setVersion((v) => v + 1);
+                void refreshQueue();
                 return;
               }
               const index = queue.items.findIndex((i) => i.passage_id === item.passage_id);
