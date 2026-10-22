@@ -15,12 +15,12 @@ Format entri:
 
 ---
 
-## 2026-10-22 · X10 · Rapikan sisa kecil pembaca — selesai (kode; ukur LCP sesudah deploy menyusul)
+## 2026-10-22 · X10 · Rapikan sisa kecil pembaca — selesai (PR #122)
 - Dikerjakan: preferensi pembaca lewat skrip mentah (tidak menunggu JS Next); daftar isi menyorot subjudul kurasi aktif dan membuka cabangnya saat gulir bersambung (cabang yang ditutup pembaca dihormati); kaki per halaman cetak (`PageFoot`: ayat, catatan AI, catatan tinjau) untuk halaman pertama dan sambungan; catatan AI menurut konten AI yang belum ditinjau manusia (`PageModel.ai`); rincian label "dikoreksi …" menempel di lencana (CSS anchor positioning) + nama aksesibel = teks lencana (WCAG 2.5.3).
-- Verifikasi: `pnpm verify` → lolos (822 + 387 tes, build) · e2e pembaca lokal 139 lolos, 11 dilewati (termasuk `reader-x10` baru, uji mutasi skrip) · axe 0 pelanggaran dengan popover terbuka (data uji lokal) · banding HTML `<main>` j1/200: hanya catatan AI pindah tempat · Lighthouse produksi sebelum deploy n=5: j1/200 4,24 dtk, j3/202 3,94 dtk · `peninjau` → 0 blocker, 4 perbaikan (dikerjakan).
+- Verifikasi: `pnpm verify` → lolos (822 + 387 tes, build) · e2e pembaca lokal 139 lolos, 11 dilewati (termasuk `reader-x10` baru, uji mutasi skrip) · axe 0 pelanggaran dengan popover terbuka (data uji lokal) · banding HTML `<main>` j1/200: hanya catatan AI pindah tempat · CI PR #122 hijau, e2e Preview 178 lolos / 0 gagal · Lighthouse produksi n=5 sebelum → sesudah deploy: j1/200 4,24 → 3,95 dtk, j3/202 3,94 → 4,02 dtk · `peninjau` → 0 blocker, 4 perbaikan (dikerjakan).
 - Biaya API: –
 - Keputusan: ADR-083.
-- Catatan untuk sesi berikutnya: ukur LCP produksi sesudah deploy X10; usulan tombol daftar isi di kepala ringkas ponsel; label chevron React Aria masih berbahasa Inggris.
+- Catatan untuk sesi berikutnya: usulan tombol daftar isi di kepala ringkas ponsel; label chevron React Aria masih berbahasa Inggris.
 
 ## 2026-10-22 · X08 · Koreksi terjemahan oleh editor/ustadz — selesai (kode; PR #120 + #121)
 - Dikerjakan:
