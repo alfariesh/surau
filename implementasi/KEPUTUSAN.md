@@ -1322,7 +1322,9 @@ MCP Surau menonjolkan nilai-nilai ini. Instruksi server Shamela boleh dipelajari
 **Tinjau ulang bila:** HeroUI menambahkan prop `elementType`/`as` pada `Typography`, atau `CodeBlock` Pro dipakai untuk blok kode halaman MCP.
 
 
-## ADR-056 · Font UI HarmonyOS Sans menggantikan Plus Jakarta Sans — diterima · 2026-10-20
+## ADR-056 · Font UI HarmonyOS Sans menggantikan Plus Jakarta Sans — digantikan ADR-080 · 2026-10-20
+
+> **Digantikan 2026-10-22 (ADR-080):** font UI kini Google Sans (OFL); berkas HarmonyOS dikeluarkan dari repo.
 
 **Konteks:** pemilik memilih HarmonyOS Sans untuk teks antarmuka dan membutuhkan italic asli (Plus Jakarta Sans sebelumnya hanya dimuat gaya normal, jadi teks miring adalah italic buatan browser). Lisensi HarmonyOS Sans (Huawei) bukan OFL: gratis, termasuk komersial, boleh dibundel dengan software, dengan syarat berkas tidak diubah, ada pemberitahuan mencolok bahwa font dipakai, `LICENSE.txt` ikut disertakan, dan font tidak dibagikan sebagai paket tersendiri.
 
@@ -2008,3 +2010,21 @@ JS halaman baca 455 → 405 KB br (lokal), HTML 54 → 26 KB br. Bundle Worker 2
 **Konsekuensi:** ruang path ISR bertambah satu pola (`/kitab/<apa saja>/daftar-isi.json`), sekelas risiko yang diterima ADR-034 butir 2 (404/308 ikut di-cache; karya tak dikenal berhenti di `resolveWork` sebelum membaca pohon). Chunk `next/dynamic` bisa gagal dimuat di tab yang terbuka melewati deploy (aset lama hilang) → layar galat pembaca; risiko diterima. Pembaca dengan preferensi font Arab lain tidak terpengaruh (tanpa preload).
 
 **Tinjau ulang bila:** HeroUI Pro membuat `motion` opsional di Sidebar/Navbar; OpenNext #1370 dan Next #98110 diperbaiki (`inlineCss` layak diuji lagi); pemilik mengganti font UI ke WOFF2/OFL; atau LCP ponsel naik lagi > 10%.
+
+## ADR-080 · Font UI Google Sans (OFL, `next/font/google`) menggantikan HarmonyOS Sans — diterima · 2026-10-22
+
+**Konteks:** sesudah X09 (ADR-079) sisa LCP ponsel di atas target (j1/200 4,15 dtk, j3/202 4,40 dtk; target 4,29) sebagian berasal dari font UI HarmonyOS Sans: tiga TTF ±58 KB (Regular, Medium, Bold) yang ikut terhitung LCP dan membuat hasil naik-turun ±0,8 dtk. Lisensi HarmonyOS melarang konversi WOFF2/subset, dan ADR-056 mencatat berkasnya tidak boleh ada di repo selama repo publik (repo publik). Pemilik memilih di chat 2026-10-22: "ubah jadi Google Sans".
+
+**Keputusan:**
+1. **Google Sans** dari Google Fonts (`ofl/googlesans`: OFL 1.1, tanpa Reserved Font Name; "Google"/"Google Sans" merek dagang Google LLC, hanya tidak boleh dipakai seolah berafiliasi) lewat `next/font/google` (`Google_Sans`, WOFF2 variabel 400–700, di-host sendiri saat build). Dua pemanggilan dengan nama keluarga sama: gaya normal (variabel `--font-ui`, subset Latin di-preload, ±35 KB untuk semua bobot) dan italic (tanpa preload). Bobot 600 kini SemiBold asli (HarmonyOS memakai berkas Bold).
+2. **Huruf cadangan bermetrik sendiri:** `next/font` belum punya metrik Google Sans ("Failed to find font override values"), jadi `adjustFontFallback: false` + `fallback: ["Google Sans Fallback"]`, dan `@font-face` "Google Sans Fallback" di globals.css = `local("Arial")` dengan `size-adjust` 101,95%, `ascent-override` 94,76%, `descent-override` 28,05%, `line-gap-override` 0% (rumus next/font atas metrik capsize berkas Latin wght 400: ascent 966, descent −286, unitsPerEm 1000, xWidthAvg 450 vs Arial 904/2048).
+3. **Berkas HarmonyOS dikeluarkan dari repo** (`apps/web/src/fonts/harmonyos-sans/`, termasuk `LICENSE.txt`); `/lisensi#font` kini menyebut Google Sans + font Arab (OFL) dan catatan merek, tautan ke teks resmi OFL. Riwayat git masih memuat berkas lama (tidak ditulis ulang; `push --force` ke `main` dilarang).
+4. **Alat aset:** `potret.mjs` menyuntikkan `.claude/skills/aset/font/GoogleSans-latin.woff2` (subset Latin resmi Google Fonts, + `OFL.txt`) ke browser pemotret; mesin `iso.js` memakai `'Google Sans', ui-sans-serif, …` (mesin situs dibangun ulang: `aset-mesin/iso-34d5a370f6.js`, figur `public/aset/` + `aset/keluaran/`). Figur di situs tetap tanpa permintaan font.
+
+**Hasil:** lokal (build workerd + proksi HTTP/2 brotli, n=3): LCP j1/200 4,52 → 3,99 dtk, j3/202 4,52 → 4,01 dtk; font UI terkirim ±170 KB → 35 KB (+20 KB subset Latin lanjutan bila ada huruf berdiakritik). Angka Preview vs produksi di LOG/STATUS.
+
+**Ditolak:** Google Sans Flex (lebih banyak sumbu, berkas lebih besar, tanpa italic); tetap HarmonyOS (lisensi + ukuran); Plus Jakarta Sans (bukan pilihan pemilik).
+
+**Konsekuensi:** tampilan huruf antarmuka berubah (lebih geometris; judul semibold). `opengraph-image.jpg`/`twitter-image.jpg` lama masih dirender dengan HarmonyOS sampai dibuat ulang. Perangkat tanpa Arial (Android) memakai `ui-sans-serif` sebagai cadangan selama font diunduh (sama seperti cadangan otomatis next/font).
+
+**Tinjau ulang bila:** next/font menambah metrik Google Sans (hapus cadangan buatan sendiri), atau pemilik mengganti font lagi.

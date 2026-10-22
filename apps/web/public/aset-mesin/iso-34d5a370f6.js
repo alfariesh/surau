@@ -150,7 +150,7 @@ const CSS_DASAR = `
     --body:var(--surface-secondary);--deck:var(--surface);--recess:var(--surface-tertiary);
     --glass:var(--surface-tertiary);--glass-on:color-mix(in oklab,var(--accent) 14%,var(--surface));
     --accent-hi:color-mix(in oklab,var(--accent) 70%,var(--surface));--accent-dim:color-mix(in oklab,var(--accent) 12%,transparent);
-    --font:'HarmonyOS Sans',ui-sans-serif,system-ui,sans-serif}
+    --font:'Google Sans',ui-sans-serif,system-ui,sans-serif}
   :root[data-tema=gelap]{color-scheme:dark;--body:var(--surface);--deck:var(--surface-secondary);--recess:var(--background);
     --line:color-mix(in oklab,var(--foreground) 34%,var(--background));--detail:color-mix(in oklab,var(--foreground) 16%,var(--background));
     --accent-hi:color-mix(in oklab,var(--accent) 60%,white);--glass-on:color-mix(in oklab,var(--accent) 18%,var(--background))}

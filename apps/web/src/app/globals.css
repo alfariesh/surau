@@ -95,10 +95,23 @@
 
 @source "../**/*.{ts,tsx}";
 
-/* Font dari next/font (layout.tsx): --font-harmony (UI) dan --font-naskh (Arab). Nilai cadangan di
+/* Huruf cadangan Google Sans selama berkas font belum siap (layout.tsx): Arial yang ukurannya disamakan.
+   Metrik dihitung dari GoogleSans (Latin, wght 400) dengan rumus next/font: ascent 966, descent -286,
+   lineGap 0, unitsPerEm 1000, xWidthAvg 450 (capsize) dibanding Arial 904/2048. Perangkat tanpa Arial
+   (Android) memakai ui-sans-serif seperti sebelumnya. */
+@font-face {
+  font-family: "Google Sans Fallback";
+  src: local("Arial");
+  ascent-override: 94.76%;
+  descent-override: 28.05%;
+  line-gap-override: 0%;
+  size-adjust: 101.95%;
+}
+
+/* Font dari next/font (layout.tsx): --font-ui (Google Sans, UI) dan --font-naskh (Arab). Nilai cadangan di
    var(): global-error.tsx tidak memasang variabel font, dan var() kosong membatalkan deklarasinya. */
 @theme inline {
-  --font-sans: var(--font-harmony, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-ui, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
@@ -620,7 +633,7 @@ h2.reader-heading-minor {
   display: inline-block;
   margin-inline: 0.25em;
   padding-inline: 0.45em;
-  font-family: var(--font-harmony, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-ui, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.55em;
   line-height: 1.7;
   vertical-align: middle;

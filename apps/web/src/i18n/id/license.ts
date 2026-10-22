@@ -42,8 +42,8 @@ export const license = {
     "Kutipan ayat di dalam kitab dikenali otomatis dengan mencocokkannya ke teks mushaf, lalu ditautkan ke surah dan ayatnya. Teks ayat, terjemahan, dan transliterasi disalin apa adanya dari sumber di bawah; AI tidak pernah menulis atau menerjemahkan ayat.",
   fontHeading: "Font",
   fontText:
-    "Teks antarmuka Surau memakai HarmonyOS Sans (hak cipta Huawei Device Co., Ltd.), dipakai tanpa diubah di bawah Perjanjian Lisensi HarmonyOS Sans Fonts. Teks Arab memakai Noto Naskh Arabic, Amiri, Scheherazade New, dan Noto Sans Arabic (SIL OFL 1.1).",
-  fontLicenseLink: "Perjanjian lisensi font",
+    "Teks antarmuka Surau memakai Google Sans (hak cipta The Google Sans Project Authors). Teks Arab memakai Noto Naskh Arabic, Amiri, Scheherazade New, dan Noto Sans Arabic. Semuanya berlisensi SIL Open Font License 1.1 dan disajikan dari Google Fonts lewat server Surau sendiri. “Google” dan “Google Sans” adalah merek dagang Google LLC; Surau tidak berafiliasi dengan Google.",
+  fontLicenseLink: "SIL Open Font License 1.1",
   correctionHeading: "Koreksi dan penghapusan",
   correctionText:
     "Menemukan salah ketik, teks yang terpotong, atau nomor halaman yang keliru? Ketuk tombol “Laporkan kesalahan” di halaman kitab, atau buka laporan di GitHub.",
