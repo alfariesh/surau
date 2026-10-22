@@ -1,7 +1,5 @@
 "use client";
 
-import type { FormEvent } from "react";
-
 import type { TitleSource } from "../../lib/reader/reader-toc";
 import type { TocItem } from "../../lib/reader/toc";
 
@@ -12,75 +10,29 @@ import {
   LeftToRightListBullet,
   MoreVertical,
 } from "../../icons";
-import { NativeSelect, Sheet } from "@heroui-pro/react";
-import { Button, ButtonGroup, Dropdown, Label, NumberField, Popover } from "@heroui/react";
-import { useRouter } from "next/navigation";
+import { Sheet } from "@heroui-pro/react";
+import { Button, ButtonGroup, Dropdown, Label, Popover, Spinner } from "@heroui/react";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 
 import { useReader } from "./reader-context";
 import { ReaderStyle } from "./reader-style";
 import { TocTree } from "./toc-tree";
 
-const t = id.reader;
+import type { JumpProps } from "./jump-form";
 
-interface JumpProps {
-  segment: string;
-  volumes: number;
-  juz: number;
-  page: number;
-}
+const t = readerText;
 
-/** Isi "Lompat ke halaman": pilih juz + nomor halaman cetak. */
-function JumpForm({ segment, volumes, juz, page, onDone }: JumpProps & { onDone: () => void }) {
-  const router = useRouter();
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const toJuz = Number(form.get("juz"));
-    const toPage = Number(form.get("page"));
-    if (!Number.isInteger(toJuz) || !Number.isInteger(toPage) || toJuz < 1 || toPage < 0) return;
-    onDone();
-    router.push(`/kitab/${segment}/${toJuz}/${toPage}`);
-  }
-
-  return (
-    <form className="flex items-end gap-2" onSubmit={submit}>
-      <div className="flex flex-col gap-1">
-        <label className="text-foreground text-sm font-medium" htmlFor={`lompat-juz-${segment}`}>
-          {t.jumpJuz}
-        </label>
-        <NativeSelect>
-          <NativeSelect.Trigger defaultValue={String(juz)} id={`lompat-juz-${segment}`} name="juz">
-            {Array.from({ length: Math.max(volumes, juz) }, (_, i) => (
-              <NativeSelect.Option key={i + 1} value={String(i + 1)}>
-                {i + 1}
-              </NativeSelect.Option>
-            ))}
-            <NativeSelect.Indicator />
-          </NativeSelect.Trigger>
-        </NativeSelect>
-      </div>
-      <NumberField
-        isRequired
-        className="w-24"
-        defaultValue={page}
-        formatOptions={{ useGrouping: false }}
-        maxValue={9999}
-        minValue={0}
-        name="page"
-      >
-        <Label>{t.jumpPage}</Label>
-        <NumberField.Group>
-          <NumberField.Input />
-        </NumberField.Group>
-      </NumberField>
-      <Button type="submit">{t.jumpGo}</Button>
-    </form>
-  );
-}
+const JumpForm = dynamic(() => import("./jump-form").then((m) => m.JumpForm), {
+  ssr: false,
+  loading: () => (
+    <div className="flex min-h-16 items-center justify-center">
+      <Spinner size="sm" />
+    </div>
+  ),
+});
 
 /** Tablet/desktop: tombol "Lompat" (ikon + teks) dengan popover. */
 function JumpToPage(props: JumpProps) {
@@ -172,8 +124,11 @@ function TocSheet({
   activeIds,
   className,
   scope,
+  segment,
 }: {
+  /** Pohon ringkas (`pruneToc`); pohon lengkap dimuat saat sheet dibuka (X09). */
   toc: TocItem[];
+  segment: string;
   titleSource: TitleSource | null;
   activeIds: number[];
   className?: string;
@@ -197,7 +152,13 @@ function TocSheet({
               <Sheet.Heading>{t.tocHeading}</Sheet.Heading>
             </Sheet.Header>
             <Sheet.Body data-toc-scroll className="pb-6">
-              <TocTree activeIds={activeIds} items={toc} scope={scope} titleSource={titleSource} />
+              <TocTree
+                activeIds={activeIds}
+                fullFrom={segment}
+                items={toc}
+                scope={scope}
+                titleSource={titleSource}
+              />
             </Sheet.Body>
           </Sheet.Dialog>
         </Sheet.Content>
@@ -217,7 +178,10 @@ export function ReaderToolbar({
   pagePath,
   sample,
 }: {
-  /** Pohon daftar isi TAMPILAN (`loadReaderToc`: + subjudul kurasi + judul Indonesia). */
+  /**
+   * Pohon daftar isi TAMPILAN (`loadReaderToc`: + subjudul kurasi + judul Indonesia), versi ringkas
+   * (`pruneToc`, X09): pohon lengkap dimuat saat sheet dibuka.
+   */
   toc: TocItem[];
   titleSource: TitleSource | null;
   activeIds: number[];
@@ -249,6 +213,7 @@ export function ReaderToolbar({
           activeIds={activeIds}
           className="flex-1"
           scope={pagePath}
+          segment={segment}
           titleSource={titleSource}
           toc={toc}
         />
@@ -265,6 +230,7 @@ export function ReaderToolbar({
           activeIds={activeIds}
           className="lg:hidden"
           scope={pagePath}
+          segment={segment}
           titleSource={titleSource}
           toc={toc}
         />

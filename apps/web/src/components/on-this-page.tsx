@@ -4,7 +4,7 @@ import { Button, Dropdown, Label, Typography } from "@heroui/react";
 import { useEffect, useState } from "react";
 
 import { LeftToRightListBullet } from "../icons";
-import { id } from "../i18n/id";
+import { common as commonText } from "../i18n/id/common";
 
 export interface OnThisPageItem {
   /** ID elemen bagian (jangkar `#<id>`, lihat PageSection). */
@@ -59,7 +59,7 @@ function useActiveSection(ids: readonly string[]): string | undefined {
 
 /** Ponsel/tablet: tombol menu ringkas "Di halaman ini" di bawah judul halaman. */
 export function OnThisPageMenu({ items }: { items: OnThisPageItem[] }) {
-  const heading = id.common.onThisPage;
+  const heading = commonText.onThisPage;
   return (
     <div className="lg:hidden">
       <Dropdown>
@@ -85,7 +85,7 @@ export function OnThisPageMenu({ items }: { items: OnThisPageItem[] }) {
 export function OnThisPageNav({ items }: { items: OnThisPageItem[] }) {
   const [ids] = useState(() => items.map((item) => item.id));
   const active = useActiveSection(ids);
-  const heading = id.common.onThisPage;
+  const heading = commonText.onThisPage;
 
   return (
     <nav aria-label={heading} className="sticky top-24 hidden flex-col gap-3 lg:flex">

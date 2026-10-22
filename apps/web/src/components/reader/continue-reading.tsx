@@ -4,10 +4,10 @@ import NextLink from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 
 import { BookOpen01 } from "../../icons";
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { lastReadHref, latestLastRead, parseLastRead } from "../../lib/reader/last-read";
 
-const t = id.reader;
+const t = readerText;
 
 const noopSubscribe = () => () => {};
 

@@ -3,14 +3,14 @@
 import { ProgressCircle } from "@heroui/react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 import { ArabicInline } from "../arabic";
 import { NavbarSlot } from "../shell/navbar-slot";
 
 import { ReaderStyle } from "./reader-style";
 
-const t = id.reader;
+const t = readerText;
 
 /**
  * Posisi baca 0–100 di dalam teks halaman: 0 saat awal teks di atas layar, 100 saat akhir teks

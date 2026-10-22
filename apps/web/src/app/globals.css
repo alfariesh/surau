@@ -177,8 +177,13 @@ body {
  * bertekstur tanpa pita polos; blend multiply/screen tidak mengubah warna teks. Tanpa JavaScript dan
  * WebGL, jadi tekstur ikut tampil sejak cat pertama (setelah tile ter-cache) dan skalanya sama di
  * semua viewport (tile 1024 px selebar 768 px CSS; di layar 2x diperbesar 1,5x, serat tetap lembut). `?v=` diperbarui otomatis oleh `pnpm kertas` saat tile dipanggang ulang.
+ * Tile (±75 KB) hanya dipasang bila <html> beratribut `data-kertas` (X09, lib/paper.ts): pada
+ * kunjungan pertama atribut dipasang sesudah halaman selesai dimuat dan tile terunduh (masuk halus),
+ * supaya tidak berebut jaringan dengan teks halaman di ponsel; sesudahnya tile ada di cache browser
+ * (`immutable`) dan atribut dipasang skrip awal sebelum cat pertama, jadi tekstur tampil sejak awal.
  */
 :root {
+  --paper-mask: url("/kertas/serat.avif?v=4fcb341c");
   --paper-shadow: #cdc8bb;
   --paper-blend: multiply;
   --paper-strength: 0.6;
@@ -196,7 +201,7 @@ body {
 }
 
 @supports (mask-mode: luminance) {
-  body::before {
+  :root[data-kertas] body::before {
     content: "";
     position: fixed;
     inset: 0;
@@ -205,12 +210,30 @@ body {
     background-color: var(--paper-shadow);
     mix-blend-mode: var(--paper-blend);
     opacity: var(--paper-strength);
-    /* Longhand tanpa var() kecuali ukuran: var() yang gagal di shorthand mengosongkan seluruh mask. */
-    mask-image: url("/kertas/serat.avif?v=4fcb341c");
+    /* Longhand, bukan shorthand `mask`: var() yang gagal di shorthand mengosongkan seluruh mask.
+       `--paper-mask` selalu terdefinisi di :root (URL-nya juga dibaca lib/paper.ts). */
+    mask-image: var(--paper-mask);
     mask-mode: luminance;
     mask-repeat: repeat;
     mask-position: 0 0;
     mask-size: var(--paper-tile);
+  }
+
+  /* Kunjungan pertama: tile baru terunduh sesudah halaman tampil, jadi masuk halus. */
+  :root[data-kertas="baru"] body::before {
+    animation: kertas-masuk 0.6s ease-out both;
+  }
+}
+
+@keyframes kertas-masuk {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-kertas] body::before {
+    animation: none;
   }
 }
 

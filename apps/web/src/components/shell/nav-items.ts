@@ -13,7 +13,7 @@ import {
   Search01Duotone,
 } from "../../icons";
 
-import { id } from "../../i18n/id";
+import { nav as navText } from "../../i18n/id/nav";
 
 export type NavItemId = "home" | "books" | "search" | "ask" | "mcp" | "about";
 
@@ -28,26 +28,26 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { id: "home", label: id.nav.home, icon: Home01, activeIcon: Home01Duotone, href: "/" },
+  { id: "home", label: navText.home, icon: Home01, activeIcon: Home01Duotone, href: "/" },
   {
     id: "books",
-    label: id.nav.books,
+    label: navText.books,
     icon: BookOpen01,
     activeIcon: BookOpen01Duotone,
     href: "/kitab",
   },
   {
     id: "search",
-    label: id.nav.search,
+    label: navText.search,
     icon: Search01,
     activeIcon: Search01Duotone,
     href: "/cari",
   },
-  { id: "ask", label: id.nav.ask, icon: HelpCircle, activeIcon: HelpCircleDuotone },
-  { id: "mcp", label: id.nav.mcp, icon: BookOpen01, activeIcon: BookOpen01Duotone, href: "/mcp" },
+  { id: "ask", label: navText.ask, icon: HelpCircle, activeIcon: HelpCircleDuotone },
+  { id: "mcp", label: navText.mcp, icon: BookOpen01, activeIcon: BookOpen01Duotone, href: "/mcp" },
   {
     id: "about",
-    label: id.nav.about,
+    label: navText.about,
     icon: InformationCircle,
     activeIcon: InformationCircleDuotone,
     href: "/tentang",

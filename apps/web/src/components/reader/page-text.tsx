@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { Typography } from "@heroui/react";
 import { Fragment } from "react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import type { Block } from "../../lib/reader/blocks";
 import type { PageModel, PassageModel } from "../../lib/reader/page-model";
 import type { PassageSegment } from "../../lib/reader/segments";
@@ -18,7 +18,7 @@ import { PassageActions } from "./passage-actions";
 import { joinTranslations, PassageTranslation } from "./passage-translation";
 import { SectionSummary } from "./section-summary";
 
-const t = id.reader;
+const t = readerText;
 
 // Teks satu halaman cetak (badan + catatan kaki) dari `PageModel` (X04). Dipakai halaman baca yang
 // dirender server dan halaman sambungan gulir bersambung (W6), jadi tanpa akses data atau API

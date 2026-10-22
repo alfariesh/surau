@@ -2,7 +2,7 @@
 
 import { AppLayout, Navbar, Sidebar } from "@heroui-pro/react";
 
-import { id } from "../../i18n/id";
+import { nav as navText } from "../../i18n/id/nav";
 import { PAGE_FRAME } from "../../lib/layout";
 
 import { NavbarSlotTarget } from "./navbar-slot";
@@ -14,8 +14,8 @@ export function SurauNavbar({ title }: { title?: string }) {
     <Navbar maxWidth="full">
       {/* Header sejajar dengan isi halaman (PAGE_FRAME), bukan selebar layar. */}
       <Navbar.Header className={PAGE_FRAME}>
-        <AppLayout.MenuToggle aria-label={id.nav.openMenu} />
-        <Sidebar.Trigger aria-label={id.nav.toggleSidebar} />
+        <AppLayout.MenuToggle aria-label={navText.openMenu} />
+        <Sidebar.Trigger aria-label={navText.toggleSidebar} />
         {/* Judul halaman dan slot judul ringkas (pembaca) bertumpuk di sel yang sama: saat slot
             terisi dan tampil, judul memudar ke atas dan judul ringkas masuk dari bawah. */}
         <div className="navbar-title-stack grid min-w-0 flex-1 items-center">

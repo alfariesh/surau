@@ -5,7 +5,9 @@ import type { NavItem } from "./nav-items";
 import { Sidebar } from "@heroui-pro/react";
 import NextLink from "next/link";
 
-import { id } from "../../i18n/id";
+import { brand as brandText } from "../../i18n/id/brand";
+import { footer as footerText } from "../../i18n/id/footer";
+import { nav as navText } from "../../i18n/id/nav";
 
 import { SurauMark } from "./logo";
 import { NAV_ITEMS } from "./nav-items";
@@ -33,14 +35,14 @@ function NavMenuItem({
       id={`${idPrefix}${item.id}`}
       isCurrent={isCurrent}
       isDisabled={isSoon}
-      textValue={isSoon ? `${item.label} (${id.nav.soon})` : item.label}
-      tooltip={isSoon ? `${item.label} · ${id.nav.soonHint}` : item.label}
+      textValue={isSoon ? `${item.label} (${navText.soon})` : item.label}
+      tooltip={isSoon ? `${item.label} · ${navText.soonHint}` : item.label}
     >
       <Sidebar.MenuIcon>
         <Icon className="size-4" />
       </Sidebar.MenuIcon>
       <Sidebar.MenuLabel>{item.label}</Sidebar.MenuLabel>
-      {isSoon ? <Sidebar.MenuChip>{id.nav.soon}</Sidebar.MenuChip> : null}
+      {isSoon ? <Sidebar.MenuChip>{navText.soon}</Sidebar.MenuChip> : null}
     </Sidebar.MenuItem>
   );
 }
@@ -70,14 +72,14 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
           <SurauMark className="size-8 shrink-0" />
           <span className="flex min-w-0 flex-col" data-sidebar="label">
             <span className="text-foreground text-2xl font-bold leading-tight">
-              {id.brand.name}
+              {brandText.name}
             </span>
           </span>
         </NextLink>
       </Sidebar.Header>
       <Sidebar.Content>
         <Sidebar.Group>
-          <Sidebar.Menu aria-label={id.nav.label}>
+          <Sidebar.Menu aria-label={navText.label}>
             {MAIN_ITEMS.map((item) => (
               <NavMenuItem key={item.id} activeId={activeId} idPrefix={idPrefix} item={item} />
             ))}
@@ -85,20 +87,20 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
         </Sidebar.Group>
       </Sidebar.Content>
       <Sidebar.Footer>
-        <Sidebar.Menu aria-label={id.nav.about}>
+        <Sidebar.Menu aria-label={navText.about}>
           {FOOTER_ITEMS.map((item) => (
             <NavMenuItem key={item.id} activeId={activeId} idPrefix={idPrefix} item={item} />
           ))}
         </Sidebar.Menu>
         <div className="flex flex-col gap-1 px-2 pb-2 text-xs" data-sidebar="label">
           <NextLink className="link text-xs" href="/lisensi">
-            {id.footer.license}
+            {footerText.license}
           </NextLink>
           <NextLink className="link text-xs" href="/privasi">
-            {id.footer.privacy}
+            {footerText.privacy}
           </NextLink>
           <NextLink className="link text-xs" href="/transparansi">
-            {id.footer.transparency}
+            {footerText.transparency}
           </NextLink>
         </div>
       </Sidebar.Footer>
