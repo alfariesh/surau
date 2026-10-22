@@ -2,13 +2,13 @@
 
 import { Typography } from "@heroui/react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import type { PageData } from "../../lib/reader/page-handler";
 
 import { PageText } from "./page-text";
 import { QuranNotice } from "./quran-notice";
 
-const t = id.reader;
+const t = readerText;
 
 /**
  * Halaman sambungan gulir bersambung (X04 W6), dimuat malas oleh ContinuousReader: setiap halaman

@@ -7,12 +7,12 @@ import { Popover, Typography } from "@heroui/react";
 import { useState, useSyncExternalStore } from "react";
 import { Button as AriaButton } from "react-aria-components";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { ArabicText } from "../arabic";
 
 import { NeedsReviewNote } from "./needs-review";
 
-const t = id.reader;
+const t = readerText;
 
 // Penanda catatan kaki `(١)` di badan teks: tombol yang membuka teks takhrij asli di tempat
 // (.claude/rules/teks-arab.md, Tampilan). Desktop (pointer halus + hover): HoverCard yang juga

@@ -8,9 +8,9 @@ import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 
-const t = id.reader;
+const t = readerText;
 
 // Navigasi halaman cetak. Kitab Arab dibaca dari kanan ke kiri, jadi halaman BERIKUTNYA ada di
 // kiri (← / ArrowLeft) dan SEBELUMNYA di kanan (→ / ArrowRight), sama seperti membalik kitab.

@@ -5,16 +5,21 @@ import type { ReactNode } from "react";
 import type { CiteParts } from "../../lib/reader/cite";
 
 import { toast } from "@heroui/react";
+import dynamic from "next/dynamic";
 import { createContext, use, useCallback, useMemo, useState, useSyncExternalStore } from "react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { copyRich } from "../../lib/clipboard";
 import { citeForPath, citeHtml, citeText, escapeHtml } from "../../lib/reader/cite";
 import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 
-import { FeedbackDialog } from "./feedback-dialog";
+// Dialog laporan (formulir + pilihan jenis) baru diunduh saat pertama dibuka (X09): tidak ikut JS
+// awal halaman baca.
+const FeedbackDialog = dynamic(() => import("./feedback-dialog").then((m) => m.FeedbackDialog), {
+  ssr: false,
+});
 
-const t = id.reader;
+const t = readerText;
 
 /** Paragraf yang dilaporkan / disalin sitasinya. */
 export interface PassageRef {
@@ -121,14 +126,16 @@ export function ReaderProvider({
   return (
     <ReaderContext value={value}>
       {children}
-      <FeedbackDialog
-        key={report.round}
-        isOpen={report.open}
-        // Paragraf halaman sambungan (gulir bersambung) dilaporkan dengan path halamannya sendiri.
-        pagePath={report.passage ? report.passage.permalink.split("#")[0]! : readingPath}
-        passage={report.passage}
-        onOpenChange={(open) => setReport((r) => ({ ...r, open }))}
-      />
+      {report.round === 0 ? null : (
+        <FeedbackDialog
+          key={report.round}
+          isOpen={report.open}
+          // Paragraf halaman sambungan (gulir bersambung) dilaporkan dengan path halamannya sendiri.
+          pagePath={report.passage ? report.passage.permalink.split("#")[0]! : readingPath}
+          passage={report.passage}
+          onOpenChange={(open) => setReport((r) => ({ ...r, open }))}
+        />
+      )}
     </ReaderContext>
   );
 }

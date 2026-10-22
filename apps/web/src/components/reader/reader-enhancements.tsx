@@ -4,10 +4,10 @@ import { useEffect } from "react";
 
 import type { CopyPiece } from "../../lib/reader/id-text";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { labelledCopy } from "../../lib/reader/id-text";
 
-const t = id.reader;
+const t = readerText;
 
 // Perilaku halaman baca yang bekerja lewat satu pendengar di dokumen (X04), sehingga berlaku juga
 // untuk halaman sambungan gulir bersambung tanpa memasang ulang apa pun:

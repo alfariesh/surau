@@ -3,10 +3,10 @@
 import { Alert, CloseButton } from "@heroui/react";
 import NextLink from "next/link";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { AI_NOTICE_KEY } from "../../lib/reader/scale";
 
-const t = id.reader;
+const t = readerText;
 
 /**
  * Catatan terjemahan AI di awal teks halaman (X04 W3): satu kalimat yang menjelaskan semua lencana

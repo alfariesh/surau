@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 
 import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { shortAyahLabel } from "../../lib/reader/ayah";
 import { aiRuns } from "../../lib/reader/id-text";
 import type { TranslationModel, TranslationSegmentView } from "../../lib/reader/page-model";
 
-const t = id.reader;
+const t = readerText;
 
 // Terjemahan AI satu paragraf (S13 dibuat, S14 tampil, X04 ditata ulang). Selalu berlabel
 // (teks-arab.md aturan 8): pembaca layar mendengar "Terjemahan AI:" di awal, mata melihat lencana

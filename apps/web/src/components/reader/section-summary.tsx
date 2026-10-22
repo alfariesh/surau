@@ -4,12 +4,12 @@ import type { SummaryView } from "@surau/core";
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { summaryParagraphs } from "../../lib/reader/id-text";
 import { ArabicInline } from "../arabic";
 import { Typography } from "@heroui/react";
 
-const t = id.reader;
+const t = readerText;
 
 // Ringkasan AI bagian daftar isi yang mulai di halaman ini (S13 dibuat, S14 tampil), berlabel
 // "Ringkasan AI". Catatan tipis di bawah judul bab: garis aksen di tepi, dua baris pertama, lalu

@@ -6,13 +6,14 @@ import type { ReactNode } from "react";
 import { Card, Chip, Typography } from "@heroui/react";
 import NextLink from "next/link";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
+import { search as searchText } from "../../i18n/id/search";
 import { aiSegments, markSegments, readerHref } from "../../lib/search/segments";
 import type { TextSegment } from "../../lib/search/segments";
 import { ArabicInline, ArabicText } from "../arabic";
 
-const t = id.search;
-const r = id.reader;
+const t = searchText;
+const r = readerText;
 
 // Kartu satu halaman cetak hasil Cari (S14): judul bagian + letak (j/h), lalu setiap paragraf
 // cocok: potongan Arab ASLI (irisan text_raw dari API, sorotan hanya membungkus), terjemahan AI

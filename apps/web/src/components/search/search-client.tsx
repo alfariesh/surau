@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Keyed } from "../../lib/search/keyed";
 import type { SectionOption } from "../../lib/search/sections";
 
-import { id } from "../../i18n/id";
+import { search as searchText } from "../../i18n/id/search";
 import { keepCurrent } from "../../lib/search/keyed";
 import { selectedSection } from "../../lib/search/sections";
 import { parseSection, searchApiUrl, searchPageHref } from "../../lib/search/segments";
@@ -22,7 +22,7 @@ import { ArabicInline } from "../arabic";
 import { ExampleText } from "./example-text";
 import { ResultCard } from "./result-card";
 
-const t = id.search;
+const t = searchText;
 
 /** Halaman cetak per permintaan API. */
 const PAGE_LIMIT = 20;

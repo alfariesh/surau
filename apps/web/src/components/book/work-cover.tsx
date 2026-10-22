@@ -1,11 +1,11 @@
 import type { BookWidth } from "./book";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { CITE_AUTHOR } from "../../content/works";
 import { ArabicInline } from "../arabic";
 import { Book, BookPattern } from "./book";
 
-const t = id.reader;
+const t = readerText;
 
 export interface WorkCoverData {
   slug: string;

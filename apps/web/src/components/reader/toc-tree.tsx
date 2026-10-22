@@ -15,13 +15,14 @@ import {
   NavigationTreeItemContent,
 } from "react-aria-components";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 import { modelName } from "../../lib/model-names";
 import { ArabicInline } from "../arabic";
+import { fullTocFor, loadFullToc, subscribeFullToc } from "../../lib/reader/full-toc";
 import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 import { tocHref, tocPath, tocRows } from "../../lib/reader/toc";
 
-const t = id.reader;
+const t = readerText;
 
 /** Tanggal ISO (YYYY-MM-DD) → "21 Oktober 2026" (UTC, sama di server dan klien). */
 const longDate = (iso: string) =>
@@ -60,21 +61,33 @@ function TitleNote({ id: noteId, source }: { id: string; source: TitleSource }) 
 // berwarna aksen. Judul Arab persis dari DB lewat ArabicInline (<bdi>); judul Indonesia (terjemahan
 // AI, X04 W8) di atasnya bila ada, dengan satu label di kepala pohon.
 export function TocTree({
-  items,
+  items: given,
   activeIds = [],
   className,
+  fullFrom,
   scope,
   titleSource = null,
 }: {
   items: TocItem[];
   activeIds?: number[];
   className?: string;
+  /**
+   * Segmen karya bila `items` hanya pohon ringkas (`pruneToc`, halaman baca, X09): pohon lengkap
+   * diambil begitu pohon ini tampil di layar (panel samping desktop, sheet ponsel saat dibuka).
+   */
+  fullFrom?: string;
   /** Permalink halaman baca (server): bagian aktif mengikuti halaman sambungan yang sedang dibaca. */
   scope?: string;
   /** Sumber judul Indonesia (model, prompt, tanggal); `null` = pohon tanpa judul Indonesia. */
   titleSource?: TitleSource | null;
 }) {
   const noteId = useId();
+  const full = useSyncExternalStore(
+    subscribeFullToc,
+    () => (fullFrom === undefined ? null : fullTocFor(fullFrom)),
+    () => null,
+  );
+  const items = full?.items ?? given;
   // Gulir bersambung (X04 W6): bagian aktif mengikuti halaman yang sedang dibaca, juga untuk pohon
   // di sheet ponsel yang baru dipasang saat dibuka (nilai terakhir disimpan di modul).
   const live = useSyncExternalStore(
@@ -97,18 +110,50 @@ export function TocTree({
   // Di panel samping (berkelas `data-toc-scroll`), gulir panel ke bagian aktif saat halaman dibuka,
   // tanpa menggulir halaman itu sendiri.
   const ref = useRef<HTMLDivElement>(null);
+
+  // Pohon ringkas → lengkap (X09): ambil hanya bila pohon ini terlihat (panel samping disembunyikan
+  // di ponsel tidak pernah berpotongan dengan layar), dan pada muat pertama baru sesudah halaman
+  // selesai dimuat, supaya tidak berebut jaringan dengan isi halaman.
+  useEffect(() => {
+    const el = ref.current;
+    if (fullFrom === undefined || full !== null || !el) return;
+    let cancel = () => {};
+    const start = () => {
+      if (document.readyState === "complete") {
+        loadFullToc(fullFrom);
+        return;
+      }
+      const onLoad = () => loadFullToc(fullFrom);
+      window.addEventListener("load", onLoad, { once: true });
+      cancel = () => window.removeEventListener("load", onLoad);
+    };
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        io.disconnect();
+        start();
+      }
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      cancel();
+    };
+  }, [fullFrom, full]);
   useEffect(() => {
     const box = ref.current?.closest<HTMLElement>("[data-toc-scroll]");
     const target = ref.current?.querySelector<HTMLElement>("[data-current]");
     if (!box || !target) return;
     const offset = target.getBoundingClientRect().top - box.getBoundingClientRect().top;
     box.scrollTop += offset - box.clientHeight / 3;
-  }, [activeId]);
+  }, [activeId, full]);
 
   return (
     <>
       {titleSource ? <TitleNote id={noteId} source={titleSource} /> : null}
       <NavigationTree
+        // Pohon ringkas → lengkap dipasang ulang: `defaultExpandedKeys` hanya dibaca saat pasang,
+        // padahal bagian aktif (gulir bersambung) bisa belum ada di pohon ringkas.
+        key={full === null ? "ringkas" : "lengkap"}
         ref={ref}
         aria-describedby={titleSource ? noteId : undefined}
         aria-label={t.tocLabel}

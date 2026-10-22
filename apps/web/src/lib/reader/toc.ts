@@ -21,6 +21,11 @@ export interface TocItem {
   juz: number;
   page: number;
   children: TocItem[];
+  /**
+   * Node punya anak yang sengaja tidak dikirim (`pruneToc`, X09): HTML halaman baca hanya membawa
+   * baris yang tampil terbuka; pohon lengkap dimuat klien belakangan (`/kitab/<karya>/daftar-isi.json`).
+   */
+  more?: true;
 }
 
 export function slimToc(nodes: readonly TocNode[]): TocItem[] {
@@ -34,6 +39,20 @@ export function slimToc(nodes: readonly TocNode[]): TocItem[] {
     page: n.start.page_no,
     children: slimToc(n.children),
   }));
+}
+
+/**
+ * Pohon yang hanya memuat baris yang tampil saat halaman baca dibuka (X09): semua akar, dan anak
+ * dari node yang terbuka (`open` = leluhur bagian aktif, sama dengan `defaultExpandedKeys` di
+ * TocTree). Anak node lain dibuang dan node itu ditandai `more` (ruang chevron tetap ada, jadi
+ * baris tidak bergeser saat pohon lengkap datang).
+ */
+export function pruneToc(items: readonly TocItem[], open: ReadonlySet<number>): TocItem[] {
+  return items.map((item) => {
+    if (open.has(item.id)) return { ...item, children: pruneToc(item.children, open) };
+    if (item.children.length === 0) return item;
+    return { ...item, children: [], more: true };
+  });
 }
 
 /** Semua node dalam urutan baca (pre-order). */
@@ -137,7 +156,7 @@ export function tocRows(items: readonly TocItem[], activeId?: number): Map<numbe
   }
   const rows = new Map<number, TocRow>();
   const visit = (nodes: readonly TocItem[], up: TocItem | undefined, chain: Step[]) => {
-    const chevronSlot = nodes.some((n) => n.children.length > 0);
+    const chevronSlot = nodes.some((n) => n.children.length > 0 || n.more === true);
     nodes.forEach((item, index) => {
       const steps = [...chain, { item, index, isLast: index === nodes.length - 1, parent: up }];
       // Kolom j menggantung dari leluhur di tingkat j+1; langkah s adalah anaknya di jalur baris ini.

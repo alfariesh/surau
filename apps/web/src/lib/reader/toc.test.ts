@@ -2,7 +2,16 @@ import type { TocNode } from "@surau/core";
 
 import { describe, expect, it } from "vite-plus/test";
 
-import { activeTocIds, flattenToc, pageSections, slimToc, tocHref, tocPath, tocRows } from "./toc";
+import {
+  activeTocIds,
+  flattenToc,
+  pageSections,
+  pruneToc,
+  slimToc,
+  tocHref,
+  tocPath,
+  tocRows,
+} from "./toc";
 
 function node(id: number, title: string, juz: number, page: number, children: TocNode[] = []) {
   const n: TocNode = {
@@ -81,5 +90,37 @@ describe("toc", () => {
     // Bagian aktif di akar: tidak ada induk, jadi tidak ada garis beraksen.
     const flat = [...tocRows(TREE, 5).values()].flatMap((r) => r.guides);
     expect(flat.every((g) => g.accent === "none")).toBe(true);
+  });
+
+  it("pohon ringkas (X09): akar utuh, anak hanya dari node terbuka, `more` hanya di node beranak", () => {
+    // Bagian aktif = 2; TocTree membuka leluhurnya (1).
+    const open = new Set(
+      tocPath(TREE, 2)
+        .slice(0, -1)
+        .map((n) => n.id),
+    );
+    const pruned = pruneToc(TREE, open);
+    expect(pruned.map((n) => n.id)).toEqual([1, 5]);
+    expect(pruned[0]!.children.map((n) => n.id)).toEqual([2, 3]);
+    const [two, three] = pruned[0]!.children;
+    expect(two!.more).toBeUndefined();
+    expect(three!.children).toEqual([]);
+    expect(three!.more).toBe(true);
+    expect(pruned[1]!.more).toBeUndefined();
+    // Tanpa bagian aktif: hanya akar.
+    expect(pruneToc(TREE, new Set()).every((n) => n.children.length === 0)).toBe(true);
+    // Pohon asli tidak berubah.
+    expect(TREE[0]!.children[1]!.children).toHaveLength(1);
+  });
+
+  it("pohon ringkas: garis pemandu dan ruang chevron baris yang tampil sama dengan pohon lengkap", () => {
+    const open = new Set(
+      tocPath(TREE, 2)
+        .slice(0, -1)
+        .map((n) => n.id),
+    );
+    const full = tocRows(TREE, 2);
+    const shell = tocRows(pruneToc(TREE, open), 2);
+    for (const id of [1, 2, 3, 5]) expect(shell.get(id), String(id)).toEqual(full.get(id));
   });
 });

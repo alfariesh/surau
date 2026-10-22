@@ -6,6 +6,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 
 import { id } from "../i18n/id";
+import { PAPER_SCRIPT } from "../lib/paper";
 import { READER_SCALE_SCRIPT } from "../lib/reader/scale";
 import { OPEN_GRAPH_BASE, SITE_URL } from "../lib/site";
 
@@ -16,7 +17,11 @@ import "./globals.css";
 // Font UI: HarmonyOS Sans (Huawei; lisensi khusus, ADR-056), disalin apa adanya dari TTF resmi tanpa
 // diubah. Berkasnya statis: tidak ada SemiBold, jadi weight 600 (judul) memakai berkas Bold. Font
 // Arab: Noto Naskh Arabic (T-08, ADR-027), diunduh saat build dan di-host sendiri oleh next/font.
-// Naskh tidak di-preload: teks Arab belum ada di setiap halaman, jadi tidak perlu membebani halaman lain.
+// Naskh tidak di-preload: teks Arab belum ada di setiap halaman, jadi tidak perlu membebani halaman
+// lain (preload khusus halaman baca ditolak di X09: next/font memberi berkas preload URL lain, jadi
+// berkas yang sama bisa terunduh dua kali). HarmonyOS juga tanpa preload (X09): empat TTF
+// ±230 KB yang di-preload berebut jaringan dengan CSS dan teks halaman di ponsel; berkas tetap dimuat
+// begitu teksnya tampil (Italic hanya bila ada teks miring).
 const harmony = localFont({
   src: [
     { path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Regular.ttf", weight: "400", style: "normal" },
@@ -30,6 +35,7 @@ const harmony = localFont({
   ],
   variable: "--font-harmony",
   display: "swap",
+  preload: false,
 });
 
 const naskh = Noto_Naskh_Arabic({
@@ -94,6 +100,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="id"
     >
       <body className="bg-background text-foreground font-sans antialiased">
+        {/* Tekstur kertas (X09, lib/paper.ts): skrip mentah supaya dijalankan saat HTML diurai, sebelum
+            isi tampil; bila tile belum pernah terunduh, tekstur ditunda sampai halaman dimuat. */}
+        <script dangerouslySetInnerHTML={{ __html: PAPER_SCRIPT }} suppressHydrationWarning />
         {/* Preferensi tampilan pembaca dipasang di <html> sebelum teks tampil (tidak berkedip). Harus di
             root layout: <script> di dalam halaman tidak dijalankan saat navigasi klien dan memicu
             peringatan React. Selektornya hanya mengenai kelas pembaca, jadi aman di semua halaman. */}

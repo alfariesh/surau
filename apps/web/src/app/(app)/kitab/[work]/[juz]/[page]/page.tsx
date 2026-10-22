@@ -31,6 +31,7 @@ import {
   activeTocIds,
   flattenToc,
   pageSections,
+  pruneToc,
   tocHref,
   tocPath,
 } from "../../../../../../lib/reader/toc";
@@ -81,6 +82,16 @@ export default async function ReaderPage({ params }: Props) {
 
   const activeIds = activeTocIds(toc, juz, pageNo, page.body);
   const crumbs = activeIds[0] === undefined ? [] : tocPath(toc, activeIds[0]);
+  // Pohon yang dikirim ke klien hanya baris yang tampil terbuka (X09: pohon lengkap 522 baris
+  // berjudul ganda menambah ±20 KB gzip di setiap halaman); TocTree mengambil pohon lengkap
+  // (`/kitab/<karya>/daftar-isi.json`) saat pohon tampil. Leluhur bagian aktif = baris yang dibuka TocTree.
+  const lastActive = activeIds.at(-1);
+  const openIds = new Set(
+    (lastActive === undefined ? [] : tocPath(shown.items, lastActive).slice(0, -1)).map(
+      (n) => n.id,
+    ),
+  );
+  const tocShell = pruneToc(shown.items, openIds);
   // Model siap render (subjudul kurasi, syair, terjemahan): bentuk yang sama dipakai halaman
   // sambungan gulir bersambung (X04).
   const model = await buildPageModel(page, {
@@ -155,7 +166,7 @@ export default async function ReaderPage({ params }: Props) {
               sample={sample}
               segment={segment}
               titleSource={shown.titleSource}
-              toc={shown.items}
+              toc={tocShell}
               volumes={edition.volumes ?? juz}
             />
           </header>
@@ -231,7 +242,8 @@ export default async function ReaderPage({ params }: Props) {
             </Typography.Heading>
             <TocTree
               activeIds={activeIds}
-              items={shown.items}
+              fullFrom={segment}
+              items={tocShell}
               scope={permalink}
               titleSource={shown.titleSource}
             />

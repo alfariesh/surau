@@ -5,11 +5,11 @@ import type { PassageRef } from "./reader-context";
 import { MoreVertical } from "../../icons";
 import { Button, Dropdown, Label } from "@heroui/react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 
 import { useReader } from "./reader-context";
 
-const t = id.reader;
+const t = readerText;
 
 /**
  * Menu kecil per paragraf: salin sitasi paragraf (permalink `#pN`), bagikan tautannya (lembar bagi

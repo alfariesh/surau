@@ -7,13 +7,14 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { id } from "../../i18n/id";
+import { meta as metaText } from "../../i18n/id/meta";
+import { reader as readerText } from "../../i18n/id/reader";
 import type { PageData } from "../../lib/reader/page-handler";
 import { announceReaderPage } from "../../lib/reader/reader-page-event";
 
 import { PageNav } from "./page-nav";
 
-const t = id.reader;
+const t = readerText;
 
 // Gulir bersambung (X04 W6): di akhir halaman cetak, halaman berikutnya dimuat di bawahnya (JSON
 // /api/halaman, dirender komponen yang sama dengan halaman server). URL dan judul tab diganti ke
@@ -162,7 +163,7 @@ export function ContinuousReader({
           current.current = { juz: page.juz, page: page.page };
           const url = permalinks.get(key) ?? initialUrl.current;
           if (url) window.history.replaceState(null, "", url);
-          document.title = `${t.pageMetaTitle(page.bab, workTitle, page.juz, page.page)} · ${id.meta.siteName}`;
+          document.title = `${t.pageMetaTitle(page.bab, workTitle, page.juz, page.page)} · ${metaText.siteName}`;
           announceReaderPage({
             scope: first.permalink,
             juz: page.juz,
