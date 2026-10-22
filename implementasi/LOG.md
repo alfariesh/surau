@@ -15,7 +15,7 @@ Format entri:
 
 ---
 
-## 2026-10-22 · X04 bagian B · Daftar isi pembaca dengan subjudul + judul daftar isi Indonesia, korpus `ihya-v8` — sebagian (PR #116; promote menunggu pemilik)
+## 2026-10-22 · X04 bagian B · Daftar isi pembaca dengan subjudul + judul daftar isi Indonesia, korpus `ihya-v8` — selesai (PR #116 + PR promote `ihya-v8`)
 - Dikerjakan:
   - **W7** daftar isi pembaca = pohon `toc_node` + 209 subjudul kurasi sebagai anak node (`loadReaderToc`, `lib/reader/reader-toc.ts`, `@surau/core` `subheadingPartText`): kitab tanpa anak 19 → 6; breadcrumb/`<title>`/OG/bagian aktif tetap pohon `toc_node`; MCP + Jawab tidak disentuh.
   - **Judul node salah tempat:** kurasi `node_tail` (butir daftar p16599/p18644 → teks biasa, judul di akhir p16600/p18645 → h2 + jangkar), dan judul node = paragraf pertama node di halaman awalnya yang sama dengan judul (8 node berjangkar di kolofon/pengantar kini tampil sebagai judul; jangkar + ringkasan ikut pindah). `toc_node`/`passage.toc_node_id` tidak diubah.
@@ -23,9 +23,10 @@ Format entri:
   - Korpus **`ihya-v8`** dibangun (= v7 + judul 313/209 + 5 terjemahan `@4` yang sudah ada di `data/build/llm`) dan dimuat ke staging + D1 lokal worktree.
 - Verifikasi: `pnpm verify` → lolos (772 + 351 tes, build) · `pnpm ingest ihya` → semua invarian ✓, judul 522/522 · `corpus:qa staging` (v8) → **30/30** · `eval:retrieval --gate` v8 hit@1 64,5% / hit@5 96,8% / hit@10 **100%** / MRR 0,795 = v7 (salinan build v7, angka identik) · `getToc` v8 = 313 node · e2e lokal pembaca + axe 117 lolos (`reader-x04b` baru) · CI PR #116 hijau · HTML Preview j1/200: `<title>`/OG/breadcrumb Arab, judul Indonesia berlabel · `peninjau` → 0 blocker, 1 perbaikan (judul subjudul terikat `source_sha256` judul Arab) + 8 saran, semuanya dikerjakan; migrasi 0007 (belum pernah di produksi) diubah, staging dipulihkan + dimuat ulang, `corpus:qa staging` ulang 30/30, `pnpm test` 775 + 352 lolos.
 - Biaya API: **US$0,4117** (Sonnet 5.5, 10 request: uji v1 US$0,0443 dibuang karena prompt diganti v2, v2 7 kelompok + ulang 2 judul terpanjang) dari pagu US$1 (jawaban desain X04 no. 5). Perkiraan rencana ±US$0,26 belum menghitung glosarium di prompt.
-- Belum: `ihya-v8` di produksi (butuh izin pemilik; `corpus:promote` ditolak mode otomatis bila tanpa izin), `corpus:qa ihya-v8` produksi sesudah promote. HTML j1/200 +50% gzip (41 → 61 KB) karena pohon daftar isi lebih besar: usul pemuatan malas di sesi kinerja.
+- Promote (2026-10-22, izin pemilik di chat "Ya saya promote ihya v8"): build bersih dari `main` (sha256 `fe617897…`), `corpus:promote ihya-v8 --confirm` → muatan pertama putus InternalError Cloudflare (binding belum diubah), diulang `--reload` ke DB baru → smoke = build; `corpus:qa ihya-v8` → 30/30; binding web/MCP/API + `SEARCH_CACHE_CORPUS` → `surau-corpus-ihya-v8`, `ihya-v7` jadi target rollback (`data/SOURCES.md`).
+- Catatan ukuran: HTML j1/200 +50% gzip (41 → 61 KB) karena pohon daftar isi lebih besar: usul pemuatan malas di sesi kinerja.
 - Keputusan: ADR-077, ADR-078.
-- Catatan untuk sesi berikutnya: build `ihya-v8` ada di `.claude/worktrees/x04b-mutu-baca/data/build` (jangan hapus worktree sebelum promote); hasil judul di `data/build/llm/toc-title{,-runs}.jsonl` (checkout utama, jangan dihapus).
+- Catatan untuk sesi berikutnya: hasil judul di `data/build/llm/toc-title{,-runs}.jsonl` (checkout utama, jangan dihapus); usul sesi kinerja LCP (pemuatan malas pohon daftar isi).
 
 ## 2026-10-21 · X04 · Mutu baca pembaca Ihya bagian A + T-17 tahap 3 — sebagian (PR #115)
 - Dikerjakan:
