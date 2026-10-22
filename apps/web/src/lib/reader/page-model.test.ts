@@ -283,6 +283,7 @@ describe("buildPageModel: syair dan placeholder ayat", () => {
       { editionId: 1, sections: [] },
     );
     expect(onlyReviewed.anyAi).toBe(false);
+    expect(onlyReviewed.ai).toEqual({ translation: false, summary: false, reviewed: true });
     const mixed = await buildPageModel(
       page([
         passage(203, T_HEAD, { translation: reviewed }),
@@ -291,12 +292,14 @@ describe("buildPageModel: syair dan placeholder ayat", () => {
       { editionId: 1, sections: [] },
     );
     expect(mixed.anyAi).toBe(true);
+    expect(mixed.ai).toEqual({ translation: true, summary: false, reviewed: true });
     // Terjemahan ditolak tidak tampil, jadi tidak memicu catatan.
     const rejected = await buildPageModel(
       page([passage(205, T_HEAD, { translation: { ...aiTr("x"), review_status: "rejected" } })]),
       { editionId: 1, sections: [] },
     );
     expect(rejected.anyAi).toBe(false);
+    expect(rejected.ai).toEqual({ translation: false, summary: false, reviewed: false });
     const summary = await buildPageModel(
       {
         ...page([passage(206, T_HEAD, { translation: reviewed })]),
@@ -304,7 +307,9 @@ describe("buildPageModel: syair dan placeholder ayat", () => {
       } as unknown as PageView,
       { editionId: 1, sections: [] },
     );
+    // Ringkasan AI saja (semua terjemahan sudah ditinjau): catatan menyebut ringkasan, bukan terjemahan.
     expect(summary.anyAi).toBe(true);
+    expect(summary.ai).toEqual({ translation: false, summary: true, reviewed: true });
   });
 
   it("placeholder ayat tanpa terjemahan Kemenag: segmen invalid berlabel rujukan ringkas", async () => {

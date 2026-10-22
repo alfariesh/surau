@@ -61,9 +61,10 @@ function TitleNote({ id: noteId, source }: { id: string; source: TitleSource }) 
 // subjudul kurasi (X04 W7), ke paragrafnya (`#pN`). Hanya SATU baris aktif berlatar (bagian
 // terakhir yang tampil di halaman ini, `activeIds.at(-1)`, atau subjudul terakhirnya sampai halaman
 // ini, X10 `activeRowId`); garis dari induknya ke baris itu berwarna aksen. Leluhur baris aktif
-// dibuka setiap kali baris aktif berpindah (halaman sambungan, pohon lengkap datang) tanpa menutup
-// cabang lain; cabang yang ditutup pembaca tetap tertutup selama baris aktif sama. Judul Arab persis dari DB lewat ArabicInline (<bdi>); judul Indonesia (terjemahan
-// AI, X04 W8) di atasnya bila ada, dengan satu label di kepala pohon.
+// dibuka setiap kali baris aktif atau jalurnya berpindah (halaman sambungan, pohon lengkap datang)
+// tanpa menutup cabang lain; cabang yang ditutup pembaca tetap tertutup selama baris aktif sama.
+// Judul Arab persis dari DB lewat ArabicInline (<bdi>); judul Indonesia (terjemahan AI, X04 W8) di
+// atasnya bila ada, dengan satu label di kepala pohon.
 export function TocTree({
   items: given,
   activeIds = [],
@@ -119,13 +120,14 @@ export function TocTree({
   const rows = useMemo(() => tocRows(items, activeId), [items, activeId]);
   const ancestors = useMemo(() => (active ?? []).slice(0, -1).map((n) => n.id), [active]);
   // Cabang terbuka dikendalikan (X10): `defaultExpandedKeys` hanya dibaca saat pasang, jadi leluhur
-  // bagian aktif halaman sambungan dulu tetap tertutup. Leluhur ditambahkan saat jalurnya berubah
-  // (penyesuaian state saat render, bukan efek: tanpa satu cat dengan cabang tertutup).
-  const ancestorsKey = ancestors.join(",");
+  // bagian aktif halaman sambungan dulu tetap tertutup. Leluhur ditambahkan saat baris aktif atau
+  // jalurnya berubah, juga ke saudara dengan leluhur yang sama (penyesuaian state saat render, bukan
+  // efek: tanpa satu cat dengan cabang tertutup).
+  const activeKey = `${activeId ?? ""}|${ancestors.join(",")}`;
   const [expanded, setExpanded] = useState<Set<Key>>(() => new Set(ancestors));
-  const [expandedFor, setExpandedFor] = useState(ancestorsKey);
-  if (expandedFor !== ancestorsKey) {
-    setExpandedFor(ancestorsKey);
+  const [expandedFor, setExpandedFor] = useState(activeKey);
+  if (expandedFor !== activeKey) {
+    setExpandedFor(activeKey);
     setExpanded((open) => new Set([...open, ...ancestors]));
   }
   const current = active?.at(-1);

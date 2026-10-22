@@ -5,8 +5,8 @@ import { Typography } from "@heroui/react";
 import { reader as readerText } from "../../i18n/id/reader";
 import type { PageData } from "../../lib/reader/page-handler";
 
+import { PageFoot } from "./page-foot";
 import { PageText } from "./page-text";
-import { QuranNotice } from "./quran-notice";
 
 const t = readerText;
 
@@ -14,9 +14,7 @@ const t = readerText;
  * Halaman sambungan gulir bersambung (X04 W6), dimuat malas oleh ContinuousReader: setiap halaman
  * cetak berikutnya dirender dengan komponen yang sama dengan halaman server (PageText), di bawah
  * pemisah tipis "Juz 1 · Halaman 201" (h2). Teks dan terjemahan dari model JSON /api/halaman.
- * Kaki halaman sambungan menurut halaman itu sendiri (X10): atribusi ayat bila mengutip ayat, catatan
- * AI bila ada konten AI yang belum ditinjau manusia, catatan "perlu ditinjau" bila ada tandanya. Kaki
- * halaman pertama (server) tetap menurut halaman pertama.
+ * Kaki halaman sambungan menurut halaman itu sendiri (X10, `PageFoot`, sama dengan halaman pertama).
  */
 export function ContinuousPages({
   pages,
@@ -48,21 +46,7 @@ export function ContinuousPages({
           label={t.continuedRegion(model.juz, model.pageNo)}
           model={model}
         />
-        {model.quran || model.anyAi || model.anyReview ? (
-          <div className="text-muted flex flex-col gap-2 text-xs" data-page-foot="">
-            {model.quran ? <QuranNotice quran={model.quran} /> : null}
-            {model.anyAi ? (
-              <Typography color="muted" type="body-xs">
-                {t.aiNotice}
-              </Typography>
-            ) : null}
-            {model.anyReview ? (
-              <Typography color="muted" type="body-xs">
-                {t.needsReviewNote}
-              </Typography>
-            ) : null}
-          </div>
-        ) : null}
+        <PageFoot model={model} />
       </section>
     );
   });

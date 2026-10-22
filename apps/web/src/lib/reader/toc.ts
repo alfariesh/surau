@@ -43,8 +43,8 @@ export function slimToc(nodes: readonly TocNode[]): TocItem[] {
 
 /**
  * Pohon yang hanya memuat baris yang tampil saat halaman baca dibuka (X09): semua akar, dan anak
- * dari node yang terbuka (`open` = leluhur bagian aktif, sama dengan `defaultExpandedKeys` di
- * TocTree). Anak node lain dibuang dan node itu ditandai `more` (ruang chevron tetap ada, jadi
+ * dari node yang terbuka (`open` = leluhur baris aktif `activeRowId`, sama dengan cabang yang dibuka
+ * TocTree saat pasang). Anak node lain dibuang dan node itu ditandai `more` (ruang chevron tetap ada, jadi
  * baris tidak bergeser saat pohon lengkap datang).
  */
 export function pruneToc(items: readonly TocItem[], open: ReadonlySet<number>): TocItem[] {

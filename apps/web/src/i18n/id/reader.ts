@@ -156,6 +156,9 @@ export const reader = {
   aiNoticeTitle: "Terjemahan Indonesia dibuat AI",
   aiNoticeBody:
     "Terjemahan di halaman ini dibuat AI dan belum ditinjau manusia, jadi bisa keliru. Teks Arab adalah rujukannya.",
+  // Halaman yang sebagian terjemahannya sudah dikoreksi/diperiksa manusia (X10, ADR-082).
+  aiNoticeBodyMixed:
+    "Terjemahan berlabel “Terjemahan AI” tanpa keterangan dikoreksi atau diperiksa dibuat AI dan belum ditinjau manusia, jadi bisa keliru. Teks Arab adalah rujukannya.",
   aiNoticeMore: "Prinsip Surau",
   aiNoticeClose: "Tutup catatan terjemahan AI",
   aiSummary: "Ringkasan AI",
@@ -195,8 +198,21 @@ export const reader = {
   // Contoh huruf di panel Tampilan memakai paragraf pertama halaman ini (disalin dari DB).
   stylePreviewNote: "Contoh dari halaman ini",
   progressLabel: "Posisi baca di halaman ini",
-  aiNotice:
-    "Terjemahan dan ringkasan AI belum ditinjau manusia dan bisa keliru; teks Arab tetap rujukan utamanya.",
+  /** Catatan AI di kaki halaman (X10): menurut konten AI halaman itu (`PageModel.ai`). */
+  aiFootNote: ({
+    translation,
+    summary,
+    reviewed,
+  }: {
+    translation: boolean;
+    summary: boolean;
+    reviewed: boolean;
+  }) =>
+    !translation
+      ? "Ringkasan AI belum ditinjau manusia dan bisa keliru; teks Arab tetap rujukan utamanya."
+      : reviewed
+        ? `Terjemahan AI tanpa keterangan dikoreksi atau diperiksa${summary ? " dan ringkasan AI" : ""} belum ditinjau manusia dan bisa keliru; teks Arab tetap rujukan utamanya.`
+        : "Terjemahan dan ringkasan AI belum ditinjau manusia dan bisa keliru; teks Arab tetap rujukan utamanya.",
   errorHeading: "Halaman kitab gagal dimuat",
   errorBody: "Terjadi gangguan saat membaca data kitab. Coba muat ulang.",
   errorRetry: "Coba lagi",

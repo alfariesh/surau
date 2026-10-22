@@ -109,7 +109,19 @@ export interface PageModel {
   footAnchor: Record<string, string>;
   /** Ada ringkasan AI atau terjemahan AI tanpa tinjauan manusia (catatan AI). */
   anyAi: boolean;
+  /**
+   * Rincian konten AI (X10) untuk memilih kalimat catatan AI: `translation` = terjemahan tampil tanpa
+   * tinjauan manusia, `summary` = ringkasan AI, `reviewed` = ada terjemahan berlabel
+   * "dikoreksi/diperiksa" (ADR-082) di halaman yang sama.
+   */
+  ai: AiContent;
   anyReview: boolean;
+}
+
+export interface AiContent {
+  translation: boolean;
+  summary: boolean;
+  reviewed: boolean;
 }
 
 /** Urutan baca node: induk sebelum anak, saudara menurut urutan masukan (level, ord). */
@@ -337,6 +349,13 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
   }
   const footnotes = page.footnotes.map((p) => model(p, "foot"));
 
+  const shown = models.flatMap((m) => (m.translation === null ? [] : [m.translation]));
+  const ai: AiContent = {
+    translation: shown.some((tr) => (tr.review ?? null) === null),
+    summary: (page.summaries ?? []).length > 0,
+    reviewed: shown.some((tr) => (tr.review ?? null) !== null),
+  };
+
   const footIds = new Set(page.footnotes.map((f) => f.id));
   const markerIds: Record<number, string> = {};
   for (const m of models) {
@@ -368,12 +387,11 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
     unplacedSummaries: summariesAt(starts.unplaced),
     markerIds,
     footAnchor,
-    // Konten AI yang BELUM ditinjau manusia (X10): catatan "dibuat AI dan belum ditinjau manusia" di
-    // awal teks dan di kaki halaman. Terjemahan berlabel "dikoreksi"/"diperiksa" (ADR-082) dan
-    // terjemahan `rejected` (tidak tampil) tidak dihitung; ringkasan AI belum punya tinjauan manusia.
-    anyAi:
-      (page.summaries ?? []).length > 0 ||
-      models.some((m) => m.translation !== null && (m.translation.review ?? null) === null),
+    // Konten AI yang BELUM ditinjau manusia (X10): catatan "belum ditinjau manusia" di awal teks dan
+    // di kaki halaman. Terjemahan berlabel "dikoreksi"/"diperiksa" (ADR-082) dan terjemahan
+    // `rejected` (tidak tampil) tidak dihitung; ringkasan AI belum punya tinjauan manusia.
+    anyAi: ai.translation || ai.summary,
+    ai,
     anyReview: [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0),
   };
 }

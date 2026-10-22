@@ -7,8 +7,8 @@ import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-l
 import { AiNotice } from "../../../../../../components/reader/ai-notice";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
 import { ContinuousReader } from "../../../../../../components/reader/continuous-reader";
+import { PageFoot } from "../../../../../../components/reader/page-foot";
 import { PageText } from "../../../../../../components/reader/page-text";
-import { QuranNotice } from "../../../../../../components/reader/quran-notice";
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
 import { ReaderCompactHeader } from "../../../../../../components/reader/reader-compact-header";
 import { ReaderEnhancements } from "../../../../../../components/reader/reader-enhancements";
@@ -114,7 +114,6 @@ export default async function ReaderPage({ params }: Props) {
   const sample = previewSample(
     (page.body.find((p) => p.id === firstText?.id) ?? page.body[0])?.text_raw,
   );
-  const quran = page.quran;
 
   return (
     <ReaderProvider cite={citeParts(page.citation.source, juz, pageNo)} pagePath={permalink}>
@@ -182,7 +181,12 @@ export default async function ReaderPage({ params }: Props) {
 
           <ReaderEnhancements />
           <ReadingTracker title={workTitle} work={segment} />
-          <PageText model={model} footNote={footNote} notice={model.anyAi ? <AiNotice /> : null} />
+          <PageText
+            model={model}
+            footNote={footNote}
+            notice={model.ai.translation ? <AiNotice mixed={model.ai.reviewed} /> : null}
+          />
+          <PageFoot model={model} />
 
           {/* Gulir bersambung (X04 W6): halaman berikutnya dimuat di bawah saat pembaca sampai di
               akhir halaman; navigasi halaman (dan pintasan ←/→) tetap di akhir, seperti membalik
@@ -214,17 +218,6 @@ export default async function ReaderPage({ params }: Props) {
               sourceUrl={page.source_url}
               workSlug={work.slug}
             />
-            {quran ? <QuranNotice quran={quran} /> : null}
-            {model.anyAi ? (
-              <Typography type="body-xs" color="muted">
-                {t.aiNotice}
-              </Typography>
-            ) : null}
-            {model.anyReview ? (
-              <Typography type="body-xs" color="muted">
-                {t.needsReviewNote}
-              </Typography>
-            ) : null}
             <ReportPageButton />
           </footer>
         </article>
