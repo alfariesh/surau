@@ -1,8 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
-import { Amiri, Noto_Naskh_Arabic, Noto_Sans_Arabic, Scheherazade_New } from "next/font/google";
-import localFont from "next/font/local";
+import {
+  Amiri,
+  Google_Sans,
+  Noto_Naskh_Arabic,
+  Noto_Sans_Arabic,
+  Scheherazade_New,
+} from "next/font/google";
 import Script from "next/script";
 
 import { id } from "../i18n/id";
@@ -14,26 +19,28 @@ import { Providers } from "./providers";
 
 import "./globals.css";
 
-// Font UI: HarmonyOS Sans (Huawei; lisensi khusus, ADR-056), disalin apa adanya dari TTF resmi tanpa
-// diubah. Berkasnya statis: tidak ada SemiBold, jadi weight 600 (judul) memakai berkas Bold. Font
-// Arab: Noto Naskh Arabic (T-08, ADR-027), diunduh saat build dan di-host sendiri oleh next/font.
-// Naskh tidak di-preload: teks Arab belum ada di setiap halaman, jadi tidak perlu membebani halaman
-// lain (preload khusus halaman baca ditolak di X09: next/font memberi berkas preload URL lain, jadi
-// berkas yang sama bisa terunduh dua kali). HarmonyOS juga tanpa preload (X09): empat TTF
-// ±230 KB yang di-preload berebut jaringan dengan CSS dan teks halaman di ponsel; berkas tetap dimuat
-// begitu teksnya tampil (Italic hanya bila ada teks miring).
-const harmony = localFont({
-  src: [
-    { path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Regular.ttf", weight: "400", style: "normal" },
-    {
-      path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Regular_Italic.ttf",
-      weight: "400",
-      style: "italic",
-    },
-    { path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Medium.ttf", weight: "500", style: "normal" },
-    { path: "../fonts/harmonyos-sans/HarmonyOS_Sans_Bold.ttf", weight: "600 700", style: "normal" },
-  ],
-  variable: "--font-harmony",
+// Font UI: Google Sans (OFL, Google Fonts; ADR-080, menggantikan HarmonyOS Sans ADR-056), diunduh saat
+// build dan di-host sendiri oleh next/font sebagai WOFF2 variabel (satu berkas untuk bobot 400–700, ±36 KB
+// subset Latin). Dua pemanggilan dengan nama keluarga yang sama: gaya normal di-preload (dipakai semua
+// halaman), italic tidak (baru diunduh bila ada teks miring). Font Arab: Noto Naskh Arabic (T-08,
+// ADR-027). Naskh tidak di-preload: teks Arab belum ada di setiap halaman (preload khusus halaman baca
+// ditolak di X09: next/font memberi berkas preload URL lain, jadi berkas yang sama bisa terunduh dua kali).
+const googleSans = Google_Sans({
+  subsets: ["latin"],
+  style: "normal",
+  variable: "--font-ui",
+  display: "swap",
+  // next/font belum punya metrik Google Sans untuk huruf cadangan otomatis; cadangan bermetrik
+  // didefinisikan sendiri di globals.css ("Google Sans Fallback") supaya teks tidak bergeser saat
+  // font selesai diunduh.
+  adjustFontFallback: false,
+  fallback: ["Google Sans Fallback"],
+});
+
+const googleSansItalic = Google_Sans({
+  subsets: ["latin"],
+  style: "italic",
+  variable: "--font-ui-italic",
   display: "swap",
   preload: false,
 });
@@ -95,7 +102,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       suppressHydrationWarning
-      className={`${harmony.variable} ${naskh.variable} ${amiri.variable} ${scheherazade.variable} ${notoSansArabic.variable}`}
+      className={`${googleSans.variable} ${googleSansItalic.variable} ${naskh.variable} ${amiri.variable} ${scheherazade.variable} ${notoSansArabic.variable}`}
       dir="ltr"
       lang="id"
     >

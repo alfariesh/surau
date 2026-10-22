@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-22 · Font UI Google Sans menggantikan HarmonyOS Sans — selesai (PR #119)
+- Dikerjakan: `next/font/google` `Google_Sans` (OFL; normal di-preload, italic tidak), cadangan bermetrik sendiri ("Google Sans Fallback", Arial + size-adjust), berkas HarmonyOS dikeluarkan dari repo, `/lisensi#font` diperbarui, alat aset (potret WOFF2 Google Sans + OFL, mesin + figur dibangun ulang). Deploy X09 sempat gagal (registry npm 502), job dijalankan ulang → X09 tayang.
+- Verifikasi: `pnpm verify` → lolos (779 + 352 tes) · e2e lokal a11y/smoke/pembaca 116 lolos (gagal hanya a11y `/tanya`, masalah lama) · Lighthouse Preview PR #119 vs produksi (X09) n=5: j1/200 3,86 vs 4,25 dtk, j3/202 4,10 vs 4,09 dtk; terkirim 870 → 750 KB · potret aset dicoba (Google Sans tampil) · `peninjau` → 0 blocker, 3 perbaikan dokumen (dikerjakan).
+- Biaya API: –
+- Keputusan: ADR-080 (ADR-056 diganti; ADR-079 butir 1 diubah).
+- Catatan untuk sesi berikutnya: `opengraph-image.jpg`/`twitter-image.jpg` masih dirender dengan HarmonyOS; buat ulang bila perlu.
+
 ## 2026-10-22 · X09 · Kinerja pembaca ponsel (LCP) — sebagian (PR #118)
 - Dikerjakan:
   - Audit: Lighthouse 13.5 ponsel n=5 produksi (j1/200 5,89 dtk, j3/202 5,34 dtk), eksperimen terkendali lewat proksi HTTP/2 + brotli di depan build workerd, `next analyze` per paket: penyebab = byte yang selesai sebelum cat pertama (Lantern ±4,3 ms/KB).

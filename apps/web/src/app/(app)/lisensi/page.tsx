@@ -172,9 +172,7 @@ export default function LicensePage() {
         <div className="flex flex-col gap-3">
           <Typography>{t.fontText}</Typography>
           <Typography>
-            <ExternalLink
-              href={`${SOURCE_URL}/blob/main/apps/web/src/fonts/harmonyos-sans/LICENSE.txt`}
-            >
+            <ExternalLink href="https://openfontlicense.org/open-font-license-official-text/">
               {t.fontLicenseLink}
             </ExternalLink>
           </Typography>
