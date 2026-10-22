@@ -43,8 +43,8 @@ export function slimToc(nodes: readonly TocNode[]): TocItem[] {
 
 /**
  * Pohon yang hanya memuat baris yang tampil saat halaman baca dibuka (X09): semua akar, dan anak
- * dari node yang terbuka (`open` = leluhur bagian aktif, sama dengan `defaultExpandedKeys` di
- * TocTree). Anak node lain dibuang dan node itu ditandai `more` (ruang chevron tetap ada, jadi
+ * dari node yang terbuka (`open` = leluhur baris aktif `activeRowId`, sama dengan cabang yang dibuka
+ * TocTree saat pasang). Anak node lain dibuang dan node itu ditandai `more` (ruang chevron tetap ada, jadi
  * baris tidak bergeser saat pohon lengkap datang).
  */
 export function pruneToc(items: readonly TocItem[], open: ReadonlySet<number>): TocItem[] {
@@ -114,6 +114,26 @@ export function activeTocIds(
   const before = flattenToc(items).filter((i) => startsAtOrBefore(i, juz, page));
   const last = before.at(-1);
   return last === undefined ? [] : [last.id];
+}
+
+/**
+ * Baris aktif di pohon TAMPILAN (X10): subjudul kurasi terakhir milik node aktif yang mulai di
+ * halaman ini atau sebelumnya, atau node itu sendiri. Aturannya sama dengan bagian aktif ("bagian
+ * terakhir yang tampil di halaman ini"): paragraf subjudul milik node itu sendiri, jadi subjudul
+ * terakhir sampai halaman ini adalah bagian yang sedang berjalan. Pohon tanpa subjudul (breadcrumb,
+ * model halaman) tidak terpengaruh. Subjudul yang belum ada di pohon ringkas = node.
+ */
+export function activeRowId(
+  items: readonly TocItem[],
+  nodeId: number,
+  juz: number,
+  page: number,
+): number {
+  const node = tocPath(items, nodeId).at(-1);
+  const subs = (node?.children ?? []).filter(
+    (c) => c.kind === "sub" && startsAtOrBefore(c, juz, page),
+  );
+  return subs.at(-1)?.id ?? nodeId;
 }
 
 /**

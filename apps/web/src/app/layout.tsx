@@ -8,7 +8,6 @@ import {
   Noto_Sans_Arabic,
   Scheherazade_New,
 } from "next/font/google";
-import Script from "next/script";
 
 import { id } from "../i18n/id";
 import { PAPER_SCRIPT } from "../lib/paper";
@@ -110,12 +109,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* Tekstur kertas (X09, lib/paper.ts): skrip mentah supaya dijalankan saat HTML diurai, sebelum
             isi tampil; bila tile belum pernah terunduh, tekstur ditunda sampai halaman dimuat. */}
         <script dangerouslySetInnerHTML={{ __html: PAPER_SCRIPT }} suppressHydrationWarning />
-        {/* Preferensi tampilan pembaca dipasang di <html> sebelum teks tampil (tidak berkedip). Harus di
-            root layout: <script> di dalam halaman tidak dijalankan saat navigasi klien dan memicu
-            peringatan React. Selektornya hanya mengenai kelas pembaca, jadi aman di semua halaman. */}
-        <Script id="reader-prefs" strategy="beforeInteractive">
-          {READER_SCALE_SCRIPT}
-        </Script>
+        {/* Preferensi tampilan pembaca dipasang di <html> sebelum teks tampil (tidak berkedip). Skrip
+            mentah seperti tekstur kertas (X10): `<Script strategy="beforeInteractive">` di App Router
+            baru dijalankan sesudah JS utama terunduh, jadi di ponsel lambat ukuran huruf dan tata
+            letak sempat tampil bawaan. Harus di root layout: <script> di dalam halaman tidak
+            dijalankan saat navigasi klien dan memicu peringatan React. Selektornya hanya mengenai
+            kelas pembaca, jadi aman di semua halaman. */}
+        <script
+          dangerouslySetInnerHTML={{ __html: READER_SCALE_SCRIPT }}
+          suppressHydrationWarning
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

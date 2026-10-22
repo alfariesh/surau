@@ -7,8 +7,8 @@ import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-l
 import { AiNotice } from "../../../../../../components/reader/ai-notice";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
 import { ContinuousReader } from "../../../../../../components/reader/continuous-reader";
+import { PageFoot } from "../../../../../../components/reader/page-foot";
 import { PageText } from "../../../../../../components/reader/page-text";
-import { QuranNotice } from "../../../../../../components/reader/quran-notice";
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
 import { ReaderCompactHeader } from "../../../../../../components/reader/reader-compact-header";
 import { ReaderEnhancements } from "../../../../../../components/reader/reader-enhancements";
@@ -28,6 +28,7 @@ import { buildPageModel } from "../../../../../../lib/reader/page-model";
 import { previewSample } from "../../../../../../lib/reader/preview";
 import { OPEN_GRAPH_BASE } from "../../../../../../lib/site";
 import {
+  activeRowId,
   activeTocIds,
   flattenToc,
   pageSections,
@@ -84,12 +85,13 @@ export default async function ReaderPage({ params }: Props) {
   const crumbs = activeIds[0] === undefined ? [] : tocPath(toc, activeIds[0]);
   // Pohon yang dikirim ke klien hanya baris yang tampil terbuka (X09: pohon lengkap 522 baris
   // berjudul ganda menambah ±20 KB gzip di setiap halaman); TocTree mengambil pohon lengkap
-  // (`/kitab/<karya>/daftar-isi.json`) saat pohon tampil. Leluhur bagian aktif = baris yang dibuka TocTree.
+  // (`/kitab/<karya>/daftar-isi.json`) saat pohon tampil. Leluhur baris aktif (node, atau subjudul
+  // kurasinya sampai halaman ini, X10) = baris yang dibuka TocTree.
   const lastActive = activeIds.at(-1);
+  const rowId =
+    lastActive === undefined ? undefined : activeRowId(shown.items, lastActive, juz, pageNo);
   const openIds = new Set(
-    (lastActive === undefined ? [] : tocPath(shown.items, lastActive).slice(0, -1)).map(
-      (n) => n.id,
-    ),
+    (rowId === undefined ? [] : tocPath(shown.items, rowId).slice(0, -1)).map((n) => n.id),
   );
   const tocShell = pruneToc(shown.items, openIds);
   // Model siap render (subjudul kurasi, syair, terjemahan): bentuk yang sama dipakai halaman
@@ -112,7 +114,6 @@ export default async function ReaderPage({ params }: Props) {
   const sample = previewSample(
     (page.body.find((p) => p.id === firstText?.id) ?? page.body[0])?.text_raw,
   );
-  const quran = page.quran;
 
   return (
     <ReaderProvider cite={citeParts(page.citation.source, juz, pageNo)} pagePath={permalink}>
@@ -180,7 +181,12 @@ export default async function ReaderPage({ params }: Props) {
 
           <ReaderEnhancements />
           <ReadingTracker title={workTitle} work={segment} />
-          <PageText model={model} footNote={footNote} notice={model.anyAi ? <AiNotice /> : null} />
+          <PageText
+            model={model}
+            footNote={footNote}
+            notice={model.ai.translation ? <AiNotice mixed={model.ai.reviewed} /> : null}
+          />
+          <PageFoot model={model} />
 
           {/* Gulir bersambung (X04 W6): halaman berikutnya dimuat di bawah saat pembaca sampai di
               akhir halaman; navigasi halaman (dan pintasan ←/→) tetap di akhir, seperti membalik
@@ -212,17 +218,6 @@ export default async function ReaderPage({ params }: Props) {
               sourceUrl={page.source_url}
               workSlug={work.slug}
             />
-            {quran ? <QuranNotice quran={quran} /> : null}
-            {model.anyAi ? (
-              <Typography type="body-xs" color="muted">
-                {t.aiNotice}
-              </Typography>
-            ) : null}
-            {model.anyReview ? (
-              <Typography type="body-xs" color="muted">
-                {t.needsReviewNote}
-              </Typography>
-            ) : null}
             <ReportPageButton />
           </footer>
         </article>
@@ -242,6 +237,7 @@ export default async function ReaderPage({ params }: Props) {
             </Typography.Heading>
             <TocTree
               activeIds={activeIds}
+              at={{ juz, page: pageNo }}
               fullFrom={segment}
               items={tocShell}
               scope={permalink}

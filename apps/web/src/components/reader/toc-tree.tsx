@@ -1,11 +1,13 @@
 "use client";
 
+import type { Key } from "react-aria-components";
+
 import type { TitleSource } from "../../lib/reader/reader-toc";
 import type { TocItem } from "../../lib/reader/toc";
 
 import { Typography } from "@heroui/react";
 import { Book02, Book02Duotone, ChevronRight, FileEmpty02, FileEmpty02Duotone } from "../../icons";
-import { useEffect, useId, useMemo, useRef, useSyncExternalStore } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   Button,
   Collection,
@@ -20,7 +22,7 @@ import { modelName } from "../../lib/model-names";
 import { ArabicInline } from "../arabic";
 import { fullTocFor, loadFullToc, subscribeFullToc } from "../../lib/reader/full-toc";
 import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
-import { tocHref, tocPath, tocRows } from "../../lib/reader/toc";
+import { activeRowId, tocHref, tocPath, tocRows } from "../../lib/reader/toc";
 
 const t = readerText;
 
@@ -57,12 +59,16 @@ function TitleNote({ id: noteId, source }: { id: string; source: TitleSource }) 
 // Pohon daftar isi (S09 langkah 4, gaya garis pemandu menyusul): bisa diciutkan per node, setiap
 // baris tautan ke judul bagian (`#bab-<id>`, navigasi klien lewat RouterProvider) atau, untuk
 // subjudul kurasi (X04 W7), ke paragrafnya (`#pN`). Hanya SATU baris aktif berlatar (bagian
-// terakhir yang tampil di halaman ini, `activeIds.at(-1)`); garis dari induknya ke baris itu
-// berwarna aksen. Judul Arab persis dari DB lewat ArabicInline (<bdi>); judul Indonesia (terjemahan
-// AI, X04 W8) di atasnya bila ada, dengan satu label di kepala pohon.
+// terakhir yang tampil di halaman ini, `activeIds.at(-1)`, atau subjudul terakhirnya sampai halaman
+// ini, X10 `activeRowId`); garis dari induknya ke baris itu berwarna aksen. Leluhur baris aktif
+// dibuka setiap kali baris aktif atau jalurnya berpindah (halaman sambungan, pohon lengkap datang)
+// tanpa menutup cabang lain; cabang yang ditutup pembaca tetap tertutup selama baris aktif sama.
+// Judul Arab persis dari DB lewat ArabicInline (<bdi>); judul Indonesia (terjemahan AI, X04 W8) di
+// atasnya bila ada, dengan satu label di kepala pohon.
 export function TocTree({
   items: given,
   activeIds = [],
+  at,
   className,
   fullFrom,
   scope,
@@ -70,6 +76,8 @@ export function TocTree({
 }: {
   items: TocItem[];
   activeIds?: number[];
+  /** Halaman cetak yang dirender server (subjudul aktif, X10); gulir bersambung memakai halaman terbaca. */
+  at?: { juz: number; page: number };
   className?: string;
   /**
    * Segmen karya bila `items` hanya pohon ringkas (`pruneToc`, halaman baca, X09): pohon lengkap
@@ -92,16 +100,36 @@ export function TocTree({
   // di sheet ponsel yang baru dipasang saat dibuka (nilai terakhir disimpan di modul).
   const live = useSyncExternalStore(
     subscribeReaderPage,
-    () => (scope === undefined ? null : (readerPageFor(scope)?.activeIds ?? null)),
+    () => (scope === undefined ? null : readerPageFor(scope)),
     () => null,
   );
-  const activeId = (live ?? activeIds).at(-1);
+  const nodeId = (live?.activeIds ?? activeIds).at(-1);
+  const atJuz = live?.juz ?? at?.juz;
+  const atPage = live?.page ?? at?.page;
+  const activeId = useMemo(
+    () =>
+      nodeId === undefined || atJuz === undefined || atPage === undefined
+        ? nodeId
+        : activeRowId(items, nodeId, atJuz, atPage),
+    [items, nodeId, atJuz, atPage],
+  );
   const active = useMemo(
     () => (activeId === undefined ? undefined : tocPath(items, activeId)),
     [items, activeId],
   );
   const rows = useMemo(() => tocRows(items, activeId), [items, activeId]);
-  const expanded = useMemo(() => (active ?? []).slice(0, -1).map((n) => n.id), [active]);
+  const ancestors = useMemo(() => (active ?? []).slice(0, -1).map((n) => n.id), [active]);
+  // Cabang terbuka dikendalikan (X10): `defaultExpandedKeys` hanya dibaca saat pasang, jadi leluhur
+  // bagian aktif halaman sambungan dulu tetap tertutup. Leluhur ditambahkan saat baris aktif atau
+  // jalurnya berubah, juga ke saudara dengan leluhur yang sama (penyesuaian state saat render, bukan
+  // efek: tanpa satu cat dengan cabang tertutup).
+  const activeKey = `${activeId ?? ""}|${ancestors.join(",")}`;
+  const [expanded, setExpanded] = useState<Set<Key>>(() => new Set(ancestors));
+  const [expandedFor, setExpandedFor] = useState(activeKey);
+  if (expandedFor !== activeKey) {
+    setExpandedFor(activeKey);
+    setExpanded((open) => new Set([...open, ...ancestors]));
+  }
   const current = active?.at(-1);
   // Baris aktif dan semua induknya (jalur dari akar) berikon duotone, supaya posisi pembaca terlihat.
   const pathIds = useMemo(() => new Set((active ?? []).map((n) => n.id)), [active]);
@@ -139,6 +167,7 @@ export function TocTree({
       cancel();
     };
   }, [fullFrom, full]);
+  // Hanya saat baris aktif atau pohon berganti, bukan saat pembaca membuka/menutup cabang sendiri.
   useEffect(() => {
     const box = ref.current?.closest<HTMLElement>("[data-toc-scroll]");
     const target = ref.current?.querySelector<HTMLElement>("[data-current]");
@@ -151,17 +180,15 @@ export function TocTree({
     <>
       {titleSource ? <TitleNote id={noteId} source={titleSource} /> : null}
       <NavigationTree
-        // Pohon ringkas → lengkap dipasang ulang: `defaultExpandedKeys` hanya dibaca saat pasang,
-        // padahal bagian aktif (gulir bersambung) bisa belum ada di pohon ringkas.
-        key={full === null ? "ringkas" : "lengkap"}
         ref={ref}
         aria-describedby={titleSource ? noteId : undefined}
         aria-label={t.tocLabel}
         className={className ? `toc-tree ${className}` : "toc-tree"}
         // Garis dan batang aksen dibaca dari closure: cache baris react-aria ikut diperbarui.
         dependencies={[rows, currentParent, pathIds]}
-        defaultExpandedKeys={expanded}
+        expandedKeys={expanded}
         items={items}
+        onExpandedChange={setExpanded}
         selectedRoute={current ? tocHref(current) : null}
       >
         {function renderItem(item: TocItem) {

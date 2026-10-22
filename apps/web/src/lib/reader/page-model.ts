@@ -33,7 +33,7 @@ import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
  * syair, subjudul): tanpa itu, halaman sambungan di produksi memakai model lama sampai 7 hari per
  * data center. Model tidak memuat teks UI (i18n).
  */
-export const PAGE_MODEL_VERSION = `4.${SUBHEADING_DIGEST}`;
+export const PAGE_MODEL_VERSION = `5.${SUBHEADING_DIGEST}`;
 
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {
@@ -107,8 +107,21 @@ export interface PageModel {
   markerIds: Record<number, string>;
   /** Digit penanda (١) → jangkar catatan kaki (tautan di terjemahan AI). */
   footAnchor: Record<string, string>;
+  /** Ada ringkasan AI atau terjemahan AI tanpa tinjauan manusia (catatan AI). */
   anyAi: boolean;
+  /**
+   * Rincian konten AI (X10) untuk memilih kalimat catatan AI: `translation` = terjemahan tampil tanpa
+   * tinjauan manusia, `summary` = ringkasan AI, `reviewed` = ada terjemahan berlabel
+   * "dikoreksi/diperiksa" (ADR-082) di halaman yang sama.
+   */
+  ai: AiContent;
   anyReview: boolean;
+}
+
+export interface AiContent {
+  translation: boolean;
+  summary: boolean;
+  reviewed: boolean;
 }
 
 /** Urutan baca node: induk sebelum anak, saudara menurut urutan masukan (level, ord). */
@@ -336,6 +349,13 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
   }
   const footnotes = page.footnotes.map((p) => model(p, "foot"));
 
+  const shown = models.flatMap((m) => (m.translation === null ? [] : [m.translation]));
+  const ai: AiContent = {
+    translation: shown.some((tr) => (tr.review ?? null) === null),
+    summary: (page.summaries ?? []).length > 0,
+    reviewed: shown.some((tr) => (tr.review ?? null) !== null),
+  };
+
   const footIds = new Set(page.footnotes.map((f) => f.id));
   const markerIds: Record<number, string> = {};
   for (const m of models) {
@@ -367,9 +387,11 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
     unplacedSummaries: summariesAt(starts.unplaced),
     markerIds,
     footAnchor,
-    anyAi:
-      (page.summaries ?? []).length > 0 ||
-      page.body.some((p) => p.translation !== null && p.translation !== undefined),
+    // Konten AI yang BELUM ditinjau manusia (X10): catatan "belum ditinjau manusia" di awal teks dan
+    // di kaki halaman. Terjemahan berlabel "dikoreksi"/"diperiksa" (ADR-082) dan terjemahan
+    // `rejected` (tidak tampil) tidak dihitung; ringkasan AI belum punya tinjauan manusia.
+    anyAi: ai.translation || ai.summary,
+    ai,
     anyReview: [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0),
   };
 }

@@ -126,7 +126,9 @@ describe("PassageTranslation: tinjauan manusia (X08, ADR-082)", () => {
       /<button[^>]*class="ai-badge ai-badge-review"[^>]*popoverTarget="tr-review-p7"|<button[^>]*popovertarget="tr-review-p7"[^>]*class="ai-badge ai-badge-review"/u,
     );
     expect(html).toContain('id="tr-review-p7" popover="auto"');
-    expect(html).toMatch(/aria-label="Terjemahan AI ini dikoreksi Ust\. Uji Lc\./u);
+    // Nama aksesibel = teks lencana (WCAG 2.5.3), rincian = deskripsi dari popover.
+    expect(html).toContain('aria-describedby="tr-review-p7"');
+    expect(html).not.toContain("aria-label=");
     expect(html).toContain("dikoreksi Ust. Uji Lc. pada 22 Oktober 2026");
     expect(html).toContain('data-tr-label="Terjemahan AI · dikoreksi Ust. Uji"');
     expect(html).toMatch(/<span class="tr-added"[^>]*>\[Ta&#x27;ala\]<\/span>/u);

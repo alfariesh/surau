@@ -123,6 +123,7 @@ function TocSheet({
   toc,
   titleSource,
   activeIds,
+  at,
   className,
   scope,
   segment,
@@ -132,6 +133,8 @@ function TocSheet({
   segment: string;
   titleSource: TitleSource | null;
   activeIds: number[];
+  /** Halaman cetak yang dirender server (subjudul aktif, X10). */
+  at: { juz: number; page: number };
   className?: string;
   /** Permalink halaman baca: sorotan mengikuti halaman sambungan yang sedang dibaca. */
   scope: string;
@@ -155,6 +158,7 @@ function TocSheet({
             <Sheet.Body data-toc-scroll className="pb-6">
               <TocTree
                 activeIds={activeIds}
+                at={at}
                 fullFrom={segment}
                 items={toc}
                 scope={scope}
@@ -196,6 +200,7 @@ export function ReaderToolbar({
 }) {
   const reader = useReader();
   const jump = { juz, page, segment, volumes };
+  const at = { juz, page };
 
   // Dua susunan (CSS memilih salah satu): ponsel = Daftar isi · Tampilan (melebar) · ⋮ menu;
   // tablet/desktop = Daftar isi (sampai lg) · Lompat · Salin sitasi · Tampilan. role="group" dari
@@ -212,6 +217,7 @@ export function ReaderToolbar({
       >
         <TocSheet
           activeIds={activeIds}
+          at={at}
           className="flex-1"
           scope={pagePath}
           segment={segment}
@@ -229,6 +235,7 @@ export function ReaderToolbar({
       >
         <TocSheet
           activeIds={activeIds}
+          at={at}
           className="lg:hidden"
           scope={pagePath}
           segment={segment}
