@@ -267,6 +267,46 @@ describe("buildPageModel: syair dan placeholder ayat", () => {
     expect(blocksText(model.footnotes[0]!.blocks)).toBe(verse);
   });
 
+  it("catatan AI (X10): hanya bila ada terjemahan AI tanpa tinjauan manusia atau ringkasan AI", async () => {
+    const reviewed = {
+      ...aiTr("Terjemahan yang sudah dikoreksi."),
+      human_review: {
+        revised: true,
+        reviewed_at: "2026-10-22T00:00:00Z",
+        reviewer_role: "ustadz" as const,
+        reviewer_name: "Ust. Uji",
+        reviewer_short: "Ust. Uji",
+      },
+    };
+    const onlyReviewed = await buildPageModel(
+      page([passage(203, T_HEAD, { translation: reviewed })]),
+      { editionId: 1, sections: [] },
+    );
+    expect(onlyReviewed.anyAi).toBe(false);
+    const mixed = await buildPageModel(
+      page([
+        passage(203, T_HEAD, { translation: reviewed }),
+        passage(204, T_CONT, { translation: aiTr("Terjemahan AI.") }),
+      ]),
+      { editionId: 1, sections: [] },
+    );
+    expect(mixed.anyAi).toBe(true);
+    // Terjemahan ditolak tidak tampil, jadi tidak memicu catatan.
+    const rejected = await buildPageModel(
+      page([passage(205, T_HEAD, { translation: { ...aiTr("x"), review_status: "rejected" } })]),
+      { editionId: 1, sections: [] },
+    );
+    expect(rejected.anyAi).toBe(false);
+    const summary = await buildPageModel(
+      {
+        ...page([passage(206, T_HEAD, { translation: reviewed })]),
+        summaries: [{ section: { id: 1 }, review_status: "ai_generated" }],
+      } as unknown as PageView,
+      { editionId: 1, sections: [] },
+    );
+    expect(summary.anyAi).toBe(true);
+  });
+
   it("placeholder ayat tanpa terjemahan Kemenag: segmen invalid berlabel rujukan ringkas", async () => {
     const p = passage(202, T_HEAD, { translation: aiTr("Lalu ⟦QS 2:255⟧ dibaca.") });
     const model = await buildPageModel(page([p]), { editionId: 1, sections: [] });

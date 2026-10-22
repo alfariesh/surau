@@ -1,8 +1,11 @@
 import type { TocNode } from "@surau/core";
 
+import type { TocItem } from "./toc";
+
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  activeRowId,
   activeTocIds,
   flattenToc,
   pageSections,
@@ -64,6 +67,36 @@ describe("toc", () => {
     ]);
     expect(pageSections(TREE, 1, 7)).toEqual([{ id: 4, parentId: 3, level: 1, title: "مسألة" }]);
     expect(pageSections(TREE, 1, 2)).toEqual([]);
+  });
+
+  it("baris aktif (X10): subjudul terakhir node aktif sampai halaman ini, selain itu node", () => {
+    const sub = (id: number, juz: number, page: number): TocItem => ({
+      id,
+      kind: "sub",
+      title: "عنوان",
+      level: 3,
+      href: `/kitab/uji/${juz}/${page}#p${id}`,
+      juz,
+      page,
+      children: [],
+    });
+    // Node 3 (j1 h5): subjudul di h5 dan h6, sebelum anak node 4 (j1 h7).
+    const tree = TREE.map((root) => ({
+      ...root,
+      children: root.children.map((c) =>
+        c.id === 3 ? { ...c, children: [sub(901, 1, 5), sub(902, 1, 6), ...c.children] } : c,
+      ),
+    }));
+    expect(activeRowId(tree, 3, 1, 5)).toBe(901);
+    expect(activeRowId(tree, 3, 1, 6)).toBe(902);
+    // Halaman sesudahnya yang masih milik node 3 (subjudul terakhir tetap berjalan).
+    expect(activeRowId(tree, 3, 1, 8)).toBe(902);
+    // Sebelum subjudul pertama, node tanpa subjudul, node tak dikenal: node itu sendiri.
+    expect(activeRowId(tree, 3, 1, 4)).toBe(3);
+    expect(activeRowId(tree, 4, 1, 7)).toBe(4);
+    expect(activeRowId(tree, 99, 1, 7)).toBe(99);
+    // Pohon ringkas tanpa anak node 3: node.
+    expect(activeRowId(pruneToc(tree, new Set([1])), 3, 1, 6)).toBe(3);
   });
 
   it("tautan daftar isi unik per bagian: halaman awal + jangkar judul", () => {

@@ -1317,6 +1317,20 @@ h3.reader-inline-subheading {
   box-shadow: 0 8px 28px rgb(0 0 0 / 0.16);
 }
 
+/* Rincian menempel di bawah lencananya (X10): anchor implisit dari tombol `popovertarget` (Chrome 133,
+ * Safari 26, Firefox 147), dipusatkan pada lencana dan dijepit 1rem dari tepi layar, pindah ke atas
+ * bila tidak muat di bawah. Browser tanpa `position-area`: tetap di tengah layar (bawaan popover). */
+@supports (position-area: bottom) and (position-try-fallbacks: flip-block) {
+  .tr-review-popover {
+    position-anchor: auto;
+    position-area: bottom;
+    position-try-fallbacks: flip-block;
+    inset-inline: 1rem;
+    margin-block: 0.375rem;
+    margin-inline: 0;
+  }
+}
+
 .tr-added {
   color: var(--muted);
 }

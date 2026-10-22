@@ -33,7 +33,7 @@ import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
  * syair, subjudul): tanpa itu, halaman sambungan di produksi memakai model lama sampai 7 hari per
  * data center. Model tidak memuat teks UI (i18n).
  */
-export const PAGE_MODEL_VERSION = `4.${SUBHEADING_DIGEST}`;
+export const PAGE_MODEL_VERSION = `5.${SUBHEADING_DIGEST}`;
 
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {
@@ -107,6 +107,7 @@ export interface PageModel {
   markerIds: Record<number, string>;
   /** Digit penanda (١) → jangkar catatan kaki (tautan di terjemahan AI). */
   footAnchor: Record<string, string>;
+  /** Ada ringkasan AI atau terjemahan AI tanpa tinjauan manusia (catatan AI). */
   anyAi: boolean;
   anyReview: boolean;
 }
@@ -367,9 +368,12 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
     unplacedSummaries: summariesAt(starts.unplaced),
     markerIds,
     footAnchor,
+    // Konten AI yang BELUM ditinjau manusia (X10): catatan "dibuat AI dan belum ditinjau manusia" di
+    // awal teks dan di kaki halaman. Terjemahan berlabel "dikoreksi"/"diperiksa" (ADR-082) dan
+    // terjemahan `rejected` (tidak tampil) tidak dihitung; ringkasan AI belum punya tinjauan manusia.
     anyAi:
       (page.summaries ?? []).length > 0 ||
-      page.body.some((p) => p.translation !== null && p.translation !== undefined),
+      models.some((m) => m.translation !== null && (m.translation.review ?? null) === null),
     anyReview: [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0),
   };
 }
