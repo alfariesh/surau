@@ -52,6 +52,8 @@ export type {
   TakhrijReviewInput,
 } from "./takhrij-review.ts";
 export { answerPassages, answerToc } from "./answer-context.ts";
+export { reviewPassages } from "./review-passage.ts";
+export type { ReviewPassage } from "./review-passage.ts";
 export type { AnswerPassage, AnswerTocNode } from "./answer-context.ts";
 export {
   AI_SNIPPET_CHARS,
@@ -95,6 +97,7 @@ export type {
 } from "./translation-text.ts";
 export {
   TINJAU_ROOMS,
+  canRevert,
   canUseTinjauRoom,
   parseTranslationEditors,
   previousState,

@@ -73,6 +73,31 @@ export const adminText = {
     open: "Buka halaman",
     retention: "Laporan yang selesai ditangani dihapus otomatis 12 bulan kemudian.",
   },
+  translations: {
+    heading: "Koreksi terjemahan terbaru",
+    intro:
+      "Koreksi editor tersimpan langsung tanpa persetujuan kedua dan baru tampil di situs lewat korpus berikutnya. Periksa sekilas di sini, dan batalkan bila perlu sebelum korpus dibangun.",
+    empty: "Belum ada koreksi.",
+    kinds: { confirmed: "Sudah benar", revised: "Perbaikan", reverted: "Pembatalan" },
+    restoresAi: "kembali ke terjemahan AI",
+    restores: (name: string) => `kembali ke versi ${name}`,
+    tooLong: "Teks terlalu panjang untuk dibandingkan per kata.",
+    open: "Buka di pembaca",
+    review: "Buka di ruang editor",
+    revert: "Batalkan",
+    reverted: "Dibatalkan.",
+    more: "Lebih lama",
+    bulkHeading: "Batalkan semua koreksi satu editor",
+    bulkHint:
+      "Untuk berjaga-jaga bila akun editor disalahgunakan. Paragraf yang sesudahnya diubah editor lain tidak disentuh.",
+    bulkEditor: "Editor",
+    bulkSince: "Sejak tanggal (UTC)",
+    bulkRun: "Batalkan semua",
+    bulkResult: (reverted: number, skipped: number, remaining: number) =>
+      `${reverted} dibatalkan, ${skipped} dilewati (diubah editor lain)` +
+      (remaining > 0 ? `, ${remaining} tersisa: tekan lagi.` : "."),
+    count: (n: number) => `${n} simpanan`,
+  },
   saved: "Tersimpan.",
   failed: "Belum tersimpan. Muat ulang halaman atau masuk ulang bila sesi berakhir.",
   updated: "Diperbarui",

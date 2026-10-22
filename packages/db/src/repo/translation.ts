@@ -118,3 +118,31 @@ export async function listTitleTranslations(
     throw error;
   }
 }
+
+const translatedRow = z.strictObject({
+  id: z.number().int().positive(),
+  kind: z.enum(["body", "foot"]),
+});
+export type TranslatedPassage = z.infer<typeof translatedRow>;
+
+/**
+ * ID + jenis semua paragraf satu edisi yang punya terjemahan (bukan `rejected`), urut ID = urutan
+ * kitab. Antrean koreksi terjemahan (X08); ±16 ribu baris Ihya, dihitung sekali per isolate.
+ */
+export function listTranslatedPassages(
+  db: D1Db,
+  editionId: number,
+  lang: string,
+): Promise<TranslatedPassage[]> {
+  const range = passageIdRange(editionId);
+  return allRows(
+    db
+      .prepare(
+        `SELECT t.passage_id AS id, p.kind FROM translation t JOIN passage p ON p.id = t.passage_id
+         WHERE t.lang = ?1 AND t.review_status <> 'rejected' AND t.passage_id BETWEEN ?2 AND ?3
+         ORDER BY t.passage_id`,
+      )
+      .bind(lang, range.min, range.max),
+    translatedRow,
+  );
+}

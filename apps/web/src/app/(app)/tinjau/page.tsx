@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { listAnswerLogs } from "@surau/db";
 import { getEnv } from "../../../lib/cloudflare";
-import { reviewIdentity } from "../../../lib/review-auth";
+import { reviewIdentity, reviewRoomAllowed } from "../../../lib/review-auth";
 import { ReviewClient } from "../../../components/review/review-client";
 import { reviewText as t } from "../../../i18n/review";
 import { Typography } from "@heroui/react";
 import { PageTitle } from "../../../components/page-title";
-import { ReviewDenied } from "../../../components/review/review-denied";
+import { ReviewDenied, ReviewRoleDenied } from "../../../components/review/review-denied";
 import { ReviewNav } from "../../../components/review/review-nav";
 
 export const metadata: Metadata = { title: t.title, robots: { index: false, follow: false } };
@@ -20,6 +20,7 @@ export default async function ReviewPage() {
   const env = await getEnv();
   const identity = await reviewIdentity((await headers()).get("cf-access-jwt-assertion"), env);
   if (!identity) return <ReviewDenied />;
+  if (!reviewRoomAllowed(identity, "jawaban", env)) return <ReviewRoleDenied />;
   const rows = await listAnswerLogs(env.APP_DB, reviewNow());
   const items = rows.map((r) => ({
     id: r.id,

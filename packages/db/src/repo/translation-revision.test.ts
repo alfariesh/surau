@@ -12,7 +12,10 @@ import {
   listTranslationRevisionAuthors,
   listTranslationRevisionsByAuthorSince,
   saveTranslationRevision,
+  translationQueueSignals,
 } from "./translation-revision.ts";
+import { createFeedback, putAnswerCache } from "./app.ts";
+import { insertAnswerLog } from "./review.ts";
 import type { TranslationRevisionWrite } from "../schema/translation-revision.ts";
 
 const db = env.APP;
@@ -39,7 +42,12 @@ const base: TranslationRevisionWrite = {
 const opts = { expectedActiveId: null, dailyLimit: 200, dayStart: day };
 
 beforeEach(async () => {
-  await db.prepare("DELETE FROM translation_revision").run();
+  await db.batch([
+    db.prepare("DELETE FROM translation_revision"),
+    db.prepare("DELETE FROM feedback"),
+    db.prepare("DELETE FROM answer_log"),
+    db.prepare("DELETE FROM answer_cache"),
+  ]);
 });
 
 test("revisi berantai: yang baru menggantikan yang aktif, teks lama tidak ditimpa", async () => {
@@ -193,4 +201,68 @@ test("daftar terbaru, per penulis, dan penulis yang pernah menyimpan", async () 
     ["Editor Lain", 1],
     ["Ust. Uji Lc.", 2],
   ]);
+});
+
+test("sinyal antrean: laporan terjemahan terbuka + kutipan Maknaz (publik, belum kedaluwarsa)", async () => {
+  const now = "2026-10-22T00:00:00.000Z";
+  const report = (kind: "translation" | "text", passage_id: number | null) =>
+    createFeedback(db, {
+      kind,
+      passage_id,
+      page_id: null,
+      path: "/kitab/ihya/1/200",
+      message: "Terjemahan keliru",
+      corpus_version: "fixture",
+    });
+  await report("translation", 21);
+  await report("translation", 21);
+  await report("translation", 22);
+  await report("translation", null);
+  await report("text", 23);
+  await db.prepare("UPDATE feedback SET status = 'fixed' WHERE passage_id = 22").run();
+  const cites = (ids: number[]) =>
+    JSON.stringify({
+      citations: ids.map((id) => ({ passage_id: id, char_start: 0, char_end: 5 })),
+    });
+  const log = (
+    id: string,
+    model: string,
+    ids: number[],
+    priv: 0 | 1 = 0,
+    expires = "2027-01-01T00:00:00.000Z",
+  ) =>
+    insertAnswerLog(db, {
+      id,
+      run_id: "uji",
+      question_id: id.slice(-4),
+      question_hash: "a".repeat(64),
+      answer_hash: "b".repeat(64),
+      corpus_version: "fixture",
+      prompt_version: "p",
+      model,
+      private: priv,
+      question_json: "{}",
+      answer_json: cites(ids),
+      created_at: "2026-10-01T00:00:00.000Z",
+      expires_at: expires,
+    });
+  await log("uji_j001", "claude-haiku-5-5", [31, 32, 31]);
+  await log("uji_j002", "claude-haiku-5-5", [31]);
+  await log("uji_j003", "agent-draft", [33]);
+  await log("uji_p001", "claude-haiku-5-5", [34], 1);
+  await log("uji_j004", "claude-haiku-5-5", [35], 0, "2026-10-21T00:00:00.000Z");
+  await putAnswerCache(db, {
+    key: "d".repeat(64),
+    corpus_version: "fixture",
+    prompt_version: "p",
+    model: "m",
+    outcome: "answer",
+    result_json: cites([32]),
+    created_at: now,
+    expires_at: "2026-11-21T00:00:00.000Z",
+  });
+  await db.prepare("UPDATE answer_cache SET hits = 2").run();
+  const signals = await translationQueueSignals(db, now);
+  expect(Object.fromEntries(signals.reports)).toEqual({ 21: 2 });
+  expect(Object.fromEntries(signals.cited)).toEqual({ 31: 2, 32: 4 });
 });

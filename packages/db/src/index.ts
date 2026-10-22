@@ -47,11 +47,13 @@ export {
   listTranslationRevisionAuthors,
   listTranslationRevisionsByAuthorSince,
   saveTranslationRevision,
+  translationQueueSignals,
 } from "./repo/translation-revision.ts";
 export type {
   SaveTranslationRevisionOptions,
   SaveTranslationRevisionResult,
   TranslationEditorSeen,
+  TranslationQueueSignals,
 } from "./repo/translation-revision.ts";
 
 export {
@@ -119,9 +121,14 @@ export {
   getSummariesStartingOn,
   getTranslations,
   listTitleTranslations,
+  listTranslatedPassages,
   sectionSummaryRow,
 } from "./repo/translation.ts";
-export type { SectionSummaryRow, TitleTranslations } from "./repo/translation.ts";
+export type {
+  SectionSummaryRow,
+  TitleTranslations,
+  TranslatedPassage,
+} from "./repo/translation.ts";
 export { QURAN_AYAT_MAX, ayahRefWithSurahRow, getAyahRefs, getQuranAyat } from "./repo/quran.ts";
 export type { AyahRange, AyahRefWithSurahRow, QuranAyat } from "./repo/quran.ts";
 export {

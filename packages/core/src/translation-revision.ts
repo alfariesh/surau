@@ -194,19 +194,28 @@ export function stateOf(
 }
 
 /**
- * Keadaan sebelum revisi aktif (yang dipulihkan "Batalkan"): keadaan revisi yang digantikannya,
- * atau draf AI bila ia revisi pertama. `restores_id` baris pembatalan = revisi yang menentukan
- * keadaan itu (`source`), tidak pernah baris pembatalan lain.
+ * Keadaan yang dipulihkan "Batalkan": versi sebelum versi yang berlaku sekarang (mundur seperti
+ * riwayat urung; menekan Batalkan lagi mundur satu versi lagi, bukan mengulang pembatalan). Versi
+ * = revisi confirmed/revised; versi sebelumnya = keadaan baris yang digantikannya, atau draf AI.
+ * `restores_id` baris pembatalan = `source` keadaan ini (tidak pernah baris pembatalan lain).
  */
 export function previousState(
   active: TranslationRevisionRow,
   byId: ReadonlyMap<number, TranslationRevisionRow>,
   corpus: CorpusTranslation,
 ): TranslationState {
-  const prev = active.supersedes_id === null ? null : (byId.get(active.supersedes_id) ?? null);
-  if (prev === null) return { kind: "ai", text: corpus.draft, source: null, stale: null };
-  return stateOf(prev, byId, corpus);
+  const ai: TranslationState = { kind: "ai", text: corpus.draft, source: null, stale: null };
+  const version = underlyingRevision(active, byId);
+  if (version === null || version.supersedes_id === null) return ai;
+  const prev = byId.get(version.supersedes_id);
+  return prev === undefined ? ai : stateOf(prev, byId, corpus);
 }
+
+/** Ada versi yang bisa dibatalkan (keadaan sekarang bukan draf AI). */
+export const canRevert = (
+  active: TranslationRevisionRow | null,
+  byId: ReadonlyMap<number, TranslationRevisionRow>,
+): boolean => active !== null && underlyingRevision(active, byId) !== null;
 
 /** ID revisi yang harus dimuat untuk menyelesaikan keadaan dan pembatalan baris-baris ini. */
 export function referencedRevisionIds(rows: readonly TranslationRevisionRow[]): number[] {

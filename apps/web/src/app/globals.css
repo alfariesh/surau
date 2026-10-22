@@ -1277,3 +1277,15 @@ h3.reader-inline-subheading {
   animation-duration: 0.55s;
   animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
+
+/* Pratinjau terjemahan di /tinjau/terjemahan (X08): gaya teks seperti pembaca, tetapi tidak ikut
+ * disembunyikan/dilipat oleh pilihan pembaca (data-translation, data-tr-layout). */
+.translation-preview {
+  padding-inline-start: 0.875rem;
+  border-inline-start: 2px solid var(--separator);
+  line-height: 1.7;
+  max-width: 64ch;
+  white-space: pre-line;
+  hyphens: auto;
+  text-wrap: pretty;
+}

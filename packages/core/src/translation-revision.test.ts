@@ -3,6 +3,7 @@ import { describe, expect, test } from "vite-plus/test";
 import type { TranslationRevisionRow } from "@surau/db";
 
 import {
+  canRevert,
   canUseTinjauRoom,
   parseTranslationEditors,
   previousState,
@@ -162,6 +163,11 @@ describe("stateOf / previousState", () => {
       stale: null,
     });
     expect(previousState(a, byId, corpus).kind).toBe("ai");
+    // Batalkan lagi sesudah pembatalan mundur satu versi (ke draf AI), bukan mengulang Teks B.
+    expect(previousState(undoB, byId, corpus).kind).toBe("ai");
+    expect(canRevert(undoB, byId)).toBe(true);
+    expect(canRevert(undoA, byId)).toBe(false);
+    expect(canRevert(null, byId)).toBe(false);
   });
 
   test("usang: teks Arab berubah, atau draf AI yang dinyatakan benar sudah diganti", () => {

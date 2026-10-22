@@ -238,3 +238,46 @@ export function listTranslationRevisionAuthors(db: D1Db): Promise<TranslationEdi
     editorSeenRow,
   );
 }
+
+const countRow = z.strictObject({ passage_id: z.number().int().positive(), n: z.number().int() });
+
+export interface TranslationQueueSignals {
+  /** Laporan pembaca jenis terjemahan yang belum selesai, per paragraf. */
+  reports: Map<number, number>;
+  /**
+   * Seberapa sering paragraf dikutip Maknaz: jawaban eval PUBLIK di `answer_log` (bukan soal
+   * privat/holdout, bukan contoh `agent-draft`) satu per jawaban, jawaban `answer_cache` satu + jumlah
+   * sajian ulangnya. Hanya baris yang belum kedaluwarsa; tanpa teks pertanyaan.
+   */
+  cited: Map<number, number>;
+}
+
+/** Sinyal antrean koreksi dari DB app dalam satu batch (X08). */
+export async function translationQueueSignals(
+  db: D1Db,
+  now: string,
+): Promise<TranslationQueueSignals> {
+  const [reports, cited] = await db.batch([
+    db.prepare(
+      `SELECT passage_id, COUNT(*) AS n FROM feedback
+       WHERE kind = 'translation' AND status IN ('new', 'triaged') AND passage_id > 0
+       GROUP BY passage_id`,
+    ),
+    db
+      .prepare(
+        `SELECT pid AS passage_id, SUM(w) AS n FROM (
+           SELECT DISTINCT 'l:' || a.id AS src, json_extract(c.value, '$.passage_id') AS pid, 1 AS w
+           FROM answer_log a, json_each(a.answer_json, '$.citations') c
+           WHERE a.expires_at > ?1 AND a.private = 0 AND a.model <> 'agent-draft'
+           UNION
+           SELECT DISTINCT 'c:' || k.key, json_extract(c.value, '$.passage_id'), 1 + k.hits
+           FROM answer_cache k, json_each(k.result_json, '$.citations') c
+           WHERE k.expires_at > ?1
+         ) WHERE typeof(pid) = 'integer' AND pid > 0 GROUP BY pid`,
+      )
+      .bind(now),
+  ]);
+  const toMap = (rows: unknown[] | undefined) =>
+    new Map((rows ?? []).map((r) => countRow.parse(r)).map((r) => [r.passage_id, r.n]));
+  return { reports: toMap(reports?.results), cited: toMap(cited?.results) };
+}
