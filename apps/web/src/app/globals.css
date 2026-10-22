@@ -1289,3 +1289,34 @@ h3.reader-inline-subheading {
   hyphens: auto;
   text-wrap: pretty;
 }
+
+/* Terjemahan yang ditinjau manusia (X08, ADR-082): lencana bisa diketuk (popover HTML bawaan)
+ * untuk melihat nama lengkap + tanggal; kata tambahan penerjemah [ … ] pada teks perbaikan redup. */
+.ai-badge-review {
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--border));
+  color: color-mix(in oklab, var(--accent) 70%, var(--foreground));
+  cursor: var(--cursor-interactive, pointer);
+  white-space: normal;
+}
+
+.ai-badge-review:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.tr-review-popover {
+  max-width: min(22rem, calc(100vw - 2rem));
+  margin: auto;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--overlay, var(--background));
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.16);
+}
+
+.tr-added {
+  color: var(--muted);
+}

@@ -36,8 +36,10 @@ import {
   getPassagesByIds,
   getTranslationRevisionHistories,
   getTranslationRevisionHistory,
+  getTranslationReviewsWithDraft,
   getTranslationRevisionsByIds,
   getTranslations,
+  isHumanReviewed,
   listActiveTranslationRevisions,
   listRecentTranslationRevisions,
   listTranslatedPassages,
@@ -58,6 +60,7 @@ import type {
   TranslationRevisionKind,
   TranslationRevisionRow,
   TranslationRevisionStatus,
+  TranslationReviewRow,
   TranslationRevisionWrite,
   TranslationRow,
 } from "@surau/db";
@@ -101,22 +104,36 @@ async function translatedIndex(corpus: D1Db, editionId: number): Promise<Transla
   return build;
 }
 
-/** Terjemahan korpus satu paragraf sebagai dasar resolusi keadaan. */
+/**
+ * Terjemahan korpus satu paragraf sebagai dasar resolusi keadaan. Korpus skema ≥ 8 yang sudah
+ * memuat perbaikan manusia (X08 tahap 2): teks korpus = perbaikan, draf AI = `ai_text`.
+ */
 export async function corpusTranslation(
   textRaw: string,
   translation: Pick<TranslationRow, "text">,
+  review?: Pick<TranslationReviewRow, "ai_text">,
 ): Promise<CorpusTranslation> {
-  const [draftSha256, sourceSha256] = await Promise.all([
-    textSha256(translation.text),
-    textSha256(textRaw),
-  ]);
+  const draft = review?.ai_text ?? translation.text;
+  const [draftSha256, sourceSha256] = await Promise.all([textSha256(draft), textSha256(textRaw)]);
   return {
     text: translation.text,
-    draft: translation.text,
+    draft,
     draftSha256,
     sourceSha256,
-    reviewed: false,
+    reviewed: review !== undefined,
   };
+}
+
+/** Asal tinjauan + draf AI korpus untuk terjemahan yang berstatus tinjauan manusia saja. */
+async function corpusReviews(
+  corpus: D1Db,
+  translations: readonly TranslationRow[],
+): Promise<Map<number, TranslationReviewRow>> {
+  const ids = translations.filter((t) => isHumanReviewed(t.review_status)).map((t) => t.passage_id);
+  if (ids.length === 0) return new Map();
+  return new Map(
+    (await getTranslationReviewsWithDraft(corpus, ids, AI_TEXT_LANG)).map((r) => [r.passage_id, r]),
+  );
 }
 
 interface ActiveInfo {
@@ -139,13 +156,14 @@ async function activeStates(
   const byId = new Map([...refs, ...actives].map((r) => [r.id, r]));
   const rawBy = new Map(passages.map((p) => [p.id, p.text_raw]));
   const trBy = new Map(translations.map((t) => [t.passage_id, t]));
+  const reviews = await corpusReviews(deps.corpus, translations);
   const out = new Map<number, ActiveInfo>();
   for (const a of actives) {
     const raw = rawBy.get(a.passage_id);
     const tr = trBy.get(a.passage_id);
     if (raw === undefined || tr === undefined) continue;
     out.set(a.passage_id, {
-      state: stateOf(a, byId, await corpusTranslation(raw, tr)),
+      state: stateOf(a, byId, await corpusTranslation(raw, tr, reviews.get(a.passage_id))),
       mine: a.author_key === deps.identity,
     });
   }
@@ -181,7 +199,10 @@ export interface TrSignals {
   cited: ReadonlyMap<number, number>;
 }
 
-/** Urutan antrean: laporan terbanyak → dikutip Maknaz terbanyak → badan urut kitab → catatan kaki. */
+/**
+ * Urutan antrean: laporan terbanyak → dikutip Maknaz terbanyak → badan urut kitab → catatan kaki.
+ * `entries` sudah dalam urutan baca (`listTranslatedPassages`); sort stabil mempertahankannya.
+ */
 export function trQueueOrder<T extends { id: number; kind: "body" | "foot" }>(
   entries: readonly T[],
   signals: TrSignals,
@@ -189,11 +210,7 @@ export function trQueueOrder<T extends { id: number; kind: "body" | "foot" }>(
   const r = (e: T) => signals.reports.get(e.id) ?? 0;
   const c = (e: T) => signals.cited.get(e.id) ?? 0;
   return [...entries].sort(
-    (a, b) =>
-      r(b) - r(a) ||
-      c(b) - c(a) ||
-      Number(a.kind === "foot") - Number(b.kind === "foot") ||
-      a.id - b.id,
+    (a, b) => r(b) - r(a) || c(b) - c(a) || Number(a.kind === "foot") - Number(b.kind === "foot"),
   );
 }
 
@@ -341,7 +358,12 @@ async function loadContext(
   const translation = rp?.translation;
   if (rp === undefined || translation === null || translation === undefined) return null;
   if (translation.review_status === "rejected") return null;
-  const corpus = await corpusTranslation(rp.passage.text_raw, translation);
+  const reviews = await corpusReviews(deps.corpus, [translation]);
+  const corpus = await corpusTranslation(
+    rp.passage.text_raw,
+    translation,
+    reviews.get(translation.passage_id),
+  );
   const byId = await withReferenced(deps.app, new Map(history.map((r) => [r.id, r])));
   const active = history.find((r) => r.status === "active") ?? null;
   return {
@@ -650,6 +672,7 @@ export async function adminTranslationOverview(
   ]);
   const pBy = new Map(passages.map((p) => [p.id, p]));
   const trBy = new Map(translations.map((t) => [t.passage_id, t]));
+  const reviews = await corpusReviews(corpus, translations);
   const out: AdminTrRevision[] = [];
   for (const r of recent) {
     const p = pBy.get(r.passage_id);
@@ -657,7 +680,7 @@ export async function adminTranslationOverview(
     let diff: DiffPiece[] | null = null;
     let restores: string | null = null;
     if (p !== undefined && tr !== undefined) {
-      const corpusTr = await corpusTranslation(p.text_raw, tr);
+      const corpusTr = await corpusTranslation(p.text_raw, tr, reviews.get(r.passage_id));
       if (r.kind === "revised" && r.text !== null) {
         const prev = previousState(r, byId, corpusTr);
         diff = wordDiff(prev.text, r.text);
@@ -762,6 +785,7 @@ export async function adminRevertAuthorSince(
   const byId = await withReferenced(deps.app, new Map(histories.map((r) => [r.id, r])));
   const rawBy = new Map(passages.map((p) => [p.id, p.text_raw]));
   const trBy = new Map(translations.map((t) => [t.passage_id, t]));
+  const reviews = await corpusReviews(deps.corpus, translations);
   const prev = (r: TranslationRevisionRow) =>
     r.supersedes_id === null ? null : (byId.get(r.supersedes_id) ?? null);
   let reverted = 0;
@@ -769,7 +793,7 @@ export async function adminRevertAuthorSince(
     const raw = rawBy.get(active.passage_id);
     const tr = trBy.get(active.passage_id);
     if (raw === undefined || tr === undefined) continue;
-    const corpus = await corpusTranslation(raw, tr);
+    const corpus = await corpusTranslation(raw, tr, reviews.get(active.passage_id));
     // Mundur melewati semua versi editor ini sejak `since`, termasuk versinya yang dipulihkan
     // pembatalan orang lain (X → Y → Z batal ke X → X: kembali ke sebelum X yang pertama).
     let cur: TranslationRevisionRow | null = active;

@@ -15,12 +15,14 @@ Format entri:
 
 ---
 
-## 2026-10-22 · X08 · Koreksi terjemahan oleh editor/ustadz — sebagian (tahap 1)
-- Dikerjakan: pemeriksa teks bersama `validateTranslationText` (core); tabel `translation_revision` (DB app, migrasi 0006, hanya bertambah + pemicu); editor terdaftar `TRANSLATION_EDITORS` + peran ruang tinjau di server; `/tinjau/terjemahan` (antrean: laporan pembaca → dikutip Maknaz → urut kitab; Sudah benar / Perbaiki + pratinjau seperti pembaca / Batalkan, riwayat); `/admin` koreksi terbaru (diff kata) + batalkan + batalkan massal; `/privasi`, panduan editor, T-26.
-- Verifikasi: `pnpm verify` → lolos · D1 staging: 3 revisi uji tersimpan + konflik ditolak + dibuang · pratinjau lokal desktop/ponsel/gelap · `<main>` j1/200 identik dengan `main` · `peninjau` → 0 blocker, 7 penting + 6 kecil (semua dikerjakan).
+## 2026-10-22 · X08 · Koreksi terjemahan oleh editor/ustadz — selesai (kode; PR #120 + #121)
+- Dikerjakan:
+  - Tahap 1 (ADR-081): pemeriksa teks bersama `validateTranslationText`; `translation_revision` di DB app (migrasi 0006, hanya bertambah + pemicu); editor terdaftar `TRANSLATION_EDITORS` + peran ruang tinjau; `/tinjau/terjemahan` (antrean, Sudah benar / Perbaiki + pratinjau / Batalkan, riwayat); `/admin` koreksi terbaru + batalkan (massal); `/privasi`, panduan, T-26.
+  - Tahap 2 (ADR-082): ekspor revisi (berkas lokal + R2 privat `surau-revisi`, metadata tanpa teks), ingest validasi ulang + `translation_review` (korpus skema 8), label "Terjemahan AI · dikoreksi/diperiksa …" bersama (pembaca dengan popover, `/cari`, kutipan Maknaz), `[…]` redup hanya perbaikan, `human_review` di MCP, batch AI melewati paragraf berevisi.
+- Verifikasi: `pnpm verify` → lolos (tiap PR) · D1 staging: revisi uji tersimpan + konflik ditolak + dibuang · produksi: migrasi 0006 + pemicu ada di `surau-app` · e2e lokal: korpus uji 3 revisi → pembaca, `/api/search`, `/cari`, MCP `read_page` sama; `eval:retrieval --gate` 31 soal hit@10 100%, MRR 0,795 (= `ihya-v6`/`ihya-v8`) · HTML pembaca `<main>` identik dengan `main` untuk korpus tanpa tinjauan · `peninjau` tahap 1: 0 blocker, 7 penting + 6 kecil dikerjakan; tahap 2: lihat file sesi.
 - Biaya API: –
-- Keputusan: ADR-081.
-- Catatan untuk sesi berikutnya: tahap 2 (ekspor → ingest → label pembaca/Cari/MCP) di PR berikutnya; editor pertama menunggu kode akun Anas (T-26).
+- Keputusan: ADR-081, ADR-082.
+- Catatan untuk sesi berikutnya: T-26 (kode akun Anas → daftarkan lewat PR), lalu korpus berikutnya `ihya-v9` (skema 8: `db:migrate:staging` sebelum `corpus:load:staging`); koreksi ringkasan AI + judul daftar isi; dokumen Jawab belum menyebut "dikoreksi".
 
 ## 2026-10-22 · Font UI Google Sans menggantikan HarmonyOS Sans — selesai (PR #119)
 - Dikerjakan: `next/font/google` `Google_Sans` (OFL; normal di-preload, italic tidak), cadangan bermetrik sendiri ("Google Sans Fallback", Arial + size-adjust), berkas HarmonyOS dikeluarkan dari repo, `/lisensi#font` diperbarui, alat aset (potret WOFF2 Google Sans + OFL, mesin + figur dibangun ulang). Deploy X09 sempat gagal (registry npm 502), job dijalankan ulang → X09 tayang.

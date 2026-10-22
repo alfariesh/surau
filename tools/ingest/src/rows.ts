@@ -29,6 +29,7 @@ import type {
   TermStatRow,
   TocNodeRow,
   TocTitleTranslationRow,
+  TranslationReviewRow,
   TranslationRow,
   WorkRow,
 } from "@surau/db";
@@ -59,6 +60,7 @@ export const TABLE_ORDER = [
   "quran_translation",
   "passage_ayah_ref",
   "translation",
+  "translation_review",
   "summary",
   "toc_title_translation",
   "subheading_translation",
@@ -84,6 +86,8 @@ export interface CorpusRows {
   passage_ayah_ref: QuranRows["passage_ayah_ref"];
   /** Terjemahan dan ringkasan AI (S13): hasil batch yang lolos, dimuat pipeline (`llm/attach.ts`). */
   translation: TranslationRow[];
+  /** Asal tinjauan manusia (X08 tahap 2, skema 8): revisi editor terdaftar (`llm/revisions.ts`). */
+  translation_review: TranslationReviewRow[];
   summary: SummaryRow[];
   /** Judul daftar isi Indonesia (X04 bagian B, skema 7): node + subjudul kurasi (`llm/titles.ts`). */
   toc_title_translation: TocTitleTranslationRow[];
@@ -97,6 +101,7 @@ export interface CorpusRows {
 export type PipelineTables =
   | "term_stat"
   | "translation"
+  | "translation_review"
   | "summary"
   | "toc_title_translation"
   | "subheading_translation"

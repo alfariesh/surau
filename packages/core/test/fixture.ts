@@ -201,6 +201,7 @@ export async function seedAiText(db: D1Db): Promise<void> {
     `INSERT INTO ${table} (${key}, lang, text, model, prompt_version, created_at) VALUES (?, 'id', ?, 'model-uji', ?, '2026-10-17')`;
   const index = (text: string) => latinIndexText(text.replace(/⟦QS [^⟧]*⟧/g, " "));
   await db.batch([
+    db.prepare("DELETE FROM translation_review"),
     db.prepare("DELETE FROM translation"),
     db.prepare("DELETE FROM summary"),
     db.prepare("INSERT INTO translation_fts (translation_fts) VALUES ('delete-all')"),
@@ -220,5 +221,49 @@ export async function seedAiText(db: D1Db): Promise<void> {
         .prepare("INSERT INTO summary_fts (rowid, terms) VALUES (?, ?)")
         .bind(Number(id), index(text)),
     ]),
+  ]);
+}
+
+/**
+ * Tinjauan manusia buatan (X08, skema 8) atas terjemahan fixture: `revised` = teks diganti `text`
+ * (draf AI disimpan di `ai_text`); status `ustadz_verified` untuk peran ustadz. Nama uji, bukan orang.
+ */
+export async function seedHumanReview(
+  db: D1Db,
+  r: {
+    passage_id: number;
+    revised: boolean;
+    text?: string;
+    role?: "ustadz" | "editor";
+    shared?: boolean;
+  },
+): Promise<void> {
+  const draft = AI_TRANSLATIONS[r.passage_id] ?? "";
+  const role = r.role ?? "ustadz";
+  await db.batch([
+    db
+      .prepare(
+        "UPDATE translation SET text = ?, review_status = ? WHERE passage_id = ? AND lang = 'id'",
+      )
+      .bind(
+        r.revised ? (r.text ?? draft) : draft,
+        role === "ustadz" ? "ustadz_verified" : "reviewed",
+        r.passage_id,
+      ),
+    db
+      .prepare(
+        `INSERT OR REPLACE INTO translation_review (passage_id, lang, revision_id, revised, reviewed_at,
+           reviewer_name, reviewer_short, reviewer_role, reviewer_public, ai_text)
+         VALUES (?, 'id', 7, ?, '2026-10-22T03:00:00.000Z', ?, ?, ?, ?, ?)`,
+      )
+      .bind(
+        r.passage_id,
+        r.revised ? 1 : 0,
+        role === "ustadz" ? "Ust. Uji Lc." : "Editor Uji",
+        role === "ustadz" ? "Ust. Uji" : "Editor Uji",
+        role,
+        r.shared === false ? 0 : 1,
+        r.revised ? draft : null,
+      ),
   ]);
 }

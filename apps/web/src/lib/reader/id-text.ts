@@ -106,6 +106,8 @@ export interface CopyPiece {
   block: string;
   /** Permalink lengkap paragraf (segmen AI). */
   url?: string;
+  /** Label terjemahan yang ditinjau manusia (X08), mis. "Terjemahan AI · dikoreksi Ust. Anas". */
+  aiLabel?: string;
   /** Label ayat, mis. "QS 2:255 · Terjemahan Kemenag" (segmen ayat). */
   label?: string;
   /** Label ayat sudah ikut terseleksi (tidak perlu ditambahkan lagi). */
@@ -131,7 +133,7 @@ export function labelledCopy(
   };
   const close = (p: CopyPiece | undefined) => {
     if (p === undefined) return;
-    if (p.kind === "ai") insert(`${labels.ai}${p.url ? `, ${p.url}` : ""}`);
+    if (p.kind === "ai") insert(`${p.aiLabel ?? labels.ai}${p.url ? `, ${p.url}` : ""}`);
     if (p.kind === "summary") insert(`${labels.summary}${p.url ? `, ${p.url}` : ""}`);
     if (p.kind === "ayah" && !p.labelIncluded && p.label) insert(p.label);
   };

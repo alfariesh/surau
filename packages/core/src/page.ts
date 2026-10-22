@@ -7,9 +7,11 @@ import {
   getPageByCitation,
   getPassagesByPage,
   getSummariesStartingOn,
+  getTranslationReviewers,
   getTranslations,
+  isHumanReviewed,
 } from "@surau/db";
-import type { D1Db, SectionSummaryRow, TranslationRow } from "@surau/db";
+import type { D1Db, SectionSummaryRow, TranslationReviewerRow, TranslationRow } from "@surau/db";
 
 import { loadCiteContext } from "./citation.ts";
 import type { CiteContext } from "./citation.ts";
@@ -18,9 +20,42 @@ import { toPassages } from "./passages.ts";
 import { sectionPermalink } from "./permalink.ts";
 import { quranForRefs } from "./quran.ts";
 import { readPageInput } from "./schema.ts";
-import type { PageView, SummaryView, TranslationView } from "./schema.ts";
+import type { HumanReview, PageView, SummaryView, TranslationView } from "./schema.ts";
 
-export function translationView(row: TranslationRow): TranslationView {
+/**
+ * Tinjauan manusia untuk web/MCP (X08, ADR-082). Nama hanya bila orangnya mengizinkan namanya
+ * dikirim (`reviewer_public`); selain itu peran saja, di situs maupun MCP.
+ */
+export function humanReviewOf(r: TranslationReviewerRow | undefined): HumanReview | null {
+  if (r === undefined) return null;
+  const shared = r.reviewer_public === 1;
+  return {
+    revised: r.revised === 1,
+    reviewed_at: r.reviewed_at,
+    reviewer_role: r.reviewer_role,
+    reviewer_name: shared ? r.reviewer_name : null,
+    reviewer_short: shared ? r.reviewer_short : null,
+  };
+}
+
+/**
+ * Asal tinjauan untuk baris terjemahan yang berstatus tinjauan manusia saja. Korpus lama (skema < 8)
+ * tidak punya status itu, jadi tidak ada kueri tambahan (dan tidak ada "no such table").
+ */
+export async function reviewersFor(
+  db: D1Db,
+  rows: readonly Pick<TranslationRow, "passage_id" | "review_status">[],
+  lang = AI_TEXT_LANG,
+): Promise<Map<number, TranslationReviewerRow>> {
+  const ids = rows.filter((r) => isHumanReviewed(r.review_status)).map((r) => r.passage_id);
+  if (ids.length === 0) return new Map();
+  return new Map((await getTranslationReviewers(db, ids, lang)).map((r) => [r.passage_id, r]));
+}
+
+export function translationView(
+  row: TranslationRow,
+  reviewer?: TranslationReviewerRow,
+): TranslationView {
   return {
     label: "ai_translation",
     lang: row.lang,
@@ -28,6 +63,7 @@ export function translationView(row: TranslationRow): TranslationView {
     prompt_version: row.prompt_version,
     created_at: row.created_at,
     review_status: row.review_status,
+    human_review: humanReviewOf(reviewer),
     text: row.text,
   };
 }
@@ -86,10 +122,11 @@ export async function readPage(
     ),
   ]);
   // Ditolak peninjau (ADR-044 §8): tidak dikirim ke web, API, maupun MCP; sama dengan `searchText`.
+  const reviewers = await reviewersFor(db, translations);
   const translationOf = new Map(
     translations
       .filter((t) => t.review_status !== "rejected")
-      .map((t) => [t.passage_id, translationView(t)]),
+      .map((t) => [t.passage_id, translationView(t, reviewers.get(t.passage_id))]),
   );
   const withTranslation = passages.map((p) => ({
     ...p,

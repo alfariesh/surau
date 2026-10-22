@@ -11,6 +11,7 @@ import { search as searchText } from "../../i18n/id/search";
 import { aiSegments, markSegments, readerHref } from "../../lib/search/segments";
 import type { TextSegment } from "../../lib/search/segments";
 import { ArabicInline, ArabicText } from "../arabic";
+import { translationLabel } from "../../lib/translation-label";
 
 const t = searchText;
 const r = readerText;
@@ -57,7 +58,7 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
       {tr ? (
         <div className="flex flex-col gap-1" lang="id">
           <Chip className="self-start" size="sm" variant="soft">
-            {r.aiTranslation}
+            {translationLabel(tr.human_review).badge}
           </Chip>
           <Typography type="body-sm">
             {render(aiSegments(tr.snippet.text, tr.snippet.char_start, tr.highlights))}

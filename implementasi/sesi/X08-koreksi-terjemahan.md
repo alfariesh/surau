@@ -1,6 +1,6 @@
 # X08 · Sesi sisipan: koreksi terjemahan Indonesia oleh editor dan ustadz
 
-> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `apps/api` maupun `packages/llm/src/jawab`; di Tanya/Maknaz hanya kartu kutipan memakai fungsi label bersama) · **Status:** berjalan (2026-10-22): tahap 1 selesai (ADR-081), tahap 2 dikerjakan di PR terpisah
+> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `apps/api` maupun `packages/llm/src/jawab`; di Tanya/Maknaz hanya kartu kutipan memakai fungsi label bersama) · **Status:** selesai di kode (2026-10-22, ADR-081–082; PR #120 tahap 1 + #121 tahap 2); butir manusia (uji coba ustadz, T-26) menyusul
 > **Prasyarat:** nama dan gelar editor pertama untuk didaftarkan · T-17 tahap 3 (X04) sebaiknya selesai dulu, karena hasilnya menentukan antrean koreksi · X04 W1 (penyajian teks Indonesia) membantu tetapi tidak wajib
 > **Perkiraan:** 2–3 percakapan agent dalam dua tahap (lihat "Tahapan"), ditambah uji coba oleh editor sungguhan
 
@@ -191,13 +191,14 @@ Supaya ustadz bisa mulai bekerja secepatnya, sesi dibagi dua. Masing-masing PR s
   - tanpa token Access → 401 di semua host.
   Cara pendaftaran (kunci terdaftar seperti ADR-070) tercatat di ADR, dan langkahnya di TUGAS-PEMILIK.
   *Bukti:* `apps/web/src/app/api/review/terjemahan/route.test.ts` (401 semua ruang tanpa token; 403 `not_registered` walau body memuat `author_name`; token editor → 403 di `/api/review` GET/POST, ekspor, takhrij; akun dengan `also` boleh keduanya); `canUseTinjauRoom` di core; ADR-081 §4–5; T-26.
-- [ ] Konflik versi (tes):
+- [x] Konflik versi (tes):
   - simpanan atas teks dasar yang sudah berubah sejak dibuka ditolak 409;
   - dua koreksi berantai sebelum korpus baru: yang kedua berdasar revisi pertama;
   - ekspor hanya memuat revisi aktif terakhir; revisi yang dibatalkan tidak ikut.
+  *Bukti:* `packages/db/src/repo/translation-revision.test.ts` + `apps/web/src/lib/translation-review.test.ts` (409, berantai), `tools/ingest/src/llm/revisions.test.ts` "exportLines" (aktif saja; pembatalan → versi yang dipulihkan; kembali ke AI tidak diekspor).
 - [x] Riwayat dan batalkan: setiap simpanan tersimpan; tidak ada `UPDATE` yang menimpa teks revisi (tes repository); batalkan membuat revisi `reverted` dan mengembalikan teks **dan nama label** keadaan yang dipulihkan (tes: kembali ke AI → tanpa nama); `/admin` menampilkan koreksi terbaru dan bisa membatalkan semua koreksi satu editor sejak tanggal tertentu (tes route); simpanan ke-201 seorang editor dalam sehari → 429 (tes).
   *Bukti:* `packages/db/src/repo/translation-revision.test.ts` (UPDATE teks/penulis ditolak pemicu DB, hanya `active`→`superseded`), `apps/web/src/lib/translation-review.test.ts` (batalkan memulihkan label penulis pertama lalu draf AI tanpa nama; simpanan ke-201 → `limit`; batalkan massal + lewati yang diubah editor lain), `apps/web/src/app/api/admin/terjemahan/route.test.ts`, dan route terjemahan (429).
-- [ ] Ekspor + ingest:
+- [x] Ekspor + ingest:
   - korpus uji memuat teks revisi untuk paragraf uji;
   - `review_status` dan `reviewer_name` sesuai tabel §2;
   - hash di metadata git cocok;
@@ -206,14 +207,18 @@ Supaya ustadz bisa mulai bekerja secepatnya, sesi dibagi dua. Masing-masing PR s
   - sha256 berkas ekspor tercatat di `meta` korpus (tes);
   - status hanya diterapkan bila hash teks korpus = `base_sha256` (tes: draf AI diganti → label kembali "Terjemahan AI");
   - file metadata git tidak memuat teks (tes skema).
-- [ ] Konsistensi K1: untuk paragraf uji, pembaca, `/api/search` (kata dari teks revisi), dan MCP `read_page` lokal menampilkan teks yang sama (perintah + keluaran dicatat); `eval:retrieval --gate` atas korpus uji tidak turun dari `ihya-v7`.
-- [ ] Batch AI melewati paragraf berevisi (`plan`/`retry` tidak memasukkannya; tes).
+  *Bukti:* `tools/ingest/src/llm/revisions.test.ts` (8 tes: status per peran, `ai_text`, hash, berkas hilang/hash/isi beda = gagal, usang `source_changed`/`invalid_text`/`draft_changed` tanpa menulis DB app, `revisionMetaRows`, skema menolak field teks). E2E lokal: `review:export-terjemahan --lokal` → `pnpm ingest ihya` ("3 revisi: 1 sudah benar + 2 perbaikan dimuat; usang 0") → `meta.revisions_sha256` = sha256 berkas ekspor, `translation_review` 3 baris, `translation_fts` mengenai kata dari teks revisi.
+- [x] Konsistensi K1: untuk paragraf uji, pembaca, `/api/search` (kata dari teks revisi), dan MCP `read_page` lokal menampilkan teks yang sama (perintah + keluaran dicatat); `eval:retrieval --gate` atas korpus uji tidak turun dari `ihya-v7`.
+  *Bukti (lokal, korpus uji skema 8):* `/kitab/ihya/1/200` → teks perbaikan p2826 + "Terjemahan AI · dikoreksi Ust. Anas" (+ "diperiksa" p2829), popover nama lengkap + tanggal, `[…]` redup (desktop + ponsel 375 px); `/api/search?q=<kata revisi>` → p2826 `ustadz_verified` + `human_review`; MCP lokal `read_page` j1/200 → teks + `human_review` sama, tanpa hash/email/draf; `pnpm run eval:retrieval --gate` → 31 soal hit@1 64,5% · hit@5 96,8% · hit@10 100% · MRR 0,795, sama persis dengan laporan `ihya-v6` dan `ihya-v8` (laporan `ihya-v7` tidak ada di repo; teks v7 = v6).
+- [x] Batch AI melewati paragraf berevisi (`plan`/`retry` tidak memasukkannya; tes).
+  *Bukti:* `tools/ingest/src/llm/batch.test.ts` "X08: paragraf yang ditinjau manusia…" (rencana tanpa paragraf itu, rencana lama usang, ulangan tidak dikirim) + `withoutReviewed` di `runPlan`/`runSubmit`/`runRetry`.
 - [ ] Tahap 1 bisa di-merge sendiri: koreksi tersimpan di DB app staging lewat `/tinjau/terjemahan`, dan pembaca belum berubah (cek HTML j1/200 sama dengan sebelum).
   *Hasil (belum dicentang, penyimpangan terbuka):* "lewat `/tinjau/terjemahan`" di staging tidak bisa dibuktikan agent: Preview belum dilindungi Access (gagal tertutup) dan login `surau.org/tinjau` butuh PIN email pemilik. Yang terbukti: (a) DB app staging `surau-app-staging` (migrasi 0006 + pemicu): 3 revisi uji tersimpan lewat repository + core yang sama dengan route (CAS batch, `last_row_id`), konflik ditolak, lalu dibuang (0 baris); (b) UI + route + lib ujung-ke-ujung di `next dev` lokal (halaman sementara tanpa Access, D1 lokal): simpan perbaikan, validasi langsung, batalkan, ponsel, gelap; (c) `<main>` j1/200 kode `main` vs tahap 1 identik byte demi byte (95.863 byte). Bukti penuh lewat UI staging/produksi = langkah 2–4 T-26 (Anas).
-- [ ] Label pembaca, kartu `/cari`, dan kartu kutipan Tanya/Maknaz sesuai tabel §4 lewat satu fungsi label. Gelar "Ust." hanya untuk akun terdaftar sebagai ustadz (tes komponen + tangkapan layar). Kurung siku redup hanya pada teks revisi (tes). MCP `read_page` memuat `review_status` + `revised` + `reviewer_name` tanpa hash/email, dan klien yang mengabaikan field baru tetap berfungsi (tes kontrak).
+- [x] Label pembaca, kartu `/cari`, dan kartu kutipan Tanya/Maknaz sesuai tabel §4 lewat satu fungsi label. Gelar "Ust." hanya untuk akun terdaftar sebagai ustadz (tes komponen + tangkapan layar). Kurung siku redup hanya pada teks revisi (tes). MCP `read_page` memuat `review_status` + `revised` + `reviewer_name` tanpa hash/email, dan klien yang mengabaikan field baru tetap berfungsi (tes kontrak).
+  *Bukti:* `apps/web/src/lib/translation-label.ts` dipakai pembaca, `result-card.tsx`, `answer-view.tsx`; tes `translation-label.test.ts`, `passage-translation.test.tsx` (popover, `[…]` redup hanya perbaikan, AI/diperiksa tanpa gaya), `kutipan-handler.test.ts`; gelar: `parseTranslationEditors` + Zod korpus menolak "Ust." untuk editor; tangkapan layar lokal j1/200 (desktop, ponsel). MCP: field ada di `human_review` (`revised`, `reviewer_name`, `reviewer_role`, `reviewed_at`; ADR-082 §5, satu objek supaya hemat token) + `review_status`; `apps/mcp/src/index.test.ts` "tinjauan manusia aditif…" (tanpa hash/email, skema klien lama tetap lolos).
 - [x] Tidak ada email atau identitas mentah di DB/log (cek skema + `grep` diff); teks Arab di UI tinjau berasal dari DB.
   *Bukti:* skema `translation_revision` hanya `author_key` (hash) + nama terdaftar; log hanya `{event, action}`; `git diff origin/main | grep -E "email|payload.sub|cf-connecting-ip"` → hanya komentar/teks UI; panel Arab = `item.arabic` = `passage.text_raw` (`reviewPassages`).
-- [ ] ADR baru, STATUS, LOG, TUGAS-PEMILIK, dan file sesi ini diperbarui.
+- [x] ADR baru, STATUS, LOG, TUGAS-PEMILIK, dan file sesi ini diperbarui.
 - [ ] (Manusia, boleh menyusul) Uji coba ustadz sungguhan: ≥ 10 paragraf dari antrean dikoreksi atau ditandai benar, lalu tayang di produksi lewat korpus berikutnya atas izin promote, dengan label nama.
 
 ## Di luar cakupan
@@ -229,4 +234,29 @@ Supaya ustadz bisa mulai bekerja secepatnya, sesi dibagi dua. Masing-masing PR s
 
 ## Catatan hasil
 
-*(diisi agent di akhir sesi pelaksanaan)*
+**2026-10-22 · dikerjakan dalam satu percakapan, dua PR** (tahap 1 #120 sudah di `main` dan ter-deploy; tahap 2 #121). Biaya LLM US$0, tanpa korpus baru, teks Arab selalu dari DB.
+
+**Yang dibuat**
+- **Tahap 1 (ADR-081):** `validateTranslationText` (core), `translation_revision` (DB app 0006, hanya bertambah + pemicu, satu aktif per paragraf, batch atomik 409/429), `TRANSLATION_EDITORS` + peran ruang tinjau, `/tinjau/terjemahan`, `/admin` koreksi terbaru (diff kata) + batalkan + batalkan massal (dengan konfirmasi), `/privasi`, panduan `docs/tinjau-operasional.md`, T-26.
+- **Tahap 2 (ADR-082):** `pnpm review:export-terjemahan` (lokal/staging/produksi; berkas git-ignored + R2 privat `surau-revisi`, metadata tanpa teks `data/reviews/ihya-9472-revisi.json` — **belum ada**, dibuat saat ekspor pertama), ingest `applyRevisions` + korpus skema 8 `translation_review`, `human_review` di core/MCP, label bersama, batch AI melewati paragraf berevisi, smoke skema 8.
+
+**Antrean awal (diminta pemilik, alasan di ADR-081 §7):** laporan pembaca jenis terjemahan (sekarang 0) → dikutip Maknaz → paragraf badan urut baca mulai Mukadimah/Kitab al-'Ilm → catatan kaki (belum punya terjemahan AI). **T-17 tahap 3 belum dinilai** (jawaban pemilik: jangan tunggu): hasil Salah/Kurang dimasukkan ke depan antrean setelah dinilai (`pnpm t17 hasil` belum menulis berkas; perlu tambahan kecil).
+
+**Editor pertama (pemilik, 2026-10-22):** Anas, gelar tampil "Ust."; label "dikoreksi Ust. Anas" dan nama lengkap "Ust. Anas Lc." di rincian/riwayat/MCP (tafsiran atas dua contoh pemilik; ubah di satu entri bila keliru). Kunci akunnya belum diketahui (belum pernah menyimpan tinjauan apa pun di produksi): pendaftaran = T-26.
+
+**Penyimpangan (terbuka)**
+- Butir "Tahap 1 bisa di-merge sendiri … lewat `/tinjau/terjemahan` di staging" tidak dicentang: Access tidak bisa dilewati agent (Preview gagal tertutup, PIN email pemilik). Dibuktikan sebagian: DB staging lewat repository yang sama, UI lewat pratinjau lokal, HTML pembaca identik. Bukti penuh = T-26.
+- MCP memakai satu objek `human_review` (bukan field datar `revised`/`reviewer_name`) supaya `search_text` tetap hemat token.
+- Tanpa izin nama, situs juga menampilkan peran saja (rencana §4 membolehkan nama di situs saja): lebih ketat, persetujuan dua tingkat menyusul bila diminta.
+- Judul daftar isi/subjudul (tabel terpisah) belum bisa dikoreksi: menyusul bersama ringkasan AI.
+- Butir "status hanya diterapkan bila hash teks korpus = `base_sha256`" berlaku untuk "sudah benar"; **perbaikan** tetap dimuat walau draf AI di sekitarnya berubah (rencana §3: revisi manusia menang; dicatat `draftChanged`).
+- `meta.revisions_count` = revisi di berkas ekspor (bukan yang dimuat), supaya `corpus:qa` deterministik.
+
+**Peninjau:** tahap 1: 0 blocker, 7 penting + 6 kecil (semua dikerjakan, ADR-081). Tahap 2: 1 blocker (cache `/api/search` lama tanpa `human_review` → `SEARCH_RESULT_VERSION` 2 + label tahan field hilang), 4 penting (validasi ingest dengan dasar draf; perlindungan batch hanya untuk revisi yang masih berlaku agar paragraf tidak kehilangan terjemahan; `revisions_count` deterministik untuk `corpus:qa`; ekspor uji ditolak ingest tanpa `SURAU_REVISI_UJI=1` + tes repo), 10 kecil, 3 saran; semua dikerjakan kecuali saran kunci per edisi (sebelum kitab kedua).
+
+**Utang / pesan untuk sesi berikutnya**
+- Korpus berikutnya (`ihya-v9`) = skema 8: `db:migrate:staging` sebelum `corpus:load:staging`; urutan: ekspor → commit metadata → ingest → muat + cek → `eval:retrieval --gate` → promote atas izin (tools/ingest/README.md). Catat `revisions_sha256` di `data/SOURCES.md`.
+- Ekspor dulu sebelum batch AI (revisi yang belum diekspor belum terlindung dari `plan/submit/retry`).
+- Dokumen Jawab (`packages/llm/src/jawab/documents.ts`) masih "Terjemahan AI (bisa keliru…)" untuk teks yang dikoreksi.
+- `TRANSLATION_EDITORS` dan `TAKHRIJ_USTADZ_KEYS` terpisah (menyatukannya menyentuh `apps/api`).
+- Lencana pembaca: popover HTML bawaan (tanpa JS) diposisikan di tengah layar; cukup untuk sekarang.

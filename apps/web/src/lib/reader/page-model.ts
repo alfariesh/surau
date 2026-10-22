@@ -1,5 +1,6 @@
 import type {
   AyahRef,
+  HumanReview,
   Location,
   PageView,
   Passage,
@@ -32,7 +33,7 @@ import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
  * syair, subjudul): tanpa itu, halaman sambungan di produksi memakai model lama sampai 7 hari per
  * data center. Model tidak memuat teks UI (i18n).
  */
-export const PAGE_MODEL_VERSION = `3.${SUBHEADING_DIGEST}`;
+export const PAGE_MODEL_VERSION = `4.${SUBHEADING_DIGEST}`;
 
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {
@@ -55,6 +56,11 @@ export interface TranslationModel {
   segments: TranslationSegmentView[];
   /** Rentang tebal di teks terjemahan lengkap (padanan subjudul awal/akhir), atau `null`. */
   bold: { start: number; end: number } | null;
+  /**
+   * Tinjauan manusia (X08): label "diperiksa/dikoreksi …"; kurung siku `[…]` tampil redup hanya bila
+   * teksnya perbaikan manusia (`revised`), bukan pada kurung tulisan AI. Tidak ada = terjemahan AI.
+   */
+  review?: HumanReview | null;
 }
 
 export interface PassageModel {
@@ -212,7 +218,7 @@ function translationModel(
           });
     return { ...seg, label };
   });
-  return { segments, bold };
+  return { segments, bold, review: tr.human_review };
 }
 
 export interface ModelContext {

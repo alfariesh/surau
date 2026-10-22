@@ -19,7 +19,7 @@ import {
   searchSummaryNodes,
   tocNodeIdRange,
 } from "@surau/db";
-import type { D1Db, FusedSearchRow, SearchPassageRow } from "@surau/db";
+import type { D1Db, FusedSearchRow, SearchPassageRow, TranslationReviewerRow } from "@surau/db";
 import {
   FTS_MAX_TOKENS,
   LATIN_MAX_TERMS,
@@ -37,6 +37,7 @@ import type { FtsQueryPlan, LatinQueryPlan } from "@surau/text";
 
 import { ayahPlaceholderPattern } from "./ayah-placeholder.ts";
 import { citeContext } from "./citation.ts";
+import { humanReviewOf, reviewersFor } from "./page.ts";
 import type { CiteContext } from "./citation.ts";
 import { InvalidQuery, NotFound, Unavailable, parseInput } from "./errors.ts";
 import { sectionPermalink } from "./permalink.ts";
@@ -63,7 +64,7 @@ export const AI_SNIPPET_CHARS = 240;
  * berubah tanpa mengubah konstanta yang sudah ikut di kunci (mis. aturan potongan, field baru,
  * urutan hasil). Konstanta peringkat (RRF_K, kedalaman, ambang) dan normalisasi ikut otomatis.
  */
-export const SEARCH_RESULT_VERSION = 1;
+export const SEARCH_RESULT_VERSION = 2; // 2 = `translation.human_review` (X08, ADR-082)
 
 /** Seluruh korpus: semua rowid paragraf/node (filter edisi memakai `passageIdRange`). */
 const ALL_IDS = { min: 1, max: Number.MAX_SAFE_INTEGER };
@@ -122,6 +123,7 @@ export function aiExcerpt(text: string, plan: LatinQueryPlan | null) {
 function translationOf(
   row: SearchPassageRow,
   plan: LatinQueryPlan | null,
+  reviewers: ReadonlyMap<number, TranslationReviewerRow>,
 ): SearchTranslation | null {
   if (
     row.tr_text === null ||
@@ -141,6 +143,7 @@ function translationOf(
     prompt_version: row.tr_prompt,
     created_at: row.tr_created,
     review_status: row.tr_review,
+    human_review: humanReviewOf(reviewers.get(row.id)),
     ...aiExcerpt(row.tr_text, plan),
   };
 }
@@ -183,7 +186,18 @@ function summaryOf(
 interface HitPlans {
   arabic: FtsQueryPlan | null;
   latin: LatinQueryPlan | null;
+  /** Asal tinjauan manusia terjemahan hasil ini (X08; kosong di korpus skema < 8). */
+  reviewers: ReadonlyMap<number, TranslationReviewerRow>;
 }
+
+/** Tinjauan manusia untuk baris hasil yang terjemahannya berstatus tinjauan manusia saja. */
+const searchReviewers = (db: D1Db, rows: readonly SearchPassageRow[]) =>
+  reviewersFor(
+    db,
+    rows.flatMap((r) =>
+      r.tr_review === null ? [] : [{ passage_id: r.id, review_status: r.tr_review }],
+    ),
+  );
 
 function hitFrom(
   row: SearchPassageRow,
@@ -218,7 +232,7 @@ function hitFrom(
       text: row.text_raw.slice(snip.start, snip.end),
     },
     matched_by: extra.matched_by,
-    translation: translationOf(row, plans.latin),
+    translation: translationOf(row, plans.latin, plans.reviewers),
     summary: extra.summary,
   };
 }
@@ -395,7 +409,11 @@ export async function searchText(
       ? ["translation", "summary"]
       : ["arabic", "translation", "summary"];
   const [first] = found.rows;
-  const plans = { arabic: found.allCommon ? null : arabic, latin };
+  const plans = {
+    arabic: found.allCommon ? null : arabic,
+    latin,
+    reviewers: await searchReviewers(db, found.rows),
+  };
   return {
     ...base,
     paths,
@@ -508,7 +526,11 @@ async function arabicOnly(
     fusion: null,
     common_terms: found.common.map((t) => ({ term: t.term, passage_count: t.df })),
   };
-  const plans = { arabic: plan, latin: null };
+  const plans = {
+    arabic: plan,
+    latin: null,
+    reviewers: await searchReviewers(db, [...found.ranked, ...found.inOrder]),
+  };
 
   if (found.allCommon) {
     // Pengaman: tanpa bm25 (yang membaca seluruh daftar dokumen kata itu) dan tanpa halaman lanjut.

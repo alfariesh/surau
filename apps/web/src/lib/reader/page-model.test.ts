@@ -98,6 +98,7 @@ describe("buildPageModel: subjudul kurasi", () => {
       prompt_version: "uji@1",
       created_at: "2026-10-21",
       review_status: "ai_generated" as const,
+      human_review: null,
       text,
     });
     const head = passage(100, T_HEAD, { translation: tr("Penjelasan keutamaan") });
@@ -144,6 +145,7 @@ describe("buildPageModel: subjudul kurasi", () => {
         prompt_version: "uji@1",
         created_at: "2026-10-21",
         review_status: "ai_generated",
+        human_review: null,
         text: "Terjemahan baru.",
       },
     });
@@ -246,6 +248,7 @@ describe("buildPageModel: syair dan placeholder ayat", () => {
     prompt_version: "uji@1",
     created_at: "2026-10-21",
     review_status: "ai_generated" as const,
+    human_review: null,
     text,
   });
 

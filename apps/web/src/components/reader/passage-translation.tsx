@@ -6,6 +6,8 @@ import { reader as readerText } from "../../i18n/id/reader";
 import { shortAyahLabel } from "../../lib/reader/ayah";
 import { aiRuns } from "../../lib/reader/id-text";
 import type { TranslationModel, TranslationSegmentView } from "../../lib/reader/page-model";
+import { translationLabel } from "../../lib/translation-label";
+import type { TranslationLabel } from "../../lib/translation-label";
 
 const t = readerText;
 
@@ -39,22 +41,51 @@ function withMarkers(text: string, footAnchor: Readonly<Record<string, string>>)
   return out;
 }
 
+const ADDED = /\[[^\]\n]*\]/gu;
+
+/**
+ * Kata tambahan penerjemah `[…]` pada teks perbaikan manusia (X08): tampil redup dengan penjelasan.
+ * Kurung siku tulisan AI tidak diberi gaya ini (bisa bermakna lain, mis. "[ayat 26]").
+ */
+function withAdded(
+  text: string,
+  revised: boolean,
+  footAnchor: Readonly<Record<string, string>>,
+): ReactNode[] {
+  if (!revised) return withMarkers(text, footAnchor);
+  const out: ReactNode[] = [];
+  let at = 0;
+  for (const m of text.matchAll(ADDED)) {
+    if (m.index > at) out.push(...withMarkers(text.slice(at, m.index), footAnchor));
+    out.push(
+      <span key={`a${m.index}`} className="tr-added" title={t.trAdded}>
+        {withMarkers(m[0], footAnchor)}
+      </span>,
+    );
+    at = m.index + m[0].length;
+  }
+  if (at < text.length) out.push(...withMarkers(text.slice(at), footAnchor));
+  return out;
+}
+
 /** Segmen AI: potongan bergaya (kutipan, tebal) dengan penanda catatan kaki tertaut. */
 function AiText({
   text,
   offset,
   bold,
+  revised,
   footAnchor,
 }: {
   text: string;
   offset: number;
   bold: TranslationModel["bold"];
+  revised: boolean;
   footAnchor: Readonly<Record<string, string>>;
 }) {
   return (
     <span data-ai-text="" data-tr-seg="ai">
       {aiRuns(text, offset, bold).map((run, i) => {
-        let node: ReactNode = withMarkers(run.text, footAnchor);
+        let node: ReactNode = withAdded(run.text, revised, footAnchor);
         if (run.quote) node = <span className="tr-quote">{node}</span>;
         if (run.bold) node = <strong className="tr-strong">{node}</strong>;
         return <span key={i}>{node}</span>;
@@ -77,7 +108,14 @@ export function Segments({
     offset += s.kind === "ai" ? s.text.length : s.placeholder.length;
     if (s.kind === "ai") {
       return (
-        <AiText key={i} bold={translation.bold} footAnchor={footAnchor} offset={at} text={s.text} />
+        <AiText
+          key={i}
+          bold={translation.bold}
+          footAnchor={footAnchor}
+          offset={at}
+          revised={translation.review?.revised === true}
+          text={s.text}
+        />
       );
     }
     if (s.kind === "invalid") {
@@ -99,12 +137,37 @@ export function Segments({
   });
 }
 
-/** Lencana label AI (terlihat, tidak ikut tersalin; pembaca layar memakai awalan sr-only). */
-function AiBadge() {
+/**
+ * Lencana label (terlihat, tidak ikut tersalin; pembaca layar memakai awalan sr-only). Terjemahan
+ * yang ditinjau manusia (X08): lencana berupa tombol yang membuka rincian nama lengkap + tanggal
+ * (popover HTML bawaan, tanpa JavaScript), karena `title` tidak terbaca di layar sentuh.
+ */
+function AiBadge({ label, anchor }: { label: TranslationLabel; anchor: string }) {
+  if (label.kind === "ai") {
+    return (
+      <span aria-hidden="true" className="ai-badge" title={label.detail}>
+        {label.badge}
+      </span>
+    );
+  }
+  const id = `tr-review-${anchor}`;
   return (
-    <span aria-hidden="true" className="ai-badge" title={t.aiTranslationHint}>
-      {t.aiTranslation}
-    </span>
+    <>
+      {/* Nama aksesibel = rincian (awalan sr-only sudah membacakan lencananya), tanpa `title`
+          ganda dengan popover. */}
+      <button
+        aria-label={label.detail}
+        className="ai-badge ai-badge-review"
+        data-copy-skip=""
+        popoverTarget={id}
+        type="button"
+      >
+        {label.badge}
+      </button>
+      <span className="tr-review-popover" data-copy-skip="" id={id} popover="auto" role="note">
+        {label.detail}
+      </span>
+    </>
   );
 }
 
@@ -116,7 +179,11 @@ export function joinTranslations(list: readonly TranslationModel[]): Translation
   const segments: TranslationSegmentView[] = [...first.segments];
   for (const tr of rest)
     segments.push({ kind: "ai", label: "ai_translation", text: " " }, ...tr.segments);
-  return { segments, bold: null };
+  // Label tinjauan hanya bila semua potongan ditinjau sama (judul terpotong = satu judul).
+  const same = rest.every(
+    (tr) => JSON.stringify(tr.review ?? null) === JSON.stringify(first.review ?? null),
+  );
+  return { segments, bold: null, review: same ? first.review : null };
 }
 
 export function PassageTranslation({
@@ -141,23 +208,33 @@ export function PassageTranslation({
 }) {
   if (translation === null) return null;
   const allAi = translation.segments.every((s) => s.kind === "ai");
+  const label = translationLabel(translation.review ?? null);
+  // Label salinan (reader-enhancements.tsx): "(Terjemahan AI · dikoreksi …, permalink)".
+  const copyLabel = label.kind === "ai" ? undefined : label.badge;
   if (heading && allAi) {
     return (
       <p
         className="passage-translation passage-translation-heading"
         data-permalink={permalink}
+        data-tr-label={copyLabel}
         lang="id"
       >
         <span className="sr-only" data-copy-skip="">
-          {t.aiTranslation}:{" "}
+          {label.badge}:{" "}
         </span>
-        <Segments footAnchor={footAnchor} translation={translation} /> <AiBadge />
+        <Segments footAnchor={footAnchor} translation={translation} />{" "}
+        <AiBadge anchor={anchor} label={label} />
       </p>
     );
   }
   const bodyId = `tr-${anchor}`;
   return (
-    <div className="passage-translation" data-permalink={permalink} lang="id">
+    <div
+      className="passage-translation"
+      data-permalink={permalink}
+      data-tr-label={copyLabel}
+      lang="id"
+    >
       <button
         aria-controls={bodyId}
         aria-expanded="false"
@@ -169,9 +246,10 @@ export function PassageTranslation({
       </button>
       <p className="passage-translation-body" id={bodyId}>
         <span className="sr-only" data-copy-skip="">
-          {t.aiTranslation}:{" "}
+          {label.badge}:{" "}
         </span>
-        <Segments footAnchor={footAnchor} translation={translation} /> <AiBadge />
+        <Segments footAnchor={footAnchor} translation={translation} />{" "}
+        <AiBadge anchor={anchor} label={label} />
       </p>
     </div>
   );

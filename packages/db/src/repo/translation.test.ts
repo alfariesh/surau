@@ -12,8 +12,13 @@ import {
   T_ROOT,
   seedCorpus,
 } from "../../test/fixture.ts";
+import { ZodError } from "zod";
+
+import { translationReviewRow } from "../schema/corpus.ts";
 import {
   getSummariesStartingOn,
+  getTranslationReviewers,
+  getTranslationReviewsWithDraft,
   getTranslations,
   listTitleTranslations,
   listTranslatedPassages,
@@ -45,8 +50,86 @@ beforeAll(async () => {
   ]);
 });
 
+describe("getTranslationReviewers (X08, skema 8)", () => {
+  test("asal tinjauan tanpa draf untuk publik; dengan draf untuk ruang editor; CHECK + gelar", async () => {
+    await db
+      .prepare(
+        `INSERT INTO translation_review (passage_id, lang, revision_id, revised, reviewed_at,
+           reviewer_name, reviewer_short, reviewer_role, reviewer_public, ai_text)
+         VALUES (?, 'id', 3, 1, '2026-10-22T00:00:00.000Z', 'Ust. Uji Lc.', 'Ust. Uji', 'ustadz', 1, 'Draf lama.')`,
+      )
+      .bind(PASSAGES.body1)
+      .run();
+    const [pub] = await getTranslationReviewers(db, [PASSAGES.body1, PASSAGES.body2], "id");
+    expect(pub).toEqual({
+      passage_id: PASSAGES.body1,
+      lang: "id",
+      revision_id: 3,
+      revised: 1,
+      reviewed_at: "2026-10-22T00:00:00.000Z",
+      reviewer_name: "Ust. Uji Lc.",
+      reviewer_short: "Ust. Uji",
+      reviewer_role: "ustadz",
+      reviewer_public: 1,
+    });
+    expect((await getTranslationReviewsWithDraft(db, [PASSAGES.body1], "id"))[0]?.ai_text).toBe(
+      "Draf lama.",
+    );
+    expect(await getTranslationReviewers(db, [], "id")).toEqual([]);
+    // Perbaikan wajib membawa draf AI; gelar ustadz tidak untuk peran editor.
+    await expect(
+      db
+        .prepare(
+          `INSERT INTO translation_review VALUES (?, 'id', 4, 1, 'x', 'n', 'n', 'editor', 0, NULL)`,
+        )
+        .bind(PASSAGES.body2)
+        .run(),
+    ).rejects.toThrow(/CHECK/u);
+    expect(() =>
+      translationReviewRow.parse({
+        ...pub,
+        reviewer_role: "editor",
+        reviewer_short: "Ust. Palsu",
+        revised: 0,
+        ai_text: null,
+      }),
+    ).toThrow(ZodError);
+    await db.prepare("DELETE FROM translation_review").run();
+  });
+});
+
 describe("listTranslatedPassages", () => {
-  test("paragraf berterjemahan satu edisi dan bahasa, urut ID, dengan jenisnya", async () => {
+  test("urut baca (halaman, jenis, urutan), bukan menurut ID", async () => {
+    // Paragraf baru dari patch: ID besar, tetapi letaknya di halaman 1 (sebelum paragraf halaman 2).
+    const late = PASSAGES.body3 + 50;
+    await db.batch([
+      db
+        .prepare(
+          `INSERT INTO passage (id, edition_id, page_id, toc_node_id, kind, ord, text_raw)
+           VALUES (?, ?, ?, NULL, 'body', 2, 'نص مضاف')`,
+        )
+        .bind(late, ED, P1),
+      db
+        .prepare(
+          "INSERT INTO translation (passage_id, lang, text, model, prompt_version, created_at) VALUES (?, 'id', 'Tambahan.', 'm', 'p', '2026-10-17')",
+        )
+        .bind(late),
+    ]);
+    try {
+      expect((await listTranslatedPassages(db, ED, "id")).map((r) => r.id)).toEqual([
+        PASSAGES.body1,
+        late,
+        PASSAGES.body2,
+      ]);
+    } finally {
+      await db.batch([
+        db.prepare("DELETE FROM translation WHERE passage_id = ?").bind(late),
+        db.prepare("DELETE FROM passage WHERE id = ?").bind(late),
+      ]);
+    }
+  });
+
+  test("paragraf berterjemahan satu edisi dan bahasa, dengan jenisnya", async () => {
     expect(await listTranslatedPassages(db, ED, "id")).toEqual([
       { id: PASSAGES.body1, kind: "body" },
       { id: PASSAGES.body2, kind: "body" },
