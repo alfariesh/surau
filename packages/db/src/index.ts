@@ -22,6 +22,7 @@ export * from "./schema/corpus.ts";
 export * from "./schema/app.ts";
 export * from "./schema/review.ts";
 export * from "./schema/takhrij-review.ts";
+export * from "./schema/translation-revision.ts";
 export {
   insertAnswerLog,
   listAnswerLogs,
@@ -36,6 +37,25 @@ export {
   takhrijCitedCounts,
   takhrijReviewsChangedSince,
 } from "./repo/takhrij-review.ts";
+export {
+  countTranslationRevisionsSince,
+  getActiveTranslationRevisions,
+  getTranslationRevisionHistories,
+  getTranslationRevisionHistory,
+  getTranslationRevisionsByIds,
+  listActiveTranslationRevisions,
+  listRecentTranslationRevisions,
+  listTranslationRevisionAuthors,
+  listTranslationRevisionsByAuthorSince,
+  saveTranslationRevision,
+  translationQueueSignals,
+} from "./repo/translation-revision.ts";
+export type {
+  SaveTranslationRevisionOptions,
+  SaveTranslationRevisionResult,
+  TranslationEditorSeen,
+  TranslationQueueSignals,
+} from "./repo/translation-revision.ts";
 
 export {
   getAdjacentPages,
@@ -102,9 +122,14 @@ export {
   getSummariesStartingOn,
   getTranslations,
   listTitleTranslations,
+  listTranslatedPassages,
   sectionSummaryRow,
 } from "./repo/translation.ts";
-export type { SectionSummaryRow, TitleTranslations } from "./repo/translation.ts";
+export type {
+  SectionSummaryRow,
+  TitleTranslations,
+  TranslatedPassage,
+} from "./repo/translation.ts";
 export { QURAN_AYAT_MAX, ayahRefWithSurahRow, getAyahRefs, getQuranAyat } from "./repo/quran.ts";
 export type { AyahRange, AyahRefWithSurahRow, QuranAyat } from "./repo/quran.ts";
 export {

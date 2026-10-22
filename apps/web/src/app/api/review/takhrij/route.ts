@@ -1,6 +1,11 @@
 import { parseUstadzKeys, takhrijReviewInput } from "@surau/core";
 import { getEnv } from "../../../../lib/cloudflare";
-import { REVIEW_HEADERS, reviewIdentity, reviewSameOrigin } from "../../../../lib/review-auth";
+import {
+  REVIEW_HEADERS,
+  reviewIdentity,
+  reviewRoomAllowed,
+  reviewSameOrigin,
+} from "../../../../lib/review-auth";
 import { readJsonBody } from "../../../../lib/review-body";
 import {
   QUEUE_FILTERS,
@@ -19,6 +24,7 @@ export async function GET(request: Request) {
   const env = await getEnv();
   const identity = await reviewIdentity(request.headers.get("cf-access-jwt-assertion"), env);
   if (!identity) return json({ error: "unauthorized" }, 401);
+  if (!reviewRoomAllowed(identity, "takhrij", env)) return json({ error: "forbidden_role" }, 403);
   const deps = {
     corpus: env.CORPUS_DB,
     app: env.APP_DB,
@@ -49,6 +55,7 @@ export async function POST(request: Request) {
   const env = await getEnv();
   const identity = await reviewIdentity(request.headers.get("cf-access-jwt-assertion"), env);
   if (!identity) return json({ error: "unauthorized" }, 401);
+  if (!reviewRoomAllowed(identity, "takhrij", env)) return json({ error: "forbidden_role" }, 403);
   if (!reviewSameOrigin(request)) return json({ error: "forbidden_origin" }, 403);
   const body = await readJsonBody(request, 6000);
   if (!body.ok) return json({ error: body.error }, body.status);

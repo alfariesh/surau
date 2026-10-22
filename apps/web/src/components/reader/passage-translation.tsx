@@ -63,7 +63,8 @@ function AiText({
   );
 }
 
-function Segments({
+/** Isi terjemahan (segmen AI + ayat Kemenag) tanpa pembungkus; dipakai juga pratinjau /tinjau. */
+export function Segments({
   translation,
   footAnchor,
 }: {

@@ -52,6 +52,8 @@ export type {
   TakhrijReviewInput,
 } from "./takhrij-review.ts";
 export { answerPassages, answerToc } from "./answer-context.ts";
+export { reviewPassages } from "./review-passage.ts";
+export type { ReviewPassage } from "./review-passage.ts";
 export type { AnswerPassage, AnswerTocNode } from "./answer-context.ts";
 export {
   AI_SNIPPET_CHARS,
@@ -79,6 +81,39 @@ export type {
   TranslationLabel,
   TranslationSegment,
 } from "./ayah-placeholder.ts";
+export {
+  TRANSLATION_TEXT_MAX,
+  footnoteMarkerDigits,
+  hasArabicLetters,
+  hasMarkdown,
+  stripMarkers,
+  validateTranslationText,
+} from "./translation-text.ts";
+export type {
+  TranslationIssue,
+  TranslationIssueCode,
+  TranslationTextCheck,
+  TranslationTextContext,
+} from "./translation-text.ts";
+export {
+  TINJAU_ROOMS,
+  canRevert,
+  canUseTinjauRoom,
+  parseTranslationEditors,
+  previousState,
+  referencedRevisionIds,
+  stateOf,
+  textSha256,
+  translationRevisionInput,
+  underlyingRevision,
+} from "./translation-revision.ts";
+export type {
+  CorpusTranslation,
+  TinjauRoom,
+  TranslationEditor,
+  TranslationRevisionInput,
+  TranslationState,
+} from "./translation-revision.ts";
 
 export {
   CoreError,

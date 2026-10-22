@@ -35,6 +35,11 @@
     // Kunci akun ustadz peninjau label takhrij (X07, ADR-070), sama dengan apps/api. Kosong =
     // tinjauan tersimpan tetapi belum dipakai (Jawab, tanda kelemahan /api/kutipan).
     "TAKHRIJ_USTADZ_KEYS": "",
+    // Editor terjemahan terdaftar (X08, ADR-081): array JSON {key, name, prefix?, suffix?, ustadz,
+    // mcp_name, also?}. key = kunci akun Access (hash issuer+subjek, tampil di /tinjau/terjemahan),
+    // BUKAN email; nama + gelar tampil publik di label terjemahan atas keputusan pemilik. Hanya akun
+    // di sini yang bisa menyimpan koreksi. Menambah orang = PR + ADR (pola ADR-070).
+    "TRANSLATION_EDITORS": "[]",
     "READER_ENABLED": "1",
     // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
     // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
@@ -167,6 +172,7 @@
       // Wildcard Preview `*-surau-web…/admin` anggota aplikasi `Surau Admin` yang sama (T-14).
       "ADMIN_ACCESS_AUD": "a7f9052cd2ce712ad14811208826bc2f5e4af04de1cc5f261949e79a851d65a4",
       "TAKHRIJ_USTADZ_KEYS": "",
+      "TRANSLATION_EDITORS": "[]",
       "READER_ENABLED": "1",
       "SEARCH_TIMING_DETAIL": "1",
       // Tanpa cache hasil: korpus staging dimuat ulang tanpa versi baru (latensi diukur tanpa cache).

@@ -12,7 +12,12 @@ import {
   T_ROOT,
   seedCorpus,
 } from "../../test/fixture.ts";
-import { getSummariesStartingOn, getTranslations, listTitleTranslations } from "./translation.ts";
+import {
+  getSummariesStartingOn,
+  getTranslations,
+  listTitleTranslations,
+  listTranslatedPassages,
+} from "./translation.ts";
 
 const db = env.CORPUS;
 
@@ -38,6 +43,19 @@ beforeAll(async () => {
       )
       .bind(PASSAGES.body2, "a".repeat(64)),
   ]);
+});
+
+describe("listTranslatedPassages", () => {
+  test("paragraf berterjemahan satu edisi dan bahasa, urut ID, dengan jenisnya", async () => {
+    expect(await listTranslatedPassages(db, ED, "id")).toEqual([
+      { id: PASSAGES.body1, kind: "body" },
+      { id: PASSAGES.body2, kind: "body" },
+    ]);
+    expect(await listTranslatedPassages(db, ED, "en")).toEqual([
+      { id: PASSAGES.body1, kind: "body" },
+    ]);
+    expect(await listTranslatedPassages(db, ED + 1, "id")).toEqual([]);
+  });
 });
 
 describe("getTranslations", () => {

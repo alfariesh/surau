@@ -6,7 +6,7 @@ export const privacyText = {
   pageTitle: "Kebijakan privasi",
   heading: "Kebijakan privasi",
   lead: "Surau menyimpan sesedikit mungkin data tentang Anda. Halaman ini menjelaskan apa yang diproses, di mana, dan berapa lama.",
-  updated: "Diperbarui 21 Oktober 2026.",
+  updated: "Diperbarui 22 Oktober 2026.",
   summaryHeading: "Ringkasan",
   summary: [
     "Tanpa akun dan tanpa login.",
@@ -50,6 +50,11 @@ export const privacyText = {
       data: "Laporan kesalahan (laporan jawaban: komentar, pertanyaan, dan awal jawaban)",
       where: "Database Surau",
       how: "Sampai ditangani + 12 bulan",
+    },
+    {
+      data: "Koreksi terjemahan oleh editor terdaftar (nama tampil, alasan, dan kode akun berupa hash; tanpa email)",
+      where: "Database Surau",
+      how: "Permanen, sebagai riwayat koreksi kitab",
     },
     {
       data: "Log teknis (tanpa IP dan tanpa teks pertanyaan; jejak kinerja mencatat perkiraan negara/kota dan jenis peramban)",
