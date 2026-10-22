@@ -35,7 +35,13 @@ export default async function AdminPage() {
     );
   const [overview, translations] = await Promise.all([
     adminOverview(env.APP_DB),
-    adminTranslationOverview(env.APP_DB, env.CORPUS_DB),
+    // Galat daftar koreksi (D1 korpus, baris rusak) tidak boleh menjatuhkan sakelar Maknaz/biaya.
+    adminTranslationOverview(env.APP_DB, env.CORPUS_DB).catch((error: unknown) => {
+      console.error(
+        JSON.stringify({ event: "admin_translations_error", name: (error as Error)?.name }),
+      );
+      return null;
+    }),
   ]);
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:px-6">
@@ -47,7 +53,13 @@ export default async function AdminPage() {
         <Typography color="muted">{t.intro}</Typography>
       </header>
       <AdminClient initial={overview} routeEnabled={env.JAWAB_ROUTE_ENABLED === "1"} />
-      <AdminTranslations initial={translations} today={adminToday()} />
+      {translations === null ? (
+        <Typography role="alert" type="body-sm">
+          {t.translations.failed}
+        </Typography>
+      ) : (
+        <AdminTranslations initial={translations} today={adminToday()} />
+      )}
     </div>
   );
 }

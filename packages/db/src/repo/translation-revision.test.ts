@@ -164,6 +164,51 @@ test("jenis dan isi dijaga Zod dan CHECK SQL", async () => {
   await expect(insert("revised", null)).rejects.toThrow(/CHECK/u);
   await insert("revised", "teks");
   await expect(insert("revised", "teks lain")).rejects.toThrow(/UNIQUE/u);
+  // Pemicu DB: teks/penulis tidak bisa ditimpa; hanya active → superseded.
+  await expect(
+    db.prepare("UPDATE translation_revision SET text = 'ditimpa' WHERE passage_id = 5").run(),
+  ).rejects.toThrow(/hanya bertambah/u);
+  await expect(
+    db
+      .prepare(
+        "UPDATE translation_revision SET status = 'superseded', author_name = 'lain' WHERE passage_id = 5",
+      )
+      .run(),
+  ).rejects.toThrow(/hanya bertambah/u);
+  await db
+    .prepare("UPDATE translation_revision SET status = 'superseded' WHERE passage_id = 5")
+    .run();
+  await expect(
+    db.prepare("UPDATE translation_revision SET status = 'active' WHERE passage_id = 5").run(),
+  ).rejects.toThrow(/hanya bertambah/u);
+});
+
+test("revisi aktif paragraf lain tidak bisa dijadikan dasar; pembatalan pemilik di luar batas", async () => {
+  const other = await saveTranslationRevision(db, { ...base, passage_id: 1000007 }, opts);
+  if (!other.ok) throw new Error("gagal");
+  // Paragraf target belum punya revisi aktif; ID revisi aktif paragraf lain ditolak.
+  expect(await saveTranslationRevision(db, base, { ...opts, expectedActiveId: other.id })).toEqual({
+    ok: false,
+    reason: "conflict",
+  });
+  expect(await getActiveTranslationRevisions(db, [base.passage_id])).toEqual([]);
+  // Pembatalan pemilik dengan kunci yang sama tidak menghabiskan batas editor.
+  await saveTranslationRevision(
+    db,
+    {
+      ...base,
+      passage_id: 1000007,
+      kind: "reverted",
+      text: null,
+      reason: "",
+      author_role: "admin",
+    },
+    { ...opts, dailyLimit: null, expectedActiveId: other.id },
+  );
+  expect(await countTranslationRevisionsSince(db, editor, day)).toBe(1);
+  expect(
+    (await listTranslationRevisionsByAuthorSince(db, editor, day)).map((r) => r.author_role),
+  ).toEqual(["ustadz"]);
 });
 
 test("daftar terbaru, per penulis, dan penulis yang pernah menyimpan", async () => {

@@ -35,8 +35,10 @@ export interface SaveTranslationRevisionOptions {
   dayStart: string;
 }
 
-const COUNT_SINCE =
-  "(SELECT COUNT(*) FROM translation_revision WHERE author_key = ?5 AND created_at >= ?6)";
+// Pembatalan pemilik dari /admin (`admin`) tidak dihitung: kunci akun admin bisa sama dengan kunci
+// editornya bila pemilik juga editor terdaftar.
+const COUNT_SINCE = `(SELECT COUNT(*) FROM translation_revision
+   WHERE author_key = ?5 AND created_at >= ?6 AND author_role <> 'admin')`;
 
 /**
  * Simpan revisi baru sebagai revisi aktif paragraf. Atomik: revisi aktif yang diharapkan diubah
@@ -73,6 +75,8 @@ export async function saveTranslationRevision(
          SELECT ?1, ?2, ?7, ?8, ?9, ?10, ?3, ?11, ?12, ?13, ?5, ?14, ?15, ?16, ?17, 'active', ?18, ?19
          WHERE NOT EXISTS (SELECT 1 FROM translation_revision
                            WHERE passage_id = ?1 AND lang = ?2 AND status = 'active')
+           AND (?3 IS NULL OR EXISTS (SELECT 1 FROM translation_revision
+                WHERE id = ?3 AND passage_id = ?1 AND lang = ?2 AND status = 'superseded'))
            AND ${limitOk}`,
       )
       .bind(
@@ -104,7 +108,7 @@ export async function saveTranslationRevision(
   return { ok: false, reason: "conflict" };
 }
 
-/** Jumlah simpanan seorang penulis sejak `since` (ISO), semua jenis. */
+/** Jumlah simpanan seorang editor sejak `since` (ISO), semua jenis (tanpa pembatalan pemilik). */
 export async function countTranslationRevisionsSince(
   db: D1Db,
   authorKey: string,
@@ -112,7 +116,8 @@ export async function countTranslationRevisionsSince(
 ): Promise<number> {
   const row = await db
     .prepare(
-      "SELECT COUNT(*) AS n FROM translation_revision WHERE author_key = ?1 AND created_at >= ?2",
+      `SELECT COUNT(*) AS n FROM translation_revision
+       WHERE author_key = ?1 AND created_at >= ?2 AND author_role <> 'admin'`,
     )
     .bind(authorKey, since)
     .first();
@@ -165,6 +170,26 @@ export function getTranslationRevisionHistory(
   );
 }
 
+/** Riwayat lengkap beberapa paragraf sekaligus (batalkan massal), urut ID (≤99 ID per kueri). */
+export async function getTranslationRevisionHistories(
+  db: D1Db,
+  passageIds: readonly number[],
+): Promise<TranslationRevisionRow[]> {
+  const unique = [...new Set(passageIds)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const results = await db.batch(
+    chunk(unique, D1_MAX_PARAMS - 1).map((part) =>
+      db
+        .prepare(
+          `SELECT ${COLS} FROM translation_revision
+           WHERE passage_id IN (${placeholders(part.length)}) ORDER BY id`,
+        )
+        .bind(...part),
+    ),
+  );
+  return results.flatMap((r) => r.results.map((row) => translationRevisionRow.parse(row)));
+}
+
 /** Revisi menurut ID (≤100 ID per kueri, satu batch). */
 export async function getTranslationRevisionsByIds(
   db: D1Db,
@@ -212,7 +237,7 @@ export function listTranslationRevisionsByAuthorSince(
     db
       .prepare(
         `SELECT ${COLS} FROM translation_revision
-         WHERE author_key = ?1 AND created_at >= ?2 ORDER BY id`,
+         WHERE author_key = ?1 AND created_at >= ?2 AND author_role <> 'admin' ORDER BY id`,
       )
       .bind(authorKey, since),
     translationRevisionRow,

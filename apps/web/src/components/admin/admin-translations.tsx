@@ -31,6 +31,8 @@ export function AdminTranslations({
   const [message, setMessage] = useState<string | null>(null);
   const [author, setAuthor] = useState(initial.authors[0]?.author_key ?? "");
   const [since, setSince] = useState(today);
+  // Langkah konfirmasi: Batalkan hanya mundur, jadi salah tekan tidak bisa diulang otomatis.
+  const [confirming, setConfirming] = useState<number | "bulk" | null>(null);
 
   async function post(body: unknown, done: (json: unknown) => string) {
     setBusy(true);
@@ -147,15 +149,33 @@ export function AdminTranslations({
                       {t.open}
                     </a>
                   ) : null}
-                  {r.active ? (
+                  {r.active && confirming !== r.id ? (
                     <Button
                       size="sm"
                       variant="secondary"
                       isDisabled={busy}
-                      onPress={() => void post({ action: "revert", id: r.id }, () => t.reverted)}
+                      onPress={() => setConfirming(r.id)}
                     >
                       {t.revert}
                     </Button>
+                  ) : null}
+                  {r.active && confirming === r.id ? (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        isDisabled={busy}
+                        onPress={() => {
+                          setConfirming(null);
+                          void post({ action: "revert", id: r.id }, () => t.reverted);
+                        }}
+                      >
+                        {t.confirmRevert}
+                      </Button>
+                      <Button size="sm" variant="tertiary" onPress={() => setConfirming(null)}>
+                        {t.cancel}
+                      </Button>
+                    </>
                   ) : null}
                 </div>
               </li>
@@ -173,6 +193,11 @@ export function AdminTranslations({
             onSubmit={(e) => {
               e.preventDefault();
               if (author === "" || since === "") return;
+              if (confirming !== "bulk") {
+                setConfirming("bulk");
+                return;
+              }
+              setConfirming(null);
               void post({ action: "revert_author", author_key: author, since }, (json) => {
                 const r = (json as { result?: BulkRevertResult }).result;
                 return r === undefined
@@ -201,7 +226,12 @@ export function AdminTranslations({
                 <Input />
               </TextField>
               <Button type="submit" variant="danger" isDisabled={busy || author === ""}>
-                {t.bulkRun}
+                {confirming === "bulk"
+                  ? t.confirmBulk(
+                      data.authors.find((a) => a.author_key === author)?.author_name ?? "",
+                      since,
+                    )
+                  : t.bulkRun}
               </Button>
             </div>
           </form>

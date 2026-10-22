@@ -47,3 +47,21 @@ CREATE UNIQUE INDEX translation_revision_active
 CREATE INDEX translation_revision_passage ON translation_revision (passage_id, id);
 CREATE INDEX translation_revision_recent ON translation_revision (created_at);
 CREATE INDEX translation_revision_author ON translation_revision (author_key, created_at);
+-- Hanya bertambah, dijaga di DB juga (bukan hanya kode repository): satu-satunya UPDATE yang boleh
+-- adalah status 'active' → 'superseded' tanpa mengubah kolom lain.
+CREATE TRIGGER translation_revision_append_only
+BEFORE UPDATE ON translation_revision
+WHEN NOT (
+  OLD.status = 'active' AND NEW.status = 'superseded'
+  AND NEW.id IS OLD.id AND NEW.passage_id IS OLD.passage_id AND NEW.lang IS OLD.lang
+  AND NEW.kind IS OLD.kind AND NEW.text IS OLD.text AND NEW.reason IS OLD.reason
+  AND NEW.restores_id IS OLD.restores_id AND NEW.supersedes_id IS OLD.supersedes_id
+  AND NEW.base_sha256 IS OLD.base_sha256 AND NEW.draft_sha256 IS OLD.draft_sha256
+  AND NEW.source_sha256 IS OLD.source_sha256 AND NEW.author_key IS OLD.author_key
+  AND NEW.author_name IS OLD.author_name AND NEW.author_short IS OLD.author_short
+  AND NEW.author_role IS OLD.author_role AND NEW.author_public IS OLD.author_public
+  AND NEW.corpus_version IS OLD.corpus_version AND NEW.created_at IS OLD.created_at
+)
+BEGIN
+  SELECT RAISE(ABORT, 'translation_revision hanya bertambah');
+END;

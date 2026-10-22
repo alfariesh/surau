@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-22 · X08 · Koreksi terjemahan oleh editor/ustadz — sebagian (tahap 1)
+- Dikerjakan: pemeriksa teks bersama `validateTranslationText` (core); tabel `translation_revision` (DB app, migrasi 0006, hanya bertambah + pemicu); editor terdaftar `TRANSLATION_EDITORS` + peran ruang tinjau di server; `/tinjau/terjemahan` (antrean: laporan pembaca → dikutip Maknaz → urut kitab; Sudah benar / Perbaiki + pratinjau seperti pembaca / Batalkan, riwayat); `/admin` koreksi terbaru (diff kata) + batalkan + batalkan massal; `/privasi`, panduan editor, T-26.
+- Verifikasi: `pnpm verify` → lolos · D1 staging: 3 revisi uji tersimpan + konflik ditolak + dibuang · pratinjau lokal desktop/ponsel/gelap · `<main>` j1/200 identik dengan `main` · `peninjau` → 0 blocker, 7 penting + 6 kecil (semua dikerjakan).
+- Biaya API: –
+- Keputusan: ADR-081.
+- Catatan untuk sesi berikutnya: tahap 2 (ekspor → ingest → label pembaca/Cari/MCP) di PR berikutnya; editor pertama menunggu kode akun Anas (T-26).
+
 ## 2026-10-22 · Font UI Google Sans menggantikan HarmonyOS Sans — selesai (PR #119)
 - Dikerjakan: `next/font/google` `Google_Sans` (OFL; normal di-preload, italic tidak), cadangan bermetrik sendiri ("Google Sans Fallback", Arial + size-adjust), berkas HarmonyOS dikeluarkan dari repo, `/lisensi#font` diperbarui, alat aset (potret WOFF2 Google Sans + OFL, mesin + figur dibangun ulang). Deploy X09 sempat gagal (registry npm 502), job dijalankan ulang → X09 tayang.
 - Verifikasi: `pnpm verify` → lolos (779 + 352 tes) · e2e lokal a11y/smoke/pembaca 116 lolos (gagal hanya a11y `/tanya`, masalah lama) · Lighthouse Preview PR #119 vs produksi (X09) n=5: j1/200 3,86 vs 4,25 dtk, j3/202 4,10 vs 4,09 dtk; terkirim 870 → 750 KB · potret aset dicoba (Google Sans tampil) · `peninjau` → 0 blocker, 3 perbaikan dokumen (dikerjakan).

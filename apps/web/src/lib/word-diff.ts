@@ -1,6 +1,6 @@
-// Diff kata sederhana (LCS) untuk daftar "koreksi terbaru" /admin dan riwayat /tinjau/terjemahan
-// (X08). Hanya teks Indonesia (terjemahan), tidak pernah teks Arab. Teks sangat panjang tidak
-// dibandingkan (biaya kuadrat), cukup ditandai.
+// Diff kata sederhana (LCS) untuk daftar "koreksi terbaru" /admin (X08). Hanya teks Indonesia
+// (terjemahan), tidak pernah teks Arab. Teks sangat panjang tidak dibandingkan (biaya kuadrat),
+// cukup ditandai.
 
 export type DiffPiece = { op: "same" | "add" | "del"; text: string };
 

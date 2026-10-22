@@ -7,6 +7,8 @@
 // [...] untuk kata tambahan penerjemah. Tanpa HTML, Markdown, atau tautan.
 import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
 
+import { TRANSLATION_REVISION_TEXT_MAX } from "@surau/db";
+
 import { ayahPlaceholderPattern, maskAyat } from "./ayah-placeholder.ts";
 import type { AyahRef, FootnoteRef } from "./schema.ts";
 
@@ -35,7 +37,14 @@ export function hasMarkdown(text: string): boolean {
 }
 
 /** Panjang terpanjang teks terjemahan manusia (terjemahan AI terpanjang Ihya 7.966 karakter). */
-export const TRANSLATION_TEXT_MAX = 8000;
+export const TRANSLATION_TEXT_MAX = TRANSLATION_REVISION_TEXT_MAX;
+
+/**
+ * Teks manusia: SEMUA karakter berskrip Arab ditolak (bukan hanya huruf), termasuk ligatur hormat
+ * dan simbol (U+FDFD basmalah, U+FD40–U+FD4F, U+06DE …), kecuali angka Arab-India (penanda catatan
+ * kaki sudah dibuang lebih dulu). `hasArabicLetters` batch AI tetap hanya huruf (perilaku S13).
+ */
+const ARABIC_SCRIPT = /(?![\u0660-\u0669\u06F0-\u06F9])\p{Script=Arabic}/u;
 
 /** Penanda catatan kaki berangka Arab-India (penanda sumber); "(2)" berangka Latin = teks biasa. */
 const ARABIC_DIGITS = /^[\u0660-\u0669\u06F0-\u06F9]+$/u;
@@ -145,7 +154,7 @@ export function validateTranslationText(
   if (text.length > TRANSLATION_TEXT_MAX) errors.push({ code: "too_long" });
   if (hasControl(text)) errors.push({ code: "control_chars" });
   if (hasMarkup(text)) errors.push({ code: "markup" });
-  if (hasArabicLetters(text)) errors.push({ code: "arabic_letters" });
+  if (ARABIC_SCRIPT.test(stripMarkers(text))) errors.push({ code: "arabic_letters" });
 
   const masked = maskAyat(ctx.arabic, ctx.ayahRefs, ctx.footnoteRefs ?? []);
   const want = count([...masked.text.matchAll(ayahPlaceholderPattern())].map((m) => m[0]));

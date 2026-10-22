@@ -21,6 +21,10 @@ const latinName = z
   .max(60)
   .refine((s) => !/[\p{Cc}\p{Cf}]/u.test(s) && !/\p{Script=Arabic}/u.test(s));
 
+/** Gelar keulamaan (Ust., Ustadz, KH, Kiai, Syaikh, Habib, Buya, Tuan Guru). */
+const RELIGIOUS_TITLE =
+  /(?:^|[\s.,])(?:ust(?:adz|az|adzah|azah)?|kh|k\.h|kiai|kyai|syaikh|syekh|syeikh|habib|buya|tuan guru)(?:$|[\s.,])/iu;
+
 /** Ruang tinjau lain (selain terjemahan) yang juga boleh dibuka akun editor ini. */
 export const TINJAU_ROOMS = ["jawaban", "takhrij"] as const;
 export type TinjauRoom = (typeof TINJAU_ROOMS)[number];
@@ -39,7 +43,18 @@ const editorEntry = z
     mcp_name: z.boolean(),
     also: z.array(z.enum(TINJAU_ROOMS)).max(2).default([]),
   })
-  .refine((e) => e.ustadz || e.prefix === undefined, "gelar depan hanya untuk ustadz");
+  .refine((e) => e.ustadz || e.prefix === undefined, "gelar depan hanya untuk ustadz")
+  // Gelar keulamaan tidak boleh diselipkan di nama atau gelar belakang akun bukan ustadz.
+  .refine(
+    (e) => e.ustadz || ![e.name, e.suffix ?? ""].some((s) => RELIGIOUS_TITLE.test(s)),
+    "gelar ustadz hanya untuk akun ustadz",
+  )
+  // Sama dengan batas kolom author_short (80) / author_name (120) DB app.
+  .refine((e) => [e.prefix, e.name].filter(Boolean).join(" ").length <= 80, "nama pendek ≤80")
+  .refine(
+    (e) => [e.prefix, e.name, e.suffix].filter(Boolean).join(" ").length <= 120,
+    "nama lengkap ≤120",
+  );
 
 export interface TranslationEditor {
   key: string;

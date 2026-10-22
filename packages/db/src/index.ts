@@ -40,6 +40,7 @@ export {
 export {
   countTranslationRevisionsSince,
   getActiveTranslationRevisions,
+  getTranslationRevisionHistories,
   getTranslationRevisionHistory,
   getTranslationRevisionsByIds,
   listActiveTranslationRevisions,

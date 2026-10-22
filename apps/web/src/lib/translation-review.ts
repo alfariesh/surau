@@ -34,6 +34,7 @@ import {
   getActiveTranslationRevisions,
   getCorpusMeta,
   getPassagesByIds,
+  getTranslationRevisionHistories,
   getTranslationRevisionHistory,
   getTranslationRevisionsByIds,
   getTranslations,
@@ -52,6 +53,7 @@ import {
 import type {
   D1Db,
   TranslatedPassage,
+  TranslationQueueSignals,
   TranslationEditorSeen,
   TranslationRevisionKind,
   TranslationRevisionRow,
@@ -157,6 +159,21 @@ const bucket = (info: ActiveInfo | undefined): TrQueueFilter =>
       ? "stale"
       : "done";
 
+/**
+ * Sinyal antrean (laporan + kutipan Maknaz) disimpan 60 detik per isolate per DB app: kuerinya
+ * menjumlahkan seluruh `answer_log` + `answer_cache`, dan dipanggil di setiap butir yang dibuka.
+ */
+const signalsMemo = new WeakMap<D1Db, { at: number; value: Promise<TranslationQueueSignals> }>();
+function queueSignals(app: D1Db, now: string): Promise<TranslationQueueSignals> {
+  const hit = signalsMemo.get(app);
+  const at = Date.parse(now);
+  if (hit !== undefined && at - hit.at >= 0 && at - hit.at < 60_000) return hit.value;
+  const value = translationQueueSignals(app, now);
+  signalsMemo.set(app, { at, value });
+  value.catch(() => signalsMemo.delete(app));
+  return value;
+}
+
 export type TrReason = "laporan" | "maknaz" | "catatan_kaki";
 
 export interface TrSignals {
@@ -219,7 +236,7 @@ export async function translationQueue(
 ): Promise<TrQueue> {
   const [entries, signals, actives, used] = await Promise.all([
     translatedIndex(deps.corpus, deps.editionId ?? TR_EDITION),
-    translationQueueSignals(deps.app, deps.now),
+    queueSignals(deps.app, deps.now),
     listActiveTranslationRevisions(deps.app),
     countTranslationRevisionsSince(deps.app, deps.identity, dayStartOf(deps.now)),
   ]);
@@ -275,15 +292,40 @@ export function resolvePassageRef(ref: string, editionId = TR_EDITION): number |
   return m === null ? null : passageId(editionId, Number(m[1]));
 }
 
-interface ItemContext {
-  rp: ReviewPassage;
-  translation: TranslationRow;
+/** Yang dibutuhkan untuk menyimpan revisi baru di atas keadaan sekarang. */
+interface WriteContext {
+  passageId: number;
   corpus: CorpusTranslation;
-  history: TranslationRevisionRow[];
-  byId: Map<number, TranslationRevisionRow>;
   active: TranslationRevisionRow | null;
   state: TranslationState;
   corpusVersion: string;
+}
+
+interface ItemContext extends WriteContext {
+  rp: ReviewPassage;
+  translation: TranslationRow;
+  history: TranslationRevisionRow[];
+  byId: Map<number, TranslationRevisionRow>;
+}
+
+/**
+ * Lengkapi `byId` dengan revisi yang dirujuk (dipulihkan/digantikan) tetapi belum termuat, mis.
+ * riwayat panjang di luar 200 baris terakhir. Rantai selalu menunjuk ID lebih kecil, jadi berhenti.
+ */
+async function withReferenced(
+  app: D1Db,
+  byId: Map<number, TranslationRevisionRow>,
+): Promise<Map<number, TranslationRevisionRow>> {
+  for (
+    let missing = referencedRevisionIds([...byId.values()]).filter((id) => !byId.has(id));
+    missing.length > 0;
+    missing = referencedRevisionIds([...byId.values()]).filter((id) => !byId.has(id))
+  ) {
+    const rows = await getTranslationRevisionsByIds(app, missing);
+    if (rows.length === 0) break;
+    for (const r of rows) byId.set(r.id, r);
+  }
+  return byId;
 }
 
 async function loadContext(
@@ -300,9 +342,10 @@ async function loadContext(
   if (rp === undefined || translation === null || translation === undefined) return null;
   if (translation.review_status === "rejected") return null;
   const corpus = await corpusTranslation(rp.passage.text_raw, translation);
-  const byId = new Map(history.map((r) => [r.id, r]));
+  const byId = await withReferenced(deps.app, new Map(history.map((r) => [r.id, r])));
   const active = history.find((r) => r.status === "active") ?? null;
   return {
+    passageId: rp.passage.id,
     rp,
     translation,
     corpus,
@@ -386,11 +429,16 @@ export interface TrItem {
 export async function translationReviewItem(deps: TrDeps, id: number): Promise<TrItem | null> {
   const [ctx, signals, used] = await Promise.all([
     loadContext(deps, id),
-    translationQueueSignals(deps.app, deps.now),
+    queueSignals(deps.app, deps.now),
     countTranslationRevisionsSince(deps.app, deps.identity, dayStartOf(deps.now)),
   ]);
   if (ctx === null) return null;
   const p = ctx.rp.passage;
+  const check = validateTranslationText(ctx.state.text, {
+    arabic: p.text_raw,
+    ayahRefs: p.ayah_refs,
+    footnoteRefs: p.footnote_refs,
+  });
   return {
     passage_id: p.id,
     anchor: p.anchor,
@@ -411,17 +459,15 @@ export async function translationReviewItem(deps: TrDeps, id: number): Promise<T
     state: stateView(ctx.state),
     base_sha256: await textSha256(ctx.state.text),
     active_id: ctx.active?.id ?? null,
-    can_confirm: ctx.state.kind === "ai",
+    // Draf AI yang tidak lolos pemeriksaan teks manusia (mis. huruf Arab, placeholder hilang) harus
+    // diperbaiki, tidak bisa dinyatakan benar.
+    can_confirm: ctx.state.kind === "ai" && check.ok,
     can_revert: canRevert(ctx.active, ctx.byId),
     revert_to:
       ctx.active === null || !canRevert(ctx.active, ctx.byId)
         ? null
         : stateView(previousState(ctx.active, ctx.byId, ctx.corpus)),
-    check: validateTranslationText(ctx.state.text, {
-      arabic: p.text_raw,
-      ayahRefs: p.ayah_refs,
-      footnoteRefs: p.footnote_refs,
-    }),
+    check,
     history: ctx.history.map((r) => ({
       id: r.id,
       kind: r.kind,
@@ -471,7 +517,7 @@ const editorAuthor = (identity: string, e: TranslationEditor): Author => ({
 
 async function write(
   deps: Pick<TrDeps, "app" | "now">,
-  ctx: ItemContext,
+  ctx: WriteContext,
   author: Author,
   fields: Pick<TranslationRevisionWrite, "kind" | "text" | "reason" | "restores_id">,
   dailyLimit: number | null,
@@ -479,7 +525,7 @@ async function write(
   const saved = await saveTranslationRevision(
     deps.app,
     {
-      passage_id: ctx.rp.passage.id,
+      passage_id: ctx.passageId,
       lang: "id",
       ...fields,
       base_sha256: await textSha256(ctx.state.text),
@@ -513,8 +559,13 @@ export async function saveTranslationDecision(
     return { ok: false, error: "conflict" };
   const author = editorAuthor(deps.identity, editor);
   const reason = input.reason.trim();
+  const p = ctx.rp.passage;
+  const refs = { arabic: p.text_raw, ayahRefs: p.ayah_refs, footnoteRefs: p.footnote_refs };
   if (input.action === "confirm") {
     if (ctx.state.kind !== "ai") return { ok: false, error: "not_allowed" };
+    // Label "diperiksa" tidak boleh menjamin draf yang melanggar aturan teks manusia.
+    const draft = validateTranslationText(ctx.state.text, refs);
+    if (!draft.ok) return { ok: false, error: "invalid_text", issues: draft.errors };
     return write(
       deps,
       ctx,
@@ -537,13 +588,7 @@ export async function saveTranslationDecision(
   }
   const text = normalizeRevisionText(input.text);
   if (text === ctx.state.text) return { ok: false, error: "unchanged" };
-  const p = ctx.rp.passage;
-  const check = validateTranslationText(text, {
-    arabic: p.text_raw,
-    ayahRefs: p.ayah_refs,
-    footnoteRefs: p.footnote_refs,
-    base: ctx.state.text,
-  });
+  const check = validateTranslationText(text, { ...refs, base: ctx.state.text });
   if (!check.ok) return { ok: false, error: "invalid_text", issues: check.errors };
   return write(
     deps,
@@ -699,19 +744,51 @@ export async function adminRevertAuthorSince(
     deps.app,
     rows.map((r) => r.passage_id),
   );
-  const mine = actives.filter((a) => a.author_key === authorKey && a.created_at >= since);
-  const skipped = actives.length - mine.length;
+  const ownedSince = (r: TranslationRevisionRow) =>
+    r.author_key === authorKey && r.author_role !== "admin" && r.created_at >= since;
+  const mine = actives.filter(ownedSince);
+  // Sudah dibatalkan pemilik (tekan sebelumnya) bukan "diubah editor lain".
+  const skipped = actives.filter((a) => !ownedSince(a) && a.author_role !== "admin").length;
+  const batch = mine.slice(0, TR_BULK_REVERT_MAX);
+  const ids = batch.map((a) => a.passage_id);
+  // Semua bahan dimuat sekaligus (beberapa kueri), lalu satu batch tulis per paragraf: jumlah kueri
+  // D1 per permintaan ≈ paragraf + 6, jauh di bawah batas per invocation.
+  const [passages, translations, histories, meta] = await Promise.all([
+    getPassagesByIds(deps.corpus, ids),
+    getTranslations(deps.corpus, ids, AI_TEXT_LANG),
+    getTranslationRevisionHistories(deps.app, ids),
+    getCorpusMeta(deps.corpus),
+  ]);
+  const byId = await withReferenced(deps.app, new Map(histories.map((r) => [r.id, r])));
+  const rawBy = new Map(passages.map((p) => [p.id, p.text_raw]));
+  const trBy = new Map(translations.map((t) => [t.passage_id, t]));
+  const prev = (r: TranslationRevisionRow) =>
+    r.supersedes_id === null ? null : (byId.get(r.supersedes_id) ?? null);
   let reverted = 0;
-  for (const active of mine.slice(0, TR_BULK_REVERT_MAX)) {
-    const ctx = await loadContext(deps, active.passage_id);
-    if (ctx === null || ctx.active?.id !== active.id) continue;
+  for (const active of batch) {
+    const raw = rawBy.get(active.passage_id);
+    const tr = trBy.get(active.passage_id);
+    if (raw === undefined || tr === undefined) continue;
+    const corpus = await corpusTranslation(raw, tr);
+    // Mundur melewati semua versi editor ini sejak `since`, termasuk versinya yang dipulihkan
+    // pembatalan orang lain (X → Y → Z batal ke X → X: kembali ke sebelum X yang pertama).
     let cur: TranslationRevisionRow | null = active;
-    while (cur !== null && cur.author_key === authorKey && cur.created_at >= since)
-      cur = cur.supersedes_id === null ? null : (ctx.byId.get(cur.supersedes_id) ?? null);
-    const target = stateOf(cur, ctx.byId, { ...ctx.corpus, reviewed: false });
+    let target: TranslationState;
+    for (;;) {
+      while (cur !== null && ownedSince(cur)) cur = prev(cur);
+      target = stateOf(cur, byId, corpus);
+      if (target.source === null || !ownedSince(target.source)) break;
+      cur = prev(target.source);
+    }
     const saved = await write(
       deps,
-      ctx,
+      {
+        passageId: active.passage_id,
+        corpus,
+        active,
+        state: stateOf(active, byId, corpus),
+        corpusVersion: meta.corpus_version ?? "unknown",
+      },
       adminAuthor(deps.identity),
       {
         kind: "reverted",

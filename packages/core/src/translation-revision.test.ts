@@ -38,6 +38,12 @@ describe("parseTranslationEditors", () => {
       also: ["jawaban", "takhrij"],
     });
     expect(editors.get(OTHER)).toMatchObject({ short: "Salman", full: "Salman", role: "editor" });
+    // Nama biasa yang memuat potongan huruf serupa gelar tetap boleh.
+    expect(
+      parseTranslationEditors(
+        JSON.stringify([{ key: OTHER, name: "Khalid Ustman", ustadz: false, mcp_name: false }]),
+      ).size,
+    ).toBe(1);
   });
 
   test("gagal tertutup: kosong, JSON rusak, entri tidak sah, kunci ganda", () => {
@@ -49,8 +55,14 @@ describe("parseTranslationEditors", () => {
       JSON.stringify([{ ...ANAS, key: "bukan-kunci" }]),
       JSON.stringify([{ ...ANAS, name: "أنس" }]),
       JSON.stringify([{ ...ANAS, extra: 1 }]),
-      // Gelar ustadz hanya untuk akun ustadz.
+      // Gelar ustadz hanya untuk akun ustadz, juga bila diselipkan di nama atau gelar belakang.
       JSON.stringify([{ ...ANAS, ustadz: false }]),
+      JSON.stringify([{ key: OTHER, name: "Ust. Fulan", ustadz: false, mcp_name: false }]),
+      JSON.stringify([
+        { key: OTHER, name: "Fulan", suffix: "Kiai", ustadz: false, mcp_name: false },
+      ]),
+      // Nama melebihi batas kolom DB app.
+      JSON.stringify([{ ...ANAS, name: "a".repeat(60), suffix: "b".repeat(60) }]),
       JSON.stringify([ANAS, ANAS]),
       // Satu entri rusak membatalkan semuanya (bukan sebagian).
       JSON.stringify([ANAS, { key: OTHER }]),

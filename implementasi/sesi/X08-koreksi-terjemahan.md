@@ -1,6 +1,6 @@
 # X08 · Sesi sisipan: koreksi terjemahan Indonesia oleh editor dan ustadz
 
-> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `apps/api` maupun `packages/llm/src/jawab`; di Tanya/Maknaz hanya kartu kutipan memakai fungsi label bersama) · **Status:** rencana, arah dijawab pemilik 2026-10-21 (lihat "Jawaban pemilik"), siap dikerjakan
+> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `apps/api` maupun `packages/llm/src/jawab`; di Tanya/Maknaz hanya kartu kutipan memakai fungsi label bersama) · **Status:** berjalan (2026-10-22): tahap 1 selesai (ADR-081), tahap 2 dikerjakan di PR terpisah
 > **Prasyarat:** nama dan gelar editor pertama untuk didaftarkan · T-17 tahap 3 (X04) sebaiknya selesai dulu, karena hasilnya menentukan antrean koreksi · X04 W1 (penyajian teks Indonesia) membantu tetapi tidak wajib
 > **Perkiraan:** 2–3 percakapan agent dalam dua tahap (lihat "Tahapan"), ditambah uji coba oleh editor sungguhan
 
@@ -175,7 +175,7 @@ Supaya ustadz bisa mulai bekerja secepatnya, sesi dibagi dua. Masing-masing PR s
 
 ## Selesai bila
 
-- [ ] `pnpm verify` lolos; tes `validateTranslationText`:
+- [x] `pnpm verify` lolos; tes `validateTranslationText`:
   - placeholder ayat hilang/berubah/ganda → ditolak;
   - penanda catatan kaki yang tidak ada di Arab → ditolak, melengkapi penanda yang ada di Arab → diterima;
   - huruf Arab → ditolak, tetapi penanda `(١)` (angka Arab-India) → diterima;
@@ -184,16 +184,19 @@ Supaya ustadz bisa mulai bekerja secepatnya, sesi dibagi dua. Masing-masing PR s
   - tag, `*miring*`, tautan Markdown → ditolak;
   - teks valid → diterima.
   Web tidak bergantung pada `@surau/llm` (cek `apps/web/package.json`).
-- [ ] Peran ditegakkan di server (tes dengan kunci uji, pola `review-auth.test.ts`):
+  *Bukti (tahap 1):* `pnpm verify` → lolos (800 + 379 tes, build); `packages/core/src/translation-text.test.ts` 8 tes (semua kasus di atas + simbol Arab non-huruf U+FDFD dkk.); `grep '@surau' apps/web/package.json` → core, db, text saja.
+- [x] Peran ditegakkan di server (tes dengan kunci uji, pola `review-auth.test.ts`):
   - akun Access sah yang kuncinya tidak ada di `TRANSLATION_EDITORS` tidak bisa menyimpan (403), walau mengetik nama editor;
   - token editor terjemahan tidak bisa membaca/menilai jawaban eval, dan token penilai jawaban tidak bisa mengedit terjemahan (403);
   - tanpa token Access → 401 di semua host.
   Cara pendaftaran (kunci terdaftar seperti ADR-070) tercatat di ADR, dan langkahnya di TUGAS-PEMILIK.
+  *Bukti:* `apps/web/src/app/api/review/terjemahan/route.test.ts` (401 semua ruang tanpa token; 403 `not_registered` walau body memuat `author_name`; token editor → 403 di `/api/review` GET/POST, ekspor, takhrij; akun dengan `also` boleh keduanya); `canUseTinjauRoom` di core; ADR-081 §4–5; T-26.
 - [ ] Konflik versi (tes):
   - simpanan atas teks dasar yang sudah berubah sejak dibuka ditolak 409;
   - dua koreksi berantai sebelum korpus baru: yang kedua berdasar revisi pertama;
   - ekspor hanya memuat revisi aktif terakhir; revisi yang dibatalkan tidak ikut.
-- [ ] Riwayat dan batalkan: setiap simpanan tersimpan; tidak ada `UPDATE` yang menimpa teks revisi (tes repository); batalkan membuat revisi `reverted` dan mengembalikan teks **dan nama label** keadaan yang dipulihkan (tes: kembali ke AI → tanpa nama); `/admin` menampilkan koreksi terbaru dan bisa membatalkan semua koreksi satu editor sejak tanggal tertentu (tes route); simpanan ke-201 seorang editor dalam sehari → 429 (tes).
+- [x] Riwayat dan batalkan: setiap simpanan tersimpan; tidak ada `UPDATE` yang menimpa teks revisi (tes repository); batalkan membuat revisi `reverted` dan mengembalikan teks **dan nama label** keadaan yang dipulihkan (tes: kembali ke AI → tanpa nama); `/admin` menampilkan koreksi terbaru dan bisa membatalkan semua koreksi satu editor sejak tanggal tertentu (tes route); simpanan ke-201 seorang editor dalam sehari → 429 (tes).
+  *Bukti:* `packages/db/src/repo/translation-revision.test.ts` (UPDATE teks/penulis ditolak pemicu DB, hanya `active`→`superseded`), `apps/web/src/lib/translation-review.test.ts` (batalkan memulihkan label penulis pertama lalu draf AI tanpa nama; simpanan ke-201 → `limit`; batalkan massal + lewati yang diubah editor lain), `apps/web/src/app/api/admin/terjemahan/route.test.ts`, dan route terjemahan (429).
 - [ ] Ekspor + ingest:
   - korpus uji memuat teks revisi untuk paragraf uji;
   - `review_status` dan `reviewer_name` sesuai tabel §2;
@@ -206,8 +209,10 @@ Supaya ustadz bisa mulai bekerja secepatnya, sesi dibagi dua. Masing-masing PR s
 - [ ] Konsistensi K1: untuk paragraf uji, pembaca, `/api/search` (kata dari teks revisi), dan MCP `read_page` lokal menampilkan teks yang sama (perintah + keluaran dicatat); `eval:retrieval --gate` atas korpus uji tidak turun dari `ihya-v7`.
 - [ ] Batch AI melewati paragraf berevisi (`plan`/`retry` tidak memasukkannya; tes).
 - [ ] Tahap 1 bisa di-merge sendiri: koreksi tersimpan di DB app staging lewat `/tinjau/terjemahan`, dan pembaca belum berubah (cek HTML j1/200 sama dengan sebelum).
+  *Hasil (belum dicentang, penyimpangan terbuka):* "lewat `/tinjau/terjemahan`" di staging tidak bisa dibuktikan agent: Preview belum dilindungi Access (gagal tertutup) dan login `surau.org/tinjau` butuh PIN email pemilik. Yang terbukti: (a) DB app staging `surau-app-staging` (migrasi 0006 + pemicu): 3 revisi uji tersimpan lewat repository + core yang sama dengan route (CAS batch, `last_row_id`), konflik ditolak, lalu dibuang (0 baris); (b) UI + route + lib ujung-ke-ujung di `next dev` lokal (halaman sementara tanpa Access, D1 lokal): simpan perbaikan, validasi langsung, batalkan, ponsel, gelap; (c) `<main>` j1/200 kode `main` vs tahap 1 identik byte demi byte (95.863 byte). Bukti penuh lewat UI staging/produksi = langkah 2–4 T-26 (Anas).
 - [ ] Label pembaca, kartu `/cari`, dan kartu kutipan Tanya/Maknaz sesuai tabel §4 lewat satu fungsi label. Gelar "Ust." hanya untuk akun terdaftar sebagai ustadz (tes komponen + tangkapan layar). Kurung siku redup hanya pada teks revisi (tes). MCP `read_page` memuat `review_status` + `revised` + `reviewer_name` tanpa hash/email, dan klien yang mengabaikan field baru tetap berfungsi (tes kontrak).
-- [ ] Tidak ada email atau identitas mentah di DB/log (cek skema + `grep` diff); teks Arab di UI tinjau berasal dari DB.
+- [x] Tidak ada email atau identitas mentah di DB/log (cek skema + `grep` diff); teks Arab di UI tinjau berasal dari DB.
+  *Bukti:* skema `translation_revision` hanya `author_key` (hash) + nama terdaftar; log hanya `{event, action}`; `git diff origin/main | grep -E "email|payload.sub|cf-connecting-ip"` → hanya komentar/teks UI; panel Arab = `item.arabic` = `passage.text_raw` (`reviewPassages`).
 - [ ] ADR baru, STATUS, LOG, TUGAS-PEMILIK, dan file sesi ini diperbarui.
 - [ ] (Manusia, boleh menyusul) Uji coba ustadz sungguhan: ≥ 10 paragraf dari antrean dikoreksi atau ditandai benar, lalu tayang di produksi lewat korpus berikutnya atas izin promote, dengan label nama.
 

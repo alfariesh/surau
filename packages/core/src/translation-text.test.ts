@@ -58,6 +58,9 @@ describe("validateTranslationText", () => {
 
   test("huruf Arab ditolak, penanda (١) berangka Arab-India diterima", () => {
     expect(codes(`${VALID} الصبر`).errors).toEqual(["arabic_letters"]);
+    // Ligatur hormat dan simbol berskrip Arab (bukan kategori huruf) juga ditolak.
+    for (const symbol of ["\uFDFD", "\uFD41", "\uFDFA", "\u06DE"])
+      expect(codes(`${VALID} ${symbol}`).errors).toEqual(["arabic_letters"]);
     expect(codes(VALID).errors).not.toContain("arabic_letters");
   });
 

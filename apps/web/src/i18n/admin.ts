@@ -97,6 +97,11 @@ export const adminText = {
       `${reverted} dibatalkan, ${skipped} dilewati (diubah editor lain)` +
       (remaining > 0 ? `, ${remaining} tersisa: tekan lagi.` : "."),
     count: (n: number) => `${n} simpanan`,
+    failed: "Daftar koreksi terjemahan gagal dimuat. Bagian lain halaman ini tetap bisa dipakai.",
+    confirmRevert: "Ya, batalkan koreksi ini",
+    confirmBulk: (name: string, since: string) =>
+      `Ya, batalkan semua koreksi ${name} sejak ${since}`,
+    cancel: "Tidak jadi",
   },
   saved: "Tersimpan.",
   failed: "Belum tersimpan. Muat ulang halaman atau masuk ulang bila sesi berakhir.",

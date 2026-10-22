@@ -142,6 +142,24 @@ describe("simpan, riwayat, dan batalkan", () => {
     ]);
   });
 
+  test("draf AI yang tidak lolos pemeriksaan tidak bisa dinyatakan benar", async () => {
+    await corpus
+      .prepare("UPDATE translation SET text = ? WHERE passage_id = ?")
+      .bind(`${TR.body1} الصبر`, PASSAGES.body1)
+      .all();
+    const item = await translationReviewItem(deps, PASSAGES.body1);
+    expect(item).toMatchObject({ can_confirm: false, check: { ok: false } });
+    expect(await decide({}, { action: "confirm", reason: "" })).toMatchObject({
+      ok: false,
+      error: "invalid_text",
+      issues: [{ code: "arabic_letters" }],
+    });
+    // Perbaikan tetap bisa (dan memang itu jalannya).
+    expect(
+      await decide({}, { action: "revise", text: TR.body1, reason: "huruf Arab" }),
+    ).toMatchObject({ ok: true });
+  });
+
   test("perbaikan divalidasi terhadap teks Arab di server", async () => {
     const bad = await decide(
       {},
@@ -334,11 +352,53 @@ describe("/admin", () => {
       at(0),
     );
     expect(result).toEqual({ reverted: 2, skipped: 1, remaining: 0 });
+    // Tekan lagi: yang sudah dibatalkan pemilik tidak dihitung "diubah editor lain".
+    expect(
+      await adminRevertAuthorSince({ ...deps, identity: OWNER, now: at(31) }, EDITOR, at(0)),
+    ).toEqual({ reverted: 0, skipped: 1, remaining: 0 });
     for (const id of [PASSAGES.body1, PASSAGES.body2])
       expect((await translationReviewItem(deps, id))?.state.kind).toBe("ai");
     expect((await translationReviewItem(deps, PASSAGES.foot1))?.state).toMatchObject({
       kind: "revised",
       by: { short: "Ust. Uji" },
+    });
+  });
+
+  test("batalkan massal melewati versi editor yang dipulihkan pembatalan orang lain", async () => {
+    const x = { editor, deps: { identity: EDITOR } };
+    // X R1 → Y R2 → Y batal (ke R1 milik X) → X R4.
+    await decide(
+      { ...x, deps: { identity: EDITOR, now: at(1) } },
+      {
+        action: "revise",
+        text: "Ini teks uji (١) versi X satu (٢).",
+        reason: "x1",
+      },
+    );
+    await decide(
+      { deps: { now: at(2) } },
+      {
+        action: "revise",
+        text: "Ini teks uji (١) versi Y (٢).",
+        reason: "y",
+      },
+    );
+    await decide({ deps: { now: at(3) } }, { action: "revert", reason: "" });
+    await decide(
+      { ...x, deps: { identity: EDITOR, now: at(4) } },
+      {
+        action: "revise",
+        text: "Ini teks uji (١) versi X dua (٢).",
+        reason: "x2",
+      },
+    );
+    expect(
+      await adminRevertAuthorSince({ ...deps, identity: OWNER, now: at(30) }, EDITOR, at(0)),
+    ).toMatchObject({ reverted: 1 });
+    // Kembali ke sebelum versi X pertama = draf AI (bukan R1 milik X).
+    expect((await translationReviewItem(deps, PASSAGES.body1))?.state).toMatchObject({
+      kind: "ai",
+      by: null,
     });
   });
 });

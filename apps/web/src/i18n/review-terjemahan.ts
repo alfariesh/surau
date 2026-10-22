@@ -37,7 +37,7 @@ export const translationReviewText = {
   progress: (done: number, total: number) =>
     `Sudah ditinjau ${done.toLocaleString("id-ID")} dari ${total.toLocaleString("id-ID")} paragraf berterjemahan.`,
   daily: (used: number, limit: number) =>
-    `Simpanan Anda hari ini: ${used.toLocaleString("id-ID")} dari ${limit.toLocaleString("id-ID")}.`,
+    `Simpanan Anda hari ini: ${used.toLocaleString("id-ID")} dari ${limit.toLocaleString("id-ID")} (hitungan mulai lagi pukul 07.00 WIB).`,
   list: "Pilih paragraf",
   reasons: {
     laporan: "laporan pembaca",
@@ -79,7 +79,8 @@ export const translationReviewText = {
   checkOk: "Tidak ada masalah format.",
   actions: "Keputusan",
   confirm: "Sudah benar",
-  confirmDisabled: "Sudah benar hanya untuk terjemahan AI yang belum ditinjau.",
+  confirmDisabled:
+    "Sudah benar hanya untuk terjemahan AI yang belum ditinjau dan lolos pemeriksaan otomatis; selain itu pilih Perbaiki.",
   revise: "Perbaiki",
   revert: "Batalkan perubahan terakhir",
   revertTo: (target: string) => `Kembali ke: ${target}`,
