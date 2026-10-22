@@ -15,7 +15,7 @@ Format entri:
 
 ---
 
-## 2026-10-22 · X08 · Koreksi terjemahan oleh editor/ustadz — selesai (kode; PR #120 + PR tahap 2)
+## 2026-10-22 · X08 · Koreksi terjemahan oleh editor/ustadz — selesai (kode; PR #120 + #121)
 - Dikerjakan:
   - Tahap 1 (ADR-081): pemeriksa teks bersama `validateTranslationText`; `translation_revision` di DB app (migrasi 0006, hanya bertambah + pemicu); editor terdaftar `TRANSLATION_EDITORS` + peran ruang tinjau; `/tinjau/terjemahan` (antrean, Sudah benar / Perbaiki + pratinjau / Batalkan, riwayat); `/admin` koreksi terbaru + batalkan (massal); `/privasi`, panduan, T-26.
   - Tahap 2 (ADR-082): ekspor revisi (berkas lokal + R2 privat `surau-revisi`, metadata tanpa teks), ingest validasi ulang + `translation_review` (korpus skema 8), label "Terjemahan AI · dikoreksi/diperiksa …" bersama (pembaca dengan popover, `/cari`, kutipan Maknaz), `[…]` redup hanya perbaikan, `human_review` di MCP, batch AI melewati paragraf berevisi.

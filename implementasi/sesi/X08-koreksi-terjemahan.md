@@ -1,6 +1,6 @@
 # X08 · Sesi sisipan: koreksi terjemahan Indonesia oleh editor dan ustadz
 
-> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `apps/api` maupun `packages/llm/src/jawab`; di Tanya/Maknaz hanya kartu kutipan memakai fungsi label bersama) · **Status:** selesai di kode (2026-10-22, ADR-081–082; PR #120 tahap 1 + PR tahap 2); butir manusia (uji coba ustadz, T-26) menyusul
+> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `apps/api` maupun `packages/llm/src/jawab`; di Tanya/Maknaz hanya kartu kutipan memakai fungsi label bersama) · **Status:** selesai di kode (2026-10-22, ADR-081–082; PR #120 tahap 1 + #121 tahap 2); butir manusia (uji coba ustadz, T-26) menyusul
 > **Prasyarat:** nama dan gelar editor pertama untuk didaftarkan · T-17 tahap 3 (X04) sebaiknya selesai dulu, karena hasilnya menentukan antrean koreksi · X04 W1 (penyajian teks Indonesia) membantu tetapi tidak wajib
 > **Perkiraan:** 2–3 percakapan agent dalam dua tahap (lihat "Tahapan"), ditambah uji coba oleh editor sungguhan
 
@@ -234,7 +234,7 @@ Supaya ustadz bisa mulai bekerja secepatnya, sesi dibagi dua. Masing-masing PR s
 
 ## Catatan hasil
 
-**2026-10-22 · dikerjakan dalam satu percakapan, dua PR** (tahap 1 #120 sudah di `main` dan ter-deploy; tahap 2 PR berikutnya). Biaya LLM US$0, tanpa korpus baru, teks Arab selalu dari DB.
+**2026-10-22 · dikerjakan dalam satu percakapan, dua PR** (tahap 1 #120 sudah di `main` dan ter-deploy; tahap 2 #121). Biaya LLM US$0, tanpa korpus baru, teks Arab selalu dari DB.
 
 **Yang dibuat**
 - **Tahap 1 (ADR-081):** `validateTranslationText` (core), `translation_revision` (DB app 0006, hanya bertambah + pemicu, satu aktif per paragraf, batch atomik 409/429), `TRANSLATION_EDITORS` + peran ruang tinjau, `/tinjau/terjemahan`, `/admin` koreksi terbaru (diff kata) + batalkan + batalkan massal (dengan konfirmasi), `/privasi`, panduan `docs/tinjau-operasional.md`, T-26.
