@@ -7,7 +7,7 @@ Aturan kerja yang berlaku untuk semua sesi. Perubahan konvensi dicatat sebagai A
 | Apa | Bahasa |
 |---|---|
 | Identifier kode, nama file, tabel/kolom DB, nama tool MCP, route API | Inggris (ADR-012) |
-| String UI | Indonesia, terkumpul di satu modul `apps/web/src/i18n/id.ts`. Jangan menulis string UI langsung di komponen. |
+| String UI | Indonesia, terkumpul di `apps/web/src/i18n/` (kamus umum per bagian di `i18n/id/<bagian>.ts`, digabung jadi objek `id` di `i18n/id.ts`). Komponen dan modul di `components/`/`lib/` (dan berkas `"use client"` di `app/`) mengimpor bagiannya langsung, mis. `import { reader as readerText } from "…/i18n/id/reader"`; objek `id` hanya untuk route/server component di `app/`, karena ia menarik seluruh kamus ke bundle browser (X09, ADR-079, dijaga `i18n/id.test.ts`). Jangan menulis string UI langsung di komponen. |
 | Dokumen (`docs/`, `implementasi/`), komentar yang menjelaskan *kenapa*, pesan commit, deskripsi PR | Indonesia |
 | Deskripsi tool MCP dan dokumentasi API publik | Inggris + Indonesia |
 | Istilah domain | Transliterasi konsisten: `kitab`, `juz`, `takhrij`, `hadith`, `toc` (daftar isi). Catat di glosarium ARSITEKTUR-TEKNIS bila menambah istilah baru. |

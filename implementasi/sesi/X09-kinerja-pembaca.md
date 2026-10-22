@@ -1,6 +1,6 @@
 # X09 · Sesi sisipan: kinerja pembaca di ponsel (LCP)
 
-> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `/tanya`, `apps/api`, `apps/mcp`, maupun `packages/llm`) · **Status:** berjalan
+> **Fase:** sisipan (lepas dari Fase 4; tidak menyentuh `/tanya`, `apps/api`, `apps/mcp`, maupun `packages/llm`) · **Status:** selesai sebagian (2026-10-22, PR #118, ADR-079: 6 dari 8 butir lolos; target LCP tercapai di j1/200 putaran final, tidak di j3/202 — dicatat apa adanya)
 > **Prasyarat:** X04 bagian A + B di `main` (PR #115, #116, #117) · Tugas pemilik: –
 > **Perkiraan:** 1 percakapan agent · $0 LLM · tanpa korpus baru
 
@@ -57,7 +57,7 @@ CSS inline membuat cat pertama terjadi sebelum JS dievaluasi, sehingga JS keluar
 
 ## Rencana (paket kerja)
 
-- **W1 · Font.** Harmony `preload: false` (berkas tetap dimuat bila teksnya tampil; Italic tidak dimuat bila tidak dipakai). Noto Naskh di-preload **hanya di halaman baca** (elemen LCP; CLS turun) bila URL berkasnya sama dengan `@font-face` global.
+- **W1 · Font.** Harmony `preload: false` (berkas tetap dimuat bila teksnya tampil; Italic tidak dimuat bila tidak dipakai). Noto Naskh di-preload **hanya di halaman baca** (elemen LCP; CLS turun) bila URL berkasnya sama dengan `@font-face` global. *(Hasil: syarat URL tidak terpenuhi, preload Naskh dibuang; ADR-079 poin 2.)*
 - **W2 · Tekstur kertas ditunda.** Mask `serat.avif` hanya aktif sesudah halaman selesai dimuat pada kunjungan pertama (muncul halus), langsung aktif pada kunjungan berikutnya (berkas sudah di cache, ditandai di `localStorage`). Tanpa JS/`localStorage`: tekstur tetap muncul sesudah `load`.
 - **W3 · Pohon daftar isi dimuat belakangan.** HTML halaman baca hanya membawa jalur bagian aktif (leluhur + saudara yang tampil terbuka). Pohon lengkap diambil dari route handler ber-cache per karya + versi korpus saat panel samping tampil (desktop) atau saat sheet daftar isi dibuka (ponsel). Breadcrumb JSON-LD, `<title>`, OG, judul bagian + label AI di kepala halaman, sorotan bagian aktif, dan daftar isi MCP tidak berubah.
 - **W4 · JS pembaca yang belum diperlukan saat tampil dimuat saat dibutuhkan** (panel Tampilan, Lompat ke halaman, dialog laporan, isi sheet daftar isi) bila analyzer menunjukkan hemat berarti.
@@ -79,14 +79,14 @@ CSS inline membuat cat pertama terjadi sebelum JS dievaluasi, sehingga JS keluar
 
 ## Selesai bila
 
-- [ ] `pnpm verify` lolos; e2e Preview (termasuk axe dan `reader-x04`/`reader-x04b`) lolos.
-- [ ] LCP ponsel median Preview ≤ 4,29 dtk di j1/200 **dan** j3/202 (Lighthouse 13.5 ponsel, n=5, berselang-seling dengan produksi di jendela waktu yang sama); angka produksi pembanding dicatat. Bila tidak tercapai: angka apa adanya + alasan tertulis, butir ini tidak dicentang.
-- [ ] CLS ponsel median Preview ≤ produksi di kedua halaman.
-- [ ] HTML j1/200 tanpa pohon daftar isi lengkap: ukuran gzip turun dari 60 KB produksi dan tidak ada judul node yang tidak berada di jalur aktif (cek HTML Preview); pohon lengkap tampil di panel samping (desktop) dan sheet (ponsel) sesudah dimuat (e2e).
-- [ ] Breadcrumb JSON-LD, `<title>`, `og:title`, judul bagian + lencana "Terjemahan AI" di kepala halaman j1/200 identik dengan produksi (banding HTML); sorotan bagian aktif + subjudul X04 tetap (e2e `reader-x04b`); daftar isi MCP tidak berubah (`git diff` kosong di `apps/mcp`, tes MCP lolos).
-- [ ] Ukuran JS awal halaman baca dan total byte sebelum/sesudah dicatat (Lighthouse + analyzer).
-- [ ] Teks Arab tetap dari DB (tidak ada string Arab baru di diff `apps/web` selain data tes).
-- [ ] ADR baru, STATUS, LOG, STACK, dan file ini diperbarui.
+- [x] `pnpm verify` lolos; e2e Preview (termasuk axe dan `reader-x04`/`reader-x04b`) lolos. *Bukti: `pnpm verify` lokal exit 0 (774 + 352 tes, build); CI PR #118 commit `47f3916`: verify, preview, preview mcp hijau; e2e terhadap Preview **167 lolos**, 9 dilewati, 0 gagal (termasuk `reader-x09` baru).*
+- [ ] LCP ponsel median Preview ≤ 4,29 dtk di j1/200 **dan** j3/202 (Lighthouse 13.5 ponsel, n=5, berselang-seling dengan produksi di jendela waktu yang sama); angka produksi pembanding dicatat. Bila tidak tercapai: angka apa adanya + alasan tertulis, butir ini tidak dicentang. *Tidak lolos. Putaran final (commit `47f3916`, n=5): j1/200 **4,15 dtk** (produksi 5,36), j3/202 **4,40 dtk** (produksi 5,89). Putaran 1 (`277441f`): 4,57 vs 5,88 dan 5,01 vs 5,77. Gabungan n=10: 4,49 vs 5,77 dan 4,58 vs 5,79 (−22% / −21%). Alasan sisa: lihat Catatan hasil.*
+- [ ] CLS ponsel median Preview ≤ produksi di kedua halaman. *Tidak dicentang (selisih kecil): j1/200 0,036 = 0,036; j3/202 **0,002** vs 0,001 (kedua putaran). Dugaan: font Harmony tanpa preload kadang berganti sesudah cat pertama. Perbaikan CLS 0,036 → 0,012 lewat preload Naskh dibuang (ADR-079 poin 2).*
+- [x] HTML j1/200 tanpa pohon daftar isi lengkap: ukuran gzip turun dari 60 KB produksi dan tidak ada judul node yang tidak berada di jalur aktif (cek HTML Preview); pohon lengkap tampil di panel samping (desktop) dan sheet (ponsel) sesudah dimuat (e2e). *Bukti: HTML `pr-118.surau.org/kitab/ihya/1/200` 26 baris pohon (node 26, subjudul 0, `more` 17) vs produksi 522 (313 + 209); gzip 59,9 → 32,5 KB, br 54 → 25,7 KB, mentah 351 → 199 KB; j3/202 15 baris, 58,1 → 29,9 KB gzip. e2e `reader-x09` (desktop: pohon lengkap dimuat, rub' terpangkas bisa dibuka; ponsel: tanpa permintaan sebelum sheet dibuka, bagian aktif terlihat sesudah gulir bersambung) lolos lokal di build workerd.*
+- [x] Breadcrumb JSON-LD, `<title>`, `og:title`, judul bagian + lencana "Terjemahan AI" di kepala halaman j1/200 identik dengan produksi (banding HTML); sorotan bagian aktif + subjudul X04 tetap (e2e `reader-x04b`); daftar isi MCP tidak berubah (`git diff` kosong di `apps/mcp`, tes MCP lolos). *Bukti: banding HTML Preview vs produksi j1/200 dan j3/202: title, og:title, JSON-LD, kepala `[data-reader-title]`, canonical **SAMA** (5/5 per halaman); e2e `reader-x04b` + `reader` (bagian aktif) lolos lokal; `git diff origin/main --stat -- apps/mcp` kosong, tes MCP ikut `pnpm verify`.*
+- [x] Ukuran JS awal halaman baca dan total byte sebelum/sesudah dicatat (Lighthouse + analyzer). *Bukti: total terkirim j1/200 1.005 → 870 KB (Lighthouse); JS awal 455 → 405 KB br (lokal, 32 → 28 berkas), kerangka `/tentang` 398 → 377 KB br; kamus i18n di chunk pembaca: 2–3 salinan ±9,7 KB c → hanya bagian yang dipakai; bundle Worker 2.291 → 2.322 KiB gzip.*
+- [x] Teks Arab tetap dari DB (tidak ada string Arab baru di diff `apps/web` selain data tes). *Bukti: grep huruf Arab atas `git diff origin/main...HEAD -- apps/web`: hanya contoh kueri `search` yang dipindah apa adanya ke `i18n/id/search.ts` dan "باب" di data tes buatan `full-toc.test.ts`.*
+- [x] ADR baru, STATUS, LOG, STACK, dan file ini diperbarui. *(ADR-079 + catatan di ADR-058, KONVENSI String UI, STATUS, LOG, STACK, file ini.)*
 
 ## Di luar cakupan
 
@@ -97,4 +97,14 @@ CSS inline membuat cat pertama terjadi sebelum JS dievaluasi, sehingga JS keluar
 
 ## Catatan hasil
 
-*(diisi di akhir sesi)*
+*2026-10-22 (PR #118, ADR-079):*
+- **Dibuat:** font HarmonyOS tanpa preload; tekstur kertas ditunda di kunjungan pertama (`lib/paper.ts`, `<script>` mentah di awal body, `data-kertas-tunda`/`data-kertas-masuk`); pohon daftar isi ringkas (`pruneToc` + `more`) + route ISR `/kitab/[work]/daftar-isi.json` + `lib/reader/full-toc.ts` (TocTree memuat pohon lengkap saat terlihat, dipasang ulang saat datang); `next/dynamic` untuk isi panel Tampilan, formulir Lompat, dialog laporan, dan palet cari; kamus i18n per bagian (`i18n/id/<bagian>.ts`, tes penjaga); tes `pruneToc`/`tocRows`, `full-toc`, e2e `reader-x09`.
+- **Alat ukur** (scratchpad, tidak di git): Lighthouse 13.5.0 CLI + skrip berselang-seling, proksi HTTP/2 + brotli di depan `opennextjs-cloudflare preview` untuk eksperimen terkendali (mengubah respons tanpa build ulang), `next analyze --output` + `next analyze export --route` untuk komposisi JS per paket.
+- **Kenapa target belum tercapai:** sisa muatan sebelum cat pertama ±625–645 KB pada putaran baik: JS kerangka situs ±377 KB br (semua halaman: Next/React ±130 KB, react-aria, HeroUI, `motion` lewat `LazyMotion`+`domAnimation` di Sidebar/Navbar Pro, `react-resizable-panels` lewat AppLayout), CSS 44 KB, Noto Naskh 92 KB, HarmonyOS Regular 58 KB. Pada putaran buruk TTF Medium/Bold (2 × 60 KB) dan subset Latin Naskh (20 KB) selesai sebelum cat pertama dan ikut terhitung (+0,8 dtk). Memangkas lebih jauh butuh keputusan pemilik: (a) font UI ke WOFF2/subset atau font OFL (lisensi HarmonyOS melarang konversi, ADR-056), (b) kerangka navigasi tanpa Sidebar/Navbar Pro (atau menunggu HeroUI membuat `motion` opsional).
+- **Penyimpangan rencana:** preload Naskh dibuang (URL berbeda → unduhan ganda saat navigasi klien); `experimental.inlineCss` ditolak (bundle Worker 7,2 MB gzip, HTML 1,67 MB); endpoint diberi akhiran `.json` (tidak bentrok dengan halaman manusia kelak).
+- **Peninjau** (`git diff origin/main...HEAD`): 0 blocker, 6 perbaikan, 6 saran. Dikerjakan: sheet daftar isi tetap tertutup sesudah gulir bersambung bila bagian aktif belum ada di pohon ringkas → TocTree dipasang ulang saat pohon lengkap datang (+ e2e ponsel); preload Naskh beda URL → dibuang; `Script beforeInteractive` baru jalan sesudah JS utama di App Router → `<script>` mentah dan gating dibalik (tanpa JS tekstur tetap tampil); `Spinner` berlabel "Loading" → `common.loading`; tes `pruneToc`/`full-toc`/e2e; KONVENSI + ADR. Saran dikerjakan: penjaga i18n juga untuk berkas `"use client"` di `app/`, endpoint `.json`. Saran tidak dikerjakan (dicatat): coba ulang otomatis bila ambil pohon gagal (kini dicoba lagi hanya saat TocTree lain terpasang), muat ulang halaman bila chunk dinamis hilang sesudah deploy, preload dialog laporan saat hover.
+- **Utang teknis / pesan untuk sesi berikutnya:**
+  - Skrip preferensi pembaca (`READER_SCALE_SCRIPT`, `<Script strategy="beforeInteractive">`) di App Router juga baru jalan sesudah JS utama, jadi ukuran huruf/tata letak pilihan pembaca bisa berkedip di ponsel lambat (temuan peninjau atas pola yang sama). Pindahkan ke `<script>` mentah seperti `lib/paper.ts`.
+  - a11y `/tanya` (axe `color-contrast`, 2 elemen) gagal di produksi dan di build lokal, lolos di Preview: tampilan "belum dibuka" (Jawab mati) perlu dicek kontrasnya.
+  - OpenNext 1.20.13 tersedia (belum dinaikkan); #1370 (dedup manifes `inlineCss`) belum tampak diperbaiki.
+  - Ukur ulang LCP produksi sesudah merge (beacon Web Analytics +10 KB hanya di produksi).

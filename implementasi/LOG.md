@@ -15,6 +15,16 @@ Format entri:
 
 ---
 
+## 2026-10-22 · X09 · Kinerja pembaca ponsel (LCP) — sebagian (PR #118)
+- Dikerjakan:
+  - Audit: Lighthouse 13.5 ponsel n=5 produksi (j1/200 5,89 dtk, j3/202 5,34 dtk), eksperimen terkendali lewat proksi HTTP/2 + brotli di depan build workerd, `next analyze` per paket: penyebab = byte yang selesai sebelum cat pertama (Lantern ±4,3 ms/KB).
+  - Font HarmonyOS tanpa preload; tekstur kertas ditunda di kunjungan pertama (`<script>` mentah, tanpa JS tetap tampil); pohon daftar isi ringkas + route ISR `/kitab/[work]/daftar-isi.json`; `next/dynamic` untuk panel Tampilan, Lompat, dialog laporan, palet cari; kamus i18n per bagian + tes penjaga.
+  - Ditolak dengan bukti: `experimental.inlineCss` (bundle Worker 2,3 → 7,2 MB gzip, HTML 1,67 MB), preload Naskh khusus pembaca (URL berbeda → unduhan ganda).
+- Verifikasi: `pnpm verify` → lolos (unit web + paket, build) · e2e lokal build workerd (pembaca, X04, X04b, X09, axe) lolos kecuali a11y `/tanya` (juga gagal di produksi, lolos di Preview) · Lighthouse Preview vs produksi berselang-seling n=5: j1/200 **4,15** vs 5,36, j3/202 **4,40** vs 5,89 (putaran 1: 4,57 vs 5,88, 5,01 vs 5,77) · HTML j1/200 gzip 59,9 → 32,5 KB, title/OG/JSON-LD/kepala halaman identik · `peninjau` → 0 blocker, 6 perbaikan (semua dikerjakan), 6 saran (2 dikerjakan).
+- Biaya API: –
+- Keputusan: ADR-079 (+ pembaruan ADR-058).
+- Catatan untuk sesi berikutnya: target 4,29 dtk belum tercapai di j3/202; sisa muatan = JS kerangka situs ±377 KB br (Sidebar/Navbar Pro membawa `motion`) + font UI TTF (lisensi melarang WOFF2/subset): keputusan pemilik. `READER_SCALE_SCRIPT` juga perlu `<script>` mentah (preferensi pembaca bisa berkedip).
+
 ## 2026-10-22 · X04 bagian B · Daftar isi pembaca dengan subjudul + judul daftar isi Indonesia, korpus `ihya-v8` — selesai (PR #116 + PR promote `ihya-v8`)
 - Dikerjakan:
   - **W7** daftar isi pembaca = pohon `toc_node` + 209 subjudul kurasi sebagai anak node (`loadReaderToc`, `lib/reader/reader-toc.ts`, `@surau/core` `subheadingPartText`): kitab tanpa anak 19 → 6; breadcrumb/`<title>`/OG/bagian aktif tetap pohon `toc_node`; MCP + Jawab tidak disentuh.
