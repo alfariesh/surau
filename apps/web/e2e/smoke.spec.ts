@@ -93,15 +93,21 @@ test("halaman yang tidak ada menampilkan 404 berbahasa Indonesia", async ({ page
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Halaman tidak ditemukan");
 });
 
-test("menu samping: Kitab, Cari, dan Tentang bisa dibuka, fitur yang belum ada berlabel segera", async ({
+test("menu samping: Kitab dan Tentang bisa dibuka, /cari di bawah Beranda, fitur yang belum ada berlabel segera", async ({
   page,
   isMobile,
 }) => {
   await page.goto("/");
 
   const openMenu = async () => {
-    if (isMobile) await page.getByRole("button", { name: "Buka menu" }).click();
-    return page.getByRole("treegrid", { name: "Navigasi utama" }).last();
+    const menu = page.getByRole("treegrid", { name: "Navigasi utama" }).last();
+    // Ketukan sebelum hidrasi (sesudah page.goto) tidak membuka sheet: ulangi sampai terbuka.
+    if (isMobile && !(await menu.isVisible()))
+      await expect(async () => {
+        await page.getByRole("button", { name: "Buka menu" }).click();
+        await expect(menu).toBeVisible({ timeout: 1000 });
+      }).toPass();
+    return menu;
   };
 
   let menu = await openMenu();
@@ -112,10 +118,15 @@ test("menu samping: Kitab, Cari, dan Tentang bisa dibuka, fitur yang belum ada b
   await menu.getByRole("row", { name: "Kitab", exact: true }).click();
   await expect(page).toHaveURL(/\/kitab$/);
 
-  // Cari aktif sejak S14.
+  // Tanpa menu Cari (ADR-088): kotak cari ada di Beranda; di /cari Beranda yang tersorot.
   menu = await openMenu();
-  await menu.getByRole("row", { name: "Cari", exact: true }).click();
-  await expect(page).toHaveURL(/\/cari$/);
+  await expect(menu.getByRole("row", { name: "Cari", exact: true })).toHaveCount(0);
+  await page.goto("/cari");
+  menu = await openMenu();
+  await expect(menu.getByRole("row", { name: "Beranda", exact: true })).toHaveAttribute(
+    "data-current",
+    "true",
+  );
 
   // Tentang ada di menu bawah sidebar (footer), terpisah dari navigasi utama.
   await openMenu();

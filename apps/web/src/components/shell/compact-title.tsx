@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-import { findActiveNavItem } from "./nav-items";
+import { navTitle } from "./nav-items";
 import { NavbarSlot } from "./navbar-slot";
 import { useUnderNavbar } from "./use-under-navbar";
 
@@ -13,8 +13,8 @@ import { useUnderNavbar } from "./use-under-navbar";
  */
 export function CompactTitle({ title }: { title: string }) {
   const visible = useUnderNavbar("[data-page-title]");
-  const navTitle = findActiveNavItem(usePathname())?.label;
-  if (title === navTitle) return null;
+  const menuTitle = navTitle(usePathname());
+  if (title === menuTitle) return null;
 
   return (
     <NavbarSlot>

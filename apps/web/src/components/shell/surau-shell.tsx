@@ -6,7 +6,7 @@ import { AppLayout } from "@heroui-pro/react";
 import { usePathname } from "next/navigation";
 
 import { HeaderMenuProvider } from "./header-menu";
-import { findActiveNavItem } from "./nav-items";
+import { findActiveNavItem, navTitle } from "./nav-items";
 import { NavbarSlotProvider } from "./navbar-slot";
 import { SurauNavbar } from "./surau-navbar";
 import { SurauSidebar } from "./surau-sidebar";
@@ -21,7 +21,7 @@ export function SurauShell({ children }: { children: ReactNode }) {
     <NavbarSlotProvider>
       <HeaderMenuProvider>
         <AppLayout
-          navbar={<SurauNavbar title={active?.label} />}
+          navbar={<SurauNavbar title={navTitle(pathname)} />}
           sidebar={<SurauSidebar activeId={active?.id} />}
           sidebarCollapsible="icon"
         >

@@ -2206,3 +2206,17 @@ JS halaman baca 455 → 405 KB br (lokal), HTML 54 → 26 KB br. Bundle Worker 2
 **Peninjau:** 0 blocker, 4 perbaikan dikerjakan: gagal memuat bagian kitab tidak lagi menghapus rak dan Maknaz di Beranda (`.catch` sendiri, `ask` di luar `try`); pemilih disembunyikan di mode Maknaz; kata Arab di tombol jembatan lewat `ExampleText`/`ArabicInline`; `/tanya` di-prefetch saat jembatan tampil (titipan kedaluwarsa 10 dtk). Dari saran: bagian tak dikenal diabaikan, `findSection` diganti `selectedSection`, string filter lama dan `sourceCount` dihapus, tes jalur tanpa JS. Belum: hierarki rub' → kitab hanya visual untuk pembaca layar (`ListBox.Section` per rub'), spasi/baris baru `q` dari jalur tanpa JS tidak dirapikan di /cari. `e2e/search.spec.ts` (filter rub' lewat pemilih baru) butuh korpus asli: baru berjalan di Preview.
 
 **Tinjau ulang bila:** kitab kedua masuk (pilihan "Semua kitab" + filter per karya di API), pemilik tetap ingin multi-pilih bagian (perubahan API), atau kartu hasil sudah dilihat dengan korpus asli (ide 6).
+
+## ADR-088 · Menu Cari dihapus dari sidebar: kotak cari ada di Beranda, /cari = halaman hasil di bawah Beranda — diterima · 2026-10-24
+
+**Konteks:** sesudah ADR-086/087 Beranda memuat kotak cari yang sama dengan /cari (pemilih kitab, Cari/Maknaz, Enter → hasil). Pemilik: menu "Cari" di sidebar tumpang tindih dengan Beranda dan ingin dihapus; agent setuju dengan tiga syarat, pemilik menjawab "ya".
+
+**Keputusan:**
+1. **Menu Cari dihapus** dari `NAV_ITEMS`. Sidebar: Beranda, Kitab, Maknaz, Pakai dengan AI (Tentang di kaki).
+2. **/cari tetap ada** sebagai halaman hasil (tautan `/cari?q=…` yang sudah dibagikan tetap jalan, formulir tanpa JS, palet ⌘K).
+3. **Di /cari Beranda yang tersorot** (`NavItem.also: ["/cari"]` di `findActiveNavItem`), tetapi judul navbar tetap "Cari" (`navTitle`, dipakai `SurauShell` dan `CompactTitle`), supaya pengguna tahu sedang di halaman hasil.
+4. **Ikon cari di navbar (⌘K/Ctrl K) tetap**: jalan cepat mencari dari halaman mana pun tanpa kembali ke Beranda.
+
+**Verifikasi:** `pnpm check` lolos; tes unit baru `nav-items.test.ts` (tanpa menu Cari, /cari menyorot Beranda berjudul "Cari", menu lain tetap). Browser lokal: /cari menyorot Beranda, navbar "Cari". e2e lokal "menu samping" (desktop + ponsel, diulang 2×) dan "panduan MCP" lolos; `openMenu` di tes kini mengulang ketukan sampai sheet terbuka dan tidak mengetuk lagi bila sudah terbuka.
+
+**Tinjau ulang bila:** Maknaz dibuka untuk umum dan menu Maknaz terasa ganda dengan segmen di kotak Beranda.
