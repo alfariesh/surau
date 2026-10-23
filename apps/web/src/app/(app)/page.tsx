@@ -87,13 +87,13 @@ export default async function HomePage() {
       >
         <div className="flex max-w-xl flex-col items-center gap-2">
           <Typography.Heading
-            className="text-center text-2xl sm:text-3xl"
+            className="text-center text-xl sm:text-2xl"
             id="judul-prinsip"
             level={2}
           >
             {t.principlesHeading}
           </Typography.Heading>
-          <Typography className="text-center text-pretty" color="muted">
+          <Typography className="text-center text-pretty" color="muted" type="body-sm">
             {t.principlesLead}
           </Typography>
         </div>

@@ -52,7 +52,8 @@ export function SourcePicker({
           {/* Fokus pindah ke kolom cari saat popover dibuka (pola resmi HeroUI; popover = dialog). */}
           {/* oxlint-disable-next-line jsx-a11y/no-autofocus */}
           <SearchField aria-label={t.sourceSearch} autoFocus variant="secondary">
-            <SearchField.Group>
+            {/* Kolom cari bulat penuh tanpa bayangan. */}
+            <SearchField.Group className="rounded-full shadow-none">
               <SearchField.SearchIcon />
               <SearchField.Input placeholder={t.sourceSearch} />
               <SearchField.ClearButton />

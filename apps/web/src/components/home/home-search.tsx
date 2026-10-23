@@ -183,31 +183,6 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
                 </PromptInput.Toolbar>
               </PromptInput.Shell>
             </ViewTransition>
-            {asking ? (
-              <PromptInput.Footer>
-                {unavailable !== null ? (
-                  <>
-                    {tanyaText.errors[unavailable] ?? tanyaText.errors.closed}{" "}
-                    {/* Pindah ke Cari dengan teks yang sudah diketik (bukan /cari kosong). */}
-                    <Button
-                      className="h-auto min-w-0 p-0 underline"
-                      size="sm"
-                      variant="ghost"
-                      onPress={() => setMode("cari")}
-                    >
-                      {t.askUseSearch}
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    {tanyaText.footer}{" "}
-                    <NextLink className="underline" href="/privasi">
-                      {tanyaText.footerPrivacyLink}
-                    </NextLink>
-                  </>
-                )}
-              </PromptInput.Footer>
-            ) : null}
           </PromptInput>
         </div>
       </Widget>
@@ -243,6 +218,32 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
               </NextLink>
             ))}
       </div>
+      {/* Catatan Maknaz di bawah contoh, di luar kotak (permintaan pemilik). */}
+      {asking ? (
+        <Typography className="text-center" color="muted" type="body-xs">
+          {unavailable !== null ? (
+            <>
+              {tanyaText.errors[unavailable] ?? tanyaText.errors.closed}{" "}
+              {/* Pindah ke Cari dengan teks yang sudah diketik (bukan /cari kosong). */}
+              <Button
+                className="h-auto min-w-0 p-0 underline"
+                size="sm"
+                variant="ghost"
+                onPress={() => setMode("cari")}
+              >
+                {t.askUseSearch}
+              </Button>
+            </>
+          ) : (
+            <>
+              {tanyaText.footer}{" "}
+              <NextLink className="underline" href="/privasi">
+                {tanyaText.footerPrivacyLink}
+              </NextLink>
+            </>
+          )}
+        </Typography>
+      ) : null}
     </search>
   );
 }
