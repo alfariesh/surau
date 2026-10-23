@@ -42,7 +42,7 @@ type Mode = "cari" | "tanya";
 // Contoh = chip kecil yang bisa ditekan (tautan Cari / tombol Maknaz), bukan tombol penuh.
 const EXAMPLE_CHIP = chipVariants({ size: "sm", variant: "secondary" }).base({
   className:
-    "cursor-pointer transition-colors hover:bg-default-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-[disabled]:cursor-default data-[disabled]:opacity-50",
+    "cursor-pointer px-2 transition-colors hover:bg-default-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-[disabled]:cursor-default data-[disabled]:opacity-50",
 });
 
 // Kotak cari Beranda (ADR-086): satu kotak untuk dua cara. "Cari" → /cari?q=…; "Maknaz" → /tanya,
