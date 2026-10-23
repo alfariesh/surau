@@ -52,6 +52,7 @@
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
 @import "@heroui/styles/components/select.css" layer(components);
+@import "@heroui/styles/components/autocomplete.css" layer(components);
 @import "@heroui/styles/components/kbd.css" layer(components);
 @import "@heroui/styles/components/typography.css" layer(components);
 @import "@heroui/styles/components/scroll-shadow.css" layer(components);
@@ -1279,6 +1280,32 @@ h3.reader-inline-subheading {
 ::view-transition-group(tanya-orb) {
   animation-duration: 0.55s;
   animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Beranda → Maknaz (ADR-086): kotak cari "menjadi" gelembung pertanyaan (React <ViewTransition>,
+ * share="pertanyaan"). Kabur tipis di tengah jalan menutupi peralihan gambar kotak ke gelembung. */
+::view-transition-group(.pertanyaan) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+::view-transition-image-pair(.pertanyaan) {
+  animation-name: pertanyaan-blur;
+}
+
+@keyframes pertanyaan-blur {
+  40% {
+    filter: blur(2px);
+  }
+}
+
+/* Transisi yang dijalankan React (navigasi) tidak memeriksa "kurangi gerakan" sendiri. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 /* Pratinjau terjemahan di /tinjau/terjemahan (X08): gaya teks seperti pembaca, tetapi tidak ikut

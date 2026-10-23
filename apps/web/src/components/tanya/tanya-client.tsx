@@ -3,13 +3,20 @@
 import { Alert, Button, Typography } from "@heroui/react";
 import { ChatMessage, PromptInput, TextShimmer } from "@heroui-pro/react";
 import NextLink from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, ViewTransition } from "react";
 import { flushSync } from "react-dom";
 
 import { tanyaText as t } from "../../i18n/tanya";
 import { PlusSign } from "../../icons";
 import type { JawabBlock, JawabResult, JawabStage, JawabStatus } from "../../lib/tanya/model";
+import {
+  HANDOFF_TRANSITION,
+  HANDOFF_TRANSITION_CLASS,
+  peekHandOff,
+  takeHandOff,
+} from "../../lib/tanya/handoff";
 import { readSse } from "../../lib/tanya/model";
+import { jawabUnavailable, loadJawabStatus } from "../../lib/tanya/status";
 import { PageLead, PageTitle } from "../page-title";
 import { AnswerText, AnswerView } from "./answer-view";
 import { STAGE_STEP, STAGE_TOTAL } from "./orb-frames";
@@ -36,20 +43,6 @@ interface Turn {
   id: number;
   question: string;
   phase: Phase;
-}
-
-/**
- * Status Jawab untuk UI: rute mati (404) = "closed" (UI mengarahkan ke Cari); galat sementara
- * (429/5xx/jaringan) = null (tidak diketahui: komposer tetap aktif, server yang memutuskan).
- */
-async function loadStatus(): Promise<JawabStatus | "closed" | null> {
-  try {
-    const res = await fetch("/api/jawab", { cache: "no-store" });
-    if (res.status === 404) return "closed";
-    return res.ok ? ((await res.json()) as JawabStatus) : null;
-  } catch {
-    return null;
-  }
 }
 
 const cari = (q: string) => (q.trim() === "" ? "/cari" : `/cari?q=${encodeURIComponent(q.trim())}`);
@@ -145,11 +138,47 @@ function Reply({
   );
 }
 
+/** Gelembung penanya: aksen Zaitun, sudut kanan bawah 2px (ekor ke arah penanya). */
+function QuestionBubble({ question, handedOff }: { question: string; handedOff: boolean }) {
+  const bubble = (
+    <ChatMessage.Bubble className="bg-accent text-accent-foreground rounded-br-[2px]">
+      <ChatMessage.Content>
+        <Typography className="text-accent-foreground whitespace-pre-line">{question}</Typography>
+      </ChatMessage.Content>
+    </ChatMessage.Bubble>
+  );
+  // Pertanyaan titipan Beranda: pasangan transisi kotak cari (kotak "menjadi" gelembung ini).
+  return handedOff ? (
+    <ViewTransition default="none" name={HANDOFF_TRANSITION} share={HANDOFF_TRANSITION_CLASS}>
+      {bubble}
+    </ViewTransition>
+  ) : (
+    bubble
+  );
+}
+
 export function TanyaClient() {
   const [status, setStatus] = useState<JawabStatus | "closed" | null>(null);
   const [question, setQuestion] = useState("");
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const nextId = useRef(1);
+  // Pertanyaan titipan kotak cari Beranda (ADR-086): giliran pertamanya sudah ada di render pertama,
+  // supaya gelembungnya tampil di komit yang sama dengan navigasi (transisi bersama dari kotak).
+  // Memuat langsung /tanya: titipan kosong, server dan klien sama-sama mulai tanpa giliran.
+  const [handedOff] = useState(peekHandOff);
+  const [turns, setTurns] = useState<Turn[]>(() =>
+    handedOff === null
+      ? []
+      : [
+          {
+            id: 1,
+            question: handedOff.question,
+            // Status Beranda meminta Turnstile: tantangan dulu (POST tanpa token pasti ditolak).
+            phase: handedOff.sitekey
+              ? { kind: "challenge", sitekey: handedOff.sitekey }
+              : { kind: "asking", stage: null, preview: [] },
+          },
+        ],
+  );
+  const nextId = useRef(handedOff === null ? 1 : 2);
   const submitting = useRef(false);
   // Ref di pembungkus, bukan di PromptInput.TextArea: ref di sana menimpa ref internal HeroUI
   // (ukuran otomatis + fokus saat Shell diklik).
@@ -158,12 +187,12 @@ export function TanyaClient() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const refreshStatus = useCallback(async () => {
-    setStatus(await loadStatus());
+    setStatus(await loadJawabStatus());
   }, []);
 
   useEffect(() => {
     let alive = true;
-    void loadStatus().then((s) => {
+    void loadJawabStatus().then((s) => {
       if (alive) setStatus(s);
     });
     return () => {
@@ -177,9 +206,10 @@ export function TanyaClient() {
     );
   }, []);
 
-  const ask = useCallback(
+  // Kirim pertanyaan untuk giliran yang fasenya sudah "asking" (state pertama baru diubah sesudah
+  // respons tiba). `ask` = setel "asking" lalu kirim.
+  const send = useCallback(
     async (id: number, q: string, token?: string) => {
-      setPhase(id, () => ({ kind: "asking", stage: null, preview: [] }));
       const onAsking = (f: (p: Extract<Phase, { kind: "asking" }>) => Phase) =>
         setPhase(id, (p) => (p.kind === "asking" ? f(p) : p));
       let res: Response;
@@ -235,6 +265,26 @@ export function TanyaClient() {
     [refreshStatus, setPhase],
   );
 
+  const ask = useCallback(
+    (id: number, q: string, token?: string) => {
+      setPhase(id, () => ({ kind: "asking", stage: null, preview: [] }));
+      return send(id, q, token);
+    },
+    [send, setPhase],
+  );
+
+  // Kirim titipan sekali: `takeHandOff` mengosongkannya (tanpa memeriksa umur lagi: giliran sudah
+  // tampil), jadi efek ganda StrictMode tidak bertanya dua kali (dua kuota). Dengan tantangan, kiriman
+  // menunggu token dari Turnstile (onToken → ask). Bila status Beranda belum diketahui, server tetap
+  // penentu (`challenge_required`).
+  useEffect(() => {
+    if (handedOff === null || takeHandOff() === null || handedOff.sitekey) return;
+    // Efek ini memulai permintaan jaringan; `send` baru mengubah state sesudah `await fetch` (aturan
+    // lint tidak melihat batas await itu).
+    // oxlint-disable-next-line react/set-state-in-effect
+    void send(1, handedOff.question);
+  }, [send, handedOff]);
+
   const last = turns.at(-1);
   // Jawaban selesai: gulir ke awal giliran itu (pertanyaannya), supaya jawaban dibaca dari atas,
   // bukan dari ujung daftar kutipan tempat percakapan menempel saat menunggu.
@@ -254,12 +304,7 @@ export function TanyaClient() {
   }, [lastId]);
   const busy =
     last !== undefined && (last.phase.kind === "asking" || last.phase.kind === "challenge");
-  const unavailable =
-    status === "closed"
-      ? "closed"
-      : status !== null && !status.available
-        ? (status.reason ?? "disabled")
-        : null;
+  const unavailable = jawabUnavailable(status);
   const trimmed = question.trim();
   const tooShort = trimmed.length > 0 && trimmed.length < 3;
 
@@ -367,14 +412,10 @@ export function TanyaClient() {
                     className="flex flex-col gap-6"
                   >
                     <ChatMessage.User>
-                      {/* Gelembung penanya: aksen Zaitun, sudut kanan bawah 2px (ekor ke arah penanya). */}
-                      <ChatMessage.Bubble className="bg-accent text-accent-foreground rounded-br-[2px]">
-                        <ChatMessage.Content>
-                          <Typography className="text-accent-foreground whitespace-pre-line">
-                            {turn.question}
-                          </Typography>
-                        </ChatMessage.Content>
-                      </ChatMessage.Bubble>
+                      <QuestionBubble
+                        question={turn.question}
+                        handedOff={handedOff !== null && turn.id === 1}
+                      />
                     </ChatMessage.User>
                     <Reply
                       turn={turn}

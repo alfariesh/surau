@@ -17,7 +17,15 @@ export interface ShelfWork extends WorkCoverData {
 
 // Rak karya (Server Component): menyusun isi BookRing dari daftar karya DB. Judul Arab selalu dari
 // DB lewat ArabicInline (sampul, punggung, dan keterangan); judul Latin dan pengarang di bawahnya.
-export function WorkShelf({ works, label }: { works: readonly ShelfWork[]; label: string }) {
+export function WorkShelf({
+  works,
+  label,
+  className,
+}: {
+  works: readonly ShelfWork[];
+  label: string;
+  className?: string;
+}) {
   const items: BookRingItem[] = works.map((work, index) => {
     const latin = work.title_id ?? work.title_ar;
     const author = CITE_AUTHOR[work.slug] ?? work.author?.name_id ?? null;
@@ -45,5 +53,5 @@ export function WorkShelf({ works, label }: { works: readonly ShelfWork[]; label
       ),
     };
   });
-  return <BookRing items={items} label={label} ofLabel={homeText.shelfOf} />;
+  return <BookRing className={className} items={items} label={label} ofLabel={homeText.shelfOf} />;
 }
