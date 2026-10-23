@@ -27,7 +27,8 @@ export const tanyaText = {
   separate:
     "Setiap pertanyaan dijawab terpisah: jawaban sebelumnya tidak ikut dibaca, jadi tulis pertanyaan lengkap.",
   newChat: "Percakapan baru",
-  noticeShort: "Bukan fatwa · tiap pertanyaan dijawab terpisah",
+  // Satu catatan ringkas di keadaan awal /tanya (menggantikan kaki komposer di halaman ini).
+  noticeShort: "Bukan fatwa · tiap pertanyaan dijawab terpisah · jangan tulis data pribadi",
   noticeMore: "Tentang jawaban Maknaz",
   copy: "Salin jawaban",
   copyAttribution:

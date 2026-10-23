@@ -391,8 +391,11 @@ export function TanyaClient() {
                   ))}
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Typography type="body-xs" color="muted">
-                    {t.noticeShort}
+                  <Typography className="text-center text-balance" type="body-xs" color="muted">
+                    {t.noticeShort} ·{" "}
+                    <NextLink className="underline" href="/privasi">
+                      {t.footerPrivacyLink}
+                    </NextLink>
                   </Typography>
                   <TanyaInfo />
                 </div>
@@ -494,12 +497,6 @@ export function TanyaClient() {
                 </PromptInput.ToolbarEnd>
               </PromptInput.Toolbar>
             </PromptInput.Shell>
-            <PromptInput.Footer>
-              {t.footer}{" "}
-              <NextLink className="underline" href="/privasi">
-                {t.footerPrivacyLink}
-              </NextLink>
-            </PromptInput.Footer>
           </PromptInput>
         </div>
       </div>
