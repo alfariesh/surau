@@ -2,7 +2,7 @@
 export const tanyaText = {
   pageTitle: "Maknaz",
   heading: "Maknaz",
-  lead: "Maknaz adalah asisten AI Surau. Ajukan pertanyaan tentang isi Ihya' 'Ulum ad-Din: jawabannya disusun AI dari paragraf kitab, dan setiap kutipan Arabnya disalin dari teks sumber lalu diperiksa kode.",
+  lead: "Tanyakan isi kitab. Jawaban disusun AI dari teksnya, dan setiap kutipan Arab diperiksa kode.",
   notice: "Surau adalah asisten riset, bukan pemberi fatwa.",
   noticeBody:
     "Jawaban menyampaikan apa yang tertulis di kitab beserta sumbernya. Untuk kasus pribadi (keluarga, harta, ibadah tertentu), tanyakan kepada ulama setempat.",
@@ -16,7 +16,7 @@ export const tanyaText = {
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
   tooShort: "Tulis pertanyaan minimal 3 huruf.",
   challenge: "Memeriksa bahwa Anda bukan program otomatis…",
-  composerPlaceholder: "Tanya Maknaz tentang isi Ihya' 'Ulum ad-Din…",
+  composerPlaceholder: "Tanya Maknaz tentang isi kitab…",
   composerPlaceholderNext: "Pertanyaan baru, tulis lengkap (yang sebelumnya tidak ikut dibaca)…",
   suggestions: [
     "Apa kata al-Ghazali tentang sabar?",
