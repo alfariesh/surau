@@ -110,7 +110,8 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
 
   return (
     <search aria-label={t.searchLabel} className="flex w-full flex-col gap-3">
-      <Widget className="w-full text-start">
+      {/* Radius luar = radius kotak masukan (16px) + jarak ke tepi widget (6px, mx-1.5). */}
+      <Widget className="w-full rounded-[calc(1rem+0.375rem)] text-start">
         {works.length > 0 || ask ? (
           <Widget.Header className="flex-wrap gap-y-1.5 py-1.5 ps-1.5">
             {works.length > 0 ? (

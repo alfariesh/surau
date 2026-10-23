@@ -5,6 +5,7 @@ import type { Key } from "@heroui/react";
 import { Autocomplete, ListBox, SearchField, Typography, useFilter } from "@heroui/react";
 
 import { home as homeText } from "../../i18n/id/home";
+import { Book02 } from "../../icons";
 
 const t = homeText;
 
@@ -45,7 +46,8 @@ export function SourcePicker({
     >
       {/* Pemicu disamakan dengan wadah Segment di kanan (bukan itemnya): latar --default, tinggi 32px,
           bulat penuh, tanpa bayangan, teks 12px/500. */}
-      <Autocomplete.Trigger className="bg-default hover:bg-default-hover h-8 min-h-8 min-w-0 items-center rounded-full py-0 ps-3 pe-7 shadow-none">
+      <Autocomplete.Trigger className="bg-default hover:bg-default-hover h-8 min-h-8 min-w-0 items-center gap-1.5 rounded-full py-0 ps-2.5 pe-7 shadow-none">
+        <Book02 aria-hidden="true" className="text-muted size-4 shrink-0" />
         <Autocomplete.Value className="truncate text-xs leading-4 font-medium">
           {summary}
         </Autocomplete.Value>
