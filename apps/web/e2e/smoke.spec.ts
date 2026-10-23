@@ -46,7 +46,7 @@ test("kotak cari Beranda membuka hasil Cari", async ({ page }) => {
   await box.fill("sabar");
   await box.press("Enter");
   await expect(page).toHaveURL(/\/cari\?q=sabar$/);
-  await expect(page.getByRole("searchbox")).toHaveValue("sabar");
+  await expect(page.getByRole("search").getByRole("textbox")).toHaveValue("sabar");
 });
 
 test("halaman Tentang", async ({ page }) => {

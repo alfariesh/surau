@@ -5,12 +5,14 @@ import { Card, Typography } from "@heroui/react";
 import { listWorks } from "@surau/core";
 
 import { ArtEmbed } from "../../components/art/art-embed";
-import { HomeSearch } from "../../components/home/home-search";
+import { SearchBox } from "../../components/search/search-box";
 import { ContinueReading } from "../../components/reader/continue-reading";
 import { WorkShelf } from "../../components/book/work-shelf";
 import { id } from "../../i18n/id";
 import { PAGE_FRAME } from "../../lib/layout";
 import { getEnv, readerEnabled } from "../../lib/cloudflare";
+import { jawabRouteOn } from "../../lib/jawab-flag";
+import { loadSearchSections } from "../../lib/search/sections";
 import { PageTitle } from "../../components/page-title";
 
 export const metadata: Metadata = {
@@ -29,12 +31,20 @@ export const dynamic = "force-dynamic";
 const DUMMY_COUNT = 10;
 
 async function homeData() {
+  let ask = false;
   try {
     const env = await getEnv();
-    // Segmen Maknaz di kotak cari mengikuti saklar rute Jawab (mati di produksi sampai `/rilis 4`).
-    const ask = env.JAWAB_ROUTE_ENABLED === "1" || process.env.NODE_ENV === "development";
-    if (!readerEnabled(env)) return { ask, real: [], shelf: [] };
-    const { works } = await listWorks(env.CORPUS_DB);
+    ask = jawabRouteOn(env);
+    if (!readerEnabled(env)) return { ask, real: [], shelf: [], sections: [] };
+    // Bagian kitab untuk pemilih sumber (sama dengan /cari): satu query daftar isi kedalaman 2.
+    // Fitur sekunder: gagal = pemilih tanpa bagian, rak dan Maknaz tetap tampil.
+    const [{ works }, sections] = await Promise.all([
+      listWorks(env.CORPUS_DB),
+      loadSearchSections(env.CORPUS_DB).catch((error: unknown) => {
+        console.error("bagian kitab beranda gagal dimuat", error);
+        return [];
+      }),
+    ]);
     const real = works.flatMap((work) => {
       const edition = work.editions.find((e) => e.is_default) ?? work.editions[0];
       return edition ? [{ ...work, href: edition.permalink }] : [];
@@ -46,18 +56,18 @@ async function homeData() {
             const work = real[i % real.length]!;
             return { ...work, slug: `${work.slug}-${i}` };
           });
-    return { ask, real, shelf };
+    return { ask, real, shelf, sections };
   } catch (error) {
-    // Gagal = Beranda tetap tampil: tanpa rak, pemilih kitab, dan Maknaz.
+    // Gagal = Beranda tetap tampil tanpa rak dan pemilih kitab (Maknaz mengikuti saklarnya).
     console.error("data beranda gagal dimuat", error);
-    return { ask: false, real: [], shelf: [] };
+    return { ask, real: [], shelf: [], sections: [] };
   }
 }
 
 // Beranda (ADR-086): fokus cari dan jelajah. Rak kitab, sambutan singkat, kotak cari (Cari/Maknaz),
 // lanjutkan membaca, lalu tiga prinsip.
 export default async function HomePage() {
-  const { ask, real, shelf } = await homeData();
+  const { ask, real, shelf, sections } = await homeData();
   // Pemilih kitab memakai karya asli (bukan isian rak sementara); judul Latin, Arab tidak dipakai di
   // daftar teks biasa.
   const works = real.flatMap((w) => (w.title_id ? [{ slug: w.slug, title: w.title_id }] : []));
@@ -74,7 +84,7 @@ export default async function HomePage() {
         <PageTitle className="text-center text-balance" compactTitle={false} id="judul-beranda">
           {t.heading}
         </PageTitle>
-        <HomeSearch ask={ask} works={works} />
+        <SearchBox ask={ask} sections={sections} works={works} />
         <ContinueReading className="w-full text-start" />
       </section>
 

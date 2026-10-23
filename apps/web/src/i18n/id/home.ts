@@ -11,7 +11,6 @@ export const home = {
   // Pemilih kitab (kiri kepala kotak cari). Kosong = semua kitab.
   sourceLabel: "Kitab yang dicari",
   sourceAll: "Semua kitab",
-  sourceCount: (n: number) => `${n} kitab`,
   sourceSearch: "Cari kitab",
   sourceEmpty: "Kitab tidak ditemukan",
   searchTooLong: (max: number) => `Kata yang dicari paling panjang ${max} huruf.`,

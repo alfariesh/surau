@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
 
+import { search as searchText } from "../src/i18n/id/search";
 import { tanyaText } from "../src/i18n/tanya";
 
 // Kotak cari Beranda → Maknaz (ADR-086). /api/jawab dipalsukan di browser (page.route), jadi tidak
@@ -75,4 +76,34 @@ test("Maknaz dari Beranda dengan tantangan: Turnstile dulu, belum ada kiriman", 
     page.getByRole("main").getByText(tanyaText.errors.challenge_unavailable!).first(),
   ).toBeVisible();
   expect(fake.posts).toBe(0);
+});
+
+test("Cari → Maknaz: tombol di hasil mengirim kata yang dicari sebagai pertanyaan, satu kiriman", async ({
+  page,
+}) => {
+  const fake = await fakeJawab(page, { challenge: false, sitekey: null });
+  // Hasil kosong palsu: jembatan juga tampil saat tidak ada hasil (tanpa korpus di tes ini).
+  await page.route("**/api/search**", (route) =>
+    route.fulfill({
+      json: {
+        results: [],
+        total_pages: 0,
+        total_hits: 0,
+        ranked: true,
+        warning: null,
+        fusion: false,
+      },
+    }),
+  );
+  await page.goto("/cari?q=sabar");
+  // Jembatan muncul bersama hasil: tunggu hasil (kosong) selesai dimuat sebelum memeriksanya.
+  await expect(page.getByRole("heading", { name: searchText.emptyHeading })).toBeVisible();
+  const bridge = page.getByRole("button", { name: /Tanyakan.*sabar.*ke Maknaz/ });
+  test.skip((await bridge.count()) === 0, "Maknaz mati di lingkungan ini");
+  await expect(async () => {
+    await bridge.click();
+    await expect(page).toHaveURL(/\/tanya$/, { timeout: 2000 });
+  }).toPass();
+  await expect(page.getByText(searchText.askQuestion("sabar"))).toBeVisible();
+  await expect.poll(() => fake.posts).toBe(1);
 });

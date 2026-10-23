@@ -57,9 +57,15 @@ test("kueri Indonesia: terjemahan berlabel AI dan tautan ke paragraf yang benar"
 test("filter rub' menyimpan pilihan di URL; kueri tanpa hasil memberi saran", async ({ page }) => {
   await page.goto("/cari?q=sabar");
   await expect(results(page).first()).toBeVisible();
-  await page.getByRole("row", { name: "ربع المنجيات" }).click();
-  await expect(page).toHaveURL(/bagian=\d+/);
-  await expect(page.getByRole("combobox", { name: "Kitab", exact: true })).toBeVisible();
+  // Pemilih sumber di kepala kotak cari (ADR-087): daftar bertingkat dengan kolom cari.
+  await page
+    .getByRole("search")
+    .getByRole("button", { name: /Kitab yang dicari/ })
+    .click();
+  await page.getByRole("searchbox", { name: "Cari kitab" }).fill("المنجيات");
+  await page.getByRole("option", { name: "ربع المنجيات" }).click();
+  await expect(page).toHaveURL(/q=sabar&bagian=\d+/);
+  await expect(page.getByRole("search")).toContainText("ربع المنجيات");
   await page.goto("/cari?q=qwertyzx");
   await expect(page.getByRole("heading", { name: "Tidak ada hasil" })).toBeVisible();
 });

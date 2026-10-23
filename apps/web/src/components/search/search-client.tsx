@@ -1,26 +1,27 @@
 "use client";
 
 import type { SearchPage as ResultPage, SearchView } from "@surau/core";
-import type { FormEvent } from "react";
 
-import { Search01 } from "../../icons";
-import { Alert, Button, SearchField, Spinner, Tag, TagGroup, Typography } from "@heroui/react";
-import { EmptyState, NativeSelect } from "@heroui-pro/react";
-import NextLink from "next/link";
+import { AiChat02, Search01 } from "../../icons";
+import { Alert, Button, Spinner, Typography } from "@heroui/react";
+import { EmptyState } from "@heroui-pro/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import type { Keyed } from "../../lib/search/keyed";
 import type { SectionOption } from "../../lib/search/sections";
+import type { SourceWork } from "./source-picker";
 
 import { search as searchText } from "../../i18n/id/search";
 import { keepCurrent } from "../../lib/search/keyed";
-import { selectedSection } from "../../lib/search/sections";
 import { parseSection, searchApiUrl, searchPageHref } from "../../lib/search/segments";
-import { ArabicInline } from "../arabic";
+import { tanyaText } from "../../i18n/tanya";
+import { handOffQuestion } from "../../lib/tanya/handoff";
+import { jawabUnavailable, loadJawabStatus } from "../../lib/tanya/status";
 
 import { ExampleText } from "./example-text";
 import { ResultCard } from "./result-card";
+import { SearchBox } from "./search-box";
 
 const t = searchText;
 
@@ -75,26 +76,23 @@ const ERROR_TEXT: Record<ErrorCode, string> = {
   generic: t.errorGeneric,
 };
 
-const ALL = "semua";
-
-export function SearchClient({ sections }: { sections: SectionOption[] }) {
+export function SearchClient({
+  sections,
+  works,
+  ask,
+}: {
+  sections: SectionOption[];
+  works: readonly SourceWork[];
+  ask: boolean;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const query = (params.get("q") ?? "").trim();
   const section = parseSection(params.get("bagian"));
-  const { rub, kitab } = selectedSection(sections, section);
-  const [input, setInput] = useState(query);
-  const [shownQuery, setShownQuery] = useState(query);
   const [attempt, setAttempt] = useState(0);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const moreController = useRef<AbortController | null>(null);
   const key = `${attempt}|${section ?? ""}|${query}`;
-
-  // Kueri di URL berubah (kembali/maju, contoh, palet ⌘K): kolom ikut (disetel saat render).
-  if (query !== shownQuery) {
-    setShownQuery(query);
-    setInput(query);
-  }
 
   useEffect(() => {
     if (query === "") return;
@@ -114,18 +112,12 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
       moreController.current?.abort();
     };
   }, [key, query, section]);
-
   const state: State =
     query === "" ? { status: "idle" } : loaded?.key === key ? loaded.state : { status: "loading" };
   const setState = (next: State) => setLoaded((prev) => keepCurrent(prev, { key, state: next }));
 
   function go(nextQuery: string, nextSection: number | null) {
     router.push(searchPageHref(nextQuery, nextSection));
-  }
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    go(input, section);
   }
 
   async function loadMore() {
@@ -142,96 +134,16 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
     }
   }
 
-  const rubKey = rub === null ? ALL : String(rub.id);
-
   return (
     <div className="flex flex-col gap-6">
-      {/* Tanpa JS: formulir GET biasa ke /cari?q=, filter bagian ikut lewat input tersembunyi (#76). */}
-      <search>
-        <form action="/cari" className="flex flex-col gap-3" method="get" onSubmit={submit}>
-          {section !== null ? <input name="bagian" type="hidden" value={section} /> : null}
-          <div className="flex items-end gap-2">
-            <SearchField
-              fullWidth
-              aria-label={t.inputLabel}
-              name="q"
-              value={input}
-              onChange={setInput}
-            >
-              <SearchField.Group>
-                <SearchField.SearchIcon />
-                <SearchField.Input dir="auto" maxLength={200} placeholder={t.placeholder} />
-                <SearchField.ClearButton />
-              </SearchField.Group>
-            </SearchField>
-            <Button type="submit">{t.submit}</Button>
-          </div>
-          <Typography
-            type="body-sm"
-            color="muted"
-            className="flex flex-wrap items-center gap-x-2 gap-y-1"
-          >
-            <span>{t.examplesLabel}</span>
-            {t.examples.map((ex) => (
-              <NextLink key={ex} className="link text-sm" href={searchPageHref(ex, section)}>
-                <ExampleText text={ex} />
-              </NextLink>
-            ))}
-          </Typography>
-        </form>
-      </search>
-
-      {sections.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          <span className="text-foreground text-sm font-medium" id="filter-bagian">
-            {t.filterLabel}
-          </span>
-          <TagGroup
-            disallowEmptySelection
-            aria-labelledby="filter-bagian"
-            selectedKeys={new Set([rubKey])}
-            selectionMode="single"
-            onSelectionChange={(keys) => {
-              const [key] = keys === "all" ? [] : [...keys];
-              const next = key === undefined || key === ALL ? null : Number(key);
-              go(query, next);
-            }}
-          >
-            <TagGroup.List>
-              <Tag id={ALL}>{t.filterAll}</Tag>
-              {sections.map((s) => (
-                <Tag key={s.id} id={String(s.id)} textValue={s.title}>
-                  <ArabicInline>{s.title}</ArabicInline>
-                </Tag>
-              ))}
-            </TagGroup.List>
-          </TagGroup>
-          {rub !== null && rub.children.length > 0 ? (
-            <div className="flex flex-col gap-1">
-              <label className="text-muted text-xs" htmlFor="filter-kitab">
-                {t.filterKitab}
-              </label>
-              <NativeSelect>
-                <NativeSelect.Trigger
-                  id="filter-kitab"
-                  value={String(kitab?.id ?? rub.id)}
-                  onChange={(e) => go(query, Number(e.currentTarget.value))}
-                >
-                  <NativeSelect.Option value={String(rub.id)}>
-                    {t.filterKitabAll}
-                  </NativeSelect.Option>
-                  {rub.children.map((c) => (
-                    <NativeSelect.Option key={c.id} dir="rtl" lang="ar" value={String(c.id)}>
-                      {c.title}
-                    </NativeSelect.Option>
-                  ))}
-                  <NativeSelect.Indicator />
-                </NativeSelect.Trigger>
-              </NativeSelect>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
+      <SearchBox
+        ask={ask}
+        query={query}
+        section={section}
+        sections={sections}
+        works={works}
+        onSectionChange={(next) => go(query, next)}
+      />
 
       {/* Pembaca layar hanya diberi tahu ringkasan (memuat / N halaman / tidak ada hasil / galat),
           bukan seluruh isi kartu setiap kali hasil berubah. */}
@@ -241,6 +153,7 @@ export function SearchClient({ sections }: { sections: SectionOption[] }) {
           {t.resultsHeading}
         </Typography.Heading>
         <Results
+          ask={ask}
           query={query}
           state={state}
           onLoadMore={() => void loadMore()}
@@ -263,11 +176,13 @@ function statusText(state: State): string {
 }
 
 function Results({
+  ask,
   query,
   state,
   onLoadMore,
   onRetry,
 }: {
+  ask: boolean;
   query: string;
   state: State;
   onLoadMore: () => void;
@@ -326,21 +241,29 @@ function Results({
         </Alert>
       ) : null}
       {pages.length === 0 ? (
-        <EmptyState size="sm">
-          <EmptyState.Header>
-            <EmptyState.Media variant="icon">
-              <Search01 />
-            </EmptyState.Media>
-            <EmptyState.Title>{t.emptyHeading}</EmptyState.Title>
-            <EmptyState.Description>
+        <>
+          <EmptyState size="sm">
+            <EmptyState.Header>
+              <EmptyState.Media variant="icon">
+                <Search01 />
+              </EmptyState.Media>
+              <EmptyState.Title>{t.emptyHeading}</EmptyState.Title>
+            </EmptyState.Header>
+            {/* Daftar di Content, bukan di Description (<p>): <ul> di dalam <p> = galat hidrasi. */}
+            <EmptyState.Content>
               <ul className="flex list-disc flex-col gap-1 ps-5 text-start">
                 {t.emptyTips.map((tip) => (
-                  <li key={tip}>{tip}</li>
+                  <li key={tip}>
+                    <Typography color="muted" type="body-sm">
+                      {tip}
+                    </Typography>
+                  </li>
                 ))}
               </ul>
-            </EmptyState.Description>
-          </EmptyState.Header>
-        </EmptyState>
+            </EmptyState.Content>
+          </EmptyState>
+          {ask ? <AskMaknaz query={query} /> : null}
+        </>
       ) : (
         <>
           {view.total_pages !== null && view.total_hits !== null ? (
@@ -349,6 +272,7 @@ function Results({
               {view.fusion ? <span className="block text-xs">{t.summaryFused}</span> : null}
             </Typography>
           ) : null}
+          {ask ? <AskMaknaz query={query} /> : null}
           <ol aria-label={t.heading} className="flex list-none flex-col gap-4 p-0">
             {pages.map((page) => (
               <ResultCard key={page.citation.permalink} page={page} query={query} />
@@ -369,5 +293,63 @@ function Results({
         </>
       )}
     </>
+  );
+}
+
+/**
+ * Jembatan Cari → Maknaz (ADR-087): kata yang sama dikirim sebagai pertanyaan lewat titipan memori
+ * tab (sama dengan kotak Beranda, tanpa `?q=`). Status Jawab dimuat dulu saat ditekan: Maknaz mati
+ * atau kuota habis = pesan di tempat; tantangan Turnstile = /tanya membuka tantangan dulu.
+ */
+function AskMaknaz({ query }: { query: string }) {
+  const router = useRouter();
+  // Halaman Maknaz diunduh dulu: titipan kedaluwarsa 10 dtk, navigasi dingin jangan sampai lewat.
+  useEffect(() => {
+    router.prefetch("/tanya");
+  }, [router]);
+  const [loading, setLoading] = useState(false);
+  // Alasan Maknaz tidak bisa dipakai (pesan di tempat), atau null.
+  const [blocked, setBlocked] = useState<string | null>(null);
+  async function ask() {
+    setLoading(true);
+    const status = await loadJawabStatus();
+    const unavailable = jawabUnavailable(status);
+    if (unavailable !== null) {
+      setLoading(false);
+      setBlocked(tanyaText.errors[unavailable] ?? tanyaText.errors.closed ?? null);
+      return;
+    }
+    const sitekey =
+      status && status !== "closed" && status.challenge && status.sitekey ? status.sitekey : null;
+    handOffQuestion(t.askQuestion(query), sitekey);
+    router.push("/tanya");
+  }
+  return (
+    <div className="bg-surface-secondary flex flex-col items-start gap-2 rounded-2xl p-3 sm:flex-row sm:items-center sm:justify-between">
+      <Typography color="muted" type="body-sm">
+        {t.askHint}
+      </Typography>
+      <div className="flex flex-col items-start gap-1 sm:items-end">
+        <Button
+          className="shrink-0"
+          isPending={loading}
+          size="sm"
+          variant="secondary"
+          onPress={() => void ask()}
+        >
+          <AiChat02 aria-hidden="true" className="size-4" />
+          {t.askBefore}{" "}
+          <bdi>
+            “<ExampleText text={query} />”
+          </bdi>{" "}
+          {t.askAfter}
+        </Button>
+        {blocked !== null ? (
+          <Typography color="muted" type="body-xs">
+            {blocked}
+          </Typography>
+        ) : null}
+      </div>
+    </div>
   );
 }
