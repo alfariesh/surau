@@ -85,7 +85,7 @@ export default async function HomePage() {
           {t.heading}
         </PageTitle>
         <SearchBox ask={ask} sections={sections} works={works} />
-        <ContinueReading className="w-full text-start" />
+        <ContinueReading className="w-full text-start [&_.continue-card]:mx-auto" />
       </section>
 
       <section

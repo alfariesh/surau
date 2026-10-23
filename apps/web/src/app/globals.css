@@ -1221,17 +1221,44 @@ h3.reader-inline-subheading {
   gap: 0.75rem;
   height: 100%;
   max-width: 26rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  background-color: var(--surface);
+  padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+  border-radius: 1.25rem;
+  background-color: var(--surface-secondary);
   outline: none;
   transition: background-color 0.15s;
 }
 
+/* Ubin ikon: aksen Zaitun lembut, sudut = radius kartu − padding. */
+.continue-card__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background-color: color-mix(in oklab, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.continue-card__chevron {
+  color: var(--muted);
+  transition: translate 0.15s;
+}
+
 @media (hover: hover) {
   .continue-card:hover {
-    background-color: var(--surface-secondary);
+    background-color: var(--default);
+  }
+
+  .continue-card:hover .continue-card__chevron {
+    translate: 2px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .continue-card__chevron {
+    transition: none;
   }
 }
 

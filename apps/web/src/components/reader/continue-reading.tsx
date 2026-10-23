@@ -3,7 +3,7 @@
 import NextLink from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 
-import { BookOpen01 } from "../../icons";
+import { BookOpen01, ChevronRight } from "../../icons";
 import { reader as readerText } from "../../i18n/id/reader";
 import { lastReadHref, latestLastRead, parseLastRead } from "../../lib/reader/last-read";
 
@@ -39,13 +39,21 @@ export function ContinueReading({
     <div className={`continue-slot ${className}`}>
       {record === null ? null : (
         <NextLink className="continue-card" href={lastReadHref(record)}>
-          <BookOpen01 aria-hidden="true" className="text-accent size-5 shrink-0" />
-          <span className="flex min-w-0 flex-col">
-            <span className="text-foreground text-sm font-medium">{t.continueReading}</span>
-            <span className="text-muted truncate text-xs">
-              {t.continueWhere(record.title, record.juz, record.page)}
+          {/* Ubin ikon berlatar aksen lembut; judul kitab = baris utama, letak baca di bawahnya. */}
+          <span aria-hidden="true" className="continue-card__icon">
+            <BookOpen01 className="size-5" />
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-muted text-xs">{t.continueReading}</span>
+            <span className="text-foreground truncate text-sm font-medium">
+              {record.title}
+              <span className="text-muted font-normal">
+                {" "}
+                · {t.continueAt(record.juz, record.page)}
+              </span>
             </span>
           </span>
+          <ChevronRight aria-hidden="true" className="continue-card__chevron size-4 shrink-0" />
         </NextLink>
       )}
     </div>

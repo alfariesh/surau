@@ -68,6 +68,7 @@ export const reader = {
   continueReading: "Lanjutkan membaca",
   continueWhere: (title: string, juz: number, page: number) =>
     `${title} · Juz ${juz} · Halaman ${page}`,
+  continueAt: (juz: number, page: number) => `Juz ${juz} · Halaman ${page}`,
   linkCopied: "Tautan disalin",
   linkCopiedDescription: "Tautan paragraf sudah ada di papan klip.",
   reportPassage: "Laporkan kesalahan di paragraf ini",
