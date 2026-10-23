@@ -495,9 +495,9 @@ export function TanyaClient() {
               </PromptInput.Toolbar>
             </PromptInput.Shell>
             <PromptInput.Footer>
-              {t.notice} {t.privacy}{" "}
+              {t.footer}{" "}
               <NextLink className="underline" href="/privasi">
-                {t.privacyLink}
+                {t.footerPrivacyLink}
               </NextLink>
             </PromptInput.Footer>
           </PromptInput>

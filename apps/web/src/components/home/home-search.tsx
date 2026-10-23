@@ -6,7 +6,8 @@ import type { SourceWork } from "./source-picker";
 
 import { Button, Typography } from "@heroui/react";
 import { PromptInput, Segment, Widget } from "@heroui-pro/react";
-import { buttonVariants } from "@heroui/styles";
+import { chipVariants } from "@heroui/styles";
+import { Button as AriaButton } from "react-aria-components";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, ViewTransition } from "react";
@@ -37,6 +38,12 @@ export const SEARCH_MAX = 200;
 const ASK_EXAMPLES = tanyaText.suggestions.slice(0, 3);
 
 type Mode = "cari" | "tanya";
+
+// Contoh = chip kecil yang bisa ditekan (tautan Cari / tombol Maknaz), bukan tombol penuh.
+const EXAMPLE_CHIP = chipVariants({ size: "sm", variant: "secondary" }).base({
+  className:
+    "cursor-pointer transition-colors hover:bg-default-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-[disabled]:cursor-default data-[disabled]:opacity-50",
+});
 
 // Kotak cari Beranda (ADR-086): satu kotak untuk dua cara. "Cari" → /cari?q=…; "Maknaz" → /tanya,
 // pertanyaan dititipkan di memori tab lalu langsung dikirim di sana, dan kotak ini berubah menjadi
@@ -193,9 +200,9 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
                   </>
                 ) : (
                   <>
-                    {tanyaText.notice} {tanyaText.privacy}{" "}
+                    {tanyaText.footer}{" "}
                     <NextLink className="underline" href="/privasi">
-                      {tanyaText.privacyLink}
+                      {tanyaText.footerPrivacyLink}
                     </NextLink>
                   </>
                 )}
@@ -216,25 +223,19 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
       >
         {asking
           ? ASK_EXAMPLES.map((example) => (
-              <Button
+              <AriaButton
                 key={example}
-                className="rounded-full"
+                className={EXAMPLE_CHIP}
                 isDisabled={unavailable !== null}
-                size="sm"
-                variant="secondary"
                 onPress={() => fill(example)}
               >
                 {example}
-              </Button>
+              </AriaButton>
             ))
           : searchText.examples.map((example) => (
               <NextLink
                 key={example}
-                className={buttonVariants({
-                  className: "rounded-full",
-                  size: "sm",
-                  variant: "secondary",
-                })}
+                className={EXAMPLE_CHIP}
                 href={searchPageHref(example, null)}
                 prefetch={false}
               >

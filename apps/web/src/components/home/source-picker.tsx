@@ -41,7 +41,6 @@ export function SourcePicker({
       className="min-w-0"
       selectionMode="multiple"
       value={value}
-      variant="secondary"
       onChange={(keys) => onChange(Array.isArray(keys) ? keys : keys === null ? [] : [keys])}
     >
       <Autocomplete.Trigger className="min-w-0">

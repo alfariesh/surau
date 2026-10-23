@@ -8,6 +8,9 @@ export const tanyaText = {
     "Jawaban menyampaikan apa yang tertulis di kitab beserta sumbernya. Untuk kasus pribadi (keluarga, harta, ibadah tertentu), tanyakan kepada ulama setempat.",
   privacy: "Jangan menulis nama, nomor telepon, atau detail pribadi.",
   privacyLink: "Kebijakan privasi",
+  // Kaki komposer (Beranda dan /tanya): versi ringkas notice + privacy.
+  footer: "Bukan fatwa. Jangan tulis data pribadi.",
+  footerPrivacyLink: "Privasi",
   label: "Pertanyaan",
   submit: "Tanya Maknaz",
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
