@@ -75,7 +75,9 @@ export default async function HomePage() {
           <PageTitle className="text-center text-balance" compactTitle={false} id="judul-beranda">
             {t.heading}
           </PageTitle>
-          <PageLead className="max-w-xl text-center">{ask ? t.lead : t.leadSearchOnly}</PageLead>
+          <PageLead className="max-w-xl text-center text-balance">
+            {ask ? t.lead : t.leadSearchOnly}
+          </PageLead>
         </div>
         <HomeSearch ask={ask} works={works} />
         <ContinueReading className="w-full text-start" />
@@ -100,7 +102,7 @@ export default async function HomePage() {
         <ol className="grid w-full gap-4 sm:grid-cols-3">
           {t.principles.map((p, index) => (
             <li key={p.title} className="flex" data-art-card>
-              <Card className="w-full gap-0 p-2">
+              <Card className="w-full gap-0 p-2 shadow-none">
                 {/* Ilustrasi per prinsip (ADR-057): tanpa kata, dekoratif; hover/ketuk kartu memutar ulang.
                     Panel bertepi lembut supaya ruang kosong ilustrasi terbaca sebagai bingkai. */}
                 <div className="bg-surface-secondary overflow-hidden rounded-xl">
