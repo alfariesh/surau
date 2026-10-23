@@ -13,6 +13,7 @@ import {
   T_ROOT,
   seedAiText,
   seedCore,
+  seedHumanReview,
 } from "../test/fixture.ts";
 import { InvalidCitation, NotFound } from "./errors.ts";
 import { readPage } from "./page.ts";
@@ -136,6 +137,72 @@ describe("readPage edisi non-default", () => {
   });
 });
 
+describe("readPage: tinjauan manusia terjemahan (X08, skema 8)", () => {
+  test("perbaikan ustadz: teks perbaikan + status + nama terdaftar, tanpa hash/email/draf", async () => {
+    await seedAiText(db);
+    await seedHumanReview(db, {
+      passage_id: PASSAGES.body1,
+      revised: true,
+      text: "Kesabaran adalah cahaya [bagi] penuntut ilmu (١) dan adab (٢).",
+    });
+    const view = await readPage(db, ED, 1, 1);
+    expect(pageView.parse(view)).toEqual(view);
+    expect(view.body[0]?.translation).toMatchObject({
+      label: "ai_translation",
+      review_status: "ustadz_verified",
+      model: "model-uji",
+      text: "Kesabaran adalah cahaya [bagi] penuntut ilmu (١) dan adab (٢).",
+      human_review: {
+        revised: true,
+        reviewed_at: "2026-10-22T03:00:00.000Z",
+        reviewer_role: "ustadz",
+        reviewer_name: "Ust. Uji Lc.",
+        reviewer_short: "Ust. Uji",
+      },
+    });
+    const json = JSON.stringify(view);
+    expect(json).not.toContain(AI_TRANSLATIONS[PASSAGES.body1]);
+    expect(json).not.toMatch(/author_key|ai_text|[\w.-]+@[\w-]+\.[a-z]/u);
+    await seedAiText(db);
+  });
+
+  test("tanpa izin nama: peran saja; diperiksa editor = status reviewed", async () => {
+    await seedAiText(db);
+    await seedHumanReview(db, {
+      passage_id: PASSAGES.body1,
+      revised: false,
+      role: "editor",
+      shared: false,
+    });
+    const view = await readPage(db, ED, 1, 1);
+    expect(view.body[0]?.translation).toMatchObject({
+      review_status: "reviewed",
+      text: AI_TRANSLATIONS[PASSAGES.body1],
+      human_review: {
+        revised: false,
+        reviewer_role: "editor",
+        reviewer_name: null,
+        reviewer_short: null,
+      },
+    });
+    await seedAiText(db);
+  });
+
+  test("korpus tanpa tinjauan manusia tidak pernah membaca translation_review", async () => {
+    await seedAiText(db);
+    const seen: string[] = [];
+    const spy = {
+      prepare: (q: string) => {
+        seen.push(q);
+        return db.prepare(q);
+      },
+      batch: (s: Parameters<typeof db.batch>[0]) => db.batch(s),
+    };
+    await readPage(spy as unknown as typeof db, ED, 1, 1);
+    expect(seen.some((q) => q.includes("translation_review"))).toBe(false);
+  });
+});
+
 describe("readPage: terjemahan dan ringkasan AI (S14)", () => {
   test("terjemahan per paragraf berlabel; ringkasan bagian yang mulai di halaman", async () => {
     await seedAiText(db);
@@ -148,6 +215,7 @@ describe("readPage: terjemahan dan ringkasan AI (S14)", () => {
       prompt_version: "translate-passage@2",
       created_at: "2026-10-17",
       review_status: "ai_generated",
+      human_review: null,
       text: AI_TRANSLATIONS[PASSAGES.body1],
     });
     expect(view.footnotes.map((f) => f.translation)).toEqual([null, null]);

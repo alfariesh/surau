@@ -2,9 +2,9 @@ import type { NeedsReviewReason } from "@surau/db";
 
 import { Chip } from "@heroui/react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 
-const t = id.reader;
+const t = readerText;
 
 // Tanda dari pemeriksaan otomatis saat impor (passage_needs_review, ADR-032): ditampilkan apa
 // adanya supaya pembaca tahu bagian mana yang belum ditinjau manusia. Bukan hasil tinjauan.

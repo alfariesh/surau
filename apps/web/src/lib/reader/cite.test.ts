@@ -2,7 +2,7 @@ import type { CitationSource } from "@surau/core";
 
 import { describe, expect, it } from "vite-plus/test";
 
-import { citeHtml, citeParts, citeText } from "./cite";
+import { citeForPath, citeHtml, citeParts, citeText } from "./cite";
 
 // Bentuk Citation.source Ihya dari @surau/core (README paket, contoh readPage).
 const IHYA: CitationSource = {
@@ -52,5 +52,14 @@ describe("sitasi salin", () => {
     expect(citeText(citeParts(other, 2, 5), "u")).toBe("إحياء علوم الدين, j.2 h.5. u");
     const named: CitationSource = { ...IHYA, work: { ...IHYA.work, slug: "lain" } };
     expect(citeParts(named, 1, 1).author).toBe("Abu Hamid al-Ghazali");
+  });
+
+  it("sitasi per permalink: paragraf halaman sambungan disitasi dengan juz/halamannya sendiri", () => {
+    const base = citeParts(IHYA, 1, 200);
+    expect(citeForPath(base, "/kitab/ihya/1/201#p2830")).toMatchObject({ juz: 1, pageNo: 201 });
+    expect(citeText(citeForPath(base, "/kitab/ihya/2/5"), "u")).toMatch(/j\.2 h\.5\. u$/);
+    // Path lain (bab, karya) memakai sitasi halaman apa adanya.
+    expect(citeForPath(base, "/kitab/ihya/bab/100074")).toBe(base);
+    expect(citeForPath(base, "/kitab/ihya")).toBe(base);
   });
 });

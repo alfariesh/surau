@@ -16,7 +16,7 @@ const PAGES = [
   "/kitab/ihya/1/119",
   // Halaman Cari tanpa kueri (S14); dengan hasil: e2e/search.spec.ts.
   "/cari",
-  // Tanya (keadaan awal, tanpa LLM), privasi, dan transparansi biaya (S20–S21).
+  // Maknaz (keadaan awal, tanpa LLM), privasi, dan transparansi biaya (S20–S21).
   "/tanya",
   "/privasi",
   "/transparansi",
@@ -77,3 +77,40 @@ test("tanpa pelanggaran a11y: panel Tampilan terbuka dan kertas sepia", async ({
     .analyze();
   expect(result.violations.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);
 });
+
+// X04 (temuan peninjau): halaman sambungan termuat (dua wilayah teks dan dua wilayah catatan kaki
+// harus bernama unik), subjudul kurasi j3/202, dan tata letak terjemahan dilipat / berdampingan.
+const WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
+const STRUCTURE = ["landmark-unique", "heading-order"];
+
+async function axeViolations(page: import("@playwright/test").Page) {
+  const wcag = await new AxeBuilder({ page }).withTags(WCAG).analyze();
+  const structure = await new AxeBuilder({ page }).withRules(STRUCTURE).analyze();
+  return [...wcag.violations, ...structure.violations].map(
+    (v) => `${v.id}: ${v.help} (${v.nodes.length})`,
+  );
+}
+
+test("tanpa pelanggaran a11y: halaman sambungan termuat (j1/200 → 201)", async ({ page }) => {
+  await page.goto("/kitab/ihya/1/200");
+  const next = page.getByRole("region", { name: "Halaman sambungan, juz 1 halaman 201" });
+  await expect(async () => {
+    await page.mouse.wheel(0, 4000);
+    await expect(next).toBeAttached({ timeout: 1500 });
+  }).toPass({ timeout: 30_000 });
+  await expect(next.locator(".passage").first()).toBeVisible();
+  expect(await axeViolations(page)).toEqual([]);
+});
+
+for (const layout of ["fold", "side"] as const) {
+  test(`tanpa pelanggaran a11y: tata letak terjemahan ${layout} (j3/202)`, async ({ page }) => {
+    await page.addInitScript((value) => {
+      try {
+        localStorage.setItem("surau:reader-tr-layout", value);
+      } catch {}
+    }, layout);
+    await page.goto("/kitab/ihya/3/202");
+    await expect(page.locator("html")).toHaveAttribute("data-tr-layout", layout);
+    expect(await axeViolations(page)).toEqual([]);
+  });
+}

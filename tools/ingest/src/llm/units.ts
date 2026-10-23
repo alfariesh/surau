@@ -57,7 +57,7 @@ function groupBy<T>(rows: readonly T[], key: (r: T) => number): Map<number, T[]>
   return out;
 }
 
-function toAyahRef(r: PassageAyahRefRow): AyahRef {
+export function toAyahRef(r: PassageAyahRefRow): AyahRef {
   return {
     char_start: r.char_start,
     char_end: r.char_end,
@@ -72,7 +72,7 @@ function toAyahRef(r: PassageAyahRefRow): AyahRef {
   };
 }
 
-function toFootnoteRef(r: FootnoteRefRow): FootnoteRef {
+export function toFootnoteRef(r: FootnoteRefRow): FootnoteRef {
   return {
     marker: r.marker,
     char_start: r.char_start,

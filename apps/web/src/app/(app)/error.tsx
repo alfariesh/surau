@@ -1,9 +1,9 @@
 "use client";
 
 import { RouteError } from "../../components/route-error";
-import { id } from "../../i18n/id";
+import { error as errorText } from "../../i18n/id/error";
 
-const t = id.error;
+const t = errorText;
 
 // Galat tak terduga di rute grup (app) selain /kitab (yang punya error.tsx sendiri): /cari dan
 // /tinjau membaca D1 tanpa try/catch. Boundary ini ada di dalam layout grup, jadi kerangka Surau

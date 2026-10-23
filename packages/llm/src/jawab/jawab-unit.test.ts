@@ -115,6 +115,7 @@ describe("dokumen dan request", () => {
         prompt_version: "p",
         created_at: "2026-10-17",
         review_status: "ai_generated",
+        human_review: null,
         text: "Kalimat uji.",
       },
     });

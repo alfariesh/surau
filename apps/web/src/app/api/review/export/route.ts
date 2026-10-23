@@ -1,12 +1,15 @@
 import { getReviews, listAnswerLogs } from "@surau/db";
 import { getEnv } from "../../../../lib/cloudflare";
-import { REVIEW_HEADERS, reviewIdentity } from "../../../../lib/review-auth";
+import { REVIEW_HEADERS, reviewIdentity, reviewRoomAllowed } from "../../../../lib/review-auth";
 
 /** JSONL privat, halaman 50 jawaban. Jangan tautkan ekspor ini di laporan publik. */
 export async function GET(request: Request) {
   const env = await getEnv();
-  if (!(await reviewIdentity(request.headers.get("cf-access-jwt-assertion"), env)))
+  const identity = await reviewIdentity(request.headers.get("cf-access-jwt-assertion"), env);
+  if (!identity)
     return Response.json({ error: "unauthorized" }, { status: 401, headers: REVIEW_HEADERS });
+  if (!reviewRoomAllowed(identity, "jawaban", env))
+    return Response.json({ error: "forbidden_role" }, { status: 403, headers: REVIEW_HEADERS });
   const offset = Number(new URL(request.url).searchParams.get("offset") ?? "0");
   if (!Number.isInteger(offset) || offset < 0 || offset > 100000)
     return Response.json({ error: "invalid" }, { status: 400, headers: REVIEW_HEADERS });

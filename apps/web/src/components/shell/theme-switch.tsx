@@ -5,7 +5,7 @@ import { Button, Tooltip } from "@heroui/react";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 
-import { id } from "../../i18n/id";
+import { theme as themeText } from "../../i18n/id/theme";
 
 const noopSubscribe = () => () => {};
 
@@ -19,7 +19,7 @@ export function ThemeSwitch() {
     () => false,
   );
   const isDark = isMounted && resolvedTheme === "dark";
-  const label = isDark ? id.theme.toLight : id.theme.toDark;
+  const label = isDark ? themeText.toLight : themeText.toDark;
 
   return (
     <Tooltip delay={300}>

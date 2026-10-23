@@ -43,6 +43,14 @@ import { assertWritable } from "./sqlite.ts";
 import { llmRows } from "./llm/attach.ts";
 import type { LlmBuild } from "./llm/attach.ts";
 import { loadReviews } from "./llm/reviews.ts";
+import {
+  applyRevisions,
+  loadRevisions,
+  revisionInvariant,
+  revisionMetaRows,
+} from "./llm/revisions.ts";
+import type { RevisionStats } from "./llm/revisions.ts";
+import { readSubheadings } from "./llm/titles.ts";
 import { buildToc } from "./toc.ts";
 import type { TocBuild } from "./toc.ts";
 import { validate } from "./validate.ts";
@@ -172,7 +180,13 @@ function rowsFor(
   toc: TocBuild,
   ids: IdAllocator,
   env?: NodeJS.ProcessEnv,
-): { rows: CorpusRows; fts: FtsRow[]; ayat: AyatBuild; llm: LlmBuild | null } {
+): {
+  rows: CorpusRows;
+  fts: FtsRow[];
+  ayat: AyatBuild;
+  llm: LlmBuild | null;
+  revisions: RevisionStats;
+} {
   const { source, pages, takhrij } = prepared;
   const base = buildRows({
     config,
@@ -196,18 +210,34 @@ function rowsFor(
     ...quranTableRows(quran),
     passage_ayah_ref: matched.refs,
     translation: [],
+    translation_review: [],
     summary: [],
+    toc_title_translation: [],
+    subheading_translation: [],
     term_stat: termStats(fts, paths.migrations),
   };
   // Terjemahan/ringkasan AI dicek terhadap baris yang baru dibangun ini (hash sumber, ayat).
-  const llm = paths.llm === undefined ? null : llmRows(rows, paths.llm, loadReviews(paths.repo));
+  const llm =
+    paths.llm === undefined
+      ? null
+      : llmRows(rows, paths.llm, loadReviews(paths.repo), readSubheadings(paths.repo, config));
   if (llm !== null) {
     rows.translation = llm.translation;
     rows.summary = llm.summary;
+    rows.toc_title_translation = llm.toc_title_translation;
+    rows.subheading_translation = llm.subheading_translation;
   }
+  // Revisi terjemahan manusia (X08 tahap 2, ADR-082): menimpa teks AI sesudah hasil batch dimuat,
+  // divalidasi ulang terhadap baris korpus ini. Metadata git tanpa berkas ekspornya = GAGAL.
+  const loaded = loadRevisions(paths.repo);
+  const revisions = applyRevisions(rows, loaded);
+  rows.translation = revisions.translation;
+  rows.translation_review = revisions.translation_review;
+  rows.meta = [...rows.meta, ...revisionMetaRows(loaded)];
   return {
     rows,
     llm,
+    revisions: revisions.stats,
     fts,
     ayat: {
       stats: matched.stats,
@@ -307,7 +337,7 @@ export function runIngest(
         "(kitab yang belum pernah dirilis: --reset-ids)",
     );
   const ids = createAllocator(idMap);
-  const { rows, fts, ayat, llm } = rowsFor(config, paths, prepared, toc, ids, opts.env);
+  const { rows, fts, ayat, llm, revisions } = rowsFor(config, paths, prepared, toc, ids, opts.env);
   const validation = validate({
     config,
     source,
@@ -319,6 +349,8 @@ export function runIngest(
     ayat,
     llm: llm?.stats ?? null,
   });
+  validation.invariants.push(revisionInvariant(rows, revisions));
+  validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
   const prints = fingerprints(config.edition.id, rows.passage);
   const stability =
     released === null ? null : checkStability(released, prints, opts.acceptTextChanges);

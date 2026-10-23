@@ -13,6 +13,7 @@ import {
   T_ROOT,
   seedAiText,
   seedCore,
+  seedHumanReview,
   seedSearchIndex,
 } from "../test/fixture.ts";
 import { InvalidQuery, NotFound, Unavailable } from "./errors.ts";
@@ -51,6 +52,19 @@ describe("splitQueryScripts", () => {
 });
 
 describe("searchText: jalur Indonesia", () => {
+  test("tinjauan manusia ikut di potongan terjemahan hasil (X08); yang lain null", async () => {
+    await seedHumanReview(db, { passage_id: PASSAGES.body1, revised: false });
+    onTestFinished(() => seedAiText(db));
+    const view = await searchText(db, "Kesabaran");
+    expect(searchView.parse(view)).toEqual(view);
+    expect(hitOf(view, PASSAGES.body1)?.translation).toMatchObject({
+      label: "ai_translation",
+      review_status: "ustadz_verified",
+      human_review: { revised: false, reviewer_role: "ustadz", reviewer_short: "Ust. Uji" },
+    });
+    expect(hitOf(view, PASSAGES.body2)?.translation?.human_review).toBeNull();
+  });
+
   test("terjemahan + ringkasan digabung RRF, berlabel AI, sorotan di teks AI", async () => {
     const view = await searchText(db, "Kesabaran");
     expect(searchView.parse(view)).toEqual(view);

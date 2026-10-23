@@ -1,40 +1,38 @@
-import type { AyahRef, Passage } from "@surau/core";
 import type { Metadata } from "next";
 
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 
-import { ArabicInline, ArabicText } from "../../../../../../components/arabic";
+import { ArabicInline } from "../../../../../../components/arabic";
 import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-ld";
-import { AyahRefChip } from "../../../../../../components/reader/ayah-ref";
-import { HeadingOrnament } from "../../../../../../components/reader/heading-ornament";
+import { AiNotice } from "../../../../../../components/reader/ai-notice";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
-import { FootnoteMarker } from "../../../../../../components/reader/footnote-marker";
-import { NeedsReviewNote } from "../../../../../../components/reader/needs-review";
-import { PageNav } from "../../../../../../components/reader/page-nav";
-import { PassageActions } from "../../../../../../components/reader/passage-actions";
-import { PassageTranslation } from "../../../../../../components/reader/passage-translation";
-import { QuranNotice } from "../../../../../../components/reader/quran-notice";
+import { ContinuousReader } from "../../../../../../components/reader/continuous-reader";
+import { PageFoot } from "../../../../../../components/reader/page-foot";
+import { PageText } from "../../../../../../components/reader/page-text";
 import { ReaderProvider } from "../../../../../../components/reader/reader-context";
 import { ReaderCompactHeader } from "../../../../../../components/reader/reader-compact-header";
+import { ReaderEnhancements } from "../../../../../../components/reader/reader-enhancements";
+import { ReadingTracker } from "../../../../../../components/reader/reading-tracker";
 import {
   ReaderToolbar,
   ReportPageButton,
 } from "../../../../../../components/reader/reader-toolbar";
 import { SearchHighlighter } from "../../../../../../components/reader/search-highlighter";
-import { SectionSummary } from "../../../../../../components/reader/section-summary";
 import { TocTree } from "../../../../../../components/reader/toc-tree";
 import { FOOTNOTE_NOTE } from "../../../../../../content/works";
 import { id } from "../../../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../../../lib/layout";
 import { citeParts } from "../../../../../../lib/reader/cite";
-import { loadPage, loadToc } from "../../../../../../lib/reader/data";
+import { loadPage, loadReaderToc, loadToc } from "../../../../../../lib/reader/data";
+import { buildPageModel } from "../../../../../../lib/reader/page-model";
 import { previewSample } from "../../../../../../lib/reader/preview";
-import { splitPassage } from "../../../../../../lib/reader/segments";
 import { OPEN_GRAPH_BASE } from "../../../../../../lib/site";
 import {
+  activeRowId,
   activeTocIds,
-  headingPassages,
-  sectionStarts,
+  flattenToc,
+  pageSections,
+  pruneToc,
   tocHref,
   tocPath,
 } from "../../../../../../lib/reader/toc";
@@ -73,129 +71,49 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-function passageLabel(juz: number, page: number, p: Passage): string {
-  return `${t.pageShort(juz, page)} · ${p.anchor}`;
-}
-
 export default async function ReaderPage({ params }: Props) {
   const { work: rawSegment, juz: rawJuz, page: rawPage } = await params;
   const ctx = await loadPage(rawSegment, rawJuz, rawPage);
   const toc = await loadToc(rawSegment);
+  // Pohon TAMPILAN (subjudul kurasi + judul Indonesia, X04 bagian B); breadcrumb, judul tab, dan
+  // OG tetap dari `toc` (judul Arab).
+  const shown = await loadReaderToc(rawSegment);
   const { page, work, edition, segment } = ctx;
   const { juz, page_no: pageNo, permalink } = page.citation;
 
   const activeIds = activeTocIds(toc, juz, pageNo, page.body);
   const crumbs = activeIds[0] === undefined ? [] : tocPath(toc, activeIds[0]);
-  const headings = headingPassages(toc, juz, pageNo, page.body);
-  const starts = sectionStarts(toc, juz, pageNo, page.body);
-  const footById = new Map(page.footnotes.map((f) => [f.id, f]));
-  // Potongan teks per paragraf (penanda catatan kaki dan kutipan ayat dipotong hanya di offset DB).
-  // Penanda pertama yang benar-benar dirender untuk tiap catatan kaki diberi id, tujuan tautan
-  // "kembali ke teks".
-  const segmentsOf = new Map(
-    [...page.body, ...page.footnotes].map((p) => [
-      p.id,
-      splitPassage(p.text_raw, p.footnote_refs, p.ayah_refs),
-    ]),
+  // Pohon yang dikirim ke klien hanya baris yang tampil terbuka (X09: pohon lengkap 522 baris
+  // berjudul ganda menambah ±20 KB gzip di setiap halaman); TocTree mengambil pohon lengkap
+  // (`/kitab/<karya>/daftar-isi.json`) saat pohon tampil. Leluhur baris aktif (node, atau subjudul
+  // kurasinya sampai halaman ini, X10) = baris yang dibuka TocTree.
+  const lastActive = activeIds.at(-1);
+  const rowId =
+    lastActive === undefined ? undefined : activeRowId(shown.items, lastActive, juz, pageNo);
+  const openIds = new Set(
+    (rowId === undefined ? [] : tocPath(shown.items, rowId).slice(0, -1)).map((n) => n.id),
   );
-  const markerOf = new Map<number, string>();
-  for (const b of page.body) {
-    for (const s of segmentsOf.get(b.id)?.segments ?? []) {
-      if (s.kind === "marker" && footById.has(s.footnoteId) && !markerOf.has(s.footnoteId)) {
-        markerOf.set(s.footnoteId, `ref-${b.anchor}-${s.charStart}`);
-      }
-    }
-  }
-  // Penanda (١) di terjemahan AI → catatan kaki Arab yang sama di halaman ini.
-  const footAnchor = new Map<string, string>();
-  for (const b of page.body) {
-    for (const r of b.footnote_refs) {
-      const foot = footById.get(r.footnote_id);
-      if (foot !== undefined && !footAnchor.has(r.marker)) footAnchor.set(r.marker, foot.anchor);
-    }
-  }
-  // Ringkasan AI per bagian yang mulai di halaman ini (S14), ditaruh sesudah paragraf awalnya.
-  const summaryOf = new Map((page.summaries ?? []).map((s) => [s.section.id, s]));
-  const summariesAt = (nodeIds: readonly number[]) =>
-    nodeIds.flatMap((nodeId) => {
-      const summary = summaryOf.get(nodeId);
-      return summary === undefined ? [] : [<SectionSummary key={nodeId} summary={summary} />];
-    });
-  const anyAi =
-    summaryOf.size > 0 ||
-    page.body.some((p) => p.translation !== null && p.translation !== undefined);
+  const tocShell = pruneToc(shown.items, openIds);
+  // Model siap render (subjudul kurasi, syair, terjemahan): bentuk yang sama dipakai halaman
+  // sambungan gulir bersambung (X04).
+  const model = await buildPageModel(page, {
+    editionId: edition.id,
+    sections: pageSections(toc, juz, pageNo),
+  });
   const footNote = FOOTNOTE_NOTE[`${work.slug}/${edition.slug}`];
-  const anyReview = [...page.body, ...page.footnotes].some((p) => p.needs_review.length > 0);
   const workTitle = work.title_id ?? work.title_ar;
   const bab = crumbs.at(-1)?.title ?? null;
+  const babNode = crumbs.at(-1);
+  // Judul Indonesia bagian ini hanya di kepala halaman, berlencana "Terjemahan AI" (W8).
+  const babId =
+    babNode === undefined
+      ? undefined
+      : flattenToc(shown.items).find((i) => i.kind === "node" && i.id === babNode.id)?.titleId;
   // Pratinjau huruf di panel Tampilan: awal paragraf isi pertama halaman ini (lib/reader/preview).
+  const firstText = model.body.find((p) => p.heading === null);
   const sample = previewSample(
-    (page.body.find((p) => !headings.has(p.id)) ?? page.body[0])?.text_raw,
+    (page.body.find((p) => p.id === firstText?.id) ?? page.body[0])?.text_raw,
   );
-  const ref = (p: Passage) => ({
-    id: p.id,
-    label: passageLabel(juz, pageNo, p),
-    permalink: p.location.permalink,
-  });
-
-  // Ayat utuh + nama surah untuk satu rujukan (dari PageView.quran, verbatim dari DB).
-  const quran = page.quran;
-  function ayahChip(ref: AyahRef, key: number) {
-    if (quran === null) return null;
-    const ayat = quran.ayat.filter(
-      (a) => a.surah === ref.surah && a.ayah >= ref.ayah_from && a.ayah <= ref.ayah_to,
-    );
-    const surah = quran.surahs.find((s) => s.surah === ref.surah);
-    return (
-      <AyahRefChip
-        key={key}
-        ayahRef={ref}
-        ayat={ayat}
-        sources={quran.sources}
-        surahNameAr={surah?.name_ar ?? null}
-      />
-    );
-  }
-
-  function renderText(p: Passage) {
-    const split = segmentsOf.get(p.id);
-    if (split === undefined) return p.text_raw;
-    return split.segments.map((s, i) => {
-      if (s.kind === "ayah-end") {
-        const ref = split.ayat[s.ayah];
-        return ref === undefined ? null : ayahChip(ref, i);
-      }
-      let node;
-      if (s.kind === "text") {
-        node = s.text;
-      } else {
-        const foot = footById.get(s.footnoteId);
-        const markerId = `ref-${p.anchor}-${s.charStart}`;
-        node =
-          foot === undefined ? (
-            s.text
-          ) : (
-            <FootnoteMarker
-              footnote={{
-                anchor: foot.anchor,
-                text: foot.text_raw,
-                needsReview: foot.needs_review,
-              }}
-              marker={s.marker}
-              refId={markerOf.get(foot.id) === markerId ? markerId : undefined}
-              text={s.text}
-            />
-          );
-      }
-      return s.ayah === null ? (
-        <Fragment key={i}>{node}</Fragment>
-      ) : (
-        <span key={i} className="ayah-quote">
-          {node}
-        </span>
-      );
-    });
-  }
 
   return (
     <ReaderProvider cite={citeParts(page.citation.source, juz, pageNo)} pagePath={permalink}>
@@ -229,6 +147,17 @@ export default async function ReaderPage({ params }: Props) {
                 <span>{workTitle}</span>
                 <ArabicInline>{work.title_ar}</ArabicInline>
               </Typography>
+              {bab !== null && babId !== undefined ? (
+                <Typography type="body-sm" className="flex flex-wrap items-baseline gap-x-2">
+                  <span lang="id">
+                    {babId}
+                    <span className="ai-badge" title={t.tocTitleHint}>
+                      {t.tocTitleBadge}
+                    </span>
+                  </span>
+                  <ArabicInline>{bab}</ArabicInline>
+                </Typography>
+              ) : null}
             </div>
             <ReaderToolbar
               activeIds={activeIds}
@@ -237,113 +166,45 @@ export default async function ReaderPage({ params }: Props) {
               pagePath={permalink}
               sample={sample}
               segment={segment}
-              toc={toc}
+              titleSource={shown.titleSource}
+              toc={tocShell}
               volumes={edition.volumes ?? juz}
             />
           </header>
-          <ReaderCompactHeader bab={bab} juz={juz} page={pageNo} sample={sample} />
+          <ReaderCompactHeader
+            bab={bab}
+            juz={juz}
+            page={pageNo}
+            sample={sample}
+            scope={permalink}
+          />
 
-          <section aria-label={t.textLabel} className="reader-text flex flex-col gap-3">
-            {starts.unplaced.map((nodeId) => (
-              <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
-            ))}
-            {summariesAt(starts.unplaced)}
-            {page.body.map((p) => {
-              const heading = headings.get(p.id);
-              return (
-                <Fragment key={p.id}>
-                  {(starts.byPassage.get(p.id) ?? []).map((nodeId) => (
-                    <span key={nodeId} className="section-anchor" id={`bab-${nodeId}`} />
-                  ))}
-                  {/* Satu kolom: teks Arab, terjemahan, dan ringkasan berbagi tepi yang sama. Menu ⋮
-                      ada di akhir teks (sebaris dengan kata terakhir), bukan kolom sendiri. */}
-                  <div className="passage flex flex-col gap-1" id={p.anchor}>
-                    {heading ? (
-                      // Judul bab di tengah seperti kitab cetak; ⋮ di luar <h2> supaya tidak ikut
-                      // nama judul.
-                      <div className="relative flex items-center justify-center gap-2 px-7 sm:gap-3 sm:px-9">
-                        {/* ⋮ di ruang tepi kiri (padding sama di kanan), supaya judul dan ornamen tetap
-                            simetris dan tidak bertumpuk dengan ⋮. */}
-                        <span className="absolute start-0 top-1/2 -translate-y-1/2">
-                          <PassageActions passage={ref(p)} />
-                        </span>
-                        <HeadingOrnament side="start" />
-                        <ArabicText
-                          as="h2"
-                          className={`reader-heading ${heading.level > 2 ? "reader-heading-minor" : ""}`}
-                        >
-                          {renderText(p)}
-                        </ArabicText>
-                        <HeadingOrnament side="end" />
-                      </div>
-                    ) : (
-                      <ArabicText className="text-foreground">
-                        {renderText(p)}
-                        <PassageActions passage={ref(p)} />
-                      </ArabicText>
-                    )}
-                    <NeedsReviewNote reasons={p.needs_review} />
-                    <PassageTranslation
-                      footAnchor={footAnchor}
-                      heading={heading !== undefined}
-                      passage={p}
-                      quran={quran}
-                    />
-                  </div>
-                  {summariesAt(starts.byPassage.get(p.id) ?? [])}
-                </Fragment>
-              );
-            })}
-          </section>
+          <ReaderEnhancements />
+          <ReadingTracker title={workTitle} work={segment} />
+          <PageText
+            model={model}
+            footNote={footNote}
+            notice={model.ai.translation ? <AiNotice mixed={model.ai.reviewed} /> : null}
+          />
+          <PageFoot model={model} />
 
-          {page.footnotes.length > 0 ? (
-            // Seperti catatan kaki buku: garis pendek, judul kecil, huruf lebih kecil dari teks.
-            <section aria-labelledby="judul-catatan-kaki" className="flex flex-col gap-3 pt-2">
-              <div aria-hidden="true" className="reader-footnotes-rule" />
-              <div className="flex flex-col gap-0.5">
-                <Typography.Heading
-                  level={2}
-
-                  id="judul-catatan-kaki"
-                  className="text-sm"
-                >
-                  {footNote?.heading ?? t.footnotesHeading}
-                </Typography.Heading>
-                {footNote ? (
-                  <Typography type="body-xs" color="muted">
-                    {footNote.lead}
-                  </Typography>
-                ) : null}
-              </div>
-              <ol className="reader-footnotes flex list-none flex-col gap-2 p-0">
-                {page.footnotes.map((f) => {
-                  const back = markerOf.get(f.id);
-                  return (
-                    <li key={f.id} className="passage flex flex-col gap-1" id={f.anchor}>
-                      <ArabicText className="text-foreground">
-                        {renderText(f)}
-                        <PassageActions passage={ref(f)} />
-                      </ArabicText>
-                      <NeedsReviewNote reasons={f.needs_review} />
-                      {back ? (
-                        <a className="link self-start text-xs" href={`#${back}`}>
-                          {t.footnoteBack}
-                        </a>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
-          ) : null}
-
-          {/* Navigasi halaman hanya di akhir halaman (sesudah catatan kaki), seperti membalik kitab. */}
-          <div className="flex flex-col gap-2">
-            <PageNav keyboard next={page.next} prev={page.prev} />
-            <Typography type="body-xs" color="muted">
-              {t.keyboardHint}
-            </Typography>
-          </div>
+          {/* Gulir bersambung (X04 W6): halaman berikutnya dimuat di bawah saat pembaca sampai di
+              akhir halaman; navigasi halaman (dan pintasan ←/→) tetap di akhir, seperti membalik
+              kitab. */}
+          <ContinuousReader
+            first={{
+              juz,
+              page: pageNo,
+              permalink,
+              prev: page.prev,
+              next: page.next,
+              bab,
+              activeIds,
+            }}
+            footNote={footNote}
+            segment={segment}
+            workTitle={workTitle}
+          />
 
           <footer className="text-muted flex flex-col gap-2 border-t border-separator pt-6 text-xs">
             <Typography.Heading level={2} className="text-sm">
@@ -357,17 +218,6 @@ export default async function ReaderPage({ params }: Props) {
               sourceUrl={page.source_url}
               workSlug={work.slug}
             />
-            {quran ? <QuranNotice quran={quran} /> : null}
-            {anyAi ? (
-              <Typography type="body-xs" color="muted">
-                {t.aiNotice}
-              </Typography>
-            ) : null}
-            {anyReview ? (
-              <Typography type="body-xs" color="muted">
-                {t.needsReviewNote}
-              </Typography>
-            ) : null}
             <ReportPageButton />
           </footer>
         </article>
@@ -385,7 +235,14 @@ export default async function ReaderPage({ params }: Props) {
             >
               {t.tocHeading}
             </Typography.Heading>
-            <TocTree activeIds={activeIds} items={toc} />
+            <TocTree
+              activeIds={activeIds}
+              at={{ juz, page: pageNo }}
+              fullFrom={segment}
+              items={tocShell}
+              scope={permalink}
+              titleSource={shown.titleSource}
+            />
           </div>
         </aside>
       </div>

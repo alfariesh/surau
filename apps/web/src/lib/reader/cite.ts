@@ -44,7 +44,7 @@ const ESCAPES: Record<string, string> = {
   "'": "&#39;",
 };
 
-function escapeHtml(s: string): string {
+export function escapeHtml(s: string): string {
   return s.replaceAll(/[&<>"']/g, (c) => ESCAPES[c] ?? c);
 }
 
@@ -58,4 +58,15 @@ export function citeHtml(p: CiteParts, url: string): string {
   };
   const href = escapeHtml(url);
   return `${head(safe, `<i>${safe.title}</i>`)}. <a href="${href}">${href}</a>`;
+}
+
+/**
+ * Sitasi untuk permalink tertentu (X04, gulir bersambung): juz dan halaman cetak diambil dari path
+ * `/kitab/<karya>/<juz>/<halaman>[#pN]`, sehingga paragraf halaman sambungan tidak memakai alamat
+ * halaman pertama. Path lain (mis. halaman bab) memakai `base` apa adanya.
+ */
+export function citeForPath(base: CiteParts, permalink: string): CiteParts {
+  const path = permalink.split(/[?#]/)[0] ?? "";
+  const m = /^\/kitab\/[^/]+\/(\d+)\/(\d+)$/.exec(path);
+  return m === null ? base : { ...base, juz: Number(m[1]), pageNo: Number(m[2]) };
 }

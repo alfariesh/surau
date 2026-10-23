@@ -1,6 +1,11 @@
 import { getAnswerLog, listAnswerLogs, reviewInput, saveReview } from "@surau/db";
 import { getEnv } from "../../../lib/cloudflare";
-import { REVIEW_HEADERS, reviewIdentity, reviewSameOrigin } from "../../../lib/review-auth";
+import {
+  REVIEW_HEADERS,
+  reviewIdentity,
+  reviewRoomAllowed,
+  reviewSameOrigin,
+} from "../../../lib/review-auth";
 import { readJsonBody } from "../../../lib/review-body";
 import { reviewItem } from "../../../lib/review-data";
 
@@ -10,6 +15,8 @@ export async function GET(request: Request) {
   const env = await getEnv();
   const identity = await reviewIdentity(request.headers.get("cf-access-jwt-assertion"), env);
   if (!identity) return json({ error: "unauthorized" }, 401);
+  // Akun editor terjemahan tidak otomatis menilai jawaban eval (X08, ADR-081).
+  if (!reviewRoomAllowed(identity, "jawaban", env)) return json({ error: "forbidden_role" }, 403);
   const query = new URL(request.url).searchParams;
   const id = query.get("id");
   if (id) {
@@ -36,6 +43,7 @@ export async function POST(request: Request) {
   const env = await getEnv();
   const identity = await reviewIdentity(request.headers.get("cf-access-jwt-assertion"), env);
   if (!identity) return json({ error: "unauthorized" }, 401);
+  if (!reviewRoomAllowed(identity, "jawaban", env)) return json({ error: "forbidden_role" }, 403);
   if (!reviewSameOrigin(request)) return json({ error: "forbidden_origin" }, 403);
   const body = await readJsonBody(request, 12000);
   if (!body.ok) return json({ error: body.error }, body.status);

@@ -10,8 +10,9 @@
 //     --skala 2                             device scale factor (sampul: bawaan 1)
 //     --tunggu 1500                         milidetik sebelum memotret
 //
-// Font antarmuka situs (HarmonyOS Sans, ADR-056) dibaca dari apps/web/src/fonts/harmonyos-sans dan hanya disuntikkan
-// ke browser pemotret (data URL), tanpa internet. Berkas font tidak disalin ke aset: figur di situs memakai font sistem.
+// Font antarmuka situs (Google Sans, OFL, ADR-080) dibaca dari font/GoogleSans-latin.woff2 (subset Latin resmi Google
+// Fonts, variabel 400–700, lisensi di font/OFL.txt) dan hanya disuntikkan ke browser pemotret (data URL), tanpa
+// internet. Berkas font tidak disalin ke aset: figur di situs memakai font sistem.
 // Mencetak galat skrip, berkas yang gagal dimuat, figur kosong, dan "NaN" di SVG; keluar dengan kode 2 bila ada.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -56,17 +57,8 @@ if (/<script\s+src=["'][^"']*iso\.js["']/.test(readFileSync(page, "utf8"))) {
   page = join(tmp, basename(src));
   writeFileSync(page, bangunHtml(src));
 }
-const fontDir = join(root, "apps/web/src/fonts/harmonyos-sans");
-const fontFace = [
-  ["Regular", 400],
-  ["Medium", 500],
-  ["Bold", 700],
-]
-  .map(([nama, berat]) => {
-    const data = readFileSync(join(fontDir, `HarmonyOS_Sans_${nama}.ttf`)).toString("base64");
-    return `@font-face{font-family:'HarmonyOS Sans';font-weight:${berat};src:url(data:font/ttf;base64,${data}) format('truetype')}`;
-  })
-  .join("");
+const fontFile = join(root, ".claude/skills/aset/font/GoogleSans-latin.woff2");
+const fontFace = `@font-face{font-family:'Google Sans';font-weight:400 700;src:url(data:font/woff2;base64,${readFileSync(fontFile).toString("base64")}) format('woff2')}`;
 
 const require = createRequire(join(root, "apps/web/package.json"));
 const { chromium } = require("@playwright/test");

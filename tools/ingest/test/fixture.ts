@@ -167,6 +167,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
   const config: WorkConfig = {
     shamelaBook: BOOK_ID,
     patch: "patches/uji.yaml",
+    subheadings: "patches/uji-subjudul.json",
     ids: "ids/uji.json",
     reportPrefix: "reports/uji",
     corpusVersion: "uji-v1",

@@ -9,7 +9,9 @@ import { join, resolve } from "node:path";
 import {
   LATIN_SEARCH_SCHEMA_VERSION,
   QURAN_SCHEMA_VERSION,
+  REVIEW_SCHEMA_VERSION,
   SEARCH_SCHEMA_VERSION,
+  TITLE_SCHEMA_VERSION,
 } from "@surau/db";
 import { buildFtsMatch, latinMatchExpression, planLatinQuery } from "@surau/text";
 
@@ -155,7 +157,12 @@ export const COUNTED = [
   "passage_ayah_ref",
   // Terjemahan/ringkasan AI (S13): tabel ada sejak skema 1, kosong di korpus sebelum ihya-v4.
   "translation",
+  // Asal tinjauan manusia terjemahan (X08 tahap 2): tabel baru ada sejak skema 8.
+  "translation_review",
   "summary",
+  // Judul daftar isi Indonesia (X04 bagian B): tabel baru ada sejak skema 7.
+  "toc_title_translation",
+  "subheading_translation",
   "term_stat",
   "passage_fts",
   // Indeks Indonesia (S14): tabel virtual baru ada sejak skema 6.
@@ -166,6 +173,11 @@ export const COUNTED = [
 /** Tabel yang baru ada (atau baru diisi) sejak skema korpus 4 (S11): tidak dihitung di korpus lama. */
 const SEARCH_TABLES: ReadonlySet<string> = new Set(["term_stat", "passage_fts"]);
 const LATIN_TABLES: ReadonlySet<string> = new Set(["translation_fts", "summary_fts"]);
+const TITLE_TABLES: ReadonlySet<string> = new Set([
+  "toc_title_translation",
+  "subheading_translation",
+]);
+const REVIEW_TABLES: ReadonlySet<string> = new Set(["translation_review"]);
 const QURAN_TABLES: ReadonlySet<string> = new Set([
   "quran_source",
   "quran_surah",
@@ -194,6 +206,15 @@ GROUP BY p.kind ORDER BY p.kind`;
 const SMOKE_SEARCH = `SELECT count(*) AS n FROM passage_fts WHERE passage_fts MATCH ${sqlLiteral(
   buildFtsMatch("الصبر") ?? "",
 )}`;
+
+// Tinjauan manusia (X08, skema 8): status tinjauan di `translation` ada bila dan hanya bila baris
+// `translation_review`-nya ada (sama dengan invarian ingest).
+const SMOKE_REVIEW = `SELECT
+  (SELECT count(*) FROM translation WHERE review_status IN ('reviewed', 'ustadz_verified')) AS reviewed,
+  (SELECT count(*) FROM translation_review r JOIN translation t
+     ON t.passage_id = r.passage_id AND t.lang = r.lang
+     AND t.review_status IN ('reviewed', 'ustadz_verified')) AS matched,
+  (SELECT count(*) FROM translation_review) AS provenance`;
 
 // Indeks Indonesia (S14): kueri "sabar" (rencana @surau/text yang sama dengan searchText) harus
 // mengenai terjemahan dan ringkasan.
@@ -240,11 +261,17 @@ export function smoke(
   const quran = Number(meta.schema_version ?? 0) >= QURAN_SCHEMA_VERSION;
   // Indeks Indonesia (S14) sejak skema 6.
   const latin = Number(meta.schema_version ?? 0) >= LATIN_SEARCH_SCHEMA_VERSION;
+  // Judul daftar isi Indonesia (X04 bagian B) sejak skema 7.
+  const titles = Number(meta.schema_version ?? 0) >= TITLE_SCHEMA_VERSION;
+  // Asal tinjauan manusia terjemahan (X08 tahap 2) sejak skema 8.
+  const reviewed = Number(meta.schema_version ?? 0) >= REVIEW_SCHEMA_VERSION;
   const tables = COUNTED.filter(
     (t) =>
       (search || !SEARCH_TABLES.has(t)) &&
       (quran || !QURAN_TABLES.has(t)) &&
-      (latin || !LATIN_TABLES.has(t)),
+      (latin || !LATIN_TABLES.has(t)) &&
+      (titles || !TITLE_TABLES.has(t)) &&
+      (reviewed || !REVIEW_TABLES.has(t)),
   );
   const row = query(target, smokeCounts(tables))[0] ?? {};
   const counts = Object.fromEntries(
@@ -280,6 +307,25 @@ export function smoke(
     if (tr === 0 || (counts.summary > 0 && sm === 0)) {
       problems.push('indeks translation_fts/summary_fts tidak mengenai "sabar"');
     }
+  }
+  if (!titles) {
+    limitations.push(
+      `skema korpus ${meta.schema_version ?? "?"} belum punya judul daftar isi Indonesia (X04)`,
+    );
+  }
+  if (!reviewed) {
+    limitations.push(
+      `skema korpus ${meta.schema_version ?? "?"} belum punya tinjauan manusia terjemahan (X08)`,
+    );
+  } else {
+    const r = query(target, SMOKE_REVIEW)[0] ?? {};
+    const [n, matched, provenance] = [r.reviewed, r.matched, r.provenance].map((v) =>
+      Number(v ?? 0),
+    );
+    if (n !== matched || matched !== provenance)
+      problems.push(
+        `tinjauan manusia tidak konsisten: ${n} terjemahan berstatus tinjauan, ${provenance} asal tinjauan (${matched} cocok)`,
+      );
   }
   if (expect !== undefined) {
     for (const t of COUNTED) {

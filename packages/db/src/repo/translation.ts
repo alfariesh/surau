@@ -4,8 +4,24 @@ import { D1_MAX_PARAMS, chunk, placeholders } from "../d1.ts";
 import type { D1Db } from "../d1.ts";
 import { z } from "zod";
 
-import { summaryRow, translationRow } from "../schema/corpus.ts";
-import type { TranslationRow } from "../schema/corpus.ts";
+import { passageIdRange, tocNodeIdRange } from "../ids.ts";
+import {
+  TITLE_SCHEMA_VERSION,
+  subheadingTranslationRow,
+  summaryRow,
+  tocTitleTranslationRow,
+  translationReviewRow,
+  translationReviewerRow,
+  translationRow,
+} from "../schema/corpus.ts";
+import type {
+  SubheadingTranslationRow,
+  TocTitleTranslationRow,
+  TranslationReviewRow,
+  TranslationReviewerRow,
+  TranslationRow,
+} from "../schema/corpus.ts";
+import { getCorpusMeta } from "./corpus.ts";
 import { allRows } from "./rows.ts";
 
 const SUMMARY_COLS =
@@ -59,4 +75,126 @@ export function getSummariesStartingOn(
       .bind(pageId, lang),
     sectionSummaryRow,
   );
+}
+
+const TITLE_COLS = "lang, text, model, prompt_version, created_at, review_status";
+
+export interface TitleTranslations {
+  toc: TocTitleTranslationRow[];
+  sub: SubheadingTranslationRow[];
+}
+
+/**
+ * Judul daftar isi Indonesia satu edisi (X04 bagian B): judul node + subjudul kurasi, urut ID, dalam
+ * satu batch (filter rentang ID edisi). `null` bila korpus belum punya tabelnya (skema < 7): kueri
+ * gagal "no such table", lalu skema dicek dengan satu kueri `meta` (pola `loadAyahRefs`). Galat lain
+ * diteruskan.
+ */
+export async function listTitleTranslations(
+  db: D1Db,
+  editionId: number,
+  lang: string,
+): Promise<TitleTranslations | null> {
+  const node = tocNodeIdRange(editionId);
+  const passage = passageIdRange(editionId);
+  try {
+    const [toc, sub] = await db.batch([
+      db
+        .prepare(
+          `SELECT toc_node_id, ${TITLE_COLS} FROM toc_title_translation
+           WHERE lang = ?1 AND toc_node_id BETWEEN ?2 AND ?3 ORDER BY toc_node_id`,
+        )
+        .bind(lang, node.min, node.max),
+      db
+        .prepare(
+          `SELECT passage_id, ${TITLE_COLS}, source_sha256 FROM subheading_translation
+           WHERE lang = ?1 AND passage_id BETWEEN ?2 AND ?3 ORDER BY passage_id`,
+        )
+        .bind(lang, passage.min, passage.max),
+    ]);
+    return {
+      toc: (toc?.results ?? []).map((r) => tocTitleTranslationRow.parse(r)),
+      sub: (sub?.results ?? []).map((r) => subheadingTranslationRow.parse(r)),
+    };
+  } catch (error) {
+    const meta = await getCorpusMeta(db).catch(() => null);
+    if (meta !== null && meta.schema_version < TITLE_SCHEMA_VERSION) return null;
+    throw error;
+  }
+}
+
+const translatedRow = z.strictObject({
+  id: z.number().int().positive(),
+  kind: z.enum(["body", "foot"]),
+});
+export type TranslatedPassage = z.infer<typeof translatedRow>;
+
+/**
+ * ID + jenis semua paragraf satu edisi yang punya terjemahan (bukan `rejected`), dalam urutan baca
+ * (juz, halaman cetak, jenis, urutan; bukan menurut ID, yang bisa bertambah lewat patch). Antrean
+ * koreksi terjemahan (X08); ±16 ribu baris Ihya, dihitung sekali per isolate.
+ */
+export function listTranslatedPassages(
+  db: D1Db,
+  editionId: number,
+  lang: string,
+): Promise<TranslatedPassage[]> {
+  const range = passageIdRange(editionId);
+  return allRows(
+    db
+      .prepare(
+        `SELECT t.passage_id AS id, p.kind FROM translation t
+         JOIN passage p ON p.id = t.passage_id JOIN page pg ON pg.id = p.page_id
+         WHERE t.lang = ?1 AND t.review_status <> 'rejected' AND t.passage_id BETWEEN ?2 AND ?3
+         ORDER BY pg.juz, pg.page_no, p.kind, p.ord, p.id`,
+      )
+      .bind(lang, range.min, range.max),
+    translatedRow,
+  );
+}
+
+const REVIEWER_COLS =
+  "passage_id, lang, revision_id, revised, reviewed_at, reviewer_name, reviewer_short, reviewer_role, reviewer_public";
+
+/** Status yang hanya ada bila korpus memuat asal tinjauannya (skema ≥ 8, X08 tahap 2). */
+export const isHumanReviewed = (status: string): boolean =>
+  status === "reviewed" || status === "ustadz_verified";
+
+function reviewStatements(db: D1Db, cols: string, ids: readonly number[], lang: string) {
+  return chunk(ids, D1_MAX_PARAMS - 1).map((part) =>
+    db
+      .prepare(
+        `SELECT ${cols} FROM translation_review
+         WHERE lang = ? AND passage_id IN (${placeholders(part.length)}) ORDER BY passage_id`,
+      )
+      .bind(lang, ...part),
+  );
+}
+
+/**
+ * Asal tinjauan manusia terjemahan (nama terdaftar, peran, tanggal; tanpa draf AI). Dipanggil HANYA
+ * untuk paragraf yang statusnya tinjauan manusia (`isHumanReviewed`): status itu hanya ada di korpus
+ * skema ≥ 8 yang punya tabelnya, jadi korpus lama tidak pernah menjalankan kueri ini.
+ */
+export async function getTranslationReviewers(
+  db: D1Db,
+  passageIds: readonly number[],
+  lang: string,
+): Promise<TranslationReviewerRow[]> {
+  const unique = [...new Set(passageIds)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const results = await db.batch(reviewStatements(db, REVIEWER_COLS, unique, lang));
+  return results.flatMap((r) => r.results.map((row) => translationReviewerRow.parse(row)));
+}
+
+/** Seperti `getTranslationReviewers` + draf AI yang digantikan (ruang editor /tinjau saja). */
+export async function getTranslationReviewsWithDraft(
+  db: D1Db,
+  passageIds: readonly number[],
+  lang: string,
+): Promise<TranslationReviewRow[]> {
+  const unique = [...new Set(passageIds)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const results = await db.batch(reviewStatements(db, `${REVIEWER_COLS}, ai_text`, unique, lang));
+  return results.flatMap((r) => r.results.map((row) => translationReviewRow.parse(row)));
 }

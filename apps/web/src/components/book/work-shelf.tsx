@@ -1,13 +1,14 @@
 import type { BookRingItem } from "./book-ring";
 import type { WorkCoverData } from "./work-cover";
 
-import { id } from "../../i18n/id";
+import { home as homeText } from "../../i18n/id/home";
+import { reader as readerText } from "../../i18n/id/reader";
 import { CITE_AUTHOR } from "../../content/works";
 import { ArabicInline } from "../arabic";
 import { BookPattern } from "./book";
 import { BookRing } from "./book-ring";
 
-const t = id.reader;
+const t = readerText;
 
 /** Warna sampul bergiliran: zaitun, tanah liat, nila, cokelat, hijau laut (gelap, kontras teks putih). */
 const COVER_COLORS = [
@@ -52,5 +53,5 @@ export function WorkShelf({ works, label }: { works: readonly ShelfWork[]; label
       ),
     };
   });
-  return <BookRing items={items} label={label} ofLabel={id.home.shelfOf} />;
+  return <BookRing items={items} label={label} ofLabel={homeText.shelfOf} />;
 }

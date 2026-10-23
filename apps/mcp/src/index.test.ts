@@ -14,6 +14,7 @@ import {
   T_ROOT,
   seedAiText,
   seedCore,
+  seedHumanReview,
   seedSearchIndex,
 } from "../../../packages/core/test/fixture.ts";
 import { TEST_SEARCH_LIMIT, TEST_TOOL_LIMIT } from "../test/limits.ts";
@@ -169,6 +170,52 @@ describe("lisensi sumber ayat (ADR-040)", () => {
 });
 
 describe("teks Arab = substring DB (kode menyalin, model menunjuk)", () => {
+  test("read_page: tinjauan manusia aditif (review_status + human_review), tanpa hash/email; klien lama tetap jalan", async () => {
+    await seedHumanReview(db, {
+      passage_id: PASSAGES.body1,
+      revised: true,
+      text: "Kesabaran adalah cahaya [bagi] penuntut ilmu (١) dan adab (٢).",
+    });
+    try {
+      const client = await connect("legacy");
+      const out = await ok(client, "read_page", { edition_id: ED, juz: 1, page_no: 1 });
+      const json = JSON.stringify(out);
+      expect(json).not.toMatch(/author_key|reviewer_key|ai_text|[\w.-]+@[\w-]+\.[a-z]{2}/u);
+      const translation = z
+        .object({ body: z.array(z.object({ translation: z.record(z.string(), z.unknown()) })) })
+        .parse(out).body[0]?.translation;
+      expect(translation).toMatchObject({
+        label: "ai_translation",
+        review_status: "ustadz_verified",
+        human_review: {
+          revised: true,
+          reviewer_role: "ustadz",
+          reviewer_name: "Ust. Uji Lc.",
+          reviewer_short: "Ust. Uji",
+        },
+      });
+      // Klien lama yang hanya mengenal field S16 (tanpa human_review) tetap bisa membaca hasilnya.
+      const legacy = z.object({
+        body: z.array(
+          z.object({
+            text_raw: z.string(),
+            translation: z
+              .object({
+                label: z.literal("ai_translation"),
+                review_status: z.string(),
+                text: z.string(),
+              })
+              .nullable(),
+          }),
+        ),
+      });
+      expect(legacy.safeParse(out).success).toBe(true);
+      await client.close();
+    } finally {
+      await seedAiText(db);
+    }
+  });
+
   test("read_page, read_section, get_hadith_takhrij: text_raw persis dari DB", async () => {
     const client = await connect("modern");
     for (const [name, args] of [

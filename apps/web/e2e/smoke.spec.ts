@@ -94,7 +94,7 @@ test("menu samping: Kitab, Cari, dan Tentang bisa dibuka, fitur yang belum ada b
   };
 
   let menu = await openMenu();
-  await expect(menu.getByRole("row", { name: /Tanya \(segera\)/ })).toHaveAttribute(
+  await expect(menu.getByRole("row", { name: /Maknaz \(segera\)/ })).toHaveAttribute(
     "aria-disabled",
     "true",
   );
