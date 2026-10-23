@@ -2,11 +2,7 @@
 // klien hanya membawa string yang dipakainya.
 
 export const home = {
-  heading: "Telusuri kitab klasik dari sumbernya",
-  // Tanpa Maknaz (sebelum `/rilis 4`), pembuka tidak menjanjikan "tanyakan sesuatu".
-  lead: "Cari atau tanyakan. Setiap hasil menunjuk halaman kitab dan teks Arabnya.",
-  leadSearchOnly:
-    "Cari kata Indonesia atau Arab. Setiap hasil menunjuk halaman kitab dan teks Arabnya.",
+  heading: "Apa yang ingin Anda kaji?",
   shelfLabel:
     "Rak kitab Surau: seret, gulir, atau pakai panah untuk memutar; pilih buku terdepan untuk membukanya",
   shelfOf: "dari",

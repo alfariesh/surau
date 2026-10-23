@@ -11,7 +11,7 @@ import { WorkShelf } from "../../components/book/work-shelf";
 import { id } from "../../i18n/id";
 import { PAGE_FRAME } from "../../lib/layout";
 import { getEnv, readerEnabled } from "../../lib/cloudflare";
-import { PageLead, PageTitle } from "../../components/page-title";
+import { PageTitle } from "../../components/page-title";
 
 export const metadata: Metadata = {
   title: { absolute: id.meta.title },
@@ -71,14 +71,9 @@ export default async function HomePage() {
           // Ruang atas panggung rak (kemiringan kamera) dipotong supaya kotak cari naik ke layar pertama.
           <WorkShelf className="-mt-6 -mb-4 w-full sm:-mt-14" label={t.shelfLabel} works={shelf} />
         ) : null}
-        <div className="flex flex-col items-center gap-3">
-          <PageTitle className="text-center text-balance" compactTitle={false} id="judul-beranda">
-            {t.heading}
-          </PageTitle>
-          <PageLead className="max-w-xl text-center text-balance">
-            {ask ? t.lead : t.leadSearchOnly}
-          </PageLead>
-        </div>
+        <PageTitle className="text-center text-balance" compactTitle={false} id="judul-beranda">
+          {t.heading}
+        </PageTitle>
         <HomeSearch ask={ask} works={works} />
         <ContinueReading className="w-full text-start" />
       </section>
