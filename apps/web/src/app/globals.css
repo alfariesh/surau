@@ -486,49 +486,51 @@ h2.reader-heading-minor {
 }
 
 /*
- * Judul ringkas di navbar (pembaca): judul halaman navbar dan judul ringkas bertumpuk di satu sel
- * grid lalu bertukar dengan geser + pudar. Judul besar halaman ikut mengecil dan memudar saat
- * tergulir keluar (animasi berbasis gulir; browser tanpa dukungan cukup menggulirnya biasa).
+ * Judul ringkas di navbar: judul menu navbar dan judul ringkas (judul halaman, atau progres di
+ * pembaca) bertumpuk di satu sel grid lalu bertukar dengan geser + pudar. Judul besar halaman ikut
+ * mengecil dan memudar saat tergulir keluar (animasi berbasis gulir; browser tanpa dukungan cukup
+ * menggulirnya biasa).
  */
 .navbar-title-stack > * {
   grid-area: 1 / 1;
 }
 
 .navbar-page-title,
-.reader-compact {
+.navbar-compact {
   transition:
     opacity 220ms ease,
     transform 220ms ease;
 }
 
-.reader-compact[data-visible="false"] {
+.navbar-compact[data-visible="false"] {
   opacity: 0;
   transform: translateY(0.5rem);
   pointer-events: none;
 }
 
-/* visibility menyusul setelah pudar: judul "Kitab" keluar dari pohon aksesibilitas saat tertutup. */
+/* visibility menyusul setelah pudar: judul menu keluar dari pohon aksesibilitas saat tertutup. */
 .navbar-page-title {
   transition-property: opacity, transform, visibility;
 }
 
-.navbar-title-stack:has(.reader-compact[data-visible="true"]) .navbar-page-title {
+.navbar-title-stack:has(.navbar-compact[data-visible="true"]) .navbar-page-title {
   opacity: 0;
   transform: translateY(-0.5rem);
   visibility: hidden;
 }
 
 @supports (animation-timeline: view()) {
-  [data-reader-title] {
+  [data-reader-title],
+  [data-page-title] {
     transform-origin: left center;
-    animation: reader-title-shrink linear both;
+    animation: page-title-shrink linear both;
     /* Inset atas 4rem = tinggi navbar: animasi terjadi saat judul masuk ke balik navbar. */
     animation-timeline: view(block 4rem 0rem);
     animation-range: exit-crossing 0% exit-crossing 100%;
   }
 }
 
-@keyframes reader-title-shrink {
+@keyframes page-title-shrink {
   to {
     opacity: 0;
     transform: scale(0.8) translateY(0.5rem);
@@ -537,11 +539,12 @@ h2.reader-heading-minor {
 
 @media (prefers-reduced-motion: reduce) {
   .navbar-page-title,
-  .reader-compact {
+  .navbar-compact {
     transition: none;
   }
 
-  [data-reader-title] {
+  [data-reader-title],
+  [data-page-title] {
     animation: none;
   }
 }

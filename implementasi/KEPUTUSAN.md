@@ -2125,3 +2125,36 @@ JS halaman baca 455 → 405 KB br (lokal), HTML 54 → 26 KB br. Bundle Worker 2
 - Di antara teks dua halaman kini ada kaki halaman; selama garis baca (30% tinggi layar) berada di kaki itu, halaman terbaca tetap halaman sebelumnya (kakinya memang milik halaman itu).
 
 **Tinjau ulang bila:** pembaca meminta penyorotan subjudul menurut posisi gulir, ringkasan AI mendapat tinjauan manusia, atau statistik browser menunjukkan pengguna tanpa anchor positioning cukup banyak.
+
+## ADR-084 · Navbar ringkas: judul halaman masuk ke navbar saat digulir (semua halaman), ikon Cari + menu ⋮ (tema Terang/Gelap/Sistem + aksi halaman) — diterima · 2026-10-22
+
+**Konteks:** permintaan pemilik: perilaku kepala ringkas pembaca (judul "Kitab" bergeser keluar saat judul besar tergulir) dipakai di semua halaman, dan dua tombol kanan navbar (Cari ⌘K berteks + tombol tema) dirapikan. Pemilik memilih: ikon Cari tetap terlihat, tema masuk menu ⋮ dengan opsi Sistem, Tampilan pembaca ikut masuk menu ⋮, dan halaman kitab tidak berganti ke "Daftar isi" saat menggulir ke daftar isi.
+
+**Keputusan:**
+1. **Judul ringkas umum lewat `PageTitle`.** h1 diberi `data-page-title` dan `CompactTitle` (klien) mem-portal judul ke slot navbar yang sama dengan pembaca (`NavbarSlot`). Bawaan: isi judul bila teks biasa; `compactTitle={false}` mematikan (beranda: kalimat sambutan); tidak tampil bila sama dengan label menu (`/kitab`). Halaman kitab memakai `title_id` saja (judul Arab wajib lewat `ArabicInline`, jadi tanpa judul Indonesia tidak ada judul ringkas). Pengamat bersama `useUnderNavbar(selector)` (IntersectionObserver, inset 4rem) dipakai juga oleh pembaca; kelas CSS `.reader-compact` → `.navbar-compact`, animasi mengecil berlaku juga untuk `[data-page-title]`.
+2. **Menu ⋮ (`HeaderMenu`, Popover).** Segment HeroUI Pro Terang/Gelap/Sistem atas `theme` next-themes (bukan `resolvedTheme`, supaya "Sistem" bisa dipilih); kertas sepia (panel Tampilan pembaca) tidak punya pilihan di sini, jadi tidak ada yang tersorot. Halaman menambah aksi lewat `useHeaderMenuAction` (konteks, didaftarkan selama komponen terpasang); pembaca mendaftarkan "Tampilan", yang membuka Sheet `ReaderStyle` terkendali (`isOpen`/`onOpenChange`, tanpa tombol sendiri). Ikon Tampilan di kepala ringkas pembaca dihapus; tombol Tampilan di toolbar halaman tetap. `ThemeSwitch` dihapus.
+3. **Cari jadi ikon saja** dengan `aria-label` "Cari", `aria-keyshortcuts`, dan tooltip berisi pintasan ⌘K/Ctrl K.
+4. **Tanpa garis bawah navbar saat digulir.** Sempat dibuat (0,5px `var(--border)`), lalu dihapus atas permintaan pemilik: navbar tetap menyatu dengan latar.
+
+**Tidak dipilih:**
+- Cari di dalam menu ⋮: Cari jauh lebih sering dipakai daripada ganti tema; dua ketukan dan kurang terlihat.
+- Navbar berganti ke "Daftar isi" saat menggulir ke daftar isi kitab: nama kitab hilang dari konteks dan satu guliran mengganti judul tiga kali; judul "Daftar isi" sudah terlihat di halaman.
+
+**Verifikasi:** `pnpm check` lolos; `pnpm test` lolos (808 + 387). Browser lokal (fixture buatan `packages/db/test/fixture.ts` di D1 lokal, korpus asli tidak ada di mesin ini), ponsel 375 px dan desktop: `/kitab/ihya` "Kitab" → "Ihya' 'Ulum ad-Din", `/tentang` "Tentang" → "Tentang Surau", ⋮ membuka segment dan ganti tema tersimpan, di pembaca ⋮ → Tampilan membuka panel "Tampilan baca", posisi gulir tidak berubah saat menu dibuka. e2e Playwright belum dijalankan (butuh korpus lokal).
+
+**Tinjau ulang bila:** halaman baru butuh aksi lain di menu ⋮, atau pembaca ingin sepia dipilih dari navbar.
+
+## ADR-085 · Mockup buku tunggal seperti hardcover: papan sampul di sisi halaman, sampul menjorok, bayangan lantai, pratinjau `/dev/buku` — diterima · 2026-10-22
+
+**Konteks:** permintaan pemilik: saat sampul kitab di-hover, sisi kiri (tebal halaman, kitab Arab) tampak abu-abu di ujung belakang; ujung itu harus berwarna sampul dan kertas tetap putih. Lanjutannya pemilik memilih tiga tambahan: papan sampul di kedua sisi + sampul menjorok, bayangan lantai, dan halaman pratinjau.
+
+**Keputusan:**
+1. **Hanya buku tunggal bersampul warna** (`.book:not(.book-ring .book) .book__rotate[data-color]`): rak `BookRing` (carousel beranda) punya sisi kertas, cahaya, dan bayangannya sendiri, jadi tidak diubah.
+2. **Sisi halaman = papan belakang + kertas + papan depan.** Sisi halaman setinggi buku; pita warna sampul 16% (papan belakang, lebih tebal karena sampul depan sudah terlihat) dan 7% (papan depan) dengan garis gelap 1% sebagai batas; blok kertas putih di antaranya lebih pendek dari sampul sebesar `--book-square` (1,8% lebar buku) di atas dan bawah. Papan belakang di 0% sisi halaman untuk rtl dan 100% untuk ltr (rotateY sisi halaman berlawanan). Garis tekstur kertas dibuat halus (0,97/0,92) supaya kertas terbaca putih.
+3. **Sampul belakang** ikut warna sampul (sebelumnya `var(--default)` untuk varian stripe); abu-abu hanya untuk buku tanpa warna.
+4. **Bayangan lantai** (`.book::after`, elips buram di bawah buku): saat hover/fokus bergeser ke arah putaran, melebar, dan memudar; mati gerak bila "kurangi gerakan".
+5. **Pratinjau `/dev/buku`** (404 di produksi, noindex): semua variasi dalam pose terkunci lewat atribut pembungkus `data-book-lifted` (pose hover) dan `data-book-turn` + `--book-turn` (sudut bebas), judul Arab dari DB lokal. Warna sampul rak dipindah ke `cover-colors.ts` supaya dipakai rak dan pratinjau.
+
+**Verifikasi:** `pnpm check` lolos; tes web 45 berkas lolos. Browser lokal (fixture buatan): `/kitab/ihya` hover sungguhan (pita hijau + kertas putih), `/dev/buku` (diam, hover, sisi 65°, belakang 180°, 5 warna, rtl/ltr, 4 ukuran, tanpa warna), rak beranda tidak berubah (sisi kertas lama, tanpa bayangan tambahan).
+
+**Tinjau ulang bila:** rak `BookRing` ingin memakai papan sampul yang sama, atau ada tes screenshot pose terkunci (ide lanjutan).

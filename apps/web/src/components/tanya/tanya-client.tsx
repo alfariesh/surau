@@ -324,7 +324,7 @@ export function TanyaClient() {
                   <span style={{ viewTransitionName: ORB_TRANSITION }}>
                     <TanyaOrb stage="rest" size={64} />
                   </span>
-                  <PageTitle>{t.heading}</PageTitle>
+                  <PageTitle compactTitle={false}>{t.heading}</PageTitle>
                   <PageLead className="max-w-xl text-center">{t.lead}</PageLead>
                 </header>
                 {/* Contoh pertanyaan: hanya mengisi komposer, tidak langsung mengirim (kuota). */}

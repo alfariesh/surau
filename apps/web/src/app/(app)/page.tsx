@@ -58,7 +58,7 @@ export default async function HomePage() {
       {/* Hero: teks di kiri, rak kitab putar di kanan (ponsel: rak di bawah teks). */}
       <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
         <section aria-labelledby="judul-beranda" className="flex flex-col items-start gap-5">
-          <PageTitle className="text-balance" id="judul-beranda">
+          <PageTitle className="text-balance" compactTitle={false} id="judul-beranda">
             {t.heading}
           </PageTitle>
           <PageLead>{t.lead}</PageLead>

@@ -222,7 +222,8 @@ a:focus-visible .book .book__rotate,
   font-size: 10.5cqw;
 }
 
-.book__rotate[data-variant="stripe"] .book__back {
+/* Sampul belakang ikut warna sampul depan; abu-abu netral hanya bila buku tanpa warna. */
+.book__rotate[data-variant="stripe"]:not([data-color]) .book__back {
   background-color: var(--default);
 }
 
@@ -341,6 +342,122 @@ a:focus-visible .book .book__rotate,
     var(--book-pages-light) 3px,
     oklch(0.68 0.01 90) 1px
   );
+}
+
+/*
+ * Buku tunggal bersampul warna (bukan rak BookRing): sisi tebal halaman yang terlihat saat hover
+ * meniru hardcover. Kedua papan sampul tampak sebagai pita warna setinggi buku (belakang lebih
+ * tebal dari depan, karena sampul depan sudah terlihat), dan blok kertas putih di antaranya lebih
+ * pendek dari sampul (`--book-square`: sampul menjorok di atas dan bawah kertas).
+ * Arah: papan belakang ada di 0% sisi halaman untuk kitab Arab (rtl) dan di 100% untuk ltr, karena
+ * rotateY sisi halaman berlawanan arah.
+ */
+.book:not(.book-ring .book) .book__rotate[data-color] {
+  --book-square: calc(var(--book-width) * 0.018px);
+  --book-board-back: 16%;
+  --book-board-front: 7%;
+  --book-board-dir: 90deg;
+  --book-board-edge: color-mix(in oklab, var(--book-color) 75%, black);
+}
+
+.book[data-dir="ltr"]:not(.book-ring .book) .book__rotate[data-color] {
+  --book-board-dir: 270deg;
+}
+
+.book:not(.book-ring .book) .book__rotate[data-color] .book__pages {
+  top: 0;
+  height: 100%;
+  background:
+    linear-gradient(
+      var(--book-board-dir),
+      var(--book-color) 0 calc(var(--book-board-back) - 1%),
+      var(--book-board-edge) calc(var(--book-board-back) - 1%) var(--book-board-back),
+      #0000 var(--book-board-back) calc(100% - var(--book-board-front) - 1%),
+      var(--book-board-edge) calc(100% - var(--book-board-front) - 1%)
+        calc(100% - var(--book-board-front)),
+      var(--book-color) calc(100% - var(--book-board-front))
+    ),
+    linear-gradient(var(--book-pages-light), var(--book-pages-light)) center / 100%
+      calc(100% - 2 * var(--book-square)) no-repeat;
+}
+
+.book:not(.book-ring .book):has(.book__texture) .book__rotate[data-color] .book__pages {
+  background:
+    linear-gradient(
+      var(--book-board-dir),
+      var(--book-color) 0 calc(var(--book-board-back) - 1%),
+      var(--book-board-edge) calc(var(--book-board-back) - 1%) var(--book-board-back),
+      #0000 var(--book-board-back) calc(100% - var(--book-board-front) - 1%),
+      var(--book-board-edge) calc(100% - var(--book-board-front) - 1%)
+        calc(100% - var(--book-board-front)),
+      var(--book-color) calc(100% - var(--book-board-front))
+    ),
+    repeating-linear-gradient(
+        90deg,
+        var(--book-pages-light),
+        oklch(0.97 0.004 90) 1px,
+        var(--book-pages-light) 3px,
+        oklch(0.92 0.006 90) 1px
+      )
+      center / 100% calc(100% - 2 * var(--book-square)) no-repeat;
+}
+
+/*
+ * Bayangan lantai buku tunggal (rak BookRing punya bayangannya sendiri): elips buram di bawah buku.
+ * Saat buku miring (hover/fokus) bayangan bergeser ke arah putaran, melebar, dan memudar, seperti
+ * buku yang terangkat dari meja.
+ */
+.book:not(.book-ring .book) {
+  position: relative;
+}
+
+.book:not(.book-ring .book)::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 8%;
+  right: 8%;
+  bottom: calc(var(--book-width) * -0.05px);
+  height: calc(var(--book-width) * 0.1px);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #00000040, #00000012 65%, #0000);
+  filter: blur(2px);
+  pointer-events: none;
+  transition:
+    transform 0.25s ease-out,
+    opacity 0.25s ease-out;
+}
+
+.dark .book:not(.book-ring .book)::after {
+  background: radial-gradient(closest-side, #00000099, #0000);
+}
+
+.book:not(.book-ring .book):hover::after,
+a:hover .book:not(.book-ring .book)::after,
+a:focus-visible .book:not(.book-ring .book)::after,
+.book-trigger:hover .book:not(.book-ring .book)::after,
+.book-trigger:has(:focus-visible) .book:not(.book-ring .book)::after,
+[data-book-lifted] .book::after {
+  opacity: 0.7;
+  transform: translateX(calc(var(--book-hover-x) * -1.5)) scaleX(1.12);
+}
+
+/* Pratinjau (`/dev/buku`): posisi hover dikunci lewat atribut di pembungkus, tanpa kursor. */
+[data-book-lifted] .book__rotate {
+  transform: rotateY(var(--book-hover-rotate)) scale(var(--book-hover-scale))
+    translateX(var(--book-hover-x));
+}
+
+/* Pratinjau: buku diputar ke sudut tertentu (`--book-turn` di pembungkus), mis. untuk melihat
+ * sampul belakang atau sisi halaman tegak lurus. */
+[data-book-turn] .book__rotate {
+  transform: rotateY(var(--book-turn));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book::after {
+    transition: none;
+  }
 }
 
 .book__back {
