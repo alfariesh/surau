@@ -44,9 +44,9 @@ export function SourcePicker({
       value={value}
       onChange={(keys) => onChange(Array.isArray(keys) ? keys : keys === null ? [] : [keys])}
     >
-      {/* Pemicu disamakan dengan wadah Segment di kanan (bukan itemnya): latar --default, tinggi 32px,
+      {/* Pemicu sejajar dengan Segment di kanan: tanpa latar (latar --default saat hover), tinggi 32px,
           bulat penuh, tanpa bayangan, teks 12px/500. */}
-      <Autocomplete.Trigger className="bg-default hover:bg-default-hover h-8 min-h-8 min-w-0 items-center gap-1.5 rounded-full py-0 ps-2.5 pe-7 shadow-none">
+      <Autocomplete.Trigger className="hover:bg-default h-8 bg-transparent min-h-8 min-w-0 items-center gap-1.5 rounded-full py-0 ps-2.5 pe-7 shadow-none">
         <Book02 aria-hidden="true" className="text-muted size-4 shrink-0" />
         <Autocomplete.Value className="truncate text-xs leading-4 font-medium">
           {summary}

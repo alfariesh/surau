@@ -122,6 +122,8 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
             {ask ? (
               <Segment
                 aria-label={t.modeLabel}
+                // Wadah tanpa latar; item terpilih memakai latar wadah lama (--default), tanpa bayangan.
+                className="bg-transparent [--segment:var(--default)] [&_.segment\_\_indicator]:shadow-none"
                 selectedKey={mode}
                 size="sm"
                 onSelectionChange={choose}
