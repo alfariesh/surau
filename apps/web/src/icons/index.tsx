@@ -410,6 +410,41 @@ export function Search01(props: IconProps) {
   );
 }
 
+export function SearchList02(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M2.5 9.5H6.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M2.5 14.5H6.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M2.5 19.5H18.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M18.5355 13.0355L21.5 16M20 9.5C20 6.73858 17.7614 4.5 15 4.5C12.2386 4.5 10 6.73858 10 9.5C10 12.2614 12.2386 14.5 15 14.5C17.7614 14.5 20 12.2614 20 9.5Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function Sun01(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -660,6 +695,46 @@ export function Search01Duotone(props: IconProps) {
       />{" "}
       <path
         d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function SearchList02Duotone(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        opacity="0.4"
+        d="M20 9.5C20 6.73858 17.7614 4.5 15 4.5C12.2386 4.5 10 6.73858 10 9.5C10 12.2614 12.2386 14.5 15 14.5C17.7614 14.5 20 12.2614 20 9.5Z"
+        fill="currentColor"
+      />{" "}
+      <path
+        d="M2.5 9.5H6.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M2.5 14.5H6.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M2.5 19.5H18.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M18.5355 13.0355L21.5 16M20 9.5C20 6.73858 17.7614 4.5 15 4.5C12.2386 4.5 10 6.73858 10 9.5C10 12.2614 12.2386 14.5 15 14.5C17.7614 14.5 20 12.2614 20 9.5Z"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"

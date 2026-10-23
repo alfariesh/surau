@@ -17,7 +17,13 @@ import type { JawabStatus } from "../../lib/tanya/model";
 import { home as homeText } from "../../i18n/id/home";
 import { search as searchText } from "../../i18n/id/search";
 import { tanyaText } from "../../i18n/tanya";
-import { AiChat02, AiChat02Duotone, Search01, Search01Duotone } from "../../icons";
+import {
+  AiChat02,
+  AiChat02Duotone,
+  Search01,
+  SearchList02,
+  SearchList02Duotone,
+} from "../../icons";
 import { searchPageHref } from "../../lib/search/segments";
 import {
   HANDOFF_TRANSITION,
@@ -131,9 +137,9 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
                 {/* Ikon item terpilih bergaya duotone, seperti menu aktif di sidebar. */}
                 <Segment.Item id="cari">
                   {asking ? (
-                    <Search01 aria-hidden="true" className="size-4" />
+                    <SearchList02 aria-hidden="true" className="size-4" />
                   ) : (
-                    <Search01Duotone aria-hidden="true" className="size-4" />
+                    <SearchList02Duotone aria-hidden="true" className="size-4" />
                   )}
                   {t.modeSearch}
                 </Segment.Item>
