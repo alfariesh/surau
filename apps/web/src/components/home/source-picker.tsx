@@ -43,8 +43,12 @@ export function SourcePicker({
       value={value}
       onChange={(keys) => onChange(Array.isArray(keys) ? keys : keys === null ? [] : [keys])}
     >
-      <Autocomplete.Trigger className="min-w-0">
-        <Autocomplete.Value className="truncate">{summary}</Autocomplete.Value>
+      {/* Pemicu disamakan dengan wadah Segment di kanan (bukan itemnya): latar --default, tinggi 32px,
+          bulat penuh, tanpa bayangan, teks 12px/500. */}
+      <Autocomplete.Trigger className="bg-default hover:bg-default-hover h-8 min-h-8 min-w-0 items-center rounded-full py-0 ps-3 pe-7 shadow-none">
+        <Autocomplete.Value className="truncate text-xs leading-4 font-medium">
+          {summary}
+        </Autocomplete.Value>
         <Autocomplete.Indicator />
       </Autocomplete.Trigger>
       <Autocomplete.Popover className="min-w-64" placement="bottom start">
