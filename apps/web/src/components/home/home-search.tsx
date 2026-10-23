@@ -110,10 +110,10 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
 
   return (
     <search aria-label={t.searchLabel} className="flex w-full flex-col gap-3">
-      {/* Radius luar = radius kotak masukan (16px) + jarak ke tepi widget (6px, mx-1.5). */}
-      <Widget className="w-full rounded-[calc(1rem+0.375rem)] text-start">
+      {/* Radius luar = radius kotak masukan (16px) + jarak ke tepi widget (8px, px-2/mx-2). */}
+      <Widget className="w-full rounded-[calc(1rem+0.5rem)] text-start">
         {works.length > 0 || ask ? (
-          <Widget.Header className="flex-wrap gap-y-1.5 py-1.5 ps-1.5">
+          <Widget.Header className="flex-wrap gap-y-1.5 px-2 py-1.5">
             {works.length > 0 ? (
               <SourcePicker value={kitab} works={works} onChange={setKitab} />
             ) : (
@@ -138,7 +138,7 @@ export function HomeSearch({ works, ask }: { works: readonly SourceWork[]; ask: 
             ) : null}
           </Widget.Header>
         ) : null}
-        <div ref={shellRef} className="mx-1.5 mb-1.5 first:mt-1.5">
+        <div ref={shellRef} className="mx-2 mb-2 first:mt-2">
           <PromptInput
             isDisabled={unavailable !== null}
             status={sent ? "submitted" : "ready"}
