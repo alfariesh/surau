@@ -23,6 +23,8 @@ import {
   MAX_SEARCHES,
   QUESTION_WEIGHT,
   SECTION_LIMIT,
+  SEMANTIC_FOOTNOTE_LIMIT,
+  SEMANTIC_FOOTNOTE_QUERY,
   SEMANTIC_LIMIT,
   SEMANTIC_QUERY,
   SEMANTIC_WEIGHT,
@@ -30,6 +32,7 @@ import {
   questionQuery,
   routePlans,
   semanticList,
+  semanticLists,
   summaryPlans,
   withPairs,
 } from "./retrieve.ts";
@@ -407,6 +410,21 @@ describe("kandidat", () => {
     const lists = [{ query: "a", section_id: null, passage_ids: [1, 2] }];
     expect(fuse([...lists, semanticList([5, 2], 20, 1)!])).toEqual([2, 1, 5]);
     expect(fuse(lists)).toEqual([1, 2]);
+  });
+
+  test("daftar makna takhrij (ADR-094) hanya untuk soal hadits menurut routing", () => {
+    const foot = Array.from({ length: 30 }, (_, i) => 100 + i);
+    const input = { ids: [1, 2], footnotes: foot };
+    const hadith = { sections: [], queries: [], hadith: true };
+    expect(semanticLists(hadith, input).map((l) => [l.query, l.passage_ids.length])).toEqual([
+      [SEMANTIC_QUERY, 2],
+      [SEMANTIC_FOOTNOTE_QUERY, SEMANTIC_FOOTNOTE_LIMIT],
+    ]);
+    expect(semanticLists({ ...hadith, hadith: false }, input).map((l) => l.query)).toEqual([
+      SEMANTIC_QUERY,
+    ]);
+    expect(semanticLists(null, input).map((l) => l.query)).toEqual([SEMANTIC_QUERY]);
+    expect(semanticLists(hadith, { ids: [] })).toEqual([]);
   });
 
   test("pertanyaan panjang dipotong di batas kata ≤200 karakter", () => {

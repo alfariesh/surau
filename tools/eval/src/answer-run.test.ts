@@ -175,8 +175,8 @@ describe("rute tersimpan (--rute, X05)", () => {
   test("peringkat makna (X13) diteruskan per soal, menandai arsip, dan soal tanpa peringkat ditolak di awal", async () => {
     const seen: unknown[] = [];
     const semantic = new Map([
-      ["j001", [5, 6]],
-      ["j002", [7]],
+      ["j001", { passages: [5, 6], footnotes: [9] }],
+      ["j002", { passages: [7], footnotes: [] }],
     ]);
     const out = await runQuestions({} as D1Db, {} as Anthropic, [item("j001"), item("j002")], {
       budgetUsd: 3,
@@ -187,7 +187,10 @@ describe("rute tersimpan (--rute, X05)", () => {
         return result();
       },
     });
-    expect(seen).toEqual([[5, 6], [7]]);
+    expect(seen).toEqual([
+      { passages: [5, 6], footnotes: [9] },
+      { passages: [7], footnotes: [] },
+    ]);
     expect(out.outputs.every((o) => o.answer.prompt_version.endsWith(SEMANTIC_FILE_SUFFIX))).toBe(
       true,
     );

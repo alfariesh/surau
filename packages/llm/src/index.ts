@@ -161,12 +161,14 @@ export {
 export type { CitedSpan } from "./jawab/citations.ts";
 export {
   MAX_SEARCHES,
+  SEMANTIC_FOOTNOTE_LIMIT,
   SEMANTIC_LIMIT,
   SEMANTIC_WEIGHT,
   fuse,
   questionQuery,
   searchLists,
   semanticList,
+  semanticLists,
   withPairs,
 } from "./jawab/retrieve.ts";
 export type { SearchList } from "./jawab/retrieve.ts";
