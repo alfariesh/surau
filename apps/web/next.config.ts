@@ -1,3 +1,4 @@
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
@@ -59,4 +60,19 @@ export default nextConfig;
 // harus `.wrangler/state/v3`, supaya D1 yang dimuat `pnpm corpus:load:local` terlihat (S08).
 void initOpenNextCloudflareForDev({
   persist: { path: join(import.meta.dirname, "../../.wrangler/state/v3") },
+  configPath: devRemoteConfig(),
 });
+
+// `pnpm dev:remote` (ADR-089): CORPUS_DB dibaca dari D1 di Cloudflare (remote binding), binding lain
+// tetap lokal. Dev memakai `preview_database_id` = `surau-corpus-staging` (korpus Preview), bukan
+// korpus produksi. Konfigurasi turunan dibangkitkan dari wrangler.jsonc (satu sumber), di-gitignore.
+function devRemoteConfig(): string | undefined {
+  if (process.env.SURAU_DEV_REMOTE !== "1") return undefined;
+  const source = readFileSync(join(import.meta.dirname, "wrangler.jsonc"), "utf8");
+  const corpus = /("binding": "CORPUS_DB",[^}]*?"preview_database_id": "[^"]+",)/;
+  if (!corpus.test(source))
+    throw new Error("dev:remote: binding CORPUS_DB + preview_database_id tidak ditemukan");
+  const target = join(import.meta.dirname, "wrangler.dev-remote.jsonc");
+  writeFileSync(target, source.replace(corpus, '$1\n      "remote": true,'));
+  return target;
+}

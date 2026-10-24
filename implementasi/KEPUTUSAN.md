@@ -2220,3 +2220,16 @@ JS halaman baca 455 → 405 KB br (lokal), HTML 54 → 26 KB br. Bundle Worker 2
 **Verifikasi:** `pnpm check` lolos; tes unit baru `nav-items.test.ts` (tanpa menu Cari, /cari menyorot Beranda berjudul "Cari", menu lain tetap). Browser lokal: /cari menyorot Beranda, navbar "Cari". e2e lokal "menu samping" (desktop + ponsel, diulang 2×) dan "panduan MCP" lolos; `openMenu` di tes kini mengulang ketukan sampai sheet terbuka dan tidak mengetuk lagi bila sudah terbuka.
 
 **Tinjau ulang bila:** Maknaz dibuka untuk umum dan menu Maknaz terasa ganda dengan segmen di kotak Beranda.
+
+## ADR-089 · `pnpm dev:remote`: dev lokal membaca korpus staging lewat remote binding D1 — diterima · 2026-10-24
+
+**Konteks:** D1 lokal di mesin pengembangan berisi fixture buatan (korpus Ihya asli butuh drive Shamela, T-09), jadi hasil Cari, kartu hasil, dan pembaca tidak bisa dilihat dengan data asli secara lokal. `wrangler d1 export` tidak bisa mengekspor tabel virtual FTS5, jadi menyalin korpus remote ke lokal tidak praktis. Pemilik memilih opsi remote binding (chat 2026-10-24: "A").
+
+**Keputusan:**
+1. **`pnpm dev:remote`** (root dan `apps/web`, `SURAU_DEV_REMOTE=1 next dev`): `next.config.ts` membangkitkan `apps/web/wrangler.dev-remote.jsonc` dari `wrangler.jsonc` (satu sumber; hanya menambah `"remote": true` pada binding `CORPUS_DB`, gagal keras bila pola tidak ditemukan) dan memberikannya ke `initOpenNextCloudflareForDev({ configPath })`. Berkas turunan di-gitignore. `pnpm dev` tidak berubah (semua lokal).
+2. **Korpus staging, bukan produksi:** dalam dev, D1 memakai `preview_database_id` (docs Wrangler configuration, "If provided, wrangler dev uses this ID"), yaitu `surau-corpus-staging` (= korpus Preview). Remote binding GA dan aktif bawaan di Wrangler 4.151 (`getPlatformProxy` `remoteBindings` bawaan true). Hanya korpus yang remote; `APP_DB`, R2, batas laju tetap lokal, jadi dev tidak menulis apa pun ke Cloudflare. Teks kitab tidak tersalin ke disk lokal maupun git.
+3. **Syarat:** `pnpm wrangler login` (sudah di mesin ini). Kueri lebih lambat dari lokal (lewat jaringan).
+
+**Batas:** tes `packages/core/test/local/ihya.test.ts` dan `pnpm verify` lokal tetap membaca D1 lokal; untuk itu tetap perlu korpus lokal (T-09).
+
+**Verifikasi:** `pnpm dev:remote` → `/api/search?q=الصبر` = 323 paragraf di 205 halaman (korpus staging); /cari?q=sabar menampilkan kartu hasil asli (71 halaman · 114 paragraf) desktop dan ponsel tanpa galat konsol; rak Beranda berjudul Arab asli dari DB. `.claude/launch.json` mendapat konfigurasi `web-remote`.

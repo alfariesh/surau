@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @surau/web dev",
+    "dev:remote": "pnpm --filter @surau/web dev:remote",
     "check": "vp check",
     "fix": "vp check --fix",
     "test": "vp test --coverage --project node && vp test --project db --project core --project mcp --project api && node tools/ingest/scripts/smoke-text.ts",
