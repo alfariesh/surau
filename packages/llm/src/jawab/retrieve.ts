@@ -39,7 +39,7 @@ export const SUMMARY_SECTIONS = 3;
  * Daftar pencarian makna (X13, ADR-093): paragraf terdekat dengan pertanyaan menurut embedding,
  * digabung sebagai satu daftar RRF tambahan. Tidak dihitung ke `MAX_SEARCHES` (bukan kueri D1).
  * Kosong/tanpa sumber = perilaku sebelum X13 persis. k 20 bobot 2 dipilih dari uji gratis
- * `kandidat --tanpa-rute` (bobot 1 tidak menolong satu soal pun; k 30/50 sama dengan 20).
+ * `kandidat --tanpa-rute` (bobot 1: 29/34, tidak menolong soal topik tersebar; bobot 2: 30; k 30/50 sama dengan 20).
  */
 export const SEMANTIC_LIMIT = 20;
 export const SEMANTIC_WEIGHT = 2;

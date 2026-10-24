@@ -134,6 +134,7 @@ export interface JawabRefusal {
 }
 export interface JawabDiagnostics {
   route: Route | null;
+  /** Daftar yang digabung RRF: pencarian D1 ditambah daftar makna bila `semanticSearch` diisi. */
   search_lists: number;
   /** Bagian tambahan dari ringkasan AI bagian (routing kedua tanpa LLM, X03), urut pencarian. */
   summary_sections: number[];

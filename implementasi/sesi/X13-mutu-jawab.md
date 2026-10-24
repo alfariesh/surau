@@ -39,7 +39,7 @@ Soal privat (`p…`) **tidak dipakai merancang** perbaikan, tidak dibaca isinya,
 
 ### B. Berbayar (menunggu izin pemilik di chat beserta plafon)
 
-8. **Embedding produksi:** Workers AI `bge-m3` atas korpus (±3,6 juta token, ±US$0,04) + indeks Vectorize (gratis dalam kuota Workers Paid); lalu Worker mengisi `semanticSearch`.
+8. **Embedding produksi:** Workers AI `bge-m3` atas korpus (±2,2 juta token, ±US$0,03) + indeks Vectorize (gratis dalam kuota Workers Paid); lalu Worker mengisi `semanticSearch`.
 9. **Satu eval publik berbayar** dengan pencarian makna (±US$0,12) untuk mengukur lokasi sesudah perbaikan.
 10. **Satu run holdout** (18 soal privat, ±US$0,05), sesudah kode dibekukan.
 11. **Judge terkalibrasi:** hanya sesudah ±30 penilaian Anas (T-24); judge Sonnet Batches atas pasangan yang sama (±US$0,12, batas ≤ US$1).
@@ -53,9 +53,9 @@ Soal privat (`p…`) **tidak dipakai merancang** perbaikan, tidak dibaca isinya,
 - [x] Eksperimen lokal tercatat di ADR-093: 26 → **30/34** (k 20, bobot 2); j018 lengkap; j019, j021 (gold bersama j1 h55) dan j024, j026 belum
 - [x] ADR-093 ditulis (keputusan, biaya dari docs Cloudflare 2026-10-24, risiko, langkah berbayar)
 - [x] Perintah + perkiraan biaya langkah B tertulis (di bawah)
-- [ ] `pnpm verify` lolos (format, lint, typecheck, tes, build)
-- [ ] Subagen `peninjau` dijalankan dan temuannya ditutup/dicatat
-- [ ] STATUS, LOG, dan file sesi ini sudah diperbarui
+- [x] `pnpm verify` lolos (format, lint, typecheck, tes, build): 851 + 387 tes, build
+- [x] Subagen `peninjau` dijalankan: 0 blocker, 3 penting + 4 kecil ditutup; 2 saran (batas waktu `semanticSearch` di pipeline, saring ID per edisi) dicatat untuk sesi yang menyalakan Worker
+- [x] STATUS, LOG, dan file sesi ini sudah diperbarui
 - [ ] PR di-merge (squash) setelah CI hijau
 - [ ] (berbayar, sesudah izin) lokasi eval publik ≥ 90% dengan pencarian makna, kutipan valid 100%, penolakan tepat tidak turun
 - [ ] (berbayar, sesudah izin) holdout dijalankan sekali; laporan agregat

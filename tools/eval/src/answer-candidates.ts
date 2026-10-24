@@ -110,7 +110,14 @@ export function readSemantic(
     .split(/\r?\n/u)
     .filter((s) => s.trim())
     .forEach((s, i) => {
-      const parsed = semanticRow.safeParse(JSON.parse(s));
+      let row: unknown;
+      try {
+        row = JSON.parse(s);
+      } catch {
+        // Galat bawaan JSON.parse mencetak potongan baris (bisa berisi ID soal privat).
+        throw new Error(`Baris ${i + 1} bukan peringkat makna soal publik.`);
+      }
+      const parsed = semanticRow.safeParse(row);
       if (!parsed.success || (!opts.allowPrivate && parsed.data.id.startsWith("p")))
         throw new Error(`Baris ${i + 1} bukan peringkat makna soal publik.`);
       out.set(parsed.data.id, parsed.data.passage_ids);

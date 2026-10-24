@@ -352,13 +352,15 @@ async function main() {
       return n;
     };
     const limit = positive(values["makna-k"], "--makna-k");
+    if (limit !== undefined && !Number.isInteger(limit))
+      throw new Error("--makna-k harus bilangan bulat ≥ 1.");
     const weight = positive(values["makna-bobot"], "--makna-bobot");
     if (!values.semantik && (limit !== undefined || weight !== undefined))
       throw new Error("--makna-k/--makna-bobot butuh --semantik.");
     const semantic: SemanticOptions | undefined = values.semantik
       ? {
           ranks: readSemantic(resolve(values.semantik)),
-          ...(limit === undefined ? {} : { limit: Math.floor(limit) }),
+          ...(limit === undefined ? {} : { limit }),
           ...(weight === undefined ? {} : { weight }),
         }
       : undefined;

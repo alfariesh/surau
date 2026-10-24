@@ -2325,10 +2325,10 @@ Jawaban pemilik (2026-10-24, pertanyaan pilihan): (1) mode Terjemahan boleh, den
 | Makna k 10, bobot 2 atau 3 | 29 | j018, j019, j021, j024, j026 |
 | **Makna k 20 (atau 30/50), bobot 2 atau 3** | **30** | j019, j021, j024, j026 |
 
-Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama), jadi biaya jawaban tidak berubah.
+Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama): biaya input jawaban naik ±7%, tetap di bawah pagu.
 
 **Keputusan:**
-1. **Kait di pipeline (diterima, aktif di kode, mati di produksi):** `semanticList` (`retrieve.ts`) membentuk satu `SearchList` `(makna)` dari peringkat embedding, `SEMANTIC_LIMIT` 20, `SEMANTIC_WEIGHT` 2, tidak dihitung ke `MAX_SEARCHES`. `jawabCandidates(…, semantic)` menambahkannya ke RRF; `JawabDeps.semanticSearch?(question)` menyediakannya di `runJawab`, galat = tanpa daftar makna (`diagnostics.semantic.error`), jawaban tetap berjalan. Tanpa sumber makna, daftar dan kandidat identik dengan sebelumnya (tes), jadi `JAWAB_PIPELINE_VERSION` tetap 7; versi naik saat Worker mulai mengisi `semanticSearch`.
+1. **Kait di pipeline (diterima, aktif di kode, mati di produksi):** `semanticList` (`retrieve.ts`) membentuk satu `SearchList` `(makna)` dari peringkat embedding, `SEMANTIC_LIMIT` 20, `SEMANTIC_WEIGHT` 2, tidak dihitung ke `MAX_SEARCHES`. `jawabCandidates(…, semantic)` menambahkannya ke RRF; `JawabDeps.semanticSearch?(question)` menyediakannya di `runJawab`, galat = tanpa daftar makna (`diagnostics.semantic.error`), jawaban tetap berjalan. Tanpa sumber makna, daftar dan kandidat identik dengan sebelumnya (tes), jadi `JAWAB_PIPELINE_VERSION` tetap 7; versi naik saat Worker mulai mengisi `semanticSearch`. Saat itu juga: batas waktu di pipeline (bukan di pemanggil) dan ID dari indeks disaring per edisi (saran peninjau).
 2. **Alat eval gratis:** `kandidat --tanpa-rute` (tanpa arsip), `kandidat --semantik PERINGKAT [--makna-k] [--makna-bobot]` (soal publik saja), `answer --semantik PERINGKAT` untuk run berbayar (soal privat hanya bersama `--termasuk-privat`; arsip berakhiran `+makna-berkas`, laporan menyatakannya). `docCoverage` kini menuntut catatan kaki takhrij gold untuk soal status hadits (rekomendasi X05): baseline tanpa rute turun dari "lengkap halaman" ke 26 karena j026, j028, j029 hanya terwakili halamannya.
 3. **Rancangan produksi (diusulkan, menunggu izin biaya):**
    - Embedding `@cf/baai/bge-m3` (Workers AI, US$0,012 per juta token input; docs Cloudflare 2026-10-24) atas teks yang sama dengan uji lokal, sekali per versi korpus saat ingest, dari `tools/ingest` (REST Workers AI, bukan dari Worker publik). ±2,2 juta token = **±US$0,03 per bangun korpus**.
@@ -2337,7 +2337,7 @@ Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama), jadi biaya j
    - Kutipan tidak berubah: model tetap menyitasi dokumen dari D1, verifikasi teks Arab tetap ke DB (aturan teks-arab 1 dan 5).
 
 **Tidak dipilih:**
-- **Bobot 1:** tidak menolong satu soal topik tersebar pun.
+- **Bobot 1:** 29/34, tetapi tidak menolong satu soal topik tersebar pun.
 - **k 10:** j018 belum lengkap.
 - **Embedding hanya teks Arab, atau dua vektor per paragraf (Arab + terjemahan):** belum diukur (satu varian lagi = ±1 jam CPU); ditunda sampai eval berbayar menunjukkan masih kurang.
 - **Routing dua langkah dengan LLM:** tetap ditolak (ADR-067).
