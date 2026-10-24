@@ -209,6 +209,8 @@ async function main() {
       routes = savedRoutesFor(items, readSavedRoutes(resolve(values.rute)));
     }
     // X13: `--semantik <peringkat>` = daftar makna dari berkas (arsip berakhiran +makna-berkas).
+    if (values["makna-k"] || values["makna-bobot"] || values["makna-takhrij-k"])
+      throw new Error("--makna-k/--makna-bobot/--makna-takhrij-k hanya untuk kandidat (gratis).");
     const semantic = values.semantik
       ? readSemantic(resolve(values.semantik), { allowPrivate: values["termasuk-privat"] })
       : undefined;

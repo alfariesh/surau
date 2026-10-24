@@ -171,9 +171,10 @@ export async function runQuestions(
           ...(savedRoute !== undefined ? { savedRoute } : {}),
           ...(ranked !== undefined
             ? {
-                semanticSearch: async () => ({
+                // Seperti indeks produksi: catatan kaki hanya bila pipeline memintanya (soal hadits).
+                semanticSearch: async (_q: string, o: { footnotes: boolean }) => ({
                   passages: [...ranked.passages],
-                  footnotes: [...ranked.footnotes],
+                  footnotes: o.footnotes ? [...ranked.footnotes] : [],
                 }),
               }
             : {}),
