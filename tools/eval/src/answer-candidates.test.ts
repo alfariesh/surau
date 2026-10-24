@@ -5,7 +5,13 @@ import type { AnswerPassage, EvalQuestion } from "@surau/core";
 import type { AnswerDoc } from "@surau/llm";
 import { describe, expect, onTestFinished, test } from "vite-plus/test";
 
-import { docCoverage, readSavedRoutes, summarize } from "./answer-candidates.ts";
+import {
+  docCoverage,
+  emptyRoutes,
+  readSavedRoutes,
+  readSemantic,
+  summarize,
+} from "./answer-candidates.ts";
 import type { CandidateRow } from "./answer-candidates.ts";
 import { buildCorpusIndex } from "./corpus.ts";
 
@@ -30,7 +36,12 @@ const doc = (page_id: number, toc_node_id: number | null): AnswerDoc => ({
   tokens: 100,
 });
 const question = (lokasi: EvalQuestion["lokasi_benar"]): EvalQuestion =>
-  ({ id: "j001", jenis: "topik tersebar", lokasi_benar: lokasi }) as EvalQuestion;
+  ({
+    id: "j001",
+    jenis: "topik tersebar",
+    lokasi_benar: lokasi,
+    hadits: [] as EvalQuestion["hadits"],
+  }) as EvalQuestion;
 
 describe("docCoverage", () => {
   test("setiap lokasi gold dihitung sekali: halaman, atau bagian beserta turunannya", () => {
@@ -44,6 +55,45 @@ describe("docCoverage", () => {
       total: 2,
     });
     expect(docCoverage(index, q, [])).toEqual({ found: 0, total: 2 });
+  });
+});
+
+describe("docCoverage status hadits (X13)", () => {
+  test("catatan kaki takhrij gold wajib ada di dokumen, bukan cukup halamannya", () => {
+    const q = {
+      ...question([{ page_id: 100002, label: "j1 h2" }]),
+      jenis: "status hadits",
+      hadits: [
+        {
+          passage_id: 4,
+          footnote: { passage_id: 10, char_start: 0, char_end: 5 },
+          status: "Sanad lemah",
+        },
+      ],
+    } as EvalQuestion;
+    const at = (id: number): AnswerDoc => ({
+      ...doc(100002, null),
+      passage: { id, page_id: 100002, toc_node_id: null } as AnswerPassage,
+    });
+    // Halaman terwakili takhrij hadits lain (11): belum lengkap.
+    expect(docCoverage(index, q, [at(11)])).toEqual({ found: 1, total: 2 });
+    expect(docCoverage(index, q, [at(11), at(10)])).toEqual({ found: 2, total: 2 });
+  });
+});
+
+describe("emptyRoutes / readSemantic", () => {
+  test("rute kosong hanya untuk soal publik; peringkat makna soal privat ditolak", () => {
+    expect(emptyRoutes([{ id: "j001" }, { id: "p001" }] as EvalQuestion[])).toEqual([
+      { id: "j001", route: null, routeFailed: false },
+    ]);
+    const dir = mkdtempSync(join(tmpdir(), "surau-makna-"));
+    onTestFinished(() => rmSync(dir, { recursive: true, force: true }));
+    const ok = join(dir, "ok.jsonl");
+    writeFileSync(ok, JSON.stringify({ id: "j001", passage_ids: [3, 1] }) + "\n");
+    expect(readSemantic(ok)).toEqual(new Map([["j001", [3, 1]]]));
+    const privat = join(dir, "privat.jsonl");
+    writeFileSync(privat, JSON.stringify({ id: "p001", passage_ids: [3] }));
+    expect(() => readSemantic(privat)).toThrow(/bukan peringkat makna soal publik/);
   });
 });
 

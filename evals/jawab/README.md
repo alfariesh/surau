@@ -24,6 +24,19 @@ pnpm run eval:jawab score --input evals/private/jawab-runs/s18-calibration-v1.js
 pnpm run eval:jawab seed --input evals/private/jawab-runs/s18-tinjau-v1.jsonl --run contoh-seed-v1
 ```
 
+Uji kandidat gratis (tanpa LLM; X03, X13):
+
+```bash
+# Rute routing tersimpan dari arsip diagnostik (mesin yang punya evals/private/jawab-runs/):
+pnpm run eval:jawab kandidat --input evals/private/jawab-runs/x03-publik-lokasi-v1-diagnostik-publik.jsonl
+# Tanpa arsip: pertanyaan + ringkasan saja, atas korpus staging (hanya SELECT):
+pnpm run eval:jawab kandidat --tanpa-rute --remote
+# + daftar pencarian makna dari berkas peringkat {id, passage_ids} (soal publik saja):
+pnpm run eval:jawab kandidat --tanpa-rute --remote --semantik PERINGKAT.jsonl --makna-k 20 --makna-bobot 1
+```
+
+Untuk soal status hadits, "lengkap" berarti halaman gold **dan** catatan kaki takhrij gold ada di dokumen (sejak X13). Berkas peringkat makna dibuat di luar repo (ADR-093); `answer --semantik` memakainya di run berbayar dan menandai arsip `+makna-berkas`.
+
 Baseline membaca korpus lokal yang disalin ke direktori sementara; `--remote` hanya korpus staging. Set privat wajib tersedia kecuali `--publik-saja` dinyatakan. `seed` hanya menghasilkan SQL `INSERT`, tidak mengirim ke D1. Nama run baru wajib unik; keluaran tidak ditimpa. Arsip per soal/SQL/hasil judge berada di `evals/private/jawab-runs/`; laporan publik hanya agregat.
 
 ## Judge berbayar

@@ -26,7 +26,15 @@ import {
   judgePlanHash,
   judgeRequest,
 } from "./answer-judge.ts";
-import { isComplete, readSavedRoutes, replayCandidates, summarize } from "./answer-candidates.ts";
+import {
+  emptyRoutes,
+  isComplete,
+  readSavedRoutes,
+  readSemantic,
+  replayCandidates,
+  summarize,
+} from "./answer-candidates.ts";
+import type { SemanticOptions } from "./answer-candidates.ts";
 import { replayHadith } from "./answer-hadith.ts";
 import { answerReport } from "./answer-report.ts";
 import { questionCeilingUsd, runQuestions, savedRoutesFor } from "./answer-run.ts";
@@ -53,6 +61,10 @@ const { positionals, values } = parseArgs({
     only: { type: "string" },
     "privat-saja": { type: "boolean", default: false },
     rute: { type: "string" },
+    "tanpa-rute": { type: "boolean", default: false },
+    semantik: { type: "string" },
+    "makna-k": { type: "string" },
+    "makna-bobot": { type: "string" },
   },
 });
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/u);
@@ -194,6 +206,10 @@ async function main() {
         throw new Error("--rute hanya untuk soal publik (arsip diagnostik tanpa holdout).");
       routes = savedRoutesFor(items, readSavedRoutes(resolve(values.rute)));
     }
+    // X13: `--semantik <peringkat>` = daftar makna dari berkas (arsip berakhiran +makna-berkas).
+    const semantic = values.semantik
+      ? readSemantic(resolve(values.semantik), { allowPrivate: values["termasuk-privat"] })
+      : undefined;
     if (!values.confirm) {
       console.log(
         JSON.stringify({
@@ -201,6 +217,7 @@ async function main() {
           questions: items.length,
           private: items.filter((q) => q.private).length,
           saved_routes: routes !== undefined,
+          semantic_file: semantic !== undefined,
           ceiling_per_question_usd: Number(ceiling.haiku.toFixed(4)),
           sonnet_reserve_usd: Number(ceiling.sonnetReserve.toFixed(4)),
           note: "Belum ada panggilan berbayar; tambahkan --confirm setelah izin pemilik.",
@@ -229,6 +246,7 @@ async function main() {
         budgetUsd: budget,
         concurrency: Math.min(6, Math.max(1, Number(values.concurrency) || 1)),
         ...(routes ? { routes } : {}),
+        ...(semantic ? { semantic } : {}),
         onError: (item, error) =>
           console.error(
             `${item.private ? "(privat)" : item.question.id} GAGAL: ${error instanceof Error ? error.name : "galat"}`,
@@ -307,6 +325,7 @@ async function main() {
           failed,
           private: outputs.filter((o) => o.item.private).length,
           saved_routes: values.rute ?? null,
+          semantic_file: values.semantik ?? null,
           spent_usd: Number(spent.toFixed(6)),
           avg_usd: n ? Number((spent / n).toFixed(6)) : null,
           report,
@@ -317,11 +336,32 @@ async function main() {
     return;
   }
   if (command === "kandidat") {
-    // Gratis (tanpa LLM): ulang pencarian kandidat atas rute tersimpan satu run atau lebih.
-    const files = required(values.input, "--input").split(",");
+    // Gratis (tanpa LLM): ulang pencarian kandidat atas rute tersimpan satu run atau lebih, atau
+    // tanpa rute (`--tanpa-rute`: pertanyaan + ringkasan saja, untuk mesin tanpa arsip). X13:
+    // `--semantik` menambah daftar makna dari berkas peringkat (`--makna-k`, `--makna-bobot`).
+    if (values["tanpa-rute"] === (values.input !== undefined))
+      throw new Error("Pilih salah satu: --input DIAGNOSTIK atau --tanpa-rute.");
+    const files = values["tanpa-rute"] ? ["(tanpa rute)"] : values.input!.split(",");
     const questions = new Map(
       loadAnswerQuestions(repo, true).map(({ question }) => [question.id, question]),
     );
+    const positive = (s: string | undefined, label: string) => {
+      if (s === undefined) return undefined;
+      const n = Number(s);
+      if (!Number.isFinite(n) || n <= 0) throw new Error(`${label} harus angka > 0.`);
+      return n;
+    };
+    const limit = positive(values["makna-k"], "--makna-k");
+    const weight = positive(values["makna-bobot"], "--makna-bobot");
+    if (!values.semantik && (limit !== undefined || weight !== undefined))
+      throw new Error("--makna-k/--makna-bobot butuh --semantik.");
+    const semantic: SemanticOptions | undefined = values.semantik
+      ? {
+          ranks: readSemantic(resolve(values.semantik)),
+          ...(limit === undefined ? {} : { limit: Math.floor(limit) }),
+          ...(weight === undefined ? {} : { weight }),
+        }
+      : undefined;
     await withCorpus(async (corpus, index) => {
       const toc = new Map(
         (await answerToc(corpus.db, JAWAB_EDITION_ID)).map((n) => [n.id, n] as const),
@@ -333,7 +373,8 @@ async function main() {
           index,
           toc,
           questions,
-          readSavedRoutes(resolve(file)),
+          values["tanpa-rute"] ? emptyRoutes(questions.values()) : readSavedRoutes(resolve(file)),
+          semantic,
         );
         for (const r of rows) {
           const q = perQuestion.get(r.id) ?? { complete: 0, runs: 0 };
@@ -342,7 +383,14 @@ async function main() {
           perQuestion.set(r.id, q);
         }
         console.log(
-          JSON.stringify({ input: file, corpus: index.meta.corpus_version, ...summarize(rows) }),
+          JSON.stringify({
+            input: file,
+            corpus: index.meta.corpus_version,
+            semantik: semantic
+              ? { k: semantic.limit ?? null, bobot: semantic.weight ?? null }
+              : null,
+            ...summarize(rows),
+          }),
         );
       }
       // Soal yang lokasi gold-nya tidak lengkap di dokumen pada minimal satu rute.
@@ -570,7 +618,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] (gratis; rute tersimpan, soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] | --tanpa-rute [--semantik PERINGKAT [--makna-k N] [--makna-bobot W]] (gratis; soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] [--semantik PERINGKAT] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

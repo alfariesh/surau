@@ -35,6 +35,16 @@ export const QUESTION_WEIGHT = 3;
  * hanya bila sisa jatah pencarian masih ada sesudah rencana routing.
  */
 export const SUMMARY_SECTIONS = 3;
+/**
+ * Daftar pencarian makna (X13, ADR-093): paragraf terdekat dengan pertanyaan menurut embedding,
+ * digabung sebagai satu daftar RRF tambahan. Tidak dihitung ke `MAX_SEARCHES` (bukan kueri D1).
+ * Kosong/tanpa sumber = perilaku sebelum X13 persis. k 20 bobot 2 dipilih dari uji gratis
+ * `kandidat --tanpa-rute` (bobot 1 tidak menolong satu soal pun; k 30/50 sama dengan 20).
+ */
+export const SEMANTIC_LIMIT = 20;
+export const SEMANTIC_WEIGHT = 2;
+/** Label `query` daftar makna di diagnostik (bukan kueri FTS). */
+export const SEMANTIC_QUERY = "(makna)";
 /** Kandidat paragraf maksimal sebelum dipangkas anggaran token. */
 export const MAX_CANDIDATES = 60;
 /** Batas pencarian per pertanyaan (beban D1). */
@@ -206,6 +216,22 @@ export async function searchLists(
         ]
       : [];
   });
+}
+
+/** Daftar makna (peringkat embedding) sebagai `SearchList`; `null` bila tidak ada hasil. */
+export function semanticList(
+  passageIds: readonly number[],
+  limit = SEMANTIC_LIMIT,
+  weight = SEMANTIC_WEIGHT,
+): SearchList | null {
+  const ids = [...new Set(passageIds)].slice(0, limit);
+  if (ids.length === 0 || limit <= 0 || weight <= 0) return null;
+  return {
+    query: SEMANTIC_QUERY,
+    section_id: null,
+    passage_ids: ids,
+    ...(weight === 1 ? {} : { weight }),
+  };
 }
 
 /** Gabungan RRF berbobot: skor paragraf = Σ bobot/(k + peringkat) atas semua daftar. */

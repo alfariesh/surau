@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-24 · X13 · Mutu Jawab: pencarian makna, cakupan takhrij gold, persiapan holdout/kalibrasi — sebagian (langkah gratis; berbayar menunggu izin)
+- Dikerjakan: bedah j024 (istilah berbeda + catatan kaki tanpa terjemahan); cakupan gratis soal status hadits menuntut catatan kaki gold; `kandidat --tanpa-rute` + `--semantik`; kait pencarian makna di pipeline (`semanticList`, `JawabDeps.semanticSearch`, mati di Worker); `answer --semantik` (arsip `+makna-berkas`); embedding lokal `bge-m3` q8 atas 20.509 paragraf staging (66 menit CPU, di luar repo) + peringkat 42 soal publik.
+- Verifikasi: `kandidat --tanpa-rute --remote` 26/34 → dengan makna k 20 bobot 2 **30/34** (sapuan 12 varian); `pnpm verify` → lolos.
+- Biaya API: – (tanpa LLM berbayar; holdout tidak dibaca).
+- Keputusan: ADR-093.
+- Catatan untuk sesi berikutnya: izin pemilik untuk eval publik (±US$0,12), holdout (±US$0,05), embedding produksi (±US$0,03); kalibrasi judge gratis sesudah T-24 langkah 3; j1 h55 gold bersama j018/j019/j021 perlu ditinjau Anas; j024 kalah anggaran saat daftar makna berbobot 2.
+
 ## 2026-10-24 · X11 · Mode baca Arab · Keduanya · Terjemahan + fondasi bahasa — selesai (PR #126 + #127)
 - Dikerjakan: satu preferensi `surau:read-mode` (skrip awal, pindahan sakelar lama); mode Arab menyembunyikan terjemahan + semua bantuan AI (`data-tr-aid`); mode Terjemahan: terjemahan teks utama, teks Arab tiap paragraf di balik tombol "Teks Arab" (⋮ di baris alat, judul tidak dilipat, `#pN`/kata cari/tautan balik membuka Arab); Berdampingan tanpa separuh kosong + syair `container: verse`; jaga posisi baca untuk semua perubahan preferensi; Segment Mode baca di panel Tampilan (pratinjau, `StableText`) dan menu ⋮ (pembaca, daftar isi, Cari, Maknaz); kartu Cari dan kutipan Maknaz ikut mode tanpa menyembunyikan bukti; penanda catatan kaki di terjemahan membuka takhrij di tempat; `lang` dari data + `UI_LANG`; ADR-091 (mode baca) dan ADR-092 (arsitektur bahasa: situs Inggris di `/en`, daftar bagian yang masih terkunci "id").
 - Verifikasi: `pnpm verify` → lolos (847 + 387 tes, build) · e2e lokal `pnpm dev:remote` (`--workers=2`): `reader-x11` + `a11y` + `reader` 137 lolos, pembaca lama 78 lolos, `reader-x11` diulang 2× stabil · CI PR #126 hijau (e2e Preview 209 lolos, 1 rapuh → diperbaiki) · axe Arab/Keduanya × 3 tata letak dengan panel + Terjemahan terlipat/terbuka: 0 pelanggaran · Lighthouse 13.5 ponsel n=5 (mesin agen): Preview #127 j1/200 Keduanya 3,74 / Terjemahan 3,70 dtk; produksi sesudah bagian A 4,41–4,86 dtk (sebaran ±1 dtk) · `peninjau` dua kali: 1 blocker + 10 perbaikan, dikerjakan.

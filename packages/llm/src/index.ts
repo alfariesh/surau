@@ -159,7 +159,16 @@ export {
   stripArabic,
 } from "./jawab/citations.ts";
 export type { CitedSpan } from "./jawab/citations.ts";
-export { MAX_SEARCHES, fuse, questionQuery, searchLists, withPairs } from "./jawab/retrieve.ts";
+export {
+  MAX_SEARCHES,
+  SEMANTIC_LIMIT,
+  SEMANTIC_WEIGHT,
+  fuse,
+  questionQuery,
+  searchLists,
+  semanticList,
+  withPairs,
+} from "./jawab/retrieve.ts";
 export type { SearchList } from "./jawab/retrieve.ts";
 export { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../prompts/answer-v1.ts";
 export { ANSWER_FALSE_PREMISE } from "../prompts/answer-v3.ts";

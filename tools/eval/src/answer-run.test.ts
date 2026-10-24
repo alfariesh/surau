@@ -8,6 +8,7 @@ import { describe, expect, test } from "vite-plus/test";
 import {
   FALLBACK_TEXT,
   SAVED_ROUTE_SUFFIX,
+  SEMANTIC_FILE_SUFFIX,
   canRun,
   questionCeilingUsd,
   runQuestions,
@@ -169,6 +170,45 @@ describe("rute tersimpan (--rute, X05)", () => {
       },
     });
     expect(plain.outputs[0]?.answer.prompt_version.endsWith(SAVED_ROUTE_SUFFIX)).toBe(false);
+  });
+
+  test("peringkat makna (X13) diteruskan per soal, menandai arsip, dan soal tanpa peringkat ditolak di awal", async () => {
+    const seen: unknown[] = [];
+    const semantic = new Map([
+      ["j001", [5, 6]],
+      ["j002", [7]],
+    ]);
+    const out = await runQuestions({} as D1Db, {} as Anthropic, [item("j001"), item("j002")], {
+      budgetUsd: 3,
+      concurrency: 1,
+      semantic,
+      run: async (_q, _r, ranked) => {
+        seen.push(ranked);
+        return result();
+      },
+    });
+    expect(seen).toEqual([[5, 6], [7]]);
+    expect(out.outputs.every((o) => o.answer.prompt_version.endsWith(SEMANTIC_FILE_SUFFIX))).toBe(
+      true,
+    );
+    let called = 0;
+    await expect(
+      runQuestions(
+        {} as D1Db,
+        {} as Anthropic,
+        [item("j001"), { ...item("j009"), private: true }],
+        {
+          budgetUsd: 3,
+          concurrency: 1,
+          semantic,
+          run: async () => {
+            called++;
+            return result();
+          },
+        },
+      ),
+    ).rejects.toThrow("(privat)");
+    expect(called).toBe(0);
   });
 });
 

@@ -2307,3 +2307,49 @@ Jawaban pemilik (2026-10-24, pertanyaan pilihan): (1) mode Terjemahan boleh, den
 **Tidak dipilih:** memindahkan semua rute ke `app/[locale]` sekarang (belum ada terjemahan Inggris; tanpa proxy butuh rewrites yang menyentuh ISR/OpenNext, risiko LCP dan cache tanpa manfaat saat ini); bahasa terjemahan sebagai preferensi klien di samping mode baca (HTML ISR memuat satu bahasa; dua bahasa di HTML menambah berat halaman dan LCP).
 
 **Tinjau ulang bila:** sesi bahasa Inggris dimulai (pilih mekanisme rute dengan docs terbaru), atau pemilik ingin terjemahan bahasa lain di situs Indonesia.
+
+## ADR-093 · Pencarian makna untuk kandidat Jawab (X13): satu daftar RRF tambahan dari embedding `bge-m3` (k 20, bobot 2), diukur gratis dengan embedding lokal; produksi = Workers AI `@cf/baai/bge-m3` + Vectorize, menyala sesudah izin biaya dan eval berbayar — diusulkan, kode kait diterima · 2026-10-24
+
+**Konteks:** Lokasi Jawab 85,3% (29/34, in-sample, X05) < 90% (R4). ADR-067 dan ADR-068 menyisakan j018, j019, j021 (topik tersebar; halaman gold tak terjangkau pencarian kata mana pun) dan j024 (takhrij gold tidak terambil). ADR-046 menunda embedding sampai eval membuktikan perlu, dan ADR-067 meminta ADR tersendiri bila pencarian makna dipertimbangkan lagi. Mesin pemilik sekarang (Linux) tidak menyimpan arsip diagnostik `evals/private/jawab-runs/` maupun korpus lokal lengkap, jadi uji gratis memakai korpus staging `ihya-v8` (hanya SELECT) tanpa rute routing tersimpan.
+
+**Bedah j024 (gratis):** paragraf hadits 10000004 (j1 h2, 2.559 karakter terjemahan) memuat hadits itu di tengah teks dengan kata "orang berilmu yang tidak diberi manfaat oleh Allah", sedangkan pertanyaan memakai "orang alim … tidak mendapat manfaat"; catatan kaki takhrij 10000010 hanya berbahasa Arab (**0 dari 4.398 catatan kaki punya terjemahan**). Tanpa rute, daftar pertanyaan global tidak menemukan keduanya; yang menemukan takhrij adalah daftar bagian dari ringkasan AI (bagian 100001, peringkat 4), lalu paragraf haditsnya ikut lewat pasangan. Pada run X05 kemungkinan besar jalur ringkasan tidak berjalan karena rencana routing sudah 20 pencarian (ADR-067 butir 3); ini belum bisa dibuktikan di mesin ini (rute tersimpan ada di Mac pemilik).
+
+**Pengukuran gratis** (`pnpm run eval:jawab kandidat --tanpa-rute --remote [--semantik …]`, 34 soal publik yang tidak wajib ditolak; "lengkap" = semua lokasi gold, dan untuk soal status hadits juga catatan kaki takhrij gold, ada di dokumen):
+- Embedding lokal di CPU pemilik, di luar repo: `Xenova/bge-m3` ONNX q8 lewat `@huggingface/transformers` 4.3.1 (model sama dengan `@cf/baai/bge-m3`, presisi lebih rendah), CLS + normalisasi, ≤ 512 token per paragraf, teks = terjemahan AI bila ada, selain itu Arab (catatan kaki takhrij Arab). 20.509 paragraf, 66 menit, ±2,17 juta token. Peringkat 200 teratas per soal publik (cosine). Soal privat tidak di-embed.
+- Peringkat makna saja (tanpa pencarian kata): halaman gold pertama di 10 teratas untuk 30/34 soal; j018 h55/h13 di peringkat 6 dan 16; j021 h272 di 8, tetapi h55 di 110; j019 h55 tidak ada di 200 teratas, h305 di 109; takhrij j024 di 109.
+
+| Varian (tanpa rute) | Lengkap /34 | Belum lengkap |
+|---|---:|---|
+| Tanpa makna (baseline) | 26 | j016, j018, j019, j021, j023, j026, j028, j029 |
+| Makna k 10/20/30/50, bobot 1 | 29 | j018, j019, j021, j023, j026 |
+| Makna k 10, bobot 2 atau 3 | 29 | j018, j019, j021, j024, j026 |
+| **Makna k 20 (atau 30/50), bobot 2 atau 3** | **30** | j019, j021, j024, j026 |
+
+Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama), jadi biaya jawaban tidak berubah.
+
+**Keputusan:**
+1. **Kait di pipeline (diterima, aktif di kode, mati di produksi):** `semanticList` (`retrieve.ts`) membentuk satu `SearchList` `(makna)` dari peringkat embedding, `SEMANTIC_LIMIT` 20, `SEMANTIC_WEIGHT` 2, tidak dihitung ke `MAX_SEARCHES`. `jawabCandidates(…, semantic)` menambahkannya ke RRF; `JawabDeps.semanticSearch?(question)` menyediakannya di `runJawab`, galat = tanpa daftar makna (`diagnostics.semantic.error`), jawaban tetap berjalan. Tanpa sumber makna, daftar dan kandidat identik dengan sebelumnya (tes), jadi `JAWAB_PIPELINE_VERSION` tetap 7; versi naik saat Worker mulai mengisi `semanticSearch`.
+2. **Alat eval gratis:** `kandidat --tanpa-rute` (tanpa arsip), `kandidat --semantik PERINGKAT [--makna-k] [--makna-bobot]` (soal publik saja), `answer --semantik PERINGKAT` untuk run berbayar (soal privat hanya bersama `--termasuk-privat`; arsip berakhiran `+makna-berkas`, laporan menyatakannya). `docCoverage` kini menuntut catatan kaki takhrij gold untuk soal status hadits (rekomendasi X05): baseline tanpa rute turun dari "lengkap halaman" ke 26 karena j026, j028, j029 hanya terwakili halamannya.
+3. **Rancangan produksi (diusulkan, menunggu izin biaya):**
+   - Embedding `@cf/baai/bge-m3` (Workers AI, US$0,012 per juta token input; docs Cloudflare 2026-10-24) atas teks yang sama dengan uji lokal, sekali per versi korpus saat ingest, dari `tools/ingest` (REST Workers AI, bukan dari Worker publik). ±2,2 juta token = **±US$0,03 per bangun korpus**.
+   - Indeks Vectorize per versi korpus (`surau-makna-<versi>`, 1.024 dimensi, cosine), ID vektor = ID paragraf, tanpa metadata teks (teks tetap dari D1; Vectorize hanya memilih ID). 20.509 × 1.024 = 21 juta dimensi tersimpan: kuota Workers Paid 10 juta + US$0,05 per 100 juta → **±US$0,006/bulan**; kueri (dimensi kueri + tersimpan) di bawah kuota 50 juta/bulan pada trafik sekarang.
+   - Worker `surau-api` mengisi `semanticSearch`: embedding pertanyaan (±30 token, ±US$0,0000004) + `query` topK 20 tanpa nilai/metadata; batas waktu pendek, galat = pencarian kata saja. Promote korpus menukar indeks bersamaan dengan D1 (blue-green, ADR-036).
+   - Kutipan tidak berubah: model tetap menyitasi dokumen dari D1, verifikasi teks Arab tetap ke DB (aturan teks-arab 1 dan 5).
+
+**Tidak dipilih:**
+- **Bobot 1:** tidak menolong satu soal topik tersebar pun.
+- **k 10:** j018 belum lengkap.
+- **Embedding hanya teks Arab, atau dua vektor per paragraf (Arab + terjemahan):** belum diukur (satu varian lagi = ±1 jam CPU); ditunda sampai eval berbayar menunjukkan masih kurang.
+- **Routing dua langkah dengan LLM:** tetap ditolak (ADR-067).
+- **Mengubah gold j019/j021/j023:** di luar wewenang agent; T-24.
+
+**Konsekuensi:**
+- **In-sample:** k dan bobot dipilih dari 34 soal publik yang sama. Holdout tidak dipakai (soal privat tidak dibaca, tidak di-embed).
+- **Basis berbeda dengan X03/X05:** uji ini tanpa rute (26 → 30), bukan dengan rute tersimpan (X03: 30,5). Dengan routing ada hingga 20 daftar lain, jadi bobot 2 bisa lebih lemah; eval berbayar dengan routing yang menentukan.
+- **j024 kalah anggaran** saat daftar makna berbobot ≥ 2 (takhrij dari jalur ringkasan terdesak). Rancangan perbaikan berikutnya: bila soal menanyakan status hadits, catatan kaki takhrij juga dicari di embedding sebagai daftar tersendiri; belum dikerjakan.
+- **j1 h55** adalah gold bersama j018, j019, j021 dan tetap tak terjangkau untuk j019/j021 oleh kata maupun makna. Ini tanda gold draf S18 perlu ditinjau (T-24), bukan bahan penyetelan lebih lanjut.
+- Bila R4 lokasi ≥ 90% tercapai dengan pencarian makna, ADR-046 dianggap digantikan untuk Jawab; Cari tetap leksikal.
+
+**Langkah berbayar yang menunggu izin pemilik (perintah di catatan X13):** (a) satu eval publik berbayar dengan `--semantik` (±US$0,12, pagu 0,30); (b) satu run holdout (±US$0,05, pagu 0,15); (c) embedding + indeks produksi (±US$0,03 + ±US$0,006/bulan) sesudah (a) lolos; kalibrasi judge tidak butuh biaya baru (lihat X13).
+
+**Tinjau ulang bila:** eval berbayar dengan routing tidak menaikkan lokasi; gold ditinjau Anas (T-24); korpus bertambah kitab (indeks per kitab, kuota Vectorize); atau Workers AI mengganti `bge-m3`.
