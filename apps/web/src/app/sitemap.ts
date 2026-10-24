@@ -26,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = await origin(env.SITEMAP_ORIGIN ?? "");
   const entries: MetadataRoute.Sitemap = [
     { url: `${base}/` },
+    { url: `${base}/home` },
     { url: `${base}/tentang` },
     { url: `${base}/lisensi` },
     { url: `${base}/privasi` },

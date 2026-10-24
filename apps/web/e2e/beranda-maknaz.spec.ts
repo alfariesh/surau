@@ -30,7 +30,7 @@ async function fakeJawab(page: Page, status: { challenge: boolean; sitekey: stri
 }
 
 async function askFromHome(page: Page, question: string) {
-  await page.goto("/");
+  await page.goto("/home");
   const segment = page.getByRole("search").getByRole("radio", { name: "Maknaz" });
   test.skip((await segment.count()) === 0, "Maknaz mati di lingkungan ini");
   // Klik sebelum hidrasi tidak berbuat apa-apa: ulangi sampai segmen benar-benar terpilih.

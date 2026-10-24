@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kitab di atas rehal</title>
+</head>
+<body>
+<style id="token-surau">:root{--ornament-gold:#c1914a;--background:oklch(0.985 0.007 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--ornament-gold:#d6ad6c;--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
+<script src="/aset-mesin/iso-34d5a370f6.js"></script>
+<script>
+/* Kitab terbuka di atas rehal kayu (figur contoh aset Surau).
+   Proses nyata (kitab berbahasa Arab, dibaca kanan ke kiri):
+   1. Tertutup: sampul depan di atas, punggung di kanan pembaca, kitab bersandar di lengan kiri rehal.
+   2. Buka: sampul depan diayun ke kanan; separuh kanan (halaman yang sudah dibaca) bersandar di lengan kanan.
+   3. Balik halaman: satu lembar dari tumpukan kiri diangkat dan diayun ke kanan; tumpukan kanan menebal.
+   4. Tandai kutipan: dua baris di halaman kiri menyala (yang menyala = yang hidup); tanpa kata di gambar.
+   5. Tutup: separuh kanan diayun kembali ke atas tumpukan kiri.
+   Pembaca duduk di sisi +x (menghadap bentuk X rehal); kanan pembaca = +y.
+   Tidak ada huruf Arab: baris teks hanya garis (aturan keras 1). */
+const { add, lerp, ease, vis } = ISO;
+const RW = 36, RD = 48, BH = 2, YC = 24, ZC = BH + 10;
+const TH = Math.atan(0.55), CS = Math.cos(TH), SN = Math.sin(TH);
+const ARM = 23, HALF = 1.3, RX0 = 12, RX1 = 24, BX0 = 4, BX1 = 32, LEN = 20.5, COVER_T = .55;
+const ZS = ZC + HALF / CS, SPINE = [0, YC, ZS];
+const UP_R = [0, -SN, CS], UP_L = [0, SN, CS];
+const dirA = a => [0, Math.cos(a), Math.sin(a)];
+const st = { open: 1, read: 5, leaf: null, mark: false, busy: false };
+const thick = () => ({ r: 1 + st.read * .07, l: 2.6 - st.read * .07 });
+
+mountFigure({
+  id: 'kitab-rehal', title: 'Kitab di atas rehal', hint: 'ketuk kitab untuk membalik halaman',
+  alt: 'Ilustrasi garis kitab terbuka di atas rehal kayu berbentuk X. Dua baris di halaman bisa menyala sebagai kutipan.',
+  tombol: [
+    { label: 'Buka', aksi: () => H.swing(1) },
+    { label: 'Balik halaman', aksi: () => H.turn() },
+    { label: 'Tandai kutipan', aksi: () => H.mark() },
+    { label: 'Tutup', aksi: () => H.swing(0) },
+  ],
+  mount(stage, api) {
+    const K = api.frame([[0,3,0],[RW,3,0],[0,RD-3,0],[RW,RD-3,0],[BX0,YC,ZS+LEN+2],[BX1,YC,ZS+LEN+2],[BX0,YC-20,ZS+12],[BX1,YC+20,ZS+12]]);
+    const { P, path, box, poly, line, obox, prism, tepi } = K;
+    function slab(sign) {
+      const d = [sign * CS, SN], n = [-sign * SN, CS];
+      const at = (t, w) => [YC + d[0] * t + n[0] * w, ZC + d[1] * t + n[1] * w];
+      const foot = w => (BH - ZC - n[1] * w) / d[1];
+      return [at(foot(-HALF), -HALF), at(ARM, -HALF), at(ARM, HALF), at(foot(HALF), HALF)];
+    }
+    const slabPts = uv => [...uv.map(([y, z]) => [RX0, y, z]), ...uv.map(([y, z]) => [RX1, y, z])];
+    function half(hinge, a, t, pagesT, side) {
+      const d = dirA(a), o = [BX0, hinge[1], hinge[2]], ex = [BX1 - BX0, 0, 0];
+      const coverUp = vis(t.map(v => -v));
+      const cover = obox(o, ex, d.map(v => v * (LEN + .7)), t.map(v => v * COVER_T), 'recess');
+      const po = add(add(add(o, [.8, 0, 0]), d, .5), t, COVER_T), pex = [BX1 - BX0 - 1.6, 0, 0];
+      const pages = obox(po, pex, d.map(v => v * (LEN - .5)), t.map(v => v * pagesT));
+      let s = coverUp ? pages + cover : cover + pages;
+      const top = add(po, t, pagesT), at = (x, r) => add(add(top, [x, 0, 0]), d, r);
+      if (vis(t)) {
+        const W = pex[0], L = LEN - .5;
+        s += line([at(1.3, 1.2), at(W - 1.3, 1.2), at(W - 1.3, L - 1.2), at(1.3, L - 1.2), at(1.3, 1.2)]);
+        for (let i = 0; i < 11; i++) {
+          const x = lerp(2.6, W - 2.4, i / 10), r0 = 2.2, r1 = L - 2.2, short = (i + side) % 5 === 4 ? .45 : 0;
+          // rata kanan pembaca: separuh +y → tepi luar; separuh -y → dekat punggung
+          const [ra, rb] = side ? [lerp(r0, r1, short), r1] : [r0, lerp(r1, r0, short)];
+          const hot = st.mark && side === 0 && (i === 3 || i === 4);
+          s += hot ? `<path class="nyala" filter="url(#soft)" d="${path([at(x, ra), at(x, rb)])}"/>` : line([at(x, ra), at(x, rb)]);
+        }
+      }
+      if (coverUp) {
+        const at2 = (x, r) => add(add(o, [x, 0, 0]), d, r), W = BX1 - BX0, L = LEN + .7, cx = W / 2, cr = L / 2;
+        s += line([at2(1.6, 1.6), at2(W - 1.6, 1.6), at2(W - 1.6, L - 1.6), at2(1.6, L - 1.6), at2(1.6, 1.6)], 'wire');
+        s += line([at2(cx - 5, cr), at2(cx, cr + 3.6), at2(cx + 5, cr), at2(cx, cr - 3.6), at2(cx - 5, cr)], 'wire');
+      }
+      const ends = [o, add(o, ex), add(o, d, LEN + .7), add(add(o, ex), d, LEN + .7)];
+      return { svg: s, pts: [...ends, ...ends.map(p => add(p, t, COVER_T + pagesT))] };
+    }
+    function leaf(p) {
+      const T = thick(), e = ease(p);
+      // engsel lembar: di atas tumpukan kiri, lalu (setelah tegak) di atas tumpukan kanan
+      const hinge = add(SPINE, e > .5 ? UP_R : UP_L, (e > .5 ? T.r : T.l) + COVER_T);
+      const a = lerp(Math.PI - TH, TH, e), bend = .55 * Math.sin(Math.PI * e);
+      let o = [BX0 + .8, hinge[1], hinge[2]], s = '';
+      const ex = [BX1 - BX0 - 1.6, 0, 0], seg = (LEN - .5) / 3;
+      for (let i = 0; i < 3; i++) { const dd = dirA(a + bend * (i + 1) / 3).map(v => v * seg);
+        s += poly([o, add(o, ex), add(add(o, ex), dd), add(o, dd)], 'top'); o = add(o, dd); }
+      return s;
+    }
+    function draw() {
+      const T = thick(), e = ease(st.open);
+      let s = box(0, 3, 0, RW, RD - 6, BH, 4);
+      s += `<g transform="${K.TOP(2, 5, BH)}"><rect class="detail" width="${RW - 4}" height="${RD - 10}" rx="3"/></g>`;
+      for (const sign of [-1, 1]) s += prism(slab(sign), RX0, RX1, 'kayu') + tepi(slabPts(slab(sign)));
+      const aR = lerp(Math.PI - TH, TH, e), hingeR = add(SPINE, UP_L, (1 - e) * (T.l + T.r + 2 * COVER_T));
+      const L0 = half(SPINE, Math.PI - TH, UP_L, T.l, 0), R0 = half(hingeR, aR, [0, -Math.sin(aR), Math.cos(aR)], T.r, 1);
+      let book = L0.svg + tepi(L0.pts) + R0.svg + tepi(R0.pts);
+      if (st.leaf != null) book += leaf(st.leaf);
+      s += `<g class="press" id="kr-book">${book}</g>`;
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.open <= 0 ? 'Kitab tertutup' : `Kitab terbuka, ${st.read} lembar sudah dibaca${st.mark ? ', kutipan ditandai' : ''}`);
+    const render = () => { draw(); read(); };
+    const run = (ms, step, done) => { st.busy = true; api.anim(ms, t => { step(t); draw(); }, () => { st.busy = false; if (done) done(); render(); }); };
+    const H = window.H = {
+      turn() { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open < 1) return api.readout('Kitab masih tertutup. Buka dulu.');
+        if (thick().l < .6) return api.readout('Sudah sampai halaman terakhir');
+        st.mark = false; run(1100, t => { st.leaf = t; }, () => { st.leaf = null; st.read++; }); },
+      swing(to) { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open === to) return api.readout(to ? 'Kitab sudah terbuka' : 'Kitab sudah tertutup');
+        const from = st.open; st.mark = false; run(900, t => { st.open = lerp(from, to, t); }); },
+      mark() { if (st.busy) return api.readout('Sebentar, kitab masih bergerak'); if (st.open < 1) return api.readout('Buka kitab dulu'); st.mark = !st.mark; render(); },
+    };
+    stage.addEventListener('click', e => { if (e.target.closest('#kr-book')) st.open >= 1 ? H.turn() : H.swing(1); });
+    const q = new URLSearchParams(location.search), num = (k, lo, hi) => { const v = Number(q.get(k)); return q.has(k) && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : null; };
+    if (q.get('tutup') === '1') st.open = 0;
+    st.leaf = num('balik', 0, 1) ?? st.leaf;
+    render();
+    return {
+      render: draw,
+      // dihentikan pengunjung: lembar yang sedang dibalik dikembalikan, kitab dibulatkan ke terbuka/tertutup
+      batal() { st.busy = false; st.leaf = null; st.open = Math.round(st.open); render(); },
+      // demo: halaman dibalik, lalu kutipan menyala; akhir: kutipan menyala tanpa animasi
+      demo() { if (st.open < 1 || st.busy) return; st.mark = false; render(); api.after(300, () => H.turn()); api.after(1800, () => H.mark()); },
+      akhir() { if (st.open >= 1 && st.leaf == null) { st.mark = true; render(); } },
+      key(e) { const k = e.key.toLowerCase(); if (k === ' ') return H.turn(), true; if (k === 'k') return H.mark(), true; return false; },
+    };
+  },
+});
+</script>
+</body>
+</html>

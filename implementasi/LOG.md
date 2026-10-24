@@ -15,6 +15,15 @@ Format entri:
 
 ---
 
+## 2026-10-24 · Landing page publik (ADR-096) — selesai
+
+- Dikerjakan: landing page di `/` (Navbar Pro, hero + kutipan asli Ihya j. 4 h. 265 dari DB, isi kitab per rub', cara kerja, prinsip, integrasi AI, gratis + biaya bulan ini, tanya jawab); Beranda dipindah ke `/home`; komponen `PrinciplesGrid` bersama; lima figur aset baru + `kitab-rehal` dibangun untuk situs; 5 ikon baru.
+- Verifikasi: `pnpm verify` → lolos (852 + 387 tes, build `/` dinamis); `landing-data.test.ts` → 6 lolos; potret aset (terang/gelap/240 px/tengah cerita) → kode 0; Playwright di `pnpm dev:remote` (desktop 1280, ponsel 375, gelap, menu ponsel) → tanpa galat konsol; `BASE_URL=http://localhost:3004 playwright test smoke a11y beranda-maknaz` → 114 lolos, 2 gagal (tes header `immutable` mesin aset: hanya dipasang `public/_headers` di Workers, tidak oleh `next dev`; tidak terkait perubahan ini). Kutipan hero dicek manual di dev:remote: rentang [0,44) j. 4 h. 265 tampil utuh dan sepadan dengan kalimat pertama terjemahannya.
+- Tinjauan `peninjau`: tanpa blocker; diperbaiki: Maknaz di landing ikut `jawabRouteOn` (produksi mati), klaim koreksi editor, tes potong kutipan, `getEnv` dijaga, bagian #isi cadangan, judul karya dari DB, plafon 0, smoke CI `/home`.
+- Biaya API: –
+- Keputusan: ADR-096
+- Catatan untuk sesi berikutnya: pemilik bisa membuka surau.org (landing) dan surau.org/home (Beranda) setelah deploy. Testimoni asli, donasi, dan versi `/en` menunggu keputusan pemilik.
+
 ## 2026-10-24 · X13 lanjutan · Daftar makna takhrij untuk soal hadits — selesai (kode; eval berbayar menunggu izin)
 - Dikerjakan: `semanticLists` + daftar `(makna takhrij)` (catatan kaki saja, k 10, hanya bila routing menandai soal hadits); `semanticSearch` mengembalikan `{passages, footnotes}`; peringkat v2 dengan `footnote_ids`; `kandidat --makna-takhrij-k`; bedah j018 (jawaban menyitasi h55–57 yang menjawab kedua sisi; gold h13 → T-24).
 - Verifikasi: `kandidat --input x13-…-diagnostik-publik.jsonl --remote` 31 → 32/34 (status hadits 6/6); tanpa rute tetap 30; `pnpm verify` → lolos.

@@ -1,22 +1,24 @@
 import type { Metadata } from "next";
 
-import { Card, Typography } from "@heroui/react";
+import { Typography } from "@heroui/react";
 
 import { listWorks } from "@surau/core";
 
-import { ArtEmbed } from "../../components/art/art-embed";
-import { SearchBox } from "../../components/search/search-box";
-import { ContinueReading } from "../../components/reader/continue-reading";
-import { WorkShelf } from "../../components/book/work-shelf";
-import { id } from "../../i18n/id";
-import { PAGE_FRAME } from "../../lib/layout";
-import { getEnv, readerEnabled } from "../../lib/cloudflare";
-import { jawabRouteOn } from "../../lib/jawab-flag";
-import { loadSearchSections } from "../../lib/search/sections";
-import { PageTitle } from "../../components/page-title";
+import { SearchBox } from "../../../components/search/search-box";
+import { ContinueReading } from "../../../components/reader/continue-reading";
+import { WorkShelf } from "../../../components/book/work-shelf";
+import { id } from "../../../i18n/id";
+import { PAGE_FRAME } from "../../../lib/layout";
+import { getEnv, readerEnabled } from "../../../lib/cloudflare";
+import { jawabRouteOn } from "../../../lib/jawab-flag";
+import { loadSearchSections } from "../../../lib/search/sections";
+import { PageTitle } from "../../../components/page-title";
+import { PrinciplesGrid } from "../../../components/principles-grid";
 
+// Beranda pindah dari / ke /home (ADR-096): / kini landing page publik.
 export const metadata: Metadata = {
-  title: { absolute: id.meta.title },
+  title: id.nav.home,
+  alternates: { canonical: "/home" },
 };
 
 const t = id.home;
@@ -104,27 +106,7 @@ export default async function HomePage() {
             {t.principlesLead}
           </Typography>
         </div>
-        <ol className="grid w-full gap-4 sm:grid-cols-3">
-          {t.principles.map((p, index) => (
-            <li key={p.title} className="flex" data-art-card>
-              <Card className="w-full gap-0 p-2 shadow-none">
-                {/* Ilustrasi per prinsip (ADR-057): tanpa kata, dekoratif; hover/ketuk kartu memutar ulang.
-                    Panel bertepi lembut supaya ruang kosong ilustrasi terbaca sebagai bingkai. */}
-                <div className="bg-surface-secondary overflow-hidden rounded-xl">
-                  <ArtEmbed name={p.art} title={t.principleArtTitle} />
-                </div>
-                <Card.Header className="gap-1.5 px-3 pt-4 pb-3">
-                  <Typography className="font-medium tabular-nums" color="muted" type="body-xs">
-                    <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-                    <span className="sr-only">{t.principleNumber(index + 1)}</span>
-                  </Typography>
-                  <Card.Title className="text-base">{p.title}</Card.Title>
-                  <Card.Description className="text-pretty">{p.body}</Card.Description>
-                </Card.Header>
-              </Card>
-            </li>
-          ))}
-        </ol>
+        <PrinciplesGrid />
       </section>
     </div>
   );

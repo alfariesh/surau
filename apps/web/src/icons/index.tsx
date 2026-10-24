@@ -69,6 +69,34 @@ export function AlertCircle(props: IconProps) {
   );
 }
 
+export function ArrowDown01(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M5.99977 9.00005L11.9998 15L17.9998 9"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function ArrowRight01(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M9.00005 6L15 12L9 18"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function ArrowRightDouble(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -240,6 +268,27 @@ export function FileEmpty02(props: IconProps) {
       <path
         d="M13 2V7C13 8.10457 13.8954 9 15 9H20"
         stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Github(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M2 17.0234C3.63025 20.416 6.29407 21.6289 9.5 20.7444"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M9.99741 22.0234V18.5955C10.0002 17.5234 10.5002 16.5234 10.5002 16.5234C6.91613 15.3634 5 13.0234 5 10.0234C5 8.02344 5.5 7.02344 6.2871 6.05653C5.50019 4.02344 6.50019 2.02344 6.50019 2.02344C8.00019 2.02344 9.35877 2.55722 10.5 3.52344C12.0892 2.72882 14.9108 2.72882 16.5 3.52344C17.6412 2.55722 19 2.02344 20.5 2.02344C20.5 2.02344 21.5 4.02344 20.7131 6.05653C21.5002 7.02344 22.0002 8.02344 22.0002 10.0234C22.0002 13.0234 20.0841 15.3634 16.5 16.5234C16.5 16.5234 17 17.5234 17.0028 18.5955V22.0234"
+        stroke="currentColor"
+        strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"
       />
@@ -449,6 +498,38 @@ export function PlusSign(props: IconProps) {
   );
 }
 
+export function QuoteDown(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M22 10V6C22 4.89543 21.1046 4 20 4L16 4C14.8954 4 14 4.89543 14 6V10C14 11.1046 14.8954 12 16 12H20C21.1046 12 22 11.1046 22 10Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M22 9.5V14C22 17.3137 19.3137 20 16 20"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M10 10V6C10 4.89543 9.10457 4 8 4L4 4C2.89543 4 2 4.89543 2 6L2 10C2 11.1046 2.89543 12 4 12H8C9.10457 12 10 11.1046 10 10Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M10 9.5V14C10 17.3137 7.31371 20 4 20"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function Search01(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -538,6 +619,20 @@ export function TextFont(props: IconProps) {
       />{" "}
       <path
         d="M16.5 11.5L16.6298 11.3053C17.1735 10.4898 18.0887 10 19.0688 10C20.6876 10 22 11.3124 22 12.9312V18.5M22 14H18.561C17.1466 14 16 15.1466 16 16.561C16 17.908 17.092 19 18.439 19H18.7408C19.2376 19 19.725 18.865 20.151 18.6094L20.3033 18.518C21.3559 17.8864 22 16.7489 22 15.5213V14Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Tick02(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M4.25 13.5L8.75 18L19.75 6"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
