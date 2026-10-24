@@ -332,7 +332,8 @@ function Preview({ preview, mode }: { preview: ReaderSample; mode: ReadMode }) {
             <StableText
               active={mode}
               variants={{
-                ar: hint(m.previewNoTranslation),
+                // Di tengah ruang yang dicadangkan untuk contoh terjemahan (tinggi tetap).
+                ar: <div className="flex h-full items-center">{hint(m.previewNoTranslation)}</div>,
                 both: (
                   <p className="passage-translation" lang={tr.lang}>
                     {tr.text} <span className="ai-badge">{t.aiTranslation}</span>

@@ -960,6 +960,12 @@ h2.reader-heading-minor {
   display: none;
 }
 
+/* Daftar isi di mode Arab: judul Arab yang biasanya di bawah judul Indonesia tampil seperti baris
+ * tanpa padanan Indonesia (menempel ke ikon, tinggi baris dan warna yang sama). */
+:root[data-read-mode="ar"] .toc-titles {
+  align-items: flex-start;
+}
+
 :root[data-read-mode="ar"] .toc-titles .toc-title-ar {
   line-height: var(--toc-line);
   color: inherit;

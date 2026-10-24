@@ -28,7 +28,7 @@ export interface ReaderSample {
   hasTranslation: boolean;
 }
 
-export const PREVIEW_TR_CHARS = 120;
+export const PREVIEW_TR_CHARS = 100;
 
 const MARKERS = new RegExp(`\\s*${FOOTNOTE_MARKER_SOURCE}`, "g");
 
