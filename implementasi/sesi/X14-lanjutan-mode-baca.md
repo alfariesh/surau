@@ -55,7 +55,7 @@ Petunjuk di Cari/Maknaz/daftar isi (mode di sana mengikuti pilihan yang sama dan
 ## Catatan hasil
 
 *2026-10-24 · ADR-095:*
-- **Nomor:** sesi ini mula-mula X13/ADR-093, tetapi sesi "Mutu Jawab" masuk `main` lebih dulu dengan nomor yang sama (PR #131), jadi sesi ini dinomori ulang menjadi X14/ADR-095 saat menggabungkan `main`. X12 kosong.
+- **Nomor:** sesi ini mula-mula X13/ADR-093, tetapi sesi "Mutu Jawab" masuk `main` lebih dulu dengan nomor yang sama (PR #131), jadi sesi ini dinomori ulang menjadi X14/ADR-095 saat menggabungkan `main` (ADR-094 juga lebih dulu dipakai X13 lanjutan, PR #133). X12 kosong.
 - **Dibuat:**
   - Petunjuk mode baca `read-mode-hint.tsx` (Alert + Segment + penjelasan setinggi tetap) di atas catatan AI. Atribut `data-read-mode-hint="off"` dari skrip awal, diulang di `useLayoutEffect` untuk navigasi lunak. Keduanya yang sudah aktif tetap tersimpan saat ditekan (`ReadModeSegment onPick`).
   - `StableText` dipindah ke `components/stable-text.tsx`.
