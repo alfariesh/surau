@@ -2386,7 +2386,18 @@ Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama): biaya input 
 **Langkah berbayar yang menunggu izin:** eval publik atas rute X13 tersimpan + peringkat v2 (tanpa routing, ±US$0,11, pagu 0,30):
 `pnpm run eval:jawab answer --run x13-publik-takhrij-v1 --remote --rute evals/private/jawab-runs/x13-publik-makna-v1-diagnostik-publik.jsonl --semantik evals/jawab/makna/x13-bge-m3-q8-publik-v2.jsonl --budget-usd 0.3 --confirm`
 
-**Tinjau ulang bila:** eval berbayar tidak meloloskan j024; gold ditinjau (T-24); atau kitab kedua masuk (catatan kaki kitab lain bukan takhrij al-'Iraqi).
+**Eval berbayar (izin pemilik di chat 2026-10-24: "Ya, saya izinkan eval X13 atas rute tersimpan dengan peringkat v2, pagu US$0,30"):** `x13-publik-takhrij-v1`, 42 soal publik, rute routing dari `x13-publik-makna-v1` (tanpa panggilan routing, `+rute-tersimpan`), peringkat v2 (`+makna-berkas`), staging `ihya-v8`, tanpa holdout. Biaya **US$0,1116** (US$0,0027/jawaban tanpa routing); laporan `evals/reports/jawab-x13-publik-takhrij-v1.md`.
+
+| Run | Kutipan valid | Lokasi | Penolakan tepat | Tidak salah menolak | Takhrij | Tanpa pola fatwa |
+|---|---|---|---|---|---|---|
+| `x13-publik-makna-v1` (ADR-093) | 100% (148/148) | 85,3% (29/34) | 100% (8/8) | 100% (34/34) | 83,3% (5/6) | 100% |
+| **`x13-publik-takhrij-v1`** (ADR-094) | **100% (172/172)** | **88,2% (30/34)** | 87,5% (7/8) | 100% (34/34) | **100% (6/6)** | 100% |
+
+- **j024 lolos** (lokasi dan takhrij). Lokasi gagal tinggal **j018, j019, j021, j023**, keempatnya menunggu tinjauan gold (T-24).
+- **j033** (di luar cakupan: perintah SQL D1 "menurut Ihya") tidak diawali kalimat penolakan baku: paragraf pertama menjelaskan bahwa itu bukan isi Ihya, kalimat "Tidak ditemukan di kitab yang dicakup." baru di paragraf kedua, dengan satu sitasi bab doa sebagai contoh isi dokumen. Isinya menolak dengan benar dan tanpa klaim, tetapi menurut aturan `isNotFound` (kalimat baku harus di awal, sengaja, diuji) hasilnya "jawaban". Ini kali kedua j033 gagal dengan `answer@6` (X05 run utama juga), dari 4 run. Tidak diubah di sini: melonggarkan `isNotFound` mengubah kebijakan penolakan dan perlu ADR + eval sendiri. Kandidat perbaikan: pascaproses yang menjadikan jawaban berkalimat baku di awal paragraf mana pun + tanpa klaim kitab sebagai penolakan, diuji pada soal jebakan.
+- Angka ini tetap **in-sample** dan atas rute satu run; bukti R4 butuh holdout dan gold yang ditinjau.
+
+**Tinjau ulang bila:** gold ditinjau (T-24); j033 gagal lagi (prioritaskan kandidat perbaikan di atas); atau kitab kedua masuk (catatan kaki kitab lain bukan takhrij al-'Iraqi).
 
 ## ADR-095 · Petunjuk mode baca sekali tampil, Ringkasan AI ikut kata cari, dan ukur LCP per mode sebagai perintah repo (X14) — diterima · 2026-10-24
 
