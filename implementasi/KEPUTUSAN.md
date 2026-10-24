@@ -2308,7 +2308,7 @@ Jawaban pemilik (2026-10-24, pertanyaan pilihan): (1) mode Terjemahan boleh, den
 
 **Tinjau ulang bila:** sesi bahasa Inggris dimulai (pilih mekanisme rute dengan docs terbaru), atau pemilik ingin terjemahan bahasa lain di situs Indonesia.
 
-## ADR-093 · Pencarian makna untuk kandidat Jawab (X13): satu daftar RRF tambahan dari embedding `bge-m3` (k 20, bobot 2), diukur gratis dengan embedding lokal; produksi = Workers AI `@cf/baai/bge-m3` + Vectorize, menyala sesudah izin biaya dan eval berbayar — diusulkan, kode kait diterima · 2026-10-24
+## ADR-093 · Pencarian makna untuk kandidat Jawab (X13): satu daftar RRF tambahan dari embedding `bge-m3` (k 20, bobot 2), diukur gratis dengan embedding lokal; kandidat naik tetapi lokasi jawaban eval berbayar tetap 85,3%, jadi produksi (Workers AI + Vectorize) ditunda — kode kait diterima, produksi ditunda · 2026-10-24
 
 **Konteks:** Lokasi Jawab 85,3% (29/34, in-sample, X05) < 90% (R4). ADR-067 dan ADR-068 menyisakan j018, j019, j021 (topik tersebar; halaman gold tak terjangkau pencarian kata mana pun) dan j024 (takhrij gold tidak terambil). ADR-046 menunda embedding sampai eval membuktikan perlu, dan ADR-067 meminta ADR tersendiri bila pencarian makna dipertimbangkan lagi. Mesin pemilik sekarang (Linux) tidak menyimpan arsip diagnostik `evals/private/jawab-runs/` maupun korpus lokal lengkap, jadi uji gratis memakai korpus staging `ihya-v8` (hanya SELECT) tanpa rute routing tersimpan.
 
@@ -2352,7 +2352,20 @@ Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama): biaya input 
 
 **Langkah berbayar yang menunggu izin pemilik (perintah di catatan X13):** (a) satu eval publik berbayar dengan `--semantik` (±US$0,12, pagu 0,30); (b) satu run holdout (±US$0,05, pagu 0,15); (c) embedding + indeks produksi (±US$0,03 + ±US$0,006/bulan) sesudah (a) lolos; kalibrasi judge tidak butuh biaya baru (lihat X13).
 
-**Tinjau ulang bila:** eval berbayar dengan routing tidak menaikkan lokasi; gold ditinjau Anas (T-24); korpus bertambah kitab (indeks per kitab, kuota Vectorize); atau Workers AI mengganti `bge-m3`.
+**Eval publik berbayar (izin pemilik di chat 2026-10-24: "Ya, saya izinkan eval publik X13 dengan pencarian makna, pagu US$0,30"):** `x13-publik-makna-v1`, 42 soal publik, pipeline penuh dengan routing, korpus staging `ihya-v8`, daftar makna dari berkas peringkat (`+makna-berkas`), tanpa holdout. Biaya **US$0,1171** (rerata US$0,0028/jawaban); laporan `evals/reports/jawab-x13-publik-makna-v1.md`.
+
+| Run | Kutipan valid | Lokasi | Penolakan tepat | Tidak salah menolak | Takhrij | Tanpa pola fatwa |
+|---|---|---|---|---|---|---|
+| X05 `x05-publik-jawaban-v1` (`ihya-v7`, tanpa makna) | 100% (176/176) | 85,3% (29/34) | 87,5% (7/8) | 100% (34/34) | 0% (0/6, metrik lama pencocokan string) | 100% |
+| **X13 `x13-publik-makna-v1`** (`ihya-v8`, dengan makna) | **100% (148/148)** | **85,3% (29/34)** | **100% (8/8)** | 100% (34/34) | 83,3% (5/6) | 100% |
+
+- Lokasi gagal tetap j018, j019, j021, j023, j024 (sama dengan X05).
+- **Kandidat naik, jawaban tidak:** ulang gratis atas rute routing run ini (`kandidat --input …x13-publik-makna-v1-diagnostik-publik.jsonl --remote`): tanpa makna 29/34 (belum: j016, j018, j019, j021, j024) → dengan makna **31/34** (belum: j019, j021, j024). Jadi daftar makna membawa gold j016 dan j018 ke dokumen. j016 memang lolos lokasi; j018 tidak, karena jawaban hanya menyitasi paragraf sekitar j1 h55, tidak paragraf gold h13 (10000184) yang ada di dokumen (soal tahap jawaban, seperti j014/j020 di X05).
+- j019 dan j021 tetap gagal karena j1 h55 (gold bersama), j023 karena gold h290 vs h292, j024 karena takhrij gold tidak terambil.
+
+**Kesimpulan sesudah eval:** pencarian makna **tidak menaikkan lokasi jawaban** di set publik ini, walau menaikkan cakupan kandidat. Embedding + Vectorize produksi (langkah c) **tidak disarankan** sekarang: menambah token input ±7% dan satu layanan, tanpa kenaikan R4 yang terukur. Kait kode tetap (mati di Worker, tanpa biaya). Holdout (b) tidak dijalankan (izin pemilik hanya untuk a), dan baru bermakna sesudah perubahan yang menaikkan angka publik. Sisa jalan ke lokasi ≥ 90% ada di **tinjauan gold T-24** (j019, j021, j023 = 3 dari 5 kegagalan) serta tahap jawaban (j018) dan takhrij (j024).
+
+**Tinjau ulang bila:** gold ditinjau Anas (T-24) dan lokasi masih < 90% karena soal yang tak terjangkau kata; korpus bertambah kitab (indeks per kitab, kuota Vectorize); atau Workers AI mengganti `bge-m3`.
 
 ## ADR-094 · Petunjuk mode baca sekali tampil, Ringkasan AI ikut kata cari, dan ukur LCP per mode sebagai perintah repo (X14) — diterima · 2026-10-24
 
@@ -2379,7 +2392,7 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 3. **Ukur LCP per mode = `pnpm ukur:lcp <base> [mode,...] [n] [jalur,...]`** (`scripts/ukur-lcp.mjs`).
    - Mode `baru` (localStorage kosong: petunjuk tampil), `ar`, `both`, `tr`.
    - Lighthouse 13.5.0 (simulasi Lantern ponsel) lewat Puppeteer, cache HTTP dikosongkan tiap putaran, pemanasan ISR, median + sebaran.
-   - Mencetak nama mesin, CPU, RAM, versi Chrome dan Lighthouse.
+   - Mencetak model mesin (bukan hostname), CPU, RAM, versi Chrome dan Lighthouse.
    - Lighthouse dan puppeteer-core (versi dipatok) **tidak** menjadi dependensi repo: dipasang sekali dengan npm ke `~/.cache/surau/ukur-lcp` (`SURAU_LCP_DIR`). Chrome = Chromium Playwright e2e (`CHROME_PATH` untuk yang lain).
    - Angka hanya sebanding di mesin yang sama; angka acuan produksi dicatat di X14 beserta mesinnya.
 
@@ -2393,6 +2406,6 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 **Konsekuensi:**
 - HTML halaman baca bertambah satu kartu kecil (±1 KB), tersembunyi CSS bagi pembaca yang sudah memilih.
 - e2e yang mengukur posisi dari atas halaman kini melihat petunjuk bila tidak mengisi mode.
-- e2e `reader-x13` + axe ringkasan dibuka sementara.
+- e2e `reader-x14` + axe ringkasan dibuka sementara.
 
 **Tinjau ulang bila:** data menunjukkan pembaca menutup petunjuk tanpa memilih (pertimbangkan teks lain), petunjuk serupa dibutuhkan di Cari/Maknaz, ada akun/sinkron preferensi, atau versi Lighthouse/Chrome Playwright naik (patok ulang, ukur ulang acuan).

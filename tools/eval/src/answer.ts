@@ -191,7 +191,8 @@ async function main() {
     const ceiling = questionCeilingUsd();
     if (values["privat-saja"] && !values["termasuk-privat"])
       throw new Error("--privat-saja hanya bersama --termasuk-privat (izin pemilik).");
-    let items = loadAnswerQuestions(repo, false)
+    // X13: set privat hanya dimuat bila diminta, jadi run publik tidak butuh salinan holdout lokal.
+    let items = loadAnswerQuestions(repo, !values["termasuk-privat"])
       .filter((q) => !q.private || values["termasuk-privat"])
       .filter((q) => q.private || !values["privat-saja"]);
     if (values.only) {

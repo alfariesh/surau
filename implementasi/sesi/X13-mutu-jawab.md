@@ -1,6 +1,6 @@
 # X13 · Sesi sisipan: mutu Jawab (Maknaz) sebelum `/rilis 4`
 
-> **Fase:** sisipan Fase 4 (sesudah X05–X07, sebelum `/rilis 4`) · **Status:** sebagian (langkah gratis selesai 2026-10-24; langkah berbayar menunggu izin pemilik)
+> **Fase:** sisipan Fase 4 (sesudah X05–X07, sebelum `/rilis 4`) · **Status:** sebagian (langkah gratis + eval publik berbayar (a) selesai 2026-10-24; lokasi tidak naik; holdout dan produksi ditunda)
 > **Prasyarat:** X03, X05, X06, X07 selesai · Tugas pemilik: T-24 (tinjauan Ust. Anas, untuk kalibrasi judge dan gold), izin biaya di chat untuk setiap langkah berbayar
 > **Nomor:** X12 disisihkan untuk perbaikan mode baca (X11), jadi sesi ini X13.
 > **Perkiraan:** 1–2 percakapan agent (gratis dulu, berbayar sesudah izin)
@@ -56,8 +56,8 @@ Soal privat (`p…`) **tidak dipakai merancang** perbaikan, tidak dibaca isinya,
 - [x] `pnpm verify` lolos (format, lint, typecheck, tes, build): 851 + 387 tes, build
 - [x] Subagen `peninjau` dijalankan: 0 blocker, 3 penting + 4 kecil ditutup; 2 saran (batas waktu `semanticSearch` di pipeline, saring ID per edisi) dicatat untuk sesi yang menyalakan Worker
 - [x] STATUS, LOG, dan file sesi ini sudah diperbarui
-- [ ] PR di-merge (squash) setelah CI hijau
-- [ ] (berbayar, sesudah izin) lokasi eval publik ≥ 90% dengan pencarian makna, kutipan valid 100%, penolakan tepat tidak turun
+- [x] PR di-merge (squash) setelah CI hijau: langkah gratis PR #131 (`605889a`); hasil eval berbayar di PR berikutnya
+- [ ] (berbayar, sesudah izin) lokasi eval publik ≥ 90% dengan pencarian makna, kutipan valid 100%, penolakan tepat tidak turun — **tidak tercapai**: `x13-publik-makna-v1` (US$0,1171) lokasi 85,3% (29/34, sama dengan X05); kutipan valid 100% (148/148), penolakan tepat 100% (8/8). Lihat ADR-093 "Eval publik berbayar"
 - [ ] (berbayar, sesudah izin) holdout dijalankan sekali; laporan agregat
 - [ ] (T-24 + izin) kesepakatan judge ↔ Anas tercatat atas ≥ 30 pasangan
 
@@ -102,4 +102,7 @@ Laporan holdout hanya agregat (aturan ADR-045).
 - **Temuan untuk T-24:** j1 h55 adalah gold bersama j018/j019/j021 dan untuk j019/j021 tak terjangkau kata maupun makna (h55 di peringkat makna 110 dan > 200). Perlu ditinjau Anas, bukan disetel.
 - **Batas mesin:** mesin pemilik sekarang tanpa `evals/private/` dan korpus lokal lengkap; semua uji memakai staging `--remote` (SELECT saja). Vektor lokal di `data/build/makna/` (git-ignored).
 - **Belum:** langkah B (berbayar), j024 dengan daftar makna berbobot (catatan kaki takhrij kalah anggaran; usul: daftar makna khusus catatan kaki untuk soal status hadits), varian embedding Arab saja.
-- Biaya API sesi: **US$0** (tanpa LLM berbayar). Holdout tidak dibaca dan tidak dipakai.
+- **Eval publik berbayar (a)** atas izin pemilik ("Ya, saya izinkan eval publik X13 dengan pencarian makna, pagu US$0,30"): US$0,1171, lokasi 85,3% (29/34), kutipan 100%, penolakan tepat 8/8, takhrij 5/6. Kandidat atas rute run ini 29 → 31/34 dengan makna, tetapi jawaban j018 hanya menyitasi paragraf sekitar h55, tidak paragraf gold h13 (10000184) yang ada di dokumen. Gagal tetap j018, j019, j021, j023, j024.
+- **Keputusan sesudah (a):** produksi (c) tidak disarankan; holdout (b) belum (izin hanya untuk a, dan baru bermakna sesudah ada kenaikan). Jalan berikutnya: T-24 (gold j019/j021/j023), lalu tahap jawaban untuk topik tersebar dua lokasi (j018) dan takhrij j024.
+- `answer` kini memuat set privat hanya dengan `--termasuk-privat` (run publik tidak butuh salinan holdout lokal).
+- Biaya API sesi: **US$0,1171**. Holdout tidak dibaca dan tidak dipakai.
