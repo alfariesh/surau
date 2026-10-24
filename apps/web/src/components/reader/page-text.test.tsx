@@ -212,3 +212,43 @@ describe("SectionSummary: bantuan terjemahan (X11)", () => {
     expect(html).toContain("summary-peek-close");
   });
 });
+
+describe("SectionSummary: baris Intisari (X16)", () => {
+  const summary = {
+    label: "ai_summary",
+    section: { id: 7, title_ar: "باب", level: 2, permalink: "/kitab/uji/1/5#bab-7" },
+    lang: "id",
+    model: "m",
+    prompt_version: "p",
+    created_at: "2026-10-01",
+    review_status: "ai_generated",
+    text: "Ringkasan pendek.",
+  } as unknown as SummaryView;
+
+  it("bagian ber-Intisari: label AI + jumlah gagasan + menit + tautan, di dalam kartu (mode Arab ikut tersembunyi)", () => {
+    const html = renderToStaticMarkup(
+      <SectionSummary
+        digest={{
+          nodeId: 7,
+          tier: "section",
+          points: 4,
+          minutes: 3,
+          listenMinutes: null,
+          href: "/kitab/uji/bab/7/intisari",
+        }}
+        summary={summary}
+      />,
+    );
+    const teaser = /<p[^>]*data-intisari-teaser=""[^>]*>(.*?)<\/p>/u.exec(html)?.[1] ?? "";
+    expect(teaser).toContain("Intisari AI");
+    expect(teaser).toContain("4 gagasan · ± 3 menit");
+    expect(teaser).toContain('href="/kitab/uji/bab/7/intisari"');
+    expect(html.indexOf("data-tr-aid")).toBeLessThan(html.indexOf("data-intisari-teaser"));
+  });
+
+  it("tanpa Intisari (atau korpus skema < 9): tanpa baris maupun tautan", () => {
+    const html = renderToStaticMarkup(<SectionSummary summary={summary} />);
+    expect(html).not.toContain("data-intisari-teaser");
+    expect(html).not.toContain("/intisari");
+  });
+});
