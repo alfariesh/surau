@@ -1,3 +1,5 @@
+import { verseBounds } from "@surau/core";
+
 import type { PassageSegment } from "./segments";
 
 // Tata letak di dalam satu paragraf (X04 W4): subjudul yang menempel di awal/akhir paragraf (offset
@@ -5,36 +7,14 @@ import type { PassageSegment } from "./segments";
 // offset: gabungan teks semua blok selalu sama persis dengan `text_raw` (diuji), termasuk pemisah
 // bait yang tetap ada di DOM (disembunyikan secara visual, ikut tersalin).
 
-/** Pemisah bait di sumber Shamela. */
-export const VERSE_SEPARATOR = " ... ";
-/**
- * Paragraf dianggap bait utuh bila SEMUA bagiannya ≤ 80 karakter. Bait yang menempel di tengah prosa
- * (bagian panjang) tidak ditata, karena batas baitnya tidak bisa diketahui tanpa menebak.
- */
-export const SYATR_MAX_CHARS = 80;
+// Aturan bait syair satu sumber di @surau/core (dipakai juga jenis kutipan Intisari, X15b).
+export { SYATR_MAX_CHARS, VERSE_SEPARATOR, verseBounds } from "@surau/core";
 
 export type BlockKind = "text" | "subheading" | "syatr" | "syatr-sep";
 
 export interface Block {
   kind: BlockKind;
   segments: PassageSegment[];
-}
-
-/** Batas bagian bait (offset pemisah) bila paragraf = bait saja, atau `null`. */
-export function verseBounds(textRaw: string): number[] | null {
-  const bounds: number[] = [];
-  let at = 0;
-  for (;;) {
-    const i = textRaw.indexOf(VERSE_SEPARATOR, at);
-    if (i === -1) break;
-    if (i - at > SYATR_MAX_CHARS || textRaw.slice(at, i).trim() === "") return null;
-    bounds.push(i, i + VERSE_SEPARATOR.length);
-    at = i + VERSE_SEPARATOR.length;
-  }
-  if (bounds.length === 0) return null;
-  const rest = textRaw.slice(at);
-  if (rest.length > SYATR_MAX_CHARS || rest.trim() === "") return null;
-  return bounds;
 }
 
 /**

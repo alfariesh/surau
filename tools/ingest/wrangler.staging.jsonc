@@ -1,0 +1,20 @@
+// Binding D1 untuk pilot Intisari X15b (`pnpm llm intisari … --from staging`), pola
+// tools/eval/wrangler.jsonc. Worker ini tidak pernah di-deploy: `name` hanya syarat wrangler. CORPUS =
+// surau-corpus-staging (`remote: true` hanya berlaku lewat getPlatformProxy remoteBindings;
+// `preview_database_id` sengaja = staging). Pembaca membungkus binding dengan `selectOnly`, jadi kode
+// yang memakai berkas ini hanya bisa SELECT. Nama berkas bukan `wrangler.jsonc` supaya tidak terambil
+// otomatis oleh perintah wrangler lain.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-ingest-staging-read",
+  "compatibility_date": "2026-10-14",
+  "d1_databases": [
+    {
+      "binding": "CORPUS",
+      "database_name": "surau-corpus-staging",
+      "database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+      "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+      "remote": true,
+    },
+  ],
+}

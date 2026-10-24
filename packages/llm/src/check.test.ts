@@ -2,13 +2,18 @@
 import { describe, expect, test } from "vite-plus/test";
 
 import {
+  addressesReader,
   contentLength,
   footnoteMarkerDigits,
   hasArabicLetters,
+  hasFatwaLanguage,
+  hasFirstPerson,
+  hasHadithStatus,
   hasMarkdown,
   hasMetaCommentary,
   hasPreamble,
   longestArabicRun,
+  paraphrasesAyah,
   restoreFootnoteMarkers,
   stripMarkers,
 } from "./check.ts";
@@ -89,6 +94,75 @@ describe("komentar model", () => {
       "Mari kita lihat keadaan orang-orang saleh.",
     ]) {
       expect(hasMetaCommentary(t), t).toBe(false);
+    }
+  });
+});
+
+describe("bahasa atribusi", () => {
+  test("pola fatwa (dipindah dari tools/eval)", () => {
+    expect(hasFatwaLanguage("Hukumnya adalah wajib.")).toBe(true);
+    expect(hasFatwaLanguage("Aku, al-Ghazali, mengatakan ini.")).toBe(true);
+    expect(hasFatwaLanguage("Wajib bagi Anda menuntut ilmu.")).toBe(true);
+    expect(hasFatwaLanguage("Menurut al-Ghazali, bagian ini membahas ilmu.")).toBe(false);
+    expect(hasFatwaLanguage("Al-Ghazali menyebut menuntut ilmu ini fardu ain.")).toBe(false);
+  });
+
+  test("orang pertama dan sapaan pembaca sebagai kata utuh", () => {
+    for (const t of [
+      "Kami telah menjelaskan bahwa ilmu itu cahaya.",
+      "Kita harus ikhlas.",
+      "aku",
+    ]) {
+      expect(hasFirstPerson(t), t).toBe(true);
+    }
+    for (const t of [
+      "Kitab ini membahas ilmu.",
+      "Pada malam Kamis ia berdoa.",
+      "Al-Ghazali menukil ucapan para sahabat.",
+    ]) {
+      expect(hasFirstPerson(t), t).toBe(false);
+    }
+    expect(addressesReader("Anda perlu meluruskan niat.")).toBe(true);
+    expect(addressesReader("Al-Ghazali mengingatkan murid agar meluruskan niat.")).toBe(false);
+  });
+
+  test("status hadits ditulis model", () => {
+    for (const t of [
+      "Ia mengutip hadis lemah tentang ilmu.",
+      "Riwayat ini sahih.",
+      "sanadnya lemah",
+      "hadis yang berstatus palsu",
+      "Hadis-hadis maudhu' banyak beredar.",
+      "riwayat tersebut tidak ada asalnya",
+      "Ia mengutip hadis hasan.",
+    ]) {
+      expect(hasHadithStatus(t), t).toBe(true);
+    }
+    for (const t of [
+      "Al-Ghazali mengutip riwayat tentang keutamaan ilmu.",
+      "Ia menukil riwayat Hasan al-Bashri.",
+      "hadis tentang orang yang lemah imannya",
+      "Ia mengutip riwayat bahwa ulama adalah pewaris para nabi.",
+    ]) {
+      expect(hasHadithStatus(t), t).toBe(false);
+    }
+  });
+
+  test("parafrase ayat", () => {
+    for (const t of [
+      "Allah berfirman bahwa orang berilmu ditinggikan derajatnya.",
+      "Al-Qur'an menyatakan bahwa ulama paling takut kepada Allah.",
+      'Firman Allah: "Bertanyalah kepada ahli ilmu."',
+      "Ayat tersebut menegaskan keutamaan ilmu.",
+      "Surah al-Mujadalah ayat 11 menyebutkan derajat orang berilmu.",
+    ]) {
+      expect(paraphrasesAyah(t), t).toBe(true);
+    }
+    for (const t of [
+      "Al-Ghazali berdalil dengan ayat Al-Qur'an tentang keutamaan ilmu.",
+      "Ia mengutip firman Allah lalu menjelaskan tingkatan ulama.",
+    ]) {
+      expect(paraphrasesAyah(t), t).toBe(false);
     }
   });
 });

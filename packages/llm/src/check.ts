@@ -110,10 +110,69 @@ export function hasMetaCommentary(text: string, lang: "id" | "en" = "id"): boole
 
 /** Kalimat pembuka/penutup basa-basi yang dilarang prompt. */
 export function hasPreamble(text: string): boolean {
-  return /^\s*(?:berikut(?: ini)?(?: adalah)? (?:terjemah|ringkas)|terjemahan\s*:|ringkasan\s*:|here is)/i.test(
+  return /^\s*(?:berikut(?: ini)?(?: adalah)? (?:terjemah|ringkas|intisari)|terjemahan\s*:|ringkasan\s*:|intisari\s*:|here is)/i.test(
     text,
   );
 }
+
+// ── Bahasa atribusi (teks-arab.md aturan 6, 7, 9; ADR-097) ───────────────────────────────────
+// Satu sumber untuk validator Intisari (X15b) dan metrik eval Jawab (dulu di tools/eval). Heuristik
+// pola, bukan jaminan semantik: yang lolos tetap dinilai manusia (T-31).
+
+const FATWA =
+  /\b(?:hukumnya\s+(?:adalah|ialah)|(?:saya|aku|kami)\s+(?:memfatwakan|mengharamkan|menghalalkan)|(?:aku|saya),?\s+al[- ]?ghazali|menurut\s+fatwa\s+(?:saya|kami)|(?:wajib|haram)\s+(?:bagi\s+)?(?:anda|kamu))\b/iu;
+
+/** Hukum atau perintah atas nama Surau/pembaca ("Hukumnya adalah …"), atau "aku, al-Ghazali". */
+export const hasFatwaLanguage = (text: string): boolean => FATWA.test(text);
+
+/** Kata utuh (tidak menempel huruf, apostrof, atau tanda hubung): "kita" ≠ "kitab", "kami" ≠ "Kamis". */
+const word = (alternatives: string) =>
+  new RegExp(String.raw`(?<![\p{L}'’‘-])(?:${alternatives})(?![\p{L}'’‘-])`, "iu");
+
+const FIRST_PERSON = word("aku|saya|daku|kami|kita");
+const ADDRESS = word("anda|kamu|engkau|kau|dikau|kalian");
+
+/**
+ * Kata ganti orang pertama di narasi: tanda narator berbicara sebagai ulama (roleplay) atau sebagai
+ * Surau ("kita harus …"). Narasi Intisari selalu orang ketiga, termasuk ucapan yang dinukil (kalimat
+ * tidak langsung). Tidak dipakai untuk terjemahan kutipan, yang memang menerjemahkan "aku" penulis.
+ */
+export const hasFirstPerson = (text: string): boolean => FIRST_PERSON.test(text);
+
+/** Menyapa pembaca ("Anda", "kamu"): nasihat atas nama Surau, bukan atribusi (docs/05 §12). */
+export const addressesReader = (text: string): boolean => ADDRESS.test(text);
+
+const HADITH_WORD = String.raw`(?:hadi(?:ts|t|s)|riwayat|sanad|atsar|khabar)(?:-(?:hadi(?:ts|t|s)|riwayat|atsar|khabar))?`;
+const STATUS_WORD = String.raw`sahih|shahih|shohih|hasan|da['‘’]?if|dha['‘’]?if|lemah|palsu|maudhu['‘’]?|mawdu['‘’]?|munkar|mungkar|matruk|mursal|mutawatir|gharib|syadz|batil|bathil`;
+const HADITH_STATUS = new RegExp(
+  String.raw`\b${HADITH_WORD}(?:nya)?(?:\s+(?:ini|itu|tersebut|tadi))?(?:\s+(?:yang|ber(?:status|derajat)|derajat(?:nya)?|dinilai|tergolong|termasuk|adalah))*\s+(?<status>${STATUS_WORD})(?![\p{L}'’‘])|\bber(?:status|derajat)\s+(?<status2>${STATUS_WORD})(?![\p{L}'’‘])`,
+  "giu",
+);
+const STATUS_PHRASE = /\b(?:tidak\s+ada\s+asal(?:nya|-usulnya)|la\s+ashla\s+lahu)\b/iu;
+
+/**
+ * Status hadits ditulis model ("hadis lemah", "sanadnya sahih", "berstatus palsu"). Status hanya
+ * dari teks takhrij yang ditampilkan kode (teks-arab.md aturan 6). "Hasan" berhuruf kapital adalah
+ * nama orang ("riwayat Hasan al-Bashri"), bukan derajat.
+ */
+export function hasHadithStatus(text: string): boolean {
+  if (STATUS_PHRASE.test(text)) return true;
+  for (const m of text.matchAll(HADITH_STATUS)) {
+    const status = m.groups?.status ?? m.groups?.status2 ?? "";
+    if (status !== "Hasan") return true;
+  }
+  return false;
+}
+
+const AYAH_PARAPHRASE =
+  /\b(?:allah\s+(?:(?:swt\.?|ta['‘’]ala|subhanahu\s+wa\s+ta['‘’]ala|['‘’]?azza\s+wa\s+jalla)\s+)?berfirman|firman(?:-nya|\s+allah)(?:\s+(?:swt\.?|ta['‘’]ala))?\s*(?:[:"“«]|bahwa|yang\s+artinya)|(?:al-?qur['‘’]an|ayat(?:\s+(?:ini|itu|tersebut|al-?qur['‘’]an))?|(?:surah|surat)\s+[\p{L}'’-]+(?:\s+ayat\s+\d+)?)\s+(?:menyatakan|menyebutkan|menegaskan|mengatakan|menjelaskan|memerintahkan|melarang|berbunyi|bermakna|berarti))/iu;
+
+/**
+ * Isi atau makna ayat ditulis model ("Allah berfirman …", "Al-Qur'an menyatakan …"). Ayat hanya
+ * tampil sebagai teks Tanzil + terjemahan Kemenag (aturan 9); teks AI cukup menyebut bahwa penulis
+ * berdalil dengan ayat.
+ */
+export const paraphrasesAyah = (text: string): boolean => AYAH_PARAPHRASE.test(text);
 
 const ARABIC_INDIC = "٠١٢٣٤٥٦٧٨٩";
 const SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹";

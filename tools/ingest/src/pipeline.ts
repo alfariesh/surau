@@ -42,6 +42,8 @@ import { emitSql } from "./sql.ts";
 import { assertWritable } from "./sqlite.ts";
 import { llmRows } from "./llm/attach.ts";
 import type { LlmBuild } from "./llm/attach.ts";
+import { digestInvariant, digestRows, withDigestSummaries } from "./llm/digest-attach.ts";
+import type { DigestBuild } from "./llm/digest-attach.ts";
 import { loadReviews } from "./llm/reviews.ts";
 import {
   applyRevisions,
@@ -186,6 +188,8 @@ function rowsFor(
   ayat: AyatBuild;
   llm: LlmBuild | null;
   revisions: RevisionStats;
+  /** Intisari (X15b): baris + indeks + invarian; null bila build tanpa folder hasil LLM. */
+  digest: DigestBuild | null;
 } {
   const { source, pages, takhrij } = prepared;
   const base = buildRows({
@@ -235,7 +239,27 @@ function rowsFor(
   rows.translation = revisions.translation;
   rows.translation_review = revisions.translation_review;
   rows.meta = [...rows.meta, ...revisionMetaRows(loaded)];
+  // Intisari (X15b, ADR-097): dicek terhadap baris korpus final ini (termasuk terjemahan yang sudah
+  // direvisi, untuk kutipan satu paragraf utuh). Abstrak yang lolos `checkSummary` menjadi ringkasan
+  // bahasa id node itu, sehingga Cari/Jawab/MCP memakai satu ringkasan.
+  const digest =
+    paths.llm === undefined
+      ? null
+      : digestRows(rows, join(paths.llm, "intisari"), {
+          subheadings: readSubheadings(paths.repo, config),
+        });
+  if (digest !== null) {
+    rows.glossary_term = digest.glossary_term;
+    rows.digest = digest.digest;
+    rows.digest_point = digest.digest_point;
+    rows.digest_anchor = digest.digest_anchor;
+    rows.digest_quote = digest.digest_quote;
+    rows.digest_question = digest.digest_question;
+    rows.digest_term = digest.digest_term;
+    rows.summary = withDigestSummaries(rows.summary, digest.summary);
+  }
   return {
+    digest,
     rows,
     llm,
     revisions: revisions.stats,
@@ -338,7 +362,14 @@ export function runIngest(
         "(kitab yang belum pernah dirilis: --reset-ids)",
     );
   const ids = createAllocator(idMap);
-  const { rows, fts, ayat, llm, revisions } = rowsFor(config, paths, prepared, toc, ids, opts.env);
+  const {
+    rows,
+    fts,
+    ayat,
+    llm,
+    revisions,
+    digest: intisari,
+  } = rowsFor(config, paths, prepared, toc, ids, opts.env);
   const validation = validate({
     config,
     source,
@@ -352,6 +383,10 @@ export function runIngest(
   });
   validation.invariants.push(revisionInvariant(rows, revisions));
   validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
+  if (intisari !== null) {
+    validation.invariants.push(digestInvariant(intisari));
+    validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
+  }
   const prints = fingerprints(config.edition.id, rows.passage);
   const stability =
     released === null ? null : checkStability(released, prints, opts.acceptTextChanges);
@@ -375,7 +410,10 @@ export function runIngest(
   if (!validation.ok) return { validation, ayat: ayat.stats };
 
   mkdirSync(sqlDir, { recursive: true });
-  const files = emitSql(rows, fts, latinFtsRows(rows.translation, rows.summary));
+  const files = emitSql(rows, fts, {
+    ...latinFtsRows(rows.translation, rows.summary),
+    digest: intisari?.fts ?? [],
+  });
   for (const f of files) writeFileSync(join(sqlDir, f.name), f.content);
   const { counts } = buildSqlite(sqlitePath, paths.migrations, files, [
     ...TABLE_ORDER,
