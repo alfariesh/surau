@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import type { CopyPiece } from "../../lib/reader/id-text";
 
 import { reader as readerText } from "../../i18n/id/reader";
-import { revealFor, toggleTranslation } from "../../lib/reader/fold";
+import { revealFor, toggleArabic, toggleTranslation } from "../../lib/reader/fold";
 import { labelledCopy } from "../../lib/reader/id-text";
 
 const t = readerText;
@@ -17,7 +17,8 @@ const t = readerText;
 //    (Arab) tetap apa adanya. Skrip, gaya, dan teks yang tidak dirender tidak ikut.
 //    Seleksi yang hanya berisi teks Arab memakai salin bawaan browser (verbatim).
 // 2. Mode "terjemahan dilipat" (dan paragraf yang dibuka sementara di mode Arab, X11): tombol
-//    `.translation-toggle` membuka/menutup terjemahan paragrafnya (lib/reader/fold.ts).
+//    `.translation-toggle` membuka/menutup terjemahan paragrafnya; di mode Terjemahan tombol
+//    `.arabic-toggle` membuka/menutup teks Arabnya (lib/reader/fold.ts).
 // 3. Tautan `#…` ke teks yang tersembunyi mode baca atau lipatan membukanya lebih dulu (X11).
 
 const BLOCKS =
@@ -116,9 +117,10 @@ export function ReaderEnhancements() {
     }
     function onClick(event: MouseEvent) {
       const target = event.target instanceof Element ? event.target : null;
-      const button = target?.closest(".translation-toggle");
+      const button = target?.closest(".translation-toggle, .arabic-toggle");
       if (button === null || button === undefined) return;
-      toggleTranslation(button);
+      if (button.classList.contains("arabic-toggle")) toggleArabic(button);
+      else toggleTranslation(button);
     }
     // Tautan ke teks yang tersembunyi mode baca/tata letak (X11): buka dulu, lalu tampilkan.
     function onHash() {

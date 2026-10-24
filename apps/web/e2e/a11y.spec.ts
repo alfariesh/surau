@@ -147,3 +147,21 @@ test("tanpa pelanggaran a11y: mode baca Arab + kata cari + panel Tampilan (j1/20
   await expect(page.getByRole("radiogroup", { name: "Mode baca" })).toBeVisible();
   expect(await axeViolations(page)).toEqual([]);
 });
+
+// Mode Terjemahan (X11 bagian B): Arab terlipat lalu dibuka, judul tetap h2/h3 berurutan.
+test("tanpa pelanggaran a11y: mode Terjemahan, terlipat dan terbuka (j1/200)", async ({ page }) => {
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem("surau:read-mode", "tr");
+    } catch {}
+  });
+  await page.goto("/kitab/ihya/1/200");
+  await expect(page.locator("html")).toHaveAttribute("data-read-mode", "tr");
+  expect(await axeViolations(page)).toEqual([]);
+  const toggle = page.locator("#p2824").getByRole("button", { name: "Teks Arab" });
+  await expect(async () => {
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true", { timeout: 1000 });
+  }).toPass();
+  expect(await axeViolations(page)).toEqual([]);
+});

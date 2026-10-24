@@ -8,7 +8,7 @@ import type { Locator, Page } from "@playwright/test";
 const PAGE = "/kitab/ihya/1/200";
 const TEXT = { name: "Teks kitab", exact: true } as const;
 
-async function setMode(page: Page, mode: "ar" | "both", extra: Record<string, string> = {}) {
+async function setMode(page: Page, mode: "ar" | "both" | "tr", extra: Record<string, string> = {}) {
   await page.addInitScript(
     ({ mode, extra }) => {
       try {
@@ -29,7 +29,7 @@ async function openMenu(page: Page) {
 }
 
 /** Pilih mode baca lewat menu ⋮ navbar. */
-async function pickFromMenu(page: Page, label: "Arab" | "Keduanya") {
+async function pickFromMenu(page: Page, label: "Arab" | "Keduanya" | "Terjemahan") {
   await (await openMenu(page)).getByRole("radio", { name: label }).click();
   await page.keyboard.press("Escape");
 }
@@ -293,4 +293,106 @@ test("ganti mode di Cari: kartu yang sedang dibaca tidak bergeser (≤ 2 px)", a
   await expect(cards.locator('[lang="id"]:not(.bg-surface-secondary)')).toHaveCount(0);
   const after = await cards.nth(anchor!.index).evaluate((el) => el.getBoundingClientRect().top);
   expect(Math.abs(after - anchor!.top)).toBeLessThanOrEqual(2);
+});
+
+// --- Mode Terjemahan (bagian B) ---
+
+test("mode Terjemahan: Arab tiap paragraf terlipat dan dibuka per paragraf; ⋮ tetap terjangkau", async ({
+  page,
+}) => {
+  await setMode(page, "tr");
+  await page.goto(PAGE);
+  const passage = page.locator("#p2824");
+  await expect(passage.locator(".passage-translation-body")).toBeVisible();
+  await expect(passage.locator(".passage-ar")).toBeHidden();
+  const toggle = passage.getByRole("button", { name: "Teks Arab" });
+  await expect(async () => {
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true", { timeout: 1000 });
+  }).toPass();
+  await expect(passage.locator(".passage-ar")).toBeVisible();
+  // ⋮ di baris alat (yang di dalam teks Arab tidak digandakan).
+  const actions = passage.getByRole("button", { name: /Aksi paragraf/ });
+  await expect(actions).toHaveCount(1);
+  await expect(actions).toBeVisible();
+  await actions.click();
+  await expect(page.getByRole("menuitem", { name: "Salin sitasi paragraf" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await toggle.click();
+  await expect(passage.locator(".passage-ar")).toBeHidden();
+  // Judul tidak pernah dilipat.
+  await expect(page.locator(".passage-heading .reader-heading").first()).toBeVisible();
+});
+
+test("mode Terjemahan: paragraf tanpa terjemahan menampilkan teks Arab dengan keterangan", async ({
+  page,
+}) => {
+  await setMode(page, "tr");
+  await page.goto("/kitab/ihya/1/86#p1022");
+  const passage = page.locator("#p1022");
+  await expect(passage.locator(".arabic-text")).toBeVisible();
+  await expect(passage.locator(".no-tr-note")).toBeVisible();
+  await expect(passage.locator(".passage-tools")).toHaveCount(0);
+});
+
+test("mode Terjemahan: kata cari Arab di teks yang terlipat membuka Arab paragraf itu", async ({
+  page,
+}) => {
+  await setMode(page, "tr");
+  await page.goto(`${PAGE}?q=${encodeURIComponent("الجمعة")}#p2826`);
+  const target = page.locator("#p2826");
+  await expect(target).toHaveAttribute("data-ar-open", "");
+  await expect(target.locator(".passage-ar")).toBeVisible();
+  await expect(target.getByRole("button", { name: "Teks Arab" })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+  expect(await page.evaluate(() => CSS.highlights.get("surau-cari")?.size ?? 0)).toBeGreaterThan(0);
+});
+
+test("mode Terjemahan: salinan terjemahan tetap berlabel AI", async ({
+  page,
+  context,
+  baseURL,
+  isMobile,
+}) => {
+  test.skip(isMobile, "seleksi teks dengan mouse");
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await setMode(page, "tr");
+  await page.goto(PAGE);
+  const body = page.locator("#p2824 .passage-translation-body [data-ai-text]").first();
+  await body.evaluate((el) => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  await page.keyboard.press("ControlOrMeta+c");
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toContain(`(Terjemahan AI, ${new URL(`${PAGE}#p2824`, baseURL).href})`);
+});
+
+test("mode Terjemahan di Cari: terjemahan lebih dulu, potongan Arab tetap tampil", async ({
+  page,
+}) => {
+  await setMode(page, "tr");
+  await page.goto(`/cari?q=${encodeURIComponent("الصبر")}`);
+  const card = page.locator("li[data-keep-position]").first();
+  await expect(card).toBeVisible({ timeout: 15_000 });
+  const order = await card.evaluate((el) => {
+    const hit = el.querySelector(".search-snippet")!.parentElement!;
+    return [...hit.children].map((c) =>
+      c.classList.contains("search-snippet") ? "arabic" : c.getAttribute("lang") ? "tr" : "other",
+    );
+  });
+  expect(order.indexOf("tr")).toBeGreaterThanOrEqual(0);
+  expect(order.indexOf("tr")).toBeLessThan(order.indexOf("arabic"));
+});
+
+test("menu ⋮ di Maknaz menampilkan mode baca", async ({ page }) => {
+  await page.goto("/tanya");
+  await page.getByRole("button", { name: "Menu lainnya" }).click();
+  await expect(page.getByRole("radiogroup", { name: "Mode baca" })).toBeVisible();
+  await expect(page.getByRole("radio", { name: "Terjemahan" })).toBeVisible();
 });

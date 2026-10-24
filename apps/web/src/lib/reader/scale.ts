@@ -12,10 +12,11 @@ export const READER_TR_SCALE_KEY = "surau:reader-tr-scale";
 /**
  * Mode baca (X11, ADR-091): teks yang tampil di pembaca, Cari, dan Maknaz, disimpan per browser dan
  * berlaku di seluruh situs. Atribut `data-read-mode` di <html>: tanpa atribut = "both" (bawaan,
- * Arab + terjemahan, tata letak dari `data-tr-layout`); "ar" = Arab saja. Netral bahasa:
- * "terjemahan" = terjemahan dalam bahasa situs. Urutan = urutan pilihan di UI.
+ * Arab + terjemahan, tata letak dari `data-tr-layout`); "ar" = Arab saja; "tr" = terjemahan sebagai
+ * teks utama, teks Arab tiap paragraf dilipat (dibuka per paragraf). Netral bahasa: "terjemahan" =
+ * terjemahan dalam bahasa situs. Urutan = urutan pilihan di UI.
  */
-export const READ_MODES = ["ar", "both"] as const;
+export const READ_MODES = ["ar", "both", "tr"] as const;
 export type ReadMode = (typeof READ_MODES)[number];
 export const READ_MODE_KEY = "surau:read-mode";
 

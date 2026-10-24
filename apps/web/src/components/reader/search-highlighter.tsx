@@ -70,9 +70,14 @@ export function SearchHighlighter() {
       const ranges: Range[] = [];
       // Teks cocok yang tersembunyi mode baca atau lipatan (X11): dibuka supaya sorotannya terlihat.
       const hidden: Element[] = [];
+      // Diperiksa per kecocokan (bukan per blok): di mode Terjemahan blok Arab bersubjudul tetap
+      // tampil (subjudulnya) sementara paragraf di dalamnya terlipat.
       const collect = (el: Element, found: Range[]) => {
         ranges.push(...found);
-        if (found.length > 0 && isHidden(el)) hidden.push(el);
+        for (const range of found) {
+          const at = range.startContainer.parentElement ?? el;
+          if (isHidden(at)) hidden.push(at);
+        }
       };
       if (arabic !== null) {
         for (const el of document.querySelectorAll(".passage .arabic-text")) {

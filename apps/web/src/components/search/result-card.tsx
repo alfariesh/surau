@@ -62,33 +62,50 @@ function Hit({ hit, query, mode }: { hit: SearchHit; query: string; mode: ReadMo
           {r.footnotesHeading}
         </Chip>
       ) : null}
-      <ArabicText className="text-foreground search-snippet">{render(arabic)}</ArabicText>
-      {tr && parts.includes("translation") ? (
-        <div className="flex flex-col gap-1" lang={tr.lang}>
-          <Chip className="self-start" size="sm" variant="soft">
-            {translationLabel(tr.human_review).badge}
-          </Chip>
-          <Typography type="body-sm">
-            {render(aiSegments(tr.snippet.text, tr.snippet.char_start, tr.highlights))}
-          </Typography>
-        </div>
-      ) : null}
-      {sm ? (
-        <div className="bg-surface-secondary flex flex-col gap-1 rounded-xl p-3" lang={sm.lang}>
-          <div className="flex flex-wrap items-center gap-2">
-            <Chip color="accent" size="sm" variant="soft">
-              {r.aiSummary}
-            </Chip>
-            <ArabicInline className="text-foreground">{sm.section.title_ar}</ArabicInline>
-          </div>
-          <Typography type="body-sm">
-            {render(aiSegments(sm.snippet.text, sm.snippet.char_start, sm.highlights))}
-          </Typography>
-          <NextLink className="link self-start text-xs" href={sm.section.permalink}>
-            {t.openSection}
-          </NextLink>
-        </div>
-      ) : null}
+      {parts.map((part) => {
+        if (part === "arabic") {
+          return (
+            <ArabicText key={part} className="text-foreground search-snippet">
+              {render(arabic)}
+            </ArabicText>
+          );
+        }
+        if (part === "translation" && tr) {
+          return (
+            <div key={part} className="flex flex-col gap-1" lang={tr.lang}>
+              <Chip className="self-start" size="sm" variant="soft">
+                {translationLabel(tr.human_review).badge}
+              </Chip>
+              <Typography type="body-sm">
+                {render(aiSegments(tr.snippet.text, tr.snippet.char_start, tr.highlights))}
+              </Typography>
+            </div>
+          );
+        }
+        if (part === "summary" && sm) {
+          return (
+            <div
+              key={part}
+              className="bg-surface-secondary flex flex-col gap-1 rounded-xl p-3"
+              lang={sm.lang}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <Chip color="accent" size="sm" variant="soft">
+                  {r.aiSummary}
+                </Chip>
+                <ArabicInline className="text-foreground">{sm.section.title_ar}</ArabicInline>
+              </div>
+              <Typography type="body-sm">
+                {render(aiSegments(sm.snippet.text, sm.snippet.char_start, sm.highlights))}
+              </Typography>
+              <NextLink className="link self-start text-xs" href={sm.section.permalink}>
+                {t.openSection}
+              </NextLink>
+            </div>
+          );
+        }
+        return null;
+      })}
       <div className="text-muted flex flex-wrap items-center justify-between gap-2 text-xs">
         <span>
           {t.matchedByLabel} {hit.matched_by.map((m) => t.matchedBy[m.path]).join(" · ")}

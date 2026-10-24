@@ -8,7 +8,10 @@ import { aiRuns } from "../../lib/reader/id-text";
 import type { TranslationModel, TranslationSegmentView } from "../../lib/reader/page-model";
 import { translationLabel } from "../../lib/translation-label";
 
+import type { FootnoteMarkerProps } from "./footnote-marker";
+
 import { AiBadge } from "./ai-badge";
+import { FootnoteMarker } from "./footnote-marker";
 
 const t = readerText;
 
@@ -18,24 +21,33 @@ const t = readerText;
 // (reader-enhancements.tsx). Placeholder ayat ⟦QS s:a⟧ dirender dari terjemahan Kemenag VERBATIM dengan
 // labelnya sendiri, bukan sebagai teks model. Kutipan langsung "…" yang berpasangan tampil sebagai
 // “…” bergaya kutipan; padanan subjudul ditebalkan (rentang dari daftar kurasi). Penanda catatan
-// kaki (١) menaut ke catatan kaki Arab halaman ini. Bagian AI diberi `data-ai-text` (sorotan Cari).
+// kaki (١) membuka catatan kaki Arab halaman ini di tempat (X11). Bagian AI diberi `data-ai-text` (sorotan Cari).
 // Mode "terjemahan dilipat" (panel Tampilan) memakai tombol `.translation-toggle`; buka-tutupnya
 // ditangani satu pendengar klik di halaman (reader-enhancements.tsx), jadi komponen ini tetap komponen server.
 // Bahasa (`lang`) dari datanya, bukan bahasa UI (X11): siap untuk terjemahan bahasa lain.
 
 const MARKER = new RegExp(FOOTNOTE_MARKER_SOURCE, "g");
 
-function withMarkers(text: string, footAnchor: Readonly<Record<string, string>>): ReactNode[] {
+/** Catatan kaki halaman ini per digit penanda (١): data `FootnoteMarker` untuk penanda di terjemahan. */
+export type FootnotesByDigit = Readonly<Record<string, FootnoteMarkerProps["footnote"]>>;
+
+/**
+ * Penanda (١) di terjemahan membuka takhrij di tempat, sama dengan penanda di teks Arab (X11 bagian
+ * B, teks-arab.md: penanda bisa diklik dan membuka takhrij di tempat). Penting di mode Terjemahan,
+ * saat penanda Arab ikut terlipat.
+ */
+function withMarkers(text: string, footnotes: FootnotesByDigit): ReactNode[] {
   const out: ReactNode[] = [];
   let at = 0;
   for (const m of text.matchAll(MARKER)) {
-    const anchor = footAnchor[m[1] ?? ""];
-    if (anchor === undefined) continue;
+    const digit = m[1] ?? "";
+    const footnote = footnotes[digit];
+    if (footnote === undefined) continue;
     if (m.index > at) out.push(text.slice(at, m.index));
     out.push(
-      <a key={m.index} className="link translation-marker" href={`#${anchor}`}>
-        {m[0]}
-      </a>,
+      <span key={m.index} className="translation-marker">
+        <FootnoteMarker footnote={footnote} marker={digit} text={m[0]} />
+      </span>,
     );
     at = m.index + m[0].length;
   }
@@ -49,24 +61,20 @@ const ADDED = /\[[^\]\n]*\]/gu;
  * Kata tambahan penerjemah `[…]` pada teks perbaikan manusia (X08): tampil redup dengan penjelasan.
  * Kurung siku tulisan AI tidak diberi gaya ini (bisa bermakna lain, mis. "[ayat 26]").
  */
-function withAdded(
-  text: string,
-  revised: boolean,
-  footAnchor: Readonly<Record<string, string>>,
-): ReactNode[] {
-  if (!revised) return withMarkers(text, footAnchor);
+function withAdded(text: string, revised: boolean, footnotes: FootnotesByDigit): ReactNode[] {
+  if (!revised) return withMarkers(text, footnotes);
   const out: ReactNode[] = [];
   let at = 0;
   for (const m of text.matchAll(ADDED)) {
-    if (m.index > at) out.push(...withMarkers(text.slice(at, m.index), footAnchor));
+    if (m.index > at) out.push(...withMarkers(text.slice(at, m.index), footnotes));
     out.push(
       <span key={`a${m.index}`} className="tr-added" title={t.trAdded}>
-        {withMarkers(m[0], footAnchor)}
+        {withMarkers(m[0], footnotes)}
       </span>,
     );
     at = m.index + m[0].length;
   }
-  if (at < text.length) out.push(...withMarkers(text.slice(at), footAnchor));
+  if (at < text.length) out.push(...withMarkers(text.slice(at), footnotes));
   return out;
 }
 
@@ -76,18 +84,18 @@ function AiText({
   offset,
   bold,
   revised,
-  footAnchor,
+  footnotes,
 }: {
   text: string;
   offset: number;
   bold: TranslationModel["bold"];
   revised: boolean;
-  footAnchor: Readonly<Record<string, string>>;
+  footnotes: FootnotesByDigit;
 }) {
   return (
     <span data-ai-text="" data-tr-seg="ai">
       {aiRuns(text, offset, bold).map((run, i) => {
-        let node: ReactNode = withAdded(run.text, revised, footAnchor);
+        let node: ReactNode = withAdded(run.text, revised, footnotes);
         if (run.quote) node = <span className="tr-quote">{node}</span>;
         if (run.bold) node = <strong className="tr-strong">{node}</strong>;
         return <span key={i}>{node}</span>;
@@ -99,10 +107,10 @@ function AiText({
 /** Isi terjemahan (segmen AI + ayat Kemenag) tanpa pembungkus; dipakai juga pratinjau /tinjau. */
 export function Segments({
   translation,
-  footAnchor,
+  footnotes,
 }: {
   translation: TranslationModel;
-  footAnchor: Readonly<Record<string, string>>;
+  footnotes: FootnotesByDigit;
 }) {
   let offset = 0;
   return translation.segments.map((s, i) => {
@@ -113,7 +121,7 @@ export function Segments({
         <AiText
           key={i}
           bold={translation.bold}
-          footAnchor={footAnchor}
+          footnotes={footnotes}
           offset={at}
           revised={translation.review?.revised === true}
           text={s.text}
@@ -156,14 +164,14 @@ export function joinTranslations(list: readonly TranslationModel[]): Translation
 
 export function PassageTranslation({
   translation,
-  footAnchor,
+  footnotes,
   permalink,
   anchor,
   heading = false,
 }: {
   translation: TranslationModel | null;
-  /** Digit penanda (١) → jangkar catatan kaki di halaman ini. */
-  footAnchor: Readonly<Record<string, string>>;
+  /** Digit penanda (١) → catatan kaki di halaman ini (takhrij dibuka di tempat). */
+  footnotes: FootnotesByDigit;
   /** Permalink paragraf (label salinan). */
   permalink: string;
   /** Jangkar paragraf (`p2824`), untuk id isi terjemahan. */
@@ -190,7 +198,7 @@ export function PassageTranslation({
         <span className="sr-only" data-copy-skip="">
           {label.badge}:{" "}
         </span>
-        <Segments footAnchor={footAnchor} translation={translation} />{" "}
+        <Segments footnotes={footnotes} translation={translation} />{" "}
         <AiBadge anchor={anchor} label={label} />
       </p>
     );
@@ -216,7 +224,7 @@ export function PassageTranslation({
         <span className="sr-only" data-copy-skip="">
           {label.badge}:{" "}
         </span>
-        <Segments footAnchor={footAnchor} translation={translation} />{" "}
+        <Segments footnotes={footnotes} translation={translation} />{" "}
         <AiBadge anchor={anchor} label={label} />
       </p>
     </div>

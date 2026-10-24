@@ -25,7 +25,7 @@ describe("PassageTranslation (X04 W3)", () => {
     const html = render(
       <PassageTranslation
         anchor="p7"
-        footAnchor={{}}
+        footnotes={{}}
         permalink="/kitab/uji/1/5#p7"
         translation={{
           segments: [{ kind: "ai", label: "ai_translation", text: 'Ia berkata, "Sabar."' }],
@@ -45,7 +45,7 @@ describe("PassageTranslation (X04 W3)", () => {
     const html = render(
       <PassageTranslation
         anchor="p7"
-        footAnchor={{}}
+        footnotes={{}}
         permalink="/kitab/uji/1/5#p7"
         translation={{
           segments: [{ kind: "ai", label: "ai_translation", text: "He said, be patient." }],
@@ -62,7 +62,7 @@ describe("PassageTranslation (X04 W3)", () => {
     const html = render(
       <PassageTranslation
         anchor="p7"
-        footAnchor={{}}
+        footnotes={{}}
         permalink="/kitab/uji/1/5#p7"
         translation={{
           segments: [{ kind: "ai", label: "ai_translation", text: 'Ia berkata, "Sabar."' }],
@@ -80,7 +80,7 @@ describe("PassageTranslation (X04 W3)", () => {
     const html = render(
       <PassageTranslation
         anchor="p8"
-        footAnchor={{}}
+        footnotes={{}}
         permalink="/kitab/uji/1/5#p8"
         translation={{
           segments: [
@@ -121,7 +121,7 @@ describe("PassageTranslation (X04 W3)", () => {
       <PassageTranslation
         heading
         anchor="p9"
-        footAnchor={{}}
+        footnotes={{}}
         permalink="/kitab/uji/1/5#p9"
         translation={joined}
       />,
@@ -135,7 +135,7 @@ describe("PassageTranslation (X04 W3)", () => {
   it("tanpa terjemahan: tidak merender apa pun", () => {
     expect(
       render(
-        <PassageTranslation anchor="p1" footAnchor={{}} permalink="/x#p1" translation={null} />,
+        <PassageTranslation anchor="p1" footnotes={{}} permalink="/x#p1" translation={null} />,
       ),
     ).toBe("");
   });
@@ -155,7 +155,7 @@ describe("PassageTranslation: tinjauan manusia (X08, ADR-082)", () => {
     const html = render(
       <PassageTranslation
         anchor="p7"
-        footAnchor={{}}
+        footnotes={{}}
         permalink="/kitab/uji/1/5#p7"
         translation={{ segments: seg("Allah [Ta'ala] berfirman."), bold: null, lang: "id", review }}
       />,
@@ -177,7 +177,7 @@ describe("PassageTranslation: tinjauan manusia (X08, ADR-082)", () => {
     const html = render(
       <PassageTranslation
         anchor="p8"
-        footAnchor={{}}
+        footnotes={{}}
         permalink="/kitab/uji/1/5#p8"
         translation={{ segments: seg("Lihat [ayat 26]."), bold: null, lang: "id", review: null }}
       />,
@@ -189,7 +189,7 @@ describe("PassageTranslation: tinjauan manusia (X08, ADR-082)", () => {
     const checked = render(
       <PassageTranslation
         anchor="p9"
-        footAnchor={{}}
+        footnotes={{}}
         permalink="/kitab/uji/1/5#p9"
         translation={{
           segments: seg("Lihat [ayat 26]."),

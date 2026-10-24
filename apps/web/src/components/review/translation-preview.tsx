@@ -46,7 +46,7 @@ export function TranslationPreview({
   return (
     <div className="translation-preview" lang={lang}>
       <Segments
-        footAnchor={{}}
+        footnotes={{}}
         translation={{ segments: previewSegments(text, passage, quran), bold: null, lang }}
       />
     </div>

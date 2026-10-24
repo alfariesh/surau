@@ -25,6 +25,7 @@ import { ArabicInline, ArabicText } from "../arabic";
 import { TanyaOrb } from "./tanya-orb";
 import { modelName } from "../../lib/model-names";
 import { translationLabel } from "../../lib/translation-label";
+import { useReadMode } from "../read-mode";
 
 // Tampilan hasil Jawab (S21; sebagai balasan di percakapan, ADR-073). Teks Indonesia dari model tampil sebagai teks biasa per blok: blok
 // bersitasi diberi penanda [n], blok tanpa sitasi redup (ADR-064 butir 5). Kutipan Arab SELALU dari
@@ -119,6 +120,7 @@ function CitationCard({
   item: KutipanItem | null | undefined;
   idPrefix: string;
 }) {
+  const readMode = useReadMode();
   return (
     <li id={`kutipan-${idPrefix}${c.n}`} className="scroll-mt-24">
       <Card>
@@ -152,7 +154,8 @@ function CitationCard({
             <ArabicText as="blockquote">{item.text}</ArabicText>
           )}
           {item?.translation ? (
-            <details className="flex flex-col gap-1">
+            // Mode Terjemahan (X11): terjemahan paragraf kutipan terbuka bawaan; Arab tetap tampil.
+            <details className="flex flex-col gap-1" open={readMode === "tr"}>
               <summary className="text-muted cursor-pointer text-sm">
                 {item.translation.human_review
                   ? translationLabel(item.translation.human_review).badge

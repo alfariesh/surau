@@ -4,9 +4,11 @@ import { Alert, CloseButton } from "@heroui/react";
 import NextLink from "next/link";
 
 import { reader as readerText } from "../../i18n/id/reader";
+import { readMode as readModeText } from "../../i18n/id/readMode";
 import { AI_NOTICE_KEY } from "../../lib/reader/scale";
 
 const t = readerText;
+const rm = readModeText;
 
 /**
  * Catatan terjemahan AI di awal teks halaman (X04 W3): satu kalimat yang menjelaskan semua lencana
@@ -33,6 +35,8 @@ export function AiNotice({ mixed = false }: { mixed?: boolean }) {
         <Alert.Title>{t.aiNoticeTitle}</Alert.Title>
         <Alert.Description>
           {mixed ? t.aiNoticeBodyMixed : t.aiNoticeBody}{" "}
+          {/* Hanya di mode Terjemahan (CSS): teks Arab tetap ada di setiap paragraf (X11). */}
+          <span className="ai-notice-tr">{rm.aiNoticeTr} </span>
           <NextLink className="link" href="/tentang#prinsip">
             {t.aiNoticeMore}
           </NextLink>

@@ -8,6 +8,8 @@ import { Button, Dropdown, Label } from "@heroui/react";
 import { reader as readerText } from "../../i18n/id/reader";
 import { UI_LANG } from "../../i18n/locale";
 
+import { useReadMode } from "../read-mode";
+
 import { useReader } from "./reader-context";
 
 const t = readerText;
@@ -53,4 +55,14 @@ export function PassageActions({ passage }: { passage: PassageRef }) {
       </Dropdown.Popover>
     </Dropdown>
   );
+}
+
+/**
+ * ⋮ kedua di baris alat paragraf, hanya di mode Terjemahan (X11 bagian B): ⋮ biasa ada di dalam teks
+ * Arab yang terlipat. Mode baru diketahui sesudah hidrasi, jadi di server dan mode lain tidak
+ * merender apa pun: HTML dan hidrasi pembaca lain tidak bertambah.
+ */
+export function TrPassageActions({ passage }: { passage: PassageRef }) {
+  const mode = useReadMode();
+  return mode === "tr" ? <PassageActions passage={passage} /> : null;
 }

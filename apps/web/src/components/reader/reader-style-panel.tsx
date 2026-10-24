@@ -305,6 +305,7 @@ function ReadModeControl({ mode, hasTranslation }: { mode: ReadMode; hasTranslat
         variants={{
           ar: hint(m.hints.ar),
           both: hint(hasTranslation ? m.hints.both : m.noTranslation),
+          tr: hint(hasTranslation ? m.hints.tr : m.noTranslation),
         }}
       />
     </div>
@@ -317,6 +318,11 @@ function ReadModeControl({ mode, hasTranslation }: { mode: ReadMode; hasTranslat
  */
 function Preview({ preview, mode }: { preview: ReaderSample; mode: ReadMode }) {
   const tr = preview.translation;
+  const translationSample = tr ? (
+    <p className="passage-translation" lang={tr.lang}>
+      {tr.text} <span className="ai-badge">{translationLabel(tr.review).badge}</span>
+    </p>
+  ) : null;
   return (
     // `shrink-0`: badan lembar ponsel adalah kolom flex yang bisa digulir; tanpa ini widget
     // (overflow tersembunyi) menyusut dan memotong pratinjau beserta lencana AI-nya.
@@ -335,11 +341,10 @@ function Preview({ preview, mode }: { preview: ReaderSample; mode: ReadMode }) {
               variants={{
                 // Di tengah ruang yang dicadangkan untuk contoh terjemahan (tinggi tetap).
                 ar: <div className="flex h-full items-center">{hint(m.previewNoTranslation)}</div>,
-                both: (
-                  <p className="passage-translation" lang={tr.lang}>
-                    {tr.text} <span className="ai-badge">{translationLabel(tr.review).badge}</span>
-                  </p>
-                ),
+                // Mode Terjemahan: contoh huruf terjemahan sama dengan Keduanya (Arab dilipat per
+                // paragraf di pembaca, penjelasannya di atas).
+                tr: translationSample,
+                both: translationSample,
               }}
             />
           ) : null}
@@ -377,7 +382,11 @@ export function ReaderStylePanel({ preview }: { preview: ReaderSample }) {
         />
         <StableText
           active={mode}
-          variants={{ ar: hint(m.trControlsOff), both: hint(t.styleTrLayoutHint) }}
+          variants={{
+            ar: hint(m.trControlsOff),
+            both: hint(t.styleTrLayoutHint),
+            tr: hint(m.layoutOnlyBoth),
+          }}
         />
       </div>
     </>

@@ -80,6 +80,51 @@ describe("PageText: penanda mode baca (X11)", () => {
   });
 });
 
+describe("PageText: mode Terjemahan (X11 bagian B)", () => {
+  it("paragraf berterjemahan: baris alat + tombol Teks Arab yang mengendalikan blok Arab yang dilipat", async () => {
+    const html = await render([passage(1, "نص", tr("Teks pertama."))]);
+    expect(html).toContain('class="passage-tools" data-copy-skip=""');
+    expect(html).toMatch(/aria-controls="ar-p1" aria-expanded="false" class="arabic-toggle"/u);
+    expect(html).toMatch(/class="arabic-text text-foreground[^"]*passage-ar"[^>]*id="ar-p1"/u);
+    // ⋮ kedua hanya di klien di mode Terjemahan: HTML server tidak menggandakannya.
+    expect(html.match(/passage-actions/g)).toHaveLength(1);
+    expect(html).not.toContain("no-tr-note");
+  });
+
+  it("paragraf tanpa terjemahan: tanpa baris alat dan tanpa lipatan, dengan keterangan", async () => {
+    const html = await render([passage(2, "نص", null)]);
+    expect(html).not.toContain("passage-tools");
+    expect(html).not.toContain("passage-ar");
+    expect(html).toContain("no-tr-note");
+  });
+
+  it("penanda catatan kaki di terjemahan membuka takhrij di tempat (tombol), bukan tautan lompat", async () => {
+    const body = passage(1, "نص (١)", tr("Teks pertama (١) selesai."));
+    (body as { footnote_refs: unknown }).footnote_refs = [
+      { marker: "١", char_start: 3, char_end: 6, footnote_id: 10_000_009 },
+    ];
+    const foot = passage(9, "(١) تخريج", null);
+    (foot as { kind: string }).kind = "foot";
+    const view = page([body]);
+    (view as { footnotes: Passage[] }).footnotes = [foot];
+    const model = await buildPageModel(view, { editionId: 999, sections: [] });
+    const html = renderToStaticMarkup(
+      <ReaderProvider
+        cite={{ author: null, title: "Uji", publisher: null, juz: 1, pageNo: 5 }}
+        pagePath="/kitab/uji/1/5"
+      >
+        <PageText model={model} />
+      </ReaderProvider>,
+    );
+    const translation = html.slice(html.indexOf('class="passage-translation"'));
+    // Tanpa hover (render server/ponsel) pemicunya tombol popover; namanya sama dengan penanda Arab.
+    expect(translation).toMatch(
+      /<span class="translation-marker"><button[^>]*aria-label="Catatan kaki \(١\)"/u,
+    );
+    expect(translation).not.toContain('class="link translation-marker"');
+  });
+});
+
 describe("SectionSummary: bantuan terjemahan (X11)", () => {
   it("bertanda data-tr-aid (disembunyikan mode Arab) dan berbahasa datanya", () => {
     const summary = {
