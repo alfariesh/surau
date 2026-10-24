@@ -36,6 +36,7 @@ import {
 import { ArabicText } from "../arabic";
 import { useReadMode } from "../read-mode";
 import { ReadModeSegment } from "../read-mode-segment";
+import { StableText } from "../stable-text";
 
 import {
   ALIGN_PREF,
@@ -255,33 +256,6 @@ function PaperPicker() {
 
   return (
     <CellPicker label={t.stylePaper} options={PAPER_OPTIONS} value={paper} onSelect={setTheme} />
-  );
-}
-
-/**
- * Teks yang berganti menurut mode baca tanpa mengubah tinggi (X11): semua varian ditumpuk di satu
- * sel grid (`.stable-stack`) dan hanya yang aktif terlihat, jadi tingginya = varian tertinggi. Di
- * lembar ponsel tepi atas ikut tinggi isinya; tanpa ini pilihan mode bergeser di bawah jari.
- */
-function StableText({
-  active,
-  variants,
-}: {
-  active: string;
-  variants: Readonly<Record<string, ReactNode>>;
-}) {
-  return (
-    <div className="stable-stack">
-      {Object.entries(variants).map(([key, node]) => (
-        <div
-          key={key}
-          aria-hidden={key === active ? undefined : true}
-          className={key === active ? undefined : "invisible"}
-        >
-          {node}
-        </div>
-      ))}
-    </div>
   );
 }
 

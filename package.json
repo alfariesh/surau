@@ -31,7 +31,8 @@
     "eval:jawab": "node tools/eval/src/answer.ts",
     "eval:takhrij": "node tools/eval/src/takhrij-report.ts",
     "jawab:gateway-check": "node tools/eval/src/gateway-check.ts",
-    "kertas": "node scripts/kertas.mjs"
+    "kertas": "node scripts/kertas.mjs",
+    "ukur:lcp": "node scripts/ukur-lcp.mjs"
   },
   "devDependencies": {
     "@paper-design/shaders": "catalog:",

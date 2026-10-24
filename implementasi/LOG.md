@@ -24,12 +24,19 @@ Format entri:
 - Keputusan: ADR-096
 - Catatan untuk sesi berikutnya: pemilik bisa membuka surau.org (landing) dan surau.org/home (Beranda) setelah deploy. Testimoni asli, donasi, dan versi `/en` menunggu keputusan pemilik.
 
+## 2026-10-24 · X14 · Lanjutan mode baca: petunjuk sekali tampil, Ringkasan AI ikut kata cari, ukur LCP di repo — selesai (PR #130)
+- Dikerjakan: petunjuk "Pilih cara membaca" (pilihan pemilik) di halaman baca bagi pengunjung yang belum memilih mode, lewat skrip awal + pemeriksaan ulang saat navigasi lunak, tanpa geser tata letak; Ringkasan AI satu DOM, disorot kata cari, dibuka bila kecocokan terpotong, dibuka sementara di mode Arab (batas ADR-091 §4 dihapus); `scripts/ukur-lcp.mjs` + `pnpm ukur:lcp` (Lighthouse di cache pengguna, bukan dependensi repo).
+- Verifikasi: `pnpm check` + build lolos, tes unit 851 lolos (1 tes lama `translation-review` lewat batas 5 dtk tipis di mesin ber-load 28; lolos di CI) · e2e `reader-x14` 16/16 lokal + CI Preview; axe petunjuk + ringkasan dibuka · peninjau: 0 blocker, 5 perbaikan + 3 saran dikerjakan · LCP Preview j1/200 baru 3,96 / Keduanya 3,31 / Terjemahan 3,16 / Arab 3,97 dtk vs produksi 4,19 / 4,42 / 3,48 / 2,88 (n=5, sebaran ±1 dtk).
+- Biaya API: –
+- Keputusan: ADR-095 (dinomori ulang dua kali: ADR-093 dan ADR-094 dipakai X13 Mutu Jawab).
+- Catatan untuk sesi berikutnya: ukur di Mac pemilik dengan `pnpm ukur:lcp`; petunjuk serupa di Cari/Maknaz belum ada.
+
 ## 2026-10-24 · X13 lanjutan · Daftar makna takhrij untuk soal hadits — selesai (kode; eval berbayar menunggu izin)
 - Dikerjakan: `semanticLists` + daftar `(makna takhrij)` (catatan kaki saja, k 10, hanya bila routing menandai soal hadits); `semanticSearch` mengembalikan `{passages, footnotes}`; peringkat v2 dengan `footnote_ids`; `kandidat --makna-takhrij-k`; bedah j018 (jawaban menyitasi h55–57 yang menjawab kedua sisi; gold h13 → T-24).
 - Verifikasi: `kandidat --input x13-…-diagnostik-publik.jsonl --remote` 31 → 32/34 (status hadits 6/6); tanpa rute tetap 30; `pnpm verify` → lolos.
-- Biaya API: –
+- Biaya API: US$0,1116 (eval `x13-publik-takhrij-v1` atas rute tersimpan, izin pemilik, pagu US$0,30): lokasi 88,2% (30/34), takhrij 6/6, kutipan 100%, penolakan 7/8 (j033).
 - Keputusan: ADR-094.
-- Catatan untuk sesi berikutnya: eval atas rute X13 + peringkat v2 (±US$0,11, pagu 0,30) menunggu izin; sisa 4 kegagalan lokasi (j018, j019, j021, j023) menunggu T-24.
+- Catatan untuk sesi berikutnya: sisa 4 kegagalan lokasi (j018, j019, j021, j023) menunggu T-24; j033 gagal penolakan untuk kedua kalinya (kalimat baku di paragraf kedua) → kandidat ADR pascaproses penolakan; holdout dan Vectorize produksi masih ditunda.
 
 ## 2026-10-24 · X13 · Mutu Jawab: pencarian makna, cakupan takhrij gold, persiapan holdout/kalibrasi — sebagian (langkah gratis; berbayar menunggu izin)
 - Dikerjakan: bedah j024 (istilah berbeda + catatan kaki tanpa terjemahan); cakupan gratis soal status hadits menuntut catatan kaki gold; `kandidat --tanpa-rute` + `--semantik`; kait pencarian makna di pipeline (`semanticList`, `JawabDeps.semanticSearch`, mati di Worker); `answer --semantik` (arsip `+makna-berkas`); embedding lokal `bge-m3` q8 atas 20.509 paragraf staging (66 menit CPU, di luar repo) + peringkat 42 soal publik.

@@ -2265,7 +2265,7 @@ Jawaban pemilik (2026-10-24, pertanyaan pilihan): (1) mode Terjemahan boleh, den
 1. **Satu preferensi global** `surau:read-mode` (`ar` | `both` | `tr`), atribut `<html data-read-mode>` dipasang skrip awal (ADR-083); tanpa atribut = Keduanya (bawaan). Nilainya netral bahasa ("terjemahan" = terjemahan dalam bahasa situs). Sakelar lama `surau:reader-translation` dipindah sekali oleh skrip awal ("0" → `ar`, selain itu `both`; mode yang sudah tersimpan menang) lalu dihapus; cabang pemindahan boleh dihapus sesudah **2027-04-30**. Atribut `data-translation` dihapus.
 2. **Mode Arab** menyembunyikan terjemahan paragraf dan semua bantuan terjemahan bertanda `data-tr-aid`: Ringkasan AI, catatan AI di awal teks, baris AI kaki halaman, judul Indonesia + catatannya di daftar isi, judul Indonesia di kepala halaman. Popover ayat (terjemahan Kemenag, bukan terjemahan AI) dan catatan kaki takhrij sama di semua mode; /tinjau tidak terpengaruh (`.translation-preview`).
 3. **Tata letak** (Di bawah / Dilipat / Berdampingan) hanya berlaku di Keduanya. Berdampingan: paragraf tanpa terjemahan (`data-no-tr`) selebar penuh; syair mengukur lebarnya sendiri (`container: verse`, ambang `25.6em` = 36rem pada ukuran bawaan, ikut ukuran huruf).
-4. **Teks tersembunyi yang dituju dibuka per paragraf** (`lib/reader/fold.ts`): kecocokan kata cari dan tautan `#…`. Di mode Arab terjemahan paragraf itu dibuka sementara (`data-tr-peek`) dengan tombol "Terjemahan AI" untuk menutupnya lagi; di Dilipat dibuka. Terjemahan judul (satu baris, tanpa tombol) ikut dibuka bila kata cari cocok di sana. Batas yang diterima: ringkasan AI tidak disorot penyorot kata cari, jadi hasil Cari yang cocok hanya lewat ringkasan mendarat di halaman yang menyembunyikan ringkasan itu di mode Arab.
+4. **Teks tersembunyi yang dituju dibuka per paragraf** (`lib/reader/fold.ts`): kecocokan kata cari dan tautan `#…`. Di mode Arab terjemahan paragraf itu dibuka sementara (`data-tr-peek`) dengan tombol "Terjemahan AI" untuk menutupnya lagi; di Dilipat dibuka. Terjemahan judul (satu baris, tanpa tombol) ikut dibuka bila kata cari cocok di sana. ~~Batas yang diterima: ringkasan AI tidak disorot penyorot kata cari, jadi hasil Cari yang cocok hanya lewat ringkasan mendarat di halaman yang menyembunyikan ringkasan itu di mode Arab.~~ Batas ini dihapus oleh ADR-095 §2 (X14): Ringkasan AI ikut disorot dan dibuka sementara di mode Arab.
 5. **Posisi baca dijaga** (`lib/keep-position.ts`): setiap perubahan preferensi (mode, ukuran, font, jarak, perataan, tata letak) dan pembukaan otomatis mengukur jangkar (paragraf pertama yang mulai di bawah navbar, atau paragraf terpotong bila tidak ada), menerapkan perubahan, lalu menggulir selisihnya di wadah gulir yang sebenarnya. Scroll anchoring browser dimatikan (`overflow-anchor: none`) selama dua frame penyesuaian: tanpa itu Chrome ikut mengoreksi sesudahnya (koreksi ganda, terukur ±270 px di uji lokal) bila jangkar pilihannya ikut tersembunyi.
 6. **Kontrol:** Segment "Mode baca" (grup radio) di paling atas panel Tampilan dan di menu ⋮ navbar di bawah tema, hanya di halaman yang teksnya terpengaruh (pembaca, daftar isi karya yang berjudul Indonesia, Cari; didaftarkan halaman lewat `useHeaderMenuReadMode`). Label **Arab · Keduanya · Terjemahan** ("Arab + Terjemahan" tidak muat tiga tombol di menu 256 px). Panel: pratinjau Arab + terjemahan AI berlencana menurut mode; kontrol terjemahan yang tidak berlaku dinonaktifkan dengan keterangan, tidak disembunyikan; teks yang berganti menurut mode ditumpuk dalam satu sel grid (`StableText`), jadi tinggi panel tetap dan tepi atas lembar ponsel tidak bergeser di bawah jari (diukur 0 px). Kamus terpisah `i18n/id/readMode.ts` (shell tidak membawa kamus pembaca, ADR-079).
 7. **Cari dan Maknaz ikut mode tanpa menyembunyikan bukti:** kartu Cari selalu menampilkan potongan Arab; di mode Arab terjemahan hanya tampil bila jalur terjemahan yang cocok (`hitParts`, satu-satunya alasan paragraf itu muncul); ringkasan bagian hanya ada bila jalurnya cocok, jadi selalu tampil. Kutipan Maknaz: Arab selalu tampil (bukti verifikasi); terjemahannya terbuka bawaan di mode Terjemahan (bagian B).
@@ -2385,6 +2385,62 @@ Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama): biaya input 
 
 **Langkah berbayar yang menunggu izin:** eval publik atas rute X13 tersimpan + peringkat v2 (tanpa routing, ±US$0,11, pagu 0,30):
 `pnpm run eval:jawab answer --run x13-publik-takhrij-v1 --remote --rute evals/private/jawab-runs/x13-publik-makna-v1-diagnostik-publik.jsonl --semantik evals/jawab/makna/x13-bge-m3-q8-publik-v2.jsonl --budget-usd 0.3 --confirm`
+
+**Eval berbayar (izin pemilik di chat 2026-10-24: "Ya, saya izinkan eval X13 atas rute tersimpan dengan peringkat v2, pagu US$0,30"):** `x13-publik-takhrij-v1`, 42 soal publik, rute routing dari `x13-publik-makna-v1` (tanpa panggilan routing, `+rute-tersimpan`), peringkat v2 (`+makna-berkas`), staging `ihya-v8`, tanpa holdout. Biaya **US$0,1116** (US$0,0027/jawaban tanpa routing); laporan `evals/reports/jawab-x13-publik-takhrij-v1.md`.
+
+| Run | Kutipan valid | Lokasi | Penolakan tepat | Tidak salah menolak | Takhrij | Tanpa pola fatwa |
+|---|---|---|---|---|---|---|
+| `x13-publik-makna-v1` (ADR-093) | 100% (148/148) | 85,3% (29/34) | 100% (8/8) | 100% (34/34) | 83,3% (5/6) | 100% |
+| **`x13-publik-takhrij-v1`** (ADR-094) | **100% (172/172)** | **88,2% (30/34)** | 87,5% (7/8) | 100% (34/34) | **100% (6/6)** | 100% |
+
+- **j024 lolos** (lokasi dan takhrij). Lokasi gagal tinggal **j018, j019, j021, j023**, keempatnya menunggu tinjauan gold (T-24).
+- **j033** (di luar cakupan: perintah SQL D1 "menurut Ihya") tidak diawali kalimat penolakan baku: paragraf pertama menjelaskan bahwa itu bukan isi Ihya, kalimat "Tidak ditemukan di kitab yang dicakup." baru di paragraf kedua, dengan satu sitasi bab doa sebagai contoh isi dokumen. Isinya menolak dengan benar dan tanpa klaim, tetapi menurut aturan `isNotFound` (kalimat baku harus di awal, sengaja, diuji) hasilnya "jawaban". Ini kali kedua j033 gagal dengan `answer@6` (X05 run utama juga), dari 4 run. Tidak diubah di sini: melonggarkan `isNotFound` mengubah kebijakan penolakan dan perlu ADR + eval sendiri. Kandidat perbaikan: pascaproses yang menjadikan jawaban berkalimat baku di awal paragraf mana pun + tanpa klaim kitab sebagai penolakan, diuji pada soal jebakan.
+- Angka ini tetap **in-sample** dan atas rute satu run; bukti R4 butuh holdout dan gold yang ditinjau.
+
+**Tinjau ulang bila:** gold ditinjau (T-24); j033 gagal lagi (prioritaskan kandidat perbaikan di atas); atau kitab kedua masuk (catatan kaki kitab lain bukan takhrij al-'Iraqi).
+
+## ADR-095 · Petunjuk mode baca sekali tampil, Ringkasan AI ikut kata cari, dan ukur LCP per mode sebagai perintah repo (X14) — diterima · 2026-10-24
+
+**Konteks:** sesudah X11 (ADR-091) tersisa tiga hal:
+- pilihan mode baca hanya ada di menu ⋮ dan panel Tampilan, jadi sulit ditemukan pembaca baru;
+- Ringkasan AI tidak disorot kata cari dan tersembunyi di mode Arab (batas ADR-091 §4);
+- cara ukur LCP per mode (Lighthouse lewat Puppeteer, localStorage diisi) hanya ada di folder sementara agen.
+
+Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halaman baca, bukan tombol mode di kartu catatan AI atau di toolbar baca.
+
+**Keputusan:**
+1. **Petunjuk mode baca** (`components/reader/read-mode-hint.tsx`) di awal teks halaman baca, di atas catatan AI. Isinya judul "Pilih cara membaca", Segment mode baca (komponen yang sama dengan panel dan menu ⋮, jadi tidak menambah JS awal), dan penjelasan mode terpilih setinggi tetap (`StableText`, kini `components/stable-text.tsx`).
+   - HTML-nya sama untuk semua pembaca (ISR). Skrip awal memasang `data-read-mode-hint="off"` bila `surau:read-mode` tersimpan (nilai apa pun, termasuk hasil pemindahan sakelar lama) atau `surau:read-mode-hint` = "off" (ditutup). CSS menyembunyikannya sebelum tampil: tanpa kedip dan tanpa geser tata letak.
+   - Memilih mode di petunjuk menyimpan mode (lewat `setReadMode`, posisi baca dijaga) tetapi tidak menutup petunjuk di halaman itu, supaya teks di bawahnya tidak melompat. Di halaman berikutnya petunjuk tidak muncul.
+   - Tombol tutup menyimpan "off" tanpa mengubah mode.
+   - Penyimpanan diblokir: petunjuk tampil di setiap halaman dan bisa ditutup per halaman, sama dengan catatan AI.
+   - Hanya di halaman baca utama (bukan halaman sambungan, Cari, daftar isi, Maknaz), dan juga di halaman tanpa terjemahan (penjelasannya menyebut bahwa teks Arab yang tampil). Tidak dicetak.
+   - Catatan AI dan lencana per paragraf tidak berubah (teks-arab.md aturan 8); penjelasan mode menyebut "terjemahan AI".
+2. **Ringkasan AI ikut kata cari** (menghapus batas ADR-091 §4):
+   - Penyorot mencocokkan bagian Latin kueri juga di `[data-tr-seg="summary"]`.
+   - Ringkasan memakai satu DOM untuk keadaan terpotong dan terbuka: paragraf `summaryParagraphs` selalu dirender, dan atribut `data-expanded` (CSS) memilih dua baris sebaris atau paragraf bertumpuk. Sorotan (Range di node teks) tetap berlaku saat ringkasan dibuka-tutup; sebelumnya keadaan terbuka mengganti node teks.
+   - Kecocokan di bagian yang terpotong membuka ringkasan lewat event `SUMMARY_OPEN_EVENT` (komponen merender sinkron di dalam jaga posisi).
+   - Di mode Arab ringkasan yang cocok dibuka sementara (`data-tr-peek`, seperti terjemahan paragraf) dengan tombol "Sembunyikan lagi ringkasan AI ini" yang hanya tampil dalam keadaan itu. Bantuan AI lain tetap tersembunyi.
+3. **Ukur LCP per mode = `pnpm ukur:lcp <base> [mode,...] [n] [jalur,...]`** (`scripts/ukur-lcp.mjs`).
+   - Mode `baru` (localStorage kosong: petunjuk tampil), `ar`, `both`, `tr`.
+   - Lighthouse 13.5.0 (simulasi Lantern ponsel) lewat Puppeteer, cache HTTP dikosongkan tiap putaran, pemanasan ISR, median + sebaran.
+   - Mencetak model mesin (bukan hostname), CPU, RAM, versi Chrome dan Lighthouse.
+   - Lighthouse dan puppeteer-core (versi dipatok) **tidak** menjadi dependensi repo: dipasang sekali dengan npm ke `~/.cache/surau/ukur-lcp` (`SURAU_LCP_DIR`). Chrome = Chromium Playwright e2e (`CHROME_PATH` untuk yang lain).
+   - Angka hanya sebanding di mesin yang sama; angka acuan produksi dicatat di X14 beserta mesinnya.
+
+**Tidak dipilih:**
+- Tombol mode di kartu catatan AI: kartu itu hilang di mode Arab, bila ditutup, dan di halaman tanpa terjemahan, sehingga tombolnya ikut hilang.
+- Tombol mode di toolbar baca: toolbar ponsel makin padat, dan tombol itu tidak menjelaskan apa-apa ke pembaca baru.
+- Menutup petunjuk otomatis saat mode dipilih: teks di bawahnya akan melompat setinggi petunjuk.
+- Petunjuk lewat state React: berkedip dan menggeser tata letak saat hidrasi.
+- Lighthouse sebagai devDependency (±100 paket untuk ukur manual) atau `pnpm dlx` (CLI Lighthouse tidak bisa mengisi localStorage sebelum halaman dimuat).
+
+**Konsekuensi:**
+- HTML halaman baca bertambah satu kartu kecil (±1 KB), tersembunyi CSS bagi pembaca yang sudah memilih.
+- e2e yang mengukur posisi dari atas halaman kini melihat petunjuk bila tidak mengisi mode.
+- e2e `reader-x14` + axe ringkasan dibuka sementara.
+
+**Tinjau ulang bila:** data menunjukkan pembaca menutup petunjuk tanpa memilih (pertimbangkan teks lain), petunjuk serupa dibutuhkan di Cari/Maknaz, ada akun/sinkron preferensi, atau versi Lighthouse/Chrome Playwright naik (patok ulang, ukur ulang acuan).
 
 **Tinjau ulang bila:** eval berbayar tidak meloloskan j024; gold ditinjau (T-24); atau kitab kedua masuk (catatan kaki kitab lain bukan takhrij al-'Iraqi).
 
