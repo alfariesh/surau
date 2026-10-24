@@ -15,7 +15,7 @@ Format entri:
 
 ---
 
-## 2026-10-24 · X16 · UI Intisari: hub, halaman Intisari, pembaca, daftar isi, Cari, MCP — selesai (kode; data nyata + T-30 menunggu)
+## 2026-10-24 · X16 · UI Intisari: hub, halaman Intisari, pembaca, daftar isi, Cari, MCP — selesai (data nyata menunggu X15b; T-30 disetujui pemilik 2026-10-25)
 - Dikerjakan:
   - **core:** dalil Intisari dihitung dari jangkar (`DigestView.evidence`: ayat Tanzil + Kemenag, takhrij + label kode). Jalur Cari `digest` (opt-in; Cari situs, MCP, eval retrieval; bukan Jawab) dengan memo isolate untuk korpus tanpa indeks; `SEARCH_RESULT_VERSION` 3.
   - **web:** hub `/kitab/ihya/intisari` + halaman `/kitab/ihya/bab/<id>/intisari` (ISR, 404 di skema < 9) + fixture `/dev/intisari` (Preview, `DEV_PAGES`). Komponen `components/intisari/*` (label AI, gagasan + Dasar teks, kutipan Arab dari DB, istilah, dalil, Uji pemahaman, penutup, slot ▶ X17).
@@ -35,7 +35,7 @@ Format entri:
     - tautan hub hanya bila ada Intisari Kitab, penjaga huruf Arab di kartu Cari, label netral catatan kaki non-takhrij, syarat e2e lewat lencana `daftar-isi.json`, satu pemuatan ekstra daftar isi per render.
 - Biaya API: –
 - Keputusan: ADR-099
-- Catatan untuk sesi berikutnya: data nyata baru ada sesudah X15b langkah 9 (pilot ke staging). Sesudahnya deploy ulang Preview: e2e "dengan Intisari" membandingkan kutipan dengan `/api/kutipan`. Ulangi juga `eval:retrieval --gate` dan LCP halaman Intisari nyata. X17 mengisi `ListenSlot`. T-30 tahap 1: tangkapan layar `sesi/bukti/X16/01–05`.
+- Catatan untuk sesi berikutnya: data nyata baru ada sesudah X15b langkah 9 (pilot ke staging). Sesudahnya deploy ulang Preview: e2e "dengan Intisari" membandingkan kutipan dengan `/api/kutipan`. Ulangi juga `eval:retrieval --gate` dan LCP halaman Intisari nyata. X17 mengisi `ListenSlot`. T-30 disetujui pemilik 2026-10-25 (“ya saya setuju”, jawaban di sesi induk) atas tangkapan layar `sesi/bukti/X16/01–05`; lihat lagi tampilannya dengan data nyata sesudah pilot.
 
 ## 2026-10-24 · X15a · Intisari: riset Headway/Blinkist/ElevenLabs v4, rencana X15–X17, kontrak data — selesai (kontrak; pipeline, UI, audio menyusul)
 - Dikerjakan:

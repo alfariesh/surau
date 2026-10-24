@@ -1,6 +1,6 @@
 # X16 · Sesi sisipan: UI Intisari (hub, halaman Intisari, pembaca, daftar isi, Cari, MCP)
 
-> **Fase:** sisipan (`apps/web`, `apps/mcp`, `packages/core`, `packages/db` hanya jalur Cari) · **Status:** selesai (kode; PR #138 di main `4ffb9ab`, ADR-099); data nyata menunggu X15b langkah 9; T-30 menunggu pemilik
+> **Fase:** sisipan (`apps/web`, `apps/mcp`, `packages/core`, `packages/db` hanya jalur Cari) · **Status:** selesai (kode; PR #138 di main `4ffb9ab`, ADR-099); data nyata menunggu X15b langkah 9; T-30 disetujui pemilik 2026-10-25 (“ya saya setuju”, jawaban di sesi induk)
 > **Prasyarat:** X15a di-merge (kontrak `readDigest`/`DigestView`, ADR-097); data nyata di staging dari X15b langkah 9 · Tugas pemilik: T-30 (tinjau tampilan)
 > **Perkiraan:** 1–2 percakapan agent · $0 LLM · tanpa korpus baru (fixture dulu; data nyata dari pilot X15b / `ihya-v9`)
 
@@ -64,7 +64,7 @@ Lihat [X15](X15-intisari.md) dan ADR-097. Persona: pekerja kota yang sibuk, awam
 - [x] Setiap gagasan punya minimal satu tautan "Dasar teks" yang membuka paragrafnya. *(core tidak mengirim gagasan tanpa jangkar; `digest-page.test.tsx` + e2e fixture: setiap `li#gagasan-N` punya `a[data-basis]` ke `#pN`.)*
 - [x] Label AI ada di halaman Intisari, kartu pembaca, dan kartu Cari. *(`digest-page.test.tsx`, `page-text.test.tsx` (baris Intisari di kartu Ringkasan AI), `result-card.test.tsx`; e2e fixture.)*
 - [x] e2e + axe lolos; LCP ≤ 4,29 dtk; `eval:retrieval --gate` tidak turun. *(CI commit `6af024a`: `preview` sukses = e2e penuh di Preview termasuk `intisari.spec.ts` + axe; tes "dengan Intisari" dilewati karena staging tanpa data, dicatat di butir 1–2. `preview mcp` sukses (8 tool), `eval retrieval` sukses. LCP ponsel Preview median j1/200 3,49/3,29 dtk, `/dev/intisari` 3,37/3,69 dtk, `bukti/X16/lcp-pr138.md`; CI `eval retrieval` hijau; e2e lokal 12 lolos/2 dilewati dengan axe; e2e Preview CI: lihat PR #138.)*
-- [ ] `pnpm verify` lolos; peninjau; T-30 disetujui pemilik; STATUS, LOG, dan berkas sesi ini diperbarui.
+- [x] `pnpm verify` lolos; peninjau; T-30 disetujui pemilik; STATUS, LOG, dan berkas sesi ini diperbarui. *(`pnpm verify` lokal lolos: 881 + 418 tes + build, dan CI `verify` hijau; peninjau: 1 blocker + 13 temuan dikerjakan; T-30 disetujui pemilik 2026-10-25 (“ya saya setuju”, jawaban di sesi induk); STATUS/LOG/berkas sesi di PR #138 dan #140.)*
 
 Berkas bersama dengan X17 yang dikerjakan bergantian: `src/i18n/privacy.ts` / halaman `/privasi` (penyimpanan lokal) dan `globals.css`.
 
