@@ -25,6 +25,7 @@ export {
 
 export { findQuote } from "./quote.ts";
 export { SENTENCE_ABBREVIATIONS, indonesianSentences } from "./sentences.ts";
+export { SPOKEN_VERSION, numberWords, ordinalWords, spokenIndonesian } from "./spoken-id.ts";
 export type { SentenceSpan } from "./sentences.ts";
 export { TAKHRIJ_TERMS_VERSION, takhrijTerms } from "./takhrij-terms.ts";
 export type { TakhrijTerm, TakhrijTermKind, TakhrijTerms } from "./takhrij-terms.ts";

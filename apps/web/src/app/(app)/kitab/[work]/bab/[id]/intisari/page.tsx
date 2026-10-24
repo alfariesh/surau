@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { BreadcrumbJsonLd } from "../../../../../../../components/breadcrumb-json-ld";
 import { DigestPage } from "../../../../../../../components/intisari/digest-page";
 import type { ChildDigest } from "../../../../../../../components/intisari/digest-page";
+import { listenTrack } from "../../../../../../../components/listen/track";
 import { CITE_AUTHOR } from "../../../../../../../content/works";
 import { id } from "../../../../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../../../../lib/layout";
@@ -95,6 +96,12 @@ export default async function DigestRoute({ params }: Props) {
         digest={digest}
         editionSlug={edition.slug}
         hubHref={hubHref}
+        listen={listenTrack(digest, {
+          work: segment,
+          title: node?.titleId ?? digest.section.title_ar,
+          titleLang: node?.titleId ? "id" : "ar",
+          href: digestHref(segment, digest.section.id),
+        })}
         sections={sections}
         titleId={node?.titleId ?? null}
         titleLang={shown.titleSource?.lang}

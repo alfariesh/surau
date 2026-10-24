@@ -53,6 +53,17 @@ const NEGATIVE: ReadonlySet<TakhrijTermKind> = new Set([
 /** Istilah kelemahan, palsu, tanpa asal, atau tidak ditemukan (dasar tanda `weak`). */
 export const isWeakTakhrijKind = (kind: TakhrijTermKind): boolean => NEGATIVE.has(kind);
 
+/**
+ * Istilah "sangat lemah, palsu, atau tidak ada asalnya" (docs/05 §4): riwayatnya tidak pernah jadi
+ * kutipan pilihan Intisari (ADR-097) dan diberi tanda yang jelas setiap kali disebut, termasuk di
+ * audio (ADR-100). Satu definisi untuk `readDigest` dan skrip audio.
+ */
+export const VERY_WEAK_TAKHRIJ_KINDS: ReadonlySet<string> = new Set([
+  "sangat_lemah",
+  "palsu",
+  "la_asl",
+]);
+
 /** Batas panjang teks status (skema eval `status`, `latin(120)`). */
 export const TAKHRIJ_STATUS_MAX = 120;
 
