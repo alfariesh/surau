@@ -15,4 +15,4 @@ Mesin: ASUSTeK Vivobook M7600QE · AMD Ryzen 9 5900HX (16 utas) · 15 GiB · Lin
 
 Semua median ≤ 4,29 dtk (ADR-079). Ukur ulang halaman Intisari nyata (ISR) sesudah data pilot X15b ada di staging.
 
-Tangkapan layar T-30 tahap 1 (data contoh, Preview yang sama): `01`–`05` di folder ini.
+Tangkapan layar T-30 tahap 1 (data contoh): `01`–`05` di folder ini, diambil sesudah perbaikan peninjau (kode commit e850ac2, dev server lokal `/dev/intisari`, indikator dev Next disembunyikan; komponen dan CSS sama dengan Preview).
