@@ -6,6 +6,7 @@
 import { join } from "node:path";
 
 import { costUsd, isModelId } from "@surau/llm";
+import { normalizeArabic } from "@surau/text";
 import type { TranslationRow } from "@surau/db";
 
 import { Freshness, titlesOf } from "./digest-batch.ts";
@@ -47,21 +48,39 @@ function esc(s: string): string {
 
 /** Akhir kalimat di teks Arab/Latin (sama dengan pemecah blok), boleh diikuti tanda kutip/kurung. */
 const SENTENCE_END = /[.!?:؟؛]["'»”)\]]*\s*$/u;
+const MARKER_TAIL = /\s*\([\u0660-\u0669\d]+\)\s*$/u;
+const MARKER_HEAD = /^\s*\([\u0660-\u0669\d]+\)/u;
+/**
+ * Teks klasik jarang bertanda baca; batas ucapan ditandai rumus. Awal yang wajar: sesudah kata kerja
+ * ucapan (qala, qila, yaqulu, ruwiya, qauluhu) dalam empat kata terakhir, mis. "قال صلى الله عليه
+ * وسلم" atau "وقال مالك"; atau kutipan yang dibuka partikel klausa (wa/fa…, tsumma, amma, inna, idza).
+ */
+const SPEECH_BEFORE =
+  /(?:^| )(?:قال|وقال|فقال|قيل|وقيل|يقول|ويقول|روي|وروي|قوله|بقوله|كقوله)(?: [^ ]+){0,4}$/u;
+const CLAUSE_START = /^(?:و|ف|ثم|بل|لكن|اما|ان|اذا|لان)/u;
+const firstWord = (t: string) => normalizeArabic(t).text.trim().split(" ")[0] ?? "";
 
-/** Kutipan terpotong: tidak mulai di awal paragraf/kalimat atau tidak berakhir di akhir kalimat. */
+/**
+ * Kutipan terpotong (heuristik, ADR-097 "ukuran blok"): awal atau akhirnya tidak jatuh di batas
+ * alami. Batas alami = awal/akhir paragraf, tanda baca akhir kalimat, penanda catatan kaki "(١)",
+ * rumus ucapan sebelum kutipan, atau partikel pembuka klausa di awal kutipan / sesudah akhirnya.
+ */
 export function quoteTruncated(text: string, start: number, end: number): boolean {
-  // Penanda catatan kaki "(١)" adalah batas alami sebuah riwayat: dibuang dulu dari ujung yang diuji.
-  const MARKER_TAIL = /\s*\([\u0660-\u0669\d]+\)\s*$/u;
-  const MARKER_HEAD = /^\s*\([\u0660-\u0669\d]+\)/u;
-  const before = text.slice(0, start).replace(MARKER_TAIL, "");
+  const before = text.slice(0, start);
+  const quote = text.slice(start, end);
   const after = text.slice(end);
-  const quote = text.slice(start, end).replace(MARKER_TAIL, "");
-  const starts = before.trim() === "" || SENTENCE_END.test(before);
+  const starts =
+    before.trim() === "" ||
+    SENTENCE_END.test(before) ||
+    MARKER_TAIL.test(before) ||
+    SPEECH_BEFORE.test(normalizeArabic(before).text.trim()) ||
+    CLAUSE_START.test(firstWord(quote));
   const ends =
-    after.replace(MARKER_HEAD, "").trim() === "" ||
-    SENTENCE_END.test(quote) ||
+    after.trim() === "" ||
+    SENTENCE_END.test(quote.replace(MARKER_TAIL, "")) ||
     MARKER_HEAD.test(after) ||
-    MARKER_TAIL.test(text.slice(start, end));
+    MARKER_TAIL.test(quote) ||
+    CLAUSE_START.test(firstWord(after));
   return !(starts && ends);
 }
 

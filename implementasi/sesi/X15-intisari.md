@@ -1,6 +1,6 @@
 # X15 · Sesi sisipan: Intisari (ringkasan belajar berlapis) — kontrak data, pipeline, korpus
 
-> **Fase:** sisipan (`packages/db`, `packages/core`, `packages/llm`, `tools/ingest`, dokumen) · **Status:** X15a selesai (2026-10-24, ADR-097); X15b dan X15c belum
+> **Fase:** sisipan (`packages/db`, `packages/core`, `packages/llm`, `tools/ingest`, dokumen) · **Status:** X15a selesai (2026-10-24, ADR-097, PR #137); X15b selesai kecuali nilai T-31 (2026-10-24, ADR-098); X15c belum
 > **Prasyarat:** – · Tugas pemilik: T-31 (QA pilot, X15b), T-28 (data kitab, X15c)
 > **Perkiraan:** X15a 1 percakapan, $0 · X15b 1–2 percakapan + pilot LLM ≤ $1 (izin) · X15c 1 percakapan + LLM ±$2,5–4 (izin) + promote `ihya-v9` (izin)
 
@@ -140,13 +140,13 @@ Keduanya juga memuat:
   - node tidak ada → `NotFound`.
   `pnpm exec vp test --project core` → 168 lolos
 - [x] Ingest: build kitab buatan berskema 9 dengan tabel Intisari kosong (`tools/ingest/test/pipeline.test.ts`); reset SQL anak sebelum induk (`sql.test.ts`)
-- [ ] `pnpm verify` lolos; peninjau; PR di-merge (diisi di *Catatan hasil*)
+- [x] `pnpm verify` lolos; peninjau 0 blocker; PR alfariesh/surau#137 di-squash-merge ke `main` (`4013a0a`, 2026-10-24, CI hijau)
 
 **X15b**
-- [ ] Tes validator: ID blok karangan, kutipan yang menyentuh ayat, huruf Arab di teks mana pun, pola fatwa, dan kata status hadits ditolak; butir opsional cacat dibuang dengan alasan
-- [ ] Blok menutup `text_raw` persis dan tidak memotong ayat; sha deterministik
-- [ ] `pnpm llm intisari plan --from staging --kitab <id>` mencetak token dan biaya tanpa memanggil model
-- [ ] Pilot: biaya aktual ≤ pagu, halaman QA terkirim, nilai pemilik (T-31) ≤ 5% gagasan "Salah"
+- [x] Tes validator: ID blok karangan, kutipan yang menyentuh ayat, huruf Arab di teks mana pun, pola fatwa, dan kata status hadits ditolak; butir opsional cacat dibuang dengan alasan. `pnpm exec vp test --project node packages/llm/src` → 144 lolos (`digest.test.ts`, `check.test.ts`)
+- [x] Blok menutup `text_raw` persis dan tidak memotong ayat; sha deterministik. `digest-units.test.ts` 9 lolos (gabungan blok = `text_raw`, ayat utuh di satu blok, rujukan rusak = paragraf tidak dikirim, sha sama dua kali, sha berjenjang)
+- [x] `pnpm llm intisari plan --from staging --kitab <id>` mencetak token dan biaya tanpa memanggil model: `--kitab 100003 --stage leaf` → 22 request, 357.266 token prompt (terbesar 31.243), perkiraan US$0,051 (count_tokens saja)
+- [ ] Pilot: biaya aktual ≤ pagu ✓ (US$0,44 ≤ US$1), halaman QA terkirim ✓ (2026-10-25), **nilai pemilik (T-31) ≤ 5% gagasan "Salah": menunggu pemilik**
 
 **X15c**
 - [ ] `corpus:qa ihya-v9` 30/30; gerbang eval tidak turun; promote atas izin pemilik
@@ -175,3 +175,22 @@ Keduanya juga memuat:
   - README core, glosarium, dan docs/08.
 - Uji dengar awal lewat konektor ElevenLabs: Jefri dan Gendhis, v4, ±1.200 kredit dari Starter. Pemilik memilih suara di T-31.
 - Data T-28 tidak ada di mesin agen (Linux); pilot memakai `--from staging`.
+
+*(X15b, 2026-10-24/25)*
+- **Izin biaya (aturan keras 4):** pemilik menjawab kartu pertanyaan di sesi X15b pada 2026-10-24 ±16:44 UTC, sebelum batch berbayar pertama. Pertanyaan: "Pilot Intisari Kitab al-'Ilm memakai API Anthropic berbayar: perkiraan ±US$0,36 dengan pagu keras US$1. Isinya: bab (Haiku), Intisari Kitab (Sonnet + pembanding Haiku), dan 144 definisi glosarium (Sonnet). Sesudahnya hasil dimuat ke korpus staging (tabel Intisari + baris pilot saja; produksi tidak tersentuh). Boleh saya jalankan?" Jawaban pemilik: "Ya, pilot + staging (Recommended)". Pemakaian aktual US$0,44; selisih dari perkiraan = pilot ulang v2 (langkah 8), tetap di bawah pagu.
+- **Dibuat:**
+  - glosarium berkunci (`prompts/glossary-v2.ts`, 162 entri, 144 istilah) dan `pnpm llm glosarium` (144 definisi lolos, US$0,13);
+  - prompt `digest-section@2` (penunjuk kutipan), `digest-merge@1`, skema, dan `judgeDigest`;
+  - pola fatwa pindah ke `packages/llm/src/check.ts`;
+  - `verseBounds` pindah ke `@surau/core` (dipakai web dan Intisari);
+  - `tools/ingest/src/llm/digest-*.ts` (unit blok, batch, attach + invarian build, baca/muat staging, laporan + halaman QA) dan `pnpm llm intisari …`;
+  - ingest memuat Intisari + `digest_point_fts` dan abstrak yang lolos `checkSummary`.
+- **Pilot** (ADR-098 *Hasil pilot*): v1 lolos semua tetapi ±35% kutipan terpotong, jadi cadangan ADR-097 dipakai (`digest-section@2`, penunjuk awal/akhir + `findQuote`). v2: 21 Intisari lolos, kutipan terpotong 1/21. Hasilnya dimuat ke `surau-corpus-staging` (skema 9) dengan smoke `readDigest` 21/21. Laporan angka di `data/reports/ihya-9472-intisari.md`; halaman QA di `data/build/llm/intisari/qa/intisari-100003.html` (tidak di-commit).
+- **Peninjau:** 1 blocker (potongan awal riwayat panjang lolos sebagai perkataan tanpa larangan takhrij) dan 8 perbaikan, semuanya dikerjakan dengan tes: urutan rub', pagu bersama, pola status hadits/ayat, QA tanpa pembanding, metrik terpotong, pembersihan staging per cakupan, dan rujukan ADR. Saran yang dikerjakan: `selectOnly` menolak DML di CTE, cek ID staging baca = tulis, narasi tanpa `<>{}`.
+- **Dependensi baru:** `wrangler` (catalog) sebagai devDependency `tools/ingest`, untuk `getPlatformProxy` baca staging (pola tools/eval). Sudah ada di root, jadi tanpa paket baru di lockfile.
+- **Utang dan pesan untuk X15c:**
+  - pilih model Intisari Kitab dari nilai T-31;
+  - prompt berikutnya: buang "alasan … bila disebut" dari pembuka, ganti contoh abstrak menjadi "Bagian ini …";
+  - celah peninjau yang tercatat di ADR-098 *Konsekuensi*;
+  - node yang anaknya gagal permanen masih menunggu (belum ada jalur "menyerah lalu lanjut tanpa anak");
+  - ingest `ihya-v9` dari T-28 memuat ulang staging, jadi baris pilot terganti oleh build penuh.
