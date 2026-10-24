@@ -22,7 +22,7 @@ function media(heads: number[], body = BODY, headers: Record<string, string> = {
   const fn = (async (input: string | URL | Request, init?: RequestInit) => {
     const method = init?.method ?? "GET";
     const range = new Headers(init?.headers).get("range");
-    calls.push({ url: String(input), method, range });
+    calls.push({ url: input instanceof Request ? input.url : input.toString(), method, range });
     const base = {
       "content-type": "audio/mpeg",
       "cache-control": "public, max-age=31536000, immutable",

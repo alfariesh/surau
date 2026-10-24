@@ -12,7 +12,7 @@ interface Call {
 function fakeFetch(responses: (Response | Error)[]) {
   const calls: Call[] = [];
   const fn = (async (input: string | URL | Request, init?: RequestInit) => {
-    calls.push({ url: String(input), init });
+    calls.push({ url: input instanceof Request ? input.url : input.toString(), init });
     const next = responses.shift();
     if (next === undefined) throw new Error("tidak ada jawaban tiruan lagi");
     if (next instanceof Error) throw next;
