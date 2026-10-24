@@ -58,6 +58,20 @@ function TitleNote({ id: noteId, source }: { id: string; source: TitleSource }) 
   );
 }
 
+/**
+ * Lencana Intisari (X16) di baris node yang punya Intisari: penanda saja, bukan tautan kedua (satu
+ * tautan per baris pohon); Intisari dibuka dari kartu Ringkasan AI bagian itu, menu ⋮, atau hub.
+ * Bantuan terjemahan: disembunyikan di mode baca Arab.
+ */
+function badge(item: TocItem) {
+  if (item.digest === undefined) return null;
+  return (
+    <span className="toc-intisari" data-tr-aid="" title={t.tocIntisariLabel(item.digest.minutes)}>
+      {t.tocIntisari(item.digest.minutes)}
+    </span>
+  );
+}
+
 // Pohon daftar isi (S09 langkah 4, gaya garis pemandu menyusul): bisa diciutkan per node, setiap
 // baris tautan ke judul bagian (`#bab-<id>`, navigasi klien lewat RouterProvider) atau, untuk
 // subjudul kurasi (X04 W7), ke paragrafnya (`#pN`). Hanya SATU baris aktif berlatar (bagian
@@ -255,10 +269,16 @@ export function TocTree({
                           <span className="toc-titles">
                             <span className="toc-title-id" data-tr-aid="" lang={titleSource?.lang}>
                               {item.titleId}
+                              {badge(item)}
                             </span>
                             <ArabicInline className="toc-title toc-title-ar">
                               {item.title}
                             </ArabicInline>
+                          </span>
+                        ) : item.digest ? (
+                          <span className="min-w-0">
+                            <ArabicInline className="toc-title">{item.title}</ArabicInline>
+                            {badge(item)}
                           </span>
                         ) : (
                           <ArabicInline className="toc-title">{item.title}</ArabicInline>

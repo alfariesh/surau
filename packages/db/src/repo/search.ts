@@ -427,8 +427,8 @@ async function notReady(
 
 // ── Pencarian gabungan Arab + Indonesia (S14, ADR-044) ─────────────────────────────────────
 
-/** Jalur pencarian gabungan. */
-export const searchPathName = z.enum(["arabic", "translation", "summary"]);
+/** Jalur pencarian gabungan (`digest` = gagasan Intisari, skema ≥ 9, X16). */
+export const searchPathName = z.enum(["arabic", "translation", "summary", "digest"]);
 export type SearchPathName = z.infer<typeof searchPathName>;
 
 /** Konstanta Reciprocal Rank Fusion (Cormack, Clarke & Büttcher 2009): skor = Σ 1/(k + peringkat). */
@@ -437,6 +437,8 @@ export const RRF_K = 60;
 export const FUSION_DEPTH = 100;
 /** Bagian teratas (bm25) jalur ringkasan yang ikut digabung. */
 export const SUMMARY_DEPTH = 30;
+/** Gagasan Intisari teratas (bm25) jalur gagasan yang ikut digabung (X16). */
+export const DIGEST_DEPTH = 30;
 /**
  * Bila jalur terjemahan + ringkasan bersama-sama punya kecocokan SEMUA kata kurang dari ini,
  * kecocokan SEBAGIAN kata menyusul sesudahnya.
@@ -463,6 +465,12 @@ export interface FusedSearchRequest {
   tocSpan: PassageIdSpan;
   /** Hanya bagian daftar isi ini dan turunannya; `null` = semua. */
   sectionId?: number | null;
+  /**
+   * Sertakan jalur gagasan Intisari (`digest_point_fts`, X16). Korpus tanpa tabel itu (skema < 9)
+   * menolak kueri dengan galat "no such table": pemanggil (core `searchText`) yang mengulang tanpa
+   * jalur ini, jadi fungsi ini tetap satu kueri tanpa cabang skema.
+   */
+  digest?: boolean;
   /** Halaman yang dikembalikan / dilewati, di atas himpunan kandidat gabungan. */
   limit: number;
   offset: number;
@@ -494,6 +502,21 @@ export const fusedSearchRow = searchPassageRow.extend({
   sm_prompt: z.string().nullable(),
   sm_created: z.string().nullable(),
   sm_review: reviewStatus.nullable(),
+  /** Jalur gagasan Intisari (X16): paragraf ini = jangkar pertama gagasan yang cocok. */
+  dp_rank: id.nullable(),
+  dp_all: flag.nullable(),
+  dp_node: id.nullable(),
+  /** Judul Arab + tingkat node Intisari (bisa leluhur bagian paragraf ini, mis. Intisari Kitab). */
+  dp_section_title: z.string().nullable(),
+  dp_section_level: id.nullable(),
+  dp_ord: id.nullable(),
+  dp_title: z.string().nullable(),
+  dp_body: z.string().nullable(),
+  dp_model: z.string().nullable(),
+  dp_prompt: z.string().nullable(),
+  dp_created: z.string().nullable(),
+  /** Status tinjau gagasan itu sendiri. */
+  dp_review: reviewStatus.nullable(),
 });
 export type FusedSearchRow = z.infer<typeof fusedSearchRow>;
 
@@ -510,9 +533,15 @@ class Params {
   }
 }
 
+/** Kolom jalur gagasan saat jalur itu tidak dijalankan (korpus skema < 9 atau tidak diminta). */
+const DP_NULL_COLS = `NULL AS dp_rank, NULL AS dp_all, NULL AS dp_node, NULL AS dp_section_title,
+  NULL AS dp_section_level, NULL AS dp_ord,
+  NULL AS dp_title, NULL AS dp_body, NULL AS dp_model, NULL AS dp_prompt, NULL AS dp_created,
+  NULL AS dp_review`;
+
 interface LatinPathSpec {
-  name: "tr" | "sm";
-  table: "translation_fts" | "summary_fts";
+  name: "tr" | "sm" | "dp";
+  table: "translation_fts" | "summary_fts" | "digest_point_fts";
   span: PassageIdSpan;
   depth: number;
   /** Filter bagian untuk rowid tabel ini (paragraf atau node). */
@@ -663,6 +692,67 @@ export async function searchCorpusFused(
       ) WHERE k = 1
     )`);
   lists.push("SELECT id, r FROM smb");
+  // Gagasan Intisari (X16) → paragraf jangkar pertamanya (`seq` terkecil): "Dasar teks" gagasan itu
+  // di pembaca. rowid `digest_point_fts` = toc_node_id·100 + ord (migrasi 0009). Jalur ini punya
+  // ambang "sebagian kata" sendiri (latinPaths terpisah), jadi peringkat jalur terjemahan dan
+  // ringkasan tidak berubah. Intisari atau gagasan yang ditolak peninjau, dan gagasan tanpa
+  // jangkar, tidak ikut (indeksnya memang hanya memuat gagasan yang tampil; ini lapis kedua).
+  let dpCols = DP_NULL_COLS;
+  let dpJoin = "";
+  if (req.digest === true) {
+    const max = req.tocSpan.max;
+    ctes.push(
+      ...latinPaths(
+        [
+          {
+            name: "dp",
+            table: "digest_point_fts",
+            span: {
+              min: req.tocSpan.min * 100,
+              max: max >= Number.MAX_SAFE_INTEGER / 100 ? Number.MAX_SAFE_INTEGER : max * 100 + 99,
+            },
+            depth: DIGEST_DEPTH,
+            // Filter bagian (node Intisari) + hanya gagasan yang tampil, SEBELUM diberi peringkat.
+            section: `(${section} IS NULL OR rowid / 100 IN (SELECT id FROM sub))
+              AND EXISTS (SELECT 1 FROM digest_point pt
+                JOIN digest d ON d.toc_node_id = pt.toc_node_id AND d.lang = pt.lang
+                WHERE pt.toc_node_id = digest_point_fts.rowid / 100
+                  AND pt.ord = digest_point_fts.rowid % 100 AND pt.lang = '${AI_TEXT_LANG}'
+                  AND pt.review_status <> 'rejected' AND d.review_status <> 'rejected'
+                  AND EXISTS (SELECT 1 FROM digest_anchor a WHERE a.toc_node_id = pt.toc_node_id
+                    AND a.lang = pt.lang AND a.point_ord = pt.ord))`,
+          },
+        ],
+        req.latin,
+        q,
+      ),
+    );
+    ctes.push(`dpp AS (
+      SELECT dp.key / 100 AS node, dp.key % 100 AS ord, dp.r, dp.all_terms,
+        (SELECT a.passage_id FROM digest_anchor a
+         WHERE a.toc_node_id = dp.key / 100 AND a.lang = '${AI_TEXT_LANG}'
+           AND a.point_ord = dp.key % 100
+         ORDER BY a.seq LIMIT 1) AS id
+      FROM dp
+    ),
+    dpb AS (
+      SELECT id, node, ord, r, all_terms FROM (
+        SELECT id, node, ord, r, all_terms, row_number() OVER (PARTITION BY id ORDER BY r) AS k
+        FROM dpp WHERE id IS NOT NULL
+      ) WHERE k = 1
+    )`);
+    lists.push("SELECT id, r FROM dpb");
+    dpCols = `dpb.r AS dp_rank, dpb.all_terms AS dp_all, dpb.node AS dp_node,
+           dn.title_ar AS dp_section_title, dn.level AS dp_section_level, dpb.ord AS dp_ord,
+           dpt.title AS dp_title, dpt.body AS dp_body, dg.model AS dp_model,
+           dg.prompt_version AS dp_prompt, dg.created_at AS dp_created,
+           dpt.review_status AS dp_review`;
+    dpJoin = `LEFT JOIN dpb ON dpb.id = p.id
+    LEFT JOIN toc_node dn ON dn.id = dpb.node
+    LEFT JOIN digest_point dpt ON dpt.toc_node_id = dpb.node AND dpt.ord = dpb.ord
+      AND dpt.lang = '${AI_TEXT_LANG}'
+    LEFT JOIN digest dg ON dg.toc_node_id = dpb.node AND dg.lang = '${AI_TEXT_LANG}'`;
+  }
   const k = q.add(RRF_K);
   const limit = q.add(req.limit);
   const offset = q.add(req.offset);
@@ -682,7 +772,7 @@ export async function searchCorpusFused(
            smb.r AS sm_rank, smb.all_terms AS sm_all, smb.node AS sm_node,
            sn.title_ar AS sm_title, sn.level AS sm_level,
            su.text AS sm_text, su.model AS sm_model, su.prompt_version AS sm_prompt,
-           su.created_at AS sm_created, su.review_status AS sm_review
+           su.created_at AS sm_created, su.review_status AS sm_review, ${dpCols}
     FROM top
     JOIN fp ON fp.page_id = top.page_id
     JOIN passage p ON p.id = fp.id
@@ -694,6 +784,7 @@ export async function searchCorpusFused(
     LEFT JOIN smb ON smb.id = p.id
     LEFT JOIN toc_node sn ON sn.id = smb.node
     LEFT JOIN summary su ON su.toc_node_id = smb.node AND su.lang = '${AI_TEXT_LANG}'
+    ${dpJoin}
     ORDER BY top.best DESC, top.hits DESC, top.page_id, p.kind = 'foot', p.ord`;
   let results: { results: unknown[] }[];
   try {

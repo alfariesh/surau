@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { BookOpen01 } from "../../../../icons";
+import { BookOpen01, LeftToRightListBullet } from "../../../../icons";
 import { Breadcrumbs, Card, Typography } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import NextLink from "next/link";
@@ -14,7 +14,8 @@ import { TocTree } from "../../../../components/reader/toc-tree";
 import { HeaderMenuReadMode } from "../../../../components/shell/header-menu";
 import { id } from "../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../lib/layout";
-import { loadReaderToc, loadToc, loadWork } from "../../../../lib/reader/data";
+import { loadDigestHeaders, loadReaderToc, loadToc, loadWork } from "../../../../lib/reader/data";
+import { digestHubHref } from "../../../../lib/reader/digest";
 import { PageTitle } from "../../../../components/page-title";
 
 const t = id.reader;
@@ -44,11 +45,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function WorkPage({ params }: Props) {
   const { work: segment } = await params;
-  const [{ work, edition, segment: canonical }, toc, shown] = await Promise.all([
+  const [{ work, edition, segment: canonical }, toc, shown, digests] = await Promise.all([
     loadWork(segment),
     loadToc(segment),
     loadReaderToc(segment),
+    loadDigestHeaders(segment),
   ]);
+  // Hub Intisari (X16) hanya bila korpus punya Intisari Kitab (skema ≥ 9, sesudah X15b).
+  const hasHub = digests.some((d) => d.tier === "book");
   const title = work.title_id ?? work.title_ar;
   const start = toc[0]?.href;
 
@@ -101,12 +105,23 @@ export default async function WorkPage({ params }: Props) {
               ) : null}
             </Typography>
           ) : null}
-          {start ? (
-            <div>
-              <NextLink className={buttonVariants({ variant: "primary" })} href={start}>
-                <BookOpen01 aria-hidden="true" className="size-4" />
-                {t.startReading}
-              </NextLink>
+          {start || hasHub ? (
+            <div className="flex flex-wrap gap-2">
+              {start ? (
+                <NextLink className={buttonVariants({ variant: "primary" })} href={start}>
+                  <BookOpen01 aria-hidden="true" className="size-4" />
+                  {t.startReading}
+                </NextLink>
+              ) : null}
+              {hasHub ? (
+                <NextLink
+                  className={buttonVariants({ variant: "secondary" })}
+                  href={digestHubHref(canonical)}
+                >
+                  <LeftToRightListBullet aria-hidden="true" className="size-4" />
+                  {id.intisari.workLink}
+                </NextLink>
+              ) : null}
             </div>
           ) : null}
           <ContinueReading work={canonical} />

@@ -15,6 +15,28 @@ Format entri:
 
 ---
 
+## 2026-10-24 · X16 · UI Intisari: hub, halaman Intisari, pembaca, daftar isi, Cari, MCP — selesai (kode; data nyata + T-30 menunggu)
+- Dikerjakan:
+  - **core:** dalil Intisari dihitung dari jangkar (`DigestView.evidence`: ayat Tanzil + Kemenag, takhrij + label kode). Jalur Cari `digest` (opt-in; Cari situs, MCP, eval retrieval; bukan Jawab) dengan memo isolate untuk korpus tanpa indeks; `SEARCH_RESULT_VERSION` 3.
+  - **web:** hub `/kitab/ihya/intisari` + halaman `/kitab/ihya/bab/<id>/intisari` (ISR, 404 di skema < 9) + fixture `/dev/intisari` (Preview, `DEV_PAGES`). Komponen `components/intisari/*` (label AI, gagasan + Dasar teks, kutipan Arab dari DB, istilah, dalil, Uji pemahaman, penutup, slot ▶ X17).
+  - **Pembaca:** kartu Ringkasan AI + "Buka Intisari", menu ⋮, lencana daftar isi, tombol hub di halaman karya, kartu Cari gagasan, tanda "sudah dibaca" (dicatat di `/privasi`).
+  - **MCP:** `get_section_digest` (delapan tool).
+- Verifikasi:
+  - Unit: core/db/mcp lolos (dalil, jalur `dp`, memo, tool); web 52 lolos.
+  - e2e `intisari.spec.ts` lokal 12 lolos / 2 dilewati (staging tanpa data), axe terang + gelap + urutan heading.
+  - CI PR #138: `verify` + `eval retrieval` hijau.
+  - LCP ponsel Preview (n=5): j1/200 3,49 / 3,29 dtk, `/dev/intisari` 3,37 / 3,69 dtk (≤ 4,29; `sesi/bukti/X16/lcp-pr138.md`).
+  - Staging skema 7: hub dan halaman Intisari 404, tanpa lencana atau tautan.
+  - Peninjau: 1 blocker, 3 penting, 10 kecil; semua dikerjakan:
+    - blocker: `uji-mcp.sh` masih 7 tool, jadi CI `preview mcp` akan merah;
+    - takhrij per kutipan + `weak_report` (riwayat sangat lemah ditahan saat dibaca);
+    - `/api/halaman` tanpa kueri Intisari di skema < 9;
+    - jalur cadangan Cari diuji di D1 sungguhan (DROP tabel);
+    - tautan hub hanya bila ada Intisari Kitab, penjaga huruf Arab di kartu Cari, label netral catatan kaki non-takhrij, syarat e2e lewat lencana `daftar-isi.json`, satu pemuatan ekstra daftar isi per render.
+- Biaya API: –
+- Keputusan: ADR-099
+- Catatan untuk sesi berikutnya: data nyata baru ada sesudah X15b langkah 9 (pilot ke staging). Sesudahnya deploy ulang Preview: e2e "dengan Intisari" membandingkan kutipan dengan `/api/kutipan`. Ulangi juga `eval:retrieval --gate` dan LCP halaman Intisari nyata. X17 mengisi `ListenSlot`. T-30 tahap 1: tangkapan layar `sesi/bukti/X16/01–05`.
+
 ## 2026-10-24 · X15a · Intisari: riset Headway/Blinkist/ElevenLabs v4, rencana X15–X17, kontrak data — selesai (kontrak; pipeline, UI, audio menyusul)
 - Dikerjakan:
   - Riset tiga agen (Headway, Blinkist, aplikasi belajar lain; ElevenLabs v4 + alternatif TTS; peta ringkasan di kode), lalu rencana yang disetujui pemilik. Jawaban pemilik: audio Intisari Kitab + Bab, nama "Intisari", fitur belajar dicatat untuk nanti, ElevenLabs Starter.

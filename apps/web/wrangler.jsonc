@@ -52,6 +52,9 @@
     // /api/jawab (S19–S20): MATI di produksi sampai `/rilis 4`. Guard biaya S20 (Turnstile, kuota,
     // ledger) sudah ada di surau-api; lapis kedua `settings.jawab_enabled` di surau-app juga "0".
     "JAWAB_ROUTE_ENABLED": "0",
+    // Halaman pratinjau fixture /dev/* tanpa D1 (X16: /dev/intisari untuk e2e). Produksi "0" = 404;
+    // Preview "1" (e2e CI berjalan terhadap Preview); `next dev` selalu terbuka.
+    "DEV_PAGES": "0",
   },
   "services": [
     {
@@ -181,6 +184,7 @@
       "SITEMAP_ORIGIN": "",
       // Preview: /api/jawab menyala ke surau-api-staging (lapis kedua: jawab_enabled surau-app-staging).
       "JAWAB_ROUTE_ENABLED": "1",
+      "DEV_PAGES": "1",
     },
     "observability": {
       "enabled": true,

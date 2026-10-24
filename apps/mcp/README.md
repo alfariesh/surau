@@ -15,9 +15,10 @@ Worker MCP publik Surau (S16, [ADR-011](../../implementasi/KEPUTUSAN.md), ADR-04
 | `get_table_of_contents` | `getToc` | Pohon daftar isi; dari akar maks. 2 tingkat, dari `node_id` maks. 3 | ±7,8 ribu (akar), ±10 ribu (satu rub' kedalaman 3) |
 | `read_page` | `readPage` | Halaman cetak: badan + catatan kaki verbatim, ayat (Tanzil + Kemenag, lisensi sendiri ikut blok `license`), terjemahan AI berlabel, ringkasan AI | median ±11,1 ribu, maks. ±14,8 ribu |
 | `read_section` | `readSection` | Bagian + sub-bagian per potongan, `next_cursor` | median ±5 ribu, maks. ±6,2 ribu |
-| `search_text` | `searchText` | Arab/Indonesia; ≤5 halaman (lanjut lewat `offset`), ≤3 paragraf terbaik per halaman, tanpa field sorotan (ADR-049) | median ±7,3 ribu, maks. ±10,9 ribu |
+| `search_text` | `searchText` | Arab/Indonesia + gagasan Intisari (`digest_point`, X16); ≤5 halaman (lanjut lewat `offset`), ≤3 paragraf terbaik per halaman, tanpa field sorotan (ADR-049) | median ±7,3 ribu, maks. ±10,9 ribu |
 | `verify_quote` | `verifyQuote` | Kutipan ada di paragraf? `match.text` = teks sumber persis | ±0,75 ribu |
 | `get_hadith_takhrij` | `getHadithTakhrij` | Catatan kaki takhrij tertaut; tanpa takhrij = status tidak diketahui | median ±0,9 ribu, maks. ±2,3 ribu |
+| `get_section_digest` | `readDigest` | Intisari satu bagian (X16, ADR-097/099): gagasan AI berjangkar ke paragraf, kutipan Arab dari DB, istilah, pertanyaan ingatan, dalil yang dihitung kode (ayat Tanzil + Kemenag, takhrij + label kode); `digest: null` bila bagian tanpa Intisari | belum diukur (data nyata menyusul X15b) |
 
 Semua tool: nama ASCII snake_case (ADR-012), deskripsi Inggris + ringkasan Indonesia setelah ` · `, anotasi `readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`, `openWorldHint: false`, `outputSchema` berakar objek (skema Zod core + `license`), `structuredContent` + salinan JSON di `content`. Error core menjadi hasil `isError` dengan teks `<code>: <pesan>` (mis. `not_found: Page not found: juz 9, page 1`); error lain `internal_error` tanpa detail. Instruksi server: [`src/instructions.ts`](src/instructions.ts).
 
@@ -37,7 +38,7 @@ Batas longgar karena semua pengguna claude.ai datang dari IP Anthropic (ADR-011)
 ## Perintah (dari root repo)
 
 - `pnpm --filter @surau/mcp dev` → http://localhost:3006/mcp (D1 lokal di `.wrangler/state`, sama dengan web; butuh `apps/mcp/.dev.vars` berisi `IP_HMAC_KEY=<nilai uji>`, git-ignored). Jangan jalankan bersamaan dengan proses lain yang menulis D1 lokal.
-- `bash .github/scripts/uji-mcp.sh http://localhost:3006/mcp` → MCP Inspector 2.11.0 CLI, era modern + legacy, ketujuh tool + kasus error + Origin 403 (sama dengan CI Preview).
+- `bash .github/scripts/uji-mcp.sh http://localhost:3006/mcp` → MCP Inspector 2.11.0 CLI, era modern + legacy, kedelapan tool + kasus error + Origin 403 (sama dengan CI Preview).
 - `pnpm exec vp test --project mcp` → tes workerd: `src/index.test.ts` (Client v2 in-process, kedua era, fixture buatan core) dan tes unit `envelope`, `guard`, `tools`.
 - `pnpm --filter @surau/mcp build` → `wrangler deploy --dry-run` ke `dist/` (bundel diperiksa tanpa deploy).
 - `pnpm llm mcp-tokens [--url …] [--n 25]` → ukur token hasil tool dengan `count_tokens` (gratis) → `data/reports/mcp-token.md`.
