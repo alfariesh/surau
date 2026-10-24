@@ -20,8 +20,11 @@ const noopSubscribe = () => () => {};
 export function ContinueReading({
   className = "",
   work,
+  wide = false,
 }: {
   className?: string;
+  /** Selebar wadahnya (Beranda: sama dengan kotak cari), bukan maksimal 26rem. */
+  wide?: boolean;
   /** Segmen karya (`ihya`): hanya posisi baca karya ini (halaman karya). Tanpa = karya terbaru. */
   work?: string;
 }) {
@@ -36,7 +39,7 @@ export function ContinueReading({
   );
   const record = useMemo(() => parseLastRead(raw), [raw]);
   return (
-    <div className={`continue-slot ${className}`}>
+    <div className={`continue-slot ${className}`} data-wide={wide || undefined}>
       {record === null ? null : (
         <NextLink className="continue-card" href={lastReadHref(record)}>
           {/* Ubin ikon berlatar aksen lembut; judul kitab = baris utama, letak baca di bawahnya. */}

@@ -1262,6 +1262,10 @@ h3.reader-inline-subheading {
   }
 }
 
+.continue-slot[data-wide] .continue-card {
+  max-width: none;
+}
+
 .continue-card:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
