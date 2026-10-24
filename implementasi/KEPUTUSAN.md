@@ -2465,13 +2465,16 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
    - Intisari adalah pintu ke teks (docs/01 "bukan pengganti guru"): setiap gagasan punya "Dasar teks" ke paragrafnya, dan halaman ditutup dengan tautan ke teks lengkap.
 2. **Model data: korpus skema 9, migrasi `0009_digest.sql`.**
    - Tabel ternormalisasi `digest`, `digest_point`, `digest_anchor`, `digest_quote`, `digest_question`, `glossary_term`, `digest_term`, `audio_track`, dan indeks `digest_point_fts` (pola `summary_fts`).
-   - Semua kolom teks AI membawa model, versi prompt, tanggal, dan status tinjau (gagasan dan istilah per baris).
+   - Semua kolom teks AI membawa model, versi prompt, tanggal, dan status tinjau. Status tinjau dicatat per baris untuk gagasan, kutipan, pertanyaan, dan istilah. Terjemahan kutipan `digest` menyimpan asal model-nya sendiri, karena Intisari induk bisa memakai kutipan anak.
+   - `basis`: `text` = teks Arab bagian itu sendiri (node panjang: per potongan, lalu digabung); `children` = hanya Intisari anak (teks sendirinya sebatas judul); `mixed` = keduanya.
+   - CHECK menjaga: Intisari Kitab wajib punya pembuka dan penutup; paragraf jangkar dan kutipan harus dari edisi node; asal terjemahan kutipan lengkap atau kosong sesuai sumbernya.
    - Satu migrasi untuk seluruh fitur (`audio_track` kosong sampai X17), supaya cukup satu promote `ihya-v9`.
 3. **Kode menyalin, model menunjuk (teks-arab.md aturan 1).**
    - Jangkar gagasan dan kutipan = rentang `text_raw` yang dihitung kode dari ID blok yang ditunjuk model (`segmentText`, blok tidak memotong rentang ayat).
-   - Kutipan menyimpan `raw_sha256`. `readDigest` hanya menampilkan kutipan yang sidiknya masih cocok, dan tidak mengirim gagasan, kutipan, atau pertanyaan yang ditolak peninjau.
+   - Kutipan menyimpan `raw_sha256`. `readDigest` hanya menampilkan kutipan yang sidiknya masih cocok dan tidak menyentuh rujukan ayat (`passage_ayah_ref`). Kutipan yang ditahan dicatat di `withheld_quotes` (untuk log, tidak pernah ditampilkan); attach X15b menjadikan keduanya invarian build.
+   - `readDigest` tidak mengirim gagasan, kutipan, atau pertanyaan yang ditolak peninjau, gagasan tanpa jangkar (beserta kutipan dan pertanyaan miliknya), atau teks AI berhuruf Arab (lapis pertahanan di luar validator).
    - Jenis kutipan (`text`/`report`/`poetry`) ditentukan kode. Kutipan yang menyentuh ayat ditolak. Riwayat yang label takhrijnya sangat lemah, palsu, atau "tidak ada asalnya" tidak dijadikan kutipan pilihan.
-   - Terjemahan kutipan: bila kutipan = satu paragraf utuh, dipakai terjemahan paragraf itu (label tinjauan X08 ikut); selain itu terjemahan AI kutipan, berlabel.
+   - Terjemahan kutipan: bila kutipan = satu paragraf utuh (dicek kode), dipakai terjemahan paragraf itu (label tinjauan X08 ikut); selain itu terjemahan AI kutipan, berlabel dengan asalnya sendiri.
    - Dalil (ayat lewat `passage_ayah_ref`, takhrij lewat catatan kaki + label kode) dihitung dari jangkar saat dibaca, tidak disimpan.
 4. **Abstrak = `summary.text`** bila lolos `checkSummary` (prompt `digest-…`). Cari (ADR-044), routing Jawab (ADR-067), MCP `read_page`, dan kartu pembaca memakai satu ringkasan. Node yang gagal tetap memakai `summarize-section@2`. Gerbang gratis sebelum promote: `eval:retrieval --gate` dan `eval:jawab kandidat` tidak boleh turun dari ihya-v8.
 5. **Pipeline (X15b).**
@@ -2485,12 +2488,13 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 6. **Audio "Dengarkan" (X17).**
    - Skrip dibuat kode dari Intisari, tanpa LLM baru: normalisasi lisan berversi ("saw.", "j. 3 h. 204", tahun Hijriah), leksikon IPA istilah di repo, `[pause]` antarbagian, dan kalimat label "Intisari ini dibuat AI dan dibacakan suara AI" di awal.
    - **Tidak ada huruf Arab yang dibacakan mesin.** Kutipan dibacakan lewat terjemahannya, ayat hanya disebut. Tanda riwayat sangat lemah ikut dibacakan bila riwayat itu disebut (docs/05 §4).
-   - Narator netral, orang ketiga, tanpa tag dramatis, tanpa kloning suara tokoh atau ustadz. Suara dipilih lewat uji dengar pemilik (T-31), condong ke suara rancangan milik akun Surau (suara Voice Library bisa ditarik pemiliknya).
+   - Narator netral, orang ketiga, tanpa tag dramatis, tanpa kloning suara tokoh atau ustadz. **Satu suara AI per Intisari** (PK `audio_track` per jenis suara; narator manusia kelak didahulukan), dipilih lewat uji dengar pemilik (T-31). Pilihan condong ke suara rancangan milik akun Surau, karena suara Voice Library bisa ditarik pemiliknya.
+   - Skrip hanya dibangun dari yang tampil di `readDigest`: gagasan yang tidak ditolak dan berjangkar, serta kutipan yang tidak ditahan.
    - Penyedia di balik antarmuka `TtsProvider` (ElevenLabs v4 dulu, panggilan REST langsung tanpa SDK npm). Satu permintaan per gagasan dengan request stitching; bab pemutar = gagasan, jadi tidak bergantung timestamps.
    - MP3 mono di bucket R2 publik `surau-media` dengan domain `media.surau.org`; kunci objek memuat sha skrip (immutable, tidak pernah ditimpa). Metadata ter-commit `data/audio/<kitab>-audio.json` (tanpa teks) dimuat ingest ke `audio_track` hanya bila sha skripnya sama dengan skrip yang dibangun ulang.
    - Pemutar global di shell situs, dimuat saat ditekan (`preload="none"`; di iOS `play()` dipanggil sinkron di handler klik), dengan Media Session, kecepatan 0,75–2×, maju-mundur 15 detik, dan lanjut posisi (localStorage `surau:listen:v1`, dicatat di `/privasi`).
    - `npx @elevenlabs/cli onboard init` tidak dipakai: perintah itu menulis `.env.local` dan `~/.elevenlabs`, lalu menyuruh `npm install` (bentrok pnpm). Kunci API dibatasi ke Text-to-Speech + kuota, diketik pemilik ke `.env` (T-29).
-7. **Tampil di situs:** hub `/kitab/<karya>/intisari`, halaman `/kitab/<karya>/bab/<id>/intisari` (ISR on-demand; `notFound` bila skema < 9), kartu ringkasan pembaca + menu ⋮, lencana daftar isi, jalur gagasan di Cari, dan tool MCP baru `get_section_digest` (aditif; `read_page` tidak dibebani). Maknaz tidak berubah.
+7. **Tampil di situs:** hub `/kitab/<karya>/intisari`, halaman `/kitab/<karya>/bab/<id>/intisari` (ISR on-demand; `notFound` bila skema korpus < 9), kartu ringkasan pembaca + menu ⋮, lencana daftar isi, jalur gagasan di Cari, dan tool MCP baru `get_section_digest` (aditif; `read_page` tidak dibebani). Maknaz tidak berubah.
 8. **Bahasa:** semua tabel berkolom `lang`; hanya `id` yang dibuat sekarang (ADR-092).
 
 **Tidak dipilih:**
@@ -2504,7 +2508,7 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 - Kloning suara ustadz atau tokoh: mengesankan beliau membenarkan isi buatan AI.
 
 **Konsekuensi:**
-- Skema korpus naik ke 9. Build berikutnya membuat tabel Intisari (kosong sampai X15b). `corpus:qa` atas staging lama gagal sampai staging dimuat ulang. Rollback ke `ihya-v8` aman (Intisari tersembunyi, smoke mencatatnya sebagai batasan).
+- Skema korpus naik ke 9. Build berikutnya membuat tabel Intisari (kosong sampai X15b). `corpus:qa` atas staging/produksi lama (skema < 9) gagal sampai dimuat ulang. Rollback ke `ihya-v8` (skema 7) aman: Intisari tersembunyi, dan smoke mencatatnya sebagai batasan.
 - `readDigest` (core) serta `getDigest`/`listDigestHeaders`/`getDigestHeaders` (db) menjadi kontrak bersama web, MCP, dan audio; kontrak MCP hanya bertambah.
 - Biaya: LLM ±$2,5–4 untuk Ihya (pilot ≤ $1); TTS ±1,3 juta karakter (≈ $104 dengan v4; Starter cukup untuk pilot saja); R2 ±0,6 GB (gratis). Setiap batch berbayar dengan izin pemilik.
 - Ingest `ihya-v9` butuh data T-28 (drive Shamela, `data/raw`, `data/build/llm`) yang tidak ada di mesin agen saat ini.

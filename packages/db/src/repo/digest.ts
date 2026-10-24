@@ -31,7 +31,8 @@ const DIGEST_COLS = `toc_node_id, lang, tier, basis, opening, abstract, closing,
 const ANCHOR_COLS =
   "a.toc_node_id, a.lang, a.point_ord, a.seq, a.passage_id, a.char_start, a.char_end";
 const QUOTE_COLS = `q.toc_node_id, q.lang, q.ord, q.point_ord, q.passage_id, q.char_start,
-  q.char_end, q.raw_sha256, q.kind, q.translation_source, q.translation`;
+  q.char_end, q.raw_sha256, q.kind, q.translation_source, q.translation, q.model, q.prompt_version,
+  q.created_at, q.review_status`;
 const AUDIO_COLS = `toc_node_id, lang, voice_kind, r2_key, mime, bytes, duration_ms, provider,
   voice_id, voice_name, model, script_sha256, script_version, lexicon_version, chapters_json,
   alignment_key, created_at`;
@@ -43,12 +44,23 @@ const passagePage = { juz: z.number().int().positive(), page_no: z.number().int(
 export const digestAnchorWithPageRow = digestAnchorRow.extend(passagePage);
 export type DigestAnchorWithPageRow = z.infer<typeof digestAnchorWithPageRow>;
 
-/** Kutipan + teks mentah paragrafnya (kode yang menyalin rentangnya, bukan SQL) + halaman cetak. */
+/**
+ * Kutipan + teks mentah paragraf UTUH-nya + halaman cetak. Kode (`readDigest`) yang menyalin rentang
+ * kutipan dari `passage_text_raw` sesudah memeriksa sidiknya; jangan tampilkan field ini langsung.
+ */
 export const digestQuoteWithPassageRow = digestQuoteRow.extend({
   ...passagePage,
-  text_raw: z.string(),
+  passage_text_raw: z.string(),
 });
 export type DigestQuoteWithPassageRow = z.infer<typeof digestQuoteWithPassageRow>;
+
+/** Rentang rujukan ayat di paragraf kutipan (kutipan yang menyentuhnya tidak ditampilkan). */
+export const ayahSpanRow = z.strictObject({
+  passage_id: z.number().int().positive(),
+  char_start: z.number().int().nonnegative(),
+  char_end: z.number().int().nonnegative(),
+});
+export type AyahSpanRow = z.infer<typeof ayahSpanRow>;
 
 /** Semua baris satu Intisari, urut tampil. */
 export interface DigestRows {
@@ -56,6 +68,8 @@ export interface DigestRows {
   points: DigestPointRow[];
   anchors: DigestAnchorWithPageRow[];
   quotes: DigestQuoteWithPassageRow[];
+  /** Rujukan ayat (`passage_ayah_ref`) di paragraf-paragraf kutipan. */
+  ayahSpans: AyahSpanRow[];
   questions: DigestQuestionRow[];
   /** Istilah urut `digest_term.ord`. */
   terms: GlossaryTermRow[];
@@ -75,8 +89,8 @@ async function unlessOldSchema<T>(db: D1Db, run: () => Promise<T>): Promise<T | 
 }
 
 /**
- * Seluruh Intisari satu node daftar isi dalam satu bahasa (satu batch D1, enam kueri), termasuk yang
- * berstatus `rejected`: pemanggil (core) yang menyaring. `null` bila tidak ada atau skema < 9.
+ * Seluruh Intisari satu node daftar isi dalam satu bahasa (satu batch D1, delapan kueri), termasuk
+ * yang berstatus `rejected`: pemanggil (core) yang menyaring. `null` bila tidak ada atau skema < 9.
  */
 export async function getDigest(
   db: D1Db,
@@ -84,7 +98,7 @@ export async function getDigest(
   lang: string,
 ): Promise<DigestRows | null> {
   const rows = await unlessOldSchema(db, async () => {
-    const [digest, points, anchors, quotes, questions, terms, audio] = await db.batch([
+    const [digest, points, anchors, quotes, ayahSpans, questions, terms, audio] = await db.batch([
       db
         .prepare(`SELECT ${DIGEST_COLS} FROM digest WHERE toc_node_id = ?1 AND lang = ?2`)
         .bind(tocNodeId, lang),
@@ -103,14 +117,23 @@ export async function getDigest(
         .bind(tocNodeId, lang),
       db
         .prepare(
-          `SELECT ${QUOTE_COLS}, p.text_raw, pg.juz, pg.page_no FROM digest_quote q
+          `SELECT ${QUOTE_COLS}, p.text_raw AS passage_text_raw, pg.juz, pg.page_no
+           FROM digest_quote q
            JOIN passage p ON p.id = q.passage_id JOIN page pg ON pg.id = p.page_id
            WHERE q.toc_node_id = ?1 AND q.lang = ?2 ORDER BY q.ord`,
         )
         .bind(tocNodeId, lang),
       db
         .prepare(
-          `SELECT toc_node_id, lang, ord, point_ord, text FROM digest_question
+          `SELECT r.passage_id, r.char_start, r.char_end FROM passage_ayah_ref r
+           WHERE r.passage_id IN (SELECT passage_id FROM digest_quote
+             WHERE toc_node_id = ?1 AND lang = ?2)
+           ORDER BY r.passage_id, r.char_start`,
+        )
+        .bind(tocNodeId, lang),
+      db
+        .prepare(
+          `SELECT toc_node_id, lang, ord, point_ord, text, review_status FROM digest_question
            WHERE toc_node_id = ?1 AND lang = ?2 ORDER BY ord`,
         )
         .bind(tocNodeId, lang),
@@ -136,6 +159,7 @@ export async function getDigest(
       points: (points?.results ?? []).map((r) => digestPointRow.parse(r)),
       anchors: (anchors?.results ?? []).map((r) => digestAnchorWithPageRow.parse(r)),
       quotes: (quotes?.results ?? []).map((r) => digestQuoteWithPassageRow.parse(r)),
+      ayahSpans: (ayahSpans?.results ?? []).map((r) => ayahSpanRow.parse(r)),
       questions: (questions?.results ?? []).map((r) => digestQuestionRow.parse(r)),
       terms: (terms?.results ?? []).map((r) => glossaryTermRow.parse(r)),
       audio: (audio?.results ?? []).map((r) => audioTrackRow.parse(r)),
@@ -146,8 +170,9 @@ export async function getDigest(
 
 /**
  * Ringkasan satu Intisari untuk lencana daftar isi, kartu pembaca, dan halaman hub: jumlah gagasan
- * dan panjang teks AI (perkiraan waktu baca dihitung core), serta durasi audio terpanjang bila ada.
- * Intisari dan gagasan `rejected` tidak dihitung.
+ * dan panjang teks AI (perkiraan waktu baca dihitung core), serta durasi audio (narator manusia
+ * dulu, seperti `readDigest`). Intisari yang `rejected`, dan gagasan yang `rejected` atau tanpa
+ * jangkar, tidak dihitung (sama dengan yang tampil di `readDigest`).
  */
 export const digestHeaderRow = z.strictObject({
   toc_node_id: z.number().int().positive(),
@@ -159,15 +184,19 @@ export const digestHeaderRow = z.strictObject({
 });
 export type DigestHeaderRow = z.infer<typeof digestHeaderRow>;
 
+/** Gagasan yang tampil: tidak ditolak dan punya minimal satu jangkar. */
+const SHOWN_POINT = `p.toc_node_id = d.toc_node_id AND p.lang = d.lang
+  AND p.review_status <> 'rejected'
+  AND EXISTS (SELECT 1 FROM digest_anchor a WHERE a.toc_node_id = p.toc_node_id
+    AND a.lang = p.lang AND a.point_ord = p.ord)`;
+
 const HEADER_SELECT = `SELECT d.toc_node_id, d.tier, d.review_status,
-  (SELECT count(*) FROM digest_point p WHERE p.toc_node_id = d.toc_node_id AND p.lang = d.lang
-     AND p.review_status <> 'rejected') AS points,
+  (SELECT count(*) FROM digest_point p WHERE ${SHOWN_POINT}) AS points,
   length(coalesce(d.opening, '')) + length(d.abstract) + length(coalesce(d.closing, ''))
     + coalesce((SELECT sum(length(p.title) + length(p.body)) FROM digest_point p
-        WHERE p.toc_node_id = d.toc_node_id AND p.lang = d.lang
-          AND p.review_status <> 'rejected'), 0) AS chars,
-  (SELECT max(a.duration_ms) FROM audio_track a
-     WHERE a.toc_node_id = d.toc_node_id AND a.lang = d.lang) AS audio_ms
+        WHERE ${SHOWN_POINT}), 0) AS chars,
+  (SELECT a.duration_ms FROM audio_track a WHERE a.toc_node_id = d.toc_node_id
+     AND a.lang = d.lang ORDER BY a.voice_kind = 'human' DESC LIMIT 1) AS audio_ms
 FROM digest d`;
 
 /** Kepala Intisari seluruh edisi, urut `toc_node_id` (rentang ID edisi, ADR-005). */

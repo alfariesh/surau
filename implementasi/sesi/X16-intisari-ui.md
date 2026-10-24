@@ -1,7 +1,7 @@
 # X16 · Sesi sisipan: UI Intisari (hub, halaman Intisari, pembaca, daftar isi, Cari, MCP)
 
 > **Fase:** sisipan (`apps/web`, `apps/mcp`, `packages/core`, `packages/db` hanya jalur Cari) · **Status:** belum
-> **Prasyarat:** X15a di-merge (kontrak `readDigest`/`DigestView`, ADR-097) · Tugas pemilik: T-30 (tinjau tampilan)
+> **Prasyarat:** X15a di-merge (kontrak `readDigest`/`DigestView`, ADR-097); data nyata di staging dari X15b langkah 9 · Tugas pemilik: T-30 (tinjau tampilan)
 > **Perkiraan:** 1–2 percakapan agent · $0 LLM · tanpa korpus baru (fixture dulu; data nyata dari pilot X15b / `ihya-v9`)
 
 ## Tujuan
@@ -22,7 +22,7 @@ Lihat [X15](X15-intisari.md) dan ADR-097. Persona: pekerja kota yang sibuk, awam
 
 ## Langkah
 
-1. **Rute** (ISR on-demand: `revalidate=false`, `dynamicParams=true`, `generateStaticParams()=[]`; di korpus skema < 9 → `notFound()`):
+1. **Rute** (ISR on-demand: `revalidate=false`, `dynamicParams=true`, `generateStaticParams()=[]`; di korpus skema < 9 → `notFound()`; `dengar.json` milik X17):
    - `(app)/kitab/[work]/intisari/page.tsx`: hub. Isinya 41 Intisari Kitab per rub', dengan durasi baca/dengar dan tanda "sudah dibaca" (localStorage, dicatat di `/privasi`).
    - `(app)/kitab/[work]/bab/[id]/intisari/page.tsx`: halaman Intisari. Tata letak "Kitab" bila `tier` book.
    - `(app)/dev/intisari/page.tsx`: halaman fixture (`force-dynamic`, noindex, pola `dev/buku`) untuk e2e tanpa D1.
@@ -59,12 +59,14 @@ Lihat [X15](X15-intisari.md) dan ADR-097. Persona: pekerja kota yang sibuk, awam
 
 ## Selesai bila
 
-- [ ] Hub dan halaman Intisari tampil di Preview dengan data staging. Di korpus skema 8 halaman ini `notFound`, tanpa lencana atau tautan.
+- [ ] Hub dan halaman Intisari tampil di Preview dengan data staging. Di korpus skema < 9 halaman ini `notFound`, tanpa lencana atau tautan.
 - [ ] Teks Arab kutipan sama persis dengan `text_raw` (e2e membandingkannya dengan `/api/kutipan`), dan kutipan dengan sidik basi tidak tampil.
 - [ ] Setiap gagasan punya minimal satu tautan "Dasar teks" yang membuka paragrafnya.
 - [ ] Label AI ada di halaman Intisari, kartu pembaca, dan kartu Cari.
 - [ ] e2e + axe lolos; LCP ≤ 4,29 dtk; `eval:retrieval --gate` tidak turun.
 - [ ] `pnpm verify` lolos; peninjau; T-30 disetujui pemilik; STATUS, LOG, dan berkas sesi ini diperbarui.
+
+Berkas bersama dengan X17 yang dikerjakan bergantian: `src/i18n/privacy.ts` / halaman `/privasi` (penyimpanan lokal) dan `globals.css`.
 
 ## Di luar cakupan
 

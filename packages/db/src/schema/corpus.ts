@@ -202,6 +202,9 @@ export type SubheadingTranslationRow = z.infer<typeof subheadingTranslationRow>;
 const sha256 = z.string().regex(/^[0-9a-f]{64}$/);
 const ord = z.number().int().min(1).max(99);
 const charStart = int.nonnegative();
+/** Paragraf dan node dari edisi yang sama (formula ID ADR-029; dijaga CHECK migrasi 0009). */
+const sameEdition = (r: { passage_id: number; toc_node_id: number }) =>
+  Math.floor(r.passage_id / 10_000_000) === Math.floor(r.toc_node_id / 100_000);
 
 /** Intisari Kitab (muqaddimah + kitab) atau Intisari Bab (bagian lain). */
 export const digestTier = z.enum(["book", "section"]);
@@ -221,20 +224,25 @@ export type DigestQuoteKind = z.infer<typeof digestQuoteKind>;
 export const voiceKind = z.enum(["ai", "human"]);
 export type VoiceKind = z.infer<typeof voiceKind>;
 
-export const digestRow = z.strictObject({
-  toc_node_id: id,
-  lang: z.string(),
-  tier: digestTier,
-  basis: digestBasis,
-  opening: z.string().nullable(),
-  abstract: z.string(),
-  closing: z.string().nullable(),
-  source_sha256: sha256,
-  model: z.string(),
-  prompt_version: z.string(),
-  created_at: z.string(),
-  review_status: reviewStatus,
-});
+export const digestRow = z
+  .strictObject({
+    toc_node_id: id,
+    lang: z.string(),
+    tier: digestTier,
+    basis: digestBasis,
+    opening: z.string().nullable(),
+    abstract: z.string(),
+    closing: z.string().nullable(),
+    source_sha256: sha256,
+    model: z.string(),
+    prompt_version: z.string(),
+    created_at: z.string(),
+    review_status: reviewStatus,
+  })
+  .refine(
+    (r) => r.tier === "section" || (r.opening !== null && r.closing !== null),
+    "Intisari Kitab wajib punya pembuka dan penutup",
+  );
 export type DigestRow = z.infer<typeof digestRow>;
 
 export const digestPointRow = z.strictObject({
@@ -260,12 +268,14 @@ export const digestAnchorRow = z
     char_start: charStart,
     char_end: int,
   })
-  .refine((r) => r.char_end > r.char_start, "char_end harus > char_start");
+  .refine((r) => r.char_end > r.char_start, "char_end harus > char_start")
+  .refine(sameEdition, "paragraf jangkar harus dari edisi node");
 export type DigestAnchorRow = z.infer<typeof digestAnchorRow>;
 
 /**
  * Kutipan pilihan: rentang `text_raw` + sidik `raw_sha256`. Terjemahan `digest` = terjemahan AI
- * kutipan ini; `passage` = kutipan satu paragraf utuh, terjemahannya dari tabel `translation`.
+ * kutipan ini dengan asal model-nya sendiri (Intisari induk bisa memakai kutipan anak); `passage` =
+ * kutipan satu paragraf utuh, terjemahannya dari tabel `translation`.
  */
 export const digestQuoteRow = z
   .strictObject({
@@ -280,11 +290,27 @@ export const digestQuoteRow = z
     kind: digestQuoteKind,
     translation_source: z.enum(["digest", "passage"]),
     translation: z.string().nullable(),
+    model: z.string().nullable(),
+    prompt_version: z.string().nullable(),
+    created_at: z.string().nullable(),
+    review_status: reviewStatus,
   })
   .refine((r) => r.char_end > r.char_start && r.char_end - r.char_start <= 2000, "rentang kutipan")
+  .refine(sameEdition, "paragraf kutipan harus dari edisi node")
   .refine(
-    (r) => (r.translation_source === "digest") === (r.translation !== null),
-    "terjemahan kutipan hanya untuk sumber digest",
+    (r) =>
+      (r.translation_source === "digest") ===
+      (r.translation !== null &&
+        r.model !== null &&
+        r.prompt_version !== null &&
+        r.created_at !== null),
+    "terjemahan + asal model hanya untuk sumber digest",
+  )
+  .refine(
+    (r) =>
+      r.translation_source === "digest" ||
+      (r.model === null && r.prompt_version === null && r.created_at === null),
+    "sumber passage tanpa asal model",
   );
 export type DigestQuoteRow = z.infer<typeof digestQuoteRow>;
 
@@ -294,6 +320,7 @@ export const digestQuestionRow = z.strictObject({
   ord,
   point_ord: ord,
   text: z.string(),
+  review_status: reviewStatus,
 });
 export type DigestQuestionRow = z.infer<typeof digestQuestionRow>;
 
@@ -350,7 +377,14 @@ export const audioTrackRow = z
     alignment_key: z.string().nullable(),
     created_at: z.string(),
   })
-  .refine((r) => (r.voice_kind === "ai") === (r.model !== null), "model hanya untuk suara AI");
+  .refine((r) => (r.voice_kind === "ai") === (r.model !== null), "model hanya untuk suara AI")
+  .refine((r) => {
+    try {
+      return audioChapters.safeParse(JSON.parse(r.chapters_json)).success;
+    } catch {
+      return false;
+    }
+  }, "chapters_json = [{point_ord, start_ms}]");
 export type AudioTrackRow = z.infer<typeof audioTrackRow>;
 
 /** Stem sangat umum di `passage_fts` (migrasi 0004, S11): pengaman pencarian kata umum. */

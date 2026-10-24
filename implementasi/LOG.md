@@ -21,10 +21,13 @@ Format entri:
   - Uji dengar awal lewat konektor ElevenLabs: v4, Jefri + Gendhis, ±1.200 kredit.
   - Migrasi korpus `0009_digest.sql` (skema 9: `digest*`, `glossary_term`, `audio_track`, `digest_point_fts`) + Zod; `getDigest`/`listDigestHeaders`/`getDigestHeaders`; `readDigest` → `DigestView` (kutipan disalin dari `text_raw` dengan cek sidik; yang ditolak tidak dikirim).
   - Ingest mengenal tabel baru (kosong). Dokumen: ADR-097, docs/05 §12, teks-arab aturan 11, ARSITEKTUR, sesi X15–X17, T-28–T-31, FASE (fitur belajar dicatat di Fase 7).
-- Verifikasi: `pnpm check` lolos · `vp test --project db` 158 lolos · `--project core` 167 lolos · `--project node tools/ingest` 193 lolos (10 dilewati) · `pnpm verify`: lihat PR
+- Verifikasi:
+  - `pnpm verify` lolos (857 + 405 tes, build 3/3) sebelum perbaikan peninjau.
+  - Sesudah perbaikan: `pnpm check` lolos · `vp test --project db` 159 · `--project core` 168 · `--project node tools/ingest` 193 lolos.
+  - Peninjau: 0 blocker, 11 perbaikan dikerjakan.
 - Biaya API: – (LLM $0; ElevenLabs ±1.200 kredit dari paket Starter pemilik untuk uji dengar)
 - Keputusan: ADR-097 (nomor 096 dipakai cabang landing page)
-- Catatan untuk sesi berikutnya: X15b, X16, dan X17 bisa paralel (berkas tidak beririsan; `globals.css` dan KEPUTUSAN/STATUS/LOG bergantian). Data T-28 tidak ada di mesin agen, jadi pilot memakai `--from staging`. `corpus:qa` atas staging skema 8 gagal sampai staging dimuat ulang dari build skema 9.
+- Catatan untuk sesi berikutnya: X15b, X16, dan X17 bisa paralel. Berkas yang beririsan dikerjakan bergantian: `globals.css`, `/privasi` (X16 + X17), dan KEPUTUSAN/STATUS/LOG. `dengar.json` milik X17 di folder rute X16. Data T-28 tidak ada di mesin agen, jadi pilot memakai `--from staging`. `corpus:qa` atas staging skema 8 gagal sampai staging dimuat ulang dari build skema 9.
 
 ## 2026-10-24 · X14 · Lanjutan mode baca: petunjuk sekali tampil, Ringkasan AI ikut kata cari, ukur LCP di repo — selesai (PR #130)
 - Dikerjakan: petunjuk "Pilih cara membaca" (pilihan pemilik) di halaman baca bagi pengunjung yang belum memilih mode, lewat skrip awal + pemeriksaan ulang saat navigasi lunak, tanpa geser tata letak; Ringkasan AI satu DOM, disorot kata cari, dibuka bila kecocokan terpotong, dibuka sementara di mode Arab (batas ADR-091 §4 dihapus); `scripts/ukur-lcp.mjs` + `pnpm ukur:lcp` (Lighthouse di cache pengguna, bukan dependensi repo).

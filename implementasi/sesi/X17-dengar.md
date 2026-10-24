@@ -25,6 +25,7 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
 2. **Skrip** `packages/core/src/digest-script.ts`, deterministik:
    - Intisari menjadi segmen per gagasan: kalimat label pembuka, pembuka/abstrak, gagasan, penutup.
    - Kalimat dipecah dengan `indonesianSentences`.
+   - Masukannya `DigestView` dari `readDigest`, jadi hanya yang tampil yang dibacakan: gagasan yang tidak ditolak dan berjangkar, serta kutipan yang tidak ditahan. Gagasan yang ditolak sesudah audio dibuat mengubah sha skrip, sehingga audionya gugur saat ingest.
    - Kutipan dibacakan lewat terjemahannya ("…yang terjemahan bebasnya: …"). Ayat hanya disebut. Tanda riwayat sangat lemah ikut dibacakan bila riwayatnya disebut.
    - Hasil diperiksa: tanpa huruf Arab, tanpa `⟦`, dan sha skrip stabil.
 3. **Leksikon** `data/lexicon/id.yaml`: IPA istilah dan nama (dari glosarium X15b + tokoh), dengan versi = sha berkas. Diterapkan sebagai IPA inline `/…/` (v4) atau kamus lafal ElevenLabs. Diuji dengar di T-31.
@@ -47,7 +48,7 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
    - Kontrol: Media Session (metadata + label suara AI, play/pause, ±15 dtk, bab berikut/sebelum, `setPositionState`), kecepatan 0,75–2×, bab = gagasan.
    - Lanjut posisi lewat localStorage `surau:listen:v1`, dicatat di `/privasi`. Data pemutar disajikan `…/bab/[id]/intisari/dengar.json` (ISR).
    - Tidak ada CSS komponen HeroUI baru di `globals.css`; JS awal bertambah ≤ ±3 KB.
-8. **Pilot** (izin ≤ 50 ribu karakter): Intisari Kitab + ±7 bab dari pilot X15b, dengan suara pilihan T-31. Pemilik mendengar dan menilai (lafal istilah, tempo, label).
+8. **Pilot** (izin ≤ 50 ribu karakter): Intisari Kitab + ±7 bab dari pilot X15b, dengan satu suara AI pilihan T-31 (skema: satu suara AI per Intisari). Pemilik mendengar dan menilai (lafal istilah, tempo, label).
 9. **Produksi** (izin + kuota T-29): seluruh Intisari yang durasi dengarnya ≥ 1 menit, manifest, muat ke korpus berikutnya.
 
 ## Selesai bila

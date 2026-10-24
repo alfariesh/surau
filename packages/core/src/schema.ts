@@ -683,8 +683,6 @@ export const takhrijView = z.strictObject({
 });
 export type TakhrijView = z.infer<typeof takhrijView>;
 
-// ── Masukan (dibagikan ke route, tool MCP, CLI; KONVENSI §TypeScript) ──────────────────────
-
 // ── Intisari (X15, ADR-097) ──────────────────────────────────────────────────────────────
 
 export const digestAnchorView = z
@@ -774,7 +772,9 @@ export type DigestAudioView = z.infer<typeof digestAudioView>;
 
 export const digestView = z
   .strictObject({
-    label: z.literal("ai_digest").describe('Always shown as "Intisari" (AI study digest)'),
+    label: z
+      .literal("ai_digest")
+      .describe('Always shown as "Intisari · AI summary"; never without the AI label'),
     section: tocNodeRef.describe("The table-of-contents section this digest covers"),
     source: citationSource,
     tier: digestTier.describe("book = digest of a whole book (kitab); section = of a chapter"),
@@ -791,11 +791,27 @@ export const digestView = z
     terms: z.array(digestTermView),
     reading_minutes: z.number().int().positive().describe("Estimated reading time of the AI text"),
     audio: digestAudioView.nullable(),
+    withheld_quotes: z
+      .array(
+        z.strictObject({
+          ord: id,
+          reason: z
+            .enum(["stale", "ayah"])
+            .describe(
+              "stale = the quoted span no longer matches the passage text; ayah = it touches a Quran quotation",
+            ),
+        }),
+      )
+      .describe(
+        "Quotations not shown, for logging only (never display them); rejected ones are not listed",
+      ),
   })
   .describe(
     "Layered AI study digest ('Intisari') of a section: key ideas anchored to passages, verbatim quotations copied from the database, and optional narration. A door to the text, not a substitute for it",
   );
 export type DigestView = z.infer<typeof digestView>;
+
+// ── Masukan (dibagikan ke route, tool MCP, CLI; KONVENSI §TypeScript) ──────────────────────
 
 export const readDigestInput = z.strictObject({ node_id: id });
 export type ReadDigestInput = z.infer<typeof readDigestInput>;

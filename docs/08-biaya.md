@@ -217,6 +217,19 @@ Cache prompt sistem di batch terbaca **±100%** (bukan 30–98% seperti peringat
 
 Untuk ±92 kitab, satu request per paragraf membuat prompt sistem mendominasi; menggabungkan beberapa paragraf per request (ADR-043, "tinjau ulang") bisa memangkas biaya terjemahan beberapa kali lipat.
 
+**Intisari + Dengar (X15–X17, ADR-097, perkiraan 2026-10-24; belum diukur):**
+
+| Pekerjaan | Ihya | Catatan |
+|---|---|---|
+| Intisari Bab (Haiku 5.5 batch, bertingkat, bahasa `id`) | ±$1,2 termasuk ulangan | input ±6 juta token, keluaran ±1,1 juta |
+| Intisari Kitab, 41 node (Sonnet 5.5 batch) | ±$1,2–2,5 | dibandingkan dengan Haiku di pilot |
+| Definisi glosarium | ±$0,2 | sekali per istilah |
+| **Total LLM** | **±$2,5–4** | pilot 1 kitab ≤ $1 (izin) |
+| Audio ElevenLabs `eleven_v4` ($0,08 per 1.000 karakter lewat API) | ±1,3 juta karakter ≈ **$104** (±22 jam audio) | Starter (±75 ribu karakter/bulan) hanya cukup untuk pilot. Pro sebulan $99 (±1,24 juta) + isi ulang kecil, Creator $22/bulan (±275 ribu), atau Impact Program |
+| Penyimpanan audio R2 (`surau-media`, MP3 mono 64 kbps) | ±0,6 GB, egress $0 | di bawah kuota gratis 10 GB |
+
+Alternatif TTS bila uji dengar menolak v4 atau dana terbatas: Google Chirp 3 HD id-ID ($30 per 1 juta karakter, 1 juta pertama gratis tiap bulan) dan Gemini TTS (±$14 per 1 juta karakter, naik 2027). Workers AI belum punya TTS bahasa Indonesia.
+
 ## Pengaman anggaran
 
 Desain lengkap ada di ADR-014 dan dibangun di S20 (ADR-065, [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md)). Prinsipnya: rem keras di penyedia, rem harian di edge, akuntansi real-time di aplikasi, dan sakelar manual.
@@ -301,6 +314,7 @@ Jev bukan model generatif. Ia menjawab pertanyaan pilihan dengan **probabilitas 
 | **GitHub Sponsors** | Donasi rutin, tanpa potongan untuk akun personal | Indonesia didukung |
 | Langfuse | Kredit $300/bulan (OSS, tahun pertama) atau $199/bulan (nirlaba) | **Hanya relevan bila Langfuse diaktifkan** sebagai cadangan (ADR-015); saat ini tidak dipakai |
 | Anthropic / OpenAI nirlaba | Hanya diskon kursi (seat), **tanpa kredit API** | Kurang relevan |
+| **ElevenLabs Impact Program** | 12 bulan paket Pro gratis (±1,24 juta karakter v4 per bulan lewat API), cukup untuk semua audio Intisari Ihya (X17) | Organisasi nirlaba terdaftar, diverifikasi lewat Goodstack; prioritas pendidikan dan budaya; status organisasi keagamaan/open source belum dikonfirmasi (T-29) |
 
 **Langkah praktis:**
 1. **Daftarkan yayasan/perkumpulan sejak awal.** Badan hukum membuka hampir semua program kredit dan membuat donasi lebih tepercaya.

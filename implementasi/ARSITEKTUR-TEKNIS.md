@@ -195,3 +195,7 @@ File patch, peta ID (`data/ids/`), laporan validasi, `SOURCES.md` (versi + sha25
 | `takhrij` | Catatan kaki status hadits (al-'Iraqi untuk Ihya) |
 | `text_raw` / `norm` / `stem` | Teks persis sumber / bentuk cocok ternormalisasi / bentuk tanpa proklitik |
 | `corpus version` | Versi build korpus. Setiap rilis data membuat DB baru (blue-green) |
+| Intisari / `digest` | Ringkasan belajar berlapis per node (X15, ADR-097): `tier` book = Intisari Kitab, section = Intisari Bab |
+| gagasan / `digest_point` | Gagasan kunci Intisari; "Dasar teks" = jangkarnya (`digest_anchor`, rentang `text_raw`) |
+| kutipan Intisari / `digest_quote` | Rentang `text_raw` pilihan + `raw_sha256`; teksnya disalin kode saat dibaca |
+| Dengar / `audio_track` | Audio narasi Intisari (X17), MP3 di R2 `surau-media` |

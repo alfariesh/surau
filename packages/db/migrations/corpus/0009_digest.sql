@@ -15,12 +15,13 @@ CREATE TABLE digest (
   lang           TEXT NOT NULL,
   -- book = Intisari Kitab (muqaddimah + kitab-kitab Ihya); section = Intisari Bab (bagian lain).
   tier           TEXT NOT NULL CHECK (tier IN ('book', 'section')),
-  -- Asal isi: text = teks Arab bagian itu; children = Intisari anak-anaknya; mixed = keduanya.
+  -- Asal isi: text = teks Arab bagian itu sendiri (node panjang: per potongan lalu digabung);
+  -- children = hanya Intisari anak-anaknya (teks sendirinya sebatas judul); mixed = teks sendiri
+  -- ditambah Intisari anak-anaknya.
   basis          TEXT NOT NULL CHECK (basis IN ('text', 'children', 'mixed')),
-  -- Pembuka "apa yang dibahas" (wajib untuk tier book, opsional untuk section).
+  -- Pembuka "apa yang dibahas" dan penutup "inti kitab": wajib untuk tier book.
   opening        TEXT,
   abstract       TEXT NOT NULL,
-  -- Penutup "inti kitab" (tier book).
   closing        TEXT,
   -- sha256 masukan model (blok teks, atau sha Intisari anak): hasil basi gugur saat ingest.
   source_sha256  TEXT NOT NULL CHECK (length(source_sha256) = 64),
@@ -29,11 +30,12 @@ CREATE TABLE digest (
   created_at     TEXT NOT NULL,
   review_status  TEXT NOT NULL DEFAULT 'ai_generated'
     CHECK (review_status IN ('ai_generated', 'reviewed', 'ustadz_verified', 'rejected')),
-  PRIMARY KEY (toc_node_id, lang)
+  PRIMARY KEY (toc_node_id, lang),
+  CHECK (tier = 'section' OR (opening IS NOT NULL AND closing IS NOT NULL))
 ) STRICT, WITHOUT ROWID;
 
 -- Gagasan kunci, urut `ord`. Status tinjau per baris supaya koreksi manusia kelak (pola ADR-082)
--- bisa per gagasan.
+-- bisa per gagasan. Gagasan tanpa jangkar tidak pernah tampil (`readDigest`).
 CREATE TABLE digest_point (
   toc_node_id   INTEGER NOT NULL,
   lang          TEXT NOT NULL,
@@ -62,7 +64,9 @@ CREATE TABLE digest_anchor (
   char_end    INTEGER NOT NULL,
   PRIMARY KEY (toc_node_id, lang, point_ord, seq),
   FOREIGN KEY (toc_node_id, lang, point_ord) REFERENCES digest_point (toc_node_id, lang, ord),
-  CHECK (char_end > char_start)
+  CHECK (char_end > char_start),
+  -- Paragraf dari edisi yang sama dengan node (formula ID ADR-029), supaya permalink benar.
+  CHECK (passage_id / 10000000 = toc_node_id / 100000)
 ) STRICT, WITHOUT ROWID;
 
 -- Gagasan mana yang bersandar pada sebuah paragraf (dari paragraf ke Intisari; jalur Cari).
@@ -70,7 +74,7 @@ CREATE INDEX digest_anchor_passage ON digest_anchor (passage_id);
 
 -- Kutipan pilihan: rentang teks Arab yang disalin dari `text_raw` (bukan teks model).
 -- `raw_sha256` = sha256 `text_raw.slice(char_start, char_end)` saat dibangun; pembaca tidak
--- menampilkan kutipan yang sidiknya tidak cocok lagi.
+-- menampilkan kutipan yang sidiknya tidak cocok lagi atau yang menyentuh rujukan ayat.
 CREATE TABLE digest_quote (
   toc_node_id        INTEGER NOT NULL,
   lang               TEXT NOT NULL,
@@ -84,24 +88,37 @@ CREATE TABLE digest_quote (
   -- Ditentukan kode, bukan model: text = perkataan dalam teks; report = riwayat (status dari
   -- takhrij); poetry = syair.
   kind               TEXT NOT NULL CHECK (kind IN ('text', 'report', 'poetry')),
-  -- digest = terjemahan AI kutipan ini (`translation` terisi); passage = kutipan satu paragraf utuh,
-  -- terjemahannya diambil dari tabel `translation` saat dibaca (label tinjauan manusia ikut).
+  -- digest = terjemahan AI kutipan ini (`translation` + asal model-nya terisi; Intisari induk bisa
+  -- memakai kutipan anak, jadi asalnya per kutipan, bukan milik Intisari); passage = kutipan satu
+  -- paragraf utuh, terjemahannya dari tabel `translation` saat dibaca (label tinjauan manusia ikut).
   translation_source TEXT NOT NULL CHECK (translation_source IN ('digest', 'passage')),
   translation        TEXT,
+  model              TEXT,
+  prompt_version     TEXT,
+  created_at         TEXT,
+  -- Pemilihan kutipan ini (dan terjemahan `digest`-nya) bisa ditolak peninjau per kutipan.
+  review_status      TEXT NOT NULL DEFAULT 'ai_generated'
+    CHECK (review_status IN ('ai_generated', 'reviewed', 'ustadz_verified', 'rejected')),
   PRIMARY KEY (toc_node_id, lang, ord),
   FOREIGN KEY (toc_node_id, lang) REFERENCES digest (toc_node_id, lang),
   FOREIGN KEY (toc_node_id, lang, point_ord) REFERENCES digest_point (toc_node_id, lang, ord),
   CHECK (char_end > char_start AND char_end - char_start <= 2000),
-  CHECK ((translation_source = 'digest') = (translation IS NOT NULL))
+  CHECK (passage_id / 10000000 = toc_node_id / 100000),
+  CHECK ((translation_source = 'digest') = (translation IS NOT NULL)),
+  CHECK ((translation IS NOT NULL) = (model IS NOT NULL)),
+  CHECK ((model IS NOT NULL) = (prompt_version IS NOT NULL)),
+  CHECK ((model IS NOT NULL) = (created_at IS NOT NULL))
 ) STRICT, WITHOUT ROWID;
 
 -- Pertanyaan ingatan per gagasan ("siapa berpendapat apa"), bahan fitur ulas kelak.
 CREATE TABLE digest_question (
-  toc_node_id INTEGER NOT NULL,
-  lang        TEXT NOT NULL,
-  ord         INTEGER NOT NULL CHECK (ord BETWEEN 1 AND 99),
-  point_ord   INTEGER NOT NULL,
-  text        TEXT NOT NULL,
+  toc_node_id   INTEGER NOT NULL,
+  lang          TEXT NOT NULL,
+  ord           INTEGER NOT NULL CHECK (ord BETWEEN 1 AND 99),
+  point_ord     INTEGER NOT NULL,
+  text          TEXT NOT NULL,
+  review_status TEXT NOT NULL DEFAULT 'ai_generated'
+    CHECK (review_status IN ('ai_generated', 'reviewed', 'ustadz_verified', 'rejected')),
   PRIMARY KEY (toc_node_id, lang, ord),
   FOREIGN KEY (toc_node_id, lang, point_ord) REFERENCES digest_point (toc_node_id, lang, ord)
 ) STRICT, WITHOUT ROWID;
@@ -132,7 +149,8 @@ CREATE TABLE digest_term (
   FOREIGN KEY (term_key, lang) REFERENCES glossary_term (term_key, lang)
 ) STRICT, WITHOUT ROWID;
 
--- Audio "Dengarkan" (X17): satu berkas MP3 per Intisari per jenis suara di bucket R2 media publik
+-- Audio "Dengarkan" (X17): satu berkas MP3 per Intisari per jenis suara (satu suara AI pilihan
+-- pemilik; narator manusia kelak didahulukan) di bucket R2 media publik
 -- (objek tidak pernah ditimpa; kunci memuat sha skrip). Sumber kebenarannya metadata ter-commit
 -- `data/audio/<kitab>-audio.json`; ingest memuat baris hanya bila `script_sha256` sama dengan skrip
 -- yang dibangun ulang dari Intisari di build itu, jadi audio basi gugur sendiri.

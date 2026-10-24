@@ -26,7 +26,7 @@ Riset, keputusan, dan alternatif yang ditolak ada di **ADR-097**. Kebijakannya d
 |---|---|---|
 | Node | muqaddimah + 40 kitab (41) | bagian lain (±270; rub' dari kitab-kitabnya) |
 | Durasi | 10–15 menit | 2–4 menit; jumlah gagasan mengikuti panjang teks |
-| Dibuat dari (`basis`) | Intisari bab anaknya (`children`) | teks Arab bagian itu (`text`), node besar per potongan lalu digabung (`mixed`) |
+| Dibuat dari (`basis`) | Intisari bab anaknya (`children`, atau `mixed` bila kitab punya teks sendiri) | teks Arab bagian itu (`text`; node panjang per potongan lalu digabung, tetap `text`), atau teks sendiri + Intisari subbagiannya (`mixed`) |
 | Model | Sonnet 5.5 (dibandingkan dengan Haiku di pilot) | Haiku 5.5 |
 | Isi | pembuka · 5–10 gagasan (120–250 kata) · 2–3 kutipan · penutup | abstrak · 3–7 gagasan (40–90 kata) · 0–2 kutipan · 0–5 istilah |
 
@@ -49,7 +49,10 @@ Keduanya juga memuat:
 | `audio_track` | diisi X17 |
 | `digest_point_fts` | indeks gagasan |
 
-**Baca:** `readDigest` (core) mengembalikan `DigestView`. Kutipan disalin dari `text_raw` hanya bila sidiknya cocok; yang ditolak peninjau tidak dikirim. Kepala Intisari (jumlah gagasan, panjang teks, durasi audio) diambil lewat `listDigestHeaders`/`getDigestHeaders` (db).
+**Baca:** `readDigest` (core) mengembalikan `DigestView`.
+- Kutipan disalin dari `text_raw` hanya bila sidiknya cocok dan tidak menyentuh rujukan ayat. Yang ditahan masuk `withheld_quotes`, hanya untuk log.
+- Yang ditolak peninjau, gagasan tanpa jangkar, dan teks AI berhuruf Arab tidak dikirim.
+- Kepala Intisari (jumlah gagasan yang tampil, panjang teks, durasi audio dengan narator manusia didahulukan) diambil lewat `listDigestHeaders`/`getDigestHeaders` (db).
 
 ## Baca dulu (hanya ini)
 
@@ -94,7 +97,12 @@ Keduanya juga memuat:
    - `--from staging` membaca korpus staging hanya dengan SELECT, lewat pola `tools/eval/src/open-corpus.ts`, karena data T-28 tidak ada di mesin agen.
    - `plan` gratis (`count_tokens`).
 6. **Attach** (`tools/ingest/src/llm/digest-attach.ts`):
-   - hasil yang lolos menjadi baris `digest*` + `digest_point_fts` (`latinIndexText` judul + isi);
+   - hasil yang lolos menjadi baris `digest*` + `digest_point_fts` (`latinIndexText` judul + isi; hanya gagasan yang tampil, yaitu tidak ditolak dan berjangkar);
+   - invarian build (gagal bila dilanggar):
+     - setiap kutipan cocok sidik dan tidak menyentuh ayat;
+     - sumber `passage` hanya untuk kutipan satu paragraf utuh;
+     - setiap gagasan punya jangkar;
+     - terjemahan kutipan `digest` membawa asal model-nya sendiri, jadi kutipan anak yang dipakai induk tetap berlabel Haiku/`digest-section@1`;
    - abstrak menggantikan `summary.text` (prompt `digest-…`) hanya bila lolos `checkSummary`;
    - sha diperiksa ulang;
    - baris `audio_track` dimuat X17, bukan di sini.
@@ -103,6 +111,10 @@ Keduanya juga memuat:
    - halaman QA HTML untuk pemilik (T-31: per gagasan Benar/Kurang/Salah, setia pada jangkar, atribusi, bebas fatwa);
    - ukuran blok: persen kutipan terpotong atau > 300 karakter.
 8. Bila blok terlalu kasar (> 10% kutipan bermasalah), pakai cadangan ADR-097: penunjuk Arab pendek di dalam blok + `findQuote`, dengan teks Arab model dibuang.
+9. **Muat hasil pilot ke staging** supaya X16 (Preview) dan T-30 punya data nyata:
+   - terapkan migrasi 0009 ke `surau-corpus-staging`, lalu sisipkan baris Intisari pilot saja (bukan ingest penuh);
+   - staging bukan produksi, dan pemuatan penuh tetap lewat X15c;
+   - perintah dan batasnya ditulis di `tools/ingest/README.md`.
 
 ### X15c · Batch penuh + korpus `ihya-v9` (sesudah pilot lolos, T-28, izin)
 
@@ -114,9 +126,19 @@ Keduanya juga memuat:
 ## Selesai bila
 
 **X15a**
-- [x] Migrasi 0009 + Zod: `packages/db/test/schema.test.ts` (kolom, nullability, STRICT) lolos untuk 8 tabel baru; `pnpm exec vp test --project db` → 158 lolos
-- [x] `getDigest`/kepala Intisari: `packages/db/src/repo/digest.test.ts` (urutan, halaman cetak, CHECK kutipan/rentang/suara AI, yang ditolak tidak dihitung)
-- [x] `readDigest`: `packages/core/src/digest.test.ts`. Kontrak `digestView`, kutipan disalin dari `text_raw`, sidik basi dan milik gagasan yang ditolak tidak dikirim, yang ditolak → null, node tidak ada → `NotFound`. `pnpm exec vp test --project core` → 167 lolos
+- [x] Migrasi 0009 + Zod: `packages/db/test/schema.test.ts` (kolom, nullability, STRICT) lolos untuk 8 tabel baru; `pnpm exec vp test --project db` → 159 lolos
+- [x] `getDigest`/kepala Intisari: `packages/db/src/repo/digest.test.ts`. Isinya:
+  - urutan, halaman cetak, dan rujukan ayat paragraf kutipan;
+  - CHECK untuk asal terjemahan kutipan, rentang, edisi, Intisari Kitab tanpa pembuka/penutup, dan suara AI;
+  - gagasan yang ditolak atau tanpa jangkar tidak dihitung;
+  - skema < 9 → null/kosong.
+- [x] `readDigest`: `packages/core/src/digest.test.ts`. Isinya:
+  - kontrak `digestView`;
+  - kutipan disalin dari `text_raw`; sidik basi dan yang menyentuh ayat ditahan (`withheld_quotes`);
+  - asal terjemahan per kutipan; sumber `passage` hanya untuk paragraf utuh;
+  - yang ditolak, tanpa jangkar, atau berhuruf Arab tidak dikirim;
+  - node tidak ada → `NotFound`.
+  `pnpm exec vp test --project core` → 168 lolos
 - [x] Ingest: build kitab buatan berskema 9 dengan tabel Intisari kosong (`tools/ingest/test/pipeline.test.ts`); reset SQL anak sebelum induk (`sql.test.ts`)
 - [ ] `pnpm verify` lolos; peninjau; PR di-merge (diisi di *Catatan hasil*)
 
@@ -142,6 +164,14 @@ Keduanya juga memuat:
 *(X15a, 2026-10-24)*
 - Kontrak data dan baca selesai tanpa biaya LLM.
 - Tabel Intisari kosong sampai X15b; korpus berikutnya berskema 9.
-- `corpus:qa` atas staging lama (`ihya-v8`, skema 8) akan gagal sampai staging dimuat ulang dari build skema 9. Ini wajar sesudah kenaikan skema, sama dengan X08.
+- `corpus:qa` atas staging/produksi lama (skema < 9; produksi `ihya-v8` skema 7) akan gagal sampai dimuat ulang dari build skema 9. Ini wajar sesudah kenaikan skema, sama dengan X08.
+- Peninjau: 0 blocker. 11 perbaikan dikerjakan sebelum merge:
+  - kutipan yang menyentuh ayat ditahan;
+  - gagasan tanpa jangkar tidak dikirim;
+  - asal dan status tinjau per kutipan/pertanyaan;
+  - sumber `passage` hanya untuk paragraf utuh;
+  - `withheld_quotes`, label MCP "Intisari · AI summary", tes skema lama, definisi `basis`;
+  - satu suara AI per Intisari;
+  - README core, glosarium, dan docs/08.
 - Uji dengar awal lewat konektor ElevenLabs: Jefri dan Gendhis, v4, ±1.200 kredit dari Starter. Pemilik memilih suara di T-31.
 - Data T-28 tidak ada di mesin agen (Linux); pilot memakai `--from staging`.
