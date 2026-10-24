@@ -177,7 +177,7 @@ test("tanpa pelanggaran a11y: mode Arab + Ringkasan AI dibuka kata cari (j1/200)
   });
   await page.goto(`/kitab/ihya/1/200?q=${encodeURIComponent("berkurban")}`);
   const summary = page.locator(".section-summary").first();
-  await expect(summary).toHaveAttribute("data-tr-peek", "");
+  await expect(summary).toHaveAttribute("data-tr-peek", "", { timeout: 15_000 });
   await expect(
     summary.getByRole("button", { name: "Sembunyikan lagi ringkasan AI ini" }),
   ).toBeVisible();

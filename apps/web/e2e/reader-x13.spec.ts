@@ -52,15 +52,26 @@ test("petunjuk tampil bagi pengunjung baru walau JS Next tidak dimuat; tersembun
   }
 });
 
-test("memilih mode di petunjuk: paragraf yang dibaca tidak bergeser (≤ 2 px); petunjuk tidak muncul lagi", async ({
+test("memilih mode di petunjuk: paragraf yang dibaca tidak bergeser (≤ 2 px); tinggi petunjuk tetap", async ({
   page,
 }) => {
   await page.goto(PAGE);
   const group = hint(page);
   await expect(group).toBeVisible();
+  const card = page.getByRole("region", TEXT).locator(".read-mode-hint");
   const text = page.getByRole("region", TEXT);
   const html = page.locator("html");
+  const height = await card.evaluate((el) => el.getBoundingClientRect().height);
   for (const label of ["Arab", "Terjemahan", "Keduanya"] as const) {
+    // Seperti X11: paragraf kelima di sepertiga atas layar (di posisi gulir 0 halaman tidak bisa
+    // digulir ke atas untuk mengompensasi catatan AI yang disembunyikan mode Arab).
+    await text
+      .locator(".passage")
+      .nth(4)
+      .evaluate((el) => {
+        el.scrollIntoView({ block: "start" });
+        window.scrollBy({ top: -120, behavior: "instant" });
+      });
     const anchor = await page.evaluate(() => {
       const el = [...document.querySelectorAll(".reader-text .passage")].find(
         (p) => p.getBoundingClientRect().top >= 63,
@@ -68,32 +79,60 @@ test("memilih mode di petunjuk: paragraf yang dibaca tidak bergeser (≤ 2 px); 
       return el === undefined ? null : { id: el.id, top: el.getBoundingClientRect().top };
     });
     expect(anchor).not.toBeNull();
-    const top = await group.evaluate((el) => el.getBoundingClientRect().top);
+    // Klik lewat DOM (bukan gerak tetikus alat uji): yang diukur hanya perubahan mode.
     await group.getByRole("radio", { name: label }).dispatchEvent("click");
     if (label === "Arab") await expect(html).toHaveAttribute("data-read-mode", "ar");
     else if (label === "Terjemahan") await expect(html).toHaveAttribute("data-read-mode", "tr");
     else await expect(html).not.toHaveAttribute("data-read-mode");
-    // Petunjuk tetap di halaman ini dan tidak bergeser di bawah jari (penjelasan setinggi tetap).
-    await expect(group).toBeVisible();
+    // Petunjuk tetap di halaman ini, setinggi semula (penjelasan mode setinggi tetap).
+    await expect(card).toBeVisible();
     expect(
-      Math.abs((await group.evaluate((el) => el.getBoundingClientRect().top)) - top),
+      Math.abs((await card.evaluate((el) => el.getBoundingClientRect().height)) - height),
     ).toBeLessThan(1);
     const after = await text
       .locator(`#${anchor!.id}`)
       .evaluate((el) => el.getBoundingClientRect().top);
     expect(Math.abs(after - anchor!.top)).toBeLessThanOrEqual(2);
   }
-  // Mode tersimpan: halaman berikutnya tanpa petunjuk.
-  await page.reload();
-  await expect(html).toHaveAttribute("data-read-mode-hint", "off");
-  await expect(group).toBeHidden();
 });
+
+for (const label of ["Keduanya", "Arab"] as const) {
+  test(`memilih ${label} di petunjuk: halaman berikutnya (navigasi lunak dan muat ulang) tanpa petunjuk (regresi)`, async ({
+    page,
+  }) => {
+    await page.goto(PAGE);
+    const group = hint(page);
+    await expect(group).toBeVisible();
+    // Keduanya = bawaan yang sudah aktif: menekannya tetap dihitung sebagai pilihan.
+    await group.getByRole("radio", { name: label }).click();
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem("surau:read-mode")))
+      .toBe(label === "Arab" ? "ar" : "both");
+    // Navigasi lunak Next (skrip awal tidak jalan lagi): penanda di window bertahan.
+    await page.evaluate(() => ((window as unknown as { tetap: boolean }).tetap = true));
+    await page
+      .getByRole("link", { name: /^Berikutnya \(j\.1 h\.201\)/ })
+      .first()
+      .click();
+    // Render halaman berikutnya lewat D1 bisa > 5 dtk di dev:remote.
+    await expect(page).toHaveURL(/\/kitab\/ihya\/1\/201/, { timeout: 15_000 });
+    expect(await page.evaluate(() => (window as unknown as { tetap?: boolean }).tetap)).toBe(true);
+    await expect(page.locator("html")).toHaveAttribute("data-read-mode-hint", "off");
+    await expect(page.getByRole("region", TEXT).locator(".read-mode-hint")).toBeHidden();
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-read-mode-hint", "off");
+  });
+}
 
 test("tutup petunjuk: hilang, diingat browser, mode tetap Keduanya", async ({ page }) => {
   await page.goto(PAGE);
   await expect(hint(page)).toBeVisible();
   await page.getByRole("button", { name: "Tutup petunjuk mode baca" }).click();
   await expect(hint(page)).toBeHidden();
+  // Fokus keyboard pindah ke wilayah teks, tidak jatuh ke <body> (WCAG 2.4.3).
+  expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-label"))).toBe(
+    "Teks kitab",
+  );
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-read-mode-hint", "off");
   await expect(page.locator("html")).not.toHaveAttribute("data-read-mode");
@@ -107,7 +146,8 @@ test("kata cari di Ringkasan AI tersorot; ringkasan terpotong dibuka (Keduanya, 
   await page.goto(`${PAGE}?q=${encodeURIComponent(SUMMARY_ONLY)}`);
   const summary = page.locator(".section-summary").first();
   const body = summary.locator('[data-tr-seg="summary"]');
-  await expect(body).toHaveAttribute("data-expanded", "");
+  // Penyorot memuat @surau/text belakangan (bisa > 5 dtk di dev:remote yang sibuk).
+  await expect(body).toHaveAttribute("data-expanded", "", { timeout: 15_000 });
   await expect(summary.getByRole("button", { name: "Tutup ringkasan" })).toBeVisible();
   // Sorotan ada di dalam teks ringkasan, dan tetap ada sesudah ringkasan ditutup-buka (DOM sama).
   const inSummary = () =>
@@ -133,7 +173,7 @@ test("mode Arab: Ringkasan AI yang cocok dibuka sementara lalu bisa disembunyika
   await setMode(page, "ar");
   await page.goto(`${PAGE}?q=${encodeURIComponent(SUMMARY_ONLY)}`);
   const summary = page.locator(".section-summary").first();
-  await expect(summary).toHaveAttribute("data-tr-peek", "");
+  await expect(summary).toHaveAttribute("data-tr-peek", "", { timeout: 15_000 });
   await expect(summary).toBeVisible();
   await expect(summary.locator('[data-tr-seg="summary"]')).toHaveAttribute("data-expanded", "");
   await expect
@@ -144,6 +184,8 @@ test("mode Arab: Ringkasan AI yang cocok dibuka sementara lalu bisa disembunyika
   await summary.scrollIntoViewIfNeeded();
   await summary.getByRole("button", { name: "Sembunyikan lagi ringkasan AI ini" }).click();
   await expect(summary).toBeHidden();
+  // Fokus keyboard tidak jatuh ke <body> (WCAG 2.4.3).
+  expect(await page.evaluate(() => document.activeElement?.tagName)).not.toBe("BODY");
   await expect(summary).not.toHaveAttribute("data-tr-peek");
 });
 

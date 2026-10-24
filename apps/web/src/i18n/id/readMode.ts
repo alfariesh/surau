@@ -6,7 +6,7 @@ export const readMode = {
   options: { ar: "Arab", both: "Keduanya", tr: "Terjemahan" },
   /** Penjelasan mode terpilih, di bawah pilihan. */
   hints: {
-    ar: "Hanya teks Arab kitab, tanpa terjemahan dan ringkasan AI.",
+    ar: "Hanya teks Arab kitab; terjemahan dan ringkasan AI tampil hanya bila cocok dengan kata cari.",
     both: "Teks Arab bersama terjemahan AI-nya.",
     tr: "Terjemahan AI sebagai teks utama; teks Arab tiap paragraf dibuka dengan satu ketukan.",
   },

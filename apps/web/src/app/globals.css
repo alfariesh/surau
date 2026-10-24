@@ -1156,6 +1156,7 @@ h2.reader-heading-minor {
 /* Cetak mengikuti mode baca, tetapi lipatan dibuka dan tombol layar tidak ikut tercetak. */
 @media print {
   .read-mode-hint,
+  .summary-peek-close,
   .translation-toggle,
   .passage-tools,
   .passage-actions {

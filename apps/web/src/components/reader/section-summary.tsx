@@ -81,7 +81,16 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
           className="summary-peek-close"
           onPress={() => {
             const aside = asideRef.current;
-            if (aside !== null) keepReadingPosition(() => aside.removeAttribute("data-tr-peek"));
+            if (aside === null) return;
+            // Fokus tidak jatuh ke <body> saat tombolnya ikut tersembunyi: pindah ke paragraf di
+            // atas ringkasan (atau wilayah teks), tanpa menggulir.
+            const target = (aside.previousElementSibling?.closest(".passage") ??
+              aside.closest(".reader-text")) as HTMLElement | null;
+            if (target !== null) {
+              if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+              target.focus({ preventScroll: true });
+            }
+            keepReadingPosition(() => aside.removeAttribute("data-tr-peek"));
           }}
         />
       </div>

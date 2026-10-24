@@ -16,17 +16,20 @@
 // ~/.cache/surau/ukur-lcp). Chrome = Chromium Playwright yang sama dengan e2e
 // (`pnpm --filter @surau/web exec playwright install chromium`), atau `CHROME_PATH`.
 //
-// Angka antarmesin tidak sebanding (X11: mesin Linux agen vs Mac X09/X10): skrip mencetak nama mesin,
-// CPU, dan versi Chrome/Lighthouse; catat semuanya bersama angkanya.
+// Angka antarmesin tidak sebanding (X11: mesin Linux agen vs Mac X09/X10): skrip mencetak model
+// mesin, CPU, dan versi Chrome/Lighthouse; catat semuanya bersama angkanya.
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { cpus, homedir, hostname, platform, release, totalmem } from "node:os";
+import { cpus, homedir, platform, release, totalmem } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const LIGHTHOUSE = "13.5.0";
-const PUPPETEER = "25.16.0";
+const PUPPETEER = "25.14.0";
+// Dependensi transitif dibatasi ke rilis sebelum tanggal ini (setara `minimumReleaseAge` repo, yang
+// tidak berlaku untuk npm di luar workspace). Naikkan bersama dua versi di atas.
+const BEFORE = "2026-10-17";
 const MODES = ["baru", "ar", "both", "tr"];
 const PATHS = ["/kitab/ihya/1/200", "/kitab/ihya/3/202"];
 // Sama dengan READ_MODE_KEY (apps/web/src/lib/reader/scale.ts).
@@ -72,7 +75,7 @@ function args() {
 /** Pasang Lighthouse + puppeteer-core (versi terpatok) di folder cache, sekali. */
 function deps() {
   const dir = process.env.SURAU_LCP_DIR ?? join(homedir(), ".cache/surau/ukur-lcp");
-  const tanda = join(dir, `.terpasang-${LIGHTHOUSE}-${PUPPETEER}`);
+  const tanda = join(dir, `.terpasang-${LIGHTHOUSE}-${PUPPETEER}-${BEFORE}`);
   if (!existsSync(tanda)) {
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "package.json"), '{"private":true,"type":"module"}\n');
@@ -84,6 +87,9 @@ function deps() {
         "--no-audit",
         "--no-fund",
         "--save-exact",
+        // Tanpa postinstall paket transitif: Chrome diambil dari Playwright, bukan diunduh puppeteer.
+        "--ignore-scripts",
+        `--before=${BEFORE}`,
         `lighthouse@${LIGHTHOUSE}`,
         `puppeteer-core@${PUPPETEER}`,
       ],
@@ -109,6 +115,19 @@ function chromePath() {
     process.exit(2);
   }
   return path;
+}
+
+/** Model perangkat (bukan hostname, yang bisa memuat nama pribadi): DMI di Linux, hw.model di Mac. */
+function modelMesin() {
+  try {
+    if (platform() === "linux") {
+      const baca = (f) => readFileSync(`/sys/class/dmi/id/${f}`, "utf8").trim();
+      return `${baca("sys_vendor")} ${baca("product_name")}`;
+    }
+    if (platform() === "darwin")
+      return execFileSync("sysctl", ["-n", "hw.model"], { encoding: "utf8" }).trim();
+  } catch {}
+  return "?";
 }
 
 const median = (a) => {
@@ -171,7 +190,7 @@ try {
   }
   const versiChrome = await browser.version();
   const mesin = {
-    hostname: hostname(),
+    model: modelMesin(),
     os: `${platform()} ${release()}`,
     cpu: `${cpus()[0]?.model ?? "?"} (${cpus().length} utas)`,
     ram: `${Math.round(totalmem() / 2 ** 30)} GiB`,
@@ -183,7 +202,7 @@ try {
     `\nLCP ponsel (Lighthouse ${LIGHTHOUSE}, simulasi Lantern), n=${opsi.n}, ${opsi.base}, ${tanggal}`,
   );
   console.log(
-    `Mesin: ${mesin.hostname} · ${mesin.cpu} · ${mesin.ram} · ${mesin.os} · ${mesin.chrome}\n`,
+    `Mesin: ${mesin.model} · ${mesin.cpu} · ${mesin.ram} · ${mesin.os} · ${mesin.chrome}\n`,
   );
   console.log("| Jalur | Mode | Median | Sebaran | Semua (ms) |");
   console.log("|---|---|---|---|---|");

@@ -3,6 +3,8 @@
 import { Segment } from "@heroui-pro/react";
 
 import { readMode as text } from "../i18n/id/readMode";
+import type { ReadMode } from "../lib/reader/scale";
+
 import { READ_MODES } from "../lib/reader/scale";
 
 import { setReadMode, useReadMode } from "./read-mode";
@@ -12,7 +14,16 @@ import { setReadMode, useReadMode } from "./read-mode";
  * pilihan tunggal (React Aria ToggleButtonGroup), jadi pembaca layar mendengarnya sebagai grup
  * radio; label dari elemen `labelId` yang terlihat.
  */
-export function ReadModeSegment({ labelId, size = "sm" }: { labelId: string; size?: "sm" | "md" }) {
+export function ReadModeSegment({
+  labelId,
+  size = "sm",
+  onPick,
+}: {
+  labelId: string;
+  size?: "sm" | "md";
+  /** Dipanggil setiap pilihan ditekan, juga pilihan yang sudah aktif (petunjuk mode baca, X13). */
+  onPick?: (mode: ReadMode) => void;
+}) {
   const mode = useReadMode();
   return (
     <Segment
@@ -26,7 +37,7 @@ export function ReadModeSegment({ labelId, size = "sm" }: { labelId: string; siz
       }}
     >
       {READ_MODES.map((m) => (
-        <Segment.Item key={m} className="flex-1" id={m}>
+        <Segment.Item key={m} className="flex-1" id={m} onPress={() => onPick?.(m)}>
           {text.options[m]}
         </Segment.Item>
       ))}
