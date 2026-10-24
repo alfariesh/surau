@@ -7,17 +7,9 @@ import { CITE_AUTHOR } from "../../content/works";
 import { ArabicInline } from "../arabic";
 import { BookPattern } from "./book";
 import { BookRing } from "./book-ring";
+import { COVER_COLORS } from "./cover-colors";
 
 const t = readerText;
-
-/** Warna sampul bergiliran: zaitun, tanah liat, nila, cokelat, hijau laut (gelap, kontras teks putih). */
-const COVER_COLORS = [
-  "var(--book-zaitun)",
-  "oklch(0.5 0.1 45)",
-  "oklch(0.42 0.07 255)",
-  "oklch(0.42 0.06 70)",
-  "oklch(0.45 0.06 195)",
-] as const;
 
 export interface ShelfWork extends WorkCoverData {
   href: string;
@@ -25,7 +17,15 @@ export interface ShelfWork extends WorkCoverData {
 
 // Rak karya (Server Component): menyusun isi BookRing dari daftar karya DB. Judul Arab selalu dari
 // DB lewat ArabicInline (sampul, punggung, dan keterangan); judul Latin dan pengarang di bawahnya.
-export function WorkShelf({ works, label }: { works: readonly ShelfWork[]; label: string }) {
+export function WorkShelf({
+  works,
+  label,
+  className,
+}: {
+  works: readonly ShelfWork[];
+  label: string;
+  className?: string;
+}) {
   const items: BookRingItem[] = works.map((work, index) => {
     const latin = work.title_id ?? work.title_ar;
     const author = CITE_AUTHOR[work.slug] ?? work.author?.name_id ?? null;
@@ -53,5 +53,5 @@ export function WorkShelf({ works, label }: { works: readonly ShelfWork[]; label
       ),
     };
   });
-  return <BookRing items={items} label={label} ofLabel={homeText.shelfOf} />;
+  return <BookRing className={className} items={items} label={label} ofLabel={homeText.shelfOf} />;
 }

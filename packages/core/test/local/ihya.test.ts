@@ -56,7 +56,10 @@ describe.skipIf(!hasState)("Ihya di D1 lokal", () => {
       }
       throw e;
     });
-    editionId = work?.editions.find((e) => e.is_default)?.id ?? 0;
+    // D1 lokal bisa berisi data buatan dengan slug "ihya" (bukan korpus OpenITI, mis. untuk uji UI):
+    // hanya Ihya asli yang diuji, selain itu dilewati seperti belum dimuat.
+    const real = work?.openiti_uri === "0505Ghazali.IhyaCulumDin";
+    editionId = real ? (work.editions.find((e) => e.is_default)?.id ?? 0) : 0;
   }, 60_000);
 
   afterAll(async () => {
@@ -79,7 +82,7 @@ describe.skipIf(!hasState)("Ihya di D1 lokal", () => {
   }
 
   test("listWorks: Ihya dengan edisi default, lisensi, dan atribusi OpenITI", async ({ skip }) => {
-    skip(editionId === 0, "Ihya belum dimuat ke D1 lokal (pnpm corpus:load:local)");
+    skip(editionId === 0, "Ihya asli belum dimuat ke D1 lokal (pnpm corpus:load:local)");
     const ihya = (await listWorks(db)).works.find((w) => w.slug === "ihya");
     expect(ihya?.openiti_uri).toBe("0505Ghazali.IhyaCulumDin");
     expect(ihya?.editions[0]).toMatchObject({
@@ -92,7 +95,7 @@ describe.skipIf(!hasState)("Ihya di D1 lokal", () => {
   });
 
   test("readPage j1 h200: teks + catatan kaki takhrij yang benar", async ({ skip }) => {
-    skip(editionId === 0, "Ihya belum dimuat ke D1 lokal (pnpm corpus:load:local)");
+    skip(editionId === 0, "Ihya asli belum dimuat ke D1 lokal (pnpm corpus:load:local)");
     const view = await readPage(db, editionId, 1, 200);
     expect(pageView.parse(view)).toEqual(view);
     expect(view.citation).toMatchObject({
@@ -134,7 +137,7 @@ describe.skipIf(!hasState)("Ihya di D1 lokal", () => {
   });
 
   test("getToc: 5 akar (muqaddimah + 4 rub'), setiap rub' 10 kitab", async ({ skip }) => {
-    skip(editionId === 0, "Ihya belum dimuat ke D1 lokal (pnpm corpus:load:local)");
+    skip(editionId === 0, "Ihya asli belum dimuat ke D1 lokal (pnpm corpus:load:local)");
     const toc = await getToc(db, editionId);
     expect(toc.nodes).toHaveLength(5);
     expect(toc.nodes.slice(1).map((n) => n.child_count)).toEqual([10, 10, 10, 10]);
@@ -142,7 +145,7 @@ describe.skipIf(!hasState)("Ihya di D1 lokal", () => {
   });
 
   test("readSection bagian terpanjang: dipaginasi tanpa memotong paragraf", async ({ skip }) => {
-    skip(editionId === 0, "Ihya belum dimuat ke D1 lokal (pnpm corpus:load:local)");
+    skip(editionId === 0, "Ihya asli belum dimuat ke D1 lokal (pnpm corpus:load:local)");
     // Bagian terpanjang = node dengan subpohon berteks terbanyak (dihitung di SQL, bukan dari core).
     const longest = (await db
       .prepare(

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { selectedSection } from "./sections";
+import { selectedSection } from "./section-pick";
 
 const OPTIONS = [
   { id: 1, title: "أ", children: [] },

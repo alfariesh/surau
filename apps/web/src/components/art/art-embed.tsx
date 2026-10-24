@@ -60,11 +60,13 @@ export function ArtEmbed({
     <iframe
       ref={ref}
       aria-hidden="true"
-      className={`block aspect-[4/3] w-full border-0 bg-transparent ${className ?? ""}`}
+      className={`block aspect-[4/3] w-full overflow-hidden border-0 bg-transparent ${className ?? ""}`}
       loading="lazy"
       onLoad={postTheme}
       sandbox="allow-scripts"
       src={`/aset/${name}.html?sematan=1&tombol=0${repeat === undefined ? "" : `&ulang=${repeat}`}`}
+      // Ilustrasi tidak pernah digulir di dalam bingkainya.
+      scrolling="no"
       tabIndex={-1}
       title={title}
     />

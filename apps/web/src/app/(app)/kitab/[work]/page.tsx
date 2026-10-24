@@ -81,7 +81,11 @@ export default async function WorkPage({ params }: Props) {
           <WorkCover textured width={{ xs: 150, sm: 168, md: 196 }} work={work} />
         )}
         <div className="flex min-w-0 flex-col gap-3">
-          <PageTitle className="flex flex-col items-start gap-1">
+          {/* Judul ringkas navbar hanya dari judul Indonesia: teks Arab wajib lewat ArabicInline. */}
+          <PageTitle
+            className="flex flex-col items-start gap-1"
+            compactTitle={work.title_id ?? false}
+          >
             <span>{title}</span>
             <ArabicInline className="text-muted font-normal" size="display">
               {work.title_ar}

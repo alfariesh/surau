@@ -49,7 +49,7 @@ export default function GlobalError({
       <body className="bg-background text-foreground font-sans antialiased">
         <title>{`${t.pageTitle} · ${metaText.siteName}`}</title>
         <main className="mx-auto flex w-full max-w-2xl flex-col items-start gap-4 px-4 pt-16 pb-16 sm:px-6">
-          <PageTitle>{t.heading}</PageTitle>
+          <PageTitle compactTitle={false}>{t.heading}</PageTitle>
           <Typography color="muted">{t.body}</Typography>
           <div className="flex flex-wrap gap-3">
             <Button onPress={() => retry()}>{t.retry}</Button>

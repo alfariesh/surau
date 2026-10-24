@@ -2,16 +2,27 @@
 // klien hanya membawa string yang dipakainya.
 
 export const home = {
-  heading: "Asisten riset kitab klasik Islam",
-  lead: "Surau membantu Anda menemukan, membaca, dan memahami apa yang tertulis di kitab-kitab klasik. Setiap jawaban punya alamat: kitab, jilid, halaman cetak, dan kutipan Arab aslinya.",
+  heading: "Apa yang ingin Anda kaji?",
   shelfLabel:
     "Rak kitab Surau: seret, gulir, atau pakai panah untuk memutar; pilih buku terdepan untuk membukanya",
   shelfOf: "dari",
-  ctaAbout: "Kenali Surau",
-  ctaSource: "Lihat kode sumber",
-  demoCaption: "Basmalah, sebagai contoh tipografi teks Arab di Surau.",
-  demoSource: "Sumber teks:",
+  // Kotak cari Beranda (ADR-086): satu kotak, dua cara (Cari biasa / Maknaz).
+  searchLabel: "Cari di Surau",
+  // Pemilih kitab (kiri kepala kotak cari). Kosong = semua kitab.
+  sourceLabel: "Kitab yang dicari",
+  sourceAll: "Semua kitab",
+  sourceSearch: "Cari kitab",
+  sourceEmpty: "Kitab tidak ditemukan",
+  searchTooLong: (max: number) => `Kata yang dicari paling panjang ${max} huruf.`,
+  askUseSearch: "Pakai Cari",
+  modeLabel: "Cara mencari",
+  modeSearch: "Cari",
+  modeAsk: "Maknaz",
+  searchPlaceholder: "Kata Indonesia atau Arab, mis. sabar, الصبر",
+  examplesLabel: "Contoh",
   principlesHeading: "Tiga prinsip utama",
+  principlesLead: "Yang dijaga Surau di setiap hasil, supaya Anda bisa memeriksanya sendiri.",
+  principleNumber: (n: number) => `Prinsip ${n}`,
   // judul iframe ilustrasi (dekoratif, aria-hidden); tetap diisi supaya pemeriksa aksesibilitas tidak menandainya
   principleArtTitle: "Ilustrasi prinsip",
   principles: [
@@ -29,44 +40,6 @@ export const home = {
       title: "Atribusi, bukan fatwa",
       body: "Surau menyampaikan isi kitab beserta siapa yang mengatakannya. Keputusan hukum untuk kasus pribadi tetap di tangan ulama.",
       art: "prinsip-atribusi",
-    },
-  ],
-  roadmapHeading: "Peta pembangunan",
-  roadmapLead:
-    "Surau dibangun bertahap. Setiap tahap bisa dipakai sebelum tahap berikutnya dimulai.",
-  roadmapNow: "sekarang",
-  roadmapPhase: "Fase",
-  roadmap: [
-    {
-      phase: "0",
-      title: "Fondasi",
-      body: "Situs ini: tentang Surau, prinsip, dan status.",
-      current: true,
-    },
-    {
-      phase: "1",
-      title: "Pembaca Ihya",
-      body: "Membaca Ihya lengkap dengan daftar isi, halaman cetak, dan takhrij al-'Iraqi.",
-    },
-    {
-      phase: "2",
-      title: "Cari",
-      body: "Pencarian Arab dan Indonesia, ayat dengan terjemahan Kemenag.",
-    },
-    {
-      phase: "3",
-      title: "Untuk asisten AI lain",
-      body: "Isi Surau bisa dipakai dari Claude, ChatGPT, dan asisten AI lain.",
-    },
-    {
-      phase: "4",
-      title: "Maknaz",
-      body: "Asisten AI Surau: tanya-jawab dengan kutipan Arab yang diperiksa kode.",
-    },
-    {
-      phase: "5–7",
-      title: "Lebih banyak kitab",
-      body: "Karya al-Ghazali lainnya, wiki istilah dan tokoh, lalu ±92 kitab kurikulum pesantren.",
     },
   ],
 } as const;

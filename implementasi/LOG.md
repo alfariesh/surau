@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-24 · Di luar sesi · Beranda fokus cari, Cari memakai kotak Beranda, navbar ringkas — selesai (kode; PR menyusul)
+- Dikerjakan: navbar ringkas + menu ⋮ tema + mockup buku hardcover (affaa07, sesi lain, ADR-084/085); Beranda: rak kitab, "Apa yang ingin Anda kaji?", satu kotak Cari/Maknaz (widget, pemilih bagian kitab Autocomplete, segmen berikon duotone), titipan pertanyaan ke Maknaz di memori tab + transisi kotak → gelembung (ADR-086); /cari memakai kotak yang sama, pemilih bagian bertingkat menggantikan dinding chip, jembatan "Tanyakan … ke Maknaz" (ADR-087); menu Cari dihapus dari sidebar (ADR-088); `pnpm dev:remote` membaca korpus staging (ADR-089); /tanya: pembuka umum, satu catatan tetap yang berpindah, kotak berbentuk widget (ADR-090); kartu Lanjutkan membaca baru.
+- Verifikasi: `pnpm verify` → lolos · e2e lokal dengan `pnpm dev:remote` (korpus staging): smoke, tanya, beranda-maknaz, search (11/11 termasuk axe hasil asli) lolos; gagal hanya header `immutable` aset (khusus Workers, berlaku di Preview) · peninjau tiga kali (per tahap + seluruh cabang): blocker label S21 di /tanya diperbaiki (ADR-090), sisanya dikerjakan.
+- Biaya API: – (e2e Maknaz memalsukan /api/jawab).
+- Keputusan: ADR-084–090.
+- Catatan untuk sesi berikutnya: pemilih bagian masih pilihan tunggal (API Cari satu `bagian`); Maknaz belum bisa dibatasi per kitab (label sumber di /tanya ditulis di i18n); ukur LCP/JS Beranda sebelum `/rilis 4`; tes lokal Ihya kini dilewati bila D1 lokal bukan korpus OpenITI.
+
 ## 2026-10-22 · X10 · Rapikan sisa kecil pembaca — selesai (PR #122)
 - Dikerjakan: preferensi pembaca lewat skrip mentah (tidak menunggu JS Next); daftar isi menyorot subjudul kurasi aktif dan membuka cabangnya saat gulir bersambung (cabang yang ditutup pembaca dihormati); kaki per halaman cetak (`PageFoot`: ayat, catatan AI, catatan tinjau) untuk halaman pertama dan sambungan; catatan AI menurut konten AI yang belum ditinjau manusia (`PageModel.ai`); rincian label "dikoreksi …" menempel di lencana (CSS anchor positioning) + nama aksesibel = teks lencana (WCAG 2.5.3).
 - Verifikasi: `pnpm verify` → lolos (822 + 387 tes, build) · e2e pembaca lokal 139 lolos, 11 dilewati (termasuk `reader-x10` baru, uji mutasi skrip) · axe 0 pelanggaran dengan popover terbuka (data uji lokal) · banding HTML `<main>` j1/200: hanya catatan AI pindah tempat · CI PR #122 hijau, e2e Preview 178 lolos / 0 gagal · Lighthouse produksi n=5 sebelum → sesudah deploy: j1/200 4,24 → 3,95 dtk, j3/202 3,94 → 4,02 dtk · `peninjau` → 0 blocker, 4 perbaikan (dikerjakan).

@@ -2,6 +2,6 @@
 // klien hanya membawa string yang dipakainya.
 
 export const theme = {
-  toLight: "Ganti ke tema terang",
-  toDark: "Ganti ke tema gelap",
+  label: "Tema",
+  options: { light: "Terang", dark: "Gelap", system: "Sistem" },
 } as const;
