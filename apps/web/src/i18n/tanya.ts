@@ -16,6 +16,9 @@ export const tanyaText = {
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
   tooShort: "Tulis pertanyaan minimal 3 huruf.",
   challenge: "Memeriksa bahwa Anda bukan program otomatis…",
+  // Sumber jawaban di kepala kotak Maknaz (label, bukan pemilih; ADR-086). Kitab kedua = perbarui.
+  sourceLabel: "Sumber jawaban:",
+  source: "Ihya' 'Ulum ad-Din",
   composerPlaceholder: "Tanya Maknaz tentang isi kitab…",
   composerPlaceholderNext: "Pertanyaan baru, tulis lengkap (yang sebelumnya tidak ikut dibaca)…",
   suggestions: [

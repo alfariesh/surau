@@ -46,7 +46,7 @@ export function ContinueReading({
           <span aria-hidden="true" className="continue-card__icon">
             <BookOpen01 className="size-5" />
           </span>
-          <span className="flex min-w-0 flex-1 flex-col">
+          <span className="flex min-w-0 flex-1 flex-col gap-1.5">
             <span className="text-muted text-xs">{t.continueReading}</span>
             <span className="text-foreground truncate text-sm font-medium">
               {record.title}

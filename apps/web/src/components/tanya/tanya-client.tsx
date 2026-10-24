@@ -1,13 +1,13 @@
 "use client";
 
 import { Alert, Button, Typography } from "@heroui/react";
-import { ChatMessage, PromptInput, TextShimmer } from "@heroui-pro/react";
+import { ChatMessage, PromptInput, TextShimmer, Widget } from "@heroui-pro/react";
 import NextLink from "next/link";
 import { useCallback, useEffect, useRef, useState, ViewTransition } from "react";
 import { flushSync } from "react-dom";
 
 import { tanyaText as t } from "../../i18n/tanya";
-import { PlusSign } from "../../icons";
+import { Book02, PlusSign } from "../../icons";
 import type { JawabBlock, JawabResult, JawabStage, JawabStatus } from "../../lib/tanya/model";
 import {
   HANDOFF_TRANSITION,
@@ -449,55 +449,70 @@ export function TanyaClient() {
               </Alert.Content>
             </Alert>
           ) : null}
-          <PromptInput
-            // Kotak tetap aktif selama giliran berjalan supaya fokus keyboard tidak hilang;
-            // `submit()` sudah menolak kiriman saat `busy`.
-            lockInputOnRun={false}
-            isDisabled={unavailable !== null}
-            status={busy ? "submitted" : "ready"}
-            value={question}
-            onSubmit={submit}
-            onValueChange={(v) => setQuestion(v.slice(0, QUESTION_MAX))}
-          >
-            <PromptInput.Shell>
-              <PromptInput.Content>
-                <PromptInput.TextArea
-                  aria-label={t.label}
-                  maxLength={QUESTION_MAX}
-                  // Sesudah giliran pertama: ingatkan bahwa pertanyaan sebelumnya tidak ikut dibaca.
-                  placeholder={turns.length > 0 ? t.composerPlaceholderNext : t.composerPlaceholder}
-                />
-              </PromptInput.Content>
-              <PromptInput.Toolbar>
-                <PromptInput.ToolbarStart className="min-w-0">
-                  {turns.length > 0 && !busy ? (
-                    <PromptInput.Action
-                      aria-label={t.newChat}
-                      tooltip={t.newChat}
-                      onPress={() => setTurns([])}
-                    >
-                      <PlusSign className="size-4" />
-                    </PromptInput.Action>
-                  ) : null}
-                  {tooShort ? (
-                    <Typography type="body-xs" color="muted">
-                      {t.tooShort}
-                    </Typography>
-                  ) : status !== null && status !== "closed" && status.quota !== null ? (
-                    <Typography type="body-xs" color="muted">
-                      {t.quota(status.quota.used, status.quota.limit)}
-                    </Typography>
-                  ) : null}
-                </PromptInput.ToolbarStart>
-                <PromptInput.ToolbarEnd>
-                  <PromptInput.Send
-                    aria-label={t.submit}
-                    isDisabled={unavailable !== null || trimmed.length < 3 || busy}
-                  />
-                </PromptInput.ToolbarEnd>
-              </PromptInput.Toolbar>
-            </PromptInput.Shell>
-          </PromptInput>
+          {/* Widget sama dengan kotak cari Beranda (radius = kotak 16px + jarak 6px). Kepala: sumber
+              jawaban sebagai label (bukan pemilih): Jawab belum menerima batas kitab/bagian. */}
+          <Widget className="w-full rounded-[calc(1rem+0.375rem)]">
+            <Widget.Header className="py-1.5 ps-1.5">
+              <span className="text-muted inline-flex h-8 items-center gap-1.5 ps-2.5 pe-3 text-xs leading-4 font-medium">
+                <Book02 aria-hidden="true" className="size-4 shrink-0" />
+                <span className="sr-only">{t.sourceLabel} </span>
+                {t.source}
+              </span>
+            </Widget.Header>
+            <div className="mx-1.5 mb-1.5">
+              <PromptInput
+                // Kotak tetap aktif selama giliran berjalan supaya fokus keyboard tidak hilang;
+                // `submit()` sudah menolak kiriman saat `busy`.
+                lockInputOnRun={false}
+                isDisabled={unavailable !== null}
+                status={busy ? "submitted" : "ready"}
+                value={question}
+                onSubmit={submit}
+                onValueChange={(v) => setQuestion(v.slice(0, QUESTION_MAX))}
+              >
+                <PromptInput.Shell>
+                  <PromptInput.Content>
+                    <PromptInput.TextArea
+                      aria-label={t.label}
+                      maxLength={QUESTION_MAX}
+                      // Sesudah giliran pertama: ingatkan bahwa pertanyaan sebelumnya tidak ikut dibaca.
+                      placeholder={
+                        turns.length > 0 ? t.composerPlaceholderNext : t.composerPlaceholder
+                      }
+                    />
+                  </PromptInput.Content>
+                  <PromptInput.Toolbar>
+                    <PromptInput.ToolbarStart className="min-w-0">
+                      {turns.length > 0 && !busy ? (
+                        <PromptInput.Action
+                          aria-label={t.newChat}
+                          tooltip={t.newChat}
+                          onPress={() => setTurns([])}
+                        >
+                          <PlusSign className="size-4" />
+                        </PromptInput.Action>
+                      ) : null}
+                      {tooShort ? (
+                        <Typography type="body-xs" color="muted">
+                          {t.tooShort}
+                        </Typography>
+                      ) : status !== null && status !== "closed" && status.quota !== null ? (
+                        <Typography type="body-xs" color="muted">
+                          {t.quota(status.quota.used, status.quota.limit)}
+                        </Typography>
+                      ) : null}
+                    </PromptInput.ToolbarStart>
+                    <PromptInput.ToolbarEnd>
+                      <PromptInput.Send
+                        aria-label={t.submit}
+                        isDisabled={unavailable !== null || trimmed.length < 3 || busy}
+                      />
+                    </PromptInput.ToolbarEnd>
+                  </PromptInput.Toolbar>
+                </PromptInput.Shell>
+              </PromptInput>
+            </div>
+          </Widget>
         </div>
       </div>
 
