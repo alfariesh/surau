@@ -104,7 +104,7 @@ describe("READER_SCALE_SCRIPT: mode baca (X11)", () => {
   });
 });
 
-describe("READER_SCALE_SCRIPT: petunjuk mode baca (X13)", () => {
+describe("READER_SCALE_SCRIPT: petunjuk mode baca (X14)", () => {
   const hint = (r: ReturnType<typeof run>) => r.attrs.get("data-read-mode-hint");
 
   it("pengunjung yang belum memilih mode: petunjuk tampil (tanpa atribut)", () => {

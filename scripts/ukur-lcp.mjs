@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Ukur LCP ponsel halaman baca per mode baca (X13; cara X11). Lighthouse (bawaan ponsel = simulasi
+// Ukur LCP ponsel halaman baca per mode baca (X14; cara X11). Lighthouse (bawaan ponsel = simulasi
 // Lantern) dijalankan lewat halaman Puppeteer supaya mode baca bisa diisi di localStorage sebelum
 // halaman dimuat; cache HTTP dikosongkan sebelum tiap putaran; hasilnya median + sebaran.
 //

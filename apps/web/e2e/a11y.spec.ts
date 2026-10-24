@@ -166,7 +166,7 @@ test("tanpa pelanggaran a11y: mode Terjemahan, terlipat dan terbuka (j1/200)", a
   expect(await axeViolations(page)).toEqual([]);
 });
 
-// Ringkasan AI yang dibuka sementara oleh kata cari di mode Arab (X13): tombol sembunyikan tampil.
+// Ringkasan AI yang dibuka sementara oleh kata cari di mode Arab (X14): tombol sembunyikan tampil.
 test("tanpa pelanggaran a11y: mode Arab + Ringkasan AI dibuka kata cari (j1/200)", async ({
   page,
 }) => {

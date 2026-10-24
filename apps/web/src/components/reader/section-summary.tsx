@@ -21,7 +21,7 @@ const rm = readModeText;
 // "Baca selengkapnya". Seluruh teks tetap ada di HTML (hanya dipotong secara visual), jadi tetap
 // terbaca tanpa JS dan oleh mesin pencari. Teksnya dibagi menjadi paragraf 2–3 kalimat (X04 W1,
 // `summaryParagraphs`): isi kata sama persis, hanya jeda paragrafnya. Terpotong dan terbuka memakai
-// DOM yang sama (X13): hanya atribut `data-expanded` yang berganti (CSS: paragraf sebaris + dua
+// DOM yang sama (X14): hanya atribut `data-expanded` yang berganti (CSS: paragraf sebaris + dua
 // baris saat terpotong), jadi sorotan kata cari (Range di node teks) tidak hilang saat dibuka.
 // Penyorot membuka ringkasan lewat `SUMMARY_OPEN_EVENT` bila kecocokannya di bagian yang terpotong,
 // dan di mode Arab membukanya sementara (`data-tr-peek`) dengan tombol untuk menyembunyikannya lagi.

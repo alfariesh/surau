@@ -164,5 +164,5 @@ Implementasi bahasa Inggris (rute `/en`, parameter `lang` di core/MCP/API, data 
 - **LCP** (Lighthouse 13.5.0 ponsel lewat Puppeteer supaya mode baca bisa diisi di localStorage; cache HTTP dikosongkan tiap putaran; mesin Linux agen, bukan Mac X09/X10): Preview #127 j1/200 Keduanya 3,74 / Terjemahan 3,70 dtk, j3/202 2,88 / 3,82 dtk; produksi sesudah bagian A 4,41–4,86 dtk (j1/200) dengan sebaran 3,30–5,13 dtk. Sebaran antarputaran (±1 dtk) lebih besar dari selisih antarmode; HTML/CSS/JS sama untuk semua mode (CSS yang memilih).
 - **Utang / pesan untuk sesi berikutnya:**
   - Ukur ulang LCP produksi di Mac pemilik (cara X09/X10) supaya sebanding dengan angka lama.
-  - Ringkasan AI belum disorot kata cari (ADR-091 §4; dikerjakan di [X13](X13-lanjutan-mode-baca.md), ADR-093); halaman yang seluruhnya belum diterjemahkan menampilkan keterangan per paragraf (pertimbangkan satu catatan halaman saat kitab kedua masuk).
+  - Ringkasan AI belum disorot kata cari (ADR-091 §4; dikerjakan di [X14](X14-lanjutan-mode-baca.md), ADR-094); halaman yang seluruhnya belum diterjemahkan menampilkan keterangan per paragraf (pertimbangkan satu catatan halaman saat kitab kedua masuk).
   - Bahasa Inggris: ikuti daftar ADR-092 §5 (belum dijadwalkan).

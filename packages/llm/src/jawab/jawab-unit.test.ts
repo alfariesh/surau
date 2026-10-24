@@ -23,9 +23,13 @@ import {
   MAX_SEARCHES,
   QUESTION_WEIGHT,
   SECTION_LIMIT,
+  SEMANTIC_LIMIT,
+  SEMANTIC_QUERY,
+  SEMANTIC_WEIGHT,
   fuse,
   questionQuery,
   routePlans,
+  semanticList,
   summaryPlans,
   withPairs,
 } from "./retrieve.ts";
@@ -381,6 +385,28 @@ describe("kandidat", () => {
     // 9: 3/61; 1: 3/62 + 1/61 + 1/62; 2: 1/62 + 1/61.
     expect(fuse(lists)).toEqual([1, 9, 2]);
     expect(fuse(lists.map((l) => ({ ...l, weight: 1 })))).toEqual([1, 2, 9]);
+  });
+
+  test("daftar makna (X13): unik, dipotong k, berbobot; bobot 1 tanpa field; kosong = tanpa daftar", () => {
+    const ids = Array.from({ length: 50 }, (_, i) => i + 1);
+    const list = semanticList([3, 3, ...ids]);
+    expect(list).toEqual({
+      query: SEMANTIC_QUERY,
+      section_id: null,
+      passage_ids: [3, ...ids.filter((i) => i !== 3)].slice(0, SEMANTIC_LIMIT),
+      weight: SEMANTIC_WEIGHT,
+    });
+    expect(semanticList([1, 2, 3], 2, 1)).toEqual({
+      query: SEMANTIC_QUERY,
+      section_id: null,
+      passage_ids: [1, 2],
+    });
+    expect(semanticList([])).toBeNull();
+    expect(semanticList([1], 0)).toBeNull();
+    // Daftar makna yang digabung hanya menambah skor; tanpa daftar makna, RRF tidak berubah.
+    const lists = [{ query: "a", section_id: null, passage_ids: [1, 2] }];
+    expect(fuse([...lists, semanticList([5, 2], 20, 1)!])).toEqual([2, 1, 5]);
+    expect(fuse(lists)).toEqual([1, 2]);
   });
 
   test("pertanyaan panjang dipotong di batas kata ≤200 karakter", () => {

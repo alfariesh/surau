@@ -188,7 +188,7 @@ describe("SectionSummary: bantuan terjemahan (X11)", () => {
     expect(html).toContain('lang="en"');
   });
 
-  it("terpotong dan terbuka memakai DOM yang sama: semua paragraf di satu blok teks (X13)", () => {
+  it("terpotong dan terbuka memakai DOM yang sama: semua paragraf di satu blok teks (X14)", () => {
     const text = "Satu. Dua. Tiga. Empat. Lima. Enam. Tujuh.";
     const summary = {
       label: "ai_summary",

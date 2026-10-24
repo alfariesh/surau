@@ -3,10 +3,10 @@
 // Statusnya atribut paragraf (`data-tr-open`; `data-tr-peek` = dibuka sementara di mode Arab;
 // `data-ar-open` = teks Arab dibuka di mode Terjemahan), bukan state React, jadi berlaku juga untuk
 // halaman sambungan gulir bersambung. CSS memilih apa yang tampil (globals.css). Ringkasan AI memakai
-// `data-tr-peek` yang sama di mode Arab (X13).
+// `data-tr-peek` yang sama di mode Arab (X14).
 
 /**
- * Event yang membuka Ringkasan AI terpotong (X13): dikirim penyorot kata cari ke `.section-summary`
+ * Event yang membuka Ringkasan AI terpotong (X14): dikirim penyorot kata cari ke `.section-summary`
  * bila kecocokannya di bagian yang terpotong; komponen ringkasan merendernya terbuka secara sinkron.
  */
 export const SUMMARY_OPEN_EVENT = "surau:summary-open";
@@ -58,7 +58,7 @@ export function isHidden(el: Element): boolean {
  */
 export function revealFor(el: Element): boolean {
   if (!isHidden(el)) return false;
-  // Ringkasan AI di mode Arab (X13): dibuka sementara, dengan tombol untuk menyembunyikannya lagi.
+  // Ringkasan AI di mode Arab (X14): dibuka sementara, dengan tombol untuk menyembunyikannya lagi.
   const summary = el.closest(".section-summary");
   if (summary !== null) {
     summary.setAttribute("data-tr-peek", "");

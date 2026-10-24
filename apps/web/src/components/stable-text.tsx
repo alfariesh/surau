@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 /**
  * Teks yang berganti menurut mode baca tanpa mengubah tinggi (X11): semua varian ditumpuk di satu
  * sel grid (`.stable-stack`) dan hanya yang aktif terlihat, jadi tingginya = varian tertinggi. Di
- * lembar ponsel tepi atas ikut tinggi isinya, dan di petunjuk mode baca (X13) teks kitab di bawahnya
+ * lembar ponsel tepi atas ikut tinggi isinya, dan di petunjuk mode baca (X14) teks kitab di bawahnya
  * tidak bergeser; tanpa ini pilihan mode bergeser di bawah jari.
  */
 export function StableText({

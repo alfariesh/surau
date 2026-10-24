@@ -1,4 +1,4 @@
-# X13 · Sesi sisipan: Lanjutan mode baca (mudah ditemukan, ringkasan ikut kata cari, ukur LCP di repo)
+# X14 · Sesi sisipan: Lanjutan mode baca (mudah ditemukan, ringkasan ikut kata cari, ukur LCP di repo)
 
 > **Fase:** sisipan (hanya `apps/web`, `scripts/`, dan dokumen) · **Status:** berjalan
 > **Prasyarat:** X11 selesai (PR #126 + #127, ADR-091–092) · Tugas pemilik: –

@@ -11,11 +11,11 @@ import { SUMMARY_OPEN_EVENT, isHidden, revealFor } from "../../lib/reader/fold";
 // (Range di atas teks yang sudah ada): DOM dan teks kitab tidak diubah sama sekali. Bagian Arab
 // kueri dicocokkan di teks Arab paragraf (`findPlanSpans`, aturan yang sama dengan indeks); bagian
 // Indonesia di teks terjemahan AI (`[data-ai-text]`) dan Ringkasan AI (`[data-tr-seg="summary"]`,
-// X13), `findLatinSpans`. @surau/text dimuat hanya
+// X14), `findLatinSpans`. @surau/text dimuat hanya
 // bila ada `?q=`. Browser tanpa Highlight API: tanpa sorotan (paragraf tujuan tetap ditandai :target).
 // Kecocokan di teks yang tersembunyi mode baca atau lipatan dibuka per paragraf (X11), tanpa
 // menggeser paragraf yang sedang dibaca; ringkasan yang cocok dibuka sementara di mode Arab dan
-// dibuka penuh bila kecocokannya di bagian yang terpotong (X13).
+// dibuka penuh bila kecocokannya di bagian yang terpotong (X14).
 
 const HIGHLIGHT = "surau-cari";
 
@@ -86,7 +86,7 @@ export function SearchHighlighter() {
           collect(el, rangesFor(el, text.findPlanSpans(el.textContent ?? "", arabic, 50)));
         }
       }
-      // Ringkasan AI yang cocok (X13), untuk dibuka bila kecocokannya di bagian yang terpotong.
+      // Ringkasan AI yang cocok (X14), untuk dibuka bila kecocokannya di bagian yang terpotong.
       const summaries = new Map<Element, Range[]>();
       if (latin !== null) {
         for (const el of document.querySelectorAll('[data-ai-text], [data-tr-seg="summary"]')) {

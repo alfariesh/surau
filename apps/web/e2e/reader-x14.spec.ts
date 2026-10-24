@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
-// Lanjutan mode baca (X13, ADR-093): petunjuk mode baca sekali tampil dan Ringkasan AI yang ikut kata
+// Lanjutan mode baca (X14, ADR-094): petunjuk mode baca sekali tampil dan Ringkasan AI yang ikut kata
 // cari. Butuh D1 berisi Ihya (lokal: korpus build atau `pnpm dev:remote`; Preview: staging). Teks
 // kitab tidak disalin ke sini: yang diperiksa atribut, struktur, dan posisi.
 

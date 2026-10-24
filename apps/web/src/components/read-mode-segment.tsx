@@ -21,7 +21,7 @@ export function ReadModeSegment({
 }: {
   labelId: string;
   size?: "sm" | "md";
-  /** Dipanggil setiap pilihan ditekan, juga pilihan yang sudah aktif (petunjuk mode baca, X13). */
+  /** Dipanggil setiap pilihan ditekan, juga pilihan yang sudah aktif (petunjuk mode baca, X14). */
   onPick?: (mode: ReadMode) => void;
 }) {
   const mode = useReadMode();

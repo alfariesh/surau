@@ -2265,7 +2265,7 @@ Jawaban pemilik (2026-10-24, pertanyaan pilihan): (1) mode Terjemahan boleh, den
 1. **Satu preferensi global** `surau:read-mode` (`ar` | `both` | `tr`), atribut `<html data-read-mode>` dipasang skrip awal (ADR-083); tanpa atribut = Keduanya (bawaan). Nilainya netral bahasa ("terjemahan" = terjemahan dalam bahasa situs). Sakelar lama `surau:reader-translation` dipindah sekali oleh skrip awal ("0" → `ar`, selain itu `both`; mode yang sudah tersimpan menang) lalu dihapus; cabang pemindahan boleh dihapus sesudah **2027-04-30**. Atribut `data-translation` dihapus.
 2. **Mode Arab** menyembunyikan terjemahan paragraf dan semua bantuan terjemahan bertanda `data-tr-aid`: Ringkasan AI, catatan AI di awal teks, baris AI kaki halaman, judul Indonesia + catatannya di daftar isi, judul Indonesia di kepala halaman. Popover ayat (terjemahan Kemenag, bukan terjemahan AI) dan catatan kaki takhrij sama di semua mode; /tinjau tidak terpengaruh (`.translation-preview`).
 3. **Tata letak** (Di bawah / Dilipat / Berdampingan) hanya berlaku di Keduanya. Berdampingan: paragraf tanpa terjemahan (`data-no-tr`) selebar penuh; syair mengukur lebarnya sendiri (`container: verse`, ambang `25.6em` = 36rem pada ukuran bawaan, ikut ukuran huruf).
-4. **Teks tersembunyi yang dituju dibuka per paragraf** (`lib/reader/fold.ts`): kecocokan kata cari dan tautan `#…`. Di mode Arab terjemahan paragraf itu dibuka sementara (`data-tr-peek`) dengan tombol "Terjemahan AI" untuk menutupnya lagi; di Dilipat dibuka. Terjemahan judul (satu baris, tanpa tombol) ikut dibuka bila kata cari cocok di sana. ~~Batas yang diterima: ringkasan AI tidak disorot penyorot kata cari, jadi hasil Cari yang cocok hanya lewat ringkasan mendarat di halaman yang menyembunyikan ringkasan itu di mode Arab.~~ Batas ini dihapus oleh ADR-093 §2 (X13): Ringkasan AI ikut disorot dan dibuka sementara di mode Arab.
+4. **Teks tersembunyi yang dituju dibuka per paragraf** (`lib/reader/fold.ts`): kecocokan kata cari dan tautan `#…`. Di mode Arab terjemahan paragraf itu dibuka sementara (`data-tr-peek`) dengan tombol "Terjemahan AI" untuk menutupnya lagi; di Dilipat dibuka. Terjemahan judul (satu baris, tanpa tombol) ikut dibuka bila kata cari cocok di sana. ~~Batas yang diterima: ringkasan AI tidak disorot penyorot kata cari, jadi hasil Cari yang cocok hanya lewat ringkasan mendarat di halaman yang menyembunyikan ringkasan itu di mode Arab.~~ Batas ini dihapus oleh ADR-094 §2 (X14): Ringkasan AI ikut disorot dan dibuka sementara di mode Arab.
 5. **Posisi baca dijaga** (`lib/keep-position.ts`): setiap perubahan preferensi (mode, ukuran, font, jarak, perataan, tata letak) dan pembukaan otomatis mengukur jangkar (paragraf pertama yang mulai di bawah navbar, atau paragraf terpotong bila tidak ada), menerapkan perubahan, lalu menggulir selisihnya di wadah gulir yang sebenarnya. Scroll anchoring browser dimatikan (`overflow-anchor: none`) selama dua frame penyesuaian: tanpa itu Chrome ikut mengoreksi sesudahnya (koreksi ganda, terukur ±270 px di uji lokal) bila jangkar pilihannya ikut tersembunyi.
 6. **Kontrol:** Segment "Mode baca" (grup radio) di paling atas panel Tampilan dan di menu ⋮ navbar di bawah tema, hanya di halaman yang teksnya terpengaruh (pembaca, daftar isi karya yang berjudul Indonesia, Cari; didaftarkan halaman lewat `useHeaderMenuReadMode`). Label **Arab · Keduanya · Terjemahan** ("Arab + Terjemahan" tidak muat tiga tombol di menu 256 px). Panel: pratinjau Arab + terjemahan AI berlencana menurut mode; kontrol terjemahan yang tidak berlaku dinonaktifkan dengan keterangan, tidak disembunyikan; teks yang berganti menurut mode ditumpuk dalam satu sel grid (`StableText`), jadi tinggi panel tetap dan tepi atas lembar ponsel tidak bergeser di bawah jari (diukur 0 px). Kamus terpisah `i18n/id/readMode.ts` (shell tidak membawa kamus pembaca, ADR-079).
 7. **Cari dan Maknaz ikut mode tanpa menyembunyikan bukti:** kartu Cari selalu menampilkan potongan Arab; di mode Arab terjemahan hanya tampil bila jalur terjemahan yang cocok (`hitParts`, satu-satunya alasan paragraf itu muncul); ringkasan bagian hanya ada bila jalurnya cocok, jadi selalu tampil. Kutipan Maknaz: Arab selalu tampil (bukti verifikasi); terjemahannya terbuka bawaan di mode Terjemahan (bagian B).
@@ -2308,7 +2308,53 @@ Jawaban pemilik (2026-10-24, pertanyaan pilihan): (1) mode Terjemahan boleh, den
 
 **Tinjau ulang bila:** sesi bahasa Inggris dimulai (pilih mekanisme rute dengan docs terbaru), atau pemilik ingin terjemahan bahasa lain di situs Indonesia.
 
-## ADR-093 · Petunjuk mode baca sekali tampil, Ringkasan AI ikut kata cari, dan ukur LCP per mode sebagai perintah repo (X13) — diterima · 2026-10-24
+## ADR-093 · Pencarian makna untuk kandidat Jawab (X13): satu daftar RRF tambahan dari embedding `bge-m3` (k 20, bobot 2), diukur gratis dengan embedding lokal; produksi = Workers AI `@cf/baai/bge-m3` + Vectorize, menyala sesudah izin biaya dan eval berbayar — diusulkan, kode kait diterima · 2026-10-24
+
+**Konteks:** Lokasi Jawab 85,3% (29/34, in-sample, X05) < 90% (R4). ADR-067 dan ADR-068 menyisakan j018, j019, j021 (topik tersebar; halaman gold tak terjangkau pencarian kata mana pun) dan j024 (takhrij gold tidak terambil). ADR-046 menunda embedding sampai eval membuktikan perlu, dan ADR-067 meminta ADR tersendiri bila pencarian makna dipertimbangkan lagi. Mesin pemilik sekarang (Linux) tidak menyimpan arsip diagnostik `evals/private/jawab-runs/` maupun korpus lokal lengkap, jadi uji gratis memakai korpus staging `ihya-v8` (hanya SELECT) tanpa rute routing tersimpan.
+
+**Bedah j024 (gratis):** paragraf hadits 10000004 (j1 h2, 2.559 karakter terjemahan) memuat hadits itu di tengah teks dengan kata "orang berilmu yang tidak diberi manfaat oleh Allah", sedangkan pertanyaan memakai "orang alim … tidak mendapat manfaat"; catatan kaki takhrij 10000010 hanya berbahasa Arab (**0 dari 4.398 catatan kaki punya terjemahan**). Tanpa rute, daftar pertanyaan global tidak menemukan keduanya; yang menemukan takhrij adalah daftar bagian dari ringkasan AI (bagian 100001, peringkat 4), lalu paragraf haditsnya ikut lewat pasangan. Pada run X05 kemungkinan besar jalur ringkasan tidak berjalan karena rencana routing sudah 20 pencarian (ADR-067 butir 3); ini belum bisa dibuktikan di mesin ini (rute tersimpan ada di Mac pemilik).
+
+**Pengukuran gratis** (`pnpm run eval:jawab kandidat --tanpa-rute --remote [--semantik …]`, 34 soal publik yang tidak wajib ditolak; "lengkap" = semua lokasi gold, dan untuk soal status hadits juga catatan kaki takhrij gold, ada di dokumen):
+- Embedding lokal di CPU pemilik, di luar repo: `Xenova/bge-m3` ONNX q8 lewat `@huggingface/transformers` 4.3.1 (model sama dengan `@cf/baai/bge-m3`, presisi lebih rendah), CLS + normalisasi, ≤ 512 token per paragraf, teks = terjemahan AI bila ada, selain itu Arab (catatan kaki takhrij Arab). 20.509 paragraf, 66 menit, ±2,17 juta token. Peringkat 200 teratas per soal publik (cosine). Soal privat tidak di-embed.
+- Peringkat makna saja (tanpa pencarian kata): halaman gold pertama di 10 teratas untuk 30/34 soal; j018 h55/h13 di peringkat 6 dan 16; j021 h272 di 8, tetapi h55 di 110; j019 h55 tidak ada di 200 teratas, h305 di 109; takhrij j024 di 109.
+
+| Varian (tanpa rute) | Lengkap /34 | Belum lengkap |
+|---|---:|---|
+| Tanpa makna (baseline) | 26 | j016, j018, j019, j021, j023, j026, j028, j029 |
+| Makna k 10/20/30/50, bobot 1 | 29 | j018, j019, j021, j023, j026 |
+| Makna k 10, bobot 2 atau 3 | 29 | j018, j019, j021, j024, j026 |
+| **Makna k 20 (atau 30/50), bobot 2 atau 3** | **30** | j019, j021, j024, j026 |
+
+Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama): biaya input jawaban naik ±7%, tetap di bawah pagu.
+
+**Keputusan:**
+1. **Kait di pipeline (diterima, aktif di kode, mati di produksi):** `semanticList` (`retrieve.ts`) membentuk satu `SearchList` `(makna)` dari peringkat embedding, `SEMANTIC_LIMIT` 20, `SEMANTIC_WEIGHT` 2, tidak dihitung ke `MAX_SEARCHES`. `jawabCandidates(…, semantic)` menambahkannya ke RRF; `JawabDeps.semanticSearch?(question)` menyediakannya di `runJawab`, galat = tanpa daftar makna (`diagnostics.semantic.error`), jawaban tetap berjalan. Tanpa sumber makna, daftar dan kandidat identik dengan sebelumnya (tes), jadi `JAWAB_PIPELINE_VERSION` tetap 7; versi naik saat Worker mulai mengisi `semanticSearch`. Saat itu juga: batas waktu di pipeline (bukan di pemanggil) dan ID dari indeks disaring per edisi (saran peninjau).
+2. **Alat eval gratis:** `kandidat --tanpa-rute` (tanpa arsip), `kandidat --semantik PERINGKAT [--makna-k] [--makna-bobot]` (soal publik saja), `answer --semantik PERINGKAT` untuk run berbayar (soal privat hanya bersama `--termasuk-privat`; arsip berakhiran `+makna-berkas`, laporan menyatakannya). `docCoverage` kini menuntut catatan kaki takhrij gold untuk soal status hadits (rekomendasi X05): baseline tanpa rute turun dari "lengkap halaman" ke 26 karena j026, j028, j029 hanya terwakili halamannya.
+3. **Rancangan produksi (diusulkan, menunggu izin biaya):**
+   - Embedding `@cf/baai/bge-m3` (Workers AI, US$0,012 per juta token input; docs Cloudflare 2026-10-24) atas teks yang sama dengan uji lokal, sekali per versi korpus saat ingest, dari `tools/ingest` (REST Workers AI, bukan dari Worker publik). ±2,2 juta token = **±US$0,03 per bangun korpus**.
+   - Indeks Vectorize per versi korpus (`surau-makna-<versi>`, 1.024 dimensi, cosine), ID vektor = ID paragraf, tanpa metadata teks (teks tetap dari D1; Vectorize hanya memilih ID). 20.509 × 1.024 = 21 juta dimensi tersimpan: kuota Workers Paid 10 juta + US$0,05 per 100 juta → **±US$0,006/bulan**; kueri (dimensi kueri + tersimpan) di bawah kuota 50 juta/bulan pada trafik sekarang.
+   - Worker `surau-api` mengisi `semanticSearch`: embedding pertanyaan (±30 token, ±US$0,0000004) + `query` topK 20 tanpa nilai/metadata; batas waktu pendek, galat = pencarian kata saja. Promote korpus menukar indeks bersamaan dengan D1 (blue-green, ADR-036).
+   - Kutipan tidak berubah: model tetap menyitasi dokumen dari D1, verifikasi teks Arab tetap ke DB (aturan teks-arab 1 dan 5).
+
+**Tidak dipilih:**
+- **Bobot 1:** 29/34, tetapi tidak menolong satu soal topik tersebar pun.
+- **k 10:** j018 belum lengkap.
+- **Embedding hanya teks Arab, atau dua vektor per paragraf (Arab + terjemahan):** belum diukur (satu varian lagi = ±1 jam CPU); ditunda sampai eval berbayar menunjukkan masih kurang.
+- **Routing dua langkah dengan LLM:** tetap ditolak (ADR-067).
+- **Mengubah gold j019/j021/j023:** di luar wewenang agent; T-24.
+
+**Konsekuensi:**
+- **In-sample:** k dan bobot dipilih dari 34 soal publik yang sama. Holdout tidak dipakai (soal privat tidak dibaca, tidak di-embed).
+- **Basis berbeda dengan X03/X05:** uji ini tanpa rute (26 → 30), bukan dengan rute tersimpan (X03: 30,5). Dengan routing ada hingga 20 daftar lain, jadi bobot 2 bisa lebih lemah; eval berbayar dengan routing yang menentukan.
+- **j024 kalah anggaran** saat daftar makna berbobot ≥ 2 (takhrij dari jalur ringkasan terdesak). Rancangan perbaikan berikutnya: bila soal menanyakan status hadits, catatan kaki takhrij juga dicari di embedding sebagai daftar tersendiri; belum dikerjakan.
+- **j1 h55** adalah gold bersama j018, j019, j021 dan tetap tak terjangkau untuk j019/j021 oleh kata maupun makna. Ini tanda gold draf S18 perlu ditinjau (T-24), bukan bahan penyetelan lebih lanjut.
+- Bila R4 lokasi ≥ 90% tercapai dengan pencarian makna, ADR-046 dianggap digantikan untuk Jawab; Cari tetap leksikal.
+
+**Langkah berbayar yang menunggu izin pemilik (perintah di catatan X13):** (a) satu eval publik berbayar dengan `--semantik` (±US$0,12, pagu 0,30); (b) satu run holdout (±US$0,05, pagu 0,15); (c) embedding + indeks produksi (±US$0,03 + ±US$0,006/bulan) sesudah (a) lolos; kalibrasi judge tidak butuh biaya baru (lihat X13).
+
+**Tinjau ulang bila:** eval berbayar dengan routing tidak menaikkan lokasi; gold ditinjau Anas (T-24); korpus bertambah kitab (indeks per kitab, kuota Vectorize); atau Workers AI mengganti `bge-m3`.
+
+## ADR-094 · Petunjuk mode baca sekali tampil, Ringkasan AI ikut kata cari, dan ukur LCP per mode sebagai perintah repo (X14) — diterima · 2026-10-24
 
 **Konteks:** sesudah X11 (ADR-091) tersisa tiga hal:
 - pilihan mode baca hanya ada di menu ⋮ dan panel Tampilan, jadi sulit ditemukan pembaca baru;
@@ -2335,7 +2381,7 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
    - Lighthouse 13.5.0 (simulasi Lantern ponsel) lewat Puppeteer, cache HTTP dikosongkan tiap putaran, pemanasan ISR, median + sebaran.
    - Mencetak nama mesin, CPU, RAM, versi Chrome dan Lighthouse.
    - Lighthouse dan puppeteer-core (versi dipatok) **tidak** menjadi dependensi repo: dipasang sekali dengan npm ke `~/.cache/surau/ukur-lcp` (`SURAU_LCP_DIR`). Chrome = Chromium Playwright e2e (`CHROME_PATH` untuk yang lain).
-   - Angka hanya sebanding di mesin yang sama; angka acuan produksi dicatat di X13 beserta mesinnya.
+   - Angka hanya sebanding di mesin yang sama; angka acuan produksi dicatat di X14 beserta mesinnya.
 
 **Tidak dipilih:**
 - Tombol mode di kartu catatan AI: kartu itu hilang di mode Arab, bila ditutup, dan di halaman tanpa terjemahan, sehingga tombolnya ikut hilang.

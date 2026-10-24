@@ -23,10 +23,10 @@ export const readMode = {
   noTranslationNote: "Paragraf ini belum diterjemahkan; teks Arabnya ditampilkan.",
   /** Tambahan catatan AI di awal teks, hanya di mode Terjemahan. */
   aiNoticeTr: "Teks Arab tiap paragraf tetap ada: ketuk Teks Arab untuk membukanya.",
-  // Petunjuk sekali tampil di halaman baca (X13), bagi pengunjung yang belum memilih mode.
+  // Petunjuk sekali tampil di halaman baca (X14), bagi pengunjung yang belum memilih mode.
   hintTitle: "Pilih cara membaca",
   hintBody: "Berlaku di semua halaman dan bisa diganti kapan saja lewat tombol Tampilan.",
   hintClose: "Tutup petunjuk mode baca",
-  /** Ringkasan AI yang dibuka sementara oleh kata cari di mode Arab (X13). */
+  /** Ringkasan AI yang dibuka sementara oleh kata cari di mode Arab (X14). */
   summaryPeekClose: "Sembunyikan lagi ringkasan AI ini",
 } as const;

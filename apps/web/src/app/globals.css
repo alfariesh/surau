@@ -957,7 +957,7 @@ h2.reader-heading-minor {
  * dan semua bantuan terjemahan (`data-tr-aid`: ringkasan, catatan AI, kaki AI, judul Indonesia di
  * daftar isi dan kepala halaman) disembunyikan. Paragraf yang dibuka sementara (`data-tr-peek`: kata
  * cari, tautan) menampilkan terjemahannya seperti mode Dilipat, dengan tombol untuk menutupnya;
- * Ringkasan AI yang cocok dengan kata cari dibuka sementara dengan cara yang sama (X13).
+ * Ringkasan AI yang cocok dengan kata cari dibuka sementara dengan cara yang sama (X14).
  */
 :root[data-read-mode="ar"]
   :is([data-tr-aid]:not([data-tr-peek]), .passage:not([data-tr-peek]) > .passage-translation) {
@@ -1230,7 +1230,7 @@ h2.reader-heading-minor {
   display: none;
 }
 
-/* Petunjuk mode baca (X13): hanya bagi pengunjung yang belum memilih mode; skrip awal memasang
+/* Petunjuk mode baca (X14): hanya bagi pengunjung yang belum memilih mode; skrip awal memasang
  * atribut ini sebelum tampil bila mode tersimpan atau petunjuk sudah ditutup. */
 :root[data-read-mode-hint="off"] .read-mode-hint {
   display: none;
@@ -1259,7 +1259,7 @@ h2.reader-heading-minor {
   border-inline-start: 2px solid color-mix(in oklab, var(--accent) 45%, transparent);
 }
 
-/* Teks ringkasan (X13): satu DOM untuk terpotong dan terbuka. Terpotong = paragraf sebaris, dua
+/* Teks ringkasan (X14): satu DOM untuk terpotong dan terbuka. Terpotong = paragraf sebaris, dua
  * baris; terbuka = paragraf bertumpuk. */
 .section-summary-text {
   display: flex;

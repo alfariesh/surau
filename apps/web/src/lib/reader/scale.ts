@@ -63,7 +63,7 @@ export type ReaderTrLayout = (typeof READER_TR_LAYOUTS)[number];
 export const READER_TR_LAYOUT_KEY = "surau:reader-tr-layout";
 
 /**
- * Petunjuk mode baca sudah ditutup ("off", X13). Skrip awal memasang `data-read-mode-hint="off"`
+ * Petunjuk mode baca sudah ditutup ("off", X14). Skrip awal memasang `data-read-mode-hint="off"`
  * bila petunjuk ditutup atau mode baca sudah pernah dipilih (`READ_MODE_KEY` ada), jadi petunjuk
  * hanya tampil bagi pengunjung yang belum memilih.
  */
