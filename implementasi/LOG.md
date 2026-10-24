@@ -15,6 +15,20 @@ Format entri:
 
 ---
 
+## 2026-10-24 · X15a · Intisari: riset Headway/Blinkist/ElevenLabs v4, rencana X15–X17, kontrak data — selesai (kontrak; pipeline, UI, audio menyusul)
+- Dikerjakan:
+  - Riset tiga agen (Headway, Blinkist, aplikasi belajar lain; ElevenLabs v4 + alternatif TTS; peta ringkasan di kode), lalu rencana yang disetujui pemilik. Jawaban pemilik: audio Intisari Kitab + Bab, nama "Intisari", fitur belajar dicatat untuk nanti, ElevenLabs Starter.
+  - Uji dengar awal lewat konektor ElevenLabs: v4, Jefri + Gendhis, ±1.200 kredit.
+  - Migrasi korpus `0009_digest.sql` (skema 9: `digest*`, `glossary_term`, `audio_track`, `digest_point_fts`) + Zod; `getDigest`/`listDigestHeaders`/`getDigestHeaders`; `readDigest` → `DigestView` (kutipan disalin dari `text_raw` dengan cek sidik; yang ditolak tidak dikirim).
+  - Ingest mengenal tabel baru (kosong). Dokumen: ADR-097, docs/05 §12, teks-arab aturan 11, ARSITEKTUR, sesi X15–X17, T-28–T-31, FASE (fitur belajar dicatat di Fase 7).
+- Verifikasi:
+  - `pnpm verify` lolos (857 + 405 tes, build 3/3) sebelum perbaikan peninjau.
+  - Sesudah perbaikan: `pnpm check` lolos · `vp test --project db` 159 · `--project core` 168 · `--project node tools/ingest` 193 lolos.
+  - Peninjau: 0 blocker, 11 perbaikan dikerjakan.
+- Biaya API: – (LLM $0; ElevenLabs ±1.200 kredit dari paket Starter pemilik untuk uji dengar)
+- Keputusan: ADR-097 (nomor 096 dipakai cabang landing page)
+- Catatan untuk sesi berikutnya: X15b, X16, dan X17 bisa paralel. Berkas yang beririsan dikerjakan bergantian: `globals.css`, `/privasi` (X16 + X17), dan KEPUTUSAN/STATUS/LOG. `dengar.json` milik X17 di folder rute X16. Data T-28 tidak ada di mesin agen, jadi pilot memakai `--from staging`. `corpus:qa` atas staging skema 8 gagal sampai staging dimuat ulang dari build skema 9.
+
 ## 2026-10-24 · Di luar sesi · Tes rapuh `translation-review` (batas 5 dtk) — selesai
 - Dikerjakan: tes "simpanan ke-201 seorang editor dalam sehari → limit" (200 simpanan lewat jalur produksi) diberi batas waktu sendiri 15 dtk (±3× waktu terukur, saran peninjau); sebelumnya kadang melewati batas bawaan 5 dtk (5,05 dtk) saat mesin agen sibuk dan menggagalkan `pnpm verify` (temuan X14). Data tidak diisi langsung lewat SQL supaya tes tidak menyalin aturan rantai revisi.
 - Verifikasi: tes itu 5× berturut-turut lolos (12/12); `pnpm verify` → lolos (857 + 387 tes, build); peninjau: lolos, 2 saran dikerjakan.

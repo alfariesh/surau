@@ -24,6 +24,14 @@ import type {
   PageRow,
   PassageNeedsReviewRow,
   PassageRow,
+  AudioTrackRow,
+  DigestAnchorRow,
+  DigestPointRow,
+  DigestQuestionRow,
+  DigestQuoteRow,
+  DigestRow,
+  DigestTermRow,
+  GlossaryTermRow,
   SubheadingTranslationRow,
   SummaryRow,
   TermStatRow,
@@ -64,6 +72,15 @@ export const TABLE_ORDER = [
   "summary",
   "toc_title_translation",
   "subheading_translation",
+  // Intisari (X15, skema 9): istilah sebelum yang merujuknya; audio terakhir.
+  "glossary_term",
+  "digest",
+  "digest_point",
+  "digest_anchor",
+  "digest_quote",
+  "digest_question",
+  "digest_term",
+  "audio_track",
   "term_stat",
   "meta",
 ] as const;
@@ -92,6 +109,15 @@ export interface CorpusRows {
   /** Judul daftar isi Indonesia (X04 bagian B, skema 7): node + subjudul kurasi (`llm/titles.ts`). */
   toc_title_translation: TocTitleTranslationRow[];
   subheading_translation: SubheadingTranslationRow[];
+  /** Intisari (X15, skema 9): hasil batch `pnpm llm intisari` (X15b) dan metadata audio (X17). */
+  glossary_term: GlossaryTermRow[];
+  digest: DigestRow[];
+  digest_point: DigestPointRow[];
+  digest_anchor: DigestAnchorRow[];
+  digest_quote: DigestQuoteRow[];
+  digest_question: DigestQuestionRow[];
+  digest_term: DigestTermRow[];
+  audio_track: AudioTrackRow[];
   /** Stem sangat umum di indeks FTS (S11): dihitung pipeline setelah baris paragraf ada. */
   term_stat: TermStatRow[];
   meta: MetaRow[];
@@ -105,7 +131,35 @@ export type PipelineTables =
   | "summary"
   | "toc_title_translation"
   | "subheading_translation"
+  | DigestTable
   | keyof QuranRows;
+
+/** Tabel Intisari (X15, skema 9): diisi pipeline, kosong sampai `pnpm llm intisari` (X15b). */
+export const DIGEST_TABLES = [
+  "glossary_term",
+  "digest",
+  "digest_point",
+  "digest_anchor",
+  "digest_quote",
+  "digest_question",
+  "digest_term",
+  "audio_track",
+] as const;
+export type DigestTable = (typeof DIGEST_TABLES)[number];
+
+/** Baris Intisari kosong (korpus tanpa hasil batch Intisari). */
+export function emptyDigestRows(): Pick<CorpusRows, DigestTable> {
+  return {
+    glossary_term: [],
+    digest: [],
+    digest_point: [],
+    digest_anchor: [],
+    digest_quote: [],
+    digest_question: [],
+    digest_term: [],
+    audio_track: [],
+  };
+}
 
 export interface RowsInput {
   config: WorkConfig;

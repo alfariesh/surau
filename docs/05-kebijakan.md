@@ -196,6 +196,24 @@ MCP publik dirilis di Fase 3, sebelum Jawab (ADR-019), sebagai server terpisah d
 
 **Shamela.** Shamela punya MCP publik sendiri (`mcp.shamela.ws`). Instruksi servernya dipelajari sebagai referensi desain, tidak disalin. MCP Shamela bukan dependensi dan bukan sumber data Surau (ADR-022).
 
+## 12. Intisari dan suara AI
+
+Intisari (X15–X17, ADR-097) adalah ringkasan belajar berlapis per kitab dan per bab: gagasan kunci, kutipan pilihan, istilah, dan pertanyaan ingatan, untuk dibaca atau didengarkan. **Intisari adalah pintu ke kitab, bukan penggantinya** (docs/01): setiap gagasan menunjuk paragraf sumbernya, dan halaman Intisari selalu berujung ke teks lengkap.
+
+**Isi**
+- Semua teks Intisari buatan AI dan berlabel "Intisari · ringkasan AI" beserta model, versi prompt, tanggal, dan status tinjauannya (§1).
+- Bahasa atribusi (§2): judul gagasan menyebut siapa berpendapat ("Al-Ghazali membedakan…"), dan pendapat penulis, pendapat yang ia nukil, serta pendapat yang ia bantah dibedakan. Tidak ada "aksi hari ini" atau janji manfaat atas nama Surau. Anjuran hanya yang ditulis penulis sendiri, dengan rujukan halaman, ditambah catatan bahwa kasus pribadi ditanyakan kepada ulama.
+- Kutipan Arab disalin kode dari teks kitab (§1). Kutipan yang sidiknya tidak cocok lagi dengan teks tidak ditampilkan.
+- Ayat tidak dikutip atau diparafrasekan teks AI (§10). Daftar ayat dan hadits yang dirujuk bagian itu disusun kode dari teks kitab, lengkap dengan teks takhrij dan labelnya (§4).
+- Riwayat yang menurut takhrij sangat lemah, palsu, atau tidak ada asalnya tidak dijadikan kutipan pilihan.
+
+**Suara AI (audio "Dengarkan")**
+- Yang dibacakan hanya teks Intisari berbahasa Indonesia. **Mesin tidak pernah membacakan huruf Arab, baik teks kitab maupun ayat**, karena salah i'rab sama dengan salah kutip. Kutipan dibacakan lewat terjemahannya, dan ayat hanya disebut. Lantunan qari hanya dari rekaman manusia berlisensi (belum ada).
+- Setiap audio diawali kalimat label bahwa Intisari dibuat AI dan dibacakan suara AI. Label yang sama ada di halaman, di kontrol layar kunci, dan di metadata berkas, beserta lisensinya (§7).
+- Narator bersuara netral dan berbicara sebagai orang ketiga. Tidak ada peran orang pertama sebagai ulama (§3), tidak ada gaya dramatis, dan suara ustadz atau tokoh nyata tidak dikloning.
+- Bila riwayat bertanda sangat lemah disebut, tandanya ikut dibacakan (§4).
+- Posisi dengar disimpan di perangkat pembaca (localStorage), tidak dikirim ke server (§8).
+
 ## Pertanyaan terbuka
 
 | Pertanyaan | Tindak lanjut |
