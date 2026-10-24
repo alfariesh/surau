@@ -25,6 +25,8 @@ Format entri:
   - `pnpm verify` → lolos (932 tes Node + 421 workerd, build). Cakupan `packages/text` fungsi 100%, baris 100%, cabang 96,8%.
   - e2e `dengar.spec.ts` 4/4 (chromium + ponsel, axe) terhadap `next dev`. Uji manual di browser desktop + ponsel.
   - `pnpm audio plan` tersambung ke staging (0 Intisari, skema < 9). JS awal +1,9 KB gzip.
+  - Sesudah merge X16: `pnpm verify` lolos (956 + 432 tes, build); e2e `intisari.spec.ts` + `dengar.spec.ts` dengan korpus staging 16 lolos / 2 dilewati (staging tanpa Intisari).
+  - LCP ponsel Preview PR #139 (n=5): j1/200 3,12 / 3,01 dtk, `/dev/intisari` 2,71 / 2,61 dtk (≤ 4,29; `sesi/bukti/X17/lcp-pr139.md`).
 - Biaya API: – (tanpa permintaan TTS; tidak ada kredit ElevenLabs terpakai)
 - Keputusan: ADR-100 (098 = X15b, 099 = X16)
 - Catatan untuk sesi berikutnya:

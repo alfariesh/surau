@@ -56,7 +56,7 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
 - [x] Tes `spoken-id`, skrip tanpa huruf Arab/placeholder (fixture), offset bab = jumlah durasi segmen, penyambungan MP3 + ID3, store posisi — `spoken-id.test.ts` 41, `digest-script.test.ts` 10 (workerd, termasuk riwayat bertakhrij berat yang ditahan `readDigest` dan sha yang berubah saat gagasan ditolak), `audio-manifest.test.ts` 4, `tools/audio` 30 (`render.test.ts`: bab = jumlah sampel segmen + jeda; `mp3`/`id3`/`lexicon`/`elevenlabs`/`r2`), `listen.test.ts` 9 (store + track)
 - [x] e2e pemutar dengan MP3 sunyi: putar, jeda, kecepatan, bab, Media Session, lanjut posisi sesudah muat ulang, navigasi antarhalaman tanpa putus; axe — `e2e/dengar.spec.ts` 4/4 (chromium + ponsel) terhadap `next dev`; CI Preview menjalankannya lagi di PR
 - [ ] `pnpm audio verify` lolos untuk semua objek di manifest; `audio_track` termuat hanya untuk sha yang cocok — *sebagian:* pemuat terbukti dengan korpus fixture (`tools/ingest/src/audio.test.ts`: hanya sha cocok, basi/tanpa Intisari gugur); manifest masih kosong (belum ada audio), jadi `verify` atas objek nyata menunggu pilot
-- [ ] LCP j1/200 dan halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`)
+- [x] LCP j1/200 dan halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`) — Preview PR #139, n=5: j1/200 3,12 dtk (baru) / 3,01 dtk (Keduanya); halaman Intisari `/dev/intisari` (fixture X16, staging belum ber-Intisari) 2,71 / 2,61 dtk ([bukti](bukti/X17/lcp-pr139.md))
 - [ ] Pemilik menyetujui suara dan sampel (T-31); biaya aktual tercatat
 - [ ] `pnpm verify` lolos; peninjau; STATUS, LOG, dan berkas sesi ini diperbarui
 
