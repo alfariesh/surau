@@ -449,7 +449,7 @@ const aiSnippet = z
   );
 
 export const searchPath = searchPathName.describe(
-  "arabic = Arabic text index; translation = AI translation index; summary = AI section summary index",
+  "arabic = Arabic text index; translation = AI translation index; summary = AI section summary index; digest = key ideas of AI digests (Intisari), mapped to their first anchor passage",
 );
 export type SearchPath = z.infer<typeof searchPath>;
 
@@ -490,6 +490,27 @@ export const searchSummary = z
   .describe("AI summary of the section this passage starts, when the summary matched");
 export type SearchSummary = z.infer<typeof searchSummary>;
 
+export const searchDigestPoint = z
+  .strictObject({
+    label: z.literal("ai_digest").describe('Always shown as "Intisari · AI summary"'),
+    section: tocNodeRef.describe("Section whose digest (Intisari) contains the key idea"),
+    ord: id.describe("Key idea number in that digest"),
+    title: z.string().describe("Key idea title (AI text)"),
+    title_highlights: z.array(aiTextSpan).describe("Matches in the title (at most 50)"),
+    ...aiTextMeta,
+    highlights: z.array(aiTextSpan).describe("Matches in the key idea body (at most 50)"),
+    snippet: aiSnippet,
+    permalink: z
+      .string()
+      .describe(
+        "Digest page of the section, e.g. https://surau.org/kitab/ihya/bab/100074/intisari (a path without origin inside @surau/core)",
+      ),
+  })
+  .describe(
+    "Key idea of an AI digest (Intisari) that matched; this passage is its first anchor (the text the idea is based on)",
+  );
+export type SearchDigestPoint = z.infer<typeof searchDigestPoint>;
+
 export const searchHit = z.strictObject({
   id: id.describe("Stable passage id"),
   anchor: z.string().describe("Stable fragment anchor, e.g. p2824"),
@@ -523,6 +544,9 @@ export const searchHit = z.strictObject({
   summary: searchSummary
     .nullable()
     .describe("AI summary of the section this passage starts, when the summary path matched"),
+  digest_point: searchDigestPoint
+    .nullable()
+    .describe("AI digest key idea anchored at this passage, when the digest path matched"),
 });
 export type SearchHit = z.infer<typeof searchHit>;
 
@@ -566,6 +590,9 @@ export const searchView = z.strictObject({
       k: id,
       depth: id.describe("Top passages per passage path that are fused"),
       summary_depth: id.describe("Top sections of the summary path that are fused"),
+      digest_depth: id
+        .nullable()
+        .describe("Top key ideas of the digest path that are fused; null when it did not run"),
     })
     .nullable()
     .describe(

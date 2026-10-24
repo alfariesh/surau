@@ -114,6 +114,7 @@ export {
   FUSION_DEPTH,
   RRF_K,
   SUMMARY_DEPTH,
+  DIGEST_DEPTH,
   fusedSearchRow,
   rankedSearchRow,
   searchCorpus,

@@ -1,4 +1,5 @@
-// Tujuh tool MCP Surau (S16 langkah 4, ARSITEKTUR-TEKNIS §4, ADR-012): satu tool = satu core tool.
+// Delapan tool MCP Surau (S16 langkah 4, ARSITEKTUR-TEKNIS §4, ADR-012; `get_section_digest` X16,
+// ADR-097): satu tool = satu core tool.
 // Logika data seluruhnya di @surau/core; di sini hanya skema masukan/keluaran MCP, batas pemakaian,
 // amplop (permalink absolut + lisensi), dan pemetaan error. Keluaran = bentuk core apa adanya,
 // kecuali search_text yang dipadatkan untuk anggaran token (ADR-049). Objek Zod dan definisi tool
@@ -8,6 +9,7 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import {
   InvalidCitation,
+  digestView,
   getHadithTakhrij,
   getHadithTakhrijInput,
   getToc,
@@ -16,10 +18,13 @@ import {
   listWorks,
   pageView,
   quoteVerification,
+  readDigest,
+  readDigestInput,
   readPage,
   readPageInput,
   readSection,
   readSectionInput,
+  searchDigestPoint,
   searchHit,
   searchPage,
   searchSummary,
@@ -76,6 +81,12 @@ export const mcpSearchHit = searchHit
       .omit(aiExcerpt)
       .nullable()
       .describe("AI summary excerpt of the section this passage starts, when the summary matched"),
+    digest_point: searchDigestPoint
+      .omit({ ...aiExcerpt, title_highlights: true })
+      .nullable()
+      .describe(
+        "AI digest (Intisari) key idea anchored at this passage, when the digest path matched; read it whole with get_section_digest",
+      ),
   });
 export type McpSearchHit = z.infer<typeof mcpSearchHit>;
 
@@ -107,6 +118,7 @@ function compactHit(hit: SearchHit): McpSearchHit {
     highlights: _h,
     translation,
     summary,
+    digest_point,
     ...rest
   } = hit;
   const excerpt = <T extends { highlights: unknown; created_at: string }>(ai: T | null) => {
@@ -114,7 +126,13 @@ function compactHit(hit: SearchHit): McpSearchHit {
     const { highlights: _x, created_at: _c, ...kept } = ai;
     return kept;
   };
-  return { ...rest, translation: excerpt(translation), summary: excerpt(summary) };
+  const point = excerpt(digest_point);
+  return {
+    ...rest,
+    translation: excerpt(translation),
+    summary: excerpt(summary),
+    digest_point: point === null ? null : (({ title_highlights: _t, ...kept }) => kept)(point),
+  };
 }
 
 /** Pilih ≤3 paragraf skor tertinggi per halaman (urutan baca tetap), lalu padatkan. */
@@ -257,7 +275,8 @@ export const TOOLS: readonly McpTool[] = [
     }),
     output: mcpSearchView,
     run: async ({ query, ...opts }, db) => {
-      const view = compactSearch(await searchText(db, query, opts));
+      // Jalur gagasan Intisari ikut (X16), sama dengan Cari situs.
+      const view = compactSearch(await searchText(db, query, opts, { digest: true }));
       return { view, sources: view.results.map((r) => r.citation.source) };
     },
   }),
@@ -285,6 +304,31 @@ export const TOOLS: readonly McpTool[] = [
     run: async (args, db) => {
       const view = await getHadithTakhrij(db, args.passage_id);
       return { view, sources: sourceOf(view) };
+    },
+  }),
+
+  defineTool({
+    name: "get_section_digest",
+    title: "Section digest (Intisari)",
+    description:
+      "Get the AI study digest ('Intisari', label ai_digest) of a table-of-contents section: key ideas (AI text, with whose view each is: the author's, one he quotes, or one he refutes), each anchored to the passages it is based on (read them before relying on an idea); highlighted quotations copied verbatim from the database with their location; recall questions; glossary terms; and evidence computed by code from the anchors: Quran quotations (Tanzil text + Kemenag translation) and hadith footnotes (takhrij text + a status label made by code from its terms, not reviewed). A door to the text, not a substitute. digest null = the section has no digest. · Intisari (ringkasan belajar AI) satu bagian: gagasan berjangkar ke paragraf, kutipan Arab dari DB, istilah, dan dalil yang dihitung kode.",
+    input: readDigestInput.omit({ node_id: true }).extend({
+      section_id: readDigestInput.shape.node_id.describe(
+        "Section id from get_table_of_contents or search_text",
+      ),
+    }),
+    output: z.strictObject({
+      digest: digestView
+        .nullable()
+        .describe("The digest; null when the section has none (or the corpus predates digests)"),
+    }),
+    run: async (args, db) => {
+      const digest = await readDigest(db, args.section_id);
+      return {
+        view: { digest },
+        // Teks ayat (Tanzil) dan terjemahan Kemenag di dalil punya lisensi sendiri (ADR-040).
+        sources: digest === null ? [] : [digest.source, ...(digest.evidence.quran?.sources ?? [])],
+      };
     },
   }),
 ];
@@ -389,7 +433,7 @@ export async function runTool(tool: McpTool, deps: ToolDeps, args: never): Promi
   }
 }
 
-/** Daftarkan ketujuh tool ke `server` untuk satu permintaan. */
+/** Daftarkan kedelapan tool ke `server` untuk satu permintaan. */
 export function registerTools(server: ToolRegistrar, deps: ToolDeps): void {
   const register = server.registerTool.bind(server) as RegisterTool;
   for (const tool of TOOLS) {

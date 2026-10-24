@@ -9,6 +9,8 @@
 // kecocokannya (`matched_by`). Satu bolak-balik D1 per pencarian.
 import {
   ANY_TERMS_BELOW,
+  DIGEST_DEPTH,
+  DIGEST_SCHEMA_VERSION,
   FUSION_DEPTH,
   RRF_K,
   SUMMARY_DEPTH,
@@ -19,7 +21,14 @@ import {
   searchSummaryNodes,
   tocNodeIdRange,
 } from "@surau/db";
-import type { D1Db, FusedSearchRow, SearchPassageRow, TranslationReviewerRow } from "@surau/db";
+import type {
+  D1Db,
+  FusedSearchRequest,
+  FusedSearchResult,
+  FusedSearchRow,
+  SearchPassageRow,
+  TranslationReviewerRow,
+} from "@surau/db";
 import {
   FTS_MAX_TOKENS,
   LATIN_MAX_TERMS,
@@ -40,9 +49,10 @@ import { citeContext } from "./citation.ts";
 import { humanReviewOf, reviewersFor } from "./page.ts";
 import type { CiteContext } from "./citation.ts";
 import { InvalidQuery, NotFound, Unavailable, parseInput } from "./errors.ts";
-import { sectionPermalink } from "./permalink.ts";
+import { digestPermalink, sectionPermalink } from "./permalink.ts";
 import { searchTextInput } from "./schema.ts";
 import type {
+  SearchDigestPoint,
   SearchHit,
   SearchMatch,
   SearchPage,
@@ -64,7 +74,7 @@ export const AI_SNIPPET_CHARS = 240;
  * berubah tanpa mengubah konstanta yang sudah ikut di kunci (mis. aturan potongan, field baru,
  * urutan hasil). Konstanta peringkat (RRF_K, kedalaman, ambang) dan normalisasi ikut otomatis.
  */
-export const SEARCH_RESULT_VERSION = 2; // 2 = `translation.human_review` (X08, ADR-082)
+export const SEARCH_RESULT_VERSION = 3; // 2 = `translation.human_review` (X08); 3 = jalur gagasan Intisari (X16)
 
 /** Seluruh korpus: semua rowid paragraf/node (filter edisi memakai `passageIdRange`). */
 const ALL_IDS = { min: 1, max: Number.MAX_SAFE_INTEGER };
@@ -183,6 +193,50 @@ function summaryOf(
   };
 }
 
+/** Gagasan Intisari yang cocok (jalur `digest`, X16), atau null; yang ditolak tidak dikirim. */
+function digestPointOf(
+  row: FusedSearchRow,
+  cite: CiteContext,
+  plan: LatinQueryPlan,
+): SearchDigestPoint | null {
+  if (
+    row.dp_node === null ||
+    row.dp_ord === null ||
+    row.dp_title === null ||
+    row.dp_body === null ||
+    row.dp_model === null ||
+    row.dp_prompt === null ||
+    row.dp_created === null ||
+    row.dp_review === null ||
+    row.dp_review === "rejected" ||
+    row.dp_section_title === null ||
+    row.dp_section_level === null
+  ) {
+    return null;
+  }
+  const title = findLatinSpans(row.dp_title, plan, SEARCH_MAX_HIGHLIGHTS);
+  return {
+    label: "ai_digest",
+    // Node Intisari bisa leluhur bagian paragraf ini (Intisari Kitab): judulnya dari kolom sendiri.
+    section: {
+      id: row.dp_node,
+      title_ar: row.dp_section_title,
+      level: row.dp_section_level,
+      permalink: sectionPermalink(cite.path, row.dp_node),
+    },
+    ord: row.dp_ord,
+    title: row.dp_title,
+    title_highlights: title.map((t) => ({ char_start: t.start, char_end: t.end })),
+    lang: "id",
+    model: row.dp_model,
+    prompt_version: row.dp_prompt,
+    created_at: row.dp_created,
+    review_status: row.dp_review,
+    ...aiExcerpt(row.dp_body, plan),
+    permalink: digestPermalink(cite.path, row.dp_node),
+  };
+}
+
 interface HitPlans {
   arabic: FtsQueryPlan | null;
   latin: LatinQueryPlan | null;
@@ -203,7 +257,7 @@ function hitFrom(
   row: SearchPassageRow,
   cite: CiteContext,
   plans: HitPlans,
-  extra: Pick<SearchHit, "score" | "matched_by" | "summary">,
+  extra: Pick<SearchHit, "score" | "matched_by" | "summary" | "digest_point">,
 ): SearchHit {
   const spans =
     plans.arabic === null ? [] : findPlanSpans(row.text_raw, plans.arabic, SEARCH_MAX_HIGHLIGHTS);
@@ -234,6 +288,7 @@ function hitFrom(
     matched_by: extra.matched_by,
     translation: translationOf(row, plans.latin, plans.reviewers),
     summary: extra.summary,
+    digest_point: extra.digest_point,
   };
 }
 
@@ -320,7 +375,48 @@ function fusedMatches(row: FusedSearchRow): SearchMatch[] {
   if (row.sm_rank !== null) {
     out.push({ path: "summary", rank: row.sm_rank, all_terms: row.sm_all === 1 });
   }
+  if (row.dp_rank !== null) {
+    out.push({ path: "digest", rank: row.dp_rank, all_terms: row.dp_all === 1 });
+  }
   return out;
+}
+
+/**
+ * Korpus di isolate ini terbukti belum punya indeks gagasan Intisari (`digest_point_fts`, skema
+ * < 9): jalur gagasan dilewati tanpa dicoba lagi, jadi produksi sebelum `ihya-v9` tidak membayar
+ * satu kueri gagal di setiap pencarian (hanya sekali per isolate). Pulih sendiri begitu meta korpus
+ * melaporkan skema ≥ 9 (migrasi staging tanpa deploy, X15b langkah 9).
+ */
+let digestIndexMissing = false;
+
+const isMissingDigestIndex = (error: unknown) =>
+  error instanceof Error && /no such table: digest_point_fts/u.test(error.message);
+
+/**
+ * Pencarian gabungan dengan jalur gagasan bila diminta dan tersedia (X16). `digest` hasil = jalur
+ * gagasan benar-benar berjalan. Dipisah supaya bisa dites tanpa D1 (`search` disuntikkan).
+ */
+export async function fusedWithDigest(
+  search: (req: FusedSearchRequest) => Promise<FusedSearchResult>,
+  req: FusedSearchRequest,
+  digest: boolean,
+): Promise<{ found: FusedSearchResult; digest: boolean }> {
+  if (digest && !digestIndexMissing) {
+    try {
+      return { found: await search({ ...req, digest: true }), digest: true };
+    } catch (error) {
+      if (!isMissingDigestIndex(error)) throw error;
+      digestIndexMissing = true;
+    }
+  }
+  const found = await search({ ...req, digest: false });
+  if (digest && found.meta.schema_version >= DIGEST_SCHEMA_VERSION) digestIndexMissing = false;
+  return { found, digest: false };
+}
+
+/** Untuk tes: lupakan korpus tanpa indeks gagasan yang diingat isolate ini. */
+export function resetDigestIndexMemo(): void {
+  digestIndexMissing = false;
 }
 
 /**
@@ -345,6 +441,11 @@ export async function searchText(
   db: D1Db,
   query: string,
   opts: Omit<SearchTextInput, "query"> = {},
+  /**
+   * `digest`: sertakan jalur gagasan Intisari (X16; korpus skema ≥ 9). Cari situs, MCP, dan eval
+   * retrieval menyalakannya; Jawab tidak (kandidat Jawab tetap dari teks dan ringkasan).
+   */
+  paths: { digest?: boolean } = {},
 ): Promise<SearchView> {
   const input = parseInput(searchTextInput, { ...opts, query }, InvalidQuery);
   const parts = splitQueryScripts(input.query);
@@ -377,19 +478,24 @@ export async function searchText(
     };
   }
 
-  const found = await searchCorpusFused(db, {
-    arabic: arabic === null ? null : { plan: arabic, match: ftsMatchExpression(arabic) },
-    latin: {
-      all: latinMatchExpression(latin, "all"),
-      any: latin.stems.length > 1 ? latinMatchExpression(latin, "any") : null,
+  const fused = await fusedWithDigest(
+    (req) => searchCorpusFused(db, req),
+    {
+      arabic: arabic === null ? null : { plan: arabic, match: ftsMatchExpression(arabic) },
+      latin: {
+        all: latinMatchExpression(latin, "all"),
+        any: latin.stems.length > 1 ? latinMatchExpression(latin, "any") : null,
+      },
+      editionId,
+      span,
+      tocSpan: editionId === null ? ALL_IDS : tocNodeIdRange(editionId),
+      sectionId,
+      limit: input.limit,
+      offset: input.offset,
     },
-    editionId,
-    span,
-    tocSpan: editionId === null ? ALL_IDS : tocNodeIdRange(editionId),
-    sectionId,
-    limit: input.limit,
-    offset: input.offset,
-  });
+    paths.digest === true,
+  );
+  const { found } = fused;
   if (!found.ready) {
     throw new Unavailable("Indonesian search is not available for this corpus version");
   }
@@ -404,10 +510,12 @@ export async function searchText(
   assertScope(found, editionId, sectionId);
   const cites = new Map(found.editions.map((e) => [e.edition.id, citeContext(e)]));
   // Bagian Arab yang semua katanya umum tidak dicari (pengaman, `common_terms_ignored`).
-  const paths: SearchPath[] =
-    arabic === null || found.allCommon
-      ? ["translation", "summary"]
-      : ["arabic", "translation", "summary"];
+  const ran: SearchPath[] = [
+    ...(arabic === null || found.allCommon ? [] : (["arabic"] as const)),
+    "translation",
+    "summary",
+    ...(fused.digest ? (["digest"] as const) : []),
+  ];
   const [first] = found.rows;
   const plans = {
     arabic: found.allCommon ? null : arabic,
@@ -416,8 +524,14 @@ export async function searchText(
   };
   return {
     ...base,
-    paths,
-    fusion: { method: "rrf", k: RRF_K, depth: FUSION_DEPTH, summary_depth: SUMMARY_DEPTH },
+    paths: ran,
+    fusion: {
+      method: "rrf",
+      k: RRF_K,
+      depth: FUSION_DEPTH,
+      summary_depth: SUMMARY_DEPTH,
+      digest_depth: fused.digest ? DIGEST_DEPTH : null,
+    },
     ranked: true,
     warning: arabic !== null && found.allCommon ? "common_terms_ignored" : null,
     common_terms: found.common.map((t) => ({ term: t.term, passage_count: t.df })),
@@ -432,6 +546,7 @@ export async function searchText(
           score: row.score,
           matched_by: fusedMatches(row),
           summary: summaryOf(row, cite, latin),
+          digest_point: digestPointOf(row, cite, latin),
         }),
       (row) => row.page_best,
     ),
@@ -552,6 +667,7 @@ async function arabicOnly(
                   score: null,
                   matched_by: [{ path: "arabic", rank: null, all_terms: true }],
                   summary: null,
+                  digest_point: null,
                 }),
               () => null,
             ),
@@ -577,6 +693,7 @@ async function arabicOnly(
           score: -row.score,
           matched_by: [{ path: "arabic", rank: row.passage_rank, all_terms: true }],
           summary: null,
+          digest_point: null,
         }),
       (row) => -row.page_best,
     ),
@@ -614,6 +731,7 @@ export function searchCacheKey(
       RRF_K,
       FUSION_DEPTH,
       SUMMARY_DEPTH,
+      DIGEST_DEPTH,
       ANY_TERMS_BELOW,
       AI_SNIPPET_CHARS,
       SEARCH_MAX_HIGHLIGHTS,

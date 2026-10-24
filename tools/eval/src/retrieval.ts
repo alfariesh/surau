@@ -97,7 +97,8 @@ async function main(): Promise<number> {
     for (const question of questions) {
       const golds = resolveGold(index, question);
       const t0 = performance.now();
-      const view = await searchText(corpus.db, question.kueri, { limit: DEPTH });
+      // Sama dengan Cari situs: jalur gagasan Intisari ikut (X16; korpus skema ≥ 9).
+      const view = await searchText(corpus.db, question.kueri, { limit: DEPTH }, { digest: true });
       const ms = Math.round(performance.now() - t0);
       // Tanpa peringkat (kueri Arab yang semua katanya umum): urutan kitab, `limit` = paragraf.
       // Tidak dinilai sebagai peringkat: dihitung gagal.

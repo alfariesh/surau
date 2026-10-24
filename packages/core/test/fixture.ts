@@ -16,7 +16,8 @@ import {
 } from "@surau/text";
 import { z } from "zod";
 
-import { ED, PASSAGES, seedCorpus } from "../../db/test/fixture.ts";
+import { BODY_1, ED, PASSAGES, T_ROOT, seedCorpus } from "../../db/test/fixture.ts";
+import { textSha256 } from "../src/translation-revision.ts";
 
 export * from "../../db/test/fixture.ts";
 
@@ -265,5 +266,56 @@ export async function seedHumanReview(
         r.shared === false ? 0 : 1,
         r.revised ? draft : null,
       ),
+  ]);
+}
+
+/**
+ * Intisari Kitab BUATAN untuk T_ROOT (X16, tes MCP `get_section_digest`): satu gagasan berjangkar ke
+ * BODY_1 utuh, satu kutipan = BODY_1 utuh (sidik dihitung dari teks DB), satu pertanyaan. Teks AI
+ * kalimat contoh. Idempoten: baris lama T_ROOT dihapus dulu.
+ */
+export async function seedDigest(db: D1Db): Promise<void> {
+  const AI = "'model-uji', 'digest-book@1', '2026-10-24'";
+  const sha = await textSha256(BODY_1);
+  const del = (table: string) =>
+    db.prepare(`DELETE FROM ${table} WHERE toc_node_id = ?`).bind(T_ROOT);
+  await db.batch([
+    ...["digest_question", "digest_quote", "digest_anchor", "digest_point", "digest_term"].map(del),
+    del("audio_track"),
+    del("digest"),
+    db
+      .prepare(
+        `INSERT INTO digest (toc_node_id, lang, tier, basis, opening, abstract, closing,
+           source_sha256, model, prompt_version, created_at)
+         VALUES (?1, 'id', 'book', 'children', 'Pembuka contoh.', 'Abstrak contoh.',
+           'Penutup contoh.', ?2, ${AI})`,
+      )
+      .bind(T_ROOT, "a".repeat(64)),
+    db
+      .prepare(
+        `INSERT INTO digest_point (toc_node_id, lang, ord, kind, stance, title, body)
+         VALUES (?1, 'id', 1, 'idea', 'author', 'Gagasan contoh', 'Isi gagasan contoh.')`,
+      )
+      .bind(T_ROOT),
+    db
+      .prepare(
+        `INSERT INTO digest_anchor (toc_node_id, lang, point_ord, seq, passage_id, char_start, char_end)
+         VALUES (?1, 'id', 1, 1, ?2, 0, ?3)`,
+      )
+      .bind(T_ROOT, PASSAGES.body1, BODY_1.length),
+    db
+      .prepare(
+        `INSERT INTO digest_quote (toc_node_id, lang, ord, point_ord, passage_id, char_start,
+           char_end, raw_sha256, kind, translation_source, translation, model, prompt_version,
+           created_at)
+         VALUES (?1, 'id', 1, 1, ?2, 0, ?3, ?4, 'text', 'digest', 'Terjemahan kutipan contoh.', ${AI})`,
+      )
+      .bind(T_ROOT, PASSAGES.body1, BODY_1.length, sha),
+    db
+      .prepare(
+        `INSERT INTO digest_question (toc_node_id, lang, ord, point_ord, text)
+         VALUES (?1, 'id', 1, 1, 'Pertanyaan contoh?')`,
+      )
+      .bind(T_ROOT),
   ]);
 }

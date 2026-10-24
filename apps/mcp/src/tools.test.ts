@@ -33,6 +33,7 @@ function hit(id: number, score: number | null): SearchHit {
     matched_by: [{ path: "arabic", rank: id, all_terms: true }],
     translation: { label: "ai_translation", ...ai },
     summary: null,
+    digest_point: null,
   };
 }
 
@@ -248,7 +249,7 @@ describe("runTool", () => {
   });
 
   test("setiap tool: anotasi dan skema dibangun sekali; outputSchema memuat license", () => {
-    expect(TOOLS.map((t) => t.name)).toHaveLength(7);
+    expect(TOOLS.map((t) => t.name)).toHaveLength(8);
     for (const t of TOOLS) expect(Object.keys(t.outputSchema.shape)).toContain("license");
   });
 });
