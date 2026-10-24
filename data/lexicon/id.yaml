@@ -1,0 +1,114 @@
+# Leksikon lafal suara AI bahasa Indonesia (X17, ADR-097 butir 6). Dipakai `tools/audio` SESUDAH skrip
+# Intisari dibangun: tidak mengubah isi atau sha skrip, hanya cara suara AI melafalkan istilah/nama.
+# Versi leksikon = 12 heks pertama sha256 berkas ini (dicatat di data/audio/*-audio.json).
+#
+# - `ipa`: lafal IPA tanpa garis miring; alat menulisnya inline `/…/` (eleven_v4, docs dicek 2026-10-24).
+#   Lafal mengikuti ucapan lazim pengajar Indonesia untuk istilah serapan Arab, bukan tajwid.
+# - `alias`: ejaan pengganti bila IPA tidak menolong.
+# - `status: test` = DRAF agent, belum diterapkan; `pnpm audio sample` memperdengarkan lafal bawaan lalu
+#   lafal ini berdampingan untuk uji dengar pemilik (T-31). `status: active` = diterapkan di semua audio,
+#   hanya sesudah uji dengar menunjukkan lafal bawaan salah ("T-31 … lafal salah: …").
+# Istilah diambil dari daftar uji T-31, glosarium Intisari (X15b), dan tokoh yang sering muncul di Ihya.
+# Teks Arab tidak ditulis di sini.
+format: 1
+lang: id
+entries:
+  # Istilah (daftar uji T-31 + glosarium)
+  - term: ikhlas
+    ipa: ixˈlas
+    status: test
+  - term: riya'
+    ipa: riˈjaʔ
+    status: test
+  - term: "'ujub"
+    ipa: ˈʔujub
+    status: test
+  - term: tawakkal
+    ipa: taˈwakːal
+    status: test
+  - term: zuhud
+    ipa: ˈzuhud
+    status: test
+  - term: wara'
+    ipa: ˈwaraʔ
+    status: test
+  - term: qana'ah
+    ipa: qaˈnaʔah
+    status: test
+  - term: khauf
+    ipa: ˈxauf
+    status: test
+  - term: raja'
+    ipa: raˈdʒaʔ
+    status: test
+  - term: mahabbah
+    ipa: maˈhabːah
+    status: test
+  - term: muraqabah
+    ipa: muˈraqabah
+    status: test
+  - term: muhasabah
+    ipa: muˈhasabah
+    status: test
+  - term: tafakkur
+    ipa: taˈfakːur
+    status: test
+  - term: takabbur
+    ipa: taˈkabːur
+    status: test
+  - term: ghibah
+    ipa: ˈɣibah
+    status: test
+  - term: syubhat
+    ipa: ˈʃubhat
+    status: test
+  - term: fardhu 'ain
+    ipa: ˈfardˤu ˈʔain
+    status: test
+  - term: fardhu kifayah
+    ipa: ˈfardˤu kiˈfajah
+    status: test
+  - term: bid'ah
+    ipa: ˈbidʔah
+    status: test
+  # Gelar kehormatan (bentuk penuh dari normalisasi lisan `spoken-id`)
+  - term: shallallahu 'alaihi wa sallam
+    ipa: ˈsˤalːalːaːhu ʕaˈlaihi wa ˈsalːam
+    status: test
+  - term: subhanahu wa ta'ala
+    ipa: subˈhaːnahu wa taˈʕaːla
+    status: test
+  - term: radhiyallahu 'anhu
+    ipa: radˤijaˈlːaːhu ˈʕanhu
+    status: test
+  - term: rahimahullah
+    ipa: rahiˈmahulːah
+    status: test
+  - term: "'alaihissalam"
+    ipa: ʕalaihisːaˈlaːm
+    status: test
+  # Karya dan tokoh
+  - term: Ihya' 'Ulum ad-Din
+    ipa: ihˈjaʔ ʕuˈlum adˈdin
+    status: test
+  - term: al-Ghazali
+    ipa: alɣaˈzali
+    status: test
+  - term: Abu Hurairah
+    ipa: ˈabu huˈrairah
+    status: test
+  - term: Hasan al-Bashri
+    ipa: ˈhasan alˈbasˤri
+    status: test
+  - term: Junaid al-Baghdadi
+    ipa: dʒuˈnaid albaɣˈdadi
+    status: test
+  - term: Sufyan ats-Tsauri
+    ipa: sufˈjan aθːauˈri
+    status: test
+  - term: Fudhail bin 'Iyadh
+    ipa: fuˈdˤail bin ʕiˈjadˤ
+    status: test
+  - term: al-Harits al-Muhasibi
+    ipa: alˈhariθ almuˈhasibi
+    status: test
