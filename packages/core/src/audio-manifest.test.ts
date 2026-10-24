@@ -68,9 +68,9 @@ describe("audio manifest (X17)", () => {
   test("manifest kosong valid; asal media wajib https", () => {
     const empty = emptyAudioManifest("ihya", 1, "https://media.surau.org", "surau-media");
     expect(audioManifest.parse(empty)).toEqual(empty);
-    expect(() =>
-      audioManifest.parse({ ...empty, media_origin: "http://media.surau.org" }),
-    ).toThrow();
+    expect(() => audioManifest.parse({ ...empty, media_origin: "http://media.surau.org" })).toThrow(
+      /media_origin/u,
+    );
   });
 
   test("hanya track dengan sha skrip yang cocok dimuat; terbaru menang per node", () => {

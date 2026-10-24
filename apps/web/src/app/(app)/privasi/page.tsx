@@ -15,6 +15,7 @@ export default function PrivacyPage() {
   const sections = [
     { id: "ringkasan", label: t.summaryHeading },
     { id: "baca-cari", label: t.readHeading },
+    { id: "dengarkan", label: t.listenHeading },
     { id: "tanya", label: t.askHeading },
     { id: "laporan", label: t.reportHeading },
     { id: "retensi", label: t.retentionHeading },
@@ -46,6 +47,10 @@ export default function PrivacyPage() {
 
       <PageSection heading={t.readHeading} id="baca-cari">
         <Typography>{t.readText}</Typography>
+      </PageSection>
+
+      <PageSection heading={t.listenHeading} id="dengarkan">
+        <Typography>{t.listenText}</Typography>
       </PageSection>
 
       <PageSection heading={t.askHeading} id="tanya">

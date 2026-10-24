@@ -81,7 +81,10 @@ const digitsWords = (digits: string): string => numberWords(Number(digits.replac
 
 /** Angka di belakang koma dibaca per digit: "2,25" → "dua koma dua lima". */
 const decimalWords = (whole: string, frac: string): string =>
-  `${digitsWords(whole)} koma ${[...frac].map((c) => ONES[Number(c)]).join(" ")}`;
+  `${digitsWords(whole)} koma ${frac
+    .split("")
+    .map((c) => ONES[Number(c)])
+    .join(" ")}`;
 
 const era = (e: string): string => (e === "H" ? "Hijriah" : "Masehi");
 
