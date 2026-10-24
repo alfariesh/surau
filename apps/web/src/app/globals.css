@@ -1124,18 +1124,21 @@ h2.reader-heading-minor {
   }
 }
 
-/* Panel Tampilan (X11): pratinjau dan penjelasan mode setinggi tetap, supaya mengganti mode baca
- * tidak menggeser kontrol (tepi atas lembar ponsel ikut tinggi isinya). */
+/* Panel Tampilan (X11): pratinjau, dan tumpukan varian teks yang tingginya sama di semua mode baca
+ * (`StableText`), supaya mengganti mode tidak menggeser kontrol (tepi atas lembar ponsel ikut tinggi
+ * isinya). */
 .reader-style-preview {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   row-gap: 0.5rem;
-  min-height: 9rem;
 }
 
-.read-mode-hint {
-  min-height: 2lh;
+.stable-stack {
+  display: grid;
+}
+
+.stable-stack > * {
+  grid-area: 1 / 1;
 }
 
 /* Catatan terjemahan AI di awal teks (X04 W3): bisa ditutup, diingat per browser. */

@@ -11,7 +11,8 @@ export const readMode = {
     tr: "Terjemahan AI sebagai teks utama; teks Arab tiap paragraf dibuka dengan satu ketukan.",
   },
   noTranslation: "Halaman ini belum punya terjemahan, jadi yang tampil teks Arab.",
+  /** Pratinjau panel Tampilan di mode Arab, menggantikan contoh terjemahan. */
+  previewNoTranslation: "Terjemahan AI tidak tampil di mode Arab.",
   /** Kontrol terjemahan di panel Tampilan yang tidak berlaku di mode terpilih. */
   trControlsOff: "Ukuran dan tata letak terjemahan berlaku saat terjemahan tampil.",
-  layoutOnlyBoth: "Tata letak terjemahan berlaku di mode Keduanya.",
 } as const;

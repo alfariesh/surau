@@ -258,9 +258,39 @@ function PaperPicker() {
 }
 
 /**
- * Mode baca (X11) di paling atas panel: pilihan + penjelasan mode terpilih. Penjelasan setinggi
- * tetap (dua baris) supaya tepi atas lembar ponsel tidak bergeser di bawah jari saat mode diganti.
+ * Teks yang berganti menurut mode baca tanpa mengubah tinggi (X11): semua varian ditumpuk di satu
+ * sel grid (`.stable-stack`) dan hanya yang aktif terlihat, jadi tingginya = varian tertinggi. Di
+ * lembar ponsel tepi atas ikut tinggi isinya; tanpa ini pilihan mode bergeser di bawah jari.
  */
+function StableText({
+  active,
+  variants,
+}: {
+  active: string;
+  variants: Readonly<Record<string, ReactNode>>;
+}) {
+  return (
+    <div className="stable-stack">
+      {Object.entries(variants).map(([key, node]) => (
+        <div
+          key={key}
+          aria-hidden={key === active ? undefined : true}
+          className={key === active ? undefined : "invisible"}
+        >
+          {node}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const hint = (text: string) => (
+  <Typography className="px-1" color="muted" type="body-xs">
+    {text}
+  </Typography>
+);
+
+/** Mode baca (X11) di paling atas panel: pilihan + penjelasan mode terpilih. */
 function ReadModeControl({ mode, hasTranslation }: { mode: ReadMode; hasTranslation: boolean }) {
   const labelId = useId();
   return (
@@ -269,19 +299,23 @@ function ReadModeControl({ mode, hasTranslation }: { mode: ReadMode; hasTranslat
         {m.label}
       </Typography>
       <ReadModeSegment labelId={labelId} size="md" />
-      <Typography className="read-mode-hint px-1" color="muted" type="body-xs">
-        {mode !== "ar" && !hasTranslation ? m.noTranslation : m.hints[mode]}
-      </Typography>
+      <StableText
+        active={mode}
+        variants={{
+          ar: hint(m.hints.ar),
+          both: hint(hasTranslation ? m.hints.both : m.noTranslation),
+        }}
+      />
     </div>
   );
 }
 
 /**
- * Pratinjau dari halaman ini menurut mode baca: Arab, terjemahan AI berlencana, atau keduanya.
- * Tingginya dicadangkan (`.reader-style-preview`) supaya kontrol di sekitarnya tidak melompat.
+ * Pratinjau dari halaman ini menurut mode baca: Arab + terjemahan AI berlencana, atau Arab dengan
+ * keterangan bahwa terjemahan tidak tampil (tinggi sama di semua mode, `StableText`).
  */
 function Preview({ preview, mode }: { preview: ReaderSample; mode: ReadMode }) {
-  const tr = mode === "ar" ? null : preview.translation;
+  const tr = preview.translation;
   return (
     // `shrink-0`: badan lembar ponsel adalah kolom flex yang bisa digulir; tanpa ini widget
     // (overflow tersembunyi) menyusut dan memotong pratinjau beserta lencana AI-nya.
@@ -295,9 +329,17 @@ function Preview({ preview, mode }: { preview: ReaderSample; mode: ReadMode }) {
             <ArabicText className="text-foreground">{preview.arabic}</ArabicText>
           ) : null}
           {tr ? (
-            <p className="passage-translation" lang={tr.lang}>
-              {tr.text} <span className="ai-badge">{t.aiTranslation}</span>
-            </p>
+            <StableText
+              active={mode}
+              variants={{
+                ar: hint(m.previewNoTranslation),
+                both: (
+                  <p className="passage-translation" lang={tr.lang}>
+                    {tr.text} <span className="ai-badge">{t.aiTranslation}</span>
+                  </p>
+                ),
+              }}
+            />
           ) : null}
         </div>
       </Widget.Content>
@@ -331,13 +373,10 @@ export function ReaderStylePanel({ preview }: { preview: ReaderSample }) {
           options={TR_LAYOUT_OPTIONS}
           pref={TR_LAYOUT_PREF}
         />
-        <Typography type="body-xs" color="muted" className="px-1">
-          {mode === "ar"
-            ? m.trControlsOff
-            : mode === "both"
-              ? t.styleTrLayoutHint
-              : m.layoutOnlyBoth}
-        </Typography>
+        <StableText
+          active={mode}
+          variants={{ ar: hint(m.trControlsOff), both: hint(t.styleTrLayoutHint) }}
+        />
       </div>
     </>
   );

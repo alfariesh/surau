@@ -114,3 +114,25 @@ for (const layout of ["fold", "side"] as const) {
     expect(await axeViolations(page)).toEqual([]);
   });
 }
+
+// Mode baca Arab (X11): judul daftar isi tanpa padanan Indonesia, terjemahan yang dibuka kata cari
+// (tombol lipat tampil), dan panel Tampilan dengan kontrol terjemahan nonaktif.
+test("tanpa pelanggaran a11y: mode baca Arab + kata cari + panel Tampilan (j1/200)", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem("surau:read-mode", "ar");
+    } catch {}
+  });
+  await page.goto(`/kitab/ihya/1/200?q=${encodeURIComponent("malam jumat")}#p2826`);
+  await expect(page.locator("html")).toHaveAttribute("data-read-mode", "ar");
+  await expect(page.locator("#p2826")).toHaveAttribute("data-tr-peek", "");
+  expect(await axeViolations(page)).toEqual([]);
+  await page
+    .getByRole("group", { name: "Alat baca" })
+    .getByRole("button", { name: "Tampilan" })
+    .click();
+  await expect(page.getByRole("radiogroup", { name: "Mode baca" })).toBeVisible();
+  expect(await axeViolations(page)).toEqual([]);
+});
