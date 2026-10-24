@@ -8,6 +8,7 @@ export const nav = {
   search: "Cari",
   ask: "Maknaz",
   about: "Tentang",
+  // Menu kaki sidebar (PR #125): Tentang + lisensi, privasi, transparansi.
   help: "Seputar Surau",
   mcp: "Integrasi AI",
   mcpBadge: "MCP",

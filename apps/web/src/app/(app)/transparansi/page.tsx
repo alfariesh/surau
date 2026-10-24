@@ -101,9 +101,10 @@ export default async function TransparencyPage() {
                     value={Math.min(m.cost_usd, m.cap_usd > 0 ? m.cap_usd : 1)}
                   >
                     <div className="flex items-baseline gap-2">
-                      <Typography.Heading level={3} className="text-xl">
+                      {/* Bukan heading: isi progressbar tidak dibaca sebagai struktur halaman. */}
+                      <Typography className="text-xl font-semibold tabular-nums">
                         {percent.format(m.cap_usd > 0 ? Math.min(m.cost_usd / m.cap_usd, 1) : 0)}
-                      </Typography.Heading>
+                      </Typography>
                       <Typography type="body-sm" color="muted">
                         {t.usedSuffix}
                       </Typography>

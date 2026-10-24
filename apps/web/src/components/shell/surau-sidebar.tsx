@@ -3,7 +3,7 @@
 import type { NavItem } from "./nav-items";
 
 import { Chip, Dropdown, Label } from "@heroui/react";
-import { Sidebar } from "@heroui-pro/react";
+import { Sidebar, useSidebar } from "@heroui-pro/react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -117,6 +117,8 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
 
 function HelpMenu() {
   const pathname = usePathname();
+  // Item dropdown bukan Sidebar.MenuItem, jadi sheet ponsel tidak tertutup sendiri saat berpindah.
+  const { isMobile, setMobileOpen } = useSidebar();
   const isCurrent = HELP_LINKS.some(
     (link) => pathname === link.href || pathname?.startsWith(`${link.href}/`),
   );
@@ -140,7 +142,12 @@ function HelpMenu() {
         </span>
       </Dropdown.Trigger>
       <Dropdown.Popover className="w-56" offset={6} placement="top start">
-        <Dropdown.Menu aria-label={navText.help}>
+        <Dropdown.Menu
+          aria-label={navText.help}
+          onAction={() => {
+            if (isMobile) setMobileOpen(false);
+          }}
+        >
           {HELP_LINKS.map((link) => (
             <Dropdown.Item key={link.id} href={link.href} id={link.id} textValue={link.label}>
               <link.icon className="text-muted size-4 shrink-0" />

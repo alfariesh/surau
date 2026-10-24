@@ -25,7 +25,7 @@ export interface NavItem {
   href?: string;
   /** Halaman lain yang tetap menyorot menu ini (mis. hasil /cari di bawah Beranda). */
   also?: readonly string[];
-  /** Lencana kecil di kanan label. */
+  /** Lencana kecil di kanan label (mis. "MCP"). */
   badge?: string;
 }
 
