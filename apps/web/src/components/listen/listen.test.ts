@@ -83,12 +83,17 @@ function view(audio: boolean) {
 
 describe("listenTrack", () => {
   test("dari DigestView.audio: URL media, detik, bab berjudul gagasan; tanpa audio → null", () => {
-    expect(listenTrack(view(false), { work: "ihya", title: "Kitab Ilmu", href: "/x" })).toBeNull();
-    expect(listenTrack(view(true), { work: "ihya", title: "Kitab Ilmu", href: "/x" })).toEqual({
+    expect(
+      listenTrack(view(false), { work: "ihya", title: "Kitab Ilmu", titleLang: "id", href: "/x" }),
+    ).toBeNull();
+    expect(
+      listenTrack(view(true), { work: "ihya", title: "Kitab Ilmu", titleLang: "id", href: "/x" }),
+    ).toEqual({
       id: "ihya/100074",
       key: KEY,
       src: `https://media.surau.org/${KEY}`,
       title: "Kitab Ilmu",
+      titleLang: "id",
       workTitle: "Ihya' 'Ulum ad-Din",
       href: "/x",
       duration: 125,

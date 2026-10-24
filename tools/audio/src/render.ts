@@ -3,7 +3,9 @@
 // bingkai disambung dengan jeda antarsegmen → tag ID3 → berkas bersidik isi di `out/`.
 // Satu permintaan per segmen (bab pemutar = gagasan), dipecah per kalimat hanya bila melebihi batas
 // karakter penyedia. Pemanggilan berurutan: stitching butuh permintaan sebelumnya sudah selesai.
-import { SCRIPT_LABEL, audioManifestTrack, audioObjectKey } from "@surau/core";
+import { join } from "node:path";
+
+import { SCRIPT_LABEL, audioManifestTrack, audioObjectKey, unspeakableChar } from "@surau/core";
 import type { DigestScript, DigestView, ScriptSegmentKind } from "@surau/core";
 
 import { id3v2 } from "./id3.ts";
@@ -20,11 +22,23 @@ import {
   removeIntent,
   segmentKey,
   sha256Hex,
+  writeAtomic,
   writeIntent,
   writeRendered,
   writeSegment,
 } from "./store.ts";
 import type { AudioStore, RenderedTrack, SegmentMeta } from "./store.ts";
+
+/**
+ * Pemeriksaan terakhir teks yang benar-benar dikirim (sesudah leksikon): tanpa huruf Arab, ⟦ ⟧, atau
+ * tag `[ ]` (aturan 11). `/…/` di sini hanya berasal dari lafal IPA leksikon.
+ */
+export function speakableRequest(text: string): string {
+  const bad = unspeakableChar(text);
+  if (bad !== null)
+    throw new Error(`teks permintaan TTS memuat "${bad}" yang tidak boleh dibacakan`);
+  return text;
+}
 
 /** Jeda sunyi sesudah tiap jenis segmen (ms). Segmen terakhir tanpa jeda. */
 export const GAP_AFTER_MS: Readonly<Record<ScriptSegmentKind, number>> = {
@@ -91,7 +105,7 @@ export function piecesOf(input: RenderInput, cap: TtsCapabilities): Piece[] {
       cap.maxCharsPerRequest,
     ).map((text) => ({
       segment,
-      text,
+      text: speakableRequest(text),
       key: segmentKey({
         provider: cap.provider,
         model: cap.model,
@@ -177,7 +191,6 @@ export async function renderNode(
       if (error instanceof TtsError && error.charged === "no") removeIntent(store, piece.key);
       throw error;
     }
-    parseMp3(result.audio); // tolak keluaran rusak sebelum disimpan sebagai cache
     const meta: SegmentMeta = {
       key: piece.key,
       provider: cap.provider,
@@ -190,7 +203,7 @@ export async function renderNode(
       character_cost: result.characterCost,
       created_at: now().toISOString(),
     };
-    writeSegment(store, meta, result.audio);
+    // Respons 200 = tertagih: tanda terima dicatat SEBELUM keluarannya diperiksa (ADR-061).
     appendReceipt(store, {
       key: piece.key,
       node_id: nodeId,
@@ -202,6 +215,18 @@ export async function renderNode(
       request_id: meta.request_id,
       at: meta.created_at,
     });
+    try {
+      parseMp3(result.audio);
+    } catch (error) {
+      // Keluaran yang tidak bisa disambung tidak masuk cache; bait mentah disimpan untuk diperiksa.
+      writeAtomic(join(store.root, "rejected", `${piece.key}.mp3`), result.audio);
+      removeIntent(store, piece.key);
+      throw new Error(
+        `keluaran TTS node ${nodeId} segmen ${piece.segment} bukan MP3 yang bisa disambung (${error instanceof Error ? error.message : String(error)}); sudah tertagih dan tercatat, bait mentah di data/build/audio/rejected/`,
+        { cause: error },
+      );
+    }
+    writeSegment(store, meta, result.audio);
     removeIntent(store, piece.key);
     const cost = meta.character_cost ?? meta.chars;
     budget.remaining -= cost;

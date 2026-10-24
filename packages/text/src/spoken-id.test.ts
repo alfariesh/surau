@@ -157,6 +157,21 @@ describe("spokenIndonesian", () => {
     expect(spokenIndonesian("1, 2, dan 3")).toBe("satu, dua, dan tiga");
   });
 
+  test("pecahan fikih dibaca 'per'; QS bergaya Kemenag; angka di luar jangkauan tidak galat", () => {
+    expect(spokenIndonesian("zakat 1/40 harta, wasiat paling banyak 1/3")).toBe(
+      "zakat satu per empat puluh harta, wasiat paling banyak satu per tiga",
+    );
+    expect(spokenIndonesian("QS al-Baqarah/2: 183")).toBe(
+      "surah al-Baqarah ayat seratus delapan puluh tiga",
+    );
+    expect(spokenIndonesian("nomor 1234567890123456")).toBe(
+      "nomor satu dua tiga empat lima enam tujuh delapan sembilan nol satu dua tiga empat lima enam",
+    );
+    expect(spokenIndonesian("urutan ke-0 dan QS 0:1")).toBe(
+      "urutan ke nol dan surah ke nol ayat satu",
+    );
+  });
+
   test("singkatan umum dan simbol", () => {
     expect(spokenIndonesian("ikhlas, riya', dll.")).toBe("ikhlas, riya', dan lain-lain");
     expect(spokenIndonesian("dsb. dkk. mis. tsb.")).toBe(
@@ -168,7 +183,7 @@ describe("spokenIndonesian", () => {
   test("kurung siku dan garis miring tidak sampai ke suara AI (tag audio / IPA v4)", () => {
     expect(spokenIndonesian("ia [Nabi] berkata")).toBe("ia (Nabi) berkata");
     expect(spokenIndonesian("dan/atau palsu/batil")).toBe("dan atau atau palsu atau batil");
-    expect(spokenIndonesian("bab 3 / 4")).toBe("bab tiga atau empat");
+    expect(spokenIndonesian("bab 3 / 4")).toBe("bab tiga per empat");
     expect(spokenIndonesian("(a) / (b)")).toBe("(a) (b)");
   });
 

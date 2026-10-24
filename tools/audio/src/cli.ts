@@ -17,7 +17,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-import { SCRIPT_LABEL, loadDigestScript } from "@surau/core";
+import { SCRIPT_LABEL, ScriptError, loadDigestScript } from "@surau/core";
 import { AI_TEXT_LANG, listDigestHeaders, listTitleTranslations } from "@surau/db";
 import type { D1Db } from "@surau/db";
 import { z } from "zod";
@@ -29,7 +29,8 @@ import { mergeTracks, readManifest, writeManifest } from "./manifest-file.ts";
 import { parseMp3, samplesToMs } from "./mp3.ts";
 import { ELEVENLABS_CAPABILITIES, ElevenLabs } from "./providers/elevenlabs.ts";
 import { headObject, uploadObject, verifyObject } from "./r2.ts";
-import { renderNode, uncachedChars } from "./render.ts";
+import { renderNode, speakableRequest, uncachedChars } from "./render.ts";
+import { TtsError } from "./provider.ts";
 import type { RenderInput } from "./render.ts";
 import {
   appendReceipt,
@@ -40,7 +41,9 @@ import {
   pidAlive,
   readReceipts,
   removeIntent,
+  sha256Hex,
   writeAtomic,
+  writeIntent,
 } from "./store.ts";
 import { MEDIA, SITE_ORIGIN, SPOKEN_CHARS_PER_MINUTE, WORKS } from "./works.ts";
 import type { AudioWork } from "./works.ts";
@@ -113,7 +116,16 @@ async function candidates(
   const out: Candidate[] = [];
   for (const h of headers) {
     if (wanted !== null && !wanted.has(h.toc_node_id)) continue;
-    const loaded = await loadDigestScript(db, h.toc_node_id, lang);
+    let loaded: Awaited<ReturnType<typeof loadDigestScript>>;
+    try {
+      loaded = await loadDigestScript(db, h.toc_node_id, lang);
+    } catch (error) {
+      // Satu Intisari bermasalah (mis. skrip memuat yang tidak boleh dibacakan) tidak menghentikan
+      // yang lain: dilaporkan dan dilewati.
+      if (!(error instanceof ScriptError || error instanceof RangeError)) throw error;
+      console.log(`  lewati ${h.toc_node_id}: ${error.message}`);
+      continue;
+    }
     if (loaded === null) continue;
     const { view, script } = loaded;
     // Ambang durasi dengar hanya untuk pemilihan massal; node yang disebut eksplisit selalu ikut.
@@ -283,23 +295,33 @@ async function main(argv: string[]): Promise<number> {
         return 0;
       }
       guardIntents();
+      speakableRequest(text);
       const provider = new ElevenLabs({ apiKey: apiKey() });
-      const result = await provider.synthesize({
-        text,
-        voiceId: values.voice,
-        languageCode: AI_TEXT_LANG,
-        previousRequestIds: [],
+      const key = `sample-${sha256Hex(`${values.voice}\n${text}`).slice(0, 16)}`;
+      // Niat sebelum permintaan berbayar, tanda terima sesudahnya (ADR-061), sama dengan `submit`.
+      writeIntent(store, {
+        key,
+        node_id: 0,
+        segment: 0,
+        chars: text.length,
+        pid: process.pid,
+        started_at: new Date().toISOString(),
       });
-      const stream = parseMp3(result.audio);
+      let result;
+      try {
+        result = await provider.synthesize({
+          text,
+          voiceId: values.voice,
+          languageCode: AI_TEXT_LANG,
+          previousRequestIds: [],
+        });
+      } catch (error) {
+        if (error instanceof TtsError && error.charged === "no") removeIntent(store, key);
+        throw error;
+      }
       const at = new Date().toISOString();
-      const file = join(
-        store.root,
-        "samples",
-        `${at.slice(0, 16).replace(/[-:]/gu, "")}-${values.voice}.mp3`,
-      );
-      writeAtomic(file, result.audio);
       appendReceipt(store, {
-        key: `sample-${lexicon.version}`,
+        key,
         node_id: 0,
         provider: ELEVENLABS_CAPABILITIES.provider,
         model: ELEVENLABS_CAPABILITIES.model,
@@ -309,8 +331,22 @@ async function main(argv: string[]): Promise<number> {
         request_id: result.requestId,
         at,
       });
+      const file = join(
+        store.root,
+        "samples",
+        `${at.slice(0, 16).replace(/[-:]/gu, "")}-${values.voice}.mp3`,
+      );
+      writeAtomic(file, result.audio);
+      removeIntent(store, key);
+      let seconds = "?";
+      try {
+        const stream = parseMp3(result.audio);
+        seconds = (samplesToMs(stream.samples, stream.format.sampleRate) / 1000).toFixed(1);
+      } catch {
+        // Sampel tetap tersimpan untuk didengar walau tidak bisa diurai penyambung.
+      }
       console.log(
-        `Sampel: ${file} (${(samplesToMs(stream.samples, stream.format.sampleRate) / 1000).toFixed(1)} dtk, tertagih ${result.characterCost ?? text.length}).`,
+        `Sampel: ${file} (${seconds} dtk, tertagih ${result.characterCost ?? text.length}).`,
       );
       return 0;
     }

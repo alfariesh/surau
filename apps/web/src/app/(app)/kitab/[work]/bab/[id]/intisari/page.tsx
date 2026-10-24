@@ -99,6 +99,7 @@ export default async function DigestRoute({ params }: Props) {
         listen={listenTrack(digest, {
           work: segment,
           title: node?.titleId ?? digest.section.title_ar,
+          titleLang: node?.titleId ? "id" : "ar",
           href: digestHref(segment, digest.section.id),
         })}
         sections={sections}

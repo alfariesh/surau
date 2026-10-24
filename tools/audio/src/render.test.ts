@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -12,7 +12,13 @@ import type { Mp3Format } from "./mp3.ts";
 import type { SynthesisRequest, TtsProvider } from "./provider.ts";
 import { TtsError } from "./provider.ts";
 import { ELEVENLABS_CAPABILITIES } from "./providers/elevenlabs.ts";
-import { GAP_AFTER_MS, renderNode, requestTexts, uncachedChars } from "./render.ts";
+import {
+  GAP_AFTER_MS,
+  renderNode,
+  requestTexts,
+  speakableRequest,
+  uncachedChars,
+} from "./render.ts";
 import type { RenderInput } from "./render.ts";
 import { audioStore, listIntents, readReceipts, readRendered } from "./store.ts";
 import type { AudioStore } from "./store.ts";
@@ -219,6 +225,32 @@ describe("renderNode", () => {
     const open = listIntents(store);
     expect(open).toHaveLength(1);
     expect(open[0]).toMatchObject({ node_id: 100074, segment: 1, pid: process.pid });
+  });
+});
+
+describe("renderNode: keluaran rusak dan teks akhir", () => {
+  test("respons 200 yang bukan MP3: biaya tetap tercatat, tidak masuk cache, niat dilepas", async () => {
+    const provider: TtsProvider = {
+      ...fakeProvider().provider,
+      synthesize: async () => ({
+        audio: Uint8Array.of(1, 2, 3),
+        requestId: "req-x",
+        characterCost: 42,
+      }),
+    };
+    await expect(renderNode(store, provider, input, { remaining: 100_000 }, clock)).rejects.toThrow(
+      /bukan MP3/u,
+    );
+    expect(readReceipts(store)).toMatchObject([{ character_cost: 42, request_id: "req-x" }]);
+    expect(listIntents(store)).toEqual([]);
+    expect(existsSync(join(store.root, "rejected"))).toBe(true);
+    expect(readRendered(store, 100074)).toBeNull();
+  });
+
+  test("teks yang dikirim diperiksa ulang sesudah leksikon", () => {
+    expect(speakableRequest("Ikhlas /ixˈlas/.")).toBe("Ikhlas /ixˈlas/.");
+    expect(() => speakableRequest("[whispers] halo")).toThrow(/tidak boleh dibacakan/u);
+    expect(() => speakableRequest("niat نية")).toThrow(/tidak boleh dibacakan/u);
   });
 });
 

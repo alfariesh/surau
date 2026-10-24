@@ -118,24 +118,30 @@ export function audioTrackRowOf(t: AudioManifestTrack): AudioTrackRow {
 export interface AudioSelection {
   rows: AudioTrackRow[];
   /** Track yang tidak dimuat beserta alasannya (untuk laporan ingest). */
-  dropped: { r2_key: string; reason: "no_digest" | "stale_script" | "superseded" }[];
+  dropped: {
+    r2_key: string;
+    reason: "no_digest" | "stale_script" | "superseded" | "script_error";
+  }[];
 }
 
 /**
  * Track manifest yang dimuat ke korpus: hanya yang `script_sha256`-nya sama dengan skrip Intisari di
  * build ini (`scripts`: `<node>:<lang>` → sha skrip; node tanpa Intisari tidak ada di peta). Per
- * (node, lang, jenis suara) dipilih yang terbaru; sisanya `superseded`.
+ * (node, lang, jenis suara) dipilih yang terbaru; sisanya `superseded`. `failed` = kunci yang
+ * skripnya gagal dibangun (gugur sebagai `script_error`, bukan menghentikan build).
  */
 export function selectAudioTracks(
   manifest: AudioManifest,
   scripts: ReadonlyMap<string, string>,
+  failed: ReadonlySet<string> = new Set(),
 ): AudioSelection {
   const dropped: AudioSelection["dropped"] = [];
   const best = new Map<string, AudioManifestTrack>();
   for (const t of manifest.tracks) {
-    const sha = scripts.get(`${t.toc_node_id}:${t.lang}`);
+    const node = `${t.toc_node_id}:${t.lang}`;
+    const sha = scripts.get(node);
     if (sha === undefined) {
-      dropped.push({ r2_key: t.r2_key, reason: "no_digest" });
+      dropped.push({ r2_key: t.r2_key, reason: failed.has(node) ? "script_error" : "no_digest" });
       continue;
     }
     if (sha !== t.script_sha256) {
@@ -144,7 +150,7 @@ export function selectAudioTracks(
     }
     const key = `${t.toc_node_id}:${t.lang}:${t.voice_kind}`;
     const prev = best.get(key);
-    if (prev === undefined || prev.created_at < t.created_at) {
+    if (prev === undefined || Date.parse(prev.created_at) < Date.parse(t.created_at)) {
       if (prev !== undefined) dropped.push({ r2_key: prev.r2_key, reason: "superseded" });
       best.set(key, t);
     } else {

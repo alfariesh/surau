@@ -77,7 +77,25 @@ export function ordinalWords(n: number): string {
 }
 
 /** Angka tertulis ("505", "1.200") menjadi kata; titik = pemisah ribuan (ejaan Indonesia). */
-const digitsWords = (digits: string): string => numberWords(Number(digits.replaceAll(".", "")));
+const digitsWords = (digits: string): string => {
+  const plain = digits.replaceAll(".", "");
+  const n = Number(plain);
+  // Di luar jangkauan kata (≥ 1.000 triliun): dibaca per digit, bukan galat.
+  return Number.isSafeInteger(n) && n < 1e15
+    ? numberWords(n)
+    : plain
+        .split("")
+        .map((d) => ONES[Number(d)])
+        .join(" ");
+};
+
+/** Bilangan tingkat dari angka tertulis; "ke-0" atau angka raksasa dibaca "ke" + angkanya. */
+const ordinalOf = (digits: string): string => {
+  const n = Number(digits);
+  return Number.isSafeInteger(n) && n >= 1 && n < 1e15
+    ? ordinalWords(n)
+    : `ke ${digitsWords(digits)}`;
+};
 
 /** Angka di belakang koma dibaca per digit: "2,25" → "dua koma dua lima". */
 const decimalWords = (whole: string, frac: string): string =>
@@ -145,7 +163,7 @@ const RULES: readonly Rule[] = [
   rule(`${L}w\\.\\s?(?=\\d)`, () => "wafat tahun "),
   rule(`${L}l\\.\\s?(?=\\d)`, () => "lahir tahun "),
   // Abad dan tahun: "abad ke-5 H", "505 H/1111 M", "450–505 H", "505 H", "1111 M".
-  rule(`${L}ke-(\\d+)\\s?([HM])${R}`, (n, e) => `${ordinalWords(Number(n))} ${era(e as string)}`),
+  rule(`${L}ke-(\\d+)\\s?([HM])${R}`, (n, e) => `${ordinalOf(n as string)} ${era(e as string)}`),
   rule(
     String.raw`(\d+)\s?H\s?\/\s?(\d+)\s?M${R}`,
     (h, m) => `${digitsWords(h as string)} Hijriah atau ${digitsWords(m as string)} Masehi`,
@@ -167,12 +185,12 @@ const RULES: readonly Rule[] = [
   rule(
     String.raw`${L}Q\.?S\.?\s?(\d+)\s?:\s?(\d+)(?:\s?[–-]\s?(\d+))?`,
     (s, a, b) =>
-      `surah ${ordinalWords(Number(s))} ayat ${digitsWords(a as string)}${
+      `surah ${ordinalOf(s as string)} ayat ${digitsWords(a as string)}${
         b === undefined ? "" : ` sampai ${digitsWords(b)}`
       }`,
   ),
   rule(
-    String.raw`${L}Q\.?S\.?\s([^\d:[\]]{2,40}?)\s?(?:\[\d+\]\s?)?:\s?(\d+)(?:\s?[–-]\s?(\d+))?`,
+    String.raw`${L}Q\.?S\.?\s([^\d:[\]/]{2,40}?)\s?(?:\[\d+\]|\/\s?\d+)?\s?:\s?(\d+)(?:\s?[–-]\s?(\d+))?`,
     (name, a, b) =>
       `surah ${(name as string).trim()} ayat ${digitsWords(a as string)}${
         b === undefined ? "" : ` sampai ${digitsWords(b)}`
@@ -181,7 +199,12 @@ const RULES: readonly Rule[] = [
   rule(`${L}Q\\.?S\\.?(?=\\s)`, () => "surah"),
   rule(`${L}HR\\.?(?=\\s)`, () => "diriwayatkan oleh"),
   // Bilangan tingkat, persen, desimal, rentang, lalu angka biasa.
-  rule(`${L}ke-(\\d+)${R}`, (n) => ordinalWords(Number(n))),
+  rule(`${L}ke-(\\d+)${R}`, (n) => ordinalOf(n as string)),
+  // Pecahan fikih ("zakat 1/40", "wasiat 1/3") dibaca "per", bukan "atau".
+  rule(
+    String.raw`(?<![\d.,/])(\d+)\s?\/\s?(\d+)(?![\d/])`,
+    (a, b) => `${digitsWords(a as string)} per ${digitsWords(b as string)}`,
+  ),
   rule(`(${NUM})(?:,(\\d+))?\\s?%`, (n, d) =>
     d === undefined
       ? `${digitsWords(n as string)} persen`
@@ -213,7 +236,7 @@ const RULES: readonly Rule[] = [
 function plainLatin(text: string): string {
   return text
     .normalize("NFD")
-    .replace(/[̀-ͯ]/gu, "")
+    .replace(/\p{Mn}/gu, "")
     .replace(/[ʿʾ‘’]/gu, "'")
     .replace(/[“”]/gu, '"')
     .normalize("NFC");

@@ -96,6 +96,21 @@ describe("audio manifest (X17)", () => {
       { r2_key: "ihya/id/100075-cccccccccccc.mp3", reason: "stale_script" },
       { r2_key: "ihya/id/100076-dddddddddddd.mp3", reason: "no_digest" },
     ]);
+    // Skrip gagal dibangun → gugur sebagai script_error; waktu dibandingkan sebagai waktu.
+    const failed = selectAudioTracks(
+      {
+        ...manifest,
+        tracks: [
+          track({ sha256: "1".repeat(64), created_at: "2026-10-25T01:00:00.500Z" }),
+          track({ sha256: "2".repeat(64), created_at: "2026-10-25T01:00:01Z" }),
+          track({ toc_node_id: 100076, sha256: "3".repeat(64) }),
+        ],
+      },
+      scripts,
+      new Set(["100076:id"]),
+    );
+    expect(failed.rows.map((r) => r.r2_key)).toEqual(["ihya/id/100074-222222222222.mp3"]);
+    expect(failed.dropped.map((d) => d.reason)).toEqual(["superseded", "script_error"]);
     // Baris lolos skema `audio_track` korpus (bab sebagai JSON, tanpa alignment).
     expect(audioTrackRow.parse(rows[0])).toEqual(rows[0]);
     expect(rows[0]).toMatchObject({ mime: "audio/mpeg", alignment_key: null });

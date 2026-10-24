@@ -87,7 +87,13 @@ async function main(argv: string[]): Promise<number> {
   if (result.output !== undefined) {
     const audio = await selectBuildAudio(result.output.sqlite, join(repo, IHYA_AUDIO_MANIFEST));
     console.info(audioReport(audio));
-    if (audio.rows.length > 0) result = runIngest(IHYA, paths, { audioTracks: audio.rows });
+    if (audio.rows.length > 0) {
+      const added = result.output.idsAdded;
+      result = runIngest(IHYA, paths, { audioTracks: audio.rows });
+      // ID baru tercatat di putaran pertama (peta ID wajib di-commit, ADR-059), bukan di putaran kedua.
+      if (result.output !== undefined)
+        result = { ...result, output: { ...result.output, idsAdded: added } };
+    }
   }
   for (const i of result.validation.invariants)
     console.info(`${i.ok ? "✓" : "✗"} ${i.name}: ${i.detail}`);

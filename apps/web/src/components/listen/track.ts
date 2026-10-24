@@ -3,6 +3,8 @@
 // dan klien (tipe core hanya `import type`, jadi tidak ikut bundel klien).
 import type { DigestView } from "@surau/core";
 
+import { listen as listenText } from "../../i18n/id/listen";
+
 /** Domain kustom bucket R2 publik `surau-media` (ADR-097 butir 6; r2.dev dimatikan). */
 export const MEDIA_ORIGIN = "https://media.surau.org";
 
@@ -19,8 +21,10 @@ export interface ListenTrack {
   /** Kunci objek R2: berubah bila audio dibuat ulang (posisi lama tidak dipakai lagi). */
   key: string;
   src: string;
-  /** Judul Intisari (judul bagian). */
+  /** Judul Intisari (judul bagian): Indonesia bila ada, selain itu judul Arab dari DB. */
   title: string;
+  /** Bahasa judul: "ar" = judul Arab dari DB (dirender lewat ArabicInline). */
+  titleLang: "id" | "ar";
   workTitle: string;
   /** Halaman Intisari. */
   href: string;
@@ -32,7 +36,13 @@ export interface ListenTrack {
 
 export function listenTrack(
   view: DigestView,
-  ctx: { work: string; title: string; href: string; mediaOrigin?: string },
+  ctx: {
+    work: string;
+    title: string;
+    titleLang: "id" | "ar";
+    href: string;
+    mediaOrigin?: string;
+  },
 ): ListenTrack | null {
   const audio = view.audio;
   if (audio === null) return null;
@@ -42,6 +52,7 @@ export function listenTrack(
     key: audio.r2_key,
     src: `${ctx.mediaOrigin ?? MEDIA_ORIGIN}/${audio.r2_key}`,
     title: ctx.title,
+    titleLang: ctx.titleLang,
     workTitle: view.source.work.title_id ?? "",
     href: ctx.href,
     duration: audio.duration_ms / 1000,
@@ -49,7 +60,7 @@ export function listenTrack(
     chapters: audio.chapters.map((c, i) => ({
       point_ord: c.point_ord,
       start: c.start_ms / 1000,
-      title: titles.get(c.point_ord) ?? `Gagasan ${i + 1}`,
+      title: titles.get(c.point_ord) ?? listenText.chapterFallback(i + 1),
     })),
   };
 }

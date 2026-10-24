@@ -2,16 +2,16 @@
 // dibacakan suara AI, disusun KODE dari Intisari yang tampil (`readDigest`), tanpa LLM baru.
 // - Hanya yang tampil: gagasan yang tidak ditolak dan berjangkar, kutipan yang tidak ditahan.
 //   Gagasan yang ditolak sesudah audio dibuat mengubah sha skrip, jadi audionya gugur saat ingest.
-// - Tanpa huruf Arab: kutipan dibacakan lewat terjemahannya, ayat hanya disebut ("surah kedua ayat
-//   …"), placeholder ⟦QS⟧ dan penanda catatan kaki tidak pernah sampai ke suara AI.
+// - Tanpa huruf Arab: kutipan dibacakan lewat terjemahannya ("terjemahan AI-nya" bila belum
+//   ditinjau manusia), ayat hanya disebut ("surah kedua ayat …"), placeholder ⟦QS⟧ dan penanda
+//   catatan kaki tidak pernah sampai ke suara AI.
 // - Narator orang ketiga, diawali kalimat label suara AI, ditutup "pintu ke kitab" (docs/05 §12).
-// - Riwayat yang takhrijnya memuat penilaian sangat lemah, palsu, atau "tidak ada asalnya" sudah
-//   ditahan `readDigest` (`weak_report`, X16), jadi tidak pernah dibacakan; status hadits lain tidak
-//   dibacakan (halaman Intisari menampilkannya bersama teks takhrij aslinya).
+// - Riwayat sangat lemah, palsu, atau "tidak ada asalnya" (docs/05 §4): KUTIPAN-nya sudah ditahan
+//   `readDigest` (`weak_report`); GAGASAN yang bersandar padanya (dalil `evidence`, sama dengan chip
+//   di halaman) diberi kalimat tanda buatan kode. Status hadits lain tidak dibacakan.
 // Segmen = satu permintaan TTS (bab pemutar = gagasan); kalimat dipecah `indonesianSentences` lalu
 // dinormalisasi lisan (`spokenIndonesian`, berversi).
 import {
-  FOOTNOTE_MARKER_SOURCE,
   SPOKEN_VERSION,
   indonesianSentences,
   numberWords,
@@ -23,7 +23,8 @@ import type { D1Db } from "@surau/db";
 
 import { ayahPlaceholderPattern } from "./ayah-placeholder.ts";
 import { readDigest } from "./digest.ts";
-import type { DigestQuoteView, DigestView, Location } from "./schema.ts";
+import type { DigestPointView, DigestQuoteView, DigestView, Location } from "./schema.ts";
+import { VERY_WEAK_TAKHRIJ_KINDS } from "./takhrij-label.ts";
 import { textSha256 } from "./translation-revision.ts";
 
 /** Versi susunan skrip; naik bila kalimat baku, urutan segmen, atau aturan pemilihan berubah. */
@@ -68,10 +69,24 @@ export class ScriptError extends Error {
 export const segmentText = (segment: ScriptSegment): string => segment.sentences.join(" ");
 
 /**
- * Huruf/tanda yang tidak boleh sampai ke suara AI: semua karakter berskrip Arab (termasuk angka
- * Arab-India dan ligatur ﷺ), placeholder ayat ⟦ ⟧, kurung siku (tag audio v4), garis miring (IPA).
+ * Karakter yang tidak boleh sampai ke suara AI dalam bentuk apa pun: semua karakter berskrip Arab
+ * (termasuk angka Arab-India dan ligatur ﷺ), placeholder ayat ⟦ ⟧, dan kurung siku (tag audio v4).
  */
+const TTS_FORBIDDEN = /[\p{Script_Extensions=Arabic}⟦⟧[\]]/u;
+
+/** Skrip juga tanpa garis miring: `/…/` di teks yang dikirim hanya boleh berasal dari lafal leksikon. */
 const FORBIDDEN = /[\p{Script_Extensions=Arabic}⟦⟧[\]/]/u;
+
+/**
+ * Karakter pertama yang tidak boleh dibacakan suara AI, atau null. Dipakai juga alat audio untuk
+ * memeriksa teks AKHIR yang dikirim (sesudah leksikon), karena leksikon diterapkan sesudah skrip.
+ */
+export function unspeakableChar(text: string): string | null {
+  return TTS_FORBIDDEN.exec(text)?.[0] ?? null;
+}
+
+/** Penanda catatan kaki berangka Arab-India "(١)"; angka ASCII dalam kurung = bilangan biasa. */
+const FOOTNOTE_MARKER = /\(\s*[\u0660-\u0669\u06F0-\u06F9]{1,4}\s*\)/gu;
 
 const KIND_INTRO: Readonly<Record<DigestQuoteView["kind"], string>> = {
   text: "Teks kitab",
@@ -85,9 +100,10 @@ const latin = (text: string | null | undefined): string | null =>
     ? null
     : text.trim();
 
-/** Kalimat-kalimat teks tulis (sebelum normalisasi lisan). */
-function sentencesOf(text: string | null): string[] {
-  if (text === null) return [];
+/** Kalimat-kalimat teks tulis (sebelum normalisasi lisan), sesudah penanda/placeholder dirapikan. */
+function sentencesOf(raw: string | null): string[] {
+  if (raw === null) return [];
+  const text = speakable(raw);
   return indonesianSentences(text).map((s) => text.slice(s.start, s.end));
 }
 
@@ -99,12 +115,13 @@ const where = (loc: Location): string =>
   `jilid ${numberWords(loc.juz)}, halaman ${numberWords(loc.page_no)}`;
 
 /**
- * Terjemahan kutipan siap dibacakan: penanda catatan kaki dibuang, placeholder ayat hanya disebut
- * (teks ayat dan terjemahannya tidak pernah dibacakan mesin).
+ * Teks Indonesia siap dipecah dan dinormalisasi: penanda catatan kaki dibuang, placeholder ayat
+ * hanya disebut (teks ayat dan terjemahannya tidak pernah dibacakan mesin). Berlaku untuk semua teks
+ * AI, karena `readDigest` meloloskan teks yang berpenanda/berplaceholder (keduanya bukan huruf Arab).
  */
-function speakableTranslation(text: string): string {
+function speakable(text: string): string {
   return text
-    .replace(new RegExp(FOOTNOTE_MARKER_SOURCE, "g"), " ")
+    .replace(FOOTNOTE_MARKER, " ")
     .replace(ayahPlaceholderPattern(), (_m, s: string, a: string, b: string | undefined) =>
       b === undefined ? `(ayat Al-Qur'an, QS ${s}:${a})` : `(ayat Al-Qur'an, QS ${s}:${a}-${b})`,
     );
@@ -112,9 +129,33 @@ function speakableTranslation(text: string): string {
 
 function quoteSentences(q: DigestQuoteView): string[] {
   if (q.translation === null) return [];
-  const body = sentencesOf(speakableTranslation(q.translation.text));
+  const body = sentencesOf(q.translation.text);
   if (body.length === 0) return [];
-  return [`${KIND_INTRO[q.kind]} di ${where(q.location)}, yang terjemahan bebasnya:`, ...body];
+  // Terjemahan diberi label (aturan 8): AI kecuali sudah ditinjau atau dikoreksi manusia.
+  const label = q.translation.human_review === null ? "terjemahan AI-nya" : "terjemahannya";
+  return [`${KIND_INTRO[q.kind]} di ${where(q.location)}, yang ${label}:`, ...body];
+}
+
+const list = (items: readonly string[]): string =>
+  items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} dan ${items.at(-1)}`;
+
+/**
+ * Tanda lisan untuk gagasan yang bersandar pada riwayat sangat lemah, palsu, atau tanpa asal
+ * (docs/05 §4 dan §12): dari dalil `evidence` yang sama dengan chip di halaman Intisari, dengan
+ * glosa tetap buatan kode (bukan teks model).
+ */
+function weakMark(view: DigestView, p: DigestPointView): string[] {
+  const glosses = new Set<string>();
+  for (const h of view.evidence.hadith) {
+    if (!h.point_ords.includes(p.ord)) continue;
+    for (const term of h.status.terms) {
+      if (VERY_WEAK_TAKHRIJ_KINDS.has(term.kind)) glosses.add(term.gloss);
+    }
+  }
+  if (glosses.size === 0) return [];
+  return [
+    `Gagasan ini bersandar pada riwayat yang catatan takhrijnya memuat penilaian ${list([...glosses])}; penilaian ini dikenali otomatis dari teks takhrij dan belum ditinjau.`,
+  ];
 }
 
 const spoken = (sentences: readonly string[]): string[] =>
@@ -176,6 +217,7 @@ export async function digestScript(view: DigestView): Promise<DigestScript> {
           : []),
         ...sentencesOf(asSentence(p.title.trim())),
         ...sentencesOf(p.body),
+        ...weakMark(view, p),
         ...(advice ? ["Untuk kasus pribadi, tanyakan kepada ulama."] : []),
         ...quoteBlock(quotesOf(p.ord)),
       ]),

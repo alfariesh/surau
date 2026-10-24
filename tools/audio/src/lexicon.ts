@@ -9,19 +9,24 @@
 // dipakai selektif, karena lafal bawaan sering sudah benar.
 import { createHash } from "node:crypto";
 
+import { unspeakableChar } from "@surau/core";
 import { ordinalWords } from "@surau/text";
 import { parse } from "yaml";
 import { z } from "zod";
 
+/** Isian leksikon ikut dibacakan mesin: tanpa huruf Arab, ⟦ ⟧, atau tag `[ ]` (aturan 11). */
+const speakable = z
+  .string()
+  .min(1)
+  .refine((s) => unspeakableChar(s) === null, "tanpa huruf Arab, ⟦ ⟧, atau [ ] (aturan 11)");
+
 const entry = z
   .strictObject({
-    term: z.string().min(1),
-    ipa: z
-      .string()
-      .min(1)
+    term: speakable,
+    ipa: speakable
       .refine((s) => !s.includes("/"), "IPA ditulis tanpa garis miring (ditambahkan alat)")
       .optional(),
-    alias: z.string().min(1).optional(),
+    alias: speakable.refine((s) => !s.includes("/"), "alias tanpa garis miring (IPA)").optional(),
     status: z.enum(["test", "active"]),
     note: z.string().optional(),
   })
@@ -39,7 +44,11 @@ const lexiconFile = z.strictObject({
 
 export interface Lexicon {
   lang: string;
-  /** 12 heks pertama sha256 berkas (versi leksikon di manifest dan `audio_track`). */
+  /**
+   * 12 heks pertama sha256 entri `active` (bahasa + istilah + lafal, urut): versi leksikon di
+   * manifest dan `audio_track`. Mengubah draf `test` atau komentar tidak mengubah versi, jadi tidak
+   * memicu rakitan ulang audio yang bunyinya sama.
+   */
   version: string;
   entries: LexiconEntry[];
 }
@@ -52,9 +61,16 @@ export function parseLexicon(source: string): Lexicon {
     if (seen.has(key)) throw new Error(`istilah ganda di leksikon: ${e.term}`);
     seen.add(key);
   }
+  const active = file.entries
+    .filter((e) => e.status === "active")
+    .map((e) => [e.term, e.ipa ?? null, e.alias ?? null])
+    .sort((a, b) => String(a[0]).localeCompare(String(b[0])));
   return {
     lang: file.lang,
-    version: createHash("sha256").update(source).digest("hex").slice(0, 12),
+    version: createHash("sha256")
+      .update(JSON.stringify([file.lang, active]))
+      .digest("hex")
+      .slice(0, 12),
     entries: file.entries,
   };
 }

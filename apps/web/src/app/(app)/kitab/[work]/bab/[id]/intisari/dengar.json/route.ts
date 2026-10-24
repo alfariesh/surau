@@ -31,6 +31,7 @@ export async function GET(
   const track = listenTrack(view, {
     work: segment,
     title: title ?? node.title_ar,
+    titleLang: title === undefined ? "ar" : "id",
     href: `/kitab/${segment}/bab/${node.id}/intisari`,
   });
   if (track === null) notFound();

@@ -50,6 +50,29 @@ describe("leksikon lafal", () => {
     );
   });
 
+  test("versi hanya dari entri active: draf dan komentar tidak mengubahnya", () => {
+    const base = yaml("  - { term: riya', ipa: riˈjaʔ, status: active }\n");
+    const v = parseLexicon(base).version;
+    expect(
+      parseLexicon(`# komentar\n${base}  - { term: zuhud, ipa: ˈzuhud, status: test }\n`).version,
+    ).toBe(v);
+    expect(
+      parseLexicon(yaml("  - { term: riya', ipa: riˈja, status: active }\n")).version,
+    ).not.toBe(v);
+  });
+
+  test("isian yang ikut dibacakan mesin: huruf Arab, tag audio, dan garis miring ditolak", () => {
+    expect(() => parseLexicon(yaml("  - { term: Ihya, alias: إحياء, status: active }\n"))).toThrow(
+      /aturan 11/u,
+    );
+    expect(() =>
+      parseLexicon(yaml("  - { term: a, alias: '[whispers]', status: active }\n")),
+    ).toThrow(/aturan 11/u);
+    expect(() => parseLexicon(yaml("  - { term: a, alias: b/c, status: active }\n"))).toThrow(
+      /garis miring/u,
+    );
+  });
+
   test("berkas tidak sah ditolak", () => {
     expect(() => parseLexicon(yaml("  - { term: a, ipa: /a/, status: test }\n"))).toThrow(
       /garis miring/u,

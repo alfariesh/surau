@@ -1,6 +1,7 @@
 # Leksikon lafal suara AI bahasa Indonesia (X17, ADR-097 butir 6). Dipakai `tools/audio` SESUDAH skrip
 # Intisari dibangun: tidak mengubah isi atau sha skrip, hanya cara suara AI melafalkan istilah/nama.
-# Versi leksikon = 12 heks pertama sha256 berkas ini (dicatat di data/audio/*-audio.json).
+# Versi leksikon = 12 heks pertama sha256 entri `active` (dicatat di data/audio/*-audio.json); draf `test`
+# dan komentar tidak mengubah versi.
 #
 # - `ipa`: lafal IPA tanpa garis miring; alat menulisnya inline `/…/` (eleven_v4, docs dicek 2026-10-24).
 #   Lafal mengikuti ucapan lazim pengajar Indonesia untuk istilah serapan Arab, bukan tajwid.

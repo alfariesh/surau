@@ -5,7 +5,13 @@
 // gagasan yang ditolak, kutipan yang ditahan, atau Intisari yang berubah otomatis menggugurkan audionya.
 import { existsSync, readFileSync } from "node:fs";
 
-import { NotFound, audioManifest, loadDigestScript, selectAudioTracks } from "@surau/core";
+import {
+  NotFound,
+  ScriptError,
+  audioManifest,
+  loadDigestScript,
+  selectAudioTracks,
+} from "@surau/core";
 import type { AudioSelection } from "@surau/core";
 
 import { sqliteD1 } from "./sqlite-d1.ts";
@@ -23,6 +29,7 @@ export async function selectBuildAudio(
   try {
     const db = sqliteD1(sqlite);
     const scripts = new Map<string, string>();
+    const failed = new Set<string>();
     const wanted = new Set(manifest.tracks.map((t) => `${t.toc_node_id}:${t.lang}`));
     for (const key of wanted) {
       const [node, lang] = key.split(":") as [string, string];
@@ -30,11 +37,13 @@ export async function selectBuildAudio(
         const loaded = await loadDigestScript(db, Number(node), lang);
         if (loaded !== null) scripts.set(key, loaded.script.sha256);
       } catch (error) {
-        // Node yang tidak ada lagi di build ini: audionya gugur, bukan galat build.
-        if (!(error instanceof NotFound)) throw error;
+        // Node yang tidak ada lagi di build ini, atau skripnya tidak bisa dibangun: audionya gugur
+        // (dilaporkan), bukan menggagalkan build.
+        if (error instanceof ScriptError || error instanceof RangeError) failed.add(key);
+        else if (!(error instanceof NotFound)) throw error;
       }
     }
-    return selectAudioTracks(manifest, scripts);
+    return selectAudioTracks(manifest, scripts, failed);
   } finally {
     sqlite.close();
   }
@@ -45,6 +54,7 @@ export function audioReport(selection: AudioSelection): string {
   const count = (reason: string) => selection.dropped.filter((d) => d.reason === reason).length;
   return (
     `Audio: ${selection.rows.length} track dimuat; gugur: skrip berubah ${count("stale_script")}, ` +
-    `tanpa Intisari ${count("no_digest")}, digantikan ${count("superseded")}`
+    `tanpa Intisari ${count("no_digest")}, skrip gagal ${count("script_error")}, ` +
+    `digantikan ${count("superseded")}`
   );
 }

@@ -109,7 +109,9 @@ export const listen = {
   play: (track: ListenTrack): void => {
     const el = element();
     const src = new URL(track.src, window.location.href).href;
-    if (state.track?.key !== track.key || el.src !== src) {
+    // Sesudah galat (luring, media tidak terjangkau), menekan lagi memuat ulang dari posisi terakhir.
+    const failed = state.error || el.error !== null;
+    if (state.track?.key !== track.key || el.src !== src || failed) {
       const same = state.track?.key === track.key;
       if (!same) persist(true);
       load(track, same ? state.time : savedPosition(track));
@@ -177,7 +179,9 @@ export const listen = {
         return;
       }
       const track = (await res.json()) as ListenTrack;
-      if (state.track !== null || position === undefined || position.key !== track.key) return;
+      // Selama menunggu, pemutar bisa saja sudah ditutup atau track lain diputar.
+      if (state.track !== null || readListen().current !== id) return;
+      if (position === undefined || position.key !== track.key) return;
       load(track, position.t);
     } catch {
       // Luring atau galat jaringan: pemutar tidak dipulihkan kali ini.

@@ -1,7 +1,5 @@
 // String pemutar "Dengarkan" (X17, docs/05 §12): label suara AI tampil di tombol, pemutar, dan
 // layar kunci (Media Session), sama dengan kalimat label di awal audio dan metadata berkasnya.
-import { formatClock } from "../../components/listen/track";
-
 const decimal = (n: number) => String(n).replace(".", ",");
 
 export const listen = {
@@ -21,8 +19,12 @@ export const listen = {
   speedShort: (rate: number) => `${decimal(rate)}×`,
   close: "Tutup pemutar",
   progress: "Posisi dengar",
-  progressText: (time: number, duration: number) =>
-    `${formatClock(time)} dari ${formatClock(duration)}`,
+  /** Teks posisi untuk pembaca layar; `time`/`duration` sudah diformat "m:ss". */
+  progressText: (time: string, duration: string) => `${time} dari ${duration}`,
+  /** Judul layar kunci (Media Session). */
+  mediaTitle: (title: string) => `Intisari: ${title}`,
+  /** Judul bab cadangan bila judul gagasannya tidak ada. */
+  chapterFallback: (n: number) => `Gagasan ${n}`,
   intro: "Pembuka",
   chapter: (i: number, n: number) => `Gagasan ${i} dari ${n}`,
   error: "Audio tidak bisa diputar. Periksa sambungan, lalu coba lagi.",

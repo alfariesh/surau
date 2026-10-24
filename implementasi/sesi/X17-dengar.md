@@ -58,7 +58,7 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
 - [ ] `pnpm audio verify` lolos untuk semua objek di manifest; `audio_track` termuat hanya untuk sha yang cocok — *sebagian:* pemuat terbukti dengan korpus fixture (`tools/ingest/src/audio.test.ts`: hanya sha cocok, basi/tanpa Intisari gugur); manifest masih kosong (belum ada audio), jadi `verify` atas objek nyata menunggu pilot
 - [x] LCP j1/200 dan halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`) — Preview PR #139, n=5: j1/200 3,12 dtk (baru) / 3,01 dtk (Keduanya); halaman Intisari `/dev/intisari` (fixture X16, staging belum ber-Intisari) 2,71 / 2,61 dtk ([bukti](bukti/X17/lcp-pr139.md))
 - [ ] Pemilik menyetujui suara dan sampel (T-31); biaya aktual tercatat
-- [ ] `pnpm verify` lolos; peninjau; STATUS, LOG, dan berkas sesi ini diperbarui
+- [x] `pnpm verify` lolos; peninjau; STATUS, LOG, dan berkas sesi ini diperbarui — `pnpm verify` 961 + 434 tes + build (sesudah merge X16 dan perbaikan peninjau); peninjau: 1 blocker + 8 perbaikan, semuanya dikerjakan (lihat Catatan hasil)
 
 ## Di luar cakupan
 
@@ -108,6 +108,34 @@ Belum / utang:
 - Halaman Intisari X16 (PR #138) sudah masuk. `ListenSlot` merender `PlayButton` di bawah baris kepala; track dihitung rute halaman. Halaman Intisari baru punya data sesudah pilot X15b dimuat ke staging, jadi LCP-nya diukur memakai `/dev/intisari` (fixture).
 - Bab "Penutup" belum menjadi bab pemutar (`audioChapters` hanya gagasan).
 - ID3 belum memuat CHAP/CTOC.
+
+Peninjau (sesudah merge X16): 1 blocker + 8 perbaikan, semuanya dikerjakan.
+- **Blocker:** gagasan yang bersandar pada riwayat sangat lemah/palsu/tanpa asal kini diberi kalimat tanda dari `evidence`, sama dengan chip di halaman.
+- **Perbaikan:**
+  - pecahan "1/40" dan "QS al-Baqarah/2: 183";
+  - isian leksikon + teks akhir diperiksa (aturan 11);
+  - tanda terima sebelum validasi MP3, `sample` dengan niat;
+  - Intisari bermasalah dilewati/`script_error`;
+  - judul Arab cadangan lewat `ArabicInline`;
+  - "coba lagi" memuat ulang;
+  - ID putaran pertama;
+  - string UI ke i18n.
+- **Saran yang dikerjakan:**
+  - "terjemahan AI-nya";
+  - versi leksikon dari entri aktif;
+  - race restore/tutup;
+  - Media Session dibersihkan;
+  - waktu dibandingkan sebagai waktu;
+  - regex `\p{Mn}`;
+  - penanda hanya berangka Arab-India;
+  - catatan CSP `media-src`.
+- **Saran yang belum:**
+  - cek objek langsung ke bucket (masih lewat domain; aman karena kunci bersidik isi);
+  - "ra." perempuan (bergantung X15b);
+  - fokus sesudah tombol tutup;
+  - alias `ihya@1/…/dengar.json`;
+  - uji `play()` di iPhone sungguhan (T-31);
+  - cocokkan sha skrip staging dengan build lokal sebelum pilot berbayar.
 
 Untuk sesi berikutnya: urutan pilot sesudah izin pemilik:
 1. `pnpm audio sample --voice <id> --confirm` (uji lafal, ±2 ribu karakter);

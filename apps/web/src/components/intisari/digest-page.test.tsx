@@ -123,6 +123,7 @@ describe("ListenSlot (slot X17)", () => {
           key: "ihya/id/100074-0123456789ab.mp3",
           src: "https://media.surau.org/ihya/id/100074-0123456789ab.mp3",
           title: "Kitab Ilmu",
+          titleLang: "id",
           workTitle: "Ihya' 'Ulum ad-Din",
           href: "/kitab/ihya/bab/100074/intisari",
           duration: 125,

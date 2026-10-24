@@ -18,6 +18,7 @@ export {
   digestScript,
   loadDigestScript,
   segmentText,
+  unspeakableChar,
 } from "./digest-script.ts";
 export type { DigestScript, ScriptSegment, ScriptSegmentKind } from "./digest-script.ts";
 export {
@@ -52,6 +53,7 @@ export {
   TAKHRIJ_STATUS_MAX,
   TAKHRIJ_TERM_GLOSS,
   TAKHRIJ_TERM_KINDS,
+  VERY_WEAK_TAKHRIJ_KINDS,
   isWeakTakhrijKind,
   takhrijLabel,
   takhrijStatus,

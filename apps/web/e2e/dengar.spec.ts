@@ -132,6 +132,10 @@ test.describe("Dengarkan (X17)", () => {
 
     // Jeda (posisi disimpan), muat ulang: pemutar dipulihkan dari dengar.json, dijeda, di posisi itu.
     await page.getByRole("button", { name: "Jeda", exact: true }).click();
+    // Posisi disimpan handler `pause`: tunggu jeda benar-benar terjadi sebelum membacanya.
+    await expect
+      .poll(() => page.evaluate(() => navigator.mediaSession.playbackState))
+      .toBe("paused");
     const saved = await page.evaluate(
       (id) =>
         JSON.parse(localStorage.getItem("surau:listen:v1") ?? "{}").positions?.[id]?.t as number,

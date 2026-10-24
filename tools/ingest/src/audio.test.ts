@@ -108,7 +108,7 @@ describe("selectBuildAudio (X17)", () => {
       "no_digest",
     ]);
     expect(audioReport(selection)).toBe(
-      "Audio: 1 track dimuat; gugur: skrip berubah 1, tanpa Intisari 2, digantikan 0",
+      "Audio: 1 track dimuat; gugur: skrip berubah 1, tanpa Intisari 2, skrip gagal 0, digantikan 0",
     );
   });
 

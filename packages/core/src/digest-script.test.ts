@@ -147,7 +147,7 @@ describe("digestScript (X17, aturan 11)", () => {
     const script = await digestScript(view());
     const p1 = segmentText(script.segments[2]!);
     expect(p1).toContain(
-      "Teks kitab di jilid tiga, halaman dua ratus empat, yang terjemahan bebasnya: Terjemahan kutipan satu.",
+      "Teks kitab di jilid tiga, halaman dua ratus empat, yang terjemahan AI-nya: Terjemahan kutipan satu.",
     );
     const general = script.segments[4]!;
     expect(general.sentences[0]).toBe("Kutipan pilihan.");
@@ -170,6 +170,79 @@ describe("digestScript (X17, aturan 11)", () => {
       "Ia membaca (ayat Al-Qur'an, surah kedua ayat dua ratus lima puluh lima) lalu diam.",
     );
     expect(JSON.stringify(script)).not.toMatch(/⟦|\(١\)/u);
+  });
+
+  test("gagasan yang bersandar pada riwayat sangat lemah/palsu/tanpa asal diberi tanda lisan; 'lemah' biasa tidak", async () => {
+    const hadith = (point_ords: number[], kinds: { kind: string; gloss: string }[]) => ({
+      point_ords,
+      passage_id: 70000001,
+      marker: "١",
+      char_start: 0,
+      char_end: 3,
+      location: loc(1, 200),
+      footnote: { id: 70000002, anchor: "p70000002", text_raw: "(١) حاشية", location: loc(1, 200) },
+      status: {
+        label: "rule_extracted" as const,
+        kind: "terms" as const,
+        text: "uji",
+        weak: true,
+        mixed: false,
+        terms: kinds.map((k) => ({ ...k, char_start: 4, char_end: 8 })),
+        version: 1,
+      },
+    });
+    const script = await digestScript(
+      view({
+        evidence: {
+          ayat: [],
+          hadith: [
+            hadith([1], [{ kind: "daif", gloss: "lemah" }]),
+            hadith(
+              [2],
+              [
+                { kind: "palsu", gloss: "palsu/batil" },
+                { kind: "la_asl", gloss: "tidak ada asalnya" },
+              ],
+            ),
+          ],
+          quran: null,
+        },
+      }),
+    );
+    expect(segmentText(script.segments[2]!)).not.toContain("Gagasan ini bersandar");
+    expect(script.segments[3]?.sentences).toContain(
+      "Gagasan ini bersandar pada riwayat yang catatan takhrijnya memuat penilaian palsu atau batil dan tidak ada asalnya; penilaian ini dikenali otomatis dari teks takhrij dan belum ditinjau.",
+    );
+  });
+
+  test("terjemahan yang ditinjau manusia tidak disebut AI; penanda dan placeholder di teks gagasan dirapikan", async () => {
+    const reviewed = quote(1);
+    const script = await digestScript(
+      view({
+        points: [point(1, { body: "Isi (١) gagasan, lihat ⟦QS 2:255⟧. Lalu (4) rakaat." })],
+        quotes: [
+          {
+            ...reviewed,
+            translation: {
+              ...reviewed.translation!,
+              human_review: {
+                revised: false,
+                reviewed_at: "2026-10-24T00:00:00.000Z",
+                reviewer_role: "ustadz",
+                reviewer_name: "Ust. Uji",
+                reviewer_short: "Ust. Uji",
+              },
+            },
+          },
+        ],
+      }),
+    );
+    const p1 = segmentText(script.segments[2]!);
+    expect(p1).toContain(
+      "Isi gagasan, lihat (ayat Al-Qur'an, surah kedua ayat dua ratus lima puluh lima).",
+    );
+    expect(p1).toContain("Lalu (empat) rakaat.");
+    expect(p1).toContain("yang terjemahannya: Terjemahan kutipan satu.");
   });
 
   test("tanpa penulis atau judul Latin: tidak ada kalimat sumber, anjuran memakai 'penulis'", async () => {
@@ -237,9 +310,9 @@ describe("loadDigestScript (D1)", () => {
       db
         .prepare(
           `INSERT INTO digest_anchor (toc_node_id, lang, point_ord, seq, passage_id, char_start, char_end)
-           VALUES (?1, 'id', 1, 1, ?2, 0, 3), (?1, 'id', 2, 1, ?2, 4, 7)`,
+           VALUES (?1, 'id', 1, 1, ?2, 0, 3), (?1, 'id', 2, 1, ?2, ?3, ?4)`,
         )
-        .bind(T_CHILD_A, PASSAGES.body1),
+        .bind(T_CHILD_A, PASSAGES.body1, RIWAYAT.start, RIWAYAT.end),
       db
         .prepare(
           `INSERT INTO digest_quote (toc_node_id, lang, ord, point_ord, passage_id, char_start,
@@ -250,13 +323,17 @@ describe("loadDigestScript (D1)", () => {
     ]);
   });
 
-  test("riwayat bertakhrij sangat lemah/palsu/tanpa asal ditahan readDigest, jadi tidak dibacakan", async () => {
+  test("riwayat berat: kutipannya ditahan readDigest, gagasan yang bersandar padanya diberi tanda lisan", async () => {
     const loaded = await loadDigestScript(db, T_CHILD_A);
     expect(loaded).not.toBeNull();
     expect(loaded!.view.withheld_quotes).toEqual([{ ord: 1, reason: "weak_report" }]);
     const text = loaded!.script.segments.map(segmentText).join(" ");
     expect(text).not.toContain("Terjemahan riwayat uji");
     expect(text).not.toContain("Sebuah riwayat");
+    // Gagasan 2 berjangkar tepat sebelum penanda (٢) "لا أصل له": kutipannya ditahan, gagasannya ditandai.
+    expect(segmentText(loaded!.script.segments[3]!)).toContain(
+      "Gagasan ini bersandar pada riwayat yang catatan takhrijnya memuat penilaian tidak ada asalnya",
+    );
     expect(JSON.stringify(loaded!.script)).not.toMatch(ARABIC);
   });
 

@@ -4,6 +4,7 @@ import { Button, Typography } from "@heroui/react";
 import NextLink from "next/link";
 import { useEffect, useSyncExternalStore } from "react";
 
+import { ArabicInline } from "../arabic";
 import { listen as listenText } from "../../i18n/id/listen";
 import {
   Cancel01,
@@ -31,7 +32,7 @@ function useMediaSession(s: ListenState): void {
     if (track === null || !("mediaSession" in navigator)) return;
     const ms = navigator.mediaSession;
     ms.metadata = new MediaMetadata({
-      title: `Intisari: ${track.title}`,
+      title: t.mediaTitle(track.title),
       artist: track.voice.kind === "ai" ? t.mediaArtist : t.mediaArtistHuman(track.voice.name),
       album: track.workTitle,
       artwork: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
@@ -53,6 +54,9 @@ function useMediaSession(s: ListenState): void {
       }
     }
     return () => {
+      // Pemutar ditutup: kontrol layar kunci tidak menyisakan Intisari lama.
+      ms.metadata = null;
+      ms.playbackState = "none";
       for (const [action] of handlers) {
         try {
           ms.setActionHandler(action, null);
@@ -97,7 +101,7 @@ export function MiniPlayer() {
         </span>
         <div className="flex min-w-0 flex-1 flex-col">
           <NextLink className="text-foreground truncate text-sm font-medium" href={track.href}>
-            {track.title}
+            {track.titleLang === "ar" ? <ArabicInline>{track.title}</ArabicInline> : track.title}
           </NextLink>
           <Typography className="truncate" color="muted" type="body-xs">
             <span data-listen-chapter="">{chapter}</span>
@@ -117,7 +121,7 @@ export function MiniPlayer() {
       </div>
       <input
         aria-label={t.progress}
-        aria-valuetext={t.progressText(s.time, duration)}
+        aria-valuetext={t.progressText(formatClock(s.time), formatClock(duration))}
         className="accent-accent w-full"
         max={Math.max(1, Math.floor(duration))}
         min={0}

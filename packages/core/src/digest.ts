@@ -33,7 +33,7 @@ import type {
   DigestView,
   TranslationView,
 } from "./schema.ts";
-import { takhrijLabel } from "./takhrij-label.ts";
+import { VERY_WEAK_TAKHRIJ_KINDS, takhrijLabel } from "./takhrij-label.ts";
 import { hasArabicLetters } from "./translation-text.ts";
 import { textSha256 } from "./translation-revision.ts";
 
@@ -113,7 +113,7 @@ async function quoteViews(
     const linked = takhrij.get(q.ord) ?? [];
     // Riwayat sangat lemah, palsu, atau tanpa asal tidak pernah jadi kutipan pilihan (ADR-097):
     // validator X15b menolaknya; ini lapis kedua saat dibaca, dari label takhrij yang sama.
-    if (linked.some((t) => t.status.terms.some((term) => VERY_WEAK.has(term.kind)))) {
+    if (linked.some((t) => t.status.terms.some((term) => VERY_WEAK_TAKHRIJ_KINDS.has(term.kind)))) {
       withheld.push({ ord: q.ord, reason: "weak_report" });
       continue;
     }
@@ -154,9 +154,6 @@ async function quoteViews(
   withheld.sort((a, b) => a.ord - b.ord);
   return { quotes, withheld };
 }
-
-/** Istilah takhrij yang membuat riwayat tidak boleh jadi kutipan pilihan (ADR-097). */
-const VERY_WEAK: ReadonlySet<string> = new Set(["sangat_lemah", "palsu", "la_asl"]);
 
 /** Label status buatan kode atas teks catatan kaki (`takhrijLabel`, ADR-069), belum ditinjau. */
 function takhrijStatusOf(text: string): DigestTakhrijStatus {

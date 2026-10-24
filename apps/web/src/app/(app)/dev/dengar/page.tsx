@@ -27,6 +27,7 @@ function fixture(node: number, seconds: number, starts: readonly number[]): List
     key: `uji/id/${node}-${String(node).padStart(12, "0")}.mp3`,
     src: `/dev/dengar/sunyi.mp3?d=${seconds}`,
     title: `Intisari uji ${node}`,
+    titleLang: "id",
     workTitle: "Kitab Uji",
     href: "/dev/dengar",
     duration: seconds,
