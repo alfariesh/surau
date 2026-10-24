@@ -4,7 +4,7 @@
 
 AI untuk ilmu agama dengan sumber yang kuat, untuk masa depan umat. Surau membantu orang **menemukan, membaca, dan memahami** apa yang tertulis di kitab-kitab klasik. Setiap jawaban bisa diperiksa sendiri ke teks aslinya.
 
-Surau adalah proyek nirlaba berbahasa Indonesia. Kitab pertamanya *Ihya* karya al-Ghazali, lalu karya al-Ghazali lainnya, kemudian ±92 kitab kurikulum pesantren (lihat [implementasi/FASE.md](../implementasi/FASE.md)).
+Surau adalah proyek nirlaba berbahasa Indonesia. Kitab pertamanya *Ihya* karya al-Ghazali, lalu karya al-Ghazali lainnya, kemudian ±92 kitab kurikulum pesantren (lihat [implementasi/FASE.md](../implementasi/FASE.md)). Situs berbahasa Inggris direncanakan menyusul di alamat terpisah (`/en/…`); bahasa Indonesia tetap bahasa utama (ADR-092 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md)).
 
 ## Siapa penggunanya
 
