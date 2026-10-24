@@ -30,6 +30,7 @@ export {
   digestQuoteWithPassageRow,
   getDigest,
   getDigestHeaders,
+  getDigestHeadersOnPath,
   listDigestHeaders,
 } from "./repo/digest.ts";
 export type {

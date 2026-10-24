@@ -752,6 +752,90 @@ export const digestTermView = z
   .describe("Glossary term used in the digest");
 export type DigestTermView = z.infer<typeof digestTermView>;
 
+/**
+ * Dalil sebuah Intisari (X16, ADR-097 butir 3): dihitung kode dari jangkar gagasan yang tampil saat
+ * dibaca, tanpa model dan tanpa disimpan. Ayat dari `passage_ayah_ref` (teks Tanzil + terjemahan
+ * Kemenag di `quran`), riwayat dari penanda catatan kaki takhrij beserta label istilah kode.
+ */
+export const digestAyahEvidence = z
+  .strictObject({
+    point_ords: z
+      .array(id)
+      .describe("Key ideas whose anchored text contains this Quran quotation, in order"),
+    passage_id: id.describe("Passage quoting the verse"),
+    ...ayahRef.shape,
+    location: location.describe("Printed location and permalink of the passage"),
+  })
+  .describe(
+    "Quran quotation inside a key idea's anchored text, recognized by code (never by a model); the verse text and official translation are in `quran`",
+  );
+export type DigestAyahEvidence = z.infer<typeof digestAyahEvidence>;
+
+export const takhrijTermView = z.strictObject({
+  kind: z.string().describe("Term kind recognized in the takhrij text, e.g. daif"),
+  ...textSpan.shape,
+  gloss: z.string().describe("Fixed Indonesian meaning of the term (not model text)"),
+});
+
+export const digestHadithEvidence = z
+  .strictObject({
+    point_ords: z
+      .array(id)
+      .describe("Key ideas whose anchored text contains this footnote marker, in order"),
+    passage_id: id.describe("Main-text passage with the footnote marker"),
+    marker: z.string().describe("Footnote marker digit as printed, e.g. ١"),
+    ...textSpan.shape,
+    location: location.describe("Printed location and permalink of the main-text passage"),
+    footnote: z
+      .strictObject({
+        id,
+        anchor: z.string(),
+        text_raw: z.string().describe("Takhrij text, verbatim from the database"),
+        location,
+      })
+      .describe("The linked takhrij footnote (al-'Iraqi for Ihya)"),
+    status: z
+      .strictObject({
+        label: z
+          .literal("rule_extracted")
+          .describe(
+            "Made by code from the terms written in the takhrij text; not reviewed by an ustadz. Always show the takhrij text with it",
+          ),
+        kind: z
+          .enum(["terms", "sources_only", "refers_back", "not_takhrij"])
+          .describe(
+            "terms = grading terms found; sources_only = only names sources; refers_back = refers to an earlier takhrij; not_takhrij = not recognized as takhrij",
+          ),
+        text: z.string().describe("Short Indonesian status text built by code from the terms"),
+        weak: z
+          .boolean()
+          .describe("The takhrij names weakness, forgery, no origin, or no chain found"),
+        mixed: z
+          .boolean()
+          .describe("Both positive and negative gradings (different chains or wordings)"),
+        terms: z
+          .array(takhrijTermView)
+          .describe("Every recognized term with its span in the takhrij text_raw"),
+        version: id.describe("Version of the takhrij term rules"),
+      })
+      .describe("Hadith status taken only from the takhrij text (never guessed)"),
+  })
+  .describe("Narration with a takhrij footnote inside a key idea's anchored text");
+export type DigestHadithEvidence = z.infer<typeof digestHadithEvidence>;
+
+export const digestEvidenceView = z
+  .strictObject({
+    ayat: z.array(digestAyahEvidence).describe("Quran quotations, in reading order"),
+    hadith: z.array(digestHadithEvidence).describe("Narrations with takhrij, in reading order"),
+    quran: quranView
+      .nullable()
+      .describe("Texts of the quoted verses (Tanzil) with the Kemenag translation; null when none"),
+  })
+  .describe(
+    "Evidence (dalil) computed by code from the anchors of the shown key ideas when read; not stored and not model text",
+  );
+export type DigestEvidenceView = z.infer<typeof digestEvidenceView>;
+
 export const digestAudioView = z
   .strictObject({
     r2_key: z
@@ -790,6 +874,7 @@ export const digestView = z
     questions: z.array(digestQuestionView),
     terms: z.array(digestTermView),
     reading_minutes: z.number().int().positive().describe("Estimated reading time of the AI text"),
+    evidence: digestEvidenceView,
     audio: digestAudioView.nullable(),
     withheld_quotes: z
       .array(

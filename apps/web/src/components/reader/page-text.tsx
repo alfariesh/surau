@@ -359,7 +359,9 @@ export function PageText({
   };
   const levels = subLevels(model.body, afterH2);
   const summaries = (list: PassageModel["summaries"]) =>
-    list.map((s) => <SectionSummary key={s.section.id} summary={s} />);
+    list.map((s) => (
+      <SectionSummary key={s.section.id} digest={model.digests[s.section.id] ?? null} summary={s} />
+    ));
 
   return (
     <>

@@ -4,14 +4,16 @@ import { beforeAll, describe, expect, test } from "vite-plus/test";
 import {
   BODY_1,
   BODY_2,
+  FOOT_1,
   PASSAGES,
+  QURAN_TRANSLATION_1_2,
   T_CHILD_A,
   T_CHILD_B,
   T_LONG,
   T_ROOT,
   seedCore,
 } from "../test/fixture.ts";
-import { readDigest, readingMinutes } from "./digest.ts";
+import { markerInAnchor, readDigest, readingMinutes } from "./digest.ts";
 import { NotFound } from "./errors.ts";
 import { digestView } from "./schema.ts";
 import { textSha256 } from "./translation-revision.ts";
@@ -98,9 +100,11 @@ beforeAll(async () => {
       .prepare(
         `INSERT INTO digest_anchor (toc_node_id, lang, point_ord, seq, passage_id, char_start, char_end)
          VALUES (?1, 'id', 1, 1, ?2, ?3, ?4), (?1, 'id', 1, 2, ?5, 0, 3), (?1, 'id', 2, 1, ?2, 0, 3),
-                (?1, 'id', 3, 1, ?5, 0, 2), (?1, 'id', 5, 1, ?5, 0, 2)`,
+                (?1, 'id', 2, 2, ?5, 0, ?6), (?1, 'id', 3, 1, ?5, 0, ?6), (?1, 'id', 5, 1, ?5, 0, ?6)`,
       )
-      .bind(T_ROOT, PASSAGES.body1, SPAN.start, SPAN.end, PASSAGES.body2),
+      // Gagasan 2, 3 (ditolak), dan 5 (berhuruf Arab) berjangkar ke seluruh BODY_2 (rujukan ayat
+      // fixture): hanya gagasan 2 yang boleh menyumbang dalil.
+      .bind(T_ROOT, PASSAGES.body1, SPAN.start, SPAN.end, PASSAGES.body2, BODY_2.length),
     quote(1, 1, PASSAGES.body1, [SPAN.start, SPAN.end], part, "digest"),
     quote(2, null, PASSAGES.body1, [0, BODY_1.length], whole1, "passage"),
     // Sidik basi: teks berubah sesudah Intisari dibangun.
@@ -201,6 +205,32 @@ describe("readDigest (X15, ADR-097)", () => {
     ]);
   });
 
+  test("dalil dari jangkar gagasan yang tampil: ayat + teks Kemenag, takhrij + label kode (X16)", async () => {
+    const ev = (await readDigest(db, T_ROOT))?.evidence;
+    // Rujukan ayat fixture (QS 1:2–3) ada di BODY_2: hanya gagasan 2 yang tampil menjangkarnya.
+    expect(
+      ev?.ayat.map((a) => [a.point_ords, a.passage_id, a.surah, a.ayah_from, a.ayah_to]),
+    ).toEqual([[[2], PASSAGES.body2, 1, 2, 3]]);
+    expect(ev?.ayat[0]?.label).toBe("QS Al-Ula [1]: 2–3");
+    expect(ev?.ayat[0]?.location.label).toBe("Kitab Uji, j. 1, h. 2");
+    // Teks ayat dan terjemahan dari tabel Kemenag (verbatim), bukan teks model.
+    expect(ev?.quran?.ayat.map((a) => a.ayah)).toEqual([2, 3]);
+    expect(ev?.quran?.ayat[0]?.translation?.text).toBe(QURAN_TRANSLATION_1_2);
+    // Penanda (١) tepat sesudah akhir jangkar gagasan 1 milik jangkar itu; (٢) di luar jangkar mana pun.
+    expect(ev?.hadith.map((h) => [h.point_ords, h.passage_id, h.marker, h.footnote.id])).toEqual([
+      [[1], PASSAGES.body1, "١", PASSAGES.foot1],
+    ]);
+    expect(ev?.hadith[0]?.footnote.text_raw).toBe(FOOT_1);
+    expect(ev?.hadith[0]?.footnote.location.permalink).toMatch(/^\/kitab\/uji\/1\/1#p\d+$/);
+    // Catatan kaki buatan bukan teks takhrij: label kode tetap ada, tanpa menebak status.
+    expect(ev?.hadith[0]?.status).toMatchObject({
+      label: "rule_extracted",
+      kind: "not_takhrij",
+      weak: false,
+      terms: [],
+    });
+  });
+
   test("pertanyaan dan istilah yang ditolak, milik gagasan ditolak, atau berhuruf Arab disaring", async () => {
     const view = await readDigest(db, T_ROOT);
     expect(view?.questions.map((q) => q.text)).toEqual(["Siapa berpendapat?"]);
@@ -213,6 +243,31 @@ describe("readDigest (X15, ADR-097)", () => {
     expect(await readDigest(db, T_LONG)).toBeNull();
     expect(await readDigest(db, T_ROOT, "en")).toBeNull();
     await expect(readDigest(db, T_ROOT + 98)).rejects.toBeInstanceOf(NotFound);
+  });
+});
+
+describe("markerInAnchor (X16)", () => {
+  const text = "كلام أول. (١) كلام ثان (٢) وآخر";
+  const m1 = { char_start: text.indexOf("(١)"), char_end: text.indexOf("(١)") + 3 };
+  const m2 = { char_start: text.indexOf("(٢)"), char_end: text.indexOf("(٢)") + 3 };
+  const span = (a: string, b: string) => ({
+    char_start: text.indexOf(a),
+    char_end: text.indexOf(b),
+  });
+
+  test("penanda di dalam jangkar milik jangkar itu", () => {
+    expect(markerInAnchor(text, { char_start: 0, char_end: text.length }, m2)).toBe(true);
+  });
+
+  test("penanda di awal jangkar menutup kalimat sebelumnya, bukan milik jangkar", () => {
+    expect(markerInAnchor(text, span("(١)", "وآخر"), m1)).toBe(false);
+    expect(markerInAnchor(text, span("(١)", "وآخر"), m2)).toBe(true);
+  });
+
+  test("penanda tepat sesudah akhir jangkar (hanya spasi/tanda baca di antaranya) ikut", () => {
+    expect(markerInAnchor(text, { char_start: 0, char_end: m1.char_start - 1 }, m1)).toBe(true);
+    // Ada kata di antaranya: bukan milik jangkar.
+    expect(markerInAnchor(text, { char_start: 0, char_end: 4 }, m1)).toBe(false);
   });
 });
 

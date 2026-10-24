@@ -34,6 +34,22 @@
         "../../.wrangler/state"
       ],
       "port": 3005
+    },
+    {
+      "name": "web-worktree-remote",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "SURAU_DEV_REMOTE=1",
+        "pnpm",
+        "--filter",
+        "@surau/web",
+        "exec",
+        "next",
+        "dev",
+        "--port",
+        "3016"
+      ],
+      "port": 3016
     }
   ]
 }

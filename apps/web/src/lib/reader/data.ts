@@ -1,15 +1,17 @@
-import type { EditionView, PageView, WorkView } from "@surau/core";
+import type { DigestView, EditionView, PageView, WorkView } from "@surau/core";
 
-import { getToc, getWork, isCoreError, readPage, uintSegment } from "@surau/core";
-import { getTocNode } from "@surau/db";
+import { getToc, getWork, isCoreError, readDigest, readPage, uintSegment } from "@surau/core";
+import { AI_TEXT_LANG, getTocNode } from "@surau/db";
 import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 
 import { getEnv, readerEnabled } from "../cloudflare";
 
+import type { DigestTeaser } from "./digest";
 import type { TitleSource } from "./reader-toc";
 import type { TocItem } from "./toc";
 
+import { digestTeasers } from "./digest";
 import { readerToc, readerTocExtras } from "./reader-toc";
 import { slimToc } from "./toc";
 import { editionSegment, parseWorkSegment, resolveEdition } from "./work-segment";
@@ -130,3 +132,36 @@ export const loadTocNode = cache(async (rawSegment: string, rawId: string) => {
   if (node === undefined) notFound();
   return { ...ctx, node };
 });
+
+/**
+ * Kepala Intisari seluruh edisi (X16), urut `toc_node_id`: hub, lencana daftar isi, tautan dari
+ * halaman karya. Kosong di korpus skema < 9 atau bila belum ada Intisari; `[]` bila alias.
+ */
+export const loadDigestHeaders = cache(async (rawSegment: string): Promise<DigestTeaser[]> => {
+  const r = await resolveWork(rawSegment);
+  if (r.kind === "redirect") return [];
+  // Dari ekstra daftar isi (memo per isolate, dimuat bersama judul dan subjudul): lencana daftar
+  // isi, kartu ringkasan, menu ⋮, dan hub memakai satu daftar yang sama.
+  const extras = await readerTocExtras(r.ctx.env.CORPUS_DB, r.ctx.edition.id);
+  return digestTeasers(extras.digests, r.ctx.segment);
+});
+
+export interface DigestContext extends WorkContext {
+  digest: DigestView;
+}
+
+/**
+ * Intisari satu node daftar isi (X16). 404 bila ID tidak sah, node tidak ada atau milik edisi
+ * lain, korpus berskema < 9, node belum punya Intisari, atau Intisari-nya tanpa gagasan tampil.
+ */
+export const loadDigest = cache(
+  async (rawSegment: string, rawId: string): Promise<DigestContext> => {
+    const id = uintSegment.safeParse(rawId);
+    if (!id.success || id.data === 0) notFound();
+    const ctx = await loadWork(rawSegment, `/bab/${id.data}/intisari`);
+    const digest = await orNotFound(readDigest(ctx.env.CORPUS_DB, id.data, AI_TEXT_LANG));
+    if (digest === null || digest.source.edition.id !== ctx.edition.id) notFound();
+    if (digest.points.length === 0) notFound();
+    return { ...ctx, digest };
+  },
+);

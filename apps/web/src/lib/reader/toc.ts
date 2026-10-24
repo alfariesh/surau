@@ -15,6 +15,8 @@ export interface TocItem {
   title: string;
   /** Judul Indonesia terjemahan AI (X04 W8, korpus skema ≥ 7), hanya di pohon tampilan. */
   titleId?: string;
+  /** Node ini punya Intisari (X16, korpus skema ≥ 9): perkiraan menit baca, untuk lencana. */
+  digest?: { minutes: number };
   level: number;
   /** Permalink halaman awal bagian, mis. `/kitab/ihya/1/197`. */
   href: string;

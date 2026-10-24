@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import type { SearchCache } from "../search-handler";
 
+import type { DigestTeaser } from "./digest";
 import type { PageModel } from "./page-model";
 
 import { PAGE_MODEL_VERSION } from "./page-model";
@@ -30,6 +31,11 @@ export interface PageData {
   bab: string | null;
   /** Node daftar isi yang tampil di halaman ini (urut), untuk menyorot daftar isi. */
   activeIds: number[];
+  /**
+   * Intisari terdekat dari bagian paragraf pertama halaman ini (bagian itu atau leluhurnya, X16):
+   * aksi "Buka Intisari" di menu ⋮ ikut halaman sambungan yang sedang dibaca. Null bila tidak ada.
+   */
+  digest: DigestTeaser | null;
 }
 
 export interface PageDeps {

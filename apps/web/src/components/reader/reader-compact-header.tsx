@@ -1,11 +1,13 @@
 "use client";
 
+import type { DigestTeaser } from "../../lib/reader/digest";
 import type { ReaderSample } from "../../lib/reader/preview";
 
 import { ProgressCircle } from "@heroui/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-import { TextFont } from "../../icons";
+import { LeftToRightListBullet, TextFont } from "../../icons";
 import { reader as readerText } from "../../i18n/id/reader";
 import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 import { ArabicInline } from "../arabic";
@@ -30,6 +32,20 @@ function readProgress(text: Element): number {
 }
 
 /**
+ * "Buka Intisari bagian ini" (atau "… kitab ini" bila yang terdekat Intisari Kitab) di menu ⋮
+ * navbar (X16): hanya terpasang selama bagian yang sedang dibaca punya Intisari terdekat.
+ */
+function DigestMenuAction({ digest }: { digest: DigestTeaser }) {
+  const router = useRouter();
+  useHeaderMenuAction({
+    label: digest.tier === "book" ? t.intisariOpenBook : t.intisariOpenSection,
+    icon: LeftToRightListBullet,
+    onPress: () => router.push(digest.href),
+  });
+  return null;
+}
+
+/**
  * Judul ringkas pembaca di navbar: saat judul besar halaman tergulir keluar, navbar beralih mulus
  * dari judul "Kitab" ke lingkar progres + juz/halaman + nama bab. Panel Tampilan dibuka dari
  * menu ⋮ navbar (selalu terjangkau, juga sebelum judul tergulir).
@@ -38,6 +54,7 @@ export function ReaderCompactHeader({
   juz,
   page,
   bab,
+  digest,
   sample,
   scope,
 }: {
@@ -45,6 +62,8 @@ export function ReaderCompactHeader({
   page: number;
   /** Judul bab terdalam (teks DB) atau null. */
   bab: string | null;
+  /** Intisari terdekat dari bagian halaman ini (X16: menu ⋮), atau null. */
+  digest: DigestTeaser | null;
   sample: ReaderSample;
   /** Permalink halaman baca: navbar mengikuti halaman sambungan yang sedang dibaca (X04 W6). */
   scope: string;
@@ -68,6 +87,7 @@ export function ReaderCompactHeader({
     () => null,
   );
   const at = live ?? { juz, page, bab };
+  const currentDigest = live === null ? digest : live.digest;
 
   useEffect(() => {
     const text =
@@ -95,6 +115,7 @@ export function ReaderCompactHeader({
 
   return (
     <>
+      {currentDigest !== null ? <DigestMenuAction digest={currentDigest} /> : null}
       <NavbarSlot>
         <div
           aria-hidden={visible ? undefined : true}

@@ -25,7 +25,13 @@ import { FOOTNOTE_NOTE } from "../../../../../../content/works";
 import { id } from "../../../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../../../lib/layout";
 import { citeParts } from "../../../../../../lib/reader/cite";
-import { loadPage, loadReaderToc, loadToc } from "../../../../../../lib/reader/data";
+import {
+  loadDigestHeaders,
+  loadPage,
+  loadReaderToc,
+  loadToc,
+} from "../../../../../../lib/reader/data";
+import { nearestDigest } from "../../../../../../lib/reader/digest";
 import { buildPageModel } from "../../../../../../lib/reader/page-model";
 import { previewSample, previewTranslation } from "../../../../../../lib/reader/preview";
 import type { ReaderSample } from "../../../../../../lib/reader/preview";
@@ -81,6 +87,8 @@ export default async function ReaderPage({ params }: Props) {
   // Pohon TAMPILAN (subjudul kurasi + judul Indonesia, X04 bagian B); breadcrumb, judul tab, dan
   // OG tetap dari `toc` (judul Arab).
   const shown = await loadReaderToc(rawSegment);
+  // Kepala Intisari (X16) dari memo ekstra daftar isi yang sama: tanpa kueri tambahan.
+  const digests = await loadDigestHeaders(rawSegment);
   const { page, work, edition, segment } = ctx;
   const { juz, page_no: pageNo, permalink } = page.citation;
 
@@ -102,7 +110,10 @@ export default async function ReaderPage({ params }: Props) {
   const model = await buildPageModel(page, {
     editionId: edition.id,
     sections: pageSections(toc, juz, pageNo),
+    digests,
   });
+  // Menu ⋮ "Buka Intisari": Intisari terdekat dari bagian yang sedang dibaca (atau leluhurnya).
+  const digest = nearestDigest(crumbs, new Map(digests.map((d) => [d.nodeId, d])));
   const footNote = FOOTNOTE_NOTE[`${work.slug}/${edition.slug}`];
   const workTitle = work.title_id ?? work.title_ar;
   const bab = crumbs.at(-1)?.title ?? null;
@@ -183,6 +194,7 @@ export default async function ReaderPage({ params }: Props) {
           </header>
           <ReaderCompactHeader
             bab={bab}
+            digest={digest}
             juz={juz}
             page={pageNo}
             sample={sample}
@@ -215,6 +227,7 @@ export default async function ReaderPage({ params }: Props) {
               next: page.next,
               bab,
               activeIds,
+              digest,
             }}
             footNote={footNote}
             segment={segment}
