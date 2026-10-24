@@ -6,7 +6,7 @@ export const privacyText = {
   pageTitle: "Kebijakan privasi",
   heading: "Kebijakan privasi",
   lead: "Surau menyimpan sesedikit mungkin data tentang Anda. Halaman ini menjelaskan apa yang diproses, di mana, dan berapa lama.",
-  updated: "Diperbarui 22 Oktober 2026.",
+  updated: "Diperbarui 24 Oktober 2026.",
   summaryHeading: "Ringkasan",
   summary: [
     "Tanpa akun dan tanpa login.",
@@ -16,7 +16,7 @@ export const privacyText = {
   ],
   readHeading: "Membaca dan Cari",
   readText:
-    "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari tidak disimpan di database Surau. Supaya pencarian yang sama cepat, hasilnya disimpan sementara di cache Cloudflare paling lama 7 hari dalam bentuk kata yang sudah dinormalkan, tanpa keterangan siapa yang mencari. Log teknis mencatat alamat halaman tanpa kata yang dicari. Pilihan tampilan dan posisi baca terakhir (untuk “Lanjutkan membaca”) hanya disimpan di browser Anda (localStorage) dan tidak dikirim ke Surau.",
+    "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari tidak disimpan di database Surau. Supaya pencarian yang sama cepat, hasilnya disimpan sementara di cache Cloudflare paling lama 7 hari dalam bentuk kata yang sudah dinormalkan, tanpa keterangan siapa yang mencari. Log teknis mencatat alamat halaman tanpa kata yang dicari. Pilihan tampilan, posisi baca terakhir (untuk “Lanjutkan membaca”), dan tanda Intisari yang sudah Anda baca (untuk tanda “Sudah dibaca” di halaman Intisari) hanya disimpan di browser Anda (localStorage) dan tidak dikirim ke Surau.",
   askHeading: "Maknaz (asisten AI)",
   askNotice: "Maknaz belum dibuka untuk umum. Bagian ini berlaku saat fitur tersebut dibuka.",
   ask: [
@@ -35,7 +35,7 @@ export const privacyText = {
     { data: "Token Turnstile", where: "Tidak disimpan", how: "Sekali pakai, berlaku 5 menit" },
     { data: "Cookie surau_anon", where: "Browser Anda", how: "24 jam" },
     {
-      data: "Pilihan tampilan dan posisi baca terakhir",
+      data: "Pilihan tampilan, posisi baca terakhir, dan tanda Intisari yang sudah dibaca",
       where: "Browser Anda (localStorage)",
       how: "Sampai Anda menghapus data situs",
     },

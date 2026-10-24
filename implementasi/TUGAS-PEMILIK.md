@@ -253,8 +253,9 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
      Ketik pilihan Anda ke agent.
   - Tidak dipakai: `npx @elevenlabs/cli onboard init`. Perintah itu menulis berkas `.env.local` dan folder `~/.elevenlabs`, lalu menyuruh `npm install`, yang bentrok dengan pnpm repo ini (ADR-097).
 
-- [ ] **T-30 · Lihat dan setujui tampilan Intisari (X16)** · di akhir X16
-  1. Agent mengirim tautan Preview (`pr-NNN.surau.org/kitab/ihya/intisari`, data staging). Buka di ponsel dan laptop, mode terang dan gelap.
+- [ ] **T-30 · Lihat dan setujui tampilan Intisari (X16)** · dua tahap: tampilan sekarang (data contoh), isi sesudah pilot X15b
+  0. **Tahap 1 (sekarang):** lihat tangkapan layar di `implementasi/sesi/bukti/X16/` (ponsel, laptop, gelap) atau buka Preview `pr-138.surau.org/dev/intisari` dan `…/dev/intisari?tier=section` selama PR #138 belum di-merge. Isinya data contoh (teks Arab kalimat contoh, bukan kitab); yang dinilai tata letak, label AI, dan urutan bagian.
+  1. **Tahap 2 (sesudah X15b memuat pilot ke staging):** agent mengirim tautan Preview baru (`pr-NNN.surau.org/kitab/ihya/intisari`, data staging). Buka di ponsel dan laptop, mode terang dan gelap.
   2. Periksa:
      - hub 41 kitab;
      - satu Intisari Kitab dan satu Intisari Bab, berisi gagasan bernomor dengan "Dasar teks", kartu kutipan Arab + terjemahan + jilid/halaman, istilah, dalil, dan "Uji pemahaman";

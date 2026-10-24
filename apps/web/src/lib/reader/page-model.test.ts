@@ -322,3 +322,28 @@ describe("buildPageModel: syair dan placeholder ayat", () => {
     });
   });
 });
+
+describe("buildPageModel: Intisari bagian yang mulai di halaman ini (X16)", () => {
+  beforeEach(() => vi.mocked(subheadingOf).mockReturnValue(undefined));
+
+  it("hanya kepala Intisari milik bagian di halaman ini yang masuk model, per ID node", async () => {
+    const teaser = (nodeId: number) => ({
+      nodeId,
+      tier: "section" as const,
+      points: 2,
+      minutes: 1,
+      listenMinutes: null,
+      href: `/kitab/uji/bab/${nodeId}/intisari`,
+    });
+    const sections: SectionNode[] = [{ id: 7, parentId: null, level: 2, title: "باب" }];
+    const model = await buildPageModel(page([passage(1, "نص", { toc_node_id: 7 })]), {
+      editionId: 999,
+      sections,
+      digests: [teaser(7), teaser(8)],
+    });
+    expect(Object.keys(model.digests)).toEqual(["7"]);
+    expect(model.digests[7]?.href).toBe("/kitab/uji/bab/7/intisari");
+    const none = await buildPageModel(page([passage(1, "نص")]), { editionId: 999, sections: [] });
+    expect(none.digests).toEqual({});
+  });
+});

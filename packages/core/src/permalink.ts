@@ -37,3 +37,8 @@ export function passagePermalink(
 export function sectionPermalink(edition: EditionPath, nodeId: number): string {
   return `${editionPermalink(edition)}/bab/${nodeId}`;
 }
+
+/** Halaman Intisari sebuah bagian (X16): `/kitab/ihya/bab/100074/intisari`. */
+export function digestPermalink(edition: EditionPath, nodeId: number): string {
+  return `${sectionPermalink(edition, nodeId)}/intisari`;
+}

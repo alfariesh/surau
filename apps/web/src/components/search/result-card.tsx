@@ -21,7 +21,8 @@ const r = readerText;
 
 // Kartu satu halaman cetak hasil Cari (S14): judul bagian + letak (j/h), lalu setiap paragraf
 // cocok: potongan Arab ASLI (irisan text_raw dari API, sorotan hanya membungkus), terjemahan AI
-// berlabel, ringkasan bagian (bila jalur ringkasan cocok), asal kecocokan, dan tautan ke paragraf
+// berlabel, ringkasan bagian (bila jalur ringkasan cocok), gagasan Intisari (bila jalur gagasan
+// cocok, X16), asal kecocokan, dan tautan ke paragraf
 // di pembaca dengan `?q=` supaya kata yang dicari ikut disorot di sana. Mode baca (X11): di mode Arab
 // terjemahan hanya tampil bila jalur terjemahan yang cocok (`hitParts`); bukti Arab selalu tampil.
 
@@ -50,9 +51,16 @@ function Hit({ hit, query, mode }: { hit: SearchHit; query: string; mode: ReadMo
   const arabic = markSegments(hit.snippet.text, hit.snippet.char_start, hit.highlights);
   const tr = hit.translation?.review_status === "rejected" ? null : hit.translation;
   const sm = hit.summary?.review_status === "rejected" ? null : hit.summary;
+  // `digest_point` tidak ada di respons cache lama (sebelum SEARCH_RESULT_VERSION 3): anggap null.
+  const dp = hit.digest_point?.review_status === "rejected" ? null : (hit.digest_point ?? null);
   const partial = hit.matched_by.some((m) => !m.all_terms);
   const parts = hitParts(
-    { matched_by: hit.matched_by, hasTranslation: tr !== null, hasSummary: sm !== null },
+    {
+      matched_by: hit.matched_by,
+      hasTranslation: tr !== null,
+      hasSummary: sm !== null,
+      hasDigest: dp !== null,
+    },
     mode,
   );
   return (
@@ -100,6 +108,37 @@ function Hit({ hit, query, mode }: { hit: SearchHit; query: string; mode: ReadMo
               </Typography>
               <NextLink className="link self-start text-xs" href={sm.section.permalink}>
                 {t.openSection}
+              </NextLink>
+            </div>
+          );
+        }
+        if (part === "digest" && dp) {
+          // Gagasan Intisari yang cocok (X16): paragraf ini = Dasar teks pertamanya.
+          return (
+            <div
+              key={part}
+              className="bg-surface-secondary flex flex-col gap-1 rounded-xl p-3"
+              data-search-digest=""
+              lang={dp.lang}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <Chip color="accent" size="sm" variant="soft">
+                  {t.digestBadge}
+                </Chip>
+                <ArabicInline className="text-foreground">{dp.section.title_ar}</ArabicInline>
+              </div>
+              <Typography type="body-sm" weight="medium">
+                {render(aiSegments(dp.title, 0, dp.title_highlights))}
+              </Typography>
+              <Typography type="body-sm">
+                {render(aiSegments(dp.snippet.text, dp.snippet.char_start, dp.highlights))}
+              </Typography>
+              {/* Nomor tampil gagasan bisa beda dengan `ord` (gagasan tersembunyi): tautan ke jangkarnya. */}
+              <NextLink
+                className="link self-start text-xs"
+                href={`${dp.permalink}#gagasan-${dp.ord}`}
+              >
+                {t.digestOpen}
               </NextLink>
             </div>
           );

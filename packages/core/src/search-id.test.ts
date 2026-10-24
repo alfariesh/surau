@@ -1,5 +1,6 @@
 import { CORPUS_SCHEMA_VERSION } from "@surau/db";
-import { LATIN_NORM_VERSION, planLatinQuery } from "@surau/text";
+import type { FusedSearchRequest, FusedSearchResult } from "@surau/db";
+import { LATIN_NORM_VERSION, latinIndexText, planLatinQuery } from "@surau/text";
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/test";
 
@@ -13,6 +14,7 @@ import {
   T_ROOT,
   seedAiText,
   seedCore,
+  seedDigest,
   seedHumanReview,
   seedSearchIndex,
 } from "../test/fixture.ts";
@@ -22,7 +24,9 @@ import type { SearchHit, SearchView } from "./schema.ts";
 import {
   AI_SNIPPET_CHARS,
   aiExcerpt,
+  fusedWithDigest,
   queryWordOverflow,
+  resetDigestIndexMemo,
   searchCacheKey,
   searchSummarySections,
   searchText,
@@ -199,6 +203,117 @@ describe("searchText: filter bagian", () => {
     await expect(
       searchText(db, "الثانية", { section_id: T_ROOT, edition_id: ED + 1 }),
     ).rejects.toThrow(/Section not found/);
+  });
+});
+
+describe("searchText: jalur gagasan Intisari (X16)", () => {
+  test("hanya bila diminta: gagasan cocok → paragraf jangkar pertamanya, berlabel AI + tautan Intisari", async () => {
+    // Intisari Kitab buatan T_ROOT (seedDigest): gagasan 1 berjangkar ke body1 utuh.
+    await seedDigest(db);
+    const rowid = T_ROOT * 100 + 1;
+    await db
+      .prepare("INSERT INTO digest_point_fts (rowid, terms) VALUES (?, ?)")
+      .bind(rowid, latinIndexText("Gagasan contoh. Isi gagasan contoh."))
+      .run();
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM digest_point_fts WHERE rowid = ?").bind(rowid).run();
+    });
+    const off = await searchText(db, "gagasan contoh");
+    expect(off.paths).not.toContain("digest");
+    expect(off.fusion?.digest_depth).toBeNull();
+    expect(hits(off).every((h) => h.digest_point === null)).toBe(true);
+
+    const on = await searchText(db, "gagasan contoh", {}, { digest: true });
+    expect(searchView.parse(on)).toEqual(on);
+    expect(on.paths).toContain("digest");
+    expect(on.fusion?.digest_depth).toBe(30);
+    const hit = hits(on).find((h) => h.digest_point !== null);
+    expect(hit?.id).toBe(PASSAGES.body1);
+    expect(hit?.matched_by).toContainEqual({ path: "digest", rank: 1, all_terms: true });
+    expect(hit?.digest_point).toMatchObject({
+      label: "ai_digest",
+      section: { id: T_ROOT, permalink: `/kitab/uji/bab/${T_ROOT}` },
+      ord: 1,
+      title: "Gagasan contoh",
+      model: "model-uji",
+      prompt_version: "digest-book@1",
+      review_status: "ai_generated",
+      permalink: `/kitab/uji/bab/${T_ROOT}/intisari`,
+    });
+    expect(hit?.digest_point?.title_highlights.length).toBeGreaterThan(0);
+  });
+
+  test("D1 sungguhan tanpa tabel digest_point_fts (korpus skema < 9): Cari jalan tanpa jalur gagasan, kueri gagal tidak diulang", async () => {
+    resetDigestIndexMemo();
+    await db.batch([
+      db.prepare("DROP TABLE digest_point_fts"),
+      db.prepare("UPDATE meta SET value = '8' WHERE key = 'schema_version'"),
+    ]);
+    onTestFinished(async () => {
+      // DDL sama dengan migrasi korpus 0009.
+      await db.batch([
+        db.prepare(
+          `CREATE VIRTUAL TABLE digest_point_fts USING fts5 (terms, content = '',
+             contentless_delete = 1, tokenize = 'unicode61 remove_diacritics 2')`,
+        ),
+        db
+          .prepare("UPDATE meta SET value = ? WHERE key = 'schema_version'")
+          .bind(String(CORPUS_SCHEMA_VERSION)),
+      ]);
+      resetDigestIndexMemo();
+    });
+    let digestQueries = 0;
+    const counted = {
+      prepare: (sql: string) => {
+        if (sql.includes("digest_point_fts")) digestQueries++;
+        return db.prepare(sql);
+      },
+      batch: db.batch.bind(db),
+    } as typeof db;
+    const first = await searchText(counted, "sabar", {}, { digest: true });
+    expect(first.paths).not.toContain("digest");
+    expect(hits(first).length).toBeGreaterThan(0);
+    expect(digestQueries).toBe(1);
+    const second = await searchText(counted, "sabar", {}, { digest: true });
+    expect(second.paths).not.toContain("digest");
+    expect(digestQueries).toBe(1);
+  });
+
+  test("korpus tanpa indeks gagasan: sekali gagal lalu diingat; pulih saat skema ≥ 9", async () => {
+    resetDigestIndexMemo();
+    onTestFinished(resetDigestIndexMemo);
+    const calls: boolean[] = [];
+    let schema = 8;
+    const result = (): FusedSearchResult =>
+      ({ ready: false, meta: { schema_version: schema } }) as unknown as FusedSearchResult;
+    const search = async (req: FusedSearchRequest) => {
+      calls.push(req.digest === true);
+      if (req.digest === true && schema < 9) {
+        throw new Error("D1_ERROR: no such table: digest_point_fts: SQLITE_ERROR");
+      }
+      return result();
+    };
+    const req = {} as FusedSearchRequest;
+    expect((await fusedWithDigest(search, req, true)).digest).toBe(false);
+    expect((await fusedWithDigest(search, req, true)).digest).toBe(false);
+    // Percobaan kedua tidak mengulang kueri gagal.
+    expect(calls).toEqual([true, false, false]);
+    // Tidak diminta: tidak pernah mencoba.
+    await fusedWithDigest(search, req, false);
+    expect(calls.at(-1)).toBe(false);
+    // Galat lain tidak ditelan.
+    const broken = async () => {
+      throw new Error("D1_ERROR: network");
+    };
+    resetDigestIndexMemo();
+    await expect(fusedWithDigest(broken, req, true)).rejects.toThrow(/network/);
+    // Staging naik ke skema 9 tanpa isolate baru: sesudah satu pencarian, jalur dicoba lagi.
+    await fusedWithDigest(search, req, true);
+    schema = 9;
+    calls.length = 0;
+    await fusedWithDigest(search, req, true);
+    expect((await fusedWithDigest(search, req, true)).digest).toBe(true);
+    expect(calls).toEqual([false, true]);
   });
 });
 
