@@ -69,13 +69,14 @@ describe("READER_SCALE_SCRIPT: mode baca (X11)", () => {
     expect(both.data.has(LEGACY_TRANSLATION_KEY)).toBe(false);
   });
 
-  it("galat tulis saat pemindahan tidak membatalkan preferensi lain", () => {
-    const { attrs } = run(
+  it("galat tulis saat pemindahan: mode Arab tetap dari memori, kunci lama bertahan, preferensi lain jalan", () => {
+    const { attrs, data } = run(
       { [LEGACY_TRANSLATION_KEY]: "0", "surau:reader-font": "amiri" },
       { failWrites: true },
     );
     expect(attrs.get("data-reader-font")).toBe("amiri");
-    expect(attrs.has("data-read-mode")).toBe(false);
+    expect(attrs.get("data-read-mode")).toBe("ar");
+    expect(data.get(LEGACY_TRANSLATION_KEY)).toBe("0");
   });
 
   it("penyimpanan diblokir: gagal diam-diam", () => {

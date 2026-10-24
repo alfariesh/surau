@@ -59,7 +59,7 @@ for (const path of [
   });
 }
 
-// Panel Tampilan pembaca terbuka (Sheet + CellSlider + CellSelect + CellSwitch) dan tema kertas sepia.
+// Panel Tampilan pembaca terbuka (Sheet + Segment mode baca + CellSlider + CellSelect) dan tema kertas sepia.
 test("tanpa pelanggaran a11y: panel Tampilan terbuka dan kertas sepia", async ({ page }) => {
   await page.goto("/kitab/ihya/1/200");
   await page
@@ -102,15 +102,26 @@ test("tanpa pelanggaran a11y: halaman sambungan termuat (j1/200 → 201)", async
   expect(await axeViolations(page)).toEqual([]);
 });
 
-for (const layout of ["fold", "side"] as const) {
-  test(`tanpa pelanggaran a11y: tata letak terjemahan ${layout} (j3/202)`, async ({ page }) => {
+for (const layout of ["interleave", "fold", "side"] as const) {
+  test(`tanpa pelanggaran a11y: mode Keduanya, tata letak ${layout}, dengan panel Tampilan (j3/202)`, async ({
+    page,
+  }) => {
     await page.addInitScript((value) => {
       try {
         localStorage.setItem("surau:reader-tr-layout", value);
       } catch {}
     }, layout);
     await page.goto("/kitab/ihya/3/202");
-    await expect(page.locator("html")).toHaveAttribute("data-tr-layout", layout);
+    if (layout === "interleave")
+      await expect(page.locator("html")).not.toHaveAttribute("data-tr-layout");
+    else await expect(page.locator("html")).toHaveAttribute("data-tr-layout", layout);
+    expect(await axeViolations(page)).toEqual([]);
+    // Panel terbuka (X11): Segment mode baca + kontrol terjemahan aktif di mode Keduanya.
+    await page
+      .getByRole("group", { name: "Alat baca" })
+      .getByRole("button", { name: "Tampilan" })
+      .click();
+    await expect(page.getByRole("radiogroup", { name: "Mode baca" })).toBeVisible();
     expect(await axeViolations(page)).toEqual([]);
   });
 }

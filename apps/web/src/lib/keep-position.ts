@@ -50,8 +50,7 @@ export function keepReadingPosition(apply: () => void, anchor: Element | null = 
   // Scroll anchoring browser dimatikan selama penyesuaian: tanpa ini Chrome ikut mengoreksi sesudah
   // koreksi di bawah (koreksi ganda), terutama bila jangkar pilihannya ikut tersembunyi.
   const anchored = (box as HTMLElement | null) ?? document.documentElement;
-  const previous = anchored.style.overflowAnchor;
-  anchored.style.overflowAnchor = "none";
+  suspendAnchoring(anchored);
   const before = anchor.getBoundingClientRect().top;
   apply();
   const after = anchor.getBoundingClientRect();
@@ -62,9 +61,28 @@ export function keepReadingPosition(apply: () => void, anchor: Element | null = 
     else box.scrollBy({ top: delta, behavior: "instant" });
   }
   // Dipulihkan sesudah tata letak berikutnya selesai (dua frame).
-  requestAnimationFrame(() =>
-    requestAnimationFrame(() => {
-      anchored.style.overflowAnchor = previous;
-    }),
-  );
+  requestAnimationFrame(() => requestAnimationFrame(() => resumeAnchoring(anchored)));
+}
+
+/**
+ * Hitungan penyesuaian yang sedang berjalan per wadah: perubahan beruntun (slider diseret, tombol
+ * panah ditahan) tidak saling menimpa, jadi `overflow-anchor` selalu kembali ke bawaan sesudah yang
+ * terakhir selesai.
+ */
+const suspended = new WeakMap<HTMLElement, number>();
+
+function suspendAnchoring(el: HTMLElement) {
+  const count = (suspended.get(el) ?? 0) + 1;
+  suspended.set(el, count);
+  if (count === 1) el.style.setProperty("overflow-anchor", "none");
+}
+
+function resumeAnchoring(el: HTMLElement) {
+  const count = (suspended.get(el) ?? 1) - 1;
+  if (count > 0) {
+    suspended.set(el, count);
+    return;
+  }
+  suspended.delete(el);
+  el.style.removeProperty("overflow-anchor");
 }

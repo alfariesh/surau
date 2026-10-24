@@ -21,6 +21,7 @@ import { useId, useSyncExternalStore } from "react";
 import { reader as readerText } from "../../i18n/id/reader";
 import { readMode as readModeText } from "../../i18n/id/readMode";
 import { keepReadingPosition } from "../../lib/keep-position";
+import { translationLabel } from "../../lib/translation-label";
 import { applyAttr, notify, readAttr, store, subscribe } from "../../lib/prefs";
 import {
   READER_ALIGNS,
@@ -336,7 +337,7 @@ function Preview({ preview, mode }: { preview: ReaderSample; mode: ReadMode }) {
                 ar: <div className="flex h-full items-center">{hint(m.previewNoTranslation)}</div>,
                 both: (
                   <p className="passage-translation" lang={tr.lang}>
-                    {tr.text} <span className="ai-badge">{t.aiTranslation}</span>
+                    {tr.text} <span className="ai-badge">{translationLabel(tr.review).badge}</span>
                   </p>
                 ),
               }}

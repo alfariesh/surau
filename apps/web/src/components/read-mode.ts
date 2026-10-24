@@ -4,6 +4,7 @@
 // kutipan Maknaz, kontrol panel) membacanya lewat `useReadMode()`.
 
 import { useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 
 import type { ReadMode } from "../lib/reader/scale";
 
@@ -26,9 +27,15 @@ export function useReadMode(): ReadMode {
   return useSyncExternalStore(subscribe, current, () => "both");
 }
 
-/** Ganti mode baca tanpa menggeser paragraf yang sedang dibaca, lalu simpan dan beri tahu. */
+/**
+ * Ganti mode baca tanpa menggeser yang sedang dibaca, lalu simpan. Komponen yang menyusun isinya
+ * sendiri menurut mode (kartu Cari) dirender ulang di dalam pengukuran (`flushSync`), jadi
+ * perubahan tingginya ikut dikompensasi, bukan hanya perubahan CSS.
+ */
 export function setReadMode(mode: ReadMode) {
-  keepReadingPosition(() => applyAttr(READ_MODE_PREF, mode));
+  keepReadingPosition(() => {
+    applyAttr(READ_MODE_PREF, mode);
+    flushSync(notify);
+  });
   store(READ_MODE_KEY, mode);
-  notify();
 }

@@ -416,7 +416,8 @@ body::after {
   row-gap: 1.75rem;
 }
 
-:root[data-read-mode="ar"] .reader-text {
+/* Pratinjau panel Tampilan memakai .reader-text juga; tingginya harus sama di semua mode. */
+:root[data-read-mode="ar"] .reader-text:not(.reader-style-preview) {
   row-gap: 1rem;
 }
 

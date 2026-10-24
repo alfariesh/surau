@@ -103,10 +103,11 @@ export const READER_ATTR_PREFS = [
 
 /**
  * Pindahkan sakelar terjemahan lama ke mode baca (sekali, sebelum preferensi dipasang): "0" → "ar",
- * selain itu "both"; mode baca yang sudah tersimpan menang. Dibungkus try sendiri supaya galat tulis
- * tidak membatalkan preferensi lain.
+ * selain itu "both"; mode baca yang sudah tersimpan menang. Bila penyimpanan menolak ditulis, kunci
+ * lama dibiarkan (dicoba lagi di halaman berikutnya) dan mode Arab tetap dipasang dari memori.
+ * Dibungkus try sendiri supaya galat tulis tidak membatalkan preferensi lain.
  */
-const LEGACY_MIGRATION = `try{var o=l.getItem(${JSON.stringify(LEGACY_TRANSLATION_KEY)});if(o!==null){if(l.getItem(${JSON.stringify(READ_MODE_KEY)})===null)l.setItem(${JSON.stringify(READ_MODE_KEY)},o==="0"?"ar":"both");l.removeItem(${JSON.stringify(LEGACY_TRANSLATION_KEY)})}}catch(e){}`;
+const LEGACY_MIGRATION = `try{var o=l.getItem(${JSON.stringify(LEGACY_TRANSLATION_KEY)});if(o!==null){if(l.getItem(${JSON.stringify(READ_MODE_KEY)})===null){var m=o==="0"?"ar":"both";try{l.setItem(${JSON.stringify(READ_MODE_KEY)},m)}catch(e){if(m==="ar")d.setAttribute("data-read-mode","ar");throw e}}l.removeItem(${JSON.stringify(LEGACY_TRANSLATION_KEY)})}}catch(e){}`;
 
 /**
  * Skrip kecil di awal setiap halaman (root layout): pasang skala Arab dan terjemahan, mode baca,

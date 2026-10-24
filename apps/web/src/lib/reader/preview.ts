@@ -24,7 +24,8 @@ export function previewSample(text: string | undefined, max = PREVIEW_CHARS): st
  */
 export interface ReaderSample {
   arabic: string | null;
-  translation: { text: string; lang: string } | null;
+  /** `review` = tinjauan manusia (label "Terjemahan AI · dikoreksi …", ADR-082), sama dengan pembaca. */
+  translation: { text: string; lang: string; review: TranslationModel["review"] } | null;
   hasTranslation: boolean;
 }
 
@@ -43,7 +44,8 @@ export function previewTranslation(
   const seg = tr?.segments.find((s) => s.kind === "ai" && s.text.trim().length >= 20);
   if (tr === null || tr === undefined || seg === undefined || seg.kind !== "ai") return null;
   const text = seg.text.replace(MARKERS, "").replace(/\s+/g, " ").trim();
-  if (text.length <= max) return { text, lang: tr.lang };
+  const meta = { lang: tr.lang, review: tr.review ?? null };
+  if (text.length <= max) return { text, ...meta };
   const cut = text.lastIndexOf(" ", max);
-  return { text: `${text.slice(0, cut > 0 ? cut : max).trimEnd()}…`, lang: tr.lang };
+  return { text: `${text.slice(0, cut > 0 ? cut : max).trimEnd()}…`, ...meta };
 }

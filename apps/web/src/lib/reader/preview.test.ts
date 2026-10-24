@@ -43,6 +43,7 @@ describe("previewTranslation (X11)", () => {
     ).toEqual({
       text: "Ketahuilah bahwa sabar itu separuh iman dan syukur separuhnya.",
       lang: "id",
+      review: null,
     });
   });
 
@@ -51,7 +52,7 @@ describe("previewTranslation (X11)", () => {
       { segments: [ai("satu dua tiga empat lima enam tujuh delapan")], bold: null, lang: "en" },
       20,
     );
-    expect(sample).toEqual({ text: "satu dua tiga empat…", lang: "en" });
+    expect(sample).toEqual({ text: "satu dua tiga empat…", lang: "en", review: null });
   });
 
   it("tanpa terjemahan atau tanpa segmen AI yang cukup panjang → null", () => {

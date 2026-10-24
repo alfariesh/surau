@@ -122,9 +122,18 @@ export function ReaderEnhancements() {
     }
     // Tautan ke teks yang tersembunyi mode baca/tata letak (X11): buka dulu, lalu tampilkan.
     function onHash() {
-      const id = decodeURIComponent(window.location.hash.slice(1));
+      const hash = window.location.hash.slice(1);
+      let id = hash;
+      try {
+        id = decodeURIComponent(hash);
+      } catch {
+        // Fragmen rusak (mis. "#%"): pakai apa adanya; id pembaca ASCII.
+      }
       const target = id === "" ? null : document.getElementById(id);
-      if (target !== null && revealFor(target)) target.scrollIntoView({ block: "start" });
+      // Gulir ke paragrafnya (punya scroll-margin navbar), bukan elemen dalamnya.
+      if (target !== null && revealFor(target)) {
+        (target.closest(".passage") ?? target).scrollIntoView({ block: "start" });
+      }
     }
     onHash();
     document.addEventListener("copy", onCopy);

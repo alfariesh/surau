@@ -189,7 +189,7 @@ export function TocTree({
         aria-label={t.tocLabel}
         className={className ? `toc-tree ${className}` : "toc-tree"}
         // Garis dan batang aksen dibaca dari closure: cache baris react-aria ikut diperbarui.
-        dependencies={[rows, currentParent, pathIds]}
+        dependencies={[rows, currentParent, pathIds, readMode]}
         expandedKeys={expanded}
         items={items}
         onExpandedChange={setExpanded}
@@ -202,7 +202,9 @@ export function TocTree({
               className="toc-item"
               href={tocHref(item)}
               id={item.id}
-              textValue={item.titleId ?? item.title}
+              // Nama aksesibel baris (+ ketik cepat): di mode Arab judul Indonesia (terjemahan AI)
+              // tersembunyi, jadi nama baris = judul Arab yang terlihat (aturan 8, WCAG 2.5.3).
+              textValue={readMode === "ar" ? item.title : (item.titleId ?? item.title)}
             >
               <NavigationTreeItemContent>
                 {({ hasChildItems, isExpanded, isCurrent, isFocusVisible }) => (
@@ -267,7 +269,10 @@ export function TocTree({
                 )}
               </NavigationTreeItemContent>
               {item.children.length > 0 ? (
-                <Collection dependencies={[rows, currentParent, pathIds]} items={item.children}>
+                <Collection
+                  dependencies={[rows, currentParent, pathIds, readMode]}
+                  items={item.children}
+                >
                   {renderItem}
                 </Collection>
               ) : null}

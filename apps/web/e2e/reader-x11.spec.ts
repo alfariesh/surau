@@ -247,3 +247,50 @@ test("kartu Cari di mode Arab: terjemahan hanya bila jalur terjemahan yang cocok
   await page.getByRole("button", { name: "Menu lainnya" }).click();
   await expect(page.getByRole("radiogroup", { name: "Mode baca" })).toBeVisible();
 });
+
+test("daftar isi di mode Arab: nama baris = judul Arab yang terlihat, bukan judul Indonesia (regresi)", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "panel daftar isi samping hanya di desktop");
+  await page.goto(PAGE);
+  const toc = page.getByRole("complementary", { name: "Daftar isi" });
+  const titleId = (await toc.locator(".toc-title-id").first().textContent())?.trim() ?? "";
+  expect(titleId.length).toBeGreaterThan(3);
+  await expect(toc.getByRole("row", { name: titleId, exact: true })).toHaveCount(1);
+  await pickFromMenu(page, "Arab");
+  await expect(toc.getByRole("row", { name: titleId, exact: true })).toHaveCount(0);
+  const titleAr = (await toc.locator(".toc-title-ar").first().textContent())?.trim() ?? "";
+  await expect(toc.getByRole("row", { name: titleAr, exact: true })).toHaveCount(1);
+});
+
+test("ganti mode di Cari: kartu yang sedang dibaca tidak bergeser (≤ 2 px)", async ({ page }) => {
+  await setMode(page, "both");
+  await page.goto(`/cari?q=${encodeURIComponent("الصبر")}`);
+  const cards = page.locator("li[data-keep-position]");
+  await expect(cards.nth(4)).toBeVisible({ timeout: 15_000 });
+  await cards.nth(4).evaluate((el) => {
+    el.scrollIntoView({ block: "start" });
+    window.scrollBy({ top: -120, behavior: "instant" });
+  });
+  const group = await openMenu(page);
+  await settled(group);
+  const anchor = await page.evaluate(() => {
+    const el = [...document.querySelectorAll("li[data-keep-position]")].find(
+      (c) => c.getBoundingClientRect().top >= 63,
+    );
+    return el === undefined
+      ? null
+      : {
+          index: [...document.querySelectorAll("li[data-keep-position]")].indexOf(el),
+          top: el.getBoundingClientRect().top,
+        };
+  });
+  expect(anchor).not.toBeNull();
+  await group.getByRole("radio", { name: "Arab" }).dispatchEvent("click");
+  await expect(page.locator("html")).toHaveAttribute("data-read-mode", "ar");
+  // Terjemahan kartu di atasnya benar-benar hilang (kueri Arab), jadi tanpa jaga posisi kartu melompat.
+  await expect(cards.locator('[lang="id"]:not(.bg-surface-secondary)')).toHaveCount(0);
+  const after = await cards.nth(anchor!.index).evaluate((el) => el.getBoundingClientRect().top);
+  expect(Math.abs(after - anchor!.top)).toBeLessThanOrEqual(2);
+});

@@ -21,9 +21,14 @@ export function revealTranslation(passage: Element) {
   passage.querySelector(".translation-toggle")?.setAttribute("aria-expanded", "true");
 }
 
-/** Elemen ini tidak dirender (display: none pada dirinya atau leluhurnya). */
+/**
+ * Elemen ini tidak dirender (display: none pada dirinya atau leluhurnya). Browser tanpa
+ * `checkVisibility` (Safari < 17.4): elemen tanpa kotak dianggap tersembunyi.
+ */
 export function isHidden(el: Element): boolean {
-  return typeof el.checkVisibility === "function" && !el.checkVisibility();
+  return typeof el.checkVisibility === "function"
+    ? !el.checkVisibility()
+    : el.getClientRects().length === 0;
 }
 
 /**
