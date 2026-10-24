@@ -10,7 +10,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | 1 | Pembaca Ihya | Membaca Ihya lengkap: daftar isi, halaman cetak, takhrij al-'Iraqi, dan permalink | S05–S10 | **dirilis 2026-10-16** (`rilis-f1`) |
 | 2 | Cari | Pencarian Arab dan Indonesia di Ihya, ayat dengan terjemahan Kemenag, serta terjemahan dan ringkasan AI berlabel | S11–S15, X02 | **dirilis 2026-10-17** (`rilis-f2`) |
 | 3 | MCP publik | Korpus Surau bisa dipakai dari Claude, ChatGPT, dan AI lain | S16–S17 | **dirilis 2026-10-17** (`rilis-f3`, ADR-051) |
-| 4 | Jawab | Tanya-jawab dengan kutipan Arab terverifikasi, berkuota, dengan rem biaya | S18–S21, X03, X05, X06 | belum |
+| 4 | Jawab | Tanya-jawab dengan kutipan Arab terverifikasi, berkuota, dengan rem biaya | S18–S21, X03, X05, X06, X13 | belum |
 | 5 | Ruang al-Ghazali | 21+ karya al-Ghazali, agen orang ketiga, metadata atribusi | garis besar | belum |
 | 6 | Wiki | Kartu tokoh, istilah, hadits, dan indeks tematik (entitas tingkat A dan B) | garis besar | belum |
 | 7 | Kurikulum & data terbuka | ±92 kitab, dump data dan benchmark terbuka | garis besar | belum |
@@ -18,6 +18,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | – | Sisipan | [X04](sesi/X04-mutu-baca.md) mutu baca pembaca Ihya: ritme dan tipografi, label AI tenang, subjudul, gulir bersambung, lanjutkan membaca, daftar isi Indonesia, T-17 tahap 3 | X04 | bagian A + T-17 tahap 3 dikerjakan 2026-10-21 (PR #115, ADR-074–076); bagian B dikerjakan 2026-10-21/22 (PR #116, ADR-077–078: daftar isi pembaca + subjudul, judul Indonesia, korpus `ihya-v8` di produksi atas izin pemilik 2026-10-22) |
 | – | Sisipan | [X08](sesi/X08-koreksi-terjemahan.md) koreksi terjemahan Indonesia oleh editor dan ustadz di `/tinjau/terjemahan`: teks polos, revisi langsung oleh ustadz terdaftar (pola ADR-070) dengan nama tampil, tayang lewat korpus berikutnya | X08 | rencana, siap dikerjakan |
 | – | Sisipan | [X11](sesi/X11-mode-baca.md) mode baca Arab · Keduanya · Terjemahan di pembaca, Cari, dan Maknaz + fondasi bahasa (situs Inggris nanti) | X11 | selesai 2026-10-24 (PR #126 + #127, ADR-091–092) |
+| – | Sisipan | [X13](sesi/X13-mutu-jawab.md) mutu Jawab sebelum `/rilis 4`: pencarian makna (ADR-093), cakupan takhrij gold, holdout, kalibrasi judge | X13 | langkah gratis selesai 2026-10-24; langkah berbayar menunggu izin |
 | – | Bahasa Inggris | Situs berbahasa Inggris di `/en/…`: antarmuka, terjemahan kitab, Cari, dan Maknaz (ADR-092: arsitektur + daftar bagian yang masih terkunci "id"; butuh sumber terjemahan ayat Inggris berlisensi) | garis besar | belum dijadwalkan |
 
 **Catatan urutan:**

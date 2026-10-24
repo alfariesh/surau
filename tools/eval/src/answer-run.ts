@@ -61,9 +61,17 @@ export function canRun(spent: number, inflight: number, budget: number): boolean
  * latensi tanpa routing, jadi arsip dan laporannya tidak boleh terbaca sebagai pipeline penuh.
  */
 export const SAVED_ROUTE_SUFFIX = "+rute-tersimpan";
+/**
+ * Akhiran `prompt_version` arsip bila daftar makna diambil dari berkas peringkat (X13,
+ * `--semantik`), bukan indeks vektor produksi: arsip tidak boleh terbaca sebagai pipeline Worker.
+ */
+export const SEMANTIC_FILE_SUFFIX = "+makna-berkas";
 
 /** Hasil pipeline → kontrak eval S18 (Latin saja, kutipan = pointer DB). */
-export function toEvalAnswer(r: JawabResult, opts: { savedRoute?: boolean } = {}): EvalAnswer {
+export function toEvalAnswer(
+  r: JawabResult,
+  opts: { savedRoute?: boolean; semanticFile?: boolean } = {},
+): EvalAnswer {
   const fallback = r.outcome === "fallback";
   const spans = (fallback ? r.search : r.citations).slice(0, 20).map((c) => ({
     passage_id: c.passage_id,
@@ -81,7 +89,7 @@ export function toEvalAnswer(r: JawabResult, opts: { savedRoute?: boolean } = {}
     model: r.model ?? "none",
     // Sama dengan kunci cache Worker: versi pipeline (kandidat + pascaproses, X03) ikut tercatat,
     // supaya arsip dan laporan membedakan kode yang berbeda dengan prompt yang sama.
-    prompt_version: `${r.prompt_version}+pipeline@${JAWAB_PIPELINE_VERSION}${opts.savedRoute ? SAVED_ROUTE_SUFFIX : ""}`,
+    prompt_version: `${r.prompt_version}+pipeline@${JAWAB_PIPELINE_VERSION}${opts.savedRoute ? SAVED_ROUTE_SUFFIX : ""}${opts.semanticFile ? SEMANTIC_FILE_SUFFIX : ""}`,
     latency_ms: r.latency_ms,
     cost_usd: r.cost_usd,
   });
@@ -134,23 +142,34 @@ export async function runQuestions(
     /** Galat non-API (mis. D1 putus) pada satu soal: dicatat, soal lain tetap jalan. */
     onError?: (item: RunItem, error: unknown) => void;
     /** Pengganti `runJawab` (tes); `savedRoute` hanya terisi bila `routes` diberikan. */
-    run?: (question: string, savedRoute?: Route | null) => Promise<JawabResult>;
+    run?: (
+      question: string,
+      savedRoute?: Route | null,
+      semantic?: readonly number[],
+    ) => Promise<JawabResult>;
     /**
      * Rute routing tersimpan per ID soal (X05, `--rute`, dari `savedRoutesFor`): routing tidak
      * dipanggil, jadi dokumen sama dengan run asal rute dan selisih hasil hanya dari tahap jawaban.
      */
     routes?: ReadonlyMap<string, Route | null>;
+    /**
+     * Peringkat makna per ID soal (X13, `--semantik`): diberikan ke pipeline sebagai
+     * `semanticSearch`. Soal tanpa peringkat ditolak sebelum panggilan pertama.
+     */
+    semantic?: ReadonlyMap<string, readonly number[]>;
   },
 ): Promise<{ outputs: RunOutput[]; spent: number; skipped: number; failed: number }> {
   const routes = opts.routes;
+  const semantic = opts.semantic;
   const run =
     opts.run ??
-    ((q: string, savedRoute?: Route | null) =>
+    ((q: string, savedRoute?: Route | null, ranked?: readonly number[]) =>
       runJawab(
         {
           corpus: db,
           anthropic: client,
           ...(savedRoute !== undefined ? { savedRoute } : {}),
+          ...(ranked !== undefined ? { semanticSearch: async () => [...ranked] } : {}),
         },
         q,
       ));
@@ -159,6 +178,11 @@ export async function runQuestions(
   const unrouted = routes ? items.filter((i) => !routes.has(i.question.id)) : [];
   if (unrouted.length > 0)
     throw new Error(`Tanpa rute tersimpan: ${unrouted.map((i) => i.question.id).join(", ")}.`);
+  const unranked = semantic ? items.filter((i) => !semantic.has(i.question.id)) : [];
+  if (unranked.length > 0)
+    throw new Error(
+      `Tanpa peringkat makna: ${unranked.map((i) => (i.private ? "(privat)" : i.question.id)).join(", ")}.`,
+    );
   const routeFor = (item: RunItem): Route | null | undefined =>
     routes === undefined ? undefined : (routes.get(item.question.id) ?? null);
   const outputs: RunOutput[] = [];
@@ -184,9 +208,20 @@ export async function runQuestions(
       inflight++;
       let out: RunOutput | null = null;
       try {
-        const result = await run(item.question.pertanyaan, routeFor(item));
+        const result = await run(
+          item.question.pertanyaan,
+          routeFor(item),
+          semantic?.get(item.question.id),
+        );
         spent += result.cost_usd;
-        out = { item, result, answer: toEvalAnswer(result, { savedRoute: routes !== undefined }) };
+        out = {
+          item,
+          result,
+          answer: toEvalAnswer(result, {
+            savedRoute: routes !== undefined,
+            semanticFile: semantic !== undefined,
+          }),
+        };
         outputs.push(out);
       } catch (error) {
         // Soal yang gagal di tengah bisa sudah memakai panggilan berbayar yang biayanya tidak

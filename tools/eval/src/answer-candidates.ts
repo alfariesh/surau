@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import type { AnswerTocNode, EvalQuestion } from "@surau/core";
 import type { D1Db } from "@surau/db";
-import { jawabCandidates } from "@surau/llm";
+import { JAWAB_EDITION_ID, jawabCandidates } from "@surau/llm";
 import type { AnswerDoc, Route } from "@surau/llm";
 import { z } from "zod";
 
@@ -57,7 +57,11 @@ export interface DocCoverage {
   total: number;
 }
 
-/** Lokasi gold yang muncul di dokumen (halaman, atau bagian beserta turunannya). */
+/**
+ * Lokasi gold yang muncul di dokumen (halaman, atau bagian beserta turunannya). Untuk soal status
+ * hadits, catatan kaki takhrij gold juga harus ada di dokumen sebagai paragraf itu sendiri
+ * (X13): cakupan tingkat halaman melebihkan j024, yang halamannya terwakili takhrij hadits lain.
+ */
 export function docCoverage(
   index: CorpusIndex,
   q: EvalQuestion,
@@ -75,7 +79,56 @@ export function docCoverage(
       ),
     ),
   ).length;
-  return { found, total: golds.length };
+  const footnotes = [...new Set(q.hadits.map((h) => h.footnote.passage_id))];
+  const footFound = footnotes.filter((id) => docs.some((d) => d.passage.id === id)).length;
+  return { found: found + footFound, total: golds.length + footnotes.length };
+}
+
+/** Rute kosong untuk setiap soal publik (tanpa arsip diagnostik: pertanyaan + ringkasan saja). */
+export function emptyRoutes(questions: Iterable<EvalQuestion>): SavedRoute[] {
+  return [...questions]
+    .filter((q) => /^j[0-9]{3}$/u.test(q.id))
+    .map((q) => ({ id: q.id, route: null, routeFailed: false }));
+}
+
+const semanticRow = z.object({
+  id: z.string().regex(/^[jp][0-9]{3}$/u),
+  passage_ids: z.array(z.number().int().positive()).max(200),
+});
+
+/**
+ * Peringkat pencarian makna per soal (X13): JSONL `{id, passage_ids}`, dihasilkan di luar pipeline
+ * (embedding lokal atau indeks vektor). Soal privat (`p…`) hanya diterima dengan
+ * `allowPrivate` (run holdout berbayar atas izin pemilik); `kandidat` hanya soal publik.
+ */
+export function readSemantic(
+  file: string,
+  opts: { allowPrivate?: boolean } = {},
+): Map<string, number[]> {
+  const out = new Map<string, number[]>();
+  readFileSync(file, "utf8")
+    .split(/\r?\n/u)
+    .filter((s) => s.trim())
+    .forEach((s, i) => {
+      let row: unknown;
+      try {
+        row = JSON.parse(s);
+      } catch {
+        // Galat bawaan JSON.parse mencetak potongan baris (bisa berisi ID soal privat).
+        throw new Error(`Baris ${i + 1} bukan peringkat makna soal publik.`);
+      }
+      const parsed = semanticRow.safeParse(row);
+      if (!parsed.success || (!opts.allowPrivate && parsed.data.id.startsWith("p")))
+        throw new Error(`Baris ${i + 1} bukan peringkat makna soal publik.`);
+      out.set(parsed.data.id, parsed.data.passage_ids);
+    });
+  return out;
+}
+
+export interface SemanticOptions {
+  ranks: ReadonlyMap<string, readonly number[]>;
+  limit?: number;
+  weight?: number;
 }
 
 export interface CandidateRow {
@@ -95,13 +148,20 @@ export async function replayCandidates(
   toc: ReadonlyMap<number, AnswerTocNode>,
   questions: ReadonlyMap<string, EvalQuestion>,
   routes: readonly SavedRoute[],
+  semantic?: SemanticOptions,
 ): Promise<CandidateRow[]> {
   const out: CandidateRow[] = [];
   for (const saved of routes) {
     const q = questions.get(saved.id);
     if (q === undefined) throw new Error(`${saved.id}: soal publik tidak ada di evals/jawab.`);
     if (q.wajib_ditolak) continue;
-    const found = await jawabCandidates(db, q.pertanyaan, saved.route, toc);
+    const ids = semantic?.ranks.get(q.id);
+    if (semantic && ids === undefined) throw new Error(`${q.id}: tidak ada peringkat makna.`);
+    const found = await jawabCandidates(db, q.pertanyaan, saved.route, toc, JAWAB_EDITION_ID, {
+      ids: ids ?? [],
+      ...(semantic?.limit === undefined ? {} : { limit: semantic.limit }),
+      ...(semantic?.weight === undefined ? {} : { weight: semantic.weight }),
+    });
     const cov = docCoverage(index, q, found.docs);
     out.push({
       id: q.id,
