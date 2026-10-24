@@ -13,4 +13,5 @@ export const nav = {
   soonHint: "Fitur ini sedang dibangun",
   openMenu: "Buka menu",
   toggleSidebar: "Buka atau tutup panel samping",
+  more: "Menu lainnya",
 } as const;

@@ -2,18 +2,23 @@
 export const tanyaText = {
   pageTitle: "Maknaz",
   heading: "Maknaz",
-  lead: "Maknaz adalah asisten AI Surau. Ajukan pertanyaan tentang isi Ihya' 'Ulum ad-Din: jawabannya disusun AI dari paragraf kitab, dan setiap kutipan Arabnya disalin dari teks sumber lalu diperiksa kode.",
-  notice: "Surau adalah asisten riset, bukan pemberi fatwa.",
+  lead: "Tanyakan isi kitab. Jawaban disusun AI dari teksnya, dan setiap kutipan Arab diperiksa kode.",
   noticeBody:
     "Jawaban menyampaikan apa yang tertulis di kitab beserta sumbernya. Untuk kasus pribadi (keluarga, harta, ibadah tertentu), tanyakan kepada ulama setempat.",
-  privacy: "Jangan menulis nama, nomor telepon, atau detail pribadi.",
+  // Satu catatan Maknaz (MaknazNotice): label tetap S21 (docs/05 §2) + privasi. Selalu terlihat di
+  // /tanya (atas sebelum percakapan, bawah kotak sesudahnya) dan di Beranda mode Maknaz.
+  notice: "Surau adalah asisten riset, bukan pemberi fatwa.",
+  noticeExtra: "Tiap pertanyaan dijawab terpisah; jangan tulis data pribadi.",
   privacyLink: "Kebijakan privasi",
   label: "Pertanyaan",
   submit: "Tanya Maknaz",
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
   tooShort: "Tulis pertanyaan minimal 3 huruf.",
   challenge: "Memeriksa bahwa Anda bukan program otomatis…",
-  composerPlaceholder: "Tanya Maknaz tentang isi Ihya' 'Ulum ad-Din…",
+  // Sumber jawaban di kepala kotak Maknaz (label, bukan pemilih; ADR-086). Kitab kedua = perbarui.
+  sourceLabel: "Sumber jawaban:",
+  source: "Ihya' 'Ulum ad-Din",
+  composerPlaceholder: "Tanya Maknaz tentang isi kitab…",
   composerPlaceholderNext: "Pertanyaan baru, tulis lengkap (yang sebelumnya tidak ikut dibaca)…",
   suggestions: [
     "Apa kata al-Ghazali tentang sabar?",
@@ -24,7 +29,6 @@ export const tanyaText = {
   separate:
     "Setiap pertanyaan dijawab terpisah: jawaban sebelumnya tidak ikut dibaca, jadi tulis pertanyaan lengkap.",
   newChat: "Percakapan baru",
-  noticeShort: "Bukan fatwa · tiap pertanyaan dijawab terpisah",
   noticeMore: "Tentang jawaban Maknaz",
   copy: "Salin jawaban",
   copyAttribution:

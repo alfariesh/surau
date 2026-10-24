@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
 
-import { Card, Chip, Typography } from "@heroui/react";
-import { buttonVariants } from "@heroui/styles";
-import NextLink from "next/link";
+import { Card, Typography } from "@heroui/react";
 
 import { listWorks } from "@surau/core";
 
-import { ArabicText } from "../../components/arabic";
 import { ArtEmbed } from "../../components/art/art-embed";
+import { SearchBox } from "../../components/search/search-box";
 import { ContinueReading } from "../../components/reader/continue-reading";
 import { WorkShelf } from "../../components/book/work-shelf";
-import { BASMALAH } from "../../content/basmalah";
-import { id, SOURCE_URL } from "../../i18n/id";
+import { id } from "../../i18n/id";
 import { PAGE_FRAME } from "../../lib/layout";
 import { getEnv, readerEnabled } from "../../lib/cloudflare";
-import { PageLead, PageTitle } from "../../components/page-title";
+import { jawabRouteOn } from "../../lib/jawab-flag";
+import { loadSearchSections } from "../../lib/search/sections";
+import { PageTitle } from "../../components/page-title";
 
 export const metadata: Metadata = {
   title: { absolute: id.meta.title },
@@ -31,148 +30,102 @@ export const dynamic = "force-dynamic";
 // begitu ada >= 3 karya asli. Semua buku tetap menautkan edisi aslinya; judul Arab tetap dari DB.
 const DUMMY_COUNT = 10;
 
-async function shelfWorks() {
+async function homeData() {
+  let ask = false;
   try {
     const env = await getEnv();
-    if (!readerEnabled(env)) return [];
-    const { works } = await listWorks(env.CORPUS_DB);
+    ask = jawabRouteOn(env);
+    if (!readerEnabled(env)) return { ask, real: [], shelf: [], sections: [] };
+    // Bagian kitab untuk pemilih sumber (sama dengan /cari): satu query daftar isi kedalaman 2.
+    // Fitur sekunder: gagal = pemilih tanpa bagian, rak dan Maknaz tetap tampil.
+    const [{ works }, sections] = await Promise.all([
+      listWorks(env.CORPUS_DB),
+      loadSearchSections(env.CORPUS_DB).catch((error: unknown) => {
+        console.error("bagian kitab beranda gagal dimuat", error);
+        return [];
+      }),
+    ]);
     const real = works.flatMap((work) => {
       const edition = work.editions.find((e) => e.is_default) ?? work.editions[0];
       return edition ? [{ ...work, href: edition.permalink }] : [];
     });
-    if (real.length === 0 || real.length >= 3) return real;
-    return Array.from({ length: DUMMY_COUNT }, (_, i) => {
-      const work = real[i % real.length]!;
-      return { ...work, slug: `${work.slug}-${i}` };
-    });
+    const shelf =
+      real.length === 0 || real.length >= 3
+        ? real
+        : Array.from({ length: DUMMY_COUNT }, (_, i) => {
+            const work = real[i % real.length]!;
+            return { ...work, slug: `${work.slug}-${i}` };
+          });
+    return { ask, real, shelf, sections };
   } catch (error) {
-    console.error("rak kitab beranda gagal dimuat", error);
-    return [];
+    // Gagal = Beranda tetap tampil tanpa rak dan pemilih kitab (Maknaz mengikuti saklarnya).
+    console.error("data beranda gagal dimuat", error);
+    return { ask, real: [], shelf: [], sections: [] };
   }
 }
 
+// Beranda (ADR-086): fokus cari dan jelajah. Rak kitab, sambutan singkat, kotak cari (Cari/Maknaz),
+// lanjutkan membaca, lalu tiga prinsip.
 export default async function HomePage() {
-  const works = await shelfWorks();
+  const { ask, real, shelf, sections } = await homeData();
+  // Pemilih kitab memakai karya asli (bukan isian rak sementara); judul Latin, Arab tidak dipakai di
+  // daftar teks biasa.
+  const works = real.flatMap((w) => (w.title_id ? [{ slug: w.slug, title: w.title_id }] : []));
   return (
-    <div className={`${PAGE_FRAME} flex flex-col gap-12 pt-8 pb-16 sm:pt-12`}>
-      {/* Hero: teks di kiri, rak kitab putar di kanan (ponsel: rak di bawah teks). */}
-      <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
-        <section aria-labelledby="judul-beranda" className="flex flex-col items-start gap-5">
-          <PageTitle className="text-balance" id="judul-beranda">
-            {t.heading}
-          </PageTitle>
-          <PageLead>{t.lead}</PageLead>
-          <div className="flex flex-wrap gap-3">
-            <NextLink className={buttonVariants({ variant: "primary" })} href="/tentang">
-              {t.ctaAbout}
-            </NextLink>
-            <a
-              className={buttonVariants({ variant: "tertiary" })}
-              href={SOURCE_URL}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {t.ctaSource}
-              <span className="sr-only"> {id.common.newTab}</span>
-            </a>
-          </div>
-          <ContinueReading className="w-full" />
-        </section>
-        {works.length > 0 ? <WorkShelf label={t.shelfLabel} works={works} /> : null}
-      </div>
+    <div className={`${PAGE_FRAME} flex flex-col items-center gap-14 pt-2 pb-16 sm:pt-4`}>
+      <section
+        aria-labelledby="judul-beranda"
+        className="flex w-full max-w-2xl flex-col items-center gap-5 text-center"
+      >
+        {shelf.length > 0 ? (
+          // Ruang atas panggung rak (kemiringan kamera) dipotong supaya kotak cari naik ke layar pertama.
+          <WorkShelf className="-mt-6 -mb-4 w-full sm:-mt-14" label={t.shelfLabel} works={shelf} />
+        ) : null}
+        <PageTitle className="text-center text-balance" compactTitle={false} id="judul-beranda">
+          {t.heading}
+        </PageTitle>
+        <SearchBox ask={ask} sections={sections} works={works} />
+        <ContinueReading wide className="w-full text-start" />
+      </section>
 
-      <div className="flex w-full max-w-3xl flex-col gap-12">
-        <Card className="py-8">
-          <figure className="m-0 flex flex-col items-center gap-3">
-            <ArabicText className="text-foreground" size="display">
-              {BASMALAH.text}
-            </ArabicText>
-            <figcaption className="text-muted px-4 text-center text-xs">
-              {t.demoCaption} {BASMALAH.ref} · {t.demoSource}{" "}
-              <a
-                className="link text-xs underline"
-                href={BASMALAH.sourceUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                {BASMALAH.source}
-                <span className="sr-only"> {id.common.newTab}</span>
-              </a>
-            </figcaption>
-          </figure>
-        </Card>
-
-        <section aria-labelledby="judul-prinsip" className="flex flex-col gap-4">
-          <Typography.Heading level={2} id="judul-prinsip" className="text-xl">
+      <section
+        aria-labelledby="judul-prinsip"
+        className="flex w-full max-w-5xl flex-col items-center gap-8"
+      >
+        <div className="flex max-w-xl flex-col items-center gap-2">
+          <Typography.Heading
+            className="text-center text-xl sm:text-2xl"
+            id="judul-prinsip"
+            level={2}
+          >
             {t.principlesHeading}
           </Typography.Heading>
-          <ul className="grid gap-4 sm:grid-cols-3">
-            {t.principles.map((p) => (
-              <li key={p.title} className="flex" data-art-card>
-                <Card className="w-full">
-                  {/* Ilustrasi per prinsip (ADR-057): tanpa kata, dekoratif; hover/ketuk kartu memutar ulang. */}
-                  <ArtEmbed className="-mt-1 rounded-xl" name={p.art} title={t.principleArtTitle} />
-                  <Card.Header>
-                    <Card.Title>{p.title}</Card.Title>
-                    <Card.Description>{p.body}</Card.Description>
-                  </Card.Header>
-                </Card>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section aria-labelledby="judul-peta" className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <Typography.Heading level={2} id="judul-peta" className="text-xl">
-              {t.roadmapHeading}
-            </Typography.Heading>
-            <Typography type="body-sm" color="muted">
-              {t.roadmapLead}
-            </Typography>
-          </div>
-          <ol className="flex flex-col gap-1">
-            {t.roadmap.map((step) => {
-              const isNow = "current" in step && step.current;
-
-              return (
-                <li key={step.phase} className="flex items-start gap-4 rounded-2xl px-1 py-3">
-                  <span
-                    aria-hidden="true"
-                    className={
-                      isNow
-                        ? "bg-accent text-accent-foreground flex h-8 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold tabular-nums"
-                        : "bg-default text-default-foreground flex h-8 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold tabular-nums"
-                    }
-                  >
-                    {step.phase}
-                  </span>
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <Typography
-                      type="body-sm"
-                      weight="medium"
-                      className="flex flex-wrap items-center gap-2"
-                    >
-                      <span className="sr-only">
-                        {t.roadmapPhase} {step.phase}:{" "}
-                      </span>
-                      {step.title}
-                      {isNow ? (
-                        <Chip color="accent" size="sm" variant="soft">
-                          {t.roadmapNow}
-                        </Chip>
-                      ) : null}
-                    </Typography>
-                    <Typography type="body-sm" color="muted">
-                      {step.body}
-                    </Typography>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
-      </div>
+          <Typography className="text-center text-pretty" color="muted" type="body-sm">
+            {t.principlesLead}
+          </Typography>
+        </div>
+        <ol className="grid w-full gap-4 sm:grid-cols-3">
+          {t.principles.map((p, index) => (
+            <li key={p.title} className="flex" data-art-card>
+              <Card className="w-full gap-0 p-2 shadow-none">
+                {/* Ilustrasi per prinsip (ADR-057): tanpa kata, dekoratif; hover/ketuk kartu memutar ulang.
+                    Panel bertepi lembut supaya ruang kosong ilustrasi terbaca sebagai bingkai. */}
+                <div className="bg-surface-secondary overflow-hidden rounded-xl">
+                  <ArtEmbed name={p.art} title={t.principleArtTitle} />
+                </div>
+                <Card.Header className="gap-1.5 px-3 pt-4 pb-3">
+                  <Typography className="font-medium tabular-nums" color="muted" type="body-xs">
+                    <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="sr-only">{t.principleNumber(index + 1)}</span>
+                  </Typography>
+                  <Card.Title className="text-base">{p.title}</Card.Title>
+                  <Card.Description className="text-pretty">{p.body}</Card.Description>
+                </Card.Header>
+              </Card>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }

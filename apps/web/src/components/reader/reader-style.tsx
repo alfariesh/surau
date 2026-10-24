@@ -18,7 +18,7 @@ const t = readerText;
 // sini hanya dipulihkan saat navigasi klien (`useRestorePrefs`). Isi panel (kontrol) dimuat saat
 // panel dibuka atau tombolnya didekati (X09), bukan bersama JS awal halaman baca.
 const loadPanel = () => import("./reader-style-panel");
-const preloadPanel = () => void loadPanel();
+export const preloadPanel = () => void loadPanel();
 const ReaderStylePanel = dynamic(() => loadPanel().then((m) => m.ReaderStylePanel), {
   ssr: false,
   loading: () => (
@@ -52,15 +52,21 @@ function subscribeDesktop(onChange: () => void) {
 export function ReaderStyle({
   sample,
   className,
-  iconOnly = false,
   separator = false,
+  isOpen,
+  onOpenChange,
 }: {
   /** Awal paragraf pertama halaman (teks DB apa adanya) untuk pratinjau huruf. */
   sample: string | null;
   className?: string;
-  iconOnly?: boolean;
   /** Pemisah ButtonGroup di awal tombol (saat berada di dalam grup). */
   separator?: boolean;
+  /**
+   * Panel dikendalikan dari luar tanpa tombol sendiri (mis. dibuka dari menu ⋮ navbar). Tanpa
+   * prop ini, ReaderStyle merender tombol "Tampilan" pembuka panel.
+   */
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   useRestorePrefs();
   const isDesktop = useSyncExternalStore(
@@ -72,24 +78,24 @@ export function ReaderStyle({
   const preview = sample ? previewText(sample) : null;
 
   return (
-    <Sheet placement={placement}>
-      <Sheet.Trigger>
-        <Button
-          aria-label={iconOnly ? t.style : undefined}
-          className={className}
-          isIconOnly={iconOnly}
-          size="sm"
-          variant="tertiary"
-          // Unduh isi panel lebih awal saat tombol disentuh/didekati, supaya panel langsung lengkap.
-          onFocus={preloadPanel}
-          onHoverStart={preloadPanel}
-          onPressStart={preloadPanel}
-        >
-          {separator ? <ButtonGroup.Separator /> : null}
-          <TextFont className="size-4" />
-          {iconOnly ? null : t.style}
-        </Button>
-      </Sheet.Trigger>
+    <Sheet isOpen={isOpen} placement={placement} onOpenChange={onOpenChange}>
+      {isOpen === undefined ? (
+        <Sheet.Trigger>
+          <Button
+            className={className}
+            size="sm"
+            variant="tertiary"
+            // Unduh isi panel lebih awal saat tombol disentuh/didekati, supaya panel langsung lengkap.
+            onFocus={preloadPanel}
+            onHoverStart={preloadPanel}
+            onPressStart={preloadPanel}
+          >
+            {separator ? <ButtonGroup.Separator /> : null}
+            <TextFont className="size-4" />
+            {t.style}
+          </Button>
+        </Sheet.Trigger>
+      ) : null}
       <Sheet.Backdrop variant="blur">
         <Sheet.Content className={isDesktop ? "w-[400px]" : "max-h-[90dvh]"}>
           <Sheet.Dialog>

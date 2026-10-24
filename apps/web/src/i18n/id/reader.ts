@@ -52,8 +52,6 @@ export const reader = {
   copiedDescription: "Sitasi dan tautan tetap sudah ada di papan klip.",
   copyFailed: "Gagal menyalin",
   copyFailedDescription: "Browser menolak akses papan klip. Salin tautan dari bilah alamat.",
-  fontSmaller: "Perkecil huruf Arab",
-  fontLarger: "Perbesar huruf Arab",
   passageActions: "Aksi paragraf",
   copyPassage: "Salin sitasi paragraf",
   sharePassage: "Bagikan tautan paragraf",
@@ -66,8 +64,7 @@ export const reader = {
   loadNextRetry: "Coba lagi",
   // Posisi baca terakhir di browser ini (X04 W5).
   continueReading: "Lanjutkan membaca",
-  continueWhere: (title: string, juz: number, page: number) =>
-    `${title} · Juz ${juz} · Halaman ${page}`,
+  continueAt: (juz: number, page: number) => `Juz ${juz} · Halaman ${page}`,
   linkCopied: "Tautan disalin",
   linkCopiedDescription: "Tautan paragraf sudah ada di papan klip.",
   reportPassage: "Laporkan kesalahan di paragraf ini",

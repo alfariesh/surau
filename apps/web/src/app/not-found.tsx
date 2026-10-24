@@ -23,7 +23,7 @@ export default function NotFound() {
         <Typography type="body-sm" color="muted" weight="medium" className="tabular-nums">
           404
         </Typography>
-        <PageTitle>{t.heading}</PageTitle>
+        <PageTitle compactTitle={false}>{t.heading}</PageTitle>
         <Typography color="muted">{t.body}</Typography>
         <NextLink className={buttonVariants({ variant: "primary" })} href="/">
           {t.back}
