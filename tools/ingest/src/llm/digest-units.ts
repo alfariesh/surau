@@ -534,26 +534,39 @@ export function quoteInspector(
     const p = passages.get(range.passageId);
     if (p === undefined) throw new Error(`paragraf ${range.passageId} tidak ada`);
     const notes = (footBy.get(p.id) ?? []).toSorted((a, b) => a.char_start - b.char_start);
-    // Penanda di dalam rentang, atau penanda PERTAMA sesudahnya selama belum ada akhir kalimat di
-    // antaranya: kutipan bisa berupa potongan awal sebuah riwayat panjang yang penanda takhrijnya
-    // baru muncul beberapa blok kemudian (peninjau X15b). Lebih baik keliru menandai perkataan
-    // sebagai riwayat (dan menerapkan larangan takhrij) daripada sebaliknya.
-    const next = notes.find((m) => m.char_start >= range.end);
-    const markers = notes.filter(
+    const banned = (m: FootnoteRefRow): string | null => {
+      const note = passages.get(m.footnote_passage_id);
+      if (note === undefined) return "takhrij tidak ditemukan";
+      const bad = takhrijLabel(note.text_raw).terms.find((t) => BANNED_TAKHRIJ_KINDS.has(t.kind));
+      return bad === undefined ? null : `takhrij ${bad.kind}`;
+    };
+    // Penanda di dalam rentang atau tepat sesudahnya (hanya spasi/tanda baca): riwayat itu sendiri.
+    const own = notes.filter(
       (m) =>
         (m.char_start >= range.start && m.char_start < range.end) ||
-        (m === next &&
-          m.char_start - range.end <= REPORT_LOOKAHEAD_CHARS &&
-          !/[.!?؟]/u.test(p.text_raw.slice(range.end, m.char_start))),
+        (m.char_start >= range.end &&
+          /^[\s\p{P}]*$/u.test(p.text_raw.slice(range.end, m.char_start))),
     );
-    if (markers.length > 0) {
-      for (const m of markers) {
-        const note = passages.get(m.footnote_passage_id);
-        if (note === undefined) return { kind: "report", banned: "takhrij tidak ditemukan" };
-        const kinds = takhrijLabel(note.text_raw).terms.map((t) => t.kind);
-        const bad = kinds.find((k) => BANNED_TAKHRIJ_KINDS.has(k));
-        if (bad !== undefined) return { kind: "report", banned: `takhrij ${bad}` };
-      }
+    // Penanda PERTAMA sesudahnya selama belum ada akhir kalimat: kutipan bisa potongan awal riwayat
+    // panjang yang penandanya baru muncul beberapa blok kemudian (peninjau X15b). Larangan takhrijnya
+    // SELALU berlaku (lebih baik membuang perkataan daripada menampilkan riwayat palsu); jenisnya
+    // `report` hanya bila tidak ada rumus pembuka riwayat baru di antaranya (qala, ruwiya, salawat),
+    // supaya perkataan penulis sebelum riwayat berikutnya tidak berlabel riwayat.
+    const next = notes.find((m) => m.char_start >= range.end && !own.includes(m));
+    const gap = next === undefined ? "" : p.text_raw.slice(range.end, next.char_start);
+    const ahead =
+      next !== undefined &&
+      next.char_start - range.end <= REPORT_LOOKAHEAD_CHARS &&
+      !/[.!?؟]/u.test(gap)
+        ? next
+        : undefined;
+    for (const m of [...own, ...(ahead === undefined ? [] : [ahead])]) {
+      const why = banned(m);
+      if (why !== null) return { kind: "report", banned: why };
+    }
+    const newNarration =
+      /(?:^| )(?:قال|وقال|فقال|يقول|روي|وروي|صلي الله عليه وسلم|عليه السلام)(?: |$)/u;
+    if (own.length > 0 || (ahead !== undefined && !newNarration.test(normalizeArabic(gap).text))) {
       return { kind: "report", banned: null };
     }
     return { kind: verseBounds(p.text_raw) === null ? "text" : "poetry", banned: null };

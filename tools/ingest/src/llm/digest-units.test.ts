@@ -179,6 +179,25 @@ describe("riwayat panjang", () => {
       kind: "text",
       banned: null,
     });
+
+    // Perkataan penulis sebelum riwayat baru ("قال" di antaranya): tetap perkataan, tetapi
+    // larangan takhrij riwayat berikutnya tetap berlaku.
+    const words = "كلام المؤلف بلا علامة ثم قال رسول الله نص تجريبي (١)";
+    const w = passage(13, 4, 1, 9, words);
+    const m3 = words.lastIndexOf("(١)");
+    const okNote = passage(14, null, 1, 3, "حديث تجريبي رواه البخاري", "foot");
+    const refs = (id: number) => [
+      { passage_id: w.id, char_start: m3, char_end: m3 + 3, marker: "١", footnote_passage_id: id },
+    ];
+    const at = { passageId: w.id, start: 0, end: 11 };
+    expect(quoteInspector({ passage: [w, okNote], footnote_ref: refs(okNote.id) })(at)).toEqual({
+      kind: "text",
+      banned: null,
+    });
+    expect(quoteInspector({ passage: [w, note], footnote_ref: refs(note.id) })(at)).toEqual({
+      kind: "report",
+      banned: "takhrij la_asl",
+    });
   });
 });
 
