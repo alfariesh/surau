@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-24 · X14 · Lanjutan mode baca: petunjuk sekali tampil, Ringkasan AI ikut kata cari, ukur LCP di repo — selesai (PR #130)
+- Dikerjakan: petunjuk "Pilih cara membaca" (pilihan pemilik) di halaman baca bagi pengunjung yang belum memilih mode, lewat skrip awal + pemeriksaan ulang saat navigasi lunak, tanpa geser tata letak; Ringkasan AI satu DOM, disorot kata cari, dibuka bila kecocokan terpotong, dibuka sementara di mode Arab (batas ADR-091 §4 dihapus); `scripts/ukur-lcp.mjs` + `pnpm ukur:lcp` (Lighthouse di cache pengguna, bukan dependensi repo).
+- Verifikasi: `pnpm check` + build lolos, tes unit 851 lolos (1 tes lama `translation-review` lewat batas 5 dtk tipis di mesin ber-load 28; lolos di CI) · e2e `reader-x14` 16/16 lokal + CI Preview; axe petunjuk + ringkasan dibuka · peninjau: 0 blocker, 5 perbaikan + 3 saran dikerjakan · LCP Preview j1/200 baru 3,96 / Keduanya 3,31 / Terjemahan 3,16 / Arab 3,97 dtk vs produksi 4,19 / 4,42 / 3,48 / 2,88 (n=5, sebaran ±1 dtk).
+- Biaya API: –
+- Keputusan: ADR-094 (dinomori ulang dari ADR-093 yang dipakai X13 Mutu Jawab).
+- Catatan untuk sesi berikutnya: ukur di Mac pemilik dengan `pnpm ukur:lcp`; petunjuk serupa di Cari/Maknaz belum ada.
+
 ## 2026-10-24 · X13 · Mutu Jawab: pencarian makna, cakupan takhrij gold, persiapan holdout/kalibrasi — sebagian (langkah gratis; berbayar menunggu izin)
 - Dikerjakan: bedah j024 (istilah berbeda + catatan kaki tanpa terjemahan); cakupan gratis soal status hadits menuntut catatan kaki gold; `kandidat --tanpa-rute` + `--semantik`; kait pencarian makna di pipeline (`semanticList`, `JawabDeps.semanticSearch`, mati di Worker); `answer --semantik` (arsip `+makna-berkas`); embedding lokal `bge-m3` q8 atas 20.509 paragraf staging (66 menit CPU, di luar repo) + peringkat 42 soal publik.
 - Verifikasi: `kandidat --tanpa-rute --remote` 26/34 → dengan makna k 20 bobot 2 **30/34** (sapuan 12 varian); `pnpm verify` → lolos.
