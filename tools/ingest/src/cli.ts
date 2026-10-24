@@ -10,14 +10,17 @@ import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
+import { audioReport, selectBuildAudio } from "./audio.ts";
 import { runIngest, runVerifyOpenIti } from "./pipeline.ts";
 import type { PipelinePaths } from "./pipeline.ts";
 import { QURAN_EXPECT, QURAN_FILES } from "./quran/source.ts";
 import { IHYA } from "./works/ihya.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
+/** Metadata audio Intisari Ihya (ditulis `pnpm audio manifest`, tools/audio/src/works.ts). */
+const IHYA_AUDIO_MANIFEST = "data/audio/ihya-9472-audio.json";
 
-function main(argv: string[]): number {
+async function main(argv: string[]): Promise<number> {
   const { positionals, values } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -70,7 +73,7 @@ function main(argv: string[]): number {
     return ok ? 0 : 1;
   }
 
-  const result = runIngest(IHYA, paths, {
+  let result = runIngest(IHYA, paths, {
     resetIds: values["reset-ids"],
     acceptTextChanges: values["terima-teks-berubah"]?.split(",").map((id) => {
       const n = Number(id.trim());
@@ -78,6 +81,14 @@ function main(argv: string[]): number {
       return n;
     }),
   });
+  // Audio Intisari (X17): sha skrip dicocokkan dengan Intisari build ini; bila ada track yang cocok,
+  // build diulang sekali dengan baris `audio_track` (deterministik: peta ID dan sidik teks sudah
+  // ditulis putaran pertama, jadi hasilnya sama ditambah audio, dan `meta` tetap file terakhir).
+  if (result.output !== undefined) {
+    const audio = await selectBuildAudio(result.output.sqlite, join(repo, IHYA_AUDIO_MANIFEST));
+    console.info(audioReport(audio));
+    if (audio.rows.length > 0) result = runIngest(IHYA, paths, { audioTracks: audio.rows });
+  }
   for (const i of result.validation.invariants)
     console.info(`${i.ok ? "✓" : "✗"} ${i.name}: ${i.detail}`);
   const a = result.ayat;
@@ -109,4 +120,4 @@ function main(argv: string[]): number {
   return 0;
 }
 
-process.exitCode = main(process.argv.slice(2));
+process.exitCode = await main(process.argv.slice(2));
