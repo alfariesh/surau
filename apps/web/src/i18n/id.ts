@@ -12,6 +12,7 @@ import { mcp } from "./id/mcp";
 import { about } from "./id/about";
 import { license } from "./id/license";
 import { reader } from "./id/reader";
+import { readMode } from "./id/readMode";
 import { search } from "./id/search";
 import { error } from "./id/error";
 import { notFound } from "./id/notFound";
@@ -31,6 +32,7 @@ export const id = {
   about,
   license,
   reader,
+  readMode,
   search,
   error,
   notFound,

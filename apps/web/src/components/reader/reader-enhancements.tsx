@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import type { CopyPiece } from "../../lib/reader/id-text";
 
 import { reader as readerText } from "../../i18n/id/reader";
+import { revealFor, toggleTranslation } from "../../lib/reader/fold";
 import { labelledCopy } from "../../lib/reader/id-text";
 
 const t = readerText;
@@ -15,7 +16,9 @@ const t = readerText;
 //    segmen ("(Terjemahan AI, <permalink>)", "(Ringkasan AI, …)", label ayat Kemenag); teks lain
 //    (Arab) tetap apa adanya. Skrip, gaya, dan teks yang tidak dirender tidak ikut.
 //    Seleksi yang hanya berisi teks Arab memakai salin bawaan browser (verbatim).
-// 2. Mode "terjemahan dilipat": tombol `.translation-toggle` membuka/menutup terjemahan paragrafnya.
+// 2. Mode "terjemahan dilipat" (dan paragraf yang dibuka sementara di mode Arab, X11): tombol
+//    `.translation-toggle` membuka/menutup terjemahan paragrafnya (lib/reader/fold.ts).
+// 3. Tautan `#…` ke teks yang tersembunyi mode baca atau lipatan membukanya lebih dulu (X11).
 
 const BLOCKS =
   ".passage-translation, .arabic-text, .reader-inline-subheading, .verse-row, li, h1, h2, h3, p";
@@ -115,15 +118,31 @@ export function ReaderEnhancements() {
       const target = event.target instanceof Element ? event.target : null;
       const button = target?.closest(".translation-toggle");
       if (button === null || button === undefined) return;
-      const open = button.getAttribute("aria-expanded") !== "true";
-      button.setAttribute("aria-expanded", String(open));
-      button.closest(".passage")?.toggleAttribute("data-tr-open", open);
+      toggleTranslation(button);
     }
+    // Tautan ke teks yang tersembunyi mode baca/tata letak (X11): buka dulu, lalu tampilkan.
+    function onHash() {
+      const hash = window.location.hash.slice(1);
+      let id = hash;
+      try {
+        id = decodeURIComponent(hash);
+      } catch {
+        // Fragmen rusak (mis. "#%"): pakai apa adanya; id pembaca ASCII.
+      }
+      const target = id === "" ? null : document.getElementById(id);
+      // Gulir ke paragrafnya (punya scroll-margin navbar), bukan elemen dalamnya.
+      if (target !== null && revealFor(target)) {
+        (target.closest(".passage") ?? target).scrollIntoView({ block: "start" });
+      }
+    }
+    onHash();
     document.addEventListener("copy", onCopy);
     document.addEventListener("click", onClick);
+    window.addEventListener("hashchange", onHash);
     return () => {
       document.removeEventListener("copy", onCopy);
       document.removeEventListener("click", onClick);
+      window.removeEventListener("hashchange", onHash);
     };
   }, []);
   return null;

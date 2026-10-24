@@ -3,12 +3,17 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
+import { keepReadingPosition } from "../../lib/keep-position";
+import { isHidden, revealFor } from "../../lib/reader/fold";
+
 // Sorotan kata yang dicari saat pembaca dibuka dari hasil Cari (`?q=`, S14 langkah 7). Halaman
 // baca adalah ISR statis, jadi kueri dibaca di klien (`useSearchParams`, di dalam Suspense) dan sorotan memakai CSS Custom Highlight API
 // (Range di atas teks yang sudah ada): DOM dan teks kitab tidak diubah sama sekali. Bagian Arab
 // kueri dicocokkan di teks Arab paragraf (`findPlanSpans`, aturan yang sama dengan indeks); bagian
 // Indonesia di teks terjemahan AI (`[data-ai-text]`, `findLatinSpans`). @surau/text dimuat hanya
 // bila ada `?q=`. Browser tanpa Highlight API: tanpa sorotan (paragraf tujuan tetap ditandai :target).
+// Kecocokan di teks yang tersembunyi mode baca atau lipatan dibuka per paragraf (X11), tanpa
+// menggeser paragraf yang sedang dibaca.
 
 const HIGHLIGHT = "surau-cari";
 
@@ -63,16 +68,24 @@ export function SearchHighlighter() {
         return;
       }
       const ranges: Range[] = [];
+      // Teks cocok yang tersembunyi mode baca atau lipatan (X11): dibuka supaya sorotannya terlihat.
+      const hidden: Element[] = [];
+      const collect = (el: Element, found: Range[]) => {
+        ranges.push(...found);
+        if (found.length > 0 && isHidden(el)) hidden.push(el);
+      };
       if (arabic !== null) {
         for (const el of document.querySelectorAll(".passage .arabic-text")) {
-          ranges.push(...rangesFor(el, text.findPlanSpans(el.textContent ?? "", arabic, 50)));
+          collect(el, rangesFor(el, text.findPlanSpans(el.textContent ?? "", arabic, 50)));
         }
       }
       if (latin !== null) {
         for (const el of document.querySelectorAll("[data-ai-text]")) {
-          ranges.push(...rangesFor(el, text.findLatinSpans(el.textContent ?? "", latin, 50)));
+          collect(el, rangesFor(el, text.findLatinSpans(el.textContent ?? "", latin, 50)));
         }
       }
+      // Satu kali jaga posisi untuk semua paragraf yang dibuka: paragraf tujuan tidak terdorong.
+      if (hidden.length > 0) keepReadingPosition(() => hidden.forEach((el) => revealFor(el)));
       if (ranges.length > 0) CSS.highlights.set(HIGHLIGHT, new Highlight(...ranges));
     });
     return () => {

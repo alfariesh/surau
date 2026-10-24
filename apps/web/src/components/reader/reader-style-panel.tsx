@@ -9,12 +9,20 @@ import type {
   ReaderTrLayout,
 } from "../../lib/reader/scale";
 
-import { CellSelect, CellSlider, CellSwitch, Widget } from "@heroui-pro/react";
+import type { AttrPref } from "../../lib/prefs";
+import type { ReaderSample } from "../../lib/reader/preview";
+import type { ReadMode } from "../../lib/reader/scale";
+
+import { CellSelect, CellSlider, Widget } from "@heroui-pro/react";
 import { ListBox, Typography } from "@heroui/react";
 import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
+import { useId, useSyncExternalStore } from "react";
 
 import { reader as readerText } from "../../i18n/id/reader";
+import { readMode as readModeText } from "../../i18n/id/readMode";
+import { keepReadingPosition } from "../../lib/keep-position";
+import { translationLabel } from "../../lib/translation-label";
+import { applyAttr, notify, readAttr, store, subscribe } from "../../lib/prefs";
 import {
   READER_ALIGNS,
   READER_FONTS,
@@ -24,34 +32,28 @@ import {
   READER_TR_LAYOUTS,
   READER_TR_SCALE_KEY,
   READER_TR_SCALES,
-  READER_TRANSLATION_KEY,
 } from "../../lib/reader/scale";
 import { ArabicText } from "../arabic";
-
-import type { AttrPref } from "./reader-style-prefs";
+import { useReadMode } from "../read-mode";
+import { ReadModeSegment } from "../read-mode-segment";
 
 import {
   ALIGN_PREF,
   FONT_PREF,
   LEADING_PREF,
   TR_LAYOUT_PREF,
-  applyAttr,
   applyScale,
   applyTrScale,
-  applyTranslation,
-  notify,
-  readAttr,
   scaleIndex,
-  store,
-  subscribe,
   trScaleIndex,
-  translationShown,
 } from "./reader-style-prefs";
 
 const t = readerText;
+const m = readModeText;
 
 // Isi panel Tampilan (kontrol + pratinjau). Diunduh saat panel pertama kali dibuka (X09): CellSlider,
-// CellSelect, CellSwitch, dan Widget tidak ikut JS awal halaman baca.
+// CellSelect, Segment, dan Widget tidak ikut JS awal halaman baca. Setiap perubahan lewat
+// `keepReadingPosition` (X11): paragraf yang sedang dibaca di belakang panel tidak terlempar.
 
 const noopSubscribe = () => () => {};
 
@@ -60,7 +62,7 @@ function FontSizeControl() {
 
   function change(value: number | number[]) {
     const next = READER_SCALES[Array.isArray(value) ? (value[0] ?? 1) : value] ?? 1;
-    applyScale(next);
+    keepReadingPosition(() => applyScale(next));
     store(READER_SCALE_KEY, String(next));
     notify();
   }
@@ -87,12 +89,12 @@ function FontSizeControl() {
   );
 }
 
-function TrSizeControl() {
+function TrSizeControl({ isDisabled }: { isDisabled: boolean }) {
   const index = useSyncExternalStore(subscribe, trScaleIndex, () => 1);
 
   function change(value: number | number[]) {
     const next = READER_TR_SCALES[Array.isArray(value) ? (value[0] ?? 1) : value] ?? 1;
-    applyTrScale(next);
+    keepReadingPosition(() => applyTrScale(next));
     store(READER_TR_SCALE_KEY, String(next));
     notify();
   }
@@ -100,6 +102,7 @@ function TrSizeControl() {
   return (
     <CellSlider
       aria-label={t.styleTrSize}
+      isDisabled={isDisabled}
       maxValue={READER_TR_SCALES.length - 1}
       minValue={0}
       step={1}
@@ -132,16 +135,19 @@ function CellPicker({
   value,
   options,
   onSelect,
+  isDisabled = false,
 }: {
   label: string;
   value: string | null;
   options: readonly CellOption[];
   onSelect: (value: string) => void;
+  isDisabled?: boolean;
 }) {
   const selectedLabel = options.find((o) => o.id === value)?.label;
   return (
     <CellSelect
       aria-label={selectedLabel ? `${label} ${selectedLabel}` : label}
+      isDisabled={isDisabled}
       value={value}
       variant="secondary"
       onChange={(key) => {
@@ -200,10 +206,12 @@ function AttrPicker({
   pref,
   label,
   options,
+  isDisabled = false,
 }: {
   pref: AttrPref;
   label: string;
   options: readonly CellOption[];
+  isDisabled?: boolean;
 }) {
   const value = useSyncExternalStore(
     subscribe,
@@ -212,12 +220,20 @@ function AttrPicker({
   );
 
   function change(next: string) {
-    applyAttr(pref, next);
+    keepReadingPosition(() => applyAttr(pref, next));
     store(pref.key, next);
     notify();
   }
 
-  return <CellPicker label={label} options={options} value={value} onSelect={change} />;
+  return (
+    <CellPicker
+      isDisabled={isDisabled}
+      label={label}
+      options={options}
+      value={value}
+      onSelect={change}
+    />
+  );
 }
 
 const PAPERS = ["light", "sepia", "dark"] as const;
@@ -242,51 +258,104 @@ function PaperPicker() {
   );
 }
 
-function TranslationSwitch() {
-  const shown = useSyncExternalStore(subscribe, translationShown, () => true);
-
-  function change(value: boolean) {
-    applyTranslation(value);
-    store(READER_TRANSLATION_KEY, value ? "1" : "0");
-    notify();
-  }
-
+/**
+ * Teks yang berganti menurut mode baca tanpa mengubah tinggi (X11): semua varian ditumpuk di satu
+ * sel grid (`.stable-stack`) dan hanya yang aktif terlihat, jadi tingginya = varian tertinggi. Di
+ * lembar ponsel tepi atas ikut tinggi isinya; tanpa ini pilihan mode bergeser di bawah jari.
+ */
+function StableText({
+  active,
+  variants,
+}: {
+  active: string;
+  variants: Readonly<Record<string, ReactNode>>;
+}) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <CellSwitch
-        aria-label={t.translationToggle}
-        isSelected={shown}
-        variant="secondary"
-        onChange={change}
-      >
-        <CellSwitch.Trigger>
-          <CellSwitch.Label>{t.translationToggle}</CellSwitch.Label>
-          <CellSwitch.Control />
-        </CellSwitch.Trigger>
-      </CellSwitch>
-      <Typography type="body-xs" color="muted" className="px-1">
-        {t.translationToggleHint}
-      </Typography>
+    <div className="stable-stack">
+      {Object.entries(variants).map(([key, node]) => (
+        <div
+          key={key}
+          aria-hidden={key === active ? undefined : true}
+          className={key === active ? undefined : "invisible"}
+        >
+          {node}
+        </div>
+      ))}
     </div>
   );
 }
 
-/** Isi `Sheet.Body` panel Tampilan; `preview` = awal paragraf pertama halaman (teks DB). */
-export function ReaderStylePanel({ preview }: { preview: string | null }) {
+const hint = (text: string) => (
+  <Typography className="px-1" color="muted" type="body-xs">
+    {text}
+  </Typography>
+);
+
+/** Mode baca (X11) di paling atas panel: pilihan + penjelasan mode terpilih. */
+function ReadModeControl({ mode, hasTranslation }: { mode: ReadMode; hasTranslation: boolean }) {
+  const labelId = useId();
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Typography className="px-1" color="muted" id={labelId} type="body-xs" weight="medium">
+        {m.label}
+      </Typography>
+      <ReadModeSegment labelId={labelId} size="md" />
+      <StableText
+        active={mode}
+        variants={{
+          ar: hint(m.hints.ar),
+          both: hint(hasTranslation ? m.hints.both : m.noTranslation),
+        }}
+      />
+    </div>
+  );
+}
+
+/**
+ * Pratinjau dari halaman ini menurut mode baca: Arab + terjemahan AI berlencana, atau Arab dengan
+ * keterangan bahwa terjemahan tidak tampil (tinggi sama di semua mode, `StableText`).
+ */
+function Preview({ preview, mode }: { preview: ReaderSample; mode: ReadMode }) {
+  const tr = preview.translation;
+  return (
+    // `shrink-0`: badan lembar ponsel adalah kolom flex yang bisa digulir; tanpa ini widget
+    // (overflow tersembunyi) menyusut dan memotong pratinjau beserta lencana AI-nya.
+    <Widget aria-hidden="true" className="shrink-0">
+      <Widget.Header>
+        <Widget.Title>{t.stylePreviewNote}</Widget.Title>
+      </Widget.Header>
+      <Widget.Content>
+        <div className="reader-text reader-style-preview">
+          {preview.arabic ? (
+            <ArabicText className="text-foreground">{preview.arabic}</ArabicText>
+          ) : null}
+          {tr ? (
+            <StableText
+              active={mode}
+              variants={{
+                // Di tengah ruang yang dicadangkan untuk contoh terjemahan (tinggi tetap).
+                ar: <div className="flex h-full items-center">{hint(m.previewNoTranslation)}</div>,
+                both: (
+                  <p className="passage-translation" lang={tr.lang}>
+                    {tr.text} <span className="ai-badge">{translationLabel(tr.review).badge}</span>
+                  </p>
+                ),
+              }}
+            />
+          ) : null}
+        </div>
+      </Widget.Content>
+    </Widget>
+  );
+}
+
+/** Isi `Sheet.Body` panel Tampilan; `preview` = awal paragraf pertama halaman (teks DB) + terjemahannya. */
+export function ReaderStylePanel({ preview }: { preview: ReaderSample }) {
+  const mode = useReadMode();
   return (
     <>
-      {preview ? (
-        <Widget aria-hidden="true">
-          <Widget.Header>
-            <Widget.Title>{t.stylePreviewNote}</Widget.Title>
-          </Widget.Header>
-          <Widget.Content>
-            <div className="reader-text">
-              <ArabicText className="text-foreground">{preview}</ArabicText>
-            </div>
-          </Widget.Content>
-        </Widget>
-      ) : null}
+      <ReadModeControl hasTranslation={preview.hasTranslation} mode={mode} />
+      {preview.arabic || preview.translation ? <Preview mode={mode} preview={preview} /> : null}
       <FontSizeControl />
       <AttrPicker label={t.styleFont} options={FONT_OPTIONS} pref={FONT_PREF} />
       <AttrPicker label={t.styleLeading} options={LEADING_OPTIONS} pref={LEADING_PREF} />
@@ -297,13 +366,19 @@ export function ReaderStylePanel({ preview }: { preview: string | null }) {
         </Typography>
       </div>
       <PaperPicker />
-      <TranslationSwitch />
-      <TrSizeControl />
+      {/* Kontrol terjemahan tetap di tempat, nonaktif bila tidak berlaku (tidak disembunyikan). */}
+      <TrSizeControl isDisabled={mode === "ar"} />
       <div className="flex flex-col gap-1.5">
-        <AttrPicker label={t.styleTrLayout} options={TR_LAYOUT_OPTIONS} pref={TR_LAYOUT_PREF} />
-        <Typography type="body-xs" color="muted" className="px-1">
-          {t.styleTrLayoutHint}
-        </Typography>
+        <AttrPicker
+          isDisabled={mode !== "both"}
+          label={t.styleTrLayout}
+          options={TR_LAYOUT_OPTIONS}
+          pref={TR_LAYOUT_PREF}
+        />
+        <StableText
+          active={mode}
+          variants={{ ar: hint(m.trControlsOff), both: hint(t.styleTrLayoutHint) }}
+        />
       </div>
     </>
   );

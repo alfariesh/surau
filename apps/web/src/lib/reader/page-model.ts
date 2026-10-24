@@ -33,7 +33,7 @@ import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
  * syair, subjudul): tanpa itu, halaman sambungan di produksi memakai model lama sampai 7 hari per
  * data center. Model tidak memuat teks UI (i18n).
  */
-export const PAGE_MODEL_VERSION = `5.${SUBHEADING_DIGEST}`;
+export const PAGE_MODEL_VERSION = `6.${SUBHEADING_DIGEST}`;
 
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {
@@ -61,6 +61,8 @@ export interface TranslationModel {
    * teksnya perbaikan manusia (`revised`), bukan pada kurung tulisan AI. Tidak ada = terjemahan AI.
    */
   review?: HumanReview | null;
+  /** Bahasa terjemahan dari data (`TranslationView.lang`, X11), untuk atribut `lang` blok terjemahan. */
+  lang: string;
 }
 
 export interface PassageModel {
@@ -231,7 +233,7 @@ function translationModel(
           });
     return { ...seg, label };
   });
-  return { segments, bold, review: tr.human_review };
+  return { segments, bold, review: tr.human_review, lang: tr.lang };
 }
 
 export interface ModelContext {

@@ -43,7 +43,9 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
       aria-labelledby={labelId}
       className="section-summary"
       data-permalink={summary.section.permalink}
-      lang="id"
+      // Bantuan terjemahan (X11): disembunyikan di mode baca Arab. Bahasa dari datanya.
+      data-tr-aid=""
+      lang={summary.lang}
     >
       <Typography id={labelId} type="body-xs" color="muted" weight="medium" className="mb-1">
         {t.aiSummary}

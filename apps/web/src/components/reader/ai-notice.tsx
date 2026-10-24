@@ -26,7 +26,8 @@ export function AiNotice({ mixed = false }: { mixed?: boolean }) {
   }
 
   return (
-    <Alert className="ai-notice" lang="id">
+    // Bantuan terjemahan (X11): disembunyikan di mode baca Arab, seperti terjemahannya.
+    <Alert className="ai-notice" data-tr-aid="">
       <Alert.Indicator />
       <Alert.Content>
         <Alert.Title>{t.aiNoticeTitle}</Alert.Title>

@@ -6,6 +6,7 @@ import { MoreVertical } from "../../icons";
 import { Button, Dropdown, Label } from "@heroui/react";
 
 import { reader as readerText } from "../../i18n/id/reader";
+import { UI_LANG } from "../../i18n/locale";
 
 import { useReader } from "./reader-context";
 
@@ -25,7 +26,7 @@ export function PassageActions({ passage }: { passage: PassageRef }) {
         aria-label={`${t.passageActions} ${passage.label}`}
         // Sebaris di akhir teks Arab; label aksesibel berbahasa Indonesia.
         className="passage-actions ms-1 size-7 min-w-0 align-middle"
-        lang="id"
+        lang={UI_LANG}
         size="sm"
         variant="ghost"
       >

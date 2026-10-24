@@ -5,6 +5,8 @@ import { Button, ButtonGroup, Spinner } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useSyncExternalStore } from "react";
 
+import type { ReaderSample } from "../../lib/reader/preview";
+
 import { TextFont } from "../../icons";
 import { common as commonText } from "../../i18n/id/common";
 import { reader as readerText } from "../../i18n/id/reader";
@@ -56,8 +58,8 @@ export function ReaderStyle({
   isOpen,
   onOpenChange,
 }: {
-  /** Awal paragraf pertama halaman (teks DB apa adanya) untuk pratinjau huruf. */
-  sample: string | null;
+  /** Awal paragraf pertama halaman (teks DB apa adanya) + terjemahannya untuk pratinjau. */
+  sample: ReaderSample;
   className?: string;
   /** Pemisah ButtonGroup di awal tombol (saat berada di dalam grup). */
   separator?: boolean;
@@ -75,7 +77,7 @@ export function ReaderStyle({
     () => false,
   );
   const placement = isDesktop ? "right" : "bottom";
-  const preview = sample ? previewText(sample) : null;
+  const preview = { ...sample, arabic: sample.arabic ? previewText(sample.arabic) : null };
 
   return (
     <Sheet isOpen={isOpen} placement={placement} onOpenChange={onOpenChange}>

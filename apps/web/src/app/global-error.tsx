@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import { PageTitle } from "../components/page-title";
 import { error as errorText } from "../i18n/id/error";
+import { UI_LANG } from "../i18n/locale";
 import { meta as metaText } from "../i18n/id/meta";
 
 import "./globals.css";
@@ -45,7 +46,7 @@ export default function GlobalError({
   }, []);
 
   return (
-    <html dir="ltr" lang="id">
+    <html dir="ltr" lang={UI_LANG}>
       <body className="bg-background text-foreground font-sans antialiased">
         <title>{`${t.pageTitle} · ${metaText.siteName}`}</title>
         <main className="mx-auto flex w-full max-w-2xl flex-col items-start gap-4 px-4 pt-16 pb-16 sm:px-6">

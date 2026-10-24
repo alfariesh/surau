@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { previewSample } from "./preview";
+import { previewSample, previewTranslation } from "./preview";
 
 // Teks buatan (Latin): fungsinya hanya memotong di spasi, tidak bergantung aksara.
 describe("previewSample", () => {
@@ -27,5 +27,36 @@ describe("previewSample", () => {
     const sample = previewSample(text, 17);
     expect(sample).not.toBeNull();
     expect(text.startsWith(sample ?? "")).toBe(true);
+  });
+});
+
+describe("previewTranslation (X11)", () => {
+  const ai = (text: string) => ({ kind: "ai" as const, label: "ai_translation" as const, text });
+
+  it("segmen AI pertama yang cukup panjang, tanpa penanda catatan kaki, dengan bahasanya", () => {
+    expect(
+      previewTranslation({
+        segments: [ai("Ketahuilah bahwa sabar itu separuh iman (١) dan syukur separuhnya.")],
+        bold: null,
+        lang: "id",
+      }),
+    ).toEqual({
+      text: "Ketahuilah bahwa sabar itu separuh iman dan syukur separuhnya.",
+      lang: "id",
+      review: null,
+    });
+  });
+
+  it("dipotong di batas kata dengan elipsis", () => {
+    const sample = previewTranslation(
+      { segments: [ai("satu dua tiga empat lima enam tujuh delapan")], bold: null, lang: "en" },
+      20,
+    );
+    expect(sample).toEqual({ text: "satu dua tiga empat…", lang: "en", review: null });
+  });
+
+  it("tanpa terjemahan atau tanpa segmen AI yang cukup panjang → null", () => {
+    expect(previewTranslation(null)).toBeNull();
+    expect(previewTranslation({ segments: [ai("Pendek.")], bold: null, lang: "id" })).toBeNull();
   });
 });

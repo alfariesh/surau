@@ -88,6 +88,7 @@ describe("GET /api/kutipan", () => {
       kind: "body",
       translation: {
         label: "ai_translation",
+        lang: "id",
         text: "Ini kalimat pertama. (QS 2:153) Lalu kalimat kedua.",
       },
     });

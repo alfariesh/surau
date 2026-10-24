@@ -2,6 +2,10 @@
 // dipotong hanya di spasi, supaya tidak ada huruf yang terpisah dari harakatnya (teks-arab.md:
 // kode menyalin, tidak mengubah huruf). Tanpa spasi di awal paragraf → tanpa pratinjau.
 
+import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
+
+import type { TranslationModel } from "./page-model";
+
 export const PREVIEW_CHARS = 90;
 
 export function previewSample(text: string | undefined, max = PREVIEW_CHARS): string | null {
@@ -11,4 +15,37 @@ export function previewSample(text: string | undefined, max = PREVIEW_CHARS): st
   if (trimmed.length <= max) return trimmed;
   const cut = trimmed.lastIndexOf(" ", max);
   return cut > 0 ? trimmed.slice(0, cut).trimEnd() : null;
+}
+
+/**
+ * Contoh panel Tampilan (X11): awal paragraf Arab + awal terjemahan AI-nya, supaya pratinjau
+ * memperlihatkan mode baca terpilih. `hasTranslation` = halaman ini punya terjemahan yang tampil
+ * (keterangan "belum punya terjemahan" di panel).
+ */
+export interface ReaderSample {
+  arabic: string | null;
+  /** `review` = tinjauan manusia (label "Terjemahan AI · dikoreksi …", ADR-082), sama dengan pembaca. */
+  translation: { text: string; lang: string; review: TranslationModel["review"] } | null;
+  hasTranslation: boolean;
+}
+
+export const PREVIEW_TR_CHARS = 100;
+
+const MARKERS = new RegExp(`\\s*${FOOTNOTE_MARKER_SOURCE}`, "g");
+
+/**
+ * Awal terjemahan untuk pratinjau: hanya segmen AI (segmen ayat adalah terjemahan Kemenag, bukan
+ * teks berlabel "Terjemahan AI"), tanpa penanda catatan kaki, dipotong di batas kata + "…".
+ */
+export function previewTranslation(
+  tr: TranslationModel | null,
+  max = PREVIEW_TR_CHARS,
+): ReaderSample["translation"] {
+  const seg = tr?.segments.find((s) => s.kind === "ai" && s.text.trim().length >= 20);
+  if (tr === null || tr === undefined || seg === undefined || seg.kind !== "ai") return null;
+  const text = seg.text.replace(MARKERS, "").replace(/\s+/g, " ").trim();
+  const meta = { lang: tr.lang, review: tr.review ?? null };
+  if (text.length <= max) return { text, ...meta };
+  const cut = text.lastIndexOf(" ", max);
+  return { text: `${text.slice(0, cut > 0 ? cut : max).trimEnd()}…`, ...meta };
 }

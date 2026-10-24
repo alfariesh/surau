@@ -180,7 +180,11 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
       [p, ...p.continuations].flatMap((x) => (x.translation === null ? [] : [x.translation])),
     );
     return (
-      <div className={`passage passage-heading ${toc ? "" : "passage-subheading"}`} id={p.anchor}>
+      <div
+        className={`passage passage-heading ${toc ? "" : "passage-subheading"}`}
+        data-no-tr={translation === null ? "" : undefined}
+        id={p.anchor}
+      >
         {anchors}
         {/* Judul di tengah seperti kitab cetak; ⋮ di ruang tepi (padding sama di kedua sisi). */}
         <div className="relative flex items-center justify-center gap-2 px-7 sm:gap-3 sm:px-9">
@@ -224,7 +228,12 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
   // Judul node yang menempel di akhir paragraf daftar (node_tail) tetap h2 seperti judul node lain.
   const SubTag = p.nodeHeading !== null || level === 2 ? "h2" : "h3";
   return (
-    <div className={`passage ${verse ? "passage-verse" : ""}`} id={p.anchor}>
+    // `data-no-tr`: paragraf tanpa terjemahan (X11) tampil selebar penuh di tata letak berdampingan.
+    <div
+      className={`passage ${verse ? "passage-verse" : ""}`}
+      data-no-tr={p.translation === null ? "" : undefined}
+      id={p.anchor}
+    >
       {anchors}
       {sub === -1 ? (
         <ArabicText className={`text-foreground ${verse ? "verse" : ""}`}>

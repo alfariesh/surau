@@ -160,6 +160,8 @@ describe("shownTitles", () => {
       statuses: ["ai_generated"],
       from: "2026-10-21",
       to: "2026-10-21",
+      // Bahasa judul untuk atribut `lang` di daftar isi dan kepala halaman (X11).
+      lang: "id",
     });
   });
 });

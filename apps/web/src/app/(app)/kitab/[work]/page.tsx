@@ -11,6 +11,7 @@ import { BreadcrumbJsonLd } from "../../../../components/breadcrumb-json-ld";
 import { WorkCover } from "../../../../components/book/work-cover";
 import { LicenseNotice } from "../../../../components/reader/license-notice";
 import { TocTree } from "../../../../components/reader/toc-tree";
+import { HeaderMenuReadMode } from "../../../../components/shell/header-menu";
 import { id } from "../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../lib/layout";
 import { loadReaderToc, loadToc, loadWork } from "../../../../lib/reader/data";
@@ -119,6 +120,8 @@ export default async function WorkPage({ params }: Props) {
             {t.tocHeading}
           </Typography.Heading>
           <TocTree items={shown.items} titleSource={shown.titleSource} />
+          {/* Judul Indonesia daftar isi ikut mode baca (X11): pilihannya ada di menu ⋮. */}
+          {shown.titleSource ? <HeaderMenuReadMode /> : null}
         </section>
         <aside aria-label={t.editionsLabel}>
           <Card className="lg:sticky lg:top-20">

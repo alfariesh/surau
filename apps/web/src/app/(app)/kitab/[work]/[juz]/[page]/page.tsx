@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { ArabicInline } from "../../../../../../components/arabic";
 import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-ld";
+import { AiBadge } from "../../../../../../components/reader/ai-badge";
 import { AiNotice } from "../../../../../../components/reader/ai-notice";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
 import { ContinuousReader } from "../../../../../../components/reader/continuous-reader";
@@ -25,7 +26,8 @@ import { PAGE_FRAME } from "../../../../../../lib/layout";
 import { citeParts } from "../../../../../../lib/reader/cite";
 import { loadPage, loadReaderToc, loadToc } from "../../../../../../lib/reader/data";
 import { buildPageModel } from "../../../../../../lib/reader/page-model";
-import { previewSample } from "../../../../../../lib/reader/preview";
+import { previewSample, previewTranslation } from "../../../../../../lib/reader/preview";
+import type { ReaderSample } from "../../../../../../lib/reader/preview";
 import { OPEN_GRAPH_BASE } from "../../../../../../lib/site";
 import {
   activeRowId,
@@ -109,11 +111,16 @@ export default async function ReaderPage({ params }: Props) {
     babNode === undefined
       ? undefined
       : flattenToc(shown.items).find((i) => i.kind === "node" && i.id === babNode.id)?.titleId;
-  // Pratinjau huruf di panel Tampilan: awal paragraf isi pertama halaman ini (lib/reader/preview).
+  // Pratinjau di panel Tampilan: awal paragraf isi pertama halaman ini + awal terjemahan AI-nya
+  // (lib/reader/preview), supaya pratinjau mengikuti mode baca.
   const firstText = model.body.find((p) => p.heading === null);
-  const sample = previewSample(
-    (page.body.find((p) => p.id === firstText?.id) ?? page.body[0])?.text_raw,
-  );
+  const sample: ReaderSample = {
+    arabic: previewSample(
+      (page.body.find((p) => p.id === firstText?.id) ?? page.body[0])?.text_raw,
+    ),
+    translation: previewTranslation(firstText?.translation ?? null),
+    hasTranslation: model.ai.translation || model.ai.reviewed,
+  };
 
   return (
     <ReaderProvider cite={citeParts(page.citation.source, juz, pageNo)} pagePath={permalink}>
@@ -149,11 +156,13 @@ export default async function ReaderPage({ params }: Props) {
               </Typography>
               {bab !== null && babId !== undefined ? (
                 <Typography type="body-sm" className="flex flex-wrap items-baseline gap-x-2">
-                  <span lang="id">
+                  {/* Judul Indonesia = bantuan terjemahan (X11): disembunyikan di mode baca Arab. */}
+                  <span data-tr-aid="" lang={shown.titleSource?.lang}>
                     {babId}
-                    <span className="ai-badge" title={t.tocTitleHint}>
-                      {t.tocTitleBadge}
-                    </span>
+                    <AiBadge
+                      announce
+                      label={{ kind: "ai", badge: t.tocTitleBadge, detail: t.tocTitleHint }}
+                    />
                   </span>
                   <ArabicInline>{bab}</ArabicInline>
                 </Typography>

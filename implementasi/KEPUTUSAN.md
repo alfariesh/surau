@@ -1910,6 +1910,8 @@ Yang gagal (j024): takhrij gold tidak masuk jawaban (lokasi, ADR-068), bukan lab
 
 ## ADR-075 · Label AI dan penyajian terjemahan di pembaca (X04 W1–W3): satu catatan halaman + lencana per terjemahan, label saat menyalin, tipografi terjemahan, tata letak pilihan — diterima · 2026-10-21
 
+> **Sebagian digantikan 2026-10-24 (ADR-091):** "Arab saja" kini mode baca Arab (bukan sakelar), tata letak hanya berlaku di mode Keduanya, kartu Cari ikut mode baca, dan mode Terjemahan (Arab dilipat per paragraf) disetujui pemilik, menggantikan "Tidak dipilih: mode Indonesia saja".
+
 **Konteks:** audit X04 (B, C): terjemahan AI 14 px dengan CPL desktop 94–113, jarak antarparagraf 12 px, dan satu baris label "Terjemahan AI" di setiap paragraf (±16 ribu di seluruh kitab), padahal bagi sebagian besar pembaca terjemahan adalah teks utama. Pemilik menyetujui usulan agent (pertanyaan desain 1–2, 2026-10-21).
 
 **Keputusan:**
@@ -2247,3 +2249,60 @@ JS halaman baca 455 → 405 KB br (lokal), HTML 54 → 26 KB br. Bundle Worker 2
 **Verifikasi:** `pnpm check` lolos; tes unit web lolos; browser lokal desktop + ponsel (/tanya awal: catatan atas + widget berkepala sumber).
 
 **Tinjau ulang bila:** Jawab menerima batas sumber (label → pemilih sungguhan, butuh eval berbayar + izin pemilik) atau kitab kedua masuk.
+
+## ADR-091 · Mode baca Arab · Keduanya · Terjemahan untuk seluruh situs (X11): satu preferensi `surau:read-mode` → `<html data-read-mode>`, bantuan terjemahan bertanda `data-tr-aid`, Cari dan Maknaz ikut mode tanpa menyembunyikan bukti, posisi baca dijaga — diterima · 2026-10-24
+
+**Konteks:** pemilik bertanya (2026-10-24) apakah teks Arab dan terjemahan yang selalu tercampur perlu diperbaiki, karena pembaca bisa lebih suka salah satu atau keduanya; pemilik meminta solusi jangka panjang tanpa utang, karena bahasa Inggris menyusul dan pengalaman baca adalah fokus utama. Riset kode (`main` sesudah PR #124):
+- pilihan tersebar: sakelar "Tampilkan terjemahan AI" (`data-translation="off"`) dan tata letak (`data-tr-layout`) yang terpisah;
+- sakelar itu tidak menyembunyikan Ringkasan AI, judul Indonesia di daftar isi dan kepala halaman, maupun catatan AI di kaki halaman;
+- tata letak Berdampingan mengabaikan sakelar dan meninggalkan separuh kolom kosong (juga untuk paragraf tanpa terjemahan); syair mengukur lebar seluruh kolom;
+- kata cari Indonesia (`?q=`) tidak terlihat bila terjemahannya tersembunyi atau dilipat;
+- kartu Cari dan kutipan Maknaz tidak mengikuti pilihan pembaca.
+
+Jawaban pemilik (2026-10-24, pertanyaan pilihan): (1) mode Terjemahan boleh, dengan teks Arab tetap ada (dilipat per paragraf); (2) "bahasa Inggris" = situs berbahasa Inggris (ADR-092); (3) Cari dan Maknaz ikut mode, bukti tetap tampil; (4) dikerjakan sesudah PR #124.
+
+**Keputusan:**
+1. **Satu preferensi global** `surau:read-mode` (`ar` | `both` | `tr`), atribut `<html data-read-mode>` dipasang skrip awal (ADR-083); tanpa atribut = Keduanya (bawaan). Nilainya netral bahasa ("terjemahan" = terjemahan dalam bahasa situs). Sakelar lama `surau:reader-translation` dipindah sekali oleh skrip awal ("0" → `ar`, selain itu `both`; mode yang sudah tersimpan menang) lalu dihapus; cabang pemindahan boleh dihapus sesudah **2027-04-30**. Atribut `data-translation` dihapus.
+2. **Mode Arab** menyembunyikan terjemahan paragraf dan semua bantuan terjemahan bertanda `data-tr-aid`: Ringkasan AI, catatan AI di awal teks, baris AI kaki halaman, judul Indonesia + catatannya di daftar isi, judul Indonesia di kepala halaman. Popover ayat (terjemahan Kemenag, bukan terjemahan AI) dan catatan kaki takhrij sama di semua mode; /tinjau tidak terpengaruh (`.translation-preview`).
+3. **Tata letak** (Di bawah / Dilipat / Berdampingan) hanya berlaku di Keduanya. Berdampingan: paragraf tanpa terjemahan (`data-no-tr`) selebar penuh; syair mengukur lebarnya sendiri (`container: verse`, ambang `25.6em` = 36rem pada ukuran bawaan, ikut ukuran huruf).
+4. **Teks tersembunyi yang dituju dibuka per paragraf** (`lib/reader/fold.ts`): kecocokan kata cari dan tautan `#…`. Di mode Arab terjemahan paragraf itu dibuka sementara (`data-tr-peek`) dengan tombol "Terjemahan AI" untuk menutupnya lagi; di Dilipat dibuka. Terjemahan judul (satu baris, tanpa tombol) ikut dibuka bila kata cari cocok di sana. Batas yang diterima: ringkasan AI tidak disorot penyorot kata cari, jadi hasil Cari yang cocok hanya lewat ringkasan mendarat di halaman yang menyembunyikan ringkasan itu di mode Arab.
+5. **Posisi baca dijaga** (`lib/keep-position.ts`): setiap perubahan preferensi (mode, ukuran, font, jarak, perataan, tata letak) dan pembukaan otomatis mengukur jangkar (paragraf pertama yang mulai di bawah navbar, atau paragraf terpotong bila tidak ada), menerapkan perubahan, lalu menggulir selisihnya di wadah gulir yang sebenarnya. Scroll anchoring browser dimatikan (`overflow-anchor: none`) selama dua frame penyesuaian: tanpa itu Chrome ikut mengoreksi sesudahnya (koreksi ganda, terukur ±270 px di uji lokal) bila jangkar pilihannya ikut tersembunyi.
+6. **Kontrol:** Segment "Mode baca" (grup radio) di paling atas panel Tampilan dan di menu ⋮ navbar di bawah tema, hanya di halaman yang teksnya terpengaruh (pembaca, daftar isi karya yang berjudul Indonesia, Cari; didaftarkan halaman lewat `useHeaderMenuReadMode`). Label **Arab · Keduanya · Terjemahan** ("Arab + Terjemahan" tidak muat tiga tombol di menu 256 px). Panel: pratinjau Arab + terjemahan AI berlencana menurut mode; kontrol terjemahan yang tidak berlaku dinonaktifkan dengan keterangan, tidak disembunyikan; teks yang berganti menurut mode ditumpuk dalam satu sel grid (`StableText`), jadi tinggi panel tetap dan tepi atas lembar ponsel tidak bergeser di bawah jari (diukur 0 px). Kamus terpisah `i18n/id/readMode.ts` (shell tidak membawa kamus pembaca, ADR-079).
+7. **Cari dan Maknaz ikut mode tanpa menyembunyikan bukti:** kartu Cari selalu menampilkan potongan Arab; di mode Arab terjemahan hanya tampil bila jalur terjemahan yang cocok (`hitParts`, satu-satunya alasan paragraf itu muncul); ringkasan bagian hanya ada bila jalurnya cocok, jadi selalu tampil. Kutipan Maknaz: Arab selalu tampil (bukti verifikasi); terjemahannya terbuka bawaan di mode Terjemahan (bagian B).
+8. **Bahasa dari data:** `TranslationModel.lang` (`PAGE_MODEL_VERSION` 6), `summary.lang`, `TitleSource.lang`, `KutipanItem.translation.lang`; `lang` blok terjemahan, ringkasan, dan judul diambil dari situ. `<html lang>` dan tombol UI di dalam blok Arab memakai `UI_LANG` (`i18n/locale.ts`). Pemenggalan kata berkunci kelas, bukan `[lang="id"]`.
+9. **Lencana AI pembaca satu komponen** (`components/reader/ai-badge.tsx`: paragraf, judul, kepala halaman). Teks label tetap satu sumber (`translationLabel`, ADR-082).
+10. **Mode Terjemahan (bagian B, PR terpisah):** terjemahan sebagai teks utama; teks Arab tiap paragraf yang punya terjemahan dilipat di balik baris "Teks Arab" di awal paragraf (urutan DOM = urutan tampil, WCAG 1.3.2); judul dan subjudul tidak pernah dilipat; paragraf tanpa terjemahan menampilkan Arab; ⋮ paragraf tetap terjangkau (salinan kedua dirender klien di baris itu).
+
+**Menggantikan:** ADR-075 keputusan 4 kalimat "Arab saja tetap lewat sakelar terjemahan" (kini mode Arab); ADR-075 keputusan 1 kalimat "Kartu Cari dan kaki halaman tidak berubah" untuk kartu Cari; ADR-075 "Tidak dipilih: mode 'Indonesia saja'" (bagian B, atas keputusan pemilik; teks Arab tetap ada dan tetap rujukan).
+
+**Tidak dipilih:** terjemahan saja tanpa teks Arab sama sekali (docs/01: Arab rujukan utama); mode lewat URL (memecah cache ISR, padahal mode adalah preferensi pembaca, bukan alamat); state React untuk tata letak pembaca (berkedip saat hidrasi; atribut + CSS bekerja tanpa JS); menyembunyikan kontrol yang tidak berlaku (lembar ponsel melompat); satu komponen label untuk semua permukaan (markup Cari dan Maknaz berbeda konteks; teksnya sudah satu).
+
+**Konsekuensi:** HTML ISR tetap satu untuk semua pembaca (terjemahan selalu ada di HTML, CSS yang memilih), jadi mesin pencari dan salinan tidak berubah; `PAGE_MODEL_VERSION` 6 membatalkan cache `/api/halaman` lama; CellSwitch HeroUI tidak dipakai lagi (CSS-nya dihapus dari `globals.css`); e2e `reader-x11` + axe mode Arab.
+
+**Tinjau ulang bila:** bahasa kedua masuk (ADR-092), ada akun/sinkron preferensi, atau data menunjukkan pembaca butuh mode per kitab.
+
+## ADR-092 · Arsitektur bahasa: bahasa situs (locale) adalah dimensi URL, mode baca adalah preferensi pembaca; daftar bagian yang masih terkunci "id" untuk fase bahasa Inggris — diterima · 2026-10-24
+
+**Konteks:** pemilik (2026-10-24): bahasa Inggris akan menyusul sebagai **situs berbahasa Inggris** (antarmuka, terjemahan kitab, dan nanti Maknaz) di alamat terpisah; alamat Indonesia tidak berubah; bahasa terjemahan ikut bahasa situs. ADR-057 §8 sudah menyebut rencana Indonesia, Inggris, dan Arab. Riset X11: tabel korpus yang menyimpan teks AI sudah berkunci `(…, lang)` (`translation`, `summary`, `toc_title_translation`, `subheading_translation`, `translation_review`) dan 313 ringkasan `en` sudah ada (tidak dibaca), tetapi lapisan core, web, LLM, Cari, Jawab, dan MCP terkunci ke "id".
+
+**Keputusan:**
+1. **Dua konsep terpisah.** *Bahasa situs* menentukan antarmuka, bahasa terjemahan/ringkasan/judul yang ditampilkan, bahasa jawaban Maknaz, sumber terjemahan ayat, dan jalur cari Latin; ditentukan oleh URL: `id` di alamat sekarang (permalink tetap, docs/01 prinsip 2), `en` di bawah `/en/…`. *Mode baca* (ADR-091) adalah preferensi pembaca di klien yang sama untuk semua bahasa.
+2. **Tanpa proxy/middleware (ADR-003):** rute `/en` lewat segmen atau grup rute statis yang memakai halaman yang sama dengan bahasa sebagai parameter, atau `rewrites` di `next.config` — dipilih di sesi bahasa Inggris sesudah docs Next/OpenNext terbaru dibaca. HTML ISR satu per bahasa situs.
+3. **Situs Arab** (ADR-057): antarmuka RTL; mode baca hanya Arab.
+4. **Yang sudah netral bahasa sejak X11:** ADR-091 §8 (`lang` dari data, `UI_LANG`, nilai mode baca, CSS).
+5. **Masih terkunci "id"** (diubah di fase bahasa Inggris; tidak ada yang dibangun sekarang):
+   - konstanta `AI_TEXT_LANG` (`packages/db/src/repo/search.ts`), `TITLE_LANG` (`apps/web/src/lib/reader/reader-toc.ts`), `TRANSLATION_LANG` dan `TOC_TITLE_LANG` (`packages/llm`) → parameter `lang` di `readPage`, judul daftar isi, `searchText`, kutipan, dan tinjauan;
+   - `translation_revision` (DB app) ber-`CHECK (lang = 'id')` → tabel dibangun ulang (data permanen + trigger hanya-tambah, butuh migrasi khusus);
+   - FTS Latin per bahasa (`translation_fts`/`summary_fts` tanpa kolom bahasa, rowid = id paragraf), stemmer/stopword/ejaan Inggris, `LATIN_FTS_LANG`, dan deteksi bahasa kueri (kini setiap huruf Latin dianggap Indonesia);
+   - kunci cache yang belum memuat bahasa: hasil Cari, `/api/halaman`, dan jawaban Jawab;
+   - prompt `translate-passage` (gaya dan glosarium Indonesia), `translate-toc-title` (kunci keluaran `indonesia`), pemeriksa `check.ts` (kata Inggris dianggap komentar meta), CLI `pnpm llm` tanpa `--lang`, ingest `z.literal("id")`;
+   - terjemahan ayat: Kemenag hanya Indonesia; bahasa Inggris butuh sumber terjemahan resmi berlisensi jelas (tugas pemilik), karena ayat tidak pernah diterjemahkan model (teks-arab.md aturan 9);
+   - Maknaz: `jawabRequest` tanpa `lang`, prompt jawaban berbahasa Indonesia baku, kalimat baku yang diurai kode, eval dan tinjauan ustadz per bahasa;
+   - UI: ±70 berkas mengimpor `i18n/id/*` langsung → pengambil kamus per bahasa; `I18nProvider locale`, formatter `id-ID`, `og:locale`, hreflang + sitemap;
+   - MCP/API: parameter `lang` aditif (keluaran sudah membawa `lang`); deskripsi tool menyebut "Indonesian";
+   - nama field `titleId` (judul Indonesia) di model daftar isi web.
+6. docs/01 dan docs/07 mencatat rencana ini; "Bahasa Indonesia di semua lapisan" tetap berlaku untuk situs Indonesia. FASE: baris garis besar "Bahasa Inggris", belum dijadwalkan.
+
+**Tidak dipilih:** memindahkan semua rute ke `app/[locale]` sekarang (belum ada terjemahan Inggris; tanpa proxy butuh rewrites yang menyentuh ISR/OpenNext, risiko LCP dan cache tanpa manfaat saat ini); bahasa terjemahan sebagai preferensi klien di samping mode baca (HTML ISR memuat satu bahasa; dua bahasa di HTML menambah berat halaman dan LCP).
+
+**Tinjau ulang bila:** sesi bahasa Inggris dimulai (pilih mekanisme rute dengan docs terbaru), atau pemilik ingin terjemahan bahasa lain di situs Indonesia.

@@ -8,10 +8,13 @@ import NextLink from "next/link";
 
 import { reader as readerText } from "../../i18n/id/reader";
 import { search as searchText } from "../../i18n/id/search";
+import type { ReadMode } from "../../lib/reader/scale";
+import { hitParts } from "../../lib/search/hit-parts";
 import { aiSegments, markSegments, readerHref } from "../../lib/search/segments";
 import type { TextSegment } from "../../lib/search/segments";
 import { ArabicInline, ArabicText } from "../arabic";
 import { translationLabel } from "../../lib/translation-label";
+import { useReadMode } from "../read-mode";
 
 const t = searchText;
 const r = readerText;
@@ -19,7 +22,8 @@ const r = readerText;
 // Kartu satu halaman cetak hasil Cari (S14): judul bagian + letak (j/h), lalu setiap paragraf
 // cocok: potongan Arab ASLI (irisan text_raw dari API, sorotan hanya membungkus), terjemahan AI
 // berlabel, ringkasan bagian (bila jalur ringkasan cocok), asal kecocokan, dan tautan ke paragraf
-// di pembaca dengan `?q=` supaya kata yang dicari ikut disorot di sana.
+// di pembaca dengan `?q=` supaya kata yang dicari ikut disorot di sana. Mode baca (X11): di mode Arab
+// terjemahan hanya tampil bila jalur terjemahan yang cocok (`hitParts`); bukti Arab selalu tampil.
 
 function render(segments: readonly TextSegment[]): ReactNode[] {
   return segments.map((s, i) => {
@@ -42,11 +46,15 @@ function render(segments: readonly TextSegment[]): ReactNode[] {
   });
 }
 
-function Hit({ hit, query }: { hit: SearchHit; query: string }) {
+function Hit({ hit, query, mode }: { hit: SearchHit; query: string; mode: ReadMode }) {
   const arabic = markSegments(hit.snippet.text, hit.snippet.char_start, hit.highlights);
   const tr = hit.translation?.review_status === "rejected" ? null : hit.translation;
   const sm = hit.summary?.review_status === "rejected" ? null : hit.summary;
   const partial = hit.matched_by.some((m) => !m.all_terms);
+  const parts = hitParts(
+    { matched_by: hit.matched_by, hasTranslation: tr !== null, hasSummary: sm !== null },
+    mode,
+  );
   return (
     <div className="flex flex-col gap-3 border-t border-separator pt-3 first:border-t-0 first:pt-0">
       {hit.kind === "foot" ? (
@@ -55,8 +63,8 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
         </Chip>
       ) : null}
       <ArabicText className="text-foreground search-snippet">{render(arabic)}</ArabicText>
-      {tr ? (
-        <div className="flex flex-col gap-1" lang="id">
+      {tr && parts.includes("translation") ? (
+        <div className="flex flex-col gap-1" lang={tr.lang}>
           <Chip className="self-start" size="sm" variant="soft">
             {translationLabel(tr.human_review).badge}
           </Chip>
@@ -66,7 +74,7 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
         </div>
       ) : null}
       {sm ? (
-        <div className="bg-surface-secondary flex flex-col gap-1 rounded-xl p-3" lang="id">
+        <div className="bg-surface-secondary flex flex-col gap-1 rounded-xl p-3" lang={sm.lang}>
           <div className="flex flex-wrap items-center gap-2">
             <Chip color="accent" size="sm" variant="soft">
               {r.aiSummary}
@@ -107,8 +115,11 @@ export function ResultCard({ page, query }: { page: ResultPage; query: string })
   const shown = hits.slice(0, HITS_PER_CARD);
   const rest = hits.length - shown.length;
   const section = shown.find((h) => h.section !== null)?.section ?? null;
+  // Kartu dirender di klien sesudah hasil datang, jadi mode baca dibaca langsung (X11).
+  const mode = useReadMode();
   return (
-    <li>
+    // Jangkar jaga posisi saat mode baca diganti dari menu ⋮ (lib/keep-position).
+    <li data-keep-position="">
       <Card>
         <Card.Header className="gap-1">
           <Card.Title className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -124,7 +135,7 @@ export function ResultCard({ page, query }: { page: ResultPage; query: string })
         </Card.Header>
         <Card.Content className="flex flex-col gap-3">
           {shown.map((hit) => (
-            <Hit key={hit.id} hit={hit} query={query} />
+            <Hit key={hit.id} hit={hit} mode={mode} query={query} />
           ))}
           {rest > 0 ? (
             <NextLink

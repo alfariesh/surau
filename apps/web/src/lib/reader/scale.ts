@@ -10,10 +10,21 @@ export const READER_TR_SCALES = [0.9, 1, 1.1, 1.2, 1.35] as const;
 export const READER_TR_SCALE_KEY = "surau:reader-tr-scale";
 
 /**
- * Tampil/sembunyikan terjemahan AI di pembaca (S14), disimpan per browser. "0" = sembunyi:
- * atribut `data-translation="off"` di <html> (CSS menyembunyikan `.passage-translation`).
+ * Mode baca (X11, ADR-091): teks yang tampil di pembaca, Cari, dan Maknaz, disimpan per browser dan
+ * berlaku di seluruh situs. Atribut `data-read-mode` di <html>: tanpa atribut = "both" (bawaan,
+ * Arab + terjemahan, tata letak dari `data-tr-layout`); "ar" = Arab saja. Netral bahasa:
+ * "terjemahan" = terjemahan dalam bahasa situs. Urutan = urutan pilihan di UI.
  */
-export const READER_TRANSLATION_KEY = "surau:reader-translation";
+export const READ_MODES = ["ar", "both"] as const;
+export type ReadMode = (typeof READ_MODES)[number];
+export const READ_MODE_KEY = "surau:read-mode";
+
+/**
+ * Kunci lama sakelar "Tampilkan terjemahan AI" (S14–X10, "0" = Arab saja). Skrip awal memindahkannya
+ * sekali ke `READ_MODE_KEY` lalu menghapusnya; cabang pemindahan boleh dihapus sesudah 2027-04-30
+ * (ADR-091).
+ */
+export const LEGACY_TRANSLATION_KEY = "surau:reader-translation";
 
 /**
  * Font Arab pilihan pembaca: atribut `data-reader-font` di <html> mengganti `--font-arabic`
@@ -82,12 +93,26 @@ export const READER_ATTR_PREFS = [
     values: [...READER_TR_LAYOUTS],
     fallback: "interleave",
   },
+  {
+    key: READ_MODE_KEY,
+    attr: "data-read-mode",
+    values: [...READ_MODES],
+    fallback: "both",
+  },
 ] as const;
 
 /**
- * Skrip kecil di awal setiap halaman (root layout): pasang skala Arab dan terjemahan, pilihan
- * terjemahan, font, jarak baris, perataan, tata letak terjemahan, catatan AI yang sudah ditutup, dan
- * tanda posisi baca tersimpan sebelum teks tampil, supaya tidak berkedip atau menggeser tata letak.
+ * Pindahkan sakelar terjemahan lama ke mode baca (sekali, sebelum preferensi dipasang): "0" → "ar",
+ * selain itu "both"; mode baca yang sudah tersimpan menang. Bila penyimpanan menolak ditulis, kunci
+ * lama dibiarkan (dicoba lagi di halaman berikutnya) dan mode Arab tetap dipasang dari memori.
+ * Dibungkus try sendiri supaya galat tulis tidak membatalkan preferensi lain.
+ */
+const LEGACY_MIGRATION = `try{var o=l.getItem(${JSON.stringify(LEGACY_TRANSLATION_KEY)});if(o!==null){if(l.getItem(${JSON.stringify(READ_MODE_KEY)})===null){var m=o==="0"?"ar":"both";try{l.setItem(${JSON.stringify(READ_MODE_KEY)},m)}catch(e){if(m==="ar")d.setAttribute("data-read-mode","ar");throw e}}l.removeItem(${JSON.stringify(LEGACY_TRANSLATION_KEY)})}}catch(e){}`;
+
+/**
+ * Skrip kecil di awal setiap halaman (root layout): pasang skala Arab dan terjemahan, mode baca,
+ * font, jarak baris, perataan, tata letak terjemahan, catatan AI yang sudah ditutup, dan tanda
+ * posisi baca tersimpan sebelum teks tampil, supaya tidak berkedip atau menggeser tata letak.
  * Gagal diam-diam bila localStorage diblokir.
  */
-export const READER_SCALE_SCRIPT = `try{var d=document.documentElement,l=localStorage,s=Number(l.getItem(${JSON.stringify(READER_SCALE_KEY)})),r=Number(l.getItem(${JSON.stringify(READER_TR_SCALE_KEY)}));if(${JSON.stringify(READER_SCALES)}.indexOf(s)>-1)d.style.setProperty("--reader-scale",String(s));if(${JSON.stringify(READER_TR_SCALES)}.indexOf(r)>-1)d.style.setProperty("--reader-tr-scale",String(r));if(l.getItem(${JSON.stringify(READER_TRANSLATION_KEY)})==="0")d.setAttribute("data-translation","off");if(l.getItem(${JSON.stringify(AI_NOTICE_KEY)})==="off")d.setAttribute("data-ai-notice","off");${JSON.stringify(READER_ATTR_PREFS)}.forEach(function(p){var v=l.getItem(p.key);if(v&&v!==p.fallback&&p.values.indexOf(v)>-1)d.setAttribute(p.attr,v)});for(var i=0;i<l.length;i++){var k=l.key(i);if(k&&k.indexOf(${JSON.stringify(LAST_READ_PREFIX)})===0){d.setAttribute("data-reading","");break}}}catch(e){}`;
+export const READER_SCALE_SCRIPT = `try{var d=document.documentElement,l=localStorage,s=Number(l.getItem(${JSON.stringify(READER_SCALE_KEY)})),r=Number(l.getItem(${JSON.stringify(READER_TR_SCALE_KEY)}));if(${JSON.stringify(READER_SCALES)}.indexOf(s)>-1)d.style.setProperty("--reader-scale",String(s));if(${JSON.stringify(READER_TR_SCALES)}.indexOf(r)>-1)d.style.setProperty("--reader-tr-scale",String(r));${LEGACY_MIGRATION}if(l.getItem(${JSON.stringify(AI_NOTICE_KEY)})==="off")d.setAttribute("data-ai-notice","off");${JSON.stringify(READER_ATTR_PREFS)}.forEach(function(p){var v=l.getItem(p.key);if(v&&v!==p.fallback&&p.values.indexOf(v)>-1)d.setAttribute(p.attr,v)});for(var i=0;i<l.length;i++){var k=l.key(i);if(k&&k.indexOf(${JSON.stringify(LAST_READ_PREFIX)})===0){d.setAttribute("data-reading","");break}}}catch(e){}`;
