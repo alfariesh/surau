@@ -283,7 +283,9 @@ function ReadModeControl({ mode, hasTranslation }: { mode: ReadMode; hasTranslat
 function Preview({ preview, mode }: { preview: ReaderSample; mode: ReadMode }) {
   const tr = mode === "ar" ? null : preview.translation;
   return (
-    <Widget aria-hidden="true">
+    // `shrink-0`: badan lembar ponsel adalah kolom flex yang bisa digulir; tanpa ini widget
+    // (overflow tersembunyi) menyusut dan memotong pratinjau beserta lencana AI-nya.
+    <Widget aria-hidden="true" className="shrink-0">
       <Widget.Header>
         <Widget.Title>{t.stylePreviewNote}</Widget.Title>
       </Widget.Header>
