@@ -118,13 +118,24 @@ describe("jenis kutipan dari kode", () => {
       kind: "report",
       banned: "takhrij la_asl",
     });
+    // Paragraf sebelumnya di bagian yang sama: penanda pertama sesudahnya ada di paragraf berikut
+    // (±650 karakter, lintas paragraf) dan takhrijnya "la asl": larangan tetap berlaku.
     expect(inspect({ passageId: 10_000_003, start: 0, end: 40 })).toEqual({
+      kind: "report",
+      banned: "takhrij la_asl",
+    });
+    // Paragraf di bagian lain (bab kedua tanpa penanda): perkataan biasa.
+    expect(inspect({ passageId: 10_000_004, start: 0, end: 40 })).toEqual({
       kind: "text",
       banned: null,
     });
     const verse = passage(7, 4, 1, 5, "بيت تجريبي أول ... بيت تجريبي ثان");
     expect(
-      quoteInspector({ passage: [verse], footnote_ref: [] })({
+      quoteInspector({
+        page: corpus().page,
+        passage: [verse],
+        footnote_ref: [],
+      })({
         passageId: verse.id,
         start: 0,
         end: 15,
@@ -143,6 +154,7 @@ describe("riwayat panjang", () => {
     const note = passage(11, null, 1, 2, "حديث تجريبي لا أصل له", "foot");
     const marker = hadith.lastIndexOf("(١)");
     const inspect = quoteInspector({
+      page: corpus().page,
       passage: [p, note],
       footnote_ref: [
         {
@@ -159,11 +171,13 @@ describe("riwayat panjang", () => {
       kind: "report",
       banned: "takhrij la_asl",
     });
-    // Ada akhir kalimat di antaranya: bukan riwayat yang sama.
+    // Ada akhir kalimat di antaranya: larangan tetap berlaku (riwayat bisa memuat titik), tetapi
+    // label riwayat tidak dipakai bila takhrijnya tidak terlarang (lihat kasus di bawah).
     const prose = `${"كلام المؤلف. ".repeat(5)}قال رسول الله نص تجريبي (١)`;
     const q = passage(12, 4, 1, 8, prose);
     const m2 = prose.lastIndexOf("(١)");
     const inspect2 = quoteInspector({
+      page: corpus().page,
       passage: [q, note],
       footnote_ref: [
         {
@@ -176,9 +190,28 @@ describe("riwayat panjang", () => {
       ],
     });
     expect(inspect2({ passageId: q.id, start: 0, end: 12 })).toEqual({
-      kind: "text",
-      banned: null,
+      kind: "report",
+      banned: "takhrij la_asl",
     });
+    // Penanda lebih dari 1.500 karakter sesudahnya: di luar jangkauan.
+    const far = `${"كلام المؤلف بلا علامة ".repeat(80)}(١)`;
+    const f = passage(15, 4, 1, 10, far);
+    const mf = far.lastIndexOf("(١)");
+    expect(
+      quoteInspector({
+        page: corpus().page,
+        passage: [f, note],
+        footnote_ref: [
+          {
+            passage_id: f.id,
+            char_start: mf,
+            char_end: mf + 3,
+            marker: "١",
+            footnote_passage_id: note.id,
+          },
+        ],
+      })({ passageId: f.id, start: 0, end: 20 }),
+    ).toEqual({ kind: "text", banned: null });
 
     // Perkataan penulis sebelum riwayat baru ("قال" di antaranya): tetap perkataan, tetapi
     // larangan takhrij riwayat berikutnya tetap berlaku.
@@ -190,11 +223,23 @@ describe("riwayat panjang", () => {
       { passage_id: w.id, char_start: m3, char_end: m3 + 3, marker: "١", footnote_passage_id: id },
     ];
     const at = { passageId: w.id, start: 0, end: 11 };
-    expect(quoteInspector({ passage: [w, okNote], footnote_ref: refs(okNote.id) })(at)).toEqual({
+    expect(
+      quoteInspector({
+        page: corpus().page,
+        passage: [w, okNote],
+        footnote_ref: refs(okNote.id),
+      })(at),
+    ).toEqual({
       kind: "text",
       banned: null,
     });
-    expect(quoteInspector({ passage: [w, note], footnote_ref: refs(note.id) })(at)).toEqual({
+    expect(
+      quoteInspector({
+        page: corpus().page,
+        passage: [w, note],
+        footnote_ref: refs(note.id),
+      })(at),
+    ).toEqual({
       kind: "report",
       banned: "takhrij la_asl",
     });
@@ -202,18 +247,29 @@ describe("riwayat panjang", () => {
 });
 
 describe("penunjuk kutipan v2", () => {
-  test("kata awal dan akhir dicari di rentang blok, dikembalikan sebagai offset text_raw", () => {
-    const text = "قال الشيخ العلم نور. والجهل ظلمة في القلب. ثم قال غير ذلك";
+  test("awal di blok dari, akhir di blok sampai sesudah awal; frasa berulang ditolak", () => {
+    const text = "قال الشيخ العلم نور. والجهل ظلمة في القلب. ثم قال غير ذلك في القلب";
     const p = passage(8, 4, 1, 6, text);
     const locate = quoteLocator({ passage: [p] });
-    const r = locate({ passageId: p.id, start: 0, end: text.length }, "العلم نور", "في القلب");
-    expect(r).toEqual({ passageId: p.id, start: text.indexOf("العلم"), end: text.indexOf(". ثم") });
-    expect(locate({ passageId: p.id, start: 0, end: 20 }, "الجهل", "القلب")).toBe(
-      "pointer_start_not_found",
-    );
-    // Akhir dicari sesudah awal: kata yang sama sebelum awal tidak dipakai.
-    expect(locate({ passageId: p.id, start: 0, end: text.length }, "والجهل", "قال")).toMatchObject({
-      end: text.lastIndexOf("قال") + 3,
+    const all = { passageId: p.id, start: 0, end: text.length };
+    const firstEnd = text.indexOf("والجهل");
+    const lastStart = text.indexOf("ثم");
+    // Satu blok utuh: awal di blok pertama, akhir boleh di mana saja sesudahnya.
+    expect(locate(all, "العلم نور", "ظلمة في", text.length, 0)).toEqual({
+      passageId: p.id,
+      start: text.indexOf("العلم"),
+      end: text.indexOf(" القلب."),
     });
+    // "في القلب" muncul dua kali: ambigu, tidak ditebak.
+    expect(locate(all, "العلم نور", "في القلب", text.length, 0)).toBe("pointer_ambiguous");
+    // Akhir harus berakhir di blok "sampai": kemunculan yang hanya di blok pertama tidak dipakai.
+    expect(locate(all, "العلم نور", "في القلب", firstEnd, lastStart)).toEqual({
+      passageId: p.id,
+      start: text.indexOf("العلم"),
+      end: text.length,
+    });
+    // Awal harus mulai di blok "dari".
+    expect(locate(all, "ثم قال", "ذلك", firstEnd, lastStart)).toBe("pointer_start_not_found");
+    expect(locate(all, "الجهل", "القلب", 15, lastStart)).toBe("pointer_start_not_found");
   });
 });

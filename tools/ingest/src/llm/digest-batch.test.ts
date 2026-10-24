@@ -9,11 +9,13 @@ import { DIGEST_SECTION_PROMPT, MODELS } from "@surau/llm";
 import { describe, expect, test } from "vite-plus/test";
 
 import { digestCorpus } from "../../test/digest-fixture.ts";
+import { budgetProblem } from "./batch.ts";
 import type { PlannedRequest } from "./batch.ts";
 import { digestRows, withDigestSummaries } from "./digest-attach.ts";
 import {
   anchorsFromPoints,
   digestRetries,
+  glossarySpentUsd,
   pendingDigestRequests,
   rebuildDigests,
   titlesOf,
@@ -22,7 +24,7 @@ import { readDigestStore, writeDigestStore } from "./digest-store.ts";
 import { pilotSql } from "./digest-staging.ts";
 import { digestPlan } from "./digest-units.ts";
 import type { DigestCorpus, DigestPlan } from "./digest-units.ts";
-import { readBatches, writeBatches, writeJsonl } from "./store.ts";
+import { appendJsonl, readBatches, writeBatches, writeJsonl } from "./store.ts";
 
 const words = (n: number) => Array.from({ length: n }, () => "kata").join(" ");
 const ABSTRACT =
@@ -114,7 +116,10 @@ function leafOutput(plan: DigestPlan, customId: string) {
   };
 }
 
-function setup(rows: DigestCorpus = digestCorpus()) {
+/** Takhrij yang tidak terlarang: alur utama tidak terganggu larangan kutipan (diuji di digest-units). */
+const PERMITTED = { 9: "حديث تجريبي رواه البخاري" };
+
+function setup(rows: DigestCorpus = digestCorpus(PERMITTED)) {
   const dir = mkdtempSync(join(tmpdir(), "surau-intisari-"));
   const plan = digestPlan(rows, { scope: 100_003, maxTokens: 150 });
   return { dir, plan, rows, titles: titlesOf(rows) };
@@ -284,7 +289,7 @@ describe("alur Intisari tanpa API", () => {
     expect(broken.problems).toEqual(["100004: kutipan 1 tidak cocok sidik"]);
 
     // Teks bab pertama berubah: hasil leaf-nya basi (rejudge), node itu tidak dimuat.
-    const changed = digestCorpus({ 3: "نص تجريبي آخر تماما. ".repeat(9).trim() });
+    const changed = digestCorpus({ ...PERMITTED, 3: "نص تجريبي آخر تماما. ".repeat(9).trim() });
     const plan2 = digestPlan(changed, { scope: 100_003, maxTokens: 150 });
     rebuildDigests(dir, plan2, changed);
     const after = readDigestStore(dir);
@@ -328,5 +333,160 @@ describe("alur Intisari tanpa API", () => {
     const out = anchorsFromPoints(lists);
     expect(out).toHaveLength(9);
     expect(out.slice(0, 3)).toEqual([a(1, 0), a(2, 0), a(3, 0)]);
+  });
+});
+
+describe("tambahan peninjau", () => {
+  test("pagu bersama: biaya glosarium ikut dihitung pengaman batch", () => {
+    const dir = mkdtempSync(join(tmpdir(), "surau-pagu-"));
+    appendJsonl(join(dir, "glossary-runs.jsonl"), [
+      {
+        at: "2026-10-24T16:44:58.870Z",
+        model: MODELS.sonnet,
+        prompt_version: "glossary-gloss@1",
+        request_id: null,
+        keys: ["ikhlas"],
+        stop_reason: "end_turn",
+        usage: {
+          input_tokens: 1,
+          output_tokens: 1,
+          cache_read_input_tokens: null,
+          cache_creation_input_tokens: null,
+          cache_creation: null,
+        },
+        cost_usd: 0.9,
+        accepted: 1,
+        rejected: {},
+        problems: [],
+      },
+    ]);
+    expect(glossarySpentUsd(dir)).toBeCloseTo(0.9);
+    expect(budgetProblem(dir, 0.2, true, 1, glossarySpentUsd(dir))).toMatch(/Melebihi anggaran/u);
+    expect(budgetProblem(dir, 0.05, true, 1, glossarySpentUsd(dir))).toBeNull();
+  });
+
+  test("Intisari rub' (merge) dinilai sesudah Intisari Kitab anaknya (book)", () => {
+    const rows = digestCorpus(PERMITTED);
+    const dir = mkdtempSync(join(tmpdir(), "surau-rub-"));
+    const plan = digestPlan(rows, { maxTokens: 150 });
+    expect(plan.nodeById.get(100_002)).toMatchObject({ tier: "section", stage: "merge" });
+    const titles = titlesOf(rows);
+    runLeaf(dir, plan, rows);
+    const m1 = pendingDigestRequests(plan, readDigestStore(dir), titles, "merge");
+    expect(m1.requests.map((r) => r.custom_id)).toEqual(["dg-100005-id-m"]);
+    fakeBatch(
+      dir,
+      m1.requests,
+      new Map([
+        [
+          "dg-100005-id-m",
+          {
+            abstrak: ABSTRACT,
+            gagasan: [
+              point("Al-Ghazali merangkum bab kedua", ["n5p1.g1"]),
+              point("Al-Ghazali menutup bab kedua", ["n5p2.g1"]),
+            ],
+            kutipan: [],
+            istilah: [],
+          },
+        ],
+      ]),
+    );
+    rebuildDigests(dir, plan, rows);
+    const book = pendingDigestRequests(plan, readDigestStore(dir), titles, "book");
+    const user = book.requests[0]?.params.messages[0]?.content;
+    const ids =
+      typeof user === "string"
+        ? [...user.matchAll(/<gagasan id="([^"]+)"/gu)].map((m) => m[1]!)
+        : [];
+    fakeBatch(
+      dir,
+      book.requests,
+      new Map([
+        [
+          "dg-100003-id-b",
+          {
+            pembuka: `Kitab ini membuka pembahasan tentang ilmu menurut al-Ghazali. ${words(20)}.`,
+            abstrak: ABSTRACT,
+            gagasan: ids.map((id, i) =>
+              point(`Al-Ghazali menjelaskan gagasan kitab ${i + 1}`, [id], 110),
+            ),
+            kutipan: [],
+            istilah: [],
+            penutup: `Inti kitab ini menurut al-Ghazali adalah ilmu jalan akhirat. ${words(20)}.`,
+          },
+        ],
+      ]),
+    );
+    rebuildDigests(dir, plan, rows);
+    const rub = pendingDigestRequests(plan, readDigestStore(dir), titles, "merge");
+    expect(rub.requests.map((r) => [r.custom_id, r.digest?.sources])).toEqual([
+      ["dg-100002-id-m", ["dg-100003-id-b"]],
+    ]);
+    const kitabPoints = readDigestStore(dir).accepted.get("dg-100003-id-b")!.points.length;
+    fakeBatch(
+      dir,
+      rub.requests,
+      new Map([
+        [
+          "dg-100002-id-m",
+          {
+            abstrak: ABSTRACT,
+            gagasan: Array.from({ length: Math.min(3, kitabPoints) }, (_, i) =>
+              point(`Al-Ghazali membuka rub' dengan gagasan ${i + 1}`, [`n3.g${i + 1}`]),
+            ),
+            kutipan: [],
+            istilah: [],
+          },
+        ],
+      ]),
+    );
+    // Satu rebuild penuh: rub' (merge) dinilai SESUDAH kitab (book), jadi tidak basi.
+    const r = rebuildDigests(dir, plan, rows);
+    const store = readDigestStore(dir);
+    expect(store.accepted.has("dg-100002-id-m")).toBe(true);
+    expect(store.failures.filter((f) => f.reason === "stale_input")).toEqual([]);
+    expect(r.failures).toBe(0);
+  });
+
+  test("penunjuk v2 lewat rebuild: kutipan dipersempit; penunjuk ambigu dibuang dengan alasan", () => {
+    const text =
+      "قال الشيخ الأول العلم نور القلوب. والجهل ظلمة شديدة على أهله. ثم ذكر الشيخ الصبر وفضله العظيم في كل حال.";
+    const rows = digestCorpus({ ...PERMITTED, 3: text });
+    const { dir, plan } = setup(rows);
+    const leaf = plan.leafById.get("dg-100004-id")!;
+    const block = leaf.blocks.find((b) => b.text.includes("العلم نور"))!;
+    const { requests } = pendingDigestRequests(plan, readDigestStore(dir), titlesOf(rows), "leaf");
+    const outputs = new Map<string, unknown>(
+      requests.map((r) => [r.custom_id, leafOutput(plan, r.custom_id)]),
+    );
+    outputs.set("dg-100004-id", {
+      ...(leafOutput(plan, "dg-100004-id") as object),
+      kutipan: [
+        {
+          dari: block.label,
+          sampai: block.label,
+          awal: "العلم نور",
+          akhir: "ظلمة شديدة",
+          gagasan: 1,
+          terjemahan: "Ilmu adalah cahaya hati, dan kebodohan kegelapan yang pekat.",
+        },
+        {
+          dari: block.label,
+          sampai: block.label,
+          awal: "الشيخ",
+          akhir: "العظيم",
+          gagasan: 1,
+          terjemahan: "Sang syekh menyebut sabar.",
+        },
+      ],
+    });
+    fakeBatch(dir, requests, outputs);
+    rebuildDigests(dir, plan, rows);
+    const rec = readDigestStore(dir).accepted.get("dg-100004-id")!;
+    expect(rec.quotes).toHaveLength(1);
+    const q = rec.quotes[0]!;
+    expect(text.slice(q.char_start, q.char_end)).toBe("العلم نور القلوب. والجهل ظلمة شديدة");
+    expect(rec.dropped).toEqual([{ item: "kutipan 2", reason: "pointer_ambiguous" }]);
   });
 });

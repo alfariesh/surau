@@ -285,7 +285,13 @@ export type DigestJudgeContext =
        * Cari penunjuk Arab "awal"/"akhir" (digest-section@2) di rentang blok kutipan dan kembalikan
        * rentang `text_raw` persisnya, atau alasan gagal. Tanpa penunjuk (v1) = rentang blok utuh.
        */
-      locateQuote?: (range: QuoteRange, start: string, end: string) => QuoteRange | string;
+      locateQuote?: (
+        range: QuoteRange,
+        start: string,
+        end: string,
+        firstBlockEnd: number,
+        lastBlockStart: number,
+      ) => QuoteRange | string;
     }
   | {
       stage: "merge" | "book";
@@ -369,6 +375,8 @@ const mergeOut = z.strictObject({
 });
 const bookOut = mergeOut.extend({ pembuka: z.string(), penutup: z.string() });
 
+/** ID dari model di alasan `dropped`: hanya karakter ID (tanpa huruf Arab model). */
+const safeId = (s: string) => s.replace(/[^A-Za-z0-9._-]/gu, "?").slice(0, 40);
 const words = (t: string) => t.trim().split(/\s+/u).filter(Boolean).length;
 const within = (n: number, [lo, hi]: readonly [number, number]) => n >= lo && n <= hi;
 const unique = <T>(list: readonly T[]) => [...new Set(list)];
@@ -444,12 +452,12 @@ function pointProblems(p: PointOut, ctx: DigestJudgeContext, tier: DigestTier): 
   if (basis.length > DIGEST_LIMITS.basisMax) out.push("basis_over_limit");
   if (ctx.stage === "leaf") {
     const unknown = basis.filter((b) => !ctx.blocks.has(b));
-    if (unknown.length > 0) out.push(`unknown_block:${unknown.join("+")}`);
+    if (unknown.length > 0) out.push(`unknown_block:${unknown.map(safeId).join("+")}`);
     else if (basis.length > 0 && basis.every((b) => ctx.blocks.get(b)?.heading === true))
       out.push("heading_only");
   } else {
     const unknown = basis.filter((b) => !ctx.sourcePoints.has(b));
-    if (unknown.length > 0) out.push(`unknown_point:${unknown.join("+")}`);
+    if (unknown.length > 0) out.push(`unknown_point:${unknown.map(safeId).join("+")}`);
     else {
       // Pendapat yang dibantah tidak pernah menjadi pendapat penulis (atau sebaliknya).
       const stances = new Set(basis.map((b) => ctx.sourcePoints.get(b)));
@@ -472,8 +480,8 @@ function leafQuote(
 ): Omit<Extract<JudgedQuote, { origin: "text" }>, "origin" | "point"> | string {
   const a = ctx.blocks.get(q.dari);
   const b = ctx.blocks.get(q.sampai);
-  if (a === undefined) return `unknown_block:${q.dari}`;
-  if (b === undefined) return `unknown_block:${q.sampai}`;
+  if (a === undefined) return `unknown_block:${safeId(q.dari)}`;
+  if (b === undefined) return `unknown_block:${safeId(q.sampai)}`;
   if (a.passageId !== b.passageId) return "cross_paragraph";
   if (b.start < a.start) return "reversed";
   const blocks = [...ctx.blocks.values()].filter(
@@ -484,7 +492,7 @@ function leafQuote(
   let range: QuoteRange = { passageId: a.passageId, start: a.start, end: b.end };
   if (q.awal !== undefined || q.akhir !== undefined) {
     if (ctx.locateQuote === undefined) return "pointer_unsupported";
-    const found = ctx.locateQuote(range, q.awal ?? "", q.akhir ?? "");
+    const found = ctx.locateQuote(range, q.awal ?? "", q.akhir ?? "", a.end, b.start);
     if (typeof found === "string") return found;
     // Penunjuk harus di blok yang disebut: awal di blok "dari", akhir di blok "sampai".
     const outside =
@@ -625,7 +633,7 @@ export function judgeDigest(
       return;
     }
     const id = (q as MergeQuoteOut).id;
-    if (!ctx.sourceQuotes.has(id)) return drop(item, `unknown_quote:${id}`);
+    if (!ctx.sourceQuotes.has(id)) return drop(item, `unknown_quote:${safeId(id)}`);
     if (quotes.some((x) => x.origin === "child" && x.id === id)) return drop(item, "duplicate");
     quotes.push({ origin: "child", point, id });
   });
@@ -634,7 +642,7 @@ export function judgeDigest(
   const known = new Set(GLOSSARY_TERM_KEYS);
   out.istilah.forEach((t, k) => {
     const item = `istilah ${k + 1}`;
-    if (!known.has(t)) drop(item, `unknown_term:${t}`);
+    if (!known.has(t)) drop(item, `unknown_term:${safeId(t)}`);
     else if (terms.includes(t)) drop(item, "duplicate");
     else if (terms.length >= DIGEST_LIMITS.terms[tier]) drop(item, "over_limit");
     else terms.push(t);

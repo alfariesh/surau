@@ -233,6 +233,8 @@ export function pilotSql(build: DigestBuild, scope: readonly number[]): string {
   );
   if (nodes.length === 0) return "";
   const list = nodes.join(", ");
+  const loaded = new Set(build.digest.map((d) => d.toc_node_id));
+  const stale = nodes.filter((n) => !loaded.has(n));
   const out: string[] = [
     "-- Intisari pilot (X15b, ADR-098): baris node pilot saja, bukan ingest penuh (X15c).\n",
     ...nodes.map(
@@ -241,6 +243,14 @@ export function pilotSql(build: DigestBuild, scope: readonly number[]): string {
     ...["digest_term", "digest_question", "digest_quote", "digest_anchor", "digest_point"].map(
       (t) => `DELETE FROM ${t} WHERE lang = 'id' AND toc_node_id IN (${list});\n`,
     ),
+    // Node dalam cakupan yang kini tanpa Intisari berlaku: kepala Intisari dan audionya (yang dibuat
+    // dari skrip Intisari lama) ikut dihapus, supaya `listDigestHeaders`/`readDigest` tidak lagi
+    // menampilkan abstrak basi. Node yang dimuat ulang tetap di-UPSERT (audio X17 tidak terhapus).
+    ...(stale.length === 0
+      ? []
+      : ["audio_track", "digest"].map(
+          (t) => `DELETE FROM ${t} WHERE lang = 'id' AND toc_node_id IN (${stale.join(", ")});\n`,
+        )),
     ...upsert("glossary_term", build.glossary_term, ["term_key", "lang"]),
     ...upsert("digest", build.digest, ["toc_node_id", "lang"]),
     ...values("digest_point", build.digest_point),
@@ -285,7 +295,7 @@ export async function loadPilotToStaging(
   );
   if (s.missing.length > 0)
     console.info(`Belum punya Intisari yang berlaku: ${s.missing.join(", ")}`);
-  if (build.digest.length === 0) return 0;
+  if (plan.scope.size === 0) return 0;
   const sql = pilotSql(build, [...plan.scope]);
   const file = join(dir, "staging", `pilot-${new Date().toISOString().replace(/[:.]/g, "-")}.sql`);
   mkdirSync(join(dir, "staging"), { recursive: true });

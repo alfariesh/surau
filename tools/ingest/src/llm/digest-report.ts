@@ -19,7 +19,7 @@ import {
   readDigestStore,
 } from "./digest-store.ts";
 import type { AcceptedDigest } from "./digest-store.ts";
-import { digestCustomId, parseDigestCustomId } from "./digest-units.ts";
+import { digestCustomId, parseDigestCustomId, quoteInspector } from "./digest-units.ts";
 import type { DigestCorpus, DigestNodeUnit, DigestPlan } from "./digest-units.ts";
 import { readBatches, readJsonl, writeText } from "./store.ts";
 import { links } from "./work.ts";
@@ -52,12 +52,70 @@ const MARKER_TAIL = /\s*\([\u0660-\u0669\d]+\)\s*$/u;
 const MARKER_HEAD = /^\s*\([\u0660-\u0669\d]+\)/u;
 /**
  * Teks klasik jarang bertanda baca; batas ucapan ditandai rumus. Awal yang wajar: sesudah kata kerja
- * ucapan (qala, qila, yaqulu, ruwiya, qauluhu) dalam empat kata terakhir, mis. "قال صلى الله عليه
+ * ucapan (qala, qila, yaqulu, ruwiya, qauluhu) dalam enam kata terakhir, mis. "قال صلى الله عليه
  * وسلم" atau "وقال مالك"; atau kutipan yang dibuka partikel klausa (wa/fa…, tsumma, amma, inna, idza).
  */
 const SPEECH_BEFORE =
-  /(?:^| )(?:قال|وقال|فقال|قيل|وقيل|يقول|ويقول|روي|وروي|قوله|بقوله|كقوله)(?: [^ ]+){0,4}$/u;
-const CLAUSE_START = /^(?:و|ف|ثم|بل|لكن|اما|ان|اذا|لان)/u;
+  /(?:^| )(?:قال|وقال|فقال|قيل|وقيل|يقول|ويقول|روي|وروي|قوله|بقوله|كقوله)(?: [^ ]+){0,6}$/u;
+/**
+ * Pembuka klausa sebagai KATA UTUH (sesudah normalisasi): partikel lepas, dan wa/fa yang menempel pada
+ * kata tugas atau kata kerja ucapan. Bukan awalan huruf: "في", "فضل", "انسان", "امام" bukan batas.
+ */
+const CLAUSE_START = new RegExp(
+  `^(?:${[
+    "ثم",
+    "بل",
+    "لكن",
+    "ولكن",
+    "اما",
+    "واما",
+    "فاما",
+    "انما",
+    "فانما",
+    "وانما",
+    "اذا",
+    "فاذا",
+    "واذا",
+    "لان",
+    "فان",
+    "وان",
+    "فلا",
+    "ولا",
+    "فمن",
+    "ومن",
+    "فهو",
+    "وهو",
+    "فهي",
+    "وهي",
+    "فهذا",
+    "وهذا",
+    "فذلك",
+    "وذلك",
+    "فلذلك",
+    "ولذلك",
+    "فقد",
+    "وقد",
+    "فكما",
+    "وكما",
+    "فقال",
+    "وقال",
+    "قال",
+    "وقيل",
+    "فقيل",
+    "فكان",
+    "وكان",
+    "فليس",
+    "وليس",
+    "فلو",
+    "ولو",
+    "حتي",
+    "فيقال",
+    "ويقال",
+    "اي",
+    "يعني",
+  ].join("|")})$`,
+  "u",
+);
 const firstWord = (t: string) => normalizeArabic(t).text.trim().split(" ")[0] ?? "";
 
 /**
@@ -241,6 +299,9 @@ function qaHtml(
   fresh: Freshness,
   nodes: readonly DigestNodeUnit[],
 ): string {
+  // Jenis dan larangan kutipan dihitung ulang dengan aturan SAAT INI (sama dengan attach), supaya QA
+  // tidak menampilkan kutipan yang nanti ditahan saat dimuat.
+  const inspect = quoteInspector(rows);
   const link = links(rows);
   const passages = new Map(rows.passage.map((p) => [p.id, p]));
   const pages = new Map(rows.page.map((p) => [p.id, p]));
@@ -302,13 +363,16 @@ ${["Benar", "Kurang", "Salah"].map((v) => `<label><input type="radio" name="${es
       })
       .join("\n");
     const quotes = r.quotes
-      .map(
-        (
-          q,
-        ) => `<div class="quote"><p class="ar" dir="rtl" lang="ar">${arabic(q.passage_id, q.char_start, q.char_end)}</p>
+      .flatMap((q) => {
+        const now = inspect({ passageId: q.passage_id, start: q.char_start, end: q.char_end });
+        // Ditahan saat dimuat (larangan takhrij): tidak ditampilkan untuk dinilai.
+        if (now.banned !== null) return [];
+        return [
+          `<div class="quote"><p class="ar" dir="rtl" lang="ar">${arabic(q.passage_id, q.char_start, q.char_end)}</p>
 <p>${esc(q.translation)}</p>
-<p class="meta">${QUOTE_KIND[q.kind] ?? q.kind} · ${where(q.passage_id)} · gagasan ${q.point_ord ?? "–"} · terjemahan ${esc(q.model)} (${esc(q.prompt_version)})</p></div>`,
-      )
+<p class="meta">${QUOTE_KIND[now.kind] ?? now.kind} · ${where(q.passage_id)} · gagasan ${q.point_ord ?? "–"} · terjemahan ${esc(q.model)} (${esc(q.prompt_version)})</p></div>`,
+        ];
+      })
       .join("\n");
     return `<article>${head}\n${frame}\n${points}\n${quotes === "" ? "" : `<h3>Kutipan pilihan</h3>${quotes}`}\n<p class="meta">Istilah: ${r.terms.join(", ") || "–"}${r.dropped.length === 0 ? "" : ` · dibuang validator: ${r.dropped.map((d) => esc(`${d.item} (${d.reason})`)).join("; ")}`}</p></article>`;
   });

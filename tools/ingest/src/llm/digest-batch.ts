@@ -656,7 +656,13 @@ interface JudgeInput {
   accepted: ReadonlyMap<string, AcceptedDigest>;
   titles: ReadonlyMap<number, string>;
   inspect: (range: QuoteRange) => QuoteInspection;
-  locate: (range: QuoteRange, start: string, end: string) => QuoteRange | string;
+  locate: (
+    range: QuoteRange,
+    start: string,
+    end: string,
+    firstBlockEnd: number,
+    lastBlockStart: number,
+  ) => QuoteRange | string;
   passages: ReadonlyMap<number, { text_raw: string }>;
 }
 

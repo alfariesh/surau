@@ -515,31 +515,83 @@ export function digestPlan(rows: DigestCorpus, opts: DigestPlanOptions = {}): Di
   };
 }
 
-/** Jarak terjauh (karakter) penanda takhrij sesudah akhir kutipan yang masih dianggap riwayat yang sama. */
+/** Jarak terjauh (karakter) penanda sesudah kutipan, di paragraf yang sama, yang masih berlabel riwayat. */
 export const REPORT_LOOKAHEAD_CHARS = 600;
+/**
+ * Jarak terjauh (karakter, urutan baca, lintas paragraf di bagian yang sama) penanda takhrij PERTAMA
+ * sesudah kutipan yang larangannya ikut berlaku. Riwayat di Ihya jarang lebih dari ±1.000 karakter.
+ */
+export const BAN_LOOKAHEAD_CHARS = 1_500;
+
+const NEW_NARRATION =
+  /(?:^| )(?:قال|وقال|فقال|يقول|روي|وروي|صلي الله عليه وسلم|عليه السلام)(?: |$)/u;
 
 /**
- * Jenis kutipan dan larangannya, ditentukan kode dari baris korpus (ADR-097): `report` bila ada
- * penanda takhrij di dalam rentang, atau penanda pertama sesudahnya (≤ 600 karakter, tanpa akhir
- * kalimat di antaranya: kutipan bisa potongan awal riwayat panjang),
- * `poetry` bila paragrafnya bait syair (`verseBounds`), selain itu `text`. Riwayat yang istilah
- * takhrijnya termasuk `BANNED_TAKHRIJ_KINDS` dilarang.
+ * Jenis kutipan dan larangannya, ditentukan kode dari baris korpus (ADR-097, ADR-098 poin 11):
+ * - Larangan: penanda takhrij di dalam kutipan, dan penanda PERTAMA sesudahnya menurut urutan baca
+ *   (sisa paragraf, lalu paragraf berikutnya di bagian yang sama, ≤ `BAN_LOOKAHEAD_CHARS`), tanpa
+ *   syarat tanda baca: kutipan bisa potongan awal riwayat panjang yang penandanya jauh, di halaman
+ *   berikutnya, atau sesudah titik (peninjau X15b). Riwayat bertakhrij sangat lemah, palsu, tanpa
+ *   asal, atau tidak ditemukan tidak pernah menjadi kutipan; perkataan penulis yang kebetulan
+ *   mendahului riwayat seperti itu ikut terbuang (lebih baik daripada menampilkan riwayat palsu).
+ * - Label `report`: penanda di dalam atau tepat sesudah kutipan, atau penanda pertama di paragraf
+ *   yang sama ≤ 600 karakter tanpa akhir kalimat dan tanpa rumus riwayat baru di antaranya.
+ * - Selain itu `poetry` bila paragrafnya bait syair (`verseBounds`), atau `text`.
  */
 export function quoteInspector(
-  rows: Pick<DigestCorpus, "passage" | "footnote_ref">,
+  rows: Pick<DigestCorpus, "passage" | "footnote_ref" | "page">,
 ): (range: QuoteRange) => QuoteInspection {
   const passages = new Map(rows.passage.map((p) => [p.id, p]));
   const footBy = groupBy(rows.footnote_ref, (r) => r.passage_id);
+  for (const list of footBy.values()) list.sort((a, b) => a.char_start - b.char_start);
+  // Paragraf badan per bagian dalam urutan baca (juz, halaman cetak, ord), untuk lanjut ke paragraf
+  // berikutnya bila penanda belum ditemukan.
+  const pages = new Map(rows.page.map((pg) => [pg.id, pg]));
+  const key = (p: PassageRow): [number, number, number] => {
+    const pg = pages.get(p.page_id);
+    return [pg?.juz ?? 0, pg?.page_no ?? 0, p.ord];
+  };
+  const bySection = groupBy(
+    rows.passage.filter((p) => p.kind === "body" && p.toc_node_id !== null),
+    (p) => p.toc_node_id ?? 0,
+  );
+  for (const list of bySection.values()) {
+    list.sort((a, b) => {
+      const [x, y] = [key(a), key(b)];
+      return x[0] - y[0] || x[1] - y[1] || x[2] - y[2];
+    });
+  }
+  const banned = (m: FootnoteRefRow): string | null => {
+    const note = passages.get(m.footnote_passage_id);
+    if (note === undefined) return "takhrij tidak ditemukan";
+    const bad = takhrijLabel(note.text_raw).terms.find((t) => BANNED_TAKHRIJ_KINDS.has(t.kind));
+    return bad === undefined ? null : `takhrij ${bad.kind}`;
+  };
+  /** Penanda pertama sesudah `end` menurut urutan baca, dengan jarak dan celah teksnya. */
+  const firstAfter = (p: PassageRow, end: number) => {
+    const here = (footBy.get(p.id) ?? []).find((m) => m.char_start >= end);
+    if (here !== undefined) {
+      return {
+        m: here,
+        distance: here.char_start - end,
+        gap: p.text_raw.slice(end, here.char_start),
+        same: true,
+      };
+    }
+    const list = bySection.get(p.toc_node_id ?? 0) ?? [];
+    let distance = p.text_raw.length - end;
+    for (const q of list.slice(list.findIndex((x) => x.id === p.id) + 1)) {
+      if (distance > BAN_LOOKAHEAD_CHARS) return null;
+      const m = (footBy.get(q.id) ?? [])[0];
+      if (m !== undefined) return { m, distance: distance + m.char_start, gap: "", same: false };
+      distance += q.text_raw.length;
+    }
+    return null;
+  };
   return (range) => {
     const p = passages.get(range.passageId);
     if (p === undefined) throw new Error(`paragraf ${range.passageId} tidak ada`);
-    const notes = (footBy.get(p.id) ?? []).toSorted((a, b) => a.char_start - b.char_start);
-    const banned = (m: FootnoteRefRow): string | null => {
-      const note = passages.get(m.footnote_passage_id);
-      if (note === undefined) return "takhrij tidak ditemukan";
-      const bad = takhrijLabel(note.text_raw).terms.find((t) => BANNED_TAKHRIJ_KINDS.has(t.kind));
-      return bad === undefined ? null : `takhrij ${bad.kind}`;
-    };
+    const notes = footBy.get(p.id) ?? [];
     // Penanda di dalam rentang atau tepat sesudahnya (hanya spasi/tanda baca): riwayat itu sendiri.
     const own = notes.filter(
       (m) =>
@@ -547,55 +599,61 @@ export function quoteInspector(
         (m.char_start >= range.end &&
           /^[\s\p{P}]*$/u.test(p.text_raw.slice(range.end, m.char_start))),
     );
-    // Penanda PERTAMA sesudahnya selama belum ada akhir kalimat: kutipan bisa potongan awal riwayat
-    // panjang yang penandanya baru muncul beberapa blok kemudian (peninjau X15b). Larangan takhrijnya
-    // SELALU berlaku (lebih baik membuang perkataan daripada menampilkan riwayat palsu); jenisnya
-    // `report` hanya bila tidak ada rumus pembuka riwayat baru di antaranya (qala, ruwiya, salawat),
-    // supaya perkataan penulis sebelum riwayat berikutnya tidak berlabel riwayat.
-    const next = notes.find((m) => m.char_start >= range.end && !own.includes(m));
-    const gap = next === undefined ? "" : p.text_raw.slice(range.end, next.char_start);
-    const ahead =
-      next !== undefined &&
-      next.char_start - range.end <= REPORT_LOOKAHEAD_CHARS &&
-      !/[.!?؟]/u.test(gap)
-        ? next
-        : undefined;
-    for (const m of [...own, ...(ahead === undefined ? [] : [ahead])]) {
+    const next = firstAfter(p, range.end);
+    const reach = next !== null && next.distance <= BAN_LOOKAHEAD_CHARS ? [next.m] : [];
+    for (const m of [...own, ...reach]) {
       const why = banned(m);
       if (why !== null) return { kind: "report", banned: why };
     }
-    const newNarration =
-      /(?:^| )(?:قال|وقال|فقال|يقول|روي|وروي|صلي الله عليه وسلم|عليه السلام)(?: |$)/u;
-    if (own.length > 0 || (ahead !== undefined && !newNarration.test(normalizeArabic(gap).text))) {
-      return { kind: "report", banned: null };
-    }
+    const sameNarration =
+      next !== null &&
+      next.same &&
+      next.distance <= REPORT_LOOKAHEAD_CHARS &&
+      !/[.!?؟]/u.test(next.gap) &&
+      !NEW_NARRATION.test(normalizeArabic(next.gap).text);
+    if (own.length > 0 || sameNarration) return { kind: "report", banned: null };
     return { kind: verseBounds(p.text_raw) === null ? "text" : "poetry", banned: null };
   };
 }
 
 /**
- * Penunjuk kutipan digest-section@2 (ADR-098): cari kata awal lalu kata akhir (sesudah awal) di
- * rentang blok yang ditunjuk model, dengan `findQuote` (normalisasi `@surau/text`, batas kata,
- * kembali ke offset `text_raw` persis). Teks penunjuk dari model tidak pernah disimpan atau
- * ditampilkan; yang dipakai hanya rentang mentah hasil pencarian.
+ * Penunjuk kutipan digest-section@2 (ADR-098): kata awal harus mulai di blok `dari` dan kata akhir
+ * berakhir di blok `sampai` (sesudah kata awal), masing-masing cocok TEPAT SEKALI di rentang blok
+ * itu (`findQuote`: normalisasi `@surau/text`, batas kata, offset `text_raw` persis); frasa yang
+ * berulang (mis. salawat) ditolak `pointer_ambiguous`, supaya rentang tidak bergeser dari yang
+ * diterjemahkan model. Teks penunjuk dari model tidak masuk hasil lolos atau korpus.
  */
 export function quoteLocator(
   rows: Pick<DigestCorpus, "passage">,
-): (range: QuoteRange, start: string, end: string) => QuoteRange | string {
+): (
+  range: QuoteRange,
+  start: string,
+  end: string,
+  firstBlockEnd: number,
+  lastBlockStart: number,
+) => QuoteRange | string {
   const passages = new Map(rows.passage.map((p) => [p.id, p]));
-  return (range, start, end) => {
+  return (range, start, end, firstBlockEnd, lastBlockStart) => {
     const p = passages.get(range.passageId);
     if (p === undefined) return "pointer_passage_missing";
-    const span = p.text_raw.slice(range.start, range.end);
-    const a = findQuote(span, start);
-    if (a === null) return "pointer_start_not_found";
-    const rest = span.slice(a.rawStart);
-    const b = findQuote(rest, end);
-    if (b === null) return "pointer_end_not_found";
-    return {
-      passageId: range.passageId,
-      start: range.start + a.rawStart,
-      end: range.start + a.rawStart + b.rawEnd,
+    const text = p.text_raw;
+    const all = (from: number, words: string) => {
+      const out: { start: number; end: number }[] = [];
+      for (let at = from; at < range.end;) {
+        const m = findQuote(text.slice(at, range.end), words);
+        if (m === null) break;
+        out.push({ start: at + m.rawStart, end: at + m.rawEnd });
+        at += m.rawStart + 1;
+      }
+      return out;
     };
+    const a = all(range.start, start).filter((m) => m.start < firstBlockEnd);
+    if (a.length === 0) return "pointer_start_not_found";
+    if (a.length > 1) return "pointer_ambiguous";
+    const first = a[0] as { start: number; end: number };
+    const z = all(first.start, end).filter((m) => m.end > lastBlockStart && m.end >= first.end);
+    if (z.length === 0) return "pointer_end_not_found";
+    if (z.length > 1) return "pointer_ambiguous";
+    return { passageId: range.passageId, start: first.start, end: (z[0] as { end: number }).end };
   };
 }

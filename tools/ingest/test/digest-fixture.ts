@@ -74,7 +74,7 @@ export function digestCorpus(overrides: Partial<Record<number, string>> = {}): D
       passage(6, 4, 1, 4, withAyah),
       passage(4, 5, 2, 1, bab2a),
       passage(5, 5, 3, 1, bab2b),
-      passage(9, null, 1, 1, "حديث تجريبي لا أصل له", "foot"),
+      passage(9, null, 1, 1, overrides[9] ?? "حديث تجريبي لا أصل له", "foot"),
     ],
     footnote_ref: [
       {
