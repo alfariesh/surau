@@ -233,6 +233,33 @@ describe("judgeDigest tahap leaf", () => {
     ]);
   });
 
+  test("penunjuk awal/akhir (v2) mempersempit kutipan di dalam blok; penunjuk di luar blok dibuang", () => {
+    const locate = (r: { passageId: number; start: number; end: number }, a: string, b: string) =>
+      a === "hilang"
+        ? "pointer_start_not_found"
+        : b === "jauh"
+          ? { passageId: r.passageId, start: r.start + 10, end: r.end + 50 }
+          : { passageId: r.passageId, start: r.start + 10, end: r.end - 40 };
+    const ctx = { ...leafCtx(), locateQuote: locate };
+    const q = (awal: string, akhir: string) => ({
+      dari: "b5",
+      sampai: "b6",
+      awal,
+      akhir,
+      gagasan: 2,
+      terjemahan: "Ilmu adalah cahaya yang dilihat hati.",
+    });
+    const v = judgeDigest(msg(leafOut({ kutipan: [q("قال", "النور")] })), ctx);
+    expect(v.ok && v.digest.quotes[0]).toMatchObject({
+      range: { passageId: 13, start: 10, end: 340 },
+    });
+    const bad = judgeDigest(msg(leafOut({ kutipan: [q("hilang", "x"), q("قال", "jauh")] })), ctx);
+    expect(bad.ok && bad.digest.dropped.map((d) => d.reason)).toEqual([
+      "pointer_start_not_found",
+      "pointer_outside_blocks",
+    ]);
+  });
+
   test("riwayat yang takhrijnya terlarang dibuang; jenis kutipan dari kode", () => {
     const inspect = (r: { start: number }): QuoteInspection =>
       r.start === 0

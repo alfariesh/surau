@@ -24,7 +24,7 @@ const point = {
   additionalProperties: false,
 } as const;
 
-/** Intisari dari blok teks: kutipan = rentang blok + terjemahannya. */
+/** Intisari dari blok teks: kutipan = rentang blok + penunjuk awal/akhir + terjemahannya. */
 export const DIGEST_LEAF_SCHEMA = {
   type: "object",
   properties: {
@@ -37,10 +37,13 @@ export const DIGEST_LEAF_SCHEMA = {
         properties: {
           dari: text,
           sampai: text,
+          // Penunjuk Arab pendek (digest-section@2): dicari kode di rentang blok, lalu dibuang.
+          awal: text,
+          akhir: text,
           gagasan: { type: "integer" },
           terjemahan: text,
         },
-        required: ["dari", "sampai", "gagasan", "terjemahan"],
+        required: ["dari", "sampai", "awal", "akhir", "gagasan", "terjemahan"],
         additionalProperties: false,
       },
     },

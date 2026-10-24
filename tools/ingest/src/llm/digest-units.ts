@@ -13,7 +13,7 @@
 // - Sidik berjenjang: sha node = sha bagian-bagian dirinya + sha anak-anaknya, jadi perubahan teks di
 //   mana pun di subpohon menandai Intisari induknya basi.
 import { maskAyat, takhrijLabel, verseBounds } from "@surau/core";
-import { normalizeArabic } from "@surau/text";
+import { findQuote, normalizeArabic } from "@surau/text";
 import type { QuoteInspection, QuoteRange } from "@surau/llm";
 import { PAGE_STRIDE, PASSAGE_STRIDE } from "@surau/db";
 import type {
@@ -546,5 +546,32 @@ export function quoteInspector(
       return { kind: "report", banned: null };
     }
     return { kind: verseBounds(p.text_raw) === null ? "text" : "poetry", banned: null };
+  };
+}
+
+/**
+ * Penunjuk kutipan digest-section@2 (ADR-098): cari kata awal lalu kata akhir (sesudah awal) di
+ * rentang blok yang ditunjuk model, dengan `findQuote` (normalisasi `@surau/text`, batas kata,
+ * kembali ke offset `text_raw` persis). Teks penunjuk dari model tidak pernah disimpan atau
+ * ditampilkan; yang dipakai hanya rentang mentah hasil pencarian.
+ */
+export function quoteLocator(
+  rows: Pick<DigestCorpus, "passage">,
+): (range: QuoteRange, start: string, end: string) => QuoteRange | string {
+  const passages = new Map(rows.passage.map((p) => [p.id, p]));
+  return (range, start, end) => {
+    const p = passages.get(range.passageId);
+    if (p === undefined) return "pointer_passage_missing";
+    const span = p.text_raw.slice(range.start, range.end);
+    const a = findQuote(span, start);
+    if (a === null) return "pointer_start_not_found";
+    const rest = span.slice(a.rawStart);
+    const b = findQuote(rest, end);
+    if (b === null) return "pointer_end_not_found";
+    return {
+      passageId: range.passageId,
+      start: range.start + a.rawStart,
+      end: range.start + a.rawStart + b.rawEnd,
+    };
   };
 }

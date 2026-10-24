@@ -55,6 +55,7 @@ import {
   digestKey,
   parseDigestCustomId,
   quoteInspector,
+  quoteLocator,
   stageOf,
 } from "./digest-units.ts";
 import type { DigestCorpus, DigestLeafUnit, DigestNodeUnit, DigestPlan } from "./digest-units.ts";
@@ -173,6 +174,9 @@ export class Freshness {
   private check(customId: string, rec: AcceptedDigest): AcceptedDigest | null {
     const p = parseDigestCustomId(customId);
     if (p === null) return null;
+    // Versi prompt baru = Intisari dibuat ulang (satu kitab tidak bercampur versi prompt); induknya
+    // ikut basi lewat sidik sumber.
+    if (rec.prompt_version !== currentPrompt(customId)) return null;
     if (stageOf(p.kind) === "leaf") {
       const leaf = this.plan.leafById.get(customId);
       return leaf !== undefined && leaf.sourceSha256 === rec.source_sha256 ? rec : null;
@@ -641,6 +645,7 @@ interface JudgeInput {
   accepted: ReadonlyMap<string, AcceptedDigest>;
   titles: ReadonlyMap<number, string>;
   inspect: (range: QuoteRange) => QuoteInspection;
+  locate: (range: QuoteRange, start: string, end: string) => QuoteRange | string;
   passages: ReadonlyMap<number, { text_raw: string }>;
 }
 
@@ -706,6 +711,7 @@ function judgeItem(
       blocks,
       points: leaf.points,
       inspectQuote: input.inspect,
+      locateQuote: input.locate,
     });
     if (!v.ok) return fail(v.reason, v.details);
     return {
@@ -908,6 +914,7 @@ export function rebuildDigests(dir: string, plan: DigestPlan, rows: DigestCorpus
     accepted: store.accepted,
     titles: titlesOf(rows),
     inspect: quoteInspector(rows),
+    locate: quoteLocator(rows),
     passages,
   };
   const outcomes = new Map<string, { accepted: number; invalid: number; failed: number }>();

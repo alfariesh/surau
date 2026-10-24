@@ -19,7 +19,7 @@ import {
   DIGEST_LEAF_SCHEMA,
   DIGEST_MERGE_SCHEMA,
 } from "../prompts/digest-schema.ts";
-import { DIGEST_SECTION_V1 } from "../prompts/digest-section-v1.ts";
+import { DIGEST_SECTION_V2 } from "../prompts/digest-section-v2.ts";
 import { GLOSSARY_TERM_KEYS } from "../prompts/glossary-v2.ts";
 import {
   addressesReader,
@@ -37,7 +37,7 @@ import type { ModelId } from "./client.ts";
 import { messageText, stopProblem } from "./response.ts";
 import { checkSummary } from "./summarize.ts";
 
-export const DIGEST_SECTION_PROMPT = DIGEST_SECTION_V1;
+export const DIGEST_SECTION_PROMPT = DIGEST_SECTION_V2;
 export const DIGEST_MERGE_PROMPT = DIGEST_MERGE_V1;
 /** Bahasa Intisari yang dibuat sekarang (ADR-092: kolom `lang` siap untuk bahasa lain). */
 export const DIGEST_LANG = "id";
@@ -281,6 +281,11 @@ export type DigestJudgeContext =
       blocks: ReadonlyMap<string, LeafBlock>;
       points: CountRange;
       inspectQuote: (range: QuoteRange) => QuoteInspection;
+      /**
+       * Cari penunjuk Arab "awal"/"akhir" (digest-section@2) di rentang blok kutipan dan kembalikan
+       * rentang `text_raw` persisnya, atau alasan gagal. Tanpa penunjuk (v1) = rentang blok utuh.
+       */
+      locateQuote?: (range: QuoteRange, start: string, end: string) => QuoteRange | string;
     }
   | {
       stage: "merge" | "book";
@@ -346,6 +351,9 @@ const leafOut = z.strictObject({
     z.strictObject({
       dari: z.string(),
       sampai: z.string(),
+      // digest-section@2; tidak ada di keluaran v1 (rentang blok utuh).
+      awal: z.string().optional(),
+      akhir: z.string().optional(),
       gagasan: z.number().int(),
       terjemahan: z.string(),
     }),
@@ -471,7 +479,22 @@ function leafQuote(
   );
   if (blocks.some((x) => x.heading)) return "heading";
   if (blocks.some((x) => x.ayah)) return "ayah";
-  const range = { passageId: a.passageId, start: a.start, end: b.end };
+  let range: QuoteRange = { passageId: a.passageId, start: a.start, end: b.end };
+  if (q.awal !== undefined || q.akhir !== undefined) {
+    if (ctx.locateQuote === undefined) return "pointer_unsupported";
+    const found = ctx.locateQuote(range, q.awal ?? "", q.akhir ?? "");
+    if (typeof found === "string") return found;
+    // Penunjuk harus di blok yang disebut: awal di blok "dari", akhir di blok "sampai".
+    const outside =
+      found.passageId !== range.passageId ||
+      found.start < range.start ||
+      found.end > range.end ||
+      found.start >= a.end ||
+      found.end <= b.start ||
+      found.start >= found.end;
+    if (outside) return "pointer_outside_blocks";
+    range = found;
+  }
   if (!within(range.end - range.start, DIGEST_LIMITS.quoteChars)) return "length";
   const overlaps = taken.some(
     (x) =>

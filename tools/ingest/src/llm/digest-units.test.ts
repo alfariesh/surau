@@ -10,6 +10,7 @@ import {
   parseDigestCustomId,
   passageBlocks,
   quoteInspector,
+  quoteLocator,
 } from "./digest-units.ts";
 import { digestCorpus as corpus, long, passage } from "../../test/digest-fixture.ts";
 
@@ -131,6 +132,23 @@ describe("jenis kutipan dari kode", () => {
     ).toEqual({
       kind: "poetry",
       banned: null,
+    });
+  });
+});
+
+describe("penunjuk kutipan v2", () => {
+  test("kata awal dan akhir dicari di rentang blok, dikembalikan sebagai offset text_raw", () => {
+    const text = "قال الشيخ العلم نور. والجهل ظلمة في القلب. ثم قال غير ذلك";
+    const p = passage(8, 4, 1, 6, text);
+    const locate = quoteLocator({ passage: [p] });
+    const r = locate({ passageId: p.id, start: 0, end: text.length }, "العلم نور", "في القلب");
+    expect(r).toEqual({ passageId: p.id, start: text.indexOf("العلم"), end: text.indexOf(". ثم") });
+    expect(locate({ passageId: p.id, start: 0, end: 20 }, "الجهل", "القلب")).toBe(
+      "pointer_start_not_found",
+    );
+    // Akhir dicari sesudah awal: kata yang sama sebelum awal tidak dipakai.
+    expect(locate({ passageId: p.id, start: 0, end: text.length }, "والجهل", "قال")).toMatchObject({
+      end: text.lastIndexOf("قال") + 3,
     });
   });
 });

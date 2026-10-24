@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { TranslationRow } from "@surau/db";
-import { MODELS } from "@surau/llm";
+import { DIGEST_SECTION_PROMPT, MODELS } from "@surau/llm";
 import { describe, expect, test } from "vite-plus/test";
 
 import { digestCorpus } from "../../test/digest-fixture.ts";
@@ -260,7 +260,7 @@ describe("alur Intisari tanpa API", () => {
       merged.filter((s) => s.toc_node_id === 100_004).map((s) => [s.lang, s.prompt_version]),
     ).toEqual([
       ["en", "summarize-section@2"],
-      ["id", "digest-section@1"],
+      ["id", DIGEST_SECTION_PROMPT.id],
     ]);
     expect(pilotSql(build)).toContain("ON CONFLICT (toc_node_id, lang) DO UPDATE SET");
   });
