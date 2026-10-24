@@ -187,4 +187,28 @@ describe("SectionSummary: bantuan terjemahan (X11)", () => {
     expect(html).toContain('data-tr-aid=""');
     expect(html).toContain('lang="en"');
   });
+
+  it("terpotong dan terbuka memakai DOM yang sama: semua paragraf di satu blok teks (X13)", () => {
+    const text = "Satu. Dua. Tiga. Empat. Lima. Enam. Tujuh.";
+    const summary = {
+      label: "ai_summary",
+      section: { id: 7, title_ar: "باب", level: 2, permalink: "/kitab/uji/1/5#bab-7" },
+      lang: "id",
+      model: "m",
+      prompt_version: "p",
+      created_at: "2026-10-01",
+      review_status: "ai_generated",
+      text,
+    } as unknown as SummaryView;
+    const html = renderToStaticMarkup(<SectionSummary summary={summary} />);
+    const body = /<div class="section-summary-text"([^>]*)>(.*?)<\/div>/.exec(html);
+    expect(body).not.toBeNull();
+    // Terpotong (bawaan): tanpa data-expanded, tetapi seluruh teks ada, sudah dibagi paragraf.
+    expect(body![1]).not.toContain("data-expanded");
+    expect(body![2].match(/<p\b/g)?.length).toBeGreaterThan(1);
+    // Teks gabungan = teks asli (spasi di antara paragraf, kata tidak menempel).
+    expect(body![2].replace(/<[^>]+>/g, "")).toBe(text);
+    // Tombol sembunyikan (mode Arab, dibuka sementara) ada di HTML; CSS yang memilih kapan tampil.
+    expect(html).toContain("summary-peek-close");
+  });
 });

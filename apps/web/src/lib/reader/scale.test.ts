@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { LEGACY_TRANSLATION_KEY, READ_MODE_KEY, READER_SCALE_SCRIPT } from "./scale";
+import {
+  LEGACY_TRANSLATION_KEY,
+  READ_MODE_HINT_KEY,
+  READ_MODE_KEY,
+  READER_SCALE_SCRIPT,
+} from "./scale";
 
 // Skrip awal root layout (X11): dijalankan dengan `document` dan `localStorage` tiruan, seperti di
 // browser sebelum isi tampil.
@@ -96,5 +101,28 @@ describe("READER_SCALE_SCRIPT: mode baca (X11)", () => {
     expect(attrs.get("data-read-mode")).toBe("ar");
     expect(attrs.get("data-tr-layout")).toBe("side");
     expect(style.get("--reader-scale")).toBe("1.3");
+  });
+});
+
+describe("READER_SCALE_SCRIPT: petunjuk mode baca (X13)", () => {
+  const hint = (r: ReturnType<typeof run>) => r.attrs.get("data-read-mode-hint");
+
+  it("pengunjung yang belum memilih mode: petunjuk tampil (tanpa atribut)", () => {
+    expect(hint(run({}))).toBeUndefined();
+    expect(hint(run({ "surau:reader-font": "amiri" }))).toBeUndefined();
+  });
+
+  it("mode tersimpan (termasuk Keduanya) atau petunjuk ditutup → off", () => {
+    for (const mode of ["ar", "both", "tr"])
+      expect(hint(run({ [READ_MODE_KEY]: mode }))).toBe("off");
+    expect(hint(run({ [READ_MODE_HINT_KEY]: "off" }))).toBe("off");
+  });
+
+  it("sakelar lama yang dipindah dihitung sebagai pilihan", () => {
+    expect(hint(run({ [LEGACY_TRANSLATION_KEY]: "1" }))).toBe("off");
+  });
+
+  it("penyimpanan diblokir: petunjuk tampil, tanpa galat", () => {
+    expect(hint(run({}, { failAll: true }))).toBeUndefined();
   });
 });

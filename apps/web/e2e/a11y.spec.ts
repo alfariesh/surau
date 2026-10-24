@@ -165,3 +165,21 @@ test("tanpa pelanggaran a11y: mode Terjemahan, terlipat dan terbuka (j1/200)", a
   }).toPass();
   expect(await axeViolations(page)).toEqual([]);
 });
+
+// Ringkasan AI yang dibuka sementara oleh kata cari di mode Arab (X13): tombol sembunyikan tampil.
+test("tanpa pelanggaran a11y: mode Arab + Ringkasan AI dibuka kata cari (j1/200)", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem("surau:read-mode", "ar");
+    } catch {}
+  });
+  await page.goto(`/kitab/ihya/1/200?q=${encodeURIComponent("berkurban")}`);
+  const summary = page.locator(".section-summary").first();
+  await expect(summary).toHaveAttribute("data-tr-peek", "");
+  await expect(
+    summary.getByRole("button", { name: "Sembunyikan lagi ringkasan AI ini" }),
+  ).toBeVisible();
+  expect(await axeViolations(page)).toEqual([]);
+});

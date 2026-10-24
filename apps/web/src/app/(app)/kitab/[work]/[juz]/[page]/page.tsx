@@ -7,6 +7,7 @@ import { BreadcrumbJsonLd } from "../../../../../../components/breadcrumb-json-l
 import { AiBadge } from "../../../../../../components/reader/ai-badge";
 import { AiNotice } from "../../../../../../components/reader/ai-notice";
 import { LicenseNotice } from "../../../../../../components/reader/license-notice";
+import { ReadModeHint } from "../../../../../../components/reader/read-mode-hint";
 import { ContinuousReader } from "../../../../../../components/reader/continuous-reader";
 import { PageFoot } from "../../../../../../components/reader/page-foot";
 import { PageText } from "../../../../../../components/reader/page-text";
@@ -193,7 +194,12 @@ export default async function ReaderPage({ params }: Props) {
           <PageText
             model={model}
             footNote={footNote}
-            notice={model.ai.translation ? <AiNotice mixed={model.ai.reviewed} /> : null}
+            notice={
+              <>
+                <ReadModeHint hasTranslation={sample.hasTranslation} />
+                {model.ai.translation ? <AiNotice mixed={model.ai.reviewed} /> : null}
+              </>
+            }
           />
           <PageFoot model={model} />
 
