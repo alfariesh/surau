@@ -52,13 +52,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
-
 // Binding Cloudflare (R2, nanti D1) tersedia di `next dev`. Data lokal disimpan di satu lokasi
 // untuk semua perintah lokal (ARSITEKTUR-TEKNIS §7, aturan 1). Proxy memakai path ini apa adanya,
 // sedangkan `wrangler … --persist-to <root>/.wrangler/state` menambah `v3` sendiri; jadi di sini
 // harus `.wrangler/state/v3`, supaya D1 yang dimuat `pnpm corpus:load:local` terlihat (S08).
-void initOpenNextCloudflareForDev({
+const devReady = initOpenNextCloudflareForDev({
   persist: { path: join(import.meta.dirname, "../../.wrangler/state/v3") },
   configPath: devRemoteConfig(),
 });
@@ -76,3 +74,12 @@ function devRemoteConfig(): string | undefined {
   writeFileSync(target, source.replace(corpus, '$1\n      "remote": true,'));
   return target;
 }
+
+// dev:remote: tunggu sambungan remote binding siap sebelum melayani permintaan. Tanpa ini,
+// permintaan pertama sesudah (re)start jatuh ke D1 lokal yang kosong ("no such table: work").
+export default process.env.SURAU_DEV_REMOTE === "1"
+  ? async () => {
+      await devReady;
+      return nextConfig;
+    }
+  : nextConfig;
