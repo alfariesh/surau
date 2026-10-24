@@ -17,7 +17,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | – | Sisipan | [X01](sesi/X01-upgrade-next-16-4.md) upgrade Next 16.4 + React 19.3 setelah OpenNext mendukung | X01 | menunggu gerbang |
 | – | Sisipan | [X04](sesi/X04-mutu-baca.md) mutu baca pembaca Ihya: ritme dan tipografi, label AI tenang, subjudul, gulir bersambung, lanjutkan membaca, daftar isi Indonesia, T-17 tahap 3 | X04 | bagian A + T-17 tahap 3 dikerjakan 2026-10-21 (PR #115, ADR-074–076); bagian B dikerjakan 2026-10-21/22 (PR #116, ADR-077–078: daftar isi pembaca + subjudul, judul Indonesia, korpus `ihya-v8` di produksi atas izin pemilik 2026-10-22) |
 | – | Sisipan | [X08](sesi/X08-koreksi-terjemahan.md) koreksi terjemahan Indonesia oleh editor dan ustadz di `/tinjau/terjemahan`: teks polos, revisi langsung oleh ustadz terdaftar (pola ADR-070) dengan nama tampil, tayang lewat korpus berikutnya | X08 | rencana, siap dikerjakan |
-| – | Sisipan | [X11](sesi/X11-mode-baca.md) mode baca Arab · Keduanya · Terjemahan di pembaca, Cari, dan Maknaz + fondasi bahasa (situs Inggris nanti) | X11 | berjalan (2026-10-24) |
+| – | Sisipan | [X11](sesi/X11-mode-baca.md) mode baca Arab · Keduanya · Terjemahan di pembaca, Cari, dan Maknaz + fondasi bahasa (situs Inggris nanti) | X11 | selesai 2026-10-24 (PR #126 + #127, ADR-091–092) |
 | – | Bahasa Inggris | Situs berbahasa Inggris di `/en/…`: antarmuka, terjemahan kitab, Cari, dan Maknaz (ADR-092: arsitektur + daftar bagian yang masih terkunci "id"; butuh sumber terjemahan ayat Inggris berlisensi) | garis besar | belum dijadwalkan |
 
 **Catatan urutan:**

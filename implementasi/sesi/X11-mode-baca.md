@@ -1,6 +1,6 @@
 # X11 · Sesi sisipan: Mode baca (Arab · Keduanya · Terjemahan) + fondasi bahasa
 
-> **Fase:** sisipan (hanya `apps/web` + dokumen; tidak menyentuh `apps/api`, `apps/mcp`, `packages/*`, maupun korpus) · **Status:** berjalan
+> **Fase:** sisipan (hanya `apps/web` + dokumen; tidak menyentuh `apps/api`, `apps/mcp`, `packages/*`, maupun korpus) · **Status:** selesai (2026-10-24, PR #126 + #127, ADR-091–092)
 > **Prasyarat:** PR #124 (ADR-084–090: Beranda, Cari, navbar ringkas, Maknaz) di `main` · Tugas pemilik: –
 > **Perkiraan:** 1–2 percakapan agent · $0 LLM · tanpa korpus baru · dua PR: bagian A (fondasi + Arab/Keduanya + Cari/Maknaz + dokumen), bagian B (mode Terjemahan)
 
@@ -112,21 +112,21 @@ Temuan riset kode (2026-10-24, `main` sesudah PR #124):
 - [x] Mode Arab menyembunyikan Ringkasan AI, catatan AI, kaki AI, dan judul Indonesia di daftar isi dan kepala halaman (e2e, tes regresi). *Bukti: e2e "mode Arab menyembunyikan terjemahan dan semua bantuan terjemahan" (semua `[data-tr-aid]` tersembunyi, judul daftar isi Arab saja) + "daftar isi di mode Arab: nama baris = judul Arab" (temuan peninjau); tangkapan 02, 08.*
 - [x] Kartu Cari di mode Arab hanya menampilkan terjemahan bila jalur terjemahan cocok (unit + e2e). *Bukti: unit `hitParts` (4 kasus) + e2e "kartu Cari di mode Arab" (kueri Arab: 0 blok terjemahan; kueri Indonesia: terjemahan tampil); uji manual 41 hasil "sabar": 0 selisih; tangkapan 09–10.*
 - [x] axe lolos untuk mode Arab dan Keduanya di ketiga tata letak, dengan panel terbuka. *Bukti: `a11y.spec`: Keduanya × Di bawah/Dilipat/Berdampingan, masing-masing tanpa dan dengan panel terbuka, + mode Arab dengan kata cari dibuka dan panel terbuka: 0 pelanggaran (desktop + ponsel).*
-- [ ] LCP ponsel (Lighthouse, n=5) j1/200 tetap ≤ 4,29 dtk di Preview.
-- [ ] Tangkapan layar desktop, ponsel, dan gelap per mode dilampirkan di PR.
+- [x] LCP ponsel (Lighthouse, n=5) j1/200 tetap ≤ 4,29 dtk di Preview. *Bukti: Lighthouse 13.5.0 ponsel (simulasi Lantern, Chrome for Testing 1248, mesin Linux agen, bukan Mac X09/X10), n=5: Preview #127 (memuat bagian A + B) j1/200 **3,74 dtk** (2,34–4,43), j3/202 **2,88 dtk**. Pembanding produksi sesudah deploy bagian A di mesin yang sama: j1/200 4,41 dtk lalu 4,86 dtk pada putaran ulang (sebaran 3,30–5,13), j3/202 4,33 / 4,41 dtk; mode Arab 4,36 / 3,18 dtk. Sebaran antarputaran ±1 dtk lebih besar dari perubahan bagian A (CSS ±2 KB, JS ±3 KB); deployment sebelum bagian A tidak lagi bisa diukur (500), jadi selisih sebelum/sesudah di mesin ini tidak tersedia. Lihat Catatan hasil.*
+- [x] Tangkapan layar desktop, ponsel, dan gelap per mode dilampirkan di PR. *Bukti: `bukti/X11/01`–`10` (bagian A, ditautkan di PR #126) dan `11`–`18` (bagian B, PR #127).*
 - [x] Teks Arab tetap dari DB (tidak ada string Arab baru di diff selain data tes). *Bukti: grep huruf Arab atas `git diff origin/main...HEAD -- apps/web`: hanya data tes (kueri e2e "الصبر", fixture `page-text.test.tsx`).*
-- [ ] Peninjau dijalankan dan temuannya dikerjakan; ADR, STATUS, LOG, FASE, docs, dan file ini diperbarui.
+- [x] Peninjau dijalankan dan temuannya dikerjakan; ADR, STATUS, LOG, FASE, docs, dan file ini diperbarui. *Bukti: peninjau bagian A (1 blocker + 4 perbaikan) dan bagian B (0 blocker, 6 perbaikan) dikerjakan; ADR-091, ADR-092, catatan ADR-075, docs/01, docs/07, FASE, STATUS, LOG, file ini.*
 
 ### Bagian B
 
-- [ ] `pnpm verify` lolos; tes unit tombol Arab (hanya bila ada terjemahan, `aria-controls` cocok, judul tidak pernah dilipat).
-- [ ] Mode Terjemahan: Arab tiap paragraf terlipat dan terbuka per paragraf; ⋮ tetap terjangkau; paragraf tanpa terjemahan menampilkan Arab (e2e).
-- [ ] Tautan `#pN`, kecocokan Arab `?q=`, dan tautan balik catatan kaki membuka Arab yang terlipat (e2e).
-- [ ] Salin: terjemahan tetap berlabel, Arab yang dibuka tersalin apa adanya (e2e).
-- [ ] Kartu Cari menampilkan terjemahan dulu; kutipan Maknaz terbuka (e2e/unit).
-- [ ] axe lolos di mode Terjemahan (terlipat dan terbuka), termasuk urutan heading.
-- [ ] LCP ponsel j1/200 di mode Terjemahan ≤ 4,29 dtk (Preview, n=5).
-- [ ] Peninjau, ADR, STATUS, LOG, file ini.
+- [x] `pnpm verify` lolos; tes unit tombol Arab (hanya bila ada terjemahan, `aria-controls` cocok, judul tidak pernah dilipat). *Bukti: `pnpm verify` exit 0 (847 + 387 tes, build); `page-text.test.tsx` mode Terjemahan (baris alat + `aria-controls=ar-pN`, tanpa terjemahan, judul daftar isi tidak dilipat, subjudul menempel: hanya badan dilipat, penanda catatan kaki terjemahan = tombol), `hit-parts` urutan, `scale` mode `tr`, `CitationCard` per mode.*
+- [x] Mode Terjemahan: Arab tiap paragraf terlipat dan terbuka per paragraf; ⋮ tetap terjangkau; paragraf tanpa terjemahan menampilkan Arab (e2e). *Bukti: e2e `reader-x11` "mode Terjemahan: Arab tiap paragraf terlipat …; ⋮ tetap terjangkau" (⋮ tepat satu, menu Salin sitasi terbuka) dan "paragraf tanpa terjemahan menampilkan teks Arab dengan keterangan" (j1/86 #p1022); tangkapan 11–16.*
+- [x] Tautan `#pN`, kecocokan Arab `?q=`, dan tautan balik catatan kaki membuka Arab yang terlipat (e2e). *Bukti: e2e "permalink #pN dan tautan balik catatan kaki membuka Arab paragrafnya" (temuan peninjau: `#pN` sebelumnya belum membuka) dan "kata cari Arab di teks yang terlipat membuka Arab paragraf itu" (tanpa `#`, sorotan > 0).*
+- [x] Salin: terjemahan tetap berlabel, Arab yang dibuka tersalin apa adanya (e2e). *Bukti: e2e "salinan terjemahan tetap berlabel AI" dan "teks Arab yang dibuka tersalin apa adanya (tanpa label tombol)" (desktop).*
+- [x] Kartu Cari menampilkan terjemahan dulu; kutipan Maknaz terbuka (e2e/unit). *Bukti: e2e "mode Terjemahan di Cari: terjemahan lebih dulu"; unit `hitParts` + `CitationCard` (`<details open>` hanya di `tr`, Arab selalu tampil); e2e menu ⋮ /tanya; tangkapan 17–18.*
+- [x] axe lolos di mode Terjemahan (terlipat dan terbuka), termasuk urutan heading. *Bukti: `a11y.spec` "mode Terjemahan, terlipat dan terbuka (j1/200)": 0 pelanggaran desktop + ponsel (aturan heading-order axe ikut).*
+- [x] LCP ponsel j1/200 di mode Terjemahan ≤ 4,29 dtk (Preview, n=5). *Bukti: Preview #127, Lighthouse 13.5.0 ponsel n=5 (mesin Linux agen): j1/200 Terjemahan **3,70 dtk** (2,58–4,41), Keduanya 3,74 dtk; j3/202 Terjemahan 3,82 dtk, Keduanya 2,88 dtk.*
+- [x] Peninjau, ADR, STATUS, LOG, file ini. *Bukti: lihat butir peninjau bagian A; ADR-091 §10–11.*
 
 ## Di luar cakupan
 
@@ -151,3 +151,18 @@ Implementasi bahasa Inggris (rute `/en`, parameter `lang` di core/MCP/API, data 
 - **Peninjau** (`git diff origin/main...HEAD`): 1 blocker (nama baris daftar isi di mode Arab masih judul Indonesia/AI tanpa label → kini judul Arab), 4 perbaikan (jaga posisi kartu Cari lewat `flushSync`, `overflow-anchor` tertinggal `none` saat perubahan beruntun, fragmen URL rusak, jarak pratinjau di mode Arab) dan 9 saran; semua perbaikan + 6 saran dikerjakan. Saran yang dicatat sebagai batas: ringkasan AI tidak disorot kata cari (ADR-091 §4).
 - **Penyimpangan rencana:** menu ⋮ di /tanya belum ditambahkan di bagian A karena mode Arab/Keduanya tidak mengubah kartu kutipan Maknaz; ditambahkan di bagian B bersama mode Terjemahan.
 - **e2e lokal (`pnpm dev:remote`, korpus staging):** `reader-x11` 23 lolos/1 dilewati; `a11y`, `reader-x04`, `reader-x10`, `search`, `reader`: 159 lolos dalam satu putaran gabungan, 4 gagal karena waktu (render halaman lewat D1 jarak jauh 4,6–5,6 dtk saat paralel > batas tunggu 5 dtk; navigasi di browser normal, uji label lolos saat diulang). Dibuktikan ulang di e2e Preview PR.
+
+*2026-10-24 · bagian B (ADR-091 §10–11):*
+- **Dibuat:**
+  - Mode Terjemahan: baris alat `passage-tools` (tombol "Teks Arab" `aria-controls=ar-pN` + ⋮ `TrPassageActions` yang hanya dirender klien di mode ini), blok `passage-ar` dilipat (`data-ar-open`), subjudul tidak dilipat, keterangan paragraf tanpa terjemahan, judul "kicker" hanya bila ada terjemahan, kalimat tambahan catatan AI, cetak menampilkan Arab.
+  - `fold.ts` `toggleArabic`/`revealArabic`; `#pN`, kata cari Arab, dan tautan balik catatan kaki membuka Arab paragrafnya; penyorot memeriksa tiap kecocokan (satu pembukaan per paragraf).
+  - Penanda catatan kaki di terjemahan = `FootnoteMarker` (takhrij dibuka di tempat, semua mode); props takhrij dan ⋮ dihitung sekali per halaman.
+  - Cari: terjemahan dulu (`hitParts`); Maknaz: `CitationCard` menerima mode baca, terjemahan terbuka di `tr`; menu ⋮ /tanya.
+  - Panel: tiga pilihan, varian `tr` di `StableText`, pratinjau tanpa garis tepi di mode Terjemahan.
+- **Peninjau** (bagian B): 0 blocker, 6 perbaikan (`#pN` belum membuka Arab, penanda terjemahan terlalu kecil ±8 px, gaya judul redup ikut judul tanpa terjemahan, tes judul/subjudul tidak dilipat, e2e salin Arab, kutipan Maknaz tidak teruji) + saran; semua perbaikan dan 8 saran dikerjakan. Dicatat sebagai batas (ADR-091 §10): subjudul `tail`, tombol lipat butuh JS, ukuran judul disamakan.
+- **e2e lokal** (`pnpm dev:remote`, `--workers=2`): `reader-x11` + `a11y` + `reader` 137 lolos (1 balapan sorotan diperbaiki → `reader-x11` diulang 2×: 68 lolos); pembaca lama 78 lolos. CI PR #126: e2e Preview 209 lolos, 1 rapuh (klik ⋮ sebelum menu tertutup; diperbaiki di bagian B).
+- **LCP** (Lighthouse 13.5.0 ponsel lewat Puppeteer supaya mode baca bisa diisi di localStorage; cache HTTP dikosongkan tiap putaran; mesin Linux agen, bukan Mac X09/X10): Preview #127 j1/200 Keduanya 3,74 / Terjemahan 3,70 dtk, j3/202 2,88 / 3,82 dtk; produksi sesudah bagian A 4,41–4,86 dtk (j1/200) dengan sebaran 3,30–5,13 dtk. Sebaran antarputaran (±1 dtk) lebih besar dari selisih antarmode; HTML/CSS/JS sama untuk semua mode (CSS yang memilih).
+- **Utang / pesan untuk sesi berikutnya:**
+  - Ukur ulang LCP produksi di Mac pemilik (cara X09/X10) supaya sebanding dengan angka lama.
+  - Ringkasan AI belum disorot kata cari (ADR-091 §4); halaman yang seluruhnya belum diterjemahkan menampilkan keterangan per paragraf (pertimbangkan satu catatan halaman saat kitab kedua masuk).
+  - Bahasa Inggris: ikuti daftar ADR-092 §5 (belum dijadwalkan).
