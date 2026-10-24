@@ -12,6 +12,8 @@ import {
   quoteVerification,
   readPageInput,
   readSectionInput,
+  digestView,
+  readDigestInput,
   sectionView,
   takhrijView,
   tocView,
@@ -30,6 +32,7 @@ describe("skema", () => {
       workList,
       quoteVerification,
       takhrijView,
+      digestView,
     ]) {
       expect(z.toJSONSchema(s)).toMatchObject({ type: "object", additionalProperties: false });
     }
@@ -41,6 +44,7 @@ describe("skema", () => {
       buildCitationInput,
       verifyQuoteInput,
       getHadithTakhrijInput,
+      readDigestInput,
     ]) {
       expect(z.toJSONSchema(s, { io: "input" })).toMatchObject({ type: "object" });
     }

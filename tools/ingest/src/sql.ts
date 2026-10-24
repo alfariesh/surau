@@ -54,6 +54,8 @@ export const RESET_SQL = [
   // Indeks Indonesia (S14, skema 6).
   "INSERT INTO translation_fts (translation_fts) VALUES ('delete-all');",
   "INSERT INTO summary_fts (summary_fts) VALUES ('delete-all');",
+  // Indeks gagasan Intisari (X15, skema 9).
+  "INSERT INTO digest_point_fts (digest_point_fts) VALUES ('delete-all');",
   ...[...TABLE_ORDER]
     .reverse()
     .filter((t) => t !== "meta")

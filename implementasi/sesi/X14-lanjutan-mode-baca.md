@@ -86,4 +86,4 @@ Petunjuk di Cari/Maknaz/daftar isi (mode di sana mengikuti pilihan yang sama dan
 - **Utang / pesan untuk sesi berikutnya:**
   - Ukur ulang di Mac pemilik (`pnpm ukur:lcp https://surau.org`, cara X09/X10) supaya sebanding dengan angka lama.
   - Petunjuk serupa di Cari/Maknaz belum ada (pilihan tetap di menu ⋮).
-  - Tes `translation-review` "simpanan ke-201" rapuh di mesin sibuk (5 dtk). Pertimbangkan batas waktu sendiri.
+  - Tes `translation-review` "simpanan ke-201" rapuh di mesin sibuk (5 dtk): sudah diberi batas waktu sendiri (lihat LOG).

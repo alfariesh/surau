@@ -237,7 +237,11 @@ describe("simpan, riwayat, dan batalkan", () => {
     expect((await translationQueue(deps, "todo", 0)).counts.todo).toBe(3);
   });
 
-  test("simpanan ke-201 seorang editor dalam sehari → limit", async () => {
+  // Batas waktu sendiri: 200 simpanan lewat jalur produksi (baca butir + simpan, masing-masing
+  // beberapa kueri SQLite) butuh ±3–5 dtk dan melewati batas bawaan 5 dtk saat mesin sibuk (terukur
+  // 5,05 dtk, 2026-10-24). 15 dtk = ±3× ruang, perlambatan besar tetap terlihat. Data tidak diisi
+  // langsung lewat SQL supaya tes tidak menyalin aturan rantai revisi.
+  test("simpanan ke-201 seorang editor dalam sehari → limit", { timeout: 15_000 }, async () => {
     // 200 simpanan: sudah benar lalu batalkan bergantian pada satu paragraf.
     for (let i = 0; i < TR_DAILY_LIMIT; i++) {
       const saved = await decide(

@@ -41,12 +41,22 @@ describe("runIngest (kitab buatan)", () => {
       summary: 0,
       toc_title_translation: 0,
       subheading_translation: 0,
+      // Intisari (X15, skema 9): kosong sampai hasil batch `pnpm llm intisari` ada.
+      glossary_term: 0,
+      digest: 0,
+      digest_point: 0,
+      digest_anchor: 0,
+      digest_quote: 0,
+      digest_question: 0,
+      digest_term: 0,
+      audio_track: 0,
       term_stat: 23,
       passage_fts: 18,
       // Indeks Indonesia (S14): kosong karena kitab buatan tanpa terjemahan/ringkasan AI.
       translation_fts: 0,
       translation_review: 0,
       summary_fts: 0,
+      digest_point_fts: 0,
       meta: 6,
     });
 
