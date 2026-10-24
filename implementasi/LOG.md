@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-24 · X11 · Mode baca Arab · Keduanya · Terjemahan + fondasi bahasa — sebagian (bagian A selesai di kode; bagian B menyusul)
+- Dikerjakan: satu preferensi `surau:read-mode` (skrip awal, pindahan sakelar lama); mode Arab menyembunyikan terjemahan + semua bantuan AI (`data-tr-aid`); Berdampingan tanpa separuh kosong (`data-no-tr`) + syair `container: verse`; kata cari/tautan ke teks tersembunyi membukanya; jaga posisi baca untuk semua perubahan preferensi (`lib/keep-position.ts`, scroll anchoring dimatikan sesaat); Segment Mode baca di panel Tampilan (pratinjau, `StableText`) dan menu ⋮ (pembaca, daftar isi, Cari); kartu Cari ikut mode (`hitParts`); `lang` dari data + `UI_LANG`; ADR-091 (mode baca) dan ADR-092 (arsitektur bahasa: situs Inggris di `/en`, daftar bagian yang masih terkunci "id").
+- Verifikasi: `pnpm verify` → lolos (839 + 387 tes, build) · e2e lokal `pnpm dev:remote`: `reader-x11` 23 lolos/1 dilewati, putaran gabungan 159 lolos, 4 gagal waktu (render D1 jarak jauh > 5 dtk; dibuktikan di Preview) · axe Arab/Keduanya × 3 tata letak dengan panel: 0 pelanggaran · `peninjau` → 1 blocker + 4 perbaikan, dikerjakan.
+- Biaya API: –
+- Keputusan: ADR-091, ADR-092 (ADR-075 sebagian digantikan).
+- Catatan untuk sesi berikutnya: bagian B (mode Terjemahan, ⋮ di /tanya, kutipan Maknaz terbuka); ukur LCP ponsel per mode di Preview; ringkasan AI belum disorot kata cari (batas ADR-091 §4).
+
 ## 2026-10-24 · Di luar sesi · Beranda fokus cari, Cari memakai kotak Beranda, navbar ringkas — selesai (kode; PR menyusul)
 - Dikerjakan: navbar ringkas + menu ⋮ tema + mockup buku hardcover (affaa07, sesi lain, ADR-084/085); Beranda: rak kitab, "Apa yang ingin Anda kaji?", satu kotak Cari/Maknaz (widget, pemilih bagian kitab Autocomplete, segmen berikon duotone), titipan pertanyaan ke Maknaz di memori tab + transisi kotak → gelembung (ADR-086); /cari memakai kotak yang sama, pemilih bagian bertingkat menggantikan dinding chip, jembatan "Tanyakan … ke Maknaz" (ADR-087); menu Cari dihapus dari sidebar (ADR-088); `pnpm dev:remote` membaca korpus staging (ADR-089); /tanya: pembuka umum, satu catatan tetap yang berpindah, kotak berbentuk widget (ADR-090); kartu Lanjutkan membaca baru.
 - Verifikasi: `pnpm verify` → lolos · e2e lokal dengan `pnpm dev:remote` (korpus staging): smoke, tanya, beranda-maknaz, search (11/11 termasuk axe hasil asli) lolos; gagal hanya header `immutable` aset (khusus Workers, berlaku di Preview) · peninjau tiga kali (per tahap + seluruh cabang): blocker label S21 di /tanya diperbaiki (ADR-090), sisanya dikerjakan.

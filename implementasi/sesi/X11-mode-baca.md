@@ -104,17 +104,17 @@ Temuan riset kode (2026-10-24, `main` sesudah PR #124):
 
 ### Bagian A
 
-- [ ] `pnpm verify` lolos, termasuk tes unit baru: skrip preferensi (kunci baru, cadangan lama, nilai salah, storage galat), penanda markup `PageText`, helper kartu Cari.
-- [ ] Preferensi `read-mode=ar` dan nilai lama `reader-translation=0` terpasang di `<html>` walau semua chunk JS Next diblokir, dan bantuan terjemahan tersembunyi (e2e).
-- [ ] Pilihan Mode baca dari panel dan menu ⋮ bertahan sesudah muat ulang; halaman sambungan ikut mode; posisi gulir bergeser ≤ 2 px saat mode diganti (e2e).
-- [ ] Berdampingan: paragraf tanpa terjemahan selebar penuh, mode Arab tanpa grid (e2e, tes regresi).
-- [ ] `?q=` Indonesia di mode Arab dan di Keduanya + Dilipat: kata tersorot terlihat (e2e, tes regresi).
-- [ ] Mode Arab menyembunyikan Ringkasan AI, catatan AI, kaki AI, dan judul Indonesia di daftar isi dan kepala halaman (e2e, tes regresi).
-- [ ] Kartu Cari di mode Arab hanya menampilkan terjemahan bila jalur terjemahan cocok (unit + e2e).
-- [ ] axe lolos untuk mode Arab dan Keduanya di ketiga tata letak, dengan panel terbuka.
+- [x] `pnpm verify` lolos, termasuk tes unit baru: skrip preferensi (kunci baru, cadangan lama, nilai salah, storage galat), penanda markup `PageText`, helper kartu Cari. *Bukti: `pnpm verify` exit 0 (839 + 387 tes, build) sesudah perbaikan peninjau; tes baru `scale.test.ts` (7), `hit-parts.test.ts` (4), `page-text.test.tsx` (3), `preview.test.ts` (+3), `page-foot` (+1), `passage-translation` (+2).*
+- [x] Preferensi `read-mode=ar` dan nilai lama `reader-translation=0` terpasang di `<html>` walau semua chunk JS Next diblokir, dan bantuan terjemahan tersembunyi (e2e). *Bukti: e2e `reader-x11` "mode Arab dan sakelar lama terpasang … JS Next tidak dimuat" lolos (desktop + ponsel), termasuk kunci lama dipindah lalu dihapus.*
+- [x] Pilihan Mode baca dari panel dan menu ⋮ bertahan sesudah muat ulang; halaman sambungan ikut mode; posisi gulir bergeser ≤ 2 px saat mode diganti (e2e). *Bukti: e2e `reader-x11`: panel → muat ulang tetap `ar`; "halaman sambungan … ikut mode Arab"; "ganti mode dari menu ⋮ … ≤ 2 px" (pembaca) dan "ganti mode di Cari … ≤ 2 px" lolos; Segment panel tidak bergeser (< 1 px).*
+- [x] Berdampingan: paragraf tanpa terjemahan selebar penuh, mode Arab tanpa grid (e2e, tes regresi). *Bukti: e2e "berdampingan: paragraf tanpa terjemahan selebar penuh; mode Arab tanpa grid" (j1/86 #p1022, desktop); tangkapan 03.*
+- [x] `?q=` Indonesia di mode Arab dan di Keduanya + Dilipat: kata tersorot terlihat (e2e, tes regresi). *Bukti: e2e "kata cari Indonesia di teks tersembunyi dibuka dan tersorot" (mode Arab dan Keduanya + Dilipat): `data-tr-peek`, sorotan > 0, paragraf tujuan tetap 80 px dari atas; tangkapan 07.*
+- [x] Mode Arab menyembunyikan Ringkasan AI, catatan AI, kaki AI, dan judul Indonesia di daftar isi dan kepala halaman (e2e, tes regresi). *Bukti: e2e "mode Arab menyembunyikan terjemahan dan semua bantuan terjemahan" (semua `[data-tr-aid]` tersembunyi, judul daftar isi Arab saja) + "daftar isi di mode Arab: nama baris = judul Arab" (temuan peninjau); tangkapan 02, 08.*
+- [x] Kartu Cari di mode Arab hanya menampilkan terjemahan bila jalur terjemahan cocok (unit + e2e). *Bukti: unit `hitParts` (4 kasus) + e2e "kartu Cari di mode Arab" (kueri Arab: 0 blok terjemahan; kueri Indonesia: terjemahan tampil); uji manual 41 hasil "sabar": 0 selisih; tangkapan 09–10.*
+- [x] axe lolos untuk mode Arab dan Keduanya di ketiga tata letak, dengan panel terbuka. *Bukti: `a11y.spec`: Keduanya × Di bawah/Dilipat/Berdampingan, masing-masing tanpa dan dengan panel terbuka, + mode Arab dengan kata cari dibuka dan panel terbuka: 0 pelanggaran (desktop + ponsel).*
 - [ ] LCP ponsel (Lighthouse, n=5) j1/200 tetap ≤ 4,29 dtk di Preview.
 - [ ] Tangkapan layar desktop, ponsel, dan gelap per mode dilampirkan di PR.
-- [ ] Teks Arab tetap dari DB (tidak ada string Arab baru di diff selain data tes).
+- [x] Teks Arab tetap dari DB (tidak ada string Arab baru di diff selain data tes). *Bukti: grep huruf Arab atas `git diff origin/main...HEAD -- apps/web`: hanya data tes (kueri e2e "الصبر", fixture `page-text.test.tsx`).*
 - [ ] Peninjau dijalankan dan temuannya dikerjakan; ADR, STATUS, LOG, FASE, docs, dan file ini diperbarui.
 
 ### Bagian B
@@ -134,4 +134,20 @@ Implementasi bahasa Inggris (rute `/en`, parameter `lang` di core/MCP/API, data 
 
 ## Catatan hasil
 
-*(diisi agent di akhir setiap bagian)*
+*2026-10-24 · bagian A (ADR-091, ADR-092):*
+- **Dibuat:**
+  - Preferensi `surau:read-mode` + atribut `data-read-mode` lewat skrip awal; pemindahan sakelar lama di skrip (mode Arab tetap dari memori bila penyimpanan menolak ditulis). Modul bersama `lib/prefs.ts`, `components/read-mode.ts` (`useReadMode`/`setReadMode`), `components/read-mode-segment.tsx`.
+  - Penanda `data-no-tr` dan `data-tr-aid`; `lang` dari data (`PAGE_MODEL_VERSION` 6); `UI_LANG`; lencana AI pembaca satu komponen (`ai-badge.tsx`).
+  - CSS mode Arab, Dilipat/Berdampingan hanya di Keduanya, grid berdampingan tanpa separuh kosong, syair `container: verse`, cetak.
+  - `lib/reader/fold.ts` (buka teks tersembunyi untuk kata cari dan tautan `#…`), `lib/keep-position.ts` (jaga posisi untuk semua perubahan preferensi).
+  - Panel Tampilan: Segment Mode baca, pratinjau Arab + terjemahan berlencana (label ikut tinjauan manusia), teks yang berganti ditumpuk (`StableText`), kontrol nonaktif dengan keterangan. Menu ⋮: Mode baca di pembaca, daftar isi karya, Cari.
+  - Kartu Cari `hitParts`; kutipan Maknaz membawa `lang`.
+  - Dokumen: ADR-091, ADR-092 (+ catatan "sebagian digantikan" di ADR-075), docs/01, docs/07, FASE (X11 + garis besar "Bahasa Inggris").
+- **Temuan di lapangan (diperbaiki):**
+  - Kotak pratinjau menyusut di lembar ponsel (kolom flex yang bisa digulir) dan memotong lencana AI → `shrink-0`.
+  - Ganti mode dari menu ⋮ melempar posisi ±270 px: scroll anchoring Chrome ikut mengoreksi sesudah koreksi kita bila jangkar pilihannya ikut tersembunyi → `overflow-anchor: none` selama dua frame penyesuaian (dihitung per wadah, temuan peninjau).
+  - Jangkar paragraf terpotong di atas mendorong paragraf tujuan `#pN` saat kata cari dibuka → jangkar = paragraf pertama yang mulai di bawah navbar.
+  - Klik alat uji pada tombol navbar menggulir halaman (scrollIntoView ke tengah) → e2e mengukur sesudah menu terbuka dan memilih lewat event DOM.
+- **Peninjau** (`git diff origin/main...HEAD`): 1 blocker (nama baris daftar isi di mode Arab masih judul Indonesia/AI tanpa label → kini judul Arab), 4 perbaikan (jaga posisi kartu Cari lewat `flushSync`, `overflow-anchor` tertinggal `none` saat perubahan beruntun, fragmen URL rusak, jarak pratinjau di mode Arab) dan 9 saran; semua perbaikan + 6 saran dikerjakan. Saran yang dicatat sebagai batas: ringkasan AI tidak disorot kata cari (ADR-091 §4).
+- **Penyimpangan rencana:** menu ⋮ di /tanya belum ditambahkan di bagian A karena mode Arab/Keduanya tidak mengubah kartu kutipan Maknaz; ditambahkan di bagian B bersama mode Terjemahan.
+- **e2e lokal (`pnpm dev:remote`, korpus staging):** `reader-x11` 23 lolos/1 dilewati; `a11y`, `reader-x04`, `reader-x10`, `search`, `reader`: 159 lolos dalam satu putaran gabungan, 4 gagal karena waktu (render halaman lewat D1 jarak jauh 4,6–5,6 dtk saat paralel > batas tunggu 5 dtk; navigasi di browser normal, uji label lolos saat diulang). Dibuktikan ulang di e2e Preview PR.
