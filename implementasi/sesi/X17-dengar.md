@@ -1,6 +1,6 @@
 # X17 · Sesi sisipan: Dengar (audio Intisari dengan ElevenLabs v4)
 
-> **Fase:** sisipan (`packages/text`, `packages/core`, `tools/audio` baru, `tools/ingest` hanya pemuat audio, `apps/web`, dokumen) · **Status:** belum
+> **Fase:** sisipan (`packages/text`, `packages/core`, `tools/audio` baru, `tools/ingest` hanya pemuat audio, `apps/web`, dokumen) · **Status:** sebagian (kode + bucket selesai 2026-10-25, ADR-100; pilot/produksi berbayar menunggu T-29, T-31, T-32 + izin pemilik)
 > **Prasyarat:** X15a di-merge (tabel `audio_track`, `DigestView.audio`); sampel nyata dari pilot X15b · Tugas pemilik: T-29 (kunci API + kuota), T-31 (uji dengar)
 > **Perkiraan:** 1–2 percakapan agent · pilot TTS ≤ 50 ribu karakter (izin; masuk paket Starter) · produksi ±1,3 juta karakter (izin + keputusan kuota T-29)
 
@@ -53,9 +53,9 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
 
 ## Selesai bila
 
-- [ ] Tes `spoken-id`, skrip tanpa huruf Arab/placeholder (fixture), offset bab = jumlah durasi segmen, penyambungan MP3 + ID3, store posisi
-- [ ] e2e pemutar dengan MP3 sunyi: putar, jeda, kecepatan, bab, Media Session, lanjut posisi sesudah muat ulang, navigasi antarhalaman tanpa putus; axe
-- [ ] `pnpm audio verify` lolos untuk semua objek di manifest; `audio_track` termuat hanya untuk sha yang cocok
+- [x] Tes `spoken-id`, skrip tanpa huruf Arab/placeholder (fixture), offset bab = jumlah durasi segmen, penyambungan MP3 + ID3, store posisi — `spoken-id.test.ts` 41, `digest-script.test.ts` 10 (workerd, termasuk tanda takhrij berat dan sha berubah saat gagasan ditolak), `audio-manifest.test.ts` 4, `tools/audio` 30 (`render.test.ts`: bab = jumlah sampel segmen + jeda; `mp3`/`id3`/`lexicon`/`elevenlabs`/`r2`), `listen.test.ts` 9 (store + track)
+- [x] e2e pemutar dengan MP3 sunyi: putar, jeda, kecepatan, bab, Media Session, lanjut posisi sesudah muat ulang, navigasi antarhalaman tanpa putus; axe — `e2e/dengar.spec.ts` 4/4 (chromium + ponsel) terhadap `next dev`; CI Preview menjalankannya lagi di PR
+- [ ] `pnpm audio verify` lolos untuk semua objek di manifest; `audio_track` termuat hanya untuk sha yang cocok — *sebagian:* pemuat terbukti dengan korpus fixture (`tools/ingest/src/audio.test.ts`: hanya sha cocok, basi/tanpa Intisari gugur); manifest masih kosong (belum ada audio), jadi `verify` atas objek nyata menunggu pilot
 - [ ] LCP j1/200 dan halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`)
 - [ ] Pemilik menyetujui suara dan sampel (T-31); biaya aktual tercatat
 - [ ] `pnpm verify` lolos; peninjau; STATUS, LOG, dan berkas sesi ini diperbarui
@@ -69,4 +69,52 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
 
 ## Catatan hasil
 
-*(diisi agent di akhir sesi)*
+**2026-10-25 · kode + infrastruktur (ADR-100).** PR: lihat LOG.
+
+Dibuat:
+- `packages/text/src/spoken-id.ts` (`SPOKEN_VERSION` 1) dan `packages/core/src/digest-script.ts` (`SCRIPT_VERSION` 1, `digestScript`, `loadDigestScript`, `segmentText`). Segmen label/pembuka/gagasan/kutipan/penutup. Kutipan dibacakan lewat terjemahan, ayat hanya disebut, tanda takhrij berat ikut, huruf Arab/⟦/[/]// ditolak.
+- `packages/core/src/audio-manifest.ts`: skema `data/audio/<kitab>-audio.json`, `audioObjectKey` (sidik ISI MP3), `selectAudioTracks`. `data/audio/ihya-9472-audio.json` masih kosong.
+- `tools/audio`:
+  - `TtsProvider` + ElevenLabs REST;
+  - `mp3.ts` (sambung CBR + jeda sunyi);
+  - `id3.ts`;
+  - `lexicon.ts` + `data/lexicon/id.yaml` (32 lafal draf `test`);
+  - `store.ts` (cache segmen, niat, tanda terima);
+  - `render.ts`;
+  - `r2.ts` (tidak pernah menimpa, verify HEAD + Range + sha);
+  - CLI `pnpm audio plan|sample|submit|upload|manifest|verify|status|release`.
+- `tools/ingest/src/audio.ts` + `sqlite-d1.ts`: putaran kedua ingest dengan baris `audio_track` yang sha-nya cocok.
+- Bucket R2 `surau-media` (APAC, r2.dev mati).
+- Web:
+  - `components/listen/*` (engine, store, track, PlayButton, MiniPlayer lazy, ListenProvider di shell);
+  - `…/bab/[id]/intisari/dengar.json`;
+  - `/dev/dengar` + audio sunyi buatan;
+  - `/privasi`;
+  - 8 ikon.
+- JS awal setiap halaman bertambah ±1,9 KB gzip (provider + mesin + store; esbuild minify). Pemutar mini 3,7 KB gzip baru dimuat saat diputar.
+
+Uji coba nyata:
+- `pnpm audio plan` terhubung ke staging (0 Intisari karena staging masih skema < 9). Kunci T-29 belum terbaca.
+- Pemutar diuji di browser (desktop + ponsel): Media Session, bab, kecepatan, navigasi tanpa putus, lanjut posisi.
+
+Menyimpang dari rencana (ADR-100):
+- Kunci objek memakai sidik isi MP3, bukan sha skrip, supaya ganti suara atau leksikon tidak bentrok.
+- Jeda memakai bingkai sunyi, bukan tag `[pause]`.
+- Judul bagian tidak dibacakan.
+- Leksikon diterapkan sesudah sha skrip.
+
+Belum / utang:
+- Pilot (≤ 50 ribu karakter) dan produksi menunggu T-29 (kunci, sebaiknya + User/Voices Read), T-31 (pilih suara + uji lafal lewat `pnpm audio sample`), T-32 (domain), dan izin pemilik di chat.
+- Halaman Intisari X16 (PR #138) belum di `main`. Sesudah masuk, `ListenSlot` diganti `PlayButton` + `listenTrack` di `digest-page.tsx` (hunk `DEV_PAGES` di PR ini identik dengan #138).
+- LCP halaman Intisari diukur sesudah X16 masuk.
+- Bab "Penutup" belum menjadi bab pemutar (`audioChapters` hanya gagasan).
+- ID3 belum memuat CHAP/CTOC.
+
+Untuk sesi berikutnya: urutan pilot sesudah izin pemilik:
+1. `pnpm audio sample --voice <id> --confirm` (uji lafal, ±2 ribu karakter);
+2. `pnpm audio plan --voice <id>`;
+3. `pnpm audio submit --voice <id> --budget-chars 50000 --node … --confirm`;
+4. `pnpm audio upload --confirm`;
+5. `pnpm audio manifest`;
+6. `pnpm audio verify`;
+7. build korpus berikutnya.

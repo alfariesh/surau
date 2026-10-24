@@ -241,7 +241,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 - [ ] **T-29 · Kunci API ElevenLabs untuk pembuatan audio (X17)** · sebelum pilot audio X17; kuota produksi diputuskan sesudah pilot
   1. Buka https://elevenlabs.io dan masuk ke akun Anda (paket Starter).
-  2. Buka **Developers → API Keys → Create API Key**. Beri nama `surau-tts`, aktifkan pembatasan akses, lalu izinkan hanya **Text to Speech** (dan **Voices: Read** bila ada). Isi **batas kredit**, misalnya 60.000 untuk pilot.
+  2. Buka **Developers → API Keys → Create API Key**. Beri nama `surau-tts`, aktifkan pembatasan akses, lalu izinkan **Text to Speech**, **Voices: Read**, dan **User: Read** (X17: dua yang terakhir dipakai `pnpm audio plan` untuk membaca nama suara dan sisa kuota; tanpa keduanya alat tetap jalan, hanya kuota tidak terlihat). Isi **batas kredit**, misalnya 60.000 untuk pilot.
   3. Salin kuncinya. **Jangan tempel di chat Claude.**
   4. Di panel Terminal aplikasi Claude (folder Surau), ketik baris di bawah. Saat diminta, tempel kunci lalu tekan Enter. Isinya tidak terlihat.
      `printf 'Tempel kunci lalu Enter: '; read -rs K; printf 'ELEVENLABS_API_KEY=%s\n' "$K" >> .env; unset K; echo`
@@ -252,6 +252,12 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
      - **ElevenLabs Impact Program** (12 bulan Pro gratis) bila Surau berbadan hukum nirlaba.
      Ketik pilihan Anda ke agent.
   - Tidak dipakai: `npx @elevenlabs/cli onboard init`. Perintah itu menulis berkas `.env.local` dan folder `~/.elevenlabs`, lalu menyuruh `npm install`, yang bentrok dengan pnpm repo ini (ADR-097).
+
+- [ ] **T-32 · Sambungkan domain audio `media.surau.org` (X17)** · sebelum audio pilot diunggah; ±2 menit
+  Bucket R2 `surau-media` sudah dibuat agent (kosong, akses r2.dev mati). Domainnya perlu *Zone ID* surau.org, yang tidak bisa dibaca agent tanpa membuka berkas kredensial. Pilih salah satu:
+  - **A (agent yang menyambungkan):** buka https://dash.cloudflare.com → klik **surau.org** → halaman **Overview**, kolom kanan bagian **API** → salin **Zone ID** → tempel di chat agent. Zone ID **bukan rahasia** (bukan token).
+  - **B (lewat dashboard):** **R2 object storage** → bucket **surau-media** → **Settings** → **Custom Domains** → **Add** → ketik `media.surau.org` → **Continue** → **Connect Domain**. Lalu bilang ke agent "T-32 sudah".
+  Agent lalu memeriksa domainnya (HEAD/Range) sebelum mengunggah audio pertama.
 
 - [ ] **T-30 · Lihat dan setujui tampilan Intisari (X16)** · di akhir X16
   1. Agent mengirim tautan Preview (`pr-NNN.surau.org/kitab/ihya/intisari`, data staging). Buka di ponsel dan laptop, mode terang dan gelap.
