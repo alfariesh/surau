@@ -30,8 +30,10 @@ async function openMenu(page: Page) {
 
 /** Pilih mode baca lewat menu ⋮ navbar. */
 async function pickFromMenu(page: Page, label: "Arab" | "Keduanya" | "Terjemahan") {
-  await (await openMenu(page)).getByRole("radio", { name: label }).click();
+  const group = await openMenu(page);
+  await group.getByRole("radio", { name: label }).click();
   await page.keyboard.press("Escape");
+  await expect(group).toBeHidden();
 }
 
 /** Tunggu posisi elemen diam (animasi lembar panel/popover selesai) sebelum mengukurnya. */
@@ -151,8 +153,11 @@ test("ganti mode dari menu ⋮: paragraf yang sedang dibaca tidak bergeser (≤ 
       return el === undefined ? null : { id: el.id, top: el.getBoundingClientRect().top };
     });
     expect(anchor).not.toBeNull();
-    // Klik lewat DOM (bukan gerak tetikus alat uji): yang diukur hanya perubahan mode.
-    await group.getByRole("radio", { name: label }).dispatchEvent("click");
+    // Klik lewat DOM (bukan gerak tetikus alat uji): yang diukur hanya perubahan mode. Fokus dulu
+    // di dalam menu, supaya Escape sesudahnya menutup menu.
+    const radio = group.getByRole("radio", { name: label });
+    await radio.focus();
+    await radio.dispatchEvent("click");
     const html = page.locator("html");
     if (label === "Arab") await expect(html).toHaveAttribute("data-read-mode", "ar");
     else await expect(html).not.toHaveAttribute("data-read-mode");
@@ -161,6 +166,7 @@ test("ganti mode dari menu ⋮: paragraf yang sedang dibaca tidak bergeser (≤ 
       .evaluate((el) => el.getBoundingClientRect().top);
     expect(Math.abs(after - anchor!.top)).toBeLessThanOrEqual(2);
     await page.keyboard.press("Escape");
+    await expect(group).toBeHidden();
   }
 });
 
@@ -287,7 +293,9 @@ test("ganti mode di Cari: kartu yang sedang dibaca tidak bergeser (≤ 2 px)", a
         };
   });
   expect(anchor).not.toBeNull();
-  await group.getByRole("radio", { name: "Arab" }).dispatchEvent("click");
+  const radio = group.getByRole("radio", { name: "Arab" });
+  await radio.focus();
+  await radio.dispatchEvent("click");
   await expect(page.locator("html")).toHaveAttribute("data-read-mode", "ar");
   // Terjemahan kartu di atasnya benar-benar hilang (kueri Arab), jadi tanpa jaga posisi kartu melompat.
   await expect(cards.locator('[lang="id"]:not(.bg-surface-secondary)')).toHaveCount(0);
