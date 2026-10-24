@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-24 · Di luar sesi · Tes rapuh `translation-review` (batas 5 dtk) — selesai
+- Dikerjakan: tes "simpanan ke-201 seorang editor dalam sehari → limit" (200 simpanan lewat jalur produksi) diberi batas waktu sendiri 15 dtk (±3× waktu terukur, saran peninjau); sebelumnya kadang melewati batas bawaan 5 dtk (5,05 dtk) saat mesin agen sibuk dan menggagalkan `pnpm verify` (temuan X14). Data tidak diisi langsung lewat SQL supaya tes tidak menyalin aturan rantai revisi.
+- Verifikasi: tes itu 5× berturut-turut lolos (12/12); `pnpm verify` → lolos (857 + 387 tes, build); peninjau: lolos, 2 saran dikerjakan.
+- Biaya API: –
+- Keputusan: –
+- Catatan untuk sesi berikutnya: –
+
 ## 2026-10-24 · X14 · Lanjutan mode baca: petunjuk sekali tampil, Ringkasan AI ikut kata cari, ukur LCP di repo — selesai (PR #130)
 - Dikerjakan: petunjuk "Pilih cara membaca" (pilihan pemilik) di halaman baca bagi pengunjung yang belum memilih mode, lewat skrip awal + pemeriksaan ulang saat navigasi lunak, tanpa geser tata letak; Ringkasan AI satu DOM, disorot kata cari, dibuka bila kecocokan terpotong, dibuka sementara di mode Arab (batas ADR-091 §4 dihapus); `scripts/ukur-lcp.mjs` + `pnpm ukur:lcp` (Lighthouse di cache pengguna, bukan dependensi repo).
 - Verifikasi: `pnpm check` + build lolos, tes unit 851 lolos (1 tes lama `translation-review` lewat batas 5 dtk tipis di mesin ber-load 28; lolos di CI) · e2e `reader-x14` 16/16 lokal + CI Preview; axe petunjuk + ringkasan dibuka · peninjau: 0 blocker, 5 perbaikan + 3 saran dikerjakan · LCP Preview j1/200 baru 3,96 / Keduanya 3,31 / Terjemahan 3,16 / Arab 3,97 dtk vs produksi 4,19 / 4,42 / 3,48 / 2,88 (n=5, sebaran ±1 dtk).
