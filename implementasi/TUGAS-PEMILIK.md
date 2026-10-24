@@ -210,6 +210,17 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   5. **Pemilik** melihat sekilas di https://surau.org/admin → *Koreksi terjemahan terbaru* (bisa dibatalkan dari situ).
   6. Koreksi tampil di situs lewat korpus berikutnya: ketik ke agent "bangun korpus dengan koreksi terjemahan" (±sebulan sekali atau sesudah ≥50 koreksi); promote ke produksi tetap menunggu izin Anda.
 
+- [ ] **T-27 · Pilih sumber terjemahan ayat Inggris dan (bila mau) minta izin penerbit (draf, ADR-092)** · syarat pertama sebelum fase bahasa Inggris dijadwalkan; tidak menghambat pekerjaan lain
+  Hasil riset ada di [docs/riset/2026-10-24-terjemahan-ayat-inggris.md](../docs/riset/2026-10-24-terjemahan-ayat-inggris.md). Rekomendasinya: **Pickthall (1930, domain publik) sebagai sumber awal**, Wahiduddin Khan (tertulis "copyright free") sebagai cadangan modern setelah konfirmasi, dan Clear Quran / Saheeh International hanya bila penerbit memberi izin tertulis. Agent tidak mengirim email atau menghubungi pihak luar.
+  1. **Baca bagian 4 (Rekomendasi) dan 7 (Keputusan) dokumen riset** (±5 menit). Tabel di bagian 2 menunjukkan siapa pemegang hak tiap terjemahan.
+  2. **Putuskan lalu ketik ke agent** salah satu: "T-27: pakai Pickthall sebagai sumber awal" · "T-27: tunggu izin Saheeh/Clear Quran dulu" · atau catatan Anda sendiri. Agent mencatatnya sebagai ADR baru.
+  3. **(Opsional, disarankan) Konfirmasi Wahiduddin Khan.** Salin **Email 1** di bawah, ganti `<nama>`, `<email>`, dan `<tautan situs>`, kirim dari email Anda ke **info@goodwordbooks.com** dengan tembusan **info@cpsglobal.org**. Simpan balasannya (tangkapan layar atau teruskan ke agent: "T-27 balasan Goodword: …").
+  4. **(Opsional) Izin Clear Quran.** Buka https://theclearquran.org/contact, pilih jenis pertanyaan **Licensing & Copyright**, tempel **Email 2A**, setelah mengganti `<nama>`, `<email>`, `<tautan situs>`. Surau bukan organisasi 501(c)(3), jadi pengecualian 10% mereka tidak berlaku; jawabannya bisa "tidak" atau tanpa balasan. Jangan kirim berulang.
+  5. **(Opsional) Izin Saheeh International.** Pemegang hak di cetakan = Abul-Qasim Publishing House dan Al-Muntada Al-Islami. Alamat kontaknya belum ditemukan. Cari di halaman hak cipta edisi cetak resmi Saheeh International (atau tanya Dar-us-Salam), lalu kirim **Email 2B** (ganti `<nama>`, `<email>`, `<tautan situs>`, dan nama pemegang hak yang Anda temukan). **Jangan memakai alamat dari situs yang tidak jelas.**
+  6. **(Opsional, permintaan baru, bergantung pada kesediaan Anas dan terpisah dari T-24)** Tanyakan apakah Ust. Anas bersedia membaca contoh 20 ayat (agent menyiapkannya sesudah langkah 2) untuk menilai apakah Pickthall (dan Wahiduddin Khan) layak dipakai. Ini penilaian bahasa dan keandalan, bukan persetujuan hukum.
+  7. Teruskan setiap balasan penerbit ke agent. Hanya balasan tertulis yang dihitung sebagai izin. **Clear Quran dan Saheeh** tidak boleh masuk situs maupun dump sebelum ada izin tertulis. **Pickthall** tidak membutuhkannya (status domain publik-nya masih diperiksa agent). **Wahiduddin Khan** sebaiknya menunggu balasan Goodword.
+  8. **Bila Anda memilih jalur QuranEnc** (Noor/Saheeh atau Rowwad; keputusan 4 di dokumen riset), katakan ke agent. Langkah email ke QuranEnc ditambahkan di sini, dan Anda yang mengirimnya.
+
 - [ ] **T-25 · Lihat dan setujui tampilan Tanya (S21)** · syarat "pemilik menyetujui tampilan" sebelum `/rilis 4`
   1. Ketik ke agent: **"siapkan Preview Tanya"**. Agent membuka PR kecil supaya ada alamat Preview (`pr-NNN.surau.org/tanya`, data staging), menyalakan Jawab staging sebentar selama Anda mencoba (biaya ±US$0,003 per pertanyaan), lalu mematikannya lagi. (Preview PR #100 sudah terhapus otomatis sesudah digabung; di https://surau.org/tanya Tanya masih tampil "belum dibuka" sampai `/rilis 4`.)
   2. Periksa: layar percakapan Maknaz (ADR-071, ADR-073): hilal di tengah, chip contoh pertanyaan, bulan yang "terbang" ke balasan pertama, orb yang berganti bentuk per tahap + teks berkilau, gelembung pertanyaan beraksen; kotak berbentuk widget dengan sumber jawaban di kepalanya; satu catatan tetap "Surau adalah asisten riset, bukan pemberi fatwa." (di atas sebelum bertanya, di bawah kotak sesudahnya; ADR-090); bertanya juga dari Beranda (segmen Maknaz, kotak "terbang" menjadi gelembung) dan dari tombol "Tanyakan … ke Maknaz" di hasil Cari (ADR-086, ADR-087); jawaban dengan nomor kutipan [n], kalimat redup tanpa kutipan, kartu kutipan Arab (huruf dan harakat rapi, kanan-ke-kiri), status hadits, tombol salin dan "Laporkan jawaban keliru", pertanyaan kedua di percakapan yang sama, dan tampilan di ponsel.
@@ -235,6 +246,63 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 > 3. Contributors without a Pro license won't be able to build the web app. Is there a recommended approach (e.g., a contributor license or keeping `apps/web` private)?
 >
 > Thank you!
+
+## Lampiran: draf email untuk T-27 (izin terjemahan ayat Inggris)
+
+> **Email 1 · ke Goodword Books / CPS (Maulana Wahiduddin Khan)**
+> **Subject:** Confirming free use of the Quran English translation by Maulana Wahiduddin Khan in a non-profit project
+>
+> Dear Goodword Books / CPS team,
+>
+> I'm building **Surau**, a non-profit, ad-free, open-source research assistant for classical Islamic texts (<tautan situs>). We plan an English-language site and want to display the English Quran translation by Maulana Wahiduddin Khan and Prof. Farida Khanam, verbatim and unmodified, with full attribution.
+>
+> The title page of the edition published on cpsglobal.org states: "This translation of the Quran is copyright free." Could you please confirm in writing that we may:
+> 1. display the translation verbatim on our non-profit website (no ads, no sales);
+> 2. store it in our database and offer it, unmodified, inside a downloadable open dataset licensed CC BY-NC-SA 4.0 (the translation itself keeps its own terms, which we will state as "copyright free, Goodword Books");
+> 3. serve it unmodified through our public API;
+> 4. credit "Maulana Wahiduddin Khan, translated with Prof. Farida Khanam, Goodword Books" and link to your site.
+>
+> Which edition and year should we cite as the source?
+>
+> Thank you, and jazakumullahu khayran.
+> <nama> · <email> · <tautan situs>
+
+> **Email 2A · ke Al-Furqaan Foundation (Clear Quran)** (kirim lewat formulir; sebut juga Furqaan Institute dan Book of Signs Foundation)
+> **Subject:** Permission request: non-profit use of The Clear Quran in an open research project
+>
+> Dear Al-Furqaan Foundation (Furqaan Institute / Book of Signs Foundation),
+>
+> I'm building **Surau**, a non-profit, ad-free, open-source research assistant for classical Islamic texts that links every answer to the original book page (<tautan situs>). We are preparing an English-language site. Quran verses are never machine-translated; we only show an official human translation verbatim.
+>
+> We would like written permission to use **The Clear Quran by Dr. Mustafa Khattab** as that translation. Specifically, to:
+> 1. display it verbatim, unmodified, and with full attribution on our non-profit website;
+> 2. store it in our database;
+> 3. include it, unmodified, in a downloadable data dump (the dump's own content is CC BY-NC-SA 4.0, but your translation would remain under your terms, which we would state clearly);
+> 4. serve it unmodified through our public API.
+>
+> We understand Surau is not a U.S. 501(c)(3) organization, so the educational excerpt exception does not apply, and we are asking for a separate permission covering the full text. If a license with different terms (for example display-only, without the data dump) would suit you better, we would gladly work within it.
+>
+> Thank you for your time.
+> <nama> · <email> · <tautan situs>
+
+> **Email 2B · ke pemegang hak Saheeh International** (Abul-Qasim Publishing House / Al-Muntada Al-Islami; ganti dengan nama yang Anda temukan)
+> **Subject:** Permission request: non-profit use of Saheeh International in an open research project
+>
+> Dear <nama pemegang hak>,
+>
+> I'm building **Surau**, a non-profit, ad-free, open-source research assistant for classical Islamic texts that links every answer to the original book page (<tautan situs>). We are preparing an English-language site. Quran verses are never machine-translated; we only show an official human translation verbatim.
+>
+> We would like written permission to use **the Saheeh International translation** as that translation. Specifically, to:
+> 1. display it verbatim, unmodified, and with full attribution on our non-profit website;
+> 2. store it in our database;
+> 3. include it, unmodified, in a downloadable data dump (the dump's own content is CC BY-NC-SA 4.0, but your translation would remain under your terms, which we would state clearly);
+> 4. serve it unmodified through our public API.
+>
+> We are asking for a permission covering the full text. If a license with different terms (for example display-only, without the data dump) would suit you better, we would gladly work within it.
+>
+> Thank you for your time.
+> <nama> · <email> · <tautan situs>
+
 
 ## Lampiran: draf email ke Shamela
 
