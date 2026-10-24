@@ -1,7 +1,10 @@
 // Pemeriksaan umum keluaran LLM (S13). Aturan teks-arab: teks Arab buatan model tidak pernah tampil
 // sebagai kutipan, jadi keluaran yang menyalin teks Arab panjang ditolak (istilah ditulis Latin).
-import { FOOTNOTE_MARKER_SOURCE } from "@surau/text";
-import { ayahPlaceholderPattern } from "@surau/core";
+import { footnoteMarkerDigits, stripMarkers } from "@surau/core";
+
+// Pemeriksa teks murni dipindah ke @surau/core (X08, ADR-081) supaya web memakainya tanpa
+// menarik @surau/llm; diekspor ulang di sini untuk pemanggil batch.
+export { footnoteMarkerDigits, hasArabicLetters, hasMarkdown, stripMarkers } from "@surau/core";
 
 /**
  * Kata berhuruf Arab berturut-turut yang masih diterima: 0. Prompt melarang huruf Arab sama sekali
@@ -11,13 +14,6 @@ import { ayahPlaceholderPattern } from "@surau/core";
 export const MAX_ARABIC_RUN_WORDS = 0;
 
 const ARABIC_LETTER = /(?=\p{L})\p{Script=Arabic}/u;
-
-/** Buang placeholder ayat dan penanda catatan kaki (angka Arab dalam kurung) dari teks. */
-export function stripMarkers(text: string): string {
-  return text
-    .replace(ayahPlaceholderPattern(), " ")
-    .replace(new RegExp(FOOTNOTE_MARKER_SOURCE, "g"), " ");
-}
 
 /** Jumlah kata berhuruf Arab berturut-turut terpanjang (placeholder dan penanda tidak dihitung). */
 export function longestArabicRun(text: string): number {
@@ -31,11 +27,6 @@ export function longestArabicRun(text: string): number {
   return best;
 }
 
-/** Ada huruf Arab sama sekali (dicatat sebagai peringatan, bukan penolakan). */
-export function hasArabicLetters(text: string): boolean {
-  return ARABIC_LETTER.test(stripMarkers(text));
-}
-
 /** Panjang teks tanpa placeholder, penanda, dan spasi berlebih (perkiraan token, pemecahan). */
 export function contentLength(text: string): number {
   return stripMarkers(text).replace(/\s+/g, " ").trim().length;
@@ -47,11 +38,6 @@ export function contentLength(text: string): number {
  */
 export function letterLength(text: string): number {
   return stripMarkers(text).replace(/\p{M}/gu, "").replace(/\s+/g, " ").trim().length;
-}
-
-/** Digit setiap penanda catatan kaki di teks, mis. "(١)" → "١". */
-export function footnoteMarkerDigits(text: string): string[] {
-  return [...text.matchAll(new RegExp(FOOTNOTE_MARKER_SOURCE, "g"))].map((m) => m[1] ?? "");
 }
 
 /** Jarak (karakter) dari placeholder ayat yang diperiksa untuk transliterasi berdiakritik. */
@@ -73,11 +59,6 @@ export function refillsAyah(text: string): boolean {
     if (DIACRITIC_TRANSLIT.test(near)) return true;
   }
   return false;
-}
-
-/** Markdown yang dilarang prompt (tebal, judul). */
-export function hasMarkdown(text: string): boolean {
-  return /\*\*|__|^\s{0,3}#{1,6}\s/m.test(text);
 }
 
 // Komentar/koreksi-diri model dalam bahasa Indonesia (batch S13: ±1,4% keluaran memuatnya walau

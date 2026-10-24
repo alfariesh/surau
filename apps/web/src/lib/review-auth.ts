@@ -1,6 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import type { JWTVerifyGetKey } from "jose";
-import { evalHash } from "@surau/core";
+import { canUseTinjauRoom, evalHash, parseTranslationEditors } from "@surau/core";
+import type { TinjauRoom } from "@surau/core";
 
 export interface ReviewAccessConfig {
   REVIEW_ACCESS_ISSUER?: string;
@@ -82,6 +83,19 @@ async function accessIdentity(
     // Pesan galat JWT dapat memuat claims; jangan log exception-nya.
     return null;
   }
+}
+
+/**
+ * Peran ruang tinjau (X08, ADR-081), diperiksa di server sesudah `reviewIdentity`. Terjemahan: hanya
+ * akun di `TRANSLATION_EDITORS`. Jawaban eval dan label takhrij: akun yang belum terdaftar tetap
+ * memakai akses lama; akun editor terdaftar hanya bila ruangnya tertulis di `also`.
+ */
+export function reviewRoomAllowed(
+  identity: string,
+  room: TinjauRoom | "terjemahan",
+  env: { TRANSLATION_EDITORS?: string },
+): boolean {
+  return canUseTinjauRoom(identity, room, parseTranslationEditors(env.TRANSLATION_EDITORS));
 }
 
 export function reviewSameOrigin(request: Request): boolean {

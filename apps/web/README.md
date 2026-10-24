@@ -46,7 +46,7 @@ src/
     arabic/              # ArabicText, ArabicInline (+ tes)
     reader/              # pembaca kitab: penanda takhrij, daftar isi, toolbar, laporan
     shell/               # SurauShell, sidebar, navbar, tombol tema, logo
-  content/basmalah.ts    # demo tipografi (teks Tanzil, asal-usul dicatat)
+  content/basmalah.ts    # contoh teks Arab untuk tes komponen Arab (Tanzil, asal-usul dicatat)
   content/works.ts       # nama tampilan Latin untuk sitasi
   lib/                   # binding Cloudflare, logika pembaca (+ tes), /api/feedback
   i18n/id.ts             # semua string UI

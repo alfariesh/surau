@@ -26,8 +26,6 @@
 @import "@heroui/styles/components/menu-item.css" layer(components);
 @import "@heroui/styles/components/menu-section.css" layer(components);
 @import "@heroui/styles/components/menu.css" layer(components);
-@import "@heroui/styles/components/tag-group.css" layer(components);
-@import "@heroui/styles/components/tag.css" layer(components);
 @import "@heroui/styles/components/slider.css" layer(components);
 @import "@heroui/styles/components/switch.css" layer(components);
 @import "@heroui/styles/components/chip.css" layer(components);
@@ -52,6 +50,7 @@
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
 @import "@heroui/styles/components/select.css" layer(components);
+@import "@heroui/styles/components/autocomplete.css" layer(components);
 @import "@heroui/styles/components/kbd.css" layer(components);
 @import "@heroui/styles/components/typography.css" layer(components);
 @import "@heroui/styles/components/scroll-shadow.css" layer(components);
@@ -95,10 +94,23 @@
 
 @source "../**/*.{ts,tsx}";
 
-/* Font dari next/font (layout.tsx): --font-harmony (UI) dan --font-naskh (Arab). Nilai cadangan di
+/* Huruf cadangan Google Sans selama berkas font belum siap (layout.tsx): Arial yang ukurannya disamakan.
+   Metrik dihitung dari GoogleSans (Latin, wght 400) dengan rumus next/font: ascent 966, descent -286,
+   lineGap 0, unitsPerEm 1000, xWidthAvg 450 (capsize) dibanding Arial 904/2048. Perangkat tanpa Arial
+   (Android) memakai ui-sans-serif seperti sebelumnya. */
+@font-face {
+  font-family: "Google Sans Fallback";
+  src: local("Arial");
+  ascent-override: 94.76%;
+  descent-override: 28.05%;
+  line-gap-override: 0%;
+  size-adjust: 101.95%;
+}
+
+/* Font dari next/font (layout.tsx): --font-ui (Google Sans, UI) dan --font-naskh (Arab). Nilai cadangan di
    var(): global-error.tsx tidak memasang variabel font, dan var() kosong membatalkan deklarasinya. */
 @theme inline {
-  --font-sans: var(--font-harmony, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-ui, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
@@ -174,11 +186,16 @@ body {
  * sekali jadi tile AVIF abu-abu (scripts/kertas.mjs, `pnpm kertas`), dipakai sebagai mask luminans
  * pada warna bayangan kertas: terang/sepia `multiply`, gelap `screen`; (2) butiran halus noise SVG 5%.
  * Keduanya lapisan tetap di ATAS semua isi (tidak bisa diklik), supaya navbar, sidebar, dan kartu ikut
- * bertekstur tanpa pita polos; blend multiply/screen tidak mengubah warna teks. Tanpa JavaScript dan
- * WebGL, jadi tekstur ikut tampil sejak cat pertama (setelah tile ter-cache) dan skalanya sama di
+ * bertekstur tanpa pita polos; blend multiply/screen tidak mengubah warna teks. Tanpa WebGL; skalanya sama di
  * semua viewport (tile 1024 px selebar 768 px CSS; di layar 2x diperbesar 1,5x, serat tetap lembut). `?v=` diperbarui otomatis oleh `pnpm kertas` saat tile dipanggang ulang.
+ * Kunjungan pertama (X09, ADR-079, lib/paper.ts): skrip awal memasang `data-kertas-tunda` di <html>
+ * sehingga tile (±75 KB) baru diunduh sesudah halaman selesai dimuat, lalu masuk halus
+ * (`data-kertas-masuk`); tile tidak berebut jaringan dengan teks halaman di ponsel. Kunjungan
+ * berikutnya tile sudah di cache browser (`immutable`) dan tekstur tampil sejak cat pertama, seperti
+ * juga tanpa JavaScript (atribut tidak pernah dipasang).
  */
 :root {
+  --paper-mask: url("/kertas/serat.avif?v=4fcb341c");
   --paper-shadow: #cdc8bb;
   --paper-blend: multiply;
   --paper-strength: 0.6;
@@ -196,7 +213,7 @@ body {
 }
 
 @supports (mask-mode: luminance) {
-  body::before {
+  html:not([data-kertas-tunda]) body::before {
     content: "";
     position: fixed;
     inset: 0;
@@ -205,12 +222,30 @@ body {
     background-color: var(--paper-shadow);
     mix-blend-mode: var(--paper-blend);
     opacity: var(--paper-strength);
-    /* Longhand tanpa var() kecuali ukuran: var() yang gagal di shorthand mengosongkan seluruh mask. */
-    mask-image: url("/kertas/serat.avif?v=4fcb341c");
+    /* Longhand, bukan shorthand `mask`: var() yang gagal di shorthand mengosongkan seluruh mask.
+       `--paper-mask` selalu terdefinisi di :root (URL-nya juga dibaca lib/paper.ts). */
+    mask-image: var(--paper-mask);
     mask-mode: luminance;
     mask-repeat: repeat;
     mask-position: 0 0;
     mask-size: var(--paper-tile);
+  }
+
+  /* Kunjungan pertama: tile baru terunduh sesudah halaman tampil, jadi masuk halus. */
+  :root[data-kertas-masuk] body::before {
+    animation: kertas-masuk 0.6s ease-out both;
+  }
+}
+
+@keyframes kertas-masuk {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-kertas-masuk] body::before {
+    animation: none;
   }
 }
 
@@ -349,19 +384,58 @@ body::after {
 }
 
 /*
- * Teks kitab rata kanan-kiri seperti kitab cetak (bawaan); pilihan "Rata kanan" di panel Tampilan
- * (atribut data-reader-align="start"). Browser meratakan Arab dengan melebarkan spasi antarkata,
- * bukan kashida, jadi huruf tidak diubah. Baris terakhir tetap rata kanan.
+ * Teks kitab rata kanan-kiri seperti kitab cetak; pilihan di panel Tampilan (atribut
+ * data-reader-align). Bawaan "Otomatis" (X04): rata kanan-kiri di layar ≥ 640 px, rata kanan di
+ * ponsel, karena di kolom sempit browser melebarkan spasi antarkata secara mencolok. Browser
+ * meratakan Arab dengan melebarkan spasi, bukan kashida, jadi huruf tidak diubah.
  */
 :is(.reader-text, .reader-footnotes) .arabic-text:not(.reader-heading) {
   text-align: justify;
   text-justify: inter-word;
 }
 
+@media (width < 40rem) {
+  :root:not([data-reader-align="justify"])
+    :is(.reader-text, .reader-footnotes)
+    .arabic-text:not(.reader-heading) {
+    text-align: start;
+  }
+}
+
 :root[data-reader-align="start"]
   :is(.reader-text, .reader-footnotes)
   .arabic-text:not(.reader-heading) {
   text-align: start;
+}
+
+/*
+ * Ritme baca (X04 W1): paragraf berjarak lega satu sama lain, terjemahan menempel ke Arabnya.
+ * Jangkar bab (#bab-N) diletakkan absolut di dalam paragraf, jadi tidak menambah celah.
+ */
+.reader-text {
+  container: reader-text / inline-size;
+  row-gap: 1.75rem;
+}
+
+:root[data-translation="off"] .reader-text {
+  row-gap: 1rem;
+}
+
+.reader-text .passage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reader-text .passage > .section-anchor {
+  position: absolute;
+  inset-block-start: 0;
+}
+
+/* Jangkar bagian tanpa paragraf di halaman ini (di awal teks): absolut, tanpa menambah celah. */
+.reader-text > .section-anchor {
+  position: absolute;
 }
 
 h2.reader-heading {
@@ -411,49 +485,51 @@ h2.reader-heading-minor {
 }
 
 /*
- * Judul ringkas di navbar (pembaca): judul halaman navbar dan judul ringkas bertumpuk di satu sel
- * grid lalu bertukar dengan geser + pudar. Judul besar halaman ikut mengecil dan memudar saat
- * tergulir keluar (animasi berbasis gulir; browser tanpa dukungan cukup menggulirnya biasa).
+ * Judul ringkas di navbar: judul menu navbar dan judul ringkas (judul halaman, atau progres di
+ * pembaca) bertumpuk di satu sel grid lalu bertukar dengan geser + pudar. Judul besar halaman ikut
+ * mengecil dan memudar saat tergulir keluar (animasi berbasis gulir; browser tanpa dukungan cukup
+ * menggulirnya biasa).
  */
 .navbar-title-stack > * {
   grid-area: 1 / 1;
 }
 
 .navbar-page-title,
-.reader-compact {
+.navbar-compact {
   transition:
     opacity 220ms ease,
     transform 220ms ease;
 }
 
-.reader-compact[data-visible="false"] {
+.navbar-compact[data-visible="false"] {
   opacity: 0;
   transform: translateY(0.5rem);
   pointer-events: none;
 }
 
-/* visibility menyusul setelah pudar: judul "Kitab" keluar dari pohon aksesibilitas saat tertutup. */
+/* visibility menyusul setelah pudar: judul menu keluar dari pohon aksesibilitas saat tertutup. */
 .navbar-page-title {
   transition-property: opacity, transform, visibility;
 }
 
-.navbar-title-stack:has(.reader-compact[data-visible="true"]) .navbar-page-title {
+.navbar-title-stack:has(.navbar-compact[data-visible="true"]) .navbar-page-title {
   opacity: 0;
   transform: translateY(-0.5rem);
   visibility: hidden;
 }
 
 @supports (animation-timeline: view()) {
-  [data-reader-title] {
+  [data-reader-title],
+  [data-page-title] {
     transform-origin: left center;
-    animation: reader-title-shrink linear both;
+    animation: page-title-shrink linear both;
     /* Inset atas 4rem = tinggi navbar: animasi terjadi saat judul masuk ke balik navbar. */
     animation-timeline: view(block 4rem 0rem);
     animation-range: exit-crossing 0% exit-crossing 100%;
   }
 }
 
-@keyframes reader-title-shrink {
+@keyframes page-title-shrink {
   to {
     opacity: 0;
     transform: scale(0.8) translateY(0.5rem);
@@ -462,11 +538,12 @@ h2.reader-heading-minor {
 
 @media (prefers-reduced-motion: reduce) {
   .navbar-page-title,
-  .reader-compact {
+  .navbar-compact {
     transition: none;
   }
 
-  [data-reader-title] {
+  [data-reader-title],
+  [data-page-title] {
     animation: none;
   }
 }
@@ -558,7 +635,7 @@ h2.reader-heading-minor {
   display: inline-block;
   margin-inline: 0.25em;
   padding-inline: 0.45em;
-  font-family: var(--font-harmony, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-ui, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.55em;
   line-height: 1.7;
   vertical-align: middle;
@@ -748,6 +825,46 @@ h2.reader-heading-minor {
   font-weight: 600;
 }
 
+/* Judul Indonesia (terjemahan AI, X04 W8) di atas judul Arabnya. Baris lipatan judul Indonesia
+ * rapat (1.4); padding atas memusatkan baris pertamanya di tinggi --toc-line, supaya ikon, chevron,
+ * dan siku tetap sejajar dengan baris pertama judul. Ukuran Arab ikut .toc-title (tanpa diperkecil). */
+.toc-titles {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.toc-title-id {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  padding-block-start: calc((var(--toc-line) - 1.4em) / 2);
+  hyphens: auto;
+}
+
+.toc-titles .toc-title-ar {
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.toc-row[data-current] .toc-title-id {
+  font-weight: 600;
+}
+
+.toc-row[data-current] .toc-title-ar {
+  color: var(--foreground);
+  font-weight: 400;
+}
+
+/* Subjudul kurasi (X04 W7): sedikit lebih tenang dari node daftar isi. */
+.toc-row[data-sub] .toc-icon {
+  opacity: 0.6;
+}
+
+.toc-title-note {
+  padding-inline: 0.5rem;
+  padding-block-end: 0.25rem;
+}
+
 .toc-row[data-current] .toc-icon {
   color: var(--accent-soft-foreground);
 }
@@ -773,18 +890,34 @@ h2.reader-heading-minor {
 }
 
 /*
- * Terjemahan dan ringkasan AI di pembaca (S14). Terjemahan di bawah teks Arab paragrafnya, bergaris
- * tepi halus supaya jelas terpisah dari teks kitab; bisa disembunyikan (data-translation="off").
- * Ukurannya tidak ikut --reader-scale (skala itu untuk huruf Arab).
+ * Terjemahan dan ringkasan AI di pembaca (S14; X04 W1–W3). Terjemahan di bawah teks Arab paragrafnya,
+ * bergaris tepi halus supaya jelas terpisah dari teks kitab; bisa disembunyikan
+ * (data-translation="off"). Ukurannya ikut --reader-tr-scale (panel Tampilan), bukan skala Arab.
+ * Lebar dibatasi ±70 karakter per baris; pemenggalan kata dan baris terakhir yang tidak yatim
+ * hanya untuk teks berbahasa Indonesia (lang="id").
  */
 .passage-translation {
-  margin-top: 0.25rem;
-  padding-inline-start: 0.75rem;
+  margin-top: 0.125rem;
+  padding-inline-start: 0.875rem;
   border-inline-start: 2px solid var(--separator);
-  font-size: 1rem;
+  font-size: calc(1rem * var(--reader-tr-scale, 1));
+  line-height: 1.7;
+  max-width: 64ch;
 }
 
-/* Lencana label AI (mis. "Terjemahan AI" di terjemahan judul bab). */
+@media (width >= 40rem) {
+  .passage-translation {
+    font-size: calc(1.0625rem * var(--reader-tr-scale, 1));
+  }
+}
+
+:is(.passage-translation, .section-summary)[lang="id"] {
+  hyphens: auto;
+  text-wrap: pretty;
+}
+
+/* Lencana label AI di akhir terjemahan (dan terjemahan judul bab): tidak ikut terseleksi/tersalin;
+ * salinan diberi label sendiri (reader-enhancements.tsx). */
 .ai-badge {
   display: inline-block;
   margin-inline-start: 0.25rem;
@@ -798,20 +931,36 @@ h2.reader-heading-minor {
   color: var(--muted);
   vertical-align: 0.15em;
   white-space: nowrap;
+  user-select: none;
 }
 
-/* Terjemahan judul bab: satu baris kecil di bawah judul Arab, tanpa garis tepi. */
+[data-copy-skip] {
+  user-select: none;
+}
+
+/* Terjemahan judul bab dan subjudul: satu baris di bawah judul Arab, tebal, tanpa garis tepi. */
 .passage-translation-heading {
   margin-top: 0;
+  margin-inline: auto;
   padding-inline-start: 0;
   border-inline-start: 0;
-  font-size: 0.875rem;
+  font-size: calc(0.9375rem * var(--reader-tr-scale, 1));
+  font-weight: 600;
   text-align: center;
   text-wrap: balance;
 }
 
-html[data-translation="off"] .passage-translation {
+:root[data-translation="off"] :is(.passage-translation, .ai-notice) {
   display: none;
+}
+
+/* Kutipan langsung "…" yang berpasangan di terjemahan: petik melengkung, warna sedikit berbeda. */
+.tr-quote {
+  color: color-mix(in oklab, var(--foreground) 78%, var(--accent));
+}
+
+.tr-strong {
+  font-weight: 650;
 }
 
 .translation-ayah {
@@ -829,13 +978,295 @@ html[data-translation="off"] .passage-translation {
   font-size: 0.8em;
 }
 
+/* Mode "Dilipat" (data-tr-layout="fold"): terjemahan tertutup, dibuka per paragraf lewat tombolnya. */
+.translation-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--muted);
+  cursor: var(--cursor-interactive, pointer);
+}
+
+.translation-toggle::after {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-block-end: 1.5px solid currentColor;
+  border-inline-end: 1.5px solid currentColor;
+  rotate: 45deg;
+  translate: 0 -0.1rem;
+  transition: rotate 0.15s;
+}
+
+.translation-toggle[aria-expanded="true"]::after {
+  rotate: 225deg;
+  translate: 0 0.1rem;
+}
+
+.translation-toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .translation-toggle:hover {
+    color: var(--foreground);
+  }
+}
+
+:root[data-tr-layout="fold"] .translation-toggle {
+  display: inline-flex;
+}
+
+:root[data-tr-layout="fold"] .passage-translation:not(.passage-translation-heading) {
+  border-inline-start: 0;
+  padding-inline-start: 0;
+}
+
+:root[data-tr-layout="fold"] .passage:not([data-tr-open]) .passage-translation-body {
+  display: none;
+}
+
+:root[data-tr-layout="fold"] .passage[data-tr-open] .passage-translation-body {
+  margin-top: 0.375rem;
+  padding-inline-start: 0.875rem;
+  border-inline-start: 2px solid var(--separator);
+}
+
+/* Mode "Berdampingan" (data-tr-layout="side"): Arab kanan, terjemahan kiri, sejajar per paragraf,
+ * bila kolom teks cukup lebar (±1280 px layar dengan daftar isi); di kolom sempit tetap di bawah. */
+@container reader-text (width >= 48rem) {
+  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "tr ar"
+      "tr nr";
+    column-gap: 2.5rem;
+    align-items: start;
+  }
+
+  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) > .arabic-text {
+    grid-area: ar;
+  }
+
+  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) > .passage-translation {
+    grid-area: tr;
+    max-width: none;
+    margin-top: 0.4rem;
+  }
+
+  :root[data-tr-layout="side"]
+    .reader-text
+    .passage:not(.passage-heading)
+    > :not(.arabic-text, .passage-translation, .section-anchor) {
+    grid-area: nr;
+  }
+}
+
+/* Catatan terjemahan AI di awal teks (X04 W3): bisa ditutup, diingat per browser. */
+:root[data-ai-notice="off"] .ai-notice {
+  display: none;
+}
+
 /* Ringkasan AI: catatan tipis dengan garis aksen di tepi awal, bukan kotak berbingkai, supaya
  * tidak bersaing dengan teks kitab. */
 .section-summary {
-  font-size: 1rem;
-  margin-block: 0.25rem 0.5rem;
+  font-size: calc(1rem * var(--reader-tr-scale, 1));
+  margin-block: -0.75rem 0;
   padding-inline-start: 0.875rem;
   border-inline-start: 2px solid color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
+/*
+ * Subjudul kurasi (X04 W4): paragraf "bayan" utuh (h2/h3 di tengah, lebih kecil dari judul bab,
+ * tanpa ornamen) dan subjudul yang menempel di awal/akhir paragraf (baris sendiri, tebal). Teksnya
+ * tetap text_raw yang hanya dipotong di offset kurasi.
+ */
+.reader-subheading {
+  font-size: 1.15em;
+}
+
+h2.reader-subheading,
+h3.reader-subheading {
+  font-size: 1.15em;
+}
+
+h2.reader-inline-subheading,
+h3.reader-inline-subheading {
+  margin-block: 0 0.25em;
+  font-size: 1.05em;
+}
+
+.arabic-text > p + h2.reader-inline-subheading,
+.arabic-text > p + h3.reader-inline-subheading {
+  margin-block: 0.5em 0;
+}
+
+/* Lanjutan judul yang terpotong di sumber (paragraf sendiri, jangkarnya tetap #pN). */
+.passage-cont {
+  scroll-margin-top: 5rem;
+}
+
+.passage-cont:target {
+  border-radius: 0.375rem;
+  background-color: var(--accent-soft, color-mix(in oklab, var(--accent) 12%, transparent));
+}
+
+/*
+ * Syair (X04 W4): paragraf yang seluruhnya bait ditata per syatr, dua kolom sejajar seperti kitab
+ * cetak. Pemisah " ... " sumber tetap di DOM dan ikut tersalin, tetapi tidak terlihat. Di kolom
+ * sempit kedua syatr bertumpuk: yang pertama rata kanan, yang kedua rata kiri.
+ */
+.arabic-text.verse {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  text-align: center;
+}
+
+.verse-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: baseline;
+}
+
+.syatr {
+  text-align: center;
+}
+
+.syatr-sep {
+  color: transparent;
+  padding-inline: 0.75em;
+}
+
+.syatr-sep-row {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@container reader-text (width < 36rem) {
+  .verse-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .verse-row > .syatr:first-child {
+    text-align: start;
+  }
+
+  .verse-row > .syatr:last-child:not(:first-child) {
+    text-align: end;
+  }
+
+  .verse-row > .syatr-sep {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    padding: 0;
+  }
+}
+
+/* Pemisah halaman sambungan gulir bersambung (X04 W6): garis tipis + "Juz 1 · Halaman 201". */
+.reader-page-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  color: var(--muted);
+}
+
+.reader-page-divider::before,
+.reader-page-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--separator);
+}
+
+.reader-page-divider-link {
+  color: inherit;
+  white-space: nowrap;
+}
+
+/*
+ * "Lanjutkan membaca" (X04 W5): ruang kartu dipesan sebelum tampil bila browser punya posisi baca
+ * (`data-reading` dari skrip awal), supaya kartu yang muncul sesudah hidrasi tidak menggeser isi.
+ */
+.continue-slot {
+  display: none;
+}
+
+:root[data-reading] .continue-slot {
+  display: block;
+  height: 3.75rem;
+}
+
+.continue-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 100%;
+  max-width: 26rem;
+  padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+  border-radius: 1.25rem;
+  background-color: var(--surface-secondary);
+  outline: none;
+  transition: background-color 0.15s;
+}
+
+/* Ubin ikon: aksen Zaitun lembut, sudut = radius kartu − padding. */
+.continue-card__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background-color: color-mix(in oklab, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.continue-card__chevron {
+  color: var(--muted);
+  transition: translate 0.15s;
+}
+
+@media (hover: hover) {
+  .continue-card:hover {
+    background-color: var(--default);
+  }
+
+  .continue-card:hover .continue-card__chevron {
+    translate: 2px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .continue-card__chevron {
+    transition: none;
+  }
+}
+
+.continue-slot[data-wide] .continue-card {
+  max-width: none;
+}
+
+.continue-card:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* Sorotan hasil Cari: <mark> di kartu hasil; Highlight API (::highlight) di pembaca (?q=). */
@@ -878,4 +1309,87 @@ html[data-translation="off"] .passage-translation {
 ::view-transition-group(tanya-orb) {
   animation-duration: 0.55s;
   animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Beranda → Maknaz (ADR-086): kotak cari "menjadi" gelembung pertanyaan (React <ViewTransition>,
+ * share="pertanyaan"). Kabur tipis di tengah jalan menutupi peralihan gambar kotak ke gelembung. */
+::view-transition-group(.pertanyaan) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+::view-transition-image-pair(.pertanyaan) {
+  animation-name: pertanyaan-blur;
+}
+
+@keyframes pertanyaan-blur {
+  40% {
+    filter: blur(2px);
+  }
+}
+
+/* Transisi yang dijalankan React (navigasi) tidak memeriksa "kurangi gerakan" sendiri. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Pratinjau terjemahan di /tinjau/terjemahan (X08): gaya teks seperti pembaca, tetapi tidak ikut
+ * disembunyikan/dilipat oleh pilihan pembaca (data-translation, data-tr-layout). */
+.translation-preview {
+  padding-inline-start: 0.875rem;
+  border-inline-start: 2px solid var(--separator);
+  line-height: 1.7;
+  max-width: 64ch;
+  white-space: pre-line;
+  hyphens: auto;
+  text-wrap: pretty;
+}
+
+/* Terjemahan yang ditinjau manusia (X08, ADR-082): lencana bisa diketuk (popover HTML bawaan)
+ * untuk melihat nama lengkap + tanggal; kata tambahan penerjemah [ … ] pada teks perbaikan redup. */
+.ai-badge-review {
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--border));
+  color: color-mix(in oklab, var(--accent) 70%, var(--foreground));
+  cursor: var(--cursor-interactive, pointer);
+  white-space: normal;
+}
+
+.ai-badge-review:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.tr-review-popover {
+  max-width: min(22rem, calc(100vw - 2rem));
+  margin: auto;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--overlay, var(--background));
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.16);
+}
+
+/* Rincian menempel di bawah lencananya (X10): anchor implisit dari tombol `popovertarget` (Chrome 133,
+ * Safari 26, Firefox 147), dipusatkan pada lencana dan dijepit 1rem dari tepi layar, pindah ke atas
+ * bila tidak muat di bawah. Browser tanpa `position-area`: tetap di tengah layar (bawaan popover). */
+@supports (position-area: bottom) and (position-try-fallbacks: flip-block) {
+  .tr-review-popover {
+    position-anchor: auto;
+    position-area: bottom;
+    position-try-fallbacks: flip-block;
+    inset-inline: 1rem;
+    margin-block: 0.375rem;
+    margin-inline: 0;
+  }
+}
+
+.tr-added {
+  color: var(--muted);
 }

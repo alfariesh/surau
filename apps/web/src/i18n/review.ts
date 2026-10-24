@@ -71,4 +71,5 @@ export const reviewNavText = {
   label: "Bagian ruang penilai",
   answers: "Jawaban",
   takhrij: "Label status hadits",
+  translations: "Koreksi terjemahan",
 } as const;

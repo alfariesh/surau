@@ -12,6 +12,7 @@ import {
   stagingCorpus,
 } from "./corpus.ts";
 import { API_CONFIG, MCP_CONFIG, WEB_CONFIG, repo } from "./d1.ts";
+import { parseTranslationEditors } from "@surau/core";
 
 const STAGING_ID = "ffc5ce9a-2b5a-4d09-8487-922ff0e67827";
 
@@ -216,32 +217,34 @@ describe("deploy otomatis tidak pernah menyentuh korpus (ARSITEKTUR-TEKNIS §7 a
   });
 });
 
+/** JSONC (komentar + koma akhir) → JSON. */
+function parseJsonc(text: string): unknown {
+  let out = "";
+  for (let i = 0, str = false, esc = false; i < text.length; i++) {
+    const c = text[i]!;
+    if (str) {
+      out += c;
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') str = false;
+    } else if (c === '"') {
+      str = true;
+      out += c;
+    } else if (c === "/" && text[i + 1] === "/") {
+      while (i < text.length && text[i] !== "\n") i++;
+      out += "\n";
+    } else if (c === "/" && text[i + 1] === "*") {
+      i = text.indexOf("*/", i + 2) + 1;
+    } else out += c;
+  }
+  return JSON.parse(out.replaceAll(/,(\s*[}\]])/gu, "$1"));
+}
+
 describe("Log Worker tanpa IP mentah (S20, ADR-065)", () => {
   // Log otomatis per permintaan (invocation logs) merekam semua header, termasuk `cf-connecting-ip`
   // dan `x-real-ip` (diperiksa 2026-10-21 dengan `wrangler tail --ip self`). Setiap blok
   // `observability` (produksi, Preview, env.staging) wajib mematikannya; blok tanpa `logs` berarti
   // bawaan (menyala) dan ikut ditolak.
-  function parseJsonc(text: string): unknown {
-    let out = "";
-    for (let i = 0, str = false, esc = false; i < text.length; i++) {
-      const c = text[i]!;
-      if (str) {
-        out += c;
-        if (esc) esc = false;
-        else if (c === "\\") esc = true;
-        else if (c === '"') str = false;
-      } else if (c === '"') {
-        str = true;
-        out += c;
-      } else if (c === "/" && text[i + 1] === "/") {
-        while (i < text.length && text[i] !== "\n") i++;
-        out += "\n";
-      } else if (c === "/" && text[i + 1] === "*") {
-        i = text.indexOf("*/", i + 2) + 1;
-      } else out += c;
-    }
-    return JSON.parse(out.replaceAll(/,(\s*[}\]])/gu, "$1"));
-  }
   function observabilityBlocks(node: unknown, path = "$"): [string, unknown][] {
     if (node === null || typeof node !== "object") return [];
     return Object.entries(node).flatMap(([k, v]): [string, unknown][] =>
@@ -262,4 +265,22 @@ describe("Log Worker tanpa IP mentah (S20, ADR-065)", () => {
         ).toBe(false);
     });
   }
+});
+
+describe("Editor terjemahan terdaftar (X08, ADR-081)", () => {
+  // `parseTranslationEditors` gagal tertutup: JSON salah ketik = SEMUA editor terkunci dari
+  // /tinjau/terjemahan (dan kembali ke akses lama ruang jawaban/takhrij). Nilai di config harus utuh.
+  test("apps/web/wrangler.jsonc: TRANSLATION_EDITORS produksi + Preview ter-parse lengkap", () => {
+    const config = parseJsonc(readFileSync(join(repo, WEB_CONFIG), "utf8")) as {
+      vars: Record<string, string>;
+      previews: { vars: Record<string, string> };
+    };
+    for (const vars of [config.vars, config.previews.vars]) {
+      const value = vars.TRANSLATION_EDITORS;
+      expect(typeof value).toBe("string");
+      const raw = JSON.parse(value ?? "") as unknown[];
+      expect(Array.isArray(raw)).toBe(true);
+      expect(parseTranslationEditors(value).size).toBe(raw.length);
+    }
+  });
 });

@@ -1,0 +1,111 @@
+# Kurasi subjudul pembaca Ihya' 'Ulum ad-Din (Shamela 9472), X04 W4. Diperiksa agent per paragraf
+# terhadap korpus di bawah, membaca text_raw dan paragraf sekitarnya dari DB (read-only).
+# Hanya nomor jangkar (#pN), jumlah kata, dan alasan: teks Arab TIDAK ditulis di sini. Offset dihitung
+# `pnpm subjudul` dari text_raw (normalizeArabic + toRawSpan) ke ihya-9472-subjudul.json, yang dipakai
+# web untuk memotong text_raw di offset itu saja (teks tidak berubah).
+#
+# Aturan otomatis (tanpa entri di sini): paragraf badan < 200 karakter yang kata pertamanya "bayan"
+# dan bukan judul node daftar isi = subjudul utuh. Calon di ihya-v7: 191 (80 lain sudah judul node).
+# ihya-v8 (X04 bagian B): teks semua entri sama dengan ihya-v7 (sidik cocok, `pnpm subjudul --cek`).
+corpus: ihya-v8
+
+# Calon "bayan" yang BUKAN subjudul. Kelimanya butir pertama daftar bagian di pembuka kitab: kalimat
+# daftarnya bersambung ke paragraf berikutnya ("wa bayan …"), dan subjudul aslinya menempel di akhir
+# paragraf daftar itu (lihat `tail`).
+exclude:
+  - p: 13204
+    alasan: butir pertama daftar bagian pembuka Kitab Dzamm al-Ghadab (p13203 "wa yajma'uha" → p13205 "tsumma bayan …"); subjudul aslinya di akhir p13205
+  - p: 14543
+    alasan: butir pertama daftar bagian pembuka paruh kedua Kitab Dzamm al-Jah (p14542 "wa fihi" → p14544 "wa bayan …"); subjudul aslinya di akhir p14545
+  - p: 15048
+    alasan: butir pertama daftar bagian pembuka paruh pertama Kitab Dzamm al-Kibr (p15047 "wa fihi" → p15049 "wa bayan …"); subjudul aslinya di akhir p15050
+  - p: 15443
+    alasan: butir pertama daftar bagian pembuka paruh tentang 'ujub (p15442 "wa fihi" → p15444 "wa bayan …"); subjudul aslinya di akhir p15444
+  - p: 16731
+    alasan: butir pertama daftar bagian pembuka paruh tentang khauf (p16730 "wa fihi" → p16732 "wa bayan …"); subjudul aslinya di akhir p16732
+
+# Paragraf judul lain (bukan "bayan") yang dirender utuh sebagai subjudul, karena judulnya bersambung
+# ke paragraf berikutnya (lihat `continuation`) atau dua judul tergabung dalam satu paragraf.
+heading:
+  - p: 13450
+    alasan: judul paruh kedua Kitab Dzamm al-Ghadab ("al-qawl fi dzamm al-hasad …"), terpotong ke p13451
+  - p: 16320
+    alasan: dua judul tergabung tanpa isi ("ar-rukn al-awwal fi nafs asy-syukr" + "bayan fadhilat asy-syukr"); isi mulai p16321
+  - p: 20128
+    alasan: judul bab ketujuh Kitab Dzikr al-Maut ("al-bab as-sabi' fi haqiqat al-maut …"), terpotong ke p20129
+
+# Judul yang terpotong oleh baris baru sumber: paragraf `p` (seluruhnya) adalah lanjutan judul di
+# paragraf `of` dan dirender menyatu dengan judulnya. Semuanya paragraf badan tepat sesudahnya di
+# halaman yang sama. Tidak dimasukkan: p20178 (lanjutan judul p20177 hanya satu kata, lalu isi bab
+# di paragraf yang sama), jadi judul p20177 tampil tanpa kata terakhirnya, seperti sumbernya.
+continuation:
+  - { p: 11379, of: 11378 }
+  - { p: 11964, of: 11963 }
+  - { p: 11988, of: 11987 }
+  - { p: 12022, of: 12021 }
+  - { p: 12123, of: 12122 }
+  - { p: 12315, of: 12314 }
+  - { p: 12378, of: 12377 }
+  - { p: 12386, of: 12385 }
+  - { p: 13451, of: 13450 }
+  - { p: 13509, of: 13508 }
+  - { p: 13758, of: 13757 }
+  - { p: 14384, of: 14383 }
+  - { p: 14455, of: 14454 }
+  - { p: 14853, of: 14852 }
+  - { p: 16008, of: 16007 }
+  - { p: 16115, of: 16114 }
+  - { p: 16423, of: 16422 }
+  - { p: 17437, of: 17436 }
+  - { p: 17896, of: 17895 }
+  - { p: 18535, of: 18534 }
+  - { p: 19941, of: 19940 }
+  - { p: 20129, of: 20128 }
+
+# Subjudul menempel di AWAL paragraf (`kata` kata pertama), isinya menyusul di paragraf yang sama.
+# `terjemahan: true` = kalimat pertama terjemahan AI memang padanan subjudulnya (dicek per paragraf).
+lead:
+  # "bayan" + isi bab dalam satu paragraf.
+  - { p: 16206, kata: 3, terjemahan: true } # bayan fadhilat ash-shabr
+  - { p: 17640, kata: 3, terjemahan: true } # bayan fadhilat at-tawakkul
+  # Shalat hari dan malam dalam sepekan (j1/197–200): "yawm …" / "laylat …" + hadits. p2811
+  # ("yawm al-jum'ah fa-shalla …", j1/199) TIDAK termasuk: lanjutan hadits p2804 yang terpotong
+  # pergantian halaman ("man dakhala al-jami'" → "yawm al-jum'ah fa-shalla"), bukan subjudul.
+  - { p: 2792, kata: 2, terjemahan: false } # yawm al-ahad
+  - { p: 2793, kata: 2, terjemahan: false } # yawm al-itsnayn
+  - { p: 2801, kata: 2, terjemahan: false } # yawm ats-tsulatsa'
+  - { p: 2802, kata: 2, terjemahan: true } # yawm al-arbi'a'
+  - { p: 2803, kata: 2, terjemahan: true } # yawm al-khamis
+  - { p: 2804, kata: 2, terjemahan: true } # yawm al-jum'ah
+  - { p: 2812, kata: 2, terjemahan: true } # yawm as-sabt
+  - { p: 2814, kata: 2, terjemahan: true } # laylat al-ahad
+  - { p: 2815, kata: 2, terjemahan: false } # laylat al-itsnayn
+  - { p: 2816, kata: 2, terjemahan: true } # laylat ats-tsulatsa'
+  - { p: 2818, kata: 2, terjemahan: true } # laylat al-arbi'a'
+  - { p: 2825, kata: 2, terjemahan: true } # laylat al-khamis
+  - { p: 2826, kata: 2, terjemahan: true } # laylat al-jum'ah
+  - { p: 2827, kata: 2, terjemahan: true } # laylat as-sabt
+
+# Subjudul menempel di AKHIR paragraf (`kata` kata terakhir; `terjemahan: true` = kalimat terakhir
+# terjemahan AI padanannya): sesudah daftar bagian di pembuka kitab,
+# sumber menyambung subjudul bagian pertama ke paragraf daftar. p16600 dan p18645 (pola sama) ada di
+# `node_tail`, karena subjudulnya adalah judul node daftar isi.
+tail:
+  - { p: 13205, kata: 3, terjemahan: true } # bayan dzamm al-ghadab
+  - { p: 14545, kata: 3, terjemahan: true } # bayan dzamm ar-riya'
+  - { p: 15050, kata: 3, terjemahan: false } # bayan dzamm al-kibr
+  - { p: 15444, kata: 4, terjemahan: true } # bayan dzamm al-'ujb wa afatih
+  - { p: 15912, kata: 9, terjemahan: true } # ar-rukn al-awwal fi nafs at-tawbah + bayan haqiqat at-tawbah wa hadduha
+  - { p: 16732, kata: 3, terjemahan: true } # bayan haqiqat al-khawf
+
+# Node daftar isi yang di sumber menunjuk BUTIR PERTAMA daftar bagian pembuka sebagai judulnya (teks
+# butir = judul node), padahal judul bagiannya menempel di akhir paragraf daftar berikutnya (X04
+# bagian B). Pembaca: `butir` tampil sebagai teks biasa (bukan h2), dan `kata` kata terakhir `p`
+# menjadi judul node itu (h2, jangkar #bab-<id> pindah ke `p`). `pnpm subjudul` mengecek bahwa kata-kata
+# itu = judul node (bentuk normal). toc_node (judul, halaman awal; MCP dan Jawab) tidak berubah, dan
+# paragraf tidak dipindah node, supaya ringkasan AI per bagian tetap sah.
+node_tail:
+  # Kitab al-Khawf wa ar-Raja', paruh raja' (node 100224 "bayan haqiqat ar-raja'", j4/142).
+  - { p: 16600, kata: 3, butir: 16599, terjemahan: true }
+  # Kitab an-Niyyah wa al-Ikhlash wa ash-Shidq, bab niat (node 100285 "bayan fadhilat an-niyyah", j4/362).
+  - { p: 18645, kata: 3, butir: 18644, terjemahan: true }

@@ -35,6 +35,7 @@ function passage(over: Partial<AnswerPassage> = {}): AnswerPassage {
       prompt_version: "p",
       created_at: "2026-10-17",
       review_status: "ai_generated",
+      human_review: null,
       text: "Ini kalimat pertama. ⟦QS 2:153⟧ Lalu kalimat kedua.",
     },
     footnote_ids: [],
@@ -91,6 +92,33 @@ describe("GET /api/kutipan", () => {
       },
     });
     expect(answerPassages).toHaveBeenCalledWith({}, [10000001]);
+  });
+
+  it("tinjauan manusia (X08) ikut ke kartu kutipan untuk label bersama", async () => {
+    const human_review = {
+      revised: true,
+      reviewed_at: "2026-10-22T03:00:00.000Z",
+      reviewer_role: "ustadz" as const,
+      reviewer_name: "Ust. Uji Lc.",
+      reviewer_short: "Ust. Uji",
+    };
+    vi.mocked(answerPassages).mockResolvedValueOnce([
+      passage({
+        translation: {
+          label: "ai_translation",
+          lang: "id",
+          model: "m",
+          prompt_version: "p",
+          created_at: "2026-10-17",
+          review_status: "ustadz_verified",
+          human_review,
+          text: "Teks perbaikan.",
+        },
+      }),
+    ]);
+    const res = await handleKutipan(req("10000001:0:21"), deps());
+    const { items } = (await res.json()) as { items: KutipanItem[] };
+    expect(items[0]?.translation).toMatchObject({ review_status: "ustadz_verified", human_review });
   });
 
   it("paragraf tidak ada atau rentang di luar teks → null (tidak pernah teks karangan)", async () => {

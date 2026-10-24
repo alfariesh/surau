@@ -6,7 +6,7 @@ export const privacyText = {
   pageTitle: "Kebijakan privasi",
   heading: "Kebijakan privasi",
   lead: "Surau menyimpan sesedikit mungkin data tentang Anda. Halaman ini menjelaskan apa yang diproses, di mana, dan berapa lama.",
-  updated: "Diperbarui 21 Oktober 2026.",
+  updated: "Diperbarui 22 Oktober 2026.",
   summaryHeading: "Ringkasan",
   summary: [
     "Tanpa akun dan tanpa login.",
@@ -16,7 +16,7 @@ export const privacyText = {
   ],
   readHeading: "Membaca dan Cari",
   readText:
-    "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari tidak disimpan di database Surau. Supaya pencarian yang sama cepat, hasilnya disimpan sementara di cache Cloudflare paling lama 7 hari dalam bentuk kata yang sudah dinormalkan, tanpa keterangan siapa yang mencari. Log teknis mencatat alamat halaman tanpa kata yang dicari.",
+    "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari tidak disimpan di database Surau. Supaya pencarian yang sama cepat, hasilnya disimpan sementara di cache Cloudflare paling lama 7 hari dalam bentuk kata yang sudah dinormalkan, tanpa keterangan siapa yang mencari. Log teknis mencatat alamat halaman tanpa kata yang dicari. Pilihan tampilan dan posisi baca terakhir (untuk “Lanjutkan membaca”) hanya disimpan di browser Anda (localStorage) dan tidak dikirim ke Surau.",
   askHeading: "Maknaz (asisten AI)",
   askNotice: "Maknaz belum dibuka untuk umum. Bagian ini berlaku saat fitur tersebut dibuka.",
   ask: [
@@ -34,6 +34,11 @@ export const privacyText = {
   retention: [
     { data: "Token Turnstile", where: "Tidak disimpan", how: "Sekali pakai, berlaku 5 menit" },
     { data: "Cookie surau_anon", where: "Browser Anda", how: "24 jam" },
+    {
+      data: "Pilihan tampilan dan posisi baca terakhir",
+      where: "Browser Anda (localStorage)",
+      how: "Sampai Anda menghapus data situs",
+    },
     { data: "Kuota harian (kode acak)", where: "Database Surau", how: "7 hari" },
     { data: "Cache jawaban (tanpa teks pertanyaan)", where: "Database Surau", how: "30 hari" },
     {
@@ -45,6 +50,11 @@ export const privacyText = {
       data: "Laporan kesalahan (laporan jawaban: komentar, pertanyaan, dan awal jawaban)",
       where: "Database Surau",
       how: "Sampai ditangani + 12 bulan",
+    },
+    {
+      data: "Koreksi terjemahan oleh editor terdaftar (nama tampil, alasan, dan kode akun berupa hash; tanpa email)",
+      where: "Database Surau",
+      how: "Permanen, sebagai riwayat koreksi kitab",
     },
     {
       data: "Log teknis (tanpa IP dan tanpa teks pertanyaan; jejak kinerja mencatat perkiraan negara/kota dan jenis peramban)",

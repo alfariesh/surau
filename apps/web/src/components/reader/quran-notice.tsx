@@ -2,9 +2,10 @@ import type { QuranView } from "@surau/core";
 
 import { Typography } from "@heroui/react";
 
-import { id } from "../../i18n/id";
+import { common as commonText } from "../../i18n/id/common";
+import { reader as readerText } from "../../i18n/id/reader";
 
-const t = id.reader;
+const t = readerText;
 
 // Atribusi ayat Al-Qur'an di footer halaman baca (S12), hanya bila halaman mengutip ayat: Tanzil
 // (CC BY 3.0, wajib menyebut sumber dan menautkan tanzil.net) dan Kemenag. Nama, versi, lisensi,
@@ -15,7 +16,7 @@ export function QuranNotice({ quran }: { quran: QuranView }) {
   const link = (href: string, label: string) => (
     <a className="link text-[length:inherit]" href={href} rel="noopener noreferrer" target="_blank">
       {label}
-      <span className="sr-only"> {id.common.newTab}</span>
+      <span className="sr-only"> {commonText.newTab}</span>
     </a>
   );
   return (

@@ -6,7 +6,7 @@ import {
   reviewedTakhrijLabel,
   takhrijReviewsFor,
 } from "@surau/core";
-import type { AnswerPassage, EffectiveTakhrijReview } from "@surau/core";
+import type { AnswerPassage, EffectiveTakhrijReview, HumanReview } from "@surau/core";
 import type { D1Db, TakhrijReview } from "@surau/db";
 
 // GET /api/kutipan (S21): teks kutipan untuk kartu sitasi /tanya. Hasil Jawab hanya memuat
@@ -36,7 +36,13 @@ export interface KutipanItem extends KutipanRange {
   label: string;
   permalink: string;
   /** Terjemahan AI seluruh paragraf (bukan hanya potongan), atau null. */
-  translation: { label: "ai_translation"; review_status: string; text: string } | null;
+  translation: {
+    label: "ai_translation";
+    review_status: string;
+    /** Tinjauan manusia (X08): label "diperiksa/dikoreksi …" lewat `translationLabel`. */
+    human_review: HumanReview | null;
+    text: string;
+  } | null;
   /** Takhrij (catatan kaki) yang teks lengkapnya memuat istilah kelemahan; selalu false untuk matan. */
   weak: boolean;
 }
@@ -140,6 +146,7 @@ export async function handleKutipan(request: Request, deps: KutipanDeps): Promis
           : {
               label: "ai_translation",
               review_status: p.translation.review_status,
+              human_review: p.translation.human_review,
               text: ayahRefsOnly(p.translation.text),
             },
       weak: p.kind === "foot" && reviewedTakhrijLabel(p.text_raw, reviews.get(p.id) ?? null).weak,

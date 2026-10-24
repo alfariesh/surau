@@ -28,6 +28,7 @@ import {
   submittable,
   unreconciledProblem,
   unresolved,
+  withoutReviewed,
 } from "./batch.ts";
 import type { Accepted } from "./batch.ts";
 import { parseReviews } from "./reviews.ts";
@@ -149,6 +150,21 @@ function fail(customId: string, reason: string, sha?: string): Failure {
 }
 
 describe("request tertunda", () => {
+  test("X08: paragraf yang ditinjau manusia tidak masuk rencana, kiriman, maupun ulangan", () => {
+    const reviewed = new Set([10_000_001]);
+    const guarded = withoutReviewed(work, reviewed);
+    const plan = pendingRequests(guarded, accepted(), 1).map((r) => r.custom_id);
+    expect(plan).not.toContain("passage-10000001");
+    expect(plan).toContain("passage-10000002");
+    // Rencana lama yang memuatnya: usang, tidak dikirim.
+    const old = pendingRequests(work, accepted(), 1);
+    expect(submittable(guarded, accepted(), new Set(), old).stale).toBe(1);
+    // Ulangan: kegagalannya tidak dikirim ulang.
+    const failed = accepted({ failures: [fail("passage-10000001", "refusal")] });
+    expect(unresolved(work, failed).has("passage-10000001")).toBe(true);
+    expect(unresolved(guarded, failed).has("passage-10000001")).toBe(false);
+  });
+
   test("putaran 1: semua paragraf + potongan × 2 bahasa; yang lolos (hash sama) dan yang gagal dilewati", () => {
     const all = pendingRequests(work, accepted(), 1).map((r) => r.custom_id);
     expect(all).toEqual([

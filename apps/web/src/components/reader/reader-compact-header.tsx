@@ -1,15 +1,19 @@
 "use client";
 
 import { ProgressCircle } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
-import { id } from "../../i18n/id";
+import { TextFont } from "../../icons";
+import { reader as readerText } from "../../i18n/id/reader";
+import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 import { ArabicInline } from "../arabic";
+import { useHeaderMenuAction } from "../shell/header-menu";
 import { NavbarSlot } from "../shell/navbar-slot";
+import { useUnderNavbar } from "../shell/use-under-navbar";
 
-import { ReaderStyle } from "./reader-style";
+import { preloadPanel, ReaderStyle } from "./reader-style";
 
-const t = id.reader;
+const t = readerText;
 
 /**
  * Posisi baca 0–100 di dalam teks halaman: 0 saat awal teks di atas layar, 100 saat akhir teks
@@ -25,34 +29,47 @@ function readProgress(text: Element): number {
 
 /**
  * Judul ringkas pembaca di navbar: saat judul besar halaman tergulir keluar, navbar beralih mulus
- * dari judul "Kitab" ke lingkar progres + juz/halaman + nama bab, dengan tombol Tampilan.
+ * dari judul "Kitab" ke lingkar progres + juz/halaman + nama bab. Panel Tampilan dibuka dari
+ * menu ⋮ navbar (selalu terjangkau, juga sebelum judul tergulir).
  */
 export function ReaderCompactHeader({
   juz,
   page,
   bab,
   sample,
+  scope,
 }: {
   juz: number;
   page: number;
   /** Judul bab terdalam (teks DB) atau null. */
   bab: string | null;
   sample: string | null;
+  /** Permalink halaman baca: navbar mengikuti halaman sambungan yang sedang dibaca (X04 W6). */
+  scope: string;
 }) {
-  const [visible, setVisible] = useState(false);
+  const visible = useUnderNavbar("[data-reader-title]");
   const [progress, setProgress] = useState(0);
+  const [styleOpen, setStyleOpen] = useState(false);
+  useHeaderMenuAction({
+    label: t.style,
+    icon: TextFont,
+    onPress: () => {
+      preloadPanel();
+      setStyleOpen(true);
+    },
+  });
+  const live = useSyncExternalStore(
+    subscribeReaderPage,
+    () => readerPageFor(scope),
+    () => null,
+  );
+  const at = live ?? { juz, page, bab };
 
   useEffect(() => {
-    const title = document.querySelector("[data-reader-title]");
-    const text = document.querySelector(".reader-text");
-    if (title === null || text === null) return;
-
-    // Batas atas = bawah navbar (4rem): judul dianggap tergulir saat masuk ke balik navbar.
-    const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry !== undefined && !entry.isIntersecting),
-      { rootMargin: "-64px 0px 0px 0px" },
-    );
-    observer.observe(title);
+    const text =
+      document.querySelector(`.reader-text[data-page="${at.juz}/${at.page}"]`) ??
+      document.querySelector(".reader-text");
+    if (text === null) return;
 
     let frame = 0;
     function update() {
@@ -66,43 +83,44 @@ export function ReaderCompactHeader({
     window.addEventListener("scroll", schedule, { capture: true, passive: true });
     window.addEventListener("resize", schedule, { passive: true });
     return () => {
-      observer.disconnect();
       if (frame !== 0) cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule, { capture: true });
       window.removeEventListener("resize", schedule);
     };
-  }, []);
+  }, [at.juz, at.page]);
 
   return (
-    <NavbarSlot>
-      <div
-        aria-hidden={visible ? undefined : true}
-        className="reader-compact flex min-w-0 items-center gap-2.5"
-        data-visible={visible}
-        inert={!visible}
-      >
-        <ProgressCircle
-          aria-label={t.progressLabel}
-          className="shrink-0"
-          size="sm"
-          value={progress}
+    <>
+      <NavbarSlot>
+        <div
+          aria-hidden={visible ? undefined : true}
+          className="navbar-compact flex min-w-0 items-center gap-2.5"
+          data-visible={visible}
+          inert={!visible}
         >
-          <ProgressCircle.Track>
-            <ProgressCircle.TrackCircle />
-            <ProgressCircle.FillCircle />
-          </ProgressCircle.Track>
-        </ProgressCircle>
-        <span className="text-foreground shrink-0 text-sm font-medium tabular-nums sm:text-base">
-          <span className="sm:hidden">{t.pageShort(juz, page)}</span>
-          <span className="hidden sm:inline">{t.pageHeading(juz, page)}</span>
-        </span>
-        {bab ? (
-          <span className="text-muted hidden min-w-0 truncate text-sm md:inline">
-            <ArabicInline>{bab}</ArabicInline>
+          <ProgressCircle
+            aria-label={t.progressLabel}
+            className="shrink-0"
+            size="sm"
+            value={progress}
+          >
+            <ProgressCircle.Track>
+              <ProgressCircle.TrackCircle />
+              <ProgressCircle.FillCircle />
+            </ProgressCircle.Track>
+          </ProgressCircle>
+          <span className="text-foreground shrink-0 text-sm font-medium tabular-nums sm:text-base">
+            <span className="sm:hidden">{t.pageShort(at.juz, at.page)}</span>
+            <span className="hidden sm:inline">{t.pageHeading(at.juz, at.page)}</span>
           </span>
-        ) : null}
-        <ReaderStyle iconOnly className="ms-auto shrink-0" sample={sample} />
-      </div>
-    </NavbarSlot>
+          {at.bab ? (
+            <span className="text-muted hidden min-w-0 truncate text-sm md:inline">
+              <ArabicInline>{at.bab}</ArabicInline>
+            </span>
+          ) : null}
+        </div>
+      </NavbarSlot>
+      <ReaderStyle isOpen={styleOpen} sample={sample} onOpenChange={setStyleOpen} />
+    </>
   );
 }

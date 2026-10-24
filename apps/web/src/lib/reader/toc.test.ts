@@ -1,12 +1,15 @@
 import type { TocNode } from "@surau/core";
 
+import type { TocItem } from "./toc";
+
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  activeRowId,
   activeTocIds,
   flattenToc,
-  headingPassages,
-  sectionStarts,
+  pageSections,
+  pruneToc,
   slimToc,
   tocHref,
   tocPath,
@@ -57,34 +60,43 @@ describe("toc", () => {
     expect(activeTocIds([], 1, 1, [])).toEqual([]);
   });
 
-  it("judul bagian dikenali hanya bila teksnya sama persis dan node mulai di halaman ini", () => {
-    const body = [
-      { id: 10, toc_node_id: 3, text_raw: "فصل ثان" },
-      { id: 11, toc_node_id: 3, text_raw: "فصل ثان" },
-      { id: 12, toc_node_id: 2, text_raw: "فصل أول" },
-    ];
-    const at5 = headingPassages(TREE, 1, 5, body);
-    expect([...at5.keys()]).toEqual([10]);
-    // Node 2 mulai di h.1, bukan h.5: paragrafnya tidak dijadikan judul.
-    expect(
-      headingPassages(TREE, 1, 5, [{ id: 12, toc_node_id: 2, text_raw: "فصل أول" }]).size,
-    ).toBe(0);
-    expect(headingPassages(TREE, 1, 5, [{ id: 13, toc_node_id: 3, text_raw: "نص آخر" }]).size).toBe(
-      0,
-    );
+  it("node yang mulai di halaman ini (urut baca) beserta induknya", () => {
+    expect(pageSections(TREE, 1, 1)).toEqual([
+      { id: 1, parentId: null, level: 1, title: "باب" },
+      { id: 2, parentId: 1, level: 1, title: "فصل أول" },
+    ]);
+    expect(pageSections(TREE, 1, 7)).toEqual([{ id: 4, parentId: 3, level: 1, title: "مسألة" }]);
+    expect(pageSections(TREE, 1, 2)).toEqual([]);
   });
 
-  it("jangkar bab: sebelum paragraf pertama node atau turunannya; tanpa paragraf = di awal", () => {
-    // j1 h1: node 1 dan 2 mulai di sini; paragraf pertama milik node 2 (turunan 1).
-    const h1 = sectionStarts(TREE, 1, 1, [
-      { id: 20, toc_node_id: 2 },
-      { id: 21, toc_node_id: 2 },
-    ]);
-    expect([...h1.byPassage.entries()]).toEqual([[20, [1, 2]]]);
-    expect(h1.unplaced).toEqual([]);
-    const h7 = sectionStarts(TREE, 1, 7, [{ id: 30, toc_node_id: 3 }]);
-    expect([...h7.byPassage.entries()]).toEqual([]);
-    expect(h7.unplaced).toEqual([4]);
+  it("baris aktif (X10): subjudul terakhir node aktif sampai halaman ini, selain itu node", () => {
+    const sub = (id: number, juz: number, page: number): TocItem => ({
+      id,
+      kind: "sub",
+      title: "عنوان",
+      level: 3,
+      href: `/kitab/uji/${juz}/${page}#p${id}`,
+      juz,
+      page,
+      children: [],
+    });
+    // Node 3 (j1 h5): subjudul di h5 dan h6, sebelum anak node 4 (j1 h7).
+    const tree = TREE.map((root) => ({
+      ...root,
+      children: root.children.map((c) =>
+        c.id === 3 ? { ...c, children: [sub(901, 1, 5), sub(902, 1, 6), ...c.children] } : c,
+      ),
+    }));
+    expect(activeRowId(tree, 3, 1, 5)).toBe(901);
+    expect(activeRowId(tree, 3, 1, 6)).toBe(902);
+    // Halaman sesudahnya yang masih milik node 3 (subjudul terakhir tetap berjalan).
+    expect(activeRowId(tree, 3, 1, 8)).toBe(902);
+    // Sebelum subjudul pertama, node tanpa subjudul, node tak dikenal: node itu sendiri.
+    expect(activeRowId(tree, 3, 1, 4)).toBe(3);
+    expect(activeRowId(tree, 4, 1, 7)).toBe(4);
+    expect(activeRowId(tree, 99, 1, 7)).toBe(99);
+    // Pohon ringkas tanpa anak node 3: node.
+    expect(activeRowId(pruneToc(tree, new Set([1])), 3, 1, 6)).toBe(3);
   });
 
   it("tautan daftar isi unik per bagian: halaman awal + jangkar judul", () => {
@@ -111,5 +123,37 @@ describe("toc", () => {
     // Bagian aktif di akar: tidak ada induk, jadi tidak ada garis beraksen.
     const flat = [...tocRows(TREE, 5).values()].flatMap((r) => r.guides);
     expect(flat.every((g) => g.accent === "none")).toBe(true);
+  });
+
+  it("pohon ringkas (X09): akar utuh, anak hanya dari node terbuka, `more` hanya di node beranak", () => {
+    // Bagian aktif = 2; TocTree membuka leluhurnya (1).
+    const open = new Set(
+      tocPath(TREE, 2)
+        .slice(0, -1)
+        .map((n) => n.id),
+    );
+    const pruned = pruneToc(TREE, open);
+    expect(pruned.map((n) => n.id)).toEqual([1, 5]);
+    expect(pruned[0]!.children.map((n) => n.id)).toEqual([2, 3]);
+    const [two, three] = pruned[0]!.children;
+    expect(two!.more).toBeUndefined();
+    expect(three!.children).toEqual([]);
+    expect(three!.more).toBe(true);
+    expect(pruned[1]!.more).toBeUndefined();
+    // Tanpa bagian aktif: hanya akar.
+    expect(pruneToc(TREE, new Set()).every((n) => n.children.length === 0)).toBe(true);
+    // Pohon asli tidak berubah.
+    expect(TREE[0]!.children[1]!.children).toHaveLength(1);
+  });
+
+  it("pohon ringkas: garis pemandu dan ruang chevron baris yang tampil sama dengan pohon lengkap", () => {
+    const open = new Set(
+      tocPath(TREE, 2)
+        .slice(0, -1)
+        .map((n) => n.id),
+    );
+    const full = tocRows(TREE, 2);
+    const shell = tocRows(pruneToc(TREE, open), 2);
+    for (const id of [1, 2, 3, 5]) expect(shell.get(id), String(id)).toEqual(full.get(id));
   });
 });

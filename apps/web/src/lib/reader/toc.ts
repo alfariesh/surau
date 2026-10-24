@@ -4,20 +4,34 @@ import type { Passage, TocNode } from "@surau/core";
 // jadi tanpa sitasi/lisensi per node), pencarian jalur untuk breadcrumb, dan bagian aktif.
 
 export interface TocItem {
+  /** `toc_node.id`, atau `passage.id` untuk subjudul kurasi (`kind: "sub"`). */
   id: number;
-  /** Judul Arab persis dari DB (`toc_node.title_ar`). */
+  /**
+   * `node` = node daftar isi korpus; `sub` = subjudul kurasi pembaca (X04 W7, hanya di pohon
+   * tampilan `readerToc`, tidak pernah di pohon untuk breadcrumb/bagian aktif/model halaman).
+   */
+  kind: "node" | "sub";
+  /** Judul Arab persis dari DB (`toc_node.title_ar`, atau potongan `text_raw` subjudul). */
   title: string;
+  /** Judul Indonesia terjemahan AI (X04 W8, korpus skema ≥ 7), hanya di pohon tampilan. */
+  titleId?: string;
   level: number;
   /** Permalink halaman awal bagian, mis. `/kitab/ihya/1/197`. */
   href: string;
   juz: number;
   page: number;
   children: TocItem[];
+  /**
+   * Node punya anak yang sengaja tidak dikirim (`pruneToc`, X09): HTML halaman baca hanya membawa
+   * baris yang tampil terbuka; pohon lengkap dimuat klien belakangan (`/kitab/<karya>/daftar-isi.json`).
+   */
+  more?: true;
 }
 
 export function slimToc(nodes: readonly TocNode[]): TocItem[] {
   return nodes.map((n) => ({
     id: n.id,
+    kind: "node",
     title: n.title_ar,
     level: n.level,
     href: n.start.permalink,
@@ -25,6 +39,20 @@ export function slimToc(nodes: readonly TocNode[]): TocItem[] {
     page: n.start.page_no,
     children: slimToc(n.children),
   }));
+}
+
+/**
+ * Pohon yang hanya memuat baris yang tampil saat halaman baca dibuka (X09): semua akar, dan anak
+ * dari node yang terbuka (`open` = leluhur baris aktif `activeRowId`, sama dengan cabang yang dibuka
+ * TocTree saat pasang). Anak node lain dibuang dan node itu ditandai `more` (ruang chevron tetap ada, jadi
+ * baris tidak bergeser saat pohon lengkap datang).
+ */
+export function pruneToc(items: readonly TocItem[], open: ReadonlySet<number>): TocItem[] {
+  return items.map((item) => {
+    if (open.has(item.id)) return { ...item, children: pruneToc(item.children, open) };
+    if (item.children.length === 0) return item;
+    return { ...item, children: [], more: true };
+  });
 }
 
 /** Semua node dalam urutan baca (pre-order). */
@@ -44,6 +72,28 @@ export function tocPath(items: readonly TocItem[], id: number): TocItem[] {
 
 function startsAtOrBefore(item: TocItem, juz: number, page: number): boolean {
   return item.juz < juz || (item.juz === juz && item.page <= page);
+}
+
+/**
+ * Node yang mulai di halaman cetak ini, urut baca, beserta induknya (bahan `buildPageModel`, X04).
+ * Halaman sambungan (gulir bersambung) memperoleh daftar yang sama lewat kueri per halaman.
+ */
+export function pageSections(
+  items: readonly TocItem[],
+  juz: number,
+  page: number,
+): { id: number; parentId: number | null; level: number; title: string }[] {
+  const out: { id: number; parentId: number | null; level: number; title: string }[] = [];
+  const visit = (nodes: readonly TocItem[], parentId: number | null) => {
+    for (const n of nodes) {
+      if (n.juz === juz && n.page === page) {
+        out.push({ id: n.id, parentId, level: n.level, title: n.title });
+      }
+      visit(n.children, n.id);
+    }
+  };
+  visit(items, null);
+  return out;
 }
 
 /**
@@ -67,55 +117,31 @@ export function activeTocIds(
 }
 
 /**
- * Paragraf badan yang merupakan judul bagian: teksnya sama persis dengan judul node-nya dan node
- * itu mulai di halaman ini. Hanya memengaruhi tampilan (elemen heading); teksnya tetap `text_raw`.
+ * Baris aktif di pohon TAMPILAN (X10): subjudul kurasi terakhir milik node aktif yang mulai di
+ * halaman ini atau sebelumnya, atau node itu sendiri. Aturannya sama dengan bagian aktif ("bagian
+ * terakhir yang tampil di halaman ini"): paragraf subjudul milik node itu sendiri, jadi subjudul
+ * terakhir sampai halaman ini adalah bagian yang sedang berjalan. Pohon tanpa subjudul (breadcrumb,
+ * model halaman) tidak terpengaruh. Subjudul yang belum ada di pohon ringkas = node.
  */
-export function headingPassages(
+export function activeRowId(
   items: readonly TocItem[],
+  nodeId: number,
   juz: number,
   page: number,
-  body: readonly Pick<Passage, "id" | "toc_node_id" | "text_raw">[],
-): Map<number, TocItem> {
-  const byId = new Map(flattenToc(items).map((i) => [i.id, i]));
-  const headings = new Map<number, TocItem>();
-  const seen = new Set<number>();
-  for (const p of body) {
-    if (p.toc_node_id === null || seen.has(p.toc_node_id)) continue;
-    seen.add(p.toc_node_id);
-    const node = byId.get(p.toc_node_id);
-    if (node && node.juz === juz && node.page === page && p.text_raw.trim() === node.title.trim()) {
-      headings.set(p.id, node);
-    }
-  }
-  return headings;
+): number {
+  const node = tocPath(items, nodeId).at(-1);
+  const subs = (node?.children ?? []).filter(
+    (c) => c.kind === "sub" && startsAtOrBefore(c, juz, page),
+  );
+  return subs.at(-1)?.id ?? nodeId;
 }
 
 /**
- * Jangkar `#bab-<id>` untuk node yang mulai di halaman ini (tujuan `/kitab/<karya>/bab/<id>`):
- * diletakkan sebelum paragraf badan pertama milik node itu atau turunannya. Node yang tidak punya
- * paragraf di halaman ini masuk `unplaced` (jangkar di awal teks).
+ * Tautan unik per bagian: halaman awal + jangkar judul (`#bab-<id>`), seperti breadcrumb. Subjudul
+ * kurasi sudah membawa permalink paragrafnya (`#pN`).
  */
-export function sectionStarts(
-  items: readonly TocItem[],
-  juz: number,
-  page: number,
-  body: readonly Pick<Passage, "id" | "toc_node_id">[],
-): { byPassage: Map<number, number[]>; unplaced: number[] } {
-  const byPassage = new Map<number, number[]>();
-  const unplaced: number[] = [];
-  for (const node of flattenToc(items)) {
-    if (node.juz !== juz || node.page !== page) continue;
-    const subtree = new Set(flattenToc([node]).map((i) => i.id));
-    const first = body.find((p) => p.toc_node_id !== null && subtree.has(p.toc_node_id));
-    if (first === undefined) unplaced.push(node.id);
-    else byPassage.set(first.id, [...(byPassage.get(first.id) ?? []), node.id]);
-  }
-  return { byPassage, unplaced };
-}
-
-/** Tautan unik per bagian: halaman awal + jangkar judul (`#bab-<id>`), seperti breadcrumb. */
-export function tocHref(item: Pick<TocItem, "id" | "href">): string {
-  return `${item.href}#bab-${item.id}`;
+export function tocHref(item: Pick<TocItem, "id" | "href"> & { kind?: TocItem["kind"] }): string {
+  return item.kind === "sub" ? item.href : `${item.href}#bab-${item.id}`;
 }
 
 /**
@@ -150,7 +176,7 @@ export function tocRows(items: readonly TocItem[], activeId?: number): Map<numbe
   }
   const rows = new Map<number, TocRow>();
   const visit = (nodes: readonly TocItem[], up: TocItem | undefined, chain: Step[]) => {
-    const chevronSlot = nodes.some((n) => n.children.length > 0);
+    const chevronSlot = nodes.some((n) => n.children.length > 0 || n.more === true);
     nodes.forEach((item, index) => {
       const steps = [...chain, { item, index, isLast: index === nodes.length - 1, parent: up }];
       // Kolom j menggantung dari leluhur di tingkat j+1; langkah s adalah anaknya di jalur baris ini.

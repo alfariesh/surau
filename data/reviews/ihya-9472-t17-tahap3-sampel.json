@@ -1,0 +1,314 @@
+{
+  "format": 1,
+  "corpus": "ihya-v7",
+  "seed": 20261021,
+  "order_seed": 20261121,
+  "per_stratum": 20,
+  "population": {
+    "pendek": 5617,
+    "sedang": 8132,
+    "panjang": 2343
+  },
+  "items": [
+    {
+      "no": 1,
+      "passage": 10004923,
+      "stratum": "sedang"
+    },
+    {
+      "no": 2,
+      "passage": 10012280,
+      "stratum": "panjang"
+    },
+    {
+      "no": 3,
+      "passage": 10015879,
+      "stratum": "panjang"
+    },
+    {
+      "no": 4,
+      "passage": 10003657,
+      "stratum": "panjang"
+    },
+    {
+      "no": 5,
+      "passage": 10010448,
+      "stratum": "pendek"
+    },
+    {
+      "no": 6,
+      "passage": 10007126,
+      "stratum": "pendek"
+    },
+    {
+      "no": 7,
+      "passage": 10001165,
+      "stratum": "pendek"
+    },
+    {
+      "no": 8,
+      "passage": 10000645,
+      "stratum": "panjang"
+    },
+    {
+      "no": 9,
+      "passage": 10001960,
+      "stratum": "sedang"
+    },
+    {
+      "no": 10,
+      "passage": 10015337,
+      "stratum": "pendek"
+    },
+    {
+      "no": 11,
+      "passage": 10016347,
+      "stratum": "panjang"
+    },
+    {
+      "no": 12,
+      "passage": 10006163,
+      "stratum": "panjang"
+    },
+    {
+      "no": 13,
+      "passage": 10009024,
+      "stratum": "pendek"
+    },
+    {
+      "no": 14,
+      "passage": 10018907,
+      "stratum": "sedang"
+    },
+    {
+      "no": 15,
+      "passage": 10004544,
+      "stratum": "sedang"
+    },
+    {
+      "no": 16,
+      "passage": 10002980,
+      "stratum": "panjang"
+    },
+    {
+      "no": 17,
+      "passage": 10007439,
+      "stratum": "sedang"
+    },
+    {
+      "no": 18,
+      "passage": 10009375,
+      "stratum": "pendek"
+    },
+    {
+      "no": 19,
+      "passage": 10010923,
+      "stratum": "sedang"
+    },
+    {
+      "no": 20,
+      "passage": 10004504,
+      "stratum": "sedang"
+    },
+    {
+      "no": 21,
+      "passage": 10001811,
+      "stratum": "pendek"
+    },
+    {
+      "no": 22,
+      "passage": 10007369,
+      "stratum": "sedang"
+    },
+    {
+      "no": 23,
+      "passage": 10010916,
+      "stratum": "sedang"
+    },
+    {
+      "no": 24,
+      "passage": 10012485,
+      "stratum": "sedang"
+    },
+    {
+      "no": 25,
+      "passage": 10017783,
+      "stratum": "panjang"
+    },
+    {
+      "no": 26,
+      "passage": 10007041,
+      "stratum": "panjang"
+    },
+    {
+      "no": 27,
+      "passage": 10016829,
+      "stratum": "panjang"
+    },
+    {
+      "no": 28,
+      "passage": 10009091,
+      "stratum": "pendek"
+    },
+    {
+      "no": 29,
+      "passage": 10013107,
+      "stratum": "panjang"
+    },
+    {
+      "no": 30,
+      "passage": 10013765,
+      "stratum": "panjang"
+    },
+    {
+      "no": 31,
+      "passage": 10002349,
+      "stratum": "sedang"
+    },
+    {
+      "no": 32,
+      "passage": 10015414,
+      "stratum": "pendek"
+    },
+    {
+      "no": 33,
+      "passage": 10013834,
+      "stratum": "panjang"
+    },
+    {
+      "no": 34,
+      "passage": 10001185,
+      "stratum": "sedang"
+    },
+    {
+      "no": 35,
+      "passage": 10019846,
+      "stratum": "panjang"
+    },
+    {
+      "no": 36,
+      "passage": 10009247,
+      "stratum": "sedang"
+    },
+    {
+      "no": 37,
+      "passage": 10016252,
+      "stratum": "pendek"
+    },
+    {
+      "no": 38,
+      "passage": 10005884,
+      "stratum": "pendek"
+    },
+    {
+      "no": 39,
+      "passage": 10011279,
+      "stratum": "panjang"
+    },
+    {
+      "no": 40,
+      "passage": 10008928,
+      "stratum": "pendek"
+    },
+    {
+      "no": 41,
+      "passage": 10019746,
+      "stratum": "pendek"
+    },
+    {
+      "no": 42,
+      "passage": 10014503,
+      "stratum": "pendek"
+    },
+    {
+      "no": 43,
+      "passage": 10007813,
+      "stratum": "sedang"
+    },
+    {
+      "no": 44,
+      "passage": 10009572,
+      "stratum": "pendek"
+    },
+    {
+      "no": 45,
+      "passage": 10011310,
+      "stratum": "sedang"
+    },
+    {
+      "no": 46,
+      "passage": 10004898,
+      "stratum": "panjang"
+    },
+    {
+      "no": 47,
+      "passage": 10019168,
+      "stratum": "panjang"
+    },
+    {
+      "no": 48,
+      "passage": 10015022,
+      "stratum": "sedang"
+    },
+    {
+      "no": 49,
+      "passage": 10004065,
+      "stratum": "sedang"
+    },
+    {
+      "no": 50,
+      "passage": 10006655,
+      "stratum": "pendek"
+    },
+    {
+      "no": 51,
+      "passage": 10008956,
+      "stratum": "pendek"
+    },
+    {
+      "no": 52,
+      "passage": 10015041,
+      "stratum": "sedang"
+    },
+    {
+      "no": 53,
+      "passage": 10007291,
+      "stratum": "sedang"
+    },
+    {
+      "no": 54,
+      "passage": 10013746,
+      "stratum": "panjang"
+    },
+    {
+      "no": 55,
+      "passage": 10005229,
+      "stratum": "pendek"
+    },
+    {
+      "no": 56,
+      "passage": 10010576,
+      "stratum": "pendek"
+    },
+    {
+      "no": 57,
+      "passage": 10017889,
+      "stratum": "panjang"
+    },
+    {
+      "no": 58,
+      "passage": 10010418,
+      "stratum": "pendek"
+    },
+    {
+      "no": 59,
+      "passage": 10007298,
+      "stratum": "sedang"
+    },
+    {
+      "no": 60,
+      "passage": 10013493,
+      "stratum": "panjang"
+    }
+  ]
+}

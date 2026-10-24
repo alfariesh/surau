@@ -21,6 +21,9 @@
 //   retry [--budget USD] [--confirm]  kirim ulang yang gagal (refusal/percobaan terakhir →
 //                             Sonnet 5.5; ringkasan dua kali Sonnet); --budget seperti submit
 //   report                    tulis laporan data/reports/ihya-9472-terjemahan.md + sampel QA
+//   judul [--budget USD] [--limit N] [--confirm]  judul daftar isi Indonesia (X04 bagian B): node + subjudul kurasi,
+//                             Sonnet 5.5 lewat API biasa (berbayar; tanpa --confirm hanya rencana +
+//                             hitung token gratis; --confirm wajib bersama --budget = pagu TOTAL)
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -44,6 +47,7 @@ import {
   runWait,
 } from "./batch.ts";
 import { runReport } from "./report.ts";
+import { readSubheadings, runTitleJob, titleUnits } from "./titles.ts";
 import { runSample } from "./sample.ts";
 import { batchKind } from "./store.ts";
 import { z } from "zod";
@@ -84,10 +88,14 @@ function context(shamelaArg: string | undefined): LlmContext {
     },
     client: () => {
       if (client !== null) return client;
-      const env = join(repo, ".env");
-      if (!existsSync(env))
-        throw new Error("File .env tidak ada. Kerjakan T-11 (kunci surau-dev).");
-      process.loadEnvFile(env);
+      // Kunci sudah di environment (mis. `node --env-file=<checkout utama>/.env` dari worktree):
+      // dipakai tanpa membaca .env repo ini.
+      if (!process.env.ANTHROPIC_API_KEY) {
+        const env = join(repo, ".env");
+        if (!existsSync(env))
+          throw new Error("File .env tidak ada. Kerjakan T-11 (kunci surau-dev).");
+        process.loadEnvFile(env);
+      }
       const key = process.env.ANTHROPIC_API_KEY;
       if (key === undefined || key === "") {
         throw new Error(".env tidak memuat ANTHROPIC_API_KEY. Ulangi langkah 3 T-11.");
@@ -157,9 +165,20 @@ async function main(argv: string[]): Promise<number> {
     }
     case "report":
       return runReport(ctx);
+    case "judul": {
+      const budget = z.coerce.number().positive().max(5).optional().parse(values.budget);
+      const units = titleUnits(ctx.rows(), readSubheadings(repo, IHYA), IHYA.edition.id);
+      const limit = positiveInt.optional().parse(values.limit);
+      const pending = await runTitleJob(units, join(repo, "data/build/llm"), ctx.client, {
+        confirm: values.confirm,
+        ...(budget === undefined ? {} : { budget }),
+        ...(limit === undefined ? {} : { maxRequests: limit }),
+      });
+      return pending > 0 && values.confirm ? 1 : 0;
+    }
     default:
       console.error(
-        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|reconcile|wait|collect|rejudge|retry|report [--round 1|2] [--kind …] [--limit N] [--budget USD] [--confirm]",
+        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|reconcile|wait|collect|rejudge|retry|report|judul [--round 1|2] [--kind …] [--limit N] [--budget USD] [--confirm]",
       );
       return 2;
   }

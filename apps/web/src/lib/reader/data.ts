@@ -7,8 +7,10 @@ import { cache } from "react";
 
 import { getEnv, readerEnabled } from "../cloudflare";
 
+import type { TitleSource } from "./reader-toc";
 import type { TocItem } from "./toc";
 
+import { readerToc, readerTocExtras } from "./reader-toc";
 import { slimToc } from "./toc";
 import { editionSegment, parseWorkSegment, resolveEdition } from "./work-segment";
 
@@ -71,6 +73,24 @@ export const loadToc = cache(async (rawSegment: string): Promise<TocItem[]> => {
   const toc = await orNotFound(getToc(env.CORPUS_DB, edition.id, { depth: TOC_DEPTH }));
   return slimToc(toc.nodes);
 });
+
+/**
+ * Pohon daftar isi untuk TAMPILAN (sidebar, sheet ponsel, halaman karya): `loadToc` + subjudul
+ * kurasi + judul Indonesia terjemahan AI (X04 bagian B). Jangan dipakai untuk breadcrumb, <title>,
+ * OG, bagian aktif, atau model halaman: di sana tetap `loadToc` (judul Arab, node korpus saja).
+ */
+export const loadReaderToc = cache(
+  async (rawSegment: string): Promise<{ items: TocItem[]; titleSource: TitleSource | null }> => {
+    const r = await resolveWork(rawSegment);
+    if (r.kind === "redirect") return { items: [], titleSource: null };
+    const toc = await loadToc(rawSegment);
+    const extras = await readerTocExtras(r.ctx.env.CORPUS_DB, r.ctx.edition.id);
+    return {
+      items: readerToc(toc, extras, r.ctx.segment),
+      titleSource: extras.titles?.source ?? null,
+    };
+  },
+);
 
 export interface PageContext extends WorkContext {
   page: PageView;

@@ -1,9 +1,9 @@
 "use client";
 
 import { RouteError } from "../../../components/route-error";
-import { id } from "../../../i18n/id";
+import { reader as readerText } from "../../../i18n/id/reader";
 
-const t = id.reader;
+const t = readerText;
 
 // Galat tak terduga di rute /kitab/* (D1 gagal, baris rusak). Alamat yang tidak ada sudah menjadi
 // 404 lewat notFound(); yang sampai ke sini adalah gangguan.

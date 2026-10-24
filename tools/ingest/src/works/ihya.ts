@@ -7,6 +7,8 @@ export interface WorkConfig {
   shamelaBook: number;
   /** Path relatif ke root repo. */
   patch: string;
+  /** Daftar kurasi subjudul pembaca (X04, ADR-074): sumber subjudul untuk judul daftar isi Indonesia. */
+  subheadings: string;
   ids: string;
   reportPrefix: string;
   corpusVersion: string;
@@ -56,10 +58,11 @@ export interface WorkConfig {
 export const IHYA: WorkConfig = {
   shamelaBook: 9472,
   patch: "data/patches/ihya-9472.yaml",
+  subheadings: "data/patches/ihya-9472-subjudul.json",
   ids: "data/ids/ihya-9472.json",
   reportPrefix: "data/reports/ihya-9472",
-  corpusVersion: "ihya-v7",
-  output: "surau-corpus-ihya-v7.sqlite",
+  corpusVersion: "ihya-v8",
+  output: "surau-corpus-ihya-v8.sqlite",
   expect: {
     pages: 1706,
     volumes: [361, 386, 413, 546],
