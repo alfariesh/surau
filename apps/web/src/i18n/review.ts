@@ -18,7 +18,7 @@ export const reviewText = {
   noAnswer: "Jawaban kosong (baseline)",
   example: "Contoh evaluasi",
   exampleHint:
-    "Contoh ini disusun agent untuk menguji penilaian sebelum layanan Jawab tersedia. Sebagian contoh sengaja memuat kesalahan. Periksa semua klaim terhadap sumber.",
+    "Contoh ini disusun agent untuk menguji penilaian sebelum Maknaz tersedia. Sebagian contoh sengaja memuat kesalahan. Periksa semua klaim terhadap sumber.",
   modes: { empty: "Jawaban kosong", search: "Cari saja", answer: "Jawaban AI" },
   sourceLink: "Buka di pembaca",
   invalid: "Ada kutipan yang tidak valid dan disembunyikan.",
@@ -65,4 +65,11 @@ export const reviewText = {
   past: "Penilaian tersimpan",
   noReviews: "Belum ada penilaian.",
   sourceLicense: "Sumber dan lisensi",
+} as const;
+
+export const reviewNavText = {
+  label: "Bagian ruang penilai",
+  answers: "Jawaban",
+  takhrij: "Label status hadits",
+  translations: "Koreksi terjemahan",
 } as const;

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { listAnswerLogs } from "@surau/db";
 import { getEnv } from "../../../lib/cloudflare";
-import { reviewIdentity } from "../../../lib/review-auth";
+import { reviewIdentity, reviewRoomAllowed } from "../../../lib/review-auth";
 import { ReviewClient } from "../../../components/review/review-client";
 import { reviewText as t } from "../../../i18n/review";
 import { Typography } from "@heroui/react";
 import { PageTitle } from "../../../components/page-title";
+import { ReviewDenied, ReviewRoleDenied } from "../../../components/review/review-denied";
+import { ReviewNav } from "../../../components/review/review-nav";
 
 export const metadata: Metadata = { title: t.title, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -17,18 +19,8 @@ const reviewNow = () => new Date().toISOString();
 export default async function ReviewPage() {
   const env = await getEnv();
   const identity = await reviewIdentity((await headers()).get("cf-access-jwt-assertion"), env);
-  if (!identity)
-    return (
-      <section className="mx-auto max-w-xl space-y-4 px-4 py-12">
-        <Typography.Heading level={1} className="text-2xl">
-          {t.denied}
-        </Typography.Heading>
-        <Typography>{t.deniedBody}</Typography>
-        <a className="text-accent underline" href="https://surau.org/tinjau">
-          {t.login}
-        </a>
-      </section>
-    );
+  if (!identity) return <ReviewDenied />;
+  if (!reviewRoomAllowed(identity, "jawaban", env)) return <ReviewRoleDenied />;
   const rows = await listAnswerLogs(env.APP_DB, reviewNow());
   const items = rows.map((r) => ({
     id: r.id,
@@ -38,6 +30,7 @@ export default async function ReviewPage() {
   }));
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6">
+      <ReviewNav current="jawaban" />
       <header className="space-y-2">
         <Typography type="body-sm" className="text-accent">
           {t.eyebrow}

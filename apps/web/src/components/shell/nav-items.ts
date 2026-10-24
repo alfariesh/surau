@@ -9,13 +9,11 @@ import {
   Home01Duotone,
   InformationCircle,
   InformationCircleDuotone,
-  Search01,
-  Search01Duotone,
 } from "../../icons";
 
-import { id } from "../../i18n/id";
+import { nav as navText } from "../../i18n/id/nav";
 
-export type NavItemId = "home" | "books" | "search" | "ask" | "mcp" | "about";
+export type NavItemId = "home" | "books" | "ask" | "mcp" | "about";
 
 export interface NavItem {
   id: NavItemId;
@@ -25,50 +23,62 @@ export interface NavItem {
   activeIcon: ComponentType<SVGProps<SVGSVGElement>>;
   /** Tanpa `href` berarti fitur belum tersedia (label "segera"). */
   href?: string;
+  /** Halaman lain yang tetap menyorot menu ini (mis. hasil /cari di bawah Beranda). */
+  also?: readonly string[];
   /** Lencana kecil di kanan label. */
   badge?: string;
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { id: "home", label: id.nav.home, icon: Home01, activeIcon: Home01Duotone, href: "/" },
+  // Cari tidak punya menu sendiri (ADR-088): kotak cari ada di Beranda, /cari = halaman hasilnya.
+  {
+    id: "home",
+    label: navText.home,
+    icon: Home01,
+    activeIcon: Home01Duotone,
+    href: "/",
+    also: ["/cari"],
+  },
   {
     id: "books",
-    label: id.nav.books,
+    label: navText.books,
     icon: BookOpen01,
     activeIcon: BookOpen01Duotone,
     href: "/kitab",
   },
-  {
-    id: "search",
-    label: id.nav.search,
-    icon: Search01,
-    activeIcon: Search01Duotone,
-    href: "/cari",
-  },
-  { id: "ask", label: id.nav.ask, icon: HelpCircle, activeIcon: HelpCircleDuotone },
+
+  { id: "ask", label: navText.ask, icon: HelpCircle, activeIcon: HelpCircleDuotone },
   {
     id: "mcp",
-    label: id.nav.mcp,
+    label: navText.mcp,
     icon: BookOpen01,
     activeIcon: BookOpen01Duotone,
     href: "/mcp",
-    badge: id.nav.mcpBadge,
+    badge: navText.mcpBadge,
   },
   {
     id: "about",
-    label: id.nav.about,
+    label: navText.about,
     icon: InformationCircle,
     activeIcon: InformationCircleDuotone,
     href: "/tentang",
   },
 ];
 
+const matches = (pathname: string, href: string) =>
+  pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+
+/** Menu sidebar yang disorot untuk alamat ini (termasuk `also`). */
 export function findActiveNavItem(pathname: string | null): NavItem | undefined {
   if (!pathname) return undefined;
-
   return NAV_ITEMS.find(
     (item) =>
-      item.href &&
-      (pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`))),
+      item.href && (matches(pathname, item.href) || item.also?.some((p) => matches(pathname, p))),
   );
+}
+
+/** Judul halaman di navbar: label menu, kecuali halaman tanpa menu sendiri (/cari = "Cari"). */
+export function navTitle(pathname: string | null): string | undefined {
+  if (pathname && matches(pathname, "/cari")) return navText.search;
+  return findActiveNavItem(pathname)?.label;
 }

@@ -32,13 +32,21 @@
     // /admin + /api/admin (S20): aplikasi Access `Surau Admin` (T-14), AUD dibaca dari parameter
     // `kid` redirect login Access 2026-10-20. Token aplikasi Tinjau TIDAK berlaku di sini.
     "ADMIN_ACCESS_AUD": "a7f9052cd2ce712ad14811208826bc2f5e4af04de1cc5f261949e79a851d65a4",
+    // Kunci akun ustadz peninjau label takhrij (X07, ADR-070), sama dengan apps/api. Kosong =
+    // tinjauan tersimpan tetapi belum dipakai (Jawab, tanda kelemahan /api/kutipan).
+    "TAKHRIJ_USTADZ_KEYS": "",
+    // Editor terjemahan terdaftar (X08, ADR-081): array JSON {key, name, prefix?, suffix?, ustadz,
+    // mcp_name, also?}. key = kunci akun Access (hash issuer+subjek, tampil di /tinjau/terjemahan),
+    // BUKAN email; nama + gelar tampil publik di label terjemahan atas keputusan pemilik. Hanya akun
+    // di sini yang bisa menyimpan koreksi. Menambah orang = PR + ADR (pola ADR-070).
+    "TRANSLATION_EDITORS": "[]",
     "READER_ENABLED": "1",
     // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
     // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
     "SEARCH_TIMING_DETAIL": "0",
     // Versi korpus di kunci cache /api/search (S14, ADR-044): SELALU = database_name CORPUS_DB di
     // bawah. Diganti `corpus:promote` bersama binding (dijaga tes tools/ingest/src/corpus.test.ts).
-    "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v7",
+    "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v8",
     // Origin sitemap.xml: produksi selalu alamat kanonis, juga bila diminta lewat Version URL (#64).
     "SITEMAP_ORIGIN": "https://surau.org",
     // /api/jawab (S19–S20): MATI di produksi sampai `/rilis 4`. Guard biaya S20 (Turnstile, kuota,
@@ -73,8 +81,8 @@
   "d1_databases": [
     {
       "binding": "CORPUS_DB",
-      "database_name": "surau-corpus-ihya-v7",
-      "database_id": "91d6fdba-106b-43a7-9565-ee8e850c5046",
+      "database_name": "surau-corpus-ihya-v8",
+      "database_id": "2ccac36f-5e00-46a7-91c4-cc785d004d98",
       "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
     },
     {
@@ -131,6 +139,18 @@
       "namespace_id": "1008",
       "simple": { "limit": 600, "period": 60 },
     },
+    // GET /api/halaman (X04 W6, gulir bersambung): satu halaman cetak per permintaan, dipicu
+    // pembaca yang menggulir; per klien dan global seperti /api/search.
+    {
+      "name": "PAGE_LIMITER",
+      "namespace_id": "1009",
+      "simple": { "limit": 60, "period": 60 },
+    },
+    {
+      "name": "PAGE_GLOBAL_LIMITER",
+      "namespace_id": "1010",
+      "simple": { "limit": 1200, "period": 60 },
+    },
   ],
   // Query string dihapus dari log/trace: pertanyaan pengguna (cari, Jawab) tidak boleh tercatat (P-7).
   // `invocation_logs: false` (S20, ADR-065): log otomatis per permintaan merekam header termasuk IP
@@ -151,6 +171,8 @@
       "REVIEW_ACCESS_AUD": "e123af2da26c3ef34fad7be2ce79480a6232edd72bf2c16d076030563f638bc4",
       // Wildcard Preview `*-surau-web…/admin` anggota aplikasi `Surau Admin` yang sama (T-14).
       "ADMIN_ACCESS_AUD": "a7f9052cd2ce712ad14811208826bc2f5e4af04de1cc5f261949e79a851d65a4",
+      "TAKHRIJ_USTADZ_KEYS": "",
+      "TRANSLATION_EDITORS": "[]",
       "READER_ENABLED": "1",
       "SEARCH_TIMING_DETAIL": "1",
       // Tanpa cache hasil: korpus staging dimuat ulang tanpa versi baru (latensi diukur tanpa cache).
@@ -237,6 +259,16 @@
         "name": "JAWAB_STATUS_GLOBAL_LIMITER",
         "namespace_id": "2008",
         "simple": { "limit": 600, "period": 60 },
+      },
+      {
+        "name": "PAGE_LIMITER",
+        "namespace_id": "2009",
+        "simple": { "limit": 60, "period": 60 },
+      },
+      {
+        "name": "PAGE_GLOBAL_LIMITER",
+        "namespace_id": "2010",
+        "simple": { "limit": 1200, "period": 60 },
       },
     ],
   },

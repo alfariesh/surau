@@ -1,20 +1,41 @@
-// String UI /tanya (S21). Bahasa atribusi, bukan fatwa (docs/05 §2); label AI selalu eksplisit.
+// String UI /tanya (S21): agent AI Surau bernama Maknaz (ADR-071). Bahasa atribusi, bukan fatwa (docs/05 §2); label AI selalu eksplisit.
 export const tanyaText = {
-  pageTitle: "Tanya",
-  heading: "Tanya kitab",
-  lead: "Ajukan pertanyaan tentang isi Ihya' 'Ulum ad-Din. Jawaban disusun AI dari paragraf kitab, dan setiap kutipan Arabnya disalin dari teks sumber lalu diperiksa kode.",
-  notice: "Surau adalah asisten riset, bukan pemberi fatwa.",
+  pageTitle: "Maknaz",
+  heading: "Maknaz",
+  lead: "Tanyakan isi kitab. Jawaban disusun AI dari teksnya, dan setiap kutipan Arab diperiksa kode.",
   noticeBody:
     "Jawaban menyampaikan apa yang tertulis di kitab beserta sumbernya. Untuk kasus pribadi (keluarga, harta, ibadah tertentu), tanyakan kepada ulama setempat.",
-  privacy: "Jangan menulis nama, nomor telepon, atau detail pribadi.",
+  // Satu catatan Maknaz (MaknazNotice): label tetap S21 (docs/05 §2) + privasi. Selalu terlihat di
+  // /tanya (atas sebelum percakapan, bawah kotak sesudahnya) dan di Beranda mode Maknaz.
+  notice: "Surau adalah asisten riset, bukan pemberi fatwa.",
+  noticeExtra: "Tiap pertanyaan dijawab terpisah; jangan tulis data pribadi.",
   privacyLink: "Kebijakan privasi",
   label: "Pertanyaan",
-  placeholder: "Contoh: Apa kata al-Ghazali tentang sabar?",
-  submit: "Tanya",
-  asking: "Sedang menjawab…",
+  submit: "Tanya Maknaz",
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
   tooShort: "Tulis pertanyaan minimal 3 huruf.",
   challenge: "Memeriksa bahwa Anda bukan program otomatis…",
+  // Sumber jawaban di kepala kotak Maknaz (label, bukan pemilih; ADR-086). Kitab kedua = perbarui.
+  sourceLabel: "Sumber jawaban:",
+  source: "Ihya' 'Ulum ad-Din",
+  composerPlaceholder: "Tanya Maknaz tentang isi kitab…",
+  composerPlaceholderNext: "Pertanyaan baru, tulis lengkap (yang sebelumnya tidak ikut dibaca)…",
+  suggestions: [
+    "Apa kata al-Ghazali tentang sabar?",
+    "Bagaimana adab menuntut ilmu menurut Ihya?",
+    "Apa keutamaan ikhlas dalam beramal?",
+    "Apa yang dimaksud dengan tawakal?",
+  ],
+  separate:
+    "Setiap pertanyaan dijawab terpisah: jawaban sebelumnya tidak ikut dibaca, jadi tulis pertanyaan lengkap.",
+  newChat: "Percakapan baru",
+  noticeMore: "Tentang jawaban Maknaz",
+  copy: "Salin jawaban",
+  copyAttribution:
+    "Disusun AI oleh Maknaz, asisten AI Surau, dari Ihya' 'Ulum ad-Din; bukan fatwa. Periksa kutipannya di tautan sumber.",
+  copyUncited: "Kalimat tanpa nomor [n] tidak didukung kutipan langsung.",
+  copied: "Jawaban disalin.",
+  copyFailed: "Jawaban tidak bisa disalin.",
   stages: {
     route: "Memilih bagian kitab yang relevan…",
     retrieve: "Mengumpulkan paragraf kitab…",
@@ -22,6 +43,7 @@ export const tanyaText = {
     retry: "Mencoba lagi dengan model lain…",
     verify: "Memeriksa setiap kutipan ke teks sumber…",
   } as Record<string, string>,
+  step: (n: number, total: number) => `Tahap ${n} dari ${total}`,
   preview: "Pratinjau: kutipan sedang diperiksa, isi akhir bisa berubah.",
   answerHeading: "Jawaban",
   announceAnswer: "Jawaban selesai disusun.",
@@ -30,7 +52,14 @@ export const tanyaText = {
   citationLink: (n: number) => `Kutipan ${n}`,
   sourcesHeading: "Kutipan",
   hadithHeading: "Status hadits",
+  hadithRule: "dikenali otomatis dari teks takhrij, belum ditinjau",
+  hadithReviewed: "ditinjau ustadz",
+  hadithCorrected: "dikoreksi ustadz",
+  hadithAdded: "Ditetapkan peninjau (tidak tertulis sebagai istilah baku di teks takhrij)",
   hadithAi: "diekstrak AI",
+  hadithMixed:
+    "Takhrij menyebut penilaian yang berbeda untuk jalur atau lafaz yang berbeda. Baca teks takhrijnya.",
+  hadithTerms: "Istilah di teks takhrij",
   takhrijWeak: "Takhrij memuat istilah kelemahan",
   takhrijWeakNote:
     "Teks takhrij ini memuat istilah lemah, palsu, tidak ada asalnya, atau sanad yang tidak ditemukan. Istilah itu dikenali otomatis dari kata kuncinya: bisa hanya mengenai satu jalur, atau kebetulan muncul di lafaz hadits yang dikutip. Baca teks takhrijnya sebelum memakai hadits ini.",
@@ -57,17 +86,17 @@ export const tanyaText = {
   } as Record<string, string>,
   fallbackTail: "Berikut hasil Cari untuk pertanyaan Anda.",
   errors: {
-    disabled: "Tanya sedang dimatikan. Anda tetap bisa memakai Cari.",
-    not_configured: "Tanya belum siap. Anda tetap bisa memakai Cari.",
+    disabled: "Maknaz sedang dimatikan. Anda tetap bisa memakai Cari.",
+    not_configured: "Maknaz belum siap. Anda tetap bisa memakai Cari.",
     budget:
-      "Anggaran AI bulan ini sudah habis. Tanya dibuka lagi bulan depan; sementara itu pakai Cari.",
+      "Anggaran AI bulan ini sudah habis. Maknaz dibuka lagi bulan depan; sementara itu pakai Cari.",
     quota: "Kuota pertanyaan hari ini sudah habis. Coba lagi besok, atau pakai Cari.",
     quota_exceeded: "Kuota pertanyaan hari ini sudah habis. Coba lagi besok, atau pakai Cari.",
     rate_limited: "Terlalu banyak pertanyaan dalam waktu singkat. Tunggu sekitar satu menit.",
     challenge_failed: "Pemeriksaan keamanan gagal. Muat ulang halaman lalu coba lagi.",
     challenge_unavailable: "Pemeriksaan keamanan sedang tidak tersedia. Coba lagi nanti.",
     closed:
-      "Tanya belum dibuka untuk umum. Sementara itu, pakai Cari untuk menemukan paragraf kitab.",
+      "Maknaz belum dibuka untuk umum. Sementara itu, pakai Cari untuk menemukan paragraf kitab.",
     internal: "Terjadi galat. Coba lagi, atau pakai Cari.",
     network: "Koneksi terputus. Periksa jaringan lalu coba lagi.",
   } as Record<string, string>,

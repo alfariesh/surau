@@ -70,6 +70,12 @@ Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke
 
 **S19 (2026-10-20, izin pemilik di chat: biaya ≤ US$3 termasuk holdout sekali):** `eval:jawab answer` menjalankan pipeline Jawab (sama dengan Worker `surau-api`) dan mengirim **teks pertanyaan** + paragraf Ihya kandidat ke Anthropic (klien langsung, `.env`). Soal publik v1–v5 dipakai untuk iterasi prompt. **18 holdout dikirim sekali** (`s19-holdout-v4`, prompt `answer@4`) dan hanya dibaca agregatnya; holdout tidak dikirim ke judge. Judge `s19-publik-v4-judge` hanya memuat 42 soal publik. Arsip per soal (`evals/private/jawab-runs/s19-*`, termasuk `*-diagnostik-publik.jsonl` tanpa soal privat) tetap lokal privat dan belum disalin ke R2. Laporan agregat: `evals/reports/jawab-s19-*.md`.
 
+**X03 (2026-10-21, izin pemilik di chat):** satu run publik `x03-publik-lokasi-v1` (42 soal publik, tanpa holdout; teks pertanyaan + paragraf Ihya kandidat dikirim ke Anthropic). Arsip di folder privat yang sama. `eval:jawab kandidat` hanya membaca arsip diagnostik publik dan tidak memanggil LLM.
+
+**X05 (2026-10-21, izin pemilik di chat):** `x05-publik-jawaban-v1` (42 soal publik) dan ulangan `x05-publik-tolak-v1` (8 soal jebakan publik), tanpa holdout; teks pertanyaan + paragraf Ihya kandidat dikirim ke Anthropic (panggilan jawaban saja). `eval:jawab answer --rute <diagnostik>` memakai ulang rute routing arsip publik, jadi tidak ada panggilan routing; arsipnya bertanda `+rute-tersimpan` dan biaya/latensinya tanpa routing. `--rute` ditolak bersama `--termasuk-privat`. Arsip di folder privat yang sama.
+
+**X06 (2026-10-21, izin pemilik di chat):** satu run publik `x06-publik-takhrij-v1` (42 soal publik, tanpa holdout, rute dari `x05-publik-jawaban-v1`; teks pertanyaan + paragraf Ihya kandidat dikirim ke Anthropic). Arsip di folder privat yang sama. `eval:jawab hadits` dan `eval:takhrij` gratis dan tidak memanggil LLM.
+
 Pemulihan holdout memakai:
 
 ```bash

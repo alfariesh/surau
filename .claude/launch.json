@@ -8,6 +8,12 @@
       "port": 3004
     },
     {
+      "name": "web-remote",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev:remote"],
+      "port": 3004
+    },
+    {
       "name": "web-workers",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@surau/web", "preview"],

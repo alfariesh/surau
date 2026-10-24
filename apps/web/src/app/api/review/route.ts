@@ -1,6 +1,12 @@
 import { getAnswerLog, listAnswerLogs, reviewInput, saveReview } from "@surau/db";
 import { getEnv } from "../../../lib/cloudflare";
-import { REVIEW_HEADERS, reviewIdentity, reviewSameOrigin } from "../../../lib/review-auth";
+import {
+  REVIEW_HEADERS,
+  reviewIdentity,
+  reviewRoomAllowed,
+  reviewSameOrigin,
+} from "../../../lib/review-auth";
+import { readJsonBody } from "../../../lib/review-body";
 import { reviewItem } from "../../../lib/review-data";
 
 const json = (data: unknown, status = 200) =>
@@ -9,6 +15,8 @@ export async function GET(request: Request) {
   const env = await getEnv();
   const identity = await reviewIdentity(request.headers.get("cf-access-jwt-assertion"), env);
   if (!identity) return json({ error: "unauthorized" }, 401);
+  // Akun editor terjemahan tidak otomatis menilai jawaban eval (X08, ADR-081).
+  if (!reviewRoomAllowed(identity, "jawaban", env)) return json({ error: "forbidden_role" }, 403);
   const query = new URL(request.url).searchParams;
   const id = query.get("id");
   if (id) {
@@ -35,37 +43,11 @@ export async function POST(request: Request) {
   const env = await getEnv();
   const identity = await reviewIdentity(request.headers.get("cf-access-jwt-assertion"), env);
   if (!identity) return json({ error: "unauthorized" }, 401);
+  if (!reviewRoomAllowed(identity, "jawaban", env)) return json({ error: "forbidden_role" }, 403);
   if (!reviewSameOrigin(request)) return json({ error: "forbidden_origin" }, 403);
-  if (!(request.headers.get("content-type") ?? "").toLowerCase().startsWith("application/json"))
-    return json({ error: "unsupported_media_type" }, 415);
-  // Pembacaan streaming dibatasi: Content-Length saja tidak melindungi transfer chunked.
-  const reader = request.body?.getReader();
-  if (!reader) return json({ error: "invalid" }, 400);
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    size += value.byteLength;
-    if (size > 12000) {
-      await reader.cancel();
-      return json({ error: "too_large" }, 413);
-    }
-    chunks.push(value);
-  }
-  const bytes = new Uint8Array(size);
-  let at = 0;
-  for (const c of chunks) {
-    bytes.set(c, at);
-    at += c.byteLength;
-  }
-  let raw: unknown;
-  try {
-    raw = JSON.parse(new TextDecoder().decode(bytes));
-  } catch {
-    return json({ error: "invalid_json" }, 400);
-  }
-  const input = reviewInput.safeParse(raw);
+  const body = await readJsonBody(request, 12000);
+  if (!body.ok) return json({ error: body.error }, body.status);
+  const input = reviewInput.safeParse(body.value);
   if (!input.success) return json({ error: "invalid" }, 400);
   const now = new Date().toISOString();
   const row = await getAnswerLog(env.APP_DB, input.data.answer_id, now);

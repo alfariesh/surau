@@ -7,13 +7,16 @@ import type { D1Db } from "@surau/db";
 import {
   ANSWER_MAX_TOKENS,
   JAWAB_MAX_PROMPT_TOKENS,
+  JAWAB_PIPELINE_VERSION,
   MODELS,
   ROUTE_MAX_TOKENS,
   costUsd,
   runJawab,
   stripArabic,
 } from "@surau/llm";
-import type { JawabResult } from "@surau/llm";
+import type { JawabResult, Route } from "@surau/llm";
+
+import type { SavedRoute } from "./answer-candidates.ts";
 import type Anthropic from "@anthropic-ai/sdk";
 
 /** Teks hasil yang turun ke Cari (ARSITEKTUR-TEKNIS §5 butir 7). */
@@ -53,8 +56,14 @@ export function canRun(spent: number, inflight: number, budget: number): boolean
   return spent + (inflight + 1) * (c.haiku + c.sonnetReserve) <= budget;
 }
 
+/**
+ * Akhiran `prompt_version` arsip bila rute routing diambil dari run lain (`--rute`, X05): biaya dan
+ * latensi tanpa routing, jadi arsip dan laporannya tidak boleh terbaca sebagai pipeline penuh.
+ */
+export const SAVED_ROUTE_SUFFIX = "+rute-tersimpan";
+
 /** Hasil pipeline → kontrak eval S18 (Latin saja, kutipan = pointer DB). */
-export function toEvalAnswer(r: JawabResult): EvalAnswer {
+export function toEvalAnswer(r: JawabResult, opts: { savedRoute?: boolean } = {}): EvalAnswer {
   const fallback = r.outcome === "fallback";
   const spans = (fallback ? r.search : r.citations).slice(0, 20).map((c) => ({
     passage_id: c.passage_id,
@@ -67,10 +76,12 @@ export function toEvalAnswer(r: JawabResult): EvalAnswer {
     refused: r.outcome === "not_found",
     citations: spans,
     hadith: r.hadith
-      .slice(0, 5)
+      .slice(0, 20)
       .map((h) => ({ passage_id: h.passage_id, footnote: h.footnote, status: h.status })),
     model: r.model ?? "none",
-    prompt_version: r.prompt_version,
+    // Sama dengan kunci cache Worker: versi pipeline (kandidat + pascaproses, X03) ikut tercatat,
+    // supaya arsip dan laporan membedakan kode yang berbeda dengan prompt yang sama.
+    prompt_version: `${r.prompt_version}+pipeline@${JAWAB_PIPELINE_VERSION}${opts.savedRoute ? SAVED_ROUTE_SUFFIX : ""}`,
     latency_ms: r.latency_ms,
     cost_usd: r.cost_usd,
   });
@@ -79,6 +90,31 @@ export function toEvalAnswer(r: JawabResult): EvalAnswer {
 export interface RunItem {
   question: EvalQuestion;
   private: boolean;
+}
+
+/**
+ * Rute untuk `--rute` (X05): hanya soal publik (arsip diagnostik tidak memuat holdout), setiap soal
+ * wajib punya baris, dan baris yang routing-nya gagal karena galat penyedia ditolak (rute `null`-nya
+ * bukan keluaran routing, jadi dokumennya tidak sama dengan jawaban run asal).
+ */
+export function savedRoutesFor(
+  items: readonly RunItem[],
+  saved: readonly SavedRoute[],
+): Map<string, Route | null> {
+  if (items.some((i) => i.private))
+    throw new Error("--rute hanya untuk soal publik (arsip diagnostik tanpa holdout).");
+  const byId = new Map(saved.map((r) => [r.id, r]));
+  const missing = items.filter((i) => !byId.has(i.question.id)).map((i) => i.question.id);
+  if (missing.length > 0)
+    throw new Error(`Rute tersimpan tidak memuat soal: ${missing.join(", ")}.`);
+  const failed = items
+    .filter((i) => byId.get(i.question.id)!.routeFailed)
+    .map((i) => i.question.id);
+  if (failed.length > 0)
+    throw new Error(
+      `Routing run asal gagal (galat penyedia) untuk: ${failed.join(", ")}; pakai --only tanpa soal itu.`,
+    );
+  return new Map(items.map((i) => [i.question.id, byId.get(i.question.id)!.route]));
 }
 export interface RunOutput {
   item: RunItem;
@@ -97,11 +133,34 @@ export async function runQuestions(
     onDone?: (o: RunOutput, spent: number) => void;
     /** Galat non-API (mis. D1 putus) pada satu soal: dicatat, soal lain tetap jalan. */
     onError?: (item: RunItem, error: unknown) => void;
-    /** Pengganti `runJawab` (tes). */
-    run?: (question: string) => Promise<JawabResult>;
+    /** Pengganti `runJawab` (tes); `savedRoute` hanya terisi bila `routes` diberikan. */
+    run?: (question: string, savedRoute?: Route | null) => Promise<JawabResult>;
+    /**
+     * Rute routing tersimpan per ID soal (X05, `--rute`, dari `savedRoutesFor`): routing tidak
+     * dipanggil, jadi dokumen sama dengan run asal rute dan selisih hasil hanya dari tahap jawaban.
+     */
+    routes?: ReadonlyMap<string, Route | null>;
   },
 ): Promise<{ outputs: RunOutput[]; spent: number; skipped: number; failed: number }> {
-  const run = opts.run ?? ((q: string) => runJawab({ corpus: db, anthropic: client }, q));
+  const routes = opts.routes;
+  const run =
+    opts.run ??
+    ((q: string, savedRoute?: Route | null) =>
+      runJawab(
+        {
+          corpus: db,
+          anthropic: client,
+          ...(savedRoute !== undefined ? { savedRoute } : {}),
+        },
+        q,
+      ));
+  // Rute hilang tidak boleh diam-diam menjadi rute kosong (dokumen berbeda dari run asal), dan
+  // diperiksa sebelum soal pertama supaya tidak ada panggilan berbayar yang sia-sia.
+  const unrouted = routes ? items.filter((i) => !routes.has(i.question.id)) : [];
+  if (unrouted.length > 0)
+    throw new Error(`Tanpa rute tersimpan: ${unrouted.map((i) => i.question.id).join(", ")}.`);
+  const routeFor = (item: RunItem): Route | null | undefined =>
+    routes === undefined ? undefined : (routes.get(item.question.id) ?? null);
   const outputs: RunOutput[] = [];
   let spent = 0;
   let inflight = 0;
@@ -125,9 +184,9 @@ export async function runQuestions(
       inflight++;
       let out: RunOutput | null = null;
       try {
-        const result = await run(item.question.pertanyaan);
+        const result = await run(item.question.pertanyaan, routeFor(item));
         spent += result.cost_usd;
-        out = { item, result, answer: toEvalAnswer(result) };
+        out = { item, result, answer: toEvalAnswer(result, { savedRoute: routes !== undefined }) };
         outputs.push(out);
       } catch (error) {
         // Soal yang gagal di tengah bisa sudah memakai panggilan berbayar yang biayanya tidak

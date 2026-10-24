@@ -1,6 +1,6 @@
-import { answerPassages } from "@surau/core";
+import { answerPassages, takhrijLabel, takhrijLabelHash } from "@surau/core";
 import type { AnswerPassage } from "@surau/core";
-import type { D1Db } from "@surau/db";
+import type { D1Db, TakhrijReview } from "@surau/db";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { KutipanItem } from "./kutipan-handler";
@@ -35,11 +35,13 @@ function passage(over: Partial<AnswerPassage> = {}): AnswerPassage {
       prompt_version: "p",
       created_at: "2026-10-17",
       review_status: "ai_generated",
+      human_review: null,
       text: "Ini kalimat pertama. ⟦QS 2:153⟧ Lalu kalimat kedua.",
     },
     footnote_ids: [],
     referenced_by: [],
     ayah_labels: [],
+    ord: 1,
     ...over,
   };
 }
@@ -92,6 +94,33 @@ describe("GET /api/kutipan", () => {
     expect(answerPassages).toHaveBeenCalledWith({}, [10000001]);
   });
 
+  it("tinjauan manusia (X08) ikut ke kartu kutipan untuk label bersama", async () => {
+    const human_review = {
+      revised: true,
+      reviewed_at: "2026-10-22T03:00:00.000Z",
+      reviewer_role: "ustadz" as const,
+      reviewer_name: "Ust. Uji Lc.",
+      reviewer_short: "Ust. Uji",
+    };
+    vi.mocked(answerPassages).mockResolvedValueOnce([
+      passage({
+        translation: {
+          label: "ai_translation",
+          lang: "id",
+          model: "m",
+          prompt_version: "p",
+          created_at: "2026-10-17",
+          review_status: "ustadz_verified",
+          human_review,
+          text: "Teks perbaikan.",
+        },
+      }),
+    ]);
+    const res = await handleKutipan(req("10000001:0:21"), deps());
+    const { items } = (await res.json()) as { items: KutipanItem[] };
+    expect(items[0]?.translation).toMatchObject({ review_status: "ustadz_verified", human_review });
+  });
+
   it("paragraf tidak ada atau rentang di luar teks → null (tidak pernah teks karangan)", async () => {
     const res = await handleKutipan(req("10000001:0:999,10000099:0:5"), deps());
     expect(((await res.json()) as { items: unknown[] }).items).toEqual([null, null]);
@@ -133,6 +162,45 @@ describe("GET /api/kutipan", () => {
     const res = await handleKutipan(req("10000002:0:5,10000003:0:5,10000004:0:5"), deps());
     const { items } = (await res.json()) as { items: KutipanItem[] };
     expect(items.map((i) => i.weak)).toEqual([true, false, false]);
+  });
+
+  it("tanda `weak` mengikuti koreksi penilai (X07); galat DB app = label kode", async () => {
+    const FOOT = "أخرجه فلان بإسناد ضعيف";
+    const label = takhrijLabel(FOOT);
+    vi.mocked(answerPassages).mockResolvedValue([
+      passage({ id: 10000002, kind: "foot", text_raw: FOOT, translation: null }),
+    ]);
+    const row = {
+      passage_id: 10000002,
+      rules_version: label.version,
+      label_hash: await takhrijLabelHash(label),
+      reviewer_key: "b".repeat(64),
+      reviewer_name: "Anas",
+      decision: "corrected" as const,
+      kinds: ["mursal"],
+      note: "",
+      corpus_version: "uji",
+      updated_at: "2026-10-21T00:00:00.000Z",
+    };
+    const keys = new Set([row.reviewer_key]);
+    const weak = async (load: () => Promise<TakhrijReview[]>, ustadzKeys = keys) => {
+      const res = await handleKutipan(req("10000002:0:5"), deps({ reviews: { load, ustadzKeys } }));
+      return ((await res.json()) as { items: KutipanItem[] }).items[0]?.weak;
+    };
+    expect(await weak(async () => [row])).toBe(false);
+    expect(await weak(async () => [{ ...row, decision: "approved" as const, kinds: null }])).toBe(
+      true,
+    );
+    // Penilai tidak terdaftar: koreksinya tidak dipakai.
+    expect(await weak(async () => [row], new Set(["c".repeat(64)]))).toBe(true);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(
+      await weak(async () => {
+        throw new Error("app db");
+      }),
+    ).toBe(true);
+    expect(warn).toHaveBeenCalledOnce();
+    warn.mockRestore();
   });
 
   it("sliceRaw tidak memotong pasangan surrogate; ayahRefsOnly", () => {

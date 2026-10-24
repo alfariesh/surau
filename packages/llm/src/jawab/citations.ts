@@ -123,11 +123,14 @@ export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ad
 
 /**
  * Pengganti NETRAL (peninjau S21 putaran 3–4): dipakai bila jawaban menyitasi takhrij di tempat
- * lain, karena "belum diketahui" bisa keliru (takhrijnya ada) dan "lihat takhrij pada kutipan" bisa
+ * lain, karena "belum diketahui" bisa keliru (takhrijnya ada) dan menunjuk takhrij pada kutipan bisa
  * menunjuk takhrij hadits lain; juga untuk pernyataan yang takhrijnya ambigu atau diklaim kelompok
- * lain. Tanpa takhrij tersitasi sama sekali, `hadithCheck` memakai `HADITH_UNKNOWN`.
+ * lain. Sejak X06 menyebut bahwa status tiap takhrij yang dikutip ada di bagian "Status hadits"
+ * beserta lokasi haditsnya, TANPA mengaitkannya dengan kalimat ini (bagian itu bisa hanya memuat
+ * hadits lain, peninjau X06). Tanpa klaim status sama sekali, `hadithCheck` memakai
+ * `HADITH_UNKNOWN`.
  */
-export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} tidak ditampilkan (takhrij al-'Iraqi untuk kalimat ini tidak dapat dipastikan).`;
+export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} tidak dipastikan untuk kalimat ini; status tiap takhrij yang dikutip ada di bagian "Status hadits" beserta lokasi haditsnya.`;
 
 const NOTICES = [HADITH_UNKNOWN, HADITH_NOT_CITED] as const;
 /** Pemberitahuan pengganti dimulai di `pos`: bukan label dan bukan pernyataan (tidak diperiksa ulang). */
@@ -136,7 +139,10 @@ const withoutNotices = (line: string) =>
   NOTICES.reduce((acc, n) => acc.replaceAll(n, " ".repeat(n.length)), line);
 
 export interface HadithStatement {
-  /** Status ringkas berbahasa Latin, ≤120 karakter (label AI, `ai_extracted`): isi KALIMAT itu saja. */
+  /**
+   * Isi KALIMAT itu saja, ringkas (≤120 karakter). Sejak X06 tidak lagi menjadi status yang tampil:
+   * status klaim dibuat kode dari istilah takhrij (`takhrijLabel`), kalimatnya diganti teks label.
+   */
   status: string;
   /**
    * Awal rentang penggantian: awalan "Status hadits:" (termasuk penanda Markdown yang menempel)
@@ -157,6 +163,8 @@ export interface HadithStatement {
   group: number;
   /** Pernyataan model sendiri berbunyi "belum/tidak diketahui": penggantinya tetap "belum diketahui". */
   unknown: boolean;
+  /** Rentang penggantian dimulai di awalan "Status hadits:" (bukan kalimat butir/lanjutan). */
+  prefixed: boolean;
 }
 
 const SP = "[ \\t\\u00A0]";
@@ -443,6 +451,7 @@ export function hadithStatements(text: string): HadithStatement[] {
         ownEnd: s.ownEnd,
         group,
         unknown: UNKNOWN_STATEMENT.test(status),
+        prefixed: start !== from,
       });
   };
   const prefixes = [...text.matchAll(prefixRe("giu"))]

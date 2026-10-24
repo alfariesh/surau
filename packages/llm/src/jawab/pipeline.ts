@@ -9,12 +9,26 @@ import type {
   RawMessageStreamEvent,
   TextCitation,
 } from "@anthropic-ai/sdk/resources/messages";
-import { answerPassages, answerToc, resolveEvalSource } from "@surau/core";
-import type { AnswerPassage, AnswerTocNode, SourceSpan } from "@surau/core";
+import {
+  answerPassages,
+  answerToc,
+  resolveEvalSource,
+  reviewedTakhrijLabel,
+  takhrijLabel,
+  takhrijReviewsFor,
+} from "@surau/core";
+import type {
+  AnswerPassage,
+  AnswerTocNode,
+  EffectiveTakhrijReview,
+  ReviewedTakhrijLabel,
+  SourceSpan,
+  TakhrijLabelTerm,
+} from "@surau/core";
 import { getCorpusMeta } from "@surau/db";
-import type { D1Db } from "@surau/db";
+import type { D1Db, TakhrijReview } from "@surau/db";
 
-import { ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
+import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
 import { MODELS } from "../client.ts";
 import type { ModelId } from "../client.ts";
 import { addUsage, emptyTotals, promptTokens } from "../pricing.ts";
@@ -27,6 +41,7 @@ import {
   buildAnswerRequest,
   fitDocs,
   fixedPromptTokens,
+  orderBySection,
 } from "./answer.ts";
 import {
   citationSpans,
@@ -43,15 +58,18 @@ import type { CitedSpan } from "./citations.ts";
 import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
 import { fuse, pairIds, searchLists, withPairs } from "./retrieve.ts";
-import { ROUTE_PROMPT, buildRouteRequest, parseRoute, tocText } from "./route.ts";
+import type { SearchList } from "./retrieve.ts";
+import { ROUTE_PROMPT, buildRouteRequest, normalizeRoute, parseRoute, tocText } from "./route.ts";
 import type { Route } from "./route.ts";
 
 export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
 /**
- * Versi pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu
- * berubah: ikut kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
+ * Versi kode pipeline di luar prompt: pencarian kandidat (X03: 4), urutan dokumen (X05: 5), label
+ * status hadits dari istilah takhrij (X06: 6), label yang ditinjau ustadz (X07: 7), dan
+ * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
+ * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 3;
+export const JAWAB_PIPELINE_VERSION = 7;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -89,9 +107,22 @@ export interface JawabBlock {
 export interface JawabHadith {
   passage_id: number;
   footnote: SourceSpan;
-  /** Ringkasan status dari takhrij, ditulis model: label `ai_extracted` sampai direview. */
+  /**
+   * Status dari istilah yang tertulis di teks takhrij, dibuat KODE (`takhrijLabel`, X06/ADR-069),
+   * bukan tulisan model. `rule_extracted` = belum ditinjau; `ustadz_reviewed` = label kode disetujui
+   * penilai /tinjau; `ustadz_corrected` = jenis istilahnya dikoreksi penilai (teks status disusun
+   * kode dari jenis koreksi, X07/ADR-070).
+   */
   status: string;
-  label: "ai_extracted";
+  label: "rule_extracted" | "ustadz_reviewed" | "ustadz_corrected";
+  /** Versi aturan istilah (`TAKHRIJ_TERMS_VERSION`): tinjauan label terikat versi. */
+  rules_version: number;
+  /** Istilah penilaian positif dan negatif sekaligus (jalur/lafaz berbeda). */
+  mixed: boolean;
+  /** Istilah di teks takhrij: rentang mentah di catatan kaki + arti baku. */
+  terms: TakhrijLabelTerm[];
+  /** Koreksi saja: jenis istilah dari penilai yang tidak punya frasa baku di teks (tanpa Arab). */
+  added_terms: { kind: string; gloss: string }[];
 }
 export interface JawabSearchHit extends SourceSpan {
   label: string;
@@ -104,6 +135,8 @@ export interface JawabRefusal {
 export interface JawabDiagnostics {
   route: Route | null;
   search_lists: number;
+  /** Bagian tambahan dari ringkasan AI bagian (routing kedua tanpa LLM, X03), urut pencarian. */
+  summary_sections: number[];
   candidates: number;
   docs: number;
   doc_tokens_est: number;
@@ -117,6 +150,12 @@ export interface JawabDiagnostics {
   arabic_removed: number;
   /** Kalimat "Status hadits:" tanpa takhrij tersitasi, diganti `HADITH_UNKNOWN`. */
   hadith_unsupported: number;
+  /** Pernyataan status bertakhrij yang isinya diganti teks label (X06). */
+  hadith_labeled: number;
+  /** Klaim status yang labelnya disetujui/dikoreksi penilai (X07). */
+  hadith_reviewed: number;
+  /** Tinjauan label gagal dimuat (DB app); label kode dipakai. */
+  takhrij_reviews_error: boolean;
   truncated: boolean;
   refusals: JawabRefusal[];
   /**
@@ -176,6 +215,21 @@ export interface JawabDeps {
    * panggilan baru (jawaban, ulangan Sonnet) tidak dimulai → `fallback` alasan `cancelled`.
    */
   isCancelled?: () => boolean;
+  /**
+   * Hanya eval (X05): rute routing tersimpan dari arsip eval dipakai ulang tanpa panggilan routing,
+   * supaya dua versi tahap jawaban dibandingkan atas dokumen yang sama. `null` = tanpa rute
+   * (pencarian pertanyaan saja). Worker `surau-api` tidak pernah mengisinya.
+   */
+  savedRoute?: Route | null;
+  /**
+   * Tinjauan label takhrij (X07) untuk catatan kaki yang disitasi, dari DB app (`surau-api`), dan
+   * kunci akun ustadz peninjau terdaftar. Tanpa ini (eval, tes) label kode dipakai apa adanya.
+   * Galat pemuatan = label kode ("belum ditinjau").
+   */
+  takhrijReviews?: {
+    load: (footnoteIds: number[]) => Promise<TakhrijReview[]>;
+    ustadzKeys: ReadonlySet<string>;
+  };
 }
 
 // Daftar isi per versi korpus disimpan di isolate: sama untuk semua pertanyaan (313 node Ihya).
@@ -213,6 +267,56 @@ interface RawBlock {
   citations: TextCitation[];
 }
 
+export interface JawabCandidates {
+  lists: SearchList[];
+  /** Paragraf hasil RRF, sebelum pasangan takhrij ditambahkan. */
+  ranked: number[];
+  /** Paragraf kandidat beserta pasangannya. */
+  passages: Map<number, AnswerPassage>;
+  /**
+   * Dokumen jawaban: urutan RRF + pasangan dipangkas anggaran token, lalu dikelompokkan per bagian
+   * (`orderBySection`, X05); kosong = tanpa kandidat.
+   */
+  docs: AnswerDoc[];
+}
+
+/**
+ * Langkah 2 tanpa LLM: pencarian, RRF, pasangan takhrij, dan dokumen dalam anggaran token.
+ * Dipakai pipeline dan pengukuran gratis `eval:jawab kandidat` atas rute tersimpan, jadi
+ * keduanya selalu menghitung kandidat yang sama.
+ */
+export async function jawabCandidates(
+  db: D1Db,
+  question: string,
+  route: Route | null,
+  toc: ReadonlyMap<number, AnswerTocNode>,
+  editionId: number = JAWAB_EDITION_ID,
+): Promise<JawabCandidates> {
+  const lists = await searchLists(db, question, route, editionId);
+  const ranked = fuse(lists);
+  const first = await answerPassages(db, ranked);
+  const missing = pairIds(first).filter((id) => !ranked.includes(id));
+  const extra = missing.length ? await answerPassages(db, missing) : [];
+  const passages = new Map([...first, ...extra].map((p) => [p.id, p]));
+  const order = withPairs(ranked, passages);
+  const labels = new Map([...passages.values()].map((p) => [p.id, docLabel(p)]));
+  const budget = Math.min(
+    DOC_BUDGET_TOKENS,
+    JAWAB_MAX_PROMPT_TOKENS - fixedPromptTokens(question) - 2000,
+  );
+  const docs = orderBySection(
+    fitDocs(
+      order.map((id, i) => {
+        const p = passages.get(id)!;
+        const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
+        return buildDoc(shown, docContext(shown, toc, labels));
+      }),
+      budget,
+    ),
+  );
+  return { lists, ranked, passages, docs };
+}
+
 export async function runJawab(deps: JawabDeps, question: string): Promise<JawabResult> {
   const now = deps.now ?? (() => performance.now());
   const started = now();
@@ -230,6 +334,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   const diagnostics: JawabDiagnostics = {
     route: null,
     search_lists: 0,
+    summary_sections: [],
     candidates: 0,
     docs: 0,
     doc_tokens_est: 0,
@@ -241,6 +346,9 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     blocks_dropped: 0,
     arabic_removed: 0,
     hadith_unsupported: 0,
+    hadith_labeled: 0,
+    hadith_reviewed: 0,
+    takhrij_reviews_error: false,
     truncated: false,
     refusals: [],
     provider_error: null,
@@ -295,48 +403,59 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 
   // 1. Routing.
   await emit({ type: "stage", stage: "route" });
-  const toc = await loadToc(db, corpusVersion, deps.editionId ?? JAWAB_EDITION_ID);
+  const editionId = deps.editionId ?? JAWAB_EDITION_ID;
+  const toc = await loadToc(db, corpusVersion, editionId);
   let route: Route | null = null;
-  try {
-    const msg = await deps.anthropic.messages.create(
-      buildRouteRequest(toc.text, question),
-      reqOpts,
-    );
-    addUsage(usage, MODELS.haiku, msg.usage, { batch: false });
-    if (msg.stop_reason === "refusal")
-      diagnostics.refusals.push({
+  if (deps.savedRoute !== undefined) {
+    // Rute tersimpan (eval) dibersihkan dengan aturan yang sama dengan keluaran routing.
+    route =
+      deps.savedRoute === null ? null : normalizeRoute(deps.savedRoute, new Set(toc.nodes.keys()));
+  } else {
+    try {
+      const msg = await deps.anthropic.messages.create(
+        buildRouteRequest(toc.text, question),
+        reqOpts,
+      );
+      addUsage(usage, MODELS.haiku, msg.usage, { batch: false });
+      if (msg.stop_reason === "refusal")
+        diagnostics.refusals.push({
+          model: MODELS.haiku,
+          category: msg.stop_details?.category ?? null,
+        });
+      route = parseRoute(msg, new Set(toc.nodes.keys()));
+    } catch (error) {
+      const failure = providerFailure(error);
+      if (failure === null) throw error;
+      diagnostics.provider_error = {
+        status: failure.status,
+        type: failure.kind,
+        stage: "route",
         model: MODELS.haiku,
-        category: msg.stop_details?.category ?? null,
-      });
-    route = parseRoute(msg, new Set(toc.nodes.keys()));
-  } catch (error) {
-    const failure = providerFailure(error);
-    if (failure === null) throw error;
-    diagnostics.provider_error = {
-      status: failure.status,
-      type: failure.kind,
-      stage: "route",
-      model: MODELS.haiku,
-    };
-    await emit({ type: "stage", stage: "retrieve" });
-    ranked = fuse(await searchLists(db, question, null));
-    passages = new Map((await answerPassages(db, ranked)).map((p) => [p.id, p]));
-    return fallback("provider_error", null);
+      };
+      await emit({ type: "stage", stage: "retrieve" });
+      ranked = fuse(await searchLists(db, question, null, editionId));
+      passages = new Map((await answerPassages(db, ranked)).map((p) => [p.id, p]));
+      return fallback("provider_error", null);
+    }
   }
   diagnostics.route = route;
 
   // 2. Kandidat.
   await emit({ type: "stage", stage: "retrieve" });
-  const lists = await searchLists(db, question, route);
-  diagnostics.search_lists = lists.length;
-  ranked = fuse(lists);
+  const found = await jawabCandidates(db, question, route, toc.nodes, editionId);
+  diagnostics.search_lists = found.lists.length;
+  diagnostics.summary_sections = [
+    ...new Set(
+      found.lists
+        .map((l) => l.section_id)
+        .filter((id): id is number => id !== null && !(route?.sections ?? []).includes(id)),
+    ),
+  ];
+  ranked = found.ranked;
   diagnostics.candidates = ranked.length;
-  const first = await answerPassages(db, ranked);
-  const missing = pairIds(first).filter((id) => !ranked.includes(id));
-  const extra = missing.length ? await answerPassages(db, missing) : [];
-  passages = new Map([...first, ...extra].map((p) => [p.id, p]));
-  const order = withPairs(ranked, passages);
-  if (order.length === 0) {
+  passages = found.passages;
+  const docs = found.docs;
+  if (docs.length === 0) {
     const result: JawabResult = {
       outcome: "not_found",
       reason: "no_candidates",
@@ -351,19 +470,6 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     await emit({ type: "done", result });
     return result;
   }
-  const labels = new Map([...passages.values()].map((p) => [p.id, docLabel(p)]));
-  const budget = Math.min(
-    DOC_BUDGET_TOKENS,
-    JAWAB_MAX_PROMPT_TOKENS - fixedPromptTokens(question) - 2000,
-  );
-  const docs = fitDocs(
-    order.map((id, i) => {
-      const p = passages.get(id)!;
-      const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
-      return buildDoc(shown, docContext(shown, toc.nodes, labels));
-    }),
-    budget,
-  );
   diagnostics.docs = docs.length;
   diagnostics.doc_tokens_est = docs.reduce((n, d) => n + d.tokens, 0);
 
@@ -521,8 +627,14 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 
   // 4. Hasil.
   await emit({ type: "stage", stage: "verify" });
-  const checked = hadithCheck(kept, [...verified.values()], passages);
+  const reviews = await loadReviews(deps, [...verified.values()], passages).catch(() => {
+    diagnostics.takhrij_reviews_error = true;
+    return new Map<number, EffectiveTakhrijReview>();
+  });
+  const checked = hadithCheck(kept, [...verified.values()], passages, reviews);
   diagnostics.hadith_unsupported = checked.unsupported;
+  diagnostics.hadith_labeled = checked.labeled;
+  diagnostics.hadith_reviewed = checked.claims.filter((h) => h.label !== "rule_extracted").length;
   // Status hadits tidak stabil sesudah pemeriksaan ulang: jangan tampilkan apa pun (ragu = tahan).
   if (checked.unresolved) return fallback("unverified", model);
   const citations = checked.citations;
@@ -549,43 +661,87 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   return result;
 }
 
+/** Tinjauan efektif untuk catatan kaki takhrij yang disitasi (kosong bila tidak ada pemuat). */
+async function loadReviews(
+  deps: JawabDeps,
+  citations: readonly JawabCitation[],
+  passages: ReadonlyMap<number, AnswerPassage>,
+): Promise<Map<number, EffectiveTakhrijReview>> {
+  const footnotes = [
+    ...new Map(
+      citations
+        .filter((c) => c.kind === "foot")
+        .flatMap((c) => {
+          const p = passages.get(c.passage_id);
+          return p === undefined ? [] : [[p.id, p] as const];
+        }),
+    ).values(),
+  ];
+  const source = deps.takhrijReviews;
+  if (source === undefined || source.ustadzKeys.size === 0 || footnotes.length === 0)
+    return new Map();
+  return takhrijReviewsFor(
+    footnotes,
+    await source.load(footnotes.map((f) => f.id)),
+    source.ustadzKeys,
+  );
+}
+
 /** Batas putaran pemeriksaan ulang; bila belum stabil, jawaban tidak ditampilkan (fallback). */
 const HADITH_MAX_PASSES = 6;
 
 /**
- * Klaim status hadits (aturan teks-arab no. 6, ADR-066 butir 1): setiap pernyataan status (per
- * kalimat, lihat `hadithStatements`) hanya sah bila KALIMAT ITU SENDIRI menyitasi catatan kaki
+ * Klaim status hadits (aturan teks-arab no. 6, ADR-066 butir 1, ADR-069): setiap pernyataan status
+ * (per kalimat, lihat `hadithStatements`) hanya sah bila KALIMAT ITU SENDIRI menyitasi catatan kaki
  * takhrij terverifikasi (sesuai prompt: "kalimat itu sendiri harus bersitasi ke dokumen
  * takhrij"); tidak ada pemasangan dengan takhrij dari kalimat lain (peninjau S21: celah "meminjam"
  * takhrij hadits lain). `passage_id` = paragraf badan yang merujuk catatan kaki itu (S16).
- * Pernyataan yang tidak didukung diganti pemberitahuan (blok tersendiri tanpa sitasi). Teks hasil
- * penggantian diperiksa ulang sampai stabil; klaim selalu dihitung dari teks akhir. Bila tetap
- * belum stabil sesudah `HADITH_MAX_PASSES` putaran, `unresolved` = true dan pipeline tidak
- * menampilkan jawaban. Pemberitahuan: "belum diketahui" bila model sendiri menulis begitu atau
- * jawaban tidak menyitasi takhrij sama sekali; selain itu pemberitahuan netral `HADITH_NOT_CITED`
- * (tidak menunjuk takhrij mana pun, karena takhrij yang tersitasi bisa milik hadits lain).
+ * Sejak X06 isi pernyataan yang sah DIGANTI teks label dari istilah teks takhrij (`takhrijLabel`,
+ * dibuat kode), dengan sitasi takhrijnya; kalimat penilaian lanjutan untuk takhrij yang sama dalam
+ * satu kelompok dibuang. Klaim (`claims`) dibuat dari STRUKTUR, bukan dari kalimat: setiap
+ * catatan kaki takhrij yang disitasi jawaban akhir mendapat satu klaim berlabel, dipasangkan ke
+ * paragraf badan yang penandanya merujuk catatan kaki itu (`takhrijClaims`). Jadi status di
+ * `claims` dan di baris "Status hadits:" yang bersitasi takhrij tidak pernah tulisan model, dan
+ * klaim tidak pernah dipasangkan ke paragraf hadits lain; kalimat penilaian bebas lain di jawaban
+ * tetap klaim bersitasi biasa (ADR-069). Pernyataan yang tidak
+ * didukung diganti pemberitahuan (blok tersendiri tanpa sitasi). Teks hasil penggantian diperiksa
+ * ulang sampai stabil; klaim selalu dihitung dari teks akhir. Bila tetap belum stabil sesudah
+ * `HADITH_MAX_PASSES` putaran, `unresolved` = true dan pipeline tidak menampilkan jawaban.
+ * Pemberitahuan: "belum diketahui" bila model sendiri menulis begitu atau jawaban tidak menyitasi
+ * takhrij sama sekali; selain itu pemberitahuan netral `HADITH_NOT_CITED` (tidak menunjuk takhrij
+ * mana pun, karena takhrij yang tersitasi bisa milik hadits lain).
  */
 export function hadithCheck(
   blocks: readonly JawabBlock[],
   citations: readonly JawabCitation[],
   passages: ReadonlyMap<number, AnswerPassage>,
+  reviews: ReadonlyMap<number, EffectiveTakhrijReview> = new Map(),
 ): {
   claims: JawabHadith[];
   blocks: JawabBlock[];
   citations: JawabCitation[];
   unsupported: number;
+  /** Pernyataan bertakhrij yang isinya diganti teks label (termasuk kalimat lanjutan dibuang). */
+  labeled: number;
   unresolved: boolean;
 } {
   const byN = new Map(citations.map((c) => [c.n, c]));
   const isFoot = (n: number) => byN.get(n)?.kind === "foot";
   let current = blocks.map((b) => ({ ...b }));
   let unsupported = 0;
+  let labeled = 0;
   for (let pass = 0; pass < HADITH_MAX_PASSES; pass++) {
-    const { claims, unpaired } = pairStatements(current, byN, passages);
-    if (unpaired.length === 0) {
+    const { unpaired, relabel } = pairStatements(current, byN, passages, reviews);
+    if (unpaired.length === 0 && relabel.length === 0) {
       const used = new Set(current.flatMap((b) => b.citations));
-      // Tanpa takhrij tersitasi sama sekali, pemberitahuan netral menjadi "belum diketahui".
-      if (![...used].some(isFoot))
+      const claims = takhrijClaims(
+        citations.filter((c) => used.has(c.n)),
+        passages,
+        reviews,
+      );
+      // Tanpa klaim status sama sekali (tidak ada takhrij tersitasi yang berpemilik), pemberitahuan
+      // yang menunjuk bagian "Status hadits" menjadi "belum diketahui".
+      if (claims.length === 0)
         current = current.map((b) =>
           b.citations.length === 0 && b.text.trim() === HADITH_NOT_CITED
             ? { ...b, text: b.text.replace(HADITH_NOT_CITED, HADITH_UNKNOWN) }
@@ -596,11 +752,13 @@ export function hadithCheck(
         blocks: current,
         citations: citations.filter((c) => used.has(c.n)),
         unsupported,
+        labeled,
         unresolved: false,
       };
     }
     unsupported += unpaired.length;
-    current = replaceRanges(current, unpaired, isFoot);
+    labeled += relabel.length;
+    current = replaceRanges(current, [...unpaired, ...relabel], isFoot);
   }
   const used = new Set(current.flatMap((b) => b.citations));
   return {
@@ -608,6 +766,7 @@ export function hadithCheck(
     blocks: current,
     citations: citations.filter((c) => used.has(c.n)),
     unsupported,
+    labeled,
     unresolved: true,
   };
 }
@@ -615,8 +774,10 @@ export function hadithCheck(
 interface Span {
   start: number;
   end: number;
-  /** Teks pengganti: `HADITH_UNKNOWN` atau `HADITH_NOT_CITED`. */
+  /** Teks pengganti: `HADITH_UNKNOWN`/`HADITH_NOT_CITED`, teks label, atau "" (dibuang). */
   notice: string;
+  /** Sitasi blok pengganti: takhrij untuk teks label, kosong untuk pemberitahuan. */
+  citations: number[];
 }
 
 /**
@@ -625,9 +786,115 @@ interface Span {
  * selain itu pemberitahuan netral (lihat `HADITH_NOT_CITED`).
  */
 function replacementRange(full: string, st: HadithStatement): Span {
+  return {
+    start: markdownStart(full, st),
+    end: st.end,
+    notice: st.unknown ? HADITH_UNKNOWN : HADITH_NOT_CITED,
+    citations: [],
+  };
+}
+
+const markdownStart = (full: string, st: HadithStatement) => {
   let start = st.start;
   while (start > 0 && /[*_]/u.test(full[start - 1]!)) start--;
-  return { start, end: st.end, notice: st.unknown ? HADITH_UNKNOWN : HADITH_NOT_CITED };
+  return start;
+};
+
+/**
+ * Label untuk BAGIAN catatan kaki yang disitasi (biasanya seluruhnya): batas lafaz dinilai dari teks
+ * utuh, istilah dan teks status hanya dari bagian itu, supaya setiap istilah yang disebut status
+ * punya frasa Arab di potongan yang ditampilkan. Tinjauan penilai (X07) berlaku bila bagian itu
+ * memuat semua istilah yang ditinjau (`reviewedTakhrijLabel`).
+ */
+const citedLabel = (
+  footnote: AnswerPassage,
+  c: { char_start: number; char_end: number },
+  reviews: ReadonlyMap<number, EffectiveTakhrijReview>,
+): ReviewedTakhrijLabel =>
+  reviewedTakhrijLabel(footnote.text_raw, reviews.get(footnote.id) ?? null, {
+    start: c.char_start,
+    end: c.char_end,
+  });
+
+const CLAIM_LABEL = {
+  rule: "rule_extracted",
+  approved: "ustadz_reviewed",
+  corrected: "ustadz_corrected",
+} as const satisfies Record<ReviewedTakhrijLabel["review"], JawabHadith["label"]>;
+
+/**
+ * Teks label satu pernyataan (kode): status tiap takhrij + lokasi haditsnya (halaman catatan kaki =
+ * halaman penandanya), supaya label di butir daftar tetap jelas milik hadits mana. Awalan
+ * "Status hadits:" hanya bila pernyataannya berawalan.
+ */
+function labelText(
+  st: HadithStatement,
+  cited: readonly { c: JawabCitation; footnote: AnswerPassage }[],
+  reviews: ReadonlyMap<number, EffectiveTakhrijReview>,
+): string {
+  const body = cited
+    .map(
+      ({ c, footnote }) =>
+        `${citedLabel(footnote, c, reviews).text} (hadits di Ihya j. ${footnote.location.juz}, h. ${footnote.location.page_no})`,
+    )
+    .join("; ");
+  return st.prefixed ? `${ANSWER_HADITH_PREFIX} ${body}.` : `${body}.`;
+}
+
+/** Klaim status dari label takhrij (kode); `passage_id` = paragraf badan yang merujuknya. */
+function claimOf(
+  body: number,
+  c: JawabCitation,
+  footnote: AnswerPassage,
+  reviews: ReadonlyMap<number, EffectiveTakhrijReview>,
+): JawabHadith {
+  const label = citedLabel(footnote, c, reviews);
+  return {
+    passage_id: body,
+    footnote: { passage_id: c.passage_id, char_start: c.char_start, char_end: c.char_end },
+    status: label.text,
+    label: CLAIM_LABEL[label.review],
+    rules_version: label.version,
+    mixed: label.mixed,
+    terms: label.terms,
+    added_terms: label.added,
+  };
+}
+
+/**
+ * Sitasi catatan kaki yang sungguh takhrij (bukan catatan penyunting/teks tak dikenali), dinilai
+ * dari teks catatan kaki UTUH: segmen catatan kaki panjang tanpa penanda pembuka tetap takhrij.
+ */
+function isTakhrijCitation(
+  c: JawabCitation | undefined,
+  passages: ReadonlyMap<number, AnswerPassage>,
+): c is JawabCitation {
+  if (c?.kind !== "foot") return false;
+  const footnote = passages.get(c.passage_id);
+  return footnote !== undefined && takhrijLabel(footnote.text_raw).kind !== "not_takhrij";
+}
+
+/**
+ * Klaim status dari struktur (X06): satu per catatan kaki takhrij yang disitasi (urut nomor
+ * sitasi), dengan paragraf badan pertama yang merujuknya; catatan kaki tanpa paragraf perujuk atau
+ * yang bukan takhrij (catatan penyunting, teks tak dikenali) dilewati.
+ */
+function takhrijClaims(
+  cited: readonly JawabCitation[],
+  passages: ReadonlyMap<number, AnswerPassage>,
+  reviews: ReadonlyMap<number, EffectiveTakhrijReview>,
+): JawabHadith[] {
+  const seen = new Set<number>();
+  const out: JawabHadith[] = [];
+  for (const c of [...cited].sort((a, b) => a.n - b.n)) {
+    if (!isTakhrijCitation(c, passages) || seen.has(c.passage_id)) continue;
+    seen.add(c.passage_id);
+    const footnote = passages.get(c.passage_id)!;
+    const body = footnote.referenced_by[0];
+    if (body === undefined) continue;
+    out.push(claimOf(body, c, footnote, reviews));
+  }
+  return out;
 }
 
 /** Tanda baca, spasi, dan penanda Markdown/daftar di tepi blok: tidak dihitung "menyentuh". */
@@ -641,13 +908,16 @@ const CONTENT = /[^\s.,;:!?*_\-–—•·()]/u;
  * kepemilikannya ([start, ownEnd)). Kelompok = kalimat dari satu baris label atau satu butir
  * (satu hadits). Blok bersitasi yang menyentuh lebih dari satu kelompok ambigu; catatan kaki (per
  * `passage_id`) yang disitasi lebih dari satu kelompok tidak mendukung siapa pun. Satu pernyataan
- * boleh menyitasi beberapa takhrij; satu klaim per (kelompok, takhrij).
+ * boleh menyitasi beberapa takhrij; satu label per (kelompok, takhrij). Pernyataan yang sah dan
+ * isinya belum sama dengan teks label masuk `relabel`; kalimat lanjutan yang semua takhrijnya
+ * sudah berlabel di kelompoknya dibuang (`relabel` dengan teks kosong).
  */
 function pairStatements(
   blocks: readonly JawabBlock[],
   byN: ReadonlyMap<number, JawabCitation>,
   passages: ReadonlyMap<number, AnswerPassage>,
-): { claims: JawabHadith[]; unpaired: Span[] } {
+  reviews: ReadonlyMap<number, EffectiveTakhrijReview>,
+): { unpaired: Span[]; relabel: Span[] } {
   const full = blocks.map((b) => b.text).join("");
   let offset = 0;
   const ranges = blocks.map((b) => {
@@ -676,7 +946,7 @@ function pairStatements(
         .filter((r) => !ambiguous.has(r) && touches(r, st))
         .flatMap((r) => r.citations)
         .map((n) => byN.get(n))
-        .filter((c): c is JawabCitation => c?.kind === "foot")
+        .filter((c): c is JawabCitation => isTakhrijCitation(c, passages))
         .map((c) => [c.passage_id, c]),
     ).values(),
   ]);
@@ -691,40 +961,61 @@ function pairStatements(
     }
   });
   const claimed = new Set<string>();
-  const claims: JawabHadith[] = [];
   const unpaired: Span[] = [];
+  const relabel: Span[] = [];
   statements.forEach((st, k) => {
+    const fresh: JawabCitation[] = [];
     let supported = false;
     for (const c of owned[k]!) {
-      const body = passages.get(c.passage_id)?.referenced_by[0];
-      if (body === undefined || groupsOf.get(c.passage_id)!.size > 1) continue;
+      const footnote = passages.get(c.passage_id);
+      const body = footnote?.referenced_by[0];
+      if (footnote === undefined || body === undefined || groupsOf.get(c.passage_id)!.size > 1)
+        continue;
       supported = true;
-      // Satu klaim per (kelompok, takhrij): status dari kalimat pertama kelompok yang menyitasinya.
+      // Satu klaim per (kelompok, takhrij); takhrij yang sudah berlabel di kelompok ini tidak
+      // diulang di kalimat lanjutan.
       const key = `${st.group}:${c.passage_id}`;
       if (claimed.has(key)) continue;
       claimed.add(key);
-      claims.push({
-        passage_id: body,
-        footnote: { passage_id: c.passage_id, char_start: c.char_start, char_end: c.char_end },
-        status: st.status,
-        label: "ai_extracted",
-      });
+      fresh.push(c);
     }
-    if (!supported) unpaired.push(replacementRange(full, st));
+    if (!supported) {
+      unpaired.push(replacementRange(full, st));
+      return;
+    }
+    // Isi pernyataan = teks label (kode); kalimat lanjutan tanpa takhrij baru dibuang beserta
+    // spasi di depannya (bukan baris baru). Sitasi paragraf hadits pemilik takhrij yang ada di
+    // kalimat itu ikut dipertahankan pada blok label.
+    let start = markdownStart(full, st);
+    const cited = fresh.map((c) => ({ c, footnote: passages.get(c.passage_id)! }));
+    const text = cited.length === 0 ? "" : labelText(st, cited, reviews);
+    if (text === "") while (start > 0 && /[ \t\u00A0]/u.test(full[start - 1]!)) start--;
+    const owners = new Set(cited.flatMap(({ footnote }) => footnote.referenced_by));
+    const bodyNs = ranges
+      .filter((r) => touches(r, st))
+      .flatMap((r) => r.citations)
+      .filter((n) => {
+        const b = byN.get(n);
+        return b?.kind === "body" && owners.has(b.passage_id);
+      });
+    const keep = text === "" ? [] : [...new Set([...fresh.map((c) => c.n), ...bodyNs])];
+    if (full.slice(start, st.end) !== text)
+      relabel.push({ start, end: st.end, notice: text, citations: keep });
   });
-  return { claims, unpaired };
+  return { unpaired, relabel };
 }
 
 /** Potongan yang isinya hanya spasi, tanda baca, angka, atau penanda daftar/Markdown. */
 const trivial = (text: string) => /^[\s.,;:!?*_\-–—•·()\d]*$/u.test(text);
 
 /**
- * Ganti rentang (digabung bila tumpang tindih) dengan `HADITH_UNKNOWN` sebagai blok TANPA sitasi,
- * supaya penanda [n] blok asli tidak menempel pada pemberitahuan. Potongan blok yang tersisa:
- * bila bagian yang diganti memuat isi blok, sitasi takhrij DIBUANG (tidak jelas milik pernyataan
- * mana, peninjau S21), sitasi lain tetap;
- * potongan yang isinya remeh tanpa sitasi; potongan kosong dibuang. Pemberitahuan yang langsung
- * diikuti teks diberi spasi.
+ * Ganti rentang dengan blok pengganti: pemberitahuan (`HADITH_UNKNOWN`/`HADITH_NOT_CITED`, TANPA
+ * sitasi, digabung bila bertumpuk atau hanya dipisah spasi) supaya penanda [n] blok asli tidak
+ * menempel padanya; teks label dengan sitasi takhrijnya sendiri (X06, tidak digabung); atau teks
+ * kosong (dibuang). Potongan blok yang tersisa: bila bagian yang diganti memuat isi blok, sitasi
+ * takhrij DIBUANG (tidak jelas milik pernyataan mana, peninjau S21), sitasi lain tetap; potongan
+ * yang isinya remeh tanpa sitasi; potongan kosong dibuang. Pengganti yang langsung diikuti teks
+ * diberi spasi.
  */
 function replaceRanges(
   blocks: readonly JawabBlock[],
@@ -736,9 +1027,12 @@ function replaceRanges(
   const merged: Span[] = [];
   for (const s of [...spans].sort((a, b) => a.start - b.start)) {
     const last = merged.at(-1);
-    // Bertumpuk atau hanya dipisah spasi (bukan baris baru): satu pemberitahuan saja.
+    // Pemberitahuan bertumpuk atau hanya dipisah spasi (bukan baris baru): satu saja. Teks label
+    // (bersitasi) tidak pernah digabung.
     if (
       last !== undefined &&
+      last.citations.length === 0 &&
+      s.citations.length === 0 &&
       /^[ \t\u00A0]*$/u.test(full.slice(last.end, Math.max(last.end, s.start)))
     ) {
       last.end = Math.max(last.end, s.end);
@@ -746,7 +1040,7 @@ function replaceRanges(
     } else merged.push({ ...s });
   }
   const notice = (u: Span) =>
-    u.end < full.length && !/\s/u.test(full[u.end]!) ? `${u.notice} ` : u.notice;
+    u.notice !== "" && u.end < full.length && !/\s/u.test(full[u.end]!) ? `${u.notice} ` : u.notice;
   const out: JawabBlock[] = [];
   let offset = 0;
   for (const b of blocks) {
@@ -771,7 +1065,8 @@ function replaceRanges(
     let cursor = rs;
     for (const u of hits) {
       if (u.start > cursor) piece(b.text.slice(cursor - rs, Math.min(u.start, re) - rs));
-      if (u.start >= rs && u.start < re) out.push({ text: notice(u), citations: [] });
+      if (u.start >= rs && u.start < re && u.notice !== "")
+        out.push({ text: notice(u), citations: u.citations });
       cursor = Math.max(cursor, Math.min(u.end, re));
     }
     if (cursor < re) piece(b.text.slice(cursor - rs));
@@ -784,8 +1079,9 @@ export function hadithClaims(
   blocks: readonly JawabBlock[],
   citations: readonly JawabCitation[],
   passages: ReadonlyMap<number, AnswerPassage>,
+  reviews?: ReadonlyMap<number, EffectiveTakhrijReview>,
 ): JawabHadith[] {
-  return hadithCheck(blocks, citations, passages).claims;
+  return hadithCheck(blocks, citations, passages, reviews).claims;
 }
 
 export { HADITH_NOT_CITED, HADITH_UNKNOWN };

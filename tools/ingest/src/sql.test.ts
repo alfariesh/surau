@@ -55,7 +55,10 @@ describe("emitSql", () => {
     quran_translation: [],
     passage_ayah_ref: [],
     translation: [],
+    translation_review: [],
     summary: [],
+    toc_title_translation: [],
+    subheading_translation: [],
     term_stat: [],
     meta: [{ key: "corpus_version", value: "uji" }],
   };

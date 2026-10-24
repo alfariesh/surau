@@ -1,4 +1,5 @@
-import { planLatinQuery } from "@surau/text";
+import { CORPUS_SCHEMA_VERSION } from "@surau/db";
+import { LATIN_NORM_VERSION, planLatinQuery } from "@surau/text";
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/test";
 
@@ -12,6 +13,7 @@ import {
   T_ROOT,
   seedAiText,
   seedCore,
+  seedHumanReview,
   seedSearchIndex,
 } from "../test/fixture.ts";
 import { InvalidQuery, NotFound, Unavailable } from "./errors.ts";
@@ -20,7 +22,9 @@ import type { SearchHit, SearchView } from "./schema.ts";
 import {
   AI_SNIPPET_CHARS,
   aiExcerpt,
+  queryWordOverflow,
   searchCacheKey,
+  searchSummarySections,
   searchText,
   splitQueryScripts,
 } from "./search.ts";
@@ -48,6 +52,19 @@ describe("splitQueryScripts", () => {
 });
 
 describe("searchText: jalur Indonesia", () => {
+  test("tinjauan manusia ikut di potongan terjemahan hasil (X08); yang lain null", async () => {
+    await seedHumanReview(db, { passage_id: PASSAGES.body1, revised: false });
+    onTestFinished(() => seedAiText(db));
+    const view = await searchText(db, "Kesabaran");
+    expect(searchView.parse(view)).toEqual(view);
+    expect(hitOf(view, PASSAGES.body1)?.translation).toMatchObject({
+      label: "ai_translation",
+      review_status: "ustadz_verified",
+      human_review: { revised: false, reviewer_role: "ustadz", reviewer_short: "Ust. Uji" },
+    });
+    expect(hitOf(view, PASSAGES.body2)?.translation?.human_review).toBeNull();
+  });
+
   test("terjemahan + ringkasan digabung RRF, berlabel AI, sorotan di teks AI", async () => {
     const view = await searchText(db, "Kesabaran");
     expect(searchView.parse(view)).toEqual(view);
@@ -227,5 +244,60 @@ describe("searchCacheKey", () => {
     expect(searchCacheKey("sabar", { limit: 0 })).toBeNull();
     expect(searchCacheKey(Array.from({ length: 17 }, (_, i) => `k${i}`).join(" "))).toBeNull();
     expect(searchCacheKey(Array(33).fill("علم").join(" "))).toBeNull();
+  });
+});
+
+describe("queryWordOverflow", () => {
+  test("aksara yang melebihi batas kata searchText, sama dengan validasinya", async () => {
+    const latin = Array.from({ length: 17 }, (_, i) => `k${i}`).join(" ");
+    const arabic = Array(33).fill("علم").join(" ");
+    expect(queryWordOverflow("sabar الصبر")).toBeNull();
+    expect(queryWordOverflow(latin)).toBe("latin");
+    expect(queryWordOverflow(`${arabic} sabar`)).toBe("arabic");
+    await expect(searchText(db, latin)).rejects.toBeInstanceOf(InvalidQuery);
+    await expect(searchText(db, arabic)).rejects.toBeInstanceOf(InvalidQuery);
+    expect(queryWordOverflow(Array(16).fill("sabar").join(" "))).toBeNull();
+  });
+});
+
+describe("searchSummarySections", () => {
+  test("bagian yang ringkasannya cocok, terbaik dulu; kata Arab dan edisi menyaring", async () => {
+    // AI_SUMMARIES: T_ROOT "niat dan adab", T_CHILD_A "sabar dan syukur".
+    expect(await searchSummarySections(db, "kesabaran dan syukur", { limit: 3 })).toEqual([
+      T_CHILD_A,
+    ]);
+    const any = await searchSummarySections(db, "adab orang sabar", { limit: 3 });
+    const byId = (a: number, b: number) => a - b;
+    expect(any.toSorted(byId)).toEqual([T_ROOT, T_CHILD_A].toSorted(byId));
+    expect(await searchSummarySections(db, "الصبر sabar", { edition_id: ED, limit: 3 })).toEqual([
+      T_CHILD_A,
+    ]);
+    expect(await searchSummarySections(db, "sabar", { edition_id: ED + 1, limit: 3 })).toEqual([]);
+    expect(await searchSummarySections(db, "الصبر", { limit: 3 })).toEqual([]);
+    expect(await searchSummarySections(db, "zuhud", { limit: 3 })).toEqual([]);
+  });
+
+  test("kueri tidak sah → InvalidQuery; indeks lama/versi lain → kosong, bukan galat", async () => {
+    const long = Array.from({ length: 17 }, (_, i) => `k${i}`).join(" ");
+    await expect(searchSummarySections(db, long, { limit: 3 })).rejects.toBeInstanceOf(
+      InvalidQuery,
+    );
+    await expect(searchSummarySections(db, "sabar", { limit: 0 })).rejects.toBeInstanceOf(
+      InvalidQuery,
+    );
+    onTestFinished(async () => {
+      await db
+        .prepare("UPDATE meta SET value = ? WHERE key = 'schema_version'")
+        .bind(String(CORPUS_SCHEMA_VERSION))
+        .run();
+      await db
+        .prepare("UPDATE meta SET value = ? WHERE key = 'latin_norm_version'")
+        .bind(String(LATIN_NORM_VERSION))
+        .run();
+    });
+    await db.prepare("UPDATE meta SET value = '999' WHERE key = 'latin_norm_version'").run();
+    expect(await searchSummarySections(db, "sabar", { limit: 3 })).toEqual([]);
+    await db.prepare("UPDATE meta SET value = '5' WHERE key = 'schema_version'").run();
+    expect(await searchSummarySections(db, "sabar", { limit: 3 })).toEqual([]);
   });
 });

@@ -3,7 +3,10 @@
 // hasil dicocokkan dengan DB; teks Arab tidak pernah berasal dari model.
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test";
 import { env } from "cloudflare:workers";
-import { ANSWER_NOT_FOUND, MODELS } from "@surau/llm";
+import { takhrijLabel, takhrijLabelHash } from "@surau/core";
+import { saveTakhrijReview } from "@surau/db";
+import { ANSWER_NOT_FOUND, MODELS, runJawab } from "@surau/llm";
+import { TAKHRIJ_TERMS_VERSION } from "@surau/text";
 import { beforeAll, beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 import {
@@ -11,14 +14,15 @@ import {
   ED,
   FOOT_1,
   PASSAGES,
+  T_ROOT,
   seedAiText,
   seedCore,
   seedSearchIndex,
 } from "../../../packages/core/test/fixture.ts";
 import { docIndex, fakeAnthropic, readSse } from "../test/fake-anthropic.ts";
 import type { FakeAnswer, FakeRoute } from "../test/fake-anthropic.ts";
-import { ANON_HEADER, IP_HEADER, createApp } from "./index.ts";
-import type { PublicResult } from "./index.ts";
+import { ANON_HEADER, IP_HEADER, createApp, freshCachedResult } from "./app.ts";
+import type { PublicResult } from "./app.ts";
 import { ANON_TTL_SECONDS, newAnonId, signAnon } from "./keys.ts";
 
 const QUESTION = "Apa kata al-Ghazali tentang kesabaran?";
@@ -202,7 +206,158 @@ describe("jawaban terverifikasi", () => {
     }
   });
 
-  test("klaim status hadits dari sitasi catatan kaki takhrij", async () => {
+  test("klaim status hadits dari sitasi catatan kaki takhrij: status = label kode, bukan kalimat model (X06)", async () => {
+    // Takhrij BUATAN untuk tes ini (bukan teks kitab); fixture bersama dipulihkan sesudahnya.
+    const TAKHRIJ = "(١) حديث تجريبي رواه فلان بإسناد ضعيف";
+    const setFoot = (text: string) =>
+      env.CORPUS_DB.prepare("UPDATE passage SET text_raw = ? WHERE id = ?")
+        .bind(text, PASSAGES.foot1)
+        .run();
+    await setFoot(TAKHRIJ);
+    try {
+      const { ask } = setup((_n, docs) => ({
+        blocks: [
+          {
+            text: "Al-Ghazali menukil sebuah hadits.",
+            cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+          },
+          {
+            text: " Status hadits: sanad sahih sekali.",
+            cite: [{ doc: docIndex(docs, TAKHRIJ), from: 0, to: 1 }],
+          },
+        ],
+      }));
+      const { result } = final((await ask()).events);
+      expect(result.outcome).toBe("answer");
+      const foot = result.citations.find((c) => c.kind === "foot")!;
+      expect(await dbSlice(foot.passage_id, foot.char_start, foot.char_end)).toBe(TAKHRIJ);
+      const label = takhrijLabel(TAKHRIJ);
+      expect(label.text).toBe("takhrij menyebut: lemah");
+      expect(result.hadith).toEqual([
+        {
+          passage_id: PASSAGES.body1,
+          footnote: {
+            passage_id: PASSAGES.foot1,
+            char_start: foot.char_start,
+            char_end: foot.char_end,
+          },
+          status: label.text,
+          label: "rule_extracted",
+          rules_version: TAKHRIJ_TERMS_VERSION,
+          mixed: false,
+          terms: label.terms.map((t) => ({
+            ...t,
+            char_start: t.char_start + foot.char_start,
+            char_end: t.char_end + foot.char_start,
+          })),
+          added_terms: [],
+        },
+      ]);
+      // Kalimat status model diganti teks label; "sahih" tulisan model tidak tampil.
+      expect(result.text).toContain("Status hadits: takhrij menyebut: lemah (hadits di ");
+      expect(result.text).not.toContain("sahih");
+    } finally {
+      await setFoot(FOOT_1);
+    }
+  });
+
+  test("label yang ditinjau penilai dipakai Jawab; cache yang tinjauannya berubah tidak disajikan (X07)", async () => {
+    const TAKHRIJ = "(١) حديث تجريبي رواه فلان بإسناد ضعيف";
+    const setFoot = (text: string) =>
+      env.CORPUS_DB.prepare("UPDATE passage SET text_raw = ? WHERE id = ?")
+        .bind(text, PASSAGES.foot1)
+        .run();
+    await setFoot(TAKHRIJ);
+    const label = takhrijLabel(TAKHRIJ);
+    const review = {
+      passage_id: PASSAGES.foot1,
+      rules_version: TAKHRIJ_TERMS_VERSION,
+      label_hash: await takhrijLabelHash(label),
+      reviewer_key: "e".repeat(64),
+      reviewer_name: "Anas",
+      decision: "corrected" as const,
+      kinds: ["mursal"],
+      note: "",
+      corpus_version: "fixture",
+      updated_at: "2026-01-01T00:00:00.000Z",
+    };
+    await saveTakhrijReview(env.APP_DB, review);
+    try {
+      const { ask, sent } = setup((_n, docs) => ({
+        blocks: [
+          {
+            text: "Al-Ghazali menukil sebuah hadits.",
+            cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+          },
+          {
+            text: " Status hadits: sanad sahih sekali.",
+            cite: [{ doc: docIndex(docs, TAKHRIJ), from: 0, to: 1 }],
+          },
+        ],
+      }));
+      const first = final((await ask()).events);
+      expect(first.result.hadith).toMatchObject([
+        {
+          label: "ustadz_corrected",
+          status: "menurut peninjau: mursal",
+          terms: [],
+          added_terms: [{ kind: "mursal", gloss: "mursal" }],
+        },
+      ]);
+      expect(first.result.text).toContain("Status hadits: menurut peninjau: mursal (hadits di ");
+      // Tinjauan tidak berubah: cache disajikan.
+      expect(final((await ask()).events).data).toMatchObject({ cached: true });
+      const answers = sent.filter((x) => x.kind === "answer").length;
+      // Penilai mengubah keputusan sesudah jawaban di-cache: cache basi, pipeline dijalankan ulang.
+      await saveTakhrijReview(env.APP_DB, {
+        ...review,
+        decision: "approved",
+        kinds: null,
+        updated_at: new Date(Date.now() + 1000).toISOString(),
+      });
+      const again = final((await ask()).events);
+      expect(again.data).toMatchObject({ cached: false });
+      expect(sent.filter((x) => x.kind === "answer").length).toBe(answers + 1);
+      expect(again.result.hadith).toMatchObject([
+        { label: "ustadz_reviewed", status: label.text, added_terms: [] },
+      ]);
+      // Hanya ustadz peninjau terdaftar (kunci akun DAN nama) yang dipakai Jawab: nama "Anas"
+      // dari akun lain, atau akun terdaftar dengan nama uji, tidak dipakai.
+      for (const other of [{ reviewer_name: "Agent QA" }, { reviewer_key: "f".repeat(64) }]) {
+        await env.APP_DB.prepare("DELETE FROM takhrij_review").run();
+        await env.APP_DB.prepare("DELETE FROM answer_cache").run();
+        await saveTakhrijReview(env.APP_DB, { ...review, ...other });
+        expect(final((await ask()).events).result.hadith).toMatchObject([
+          { label: "rule_extracted", status: label.text },
+        ]);
+      }
+    } finally {
+      await env.APP_DB.prepare("DELETE FROM takhrij_review").run();
+      await setFoot(FOOT_1);
+    }
+  });
+
+  test("cek tinjauan untuk cache gagal = basi dan nama galatnya dicatat (X07)", async () => {
+    const errors: unknown[] = [];
+    const broken = {
+      prepare: () => {
+        throw new Error("app db");
+      },
+      batch: async () => [],
+    };
+    const keys = new Set(["e".repeat(64)]);
+    const withClaim = JSON.stringify({ hadith: [{ footnote: { passage_id: 5 } }] });
+    const at = new Date().toISOString();
+    expect(await freshCachedResult(broken, withClaim, at, keys, (e) => errors.push(e))).toBeNull();
+    expect(errors).toHaveLength(1);
+    // Tanpa klaim status atau tanpa peninjau terdaftar: tidak perlu cek DB.
+    expect(
+      await freshCachedResult(broken, JSON.stringify({ hadith: [] }), at, keys),
+    ).not.toBeNull();
+    expect(await freshCachedResult(broken, withClaim, at, new Set())).not.toBeNull();
+  });
+
+  test("catatan kaki yang bukan takhrij tidak mendukung status hadits (X06)", async () => {
     const { ask } = setup((_n, docs) => ({
       blocks: [
         {
@@ -216,21 +371,8 @@ describe("jawaban terverifikasi", () => {
       ],
     }));
     const { result } = final((await ask()).events);
-    expect(result.outcome).toBe("answer");
-    const foot = result.citations.find((c) => c.kind === "foot")!;
-    expect(await dbSlice(foot.passage_id, foot.char_start, foot.char_end)).toBe(FOOT_1);
-    expect(result.hadith).toEqual([
-      {
-        passage_id: PASSAGES.body1,
-        footnote: {
-          passage_id: PASSAGES.foot1,
-          char_start: foot.char_start,
-          char_end: foot.char_end,
-        },
-        status: "sanad lemah",
-        label: "ai_extracted",
-      },
-    ]);
+    expect(result.hadith).toEqual([]);
+    expect(result.text).not.toContain("sanad lemah");
   });
 
   test("status hadits tanpa takhrij tersitasi tidak pernah tampil (aturan teks-arab no. 6)", async () => {
@@ -511,5 +653,64 @@ describe("degradasi ke Cari", () => {
     expect(result.outcome).toBe("not_found");
     expect(result.reason).toBe("no_candidates");
     expect(sent.map((s) => s.kind)).toEqual(["route"]);
+  });
+});
+
+describe("rute tersimpan (hanya eval, X05)", () => {
+  const cite = (
+    _n: number,
+    docs: Parameters<Parameters<typeof fakeAnthropic>[0]["answer"]>[1],
+  ) => ({
+    blocks: [
+      { text: "Menurut al-Ghazali dalam Ihya, " },
+      {
+        text: "kesabaran disebut cahaya bagi penuntut ilmu",
+        cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+      },
+    ],
+  });
+
+  test("savedRoute: tanpa panggilan routing, dibersihkan seperti routing, dokumen identik", async () => {
+    const live: FakeRoute = { sections: [T_ROOT], queries: ["sabar", "صبر"], hadith: false };
+    const fake = fakeAnthropic({ route: () => live, answer: cite });
+    // Bagian asing dibuang, kueri dirapikan/unik (normalizeRoute), sama dengan keluaran routing.
+    const saved = {
+      sections: [999_999_999, T_ROOT],
+      queries: [" sabar ", "sabar", "صبر"],
+      hadith: false,
+    };
+    const result = await runJawab(
+      { corpus: env.CORPUS_DB, anthropic: fake.client, editionId: ED, savedRoute: saved },
+      QUESTION,
+    );
+    expect(fake.sent.map((s) => s.kind)).toEqual(["answer"]);
+    expect(result.outcome).toBe("answer");
+    expect(result.diagnostics.route).toEqual({
+      sections: [T_ROOT],
+      queries: ["sabar", "صبر"],
+      hadith: false,
+    });
+    expect(result.citations[0]?.passage_id).toBe(PASSAGES.body1);
+
+    // Pipeline biasa yang routing-nya mengembalikan rute yang sama → dokumen identik (urutan juga).
+    const viaRouting = fakeAnthropic({ route: () => live, answer: () => ({ blocks: [] }) });
+    await runJawab(
+      { corpus: env.CORPUS_DB, anthropic: viaRouting.client, editionId: ED },
+      QUESTION,
+    );
+    expect(viaRouting.sent.map((s) => s.kind)).toEqual(["route", "answer"]);
+    expect(fake.sent[0]?.documents.length).toBeGreaterThan(0);
+    expect(viaRouting.sent[1]?.documents).toEqual(fake.sent[0]?.documents);
+  });
+
+  test("savedRoute null: tanpa routing, pencarian pertanyaan saja", async () => {
+    const fake = fakeAnthropic({ route: () => ROUTE, answer: cite });
+    const result = await runJawab(
+      { corpus: env.CORPUS_DB, anthropic: fake.client, editionId: ED, savedRoute: null },
+      QUESTION,
+    );
+    expect(fake.sent.map((s) => s.kind)).toEqual(["answer"]);
+    expect(result.diagnostics.route).toBeNull();
+    expect(result.outcome).toBe("answer");
   });
 });

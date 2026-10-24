@@ -15,6 +15,198 @@ Format entri:
 
 ---
 
+## 2026-10-24 · Di luar sesi · Beranda fokus cari, Cari memakai kotak Beranda, navbar ringkas — selesai (kode; PR menyusul)
+- Dikerjakan: navbar ringkas + menu ⋮ tema + mockup buku hardcover (affaa07, sesi lain, ADR-084/085); Beranda: rak kitab, "Apa yang ingin Anda kaji?", satu kotak Cari/Maknaz (widget, pemilih bagian kitab Autocomplete, segmen berikon duotone), titipan pertanyaan ke Maknaz di memori tab + transisi kotak → gelembung (ADR-086); /cari memakai kotak yang sama, pemilih bagian bertingkat menggantikan dinding chip, jembatan "Tanyakan … ke Maknaz" (ADR-087); menu Cari dihapus dari sidebar (ADR-088); `pnpm dev:remote` membaca korpus staging (ADR-089); /tanya: pembuka umum, satu catatan tetap yang berpindah, kotak berbentuk widget (ADR-090); kartu Lanjutkan membaca baru.
+- Verifikasi: `pnpm verify` → lolos · e2e lokal dengan `pnpm dev:remote` (korpus staging): smoke, tanya, beranda-maknaz, search (11/11 termasuk axe hasil asli) lolos; gagal hanya header `immutable` aset (khusus Workers, berlaku di Preview) · peninjau tiga kali (per tahap + seluruh cabang): blocker label S21 di /tanya diperbaiki (ADR-090), sisanya dikerjakan.
+- Biaya API: – (e2e Maknaz memalsukan /api/jawab).
+- Keputusan: ADR-084–090.
+- Catatan untuk sesi berikutnya: pemilih bagian masih pilihan tunggal (API Cari satu `bagian`); Maknaz belum bisa dibatasi per kitab (label sumber di /tanya ditulis di i18n); ukur LCP/JS Beranda sebelum `/rilis 4`; tes lokal Ihya kini dilewati bila D1 lokal bukan korpus OpenITI.
+
+## 2026-10-22 · X10 · Rapikan sisa kecil pembaca — selesai (PR #122)
+- Dikerjakan: preferensi pembaca lewat skrip mentah (tidak menunggu JS Next); daftar isi menyorot subjudul kurasi aktif dan membuka cabangnya saat gulir bersambung (cabang yang ditutup pembaca dihormati); kaki per halaman cetak (`PageFoot`: ayat, catatan AI, catatan tinjau) untuk halaman pertama dan sambungan; catatan AI menurut konten AI yang belum ditinjau manusia (`PageModel.ai`); rincian label "dikoreksi …" menempel di lencana (CSS anchor positioning) + nama aksesibel = teks lencana (WCAG 2.5.3).
+- Verifikasi: `pnpm verify` → lolos (822 + 387 tes, build) · e2e pembaca lokal 139 lolos, 11 dilewati (termasuk `reader-x10` baru, uji mutasi skrip) · axe 0 pelanggaran dengan popover terbuka (data uji lokal) · banding HTML `<main>` j1/200: hanya catatan AI pindah tempat · CI PR #122 hijau, e2e Preview 178 lolos / 0 gagal · Lighthouse produksi n=5 sebelum → sesudah deploy: j1/200 4,24 → 3,95 dtk, j3/202 3,94 → 4,02 dtk · `peninjau` → 0 blocker, 4 perbaikan (dikerjakan).
+- Biaya API: –
+- Keputusan: ADR-083.
+- Catatan untuk sesi berikutnya: usulan tombol daftar isi di kepala ringkas ponsel; label chevron React Aria masih berbahasa Inggris.
+
+## 2026-10-22 · X08 · Koreksi terjemahan oleh editor/ustadz — selesai (kode; PR #120 + #121)
+- Dikerjakan:
+  - Tahap 1 (ADR-081): pemeriksa teks bersama `validateTranslationText`; `translation_revision` di DB app (migrasi 0006, hanya bertambah + pemicu); editor terdaftar `TRANSLATION_EDITORS` + peran ruang tinjau; `/tinjau/terjemahan` (antrean, Sudah benar / Perbaiki + pratinjau / Batalkan, riwayat); `/admin` koreksi terbaru + batalkan (massal); `/privasi`, panduan, T-26.
+  - Tahap 2 (ADR-082): ekspor revisi (berkas lokal + R2 privat `surau-revisi`, metadata tanpa teks), ingest validasi ulang + `translation_review` (korpus skema 8), label "Terjemahan AI · dikoreksi/diperiksa …" bersama (pembaca dengan popover, `/cari`, kutipan Maknaz), `[…]` redup hanya perbaikan, `human_review` di MCP, batch AI melewati paragraf berevisi.
+- Verifikasi: `pnpm verify` → lolos (tiap PR) · D1 staging: revisi uji tersimpan + konflik ditolak + dibuang · produksi: migrasi 0006 + pemicu ada di `surau-app` · e2e lokal: korpus uji 3 revisi → pembaca, `/api/search`, `/cari`, MCP `read_page` sama; `eval:retrieval --gate` 31 soal hit@10 100%, MRR 0,795 (= `ihya-v6`/`ihya-v8`) · HTML pembaca `<main>` identik dengan `main` untuk korpus tanpa tinjauan · `peninjau` tahap 1: 0 blocker, 7 penting + 6 kecil dikerjakan; tahap 2: lihat file sesi.
+- Biaya API: –
+- Keputusan: ADR-081, ADR-082.
+- Catatan untuk sesi berikutnya: T-26 (kode akun Anas → daftarkan lewat PR), lalu korpus berikutnya `ihya-v9` (skema 8: `db:migrate:staging` sebelum `corpus:load:staging`); koreksi ringkasan AI + judul daftar isi; dokumen Jawab belum menyebut "dikoreksi".
+
+## 2026-10-22 · Font UI Google Sans menggantikan HarmonyOS Sans — selesai (PR #119)
+- Dikerjakan: `next/font/google` `Google_Sans` (OFL; normal di-preload, italic tidak), cadangan bermetrik sendiri ("Google Sans Fallback", Arial + size-adjust), berkas HarmonyOS dikeluarkan dari repo, `/lisensi#font` diperbarui, alat aset (potret WOFF2 Google Sans + OFL, mesin + figur dibangun ulang). Deploy X09 sempat gagal (registry npm 502), job dijalankan ulang → X09 tayang.
+- Verifikasi: `pnpm verify` → lolos (779 + 352 tes) · e2e lokal a11y/smoke/pembaca 116 lolos (gagal hanya a11y `/tanya`, masalah lama) · Lighthouse Preview PR #119 vs produksi (X09) n=5: j1/200 3,86 vs 4,25 dtk, j3/202 4,10 vs 4,09 dtk; terkirim 870 → 750 KB · potret aset dicoba (Google Sans tampil) · `peninjau` → 0 blocker, 3 perbaikan dokumen (dikerjakan).
+- Biaya API: –
+- Keputusan: ADR-080 (ADR-056 diganti; ADR-079 butir 1 diubah).
+- Catatan untuk sesi berikutnya: `opengraph-image.jpg`/`twitter-image.jpg` masih dirender dengan HarmonyOS; buat ulang bila perlu.
+
+## 2026-10-22 · X09 · Kinerja pembaca ponsel (LCP) — sebagian (PR #118)
+- Dikerjakan:
+  - Audit: Lighthouse 13.5 ponsel n=5 produksi (j1/200 5,89 dtk, j3/202 5,34 dtk), eksperimen terkendali lewat proksi HTTP/2 + brotli di depan build workerd, `next analyze` per paket: penyebab = byte yang selesai sebelum cat pertama (Lantern ±4,3 ms/KB).
+  - Font HarmonyOS tanpa preload; tekstur kertas ditunda di kunjungan pertama (`<script>` mentah, tanpa JS tetap tampil); pohon daftar isi ringkas + route ISR `/kitab/[work]/daftar-isi.json`; `next/dynamic` untuk panel Tampilan, Lompat, dialog laporan, palet cari; kamus i18n per bagian + tes penjaga.
+  - Ditolak dengan bukti: `experimental.inlineCss` (bundle Worker 2,3 → 7,2 MB gzip, HTML 1,67 MB), preload Naskh khusus pembaca (URL berbeda → unduhan ganda).
+- Verifikasi: `pnpm verify` → lolos (unit web + paket, build) · e2e lokal build workerd (pembaca, X04, X04b, X09, axe) lolos kecuali a11y `/tanya` (juga gagal di produksi, lolos di Preview) · Lighthouse Preview vs produksi berselang-seling n=5: j1/200 **4,15** vs 5,36, j3/202 **4,40** vs 5,89 (putaran 1: 4,57 vs 5,88, 5,01 vs 5,77) · HTML j1/200 gzip 59,9 → 32,5 KB, title/OG/JSON-LD/kepala halaman identik · `peninjau` → 0 blocker, 6 perbaikan (semua dikerjakan), 6 saran (2 dikerjakan).
+- Biaya API: –
+- Keputusan: ADR-079 (+ pembaruan ADR-058).
+- Catatan untuk sesi berikutnya: target 4,29 dtk belum tercapai di j3/202; sisa muatan = JS kerangka situs ±377 KB br (Sidebar/Navbar Pro membawa `motion`) + font UI TTF (lisensi melarang WOFF2/subset): keputusan pemilik. `READER_SCALE_SCRIPT` juga perlu `<script>` mentah (preferensi pembaca bisa berkedip).
+
+## 2026-10-22 · X04 bagian B · Daftar isi pembaca dengan subjudul + judul daftar isi Indonesia, korpus `ihya-v8` — selesai (PR #116 + PR promote `ihya-v8`)
+- Dikerjakan:
+  - **W7** daftar isi pembaca = pohon `toc_node` + 209 subjudul kurasi sebagai anak node (`loadReaderToc`, `lib/reader/reader-toc.ts`, `@surau/core` `subheadingPartText`): kitab tanpa anak 19 → 6; breadcrumb/`<title>`/OG/bagian aktif tetap pohon `toc_node`; MCP + Jawab tidak disentuh.
+  - **Judul node salah tempat:** kurasi `node_tail` (butir daftar p16599/p18644 → teks biasa, judul di akhir p16600/p18645 → h2 + jangkar), dan judul node = paragraf pertama node di halaman awalnya yang sama dengan judul (8 node berjangkar di kolofon/pengantar kini tampil sebagai judul; jangkar + ringkasan ikut pindah). `toc_node`/`passage.toc_node_id` tidak diubah.
+  - **W8** migrasi korpus 0007 (skema 7: `toc_title_translation`, `subheading_translation`), `listTitleTranslations` (null di skema < 7), prompt `translate-toc-title@2` + validasi (`packages/llm`), `pnpm llm judul` (kelompok ≤ 90 judul, pagu terburuk per request, Messages API biasa, keluaran terstruktur), pemuatan + invarian cakupan di ingest; web: judul Indonesia di atas Arab di pohon + satu catatan "Terjemahan AI" (model, prompt, tanggal), kepala halaman dengan lencana.
+  - Korpus **`ihya-v8`** dibangun (= v7 + judul 313/209 + 5 terjemahan `@4` yang sudah ada di `data/build/llm`) dan dimuat ke staging + D1 lokal worktree.
+- Verifikasi: `pnpm verify` → lolos (772 + 351 tes, build) · `pnpm ingest ihya` → semua invarian ✓, judul 522/522 · `corpus:qa staging` (v8) → **30/30** · `eval:retrieval --gate` v8 hit@1 64,5% / hit@5 96,8% / hit@10 **100%** / MRR 0,795 = v7 (salinan build v7, angka identik) · `getToc` v8 = 313 node · e2e lokal pembaca + axe 117 lolos (`reader-x04b` baru) · CI PR #116 hijau · HTML Preview j1/200: `<title>`/OG/breadcrumb Arab, judul Indonesia berlabel · `peninjau` → 0 blocker, 1 perbaikan (judul subjudul terikat `source_sha256` judul Arab) + 8 saran, semuanya dikerjakan; migrasi 0007 (belum pernah di produksi) diubah, staging dipulihkan + dimuat ulang, `corpus:qa staging` ulang 30/30, `pnpm test` 775 + 352 lolos.
+- Biaya API: **US$0,4117** (Sonnet 5.5, 10 request: uji v1 US$0,0443 dibuang karena prompt diganti v2, v2 7 kelompok + ulang 2 judul terpanjang) dari pagu US$1 (jawaban desain X04 no. 5). Perkiraan rencana ±US$0,26 belum menghitung glosarium di prompt.
+- Promote (2026-10-22, izin pemilik di chat "Ya saya promote ihya v8"): build bersih dari `main` (sha256 `fe617897…`), `corpus:promote ihya-v8 --confirm` → muatan pertama putus InternalError Cloudflare (binding belum diubah), diulang `--reload` ke DB baru → smoke = build; `corpus:qa ihya-v8` → 30/30; binding web/MCP/API + `SEARCH_CACHE_CORPUS` → `surau-corpus-ihya-v8`, `ihya-v7` jadi target rollback (`data/SOURCES.md`).
+- Catatan ukuran: HTML j1/200 +50% gzip (41 → 61 KB) karena pohon daftar isi lebih besar: usul pemuatan malas di sesi kinerja.
+- Keputusan: ADR-077, ADR-078.
+- Catatan untuk sesi berikutnya: hasil judul di `data/build/llm/toc-title{,-runs}.jsonl` (checkout utama, jangan dihapus); usul sesi kinerja LCP (pemuatan malas pohon daftar isi).
+
+## 2026-10-21 · X04 · Mutu baca pembaca Ihya bagian A + T-17 tahap 3 — sebagian (PR #115)
+- Dikerjakan:
+  - Pemilik menjawab 8 pertanyaan desain ("ikut usulan agent semua"); jawaban + keputusan agent untuk pertanyaan tanpa usulan tertulis dicatat di file sesi.
+  - **W4** kurasi subjudul tanpa teks Arab (`pnpm subjudul`, `data/patches/ihya-9472-subjudul.{yaml,json}`): 186/191 *bayan*, 22 lanjutan judul, 16 subjudul di awal + 6 di akhir paragraf, dipakai web hanya bila sidik sha256 cocok; syair per syatr 437/450. Model halaman siap render (`buildPageModel`) + `PageText` bersama.
+  - **W1–W3** terjemahan 16/17 px, CPL ≤ 75, jarak 28 px, ukuran terjemahan di panel; satu catatan AI (bisa ditutup) + lencana per terjemahan; salinan berlabel (AI + permalink, Kemenag); kutipan “…”, ringkasan berparagraf, perataan Otomatis; tata letak di bawah/dilipat/berdampingan.
+  - **W5–W6** bagikan tautan paragraf, Lanjutkan membaca (localStorage; beranda, /kitab, halaman karya; /privasi), gulir bersambung lewat `GET /api/halaman` (rate limit baru, Cache API, tanpa daftar isi lengkap).
+  - **T-17 tahap 3**: pra-registrasi → alat `pnpm t17` → 60 ID sampel (tiga commit berurutan), halaman nilai buta lokal (isian per nama penilai); `pnpm t17 hasil` dengan kappa untuk dua penilai; klarifikasi bertanggal sebelum hasil (tambahan 40 = 13/14/13).
+- Verifikasi: `pnpm verify` → lolos (747 + 345 tes, build; diulang sesudah perbaikan peninjau) · e2e lokal penuh 144 lolos, 2 gagal = uji header `/aset` khusus Workers (sudah diketahui); `reader-x04` 12 skenario + axe halaman sambungan/dilipat/berdampingan lolos · CI `3adf7ba` hijau, e2e Preview 152 lolos + 1 flaky (klik tombol ayat sebelum hidrasi; tes kini mengulang klik) · CI PR #115 hijau, e2e Preview 145 lolos · Preview j1/200: 17 px, CPL 69–73, jarak 28 px, `hyphens: auto`, `text-wrap: pretty`, 1 catatan + 7 lencana, `#p13553` heading, syair j4/107 per syatr · `/api/halaman` Preview 200 (203 baris dibaca) · Lighthouse 13.5.0 ponsel n=5 berselang-seling: Preview median LCP 6,11 dtk vs produksi 5,66 dtk · `peninjau` → 1 blocker (sitasi paragraf halaman sambungan menyebut halaman pertama) + 9 perbaikan + 10 saran, semuanya dikerjakan (rincian di file sesi); e2e baru untuk sitasi halaman sambungan dan Back sesudah gulir bersambung (uji mutasi: tanpa perbaikan, e2e Back gagal) · tinjauan ulang commit perbaikan → 0 blocker, 2 perbaikan halaman nilai T-17 (isian penilai terakhir tampil saat dibuka; isian versi pertama tidak terbaca), keduanya + 9 saran dikerjakan.
+- Belum lolos (kriteria tidak diubah): hari pekan 14/15 (p2811 bukan subjudul), syair 437/450, `rows_read` halaman sambungan 17,6% > 15%, LCP ponsel > 3,9 dtk + 10% (produksi sendiri kini 5,66 dtk).
+- Biaya API: – (tanpa LLM)
+- Keputusan: ADR-074, ADR-075, ADR-076.
+- Catatan untuk sesi berikutnya: T-17 tahap 3 menunggu penilai manusia (`data/build/llm/qa/t17-tahap3.html`, hasil → `pnpm t17 hasil`); bagian B memakai daftar kurasi + pagu US$1 yang sudah disetujui; usul sesi kinerja LCP ponsel.
+
+## 2026-10-21 · X08 · Rencana koreksi terjemahan oleh editor/ustadz — sebagian (rencana, menunggu pemilik)
+- Dikerjakan: rencana `implementasi/sesi/X08-koreksi-terjemahan.md`, ditulis di sesi X04 atas permintaan pemilik:
+  - format teks polos + `[…]`;
+  - alur usulan → persetujuan ustadz di `/tinjau/terjemahan`, dengan penyetuju berupa kunci akun terdaftar (pola X07/ADR-070);
+  - tayang lewat korpus berikutnya (teks revisi di DB app + R2 privat, git hanya metadata);
+  - validasi ulang saat ingest, status terikat hash, label per status;
+  - editor textarea tanpa Tiptap di tahap pertama.
+  Nomor X05–X07 sudah dipakai sesi lain, jadi rencana ini X08.
+- Temuan: terjemahan dipakai pembaca, kartu `/cari` + `translation_fts`, MCP, kartu kutipan Tanya, dan dokumen Jawab, jadi koreksi harus lewat korpus agar semuanya sama; batch `retry` belum melindungi paragraf yang dikoreksi manusia.
+- Verifikasi: pembacaan kode (`review-auth.ts`, `takhrij-review.ts`, `reviews.ts`, `search-index.ts`, `page.ts`, `documents.ts`); panjang terjemahan dari `ihya-v7` (maks 7.966 karakter, rasio maks 19×); `peninjau` → 0 blocker, 10 perbaikan sudah dimasukkan.
+- Biaya API: –
+- Jawaban pemilik (2026-10-21): "Editor itu ustaz", "Nama ustaz ditampilkan", "gak terlalu sering", "gak perlu approval buat saat ini", no. 6 ikut saran agent (paragraf dulu). Rencana disesuaikan: satu peran editor terdaftar, revisi langsung aktif + batalkan + daftar koreksi di `/admin`, label "dikoreksi {nama}" (gelar Ust. hanya untuk akun ustadz), tayang ±sebulan sekali atau ≥ 50 koreksi.
+- Tinjauan ulang rencana (atas permintaan pemilik), 10 perbaikan:
+  - dua tahap: simpan koreksi dulu, lalu tayangkan;
+  - status usang dihitung, tidak ditulis balik ke DB produksi;
+  - batalkan memulihkan teks + label;
+  - batas harian, dan batalkan massal per editor;
+  - sha256 ekspor di `meta` korpus;
+  - penanda `(١)` lolos cek huruf Arab;
+  - jalur kirim kode pendaftaran;
+  - field MCP hanya tambahan, nama di MCP sesuai persetujuan;
+  - lingkup kartu Tanya diselaraskan;
+  - catatan rollback dan label Jawab.
+- Keputusan: – (ADR menyusul saat X08 dikerjakan)
+
+## 2026-10-21 · UI · Halaman Tanya sebagai percakapan — selesai (PR #112)
+
+- Dikerjakan:
+  - `/tanya` menjadi layar chat (ADR-073; orb "siap" Hilal dan "selesai" Segel): gelembung pertanyaan + balasan Surau per giliran, komposer `PromptInput` menempel di bawah, chip contoh pertanyaan (`Button` bulat; `PromptSuggestion` tidak dipakai), aksi salin/laporkan `ChatMessageActions`, dan riwayat giliran di memori tab. Setiap pertanyaan tetap dijawab terpisah, dan UI mengatakannya.
+  - Jawaban: kartu "Jawaban" diganti badan pesan, jangkar unik per giliran, dan judul disesuaikan (h2 tersembunyi, h3).
+- Verifikasi:
+  - Tes unit Tanya (jangkar per giliran, teks salin) dan tes CSS HeroUI lolos.
+  - Pratinjau browser lokal dengan `/api/jawab` + `/api/kutipan` tiruan (kutipan dari DB lokal; halaman dan fixture sementara dihapus, tidak di-commit): dua giliran berurutan, gulir ke awal jawaban tanpa menggulir halaman, fokus ke komposer setelah memilih contoh, formulir laporan, keadaan tutup (komposer nonaktif + arahan Cari), mode gelap, dan ponsel 375 px tanpa gulir samping.
+  - Peninjau: 0 blocker, 5 penting (ref TextArea menimpa ref HeroUI, fokus hilang saat kotak dikunci, tombol kirim aktif saat Jawab mati, teks salin tanpa label AI, klaim e2e belum dibuktikan) ditutup; temuan kecil sebagian ditutup.
+  - e2e `tanya.spec.ts` terhadap dev server cabang ini (`BASE_URL=http://localhost:3017`): tes halaman Tanya lolos (desktop + ponsel). Dua tes lain di berkas yang sama (privasi/transparansi, API kutipan) gagal karena D1 lokal worktree kosong (`/transparansi` dan `/api/kutipan` 500), dan berkas keduanya tidak diubah cabang ini; akan diuji CI Preview.
+  - Orb `rest` (Hilal) dan `done` (Segel) dicek di galeri sementara (160/64/20 px) dan di keadaan kosong.
+  - Keadaan kosong rata tengah + chip contoh + "?" (HoverCard muncul saat hover) dan transisi hilal → orb balasan pertama dicek di browser (animasi diperlambat untuk dilihat di tengah gerak; animasi `::view-transition-group(tanya-orb)` tercatat jalan), ponsel 375 px tanpa gulir samping.
+  - Peninjau kedua: 0 blocker, 2 penting (race view transition × `ask`: giliran bisa macet atau terkirim dua kali; LOG tidak cocok dengan kode) + 6 kecil (orb `enterFrom` beralih sambil terbang, rata tengah vertikal, pengingat "dijawab terpisah" hilang setelah giliran pertama, area ketuk "?", string tak terpakai, ADR soal Turnstile) ditutup.
+  - e2e `tanya.spec.ts` (tes halaman Tanya) dan `a11y.spec.ts` untuk `/tanya` (tema terang + gelap, urutan judul) lolos, desktop + ponsel.
+- Biaya API: –
+- Keputusan: ADR-073
+
+## 2026-10-21 · UI · Orb tahap di halaman Tanya — selesai
+
+- Dikerjakan:
+  - Spinner di baris tahap Tanya diganti `TanyaOrb`: satu orb titik yang berganti bentuk per tahap Jawab (Sathr, Himpun, Khatam, Anyam, Untai), warna dari tema (tinta, aksen Zaitun, emas ornamen), ditambah penanda "Tahap n dari 4". Teks tahap memakai `TextShimmer` HeroUI Pro, dengan teks dasar dinaikkan dari 45% ke 70% supaya kontrasnya lolos AA (6,11:1 terang, 8,34:1 gelap diukur; sepia ±5,3:1 dihitung).
+  - Geometri murni di `orb-frames.ts` + tes; komponen kanvas sendiri (thinking-orbs tidak mendukung lebih dari satu warna per orb maupun tema sepia).
+- Verifikasi:
+  - Peninjau: 0 blocker, 1 penting (tahap SSE tak dikenal bisa membuat orb/halaman galat) + 4 kecil (kedip saat tahap berganti di tengah peralihan, Untai mulai dengan butir emas, setelan gerak dikurangi tidak diikuti langsung, sepia belum dicek visual); semua ditutup.
+  - `orb-frames.test.ts` (7 tes) dan tes SSE (tahap tak dikenal diabaikan) lolos.
+  - Pratinjau di browser lokal lewat halaman sementara dengan `/api/jawab` tiruan (SSE lima tahap; tidak di-commit): bentuk berganti sesuai tahap, animasi berjalan saat terlihat dan berhenti saat di luar layar, tema terang dan gelap, ponsel 375 px tanpa gulir samping. Tema sepia tidak dicek visual (warnanya dari variabel `:root.sepia` yang sama). Ditemukan + diperbaiki: tahap yang berganti saat orb di luar layar sempat menampilkan bentuk lama.
+  - `pnpm verify` lolos.
+- Biaya API: –
+- Keputusan: ADR-072
+- Catatan untuk sesi berikutnya: PR Maknaz (#109, ADR-071) mengganti teks halaman yang sama; orb tidak bergantung pada nama.
+
+## 2026-10-21 · X07 · Sisipan: antrean tinjauan label status hadits di `/tinjau` — selesai
+
+- Dikerjakan:
+  - DB app `takhrij_review` (migrasi 0005): keputusan setuju/koreksi (kode jenis istilah)/ragu per (catatan kaki, versi aturan, penilai), terikat sidik label kode yang dilihat penilai; repo + hitungan kutipan takhrij dari `answer_log`/`answer_cache`.
+  - Core: `takhrijStatus` (diekstrak dari `takhrijLabel`, keluaran identik), `effectiveTakhrijReview` (hanya ustadz peninjau yang ditunjuk, ragu/beda pendapat = tidak berlaku), `reviewedTakhrijLabel`, `takhrijReviewInput`.
+  - Jawab `pipeline@7`: tinjauan dari DB app dipakai untuk klaim dan baris "Status hadits:" (`ustadz_reviewed`/`ustadz_corrected` + `added_terms`); cache basi bila tinjauan berubah; tanda kelemahan `/api/kutipan` ikut label tertinjau; UI Tanya menampilkan chip "ditinjau ustadz"/"dikoreksi ustadz".
+  - Halaman `/tinjau/takhrij` + `/api/review/takhrij`: antrean prioritas (kutipan Jawab → berbeda per jalur → urutan kitab), teks takhrij dari DB dengan istilah disorot, label yang dipakai Jawab, formulir setuju/koreksi (kotak centang + pratinjau label)/ragu; navigasi antar halaman tinjau.
+- Verifikasi:
+  - Tes baru: D1 workerd (repo, CHECK), core, pipeline, Worker `surau-api` (label tertinjau dipakai; cache dipakai/dijalankan ulang; Agent QA tidak dipakai), web (antrean, route, kutipan, tampilan).
+  - Refaktor `takhrijLabel` vs versi X06 atas korpus `ihya-v7`: 13.194 kombinasi (catatan kaki × rentang), 0 beda.
+  - Pratinjau komponen antrean di browser lokal (catatan kaki Ihya nyata, halaman sementara tidak di-commit): desktop, ponsel 375 px tanpa gulir samping, mode gelap; ditemukan + diperbaiki: butir yang sama tidak dimuat ulang sesudah simpan, kontrol formulir tak terlihat di panel (varian `secondary`).
+  - `pnpm verify` lolos.
+- Biaya API: –
+- Keputusan: ADR-070
+- PR #108 ter-merge, deploy produksi sukses (migrasi 0005 di `surau-app` dan staging; `/tinjau/takhrij` produksi dialihkan ke login Access). Peninjau (sesudah merge): 0 blocker, 5 penting, 5 kecil → PR lanjutan: kunci akun ustadz terdaftar (`TAKHRIJ_USTADZ_KEYS`) + nama sebagai gerbang, jenis tambahan disebut "menurut peninjau", istilah yang ditolak tidak muncul lagi di sitasi sebagian, sidik label ikut arti + teks, holdout tidak ikut prioritas, huruf Arab di nama/catatan ditolak, galat dicatat, paginasi, karakter U+202E literal di tes diganti escape. Label otomatis tetap identik atas 13.194 kombinasi.
+- Catatan untuk sesi berikutnya: login nyata dan tinjauan Anas tetap T-24 (butir 5 baru); daftarkan kunci akunnya sesudah keputusan pertama. Prioritas "paling sering dikutip" di produksi butuh data (`answer_cache` setelah Jawab menyala, atau arsip eval dimuat ke `answer_log` atas aba-aba pemilik). Label di MCP `get_hadith_takhrij` belum.
+
+## 2026-10-21 · X06 · Sisipan: status hadits dari label istilah takhrij — selesai
+
+- Dikerjakan:
+  - `takhrijTerms` (packages/text): pengenal frasa baku takhrij al-'Iraqi per kata atas `normalizeArabic`, dengan rentang mentah; bagian lafaz sebelum penanda takhrij pertama tidak dipindai. `takhrijLabel` (core): arti baku, teks status kode ≤120 karakter, `mixed`, `weak`.
+  - Pipeline `pipeline@6`: klaim status dari struktur catatan kaki per takhrij yang disitasi (`rule_extracted`, `terms`); baris "Status hadits:" bersitasi diganti label + lokasi hadits; pemberitahuan netral menunjuk bagian "Status hadits". Tanda kelemahan UI dari label yang sama; `takhrijHasWeakTerms` dihapus. UI Tanya menampilkan istilah + frasa Arab dari DB, menerima bentuk lama dari API sebelum X06.
+  - Eval: metrik Takhrij berbasis label (klaim di luar gold dilaporkan), batas klaim arsip 5 → 20, `pnpm run eval:takhrij` (laporan korpus), `eval:jawab hadits --run` (ulang gratis atas arsip).
+  - Peninjau dua putaran: 1 blocker + 8 penting + 11 kecil, lalu 5 kecil; semua ditutup sebelum eval berbayar.
+- Verifikasi:
+  - Korpus `ihya-v7`: 95,5% catatan kaki dikenali sebagai takhrij (76,8% memuat istilah, 8,1% hanya sumber, 10,6% hanya rujukan), 4,5% bukan takhrij; tanpa batch AI. Sampel acak agent: 70 → 2 istilah keliru (diperbaiki), 50 → 0 keliru; 6/6 takhrij gold publik sesuai kategori gold.
+  - Ulang gratis (`eval:jawab hadits`): X05 0/6 → 5/6, X03 5/6, S21 v5 4/6; 0 tidak stabil.
+  - Eval publik berbayar sekali `x06-publik-takhrij-v1` (rute X05): kutipan valid 100% (166/166), lokasi 85,3%, penolakan tepat 100% (8/8), tidak salah menolak 100%, Takhrij 83,3% (5/6), tanpa pola fatwa 100%, US$0,0026/jawaban tanpa routing.
+  - `pnpm verify` lolos (662 + 327 tes, build 3/3); dua run sebelumnya gagal hanya karena tes Ihya lokal `ihya-text` melewati batas 5 dtk (area tidak diubah, lolos sendiri).
+- Biaya API: US$0,1092 (satu eval publik; izin pemilik di chat "ya jalankan").
+- Keputusan: ADR-069.
+- Catatan untuk sesi berikutnya: antrean tinjauan label di `/tinjau` (Anas menyetujui/mengoreksi per catatan kaki, terikat `rules_version`) dan label di MCP `get_hadith_takhrij`; model terus menaruh penilaian di kalimat bebas bersitasi takhrij (tidak dicek terhadap label). Disk pemilik sempat penuh (±145 MB tersisa) di tengah sesi. Tes `tools/ingest/test/ihya-text.test.ts` kadang melewati 5 dtk saat suite penuh di mesin sibuk.
+
+## 2026-10-21 · X05 · Sisipan: lokasi benar di tahap jawaban Jawab — selesai (satu butir tidak dicentang)
+
+- Dikerjakan:
+  - Bedah gratis arsip X03 untuk j014, j020, j023 (dokumen direkonstruksi dari rute tersimpan). Paragraf gold ada di dokumen tetapi tercecer di peringkat RRF, sering tanpa terjemahan AI; jawaban menyitasi kesimpulan atau halaman tetangga di bagian yang sama.
+  - Dokumen dikelompokkan per bagian, urut kitab (`orderBySection`, `AnswerPassage.ord`, `pipeline@5`); prompt `answer@6`; `eval:jawab answer --rute` (rute routing tersimpan, tanpa panggilan routing; `normalizeRoute`, `savedRoutesFor`, arsip `+rute-tersimpan`).
+  - Peninjau dua putaran: 4 temuan penting (urutan dari ID melanggar ADR-029, kalimat prompt, penanda arsip `--rute`, gerbang proses) dan temuan kecil ditutup sebelum eval.
+  - Nomor sesi semula X04; diganti X05 karena X04 (mutu baca, #104) ter-merge di tengah sesi.
+- Verifikasi:
+  - Dokumen dari rute X03 identik dengan arsip X03: 42/42 (jumlah dokumen, token, daftar, kandidat).
+  - Eval publik `x05-publik-jawaban-v1` (42 soal, tanpa holdout, `--rute` X03): kutipan valid 100% (176/176), lokasi 85,3% (29/34; X03 82,4%), tidak salah menolak 100% (34/34), tanpa pola fatwa 100%, penolakan tepat 7/8 (j033 turun ke Cari), jawaban US$0,00257/soal tanpa routing (perkiraan penuh ±US$0,0028). j014, j020 kini benar; j024 1 → 0 artefak halaman (takhrij gold tidak ada di dokumen pada kedua run).
+  - Ulangan 8 soal jebakan `x05-publik-tolak-v1` atas izin pemilik: penolakan tepat 8/8.
+  - `pnpm verify` lolos.
+- Biaya API: US$0,1239 (US$0,1078 + US$0,0162; izin pemilik di chat "Ya, saya izinkan" dan "Cek kecil dulu").
+- Keputusan: ADR-068.
+- Catatan untuk sesi berikutnya: R4 lokasi ≥ 90% belum (85,3%, in-sample, holdout belum). Sisa: j018/j019/j021 (leksikal), j023 (gold h290 vs h292 di bagian yang sama, tinjau T-24), j024 (takhrij gold tidak terambil). Simpan teks mentah fallback soal publik bila penolakan baku gagal lagi.
+
+## 2026-10-21 · X04 · Audit + rencana mutu baca pembaca Ihya — sebagian (rencana, menunggu pemilik)
+- Dikerjakan: audit pembaca produksi (j1/200, j3/202; desktop + ponsel, 7 tangkapan layar di `implementasi/sesi/bukti/X04/`), struktur korpus `ihya-v7` (read-only), dan sumber Shamela/OpenITI (read-only); rencana `implementasi/sesi/X04-mutu-baca.md` (bagian A tampilan $0, bagian B subjudul + judul daftar isi Indonesia, rancangan T-17 tahap 3, 8 pertanyaan desain); bagian X04 di `scripts/hitung_biaya.py`
+- Temuan utama: 191 dari 271 subjudul *bayan* tampil sebagai paragraf biasa (80 sudah judul node); 19/40 kitab tanpa subbab (terpanjang 70 halaman); subjudul menempel di awal paragraf tanpa penanda di sumber; terjemahan 14 px, CPL 94–113, 24 baris vs 15 baris Arab di ponsel; label "Terjemahan AI" ±16 ribu kali; takhrij ±5,7 layar dari penanda di ponsel; 207/313 judul daftar isi sudah punya terjemahan paragraf judul
+- Verifikasi: ukuran `getComputedStyle` di https://surau.org/kitab/ihya/1/200; hitungan `node:sqlite`; `python3 scripts/hitung_biaya.py` → judul daftar isi Sonnet 5.5 US$0,07–0,26, terjemahan ulang penuh Sonnet batch US$40,49
+- Biaya API: –
+- Keputusan: – (ADR menyusul saat X04 dikerjakan); nomor X03 sudah terpakai (ADR-067), jadi sesi ini X04
+
+## 2026-10-21 · X03 · Sisipan: cakupan lokasi gold di kandidat Jawab — selesai
+
+- Dikerjakan:
+  - `eval:jawab kandidat` (gratis): ulang langkah 2 pipeline (`jawabCandidates`, diekstrak dari `runJawab`) atas rute routing tersimpan, metrik "semua lokasi gold ada di dokumen"; bedah soal gagal → halaman gold sering ditemukan pencarian pertanyaan (peringkat 2–8) tetapi tenggelam di RRF oleh banyak daftar bagian.
+  - ±40 varian diukur gratis (bobot per jenis daftar, round robin, kedalaman/kueri per bagian, ringkasan bagian, kata pembingkai). Dipakai: pertanyaan global ×3, bagian 3 halaman, ≤ 3 bagian dari ringkasan AI (`searchSummarySections`/`searchSummaryNodes`, routing kedua tanpa LLM), pemotongan pertanyaan panjang per aksara (`queryWordOverflow`; dulu `InvalidQuery` diam-diam), `JAWAB_PIPELINE_VERSION` 4, arsip eval mencatat `+pipeline@4`.
+  - Peninjau dua putaran: 3 temuan penting (tes orkestrasi → `routePlans`/`summaryPlans` murni, ADR, label sesi) + temuan kecil ditutup sebelum eval berbayar.
+- Verifikasi:
+  - Uji gratis 6 set rute × 34 soal publik: lengkap 27 27 28 28 27 25 → 31 31 31 30 30 30 (rata-rata 27,0 → 30,5); 4 set rute lama yang tidak dipakai merancang: 26,25 → 30,0. Token dokumen tetap ±19,9 ribu.
+  - Eval publik berbayar sekali `x03-publik-lokasi-v1` (42 soal, tanpa holdout): kutipan valid 100% (156/156), lokasi 82,4% (28/34; sebelumnya 73,5–76,5%), penolakan tepat 100%, tidak salah menolak 100% (34/34), tanpa pola fatwa 100%, US$0,0027/jawaban; gold di dokumen 31/34 pada rute run ini.
+  - `pnpm verify` lolos (643 + 318 tes, build 3/3).
+- Biaya API: US$0,1134 (satu eval publik; izin pemilik di chat "ya saya izinkan").
+- Keputusan: ADR-067.
+- Catatan untuk sesi berikutnya: R4 lokasi ≥ 90% belum. Sisa: 3 soal topik tersebar tak terjangkau BM25 (pencarian makna lewat ADR baru, atau gold ditinjau T-24) dan 3 soal yang gold-nya ada di dokumen tetapi jawaban menyitasi sebagian (prompt perbandingan + eval ulang). Kenaikan in-sample; bukti R4 butuh holdout.
+
 ## 2026-10-21 · S21 · UI Tanya, transparansi biaya & rilis Fase 4 — sebagian
 
 - Dikerjakan:

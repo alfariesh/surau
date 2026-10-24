@@ -47,7 +47,7 @@
 - Status hadits diambil dari takhrij yang sudah ada, dengan **teks takhrij asli** ditampilkan dan tertaut dari penanda (١) di badan teks.
 - Untuk *Ihya*: takhrij al-'Iraqi diambil dari catatan kaki edisi Dar al-Ma'rifah (lewat Shamela lokal), lalu dicek silang dengan versi OpenITI JK000001. Takhrij yang tidak cocok ditandai `needs_review` (lihat ADR-018 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md)).
 - Sekitar 200 halaman punya takhrij yang bercampur ke matan setelah tanda `//`. Pipeline memisahkannya ke catatan kaki dan menandainya untuk ditinjau.
-- Label ringkas (dhaif, maudhu', dan sebagainya) yang dibuat AI berstatus `ai_extracted` (label UI "diekstrak AI") sampai direview.
+- Label ringkas (dhaif, maudhu', dan sebagainya) yang dibuat AI berstatus `ai_extracted` (label UI "diekstrak AI") sampai direview. Label yang dibuat aturan kode dari istilah tertulis di teks takhrij berstatus `rule_extracted` (label UI "dikenali otomatis dari teks takhrij, belum ditinjau"), selalu disertai frasa Arab aslinya dari DB (ADR-069). Label yang disetujui ustadz peninjau berstatus "ditinjau ustadz"; koreksinya (jenis istilah yang benar, tanpa teks Arab dari penilai) menggantikan label otomatis dengan status "dikoreksi ustadz" (ADR-070).
 - Bila tidak ada takhrij, tampilkan "status belum diketahui". **Jangan menebak.**
 - Hadits yang berstatus sangat lemah, palsu, atau "tidak ada asalnya" diberi tanda yang jelas setiap kali dikutip.
 

@@ -1,23 +1,23 @@
 import { expect, test } from "@playwright/test";
 import { NORM_VERSION } from "@surau/text";
 
-import { BASMALAH } from "../src/content/basmalah";
+import { home } from "../src/i18n/id/home";
+import { search } from "../src/i18n/id/search";
 
 test("Beranda tampil dalam bahasa Indonesia", async ({ page }) => {
   await page.goto("/");
 
   await expect(page).toHaveTitle(/Surau/);
   await expect(page.locator("html")).toHaveAttribute("lang", "id");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Asisten riset kitab klasik Islam",
-  );
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(home.heading);
   await expect(page.getByRole("heading", { name: "Tiga prinsip utama" })).toBeVisible();
 });
 
-test("blok teks Arab memakai lang=ar dan dir=rtl dengan font Naskh", async ({ page }) => {
+test("teks Arab memakai lang=ar dan dir=rtl dengan font Naskh", async ({ page }) => {
   await page.goto("/");
 
-  const arabic = page.locator(".arabic-text").first();
+  // Contoh pencarian Arab di kotak cari Beranda (ADR-086; kartu Basmalah sudah tidak ada).
+  const arabic = page.getByRole("search").locator(".arabic-inline").first();
   await expect(arabic).toBeVisible();
   await expect(arabic).toHaveAttribute("lang", "ar");
   await expect(arabic).toHaveAttribute("dir", "rtl");
@@ -30,17 +30,31 @@ test("blok teks Arab memakai lang=ar dan dir=rtl dengan font Naskh", async ({ pa
     );
   });
   expect(naskhLoaded).toBe(true);
-  // Teks tampil persis sama dengan sumbernya (verbatim sampai ke layar).
-  expect(await arabic.textContent()).toBe(BASMALAH.text);
+  // Teks tampil persis sama dengan sumbernya.
+  expect(await arabic.textContent()).toBe(
+    search.examples.find((e) => /\p{Script=Arabic}/u.test(e)),
+  );
   // Halaman tetap LTR; hanya bloknya yang RTL.
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
 });
 
-test("navigasi ke Tentang", async ({ page }) => {
+test("kotak cari Beranda membuka hasil Cari", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("link", { name: "Kenali Surau" }).click();
-  await expect(page).toHaveURL(/\/tentang$/);
+  // Hanya mode Cari: mode Maknaz memanggil LLM berbayar di Preview, jadi tidak dikirim di e2e.
+  const box = page.getByRole("search").getByRole("textbox");
+  // Sebelum hidrasi Enter di textarea hanya menambah baris: ulangi sampai pindah ke hasil.
+  await expect(async () => {
+    await box.fill("sabar");
+    await box.press("Enter");
+    await expect(page).toHaveURL(/\/cari\?q=sabar$/, { timeout: 2000 });
+  }).toPass();
+  await expect(page.getByRole("search").getByRole("textbox")).toHaveValue("sabar");
+});
+
+test("halaman Tentang", async ({ page }) => {
+  await page.goto("/tentang");
+
   await expect(page.getByRole("heading", { level: 1, name: "Tentang Surau" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Lisensi" })).toBeVisible();
 });
@@ -82,29 +96,40 @@ test("halaman yang tidak ada menampilkan 404 berbahasa Indonesia", async ({ page
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Halaman tidak ditemukan");
 });
 
-test("menu samping: Kitab, Cari, dan Tentang bisa dibuka, fitur yang belum ada berlabel segera", async ({
+test("menu samping: Kitab dan Tentang bisa dibuka, /cari di bawah Beranda, fitur yang belum ada berlabel segera", async ({
   page,
   isMobile,
 }) => {
   await page.goto("/");
 
   const openMenu = async () => {
-    if (isMobile) await page.getByRole("button", { name: "Buka menu" }).click();
-    return page.getByRole("treegrid", { name: "Navigasi utama" }).last();
+    const menu = page.getByRole("treegrid", { name: "Navigasi utama" }).last();
+    // Ketukan sebelum hidrasi (sesudah page.goto) tidak membuka sheet: ulangi sampai terbuka.
+    if (isMobile && !(await menu.isVisible()))
+      await expect(async () => {
+        await page.getByRole("button", { name: "Buka menu" }).click();
+        await expect(menu).toBeVisible({ timeout: 1000 });
+      }).toPass();
+    return menu;
   };
 
   let menu = await openMenu();
-  await expect(menu.getByRole("row", { name: /Tanya \(segera\)/ })).toHaveAttribute(
+  await expect(menu.getByRole("row", { name: /Maknaz \(segera\)/ })).toHaveAttribute(
     "aria-disabled",
     "true",
   );
   await menu.getByRole("row", { name: "Kitab", exact: true }).click();
   await expect(page).toHaveURL(/\/kitab$/);
 
-  // Cari aktif sejak S14.
+  // Tanpa menu Cari (ADR-088): kotak cari ada di Beranda; di /cari Beranda yang tersorot.
   menu = await openMenu();
-  await menu.getByRole("row", { name: "Cari", exact: true }).click();
-  await expect(page).toHaveURL(/\/cari$/);
+  await expect(menu.getByRole("row", { name: "Cari", exact: true })).toHaveCount(0);
+  await page.goto("/cari");
+  menu = await openMenu();
+  await expect(menu.getByRole("row", { name: "Beranda", exact: true })).toHaveAttribute(
+    "data-current",
+    "true",
+  );
 
   // Tentang ada di menu bawah sidebar (footer), terpisah dari navigasi utama.
   await openMenu();
@@ -157,7 +182,7 @@ test("ilustrasi prinsip di Beranda: iframe sandbox dekoratif, cerita diputar saa
 }) => {
   await page.goto("/");
 
-  const frames = page.locator("#judul-prinsip ~ ul iframe");
+  const frames = page.locator('section[aria-labelledby="judul-prinsip"] iframe');
   await expect(frames).toHaveCount(3);
   for (const frame of await frames.all()) {
     await expect(frame).toHaveAttribute("sandbox", "allow-scripts");
@@ -165,7 +190,7 @@ test("ilustrasi prinsip di Beranda: iframe sandbox dekoratif, cerita diputar saa
     await expect(frame).toHaveAttribute("tabindex", "-1");
   }
   await frames.first().scrollIntoViewIfNeeded();
-  const verbatim = page.frameLocator("#judul-prinsip ~ ul iframe").first();
+  const verbatim = page.frameLocator('section[aria-labelledby="judul-prinsip"] iframe').first();
   // ?sematan=1 tetap ada setelah pengalihan /aset/x.html → /aset/x di Static Assets; tanpa tombol, tanpa kata
   await expect(verbatim.locator("html.sematan")).toBeAttached();
   await expect(verbatim.locator("button")).toHaveCount(0);

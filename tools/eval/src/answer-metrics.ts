@@ -1,5 +1,6 @@
-import { getHadithTakhrij, resolveEvalSource } from "@surau/core";
+import { getHadithTakhrij, resolveEvalSource, takhrijLabel } from "@surau/core";
 import type { EvalAnswer, EvalQuestion, EvalSource } from "@surau/core";
+import { getPassageById } from "@surau/db";
 import type { D1Db } from "@surau/db";
 import type { CorpusIndex } from "./corpus.ts";
 import { resolveLocation } from "./corpus.ts";
@@ -23,6 +24,12 @@ export interface AnswerScores {
   hadith: Metric;
   noFatwa: Metric;
   answered: boolean;
+  /**
+   * Klaim status untuk takhrij di luar gold (X06): dicatat, bukan kegagalan. Sejak X06 setiap
+   * takhrij yang disitasi mendapat label kode yang dipasangkan ke haditsnya sendiri lewat struktur
+   * catatan kaki, jadi klaim tambahan bukan klaim bebas yang tak didukung (alasan hukuman S18).
+   */
+  hadithExtra: number;
 }
 // Heuristik pola, bukan jaminan semantik. Contoh ini hanya ada di alat ukur, bukan prompt Jawab.
 const FATWA =
@@ -30,7 +37,22 @@ const FATWA =
 export const hasFatwaLanguage = (text: string) => FATWA.test(text);
 const sameSpan = (a: { passage_id: number; char_start: number; char_end: number }, b: typeof a) =>
   a.passage_id === b.passage_id && a.char_start === b.char_start && a.char_end === b.char_end;
-const statusKey = (s: string) => s.trim().toLocaleLowerCase("id").replaceAll(/\s+/gu, " ");
+/**
+ * Status yang benar untuk takhrij gold (X06, ADR-069): teks label dari istilah teks takhrij itu
+ * (`takhrijLabel`, kode). Status jawaban dibuat kode dari takhrij yang disitasi, jadi lolos berarti
+ * takhrij yang tepat disitasi dan statusnya label takhrij itu. Kecocokan label dengan kata-kata
+ * status gold (`status`, ditulis penyusun soal) dibandingkan terpisah (laporan ADR-069), bukan di
+ * sini: dulu pencocokan string persis membuat metrik ini selalu 0.
+ */
+async function goldStatus(
+  db: D1Db,
+  footnote: { passage_id: number; char_start: number; char_end: number },
+): Promise<string | null> {
+  const row = await getPassageById(db, footnote.passage_id);
+  return row === null
+    ? null
+    : takhrijLabel(row.text_raw, { start: footnote.char_start, end: footnote.char_end }).text;
+}
 
 /** Validasi gold sebelum ada skor: lokasi, bentang, dan relasi takhrij harus nyata. */
 export async function validateQuestion(
@@ -100,13 +122,13 @@ export async function scoreAnswer(
     const actual = claims.length === 1 ? claims[0] : undefined;
     if (
       actual &&
-      statusKey(actual.status) === statusKey(expected.status) &&
+      actual.status === (await goldStatus(db, expected.footnote)) &&
       sameSpan(actual.footnote, expected.footnote) &&
       valid.some((s) => sameSpan(s.pointer, actual.footnote))
     )
       hadithPassed++;
   }
-  // Klaim status tambahan tanpa gold juga gagal, bukan diabaikan.
+  // Klaim untuk takhrij di luar gold: dihitung terpisah (lihat `hadithExtra`).
   const extraHadith = a.hadith.filter(
     (h) => !q.hadits.some((g) => g.passage_id === h.passage_id && sameSpan(g.footnote, h.footnote)),
   ).length;
@@ -115,11 +137,16 @@ export async function scoreAnswer(
     location: metric(Number(located && !a.refused), q.wajib_ditolak ? 0 : 1),
     refusal: metric(Number(answered && a.refused), q.wajib_ditolak ? 1 : 0),
     falseRefusal: metric(Number(!a.refused), q.wajib_ditolak ? 0 : 1),
-    hadith: metric(hadithPassed, q.hadits.length + extraHadith),
+    hadith: metric(hadithPassed, q.hadits.length),
     noFatwa: metric(Number(!hasFatwaLanguage(a.text)), 1),
     answered,
+    hadithExtra: extraHadith,
   };
 }
+/** Jumlah klaim status untuk takhrij di luar gold (X06, dilaporkan terpisah). */
+export const hadithExtraTotal = (scores: readonly AnswerScores[]) =>
+  scores.reduce((n, s) => n + s.hadithExtra, 0);
+
 export function aggregateAnswers(scores: AnswerScores[]) {
   const keys = ["quotes", "location", "refusal", "falseRefusal", "hadith", "noFatwa"] as const;
   return Object.fromEntries(

@@ -7,7 +7,9 @@ import { Sidebar } from "@heroui-pro/react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 
-import { id } from "../../i18n/id";
+import { brand as brandText } from "../../i18n/id/brand";
+import { footer as footerText } from "../../i18n/id/footer";
+import { nav as navText } from "../../i18n/id/nav";
 import { Copyright, HandHeart, InformationCircle, LockKeyhole } from "../../icons";
 
 import { SurauMark } from "./logo";
@@ -20,10 +22,10 @@ const ABOUT_ITEM = NAV_ITEMS.find((item) => item.id === "about");
 
 // Menu "Seputar Surau" di footer: Tentang + halaman informasi (lisensi, privasi, transparansi).
 const HELP_LINKS = [
-  { id: "about", icon: InformationCircle, label: id.nav.about, href: "/tentang" },
-  { id: "license", icon: Copyright, label: id.footer.license, href: "/lisensi" },
-  { id: "privacy", icon: LockKeyhole, label: id.footer.privacy, href: "/privasi" },
-  { id: "transparency", icon: HandHeart, label: id.footer.transparency, href: "/transparansi" },
+  { id: "about", icon: InformationCircle, label: navText.about, href: "/tentang" },
+  { id: "license", icon: Copyright, label: footerText.license, href: "/lisensi" },
+  { id: "privacy", icon: LockKeyhole, label: footerText.privacy, href: "/privasi" },
+  { id: "transparency", icon: HandHeart, label: footerText.transparency, href: "/transparansi" },
 ] as const;
 
 function NavMenuItem({
@@ -45,14 +47,14 @@ function NavMenuItem({
       id={`${idPrefix}${item.id}`}
       isCurrent={isCurrent}
       isDisabled={isSoon}
-      textValue={isSoon ? `${item.label} (${id.nav.soon})` : item.label}
-      tooltip={isSoon ? `${item.label} · ${id.nav.soonHint}` : item.label}
+      textValue={isSoon ? `${item.label} (${navText.soon})` : item.label}
+      tooltip={isSoon ? `${item.label} · ${navText.soonHint}` : item.label}
     >
       <Sidebar.MenuIcon>
         <Icon className="size-4" />
       </Sidebar.MenuIcon>
       <Sidebar.MenuLabel>{item.label}</Sidebar.MenuLabel>
-      {isSoon ? <Sidebar.MenuChip>{id.nav.soon}</Sidebar.MenuChip> : null}
+      {isSoon ? <Sidebar.MenuChip>{navText.soon}</Sidebar.MenuChip> : null}
       {item.badge ? (
         <Chip color="accent" size="sm" variant="soft">
           {item.badge}
@@ -87,14 +89,14 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
           <SurauMark className="size-8 shrink-0" />
           <span className="flex min-w-0 flex-col" data-sidebar="label">
             <span className="text-foreground text-2xl font-bold leading-tight">
-              {id.brand.name}
+              {brandText.name}
             </span>
           </span>
         </NextLink>
       </Sidebar.Header>
       <Sidebar.Content>
         <Sidebar.Group>
-          <Sidebar.Menu aria-label={id.nav.label}>
+          <Sidebar.Menu aria-label={navText.label}>
             {MAIN_ITEMS.map((item) => (
               <NavMenuItem key={item.id} activeId={activeId} idPrefix={idPrefix} item={item} />
             ))}
@@ -122,7 +124,7 @@ function HelpMenu() {
   return (
     <Dropdown>
       <Dropdown.Trigger
-        aria-label={id.nav.help}
+        aria-label={navText.help}
         className="sidebar__menu-item"
         data-current={isCurrent || undefined}
       >
@@ -133,12 +135,12 @@ function HelpMenu() {
             </span>
           ) : null}
           <span className="sidebar__menu-label" data-sidebar="label">
-            {id.nav.help}
+            {navText.help}
           </span>
         </span>
       </Dropdown.Trigger>
       <Dropdown.Popover className="w-56" offset={6} placement="top start">
-        <Dropdown.Menu aria-label={id.nav.help}>
+        <Dropdown.Menu aria-label={navText.help}>
           {HELP_LINKS.map((link) => (
             <Dropdown.Item key={link.id} href={link.href} id={link.id} textValue={link.label}>
               <link.icon className="text-muted size-4 shrink-0" />

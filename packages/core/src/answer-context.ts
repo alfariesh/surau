@@ -12,7 +12,7 @@ import type { D1Db, PassageWithPageRow } from "@surau/db";
 
 import { loadCiteContext } from "./citation.ts";
 import type { CiteContext } from "./citation.ts";
-import { translationView } from "./page.ts";
+import { reviewersFor, translationView } from "./page.ts";
 import { toPassages } from "./passages.ts";
 import type { Location, Passage, TranslationView } from "./schema.ts";
 
@@ -22,6 +22,8 @@ export interface AnswerPassage {
   page_id: number;
   kind: Passage["kind"];
   toc_node_id: number | null;
+  /** Urutan di halamannya (per jenis: badan lalu catatan kaki; ADR-029, bukan dari ID). */
+  ord: number;
   text_raw: string;
   location: Location;
   /** Terjemahan AI bahasa Indonesia (berlabel `ai_translation`), atau null. */
@@ -71,7 +73,10 @@ export async function answerPassages(db: D1Db, ids: readonly number[]): Promise<
   ).flat();
   const passageBy = new Map(passages.map((p) => [p.id, p]));
   const rowBy = new Map(rows.map((r) => [r.id, r]));
-  const translationBy = new Map(translations.map((t) => [t.passage_id, translationView(t)]));
+  const reviewers = await reviewersFor(db, translations);
+  const translationBy = new Map(
+    translations.map((t) => [t.passage_id, translationView(t, reviewers.get(t.passage_id))]),
+  );
   const refsTo = new Map<number, number[]>();
   for (const ref of backRefs)
     refsTo.set(ref.footnote_passage_id, [
@@ -89,6 +94,7 @@ export async function answerPassages(db: D1Db, ids: readonly number[]): Promise<
       page_id: row.page_id,
       kind: p.kind,
       toc_node_id: p.toc_node_id,
+      ord: row.ord,
       text_raw: p.text_raw,
       location: p.location,
       translation: translationBy.get(p.id) ?? null,

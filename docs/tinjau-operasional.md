@@ -15,11 +15,44 @@ Evaluasi sementara **Agent QA S18** telah mengisi 60 ulasan atas permintaan pemi
 
 Penilaian dapat diperbarui oleh akun yang sama. Jangan memakai satu akun untuk dua penilai yang ingin memiliki catatan terpisah: kunci penilai diturunkan dari akun Access. Jangan memasukkan email, nomor telepon, atau pertanyaan pribadi ke alasan. Ekspor memuat soal privat: simpan untuk evaluasi internal, jangan unggah ke repo atau tautan publik.
 
+## Tinjau label status hadits (X07)
+
+Halaman: [surau.org/tinjau/takhrij](https://surau.org/tinjau/takhrij) (tautan "Label status hadits" di atas halaman tinjau; login sama). Setiap butir adalah **satu catatan kaki takhrij al-'Iraqi**. Labelnya disusun kode dari istilah yang tertulis di teks takhrij (ADR-069); satu keputusan berlaku untuk setiap jawaban Jawab yang mengutip takhrij itu.
+
+1. Pilih daftar **Belum ditinjau** (bawaan). Urutannya: takhrij yang paling sering dikutip Jawab, lalu yang penilaiannya berbeda per jalur, lalu urutan kitab.
+2. Baca teks takhrij. Istilah yang dikenali kode **disorot**; di bawahnya ada label otomatis dan arti baku tiap istilah. Tautan "Buka di pembaca" dan "Hadits di matan" membuka halaman kitab.
+3. Isi nama sendiri (**Anas**) dengan huruf Latin. Keputusan dipakai Jawab hanya dari **akun ustadz peninjau terdaftar** dengan nama yang ditunjuk pemilik; akun atau nama lain (uji pemilik, Agent QA) tersimpan tetapi tidak dipakai. Akun Anas didaftarkan sekali: sesudah keputusan pertamanya tersimpan, pemilik meminta agent "daftarkan akun Anas sebagai peninjau label"; agent membaca kuncinya (hash akun, bukan email) dari DB app, pemilik memastikan, lalu agent membuka PR. Sebelum itu halaman menampilkan pemberitahuan "belum terdaftar".
+4. Pilih keputusan:
+   - **Setujui label** bila semua istilah yang disorot memang penilaian takhrij dan artinya tepat. Di Jawab, label tampil "ditinjau ustadz".
+   - **Koreksi jenis istilah** bila ada istilah keliru (misalnya kata itu bagian dari lafaz hadits) atau penilaian yang terlewat. Centang jenis yang benar; pratinjau label hasil koreksi muncul di bawahnya. Teks takhrij tidak perlu diketik ulang; jenis yang tidak punya istilah baku di teks disebut "menurut peninjau: …" (bukan isi takhrij) dan tampil tanpa teks Arab. Di Jawab, label tampil "dikoreksi ustadz". Koreksi berlaku per jenis: bila satu jenis muncul dua kali (di lafaz dan di penilaian), keduanya dipilih atau dibuang bersama; jelaskan di catatan.
+   - **Ragu, perlu dibahas** bila belum yakin. Label otomatis tetap dipakai dan butir pindah ke daftar **Perlu dibahas**.
+5. Catatan boleh diisi dengan huruf Latin (tidak tampil di Jawab; rujuk istilah dengan transliterasi). Tekan **Simpan dan lanjut**; butir berikutnya terbuka. Keputusan bisa diubah kapan saja dari daftar **Sudah ditinjau**.
+
+Bila teks takhrij atau aturan istilah berubah, label berubah dan butir kembali ke **Belum ditinjau** (keputusan lama tetap terlihat "untuk label lama"). Tabel `takhrij_review` di **surau-app** menyimpan keputusan, jenis istilah, catatan, nama, kunci akun (hash), dan waktu; tidak ada teks Arab dari penilai (ditolak server) dan tidak ada kedaluwarsa (anotasi korpus). Urutan prioritas tidak memakai soal privat (holdout).
+
+**Operasi agent (daftarkan peninjau):** baca kunci dengan `pnpm wrangler d1 execute APP --config packages/db/wrangler.jsonc --remote --command "SELECT reviewer_key, reviewer_name, COUNT(*) AS n, MIN(updated_at) AS pertama FROM takhrij_review GROUP BY 1, 2"` (hanya baca), tunjukkan nama + waktu keputusan pertama ke pemilik, lalu isi `TAKHRIJ_USTADZ_KEYS` di bagian atas `apps/web/wrangler.jsonc` dan `apps/api/wrangler.jsonc` (produksi; `previews`/staging tetap kosong) lewat PR.
+
+## Koreksi terjemahan (X08)
+
+Halaman: [surau.org/tinjau/terjemahan](https://surau.org/tinjau/terjemahan) (tautan "Koreksi terjemahan" di atas halaman tinjau; login sama). Setiap butir adalah **satu paragraf Ihya dengan terjemahan AI-nya**. Hanya **editor terdaftar** yang bisa menyimpan (ADR-081); nama dan gelar di label pembaca diambil dari daftar terdaftar, bukan diketik.
+
+1. **Pendaftaran (sekali):** buka halaman. Akun yang belum terdaftar melihat **kode akun** (hash akun, bukan email atau kata sandi) dan tombol **Salin kode**. Kirim kode itu ke pemilik lewat jalur yang biasa (misalnya WhatsApp pribadi pemilik). Pemilik meminta agent "daftarkan kode … sebagai editor terjemahan Ust. Anas"; agent mengisi `TRANSLATION_EDITORS` di `apps/web/wrangler.jsonc` lewat PR + ADR. Sesudah ter-deploy, muat ulang halaman.
+2. Urutan daftar **Belum ditinjau**: laporan pembaca jenis terjemahan, lalu paragraf yang dikutip Maknaz, lalu paragraf badan urut kitab (mulai Mukadimah dan Kitab al-'Ilm), lalu catatan kaki. Paragraf lain bisa dibuka lewat **Buka paragraf lain** (tempel tautan dari menu ⋮ paragraf → *Bagikan tautan*, atau kode seperti `p2824`).
+3. Baca teks Arab (dari kitab, tidak bisa diubah), lalu **Terjemahan sekarang** (tampil persis seperti pembaca, termasuk terjemahan ayat Kemenag).
+4. Pilih:
+   - **Sudah benar** bila maknanya setia (gaya yang kurang halus bukan alasan memperbaiki). Hanya untuk terjemahan AI yang belum ditinjau.
+   - **Perbaiki**: tulis ulang di kotak teks; pratinjau dan pemeriksaan otomatis muncul di bawahnya. Aturan teks: `⟦QS 2:255⟧` jangan diubah atau dihapus (tempat terjemahan ayat Kemenag); `(١)` penanda catatan kaki boleh dipindah atau dilengkapi bila ada di teks Arab; kata tambahan yang tidak ada di teks Arab ditulis dalam kurung siku `[…]`; tanpa huruf Arab (istilah ditulis Latin); tanpa format (tebal, miring, tautan). **Alasan singkat wajib.**
+   - **Batalkan perubahan terakhir** mengembalikan versi sebelumnya; menekannya lagi mundur satu versi lagi. Riwayat tidak pernah dihapus, dan pembatal tidak pernah tampil sebagai pengoreksi.
+5. Koreksi tersimpan langsung (tanpa persetujuan kedua) dan **baru tampil di situs lewat korpus berikutnya** (±sebulan sekali, atau lebih cepat bila sudah ≥50 koreksi; promote tetap atas izin pemilik). Label pembaca nanti: "Terjemahan AI · dikoreksi Ust. Anas" atau "… · diperiksa Ust. Anas".
+6. Batas 200 simpanan per hari per editor (hari UTC: hitungan mulai lagi pukul 07.00 WIB). Bila teks Arab paragraf berubah (patch sumber), butir pindah ke **Perlu ditinjau ulang**.
+
+Pemilik memeriksa sekilas di [/admin](https://surau.org/admin) → *Koreksi terjemahan terbaru* (nama editor, alasan, diff kata) dan bisa **Batalkan** satu koreksi, atau **Batalkan semua koreksi satu editor sejak tanggal tertentu** bila akun disalahgunakan. Tabel `translation_revision` di **surau-app** menyimpan teks perbaikan, alasan, nama tampil, kunci akun (hash), dan waktu; tanpa email, tanpa teks Arab dari editor, dan tidak ikut penghapusan otomatis (riwayat koreksi kitab).
+
 ## Akses dan penyimpanan
 
-Cloudflare Access **Surau Tinjau** melindungi `surau.org/tinjau` dan `surau.org/api/review` beserta turunannya. Login hanya One-time PIN, sesi 24 jam, satu email yang diberikan pemilik. Email hanya ada di kebijakan Cloudflare. Wildcard preview dan `/admin` belum dikonfigurasi.
+Cloudflare Access **Surau Tinjau** melindungi `surau.org/tinjau` dan `surau.org/api/review` beserta turunannya (termasuk `/tinjau/terjemahan`). Peran diperiksa di server sesudahnya: akun editor terjemahan terdaftar hanya membuka ruang jawaban/label bila didaftarkan untuk itu (`also`), dan akun yang belum terdaftar tidak bisa mengedit terjemahan (ADR-081). Login hanya One-time PIN, sesi 24 jam, satu email yang diberikan pemilik. Email hanya ada di kebijakan Cloudflare. Wildcard preview dan `/admin` belum dikonfigurasi.
 
-Aplikasi juga memeriksa tanda tangan JWT RS256, issuer, audience, waktu berlaku, subjek, tipe aplikasi, dan email pada setiap rute. Tanpa JWT sah, Preview/workers.dev tidak memberikan data. Halaman dinamis; API dan ekspor `private, no-store`, `noindex`; POST memeriksa Origin dan membatasi body 12 KB. JWT/email tidak disimpan di DB; kunci penilai adalah hash issuer+subjek. Nama penilai dan alasan tetap berada di penyimpanan internal.
+Aplikasi juga memeriksa tanda tangan JWT RS256, issuer, audience, waktu berlaku, subjek, tipe aplikasi, dan email pada setiap rute. Tanpa JWT sah, Preview/workers.dev tidak memberikan data. Halaman dinamis; API dan ekspor `private, no-store`, `noindex`; POST memeriksa Origin dan membatasi body (jawaban 12 KB, label takhrij 6 KB, koreksi terjemahan 40 KB, admin 2–4 KB). JWT/email tidak disimpan di DB; kunci penilai adalah hash issuer+subjek. Nama penilai dan alasan tetap berada di penyimpanan internal.
 
 `answer_log` dan `review` berada di **surau-app**, terpisah dari pergantian korpus blue-green. Snapshot jawaban tidak ditimpa; review mengikat hash jawaban. Korpus/hash/sumber yang tidak cocok menutup penilaian. Penilai dapat menyimpan keputusan soal saja, atau jawaban beserta skor bahasa; data invalid ditolak server dan constraint DB.
 

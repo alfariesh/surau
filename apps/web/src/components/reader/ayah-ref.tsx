@@ -7,14 +7,15 @@ import { Popover, Typography } from "@heroui/react";
 import { useState } from "react";
 import { Button as AriaButton } from "react-aria-components";
 
-import { id } from "../../i18n/id";
+import { common as commonText } from "../../i18n/id/common";
+import { reader as readerText } from "../../i18n/id/reader";
 import { ArabicText } from "../arabic";
 
 import { shortAyahLabel } from "../../lib/reader/ayah";
 
 import { useCanHover } from "./footnote-marker";
 
-const t = id.reader;
+const t = readerText;
 
 // Label rujukan ayat "QS 2:255" sesudah kutipan ayat di teks kitab (S12). Membuka teks ayat Tanzil,
 // transliterasi, dan terjemahan Kemenag, semuanya VERBATIM dari DB (props dari server, tidak
@@ -54,7 +55,7 @@ function sourceLink(source: QuranSourceView | undefined, label: string) {
       target="_blank"
     >
       {label}
-      <span className="sr-only"> {id.common.newTab}</span>
+      <span className="sr-only"> {commonText.newTab}</span>
     </a>
   );
 }
@@ -149,7 +150,7 @@ function AyahBody({ ayahRef, ayat, surahNameAr, sources }: AyahRefChipProps) {
           target="_blank"
         >
           {t.ayahOpenTanzil}
-          <span className="sr-only"> {id.common.newTab}</span>
+          <span className="sr-only"> {commonText.newTab}</span>
         </a>
       </div>
     </div>

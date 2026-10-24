@@ -28,6 +28,10 @@
     // GET /jawab/status); hostname token harus surau.org atau subdomainnya.
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFdyEf4rqoAMrG1j",
     "TURNSTILE_HOSTNAMES": "surau.org",
+    // Kunci akun ustadz peninjau label takhrij (X07, ADR-070): hash issuer+subjek Access penilai
+    // /tinjau, dipisah koma. Kosong = tinjauan tersimpan tetapi belum dipakai Jawab. Diisi agent
+    // lewat PR setelah pemilik memastikan kuncinya milik Anas (T-24); sama dengan apps/web.
+    "TAKHRIJ_USTADZ_KEYS": "",
   },
   // Burst Jawab per anon-id (S20, ADR-014): 3 pertanyaan / 60 detik, dihitung per lokasi. Kuota
   // harian TIDAK di sini (binding hanya 10/60 detik) tetapi di D1 (`quota_daily`). Namespace unik
@@ -49,8 +53,8 @@
   "d1_databases": [
     {
       "binding": "CORPUS_DB",
-      "database_name": "surau-corpus-ihya-v7",
-      "database_id": "91d6fdba-106b-43a7-9565-ee8e850c5046",
+      "database_name": "surau-corpus-ihya-v8",
+      "database_id": "2ccac36f-5e00-46a7-91c4-cc785d004d98",
       "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
     },
     {
@@ -72,6 +76,8 @@
     "staging": {
       "vars": {
         "ENVIRONMENT": "staging",
+        // Staging: tidak ada akun Access penilai (Preview gagal tertutup), jadi kosong.
+        "TAKHRIJ_USTADZ_KEYS": "",
         "LLM_MODE": "gateway",
         "AI_GATEWAY_URL": "https://gateway.ai.cloudflare.com/v1/8be116534f7237b451f28adec91fbbbd/surau-gw/anthropic",
         // Staging memakai sitekey UJI resmi (selalu lolos, terlihat) bersama secret uji: Preview

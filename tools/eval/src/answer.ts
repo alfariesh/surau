@@ -2,8 +2,9 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { evalAnswer, evalHash, resolveEvalSource, searchText } from "@surau/core";
-import { createAnthropic, createGatewayAnthropic } from "@surau/llm";
+import { answerToc, evalAnswer, evalHash, resolveEvalSource, searchText } from "@surau/core";
+import { JAWAB_EDITION_ID, createAnthropic, createGatewayAnthropic } from "@surau/llm";
+import type { Route } from "@surau/llm";
 import { z } from "zod";
 import { loadCorpusIndex } from "./corpus.ts";
 import { openCorpus } from "./open-corpus.ts";
@@ -25,8 +26,10 @@ import {
   judgePlanHash,
   judgeRequest,
 } from "./answer-judge.ts";
+import { isComplete, readSavedRoutes, replayCandidates, summarize } from "./answer-candidates.ts";
+import { replayHadith } from "./answer-hadith.ts";
 import { answerReport } from "./answer-report.ts";
-import { questionCeilingUsd, runQuestions } from "./answer-run.ts";
+import { questionCeilingUsd, runQuestions, savedRoutesFor } from "./answer-run.ts";
 import { approvedQuestions, reviewExport, seedSql } from "./answer-review.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
@@ -49,6 +52,7 @@ const { positionals, values } = parseArgs({
     concurrency: { type: "string", default: "3" },
     only: { type: "string" },
     "privat-saja": { type: "boolean", default: false },
+    rute: { type: "string" },
   },
 });
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/u);
@@ -182,12 +186,21 @@ async function main() {
       const wanted = new Set(values.only.split(","));
       items = items.filter((q) => wanted.has(q.question.id));
     }
+    // X05: `--rute <diagnostik>` memakai ulang rute routing arsip publik (tanpa panggilan
+    // routing), jadi dokumen sama dengan run itu dan selisih hasil hanya dari tahap jawaban.
+    let routes: Map<string, Route | null> | undefined;
+    if (values.rute) {
+      if (values["termasuk-privat"])
+        throw new Error("--rute hanya untuk soal publik (arsip diagnostik tanpa holdout).");
+      routes = savedRoutesFor(items, readSavedRoutes(resolve(values.rute)));
+    }
     if (!values.confirm) {
       console.log(
         JSON.stringify({
           run,
           questions: items.length,
           private: items.filter((q) => q.private).length,
+          saved_routes: routes !== undefined,
           ceiling_per_question_usd: Number(ceiling.haiku.toFixed(4)),
           sonnet_reserve_usd: Number(ceiling.sonnetReserve.toFixed(4)),
           note: "Belum ada panggilan berbayar; tambahkan --confirm setelah izin pemilik.",
@@ -215,6 +228,7 @@ async function main() {
       const { outputs, spent, skipped, failed } = await runQuestions(corpus.db, api, items, {
         budgetUsd: budget,
         concurrency: Math.min(6, Math.max(1, Number(values.concurrency) || 1)),
+        ...(routes ? { routes } : {}),
         onError: (item, error) =>
           console.error(
             `${item.private ? "(privat)" : item.question.id} GAGAL: ${error instanceof Error ? error.name : "galat"}`,
@@ -292,10 +306,80 @@ async function main() {
           skipped_budget: skipped,
           failed,
           private: outputs.filter((o) => o.item.private).length,
+          saved_routes: values.rute ?? null,
           spent_usd: Number(spent.toFixed(6)),
           avg_usd: n ? Number((spent / n).toFixed(6)) : null,
           report,
           archive: out,
+        }),
+      );
+    });
+    return;
+  }
+  if (command === "kandidat") {
+    // Gratis (tanpa LLM): ulang pencarian kandidat atas rute tersimpan satu run atau lebih.
+    const files = required(values.input, "--input").split(",");
+    const questions = new Map(
+      loadAnswerQuestions(repo, true).map(({ question }) => [question.id, question]),
+    );
+    await withCorpus(async (corpus, index) => {
+      const toc = new Map(
+        (await answerToc(corpus.db, JAWAB_EDITION_ID)).map((n) => [n.id, n] as const),
+      );
+      const perQuestion = new Map<string, { complete: number; runs: number }>();
+      for (const file of files) {
+        const rows = await replayCandidates(
+          corpus.db,
+          index,
+          toc,
+          questions,
+          readSavedRoutes(resolve(file)),
+        );
+        for (const r of rows) {
+          const q = perQuestion.get(r.id) ?? { complete: 0, runs: 0 };
+          q.runs++;
+          if (isComplete(r)) q.complete++;
+          perQuestion.set(r.id, q);
+        }
+        console.log(
+          JSON.stringify({ input: file, corpus: index.meta.corpus_version, ...summarize(rows) }),
+        );
+      }
+      // Soal yang lokasi gold-nya tidak lengkap di dokumen pada minimal satu rute.
+      const misses = [...perQuestion]
+        .filter(([, q]) => q.complete < q.runs)
+        .map(([id, q]) => `${id} ${q.complete}/${q.runs}`);
+      console.log(`Belum lengkap: ${misses.join(", ") || "tidak ada"}`);
+    });
+    return;
+  }
+  if (command === "hadits") {
+    // Gratis (tanpa LLM): ulang pascaproses status hadits atas arsip run publik (X06).
+    const run = id.parse(required(values.run, "--run"));
+    const questions = new Map(
+      loadAnswerQuestions(repo, true).map(({ question }) => [question.id, question]),
+    );
+    await withCorpus(async (corpus, index) => {
+      const rows = await replayHadith(
+        corpus.db,
+        index,
+        questions,
+        join(privateDir, `${run}-diagnostik-publik.jsonl`),
+        join(privateDir, `${run}.jsonl`),
+      );
+      const sum = (k: "passed" | "total" | "claims" | "extra" | "labeled") =>
+        rows.reduce((n, r) => n + r[k], 0);
+      for (const r of rows.filter((x) => x.total > 0))
+        console.log(`${r.id} takhrij ${r.passed}/${r.total} klaim ${r.claims}`);
+      console.log(
+        JSON.stringify({
+          run,
+          takhrij: `${sum("passed")}/${sum("total")}`,
+          claims: sum("claims"),
+          claims_outside_gold: sum("extra"),
+          statements_labeled: sum("labeled"),
+          unresolved: rows.filter((r) => r.unresolved).length,
+          answers_changed: rows.filter((r) => r.changed).length,
         }),
       );
     });
@@ -486,7 +570,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] (gratis; rute tersimpan, soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

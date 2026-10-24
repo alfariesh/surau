@@ -1,10 +1,11 @@
 import { ANSWER_KINDS } from "@surau/core";
 import type { AnswerRecord, JudgeRecord } from "./answer-data.ts";
-import { aggregateAnswers, metric } from "./answer-metrics.ts";
+import { aggregateAnswers, hadithExtraTotal, metric } from "./answer-metrics.ts";
 import type { AnswerScores, Metric } from "./answer-metrics.ts";
 import { calibration } from "./answer-review.ts";
 import type { ReviewExport } from "./answer-review.ts";
 import { JUDGE_VERSION } from "./answer-judge.ts";
+import { SAVED_ROUTE_SUFFIX } from "./answer-run.ts";
 
 const pct = (m: Metric) =>
   m.rate === null ? "— (0 sampel)" : `${(m.rate * 100).toFixed(1)}% (${m.passed}/${m.total})`;
@@ -71,7 +72,13 @@ export function answerReport(
     `Kalibrasi: ${cal.paired_answers} jawaban berpasangan dengan dua skor manusia. Kesepakatan kesetiaan ${pct(cal.faithfulness)}; atribusi ${pct(cal.attribution)}. ${cal.paired_answers < 30 ? "Belum terkalibrasi (target ±30)." : "Pasangan tersedia; periksa perbedaan sebelum memakai judge sebagai gerbang."}`,
     `Bahasa Indonesia: ${cal.language.mean?.toFixed(2) ?? "—"}/5, n=${cal.language.n}.`,
     `Jawaban berisi teks: ${rows.filter((r) => r.scores.answered).length}/${rows.length}.`,
+    `Takhrij: takhrij gold disitasi dan status = label kode takhrij itu (sejak X06, ADR-069; status tidak lagi tulisan model). Klaim status untuk takhrij lain yang disitasi (bukan kegagalan): ${hadithExtraTotal(rows.map((r) => r.scores))}.`,
     `Biaya jawaban: $${records.reduce((n, r) => n + r.answer.cost_usd, 0).toFixed(6)}; latensi rerata ${(records.reduce((n, r) => n + r.answer.latency_ms, 0) / rows.length).toFixed(0)} ms. Biaya judge dicatat terpisah di manifest batch.`,
+    ...(records.some((r) => r.answer.prompt_version.endsWith(SAVED_ROUTE_SUFFIX))
+      ? [
+          "Rute routing diambil dari arsip run lain (`--rute`, akhiran `+rute-tersimpan`): biaya dan latensi tanpa panggilan routing, dan angka ini mengukur tahap jawaban atas dokumen yang sama, bukan pipeline penuh.",
+        ]
+      : []),
     "",
     "Soal privat dan teks kitab tidak dimuat dalam laporan ini. Arsip per soal, alasan judge, dan penilaian manusia berada di penyimpanan privat.",
     "",

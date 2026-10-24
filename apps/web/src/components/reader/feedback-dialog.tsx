@@ -19,10 +19,11 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 
-import { id } from "../../i18n/id";
+import { common as commonText } from "../../i18n/id/common";
+import { reader as readerText } from "../../i18n/id/reader";
 import { FEEDBACK_KINDS, FEEDBACK_MESSAGE_MAX } from "../../lib/feedback";
 
-const t = id.reader;
+const t = readerText;
 
 type Status = "idle" | "sending" | "sent" | "error_rate" | "error_invalid" | "error";
 
@@ -97,7 +98,7 @@ export function FeedbackDialog({
               </Modal.Body>
               <Modal.Footer>
                 <Button slot="close" variant="secondary">
-                  {id.common.close}
+                  {commonText.close}
                 </Button>
               </Modal.Footer>
             </>

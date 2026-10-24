@@ -5,11 +5,12 @@ import { buttonVariants } from "@heroui/styles";
 import { useEffect } from "react";
 
 import { PageTitle } from "../components/page-title";
-import { id } from "../i18n/id";
+import { error as errorText } from "../i18n/id/error";
+import { meta as metaText } from "../i18n/id/meta";
 
 import "./globals.css";
 
-const t = id.error;
+const t = errorText;
 
 // Galat di root layout: menggantikan seluruh dokumen, jadi <html>/<body>, CSS global, dan judul
 // dipasang sendiri (metadata tidak didukung di sini). Tanpa SurauShell dan font UI: halaman ini harus
@@ -46,9 +47,9 @@ export default function GlobalError({
   return (
     <html dir="ltr" lang="id">
       <body className="bg-background text-foreground font-sans antialiased">
-        <title>{`${t.pageTitle} · ${id.meta.siteName}`}</title>
+        <title>{`${t.pageTitle} · ${metaText.siteName}`}</title>
         <main className="mx-auto flex w-full max-w-2xl flex-col items-start gap-4 px-4 pt-16 pb-16 sm:px-6">
-          <PageTitle>{t.heading}</PageTitle>
+          <PageTitle compactTitle={false}>{t.heading}</PageTitle>
           <Typography color="muted">{t.body}</Typography>
           <div className="flex flex-wrap gap-3">
             <Button onPress={() => retry()}>{t.retry}</Button>

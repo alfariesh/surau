@@ -2,18 +2,18 @@
 export const adminText = {
   title: "Admin Surau",
   eyebrow: "Ruang pemilik",
-  intro: "Sakelar Jawab, biaya AI bulan ini, kuota pengunjung, dan laporan kesalahan terbaru.",
+  intro: "Sakelar Maknaz, biaya AI bulan ini, kuota pengunjung, dan laporan kesalahan terbaru.",
   denied: "Akses khusus pemilik",
   deniedBody:
     "Masuk melalui alamat utama Surau dengan email pemilik yang terdaftar di Cloudflare Access.",
   login: "Buka halaman admin Surau",
   jawab: {
-    heading: "Jawab",
-    toggle: "Jawab aktif",
+    heading: "Maknaz",
+    toggle: "Maknaz aktif",
     toggleHint:
       "Bila dimatikan, pertanyaan langsung diarahkan ke Cari. Situs lain tetap berjalan seperti biasa.",
-    routeOn: "Jalur Jawab di situs: terbuka.",
-    routeOff: "Jalur Jawab di situs: masih tertutup sampai rilis Fase 4 (lapis pengaman kedua).",
+    routeOn: "Jalur Maknaz di situs: terbuka.",
+    routeOff: "Jalur Maknaz di situs: masih tertutup sampai rilis Fase 4 (lapis pengaman kedua).",
   },
   budget: {
     heading: "Biaya AI bulan ini",
@@ -26,7 +26,7 @@ export const adminText = {
     warned: "Peringatan 80% tercatat pada",
     capLabel: "Plafon bulanan (USD)",
     capHint:
-      "Bila terpakai + sedang berjalan mencapai plafon, Jawab otomatis berhenti sampai bulan berikutnya dan pengunjung diarahkan ke Cari.",
+      "Bila terpakai + sedang berjalan mencapai plafon, Maknaz otomatis berhenti sampai bulan berikutnya dan pengunjung diarahkan ke Cari.",
     save: "Simpan plafon",
     outcomes: "Rincian per hasil",
     estimated: "perkiraan",
@@ -72,6 +72,36 @@ export const adminText = {
     },
     open: "Buka halaman",
     retention: "Laporan yang selesai ditangani dihapus otomatis 12 bulan kemudian.",
+  },
+  translations: {
+    heading: "Koreksi terjemahan terbaru",
+    intro:
+      "Koreksi editor tersimpan langsung tanpa persetujuan kedua dan baru tampil di situs lewat korpus berikutnya. Periksa sekilas di sini, dan batalkan bila perlu sebelum korpus dibangun.",
+    empty: "Belum ada koreksi.",
+    kinds: { confirmed: "Sudah benar", revised: "Perbaikan", reverted: "Pembatalan" },
+    restoresAi: "kembali ke terjemahan AI",
+    restores: (name: string) => `kembali ke versi ${name}`,
+    tooLong: "Teks terlalu panjang untuk dibandingkan per kata.",
+    open: "Buka di pembaca",
+    review: "Buka di ruang editor",
+    revert: "Batalkan",
+    reverted: "Dibatalkan.",
+    more: "Lebih lama",
+    bulkHeading: "Batalkan semua koreksi satu editor",
+    bulkHint:
+      "Untuk berjaga-jaga bila akun editor disalahgunakan. Paragraf yang sesudahnya diubah editor lain tidak disentuh.",
+    bulkEditor: "Editor",
+    bulkSince: "Sejak tanggal (UTC)",
+    bulkRun: "Batalkan semua",
+    bulkResult: (reverted: number, skipped: number, remaining: number) =>
+      `${reverted} dibatalkan, ${skipped} dilewati (diubah editor lain)` +
+      (remaining > 0 ? `, ${remaining} tersisa: tekan lagi.` : "."),
+    count: (n: number) => `${n} simpanan`,
+    failed: "Daftar koreksi terjemahan gagal dimuat. Bagian lain halaman ini tetap bisa dipakai.",
+    confirmRevert: "Ya, batalkan koreksi ini",
+    confirmBulk: (name: string, since: string) =>
+      `Ya, batalkan semua koreksi ${name} sejak ${since}`,
+    cancel: "Tidak jadi",
   },
   saved: "Tersimpan.",
   failed: "Belum tersimpan. Muat ulang halaman atau masuk ulang bila sesi berakhir.",

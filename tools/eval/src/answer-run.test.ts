@@ -1,14 +1,17 @@
 import type { EvalQuestion } from "@surau/core";
 import type { D1Db, D1Statement } from "@surau/db";
+import { JAWAB_PIPELINE_VERSION } from "@surau/llm";
 import type { JawabResult } from "@surau/llm";
 import type Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, test } from "vite-plus/test";
 
 import {
   FALLBACK_TEXT,
+  SAVED_ROUTE_SUFFIX,
   canRun,
   questionCeilingUsd,
   runQuestions,
+  savedRoutesFor,
   toEvalAnswer,
 } from "./answer-run.ts";
 import { limitD1 } from "./open-corpus.ts";
@@ -102,12 +105,80 @@ describe("pagu eval", () => {
   });
 });
 
+describe("rute tersimpan (--rute, X05)", () => {
+  const routeA = { sections: [100001], queries: ["sabar"], hadith: false };
+  const saved = [
+    { id: "j001", route: routeA, routeFailed: false },
+    { id: "j002", route: null, routeFailed: false },
+    { id: "j003", route: null, routeFailed: true },
+  ];
+
+  test("savedRoutesFor: rute per soal; soal tanpa baris, routing gagal, atau holdout ditolak", () => {
+    expect(savedRoutesFor([item("j001"), item("j002")], saved)).toEqual(
+      new Map([
+        ["j001", routeA],
+        ["j002", null],
+      ]),
+    );
+    expect(() => savedRoutesFor([item("j001"), item("j009")], saved)).toThrow("j009");
+    expect(() => savedRoutesFor([item("j003")], saved)).toThrow("galat penyedia");
+    expect(() => savedRoutesFor([{ ...item("j001"), private: true }], saved)).toThrow(
+      "hanya untuk soal publik",
+    );
+  });
+
+  test("runner meneruskan rute tiap soal, menandai arsip, dan rute hilang ditolak di awal", async () => {
+    const seen: [string, unknown][] = [];
+    const routes = savedRoutesFor([item("j001"), item("j002")], saved);
+    const out = await runQuestions({} as D1Db, {} as Anthropic, [item("j001"), item("j002")], {
+      budgetUsd: 3,
+      concurrency: 1,
+      routes,
+      run: async (q, savedRoute) => {
+        seen.push([q, savedRoute]);
+        return result();
+      },
+    });
+    expect(seen).toEqual([
+      ["Soal j001?", routeA],
+      ["Soal j002?", null],
+    ]);
+    expect(out.outputs.every((o) => o.answer.prompt_version.endsWith(SAVED_ROUTE_SUFFIX))).toBe(
+      true,
+    );
+    let called = 0;
+    await expect(
+      runQuestions({} as D1Db, {} as Anthropic, [item("j001"), item("j009")], {
+        budgetUsd: 3,
+        concurrency: 1,
+        routes,
+        run: async () => {
+          called++;
+          return result();
+        },
+      }),
+    ).rejects.toThrow("j009");
+    expect(called).toBe(0);
+    // Tanpa `routes`: argumen rute tidak diisi dan arsip tanpa akhiran.
+    const plain = await runQuestions({} as D1Db, {} as Anthropic, [item("j001")], {
+      budgetUsd: 3,
+      concurrency: 1,
+      run: async (_q, savedRoute) => {
+        expect(savedRoute).toBeUndefined();
+        return result();
+      },
+    });
+    expect(plain.outputs[0]?.answer.prompt_version.endsWith(SAVED_ROUTE_SUFFIX)).toBe(false);
+  });
+});
+
 describe("hasil → kontrak eval", () => {
   test("jawaban: teks + sitasi; not_found = refused; fallback = teks baku + hasil Cari", () => {
     expect(toEvalAnswer(result())).toMatchObject({
       mode: "answer",
       refused: false,
       citations: [{ passage_id: 10000629 }],
+      prompt_version: `answer@5+answer-route@2+pipeline@${JAWAB_PIPELINE_VERSION}`,
     });
     expect(
       toEvalAnswer(result({ outcome: "not_found", text: "Tidak ditemukan di kitab yang dicakup." }))

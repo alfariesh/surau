@@ -5,13 +5,16 @@ import type { PassageRef } from "./reader-context";
 import { MoreVertical } from "../../icons";
 import { Button, Dropdown, Label } from "@heroui/react";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
 
 import { useReader } from "./reader-context";
 
-const t = id.reader;
+const t = readerText;
 
-/** Menu kecil per paragraf: salin sitasi paragraf (permalink `#pN`) dan laporkan kesalahan. */
+/**
+ * Menu kecil per paragraf: salin sitasi paragraf (permalink `#pN`), bagikan tautannya (lembar bagi
+ * ponsel, atau salin URL di desktop; X04 W5), dan laporkan kesalahan.
+ */
 export function PassageActions({ passage }: { passage: PassageRef }) {
   const reader = useReader();
 
@@ -32,11 +35,15 @@ export function PassageActions({ passage }: { passage: PassageRef }) {
         <Dropdown.Menu
           onAction={(key) => {
             if (key === "copy") void reader.copyCitation(passage.permalink);
+            if (key === "share") void reader.shareLink(passage.permalink);
             if (key === "report") reader.openReport(passage);
           }}
         >
           <Dropdown.Item id="copy" textValue={t.copyPassage}>
             <Label>{t.copyPassage}</Label>
+          </Dropdown.Item>
+          <Dropdown.Item id="share" textValue={t.sharePassage}>
+            <Label>{t.sharePassage}</Label>
           </Dropdown.Item>
           <Dropdown.Item id="report" textValue={t.reportPassage}>
             <Label>{t.reportPassage}</Label>

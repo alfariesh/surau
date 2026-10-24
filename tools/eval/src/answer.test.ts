@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vite-plus/test";
-import { evalAnswer, evalQuestion } from "@surau/core";
+import { evalAnswer, evalQuestion, takhrijLabel } from "@surau/core";
 import type { Citation } from "@surau/core";
 import type { D1Db } from "@surau/db";
 import { aggregateAnswers, hasFatwaLanguage, metric, scoreAnswer } from "./answer-metrics.ts";
@@ -31,7 +31,20 @@ vi.mock("@surau/core", async (importOriginal) => {
     ),
   };
 });
+// Catatan kaki gold BUATAN (bukan teks kitab): istilah "بإسناد ضعيف" → label "lemah".
+vi.mock("@surau/db", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@surau/db")>();
+  return {
+    ...actual,
+    getPassageById: vi.fn<typeof actual.getPassageById>(async (_db, id) =>
+      id === 1 ? ({ text_raw: "حديث تجريبي رواه فلان بإسناد ضعيف" } as never) : null,
+    ),
+  };
+});
 const db = {} as D1Db;
+/** Teks catatan kaki gold di mock `getPassageById` (id 1); takhrij gold disitasi utuh. */
+const GOLD_FOOT = "حديث تجريبي رواه فلان بإسناد ضعيف";
+const footSpan = { passage_id: 1, char_start: 0, char_end: GOLD_FOOT.length };
 const index = buildCorpusIndex(
   [{ key: "corpus_version", value: "test" }],
   [
@@ -100,16 +113,29 @@ describe("metrik Jawab", () => {
       (await scoreAnswer(db, index, q, { ...a, citations: [span] }, false)).location.rate,
     ).toBe(1);
   });
-  test("hadits wajib status dan pointer takhrij yang sesuai serta dikutip", async () => {
-    const h = { passage_id: 3, footnote: span, status: "Sanad lemah" };
-    const question = { ...q, hadits: [h] };
+  test("hadits wajib takhrij gold yang dikutip dengan status = label takhrij itu (X06)", async () => {
+    const gold = { passage_id: 3, footnote: footSpan, status: "Sanad lemah" };
+    const question = { ...q, sumber: [span, footSpan], hadits: [gold] };
+    // Status jawaban = label kode dari teks takhrij gold; kata-kata status gold tidak dicocokkan.
+    const h = { ...gold, status: takhrijLabel(GOLD_FOOT).text };
     expect((await scoreAnswer(db, index, question, { ...a, hadith: [h] }, false)).hadith.rate).toBe(
       0,
     );
     expect(
-      (await scoreAnswer(db, index, question, { ...a, citations: [span], hadith: [h] }, false))
+      (await scoreAnswer(db, index, question, { ...a, citations: [footSpan], hadith: [h] }, false))
         .hadith.rate,
     ).toBe(1);
+    expect(
+      (
+        await scoreAnswer(
+          db,
+          index,
+          question,
+          { ...a, citations: [footSpan], hadith: [gold] },
+          false,
+        )
+      ).hadith.rate,
+    ).toBe(0);
     expect(
       (
         await scoreAnswer(
@@ -197,6 +223,25 @@ test("klaim takhrij ganda tidak menutupi status salah", async () => {
     false,
   );
   expect(score.hadith.rate).toBe(0);
+});
+
+test("klaim berlabel untuk takhrij di luar gold dicatat, bukan kegagalan (X06)", async () => {
+  const gold = { passage_id: 3, footnote: footSpan, status: "Sanad lemah" };
+  const ok = { ...gold, status: takhrijLabel(GOLD_FOOT).text };
+  const other = {
+    passage_id: 4,
+    footnote: { ...span, passage_id: 2 },
+    status: "takhrij menyebut: sahih",
+  };
+  const score = await scoreAnswer(
+    db,
+    index,
+    { ...q, sumber: [span, footSpan], hadits: [gold] },
+    { ...a, citations: [footSpan], hadith: [ok, other] },
+    false,
+  );
+  expect(score.hadith).toMatchObject({ passed: 1, total: 1 });
+  expect(score.hadithExtra).toBe(1);
 });
 
 test("golden menolak persetujuan lama yang bertentangan dan menjaga set privat", async () => {

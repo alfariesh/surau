@@ -21,7 +21,7 @@ import {
 } from "../../../packages/core/test/fixture.ts";
 import { docIndex, fakeAnthropic, readSse } from "../test/fake-anthropic.ts";
 import type { FakeAnswer } from "../test/fake-anthropic.ts";
-import worker, { ANON_HEADER, IP_HEADER, createApp, guardConfig } from "./index.ts";
+import worker, { ANON_HEADER, IP_HEADER, createApp, guardConfig } from "./app.ts";
 import { ANON_COOKIE, ANON_TTL_SECONDS, newAnonId, signAnon, verifyAnon } from "./keys.ts";
 import { TURNSTILE_ACTION, hostnameAllowed, verifyTurnstile } from "./turnstile.ts";
 

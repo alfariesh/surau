@@ -21,6 +21,8 @@ export {
 export * from "./schema/corpus.ts";
 export * from "./schema/app.ts";
 export * from "./schema/review.ts";
+export * from "./schema/takhrij-review.ts";
+export * from "./schema/translation-revision.ts";
 export {
   insertAnswerLog,
   listAnswerLogs,
@@ -28,6 +30,32 @@ export {
   getReviews,
   saveReview,
 } from "./repo/review.ts";
+export {
+  getTakhrijReviews,
+  listTakhrijReviews,
+  saveTakhrijReview,
+  takhrijCitedCounts,
+  takhrijReviewsChangedSince,
+} from "./repo/takhrij-review.ts";
+export {
+  countTranslationRevisionsSince,
+  getActiveTranslationRevisions,
+  getTranslationRevisionHistories,
+  getTranslationRevisionHistory,
+  getTranslationRevisionsByIds,
+  listActiveTranslationRevisions,
+  listRecentTranslationRevisions,
+  listTranslationRevisionAuthors,
+  listTranslationRevisionsByAuthorSince,
+  saveTranslationRevision,
+  translationQueueSignals,
+} from "./repo/translation-revision.ts";
+export type {
+  SaveTranslationRevisionOptions,
+  SaveTranslationRevisionResult,
+  TranslationEditorSeen,
+  TranslationQueueSignals,
+} from "./repo/translation-revision.ts";
 
 export {
   getAdjacentPages,
@@ -47,14 +75,21 @@ export {
   getTocNode,
   getWorkBySlug,
   listEditions,
+  listFootnoteTexts,
   listPages,
   listTocNodes,
+  listTocNodesStartingAt,
   listWorkAuthors,
   listWorks,
   passageWithPageRow,
   tocNodeWithStartRow,
 } from "./repo/corpus.ts";
-export type { EditionContext, PassageWithPageRow, TocNodeWithStartRow } from "./repo/corpus.ts";
+export type {
+  EditionContext,
+  FootnoteTextRow,
+  PassageWithPageRow,
+  TocNodeWithStartRow,
+} from "./repo/corpus.ts";
 export {
   AI_TEXT_LANG,
   ANY_TERMS_BELOW,
@@ -68,6 +103,7 @@ export {
   searchCorpusFused,
   searchPassageRow,
   searchPathName,
+  searchSummaryNodes,
 } from "./repo/search.ts";
 export type {
   FusedSearchRequest,
@@ -78,11 +114,25 @@ export type {
   RankedSearchRow,
   SearchPassageRow,
   SearchPathName,
+  SummaryNodesResult,
   SearchRequest,
   SearchResult,
 } from "./repo/search.ts";
-export { getSummariesStartingOn, getTranslations, sectionSummaryRow } from "./repo/translation.ts";
-export type { SectionSummaryRow } from "./repo/translation.ts";
+export {
+  getSummariesStartingOn,
+  getTranslationReviewers,
+  getTranslationReviewsWithDraft,
+  getTranslations,
+  isHumanReviewed,
+  listTitleTranslations,
+  listTranslatedPassages,
+  sectionSummaryRow,
+} from "./repo/translation.ts";
+export type {
+  SectionSummaryRow,
+  TitleTranslations,
+  TranslatedPassage,
+} from "./repo/translation.ts";
 export { QURAN_AYAT_MAX, ayahRefWithSurahRow, getAyahRefs, getQuranAyat } from "./repo/quran.ts";
 export type { AyahRange, AyahRefWithSurahRow, QuranAyat } from "./repo/quran.ts";
 export {

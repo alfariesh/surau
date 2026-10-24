@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3004",
+    "dev:remote": "SURAU_DEV_REMOTE=1 next dev --port 3004",
     "build": "next build",
     "start": "next start --port 3004",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview --port 3005 --persist-to ../../.wrangler/state",

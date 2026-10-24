@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @surau/web dev",
+    "dev:remote": "pnpm --filter @surau/web dev:remote",
     "check": "vp check",
     "fix": "vp check --fix",
     "test": "vp test --coverage --project node && vp test --project db --project core --project mcp --project api && node tools/ingest/scripts/smoke-text.ts",
@@ -18,6 +19,9 @@
     "corpus:load:staging": "node tools/ingest/src/load.ts staging",
     "corpus:promote": "node tools/ingest/src/promote.ts",
     "corpus:qa": "node tools/ingest/src/qa.ts",
+    "subjudul": "node tools/ingest/src/subheadings-cli.ts",
+    "t17": "node tools/ingest/src/t17-cli.ts",
+    "review:export-terjemahan": "node tools/ingest/src/llm/revisions-cli.ts",
     "llm": "node tools/ingest/src/llm/cli.ts",
     "eval:retrieval": "node tools/eval/src/retrieval.ts",
     "db:migrate:local": "wrangler d1 migrations apply CORPUS --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --local --persist-to .wrangler/state -c packages/db/wrangler.jsonc",
@@ -25,6 +29,7 @@
     "db:migrate:app-staging": "wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc",
     "db:migrate:staging": "wrangler d1 migrations apply CORPUS --remote -c packages/db/wrangler.jsonc && wrangler d1 migrations apply APP --remote --env staging -c packages/db/wrangler.jsonc",
     "eval:jawab": "node tools/eval/src/answer.ts",
+    "eval:takhrij": "node tools/eval/src/takhrij-report.ts",
     "jawab:gateway-check": "node tools/eval/src/gateway-check.ts",
     "kertas": "node scripts/kertas.mjs"
   },

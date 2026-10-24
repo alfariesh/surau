@@ -6,13 +6,15 @@ import type { ReactNode } from "react";
 import { Card, Chip, Typography } from "@heroui/react";
 import NextLink from "next/link";
 
-import { id } from "../../i18n/id";
+import { reader as readerText } from "../../i18n/id/reader";
+import { search as searchText } from "../../i18n/id/search";
 import { aiSegments, markSegments, readerHref } from "../../lib/search/segments";
 import type { TextSegment } from "../../lib/search/segments";
 import { ArabicInline, ArabicText } from "../arabic";
+import { translationLabel } from "../../lib/translation-label";
 
-const t = id.search;
-const r = id.reader;
+const t = searchText;
+const r = readerText;
 
 // Kartu satu halaman cetak hasil Cari (S14): judul bagian + letak (j/h), lalu setiap paragraf
 // cocok: potongan Arab ASLI (irisan text_raw dari API, sorotan hanya membungkus), terjemahan AI
@@ -56,7 +58,7 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
       {tr ? (
         <div className="flex flex-col gap-1" lang="id">
           <Chip className="self-start" size="sm" variant="soft">
-            {r.aiTranslation}
+            {translationLabel(tr.human_review).badge}
           </Chip>
           <Typography type="body-sm">
             {render(aiSegments(tr.snippet.text, tr.snippet.char_start, tr.highlights))}

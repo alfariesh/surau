@@ -1,7 +1,12 @@
 // Bentuk data Jawab di sisi web (S21). Sengaja struktural (bukan impor dari apps/api): web hanya
 // menerima JSON/SSE dari `/api/jawab`, dan hasilnya divalidasi ringan sebelum dirender.
 
-export type JawabStage = "route" | "retrieve" | "answer" | "retry" | "verify";
+export const JAWAB_STAGES = ["route", "retrieve", "answer", "retry", "verify"] as const;
+export type JawabStage = (typeof JAWAB_STAGES)[number];
+
+function isStage(v: unknown): v is JawabStage {
+  return typeof v === "string" && (JAWAB_STAGES as readonly string[]).includes(v);
+}
 
 export interface JawabCitation {
   n: number;
@@ -18,11 +23,30 @@ export interface JawabBlock {
   citations: number[];
 }
 
+/** Istilah di teks takhrij: rentang mentah di catatan kaki + arti baku (X06). */
+export interface JawabHadithTerm {
+  kind: string;
+  char_start: number;
+  char_end: number;
+  gloss: string;
+}
+
 export interface JawabHadith {
   passage_id: number;
   footnote: { passage_id: number; char_start: number; char_end: number };
+  /** Teks status dari istilah takhrij, dibuat kode (bukan tulisan model). */
   status: string;
-  label: "ai_extracted";
+  /**
+   * `rule_extracted` sejak X06; `ustadz_reviewed`/`ustadz_corrected` = label kode yang disetujui /
+   * dikoreksi penilai /tinjau (X07); `ai_extracted` = bentuk lama (API sebelum X06, mis. staging
+   * yang melayani Preview dari `main`), tanpa `mixed`/`terms`.
+   */
+  label: "rule_extracted" | "ustadz_reviewed" | "ustadz_corrected" | "ai_extracted";
+  rules_version?: number;
+  mixed?: boolean;
+  terms?: JawabHadithTerm[];
+  /** Koreksi (X07): jenis istilah dari penilai tanpa frasa baku di teks; tidak pernah teks Arab. */
+  added_terms?: { kind: string; gloss: string }[];
 }
 
 export interface JawabSearchHit {
@@ -93,7 +117,8 @@ export function parseSseFrame(frame: string): SseEvent | null {
   const p = (payload ?? {}) as Record<string, unknown>;
   switch (name) {
     case "stage":
-      return typeof p.stage === "string" ? { event: "stage", stage: p.stage as JawabStage } : null;
+      // Tahap yang belum dikenal web (API ter-deploy lebih dulu) diabaikan: tahap sebelumnya tetap tampil.
+      return isStage(p.stage) ? { event: "stage", stage: p.stage } : null;
     case "block":
       return p.block !== null && typeof p.block === "object"
         ? {
@@ -164,3 +189,18 @@ export function kutipanQuery(
 
 export const spanKey = (s: { passage_id: number; char_start: number; char_end: number }) =>
   `${s.passage_id}:${s.char_start}:${s.char_end}`;
+
+/**
+ * Frasa Arab satu istilah, disalin dari teks takhrij DB (`text` = potongan catatan kaki mulai
+ * `footnoteStart`) lewat rentangnya; null bila di luar potongan itu.
+ */
+export function termPhrase(
+  text: string,
+  footnoteStart: number,
+  term: { char_start: number; char_end: number },
+): string | null {
+  const start = term.char_start - footnoteStart;
+  const end = term.char_end - footnoteStart;
+  if (start < 0 || end > text.length || end <= start) return null;
+  return text.slice(start, end);
+}

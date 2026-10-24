@@ -27,6 +27,12 @@ export interface JawabLog {
   blocks_dropped: number;
   arabic_removed: number;
   hadith_unsupported: number;
+  /** Pernyataan status bertakhrij yang diganti teks label kode (X06). */
+  hadith_labeled: number;
+  /** Klaim status yang labelnya ditinjau penilai (X07). */
+  hadith_reviewed: number;
+  /** Tinjauan label gagal dimuat dari DB app (label kode dipakai). */
+  takhrij_reviews_error: boolean;
   truncated: boolean;
   refusals: { model: string; category: string | null }[];
   provider_error: JawabResult["diagnostics"]["provider_error"];
@@ -58,6 +64,9 @@ export function resultLog(environment: string, r: JawabResult, cached: boolean):
     blocks_dropped: d.blocks_dropped,
     arabic_removed: d.arabic_removed,
     hadith_unsupported: d.hadith_unsupported,
+    hadith_labeled: d.hadith_labeled,
+    hadith_reviewed: d.hadith_reviewed,
+    takhrij_reviews_error: d.takhrij_reviews_error,
     truncated: d.truncated,
     refusals: d.refusals,
     provider_error: d.provider_error,
@@ -93,6 +102,9 @@ export function emptyLog(
     blocks_dropped: 0,
     arabic_removed: 0,
     hadith_unsupported: 0,
+    hadith_labeled: 0,
+    hadith_reviewed: 0,
+    takhrij_reviews_error: false,
     truncated: false,
     refusals: [],
     provider_error: null,

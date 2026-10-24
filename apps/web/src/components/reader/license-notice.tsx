@@ -2,9 +2,10 @@ import { Typography } from "@heroui/react";
 import NextLink from "next/link";
 
 import { EDITION_SOURCE, LICENSE_URL } from "../../content/works";
-import { id } from "../../i18n/id";
+import { common as commonText } from "../../i18n/id/common";
+import { reader as readerText } from "../../i18n/id/reader";
 
-const t = id.reader;
+const t = readerText;
 
 // Atribusi teks digital (ADR-018) yang memenuhi CC BY-NC-SA 4.0 §3(a)(1): atribusi edisi dari DB,
 // nama lisensi + tautan ke teks lisensinya, tautan ke materi sumber berlisensi (OpenITI), dan
@@ -45,7 +46,7 @@ export function LicenseNotice({
               target="_blank"
             >
               {t.licenseText}
-              <span className="sr-only"> {id.common.newTab}</span>
+              <span className="sr-only"> {commonText.newTab}</span>
             </a>
           </>
         ) : null}
@@ -54,7 +55,7 @@ export function LicenseNotice({
             {" · "}
             <a className={linkClass} href={sourceUrl} rel="noopener noreferrer" target="_blank">
               {t.sourceShamela}
-              <span className="sr-only"> {id.common.newTab}</span>
+              <span className="sr-only"> {commonText.newTab}</span>
             </a>
           </>
         ) : null}
@@ -84,7 +85,7 @@ export function LicenseNotice({
               target="_blank"
             >
               {t.licenseText}
-              <span className="sr-only"> {id.common.newTab}</span>
+              <span className="sr-only"> {commonText.newTab}</span>
             </a>
             )
           </>
@@ -100,7 +101,7 @@ export function LicenseNotice({
             target="_blank"
           >
             {source.label}
-            <span className="sr-only"> {id.common.newTab}</span>
+            <span className="sr-only"> {commonText.newTab}</span>
           </a>
         </Typography>
       ) : null}
@@ -115,7 +116,7 @@ export function LicenseNotice({
           target="_blank"
         >
           {t.sourceShamela}
-          <span className="sr-only"> {id.common.newTab}</span>
+          <span className="sr-only"> {commonText.newTab}</span>
         </a>
       ) : null}
       <NextLink className="link self-start text-[length:inherit]" href="/lisensi">

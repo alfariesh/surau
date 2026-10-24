@@ -108,17 +108,54 @@ const aiTextMeta = {
   ),
 };
 
+/**
+ * Tinjauan manusia atas terjemahan AI (X08, ADR-082): editor terdaftar menyatakannya benar atau
+ * memperbaikinya. Nama dari daftar terdaftar, hanya bila orangnya mengizinkan namanya dikirim; selain
+ * itu peran saja. Tanpa hash, email, atau identitas lain.
+ */
+export const humanReview = z
+  .strictObject({
+    revised: z
+      .boolean()
+      .describe("true = a registered human editor corrected the AI text (text is the correction)"),
+    reviewed_at: z.string().describe("When the editor confirmed or corrected it (ISO 8601)"),
+    reviewer_role: z
+      .enum(["ustadz", "editor"])
+      .describe(
+        "ustadz = account registered as an ustadz (Islamic teacher); editor = other editor",
+      ),
+    reviewer_name: z
+      .string()
+      .nullable()
+      .describe('Registered display name, e.g. "Ust. Anas Lc."; null when not shared'),
+    reviewer_short: z
+      .string()
+      .nullable()
+      .describe('Short name used in labels, e.g. "Ust. Anas"; null when not shared'),
+  })
+  .describe("Human review of the AI translation by a registered editor");
+export type HumanReview = z.infer<typeof humanReview>;
+
+const humanReviewField = humanReview
+  .nullable()
+  .describe(
+    "null = not reviewed by a human. Otherwise a registered editor confirmed (revised false) or corrected (revised true) this translation; it is still labelled AI because the draft came from AI",
+  );
+
 export const translationView = z
   .strictObject({
     label: z.literal("ai_translation").describe('Always shown as "AI translation"'),
     ...aiTextMeta,
+    human_review: humanReviewField,
     text: z
       .string()
       .describe(
-        "AI translation of text_raw. Placeholders ⟦QS s:a⟧ / ⟦QS s:a-b⟧ mark Quran quotations: render them from the official Kemenag translation (`quran`), never as model text",
+        "AI translation of text_raw (or its human correction, see human_review). Placeholders ⟦QS s:a⟧ / ⟦QS s:a-b⟧ mark Quran quotations: render them from the official Kemenag translation (`quran`), never as model text",
       ),
   })
-  .describe("Machine translation of a passage, labelled as AI (never a verified translation)");
+  .describe(
+    "Machine translation of a passage, labelled as AI; some are confirmed or corrected by a registered human editor (human_review)",
+  );
 export type TranslationView = z.infer<typeof translationView>;
 
 export const summaryView = z
@@ -426,6 +463,7 @@ export const searchTranslation = z
   .strictObject({
     label: z.literal("ai_translation").describe('Always shown as "AI translation"'),
     ...aiTextMeta,
+    human_review: humanReviewField,
     highlights: z
       .array(aiTextSpan)
       .describe("Matches of the Indonesian query words in the translation text (at most 50)"),

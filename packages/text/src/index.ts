@@ -24,7 +24,10 @@ export {
 } from "./stem.ts";
 
 export { findQuote } from "./quote.ts";
-export { takhrijHasWeakTerms } from "./takhrij.ts";
+export { SENTENCE_ABBREVIATIONS, indonesianSentences } from "./sentences.ts";
+export type { SentenceSpan } from "./sentences.ts";
+export { TAKHRIJ_TERMS_VERSION, takhrijTerms } from "./takhrij-terms.ts";
+export type { TakhrijTerm, TakhrijTermKind, TakhrijTerms } from "./takhrij-terms.ts";
 export type { FindQuoteOptions, QuoteMatch } from "./quote.ts";
 
 export {

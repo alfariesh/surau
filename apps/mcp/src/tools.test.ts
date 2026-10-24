@@ -15,6 +15,7 @@ function hit(id: number, score: number | null): SearchHit {
     prompt_version: "p@1",
     created_at: "2026-10-17",
     review_status: "ai_generated" as const,
+    human_review: null,
     highlights: [{ char_start: 0, char_end: 1 }],
     snippet: { char_start: 0, char_end: 3, text: "abc" },
   };

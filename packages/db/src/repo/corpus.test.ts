@@ -35,6 +35,7 @@ import {
   getWorkBySlug,
   listEditions,
   listTocNodes,
+  listTocNodesStartingAt,
   listWorkAuthors,
   listWorks,
 } from "./corpus.ts";
@@ -168,6 +169,18 @@ describe("daftar isi", () => {
       [T_CHILD_A, 1, 2],
     ]);
     expect(await listTocNodes(db, ED + 1)).toEqual([]);
+  });
+
+  test("listTocNodesStartingAt: hanya node yang mulai di halaman cetak itu (urut level, ord)", async () => {
+    expect((await listTocNodesStartingAt(db, ED, 1, 1)).map((n) => n.id)).toEqual([
+      T_ROOT,
+      T_CHILD_B,
+    ]);
+    expect((await listTocNodesStartingAt(db, ED, 1, 2)).map((n) => [n.id, n.parent_id])).toEqual([
+      [T_CHILD_A, T_ROOT],
+    ]);
+    expect(await listTocNodesStartingAt(db, ED, 1, 999)).toEqual([]);
+    expect(await listTocNodesStartingAt(db, ED + 1, 1, 1)).toEqual([]);
   });
 
   test("getTocNode", async () => {
