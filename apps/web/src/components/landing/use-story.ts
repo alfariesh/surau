@@ -45,12 +45,22 @@ export function useStory(
       timers.current.push(window.setTimeout(() => setStep(last), 0));
       return clear;
     }
+    // Mulai hanya saat beralih ke terlihat (≥35%), berhenti saat keluar layar; perubahan rasio di
+    // antaranya tidak memulai ulang cerita.
+    let running = false;
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) play();
-        else clear();
+        const entry = entries.at(-1);
+        if (!entry) return;
+        if (!running && entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+          running = true;
+          play();
+        } else if (running && !entry.isIntersecting) {
+          running = false;
+          clear();
+        }
       },
-      { threshold: 0.35 },
+      { threshold: [0, 0.35] },
     );
     io.observe(el);
     return () => {

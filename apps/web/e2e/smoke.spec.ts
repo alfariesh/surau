@@ -18,7 +18,8 @@ test("landing page di / mengarah ke Beranda di /home (ADR-096)", async ({ page }
   await expect(art).toHaveAttribute("sandbox", "allow-scripts");
   await expect(art).toHaveAttribute("aria-hidden", "true");
   // Kutipan hero (bila korpus ada): blok Arab ber-lang/dir dan beralamat.
-  const quote = page.locator("blockquote.arabic-text");
+  // Kutipan hero: blok Arab di dalam figure > blockquote (bukan kartu simulasi Maknaz yang muncul belakangan).
+  const quote = page.locator("header figure blockquote .arabic-text");
   if ((await quote.count()) > 0) {
     await expect(quote).toHaveAttribute("lang", "ar");
     await expect(quote).toHaveAttribute("dir", "rtl");

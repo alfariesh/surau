@@ -46,8 +46,6 @@ export interface HeroQuote {
 /** Satu paragraf contoh: Arab (utuh atau potongan awal di batas kata) + terjemahan AI berlabel. */
 export interface DemoPassage {
   arabic: string;
-  /** Arab dipotong (tampilkan tanda elipsis di luar teks Arab). */
-  cut: boolean;
   label: string;
   permalink: string;
   translation: { text: string; lang: string; badge: string } | null;
@@ -101,8 +99,10 @@ export function firstSentence(text: string): string | null {
 /** Kalimat terjemahan yang memuat `word` (huruf kecil), atau kalimat pertama; tanpa placeholder ayat. */
 export function sentenceWith(text: string, word: string): string | null {
   const sentences = text.split(/(?<=[.!?])\s/u).map((x) => x.trim());
-  const hit = sentences.find((x) => x.toLowerCase().includes(word) && !x.includes("⟦"));
-  return hit ?? firstSentence(text);
+  const at = sentences.findIndex((x) => x.toLowerCase().includes(word) && !x.includes("⟦"));
+  // Kalimat dari tengah paragraf diberi "…" supaya tidak terbaca sebagai padanan potongan awal Arab.
+  if (at > 0) return `…${sentences[at]}`;
+  return at === 0 ? sentences[0]! : firstSentence(text);
 }
 
 function translationOf(p: AnswerPassage, text: string | null) {
@@ -144,7 +144,6 @@ async function demos(db: D1Db, author: string | null): Promise<Demos> {
     hero && !hero.translation?.text.includes("⟦")
       ? {
           arabic: hero.text_raw.trim(),
-          cut: false,
           label: hero.location.label,
           permalink: hero.location.permalink,
           translation: translationOf(hero, hero.translation?.text ?? null),
@@ -153,11 +152,10 @@ async function demos(db: D1Db, author: string | null): Promise<Demos> {
   const results = SEARCH_DEMO_IDS.flatMap((pid) => {
     const p = rows.find((r) => r.id === pid);
     if (!p) return [];
-    const { text, cut } = wordPrefix(p.text_raw, SNIPPET_MAX);
+    const { text } = wordPrefix(p.text_raw, SNIPPET_MAX);
     return [
       {
         arabic: text,
-        cut,
         label: p.location.label,
         permalink: p.location.permalink,
         translation: translationOf(

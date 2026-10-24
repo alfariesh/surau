@@ -2442,8 +2442,6 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 
 **Tinjau ulang bila:** data menunjukkan pembaca menutup petunjuk tanpa memilih (pertimbangkan teks lain), petunjuk serupa dibutuhkan di Cari/Maknaz, ada akun/sinkron preferensi, atau versi Lighthouse/Chrome Playwright naik (patok ulang, ukur ulang acuan).
 
-**Tinjau ulang bila:** eval berbayar tidak meloloskan j024; gold ditinjau (T-24); atau kitab kedua masuk (catatan kaki kitab lain bukan takhrij al-'Iraqi).
-
 ## ADR-096 · Landing page publik di `/`, Beranda pindah ke `/home`; hero bergaya template buku (Primer) + bagian bergaya ElevenLabs yang menonjolkan AI lewat simulasi berdata asli — diterima · 2026-10-24
 
 **Konteks:** pemilik meminta landing page publik yang mencontoh, atau lebih bagus dari, template Primer (Tailwind Plus), disesuaikan dengan Surau, memakai komponen HeroUI, dengan ilustrasi dari skill `aset`. Jawaban pemilik (chat 2026-10-24): landing di `/`, Beranda di `/home`; tanpa testimoni karangan dan tanpa nama orang; bagian harga = gratis + transparansi biaya, tanpa donasi. Sesudah versi pertama pemilik meminta tata letak yang benar-benar mengikuti Primer (hero dengan buku, menu bagian yang menempel, bukan menu header). Sesudah itu pemilik tidak puas dengan *pilihan isi*: daftar isi satu kitab tidak tahan bila kitab bertambah, dan AI tidak ditonjolkan. Arah akhirnya: hero Primer dipertahankan (panel gradien, tanpa garis kisi), bagian di bawahnya meniru ElevenLabs (kartu gradien, bento, simulasi), simulasi Maknaz dengan orb tanpa label, widget berbentuk widget cari Beranda dengan Segment berikon, logo asisten AI sebagai marquee, simulasi berulang tanpa tombol, tanpa bayangan, dan latar putih tembus di atas gradien.

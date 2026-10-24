@@ -53,7 +53,7 @@ export const landingDemo = {
   ],
   mcpTool: "Surau",
   mcpAnswer: (label: string) =>
-    `Menurut al-Ghazali dalam ${label}, ilmu melahirkan keadaan batin, lalu keadaan batin menghasilkan amal. Teks Arabnya sudah dicocokkan dengan sumbernya.`,
+    `Menurut al-Ghazali dalam ${label}, ilmu melahirkan keadaan batin, lalu keadaan batin menghasilkan amal. Kutipannya sudah diperiksa dengan verify_quote.`,
   mcpAssistant: "Asisten AI Anda",
 } as const;
 
@@ -160,8 +160,9 @@ export const landing = {
     "Lewat MCP, Claude, ChatGPT, atau asisten AI lain bisa mencari, membaca halaman, dan memeriksa kutipan di Surau, dengan teks Arab asli dan tautan ke halaman cetaknya. Gratis, tanpa akun Surau; biaya model ditanggung asisten AI Anda.",
   mcpGuide: "Panduan menyambungkan",
   mcpUrlLabel: "Alamat server MCP",
-  // Asisten yang bisa memakai server MCP jarak jauh (panduan /mcp: Claude, ChatGPT, klien MCP lain).
-  mcpClientsLabel: "Bisa dipakai dari",
+  // Contoh asisten yang mendukung server MCP jarak jauh; langkah rinci di /mcp untuk Claude dan ChatGPT,
+  // yang lain lewat "Klien MCP lain". Bukan daftar dukungan resmi atau kemitraan.
+  mcpClientsLabel: "Asisten AI yang mendukung MCP, misalnya",
   mcpClients: ["Claude", "ChatGPT", "Grok", "Gemini", "Copilot", "Mistral"],
   mcpClientsMore: "dan klien MCP lainnya",
 

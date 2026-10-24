@@ -23,7 +23,7 @@ export function McpSim({ label }: { label: string }) {
       ref={ref}
       className="landing-gradient relative flex min-h-[26rem] items-center justify-center overflow-hidden rounded-[2rem] px-4 py-10 sm:px-8"
     >
-      <div aria-live="polite" className="flex w-full max-w-md flex-col gap-3">
+      <div className="flex w-full max-w-md flex-col gap-3">
         {step >= 1 ? (
           <div className="bg-background/60 text-foreground self-end rounded-3xl rounded-br-md px-4 py-3">
             <Typography type="body-sm">{t.mcpUser}</Typography>

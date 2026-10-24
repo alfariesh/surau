@@ -130,7 +130,7 @@ function MaknazSim({ quote }: { quote: HeroQuote }) {
   return (
     <div ref={ref}>
       <Stage>
-        <div aria-live="polite" className="flex w-full max-w-xl flex-col gap-4">
+        <div className="flex w-full max-w-xl flex-col gap-4">
           <div className="flex justify-end">
             {typed ? (
               <div className="bg-background/60 text-foreground max-w-[90%] rounded-3xl rounded-br-md px-4 py-3 sm:max-w-[85%]">
@@ -276,8 +276,10 @@ function SearchSim({ query, results }: { query: string; results: readonly DemoPa
 type Mode = "ar" | "both" | "tr";
 
 function ReadSim({ read }: { read: DemoPassage }) {
-  const [mode, setMode] = useState<Mode>("both");
+  const [picked, setMode] = useState<Mode>("both");
   const modes: Mode[] = read.translation ? ["ar", "both", "tr"] : ["ar"];
+  // Paragraf tanpa terjemahan: hanya mode Arab, dan pilihan mode tidak ditampilkan.
+  const mode = modes.includes(picked) ? picked : "ar";
   return (
     <div
       className={`landing-gradient relative flex ${STAGE_H} items-center justify-center overflow-hidden rounded-2xl px-3 py-4 sm:px-10 sm:py-10`}
@@ -287,21 +289,23 @@ function ReadSim({ read }: { read: DemoPassage }) {
           <Typography className="text-accent font-medium" type="body-sm">
             {read.label}
           </Typography>
-          <Segment
-            aria-label={t.readModesLabel}
-            selectedKey={mode}
-            size="sm"
-            onSelectionChange={(key) => {
-              const next = modes.find((m) => m === key);
-              if (next) setMode(next);
-            }}
-          >
-            {modes.map((m) => (
-              <Segment.Item key={m} id={m}>
-                {t.readModes[m]}
-              </Segment.Item>
-            ))}
-          </Segment>
+          {modes.length > 1 ? (
+            <Segment
+              aria-label={t.readModesLabel}
+              selectedKey={mode}
+              size="sm"
+              onSelectionChange={(key) => {
+                const next = modes.find((m) => m === key);
+                if (next) setMode(next);
+              }}
+            >
+              {modes.map((m) => (
+                <Segment.Item key={m} id={m}>
+                  {t.readModes[m]}
+                </Segment.Item>
+              ))}
+            </Segment>
+          ) : null}
         </div>
         {/* Paragraf utuh dari DB, hanya dipotong tampilannya (line-clamp), jadi Arab dan terjemahan sepadan. */}
         <div className="mt-5 flex flex-col gap-4">

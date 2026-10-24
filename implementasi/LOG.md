@@ -18,7 +18,7 @@ Format entri:
 ## 2026-10-24 · Landing page publik (ADR-096) — selesai
 
 - Dikerjakan: landing page di `/` (hero bergaya Primer dengan sampul Ihya dan kutipan asli, menu bagian bernomor yang menempel, widget "Coba Surau" berisi simulasi Maknaz/Cari/Baca berdata asli, bento, cara kerja, koleksi bertahap, integrasi AI dengan marquee logo + simulasi MCP, gratis + biaya, tanya jawab); Beranda pindah ke `/home`; lima figur aset baru; ikon baru (panah, centang, GitHub, kutip, logo asisten AI). Beberapa putaran revisi dengan pemilik (tata letak Primer, isi bergaya ElevenLabs, widget, ukuran ponsel, tanpa bayangan).
-- Verifikasi: lihat PR #135 (`pnpm verify`, e2e smoke + a11y di `pnpm dev:remote`, axe terang/gelap, Playwright desktop 1440 / ponsel 375 dan 320 / gelap, ukuran panggung simulasi diukur).
+- Verifikasi: `pnpm verify` → lolos (866 + 407 tes, build); `BASE_URL=http://localhost:3004 playwright test smoke a11y beranda-maknaz` di `pnpm dev:remote` → 116 lolos, 2 gagal (tes header `immutable` mesin aset: hanya dipasang `public/_headers` di Workers, tidak oleh `next dev`); axe `/` dan `/home` terang/gelap → bersih; isi panggung simulasi diukur muat di 320/375/1440 px; halaman ponsel tidak melebar (scrollWidth 375). Tinjauan `peninjau` (dua putaran): tanpa blocker, temuan diperbaiki (aria-live simulasi, mulai ulang saat gulir, selektor e2e kutipan hero, baris ADR nyasar, pasangan Arab/terjemahan Cari, klaim MCP, label logo, mode Baca tanpa terjemahan).
 - Biaya API: –
 - Keputusan: ADR-096
 - Catatan untuk sesi berikutnya: sesudah deploy, buka surau.org (landing) dan surau.org/home (Beranda). Testimoni asli, donasi, tombol jeda gerak, dan versi `/en` menunggu keputusan pemilik.

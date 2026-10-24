@@ -50,12 +50,13 @@ describe("wordPrefix: potongan awal hasil Cari di batas kata", () => {
 describe("sentenceWith: kalimat terjemahan yang memuat kata yang dicari", () => {
   it("memilih kalimat yang memuat kata, selain itu kalimat pertama", () => {
     expect(sentenceWith("Awal. Lalu sabar itu berat. Akhir.", "sabar")).toBe(
-      "Lalu sabar itu berat.",
+      "…Lalu sabar itu berat.",
     );
+    expect(sentenceWith("Sabar itu berat. Akhir.", "sabar")).toBe("Sabar itu berat.");
     expect(sentenceWith("Awal. Kedua.", "sabar")).toBe("Awal.");
   });
 
   it("melewati kalimat berplaceholder ayat", () => {
-    expect(sentenceWith("Sabar ⟦QS 2:153⟧ itu. Lagi sabar.", "sabar")).toBe("Lagi sabar.");
+    expect(sentenceWith("Sabar ⟦QS 2:153⟧ itu. Lagi sabar.", "sabar")).toBe("…Lagi sabar.");
   });
 });

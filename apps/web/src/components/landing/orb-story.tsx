@@ -11,8 +11,8 @@ import { useStory } from "./use-story";
 const STATES: readonly OrbState[] = ["rest", "route", "retrieve", "answer", "verify", "done"];
 const STEPS = [600, 900, 900, 900, 900] as const;
 
-// Orb Maknaz besar untuk kartu bento (ADR-096): sekali jalan melewati tahap Jawab saat terlihat, lalu
-// berhenti di bentuk "selesai"; teks tahap di bawahnya (dekoratif: tahap yang sama dijelaskan di kartu).
+// Orb Maknaz besar untuk kartu bento (ADR-096): melewati tahap Jawab sampai bentuk "selesai", berulang
+// selama terlihat (useStory); teks tahap di bawahnya (dekoratif: tahap yang sama dijelaskan di kartu).
 export function OrbStory() {
   const ref = useRef<HTMLDivElement>(null);
   const { step } = useStory(ref, STEPS);

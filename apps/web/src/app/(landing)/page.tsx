@@ -327,6 +327,9 @@ function Features({ quote }: { quote: HeroQuote | null }) {
                       </Typography>
                     </div>
                   ) : null}
+                  <NextLink className="link self-start text-sm" href={quote.permalink}>
+                    {t.quoteOpen}
+                  </NextLink>
                 </div>
               ) : null}
             </div>
