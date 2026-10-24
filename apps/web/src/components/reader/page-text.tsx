@@ -48,6 +48,11 @@ interface Ctx {
   footById: Map<number, PassageModel>;
   /** Catatan kaki per digit penanda (١), untuk penanda di terjemahan (X11). */
   footByDigit: FootnotesByDigit;
+  /**
+   * Data `FootnoteMarker` per catatan kaki, dihitung sekali dan dipakai bersama penanda Arab dan
+   * terjemahan: objek yang sama tidak diserialisasi ulang di payload RSC (teks takhrij utuh).
+   */
+  footProps: (foot: PassageModel) => FootnoteMarkerProps["footnote"];
 }
 
 function ayahChip(quran: QuranView | null, ref: AyahRef | undefined, key: number): ReactNode {
@@ -88,7 +93,7 @@ function renderSegments(
           s.text
         ) : (
           <FootnoteMarker
-            footnote={footnoteProps(foot)}
+            footnote={ctx.footProps(foot)}
             marker={s.marker}
             refId={ctx.model.markerIds[s.footnoteId] === markerId ? markerId : undefined}
             text={s.text}
@@ -246,6 +251,8 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
   const translated = p.translation !== null;
   const arId = `ar-${p.anchor}`;
   const fold = translated ? "passage-ar" : "";
+  // Satu objek untuk semua ⋮ paragraf ini (tidak diserialisasi ulang di payload RSC).
+  const ref = passageRef(p, ctx.model);
   return (
     // `data-no-tr`: paragraf tanpa terjemahan (X11) tampil selebar penuh di tata letak berdampingan.
     <div
@@ -254,11 +261,11 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
       id={p.anchor}
     >
       {anchors}
-      {translated ? <PassageTools passage={passageRef(p, ctx.model)} target={arId} /> : null}
+      {translated ? <PassageTools passage={ref} target={arId} /> : null}
       {sub === -1 ? (
         <ArabicText className={`text-foreground ${verse ? "verse" : ""} ${fold}`} id={arId}>
           {renderBlocks(p, ctx)}
-          <PassageActions passage={passageRef(p, ctx.model)} />
+          <PassageActions passage={ref} />
         </ArabicText>
       ) : (
         // Subjudul yang menempel di awal/akhir paragraf: baris judul sendiri + sisa paragrafnya.
@@ -272,14 +279,14 @@ function PassageView({ p, ctx, level }: { p: PassageModel; ctx: Ctx; level: 2 | 
             ) : (
               <p key={i} className={fold || undefined}>
                 {renderBlocks(p, ctx, [b])}
-                <PassageActions passage={passageRef(p, ctx.model)} />
+                <PassageActions passage={ref} />
               </p>
             ),
           )}
         </ArabicText>
       )}
       {translated ? null : (
-        <Typography className="no-tr-note" color="muted" type="body-xs">
+        <Typography className="no-tr-note" color="muted" data-copy-skip="" type="body-xs">
           {rm.noTranslationNote}
         </Typography>
       )}
@@ -329,16 +336,26 @@ export function PageText({
   /** Catatan di awal teks (mis. catatan terjemahan AI). */
   notice?: ReactNode;
 }) {
+  const propsCache = new Map<PassageModel, FootnoteMarkerProps["footnote"]>();
+  const footProps = (foot: PassageModel) => {
+    let props = propsCache.get(foot);
+    if (props === undefined) {
+      props = footnoteProps(foot);
+      propsCache.set(foot, props);
+    }
+    return props;
+  };
   const footByAnchor = new Map(model.footnotes.map((f) => [f.anchor, f]));
   const footByDigit: Record<string, FootnoteMarkerProps["footnote"]> = {};
   for (const [digit, anchor] of Object.entries(model.footAnchor)) {
     const foot = footByAnchor.get(anchor);
-    if (foot !== undefined) footByDigit[digit] = footnoteProps(foot);
+    if (foot !== undefined) footByDigit[digit] = footProps(foot);
   }
   const ctx: Ctx = {
     model,
     footById: new Map(model.footnotes.map((f) => [f.id, f])),
     footByDigit,
+    footProps,
   };
   const levels = subLevels(model.body, afterH2);
   const summaries = (list: PassageModel["summaries"]) =>

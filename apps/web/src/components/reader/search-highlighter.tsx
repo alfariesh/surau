@@ -89,8 +89,12 @@ export function SearchHighlighter() {
           collect(el, rangesFor(el, text.findLatinSpans(el.textContent ?? "", latin, 50)));
         }
       }
-      // Satu kali jaga posisi untuk semua paragraf yang dibuka: paragraf tujuan tidak terdorong.
-      if (hidden.length > 0) keepReadingPosition(() => hidden.forEach((el) => revealFor(el)));
+      // Satu kali jaga posisi untuk semua paragraf yang dibuka: paragraf tujuan tidak terdorong. Satu
+      // elemen per paragraf (kecocokan bisa puluhan per blok).
+      const perPassage = new Map(hidden.map((el) => [el.closest(".passage") ?? el, el]));
+      if (perPassage.size > 0) {
+        keepReadingPosition(() => perPassage.forEach((el) => revealFor(el)));
+      }
       if (ranges.length > 0) CSS.highlights.set(HIGHLIGHT, new Highlight(...ranges));
     });
     return () => {

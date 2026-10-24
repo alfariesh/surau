@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import type { CopyPiece } from "../../lib/reader/id-text";
 
 import { reader as readerText } from "../../i18n/id/reader";
-import { revealFor, toggleArabic, toggleTranslation } from "../../lib/reader/fold";
+import { revealArabic, revealFor, toggleArabic, toggleTranslation } from "../../lib/reader/fold";
 import { labelledCopy } from "../../lib/reader/id-text";
 
 const t = readerText;
@@ -19,7 +19,8 @@ const t = readerText;
 // 2. Mode "terjemahan dilipat" (dan paragraf yang dibuka sementara di mode Arab, X11): tombol
 //    `.translation-toggle` membuka/menutup terjemahan paragrafnya; di mode Terjemahan tombol
 //    `.arabic-toggle` membuka/menutup teks Arabnya (lib/reader/fold.ts).
-// 3. Tautan `#…` ke teks yang tersembunyi mode baca atau lipatan membukanya lebih dulu (X11).
+// 3. Tautan `#…` ke teks yang tersembunyi mode baca atau lipatan membukanya lebih dulu (X11); di
+//    mode Terjemahan permalink paragraf `#pN` juga membuka teks Arab paragraf itu.
 
 const BLOCKS =
   ".passage-translation, .arabic-text, .reader-inline-subheading, .verse-row, li, h1, h2, h3, p";
@@ -132,9 +133,21 @@ export function ReaderEnhancements() {
         // Fragmen rusak (mis. "#%"): pakai apa adanya; id pembaca ASCII.
       }
       const target = id === "" ? null : document.getElementById(id);
+      if (target === null) return;
       // Gulir ke paragrafnya (punya scroll-margin navbar), bukan elemen dalamnya.
-      if (target !== null && revealFor(target)) {
+      if (revealFor(target)) {
         (target.closest(".passage") ?? target).scrollIntoView({ block: "start" });
+        return;
+      }
+      // Mode Terjemahan: permalink paragraf (#pN, mis. sitasi atau "Buka di pembaca") menunjuk teks
+      // Arab yang dirujuk, jadi Arab paragraf itu ikut dibuka. Terbuka di bawah baris alatnya, jadi
+      // paragraf tujuan tidak bergeser.
+      if (
+        document.documentElement.getAttribute("data-read-mode") === "tr" &&
+        target.matches(".passage") &&
+        target.querySelector(".passage-ar") !== null
+      ) {
+        revealArabic(target);
       }
     }
     onHash();

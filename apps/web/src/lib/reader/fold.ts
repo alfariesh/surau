@@ -59,7 +59,7 @@ export function revealFor(el: Element): boolean {
   }
   // Teks Arab terlipat di mode Terjemahan: blok `passage-ar` atau isinya (mis. penanda catatan kaki
   // tujuan tautan "kembali ke teks").
-  if (el.closest(".passage-ar") !== null || el.querySelector(".passage-ar") !== null) {
+  if (el.closest(".passage-ar") !== null) {
     revealArabic(passage);
     return true;
   }

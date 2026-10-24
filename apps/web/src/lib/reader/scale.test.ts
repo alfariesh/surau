@@ -48,6 +48,10 @@ describe("READER_SCALE_SCRIPT: mode baca (X11)", () => {
     expect(run({}).attrs.has("data-read-mode")).toBe(false);
   });
 
+  it("mode Terjemahan tersimpan → data-read-mode=tr", () => {
+    expect(run({ [READ_MODE_KEY]: "tr" }).attrs.get("data-read-mode")).toBe("tr");
+  });
+
   it("nilai tak dikenal diabaikan", () => {
     expect(run({ [READ_MODE_KEY]: "semua" }).attrs.has("data-read-mode")).toBe(false);
   });

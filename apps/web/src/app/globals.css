@@ -1001,6 +1001,12 @@ h2.reader-heading-minor {
   font-size: 0.8em;
 }
 
+/* Penanda di terjemahan memakai FootnoteMarker (X11): ukuran dari pembungkusnya (0.8em teks
+ * terjemahan), bukan 0.62em penanda Arab, supaya tetap terbaca dan mudah diketuk. */
+.translation-marker .footnote-marker {
+  font-size: 1em;
+}
+
 /* Mode "Dilipat" (data-tr-layout="fold"): terjemahan tertutup, dibuka per paragraf lewat tombolnya. */
 /* Tombol lipat berbentuk pil: "Terjemahan AI" (Dilipat, X04) dan "Teks Arab" (mode Terjemahan, X11). */
 :is(.translation-toggle, .arabic-toggle) {
@@ -1083,7 +1089,8 @@ h2.reader-heading-minor {
   display: none;
 }
 
-/* Terjemahan sebagai teks utama: tanpa garis tepi pemisah. */
+/* Terjemahan sebagai teks utama: tanpa garis tepi pemisah (juga di pratinjau panel Tampilan). */
+:root[data-read-mode="tr"] .reader-style-preview .passage-translation,
 :root[data-read-mode="tr"] .reader-text .passage > .passage-translation {
   margin-top: 0;
   padding-inline-start: 0;
@@ -1094,7 +1101,11 @@ h2.reader-heading-minor {
   margin-top: 0.25rem;
 }
 
-:root[data-read-mode="tr"] :is(h2.reader-heading, .reader-subheading, .reader-inline-subheading) {
+/* Judul Arab kecil dan redup hanya bila ada terjemahan judul di bawahnya (judul tanpa terjemahan
+ * tetap judul biasa). */
+:root[data-read-mode="tr"]
+  .passage:not([data-no-tr])
+  :is(h2.reader-heading, .reader-subheading, .reader-inline-subheading) {
   font-size: 1.05em;
   color: var(--muted);
 }

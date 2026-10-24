@@ -133,7 +133,7 @@ test("ganti mode dari menu ⋮: paragraf yang sedang dibaca tidak bergeser (≤ 
   await page.goto(PAGE);
   const text = page.getByRole("region", TEXT);
   await expect(text.locator(".passage").nth(4)).toBeVisible();
-  for (const label of ["Arab", "Keduanya"] as const) {
+  for (const label of ["Arab", "Keduanya", "Terjemahan", "Keduanya"] as const) {
     // Paragraf kelima di sekitar sepertiga atas layar.
     await text
       .locator(".passage")
@@ -160,6 +160,7 @@ test("ganti mode dari menu ⋮: paragraf yang sedang dibaca tidak bergeser (≤ 
     await radio.dispatchEvent("click");
     const html = page.locator("html");
     if (label === "Arab") await expect(html).toHaveAttribute("data-read-mode", "ar");
+    else if (label === "Terjemahan") await expect(html).toHaveAttribute("data-read-mode", "tr");
     else await expect(html).not.toHaveAttribute("data-read-mode");
     const after = await page
       .locator(`#${anchor!.id}`)
@@ -347,15 +348,18 @@ test("mode Terjemahan: kata cari Arab di teks yang terlipat membuka Arab paragra
   page,
 }) => {
   await setMode(page, "tr");
-  await page.goto(`${PAGE}?q=${encodeURIComponent("الجمعة")}#p2826`);
-  const target = page.locator("#p2826");
-  await expect(target).toHaveAttribute("data-ar-open", "");
-  await expect(target.locator(".passage-ar")).toBeVisible();
-  await expect(target.getByRole("button", { name: "Teks Arab" })).toHaveAttribute(
+  // Tanpa #pN (yang sendiri sudah membuka Arab paragraf tujuannya): yang diuji penyorot kata cari.
+  await page.goto(`${PAGE}?q=${encodeURIComponent("الجمعة")}`);
+  await expect
+    .poll(() => page.evaluate(() => CSS.highlights.get("surau-cari")?.size ?? 0))
+    .toBeGreaterThan(0);
+  const opened = page.locator(".reader-text .passage[data-ar-open]");
+  await expect(opened.first()).toBeVisible();
+  await expect(opened.first().locator(".passage-ar").first()).toBeVisible();
+  await expect(opened.first().getByRole("button", { name: "Teks Arab" })).toHaveAttribute(
     "aria-expanded",
     "true",
   );
-  expect(await page.evaluate(() => CSS.highlights.get("surau-cari")?.size ?? 0)).toBeGreaterThan(0);
 });
 
 test("mode Terjemahan: salinan terjemahan tetap berlabel AI", async ({
@@ -403,4 +407,57 @@ test("menu ⋮ di Maknaz menampilkan mode baca", async ({ page }) => {
   await page.getByRole("button", { name: "Menu lainnya" }).click();
   await expect(page.getByRole("radiogroup", { name: "Mode baca" })).toBeVisible();
   await expect(page.getByRole("radio", { name: "Terjemahan" })).toBeVisible();
+});
+
+test("mode Terjemahan: permalink #pN dan tautan balik catatan kaki membuka Arab paragrafnya", async ({
+  page,
+}) => {
+  await setMode(page, "tr");
+  await page.goto(`${PAGE}#p2826`);
+  await expect(page.locator("#p2826")).toHaveAttribute("data-ar-open", "");
+  await expect(page.locator("#p2826 .passage-ar")).toBeVisible();
+  // Tautan "kembali ke teks" dari daftar catatan kaki menuju penanda di dalam Arab yang terlipat.
+  const back = page.locator(".reader-footnotes a[href^='#ref-']").first();
+  const href = (await back.getAttribute("href")) ?? "";
+  const owner = await page.evaluate(
+    (id) => document.getElementById(id)?.closest(".passage")?.id ?? null,
+    href.slice(1),
+  );
+  expect(owner).not.toBeNull();
+  if (owner !== "p2826") {
+    await expect(page.locator(`#${owner} .passage-ar`)).toBeHidden();
+  }
+  await back.click();
+  await expect(page.locator(`#${owner}`)).toHaveAttribute("data-ar-open", "");
+  await expect(page.locator(href)).toBeVisible();
+});
+
+test("mode Terjemahan: teks Arab yang dibuka tersalin apa adanya (tanpa label tombol)", async ({
+  page,
+  context,
+  isMobile,
+}) => {
+  test.skip(isMobile, "seleksi teks dengan mouse");
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await setMode(page, "tr");
+  await page.goto(PAGE);
+  const passage = page.locator("#p2824");
+  const toggle = passage.getByRole("button", { name: "Teks Arab" });
+  await expect(async () => {
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true", { timeout: 1000 });
+  }).toPass();
+  const arabic = passage.locator(".passage-ar");
+  const expected = await arabic.evaluate((el) => (el as HTMLElement).innerText.trim());
+  await arabic.evaluate((el) => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  await page.keyboard.press("ControlOrMeta+c");
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied.trim()).toBe(expected);
+  expect(copied).not.toContain("Teks Arab");
 });

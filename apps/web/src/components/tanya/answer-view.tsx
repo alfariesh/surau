@@ -25,6 +25,7 @@ import { ArabicInline, ArabicText } from "../arabic";
 import { TanyaOrb } from "./tanya-orb";
 import { modelName } from "../../lib/model-names";
 import { translationLabel } from "../../lib/translation-label";
+import type { ReadMode } from "../../lib/reader/scale";
 import { useReadMode } from "../read-mode";
 
 // Tampilan hasil Jawab (S21; sebagai balasan di percakapan, ADR-073). Teks Indonesia dari model tampil sebagai teks biasa per blok: blok
@@ -111,16 +112,21 @@ export function AnswerText({
   );
 }
 
-function CitationCard({
+/**
+ * Kartu kutipan [n]: potongan Arab dari DB (bukti verifikasi, selalu tampil) + terjemahan AI paragrafnya
+ * dalam `<details>` yang terbuka bawaan di mode baca Terjemahan (X11).
+ */
+export function CitationCard({
   c,
   item,
   idPrefix,
+  readMode,
 }: {
   c: JawabCitation;
   item: KutipanItem | null | undefined;
   idPrefix: string;
+  readMode: ReadMode;
 }) {
-  const readMode = useReadMode();
   return (
     <li id={`kutipan-${idPrefix}${c.n}`} className="scroll-mt-24">
       <Card>
@@ -520,6 +526,7 @@ export function AnswerView({
   const footSpans = result.hadith.map((h) => h.footnote);
   // Takhrij klaim didahulukan supaya selalu termuat walau kueri dibatasi 20 rentang.
   const kutipan = useKutipan([...footSpans, ...result.citations, ...result.search]);
+  const readMode = useReadMode();
   const notFound = result.outcome === "not_found";
   const fallback = result.outcome === "fallback";
   return (
@@ -552,7 +559,13 @@ export function AnswerView({
           </Typography.Heading>
           <ol className="flex list-none flex-col gap-3 ps-0">
             {result.citations.map((c) => (
-              <CitationCard key={c.n} c={c} item={kutipan?.get(spanKey(c))} idPrefix={idPrefix} />
+              <CitationCard
+                key={c.n}
+                c={c}
+                idPrefix={idPrefix}
+                item={kutipan?.get(spanKey(c))}
+                readMode={readMode}
+              />
             ))}
           </ol>
         </section>
