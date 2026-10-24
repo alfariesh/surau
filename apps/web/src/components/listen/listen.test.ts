@@ -76,6 +76,7 @@ function view(audio: boolean) {
           ],
         }
       : null,
+    evidence: { ayat: [], hadith: [], quran: null },
     withheld_quotes: [],
   });
 }

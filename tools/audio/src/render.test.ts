@@ -104,6 +104,7 @@ function fixtureView(): DigestView {
     terms: [],
     reading_minutes: 1,
     audio: null,
+    evidence: { ayat: [], hadith: [], quran: null },
     withheld_quotes: [],
   });
 }

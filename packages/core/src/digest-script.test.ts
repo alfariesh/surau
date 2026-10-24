@@ -54,6 +54,7 @@ const quote = (ord: number, extra: Partial<DigestQuoteView> = {}): DigestQuoteVi
     human_review: null,
     text: `Terjemahan kutipan ${ord}.`,
   },
+  takhrij: [],
   ...extra,
 });
 
@@ -94,6 +95,7 @@ function view(extra: Partial<DigestView> = {}): DigestView {
     terms: [],
     reading_minutes: 1,
     audio: null,
+    evidence: { ayat: [], hadith: [], quran: null },
     withheld_quotes: [],
     ...extra,
   });
@@ -206,7 +208,7 @@ describe("digestScript (X17, aturan 11)", () => {
 });
 
 // Fixture D1 BUATAN (packages/db/test/fixture.ts). Catatan kaki kedua diubah menjadi frasa takhrij
-// buatan "لا أصل له" supaya tanda riwayat berat bisa diuji tanpa teks kitab.
+// buatan "لا أصل له" supaya penahanan riwayat berat bisa diuji tanpa teks kitab.
 const RIWAYAT = { start: BODY_1.indexOf("في"), end: BODY_1.indexOf(" (٢)") };
 const AI = "'model-uji', 'intisari-bab@1', '2026-10-24'";
 
@@ -248,14 +250,13 @@ describe("loadDigestScript (D1)", () => {
     ]);
   });
 
-  test("riwayat yang takhrijnya memuat penilaian berat diberi tanda lisan", async () => {
+  test("riwayat bertakhrij sangat lemah/palsu/tanpa asal ditahan readDigest, jadi tidak dibacakan", async () => {
     const loaded = await loadDigestScript(db, T_CHILD_A);
     expect(loaded).not.toBeNull();
-    const p1 = segmentText(loaded!.script.segments[2]!);
-    expect(p1).toContain("Sebuah riwayat di jilid satu, halaman satu, yang terjemahan bebasnya:");
-    expect(p1).toContain(
-      "Catatan takhrij untuk riwayat ini memuat penilaian tidak ada asalnya; penilaian ini dikenali otomatis dan belum ditinjau.",
-    );
+    expect(loaded!.view.withheld_quotes).toEqual([{ ord: 1, reason: "weak_report" }]);
+    const text = loaded!.script.segments.map(segmentText).join(" ");
+    expect(text).not.toContain("Terjemahan riwayat uji");
+    expect(text).not.toContain("Sebuah riwayat");
     expect(JSON.stringify(loaded!.script)).not.toMatch(ARABIC);
   });
 

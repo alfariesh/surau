@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { meta as metaText } from "../../i18n/id/meta";
 import { reader as readerText } from "../../i18n/id/reader";
+import type { DigestTeaser } from "../../lib/reader/digest";
 import type { PageData } from "../../lib/reader/page-handler";
 import { announceReaderPage } from "../../lib/reader/reader-page-event";
 
@@ -40,6 +41,8 @@ interface First {
   next: Location | null;
   bab: string | null;
   activeIds: number[];
+  /** Intisari terdekat dari bagian yang sedang dibaca (X16: menu ⋮), atau null. */
+  digest: DigestTeaser | null;
 }
 
 const IGNORE =
@@ -145,6 +148,7 @@ export function ContinuousReader({
               next: p.model.next,
               bab: p.bab,
               activeIds: p.activeIds,
+              digest: p.digest,
             },
           ] as const,
       ),
@@ -171,6 +175,7 @@ export function ContinuousReader({
             permalink: page.permalink,
             bab: page.bab,
             activeIds: page.activeIds,
+            digest: page.digest,
           });
         }
       },

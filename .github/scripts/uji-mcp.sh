@@ -4,7 +4,7 @@
 # Dipakai preview.yml (Preview per PR, data staging) dan deploy.yml (produksi, mcp.surau.org).
 #
 # Pakai: uji-mcp.sh <URL endpoint, mis. https://mcp.surau.org/mcp> [lengkap|daftar]
-#   lengkap (bawaan): tools/list + tools/call ketujuh tool (data Ihya edisi 1) + kasus error
+#   lengkap (bawaan): tools/list + tools/call kedelapan tool (data Ihya edisi 1) + kasus error
 #   daftar: tools/list + satu tools/call (list_works) saja (smoke produksi)
 # Env opsional: INSPECTOR (versi paket, bawaan dipin di bawah), MAX_COBA (bawaan 12), JEDA (5 dtk).
 #
@@ -68,7 +68,7 @@ for i in $(seq 1 "$MAX_COBA"); do
   sleep "$JEDA"
 done
 
-ALAT='["list_works","get_table_of_contents","read_page","read_section","search_text","verify_quote","get_hadith_takhrij"]'
+ALAT='["list_works","get_table_of_contents","read_page","read_section","search_text","verify_quote","get_hadith_takhrij","get_section_digest"]'
 for era in modern legacy; do
   echo "== era $era"
   jalan --protocol-era "$era" --method tools/list || gagal "$era tools/list keluar $?"
@@ -76,7 +76,7 @@ for era in modern legacy; do
     gagal "$era tools/list: daftar tool berbeda: $(jq -c '[.result.tools[].name]' "$TMP/out")"
   jq -e 'all(.result.tools[]; .annotations.readOnlyHint == true and .outputSchema.type == "object")' \
     "$TMP/out" >/dev/null || gagal "$era tools/list: anotasi/outputSchema"
-  echo "  ✓ $era tools/list (7 tool)"
+  echo "  ✓ $era tools/list (8 tool)"
 
   panggil "$era" list_works '(.works | length) >= 1 and .license.name == "CC BY-NC-SA 4.0"'
   [ "$MODE" = "daftar" ] && continue
@@ -92,6 +92,8 @@ for era in modern legacy; do
   panggil "$era" verify_quote '.verified == false and .match == null' \
     '{"passage_id":10002826,"quote":"قول لم يقله أحد"}'
   panggil "$era" get_hadith_takhrij '.status == "linked" and (.takhrij | length) > 0' '{"passage_id":10002826}'
+  # Intisari (X16): null sampai korpus punya Intisari (skema < 9 atau sebelum pilot X15b).
+  panggil "$era" get_section_digest '.digest == null or .digest.label == "ai_digest"' '{"section_id":100074}'
   panggil_error "$era" read_page "not_found:" '{"edition_id":1,"juz":9,"page_no":1}'
   panggil_error "$era" search_text "Input validation error" '{"query":""}'
 done

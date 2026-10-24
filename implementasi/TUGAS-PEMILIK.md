@@ -259,8 +259,9 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   - **B (lewat dashboard):** **R2 object storage** → bucket **surau-media** → **Settings** → **Custom Domains** → **Add** → ketik `media.surau.org` → **Continue** → **Connect Domain**. Lalu bilang ke agent "T-32 sudah".
   Agent lalu memeriksa domainnya (HEAD/Range) sebelum mengunggah audio pertama.
 
-- [ ] **T-30 · Lihat dan setujui tampilan Intisari (X16)** · di akhir X16
-  1. Agent mengirim tautan Preview (`pr-NNN.surau.org/kitab/ihya/intisari`, data staging). Buka di ponsel dan laptop, mode terang dan gelap.
+- [ ] **T-30 · Lihat dan setujui tampilan Intisari (X16)** · dua tahap: tampilan sekarang (data contoh), isi sesudah pilot X15b
+  0. **Tahap 1 (sekarang):** lihat tangkapan layar di `implementasi/sesi/bukti/X16/` (ponsel, laptop, gelap) atau buka Preview `pr-138.surau.org/dev/intisari` dan `…/dev/intisari?tier=section` selama PR #138 belum di-merge. Isinya data contoh (teks Arab kalimat contoh, bukan kitab); yang dinilai tata letak, label AI, dan urutan bagian.
+  1. **Tahap 2 (sesudah X15b memuat pilot ke staging):** agent mengirim tautan Preview baru (`pr-NNN.surau.org/kitab/ihya/intisari`, data staging). Buka di ponsel dan laptop, mode terang dan gelap.
   2. Periksa:
      - hub 41 kitab;
      - satu Intisari Kitab dan satu Intisari Bab, berisi gagasan bernomor dengan "Dasar teks", kartu kutipan Arab + terjemahan + jilid/halaman, istilah, dalil, dan "Uji pemahaman";

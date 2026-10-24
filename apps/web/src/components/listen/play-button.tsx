@@ -29,7 +29,7 @@ export function PlayButton({ track }: { track: ListenTrack }) {
   const action = playing ? t.pause : (mine ? s.time : saved) > 0 ? t.resume : t.play;
   const caption = useId();
   return (
-    <span className="inline-flex flex-col items-start gap-1">
+    <div className="flex flex-col items-start gap-1">
       {/* Nama tombol = teks yang terlihat (WCAG 2.5.3); label suara AI jadi deskripsinya. */}
       <Button
         aria-describedby={caption}
@@ -48,6 +48,6 @@ export function PlayButton({ track }: { track: ListenTrack }) {
       <Typography color="muted" id={caption} type="body-xs">
         {t.voiceOf(track.voice.kind, track.voice.name)}
       </Typography>
-    </span>
+    </div>
   );
 }

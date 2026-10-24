@@ -1,11 +1,14 @@
-import type { D1Db, ReviewStatus, TitleTranslations } from "@surau/db";
+import type { D1Db, DigestHeaderRow, ReviewStatus, TitleTranslations } from "@surau/db";
 
-import { subheadingTitle, subheadingTocTargets } from "@surau/core";
+import { readingMinutes, subheadingTitle, subheadingTocTargets } from "@surau/core";
 import {
+  AI_TEXT_LANG,
+  DIGEST_SCHEMA_VERSION,
   TITLE_SCHEMA_VERSION,
   getCorpusMeta,
   getFootnoteRefs,
   getPassagesByIds,
+  listDigestHeaders,
   listTitleTranslations,
   passageId,
 } from "@surau/db";
@@ -52,6 +55,11 @@ export interface TitleSource {
 
 export interface ReaderTocExtras {
   subs: SubheadingItem[];
+  /**
+   * Kepala Intisari edisi ini (X16, `listDigestHeaders`), urut `toc_node_id`: lencana daftar isi,
+   * kartu ringkasan pembaca, menu ⋮, dan hub memakai daftar yang sama. Kosong di skema < 9.
+   */
+  digests: DigestHeaderRow[];
   /** Judul Indonesia per node / per paragraf subjudul; `null` = korpus belum punya (skema < 7). */
   titles: {
     node: Map<number, string>;
@@ -160,14 +168,17 @@ async function loadExtras(
   // Korpus lama (skema < 7, mis. ihya-v7): kueri judul tidak dijalankan sama sekali (tanpa galat
   // "no such table" di log); meta tak terbaca = coba, `listTitleTranslations` menanganinya.
   const wantTitles = schema === null || schema >= TITLE_SCHEMA_VERSION;
-  const [rows, refs, titles] = await Promise.all([
+  // Intisari (X16): sama, tanpa kueri di korpus berskema < 9 (produksi sampai ihya-v9).
+  const wantDigests = schema === null || schema >= DIGEST_SCHEMA_VERSION;
+  const [rows, refs, titles, digests] = await Promise.all([
     getPassagesByIds(db, ids),
     getFootnoteRefs(db, ids),
     wantTitles ? listTitleTranslations(db, editionId, TITLE_LANG) : Promise.resolve(null),
+    wantDigests ? listDigestHeaders(db, editionId, AI_TEXT_LANG) : Promise.resolve([]),
   ]);
   const subs = await subheadingItems(editionId, rows, refs);
-  if (titles === null) return { subs, titles: null };
-  return { subs, titles: await shownTitles(titles, subs) };
+  if (titles === null) return { subs, digests, titles: null };
+  return { subs, digests, titles: await shownTitles(titles, subs) };
 }
 
 // Memo per isolate, seperti memo daftar isi core (#66): kunci = isi `meta` korpus + edisi + sidik
@@ -182,7 +193,8 @@ export async function readerTocExtras(db: D1Db, editionId: number): Promise<Read
     const meta = await getCorpusMeta(db);
     schema = meta.schema_version;
     if (meta.corpus_version && meta.built_at && meta.source_hash) {
-      key = `${meta.corpus_version}|${meta.built_at}|${meta.source_hash}|${editionId}|${SUBHEADING_DIGEST}`;
+      // Skema ikut kunci: migrasi 0009 di staging (X15b) tanpa build baru tetap memuat ulang.
+      key = `${meta.corpus_version}|${meta.built_at}|${meta.source_hash}|${schema}|${editionId}|${SUBHEADING_DIGEST}`;
     }
   } catch {
     key = null;
@@ -214,9 +226,16 @@ export function readerToc(
   }
   const node = extras.titles?.node;
   const sub = extras.titles?.sub;
+  // Lencana Intisari (X16): node yang Intisari-nya punya gagasan tampil.
+  const digests = new Map(
+    extras.digests.flatMap((d) =>
+      d.points > 0 ? [[d.toc_node_id, readingMinutes(d.chars)] as const] : [],
+    ),
+  );
   const visit = (items: readonly TocItem[]): TocItem[] =>
     items.map((item) => {
       const titleId = node?.get(item.id);
+      const minutes = digests.get(item.id);
       const subs = (subsOf.get(item.id) ?? []).map((s): TocItem => ({
         id: s.id,
         kind: "sub",
@@ -231,6 +250,7 @@ export function readerToc(
       return {
         ...item,
         ...(titleId === undefined ? {} : { titleId }),
+        ...(minutes === undefined ? {} : { digest: { minutes } }),
         children: [...subs, ...visit(item.children)],
       };
     });

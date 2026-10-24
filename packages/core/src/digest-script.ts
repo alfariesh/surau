@@ -5,8 +5,9 @@
 // - Tanpa huruf Arab: kutipan dibacakan lewat terjemahannya, ayat hanya disebut ("surah kedua ayat
 //   …"), placeholder ⟦QS⟧ dan penanda catatan kaki tidak pernah sampai ke suara AI.
 // - Narator orang ketiga, diawali kalimat label suara AI, ditutup "pintu ke kitab" (docs/05 §12).
-// - Riwayat yang catatan takhrijnya memuat penilaian sangat lemah, palsu, atau "tidak ada asalnya"
-//   diberi tanda lisan setiap kali dikutip (docs/05 §4), dari label kode `takhrijLabel`.
+// - Riwayat yang takhrijnya memuat penilaian sangat lemah, palsu, atau "tidak ada asalnya" sudah
+//   ditahan `readDigest` (`weak_report`, X16), jadi tidak pernah dibacakan; status hadits lain tidak
+//   dibacakan (halaman Intisari menampilkannya bersama teks takhrij aslinya).
 // Segmen = satu permintaan TTS (bab pemutar = gagasan); kalimat dipecah `indonesianSentences` lalu
 // dinormalisasi lisan (`spokenIndonesian`, berversi).
 import {
@@ -17,14 +18,12 @@ import {
   ordinalWords,
   spokenIndonesian,
 } from "@surau/text";
-import type { TakhrijTermKind } from "@surau/text";
-import { AI_TEXT_LANG, getFootnoteRefs, getPassagesByIds } from "@surau/db";
+import { AI_TEXT_LANG } from "@surau/db";
 import type { D1Db } from "@surau/db";
 
 import { ayahPlaceholderPattern } from "./ayah-placeholder.ts";
 import { readDigest } from "./digest.ts";
 import type { DigestQuoteView, DigestView, Location } from "./schema.ts";
-import { TAKHRIJ_TERM_GLOSS, takhrijLabel } from "./takhrij-label.ts";
 import { textSha256 } from "./translation-revision.ts";
 
 /** Versi susunan skrip; naik bila kalimat baku, urutan segmen, atau aturan pemilihan berubah. */
@@ -74,12 +73,6 @@ export const segmentText = (segment: ScriptSegment): string => segment.sentences
  */
 const FORBIDDEN = /[\p{Script_Extensions=Arabic}⟦⟧[\]/]/u;
 
-/** Penilaian takhrij yang wajib diberi tanda setiap kali riwayatnya dikutip (docs/05 §4). */
-const SEVERE: ReadonlySet<TakhrijTermKind> = new Set(["sangat_lemah", "palsu", "la_asl"]);
-
-/** Penanda takhrij boleh berjarak sebanyak ini sesudah akhir kutipan (spasi/tanda baca saja). */
-const MARKER_TAIL = 12;
-
 const KIND_INTRO: Readonly<Record<DigestQuoteView["kind"], string>> = {
   text: "Teks kitab",
   report: "Sebuah riwayat",
@@ -117,20 +110,11 @@ function speakableTranslation(text: string): string {
     );
 }
 
-const list = (items: readonly string[]): string =>
-  items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} dan ${items.at(-1)}`;
-
-function quoteSentences(q: DigestQuoteView, severe: readonly string[] | undefined): string[] {
+function quoteSentences(q: DigestQuoteView): string[] {
   if (q.translation === null) return [];
   const body = sentencesOf(speakableTranslation(q.translation.text));
   if (body.length === 0) return [];
-  const out = [`${KIND_INTRO[q.kind]} di ${where(q.location)}, yang terjemahan bebasnya:`, ...body];
-  if (q.kind === "report" && severe !== undefined && severe.length > 0) {
-    out.push(
-      `Catatan takhrij untuk riwayat ini memuat penilaian ${list(severe)}; penilaian ini dikenali otomatis dan belum ditinjau.`,
-    );
-  }
-  return out;
+  return [`${KIND_INTRO[q.kind]} di ${where(q.location)}, yang terjemahan bebasnya:`, ...body];
 }
 
 const spoken = (sentences: readonly string[]): string[] =>
@@ -150,19 +134,15 @@ function check(segments: readonly ScriptSegment[]): void {
 }
 
 /**
- * Skrip audio sebuah Intisari. `severe` = penilaian takhrij berat per `ord` kutipan riwayat (dari
- * `loadDigestScript`); kosong berarti tidak ada tanda. Melempar `ScriptError` bila ada teks yang
- * tidak boleh dibacakan mesin (pertahanan berlapis di atas `readDigest`).
+ * Skrip audio sebuah Intisari. Melempar `ScriptError` bila ada teks yang tidak boleh dibacakan mesin
+ * (pertahanan berlapis di atas `readDigest`).
  */
-export async function digestScript(
-  view: DigestView,
-  severe: ReadonlyMap<number, readonly string[]> = new Map(),
-): Promise<DigestScript> {
+export async function digestScript(view: DigestView): Promise<DigestScript> {
   const author = latin(view.source.work.author?.name_id);
   const work = latin(view.source.work.title_id);
   const quotesOf = (ord: number | null) => view.quotes.filter((q) => q.point_ord === ord);
   const quoteBlock = (quotes: readonly DigestQuoteView[]) =>
-    quotes.flatMap((q) => quoteSentences(q, severe.get(q.ord)));
+    quotes.flatMap((q) => quoteSentences(q));
 
   const segments: ScriptSegment[] = [
     {
@@ -234,51 +214,6 @@ export async function digestScript(
   };
 }
 
-type FootnoteRef = Awaited<ReturnType<typeof getFootnoteRefs>>[number];
-
-/** Penanda takhrij milik kutipan: di dalam rentangnya, atau tepat sesudahnya (spasi/tanda baca). */
-function markerOfQuote(q: DigestQuoteView, ref: FootnoteRef, passageText: string): boolean {
-  if (ref.char_start >= q.char_start && ref.char_end <= q.char_end) return true;
-  return (
-    ref.char_start >= q.char_end &&
-    ref.char_start - q.char_end <= MARKER_TAIL &&
-    /^[\s\p{P}]*$/u.test(passageText.slice(q.char_end, ref.char_start))
-  );
-}
-
-/** Penilaian takhrij berat (glosa Latin) per `ord` kutipan riwayat yang dibacakan. */
-async function severeReports(
-  db: D1Db,
-  quotes: readonly DigestQuoteView[],
-): Promise<Map<number, string[]>> {
-  const reports = quotes.filter((q) => q.kind === "report" && q.translation !== null);
-  const out = new Map<number, string[]>();
-  if (reports.length === 0) return out;
-  const refs = await getFootnoteRefs(db, [...new Set(reports.map((q) => q.passage_id))]);
-  const passages = new Map(
-    (
-      await getPassagesByIds(db, [
-        ...reports.map((q) => q.passage_id),
-        ...refs.map((r) => r.footnote_passage_id),
-      ])
-    ).map((p) => [p.id, p.text_raw]),
-  );
-  for (const q of reports) {
-    const body = passages.get(q.passage_id) ?? "";
-    const glosses = new Set<string>();
-    for (const ref of refs) {
-      if (ref.passage_id !== q.passage_id || !markerOfQuote(q, ref, body)) continue;
-      const foot = passages.get(ref.footnote_passage_id);
-      if (foot === undefined) continue;
-      for (const term of takhrijLabel(foot).terms) {
-        if (SEVERE.has(term.kind)) glosses.add(TAKHRIJ_TERM_GLOSS[term.kind]);
-      }
-    }
-    if (glosses.size > 0) out.set(q.ord, [...glosses]);
-  }
-  return out;
-}
-
 /**
  * Intisari + skripnya dari korpus: satu-satunya jalan yang dipakai alat audio (saat membuat) dan
  * ingest (saat mencocokkan sha), supaya keduanya membangun skrip yang sama persis. null bila node
@@ -291,5 +226,5 @@ export async function loadDigestScript(
 ): Promise<{ view: DigestView; script: DigestScript } | null> {
   const view = await readDigest(db, nodeId, lang);
   if (view === null) return null;
-  return { view, script: await digestScript(view, await severeReports(db, view.quotes)) };
+  return { view, script: await digestScript(view) };
 }

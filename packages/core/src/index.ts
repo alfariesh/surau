@@ -149,6 +149,7 @@ export {
 export type { CoreErrorCode } from "./errors.ts";
 
 export {
+  digestPermalink,
   editionPermalink,
   pagePermalink,
   passagePermalink,

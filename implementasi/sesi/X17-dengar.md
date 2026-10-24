@@ -53,7 +53,7 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
 
 ## Selesai bila
 
-- [x] Tes `spoken-id`, skrip tanpa huruf Arab/placeholder (fixture), offset bab = jumlah durasi segmen, penyambungan MP3 + ID3, store posisi — `spoken-id.test.ts` 41, `digest-script.test.ts` 10 (workerd, termasuk tanda takhrij berat dan sha berubah saat gagasan ditolak), `audio-manifest.test.ts` 4, `tools/audio` 30 (`render.test.ts`: bab = jumlah sampel segmen + jeda; `mp3`/`id3`/`lexicon`/`elevenlabs`/`r2`), `listen.test.ts` 9 (store + track)
+- [x] Tes `spoken-id`, skrip tanpa huruf Arab/placeholder (fixture), offset bab = jumlah durasi segmen, penyambungan MP3 + ID3, store posisi — `spoken-id.test.ts` 41, `digest-script.test.ts` 10 (workerd, termasuk riwayat bertakhrij berat yang ditahan `readDigest` dan sha yang berubah saat gagasan ditolak), `audio-manifest.test.ts` 4, `tools/audio` 30 (`render.test.ts`: bab = jumlah sampel segmen + jeda; `mp3`/`id3`/`lexicon`/`elevenlabs`/`r2`), `listen.test.ts` 9 (store + track)
 - [x] e2e pemutar dengan MP3 sunyi: putar, jeda, kecepatan, bab, Media Session, lanjut posisi sesudah muat ulang, navigasi antarhalaman tanpa putus; axe — `e2e/dengar.spec.ts` 4/4 (chromium + ponsel) terhadap `next dev`; CI Preview menjalankannya lagi di PR
 - [ ] `pnpm audio verify` lolos untuk semua objek di manifest; `audio_track` termuat hanya untuk sha yang cocok — *sebagian:* pemuat terbukti dengan korpus fixture (`tools/ingest/src/audio.test.ts`: hanya sha cocok, basi/tanpa Intisari gugur); manifest masih kosong (belum ada audio), jadi `verify` atas objek nyata menunggu pilot
 - [ ] LCP j1/200 dan halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`)
@@ -72,7 +72,7 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
 **2026-10-25 · kode + infrastruktur (ADR-100).** PR: lihat LOG.
 
 Dibuat:
-- `packages/text/src/spoken-id.ts` (`SPOKEN_VERSION` 1) dan `packages/core/src/digest-script.ts` (`SCRIPT_VERSION` 1, `digestScript`, `loadDigestScript`, `segmentText`). Segmen label/pembuka/gagasan/kutipan/penutup. Kutipan dibacakan lewat terjemahan, ayat hanya disebut, tanda takhrij berat ikut, huruf Arab/⟦/[/]// ditolak.
+- `packages/text/src/spoken-id.ts` (`SPOKEN_VERSION` 1) dan `packages/core/src/digest-script.ts` (`SCRIPT_VERSION` 1, `digestScript`, `loadDigestScript`, `segmentText`). Segmen label/pembuka/gagasan/kutipan/penutup. Kutipan dibacakan lewat terjemahan, ayat hanya disebut, riwayat bertakhrij berat tidak pernah dibacakan (ditahan `readDigest` sejak X16), huruf Arab/⟦/[/]// ditolak.
 - `packages/core/src/audio-manifest.ts`: skema `data/audio/<kitab>-audio.json`, `audioObjectKey` (sidik ISI MP3), `selectAudioTracks`. `data/audio/ihya-9472-audio.json` masih kosong.
 - `tools/audio`:
   - `TtsProvider` + ElevenLabs REST;
@@ -105,8 +105,7 @@ Menyimpang dari rencana (ADR-100):
 
 Belum / utang:
 - Pilot (≤ 50 ribu karakter) dan produksi menunggu T-29 (kunci, sebaiknya + User/Voices Read), T-31 (pilih suara + uji lafal lewat `pnpm audio sample`), T-32 (domain), dan izin pemilik di chat.
-- Halaman Intisari X16 (PR #138) belum di `main`. Sesudah masuk, `ListenSlot` diganti `PlayButton` + `listenTrack` di `digest-page.tsx` (hunk `DEV_PAGES` di PR ini identik dengan #138).
-- LCP halaman Intisari diukur sesudah X16 masuk.
+- Halaman Intisari X16 (PR #138) sudah masuk. `ListenSlot` merender `PlayButton` di bawah baris kepala; track dihitung rute halaman. Halaman Intisari baru punya data sesudah pilot X15b dimuat ke staging, jadi LCP-nya diukur memakai `/dev/intisari` (fixture).
 - Bab "Penutup" belum menjadi bab pemutar (`audioChapters` hanya gagasan).
 - ID3 belum memuat CHAP/CTOC.
 
