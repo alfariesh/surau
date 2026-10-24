@@ -10,6 +10,8 @@ export const transparencyText = {
   questions: "Pertanyaan berbiaya",
   cost: "Biaya AI",
   cap: "Plafon",
+  usageLabel: "Anggaran terpakai",
+  usedSuffix: "digunakan",
   estimatedNote: (usd: string) => `termasuk ${usd} perkiraan (biaya pasti tidak diketahui)`,
   cachedNote:
     "Jawaban yang diambil dari jawaban tersimpan tidak memakai biaya AI dan tidak dihitung di sini.",

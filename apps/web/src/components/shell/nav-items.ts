@@ -25,6 +25,8 @@ export interface NavItem {
   href?: string;
   /** Halaman lain yang tetap menyorot menu ini (mis. hasil /cari di bawah Beranda). */
   also?: readonly string[];
+  /** Lencana kecil di kanan label (mis. "MCP"). */
+  badge?: string;
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
@@ -46,7 +48,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
   },
 
   { id: "ask", label: navText.ask, icon: HelpCircle, activeIcon: HelpCircleDuotone },
-  { id: "mcp", label: navText.mcp, icon: BookOpen01, activeIcon: BookOpen01Duotone, href: "/mcp" },
+  {
+    id: "mcp",
+    label: navText.mcp,
+    icon: BookOpen01,
+    activeIcon: BookOpen01Duotone,
+    href: "/mcp",
+    badge: navText.mcpBadge,
+  },
   {
     id: "about",
     label: navText.about,

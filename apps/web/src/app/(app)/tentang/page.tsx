@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Card, Typography } from "@heroui/react";
 import NextLink from "next/link";
 
+import { groupedCardClass } from "../../../lib/grouped-card";
 import { PageSection } from "../../../components/page-section";
 import { TextPage } from "../../../components/text-page";
 import { id, SOURCE_URL } from "../../../i18n/id";
@@ -50,10 +51,10 @@ export default function AboutPage() {
       </PageSection>
 
       <PageSection heading={t.notHeading} id="bukan">
-        <ul className="flex flex-col gap-3">
-          {t.not.map((item) => (
+        <ul className="flex flex-col gap-2">
+          {t.not.map((item, i) => (
             <li key={item.title}>
-              <Card>
+              <Card className={groupedCardClass(i, t.not.length)}>
                 <Card.Header>
                   <Card.Title>{item.title}</Card.Title>
                   <Card.Description>{item.body}</Card.Description>

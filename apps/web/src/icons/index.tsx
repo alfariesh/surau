@@ -209,6 +209,25 @@ export function Copy01(props: IconProps) {
   );
 }
 
+export function Copyright(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M15 10C15 8.89543 14.1046 8 13 8H11C9.89543 8 9 8.89543 9 10V14C9 15.1046 9.89543 16 11 16H13C14.1046 16 15 15.1046 15 14"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function FileEmpty02(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -221,6 +240,40 @@ export function FileEmpty02(props: IconProps) {
       <path
         d="M13 2V7C13 8.10457 13.8954 9 15 9H20"
         stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function HandHeart(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M2 20V12C2 11.4477 2.44772 11 3 11H5C5.55228 11 6 11.4477 6 12V20C6 20.5523 5.55228 21 5 21H3C2.44772 21 2 20.5523 2 20Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M6 12H7.76845C8.58101 12 9.38511 12.165 10.132 12.4851L14.8574 14.5103C15.5506 14.8074 16 15.489 16 16.2431C16 16.9373 15.4373 17.5 14.7431 17.5H14.0986C13.3729 17.5 12.6538 17.3615 11.98 17.092L10.5 16.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M16 11C16 11 11 7.82353 11 4.75C11 3.23122 12.0526 2 13.5 2C14.25 2 15 2.26471 16 3.32353C17 2.26471 17.75 2 18.5 2C19.9474 2 21 3.23122 21 4.75C21 7.82353 16 11 16 11Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M14 17.5H20.5749C21.362 17.5 22 18.138 22 18.9251C22 19.5613 21.5782 20.1205 20.9664 20.2953L15.7451 21.7871C15.2508 21.9283 14.7392 22 14.2251 22C13.7437 22 13.2645 21.9372 12.7994 21.8132L6 20"
+        stroke="currentColor"
+        strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"
       />
@@ -329,6 +382,27 @@ export function LeftToRightListBullet(props: IconProps) {
         strokeLinejoin="round"
         strokeWidth="1.5"
       />
+    </Ikon>
+  );
+}
+
+export function LockKeyhole(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M16.5 9V6.5C16.5 4.01472 14.4853 2 12 2C9.51472 2 7.5 4.01472 7.5 6.5V9"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M18 9H6.00018C4.89554 9 4.00008 9.89554 4.00018 11.0002L4.00102 20.0002C4.00112 21.1047 4.89652 22 6.00101 22H18C19.1046 22 20 21.1046 20 20V11C20 9.89543 19.1046 9 18 9Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.5"
+      />{" "}
+      <circle cx="12" cy="15.5" r="2" stroke="currentColor" strokeWidth="1.5" />
     </Ikon>
   );
 }

@@ -96,7 +96,7 @@ test("halaman yang tidak ada menampilkan 404 berbahasa Indonesia", async ({ page
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Halaman tidak ditemukan");
 });
 
-test("menu samping: Kitab dan Tentang bisa dibuka, /cari di bawah Beranda, fitur yang belum ada berlabel segera", async ({
+test("menu samping: Kitab dan Seputar Surau → Tentang bisa dibuka, /cari di bawah Beranda, fitur yang belum ada berlabel segera", async ({
   page,
   isMobile,
 }) => {
@@ -131,23 +131,23 @@ test("menu samping: Kitab dan Tentang bisa dibuka, /cari di bawah Beranda, fitur
     "true",
   );
 
-  // Tentang ada di menu bawah sidebar (footer), terpisah dari navigasi utama.
+  // Tentang ada di menu "Seputar Surau" di kaki sidebar (PR #125); di ponsel sheet ikut tertutup.
   await openMenu();
-  await page
-    .getByRole("treegrid", { name: "Tentang", exact: true })
-    .last()
-    .getByRole("row", { name: "Tentang" })
-    .click();
+  await page.getByRole("button", { name: "Seputar Surau" }).last().click();
+  await page.getByRole("menuitem", { name: "Tentang" }).click();
   await expect(page).toHaveURL(/\/tentang$/);
+  if (isMobile)
+    await expect(page.getByRole("treegrid", { name: "Navigasi utama" }).last()).toBeHidden();
 });
 
 test("panduan MCP bisa ditemukan dan dipakai di layar ponsel", async ({ page, isMobile }) => {
   await page.goto("/");
   if (isMobile) await page.getByRole("button", { name: "Buka menu" }).click();
+  // Integrasi AI ada di kaki sidebar (menu sendiri bernama sama, PR #125).
   await page
-    .getByRole("treegrid", { name: "Navigasi utama" })
+    .getByRole("treegrid", { name: "Integrasi AI", exact: true })
     .last()
-    .getByRole("row", { name: "Pakai dengan AI", exact: true })
+    .getByRole("row", { name: "Integrasi AI" })
     .click();
   await expect(page).toHaveURL(/\/mcp$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Pakai Surau dari AI Anda");
