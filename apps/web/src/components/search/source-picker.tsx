@@ -4,9 +4,9 @@ import type { Key } from "@heroui/react";
 
 import { Autocomplete, ListBox, SearchField, Typography, useFilter } from "@heroui/react";
 
-import type { SectionOption } from "../../lib/search/sections";
+import type { SectionOption } from "../../lib/search/section-pick";
 
-import { selectedSection } from "../../lib/search/sections";
+import { selectedSection } from "../../lib/search/section-pick";
 
 import { home as homeText } from "../../i18n/id/home";
 import { Book02 } from "../../icons";

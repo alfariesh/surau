@@ -3,7 +3,7 @@
 import type { FormEvent } from "react";
 import type { Key } from "@heroui/react";
 
-import type { SectionOption } from "../../lib/search/sections";
+import type { SectionOption } from "../../lib/search/section-pick";
 import type { SourceWork } from "./source-picker";
 
 import { Button, Typography } from "@heroui/react";
@@ -34,7 +34,8 @@ import {
   takeHandOff,
 } from "../../lib/tanya/handoff";
 import { jawabUnavailable, loadJawabStatus } from "../../lib/tanya/status";
-import { selectedSection } from "../../lib/search/sections";
+import { selectedSection } from "../../lib/search/section-pick";
+import { MaknazNotice } from "../tanya/maknaz-notice";
 import { ExampleText } from "./example-text";
 import { SourcePicker } from "./source-picker";
 
@@ -306,30 +307,21 @@ export function SearchBox({
             ))}
       </div>
       {/* Catatan Maknaz di bawah contoh, di luar kotak (permintaan pemilik). */}
-      {asking ? (
+      {asking && unavailable !== null ? (
         <Typography className="text-center" color="muted" type="body-xs">
-          {unavailable !== null ? (
-            <>
-              {tanyaText.errors[unavailable] ?? tanyaText.errors.closed}{" "}
-              {/* Pindah ke Cari dengan teks yang sudah diketik (bukan /cari kosong). */}
-              <Button
-                className="h-auto min-w-0 p-0 underline"
-                size="sm"
-                variant="ghost"
-                onPress={() => setMode("cari")}
-              >
-                {t.askUseSearch}
-              </Button>
-            </>
-          ) : (
-            <>
-              {tanyaText.footer}{" "}
-              <NextLink className="underline" href="/privasi">
-                {tanyaText.footerPrivacyLink}
-              </NextLink>
-            </>
-          )}
+          {tanyaText.errors[unavailable] ?? tanyaText.errors.closed}{" "}
+          {/* Pindah ke Cari dengan teks yang sudah diketik (bukan /cari kosong). */}
+          <Button
+            className="h-auto min-w-0 p-0 underline"
+            size="sm"
+            variant="ghost"
+            onPress={() => setMode("cari")}
+          >
+            {t.askUseSearch}
+          </Button>
         </Typography>
+      ) : asking ? (
+        <MaknazNotice />
       ) : null}
     </search>
   );

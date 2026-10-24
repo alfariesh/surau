@@ -43,9 +43,12 @@ test("kotak cari Beranda membuka hasil Cari", async ({ page }) => {
 
   // Hanya mode Cari: mode Maknaz memanggil LLM berbayar di Preview, jadi tidak dikirim di e2e.
   const box = page.getByRole("search").getByRole("textbox");
-  await box.fill("sabar");
-  await box.press("Enter");
-  await expect(page).toHaveURL(/\/cari\?q=sabar$/);
+  // Sebelum hidrasi Enter di textarea hanya menambah baris: ulangi sampai pindah ke hasil.
+  await expect(async () => {
+    await box.fill("sabar");
+    await box.press("Enter");
+    await expect(page).toHaveURL(/\/cari\?q=sabar$/, { timeout: 2000 });
+  }).toPass();
   await expect(page.getByRole("search").getByRole("textbox")).toHaveValue("sabar");
 });
 

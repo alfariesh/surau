@@ -333,20 +333,6 @@ export function LeftToRightListBullet(props: IconProps) {
   );
 }
 
-export function MinusSign(props: IconProps) {
-  return (
-    <Ikon {...props}>
-      <path
-        d="M20 12L4 12"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </Ikon>
-  );
-}
-
 export function Moon02(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -669,32 +655,6 @@ export function InformationCircleDuotone(props: IconProps) {
       />{" "}
       <path
         d="M12.125 8.25H12M12.25 8.25C12.25 8.11193 12.1381 8 12 8C11.8619 8 11.75 8.11193 11.75 8.25C11.75 8.38807 11.8619 8.5 12 8.5C12.1381 8.5 12.25 8.38807 12.25 8.25Z"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </Ikon>
-  );
-}
-
-export function Search01Duotone(props: IconProps) {
-  return (
-    <Ikon {...props}>
-      <path
-        opacity="0.4"
-        d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z"
-        fill="currentColor"
-      />{" "}
-      <path
-        d="M17 17L21 21"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />{" "}
-      <path
-        d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"

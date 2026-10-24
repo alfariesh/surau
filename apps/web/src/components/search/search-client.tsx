@@ -9,7 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import type { Keyed } from "../../lib/search/keyed";
-import type { SectionOption } from "../../lib/search/sections";
+import type { SectionOption } from "../../lib/search/section-pick";
 import type { SourceWork } from "./source-picker";
 
 import { search as searchText } from "../../i18n/id/search";
@@ -338,10 +338,10 @@ function AskMaknaz({ query }: { query: string }) {
           onPress={() => void ask()}
         >
           <AiChat02 aria-hidden="true" className="size-4" />
-          {t.askBefore}{" "}
+          {t.askBefore}
           <bdi>
-            “<ExampleText text={query} />”
-          </bdi>{" "}
+            <ExampleText text={query} />
+          </bdi>
           {t.askAfter}
         </Button>
         {blocked !== null ? (

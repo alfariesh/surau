@@ -20,6 +20,7 @@ import { jawabUnavailable, loadJawabStatus } from "../../lib/tanya/status";
 import { PageLead, PageTitle } from "../page-title";
 import { AnswerText, AnswerView } from "./answer-view";
 import { STAGE_STEP, STAGE_TOTAL } from "./orb-frames";
+import { MaknazNotice } from "./maknaz-notice";
 import { TanyaInfo } from "./tanya-info";
 import { TanyaOrb } from "./tanya-orb";
 import { TurnstileWidget } from "./turnstile-widget";
@@ -391,12 +392,7 @@ export function TanyaClient() {
                   ))}
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Typography className="text-center text-balance" type="body-xs" color="muted">
-                    {t.noticeShort} ·{" "}
-                    <NextLink className="underline" href="/privasi">
-                      {t.footerPrivacyLink}
-                    </NextLink>
-                  </Typography>
+                  <MaknazNotice />
                   <TanyaInfo />
                 </div>
               </div>
@@ -513,6 +509,8 @@ export function TanyaClient() {
               </PromptInput>
             </div>
           </Widget>
+          {/* Sesudah percakapan dimulai catatan atas hilang: catatan yang sama pindah ke bawah kotak. */}
+          {turns.length > 0 ? <MaknazNotice /> : null}
         </div>
       </div>
 

@@ -3,14 +3,13 @@ export const tanyaText = {
   pageTitle: "Maknaz",
   heading: "Maknaz",
   lead: "Tanyakan isi kitab. Jawaban disusun AI dari teksnya, dan setiap kutipan Arab diperiksa kode.",
-  notice: "Surau adalah asisten riset, bukan pemberi fatwa.",
   noticeBody:
     "Jawaban menyampaikan apa yang tertulis di kitab beserta sumbernya. Untuk kasus pribadi (keluarga, harta, ibadah tertentu), tanyakan kepada ulama setempat.",
-  privacy: "Jangan menulis nama, nomor telepon, atau detail pribadi.",
+  // Satu catatan Maknaz (MaknazNotice): label tetap S21 (docs/05 §2) + privasi. Selalu terlihat di
+  // /tanya (atas sebelum percakapan, bawah kotak sesudahnya) dan di Beranda mode Maknaz.
+  notice: "Surau adalah asisten riset, bukan pemberi fatwa.",
+  noticeExtra: "Tiap pertanyaan dijawab terpisah; jangan tulis data pribadi.",
   privacyLink: "Kebijakan privasi",
-  // Kaki komposer (Beranda dan /tanya): versi ringkas notice + privacy.
-  footer: "Bukan fatwa. Jangan tulis data pribadi.",
-  footerPrivacyLink: "Privasi",
   label: "Pertanyaan",
   submit: "Tanya Maknaz",
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
@@ -30,8 +29,6 @@ export const tanyaText = {
   separate:
     "Setiap pertanyaan dijawab terpisah: jawaban sebelumnya tidak ikut dibaca, jadi tulis pertanyaan lengkap.",
   newChat: "Percakapan baru",
-  // Satu catatan ringkas di keadaan awal /tanya (menggantikan kaki komposer di halaman ini).
-  noticeShort: "Bukan fatwa · tiap pertanyaan dijawab terpisah · jangan tulis data pribadi",
   noticeMore: "Tentang jawaban Maknaz",
   copy: "Salin jawaban",
   copyAttribution:

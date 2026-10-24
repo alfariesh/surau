@@ -34,7 +34,7 @@ Monorepo TypeScript (pnpm 12 + Vite+ `vp`, Node 24, TS 7). Web memakai Next.js 1
 Semua dijalankan dari root repo.
 - `pnpm install`: memasang dependensi (versi di `catalog` pada `pnpm-workspace.yaml`) dan mengaktifkan hook pre-commit `vp staged`.
 - `pnpm dev` menjalankan web di http://localhost:3004 (MCP dev Next di `/_next/mcp`).
-- `pnpm dev:remote`: sama, tetapi korpus (`CORPUS_DB`) dibaca dari `surau-corpus-staging` di Cloudflare (remote binding, hanya baca; butuh `pnpm wrangler login`). Pakai untuk melihat Cari/pembaca dengan data asli tanpa memuat korpus lokal (ADR-089).
+- `pnpm dev:remote`: sama, tetapi korpus (`CORPUS_DB`) dibaca dari `surau-corpus-staging` di Cloudflare (remote binding; kode web hanya membacanya; butuh `pnpm wrangler login`). Pakai untuk melihat Cari/pembaca dengan data asli tanpa memuat korpus lokal (ADR-089).
 - `pnpm check` (format + lint + typecheck, `vp check`) · `pnpm fix` (perbaiki otomatis) · `pnpm test` (`vp test`) · `pnpm build` (build semua app lewat `vp run -r build`).
 - `pnpm verify` = check + test + build, wajib lolos sebelum commit akhir sesi. `pnpm test:e2e` masih placeholder sampai S04.
 - `pnpm --filter @surau/web <script>` untuk script satu app. Jangan `vp dev`/`vp build` di `apps/web` (itu build Vite, bukan Next).

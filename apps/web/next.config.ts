@@ -62,12 +62,16 @@ const devReady = initOpenNextCloudflareForDev({
 });
 
 // `pnpm dev:remote` (ADR-089): CORPUS_DB dibaca dari D1 di Cloudflare (remote binding), binding lain
-// tetap lokal. Dev memakai `preview_database_id` = `surau-corpus-staging` (korpus Preview), bukan
+// tetap lokal; korpus hanya dibaca oleh kode web (binding remote sendiri berhak tulis). Dev memakai `preview_database_id` = `surau-corpus-staging` (korpus Preview), bukan
 // korpus produksi. Konfigurasi turunan dibangkitkan dari wrangler.jsonc (satu sumber), di-gitignore.
 function devRemoteConfig(): string | undefined {
   if (process.env.SURAU_DEV_REMOTE !== "1") return undefined;
   const source = readFileSync(join(import.meta.dirname, "wrangler.jsonc"), "utf8");
   const corpus = /("binding": "CORPUS_DB",[^}]*?"preview_database_id": "[^"]+",)/;
+  if (/"remote":\s*true/.test(source))
+    throw new Error(
+      'dev:remote: wrangler.jsonc sudah memuat "remote": true; periksa konfigurasinya',
+    );
   if (!corpus.test(source))
     throw new Error("dev:remote: binding CORPUS_DB + preview_database_id tidak ditemukan");
   const target = join(import.meta.dirname, "wrangler.dev-remote.jsonc");

@@ -58,10 +58,8 @@ test("filter rub' menyimpan pilihan di URL; kueri tanpa hasil memberi saran", as
   await page.goto("/cari?q=sabar");
   await expect(results(page).first()).toBeVisible();
   // Pemilih sumber di kepala kotak cari (ADR-087): daftar bertingkat dengan kolom cari.
-  await page
-    .getByRole("search")
-    .getByRole("button", { name: /Kitab yang dicari/ })
-    .click();
+  // Pemicu yang terlihat (grup Autocomplete); tombol bernama "Kitab yang dicari" di dalamnya selebar 0.
+  await page.getByRole("search").locator('[data-slot="autocomplete-trigger"]').click();
   await page.getByRole("searchbox", { name: "Cari kitab" }).fill("المنجيات");
   await page.getByRole("option", { name: "ربع المنجيات" }).click();
   await expect(page).toHaveURL(/q=sabar&bagian=\d+/);
