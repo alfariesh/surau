@@ -44,6 +44,15 @@ export const QURAN_FOOTNOTES_1_2 = [{ marker: "1)", text: "Catatan kaki terjemah
 /** Kosongkan tabel korpus lalu isi fixture. Idempoten (boleh dipanggil di setiap beforeAll). */
 export async function seedCorpus(db: D1Db): Promise<void> {
   const del = [
+    // Intisari (skema 9) lebih dulu: anak dari toc_node dan passage.
+    "audio_track",
+    "digest_term",
+    "digest_question",
+    "digest_quote",
+    "digest_anchor",
+    "digest_point",
+    "digest",
+    "glossary_term",
     "passage_ayah_ref",
     "quran_translation",
     "quran_ayah",

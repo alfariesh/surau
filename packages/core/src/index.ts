@@ -9,6 +9,7 @@ export { subheadingPartText, subheadingTitle, subheadingTocTargets } from "./sub
 export type { SubheadingSpanEntry, SubheadingTocTarget } from "./subheading-title.ts";
 export { humanReviewOf, readPage, reviewersFor, translationView } from "./page.ts";
 export { readSection } from "./section.ts";
+export { DIGEST_READ_CHARS_PER_MINUTE, readDigest, readingMinutes } from "./digest.ts";
 export { buildCitation } from "./citation.ts";
 export { verifyQuote } from "./verify-quote.ts";
 export { ipKey, ipNetwork } from "./client-key.ts";

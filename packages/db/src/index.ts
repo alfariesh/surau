@@ -24,6 +24,20 @@ export * from "./schema/review.ts";
 export * from "./schema/takhrij-review.ts";
 export * from "./schema/translation-revision.ts";
 export {
+  digestAnchorWithPageRow,
+  digestHeaderRow,
+  digestQuoteWithPassageRow,
+  getDigest,
+  getDigestHeaders,
+  listDigestHeaders,
+} from "./repo/digest.ts";
+export type {
+  DigestAnchorWithPageRow,
+  DigestHeaderRow,
+  DigestQuoteWithPassageRow,
+  DigestRows,
+} from "./repo/digest.ts";
+export {
   insertAnswerLog,
   listAnswerLogs,
   getAnswerLog,

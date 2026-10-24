@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vite-plus/test";
 
 import { MAX_STATEMENT_BYTES, RESET_SQL, emitSql, insertStatements, sqlLiteral } from "./sql.ts";
+import { emptyDigestRows } from "./rows.ts";
 import type { CorpusRows } from "./rows.ts";
 
 describe("sqlLiteral", () => {
@@ -59,6 +60,7 @@ describe("emitSql", () => {
     summary: [],
     toc_title_translation: [],
     subheading_translation: [],
+    ...emptyDigestRows(),
     term_stat: [],
     meta: [{ key: "corpus_version", value: "uji" }],
   };
@@ -88,6 +90,19 @@ describe("emitSql", () => {
       "INSERT INTO translation_fts (translation_fts) VALUES ('delete-all');",
     );
     expect(RESET_SQL).toContain("INSERT INTO summary_fts (summary_fts) VALUES ('delete-all');");
+    expect(RESET_SQL).toContain(
+      "INSERT INTO digest_point_fts (digest_point_fts) VALUES ('delete-all');",
+    );
+    // Intisari (X15): anak sebelum induk, istilah sesudah yang merujuknya.
+    expect(RESET_SQL.indexOf("DELETE FROM digest_anchor")).toBeLessThan(
+      RESET_SQL.indexOf("DELETE FROM digest_point;"),
+    );
+    expect(RESET_SQL.indexOf("DELETE FROM digest_term")).toBeLessThan(
+      RESET_SQL.indexOf("DELETE FROM glossary_term;"),
+    );
+    expect(RESET_SQL.indexOf("DELETE FROM audio_track")).toBeLessThan(
+      RESET_SQL.indexOf("DELETE FROM digest;"),
+    );
     expect(RESET_SQL).toContain("DELETE FROM term_stat;");
   });
 

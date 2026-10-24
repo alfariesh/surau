@@ -10,13 +10,20 @@
 import {
   EDITION_ID_MAX,
   attributionStatus,
+  audioChapters,
   ayahMatch,
+  digestBasis,
+  digestPointKind,
+  digestQuoteKind,
+  digestStance,
+  digestTier,
   editionRow,
   needsReviewReason,
   passageKind,
   quranSourceKind,
   reviewStatus,
   searchPathName,
+  voiceKind,
 } from "@surau/db";
 import { z } from "zod";
 
@@ -677,6 +684,121 @@ export const takhrijView = z.strictObject({
 export type TakhrijView = z.infer<typeof takhrijView>;
 
 // ── Masukan (dibagikan ke route, tool MCP, CLI; KONVENSI §TypeScript) ──────────────────────
+
+// ── Intisari (X15, ADR-097) ──────────────────────────────────────────────────────────────
+
+export const digestAnchorView = z
+  .strictObject({
+    passage_id: id,
+    ...textSpan.shape,
+    location: location.describe("Printed location and permalink of the passage"),
+  })
+  .describe(
+    "Text basis of a key idea: a span of the passage's text_raw that the model pointed to (by block id) and code resolved; read the passage for the Arabic",
+  );
+export type DigestAnchorView = z.infer<typeof digestAnchorView>;
+
+export const digestPointView = z
+  .strictObject({
+    ord: id,
+    kind: digestPointKind.describe(
+      "idea = key idea; advice = advice written by the author himself in the anchored text (not advice from Surau)",
+    ),
+    stance: digestStance.describe(
+      "Whose view: author = the author's own; reported = a view he quotes; refuted = a view he rejects",
+    ),
+    title: z.string(),
+    body: z.string(),
+    review_status: reviewStatus,
+    anchors: z.array(digestAnchorView),
+  })
+  .describe("Key idea of the digest (AI text), with the passages it is based on");
+export type DigestPointView = z.infer<typeof digestPointView>;
+
+export const digestQuoteView = z
+  .strictObject({
+    ord: id,
+    point_ord: id.nullable().describe("Key idea this quotation supports; null = general highlight"),
+    kind: digestQuoteKind.describe(
+      "Decided by code: text = words in the book; report = a narration (grading only from takhrij, see get_hadith_takhrij); poetry = verse",
+    ),
+    passage_id: id,
+    ...textSpan.shape,
+    text_raw: z
+      .string()
+      .describe(
+        "Arabic quotation copied verbatim from the passage's text_raw by code; never model text",
+      ),
+    location,
+    translation: translationView
+      .nullable()
+      .describe(
+        "AI translation of the quotation (or of the whole passage when the quotation is the whole passage, with its human review); null when unavailable",
+      ),
+  })
+  .describe("Highlighted quotation: verbatim Arabic from the database, with its location");
+export type DigestQuoteView = z.infer<typeof digestQuoteView>;
+
+export const digestQuestionView = z
+  .strictObject({ ord: id, point_ord: id, text: z.string() })
+  .describe("Recall question about one key idea (who holds which view), AI text");
+export type DigestQuestionView = z.infer<typeof digestQuestionView>;
+
+export const digestTermView = z
+  .strictObject({
+    key: z.string(),
+    label: z.string().describe("Term in Latin transliteration, e.g. riya'"),
+    gloss: z.string().describe("Short AI definition"),
+    ...aiTextMeta,
+  })
+  .describe("Glossary term used in the digest");
+export type DigestTermView = z.infer<typeof digestTermView>;
+
+export const digestAudioView = z
+  .strictObject({
+    r2_key: z
+      .string()
+      .describe("Object key in Surau's public media bucket; the app adds the media origin"),
+    duration_ms: id,
+    voice_kind: voiceKind.describe(
+      "ai = synthetic voice (always labelled as AI narration); human = human narrator",
+    ),
+    voice_name: z.string(),
+    provider: z.string(),
+    model: z.string().nullable(),
+    created_at: z.string(),
+    chapters: audioChapters.describe("Player chapters: key idea + start time"),
+  })
+  .describe("Narration of the digest text (never of Arabic text or Quran verses)");
+export type DigestAudioView = z.infer<typeof digestAudioView>;
+
+export const digestView = z
+  .strictObject({
+    label: z.literal("ai_digest").describe('Always shown as "Intisari" (AI study digest)'),
+    section: tocNodeRef.describe("The table-of-contents section this digest covers"),
+    source: citationSource,
+    tier: digestTier.describe("book = digest of a whole book (kitab); section = of a chapter"),
+    basis: digestBasis.describe(
+      "text = written from the section's Arabic text; children = from its subsections' digests; mixed = both",
+    ),
+    ...aiTextMeta,
+    opening: z.string().nullable().describe("What the author discusses (book tier)"),
+    abstract: z.string(),
+    closing: z.string().nullable().describe("Closing summary (book tier)"),
+    points: z.array(digestPointView),
+    quotes: z.array(digestQuoteView),
+    questions: z.array(digestQuestionView),
+    terms: z.array(digestTermView),
+    reading_minutes: z.number().int().positive().describe("Estimated reading time of the AI text"),
+    audio: digestAudioView.nullable(),
+  })
+  .describe(
+    "Layered AI study digest ('Intisari') of a section: key ideas anchored to passages, verbatim quotations copied from the database, and optional narration. A door to the text, not a substitute for it",
+  );
+export type DigestView = z.infer<typeof digestView>;
+
+export const readDigestInput = z.strictObject({ node_id: id });
+export type ReadDigestInput = z.infer<typeof readDigestInput>;
 
 export const TOC_DEFAULT_DEPTH = 2;
 export const TOC_MAX_DEPTH = 10;

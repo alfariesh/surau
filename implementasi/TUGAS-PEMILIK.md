@@ -231,6 +231,42 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 - [ ] **T-20 · (Opsional) Laporan biaya harian otomatis** (S20)
   Buat *Admin API key* di platform.claude.com (khusus Organization), lalu simpan sendiri dengan `pnpm wrangler secret put ANTHROPIC_ADMIN_KEY --name surau-api`. Isinya dipakai untuk mencocokkan biaya harian dan mengirim email peringatan saat pemakaian lewat 80%.
 
+## Intisari + Dengar (X15–X17, ADR-097)
+
+- [ ] **T-31 · Uji dengar suara Intisari + QA sampel pilot** · bagian 1 bisa sekarang; bagian 2 sesudah pilot X15b
+  1. **Dengarkan dua contoh** yang dibuat agent di chat 24 Oktober: ringkasan Muqaddimah + istilah (ikhlas, riya', 'ujub, tawakkal, al-Ghazali, shallallahu 'alaihi wa sallam), dibacakan **Jefri** (pria, tenang menjelaskan) dan **Gendhis** (perempuan, tenang dan ramah). Di kartu suara Anda bisa mengganti suara, misalnya Mizan, Leya, atau Bayu. Setiap ganti memakai ±600 kredit dari paket Starter.
+  2. **Pilih satu suara**, atau dua (pria dan perempuan), lalu catat istilah yang lafalnya salah. Ketik ke agent: "T-31 suara: <nama>; lafal salah: …".
+  3. *(Opsional, disarankan untuk jangka panjang)* **Suara milik Surau sendiri.** Suara dari Voice Library bisa ditarik pemiliknya, sehingga kitab berikutnya tidak bisa dibacakan dengan suara yang sama. Tulis ke agent satu deskripsi suara (misalnya "pria Indonesia 40-an, tenang, hangat, artikulasi jelas, tempo sedang") dan satu kalimat contoh. Agent membuat 3 pratinjau (Voice Design) untuk Anda pilih.
+  4. **Sesudah pilot X15b:** buka halaman QA yang dikirim agent, lalu nilai tiap gagasan: Benar/Kurang/Salah, setia pada paragraf sumbernya, atribusinya tepat, dan tanpa nada fatwa. Gerbangnya ≤ 5% "Salah". Ajak Ust. Anas bila bisa.
+
+- [ ] **T-29 · Kunci API ElevenLabs untuk pembuatan audio (X17)** · sebelum pilot audio X17; kuota produksi diputuskan sesudah pilot
+  1. Buka https://elevenlabs.io dan masuk ke akun Anda (paket Starter).
+  2. Buka **Developers → API Keys → Create API Key**. Beri nama `surau-tts`, aktifkan pembatasan akses, lalu izinkan hanya **Text to Speech** (dan **Voices: Read** bila ada). Isi **batas kredit**, misalnya 60.000 untuk pilot.
+  3. Salin kuncinya. **Jangan tempel di chat Claude.**
+  4. Di panel Terminal aplikasi Claude (folder Surau), ketik baris di bawah. Saat diminta, tempel kunci lalu tekan Enter. Isinya tidak terlihat.
+     `printf 'Tempel kunci lalu Enter: '; read -rs K; printf 'ELEVENLABS_API_KEY=%s\n' "$K" >> .env; unset K; echo`
+  5. Bilang ke agent: "T-29 sudah". Agent tidak membuka `.env`. Bila kuncinya belum terbaca, alat `pnpm audio` sendiri yang memberi tahu.
+  6. **Kuota produksi (sesudah pilot):** Starter (±75 ribu karakter per bulan lewat API) hanya cukup untuk pilot. Semua audio Intisari Ihya butuh ±1,3 juta karakter (≈ US$104 dengan v4). Pilihannya:
+     - naik ke **Pro** satu bulan (US$99, ±1,24 juta karakter) ditambah isi ulang kecil;
+     - **Creator** beberapa bulan (US$22 per bulan, ±275 ribu karakter);
+     - **ElevenLabs Impact Program** (12 bulan Pro gratis) bila Surau berbadan hukum nirlaba.
+     Ketik pilihan Anda ke agent.
+  - Tidak dipakai: `npx @elevenlabs/cli onboard init`. Perintah itu menulis berkas `.env.local` dan folder `~/.elevenlabs`, lalu menyuruh `npm install`, yang bentrok dengan pnpm repo ini (ADR-097).
+
+- [ ] **T-30 · Lihat dan setujui tampilan Intisari (X16)** · di akhir X16
+  1. Agent mengirim tautan Preview (`pr-NNN.surau.org/kitab/ihya/intisari`, data staging). Buka di ponsel dan laptop, mode terang dan gelap.
+  2. Periksa:
+     - hub 41 kitab;
+     - satu Intisari Kitab dan satu Intisari Bab, berisi gagasan bernomor dengan "Dasar teks", kartu kutipan Arab + terjemahan + jilid/halaman, istilah, dalil, dan "Uji pemahaman";
+     - label AI;
+     - kartu ringkasan di pembaca dan menu ⋮ "Buka Intisari";
+     - lencana di daftar isi;
+     - hasil Cari.
+  3. Ketik ke agent "T-30 setuju" atau catatan perbaikannya.
+
+- [ ] **T-28 · Data kitab di mesin tempat agent bekerja (X15c)** · hanya untuk membangun korpus `ihya-v9`; pilot tidak menunggu ini
+  Agent sekarang bekerja di komputer yang belum punya drive Shamela (`Elfariesh`), folder `data/raw` (OpenITI, Tanzil, Kemenag), dan `data/build/llm` (hasil batch AI lama yang sudah dibayar). Tanpa ketiganya, korpus baru tidak bisa dibangun dan terjemahan lama harus dibayar ulang. **Jangan hapus folder-folder itu di Mac Anda.** Saat X15c dimulai, agent memandu langkahnya: menyambungkan drive, menyalin folder, atau menjalankan ingest di Mac.
+
 ---
 
 ## Lampiran: draf email ke HeroUI

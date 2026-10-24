@@ -20,6 +20,9 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | – | Sisipan | [X11](sesi/X11-mode-baca.md) mode baca Arab · Keduanya · Terjemahan di pembaca, Cari, dan Maknaz + fondasi bahasa (situs Inggris nanti) | X11 | selesai 2026-10-24 (PR #126 + #127, ADR-091–092) |
 | – | Sisipan | [X13](sesi/X13-mutu-jawab.md) mutu Jawab sebelum `/rilis 4`: pencarian makna (ADR-093), cakupan takhrij gold, holdout, kalibrasi judge | X13 | langkah gratis selesai 2026-10-24; langkah berbayar menunggu izin |
 | – | Sisipan | [X14](sesi/X14-lanjutan-mode-baca.md) lanjutan mode baca: petunjuk sekali tampil bagi pembaca baru, Ringkasan AI ikut kata cari (juga di mode Arab), `pnpm ukur:lcp` per mode | X14 | selesai 2026-10-24 (PR #130, ADR-095) |
+| – | Sisipan | [X15](sesi/X15-intisari.md) **Intisari**: ringkasan belajar berlapis ala Headway/Blinkist (Intisari Kitab 10–15 menit + Intisari Bab 2–4 menit, gagasan berjangkar, kutipan disalin dari DB): kontrak data (X15a), pipeline + pilot (X15b), batch + korpus `ihya-v9` (X15c) | X15 | X15a selesai 2026-10-24 (ADR-097); X15b, X15c belum |
+| – | Sisipan | [X16](sesi/X16-intisari-ui.md) UI Intisari: hub, halaman Intisari, kartu pembaca + menu ⋮, lencana daftar isi, jalur Cari, tool MCP `get_section_digest` | X16 | belum (sesudah X15a) |
+| – | Sisipan | [X17](sesi/X17-dengar.md) **Dengar**: audio Intisari (ElevenLabs v4, tanpa huruf Arab), R2 `surau-media`, pemutar global dengan Media Session | X17 | belum (sesudah X15a; produksi sesudah T-29) |
 | – | Bahasa Inggris | Situs berbahasa Inggris di `/en/…`: antarmuka, terjemahan kitab, Cari, dan Maknaz (ADR-092: arsitektur + daftar bagian yang masih terkunci "id"; butuh sumber terjemahan ayat Inggris berlisensi) | garis besar | belum dijadwalkan |
 
 **Catatan urutan:**
@@ -142,4 +145,4 @@ Mulai dari tingkat A (deterministik): ayat (sudah tersedia sejak S12), tautan ha
 
 ## Fase 7 · Kurikulum & data terbuka (garis besar)
 
-Mencakup ±92 kitab kurikulum (pipeline yang sama, validasi struktur otomatis per kitab), entitas tingkat C dengan review wajib, rilis dump `.sqlite` di R2 dan benchmark terbuka, serta ruang tokoh lain. **Syarat rilis:** kapasitas review ustadz mencukupi dan lisensi data jelas.
+Mencakup ±92 kitab kurikulum (pipeline yang sama, validasi struktur otomatis per kitab), entitas tingkat C dengan review wajib, rilis dump `.sqlite` di R2 dan benchmark terbuka, serta ruang tokoh lain. **Fitur belajar dari Intisari (dicatat atas permintaan pemilik 2026-10-24, ADR-097):** jalur "Arba'in Ihya" (40 kitab, 40 hari), ulas gagasan kunci dengan pengulangan berjarak (bahannya sudah ada: pertanyaan ingatan per gagasan), simpan dan bagikan kartu kutipan, target mingguan tanpa hukuman, dan catatan pribadi; semuanya tanpa akun dulu (localStorage), dijadwalkan sesudah X15–X17. **Syarat rilis:** kapasitas review ustadz mencukupi dan lisensi data jelas.

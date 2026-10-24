@@ -197,6 +197,162 @@ export const subheadingTranslationRow = z.strictObject({
 });
 export type SubheadingTranslationRow = z.infer<typeof subheadingTranslationRow>;
 
+// ── Intisari (migrasi 0009, X15, ADR-097) ───────────────────────────────────────────────
+
+const sha256 = z.string().regex(/^[0-9a-f]{64}$/);
+const ord = z.number().int().min(1).max(99);
+const charStart = int.nonnegative();
+
+/** Intisari Kitab (muqaddimah + kitab) atau Intisari Bab (bagian lain). */
+export const digestTier = z.enum(["book", "section"]);
+export type DigestTier = z.infer<typeof digestTier>;
+/** Asal isi: teks Arab bagian itu, Intisari anak-anaknya, atau keduanya. */
+export const digestBasis = z.enum(["text", "children", "mixed"]);
+/** Gagasan, atau anjuran yang ditulis penulis sendiri (berjangkar, bukan nasihat Surau). */
+export const digestPointKind = z.enum(["idea", "advice"]);
+export type DigestPointKind = z.infer<typeof digestPointKind>;
+/** Suara siapa: pendapat penulis, yang ia nukil, atau yang ia bantah. */
+export const digestStance = z.enum(["author", "reported", "refuted"]);
+export type DigestStance = z.infer<typeof digestStance>;
+/** Jenis kutipan, ditentukan kode: perkataan dalam teks, riwayat (status dari takhrij), syair. */
+export const digestQuoteKind = z.enum(["text", "report", "poetry"]);
+export type DigestQuoteKind = z.infer<typeof digestQuoteKind>;
+/** Suara audio: sintetis (berlabel "dibacakan suara AI") atau narator manusia. */
+export const voiceKind = z.enum(["ai", "human"]);
+export type VoiceKind = z.infer<typeof voiceKind>;
+
+export const digestRow = z.strictObject({
+  toc_node_id: id,
+  lang: z.string(),
+  tier: digestTier,
+  basis: digestBasis,
+  opening: z.string().nullable(),
+  abstract: z.string(),
+  closing: z.string().nullable(),
+  source_sha256: sha256,
+  model: z.string(),
+  prompt_version: z.string(),
+  created_at: z.string(),
+  review_status: reviewStatus,
+});
+export type DigestRow = z.infer<typeof digestRow>;
+
+export const digestPointRow = z.strictObject({
+  toc_node_id: id,
+  lang: z.string(),
+  ord,
+  kind: digestPointKind,
+  stance: digestStance,
+  title: z.string(),
+  body: z.string(),
+  review_status: reviewStatus,
+});
+export type DigestPointRow = z.infer<typeof digestPointRow>;
+
+/** "Dasar teks" gagasan: rentang di `passage.text_raw` (indeks string JS, akhir eksklusif). */
+export const digestAnchorRow = z
+  .strictObject({
+    toc_node_id: id,
+    lang: z.string(),
+    point_ord: ord,
+    seq: z.number().int().min(1).max(9),
+    passage_id: id,
+    char_start: charStart,
+    char_end: int,
+  })
+  .refine((r) => r.char_end > r.char_start, "char_end harus > char_start");
+export type DigestAnchorRow = z.infer<typeof digestAnchorRow>;
+
+/**
+ * Kutipan pilihan: rentang `text_raw` + sidik `raw_sha256`. Terjemahan `digest` = terjemahan AI
+ * kutipan ini; `passage` = kutipan satu paragraf utuh, terjemahannya dari tabel `translation`.
+ */
+export const digestQuoteRow = z
+  .strictObject({
+    toc_node_id: id,
+    lang: z.string(),
+    ord: z.number().int().min(1).max(9),
+    point_ord: ord.nullable(),
+    passage_id: id,
+    char_start: charStart,
+    char_end: int,
+    raw_sha256: sha256,
+    kind: digestQuoteKind,
+    translation_source: z.enum(["digest", "passage"]),
+    translation: z.string().nullable(),
+  })
+  .refine((r) => r.char_end > r.char_start && r.char_end - r.char_start <= 2000, "rentang kutipan")
+  .refine(
+    (r) => (r.translation_source === "digest") === (r.translation !== null),
+    "terjemahan kutipan hanya untuk sumber digest",
+  );
+export type DigestQuoteRow = z.infer<typeof digestQuoteRow>;
+
+export const digestQuestionRow = z.strictObject({
+  toc_node_id: id,
+  lang: z.string(),
+  ord,
+  point_ord: ord,
+  text: z.string(),
+});
+export type DigestQuestionRow = z.infer<typeof digestQuestionRow>;
+
+const termKey = z
+  .string()
+  .regex(/^[a-z][a-z0-9-]*$/)
+  .max(64);
+
+/** Istilah glosarium berkunci; definisi AI satu kali per istilah per bahasa. */
+export const glossaryTermRow = z.strictObject({
+  term_key: termKey,
+  lang: z.string(),
+  label: z.string(),
+  gloss: z.string(),
+  model: z.string(),
+  prompt_version: z.string(),
+  created_at: z.string(),
+  review_status: reviewStatus,
+});
+export type GlossaryTermRow = z.infer<typeof glossaryTermRow>;
+
+export const digestTermRow = z.strictObject({
+  toc_node_id: id,
+  lang: z.string(),
+  ord,
+  term_key: termKey,
+});
+export type DigestTermRow = z.infer<typeof digestTermRow>;
+
+/** Bab pemutar audio: gagasan kunci + detik mulainya, urut waktu. */
+export const audioChapters = z.array(
+  z.strictObject({ point_ord: ord, start_ms: int.nonnegative() }),
+);
+export type AudioChapters = z.infer<typeof audioChapters>;
+
+/** Audio "Dengarkan" satu Intisari (X17): objek MP3 di R2 media publik, tidak pernah ditimpa. */
+export const audioTrackRow = z
+  .strictObject({
+    toc_node_id: id,
+    lang: z.string(),
+    voice_kind: voiceKind,
+    r2_key: z.string().min(1),
+    mime: z.literal("audio/mpeg"),
+    bytes: id,
+    duration_ms: id,
+    provider: z.string(),
+    voice_id: z.string(),
+    voice_name: z.string(),
+    model: z.string().nullable(),
+    script_sha256: sha256,
+    script_version: id,
+    lexicon_version: z.string(),
+    chapters_json: z.string(),
+    alignment_key: z.string().nullable(),
+    created_at: z.string(),
+  })
+  .refine((r) => (r.voice_kind === "ai") === (r.model !== null), "model hanya untuk suara AI");
+export type AudioTrackRow = z.infer<typeof audioTrackRow>;
+
 /** Stem sangat umum di `passage_fts` (migrasi 0004, S11): pengaman pencarian kata umum. */
 export const termStatRow = z.strictObject({
   term: z.string().min(1),
@@ -308,7 +464,7 @@ export const corpusMeta = z.object({
 export type CorpusMeta = z.infer<typeof corpusMeta>;
 
 /** Versi skema korpus yang dibuat migrasi di repo ini (= nilai `meta.schema_version` terbaru). */
-export const CORPUS_SCHEMA_VERSION = 8;
+export const CORPUS_SCHEMA_VERSION = 9;
 
 /** Skema korpus pertama yang punya indeks `passage_fts` terisi dan `term_stat` (S11, migrasi 0004). */
 export const SEARCH_SCHEMA_VERSION = 4;
@@ -334,6 +490,12 @@ export const TITLE_SCHEMA_VERSION = 7;
  */
 export const REVIEW_SCHEMA_VERSION = 8;
 
+/**
+ * Skema korpus pertama yang punya tabel Intisari (`digest*`, `glossary_term`, `audio_track`) dan
+ * indeks `digest_point_fts` (X15, migrasi 0009, ADR-097). Di korpus lama fitur Intisari tidak ada.
+ */
+export const DIGEST_SCHEMA_VERSION = 9;
+
 /** Tabel biasa korpus → skema barisnya (passage_fts tidak termasuk: tabel virtual turunan). */
 export const corpusTables = {
   author: authorRow,
@@ -349,6 +511,14 @@ export const corpusTables = {
   summary: summaryRow,
   toc_title_translation: tocTitleTranslationRow,
   subheading_translation: subheadingTranslationRow,
+  glossary_term: glossaryTermRow,
+  digest: digestRow,
+  digest_point: digestPointRow,
+  digest_anchor: digestAnchorRow,
+  digest_quote: digestQuoteRow,
+  digest_question: digestQuestionRow,
+  digest_term: digestTermRow,
+  audio_track: audioTrackRow,
   term_stat: termStatRow,
   quran_source: quranSourceRow,
   quran_surah: quranSurahRow,

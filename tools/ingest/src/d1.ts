@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import {
+  DIGEST_SCHEMA_VERSION,
   LATIN_SEARCH_SCHEMA_VERSION,
   QURAN_SCHEMA_VERSION,
   REVIEW_SCHEMA_VERSION,
@@ -163,11 +164,21 @@ export const COUNTED = [
   // Judul daftar isi Indonesia (X04 bagian B): tabel baru ada sejak skema 7.
   "toc_title_translation",
   "subheading_translation",
+  // Intisari (X15): tabel baru ada sejak skema 9.
+  "glossary_term",
+  "digest",
+  "digest_point",
+  "digest_anchor",
+  "digest_quote",
+  "digest_question",
+  "digest_term",
+  "audio_track",
   "term_stat",
   "passage_fts",
   // Indeks Indonesia (S14): tabel virtual baru ada sejak skema 6.
   "translation_fts",
   "summary_fts",
+  "digest_point_fts",
   "meta",
 ] as const;
 /** Tabel yang baru ada (atau baru diisi) sejak skema korpus 4 (S11): tidak dihitung di korpus lama. */
@@ -178,6 +189,17 @@ const TITLE_TABLES: ReadonlySet<string> = new Set([
   "subheading_translation",
 ]);
 const REVIEW_TABLES: ReadonlySet<string> = new Set(["translation_review"]);
+const DIGEST_TABLES: ReadonlySet<string> = new Set([
+  "glossary_term",
+  "digest",
+  "digest_point",
+  "digest_anchor",
+  "digest_quote",
+  "digest_question",
+  "digest_term",
+  "audio_track",
+  "digest_point_fts",
+]);
 const QURAN_TABLES: ReadonlySet<string> = new Set([
   "quran_source",
   "quran_surah",
@@ -265,13 +287,16 @@ export function smoke(
   const titles = Number(meta.schema_version ?? 0) >= TITLE_SCHEMA_VERSION;
   // Asal tinjauan manusia terjemahan (X08 tahap 2) sejak skema 8.
   const reviewed = Number(meta.schema_version ?? 0) >= REVIEW_SCHEMA_VERSION;
+  // Intisari (X15) sejak skema 9.
+  const digests = Number(meta.schema_version ?? 0) >= DIGEST_SCHEMA_VERSION;
   const tables = COUNTED.filter(
     (t) =>
       (search || !SEARCH_TABLES.has(t)) &&
       (quran || !QURAN_TABLES.has(t)) &&
       (latin || !LATIN_TABLES.has(t)) &&
       (titles || !TITLE_TABLES.has(t)) &&
-      (reviewed || !REVIEW_TABLES.has(t)),
+      (reviewed || !REVIEW_TABLES.has(t)) &&
+      (digests || !DIGEST_TABLES.has(t)),
   );
   const row = query(target, smokeCounts(tables))[0] ?? {};
   const counts = Object.fromEntries(
@@ -326,6 +351,9 @@ export function smoke(
       problems.push(
         `tinjauan manusia tidak konsisten: ${n} terjemahan berstatus tinjauan, ${provenance} asal tinjauan (${matched} cocok)`,
       );
+  }
+  if (!digests) {
+    limitations.push(`skema korpus ${meta.schema_version ?? "?"} belum punya Intisari (X15)`);
   }
   if (expect !== undefined) {
     for (const t of COUNTED) {

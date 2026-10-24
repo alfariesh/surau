@@ -30,7 +30,7 @@ import { loadQuran } from "./quran/source.ts";
 import type { QuranConfig } from "./quran/source.ts";
 import { openitiReport, validationReport } from "./report.ts";
 import type { ReportContext } from "./report.ts";
-import { TABLE_ORDER, buildRows } from "./rows.ts";
+import { TABLE_ORDER, buildRows, emptyDigestRows } from "./rows.ts";
 import type { CorpusRows } from "./rows.ts";
 import { ftsRows, latinFtsRows, termStats } from "./search-index.ts";
 import type { FtsRow } from "./search-index.ts";
@@ -214,6 +214,7 @@ function rowsFor(
     summary: [],
     toc_title_translation: [],
     subheading_translation: [],
+    ...emptyDigestRows(),
     term_stat: termStats(fts, paths.migrations),
   };
   // Terjemahan/ringkasan AI dicek terhadap baris yang baru dibangun ini (hash sumber, ayat).
@@ -381,6 +382,7 @@ export function runIngest(
     "passage_fts",
     "translation_fts",
     "summary_fts",
+    "digest_point_fts",
   ]);
   mkdirSync(dirname(idsPath), { recursive: true });
   writeIdMap(idsPath, ids.snapshot());
