@@ -11,6 +11,7 @@ import { home } from "./id/home";
 import { mcp } from "./id/mcp";
 import { about } from "./id/about";
 import { license } from "./id/license";
+import { listen } from "./id/listen";
 import { reader } from "./id/reader";
 import { readMode } from "./id/readMode";
 import { search } from "./id/search";
@@ -31,6 +32,7 @@ export const id = {
   mcp,
   about,
   license,
+  listen,
   reader,
   readMode,
   search,

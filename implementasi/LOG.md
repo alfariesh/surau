@@ -15,6 +15,22 @@ Format entri:
 
 ---
 
+## 2026-10-25 · X17 · Dengar: audio Intisari (skrip, ElevenLabs v4, MP3, R2, pemutar) — sebagian (kode + bucket; pilot berbayar menunggu pemilik)
+- Dikerjakan:
+  - Normalisasi lisan berversi (`spoken-id`) dan skrip deterministik dari `DigestView`: label suara AI, kutipan lewat terjemahan, ayat hanya disebut, tanda takhrij berat, tanpa huruf Arab.
+  - `tools/audio`: ElevenLabs v4 lewat REST (stitching, ulang hanya 429/503), cache + niat + tanda terima (ADR-061), MP3 CBR bersambung + ID3, leksikon IPA (draf, uji T-31), R2 tanpa timpa + verify, CLI `pnpm audio`.
+  - Manifest `data/audio/ihya-9472-audio.json` (kosong) + pemuat `audio_track` di ingest (hanya sha skrip cocok; putaran kedua deterministik). Bucket R2 `surau-media` dibuat.
+  - Web: pemutar global di shell (tombol Dengarkan, pemutar mini lazy, Media Session, 0,75–2×, ±15 dtk, bab = gagasan, lanjut posisi `surau:listen:v1`), `dengar.json`, `/privasi`, `/dev/dengar` + audio sunyi untuk e2e.
+- Verifikasi:
+  - `pnpm verify` → lolos (932 tes Node + 421 workerd, build). Cakupan `packages/text` fungsi 100%, baris 100%, cabang 96,8%.
+  - e2e `dengar.spec.ts` 4/4 (chromium + ponsel, axe) terhadap `next dev`. Uji manual di browser desktop + ponsel.
+  - `pnpm audio plan` tersambung ke staging (0 Intisari, skema < 9). JS awal +1,9 KB gzip.
+- Biaya API: – (tanpa permintaan TTS; tidak ada kredit ElevenLabs terpakai)
+- Keputusan: ADR-100 (098 = X15b, 099 = X16)
+- Catatan untuk sesi berikutnya:
+  - Pilot hanya sesudah T-29 (kunci, sebaiknya + User/Voices Read), T-31 (suara + `pnpm audio sample`), T-32 (domain `media.surau.org`), dan izin pemilik di chat.
+  - Sesudah PR #138 masuk, sambungkan `PlayButton` di `ListenSlot` (`digest-page.tsx`) lalu ukur LCP halaman Intisari.
+
 ## 2026-10-24 · X15a · Intisari: riset Headway/Blinkist/ElevenLabs v4, rencana X15–X17, kontrak data — selesai (kontrak; pipeline, UI, audio menyusul)
 - Dikerjakan:
   - Riset tiga agen (Headway, Blinkist, aplikasi belajar lain; ElevenLabs v4 + alternatif TTS; peta ringkasan di kode), lalu rencana yang disetujui pemilik. Jawaban pemilik: audio Intisari Kitab + Bab, nama "Intisari", fitur belajar dicatat untuk nanti, ElevenLabs Starter.
