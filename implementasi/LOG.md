@@ -24,7 +24,7 @@ Format entri:
 - Verifikasi:
   - Unit: core/db/mcp lolos (dalil, jalur `dp`, memo, tool); web 52 lolos.
   - e2e `intisari.spec.ts` lokal 12 lolos / 2 dilewati (staging tanpa data), axe terang + gelap + urutan heading.
-  - CI PR #138: `verify` + `eval retrieval` hijau.
+  - CI PR #138 (commit `6af024a`): `verify`, `eval retrieval`, `preview` (e2e + axe di Preview), dan `preview mcp` (8 tool) hijau; di-merge ke `main` sebagai `4ffb9ab`.
   - LCP ponsel Preview (n=5): j1/200 3,49 / 3,29 dtk, `/dev/intisari` 3,37 / 3,69 dtk (≤ 4,29; `sesi/bukti/X16/lcp-pr138.md`).
   - Staging skema 7: hub dan halaman Intisari 404, tanpa lencana atau tautan.
   - Peninjau: 1 blocker, 3 penting, 10 kecil; semua dikerjakan:
