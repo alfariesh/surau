@@ -65,6 +65,7 @@ const { positionals, values } = parseArgs({
     semantik: { type: "string" },
     "makna-k": { type: "string" },
     "makna-bobot": { type: "string" },
+    "makna-takhrij-k": { type: "string" },
   },
 });
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/u);
@@ -208,6 +209,8 @@ async function main() {
       routes = savedRoutesFor(items, readSavedRoutes(resolve(values.rute)));
     }
     // X13: `--semantik <peringkat>` = daftar makna dari berkas (arsip berakhiran +makna-berkas).
+    if (values["makna-k"] || values["makna-bobot"] || values["makna-takhrij-k"])
+      throw new Error("--makna-k/--makna-bobot/--makna-takhrij-k hanya untuk kandidat (gratis).");
     const semantic = values.semantik
       ? readSemantic(resolve(values.semantik), { allowPrivate: values["termasuk-privat"] })
       : undefined;
@@ -356,13 +359,20 @@ async function main() {
     if (limit !== undefined && !Number.isInteger(limit))
       throw new Error("--makna-k harus bilangan bulat ≥ 1.");
     const weight = positive(values["makna-bobot"], "--makna-bobot");
-    if (!values.semantik && (limit !== undefined || weight !== undefined))
-      throw new Error("--makna-k/--makna-bobot butuh --semantik.");
+    const footnoteLimit = positive(values["makna-takhrij-k"], "--makna-takhrij-k");
+    if (footnoteLimit !== undefined && !Number.isInteger(footnoteLimit))
+      throw new Error("--makna-takhrij-k harus bilangan bulat ≥ 1.");
+    if (
+      !values.semantik &&
+      (limit !== undefined || weight !== undefined || footnoteLimit !== undefined)
+    )
+      throw new Error("--makna-k/--makna-bobot/--makna-takhrij-k butuh --semantik.");
     const semantic: SemanticOptions | undefined = values.semantik
       ? {
           ranks: readSemantic(resolve(values.semantik)),
           ...(limit === undefined ? {} : { limit }),
           ...(weight === undefined ? {} : { weight }),
+          ...(footnoteLimit === undefined ? {} : { footnoteLimit }),
         }
       : undefined;
     await withCorpus(async (corpus, index) => {
@@ -390,7 +400,11 @@ async function main() {
             input: file,
             corpus: index.meta.corpus_version,
             semantik: semantic
-              ? { k: semantic.limit ?? null, bobot: semantic.weight ?? null }
+              ? {
+                  k: semantic.limit ?? null,
+                  bobot: semantic.weight ?? null,
+                  takhrij_k: semantic.footnoteLimit ?? null,
+                }
               : null,
             ...summarize(rows),
           }),
@@ -621,7 +635,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] | --tanpa-rute [--semantik PERINGKAT [--makna-k N] [--makna-bobot W]] (gratis; soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] [--semantik PERINGKAT] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] | --tanpa-rute [--semantik PERINGKAT [--makna-k N] [--makna-bobot W] [--makna-takhrij-k N]] (gratis; soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] [--semantik PERINGKAT] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

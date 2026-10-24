@@ -19,7 +19,7 @@ Fase ini memperbarui roadmap di [docs/07](../docs/07-roadmap.md). Perbedaan utam
 | – | Sisipan | [X08](sesi/X08-koreksi-terjemahan.md) koreksi terjemahan Indonesia oleh editor dan ustadz di `/tinjau/terjemahan`: teks polos, revisi langsung oleh ustadz terdaftar (pola ADR-070) dengan nama tampil, tayang lewat korpus berikutnya | X08 | rencana, siap dikerjakan |
 | – | Sisipan | [X11](sesi/X11-mode-baca.md) mode baca Arab · Keduanya · Terjemahan di pembaca, Cari, dan Maknaz + fondasi bahasa (situs Inggris nanti) | X11 | selesai 2026-10-24 (PR #126 + #127, ADR-091–092) |
 | – | Sisipan | [X13](sesi/X13-mutu-jawab.md) mutu Jawab sebelum `/rilis 4`: pencarian makna (ADR-093), cakupan takhrij gold, holdout, kalibrasi judge | X13 | langkah gratis selesai 2026-10-24; langkah berbayar menunggu izin |
-| – | Sisipan | [X14](sesi/X14-lanjutan-mode-baca.md) lanjutan mode baca: petunjuk sekali tampil bagi pembaca baru, Ringkasan AI ikut kata cari (juga di mode Arab), `pnpm ukur:lcp` per mode | X14 | selesai 2026-10-24 (PR #130, ADR-094) |
+| – | Sisipan | [X14](sesi/X14-lanjutan-mode-baca.md) lanjutan mode baca: petunjuk sekali tampil bagi pembaca baru, Ringkasan AI ikut kata cari (juga di mode Arab), `pnpm ukur:lcp` per mode | X14 | selesai 2026-10-24 (PR #130, ADR-095) |
 | – | Bahasa Inggris | Situs berbahasa Inggris di `/en/…`: antarmuka, terjemahan kitab, Cari, dan Maknaz (ADR-092: arsitektur + daftar bagian yang masih terkunci "id"; butuh sumber terjemahan ayat Inggris berlisensi) | garis besar | belum dijadwalkan |
 
 **Catatan urutan:**

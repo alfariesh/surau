@@ -12,7 +12,7 @@ import { ReadModeSegment } from "../read-mode-segment";
 import { StableText } from "../stable-text";
 
 /**
- * Petunjuk mode baca sekali tampil (X14, ADR-094) di awal teks halaman baca: pengunjung yang belum
+ * Petunjuk mode baca sekali tampil (X14, ADR-095) di awal teks halaman baca: pengunjung yang belum
  * pernah memilih mode melihat tiga pilihan Arab · Keduanya · Terjemahan beserta penjelasannya.
  * HTML-nya sama untuk semua pembaca (ISR); skrip awal memasang `data-read-mode-hint="off"` sebelum
  * tampil bila mode sudah tersimpan atau petunjuk pernah ditutup, dan CSS menyembunyikannya, jadi

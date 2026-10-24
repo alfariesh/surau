@@ -16,7 +16,7 @@ import {
 } from "@surau/llm";
 import type { JawabResult, Route } from "@surau/llm";
 
-import type { SavedRoute } from "./answer-candidates.ts";
+import type { SavedRoute, SemanticRanks } from "./answer-candidates.ts";
 import type Anthropic from "@anthropic-ai/sdk";
 
 /** Teks hasil yang turun ke Cari (ARSITEKTUR-TEKNIS §5 butir 7). */
@@ -145,7 +145,7 @@ export async function runQuestions(
     run?: (
       question: string,
       savedRoute?: Route | null,
-      semantic?: readonly number[],
+      semantic?: SemanticRanks,
     ) => Promise<JawabResult>;
     /**
      * Rute routing tersimpan per ID soal (X05, `--rute`, dari `savedRoutesFor`): routing tidak
@@ -156,20 +156,28 @@ export async function runQuestions(
      * Peringkat makna per ID soal (X13, `--semantik`): diberikan ke pipeline sebagai
      * `semanticSearch`. Soal tanpa peringkat ditolak sebelum panggilan pertama.
      */
-    semantic?: ReadonlyMap<string, readonly number[]>;
+    semantic?: ReadonlyMap<string, SemanticRanks>;
   },
 ): Promise<{ outputs: RunOutput[]; spent: number; skipped: number; failed: number }> {
   const routes = opts.routes;
   const semantic = opts.semantic;
   const run =
     opts.run ??
-    ((q: string, savedRoute?: Route | null, ranked?: readonly number[]) =>
+    ((q: string, savedRoute?: Route | null, ranked?: SemanticRanks) =>
       runJawab(
         {
           corpus: db,
           anthropic: client,
           ...(savedRoute !== undefined ? { savedRoute } : {}),
-          ...(ranked !== undefined ? { semanticSearch: async () => [...ranked] } : {}),
+          ...(ranked !== undefined
+            ? {
+                // Seperti indeks produksi: catatan kaki hanya bila pipeline memintanya (soal hadits).
+                semanticSearch: async (_q: string, o: { footnotes: boolean }) => ({
+                  passages: [...ranked.passages],
+                  footnotes: o.footnotes ? [...ranked.footnotes] : [],
+                }),
+              }
+            : {}),
         },
         q,
       ));

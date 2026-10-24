@@ -57,8 +57,8 @@ import type { HadithStatement } from "./citations.ts";
 import type { CitedSpan } from "./citations.ts";
 import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
-import { fuse, pairIds, searchLists, semanticList, withPairs } from "./retrieve.ts";
-import type { SearchList } from "./retrieve.ts";
+import { fuse, pairIds, searchLists, semanticLists, withPairs } from "./retrieve.ts";
+import type { SearchList, SemanticInput } from "./retrieve.ts";
 import { ROUTE_PROMPT, buildRouteRequest, normalizeRoute, parseRoute, tocText } from "./route.ts";
 import type { Route } from "./route.ts";
 
@@ -139,7 +139,7 @@ export interface JawabDiagnostics {
   /** Bagian tambahan dari ringkasan AI bagian (routing kedua tanpa LLM, X03), urut pencarian. */
   summary_sections: number[];
   /** Pencarian makna (X13): tidak ada bila `semanticSearch` tidak diberikan. */
-  semantic?: { hits: number; error: boolean };
+  semantic?: { hits: number; footnote_hits: number; error: boolean };
   candidates: number;
   docs: number;
   doc_tokens_est: number;
@@ -225,11 +225,15 @@ export interface JawabDeps {
    */
   savedRoute?: Route | null;
   /**
-   * Pencarian makna (X13, ADR-093): ID paragraf terdekat dengan pertanyaan, urut kemiripan.
-   * Belum diisi Worker sampai indeks embedding ada; galat = tanpa daftar makna (dicatat di
-   * diagnostik), jawaban tetap berjalan dengan pencarian kata.
+   * Pencarian makna (X13, ADR-093/094): ID paragraf terdekat dengan pertanyaan, urut kemiripan;
+   * `footnotes` (catatan kaki saja) hanya diminta bila routing menandai soal hadits. Belum diisi
+   * Worker sampai indeks embedding ada; galat = tanpa daftar makna (dicatat di diagnostik),
+   * jawaban tetap berjalan dengan pencarian kata.
    */
-  semanticSearch?: (question: string) => Promise<number[]>;
+  semanticSearch?: (
+    question: string,
+    opts: { footnotes: boolean },
+  ) => Promise<{ passages: number[]; footnotes: number[] }>;
   /**
    * Tinjauan label takhrij (X07) untuk catatan kaki yang disitasi, dari DB app (`surau-api`), dan
    * kunci akun ustadz peninjau terdaftar. Tanpa ini (eval, tes) label kode dipakai apa adanya.
@@ -302,14 +306,14 @@ export async function jawabCandidates(
   editionId: number = JAWAB_EDITION_ID,
   /**
    * Peringkat paragraf dari pencarian makna (X13, ADR-093); kosong = tanpa daftar makna.
-   * `limit`/`weight` hanya diubah eval saat mengukur varian.
+   * `footnotes` = peringkat catatan kaki saja (ADR-094), dipakai hanya bila `route.hadith`.
+   * `limit`/`weight`/`footnoteLimit` hanya diubah eval saat mengukur varian.
    */
-  semantic: { ids: readonly number[]; limit?: number; weight?: number } = { ids: [] },
+  semantic: SemanticInput = { ids: [] },
 ): Promise<JawabCandidates> {
-  const semanticRanked = semanticList(semantic.ids, semantic.limit, semantic.weight);
   const lists = [
     ...(await searchLists(db, question, route, editionId)),
-    ...(semanticRanked ? [semanticRanked] : []),
+    ...semanticLists(route, semantic),
   ];
   const ranked = fuse(lists);
   const first = await answerPassages(db, ranked);
@@ -460,17 +464,22 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 
   // 2. Kandidat.
   await emit({ type: "stage", stage: "retrieve" });
-  let semantic: number[] = [];
+  let semantic = { passages: [] as number[], footnotes: [] as number[] };
   if (deps.semanticSearch) {
     try {
-      semantic = await deps.semanticSearch(question);
-      diagnostics.semantic = { hits: semantic.length, error: false };
+      semantic = await deps.semanticSearch(question, { footnotes: route?.hadith === true });
+      diagnostics.semantic = {
+        hits: semantic.passages.length,
+        footnote_hits: semantic.footnotes.length,
+        error: false,
+      };
     } catch {
-      diagnostics.semantic = { hits: 0, error: true };
+      diagnostics.semantic = { hits: 0, footnote_hits: 0, error: true };
     }
   }
   const found = await jawabCandidates(db, question, route, toc.nodes, editionId, {
-    ids: semantic,
+    ids: semantic.passages,
+    footnotes: semantic.footnotes,
   });
   diagnostics.search_lists = found.lists.length;
   diagnostics.summary_sections = [

@@ -1,6 +1,6 @@
 # X14 · Sesi sisipan: Lanjutan mode baca (mudah ditemukan, ringkasan ikut kata cari, ukur LCP di repo)
 
-> **Fase:** sisipan (hanya `apps/web`, `scripts/`, dan dokumen) · **Status:** selesai (2026-10-24, PR #130, ADR-094)
+> **Fase:** sisipan (hanya `apps/web`, `scripts/`, dan dokumen) · **Status:** selesai (2026-10-24, PR #130, ADR-095)
 > **Prasyarat:** X11 selesai (PR #126 + #127, ADR-091–092) · Tugas pemilik: –
 > **Perkiraan:** 1 percakapan agent · $0 LLM · tanpa korpus baru · satu PR
 
@@ -46,7 +46,7 @@ Sesudah X11 tersisa tiga hal:
 - [x] LCP ponsel j1/200 di Preview tidak lebih buruk dari acuan produksi di mesin yang sama melebihi sebaran antarputaran. *Bukti: Preview PR #130 j1/200 pengunjung baru 3,96 dtk (produksi 4,19), Keduanya 3,31 (4,42), Terjemahan 3,16 (3,48), Arab 3,97 (2,88; sebaran Preview 2,57–4,85 menutupi angka produksi).*
 - [x] Tangkapan layar ponsel, desktop, dan gelap dilampirkan di PR. *Bukti: `bukti/X14/01`–`08`.*
 - [x] Teks Arab tetap dari DB (tidak ada string Arab baru di diff selain data tes). *Bukti: peninjau (grep diff) — tidak ada string Arab baru.*
-- [x] Peninjau dijalankan dan temuannya dikerjakan; ADR, STATUS, LOG, FASE, dan file ini diperbarui. *Bukti: peninjau 0 blocker, 5 perbaikan + 3 saran, semuanya dikerjakan (lihat Catatan hasil); ADR-094, FASE, STATUS, LOG.*
+- [x] Peninjau dijalankan dan temuannya dikerjakan; ADR, STATUS, LOG, FASE, dan file ini diperbarui. *Bukti: peninjau 0 blocker, 5 perbaikan + 3 saran, semuanya dikerjakan (lihat Catatan hasil); ADR-095, FASE, STATUS, LOG.*
 
 ## Di luar cakupan
 
@@ -54,8 +54,8 @@ Petunjuk di Cari/Maknaz/daftar isi (mode di sana mengikuti pilihan yang sama dan
 
 ## Catatan hasil
 
-*2026-10-24 · ADR-094:*
-- **Nomor:** sesi ini mula-mula X13/ADR-093, tetapi sesi "Mutu Jawab" masuk `main` lebih dulu dengan nomor yang sama (PR #131), jadi sesi ini dinomori ulang menjadi X14/ADR-094 saat menggabungkan `main`. X12 kosong.
+*2026-10-24 · ADR-095:*
+- **Nomor:** sesi ini mula-mula X13/ADR-093, tetapi sesi "Mutu Jawab" masuk `main` lebih dulu dengan nomor yang sama (PR #131), jadi sesi ini dinomori ulang menjadi X14/ADR-095 saat menggabungkan `main`. X12 kosong.
 - **Dibuat:**
   - Petunjuk mode baca `read-mode-hint.tsx` (Alert + Segment + penjelasan setinggi tetap) di atas catatan AI. Atribut `data-read-mode-hint="off"` dari skrip awal, diulang di `useLayoutEffect` untuk navigasi lunak. Keduanya yang sudah aktif tetap tersimpan saat ditekan (`ReadModeSegment onPick`).
   - `StableText` dipindah ke `components/stable-text.tsx`.

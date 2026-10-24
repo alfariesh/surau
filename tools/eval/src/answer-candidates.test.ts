@@ -89,8 +89,19 @@ describe("emptyRoutes / readSemantic", () => {
     const dir = mkdtempSync(join(tmpdir(), "surau-makna-"));
     onTestFinished(() => rmSync(dir, { recursive: true, force: true }));
     const ok = join(dir, "ok.jsonl");
-    writeFileSync(ok, JSON.stringify({ id: "j001", passage_ids: [3, 1] }) + "\n");
-    expect(readSemantic(ok)).toEqual(new Map([["j001", [3, 1]]]));
+    writeFileSync(
+      ok,
+      [
+        JSON.stringify({ id: "j001", passage_ids: [3, 1] }),
+        JSON.stringify({ id: "j002", passage_ids: [4], footnote_ids: [8, 9] }),
+      ].join("\n"),
+    );
+    expect(readSemantic(ok)).toEqual(
+      new Map([
+        ["j001", { passages: [3, 1], footnotes: [] }],
+        ["j002", { passages: [4], footnotes: [8, 9] }],
+      ]),
+    );
     const privat = join(dir, "privat.jsonl");
     writeFileSync(privat, JSON.stringify({ id: "p001", passage_ids: [3] }));
     expect(() => readSemantic(privat)).toThrow(/bukan peringkat makna soal publik/);
