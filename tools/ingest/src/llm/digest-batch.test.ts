@@ -153,7 +153,10 @@ describe("alur Intisari tanpa API", () => {
     expect(merge.requests[0]?.digest?.sources).toEqual(["dg-100005-id-p1", "dg-100005-id-p2"]);
     const mergeOut = {
       abstrak: ABSTRACT,
-      gagasan: [point("Al-Ghazali merangkum bab kedua", ["n5p1.g1", "n5p2.g1"])],
+      gagasan: [
+        point("Al-Ghazali merangkum bab kedua", ["n5p1.g1", "n5p2.g1"]),
+        point("Al-Ghazali menutup bab kedua", ["n5p2.g1"]),
+      ],
       kutipan: [{ id: "n5p1.q1", gagasan: 1 }],
       istilah: ["ilmu"],
     };
@@ -171,10 +174,22 @@ describe("alur Intisari tanpa API", () => {
       ["dg-100003-id-b", MODELS.sonnet],
       ["dg-100003-id-bh", MODELS.haiku],
     ]);
+    // Satu gagasan per gagasan sumber (minimum Intisari Kitab = gagasan sumber yang tersedia, ≤ 5).
+    const user = book.requests[0]?.params.messages[0]?.content;
+    const sourceIds =
+      typeof user === "string"
+        ? [...user.matchAll(/<gagasan id="([^"]+)"/gu)].map((m) => m[1]!)
+        : [];
     const bookOut = {
       pembuka: `Kitab ini membuka pembahasan tentang ilmu menurut al-Ghazali. ${words(20)}.`,
       abstrak: ABSTRACT,
-      gagasan: [point("Al-Ghazali menempatkan ilmu di atas ibadah", ["n4.g1", "n5.g1"], 110)],
+      gagasan: sourceIds.map((id, i) =>
+        point(
+          `Al-Ghazali menjelaskan gagasan kitab ${i + 1}`,
+          i === 0 ? ["n4.g1", "n5.g1"] : [id],
+          110,
+        ),
+      ),
       kutipan: [{ id: "n4.q1", gagasan: 1 }],
       istilah: ["ilmu", "ulama"],
       penutup: `Inti kitab ini menurut al-Ghazali adalah ilmu jalan akhirat. ${words(20)}.`,
