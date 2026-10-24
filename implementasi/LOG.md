@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-24 · X13 lanjutan · Daftar makna takhrij untuk soal hadits — selesai (kode; eval berbayar menunggu izin)
+- Dikerjakan: `semanticLists` + daftar `(makna takhrij)` (catatan kaki saja, k 10, hanya bila routing menandai soal hadits); `semanticSearch` mengembalikan `{passages, footnotes}`; peringkat v2 dengan `footnote_ids`; `kandidat --makna-takhrij-k`; bedah j018 (jawaban menyitasi h55–57 yang menjawab kedua sisi; gold h13 → T-24).
+- Verifikasi: `kandidat --input x13-…-diagnostik-publik.jsonl --remote` 31 → 32/34 (status hadits 6/6); tanpa rute tetap 30; `pnpm verify` → lolos.
+- Biaya API: –
+- Keputusan: ADR-094.
+- Catatan untuk sesi berikutnya: eval atas rute X13 + peringkat v2 (±US$0,11, pagu 0,30) menunggu izin; sisa 4 kegagalan lokasi (j018, j019, j021, j023) menunggu T-24.
+
 ## 2026-10-24 · X13 · Mutu Jawab: pencarian makna, cakupan takhrij gold, persiapan holdout/kalibrasi — sebagian (langkah gratis; berbayar menunggu izin)
 - Dikerjakan: bedah j024 (istilah berbeda + catatan kaki tanpa terjemahan); cakupan gratis soal status hadits menuntut catatan kaki gold; `kandidat --tanpa-rute` + `--semantik`; kait pencarian makna di pipeline (`semanticList`, `JawabDeps.semanticSearch`, mati di Worker); `answer --semantik` (arsip `+makna-berkas`); embedding lokal `bge-m3` q8 atas 20.509 paragraf staging (66 menit CPU, di luar repo) + peringkat 42 soal publik.
 - Verifikasi: `kandidat --tanpa-rute --remote` 26/34 → dengan makna k 20 bobot 2 **30/34** (sapuan 12 varian); `pnpm verify` → lolos.

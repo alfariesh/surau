@@ -2366,3 +2366,24 @@ Token dokumen rata-rata 18,3 → 19,7 ribu (anggaran 20 ribu sama): biaya input 
 **Kesimpulan sesudah eval:** pencarian makna **tidak menaikkan lokasi jawaban** di set publik ini, walau menaikkan cakupan kandidat. Embedding + Vectorize produksi (langkah c) **tidak disarankan** sekarang: menambah token input ±7% dan satu layanan, tanpa kenaikan R4 yang terukur. Kait kode tetap (mati di Worker, tanpa biaya). Holdout (b) tidak dijalankan (izin pemilik hanya untuk a), dan baru bermakna sesudah perubahan yang menaikkan angka publik. Sisa jalan ke lokasi ≥ 90% ada di **tinjauan gold T-24** (j019, j021, j023 = 3 dari 5 kegagalan) serta tahap jawaban (j018) dan takhrij (j024).
 
 **Tinjau ulang bila:** gold ditinjau Anas (T-24) dan lokasi masih < 90% karena soal yang tak terjangkau kata; korpus bertambah kitab (indeks per kitab, kuota Vectorize); atau Workers AI mengganti `bge-m3`.
+
+## ADR-094 · Daftar makna takhrij untuk soal hadits (X13 lanjutan): catatan kaki terdekat (k 10) sebagai daftar RRF kedua, hanya bila routing menandai soal hadits; j018 diserahkan ke tinjauan gold — diterima (kode, mati di Worker) · 2026-10-24
+
+**Konteks:** Sesudah eval berbayar X13 (ADR-093) lokasi tetap 85,3%. Dua dari lima kegagalan bukan masalah gold: j024 (takhrij gold tidak terambil) dan j018 (gold h13 ada di dokumen, tidak disitasi). Daftar makna ADR-093 menaruh takhrij j024 di peringkat 109 dari semua paragraf, karena catatan kaki pendek dan berbahasa Arab kalah oleh paragraf badan berterjemahan. Kueri routing Arab untuk j024 ("لا ينتفع بعلمه") memakai akar berbeda dari teks takhrij ("لم ينفعه الله بعلمه").
+
+**Pengukuran gratis** (embedding lokal yang sama, `data/build/makna/`; peringkat baru `evals/jawab/makna/x13-bge-m3-q8-publik-v2.jsonl` = peringkat paragraf v1 persis + `footnote_ids` 50 catatan kaki teratas):
+- Peringkat takhrij gold di antara catatan kaki saja (4.398): j024 5, j025 1, j026 10, j027 53, j028 9, j029 1 (di antara semua paragraf, j024 109).
+- `kandidat --input x13-publik-makna-v1-diagnostik-publik.jsonl --remote` (rute routing eval berbayar X13): tanpa makna 29/34 · makna paragraf (ADR-093) 31/34 · **+ makna takhrij k 5/10/20: 32/34** (status hadits 6/6; belum: j019, j021). Token dokumen sama (±19,9 ribu).
+- Tanpa rute (`--tanpa-rute`) tidak berubah (30/34): daftar takhrij hanya dipakai bila `route.hadith`.
+
+**Keputusan:**
+1. `semanticLists(route, semantic)` (murni, `retrieve.ts`): daftar makna paragraf (ADR-093), lalu daftar `(makna takhrij)` dari peringkat catatan kaki saja, `SEMANTIC_FOOTNOTE_LIMIT` 10, bobot sama (2), hanya bila routing menandai soal hadits. `JawabDeps.semanticSearch(question, { footnotes })` kini mengembalikan `{ passages, footnotes }`; `footnotes` hanya diminta untuk soal hadits (di produksi: satu kueri Vectorize tambahan dengan filter metadata `kind = foot`). Masih mati di Worker; `JAWAB_PIPELINE_VERSION` tetap 7.
+2. Berkas peringkat boleh memuat `footnote_ids`; `kandidat --makna-takhrij-k N` untuk sapuan. `rank.mjs --korpus` menghasilkannya.
+3. **j018 tidak disetel:** jawaban menyitasi bab tugas guru (j1 h55–57: kasih sayang kepada murid "dengan maksud menyelamatkan mereka", pengajaran "atas tujuan akhirat"), yang menjawab kedua sisi pertanyaan; gold menuntut juga j1 h13 (guru menyempurnakan hati). Mengubah prompt agar menyitasi lokasi kedua dirancang dari soal yang sama (in-sample) dan bisa menggelembungkan sitasi di soal lain. Diserahkan ke T-24 bersama j019, j021, j023.
+
+**Konsekuensi:** in-sample (soal publik yang sama); efek nyata pada lokasi jawaban baru terlihat lewat eval berbayar. Bila j024 lolos, lokasi publik 30/34 (88,2%); sisa 4 kegagalan semuanya menunggu tinjauan gold (T-24). Produksi (Workers AI + Vectorize) tetap ditunda (ADR-093) sampai angka publik naik.
+
+**Langkah berbayar yang menunggu izin:** eval publik atas rute X13 tersimpan + peringkat v2 (tanpa routing, ±US$0,11, pagu 0,30):
+`pnpm run eval:jawab answer --run x13-publik-takhrij-v1 --remote --rute evals/private/jawab-runs/x13-publik-makna-v1-diagnostik-publik.jsonl --semantik evals/jawab/makna/x13-bge-m3-q8-publik-v2.jsonl --budget-usd 0.3 --confirm`
+
+**Tinjau ulang bila:** eval berbayar tidak meloloskan j024; gold ditinjau (T-24); atau kitab kedua masuk (catatan kaki kitab lain bukan takhrij al-'Iraqi).

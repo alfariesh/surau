@@ -45,6 +45,13 @@ export const SEMANTIC_LIMIT = 20;
 export const SEMANTIC_WEIGHT = 2;
 /** Label `query` daftar makna di diagnostik (bukan kueri FTS). */
 export const SEMANTIC_QUERY = "(makna)";
+/**
+ * Daftar makna takhrij (X13 lanjutan, ADR-094): catatan kaki terdekat dengan pertanyaan, hanya bila
+ * routing menandai soal hadits. Catatan kaki takhrij tidak berterjemahan, jadi pertanyaan Indonesia
+ * jarang menemukannya lewat kata; di antara semua paragraf, catatan kaki kalah oleh paragraf badan.
+ */
+export const SEMANTIC_FOOTNOTE_LIMIT = 10;
+export const SEMANTIC_FOOTNOTE_QUERY = "(makna takhrij)";
 /** Kandidat paragraf maksimal sebelum dipangkas anggaran token. */
 export const MAX_CANDIDATES = 60;
 /** Batas pencarian per pertanyaan (beban D1). */
@@ -223,15 +230,43 @@ export function semanticList(
   passageIds: readonly number[],
   limit = SEMANTIC_LIMIT,
   weight = SEMANTIC_WEIGHT,
+  query = SEMANTIC_QUERY,
 ): SearchList | null {
   const ids = [...new Set(passageIds)].slice(0, limit);
   if (ids.length === 0 || limit <= 0 || weight <= 0) return null;
   return {
-    query: SEMANTIC_QUERY,
+    query,
     section_id: null,
     passage_ids: ids,
     ...(weight === 1 ? {} : { weight }),
   };
+}
+
+/** Peringkat makna untuk satu pertanyaan (paragraf; catatan kaki saja bila soal hadits). */
+export interface SemanticInput {
+  ids: readonly number[];
+  footnotes?: readonly number[];
+  limit?: number;
+  weight?: number;
+  footnoteLimit?: number;
+}
+
+/**
+ * Daftar makna yang digabung (murni): paragraf (ADR-093), lalu catatan kaki takhrij hanya bila
+ * routing menandai soal hadits (ADR-094). Tanpa peringkat = tanpa daftar.
+ */
+export function semanticLists(route: Route | null, semantic: SemanticInput): SearchList[] {
+  const weight = semantic.weight ?? SEMANTIC_WEIGHT;
+  const passages = semanticList(semantic.ids, semantic.limit, weight);
+  const footnotes = route?.hadith
+    ? semanticList(
+        semantic.footnotes ?? [],
+        semantic.footnoteLimit ?? SEMANTIC_FOOTNOTE_LIMIT,
+        weight,
+        SEMANTIC_FOOTNOTE_QUERY,
+      )
+    : null;
+  return [...(passages ? [passages] : []), ...(footnotes ? [footnotes] : [])];
 }
 
 /** Gabungan RRF berbobot: skor paragraf = Σ bobot/(k + peringkat) atas semua daftar. */

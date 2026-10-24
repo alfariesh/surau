@@ -94,7 +94,14 @@ export function emptyRoutes(questions: Iterable<EvalQuestion>): SavedRoute[] {
 const semanticRow = z.object({
   id: z.string().regex(/^[jp][0-9]{3}$/u),
   passage_ids: z.array(z.number().int().positive()).max(200),
+  /** Catatan kaki saja (ADR-094); berkas X13 pertama tanpa field ini. */
+  footnote_ids: z.array(z.number().int().positive()).max(200).optional(),
 });
+
+export interface SemanticRanks {
+  passages: number[];
+  footnotes: number[];
+}
 
 /**
  * Peringkat pencarian makna per soal (X13): JSONL `{id, passage_ids}`, dihasilkan di luar pipeline
@@ -104,8 +111,8 @@ const semanticRow = z.object({
 export function readSemantic(
   file: string,
   opts: { allowPrivate?: boolean } = {},
-): Map<string, number[]> {
-  const out = new Map<string, number[]>();
+): Map<string, SemanticRanks> {
+  const out = new Map<string, SemanticRanks>();
   readFileSync(file, "utf8")
     .split(/\r?\n/u)
     .filter((s) => s.trim())
@@ -120,15 +127,19 @@ export function readSemantic(
       const parsed = semanticRow.safeParse(row);
       if (!parsed.success || (!opts.allowPrivate && parsed.data.id.startsWith("p")))
         throw new Error(`Baris ${i + 1} bukan peringkat makna soal publik.`);
-      out.set(parsed.data.id, parsed.data.passage_ids);
+      out.set(parsed.data.id, {
+        passages: parsed.data.passage_ids,
+        footnotes: parsed.data.footnote_ids ?? [],
+      });
     });
   return out;
 }
 
 export interface SemanticOptions {
-  ranks: ReadonlyMap<string, readonly number[]>;
+  ranks: ReadonlyMap<string, SemanticRanks>;
   limit?: number;
   weight?: number;
+  footnoteLimit?: number;
 }
 
 export interface CandidateRow {
@@ -155,10 +166,12 @@ export async function replayCandidates(
     const q = questions.get(saved.id);
     if (q === undefined) throw new Error(`${saved.id}: soal publik tidak ada di evals/jawab.`);
     if (q.wajib_ditolak) continue;
-    const ids = semantic?.ranks.get(q.id);
-    if (semantic && ids === undefined) throw new Error(`${q.id}: tidak ada peringkat makna.`);
+    const ranks = semantic?.ranks.get(q.id);
+    if (semantic && ranks === undefined) throw new Error(`${q.id}: tidak ada peringkat makna.`);
     const found = await jawabCandidates(db, q.pertanyaan, saved.route, toc, JAWAB_EDITION_ID, {
-      ids: ids ?? [],
+      ids: ranks?.passages ?? [],
+      footnotes: ranks?.footnotes ?? [],
+      ...(semantic?.footnoteLimit === undefined ? {} : { footnoteLimit: semantic.footnoteLimit }),
       ...(semantic?.limit === undefined ? {} : { limit: semantic.limit }),
       ...(semantic?.weight === undefined ? {} : { weight: semantic.weight }),
     });

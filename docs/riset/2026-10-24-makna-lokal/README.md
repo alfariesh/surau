@@ -12,8 +12,8 @@ Langkah (di folder kosong di luar repo, mis. scratchpad):
 npm install @huggingface/transformers@4.3.1
 # korpus.jsonl: ekspor {id, ar, tr} dari korpus staging (SELECT p.id, p.text_raw, t.text …), tidak masuk git
 node embed.mjs korpus.jsonl . mix
-node rank.mjs . <repo>/evals/jawab/ihya-draf-v1.jsonl makna-publik.jsonl mix
+node rank.mjs . <repo>/evals/jawab/ihya-draf-v1.jsonl makna-publik.jsonl mix --korpus korpus.jsonl  # + footnote_ids (ADR-094)
 pnpm run eval:jawab kandidat --tanpa-rute --remote --semantik makna-publik.jsonl
 ```
 
-Vektor (84 MB) disimpan di `data/build/makna/` (git-ignored). Peringkat 42 soal publik (hanya ID paragraf) ada di `evals/jawab/makna/x13-bge-m3-q8-publik.jsonl`. Soal privat hanya diberi peringkat dengan `--privat` untuk run holdout berbayar yang sudah diizinkan pemilik, dan keluarannya disimpan di `evals/private/`.
+Vektor (84 MB) disimpan di `data/build/makna/` (git-ignored). Peringkat 42 soal publik (hanya ID paragraf) ada di `evals/jawab/makna/x13-bge-m3-q8-publik.jsonl` (ADR-093) dan `…-v2.jsonl` (+ `footnote_ids`, ADR-094). Jalankan skrip dari folder yang punya `node_modules` (salin skripnya ke sana). Soal privat hanya diberi peringkat dengan `--privat` untuk run holdout berbayar yang sudah diizinkan pemilik, dan keluarannya disimpan di `evals/private/`.
