@@ -87,7 +87,7 @@ export default async function ReaderPage({ params }: Props) {
   // Pohon TAMPILAN (subjudul kurasi + judul Indonesia, X04 bagian B); breadcrumb, judul tab, dan
   // OG tetap dari `toc` (judul Arab).
   const shown = await loadReaderToc(rawSegment);
-  // Kepala Intisari (X16) dari memo ekstra daftar isi yang sama: tanpa kueri tambahan.
+  // Kepala Intisari (X16): dimuat bersama pohon tampilan di atas (`loadReaderToc`, render yang sama).
   const digests = await loadDigestHeaders(rawSegment);
   const { page, work, edition, segment } = ctx;
   const { juz, page_no: pageNo, permalink } = page.citation;

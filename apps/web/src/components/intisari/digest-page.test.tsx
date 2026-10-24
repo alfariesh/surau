@@ -67,8 +67,12 @@ describe("DigestPage (X16)", () => {
     }
     expect(html).toContain(FIXTURE_TEXT.p1);
     expect(html).toMatch(/Ini teks contoh pertama[^<]*<span class="ai-badge"[^>]*>Terjemahan AI/u);
-    // Riwayat: status hanya dari takhrij.
-    expect(html).toContain("Status riwayat hanya dari takhrij");
+    // Riwayat: label takhrij miliknya sendiri (kode) + teks takhrij asli, bukan tebakan.
+    const report = /<figure[^>]*id="kutipan-2"[\s\S]*?<\/figure>/u.exec(html)?.[0] ?? "";
+    expect(report).toContain("Takhrij (١): takhrij menyebut: lemah");
+    expect(report).toContain("Takhrij memuat istilah kelemahan");
+    expect(report).toContain(FIXTURE_TEXT.foot);
+    expect(report).not.toContain("belum diketahui");
   });
 
   it("anjuran penulis membawa catatan tanyakan ulama; sikap disebut dengan nama penulis", () => {
@@ -125,5 +129,26 @@ describe("ListenSlot (slot X17)", () => {
     expect(renderToStaticMarkup(<ListenSlot audio={audio} nodeId={1} />)).toContain(
       "± 2 menit dengar",
     );
+  });
+});
+
+describe("QuoteCard: riwayat tanpa takhrij (X16)", () => {
+  it("status belum diketahui, tanpa tebakan", () => {
+    const quote = { ...FIXTURE_BOOK.quotes[1]!, takhrij: [] };
+    const html = renderToStaticMarkup(
+      <DigestPage
+        author="penulis uji"
+        crumbs={[]}
+        digest={{ ...FIXTURE_SECTION, quotes: [{ ...quote, point_ord: null }] }}
+        editionSlug="uji"
+        hubHref={null}
+        sections={[]}
+        titleId={null}
+        workSlug="uji"
+      />,
+    );
+    expect(html).toContain("Status riwayat ini belum diketahui");
+    // Tanpa hub (belum ada Intisari Kitab): tanpa tautan "Semua Intisari".
+    expect(html).not.toContain("Semua Intisari");
   });
 });

@@ -50,6 +50,7 @@ import { humanReviewOf, reviewersFor } from "./page.ts";
 import type { CiteContext } from "./citation.ts";
 import { InvalidQuery, NotFound, Unavailable, parseInput } from "./errors.ts";
 import { digestPermalink, sectionPermalink } from "./permalink.ts";
+import { hasArabicLetters } from "./translation-text.ts";
 import { searchTextInput } from "./schema.ts";
 import type {
   SearchDigestPoint,
@@ -210,7 +211,10 @@ function digestPointOf(
     row.dp_review === null ||
     row.dp_review === "rejected" ||
     row.dp_section_title === null ||
-    row.dp_section_level === null
+    row.dp_section_level === null ||
+    // Sama dengan `readDigest`: teks AI berhuruf Arab tidak pernah dikirim (aturan 1).
+    hasArabicLetters(row.dp_title) ||
+    hasArabicLetters(row.dp_body)
   ) {
     return null;
   }

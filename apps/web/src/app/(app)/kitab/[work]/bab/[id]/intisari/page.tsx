@@ -69,11 +69,13 @@ export default async function DigestRoute({ params }: Props) {
         })
       : [];
   const workTitle = work.title_id ?? work.title_ar;
-  const hubHref = digestHubHref(segment);
+  // Hub hanya ada bila korpus punya Intisari Kitab (pilot bisa berisi Intisari Bab saja): tanpa
+  // tautan ke halaman 404.
+  const hubHref = headers.some((h) => h.tier === "book") ? digestHubHref(segment) : null;
   const crumbs = [
     { name: id.reader.listTitle, href: "/kitab" },
     { name: workTitle, href: edition.permalink },
-    { name: t.hubHeading, href: hubHref },
+    ...(hubHref === null ? [] : [{ name: t.hubHeading, href: hubHref }]),
   ];
 
   return (

@@ -48,7 +48,8 @@ export interface DigestPageProps {
   crumbs: readonly { name: string; href: string }[];
   /** Intisari Bab anak (Intisari Kitab saja). */
   sections: readonly ChildDigest[];
-  hubHref: string;
+  /** Hub Intisari karya; null bila hub belum ada (tanpa Intisari Kitab). */
+  hubHref: string | null;
   /** Edisi untuk lisensi/atribusi (`/lisensi`). */
   workSlug: string;
   editionSlug: string;
@@ -276,9 +277,11 @@ export function DigestPage({
           license={digest.source.license}
           workSlug={workSlug}
         />
-        <NextLink className="link self-start text-xs" href={hubHref}>
-          {t.hubLink}
-        </NextLink>
+        {hubHref !== null ? (
+          <NextLink className="link self-start text-xs" href={hubHref}>
+            {t.hubLink}
+          </NextLink>
+        ) : null}
       </footer>
     </article>
   );

@@ -243,6 +243,42 @@ describe("searchText: jalur gagasan Intisari (X16)", () => {
     expect(hit?.digest_point?.title_highlights.length).toBeGreaterThan(0);
   });
 
+  test("D1 sungguhan tanpa tabel digest_point_fts (korpus skema < 9): Cari jalan tanpa jalur gagasan, kueri gagal tidak diulang", async () => {
+    resetDigestIndexMemo();
+    await db.batch([
+      db.prepare("DROP TABLE digest_point_fts"),
+      db.prepare("UPDATE meta SET value = '8' WHERE key = 'schema_version'"),
+    ]);
+    onTestFinished(async () => {
+      // DDL sama dengan migrasi korpus 0009.
+      await db.batch([
+        db.prepare(
+          `CREATE VIRTUAL TABLE digest_point_fts USING fts5 (terms, content = '',
+             contentless_delete = 1, tokenize = 'unicode61 remove_diacritics 2')`,
+        ),
+        db
+          .prepare("UPDATE meta SET value = ? WHERE key = 'schema_version'")
+          .bind(String(CORPUS_SCHEMA_VERSION)),
+      ]);
+      resetDigestIndexMemo();
+    });
+    let digestQueries = 0;
+    const counted = {
+      prepare: (sql: string) => {
+        if (sql.includes("digest_point_fts")) digestQueries++;
+        return db.prepare(sql);
+      },
+      batch: db.batch.bind(db),
+    } as typeof db;
+    const first = await searchText(counted, "sabar", {}, { digest: true });
+    expect(first.paths).not.toContain("digest");
+    expect(hits(first).length).toBeGreaterThan(0);
+    expect(digestQueries).toBe(1);
+    const second = await searchText(counted, "sabar", {}, { digest: true });
+    expect(second.paths).not.toContain("digest");
+    expect(digestQueries).toBe(1);
+  });
+
   test("korpus tanpa indeks gagasan: sekali gagal lalu diingat; pulih saat skema ≥ 9", async () => {
     resetDigestIndexMemo();
     onTestFinished(resetDigestIndexMemo);

@@ -1,10 +1,11 @@
 import { env } from "cloudflare:workers";
-import { beforeAll, describe, expect, test } from "vite-plus/test";
+import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/test";
 
 import {
   BODY_1,
   BODY_2,
   FOOT_1,
+  FOOT_2,
   PASSAGES,
   QURAN_TRANSLATION_1_2,
   T_CHILD_A,
@@ -198,8 +199,38 @@ describe("readDigest (X15, ADR-097)", () => {
     });
     // Sumber `passage` tetapi hanya sebagian paragraf: tanpa terjemahan, bukan terjemahan paragraf.
     expect(partial?.translation).toBeNull();
+    // Takhrij per kutipan (X16): penanda tepat sesudah rentang ikut; paragraf utuh memuat keduanya.
+    expect(part?.takhrij.map((t) => [t.marker, t.footnote.id])).toEqual([["١", PASSAGES.foot1]]);
+    expect(whole?.takhrij.map((t) => t.marker)).toEqual(["١", "٢"]);
+    expect(whole?.takhrij[0]?.footnote.text_raw).toBe(FOOT_1);
+    expect(whole?.takhrij[0]?.status).toMatchObject({
+      label: "rule_extracted",
+      kind: "not_takhrij",
+    });
     // Yang ditolak (sendiri atau lewat gagasannya) tidak masuk daftar tahan.
     expect(view?.withheld_quotes).toEqual([
+      { ord: 3, reason: "stale" },
+      { ord: 5, reason: "ayah" },
+    ]);
+  });
+
+  test("riwayat yang takhrijnya 'tidak ada asalnya' tidak tampil sebagai kutipan (weak_report, X16)", async () => {
+    // Teks takhrij BUATAN sementara di catatan kaki (٢); dipulihkan sesudah tes.
+    await db
+      .prepare("UPDATE passage SET text_raw = ? WHERE id = ?")
+      .bind("(٢) حديث تجريبي لا أصل له", PASSAGES.foot2)
+      .run();
+    onTestFinished(async () => {
+      await db
+        .prepare("UPDATE passage SET text_raw = ? WHERE id = ?")
+        .bind(FOOT_2, PASSAGES.foot2)
+        .run();
+    });
+    const view = await readDigest(db, T_ROOT);
+    // Kutipan 2 = BODY_1 utuh, memuat penanda (٢): ditahan; kutipan 1 hanya sampai (١): tetap.
+    expect(view?.quotes.map((q) => q.ord)).toEqual([1, 6]);
+    expect(view?.withheld_quotes).toEqual([
+      { ord: 2, reason: "weak_report" },
       { ord: 3, reason: "stale" },
       { ord: 5, reason: "ayah" },
     ]);

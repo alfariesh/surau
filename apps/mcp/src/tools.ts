@@ -263,7 +263,7 @@ export const TOOLS: readonly McpTool[] = [
   defineTool({
     name: "search_text",
     title: "Search the texts",
-    description: `Search by Arabic words or an exact phrase (diacritics optional; attached prefixes matched) or by Indonesian words (matched in the labelled AI translations and summaries). Returns up to ${MCP_SEARCH_MAX_LIMIT} printed pages, best first (use offset for more), each with up to ${MCP_HITS_PER_PAGE} matching passages: a short verbatim Arabic snippet, an AI translation excerpt and the section; about 5,000–11,000 tokens. Use read_page or the permalink for the full text, and verify_quote before quoting. · Cari kata Arab atau Indonesia; hasil per halaman cetak dengan potongan teks Arab asli dan terjemahan AI berlabel.`,
+    description: `Search by Arabic words or an exact phrase (diacritics optional; attached prefixes matched) or by Indonesian words (matched in the labelled AI translations and summaries, and in the key ideas of AI digests: digest_point, read it whole with get_section_digest). Returns up to ${MCP_SEARCH_MAX_LIMIT} printed pages, best first (use offset for more), each with up to ${MCP_HITS_PER_PAGE} matching passages: a short verbatim Arabic snippet, an AI translation excerpt and the section; about 5,000–11,000 tokens. Use read_page or the permalink for the full text, and verify_quote before quoting. · Cari kata Arab atau Indonesia; hasil per halaman cetak dengan potongan teks Arab asli dan terjemahan AI berlabel.`,
     input: searchTextInput.extend({
       limit: z
         .number()

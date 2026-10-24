@@ -1,11 +1,14 @@
 import { getWork, isCoreError, readPage } from "@surau/core";
 import {
   AI_TEXT_LANG,
+  DIGEST_SCHEMA_VERSION,
+  getCorpusMeta,
   getDigestHeaders,
   getDigestHeadersOnPath,
   getTocNode,
   listTocNodesStartingAt,
 } from "@surau/db";
+import type { D1Db } from "@surau/db";
 
 import type { SearchCache } from "../../../lib/search-handler";
 
@@ -30,6 +33,19 @@ const DEV_HMAC_KEY = "surau-dev-only";
  */
 const editionMemo = new Map<string, { id: number; volumes: number | null }>();
 const EDITION_MEMO_MAX = 64;
+
+/**
+ * Skema korpus, diingat per isolate (X16): halaman sambungan tidak mengueri tabel Intisari di korpus
+ * berskema < 9 (produksi sampai `ihya-v9`), jadi tidak ada kueri gagal + baca meta di setiap halaman.
+ * Dibaca sejajar dengan halaman; meta tak terbaca = coba lagi di permintaan berikutnya. Korpus yang
+ * naik skema tanpa deploy (migrasi staging) terbaca sesudah isolate berganti, sama dengan cache ISR.
+ */
+let corpusSchema: number | null = null;
+
+async function hasDigests(db: D1Db): Promise<boolean> {
+  corpusSchema ??= (await getCorpusMeta(db).catch(() => null))?.schema_version ?? null;
+  return corpusSchema !== null && corpusSchema >= DIGEST_SCHEMA_VERSION;
+}
 
 function workersCache(ctx: ExecutionContext): SearchCache | null {
   const cache = typeof caches === "undefined" ? undefined : (caches as { default?: Cache }).default;
@@ -75,26 +91,28 @@ export async function GET(request: Request): Promise<Response> {
         throw error;
       }
     },
-    load: async (editionId, juz, page) => {
-      const segment = new URL(request.url).searchParams.get("work") ?? "";
-      const [view, nodes] = await Promise.all([
+    load: async (editionId, juz, page, segment) => {
+      const [view, nodes, digests] = await Promise.all([
         readPage(db, editionId, juz, page),
         listTocNodesStartingAt(db, editionId, juz, page),
+        hasDigests(db),
       ]);
       const activeIds = [
         ...new Set(view.body.flatMap((p) => (p.toc_node_id === null ? [] : [p.toc_node_id]))),
       ];
       const first = activeIds[0];
       // Intisari (X16): kepala bagian yang mulai di halaman ini (kartu ringkasan) dan Intisari
-      // terdekat dari bagian paragraf pertamanya (menu ⋮). Korpus skema < 9: keduanya kosong.
+      // terdekat dari bagian paragraf pertamanya (menu ⋮). Korpus skema < 9: tanpa kueri, kosong.
       const [node, sectionHeads, pathHeads] = await Promise.all([
         first === undefined ? null : getTocNode(db, first),
-        getDigestHeaders(
-          db,
-          nodes.map((n) => n.id),
-          AI_TEXT_LANG,
-        ),
-        first === undefined ? [] : getDigestHeadersOnPath(db, first, AI_TEXT_LANG),
+        digests
+          ? getDigestHeaders(
+              db,
+              nodes.map((n) => n.id),
+              AI_TEXT_LANG,
+            )
+          : [],
+        digests && first !== undefined ? getDigestHeadersOnPath(db, first, AI_TEXT_LANG) : [],
       ]);
       const model = await buildPageModel(view, {
         editionId,

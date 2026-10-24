@@ -36,7 +36,6 @@ export const search = {
   },
   // Gagasan Intisari yang cocok (X16): judul gagasan + potongan isinya, berlabel AI.
   digestBadge: "Intisari AI",
-  digestPoint: (n: number) => `Gagasan ${n}`,
   digestOpen: "Buka Intisari",
   matchedByLabel: "Cocok di",
   partialMatch: "sebagian kata",

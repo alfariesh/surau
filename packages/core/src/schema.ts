@@ -740,6 +740,57 @@ export const digestPointView = z
   .describe("Key idea of the digest (AI text), with the passages it is based on");
 export type DigestPointView = z.infer<typeof digestPointView>;
 
+export const takhrijTermView = z.strictObject({
+  kind: z.string().describe("Term kind recognized in the takhrij text, e.g. daif"),
+  ...textSpan.shape,
+  gloss: z.string().describe("Fixed Indonesian meaning of the term (not model text)"),
+});
+
+/** Catatan kaki takhrij yang tertaut ke penanda (teks verbatim dari DB). */
+export const digestTakhrijFootnote = z
+  .strictObject({
+    id,
+    anchor: z.string(),
+    text_raw: z.string().describe("Takhrij text, verbatim from the database"),
+    location,
+  })
+  .describe("The linked takhrij footnote (al-'Iraqi for Ihya)");
+
+/** Label status dari istilah takhrij (`takhrijLabel`, ADR-069), dibuat kode, belum ditinjau. */
+export const digestTakhrijStatus = z
+  .strictObject({
+    label: z
+      .literal("rule_extracted")
+      .describe(
+        "Made by code from the terms written in the takhrij text; not reviewed by an ustadz. Always show the takhrij text with it",
+      ),
+    kind: z
+      .enum(["terms", "sources_only", "refers_back", "not_takhrij"])
+      .describe(
+        "terms = grading terms found; sources_only = only names sources; refers_back = refers to an earlier takhrij; not_takhrij = not recognized as takhrij",
+      ),
+    text: z.string().describe("Short Indonesian status text built by code from the terms"),
+    weak: z.boolean().describe("The takhrij names weakness, forgery, no origin, or no chain found"),
+    mixed: z
+      .boolean()
+      .describe("Both positive and negative gradings (different chains or wordings)"),
+    terms: z
+      .array(takhrijTermView)
+      .describe("Every recognized term with its span in the takhrij text_raw"),
+    version: id.describe("Version of the takhrij term rules"),
+  })
+  .describe("Hadith status taken only from the takhrij text (never guessed)");
+export type DigestTakhrijStatus = z.infer<typeof digestTakhrijStatus>;
+
+/** Takhrij milik sebuah kutipan (X16): penanda di dalam rentangnya atau tepat sesudahnya. */
+export const digestQuoteTakhrij = z.strictObject({
+  marker: z.string().describe("Footnote marker digit as printed, e.g. ١"),
+  ...textSpan.shape,
+  footnote: digestTakhrijFootnote,
+  status: digestTakhrijStatus,
+});
+export type DigestQuoteTakhrij = z.infer<typeof digestQuoteTakhrij>;
+
 export const digestQuoteView = z
   .strictObject({
     ord: id,
@@ -759,6 +810,11 @@ export const digestQuoteView = z
       .nullable()
       .describe(
         "AI translation of the quotation (or of the whole passage when the quotation is the whole passage, with its human review); null when unavailable",
+      ),
+    takhrij: z
+      .array(digestQuoteTakhrij)
+      .describe(
+        "Takhrij footnotes whose markers are inside the quotation (or right after it), with a code-made status label; empty for a narration = status unknown (never guess it)",
       ),
   })
   .describe("Highlighted quotation: verbatim Arabic from the database, with its location");
@@ -798,12 +854,6 @@ export const digestAyahEvidence = z
   );
 export type DigestAyahEvidence = z.infer<typeof digestAyahEvidence>;
 
-export const takhrijTermView = z.strictObject({
-  kind: z.string().describe("Term kind recognized in the takhrij text, e.g. daif"),
-  ...textSpan.shape,
-  gloss: z.string().describe("Fixed Indonesian meaning of the term (not model text)"),
-});
-
 export const digestHadithEvidence = z
   .strictObject({
     point_ords: z
@@ -813,41 +863,12 @@ export const digestHadithEvidence = z
     marker: z.string().describe("Footnote marker digit as printed, e.g. ١"),
     ...textSpan.shape,
     location: location.describe("Printed location and permalink of the main-text passage"),
-    footnote: z
-      .strictObject({
-        id,
-        anchor: z.string(),
-        text_raw: z.string().describe("Takhrij text, verbatim from the database"),
-        location,
-      })
-      .describe("The linked takhrij footnote (al-'Iraqi for Ihya)"),
-    status: z
-      .strictObject({
-        label: z
-          .literal("rule_extracted")
-          .describe(
-            "Made by code from the terms written in the takhrij text; not reviewed by an ustadz. Always show the takhrij text with it",
-          ),
-        kind: z
-          .enum(["terms", "sources_only", "refers_back", "not_takhrij"])
-          .describe(
-            "terms = grading terms found; sources_only = only names sources; refers_back = refers to an earlier takhrij; not_takhrij = not recognized as takhrij",
-          ),
-        text: z.string().describe("Short Indonesian status text built by code from the terms"),
-        weak: z
-          .boolean()
-          .describe("The takhrij names weakness, forgery, no origin, or no chain found"),
-        mixed: z
-          .boolean()
-          .describe("Both positive and negative gradings (different chains or wordings)"),
-        terms: z
-          .array(takhrijTermView)
-          .describe("Every recognized term with its span in the takhrij text_raw"),
-        version: id.describe("Version of the takhrij term rules"),
-      })
-      .describe("Hadith status taken only from the takhrij text (never guessed)"),
+    footnote: digestTakhrijFootnote,
+    status: digestTakhrijStatus,
   })
-  .describe("Narration with a takhrij footnote inside a key idea's anchored text");
+  .describe(
+    "Footnote marker inside a key idea's anchored text, with its takhrij; status.kind not_takhrij = an editor's note, not recognized as takhrij",
+  );
 export type DigestHadithEvidence = z.infer<typeof digestHadithEvidence>;
 
 export const digestEvidenceView = z
@@ -908,9 +929,9 @@ export const digestView = z
         z.strictObject({
           ord: id,
           reason: z
-            .enum(["stale", "ayah"])
+            .enum(["stale", "ayah", "weak_report"])
             .describe(
-              "stale = the quoted span no longer matches the passage text; ayah = it touches a Quran quotation",
+              "stale = the quoted span no longer matches the passage text; ayah = it touches a Quran quotation; weak_report = its takhrij names it very weak, forged, or without origin (never a highlighted quotation, ADR-097)",
             ),
         }),
       )

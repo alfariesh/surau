@@ -128,12 +128,16 @@ function Hit({ hit, query, mode }: { hit: SearchHit; query: string; mode: ReadMo
                 <ArabicInline className="text-foreground">{dp.section.title_ar}</ArabicInline>
               </div>
               <Typography type="body-sm" weight="medium">
-                {t.digestPoint(dp.ord)}: {render(aiSegments(dp.title, 0, dp.title_highlights))}
+                {render(aiSegments(dp.title, 0, dp.title_highlights))}
               </Typography>
               <Typography type="body-sm">
                 {render(aiSegments(dp.snippet.text, dp.snippet.char_start, dp.highlights))}
               </Typography>
-              <NextLink className="link self-start text-xs" href={dp.permalink}>
+              {/* Nomor tampil gagasan bisa beda dengan `ord` (gagasan tersembunyi): tautan ke jangkarnya. */}
+              <NextLink
+                className="link self-start text-xs"
+                href={`${dp.permalink}#gagasan-${dp.ord}`}
+              >
                 {t.digestOpen}
               </NextLink>
             </div>

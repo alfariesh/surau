@@ -27,7 +27,9 @@ import type {
   DigestEvidenceView,
   DigestHadithEvidence,
   DigestPointView,
+  DigestQuoteTakhrij,
   DigestQuoteView,
+  DigestTakhrijStatus,
   DigestView,
   TranslationView,
 } from "./schema.ts";
@@ -89,6 +91,7 @@ async function quoteViews(
   );
   const quotes: DigestQuoteView[] = [];
   const withheld: Withheld[] = [];
+  const valid: { q: DigestQuoteWithPassageRow; text: string }[] = [];
   for (const q of candidates) {
     const text = await verifiedQuote(q);
     if (text === null) {
@@ -97,6 +100,21 @@ async function quoteViews(
     }
     if (touchesAyah(q, rows.ayahSpans)) {
       withheld.push({ ord: q.ord, reason: "ayah" });
+      continue;
+    }
+    valid.push({ q, text });
+  }
+  const takhrij = await quoteTakhrij(
+    db,
+    cite,
+    valid.map((v) => v.q),
+  );
+  for (const { q, text } of valid) {
+    const linked = takhrij.get(q.ord) ?? [];
+    // Riwayat sangat lemah, palsu, atau tanpa asal tidak pernah jadi kutipan pilihan (ADR-097):
+    // validator X15b menolaknya; ini lapis kedua saat dibaca, dari label takhrij yang sama.
+    if (linked.some((t) => t.status.terms.some((term) => VERY_WEAK.has(term.kind)))) {
+      withheld.push({ ord: q.ord, reason: "weak_report" });
       continue;
     }
     let translation: TranslationView | null = null;
@@ -130,9 +148,73 @@ async function quoteViews(
       text_raw: text,
       location: cite.location(q.juz, q.page_no, q.passage_id),
       translation,
+      takhrij: linked,
     });
   }
+  withheld.sort((a, b) => a.ord - b.ord);
   return { quotes, withheld };
+}
+
+/** Istilah takhrij yang membuat riwayat tidak boleh jadi kutipan pilihan (ADR-097). */
+const VERY_WEAK: ReadonlySet<string> = new Set(["sangat_lemah", "palsu", "la_asl"]);
+
+/** Label status buatan kode atas teks catatan kaki (`takhrijLabel`, ADR-069), belum ditinjau. */
+function takhrijStatusOf(text: string): DigestTakhrijStatus {
+  const label = takhrijLabel(text);
+  return {
+    label: "rule_extracted",
+    kind: label.kind,
+    text: label.text,
+    weak: label.weak,
+    mixed: label.mixed,
+    terms: label.terms,
+    version: label.version,
+  };
+}
+
+/**
+ * Takhrij milik setiap kutipan (X16): penanda di dalam rentang kutipan atau tepat sesudahnya
+ * (`markerInAnchor`), dengan teks catatan kakinya dari DB dan label kodenya. Per `ord` kutipan.
+ */
+async function quoteTakhrij(
+  db: D1Db,
+  cite: CiteContext,
+  quotes: readonly DigestQuoteWithPassageRow[],
+): Promise<Map<number, DigestQuoteTakhrij[]>> {
+  const out = new Map<number, DigestQuoteTakhrij[]>();
+  if (quotes.length === 0) return out;
+  const refs = await getFootnoteRefs(db, [...new Set(quotes.map((q) => q.passage_id))]);
+  const owned = quotes.flatMap((q) =>
+    refs
+      .filter((r) => r.passage_id === q.passage_id && markerInAnchor(q.passage_text_raw, q, r))
+      .map((r) => ({ q, r })),
+  );
+  if (owned.length === 0) return out;
+  const feet = new Map(
+    (await getPassagesByIds(db, [...new Set(owned.map((o) => o.r.footnote_passage_id))])).map(
+      (p) => [p.id, p],
+    ),
+  );
+  for (const { q, r } of owned) {
+    const foot = feet.get(r.footnote_passage_id);
+    if (foot === undefined) continue;
+    out.set(q.ord, [
+      ...(out.get(q.ord) ?? []),
+      {
+        marker: r.marker,
+        char_start: r.char_start,
+        char_end: r.char_end,
+        footnote: {
+          id: foot.id,
+          anchor: passageAnchor(foot.id),
+          text_raw: foot.text_raw,
+          location: cite.location(foot.juz, foot.page_no, foot.id),
+        },
+        status: takhrijStatusOf(foot.text_raw),
+      },
+    ]);
+  }
+  return out;
 }
 
 /** Antara jangkar dan penanda hanya spasi atau tanda baca (tanpa huruf/angka). */
@@ -208,7 +290,6 @@ async function evidenceView(
       .filter((a) => markerInAnchor(body.text_raw, a, ref))
       .map((a) => a.point_ord);
     if (ords.length === 0) continue;
-    const label = takhrijLabel(foot.text_raw);
     hadith.push({
       point_ords: [...new Set(ords)].sort((a, b) => a - b),
       passage_id: ref.passage_id,
@@ -222,15 +303,7 @@ async function evidenceView(
         text_raw: foot.text_raw,
         location: cite.location(foot.juz, foot.page_no, foot.id),
       },
-      status: {
-        label: "rule_extracted",
-        kind: label.kind,
-        text: label.text,
-        weak: label.weak,
-        mixed: label.mixed,
-        terms: label.terms,
-        version: label.version,
-      },
+      status: takhrijStatusOf(foot.text_raw),
     });
   }
   const byText = (

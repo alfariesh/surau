@@ -18,6 +18,7 @@ export async function GET(
 ): Promise<Response> {
   const { work } = await params;
   await loadWork(work, "/daftar-isi.json");
-  const toc = await loadReaderToc(work);
-  return Response.json(toc, { headers: { "X-Robots-Tag": "noindex" } });
+  // Kepala Intisari tidak ikut: pohon sudah membawa lencananya (`digest` per node, X16).
+  const { items, titleSource } = await loadReaderToc(work);
+  return Response.json({ items, titleSource }, { headers: { "X-Robots-Tag": "noindex" } });
 }

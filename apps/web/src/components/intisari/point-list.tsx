@@ -23,7 +23,8 @@ function basisLinks(point: DigestPointView) {
 
 /**
  * Gagasan kunci bernomor (X16): judul + lencana sikap (pendapat penulis / yang ia nukil / yang ia
- * bantah), anjuran hanya bila ditulis penulis sendiri (dengan catatan "tanyakan ulama"), isi,
+ * bantah), anjuran hanya bila ditulis penulis sendiri (`stance` author, dengan catatan "tanyakan
+ * ulama"), isi,
  * "Dasar teks" ke setiap paragraf jangkarnya, chip dalil (ke daftar Dalil di halaman yang sama),
  * dan kutipan milik gagasan itu.
  */
@@ -40,6 +41,8 @@ export function PointList({ digest, author }: { digest: DigestView; author: stri
           h.point_ords.includes(p.ord) ? [{ h, i }] : [],
         );
         const quotes = digest.quotes.filter((q) => q.point_ord === p.ord);
+        // Anjuran hanya yang ditulis penulis sendiri (ADR-097); selain itu tampil sebagai gagasan.
+        const advice = p.kind === "advice" && p.stance === "author";
         const headingId = `${pointAnchor(p.ord)}-judul`;
         return (
           <li
@@ -61,14 +64,14 @@ export function PointList({ digest, author }: { digest: DigestView; author: stri
                   <Chip size="sm" variant="soft">
                     {t.stance[p.stance](author)}
                   </Chip>
-                  {p.kind === "advice" ? (
+                  {advice ? (
                     <Chip color="accent" size="sm" variant="soft">
                       {t.advice}
                     </Chip>
                   ) : null}
                 </div>
                 <Typography className="text-pretty">{p.body}</Typography>
-                {p.kind === "advice" ? (
+                {advice ? (
                   <Typography color="muted" type="body-sm">
                     {t.adviceNote}
                   </Typography>
@@ -103,7 +106,10 @@ export function PointList({ digest, author }: { digest: DigestView; author: stri
                           data-weak={h.status.weak || undefined}
                           href={`#${hadithAnchor(i)}`}
                         >
-                          {t.evidenceChipHadith(h.marker, h.location.juz, h.location.page_no)}
+                          {(h.status.kind === "not_takhrij"
+                            ? t.evidenceChipFootnote
+                            : t.evidenceChipHadith)(h.marker, h.location.juz, h.location.page_no)}
+                          {h.status.weak ? ` · ${t.evidenceChipWeak}` : null}
                         </a>
                       </li>
                     ))}

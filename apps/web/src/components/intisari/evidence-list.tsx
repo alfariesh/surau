@@ -124,7 +124,11 @@ export function EvidenceList({
               <li key={i} className="intisari-evidence scroll-mt-24" id={hadithAnchor(i)}>
                 <div className="flex flex-wrap items-center gap-2">
                   <Typography weight="medium">
-                    {t.hadithItem(h.marker, h.location.juz, h.location.page_no)}
+                    {(h.status.kind === "not_takhrij" ? t.footnoteItem : t.hadithItem)(
+                      h.marker,
+                      h.location.juz,
+                      h.location.page_no,
+                    )}
                   </Typography>
                   {h.status.weak ? (
                     <Chip color="danger" size="sm" variant="soft">

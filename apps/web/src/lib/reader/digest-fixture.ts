@@ -50,6 +50,30 @@ export const FIXTURE_TEXT = {
 const weakAt = FIXTURE_TEXT.foot.indexOf("ضعيف");
 const status = takhrijStatus(["daif"]);
 
+/** Takhrij contoh penanda (١) di paragraf 2: dipakai dalil dan kutipan riwayat. */
+const takhrij: DigestView["quotes"][number]["takhrij"][number] = {
+  marker: "١",
+  char_start: FIXTURE_TEXT.p2.indexOf("(١)"),
+  char_end: FIXTURE_TEXT.p2.indexOf("(١)") + 3,
+  footnote: { id: FOOT, anchor: "p3", text_raw: FIXTURE_TEXT.foot, location: location(2, FOOT) },
+  status: {
+    label: "rule_extracted",
+    kind: status.kind,
+    text: status.text,
+    weak: true,
+    mixed: status.mixed,
+    terms: [
+      {
+        kind: "daif",
+        char_start: weakAt,
+        char_end: weakAt + "ضعيف".length,
+        gloss: TAKHRIJ_TERM_GLOSS.daif,
+      },
+    ],
+    version: TAKHRIJ_TERMS_VERSION,
+  },
+};
+
 const evidence: DigestView["evidence"] = {
   ayat: [
     {
@@ -72,32 +96,8 @@ const evidence: DigestView["evidence"] = {
     {
       point_ords: [2],
       passage_id: P2,
-      marker: "١",
-      char_start: FIXTURE_TEXT.p2.indexOf("(١)"),
-      char_end: FIXTURE_TEXT.p2.indexOf("(١)") + 3,
+      ...takhrij,
       location: location(2, P2),
-      footnote: {
-        id: FOOT,
-        anchor: "p3",
-        text_raw: FIXTURE_TEXT.foot,
-        location: location(2, FOOT),
-      },
-      status: {
-        label: "rule_extracted",
-        kind: status.kind,
-        text: status.text,
-        weak: true,
-        mixed: status.mixed,
-        terms: [
-          {
-            kind: "daif",
-            char_start: weakAt,
-            char_end: weakAt + "ضعيف".length,
-            gloss: TAKHRIJ_TERM_GLOSS.daif,
-          },
-        ],
-        version: TAKHRIJ_TERMS_VERSION,
-      },
     },
   ],
   quran: {
@@ -225,6 +225,7 @@ export const FIXTURE_BOOK: DigestView = {
       text_raw: FIXTURE_TEXT.p1,
       location: location(1, P1),
       translation: quoteTranslation("Ini teks contoh pertama untuk kutipan di halaman uji."),
+      takhrij: [],
     },
     {
       ord: 2,
@@ -236,6 +237,7 @@ export const FIXTURE_BOOK: DigestView = {
       text_raw: FIXTURE_TEXT.p2.slice(0, FIXTURE_TEXT.p2.indexOf(" (١)")),
       location: location(2, P2),
       translation: quoteTranslation("Dan ini teks contoh kedua berisi contoh riwayat."),
+      takhrij: [takhrij],
     },
   ],
   questions: [

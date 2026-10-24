@@ -10,7 +10,7 @@ export const intisari = {
   /** Lencana label AI di semua tempat Intisari tampil (teks-arab.md aturan 8). */
   aiBadge: "Intisari AI",
   aiBadgeHint:
-    "Ringkasan belajar buatan AI dari teks kitab, belum ditinjau manusia. Setiap gagasan menunjuk paragraf sumbernya.",
+    "Ringkasan belajar buatan AI dari teks kitab. Setiap gagasan menunjuk paragraf sumbernya.",
   // Hub /kitab/<karya>/intisari
   hubHeading: "Intisari",
   hubMetaTitle: (work: string) => `Intisari ${work}`,
@@ -62,9 +62,10 @@ export const intisari = {
   basisPage: (juz: number, page: number) => `j. ${juz}, h. ${page}`,
   quotesHeading: "Kutipan pilihan",
   quoteKind: { text: "Teks kitab", report: "Riwayat", poetry: "Syair" },
-  quoteTranslation: "Terjemahan AI kutipan ini",
-  quoteOpen: "Buka paragrafnya",
-  quoteReportNote: "Status riwayat hanya dari takhrij: lihat Dalil.",
+  quoteTakhrij: (marker: string) => `Takhrij (${marker})`,
+  quoteTakhrijOpen: "Lihat takhrijnya di pembaca",
+  quoteReportUnknown:
+    "Status riwayat ini belum diketahui: tidak ada takhrij yang tertaut ke kutipan ini.",
   termsHeading: "Istilah",
   termsNote: "Definisi singkat buatan AI.",
   evidenceHeading: "Dalil di teks sumber",
@@ -76,7 +77,7 @@ export const intisari = {
   ayahTranslation: "Terjemahan Kemenag",
   ayahPartial: "Dikutip sebagian di kitab; ayat lengkapnya di bawah.",
   ayahSource: (names: string) => `Teks dan terjemahan ayat: ${names}.`,
-  hadithHeading: "Hadits dan takhrijnya",
+  hadithHeading: "Takhrij (catatan kaki)",
   hadithStatus: "dikenali otomatis dari teks takhrij, belum ditinjau",
   hadithMixed: "Takhrij menyebut penilaian berbeda untuk jalur atau lafaz yang berbeda.",
   hadithWeak: "Takhrij memuat istilah kelemahan",
@@ -84,9 +85,16 @@ export const intisari = {
   hadithTerms: "Istilah di teks takhrij",
   hadithItem: (marker: string, juz: number, page: number) =>
     `Hadits bertanda (${marker}) di j. ${juz}, h. ${page}`,
+  /** Catatan kaki yang tidak dikenali sebagai takhrij (catatan penyunting): tidak disebut hadits. */
+  footnoteItem: (marker: string, juz: number, page: number) =>
+    `Catatan kaki (${marker}) di j. ${juz}, h. ${page}`,
   hadithFootnoteOpen: "Lihat takhrijnya di pembaca",
   evidenceChipHadith: (marker: string, juz: number, page: number) =>
     `Hadits (${marker}) · j. ${juz}, h. ${page}`,
+  evidenceChipFootnote: (marker: string, juz: number, page: number) =>
+    `Catatan kaki (${marker}) · j. ${juz}, h. ${page}`,
+  /** Ditempel di chip dalil yang takhrijnya memuat istilah kelemahan (tidak hanya lewat warna). */
+  evidenceChipWeak: "lemah",
   questionsHeading: "Uji pemahaman",
   questionsLead: "Coba jawab dulu, lalu buka untuk melihat gagasan yang menjawabnya.",
   questionAnswer: (n: number, title: string) => `Jawabannya di gagasan ${n}: ${title}`,
@@ -102,7 +110,6 @@ export const intisari = {
   sourceHeading: "Sumber teks",
   // Halaman karya
   workLink: "Intisari kitab ini",
-  workLinkHint: "Ringkasan belajar per kitab dan bab, buatan AI, tertaut ke teks.",
   // Fixture /dev/intisari
   devTitle: "Pratinjau Intisari (fixture)",
   devLead:

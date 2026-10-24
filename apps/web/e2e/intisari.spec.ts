@@ -92,12 +92,28 @@ test.describe("fixture /dev/intisari", () => {
   }
 });
 
+interface TocNode {
+  id: number;
+  kind: "node" | "sub";
+  digest?: { minutes: number };
+  children: TocNode[];
+}
+
+/** Node berintisari menurut pohon daftar isi lengkap (lencana `digest`, X16); kosong = belum ada. */
+async function digestNodes(page: Page): Promise<number[]> {
+  const res = await page.request.get("/kitab/ihya/daftar-isi.json");
+  expect(res.ok()).toBe(true);
+  const { items } = (await res.json()) as { items: TocNode[] };
+  const flat = (list: TocNode[]): TocNode[] => list.flatMap((n) => [n, ...flat(n.children)]);
+  return flat(items).flatMap((n) => (n.kind === "node" && n.digest ? [n.id] : []));
+}
+
 test.describe("data korpus", () => {
   test("tanpa Intisari: hub 404, pembaca dan halaman karya tanpa lencana atau tautan Intisari", async ({
     page,
   }) => {
-    const hub = await page.request.get(HUB);
-    test.skip(hub.status() !== 404, "korpus sudah punya Intisari: lihat tes berikutnya");
+    test.skip((await digestNodes(page)).length > 0, "korpus sudah punya Intisari: tes berikutnya");
+    expect((await page.request.get(HUB)).status()).toBe(404);
     await page.goto("/kitab/ihya/1/200");
     await expect(page.locator("[data-intisari-teaser]")).toHaveCount(0);
     await expect(page.locator(".toc-intisari")).toHaveCount(0);
@@ -108,19 +124,19 @@ test.describe("data korpus", () => {
   test("dengan Intisari: kutipan Arab = salinan DB (/api/kutipan), setiap gagasan punya Dasar teks, label AI", async ({
     page,
   }) => {
-    const hub = await page.goto(HUB);
-    test.skip(hub?.status() === 404, "korpus belum punya Intisari (X15b langkah 9)");
-    const first = page.locator("a.intisari-card").first();
-    await expect(first).toHaveAttribute("href", /^\/kitab\/ihya\/bab\/\d+\/intisari$/);
-    await first.click();
-    await expect(page).toHaveURL(/\/intisari$/);
+    const nodes = await digestNodes(page);
+    test.skip(nodes.length === 0, "korpus belum punya Intisari (X15b langkah 9)");
+    // Tombol hub di halaman karya ada tepat bila hub tidak 404.
+    await page.goto("/kitab/ihya");
+    const hubLinks = await page.locator(`a[href='${HUB}']`).count();
+    expect((await page.request.get(HUB)).status()).toBe(hubLinks > 0 ? 200 : 404);
+    await page.goto(`/kitab/ihya/bab/${nodes[0]}/intisari`);
     await expect(page.locator(".ai-badge", { hasText: "Intisari AI" }).first()).toBeVisible();
     await expect(page.locator("[data-intisari-meta]")).toContainText("Dibuat ");
     for (const point of await page.locator("li[id^='gagasan-']").all()) {
       await expect(point.locator("a[data-basis]").first()).toHaveAttribute("href", /#p\d+$/);
     }
-    const cards = await page.locator("[data-quote-range]").all();
-    for (const card of cards) {
+    for (const card of await page.locator("[data-quote-range]").all()) {
       const range = await card.getAttribute("data-quote-range");
       const res = await page.request.get(`/api/kutipan?r=${range}`);
       expect(res.ok(), `/api/kutipan ${range}`).toBe(true);

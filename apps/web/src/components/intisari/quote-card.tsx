@@ -12,10 +12,12 @@ const t = intisariText;
 
 /**
  * Kartu kutipan Intisari (X16): teks Arab = `text_raw` yang disalin `readDigest` dari DB sesudah
- * sidiknya dicek (aturan 1; kutipan basi atau yang menyentuh ayat sudah ditahan core), terjemahan
- * berlabel asalnya sendiri (kutipan anak tetap berlabel modelnya), jilid/halaman + tautan ke
- * paragrafnya, dan jenisnya (ditentukan kode). `data-quote-range` = `passage:start:end` untuk e2e
- * yang membandingkan teks kartu dengan `/api/kutipan`. Riwayat: status hanya dari takhrij (Dalil).
+ * sidiknya dicek (aturan 1; kutipan basi, yang menyentuh ayat, dan riwayat yang takhrijnya sangat
+ * lemah/palsu/tanpa asal sudah ditahan core), terjemahan berlabel asalnya sendiri (kutipan anak tetap
+ * berlabel modelnya), jilid/halaman + tautan ke paragrafnya, dan jenisnya (ditentukan kode).
+ * Takhrij milik kutipan (penanda di dalam/tepat sesudah rentangnya) tampil dengan label kodenya dan
+ * teks takhrij asli; riwayat tanpa takhrij = "status belum diketahui" (aturan 6).
+ * `data-quote-range` = `passage:start:end` untuk e2e yang membandingkan teks dengan `/api/kutipan`.
  */
 export function QuoteCard({ quote }: { quote: DigestQuoteView }) {
   const { translation: tr } = quote;
@@ -47,9 +49,30 @@ export function QuoteCard({ quote }: { quote: DigestQuoteView }) {
           {quote.location.label}
         </NextLink>
       </figcaption>
-      {quote.kind === "report" ? (
+      {quote.takhrij.map((tk) => (
+        <div key={`${tk.char_start}-${tk.footnote.id}`} className="flex flex-col gap-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Typography type="body-sm" weight="medium">
+              {t.quoteTakhrij(tk.marker)}: {tk.status.text}
+            </Typography>
+            {tk.status.weak ? (
+              <Chip color="danger" size="sm" variant="soft">
+                {t.hadithWeak}
+              </Chip>
+            ) : null}
+          </div>
+          <Typography color="muted" type="body-xs">
+            {t.hadithStatus}
+          </Typography>
+          <ArabicText className="text-foreground">{tk.footnote.text_raw}</ArabicText>
+          <NextLink className="link self-start text-xs" href={tk.footnote.location.permalink}>
+            {t.quoteTakhrijOpen}
+          </NextLink>
+        </div>
+      ))}
+      {quote.kind === "report" && quote.takhrij.length === 0 ? (
         <Typography color="muted" type="body-xs">
-          {t.quoteReportNote}
+          {t.quoteReportUnknown}
         </Typography>
       ) : null}
     </figure>

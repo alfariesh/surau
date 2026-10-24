@@ -87,7 +87,8 @@ export function ReaderCompactHeader({
     () => null,
   );
   const at = live ?? { juz, page, bab };
-  const currentDigest = live === null ? digest : live.digest;
+  // Respons /api/halaman versi lain bisa tanpa `digest`: anggap tidak ada.
+  const currentDigest = live === null ? digest : (live.digest ?? null);
 
   useEffect(() => {
     const text =

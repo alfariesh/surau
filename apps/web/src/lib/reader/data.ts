@@ -82,14 +82,18 @@ export const loadToc = cache(async (rawSegment: string): Promise<TocItem[]> => {
  * OG, bagian aktif, atau model halaman: di sana tetap `loadToc` (judul Arab, node korpus saja).
  */
 export const loadReaderToc = cache(
-  async (rawSegment: string): Promise<{ items: TocItem[]; titleSource: TitleSource | null }> => {
+  async (
+    rawSegment: string,
+  ): Promise<{ items: TocItem[]; titleSource: TitleSource | null; digests: DigestTeaser[] }> => {
     const r = await resolveWork(rawSegment);
-    if (r.kind === "redirect") return { items: [], titleSource: null };
+    if (r.kind === "redirect") return { items: [], titleSource: null, digests: [] };
     const toc = await loadToc(rawSegment);
     const extras = await readerTocExtras(r.ctx.env.CORPUS_DB, r.ctx.edition.id);
     return {
       items: readerToc(toc, extras, r.ctx.segment),
       titleSource: extras.titles?.source ?? null,
+      // Kepala Intisari (X16) dari ekstra yang sama: satu pemuatan untuk pohon dan kepala.
+      digests: digestTeasers(extras.digests, r.ctx.segment),
     };
   },
 );
@@ -137,14 +141,11 @@ export const loadTocNode = cache(async (rawSegment: string, rawId: string) => {
  * Kepala Intisari seluruh edisi (X16), urut `toc_node_id`: hub, lencana daftar isi, tautan dari
  * halaman karya. Kosong di korpus skema < 9 atau bila belum ada Intisari; `[]` bila alias.
  */
-export const loadDigestHeaders = cache(async (rawSegment: string): Promise<DigestTeaser[]> => {
-  const r = await resolveWork(rawSegment);
-  if (r.kind === "redirect") return [];
-  // Dari ekstra daftar isi (memo per isolate, dimuat bersama judul dan subjudul): lencana daftar
-  // isi, kartu ringkasan, menu ⋮, dan hub memakai satu daftar yang sama.
-  const extras = await readerTocExtras(r.ctx.env.CORPUS_DB, r.ctx.edition.id);
-  return digestTeasers(extras.digests, r.ctx.segment);
-});
+export const loadDigestHeaders = cache(
+  // Dari `loadReaderToc` (render yang sama, satu pemuatan ekstra): lencana daftar isi, kartu
+  // ringkasan, menu ⋮, hub, dan halaman karya memakai satu daftar.
+  async (rawSegment: string): Promise<DigestTeaser[]> => (await loadReaderToc(rawSegment)).digests,
+);
 
 export interface DigestContext extends WorkContext {
   digest: DigestView;

@@ -46,7 +46,8 @@ export interface PageDeps {
   limitGlobal: () => Promise<boolean>;
   /** Edisi kanonis dari segmen karya (`ihya`), atau null (tidak ada / bukan bentuk kanonis). */
   edition: (segment: string) => Promise<{ id: number; volumes: number | null } | null>;
-  load: (editionId: number, juz: number, page: number) => Promise<PageData>;
+  /** `segment` = segmen karya kanonis yang sudah lolos `edition` (alamat tautan Intisari). */
+  load: (editionId: number, juz: number, page: number, segment: string) => Promise<PageData>;
   cache: { store: SearchCache; corpus: string } | null;
 }
 
@@ -93,7 +94,7 @@ export async function handlePage(request: Request, deps: PageDeps): Promise<Resp
   }
   let data: PageData;
   try {
-    data = await deps.load(edition.id, juz, page);
+    data = await deps.load(edition.id, juz, page, work);
   } catch (error) {
     if (isCoreError(error))
       return json(error.code === "not_found" ? 404 : 400, { error: error.code });
