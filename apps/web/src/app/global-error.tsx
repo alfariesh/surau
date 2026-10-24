@@ -56,7 +56,7 @@ export default function GlobalError({
             <Button onPress={() => retry()}>{t.retry}</Button>
             {/* <a> sengaja: muat ulang penuh, karena root layout sedang rusak. */}
             {/* oxlint-disable-next-line next/no-html-link-for-pages */}
-            <a className={buttonVariants({ variant: "secondary" })} href="/">
+            <a className={buttonVariants({ variant: "secondary" })} href="/home">
               {t.home}
             </a>
           </div>

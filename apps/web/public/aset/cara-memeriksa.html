@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Memeriksa kutipan</title>
+</head>
+<body>
+<style id="token-surau">:root{--ornament-gold:#c1914a;--background:oklch(0.985 0.007 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--ornament-gold:#d6ad6c;--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
+<script src="/aset-mesin/iso-34d5a370f6.js"></script>
+<script>
+/* Cara kerja 4 · Memeriksa kutipan (lembar tembus pandang ditumpuk di halaman sumber).
+   Proses: kitab terbuka datar di alas. Lembar kutipan yang tembus pandang meluncur masuk dan turun ke atas
+   halaman kanan, tepat di baris yang dikutip. Cerita (sekali jalan): lembar pertama tidak pas (barisnya jatuh di
+   antara baris sumber) → lembar meredup dengan lencana silang lalu diangkat; lembar kedua turun dan barisnya
+   menimpa baris sumber persis → baris menyala, lencana centang menyala.
+   Tanpa kata, angka, atau huruf Arab; baris teks hanya garis. */
+const { lerp, ease } = ISO;
+const st = { turun: 1, cocok: true, busy: false };
+const PZ = 3.6, PY = 8, PW = 16, PD = 26, KIRI = 6, KANAN = 22.4, N = 10, JARAK = 2.3;
+const KUTIP = [4, 5], LX = KANAN + 1, LW = 14, LY = PY + 3 + KUTIP[0] * JARAK - 2, LD = JARAK + 4, GESER = 12, ANGKAT = 9, MELESET = 1.15;
+
+mountFigure({
+  id: 'cara-memeriksa', title: 'Memeriksa kutipan', hint: 'tumpuk kutipan di atas halaman sumbernya',
+  alt: 'Ilustrasi garis: lembar kutipan tembus pandang diletakkan di atas halaman kitab. Bila barisnya tidak menimpa baris sumber, lembar meredup dengan tanda silang; bila menimpa persis, barisnya menyala dengan tanda centang.',
+  tombol: [
+    { label: 'Periksa', aksi: () => H.periksa(true) },
+    { label: 'Kutipan keliru', aksi: () => H.periksa(false) },
+  ],
+  mount(stage, api) {
+    const K = api.frame([[0,0,0],[46,0,0],[0,40,0],[46,40,0],[LX + GESER + LW, LY, PZ + ANGKAT],[LX, LY, PZ + ANGKAT],[LX + GESER, LY + LD, PZ + ANGKAT]]);
+    const { box, TOP } = K;
+    function halaman(x0, kanan) {
+      let s = box(x0, PY, 2, PW, PD, 1.6, 1), g = '';
+      for (let i = 0; i < N; i++) g += `<line class="detail" x1="${i === N - 1 && !kanan ? 5 : 2}" y1="${3 + i * JARAK}" x2="${PW - 2}" y2="${3 + i * JARAK}"/>`;
+      return s + `<g transform="${TOP(x0, PY, PZ)}">${g}</g>`;
+    }
+    function lembar() {
+      const e = ease(st.turun), x = LX + GESER * (1 - e), z = PZ + .15 + ANGKAT * (1 - e), y = LY + (st.cocok ? 0 : MELESET);
+      const pas = st.turun >= 1 && !st.busy, benar = pas && st.cocok;
+      const pts = [[x, y, z], [x + LW, y, z], [x + LW, y + LD, z], [x, y + LD, z]];
+      let g = '';
+      KUTIP.forEach((_, i) => { const v = 2 + i * JARAK;
+        g += `<line class="${benar ? 'nyala' : 'wire'}" ${benar ? 'filter="url(#soft)"' : ''} x1="1" y1="${v}" x2="${LW - 1}" y2="${v}"/>`; });
+      let s = `<path class="face glass${benar ? ' hot' : ''}" fill-opacity=".72" d="${K.path(pts)}Z"/>` + `<g transform="${TOP(x, y, z)}">${g}</g>`;
+      const tanda = pas ? api.lencanaBidang(benar ? 'centang' : 'silang', TOP(x, y, z), LW - .6, -.6, 3.2, benar, true) : '';
+      // lencana di luar kelompok redup supaya silang tetap terbaca
+      return `<g class="${pas && !st.cocok ? 'redup' : ''}">${s}</g>${tanda}`;
+    }
+    function draw() {
+      let s = box(0, 0, 0, 46, 40, 2, 5);
+      s += `<g transform="${TOP(2, 2, 2)}"><rect class="detail" width="42" height="36" rx="4"/></g>`;
+      s += halaman(KIRI, false) + halaman(KANAN, true);
+      if (st.turun > 0) s += lembar();
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.cocok ? 'Kutipan menimpa baris sumber persis' : 'Kutipan tidak menimpa baris sumber, jadi tidak ditampilkan');
+    const H = window.H = {
+      periksa(cocok, lalu) {
+        if (st.busy) return api.readout('Sebentar, masih memeriksa');
+        st.busy = true;
+        const masuk = () => { st.cocok = cocok; st.turun = 0; draw();
+          api.anim(1000, t => { st.turun = t; draw(); }, () => { st.turun = 1; st.busy = false; draw(); read(); if (lalu) lalu(); }); };
+        // lembar yang sudah ada diangkat dulu
+        if (st.turun > 0) api.anim(500, t => { st.turun = 1 - t; draw(); }, masuk); else masuk();
+      },
+    };
+    draw(); read();
+    return {
+      render: draw,
+      batal() { st.busy = false; st.turun = 1; draw(); },
+      demo() { H.periksa(false, () => api.after(900, () => H.periksa(true))); },
+      akhir() { st.cocok = true; st.turun = 1; draw(); read(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

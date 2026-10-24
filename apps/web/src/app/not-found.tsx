@@ -25,7 +25,7 @@ export default function NotFound() {
         </Typography>
         <PageTitle compactTitle={false}>{t.heading}</PageTitle>
         <Typography color="muted">{t.body}</Typography>
-        <NextLink className={buttonVariants({ variant: "primary" })} href="/">
+        <NextLink className={buttonVariants({ variant: "primary" })} href="/home">
           {t.back}
         </NextLink>
       </div>

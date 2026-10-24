@@ -2,10 +2,39 @@ import { expect, test } from "@playwright/test";
 import { NORM_VERSION } from "@surau/text";
 
 import { home } from "../src/i18n/id/home";
+import { LANDING_SECTIONS, landing, landingNav } from "../src/i18n/id/landing";
 import { search } from "../src/i18n/id/search";
 
-test("Beranda tampil dalam bahasa Indonesia", async ({ page }) => {
+test("landing page di / mengarah ke Beranda di /home (ADR-096)", async ({ page }) => {
   await page.goto("/");
+
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(landing.heading);
+  // Tanpa sidebar aplikasi; navigasinya menu bagian bernomor yang menempel.
+  await expect(page.getByRole("treegrid", { name: "Navigasi utama" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: landingNav.label })).toBeAttached();
+  for (const id of LANDING_SECTIONS) await expect(page.locator(`section#${id}`)).toBeAttached();
+  // Ilustrasi dekoratif dan tersandbox seperti kartu prinsip.
+  const art = page.locator('iframe[src^="/aset/cara-bertanya.html"]');
+  await expect(art).toHaveAttribute("sandbox", "allow-scripts");
+  await expect(art).toHaveAttribute("aria-hidden", "true");
+  // Kutipan hero (bila korpus ada): blok Arab ber-lang/dir dan beralamat.
+  // Kutipan hero: blok Arab di dalam figure > blockquote (bukan kartu simulasi Maknaz yang muncul belakangan).
+  const quote = page.locator("header figure blockquote .arabic-text");
+  if ((await quote.count()) > 0) {
+    await expect(quote).toHaveAttribute("lang", "ar");
+    await expect(quote).toHaveAttribute("dir", "rtl");
+    await expect(page.getByRole("link", { name: landing.quoteOpen }).first()).toHaveAttribute(
+      "href",
+      /^\/kitab\/ihya\/\d+\/\d+#p\d+$/,
+    );
+  }
+  await page.getByRole("link", { name: landing.start }).first().click();
+  await expect(page).toHaveURL(/\/home$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(home.heading);
+});
+
+test("Beranda tampil dalam bahasa Indonesia", async ({ page }) => {
+  await page.goto("/home");
 
   await expect(page).toHaveTitle(/Surau/);
   await expect(page.locator("html")).toHaveAttribute("lang", "id");
@@ -14,7 +43,7 @@ test("Beranda tampil dalam bahasa Indonesia", async ({ page }) => {
 });
 
 test("teks Arab memakai lang=ar dan dir=rtl dengan font Naskh", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/home");
 
   // Contoh pencarian Arab di kotak cari Beranda (ADR-086; kartu Basmalah sudah tidak ada).
   const arabic = page.getByRole("search").locator(".arabic-inline").first();
@@ -39,7 +68,7 @@ test("teks Arab memakai lang=ar dan dir=rtl dengan font Naskh", async ({ page })
 });
 
 test("kotak cari Beranda membuka hasil Cari", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/home");
 
   // Hanya mode Cari: mode Maknaz memanggil LLM berbayar di Preview, jadi tidak dikirim di e2e.
   const box = page.getByRole("search").getByRole("textbox");
@@ -100,7 +129,7 @@ test("menu samping: Kitab dan Seputar Surau → Tentang bisa dibuka, /cari di ba
   page,
   isMobile,
 }) => {
-  await page.goto("/");
+  await page.goto("/home");
 
   const openMenu = async () => {
     const menu = page.getByRole("treegrid", { name: "Navigasi utama" }).last();
@@ -141,7 +170,7 @@ test("menu samping: Kitab dan Seputar Surau → Tentang bisa dibuka, /cari di ba
 });
 
 test("panduan MCP bisa ditemukan dan dipakai di layar ponsel", async ({ page, isMobile }) => {
-  await page.goto("/");
+  await page.goto("/home");
   if (isMobile) await page.getByRole("button", { name: "Buka menu" }).click();
   // Integrasi AI ada di kaki sidebar (menu sendiri bernama sama, PR #125).
   await page
@@ -180,7 +209,7 @@ test("respons HTML membawa header keamanan dasar", async ({ request }) => {
 test("ilustrasi prinsip di Beranda: iframe sandbox dekoratif, cerita diputar saat terlihat dan saat kartu disentuh", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/home");
 
   const frames = page.locator('section[aria-labelledby="judul-prinsip"] iframe');
   await expect(frames).toHaveCount(3);

@@ -11,8 +11,8 @@ describe("menu aktif", () => {
   });
 
   it("menu lain tidak berubah", () => {
-    expect(findActiveNavItem("/")?.id).toBe("home");
-    expect(navTitle("/")).toBe("Beranda");
+    expect(findActiveNavItem("/home")?.id).toBe("home");
+    expect(navTitle("/home")).toBe("Beranda");
     expect(findActiveNavItem("/kitab/ihya/1/200")?.id).toBe("books");
     expect(navTitle("/tentang")).toBe("Tentang");
     expect(findActiveNavItem("/carian")).toBeUndefined();

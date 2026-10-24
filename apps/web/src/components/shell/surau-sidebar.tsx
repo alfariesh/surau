@@ -84,7 +84,7 @@ function SidebarContents({ activeId, idPrefix = "" }: { activeId?: string; idPre
       <Sidebar.Header>
         <NextLink
           className="flex items-center gap-3 rounded-xl px-1 py-1 outline-none focus-visible:ring-2 focus-visible:ring-focus"
-          href="/"
+          href="/home"
         >
           <SurauMark className="size-8 shrink-0" />
           <span className="flex min-w-0 flex-col" data-sidebar="label">

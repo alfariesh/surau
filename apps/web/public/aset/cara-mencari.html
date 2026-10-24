@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mencari di kitab</title>
+</head>
+<body>
+<style id="token-surau">:root{--ornament-gold:#c1914a;--background:oklch(0.985 0.007 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--ornament-gold:#d6ad6c;--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
+<script src="/aset-mesin/iso-34d5a370f6.js"></script>
+<script>
+/* Cara kerja 2 · Mencari.
+   Proses: kaca pembesar menyisir rak yang penuh dari kiri ke kanan; lensanya menyala selama mencari.
+   Setiap jilid yang memuat kata yang dicari menyala begitu dilewati (dua jilid: satu di rak atas, satu di
+   rak bawah). Kaca pembesar berhenti di kanan, lensanya padam; dua jilid tetap menyala.
+   Pasangan figur kosong-pencarian (rak kosong). Tanpa kata, angka, atau huruf Arab. */
+const { ease, lerp } = ISO;
+const st = { t: 1, cari: false, busy: false };
+const X0 = 16, X1 = 44, YK = 25, ZK = 12.6, R = 4.6;
+// jilid per baris rak: [x, tinggi]; ketemu = jilid yang menyala
+const ATAS = [[13.6, 7.6], [16.6, 8], [19.6, 7.2], [22.6, 7.8], [25.6, 7.4], [28.6, 8], [31.6, 7], [34.6, 7.8], [37.6, 7.5], [40.6, 7.9], [43.6, 7.2]];
+const BAWAH = [[13.6, 7.8], [16.6, 7.2], [19.6, 8], [22.6, 7.5], [25.6, 7.9], [28.6, 7.3], [31.6, 7.8], [34.6, 7], [37.6, 7.6], [40.6, 8], [43.6, 7.4]];
+const KETEMU = { atas: 3, bawah: 8 };
+
+mountFigure({
+  id: 'cara-mencari', title: 'Mencari di kitab', hint: 'sisir rak untuk menemukan jilid yang memuat kata',
+  alt: 'Ilustrasi garis: kaca pembesar menyisir rak kitab yang penuh; dua jilid yang memuat kata yang dicari menyala.',
+  tombol: [{ label: 'Cari', aksi: () => H.sisir() }],
+  mount(stage, api) {
+    const K = api.frame([[0, 0, 0], [60, 0, 0], [0, 40, 0], [60, 40, 0], [12, 8, 23], [48, 8, 23], [X1 + 7, YK, ZK + R], [X0 - 5, YK, ZK + R]]);
+    const { box, FRONT } = K;
+    const kotakTepi = (x, y, z, w, d, h) => { const c = [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]; return K.tepi([...c, ...c.map(p => [p[0], p[1], z + h])]); };
+    const cx = () => lerp(X0, X1, ease(st.t));
+    // jilid menyala bila sudah dilewati kaca pembesar (atau dalam keadaan akhir)
+    const nyala = x => st.t >= 1 ? true : cx() >= x + 1.4;
+    function jilid(row, z, ketemu) {
+      let s = '';
+      row.forEach(([x, h], i) => {
+        const lit = i === ketemu && nyala(x);
+        s += box(x, 9.6, z, 2.7, 9, h, 0, lit ? 'hot' : '');
+        s += `<g transform="${FRONT(x, 18.6, z + h)}"><line class="${lit ? 'nyala' : 'detail'}" x1=".6" y1="1.8" x2="2.1" y2="1.8"/></g>`;
+      });
+      return s;
+    }
+    function draw() {
+      let s = box(0, 0, 0, 60, 40, 2, 5);
+      // rak: papan belakang, sisi kiri, tiga papan, jilid di dua baris, sisi kanan
+      s += box(12, 8, 2, 36, 1.2, 20) + box(12, 8, 2, 1.2, 12, 20) + box(12, 8, 2, 36, 12, 1) + box(12, 8, 11.5, 36, 12, 1) + box(12, 8, 21, 36, 12, 1);
+      s += jilid(BAWAH, 3, KETEMU.bawah) + jilid(ATAS, 12.5, KETEMU.atas);
+      s += box(46.8, 8, 2, 1.2, 12, 20) + kotakTepi(12, 8, 2, 36, 12, 20);
+      // kaca pembesar berdiri di bidang depan rak
+      const x = cx();
+      s += `<g transform="${FRONT(0, YK, 0)}">`
+        + `<g transform="rotate(-40 ${x.toFixed(2)} ${(-ZK).toFixed(2)})"><rect class="face" x="${(x - .7).toFixed(2)}" y="${(-ZK + R + .2).toFixed(2)}" width="1.4" height="5" rx=".7"/></g>`
+        + `<circle class="glass${st.cari ? ' hot' : ''}" cx="${x.toFixed(2)}" cy="${(-ZK).toFixed(2)}" r="${R}"/>`
+        + `<circle class="tepi" cx="${x.toFixed(2)}" cy="${(-ZK).toFixed(2)}" r="${R}"/>`
+        + `<path class="detail" d="M${(x - 2.2).toFixed(2)} ${(-ZK - .8).toFixed(2)}a2.4 2.4 0 0 1 1.6 -1.6"/></g>`;
+      api.gambar(s);
+    }
+    const H = window.H = {
+      sisir() { if (st.busy) return api.readout('Sebentar, masih mencari');
+        st.busy = true; st.cari = true; st.t = 0; draw();
+        api.anim(2200, t => { st.t = Math.min(t, .999); draw(); }, () => { st.t = 1; st.cari = false; st.busy = false; draw(); api.readout('Dua jilid memuat kata yang dicari'); }); },
+    };
+    draw();
+    return {
+      render: draw,
+      batal() { st.busy = false; st.cari = false; st.t = 1; draw(); },
+      demo() { H.sisir(); },
+      akhir() { st.cari = false; st.t = 1; draw(); api.readout('Dua jilid memuat kata yang dicari'); },
+    };
+  },
+});
+</script>
+</body>
+</html>

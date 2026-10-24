@@ -84,7 +84,7 @@ jobs:
         env:
           URL: ${{ steps.preview.outputs.url }}
         run: |
-          for p in / /tentang; do
+          for p in / /home /tentang; do
             code=$(curl -s --fail -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 5 --retry-all-errors "$URL$p" || true)
             echo "$p → $code"
             [ "$code" = "200" ] || { echo "::error title=Smoke gagal::$p mengembalikan $code"; exit 1; }
