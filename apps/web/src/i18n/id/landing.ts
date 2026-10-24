@@ -1,78 +1,114 @@
-// String landing page publik di / (ADR-096). `landingNav` dipisah supaya navbar (komponen klien)
-// hanya membawa string menu; sisanya dipakai server component.
+// String landing page publik di / (ADR-096). `landingNav` dan `landingDemo` dipisah supaya komponen
+// klien (menu bagian, simulasi) hanya membawa string yang dipakainya; sisanya dipakai server component.
 
-/** Bagian halaman (id jangkar) yang muncul di menu navbar landing. */
+/** Bagian bernomor (01–06) di menu sticky landing, urut tampil di halaman. */
 export const LANDING_SECTIONS = [
-  "isi",
+  "coba",
+  "fitur",
   "cara-kerja",
+  "koleksi",
   "integrasi",
   "gratis",
-  "tanya-jawab",
 ] as const;
 export type LandingSectionId = (typeof LANDING_SECTIONS)[number];
 
 export const landingNav = {
   label: "Bagian halaman",
   sections: {
-    isi: "Isi kitab",
+    coba: "Coba Surau",
+    fitur: "Fitur",
     "cara-kerja": "Cara kerja",
+    koleksi: "Koleksi",
     integrasi: "Integrasi AI",
     gratis: "Gratis",
-    "tanya-jawab": "Tanya jawab",
   } satisfies Record<LandingSectionId, string>,
-  open: "Buka Surau",
-  menu: "Buka menu",
-  home: "Surau, ke halaman depan",
+  toggle: "Buka atau tutup daftar bagian",
+} as const;
+
+// Simulasi di kartu bertab dan bento (komponen klien). Isi jawaban contoh memakai bahasa atribusi dan
+// merangkum terjemahan paragraf yang dikutip; teks Arab kutipannya selalu dari DB.
+export const landingDemo = {
+  tabsLabel: "Contoh pemakaian Surau",
+  tabs: { tanya: "Maknaz", cari: "Cari", baca: "Baca" },
+  question: "Apa hubungan ilmu dan amal menurut al-Ghazali?",
+  asking: "Pertanyaan",
+  answer: (label: string) =>
+    `Menurut al-Ghazali dalam ${label}, ilmu melahirkan keadaan batin (hal), dan keadaan batin itulah yang kemudian menghasilkan amal.`,
+  answerBy: "Maknaz",
+  citation: "Kutipan",
+  openPage: "Buka halamannya",
+  done: "Kutipan cocok dengan sumber",
+  searchLabel: "Kotak cari",
+  resultsCount: (n: number) => `Contoh ${n} hasil dari ratusan halaman yang memuat kata ini`,
+  readModes: { ar: "Arab", both: "Keduanya", tr: "Terjemahan" },
+  readModesLabel: "Mode baca",
+  readNote: "Teks Arab dari kitab; terjemahan dibuat AI dan diberi label.",
+  // Simulasi MCP: asisten AI milik pengguna memanggil tool Surau.
+  mcpUser: "Bagaimana al-Ghazali menjelaskan hubungan ilmu dan amal? Pakai Surau.",
+  // Alamat (label) dari data kutipan, jadi simulasi tidak bisa melenceng dari kutipannya.
+  mcpTools: (label: string) => [
+    { name: "search_text", detail: "ilmu, amal" },
+    { name: "read_page", detail: label },
+    { name: "verify_quote", detail: "cocok" },
+  ],
+  mcpTool: "Surau",
+  mcpAnswer: (label: string) =>
+    `Menurut al-Ghazali dalam ${label}, ilmu melahirkan keadaan batin, lalu keadaan batin menghasilkan amal. Teks Arabnya sudah dicocokkan dengan sumbernya.`,
+  mcpAssistant: "Asisten AI Anda",
 } as const;
 
 export const landing = {
   eyebrow: "Nirlaba · open source · berbahasa Indonesia",
   heading: "Kitab klasik Islam, bisa ditelusuri sampai halamannya.",
-  lead: "Surau membantu Anda mencari, membaca, dan memahami kitab-kitab klasik dalam bahasa Indonesia. Setiap jawaban menunjuk ke teks Arab aslinya: kitab, jilid, dan halaman cetak.",
+  lead: "Cari, baca, dan pahami kitab-kitab klasik dalam bahasa Indonesia, dengan setiap jawaban menunjuk ke teks Arab aslinya.",
   start: "Mulai mengkaji",
-  ask: "Tanya Maknaz",
-  heroArtTitle: "Ilustrasi surau, rak kitab, dan kitab terbuka",
-  // Kartu kutipan hero: teks Arab disalin kode dari DB (ID + offset), bukan ditulis di sini.
+  readFirst: "Baca halaman pertama",
   quoteLabel: "Kutipan dari kitab",
-  quoteBy: (author: string, label: string) => `Menurut ${author}, ${label}`,
   quoteOpen: "Buka halamannya",
+  coverLabel: (title: string) => `Buka ${title}`,
 
-  introHeading: "Apa yang bisa Anda lakukan di Surau",
-  introLead:
-    "Surau dimulai dari satu kitab yang dikerjakan dengan teliti: Ihya' 'Ulum ad-Din karya Abu Hamid al-Ghazali. Karya al-Ghazali lainnya dan kitab-kitab kurikulum pesantren menyusul.",
-  features: [
-    "Cari kata Indonesia atau Arab di seluruh kitab, dengan atau tanpa harakat.",
-    "Baca teks Arab asli bersama terjemahan AI yang selalu diberi label.",
-    "Lihat takhrij hadits al-'Iraqi yang tertaut langsung ke teksnya.",
-    "Baca ayat Al-Qur'an dengan teks Tanzil dan terjemahan Kemenag, tidak diterjemahkan AI.",
-    "Sambungkan Claude, ChatGPT, atau asisten AI lain lewat MCP.",
-  ],
-  // Hanya tampil bila Maknaz menyala (`jawabRouteOn`), seperti segmen Maknaz di Beranda.
-  featureAsk: "Tanyakan sesuatu ke Maknaz dan dapatkan jawaban yang mengutip halaman kitabnya.",
-  introCta: "Coba cari sekarang",
+  tryLabel: "Coba Surau",
+  tryHeading: "Bertanya, mencari, dan membaca, dengan teks aslinya selalu di depan Anda.",
+  tryLead:
+    "Maknaz menjawab pertanyaan dengan mengutip halaman kitab. Cari menemukan kata Indonesia atau Arab di seluruh kitab. Pembaca menampilkan teks Arab bersama terjemahannya.",
 
-  tocHeading: "Isi kitab",
-  tocLead:
-    "Ihya' 'Ulum ad-Din terbagi dalam empat rub' (perempat), masing-masing berisi sepuluh kitab. Setiap judul membuka halaman cetak tempat bagian itu dimulai.",
-  tocNote: "Judul Indonesia adalah terjemahan AI. Judul Arab disalin dari sumbernya.",
-  tocAll: "Lihat daftar isi lengkap",
-  // Daftar isi gagal dimuat: bagian #isi tetap ada (menu navbar tidak mati) dengan tautan ke rak.
-  tocUnavailable: "Daftar isi sedang tidak bisa dimuat. Anda tetap bisa membuka kitab dari rak.",
-  tocShelf: "Buka rak kitab",
-  tocPage: (juz: number, page: number) => `j. ${juz}, h. ${page}`,
-  tocCount: (n: number) => `${n} kitab`,
-  stats: {
-    volumes: "jilid cetak",
-    quarters: "rub'",
-    books: "kitab",
-    sections: "bagian di daftar isi",
+  featuresLabel: "Fitur",
+  featuresHeading: "Dibuat untuk mengkaji, bukan sekadar membaca ringkasan.",
+  featuresLead:
+    "Setiap fitur Surau berujung di satu tempat: halaman kitab yang bisa Anda buka dan periksa sendiri.",
+  bentoAsk: {
+    title: "Maknaz, asisten tanya kitab",
+    body: "Bertanya dengan bahasa sehari-hari. Maknaz memilih bagian kitab, mengumpulkan paragraf, menyusun jawaban, lalu memeriksa setiap kutipan ke teks sumber.",
   },
+  bentoRead: {
+    title: "Teks Arab asli, terjemahan berlabel",
+    body: "Baca Arab saja, Arab bersama terjemahan, atau terjemahan dengan Arab yang bisa dibuka per paragraf. Terjemahan AI selalu diberi label.",
+  },
+  // Kartu kecil bento: judul dua kata dan isi satu kalimat pendek yang panjangnya setara, supaya seimbang.
+  bentoSmall: [
+    {
+      id: "search",
+      title: "Cari dua bahasa",
+      body: "Kata Indonesia atau Arab, dengan atau tanpa harakat.",
+    },
+    {
+      id: "takhrij",
+      title: "Takhrij hadits",
+      body: "Catatan al-'Iraqi tertaut langsung ke haditsnya.",
+    },
+    {
+      id: "ayah",
+      title: "Ayat Kemenag",
+      body: "Teks Tanzil dan terjemahan resmi, bukan terjemahan AI.",
+    },
+    { id: "link", title: "Tautan tetap", body: "Setiap paragraf punya alamat untuk dibagikan." },
+  ],
 
-  howHeading: "Cara kerja",
+  howLabel: "Cara kerja",
+  howHeading: "Setiap langkah bisa Anda periksa.",
   howLead:
-    "Empat langkah dari pertanyaan sampai teks aslinya, dan setiap langkah bisa Anda periksa.",
+    "Surau tidak meminta Anda percaya begitu saja. Di setiap langkah ada alamat yang bisa dibuka dan teks asli yang bisa dibandingkan.",
   howArtTitle: "Ilustrasi langkah",
-  stepNumber: (n: number) => `Langkah ${n}`,
   steps: [
     {
       title: "Bertanya",
@@ -91,67 +127,71 @@ export const landing = {
     },
     {
       title: "Memeriksa",
-      body: "Setiap kutipan dicocokkan kode dengan teks sumbernya. Kutipan yang tidak cocok dengan sumbernya tidak ditampilkan.",
+      body: "Setiap kutipan dicocokkan kode dengan teks sumbernya. Kutipan yang tidak cocok tidak ditampilkan.",
       art: "cara-memeriksa",
     },
   ],
 
-  principlesHeading: "Yang dijaga di setiap hasil",
-  principlesLead:
-    "Surau belum mengumpulkan testimoni. Sebagai gantinya, inilah tiga janji yang bisa Anda periksa sendiri di setiap halaman.",
-
-  mcpHeading: "Pakai Surau dari asisten AI Anda",
-  mcpLead:
-    "Hubungkan Claude, ChatGPT, atau asisten AI lain ke perpustakaan Surau lewat MCP. Asisten Anda bisa mencari, membaca halaman, dan memeriksa kutipan, dengan teks Arab asli dan tautan ke halaman cetaknya.",
-  mcpNote: "Gratis dan tanpa akun Surau. Biaya model ditanggung asisten AI milik Anda.",
-  mcpArtTitle: "Ilustrasi asisten AI yang tersambung ke rak kitab",
-  mcpGuide: "Panduan menyambungkan",
-  resourcesHeading: "Terbuka untuk diperiksa",
-  resources: [
+  collectionLabel: "Koleksi",
+  collectionHeading:
+    "Perpustakaan yang tumbuh, satu kitab yang dikerjakan dengan teliti setiap kali.",
+  collectionLead:
+    "Setiap kitab disiapkan strukturnya, daftar isinya diperbaiki, dan takhrijnya ditautkan sebelum dibuka. Dimulai dari Ihya' 'Ulum ad-Din.",
+  collectionAvailable: "Tersedia",
+  collectionSoon: "Menyusul",
+  collectionStage: (n: number) => `Tahap ${n}`,
+  collectionOpen: "Buka kitab",
+  collectionStats: { volumes: "jilid", books: "kitab", sections: "bagian" },
+  collectionNext: [
     {
-      id: "source",
-      title: "Kode sumber",
-      body: "Seluruh kode Surau terbuka di GitHub, termasuk cara kutipan dicocokkan.",
+      title: "Karya al-Ghazali lainnya",
+      body: "Kitab-kitab al-Ghazali sesudah Ihya, disiapkan dengan cara yang sama: struktur, daftar isi, dan takhrij.",
     },
     {
-      id: "license",
-      title: "Lisensi dan atribusi",
-      body: "Teks kitab berlisensi CC BY-NC-SA 4.0, dengan asal setiap edisi dicatat.",
-    },
-    {
-      id: "about",
-      title: "Tentang Surau",
-      body: "Visi, kebijakan atribusi, dan siapa yang meninjau isinya.",
+      title: "Kitab kurikulum pesantren",
+      body: "Sekitar 92 kitab yang biasa dikaji di pesantren, dibuka satu per satu.",
     },
   ],
+  collectionShelf: "Buka rak kitab",
 
-  readHeading: "Baca langsung, tanpa daftar",
-  readLead:
-    "Tidak perlu akun atau aplikasi. Buka halaman pertama Ihya dan lihat sendiri teks Arab, terjemahan, dan takhrijnya.",
-  readFirst: "Buka halaman pertama",
-  readShelf: "Lihat rak kitab",
+  mcpLabel: "Integrasi AI",
+  mcpHeading: "Pakai Surau langsung dari asisten AI Anda.",
+  mcpLead:
+    "Lewat MCP, Claude, ChatGPT, atau asisten AI lain bisa mencari, membaca halaman, dan memeriksa kutipan di Surau, dengan teks Arab asli dan tautan ke halaman cetaknya. Gratis, tanpa akun Surau; biaya model ditanggung asisten AI Anda.",
+  mcpGuide: "Panduan menyambungkan",
+  mcpUrlLabel: "Alamat server MCP",
+  // Asisten yang bisa memakai server MCP jarak jauh (panduan /mcp: Claude, ChatGPT, klien MCP lain).
+  mcpClientsLabel: "Bisa dipakai dari",
+  mcpClients: ["Claude", "ChatGPT", "Grok", "Gemini", "Copilot", "Mistral"],
+  mcpClientsMore: "dan klien MCP lainnya",
 
-  freeHeading: "Gratis, untuk semua",
+  freeLabel: "Gratis",
+  freeStatement: "Gratis untuk semua",
   freeLead:
-    "Surau proyek nirlaba. Tidak ada iklan, paywall, atau paket berbayar, dan biayanya dilaporkan terbuka.",
-  freePrice: "Rp0",
-  freeUnit: "tanpa akun, tanpa paket",
-  freePoints: [
+    "Surau proyek nirlaba. Tidak ada iklan, paywall, atau paket berbayar, dan biaya menjalankannya dilaporkan terbuka.",
+  planName: "Membaca dan mencari",
+  planBody: "Semua yang ada di Surau, untuk siapa saja.",
+  planPrice: "0",
+  planCurrency: "Rp",
+  planPoints: [
     "Semua kitab, pencarian, dan pembaca",
     "MCP untuk asisten AI Anda",
     "Tanpa iklan dan tanpa menjual data",
     "Pertanyaan tidak dipakai untuk melatih AI",
   ],
-  freeAsk: "Maknaz selama anggaran bulanan masih ada",
-  costHeading: "Biaya AI bulan ini",
+  planAsk: "Maknaz selama anggaran bulanan masih ada",
+  costName: "Biaya kami, terbuka",
+  costBody: "Biaya AI bulan ini, dihitung otomatis dari setiap pertanyaan.",
+  costCurrency: "US$",
   costUsedSuffix: "dari plafon terpakai",
-  costDetail: (cost: string, cap: string) => `${cost} dari plafon ${cap}`,
+  costDetail: (cap: string) => `Plafon bulan ini ${cap}`,
+  costFixed: "Ditambah hosting Cloudflare US$5 per bulan dan domain",
   costMore: "Lihat transparansi biaya",
-  costFixed: "Ditambah hosting Cloudflare US$5 per bulan dan domain.",
   costUnavailable: "Angka biaya sedang tidak bisa dimuat.",
   costNoCap: "Anggaran Maknaz bulan ini belum dibuka.",
 
-  faqHeading: "Tanya jawab",
+  faqHeading: "Pertanyaan yang sering muncul",
+  faqLead: "Hal-hal yang biasanya ditanyakan sebelum orang mulai memakai Surau.",
   faq: [
     {
       q: "Apakah Surau memberi fatwa?",
@@ -163,7 +203,7 @@ export const landing = {
     },
     {
       q: "Apakah terjemahannya bisa dipegang?",
-      a: "Terjemahan dan ringkasan dibuat AI dan selalu diberi label. Editor dan ustadz peninjau mulai memeriksanya; terjemahan yang sudah diperiksa diberi label tersendiri. Pegangan utamanya tetap teks Arab, yang selalu tampil bersamanya.",
+      a: "Terjemahan dan ringkasan dibuat AI dan selalu diberi label. Editor dan ustadz peninjau mulai memeriksanya; terjemahan yang sudah diperiksa diberi label tersendiri. Pegangan utamanya tetap teks Arab.",
     },
     {
       q: "Dari mana teks kitabnya?",
@@ -179,7 +219,12 @@ export const landing = {
     },
   ],
 
-  footerTagline: "Asisten riset kitab klasik Islam. Nirlaba dan open source.",
+  closingHeading: "Pintu ke kitab, bukan pengganti guru.",
+  closingBody:
+    "Surau dibangun sebagai proyek nirlaba dan open source. Kodenya terbuka untuk diperiksa siapa saja, dan isinya mulai ditinjau ustadz peninjau.",
+  closingSource: "Kode sumber di GitHub",
+  closingArtTitle: "Ilustrasi surau, rak kitab, dan kitab terbuka",
+
   footerNav: "Tautan Surau",
   footerLinks: {
     home: "Beranda",
@@ -189,7 +234,6 @@ export const landing = {
     license: "Lisensi & atribusi",
     privacy: "Privasi",
     transparency: "Transparansi biaya",
-    source: "Kode sumber",
   },
   footerLicense:
     "Teks kitab: CC BY-NC-SA 4.0 (nonkomersial). Ilustrasi dibuat dengan iso-glow (MIT). Bukan fatwa.",

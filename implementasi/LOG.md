@@ -17,12 +17,11 @@ Format entri:
 
 ## 2026-10-24 · Landing page publik (ADR-096) — selesai
 
-- Dikerjakan: landing page di `/` (Navbar Pro, hero + kutipan asli Ihya j. 4 h. 265 dari DB, isi kitab per rub', cara kerja, prinsip, integrasi AI, gratis + biaya bulan ini, tanya jawab); Beranda dipindah ke `/home`; komponen `PrinciplesGrid` bersama; lima figur aset baru + `kitab-rehal` dibangun untuk situs; 5 ikon baru.
-- Verifikasi: `pnpm verify` → lolos (852 + 387 tes, build `/` dinamis); `landing-data.test.ts` → 6 lolos; potret aset (terang/gelap/240 px/tengah cerita) → kode 0; Playwright di `pnpm dev:remote` (desktop 1280, ponsel 375, gelap, menu ponsel) → tanpa galat konsol; `BASE_URL=http://localhost:3004 playwright test smoke a11y beranda-maknaz` → 114 lolos, 2 gagal (tes header `immutable` mesin aset: hanya dipasang `public/_headers` di Workers, tidak oleh `next dev`; tidak terkait perubahan ini). Kutipan hero dicek manual di dev:remote: rentang [0,44) j. 4 h. 265 tampil utuh dan sepadan dengan kalimat pertama terjemahannya.
-- Tinjauan `peninjau`: tanpa blocker; diperbaiki: Maknaz di landing ikut `jawabRouteOn` (produksi mati), klaim koreksi editor, tes potong kutipan, `getEnv` dijaga, bagian #isi cadangan, judul karya dari DB, plafon 0, smoke CI `/home`.
+- Dikerjakan: landing page di `/` (hero bergaya Primer dengan sampul Ihya dan kutipan asli, menu bagian bernomor yang menempel, widget "Coba Surau" berisi simulasi Maknaz/Cari/Baca berdata asli, bento, cara kerja, koleksi bertahap, integrasi AI dengan marquee logo + simulasi MCP, gratis + biaya, tanya jawab); Beranda pindah ke `/home`; lima figur aset baru; ikon baru (panah, centang, GitHub, kutip, logo asisten AI). Beberapa putaran revisi dengan pemilik (tata letak Primer, isi bergaya ElevenLabs, widget, ukuran ponsel, tanpa bayangan).
+- Verifikasi: lihat PR #135 (`pnpm verify`, e2e smoke + a11y di `pnpm dev:remote`, axe terang/gelap, Playwright desktop 1440 / ponsel 375 dan 320 / gelap, ukuran panggung simulasi diukur).
 - Biaya API: –
 - Keputusan: ADR-096
-- Catatan untuk sesi berikutnya: pemilik bisa membuka surau.org (landing) dan surau.org/home (Beranda) setelah deploy. Testimoni asli, donasi, dan versi `/en` menunggu keputusan pemilik.
+- Catatan untuk sesi berikutnya: sesudah deploy, buka surau.org (landing) dan surau.org/home (Beranda). Testimoni asli, donasi, tombol jeda gerak, dan versi `/en` menunggu keputusan pemilik.
 
 ## 2026-10-24 · X14 · Lanjutan mode baca: petunjuk sekali tampil, Ringkasan AI ikut kata cari, ukur LCP di repo — selesai (PR #130)
 - Dikerjakan: petunjuk "Pilih cara membaca" (pilihan pemilik) di halaman baca bagi pengunjung yang belum memilih mode, lewat skrip awal + pemeriksaan ulang saat navigasi lunak, tanpa geser tata letak; Ringkasan AI satu DOM, disorot kata cari, dibuka bila kecocokan terpotong, dibuka sementara di mode Arab (batas ADR-091 §4 dihapus); `scripts/ukur-lcp.mjs` + `pnpm ukur:lcp` (Lighthouse di cache pengguna, bukan dependensi repo).

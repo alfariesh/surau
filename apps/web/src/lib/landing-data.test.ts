@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { firstSentence, quoteSpan } from "./landing-data";
+import { firstSentence, quoteSpan, sentenceWith, wordPrefix } from "./landing-data";
 
 // Teks buatan (bukan teks kitab): yang diuji hanya aturan potong, tidak ada teks sumber di fixture.
 describe("quoteSpan: rentang kutipan hero disalin apa adanya, hanya di batas kata", () => {
@@ -37,5 +37,25 @@ describe("firstSentence: kalimat pertama terjemahan AI", () => {
 
   it("menolak terjemahan kosong", () => {
     expect(firstSentence("  ")).toBeNull();
+  });
+});
+
+describe("wordPrefix: potongan awal hasil Cari di batas kata", () => {
+  it("teks pendek utuh, teks panjang dipotong di spasi terakhir", () => {
+    expect(wordPrefix("alif ba", 20)).toEqual({ text: "alif ba", cut: false });
+    expect(wordPrefix("alif ba ta tsa jim", 9)).toEqual({ text: "alif ba", cut: true });
+  });
+});
+
+describe("sentenceWith: kalimat terjemahan yang memuat kata yang dicari", () => {
+  it("memilih kalimat yang memuat kata, selain itu kalimat pertama", () => {
+    expect(sentenceWith("Awal. Lalu sabar itu berat. Akhir.", "sabar")).toBe(
+      "Lalu sabar itu berat.",
+    );
+    expect(sentenceWith("Awal. Kedua.", "sabar")).toBe("Awal.");
+  });
+
+  it("melewati kalimat berplaceholder ayat", () => {
+    expect(sentenceWith("Sabar ⟦QS 2:153⟧ itu. Lagi sabar.", "sabar")).toBe("Lagi sabar.");
   });
 });

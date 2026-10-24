@@ -2,33 +2,32 @@ import { expect, test } from "@playwright/test";
 import { NORM_VERSION } from "@surau/text";
 
 import { home } from "../src/i18n/id/home";
-import { landing, landingNav } from "../src/i18n/id/landing";
+import { LANDING_SECTIONS, landing, landingNav } from "../src/i18n/id/landing";
 import { search } from "../src/i18n/id/search";
 
 test("landing page di / mengarah ke Beranda di /home (ADR-096)", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByRole("heading", { level: 1 })).toContainText(landing.heading);
-  // Tanpa sidebar aplikasi: navigasi landing sendiri.
+  // Tanpa sidebar aplikasi; navigasinya menu bagian bernomor yang menempel.
   await expect(page.getByRole("treegrid", { name: "Navigasi utama" })).toHaveCount(0);
-  for (const id of ["cara-kerja", "gratis", "tanya-jawab"]) {
-    await expect(page.locator(`section#${id}`)).toBeVisible();
-  }
-  // Ilustrasi hero dekoratif dan tersandbox seperti kartu prinsip.
-  const hero = page.locator('iframe[src^="/aset/landing-surau.html"]');
-  await expect(hero).toHaveAttribute("sandbox", "allow-scripts");
-  await expect(hero).toHaveAttribute("aria-hidden", "true");
+  await expect(page.getByRole("navigation", { name: landingNav.label })).toBeAttached();
+  for (const id of LANDING_SECTIONS) await expect(page.locator(`section#${id}`)).toBeAttached();
+  // Ilustrasi dekoratif dan tersandbox seperti kartu prinsip.
+  const art = page.locator('iframe[src^="/aset/cara-bertanya.html"]');
+  await expect(art).toHaveAttribute("sandbox", "allow-scripts");
+  await expect(art).toHaveAttribute("aria-hidden", "true");
   // Kutipan hero (bila korpus ada): blok Arab ber-lang/dir dan beralamat.
   const quote = page.locator("blockquote.arabic-text");
   if ((await quote.count()) > 0) {
     await expect(quote).toHaveAttribute("lang", "ar");
     await expect(quote).toHaveAttribute("dir", "rtl");
-    await expect(page.getByRole("link", { name: landing.quoteOpen })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: landing.quoteOpen }).first()).toHaveAttribute(
       "href",
       /^\/kitab\/ihya\/\d+\/\d+#p\d+$/,
     );
   }
-  await page.getByRole("link", { name: landingNav.open }).click();
+  await page.getByRole("link", { name: landing.start }).first().click();
   await expect(page).toHaveURL(/\/home$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(home.heading);
 });
