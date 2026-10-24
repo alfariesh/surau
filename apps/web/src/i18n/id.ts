@@ -17,6 +17,7 @@ import { search } from "./id/search";
 import { error } from "./id/error";
 import { notFound } from "./id/notFound";
 import { devBook } from "./id/devBook";
+import { intisari } from "./id/intisari";
 
 // Objek lengkap untuk server component dan modul server. Komponen klien mengimpor bagiannya
 // langsung dari `./id/<bagian>` (X09): objek ini menarik seluruh kamus ke bundle browser.
@@ -37,6 +38,7 @@ export const id = {
   error,
   notFound,
   devBook,
+  intisari,
 } as const;
 
 export const SOURCE_URL = "https://github.com/alfariesh/surau";

@@ -2,7 +2,10 @@
 
 import type { SummaryView } from "@surau/core";
 
+import type { DigestTeaser } from "../../lib/reader/digest";
+
 import { CloseButton, Typography } from "@heroui/react";
+import NextLink from "next/link";
 import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
@@ -25,7 +28,16 @@ const rm = readModeText;
 // baris saat terpotong), jadi sorotan kata cari (Range di node teks) tidak hilang saat dibuka.
 // Penyorot membuka ringkasan lewat `SUMMARY_OPEN_EVENT` bila kecocokannya di bagian yang terpotong,
 // dan di mode Arab membukanya sementara (`data-tr-peek`) dengan tombol untuk menyembunyikannya lagi.
-export function SectionSummary({ summary }: { summary: SummaryView }) {
+// Bagian yang punya Intisari (X16) mendapat baris "Intisari AI · N gagasan · ± M menit · Buka
+// Intisari" di akhir kartu (di luar teks terpotong, jadi selalu terlihat); kartu tetap disembunyikan
+// seluruhnya di mode Arab.
+export function SectionSummary({
+  summary,
+  digest = null,
+}: {
+  summary: SummaryView;
+  digest?: DigestTeaser | null;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [clamped, setClamped] = useState(false);
   const asideRef = useRef<HTMLElement>(null);
@@ -124,6 +136,15 @@ export function SectionSummary({ summary }: { summary: SummaryView }) {
       {expanded ? (
         <Typography type="body-xs" color="muted" className="mt-1">
           {t.aiMeta(summary.model, t.aiReview[summary.review_status])}
+        </Typography>
+      ) : null}
+      {digest !== null ? (
+        <Typography className="section-summary-intisari" data-intisari-teaser="" type="body-xs">
+          <span className="ai-badge ms-0">{t.intisariBadge}</span>
+          <span className="text-muted">{t.intisariTeaser(digest.points, digest.minutes)}</span>
+          <NextLink className="link font-medium" href={digest.href}>
+            {t.intisariOpen}
+          </NextLink>
         </Typography>
       ) : null}
     </aside>

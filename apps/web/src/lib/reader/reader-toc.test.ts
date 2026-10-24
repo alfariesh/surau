@@ -90,6 +90,7 @@ describe("readerToc", () => {
       toc,
       {
         subs: [sub(9, 41, 1), sub(8, 40, 3)],
+        digests: [],
         titles: {
           node: new Map([[6, "Pasal Keenam"]]),
           sub: new Map([[BASE + 8, "Penjelasan kedelapan"]]),
@@ -113,8 +114,28 @@ describe("readerToc", () => {
   });
 
   it("korpus tanpa judul Indonesia (skema < 7): pohon + subjudul saja", () => {
-    const shown = readerToc([node(5)], { subs: [], titles: null }, "uji");
+    const shown = readerToc([node(5)], { subs: [], digests: [], titles: null }, "uji");
     expect(shown).toEqual([node(5)]);
+  });
+
+  it("lencana Intisari (X16): hanya node yang Intisari-nya punya gagasan tampil", () => {
+    const head = (id: number, points: number, chars: number) => ({
+      toc_node_id: id,
+      tier: "section" as const,
+      review_status: "ai_generated" as const,
+      points,
+      chars,
+      audio_ms: null,
+    });
+    const toc = [node(5, [node(6, [], 3)])];
+    const shown = readerToc(
+      toc,
+      { subs: [], digests: [head(5, 3, 2500), head(6, 0, 400)], titles: null },
+      "uji",
+    );
+    expect(shown[0]!.digest).toEqual({ minutes: 3 });
+    // Intisari tanpa gagasan tampil (semua ditolak/tanpa jangkar): tanpa lencana.
+    expect(shown[0]!.children[0]!.digest).toBeUndefined();
   });
 });
 

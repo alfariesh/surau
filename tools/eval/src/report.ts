@@ -103,7 +103,7 @@ export function renderReport(info: RunInfo, runs: readonly QuestionRun[]): strin
     `- **Kode:** \`${info.gitSha}\`, \`SEARCH_RESULT_VERSION\` ${info.searchResultVersion} · soal privat ${
       info.privateIncluded ? "ikut" : "**tidak ikut** (`--publik-saja` atau berkas tidak ada)"
     }`,
-    `- **Cara ukur:** \`searchText(kueri, { limit: ${DEPTH} })\`; hasil benar = halaman yang masuk rentang lokasi benar atau memuat paragraf cocok di bagian lokasi benar (beserta turunannya). MRR dihitung atas ${DEPTH} halaman (0 bila tidak ada).`,
+    `- **Cara ukur:** \`searchText(kueri, { limit: ${DEPTH} }, { digest: true })\` (sama dengan Cari situs, termasuk jalur gagasan Intisari bila korpus memilikinya); hasil benar = halaman yang masuk rentang lokasi benar atau memuat paragraf cocok di bagian lokasi benar (beserta turunannya). MRR dihitung atas ${DEPTH} halaman (0 bila tidak ada).`,
     "",
   ];
   if (official.length > 0) {

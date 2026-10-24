@@ -32,7 +32,11 @@ export const search = {
     arabic: "teks Arab",
     translation: "terjemahan AI",
     summary: "ringkasan bagian",
+    digest: "gagasan Intisari",
   },
+  // Gagasan Intisari yang cocok (X16): judul gagasan + potongan isinya, berlabel AI.
+  digestBadge: "Intisari AI",
+  digestOpen: "Buka Intisari",
   matchedByLabel: "Cocok di",
   partialMatch: "sebagian kata",
   ayahPlaceholder: (ref: string) => `QS ${ref}`,

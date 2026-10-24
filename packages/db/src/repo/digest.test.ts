@@ -14,7 +14,12 @@ import {
 } from "../../test/fixture.ts";
 import type { D1Db } from "../d1.ts";
 import { pageId, passageId } from "../ids.ts";
-import { getDigest, getDigestHeaders, listDigestHeaders } from "./digest.ts";
+import {
+  getDigest,
+  getDigestHeaders,
+  getDigestHeadersOnPath,
+  listDigestHeaders,
+} from "./digest.ts";
 
 const db = env.CORPUS;
 const SHA = "a".repeat(64);
@@ -239,6 +244,16 @@ describe("kepala Intisari", () => {
     expect(await getDigestHeaders(db, [], "id")).toEqual([]);
     expect(await listDigestHeaders(db, ED + 1, "id")).toEqual([]);
   });
+
+  test("getDigestHeadersOnPath (X16): node sendiri lalu leluhur, terdekat dulu; yang ditolak dilewati", async () => {
+    const path = async (id: number) =>
+      (await getDigestHeadersOnPath(db, id, "id")).map((h) => h.toc_node_id);
+    expect(await path(T_CHILD_A)).toEqual([T_CHILD_A, T_ROOT]);
+    // Intisari T_CHILD_B ditolak peninjau: yang terdekat = Intisari Kitab induknya.
+    expect(await path(T_CHILD_B)).toEqual([T_ROOT]);
+    expect(await path(T_ROOT)).toEqual([T_ROOT]);
+    expect(await getDigestHeadersOnPath(db, T_ROOT, "en")).toEqual([]);
+  });
 });
 
 describe("korpus lama", () => {
@@ -263,6 +278,7 @@ describe("korpus lama", () => {
     expect(await getDigest(fake(8), T_ROOT, "id")).toBeNull();
     expect(await listDigestHeaders(fake(7), ED, "id")).toEqual([]);
     expect(await getDigestHeaders(fake(8), [T_ROOT], "id")).toEqual([]);
+    expect(await getDigestHeadersOnPath(fake(8), T_ROOT, "id")).toEqual([]);
     await expect(getDigest(fake(9), T_ROOT, "id")).rejects.toThrow(/no such table/);
     await expect(listDigestHeaders(fake(9), ED, "id")).rejects.toThrow(/no such table/);
   });

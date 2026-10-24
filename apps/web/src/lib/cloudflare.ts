@@ -22,3 +22,11 @@ export async function getContext(): Promise<{ env: CloudflareEnv; ctx: Execution
 export function readerEnabled(env: Pick<CloudflareEnv, "READER_ENABLED">): boolean {
   return env.READER_ENABLED === "1" || process.env.NODE_ENV === "development";
 }
+
+/**
+ * Halaman pratinjau fixture `/dev/*` tanpa D1 (X16)? Produksi `DEV_PAGES = "0"` (404), Preview `"1"`
+ * (e2e CI berjalan terhadap Preview), `next dev` selalu.
+ */
+export function devPagesEnabled(env: Pick<CloudflareEnv, "DEV_PAGES">): boolean {
+  return env.DEV_PAGES === "1" || process.env.NODE_ENV === "development";
+}

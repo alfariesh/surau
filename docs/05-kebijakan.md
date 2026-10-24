@@ -172,7 +172,7 @@ MCP publik dirilis di Fase 3, sebelum Jawab (ADR-019), sebagai server terpisah d
 **Sifat server**
 - Hanya-baca, tanpa login, dan **tidak pernah memanggil LLM**. Terjemahan dan ringkasan yang disajikan adalah hasil batch yang sudah tersimpan dan berlabel AI.
 - Teks Arab, teks ayat, dan terjemahan Kemenag disalin verbatim dari DB.
-- Nama tool berbahasa Inggris dengan deskripsi Inggris + Indonesia: `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, dan `get_hadith_takhrij`.
+- Nama tool berbahasa Inggris dengan deskripsi Inggris + Indonesia: `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, `get_hadith_takhrij`, dan `get_section_digest` (Intisari, sejak X16).
 - Hasil dipaginasi (±4–6 ribu token per respons) supaya tidak melebihi batas output klien AI.
 
 **Setiap respons memuat**
