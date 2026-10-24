@@ -1001,8 +1001,15 @@ h2.reader-heading-minor {
   font-size: 0.8em;
 }
 
+/* Penanda di terjemahan memakai FootnoteMarker (X11): ukuran dari pembungkusnya (0.8em teks
+ * terjemahan), bukan 0.62em penanda Arab, supaya tetap terbaca dan mudah diketuk. */
+.translation-marker .footnote-marker {
+  font-size: 1em;
+}
+
 /* Mode "Dilipat" (data-tr-layout="fold"): terjemahan tertutup, dibuka per paragraf lewat tombolnya. */
-.translation-toggle {
+/* Tombol lipat berbentuk pil: "Terjemahan AI" (Dilipat, X04) dan "Teks Arab" (mode Terjemahan, X11). */
+:is(.translation-toggle, .arabic-toggle) {
   display: none;
   align-items: center;
   gap: 0.25rem;
@@ -1016,7 +1023,7 @@ h2.reader-heading-minor {
   cursor: var(--cursor-interactive, pointer);
 }
 
-.translation-toggle::after {
+:is(.translation-toggle, .arabic-toggle)::after {
   content: "";
   width: 0.4rem;
   height: 0.4rem;
@@ -1027,20 +1034,84 @@ h2.reader-heading-minor {
   transition: rotate 0.15s;
 }
 
-.translation-toggle[aria-expanded="true"]::after {
+:is(.translation-toggle, .arabic-toggle)[aria-expanded="true"]::after {
   rotate: 225deg;
   translate: 0 0.1rem;
 }
 
-.translation-toggle:focus-visible {
+:is(.translation-toggle, .arabic-toggle):focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
-  .translation-toggle:hover {
+  :is(.translation-toggle, .arabic-toggle):hover {
     color: var(--foreground);
   }
+}
+
+/*
+ * Mode Terjemahan (X11 bagian B, data-read-mode="tr"): terjemahan menjadi teks utama. Paragraf yang
+ * punya terjemahan memperlihatkan baris alat (tombol "Teks Arab" + ⋮) di awalnya; blok Arabnya
+ * (`passage-ar`, bukan subjudul) dilipat sampai dibuka (`data-ar-open`). Paragraf tanpa terjemahan
+ * menampilkan teks Arab dengan keterangan. Judul tetap tampil: Arab kecil di atas, terjemahan besar.
+ * Hanya di layar: cetak menampilkan teks Arab.
+ */
+.passage-tools,
+.no-tr-note {
+  display: none;
+}
+
+:root[data-read-mode="tr"] .passage-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 1.75rem;
+}
+
+:root[data-read-mode="tr"] .arabic-toggle {
+  display: inline-flex;
+}
+
+:root[data-read-mode="tr"] .no-tr-note {
+  display: block;
+}
+
+@media screen {
+  :root[data-read-mode="tr"] .passage:not([data-ar-open]) .passage-ar {
+    display: none;
+  }
+}
+
+/* ⋮ paragraf ada di baris alat; yang di dalam teks Arab (bila dibuka) tidak digandakan. */
+:root[data-read-mode="tr"] .passage-tools ~ .arabic-text .passage-actions {
+  display: none;
+}
+
+/* Terjemahan sebagai teks utama: tanpa garis tepi pemisah (juga di pratinjau panel Tampilan). */
+:root[data-read-mode="tr"] .reader-style-preview .passage-translation,
+:root[data-read-mode="tr"] .reader-text .passage > .passage-translation {
+  margin-top: 0;
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+:root[data-read-mode="tr"] .passage[data-ar-open] > .passage-translation {
+  margin-top: 0.25rem;
+}
+
+/* Judul Arab kecil dan redup hanya bila ada terjemahan judul di bawahnya (judul tanpa terjemahan
+ * tetap judul biasa). */
+:root[data-read-mode="tr"]
+  .passage:not([data-no-tr])
+  :is(h2.reader-heading, .reader-subheading, .reader-inline-subheading) {
+  font-size: 1.05em;
+  color: var(--muted);
+}
+
+:root[data-read-mode="tr"] .passage-translation-heading {
+  font-size: calc(1.125rem * var(--reader-tr-scale, 1));
 }
 
 /* Berlaku untuk paragraf di mode Keduanya + Dilipat, dan paragraf yang dibuka sementara di mode
@@ -1083,6 +1154,7 @@ h2.reader-heading-minor {
 /* Cetak mengikuti mode baca, tetapi lipatan dibuka dan tombol layar tidak ikut tercetak. */
 @media print {
   .translation-toggle,
+  .passage-tools,
   .passage-actions {
     display: none !important;
   }
@@ -1152,6 +1224,15 @@ h2.reader-heading-minor {
 /* Catatan terjemahan AI di awal teks (X04 W3): bisa ditutup, diingat per browser. */
 :root[data-ai-notice="off"] .ai-notice {
   display: none;
+}
+
+/* Kalimat tambahan catatan AI yang hanya berlaku di mode Terjemahan (X11 bagian B). */
+.ai-notice-tr {
+  display: none;
+}
+
+:root[data-read-mode="tr"] .ai-notice-tr {
+  display: inline;
 }
 
 /* Ringkasan AI: catatan tipis dengan garis aksen di tepi awal, bukan kotak berbingkai, supaya

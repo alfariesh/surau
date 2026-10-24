@@ -35,4 +35,13 @@ describe("hitParts: kartu Cari menurut mode baca (X11)", () => {
       hitParts({ matched_by: lane("translation"), hasTranslation: false, hasSummary: false }, "ar"),
     ).toEqual(["arabic"]);
   });
+
+  it("Terjemahan: terjemahan lebih dulu, Arab tetap tampil; tanpa terjemahan hanya Arab", () => {
+    expect(
+      hitParts({ matched_by: lane("arabic"), hasTranslation: true, hasSummary: true }, "tr"),
+    ).toEqual(["translation", "arabic", "summary"]);
+    expect(
+      hitParts({ matched_by: lane("arabic"), hasTranslation: false, hasSummary: false }, "tr"),
+    ).toEqual(["arabic"]);
+  });
 });

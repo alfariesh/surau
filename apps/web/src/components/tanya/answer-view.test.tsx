@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { JawabResult } from "../../lib/tanya/model";
-import { AddedTerms, AnswerView, HadithTerms, answerPlainText } from "./answer-view";
+import { AddedTerms, AnswerView, CitationCard, HadithTerms, answerPlainText } from "./answer-view";
 
 // Render server: blok bersitasi vs tanpa sitasi, kartu kutipan (teks Arab dimuat terpisah dari
 // /api/kutipan, jadi saat render awal belum ada), status hadits dari label istilah takhrij + tanda lemah, keadaan
@@ -203,5 +203,44 @@ describe("answerPlainText", () => {
     // Label AI dan keterangan kalimat tanpa kutipan ikut tersalin (teks bisa diteruskan ke luar Surau).
     expect(text).toContain("Disusun AI oleh Maknaz");
     expect(text).toContain("Kalimat tanpa nomor [n] tidak didukung kutipan langsung.");
+  });
+});
+
+describe("CitationCard: mode baca (X11)", () => {
+  const c = {
+    n: 1,
+    passage_id: 10_000_001,
+    char_start: 0,
+    char_end: 3,
+    kind: "body",
+    label: "Ihya, j. 1, h. 200",
+    permalink: "/kitab/ihya/1/200#p1",
+  };
+  const item = {
+    passage_id: 10_000_001,
+    char_start: 0,
+    char_end: 3,
+    kind: "body" as const,
+    text: "نص",
+    label: "Ihya, j. 1, h. 200",
+    permalink: "/kitab/ihya/1/200#p1",
+    translation: {
+      label: "ai_translation" as const,
+      lang: "id",
+      review_status: "ai_generated",
+      human_review: null,
+      text: "Teks terjemahan.",
+    },
+    weak: false,
+  };
+
+  it("Arab selalu tampil; terjemahan terbuka bawaan hanya di mode Terjemahan", () => {
+    for (const mode of ["ar", "both", "tr"] as const) {
+      const html = renderToStaticMarkup(
+        <CitationCard c={c} idPrefix="" item={item} readMode={mode} />,
+      );
+      expect(html).toContain('lang="ar"');
+      expect(html.includes("<details") && /<details[^>]*\sopen=""/u.test(html)).toBe(mode === "tr");
+    }
   });
 });

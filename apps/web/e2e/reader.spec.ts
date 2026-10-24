@@ -47,7 +47,11 @@ test("penanda (٤) membuka takhrij asli yang sama persis dengan catatan kakinya"
   const dialog = page.getByRole("dialog", { name: "Catatan kaki (٤)" });
   // Klik sebelum hidrasi selesai tidak berbuat apa-apa (HTML server): ulangi sampai terbuka.
   await expect(async () => {
-    await page.getByRole("button", { name: "Catatan kaki (٤)" }).click();
+    // Penanda di teks Arab (penanda di terjemahan bernama sama sejak X11).
+    await page
+      .locator(".passage .arabic-text")
+      .getByRole("button", { name: "Catatan kaki (٤)" })
+      .click();
     await expect(dialog).toBeVisible({ timeout: 1000 });
   }).toPass();
   const shown = await dialog.locator(".arabic-text").textContent();
@@ -61,7 +65,9 @@ test("permalink #pN menggulir ke paragraf yang tepat", async ({ page }) => {
 
   const target = page.locator("#p2826");
   await expect(target).toBeInViewport();
-  await expect(target.getByRole("button", { name: "Catatan kaki (٦)" })).toBeVisible();
+  await expect(
+    target.locator(".arabic-text").getByRole("button", { name: "Catatan kaki (٦)" }),
+  ).toBeVisible();
 });
 
 test("navigasi halaman: tombol dan panah papan ketik mengikuti arah kitab Arab", async ({

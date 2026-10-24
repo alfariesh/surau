@@ -70,9 +70,14 @@ export function SearchHighlighter() {
       const ranges: Range[] = [];
       // Teks cocok yang tersembunyi mode baca atau lipatan (X11): dibuka supaya sorotannya terlihat.
       const hidden: Element[] = [];
+      // Diperiksa per kecocokan (bukan per blok): di mode Terjemahan blok Arab bersubjudul tetap
+      // tampil (subjudulnya) sementara paragraf di dalamnya terlipat.
       const collect = (el: Element, found: Range[]) => {
         ranges.push(...found);
-        if (found.length > 0 && isHidden(el)) hidden.push(el);
+        for (const range of found) {
+          const at = range.startContainer.parentElement ?? el;
+          if (isHidden(at)) hidden.push(at);
+        }
       };
       if (arabic !== null) {
         for (const el of document.querySelectorAll(".passage .arabic-text")) {
@@ -84,8 +89,12 @@ export function SearchHighlighter() {
           collect(el, rangesFor(el, text.findLatinSpans(el.textContent ?? "", latin, 50)));
         }
       }
-      // Satu kali jaga posisi untuk semua paragraf yang dibuka: paragraf tujuan tidak terdorong.
-      if (hidden.length > 0) keepReadingPosition(() => hidden.forEach((el) => revealFor(el)));
+      // Satu kali jaga posisi untuk semua paragraf yang dibuka: paragraf tujuan tidak terdorong. Satu
+      // elemen per paragraf (kecocokan bisa puluhan per blok).
+      const perPassage = new Map(hidden.map((el) => [el.closest(".passage") ?? el, el]));
+      if (perPassage.size > 0) {
+        keepReadingPosition(() => perPassage.forEach((el) => revealFor(el)));
+      }
       if (ranges.length > 0) CSS.highlights.set(HIGHLIGHT, new Highlight(...ranges));
     });
     return () => {

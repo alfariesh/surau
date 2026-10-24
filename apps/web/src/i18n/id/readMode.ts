@@ -15,4 +15,12 @@ export const readMode = {
   previewNoTranslation: "Terjemahan AI tidak tampil di mode Arab.",
   /** Kontrol terjemahan di panel Tampilan yang tidak berlaku di mode terpilih. */
   trControlsOff: "Ukuran dan tata letak terjemahan berlaku saat terjemahan tampil.",
+  layoutOnlyBoth: "Tata letak terjemahan berlaku di mode Keduanya.",
+  // Mode Terjemahan di pembaca (bagian B).
+  /** Tombol di awal paragraf yang membuka/menutup teks Arab paragraf itu. */
+  arabicToggle: "Teks Arab",
+  /** Paragraf yang belum punya terjemahan: teks Arabnya yang tampil. */
+  noTranslationNote: "Paragraf ini belum diterjemahkan; teks Arabnya ditampilkan.",
+  /** Tambahan catatan AI di awal teks, hanya di mode Terjemahan. */
+  aiNoticeTr: "Teks Arab tiap paragraf tetap ada: ketuk Teks Arab untuk membukanya.",
 } as const;

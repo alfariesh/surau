@@ -18,6 +18,8 @@ import {
 import { readSse } from "../../lib/tanya/model";
 import { jawabUnavailable, loadJawabStatus } from "../../lib/tanya/status";
 import { PageLead, PageTitle } from "../page-title";
+import { useHeaderMenuReadMode } from "../shell/header-menu";
+
 import { AnswerText, AnswerView } from "./answer-view";
 import { STAGE_STEP, STAGE_TOTAL } from "./orb-frames";
 import { MaknazNotice } from "./maknaz-notice";
@@ -159,6 +161,8 @@ function QuestionBubble({ question, handedOff }: { question: string; handedOff: 
 }
 
 export function TanyaClient() {
+  // Kartu kutipan ikut mode baca (X11): pilihannya ada di menu ⋮.
+  useHeaderMenuReadMode();
   const [status, setStatus] = useState<JawabStatus | "closed" | null>(null);
   const [question, setQuestion] = useState("");
   // Pertanyaan titipan kotak cari Beranda (ADR-086): giliran pertamanya sudah ada di render pertama,
