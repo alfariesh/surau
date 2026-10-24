@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-24 · X14 · Lanjutan mode baca: petunjuk sekali tampil, Ringkasan AI ikut kata cari, ukur LCP di repo — selesai (PR #130)
+- Dikerjakan: petunjuk "Pilih cara membaca" (pilihan pemilik) di halaman baca bagi pengunjung yang belum memilih mode, lewat skrip awal + pemeriksaan ulang saat navigasi lunak, tanpa geser tata letak; Ringkasan AI satu DOM, disorot kata cari, dibuka bila kecocokan terpotong, dibuka sementara di mode Arab (batas ADR-091 §4 dihapus); `scripts/ukur-lcp.mjs` + `pnpm ukur:lcp` (Lighthouse di cache pengguna, bukan dependensi repo).
+- Verifikasi: `pnpm check` + build lolos, tes unit 851 lolos (1 tes lama `translation-review` lewat batas 5 dtk tipis di mesin ber-load 28; lolos di CI) · e2e `reader-x14` 16/16 lokal + CI Preview; axe petunjuk + ringkasan dibuka · peninjau: 0 blocker, 5 perbaikan + 3 saran dikerjakan · LCP Preview j1/200 baru 3,96 / Keduanya 3,31 / Terjemahan 3,16 / Arab 3,97 dtk vs produksi 4,19 / 4,42 / 3,48 / 2,88 (n=5, sebaran ±1 dtk).
+- Biaya API: –
+- Keputusan: ADR-095 (dinomori ulang dua kali: ADR-093 dan ADR-094 dipakai X13 Mutu Jawab).
+- Catatan untuk sesi berikutnya: ukur di Mac pemilik dengan `pnpm ukur:lcp`; petunjuk serupa di Cari/Maknaz belum ada.
+
 ## 2026-10-24 · X13 lanjutan · Daftar makna takhrij untuk soal hadits — selesai (kode; eval berbayar menunggu izin)
 - Dikerjakan: `semanticLists` + daftar `(makna takhrij)` (catatan kaki saja, k 10, hanya bila routing menandai soal hadits); `semanticSearch` mengembalikan `{passages, footnotes}`; peringkat v2 dengan `footnote_ids`; `kandidat --makna-takhrij-k`; bedah j018 (jawaban menyitasi h55–57 yang menjawab kedua sisi; gold h13 → T-24).
 - Verifikasi: `kandidat --input x13-…-diagnostik-publik.jsonl --remote` 31 → 32/34 (status hadits 6/6); tanpa rute tetap 30; `pnpm verify` → lolos.

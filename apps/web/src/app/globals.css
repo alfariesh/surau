@@ -956,9 +956,11 @@ h2.reader-heading-minor {
  * Tanpa atribut = Keduanya (tata letak dari `data-tr-layout`). "ar" = Arab saja: terjemahan paragraf
  * dan semua bantuan terjemahan (`data-tr-aid`: ringkasan, catatan AI, kaki AI, judul Indonesia di
  * daftar isi dan kepala halaman) disembunyikan. Paragraf yang dibuka sementara (`data-tr-peek`: kata
- * cari, tautan) menampilkan terjemahannya seperti mode Dilipat, dengan tombol untuk menutupnya.
+ * cari, tautan) menampilkan terjemahannya seperti mode Dilipat, dengan tombol untuk menutupnya;
+ * Ringkasan AI yang cocok dengan kata cari dibuka sementara dengan cara yang sama (X14).
  */
-:root[data-read-mode="ar"] :is([data-tr-aid], .passage:not([data-tr-peek]) > .passage-translation) {
+:root[data-read-mode="ar"]
+  :is([data-tr-aid]:not([data-tr-peek]), .passage:not([data-tr-peek]) > .passage-translation) {
   display: none;
 }
 
@@ -1153,6 +1155,8 @@ h2.reader-heading-minor {
 
 /* Cetak mengikuti mode baca, tetapi lipatan dibuka dan tombol layar tidak ikut tercetak. */
 @media print {
+  .read-mode-hint,
+  .summary-peek-close,
   .translation-toggle,
   .passage-tools,
   .passage-actions {
@@ -1226,6 +1230,17 @@ h2.reader-heading-minor {
   display: none;
 }
 
+/* Petunjuk mode baca (X14): hanya bagi pengunjung yang belum memilih mode; skrip awal memasang
+ * atribut ini sebelum tampil bila mode tersimpan atau petunjuk sudah ditutup. */
+:root[data-read-mode-hint="off"] .read-mode-hint {
+  display: none;
+}
+
+/* Petunjuk dan catatan AI di bawahnya satu kelompok: jarak lebih rapat dari jarak antarparagraf. */
+:root:not([data-read-mode-hint="off"]) .read-mode-hint + .ai-notice {
+  margin-top: -1rem;
+}
+
 /* Kalimat tambahan catatan AI yang hanya berlaku di mode Terjemahan (X11 bagian B). */
 .ai-notice-tr {
   display: none;
@@ -1242,6 +1257,35 @@ h2.reader-heading-minor {
   margin-block: -0.75rem 0;
   padding-inline-start: 0.875rem;
   border-inline-start: 2px solid color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
+/* Teks ringkasan (X14): satu DOM untuk terpotong dan terbuka. Terpotong = paragraf sebaris, dua
+ * baris; terbuka = paragraf bertumpuk. */
+.section-summary-text {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5rem;
+}
+
+.section-summary-text:not([data-expanded]) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.section-summary-text:not([data-expanded]) > * {
+  display: inline;
+}
+
+/* Tombol sembunyikan ringkasan: hanya saat dibuka sementara di mode Arab. */
+.summary-peek-close {
+  display: none;
+}
+
+:root[data-read-mode="ar"] .section-summary[data-tr-peek] .summary-peek-close {
+  display: inline-flex;
 }
 
 /*

@@ -62,6 +62,13 @@ export const READER_TR_LAYOUTS = ["interleave", "fold", "side"] as const;
 export type ReaderTrLayout = (typeof READER_TR_LAYOUTS)[number];
 export const READER_TR_LAYOUT_KEY = "surau:reader-tr-layout";
 
+/**
+ * Petunjuk mode baca sudah ditutup ("off", X14). Skrip awal memasang `data-read-mode-hint="off"`
+ * bila petunjuk ditutup atau mode baca sudah pernah dipilih (`READ_MODE_KEY` ada), jadi petunjuk
+ * hanya tampil bagi pengunjung yang belum memilih.
+ */
+export const READ_MODE_HINT_KEY = "surau:read-mode-hint";
+
 /** Catatan terjemahan AI di awal teks sudah ditutup ("off"): atribut `data-ai-notice="off"`. */
 export const AI_NOTICE_KEY = "surau:ai-notice";
 
@@ -111,9 +118,10 @@ export const READER_ATTR_PREFS = [
 const LEGACY_MIGRATION = `try{var o=l.getItem(${JSON.stringify(LEGACY_TRANSLATION_KEY)});if(o!==null){if(l.getItem(${JSON.stringify(READ_MODE_KEY)})===null){var m=o==="0"?"ar":"both";try{l.setItem(${JSON.stringify(READ_MODE_KEY)},m)}catch(e){if(m==="ar")d.setAttribute("data-read-mode","ar");throw e}}l.removeItem(${JSON.stringify(LEGACY_TRANSLATION_KEY)})}}catch(e){}`;
 
 /**
- * Skrip kecil di awal setiap halaman (root layout): pasang skala Arab dan terjemahan, mode baca,
- * font, jarak baris, perataan, tata letak terjemahan, catatan AI yang sudah ditutup, dan tanda
- * posisi baca tersimpan sebelum teks tampil, supaya tidak berkedip atau menggeser tata letak.
+ * Skrip kecil di awal setiap halaman (root layout): pasang skala Arab dan terjemahan, mode baca
+ * (dan petunjuknya), font, jarak baris, perataan, tata letak terjemahan, catatan AI yang sudah
+ * ditutup, dan tanda posisi baca tersimpan sebelum teks tampil, supaya tidak berkedip atau
+ * menggeser tata letak.
  * Gagal diam-diam bila localStorage diblokir.
  */
-export const READER_SCALE_SCRIPT = `try{var d=document.documentElement,l=localStorage,s=Number(l.getItem(${JSON.stringify(READER_SCALE_KEY)})),r=Number(l.getItem(${JSON.stringify(READER_TR_SCALE_KEY)}));if(${JSON.stringify(READER_SCALES)}.indexOf(s)>-1)d.style.setProperty("--reader-scale",String(s));if(${JSON.stringify(READER_TR_SCALES)}.indexOf(r)>-1)d.style.setProperty("--reader-tr-scale",String(r));${LEGACY_MIGRATION}if(l.getItem(${JSON.stringify(AI_NOTICE_KEY)})==="off")d.setAttribute("data-ai-notice","off");${JSON.stringify(READER_ATTR_PREFS)}.forEach(function(p){var v=l.getItem(p.key);if(v&&v!==p.fallback&&p.values.indexOf(v)>-1)d.setAttribute(p.attr,v)});for(var i=0;i<l.length;i++){var k=l.key(i);if(k&&k.indexOf(${JSON.stringify(LAST_READ_PREFIX)})===0){d.setAttribute("data-reading","");break}}}catch(e){}`;
+export const READER_SCALE_SCRIPT = `try{var d=document.documentElement,l=localStorage,s=Number(l.getItem(${JSON.stringify(READER_SCALE_KEY)})),r=Number(l.getItem(${JSON.stringify(READER_TR_SCALE_KEY)}));if(${JSON.stringify(READER_SCALES)}.indexOf(s)>-1)d.style.setProperty("--reader-scale",String(s));if(${JSON.stringify(READER_TR_SCALES)}.indexOf(r)>-1)d.style.setProperty("--reader-tr-scale",String(r));${LEGACY_MIGRATION}if(l.getItem(${JSON.stringify(READ_MODE_KEY)})!==null||l.getItem(${JSON.stringify(READ_MODE_HINT_KEY)})==="off")d.setAttribute("data-read-mode-hint","off");if(l.getItem(${JSON.stringify(AI_NOTICE_KEY)})==="off")d.setAttribute("data-ai-notice","off");${JSON.stringify(READER_ATTR_PREFS)}.forEach(function(p){var v=l.getItem(p.key);if(v&&v!==p.fallback&&p.values.indexOf(v)>-1)d.setAttribute(p.attr,v)});for(var i=0;i<l.length;i++){var k=l.key(i);if(k&&k.indexOf(${JSON.stringify(LAST_READ_PREFIX)})===0){d.setAttribute("data-reading","");break}}}catch(e){}`;
