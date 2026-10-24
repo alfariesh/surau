@@ -17,11 +17,14 @@ import {
 
 import { Computer, Moon02, MoreVertical, Sun01 } from "../../icons";
 import { nav as navText } from "../../i18n/id/nav";
+import { readMode as readModeText } from "../../i18n/id/readMode";
 import { theme as themeText } from "../../i18n/id/theme";
+import { ReadModeSegment } from "../read-mode-segment";
 
-// Menu ⋮ di navbar: pilihan tema (Terang/Gelap/Sistem) dan aksi tambahan milik halaman yang
-// sedang tampil (mis. pembaca mendaftarkan "Tampilan"). Halaman mendaftarkan aksinya lewat
-// `useHeaderMenuAction`, jadi navbar tidak perlu tahu halaman apa yang sedang dibuka.
+// Menu ⋮ di navbar: pilihan tema (Terang/Gelap/Sistem), mode baca (X11, hanya di halaman yang
+// teksnya terpengaruh), dan aksi tambahan milik halaman yang sedang tampil (mis. pembaca
+// mendaftarkan "Tampilan"). Halaman mendaftarkan aksinya lewat `useHeaderMenuAction` dan mode baca
+// lewat `useHeaderMenuReadMode`, jadi navbar tidak perlu tahu halaman apa yang sedang dibuka.
 
 export interface HeaderMenuAction {
   label: string;
@@ -32,11 +35,38 @@ export interface HeaderMenuAction {
 const ActionsContext = createContext<{
   actions: readonly HeaderMenuAction[];
   setActions: (update: (prev: readonly HeaderMenuAction[]) => readonly HeaderMenuAction[]) => void;
+  /** Jumlah komponen terpasang yang meminta pilihan mode baca di menu. */
+  readModeHosts: number;
+  setReadModeHosts: (update: (prev: number) => number) => void;
 } | null>(null);
 
 export function HeaderMenuProvider({ children }: { children: ReactNode }) {
   const [actions, setActions] = useState<readonly HeaderMenuAction[]>([]);
-  return <ActionsContext value={{ actions, setActions }}>{children}</ActionsContext>;
+  const [readModeHosts, setReadModeHosts] = useState(0);
+  return (
+    <ActionsContext value={{ actions, setActions, readModeHosts, setReadModeHosts }}>
+      {children}
+    </ActionsContext>
+  );
+}
+
+/**
+ * Tampilkan pilihan mode baca di menu ⋮ selama komponen pemanggil terpasang (halaman yang teksnya
+ * ikut mode baca: pembaca, daftar isi karya, Cari).
+ */
+export function useHeaderMenuReadMode() {
+  const setHosts = use(ActionsContext)?.setReadModeHosts;
+  useEffect(() => {
+    if (setHosts === undefined) return;
+    setHosts((n) => n + 1);
+    return () => setHosts((n) => n - 1);
+  }, [setHosts]);
+}
+
+/** Versi komponen `useHeaderMenuReadMode` untuk halaman server. */
+export function HeaderMenuReadMode() {
+  useHeaderMenuReadMode();
+  return null;
 }
 
 /** Tambahkan satu aksi ke menu ⋮ selama komponen pemanggil terpasang. */
@@ -64,10 +94,13 @@ type ThemeKey = (typeof THEME_KEYS)[number];
 const noopSubscribe = () => () => {};
 
 export function HeaderMenu() {
-  const actions = use(ActionsContext)?.actions ?? [];
+  const context = use(ActionsContext);
+  const actions = context?.actions ?? [];
+  const showReadMode = (context?.readModeHosts ?? 0) > 0;
   const [isOpen, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const labelId = useId();
+  const readModeId = useId();
   // Tema baru diketahui setelah hidrasi; sebelum itu tidak ada pilihan yang tersorot. Kertas
   // sepia (panel Tampilan pembaca) bukan salah satu pilihan di sini, jadi tidak ada yang tersorot.
   const isMounted = useSyncExternalStore(
@@ -113,6 +146,14 @@ export function HeaderMenu() {
               ))}
             </Segment>
           </div>
+          {showReadMode ? (
+            <div className="flex flex-col gap-2">
+              <Typography color="muted" id={readModeId} type="body-xs">
+                {readModeText.label}
+              </Typography>
+              <ReadModeSegment labelId={readModeId} />
+            </div>
+          ) : null}
           {actions.length > 0 ? (
             <>
               <Separator />

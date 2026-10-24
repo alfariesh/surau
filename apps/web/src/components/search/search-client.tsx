@@ -17,6 +17,7 @@ import { keepCurrent } from "../../lib/search/keyed";
 import { parseSection, searchApiUrl, searchPageHref } from "../../lib/search/segments";
 import { tanyaText } from "../../i18n/tanya";
 import { handOffQuestion } from "../../lib/tanya/handoff";
+import { useHeaderMenuReadMode } from "../shell/header-menu";
 import { jawabUnavailable, loadJawabStatus } from "../../lib/tanya/status";
 
 import { ExampleText } from "./example-text";
@@ -85,6 +86,8 @@ export function SearchClient({
   works: readonly SourceWork[];
   ask: boolean;
 }) {
+  // Kartu hasil ikut mode baca (X11): pilihannya ada di menu ⋮.
+  useHeaderMenuReadMode();
   const router = useRouter();
   const params = useSearchParams();
   const query = (params.get("q") ?? "").trim();

@@ -10,6 +10,7 @@ import {
 } from "next/font/google";
 
 import { id } from "../i18n/id";
+import { UI_LANG } from "../i18n/locale";
 import { PAPER_SCRIPT } from "../lib/paper";
 import { READER_SCALE_SCRIPT } from "../lib/reader/scale";
 import { OPEN_GRAPH_BASE, SITE_URL } from "../lib/site";
@@ -103,7 +104,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
       className={`${googleSans.variable} ${googleSansItalic.variable} ${naskh.variable} ${amiri.variable} ${scheherazade.variable} ${notoSansArabic.variable}`}
       dir="ltr"
-      lang="id"
+      lang={UI_LANG}
     >
       <body className="bg-background text-foreground font-sans antialiased">
         {/* Tekstur kertas (X09, lib/paper.ts): skrip mentah supaya dijalankan saat HTML diurai, sebelum

@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReaderSample } from "../../lib/reader/preview";
+
 import { ProgressCircle } from "@heroui/react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
@@ -7,7 +9,7 @@ import { TextFont } from "../../icons";
 import { reader as readerText } from "../../i18n/id/reader";
 import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
 import { ArabicInline } from "../arabic";
-import { useHeaderMenuAction } from "../shell/header-menu";
+import { useHeaderMenuAction, useHeaderMenuReadMode } from "../shell/header-menu";
 import { NavbarSlot } from "../shell/navbar-slot";
 import { useUnderNavbar } from "../shell/use-under-navbar";
 
@@ -43,13 +45,15 @@ export function ReaderCompactHeader({
   page: number;
   /** Judul bab terdalam (teks DB) atau null. */
   bab: string | null;
-  sample: string | null;
+  sample: ReaderSample;
   /** Permalink halaman baca: navbar mengikuti halaman sambungan yang sedang dibaca (X04 W6). */
   scope: string;
 }) {
   const visible = useUnderNavbar("[data-reader-title]");
   const [progress, setProgress] = useState(0);
   const [styleOpen, setStyleOpen] = useState(false);
+  // Mode baca berlaku di halaman ini: pilihannya ikut tampil di menu ⋮ (X11).
+  useHeaderMenuReadMode();
   useHeaderMenuAction({
     label: t.style,
     icon: TextFont,

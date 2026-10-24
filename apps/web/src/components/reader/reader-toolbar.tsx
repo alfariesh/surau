@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReaderSample } from "../../lib/reader/preview";
 import type { TitleSource } from "../../lib/reader/reader-toc";
 import type { TocItem } from "../../lib/reader/toc";
 
@@ -195,8 +196,8 @@ export function ReaderToolbar({
   juz: number;
   page: number;
   pagePath: string;
-  /** Awal paragraf pertama halaman (teks DB) untuk pratinjau di panel Tampilan. */
-  sample: string | null;
+  /** Awal paragraf pertama halaman (teks DB) + terjemahannya untuk pratinjau di panel Tampilan. */
+  sample: ReaderSample;
 }) {
   const reader = useReader();
   const jump = { juz, page, segment, volumes };

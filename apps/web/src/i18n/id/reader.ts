@@ -171,9 +171,8 @@ export const reader = {
   ayahInTranslation: (label: string) => `${label} · Terjemahan Kemenag`,
   ayahInTranslationFull: (label: string) => `${label} · Terjemahan ayat lengkap (Kemenag)`,
   ayahInTranslationMissing: (label: string) => `${label} (terjemahan ayat tidak tersedia)`,
-  translationToggle: "Tampilkan terjemahan AI",
-  translationToggleHint: "Terjemahan Indonesia per paragraf, dibuat AI dan belum ditinjau.",
-  // Panel Tampilan (ukuran, font Arab, kertas, jarak baris, terjemahan), disimpan per browser.
+  // Panel Tampilan (mode baca, ukuran, font Arab, kertas, jarak baris, terjemahan), disimpan per
+  // browser. String mode baca ada di kamus `readMode` (X11, dipakai juga menu ⋮ navbar).
   toolbarLabel: "Alat baca",
   moreActions: "Aksi lain",
   style: "Tampilan",

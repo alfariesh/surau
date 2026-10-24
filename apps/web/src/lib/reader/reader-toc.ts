@@ -46,6 +46,8 @@ export interface TitleSource {
   /** Tanggal ISO (YYYY-MM-DD) paling awal dan paling akhir. */
   from: string;
   to: string;
+  /** Bahasa judul terjemahan (atribut `lang`, X11); sumbernya kueri berbahasa `TITLE_LANG`. */
+  lang: string;
 }
 
 export interface ReaderTocExtras {
@@ -120,6 +122,7 @@ function titleSource(
     statuses: [...new Set(rows.map((r) => r.review_status))].sort(),
     from: dates[0]!,
     to: dates.at(-1)!,
+    lang: TITLE_LANG,
   };
 }
 

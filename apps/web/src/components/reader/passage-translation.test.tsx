@@ -30,6 +30,7 @@ describe("PassageTranslation (X04 W3)", () => {
         translation={{
           segments: [{ kind: "ai", label: "ai_translation", text: 'Ia berkata, "Sabar."' }],
           bold: null,
+          lang: "id",
         }}
       />,
     );
@@ -38,6 +39,38 @@ describe("PassageTranslation (X04 W3)", () => {
     expect(html).toContain('aria-hidden="true" class="ai-badge"');
     expect(html).toContain('data-permalink="/kitab/uji/1/5#p7"');
     expect(html).toContain('lang="id"');
+  });
+
+  it("bahasa blok terjemahan dari datanya, bukan bahasa UI (X11)", () => {
+    const html = render(
+      <PassageTranslation
+        anchor="p7"
+        footAnchor={{}}
+        permalink="/kitab/uji/1/5#p7"
+        translation={{
+          segments: [{ kind: "ai", label: "ai_translation", text: "He said, be patient." }],
+          bold: null,
+          lang: "en",
+        }}
+      />,
+    );
+    expect(html).toContain('lang="en"');
+    expect(html).not.toContain('lang="id"');
+  });
+
+  it("kutipan berpasangan bergaya kutipan", () => {
+    const html = render(
+      <PassageTranslation
+        anchor="p7"
+        footAnchor={{}}
+        permalink="/kitab/uji/1/5#p7"
+        translation={{
+          segments: [{ kind: "ai", label: "ai_translation", text: 'Ia berkata, "Sabar."' }],
+          bold: null,
+          lang: "id",
+        }}
+      />,
+    );
     // Kutipan berpasangan: petik melengkung bergaya kutipan.
     expect(html).toContain('<span class="tr-quote">“Sabar.”</span>');
     expect(html).not.toContain("typography");
@@ -62,6 +95,7 @@ describe("PassageTranslation (X04 W3)", () => {
             },
           ],
           bold: null,
+          lang: "id",
         }}
       />,
     );
@@ -75,8 +109,13 @@ describe("PassageTranslation (X04 W3)", () => {
       {
         segments: [{ kind: "ai", label: "ai_translation", text: "Penjelasan tentang" }],
         bold: null,
+        lang: "id",
       },
-      { segments: [{ kind: "ai", label: "ai_translation", text: "riwayat-riwayat" }], bold: null },
+      {
+        segments: [{ kind: "ai", label: "ai_translation", text: "riwayat-riwayat" }],
+        bold: null,
+        lang: "id",
+      },
     ]);
     const html = render(
       <PassageTranslation
@@ -118,7 +157,7 @@ describe("PassageTranslation: tinjauan manusia (X08, ADR-082)", () => {
         anchor="p7"
         footAnchor={{}}
         permalink="/kitab/uji/1/5#p7"
-        translation={{ segments: seg("Allah [Ta'ala] berfirman."), bold: null, review }}
+        translation={{ segments: seg("Allah [Ta'ala] berfirman."), bold: null, lang: "id", review }}
       />,
     );
     expect(html).toContain("Terjemahan AI · dikoreksi Ust. Uji: </span>");
@@ -140,7 +179,7 @@ describe("PassageTranslation: tinjauan manusia (X08, ADR-082)", () => {
         anchor="p8"
         footAnchor={{}}
         permalink="/kitab/uji/1/5#p8"
-        translation={{ segments: seg("Lihat [ayat 26]."), bold: null, review: null }}
+        translation={{ segments: seg("Lihat [ayat 26]."), bold: null, lang: "id", review: null }}
       />,
     );
     expect(html).not.toContain("tr-added");
@@ -155,6 +194,7 @@ describe("PassageTranslation: tinjauan manusia (X08, ADR-082)", () => {
         translation={{
           segments: seg("Lihat [ayat 26]."),
           bold: null,
+          lang: "id",
           review: { ...review, revised: false },
         }}
       />,

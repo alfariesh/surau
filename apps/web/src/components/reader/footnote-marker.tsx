@@ -8,6 +8,7 @@ import { useState, useSyncExternalStore } from "react";
 import { Button as AriaButton } from "react-aria-components";
 
 import { reader as readerText } from "../../i18n/id/reader";
+import { UI_LANG } from "../../i18n/locale";
 import { ArabicText } from "../arabic";
 
 import { NeedsReviewNote } from "./needs-review";
@@ -85,7 +86,7 @@ export function FootnoteMarker({ text, marker, footnote, refId }: FootnoteMarker
           className={MARKER_CLASS}
           id={refId}
           // Tombol ada di dalam blok `lang="ar"`; label aksesibelnya berbahasa Indonesia.
-          lang="id"
+          lang={UI_LANG}
           // HoverCard.Trigger selalu merender <span>; elemennya tidak bisa diganti <button>.
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
           role="button"
@@ -116,7 +117,7 @@ export function FootnoteMarker({ text, marker, footnote, refId }: FootnoteMarker
 
   return (
     <Popover isOpen={open} onOpenChange={setOpen}>
-      <AriaButton aria-label={heading} className={MARKER_CLASS} id={refId} lang="id">
+      <AriaButton aria-label={heading} className={MARKER_CLASS} id={refId} lang={UI_LANG}>
         {text}
       </AriaButton>
       <Popover.Content className="w-96 max-w-[calc(100vw-2rem)]" placement="bottom">

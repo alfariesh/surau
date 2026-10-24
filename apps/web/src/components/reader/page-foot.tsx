@@ -21,7 +21,8 @@ export function PageFoot({ model }: { model: Pick<PageModel, "quran" | "ai" | "a
     <footer className="text-muted flex flex-col gap-2 text-xs" data-page-foot="">
       {quran ? <QuranNotice quran={quran} /> : null}
       {anyAi ? (
-        <Typography color="muted" type="body-xs">
+        // Bantuan terjemahan (X11): tidak relevan di mode baca Arab (AI-nya tidak tampil).
+        <Typography color="muted" data-tr-aid="" type="body-xs">
           {t.aiFootNote(ai)}
         </Typography>
       ) : null}

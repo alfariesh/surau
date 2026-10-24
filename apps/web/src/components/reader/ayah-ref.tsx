@@ -9,6 +9,7 @@ import { Button as AriaButton } from "react-aria-components";
 
 import { common as commonText } from "../../i18n/id/common";
 import { reader as readerText } from "../../i18n/id/reader";
+import { UI_LANG } from "../../i18n/locale";
 import { ArabicText } from "../arabic";
 
 import { shortAyahLabel } from "../../lib/reader/ayah";
@@ -172,7 +173,7 @@ export function AyahRefChip(props: AyahRefChipProps) {
           aria-label={aria}
           className={CHIP_CLASS}
           // Tombol ada di dalam blok `lang="ar"`; label aksesibelnya berbahasa Indonesia.
-          lang="id"
+          lang={UI_LANG}
           // HoverCard.Trigger selalu merender <span>; elemennya tidak bisa diganti <button>.
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
           role="button"
@@ -203,7 +204,7 @@ export function AyahRefChip(props: AyahRefChipProps) {
 
   return (
     <Popover isOpen={open} onOpenChange={setOpen}>
-      <AriaButton aria-label={aria} className={CHIP_CLASS} lang="id">
+      <AriaButton aria-label={aria} className={CHIP_CLASS} lang={UI_LANG}>
         <ChipLabel text={short} />
       </AriaButton>
       <Popover.Content

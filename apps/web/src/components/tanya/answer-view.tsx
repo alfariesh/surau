@@ -158,7 +158,10 @@ function CitationCard({
                   ? translationLabel(item.translation.human_review).badge
                   : t.translationAi}
               </summary>
-              <Typography type="body-sm">{item.translation.text}</Typography>
+              {/* Bahasa terjemahan dari data (X11); ringkasan di atasnya teks UI. */}
+              <Typography lang={item.translation.lang} type="body-sm">
+                {item.translation.text}
+              </Typography>
             </details>
           ) : null}
           <NextLink className="text-accent self-start text-sm underline" href={c.permalink}>

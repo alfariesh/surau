@@ -19,6 +19,16 @@ describe("PageFoot (X10)", () => {
     );
   });
 
+  it("baris catatan AI bertanda data-tr-aid (disembunyikan di mode baca Arab, X11)", () => {
+    expect(foot({ translation: true, summary: false, reviewed: false })).toMatch(
+      /data-tr-aid=""[^>]*>[^<]*Terjemahan/u,
+    );
+    // Tanda perlu ditinjau bukan bantuan terjemahan: tetap tampil di semua mode.
+    expect(foot({ translation: false, summary: false, reviewed: false }, true)).not.toContain(
+      "data-tr-aid",
+    );
+  });
+
   it("sebagian sudah dikoreksi/diperiksa: hanya yang tanpa keterangan disebut belum ditinjau", () => {
     const html = foot({ translation: true, summary: false, reviewed: true });
     expect(html).toContain(

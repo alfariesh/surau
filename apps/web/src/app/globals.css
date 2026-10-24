@@ -63,7 +63,6 @@
 @import "@heroui-pro/react/css/components/chat-message-actions.css" layer(components);
 @import "@heroui-pro/react/css/components/chat-message.css" layer(components);
 @import "@heroui-pro/react/css/components/cell-select.css" layer(components);
-@import "@heroui-pro/react/css/components/cell-switch.css" layer(components);
 @import "@heroui-pro/react/css/components/cell-slider.css" layer(components);
 @import "@heroui-pro/react/css/components/command.css" layer(components);
 @import "@heroui-pro/react/css/components/empty-state.css" layer(components);
@@ -417,7 +416,7 @@ body::after {
   row-gap: 1.75rem;
 }
 
-:root[data-translation="off"] .reader-text {
+:root[data-read-mode="ar"] .reader-text {
   row-gap: 1rem;
 }
 
@@ -891,10 +890,10 @@ h2.reader-heading-minor {
 
 /*
  * Terjemahan dan ringkasan AI di pembaca (S14; X04 W1–W3). Terjemahan di bawah teks Arab paragrafnya,
- * bergaris tepi halus supaya jelas terpisah dari teks kitab; bisa disembunyikan
- * (data-translation="off"). Ukurannya ikut --reader-tr-scale (panel Tampilan), bukan skala Arab.
- * Lebar dibatasi ±70 karakter per baris; pemenggalan kata dan baris terakhir yang tidak yatim
- * hanya untuk teks berbahasa Indonesia (lang="id").
+ * bergaris tepi halus supaya jelas terpisah dari teks kitab; disembunyikan di mode baca Arab
+ * (data-read-mode="ar", X11). Ukurannya ikut --reader-tr-scale (panel Tampilan), bukan skala Arab.
+ * Lebar dibatasi ±70 karakter per baris; pemenggalan kata memakai kamus bahasa blok itu (atribut
+ * `lang` dari data terjemahan), jadi berlaku juga untuk terjemahan bahasa lain.
  */
 .passage-translation {
   margin-top: 0.125rem;
@@ -911,7 +910,7 @@ h2.reader-heading-minor {
   }
 }
 
-:is(.passage-translation, .section-summary)[lang="id"] {
+:is(.passage-translation, .section-summary) {
   hyphens: auto;
   text-wrap: pretty;
 }
@@ -950,8 +949,24 @@ h2.reader-heading-minor {
   text-wrap: balance;
 }
 
-:root[data-translation="off"] :is(.passage-translation, .ai-notice) {
+/*
+ * Mode baca (X11, ADR-091): atribut `data-read-mode` di <html>, dipasang skrip awal sebelum tampil.
+ * Tanpa atribut = Keduanya (tata letak dari `data-tr-layout`). "ar" = Arab saja: terjemahan paragraf
+ * dan semua bantuan terjemahan (`data-tr-aid`: ringkasan, catatan AI, kaki AI, judul Indonesia di
+ * daftar isi dan kepala halaman) disembunyikan. Paragraf yang dibuka sementara (`data-tr-peek`: kata
+ * cari, tautan) menampilkan terjemahannya seperti mode Dilipat, dengan tombol untuk menutupnya.
+ */
+:root[data-read-mode="ar"] :is([data-tr-aid], .passage:not([data-tr-peek]) > .passage-translation) {
   display: none;
+}
+
+:root[data-read-mode="ar"] .toc-titles .toc-title-ar {
+  line-height: var(--toc-line);
+  color: inherit;
+}
+
+:root[data-read-mode="ar"] .toc-row[data-current] .toc-title-ar {
+  font-weight: 600;
 }
 
 /* Kutipan langsung "…" yang berpasangan di terjemahan: petik melengkung, warna sedikit berbeda. */
@@ -1020,29 +1035,62 @@ h2.reader-heading-minor {
   }
 }
 
-:root[data-tr-layout="fold"] .translation-toggle {
+/* Berlaku untuk paragraf di mode Keduanya + Dilipat, dan paragraf yang dibuka sementara di mode
+ * Arab (X11): tombol "Terjemahan AI" per paragraf membuka/menutup terjemahannya. */
+:is(
+    :root:not([data-read-mode])[data-tr-layout="fold"] .passage,
+    :root[data-read-mode="ar"] .passage[data-tr-peek]
+  )
+  .translation-toggle {
   display: inline-flex;
 }
 
-:root[data-tr-layout="fold"] .passage-translation:not(.passage-translation-heading) {
+:is(
+    :root:not([data-read-mode])[data-tr-layout="fold"] .passage,
+    :root[data-read-mode="ar"] .passage[data-tr-peek]
+  )
+  > .passage-translation:not(.passage-translation-heading) {
   border-inline-start: 0;
   padding-inline-start: 0;
 }
 
-:root[data-tr-layout="fold"] .passage:not([data-tr-open]) .passage-translation-body {
+:is(
+    :root:not([data-read-mode])[data-tr-layout="fold"] .passage,
+    :root[data-read-mode="ar"] .passage[data-tr-peek]
+  ):not([data-tr-open])
+  .passage-translation-body {
   display: none;
 }
 
-:root[data-tr-layout="fold"] .passage[data-tr-open] .passage-translation-body {
+:is(
+    :root:not([data-read-mode])[data-tr-layout="fold"] .passage,
+    :root[data-read-mode="ar"] .passage[data-tr-peek]
+  )[data-tr-open]
+  .passage-translation-body {
   margin-top: 0.375rem;
   padding-inline-start: 0.875rem;
   border-inline-start: 2px solid var(--separator);
 }
 
-/* Mode "Berdampingan" (data-tr-layout="side"): Arab kanan, terjemahan kiri, sejajar per paragraf,
- * bila kolom teks cukup lebar (±1280 px layar dengan daftar isi); di kolom sempit tetap di bawah. */
+/* Cetak mengikuti mode baca, tetapi lipatan dibuka dan tombol layar tidak ikut tercetak. */
+@media print {
+  .translation-toggle,
+  .passage-actions {
+    display: none !important;
+  }
+
+  .passage .passage-translation-body {
+    display: block !important;
+  }
+}
+
+/* Mode "Berdampingan" (Keduanya + data-tr-layout="side"): Arab kanan, terjemahan kiri, sejajar per
+ * paragraf, bila kolom teks cukup lebar (±1280 px layar dengan daftar isi); di kolom sempit tetap di
+ * bawah. Paragraf tanpa terjemahan (`data-no-tr`, X11) tetap selebar penuh, tanpa separuh kosong. */
 @container reader-text (width >= 48rem) {
-  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) {
+  :root:not([data-read-mode])[data-tr-layout="side"]
+    .reader-text
+    .passage:not(.passage-heading, [data-no-tr]) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
@@ -1052,22 +1100,42 @@ h2.reader-heading-minor {
     align-items: start;
   }
 
-  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) > .arabic-text {
+  :root:not([data-read-mode])[data-tr-layout="side"]
+    .reader-text
+    .passage:not(.passage-heading, [data-no-tr])
+    > .arabic-text {
     grid-area: ar;
   }
 
-  :root[data-tr-layout="side"] .reader-text .passage:not(.passage-heading) > .passage-translation {
+  :root:not([data-read-mode])[data-tr-layout="side"]
+    .reader-text
+    .passage:not(.passage-heading, [data-no-tr])
+    > .passage-translation {
     grid-area: tr;
     max-width: none;
     margin-top: 0.4rem;
   }
 
-  :root[data-tr-layout="side"]
+  :root:not([data-read-mode])[data-tr-layout="side"]
     .reader-text
-    .passage:not(.passage-heading)
+    .passage:not(.passage-heading, [data-no-tr])
     > :not(.arabic-text, .passage-translation, .section-anchor) {
     grid-area: nr;
   }
+}
+
+/* Panel Tampilan (X11): pratinjau dan penjelasan mode setinggi tetap, supaya mengganti mode baca
+ * tidak menggeser kontrol (tepi atas lembar ponsel ikut tinggi isinya). */
+.reader-style-preview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  row-gap: 0.5rem;
+  min-height: 9rem;
+}
+
+.read-mode-hint {
+  min-height: 2lh;
 }
 
 /* Catatan terjemahan AI di awal teks (X04 W3): bisa ditutup, diingat per browser. */
@@ -1125,6 +1193,9 @@ h3.reader-inline-subheading {
  * sempit kedua syatr bertumpuk: yang pertama rata kanan, yang kedua rata kiri.
  */
 .arabic-text.verse {
+  /* Lebar diukur dari blok syair sendiri (X11), bukan seluruh kolom teks: di tata letak
+   * berdampingan syair hanya mendapat separuh kolom. */
+  container: verse / inline-size;
   display: flex;
   flex-direction: column;
   gap: 0.15em;
@@ -1155,7 +1226,8 @@ h3.reader-inline-subheading {
   white-space: nowrap;
 }
 
-@container reader-text (width < 36rem) {
+/* 25.6em = 36rem pada ukuran bawaan (1.40625rem); dalam em supaya ikut ukuran huruf Arab pilihan. */
+@container verse (width < 25.6em) {
   .verse-row {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1338,7 +1410,7 @@ h3.reader-inline-subheading {
 }
 
 /* Pratinjau terjemahan di /tinjau/terjemahan (X08): gaya teks seperti pembaca, tetapi tidak ikut
- * disembunyikan/dilipat oleh pilihan pembaca (data-translation, data-tr-layout). */
+ * disembunyikan/dilipat oleh pilihan pembaca (data-read-mode, data-tr-layout). */
 .translation-preview {
   padding-inline-start: 0.875rem;
   border-inline-start: 2px solid var(--separator);

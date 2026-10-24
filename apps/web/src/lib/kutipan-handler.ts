@@ -38,6 +38,8 @@ export interface KutipanItem extends KutipanRange {
   /** Terjemahan AI seluruh paragraf (bukan hanya potongan), atau null. */
   translation: {
     label: "ai_translation";
+    /** Bahasa terjemahan dari data (X11): atribut `lang` blok terjemahan di kartu kutipan. */
+    lang: string;
     review_status: string;
     /** Tinjauan manusia (X08): label "diperiksa/dikoreksi …" lewat `translationLabel`. */
     human_review: HumanReview | null;
@@ -145,6 +147,7 @@ export async function handleKutipan(request: Request, deps: KutipanDeps): Promis
           ? null
           : {
               label: "ai_translation",
+              lang: p.translation.lang,
               review_status: p.translation.review_status,
               human_review: p.translation.human_review,
               text: ayahRefsOnly(p.translation.text),

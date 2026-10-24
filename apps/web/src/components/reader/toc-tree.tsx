@@ -19,6 +19,7 @@ import {
 
 import { reader as readerText } from "../../i18n/id/reader";
 import { modelName } from "../../lib/model-names";
+import { useReadMode } from "../read-mode";
 import { ArabicInline } from "../arabic";
 import { fullTocFor, loadFullToc, subscribeFullToc } from "../../lib/reader/full-toc";
 import { readerPageFor, subscribeReaderPage } from "../../lib/reader/reader-page-event";
@@ -42,7 +43,8 @@ function TitleNote({ id: noteId, source }: { id: string; source: TitleSource }) 
       ? longDate(source.from)
       : `${longDate(source.from)}–${longDate(source.to)}`;
   return (
-    <Typography className="toc-title-note" color="muted" id={noteId} type="body-xs">
+    // Bantuan terjemahan (X11): disembunyikan di mode baca Arab bersama judul Indonesianya.
+    <Typography className="toc-title-note" color="muted" data-tr-aid="" id={noteId} type="body-xs">
       <span aria-hidden="true" className="ai-badge">
         {t.tocTitleBadge}
       </span>{" "}
@@ -90,6 +92,7 @@ export function TocTree({
   titleSource?: TitleSource | null;
 }) {
   const noteId = useId();
+  const readMode = useReadMode();
   const full = useSyncExternalStore(
     subscribeFullToc,
     () => (fullFrom === undefined ? null : fullTocFor(fullFrom)),
@@ -181,7 +184,8 @@ export function TocTree({
       {titleSource ? <TitleNote id={noteId} source={titleSource} /> : null}
       <NavigationTree
         ref={ref}
-        aria-describedby={titleSource ? noteId : undefined}
+        // Mode baca Arab menyembunyikan judul Indonesia + catatannya: jangan dibacakan juga.
+        aria-describedby={titleSource && readMode !== "ar" ? noteId : undefined}
         aria-label={t.tocLabel}
         className={className ? `toc-tree ${className}` : "toc-tree"}
         // Garis dan batang aksen dibaca dari closure: cache baris react-aria ikut diperbarui.
@@ -247,7 +251,7 @@ export function TocTree({
                         })()}
                         {item.titleId ? (
                           <span className="toc-titles">
-                            <span className="toc-title-id" lang="id">
+                            <span className="toc-title-id" data-tr-aid="" lang={titleSource?.lang}>
                               {item.titleId}
                             </span>
                             <ArabicInline className="toc-title toc-title-ar">

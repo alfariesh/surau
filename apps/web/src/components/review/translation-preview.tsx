@@ -35,16 +35,19 @@ export function TranslationPreview({
   text,
   passage,
   quran,
+  lang = "id",
 }: {
   text: string;
   passage: { arabic: string; ayah_refs: readonly AyahRef[]; footnote_refs: readonly FootnoteRef[] };
   quran: QuranView | null;
+  /** Bahasa teks revisi; tabel `translation_revision` saat ini hanya menerima "id" (ADR-081, ADR-092). */
+  lang?: string;
 }) {
   return (
-    <div className="translation-preview" lang="id">
+    <div className="translation-preview" lang={lang}>
       <Segments
         footAnchor={{}}
-        translation={{ segments: previewSegments(text, passage, quran), bold: null }}
+        translation={{ segments: previewSegments(text, passage, quran), bold: null, lang }}
       />
     </div>
   );

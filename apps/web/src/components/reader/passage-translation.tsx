@@ -7,7 +7,8 @@ import { shortAyahLabel } from "../../lib/reader/ayah";
 import { aiRuns } from "../../lib/reader/id-text";
 import type { TranslationModel, TranslationSegmentView } from "../../lib/reader/page-model";
 import { translationLabel } from "../../lib/translation-label";
-import type { TranslationLabel } from "../../lib/translation-label";
+
+import { AiBadge } from "./ai-badge";
 
 const t = readerText;
 
@@ -20,6 +21,7 @@ const t = readerText;
 // kaki (١) menaut ke catatan kaki Arab halaman ini. Bagian AI diberi `data-ai-text` (sorotan Cari).
 // Mode "terjemahan dilipat" (panel Tampilan) memakai tombol `.translation-toggle`; buka-tutupnya
 // ditangani satu pendengar klik di halaman (reader-enhancements.tsx), jadi komponen ini tetap komponen server.
+// Bahasa (`lang`) dari datanya, bukan bahasa UI (X11): siap untuk terjemahan bahasa lain.
 
 const MARKER = new RegExp(FOOTNOTE_MARKER_SOURCE, "g");
 
@@ -137,41 +139,6 @@ export function Segments({
   });
 }
 
-/**
- * Lencana label (terlihat, tidak ikut tersalin; pembaca layar memakai awalan sr-only). Terjemahan
- * yang ditinjau manusia (X08): lencana berupa tombol yang membuka rincian nama lengkap + tanggal
- * (popover HTML bawaan, tanpa JavaScript), karena `title` tidak terbaca di layar sentuh.
- */
-function AiBadge({ label, anchor }: { label: TranslationLabel; anchor: string }) {
-  if (label.kind === "ai") {
-    return (
-      <span aria-hidden="true" className="ai-badge" title={label.detail}>
-        {label.badge}
-      </span>
-    );
-  }
-  const id = `tr-review-${anchor}`;
-  return (
-    <>
-      {/* Nama aksesibel = teks lencana yang terlihat (WCAG 2.5.3 "label dalam nama", X10: perintah
-          suara menyebut teks yang tampil), rinciannya sebagai deskripsi (`aria-describedby` tetap
-          terbaca walau popover tertutup); tanpa `title` ganda dengan popover. */}
-      <button
-        aria-describedby={id}
-        className="ai-badge ai-badge-review"
-        data-copy-skip=""
-        popoverTarget={id}
-        type="button"
-      >
-        {label.badge}
-      </button>
-      <span className="tr-review-popover" data-copy-skip="" id={id} popover="auto" role="note">
-        {label.detail}
-      </span>
-    </>
-  );
-}
-
 /** Gabungkan terjemahan judul + lanjutannya (judul terpotong, kurasi X04) dengan satu spasi. */
 export function joinTranslations(list: readonly TranslationModel[]): TranslationModel | null {
   const [first, ...rest] = list;
@@ -184,7 +151,7 @@ export function joinTranslations(list: readonly TranslationModel[]): Translation
   const same = rest.every(
     (tr) => JSON.stringify(tr.review ?? null) === JSON.stringify(first.review ?? null),
   );
-  return { segments, bold: null, review: same ? first.review : null };
+  return { segments, bold: null, review: same ? first.review : null, lang: first.lang };
 }
 
 export function PassageTranslation({
@@ -218,7 +185,7 @@ export function PassageTranslation({
         className="passage-translation passage-translation-heading"
         data-permalink={permalink}
         data-tr-label={copyLabel}
-        lang="id"
+        lang={translation.lang}
       >
         <span className="sr-only" data-copy-skip="">
           {label.badge}:{" "}
@@ -234,7 +201,7 @@ export function PassageTranslation({
       className="passage-translation"
       data-permalink={permalink}
       data-tr-label={copyLabel}
-      lang="id"
+      lang={translation.lang}
     >
       <button
         aria-controls={bodyId}
