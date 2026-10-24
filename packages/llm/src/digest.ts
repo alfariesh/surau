@@ -385,6 +385,8 @@ export function narrativeProblems(text: string): string[] {
   if (t.includes("⟦") || /\bQS\s*\d/u.test(t)) out.push("placeholder");
   if (hasMarkdown(t) || /^\s*[-*•]\s/mu.test(t)) out.push("markdown");
   if (/[\r\n]/u.test(t)) out.push("newline");
+  // Tag atau kurung kurawal: masuk mentah ke prompt induk (<gagasan>, <kutipan>) dan ke halaman.
+  if (/[<>{}]/u.test(t)) out.push("markup");
   if (hasPreamble(t)) out.push("preamble");
   if (hasMetaCommentary(t, "id")) out.push("meta");
   if (hasFatwaLanguage(t)) out.push("fatwa");

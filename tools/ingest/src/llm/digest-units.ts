@@ -515,9 +515,13 @@ export function digestPlan(rows: DigestCorpus, opts: DigestPlanOptions = {}): Di
   };
 }
 
+/** Jarak terjauh (karakter) penanda takhrij sesudah akhir kutipan yang masih dianggap riwayat yang sama. */
+export const REPORT_LOOKAHEAD_CHARS = 600;
+
 /**
  * Jenis kutipan dan larangannya, ditentukan kode dari baris korpus (ADR-097): `report` bila ada
- * penanda takhrij di dalam rentang atau tepat sesudahnya (hanya spasi/tanda baca di antaranya),
+ * penanda takhrij di dalam rentang, atau penanda pertama sesudahnya (≤ 600 karakter, tanpa akhir
+ * kalimat di antaranya: kutipan bisa potongan awal riwayat panjang),
  * `poetry` bila paragrafnya bait syair (`verseBounds`), selain itu `text`. Riwayat yang istilah
  * takhrijnya termasuk `BANNED_TAKHRIJ_KINDS` dilarang.
  */
@@ -529,11 +533,18 @@ export function quoteInspector(
   return (range) => {
     const p = passages.get(range.passageId);
     if (p === undefined) throw new Error(`paragraf ${range.passageId} tidak ada`);
-    const markers = (footBy.get(p.id) ?? []).filter(
+    const notes = (footBy.get(p.id) ?? []).toSorted((a, b) => a.char_start - b.char_start);
+    // Penanda di dalam rentang, atau penanda PERTAMA sesudahnya selama belum ada akhir kalimat di
+    // antaranya: kutipan bisa berupa potongan awal sebuah riwayat panjang yang penanda takhrijnya
+    // baru muncul beberapa blok kemudian (peninjau X15b). Lebih baik keliru menandai perkataan
+    // sebagai riwayat (dan menerapkan larangan takhrij) daripada sebaliknya.
+    const next = notes.find((m) => m.char_start >= range.end);
+    const markers = notes.filter(
       (m) =>
         (m.char_start >= range.start && m.char_start < range.end) ||
-        (m.char_start >= range.end &&
-          /^[\s\p{P}]*$/u.test(p.text_raw.slice(range.end, m.char_start))),
+        (m === next &&
+          m.char_start - range.end <= REPORT_LOOKAHEAD_CHARS &&
+          !/[.!?؟]/u.test(p.text_raw.slice(range.end, m.char_start))),
     );
     if (markers.length > 0) {
       for (const m of markers) {

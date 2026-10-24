@@ -262,7 +262,12 @@ describe("alur Intisari tanpa API", () => {
       ["en", "summarize-section@2"],
       ["id", DIGEST_SECTION_PROMPT.id],
     ]);
-    expect(pilotSql(build)).toContain("ON CONFLICT (toc_node_id, lang) DO UPDATE SET");
+    const sql = pilotSql(build, [...plan.scope]);
+    expect(sql).toContain("ON CONFLICT (toc_node_id, lang) DO UPDATE SET");
+    expect(sql).toContain(
+      "DELETE FROM digest_point WHERE lang = 'id' AND toc_node_id IN (100003, 100004, 100005);",
+    );
+    expect(sql).not.toContain("audio_track");
   });
 
   test("sidik kutipan basi = invarian build gagal; teks berubah = hasil basi, induk ikut basi", () => {

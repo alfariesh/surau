@@ -142,22 +142,27 @@ export const hasFirstPerson = (text: string): boolean => FIRST_PERSON.test(text)
 /** Menyapa pembaca ("Anda", "kamu"): nasihat atas nama Surau, bukan atribusi (docs/05 §12). */
 export const addressesReader = (text: string): boolean => ADDRESS.test(text);
 
-const HADITH_WORD = String.raw`(?:hadi(?:ts|t|s)|riwayat|sanad|atsar|khabar)(?:-(?:hadi(?:ts|t|s)|riwayat|atsar|khabar))?`;
-const STATUS_WORD = String.raw`sahih|shahih|shohih|hasan|da['‘’]?if|dha['‘’]?if|lemah|palsu|maudhu['‘’]?|mawdu['‘’]?|munkar|mungkar|matruk|mursal|mutawatir|gharib|syadz|batil|bathil`;
+const HADITH_WORD = String.raw`(?:hadi(?:ts|th|t|s)|riwayat|sanad|atsar|khabar)(?:-(?:hadi(?:ts|th|t|s)|riwayat|atsar|khabar))?`;
+// Ejaan Latin yang dipakai model untuk istilah derajat (diakritik sudah dibuang lebih dulu).
+const STATUS_WORD = String.raw`sahih|shahih|shohih|hasan|da['‘’ʿ]?if|dha['‘’ʿ]?if|dho['‘’ʿ]?if|dlo['‘’ʿ]?if|lemah|palsu|maud(?:h|l)?u['‘’ʿ]?|mawdu['‘’ʿ]?|munkar|mungkar|matruk|mursal|mutawatir|gharib|syadz|batil|bathil`;
 const HADITH_STATUS = new RegExp(
-  String.raw`\b${HADITH_WORD}(?:nya)?(?:\s+(?:ini|itu|tersebut|tadi))?(?:\s+(?:yang|ber(?:status|derajat)|derajat(?:nya)?|dinilai|tergolong|termasuk|adalah))*\s+(?<status>${STATUS_WORD})(?![\p{L}'’‘])|\bber(?:status|derajat)\s+(?<status2>${STATUS_WORD})(?![\p{L}'’‘])`,
+  String.raw`\b${HADITH_WORD}(?:nya)?(?:\s+(?:ini|itu|tersebut|tadi))?(?:\s+(?:yang|ber(?:status|derajat)|derajat(?:nya)?|dinilai|tergolong|termasuk|adalah|sangat|tidak|kurang|cukup))*\s+(?<status>${STATUS_WORD})(?![\p{L}'’‘])|\bber(?:status|derajat)\s+(?:sangat\s+|tidak\s+)?(?<status2>${STATUS_WORD})(?![\p{L}'’‘])`,
   "giu",
 );
 const STATUS_PHRASE = /\b(?:tidak\s+ada\s+asal(?:nya|-usulnya)|la\s+ashla\s+lahu)\b/iu;
 
+/** Buang diakritik Latin (ḍaʿīf → daʿif) supaya ejaan transliterasi ilmiah ikut terdeteksi. */
+const plainLatin = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "");
+
 /**
- * Status hadits ditulis model ("hadis lemah", "sanadnya sahih", "berstatus palsu"). Status hanya
- * dari teks takhrij yang ditampilkan kode (teks-arab.md aturan 6). "Hasan" berhuruf kapital adalah
- * nama orang ("riwayat Hasan al-Bashri"), bukan derajat.
+ * Status hadits ditulis model ("hadis lemah", "sanadnya sahih", "hadis ini sangat lemah",
+ * "berstatus palsu"). Status hanya dari teks takhrij yang ditampilkan kode (teks-arab.md aturan 6).
+ * "Hasan" berhuruf kapital adalah nama orang ("riwayat Hasan al-Bashri"), bukan derajat.
  */
 export function hasHadithStatus(text: string): boolean {
-  if (STATUS_PHRASE.test(text)) return true;
-  for (const m of text.matchAll(HADITH_STATUS)) {
+  const t = plainLatin(text);
+  if (STATUS_PHRASE.test(t)) return true;
+  for (const m of t.matchAll(HADITH_STATUS)) {
     const status = m.groups?.status ?? m.groups?.status2 ?? "";
     if (status !== "Hasan") return true;
   }
@@ -165,7 +170,7 @@ export function hasHadithStatus(text: string): boolean {
 }
 
 const AYAH_PARAPHRASE =
-  /\b(?:allah\s+(?:(?:swt\.?|ta['‘’]ala|subhanahu\s+wa\s+ta['‘’]ala|['‘’]?azza\s+wa\s+jalla)\s+)?berfirman|firman(?:-nya|\s+allah)(?:\s+(?:swt\.?|ta['‘’]ala))?\s*(?:[:"“«]|bahwa|yang\s+artinya)|(?:al-?qur['‘’]an|ayat(?:\s+(?:ini|itu|tersebut|al-?qur['‘’]an))?|(?:surah|surat)\s+[\p{L}'’-]+(?:\s+ayat\s+\d+)?)\s+(?:menyatakan|menyebutkan|menegaskan|mengatakan|menjelaskan|memerintahkan|melarang|berbunyi|bermakna|berarti))/iu;
+  /\b(?:allah\s+(?:(?:swt\.?|ta['‘’]ala|subhanahu\s+wa\s+ta['‘’]ala|['‘’]?azza\s+wa\s+jalla)\s+)?berfirman|firman(?:-nya|\s+allah)(?:\s+(?:swt\.?|ta['‘’]ala))?(?:\s+yang)?\s*(?:[:"“«]|bahwa|artinya|menyatakan|menyebutkan|menegaskan|berbunyi)|(?:al-?qur['‘’]an|ayat(?:-ayat)?(?:\s+(?:ini|itu|tersebut|al-?qur['‘’]an))?|(?:surah|surat)\s+[\p{L}'’-]+(?:\s+ayat\s+\d+)?)(?:\s+yang)?\s+(?:menyatakan|menyebutkan|menegaskan|mengatakan|menjelaskan|memerintahkan|melarang|berbunyi|bermakna|berarti)|ayat(?:-ayat)?\s*[:"“«])/iu;
 
 /**
  * Isi atau makna ayat ditulis model ("Allah berfirman …", "Al-Qur'an menyatakan …"). Ayat hanya

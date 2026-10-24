@@ -857,8 +857,10 @@ export function budgetProblem(
   est: number,
   confirm: boolean,
   budget: number | undefined,
+  /** Biaya lain yang berbagi pagu yang sama (mis. definisi glosarium Intisari lewat API biasa). */
+  extraSpent = 0,
 ): string | null {
-  const spent = spentUsd(dir);
+  const spent = spentUsd(dir) + extraSpent;
   const pending = pendingUsd(dir);
   const committed = spent + pending.usd;
   console.info(

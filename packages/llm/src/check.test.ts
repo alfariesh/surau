@@ -135,6 +135,13 @@ describe("bahasa atribusi", () => {
       "Hadis-hadis maudhu' banyak beredar.",
       "riwayat tersebut tidak ada asalnya",
       "Ia mengutip hadis hasan.",
+      "hadis yang sangat lemah",
+      "hadis ini tidak sahih",
+      "hadith sahih",
+      "hadis dho'if",
+      "riwayat maudlu'",
+      "hadis ḍaʿīf",
+      "riwayat yang mauḍūʿ",
     ]) {
       expect(hasHadithStatus(t), t).toBe(true);
     }
@@ -155,6 +162,9 @@ describe("bahasa atribusi", () => {
       'Firman Allah: "Bertanyalah kepada ahli ilmu."',
       "Ayat tersebut menegaskan keutamaan ilmu.",
       "Surah al-Mujadalah ayat 11 menyebutkan derajat orang berilmu.",
+      "ayat yang menyatakan bahwa ulama paling takut kepada Allah",
+      "firman-Nya yang menyatakan derajat orang berilmu",
+      "Ia mengutip ayat: 'Bertanyalah kepada ahli ilmu.'",
     ]) {
       expect(paraphrasesAyah(t), t).toBe(true);
     }

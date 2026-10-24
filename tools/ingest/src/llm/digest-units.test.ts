@@ -136,6 +136,52 @@ describe("jenis kutipan dari kode", () => {
   });
 });
 
+describe("riwayat panjang", () => {
+  test("potongan awal riwayat yang penandanya beberapa blok kemudian tetap riwayat dan dilarang", () => {
+    const hadith = `قال رسول الله ${"نص تجريبي طويل في الحديث ".repeat(30)}(١)`;
+    const p = passage(10, 4, 1, 7, hadith);
+    const note = passage(11, null, 1, 2, "حديث تجريبي لا أصل له", "foot");
+    const marker = hadith.lastIndexOf("(١)");
+    const inspect = quoteInspector({
+      passage: [p, note],
+      footnote_ref: [
+        {
+          passage_id: p.id,
+          char_start: marker,
+          char_end: marker + 3,
+          marker: "١",
+          footnote_passage_id: note.id,
+        },
+      ],
+    });
+    // Blok pertama saja (±220 karakter), penandanya ±500 karakter kemudian, tanpa titik di antaranya.
+    expect(inspect({ passageId: p.id, start: 0, end: 220 })).toEqual({
+      kind: "report",
+      banned: "takhrij la_asl",
+    });
+    // Ada akhir kalimat di antaranya: bukan riwayat yang sama.
+    const prose = `${"كلام المؤلف. ".repeat(5)}قال رسول الله نص تجريبي (١)`;
+    const q = passage(12, 4, 1, 8, prose);
+    const m2 = prose.lastIndexOf("(١)");
+    const inspect2 = quoteInspector({
+      passage: [q, note],
+      footnote_ref: [
+        {
+          passage_id: q.id,
+          char_start: m2,
+          char_end: m2 + 3,
+          marker: "١",
+          footnote_passage_id: note.id,
+        },
+      ],
+    });
+    expect(inspect2({ passageId: q.id, start: 0, end: 12 })).toEqual({
+      kind: "text",
+      banned: null,
+    });
+  });
+});
+
 describe("penunjuk kutipan v2", () => {
   test("kata awal dan akhir dicari di rentang blok, dikembalikan sebagai offset text_raw", () => {
     const text = "قال الشيخ العلم نور. والجهل ظلمة في القلب. ثم قال غير ذلك";

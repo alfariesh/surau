@@ -50,8 +50,18 @@ const SENTENCE_END = /[.!?:؟؛]["'»”)\]]*\s*$/u;
 
 /** Kutipan terpotong: tidak mulai di awal paragraf/kalimat atau tidak berakhir di akhir kalimat. */
 export function quoteTruncated(text: string, start: number, end: number): boolean {
-  const starts = start === 0 || SENTENCE_END.test(text.slice(0, start));
-  const ends = end === text.length || SENTENCE_END.test(text.slice(0, end));
+  // Penanda catatan kaki "(١)" adalah batas alami sebuah riwayat: dibuang dulu dari ujung yang diuji.
+  const MARKER_TAIL = /\s*\([\u0660-\u0669\d]+\)\s*$/u;
+  const MARKER_HEAD = /^\s*\([\u0660-\u0669\d]+\)/u;
+  const before = text.slice(0, start).replace(MARKER_TAIL, "");
+  const after = text.slice(end);
+  const quote = text.slice(start, end).replace(MARKER_TAIL, "");
+  const starts = before.trim() === "" || SENTENCE_END.test(before);
+  const ends =
+    after.replace(MARKER_HEAD, "").trim() === "" ||
+    SENTENCE_END.test(quote) ||
+    MARKER_HEAD.test(after) ||
+    MARKER_TAIL.test(text.slice(start, end));
   return !(starts && ends);
 }
 
@@ -245,9 +255,10 @@ function qaHtml(
       `<p><b>Abstrak.</b> ${esc(r.abstract)}</p>`,
       r.closing === null ? "" : `<p><b>Penutup.</b> ${esc(r.closing)}</p>`,
     ].join("\n");
+    const compare = label !== "";
     const points = r.points
       .map((p) => {
-        total++;
+        if (!compare) total++;
         const key = `${id}#g${p.ord}`;
         const anchors = p.anchors
           .map((a) => {
@@ -256,7 +267,7 @@ function qaHtml(
 <p class="meta"><a href="${esc(SITE + link.passage(a.passage_id))}">${where(a.passage_id)}</a>${tr === null ? "" : ` · <details><summary>terjemahan AI paragraf utuh</summary>${esc(tr)}</details>`}</p></div>`;
           })
           .join("\n");
-        return `<section class="point" data-key="${esc(key)}">
+        return `<section class="point" data-key="${esc(key)}"${compare ? ' data-compare="1"' : ""}>
 <h3>${p.ord}. ${esc(p.title)}</h3>
 <p class="meta">${STANCE[p.stance] ?? p.stance}${p.kind === "advice" ? " · anjuran penulis" : ""}</p>
 <p>${esc(p.body)}</p>
@@ -303,7 +314,7 @@ a{color:inherit}.meta{color:var(--muted);font-size:.85rem}
 button{font:inherit;padding:4px 12px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--fg)}
 </style></head><body>
 <h1>QA Intisari pilot (T-31)</h1>
-<p>Nilai setiap gagasan: <b>Benar</b>, <b>Kurang</b>, atau <b>Salah</b>, lalu centang bila gagasan itu setia pada teks sumbernya, atribusinya tepat (pendapat al-Ghazali, yang ia nukil, atau yang ia bantah), dan bebas nada fatwa. "Dasar teks" adalah paragraf yang ditunjuk Intisari; teks Arabnya disalin dari kitab. Nilai tersimpan di peramban ini. Bila selesai, tekan <b>Salin hasil</b> dan tempel ke chat agent. Gerbang: paling banyak 5% gagasan "Salah".</p>
+<p>Nilai setiap gagasan: <b>Benar</b>, <b>Kurang</b>, atau <b>Salah</b>, lalu centang bila gagasan itu setia pada teks sumbernya, atribusinya tepat (pendapat al-Ghazali, yang ia nukil, atau yang ia bantah), dan bebas nada fatwa. "Dasar teks" adalah paragraf yang ditunjuk Intisari; teks Arabnya disalin dari kitab. Nilai tersimpan di peramban ini. Bila selesai, tekan <b>Salin hasil</b> dan tempel ke chat agent. Gerbang: paling banyak 5% gagasan "Salah" (Intisari Kitab pembanding Haiku dinilai terpisah, tidak ikut gerbang).</p>
 <div id="bar"><span id="count"></span><button type="button" id="copy">Salin hasil</button><button type="button" id="save">Unduh JSON</button></div>
 ${sections.join("\n")}
 <script>
@@ -325,7 +336,8 @@ ${sections.join("\n")}
   }
   function render(){
     var d=collect(), n=0, salah=0;
-    Object.keys(d).forEach(function(k){if(d[k].nilai){n++; if(d[k].nilai==="Salah")salah++}});
+    // Pembanding Haiku (tidak dimuat) tidak ikut gerbang ≤ 5% "Salah".
+    document.querySelectorAll(".point:not([data-compare])").forEach(function(s){var o=d[s.dataset.key]; if(o&&o.nilai){n++; if(o.nilai==="Salah")salah++}});
     document.getElementById("count").textContent=n+" dari "+TOTAL+" gagasan dinilai · Salah: "+salah+(n?" ("+(100*salah/n).toFixed(1)+"%)":"");
   }
   document.querySelectorAll(".point").forEach(function(s){

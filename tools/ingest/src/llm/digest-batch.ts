@@ -48,7 +48,13 @@ import {
   waitBatches,
 } from "./batch.ts";
 import type { PlannedRequest } from "./batch.ts";
-import { acceptedDigest, readDigestStore, writeDigestStore } from "./digest-store.ts";
+import {
+  GLOSSARY_RUNS_FILE,
+  acceptedDigest,
+  glossaryRun,
+  readDigestStore,
+  writeDigestStore,
+} from "./digest-store.ts";
 import type { AcceptedDigest, AcceptedPoint, AcceptedQuote, DigestStore } from "./digest-store.ts";
 import {
   digestCustomId,
@@ -95,7 +101,11 @@ export const DIGEST_OUTPUT_EST: Readonly<Record<string, number>> = {
 };
 
 const usd = (n: number) => `$${n.toFixed(3)}`;
-const STAGE_RANK: Readonly<Record<DigestStage, number>> = { leaf: 0, merge: 1, book: 2 };
+
+/** Biaya definisi glosarium (API biasa) di folder yang sama: ikut pagu bersama batch Intisari. */
+export function glossarySpentUsd(dir: string): number {
+  return readJsonl(join(dir, GLOSSARY_RUNS_FILE), glossaryRun).reduce((a, r) => a + r.cost_usd, 0);
+}
 
 // ── Sumber merge/book ────────────────────────────────────────────────────────────────────────
 
@@ -542,8 +552,9 @@ export async function runDigestSubmit(
   }
   const { rows, plan } = await ctx.load();
   const current = new Map(
+    // Pembanding Haiku ikut dicocokkan bila ada di rencana (`plan --banding` yang menentukan).
     pendingDigestRequests(plan, readDigestStore(ctx.dir), titlesOf(rows), stage, {
-      compare: opts.compare ?? true,
+      compare: true,
     }).requests.map((r) => [r.custom_id, r]),
   );
   const busy = inFlight(ctx.dir);
@@ -573,7 +584,7 @@ export async function runDigestSubmit(
   }
   const est = reqs.reduce((a, r) => a + (r.est_usd ?? 0), 0);
   console.info(`Tahap ${stage}: kirim ${reqs.length} request · perkiraan ${usd(est)} (cache 50%)`);
-  const problem = budgetProblem(ctx.dir, est, confirm, opts.budget);
+  const problem = budgetProblem(ctx.dir, est, confirm, opts.budget, glossarySpentUsd(ctx.dir));
   if (problem !== null) {
     console.error(problem);
     return 1;
@@ -896,10 +907,12 @@ export function rebuildDigests(dir: string, plan: DigestPlan, rows: DigestCorpus
       });
     }
   }
+  // Leaf dulu, lalu merge/book menurut pascaurut rencana (bukan menurut tahap): Intisari rub' (merge)
+  // bergantung pada Intisari Kitab anaknya (book), jadi urutan tahap saja akan membuatnya basi.
   const rank = (id: string) => {
     const p = parseDigestCustomId(id);
-    if (p === null) return [3, 0];
-    return [STAGE_RANK[stageOf(p.kind)], order.get(p.tocNodeId) ?? 0];
+    if (p === null) return [2, 0];
+    return stageOf(p.kind) === "leaf" ? [0, 0] : [1, order.get(p.tocNodeId) ?? 0];
   };
   items.sort((x, y) => {
     const [a1 = 0, a2 = 0] = rank(x.customId);
@@ -1108,7 +1121,12 @@ export async function runDigestRetry(
   const priced = await price(ctx.client(), ctx.dir, requests);
   const est = priced.requests.reduce((a, r) => a + (r.est_usd ?? 0), 0);
   console.info(`Perkiraan ulangan ${usd(est)} (cache 50%)`);
-  const problem = budgetProblem(ctx.dir, est, confirm, opts.budget);
+  for (const r of priced.over) {
+    console.error(
+      `  ${r.custom_id}: prompt ≥ ${MAX_PROMPT_TOKENS} token, tidak diulang (pecah dulu).`,
+    );
+  }
+  const problem = budgetProblem(ctx.dir, est, confirm, opts.budget, glossarySpentUsd(ctx.dir));
   if (problem !== null) {
     console.error(problem);
     return 1;

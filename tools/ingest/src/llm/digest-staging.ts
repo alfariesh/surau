@@ -3,7 +3,7 @@
 // remote (`getPlatformProxy`, pola tools/eval/src/open-corpus.ts) HANYA dengan SELECT: pembungkus
 // `selectOnly` menolak pernyataan lain. Pemuatan hasil pilot ke staging (langkah 9) terpisah dan
 // eksplisit: migrasi korpus + baris Intisari node pilot saja, bukan ingest penuh (X15c).
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { readDigest } from "@surau/core";
@@ -43,9 +43,14 @@ export type StagingRows = DigestCorpus & {
 /** Pembungkus D1 yang hanya mengizinkan SELECT (staging dibaca pilot, tidak pernah ditulis di sini). */
 export function selectOnly(db: D1Db): D1Db {
   const check = (q: string) => {
-    if (!/^\s*(?:SELECT|WITH)\b/iu.test(q) || /;\s*\S/u.test(q)) {
-      throw new Error(`hanya SELECT yang boleh ke staging: ${q.slice(0, 60)}`);
-    }
+    const ok =
+      /^\s*(?:SELECT|WITH)\b/iu.test(q) &&
+      !/;\s*\S/u.test(q) &&
+      // CTE di depan DML sah di SQLite: kata kunci tulis/skema ditolak di mana pun.
+      !/\b(?:INSERT|UPDATE|DELETE|REPLACE|UPSERT|CREATE|DROP|ALTER|PRAGMA|ATTACH|DETACH|VACUUM|REINDEX)\b/iu.test(
+        q,
+      );
+    if (!ok) throw new Error(`hanya SELECT yang boleh ke staging: ${q.slice(0, 60)}`);
   };
   const original = new WeakMap<D1Statement, D1Statement>();
   const wrap = (stmt: D1Statement): D1Statement => {
@@ -220,8 +225,12 @@ const values = (table: keyof typeof corpusTables, rows: readonly object[]) => {
  * SQL pemuatan Intisari pilot ke staging: idempoten untuk node yang dimuat (baris anak dihapus lalu
  * disisipkan ulang; `digest` dan `glossary_term` di-UPSERT), tanpa menyentuh tabel lain.
  */
-export function pilotSql(build: DigestBuild): string {
-  const nodes = build.digest.map((d) => d.toc_node_id);
+export function pilotSql(build: DigestBuild, scope: readonly number[]): string {
+  // Bersihkan SEMUA node dalam cakupan, termasuk yang dulu dimuat tetapi kini tidak berlaku, supaya
+  // baris lama tidak tertinggal di staging (Preview X16).
+  const nodes = [...new Set([...scope, ...build.digest.map((d) => d.toc_node_id)])].sort(
+    (a, b) => a - b,
+  );
   if (nodes.length === 0) return "";
   const list = nodes.join(", ");
   const out: string[] = [
@@ -277,7 +286,7 @@ export async function loadPilotToStaging(
   if (s.missing.length > 0)
     console.info(`Belum punya Intisari yang berlaku: ${s.missing.join(", ")}`);
   if (build.digest.length === 0) return 0;
-  const sql = pilotSql(build);
+  const sql = pilotSql(build, [...plan.scope]);
   const file = join(dir, "staging", `pilot-${new Date().toISOString().replace(/[:.]/g, "-")}.sql`);
   mkdirSync(join(dir, "staging"), { recursive: true });
   writeFileSync(file, sql);
@@ -290,8 +299,17 @@ export async function loadPilotToStaging(
   }
   const guard = protectedCorpora();
   for (const note of guard.notes) console.warn(`Peringatan: ${note}`);
-  if (isProtected(guard, stagingBinding())) {
+  const writeTarget = stagingBinding();
+  if (isProtected(guard, writeTarget)) {
     console.error("surau-corpus-staging tercatat sebagai korpus produksi. Pemuatan ditolak.");
+    return 1;
+  }
+  // Baca (wrangler.staging.jsonc) dan tulis (packages/db/wrangler.jsonc) harus DB yang sama.
+  const readTarget = stagingBinding(readFileSync(join(repo, STAGING_CONFIG), "utf8"));
+  if (readTarget.id !== writeTarget.id) {
+    console.error(
+      `ID staging baca (${readTarget.id}) ≠ tulis (${writeTarget.id}). Pemuatan ditolak.`,
+    );
     return 1;
   }
   applyMigrations(STAGING);

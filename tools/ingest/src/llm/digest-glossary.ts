@@ -21,6 +21,7 @@ import type { GlossaryEntry } from "@surau/llm";
 
 import { glossEntrySha } from "./digest-attach.ts";
 import { GLOSSARY_FILE, GLOSSARY_RUNS_FILE, acceptedGloss, glossaryRun } from "./digest-store.ts";
+import { pendingUsd, spentUsd } from "./batch.ts";
 import { appendJsonl, readJsonl, storedUsage } from "./store.ts";
 
 const fmt = (usd: number) => `US$${usd.toFixed(4)}`;
@@ -46,10 +47,11 @@ export async function runGlossaryJob(
   const now = opts.now ?? (() => new Date());
   const model = MODELS.sonnet;
   const rates = ratesFor(model, 0);
-  let spent = readJsonl(join(dir, GLOSSARY_RUNS_FILE), glossaryRun).reduce(
-    (a, r) => a + r.cost_usd,
-    0,
-  );
+  // Pagu bersama folder Intisari: definisi + batch yang sudah dikumpulkan + yang masih diproses.
+  let spent =
+    readJsonl(join(dir, GLOSSARY_RUNS_FILE), glossaryRun).reduce((a, r) => a + r.cost_usd, 0) +
+    spentUsd(dir) +
+    pendingUsd(dir).usd;
   const pending = pendingGlosses(dir);
   console.info(
     `Glosarium: ${glossaryTargets().length} istilah, tertunda ${pending.length}. Biaya tercatat ${fmt(spent)}.`,
