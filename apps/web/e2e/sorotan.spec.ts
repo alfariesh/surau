@@ -43,7 +43,7 @@ test.describe("Sorotan kalimat audio (X18)", () => {
 
     await page.getByRole("button", { name: /^Dengarkan/u }).click();
     await expect(page.locator("[data-listen-player]")).toBeVisible();
-    // Kalimat label ("Intisari ini dibuat AI…") tidak tampil sebagai teks: belum ada sorotan; lalu
+    // Kalimat sumber ("Dari kitab …") tidak tampil sebagai teks: belum ada sorotan; lalu
     // kalimat pertama ringkasan tersorot.
     await expect.poll(() => highlighted(page), { timeout: 15_000 }).toBe(firstSentence);
     await expect(page.locator("html")).toHaveAttribute("data-listen-follow", "");
