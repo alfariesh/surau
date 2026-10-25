@@ -8,8 +8,12 @@
 // ganti suara, leksikon, atau skrip selalu menghasilkan kunci baru. Manifest boleh menyimpan riwayat
 // (beberapa track untuk node yang sama); yang dimuat adalah track terbaru yang skripnya cocok.
 import { audioChapters, voiceKind } from "@surau/db";
-import type { AudioTrackRow } from "@surau/db";
+import type { AudioTrackRow, D1Db } from "@surau/db";
 import { z } from "zod";
+
+import { audioManifestAlignment } from "./audio-alignment.ts";
+import { ScriptError, loadDigestScript } from "./digest-script.ts";
+import { NotFound } from "./errors.ts";
 
 export const AUDIO_MANIFEST_FORMAT = 1;
 
@@ -51,6 +55,11 @@ export const audioManifestTrack = z
     /** Gaya narator (tag audio dari daftar tetap, ADR-101), mis. `polos` atau `khidmat@1`. */
     style: z.string().regex(/^[a-z]+(?:@\d+)?$/u),
     chapters: audioChapters,
+    /**
+     * Timestamps per kalimat untuk sorotan teks (X18), atau null. Boleh ditambahkan sesudah track
+     * tercatat (`pnpm audio align`): objek audio tidak berubah, hanya rujukan ini.
+     */
+    alignment: audioManifestAlignment.nullable().default(null),
     /** Karakter yang ditagih penyedia (jumlah header `character-cost`; 0 bila dari cache). */
     characters: int.nonnegative(),
     created_at: z.iso.datetime(),
@@ -59,6 +68,12 @@ export const audioManifestTrack = z
   .refine(
     (t) => t.r2_key.endsWith(`/${t.lang}/${t.toc_node_id}-${t.sha256.slice(0, 12)}.mp3`),
     "r2_key harus memuat lang, node, dan sidik isi berkas",
+  )
+  .refine(
+    (t) =>
+      t.alignment === null ||
+      t.alignment.r2_key.startsWith(t.r2_key.slice(0, t.r2_key.lastIndexOf("-") + 1)),
+    "alignment.r2_key di karya, bahasa, dan node yang sama",
   )
   .refine(
     (t) =>
@@ -112,7 +127,7 @@ export function audioTrackRowOf(t: AudioManifestTrack): AudioTrackRow {
     script_version: t.script_version,
     lexicon_version: t.lexicon_version,
     chapters_json: JSON.stringify(t.chapters),
-    alignment_key: null,
+    alignment_key: t.alignment?.r2_key ?? null,
     created_at: t.created_at,
   };
 }
@@ -163,4 +178,40 @@ export function selectAudioTracks(
     .sort((a, b) => a.toc_node_id - b.toc_node_id || a.lang.localeCompare(b.lang))
     .map(audioTrackRowOf);
   return { rows, dropped };
+}
+
+/**
+ * `selectAudioTracks` dengan skrip yang dibangun ulang dari Intisari di `db` (`loadDigestScript`,
+ * fungsi yang sama dengan alat audio). Dipakai ingest (build .sqlite) dan `pnpm audio staging`.
+ * Node yang tidak ada lagi, atau skripnya tidak bisa dibangun: audionya gugur (dilaporkan), bukan
+ * menggagalkan pemanggil.
+ */
+export async function selectAudioTracksIn(
+  db: D1Db,
+  manifest: AudioManifest,
+): Promise<AudioSelection> {
+  if (manifest.tracks.length === 0) return { rows: [], dropped: [] };
+  const scripts = new Map<string, string>();
+  const failed = new Set<string>();
+  for (const key of new Set(manifest.tracks.map((t) => `${t.toc_node_id}:${t.lang}`))) {
+    const [node, lang] = key.split(":") as [string, string];
+    try {
+      const loaded = await loadDigestScript(db, Number(node), lang);
+      if (loaded !== null) scripts.set(key, loaded.script.sha256);
+    } catch (error) {
+      if (error instanceof ScriptError || error instanceof RangeError) failed.add(key);
+      else if (!(error instanceof NotFound)) throw error;
+    }
+  }
+  return selectAudioTracks(manifest, scripts, failed);
+}
+
+/** Ringkasan pilihan audio untuk keluaran CLI (ingest, alat audio). */
+export function audioReport(selection: AudioSelection): string {
+  const count = (reason: string) => selection.dropped.filter((d) => d.reason === reason).length;
+  return (
+    `Audio: ${selection.rows.length} track dimuat; gugur: skrip berubah ${count("stale_script")}, ` +
+    `tanpa Intisari ${count("no_digest")}, skrip gagal ${count("script_error")}, ` +
+    `digantikan ${count("superseded")}`
+  );
 }

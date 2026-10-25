@@ -254,7 +254,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
      Ketik pilihan Anda ke agent.
   - Tidak dipakai: `npx @elevenlabs/cli onboard init`. Perintah itu menulis berkas `.env.local` dan folder `~/.elevenlabs`, lalu menyuruh `npm install`, yang bentrok dengan pnpm repo ini (ADR-097).
 
-- [ ] **T-32 · Sambungkan domain audio `media.surau.org` (X17)** · sebelum audio pilot diunggah; ±2 menit
+- [x] **T-32 · Sambungkan domain audio `media.surau.org` (X17)** · selesai 2026-10-25: Zone ID dikirim pemilik; domain kini dilayani Worker `surau-media` (ADR-103), karena wildcard Preview `*.surau.org` menangkap domain kustom R2
   Bucket R2 `surau-media` sudah dibuat agent (kosong, akses r2.dev mati). Domainnya perlu *Zone ID* surau.org, yang tidak bisa dibaca agent tanpa membuka berkas kredensial. Pilih salah satu:
   - **A (agent yang menyambungkan):** buka https://dash.cloudflare.com → klik **surau.org** → halaman **Overview**, kolom kanan bagian **API** → salin **Zone ID** → tempel di chat agent. Zone ID **bukan rahasia** (bukan token).
   - **B (lewat dashboard):** **R2 object storage** → bucket **surau-media** → **Settings** → **Custom Domains** → **Add** → ketik `media.surau.org` → **Continue** → **Connect Domain**. Lalu bilang ke agent "T-32 sudah".

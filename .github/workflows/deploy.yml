@@ -1,6 +1,7 @@
 # Deploy produksi: setiap push ke main → Worker Jawab `surau-api` + `surau-api-staging` (S19, tanpa
 # route publik) → build OpenNext → deploy Worker `surau-web` (https://surau.org), lalu Worker MCP
-# `surau-mcp` (https://mcp.surau.org/mcp, S16) setelah web lolos smoke. surau-api lebih dulu karena
+# `surau-mcp` (https://mcp.surau.org/mcp, S16) dan Worker media `surau-media` (https://media.surau.org,
+# X17, ADR-103) setelah web lolos smoke. surau-api lebih dulu karena
 # service binding `API` milik web gagal di-deploy bila Worker tujuannya belum ada.
 # Keputusan: ADR-017 (CI/CD), ADR-026 (deploy Cloudflare). Migrasi D1 HANYA `surau-app` (S10): korpus
 # tidak pernah diubah dari sini, hanya lewat `pnpm run corpus:promote` (blue-green, ARSITEKTUR-TEKNIS §7
@@ -200,3 +201,44 @@ jobs:
           MAX_COBA: "30"
           JEDA: "10"
         run: bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp daftar
+
+  # Worker media (X17, ADR-103): audio Intisari dari R2 `surau-media` di media.surau.org (custom
+  # domain dari `routes` di apps/media/wrangler.jsonc). Tidak bergantung pada D1 atau web; sesudah
+  # web supaya satu deploy gagal tidak meninggalkan pasangan versi yang tidak cocok. Cache Workers
+  # dipakai lintas versi, jadi deploy ulang tidak mendinginkannya.
+  deploy-media:
+    name: deploy media
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: produksi-media
+      url: https://media.surau.org
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/siapkan
+        with:
+          heroui-auth-token: ${{ secrets.HEROUI_AUTH_TOKEN }}
+
+      - name: Deploy Worker media
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm --filter @surau/media run deploy:media
+
+      # Kunci di luar pola → 404 dari Worker (bukan 404 HTML Preview `x-preview-user-error`).
+      - name: Smoke media produksi
+        run: |
+          for i in $(seq 1 12); do
+            h=$(curl -s -o /dev/null -D - "https://media.surau.org/cek/id/1-000000000000.mp3?smoke=$GITHUB_RUN_ID" || true)
+            code=$(printf '%s' "$h" | awk 'NR==1{print $2}')
+            if [ "$code" = "404" ] && ! printf '%s' "$h" | grep -qi '^x-preview-user-error'; then
+              echo "media.surau.org → 404 dari Worker (percobaan $i)"; exit 0
+            fi
+            echo "media.surau.org → $code (percobaan $i)"; sleep 10
+          done
+          echo "::error title=Smoke media gagal::media.surau.org tidak dijawab Worker surau-media"; exit 1

@@ -1,0 +1,19 @@
+{
+  "name": "@surau/media",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Worker media Surau (X17, ADR-103): audio Intisari dari bucket R2 surau-media di media.surau.org, di-cache Workers Caching.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "deploy:media": "wrangler deploy",
+    "cf-typegen": "wrangler types --include-runtime=false --strict-vars=false worker-configuration.d.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@surau/core": "workspace:*",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

@@ -58,7 +58,7 @@ export function PointList({ digest, author }: { digest: DigestView; author: stri
               <div className="flex min-w-0 flex-1 flex-col gap-2">
                 <Typography.Heading className="text-lg sm:text-xl" id={headingId} level={3}>
                   <span className="sr-only">{t.pointLabel(n)}: </span>
-                  {p.title}
+                  <span data-say={`point-title-${p.ord}`}>{p.title}</span>
                 </Typography.Heading>
                 <div className="flex flex-wrap gap-1.5">
                   <Chip size="sm" variant="soft">
@@ -70,7 +70,9 @@ export function PointList({ digest, author }: { digest: DigestView; author: stri
                     </Chip>
                   ) : null}
                 </div>
-                <Typography className="text-pretty">{p.body}</Typography>
+                <Typography className="text-pretty" data-say={`point-body-${p.ord}`}>
+                  {p.body}
+                </Typography>
                 {advice ? (
                   <Typography color="muted" type="body-sm">
                     {t.adviceNote}

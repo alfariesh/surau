@@ -1,5 +1,6 @@
 // Antarmuka penyedia suara AI (X17, ADR-097 butir 6). ElevenLabs v4 dulu (`providers/elevenlabs.ts`);
 // penyedia lain (mis. Chirp 3 HD, Gemini TTS bila uji dengar menolak v4) cukup memenuhi antarmuka ini.
+import type { CharacterAlignment, TimedToken } from "./align.ts";
 
 export interface TtsCapabilities {
   provider: string;
@@ -14,6 +15,11 @@ export interface TtsCapabilities {
   previousRequestMaxAgeMs: number;
   /** Mendukung lafal IPA inline `/…/` di teks. */
   inlineIpa: boolean;
+  /**
+   * Bisa diminta waktu per karakter bersama audio (X18). Penyedia boleh tetap mengembalikan
+   * `alignment` null; sorotan lalu memakai forced alignment.
+   */
+  timestamps: boolean;
 }
 
 export interface SynthesisRequest {
@@ -23,6 +29,8 @@ export interface SynthesisRequest {
   languageCode: string;
   /** Id permintaan segmen sebelumnya (kronologis), untuk kesinambungan intonasi. */
   previousRequestIds: readonly string[];
+  /** Minta waktu per karakter (hanya bila `capabilities.timestamps`). */
+  timestamps?: boolean;
 }
 
 export interface SynthesisResult {
@@ -31,6 +39,21 @@ export interface SynthesisResult {
   requestId: string | null;
   /** Karakter yang ditagih (header penyedia), bila ada. */
   characterCost: number | null;
+  /** Waktu per karakter teks yang dikirim (bukan teks hasil normalisasi penyedia), bila diminta dan ada. */
+  alignment?: CharacterAlignment | null;
+}
+
+/** Hasil forced alignment: token kata bertimestamp atas satu berkas audio. */
+export interface ForcedAlignment {
+  words: TimedToken[];
+  /** Skor rata-rata penyedia (makin kecil makin cocok menurut contoh docs; dicatat, tidak dipakai). */
+  loss: number | null;
+}
+
+/** Penyelaras teks ↔ audio (X18): cadangan bila TTS tidak mengembalikan waktu, dan untuk audio lama. */
+export interface Aligner {
+  readonly alignerName: string;
+  align(audio: Uint8Array, text: string): Promise<ForcedAlignment>;
 }
 
 export interface Quota {

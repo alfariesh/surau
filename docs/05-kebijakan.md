@@ -209,7 +209,7 @@ Intisari (X15–X17, ADR-097) adalah ringkasan belajar berlapis per kitab dan pe
 
 **Suara AI (audio "Dengarkan")**
 - Yang dibacakan hanya teks Intisari berbahasa Indonesia. **Mesin tidak pernah membacakan huruf Arab, baik teks kitab maupun ayat**, karena salah i'rab sama dengan salah kutip. Kutipan dibacakan lewat terjemahannya, dan ayat hanya disebut. Lantunan qari hanya dari rekaman manusia berlisensi (belum ada).
-- Setiap audio diawali kalimat label bahwa Intisari dibuat AI dan dibacakan suara AI. Label yang sama ada di halaman, di kontrol layar kunci, dan di metadata berkas, beserta lisensinya (§7).
+- Label bahwa Intisari dibuat AI dan dibacakan suara AI tampil sebagai **teks**: di halaman (tombol dan pemutar), di kontrol layar kunci, dan di metadata berkas beserta lisensinya (§7). Label itu tidak diucapkan di audio (keputusan pemilik 2026-10-25, ADR-102), supaya audio mudah dipotong dan tidak mengulang kalimat yang sama di setiap bab.
 - Narator bersuara netral dan berbicara sebagai orang ketiga. Tidak ada peran orang pertama sebagai ulama (§3), tidak ada gaya dramatis, dan suara ustadz atau tokoh nyata tidak dikloning.
 - Bila riwayat bertanda sangat lemah disebut, tandanya ikut dibacakan (§4).
 - Posisi dengar disimpan di perangkat pembaca (localStorage), tidak dikirim ke server (§8).

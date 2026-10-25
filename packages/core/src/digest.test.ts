@@ -137,10 +137,11 @@ beforeAll(async () => {
       .prepare(
         `INSERT INTO audio_track (toc_node_id, lang, voice_kind, r2_key, mime, bytes, duration_ms,
            provider, voice_id, voice_name, model, script_sha256, script_version, lexicon_version,
-           chapters_json, created_at)
+           chapters_json, alignment_key, created_at)
          VALUES (?1, 'id', 'ai', 'uji/id/intisari.mp3', 'audio/mpeg', 2048, 95000, 'elevenlabs',
            'v1', 'Narator Uji', 'eleven_v4', ?2, 1, 'lx1',
-           '[{"point_ord":1,"start_ms":4000},{"point_ord":2,"start_ms":51000}]', '2026-10-24')`,
+           '[{"point_ord":1,"start_ms":4000},{"point_ord":2,"start_ms":51000}]',
+           'uji/id/1-0123456789ab.align.json', '2026-10-24')`,
       )
       .bind(T_ROOT, "c".repeat(64)),
   ]);
@@ -168,6 +169,7 @@ describe("readDigest (X15, ADR-097)", () => {
     expect(anchors[1]?.location.label).toBe("Kitab Uji, j. 1, h. 2");
     expect(view?.audio).toMatchObject({ voice_kind: "ai", duration_ms: 95000, model: "eleven_v4" });
     expect(view?.audio?.chapters.map((c) => c.point_ord)).toEqual([1, 2]);
+    expect(view?.audio?.alignment_key).toBe("uji/id/1-0123456789ab.align.json");
   });
 
   test("gagasan: yang ditolak, tanpa jangkar, atau berhuruf Arab tidak dikirim", async () => {

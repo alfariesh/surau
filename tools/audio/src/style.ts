@@ -4,14 +4,33 @@
 // tanpa emosi kuat, tiruan suara, atau efek. Tag tidak mengubah kata yang dibacakan, jadi sha skrip
 // tetap; gaya dicatat sebagai `style` di manifest dan ikut sidik permintaan (teks yang dikirim).
 // Bawaan "polos" (tanpa tag) sampai uji dengar A/B (`pnpm audio sample --demo-gaya`) memutuskan lain.
-import type { SentenceRole } from "@surau/core";
+import type { ScriptSegmentKind, SentenceRole } from "@surau/core";
 
 export interface NarratorStyle {
   /** Nama + versi, dicatat di manifest (mis. `khidmat@1`). */
   id: string;
   /** Tag per peran; null = tanpa tag. */
   tags: Readonly<Record<SentenceRole, string>> | null;
+  /**
+   * Tag hangat untuk pembuka bagian dan kepala/judul gagasan (gaya variatif); kalimat baku
+   * (label AI, anjuran, tanda takhrij) selalu bernada tenang `tags.narration`.
+   */
+  warm?: string;
 }
+
+/** Awalan kalimat baku buatan kode yang selalu dibacakan netral (bentuk sesudah normalisasi lisan). */
+const NEUTRAL_PREFIXES = [
+  "Intisari ini",
+  "Dari kitab",
+  "Anjuran yang ditulis",
+  "Untuk kasus pribadi",
+  "Gagasan ini bersandar",
+  "Teks kitab di",
+  "Sebuah riwayat di",
+  "Sebait syair di",
+  "Kutipan pilihan",
+  "Penutup",
+];
 
 export const STYLES: Readonly<Record<string, NarratorStyle>> = {
   polos: { id: "polos", tags: null },
@@ -19,11 +38,19 @@ export const STYLES: Readonly<Record<string, NarratorStyle>> = {
     id: "khidmat@1",
     tags: { narration: "[calm]", quote: "[thoughtful]", poetry: "[softly]" },
   },
+  variatif: {
+    id: "variatif@1",
+    tags: { narration: "[calm]", quote: "[thoughtful]", poetry: "[softly]" },
+    warm: "[warm]",
+  },
 };
 
 /** Semua tag yang boleh sampai ke suara AI (selain itu `[ ]` tetap ditolak, aturan 11). */
 export const STYLE_TAGS: ReadonlySet<string> = new Set(
-  Object.values(STYLES).flatMap((s) => (s.tags === null ? [] : Object.values(s.tags))),
+  Object.values(STYLES).flatMap((s) => [
+    ...(s.tags === null ? [] : Object.values(s.tags)),
+    ...(s.warm === undefined ? [] : [s.warm]),
+  ]),
 );
 
 /**
@@ -34,14 +61,25 @@ export function styledSentences(
   sentences: readonly string[],
   roles: readonly SentenceRole[],
   style: NarratorStyle,
+  kind: ScriptSegmentKind = "point",
 ): string[] {
   if (style.tags === null) return [...sentences];
   const tags = style.tags;
-  let previous: SentenceRole = "narration";
+  const warm = style.warm;
+  let previous = tags.narration;
   return sentences.map((s, i) => {
     const role = roles[i] ?? "narration";
-    const out = role !== previous ? `${tags[role]} ${s}` : s;
-    previous = role;
+    let tag = tags[role];
+    if (
+      warm !== undefined &&
+      role === "narration" &&
+      !NEUTRAL_PREFIXES.some((p) => s.startsWith(p))
+    ) {
+      // Variatif: pembuka bagian dan kepala + judul gagasan bernada hangat.
+      if ((kind === "intro" && i === 0) || (kind === "point" && i <= 1)) tag = warm;
+    }
+    const out = tag !== previous ? `${tag} ${s}` : s;
+    previous = tag;
     return out;
   });
 }

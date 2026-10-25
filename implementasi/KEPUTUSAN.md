@@ -2674,7 +2674,8 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
    Tag dipasang di awal kalimat hanya saat peran berubah; kalimat pertama segmen = nada dasar. Ekspresinya milik narator yang mengutip, bukan tokoh yang dikutip. Emosi kuat (marah, menangis, tertawa, berbisik), tiruan suara, dan efek dilarang. Hanya tag terdaftar yang lolos pemeriksaan teks akhir; `[ ]` lain tetap ditolak (aturan 11).
 3. **Gaya dicatat** di manifest (`style`) dan ikut sidik permintaan TTS, sehingga polos dan khidmat tidak berbagi cache. Gaya tidak ikut sha skrip, karena ingest mencocokkan isi, bukan cara membaca.
 4. **Diputuskan lewat telinga.** `pnpm audio sample --demo-gaya` membuat satu contoh (±900 karakter, berbayar, izin pemilik): versi A tanpa gaya, lalu versi B khidmat, dengan teks demo buatan (narasi, kutipan, syair). Pemilik (dan Ust. Anas bila bisa) menilai di T-31. `submit --gaya khidmat` baru dipakai bila lolos.
-5. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
+5. **`variatif@1`** (permintaan pemilik 2026-10-25, sesudah memilih khidmat di uji A/B): sama dengan khidmat, ditambah `[warm]` untuk kalimat pertama pembuka dan untuk kepala + judul gagasan. Kalimat baku buatan kode (label AI, anjuran, tanda takhrij, pengantar kutipan, penutup) selalu `[calm]`. Dibandingkan di bab "Keutamaan belajar" (100006), suara Kang Sugiman.
+6. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
 
 **Tidak dipilih:**
 - Model memilih tag per kalimat: tidak bisa diaudit, dan rawan dramatis.
@@ -2687,3 +2688,77 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 - Biaya uji A/B ±900 karakter.
 
 **Tinjau ulang bila:** uji dengar menilai khidmat berlebihan atau malah kurang, ElevenLabs merinci perilaku tag v4, atau narator manusia tersedia.
+
+## ADR-102 · Label suara AI hanya sebagai teks, tidak diucapkan di audio — diterima (keputusan pemilik) · 2026-10-25
+
+**Konteks:** ADR-097/100 dan docs/05 §12 membuka setiap audio dengan "Intisari ini dibuat AI dan dibacakan suara AI." Sesudah mendengar pilot (bab 100006, suara Kang Sugiman, gaya variatif), pemilik memutuskan kalimat itu dihapus. Alasannya: audio lebih mudah dipotong, dan kalimat yang sama tidak diulang di setiap bab ("cukup label teks di web").
+
+Agent menyampaikan risikonya lebih dulu dan menawarkan jalan tengah (label ringkas "Intisari Surau, dengan suara AI."). Pemilik tetap memilih hapus. Risikonya: rekaman yang beredar terpisah dari situs bisa dikira suara manusia, dan transparansi konten sintetis tidak lagi terdengar di audionya.
+
+**Keputusan:**
+- Skrip v3: tidak ada kalimat label di audio. Segmen pembuka hanya "Dari kitab … karya …" (atau tidak ada, bila judul Latin karya tidak ada).
+- Label suara AI tetap ada sebagai teks:
+  - tombol Dengarkan ("Dibacakan suara AI (…)");
+  - pemutar mini;
+  - Media Session ("Suara AI · Surau");
+  - metadata ID3 (TPE1 "Dibacakan suara AI", COMM, TXXX `AI_GENERATED`).
+- docs/05 §12 dan teks-arab aturan 11 diubah sesuai keputusan ini.
+- Contoh dengar (`pnpm audio sample`) juga tanpa label lisan.
+
+**Konsekuensi:** audio pilot lama (skrip v2) gugur saat ingest (`stale_script`); hanya berkas lokal, belum diunggah.
+
+**Tinjau ulang bila:** audio mulai dibagikan sebagai berkas lepas (podcast, unduhan), ada keluhan pendengar yang mengira narator manusia, atau aturan transparansi konten sintetis mewajibkan label lisan.
+
+## ADR-103 · media.surau.org dilayani Worker `surau-media` (R2 binding + Workers Caching), bukan domain kustom R2 langsung — diterima · 2026-10-25
+
+**Konteks:** ADR-100 butir 12 merencanakan domain kustom R2 `media.surau.org` untuk bucket `surau-media`. Setelah domain tersambung (T-32, status `active`), semua permintaan ke `media.surau.org` dijawab 404 HTML dengan header `x-preview-user-error: true`, padahal objeknya ada di bucket (6.490.629 byte, sama dengan berkas lokal). Penyebabnya: Preview per PR web memakai domain kustom `surau.org` (`pr-N.surau.org`), dan Cloudflare membuat wildcard DNS + sertifikat `*.surau.org` untuk itu. Wildcard ini menangkap subdomain yang bukan Worker custom domain, termasuk domain kustom R2. `mcp.surau.org` (Worker custom domain) tidak terkena. Docs Cloudflare (Workers › Previews › Custom domains, Sep 2026) menganjurkan nama khusus seperti `previews.example.com` bila domain produksi sudah punya subdomain. Pilihan itu membuat Preview menjadi subdomain tingkat dua (`pr-N.previews.surau.org`), yang butuh Advanced Certificate Manager (US$10/bulan). Rute tanpa Worker (negasi) butuh dashboard pemilik, dan belum pasti berlaku untuk perutean Preview.
+
+**Keputusan:**
+1. Worker baru `apps/media` (`surau-media`) dengan Worker custom domain `media.surau.org` dan binding R2 `MEDIA` (hanya `head`/`get`). Domain kustom R2 dilepas (`wrangler r2 bucket domain remove`). Objek tidak berubah.
+2. Hanya `GET`/`HEAD` dengan kunci berbentuk `audioObjectKey` (`<karya>/<lang>/<node>-<sha12>.mp3`). Selain itu 404 `no-store`. Metode lain 405. `Content-Type: audio/mpeg` dan `Cache-Control: public, max-age=31536000, immutable` ditetapkan kode, karena kunci memuat sidik isi. Konstanta disamakan dengan `@surau/core` dan dijaga tes.
+3. **Workers Caching** (`cache.enabled`, `cross_version_cache: true`, docs Workers › Cache, Okt 2026): Cloudflare menyimpan respons 200 penuh dan melayani `Range` (206) dari cache tanpa menjalankan Worker. Karena itu Worker tidak menangani Range. Cache dipakai lintas versi, jadi deploy tidak mendinginkannya; isi per kunci memang tidak pernah berubah. Query unik (`?cek=…`, HEAD alat audio) melewati cache.
+4. `workers_dev: false`, `preview_urls: false`, `invocation_logs: false` (ADR-065, tanpa IP di log). Preview web memutar audio dari `media.surau.org` produksi, karena objek tidak pernah ditimpa.
+5. Deploy: job `deploy media` di `deploy.yml` (push ke `main`, sesudah web). Tes handler di project `node` dengan bucket tiruan.
+6. **`pnpm audio staging [--confirm]`**: mengganti baris `audio_track` satu edisi di korpus staging dengan track manifest yang skripnya cocok. Pilihan dihitung oleh `selectAudioTracksIn` (core), fungsi yang sama dengan ingest, jadi build korpus berikutnya menghasilkan baris yang sama. Logika pencocokan dipindah dari `tools/ingest/src/audio.ts` ke core (`selectAudioTracksIn`, `audioReport`). Korpus produksi tetap hanya berganti lewat `corpus:promote`. Galat R2 dijawab 503 `no-store`.
+
+**Bukti (2026-10-25):** sesudah deploy, `HEAD` 200 (`audio/mpeg`, 6.490.629 byte, immutable), `Range: bytes=0-99` → 206 `content-range: bytes 0-99/6490629` `cf-cache-status: HIT`. `pnpm audio upload --confirm`: 1 sudah ada + 7 diunggah. `pnpm audio verify`: 8/8 lolos (HEAD + Range + sha256). `pnpm audio staging --confirm`: 8 track dimuat, 0 gugur.
+
+**Konsekuensi:** objek audio yang tidak ada di cache tepi menjalankan Worker sekali per lokasi (permintaan Workers + operasi R2 kelas B). Untuk audio pilot jumlahnya kecil. Docs CSP penuh tetap memuat `media-src https://media.surau.org`.
+
+**Tinjau ulang bila:** Preview web pindah ke domain lain (domain kustom R2 langsung bisa dipakai lagi), Workers Caching berubah perilaku Range atau ukuran maksimum, atau audio mulai butuh kontrol akses.
+
+## ADR-104 · Sorotan kalimat mengikuti audio Intisari (X18): timestamps per kalimat di objek R2 immutable, dua sumber waktu (with-timestamps TTS dan forced alignment), sorotan Highlight API + gulir + ketuk-untuk-lompat — diterima (kode; uji berbayar dan objek nyata menunggu T-29, T-32, izin pemilik) · 2026-10-25
+
+**Konteks:** pemilik bertanya (2026-10-25) apakah teks Intisari bisa disorot mengikuti audio. X17 (ADR-100) menunda sorotan per kalimat dan menyiapkan kolom `audio_track.alignment_key`. Docs dicek 2026-10-25 (`/docs-terbaru elevenlabs`): `POST /v1/text-to-speech/{voice_id}/with-timestamps` mengembalikan `{audio_base64, alignment|null, normalized_alignment|null}` dengan waktu per karakter teks yang dikirim, tetapi docs **tidak menyebut** apakah `eleven_v4` didukung (hanya "model yang bisa TTS"). `POST /v1/forced-alignment` (multipart file + teks) mengembalikan waktu per karakter dan per kata, mendukung bahasa Indonesia, dan ditagih seperti Speech to Text (per durasi audio; tarif persisnya tidak tertulis). Belum ada audio produksi, kunci API (T-29) belum ada, jadi uji pembanding belum bisa dijalankan.
+
+**Keputusan:**
+1. **Satuan sorotan = kalimat skrip.** `digestScript` kini juga mengembalikan `sources`: untuk setiap kalimat skrip, rentang [start, end) di teks field yang tampil (`opening`, `abstract`, `closing`, judul/isi gagasan per `ord`, terjemahan kutipan per `ord`), atau null untuk kalimat buatan kode (sumber "Dari kitab …"; label suara AI tidak lagi diucapkan sejak ADR-102, "Gagasan pertama.", pengantar kutipan, tanda riwayat, anjuran, pintu ke kitab). Rentang dipetakan balik lewat peta offset `speakable` (penanda catatan kaki "(١)" dan placeholder ⟦QS⟧ yang diganti tetap utuh di teks tampil) dan dibatasi ke judul yang dipangkas (titik tambahan tidak ikut). `sources` **di luar sha skrip**: sha tetap atas segmen saja (dites), jadi memperbaiki pemetaan tidak menggugurkan audio.
+2. **Objek timestamps `.align.json`** (`packages/core/src/audio-alignment.ts`, format 1): `{format, audio_sha256, script_sha256, method, segments: [[start_ms, end_ms] | null][]}` sejajar `segments[i].sentences`. Hanya angka, tanpa teks. Kunci `<karya>/<lang>/<node>-<12 heks sha256 isi JSON>.align.json`, immutable (`Cache-Control` sama dengan MP3, `Content-Type: application/json`), tidak pernah ditimpa. Kalimat urut waktu (skema menolak mulai yang mundur; pemetaan membuang yang mundur menjadi null).
+3. **Manifest:** track punya `alignment` (`r2_key`, `sha256`, `bytes`, `method`) atau null (bawaan, jadi track lama tetap valid). Boleh ditambahkan sesudah track tercatat: `mergeTracks` hanya mengganti rujukan timestamps track yang sudah ada, objek audionya tetap. Ingest mengisi `audio_track.alignment_key` (migrasi 0009 sudah menyiapkan kolomnya; skema korpus tidak berubah). `DigestView.audio.alignment_key` (juga di MCP `get_section_digest`).
+4. **Dua sumber waktu, satu pemetaan** (`tools/audio/src/align.ts`): token bertimestamp dicocokkan **berurutan** ke teks (bukan per indeks; lompatan maksimal 64 karakter), sehingga spasi yang dibuang, tanda baca terpisah, atau token asing tidak menggeser kalimat sesudahnya; kalimat tanpa token = null.
+   - **tts_timestamps** (`pnpm audio submit --timestamps`): setiap permintaan memakai `/with-timestamps`; waktu karakter TEKS YANG DIKIRIM (sesudah leksikon, termasuk IPA `/…/`) dipetakan ke kalimat lewat rentang kalimat di potongan itu, lalu digeser ke awal potongan di berkas rakitan (sampel MP3, sama dengan bab). Tag gaya narator (ADR-101) di awal kalimat tidak masuk rentang kalimat. Timestamps hanya dibuat bila SEMUA potongan punya `alignment`; `alignment` null atau rusak diterima tanpa galat (respons 200 tetap tertagih dan tercatat). Cache segmen menyimpan waktu karakternya.
+   - **forced_alignment** (`pnpm audio align [--node] --confirm`): untuk berkas rakitan tanpa timestamps, termasuk audio yang sudah diunggah. Teks = kalimat skrip seperti DIUCAPKAN (alias leksikon diterapkan; IPA tidak, karena katanya tetap sama), dipisah spasi. Skrip dibangun ulang dari staging dan wajib sha-nya sama dengan audio. Tanda terima di `align-receipts.jsonl` (durasi audio, bukan karakter), juga bila badan respons 200 rusak. Wajib `--budget-minutes` bersama `--confirm` (pagu menit audio, sejalan `submit --budget-chars`). Tanpa tanda niat: permintaan murah, gagal jaringan dilaporkan sebagai "mungkin tertagih".
+   - Kunci cache segmen tidak memuat `--timestamps` (waktu karakter bukan bagian bunyi): segmen yang sudah ada tanpa waktu karakter dipakai ulang tanpa ditagih lagi, sehingga track itu tanpa tts_timestamps dan `submit` mencetak "belum (pnpm audio align)". Forced alignment melengkapinya.
+5. **Jalur bawaan diputuskan oleh uji, bukan dari ingatan.** `pnpm audio align-test --voice ID --confirm` mengirim satu teks ±300 karakter ke `/with-timestamps` v4 (niat + tanda terima seperti `sample`), lalu forced alignment atas MP3 yang sama, dan mencetak per kalimat waktu kedua sumber + selisihnya (laporan JSON di `data/build/audio/align-test/`). Sampai uji itu dijalankan (butuh T-29 + izin pemilik, ≤ 2.000 karakter), jalur yang pasti adalah forced alignment; `--timestamps` opsional. Bila v4 mengembalikan `alignment` dan selisihnya kecil, `--timestamps` menjadi kebiasaan pilot (gratis, tanpa permintaan kedua); bila null, forced alignment.
+6. **Web (`components/listen/follow*.ts`).** Rute halaman Intisari menghitung target sorotan dari skrip (`digestFollow`: `digestScript(view)` + `followTargets`) hanya bila audio punya `alignment_key`; elemen teks yang dibacakan diberi `data-say` (+ `data-say-at` untuk paragraf `Prose`). `ListenFollow` (klien, tidak merender apa pun) hanya memantau apakah audio halaman ini (kunci objek yang sama) dimuat pemutar; logikanya (`follow-run.ts`) dimuat malas:
+   - mengambil objek timestamps (fetch lintas asal ke `media.surau.org`), menolak bila jumlah kalimatnya ≠ target atau `script_sha256`-nya ≠ sha skrip halaman;
+   - menyorot kalimat aktif (kalimat terakhir yang sudah mulai; bertahan selama jeda) dengan CSS Custom Highlight API `::highlight(surau-dengar)`: Range di atas teks yang ada, DOM tidak diubah (pola Cari; `rangesFor` dipindah ke `lib/text-ranges.ts`); kalimat buatan kode tidak menyorot apa pun;
+   - menggulir mengikuti kalimat aktif selama diputar bila keluar dari pita baca (di bawah kepala, di atas pemutar mini), kecuali pembaca menggulir sendiri dalam 5 detik terakhir (wheel/touchmove/tombol gulir); tanpa animasi bila `prefers-reduced-motion`;
+   - mengetuk teks yang dibacakan melompat ke awal kalimatnya (caret dari titik ketuk; bukan di tautan/tombol, bukan saat memilih teks); papan ketik tetap memakai kontrol pemutar;
+   - browser tanpa Highlight API: gulir dan ketuk tetap jalan.
+   CSS baru hanya aturan sorotan + kursor (+ warna sistem di `forced-colors`) di `globals.css` (bukan CSS komponen HeroUI). CSP penuh nanti wajib `connect-src https://media.surau.org`. JS awal halaman bertambah hanya `ListenFollow` + target kalimat di payload RSC.
+7. **Worker media melayani timestamps** (perluasan ADR-103): `apps/media` kini juga menerima kunci `alignmentObjectKey` (`<…>-<sha12>.align.json`, pola disamakan dengan `ALIGNMENT_KEY` dan dijaga tes) dengan `Content-Type: application/json`, cache immutable yang sama, dan `Access-Control-Allow-Origin: *`, karena timestamps dibaca `fetch` lintas asal (berbeda dengan `<audio>`; isinya publik dan immutable). Audio tetap tanpa CORS. Draf awal sesi ini memakai kebijakan CORS bucket R2 (`r2-cors.json`); itu tidak berlaku lagi sejak ADR-103 (Worker, bukan domain kustom R2) dan dihapus. `pnpm audio verify` juga memeriksa objek `.align.json` (tipe, ukuran, cache, sha, header CORS).
+8. **Fixture:** `/dev/intisari` (Preview, `DEV_PAGES`) memutar audio sunyi buatan dengan timestamps buatan dari panjang kalimat skrip fixture (`/dev/intisari/sorotan.json`), untuk e2e dan pratinjau tanpa ElevenLabs atau media.surau.org.
+
+**Tidak dipilih:**
+- Sorotan per kata: ukuran objek berlipat dan gangguan visual; datanya bisa diturunkan nanti dari forced alignment bila diminta.
+- Membungkus kalimat dengan `<span>` di server: mengubah DOM halaman ISR untuk semua pembaca (juga yang tidak mendengar) dan pemetaan teks Cari/pembaca.
+- Timestamps di D1 (kolom JSON): skema X15a sudah memilih objek R2, dan halaman tidak perlu memuatnya sebelum audio diputar.
+- Proxy timestamps lewat Worker web (asal sama, tanpa CORS): tambahan permintaan Worker per pemutaran; Worker media sudah ada dan dicache tepi.
+- `normalized_alignment`: memetakan teks hasil normalisasi penyedia, bukan teks yang kami kirim.
+- Menetapkan with-timestamps v4 sebagai jalur tunggal sebelum diuji: docs diam soal dukungan v4.
+
+**Konsekuensi:**
+- Audio lama tetap valid (sha skrip tidak berubah); timestamps bisa ditambahkan kapan saja dengan `align`.
+- Biaya: tts_timestamps tanpa biaya tambahan menurut halaman harga (tidak ada tarif terpisah); forced alignment ±tarif STT per jam audio (Scribe v2 US$0,22/jam di halaman harga, belum pasti berlaku), ±1,3 juta karakter ≈ 24 jam ≈ ±US$5 bila seluruh produksi memakainya.
+- Sorotan nyata baru tampil sesudah: T-29 (kunci) → izin uji `align-test` → pilot audio X17 → `align`/`--timestamps` → `upload` + `manifest` → deploy Worker media (merge ke `main`) → `pnpm audio staging` / build korpus. Sampai itu, Preview memperlihatkannya di `/dev/intisari`.

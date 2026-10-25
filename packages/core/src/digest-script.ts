@@ -5,12 +5,16 @@
 // - Tanpa huruf Arab: kutipan dibacakan lewat terjemahannya ("terjemahan AI-nya" bila belum
 //   ditinjau manusia), ayat hanya disebut ("surah kedua ayat …"), placeholder ⟦QS⟧ dan penanda
 //   catatan kaki tidak pernah sampai ke suara AI.
-// - Narator orang ketiga, diawali kalimat label suara AI, ditutup "pintu ke kitab" (docs/05 §12).
+// - Narator orang ketiga, dibuka dengan sumber ("Dari kitab …"), ditutup "pintu ke kitab"; label suara AI
+//   hanya berupa teks di web, layar kunci, dan metadata (ADR-102).
 // - Riwayat sangat lemah, palsu, atau "tidak ada asalnya" (docs/05 §4): KUTIPAN-nya sudah ditahan
 //   `readDigest` (`weak_report`); GAGASAN yang bersandar padanya (dalil `evidence`, sama dengan chip
 //   di halaman) diberi kalimat tanda buatan kode. Status hadits lain tidak dibacakan.
 // Segmen = satu permintaan TTS (bab pemutar = gagasan); kalimat dipecah `indonesianSentences` lalu
 // dinormalisasi lisan (`spokenIndonesian`, berversi).
+// Sorotan kalimat (X18, ADR-104): setiap kalimat skrip membawa `sources`, rentangnya di teks yang
+// tampil di halaman (atau null untuk kalimat buatan kode). `sources` di luar sha skrip: memperbaiki
+// pemetaan tidak menggugurkan audio.
 import {
   SPOKEN_VERSION,
   indonesianSentences,
@@ -30,17 +34,18 @@ import { textSha256 } from "./translation-revision.ts";
 /**
  * Versi susunan skrip; naik bila kalimat baku, urutan segmen, atau aturan pemilihan berubah.
  * 2 = setiap kalimat membawa peran (narasi/kutipan/syair) untuk gaya narator (ADR-101).
+ * 3 = label suara AI tidak diucapkan; pembuka hanya "Dari kitab … karya …" (ADR-102).
  */
-export const SCRIPT_VERSION = 2;
+export const SCRIPT_VERSION = 3;
 
-/** Kalimat label di awal setiap audio (docs/05 §12; sama di halaman, layar kunci, dan ID3). */
+/** Label suara AI dalam bentuk TEKS (metadata berkas); tidak diucapkan di audio (ADR-102). */
 export const SCRIPT_LABEL = "Intisari ini dibuat AI dan dibacakan suara AI.";
 
 /** Kalimat penutup setiap audio: Intisari pintu ke kitab, bukan penggantinya (docs/01, §12). */
 export const SCRIPT_DOOR =
   "Intisari ini adalah pintu ke kitab, bukan penggantinya. Teks lengkap dan dasar setiap gagasan ada di Surau.";
 
-/** label = kalimat label + sumber (sama untuk semua Intisari satu karya, jadi audionya bisa dipakai ulang). */
+/** label = kalimat sumber "Dari kitab …" (sama untuk semua Intisari satu karya, jadi audionya dipakai ulang). */
 export type ScriptSegmentKind = "label" | "intro" | "point" | "quotes" | "closing";
 
 /**
@@ -49,11 +54,6 @@ export type ScriptSegmentKind = "label" | "intro" | "point" | "quotes" | "closin
  * gaya narator yang tetap dan berversi (ADR-101); tidak mengubah kata yang dibacakan.
  */
 export type SentenceRole = "narration" | "quote" | "poetry";
-
-interface Line {
-  text: string;
-  role: SentenceRole;
-}
 
 export interface ScriptSegment {
   kind: ScriptSegmentKind;
@@ -65,12 +65,38 @@ export interface ScriptSegment {
   roles: SentenceRole[];
 }
 
+/** Teks tampil yang dibacakan sebuah kalimat skrip (X18). */
+export type ScriptSourceField =
+  | "opening"
+  | "abstract"
+  | "closing"
+  | "point_title"
+  | "point_body"
+  | "quote";
+
+/**
+ * Asal satu kalimat skrip di halaman: rentang [start, end) di teks field itu persis seperti di
+ * `DigestView` (judul/isi gagasan per `ord` gagasan, terjemahan kutipan per `ord` kutipan).
+ */
+export interface ScriptSource {
+  field: ScriptSourceField;
+  /** `ord` gagasan (point_*) atau kutipan (quote); null untuk pembuka, ringkasan, penutup. */
+  ord: number | null;
+  start: number;
+  end: number;
+}
+
 export interface DigestScript {
   node_id: number;
   lang: string;
   script_version: number;
   spoken_version: number;
   segments: ScriptSegment[];
+  /**
+   * Sejajar `segments[i].sentences`: asal tiap kalimat di halaman, atau null untuk kalimat buatan
+   * kode (label, "Gagasan pertama", pengantar kutipan, tanda riwayat). Tidak ikut sha.
+   */
+  sources: (ScriptSource | null)[][];
   /** Jumlah karakter teks segmen (sebelum leksikon lafal). */
   chars: number;
   /** sha256 bentuk kanonik skrip: kunci kecocokan audio ↔ Intisari di ingest. */
@@ -117,11 +143,43 @@ const latin = (text: string | null | undefined): string | null =>
     ? null
     : text.trim();
 
-/** Kalimat-kalimat teks tulis (sebelum normalisasi lisan), sesudah penanda/placeholder dirapikan. */
-function sentencesOf(raw: string | null): string[] {
+/** Kalimat skrip sebelum normalisasi lisan, dengan asalnya di halaman (null = buatan kode). */
+interface Line {
+  text: string;
+  source: ScriptSource | null;
+  role: SentenceRole;
+}
+
+const made = (...texts: string[]): Line[] =>
+  texts.map((text) => ({ text, source: null, role: "narration" }));
+
+/**
+ * Kalimat-kalimat teks tulis (sebelum normalisasi lisan), sesudah penanda/placeholder dirapikan.
+ * `from` = asal teks di halaman: rentang kalimat dipetakan balik ke teks aslinya (`at` = posisi
+ * `raw` di teks field itu dan `length` = batas akhirnya, untuk judul yang dipangkas dan diberi titik).
+ */
+function sentencesOf(
+  raw: string | null,
+  from: { field: ScriptSourceField; ord: number | null; at?: number; length?: number } | null,
+  role: SentenceRole = "narration",
+): Line[] {
   if (raw === null) return [];
-  const text = speakable(raw);
-  return indonesianSentences(text).map((s) => text.slice(s.start, s.end));
+  const { text, starts, ends } = speakable(raw);
+  const at = from?.at ?? 0;
+  const limit = from?.length ?? Number.POSITIVE_INFINITY;
+  return indonesianSentences(text).map((s) => ({
+    text: text.slice(s.start, s.end),
+    role,
+    source:
+      from === null
+        ? null
+        : {
+            field: from.field,
+            ord: from.ord,
+            start: Math.min(at + starts[s.start]!, limit),
+            end: Math.min(at + ends[s.end - 1]!, limit),
+          },
+  }));
 }
 
 /** Judul gagasan dibacakan sebagai kalimat sendiri: beri titik bila belum berakhir tanda baca. */
@@ -136,25 +194,51 @@ const where = (loc: Location): string =>
  * hanya disebut (teks ayat dan terjemahannya tidak pernah dibacakan mesin). Berlaku untuk semua teks
  * AI, karena `readDigest` meloloskan teks yang berpenanda/berplaceholder (keduanya bukan huruf Arab).
  */
-function speakable(text: string): string {
-  return text
-    .replace(FOOTNOTE_MARKER, " ")
-    .replace(ayahPlaceholderPattern(), (_m, s: string, a: string, b: string | undefined) =>
-      b === undefined ? `(ayat Al-Qur'an, QS ${s}:${a})` : `(ayat Al-Qur'an, QS ${s}:${a}-${b})`,
-    );
+function speakable(raw: string): { text: string; starts: number[]; ends: number[] } {
+  // Satu lintasan untuk kedua pola (tidak tumpang tindih), dengan peta balik per karakter keluaran:
+  // `starts[i]`/`ends[i]` = rentang di `raw` yang menghasilkan karakter ke-i (seluruh penanda untuk
+  // karakter pengganti), sehingga kalimat dipetakan ke teks yang tampil (X18).
+  const pattern = new RegExp(`${FOOTNOTE_MARKER.source}|${ayahPlaceholderPattern().source}`, "gu");
+  let text = "";
+  const starts: number[] = [];
+  const ends: number[] = [];
+  const keep = (from: number, to: number) => {
+    text += raw.slice(from, to);
+    for (let i = from; i < to; i++) {
+      starts.push(i);
+      ends.push(i + 1);
+    }
+  };
+  let last = 0;
+  for (const m of raw.matchAll(pattern)) {
+    const s = m[1] as string | undefined;
+    const [a, b] = [m[2], m[3] as string | undefined];
+    keep(last, m.index);
+    const out =
+      s === undefined
+        ? " "
+        : b === undefined
+          ? `(ayat Al-Qur'an, QS ${s}:${a})`
+          : `(ayat Al-Qur'an, QS ${s}:${a}-${b})`;
+    text += out;
+    for (let i = 0; i < out.length; i++) {
+      starts.push(m.index);
+      ends.push(m.index + m[0].length);
+    }
+    last = m.index + m[0].length;
+  }
+  keep(last, raw.length);
+  return { text, starts, ends };
 }
 
-function quoteSentences(q: DigestQuoteView): (string | Line)[] {
+function quoteSentences(q: DigestQuoteView): Line[] {
   if (q.translation === null) return [];
-  const body = sentencesOf(q.translation.text);
+  const role: SentenceRole = q.kind === "poetry" ? "poetry" : "quote";
+  const body = sentencesOf(q.translation.text, { field: "quote", ord: q.ord }, role);
   if (body.length === 0) return [];
   // Terjemahan diberi label (aturan 8): AI kecuali sudah ditinjau atau dikoreksi manusia.
   const label = q.translation.human_review === null ? "terjemahan AI-nya" : "terjemahannya";
-  const role: SentenceRole = q.kind === "poetry" ? "poetry" : "quote";
-  return [
-    `${KIND_INTRO[q.kind]} di ${where(q.location)}, yang ${label}:`,
-    ...body.map((text) => ({ text, role })),
-  ];
+  return [...made(`${KIND_INTRO[q.kind]} di ${where(q.location)}, yang ${label}:`), ...body];
 }
 
 const list = (items: readonly string[]): string =>
@@ -165,7 +249,7 @@ const list = (items: readonly string[]): string =>
  * (docs/05 §4 dan §12): dari dalil `evidence` yang sama dengan chip di halaman Intisari, dengan
  * glosa tetap buatan kode (bukan teks model).
  */
-function weakMark(view: DigestView, p: DigestPointView): string[] {
+function weakMark(view: DigestView, p: DigestPointView): Line[] {
   const glosses = new Set<string>();
   for (const h of view.evidence.hadith) {
     if (!h.point_ords.includes(p.ord)) continue;
@@ -174,18 +258,30 @@ function weakMark(view: DigestView, p: DigestPointView): string[] {
     }
   }
   if (glosses.size === 0) return [];
-  return [
+  return made(
     `Gagasan ini bersandar pada riwayat yang catatan takhrijnya memuat penilaian ${list([...glosses])}; penilaian ini dikenali otomatis dari teks takhrij dan belum ditinjau.`,
-  ];
+  );
 }
 
-/** Kalimat siap baca + perannya; kalimat yang kosong sesudah normalisasi dibuang bersama perannya. */
-function spoken(items: readonly (string | Line)[]): Pick<ScriptSegment, "sentences" | "roles"> {
-  const lines = items
-    .map((it) => (typeof it === "string" ? { text: it, role: "narration" as const } : it))
-    .map((l) => ({ text: spokenIndonesian(l.text), role: l.role }))
+/** Segmen dari kalimat tulis: dinormalisasi lisan; kalimat yang kosong sesudahnya dibuang (dengan asal dan perannya). */
+function segment(
+  kind: ScriptSegmentKind,
+  point_ord: number | null,
+  lines: readonly Line[],
+): { segment: ScriptSegment; sources: (ScriptSource | null)[] } {
+  const kept = lines
+    .map((l) => ({ ...l, text: spokenIndonesian(l.text) }))
     .filter((l) => l.text !== "");
-  return { sentences: lines.map((l) => l.text), roles: lines.map((l) => l.role) };
+  return {
+    // Urutan kunci = bentuk kanonik sha skrip (sama dengan sebelum `sources` ada).
+    segment: {
+      kind,
+      point_ord,
+      sentences: kept.map((l) => l.text),
+      roles: kept.map((l) => l.role),
+    },
+    sources: kept.map((l) => l.source),
+  };
 }
 
 function check(segments: readonly ScriptSegment[]): void {
@@ -212,60 +308,61 @@ export async function digestScript(view: DigestView): Promise<DigestScript> {
   const quoteBlock = (quotes: readonly DigestQuoteView[]) =>
     quotes.flatMap((q) => quoteSentences(q));
 
-  const segments: ScriptSegment[] = [
-    {
-      kind: "label",
-      point_ord: null,
-      ...spoken([
-        SCRIPT_LABEL,
-        ...(work === null
-          ? []
-          : [`Dari kitab ${work}${author === null ? "" : ` karya ${author}`}.`]),
-      ]),
-    },
-    {
-      kind: "intro",
-      point_ord: null,
-      ...spoken([...sentencesOf(view.opening), ...sentencesOf(view.abstract)]),
-    },
+  // Label suara AI TIDAK diucapkan (keputusan pemilik, ADR-102): cukup label teks di web, layar kunci,
+  // dan metadata berkas. Segmen pembuka hanya menyebut sumbernya, bila judul Latinnya ada.
+  const built = [
+    ...(work === null
+      ? []
+      : [
+          segment(
+            "label",
+            null,
+            made(`Dari kitab ${work}${author === null ? "" : ` karya ${author}`}.`),
+          ),
+        ]),
+    segment("intro", null, [
+      ...sentencesOf(view.opening, { field: "opening", ord: null }),
+      ...sentencesOf(view.abstract, { field: "abstract", ord: null }),
+    ]),
   ];
   for (const [i, p] of view.points.entries()) {
     const advice = p.kind === "advice";
     const anchor = p.anchors[0]?.location;
-    segments.push({
-      kind: "point",
-      point_ord: p.ord,
-      ...spoken([
-        `Gagasan ${ordinalWords(i + 1)}.`,
+    const title = p.title.trim();
+    built.push(
+      segment("point", p.ord, [
+        ...made(`Gagasan ${ordinalWords(i + 1)}.`),
         ...(advice
-          ? [
+          ? made(
               `Anjuran yang ditulis ${author ?? "penulis"} sendiri${anchor === undefined ? "" : `, di ${where(anchor)}`}.`,
-            ]
+            )
           : []),
-        ...sentencesOf(asSentence(p.title.trim())),
-        ...sentencesOf(p.body),
+        ...sentencesOf(asSentence(title), {
+          field: "point_title",
+          ord: p.ord,
+          at: p.title.indexOf(title),
+          length: p.title.indexOf(title) + title.length,
+        }),
+        ...sentencesOf(p.body, { field: "point_body", ord: p.ord }),
         ...weakMark(view, p),
-        ...(advice ? ["Untuk kasus pribadi, tanyakan kepada ulama."] : []),
+        ...(advice ? made("Untuk kasus pribadi, tanyakan kepada ulama.") : []),
         ...quoteBlock(quotesOf(p.ord)),
       ]),
-    });
+    );
   }
   const general = quoteBlock(quotesOf(null));
   if (general.length > 0) {
-    segments.push({
-      kind: "quotes",
-      point_ord: null,
-      ...spoken(["Kutipan pilihan.", ...general]),
-    });
+    built.push(segment("quotes", null, [...made("Kutipan pilihan."), ...general]));
   }
-  segments.push({
-    kind: "closing",
-    point_ord: null,
-    ...spoken([
-      ...(view.closing === null ? [] : ["Penutup.", ...sentencesOf(view.closing)]),
-      ...sentencesOf(SCRIPT_DOOR),
+  built.push(
+    segment("closing", null, [
+      ...(view.closing === null
+        ? []
+        : [...made("Penutup."), ...sentencesOf(view.closing, { field: "closing", ord: null })]),
+      ...sentencesOf(SCRIPT_DOOR, null),
     ]),
-  });
+  );
+  const segments = built.map((b) => b.segment);
   check(segments);
 
   const node_id = view.section.id;
@@ -278,6 +375,7 @@ export async function digestScript(view: DigestView): Promise<DigestScript> {
   };
   return {
     ...payload,
+    sources: built.map((b) => b.sources),
     chars: segments.reduce((n, s) => n + segmentText(s).length, 0),
     sha256: await textSha256(JSON.stringify(payload)),
   };

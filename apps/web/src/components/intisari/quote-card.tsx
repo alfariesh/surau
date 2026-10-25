@@ -34,7 +34,8 @@ export function QuoteCard({ quote }: { quote: DigestQuoteView }) {
       {tr !== null && label !== null ? (
         <div className="flex flex-col gap-1" lang={tr.lang}>
           <Typography type="body-sm">
-            {ayahRefsOnly(tr.text)}{" "}
+            {/* Panjang sama dengan tr.text (⟦ ⟧ → ( )): rentang sorotan audio tetap (X18). */}
+            <span data-say={`quote-${quote.ord}`}>{ayahRefsOnly(tr.text)}</span>{" "}
             <span className="ai-badge" title={label.detail}>
               {label.badge}
             </span>

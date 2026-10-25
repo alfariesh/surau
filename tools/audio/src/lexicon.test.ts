@@ -10,15 +10,19 @@ const repo = join(import.meta.dirname, "../../..");
 const yaml = (entries: string) => `format: 1\nlang: id\nentries:\n${entries}`;
 
 describe("leksikon lafal", () => {
-  test("berkas repo valid; versi = 12 heks sha berkas; semua entri masih draf uji", () => {
+  test("berkas repo valid; versi = 12 heks; hanya koreksi yang diputuskan pemilik yang aktif", () => {
     const source = readFileSync(join(repo, "data/lexicon/id.yaml"), "utf8");
     const lexicon = parseLexicon(source);
     expect(lexicon.lang).toBe("id");
     expect(lexicon.version).toMatch(/^[0-9a-f]{12}$/u);
     expect(lexicon.entries.length).toBeGreaterThan(20);
-    // Tanpa uji dengar (T-31) tidak ada lafal yang diterapkan ke audio.
-    expect(lexicon.entries.every((e) => e.status === "test")).toBe(true);
-    expect(applyLexicon("Ikhlas dan riya'.", lexicon)).toBe("Ikhlas dan riya'.");
+    expect(lexicon.entries.filter((e) => e.status === "active").map((e) => e.term)).toEqual([
+      "Ihya' 'Ulum ad-Din",
+    ]);
+    // Koreksi pemilik 2026-10-25: tulisan baku tetap, dibacakan "Ihya Ulumuddin".
+    expect(applyLexicon("Dari kitab Ihya' 'Ulum ad-Din karya al-Ghazali.", lexicon)).toBe(
+      "Dari kitab Ihya Ulumuddin karya al-Ghazali.",
+    );
   });
 
   test("hanya entri active; tanpa beda huruf besar; batas kata; istilah terpanjang dulu", () => {

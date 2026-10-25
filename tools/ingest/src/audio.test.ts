@@ -38,6 +38,7 @@ const track = (node: number, file: string, script: string): AudioManifestTrack =
   lexicon_version: "0123456789ab",
   style: "polos",
   chapters: [{ point_ord: 1, start_ms: 8000 }],
+  alignment: null,
   characters: 900,
   created_at: "2026-10-25T01:00:00.000Z",
 });
