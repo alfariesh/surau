@@ -12,7 +12,7 @@
 //   di halaman) diberi kalimat tanda buatan kode. Status hadits lain tidak dibacakan.
 // Segmen = satu permintaan TTS (bab pemutar = gagasan); kalimat dipecah `indonesianSentences` lalu
 // dinormalisasi lisan (`spokenIndonesian`, berversi).
-// Sorotan kalimat (X18, ADR-103): setiap kalimat skrip membawa `sources`, rentangnya di teks yang
+// Sorotan kalimat (X18, ADR-104): setiap kalimat skrip membawa `sources`, rentangnya di teks yang
 // tampil di halaman (atau null untuk kalimat buatan kode). `sources` di luar sha skrip: memperbaiki
 // pemetaan tidak menggugurkan audio.
 import {

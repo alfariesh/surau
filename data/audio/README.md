@@ -2,7 +2,7 @@
 
 `<kitab>-audio.json` adalah sumber kebenaran baris `audio_track` korpus. Berkas ini ditulis
 `pnpm audio manifest` dan dibaca `pnpm ingest`. Isinya tanpa teks: kunci objek di bucket R2
-publik `surau-media` (`media.surau.org`), sidik dan ukuran berkas, durasi, suara AI, versi
+publik `surau-media` (`media.surau.org`, Worker `surau-media`, ADR-103), sidik dan ukuran berkas, durasi, suara AI, versi
 skrip/lisan/leksikon, dan bab (awal setiap gagasan).
 
 - Kunci objek memuat sidik isi berkas (`ihya/id/<node>-<sha12>.mp3`), jadi objek tidak pernah

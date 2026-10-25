@@ -15,10 +15,10 @@ Format entri:
 
 ---
 
-## 2026-10-25 · X18 · Sorotan kalimat mengikuti audio Intisari — sebagian (kode; uji berbayar menunggu T-29 + izin, CORS menunggu T-32)
+## 2026-10-25 · X18 · Sorotan kalimat mengikuti audio Intisari — sebagian (kode; uji berbayar dan timestamps audio pilot menunggu izin pemilik)
 - Dikerjakan:
   - Skrip audio mencatat asal tiap kalimat di teks tampil (`sources`, di luar sha: audio lama tetap cocok); objek timestamps `.align.json` (format 1, immutable) + `alignment` di manifest + `audio_track.alignment_key` + `DigestView.audio.alignment_key`.
-  - `tools/audio`: pemetaan token waktu → kalimat; ElevenLabs `/with-timestamps` (`submit --timestamps`) dan forced alignment (`pnpm audio align`, juga untuk audio yang sudah diunggah); `align-test` (uji pembanding ±300 karakter); upload/manifest/verify `.align.json` (verify memeriksa CORS); `r2-cors.json`.
+  - `tools/audio`: pemetaan token waktu → kalimat; ElevenLabs `/with-timestamps` (`submit --timestamps`) dan forced alignment (`pnpm audio align`, juga untuk audio yang sudah diunggah); `align-test` (uji pembanding ±300 karakter); upload/manifest/verify `.align.json` (verify memeriksa CORS); Worker media (`apps/media`) melayani `.align.json` dengan CORS.
   - Web: `data-say` di teks yang dibacakan, `ListenFollow` (logika dimuat malas): sorotan CSS Custom Highlight API `surau-dengar` tanpa mengubah DOM, gulir mengikuti (jeda 5 dtk bila pembaca menggulir, tanpa animasi bila reduced-motion), ketuk-untuk-lompat; fixture `/dev/intisari` dengan audio sunyi + waktu buatan.
 - Verifikasi:
   - `pnpm verify` → lolos (984 Node + 440 workerd, build). sha skrip sama dengan `main` (sha emas di tes).
@@ -26,8 +26,20 @@ Format entri:
   - LCP ponsel Preview PR #143 (n=5): `/dev/intisari` 3,05 / 2,79 dtk, j1/200 2,97 / 2,87 dtk (≤ 4,29; `sesi/bukti/X18/lcp-pr143.md`).
   - Peninjau: 0 blocker, 5 perbaikan + 7 saran, semuanya dikerjakan.
 - Biaya API: – (uji berbayar belum dijalankan: kunci T-29 belum ada)
+- Keputusan: ADR-104
+- Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-104 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. Worker media (sesudah merge ter-deploy) melayani `.align.json` dengan CORS; `pnpm audio verify` memeriksanya.
+
+## 2026-10-25 · X17d · Audio pilot tayang di media.surau.org + staging — selesai (pilot; produksi menunggu Intisari final)
+- Dikerjakan:
+  - Pilot dirender atas izin pemilik: Kitab Ilmu + 7 bab, suara Kang Sugiman, gaya variatif (8 berkas, ±48,7 menit).
+  - Domain kustom R2 `media.surau.org` tersambung (T-32), tetapi tertangkap wildcard Preview `*.surau.org` (404 `x-preview-user-error`).
+  - Domain kustom R2 dilepas. Diganti Worker `apps/media` (`surau-media`): R2 binding dan Workers Caching yang melayani Range dari cache (ADR-103). Job `deploy media` ditambahkan di CI.
+  - 8 objek di R2 (1 sudah ada + 7 baru); manifest `data/audio/ihya-9472-audio.json` 8 track.
+  - `pnpm audio staging --confirm`: 8 baris `audio_track` di `surau-corpus-staging`. Logika pencocokan skrip dipindah ke core (`selectAudioTracksIn`), dipakai ingest dan alat audio.
+- Verifikasi: HEAD 200 dan Range 206 `HIT`; `pnpm audio verify` 8/8; staging 8 track, 0 gugur; tes handler media 5/5.
+- Biaya API: ElevenLabs pilot sesuai tanda terima (total tanda terima sesi X17 18.989 karakter), dalam batas izin 45.000.
 - Keputusan: ADR-103
-- Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-103 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. CORS bucket (langkah T-32) sebelum `pnpm audio verify`.
+- Catatan untuk sesi berikutnya: audio produksi menunggu Intisari final (X15c/`ihya-v9`). Saat korpus produksi berikutnya dibangun, ingest memuat track yang skripnya cocok secara otomatis.
 
 ## 2026-10-25 · X17c · Pilot dengar: suara Kang Sugiman, gaya variatif, lafal Ihya, label lisan dihapus — sebagian (1 bab lokal; pilot penuh menunggu izin)
 - Dikerjakan:

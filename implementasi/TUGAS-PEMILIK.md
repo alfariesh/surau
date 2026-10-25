@@ -254,12 +254,11 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
      Ketik pilihan Anda ke agent.
   - Tidak dipakai: `npx @elevenlabs/cli onboard init`. Perintah itu menulis berkas `.env.local` dan folder `~/.elevenlabs`, lalu menyuruh `npm install`, yang bentrok dengan pnpm repo ini (ADR-097).
 
-- [ ] **T-32 · Sambungkan domain audio `media.surau.org` (X17)** · sebelum audio pilot diunggah; ±2 menit
+- [x] **T-32 · Sambungkan domain audio `media.surau.org` (X17)** · selesai 2026-10-25: Zone ID dikirim pemilik; domain kini dilayani Worker `surau-media` (ADR-103), karena wildcard Preview `*.surau.org` menangkap domain kustom R2
   Bucket R2 `surau-media` sudah dibuat agent (kosong, akses r2.dev mati). Domainnya perlu *Zone ID* surau.org, yang tidak bisa dibaca agent tanpa membuka berkas kredensial. Pilih salah satu:
   - **A (agent yang menyambungkan):** buka https://dash.cloudflare.com → klik **surau.org** → halaman **Overview**, kolom kanan bagian **API** → salin **Zone ID** → tempel di chat agent. Zone ID **bukan rahasia** (bukan token).
   - **B (lewat dashboard):** **R2 object storage** → bucket **surau-media** → **Settings** → **Custom Domains** → **Add** → ketik `media.surau.org` → **Continue** → **Connect Domain**. Lalu bilang ke agent "T-32 sudah".
   Agent lalu memeriksa domainnya (HEAD/Range) sebelum mengunggah audio pertama.
-  - **Tambahan X18 (sorotan kalimat, ADR-103):** halaman membaca berkas waktu kalimat dari `media.surau.org`, jadi bucket perlu izin baca lintas situs (CORS). Pengaman otomatis agent menolak mengubah setelan bucket. Pilih salah satu: (a) ketik ke agent "izinkan pasang CORS surau-media", atau (b) di aplikasi Terminal, dari folder repo, ketik `pnpm wrangler r2 bucket cors set surau-media --file tools/audio/r2-cors.json` lalu Enter, dan bilang ke agent "CORS sudah". Isinya hanya membolehkan membaca (GET/HEAD); semua berkas di bucket ini memang publik.
 
 - [ ] **T-30 · Lihat dan setujui tampilan Intisari (X16)** · dua tahap: tampilan sekarang (data contoh), isi sesudah pilot X15b
   0. **Tahap 1 (sekarang):** lihat tangkapan layar di `implementasi/sesi/bukti/X16/` (ponsel, laptop, gelap) atau buka Preview `pr-138.surau.org/dev/intisari` dan `…/dev/intisari?tier=section` selama PR #138 belum di-merge. Isinya data contoh (teks Arab kalimat contoh, bukan kitab); yang dinilai tata letak, label AI, dan urutan bagian.

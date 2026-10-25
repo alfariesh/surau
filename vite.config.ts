@@ -9,6 +9,7 @@ const generated = [
   "**/.wrangler/**",
   "apps/mcp/dist/**",
   "apps/api/dist/**",
+  "apps/media/dist/**",
   "**/next-env.d.ts",
   "**/worker-configuration.d.ts",
   "**/cloudflare-env.d.ts",

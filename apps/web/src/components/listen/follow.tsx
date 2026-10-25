@@ -6,7 +6,7 @@ import { listen } from "./engine";
 import type { FollowData } from "./follow-targets";
 
 /**
- * Sorotan kalimat mengikuti audio di halaman Intisari (X18, ADR-103). Komponen ini hanya memantau
+ * Sorotan kalimat mengikuti audio di halaman Intisari (X18, ADR-104). Komponen ini hanya memantau
  * apakah audio halaman ini yang sedang dimuat pemutar; logikanya (`follow-run`: ambil timestamps,
  * Highlight API, gulir, ketuk-untuk-lompat) baru dimuat saat itu, jadi JS awal halaman tidak
  * bertambah berarti. Tidak merender apa pun.

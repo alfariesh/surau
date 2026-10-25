@@ -13,10 +13,12 @@
 //   align [--node a,b] [--budget-minutes N --confirm]  timestamps per kalimat lewat forced alignment untuk berkas rakitan
 //                         yang belum punya (juga audio yang sudah diunggah); berbayar per durasi
 //   align-test --voice ID [--confirm]  uji kecil berbayar (±300 karakter): with-timestamps v4 vs
-//                         forced alignment atas MP3 yang sama (X18, ADR-103)
+//                         forced alignment atas MP3 yang sama (X18, ADR-104)
 //   upload [--confirm]    unggah berkas rakitan (+ timestamps) ke R2 surau-media (tidak pernah menimpa)
 //   manifest              catat berkas yang sudah di R2 ke data/audio/<kitab>-audio.json
 //   verify                HEAD + Range + sha256 setiap objek di manifest (gagal → kode 1)
+//   staging [--confirm]   muat track manifest yang skripnya cocok ke audio_track korpus staging
+//                         (Preview menampilkan Dengarkan sebelum korpus berikutnya dibangun)
 //   status                niat yang belum selesai, cache, biaya aktual
 //   release               lepas niat yang prosesnya sudah mati (cek riwayat ElevenLabs dulu)
 import { execFileSync } from "node:child_process";
@@ -30,7 +32,9 @@ import {
   ScriptError,
   alignmentJson,
   alignmentObjectKey,
+  audioReport,
   loadDigestScript,
+  selectAudioTracksIn,
 } from "@surau/core";
 import type { AudioAlignment, DigestScript } from "@surau/core";
 import { AI_TEXT_LANG, listDigestHeaders, listTitleTranslations } from "@surau/db";
@@ -46,6 +50,7 @@ import { parseMp3, samplesToMs } from "./mp3.ts";
 import { ELEVENLABS_CAPABILITIES, ElevenLabs } from "./providers/elevenlabs.ts";
 import { headObject, uploadObject, verifyObject } from "./r2.ts";
 import { renderNode, speakableRequest, uncachedChars } from "./render.ts";
+import { replaceStagingAudio } from "./staging.ts";
 import { TtsError } from "./provider.ts";
 import type { RenderInput } from "./render.ts";
 import {
@@ -441,7 +446,7 @@ async function main(argv: string[]): Promise<number> {
       );
       const ms = todo.reduce((n, r) => n + r.track.duration_ms, 0);
       console.log(
-        `Berkas rakitan tanpa timestamps: ${todo.length} (${(ms / 60_000).toFixed(1)} menit audio; forced alignment ditagih per durasi, lihat ADR-103).`,
+        `Berkas rakitan tanpa timestamps: ${todo.length} (${(ms / 60_000).toFixed(1)} menit audio; forced alignment ditagih per durasi, lihat ADR-104).`,
       );
       if (todo.length === 0) return 0;
       if (!values.confirm) {
@@ -692,6 +697,26 @@ async function main(argv: string[]): Promise<number> {
       );
       return failed === 0 ? 0 : 1;
     }
+    case "staging": {
+      const corpus = await openStagingCorpus(repo);
+      try {
+        const manifest = readManifest(repo, work);
+        const selection = await selectAudioTracksIn(corpus.db, manifest);
+        console.log(audioReport(selection));
+        for (const d of selection.dropped) console.log(`  gugur (${d.reason}): ${d.r2_key}`);
+        if (!values.confirm) {
+          console.log("Tanpa --confirm: hanya diperiksa, staging tidak diubah.");
+          return 0;
+        }
+        await replaceStagingAudio(corpus.db, manifest.edition_id, selection.rows);
+        console.log(
+          `audio_track staging diganti: ${selection.rows.length} baris (${corpus.source}).`,
+        );
+        return 0;
+      } finally {
+        await corpus.dispose();
+      }
+    }
     case "status": {
       const intents = listIntents(store);
       for (const i of intents) {
@@ -728,7 +753,7 @@ async function main(argv: string[]): Promise<number> {
     }
     default:
       console.error(
-        "Perintah: plan | sample | submit | align | align-test | upload | manifest | verify | status | release",
+        "Perintah: plan | sample | submit | align | align-test | upload | manifest | verify | staging | status | release",
       );
       return 2;
   }

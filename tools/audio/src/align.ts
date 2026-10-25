@@ -1,4 +1,4 @@
-// Waktu per kalimat untuk sorotan teks (X18, ADR-103). Dua sumber waktu, satu pemetaan:
+// Waktu per kalimat untuk sorotan teks (X18, ADR-104). Dua sumber waktu, satu pemetaan:
 // - tts_timestamps: waktu per KARAKTER teks yang dikirim ke TTS (`/with-timestamps`), per permintaan,
 //   lalu digeser ke awal potongan itu di berkas rakitan;
 // - forced_alignment: waktu per KATA dari penyelarasan teks skrip atas MP3 rakitan.

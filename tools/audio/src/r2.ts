@@ -157,7 +157,7 @@ export async function verifyObject(
     if (range.status !== 206) problems.push(`Range → ${range.status} (bukan 206)`);
   }
   const full = await fetchFn(url, {
-    // Origin situs: CORS bucket harus mengizinkan halaman Intisari membaca timestamps.
+    // Origin situs: Worker media harus mengizinkan halaman Intisari membaca timestamps (CORS).
     ...(json ? { headers: { origin: "https://surau.org" } } : {}),
     signal: AbortSignal.timeout(120_000),
   });

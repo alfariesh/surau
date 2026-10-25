@@ -48,9 +48,11 @@ export {
   audioManifest,
   audioManifestTrack,
   audioObjectKey,
+  audioReport,
   audioTrackRowOf,
   emptyAudioManifest,
   selectAudioTracks,
+  selectAudioTracksIn,
 } from "./audio-manifest.ts";
 export type { AudioManifest, AudioManifestTrack, AudioSelection } from "./audio-manifest.ts";
 export { buildCitation } from "./citation.ts";
