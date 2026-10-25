@@ -56,7 +56,9 @@ describe("DigestPage (X16)", () => {
 
   it("nomor gagasan berurutan walau ord melompat (gagasan ditolak tidak dikirim core)", () => {
     expect(FIXTURE_BOOK.points.map((p) => p.ord)).toEqual([1, 2, 4]);
-    expect(html).toContain("Gagasan 3: </span>Mulai dari yang wajib");
+    expect(html).toContain(
+      'Gagasan 3: </span><span data-say="point-title-4">Mulai dari yang wajib',
+    );
     expect(html).toContain("Jawabannya di gagasan 3: Mulai dari yang wajib");
   });
 
@@ -66,7 +68,9 @@ describe("DigestPage (X16)", () => {
       expect(html).toContain(`dir="rtl" lang="ar">${q.text_raw}</blockquote>`);
     }
     expect(html).toContain(FIXTURE_TEXT.p1);
-    expect(html).toMatch(/Ini teks contoh pertama[^<]*<span class="ai-badge"[^>]*>Terjemahan AI/u);
+    expect(html).toMatch(
+      /<span data-say="quote-1">Ini teks contoh pertama[^<]*<\/span> <span class="ai-badge"[^>]*>Terjemahan AI/u,
+    );
     // Riwayat: label takhrij miliknya sendiri (kode) + teks takhrij asli, bukan tebakan.
     const report = /<figure[^>]*id="kutipan-2"[\s\S]*?<\/figure>/u.exec(html)?.[0] ?? "";
     expect(report).toContain("Takhrij (١): takhrij menyebut: lemah");
