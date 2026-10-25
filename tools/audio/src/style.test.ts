@@ -23,7 +23,35 @@ describe("gaya narator (ADR-101)", () => {
       "[softly] Syair.",
       "[calm] Narasi lagi.",
     ]);
-    expect([...STYLE_TAGS].sort()).toEqual(["[calm]", "[softly]", "[thoughtful]"]);
+    expect([...STYLE_TAGS].sort()).toEqual(["[calm]", "[softly]", "[thoughtful]", "[warm]"]);
+  });
+
+  test("variatif: kepala dan judul gagasan hangat, kalimat baku tetap tenang", () => {
+    expect(
+      styledSentences(
+        [
+          "Gagasan pertama.",
+          "Judul.",
+          "Isi.",
+          "Teks kitab di jilid satu:",
+          "Kutipan.",
+          "Untuk kasus pribadi, tanyakan.",
+        ],
+        ["narration", "narration", "narration", "narration", "quote", "narration"],
+        STYLES.variatif!,
+        "point",
+      ),
+    ).toEqual([
+      "[warm] Gagasan pertama.",
+      "Judul.",
+      "[calm] Isi.",
+      "Teks kitab di jilid satu:",
+      "[thoughtful] Kutipan.",
+      "[calm] Untuk kasus pribadi, tanyakan.",
+    ]);
+    expect(
+      styledSentences(["Intisari ini dibuat AI."], ["narration"], STYLES.variatif!, "label"),
+    ).toEqual(["Intisari ini dibuat AI."]);
   });
 
   test("pemeriksaan teks akhir hanya melewatkan tag gaya yang terdaftar", () => {
