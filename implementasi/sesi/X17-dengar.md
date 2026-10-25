@@ -137,6 +137,8 @@ Peninjau (sesudah merge X16): 1 blocker + 8 perbaikan, semuanya dikerjakan.
   - uji `play()` di iPhone sungguhan (T-31);
   - cocokkan sha skrip staging dengan build lokal sebelum pilot berbayar.
 
+**X17b (ADR-101):** gaya narator `khidmat@1` (tag tetap per peran kalimat), bawaan polos; uji A/B lewat `pnpm audio sample --demo-gaya`.
+
 Untuk sesi berikutnya: urutan pilot sesudah izin pemilik:
 1. `pnpm audio sample --voice <id> --confirm` (uji lafal, ±2 ribu karakter);
 2. `pnpm audio plan --voice <id>`;

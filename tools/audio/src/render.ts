@@ -10,6 +10,8 @@ import type { DigestScript, DigestView, ScriptSegmentKind } from "@surau/core";
 
 import { id3v2 } from "./id3.ts";
 import { applyLexicon } from "./lexicon.ts";
+import { styledSentences, withoutStyleTags } from "./style.ts";
+import type { NarratorStyle } from "./style.ts";
 import type { Lexicon } from "./lexicon.ts";
 import { joinMp3, parseMp3, samplesToMs } from "./mp3.ts";
 import type { JoinPart } from "./mp3.ts";
@@ -31,10 +33,10 @@ import type { AudioStore, RenderedTrack, SegmentMeta } from "./store.ts";
 
 /**
  * Pemeriksaan terakhir teks yang benar-benar dikirim (sesudah leksikon): tanpa huruf Arab, ⟦ ⟧, atau
- * tag `[ ]` (aturan 11). `/…/` di sini hanya berasal dari lafal IPA leksikon.
+ * tag `[ ]` (aturan 11) selain tag gaya dari daftar tetap. `/…/` hanya berasal dari lafal IPA leksikon.
  */
 export function speakableRequest(text: string): string {
-  const bad = unspeakableChar(text);
+  const bad = unspeakableChar(withoutStyleTags(text));
   if (bad !== null)
     throw new Error(`teks permintaan TTS memuat "${bad}" yang tidak boleh dibacakan`);
   return text;
@@ -59,6 +61,8 @@ export interface RenderInput {
   title: string;
   voice: { id: string; name: string };
   lexicon: Lexicon;
+  /** Gaya narator (ADR-101); bawaan `polos`. */
+  style: NarratorStyle;
   work: { slug: string; title: string };
   /** Asal situs untuk tautan halaman Intisari di ID3, mis. https://surau.org. */
   siteOrigin: string;
@@ -101,7 +105,11 @@ interface Piece {
 export function piecesOf(input: RenderInput, cap: TtsCapabilities): Piece[] {
   return input.script.segments.flatMap((seg, segment) =>
     requestTexts(
-      seg.sentences.map((s) => applyLexicon(s, input.lexicon)),
+      styledSentences(
+        seg.sentences.map((s) => applyLexicon(s, input.lexicon)),
+        seg.roles,
+        input.style,
+      ),
       cap.maxCharsPerRequest,
     ).map((text) => ({
       segment,
@@ -142,6 +150,7 @@ export async function renderNode(
     previous.track.script_sha256 === input.script.sha256 &&
     previous.track.lexicon_version === input.lexicon.version &&
     previous.track.voice_id === input.voice.id &&
+    previous.track.style === input.style.id &&
     JSON.stringify(previous.segment_keys) === JSON.stringify(keys)
   ) {
     return { status: "reused", rendered: previous, billed: 0 };
@@ -312,6 +321,7 @@ export function assemble(
     script_version: script.script_version,
     spoken_version: script.spoken_version,
     lexicon_version: input.lexicon.version,
+    style: input.style.id,
     chapters,
     characters: metas.reduce((n, m) => n + (m.character_cost ?? m.chars), 0),
     created_at,

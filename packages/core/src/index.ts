@@ -20,7 +20,12 @@ export {
   segmentText,
   unspeakableChar,
 } from "./digest-script.ts";
-export type { DigestScript, ScriptSegment, ScriptSegmentKind } from "./digest-script.ts";
+export type {
+  DigestScript,
+  ScriptSegment,
+  ScriptSegmentKind,
+  SentenceRole,
+} from "./digest-script.ts";
 export {
   AUDIO_CACHE_CONTROL,
   AUDIO_MANIFEST_FORMAT,

@@ -259,6 +259,18 @@ describe("digestScript (X17, aturan 11)", () => {
     expect(segmentText(script.segments.at(-1)!)).toBe(SCRIPT_DOOR);
   });
 
+  test("peran kalimat: terjemahan kutipan = quote, syair = poetry, selebihnya narasi", async () => {
+    const script = await digestScript(view());
+    const p1 = script.segments[2]!;
+    expect(p1.roles).toHaveLength(p1.sentences.length);
+    const quoteAt = p1.sentences.indexOf("Terjemahan kutipan satu.");
+    expect(p1.roles[quoteAt]).toBe("quote");
+    expect(p1.roles[quoteAt - 1]).toBe("narration");
+    const general = script.segments[4]!;
+    expect(general.roles[general.sentences.indexOf("Terjemahan kutipan dua.")]).toBe("poetry");
+    expect(script.segments[0]!.roles.every((r) => r === "narration")).toBe(true);
+  });
+
   test("sha stabil untuk masukan sama, berubah bila gagasan hilang; karakter = jumlah segmen", async () => {
     const a = await digestScript(view());
     const b = await digestScript(view());
