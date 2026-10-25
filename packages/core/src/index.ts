@@ -56,6 +56,7 @@ export {
 } from "./audio-manifest.ts";
 export type { AudioManifest, AudioManifestTrack, AudioSelection } from "./audio-manifest.ts";
 export { buildCitation } from "./citation.ts";
+export { SYATR_MAX_CHARS, VERSE_SEPARATOR, verseBounds } from "./verse.ts";
 export { verifyQuote } from "./verify-quote.ts";
 export { ipKey, ipNetwork } from "./client-key.ts";
 export { redactPii } from "./pii.ts";

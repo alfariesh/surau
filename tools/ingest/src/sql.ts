@@ -114,10 +114,12 @@ function toFiles(files: SqlFile[], label: string, statements: readonly string[])
   });
 }
 
-/** Baris indeks Indonesia (S14): `translation_fts` dan `summary_fts`. */
+/** Baris indeks Indonesia (S14): `translation_fts`, `summary_fts`, dan gagasan Intisari (X15b). */
 export interface LatinFts {
   translation: readonly LatinFtsRow[];
   summary: readonly LatinFtsRow[];
+  /** `digest_point_fts` (rowid = toc_node_id·100 + ord); kosong sampai ada hasil Intisari. */
+  digest?: readonly LatinFtsRow[];
 }
 
 /**
@@ -142,6 +144,7 @@ export function emitSql(
       for (const [name, list] of [
         ["translation_fts", latin.translation],
         ["summary_fts", latin.summary],
+        ["digest_point_fts", latin.digest ?? []],
       ] as const) {
         if (list.length === 0) continue;
         const values = list.map((r) => LATIN_FTS_COLUMNS.map((c) => r[c]));

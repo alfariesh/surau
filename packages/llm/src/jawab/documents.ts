@@ -37,10 +37,15 @@ function boundaries(text: string, pattern: RegExp): number[] {
 /**
  * Pecah teks menjadi potongan bersambung yang menutup seluruh teks (`[0, length)`), masing-masing
  * berisi huruf (bukan hanya spasi). Potongan dipotong sesudah akhir kalimat bila ada; bila tidak,
- * sesudah koma; bila tidak juga, di spasi terakhir. Teks tidak pernah diubah.
+ * sesudah koma; bila tidak juga, di spasi terakhir. Teks tidak pernah diubah. Teks sepanjang
+ * `singleMax` atau kurang menjadi satu potongan (Intisari memakai sasaran lebih kecil, X15b).
  */
-export function segmentText(text: string, target = SEGMENT_TARGET): DocSegment[] {
-  if (text.length <= Math.max(SEGMENT_SINGLE_MAX, target)) return [{ start: 0, end: text.length }];
+export function segmentText(
+  text: string,
+  target = SEGMENT_TARGET,
+  singleMax = SEGMENT_SINGLE_MAX,
+): DocSegment[] {
+  if (text.length <= Math.max(singleMax, target)) return [{ start: 0, end: text.length }];
   const sentence = boundaries(text, SENTENCE_END);
   const clause = boundaries(text, CLAUSE_END);
   const out: DocSegment[] = [];

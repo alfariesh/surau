@@ -2,6 +2,7 @@ import { getHadithTakhrij, resolveEvalSource, takhrijLabel } from "@surau/core";
 import type { EvalAnswer, EvalQuestion, EvalSource } from "@surau/core";
 import { getPassageById } from "@surau/db";
 import type { D1Db } from "@surau/db";
+import { hasFatwaLanguage } from "@surau/llm";
 import type { CorpusIndex } from "./corpus.ts";
 import { resolveLocation } from "./corpus.ts";
 import { matchesLocation } from "./metrics.ts";
@@ -31,10 +32,8 @@ export interface AnswerScores {
    */
   hadithExtra: number;
 }
-// Heuristik pola, bukan jaminan semantik. Contoh ini hanya ada di alat ukur, bukan prompt Jawab.
-const FATWA =
-  /\b(?:hukumnya\s+(?:adalah|ialah)|(?:saya|aku|kami)\s+(?:memfatwakan|mengharamkan|menghalalkan)|(?:aku|saya),?\s+al[- ]?ghazali|menurut\s+fatwa\s+(?:saya|kami)|(?:wajib|haram)\s+(?:bagi\s+)?(?:anda|kamu))\b/iu;
-export const hasFatwaLanguage = (text: string) => FATWA.test(text);
+// Pola fatwa: satu sumber di @surau/llm (dipindah X15b, dipakai juga validator Intisari).
+export { hasFatwaLanguage };
 const sameSpan = (a: { passage_id: number; char_start: number; char_end: number }, b: typeof a) =>
   a.passage_id === b.passage_id && a.char_start === b.char_start && a.char_end === b.char_end;
 /**

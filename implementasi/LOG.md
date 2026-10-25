@@ -15,6 +15,21 @@ Format entri:
 
 ---
 
+## 2026-10-24/25 · X15b · Intisari: pipeline + pilot Kitab al-'Ilm (US$0,53, staging) — selesai kecuali nilai T-31
+- Dikerjakan:
+  - Glosarium berkunci (162 entri, `GLOSSARY_V2` dibangkitkan) + 144 definisi `glossary_term`; validator `judgeDigest` + pola teks terlarang satu sumber (`check.ts`); prompt `digest-section@2` (penunjuk kutipan) + `digest-merge@1`.
+  - `pnpm llm intisari plan|submit|status|wait|collect|rejudge|retry|reconcile|report|muat-staging` dengan `--from staging` (SELECT saja); blok ±220 karakter yang tidak memotong ayat; sidik berjenjang; attach + invarian build; halaman QA T-31.
+  - Pilot Kitab al-'Ilm: v1 lolos semua tetapi kutipan sering terpotong (manual 9/26), sehingga cadangan ADR-097 dipakai. v2: 21 Intisari lolos (kutipan terpotong 2/23 heuristik, 0/23 dibaca agent), dimuat ke staging skema 9, smoke `readDigest` 21/21.
+  - Peninjau dua putaran. Putaran 2 menemukan larangan takhrij masih bersyarat; kini lintas paragraf. Sesudah itu dua merge + Kitab dibuat ulang (kutipan anak berubah).
+- Verifikasi:
+  - `pnpm exec vp test --project node packages/llm/src` 144 lolos; `tools/ingest` + `tools/eval` 401 lolos; `pnpm check` lolos.
+  - `pnpm verify` lolos (913 + 418 tes, build) sebelum putaran 2; diulang sesudahnya (lihat PR alfariesh/surau#141, CI).
+  - `pnpm llm intisari plan --from staging --kitab 100003 --stage leaf` → 22 request, US$0,051 (count_tokens).
+  - `muat-staging --confirm` → smoke 21/21, kutipan ditahan 0.
+- Biaya API: **US$0,53** (batch v1 US$0,167 + v2 + ulangan US$0,230 + glosarium US$0,129). Izin pemilik di chat 2026-10-24 ±16:44 UTC: "Ya, pilot + staging (Recommended)" atas pertanyaan "perkiraan ±US$0,36 dengan pagu keras US$1 … Boleh saya jalankan?"
+- Keputusan: ADR-098
+- Catatan untuk sesi berikutnya: T-31 (nilai halaman QA, gerbang ≤ 5% "Salah", pilih Sonnet/Haiku untuk Intisari Kitab) menentukan X15c. Staging kini skema 9 dengan Intisari Kitab al-'Ilm, siap untuk Preview X16. Prompt berikutnya: buang "alasan bila disebut", ganti contoh abstrak.
+
 ## 2026-10-25 · X18 · Sorotan kalimat mengikuti audio Intisari — sebagian (kode; uji berbayar dan timestamps audio pilot menunggu izin pemilik)
 - Dikerjakan:
   - Skrip audio mencatat asal tiap kalimat di teks tampil (`sources`, di luar sha: audio lama tetap cocok); objek timestamps `.align.json` (format 1, immutable) + `alignment` di manifest + `audio_track.alignment_key` + `DigestView.audio.alignment_key`.
