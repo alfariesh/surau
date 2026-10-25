@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Runtime Workers dari @cloudflare/workers-types (wrangler types --include-runtime=false hanya
+    // menulis Env). Tes (src/*.test.ts) berjalan di project "node": handler hanya memakai
+    // Request/Response/Headers standar dan bucket tiruan.
+    "types": ["@cloudflare/workers-types"]
+  },
+  "include": ["src", "worker-configuration.d.ts"]
+}

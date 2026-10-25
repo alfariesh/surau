@@ -15,6 +15,110 @@ Format entri:
 
 ---
 
+## 2026-10-25 · X15b lanjutan · QA pilot Intisari oleh agent, Sonnet untuk Intisari Kitab, T-28 sebagian — selesai
+- Dikerjakan:
+  - Pemilik menyerahkan QA pilot untuk sementara kepada agent (sesi induk, 2026-10-25: "Saya serahkan ke agent sementara untuk QA model sonnet"). Halaman QA dipecah menjadi paket per Intisari, lalu dinilai empat subagen QA berkonteks baru (pola T-17 tahap 2), tanpa API berbayar. Laporan dan nilai mentah: `data/reports/ihya-9472-intisari-qa-agent-2026-10-25.{md,json}`.
+  - Sonnet 5.5 dicatat sebagai model Intisari Kitab (ADR-098). T-31 tetap terbuka untuk penilaian manusia.
+  - T-28: Shamela sudah ada di mesin agent (`SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`). Sisa kebutuhan X15c dicatat di T-28. T-32, yang sudah selesai, dihapus dari daftar *Butuh pemilik* di STATUS.
+  - Dua gagasan Salah ditandai `rejected` di `surau-corpus-staging` (permintaan sesi induk; UPDATE dua baris yang dijaga judul).
+    - `readDigest` sesudahnya: 6/7 gagasan dan 6 pertanyaan per bab.
+    - Audio pilot kedua bab ikut ditahan atas permintaan sesi induk (ADR-097 butir 6): dua baris `audio_track` dihapus dari staging dan objek R2 dibiarkan. Cadangan barisnya ada di `data/build/llm/intisari/staging/audio-track-ditahan-2026-10-25.json` (checkout utama). `pnpm audio staging` (periksa) sesudahnya: 6 dimuat, 2 gugur `stale_script`.
+    - Membuat ulang audio kedua bab berbayar kecil dan menunggu izin pemilik.
+    - Aturan baru di README `tools/ingest`: menolak gagasan di staging wajib diikuti penghapusan audio bab itu.
+    - X15c mendapat langkah uji regresi (*sanah*/*sunnah*, sikap penulis) dan butir "Selesai bila".
+- Hasil:
+  - 133 gagasan yang dimuat: Benar 91 (68,4%), Kurang 40 (30,1%), Salah 2 (1,5%), jadi gerbang ≤ 5% lolos.
+  - Intisari Kitab: Sonnet 3/5/0, pembanding Haiku 2/5/0.
+  - Tidak ada terjemahan kutipan yang salah, dan nada fatwa 0.
+- Verifikasi:
+  - Skrip agregasi: 140 gagasan dinilai tepat sekali, tanpa huruf Arab di catatan; gerbang 2/133.
+  - Kedua Salah dicek ulang agent ke teks Arab paketnya, dan keduanya memang salah.
+  - `sha256sum` tiga berkas Shamela sama dengan `data/SOURCES.md` (hanya dibaca).
+  - `pnpm verify` lolos (lihat PR).
+- Biaya API: – (penilai adalah subagen sesi, bukan API berbayar)
+- Keputusan: ADR-098 (Sonnet untuk Intisari Kitab, hasil QA agent)
+- Catatan untuk sesi berikutnya: X15c dimulai dari dua gagasan Salah (lapisan koreksi Intisari), lalu jangkar Kitab/merge (satu jangkar per gagasan sumber) dan prompt berikutnya (pembatas/modal, pertanyaan terjawab, *sanah*).
+
+## 2026-10-24/25 · X15b · Intisari: pipeline + pilot Kitab al-'Ilm (US$0,53, staging) — selesai kecuali nilai T-31
+- Dikerjakan:
+  - Glosarium berkunci (162 entri, `GLOSSARY_V2` dibangkitkan) + 144 definisi `glossary_term`; validator `judgeDigest` + pola teks terlarang satu sumber (`check.ts`); prompt `digest-section@2` (penunjuk kutipan) + `digest-merge@1`.
+  - `pnpm llm intisari plan|submit|status|wait|collect|rejudge|retry|reconcile|report|muat-staging` dengan `--from staging` (SELECT saja); blok ±220 karakter yang tidak memotong ayat; sidik berjenjang; attach + invarian build; halaman QA T-31.
+  - Pilot Kitab al-'Ilm: v1 lolos semua tetapi kutipan sering terpotong (manual 9/26), sehingga cadangan ADR-097 dipakai. v2: 21 Intisari lolos (kutipan terpotong 2/23 heuristik, 0/23 dibaca agent), dimuat ke staging skema 9, smoke `readDigest` 21/21.
+  - Peninjau dua putaran. Putaran 2 menemukan larangan takhrij masih bersyarat; kini lintas paragraf. Sesudah itu dua merge + Kitab dibuat ulang (kutipan anak berubah).
+- Verifikasi:
+  - `pnpm exec vp test --project node packages/llm/src` 144 lolos; `tools/ingest` + `tools/eval` 401 lolos; `pnpm check` lolos.
+  - `pnpm verify` lolos (913 + 418 tes, build) sebelum putaran 2; diulang sesudahnya (lihat PR alfariesh/surau#141, CI).
+  - `pnpm llm intisari plan --from staging --kitab 100003 --stage leaf` → 22 request, US$0,051 (count_tokens).
+  - `muat-staging --confirm` → smoke 21/21, kutipan ditahan 0.
+- Biaya API: **US$0,53** (batch v1 US$0,167 + v2 + ulangan US$0,230 + glosarium US$0,129). Izin pemilik di chat 2026-10-24 ±16:44 UTC: "Ya, pilot + staging (Recommended)" atas pertanyaan "perkiraan ±US$0,36 dengan pagu keras US$1 … Boleh saya jalankan?"
+- Keputusan: ADR-098
+- Catatan untuk sesi berikutnya: T-31 (nilai halaman QA, gerbang ≤ 5% "Salah", pilih Sonnet/Haiku untuk Intisari Kitab) menentukan X15c. Staging kini skema 9 dengan Intisari Kitab al-'Ilm, siap untuk Preview X16. Prompt berikutnya: buang "alasan bila disebut", ganti contoh abstrak.
+
+## 2026-10-25 · X18 · Sorotan kalimat mengikuti audio Intisari — sebagian (kode; uji berbayar dan timestamps audio pilot menunggu izin pemilik)
+- Dikerjakan:
+  - Skrip audio mencatat asal tiap kalimat di teks tampil (`sources`, di luar sha: audio lama tetap cocok); objek timestamps `.align.json` (format 1, immutable) + `alignment` di manifest + `audio_track.alignment_key` + `DigestView.audio.alignment_key`.
+  - `tools/audio`: pemetaan token waktu → kalimat; ElevenLabs `/with-timestamps` (`submit --timestamps`) dan forced alignment (`pnpm audio align`, juga untuk audio yang sudah diunggah); `align-test` (uji pembanding ±300 karakter); upload/manifest/verify `.align.json` (verify memeriksa CORS); Worker media (`apps/media`) melayani `.align.json` dengan CORS.
+  - Web: `data-say` di teks yang dibacakan, `ListenFollow` (logika dimuat malas): sorotan CSS Custom Highlight API `surau-dengar` tanpa mengubah DOM, gulir mengikuti (jeda 5 dtk bila pembaca menggulir, tanpa animasi bila reduced-motion), ketuk-untuk-lompat; fixture `/dev/intisari` dengan audio sunyi + waktu buatan.
+- Verifikasi:
+  - `pnpm verify` → lolos (984 Node + 440 workerd, build). sha skrip sama dengan `main` (sha emas di tes).
+  - e2e `sorotan.spec.ts` + `dengar.spec.ts` 8/8 (chromium + ponsel, axe) terhadap `next dev`; browser lokal desktop + ponsel gelap dan Preview `pr-143.surau.org/dev/intisari`.
+  - LCP ponsel Preview PR #143 (n=5): `/dev/intisari` 3,05 / 2,79 dtk, j1/200 2,97 / 2,87 dtk (≤ 4,29; `sesi/bukti/X18/lcp-pr143.md`).
+  - Peninjau: 0 blocker, 5 perbaikan + 7 saran, semuanya dikerjakan.
+- Biaya API: – (uji berbayar belum dijalankan: kunci T-29 belum ada)
+- Keputusan: ADR-104
+- Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-104 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. Worker media (sesudah merge ter-deploy) melayani `.align.json` dengan CORS; `pnpm audio verify` memeriksanya.
+
+## 2026-10-25 · X17d · Audio pilot tayang di media.surau.org + staging — selesai (pilot; produksi menunggu Intisari final)
+- Dikerjakan:
+  - Pilot dirender atas izin pemilik: Kitab Ilmu + 7 bab, suara Kang Sugiman, gaya variatif (8 berkas, ±48,7 menit).
+  - Domain kustom R2 `media.surau.org` tersambung (T-32), tetapi tertangkap wildcard Preview `*.surau.org` (404 `x-preview-user-error`).
+  - Domain kustom R2 dilepas. Diganti Worker `apps/media` (`surau-media`): R2 binding dan Workers Caching yang melayani Range dari cache (ADR-103). Job `deploy media` ditambahkan di CI.
+  - 8 objek di R2 (1 sudah ada + 7 baru); manifest `data/audio/ihya-9472-audio.json` 8 track.
+  - `pnpm audio staging --confirm`: 8 baris `audio_track` di `surau-corpus-staging`. Logika pencocokan skrip dipindah ke core (`selectAudioTracksIn`), dipakai ingest dan alat audio.
+- Verifikasi: HEAD 200 dan Range 206 `HIT`; `pnpm audio verify` 8/8; staging 8 track, 0 gugur; tes handler media 5/5.
+- Biaya API: ElevenLabs pilot sesuai tanda terima (total tanda terima sesi X17 18.989 karakter), dalam batas izin 45.000.
+- Keputusan: ADR-103
+- Catatan untuk sesi berikutnya: audio produksi menunggu Intisari final (X15c/`ihya-v9`). Saat korpus produksi berikutnya dibangun, ingest memuat track yang skripnya cocok secara otomatis.
+
+## 2026-10-25 · X17c · Pilot dengar: suara Kang Sugiman, gaya variatif, lafal Ihya, label lisan dihapus — sebagian (1 bab lokal; pilot penuh menunggu izin)
+- Dikerjakan:
+  - Contoh lafal + gaya A/B (pemilik memilih gaya, lalu meminta versi lebih variatif).
+  - `variatif@1` (PR #145).
+  - Lafal "Ihya Ulumuddin" aktif di kamus lafal (PR #146).
+  - Bab 100006 dirender tiga kali: khidmat, variatif, dan variatif + lafal baru.
+  - Bug nama berkas sampel diperbaiki (PR #144).
+  - Label suara AI tidak lagi diucapkan (ADR-102, skrip v3).
+- Verifikasi: tes core/tools lolos; berkas dikirim ke pemilik untuk didengar.
+- Biaya API: ElevenLabs ±3.920 karakter (±US$0,31) dari paket Starter, atas izin pemilik.
+- Keputusan: ADR-101 (variatif@1), ADR-102
+- Catatan untuk sesi berikutnya: pilot Kitab Ilmu + 7 bab (±38 ribu karakter) menunggu izin; unggah menunggu T-32.
+
+## 2026-10-25 · X17b · Gaya narator Dengar (tag audio v4) — selesai (kode; pemakaian menunggu uji dengar)
+- Dikerjakan: peran kalimat di skrip (narasi/kutipan/syair, ditentukan kode; skrip v2); gaya `polos` (bawaan) dan `khidmat@1` dari daftar tag tetap; gaya dicatat di manifest; `pnpm audio sample --demo-gaya` untuk uji A/B; T-31 diperluas.
+- Verifikasi: `pnpm verify` → lolos; tes gaya/perakit/skrip baru lolos.
+- Biaya API: –
+- Keputusan: ADR-101
+- Catatan untuk sesi berikutnya: jalankan demo A/B sesudah T-29 + izin pemilik; pakai `--gaya khidmat` hanya bila pemilik memilih B.
+
+## 2026-10-25 · X17 · Dengar: audio Intisari (skrip, ElevenLabs v4, MP3, R2, pemutar) — sebagian (kode + bucket; pilot berbayar menunggu pemilik)
+- Dikerjakan:
+  - Normalisasi lisan berversi (`spoken-id`) dan skrip deterministik dari `DigestView`: label suara AI, kutipan lewat terjemahan, ayat hanya disebut, riwayat bertakhrij berat tidak dibacakan (ditahan `readDigest`), tanpa huruf Arab.
+  - `tools/audio`: ElevenLabs v4 lewat REST (stitching, ulang hanya 429/503), cache + niat + tanda terima (ADR-061), MP3 CBR bersambung + ID3, leksikon IPA (draf, uji T-31), R2 tanpa timpa + verify, CLI `pnpm audio`.
+  - Manifest `data/audio/ihya-9472-audio.json` (kosong) + pemuat `audio_track` di ingest (hanya sha skrip cocok; putaran kedua deterministik). Bucket R2 `surau-media` dibuat.
+  - Web: pemutar global di shell (tombol Dengarkan, pemutar mini lazy, Media Session, 0,75–2×, ±15 dtk, bab = gagasan, lanjut posisi `surau:listen:v1`), `dengar.json`, `/privasi`, `/dev/dengar` + audio sunyi untuk e2e.
+- Verifikasi:
+  - `pnpm verify` → lolos (932 tes Node + 421 workerd, build). Cakupan `packages/text` fungsi 100%, baris 100%, cabang 96,8%.
+  - e2e `dengar.spec.ts` 4/4 (chromium + ponsel, axe) terhadap `next dev`. Uji manual di browser desktop + ponsel.
+  - `pnpm audio plan` tersambung ke staging (0 Intisari, skema < 9). JS awal +1,9 KB gzip.
+  - Sesudah merge X16: `pnpm verify` lolos (956 + 432 tes, build); e2e `intisari.spec.ts` + `dengar.spec.ts` dengan korpus staging 16 lolos / 2 dilewati (staging tanpa Intisari).
+  - LCP ponsel Preview PR #139 (n=5): j1/200 3,12 / 3,01 dtk, `/dev/intisari` 2,71 / 2,61 dtk (≤ 4,29; `sesi/bukti/X17/lcp-pr139.md`).
+  - Peninjau: 1 blocker (gagasan yang bersandar pada riwayat berat dibacakan tanpa tanda) + 8 perbaikan, semuanya dikerjakan. Sesudahnya `pnpm verify` lolos (961 + 434 tes), e2e pemutar 4/4 dua kali.
+- Biaya API: – (tanpa permintaan TTS; tidak ada kredit ElevenLabs terpakai)
+- Keputusan: ADR-100 (098 = X15b, 099 = X16)
+- Catatan untuk sesi berikutnya:
+  - Pilot hanya sesudah T-29 (kunci, sebaiknya + User/Voices Read), T-31 (suara + `pnpm audio sample`), T-32 (domain `media.surau.org`), dan izin pemilik di chat.
+  - Tombol ▶ halaman Intisari (X16) sudah tersambung ke pemutar; tampil begitu Intisari punya audio.
+
 ## 2026-10-24 · Landing page publik (ADR-096) — selesai
 
 - Dikerjakan: landing page di `/` (hero bergaya Primer dengan sampul Ihya dan kutipan asli, menu bagian bernomor yang menempel, widget "Coba Surau" berisi simulasi Maknaz/Cari/Baca berdata asli, bento, cara kerja, koleksi bertahap, integrasi AI dengan marquee logo + simulasi MCP, gratis + biaya, tanya jawab); Beranda pindah ke `/home`; lima figur aset baru; ikon baru (panah, centang, GitHub, kutip, logo asisten AI). Beberapa putaran revisi dengan pemilik (tata letak Primer, isi bergaya ElevenLabs, widget, ukuran ponsel, tanpa bayangan).
@@ -22,6 +126,28 @@ Format entri:
 - Biaya API: –
 - Keputusan: ADR-096
 - Catatan untuk sesi berikutnya: sesudah deploy, buka surau.org (landing) dan surau.org/home (Beranda). Testimoni asli, donasi, tombol jeda gerak, dan versi `/en` menunggu keputusan pemilik.
+
+## 2026-10-24 · X16 · UI Intisari: hub, halaman Intisari, pembaca, daftar isi, Cari, MCP — selesai (data nyata menunggu X15b; T-30 disetujui pemilik 2026-10-25)
+- Dikerjakan:
+  - **core:** dalil Intisari dihitung dari jangkar (`DigestView.evidence`: ayat Tanzil + Kemenag, takhrij + label kode). Jalur Cari `digest` (opt-in; Cari situs, MCP, eval retrieval; bukan Jawab) dengan memo isolate untuk korpus tanpa indeks; `SEARCH_RESULT_VERSION` 3.
+  - **web:** hub `/kitab/ihya/intisari` + halaman `/kitab/ihya/bab/<id>/intisari` (ISR, 404 di skema < 9) + fixture `/dev/intisari` (Preview, `DEV_PAGES`). Komponen `components/intisari/*` (label AI, gagasan + Dasar teks, kutipan Arab dari DB, istilah, dalil, Uji pemahaman, penutup, slot ▶ X17).
+  - **Pembaca:** kartu Ringkasan AI + "Buka Intisari", menu ⋮, lencana daftar isi, tombol hub di halaman karya, kartu Cari gagasan, tanda "sudah dibaca" (dicatat di `/privasi`).
+  - **MCP:** `get_section_digest` (delapan tool).
+- Verifikasi:
+  - Unit: core/db/mcp lolos (dalil, jalur `dp`, memo, tool); web 52 lolos.
+  - e2e `intisari.spec.ts` lokal 12 lolos / 2 dilewati (staging tanpa data), axe terang + gelap + urutan heading.
+  - CI PR #138 (commit `6af024a`): `verify`, `eval retrieval`, `preview` (e2e + axe di Preview), dan `preview mcp` (8 tool) hijau; di-merge ke `main` sebagai `4ffb9ab`.
+  - LCP ponsel Preview (n=5): j1/200 3,49 / 3,29 dtk, `/dev/intisari` 3,37 / 3,69 dtk (≤ 4,29; `sesi/bukti/X16/lcp-pr138.md`).
+  - Staging skema 7: hub dan halaman Intisari 404, tanpa lencana atau tautan.
+  - Peninjau: 1 blocker, 3 penting, 10 kecil; semua dikerjakan:
+    - blocker: `uji-mcp.sh` masih 7 tool, jadi CI `preview mcp` akan merah;
+    - takhrij per kutipan + `weak_report` (riwayat sangat lemah ditahan saat dibaca);
+    - `/api/halaman` tanpa kueri Intisari di skema < 9;
+    - jalur cadangan Cari diuji di D1 sungguhan (DROP tabel);
+    - tautan hub hanya bila ada Intisari Kitab, penjaga huruf Arab di kartu Cari, label netral catatan kaki non-takhrij, syarat e2e lewat lencana `daftar-isi.json`, satu pemuatan ekstra daftar isi per render.
+- Biaya API: –
+- Keputusan: ADR-099
+- Catatan untuk sesi berikutnya: data nyata baru ada sesudah X15b langkah 9 (pilot ke staging). Sesudahnya deploy ulang Preview: e2e "dengan Intisari" membandingkan kutipan dengan `/api/kutipan`. Ulangi juga `eval:retrieval --gate` dan LCP halaman Intisari nyata. X17 mengisi `ListenSlot`. T-30 disetujui pemilik 2026-10-25 (“ya saya setuju”, jawaban di sesi induk) atas tangkapan layar `sesi/bukti/X16/01–05`; lihat lagi tampilannya dengan data nyata sesudah pilot.
 
 ## 2026-10-24 · X15a · Intisari: riset Headway/Blinkist/ElevenLabs v4, rencana X15–X17, kontrak data — selesai (kontrak; pipeline, UI, audio menyusul)
 - Dikerjakan:

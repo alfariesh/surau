@@ -2,7 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import { hitParts } from "./hit-parts";
 
-const lane = (...paths: ("arabic" | "translation" | "summary")[]) =>
+const lane = (...paths: ("arabic" | "translation" | "summary" | "digest")[]) =>
   paths.map((path) => ({ path, rank: 1, all_terms: true }));
 
 describe("hitParts: kartu Cari menurut mode baca (X11)", () => {
@@ -43,5 +43,16 @@ describe("hitParts: kartu Cari menurut mode baca (X11)", () => {
     expect(
       hitParts({ matched_by: lane("arabic"), hasTranslation: false, hasSummary: false }, "tr"),
     ).toEqual(["arabic"]);
+  });
+
+  it("gagasan Intisari (X16): tampil di semua mode bila jalurnya cocok, sesudah ringkasan", () => {
+    for (const mode of ["ar", "both", "tr"] as const) {
+      expect(
+        hitParts(
+          { matched_by: lane("digest"), hasTranslation: false, hasSummary: true, hasDigest: true },
+          mode,
+        ),
+      ).toEqual(["arabic", "summary", "digest"]);
+    }
   });
 });

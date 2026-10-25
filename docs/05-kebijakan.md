@@ -172,7 +172,7 @@ MCP publik dirilis di Fase 3, sebelum Jawab (ADR-019), sebagai server terpisah d
 **Sifat server**
 - Hanya-baca, tanpa login, dan **tidak pernah memanggil LLM**. Terjemahan dan ringkasan yang disajikan adalah hasil batch yang sudah tersimpan dan berlabel AI.
 - Teks Arab, teks ayat, dan terjemahan Kemenag disalin verbatim dari DB.
-- Nama tool berbahasa Inggris dengan deskripsi Inggris + Indonesia: `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, dan `get_hadith_takhrij`.
+- Nama tool berbahasa Inggris dengan deskripsi Inggris + Indonesia: `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, `get_hadith_takhrij`, dan `get_section_digest` (Intisari, sejak X16).
 - Hasil dipaginasi (±4–6 ribu token per respons) supaya tidak melebihi batas output klien AI.
 
 **Setiap respons memuat**
@@ -209,7 +209,7 @@ Intisari (X15–X17, ADR-097) adalah ringkasan belajar berlapis per kitab dan pe
 
 **Suara AI (audio "Dengarkan")**
 - Yang dibacakan hanya teks Intisari berbahasa Indonesia. **Mesin tidak pernah membacakan huruf Arab, baik teks kitab maupun ayat**, karena salah i'rab sama dengan salah kutip. Kutipan dibacakan lewat terjemahannya, dan ayat hanya disebut. Lantunan qari hanya dari rekaman manusia berlisensi (belum ada).
-- Setiap audio diawali kalimat label bahwa Intisari dibuat AI dan dibacakan suara AI. Label yang sama ada di halaman, di kontrol layar kunci, dan di metadata berkas, beserta lisensinya (§7).
+- Label bahwa Intisari dibuat AI dan dibacakan suara AI tampil sebagai **teks**: di halaman (tombol dan pemutar), di kontrol layar kunci, dan di metadata berkas beserta lisensinya (§7). Label itu tidak diucapkan di audio (keputusan pemilik 2026-10-25, ADR-102), supaya audio mudah dipotong dan tidak mengulang kalimat yang sama di setiap bab.
 - Narator bersuara netral dan berbicara sebagai orang ketiga. Tidak ada peran orang pertama sebagai ulama (§3), tidak ada gaya dramatis, dan suara ustadz atau tokoh nyata tidak dikloning.
 - Bila riwayat bertanda sangat lemah disebut, tandanya ikut dibacakan (§4).
 - Posisi dengar disimpan di perangkat pembaca (localStorage), tidak dikirim ke server (§8).

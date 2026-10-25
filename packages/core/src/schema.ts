@@ -449,7 +449,7 @@ const aiSnippet = z
   );
 
 export const searchPath = searchPathName.describe(
-  "arabic = Arabic text index; translation = AI translation index; summary = AI section summary index",
+  "arabic = Arabic text index; translation = AI translation index; summary = AI section summary index; digest = key ideas of AI digests (Intisari), mapped to their first anchor passage",
 );
 export type SearchPath = z.infer<typeof searchPath>;
 
@@ -490,6 +490,27 @@ export const searchSummary = z
   .describe("AI summary of the section this passage starts, when the summary matched");
 export type SearchSummary = z.infer<typeof searchSummary>;
 
+export const searchDigestPoint = z
+  .strictObject({
+    label: z.literal("ai_digest").describe('Always shown as "Intisari · AI summary"'),
+    section: tocNodeRef.describe("Section whose digest (Intisari) contains the key idea"),
+    ord: id.describe("Key idea number in that digest"),
+    title: z.string().describe("Key idea title (AI text)"),
+    title_highlights: z.array(aiTextSpan).describe("Matches in the title (at most 50)"),
+    ...aiTextMeta,
+    highlights: z.array(aiTextSpan).describe("Matches in the key idea body (at most 50)"),
+    snippet: aiSnippet,
+    permalink: z
+      .string()
+      .describe(
+        "Digest page of the section, e.g. https://surau.org/kitab/ihya/bab/100074/intisari (a path without origin inside @surau/core)",
+      ),
+  })
+  .describe(
+    "Key idea of an AI digest (Intisari) that matched; this passage is its first anchor (the text the idea is based on)",
+  );
+export type SearchDigestPoint = z.infer<typeof searchDigestPoint>;
+
 export const searchHit = z.strictObject({
   id: id.describe("Stable passage id"),
   anchor: z.string().describe("Stable fragment anchor, e.g. p2824"),
@@ -523,6 +544,9 @@ export const searchHit = z.strictObject({
   summary: searchSummary
     .nullable()
     .describe("AI summary of the section this passage starts, when the summary path matched"),
+  digest_point: searchDigestPoint
+    .nullable()
+    .describe("AI digest key idea anchored at this passage, when the digest path matched"),
 });
 export type SearchHit = z.infer<typeof searchHit>;
 
@@ -566,6 +590,9 @@ export const searchView = z.strictObject({
       k: id,
       depth: id.describe("Top passages per passage path that are fused"),
       summary_depth: id.describe("Top sections of the summary path that are fused"),
+      digest_depth: id
+        .nullable()
+        .describe("Top key ideas of the digest path that are fused; null when it did not run"),
     })
     .nullable()
     .describe(
@@ -713,6 +740,57 @@ export const digestPointView = z
   .describe("Key idea of the digest (AI text), with the passages it is based on");
 export type DigestPointView = z.infer<typeof digestPointView>;
 
+export const takhrijTermView = z.strictObject({
+  kind: z.string().describe("Term kind recognized in the takhrij text, e.g. daif"),
+  ...textSpan.shape,
+  gloss: z.string().describe("Fixed Indonesian meaning of the term (not model text)"),
+});
+
+/** Catatan kaki takhrij yang tertaut ke penanda (teks verbatim dari DB). */
+export const digestTakhrijFootnote = z
+  .strictObject({
+    id,
+    anchor: z.string(),
+    text_raw: z.string().describe("Takhrij text, verbatim from the database"),
+    location,
+  })
+  .describe("The linked takhrij footnote (al-'Iraqi for Ihya)");
+
+/** Label status dari istilah takhrij (`takhrijLabel`, ADR-069), dibuat kode, belum ditinjau. */
+export const digestTakhrijStatus = z
+  .strictObject({
+    label: z
+      .literal("rule_extracted")
+      .describe(
+        "Made by code from the terms written in the takhrij text; not reviewed by an ustadz. Always show the takhrij text with it",
+      ),
+    kind: z
+      .enum(["terms", "sources_only", "refers_back", "not_takhrij"])
+      .describe(
+        "terms = grading terms found; sources_only = only names sources; refers_back = refers to an earlier takhrij; not_takhrij = not recognized as takhrij",
+      ),
+    text: z.string().describe("Short Indonesian status text built by code from the terms"),
+    weak: z.boolean().describe("The takhrij names weakness, forgery, no origin, or no chain found"),
+    mixed: z
+      .boolean()
+      .describe("Both positive and negative gradings (different chains or wordings)"),
+    terms: z
+      .array(takhrijTermView)
+      .describe("Every recognized term with its span in the takhrij text_raw"),
+    version: id.describe("Version of the takhrij term rules"),
+  })
+  .describe("Hadith status taken only from the takhrij text (never guessed)");
+export type DigestTakhrijStatus = z.infer<typeof digestTakhrijStatus>;
+
+/** Takhrij milik sebuah kutipan (X16): penanda di dalam rentangnya atau tepat sesudahnya. */
+export const digestQuoteTakhrij = z.strictObject({
+  marker: z.string().describe("Footnote marker digit as printed, e.g. ١"),
+  ...textSpan.shape,
+  footnote: digestTakhrijFootnote,
+  status: digestTakhrijStatus,
+});
+export type DigestQuoteTakhrij = z.infer<typeof digestQuoteTakhrij>;
+
 export const digestQuoteView = z
   .strictObject({
     ord: id,
@@ -733,6 +811,11 @@ export const digestQuoteView = z
       .describe(
         "AI translation of the quotation (or of the whole passage when the quotation is the whole passage, with its human review); null when unavailable",
       ),
+    takhrij: z
+      .array(digestQuoteTakhrij)
+      .describe(
+        "Takhrij footnotes whose markers are inside the quotation (or right after it), with a code-made status label; empty for a narration = status unknown (never guess it)",
+      ),
   })
   .describe("Highlighted quotation: verbatim Arabic from the database, with its location");
 export type DigestQuoteView = z.infer<typeof digestQuoteView>;
@@ -752,6 +835,55 @@ export const digestTermView = z
   .describe("Glossary term used in the digest");
 export type DigestTermView = z.infer<typeof digestTermView>;
 
+/**
+ * Dalil sebuah Intisari (X16, ADR-097 butir 3): dihitung kode dari jangkar gagasan yang tampil saat
+ * dibaca, tanpa model dan tanpa disimpan. Ayat dari `passage_ayah_ref` (teks Tanzil + terjemahan
+ * Kemenag di `quran`), riwayat dari penanda catatan kaki takhrij beserta label istilah kode.
+ */
+export const digestAyahEvidence = z
+  .strictObject({
+    point_ords: z
+      .array(id)
+      .describe("Key ideas whose anchored text contains this Quran quotation, in order"),
+    passage_id: id.describe("Passage quoting the verse"),
+    ...ayahRef.shape,
+    location: location.describe("Printed location and permalink of the passage"),
+  })
+  .describe(
+    "Quran quotation inside a key idea's anchored text, recognized by code (never by a model); the verse text and official translation are in `quran`",
+  );
+export type DigestAyahEvidence = z.infer<typeof digestAyahEvidence>;
+
+export const digestHadithEvidence = z
+  .strictObject({
+    point_ords: z
+      .array(id)
+      .describe("Key ideas whose anchored text contains this footnote marker, in order"),
+    passage_id: id.describe("Main-text passage with the footnote marker"),
+    marker: z.string().describe("Footnote marker digit as printed, e.g. ١"),
+    ...textSpan.shape,
+    location: location.describe("Printed location and permalink of the main-text passage"),
+    footnote: digestTakhrijFootnote,
+    status: digestTakhrijStatus,
+  })
+  .describe(
+    "Footnote marker inside a key idea's anchored text, with its takhrij; status.kind not_takhrij = an editor's note, not recognized as takhrij",
+  );
+export type DigestHadithEvidence = z.infer<typeof digestHadithEvidence>;
+
+export const digestEvidenceView = z
+  .strictObject({
+    ayat: z.array(digestAyahEvidence).describe("Quran quotations, in reading order"),
+    hadith: z.array(digestHadithEvidence).describe("Narrations with takhrij, in reading order"),
+    quran: quranView
+      .nullable()
+      .describe("Texts of the quoted verses (Tanzil) with the Kemenag translation; null when none"),
+  })
+  .describe(
+    "Evidence (dalil) computed by code from the anchors of the shown key ideas when read; not stored and not model text",
+  );
+export type DigestEvidenceView = z.infer<typeof digestEvidenceView>;
+
 export const digestAudioView = z
   .strictObject({
     r2_key: z
@@ -766,6 +898,12 @@ export const digestAudioView = z
     model: z.string().nullable(),
     created_at: z.string(),
     chapters: audioChapters.describe("Player chapters: key idea + start time"),
+    alignment_key: z
+      .string()
+      .nullable()
+      .describe(
+        "Object key of per-sentence timestamps (JSON) in the same media bucket, for following the text while listening; null when none",
+      ),
   })
   .describe("Narration of the digest text (never of Arabic text or Quran verses)");
 export type DigestAudioView = z.infer<typeof digestAudioView>;
@@ -790,15 +928,16 @@ export const digestView = z
     questions: z.array(digestQuestionView),
     terms: z.array(digestTermView),
     reading_minutes: z.number().int().positive().describe("Estimated reading time of the AI text"),
+    evidence: digestEvidenceView,
     audio: digestAudioView.nullable(),
     withheld_quotes: z
       .array(
         z.strictObject({
           ord: id,
           reason: z
-            .enum(["stale", "ayah"])
+            .enum(["stale", "ayah", "weak_report"])
             .describe(
-              "stale = the quoted span no longer matches the passage text; ayah = it touches a Quran quotation",
+              "stale = the quoted span no longer matches the passage text; ayah = it touches a Quran quotation; weak_report = its takhrij names it very weak, forged, or without origin (never a highlighted quotation, ADR-097)",
             ),
         }),
       )

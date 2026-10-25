@@ -12,12 +12,14 @@ import { landing } from "./id/landing";
 import { mcp } from "./id/mcp";
 import { about } from "./id/about";
 import { license } from "./id/license";
+import { listen } from "./id/listen";
 import { reader } from "./id/reader";
 import { readMode } from "./id/readMode";
 import { search } from "./id/search";
 import { error } from "./id/error";
 import { notFound } from "./id/notFound";
 import { devBook } from "./id/devBook";
+import { intisari } from "./id/intisari";
 
 // Objek lengkap untuk server component dan modul server. Komponen klien mengimpor bagiannya
 // langsung dari `./id/<bagian>` (X09): objek ini menarik seluruh kamus ke bundle browser.
@@ -33,12 +35,14 @@ export const id = {
   mcp,
   about,
   license,
+  listen,
   reader,
   readMode,
   search,
   error,
   notFound,
   devBook,
+  intisari,
 } as const;
 
 export const SOURCE_URL = "https://github.com/alfariesh/surau";

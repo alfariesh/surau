@@ -153,7 +153,15 @@ export const failure = z.strictObject({
 });
 export type Failure = z.infer<typeof failure>;
 
-export const batchKind = z.enum(["translation", "summary-r1", "summary-r2"]);
+export const batchKind = z.enum([
+  "translation",
+  "summary-r1",
+  "summary-r2",
+  // Intisari (X15b): folder sendiri, `data/build/llm/intisari/`.
+  "digest-leaf",
+  "digest-merge",
+  "digest-book",
+]);
 export type BatchKind = z.infer<typeof batchKind>;
 
 const totals = z.strictObject({

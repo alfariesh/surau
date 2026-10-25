@@ -2,7 +2,16 @@
 // pertanyaan, istilah) selalu berlabel; teks Arab kutipan disalin kode dari `text_raw` paragrafnya
 // (teks-arab.md aturan 1) dan hanya tampil bila sidiknya masih sama dengan saat Intisari dibangun
 // dan rentangnya tidak menyentuh rujukan ayat.
-import { AI_TEXT_LANG, audioChapters, getDigest, getTocNode, getTranslations } from "@surau/db";
+import {
+  AI_TEXT_LANG,
+  audioChapters,
+  getDigest,
+  getFootnoteRefs,
+  getPassagesByIds,
+  getTocNode,
+  getTranslations,
+  passageAnchor,
+} from "@surau/db";
 import type { AyahSpanRow, D1Db, DigestQuoteWithPassageRow, DigestRows } from "@surau/db";
 
 import { loadCiteContext } from "./citation.ts";
@@ -10,14 +19,21 @@ import type { CiteContext } from "./citation.ts";
 import { NotFound, parseInput } from "./errors.ts";
 import { reviewersFor, translationView } from "./page.ts";
 import { sectionPermalink } from "./permalink.ts";
+import { loadAyahRefs, quranForRefs } from "./quran.ts";
 import { readDigestInput } from "./schema.ts";
 import type {
   DigestAudioView,
+  DigestAyahEvidence,
+  DigestEvidenceView,
+  DigestHadithEvidence,
   DigestPointView,
+  DigestQuoteTakhrij,
   DigestQuoteView,
+  DigestTakhrijStatus,
   DigestView,
   TranslationView,
 } from "./schema.ts";
+import { VERY_WEAK_TAKHRIJ_KINDS, takhrijLabel } from "./takhrij-label.ts";
 import { hasArabicLetters } from "./translation-text.ts";
 import { textSha256 } from "./translation-revision.ts";
 
@@ -75,6 +91,7 @@ async function quoteViews(
   );
   const quotes: DigestQuoteView[] = [];
   const withheld: Withheld[] = [];
+  const valid: { q: DigestQuoteWithPassageRow; text: string }[] = [];
   for (const q of candidates) {
     const text = await verifiedQuote(q);
     if (text === null) {
@@ -83,6 +100,21 @@ async function quoteViews(
     }
     if (touchesAyah(q, rows.ayahSpans)) {
       withheld.push({ ord: q.ord, reason: "ayah" });
+      continue;
+    }
+    valid.push({ q, text });
+  }
+  const takhrij = await quoteTakhrij(
+    db,
+    cite,
+    valid.map((v) => v.q),
+  );
+  for (const { q, text } of valid) {
+    const linked = takhrij.get(q.ord) ?? [];
+    // Riwayat sangat lemah, palsu, atau tanpa asal tidak pernah jadi kutipan pilihan (ADR-097):
+    // validator X15b menolaknya; ini lapis kedua saat dibaca, dari label takhrij yang sama.
+    if (linked.some((t) => t.status.terms.some((term) => VERY_WEAK_TAKHRIJ_KINDS.has(term.kind)))) {
+      withheld.push({ ord: q.ord, reason: "weak_report" });
       continue;
     }
     let translation: TranslationView | null = null;
@@ -116,9 +148,168 @@ async function quoteViews(
       text_raw: text,
       location: cite.location(q.juz, q.page_no, q.passage_id),
       translation,
+      takhrij: linked,
     });
   }
+  withheld.sort((a, b) => a.ord - b.ord);
   return { quotes, withheld };
+}
+
+/** Label status buatan kode atas teks catatan kaki (`takhrijLabel`, ADR-069), belum ditinjau. */
+function takhrijStatusOf(text: string): DigestTakhrijStatus {
+  const label = takhrijLabel(text);
+  return {
+    label: "rule_extracted",
+    kind: label.kind,
+    text: label.text,
+    weak: label.weak,
+    mixed: label.mixed,
+    terms: label.terms,
+    version: label.version,
+  };
+}
+
+/**
+ * Takhrij milik setiap kutipan (X16): penanda di dalam rentang kutipan atau tepat sesudahnya
+ * (`markerInAnchor`), dengan teks catatan kakinya dari DB dan label kodenya. Per `ord` kutipan.
+ */
+async function quoteTakhrij(
+  db: D1Db,
+  cite: CiteContext,
+  quotes: readonly DigestQuoteWithPassageRow[],
+): Promise<Map<number, DigestQuoteTakhrij[]>> {
+  const out = new Map<number, DigestQuoteTakhrij[]>();
+  if (quotes.length === 0) return out;
+  const refs = await getFootnoteRefs(db, [...new Set(quotes.map((q) => q.passage_id))]);
+  const owned = quotes.flatMap((q) =>
+    refs
+      .filter((r) => r.passage_id === q.passage_id && markerInAnchor(q.passage_text_raw, q, r))
+      .map((r) => ({ q, r })),
+  );
+  if (owned.length === 0) return out;
+  const feet = new Map(
+    (await getPassagesByIds(db, [...new Set(owned.map((o) => o.r.footnote_passage_id))])).map(
+      (p) => [p.id, p],
+    ),
+  );
+  for (const { q, r } of owned) {
+    const foot = feet.get(r.footnote_passage_id);
+    if (foot === undefined) continue;
+    out.set(q.ord, [
+      ...(out.get(q.ord) ?? []),
+      {
+        marker: r.marker,
+        char_start: r.char_start,
+        char_end: r.char_end,
+        footnote: {
+          id: foot.id,
+          anchor: passageAnchor(foot.id),
+          text_raw: foot.text_raw,
+          location: cite.location(foot.juz, foot.page_no, foot.id),
+        },
+        status: takhrijStatusOf(foot.text_raw),
+      },
+    ]);
+  }
+  return out;
+}
+
+/** Antara jangkar dan penanda hanya spasi atau tanda baca (tanpa huruf/angka). */
+const NO_WORDS = /^[\s\p{P}]*$/u;
+/** Jarak terjauh penanda sesudah akhir jangkar yang masih milik kalimat terakhir jangkar itu. */
+const MARKER_TAIL = 3;
+
+/**
+ * Penanda catatan kaki milik jangkar: di dalam rentangnya (bukan di awal, yang menutup kalimat
+ * sebelum jangkar), atau tepat sesudah akhirnya (blok `segmentText` bisa berakhir di titik sebelum
+ * penanda kalimat itu).
+ */
+export function markerInAnchor(
+  text: string,
+  anchor: { char_start: number; char_end: number },
+  marker: { char_start: number; char_end: number },
+): boolean {
+  const { char_start: as, char_end: ae } = anchor;
+  const { char_start: ms, char_end: me } = marker;
+  if (ms >= as && me <= ae) return !NO_WORDS.test(text.slice(as, ms));
+  return ms >= ae && ms - ae <= MARKER_TAIL && NO_WORDS.test(text.slice(ae, ms));
+}
+
+/**
+ * Dalil dari jangkar gagasan yang tampil (X16): rujukan ayat yang beririsan dengan jangkar, dan
+ * penanda takhrij milik jangkar beserta teks catatan kakinya + label istilah kode (`takhrijLabel`,
+ * status `rule_extracted`). Teks ayat dan terjemahan Kemenag lewat `quranForRefs`. Dua bolak-balik
+ * D1; tidak ada yang disimpan.
+ */
+async function evidenceView(
+  db: D1Db,
+  cite: CiteContext,
+  points: readonly DigestPointView[],
+): Promise<DigestEvidenceView> {
+  const anchors = points.flatMap((p) => p.anchors.map((a) => ({ ...a, point_ord: p.ord })));
+  const passageIds = [...new Set(anchors.map((a) => a.passage_id))];
+  if (passageIds.length === 0) return { ayat: [], hadith: [], quran: null };
+  const [ayahBy, refs] = await Promise.all([
+    loadAyahRefs(db, passageIds),
+    getFootnoteRefs(db, passageIds),
+  ]);
+  const anchorsOf = (passageId: number) => anchors.filter((a) => a.passage_id === passageId);
+
+  const ayat: DigestAyahEvidence[] = [];
+  for (const passageId of passageIds) {
+    for (const ref of ayahBy?.get(passageId) ?? []) {
+      const ords = anchorsOf(passageId)
+        .filter((a) => ref.char_start < a.char_end && a.char_start < ref.char_end)
+        .map((a) => a.point_ord);
+      if (ords.length === 0) continue;
+      const own = anchorsOf(passageId)[0]!;
+      ayat.push({
+        point_ords: [...new Set(ords)].sort((a, b) => a - b),
+        passage_id: passageId,
+        ...ref,
+        location: own.location,
+      });
+    }
+  }
+
+  const candidates = refs.filter((r) => anchorsOf(r.passage_id).length > 0);
+  const [rows, quran] = await Promise.all([
+    getPassagesByIds(db, [...passageIds, ...candidates.map((r) => r.footnote_passage_id)]),
+    quranForRefs(db, ayat),
+  ]);
+  const texts = new Map(rows.map((p) => [p.id, p]));
+  const hadith: DigestHadithEvidence[] = [];
+  for (const ref of candidates) {
+    const body = texts.get(ref.passage_id);
+    const foot = texts.get(ref.footnote_passage_id);
+    if (body === undefined || foot === undefined) continue;
+    const ords = anchorsOf(ref.passage_id)
+      .filter((a) => markerInAnchor(body.text_raw, a, ref))
+      .map((a) => a.point_ord);
+    if (ords.length === 0) continue;
+    hadith.push({
+      point_ords: [...new Set(ords)].sort((a, b) => a - b),
+      passage_id: ref.passage_id,
+      marker: ref.marker,
+      char_start: ref.char_start,
+      char_end: ref.char_end,
+      location: cite.location(body.juz, body.page_no, body.id),
+      footnote: {
+        id: foot.id,
+        anchor: passageAnchor(foot.id),
+        text_raw: foot.text_raw,
+        location: cite.location(foot.juz, foot.page_no, foot.id),
+      },
+      status: takhrijStatusOf(foot.text_raw),
+    });
+  }
+  const byText = (
+    a: { passage_id: number; char_start: number },
+    b: { passage_id: number; char_start: number },
+  ) => a.passage_id - b.passage_id || a.char_start - b.char_start;
+  ayat.sort(byText);
+  hadith.sort(byText);
+  return { ayat, hadith, quran };
 }
 
 function audioView(rows: DigestRows): DigestAudioView | null {
@@ -134,6 +325,7 @@ function audioView(rows: DigestRows): DigestAudioView | null {
     created_at: track.created_at,
     // Sudah divalidasi `audioTrackRow` saat dibaca dari DB.
     chapters: audioChapters.parse(JSON.parse(track.chapters_json)),
+    alignment_key: track.alignment_key,
   };
 }
 
@@ -141,7 +333,8 @@ function audioView(rows: DigestRows): DigestAudioView | null {
  * Intisari sebuah node daftar isi dalam bahasa teks AI situs. `NotFound` bila node tidak ada; `null`
  * bila node itu belum punya Intisari, Intisari-nya ditolak peninjau, teks utamanya memuat huruf Arab,
  * atau skema korpus < 9. Gagasan yang ditolak atau tanpa jangkar tidak dikirim, begitu pula kutipan
- * dan pertanyaan miliknya; kutipan dan pertanyaan yang ditolak sendiri juga tidak.
+ * dan pertanyaan miliknya; kutipan dan pertanyaan yang ditolak sendiri juga tidak. Dalil
+ * (`evidence`) dihitung dari jangkar gagasan yang dikirim saja.
  */
 export async function readDigest(
   db: D1Db,
@@ -187,7 +380,10 @@ export async function readDigest(
   ]
     .map((s) => s?.length ?? 0)
     .reduce((a, b) => a + b, 0);
-  const { quotes, withheld } = await quoteViews(db, rows, cite, shown);
+  const [{ quotes, withheld }, evidence] = await Promise.all([
+    quoteViews(db, rows, cite, shown),
+    evidenceView(db, cite, points),
+  ]);
   return {
     label: "ai_digest",
     section: {
@@ -225,6 +421,7 @@ export async function readDigest(
         review_status: t.review_status,
       })),
     reading_minutes: readingMinutes(chars),
+    evidence,
     audio: audioView(rows),
     withheld_quotes: withheld,
   };

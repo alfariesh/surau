@@ -29,7 +29,10 @@ export const IHYA_PATH: EditionPath = {
   isDefault: true,
 };
 
-export function links(rows: Pick<CorpusRows, "page" | "passage">): {
+export function links(rows: {
+  page: readonly CorpusRows["page"][number][];
+  passage: readonly CorpusRows["passage"][number][];
+}): {
   passage: (id: number) => string;
   section: (id: number) => string;
 } {

@@ -4,6 +4,8 @@
 // membaca nilai terakhir; setiap nilai terikat `scope` (permalink halaman pertama yang dirender
 // server), jadi nilai dari halaman sebelumnya tidak dipakai sesudah navigasi.
 
+import type { DigestTeaser } from "./digest";
+
 export interface ReaderPageDetail {
   /** Permalink halaman pertama (yang dirender server) tempat nilai ini berlaku. */
   scope: string;
@@ -15,6 +17,8 @@ export interface ReaderPageDetail {
   bab: string | null;
   /** Node daftar isi yang tampil di halaman ini (urut). */
   activeIds: number[];
+  /** Intisari terdekat dari bagian yang sedang dibaca (X16: menu ⋮), atau null. */
+  digest: DigestTeaser | null;
 }
 
 let last: ReaderPageDetail | null = null;

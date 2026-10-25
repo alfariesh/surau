@@ -1,6 +1,6 @@
 # X16 · Sesi sisipan: UI Intisari (hub, halaman Intisari, pembaca, daftar isi, Cari, MCP)
 
-> **Fase:** sisipan (`apps/web`, `apps/mcp`, `packages/core`, `packages/db` hanya jalur Cari) · **Status:** belum
+> **Fase:** sisipan (`apps/web`, `apps/mcp`, `packages/core`, `packages/db` hanya jalur Cari) · **Status:** selesai (kode; PR #138 di main `4ffb9ab`, ADR-099); data nyata menunggu X15b langkah 9; T-30 disetujui pemilik 2026-10-25 (“ya saya setuju”, jawaban di sesi induk)
 > **Prasyarat:** X15a di-merge (kontrak `readDigest`/`DigestView`, ADR-097); data nyata di staging dari X15b langkah 9 · Tugas pemilik: T-30 (tinjau tampilan)
 > **Perkiraan:** 1–2 percakapan agent · $0 LLM · tanpa korpus baru (fixture dulu; data nyata dari pilot X15b / `ihya-v9`)
 
@@ -59,12 +59,12 @@ Lihat [X15](X15-intisari.md) dan ADR-097. Persona: pekerja kota yang sibuk, awam
 
 ## Selesai bila
 
-- [ ] Hub dan halaman Intisari tampil di Preview dengan data staging. Di korpus skema < 9 halaman ini `notFound`, tanpa lencana atau tautan.
-- [ ] Teks Arab kutipan sama persis dengan `text_raw` (e2e membandingkannya dengan `/api/kutipan`), dan kutipan dengan sidik basi tidak tampil.
-- [ ] Setiap gagasan punya minimal satu tautan "Dasar teks" yang membuka paragrafnya.
-- [ ] Label AI ada di halaman Intisari, kartu pembaca, dan kartu Cari.
-- [ ] e2e + axe lolos; LCP ≤ 4,29 dtk; `eval:retrieval --gate` tidak turun.
-- [ ] `pnpm verify` lolos; peninjau; T-30 disetujui pemilik; STATUS, LOG, dan berkas sesi ini diperbarui.
+- [ ] Hub dan halaman Intisari tampil di Preview dengan data staging. Di korpus skema < 9 halaman ini `notFound`, tanpa lencana atau tautan. *(Bagian kedua terbukti: Preview pr-138 + `pnpm dev:remote` atas staging skema 7 → hub/halaman 404, tanpa lencana/tautan; e2e "tanpa Intisari" lolos. Bagian pertama menunggu data pilot X15b langkah 9.)*
+- [ ] Teks Arab kutipan sama persis dengan `text_raw` (e2e membandingkannya dengan `/api/kutipan`), dan kutipan dengan sidik basi tidak tampil. *(e2e "dengan Intisari" sudah ditulis, dilewati sampai `daftar-isi.json` menandai node berintisari; sidik basi ditahan `readDigest`, tes core X15a; kartu merender `text_raw` apa adanya, tes unit `digest-page.test.tsx`.)*
+- [x] Setiap gagasan punya minimal satu tautan "Dasar teks" yang membuka paragrafnya. *(core tidak mengirim gagasan tanpa jangkar; `digest-page.test.tsx` + e2e fixture: setiap `li#gagasan-N` punya `a[data-basis]` ke `#pN`.)*
+- [x] Label AI ada di halaman Intisari, kartu pembaca, dan kartu Cari. *(`digest-page.test.tsx`, `page-text.test.tsx` (baris Intisari di kartu Ringkasan AI), `result-card.test.tsx`; e2e fixture.)*
+- [x] e2e + axe lolos; LCP ≤ 4,29 dtk; `eval:retrieval --gate` tidak turun. *(CI commit `6af024a`: `preview` sukses = e2e penuh di Preview termasuk `intisari.spec.ts` + axe; tes "dengan Intisari" dilewati karena staging tanpa data, dicatat di butir 1–2. `preview mcp` sukses (8 tool), `eval retrieval` sukses. LCP ponsel Preview median j1/200 3,49/3,29 dtk, `/dev/intisari` 3,37/3,69 dtk, `bukti/X16/lcp-pr138.md`; CI `eval retrieval` hijau; e2e lokal 12 lolos/2 dilewati dengan axe; e2e Preview CI: lihat PR #138.)*
+- [x] `pnpm verify` lolos; peninjau; T-30 disetujui pemilik; STATUS, LOG, dan berkas sesi ini diperbarui. *(`pnpm verify` lokal lolos: 881 + 418 tes + build, dan CI `verify` hijau; peninjau: 1 blocker + 13 temuan dikerjakan; T-30 disetujui pemilik 2026-10-25 (“ya saya setuju”, jawaban di sesi induk); STATUS/LOG/berkas sesi di PR #138 dan #140.)*
 
 Berkas bersama dengan X17 yang dikerjakan bergantian: `src/i18n/privacy.ts` / halaman `/privasi` (penyimpanan lokal) dan `globals.css`.
 
@@ -77,4 +77,46 @@ Berkas bersama dengan X17 yang dikerjakan bergantian: `src/i18n/privacy.ts` / ha
 
 ## Catatan hasil
 
-*(diisi agent di akhir sesi)*
+*(2026-10-24, PR #138, ADR-099; di-merge ke `main` sebagai `4ffb9ab` pukul 23:21 UTC atas permintaan pemilik. CI commit terakhir `6af024a` hijau semua: `verify`, `eval retrieval`, `preview` (e2e + axe), `preview mcp`.)*
+
+**Dibuat:**
+- **core:** `DigestView.evidence` (aditif) = dalil dari jangkar gagasan yang tampil:
+  - ayat = `passage_ayah_ref` yang beririsan dengan jangkar + `quranForRefs`;
+  - hadits = penanda takhrij milik jangkar (`markerInAnchor`) + `takhrijLabel` (`rule_extracted`) + teks takhrij asli.
+- **core + db, jalur Cari `digest`:** gagasan dipetakan ke jangkar seq terkecil; gagasan yang ditolak atau tanpa jangkar disaring sebelum diberi peringkat. Opt-in `searchText(…, { digest: true })` untuk Cari situs, MCP, dan eval retrieval; Jawab tidak. Korpus tanpa indeks: satu kueri gagal per isolate lalu diingat. `SEARCH_RESULT_VERSION` 3, `digestPermalink`, `getDigestHeadersOnPath`.
+- **web, rute:** hub `/kitab/<karya>/intisari`, `/kitab/<karya>/bab/<id>/intisari` (ISR on-demand, 404 di skema < 9 atau tanpa Intisari), dan `/dev/intisari` (fixture tanpa D1; var `DEV_PAGES` "1" hanya di Preview).
+- **web, komponen** `components/intisari/*`:
+  - label AI (model, versi prompt, tanggal, status);
+  - gagasan bernomor + lencana sikap + anjuran dengan catatan "tanyakan kepada ulama";
+  - Dasar teks → `#pN`;
+  - kartu kutipan (`data-quote-range` untuk e2e) dengan takhrij-nya sendiri (`DigestQuoteView.takhrij`) atau "status belum diketahui"; riwayat sangat lemah/palsu/tanpa asal ditahan (`weak_report`);
+  - istilah, dalil, "Uji pemahaman" terlipat;
+  - penutup + "Lanjut ke teks lengkap" + catatan guru;
+  - daftar Intisari Bab (tata letak Kitab);
+  - slot ▶ untuk X17.
+- **web, pembaca:**
+  - kartu Ringkasan AI + "Intisari AI · N gagasan · ± M menit · Buka Intisari" (`PageModel.digests`, `PAGE_MODEL_VERSION` 7);
+  - menu ⋮ "Buka Intisari bagian ini/kitab ini" (ikut halaman sambungan);
+  - lencana daftar isi (penanda, bukan tautan kedua);
+  - tombol "Intisari kitab ini" di halaman karya;
+  - kartu Cari gagasan.
+- Tanda "sudah dibaca" (localStorage `surau:intisari:read:v1`) tercatat di `/privasi`.
+- **MCP:** tool `get_section_digest` (delapan tool), `search_text` ikut jalur gagasan, instruksi butir 7.
+
+**Bukti:**
+- Tes:
+  - unit core/db/mcp lolos (termasuk dalil, jalur `dp`, memo, tool MCP);
+  - unit web 52 lolos (halaman fixture, kartu ringkasan, model halaman, kepala, tanda baca);
+  - e2e `intisari.spec.ts` lokal 12 lolos / 2 dilewati (staging tanpa data), termasuk axe terang + gelap dan urutan heading di desktop + ponsel;
+  - CI PR #138: `verify` dan `eval retrieval` hijau.
+- Staging (skema 7) lewat `pnpm dev:remote` dan Preview: hub dan halaman Intisari 404; pembaca dan halaman karya tanpa lencana atau tautan.
+
+**Peninjau:** 1 blocker (`uji-mcp.sh` masih 7 tool), 3 penting (takhrij per kutipan, `/api/halaman` di skema < 9, jalur cadangan Cari di D1 sungguhan), dan 10 kecil. Semua dikerjakan sebelum merge (lihat LOG).
+
+**Belum / utang:**
+- Data nyata: staging masih `ihya-v8` skema 7, dan X15b langkah 9 belum berjalan. Butir 1–2 "Selesai bila" dan e2e "dengan Intisari" (membandingkan kutipan dengan `/api/kutipan`) baru teruji sesudah pilot dimuat. Deploy ulang Preview sesudahnya (memo isolate + ISR).
+- Label hadits tinjauan ustadz (DB app) di halaman Intisari menyusul (di luar cakupan).
+- `eval:retrieval --gate` diulang sesudah data nyata (gerbang X15c), karena jalur gagasan baru berpengaruh bila indeksnya terisi.
+- X17 mengisi `ListenSlot` (kontrak di catatan bersama dan ADR-099 butir 9).
+
+**Pesan untuk sesi berikutnya:** sesudah X15b memuat pilot ke staging, buka Preview baru (push kosong ke PR mana pun), lalu jalankan `pnpm test:e2e` dengan `BASE_URL` Preview. Tes "dengan Intisari" akan aktif sendiri.

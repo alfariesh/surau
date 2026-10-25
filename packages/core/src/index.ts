@@ -10,7 +10,53 @@ export type { SubheadingSpanEntry, SubheadingTocTarget } from "./subheading-titl
 export { humanReviewOf, readPage, reviewersFor, translationView } from "./page.ts";
 export { readSection } from "./section.ts";
 export { DIGEST_READ_CHARS_PER_MINUTE, readDigest, readingMinutes } from "./digest.ts";
+export {
+  SCRIPT_DOOR,
+  SCRIPT_LABEL,
+  SCRIPT_VERSION,
+  ScriptError,
+  digestScript,
+  loadDigestScript,
+  segmentText,
+  unspeakableChar,
+} from "./digest-script.ts";
+export type {
+  DigestScript,
+  ScriptSegment,
+  ScriptSegmentKind,
+  ScriptSource,
+  ScriptSourceField,
+  SentenceRole,
+} from "./digest-script.ts";
+export {
+  ALIGNMENT_KEY,
+  ALIGNMENT_MIME,
+  AUDIO_ALIGNMENT_FORMAT,
+  alignmentFits,
+  alignmentJson,
+  alignmentMethod,
+  alignmentObjectKey,
+  audioAlignment,
+  audioManifestAlignment,
+  sentenceSpan,
+} from "./audio-alignment.ts";
+export type { AlignmentMethod, AudioAlignment, AudioManifestAlignment } from "./audio-alignment.ts";
+export {
+  AUDIO_CACHE_CONTROL,
+  AUDIO_MANIFEST_FORMAT,
+  AUDIO_MIME,
+  audioManifest,
+  audioManifestTrack,
+  audioObjectKey,
+  audioReport,
+  audioTrackRowOf,
+  emptyAudioManifest,
+  selectAudioTracks,
+  selectAudioTracksIn,
+} from "./audio-manifest.ts";
+export type { AudioManifest, AudioManifestTrack, AudioSelection } from "./audio-manifest.ts";
 export { buildCitation } from "./citation.ts";
+export { SYATR_MAX_CHARS, VERSE_SEPARATOR, verseBounds } from "./verse.ts";
 export { verifyQuote } from "./verify-quote.ts";
 export { ipKey, ipNetwork } from "./client-key.ts";
 export { redactPii } from "./pii.ts";
@@ -30,6 +76,7 @@ export {
   TAKHRIJ_STATUS_MAX,
   TAKHRIJ_TERM_GLOSS,
   TAKHRIJ_TERM_KINDS,
+  VERY_WEAK_TAKHRIJ_KINDS,
   isWeakTakhrijKind,
   takhrijLabel,
   takhrijStatus,
@@ -127,6 +174,7 @@ export {
 export type { CoreErrorCode } from "./errors.ts";
 
 export {
+  digestPermalink,
   editionPermalink,
   pagePermalink,
   passagePermalink,

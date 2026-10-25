@@ -167,6 +167,20 @@ export function BookOpen01(props: IconProps) {
   );
 }
 
+export function Cancel01(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M18 6L6.00081 17.9992M17.9992 18L6 6.00085"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function ChatGpt(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -374,6 +388,48 @@ export function Github(props: IconProps) {
   );
 }
 
+export function GoBackward15Sec(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M12 5L10 2.20004C10.6462 2.06886 11.3151 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 8.72836 3.57111 5.82368 6 3.99927"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M9.50005 16V10L8 11M15.5 10H12.5L12 12.5C12 12.5 13 12 14 12C15.0699 11.983 16 12.8729 16 14C16 15.0897 15 16 14.027 16C13 16 12.5 15.5 12 15"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function GoForward15Sec(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M12 5L14 2.20004C13.3538 2.06886 12.6849 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 8.72836 20.4289 5.82368 18 3.99927"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M9.50005 16V10L8 11M15.5 10H12.5L12 12.5C12 12.5 13 12 14 12C15.0699 11.983 16 12.8729 16 14C16 15.0897 15 16 14.027 16C13 16 12.5 15.5 12 15"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function GoogleGemini(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -426,6 +482,34 @@ export function HandHeart(props: IconProps) {
       />{" "}
       <path
         d="M14 17.5H20.5749C21.362 17.5 22 18.138 22 18.9251C22 19.5613 21.5782 20.1205 20.9664 20.2953L15.7451 21.7871C15.2508 21.9283 14.7392 22 14.2251 22C13.7437 22 13.2645 21.9372 12.7994 21.8132L6 20"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Headphones(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M20.0849 17C20.5849 15.5 21 13.4368 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4368 3.41512 15.5 3.91512 17"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M8.97651 19.6043L7.23857 14.6127C7.05341 14.1466 6.4617 13.9131 5.97493 14.0297C4.46441 14.5333 3.6462 16.1718 4.14742 17.6895L4.58543 19.0158C5.08664 20.5334 6.71747 21.3555 8.22799 20.8519C8.68896 20.6556 9.10449 20.0897 8.97651 19.6043Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M15.0235 19.6043L16.7614 14.6127C16.9466 14.1466 17.5383 13.9131 18.0251 14.0297C19.5356 14.5333 20.3538 16.1718 19.8526 17.6895L19.4146 19.0158C18.9134 20.5334 17.2825 21.3555 15.772 20.8519C15.311 20.6556 14.8955 20.0897 15.0235 19.6043Z"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -602,11 +686,83 @@ export function MoreVertical(props: IconProps) {
   );
 }
 
+export function Next(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M5.5241 19.0621C4.85783 19.4721 4 18.9928 4 18.2104V5.78956C4 5.00724 4.85783 4.52789 5.5241 4.93791L15.6161 11.1483C16.2506 11.5388 16.2506 12.4612 15.6161 12.8517L5.5241 19.0621Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M20 4.5L20 19.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Pause(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M5 20H9C9.55228 20 10 19.5523 10 19V5C10 4.44772 9.55228 4 9 4H5C4.44772 4 4 4.44772 4 5V19C4 19.5523 4.44772 20 5 20Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M15 20H19C19.5523 20 20 19.5523 20 19V5C20 4.44772 19.5523 4 19 4H15C14.4477 4 14 4.44772 14 5V19C14 19.5523 14.4477 20 15 20Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Play(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M7.5241 19.0621C6.85783 19.4721 6 18.9928 6 18.2104V5.78956C6 5.00724 6.85783 4.52789 7.5241 4.93791L17.6161 11.1483C18.2506 11.5388 18.2506 12.4612 17.6161 12.8517L7.5241 19.0621Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function PlusSign(props: IconProps) {
   return (
     <Ikon {...props}>
       <path
         d="M12 4V20M20 12H4"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Previous(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M18.4759 19.0621C19.1422 19.4721 20 18.9928 20 18.2104V5.78956C20 5.00724 19.1422 4.52789 18.4759 4.93791L8.38394 11.1483C7.74941 11.5388 7.74941 12.4612 8.38394 12.8517L18.4759 19.0621Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M4 19.5L4 4.5"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -10,7 +10,17 @@ import {
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/test";
 
-import { ED, P1, P2, P3, PASSAGES, T_CHILD_A, T_ROOT, seedCorpus } from "../../test/fixture.ts";
+import {
+  ED,
+  P1,
+  P2,
+  P3,
+  PASSAGES,
+  T_CHILD_A,
+  T_CHILD_B,
+  T_ROOT,
+  seedCorpus,
+} from "../../test/fixture.ts";
 import { passageIdRange, tocNodeId, tocNodeIdRange } from "../ids.ts";
 import { CORPUS_SCHEMA_VERSION } from "../schema/corpus.ts";
 import { RRF_K, searchCorpusFused, searchSummaryNodes } from "./search.ts";
@@ -235,6 +245,89 @@ describe("searchCorpusFused", () => {
     expect(r.rows.map((x) => [x.id, x.sm_node, x.sm_title])).toEqual([
       [PASSAGES.body3, HIGH, "باب أعلى"],
     ]);
+  });
+
+  test("jalur gagasan Intisari (X16): hanya bila diminta; gagasan → jangkar seq terkecilnya", async () => {
+    // Intisari BUATAN di T_CHILD_A: gagasan 1 berjangkar ke body3 (seq 1) dan body2 (seq 2);
+    // gagasan 2 ditolak peninjau (tetap di indeks di sini untuk menguji lapis kedua).
+    const point = (ord: number) => T_CHILD_A * 100 + ord;
+    await db.batch([
+      db
+        .prepare(
+          `INSERT INTO digest (toc_node_id, lang, tier, basis, abstract, source_sha256, model,
+             prompt_version, created_at)
+           VALUES (?1, 'id', 'section', 'text', 'Abstrak uji.', ?2, 'model-uji', 'digest-section@1',
+             '2026-10-24')`,
+        )
+        .bind(T_CHILD_A, "a".repeat(64)),
+      db
+        .prepare(
+          `INSERT INTO digest_point (toc_node_id, lang, ord, kind, stance, title, body, review_status)
+           VALUES (?1, 'id', 1, 'idea', 'author', 'Zuhud terhadap dunia', 'Isi gagasan uji.',
+                   'ai_generated'),
+                  (?1, 'id', 2, 'idea', 'author', 'Zuhud yang ditolak', 'Isi.', 'rejected')`,
+        )
+        .bind(T_CHILD_A),
+      db
+        .prepare(
+          `INSERT INTO digest_anchor (toc_node_id, lang, point_ord, seq, passage_id, char_start, char_end)
+           VALUES (?1, 'id', 1, 2, ?2, 0, 3), (?1, 'id', 1, 1, ?3, 0, 3), (?1, 'id', 2, 1, ?2, 0, 3)`,
+        )
+        .bind(T_CHILD_A, PASSAGES.body2, PASSAGES.body3),
+      db
+        .prepare("INSERT INTO digest_point_fts (rowid, terms) VALUES (?, ?), (?, ?)")
+        .bind(
+          point(1),
+          latinIndexText("Zuhud terhadap dunia. Isi gagasan uji."),
+          point(2),
+          latinIndexText("Zuhud yang ditolak. Isi."),
+        ),
+    ]);
+    onTestFinished(async () => {
+      await db.batch([
+        db.prepare("DELETE FROM digest_point_fts WHERE rowid IN (?, ?)").bind(point(1), point(2)),
+        db.prepare("DELETE FROM digest_anchor WHERE toc_node_id = ?").bind(T_CHILD_A),
+        db.prepare("DELETE FROM digest_point WHERE toc_node_id = ?").bind(T_CHILD_A),
+        db.prepare("DELETE FROM digest WHERE toc_node_id = ?").bind(T_CHILD_A),
+      ]);
+    });
+    // Tanpa `digest`: jalur tidak berjalan, kolomnya null.
+    expect((await ready(searchCorpusFused(db, req("zuhud")))).rows).toEqual([]);
+    const sabar = await ready(searchCorpusFused(db, req("sabar")));
+    expect(sabar.rows.every((x) => x.dp_rank === null && x.dp_node === null)).toBe(true);
+
+    const r = await ready(searchCorpusFused(db, req("zuhud", { digest: true })));
+    expect(r.rows.map((x) => [x.id, x.dp_rank, x.dp_node, x.dp_ord, x.dp_title])).toEqual([
+      [PASSAGES.body3, 1, T_CHILD_A, 1, "Zuhud terhadap dunia"],
+    ]);
+    expect(r.rows[0]).toMatchObject({
+      dp_all: 1,
+      dp_body: "Isi gagasan uji.",
+      dp_model: "model-uji",
+      dp_prompt: "digest-section@1",
+      dp_created: "2026-10-24",
+      dp_review: "ai_generated",
+      tr_rank: null,
+      sm_rank: null,
+      page_id: P3,
+    });
+    expect(r.rows[0]?.score).toBeCloseTo(1 / (RRF_K + 1));
+    // Filter bagian: Intisari T_CHILD_A di luar T_CHILD_B; edisi lain di luar rentang node.
+    const b = await ready(
+      searchCorpusFused(db, req("zuhud", { digest: true, sectionId: T_CHILD_B })),
+    );
+    expect(b.rows).toEqual([]);
+    const other = await ready(
+      searchCorpusFused(
+        db,
+        req("zuhud", {
+          digest: true,
+          span: passageIdRange(ED + 1),
+          tocSpan: tocNodeIdRange(ED + 1),
+        }),
+      ),
+    );
+    expect(other.rows).toEqual([]);
   });
 
   test("korpus tanpa indeks Indonesia (skema < 6) → ready false", async () => {

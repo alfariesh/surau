@@ -24,6 +24,9 @@
 //   judul [--budget USD] [--limit N] [--confirm]  judul daftar isi Indonesia (X04 bagian B): node + subjudul kurasi,
 //                             Sonnet 5.5 lewat API biasa (berbayar; tanpa --confirm hanya rencana +
 //                             hitung token gratis; --confirm wajib bersama --budget = pagu TOTAL)
+//   intisari <perintah> …     Intisari (X15b, ADR-098): lihat src/llm/digest-cli.ts
+//   glosarium [--budget USD] [--confirm]  definisi glosarium berkunci untuk Intisari (Sonnet 5.5,
+//                             API biasa; tanpa --confirm hanya rencana + hitung token gratis)
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -53,6 +56,9 @@ import { batchKind } from "./store.ts";
 import { z } from "zod";
 import { runMcpTokens } from "./mcp-tokens.ts";
 import { runTokens } from "./tokens.ts";
+import { INTISARI_USAGE, runIntisari } from "./digest-cli.ts";
+import { runGlossaryJob } from "./digest-glossary.ts";
+import { digestDir } from "./digest-store.ts";
 
 const repo = resolve(import.meta.dirname, "../../../..");
 
@@ -120,6 +126,12 @@ async function main(argv: string[]): Promise<number> {
       confirm: { type: "boolean", default: false },
       url: { type: "string" },
       id: { type: "string" },
+      // Intisari (X15b)
+      from: { type: "string" },
+      kitab: { type: "string" },
+      stage: { type: "string" },
+      lang: { type: "string" },
+      banding: { type: "boolean", default: false },
     },
   });
   const ctx = context(values.shamela);
@@ -176,10 +188,32 @@ async function main(argv: string[]): Promise<number> {
       });
       return pending > 0 && values.confirm ? 1 : 0;
     }
+    case "intisari":
+      return runIntisari(ctx, {
+        command: positionals[1],
+        from: values.from,
+        kitab: values.kitab,
+        stage: values.stage,
+        lang: values.lang,
+        budget: values.budget,
+        limit: values.limit,
+        id: values.id,
+        confirm: values.confirm,
+        compare: values.banding,
+      });
+    case "glosarium": {
+      const budget = z.coerce.number().positive().max(1).optional().parse(values.budget);
+      const pending = await runGlossaryJob(digestDir(repo), ctx.client, {
+        confirm: values.confirm,
+        ...(budget === undefined ? {} : { budget }),
+      });
+      return pending > 0 && values.confirm ? 1 : 0;
+    }
     default:
       console.error(
-        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|reconcile|wait|collect|rejudge|retry|report|judul [--round 1|2] [--kind …] [--limit N] [--budget USD] [--confirm]",
+        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|reconcile|wait|collect|rejudge|retry|report|judul|glosarium [--round 1|2] [--kind …] [--limit N] [--budget USD] [--confirm]",
       );
+      console.error(INTISARI_USAGE);
       return 2;
   }
 }

@@ -2535,3 +2535,255 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 - Ingest `ihya-v9` butuh data T-28 (drive Shamela, `data/raw`, `data/build/llm`) yang tidak ada di mesin agen saat ini.
 
 **Tinjau ulang bila:** pilot menunjukkan blok terlalu kasar (>10% kutipan terpotong atau terlalu panjang), uji dengar menolak semua suara v4 (bandingkan Chirp 3 HD dan Gemini TTS), timestamps v4 tersedia (sorotan per kalimat), ada narator manusia atau qari berlisensi, fase bahasa Inggris dijadwalkan, atau koreksi Intisari oleh manusia dibuka.
+
+## ADR-098 · Pipeline Intisari (X15b): blok berlabel dari `text_raw`, tiga tahap tanpa meratakan subpohon, validator di `@surau/llm`, glosarium berkunci, pilot dari staging (SELECT saja) — diterima · 2026-10-24
+
+**Konteks:** ADR-097 menetapkan kontrak data Intisari (korpus skema 9) dan prinsip "kode menyalin, model menunjuk". X15b membangun pipeline yang mengisinya dan menjalankan pilot satu kitab (*Kitab al-'Ilm*, node 100003) atas izin pemilik (pagu US$1). Data T-28 (drive Shamela) tidak ada di mesin agen.
+
+**Keputusan:**
+1. **Blok.** `text_raw` paragraf badan dipecah `segmentText` dengan sasaran 220 karakter (parameter baru `singleMax` = 330; pemakai lama tidak berubah). Batas blok tidak pernah jatuh di dalam rentang `passage_ayah_ref` atau penanda catatan kaki, dan dipaksa di batas subjudul (judul node yang sama sesudah `normalizeArabic`, plus daftar kurasi subjudul yang sidiknya cocok). Ayat diganti placeholder per blok (`maskAyat`); paragraf yang rujukan ayatnya tidak bisa ditandai tidak dikirim. Label `b1…bn` per request; peta blok `[label, passage_id, char_start, char_end]` disimpan di catatan request (`plannedRequest.digest.blocks`) dan dicocokkan lagi saat menilai.
+2. **Tiga tahap.** `leaf` (teks Arab satu bagian atau potongannya; bagian > 24 ribu token dipecah per halaman, lebih kecil dari ringkasan 50 ribu supaya gagasan tidak terlalu umum) → `merge` (Intisari Bab dari Intisari anak dan potongan teks node sendiri `n<seq>p<k>`) → `book` (muqaddimah + 40 kitab, Sonnet 5.5; `--banding` membuat pembanding Haiku 5.5 `-bh` yang tidak dimuat). Induk hanya melihat Intisari satu tingkat di bawahnya (`n<seq>.g<k>`, `n<seq>.q<k>`); merge berjalan bergelombang. Rub' = Intisari Bab dari kitab-kitabnya.
+3. **Sidik.** Sidik berjenjang (`source_sha256` node = sha potongan dirinya + sha anak-anaknya) menandai perubahan teks di mana pun di subpohon; `input_sha256` = sha Intisari sumber yang dikirim (tanpa judul, yang hanya konteks). Hasil basi tidak dimuat dan dijadwalkan ulang oleh `plan`; kegagalan untuk sumber lama tidak dihitung percobaan.
+4. **Keluaran terstruktur.** Semua field wajib, hanya `enum` (sikap, jenis, kunci istilah), tanpa `minLength`/`maxItems`/batas angka (tidak didukung structured outputs, dicek docs 2026-10-24); jumlah dan panjang dicek `judgeDigest`. Tidak ada field "alasan" (bisa memicu refusal `reasoning_extraction`). Kutipan = ID blok dari–sampai (leaf) atau ID kutipan anak (merge/book); teks Arab dan terjemahannya diambil kode beserta asal model-nya. Huruf Arab dari model hanya ada di penunjuk kutipan poin 10, yang tidak masuk hasil lolos, korpus, laporan, atau halaman QA (hasil mentah batch tetap menyimpannya untuk audit).
+5. **Validator `judgeDigest`** (`packages/llm/src/digest.ts`). Gagal seluruhnya hanya bila: `stop_reason` ≠ `end_turn`, JSON/skema rusak, abstrak tidak lolos `checkSummary` + pemeriksaan narasi, pembuka/penutup Intisari Kitab cacat, atau gagasan tersisa di bawah minimum. Butir opsional yang cacat dibuang deterministik dengan alasan tercatat (`dropped`): gagasan (ID karangan, huruf Arab, placeholder, Markdown, pembuka basa-basi, komentar model, pola fatwa, sapaan pembaca, orang pertama, kata status hadits, parafrase ayat, panjang, anjuran bukan dari penulis, sikap dibalik terhadap sumber), kutipan (lintas paragraf, judul, ayat, < 20 atau > 400 karakter, tumpang tindih, terjemahan cacat, riwayat bertakhrij sangat lemah/palsu/tanpa asal/tidak ditemukan), pertanyaan, istilah. Pola fatwa dipindah dari `tools/eval/src/answer-metrics.ts` ke `packages/llm/src/check.ts` (satu sumber).
+6. **Jenis kutipan ditentukan kode**: `report` bila ada penanda takhrij di dalam rentang atau tepat sesudahnya (hanya spasi/tanda baca di antaranya), `poetry` bila paragrafnya bait (`verseBounds`, kini di `@surau/core` dan dipakai bersama pembaca web), selain itu `text`.
+7. **Glosarium berkunci** (`prompts/glossary-v2.ts`): 162 entri dari `GLOSSARY_V1` (dijaga tes: semua pasangan v1 ada), 144 boleh dipilih sebagai istilah; "ra." dipecah tiga karena dibacakan suara AI. `GLOSSARY_V2` dibangkitkan dari data; prompt lama tetap memakai v1 yang dibekukan. Definisi: `pnpm llm glosarium` (prompt `glossary-gloss@1`, Sonnet 5.5 lewat API biasa, seperti judul daftar isi ADR-077: sedikit dan sering dilihat).
+8. **Pilot dari staging.** `--from staging --kitab <id>` membaca `surau-corpus-staging` lewat `getPlatformProxy` (pola `open-corpus.ts`, `tools/ingest/wrangler.staging.jsonc`) yang dibungkus `selectOnly`. `muat-staging` (atas izin pemilik) menerapkan migrasi korpus yang tertunda lalu menyisipkan baris Intisari node pilot saja secara idempoten (`digest`/`glossary_term` di-UPSERT supaya `audio_track` X17 tidak ikut terhapus), lalu smoke `readDigest`.
+9. **Ingest.** `pnpm ingest ihya` memuat hasil yang berlaku dan menjadikan invarian ADR-097 poin 3 sebagai invarian build; abstrak yang lolos `checkSummary` menggantikan `summary.text` bahasa id (ringkasan `summarize-section@2` tetap untuk node lain dan bahasa en).
+10. **Cadangan ADR-097 dipakai: penunjuk kutipan (`digest-section@2`).** Pilot v1 menunjukkan ±35% kutipan (9 dari 26, dinilai manual dari batas teksnya) mulai atau berakhir di tengah kalimat: teks klasik jarang bertanda baca, jadi batas blok jatuh di antara kata. Sejak v2 kutipan membawa `awal`/`akhir` (2–5 kata pertama/terakhir, disalin dari blok `dari`/`sampai`); kode mencarinya dengan `findQuote` (normalisasi `@surau/text`, batas kata) di rentang blok itu, menolak penunjuk di luar blok atau yang cocok lebih dari sekali (`pointer_ambiguous`, mis. salawat berulang), lalu MEMBUANG teks penunjuk. Yang disimpan hanya rentang `text_raw` + sidiknya. Hasil versi prompt lama dianggap basi (satu kitab tidak bercampur versi prompt).
+11. **Jenis kutipan dan larangan takhrij (dua putaran peninjau).** Larangan takhrij (sangat lemah, palsu, tanpa asal, tidak ditemukan) berlaku untuk penanda di dalam kutipan dan untuk penanda PERTAMA sesudahnya menurut urutan baca: sisa paragraf, lalu paragraf berikutnya di bagian yang sama, ≤ 1.500 karakter, tanpa syarat tanda baca. Alasannya, kutipan bisa potongan awal riwayat panjang yang penandanya jauh, di halaman berikutnya, atau sesudah titik. Akibatnya perkataan penulis yang mendahului riwayat terlarang ikut terbuang (sengaja konservatif). Label `report` lebih ketat: penanda di dalam atau tepat sesudah kutipan, atau penanda pertama di paragraf yang sama ≤ 600 karakter tanpa akhir kalimat dan tanpa rumus riwayat baru di antaranya.
+
+**Tidak dipilih:**
+- Enum ID blok per request di skema: setiap request jadi skema baru (kompilasi grammar per skema) dan berisiko melewati batas kerumitan; ID divalidasi kode.
+- Meratakan subpohon ke prompt kitab: prompt > 100 ribu token (tarif Haiku 5×) dan gagasan bab hilang.
+- Model menulis kutipan Arab lalu dicocokkan: tetap cadangan ADR-097 bila blok terbukti terlalu kasar.
+
+**Hasil pilot** (Kitab al-'Ilm, node 100003, 21 Intisari: 1 Kitab + 20 Bab; izin pemilik 2026-10-24 ±16:44 UTC, pagu US$1):
+- **v1:** semua lolos (22 leaf + 8 merge + Kitab Sonnet/Haiku), tetapi kutipan sering terpotong di tengah kalimat. Dibaca manual: 9 dari 26 kutipan yang lolos. Heuristik batas alami: 6 dari 28 kutipan keluaran model (21%; penyebutnya termasuk kutipan yang dibuang validator). Karena itu cadangan ADR-097 dipakai (poin 10).
+- **v2** (`digest-section@2` + `digest-merge@1`):
+  - 22/22 leaf lolos; satu lewat ulangan, karena abstrak "Teks ini berisi…" ditolak sebagai komentar model.
+  - 8/8 merge dan Intisari Kitab (Sonnet + pembanding Haiku) lolos. Sesudah aturan larangan lintas paragraf (poin 11), dua merge dan Kitab dibuat ulang karena kutipan anaknya berubah.
+  - Kutipan: heuristik terpotong 2/23 (8,7%); dibaca agent 0/23 terpotong di tengah kalimat.
+  - Heuristik itu diganti dua kali selama pilot karena teks klasik hampir tanpa tanda baca (c5ddb21, lalu pembuka klausa wa/fa ≥ 4 huruf). Angka v1 dan v2 di atas memakai versi akhirnya.
+- **Dimuat ke staging** (skema 9, migrasi 0008 + 0009): 21 Intisari, 133 gagasan, 378 jangkar, 32 kutipan, 158 pertanyaan, 93 istilah, 144 definisi glosarium, 133 baris indeks. Smoke `readDigest` 21/21 dengan kutipan ditahan 0. Intisari Kitab ±10 menit baca, Intisari Bab 3–5 menit.
+- **Butir yang dibuang validator (v2 akhir):** istilah di atas batas 5, kutipan menyentuh ayat 2, dasar > 12 ID 1, takhrij terlarang 1. Pada v1: parafrase makna ayat 1, "Allah berfirman" di terjemahan kutipan 1, "kami" 1.
+- **Sonnet vs Haiku (Intisari Kitab):** 8 vs 7 gagasan, ±143 kata per gagasan, 3 kutipan, 8 istilah; biaya US$0,075 vs US$0,006. **Dipilih Sonnet 5.5** untuk Intisari Kitab di 41 kitab (bawaan `book` di poin 2; pembanding Haiku hanya bila diminta lewat `--banding`). Pemilik, 2026-10-25, di sesi induk: "Saya serahkan ke agent sementara untuk QA model sonnet".
+- **QA pilot (penilaian agent, 2026-10-25, [laporan](../data/reports/ihya-9472-intisari-qa-agent-2026-10-25.md)):** pemilik menyerahkan QA untuk sementara kepada agent ("Saya serahkan ke agent sementara untuk QA model sonnet"). Empat subagen QA berkonteks baru menilai 140 gagasan halaman QA tanpa API berbayar. Hasil 133 gagasan yang dimuat: Benar 91, Kurang 40, Salah 2 (1,5%), jadi gerbang ≤ 5% lolos. Intisari Kitab: Sonnet 3/5/0, pembanding Haiku 2/5/0.
+  - Dua Salah: *sanah* (tahun) terbaca *sunnah* (`dg-100007-id#g4`), dan penegasan al-Ghazali soal makna lahir/batin yang dibalik (`dg-100017-id-m#g2`).
+  - Kurang terbanyak: klaim yang tidak tertutup Dasar teks (16, termasuk kelima Kurang Sonnet) dan makna bergeser (21).
+  - Penilaian manusia T-31 tetap terbuka.
+- **Biaya aktual: US$0,53**: batch US$0,397 (v1 US$0,167, v2 + ulangan US$0,230) dan glosarium US$0,129.
+- **Catatan untuk prompt berikutnya:** pembuka Sonnet v1 menulis "sumber yang tersedia tidak menyebut alasan…", jadi instruksi "alasan bila disebut" sebaiknya dibuang; contoh abstrak "apa yang dibahas teks ini" memancing jawaban "Teks ini…".
+
+**Konsekuensi:** `wrangler` menjadi devDependency `tools/ingest` (getPlatformProxy untuk baca staging; sebelumnya hanya root dan tools/eval). Staging kini skema 9 dengan Intisari pilot (kode lama hanya memeriksa `<`, jadi aman); `corpus:qa staging` tetap gagal sampai staging dimuat ulang dari build `ihya-v9` (X15c). Celah yang dicatat peninjau untuk X15c/prompt berikutnya (bukan blocker): sikap `reported` → `author` di merge, `advice` tanpa sumber berjenis anjuran, kutipan tidak wajib di blok dasar gagasannya, takhrij `rujukan` ("تقدم") belum diikuti, koreksi ustadz X07 belum dipakai larangan kutipan, pola fatwa tanpa "adalah" dan bentuk perintah "-lah". Dari QA agent: dua gagasan Salah harus ditahan atau dibuat ulang sebelum `ihya-v9` dipromosikan. Selain itu, jangkar gagasan Kitab/merge (`anchorsFromPoints`) diambil bergiliran dari gagasan sumber dan dibatasi 9, sehingga klaim yang didukung jangkar lain tidak terlihat. Menolak gagasan di staging wajib diikuti penghapusan audio bab itu (ADR-097 butir 6), karena baris `audio_track` staging dipakai apa adanya. Di build, ingest sudah membuang audio basi lewat sha skrip.
+
+## ADR-099 · UI Intisari (X16): halaman + hub ISR, dalil dihitung core dari jangkar, kepala Intisari bersama ekstra daftar isi, lencana daftar isi tanpa tautan kedua, jalur Cari gagasan opt-in dengan memo isolate, fixture `/dev/intisari` di Preview — diterima · 2026-10-24
+
+**Konteks:**
+- ADR-097 butir 7 menetapkan tempat Intisari tampil. X15a menyediakan `readDigest`/`DigestView` dan kepala Intisari (db).
+- Data nyata baru ada sesudah X15b langkah 9 (pilot ke staging). Staging dan produksi masih `ihya-v8` (skema 7).
+- Halaman baca harus tetap ringan (ADR-079), dan produksi berskema 7 sampai `ihya-v9`.
+
+**Keputusan:**
+1. **Rute ISR on-demand** (ADR-034/038):
+   - Hub `/kitab/<karya>/intisari`: Intisari Kitab per akar daftar isi (rub'). 404 bila korpus belum punya Intisari Kitab, termasuk skema < 9.
+   - `/kitab/<karya>/bab/<id>/intisari`: 404 di skema < 9, node tanpa Intisari, node milik edisi lain, atau Intisari tanpa gagasan tampil.
+   - Satu komponen server `DigestPage` dipakai rute dan fixture. Tata letak Kitab (`tier` book) menambah pembuka, penutup, dan daftar Intisari Bab.
+   - Halaman Intisari tidak ikut mode baca: isinya teks Indonesia, dan terjemahan kutipan selalu tampil berlabel. Kartu ringkasan di pembaca tetap `data-tr-aid` (tersembunyi di mode Arab).
+2. **Dalil = `DigestView.evidence`** (aditif), dihitung core dari jangkar gagasan yang tampil, tanpa model dan tanpa disimpan.
+   - Ayat: `passage_ayah_ref` yang beririsan dengan jangkar, teksnya lewat `quranForRefs` (Tanzil + Kemenag verbatim).
+   - Hadits: penanda catatan kaki di dalam jangkar, kecuali penanda di awal jangkar (milik kalimat sebelumnya). Penanda ≤ 3 karakter sesudah akhir jangkar, dengan hanya spasi atau tanda baca di antaranya, ikut dihitung, karena blok `segmentText` bisa berhenti di titik sebelum penanda kalimatnya.
+   - Status hadits = `takhrijLabel` atas teks catatan kaki (`rule_extracted`, "dikenali otomatis dari teks takhrij, belum ditinjau"), dengan teks takhrij asli. Label tinjauan ustadz (DB app) menyusul. Catatan kaki yang tidak dikenali sebagai takhrij (`not_takhrij`, catatan penyunting) tampil sebagai "Catatan kaki (١)", tidak disebut hadits.
+   - Kutipan membawa takhrij-nya sendiri (`DigestQuoteView.takhrij`, aditif: penanda di dalam atau tepat sesudah rentang kutipan, aturan yang sama), jadi kartu riwayat menampilkan label + teks takhrijnya, atau "status belum diketahui" bila tidak ada.
+   - Riwayat yang takhrijnya memuat istilah sangat lemah, palsu, atau "tidak ada asalnya" ditahan saat dibaca (`withheld_quotes` alasan `weak_report`). Validator X15b menolaknya lebih dulu; ini lapis kedua (ADR-097 butir 3).
+3. **Kepala Intisari bersama ekstra daftar isi.** `listDigestHeaders` dimuat bersama subjudul dan judul Indonesia (memo per isolate; skema ikut kunci memo) dan tidak dikueri sama sekali di skema < 9.
+   - Lencana daftar isi, kartu ringkasan, menu ⋮, hub, dan tombol halaman karya memakai satu daftar, tanpa kueri tambahan per halaman.
+   - Halaman sambungan (`/api/halaman`) memakai `getDigestHeaders` dan `getDigestHeadersOnPath` (baru: node + leluhurnya, terdekat dulu), hanya bila skema korpus ≥ 9. Skema dibaca sekali per isolate, sejajar dengan baca halaman, jadi produksi skema 7 tidak membayar kueri gagal di setiap halaman.
+   - Intisari tanpa gagasan tampil tidak diberi kepala, jadi tidak ada lencana maupun tautan ke halaman 404.
+4. **Pembaca:**
+   - Kartu Ringkasan AI mendapat baris "Intisari AI · N gagasan · ± M menit · Buka Intisari" dari field `digests` di `PageModel`, bukan field baru di `SummaryView`. `PAGE_MODEL_VERSION` 7.
+   - Menu ⋮ mendapat "Buka Intisari bagian ini" (atau "… kitab ini") ke Intisari terdekat di jalur bagian yang sedang dibaca, termasuk halaman sambungan.
+   - Lencana daftar isi "Intisari · N mnt" adalah penanda di dalam tautan baris, bukan tautan kedua: `NavigationTree` = satu tautan per baris, dan sel interaktif kedua merusak navigasi keyboard pohon.
+5. **Cari: jalur `digest`** di pencarian gabungan.
+   - rowid `toc_node_id·100 + ord` dipetakan ke jangkar seq terkecil gagasan itu. Gagasan ditolak, Intisari ditolak, atau gagasan tanpa jangkar disaring sebelum diberi peringkat. Ambang "sebagian kata" jalur ini terpisah, jadi peringkat terjemahan dan ringkasan tidak berubah. Kedalaman 30.
+   - Opt-in `searchText(…, { digest: true })`: Cari situs, MCP `search_text`, dan eval retrieval menyalakannya; Jawab tidak, supaya kandidat Jawab tidak berubah tanpa eval berbayar.
+   - Korpus tanpa `digest_point_fts`: satu kueri gagal ("no such table") per isolate, lalu jalur dilewati sampai meta korpus melaporkan skema ≥ 9.
+   - `SEARCH_RESULT_VERSION` 3; `searchHit.digest_point` dan `fusion.digest_depth` aditif.
+6. **MCP:** tool `get_section_digest` → `{ digest: DigestView | null }` dengan blok lisensi sumber + ayat, dan instruksi server butir 7.
+7. **Fixture `/dev/intisari`** (data buatan tanpa D1: teks Arab kalimat contoh, surah "Uji", takhrij tanpa nama perawi nyata) untuk e2e dan pratinjau sebelum data nyata. Tampil di `next dev` dan Preview lewat var baru `DEV_PAGES` ("0" produksi, "1" Preview). Tidak diindeks.
+8. **"Sudah dibaca":** localStorage `surau:intisari:read:v1` (daftar ID node, ≤ 600), ditandai saat bagian "Lanjut ke teks lengkap" terlihat. Dicatat di `/privasi`.
+9. **Slot ▶ Dengarkan** (`ListenSlot`) untuk X17: tidak merender apa pun selama `DigestView.audio` null.
+
+**Tidak dipilih:**
+- Lencana daftar isi sebagai tautan kedua (lihat butir 4).
+- Jalur gagasan selalu menyala, termasuk untuk Jawab: kandidat Jawab berubah tanpa eval berbayar.
+- Cabang skema di SQL atau dua kueri per pencarian: menambah latensi setiap pencarian produksi. Dipilih memo isolate.
+- `/dev/intisari` hanya di `next dev`: e2e CI berjalan terhadap Preview, jadi UI tanpa data tidak akan teruji di CI.
+- Dalil disimpan di DB: ADR-097 butir 3 menetapkan dihitung saat dibaca.
+
+**Konsekuensi:**
+- Tampilan produksi (skema 7) tidak berubah. Cari produksi membayar satu kueri gagal + satu baca meta pertama kali per isolate sampai `ihya-v9`.
+- Bila X15b memuat pilot ke staging tanpa build baru, isolate Preview yang sudah memo kepala kosong dan halaman ISR yang sudah dirender baru berubah sesudah deploy berikutnya.
+- `eval:retrieval --gate` saat ini sama dengan sebelumnya (staging tanpa gagasan); ulangi sesudah data nyata (gerbang X15c).
+- Hitungan gagasan di kepala (`listDigestHeaders`, SQL) tidak memakai penjaga huruf Arab milik `readDigest`. Gagasan berhuruf Arab (yang sudah ditolak validator X15b) bisa terhitung di lencana walau tidak tampil di halaman. Kartu Cari memakai penjaga yang sama dengan halaman.
+- Kartu kutipan membawa `data-quote-range`, sehingga e2e Preview membandingkan teks Arabnya dengan `/api/kutipan` begitu data ada.
+
+**Tinjau ulang bila:** label hadits tinjauan ustadz dibawa ke Intisari, data pilot menunjukkan aturan penanda melewatkan atau menambah hadits, jalur gagasan menurunkan eval retrieval, atau X17 mengisi slot audio.
+
+## ADR-100 · Dengar (X17): skrip audio deterministik dari Intisari yang tampil, ElevenLabs v4 lewat REST, MP3 CBR bersambung dengan kunci bersidik isi, pemutar global berlabel suara AI — diterima (kode + infrastruktur; pilot berbayar menunggu T-29, T-31, izin pemilik) · 2026-10-25
+
+**Konteks:** ADR-097 butir 6 menetapkan audio "Dengarkan": skrip dibuat kode dari Intisari tanpa huruf Arab, satu suara AI per Intisari, request stitching, R2 publik `surau-media` + `media.surau.org`, metadata ter-commit yang dimuat ingest hanya bila sha skripnya cocok, dan pemutar global di shell. Docs dicek 2026-10-24 (`/docs-terbaru elevenlabs`, MCP `cloudflare-docs`): v4 ≤ 10.000 karakter per permintaan, stitching didukung v4 (maksimal 3 id, ≤ 2 jam), `mp3_44100_64` tersedia di Starter, `[…]` dibaca sebagai tag audio dan `/…/` sebagai IPA inline, tanpa SSML; R2 custom domain meng-cache `.mp3` secara bawaan dan melayani Range.
+
+**Keputusan:**
+1. **Skrip (`packages/core/src/digest-script.ts`, `SCRIPT_VERSION` 1).** Fungsi murni atas `DigestView` dari `readDigest`, jadi hanya yang tampil yang dibacakan. Segmen: `label` ("Intisari ini dibuat AI dan dibacakan suara AI." + "Dari kitab … karya …"), `intro` (pembuka + abstrak), satu `point` per gagasan ("Gagasan pertama." + judul + isi + kutipannya), `quotes` (kutipan umum), `closing` (penutup + "Intisari ini adalah pintu ke kitab, bukan penggantinya…"). Kutipan dibacakan lewat terjemahannya ("Teks kitab di jilid satu, halaman dua ratus, yang terjemahan AI-nya: …"; "terjemahannya" bila sudah ditinjau atau dikoreksi manusia, aturan 8); kutipan tanpa terjemahan dilewati. Di semua teks AI, penanda catatan kaki "(١)" dibuang dan placeholder ⟦QS s:a⟧ hanya disebut ("ayat Al-Qur'an, surah kedua ayat …"), karena `readDigest` meloloskan keduanya (bukan huruf Arab). Anjuran: "Anjuran yang ditulis al-Ghazali sendiri, di jilid …" + "Untuk kasus pribadi, tanyakan kepada ulama." Kalimat dipecah `indonesianSentences`, lalu dinormalisasi lisan. Pemeriksaan akhir menolak (`ScriptError`, bukan dibuang diam-diam) huruf berskrip Arab apa pun, ⟦ ⟧, `[ ]`, dan `/`. sha = sha256 JSON kanonik (versi skrip, versi lisan, node, bahasa, segmen).
+2. **Judul bagian tidak dibacakan.** Skrip hanya bergantung pada `DigestView`; judul Indonesia (terjemahan AI, bisa dikoreksi) ada di ID3 dan Media Session. Perbaikan judul tidak menggugurkan audio dan tidak menagih sintesis ulang.
+3. **Riwayat bertakhrij berat (docs/05 §4 dan §12).**
+   - **Kutipan:** sejak X16 (ADR-099), `readDigest` menahan kutipan riwayat yang takhrijnya memuat penilaian sangat lemah, palsu, atau "tidak ada asalnya" (`withheld_quotes` alasan `weak_report`). Kutipan seperti itu tidak pernah dibacakan.
+   - **Gagasan:** gagasan yang bersandar pada riwayat seperti itu (dalil `evidence.hadith` dengan `point_ords` gagasan itu, sama dengan chip di halaman) diberi kalimat buatan kode. Bunyinya: "Gagasan ini bersandar pada riwayat yang catatan takhrijnya memuat penilaian {glosa}; penilaian ini dikenali otomatis dari teks takhrij dan belum ditinjau." Glosanya tetap (`TAKHRIJ_TERM_GLOSS`), bukan teks model.
+   - **Satu definisi:** himpunan istilah berat (`VERY_WEAK_TAKHRIJ_KINDS`, `takhrij-label.ts`) dipakai bersama `readDigest` dan skrip.
+   - **Status lain** tidak dibacakan; halaman menampilkannya bersama teks takhrij aslinya.
+   - **Riwayat draf:** draf awal X17 mencari penanda takhrij sendiri. Saat merge X16, temuan peninjau menunjukkan kode itu salah menisbahkan penanda di awal rentang, jadi diganti dengan `evidence`.
+   - `loadDigestScript(db, node)` = `readDigest` + `digestScript`, dan menjadi satu-satunya jalan skrip yang dipakai bersama alat audio dan ingest.
+4. **Normalisasi lisan (`packages/text/src/spoken-id.ts`, `SPOKEN_VERSION` 1):** angka → kata (titik = ribuan; di luar jangkauan dibaca per digit, tanpa galat), pecahan fikih "1/40" → "satu per empat puluh", tahun H/M dan rentangnya, "w./l." → "wafat/lahir tahun", letak cetak ("j. 1, h. 200"), rujukan QS hanya disebut (termasuk gaya Kemenag "QS al-Baqarah/2: 183"), gelar (saw./swt./rah. di mana saja; ra./as. hanya sesudah nama) dengan titik kalimat dipertahankan, singkatan umum, transliterasi bertanda → huruf dasar, `[ ]` → `( )`, `/` → "atau". Huruf Arab tidak disentuh (ditolak penyusun skrip).
+5. **Jeda = bingkai sunyi, bukan tag `[pause]`.** Satu permintaan TTS per segmen (dipecah per kalimat hanya bila > 10.000 karakter). Jeda antarsegmen (600–900 ms) disisipkan penyambung sebagai bingkai MP3 sunyi: deterministik dan tanpa biaya karakter. Tag v4 tidak dijanjikan durasinya. Kalimat label disintesis sekali lalu dipakai ulang lewat cache untuk semua Intisari satu karya.
+6. **Leksikon `data/lexicon/id.yaml`.** IPA inline `/…/` (atau `alias`) diterapkan SESUDAH sha skrip dihitung, jadi perbaikan lafal tidak menggugurkan kecocokan skrip. Versi = 12 heks sha entri `active` (bukan seluruh berkas, supaya mengedit draf atau komentar tidak memicu rakitan ulang), dicatat di manifest. Hanya entri `active` yang diterapkan. Semua isian leksikon (istilah, IPA, alias) ditolak bila memuat huruf Arab, ⟦ ⟧, atau `[ ]`; alias juga tanpa `/`. Teks akhir setiap permintaan (sesudah leksikon) diperiksa ulang sebelum dikirim, karena leksikon diterapkan sesudah pemeriksaan skrip. 32 entri draf (`test`) diperdengarkan berdampingan oleh `pnpm audio sample` untuk uji dengar T-31 (docs: IPA dipakai selektif). Kamus lafal API ElevenLabs tidak dipakai: butuh izin kunci tambahan dan versi kamus terpisah, sedangkan IPA inline cukup untuk v4.
+7. **Penyedia di balik `TtsProvider`, ElevenLabs REST tanpa SDK** (`eleven_v4`, `language_code: "id"`, `mp3_44100_64`, `previous_request_ids` ≤ 3 dari segmen Intisari yang sama yang berumur ≤ 2 jam). Ulang otomatis hanya untuk 429/503 (pasti belum diproses). Jaringan putus, batas waktu, dan 5xx lain = "mungkin tertagih": tidak diulang (pola ADR-061).
+8. **Tanda niat dan tanda terima (pola ADR-061)** di `data/build/audio/` (tidak di-git): `intents/<kunci>.json` ditulis sebelum setiap permintaan berbayar dan dilepas sesudah hasil tersimpan atau galat yang pasti belum tertagih. Selama niat terputus ada, `submit` menolak jalan sampai diperiksa (Speech History) dan dilepas dengan `pnpm audio release`. `receipts.jsonl` mencatat `character-cost` setiap permintaan (biaya aktual). Tanda terima ditulis SEGERA sesudah respons 200, sebelum keluarannya diurai. Keluaran yang bukan MP3 sambungan tetap tercatat biayanya; bait mentahnya disimpan di `rejected/` dan tidak masuk cache. `sample` memakai niat dan tanda terima yang sama. Cache segmen per sidik permintaan (penyedia, model, format, suara, bahasa, teks sesudah leksikon), jadi sintesis yang sama tidak pernah ditagih dua kali. `submit` wajib `--budget-chars` + `--confirm`, dan pagu dipotong sisa kuota bila kunci boleh membacanya.
+9. **MP3 CBR bersambung.** Penyambung per bingkai (`tools/audio/src/mp3.ts`) membuang ID3/APE dan bingkai Xing/Info/VBRI. Ia menolak format atau bitrate yang berubah (tanpa indeks Xing, browser menghitung durasi dan posisi lompat dari ukuran berkas ÷ bitrate) dan bingkai pertama yang meminjam bit reservoir. Bingkai sunyi memakai bitrate yang sama dengan padding rata-rata, jadi offset bab = jumlah sampel segmen sebelumnya + jeda, tepat sampai sampel.
+10. **ID3v2.4** (ditulis sendiri, deterministik): judul "Intisari: …", pembaca "Dibacakan suara AI (<suara>, elevenlabs eleven_v4)", lisensi CC BY-NC-SA 4.0 (TCOP + WCOP), halaman Intisari (WOAS), komentar = kalimat label + "pintu ke kitab" + atribusi teks sumber, TXXX `AI_GENERATED` (model Intisari + model suara).
+11. **Kunci objek memuat sidik ISI berkas, bukan sha skrip** (penyempurnaan ADR-097 butir 6): `<karya>/<lang>/<node>-<12 heks sha256 MP3>.mp3`. Ganti suara, leksikon, atau skrip selalu menghasilkan kunci baru, sehingga objek tidak pernah ditimpa. sha skrip tetap di manifest dan `audio_track.script_sha256` untuk pencocokan. Manifest menyimpan riwayat; ingest memilih track terbaru yang skripnya cocok per (node, bahasa, jenis suara).
+12. **R2.** Bucket `surau-media` dibuat 2026-10-25 (APAC, r2.dev mati). Domain `media.surau.org` menunggu Zone ID surau.org (T-32), karena wrangler butuh `--zone-id` dan agen tidak membaca berkas kredensial. Unggah lewat `wrangler r2 object put` (`Content-Type: audio/mpeg`, `Cache-Control: public, max-age=31536000, immutable`), dengan HEAD ber-query unik (melewati cache tepi) sebelum dan sesudahnya. Objek yang sudah ada berukuran sama dilewati, berukuran beda = galat. `pnpm audio verify` = HEAD jalur publik (status, tipe, ukuran, cache immutable) + Range 206 + sha256 isi. Tanpa CORS (`<audio>` tanpa `crossorigin`).
+13. **Sumber skrip = korpus staging** (getPlatformProxy remote, hanya SELECT, pola tools/eval). Pilot memakai Intisari pilot X15b di staging; produksi memakai build `ihya-v9` yang dimuat ke staging (X15c), sehingga skrip sama dengan yang dibangun ulang ingest.
+14. **Ingest:** satu Intisari yang skripnya gagal dibangun (`ScriptError`/`RangeError`) tidak menggagalkan build atau `plan`/`submit`: di ingest audionya gugur sebagai `script_error`, di alat audio node itu dilaporkan dan dilewati. ID baru dari putaran pertama yang dilaporkan, karena peta ID wajib di-commit. Selebihnya, `selectBuildAudio` membangun ulang skrip dengan `loadDigestScript` atas `.sqlite` hasil build (adaptor `D1Db` di atas `node:sqlite`), lalu `selectAudioTracks`. Bila ada track yang cocok, CLI ingest membangun sekali lagi dengan opsi `audioTracks`. Build deterministik (peta ID dan sidik teks sudah ditulis putaran pertama), dan `meta` tetap berkas SQL terakhir. Track basi, tanpa Intisari, atau tergantikan dilaporkan.
+15. **Pemutar web.**
+    - `components/listen/engine.ts`: satu `HTMLAudioElement` di modul, dibuat dan `play()`-nya dipanggil sinkron di handler tekan (iOS), `preload="none"`, tetap hidup saat navigasi klien.
+    - `PlayButton`: nama aksesibel = teks terlihat ("Dengarkan 2 menit"), label suara AI sebagai deskripsi.
+    - `MiniPlayer` lewat `next/dynamic` `ssr:false`: ±15 dtk, bab = gagasan, kecepatan 0,75–2×, slider + waktu, Media Session (metadata "Suara AI · Surau", play/pause, seek, bab berikut/sebelum, `setPositionState`).
+    - `ListenProvider` di `surau-shell.tsx`.
+    - Posisi di localStorage `surau:listen:v1`: kecepatan, track terakhir, ≤ 50 posisi; kunci objek berubah = mulai dari awal; track selesai atau pemutar ditutup tidak dipulihkan. Dicatat di `/privasi`.
+    - Sesi dipulihkan sesudah muat ulang dari `…/bab/[id]/intisari/dengar.json` (ISR), kecuali pemutar sudah ditutup selama menunggu.
+    - Menekan lagi sesudah galat memuat ulang audio dari posisi terakhir.
+    - Media Session dibersihkan saat pemutar ditutup.
+    - Judul cadangan yang berupa judul Arab dari DB (`titleLang: "ar"`) dirender lewat `ArabicInline`.
+    - CSP penuh nanti wajib memuat `media-src https://media.surau.org`.
+    - Halaman uji `/dev/dengar` + audio sunyi yang dibangkitkan (Range) untuk e2e, digerbang `DEV_PAGES` yang identik dengan PR #138 (X16).
+
+**Tidak dipilih:**
+- SDK npm ElevenLabs: dependensi besar untuk tiga endpoint.
+- Tag `[pause]`: durasi tidak dijanjikan dan memakan karakter.
+- Kamus lafal API: izin kunci tambahan dan versi kamus terpisah.
+- Kunci objek dengan sha skrip: bentrok bila suara atau leksikon berganti.
+- Audio VBR + indeks Xing: lebih rumit tanpa manfaat bagi narasi 64 kbps.
+- Route Worker untuk audio (ADR-097).
+- Menyimpan posisi dengar di server: data pribadi tanpa manfaat sepadan.
+- Skrip ditulis LLM (lebih luwes): ADR-097 menolak LLM baru, dan ingest harus bisa membangun ulang skrip yang sama persis untuk mencocokkan sha.
+
+**Konsekuensi:**
+- Biaya: kalimat label dibayar sekali per karya, dan sisanya ±1 karakter per karakter skrip (v4 US$0,08/1.000).
+- Kunci T-29 sebaiknya juga berizin *User: Read* dan *Voices: Read*. Tanpa itu `plan` tidak bisa membaca kuota, dan `submit` butuh `--voice-name`.
+- `media.surau.org` belum hidup sampai T-32; `upload` menolak jalan bila HEAD tidak jelas.
+- `audio_track` tetap kosong sampai pilot (izin pemilik) dan build berikutnya.
+- Halaman Intisari (X16): `ListenSlot` merender `PlayButton` sebagai blok di bawah baris kepala, karena tombol + keterangan tidak sah di dalam paragraf baris kepala. Track dihitung rute halaman dengan segmen karya kanonis, sama dengan `dengar.json`.
+
+**Tinjau ulang bila:** timestamps v4 terbukti ada (sorotan per kalimat: `alignment_key`), uji dengar menolak lafal bawaan v4 untuk banyak istilah (kamus lafal API), penyedia lain dipakai (Chirp 3 HD/Gemini TTS lewat `TtsProvider`), narator manusia tersedia (`voice_kind` human didahulukan), atau keluaran penyedia berubah menjadi VBR.
+
+## ADR-101 · Gaya narator Dengar: tag audio v4 dari daftar tetap, dipilih kode per peran kalimat, bawaan polos sampai uji dengar A/B — diterima (kode; pemakaian menunggu T-31) · 2026-10-25
+
+**Konteks:** pemilik bertanya (2026-10-25) apakah kutipan, kisah, dan syair perlu dibacakan lebih ekspresif dengan tag audio eleven_v4. Narasi yang datar 10–15 menit melelahkan, dan pendengar tanpa teks butuh penanda bunyi "ini kutipan". Di sisi lain ada risikonya: ekspresi bisa terdengar seperti memerankan tokoh (dekat dengan roleplay orang pertama yang dilarang), nada yang keliru mengubah kesan makna teks agama, tag v4 tidak sepenuhnya bisa diprediksi, dan ADR-097/docs/05 §12 menetapkan narator netral tanpa gaya dramatis.
+
+**Keputusan:**
+1. **Peran kalimat ditentukan kode** (`SentenceRole`, skrip v2): terjemahan kutipan teks atau riwayat = `quote`, terjemahan syair = `poetry`, selebihnya `narration`. Penentuannya dari jenis kutipan yang sudah dihitung kode, tidak pernah dari model. Kata yang dibacakan tidak berubah.
+2. **Gaya = daftar tag tetap dan berversi** (`tools/audio/src/style.ts`):
+   - `polos` (tanpa tag, bawaan);
+   - `khidmat@1`: `[calm]` untuk narasi, `[thoughtful]` untuk kutipan, `[softly]` untuk syair.
+   Tag dipasang di awal kalimat hanya saat peran berubah; kalimat pertama segmen = nada dasar. Ekspresinya milik narator yang mengutip, bukan tokoh yang dikutip. Emosi kuat (marah, menangis, tertawa, berbisik), tiruan suara, dan efek dilarang. Hanya tag terdaftar yang lolos pemeriksaan teks akhir; `[ ]` lain tetap ditolak (aturan 11).
+3. **Gaya dicatat** di manifest (`style`) dan ikut sidik permintaan TTS, sehingga polos dan khidmat tidak berbagi cache. Gaya tidak ikut sha skrip, karena ingest mencocokkan isi, bukan cara membaca.
+4. **Diputuskan lewat telinga.** `pnpm audio sample --demo-gaya` membuat satu contoh (±900 karakter, berbayar, izin pemilik): versi A tanpa gaya, lalu versi B khidmat, dengan teks demo buatan (narasi, kutipan, syair). Pemilik (dan Ust. Anas bila bisa) menilai di T-31. `submit --gaya khidmat` baru dipakai bila lolos.
+5. **`variatif@1`** (permintaan pemilik 2026-10-25, sesudah memilih khidmat di uji A/B): sama dengan khidmat, ditambah `[warm]` untuk kalimat pertama pembuka dan untuk kepala + judul gagasan. Kalimat baku buatan kode (label AI, anjuran, tanda takhrij, pengantar kutipan, penutup) selalu `[calm]`. Dibandingkan di bab "Keutamaan belajar" (100006), suara Kang Sugiman.
+6. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
+
+**Tidak dipilih:**
+- Model memilih tag per kalimat: tidak bisa diaudit, dan rawan dramatis.
+- Tag emosi per tokoh: terdengar seperti memerankan ulama.
+- Mengubah kecepatan atau suara per peran: v4 tidak punya kontrol kecepatan, dan suara kedua melanggar "satu suara per Intisari".
+
+**Konsekuensi:**
+- `SCRIPT_VERSION` naik ke 2 (belum ada audio, tanpa biaya terbuang).
+- Manifest mewajibkan `style`.
+- Biaya uji A/B ±900 karakter.
+
+**Tinjau ulang bila:** uji dengar menilai khidmat berlebihan atau malah kurang, ElevenLabs merinci perilaku tag v4, atau narator manusia tersedia.
+
+## ADR-102 · Label suara AI hanya sebagai teks, tidak diucapkan di audio — diterima (keputusan pemilik) · 2026-10-25
+
+**Konteks:** ADR-097/100 dan docs/05 §12 membuka setiap audio dengan "Intisari ini dibuat AI dan dibacakan suara AI." Sesudah mendengar pilot (bab 100006, suara Kang Sugiman, gaya variatif), pemilik memutuskan kalimat itu dihapus. Alasannya: audio lebih mudah dipotong, dan kalimat yang sama tidak diulang di setiap bab ("cukup label teks di web").
+
+Agent menyampaikan risikonya lebih dulu dan menawarkan jalan tengah (label ringkas "Intisari Surau, dengan suara AI."). Pemilik tetap memilih hapus. Risikonya: rekaman yang beredar terpisah dari situs bisa dikira suara manusia, dan transparansi konten sintetis tidak lagi terdengar di audionya.
+
+**Keputusan:**
+- Skrip v3: tidak ada kalimat label di audio. Segmen pembuka hanya "Dari kitab … karya …" (atau tidak ada, bila judul Latin karya tidak ada).
+- Label suara AI tetap ada sebagai teks:
+  - tombol Dengarkan ("Dibacakan suara AI (…)");
+  - pemutar mini;
+  - Media Session ("Suara AI · Surau");
+  - metadata ID3 (TPE1 "Dibacakan suara AI", COMM, TXXX `AI_GENERATED`).
+- docs/05 §12 dan teks-arab aturan 11 diubah sesuai keputusan ini.
+- Contoh dengar (`pnpm audio sample`) juga tanpa label lisan.
+
+**Konsekuensi:** audio pilot lama (skrip v2) gugur saat ingest (`stale_script`); hanya berkas lokal, belum diunggah.
+
+**Tinjau ulang bila:** audio mulai dibagikan sebagai berkas lepas (podcast, unduhan), ada keluhan pendengar yang mengira narator manusia, atau aturan transparansi konten sintetis mewajibkan label lisan.
+
+## ADR-103 · media.surau.org dilayani Worker `surau-media` (R2 binding + Workers Caching), bukan domain kustom R2 langsung — diterima · 2026-10-25
+
+**Konteks:** ADR-100 butir 12 merencanakan domain kustom R2 `media.surau.org` untuk bucket `surau-media`. Setelah domain tersambung (T-32, status `active`), semua permintaan ke `media.surau.org` dijawab 404 HTML dengan header `x-preview-user-error: true`, padahal objeknya ada di bucket (6.490.629 byte, sama dengan berkas lokal). Penyebabnya: Preview per PR web memakai domain kustom `surau.org` (`pr-N.surau.org`), dan Cloudflare membuat wildcard DNS + sertifikat `*.surau.org` untuk itu. Wildcard ini menangkap subdomain yang bukan Worker custom domain, termasuk domain kustom R2. `mcp.surau.org` (Worker custom domain) tidak terkena. Docs Cloudflare (Workers › Previews › Custom domains, Sep 2026) menganjurkan nama khusus seperti `previews.example.com` bila domain produksi sudah punya subdomain. Pilihan itu membuat Preview menjadi subdomain tingkat dua (`pr-N.previews.surau.org`), yang butuh Advanced Certificate Manager (US$10/bulan). Rute tanpa Worker (negasi) butuh dashboard pemilik, dan belum pasti berlaku untuk perutean Preview.
+
+**Keputusan:**
+1. Worker baru `apps/media` (`surau-media`) dengan Worker custom domain `media.surau.org` dan binding R2 `MEDIA` (hanya `head`/`get`). Domain kustom R2 dilepas (`wrangler r2 bucket domain remove`). Objek tidak berubah.
+2. Hanya `GET`/`HEAD` dengan kunci berbentuk `audioObjectKey` (`<karya>/<lang>/<node>-<sha12>.mp3`). Selain itu 404 `no-store`. Metode lain 405. `Content-Type: audio/mpeg` dan `Cache-Control: public, max-age=31536000, immutable` ditetapkan kode, karena kunci memuat sidik isi. Konstanta disamakan dengan `@surau/core` dan dijaga tes.
+3. **Workers Caching** (`cache.enabled`, `cross_version_cache: true`, docs Workers › Cache, Okt 2026): Cloudflare menyimpan respons 200 penuh dan melayani `Range` (206) dari cache tanpa menjalankan Worker. Karena itu Worker tidak menangani Range. Cache dipakai lintas versi, jadi deploy tidak mendinginkannya; isi per kunci memang tidak pernah berubah. Query unik (`?cek=…`, HEAD alat audio) melewati cache.
+4. `workers_dev: false`, `preview_urls: false`, `invocation_logs: false` (ADR-065, tanpa IP di log). Preview web memutar audio dari `media.surau.org` produksi, karena objek tidak pernah ditimpa.
+5. Deploy: job `deploy media` di `deploy.yml` (push ke `main`, sesudah web). Tes handler di project `node` dengan bucket tiruan.
+6. **`pnpm audio staging [--confirm]`**: mengganti baris `audio_track` satu edisi di korpus staging dengan track manifest yang skripnya cocok. Pilihan dihitung oleh `selectAudioTracksIn` (core), fungsi yang sama dengan ingest, jadi build korpus berikutnya menghasilkan baris yang sama. Logika pencocokan dipindah dari `tools/ingest/src/audio.ts` ke core (`selectAudioTracksIn`, `audioReport`). Korpus produksi tetap hanya berganti lewat `corpus:promote`. Galat R2 dijawab 503 `no-store`.
+
+**Bukti (2026-10-25):** sesudah deploy, `HEAD` 200 (`audio/mpeg`, 6.490.629 byte, immutable), `Range: bytes=0-99` → 206 `content-range: bytes 0-99/6490629` `cf-cache-status: HIT`. `pnpm audio upload --confirm`: 1 sudah ada + 7 diunggah. `pnpm audio verify`: 8/8 lolos (HEAD + Range + sha256). `pnpm audio staging --confirm`: 8 track dimuat, 0 gugur.
+
+**Konsekuensi:** objek audio yang tidak ada di cache tepi menjalankan Worker sekali per lokasi (permintaan Workers + operasi R2 kelas B). Untuk audio pilot jumlahnya kecil. Docs CSP penuh tetap memuat `media-src https://media.surau.org`.
+
+**Tinjau ulang bila:** Preview web pindah ke domain lain (domain kustom R2 langsung bisa dipakai lagi), Workers Caching berubah perilaku Range atau ukuran maksimum, atau audio mulai butuh kontrol akses.
+
+## ADR-104 · Sorotan kalimat mengikuti audio Intisari (X18): timestamps per kalimat di objek R2 immutable, dua sumber waktu (with-timestamps TTS dan forced alignment), sorotan Highlight API + gulir + ketuk-untuk-lompat — diterima (kode; uji berbayar dan objek nyata menunggu T-29, T-32, izin pemilik) · 2026-10-25
+
+**Konteks:** pemilik bertanya (2026-10-25) apakah teks Intisari bisa disorot mengikuti audio. X17 (ADR-100) menunda sorotan per kalimat dan menyiapkan kolom `audio_track.alignment_key`. Docs dicek 2026-10-25 (`/docs-terbaru elevenlabs`): `POST /v1/text-to-speech/{voice_id}/with-timestamps` mengembalikan `{audio_base64, alignment|null, normalized_alignment|null}` dengan waktu per karakter teks yang dikirim, tetapi docs **tidak menyebut** apakah `eleven_v4` didukung (hanya "model yang bisa TTS"). `POST /v1/forced-alignment` (multipart file + teks) mengembalikan waktu per karakter dan per kata, mendukung bahasa Indonesia, dan ditagih seperti Speech to Text (per durasi audio; tarif persisnya tidak tertulis). Belum ada audio produksi, kunci API (T-29) belum ada, jadi uji pembanding belum bisa dijalankan.
+
+**Keputusan:**
+1. **Satuan sorotan = kalimat skrip.** `digestScript` kini juga mengembalikan `sources`: untuk setiap kalimat skrip, rentang [start, end) di teks field yang tampil (`opening`, `abstract`, `closing`, judul/isi gagasan per `ord`, terjemahan kutipan per `ord`), atau null untuk kalimat buatan kode (sumber "Dari kitab …"; label suara AI tidak lagi diucapkan sejak ADR-102, "Gagasan pertama.", pengantar kutipan, tanda riwayat, anjuran, pintu ke kitab). Rentang dipetakan balik lewat peta offset `speakable` (penanda catatan kaki "(١)" dan placeholder ⟦QS⟧ yang diganti tetap utuh di teks tampil) dan dibatasi ke judul yang dipangkas (titik tambahan tidak ikut). `sources` **di luar sha skrip**: sha tetap atas segmen saja (dites), jadi memperbaiki pemetaan tidak menggugurkan audio.
+2. **Objek timestamps `.align.json`** (`packages/core/src/audio-alignment.ts`, format 1): `{format, audio_sha256, script_sha256, method, segments: [[start_ms, end_ms] | null][]}` sejajar `segments[i].sentences`. Hanya angka, tanpa teks. Kunci `<karya>/<lang>/<node>-<12 heks sha256 isi JSON>.align.json`, immutable (`Cache-Control` sama dengan MP3, `Content-Type: application/json`), tidak pernah ditimpa. Kalimat urut waktu (skema menolak mulai yang mundur; pemetaan membuang yang mundur menjadi null).
+3. **Manifest:** track punya `alignment` (`r2_key`, `sha256`, `bytes`, `method`) atau null (bawaan, jadi track lama tetap valid). Boleh ditambahkan sesudah track tercatat: `mergeTracks` hanya mengganti rujukan timestamps track yang sudah ada, objek audionya tetap. Ingest mengisi `audio_track.alignment_key` (migrasi 0009 sudah menyiapkan kolomnya; skema korpus tidak berubah). `DigestView.audio.alignment_key` (juga di MCP `get_section_digest`).
+4. **Dua sumber waktu, satu pemetaan** (`tools/audio/src/align.ts`): token bertimestamp dicocokkan **berurutan** ke teks (bukan per indeks; lompatan maksimal 64 karakter), sehingga spasi yang dibuang, tanda baca terpisah, atau token asing tidak menggeser kalimat sesudahnya; kalimat tanpa token = null.
+   - **tts_timestamps** (`pnpm audio submit --timestamps`): setiap permintaan memakai `/with-timestamps`; waktu karakter TEKS YANG DIKIRIM (sesudah leksikon, termasuk IPA `/…/`) dipetakan ke kalimat lewat rentang kalimat di potongan itu, lalu digeser ke awal potongan di berkas rakitan (sampel MP3, sama dengan bab). Tag gaya narator (ADR-101) di awal kalimat tidak masuk rentang kalimat. Timestamps hanya dibuat bila SEMUA potongan punya `alignment`; `alignment` null atau rusak diterima tanpa galat (respons 200 tetap tertagih dan tercatat). Cache segmen menyimpan waktu karakternya.
+   - **forced_alignment** (`pnpm audio align [--node] --confirm`): untuk berkas rakitan tanpa timestamps, termasuk audio yang sudah diunggah. Teks = kalimat skrip seperti DIUCAPKAN (alias leksikon diterapkan; IPA tidak, karena katanya tetap sama), dipisah spasi. Skrip dibangun ulang dari staging dan wajib sha-nya sama dengan audio. Tanda terima di `align-receipts.jsonl` (durasi audio, bukan karakter), juga bila badan respons 200 rusak. Wajib `--budget-minutes` bersama `--confirm` (pagu menit audio, sejalan `submit --budget-chars`). Tanpa tanda niat: permintaan murah, gagal jaringan dilaporkan sebagai "mungkin tertagih".
+   - Kunci cache segmen tidak memuat `--timestamps` (waktu karakter bukan bagian bunyi): segmen yang sudah ada tanpa waktu karakter dipakai ulang tanpa ditagih lagi, sehingga track itu tanpa tts_timestamps dan `submit` mencetak "belum (pnpm audio align)". Forced alignment melengkapinya.
+5. **Jalur bawaan diputuskan oleh uji, bukan dari ingatan.** `pnpm audio align-test --voice ID --confirm` mengirim satu teks ±300 karakter ke `/with-timestamps` v4 (niat + tanda terima seperti `sample`), lalu forced alignment atas MP3 yang sama, dan mencetak per kalimat waktu kedua sumber + selisihnya (laporan JSON di `data/build/audio/align-test/`). Sampai uji itu dijalankan (butuh T-29 + izin pemilik, ≤ 2.000 karakter), jalur yang pasti adalah forced alignment; `--timestamps` opsional. Bila v4 mengembalikan `alignment` dan selisihnya kecil, `--timestamps` menjadi kebiasaan pilot (gratis, tanpa permintaan kedua); bila null, forced alignment.
+6. **Web (`components/listen/follow*.ts`).** Rute halaman Intisari menghitung target sorotan dari skrip (`digestFollow`: `digestScript(view)` + `followTargets`) hanya bila audio punya `alignment_key`; elemen teks yang dibacakan diberi `data-say` (+ `data-say-at` untuk paragraf `Prose`). `ListenFollow` (klien, tidak merender apa pun) hanya memantau apakah audio halaman ini (kunci objek yang sama) dimuat pemutar; logikanya (`follow-run.ts`) dimuat malas:
+   - mengambil objek timestamps (fetch lintas asal ke `media.surau.org`), menolak bila jumlah kalimatnya ≠ target atau `script_sha256`-nya ≠ sha skrip halaman;
+   - menyorot kalimat aktif (kalimat terakhir yang sudah mulai; bertahan selama jeda) dengan CSS Custom Highlight API `::highlight(surau-dengar)`: Range di atas teks yang ada, DOM tidak diubah (pola Cari; `rangesFor` dipindah ke `lib/text-ranges.ts`); kalimat buatan kode tidak menyorot apa pun;
+   - menggulir mengikuti kalimat aktif selama diputar bila keluar dari pita baca (di bawah kepala, di atas pemutar mini), kecuali pembaca menggulir sendiri dalam 5 detik terakhir (wheel/touchmove/tombol gulir); tanpa animasi bila `prefers-reduced-motion`;
+   - mengetuk teks yang dibacakan melompat ke awal kalimatnya (caret dari titik ketuk; bukan di tautan/tombol, bukan saat memilih teks); papan ketik tetap memakai kontrol pemutar;
+   - browser tanpa Highlight API: gulir dan ketuk tetap jalan.
+   CSS baru hanya aturan sorotan + kursor (+ warna sistem di `forced-colors`) di `globals.css` (bukan CSS komponen HeroUI). CSP penuh nanti wajib `connect-src https://media.surau.org`. JS awal halaman bertambah hanya `ListenFollow` + target kalimat di payload RSC.
+7. **Worker media melayani timestamps** (perluasan ADR-103): `apps/media` kini juga menerima kunci `alignmentObjectKey` (`<…>-<sha12>.align.json`, pola disamakan dengan `ALIGNMENT_KEY` dan dijaga tes) dengan `Content-Type: application/json`, cache immutable yang sama, dan `Access-Control-Allow-Origin: *`, karena timestamps dibaca `fetch` lintas asal (berbeda dengan `<audio>`; isinya publik dan immutable). Audio tetap tanpa CORS. Draf awal sesi ini memakai kebijakan CORS bucket R2 (`r2-cors.json`); itu tidak berlaku lagi sejak ADR-103 (Worker, bukan domain kustom R2) dan dihapus. `pnpm audio verify` juga memeriksa objek `.align.json` (tipe, ukuran, cache, sha, header CORS).
+8. **Fixture:** `/dev/intisari` (Preview, `DEV_PAGES`) memutar audio sunyi buatan dengan timestamps buatan dari panjang kalimat skrip fixture (`/dev/intisari/sorotan.json`), untuk e2e dan pratinjau tanpa ElevenLabs atau media.surau.org.
+
+**Tidak dipilih:**
+- Sorotan per kata: ukuran objek berlipat dan gangguan visual; datanya bisa diturunkan nanti dari forced alignment bila diminta.
+- Membungkus kalimat dengan `<span>` di server: mengubah DOM halaman ISR untuk semua pembaca (juga yang tidak mendengar) dan pemetaan teks Cari/pembaca.
+- Timestamps di D1 (kolom JSON): skema X15a sudah memilih objek R2, dan halaman tidak perlu memuatnya sebelum audio diputar.
+- Proxy timestamps lewat Worker web (asal sama, tanpa CORS): tambahan permintaan Worker per pemutaran; Worker media sudah ada dan dicache tepi.
+- `normalized_alignment`: memetakan teks hasil normalisasi penyedia, bukan teks yang kami kirim.
+- Menetapkan with-timestamps v4 sebagai jalur tunggal sebelum diuji: docs diam soal dukungan v4.
+
+**Konsekuensi:**
+- Audio lama tetap valid (sha skrip tidak berubah); timestamps bisa ditambahkan kapan saja dengan `align`.
+- Biaya: tts_timestamps tanpa biaya tambahan menurut halaman harga (tidak ada tarif terpisah); forced alignment ±tarif STT per jam audio (Scribe v2 US$0,22/jam di halaman harga, belum pasti berlaku), ±1,3 juta karakter ≈ 24 jam ≈ ±US$5 bila seluruh produksi memakainya.
+- Sorotan nyata baru tampil sesudah: T-29 (kunci) → izin uji `align-test` → pilot audio X17 → `align`/`--timestamps` → `upload` + `manifest` → deploy Worker media (merge ke `main`) → `pnpm audio staging` / build korpus. Sampai itu, Preview memperlihatkannya di `/dev/intisari`.

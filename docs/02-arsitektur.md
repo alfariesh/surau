@@ -8,7 +8,7 @@ Dokumen ini menjelaskan **konsep** arsitektur Surau: lapisan, gagasan kunci, dan
 Permukaan   : Web app (UI terstruktur) · MCP publik · API Jawab · Dump data terbuka
 Agen        : Riset umum · Ruang al-Ghazali · Fiqh Syafi'i · Verifikator (kode)
 Core Tools  : list_works · get_table_of_contents · read_page · read_section
-              search_text · verify_quote · get_hadith_takhrij
+              search_text · verify_quote · get_hadith_takhrij · get_section_digest
 Wiki        : tokoh · karya · istilah · ayat · hadits · qaul · masalah/hukum
               (tiap fakta: sumber + status review)
 Korpus      : teks asli, tidak pernah diubah (ID kanonik + permalink halaman cetak)
@@ -135,7 +135,7 @@ Ditambah **MCP**: pengguna memakai AI miliknya sendiri, sehingga Surau hanya mel
 ## MCP
 
 - **Bentuk:** Worker `surau-mcp` di `mcp.<domain>/mcp`, dirilis di Fase 3, **sebelum** Jawab ([ADR-019](../implementasi/KEPUTUSAN.md)). Server memakai SDK resmi v2 dan bersifat stateless dual-era: klien spesifikasi 2026-07-28 dan klien lama (2025-11-25) dilayani di endpoint yang sama. Tanpa auth, hanya-baca, dan tidak pernah memanggil LLM ([ADR-011](../implementasi/KEPUTUSAN.md)).
-- **Tools yang dibuka:** `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, `get_hadith_takhrij`. Semuanya hanya-baca dan diberi anotasi `readOnlyHint`. Nama tool berbahasa Inggris (ASCII, mudah dipakai AI mana pun) dengan deskripsi dwibahasa ([ADR-012](../implementasi/KEPUTUSAN.md)). Nama ini menggantikan nama lama (`daftar_isi`, `baca_bagian`, `cari`, `cek_kutipan`, `status_hadits`). Tool entitas wiki menyusul di Fase 6.
+- **Tools yang dibuka:** `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, `get_hadith_takhrij`, dan `get_section_digest` (Intisari, sejak X16). Semuanya hanya-baca dan diberi anotasi `readOnlyHint`. Nama tool berbahasa Inggris (ASCII, mudah dipakai AI mana pun) dengan deskripsi dwibahasa ([ADR-012](../implementasi/KEPUTUSAN.md)). Nama ini menggantikan nama lama (`daftar_isi`, `baca_bagian`, `cari`, `cek_kutipan`, `status_hadits`). Tool entitas wiki menyusul di Fase 6.
 - **Pembeda:** Shamela sudah punya MCP publik untuk pencarian Arab lintas kitab. MCP Surau menonjolkan bahasa Indonesia, takhrij yang tertaut, ayat dengan terjemahan Kemenag, verifikasi kutipan, dan permalink halaman cetak yang stabil ([ADR-022](../implementasi/KEPUTUSAN.md)).
 - **Ekonomi nirlaba:** lewat MCP, biaya model AI ditanggung oleh AI milik pengguna. Surau hanya melayani query database yang murah. Bagian termahal adalah mode Jawab di situs Surau sendiri.
 - **Keterbatasan:** jawaban akhir ditulis oleh model milik pengguna, sehingga verifikasi kutipan tidak bisa dipaksakan. Mitigasinya:

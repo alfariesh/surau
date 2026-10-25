@@ -14,6 +14,7 @@ import {
   T_ROOT,
   seedAiText,
   seedCore,
+  seedDigest,
   seedHumanReview,
   seedSearchIndex,
 } from "../../../packages/core/test/fixture.ts";
@@ -30,6 +31,7 @@ const TOOLS = [
   "search_text",
   "verify_quote",
   "get_hadith_takhrij",
+  "get_section_digest",
 ];
 const ERAS = ["modern", "legacy"] as const;
 type Era = (typeof ERAS)[number];
@@ -38,6 +40,7 @@ beforeAll(async () => {
   await seedCore(db);
   await seedSearchIndex(db);
   await seedAiText(db);
+  await seedDigest(db);
 });
 
 // Setiap klien memakai IP sendiri, supaya batas pemakaian satu tes tidak memengaruhi tes lain.
@@ -103,10 +106,11 @@ const SAMPLE_ARGS: Readonly<Record<string, Record<string, unknown>>> = {
   search_text: { query: "تجريبي" },
   verify_quote: { passage_id: PASSAGES.body1, quote: "نص تجريبي" },
   get_hadith_takhrij: { passage_id: PASSAGES.body1 },
+  get_section_digest: { section_id: T_ROOT },
 };
 
 describe.each(ERAS)("era %s", (era) => {
-  test("tools/list: 7 tool ASCII, anotasi read-only, outputSchema objek; instruksi server", async () => {
+  test("tools/list: 8 tool ASCII, anotasi read-only, outputSchema objek; instruksi server", async () => {
     const client = await connect(era);
     expect(client.getProtocolEra()).toBe(era);
     const { tools } = await client.listTools();
@@ -143,7 +147,11 @@ describe.each(ERAS)("era %s", (era) => {
       );
       // list_works hanya metadata (core README): lisensi + atribusi ada di setiap edisi. Hasil
       // lain memuat sitasi: `citation` di akar, atau per halaman hasil (search_text).
-      const citations = [out.citation, ...collect(out.results, "label")].filter(Boolean);
+      const citations = [
+        out.citation,
+        ...collect(out.results, "label"),
+        ...collect(out.digest, "label"),
+      ].filter(Boolean);
       expect(name === "list_works" || citations.length > 0, `${name} tanpa citation`).toBe(true);
       // Setiap permalink absolut ke situs.
       for (const link of collect(out, "permalink"))
@@ -243,6 +251,35 @@ describe("teks Arab = substring DB (kode menyalin, model menunjuk)", () => {
       expect(passages.length, name).toBeGreaterThan(0);
       for (const p of passages) expect(p.text_raw, `${name} ${p.id}`).toBe(await rawText(p.id));
     }
+    await client.close();
+  });
+
+  test("get_section_digest (X16): kutipan = text_raw DB, label AI, permalink absolut; tanpa Intisari = null", async () => {
+    const client = await connect("modern");
+    const out = await ok(client, "get_section_digest", { section_id: T_ROOT });
+    const digest = z
+      .object({
+        label: z.literal("ai_digest"),
+        section: z.object({ permalink: z.string() }),
+        points: z.array(z.object({ anchors: z.array(z.object({ passage_id: z.number() })) })),
+        quotes: z.array(
+          z.object({
+            passage_id: z.number(),
+            char_start: z.number(),
+            char_end: z.number(),
+            text_raw: z.string(),
+          }),
+        ),
+      })
+      .parse(out.digest);
+    expect(digest.section.permalink).toBe(`${SITE}/kitab/uji/bab/${T_ROOT}`);
+    expect(digest.points[0]?.anchors.map((a) => a.passage_id)).toEqual([PASSAGES.body1]);
+    expect(digest.quotes).toHaveLength(1);
+    for (const q of digest.quotes) {
+      expect(q.text_raw).toBe((await rawText(q.passage_id)).slice(q.char_start, q.char_end));
+    }
+    const none = await ok(client, "get_section_digest", { section_id: T_LONG });
+    expect(none.digest).toBeNull();
     await client.close();
   });
 

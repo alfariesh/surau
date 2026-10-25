@@ -33,12 +33,17 @@ export type { Rates, UsageLike, UsageTotals } from "./pricing.ts";
 
 export {
   MAX_ARABIC_RUN_WORDS,
+  addressesReader,
   contentLength,
   footnoteMarkerDigits,
   hasArabicLetters,
+  hasFatwaLanguage,
+  hasFirstPerson,
+  hasHadithStatus,
   hasMetaCommentary,
   letterLength,
   longestArabicRun,
+  paraphrasesAyah,
   refillsAyah,
   restoreFootnoteMarkers,
   stripMarkers,
@@ -87,6 +92,63 @@ export {
   tocTitleUserText,
 } from "./toc-title.ts";
 export type { TocTitleItem, TocTitleProblem, TocTitleResult } from "./toc-title.ts";
+
+// X15b: Intisari (ADR-097, ADR-098) dan glosarium berkunci.
+export {
+  DIGEST_LANG,
+  DIGEST_LIMITS,
+  DIGEST_MAX_TOKENS,
+  DIGEST_MERGE_PROMPT,
+  DIGEST_SECTION_PROMPT,
+  buildDigestLeafRequest,
+  buildDigestMergeRequest,
+  digestLeafUserText,
+  digestMergeUserText,
+  judgeDigest,
+  leafPointRange,
+  mergePointRange,
+  narrativeProblems,
+  quoteTranslationProblems,
+} from "./digest.ts";
+export type {
+  CountRange,
+  DigestBlockInput,
+  DigestJudgeContext,
+  DigestLeafInput,
+  DigestMergeInput,
+  DigestSource,
+  DigestSourcePoint,
+  DigestSourceQuote,
+  DigestStage,
+  DigestVerdict,
+  DroppedItem,
+  JudgedDigest,
+  JudgedPoint,
+  JudgedQuote,
+  LeafBlock,
+  QuoteInspection,
+  QuoteRange,
+} from "./digest.ts";
+export {
+  GLOSSARY_GROUPS,
+  GLOSSARY_TERMS,
+  GLOSSARY_TERM_KEYS,
+  GLOSSARY_V2,
+  glossarySpoken,
+  glossaryWritten,
+} from "../prompts/glossary-v2.ts";
+export type { GlossaryEntry, GlossaryGroup } from "../prompts/glossary-v2.ts";
+export {
+  GLOSSARY_GLOSS_GROUP,
+  GLOSSARY_GLOSS_MAX_TOKENS,
+  GLOSSARY_GLOSS_PROMPT,
+  buildGlossaryGlossRequest,
+  glossProblems,
+  glossaryGlossUserText,
+  glossaryTargets,
+  judgeGlossaryGlosses,
+} from "./glossary.ts";
+export type { GlossaryGlossResult } from "./glossary.ts";
 
 export { JUDGE_VERSION, JUDGE_MAX_TOKENS, JUDGE_PROMPT } from "../prompts/jawab-judge-v1.ts";
 

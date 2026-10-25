@@ -13,6 +13,7 @@ import type { NeedsReviewReason } from "@surau/db";
 import { ayahPlaceholderPattern, maskAyat, translationSegments } from "@surau/core";
 
 import type { Block, SubSpan } from "./blocks";
+import type { DigestTeaser } from "./digest";
 import type { SubheadingEntry } from "./subheadings";
 
 import { shortAyahLabel } from "./ayah";
@@ -33,7 +34,7 @@ import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
  * syair, subjudul): tanpa itu, halaman sambungan di produksi memakai model lama sampai 7 hari per
  * data center. Model tidak memuat teks UI (i18n).
  */
-export const PAGE_MODEL_VERSION = `6.${SUBHEADING_DIGEST}`;
+export const PAGE_MODEL_VERSION = `7.${SUBHEADING_DIGEST}`; // 7 = `digests` (Intisari, X16)
 
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {
@@ -105,6 +106,11 @@ export interface PageModel {
   /** Jangkar bagian yang tidak punya paragraf di halaman ini (di awal teks) + ringkasannya. */
   unplaced: number[];
   unplacedSummaries: SummaryView[];
+  /**
+   * Intisari bagian yang mulai di halaman ini, per ID node (X16): baris "N gagasan · ± M menit ·
+   * Buka Intisari" di kartu Ringkasan AI-nya. Kosong di korpus skema < 9.
+   */
+  digests: Record<number, DigestTeaser>;
   /** Catatan kaki → id penanda pertama yang dirender (tujuan "kembali ke teks"). */
   markerIds: Record<number, string>;
   /** Digit penanda (١) → jangkar catatan kaki (tautan di terjemahan AI). */
@@ -240,6 +246,8 @@ export interface ModelContext {
   editionId: number;
   /** Bagian daftar isi yang mulai di halaman ini (dari pohon lengkap atau kueri per halaman). */
   sections: readonly SectionNode[];
+  /** Kepala Intisari bagian-bagian itu (X16); hanya yang ada di `sections` yang dipakai. */
+  digests?: readonly DigestTeaser[];
 }
 
 /** Model siap render untuk satu halaman cetak. */
@@ -387,6 +395,9 @@ export async function buildPageModel(page: PageView, ctx: ModelContext): Promise
     quran: page.quran,
     unplaced: starts.unplaced,
     unplacedSummaries: summariesAt(starts.unplaced),
+    digests: Object.fromEntries(
+      (ctx.digests ?? []).filter((d) => sectionById.has(d.nodeId)).map((d) => [d.nodeId, d]),
+    ),
     markerIds,
     footAnchor,
     // Konten AI yang BELUM ditinjau manusia (X10): catatan "belum ditinjau manusia" di awal teks dan

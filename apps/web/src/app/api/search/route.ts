@@ -37,7 +37,8 @@ export async function GET(request: Request): Promise<Response> {
     ip: request.headers.get("cf-connecting-ip") ?? (dev ? "127.0.0.1" : null),
     limit: async (key) => (await env.SEARCH_LIMITER.limit({ key })).success,
     limitGlobal: async () => (await env.SEARCH_GLOBAL_LIMITER.limit({ key: "global" })).success,
-    search: (query, opts) => searchText(db, query, opts),
+    // Cari situs menyertakan jalur gagasan Intisari (X16; korpus skema ≥ 9).
+    search: (query, opts) => searchText(db, query, opts, { digest: true }),
     cache: store === null ? null : { store, corpus: env.SEARCH_CACHE_CORPUS },
   });
   const detail = env.SEARCH_TIMING_DETAIL === "1" || dev;

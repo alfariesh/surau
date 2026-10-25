@@ -1,0 +1,1029 @@
+{
+  "halaman": "surau-qa-intisari-100003",
+  "penilai": "agent (4 subagen QA independen, 2026-10-25)",
+  "dinilai": {
+    "dg-100003-id-b#g1": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Klaim bahwa larangan menyembunyikan ilmu menunjukkan kewajiban menyampaikannya (jawaban Pertanyaan kedua), beserta pahala pengajar dan ancaman bagi penyembunyi ilmu, tidak ada di Dasar teks mana pun; DT6 hanya memuat QS 9:122 yang dimaknai sebagai pengajaran. 'Ucapan sebagian sahabat dan ulama' bahwa menuntut ilmu lebih utama daripada salat sunah juga tidak tertelusur, sebab DT7 hanya berisi hadis Nabi (termasuk soal seratus rakaat), bukan ucapan sahabat atau ulama."
+    },
+    "dg-100003-id-b#g2": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "'Menukil lebih dari dua puluh pendapat' berlebihan karena DT2 hanya menyebut ada lebih dari dua puluh golongan dan al-Ghazali menolak merincinya, sedangkan contoh Ramadan dan zakat tidak ada di Dasar teks (DT8 hanya contoh waktu salat). Definisi fardu kifayah sebagai ilmu untuk urusan dunia diambil dari bagian ilmu non-syar'i yang terpuji di DT6, tetapi disajikan seolah definisi fardu kifayah secara umum."
+    },
+    "dg-100003-id-b#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Semua klaim tertelusur ke DT2-DT9. Sebab kedua (umumnya membahayakan pemiliknya, DT3) diringkas menjadi 'menyesatkan' dan frasa 'hati lupa kepada Allah' sedikit melampaui potongan DT8, tetapi keduanya sejalan dengan teks."
+    },
+    "dg-100003-id-b#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Tertelusur ke DT1-DT9; hanya 'menggali rahasia syariat' kurang tepat untuk 'menggali detail-detail syariat' di DT6."
+    },
+    "dg-100003-id-b#g5": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Syarat mujtahid disebut 'Kedua', padahal DT4 menyebutnya syarat ketiga dari delapan syarat (DT1). Dendam, gibah, pujian diri, kemunafikan, wajah pendebat yang muram, dan aturan 'hanya boleh menukil mazhab gurunya' tidak ada di Dasar teks; DT6 dan DT9 hanya memuat hasad dan takabur."
+    },
+    "dg-100003-id-b#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Larangan mengharap upah dan ucapan terima kasih hanya tersirat dari kritik DT6 terhadap guru yang mengejar tunjangan, dan perumpamaan matahari tertelusur ke Kutipan 3, bukan ke Dasar teks; klaim lain sesuai DT1-DT9."
+    },
+    "dg-100003-id-b#g7": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kalimat bahwa al-Ghazali menukil kisah Nabi Daud as. tentang ulama yang dikuasai dunia tidak ada di DT1-DT9. Klaim lain tertelusur: ciri ulama akhirat (DT3), menjauhi penguasa (DT4, DT9), dan 'tidak tahu' sebagai separuh ilmu (DT5)."
+    },
+    "dg-100003-id-b#g8": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Makna ketiga (ilmu dari pengalaman) dan keempat (kekuatan menahan syahwat), serta alasan perbedaan tingkat akal (usia, pengetahuan tentang bahaya maksiat, naluri yang tumbuh), tidak ada di Dasar teks. DT5 hanya menyatakan perbedaan berlaku pada semua jenis kecuali jenis kedua, dan pengecualian itu tidak disebut."
+    },
+    "dg-100003-id-bh#g1": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kalimat 'ulama adalah pewaris para nabi, karena Nabi bersabda bahwa Allah menjadikan faqih orang yang Ia kehendaki baik' mengarang hubungan sebab antara dua hadis yang di DT2 berdiri sendiri-sendiri. Al-Syafi'i tidak ada di Dasar teks mana pun; DT9 justru berisi ucapan Malik lewat Ibnu 'Abd al-Hakam, yang tidak disebut."
+    },
+    "dg-100003-id-bh#g2": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Contoh Ramadan, zakat, dan kewajiban mempelajari rukun haji setelah berniat tidak ada di Dasar teks (DT7 hanya contoh waktu salat), dan 'menukil ... lebih dari dua puluh' berlebihan karena DT1 menyatakan al-Ghazali tidak merinci pendapat-pendapat itu. Definisi fardu kifayah sebagai ilmu urusan dunia di DT4 khusus untuk ilmu non-syar'i yang terpuji, tetapi disajikan seolah definisi umum."
+    },
+    "dg-100003-id-bh#g3": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kisah dokter yang menakut-nakuti perempuan mandul (DT5, DT9) dipakai al-Ghazali untuk menunjukkan bahwa sebagian ilmu berbahaya dan ketidaktahuan kadang bermanfaat, bukan sebagai contoh 'mendalami rahasia ilahi sebelum waktunya'. Lagi pula DT5 meminta orang dicegah sama sekali dari membahas rahasia ilahi, bukan sekadar menunggu waktunya."
+    },
+    "dg-100003-id-bh#g4": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kalimat 'orang dunia yang condong pada mazhab akan mengikuti ke arah itu' mengaburkan DT6: para pendebatlah yang akan ikut condong seandainya para pemegang dunia beralih ke imam atau ilmu lain. Syarat pertama (fardu ain), jawaban Pertanyaan kedua, tidak terlihat karena DT3 terpotong sebelum isinya, dan takabur serta dendam tidak ada di Dasar teks (DT9 hanya hasad)."
+    },
+    "dg-100003-id-bh#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Tertelusur ke DT1-DT9; larangan mengharap upah dan ucapan terima kasih hanya tersirat dari kritik DT6 terhadap guru yang mengejar tunjangan."
+    },
+    "dg-100003-id-bh#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Semua klaim tertelusur, termasuk riwayat Nabi Daud as. (DT4), menjauhi penguasa (DT5), dan sikap 'tidak tahu' (DT6); 'lebih buruk daripada orang bodoh' adalah simpulan wajar dari DT2."
+    },
+    "dg-100003-id-bh#g7": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Makna ketiga dan keempat akal, 'naluri sempurna sekitar usia empat puluh tahun', alasan perbedaan tingkat akal (jawaban Pertanyaan kedua), dan pernyataan bahwa hakikat akal termasuk ilmu mukasyafah tidak ada di Dasar teks. DT5 hanya menyatakan perbedaan berlaku pada semua jenis kecuali jenis kedua, dan pengecualian itu tidak disebut."
+    },
+    "dg-100004-id-m#g1": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": false,
+      "fatwa": true,
+      "catatan": "Klaim bahwa al-Ghazali menafsirkan 'pakaian takwa' sebagai rasa malu tidak ada di Dasar teks 1–6 (ayatnya tidak dikutip), dan Isi menjadikannya tafsiran al-Ghazali sendiri, padahal intisari anaknya (dg-100005-id#g1) menyebutnya pendapat yang ia nukil. Derajat ulama di atas orang beriman (Dasar teks 3) juga ucapan Ibnu Abbas yang ia kutip, bukan rumusannya sendiri."
+    },
+    "dg-100004-id-m#g2": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Isi menyebut bahwa 'dalam riwayat yang sama' ulama disebut pewaris para nabi, padahal di Dasar teks 1 keduanya hadis terpisah (bernomor 1 dan 2). Komentar al-Ghazali bahwa tidak ada derajat di atas kenabian sudah sesuai teks."
+    },
+    "dg-100004-id-m#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100004-id-m#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100004-id-m#g5": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Di Dasar teks 2 Malik hanya berkata bahwa salat yang hendak dikerjakan tidak lebih utama daripada belajarnya bila niatnya benar; Isi melebarkannya menjadi 'tidak ada yang lebih utama', sehingga bisa terbaca seolah belajar mengungguli salat zuhur itu sendiri. Nukilan Abu al-Darda' dan al-Syafi'i (Dasar teks 1, 3, 4) sudah tepat."
+    },
+    "dg-100004-id-m#g6": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Hadis di Dasar teks 5 menjanjikan pahala tujuh puluh shiddiq bagi orang yang mempelajari satu bab ilmu untuk diajarkan, bukan bagi 'orang yang mengajarkan', dan Pertanyaan dibangun di atas pergeseran itu. Kalimat 'ilmu yang bermanfaat terus mengalirkan pahala' tidak ada di Dasar teks 1–7 (hadisnya baru muncul di dg-100007-id#g5, h. 11)."
+    },
+    "dg-100005-id#g1": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kalimat tentang tafsir 'pakaian takwa' sebagai rasa malu, yang juga menjadi Pertanyaan kedua, tidak didukung Dasar teks 1–5 (ayat itu tidak dikutip di mana pun). Bagian lain (QS 3:18, QS 58:11 dan ucapan Ibnu Abbas) sesuai teks."
+    },
+    "dg-100005-id#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100005-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100005-id#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100005-id#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100006-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100006-id#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100006-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100006-id#g4": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 hanya menyatakan bahwa salat yang hendak ia kerjakan tidak lebih utama daripada belajarnya bila niatnya benar; Isi melebarkannya menjadi 'tidak ada yang lebih utama', dan bersama Judul ('lebih utama dari salat') bisa terbaca seolah belajar mengungguli salat zuhur yang wajib."
+    },
+    "dg-100007-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100007-id#g2": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Hadis di Dasar teks 2 berbunyi 'barang siapa mempelajari satu bab ilmu untuk mengajarkannya kepada manusia', tetapi Isi dan Pertanyaan mengubahnya menjadi pahala bagi orang yang mengajarkan satu bab ilmu. Bagian syafaat ulama dan catatan al-Ghazali tentang ilmu yang menular lewat pengajaran (Dasar teks 3) sudah tepat."
+    },
+    "dg-100007-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100007-id#g4": {
+      "nilai": "Salah",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Isi menyatakan mengajarkan kalimat hikmah 'setara dengan ibadah sunah', padahal hadis di Dasar teks 1 menyebut setara ibadah setahun (kata 'sanah' terbaca 'sunah'; terjemahan paragraf pun menulis 'ibadah setahun'), sehingga besaran pahala yang menjadi inti gagasan salah. Pertanyaan tentang makna tanah tandus juga tidak dijawab Isi (teks: perumpamaan bagi orang yang terhalang dari kedua manfaat)."
+    },
+    "dg-100007-id#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100007-id#g6": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Atha, Said bin al-Musayyab, dan Yahya bin Muadz tidak muncul di Dasar teks 1–6, begitu pula penjelasan bahwa ucapan Sufyan didorong semangat keutamaan mengajar (Dasar teks 3 berhenti pada 'negeri tempat ilmu mati'). Ucapan Ibnu Abbas, al-Hasan, Ikrimah, dan nasihat 'ajarkan ilmumu' sesuai teks."
+    },
+    "dg-100007-id#g7": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100008-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100008-id#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Catatan kecil: teks tidak berkata kuda lebih utama 'bukan karena tubuhnya lebih besar'; contoh tandingannya keledai yang punya benjolan tambahan di tubuh. Prinsipnya (tambahan pada tubuh bukan kesempurnaan) tetap tersampaikan."
+    },
+    "dg-100008-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100008-id#g4": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 menyimpulkan bahwa pangkal kebahagiaan dunia dan akhirat adalah ilmu (karena amal pun bergantung pada ilmu), sehingga ilmu disebut amal paling utama; Isi menggesernya menjadi 'ilmu bersama amal menjadi pangkal', yang tidak sejalan dengan teks maupun Pertanyaannya sendiri."
+    },
+    "dg-100008-id#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100008-id#g6": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 2 hanya memuat tingkat keempat (para pemberi nasihat) dan frasa 'setelah kenabian'; tingkat kedua dan ketiga (khalifah/penguasa dan ulama) yang dibutuhkan untuk menjawab Pertanyaan tidak ada di Dasar teks. Klaim bahwa pengajaran paling mulia setelah kenabian sesuai teks."
+    },
+    "dg-100009-id-m#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Catatan kecil: menurut Dasar teks 1 ahli kalam menunjuk ilmu kalam (karena dengannya tauhid dipahami), bukan langsung 'ilmu tauhid'."
+    },
+    "dg-100009-id-m#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100009-id-m#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100009-id-m#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100009-id-m#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100009-id-m#g6": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Daftar ilmu tercela (sihir, tilasman, sulap) dan ilmu mubah (syair) yang menjadi jawaban Pertanyaan tidak ada di Dasar teks 1, yang berhenti pada definisi fardu kifayah. Contoh ilmu non-syar'i di teks adalah hisab, kedokteran, dan bahasa, bukan syair."
+    },
+    "dg-100009-id-m#g7": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Catatan kecil: Kutipan 2 (h. 17, 'semuanya terpuji, bahkan semuanya fardu kifayah') berada di luar Dasar teks gagasan ini (h. 16) dan rujukan 'semuanya' tidak terlihat di paket; perlu dicek apakah memang tentang ilmu dan keahlian duniawi."
+    },
+    "dg-100010-id-m#g1": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Daftar ilmu tercela (sihir, tilasman, sulap) dan ilmu mubah (syair) yang menjadi jawaban Pertanyaan tidak ada di Dasar teks 1, yang berhenti pada definisi fardu kifayah. Contoh ilmu non-syar'i di teks adalah hisab, kedokteran, dan bahasa, bukan syair."
+    },
+    "dg-100010-id-m#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Catatan kecil: Kutipan 1 (h. 17, 'semuanya terpuji, bahkan semuanya fardu kifayah') berada di luar Dasar teks gagasan ini (h. 16) dan rujukan 'semuanya' tidak terlihat di paket; perlu dicek apakah memang tentang ilmu dan keahlian duniawi."
+    },
+    "dg-100010-id-m#g3": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kalimat 'para ulama menganjurkan agar meneladani sahabat' tidak ada di Dasar teks 1–3. Definisi cabang sebagai pemahaman lewat akal juga baru didukung Dasar teks gagasan 4, bukan gagasan ini."
+    },
+    "dg-100010-id-m#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100010-id-m#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Catatan kecil: teks menyebut menulis 'tidak mutlak diperlukan' (bukan istilah hukum 'tidak wajib'), dan soal hafalan disampaikan sebagai pengandaian (seandainya hafalan bisa menampung semuanya), bukan bahwa hafalan pada dasarnya mencukupi."
+    },
+    "dg-100010-id-m#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Catatan kecil: al-Ghazali tidak sekadar 'tidak membantah'; di Dasar teks 2 ia menilai penghormatan Malik sebagai tanda kuatnya pengenalan Malik akan keagungan Allah."
+    },
+    "dg-100010-id-m#g7": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100011-id-m#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Definisi ilmu sebenarnya diajukan sebagai keberatan penanya (Dasar teks 2), tetapi al-Ghazali tidak membantahnya, jadi tetap sesuai."
+    },
+    "dg-100011-id-m#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100011-id-m#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100011-id-m#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Label 'yang ia bantah' dapat diterima karena Isi tetap menyebutnya argumen al-Ghazali sendiri; Isi tidak menyebut bahwa ketepatan ramalan itu jarang dan kebetulan (Dasar teks 1), tetapi inti jawabannya benar."
+    },
+    "dg-100011-id-m#g5": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kisah tabib (Dasar teks 1-2) dipotong sebelum hasilnya: ketakutan membuat sang istri kurus sehingga ia bisa hamil, jadi ketidaktahuannya justru bermanfaat; tanpa itu contoh 'sebagian ilmu berbahaya' mudah dibaca sebagai tabib yang mencelakakan. Yang diperiksa tabib juga sang istri sendiri, bukan 'istri pasiennya'."
+    },
+    "dg-100011-id-m#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100012-id#g1": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Pertanyaan kedua (mengapa rincian fatwa tidak menumbuhkan rasa takut) tidak dijawab: Isi hanya menyatakannya tanpa alasan dari Dasar teks 1 bahwa menekuni rincian itu terus-menerus justru mengeraskan hati. 'Jual beli' juga kurang tepat untuk salam dan ijarah (sewa)."
+    },
+    "dg-100012-id#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 2 menyebut 'sebagian besar' keutamaan ilmu berlaku bagi ulama tentang Allah, hukum, perbuatan, dan sifat-Nya, dan Dasar teks 3 menyebut 'membinasakan', bukan sekadar 'menyesatkan'; penyederhanaan ini masih wajar."
+    },
+    "dg-100012-id#g3": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Isi menyebut tingkat inti tauhid 'dimiliki kaum shiddiq', padahal Dasar teks 3-5 hanya membagi tauhid menjadi dua kulit dan inti tanpa menyebut kaum shiddiq; detail itu tambahan model."
+    },
+    "dg-100012-id#g4": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Klaim bahwa al-Ghazali 'menyatakan majelis para sahabat berisi mengingat iman dan merenungi Al-Qur'an' tidak ada di Dasar teks 1-6, dan frasa 'mengingat iman' di Judul bertumpu padanya. Menurut Dasar teks 3, tazkir terpuji berisi ilmu akhirat, kematian, aib jiwa, bisikan setan, nikmat Allah, hinanya dunia, dan dahsyatnya akhirat."
+    },
+    "dg-100012-id#g5": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": false,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 menyatakan semua ilmu yang diridai salaf telah lenyap dan sebagian besar yang ditekuni orang adalah bid'ah, sedangkan Isi melunakkannya menjadi 'sebagian ilmu ... telah bergeser'. Penjelasan bahwa ghuraba adalah orang yang memperbaiki sunah adalah jawaban Nabi dalam hadis, bukan penjelasan al-Ghazali sendiri."
+    },
+    "dg-100013-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100013-id#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100013-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100013-id#g4": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Judul membatasi anjuran pada 'orang yang mampu membersihkan diri', padahal Dasar teks 1-2 menujukannya kepada orang yang sibuk memperbaiki dirinya dan siapa pun yang menginginkan akhirat, karena ilmu sifat hati 'diabaikan semua orang'. Isinya sendiri sesuai."
+    },
+    "dg-100013-id#g5": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 menyebut fanatisme sebagai penyakit ulama su' (ulama buruk), sedangkan Isi menulis 'penyakit ulama' secara umum. Kalimat pertama juga bergeser: teks membicarakan orang awam yang tak bisa diharapkan kembali bila fanatismenya menguat, bukan lawan yang 'tidak menerima kekalahan'."
+    },
+    "dg-100013-id#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100013-id#g7": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100014-id-m#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100014-id-m#g2": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 2 menegaskan bahwa inilah pendorong kesibukan pada khilafiah dan debat, 'tidak lain', sedangkan Isi melunakkannya menjadi 'pendorong utama ... bukan ilmu agama semata', seolah agama tetap ikut menjadi motif."
+    },
+    "dg-100014-id-m#g3": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Pertanyaan dijawab melingkar: Isi hanya berkata debat yang tidak memenuhi syarat tidak sama dengan musyawarah sahabat tanpa menjelaskan bedanya. Dasar teks 1 pun hanya memuat dalih para pendebat; uraian syaratnya baru ada di Dasar teks gagasan 4."
+    },
+    "dg-100014-id-m#g4": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 4 menyatakan orang yang bukan mujtahid tidak boleh meninggalkan mazhabnya walau melihat kelemahannya; tambahan 'begitu saja' melunakkan ketentuan itu. Syarat mujtahid juga syarat ketiga (Dasar teks 2), bukan 'syarat berikutnya', dan contoh Dasar teks 5 adalah orang yang meninggalkan salat, bukan menundanya."
+    },
+    "dg-100014-id-m#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100014-id-m#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100014-id-m#g7": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dendam dan tajassus disebut di Isi tetapi tidak ada di Dasar teks 1-9 gagasan ini (keduanya memang ada di bagian yang sama, lihat dg-100016-id). Judul juga menyebut 'perdebatan' tanpa batasan, padahal Dasar teks 1 hanya membicarakan perdebatan untuk menang dan pamer."
+    },
+    "dg-100015-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Alasan 'tidak memenuhi syarat' bersumber dari Dasar teks 1 gagasan 2, bukan dari Dasar teks gagasan ini, tetapi masih dalam bagian yang sama."
+    },
+    "dg-100015-id#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 3 menyebut orang itu meninggalkan salat, bukan menunda (juga di Pertanyaan), dan contoh bekam sebenarnya milik syarat kedua (Dasar teks 5); intinya tetap benar."
+    },
+    "dg-100015-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "'Mazhab gurunya' lebih tepat 'mazhab imamnya' (pendiri mazhab) menurut Dasar teks 2."
+    },
+    "dg-100015-id#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100015-id#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100015-id#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100016-id#g1": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Judul menyebut 'perdebatan' secara umum sebagai sumber segala akhlak tercela, padahal Dasar teks 1 membatasinya pada perdebatan untuk menang, membungkam, dan pamer. Perumpamaannya juga tertukar: Dasar teks 2-3 menyamakan perdebatan dengan minum khamar, sedangkan takabur, ujub, dan hasad sejajar dengan zina dan dosa lahir lainnya."
+    },
+    "dg-100016-id#g2": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Ucapan Ibnu Abbas di Dasar teks 3 melarang menerima perkataan para fakih tentang satu sama lain karena mereka saling cemburu, bukan menolak pendapat fakih yang saling mendengki secara umum; Isi menggeser maknanya."
+    },
+    "dg-100016-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 5 menyebut dendam ditujukan kepada orang yang membenarkan ucapan lawan dan tidak menyimak dirinya; 'sulit menerima lawan yang lebih unggul' adalah ringkasan yang longgar tetapi searah."
+    },
+    "dg-100016-id#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Rincian 'dengan kekuatan dan keluasan ilmunya' tidak tertulis di Dasar teks 2-3 dan Dasar teks 4 mengaitkan 'jauh dari akhlak orang beriman' hanya dengan sifat gembira atas susah orang lain; keduanya generalisasi ringan."
+    },
+    "dg-100016-id#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Hadis di Dasar teks 1 mengaitkan laknat dengan gabungan sifat (berilmu tanpa amal, manis di lisan tetapi benci di hati, memutus silaturahmi); Isi hanya menyebut satu, masih dapat diterima."
+    },
+    "dg-100016-id#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100017-id-m#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100017-id-m#g2": {
+      "nilai": "Salah",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kalimat terakhir Isi ('maksudnya, menurut al-Ghazali, bukan rumah dan anjing secara harfiah, melainkan isyarat kepada batin') membalik Dasar teks 2: al-Ghazali menegaskan ia tidak mengatakan rumah = hati dan anjing = amarah, melainkan hadis itu tanbih kepada batin dengan tetap menetapkan makna lahirnya, dan justru kehalusan inilah yang membedakannya dari kaum Batiniyah. Bagian lain (hati sebagai rumah malaikat, sifat tercela sebagai anjing, Dasar teks 1) sudah benar."
+    },
+    "dg-100017-id-m#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Klaim bahwa di dunia bentuk lahir lebih menonjol tidak tertulis di potongan, tetapi tersirat dari kontras 'adapun di akhirat' pada Dasar teks 1."
+    },
+    "dg-100017-id-m#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Pertanyaan agak janggal ('dengan apa ... melayani'), tetapi tetap terjawab Isi: dengan merendahkan diri sambil mengharap pahala dan kemuliaan (Dasar teks 2)."
+    },
+    "dg-100017-id-m#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100017-id-m#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Alasan 'pahala mengajar justru bertambah dengan adanya murid' adalah parafrase longgar Dasar teks 2 (pahala guru lebih besar daripada pahala murid dan tidak akan diperoleh tanpa murid); maknanya masih terjaga."
+    },
+    "dg-100017-id-m#g7": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Kata 'berbahaya' tambahan kecil; Dasar teks 1 menyebutnya ragam tipu daya diri dan mencela alim seperti itu sebagai hina."
+    },
+    "dg-100018-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100018-id#g2": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Isi menyebut 'pisau yang tidak memotong', padahal Dasar teks 1 menyebut batu asah yang menajamkan benda lain tetapi dirinya sendiri tidak memotong, sehingga logika perumpamaannya hilang. 'Sumbu lilin' (juga di Judul) semestinya sumbu lampu."
+    },
+    "dg-100018-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100018-id#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "'Harta dan kedudukan' sedikit bergeser dari teks ('harta dan segala yang ada di dunia', hanya ada di terjemahan paragraf), dan alasan 'pahala bertambah dengan adanya murid' parafrase longgar; tidak mengubah makna."
+    },
+    "dg-100018-id#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Judul menulis 'anggapan ulama' tanpa 'sebagian', tetapi Isi sudah tepat menyebut sebagian ulama (Dasar teks 1: 'suatu kaum')."
+    },
+    "dg-100018-id#g6": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Isi dan Pertanyaan memakai 'boleh dilarang', padahal Dasar teks 1 menjadikannya bagian tugas guru: bila murid hanya mencari dunia dan yang ia pelajari ilmu khilaf fikih, jadal kalam, atau fatwa sengketa, guru mencegahnya (terjemahan paragraf: 'hendaknya melarangnya'). Modalitas anjuran melemah menjadi sekadar kebolehan."
+    },
+    "dg-100019-id-m#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "'Lebih buruk daripada orang bodoh' adalah simpulan, bukan kalimat eksplisit; dapat diterima karena Dasar teks 2 memuat hadis bahwa manusia paling berat siksanya adalah alim yang tidak diberi manfaat ilmunya, dan penutup paragraf bahwa alim yang gagal kehilangan keselamatan."
+    },
+    "dg-100019-id-m#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100019-id-m#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100019-id-m#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Isi tidak menyebut bahwa dicabutnya nikmat munajat adalah perlakuan paling ringan (Dasar teks 1: 'yang paling ringan Aku lakukan'); bukan kesalahan, tetapi kadar ancamannya terkesan lebih ringan."
+    },
+    "dg-100019-id-m#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100019-id-m#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Syarat 'jika pada orang lain ada yang mencukupi' (Dasar teks 1) disederhanakan menjadi 'menyerahkan kepada orang yang lebih mampu'; tidak menyesatkan."
+    },
+    "dg-100020-id-m#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100020-id-m#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Riwayat di Dasar teks 2 mendefinisikan orang berakal sebagai yang taat dan menyebut kera dan babi 'lebih berakal' daripada pendurhaka; rumusan 'lebih mulia di sisi Allah' (Isi dan Pertanyaan) adalah parafrase yang masih sejalan."
+    },
+    "dg-100020-id-m#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100020-id-m#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100020-id-m#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100020-id-m#g6": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Pertanyaan kedua ('apa yang menyebabkan perbedaan naluri akal?') tidak dijawab Isi; Dasar teks 4 hanya menyatakan perbedaan naluri tidak bisa diingkari dan naluri tumbuh bertahap hingga sekitar 40 tahun. Isi juga menjadikan perubahan menurut usia sebagai sumber perbedaan akal tanpa catatan Dasar teks 8 bahwa perbedaan yang bersumber dari kuat-lemahnya syahwat tidak kembali kepada perbedaan akal."
+    },
+    "dg-100020-id-m#g7": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 menyebut 'sebagian kelompok sufi', tetapi Judul dan Isi menggeneralisasi menjadi 'kaum sufi' yang mencela akal. Isi juga melewatkan alasan pokok di Dasar teks 2: yang dimaksud al-Ghazali dengan akal sama dengan yang mereka maksud dengan 'ainul yaqin dan cahaya iman."
+    },
+    "dg-100021-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100021-id#g2": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": false,
+      "fatwa": true,
+      "catatan": "Judul menyandarkan alasan 'karena pengalaman hasil akalnya' kepada sabda Nabi, padahal hadis di Dasar teks 1 hanya berbunyi 'orang tua di tengah kaumnya seperti nabi di tengah umatnya'; alasan pengalaman adalah penjelasan al-Ghazali sendiri. Isi sudah memisahkannya dengan benar."
+    },
+    "dg-100021-id#g3": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 menyebut yang tampak di wajah Nabi adalah cahaya kenabian, yang tersembunyi dalam diri beliau 'sebagaimana akal tersembunyi'; Isi menghilangkan cahaya kenabian sehingga analogi itu terbaca seolah yang memancar dan membuat gentar adalah akal beliau."
+    },
+    "dg-100021-id#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100021-id#g5": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100021-id#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100021-id#g7": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "'Riwayat dari Umar dan Abu Sa'id' tidak menyebut bahwa keduanya meriwayatkan sabda Nabi, tetapi tidak salah sandar."
+    },
+    "dg-100022-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Perselisihan ulama tidak tertulis eksplisit di potongan, tetapi tersirat dari 'kebenaran yang menyingkap tabir dalam hal ini' dan penjelasan bahwa akal adalah nama homonim (Dasar teks 1)."
+    },
+    "dg-100022-id#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "'Tanpa menolaknya' terlalu lemah: Dasar teks 1 menunjukkan al-Ghazali menerima definisi itu sebagai makna pertama. Penyandaran perumpamaan cahaya kepada al-Muhasibi ambigu di teks, tetapi dapat diterima."
+    },
+    "dg-100022-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100022-id#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "'Para mutakallimun' semestinya 'sebagian mutakallimun' (Dasar teks 1); detail sampingan."
+    },
+    "dg-100022-id#g5": {
+      "nilai": "Kurang",
+      "setia": false,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Klaim bahwa ilmu pengalaman 'tumbuh dari dua makna sebelumnya' tidak ada di Dasar teks 1–2, yang hanya menyebut ilmu dari pengalaman sebagai jenis lain yang juga dinamai akal. Klaim itu tidak bisa ditelusuri dari paket (mungkin diambil dari kelanjutan teks yang tidak dikutip)."
+    },
+    "dg-100022-id#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100023-id#g1": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100023-id#g2": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100023-id#g3": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Pertanyaan melingkar (jawabannya sudah termuat di pertanyaan), tetapi isi gagasan sesuai Dasar teks 1–2."
+    },
+    "dg-100023-id#g4": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": ""
+    },
+    "dg-100023-id#g5": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 menyatakan orang yang menyamakan akal Nabi dengan akal orang desa dan badui kasar 'lebih hina dirinya daripada orang desa itu' (perbandingan), sedangkan Isi dan Pertanyaan menjadikannya 'paling rendah dirinya', dan Pertanyaannya melingkar. Judul juga mencampur dua hal: yang berlaku bertahap pada seluruh makhluk adalah sunnatullah dalam penciptaan, bukan 'perbedaan naluri'."
+    },
+    "dg-100023-id#g6": {
+      "nilai": "Benar",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 tidak menyebut Abdullah bin Salam bertanya khusus tentang Arsy (hadis panjang yang di akhirnya ada sifat Arsy), dan jawaban tentang akal adalah firman Allah kepada malaikat yang diriwayatkan Nabi; tidak mengubah inti."
+    },
+    "dg-100023-id#g7": {
+      "nilai": "Kurang",
+      "setia": true,
+      "atribusi": true,
+      "fatwa": true,
+      "catatan": "Dasar teks 1 menyebut 'sebagian kelompok sufi', tetapi Judul dan Isi menggeneralisasi menjadi 'kaum sufi' yang mencela akal. Isi juga melewatkan alasan pokok di Dasar teks 2: yang dimaksud al-Ghazali dengan akal sama dengan yang mereka maksud dengan 'ainul yaqin dan cahaya iman."
+    }
+  },
+  "kutipan": [],
+  "umum": [
+    {
+      "id": "dg-100003-id-b",
+      "masalah": "Tidak ditemukan masalah faktual pada Pembuka, Abstrak, dan Penutup; daftar tujuh bab sesuai dengan Dasar teks.",
+      "grup": "A"
+    },
+    {
+      "id": "dg-100003-id-bh",
+      "masalah": "Pembuka menyebut bab ketiga sebagai 'ilmu yang dikira bagian agama padahal bukan', padahal bab itu membahas ilmu yang dikira terpuji oleh orang awam, termasuk sihir dan nujum; kecil tetapi kurang tepat. Abstrak dan Penutup tidak bermasalah secara faktual.",
+      "grup": "A"
+    },
+    {
+      "id": "perbandingan",
+      "masalah": "Keduanya mencakup ketujuh bab dan tidak ada gagasan yang Salah; keenam Kutipan pilihan diterjemahkan dengan tepat. Berkas 01 (8 gagasan: 3 Benar, 5 Kurang) lebih lengkap (kewajiban mengajar, tiga kadar ilmu, syarat debat beserta contoh Umar dan Ali, tugas guru) dan lebih mudah diikuti pembaca awam karena tiap bab punya gagasan sendiri; kekurangannya kebanyakan klaim yang tidak ditunjuk Dasar teks (g1, g2, g5, g7, g8) ditambah salah nomor syarat di g5, yang mudah diperbaiki. Berkas 02 (7 gagasan: 2 Benar, 5 Kurang) memadatkan bab debat menjadi satu gagasan, dan beberapa kalimatnya mengaburkan logika teks (hubungan sebab karangan di g1, contoh dokter yang salah tempat di g3, pelaku yang kabur di g4), meski unggul karena riwayat Nabi Daud tertelusur dan memuat rupa batin di akhirat. Saya memilih menerbitkan 01, setelah nomor syarat di g5 diperbaiki dan Dasar teks untuk klaim yang belum tertelusur ditambahkan.",
+      "grup": "A"
+    },
+    {
+      "id": "dg-100004-id-m",
+      "masalah": "Cakupan, bukan salah fakta: Abstrak (dan keenam gagasan) hanya menggambarkan dalil Al-Qur'an, hadis, dan atsar, padahal judul bab menyebut dalil naqli dan akal; bukti-bukti akal (dg-100008-id) tidak disinggung sama sekali.",
+      "grup": "B"
+    },
+    {
+      "id": "dg-100005-id",
+      "masalah": "Ringan: Abstrak menyebut alur ditutup dengan 'perumpamaan tentang ilmu yang disandingkan dengan amal', tetapi tidak ada gagasan atau Dasar teks yang memuat perumpamaan itu; rujukannya tidak jelas.",
+      "grup": "B"
+    },
+    {
+      "id": "dg-100006-id",
+      "masalah": "Ringan: Abstrak menyebut kisah Malik dan Ibnu Abd al-Hakam sebagai perbandingan belajar dengan salat sunah, padahal teks hanya menyebut waktu zuhur tiba dan ia hendak salat tanpa menyebut jenis salatnya; Judul gagasan 4 malah menyebut 'salat' saja.",
+      "grup": "B"
+    },
+    {
+      "id": "dg-100008-id",
+      "masalah": "Ringan: Abstrak menulis bahwa al-Ghazali 'menempatkan pengajaran dalam empat tingkat'; menurut Dasar teks gagasan 6, empat tingkat itu adalah empat golongan pekerjaan (yang keempat para pemberi nasihat) dan pengajaran disebut paling mulia di antaranya setelah kenabian, bukan pengajaran yang terbagi empat tingkat.",
+      "grup": "B"
+    },
+    {
+      "id": "dg-100018-id",
+      "masalah": "Abstrak menyebut tugas guru 'penyampaian ilmu sesuai kemampuan akal murid', tetapi tidak ada gagasan atau Dasar teks dalam paket yang memuatnya; klaim itu tidak bisa ditelusuri dari paket (mungkin benar menurut kelanjutan bab).",
+      "grup": "D"
+    }
+  ]
+}

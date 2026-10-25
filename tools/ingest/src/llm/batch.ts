@@ -82,7 +82,7 @@ export const CACHE_SCENARIOS = [0.95, 0.5, 0] as const;
 
 export const plannedRequest = z.strictObject({
   custom_id: z.string().regex(CUSTOM_ID_PATTERN),
-  kind: z.enum(["translation", "summary-r1", "summary-r2"]),
+  kind: batchKind,
   prompt_version: z.string(),
   source_sha256: z.string().length(64),
   source_chars: z.number().int().nonnegative(),
@@ -90,6 +90,18 @@ export const plannedRequest = z.strictObject({
   est_usd: z.number().nonnegative().optional(),
   /** Putaran 2: sha256 teks ringkasan putaran 1 yang dikirim (lihat `round2InputSha`). */
   input_sha256: z.string().length(64).optional(),
+  /**
+   * Intisari (X15b): peta blok request leaf `[label, passage_id, char_start, char_end]` (dasar
+   * rentang `text_raw` jangkar dan kutipan), atau custom_id hasil sumber request merge/book.
+   */
+  digest: z
+    .strictObject({
+      blocks: z
+        .array(z.tuple([z.string(), z.number().int(), z.number().int(), z.number().int()]))
+        .optional(),
+      sources: z.array(z.string()).optional(),
+    })
+    .optional(),
   params: z.custom<MessageCreateParamsNonStreaming>((v) => typeof v === "object" && v !== null),
 });
 export type PlannedRequest = z.infer<typeof plannedRequest>;
@@ -370,7 +382,7 @@ function expectedOutput(r: PlannedRequest, rates: OutputRates): number {
 }
 
 /** Biaya batch satu request (USD) untuk porsi baca cache prefix sistem `h`. */
-function requestCost(
+export function requestCost(
   r: PlannedRequest,
   prompt: number,
   system: number,
@@ -786,7 +798,7 @@ export async function runReconcile(ctx: LlmContext, chosenId?: string): Promise<
 }
 
 /** custom_id yang sedang diproses di batch yang belum dikumpulkan (jangan dikirim dua kali). */
-function inFlight(dir: string): Set<string> {
+export function inFlight(dir: string): Set<string> {
   const ids = new Set<string>();
   for (const b of readBatches(dir)) {
     if (b.collected_at !== null) continue;
@@ -845,8 +857,10 @@ export function budgetProblem(
   est: number,
   confirm: boolean,
   budget: number | undefined,
+  /** Biaya lain yang berbagi pagu yang sama (mis. definisi glosarium Intisari lewat API biasa). */
+  extraSpent = 0,
 ): string | null {
-  const spent = spentUsd(dir);
+  const spent = spentUsd(dir) + extraSpent;
   const pending = pendingUsd(dir);
   const committed = spent + pending.usd;
   console.info(
@@ -962,8 +976,11 @@ export async function runSubmit(
 
 /** Tunggu sampai semua batch yang belum dikumpulkan selesai (poll tiap menit), lalu keluar. */
 export async function runWait(ctx: LlmContext): Promise<number> {
-  const dir = llmDir(ctx.repo);
-  const client = ctx.client();
+  return waitBatches(ctx.client(), llmDir(ctx.repo));
+}
+
+/** `runWait` untuk folder kerja mana pun (Intisari memakai `data/build/llm/intisari`). */
+export async function waitBatches(client: Anthropic, dir: string): Promise<number> {
   for (;;) {
     const open = readBatches(dir).filter((b) => b.collected_at === null);
     const states = await Promise.all(open.map((b) => client.messages.batches.retrieve(b.id)));
@@ -991,8 +1008,10 @@ export async function runWait(ctx: LlmContext): Promise<number> {
 }
 
 export async function runStatus(ctx: LlmContext): Promise<number> {
-  const dir = llmDir(ctx.repo);
-  const client = ctx.client();
+  return printBatchStatus(ctx.client(), llmDir(ctx.repo));
+}
+
+export async function printBatchStatus(client: Anthropic, dir: string): Promise<number> {
   const unreconciled = unreconciledProblem(dir);
   if (unreconciled !== null) console.error(unreconciled);
   const batches = readBatches(dir);
@@ -1233,7 +1252,17 @@ export function rebuild(
 
 export async function runCollect(ctx: LlmContext): Promise<number> {
   const dir = llmDir(ctx.repo);
-  const client = ctx.client();
+  const pending = await downloadResults(ctx.client(), dir);
+  printRebuild(dir, buildWork(ctx.rows()), ctx.repo);
+  if (pending > 0) console.info(`${pending} batch belum selesai; ulangi collect nanti.`);
+  return 0;
+}
+
+/**
+ * Unduh hasil mentah setiap batch yang sudah selesai tetapi belum dikumpulkan, beserta biaya
+ * aktualnya; kembalikan jumlah batch yang masih diproses.
+ */
+export async function downloadResults(client: Anthropic, dir: string): Promise<number> {
   const batches = readBatches(dir);
   let pending = 0;
   for (const b of batches) {
@@ -1272,9 +1301,7 @@ export async function runCollect(ctx: LlmContext): Promise<number> {
       `${b.name}: ${raw.length} hasil · biaya ${usd(totals.costUsd)} (baca cache ${totals.cache_read_input_tokens.toLocaleString("id-ID")}, tulis ${totals.cache_creation_input_tokens.toLocaleString("id-ID")})`,
     );
   }
-  printRebuild(dir, buildWork(ctx.rows()), ctx.repo);
-  if (pending > 0) console.info(`${pending} batch belum selesai; ulangi collect nanti.`);
-  return 0;
+  return pending;
 }
 
 function printRebuild(dir: string, work: Work, repo: string): void {

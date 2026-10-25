@@ -241,3 +241,31 @@ export async function getDigestHeaders(
   });
   return rows ?? [];
 }
+
+/**
+ * Kepala Intisari node ini dan leluhurnya, terdekat dulu (X16: menu ⋮ pembaca "Buka Intisari"
+ * menunjuk Intisari terdekat dari bagian yang sedang dibaca). Satu kueri rekursif ke atas pohon;
+ * kosong bila tidak ada atau skema < 9.
+ */
+export async function getDigestHeadersOnPath(
+  db: D1Db,
+  tocNodeId: number,
+  lang: string,
+): Promise<DigestHeaderRow[]> {
+  const rows = await unlessOldSchema(db, async () => {
+    const { results } = await db
+      .prepare(
+        `WITH RECURSIVE up(id, parent_id, depth) AS (
+           SELECT id, parent_id, 0 FROM toc_node WHERE id = ?2
+           UNION ALL
+           SELECT t.id, t.parent_id, up.depth + 1 FROM toc_node t JOIN up ON t.id = up.parent_id
+         )
+         ${HEADER_SELECT} JOIN up ON up.id = d.toc_node_id
+         WHERE d.lang = ?1 AND d.review_status <> 'rejected' ORDER BY up.depth`,
+      )
+      .bind(lang, tocNodeId)
+      .all();
+    return results.map((r) => digestHeaderRow.parse(r));
+  });
+  return rows ?? [];
+}

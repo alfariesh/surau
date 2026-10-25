@@ -159,6 +159,15 @@ export const reader = {
   aiNoticeMore: "Prinsip Surau",
   aiNoticeClose: "Tutup catatan terjemahan AI",
   aiSummary: "Ringkasan AI",
+  // Intisari (X16) di pembaca: kartu ringkasan, menu ⋮, lencana daftar isi. String halaman
+  // Intisari sendiri ada di kamus `intisari`.
+  intisariBadge: "Intisari AI",
+  intisariTeaser: (points: number, minutes: number) => `${points} gagasan · ± ${minutes} menit`,
+  intisariOpen: "Buka Intisari",
+  intisariOpenSection: "Buka Intisari bagian ini",
+  intisariOpenBook: "Buka Intisari kitab ini",
+  tocIntisari: (minutes: number) => `Intisari · ${minutes} mnt`,
+  tocIntisariLabel: (minutes: number) => `Ada Intisari, ± ${minutes} menit baca`,
   summaryMore: "Baca selengkapnya",
   summaryLess: "Tutup ringkasan",
   aiReview: {

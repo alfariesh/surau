@@ -20,7 +20,7 @@ Dokumen ini adalah **target** arsitektur. Bagian-bagiannya dibangun bertahap ses
                     │ D1  surau-corpus-<versi>  (hanya-baca, FTS5)   ◀── semua Worker  │
                     │ D1  surau-app             (feedback, kuota, ledger, cache)       │
                     │ R2  surau-next-cache      (cache ISR OpenNext)                   │
-                    │ R2  surau-media           (audio Intisari publik, X17)           │
+                    │ R2  surau-media           (audio Intisari, X17; Worker media)    │
                     │ R2  surau-open-data       (dump .sqlite terbuka, Fase 7)         │
                     └──────────────────────────────────────────────────────────────────┘
         ▲
@@ -37,7 +37,7 @@ Semua Worker mengimpor logika domain yang sama dari `packages/core`. Aturan keam
 surau/
 ├─ apps/
 │  ├─ web/            @surau/web   Next.js 16 + HeroUI (dipindah dari web/ di S01)
-│  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 7 tool di atas packages/core
+│  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 8 tool di atas packages/core
 │  └─ api/            @surau/api   Worker Hono `surau-api` (S19): Jawab SSE, cache; kuota/ledger/cron (S20)
 ├─ packages/
 │  ├─ text/           @surau/text  normalisasi Arab, offset map, stem, pembersih HTML Shamela, findQuote
@@ -118,6 +118,7 @@ Fungsi yang menerima D1 (tipe struktural `D1Db`, dipenuhi `env.CORPUS`) sebagai 
 | `searchText(query, opts)` | `search_text` | 2 | Kueri Arab: halaman berperingkat BM25 (S11, ADR-039). Kueri Indonesia/campuran: gabungan RRF jalur Arab + terjemahan AI + ringkasan AI (S14, ADR-044). Paragraf cocok dengan span sorotan dan potongan di teks mentah, terjemahan/ringkasan berlabel, `matched_by`, sitasi; filter edisi/bagian; pengaman kata umum |
 | `verifyQuote(passageId, quote)` | `verify_quote` | 3 (S16) | `findQuote` → `verified` + `match` (substring mentah verbatim) atau `null`, dengan sitasi |
 | `getHadithTakhrij(passageId)` | `get_hadith_takhrij` | 3 (S16) | Teks catatan kaki takhrij asli yang ditautkan, `needs_review` + `review_status: "unreviewed"`; `status: none` = derajat tidak diketahui |
+| `readDigest(nodeId)` | `get_section_digest` | sisipan (X16) | Intisari satu bagian (ADR-097/099): gagasan AI berjangkar, kutipan Arab disalin dari `text_raw` (sidik dicek), dalil yang dihitung dari jangkar (`evidence`); `null` bila tanpa Intisari atau skema < 9 |
 | `buildCitation(passageId)` | (di setiap hasil) | 1 | Karya, edisi, juz, halaman, permalink, lisensi/atribusi |
 
 ## 5. Alur utama
