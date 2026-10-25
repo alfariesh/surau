@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Surau, rak, dan kitab terbuka</title>
+</head>
+<body>
+<style id="token-surau">:root{--ornament-gold:#c1914a;--background:oklch(0.985 0.007 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--ornament-gold:#d6ad6c;--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
+<script src="/aset-mesin/iso-34d5a370f6.js"></script>
+<script>
+/* Hero landing page · surau kecil, rak kitab, dan kitab terbuka di satu alas.
+   Proses nyata Surau (sekali jalan):
+   1. Lampu di dalam surau menyala (pintu bercahaya): ada yang ingin mengkaji.
+   2. Jejak di alas menelusuri dari surau ke rak; satu jilid menyala dan pita penanda halamannya terangkat
+      (alamat: jilid + halaman).
+   3. Jejak kedua dari rak ke kitab terbuka; dua baris di halaman menyala (yang dikutip, verbatim).
+   Akhir: jilid + baris menyala, lampu surau padam kembali (aksen hanya pada yang hidup).
+   Tanpa kata, angka, atau huruf Arab; baris teks hanya garis. Surau bergaya rumah panggung beratap tumpang
+   (atap limas dua tingkat), tanpa kubah atau kaligrafi. */
+const { lerp, ease } = ISO;
+const st = { lampu: 0, j1: 1, pita: 1, j2: 1, baris: 1, busy: false };
+const Z = 2.05;
+// surau: dinding x 6..26, y 10..28
+const SX = 6, SY = 10, SW = 20, SD = 18, FZ = 5, WZ = 6.2, WH = 11, WT = WZ + WH;
+// rak: alas rak dan jilid (urut x)
+const RAK = [{ x: 36, h: 13 }, { x: 39.6, h: 15 }, { x: 43.2, h: 14 }, { x: 46.8, h: 16 }, { x: 50.4, h: 12.5 }, { x: 54, h: 14.5 }];
+const HOT = 3, JW = 3.2, JY = 6, JD = 9;
+// kitab terbuka: dua halaman datar di kanan depan
+const KX = 37, KY = 27, KW = 9.6, KD = 13;
+
+mountFigure({
+  id: 'landing-surau', title: 'Surau, rak, dan kitab terbuka',
+  hint: 'telusuri dari surau ke jilid, lalu ke baris yang dikutip',
+  alt: 'Ilustrasi garis: surau kecil beratap tumpang, rak kitab, dan kitab terbuka di satu alas. Jejak menelusuri dari surau ke satu jilid yang menyala, lalu ke dua baris yang menyala di halaman kitab.',
+  tombol: [{ label: 'Telusuri', aksi: () => H.telusuri() }],
+  mount(stage, api) {
+    const K = api.frame([[0,0,0],[64,0,0],[0,48,0],[64,48,0],[16,19,32],[SX-3,SY-3,WT],[RAK[HOT].x,JY,3+RAK[HOT].h+8]]);
+    const { box, poly, line, FRONT, SIDE, TOP } = K;
+    const kotakTepi = (x, y, z, w, d, h) => { const c = [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]; return K.tepi([...c, ...c.map(p => [p[0], p[1], z + h])]); };
+    // atap limas terpancung: empat muka dari persegi bawah (z0) ke persegi atas (z1); muka belakang dulu
+    function limas(a, b, z0, z1) {
+      const [ax0, ay0, ax1, ay1] = a, [bx0, by0, bx1, by1] = b;
+      const A = [[ax0, ay0, z0], [ax1, ay0, z0], [ax1, ay1, z0], [ax0, ay1, z0]], B = [[bx0, by0, z1], [bx1, by0, z1], [bx1, by1, z1], [bx0, by1, z1]];
+      const muka = i => poly([A[i], A[(i + 1) % 4], B[(i + 1) % 4], B[i]], 'top');
+      return muka(0) + muka(3) + muka(2) + muka(1) + (bx1 > bx0 ? poly(B, 'top') : '');
+    }
+    function surau() {
+      let s = '';
+      // tiang panggung (belakang dulu), lantai
+      for (const [x, y] of [[SX, SY], [SX + SW - 1.2, SY], [SX, SY + SD - 1.2], [SX + SW - 1.2, SY + SD - 1.2]]) s += box(x, y, 2, 1.2, 1.2, FZ - 2);
+      s += box(SX - 1, SY - 1, FZ, SW + 2, SD + 2, WZ - FZ);
+      // dinding
+      s += box(SX, SY, WZ, SW, SD, WH);
+      // pintu (FRONT) bercahaya saat lampu menyala; dua jendela di FRONT dan dua di SIDE
+      const lit = st.lampu > 0;
+      s += `<g transform="${FRONT(SX, SY + SD, WT)}">`
+        + `<rect vector-effect="non-scaling-stroke" class="glass${lit ? ' hot' : ''}" x="7.4" y="4" width="5.2" height="${WH - 4}" rx=".4"/><rect class="tepi" x="7.4" y="4" width="5.2" height="${WH - 4}" rx=".4"/>`
+        + [2, 15].map(x => `<rect vector-effect="non-scaling-stroke" class="glass${lit ? ' hot' : ''}" x="${x}" y="4.6" width="3" height="3.8" rx=".3"/><line class="detail" x1="${x + 1.5}" y1="4.6" x2="${x + 1.5}" y2="8.4"/>`).join('') + '</g>';
+      s += `<g transform="${SIDE(SX + SW, SY + SD, WT)}">`
+        + [3.5, 11].map(x => `<rect vector-effect="non-scaling-stroke" class="glass${lit ? ' hot' : ''}" x="${x}" y="4.6" width="3.4" height="3.8" rx=".3"/><line class="detail" x1="${x + 1.7}" y1="4.6" x2="${x + 1.7}" y2="8.4"/>`).join('') + '</g>';
+      s += kotakTepi(SX, SY, WZ, SW, SD, WH);
+      // atap tumpang: tingkat bawah, leher, tingkat atas, mustaka
+      const o = 2.6, i1 = 5;
+      s += limas([SX - o, SY - o, SX + SW + o, SY + SD + o], [SX + i1, SY + i1, SX + SW - i1, SY + SD - i1], WT, WT + 4.6);
+      const nx0 = SX + i1 + 1, ny0 = SY + i1 + 1, nw = SW - 2 * i1 - 2, nd = SD - 2 * i1 - 2;
+      s += box(nx0, ny0, WT + 4.6, nw, nd, 1.6);
+      const cx = SX + SW / 2, cy = SY + SD / 2;
+      s += limas([nx0 - 2.2, ny0 - 2.2, nx0 + nw + 2.2, ny0 + nd + 2.2], [cx, cy, cx, cy], WT + 6.2, WT + 11.8);
+      s += box(cx - .4, cy - .4, WT + 11.4, .8, .8, 2.2);
+      // tangga ke pintu
+      s += box(SX + 7.6, SY + SD + 1, 2, 4.8, 1.6, 3) + box(SX + 7.6, SY + SD + 2.6, 2, 4.8, 1.6, 1.5);
+      return s;
+    }
+    function rak() {
+      let s = box(34, 4, 2, 24.4, 13, 1, 1);
+      RAK.forEach((b, i) => {
+        const lit = i === HOT && st.j1 >= 1;
+        s += box(b.x, JY, 3, JW, JD, b.h, 0, lit ? 'hot' : '');
+        s += `<g transform="${FRONT(b.x, JY + JD, 3 + b.h)}"><line class="${lit ? 'nyala' : 'detail'}" x1=".7" y1="2.6" x2="${JW - .7}" y2="2.6"/><line class="${lit ? 'nyala' : 'detail'}" x1=".7" y1="${b.h - 2.6}" x2="${JW - .7}" y2="${b.h - 2.6}"/></g>`;
+        if (i === HOT && st.pita > 0) s += box(b.x + 1, JY + JD - 3, 3 + b.h - 1, 1.6, .5, 1 + 6 * ease(st.pita), 0, lit ? 'hot' : '');
+        s += kotakTepi(b.x, JY, 3, JW, JD, b.h);
+      });
+      return s;
+    }
+    function kitab() {
+      let s = '';
+      for (const [x0, kanan] of [[KX, 0], [KX + KW + .4, 1]]) {
+        s += box(x0, KY, 2, KW, KD, 1.4, .8);
+        let g = '';
+        for (let i = 0; i < 8; i++) {
+          const v = 2.4 + i * 1.4, hot = kanan && (i === 3 || i === 4) && st.baris >= 1;
+          g += hot ? `<line class="nyala" filter="url(#soft)" x1="1.6" y1="${v}" x2="${KW - 1.6}" y2="${v}"/>` : `<line class="detail" x1="${i === 7 ? 4 : 1.6}" y1="${v}" x2="${KW - 1.6}" y2="${v}"/>`;
+        }
+        s += `<g transform="${TOP(x0, KY, 3.4)}">${g}</g>`;
+      }
+      return s;
+    }
+    // jejak di alas: (1) dari sisi surau ke kaki depan rak, di bawah jilid yang dirujuk; (2) dari rak ke kitab
+    const jx = RAK[HOT].x + JW / 2;
+    const J1 = api.jalur([[SX + SW + 1.6, SY + 12, Z], [jx, SY + 12, Z], [jx, 17.6, Z]], 2.2);
+    const J2 = api.jalur([[jx + 3.6, 17.6, Z], [jx + 3.6, KY - .6, Z]], 2.2);
+    function draw() {
+      let s = box(0, 0, 0, 64, 48, 2, 5);
+      s += `<g transform="${TOP(2, 2, 2)}"><rect class="detail" width="60" height="44" rx="4"/></g>`;
+      // urutan pelukis: rak (belakang kanan) dan surau tidak bertumpuk di layar; jejak sebelum kitab di depan
+      s += rak() + surau();
+      const on1 = st.j1 > 0, on2 = st.j2 > 0;
+      s += `<path class="wire${on1 ? ' hot' : ''}" d="${K.path(J1)}"/>` + api.simpul(J1[0], on1) + api.simpul(J1[J1.length - 1], on1 && st.j1 >= 1);
+      s += `<path class="wire${on2 ? ' hot' : ''}" d="${K.path(J2)}"/>` + api.simpul(J2[0], on2) + api.simpul(J2[J2.length - 1], on2 && st.baris >= 1);
+      s += kitab();
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.baris >= 1 ? 'Jilid dan baris yang dikutip ditemukan' : 'Menelusuri dari surau ke kitab');
+    const H = window.H = {
+      telusuri() {
+        if (st.busy) return api.readout('Sebentar, masih menelusuri');
+        st.busy = true; Object.assign(st, { lampu: 1, j1: 0, pita: 0, j2: 0, baris: 0 }); draw();
+        api.after(500, () => { st.j1 = .01; draw(); api.denyut(K.path(J1));
+          api.anim(700, t => { st.j1 = Math.max(.01, t); draw(); }, () => {
+            st.j1 = 1; api.anim(500, t => { st.pita = t; draw(); }, () => {
+              st.j2 = .01; draw(); api.denyut(K.path(J2));
+              api.anim(600, t => { st.j2 = Math.max(.01, t); draw(); }, () => {
+                st.j2 = 1; st.baris = 1; st.lampu = 0; st.busy = false; draw(); read(); });
+            });
+          });
+        });
+      },
+    };
+    stage.addEventListener('click', () => { if (document.getElementById('aksi')) H.telusuri(); });
+    draw(); read();
+    return {
+      render: draw,
+      batal() { st.busy = false; Object.assign(st, { lampu: 0, j1: 1, pita: 1, j2: 1, baris: 1 }); draw(); },
+      demo() { H.telusuri(); },
+      akhir() { Object.assign(st, { lampu: 0, j1: 1, pita: 1, j2: 1, baris: 1 }); draw(); read(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

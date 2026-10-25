@@ -119,6 +119,14 @@ Format entri:
   - Pilot hanya sesudah T-29 (kunci, sebaiknya + User/Voices Read), T-31 (suara + `pnpm audio sample`), T-32 (domain `media.surau.org`), dan izin pemilik di chat.
   - Tombol ▶ halaman Intisari (X16) sudah tersambung ke pemutar; tampil begitu Intisari punya audio.
 
+## 2026-10-24 · Landing page publik (ADR-096) — selesai
+
+- Dikerjakan: landing page di `/` (hero bergaya Primer dengan sampul Ihya dan kutipan asli, menu bagian bernomor yang menempel, widget "Coba Surau" berisi simulasi Maknaz/Cari/Baca berdata asli, bento, cara kerja, koleksi bertahap, integrasi AI dengan marquee logo + simulasi MCP, gratis + biaya, tanya jawab); Beranda pindah ke `/home`; lima figur aset baru; ikon baru (panah, centang, GitHub, kutip, logo asisten AI). Beberapa putaran revisi dengan pemilik (tata letak Primer, isi bergaya ElevenLabs, widget, ukuran ponsel, tanpa bayangan).
+- Verifikasi: `pnpm verify` → lolos (866 + 407 tes, build); `BASE_URL=http://localhost:3004 playwright test smoke a11y beranda-maknaz` di `pnpm dev:remote` → 116 lolos, 2 gagal (tes header `immutable` mesin aset: hanya dipasang `public/_headers` di Workers, tidak oleh `next dev`); axe `/` dan `/home` terang/gelap → bersih; isi panggung simulasi diukur muat di 320/375/1440 px; halaman ponsel tidak melebar (scrollWidth 375). Tinjauan `peninjau` (dua putaran): tanpa blocker, temuan diperbaiki (aria-live simulasi, mulai ulang saat gulir, selektor e2e kutipan hero, baris ADR nyasar, pasangan Arab/terjemahan Cari, klaim MCP, label logo, mode Baca tanpa terjemahan).
+- Biaya API: –
+- Keputusan: ADR-096
+- Catatan untuk sesi berikutnya: sesudah deploy, buka surau.org (landing) dan surau.org/home (Beranda). Testimoni asli, donasi, tombol jeda gerak, dan versi `/en` menunggu keputusan pemilik.
+
 ## 2026-10-24 · X16 · UI Intisari: hub, halaman Intisari, pembaca, daftar isi, Cari, MCP — selesai (data nyata menunggu X15b; T-30 disetujui pemilik 2026-10-25)
 - Dikerjakan:
   - **core:** dalil Intisari dihitung dari jangkar (`DigestView.evidence`: ayat Tanzil + Kemenag, takhrij + label kode). Jalur Cari `digest` (opt-in; Cari situs, MCP, eval retrieval; bukan Jawab) dengan memo isolate untuk korpus tanpa indeks; `SEARCH_RESULT_VERSION` 3.

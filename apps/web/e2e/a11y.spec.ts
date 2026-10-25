@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
 // Melengkapi Lighthouse, yang tidak bisa menilai halaman 404 maupun mode gelap.
 const PAGES = [
   "/",
+  "/home",
   "/tentang",
   "/lisensi",
   "/mcp",

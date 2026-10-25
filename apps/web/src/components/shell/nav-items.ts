@@ -36,7 +36,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: navText.home,
     icon: Home01,
     activeIcon: Home01Duotone,
-    href: "/",
+    // Beranda di /home sejak landing page publik menempati / (ADR-096).
+    href: "/home",
     also: ["/cari"],
   },
   {

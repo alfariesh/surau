@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bertanya</title>
+</head>
+<body>
+<style id="token-surau">:root{--ornament-gold:#c1914a;--background:oklch(0.985 0.007 90);--foreground:oklch(0.23 0.015 85);--surface:oklch(0.995 0.004 90);--surface-secondary:oklch(0.96 0.01 90);--surface-tertiary:oklch(0.945 0.012 90);--overlay:oklch(0.995 0.004 90);--default:oklch(0.935 0.012 90);--default-foreground:var(--foreground);--muted:oklch(0.47 0.02 85);--border:oklch(0.89 0.012 90);--separator:oklch(0.91 0.01 90);--field-background:var(--surface);--accent:oklch(0.47 0.085 150);--accent-foreground:oklch(0.99 0.005 90);--link:var(--accent)}:root[data-tema=gelap]{--ornament-gold:#d6ad6c;--background:oklch(0.17 0.008 85);--foreground:oklch(0.95 0.008 90);--surface:oklch(0.215 0.01 85);--surface-secondary:oklch(0.245 0.01 85);--surface-tertiary:oklch(0.265 0.01 85);--overlay:oklch(0.23 0.01 85);--default:oklch(0.28 0.01 85);--muted:oklch(0.74 0.015 90);--border:oklch(0.3 0.01 85);--separator:oklch(0.27 0.01 85);--field-background:var(--surface);--accent:oklch(0.79 0.1 150);--accent-foreground:oklch(0.2 0.03 150)}:root[data-tema=sepia]{--background:oklch(0.955 0.016 78);--foreground:oklch(0.27 0.03 60);--surface:oklch(0.97 0.013 78);--surface-secondary:oklch(0.93 0.024 78);--surface-tertiary:oklch(0.915 0.026 78);--overlay:oklch(0.97 0.013 78);--default:oklch(0.91 0.024 78);--muted:oklch(0.44 0.04 62);--border:oklch(0.86 0.024 76);--separator:oklch(0.88 0.022 76);--field-background:var(--surface);--accent:oklch(0.44 0.08 150)}</style>
+<script src="/aset-mesin/iso-34d5a370f6.js"></script>
+<script>
+/* Cara kerja 1 · Bertanya.
+   Proses: kartu pertanyaan berbentuk gelembung berdiri di alas → baris pertanyaan "diketik" satu per satu →
+   tombol kirim di alas menyala → jejak di alas membawa pertanyaan ke rak kitab (pencarian di langkah berikutnya).
+   Akhir: baris pertanyaan dan jejak menyala; rak tetap netral. Tanpa kata, angka, atau huruf Arab. */
+const { lerp } = ISO;
+const st = { ketik: 1, kirim: 1, busy: false };
+const Z = 2.05, BX = 7, BY = 22, BZ = 8, BW = 22, BH = 15;
+const BARIS = [15, 18, 12];
+const RAK = [44, 47.6, 51.2, 54.8], RH = [12, 14, 11.5, 13];
+
+mountFigure({
+  id: 'cara-bertanya', title: 'Bertanya', hint: 'ketik pertanyaan lalu kirim',
+  alt: 'Ilustrasi garis: kartu pertanyaan berbentuk gelembung berdiri di alas; barisnya muncul satu per satu, lalu tombol kirim menyala dan jejak di alas menuju rak kitab.',
+  tombol: [{ label: 'Kirim', aksi: () => H.kirim() }],
+  mount(stage, api) {
+    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[BX,BY,BZ+BH],[BX+BW,BY,BZ+BH],[54.8,7,17]]);
+    const { box, poly, FRONT, TOP } = K;
+    const kotakTepi = (x, y, z, w, d, h) => { const c = [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]; return K.tepi([...c, ...c.map(p => [p[0], p[1], z + h])]); };
+    const TOMBOL = [33, 27, 2, 5, 5, 1.4];
+    const JEJAK = api.jalur([[TOMBOL[0] + TOMBOL[3] + .6, TOMBOL[1] + 2.5, Z], [RAK[1] + 1.6, TOMBOL[1] + 2.5, Z], [RAK[1] + 1.6, 17.6, Z]], 2.2);
+    function draw() {
+      let s = box(0, 0, 0, 60, 46, 2, 5);
+      s += `<g transform="${TOP(2, 2, 2)}"><rect class="detail" width="56" height="42" rx="4"/></g>`;
+      // rak kecil di kanan belakang (netral)
+      s += box(42, 5, 2, 17, 12, 1, 1);
+      RAK.forEach((x, i) => { s += box(x, 6, 3, 3.2, 9, RH[i]) + `<g transform="${FRONT(x, 15, 3 + RH[i])}"><line class="detail" x1=".7" y1="2.4" x2="2.5" y2="2.4"/></g>` + kotakTepi(x, 6, 3, 3.2, 9, RH[i]); });
+      // gelembung pertanyaan: badan + ekor yang menapak di alas (kiri bawah)
+      s += poly([[BX + 3, BY + 2, BZ], [BX + 7.5, BY + 2, BZ], [BX + 1.2, BY + 2, 2.2]]);
+      s += box(BX, BY, BZ, BW, 2, BH, 0);
+      const n = st.ketik * BARIS.length;
+      let g = '';
+      BARIS.forEach((w, i) => {
+        const p = Math.max(0, Math.min(1, n - i));
+        if (p <= 0) return;
+        const v = 4 + i * 3.4, x1 = 2.6 + (w - 2.6) * p;
+        g += `<line class="${st.kirim > 0 ? 'nyala' : 'detail'}" ${st.kirim > 0 ? 'filter="url(#soft)"' : ''} x1="2.6" y1="${v}" x2="${x1.toFixed(2)}" y2="${v}"/>`;
+        // kursor di ujung baris yang sedang diketik
+        if (st.ketik < 1 && p < 1) g += `<rect class="led hot" x="${(x1 + .5).toFixed(2)}" y="${v - 1.2}" width=".7" height="2.4"/>`;
+      });
+      s += `<g transform="${FRONT(BX, BY + 2, BZ + BH)}">${g}</g>` + kotakTepi(BX, BY, BZ, BW, 2, BH);
+      // jejak ke rak (hanya menyala sesudah dikirim) lalu tombol kirim di depannya
+      const on = st.kirim > 0;
+      s += `<path class="wire${on ? ' hot' : ''}" d="${K.path(JEJAK)}"/>` + api.simpul(JEJAK[0], on) + api.simpul(JEJAK[JEJAK.length - 1], st.kirim >= 1);
+      const [tx, ty, tz, tw, td, th] = TOMBOL;
+      s += box(tx, ty, tz, tw, td, th, 2, on ? 'hot' : '');
+      s += `<g transform="${TOP(tx, ty, tz + th)}"><path class="${on ? 'nyala' : 'detail'}" d="M1.6 2.5L3.4 2.5M2.6 1.6L3.4 2.5L2.6 3.4"/></g>`;
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.kirim >= 1 ? 'Pertanyaan dikirim ke rak kitab' : st.ketik >= 1 ? 'Pertanyaan siap dikirim' : 'Mengetik pertanyaan');
+    const H = window.H = {
+      kirim() {
+        if (st.busy) return api.readout('Sebentar, masih mengetik');
+        st.busy = true; st.ketik = 0; st.kirim = 0; draw();
+        api.anim(1500, t => { st.ketik = t; draw(); }, () => {
+          st.ketik = 1; draw(); read();
+          api.after(300, () => { st.kirim = .01; draw(); api.denyut(K.path(JEJAK));
+            api.anim(700, t => { st.kirim = Math.max(.01, t); draw(); }, () => { st.kirim = 1; st.busy = false; draw(); read(); }); });
+        });
+      },
+    };
+    draw(); read();
+    return {
+      render: draw,
+      batal() { st.busy = false; st.ketik = 1; st.kirim = 1; draw(); },
+      demo() { H.kirim(); },
+      akhir() { st.ketik = 1; st.kirim = 1; draw(); read(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

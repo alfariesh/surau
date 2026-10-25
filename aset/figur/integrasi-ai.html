@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sambungkan asisten AI</title>
+</head>
+<body>
+<script src="../../.claude/skills/aset/mesin/iso.js"></script>
+<script>
+/* Integrasi AI (MCP) · asisten AI milik pengguna disambungkan ke rak kitab Surau.
+   Proses: layar asisten di kiri depan, rak kitab di kanan belakang, kabel di alas berakhir di colokan.
+   Cerita (sekali jalan): colokan didorong masuk ke stopkontak di kaki rak → lampu stopkontak menyala →
+   satu jilid menyala (dibaca) → denyut berjalan di kabel kembali ke layar → dua baris jawaban muncul di layar,
+   satu menyala (kutipan beralamat). Tanpa kata, angka, logo, atau huruf Arab; tidak menyebut produk AI tertentu. */
+const { lerp, ease } = ISO;
+const st = { colok: 1, jilid: 1, layar: 1, busy: false };
+const Z = 2.05, RAK = [37, 40.6, 44.2, 47.8, 51.4], RH = [13, 15, 12.5, 14.5, 13.5], HOT = 2;
+const SKX = 43.4, SKY = 17, PLUG0 = 24.6, PLUG1 = 19.6;
+
+mountFigure({
+  id: 'integrasi-ai', title: 'Sambungkan asisten AI', hint: 'colokkan asisten ke rak kitab',
+  alt: 'Ilustrasi garis: layar asisten AI tersambung lewat kabel di alas ke rak kitab. Saat colokan masuk, satu jilid menyala dan baris jawaban muncul di layar.',
+  tombol: [{ label: 'Sambungkan', aksi: () => H.sambung() }],
+  mount(stage, api) {
+    const K = api.frame([[0,0,0],[60,0,0],[0,46,0],[60,46,0],[6,30,22],[22,30,22],[47.8,7,19]]);
+    const { box, FRONT, TOP } = K;
+    const kotakTepi = (x, y, z, w, d, h) => { const c = [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]; return K.tepi([...c, ...c.map(p => [p[0], p[1], z + h])]); };
+    const py = () => lerp(PLUG0, PLUG1, ease(st.colok));
+    const kabel = () => api.jalur([[19.6, 33, Z], [SKX + 2.4, 33, Z], [SKX + 2.4, py() + 3.4, Z]], 2.2);
+    function draw() {
+      let s = box(0, 0, 0, 60, 46, 2, 5);
+      s += `<g transform="${TOP(2, 2, 2)}"><rect class="detail" width="56" height="42" rx="4"/></g>`;
+      // rak kitab (kanan belakang) dan stopkontak di kaki depannya
+      s += box(35, 5, 2, 22, 12, 1, 1);
+      RAK.forEach((x, i) => {
+        const lit = i === HOT && st.jilid >= 1;
+        s += box(x, 6, 3, 3.2, 9, RH[i], 0, lit ? 'hot' : '') + `<g transform="${FRONT(x, 15, 3 + RH[i])}"><line class="${lit ? 'nyala' : 'detail'}" x1=".7" y1="2.4" x2="2.5" y2="2.4"/></g>` + kotakTepi(x, 6, 3, 3.2, 9, RH[i]);
+      });
+      const masuk = st.colok >= 1;
+      s += box(SKX, SKY, 2, 4.8, 2.6, 3.4, 0) + `<g transform="${FRONT(SKX, SKY + 2.6, 5.4)}"><rect class="face recess" x="1" y="1" width="2.8" height="1.6" rx=".3"/><circle class="led${masuk ? ' hot' : ''}" cx="2.4" cy="2.6" r=".5"/></g>`;
+      // kabel di alas dari kaki layar ke colokan, lalu colokan
+      const k = kabel();
+      s += `<path class="wire${masuk ? ' hot' : ''}" d="${K.path(k)}"/>` + api.simpul(k[0], masuk);
+      s += box(SKX + 1, py(), 2, 2.8, 3.4, 2, .6);
+      // layar asisten: kaki, leher, badan; kaca di muka depan
+      s += box(8, 28, 2, 11.6, 7, 1, 1.5) + box(13, 30, 3, 1.6, 1.4, 5);
+      s += box(5, 29.4, 8, 17.6, 1.6, 12.4, 0);
+      const on = st.layar > 0 && st.layar < 1;
+      let g = `<rect class="glass${on ? ' hot' : ''}" x="1.2" y="1.2" width="15.2" height="10" rx=".8"/>`;
+      if (st.layar > 0) {
+        const w1 = 11 * Math.min(1, st.layar * 2), w2 = 8 * Math.max(0, st.layar * 2 - 1);
+        g += `<line class="detail" x1="3" y1="3.6" x2="${(3 + 9).toFixed(2)}" y2="3.6"/>`;
+        g += `<line class="nyala" filter="url(#soft)" x1="3" y1="6.2" x2="${(3 + w1).toFixed(2)}" y2="6.2"/>`;
+        if (w2 > 0) g += `<line class="detail" x1="3" y1="8.8" x2="${(3 + w2).toFixed(2)}" y2="8.8"/>`;
+      }
+      s += `<g transform="${FRONT(5, 31, 20.4)}">${g}</g>` + kotakTepi(5, 29.4, 8, 17.6, 1.6, 12.4);
+      api.gambar(s);
+    }
+    const read = () => api.readout(st.layar >= 1 ? 'Asisten membaca kitab dan menjawab dengan kutipan beralamat' : st.colok >= 1 ? 'Tersambung ke rak kitab' : 'Belum tersambung');
+    const H = window.H = {
+      sambung() {
+        if (st.busy) return api.readout('Sebentar, masih menyambung');
+        st.busy = true; Object.assign(st, { colok: 0, jilid: 0, layar: 0 }); draw(); read();
+        api.after(300, () => api.anim(700, t => { st.colok = t; draw(); }, () => {
+          st.colok = 1; draw(); read();
+          api.after(350, () => { st.jilid = 1; draw(); api.denyut(K.path(kabel().slice().reverse()));
+            api.after(650, () => api.anim(800, t => { st.layar = Math.max(.01, t); draw(); }, () => { st.layar = 1; st.busy = false; draw(); read(); })); });
+        }));
+      },
+    };
+    draw(); read();
+    return {
+      render: draw,
+      batal() { st.busy = false; Object.assign(st, { colok: 1, jilid: 1, layar: 1 }); draw(); },
+      demo() { H.sambung(); },
+      akhir() { Object.assign(st, { colok: 1, jilid: 1, layar: 1 }); draw(); read(); },
+    };
+  },
+});
+</script>
+</body>
+</html>

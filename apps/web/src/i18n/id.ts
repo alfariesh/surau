@@ -8,6 +8,7 @@ import { theme } from "./id/theme";
 import { common } from "./id/common";
 import { footer } from "./id/footer";
 import { home } from "./id/home";
+import { landing } from "./id/landing";
 import { mcp } from "./id/mcp";
 import { about } from "./id/about";
 import { license } from "./id/license";
@@ -30,6 +31,7 @@ export const id = {
   common,
   footer,
   home,
+  landing,
   mcp,
   about,
   license,

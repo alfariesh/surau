@@ -16,6 +16,8 @@
 @import "@heroui/styles/components/description.css" layer(components);
 @import "@heroui/styles/components/label.css" layer(components);
 @import "@heroui/styles/components/breadcrumbs.css" layer(components);
+@import "@heroui/styles/components/disclosure-group.css" layer(components);
+@import "@heroui/styles/components/disclosure.css" layer(components);
 @import "@heroui/styles/components/link.css" layer(components);
 @import "@heroui/styles/components/button.css" layer(components);
 @import "@heroui/styles/components/button-group.css" layer(components);
@@ -1618,6 +1620,94 @@ h3.reader-inline-subheading {
 
 .tr-added {
   color: var(--muted);
+}
+
+/* Landing page (ADR-096): gradien lembut dari token tema (aksen Zaitun + emas ornamen di atas permukaan),
+   jadi ikut terang/gelap. `-strong` untuk panel hero (teks di atasnya: accent-foreground). */
+.landing-gradient {
+  background:
+    radial-gradient(
+      60% 80% at 12% 18%,
+      color-mix(in oklab, var(--accent) 45%, var(--surface)) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 70% at 88% 25%,
+      color-mix(in oklab, var(--ornament-gold) 40%, var(--surface)) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      70% 80% at 55% 105%,
+      color-mix(in oklab, var(--accent) 28%, var(--surface-secondary)) 0%,
+      transparent 70%
+    ),
+    var(--surface-secondary);
+}
+.landing-gradient-gold {
+  background:
+    radial-gradient(
+      60% 80% at 85% 15%,
+      color-mix(in oklab, var(--ornament-gold) 50%, var(--surface)) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 70% at 10% 85%,
+      color-mix(in oklab, var(--accent) 35%, var(--surface)) 0%,
+      transparent 70%
+    ),
+    var(--surface-secondary);
+}
+.landing-gradient-strong {
+  background:
+    radial-gradient(
+      70% 55% at 15% 10%,
+      color-mix(in oklab, var(--accent) 70%, white) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      65% 60% at 95% 85%,
+      color-mix(in oklab, var(--ornament-gold) 75%, var(--accent)) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 40% at 40% 60%,
+      color-mix(in oklab, var(--accent) 80%, black) 0%,
+      transparent 70%
+    ),
+    var(--accent);
+}
+
+/* Marquee logo asisten AI di landing (ADR-096): dua salinan daftar digeser −50% berulang, memudar di
+   tepi. Berhenti saat di-hover; "kurangi gerakan" = daftar diam yang membungkus. */
+.landing-marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+}
+.landing-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: landing-marquee 28s linear infinite;
+}
+.landing-marquee:hover .landing-marquee__track {
+  animation-play-state: paused;
+}
+@keyframes landing-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-marquee {
+    mask-image: none;
+  }
+  .landing-marquee__track {
+    width: auto;
+    flex-wrap: wrap;
+    animation: none;
+  }
+  .landing-marquee__track > [aria-hidden="true"] {
+    display: none;
+  }
 }
 
 /*
