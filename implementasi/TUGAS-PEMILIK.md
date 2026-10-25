@@ -233,14 +233,14 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Intisari + Dengar (X15–X17, ADR-097)
 
-- [ ] **T-31 · Uji dengar suara Intisari + QA sampel pilot** · bagian 1 bisa sekarang; bagian 2 sesudah pilot X15b
+- [ ] **T-31 · Uji dengar suara Intisari + QA sampel pilot** · butir 1, 1b, dan 2 selesai 2026-10-25 (suara Kang Sugiman, gaya variatif, lafal "Ihya Ulumuddin", pilot audio disetujui); **tinggal butir 4** (nilai QA Intisari X15b)
   1. **Dengarkan dua contoh** yang dibuat agent di chat 24 Oktober: ringkasan Muqaddimah + istilah (ikhlas, riya', 'ujub, tawakkal, al-Ghazali, shallallahu 'alaihi wa sallam), dibacakan **Jefri** (pria, tenang menjelaskan) dan **Gendhis** (perempuan, tenang dan ramah). Di kartu suara Anda bisa mengganti suara, misalnya Mizan, Leya, atau Bayu. Setiap ganti memakai ±600 kredit dari paket Starter.
   1b. *(Sesudah T-29, dengan izin Anda di chat, ±900 karakter)* **Uji gaya narator** (ADR-101): agent memutar contoh A (tanpa gaya) lalu B (gaya "khidmat": kutipan lebih tenang dan khidmat, syair lebih lembut). Nilai: lebih jelas, atau malah terdengar berakting? Ketik "gaya: A" atau "gaya: B".
   2. **Pilih satu suara** untuk semua Intisari (satu suara per Intisari menjaga biaya dan konsistensi; cadangan boleh disebut), lalu catat istilah yang lafalnya salah. Ketik ke agent: "T-31 suara: <nama>; lafal salah: …".
   3. *(Opsional, disarankan untuk jangka panjang)* **Suara milik Surau sendiri.** Suara dari Voice Library bisa ditarik pemiliknya, sehingga kitab berikutnya tidak bisa dibacakan dengan suara yang sama. Tulis ke agent satu deskripsi suara (misalnya "pria Indonesia 40-an, tenang, hangat, artikulasi jelas, tempo sedang") dan satu kalimat contoh. Agent membuat 3 pratinjau (Voice Design) untuk Anda pilih.
   4. **Pilot X15b (siap sejak 2026-10-25):** buka halaman QA yang dikirim agent di chat sesi X15b (kartu berkas "intisari-100003.html"; berisi teks kitab, jangan disebar). Salinannya ada di mesin agen (`data/build/llm/intisari/qa/` di checkout Surau): minta agent mengirim ulang bila kartunya hilang. Nilai tiap gagasan: Benar/Kurang/Salah, lalu centang "setia pada teks sumber", "atribusi tepat", dan "bebas nada fatwa" bila sesuai. Nilai tersimpan di peramban. Tekan **Salin hasil**, lalu tempel ke chat agent. Gerbangnya ≤ 5% "Salah". Intisari Kitab muncul dua kali (Sonnet dan pembanding Haiku): tulis juga mana yang Anda pilih untuk 41 kitab. Ajak Ust. Anas bila bisa.
 
-- [ ] **T-29 · Kunci API ElevenLabs untuk pembuatan audio (X17)** · sebelum pilot audio X17; kuota produksi diputuskan sesudah pilot
+- [ ] **T-29 · Kunci API ElevenLabs untuk pembuatan audio (X17)** · butir 1–5 selesai 2026-10-25 (kunci terpasang, pilot 18.989 karakter); **tinggal butir 6** (pilihan kuota produksi)
   1. Buka https://elevenlabs.io dan masuk ke akun Anda (paket Starter).
   2. Buka **Developers → API Keys → Create API Key**. Beri nama `surau-tts`, aktifkan pembatasan akses, lalu izinkan **Text to Speech**, **Voices: Read**, dan **User: Read** (X17: dua yang terakhir dipakai `pnpm audio plan` untuk membaca nama suara dan sisa kuota; tanpa keduanya alat tetap jalan, hanya kuota tidak terlihat). Isi **batas kredit**, misalnya 60.000 untuk pilot.
   3. Salin kuncinya. **Jangan tempel di chat Claude.**
