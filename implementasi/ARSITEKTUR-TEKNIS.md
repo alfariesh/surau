@@ -20,7 +20,7 @@ Dokumen ini adalah **target** arsitektur. Bagian-bagiannya dibangun bertahap ses
                     │ D1  surau-corpus-<versi>  (hanya-baca, FTS5)   ◀── semua Worker  │
                     │ D1  surau-app             (feedback, kuota, ledger, cache)       │
                     │ R2  surau-next-cache      (cache ISR OpenNext)                   │
-                    │ R2  surau-media           (audio Intisari publik, X17)           │
+                    │ R2  surau-media           (audio Intisari, X17; Worker media)    │
                     │ R2  surau-open-data       (dump .sqlite terbuka, Fase 7)         │
                     └──────────────────────────────────────────────────────────────────┘
         ▲

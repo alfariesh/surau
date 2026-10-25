@@ -1,7 +1,8 @@
 // Binding D1 untuk alat audio (X17). Worker ini tidak pernah di-deploy: `name` hanya syarat wrangler.
 // CORPUS = surau-corpus-staging (sama dengan tools/eval): skrip audio dibangun dari Intisari di korpus
 // yang dimuat ke staging (pilot X15b, lalu build penuh X15c), lewat getPlatformProxy remoteBindings.
-// Alat ini hanya membaca (SELECT); tidak pernah menyentuh korpus produksi.
+// Alat ini hanya membaca (SELECT), kecuali `pnpm audio staging --confirm` yang mengganti tabel
+// `audio_track` staging (X17d); tidak pernah menyentuh korpus produksi.
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "surau-audio",

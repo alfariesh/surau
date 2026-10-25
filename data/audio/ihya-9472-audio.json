@@ -4,5 +4,390 @@
   "edition_id": 1,
   "media_origin": "https://media.surau.org",
   "bucket": "surau-media",
-  "tracks": []
+  "tracks": [
+    {
+      "toc_node_id": 100003,
+      "lang": "id",
+      "voice_kind": "ai",
+      "r2_key": "ihya/id/100003-c82272e9b08d.mp3",
+      "sha256": "c82272e9b08d7b50ee6a58dea006978622b713eee147afa8cd529c346a0fb2da",
+      "bytes": 6490629,
+      "duration_ms": 811207,
+      "provider": "elevenlabs",
+      "voice_id": "aK834gEOxQEtviMPgurT",
+      "voice_name": "Kang Sugiman",
+      "model": "eleven_v4",
+      "output_format": "mp3_44100_64",
+      "script_sha256": "374b9e4c5f004733e1875039d2fcb13c9c8a0ff45f4415fc87378f7d380f4d69",
+      "script_version": 3,
+      "spoken_version": 1,
+      "lexicon_version": "01ec5ee9203f",
+      "style": "variatif@1",
+      "chapters": [
+        {
+          "point_ord": 1,
+          "start_ms": 57260
+        },
+        {
+          "point_ord": 2,
+          "start_ms": 133878
+        },
+        {
+          "point_ord": 3,
+          "start_ms": 225202
+        },
+        {
+          "point_ord": 4,
+          "start_ms": 303961
+        },
+        {
+          "point_ord": 5,
+          "start_ms": 401528
+        },
+        {
+          "point_ord": 6,
+          "start_ms": 492042
+        },
+        {
+          "point_ord": 7,
+          "start_ms": 603220
+        },
+        {
+          "point_ord": 8,
+          "start_ms": 694309
+        }
+      ],
+      "characters": 4589,
+      "created_at": "2026-10-25T01:53:36.559Z"
+    },
+    {
+      "toc_node_id": 100004,
+      "lang": "id",
+      "voice_kind": "ai",
+      "r2_key": "ihya/id/100004-d185e3f46f6a.mp3",
+      "sha256": "d185e3f46f6a6362353ef9dd8388cf5050f48e993d78d85f00eeffe3f9246f38",
+      "bytes": 2609341,
+      "duration_ms": 326034,
+      "provider": "elevenlabs",
+      "voice_id": "aK834gEOxQEtviMPgurT",
+      "voice_name": "Kang Sugiman",
+      "model": "eleven_v4",
+      "output_format": "mp3_44100_64",
+      "script_sha256": "d2a8c5185fba835987073cd0e95c7a556f015f5d4e6d440306875536ac3ec447",
+      "script_version": 3,
+      "spoken_version": 1,
+      "lexicon_version": "01ec5ee9203f",
+      "style": "variatif@1",
+      "chapters": [
+        {
+          "point_ord": 1,
+          "start_ms": 36127
+        },
+        {
+          "point_ord": 2,
+          "start_ms": 76643
+        },
+        {
+          "point_ord": 3,
+          "start_ms": 130038
+        },
+        {
+          "point_ord": 4,
+          "start_ms": 176248
+        },
+        {
+          "point_ord": 5,
+          "start_ms": 217339
+        },
+        {
+          "point_ord": 6,
+          "start_ms": 273633
+        }
+      ],
+      "characters": 1846,
+      "created_at": "2026-10-25T01:54:37.952Z"
+    },
+    {
+      "toc_node_id": 100005,
+      "lang": "id",
+      "voice_kind": "ai",
+      "r2_key": "ihya/id/100005-654e84d04ef3.mp3",
+      "sha256": "654e84d04ef315c5a971b87e21ec55aee4ff9c8751eaa0040a2187fd298f0941",
+      "bytes": 1954318,
+      "duration_ms": 244167,
+      "provider": "elevenlabs",
+      "voice_id": "aK834gEOxQEtviMPgurT",
+      "voice_name": "Kang Sugiman",
+      "model": "eleven_v4",
+      "output_format": "mp3_44100_64",
+      "script_sha256": "9d8631bf1482b497e8ee51cbc5cdf0cda421c24c2c740ea51173f65b49d5d7d3",
+      "script_version": 3,
+      "spoken_version": 1,
+      "lexicon_version": "01ec5ee9203f",
+      "style": "variatif@1",
+      "chapters": [
+        {
+          "point_ord": 1,
+          "start_ms": 33959
+        },
+        {
+          "point_ord": 2,
+          "start_ms": 68258
+        },
+        {
+          "point_ord": 3,
+          "start_ms": 116950
+        },
+        {
+          "point_ord": 4,
+          "start_ms": 155402
+        },
+        {
+          "point_ord": 5,
+          "start_ms": 194325
+        }
+      ],
+      "characters": 1386,
+      "created_at": "2026-10-25T01:55:22.696Z"
+    },
+    {
+      "toc_node_id": 100006,
+      "lang": "id",
+      "voice_kind": "ai",
+      "r2_key": "ihya/id/100006-68b8dbc38733.mp3",
+      "sha256": "68b8dbc387330cb75c403e2b568cd8b7b6e458cd143228db09fc61b5789f65f6",
+      "bytes": 1612641,
+      "duration_ms": 201456,
+      "provider": "elevenlabs",
+      "voice_id": "aK834gEOxQEtviMPgurT",
+      "voice_name": "Kang Sugiman",
+      "model": "eleven_v4",
+      "output_format": "mp3_44100_64",
+      "script_sha256": "f8976622d91aa42a8c83fffb46c7660c680bf8eb0eaca3d77d92f56d660ce873",
+      "script_version": 3,
+      "spoken_version": 1,
+      "lexicon_version": "01ec5ee9203f",
+      "style": "variatif@1",
+      "chapters": [
+        {
+          "point_ord": 1,
+          "start_ms": 41561
+        },
+        {
+          "point_ord": 2,
+          "start_ms": 88320
+        },
+        {
+          "point_ord": 3,
+          "start_ms": 131971
+        },
+        {
+          "point_ord": 4,
+          "start_ms": 163291
+        }
+      ],
+      "characters": 1144,
+      "created_at": "2026-10-25T01:02:25.779Z"
+    },
+    {
+      "toc_node_id": 100007,
+      "lang": "id",
+      "voice_kind": "ai",
+      "r2_key": "ihya/id/100007-65113d52a871.mp3",
+      "sha256": "65113d52a871d0dff7fe9b1c27ec3cd82f9a96fda7c243c5a7dc621d59eaeb6f",
+      "bytes": 2544897,
+      "duration_ms": 317989,
+      "provider": "elevenlabs",
+      "voice_id": "aK834gEOxQEtviMPgurT",
+      "voice_name": "Kang Sugiman",
+      "model": "eleven_v4",
+      "output_format": "mp3_44100_64",
+      "script_sha256": "6ed647e929f9d1f046b8e02a170614f915a501d96fcf7e43cfd15cb14430e70b",
+      "script_version": 3,
+      "spoken_version": 1,
+      "lexicon_version": "01ec5ee9203f",
+      "style": "variatif@1",
+      "chapters": [
+        {
+          "point_ord": 1,
+          "start_ms": 32601
+        },
+        {
+          "point_ord": 2,
+          "start_ms": 65776
+        },
+        {
+          "point_ord": 3,
+          "start_ms": 101747
+        },
+        {
+          "point_ord": 4,
+          "start_ms": 134583
+        },
+        {
+          "point_ord": 5,
+          "start_ms": 170945
+        },
+        {
+          "point_ord": 6,
+          "start_ms": 210260
+        },
+        {
+          "point_ord": 7,
+          "start_ms": 270629
+        }
+      ],
+      "characters": 1824,
+      "created_at": "2026-10-25T01:56:23.493Z"
+    },
+    {
+      "toc_node_id": 100009,
+      "lang": "id",
+      "voice_kind": "ai",
+      "r2_key": "ihya/id/100009-7be258a74d91.mp3",
+      "sha256": "7be258a74d91b46724383a6b58a3c34ac57f20a0c0869865f428d1e5b7c61eb7",
+      "bytes": 3001584,
+      "duration_ms": 375066,
+      "provider": "elevenlabs",
+      "voice_id": "aK834gEOxQEtviMPgurT",
+      "voice_name": "Kang Sugiman",
+      "model": "eleven_v4",
+      "output_format": "mp3_44100_64",
+      "script_sha256": "96ad9378c8ffe3eb11e21335e8baa65314c25465337472e0543f7bde64197374",
+      "script_version": 3,
+      "spoken_version": 1,
+      "lexicon_version": "01ec5ee9203f",
+      "style": "variatif@1",
+      "chapters": [
+        {
+          "point_ord": 1,
+          "start_ms": 36206
+        },
+        {
+          "point_ord": 2,
+          "start_ms": 75363
+        },
+        {
+          "point_ord": 3,
+          "start_ms": 113580
+        },
+        {
+          "point_ord": 4,
+          "start_ms": 186436
+        },
+        {
+          "point_ord": 5,
+          "start_ms": 233848
+        },
+        {
+          "point_ord": 6,
+          "start_ms": 276689
+        },
+        {
+          "point_ord": 7,
+          "start_ms": 315376
+        }
+      ],
+      "characters": 2137,
+      "created_at": "2026-10-25T01:57:35.557Z"
+    },
+    {
+      "toc_node_id": 100017,
+      "lang": "id",
+      "voice_kind": "ai",
+      "r2_key": "ihya/id/100017-b81d9fe0c222.mp3",
+      "sha256": "b81d9fe0c2228849536efe750af8551f0b8a1439eb7711a2768bee79eddd9328",
+      "bytes": 2921281,
+      "duration_ms": 365035,
+      "provider": "elevenlabs",
+      "voice_id": "aK834gEOxQEtviMPgurT",
+      "voice_name": "Kang Sugiman",
+      "model": "eleven_v4",
+      "output_format": "mp3_44100_64",
+      "script_sha256": "1058ed4a4fee1e34d42a250c8cdfabd50d93399a9e156d74bf684c1f0f021c5d",
+      "script_version": 3,
+      "spoken_version": 1,
+      "lexicon_version": "01ec5ee9203f",
+      "style": "variatif@1",
+      "chapters": [
+        {
+          "point_ord": 1,
+          "start_ms": 32052
+        },
+        {
+          "point_ord": 2,
+          "start_ms": 68728
+        },
+        {
+          "point_ord": 3,
+          "start_ms": 107964
+        },
+        {
+          "point_ord": 4,
+          "start_ms": 171520
+        },
+        {
+          "point_ord": 5,
+          "start_ms": 213734
+        },
+        {
+          "point_ord": 6,
+          "start_ms": 278413
+        },
+        {
+          "point_ord": 7,
+          "start_ms": 324232
+        }
+      ],
+      "characters": 2098,
+      "created_at": "2026-10-25T01:58:43.040Z"
+    },
+    {
+      "toc_node_id": 100019,
+      "lang": "id",
+      "voice_kind": "ai",
+      "r2_key": "ihya/id/100019-a1e4a5045853.mp3",
+      "sha256": "a1e4a5045853815883c6d142e28e97f0ebc01749089e7caff2cdbc21ca62f06a",
+      "bytes": 2208094,
+      "duration_ms": 275879,
+      "provider": "elevenlabs",
+      "voice_id": "aK834gEOxQEtviMPgurT",
+      "voice_name": "Kang Sugiman",
+      "model": "eleven_v4",
+      "output_format": "mp3_44100_64",
+      "script_sha256": "23c5e63c35b85c434d3ec228474e0fc614ed53af54e6022a412844e655f5df33",
+      "script_version": 3,
+      "spoken_version": 1,
+      "lexicon_version": "01ec5ee9203f",
+      "style": "variatif@1",
+      "chapters": [
+        {
+          "point_ord": 1,
+          "start_ms": 28918
+        },
+        {
+          "point_ord": 2,
+          "start_ms": 57757
+        },
+        {
+          "point_ord": 3,
+          "start_ms": 92134
+        },
+        {
+          "point_ord": 4,
+          "start_ms": 127138
+        },
+        {
+          "point_ord": 5,
+          "start_ms": 162717
+        },
+        {
+          "point_ord": 6,
+          "start_ms": 206916
+        }
+      ],
+      "characters": 1573,
+      "created_at": "2026-10-25T01:59:33.725Z"
+    }
+  ]
 }

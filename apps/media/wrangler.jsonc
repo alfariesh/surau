@@ -1,0 +1,28 @@
+// Worker media Surau (X17, ADR-103): melayani objek audio bucket R2 `surau-media` di media.surau.org.
+// Bukan domain kustom R2 langsung: wildcard Preview `*.surau.org` (Preview per PR web) menangkap
+// subdomain yang bukan Worker custom domain, termasuk domain kustom R2 (404 `x-preview-user-error`).
+// Worker custom domain lebih diutamakan (sama dengan mcp.surau.org).
+// Tanpa Preview: Preview web memutar audio dari media.surau.org produksi (objek tidak pernah ditimpa).
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-media",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-14",
+  // Produksi hanya lewat custom domain (DNS + sertifikat dibuat `wrangler deploy`).
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "media.surau.org", "custom_domain": true }],
+  // Workers Caching di depan Worker: respons 200 penuh disimpan sesuai Cache-Control (immutable),
+  // permintaan Range dilayani dari cache (206) tanpa menjalankan Worker. Kunci objek memuat sidik
+  // isi, jadi cache boleh dipakai lintas versi Worker (deploy tidak mendinginkan cache).
+  "cache": { "enabled": true, "cross_version_cache": true },
+  // Hanya baca (head/get). Unggah lewat `pnpm audio upload` (wrangler r2 object put).
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "surau-media" }],
+  // `invocation_logs: false` (ADR-065): log otomatis merekam IP mentah. Tanpa log buatan kode.
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+  },
+  "upload_source_maps": true,
+}
