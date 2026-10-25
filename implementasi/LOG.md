@@ -15,6 +15,18 @@ Format entri:
 
 ---
 
+## 2026-10-25 · X17d · Audio pilot tayang di media.surau.org + staging — selesai (pilot; produksi menunggu Intisari final)
+- Dikerjakan:
+  - Pilot dirender atas izin pemilik: Kitab Ilmu + 7 bab, suara Kang Sugiman, gaya variatif (8 berkas, ±48,7 menit).
+  - Domain kustom R2 `media.surau.org` tersambung (T-32), tetapi tertangkap wildcard Preview `*.surau.org` (404 `x-preview-user-error`).
+  - Domain kustom R2 dilepas. Diganti Worker `apps/media` (`surau-media`): R2 binding dan Workers Caching yang melayani Range dari cache (ADR-103). Job `deploy media` ditambahkan di CI.
+  - 8 objek di R2 (1 sudah ada + 7 baru); manifest `data/audio/ihya-9472-audio.json` 8 track.
+  - `pnpm audio staging --confirm`: 8 baris `audio_track` di `surau-corpus-staging`. Logika pencocokan skrip dipindah ke core (`selectAudioTracksIn`), dipakai ingest dan alat audio.
+- Verifikasi: HEAD 200 dan Range 206 `HIT`; `pnpm audio verify` 8/8; staging 8 track, 0 gugur; tes handler media 5/5.
+- Biaya API: ElevenLabs pilot sesuai tanda terima (total tanda terima sesi X17 18.989 karakter), dalam batas izin 45.000.
+- Keputusan: ADR-103
+- Catatan untuk sesi berikutnya: audio produksi menunggu Intisari final (X15c/`ihya-v9`). Saat korpus produksi berikutnya dibangun, ingest memuat track yang skripnya cocok secara otomatis.
+
 ## 2026-10-25 · X17c · Pilot dengar: suara Kang Sugiman, gaya variatif, lafal Ihya, label lisan dihapus — sebagian (1 bab lokal; pilot penuh menunggu izin)
 - Dikerjakan:
   - Contoh lafal + gaya A/B (pemilik memilih gaya, lalu meminta versi lebih variatif).

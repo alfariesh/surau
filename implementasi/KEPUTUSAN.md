@@ -2671,3 +2671,21 @@ Agent menyampaikan risikonya lebih dulu dan menawarkan jalan tengah (label ringk
 **Konsekuensi:** audio pilot lama (skrip v2) gugur saat ingest (`stale_script`); hanya berkas lokal, belum diunggah.
 
 **Tinjau ulang bila:** audio mulai dibagikan sebagai berkas lepas (podcast, unduhan), ada keluhan pendengar yang mengira narator manusia, atau aturan transparansi konten sintetis mewajibkan label lisan.
+
+## ADR-103 · media.surau.org dilayani Worker `surau-media` (R2 binding + Workers Caching), bukan domain kustom R2 langsung — diterima · 2026-10-25
+
+**Konteks:** ADR-100 butir 12 merencanakan domain kustom R2 `media.surau.org` untuk bucket `surau-media`. Setelah domain tersambung (T-32, status `active`), semua permintaan ke `media.surau.org` dijawab 404 HTML dengan header `x-preview-user-error: true`, padahal objeknya ada di bucket (6.490.629 byte, sama dengan berkas lokal). Penyebabnya: Preview per PR web memakai domain kustom `surau.org` (`pr-N.surau.org`), dan Cloudflare membuat wildcard DNS + sertifikat `*.surau.org` untuk itu. Wildcard ini menangkap subdomain yang bukan Worker custom domain, termasuk domain kustom R2. `mcp.surau.org` (Worker custom domain) tidak terkena. Docs Cloudflare (Workers › Previews › Custom domains, Sep 2026) menganjurkan nama khusus seperti `previews.example.com` bila domain produksi sudah punya subdomain. Pilihan itu membuat Preview menjadi subdomain tingkat dua (`pr-N.previews.surau.org`), yang butuh Advanced Certificate Manager (US$10/bulan). Rute tanpa Worker (negasi) butuh dashboard pemilik, dan belum pasti berlaku untuk perutean Preview.
+
+**Keputusan:**
+1. Worker baru `apps/media` (`surau-media`) dengan Worker custom domain `media.surau.org` dan binding R2 `MEDIA` (hanya `head`/`get`). Domain kustom R2 dilepas (`wrangler r2 bucket domain remove`). Objek tidak berubah.
+2. Hanya `GET`/`HEAD` dengan kunci berbentuk `audioObjectKey` (`<karya>/<lang>/<node>-<sha12>.mp3`). Selain itu 404 `no-store`. Metode lain 405. `Content-Type: audio/mpeg` dan `Cache-Control: public, max-age=31536000, immutable` ditetapkan kode, karena kunci memuat sidik isi. Konstanta disamakan dengan `@surau/core` dan dijaga tes.
+3. **Workers Caching** (`cache.enabled`, `cross_version_cache: true`, docs Workers › Cache, Okt 2026): Cloudflare menyimpan respons 200 penuh dan melayani `Range` (206) dari cache tanpa menjalankan Worker. Karena itu Worker tidak menangani Range. Cache dipakai lintas versi, jadi deploy tidak mendinginkannya; isi per kunci memang tidak pernah berubah. Query unik (`?cek=…`, HEAD alat audio) melewati cache.
+4. `workers_dev: false`, `preview_urls: false`, `invocation_logs: false` (ADR-065, tanpa IP di log). Preview web memutar audio dari `media.surau.org` produksi, karena objek tidak pernah ditimpa.
+5. Deploy: job `deploy media` di `deploy.yml` (push ke `main`, sesudah web). Tes handler di project `node` dengan bucket tiruan.
+6. **`pnpm audio staging [--confirm]`**: mengganti baris `audio_track` satu edisi di korpus staging dengan track manifest yang skripnya cocok. Pilihan dihitung oleh `selectAudioTracksIn` (core), fungsi yang sama dengan ingest, jadi build korpus berikutnya menghasilkan baris yang sama. Logika pencocokan dipindah dari `tools/ingest/src/audio.ts` ke core (`selectAudioTracksIn`, `audioReport`). Korpus produksi tetap hanya berganti lewat `corpus:promote`. Galat R2 dijawab 503 `no-store`.
+
+**Bukti (2026-10-25):** sesudah deploy, `HEAD` 200 (`audio/mpeg`, 6.490.629 byte, immutable), `Range: bytes=0-99` → 206 `content-range: bytes 0-99/6490629` `cf-cache-status: HIT`. `pnpm audio upload --confirm`: 1 sudah ada + 7 diunggah. `pnpm audio verify`: 8/8 lolos (HEAD + Range + sha256). `pnpm audio staging --confirm`: 8 track dimuat, 0 gugur.
+
+**Konsekuensi:** objek audio yang tidak ada di cache tepi menjalankan Worker sekali per lokasi (permintaan Workers + operasi R2 kelas B). Untuk audio pilot jumlahnya kecil. Docs CSP penuh tetap memuat `media-src https://media.surau.org`.
+
+**Tinjau ulang bila:** Preview web pindah ke domain lain (domain kustom R2 langsung bisa dipakai lagi), Workers Caching berubah perilaku Range atau ukuran maksimum, atau audio mulai butuh kontrol akses.
