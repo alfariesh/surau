@@ -113,10 +113,11 @@ describe("digestScript (X17, aturan 11)", () => {
       ["quotes", null],
       ["closing", null],
     ]);
+    // Label suara AI tidak diucapkan (ADR-102): pembuka hanya sumbernya.
     expect(script.segments[0]?.sentences).toEqual([
-      SCRIPT_LABEL,
       "Dari kitab Ihya' 'Ulum ad-Din karya al-Ghazali.",
     ]);
+    expect(JSON.stringify(script)).not.toContain(SCRIPT_LABEL);
     const closing = segmentText(script.segments.at(-1)!);
     expect(closing.startsWith("Penutup. Ilmu menuntun amal.")).toBe(true);
     expect(closing.endsWith(SCRIPT_DOOR)).toBe(true);
@@ -254,8 +255,8 @@ describe("digestScript (X17, aturan 11)", () => {
       closing: null,
       source: { ...v.source, work: { ...v.source.work, title_id: null, author: null } },
     });
-    expect(script.segments[0]?.sentences).toEqual([SCRIPT_LABEL]);
-    expect(segmentText(script.segments[3]!)).toContain("Anjuran yang ditulis penulis sendiri");
+    expect(script.segments[0]?.kind).toBe("intro");
+    expect(segmentText(script.segments[2]!)).toContain("Anjuran yang ditulis penulis sendiri");
     expect(segmentText(script.segments.at(-1)!)).toBe(SCRIPT_DOOR);
   });
 

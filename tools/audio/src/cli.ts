@@ -19,7 +19,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-import { SCRIPT_LABEL, ScriptError, loadDigestScript } from "@surau/core";
+import { ScriptError, loadDigestScript } from "@surau/core";
 import { AI_TEXT_LANG, listDigestHeaders, listTitleTranslations } from "@surau/db";
 import type { D1Db } from "@surau/db";
 import { z } from "zod";
@@ -301,8 +301,8 @@ async function main(argv: string[]): Promise<number> {
       const lexicon = loadLexicon(AI_TEXT_LANG);
       // --demo-gaya: uji dengar A/B gaya narator (ADR-101); bawaan: uji lafal leksikon (T-31).
       const text = values["demo-gaya"]
-        ? styleDemo(`${SCRIPT_LABEL} Contoh gaya narator.`)
-        : lexiconSample(lexicon, `${SCRIPT_LABEL} Contoh lafal: bawaan, lalu dengan leksikon.`);
+        ? styleDemo("Contoh gaya narator.")
+        : lexiconSample(lexicon, "Contoh lafal: bawaan, lalu dengan leksikon.");
       console.log(
         `Sampel ${values["demo-gaya"] ? "gaya narator" : `leksikon ${lexicon.version}`}: ${text.length} karakter (±US$${((text.length / 1000) * 0.08).toFixed(2)}).`,
       );

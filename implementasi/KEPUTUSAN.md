@@ -2651,3 +2651,23 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 - Biaya uji A/B ±900 karakter.
 
 **Tinjau ulang bila:** uji dengar menilai khidmat berlebihan atau malah kurang, ElevenLabs merinci perilaku tag v4, atau narator manusia tersedia.
+
+## ADR-102 · Label suara AI hanya sebagai teks, tidak diucapkan di audio — diterima (keputusan pemilik) · 2026-10-25
+
+**Konteks:** ADR-097/100 dan docs/05 §12 membuka setiap audio dengan "Intisari ini dibuat AI dan dibacakan suara AI." Sesudah mendengar pilot (bab 100006, suara Kang Sugiman, gaya variatif), pemilik memutuskan kalimat itu dihapus. Alasannya: audio lebih mudah dipotong, dan kalimat yang sama tidak diulang di setiap bab ("cukup label teks di web").
+
+Agent menyampaikan risikonya lebih dulu dan menawarkan jalan tengah (label ringkas "Intisari Surau, dengan suara AI."). Pemilik tetap memilih hapus. Risikonya: rekaman yang beredar terpisah dari situs bisa dikira suara manusia, dan transparansi konten sintetis tidak lagi terdengar di audionya.
+
+**Keputusan:**
+- Skrip v3: tidak ada kalimat label di audio. Segmen pembuka hanya "Dari kitab … karya …" (atau tidak ada, bila judul Latin karya tidak ada).
+- Label suara AI tetap ada sebagai teks:
+  - tombol Dengarkan ("Dibacakan suara AI (…)");
+  - pemutar mini;
+  - Media Session ("Suara AI · Surau");
+  - metadata ID3 (TPE1 "Dibacakan suara AI", COMM, TXXX `AI_GENERATED`).
+- docs/05 §12 dan teks-arab aturan 11 diubah sesuai keputusan ini.
+- Contoh dengar (`pnpm audio sample`) juga tanpa label lisan.
+
+**Konsekuensi:** audio pilot lama (skrip v2) gugur saat ingest (`stale_script`); hanya berkas lokal, belum diunggah.
+
+**Tinjau ulang bila:** audio mulai dibagikan sebagai berkas lepas (podcast, unduhan), ada keluhan pendengar yang mengira narator manusia, atau aturan transparansi konten sintetis mewajibkan label lisan.

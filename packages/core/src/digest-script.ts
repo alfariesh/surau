@@ -5,7 +5,8 @@
 // - Tanpa huruf Arab: kutipan dibacakan lewat terjemahannya ("terjemahan AI-nya" bila belum
 //   ditinjau manusia), ayat hanya disebut ("surah kedua ayat …"), placeholder ⟦QS⟧ dan penanda
 //   catatan kaki tidak pernah sampai ke suara AI.
-// - Narator orang ketiga, diawali kalimat label suara AI, ditutup "pintu ke kitab" (docs/05 §12).
+// - Narator orang ketiga, dibuka dengan sumber ("Dari kitab …"), ditutup "pintu ke kitab"; label suara AI
+//   hanya berupa teks di web, layar kunci, dan metadata (ADR-102).
 // - Riwayat sangat lemah, palsu, atau "tidak ada asalnya" (docs/05 §4): KUTIPAN-nya sudah ditahan
 //   `readDigest` (`weak_report`); GAGASAN yang bersandar padanya (dalil `evidence`, sama dengan chip
 //   di halaman) diberi kalimat tanda buatan kode. Status hadits lain tidak dibacakan.
@@ -30,17 +31,18 @@ import { textSha256 } from "./translation-revision.ts";
 /**
  * Versi susunan skrip; naik bila kalimat baku, urutan segmen, atau aturan pemilihan berubah.
  * 2 = setiap kalimat membawa peran (narasi/kutipan/syair) untuk gaya narator (ADR-101).
+ * 3 = label suara AI tidak diucapkan; pembuka hanya "Dari kitab … karya …" (ADR-102).
  */
-export const SCRIPT_VERSION = 2;
+export const SCRIPT_VERSION = 3;
 
-/** Kalimat label di awal setiap audio (docs/05 §12; sama di halaman, layar kunci, dan ID3). */
+/** Label suara AI dalam bentuk TEKS (metadata berkas); tidak diucapkan di audio (ADR-102). */
 export const SCRIPT_LABEL = "Intisari ini dibuat AI dan dibacakan suara AI.";
 
 /** Kalimat penutup setiap audio: Intisari pintu ke kitab, bukan penggantinya (docs/01, §12). */
 export const SCRIPT_DOOR =
   "Intisari ini adalah pintu ke kitab, bukan penggantinya. Teks lengkap dan dasar setiap gagasan ada di Surau.";
 
-/** label = kalimat label + sumber (sama untuk semua Intisari satu karya, jadi audionya bisa dipakai ulang). */
+/** label = kalimat sumber "Dari kitab …" (sama untuk semua Intisari satu karya, jadi audionya dipakai ulang). */
 export type ScriptSegmentKind = "label" | "intro" | "point" | "quotes" | "closing";
 
 /**
@@ -212,17 +214,18 @@ export async function digestScript(view: DigestView): Promise<DigestScript> {
   const quoteBlock = (quotes: readonly DigestQuoteView[]) =>
     quotes.flatMap((q) => quoteSentences(q));
 
+  // Label suara AI TIDAK diucapkan (keputusan pemilik, ADR-102): cukup label teks di web, layar kunci,
+  // dan metadata berkas. Segmen pembuka hanya menyebut sumbernya, bila judul Latinnya ada.
   const segments: ScriptSegment[] = [
-    {
-      kind: "label",
-      point_ord: null,
-      ...spoken([
-        SCRIPT_LABEL,
-        ...(work === null
-          ? []
-          : [`Dari kitab ${work}${author === null ? "" : ` karya ${author}`}.`]),
-      ]),
-    },
+    ...(work === null
+      ? []
+      : [
+          {
+            kind: "label" as const,
+            point_ord: null,
+            ...spoken([`Dari kitab ${work}${author === null ? "" : ` karya ${author}`}.`]),
+          },
+        ]),
     {
       kind: "intro",
       point_ord: null,
