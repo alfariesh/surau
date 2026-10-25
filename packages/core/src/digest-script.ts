@@ -27,8 +27,11 @@ import type { DigestPointView, DigestQuoteView, DigestView, Location } from "./s
 import { VERY_WEAK_TAKHRIJ_KINDS } from "./takhrij-label.ts";
 import { textSha256 } from "./translation-revision.ts";
 
-/** Versi susunan skrip; naik bila kalimat baku, urutan segmen, atau aturan pemilihan berubah. */
-export const SCRIPT_VERSION = 1;
+/**
+ * Versi susunan skrip; naik bila kalimat baku, urutan segmen, atau aturan pemilihan berubah.
+ * 2 = setiap kalimat membawa peran (narasi/kutipan/syair) untuk gaya narator (ADR-101).
+ */
+export const SCRIPT_VERSION = 2;
 
 /** Kalimat label di awal setiap audio (docs/05 §12; sama di halaman, layar kunci, dan ID3). */
 export const SCRIPT_LABEL = "Intisari ini dibuat AI dan dibacakan suara AI.";
@@ -40,12 +43,26 @@ export const SCRIPT_DOOR =
 /** label = kalimat label + sumber (sama untuk semua Intisari satu karya, jadi audionya bisa dipakai ulang). */
 export type ScriptSegmentKind = "label" | "intro" | "point" | "quotes" | "closing";
 
+/**
+ * Peran kalimat, ditentukan KODE dari jenis bagian (bukan model): `quote` = terjemahan kutipan teks
+ * atau riwayat, `poetry` = terjemahan syair, `narration` = selebihnya. Dipakai alat audio untuk
+ * gaya narator yang tetap dan berversi (ADR-101); tidak mengubah kata yang dibacakan.
+ */
+export type SentenceRole = "narration" | "quote" | "poetry";
+
+interface Line {
+  text: string;
+  role: SentenceRole;
+}
+
 export interface ScriptSegment {
   kind: ScriptSegmentKind;
   /** Gagasan yang dibacakan (bab pemutar); null untuk segmen lain. */
   point_ord: number | null;
   /** Kalimat siap baca, urut, sudah dinormalisasi lisan. */
   sentences: string[];
+  /** Peran setiap kalimat (panjang sama dengan `sentences`). */
+  roles: SentenceRole[];
 }
 
 export interface DigestScript {
@@ -127,13 +144,17 @@ function speakable(text: string): string {
     );
 }
 
-function quoteSentences(q: DigestQuoteView): string[] {
+function quoteSentences(q: DigestQuoteView): (string | Line)[] {
   if (q.translation === null) return [];
   const body = sentencesOf(q.translation.text);
   if (body.length === 0) return [];
   // Terjemahan diberi label (aturan 8): AI kecuali sudah ditinjau atau dikoreksi manusia.
   const label = q.translation.human_review === null ? "terjemahan AI-nya" : "terjemahannya";
-  return [`${KIND_INTRO[q.kind]} di ${where(q.location)}, yang ${label}:`, ...body];
+  const role: SentenceRole = q.kind === "poetry" ? "poetry" : "quote";
+  return [
+    `${KIND_INTRO[q.kind]} di ${where(q.location)}, yang ${label}:`,
+    ...body.map((text) => ({ text, role })),
+  ];
 }
 
 const list = (items: readonly string[]): string =>
@@ -158,8 +179,14 @@ function weakMark(view: DigestView, p: DigestPointView): string[] {
   ];
 }
 
-const spoken = (sentences: readonly string[]): string[] =>
-  sentences.map((s) => spokenIndonesian(s)).filter((s) => s !== "");
+/** Kalimat siap baca + perannya; kalimat yang kosong sesudah normalisasi dibuang bersama perannya. */
+function spoken(items: readonly (string | Line)[]): Pick<ScriptSegment, "sentences" | "roles"> {
+  const lines = items
+    .map((it) => (typeof it === "string" ? { text: it, role: "narration" as const } : it))
+    .map((l) => ({ text: spokenIndonesian(l.text), role: l.role }))
+    .filter((l) => l.text !== "");
+  return { sentences: lines.map((l) => l.text), roles: lines.map((l) => l.role) };
+}
 
 function check(segments: readonly ScriptSegment[]): void {
   for (const [i, segment] of segments.entries()) {
@@ -189,7 +216,7 @@ export async function digestScript(view: DigestView): Promise<DigestScript> {
     {
       kind: "label",
       point_ord: null,
-      sentences: spoken([
+      ...spoken([
         SCRIPT_LABEL,
         ...(work === null
           ? []
@@ -199,7 +226,7 @@ export async function digestScript(view: DigestView): Promise<DigestScript> {
     {
       kind: "intro",
       point_ord: null,
-      sentences: spoken([...sentencesOf(view.opening), ...sentencesOf(view.abstract)]),
+      ...spoken([...sentencesOf(view.opening), ...sentencesOf(view.abstract)]),
     },
   ];
   for (const [i, p] of view.points.entries()) {
@@ -208,7 +235,7 @@ export async function digestScript(view: DigestView): Promise<DigestScript> {
     segments.push({
       kind: "point",
       point_ord: p.ord,
-      sentences: spoken([
+      ...spoken([
         `Gagasan ${ordinalWords(i + 1)}.`,
         ...(advice
           ? [
@@ -228,13 +255,13 @@ export async function digestScript(view: DigestView): Promise<DigestScript> {
     segments.push({
       kind: "quotes",
       point_ord: null,
-      sentences: spoken(["Kutipan pilihan.", ...general]),
+      ...spoken(["Kutipan pilihan.", ...general]),
     });
   }
   segments.push({
     kind: "closing",
     point_ord: null,
-    sentences: spoken([
+    ...spoken([
       ...(view.closing === null ? [] : ["Penutup.", ...sentencesOf(view.closing)]),
       ...sentencesOf(SCRIPT_DOOR),
     ]),

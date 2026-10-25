@@ -15,6 +15,13 @@ Format entri:
 
 ---
 
+## 2026-10-25 · X17b · Gaya narator Dengar (tag audio v4) — selesai (kode; pemakaian menunggu uji dengar)
+- Dikerjakan: peran kalimat di skrip (narasi/kutipan/syair, ditentukan kode; skrip v2); gaya `polos` (bawaan) dan `khidmat@1` dari daftar tag tetap; gaya dicatat di manifest; `pnpm audio sample --demo-gaya` untuk uji A/B; T-31 diperluas.
+- Verifikasi: `pnpm verify` → lolos; tes gaya/perakit/skrip baru lolos.
+- Biaya API: –
+- Keputusan: ADR-101
+- Catatan untuk sesi berikutnya: jalankan demo A/B sesudah T-29 + izin pemilik; pakai `--gaya khidmat` hanya bila pemilik memilih B.
+
 ## 2026-10-25 · X17 · Dengar: audio Intisari (skrip, ElevenLabs v4, MP3, R2, pemutar) — sebagian (kode + bucket; pilot berbayar menunggu pemilik)
 - Dikerjakan:
   - Normalisasi lisan berversi (`spoken-id`) dan skrip deterministik dari `DigestView`: label suara AI, kutipan lewat terjemahan, ayat hanya disebut, riwayat bertakhrij berat tidak dibacakan (ditahan `readDigest`), tanpa huruf Arab.

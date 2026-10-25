@@ -2624,3 +2624,29 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 - Halaman Intisari (X16): `ListenSlot` merender `PlayButton` sebagai blok di bawah baris kepala, karena tombol + keterangan tidak sah di dalam paragraf baris kepala. Track dihitung rute halaman dengan segmen karya kanonis, sama dengan `dengar.json`.
 
 **Tinjau ulang bila:** timestamps v4 terbukti ada (sorotan per kalimat: `alignment_key`), uji dengar menolak lafal bawaan v4 untuk banyak istilah (kamus lafal API), penyedia lain dipakai (Chirp 3 HD/Gemini TTS lewat `TtsProvider`), narator manusia tersedia (`voice_kind` human didahulukan), atau keluaran penyedia berubah menjadi VBR.
+
+## ADR-101 · Gaya narator Dengar: tag audio v4 dari daftar tetap, dipilih kode per peran kalimat, bawaan polos sampai uji dengar A/B — diterima (kode; pemakaian menunggu T-31) · 2026-10-25
+
+**Konteks:** pemilik bertanya (2026-10-25) apakah kutipan, kisah, dan syair perlu dibacakan lebih ekspresif dengan tag audio eleven_v4. Narasi yang datar 10–15 menit melelahkan, dan pendengar tanpa teks butuh penanda bunyi "ini kutipan". Di sisi lain ada risikonya: ekspresi bisa terdengar seperti memerankan tokoh (dekat dengan roleplay orang pertama yang dilarang), nada yang keliru mengubah kesan makna teks agama, tag v4 tidak sepenuhnya bisa diprediksi, dan ADR-097/docs/05 §12 menetapkan narator netral tanpa gaya dramatis.
+
+**Keputusan:**
+1. **Peran kalimat ditentukan kode** (`SentenceRole`, skrip v2): terjemahan kutipan teks atau riwayat = `quote`, terjemahan syair = `poetry`, selebihnya `narration`. Penentuannya dari jenis kutipan yang sudah dihitung kode, tidak pernah dari model. Kata yang dibacakan tidak berubah.
+2. **Gaya = daftar tag tetap dan berversi** (`tools/audio/src/style.ts`):
+   - `polos` (tanpa tag, bawaan);
+   - `khidmat@1`: `[calm]` untuk narasi, `[thoughtful]` untuk kutipan, `[softly]` untuk syair.
+   Tag dipasang di awal kalimat hanya saat peran berubah; kalimat pertama segmen = nada dasar. Ekspresinya milik narator yang mengutip, bukan tokoh yang dikutip. Emosi kuat (marah, menangis, tertawa, berbisik), tiruan suara, dan efek dilarang. Hanya tag terdaftar yang lolos pemeriksaan teks akhir; `[ ]` lain tetap ditolak (aturan 11).
+3. **Gaya dicatat** di manifest (`style`) dan ikut sidik permintaan TTS, sehingga polos dan khidmat tidak berbagi cache. Gaya tidak ikut sha skrip, karena ingest mencocokkan isi, bukan cara membaca.
+4. **Diputuskan lewat telinga.** `pnpm audio sample --demo-gaya` membuat satu contoh (±900 karakter, berbayar, izin pemilik): versi A tanpa gaya, lalu versi B khidmat, dengan teks demo buatan (narasi, kutipan, syair). Pemilik (dan Ust. Anas bila bisa) menilai di T-31. `submit --gaya khidmat` baru dipakai bila lolos.
+5. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
+
+**Tidak dipilih:**
+- Model memilih tag per kalimat: tidak bisa diaudit, dan rawan dramatis.
+- Tag emosi per tokoh: terdengar seperti memerankan ulama.
+- Mengubah kecepatan atau suara per peran: v4 tidak punya kontrol kecepatan, dan suara kedua melanggar "satu suara per Intisari".
+
+**Konsekuensi:**
+- `SCRIPT_VERSION` naik ke 2 (belum ada audio, tanpa biaya terbuang).
+- Manifest mewajibkan `style`.
+- Biaya uji A/B ±900 karakter.
+
+**Tinjau ulang bila:** uji dengar menilai khidmat berlebihan atau malah kurang, ElevenLabs merinci perilaku tag v4, atau narator manusia tersedia.
