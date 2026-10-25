@@ -1,6 +1,6 @@
 # X15 · Sesi sisipan: Intisari (ringkasan belajar berlapis) — kontrak data, pipeline, korpus
 
-> **Fase:** sisipan (`packages/db`, `packages/core`, `packages/llm`, `tools/ingest`, dokumen) · **Status:** X15a selesai (2026-10-24, ADR-097, PR #137); X15b selesai kecuali nilai T-31 (2026-10-24, ADR-098); X15c belum
+> **Fase:** sisipan (`packages/db`, `packages/core`, `packages/llm`, `tools/ingest`, dokumen) · **Status:** X15a selesai (2026-10-24, ADR-097, PR #137); X15b selesai kecuali nilai T-31 (2026-10-25, ADR-098, PR #141); X15c belum
 > **Prasyarat:** – · Tugas pemilik: T-31 (QA pilot, X15b), T-28 (data kitab, X15c)
 > **Perkiraan:** X15a 1 percakapan, $0 · X15b 1–2 percakapan + pilot LLM ≤ $1 (izin) · X15c 1 percakapan + LLM ±$2,5–4 (izin) + promote `ihya-v9` (izin)
 
