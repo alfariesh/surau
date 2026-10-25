@@ -7,6 +7,7 @@ import type { DigestScript, DigestView } from "@surau/core";
 import { afterEach, beforeEach, describe, expect, test } from "vite-plus/test";
 
 import { parseLexicon } from "./lexicon.ts";
+import { STYLES } from "./style.ts";
 import { parseMp3, samplesToMs, silentFrames } from "./mp3.ts";
 import type { Mp3Format } from "./mp3.ts";
 import type { SynthesisRequest, TtsProvider } from "./provider.ts";
@@ -134,6 +135,7 @@ beforeEach(async () => {
     lexicon: parseLexicon(
       "format: 1\nlang: id\nentries:\n  - { term: ilmu, ipa: ˈilmu, status: active }\n",
     ),
+    style: STYLES.polos!,
     work: { slug: "ihya", title: "Ihya' 'Ulum ad-Din" },
     siteOrigin: "https://surau.org",
   };
@@ -245,6 +247,21 @@ describe("renderNode: keluaran rusak dan teks akhir", () => {
     expect(listIntents(store)).toEqual([]);
     expect(existsSync(join(store.root, "rejected"))).toBe(true);
     expect(readRendered(store, 100074)).toBeNull();
+  });
+
+  test("gaya khidmat: tag di permintaan, kunci cache berbeda dari polos, gaya tercatat", async () => {
+    const plain = fakeProvider();
+    await renderNode(store, plain.provider, input, { remaining: 100_000 }, clock);
+    const styled = fakeProvider();
+    const out = await renderNode(
+      store,
+      styled.provider,
+      { ...input, style: STYLES.khidmat! },
+      { remaining: 100_000 },
+      clock,
+    );
+    expect(out).toMatchObject({ status: "rendered", rendered: { track: { style: "khidmat@1" } } });
+    expect(speakableRequest("[thoughtful] Kutipan.")).toBe("[thoughtful] Kutipan.");
   });
 
   test("teks yang dikirim diperiksa ulang sesudah leksikon", () => {
