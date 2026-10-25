@@ -1,18 +1,18 @@
 # Intisari: laporan pilot (X15b)
 
-Sumber korpus: staging ihya-v8 (SELECT) · dibuat 2026-10-24T17:36:40.923Z · node dalam cakupan: 21, dengan Intisari: 21.
+Sumber korpus: staging ihya-v8 (SELECT) · dibuat 2026-10-25T00:14:18.816Z · node dalam cakupan: 21, dengan Intisari: 21.
 
 | Node | Tingkat | Asal | Status | Model | Gagasan | Kutipan | Istilah | Dibuang |
 |---|---|---|---|---|---|---|---|---|
 | 100003 | book | mixed | lolos | claude-sonnet-5-5 | 8 | 3 | 8 | 0 |
-| 100004 | section | children | lolos | claude-haiku-5-5 | 7 | 2 | 5 | 0 |
+| 100004 | section | children | lolos | claude-haiku-5-5 | 6 | 2 | 5 | 0 |
 | 100005 | section | text | lolos | claude-haiku-5-5 | 5 | 1 | 4 | 0 |
-| 100006 | section | text | lolos | claude-haiku-5-5 | 4 | 0 | 4 | 1 |
+| 100006 | section | text | lolos | claude-haiku-5-5 | 4 | 1 | 4 | 0 |
 | 100007 | section | text | lolos | claude-haiku-5-5 | 7 | 1 | 4 | 0 |
 | 100008 | section | text | lolos | claude-haiku-5-5 | 6 | 2 | 2 | 0 |
 | 100009 | section | mixed | lolos | claude-haiku-5-5 | 7 | 2 | 5 | 0 |
 | 100010 | section | text | lolos | claude-haiku-5-5 | 7 | 2 | 4 | 0 |
-| 100011 | section | mixed | lolos | claude-haiku-5-5 | 7 | 0 | 3 | 0 |
+| 100011 | section | mixed | lolos | claude-haiku-5-5 | 6 | 2 | 4 | 0 |
 | 100012 | section | text | lolos | claude-haiku-5-5 | 5 | 2 | 5 | 6 |
 | 100013 | section | text | lolos | claude-haiku-5-5 | 7 | 1 | 5 | 0 |
 | 100014 | section | mixed | lolos | claude-haiku-5-5 | 7 | 2 | 5 | 0 |
@@ -29,18 +29,18 @@ Sumber korpus: staging ihya-v8 (SELECT) · dibuat 2026-10-24T17:36:40.923Z · no
 ## Butir yang dibuang validator (hasil yang berlaku)
 
 - over_limit: 5
-- banned: 3
 - ayah: 2
 - basis_over_limit: 1
+- banned: 1
 
 ## Respons yang ditolak / gagal (semua percobaan)
 
-- stale_input: 10
+- stale_input: 14
 - invalid:abstract: 1
 
 ## Ukuran blok
 
-Kutipan tahap leaf yang lolos: 21; terpotong 1, > 300 karakter 0; bermasalah 1 (4.8%; ambang cadangan ADR-097: > 10%).
+Kutipan tahap leaf yang lolos: 23; terpotong 2, > 300 karakter 0; bermasalah 2 (8.7%; ambang cadangan ADR-097: > 10%).
 
 ## Biaya aktual
 
@@ -55,13 +55,15 @@ Kutipan tahap leaf yang lolos: 21; terpotong 1, > 300 karakter 0; bermasalah 1 (
 | 07-digest-merge | digest-merge | claude-haiku-5-5 | 7 | $0.0175 |
 | 08-digest-merge | digest-merge | claude-haiku-5-5 | 1 | $0.0025 |
 | 09-digest-book | digest-book | mixed | 2 | $0.0660 |
+| 10-digest-merge | digest-merge | claude-haiku-5-5 | 2 | $0.0056 |
+| 11-digest-book | digest-book | mixed | 2 | $0.0804 |
 | glosarium (API biasa) | definisi | claude-sonnet-5-5 | 2 | $0.1292 |
 
-**Total: $0.4400** (batch $0.3109 + glosarium $0.1292); definisi glosarium berlaku: 144.
+**Total: $0.5260** (batch $0.3968 + glosarium $0.1292); definisi glosarium berlaku: 144.
 
 ## Intisari Kitab: Sonnet 5.5 dibanding Haiku 5.5
 
 | Node | Model | Gagasan | Kata/gagasan | Kutipan | Istilah | Dibuang | Biaya |
 |---|---|---|---|---|---|---|---|
-| 100003 | claude-sonnet-5-5 | 8 | 140 | 3 | 8 | 0 | $0.0599 |
-| 100003 | claude-haiku-5-5 | 10 | 141 | 3 | 8 | 0 | $0.0060 |
+| 100003 | claude-sonnet-5-5 | 8 | 142 | 3 | 8 | 0 | $0.0745 |
+| 100003 | claude-haiku-5-5 | 7 | 144 | 3 | 8 | 0 | $0.0059 |

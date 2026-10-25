@@ -18,4 +18,11 @@ describe("heuristik kutipan terpotong", () => {
     // Mulai di tengah kalimat tanpa rumus ucapan.
     expect(quoteTruncated(t, t.indexOf("خيرا"), t.indexOf(" (١)"))).toBe(true);
   });
+  test("wa/fa menempel pada kata (فأشرف، وكلها، فإنه) = pembuka klausa; في/فضل bukan", () => {
+    const u = "قيل كذا فأشرف الصناعات تعليم العلم وكلها محمودة فإنه نور في القلب فضل كبير";
+    expect(quoteTruncated(u, u.indexOf("فأشرف"), u.indexOf(" وكلها"))).toBe(false);
+    expect(quoteTruncated(u, u.indexOf("وكلها"), u.indexOf(" فإنه"))).toBe(false);
+    expect(quoteTruncated(u, u.indexOf("فإنه"), u.indexOf(" في القلب"))).toBe(true);
+    expect(quoteTruncated(u, u.indexOf("فإنه"), u.indexOf(" فضل"))).toBe(true);
+  });
 });

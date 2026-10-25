@@ -58,64 +58,69 @@ const MARKER_HEAD = /^\s*\([\u0660-\u0669\d]+\)/u;
 const SPEECH_BEFORE =
   /(?:^| )(?:قال|وقال|فقال|قيل|وقيل|يقول|ويقول|روي|وروي|قوله|بقوله|كقوله)(?: [^ ]+){0,6}$/u;
 /**
- * Pembuka klausa sebagai KATA UTUH (sesudah normalisasi): partikel lepas, dan wa/fa yang menempel pada
- * kata tugas atau kata kerja ucapan. Bukan awalan huruf: "في", "فضل", "انسان", "امام" bukan batas.
+ * Pembuka klausa (sesudah normalisasi): partikel lepas sebagai kata utuh, atau wa/fa yang menempel
+ * pada kata ≥ 4 huruf (فأشرف، وكلها، فإنه): di teks klasik tanpa tanda baca, klausa baru hampir selalu
+ * dibuka wa/fa. Kata berawalan و/ف yang bukan kata sambung (في، فضل، فريضة، وجه، …) tidak dihitung.
  */
-const CLAUSE_START = new RegExp(
-  `^(?:${[
-    "ثم",
-    "بل",
-    "لكن",
-    "ولكن",
-    "اما",
-    "واما",
-    "فاما",
-    "انما",
-    "فانما",
-    "وانما",
-    "اذا",
-    "فاذا",
-    "واذا",
-    "لان",
-    "فان",
-    "وان",
-    "فلا",
-    "ولا",
-    "فمن",
-    "ومن",
-    "فهو",
-    "وهو",
-    "فهي",
-    "وهي",
-    "فهذا",
-    "وهذا",
-    "فذلك",
-    "وذلك",
-    "فلذلك",
-    "ولذلك",
-    "فقد",
-    "وقد",
-    "فكما",
-    "وكما",
-    "فقال",
-    "وقال",
-    "قال",
-    "وقيل",
-    "فقيل",
-    "فكان",
-    "وكان",
-    "فليس",
-    "وليس",
-    "فلو",
-    "ولو",
-    "حتي",
-    "فيقال",
-    "ويقال",
-    "اي",
-    "يعني",
-  ].join("|")})$`,
-  "u",
-);
+const CLAUSE_WORDS = new Set([
+  "ثم",
+  "بل",
+  "لكن",
+  "اما",
+  "انما",
+  "اذا",
+  "لان",
+  "قال",
+  "قيل",
+  "حتي",
+  "اي",
+  "يعني",
+  "لو",
+  "قد",
+  "ان",
+]);
+const NOT_CONJUNCTION = new Set([
+  "في",
+  "فيه",
+  "فيها",
+  "فيما",
+  "فوق",
+  "فضل",
+  "فضيله",
+  "فضائل",
+  "فرض",
+  "فريضه",
+  "فرائض",
+  "فقه",
+  "فقيه",
+  "فقير",
+  "فقراء",
+  "فرق",
+  "فكر",
+  "فعل",
+  "فهم",
+  "وجه",
+  "وجوه",
+  "وقت",
+  "وجود",
+  "وصف",
+  "ولد",
+  "وزن",
+  "وحي",
+  "وعد",
+  "وعيد",
+  "ورع",
+  "وراء",
+  "واجب",
+  "وسط",
+  "وضوء",
+  "وطن",
+]);
+const opensClause = (word: string): boolean =>
+  CLAUSE_WORDS.has(word) ||
+  (/^[وف]/u.test(word) &&
+    !NOT_CONJUNCTION.has(word) &&
+    (word.length >= 4 || CLAUSE_WORDS.has(word.slice(1))));
 const firstWord = (t: string) => normalizeArabic(t).text.trim().split(" ")[0] ?? "";
 
 /**
@@ -132,13 +137,13 @@ export function quoteTruncated(text: string, start: number, end: number): boolea
     SENTENCE_END.test(before) ||
     MARKER_TAIL.test(before) ||
     SPEECH_BEFORE.test(normalizeArabic(before).text.trim()) ||
-    CLAUSE_START.test(firstWord(quote));
+    opensClause(firstWord(quote));
   const ends =
     after.trim() === "" ||
     SENTENCE_END.test(quote.replace(MARKER_TAIL, "")) ||
     MARKER_HEAD.test(after) ||
     MARKER_TAIL.test(quote) ||
-    CLAUSE_START.test(firstWord(after));
+    opensClause(firstWord(after));
   return !(starts && ends);
 }
 
