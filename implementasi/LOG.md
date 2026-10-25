@@ -15,6 +15,16 @@ Format entri:
 
 ---
 
+## 2026-10-25 · X18 · Sorotan kalimat mengikuti audio Intisari — sebagian (kode; uji berbayar menunggu T-29 + izin, CORS menunggu T-32)
+- Dikerjakan:
+  - Skrip audio mencatat asal tiap kalimat di teks tampil (`sources`, di luar sha: audio lama tetap cocok); objek timestamps `.align.json` (format 1, immutable) + `alignment` di manifest + `audio_track.alignment_key` + `DigestView.audio.alignment_key`.
+  - `tools/audio`: pemetaan token waktu → kalimat; ElevenLabs `/with-timestamps` (`submit --timestamps`) dan forced alignment (`pnpm audio align`, juga untuk audio yang sudah diunggah); `align-test` (uji pembanding ±300 karakter); upload/manifest/verify `.align.json` (verify memeriksa CORS); `r2-cors.json`.
+  - Web: `data-say` di teks yang dibacakan, `ListenFollow` (logika dimuat malas): sorotan CSS Custom Highlight API `surau-dengar` tanpa mengubah DOM, gulir mengikuti (jeda 5 dtk bila pembaca menggulir, tanpa animasi bila reduced-motion), ketuk-untuk-lompat; fixture `/dev/intisari` dengan audio sunyi + waktu buatan.
+- Verifikasi: lihat Catatan hasil `sesi/X18-sorotan-dengar.md` (`pnpm verify`, e2e `sorotan.spec.ts` + `dengar.spec.ts`, browser desktop + ponsel gelap, peninjau).
+- Biaya API: – (uji berbayar belum dijalankan: kunci T-29 belum ada)
+- Keputusan: ADR-101
+- Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-101 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. CORS bucket (langkah T-32) sebelum `pnpm audio verify`.
+
 ## 2026-10-25 · X17 · Dengar: audio Intisari (skrip, ElevenLabs v4, MP3, R2, pemutar) — sebagian (kode + bucket; pilot berbayar menunggu pemilik)
 - Dikerjakan:
   - Normalisasi lisan berversi (`spoken-id`) dan skrip deterministik dari `DigestView`: label suara AI, kutipan lewat terjemahan, ayat hanya disebut, riwayat bertakhrij berat tidak dibacakan (ditahan `readDigest`), tanpa huruf Arab.
