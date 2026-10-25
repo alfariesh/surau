@@ -348,11 +348,16 @@ async function main(argv: string[]): Promise<number> {
         request_id: result.requestId,
         at,
       });
-      const file = join(
+      // Nama memuat jenis + sidik permintaan; bila tetap bentrok, diberi nomor. Audio yang sudah
+      // dibayar selalu disimpan dan tidak pernah menimpa sampel lain.
+      const kind = values["demo-gaya"] ? "gaya" : "lafal";
+      const base = join(
         store.root,
         "samples",
-        `${at.slice(0, 16).replace(/[-:]/gu, "")}-${values.voice}.mp3`,
+        `${at.slice(0, 16).replace(/[-:]/gu, "")}-${kind}-${key}`,
       );
+      let file = `${base}.mp3`;
+      for (let n = 2; existsSync(file); n++) file = `${base}-${n}.mp3`;
       writeAtomic(file, result.audio);
       removeIntent(store, key);
       let seconds = "?";
