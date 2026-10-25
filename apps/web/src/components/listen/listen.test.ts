@@ -74,6 +74,7 @@ function view(audio: boolean) {
             { point_ord: 1, start_ms: 10_000 },
             { point_ord: 3, start_ms: 60_000 },
           ],
+          alignment_key: null,
         }
       : null,
     evidence: { ayat: [], hadith: [], quran: null },

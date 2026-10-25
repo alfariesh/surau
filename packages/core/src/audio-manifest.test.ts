@@ -9,6 +9,12 @@ import {
   selectAudioTracks,
 } from "./audio-manifest.ts";
 import type { AudioManifestTrack } from "./audio-manifest.ts";
+import {
+  alignmentFits,
+  alignmentJson,
+  alignmentObjectKey,
+  audioAlignment,
+} from "./audio-alignment.ts";
 
 const FILE = "f".repeat(64);
 const SCRIPT = "e".repeat(64);
@@ -115,5 +121,69 @@ describe("audio manifest (X17)", () => {
     // Baris lolos skema `audio_track` korpus (bab sebagai JSON, tanpa alignment).
     expect(audioTrackRow.parse(rows[0])).toEqual(rows[0]);
     expect(rows[0]).toMatchObject({ mime: "audio/mpeg", alignment_key: null });
+  });
+});
+
+describe("timestamps per kalimat (X18)", () => {
+  const ALIGN = {
+    r2_key: "ihya/id/100074-aaaaaaaaaaaa.align.json",
+    sha256: "a".repeat(64),
+    bytes: 512,
+    method: "forced_alignment" as const,
+  };
+
+  test("track lama tanpa alignment tetap valid (null); alignment_key ikut ke baris korpus", () => {
+    expect(track().alignment).toBeNull();
+    const t = track({ alignment: ALIGN });
+    const { rows } = selectAudioTracks(
+      { ...emptyAudioManifest("ihya", 1, "https://media.surau.org", "surau-media"), tracks: [t] },
+      new Map([["100074:id", SCRIPT]]),
+    );
+    expect(rows[0]?.alignment_key).toBe(ALIGN.r2_key);
+    expect(audioTrackRow.parse(rows[0])).toEqual(rows[0]);
+  });
+
+  test("objek timestamps harus di karya, bahasa, dan node yang sama", () => {
+    expect(() =>
+      track({ alignment: { ...ALIGN, r2_key: "ihya/id/100075-aaaaaaaaaaaa.align.json" } }),
+    ).toThrow(/node yang sama/u);
+    expect(() => track({ alignment: { ...ALIGN, r2_key: "ihya/id/100074-aaaa.json" } })).toThrow(
+      /r2_key/u,
+    );
+  });
+
+  test("objek: kunci bersidik isi, kalimat urut waktu, bentuk sejajar skrip", () => {
+    expect(alignmentObjectKey("ihya", "id", 100074, "b".repeat(64))).toBe(
+      "ihya/id/100074-bbbbbbbbbbbb.align.json",
+    );
+    const base = {
+      format: 1,
+      audio_sha256: FILE,
+      script_sha256: SCRIPT,
+      method: "tts_timestamps",
+    } as const;
+    const ok = audioAlignment.parse({
+      ...base,
+      segments: [[[0, 1200], null], [[1900, 4000]]],
+    });
+    expect(alignmentFits(ok, { segments: [{ sentences: ["a", "b"] }, { sentences: ["c"] }] })).toBe(
+      true,
+    );
+    expect(alignmentFits(ok, { segments: [{ sentences: ["a"] }, { sentences: ["c"] }] })).toBe(
+      false,
+    );
+    expect(() =>
+      audioAlignment.parse({
+        ...base,
+        segments: [
+          [
+            [2000, 2500],
+            [1000, 1500],
+          ],
+        ],
+      }),
+    ).toThrow(/urut/u);
+    expect(() => audioAlignment.parse({ ...base, segments: [[[2000, 1000]]] })).toThrow(/akhir/u);
+    expect(JSON.parse(alignmentJson(ok))).toEqual(ok);
   });
 });

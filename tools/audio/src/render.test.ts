@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { digestScript, digestView } from "@surau/core";
+import { alignmentFits, audioAlignment, digestScript, digestView } from "@surau/core";
 import type { DigestScript, DigestView } from "@surau/core";
 import { afterEach, beforeEach, describe, expect, test } from "vite-plus/test";
 
@@ -50,7 +50,16 @@ function fakeProvider(fail?: (call: number) => TtsError | null) {
         audio.set(f, at);
         at += f.length;
       }
-      return { audio, requestId: `req-${calls.length}`, characterCost: req.text.length };
+      // Waktu karakter tiruan (X18): rata 20 ms per karakter teks yang dikirim.
+      const chars = req.text.split("");
+      const alignment = req.timestamps
+        ? {
+            characters: chars,
+            character_start_times_seconds: chars.map((_, i) => (i * 20) / 1000),
+            character_end_times_seconds: chars.map((_, i) => ((i + 1) * 20) / 1000),
+          }
+        : null;
+      return { audio, requestId: `req-${calls.length}`, characterCost: req.text.length, alignment };
     },
     quota: async () => null,
     voice: async () => null,
@@ -144,6 +153,53 @@ beforeEach(async () => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
 describe("renderNode", () => {
+  test("timestamps (X18): kalimat per segmen, digeser ke awal potongannya; tanpa --timestamps tidak ada", async () => {
+    const plain = await renderNode(
+      store,
+      fakeProvider().provider,
+      input,
+      { remaining: 1e5 },
+      clock,
+    );
+    expect(plain.status === "rendered" && plain.rendered.track.alignment).toBeNull();
+
+    const dir2 = mkdtempSync(join(tmpdir(), "surau-audio-"));
+    try {
+      const store2 = audioStore(dir2);
+      const { provider, calls } = fakeProvider();
+      const out = await renderNode(
+        store2,
+        provider,
+        { ...input, timestamps: true },
+        { remaining: 1e5 },
+        clock,
+      );
+      expect(calls.every((c) => c.timestamps === true)).toBe(true);
+      if (out.status !== "rendered") throw new Error(out.status);
+      const t = out.rendered.track;
+      expect(t.alignment).toMatchObject({ method: "tts_timestamps" });
+      expect(t.alignment!.r2_key).toBe(
+        `ihya/id/100074-${t.alignment!.sha256.slice(0, 12)}.align.json`,
+      );
+      const json = readFileSync(join(store2.root, out.rendered.alignment_file!), "utf8");
+      expect(Buffer.byteLength(json)).toBe(t.alignment!.bytes);
+      const a = audioAlignment.parse(JSON.parse(json));
+      expect(a).toMatchObject({ audio_sha256: t.sha256, script_sha256: script.sha256 });
+      expect(alignmentFits(a, script)).toBe(true);
+      // Kalimat pertama tiap gagasan ("Gagasan …") mulai tepat di awal babnya.
+      const points = script.segments.flatMap((s, i) => (s.kind === "point" ? [i] : []));
+      expect(points.map((i) => a.segments[i]![0]![0])).toEqual(t.chapters.map((c) => c.start_ms));
+      // Kalimat kedua mulai sesudah kalimat pertama + spasi (20 ms per karakter).
+      const first = script.segments[points[0]!]!.sentences[0]!;
+      expect(a.segments[points[0]!]![1]![0]).toBe(
+        t.chapters[0]!.start_ms + (first.length + 1) * 20,
+      );
+      expect(a.segments.flat().every((s) => s !== null)).toBe(true);
+    } finally {
+      rmSync(dir2, { recursive: true, force: true });
+    }
+  });
+
   test("bab = gagasan; awal bab = jumlah durasi segmen sebelumnya + jeda", async () => {
     const { provider, calls } = fakeProvider();
     const out = await renderNode(store, provider, input, { remaining: 100_000 }, clock);
@@ -247,6 +303,60 @@ describe("renderNode: keluaran rusak dan teks akhir", () => {
     expect(listIntents(store)).toEqual([]);
     expect(existsSync(join(store.root, "rejected"))).toBe(true);
     expect(readRendered(store, 100074)).toBeNull();
+  });
+
+  test("timestamps + gaya khidmat (X18): kalimat bertag mulai SESUDAH tag, semua terpetakan", async () => {
+    const base = fixtureView();
+    const quoted = digestView.parse({
+      ...base,
+      quotes: [
+        {
+          ord: 1,
+          point_ord: 1,
+          kind: "text",
+          passage_id: 10000001,
+          char_start: 0,
+          char_end: 3,
+          text_raw: "نص",
+          location: base.points[0]!.anchors[0]!.location,
+          translation: {
+            label: "ai_translation",
+            lang: "id",
+            model: "model-uji",
+            prompt_version: "intisari-bab@1",
+            created_at: "2026-10-24",
+            review_status: "ai_generated",
+            human_review: null,
+            text: "Niat adalah cahaya hati.",
+          },
+          takhrij: [],
+        },
+      ],
+    });
+    const s2 = await digestScript(quoted);
+    const { provider, calls } = fakeProvider();
+    const out = await renderNode(
+      store,
+      provider,
+      { ...input, view: quoted, script: s2, style: STYLES.khidmat!, timestamps: true },
+      { remaining: 1e5 },
+      clock,
+    );
+    if (out.status !== "rendered") throw new Error(out.status);
+    const t = out.rendered.track;
+    const a = audioAlignment.parse(
+      JSON.parse(readFileSync(join(store.root, out.rendered.alignment_file!), "utf8")),
+    );
+    expect(alignmentFits(a, s2)).toBe(true);
+    expect(a.segments.flat().every((x) => x !== null)).toBe(true);
+    const seg = s2.segments.findIndex((x) => x.kind === "point" && x.point_ord === 1);
+    const j = s2.segments[seg]!.roles.indexOf("quote");
+    const text = calls[seg]!.text;
+    expect(text).toContain("[thoughtful] Niat adalah cahaya hati.");
+    // Satu potongan per segmen: awal kalimat = awal bab + posisi kalimat (sesudah tag) × 20 ms.
+    expect(a.segments[seg]![j]![0]).toBe(
+      t.chapters[0]!.start_ms + text.indexOf("Niat adalah cahaya hati.") * 20,
+    );
   });
 
   test("gaya khidmat: tag di permintaan, kunci cache berbeda dari polos, gaya tercatat", async () => {

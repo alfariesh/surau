@@ -11,6 +11,7 @@ import { audioChapters, voiceKind } from "@surau/db";
 import type { AudioTrackRow, D1Db } from "@surau/db";
 import { z } from "zod";
 
+import { audioManifestAlignment } from "./audio-alignment.ts";
 import { ScriptError, loadDigestScript } from "./digest-script.ts";
 import { NotFound } from "./errors.ts";
 
@@ -54,6 +55,11 @@ export const audioManifestTrack = z
     /** Gaya narator (tag audio dari daftar tetap, ADR-101), mis. `polos` atau `khidmat@1`. */
     style: z.string().regex(/^[a-z]+(?:@\d+)?$/u),
     chapters: audioChapters,
+    /**
+     * Timestamps per kalimat untuk sorotan teks (X18), atau null. Boleh ditambahkan sesudah track
+     * tercatat (`pnpm audio align`): objek audio tidak berubah, hanya rujukan ini.
+     */
+    alignment: audioManifestAlignment.nullable().default(null),
     /** Karakter yang ditagih penyedia (jumlah header `character-cost`; 0 bila dari cache). */
     characters: int.nonnegative(),
     created_at: z.iso.datetime(),
@@ -62,6 +68,12 @@ export const audioManifestTrack = z
   .refine(
     (t) => t.r2_key.endsWith(`/${t.lang}/${t.toc_node_id}-${t.sha256.slice(0, 12)}.mp3`),
     "r2_key harus memuat lang, node, dan sidik isi berkas",
+  )
+  .refine(
+    (t) =>
+      t.alignment === null ||
+      t.alignment.r2_key.startsWith(t.r2_key.slice(0, t.r2_key.lastIndexOf("-") + 1)),
+    "alignment.r2_key di karya, bahasa, dan node yang sama",
   )
   .refine(
     (t) =>
@@ -115,7 +127,7 @@ export function audioTrackRowOf(t: AudioManifestTrack): AudioTrackRow {
     script_version: t.script_version,
     lexicon_version: t.lexicon_version,
     chapters_json: JSON.stringify(t.chapters),
-    alignment_key: null,
+    alignment_key: t.alignment?.r2_key ?? null,
     created_at: t.created_at,
   };
 }

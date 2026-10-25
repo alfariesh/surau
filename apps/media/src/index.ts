@@ -1,14 +1,21 @@
 // Worker media Surau (X17, ADR-103): GET/HEAD objek audio dari bucket R2 `surau-media`.
-// Hanya kunci berbentuk `audioObjectKey` (@surau/core): `<karya>/<lang>/<node>-<sha12>.mp3`; selain
-// itu 404. Kunci memuat sidik isi berkas, jadi isinya tidak pernah berubah: tipe dan Cache-Control
-// ditetapkan di sini (tidak bergantung metadata unggahan). Range tidak ditangani di sini: Workers
+// Hanya kunci berbentuk `audioObjectKey` (@surau/core): `<karya>/<lang>/<node>-<sha12>.mp3`, dan
+// timestamps sorotan kalimat `alignmentObjectKey` (X18, ADR-104): `<…>-<sha12>.align.json`; selain
+// itu 404. Timestamps dibaca halaman Intisari lewat `fetch` lintas asal, jadi diberi
+// `Access-Control-Allow-Origin: *` (isinya publik dan immutable; `<audio>` tidak butuh CORS).
+// Kunci memuat sidik isi berkas, jadi isinya tidak pernah berubah: tipe dan Cache-Control ditetapkan
+// di sini (tidak bergantung metadata unggahan). Range tidak ditangani di sini: Workers
 // Caching meminta respons 200 penuh lalu memotongnya sendiri (wrangler.jsonc `cache`).
 
 /** Pola kunci objek media, sama dengan `audioManifestTrack.r2_key` (packages/core/src/audio-manifest.ts). */
 export const MEDIA_KEY = /^[a-z0-9-]+\/[a-z]{2,3}\/\d+-[0-9a-f]{12}\.mp3$/u;
 
-/** Sama dengan `AUDIO_MIME` dan `AUDIO_CACHE_CONTROL` di @surau/core (diuji). */
+/** Pola kunci timestamps, sama dengan `ALIGNMENT_KEY` (packages/core/src/audio-alignment.ts). */
+export const ALIGN_KEY = /^[a-z0-9-]+\/[a-z]{2,3}\/\d+-[0-9a-f]{12}\.align\.json$/u;
+
+/** Sama dengan `AUDIO_MIME`, `ALIGNMENT_MIME`, dan `AUDIO_CACHE_CONTROL` di @surau/core (diuji). */
 export const MEDIA_MIME = "audio/mpeg";
+export const ALIGN_MIME = "application/json";
 export const MEDIA_CACHE_CONTROL = "public, max-age=31536000, immutable";
 
 const notFound = () =>
@@ -26,7 +33,8 @@ export async function serveMedia(request: Request, bucket: R2Bucket): Promise<Re
     });
   }
   const key = new URL(request.url).pathname.slice(1);
-  if (!MEDIA_KEY.test(key)) return notFound();
+  const align = ALIGN_KEY.test(key);
+  if (!align && !MEDIA_KEY.test(key)) return notFound();
   const head = request.method === "HEAD";
   let object: R2Object | null;
   try {
@@ -40,12 +48,13 @@ export async function serveMedia(request: Request, bucket: R2Bucket): Promise<Re
   }
   if (object === null) return notFound();
   const headers = new Headers({
-    "Content-Type": MEDIA_MIME,
+    "Content-Type": align ? ALIGN_MIME : MEDIA_MIME,
     "Cache-Control": MEDIA_CACHE_CONTROL,
     ETag: object.httpEtag,
     "Accept-Ranges": "bytes",
     "X-Content-Type-Options": "nosniff",
   });
+  if (align) headers.set("Access-Control-Allow-Origin", "*");
   if (head) {
     headers.set("Content-Length", String(object.size));
     return new Response(null, { headers });

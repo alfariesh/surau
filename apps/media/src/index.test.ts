@@ -1,16 +1,34 @@
-import { AUDIO_CACHE_CONTROL, AUDIO_MIME, audioObjectKey } from "@surau/core";
+import {
+  ALIGNMENT_KEY,
+  ALIGNMENT_MIME,
+  AUDIO_CACHE_CONTROL,
+  AUDIO_MIME,
+  alignmentObjectKey,
+  audioObjectKey,
+} from "@surau/core";
 import { describe, expect, test } from "vite-plus/test";
 
-import { MEDIA_CACHE_CONTROL, MEDIA_KEY, MEDIA_MIME, serveMedia } from "./index.ts";
+import {
+  ALIGN_KEY,
+  ALIGN_MIME,
+  MEDIA_CACHE_CONTROL,
+  MEDIA_KEY,
+  MEDIA_MIME,
+  serveMedia,
+} from "./index.ts";
 
 const KEY = audioObjectKey("ihya", "id", 100003, "c82272e9b08d".padEnd(64, "0"));
+const ALIGN = alignmentObjectKey("ihya", "id", 100003, "ab12".padEnd(64, "0"));
 const BYTES = new Uint8Array([0xff, 0xfb, 0x90, 0x64]);
 
 // Bucket tiruan: hanya head/get yang dipakai Worker.
+const known = new Set([KEY, ALIGN]);
 const bucket = {
-  head: async (key: string) => (key === KEY ? { size: BYTES.length, httpEtag: '"e1"' } : null),
+  head: async (key: string) => (known.has(key) ? { size: BYTES.length, httpEtag: '"e1"' } : null),
   get: async (key: string) =>
-    key === KEY ? { size: BYTES.length, httpEtag: '"e1"', body: new Blob([BYTES]).stream() } : null,
+    known.has(key)
+      ? { size: BYTES.length, httpEtag: '"e1"', body: new Blob([BYTES]).stream() }
+      : null,
 } as unknown as R2Bucket;
 
 const req = (path: string, method = "GET") =>
@@ -21,6 +39,19 @@ describe("serveMedia (X17, ADR-103)", () => {
     expect(MEDIA_KEY.test(KEY)).toBe(true);
     expect(MEDIA_MIME).toBe(AUDIO_MIME);
     expect(MEDIA_CACHE_CONTROL).toBe(AUDIO_CACHE_CONTROL);
+    expect(ALIGN_KEY.source).toBe(ALIGNMENT_KEY.source);
+    expect(ALIGN_MIME).toBe(ALIGNMENT_MIME);
+  });
+
+  test("timestamps sorotan (X18): JSON immutable dengan CORS; audio tanpa CORS", async () => {
+    const res = await serveMedia(req(`/${ALIGN}`), bucket);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("application/json");
+    expect(res.headers.get("cache-control")).toBe(AUDIO_CACHE_CONTROL);
+    expect(res.headers.get("access-control-allow-origin")).toBe("*");
+    const audio = await serveMedia(req(`/${KEY}`), bucket);
+    expect(audio.headers.get("access-control-allow-origin")).toBeNull();
+    expect((await serveMedia(req(`/${ALIGN.replace(".align", "")}`), bucket)).status).toBe(404);
   });
 
   test("GET: isi berkas, tipe audio, cache immutable", async () => {

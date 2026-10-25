@@ -1489,6 +1489,24 @@ h3.reader-inline-subheading {
   color: inherit;
 }
 
+/* Sorotan kalimat yang sedang dibacakan audio Intisari (X18): Highlight API, DOM tidak diubah. */
+::highlight(surau-dengar) {
+  background-color: color-mix(in oklab, var(--accent) 22%, transparent);
+  color: inherit;
+}
+
+/* Selama sorotan aktif, teks yang dibacakan bisa diketuk untuk melompat ke kalimatnya. */
+[data-listen-follow] [data-say] {
+  cursor: pointer;
+}
+
+@media (forced-colors: active) {
+  ::highlight(surau-dengar) {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+
 .search-snippet {
   font-size: 1.15rem;
 }

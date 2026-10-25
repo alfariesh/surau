@@ -5,7 +5,7 @@
 import { execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
 
-import { AUDIO_CACHE_CONTROL, AUDIO_MIME } from "@surau/core";
+import { ALIGNMENT_MIME, AUDIO_CACHE_CONTROL, AUDIO_MIME } from "@surau/core";
 import type { AudioManifestTrack } from "@surau/core";
 
 import { sha256Hex } from "./store.ts";
@@ -69,6 +69,8 @@ export async function uploadObject(opts: {
   bytes: number;
   repo: string;
   confirm: boolean;
+  /** Bawaan audio/mpeg; timestamps (X18) application/json. */
+  contentType?: string;
   fetchFn?: typeof fetch;
   run?: Runner;
 }): Promise<UploadResult> {
@@ -98,7 +100,7 @@ export async function uploadObject(opts: {
       "--file",
       opts.file,
       "--content-type",
-      AUDIO_MIME,
+      opts.contentType ?? AUDIO_MIME,
       "--cache-control",
       AUDIO_CACHE_CONTROL,
       "--remote",
@@ -130,11 +132,14 @@ export async function verifyObject(
   track: Pick<AudioManifestTrack, "r2_key" | "bytes" | "sha256">,
 ): Promise<VerifyResult> {
   const problems: string[] = [];
+  // Objek timestamps (X18): JSON kecil, tanpa uji Range; dibaca halaman lewat fetch lintas asal.
+  const json = track.r2_key.endsWith(".align.json");
   const head = await headObject(fetchFn, origin, track.r2_key, false);
   if (head.status !== 200) {
     return { key: track.r2_key, ok: false, problems: [`HEAD ${head.status}`] };
   }
-  if (head.contentType !== AUDIO_MIME) problems.push(`content-type ${head.contentType}`);
+  const mime = json ? ALIGNMENT_MIME : AUDIO_MIME;
+  if (!head.contentType?.startsWith(mime)) problems.push(`content-type ${head.contentType}`);
   if (head.bytes !== track.bytes) problems.push(`ukuran ${head.bytes} ≠ ${track.bytes}`);
   if (
     !head.cacheControl?.includes("immutable") ||
@@ -143,13 +148,21 @@ export async function verifyObject(
     problems.push(`cache-control ${head.cacheControl}`);
   }
   const url = `${origin}/${track.r2_key}`;
-  const range = await fetchFn(url, {
-    headers: { range: "bytes=0-99" },
-    signal: AbortSignal.timeout(30_000),
+  if (!json) {
+    const range = await fetchFn(url, {
+      headers: { range: "bytes=0-99" },
+      signal: AbortSignal.timeout(30_000),
+    });
+    await range.arrayBuffer();
+    if (range.status !== 206) problems.push(`Range → ${range.status} (bukan 206)`);
+  }
+  const full = await fetchFn(url, {
+    // Origin situs: Worker media harus mengizinkan halaman Intisari membaca timestamps (CORS).
+    ...(json ? { headers: { origin: "https://surau.org" } } : {}),
+    signal: AbortSignal.timeout(120_000),
   });
-  await range.arrayBuffer();
-  if (range.status !== 206) problems.push(`Range → ${range.status} (bukan 206)`);
-  const full = await fetchFn(url, { signal: AbortSignal.timeout(120_000) });
+  if (json && full.headers.get("access-control-allow-origin") === null)
+    problems.push("CORS: access-control-allow-origin tidak ada");
   const body = new Uint8Array(await full.arrayBuffer());
   if (sha256Hex(body) !== track.sha256) problems.push("sha256 isi berbeda dengan manifest");
   return { key: track.r2_key, ok: problems.length === 0, problems };

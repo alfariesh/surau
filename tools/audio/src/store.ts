@@ -5,6 +5,8 @@
 //                                  sesudah hasil tersimpan atau galat yang pasti belum tertagih
 //   receipts.jsonl                 tanda terima setiap sintesis (biaya aktual = jumlah character_cost)
 //   out/<node>.json + <node>-<sha12>.mp3   berkas rakitan siap unggah + metadata track manifest
+//   out/<node>-<sha12>.align.json  timestamps per kalimat untuk sorotan teks (X18), bila ada
+//   align-receipts.jsonl           tanda terima forced alignment (ditagih per durasi audio)
 // Semua tulisan JSON atomik (berkas sementara lalu rename).
 import { createHash } from "node:crypto";
 import {
@@ -65,6 +67,15 @@ export const segmentMeta = z.strictObject({
   chars: z.number().int().nonnegative(),
   request_id: z.string().nullable(),
   character_cost: z.number().int().nonnegative().nullable(),
+  /** Waktu per karakter teks yang dikirim (`--timestamps`, X18); null bila tidak diminta/tidak ada. */
+  alignment: z
+    .strictObject({
+      characters: z.array(z.string()),
+      character_start_times_seconds: z.array(z.number()),
+      character_end_times_seconds: z.array(z.number()),
+    })
+    .nullable()
+    .default(null),
   created_at: z.iso.datetime(),
 });
 export type SegmentMeta = z.infer<typeof segmentMeta>;
@@ -173,6 +184,8 @@ export const renderedTrack = z.strictObject({
   /** Kunci segmen yang membentuk berkas, urut (rakit ulang dilewati bila sama). */
   segment_keys: z.array(z.string()),
   file: z.string(),
+  /** Berkas timestamps (`out/…align.json`) bila `track.alignment` ada (X18). */
+  alignment_file: z.string().nullable().default(null),
 });
 export type RenderedTrack = z.infer<typeof renderedTrack>;
 
@@ -192,10 +205,50 @@ export function listRendered(s: AudioStore): RenderedTrack[] {
     .map((f) => renderedTrack.parse(JSON.parse(readFileSync(join(dir, f), "utf8"))));
 }
 
-export function writeRendered(s: AudioStore, r: RenderedTrack, audio: Uint8Array): void {
+export function writeRendered(
+  s: AudioStore,
+  r: RenderedTrack,
+  audio: Uint8Array,
+  alignment: string | null = null,
+): void {
   writeAtomic(join(s.root, r.file), audio);
+  if (alignment !== null && r.alignment_file !== null)
+    writeAtomic(join(s.root, r.alignment_file), alignment);
+  writeRenderedMeta(s, r);
+}
+
+/** Metadata berkas rakitan saja (mis. sesudah timestamps ditambahkan; MP3 tidak disentuh). */
+export function writeRenderedMeta(s: AudioStore, r: RenderedTrack): void {
   writeAtomic(
     outMeta(s, r.track.toc_node_id),
     `${JSON.stringify(renderedTrack.parse(r), null, 2)}\n`,
   );
+}
+
+export const alignReceipt = z.strictObject({
+  node_id: z.number().int().nonnegative(),
+  /** sha256 MP3 yang diselaraskan. */
+  audio_sha256: z.string(),
+  audio_ms: z.number().int().nonnegative(),
+  chars: z.number().int().nonnegative(),
+  aligner: z.string(),
+  at: z.iso.datetime(),
+});
+export type AlignReceipt = z.infer<typeof alignReceipt>;
+
+export function appendAlignReceipt(s: AudioStore, r: AlignReceipt): void {
+  mkdirSync(s.root, { recursive: true });
+  appendFileSync(
+    join(s.root, "align-receipts.jsonl"),
+    `${JSON.stringify(alignReceipt.parse(r))}\n`,
+  );
+}
+
+export function readAlignReceipts(s: AudioStore): AlignReceipt[] {
+  const path = join(s.root, "align-receipts.jsonl");
+  if (!existsSync(path)) return [];
+  return readFileSync(path, "utf8")
+    .split("\n")
+    .filter((l) => l.trim() !== "")
+    .map((l) => alignReceipt.parse(JSON.parse(l)));
 }

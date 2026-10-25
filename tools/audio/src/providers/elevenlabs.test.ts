@@ -149,3 +149,75 @@ describe("ElevenLabs REST (eleven_v4)", () => {
     expect(() => new ElevenLabs({ apiKey: " " })).toThrow(/kosong/u);
   });
 });
+
+describe("ElevenLabs timestamps + forced alignment (X18)", () => {
+  const ALIGN = {
+    characters: ["H", "a", "i", "."],
+    character_start_times_seconds: [0, 0.1, 0.2, 0.3],
+    character_end_times_seconds: [0.1, 0.2, 0.3, 0.35],
+  };
+  const json = (body: unknown, headers: Record<string, string> = {}) =>
+    new Response(JSON.stringify(body), { status: 200, headers });
+
+  test("with-timestamps: endpoint, audio base64, alignment teks yang dikirim", async () => {
+    const { eleven, calls } = client([
+      json(
+        { audio_base64: Buffer.from([0xff, 0xfb]).toString("base64"), alignment: ALIGN },
+        { "request-id": "r1", "character-cost": "4" },
+      ),
+    ]);
+    const result = await eleven.synthesize({ ...REQ, timestamps: true });
+    expect(calls[0]!.url).toBe(
+      `${ELEVENLABS_API}/v1/text-to-speech/suara%2F1/with-timestamps?output_format=mp3_44100_64`,
+    );
+    expect(new Headers(calls[0]!.init?.headers).get("accept")).toBe("application/json");
+    expect([...result.audio]).toEqual([0xff, 0xfb]);
+    expect(result.alignment).toEqual(ALIGN);
+    expect(result).toMatchObject({ requestId: "r1", characterCost: 4 });
+  });
+
+  test("alignment null atau rusak → null (cadangan forced alignment); badan bukan JSON → audio kosong", async () => {
+    const { eleven } = client([
+      json({ audio_base64: "", alignment: null }),
+      json({ audio_base64: "", alignment: { ...ALIGN, character_end_times_seconds: [1] } }),
+      new Response("bukan json", { status: 200 }),
+    ]);
+    expect((await eleven.synthesize({ ...REQ, timestamps: true })).alignment).toBeNull();
+    expect((await eleven.synthesize({ ...REQ, timestamps: true })).alignment).toBeNull();
+    const broken = await eleven.synthesize({ ...REQ, timestamps: true });
+    expect(broken.audio).toHaveLength(0);
+    expect(broken.alignment).toBeNull();
+  });
+
+  test("forced alignment: multipart file + text, kata bertimestamp, galat jaringan = mungkin tertagih", async () => {
+    const { eleven, calls } = client([
+      json({
+        words: [
+          { text: "Halo", start: 0.1, end: 0.4, loss: 0.1 },
+          { text: " ", start: 0.4, end: 0.5 },
+          { text: 3, start: 0, end: 0 },
+        ],
+        loss: 0.12,
+      }),
+      new TypeError("putus"),
+    ]);
+    const result = await eleven.align(Uint8Array.of(1, 2, 3), "Halo dunia.");
+    expect(calls[0]!.url).toBe(`${ELEVENLABS_API}/v1/forced-alignment`);
+    const form = calls[0]!.init?.body as FormData;
+    expect(form.get("text")).toBe("Halo dunia.");
+    expect((form.get("file") as Blob).size).toBe(3);
+    expect(result).toEqual({
+      words: [
+        { text: "Halo", start: 0.1, end: 0.4 },
+        { text: " ", start: 0.4, end: 0.5 },
+      ],
+      loss: 0.12,
+    });
+    await expect(eleven.align(Uint8Array.of(1), "x")).rejects.toMatchObject({ charged: "unknown" });
+  });
+
+  test("forced alignment 200 dengan badan rusak: hasil kosong (tanda terima tetap dicatat pemanggil)", async () => {
+    const { eleven } = client([new Response("bukan json", { status: 200 })]);
+    expect(await eleven.align(Uint8Array.of(1), "x")).toEqual({ words: [], loss: null });
+  });
+});

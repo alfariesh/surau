@@ -898,6 +898,12 @@ export const digestAudioView = z
     model: z.string().nullable(),
     created_at: z.string(),
     chapters: audioChapters.describe("Player chapters: key idea + start time"),
+    alignment_key: z
+      .string()
+      .nullable()
+      .describe(
+        "Object key of per-sentence timestamps (JSON) in the same media bucket, for following the text while listening; null when none",
+      ),
   })
   .describe("Narration of the digest text (never of Arabic text or Quran verses)");
 export type DigestAudioView = z.infer<typeof digestAudioView>;

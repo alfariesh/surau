@@ -134,6 +134,40 @@ describe("R2 media (tidak pernah menimpa)", () => {
   });
 });
 
+describe("objek timestamps (X18)", () => {
+  const JSON_BODY = new TextEncoder().encode('{"format":1}');
+  const track = {
+    r2_key: "ihya/id/100074-0123456789ab.align.json",
+    bytes: JSON_BODY.length,
+    sha256: sha256Hex(JSON_BODY),
+  };
+  const json = { "content-type": "application/json" };
+
+  test("verify: JSON tanpa uji Range, CORS wajib untuk halaman", async () => {
+    const ok = media([200], JSON_BODY, { ...json, "access-control-allow-origin": "*" });
+    expect(await verifyObject(ok.fn, TARGET.origin, track)).toMatchObject({ ok: true });
+    expect(ok.calls.some((c) => c.range !== null)).toBe(false);
+    const noCors = await verifyObject(media([200], JSON_BODY, json).fn, TARGET.origin, track);
+    expect(noCors.problems).toEqual(["CORS: access-control-allow-origin tidak ada"]);
+  });
+
+  test("unggah dengan tipe application/json", async () => {
+    const r = runner();
+    await uploadObject({
+      target: TARGET,
+      key: track.r2_key,
+      file: "/tmp/x.align.json",
+      bytes: track.bytes,
+      repo: "/repo",
+      confirm: true,
+      contentType: "application/json",
+      fetchFn: media([404, 200], JSON_BODY, json).fn,
+      run: r.run,
+    });
+    expect(r.runs[0]).toContain("application/json");
+  });
+});
+
 describe("berkas manifest", () => {
   test("tidak ada → manifest kosong; track baru ditambah, yang lama tidak diubah; urut node", () => {
     const repo = mkdtempSync(join(tmpdir(), "surau-manifest-"));
@@ -176,6 +210,19 @@ describe("berkas manifest", () => {
       writeManifest(repo, work, first.manifest);
       const again = mergeTracks(readManifest(repo, work), [a]);
       expect(again.added).toEqual([]);
+      // Timestamps (X18) ditambahkan ke track yang sudah tercatat; objek audionya tetap.
+      const alignment = {
+        r2_key: "ihya/id/100075-cccccccccccc.align.json",
+        sha256: "c".repeat(64),
+        bytes: 99,
+        method: "forced_alignment" as const,
+      };
+      const aligned = mergeTracks(readManifest(repo, work), [{ ...a, alignment }]);
+      expect(aligned).toMatchObject({ added: [], aligned: [a.r2_key] });
+      expect(aligned.manifest.tracks.find((t) => t.r2_key === a.r2_key)?.alignment).toEqual(
+        alignment,
+      );
+      expect(mergeTracks(aligned.manifest, [a]).aligned).toEqual([]);
       expect(readManifest(repo, work).tracks.map((t) => t.toc_node_id)).toEqual([100074, 100075]);
       expect(() => readManifest(repo, { ...work, editionId: 2 })).toThrow(/milik/u);
     } finally {
