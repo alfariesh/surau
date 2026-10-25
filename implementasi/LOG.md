@@ -20,7 +20,11 @@ Format entri:
   - Skrip audio mencatat asal tiap kalimat di teks tampil (`sources`, di luar sha: audio lama tetap cocok); objek timestamps `.align.json` (format 1, immutable) + `alignment` di manifest + `audio_track.alignment_key` + `DigestView.audio.alignment_key`.
   - `tools/audio`: pemetaan token waktu → kalimat; ElevenLabs `/with-timestamps` (`submit --timestamps`) dan forced alignment (`pnpm audio align`, juga untuk audio yang sudah diunggah); `align-test` (uji pembanding ±300 karakter); upload/manifest/verify `.align.json` (verify memeriksa CORS); `r2-cors.json`.
   - Web: `data-say` di teks yang dibacakan, `ListenFollow` (logika dimuat malas): sorotan CSS Custom Highlight API `surau-dengar` tanpa mengubah DOM, gulir mengikuti (jeda 5 dtk bila pembaca menggulir, tanpa animasi bila reduced-motion), ketuk-untuk-lompat; fixture `/dev/intisari` dengan audio sunyi + waktu buatan.
-- Verifikasi: lihat Catatan hasil `sesi/X18-sorotan-dengar.md` (`pnpm verify`, e2e `sorotan.spec.ts` + `dengar.spec.ts`, browser desktop + ponsel gelap, peninjau).
+- Verifikasi:
+  - `pnpm verify` → lolos (984 Node + 440 workerd, build). sha skrip sama dengan `main` (sha emas di tes).
+  - e2e `sorotan.spec.ts` + `dengar.spec.ts` 8/8 (chromium + ponsel, axe) terhadap `next dev`; browser lokal desktop + ponsel gelap dan Preview `pr-143.surau.org/dev/intisari`.
+  - LCP ponsel Preview PR #143 (n=5): `/dev/intisari` 3,05 / 2,79 dtk, j1/200 2,97 / 2,87 dtk (≤ 4,29; `sesi/bukti/X18/lcp-pr143.md`).
+  - Peninjau: 0 blocker, 5 perbaikan + 7 saran, semuanya dikerjakan.
 - Biaya API: – (uji berbayar belum dijalankan: kunci T-29 belum ada)
 - Keputusan: ADR-102
 - Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-102 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. CORS bucket (langkah T-32) sebelum `pnpm audio verify`.

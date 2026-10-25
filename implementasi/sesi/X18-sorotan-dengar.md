@@ -35,11 +35,11 @@ Pemilik bertanya (2026-10-25) apakah teks bisa disorot mengikuti audio. X17 menu
 
 ## Selesai bila
 
-- [ ] Sorotan berjalan di Preview untuk satu Intisari pilot
-- [ ] Tes unit pemetaan; e2e dengan MP3 sunyi + timestamps fixture; axe
-- [ ] Uji berbayar with-timestamps v4 vs forced alignment (≤ 2.000 karakter, izin pemilik) tercatat di ADR
-- [ ] LCP halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`)
-- [ ] `pnpm verify` lolos; peninjau dijalankan; PR di-merge setelah CI hijau; ADR + STATUS/LOG diperbarui
+- [ ] Sorotan berjalan di Preview untuk satu Intisari pilot — *sebagian:* berjalan di Preview `pr-143.surau.org/dev/intisari` (fixture Intisari, audio sunyi + timestamps buatan; sorot, gulir, ketuk dicek di browser); Intisari pilot nyata belum ada di staging (X15b) dan belum ada audio/timestamps nyata (X17 pilot, T-29)
+- [x] Tes unit pemetaan; e2e dengan MP3 sunyi + timestamps fixture; axe — `digest-script.test.ts` (sumber kalimat, sha emas = sha `main`), `audio-manifest.test.ts`, `tools/audio` 47 (align, render timestamps polos + khidmat, ElevenLabs, r2/manifest), `follow.test.ts` 6; e2e `sorotan.spec.ts` + `dengar.spec.ts` 8/8 (chromium + ponsel, axe) terhadap `next dev`
+- [ ] Uji berbayar with-timestamps v4 vs forced alignment (≤ 2.000 karakter, izin pemilik) tercatat di ADR — *belum:* kunci T-29 belum ada; `pnpm audio align-test` siap
+- [x] LCP halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`) — Preview PR #143, n=5: `/dev/intisari` 3,05 / 2,79 dtk, j1/200 2,97 / 2,87 dtk ([bukti](bukti/X18/lcp-pr143.md))
+- [ ] `pnpm verify` lolos; peninjau dijalankan; PR di-merge setelah CI hijau; ADR + STATUS/LOG diperbarui — `pnpm verify` 984 + 440 tes + build; peninjau 0 blocker + 5 perbaikan (dikerjakan); ADR-102, STATUS, LOG; merge: lihat LOG
 
 ## Di luar cakupan
 
