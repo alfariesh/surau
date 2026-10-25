@@ -233,12 +233,13 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Intisari + Dengar (X15–X17, ADR-097)
 
-- [ ] **T-31 · Uji dengar suara Intisari + QA sampel pilot** · butir 1, 1b, dan 2 selesai 2026-10-25 (suara Kang Sugiman, gaya variatif, lafal "Ihya Ulumuddin", pilot audio disetujui); **tinggal butir 4** (nilai QA Intisari X15b)
+- [ ] **T-31 · Uji dengar suara Intisari + QA sampel pilot** · butir 1, 1b, dan 2 selesai 2026-10-25 (suara Kang Sugiman, gaya variatif, lafal "Ihya Ulumuddin", pilot audio disetujui); **tinggal butir 4** (nilai QA Intisari X15b; sementara dinilai agent 2026-10-25, penilaian manusia menyusul)
   1. **Dengarkan dua contoh** yang dibuat agent di chat 24 Oktober: ringkasan Muqaddimah + istilah (ikhlas, riya', 'ujub, tawakkal, al-Ghazali, shallallahu 'alaihi wa sallam), dibacakan **Jefri** (pria, tenang menjelaskan) dan **Gendhis** (perempuan, tenang dan ramah). Di kartu suara Anda bisa mengganti suara, misalnya Mizan, Leya, atau Bayu. Setiap ganti memakai ±600 kredit dari paket Starter.
   1b. *(Sesudah T-29, dengan izin Anda di chat, ±900 karakter)* **Uji gaya narator** (ADR-101): agent memutar contoh A (tanpa gaya) lalu B (gaya "khidmat": kutipan lebih tenang dan khidmat, syair lebih lembut). Nilai: lebih jelas, atau malah terdengar berakting? Ketik "gaya: A" atau "gaya: B".
   2. **Pilih satu suara** untuk semua Intisari (satu suara per Intisari menjaga biaya dan konsistensi; cadangan boleh disebut), lalu catat istilah yang lafalnya salah. Ketik ke agent: "T-31 suara: <nama>; lafal salah: …".
   3. *(Opsional, disarankan untuk jangka panjang)* **Suara milik Surau sendiri.** Suara dari Voice Library bisa ditarik pemiliknya, sehingga kitab berikutnya tidak bisa dibacakan dengan suara yang sama. Tulis ke agent satu deskripsi suara (misalnya "pria Indonesia 40-an, tenang, hangat, artikulasi jelas, tempo sedang") dan satu kalimat contoh. Agent membuat 3 pratinjau (Voice Design) untuk Anda pilih.
   4. **Pilot X15b (siap sejak 2026-10-25):** buka halaman QA yang dikirim agent di chat sesi X15b (kartu berkas "intisari-100003.html"; berisi teks kitab, jangan disebar). Salinannya ada di mesin agen (`data/build/llm/intisari/qa/` di checkout Surau): minta agent mengirim ulang bila kartunya hilang. Nilai tiap gagasan: Benar/Kurang/Salah, lalu centang "setia pada teks sumber", "atribusi tepat", dan "bebas nada fatwa" bila sesuai. Nilai tersimpan di peramban. Tekan **Salin hasil**, lalu tempel ke chat agent. Gerbangnya ≤ 5% "Salah". Intisari Kitab muncul dua kali (Sonnet dan pembanding Haiku): tulis juga mana yang Anda pilih untuk 41 kitab. Ajak Ust. Anas bila bisa.
+     **Sementara dinilai agent (2026-10-25, atas penyerahan Anda: "Saya serahkan ke agent sementara untuk QA model sonnet"):** 2 dari 133 gagasan Salah (1,5%, lolos) dan 40 Kurang ([laporan](../data/reports/ihya-9472-intisari-qa-agent-2026-10-25.md)). Intisari Kitab memakai Sonnet. Penilaian Anda atau Ust. Anas tetap berguna kapan saja, dengan langkah yang sama di atas.
 
 - [ ] **T-29 · Kunci API ElevenLabs untuk pembuatan audio (X17)** · butir 1–5 selesai 2026-10-25 (kunci terpasang, pilot 18.989 karakter); **tinggal butir 6** (pilihan kuota produksi)
   1. Buka https://elevenlabs.io dan masuk ke akun Anda (paket Starter).
@@ -272,8 +273,11 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
      - hasil Cari.
   3. Ketik ke agent "T-30 setuju" atau catatan perbaikannya.
 
-- [ ] **T-28 · Data kitab di mesin tempat agent bekerja (X15c)** · hanya untuk membangun korpus `ihya-v9`; pilot tidak menunggu ini
-  Agent sekarang bekerja di komputer yang belum punya drive Shamela (`Elfariesh`), folder `data/raw` (OpenITI, Tanzil, Kemenag), dan `data/build/llm` (hasil batch AI lama yang sudah dibayar). Tanpa ketiganya, korpus baru tidak bisa dibangun dan terjemahan lama harus dibayar ulang. **Jangan hapus folder-folder itu di Mac Anda.** Saat X15c dimulai, agent memandu langkahnya: menyambungkan drive, menyalin folder, atau menjalankan ingest di Mac.
+- [ ] **T-28 · Data kitab di mesin tempat agent bekerja (X15c)** · sebagian: data Shamela sudah ada (2026-10-25); hanya untuk membangun korpus `ihya-v9`, pilot tidak menunggu ini
+  Korpus baru butuh data Shamela, folder `data/raw` (OpenITI, Tanzil, Kemenag), dan `data/build/llm` (hasil batch AI lama yang sudah dibayar). Tanpa semuanya, korpus baru tidak bisa dibangun dan terjemahan lama harus dibayar ulang. **Jangan hapus folder-folder itu di Mac Anda.**
+  - **Shamela: sudah ada** di mesin agent, `/home/rekanesia/shamela/database` (hanya dibaca, seperti drive `Elfariesh`). Dipakai lewat `SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`. Ukuran dan sha256 `book/472/9472.db`, `update/master/book.sqlite`, dan `update/master/author.sqlite` cocok dengan `data/SOURCES.md` (dicek sesi induk 2026-10-25, diulang agent X15b).
+  - **OpenITI dan Tanzil** (`data/raw/openiti`, `data/raw/tanzil`): publik. Agent mengunduhnya sendiri dengan perintah di `data/SOURCES.md`; ingest menolak berkas yang sha256-nya berbeda.
+  - **Masih dari Anda:** `data/raw/kemenag` (salinan pribadi terjemahan + transliterasi Kemenag) dan `data/build/llm` (hasil terjemahan, ringkasan, dan judul AI lama), keduanya di Mac Anda. Saat X15c dimulai, agent memandu cara menyalinnya ke mesin agent, atau menjalankan ingest di Mac.
 
 ---
 

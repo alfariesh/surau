@@ -15,6 +15,24 @@ Format entri:
 
 ---
 
+## 2026-10-25 · X15b lanjutan · QA pilot Intisari oleh agent, Sonnet untuk Intisari Kitab, T-28 sebagian — selesai
+- Dikerjakan:
+  - Pemilik menyerahkan QA pilot untuk sementara kepada agent (sesi induk, 2026-10-25: "Saya serahkan ke agent sementara untuk QA model sonnet"). Halaman QA dipecah menjadi paket per Intisari, lalu dinilai empat subagen QA berkonteks baru (pola T-17 tahap 2), tanpa API berbayar. Laporan dan nilai mentah: `data/reports/ihya-9472-intisari-qa-agent-2026-10-25.{md,json}`.
+  - Sonnet 5.5 dicatat sebagai model Intisari Kitab (ADR-098). T-31 tetap terbuka untuk penilaian manusia.
+  - T-28: Shamela sudah ada di mesin agent (`SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`). Sisa kebutuhan X15c dicatat di T-28. T-32, yang sudah selesai, dihapus dari daftar *Butuh pemilik* di STATUS.
+- Hasil:
+  - 133 gagasan yang dimuat: Benar 91 (68,4%), Kurang 40 (30,1%), Salah 2 (1,5%), jadi gerbang ≤ 5% lolos.
+  - Intisari Kitab: Sonnet 3/5/0, pembanding Haiku 2/5/0.
+  - Tidak ada terjemahan kutipan yang salah, dan nada fatwa 0.
+- Verifikasi:
+  - Skrip agregasi: 140 gagasan dinilai tepat sekali, tanpa huruf Arab di catatan; gerbang 2/133.
+  - Kedua Salah dicek ulang agent ke teks Arab paketnya, dan keduanya memang salah.
+  - `sha256sum` tiga berkas Shamela sama dengan `data/SOURCES.md` (hanya dibaca).
+  - `pnpm verify` lolos (lihat PR).
+- Biaya API: – (penilai adalah subagen sesi, bukan API berbayar)
+- Keputusan: ADR-098 (Sonnet untuk Intisari Kitab, hasil QA agent)
+- Catatan untuk sesi berikutnya: X15c dimulai dari dua gagasan Salah (lapisan koreksi Intisari), lalu jangkar Kitab/merge (satu jangkar per gagasan sumber) dan prompt berikutnya (pembatas/modal, pertanyaan terjawab, *sanah*).
+
 ## 2026-10-24/25 · X15b · Intisari: pipeline + pilot Kitab al-'Ilm (US$0,53, staging) — selesai kecuali nilai T-31
 - Dikerjakan:
   - Glosarium berkunci (162 entri, `GLOSSARY_V2` dibangkitkan) + 144 definisi `glossary_term`; validator `judgeDigest` + pola teks terlarang satu sumber (`check.ts`); prompt `digest-section@2` (penunjuk kutipan) + `digest-merge@1`.
