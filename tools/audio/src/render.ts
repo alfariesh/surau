@@ -3,11 +3,23 @@
 // bingkai disambung dengan jeda antarsegmen → tag ID3 → berkas bersidik isi di `out/`.
 // Satu permintaan per segmen (bab pemutar = gagasan), dipecah per kalimat hanya bila melebihi batas
 // karakter penyedia. Pemanggilan berurutan: stitching butuh permintaan sebelumnya sudah selesai.
+// Dengan `timestamps` (X18) setiap permintaan meminta waktu per karakter; bila SEMUA potongan
+// punya waktu, berkas rakitan disertai timestamps per kalimat (tts_timestamps). Bila tidak,
+// timestamps dibuat sesudahnya dengan forced alignment (`pnpm audio align`).
 import { join } from "node:path";
 
-import { SCRIPT_LABEL, audioManifestTrack, audioObjectKey, unspeakableChar } from "@surau/core";
-import type { DigestScript, DigestView, ScriptSegmentKind } from "@surau/core";
+import {
+  AUDIO_ALIGNMENT_FORMAT,
+  SCRIPT_LABEL,
+  alignmentJson,
+  alignmentObjectKey,
+  audioManifestTrack,
+  audioObjectKey,
+  unspeakableChar,
+} from "@surau/core";
+import type { AudioAlignment, DigestScript, DigestView, ScriptSegmentKind } from "@surau/core";
 
+import { charTokens, monotonic, sentenceTimes } from "./align.ts";
 import { id3v2 } from "./id3.ts";
 import { applyLexicon } from "./lexicon.ts";
 import type { Lexicon } from "./lexicon.ts";
@@ -28,6 +40,8 @@ import {
   writeSegment,
 } from "./store.ts";
 import type { AudioStore, RenderedTrack, SegmentMeta } from "./store.ts";
+
+type AudioManifestAlignmentRef = NonNullable<RenderedTrack["track"]["alignment"]>;
 
 /**
  * Pemeriksaan terakhir teks yang benar-benar dikirim (sesudah leksikon): tanpa huruf Arab, ⟦ ⟧, atau
@@ -62,6 +76,8 @@ export interface RenderInput {
   work: { slug: string; title: string };
   /** Asal situs untuk tautan halaman Intisari di ID3, mis. https://surau.org. */
   siteOrigin: string;
+  /** Minta waktu per karakter ke penyedia (X18; `submit --timestamps`). */
+  timestamps?: boolean;
 }
 
 /** Pagu karakter tertagih satu putaran `submit` (dikurangi setiap permintaan baru). */
@@ -95,27 +111,37 @@ interface Piece {
   segment: number;
   text: string;
   key: string;
+  /** Kalimat skrip di potongan ini: indeks di segmennya + rentangnya di `text` (X18). */
+  sentences: { index: number; start: number; end: number }[];
 }
 
 /** Semua permintaan TTS sebuah skrip (sesudah leksikon), urut. */
 export function piecesOf(input: RenderInput, cap: TtsCapabilities): Piece[] {
-  return input.script.segments.flatMap((seg, segment) =>
-    requestTexts(
-      seg.sentences.map((s) => applyLexicon(s, input.lexicon)),
-      cap.maxCharsPerRequest,
-    ).map((text) => ({
-      segment,
-      text: speakableRequest(text),
-      key: segmentKey({
-        provider: cap.provider,
-        model: cap.model,
-        outputFormat: cap.outputFormat,
-        voiceId: input.voice.id,
-        languageCode: input.script.lang,
-        text,
-      }),
-    })),
-  );
+  return input.script.segments.flatMap((seg, segment) => {
+    const lexed = seg.sentences.map((s) => applyLexicon(s, input.lexicon));
+    let next = 0;
+    return requestTexts(lexed, cap.maxCharsPerRequest).map((text) => {
+      // `requestTexts` menggabung kalimat berurutan dengan satu spasi.
+      const sentences: Piece["sentences"] = [];
+      for (let at = 0; next < lexed.length && at < text.length; next++) {
+        sentences.push({ index: next, start: at, end: at + lexed[next]!.length });
+        at += lexed[next]!.length + 1;
+      }
+      return {
+        segment,
+        text: speakableRequest(text),
+        sentences,
+        key: segmentKey({
+          provider: cap.provider,
+          model: cap.model,
+          outputFormat: cap.outputFormat,
+          voiceId: input.voice.id,
+          languageCode: input.script.lang,
+          text,
+        }),
+      };
+    });
+  });
 }
 
 /** Karakter yang masih harus dibayar untuk sebuah skrip (permintaan yang belum ada di cache). */
@@ -185,6 +211,7 @@ export async function renderNode(
         voiceId: input.voice.id,
         languageCode: input.script.lang,
         previousRequestIds,
+        ...(input.timestamps === true && cap.timestamps ? { timestamps: true } : {}),
       });
     } catch (error) {
       // Tanda niat hanya dilepas bila permintaan pasti belum tertagih.
@@ -201,6 +228,7 @@ export async function renderNode(
       chars: piece.text.length,
       request_id: result.requestId,
       character_cost: result.characterCost,
+      alignment: result.alignment ?? null,
       created_at: now().toISOString(),
     };
     // Respons 200 = tertagih: tanda terima dicatat SEBELUM keluarannya diperiksa (ADR-061).
@@ -236,7 +264,7 @@ export async function renderNode(
   }
 
   const rendered = assemble(input, pieces, metas, audio, cap, now());
-  writeRendered(store, rendered.track, rendered.bytes);
+  writeRendered(store, rendered.track, rendered.bytes, rendered.alignment);
   return { status: "rendered", rendered: rendered.track, billed };
 }
 
@@ -248,7 +276,7 @@ export function assemble(
   audio: readonly Uint8Array[],
   cap: TtsCapabilities,
   createdAt: Date,
-): { track: RenderedTrack; bytes: Uint8Array } {
+): { track: RenderedTrack; bytes: Uint8Array; alignment: string | null } {
   const { script, view } = input;
   const lastSegment = script.segments.length - 1;
   const parts: JoinPart[] = pieces.map((p, i) => {
@@ -295,6 +323,41 @@ export function assemble(
   bytes.set(joined.audio, tag.length);
   const sha256 = sha256Hex(bytes);
   const r2_key = audioObjectKey(input.work.slug, script.lang, script.node_id, sha256);
+  // Timestamps per kalimat dari waktu karakter TTS, hanya bila setiap potongan punya (X18).
+  let alignment: { json: string; ref: AudioManifestAlignmentRef } | null = null;
+  if (metas.length > 0 && metas.every((m) => m.alignment !== null)) {
+    const segments: AudioAlignment["segments"] = script.segments.map((seg) =>
+      seg.sentences.map(() => null),
+    );
+    pieces.forEach((p, i) => {
+      const spans = sentenceTimes(
+        p.text,
+        p.sentences,
+        charTokens(metas[i]!.alignment!),
+        samplesToMs(joined.starts[i]!, rate),
+      );
+      p.sentences.forEach((s, j) => (segments[p.segment]![s.index] = spans[j] ?? null));
+    });
+    const flat = monotonic(segments.flat());
+    let k = 0;
+    const json = alignmentJson({
+      format: AUDIO_ALIGNMENT_FORMAT,
+      audio_sha256: sha256,
+      script_sha256: script.sha256,
+      method: "tts_timestamps",
+      segments: segments.map((seg) => seg.map(() => flat[k++] ?? null)),
+    });
+    const fileSha = sha256Hex(json);
+    alignment = {
+      json,
+      ref: {
+        r2_key: alignmentObjectKey(input.work.slug, script.lang, script.node_id, fileSha),
+        sha256: fileSha,
+        bytes: Buffer.byteLength(json),
+        method: "tts_timestamps",
+      },
+    };
+  }
   const track = audioManifestTrack.parse({
     toc_node_id: script.node_id,
     lang: script.lang,
@@ -313,6 +376,7 @@ export function assemble(
     spoken_version: script.spoken_version,
     lexicon_version: input.lexicon.version,
     chapters,
+    alignment: alignment?.ref ?? null,
     characters: metas.reduce((n, m) => n + (m.character_cost ?? m.chars), 0),
     created_at,
   });
@@ -322,7 +386,9 @@ export function assemble(
       title: input.title,
       segment_keys: pieces.map((p) => p.key),
       file: `out/${r2_key.split("/").at(-1)}`,
+      alignment_file: alignment === null ? null : `out/${alignment.ref.r2_key.split("/").at(-1)}`,
     },
     bytes,
+    alignment: alignment?.json ?? null,
   };
 }

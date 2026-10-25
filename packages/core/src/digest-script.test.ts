@@ -269,6 +269,64 @@ describe("digestScript (X17, aturan 11)", () => {
     expect(fewer.sha256).not.toBe(a.sha256);
   });
 
+  test("sumber kalimat (X18): sejajar kalimat, rentang menunjuk teks tampil, kalimat buatan kode null", async () => {
+    const v = view({
+      abstract: "Kitab ini memuat 3 pokok.\n\nNabi saw. dijadikan teladan.",
+      points: [
+        point(1, {
+          title: "  Judul tanpa titik ",
+          body: "Isi pertama (١). Lalu ⟦QS 2:255⟧ dibaca.",
+        }),
+      ],
+      quotes: [quote(1)],
+    });
+    const script = await digestScript(v);
+    expect(script.sources.map((s) => s.length)).toEqual(
+      script.segments.map((s) => s.sentences.length),
+    );
+    const text = (src: NonNullable<(typeof script.sources)[number][number]>) => {
+      const p = v.points.find((x) => x.ord === src.ord);
+      const field = {
+        opening: v.opening,
+        abstract: v.abstract,
+        closing: v.closing,
+        point_title: p?.title,
+        point_body: p?.body,
+        quote: v.quotes.find((q) => q.ord === src.ord)?.translation?.text,
+      }[src.field]!;
+      return field.slice(src.start, src.end);
+    };
+    const [label, intro, p1, ...rest] = script.sources;
+    expect(label!.every((s) => s === null)).toBe(true);
+    expect(intro!.map((s) => text(s!))).toEqual([
+      "Al-Ghazali (w. 505 H) membahas ilmu.",
+      "Kitab ini memuat 3 pokok.",
+      "Nabi saw. dijadikan teladan.",
+    ]);
+    expect(p1![0]).toBeNull(); // "Gagasan pertama."
+    // Titik tambahan judul tidak keluar dari teks tampil; penanda (١) dan placeholder ayat utuh.
+    expect(p1!.slice(1, 4).map((s) => text(s!))).toEqual([
+      "Judul tanpa titik",
+      "Isi pertama (١).",
+      "Lalu ⟦QS 2:255⟧ dibaca.",
+    ]);
+    expect(p1![4]).toBeNull(); // pengantar kutipan
+    expect(text(p1![5]!)).toBe("Terjemahan kutipan 1.");
+    expect(p1![5]).toMatchObject({ field: "quote", ord: 1 });
+    const closing = rest.at(-1)!;
+    expect(closing[0]).toBeNull(); // "Penutup."
+    expect(text(closing[1]!)).toBe("Ilmu menuntun amal.");
+    expect(closing.slice(2).every((s) => s === null)).toBe(true); // pintu ke kitab
+  });
+
+  test("sha skrip (X18) tetap atas segmen saja: sumber kalimat tidak ikut", async () => {
+    const script = await digestScript(view());
+    const { script_version, spoken_version, node_id, lang, segments } = script;
+    expect(script.sha256).toBe(
+      await textSha256(JSON.stringify({ script_version, spoken_version, node_id, lang, segments })),
+    );
+  });
+
   test("huruf Arab atau tag yang lolos ke teks ditolak (pertahanan berlapis)", async () => {
     const bad = view();
     await expect(

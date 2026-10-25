@@ -20,7 +20,26 @@ export {
   segmentText,
   unspeakableChar,
 } from "./digest-script.ts";
-export type { DigestScript, ScriptSegment, ScriptSegmentKind } from "./digest-script.ts";
+export type {
+  DigestScript,
+  ScriptSegment,
+  ScriptSegmentKind,
+  ScriptSource,
+  ScriptSourceField,
+} from "./digest-script.ts";
+export {
+  ALIGNMENT_KEY,
+  ALIGNMENT_MIME,
+  AUDIO_ALIGNMENT_FORMAT,
+  alignmentFits,
+  alignmentJson,
+  alignmentMethod,
+  alignmentObjectKey,
+  audioAlignment,
+  audioManifestAlignment,
+  sentenceSpan,
+} from "./audio-alignment.ts";
+export type { AlignmentMethod, AudioAlignment, AudioManifestAlignment } from "./audio-alignment.ts";
 export {
   AUDIO_CACHE_CONTROL,
   AUDIO_MANIFEST_FORMAT,

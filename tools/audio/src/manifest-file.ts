@@ -33,15 +33,27 @@ export function writeManifest(repo: string, work: AudioWork, manifest: AudioMani
   writeAtomic(join(repo, work.manifest), `${JSON.stringify(valid, null, 2)}\n`);
 }
 
-/** Tambahkan track yang kuncinya belum ada; track lama tidak diubah (riwayat untuk rollback korpus). */
+/**
+ * Tambahkan track yang kuncinya belum ada; track lama tidak diubah (riwayat untuk rollback korpus),
+ * kecuali rujukan timestamps-nya (X18): audio yang sama mendapat timestamps sesudah dicatat.
+ */
 export function mergeTracks(
   manifest: AudioManifest,
   tracks: readonly AudioManifestTrack[],
-): { manifest: AudioManifest; added: string[] } {
+): { manifest: AudioManifest; added: string[]; aligned: string[] } {
+  const incoming = new Map(tracks.map((t) => [t.r2_key, t]));
+  const aligned: string[] = [];
+  const kept = manifest.tracks.map((t) => {
+    const next = incoming.get(t.r2_key)?.alignment ?? null;
+    if (next === null || next.r2_key === t.alignment?.r2_key) return t;
+    aligned.push(t.r2_key);
+    return { ...t, alignment: next };
+  });
   const known = new Set(manifest.tracks.map((t) => t.r2_key));
   const fresh = tracks.filter((t) => !known.has(t.r2_key));
   return {
-    manifest: { ...manifest, tracks: sortTracks([...manifest.tracks, ...fresh]) },
+    manifest: { ...manifest, tracks: sortTracks([...kept, ...fresh]) },
     added: fresh.map((t) => t.r2_key),
+    aligned,
   };
 }

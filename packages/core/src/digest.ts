@@ -325,6 +325,7 @@ function audioView(rows: DigestRows): DigestAudioView | null {
     created_at: track.created_at,
     // Sudah divalidasi `audioTrackRow` saat dibaca dari DB.
     chapters: audioChapters.parse(JSON.parse(track.chapters_json)),
+    alignment_key: track.alignment_key,
   };
 }
 
