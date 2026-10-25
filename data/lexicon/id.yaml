@@ -90,8 +90,9 @@ entries:
     status: test
   # Karya dan tokoh
   - term: Ihya' 'Ulum ad-Din
-    ipa: ihˈjaʔ ʕuˈlum adˈdin
-    status: test
+    alias: Ihya Ulumuddin
+    status: active
+    note: "koreksi pemilik 2026-10-25: tulisan baku tetap, dibaca seperti lazim di Indonesia"
   - term: al-Ghazali
     ipa: alɣaˈzali
     status: test
