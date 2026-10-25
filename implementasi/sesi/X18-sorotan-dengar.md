@@ -1,6 +1,6 @@
 # X18 · Sesi sisipan: sorotan kalimat mengikuti audio Intisari
 
-> **Fase:** sisipan (`packages/core`, `packages/db` hanya view, `tools/audio`, `apps/web`, dokumen) · **Status:** berjalan
+> **Fase:** sisipan (`packages/core`, `packages/db` hanya view, `tools/audio`, `apps/web`, dokumen) · **Status:** sebagian (kode selesai 2026-10-25, ADR-102; uji berbayar + objek nyata menunggu T-29, T-32, izin pemilik)
 > **Prasyarat:** X17 di-merge (PR #139: `audio_track.alignment_key`, pemutar global) · Tugas pemilik: T-29 (kunci API) untuk uji berbayar; T-32 (domain media) untuk objek nyata
 > **Perkiraan:** 1 percakapan agent · uji berbayar ≤ 2.000 karakter, hanya dengan izin pemilik di chat
 
@@ -49,4 +49,20 @@ Pemilik bertanya (2026-10-25) apakah teks bisa disorot mengikuti audio. X17 menu
 
 ## Catatan hasil
 
-(diisi di akhir sesi)
+**2026-10-25 · kode (ADR-102, PR #143).** Nomor ADR-101 sudah dipakai X17b (gaya narator, PR #142, di-merge saat sesi ini berjalan), jadi sesi ini memakai ADR-102. Peran kalimat (`roles`, X17b) dan asal kalimat (`sources`, X18) digabung di `digestScript`; sha skrip di branch ini sama persis dengan `main` (dicek dengan worktree `origin/main`: `2c7da26d…`, kini sha emas di tes).
+
+Dibuat:
+- core: `sources` per kalimat (di luar sha), `audio-alignment.ts` (objek `.align.json` format 1), `alignment` di manifest, `alignment_key` di `audio_track` dan `DigestView.audio`.
+- `tools/audio`: `align.ts`; ElevenLabs `/with-timestamps` (`submit --timestamps`) + `/v1/forced-alignment`; `pnpm audio align --budget-minutes N --confirm`; `pnpm audio align-test --voice ID --confirm`; upload/manifest/verify untuk `.align.json` (verify memeriksa CORS); `r2-cors.json`. Tag gaya narator tidak masuk rentang kalimat.
+- web: `data-say` (+ `data-say-at`), `follow-targets.ts`, `ListenFollow` + `follow-run.ts` (Highlight API `surau-dengar`, gulir mengikuti, ketuk-untuk-lompat, satu run pemilik sorotan, objek dengan sha skrip lain ditolak), `lib/text-ranges.ts` (dipakai juga sorotan Cari), `digestFollow`, fixture `/dev/intisari` + `/dev/intisari/sorotan.json`.
+
+Uji coba nyata: Preview lokal `/dev/intisari` dan `?tier=section`, desktop + ponsel gelap: kalimat tersorot mengikuti audio sunyi, halaman bergulir, ketuk gagasan 1 → audio lompat ke 0:28 dan bab "Gagasan 1 dari 3".
+
+Belum / utang:
+- **Uji berbayar** with-timestamps v4 vs forced alignment belum dijalankan: kunci T-29 belum ada (alat audio melapor sendiri), dan izin pemilik di chat diperlukan (≤ 2.000 karakter; `align-test` ±300 karakter + ±20 dtk audio). Hasilnya dicatat di ADR-102 butir 5 lalu menetapkan jalur bawaan.
+- **CORS bucket** belum terpasang: pengaman otomatis agent menolak mengubah setelan bucket; langkahnya ditulis di T-32.
+- **Sorotan untuk Intisari pilot nyata** menunggu pilot X15b di staging + pilot audio X17 + timestamps + T-32. Butir pertama "Selesai bila" baru terbukti dengan fixture di Preview.
+
+Peninjau: 0 blocker, 5 perbaikan (tanda terima forced alignment untuk badan 200 rusak, tes khidmat + timestamps, `.catch` impor malas, balapan run sorotan, `catch` hanya `ScriptError`), semuanya dikerjakan; saran yang dikerjakan: sha emas, pagu `align`, tombol kontrol bukan gulir manual, `forced-colors`, catatan CSP `connect-src`, cek `script_sha256` di klien, catatan kunci cache di ADR.
+
+Untuk sesi berikutnya: sesudah T-29 + izin → `pnpm audio align-test --voice <id> --confirm`; lalu pilot X17 dengan `--timestamps` (bila v4 mengembalikan waktu) atau `pnpm audio align --budget-minutes N --confirm`; `upload --confirm` → `manifest` → CORS (T-32) → `verify` → build korpus.
