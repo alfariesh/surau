@@ -348,11 +348,14 @@ async function main(argv: string[]): Promise<number> {
         request_id: result.requestId,
         at,
       });
+      // Nama memuat jenis + sidik permintaan: dua sampel pada menit yang sama tidak saling menimpa.
+      const kind = values["demo-gaya"] ? "gaya" : "lafal";
       const file = join(
         store.root,
         "samples",
-        `${at.slice(0, 16).replace(/[-:]/gu, "")}-${values.voice}.mp3`,
+        `${at.slice(0, 16).replace(/[-:]/gu, "")}-${kind}-${key}.mp3`,
       );
+      if (existsSync(file)) throw new Error(`${file} sudah ada; tidak ditimpa`);
       writeAtomic(file, result.audio);
       removeIntent(store, key);
       let seconds = "?";
