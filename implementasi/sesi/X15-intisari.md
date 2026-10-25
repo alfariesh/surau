@@ -124,7 +124,7 @@ Keduanya juga memuat:
    - Tanda itu hanya ada di staging. Build `ihya-v9` membuat baris dari hasil batch, jadi batch penuh harus membuat ulang kedua bab itu. Intisari induknya (Bab Pertama dan Intisari Kitab) ikut dibuat ulang lewat sidik berjenjang.
    - Bila versi prompt tidak berubah, hasil pilot masih dianggap segar dan dipakai ulang (`Freshness`). Dalam hal itu, keluarkan dulu rekaman `dg-100007-id` dan `dg-100017-id-m` dari `digest.jsonl` supaya `plan` menjadwalkannya.
    - QA X15c memeriksa ulang kedua kasus ini sebagai uji regresi. (a) *sanah* (tahun) tidak boleh terbaca *sunnah*. (b) Sikap penulis tidak boleh dibalik: al-Ghazali menetapkan makna lahir hadis rumah dan anjing, dan dengan itu membedakan diri dari kaum Batiniyah. Bila salah satunya muncul lagi, X15c belum lolos.
-   - Audio kedua bab dibuat ulang sesudah Intisari baru (X17 produksi).
+   - Audio pilot kedua bab sudah dihapus dari staging (baris `audio_track`; objek R2 dibiarkan). Membuat ulang audionya berbayar kecil dan menunggu izin pemilik. Untuk produksi, audio dibuat dari Intisari baru (X17).
 3. T-28: data kitab tersedia di mesin agen. Shamela sudah ada (`SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`, sidik cocok dengan `data/SOURCES.md`). OpenITI dan Tanzil diunduh agent sesuai `data/SOURCES.md`; `data/raw/kemenag` dan cache `data/build/llm` disalin dari Mac pemilik. Lalu `pnpm ingest ihya` → `ihya-v9` (skema 9), `corpus:qa` 30/30, dan muat ke staging.
 4. Gerbang gratis: `eval:retrieval --gate` dan `eval:jawab kandidat` tidak turun dari ihya-v8.
 5. Preview UI X16 dengan data staging, lalu `corpus:promote ihya-v9` (izin pemilik).
@@ -206,6 +206,7 @@ Keduanya juga memuat:
 - **Dependensi baru:** `wrangler` (catalog) sebagai devDependency `tools/ingest`, untuk `getPlatformProxy` baca staging (pola tools/eval). Sudah ada di root, jadi tanpa paket baru di lockfile.
 - **Utang dan pesan untuk X15c:**
   - model Intisari Kitab: Sonnet 5.5 (dipilih pemilik 2026-10-25);
+  - audio pilot 100007 dan 100017 dihapus dari staging: membuat ulang audionya berbayar kecil dan menunggu izin pemilik;
   - dua gagasan Salah dari QA agent (`dg-100007-id#g4`, `dg-100017-id-m#g2`) masih tampil di staging: tahan atau buat ulang lewat lapisan koreksi Intisari (pola ADR-047) sebelum promote;
   - jangkar gagasan Kitab/merge (`anchorsFromPoints`, bergiliran, ≤ 9) sering tidak menutup klaimnya: ambil minimal satu jangkar dari setiap gagasan sumber yang dirujuk;
   - prompt berikutnya:
@@ -232,4 +233,4 @@ Keduanya juga memuat:
 - **Dua gagasan Salah ditahan di staging** (permintaan sesi induk):
   - Dilakukan dengan UPDATE `review_status = 'rejected'` pada dua baris `digest_point`, dijaga judul dan status lama; hasilnya 2 baris berubah.
   - `readDigest` sebelum: 7 gagasan dan 7 pertanyaan per bab. Sesudah: 100007 menampilkan gagasan 1, 2, 3, 5, 6, 7 dan 100017 menampilkan 1, 3, 4, 5, 6, 7, masing-masing dengan 6 pertanyaan. Cari juga menyaring gagasan `rejected`.
-  - Audio pilot kedua bab (`audio_track` 100007 dan 100017, suara Kang Sugiman) masih membacakan ketujuh gagasan, termasuk yang ditolak. Penyebabnya: `audio_track` tidak punya status tinjau, dan `readDigest` belum menahan audio yang babnya menunjuk gagasan tersembunyi. Menghapus dua baris itu di staging belum dilakukan dan menunggu keputusan pemilik. Cadangan barisnya: `data/build/llm/intisari/staging/audio-track-ditahan-2026-10-25.json` (checkout utama).
+  - Audio pilot kedua bab (`audio_track` 100007 dan 100017, suara Kang Sugiman) ternyata masih membacakan ketujuh gagasan, termasuk yang ditolak. Penyebabnya: `audio_track` tidak punya status tinjau, dan `readDigest` belum menahan audio yang babnya menunjuk gagasan tersembunyi. Karena itu, atas permintaan sesi induk (ADR-097 butir 6), dua baris `audio_track` itu dihapus dari staging dan objek R2 dibiarkan. Sesudahnya `readDigest` mengembalikan audio null di kedua bab, dan 6 track lain tetap. `pnpm audio staging` (periksa) sesudahnya: 6 dimuat, 2 gugur `stale_script`. Aturannya kini tertulis di README `tools/ingest`: menolak gagasan di staging wajib diikuti penghapusan audio bab itu. Cadangan barisnya: `data/build/llm/intisari/staging/audio-track-ditahan-2026-10-25.json` (checkout utama).

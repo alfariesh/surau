@@ -22,7 +22,9 @@ Format entri:
   - T-28: Shamela sudah ada di mesin agent (`SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`). Sisa kebutuhan X15c dicatat di T-28. T-32, yang sudah selesai, dihapus dari daftar *Butuh pemilik* di STATUS.
   - Dua gagasan Salah ditandai `rejected` di `surau-corpus-staging` (permintaan sesi induk; UPDATE dua baris yang dijaga judul).
     - `readDigest` sesudahnya: 6/7 gagasan dan 6 pertanyaan per bab.
-    - Audio pilot kedua bab belum ditahan karena masih menunggu keputusan pemilik; cadangan barisnya ada di `data/build/llm/intisari/staging/audio-track-ditahan-2026-10-25.json` (checkout utama).
+    - Audio pilot kedua bab ikut ditahan atas permintaan sesi induk (ADR-097 butir 6): dua baris `audio_track` dihapus dari staging dan objek R2 dibiarkan. Cadangan barisnya ada di `data/build/llm/intisari/staging/audio-track-ditahan-2026-10-25.json` (checkout utama). `pnpm audio staging` (periksa) sesudahnya: 6 dimuat, 2 gugur `stale_script`.
+    - Membuat ulang audio kedua bab berbayar kecil dan menunggu izin pemilik.
+    - Aturan baru di README `tools/ingest`: menolak gagasan di staging wajib diikuti penghapusan audio bab itu.
     - X15c mendapat langkah uji regresi (*sanah*/*sunnah*, sikap penulis) dan butir "Selesai bila".
 - Hasil:
   - 133 gagasan yang dimuat: Benar 91 (68,4%), Kurang 40 (30,1%), Salah 2 (1,5%), jadi gerbang ≤ 5% lolos.

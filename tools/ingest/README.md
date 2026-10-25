@@ -73,6 +73,11 @@ Urutan pilot: `plan --stage leaf` → `submit --stage leaf` → `wait` → `coll
 - **Versi prompt:** hasil dengan versi prompt lama dianggap basi (satu kitab tidak bercampur versi); induknya ikut basi lewat sidik sumber.
 - **Pagu:** batch Intisari dan definisi glosarium memakai satu buku biaya folder ini (`--budget` = pagu total yang disetujui pemilik).
 - **Audio di staging (X17d):** `muat-staging` tidak menghapus `audio_track` node yang dimuat ulang. Sesudahnya jalankan `pnpm audio staging` (periksa saja) lalu `pnpm audio staging --confirm` bila ada audio yang skripnya kini tidak cocok: yang tidak cocok gugur, sama dengan aturan ingest (`selectAudioTracksIn`). Pilot 2026-10-25: 8 track cocok, 0 gugur.
+- **Menolak gagasan di staging** (`review_status = 'rejected'`) **wajib diikuti penghapusan audio bab itu** (ADR-097 butir 6: skrip audio hanya dari isi yang tampil).
+  - Alasannya: baris `audio_track` staging dipakai apa adanya, dan `readDigest` tidak memeriksa ulang sha skrip. Tanpa penghapusan, audio lama tetap membacakan gagasan yang ditolak.
+  - Caranya: jalankan `pnpm audio staging` (periksa saja; skrip dibangun ulang dari `readDigest`, sehingga track bab itu gugur `stale_script`), lalu `pnpm audio staging --confirm`. Bisa juga hapus baris `audio_track` bab itu saja.
+  - Objek R2 dibiarkan. Audio pengganti berbayar dan menunggu izin pemilik.
+  - Contoh 2026-10-25: dua gagasan Salah QA agent di 100007 dan 100017. Baris audionya dihapus; pemeriksaan sesudahnya: 6 dimuat, 2 gugur `stale_script`.
 - **Basi:** sidik berjenjang (teks subpohon) dan sidik Intisari sumber (`input_sha256`); hasil basi tidak dimuat dan dijadwalkan ulang oleh `plan`.
 - **Ingest:** `pnpm ingest ihya` memuat hasil yang berlaku ke `digest*` + `digest_point_fts`, dan abstrak yang lolos `checkSummary` menggantikan `summary.text` bahasa id. Invarian build (gagal bila dilanggar): kutipan cocok sidik dan tidak menyentuh ayat, sumber `passage` hanya untuk paragraf utuh, gagasan berjangkar, terjemahan kutipan `digest` membawa asal model-nya sendiri, indeks hanya gagasan yang tampil, istilah punya glosarium.
 
