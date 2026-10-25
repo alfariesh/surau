@@ -1,6 +1,6 @@
 # X17 · Sesi sisipan: Dengar (audio Intisari dengan ElevenLabs v4)
 
-> **Fase:** sisipan (`packages/text`, `packages/core`, `tools/audio` baru, `tools/ingest` hanya pemuat audio, `apps/web`, dokumen) · **Status:** sebagian (kode + bucket selesai 2026-10-25, ADR-100; pilot/produksi berbayar menunggu T-29, T-31, T-32 + izin pemilik)
+> **Fase:** sisipan (`packages/text`, `packages/core`, `tools/audio` baru, `tools/ingest` hanya pemuat audio, `apps/web`, dokumen) · **Status:** selesai untuk pilot (2026-10-25, ADR-100–103): kode, suara (Kang Sugiman, gaya `variatif@1`), 8 audio pilot di `media.surau.org`, dan baris audio di korpus staging. Audio produksi menunggu Intisari final (X15c, korpus `ihya-v9`) + kuota ElevenLabs (T-29 butir 6) + izin pemilik
 > **Prasyarat:** X15a di-merge (tabel `audio_track`, `DigestView.audio`); sampel nyata dari pilot X15b · Tugas pemilik: T-29 (kunci API + kuota), T-31 (uji dengar)
 > **Perkiraan:** 1–2 percakapan agent · pilot TTS ≤ 50 ribu karakter (izin; masuk paket Starter) · produksi ±1,3 juta karakter (izin + keputusan kuota T-29)
 
@@ -55,9 +55,9 @@ Lihat [X15](X15-intisari.md) dan ADR-097 butir 6. Pekerja kota yang sibuk belaja
 
 - [x] Tes `spoken-id`, skrip tanpa huruf Arab/placeholder (fixture), offset bab = jumlah durasi segmen, penyambungan MP3 + ID3, store posisi — `spoken-id.test.ts` 41, `digest-script.test.ts` 10 (workerd, termasuk riwayat bertakhrij berat yang ditahan `readDigest` dan sha yang berubah saat gagasan ditolak), `audio-manifest.test.ts` 4, `tools/audio` 30 (`render.test.ts`: bab = jumlah sampel segmen + jeda; `mp3`/`id3`/`lexicon`/`elevenlabs`/`r2`), `listen.test.ts` 9 (store + track)
 - [x] e2e pemutar dengan MP3 sunyi: putar, jeda, kecepatan, bab, Media Session, lanjut posisi sesudah muat ulang, navigasi antarhalaman tanpa putus; axe — `e2e/dengar.spec.ts` 4/4 (chromium + ponsel) terhadap `next dev`; CI Preview menjalankannya lagi di PR
-- [ ] `pnpm audio verify` lolos untuk semua objek di manifest; `audio_track` termuat hanya untuk sha yang cocok — *sebagian:* pemuat terbukti dengan korpus fixture (`tools/ingest/src/audio.test.ts`: hanya sha cocok, basi/tanpa Intisari gugur); manifest masih kosong (belum ada audio), jadi `verify` atas objek nyata menunggu pilot
+- [x] `pnpm audio verify` lolos untuk semua objek di manifest; `audio_track` termuat hanya untuk sha yang cocok — pilot 2026-10-25: `pnpm audio verify` **8/8** (HEAD + Range + sha256, lewat Worker `surau-media`, ADR-103); `pnpm audio staging` atas korpus staging (sesudah X15b dan X18 merge): 8 track dimuat, 0 gugur (`selectAudioTracksIn`, fungsi yang sama dengan ingest); pemuat juga terbukti dengan korpus fixture (`tools/ingest/src/audio.test.ts`)
 - [x] LCP j1/200 dan halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`) — Preview PR #139, n=5: j1/200 3,12 dtk (baru) / 3,01 dtk (Keduanya); halaman Intisari `/dev/intisari` (fixture X16, staging belum ber-Intisari) 2,71 / 2,61 dtk ([bukti](bukti/X17/lcp-pr139.md))
-- [ ] Pemilik menyetujui suara dan sampel (T-31); biaya aktual tercatat
+- [x] Pemilik menyetujui suara dan sampel (T-31); biaya aktual tercatat — suara "Kang Sugiman" (voice ID `aK834gEOxQEtviMPgurT`), gaya B lalu "lebih variatif" (`variatif@1`), lafal "Ihya Ulumuddin" (koreksi pemilik), label lisan dihapus (ADR-102); pilot disetujui ("Ya saya setuju", batas 45.000 karakter) lalu dinilai "Pilot bagus". Biaya aktual seluruh X17 (sampel + uji bab + pilot): 71 permintaan, **18.989 karakter** tertagih (±US$1,52, paket Starter; `pnpm audio status`)
 - [x] `pnpm verify` lolos; peninjau; STATUS, LOG, dan berkas sesi ini diperbarui — `pnpm verify` 961 + 434 tes + build (sesudah merge X16 dan perbaikan peninjau); peninjau: 1 blocker + 8 perbaikan, semuanya dikerjakan (lihat Catatan hasil)
 
 ## Di luar cakupan
@@ -147,3 +147,17 @@ Untuk sesi berikutnya: urutan pilot sesudah izin pemilik:
 5. `pnpm audio manifest`;
 6. `pnpm audio verify`;
 7. build korpus berikutnya.
+
+**2026-10-25 · X17c–X17d: pilot tayang (ADR-101–103).** PR #144–#148.
+- Suara dan gaya dipilih pemilik lewat contoh dengar: Kang Sugiman, `variatif@1` (pembuka dan kepala gagasan hangat, kalimat baku tetap tenang). Lafal "Ihya Ulumuddin" aktif. Label suara AI hanya tampil sebagai teks, tidak diucapkan (ADR-102, skrip v3).
+- Pilot: Kitab Ilmu (100003) + 7 bab (100004–100007, 100009, 100017, 100019), 8 berkas, **48,6 menit**, 16.597 karakter di manifest `data/audio/ihya-9472-audio.json`.
+- `media.surau.org`: domain kustom R2 tertangkap wildcard Preview `*.surau.org`, jadi diganti Worker `apps/media` (`surau-media`) dengan binding R2 + Workers Caching (Range dari cache), deploy lewat job `deploy media` (ADR-103).
+- `pnpm audio staging [--confirm]` memuat track yang skripnya cocok ke `audio_track` staging. Tombol "Dengarkan 3 menit" di `/kitab/ihya/bab/100006/intisari` (data staging, `pnpm dev:remote`) memutar audio dari `media.surau.org` dengan pemutar mini berlabel "Dibacakan suara AI (Kang Sugiman)".
+
+Belum / menunggu:
+- **Audio produksi** (seluruh Intisari Ihya, ±1,3 juta karakter): sesudah Intisari final X15c (korpus `ihya-v9`, butuh T-28 dan nilai QA T-31 butir 4), pilihan kuota ElevenLabs (T-29 butir 6), dan izin pemilik di chat. Saat korpus produksi dibangun, ingest memuat track yang skripnya cocok secara otomatis; audio pilot gugur sendiri bila Intisari-nya berubah.
+- Di surau.org tombol Dengarkan belum tampil: korpus produksi (`ihya-v8`) belum memuat Intisari.
+- Sorotan kalimat (X18, ADR-104) untuk audio pilot butuh objek `.align.json`; berkas pilot dirender tanpa timestamps (`pnpm audio align`, menunggu izin).
+- Saran peninjau yang belum: lihat daftar di atas (fokus sesudah tombol tutup, alias `dengar.json`, uji `play()` di iPhone sungguhan).
+
+Untuk sesi berikutnya: audio produksi mengikuti urutan pilot di atas dengan `--gaya variatif --voice aK834gEOxQEtviMPgurT --voice-name "Kang Sugiman"`, lalu `pnpm audio upload --confirm`, `manifest`, `verify`, dan build korpus.
