@@ -9,6 +9,7 @@ import { id } from "../../../../../../../i18n/id";
 import { PAGE_FRAME } from "../../../../../../../lib/layout";
 import { loadDigest, loadDigestHeaders, loadReaderToc } from "../../../../../../../lib/reader/data";
 import { digestHref, digestHubHref } from "../../../../../../../lib/reader/digest";
+import { digestFollow } from "../../../../../../../lib/reader/digest-follow";
 import { flattenToc } from "../../../../../../../lib/reader/toc";
 import { OPEN_GRAPH_BASE } from "../../../../../../../lib/site";
 
@@ -79,6 +80,14 @@ export default async function DigestRoute({ params }: Props) {
     ...(hubHref === null ? [] : [{ name: t.hubHeading, href: hubHref }]),
   ];
 
+  const listen = listenTrack(digest, {
+    work: segment,
+    title: node?.titleId ?? digest.section.title_ar,
+    titleLang: node?.titleId ? "id" : "ar",
+    href: digestHref(segment, digest.section.id),
+  });
+  const follow = await digestFollow(digest, listen);
+
   return (
     <div className={`${PAGE_FRAME} pt-6 pb-16`}>
       <BreadcrumbJsonLd
@@ -96,12 +105,8 @@ export default async function DigestRoute({ params }: Props) {
         digest={digest}
         editionSlug={edition.slug}
         hubHref={hubHref}
-        listen={listenTrack(digest, {
-          work: segment,
-          title: node?.titleId ?? digest.section.title_ar,
-          titleLang: node?.titleId ? "id" : "ar",
-          href: digestHref(segment, digest.section.id),
-        })}
+        follow={follow}
+        listen={listen}
         sections={sections}
         titleId={node?.titleId ?? null}
         titleLang={shown.titleSource?.lang}

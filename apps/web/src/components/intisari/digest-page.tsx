@@ -17,6 +17,9 @@ import { LicenseNotice } from "../reader/license-notice";
 
 import { EvidenceList } from "./evidence-list";
 import { longDate } from "./format";
+import { ListenFollow } from "../listen/follow";
+import { proseParagraphs } from "../listen/follow-targets";
+import type { FollowData } from "../listen/follow-targets";
 import type { ListenTrack } from "../listen/track";
 import { ListenSlot } from "./listen-slot";
 import { PointList, pointNumbers } from "./point-list";
@@ -56,6 +59,8 @@ export interface DigestPageProps {
   editionSlug: string;
   /** Data pemutar Dengarkan (X17); null/tidak ada = Intisari tanpa audio. */
   listen?: ListenTrack | null;
+  /** Sorotan kalimat mengikuti audio (X18); null = audio tanpa timestamps. */
+  follow?: FollowData | null;
 }
 
 function Section({ id, heading, children }: { id: string; heading: string; children: ReactNode }) {
@@ -69,13 +74,21 @@ function Section({ id, heading, children }: { id: string; heading: string; child
   );
 }
 
-/** Teks AI multi-paragraf (pembuka, abstrak, penutup): dipecah di baris kosong, tanpa Markdown. */
-function Prose({ text, lead = false }: { text: string; lead?: boolean }) {
+/**
+ * Teks AI multi-paragraf (pembuka, abstrak, penutup): dipecah di baris kosong, tanpa Markdown.
+ * `say` + `data-say-at` = asal paragraf di teks aslinya, untuk sorotan kalimat audio (X18).
+ */
+function Prose({ text, say, lead = false }: { text: string; say: string; lead?: boolean }) {
   return (
     <div className="flex flex-col gap-3">
-      {text.split(/\n\s*\n/u).map((para, i) => (
-        <Typography key={i} className={lead ? "text-pretty sm:text-lg" : "text-pretty"}>
-          {para.trim()}
+      {proseParagraphs(text).map((para, i) => (
+        <Typography
+          key={i}
+          className={lead ? "text-pretty sm:text-lg" : "text-pretty"}
+          data-say={say}
+          data-say-at={para.at}
+        >
+          {para.text}
         </Typography>
       ))}
     </div>
@@ -101,6 +114,7 @@ export function DigestPage({
   workSlug,
   editionSlug,
   listen = null,
+  follow = null,
 }: DigestPageProps) {
   const numbers = pointNumbers(digest.points);
   const book = digest.tier === "book";
@@ -157,6 +171,9 @@ export function DigestPage({
             {meta}
           </Typography>
           <ListenSlot track={listen} />
+          {listen !== null && follow !== null && follow.trackKey === listen.key ? (
+            <ListenFollow data={follow} />
+          ) : null}
         </div>
         <Alert className="intisari-notice">
           <Alert.Indicator />
@@ -173,12 +190,12 @@ export function DigestPage({
 
       {book && digest.opening !== null ? (
         <Section heading={t.openingHeading} id="yang-dibahas">
-          <Prose lead text={digest.opening} />
+          <Prose lead say="opening" text={digest.opening} />
         </Section>
       ) : null}
 
       <Section heading={t.abstractHeading} id="ringkasan">
-        <Prose lead={!book} text={digest.abstract} />
+        <Prose lead={!book} say="abstract" text={digest.abstract} />
       </Section>
 
       <Section heading={t.pointsHeading} id="gagasan">
@@ -218,7 +235,7 @@ export function DigestPage({
 
       {book && digest.closing !== null ? (
         <Section heading={t.closingHeading} id="penutup">
-          <Prose text={digest.closing} />
+          <Prose say="closing" text={digest.closing} />
         </Section>
       ) : null}
 
