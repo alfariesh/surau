@@ -1,7 +1,7 @@
 # X15 · Sesi sisipan: Intisari (ringkasan belajar berlapis) — kontrak data, pipeline, korpus
 
-> **Fase:** sisipan (`packages/db`, `packages/core`, `packages/llm`, `tools/ingest`, dokumen) · **Status:** X15a selesai (2026-10-24, ADR-097, PR #137); X15b selesai kecuali nilai T-31 (2026-10-25, ADR-098, PR #141); X15c belum
-> **Prasyarat:** – · Tugas pemilik: T-31 (QA pilot, X15b), T-28 (data kitab, X15c)
+> **Fase:** sisipan (`packages/db`, `packages/core`, `packages/llm`, `tools/ingest`, dokumen) · **Status:** X15a selesai (2026-10-24, ADR-097, PR #137); X15b selesai (2026-10-25, ADR-098, PR #141; QA pilot dinilai agent atas penyerahan pemilik, penilaian manusia T-31 menyusul); X15c belum
+> **Prasyarat:** – · Tugas pemilik: T-31 (penilaian manusia QA pilot, X15b; sementara dinilai agent), T-28 (data kitab, X15c; Shamela sudah ada)
 > **Perkiraan:** X15a 1 percakapan, $0 · X15b 1–2 percakapan + pilot LLM ≤ $1 (izin) · X15c 1 percakapan + LLM ±$2,5–4 (izin) + promote `ihya-v9` (izin)
 
 ## Tujuan
@@ -27,7 +27,7 @@ Riset, keputusan, dan alternatif yang ditolak ada di **ADR-097**. Kebijakannya d
 | Node | muqaddimah + 40 kitab (41) | bagian lain (±270; rub' dari kitab-kitabnya) |
 | Durasi | 10–15 menit | 2–4 menit; jumlah gagasan mengikuti panjang teks |
 | Dibuat dari (`basis`) | Intisari bab anaknya (`children`, atau `mixed` bila kitab punya teks sendiri) | teks Arab bagian itu (`text`; node panjang per potongan lalu digabung, tetap `text`), atau teks sendiri + Intisari subbagiannya (`mixed`) |
-| Model | Sonnet 5.5 (dibandingkan dengan Haiku di pilot) | Haiku 5.5 |
+| Model | Sonnet 5.5 (dipilih 2026-10-25 sesudah pilot dibandingkan dengan Haiku) | Haiku 5.5 |
 | Isi | pembuka · 5–10 gagasan (120–250 kata) · 2–3 kutipan · penutup | abstrak · 3–7 gagasan (40–90 kata) · 0–2 kutipan · 0–5 istilah |
 
 Keduanya juga memuat:
@@ -119,7 +119,7 @@ Keduanya juga memuat:
 ### X15c · Batch penuh + korpus `ihya-v9` (sesudah pilot lolos, T-28, izin)
 
 1. Batch penuh `id` (izin pemilik, pagu dari `plan`) + `report`.
-2. T-28: data kitab tersedia di mesin agen. Lalu `pnpm ingest ihya` → `ihya-v9` (skema 9), `corpus:qa` 30/30, dan muat ke staging.
+2. T-28: data kitab tersedia di mesin agen. Shamela sudah ada (`SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`, sidik cocok dengan `data/SOURCES.md`). OpenITI dan Tanzil diunduh agent sesuai `data/SOURCES.md`; `data/raw/kemenag` dan cache `data/build/llm` disalin dari Mac pemilik. Lalu `pnpm ingest ihya` → `ihya-v9` (skema 9), `corpus:qa` 30/30, dan muat ke staging.
 3. Gerbang gratis: `eval:retrieval --gate` dan `eval:jawab kandidat` tidak turun dari ihya-v8.
 4. Preview UI X16 dengan data staging, lalu `corpus:promote ihya-v9` (izin pemilik).
 
@@ -146,7 +146,8 @@ Keduanya juga memuat:
 - [x] Tes validator: ID blok karangan, kutipan yang menyentuh ayat, huruf Arab di teks mana pun, pola fatwa, dan kata status hadits ditolak; butir opsional cacat dibuang dengan alasan. `pnpm exec vp test --project node packages/llm/src` → 144 lolos (`digest.test.ts`, `check.test.ts`)
 - [x] Blok menutup `text_raw` persis dan tidak memotong ayat; sha deterministik. `digest-units.test.ts` 9 lolos (gabungan blok = `text_raw`, ayat utuh di satu blok, rujukan rusak = paragraf tidak dikirim, sha sama dua kali, sha berjenjang)
 - [x] `pnpm llm intisari plan --from staging --kitab <id>` mencetak token dan biaya tanpa memanggil model: `--kitab 100003 --stage leaf` → 22 request, 357.266 token prompt (terbesar 31.243), perkiraan US$0,051 (count_tokens saja)
-- [ ] Pilot: biaya aktual ≤ pagu ✓ (US$0,53 ≤ US$1), halaman QA terkirim ✓ (2026-10-25), **nilai pemilik (T-31) ≤ 5% gagasan "Salah": menunggu pemilik**
+- [x] Pilot: biaya aktual ≤ pagu ✓ (US$0,53 ≤ US$1), halaman QA terkirim ✓ (2026-10-25), ≤ 5% gagasan "Salah" ✓ **menurut penilaian agent**, yang untuk sementara diserahkan pemilik (2026-10-25: "Saya serahkan ke agent sementara untuk QA model sonnet"). Hasilnya 2/133 = 1,5% (skrip agregasi: 140 gagasan dinilai tepat sekali; [laporan](../../data/reports/ihya-9472-intisari-qa-agent-2026-10-25.md))
+- [ ] Penilaian manusia T-31 atas halaman QA yang sama (pemilik atau Ust. Anas; tidak menghalangi X15c)
 
 **X15c**
 - [ ] `corpus:qa ihya-v9` 30/30; gerbang eval tidak turun; promote atas izin pemilik
@@ -197,8 +198,27 @@ Keduanya juga memuat:
   - Tanpa tes otomatis (dicek manual): hitungan QA tanpa pembanding Haiku dan cek ID staging baca = tulis.
 - **Dependensi baru:** `wrangler` (catalog) sebagai devDependency `tools/ingest`, untuk `getPlatformProxy` baca staging (pola tools/eval). Sudah ada di root, jadi tanpa paket baru di lockfile.
 - **Utang dan pesan untuk X15c:**
-  - pilih model Intisari Kitab dari nilai T-31;
-  - prompt berikutnya: buang "alasan … bila disebut" dari pembuka, ganti contoh abstrak menjadi "Bagian ini …";
+  - model Intisari Kitab: Sonnet 5.5 (dipilih pemilik 2026-10-25);
+  - dua gagasan Salah dari QA agent (`dg-100007-id#g4`, `dg-100017-id-m#g2`) masih tampil di staging: tahan atau buat ulang lewat lapisan koreksi Intisari (pola ADR-047) sebelum promote;
+  - jangkar gagasan Kitab/merge (`anchorsFromPoints`, bergiliran, ≤ 9) sering tidak menutup klaimnya: ambil minimal satu jangkar dari setiap gagasan sumber yang dirujuk;
+  - prompt berikutnya:
+    - buang "alasan … bila disebut" dari pembuka, dan ganti contoh abstrak menjadi "Bagian ini …";
+    - pertahankan kata modal dan pembatas ("sebagian", "hendaknya", "tidak lain");
+    - pastikan pertanyaan terjawab oleh isi gagasannya;
+    - *sanah* berarti tahun;
   - celah peninjau yang tercatat di ADR-098 *Konsekuensi*;
   - node yang anaknya gagal permanen masih menunggu (belum ada jalur "menyerah lalu lanjut tanpa anak");
   - ingest `ihya-v9` dari T-28 memuat ulang staging, jadi baris pilot terganti oleh build penuh.
+
+*(X15b lanjutan, 2026-10-25: QA pilot oleh agent, model Intisari Kitab, T-28)*
+- **Penyerahan pemilik** (sesi induk, 2026-10-25): "Saya serahkan ke agent sementara untuk QA model sonnet". Tafsiran sesi induk:
+  - QA pilot T-31 untuk sementara dinilai agent (pola T-17 tahap 2: lapisan koreksi, bukan kebenaran mutlak);
+  - Intisari Kitab memakai Sonnet.
+- **QA agent** ([laporan](../../data/reports/ihya-9472-intisari-qa-agent-2026-10-25.md)):
+  - Penilai: empat subagen QA berkonteks baru, tanpa API berbayar. Bahan: 140 gagasan dari halaman QA, dipecah menjadi paket teks per Intisari.
+  - Hasil 133 gagasan yang dimuat: Benar 91, Kurang 40, Salah 2 (1,5%), jadi lolos.
+  - Kedua Salah dicek ulang agent ke teks Arab.
+  - Pembanding Haiku Kitab 2/5/0 vs Sonnet 3/5/0. Penilai memilih Sonnet karena cakupannya, sejalan dengan pilihan pemilik (ADR-098).
+- **T-28 sebagian:**
+  - Shamela ada di `/home/rekanesia/shamela/database` (`SURAU_SHAMELA_ROOT`). Sidik tiga berkasnya cocok dengan `data/SOURCES.md` (`sha256sum`, hanya dibaca).
+  - Masih kurang: OpenITI dan Tanzil (agent mengunduhnya), serta Kemenag dan `data/build/llm` (di Mac pemilik).
