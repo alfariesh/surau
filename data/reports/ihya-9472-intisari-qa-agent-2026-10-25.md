@@ -51,7 +51,7 @@ Kolom *tidak setia*, *atribusi keliru*, dan *nada fatwa* menghitung centang yang
 
 **Sudah ditahan di staging (2026-10-25):** keduanya ditandai `review_status = 'rejected'`, sehingga tidak tampil lagi di halaman Intisari, Uji pemahaman, atau Cari. Dicek dengan `readDigest`: 6 dari 7 gagasan dan 6 pertanyaan per bab.
 
-- **Audio:** pilot audio kedua bab masih membacakan ketujuh gagasan. Penahanannya menunggu keputusan pemilik.
+- **Audio:** baris `audio_track` kedua bab dihapus dari staging, sehingga tombol Dengarkan di dua bab itu hilang. Objek R2 dibiarkan. Membuat ulang audionya berbayar kecil dan menunggu izin pemilik.
 - **Build `ihya-v9`:** wajib membuat ulang kedua bab, dan QA X15c memeriksa kedua kasus ini sebagai uji regresi (sesi X15, langkah X15c 2).
 
 ## Pola "Kurang" (40)

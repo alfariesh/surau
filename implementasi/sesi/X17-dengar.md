@@ -157,6 +157,11 @@ Untuk sesi berikutnya: urutan pilot sesudah izin pemilik:
 Belum / menunggu:
 - **Audio produksi** (seluruh Intisari Ihya, ±1,3 juta karakter): sesudah Intisari final X15c (korpus `ihya-v9`, butuh T-28 dan nilai QA T-31 butir 4), pilihan kuota ElevenLabs (T-29 butir 6), dan izin pemilik di chat. Saat korpus produksi dibangun, ingest memuat track yang skripnya cocok secara otomatis; audio pilot gugur sendiri bila Intisari-nya berubah.
 - Di surau.org tombol Dengarkan belum tampil: korpus produksi (`ihya-v8`) belum memuat Intisari.
+- **Audio pilot dua bab dihapus dari staging (2026-10-25).**
+  - Bab 100007 (Keutamaan mengajar) dan 100017 (Bab Kelima) membacakan gagasan yang ditolak QA agent X15b. Karena itu baris `audio_track`-nya dihapus (ADR-097 butir 6), dan objek R2 dibiarkan.
+  - Staging kini berisi 6 audio pilot.
+  - Membuat ulang audio kedua bab berbayar kecil dan menunggu izin pemilik. Audio itu bisa dibuat dari Intisari yang tampil sekarang, atau sesudah X15c membuat ulang bab tersebut.
+  - Aturannya: menolak gagasan di staging wajib diikuti penghapusan audio bab itu (README `tools/ingest`).
 - Sorotan kalimat (X18, ADR-104) untuk audio pilot butuh objek `.align.json`; berkas pilot dirender tanpa timestamps (`pnpm audio align`, menunggu izin).
 - Saran peninjau yang belum: lihat daftar di atas (fokus sesudah tombol tutup, alias `dengar.json`, uji `play()` di iPhone sungguhan).
 
