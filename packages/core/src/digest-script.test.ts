@@ -113,10 +113,11 @@ describe("digestScript (X17, aturan 11)", () => {
       ["quotes", null],
       ["closing", null],
     ]);
+    // Label suara AI tidak diucapkan (ADR-102): pembuka hanya sumbernya.
     expect(script.segments[0]?.sentences).toEqual([
-      SCRIPT_LABEL,
       "Dari kitab Ihya' 'Ulum ad-Din karya al-Ghazali.",
     ]);
+    expect(JSON.stringify(script)).not.toContain(SCRIPT_LABEL);
     const closing = segmentText(script.segments.at(-1)!);
     expect(closing.startsWith("Penutup. Ilmu menuntun amal.")).toBe(true);
     expect(closing.endsWith(SCRIPT_DOOR)).toBe(true);
@@ -254,8 +255,8 @@ describe("digestScript (X17, aturan 11)", () => {
       closing: null,
       source: { ...v.source, work: { ...v.source.work, title_id: null, author: null } },
     });
-    expect(script.segments[0]?.sentences).toEqual([SCRIPT_LABEL]);
-    expect(segmentText(script.segments[3]!)).toContain("Anjuran yang ditulis penulis sendiri");
+    expect(script.segments[0]?.kind).toBe("intro");
+    expect(segmentText(script.segments[2]!)).toContain("Anjuran yang ditulis penulis sendiri");
     expect(segmentText(script.segments.at(-1)!)).toBe(SCRIPT_DOOR);
   });
 
@@ -339,7 +340,7 @@ describe("digestScript (X17, aturan 11)", () => {
     );
     // Sha emas: refaktor yang mengubah isi skrip tanpa sengaja menggugurkan semua audio; naikkan
     // SCRIPT_VERSION dan perbarui nilai ini hanya bila perubahan itu disengaja.
-    expect(script.sha256).toBe("2c7da26d368168fd83956416adc4701d97a1186dc94b7a7a4c2cb45f24b45ebf");
+    expect(script.sha256).toBe("f210b6111c22b3a7649572662bb8ea4becf12b59f11a6e93ad3bf0584ed4e4aa");
   });
 
   test("huruf Arab atau tag yang lolos ke teks ditolak (pertahanan berlapis)", async () => {

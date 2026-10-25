@@ -13,7 +13,7 @@
 //   align [--node a,b] [--budget-minutes N --confirm]  timestamps per kalimat lewat forced alignment untuk berkas rakitan
 //                         yang belum punya (juga audio yang sudah diunggah); berbayar per durasi
 //   align-test --voice ID [--confirm]  uji kecil berbayar (±300 karakter): with-timestamps v4 vs
-//                         forced alignment atas MP3 yang sama (X18, ADR-102)
+//                         forced alignment atas MP3 yang sama (X18, ADR-103)
 //   upload [--confirm]    unggah berkas rakitan (+ timestamps) ke R2 surau-media (tidak pernah menimpa)
 //   manifest              catat berkas yang sudah di R2 ke data/audio/<kitab>-audio.json
 //   verify                HEAD + Range + sha256 setiap objek di manifest (gagal → kode 1)
@@ -27,7 +27,6 @@ import { parseArgs } from "node:util";
 import {
   ALIGNMENT_MIME,
   AUDIO_ALIGNMENT_FORMAT,
-  SCRIPT_LABEL,
   ScriptError,
   alignmentJson,
   alignmentObjectKey,
@@ -206,7 +205,7 @@ const mapped = (segments: AudioAlignment["segments"]) => {
 
 /** Teks uji `align-test` (±300 karakter, tanpa huruf Arab): tiga kalimat bergaya Intisari. */
 const ALIGN_TEST_TEXT = [
-  SCRIPT_LABEL,
+  "Dari kitab Ihya Ulumuddin karya al-Ghazali.",
   "Gagasan pertama. Menurut al-Ghazali, niat yang lurus membuat amal sehari-hari bernilai ibadah, sedangkan riya merusaknya dari dalam.",
   "Karena itu ia menganjurkan muhasabah setiap malam: menghitung amal hari itu sebelum tidur, lalu memperbaiki niat untuk esok hari.",
 ];
@@ -362,8 +361,8 @@ async function main(argv: string[]): Promise<number> {
       const lexicon = loadLexicon(AI_TEXT_LANG);
       // --demo-gaya: uji dengar A/B gaya narator (ADR-101); bawaan: uji lafal leksikon (T-31).
       const text = values["demo-gaya"]
-        ? styleDemo(`${SCRIPT_LABEL} Contoh gaya narator.`)
-        : lexiconSample(lexicon, `${SCRIPT_LABEL} Contoh lafal: bawaan, lalu dengan leksikon.`);
+        ? styleDemo("Contoh gaya narator.")
+        : lexiconSample(lexicon, "Contoh lafal: bawaan, lalu dengan leksikon.");
       console.log(
         `Sampel ${values["demo-gaya"] ? "gaya narator" : `leksikon ${lexicon.version}`}: ${text.length} karakter (±US$${((text.length / 1000) * 0.08).toFixed(2)}).`,
       );
@@ -409,11 +408,16 @@ async function main(argv: string[]): Promise<number> {
         request_id: result.requestId,
         at,
       });
-      const file = join(
+      // Nama memuat jenis + sidik permintaan; bila tetap bentrok, diberi nomor. Audio yang sudah
+      // dibayar selalu disimpan dan tidak pernah menimpa sampel lain.
+      const kind = values["demo-gaya"] ? "gaya" : "lafal";
+      const base = join(
         store.root,
         "samples",
-        `${at.slice(0, 16).replace(/[-:]/gu, "")}-${values.voice}.mp3`,
+        `${at.slice(0, 16).replace(/[-:]/gu, "")}-${kind}-${key}`,
       );
+      let file = `${base}.mp3`;
+      for (let n = 2; existsSync(file); n++) file = `${base}-${n}.mp3`;
       writeAtomic(file, result.audio);
       removeIntent(store, key);
       let seconds = "?";
@@ -437,7 +441,7 @@ async function main(argv: string[]): Promise<number> {
       );
       const ms = todo.reduce((n, r) => n + r.track.duration_ms, 0);
       console.log(
-        `Berkas rakitan tanpa timestamps: ${todo.length} (${(ms / 60_000).toFixed(1)} menit audio; forced alignment ditagih per durasi, lihat ADR-102).`,
+        `Berkas rakitan tanpa timestamps: ${todo.length} (${(ms / 60_000).toFixed(1)} menit audio; forced alignment ditagih per durasi, lihat ADR-103).`,
       );
       if (todo.length === 0) return 0;
       if (!values.confirm) {

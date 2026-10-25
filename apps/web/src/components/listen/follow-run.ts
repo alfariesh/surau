@@ -1,4 +1,4 @@
-// Logika sorotan kalimat audio Intisari (X18, ADR-102), dimuat malas oleh `ListenFollow` saat audio
+// Logika sorotan kalimat audio Intisari (X18, ADR-103), dimuat malas oleh `ListenFollow` saat audio
 // halaman ini dimuat pemutar:
 // - timestamps per kalimat diambil dari objek `.align.json` (bucket media, immutable) dan
 //   dipasangkan dengan target kalimat halaman (urutan sama, dijamin sha skrip saat ingest);

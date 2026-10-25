@@ -2637,7 +2637,8 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
    Tag dipasang di awal kalimat hanya saat peran berubah; kalimat pertama segmen = nada dasar. Ekspresinya milik narator yang mengutip, bukan tokoh yang dikutip. Emosi kuat (marah, menangis, tertawa, berbisik), tiruan suara, dan efek dilarang. Hanya tag terdaftar yang lolos pemeriksaan teks akhir; `[ ]` lain tetap ditolak (aturan 11).
 3. **Gaya dicatat** di manifest (`style`) dan ikut sidik permintaan TTS, sehingga polos dan khidmat tidak berbagi cache. Gaya tidak ikut sha skrip, karena ingest mencocokkan isi, bukan cara membaca.
 4. **Diputuskan lewat telinga.** `pnpm audio sample --demo-gaya` membuat satu contoh (±900 karakter, berbayar, izin pemilik): versi A tanpa gaya, lalu versi B khidmat, dengan teks demo buatan (narasi, kutipan, syair). Pemilik (dan Ust. Anas bila bisa) menilai di T-31. `submit --gaya khidmat` baru dipakai bila lolos.
-5. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
+5. **`variatif@1`** (permintaan pemilik 2026-10-25, sesudah memilih khidmat di uji A/B): sama dengan khidmat, ditambah `[warm]` untuk kalimat pertama pembuka dan untuk kepala + judul gagasan. Kalimat baku buatan kode (label AI, anjuran, tanda takhrij, pengantar kutipan, penutup) selalu `[calm]`. Dibandingkan di bab "Keutamaan belajar" (100006), suara Kang Sugiman.
+6. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
 
 **Tidak dipilih:**
 - Model memilih tag per kalimat: tidak bisa diaudit, dan rawan dramatis.
@@ -2651,7 +2652,27 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 
 **Tinjau ulang bila:** uji dengar menilai khidmat berlebihan atau malah kurang, ElevenLabs merinci perilaku tag v4, atau narator manusia tersedia.
 
-## ADR-102 · Sorotan kalimat mengikuti audio Intisari (X18): timestamps per kalimat di objek R2 immutable, dua sumber waktu (with-timestamps TTS dan forced alignment), sorotan Highlight API + gulir + ketuk-untuk-lompat — diterima (kode; uji berbayar dan objek nyata menunggu T-29, T-32, izin pemilik) · 2026-10-25
+## ADR-102 · Label suara AI hanya sebagai teks, tidak diucapkan di audio — diterima (keputusan pemilik) · 2026-10-25
+
+**Konteks:** ADR-097/100 dan docs/05 §12 membuka setiap audio dengan "Intisari ini dibuat AI dan dibacakan suara AI." Sesudah mendengar pilot (bab 100006, suara Kang Sugiman, gaya variatif), pemilik memutuskan kalimat itu dihapus. Alasannya: audio lebih mudah dipotong, dan kalimat yang sama tidak diulang di setiap bab ("cukup label teks di web").
+
+Agent menyampaikan risikonya lebih dulu dan menawarkan jalan tengah (label ringkas "Intisari Surau, dengan suara AI."). Pemilik tetap memilih hapus. Risikonya: rekaman yang beredar terpisah dari situs bisa dikira suara manusia, dan transparansi konten sintetis tidak lagi terdengar di audionya.
+
+**Keputusan:**
+- Skrip v3: tidak ada kalimat label di audio. Segmen pembuka hanya "Dari kitab … karya …" (atau tidak ada, bila judul Latin karya tidak ada).
+- Label suara AI tetap ada sebagai teks:
+  - tombol Dengarkan ("Dibacakan suara AI (…)");
+  - pemutar mini;
+  - Media Session ("Suara AI · Surau");
+  - metadata ID3 (TPE1 "Dibacakan suara AI", COMM, TXXX `AI_GENERATED`).
+- docs/05 §12 dan teks-arab aturan 11 diubah sesuai keputusan ini.
+- Contoh dengar (`pnpm audio sample`) juga tanpa label lisan.
+
+**Konsekuensi:** audio pilot lama (skrip v2) gugur saat ingest (`stale_script`); hanya berkas lokal, belum diunggah.
+
+**Tinjau ulang bila:** audio mulai dibagikan sebagai berkas lepas (podcast, unduhan), ada keluhan pendengar yang mengira narator manusia, atau aturan transparansi konten sintetis mewajibkan label lisan.
+
+## ADR-103 · Sorotan kalimat mengikuti audio Intisari (X18): timestamps per kalimat di objek R2 immutable, dua sumber waktu (with-timestamps TTS dan forced alignment), sorotan Highlight API + gulir + ketuk-untuk-lompat — diterima (kode; uji berbayar dan objek nyata menunggu T-29, T-32, izin pemilik) · 2026-10-25
 
 **Konteks:** pemilik bertanya (2026-10-25) apakah teks Intisari bisa disorot mengikuti audio. X17 (ADR-100) menunda sorotan per kalimat dan menyiapkan kolom `audio_track.alignment_key`. Docs dicek 2026-10-25 (`/docs-terbaru elevenlabs`): `POST /v1/text-to-speech/{voice_id}/with-timestamps` mengembalikan `{audio_base64, alignment|null, normalized_alignment|null}` dengan waktu per karakter teks yang dikirim, tetapi docs **tidak menyebut** apakah `eleven_v4` didukung (hanya "model yang bisa TTS"). `POST /v1/forced-alignment` (multipart file + teks) mengembalikan waktu per karakter dan per kata, mendukung bahasa Indonesia, dan ditagih seperti Speech to Text (per durasi audio; tarif persisnya tidak tertulis). Belum ada audio produksi, kunci API (T-29) belum ada, jadi uji pembanding belum bisa dijalankan.
 

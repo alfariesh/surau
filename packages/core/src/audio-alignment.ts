@@ -1,4 +1,4 @@
-// Timestamps per kalimat audio "Dengarkan" (X18, ADR-102): objek JSON immutable di bucket media,
+// Timestamps per kalimat audio "Dengarkan" (X18, ADR-103): objek JSON immutable di bucket media,
 // ditunjuk `audio_track.alignment_key`, untuk sorotan kalimat yang mengikuti audio di halaman
 // Intisari. Isinya hanya angka: waktu [mulai, akhir) dalam ms untuk setiap kalimat skrip, sejajar
 // `DigestScript.segments[i].sentences` (skrip yang sama persis, dijamin `script_sha256`). Tanpa teks:

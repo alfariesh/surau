@@ -6,7 +6,7 @@ import type { FollowData } from "../../components/listen/follow-targets";
 import type { ListenTrack } from "../../components/listen/track";
 
 /**
- * Data sorotan kalimat halaman Intisari (X18, ADR-102): target kalimat dari skrip audio yang sama
+ * Data sorotan kalimat halaman Intisari (X18, ADR-103): target kalimat dari skrip audio yang sama
  * dengan yang dibacakan (`digestScript`, deterministik; ingest hanya memuat audio yang sha skripnya
  * cocok) + objek timestamps-nya. null bila audio tanpa timestamps atau skrip gagal dibangun.
  */

@@ -26,8 +26,21 @@ Format entri:
   - LCP ponsel Preview PR #143 (n=5): `/dev/intisari` 3,05 / 2,79 dtk, j1/200 2,97 / 2,87 dtk (≤ 4,29; `sesi/bukti/X18/lcp-pr143.md`).
   - Peninjau: 0 blocker, 5 perbaikan + 7 saran, semuanya dikerjakan.
 - Biaya API: – (uji berbayar belum dijalankan: kunci T-29 belum ada)
-- Keputusan: ADR-102
-- Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-102 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. CORS bucket (langkah T-32) sebelum `pnpm audio verify`.
+- Keputusan: ADR-103
+- Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-103 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. CORS bucket (langkah T-32) sebelum `pnpm audio verify`.
+
+## 2026-10-25 · X17c · Pilot dengar: suara Kang Sugiman, gaya variatif, lafal Ihya, label lisan dihapus — sebagian (1 bab lokal; pilot penuh menunggu izin)
+- Dikerjakan:
+  - Contoh lafal + gaya A/B (pemilik memilih gaya, lalu meminta versi lebih variatif).
+  - `variatif@1` (PR #145).
+  - Lafal "Ihya Ulumuddin" aktif di kamus lafal (PR #146).
+  - Bab 100006 dirender tiga kali: khidmat, variatif, dan variatif + lafal baru.
+  - Bug nama berkas sampel diperbaiki (PR #144).
+  - Label suara AI tidak lagi diucapkan (ADR-102, skrip v3).
+- Verifikasi: tes core/tools lolos; berkas dikirim ke pemilik untuk didengar.
+- Biaya API: ElevenLabs ±3.920 karakter (±US$0,31) dari paket Starter, atas izin pemilik.
+- Keputusan: ADR-101 (variatif@1), ADR-102
+- Catatan untuk sesi berikutnya: pilot Kitab Ilmu + 7 bab (±38 ribu karakter) menunggu izin; unggah menunggu T-32.
 
 ## 2026-10-25 · X17b · Gaya narator Dengar (tag audio v4) — selesai (kode; pemakaian menunggu uji dengar)
 - Dikerjakan: peran kalimat di skrip (narasi/kutipan/syair, ditentukan kode; skrip v2); gaya `polos` (bawaan) dan `khidmat@1` dari daftar tag tetap; gaya dicatat di manifest; `pnpm audio sample --demo-gaya` untuk uji A/B; T-31 diperluas.

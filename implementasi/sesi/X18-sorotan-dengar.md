@@ -1,6 +1,6 @@
 # X18 · Sesi sisipan: sorotan kalimat mengikuti audio Intisari
 
-> **Fase:** sisipan (`packages/core`, `packages/db` hanya view, `tools/audio`, `apps/web`, dokumen) · **Status:** sebagian (kode selesai 2026-10-25, ADR-102; uji berbayar + objek nyata menunggu T-29, T-32, izin pemilik)
+> **Fase:** sisipan (`packages/core`, `packages/db` hanya view, `tools/audio`, `apps/web`, dokumen) · **Status:** sebagian (kode selesai 2026-10-25, ADR-103; uji berbayar + objek nyata menunggu T-29, T-32, izin pemilik)
 > **Prasyarat:** X17 di-merge (PR #139: `audio_track.alignment_key`, pemutar global) · Tugas pemilik: T-29 (kunci API) untuk uji berbayar; T-32 (domain media) untuk objek nyata
 > **Perkiraan:** 1 percakapan agent · uji berbayar ≤ 2.000 karakter, hanya dengan izin pemilik di chat
 
@@ -39,7 +39,7 @@ Pemilik bertanya (2026-10-25) apakah teks bisa disorot mengikuti audio. X17 menu
 - [x] Tes unit pemetaan; e2e dengan MP3 sunyi + timestamps fixture; axe — `digest-script.test.ts` (sumber kalimat, sha emas = sha `main`), `audio-manifest.test.ts`, `tools/audio` 47 (align, render timestamps polos + khidmat, ElevenLabs, r2/manifest), `follow.test.ts` 6; e2e `sorotan.spec.ts` + `dengar.spec.ts` 8/8 (chromium + ponsel, axe) terhadap `next dev`
 - [ ] Uji berbayar with-timestamps v4 vs forced alignment (≤ 2.000 karakter, izin pemilik) tercatat di ADR — *belum:* kunci T-29 belum ada; `pnpm audio align-test` siap
 - [x] LCP halaman Intisari ≤ 4,29 dtk (`pnpm ukur:lcp`) — Preview PR #143, n=5: `/dev/intisari` 3,05 / 2,79 dtk, j1/200 2,97 / 2,87 dtk ([bukti](bukti/X18/lcp-pr143.md))
-- [ ] `pnpm verify` lolos; peninjau dijalankan; PR di-merge setelah CI hijau; ADR + STATUS/LOG diperbarui — `pnpm verify` 984 + 440 tes + build; peninjau 0 blocker + 5 perbaikan (dikerjakan); ADR-102, STATUS, LOG; merge: lihat LOG
+- [ ] `pnpm verify` lolos; peninjau dijalankan; PR di-merge setelah CI hijau; ADR + STATUS/LOG diperbarui — `pnpm verify` 984 + 440 tes + build; peninjau 0 blocker + 5 perbaikan (dikerjakan); ADR-103, STATUS, LOG; merge: lihat LOG
 
 ## Di luar cakupan
 
@@ -49,7 +49,7 @@ Pemilik bertanya (2026-10-25) apakah teks bisa disorot mengikuti audio. X17 menu
 
 ## Catatan hasil
 
-**2026-10-25 · kode (ADR-102, PR #143).** Nomor ADR-101 sudah dipakai X17b (gaya narator, PR #142, di-merge saat sesi ini berjalan), jadi sesi ini memakai ADR-102. Peran kalimat (`roles`, X17b) dan asal kalimat (`sources`, X18) digabung di `digestScript`; sha skrip di branch ini sama persis dengan `main` (dicek dengan worktree `origin/main`: `2c7da26d…`, kini sha emas di tes).
+**2026-10-25 · kode (ADR-103, PR #143).** Nomor ADR-101 dipakai X17b (gaya narator, PR #142) dan ADR-102 dipakai X17 label lisan dihapus (PR #147), keduanya di-merge saat sesi ini berjalan, jadi sesi ini memakai ADR-103. Peran kalimat (`roles`, X17b) dan asal kalimat (`sources`, X18) digabung di `digestScript`; sha skrip di branch ini sama persis dengan `main` (dicek dengan worktree `origin/main`: `f210b611…` sesudah merge #147 (skrip v3), kini sha emas di tes).
 
 Dibuat:
 - core: `sources` per kalimat (di luar sha), `audio-alignment.ts` (objek `.align.json` format 1), `alignment` di manifest, `alignment_key` di `audio_track` dan `DigestView.audio`.
@@ -59,7 +59,7 @@ Dibuat:
 Uji coba nyata: Preview lokal `/dev/intisari` dan `?tier=section`, desktop + ponsel gelap: kalimat tersorot mengikuti audio sunyi, halaman bergulir, ketuk gagasan 1 → audio lompat ke 0:28 dan bab "Gagasan 1 dari 3".
 
 Belum / utang:
-- **Uji berbayar** with-timestamps v4 vs forced alignment belum dijalankan: kunci T-29 belum ada (alat audio melapor sendiri), dan izin pemilik di chat diperlukan (≤ 2.000 karakter; `align-test` ±300 karakter + ±20 dtk audio). Hasilnya dicatat di ADR-102 butir 5 lalu menetapkan jalur bawaan.
+- **Uji berbayar** with-timestamps v4 vs forced alignment belum dijalankan: kunci T-29 belum ada (alat audio melapor sendiri), dan izin pemilik di chat diperlukan (≤ 2.000 karakter; `align-test` ±300 karakter + ±20 dtk audio). Hasilnya dicatat di ADR-103 butir 5 lalu menetapkan jalur bawaan.
 - **CORS bucket** belum terpasang: pengaman otomatis agent menolak mengubah setelan bucket; langkahnya ditulis di T-32.
 - **Sorotan untuk Intisari pilot nyata** menunggu pilot X15b di staging + pilot audio X17 + timestamps + T-32. Butir pertama "Selesai bila" baru terbukti dengan fixture di Preview.
 

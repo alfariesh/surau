@@ -124,7 +124,7 @@ export function piecesOf(input: RenderInput, cap: TtsCapabilities): Piece[] {
   return input.script.segments.flatMap((seg, segment) => {
     const lexed = seg.sentences.map((s) => applyLexicon(s, input.lexicon));
     // Gaya narator (ADR-101) hanya menambah tag di AWAL kalimat; rentang kalimat dimulai sesudahnya.
-    const styled = styledSentences(lexed, seg.roles, input.style);
+    const styled = styledSentences(lexed, seg.roles, input.style, seg.kind);
     let next = 0;
     return requestTexts(styled, cap.maxCharsPerRequest).map((text) => {
       // `requestTexts` menggabung kalimat berurutan dengan satu spasi.
