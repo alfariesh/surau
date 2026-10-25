@@ -80,7 +80,7 @@ Format entri:
   - Pilot hanya sesudah T-29 (kunci, sebaiknya + User/Voices Read), T-31 (suara + `pnpm audio sample`), T-32 (domain `media.surau.org`), dan izin pemilik di chat.
   - Tombol ▶ halaman Intisari (X16) sudah tersambung ke pemutar; tampil begitu Intisari punya audio.
 
-## 2026-10-24 · X16 · UI Intisari: hub, halaman Intisari, pembaca, daftar isi, Cari, MCP — selesai (kode; data nyata + T-30 menunggu)
+## 2026-10-24 · X16 · UI Intisari: hub, halaman Intisari, pembaca, daftar isi, Cari, MCP — selesai (data nyata menunggu X15b; T-30 disetujui pemilik 2026-10-25)
 - Dikerjakan:
   - **core:** dalil Intisari dihitung dari jangkar (`DigestView.evidence`: ayat Tanzil + Kemenag, takhrij + label kode). Jalur Cari `digest` (opt-in; Cari situs, MCP, eval retrieval; bukan Jawab) dengan memo isolate untuk korpus tanpa indeks; `SEARCH_RESULT_VERSION` 3.
   - **web:** hub `/kitab/ihya/intisari` + halaman `/kitab/ihya/bab/<id>/intisari` (ISR, 404 di skema < 9) + fixture `/dev/intisari` (Preview, `DEV_PAGES`). Komponen `components/intisari/*` (label AI, gagasan + Dasar teks, kutipan Arab dari DB, istilah, dalil, Uji pemahaman, penutup, slot ▶ X17).
@@ -89,7 +89,7 @@ Format entri:
 - Verifikasi:
   - Unit: core/db/mcp lolos (dalil, jalur `dp`, memo, tool); web 52 lolos.
   - e2e `intisari.spec.ts` lokal 12 lolos / 2 dilewati (staging tanpa data), axe terang + gelap + urutan heading.
-  - CI PR #138: `verify` + `eval retrieval` hijau.
+  - CI PR #138 (commit `6af024a`): `verify`, `eval retrieval`, `preview` (e2e + axe di Preview), dan `preview mcp` (8 tool) hijau; di-merge ke `main` sebagai `4ffb9ab`.
   - LCP ponsel Preview (n=5): j1/200 3,49 / 3,29 dtk, `/dev/intisari` 3,37 / 3,69 dtk (≤ 4,29; `sesi/bukti/X16/lcp-pr138.md`).
   - Staging skema 7: hub dan halaman Intisari 404, tanpa lencana atau tautan.
   - Peninjau: 1 blocker, 3 penting, 10 kecil; semua dikerjakan:
@@ -100,7 +100,7 @@ Format entri:
     - tautan hub hanya bila ada Intisari Kitab, penjaga huruf Arab di kartu Cari, label netral catatan kaki non-takhrij, syarat e2e lewat lencana `daftar-isi.json`, satu pemuatan ekstra daftar isi per render.
 - Biaya API: –
 - Keputusan: ADR-099
-- Catatan untuk sesi berikutnya: data nyata baru ada sesudah X15b langkah 9 (pilot ke staging). Sesudahnya deploy ulang Preview: e2e "dengan Intisari" membandingkan kutipan dengan `/api/kutipan`. Ulangi juga `eval:retrieval --gate` dan LCP halaman Intisari nyata. X17 mengisi `ListenSlot`. T-30 tahap 1: tangkapan layar `sesi/bukti/X16/01–05`.
+- Catatan untuk sesi berikutnya: data nyata baru ada sesudah X15b langkah 9 (pilot ke staging). Sesudahnya deploy ulang Preview: e2e "dengan Intisari" membandingkan kutipan dengan `/api/kutipan`. Ulangi juga `eval:retrieval --gate` dan LCP halaman Intisari nyata. X17 mengisi `ListenSlot`. T-30 disetujui pemilik 2026-10-25 (“ya saya setuju”, jawaban di sesi induk) atas tangkapan layar `sesi/bukti/X16/01–05`; lihat lagi tampilannya dengan data nyata sesudah pilot.
 
 ## 2026-10-24 · X15a · Intisari: riset Headway/Blinkist/ElevenLabs v4, rencana X15–X17, kontrak data — selesai (kontrak; pipeline, UI, audio menyusul)
 - Dikerjakan:
