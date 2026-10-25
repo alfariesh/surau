@@ -20,6 +20,10 @@ Format entri:
   - Pemilik menyerahkan QA pilot untuk sementara kepada agent (sesi induk, 2026-10-25: "Saya serahkan ke agent sementara untuk QA model sonnet"). Halaman QA dipecah menjadi paket per Intisari, lalu dinilai empat subagen QA berkonteks baru (pola T-17 tahap 2), tanpa API berbayar. Laporan dan nilai mentah: `data/reports/ihya-9472-intisari-qa-agent-2026-10-25.{md,json}`.
   - Sonnet 5.5 dicatat sebagai model Intisari Kitab (ADR-098). T-31 tetap terbuka untuk penilaian manusia.
   - T-28: Shamela sudah ada di mesin agent (`SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`). Sisa kebutuhan X15c dicatat di T-28. T-32, yang sudah selesai, dihapus dari daftar *Butuh pemilik* di STATUS.
+  - Dua gagasan Salah ditandai `rejected` di `surau-corpus-staging` (permintaan sesi induk; UPDATE dua baris yang dijaga judul).
+    - `readDigest` sesudahnya: 6/7 gagasan dan 6 pertanyaan per bab.
+    - Audio pilot kedua bab belum ditahan karena masih menunggu keputusan pemilik; cadangan barisnya ada di `data/build/llm/intisari/staging/audio-track-ditahan-2026-10-25.json` (checkout utama).
+    - X15c mendapat langkah uji regresi (*sanah*/*sunnah*, sikap penulis) dan butir "Selesai bila".
 - Hasil:
   - 133 gagasan yang dimuat: Benar 91 (68,4%), Kurang 40 (30,1%), Salah 2 (1,5%), jadi gerbang ≤ 5% lolos.
   - Intisari Kitab: Sonnet 3/5/0, pembanding Haiku 2/5/0.

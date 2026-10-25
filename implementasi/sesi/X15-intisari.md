@@ -119,9 +119,15 @@ Keduanya juga memuat:
 ### X15c · Batch penuh + korpus `ihya-v9` (sesudah pilot lolos, T-28, izin)
 
 1. Batch penuh `id` (izin pemilik, pagu dari `plan`) + `report`.
-2. T-28: data kitab tersedia di mesin agen. Shamela sudah ada (`SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`, sidik cocok dengan `data/SOURCES.md`). OpenITI dan Tanzil diunduh agent sesuai `data/SOURCES.md`; `data/raw/kemenag` dan cache `data/build/llm` disalin dari Mac pemilik. Lalu `pnpm ingest ihya` → `ihya-v9` (skema 9), `corpus:qa` 30/30, dan muat ke staging.
-3. Gerbang gratis: `eval:retrieval --gate` dan `eval:jawab kandidat` tidak turun dari ihya-v8.
-4. Preview UI X16 dengan data staging, lalu `corpus:promote ihya-v9` (izin pemilik).
+2. **Uji regresi QA pilot (wajib sebelum promote).**
+   - Dua gagasan Salah dari QA agent X15b ditandai `review_status = 'rejected'` di `surau-corpus-staging` pada 2026-10-25: `dg-100007-id#g4` (Keutamaan mengajar) dan `dg-100017-id-m#g2` (Bab Kelima).
+   - Tanda itu hanya ada di staging. Build `ihya-v9` membuat baris dari hasil batch, jadi batch penuh harus membuat ulang kedua bab itu. Intisari induknya (Bab Pertama dan Intisari Kitab) ikut dibuat ulang lewat sidik berjenjang.
+   - Bila versi prompt tidak berubah, hasil pilot masih dianggap segar dan dipakai ulang (`Freshness`). Dalam hal itu, keluarkan dulu rekaman `dg-100007-id` dan `dg-100017-id-m` dari `digest.jsonl` supaya `plan` menjadwalkannya.
+   - QA X15c memeriksa ulang kedua kasus ini sebagai uji regresi. (a) *sanah* (tahun) tidak boleh terbaca *sunnah*. (b) Sikap penulis tidak boleh dibalik: al-Ghazali menetapkan makna lahir hadis rumah dan anjing, dan dengan itu membedakan diri dari kaum Batiniyah. Bila salah satunya muncul lagi, X15c belum lolos.
+   - Audio kedua bab dibuat ulang sesudah Intisari baru (X17 produksi).
+3. T-28: data kitab tersedia di mesin agen. Shamela sudah ada (`SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`, sidik cocok dengan `data/SOURCES.md`). OpenITI dan Tanzil diunduh agent sesuai `data/SOURCES.md`; `data/raw/kemenag` dan cache `data/build/llm` disalin dari Mac pemilik. Lalu `pnpm ingest ihya` → `ihya-v9` (skema 9), `corpus:qa` 30/30, dan muat ke staging.
+4. Gerbang gratis: `eval:retrieval --gate` dan `eval:jawab kandidat` tidak turun dari ihya-v8.
+5. Preview UI X16 dengan data staging, lalu `corpus:promote ihya-v9` (izin pemilik).
 
 ## Selesai bila
 
@@ -150,6 +156,7 @@ Keduanya juga memuat:
 - [ ] Penilaian manusia T-31 atas halaman QA yang sama (pemilik atau Ust. Anas; tidak menghalangi X15c)
 
 **X15c**
+- [ ] Uji regresi QA pilot: kedua kasus Salah X15b (*sanah*/*sunnah* dan sikap penulis yang dibalik) tidak muncul lagi di hasil batch penuh, dan kedua bab beserta induknya dibuat ulang
 - [ ] `corpus:qa ihya-v9` 30/30; gerbang eval tidak turun; promote atas izin pemilik
 
 ## Di luar cakupan
@@ -222,3 +229,7 @@ Keduanya juga memuat:
 - **T-28 sebagian:**
   - Shamela ada di `/home/rekanesia/shamela/database` (`SURAU_SHAMELA_ROOT`). Sidik tiga berkasnya cocok dengan `data/SOURCES.md` (`sha256sum`, hanya dibaca).
   - Masih kurang: OpenITI dan Tanzil (agent mengunduhnya), serta Kemenag dan `data/build/llm` (di Mac pemilik).
+- **Dua gagasan Salah ditahan di staging** (permintaan sesi induk):
+  - Dilakukan dengan UPDATE `review_status = 'rejected'` pada dua baris `digest_point`, dijaga judul dan status lama; hasilnya 2 baris berubah.
+  - `readDigest` sebelum: 7 gagasan dan 7 pertanyaan per bab. Sesudah: 100007 menampilkan gagasan 1, 2, 3, 5, 6, 7 dan 100017 menampilkan 1, 3, 4, 5, 6, 7, masing-masing dengan 6 pertanyaan. Cari juga menyaring gagasan `rejected`.
+  - Audio pilot kedua bab (`audio_track` 100007 dan 100017, suara Kang Sugiman) masih membacakan ketujuh gagasan, termasuk yang ditolak. Penyebabnya: `audio_track` tidak punya status tinjau, dan `readDigest` belum menahan audio yang babnya menunjuk gagasan tersembunyi. Menghapus dua baris itu di staging belum dilakukan dan menunggu keputusan pemilik. Cadangan barisnya: `data/build/llm/intisari/staging/audio-track-ditahan-2026-10-25.json` (checkout utama).

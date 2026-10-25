@@ -49,7 +49,10 @@ Kolom *tidak setia*, *atribusi keliru*, dan *nada fatwa* menghitung centang yang
 1. **`dg-100007-id#g4`** (Keutamaan mengajar; Haiku, `digest-section@2`). Isinya menyebut mengajarkan kalimat hikmah "setara dengan ibadah sunah". Hadis di Dasar teks 1 menyebut setara ibadah *setahun*: kata *sanah* (tahun) terbaca *sunnah*. Terjemahan AI paragrafnya sendiri sudah benar ("ibadah setahun"). Pertanyaan gagasan ini (makna tanah tandus) juga tidak terjawab oleh isinya.
 2. **`dg-100017-id-m#g2`** (Bab Kelima; Haiku, `digest-merge@1`). Kalimat terakhirnya ("bukan rumah dan anjing secara harfiah, melainkan isyarat kepada batin") membalik Dasar teks 2. Di sana al-Ghazali menegaskan tidak mengatakan rumah = hati dan anjing = amarah. Menurutnya hadis itu peringatan (*tanbih*) kepada batin yang tetap menetapkan makna lahirnya, dan kehalusan inilah yang membedakannya dari kaum Batiniyah.
 
-Keduanya masih tampil di staging (Preview). Keduanya harus ditahan atau dibuat ulang sebelum `ihya-v9` dipromosikan (X15c).
+**Sudah ditahan di staging (2026-10-25):** keduanya ditandai `review_status = 'rejected'`, sehingga tidak tampil lagi di halaman Intisari, Uji pemahaman, atau Cari. Dicek dengan `readDigest`: 6 dari 7 gagasan dan 6 pertanyaan per bab.
+
+- **Audio:** pilot audio kedua bab masih membacakan ketujuh gagasan. Penahanannya menunggu keputusan pemilik.
+- **Build `ihya-v9`:** wajib membuat ulang kedua bab, dan QA X15c memeriksa kedua kasus ini sebagai uji regresi (sesi X15, langkah X15c 2).
 
 ## Pola "Kurang" (40)
 
