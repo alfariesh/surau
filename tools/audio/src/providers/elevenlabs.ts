@@ -247,10 +247,14 @@ export class ElevenLabs implements TtsProvider, Aligner {
       );
     }
     if (!res.ok) throw await errorOf(res);
-    const body = (await res.json()) as {
-      words?: { text?: unknown; start?: unknown; end?: unknown }[];
-      loss?: unknown;
-    };
+    // 200 = tertagih: badan yang rusak dikembalikan sebagai hasil kosong (kalimat tanpa waktu),
+    // bukan dilempar, supaya pemanggil tetap mencatat tanda terimanya (ADR-061).
+    let body: { words?: { text?: unknown; start?: unknown; end?: unknown }[]; loss?: unknown } = {};
+    try {
+      body = (await res.json()) as typeof body;
+    } catch {
+      // Bukan JSON: tanpa kata.
+    }
     const words = (Array.isArray(body.words) ? body.words : []).flatMap((w) =>
       typeof w.text === "string" && typeof w.start === "number" && typeof w.end === "number"
         ? [{ text: w.text, start: w.start, end: w.end }]

@@ -305,6 +305,60 @@ describe("renderNode: keluaran rusak dan teks akhir", () => {
     expect(readRendered(store, 100074)).toBeNull();
   });
 
+  test("timestamps + gaya khidmat (X18): kalimat bertag mulai SESUDAH tag, semua terpetakan", async () => {
+    const base = fixtureView();
+    const quoted = digestView.parse({
+      ...base,
+      quotes: [
+        {
+          ord: 1,
+          point_ord: 1,
+          kind: "text",
+          passage_id: 10000001,
+          char_start: 0,
+          char_end: 3,
+          text_raw: "نص",
+          location: base.points[0]!.anchors[0]!.location,
+          translation: {
+            label: "ai_translation",
+            lang: "id",
+            model: "model-uji",
+            prompt_version: "intisari-bab@1",
+            created_at: "2026-10-24",
+            review_status: "ai_generated",
+            human_review: null,
+            text: "Niat adalah cahaya hati.",
+          },
+          takhrij: [],
+        },
+      ],
+    });
+    const s2 = await digestScript(quoted);
+    const { provider, calls } = fakeProvider();
+    const out = await renderNode(
+      store,
+      provider,
+      { ...input, view: quoted, script: s2, style: STYLES.khidmat!, timestamps: true },
+      { remaining: 1e5 },
+      clock,
+    );
+    if (out.status !== "rendered") throw new Error(out.status);
+    const t = out.rendered.track;
+    const a = audioAlignment.parse(
+      JSON.parse(readFileSync(join(store.root, out.rendered.alignment_file!), "utf8")),
+    );
+    expect(alignmentFits(a, s2)).toBe(true);
+    expect(a.segments.flat().every((x) => x !== null)).toBe(true);
+    const seg = s2.segments.findIndex((x) => x.kind === "point" && x.point_ord === 1);
+    const j = s2.segments[seg]!.roles.indexOf("quote");
+    const text = calls[seg]!.text;
+    expect(text).toContain("[thoughtful] Niat adalah cahaya hati.");
+    // Satu potongan per segmen: awal kalimat = awal bab + posisi kalimat (sesudah tag) × 20 ms.
+    expect(a.segments[seg]![j]![0]).toBe(
+      t.chapters[0]!.start_ms + text.indexOf("Niat adalah cahaya hati.") * 20,
+    );
+  });
+
   test("gaya khidmat: tag di permintaan, kunci cache berbeda dari polos, gaya tercatat", async () => {
     const plain = fakeProvider();
     await renderNode(store, plain.provider, input, { remaining: 100_000 }, clock);

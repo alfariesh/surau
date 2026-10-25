@@ -1,4 +1,4 @@
-import { digestScript } from "@surau/core";
+import { ScriptError, digestScript } from "@surau/core";
 import type { DigestView } from "@surau/core";
 
 import { followSrc, followTargets } from "../../components/listen/follow-targets";
@@ -21,11 +21,13 @@ export async function digestFollow(
     const script = await digestScript(digest);
     return {
       trackKey: track.key,
+      scriptSha: script.sha256,
       src: followSrc(key, mediaOrigin),
       targets: followTargets(script),
     };
-  } catch {
-    // Skrip yang ditolak (ScriptError) tidak punya audio yang cocok: tanpa sorotan.
-    return null;
+  } catch (error) {
+    // Skrip yang ditolak tidak punya audio yang cocok (ingest menggugurkannya): tanpa sorotan.
+    if (error instanceof ScriptError) return null;
+    throw error;
   }
 }

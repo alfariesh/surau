@@ -1500,6 +1500,13 @@ h3.reader-inline-subheading {
   cursor: pointer;
 }
 
+@media (forced-colors: active) {
+  ::highlight(surau-dengar) {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+
 .search-snippet {
   font-size: 1.15rem;
 }

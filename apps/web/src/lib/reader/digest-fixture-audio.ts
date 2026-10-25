@@ -66,6 +66,7 @@ export async function fixtureListen(digest: DigestView, section: boolean): Promi
     },
     follow: {
       trackKey: key,
+      scriptSha: script.sha256,
       src: `/dev/intisari/sorotan.json${section ? "?tier=section" : ""}`,
       targets: followTargets(script),
     },

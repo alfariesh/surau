@@ -215,4 +215,9 @@ describe("ElevenLabs timestamps + forced alignment (X18)", () => {
     });
     await expect(eleven.align(Uint8Array.of(1), "x")).rejects.toMatchObject({ charged: "unknown" });
   });
+
+  test("forced alignment 200 dengan badan rusak: hasil kosong (tanda terima tetap dicatat pemanggil)", async () => {
+    const { eleven } = client([new Response("bukan json", { status: 200 })]);
+    expect(await eleven.align(Uint8Array.of(1), "x")).toEqual({ words: [], loss: null });
+  });
 });

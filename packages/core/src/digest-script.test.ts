@@ -337,6 +337,9 @@ describe("digestScript (X17, aturan 11)", () => {
     expect(script.sha256).toBe(
       await textSha256(JSON.stringify({ script_version, spoken_version, node_id, lang, segments })),
     );
+    // Sha emas: refaktor yang mengubah isi skrip tanpa sengaja menggugurkan semua audio; naikkan
+    // SCRIPT_VERSION dan perbarui nilai ini hanya bila perubahan itu disengaja.
+    expect(script.sha256).toBe("2c7da26d368168fd83956416adc4701d97a1186dc94b7a7a4c2cb45f24b45ebf");
   });
 
   test("huruf Arab atau tag yang lolos ke teks ditolak (pertahanan berlapis)", async () => {

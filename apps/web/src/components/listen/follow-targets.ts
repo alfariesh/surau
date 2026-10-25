@@ -37,6 +37,8 @@ export function followTargets(script: Pick<DigestScript, "sources">): (FollowTar
 export interface FollowData {
   /** Kunci objek audio (`ListenTrack.key`): sorotan hanya saat audio INI yang dimuat pemutar. */
   trackKey: string;
+  /** sha skrip halaman: objek timestamps dengan `script_sha256` lain ditolak. */
+  scriptSha: string;
   src: string;
   targets: (FollowTarget | null)[];
 }

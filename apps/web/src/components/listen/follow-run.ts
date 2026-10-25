@@ -19,6 +19,8 @@ export const FOLLOW_HIGHLIGHT = "surau-dengar";
 const USER_SCROLL_PAUSE_MS = 5000;
 /** Atribut di <html> selama sorotan aktif (kursor penunjuk di teks yang bisa diketuk). */
 const ACTIVE_ATTR = "data-listen-follow";
+/** Run yang sedang memegang sorotan dan atribut: run lama yang berhenti belakangan tidak mencabutnya. */
+let owner: object | null = null;
 
 type Span = [number, number] | null;
 
@@ -91,18 +93,28 @@ function rangesOf(target: FollowTarget): Range[] {
 /** Mulai sorotan; mengembalikan fungsi berhenti, atau null bila timestamps tidak bisa dipakai. */
 export async function startFollow(data: FollowData): Promise<(() => void) | null> {
   let spans: Span[] | null = null;
+  let scriptSha: string | null = null;
   try {
     const res = await fetch(data.src);
-    if (res.ok) spans = flatSpans(await res.json());
+    if (res.ok) {
+      const json: unknown = await res.json();
+      spans = flatSpans(json);
+      const sha = (json as { script_sha256?: unknown }).script_sha256;
+      scriptSha = typeof sha === "string" ? sha : null;
+    }
   } catch {
     // Luring atau media tidak terjangkau: audio tetap jalan, tanpa sorotan.
   }
   if (spans === null || spans.length !== data.targets.length) return null;
+  // Timestamps milik skrip lain (jumlah kalimat kebetulan sama) tidak dipakai.
+  if (scriptSha !== null && scriptSha !== data.scriptSha) return null;
   const timed = spans;
   const highlights = typeof CSS !== "undefined" && "highlights" in CSS ? CSS.highlights : null;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   let current = -2;
   let userScrollAt = 0;
+  const run = {};
+  owner = run;
   document.documentElement.setAttribute(ACTIVE_ATTR, "");
 
   const follow = (ranges: readonly Range[]) => {
@@ -121,7 +133,7 @@ export async function startFollow(data: FollowData): Promise<(() => void) | null
 
   const update = () => {
     const state = listen.get();
-    if (state.track?.key !== data.trackKey) return;
+    if (state.track?.key !== data.trackKey || owner !== run) return;
     const index = activeIndex(timed, state.time * 1000);
     if (index === current) return;
     current = index;
@@ -138,6 +150,9 @@ export async function startFollow(data: FollowData): Promise<(() => void) | null
     userScrollAt = Date.now();
   };
   const onKey = (e: KeyboardEvent) => {
+    // Tombol yang sama di kontrol (putar, slider posisi) bukan gulir manual.
+    if ((e.target as Element | null)?.closest?.("button, input, select, textarea, [role=slider]"))
+      return;
     if (["PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown", " "].includes(e.key))
       userScrollAt = Date.now();
   };
@@ -152,7 +167,7 @@ export async function startFollow(data: FollowData): Promise<(() => void) | null
     if (local === null) return;
     const index = targetAt(data.targets, el.dataset.say!, Number(el.dataset.sayAt ?? 0) + local);
     const span = index >= 0 ? timed[index] : null;
-    if (!span) return;
+    if (!span || owner !== run) return;
     listen.seek(span[0] / 1000);
   };
 
@@ -168,6 +183,8 @@ export async function startFollow(data: FollowData): Promise<(() => void) | null
     window.removeEventListener("touchmove", onUserScroll);
     window.removeEventListener("keydown", onKey);
     document.removeEventListener("click", onClick);
+    if (owner !== run) return;
+    owner = null;
     document.documentElement.removeAttribute(ACTIVE_ATTR);
     highlights?.delete(FOLLOW_HIGHLIGHT);
   };

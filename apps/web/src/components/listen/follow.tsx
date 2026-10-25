@@ -21,11 +21,15 @@ export function ListenFollow({ data }: { data: FollowData }) {
     if (!active) return;
     let stop: (() => void) | null = null;
     let cancelled = false;
-    void import("./follow-run").then(async (m) => {
-      const run = await m.startFollow(data);
-      if (cancelled) run?.();
-      else stop = run;
-    });
+    import("./follow-run")
+      .then(async (m) => {
+        const run = await m.startFollow(data);
+        if (cancelled) run?.();
+        else stop = run;
+      })
+      .catch(() => {
+        // Potongan gagal dimuat (deploy baru, luring): audio tetap jalan, tanpa sorotan.
+      });
     return () => {
       cancelled = true;
       stop?.();

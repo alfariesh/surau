@@ -10,7 +10,7 @@
 //                         buat audio (berbayar; tanpa --confirm hanya rencana); niat dicatat sebelum
 //                         setiap permintaan dan tanda terima sesudahnya (ADR-061)
 //                         --timestamps: minta waktu per karakter (sorotan kalimat, X18)
-//   align [--node a,b] [--confirm]  timestamps per kalimat lewat forced alignment untuk berkas rakitan
+//   align [--node a,b] [--budget-minutes N --confirm]  timestamps per kalimat lewat forced alignment untuk berkas rakitan
 //                         yang belum punya (juga audio yang sudah diunggah); berbayar per durasi
 //   align-test --voice ID [--confirm]  uji kecil berbayar (±300 karakter): with-timestamps v4 vs
 //                         forced alignment atas MP3 yang sama (X18, ADR-102)
@@ -241,6 +241,7 @@ async function main(argv: string[]): Promise<number> {
       "voice-name": { type: "string" },
       "min-chars": { type: "string", default: String(SPOKEN_CHARS_PER_MINUTE) },
       "budget-chars": { type: "string" },
+      "budget-minutes": { type: "string" },
       timestamps: { type: "boolean", default: false },
       gaya: { type: "string", default: "polos" },
       "demo-gaya": { type: "boolean", default: false },
@@ -443,6 +444,10 @@ async function main(argv: string[]): Promise<number> {
         console.log("Tidak ada permintaan berbayar yang dikirim (tanpa --confirm).");
         return 0;
       }
+      const budgetArg = values["budget-minutes"];
+      if (budgetArg === undefined)
+        throw new Error("--confirm wajib bersama --budget-minutes <n> (menit audio).");
+      let budgetMs = z.coerce.number().positive().parse(budgetArg) * 60_000;
       const provider = new ElevenLabs({ apiKey: apiKey() });
       const corpus = await openStagingCorpus(repo);
       try {
@@ -454,6 +459,13 @@ async function main(argv: string[]): Promise<number> {
             console.log(`  lewati ${node}: skrip di staging tidak sama dengan audio ini`);
             continue;
           }
+          if (r.track.duration_ms > budgetMs) {
+            console.log(
+              `Berhenti: pagu tersisa ${(budgetMs / 60_000).toFixed(1)} menit (node ${node}).`,
+            );
+            break;
+          }
+          budgetMs -= r.track.duration_ms;
           const { script } = loaded;
           const { text, ranges } = alignText(script, lexicon);
           const audio = new Uint8Array(readFileSync(join(store.root, r.file)));
