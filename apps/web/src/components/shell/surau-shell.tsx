@@ -5,13 +5,15 @@ import type { ReactNode } from "react";
 import { AppLayout } from "@heroui-pro/react";
 import { usePathname } from "next/navigation";
 
+import { ListenProvider } from "../listen/listen-provider";
 import { HeaderMenuProvider } from "./header-menu";
 import { findActiveNavItem, navTitle } from "./nav-items";
 import { NavbarSlotProvider } from "./navbar-slot";
 import { SurauNavbar } from "./surau-navbar";
 import { SurauSidebar } from "./surau-sidebar";
 
-// Kerangka aplikasi Surau: sidebar (navigasi) + navbar (judul halaman, cari, menu ⋮) + konten.
+// Kerangka aplikasi Surau: sidebar (navigasi) + navbar (judul halaman, cari, menu ⋮) + konten +
+// pemutar Dengarkan global (X17), yang tetap berjalan selama navigasi klien.
 // Navigasi klien lewat RouterProvider di `Providers`, jadi AppLayout tidak butuh `navigate`.
 export function SurauShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -25,7 +27,7 @@ export function SurauShell({ children }: { children: ReactNode }) {
           sidebar={<SurauSidebar activeId={active?.id} />}
           sidebarCollapsible="icon"
         >
-          {children}
+          <ListenProvider>{children}</ListenProvider>
         </AppLayout>
       </HeaderMenuProvider>
     </NavbarSlotProvider>

@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+import type { AudioTrackRow } from "@surau/db";
 import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 
 import { buildSqlite } from "./build-sqlite.ts";
@@ -319,6 +320,11 @@ export interface IngestOptions {
    */
   acceptTextChanges?: readonly number[];
   env?: NodeJS.ProcessEnv;
+  /**
+   * Baris `audio_track` yang sha skripnya sudah dicocokkan dengan build sebelumnya yang sama
+   * (`selectBuildAudio`, X17). Diisi putaran kedua CLI ingest; foreign key ke `digest` diperiksa build.
+   */
+  audioTracks?: readonly AudioTrackRow[];
 }
 
 export function runIngest(
@@ -370,6 +376,7 @@ export function runIngest(
     revisions,
     digest: intisari,
   } = rowsFor(config, paths, prepared, toc, ids, opts.env);
+  if (opts.audioTracks !== undefined) rows.audio_track = [...opts.audioTracks];
   const validation = validate({
     config,
     source,

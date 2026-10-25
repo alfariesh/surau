@@ -17,6 +17,7 @@ import { LicenseNotice } from "../reader/license-notice";
 
 import { EvidenceList } from "./evidence-list";
 import { longDate } from "./format";
+import type { ListenTrack } from "../listen/track";
 import { ListenSlot } from "./listen-slot";
 import { PointList, pointNumbers } from "./point-list";
 import { QuoteCard } from "./quote-card";
@@ -53,6 +54,8 @@ export interface DigestPageProps {
   /** Edisi untuk lisensi/atribusi (`/lisensi`). */
   workSlug: string;
   editionSlug: string;
+  /** Data pemutar Dengarkan (X17); null/tidak ada = Intisari tanpa audio. */
+  listen?: ListenTrack | null;
 }
 
 function Section({ id, heading, children }: { id: string; heading: string; children: ReactNode }) {
@@ -97,6 +100,7 @@ export function DigestPage({
   hubHref,
   workSlug,
   editionSlug,
+  listen = null,
 }: DigestPageProps) {
   const numbers = pointNumbers(digest.points);
   const book = digest.tier === "book";
@@ -148,11 +152,11 @@ export function DigestPage({
           <Typography className="flex flex-wrap items-baseline gap-x-3 gap-y-1" type="body-sm">
             <span>{t.points(digest.points.length)}</span>
             <span>{t.readTime(digest.reading_minutes)}</span>
-            <ListenSlot audio={digest.audio} nodeId={digest.section.id} />
           </Typography>
           <Typography color="muted" data-intisari-meta="" type="body-xs">
             {meta}
           </Typography>
+          <ListenSlot track={listen} />
         </div>
         <Alert className="intisari-notice">
           <Alert.Indicator />

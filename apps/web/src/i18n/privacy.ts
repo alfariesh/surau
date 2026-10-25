@@ -6,7 +6,7 @@ export const privacyText = {
   pageTitle: "Kebijakan privasi",
   heading: "Kebijakan privasi",
   lead: "Surau menyimpan sesedikit mungkin data tentang Anda. Halaman ini menjelaskan apa yang diproses, di mana, dan berapa lama.",
-  updated: "Diperbarui 24 Oktober 2026.",
+  updated: "Diperbarui 25 Oktober 2026.",
   summaryHeading: "Ringkasan",
   summary: [
     "Tanpa akun dan tanpa login.",
@@ -17,6 +17,9 @@ export const privacyText = {
   readHeading: "Membaca dan Cari",
   readText:
     "Membaca kitab dan mencari tidak memakai cookie. Kata yang Anda cari tidak disimpan di database Surau. Supaya pencarian yang sama cepat, hasilnya disimpan sementara di cache Cloudflare paling lama 7 hari dalam bentuk kata yang sudah dinormalkan, tanpa keterangan siapa yang mencari. Log teknis mencatat alamat halaman tanpa kata yang dicari. Pilihan tampilan, posisi baca terakhir (untuk “Lanjutkan membaca”), dan tanda Intisari yang sudah Anda baca (untuk tanda “Sudah dibaca” di halaman Intisari) hanya disimpan di browser Anda (localStorage) dan tidak dikirim ke Surau.",
+  listenHeading: "Dengarkan (audio Intisari)",
+  listenText:
+    "Audio Intisari dibacakan suara AI dan diputar dari media.surau.org (penyimpanan Cloudflare R2), tanpa cookie. Posisi dengar terakhir dan kecepatan putar hanya disimpan di browser Anda (localStorage, kunci surau:listen:v1) supaya bisa dilanjutkan, dan tidak dikirim ke Surau. Menutup pemutar membuatnya tidak dipulihkan lagi; menghapus data situs menghapus posisinya.",
   askHeading: "Maknaz (asisten AI)",
   askNotice: "Maknaz belum dibuka untuk umum. Bagian ini berlaku saat fitur tersebut dibuka.",
   ask: [
@@ -38,6 +41,11 @@ export const privacyText = {
       data: "Pilihan tampilan, posisi baca terakhir, dan tanda Intisari yang sudah dibaca",
       where: "Browser Anda (localStorage)",
       how: "Sampai Anda menghapus data situs",
+    },
+    {
+      data: "Posisi dengar dan kecepatan putar audio Intisari",
+      where: "Browser Anda (localStorage)",
+      how: "Sampai Anda menghapus data situs (50 Intisari terakhir)",
     },
     { data: "Kuota harian (kode acak)", where: "Database Surau", how: "7 hari" },
     { data: "Cache jawaban (tanpa teks pertanyaan)", where: "Database Surau", how: "30 hari" },

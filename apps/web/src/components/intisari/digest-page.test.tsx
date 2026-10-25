@@ -114,21 +114,28 @@ describe("DigestPage (X16)", () => {
 });
 
 describe("ListenSlot (slot X17)", () => {
-  it("tanpa audio tidak merender apa pun; dengan audio hanya durasinya", () => {
-    expect(renderToStaticMarkup(<ListenSlot audio={null} nodeId={1} />)).toBe("");
-    const audio = {
-      r2_key: "uji.mp3",
-      duration_ms: 125_000,
-      voice_kind: "ai" as const,
-      voice_name: "Narator",
-      provider: "elevenlabs",
-      model: "eleven_v4",
-      created_at: "2026-10-24",
-      chapters: [],
-    };
-    expect(renderToStaticMarkup(<ListenSlot audio={audio} nodeId={1} />)).toContain(
-      "± 2 menit dengar",
+  it("tanpa audio tidak merender apa pun; dengan audio tombol Dengarkan berlabel suara AI", () => {
+    expect(renderToStaticMarkup(<ListenSlot track={null} />)).toBe("");
+    const html = renderToStaticMarkup(
+      <ListenSlot
+        track={{
+          id: "ihya/100074",
+          key: "ihya/id/100074-0123456789ab.mp3",
+          src: "https://media.surau.org/ihya/id/100074-0123456789ab.mp3",
+          title: "Kitab Ilmu",
+          titleLang: "id",
+          workTitle: "Ihya' 'Ulum ad-Din",
+          href: "/kitab/ihya/bab/100074/intisari",
+          duration: 125,
+          voice: { kind: "ai", name: "Narator" },
+          chapters: [],
+        }}
+      />,
     );
+    expect(html).toContain("Dengarkan");
+    expect(html).toContain("2 menit");
+    expect(html).toContain("Dibacakan suara AI (Narator)");
+    expect(html).toContain('data-listen-button="ihya/100074"');
   });
 });
 
