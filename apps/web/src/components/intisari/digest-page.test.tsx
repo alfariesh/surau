@@ -56,7 +56,9 @@ describe("DigestPage (X16)", () => {
 
   it("nomor gagasan berurutan walau ord melompat (gagasan ditolak tidak dikirim core)", () => {
     expect(FIXTURE_BOOK.points.map((p) => p.ord)).toEqual([1, 2, 4]);
-    expect(html).toContain("Gagasan 3: </span>Mulai dari yang wajib");
+    expect(html).toContain(
+      'Gagasan 3: </span><span data-say="point-title-4">Mulai dari yang wajib',
+    );
     expect(html).toContain("Jawabannya di gagasan 3: Mulai dari yang wajib");
   });
 
@@ -66,7 +68,9 @@ describe("DigestPage (X16)", () => {
       expect(html).toContain(`dir="rtl" lang="ar">${q.text_raw}</blockquote>`);
     }
     expect(html).toContain(FIXTURE_TEXT.p1);
-    expect(html).toMatch(/Ini teks contoh pertama[^<]*<span class="ai-badge"[^>]*>Terjemahan AI/u);
+    expect(html).toMatch(
+      /<span data-say="quote-1">Ini teks contoh pertama[^<]*<\/span> <span class="ai-badge"[^>]*>Terjemahan AI/u,
+    );
     // Riwayat: label takhrij miliknya sendiri (kode) + teks takhrij asli, bukan tebakan.
     const report = /<figure[^>]*id="kutipan-2"[\s\S]*?<\/figure>/u.exec(html)?.[0] ?? "";
     expect(report).toContain("Takhrij (١): takhrij menyebut: lemah");
@@ -114,21 +118,28 @@ describe("DigestPage (X16)", () => {
 });
 
 describe("ListenSlot (slot X17)", () => {
-  it("tanpa audio tidak merender apa pun; dengan audio hanya durasinya", () => {
-    expect(renderToStaticMarkup(<ListenSlot audio={null} nodeId={1} />)).toBe("");
-    const audio = {
-      r2_key: "uji.mp3",
-      duration_ms: 125_000,
-      voice_kind: "ai" as const,
-      voice_name: "Narator",
-      provider: "elevenlabs",
-      model: "eleven_v4",
-      created_at: "2026-10-24",
-      chapters: [],
-    };
-    expect(renderToStaticMarkup(<ListenSlot audio={audio} nodeId={1} />)).toContain(
-      "± 2 menit dengar",
+  it("tanpa audio tidak merender apa pun; dengan audio tombol Dengarkan berlabel suara AI", () => {
+    expect(renderToStaticMarkup(<ListenSlot track={null} />)).toBe("");
+    const html = renderToStaticMarkup(
+      <ListenSlot
+        track={{
+          id: "ihya/100074",
+          key: "ihya/id/100074-0123456789ab.mp3",
+          src: "https://media.surau.org/ihya/id/100074-0123456789ab.mp3",
+          title: "Kitab Ilmu",
+          titleLang: "id",
+          workTitle: "Ihya' 'Ulum ad-Din",
+          href: "/kitab/ihya/bab/100074/intisari",
+          duration: 125,
+          voice: { kind: "ai", name: "Narator" },
+          chapters: [],
+        }}
+      />,
     );
+    expect(html).toContain("Dengarkan");
+    expect(html).toContain("2 menit");
+    expect(html).toContain("Dibacakan suara AI (Narator)");
+    expect(html).toContain('data-listen-button="ihya/100074"');
   });
 });
 

@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { keepReadingPosition } from "../../lib/keep-position";
+import { rangesFor } from "../../lib/text-ranges";
 import { SUMMARY_OPEN_EVENT, isHidden, revealFor } from "../../lib/reader/fold";
 
 // Sorotan kata yang dicari saat pembaca dibuka dari hasil Cari (`?q=`, S14 langkah 7). Halaman
@@ -18,39 +19,6 @@ import { SUMMARY_OPEN_EVENT, isHidden, revealFor } from "../../lib/reader/fold";
 // dibuka penuh bila kecocokannya di bagian yang terpotong (X14).
 
 const HIGHLIGHT = "surau-cari";
-
-interface Span {
-  start: number;
-  end: number;
-}
-
-/** Range untuk rentang di gabungan teks node-node teks `root` (urut dokumen). */
-function rangesFor(root: Element, spans: readonly Span[]): Range[] {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  const nodes: { node: Text; start: number }[] = [];
-  let length = 0;
-  for (let n = walker.nextNode(); n !== null; n = walker.nextNode()) {
-    const text = n as Text;
-    nodes.push({ node: text, start: length });
-    length += text.data.length;
-  }
-  const at = (pos: number): [Text, number] | null => {
-    for (let i = nodes.length - 1; i >= 0; i--) {
-      const item = nodes[i];
-      if (item !== undefined && item.start <= pos) return [item.node, pos - item.start];
-    }
-    return null;
-  };
-  return spans.flatMap((s) => {
-    const a = at(s.start);
-    const b = at(s.end);
-    if (a === null || b === null) return [];
-    const range = document.createRange();
-    range.setStart(a[0], Math.min(a[1], a[0].data.length));
-    range.setEnd(b[0], Math.min(b[1], b[0].data.length));
-    return [range];
-  });
-}
 
 export function SearchHighlighter() {
   const query = useSearchParams().get("q")?.trim() ?? "";

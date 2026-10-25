@@ -1,0 +1,30 @@
+// Pemuat `audio_track` (X17, ADR-097 butir 6, ADR-100): baris audio korpus berasal dari metadata
+// ter-commit `data/audio/<kitab>-audio.json`, dan hanya dimuat bila sha skripnya sama dengan skrip
+// yang dibangun ulang dari Intisari di build ini. Skrip dibangun dengan `loadDigestScript` (core) atas
+// .sqlite hasil build, yaitu fungsi yang sama dengan yang dipakai alat audio saat membuat audio, jadi
+// gagasan yang ditolak, kutipan yang ditahan, atau Intisari yang berubah otomatis menggugurkan audionya.
+import { existsSync, readFileSync } from "node:fs";
+
+import { audioManifest, selectAudioTracksIn } from "@surau/core";
+import type { AudioSelection } from "@surau/core";
+
+import { sqliteD1 } from "./sqlite-d1.ts";
+import { openReadOnly } from "./sqlite.ts";
+
+export { audioReport } from "@surau/core";
+
+/** Pilih baris `audio_track` untuk build di `sqlitePath`; manifest tidak ada = tanpa audio. */
+export async function selectBuildAudio(
+  sqlitePath: string,
+  manifestPath: string,
+): Promise<AudioSelection> {
+  if (!existsSync(manifestPath)) return { rows: [], dropped: [] };
+  const manifest = audioManifest.parse(JSON.parse(readFileSync(manifestPath, "utf8")));
+  if (manifest.tracks.length === 0) return { rows: [], dropped: [] };
+  const sqlite = openReadOnly(sqlitePath);
+  try {
+    return await selectAudioTracksIn(sqliteD1(sqlite), manifest);
+  } finally {
+    sqlite.close();
+  }
+}

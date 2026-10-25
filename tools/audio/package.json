@@ -1,0 +1,20 @@
+{
+  "name": "@surau/audio",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Audio \"Dengarkan\" Intisari (X17, ADR-097/100): skrip dari Intisari → suara AI ElevenLabs v4 (REST) → MP3 bersambung + ID3 → R2 publik surau-media + metadata data/audio/. Pembuatan berbayar hanya dengan izin pemilik.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@surau/core": "workspace:*",
+    "@surau/db": "workspace:*",
+    "@surau/text": "workspace:*",
+    "yaml": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

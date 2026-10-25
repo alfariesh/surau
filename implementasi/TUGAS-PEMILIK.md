@@ -235,13 +235,14 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 - [ ] **T-31 · Uji dengar suara Intisari + QA sampel pilot** · bagian 1 bisa sekarang; bagian 2 sesudah pilot X15b
   1. **Dengarkan dua contoh** yang dibuat agent di chat 24 Oktober: ringkasan Muqaddimah + istilah (ikhlas, riya', 'ujub, tawakkal, al-Ghazali, shallallahu 'alaihi wa sallam), dibacakan **Jefri** (pria, tenang menjelaskan) dan **Gendhis** (perempuan, tenang dan ramah). Di kartu suara Anda bisa mengganti suara, misalnya Mizan, Leya, atau Bayu. Setiap ganti memakai ±600 kredit dari paket Starter.
+  1b. *(Sesudah T-29, dengan izin Anda di chat, ±900 karakter)* **Uji gaya narator** (ADR-101): agent memutar contoh A (tanpa gaya) lalu B (gaya "khidmat": kutipan lebih tenang dan khidmat, syair lebih lembut). Nilai: lebih jelas, atau malah terdengar berakting? Ketik "gaya: A" atau "gaya: B".
   2. **Pilih satu suara** untuk semua Intisari (satu suara per Intisari menjaga biaya dan konsistensi; cadangan boleh disebut), lalu catat istilah yang lafalnya salah. Ketik ke agent: "T-31 suara: <nama>; lafal salah: …".
   3. *(Opsional, disarankan untuk jangka panjang)* **Suara milik Surau sendiri.** Suara dari Voice Library bisa ditarik pemiliknya, sehingga kitab berikutnya tidak bisa dibacakan dengan suara yang sama. Tulis ke agent satu deskripsi suara (misalnya "pria Indonesia 40-an, tenang, hangat, artikulasi jelas, tempo sedang") dan satu kalimat contoh. Agent membuat 3 pratinjau (Voice Design) untuk Anda pilih.
   4. **Sesudah pilot X15b:** buka halaman QA yang dikirim agent, lalu nilai tiap gagasan: Benar/Kurang/Salah, setia pada paragraf sumbernya, atribusinya tepat, dan tanpa nada fatwa. Gerbangnya ≤ 5% "Salah". Ajak Ust. Anas bila bisa.
 
 - [ ] **T-29 · Kunci API ElevenLabs untuk pembuatan audio (X17)** · sebelum pilot audio X17; kuota produksi diputuskan sesudah pilot
   1. Buka https://elevenlabs.io dan masuk ke akun Anda (paket Starter).
-  2. Buka **Developers → API Keys → Create API Key**. Beri nama `surau-tts`, aktifkan pembatasan akses, lalu izinkan hanya **Text to Speech** (dan **Voices: Read** bila ada). Isi **batas kredit**, misalnya 60.000 untuk pilot.
+  2. Buka **Developers → API Keys → Create API Key**. Beri nama `surau-tts`, aktifkan pembatasan akses, lalu izinkan **Text to Speech**, **Voices: Read**, dan **User: Read** (X17: dua yang terakhir dipakai `pnpm audio plan` untuk membaca nama suara dan sisa kuota; tanpa keduanya alat tetap jalan, hanya kuota tidak terlihat). Isi **batas kredit**, misalnya 60.000 untuk pilot.
   3. Salin kuncinya. **Jangan tempel di chat Claude.**
   4. Di panel Terminal aplikasi Claude (folder Surau), ketik baris di bawah. Saat diminta, tempel kunci lalu tekan Enter. Isinya tidak terlihat.
      `printf 'Tempel kunci lalu Enter: '; read -rs K; printf 'ELEVENLABS_API_KEY=%s\n' "$K" >> .env; unset K; echo`
@@ -252,6 +253,12 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
      - **ElevenLabs Impact Program** (12 bulan Pro gratis) bila Surau berbadan hukum nirlaba.
      Ketik pilihan Anda ke agent.
   - Tidak dipakai: `npx @elevenlabs/cli onboard init`. Perintah itu menulis berkas `.env.local` dan folder `~/.elevenlabs`, lalu menyuruh `npm install`, yang bentrok dengan pnpm repo ini (ADR-097).
+
+- [x] **T-32 · Sambungkan domain audio `media.surau.org` (X17)** · selesai 2026-10-25: Zone ID dikirim pemilik; domain kini dilayani Worker `surau-media` (ADR-103), karena wildcard Preview `*.surau.org` menangkap domain kustom R2
+  Bucket R2 `surau-media` sudah dibuat agent (kosong, akses r2.dev mati). Domainnya perlu *Zone ID* surau.org, yang tidak bisa dibaca agent tanpa membuka berkas kredensial. Pilih salah satu:
+  - **A (agent yang menyambungkan):** buka https://dash.cloudflare.com → klik **surau.org** → halaman **Overview**, kolom kanan bagian **API** → salin **Zone ID** → tempel di chat agent. Zone ID **bukan rahasia** (bukan token).
+  - **B (lewat dashboard):** **R2 object storage** → bucket **surau-media** → **Settings** → **Custom Domains** → **Add** → ketik `media.surau.org` → **Continue** → **Connect Domain**. Lalu bilang ke agent "T-32 sudah".
+  Agent lalu memeriksa domainnya (HEAD/Range) sebelum mengunggah audio pertama.
 
 - [x] **T-30 · Lihat dan setujui tampilan Intisari (X16)** · disetujui pemilik 2026-10-25 (“ya saya setuju”, jawaban di sesi induk) atas tampilan tahap 1 (tangkapan layar data contoh). Tampilan dengan data nyata dilihat lagi saat pilot X15b masuk staging; mutu isinya dinilai di T-31
   0. **Tahap 1 (sekarang):** lihat tangkapan layar di `implementasi/sesi/bukti/X16/` (ponsel, laptop, gelap) atau buka Preview `pr-138.surau.org/dev/intisari` dan `…/dev/intisari?tier=section` selama PR #138 belum di-merge. Isinya data contoh (teks Arab kalimat contoh, bukan kitab); yang dinilai tata letak, label AI, dan urutan bagian.

@@ -1,20 +1,15 @@
-import type { DigestAudioView } from "@surau/core";
+import { PlayButton } from "../listen/play-button";
+import type { ListenTrack } from "../listen/track";
 
-import { intisari as intisariText } from "../../i18n/id/intisari";
-
-const t = intisariText;
-
-// Slot tombol ▶ Dengarkan (X16 menyiapkan, X17 mengisi dengan `PlayButton` dari `components/listen`
-// beserta data `…/intisari/dengar.json`). Tanpa audio (`DigestView.audio` null, semua Intisari
-// sampai X17 memuat `audio_track`) slot tidak merender apa pun: tombol yang belum bisa dipakai
-// hanya membingungkan. Bila audio sudah ada, sementara hanya durasinya yang tampil (sebaris di
-// baris kepala, jadi `span` bertoken, bukan Typography yang merender paragraf).
-export function ListenSlot({ nodeId, audio }: { nodeId: number; audio: DigestAudioView | null }) {
-  if (audio === null) return null;
-  const minutes = Math.max(1, Math.round(audio.duration_ms / 60_000));
+// Tombol ▶ Dengarkan Intisari (slot X16, diisi X17): blok sendiri di bawah baris kepala (tombol +
+// keterangan "Dibacakan suara AI" tidak boleh berada di dalam paragraf baris kepala). Data track
+// dihitung rute halaman (`listenTrack`, segmen karya kanonis). Tanpa audio (`DigestView.audio`
+// null) slot tidak merender apa pun: tombol yang belum bisa dipakai hanya membingungkan.
+export function ListenSlot({ track }: { track: ListenTrack | null }) {
+  if (track === null) return null;
   return (
-    <span className="text-muted text-sm" data-listen-node={nodeId}>
-      {t.listenTime(minutes)}
-    </span>
+    <div data-listen-slot="">
+      <PlayButton track={track} />
+    </div>
   );
 }

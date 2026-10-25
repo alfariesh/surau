@@ -17,6 +17,7 @@ CLAUDE.local.md
 .open-next/
 apps/mcp/dist/
 apps/api/dist/
+apps/media/dist/
 .wrangler/
 # Konfigurasi turunan `pnpm dev:remote` (dibangkitkan next.config.ts dari wrangler.jsonc).
 apps/web/wrangler.dev-remote.jsonc
