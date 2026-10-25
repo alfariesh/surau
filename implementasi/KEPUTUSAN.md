@@ -2637,7 +2637,8 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
    Tag dipasang di awal kalimat hanya saat peran berubah; kalimat pertama segmen = nada dasar. Ekspresinya milik narator yang mengutip, bukan tokoh yang dikutip. Emosi kuat (marah, menangis, tertawa, berbisik), tiruan suara, dan efek dilarang. Hanya tag terdaftar yang lolos pemeriksaan teks akhir; `[ ]` lain tetap ditolak (aturan 11).
 3. **Gaya dicatat** di manifest (`style`) dan ikut sidik permintaan TTS, sehingga polos dan khidmat tidak berbagi cache. Gaya tidak ikut sha skrip, karena ingest mencocokkan isi, bukan cara membaca.
 4. **Diputuskan lewat telinga.** `pnpm audio sample --demo-gaya` membuat satu contoh (±900 karakter, berbayar, izin pemilik): versi A tanpa gaya, lalu versi B khidmat, dengan teks demo buatan (narasi, kutipan, syair). Pemilik (dan Ust. Anas bila bisa) menilai di T-31. `submit --gaya khidmat` baru dipakai bila lolos.
-5. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
+5. **`variatif@1`** (permintaan pemilik 2026-10-25, sesudah memilih khidmat di uji A/B): sama dengan khidmat, ditambah `[warm]` untuk kalimat pertama pembuka dan untuk kepala + judul gagasan. Kalimat baku buatan kode (label AI, anjuran, tanda takhrij, pengantar kutipan, penutup) selalu `[calm]`. Dibandingkan di bab "Keutamaan belajar" (100006), suara Kang Sugiman.
+6. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
 
 **Tidak dipilih:**
 - Model memilih tag per kalimat: tidak bisa diaudit, dan rawan dramatis.

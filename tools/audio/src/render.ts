@@ -109,6 +109,7 @@ export function piecesOf(input: RenderInput, cap: TtsCapabilities): Piece[] {
         seg.sentences.map((s) => applyLexicon(s, input.lexicon)),
         seg.roles,
         input.style,
+        seg.kind,
       ),
       cap.maxCharsPerRequest,
     ).map((text) => ({
