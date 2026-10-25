@@ -11,7 +11,7 @@
 //   di halaman) diberi kalimat tanda buatan kode. Status hadits lain tidak dibacakan.
 // Segmen = satu permintaan TTS (bab pemutar = gagasan); kalimat dipecah `indonesianSentences` lalu
 // dinormalisasi lisan (`spokenIndonesian`, berversi).
-// Sorotan kalimat (X18, ADR-101): setiap kalimat skrip membawa `sources`, rentangnya di teks yang
+// Sorotan kalimat (X18, ADR-102): setiap kalimat skrip membawa `sources`, rentangnya di teks yang
 // tampil di halaman (atau null untuk kalimat buatan kode). `sources` di luar sha skrip: memperbaiki
 // pemetaan tidak menggugurkan audio.
 import {
@@ -30,8 +30,11 @@ import type { DigestPointView, DigestQuoteView, DigestView, Location } from "./s
 import { VERY_WEAK_TAKHRIJ_KINDS } from "./takhrij-label.ts";
 import { textSha256 } from "./translation-revision.ts";
 
-/** Versi susunan skrip; naik bila kalimat baku, urutan segmen, atau aturan pemilihan berubah. */
-export const SCRIPT_VERSION = 1;
+/**
+ * Versi susunan skrip; naik bila kalimat baku, urutan segmen, atau aturan pemilihan berubah.
+ * 2 = setiap kalimat membawa peran (narasi/kutipan/syair) untuk gaya narator (ADR-101).
+ */
+export const SCRIPT_VERSION = 2;
 
 /** Kalimat label di awal setiap audio (docs/05 §12; sama di halaman, layar kunci, dan ID3). */
 export const SCRIPT_LABEL = "Intisari ini dibuat AI dan dibacakan suara AI.";
@@ -43,12 +46,21 @@ export const SCRIPT_DOOR =
 /** label = kalimat label + sumber (sama untuk semua Intisari satu karya, jadi audionya bisa dipakai ulang). */
 export type ScriptSegmentKind = "label" | "intro" | "point" | "quotes" | "closing";
 
+/**
+ * Peran kalimat, ditentukan KODE dari jenis bagian (bukan model): `quote` = terjemahan kutipan teks
+ * atau riwayat, `poetry` = terjemahan syair, `narration` = selebihnya. Dipakai alat audio untuk
+ * gaya narator yang tetap dan berversi (ADR-101); tidak mengubah kata yang dibacakan.
+ */
+export type SentenceRole = "narration" | "quote" | "poetry";
+
 export interface ScriptSegment {
   kind: ScriptSegmentKind;
   /** Gagasan yang dibacakan (bab pemutar); null untuk segmen lain. */
   point_ord: number | null;
   /** Kalimat siap baca, urut, sudah dinormalisasi lisan. */
   sentences: string[];
+  /** Peran setiap kalimat (panjang sama dengan `sentences`). */
+  roles: SentenceRole[];
 }
 
 /** Teks tampil yang dibacakan sebuah kalimat skrip (X18). */
@@ -133,9 +145,11 @@ const latin = (text: string | null | undefined): string | null =>
 interface Line {
   text: string;
   source: ScriptSource | null;
+  role: SentenceRole;
 }
 
-const made = (...texts: string[]): Line[] => texts.map((text) => ({ text, source: null }));
+const made = (...texts: string[]): Line[] =>
+  texts.map((text) => ({ text, source: null, role: "narration" }));
 
 /**
  * Kalimat-kalimat teks tulis (sebelum normalisasi lisan), sesudah penanda/placeholder dirapikan.
@@ -145,6 +159,7 @@ const made = (...texts: string[]): Line[] => texts.map((text) => ({ text, source
 function sentencesOf(
   raw: string | null,
   from: { field: ScriptSourceField; ord: number | null; at?: number; length?: number } | null,
+  role: SentenceRole = "narration",
 ): Line[] {
   if (raw === null) return [];
   const { text, starts, ends } = speakable(raw);
@@ -152,6 +167,7 @@ function sentencesOf(
   const limit = from?.length ?? Number.POSITIVE_INFINITY;
   return indonesianSentences(text).map((s) => ({
     text: text.slice(s.start, s.end),
+    role,
     source:
       from === null
         ? null
@@ -215,7 +231,8 @@ function speakable(raw: string): { text: string; starts: number[]; ends: number[
 
 function quoteSentences(q: DigestQuoteView): Line[] {
   if (q.translation === null) return [];
-  const body = sentencesOf(q.translation.text, { field: "quote", ord: q.ord });
+  const role: SentenceRole = q.kind === "poetry" ? "poetry" : "quote";
+  const body = sentencesOf(q.translation.text, { field: "quote", ord: q.ord }, role);
   if (body.length === 0) return [];
   // Terjemahan diberi label (aturan 8): AI kecuali sudah ditinjau atau dikoreksi manusia.
   const label = q.translation.human_review === null ? "terjemahan AI-nya" : "terjemahannya";
@@ -244,17 +261,23 @@ function weakMark(view: DigestView, p: DigestPointView): Line[] {
   );
 }
 
-/** Segmen dari kalimat tulis: dinormalisasi lisan; kalimat yang kosong sesudahnya dibuang (dengan asalnya). */
+/** Segmen dari kalimat tulis: dinormalisasi lisan; kalimat yang kosong sesudahnya dibuang (dengan asal dan perannya). */
 function segment(
   kind: ScriptSegmentKind,
   point_ord: number | null,
   lines: readonly Line[],
 ): { segment: ScriptSegment; sources: (ScriptSource | null)[] } {
   const kept = lines
-    .map((l) => ({ text: spokenIndonesian(l.text), source: l.source }))
+    .map((l) => ({ ...l, text: spokenIndonesian(l.text) }))
     .filter((l) => l.text !== "");
   return {
-    segment: { kind, point_ord, sentences: kept.map((l) => l.text) },
+    // Urutan kunci = bentuk kanonik sha skrip (sama dengan sebelum `sources` ada).
+    segment: {
+      kind,
+      point_ord,
+      sentences: kept.map((l) => l.text),
+      roles: kept.map((l) => l.role),
+    },
     sources: kept.map((l) => l.source),
   };
 }

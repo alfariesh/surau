@@ -22,8 +22,15 @@ Format entri:
   - Web: `data-say` di teks yang dibacakan, `ListenFollow` (logika dimuat malas): sorotan CSS Custom Highlight API `surau-dengar` tanpa mengubah DOM, gulir mengikuti (jeda 5 dtk bila pembaca menggulir, tanpa animasi bila reduced-motion), ketuk-untuk-lompat; fixture `/dev/intisari` dengan audio sunyi + waktu buatan.
 - Verifikasi: lihat Catatan hasil `sesi/X18-sorotan-dengar.md` (`pnpm verify`, e2e `sorotan.spec.ts` + `dengar.spec.ts`, browser desktop + ponsel gelap, peninjau).
 - Biaya API: – (uji berbayar belum dijalankan: kunci T-29 belum ada)
+- Keputusan: ADR-102
+- Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-102 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. CORS bucket (langkah T-32) sebelum `pnpm audio verify`.
+
+## 2026-10-25 · X17b · Gaya narator Dengar (tag audio v4) — selesai (kode; pemakaian menunggu uji dengar)
+- Dikerjakan: peran kalimat di skrip (narasi/kutipan/syair, ditentukan kode; skrip v2); gaya `polos` (bawaan) dan `khidmat@1` dari daftar tag tetap; gaya dicatat di manifest; `pnpm audio sample --demo-gaya` untuk uji A/B; T-31 diperluas.
+- Verifikasi: `pnpm verify` → lolos; tes gaya/perakit/skrip baru lolos.
+- Biaya API: –
 - Keputusan: ADR-101
-- Catatan untuk sesi berikutnya: sesudah T-29 + izin pemilik → `pnpm audio align-test --voice <id> --confirm`, catat hasilnya di ADR-101 butir 5, lalu pilot X17 dengan `--timestamps` atau `pnpm audio align`. CORS bucket (langkah T-32) sebelum `pnpm audio verify`.
+- Catatan untuk sesi berikutnya: jalankan demo A/B sesudah T-29 + izin pemilik; pakai `--gaya khidmat` hanya bila pemilik memilih B.
 
 ## 2026-10-25 · X17 · Dengar: audio Intisari (skrip, ElevenLabs v4, MP3, R2, pemutar) — sebagian (kode + bucket; pilot berbayar menunggu pemilik)
 - Dikerjakan:

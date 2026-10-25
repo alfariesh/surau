@@ -2625,7 +2625,33 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 
 **Tinjau ulang bila:** timestamps v4 terbukti ada (sorotan per kalimat: `alignment_key`), uji dengar menolak lafal bawaan v4 untuk banyak istilah (kamus lafal API), penyedia lain dipakai (Chirp 3 HD/Gemini TTS lewat `TtsProvider`), narator manusia tersedia (`voice_kind` human didahulukan), atau keluaran penyedia berubah menjadi VBR.
 
-## ADR-101 · Sorotan kalimat mengikuti audio Intisari (X18): timestamps per kalimat di objek R2 immutable, dua sumber waktu (with-timestamps TTS dan forced alignment), sorotan Highlight API + gulir + ketuk-untuk-lompat — diterima (kode; uji berbayar dan objek nyata menunggu T-29, T-32, izin pemilik) · 2026-10-25
+## ADR-101 · Gaya narator Dengar: tag audio v4 dari daftar tetap, dipilih kode per peran kalimat, bawaan polos sampai uji dengar A/B — diterima (kode; pemakaian menunggu T-31) · 2026-10-25
+
+**Konteks:** pemilik bertanya (2026-10-25) apakah kutipan, kisah, dan syair perlu dibacakan lebih ekspresif dengan tag audio eleven_v4. Narasi yang datar 10–15 menit melelahkan, dan pendengar tanpa teks butuh penanda bunyi "ini kutipan". Di sisi lain ada risikonya: ekspresi bisa terdengar seperti memerankan tokoh (dekat dengan roleplay orang pertama yang dilarang), nada yang keliru mengubah kesan makna teks agama, tag v4 tidak sepenuhnya bisa diprediksi, dan ADR-097/docs/05 §12 menetapkan narator netral tanpa gaya dramatis.
+
+**Keputusan:**
+1. **Peran kalimat ditentukan kode** (`SentenceRole`, skrip v2): terjemahan kutipan teks atau riwayat = `quote`, terjemahan syair = `poetry`, selebihnya `narration`. Penentuannya dari jenis kutipan yang sudah dihitung kode, tidak pernah dari model. Kata yang dibacakan tidak berubah.
+2. **Gaya = daftar tag tetap dan berversi** (`tools/audio/src/style.ts`):
+   - `polos` (tanpa tag, bawaan);
+   - `khidmat@1`: `[calm]` untuk narasi, `[thoughtful]` untuk kutipan, `[softly]` untuk syair.
+   Tag dipasang di awal kalimat hanya saat peran berubah; kalimat pertama segmen = nada dasar. Ekspresinya milik narator yang mengutip, bukan tokoh yang dikutip. Emosi kuat (marah, menangis, tertawa, berbisik), tiruan suara, dan efek dilarang. Hanya tag terdaftar yang lolos pemeriksaan teks akhir; `[ ]` lain tetap ditolak (aturan 11).
+3. **Gaya dicatat** di manifest (`style`) dan ikut sidik permintaan TTS, sehingga polos dan khidmat tidak berbagi cache. Gaya tidak ikut sha skrip, karena ingest mencocokkan isi, bukan cara membaca.
+4. **Diputuskan lewat telinga.** `pnpm audio sample --demo-gaya` membuat satu contoh (±900 karakter, berbayar, izin pemilik): versi A tanpa gaya, lalu versi B khidmat, dengan teks demo buatan (narasi, kutipan, syair). Pemilik (dan Ust. Anas bila bisa) menilai di T-31. `submit --gaya khidmat` baru dipakai bila lolos.
+5. **Kisah** di isi gagasan (teks AI) tidak diberi gaya tersendiri: kode tidak bisa mengenalinya tanpa menebak.
+
+**Tidak dipilih:**
+- Model memilih tag per kalimat: tidak bisa diaudit, dan rawan dramatis.
+- Tag emosi per tokoh: terdengar seperti memerankan ulama.
+- Mengubah kecepatan atau suara per peran: v4 tidak punya kontrol kecepatan, dan suara kedua melanggar "satu suara per Intisari".
+
+**Konsekuensi:**
+- `SCRIPT_VERSION` naik ke 2 (belum ada audio, tanpa biaya terbuang).
+- Manifest mewajibkan `style`.
+- Biaya uji A/B ±900 karakter.
+
+**Tinjau ulang bila:** uji dengar menilai khidmat berlebihan atau malah kurang, ElevenLabs merinci perilaku tag v4, atau narator manusia tersedia.
+
+## ADR-102 · Sorotan kalimat mengikuti audio Intisari (X18): timestamps per kalimat di objek R2 immutable, dua sumber waktu (with-timestamps TTS dan forced alignment), sorotan Highlight API + gulir + ketuk-untuk-lompat — diterima (kode; uji berbayar dan objek nyata menunggu T-29, T-32, izin pemilik) · 2026-10-25
 
 **Konteks:** pemilik bertanya (2026-10-25) apakah teks Intisari bisa disorot mengikuti audio. X17 (ADR-100) menunda sorotan per kalimat dan menyiapkan kolom `audio_track.alignment_key`. Docs dicek 2026-10-25 (`/docs-terbaru elevenlabs`): `POST /v1/text-to-speech/{voice_id}/with-timestamps` mengembalikan `{audio_base64, alignment|null, normalized_alignment|null}` dengan waktu per karakter teks yang dikirim, tetapi docs **tidak menyebut** apakah `eleven_v4` didukung (hanya "model yang bisa TTS"). `POST /v1/forced-alignment` (multipart file + teks) mengembalikan waktu per karakter dan per kata, mendukung bahasa Indonesia, dan ditagih seperti Speech to Text (per durasi audio; tarif persisnya tidak tertulis). Belum ada audio produksi, kunci API (T-29) belum ada, jadi uji pembanding belum bisa dijalankan.
 
@@ -2634,7 +2660,7 @@ Pemilik (2026-10-24, pertanyaan pilihan) memilih petunjuk sekali tampil di halam
 2. **Objek timestamps `.align.json`** (`packages/core/src/audio-alignment.ts`, format 1): `{format, audio_sha256, script_sha256, method, segments: [[start_ms, end_ms] | null][]}` sejajar `segments[i].sentences`. Hanya angka, tanpa teks. Kunci `<karya>/<lang>/<node>-<12 heks sha256 isi JSON>.align.json`, immutable (`Cache-Control` sama dengan MP3, `Content-Type: application/json`), tidak pernah ditimpa. Kalimat urut waktu (skema menolak mulai yang mundur; pemetaan membuang yang mundur menjadi null).
 3. **Manifest:** track punya `alignment` (`r2_key`, `sha256`, `bytes`, `method`) atau null (bawaan, jadi track lama tetap valid). Boleh ditambahkan sesudah track tercatat: `mergeTracks` hanya mengganti rujukan timestamps track yang sudah ada, objek audionya tetap. Ingest mengisi `audio_track.alignment_key` (migrasi 0009 sudah menyiapkan kolomnya; skema korpus tidak berubah). `DigestView.audio.alignment_key` (juga di MCP `get_section_digest`).
 4. **Dua sumber waktu, satu pemetaan** (`tools/audio/src/align.ts`): token bertimestamp dicocokkan **berurutan** ke teks (bukan per indeks; lompatan maksimal 64 karakter), sehingga spasi yang dibuang, tanda baca terpisah, atau token asing tidak menggeser kalimat sesudahnya; kalimat tanpa token = null.
-   - **tts_timestamps** (`pnpm audio submit --timestamps`): setiap permintaan memakai `/with-timestamps`; waktu karakter TEKS YANG DIKIRIM (sesudah leksikon, termasuk IPA `/…/`) dipetakan ke kalimat lewat rentang kalimat di potongan itu, lalu digeser ke awal potongan di berkas rakitan (sampel MP3, sama dengan bab). Timestamps hanya dibuat bila SEMUA potongan punya `alignment`; `alignment` null atau rusak diterima tanpa galat (respons 200 tetap tertagih dan tercatat). Cache segmen menyimpan waktu karakternya.
+   - **tts_timestamps** (`pnpm audio submit --timestamps`): setiap permintaan memakai `/with-timestamps`; waktu karakter TEKS YANG DIKIRIM (sesudah leksikon, termasuk IPA `/…/`) dipetakan ke kalimat lewat rentang kalimat di potongan itu, lalu digeser ke awal potongan di berkas rakitan (sampel MP3, sama dengan bab). Tag gaya narator (ADR-101) di awal kalimat tidak masuk rentang kalimat. Timestamps hanya dibuat bila SEMUA potongan punya `alignment`; `alignment` null atau rusak diterima tanpa galat (respons 200 tetap tertagih dan tercatat). Cache segmen menyimpan waktu karakternya.
    - **forced_alignment** (`pnpm audio align [--node] --confirm`): untuk berkas rakitan tanpa timestamps, termasuk audio yang sudah diunggah. Teks = kalimat skrip seperti DIUCAPKAN (alias leksikon diterapkan; IPA tidak, karena katanya tetap sama), dipisah spasi. Skrip dibangun ulang dari staging dan wajib sha-nya sama dengan audio. Tanda terima di `align-receipts.jsonl` (durasi audio, bukan karakter). Tanpa tanda niat: permintaan murah, gagal jaringan dilaporkan sebagai "mungkin tertagih".
 5. **Jalur bawaan diputuskan oleh uji, bukan dari ingatan.** `pnpm audio align-test --voice ID --confirm` mengirim satu teks ±300 karakter ke `/with-timestamps` v4 (niat + tanda terima seperti `sample`), lalu forced alignment atas MP3 yang sama, dan mencetak per kalimat waktu kedua sumber + selisihnya (laporan JSON di `data/build/audio/align-test/`). Sampai uji itu dijalankan (butuh T-29 + izin pemilik, ≤ 2.000 karakter), jalur yang pasti adalah forced alignment; `--timestamps` opsional. Bila v4 mengembalikan `alignment` dan selisihnya kecil, `--timestamps` menjadi kebiasaan pilot (gratis, tanpa permintaan kedua); bila null, forced alignment.
 6. **Web (`components/listen/follow*.ts`).** Rute halaman Intisari menghitung target sorotan dari skrip (`digestFollow`: `digestScript(view)` + `followTargets`) hanya bila audio punya `alignment_key`; elemen teks yang dibacakan diberi `data-say` (+ `data-say-at` untuk paragraf `Prose`). `ListenFollow` (klien, tidak merender apa pun) hanya memantau apakah audio halaman ini (kunci objek yang sama) dimuat pemutar; logikanya (`follow-run.ts`) dimuat malas:

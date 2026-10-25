@@ -26,6 +26,7 @@ export type {
   ScriptSegmentKind,
   ScriptSource,
   ScriptSourceField,
+  SentenceRole,
 } from "./digest-script.ts";
 export {
   ALIGNMENT_KEY,

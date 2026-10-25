@@ -50,6 +50,8 @@ export const audioManifestTrack = z
     script_version: int.positive(),
     spoken_version: int.positive(),
     lexicon_version: z.string().min(1),
+    /** Gaya narator (tag audio dari daftar tetap, ADR-101), mis. `polos` atau `khidmat@1`. */
+    style: z.string().regex(/^[a-z]+(?:@\d+)?$/u),
     chapters: audioChapters,
     /**
      * Timestamps per kalimat untuk sorotan teks (X18), atau null. Boleh ditambahkan sesudah track

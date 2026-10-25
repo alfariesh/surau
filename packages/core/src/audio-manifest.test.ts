@@ -39,6 +39,7 @@ const track = (extra: Partial<AudioManifestTrack> = {}): AudioManifestTrack => {
     script_version: 1,
     spoken_version: 1,
     lexicon_version: "0123456789ab",
+    style: "polos",
     chapters: [
       { point_ord: 1, start_ms: 9_000 },
       { point_ord: 2, start_ms: 41_000 },

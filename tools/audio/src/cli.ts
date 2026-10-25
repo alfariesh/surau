@@ -3,7 +3,9 @@
 // ElevenLabs dibaca dari environment atau `.env` (T-29) hanya oleh perintah yang memanggil API;
 // nilainya tidak pernah dicetak. Pembuatan audio BERBAYAR: hanya dengan izin pemilik di chat.
 //   plan [--node a,b] [--voice ID] [--min-chars 900]   karakter per Intisari vs kuota (gratis)
-//   sample --voice ID [--voice-name NAMA] [--confirm]  uji dengar lafal leksikon (berbayar, ±1–2 rb kar.)
+//   sample --voice ID [--demo-gaya] [--confirm]  uji dengar lafal leksikon, atau A/B gaya narator
+//                         polos vs khidmat (berbayar, ±1–2 rb karakter)
+//   (plan/submit) --gaya polos|khidmat   gaya narator (tag audio daftar tetap, ADR-101; bawaan polos)
 //   submit --voice ID [--voice-name NAMA] --budget-chars N [--node a,b] [--min-chars 900] [--confirm]
 //                         buat audio (berbayar; tanpa --confirm hanya rencana); niat dicatat sebelum
 //                         setiap permintaan dan tanda terima sesudahnya (ADR-061)
@@ -11,7 +13,7 @@
 //   align [--node a,b] [--confirm]  timestamps per kalimat lewat forced alignment untuk berkas rakitan
 //                         yang belum punya (juga audio yang sudah diunggah); berbayar per durasi
 //   align-test --voice ID [--confirm]  uji kecil berbayar (±300 karakter): with-timestamps v4 vs
-//                         forced alignment atas MP3 yang sama (X18, ADR-101)
+//                         forced alignment atas MP3 yang sama (X18, ADR-102)
 //   upload [--confirm]    unggah berkas rakitan (+ timestamps) ke R2 surau-media (tidak pernah menimpa)
 //   manifest              catat berkas yang sudah di R2 ke data/audio/<kitab>-audio.json
 //   verify                HEAD + Range + sha256 setiap objek di manifest (gagal → kode 1)
@@ -63,6 +65,8 @@ import {
   writeIntent,
   writeRenderedMeta,
 } from "./store.ts";
+import { STYLES, styleDemo } from "./style.ts";
+import type { NarratorStyle } from "./style.ts";
 import { MEDIA, SITE_ORIGIN, SPOKEN_CHARS_PER_MINUTE, WORKS } from "./works.ts";
 import type { AudioWork } from "./works.ts";
 
@@ -124,6 +128,7 @@ async function candidates(
     minChars: number;
     voice: { id: string; name: string };
     timestamps?: boolean;
+    style: NarratorStyle;
   },
 ): Promise<Candidate[]> {
   const lang = AI_TEXT_LANG;
@@ -161,6 +166,7 @@ async function candidates(
         title: titleOf.get(h.toc_node_id) ?? `Bagian ${h.toc_node_id}`,
         voice: opts.voice,
         lexicon,
+        style: opts.style,
         work: { slug: work.slug, title: view.source.work.title_id ?? work.title },
         siteOrigin: SITE_ORIGIN,
         timestamps: opts.timestamps ?? false,
@@ -236,6 +242,8 @@ async function main(argv: string[]): Promise<number> {
       "min-chars": { type: "string", default: String(SPOKEN_CHARS_PER_MINUTE) },
       "budget-chars": { type: "string" },
       timestamps: { type: "boolean", default: false },
+      gaya: { type: "string", default: "polos" },
+      "demo-gaya": { type: "boolean", default: false },
       confirm: { type: "boolean", default: false },
     },
   });
@@ -245,6 +253,10 @@ async function main(argv: string[]): Promise<number> {
   const nodes = values.node === undefined ? undefined : nodeList.parse(values.node);
   const minChars = z.coerce.number().int().nonnegative().parse(values["min-chars"]);
   const command = positionals[0];
+  const style = STYLES[values.gaya];
+  if (style === undefined) {
+    throw new Error(`Gaya tidak dikenal: ${values.gaya} (pilih ${Object.keys(STYLES).join(", ")})`);
+  }
 
   switch (command) {
     case "plan":
@@ -277,6 +289,7 @@ async function main(argv: string[]): Promise<number> {
           minChars,
           voice: { id: voiceId ?? "", name: voiceName ?? "?" },
           timestamps: values.timestamps,
+          style,
         });
         let total = 0;
         let pending = 0;
@@ -346,12 +359,12 @@ async function main(argv: string[]): Promise<number> {
     case "sample": {
       if (values.voice === undefined) throw new Error("--voice <voice_id> wajib.");
       const lexicon = loadLexicon(AI_TEXT_LANG);
-      const text = lexiconSample(
-        lexicon,
-        `${SCRIPT_LABEL} Contoh lafal: bawaan, lalu dengan leksikon.`,
-      );
+      // --demo-gaya: uji dengar A/B gaya narator (ADR-101); bawaan: uji lafal leksikon (T-31).
+      const text = values["demo-gaya"]
+        ? styleDemo(`${SCRIPT_LABEL} Contoh gaya narator.`)
+        : lexiconSample(lexicon, `${SCRIPT_LABEL} Contoh lafal: bawaan, lalu dengan leksikon.`);
       console.log(
-        `Sampel leksikon ${lexicon.version}: ${text.length} karakter (±US$${((text.length / 1000) * 0.08).toFixed(2)}).`,
+        `Sampel ${values["demo-gaya"] ? "gaya narator" : `leksikon ${lexicon.version}`}: ${text.length} karakter (±US$${((text.length / 1000) * 0.08).toFixed(2)}).`,
       );
       if (!values.confirm) {
         console.log(text);
@@ -423,7 +436,7 @@ async function main(argv: string[]): Promise<number> {
       );
       const ms = todo.reduce((n, r) => n + r.track.duration_ms, 0);
       console.log(
-        `Berkas rakitan tanpa timestamps: ${todo.length} (${(ms / 60_000).toFixed(1)} menit audio; forced alignment ditagih per durasi, lihat ADR-101).`,
+        `Berkas rakitan tanpa timestamps: ${todo.length} (${(ms / 60_000).toFixed(1)} menit audio; forced alignment ditagih per durasi, lihat ADR-102).`,
       );
       if (todo.length === 0) return 0;
       if (!values.confirm) {

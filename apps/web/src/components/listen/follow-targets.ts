@@ -1,4 +1,4 @@
-// Target sorotan kalimat (X18, ADR-101): untuk setiap kalimat skrip audio (urut, datar), teks di
+// Target sorotan kalimat (X18, ADR-102): untuk setiap kalimat skrip audio (urut, datar), teks di
 // halaman Intisari yang dibacakannya: kunci `data-say` elemen + rentang [start, end) di teks field
 // itu. Dihitung server dari `DigestScript.sources` (modul murni, tanpa impor nilai core: aman untuk
 // klien). null = kalimat buatan kode (label, "Gagasan pertama", pengantar kutipan) yang tidak

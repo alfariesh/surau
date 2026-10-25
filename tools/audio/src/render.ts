@@ -22,6 +22,8 @@ import type { AudioAlignment, DigestScript, DigestView, ScriptSegmentKind } from
 import { charTokens, monotonic, sentenceTimes } from "./align.ts";
 import { id3v2 } from "./id3.ts";
 import { applyLexicon } from "./lexicon.ts";
+import { styledSentences, withoutStyleTags } from "./style.ts";
+import type { NarratorStyle } from "./style.ts";
 import type { Lexicon } from "./lexicon.ts";
 import { joinMp3, parseMp3, samplesToMs } from "./mp3.ts";
 import type { JoinPart } from "./mp3.ts";
@@ -45,10 +47,10 @@ type AudioManifestAlignmentRef = NonNullable<RenderedTrack["track"]["alignment"]
 
 /**
  * Pemeriksaan terakhir teks yang benar-benar dikirim (sesudah leksikon): tanpa huruf Arab, ⟦ ⟧, atau
- * tag `[ ]` (aturan 11). `/…/` di sini hanya berasal dari lafal IPA leksikon.
+ * tag `[ ]` (aturan 11) selain tag gaya dari daftar tetap. `/…/` hanya berasal dari lafal IPA leksikon.
  */
 export function speakableRequest(text: string): string {
-  const bad = unspeakableChar(text);
+  const bad = unspeakableChar(withoutStyleTags(text));
   if (bad !== null)
     throw new Error(`teks permintaan TTS memuat "${bad}" yang tidak boleh dibacakan`);
   return text;
@@ -73,6 +75,8 @@ export interface RenderInput {
   title: string;
   voice: { id: string; name: string };
   lexicon: Lexicon;
+  /** Gaya narator (ADR-101); bawaan `polos`. */
+  style: NarratorStyle;
   work: { slug: string; title: string };
   /** Asal situs untuk tautan halaman Intisari di ID3, mis. https://surau.org. */
   siteOrigin: string;
@@ -119,13 +123,16 @@ interface Piece {
 export function piecesOf(input: RenderInput, cap: TtsCapabilities): Piece[] {
   return input.script.segments.flatMap((seg, segment) => {
     const lexed = seg.sentences.map((s) => applyLexicon(s, input.lexicon));
+    // Gaya narator (ADR-101) hanya menambah tag di AWAL kalimat; rentang kalimat dimulai sesudahnya.
+    const styled = styledSentences(lexed, seg.roles, input.style);
     let next = 0;
-    return requestTexts(lexed, cap.maxCharsPerRequest).map((text) => {
+    return requestTexts(styled, cap.maxCharsPerRequest).map((text) => {
       // `requestTexts` menggabung kalimat berurutan dengan satu spasi.
       const sentences: Piece["sentences"] = [];
-      for (let at = 0; next < lexed.length && at < text.length; next++) {
-        sentences.push({ index: next, start: at, end: at + lexed[next]!.length });
-        at += lexed[next]!.length + 1;
+      for (let at = 0; next < styled.length && at < text.length; next++) {
+        const tag = styled[next]!.length - lexed[next]!.length;
+        sentences.push({ index: next, start: at + tag, end: at + styled[next]!.length });
+        at += styled[next]!.length + 1;
       }
       return {
         segment,
@@ -168,6 +175,7 @@ export async function renderNode(
     previous.track.script_sha256 === input.script.sha256 &&
     previous.track.lexicon_version === input.lexicon.version &&
     previous.track.voice_id === input.voice.id &&
+    previous.track.style === input.style.id &&
     JSON.stringify(previous.segment_keys) === JSON.stringify(keys)
   ) {
     return { status: "reused", rendered: previous, billed: 0 };
@@ -375,6 +383,7 @@ export function assemble(
     script_version: script.script_version,
     spoken_version: script.spoken_version,
     lexicon_version: input.lexicon.version,
+    style: input.style.id,
     chapters,
     alignment: alignment?.ref ?? null,
     characters: metas.reduce((n, m) => n + (m.character_cost ?? m.chars), 0),
