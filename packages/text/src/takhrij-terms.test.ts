@@ -58,11 +58,8 @@ describe("takhrijTerms", () => {
       "lam_ajid",
     ]);
     expect(kinds("حديث تجريبي رواه فلان مرسلا")).toEqual(["mursal"]);
-    expect(kinds("حديث تجريبي رواه فلان بإسناد لا بأس به وقال فلان معضل وفيه نظر")).toEqual([
-      "la_bas",
-      "daif",
-      "daif",
-    ]);
+    expect(kinds("حديث تجريبي رواه فلان بإسناد لا بأس به وقال فلان معضل")).toEqual(["la_bas", "daif"]);
+    expect(kinds("حديث تجريبي رواه فلان وفيه نظر")).toEqual(["daif"]);
     expect(kinds("حديث تجريبي ذكره فلان بغير إسناد")).toEqual(["muallaq"]);
     expect(kinds("حديث تجريبي أخرجه العقيلي في الضعفاء")).toEqual(["duafa"]);
     expect(kinds("حديث تجريبي رواه فلان والحديث غير ثابت")).toEqual(["daif"]);
@@ -127,6 +124,147 @@ describe("takhrijTerms", () => {
       takhrijStart: 12,
       sources: true,
       terms: [],
+      segments: [{ start: 0, end: 21, takhrij: true, sources: true }],
     });
+  });
+});
+
+// Versi 2 (ADR-108): pola keliru dari tinjauan agent 2026-10-26 (data/reports/
+// ihya-9472-takhrij-agent-2026-10-26.md, nomor pola di judul). Kalimat BUATAN, bukan teks kitab.
+describe("takhrijTerms versi 2", () => {
+  it("pola 1: catatan kaki tergabung dipindai per segmen penanda (N)", () => {
+    const raw = "حديث تجريبي أخرجه فلان بسند ضعيف (٤) حديث تجريبي آخر متفق عليه";
+    const t = takhrijTerms(raw);
+    expect(t.segments.map((s) => [s.start, s.end])).toEqual([
+      [0, 33],
+      [33, raw.length],
+    ]);
+    expect(t.terms.map((x) => [x.kind, x.segment])).toEqual([
+      ["daif", 0],
+      ["muttafaq", 1],
+    ]);
+    // Segmen kedua punya bagian lafaznya sendiri: "باطل" sebelum pembukanya tidak dipindai.
+    expect(kinds("حديث تجريبي رواه فلان (٥) حديث كل شيء باطل رواه فلان")).toEqual([]);
+    // Penanda di awal teks atau tanpa "حديث" sesudahnya bukan batas segmen.
+    expect(takhrijTerms("(٣) حديث تجريبي رواه فلان").segments).toHaveLength(1);
+    expect(takhrijTerms("حديث تجريبي رواه فلان (٢) وقال كذا").segments).toHaveLength(1);
+  });
+
+  it("pola 3: lafaz yang dikutip sesudah pembuka tidak dipindai untuk kata ambigu", () => {
+    // Lafaz sesudah "من حديث فلان": kata sifat, "مسلم" (orang Islam), "لا بأس به", "موضوع".
+    expect(kinds("حديث تجريبي رواه فلان من حديث فلان قال كل رجل مسلم يفعل كذا")).toEqual([]);
+    expect(kinds("حديث تجريبي في الصحيحين من حديث فلان قال ليس بحرام ولا بأس به ولكن")).toEqual([
+      "muttafaq",
+    ]);
+    expect(kinds("حديث تجريبي أخرجه فلان من رواية فلان وثيابه موضوعة على المشجب")).toEqual([]);
+    expect(kinds("حديث تجريبي أخرجه فلان من حديث فلان من طال عمره وحسن عمله وقال حسن صحيح")).toEqual([
+      "hasan_sahih",
+    ]);
+    expect(kinds("حديث تجريبي رواه فلان مرسلا بلفظ يسبق حلمه جهله الحديث")).toEqual(["mursal"]);
+    // Frasa yang tidak mungkin lafaz tetap dikenali di dalam lafaz dan menutupnya.
+    expect(kinds("حديث تجريبي رواه فلان من حديث فلان بإسناد ضعيف")).toEqual(["daif"]);
+    expect(kinds("حديث تجريبي رواه فلان من حديث فلان وهو موضوع")).toEqual(["palsu"]);
+    // Kata ambigu yang langsung disusul pernyataan penakhrij tetap penilaian.
+    expect(kinds("حديث تجريبي رواه فلان من حديث فلان كذا وكذا باطل ورواه فلان")).toEqual(["palsu"]);
+    // "وفي رواية لمسلم": nama penghimpun sesudah penanda lafaz tetap dikenali, dan lafaz
+    // sesudahnya tetap dilewati.
+    expect(kinds("حديث تجريبي رواه فلان وفي رواية لمسلم كذا")).toEqual(["muslim"]);
+    expect(kinds("حديث تجريبي رواه فلان وفي رواية لمسلم وثيابه موضوعة على المشجب")).toEqual([
+      "muslim",
+    ]);
+    expect(kinds("حديث تجريبي متفق عليه ولفظ البخاري كل رجل مسلم")).toEqual([
+      "muttafaq",
+      "bukhari",
+    ]);
+  });
+
+  it("pola 4: penilaian yang dinukil lalu dibantah penakhrij", () => {
+    expect(kinds("حديث تجريبي رواه فلان وضعفه وصححه فلان في كتابه وليس كذلك")).toEqual([
+      "daif",
+      "dibantah",
+    ]);
+    expect(phrases("حديث تجريبي رواه الحاكم وقال صحيح الإسناد قلت بل منقطع")).toEqual([
+      "صحيح الإسناد قلت بل",
+      "منقطع",
+    ]);
+    expect(kinds("حديث تجريبي رواه فلان بسند صحيح وضعفه فلان وليس بجيد")).toEqual([
+      "sahih",
+      "dibantah",
+    ]);
+    expect(kinds("حديث تجريبي رواه فلان وقال إنه معضل وفيه نظر")).toEqual(["dibantah"]);
+    // Sesudah penilaian lemah penakhrij sendiri: penguatan, bukan bantahan.
+    expect(kinds("حديث تجريبي رواه فلان وهو منكر وليس بصحيح")).toEqual(["sangat_lemah", "daif"]);
+    // "قلت" saja: hanya bila positif lalu langsung penilaian lemah.
+    expect(kinds("حديث تجريبي رواه الحاكم وقال صحيح الإسناد قلت فيه فلان ضعيف")).toEqual([
+      "dibantah",
+      "daif",
+    ]);
+    expect(kinds("حديث تجريبي رواه الحاكم وقال صحيح الإسناد قلت ورواه فلان")).toEqual(["sahih"]);
+  });
+
+  it("pola 5: al-Bukhari dan Muslim hanya sebagai penyebutan sumber", () => {
+    expect(kinds("حديث تجريبي أخرجه البخاري في التاريخ من حديث فلان")).toEqual([]);
+    expect(kinds("حديث تجريبي متفق عليه ولم يقل البخاري كذا")).toEqual(["muttafaq"]);
+    expect(kinds("حديث تجريبي رواه فلان وقال البخاري في صحيحه كذا")).toEqual(["bukhari"]);
+    expect(kinds("حديث تجريبي أخرجه البخاري من حديث فلان")).toEqual(["bukhari"]);
+    expect(kinds("حديث تجريبي أخرجه فلان وزاد مسلم كذا")).toEqual(["muslim"]);
+    expect(kinds("حديث تجريبي أخرجه فلان قال ما من مسلم يفعل كذا")).toEqual([]);
+  });
+
+  it("pola 6: tidak ditemukan, tidak ditemukan sebagai marfu', dan perawi tak dikenal", () => {
+    expect(kinds("حديث تجريبي رواه فلان موقوفا ولم أجده مرفوعا")).toEqual([
+      "mawquf",
+      "lam_ajid_marfu",
+    ]);
+    expect(kinds("حديث تجريبي رواه فلان وفيه من لا أعرفه")).toEqual(["daif"]);
+    expect(kinds("حديث تجريبي لم أجده إلا بلاغا لفلان")).toEqual(["lam_ajid"]);
+    expect(kinds("حديث تجريبي لم أجد له أصلا في الموصولات")).toEqual(["lam_ajid"]);
+  });
+
+  it("pola 7: hasan/sahih/gharib sesudah bin/ibn adalah nama perawi", () => {
+    expect(kinds("حديث تجريبي أخرجه فلان من رواية عبد الله بن حسن مرسلا")).toEqual(["mursal"]);
+    expect(kinds("حديث تجريبي رواه فلان عن ابن غريب")).toEqual([]);
+  });
+
+  it("pola 8: bentuk yang terlewat versi 1", () => {
+    expect(kinds("حديث تجريبي رواه فلان إلا أن فيه انقطاعا")).toEqual(["daif"]);
+    expect(kinds("حديث تجريبي رواه الترمذي وقال ليس إسناده بمتصل")).toEqual(["daif"]);
+    expect(kinds("حديث تجريبي رواه فلان وقال غير محفوظ")).toEqual(["daif"]);
+    expect(kinds("حديث تجريبي رواه الحاكم وصحح إسناده")).toEqual(["sahih"]);
+    expect(kinds("حديث تجريبي رواه فلان بإسناد آخر جيد")).toEqual(["jayyid"]);
+    expect(kinds("حديث تجريبي رواه فلان وللشيخين من حديث فلان")).toEqual(["muttafaq"]);
+    expect(kinds("حديث تجريبي صورته عند البخاري صورة التعليق")).toEqual(["bukhari", "muallaq"]);
+    expect(kinds("حديث تجريبي أخرجه مسلم دون آخره")).toEqual(["muslim", "sebagian"]);
+    expect(kinds("حديث تجريبي رواه فلان وليس فيه قوله كذا")).toEqual(["sebagian"]);
+    expect(kinds("حديث تجريبي رواه الترمذي واستغربه")).toEqual(["gharib"]);
+    expect(kinds("حديث تجريبي لم أقف لأوله على أصل")).toEqual(["la_asl"]);
+    expect(kinds("حديث تجريبي فقد تقدم من حديث فلان")).toEqual(["rujukan"]);
+    expect(kinds("حديث تجريبي رواه فلان كما سيأتي ذكره")).toEqual(["rujukan"]);
+    expect(kinds("حديث تجريبي رواه فلان وفيه فلان متكلم فيه")).toEqual(["daif"]);
+    expect(kinds("حديث تجريبي رواه فلان وفيه من يجهل")).toEqual(["daif"]);
+    expect(kinds("حديث تجريبي رواه فلان وفيه فلان كذبه أبو فلان")).toEqual(["sangat_lemah"]);
+    expect(kinds("حديث تجريبي رواه فلان وفيه فلان قال ابن حبان يروي الموضوعات")).toEqual([
+      "sangat_lemah",
+    ]);
+    // "طريقه المتقدمة أحسن" = sifat jalur, bukan rujukan.
+    expect(kinds("حديث تجريبي رواه فلان وقال إن طريقه المتقدمة أحسن")).toEqual([]);
+  });
+
+  it("pola 9: perawi tepercaya dan perawi yang diperselisihkan", () => {
+    expect(kinds("حديث تجريبي رواه فلان ورجاله ثقات")).toEqual(["tsiqat"]);
+    expect(kinds("حديث تجريبي رواه فلان ورجاله رجال الصحيح")).toEqual(["tsiqat"]);
+    expect(kinds("حديث تجريبي رواه فلان وفيه فلان مختلف فيه")).toEqual(["mukhtalaf"]);
+    expect(kinds("حديث تجريبي رواه فلان وقد اختلف في رفعه")).toEqual(["mukhtalaf"]);
+    // "مع اختلاف لفظ" = perbedaan lafaz; "لما اختلف فيه" = lafaz doa.
+    expect(kinds("حديث تجريبي متفق عليه مع اختلاف لفظ")).toEqual(["muttafaq"]);
+    expect(kinds("حديث تجريبي رواه فلان بلفظ اهدني لما اختلف فيه")).toEqual([]);
+  });
+
+  it("pola 10: penilaian di akhir catatan kaki tanpa penanda sumber", () => {
+    expect(kinds("حديث النهي عن كذا غريب")).toEqual(["gharib"]);
+    expect(kinds("حديث تجريبي فذكر حديثا وقال حسن غريب")).toEqual(["hasan", "gharib"]);
+    expect(kinds("(٢) ضعيف")).toEqual(["daif"]);
+    // Matan yang tercetak sebagai catatan kaki: kata sifat di akhir bukan takhrij.
+    expect(takhrijTerms("وعن فلان قال ما خير ما أعطي العبد قال خلق حسن").kind).toBe("unrecognized");
   });
 });

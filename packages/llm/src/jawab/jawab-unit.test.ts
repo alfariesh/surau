@@ -2,7 +2,13 @@
 import type { CitationContentBlockLocation, Message } from "@anthropic-ai/sdk/resources/messages";
 import { takhrijLabel } from "@surau/core";
 import type { AnswerPassage, AnswerTocNode } from "@surau/core";
-import { FTS_MAX_TOKENS, LATIN_MAX_TERMS, planFtsQuery, planLatinQuery } from "@surau/text";
+import {
+  FTS_MAX_TOKENS,
+  LATIN_MAX_TERMS,
+  TAKHRIJ_TERMS_VERSION,
+  planFtsQuery,
+  planLatinQuery,
+} from "@surau/text";
 import { describe, expect, test } from "vite-plus/test";
 
 import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../../prompts/answer-v1.ts";
@@ -829,7 +835,7 @@ describe("klaim hadits", () => {
         footnote: { passage_id: 2, char_start: 0, char_end: 12 },
         status: LABEL,
         label: "rule_extracted",
-        rules_version: 1,
+        rules_version: TAKHRIJ_TERMS_VERSION,
         mixed: false,
       },
     ]);

@@ -51,7 +51,7 @@ export function labelReport(corpus: string, s: TakhrijSummary): string {
   return [
     `# Label status hadits dari istilah takhrij · ${corpus}`,
     "",
-    `Dibuat \`pnpm run eval:takhrij\` (aturan istilah versi ${takhrijLabel("").version}, ADR-069). Hanya angka, tanpa teks kitab. Label dibuat kode dari frasa baku di teks catatan kaki; belum ditinjau ustadz (T-24).`,
+    `Dibuat \`pnpm run eval:takhrij\` (aturan istilah versi ${takhrijLabel("").version}, ADR-069 dan ADR-108). Hanya angka, tanpa teks kitab. Label dibuat kode dari frasa baku di teks catatan kaki; belum ditinjau ustadz (T-24).`,
     "",
     `Catatan kaki: ${s.total}. Penilaian positif dan negatif sekaligus (ditandai "berbeda per jalur"): ${s.mixed} (${pct(s.mixed, s.total)}). Bertanda "memuat istilah kelemahan": ${s.weak} (${pct(s.weak, s.total)}).`,
     "",
