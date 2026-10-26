@@ -138,8 +138,8 @@ export interface ReviewedTakhrijLabel extends TakhrijLabel {
 /**
  * Label untuk (bagian) catatan kaki dengan tinjauan efektif. Untuk sitasi sebagian, tinjauan
  * diterapkan pada istilah di bagian itu: istilah yang ditolak penilai TIDAK PERNAH tampil lagi,
- * jenis tambahan penilai disebut "menurut peninjau", dan setiap istilah "takhrij menyebut" tetap
- * punya frasa Arab di potongan yang ditampilkan.
+ * jenis tambahan penilai disebut "menurut peninjau", dan setiap istilah "menurut takhrij
+ * al-'Iraqi" tetap punya frasa Arab di potongan yang ditampilkan.
  */
 export function reviewedTakhrijLabel(
   raw: string,

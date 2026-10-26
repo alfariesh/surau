@@ -231,7 +231,7 @@ test("klaim berlabel untuk takhrij di luar gold dicatat, bukan kegagalan (X06)",
   const other = {
     passage_id: 4,
     footnote: { ...span, passage_id: 2 },
-    status: "takhrij menyebut: sahih",
+    status: "dinilai sahih, menurut takhrij al-'Iraqi",
   };
   const score = await scoreAnswer(
     db,

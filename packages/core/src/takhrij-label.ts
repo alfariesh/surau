@@ -6,32 +6,38 @@
 import { TAKHRIJ_TERMS_VERSION, takhrijTerms } from "@surau/text";
 import type { TakhrijTermKind, TakhrijTerms } from "@surau/text";
 
-/** Arti singkat setiap istilah (Latin, pendek: ikut teks status ≤ 120 karakter). */
+/**
+ * Arti setiap istilah (Latin, pendek: ikut teks status ≤ 120 karakter). Sejak ADR-111 berbentuk
+ * predikat yang terbaca wajar di depan atribusi ("dinilai lemah, menurut takhrij al-'Iraqi"):
+ * "dinilai" pasif karena takhrij juga menukil penilaian ulama lain, bukan selalu penilaian al-'Iraqi.
+ */
 export const TAKHRIJ_TERM_GLOSS: Readonly<Record<TakhrijTermKind, string>> = {
-  muttafaq: "muttafaq 'alaih",
-  bukhari: "riwayat al-Bukhari",
-  muslim: "riwayat Muslim",
-  sahih: "sahih",
-  hasan: "hasan",
-  hasan_sahih: "hasan sahih",
-  jayyid: "sanad baik (jayyid)",
-  la_bas: "la ba'sa bihi (dapat diterima)",
-  tsiqat: "perawi/sanad dinilai tepercaya",
-  gharib: "gharib",
-  daif: "lemah",
-  mukhtalaf: "perawi/sanad diperselisihkan",
-  sangat_lemah: "sangat lemah",
-  palsu: "palsu/batil",
+  muttafaq: "muttafaq 'alaih (al-Bukhari dan Muslim)",
+  bukhari: "diriwayatkan al-Bukhari",
+  muslim: "diriwayatkan Muslim",
+  sahih: "dinilai sahih",
+  hasan: "dinilai hasan",
+  hasan_sahih: "dinilai hasan sahih",
+  jayyid: "sanadnya dinilai baik (jayyid)",
+  la_bas: "dinilai dapat diterima (la ba'sa bihi)",
+  tsiqat: "perawi atau sanadnya dinilai tepercaya",
+  gharib: "dinilai gharib",
+  daif: "dinilai lemah",
+  mukhtalaf: "sanad atau perawinya diperselisihkan",
+  sangat_lemah: "dinilai sangat lemah",
+  palsu: "dinilai palsu atau batil",
   duafa: "disebut di kitab perawi lemah",
-  la_asl: "tidak ada asalnya",
-  lam_ajid: "tidak ditemukan penakhrij",
+  la_asl: "dinyatakan tidak ada asalnya",
+  // Bedakan dari `lam_ajid_marfu`: di sini sanad (atau lafaz ini) sama sekali tidak ditemukan;
+  // di sana yang tidak ditemukan hanya jalur marfu', riwayat mauquf bisa tetap ada (j028 x06).
+  lam_ajid: "tidak ditemukan sanad atau lafaznya",
   lam_ajid_marfu: "tidak ditemukan sebagai sabda Nabi (marfu')",
-  mursal: "mursal",
-  mawquf: "mauquf",
-  muallaq: "mu'allaq (tanpa sanad)",
-  sebagian: "sebagian lafaz saja",
-  dibantah: "penilaian yang dibantah penakhrij",
-  rujukan: "lihat takhrij di tempat lain",
+  mursal: "diriwayatkan mursal",
+  mawquf: "diriwayatkan mauquf",
+  muallaq: "diriwayatkan mu'allaq (tanpa sanad)",
+  sebagian: "sumbernya hanya memuat sebagian lafaz",
+  dibantah: "memuat penilaian ulama lain yang dibantah",
+  rujukan: "merujuk ke takhrij di tempat lain",
 };
 
 /** Urutan baku jenis istilah (urutan `TAKHRIJ_TERM_GLOSS`; pilihan koreksi penilai, X07). */
@@ -101,15 +107,22 @@ export interface TakhrijLabel {
   terms: TakhrijLabelTerm[];
 }
 
-const SOURCES_ONLY = "takhrij hanya menyebut sumber riwayat, tanpa istilah penilaian";
-const REFERS_BACK = "takhrij merujuk ke takhrij di tempat lain";
-const SOURCES_REFERS_BACK = "takhrij menyebut sumber riwayat dan merujuk ke takhrij di tempat lain";
+/**
+ * Penakhrij yang istilahnya dikenali `takhrijTerms` (pola frasa al-'Iraqi untuk Ihya). Kitab lain
+ * dengan penakhrij lain butuh aturan istilah sendiri, dan nama ini ikut jadi parameter.
+ */
+const TAKHRIJ_BY = "takhrij al-'Iraqi";
+const SOURCES_ONLY = `${TAKHRIJ_BY} hanya menyebut sumber riwayatnya, tanpa istilah penilaian`;
+const REFERS_BACK = `${TAKHRIJ_BY} merujuk ke takhrijnya di tempat lain`;
+const SOURCES_REFERS_BACK = `${TAKHRIJ_BY} menyebut sumber riwayatnya dan merujuk ke takhrijnya di tempat lain`;
 const NOT_TAKHRIJ = "catatan kaki ini tidak memuat istilah takhrij yang dikenali";
 /** Bagian yang disitasi tidak memuat istilah, padahal catatan kaki utuhnya memuat. */
 export const TAKHRIJ_RANGE_WITHOUT_TERMS =
   "bagian takhrij yang dikutip tidak memuat istilah penilaian";
 const RANGE_WITHOUT_TERMS = TAKHRIJ_RANGE_WITHOUT_TERMS;
-const BY_REVIEWER = "menurut peninjau: ";
+/** Atribusi di akhir tiap kelompok istilah: isi takhrij, atau jenis tambahan penilai. */
+const BY_TAKHRIJ = `, menurut ${TAKHRIJ_BY}`;
+const BY_REVIEWER = ", menurut peninjau";
 const MIXED = " (berbeda per jalur)";
 const MORE = "; dan lainnya";
 /** Catatan kaki memuat takhrij beberapa hadits (penanda "(N)" internal, masalah ingest). */
@@ -200,8 +213,8 @@ const isMixed = (all: readonly TakhrijTermKind[]) =>
 /**
  * Teks status dari jenis istilah (urut kemunculan; duplikat diabaikan), dibuat kode. Dipakai label
  * kode dan label koreksi penilai (X07), supaya keduanya disusun dengan aturan yang sama. `added` =
- * jenis yang DITETAPKAN penilai tanpa istilah baku di teks: disebut terpisah sebagai "menurut
- * peninjau: …", tidak pernah sebagai isi takhrij (bahasa atribusi, ADR-070).
+ * jenis yang DITETAPKAN penilai tanpa istilah baku di teks: disebut terpisah sebagai "…, menurut
+ * peninjau", tidak pernah sebagai isi takhrij (bahasa atribusi, ADR-070; bunyi ADR-111).
  */
 export function takhrijStatus(
   list: readonly TakhrijTermKind[],
@@ -233,29 +246,34 @@ export function takhrijStatus(
       : { kind: "sources_only", text: `${SOURCES_ONLY}${many}`, mixed: false };
   const mixed = ctx.mixed ?? isMixed([...kinds, ...extra]);
   const items = [
-    ...kinds.map((k, i) => ({ k, lead: i === 0 ? "takhrij menyebut: " : "; " })),
-    ...extra.map((k, i) => ({
-      k,
-      lead: i > 0 ? "; " : kinds.length > 0 ? `; ${BY_REVIEWER}` : BY_REVIEWER,
-    })),
+    ...kinds.map((k) => ({ k, added: false })),
+    ...extra.map((k) => ({ k, added: true })),
   ];
+  // "X; Y, menurut takhrij al-'Iraqi; Z, menurut peninjau". Bila terpotong, "dan lainnya" masuk
+  // kelompok terakhir hanya bila semua sisanya sekelompok, supaya atribusinya tidak keliru.
+  const render = (n: number) => {
+    const shown = items.slice(0, n);
+    const rest = items.slice(n);
+    const last = shown.at(-1)!.added;
+    const inGroup = rest.length > 0 && rest.every((i) => i.added === last);
+    const group = (added: boolean, by: string) => {
+      const list = shown.filter((i) => i.added === added);
+      if (list.length === 0) return [];
+      const more = inGroup && added === last ? MORE : "";
+      return [`${list.map((i) => TAKHRIJ_TERM_GLOSS[i.k]).join("; ")}${more}${by}`];
+    };
+    const body = [...group(false, BY_TAKHRIJ), ...group(true, BY_REVIEWER)].join("; ");
+    if (rest.length === 0 || inGroup) return body;
+    // Sisanya hanya jenis tambahan penilai, padahal belum ada yang tampil: atribusinya tetap disebut.
+    return rest.every((i) => i.added) ? `${body}${MORE}${BY_REVIEWER}` : `${body}${MORE}`;
+  };
   // Istilah pertama selalu masuk: bila ruangnya tidak cukup, keterangan "beberapa hadits" lalu
-  // "berbeda per jalur" yang dipangkas lebih dulu.
+  // "berbeda per jalur" yang dipangkas lebih dulu. Istilah berikutnya hanya masuk bila teksnya
+  // (dengan "dan lainnya" bila masih ada sisa) tetap ≤ batas.
   const tails = [`${mixed ? MIXED : ""}${many}`, mixed ? MIXED : "", ""];
-  const first = `${items[0]!.lead}${TAKHRIJ_TERM_GLOSS[items[0]!.k]}`;
-  const reserve0 = items.length > 1 ? MORE.length : 0;
-  const tail = tails.find((x) => first.length + reserve0 + x.length <= TAKHRIJ_STATUS_MAX) ?? "";
-  // Setiap istilah hanya masuk bila sisa ruang masih cukup untuk "; dan lainnya" sesudahnya.
-  let text = first;
-  for (const [i, { k, lead }] of items.entries()) {
-    if (i === 0) continue;
-    const next = `${text}${lead}${TAKHRIJ_TERM_GLOSS[k]}`;
-    const reserve = i < items.length - 1 ? MORE.length : 0;
-    if (next.length + tail.length + reserve > TAKHRIJ_STATUS_MAX) {
-      text = `${text}${MORE}`;
-      break;
-    }
-    text = next;
-  }
+  const tail = tails.find((x) => render(1).length + x.length <= TAKHRIJ_STATUS_MAX) ?? "";
+  let n = 1;
+  while (n < items.length && render(n + 1).length + tail.length <= TAKHRIJ_STATUS_MAX) n++;
+  const text = render(n);
   return { kind: "terms", mixed, text: `${text}${tail}` };
 }

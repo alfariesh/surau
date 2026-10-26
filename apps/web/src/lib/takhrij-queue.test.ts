@@ -135,8 +135,8 @@ describe("antrean label takhrij", () => {
     const item = await takhrijReviewItem(deps, 12);
     expect(item).toMatchObject({
       text: WEAK,
-      label: { text: "takhrij menyebut: lemah" },
-      current: { review: "corrected", text: "menurut peninjau: mursal" },
+      label: { text: "dinilai lemah, menurut takhrij al-'Iraqi" },
+      current: { review: "corrected", text: "diriwayatkan mursal, menurut peninjau" },
       cites: 3,
     });
     expect(item?.own).toMatchObject({ decision: "corrected", stale: false });

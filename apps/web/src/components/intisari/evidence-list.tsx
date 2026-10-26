@@ -137,7 +137,7 @@ export function EvidenceList({
                   ) : null}
                 </div>
                 <ForPoints numbers={numbers} ords={h.point_ords} />
-                <Typography type="body-sm">
+                <Typography type="body-sm" className="first-letter:uppercase">
                   {h.status.text} <span className="text-muted text-xs">({t.hadithStatus})</span>
                 </Typography>
                 {h.status.mixed ? (

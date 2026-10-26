@@ -40,7 +40,7 @@ const base: JawabResult = {
     {
       passage_id: 10,
       footnote: { passage_id: 11, char_start: 0, char_end: 9 },
-      status: "takhrij menyebut: lemah",
+      status: "dinilai lemah, menurut takhrij al-'Iraqi",
       label: "rule_extracted",
       rules_version: 1,
       mixed: false,
@@ -74,7 +74,7 @@ describe("AnswerView", () => {
     expect(turn).toContain('href="#kutipan-g2-1"');
     expect(turn).toContain('id="kutipan-g2-2"');
     expect(html).toContain("dikenali otomatis dari teks takhrij");
-    expect(html).toContain("takhrij menyebut: lemah");
+    expect(html).toContain("dinilai lemah, menurut takhrij al-&#x27;Iraqi");
     // Tanpa teks takhrij dari DB (dimuat sesudah render), tidak ada tanda kelemahan dari ringkasan AI.
     expect(html).not.toContain("istilah kelemahan");
     expect(html).toContain('id="kutipan-2"');
