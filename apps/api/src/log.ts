@@ -30,9 +30,10 @@ export interface JawabLog {
   pipeline_terms: number;
   /** Kalimat calon parafrase ayat, heuristik (ADR-106). */
   ayah_gloss_suspect: number;
-  /** Kalimat bersebelahan berulang dan salinan terjemahan AI (ADR-109). */
+  /** Kalimat berulang dalam satu paragraf, salinan terjemahan AI, penilaian hadits tanpa sitasi takhrij (ADR-109). */
   repeated_sentences: number;
   translation_copy: number;
+  grading_uncited: number;
   hadith_unsupported: number;
   /** Pernyataan status bertakhrij yang diganti teks label kode (X06). */
   hadith_labeled: number;
@@ -74,6 +75,7 @@ export function resultLog(environment: string, r: JawabResult, cached: boolean):
     ayah_gloss_suspect: d.ayah_gloss_suspect,
     repeated_sentences: d.repeated_sentences,
     translation_copy: d.translation_copy,
+    grading_uncited: d.grading_uncited,
     hadith_unsupported: d.hadith_unsupported,
     hadith_labeled: d.hadith_labeled,
     hadith_reviewed: d.hadith_reviewed,
@@ -116,6 +118,7 @@ export function emptyLog(
     ayah_gloss_suspect: 0,
     repeated_sentences: 0,
     translation_copy: 0,
+    grading_uncited: 0,
     hadith_unsupported: 0,
     hadith_labeled: 0,
     hadith_reviewed: 0,

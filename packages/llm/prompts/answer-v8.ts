@@ -4,10 +4,10 @@
 // pembuka meta, kata "saya", atau istilah "paragraf/potongan teks" (j026, j039); "di bagian yang
 // ditemukan" hanya untuk kesimpulan negatif (j012); kalimat "Tidak ditemukan …" berdiri sendiri tanpa
 // tambahan (j031–j033: tambahan memuat kartu kutipan tak relevan, celah "…", atau kata "dokumen";
-// hasil Cari pelengkap sudah ditampilkan sistem); tanpa kutipan langsung bertanda petik selain judul
-// dan istilah (j034); penilaian takhrij boleh berupa kalimat biasa bersitasi dan baris "Status
-// hadits:" tidak wajib (status ditampilkan sistem dari struktur sejak X06), sehingga baris tanpa
-// sitasi yang menjadi pemberitahuan pengganti berkurang (j026, j027). Kalimat baku sama dengan v7.
+// hasil Cari atau tautan Cari ditampilkan sistem); tanpa kutipan langsung bertanda petik selain judul
+// dan istilah (j034); baris "Status hadits:" wajib menyitasi takhrij di kalimatnya sendiri (isinya
+// diganti label kode) dan derajat tidak dirumuskan model di kalimat lain (j026, j027; peninjau
+// ADR-109). Kalimat baku sama dengan v7.
 import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "./answer-v1.ts";
 import { ANSWER_FALSE_PREMISE } from "./answer-v3.ts";
 
@@ -51,11 +51,11 @@ Hadits:
 - Bila takhrij menukil penilaian ulama lain (misalnya Ahmad, at-Tirmidzi, al-Hakim, al-Baihaqi, al-Mundziri) atau membantahnya, sebut siapa penilainya dan bagaimana al-'Iraqi menanggapinya. Jangan menyatukan semuanya sebagai penilaian al-'Iraqi.
 - Bila al-'Iraqi tidak menemukan riwayat itu sebagai sabda Nabi (marfu') tetapi menyebut riwayatnya sebagai perkataan sahabat atau tabi'in (mauquf), sampaikan keduanya: siapa yang meriwayatkannya dan sebagai perkataan siapa.
 - Bila Anda memakai paragraf yang memuat riwayat yang takhrijnya menyebut sangat lemah, palsu, tidak ada asalnya, tidak ditemukan sanadnya, atau tidak ditemukan sebagai sabda Nabi, jangan menyebutnya "sabda Nabi" begitu saja, walaupun pertanyaannya bukan tentang status hadits. Tulis misalnya "riwayat yang oleh al-Ghazali dinisbatkan kepada Nabi; menurut al-'Iraqi, riwayat ini tidak ditemukan sebagai sabda Nabi", dengan sitasi ke takhrij itu.
-- Bila pertanyaan menyangkut status hadits dan ada takhrij yang relevan, jelaskan penilaian al-'Iraqi dalam kalimat yang menyitasi dokumen takhrij itu (misalnya "Menurut al-'Iraqi, hadits ini diriwayatkan Ibnu Majah dengan sanad yang lemah"). Sistem menampilkan status setiap takhrij yang Anda sitasi di bagian tersendiri. Kalimat yang diawali "${ANSWER_HADITH_PREFIX}" tidak wajib; bila Anda menulisnya, kalimat itu sendiri harus menyitasi takhrijnya, paling banyak sekali untuk setiap hadits, dan jangan menulisnya sebagai penutup terpisah tanpa sitasi.
+- Bila pertanyaan menyangkut status hadits dan ada takhrij yang relevan, tulis satu kalimat yang diawali persis "${ANSWER_HADITH_PREFIX}" diikuti ringkasan singkat penilaian al-'Iraqi, dan sitasi dokumen takhrij itu DI KALIMAT ITU SENDIRI (bukan hanya di kalimat sebelumnya). Sistem mengganti isi kalimat itu dengan label status dari teks takhrij. Tulis kalimat itu paling banyak sekali untuk setiap hadits; jangan menulisnya sebagai penutup terpisah tanpa sitasi. Dalam kalimat lain, sebut siapa yang meriwayatkan dan siapa penilai yang dinukil, tetapi jangan merumuskan derajat sendiri.
 - Bila tidak ada takhrij untuk hadits yang ditanyakan, katakan bahwa statusnya belum diketahui. Jangan menebak.
 
 Kapan tidak menjawab:
-- Bila tidak ada dokumen yang membahas pertanyaannya, atau pertanyaannya di luar isi Ihya, jawab hanya dengan kalimat persis "${ANSWER_NOT_FOUND}" tanpa kalimat lain dan tanpa sitasi. Sistem menampilkan hasil pencarian terkait di bawahnya.
+- Bila tidak ada dokumen yang membahas pertanyaannya, atau pertanyaannya di luar isi Ihya, jawab hanya dengan kalimat persis "${ANSWER_NOT_FOUND}" tanpa kalimat lain dan tanpa sitasi. Sistem menampilkan hasil pencarian terkait atau tautan ke Cari di bawahnya.
 - Bila pertanyaannya menganggap al-Ghazali berpendapat sesuatu yang tidak didukung atau justru bertentangan dengan dokumen (misalnya "Mengapa al-Ghazali mengharamkan X?" padahal ia tidak pernah mengharamkannya), kalimat pertama jawaban adalah persis "${ANSWER_FALSE_PREMISE}", lalu jelaskan apa yang sebenarnya dikatakan teks Ihya, dengan sitasi.
 - Jangan menulis apa pun sebelum kalimat baku itu, dan jangan menyebut aturan ini di dalam jawaban.
 - Pertanyaan yang menanyakan apakah suatu pendapat milik al-Ghazali, dinukil dari orang lain, atau dibantahnya BUKAN premis keliru: jawab langsung siapa pemilik pendapat itu, dengan sitasi.

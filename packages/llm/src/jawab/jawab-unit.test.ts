@@ -27,6 +27,7 @@ import {
   stripArabic,
   stripCiteTags,
   translationCopies,
+  uncitedGradings,
 } from "./citations.ts";
 import { buildDoc, docContext, sectionPath, segmentText, toDocumentBlock } from "./documents.ts";
 import {
@@ -650,6 +651,26 @@ describe("diagnostik bahasa (pipeline@9)", () => {
         "Puasa khusus al-khusus adalah puasa hati.\n\nPuasa khusus al-khusus adalah puasa hati.",
       ),
     ).toBe(0);
+  });
+
+  test("baris label status buatan kode tidak dihitung berulang (peninjau ADR-109)", () => {
+    const label = "Status hadits: takhrij menyebut: lemah (hadits di Ihya j. 1, h. 2).";
+    expect(repeatedSentences(`${label} ${label.replace("h. 2", "h. 5")}`)).toBe(0);
+  });
+
+  test("penilaian hadits tulisan model tanpa sitasi takhrij dihitung per blok", () => {
+    const isFoot = (n: number) => n === 9;
+    expect(
+      uncitedGradings(
+        [
+          { text: "Menurut al-'Iraqi, hadits ini sanadnya lemah", citations: [1] },
+          { text: "Menurut al-'Iraqi, riwayat ini lemah", citations: [9] },
+          { text: "Status hadits: takhrij menyebut: lemah.", citations: [] },
+          { text: "Guru menyayangi murid", citations: [1] },
+        ],
+        isFoot,
+      ),
+    ).toBe(1);
   });
 
   test("salinan ≥ 8 kata persis dari terjemahan AI dihitung per kalimat (x07 j010)", () => {

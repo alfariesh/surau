@@ -2882,13 +2882,16 @@ Pemilik meminta `answer@8` untuk bahasa di chat (2026-10-26).
    - tanpa kutipan langsung bertanda petik, selain judul atau istilah;
    - "bagian yang ditemukan" hanya untuk kesimpulan negatif;
    - "Tidak ditemukan di kitab yang dicakup." berdiri sendiri tanpa sitasi, karena hasil Cari pelengkap sudah ditampilkan sistem;
-   - penilaian takhrij ditulis sebagai kalimat biasa yang menyitasi takhrijnya. Baris "Status hadits:" tidak lagi wajib, karena status klaim dibuat dari struktur sejak X06 (ADR-069). Bila ditulis, baris itu harus bersitasi di kalimatnya sendiri.
+   - baris "Status hadits:" tetap jalur utama untuk soal status (isinya diganti label kode, ADR-069), tetapi wajib menyitasi takhrij DI kalimatnya sendiri dan tidak ditulis sebagai penutup terpisah tanpa sitasi; di kalimat lain model menyebut perawi dan penilai yang dinukil tanpa merumuskan derajat sendiri. (Draf pertama membuat baris itu tidak wajib dan mencontohkan derajat dalam kalimat bebas; peninjau menunjukkan itu memindahkan status ke tulisan model yang tidak diganti label, jadi dibatalkan.)
 
    Kalimat baku dan aturan lain sama dengan `answer@7`.
 2. **Pipeline@9:** diagnostik `repeated_sentences` dan `translation_copy` di `JawabDiagnostics` dan log Worker, keduanya heuristik dan tidak menyaring jawaban.
    - `repeated_sentences` menghitung pasangan kalimat dalam satu paragraf yang berbagi rangkaian ≥ 6 kata persis, setelah rumus atribusi "Menurut al-Ghazali dalam Ihya (j. …, h. …)" dibuang. Atas arsip x07, diagnostik ini menandai tepat lima jawaban yang dicatat penilai (j006, j007, j008, j010, j012). Atas arsip x06 ada tiga (j005, j008, j024).
-   - `translation_copy` menghitung kalimat yang memuat rangkaian ≥ 8 kata persis dari terjemahan AI dokumen.
-3. docs/05 §5: kalimat "Tidak ditemukan …" berdiri sendiri.
+   - `translation_copy` menghitung kalimat yang memuat rangkaian ≥ 8 kata persis dari terjemahan AI dokumen yang dikirim.
+   - `grading_uncited` menghitung blok berisi istilah derajat + kata hadits/riwayat/sanad di luar baris label yang tidak menyitasi catatan kaki takhrij: ukuran untuk risiko kalimat penilaian bebas yang diterima di ADR-106.
+   - Baris label kode dan pemberitahuan pengganti tidak dihitung `repeated_sentences`.
+3. docs/05 §5: kalimat "Tidak ditemukan …" berdiri sendiri; di bawahnya hasil Cari bila ada, atau tautan ke Cari (jalur tanpa kandidat tidak punya hasil). Kepatuhan "tanpa sitasi" tidak ditegakkan kode (`refusalKind` tetap menerima kalimat bersitasi sesudahnya, sama dengan v7).
+4. **Prompt ini baru dipakai setelah diukur:** PR tetap draft sampai satu run publik berbayar (izin pemilik) dinilai ulang dengan rubrik ADR-106. Bila bahasa atau kesetiaan turun dibanding x07, `answer@7` dipertahankan.
 
 **Tidak dipilih:**
 - Membuang kalimat berulang atau salinan terjemahan dengan kode. Blok bersitasi bisa hilang atau bergeser sitasinya, dan heuristik bisa salah tangkap.

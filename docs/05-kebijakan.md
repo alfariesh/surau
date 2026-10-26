@@ -57,7 +57,7 @@ Jawab "Tidak ditemukan di kitab yang dicakup." bila:
 - tidak ada bagian relevan yang ditemukan; atau
 - pertanyaannya di luar cakupan ruang/agen.
 
-Kalimat itu berdiri sendiri; di bawahnya Surau menampilkan hasil Cari terkait (sejak `answer@8`, ADR-109: kalimat tambahan buatan model sering memuat kutipan tak relevan).
+Kalimat itu berdiri sendiri; di bawahnya Surau menampilkan hasil Cari terkait bila ada, atau tautan ke Cari (sejak `answer@8`, ADR-109: kalimat tambahan buatan model sering memuat kutipan tak relevan).
 
 Bila pertanyaannya berpremis keliru (misalnya menanyakan mengapa sang ulama mengharamkan sesuatu yang tidak pernah ia haramkan), kalimat pertama jawaban adalah "Anggapan dalam pertanyaan ini tidak didukung teks Ihya." (untuk kitab lain, nama kitabnya), lalu jawaban menjelaskan apa yang sebenarnya dikatakan teks, dengan sitasi. Premis keliru tidak dijawab "tidak ditemukan", karena teksnya sering justru membahas hal itu dengan pendapat yang berbeda. Pertanyaan yang menanyakan apakah suatu pendapat milik sang ulama, dinukil dari orang lain, atau dibantahnya bukan premis keliru dan dijawab langsung. Kalimat baku ini sejalan dengan prompt Jawab sejak `answer@3` (diselaraskan 2026-10-26, ADR-106).
 
