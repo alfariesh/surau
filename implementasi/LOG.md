@@ -22,6 +22,17 @@ Format entri:
 
 ---
 
+## 2026-10-26 · Eval agent pengganti ustadz (paket R4, label takhrij, T-17 tahap 3) — selesai
+- Dikerjakan:
+  - Pemilik meminta agent menggantikan ustadz untuk sementara (ADR-105). Enam subagen menilai dari teks Arab `ihya-v7` (ekspor hanya-baca D1): 42 soal publik, 18 holdout (terpisah, laporan hanya kategori), 42 jawaban nyata run x06 (dari `answer_log` produksi), dan 253 label takhrij (dua bagian). T-17 tahap 3 dinilai buta, 60 sampel.
+  - Agent induk meninjau prompt `answer@6`/`answer-route@2` dan docs/05, lalu mengecek ulang j038 dan T-17 no. 13/23/40 terhadap teks Arab (terkonfirmasi).
+  - Laporan: `evals/reports/jawab-agent-pengganti-2026-10-26.md`, `data/reports/ihya-9472-takhrij-agent-2026-10-26.md`, bagian *Hasil* `data/reports/ihya-9472-t17-tahap3.md`. Holdout dan nilai per jawaban ada di `evals/private/` dan R2 `surau-evals` (kunci baru).
+- Hasil: soal 48/60 disetujui, 12 revisi. Jawaban: 19 Benar, 20 Kurang, 3 Salah, kesetiaan 76,2%, bahasa 3,74, status hadits 4/6. Label takhrij: 41/253 menyesatkan, presisi 94,0%. T-17: Benar 71,9%, Salah 13,3%, jadi tidak lolos (terjemahan ulang terarah). R4 belum terpenuhi.
+- Verifikasi: `pnpm t17 hasil data/reviews/ihya-9472-t17-tahap3-hasil-agent.txt` → tabel di laporan; skrip lokasi x06 dengan kunci sekarang → 29/34 (sama dengan laporan x06); pemeriksaan tanpa huruf Arab di semua berkas hasil → 0; `pnpm test` → 1042 lolos + 440 lolos; `pnpm build` → 4/4; `vp check` hanya gagal format di folder `.agents/`/`.codex/` yang tidak dilacak (bukan bagian PR); subagen `peninjau` → tanpa blocker, temuan diperbaiki.
+- Biaya API: – (hanya baca D1/R2 dan unggah dua berkas privat ke R2)
+- Keputusan: ADR-105
+- Catatan untuk sesi berikutnya: aturan takhrij versi 2 + pemisahan catatan kaki tergabung; prompt `answer@7` + kalimat status pengganti; revisi soal lalu satu run publik (berbayar, izin); terjemahan ulang terarah strata panjang (berbayar, izin); deteksi ayat tanpa placeholder (T-17 no. 12, j019).
+
 ## 2026-10-25 · X15b lanjutan · QA pilot Intisari oleh agent, Sonnet untuk Intisari Kitab, T-28 sebagian — selesai
 - Dikerjakan:
   - Pemilik menyerahkan QA pilot untuk sementara kepada agent (sesi induk, 2026-10-25: "Saya serahkan ke agent sementara untuk QA model sonnet"). Halaman QA dipecah menjadi paket per Intisari, lalu dinilai empat subagen QA berkonteks baru (pola T-17 tahap 2), tanpa API berbayar. Laporan dan nilai mentah: `data/reports/ihya-9472-intisari-qa-agent-2026-10-25.{md,json}`.

@@ -76,6 +76,8 @@ Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke
 
 **X06 (2026-10-21, izin pemilik di chat):** satu run publik `x06-publik-takhrij-v1` (42 soal publik, tanpa holdout, rute dari `x05-publik-jawaban-v1`; teks pertanyaan + paragraf Ihya kandidat dikirim ke Anthropic). Arsip di folder privat yang sama. `eval:jawab hadits` dan `eval:takhrij` gratis dan tidak memanggil LLM.
 
+**Agent pengganti ustadz (2026-10-26, ADR-105, izin pemilik di chat):** tanpa panggilan LLM. 42 jawaban `x06-publik-takhrij-v1` diekspor dari `answer_log` `surau-app` ke `evals/private/jawab-runs/x06-publik-takhrij-v1-answer-log.jsonl`. Penilaian agent per jawaban (`x06-agent-nilai-2026-10-26.jsonl`) dan per soal holdout (`evals/private/jawab-agent-tinjau-2026-10-26.jsonl`) disalin ke R2 `surau-evals/jawab-runs/x06-agent-nilai-2026-10-26.jsonl` dan `surau-evals/jawab/2026-10-26-tinjau-agent-privat.jsonl` (kunci baru). Teks 18 holdout dibaca satu subagen sesi Claude Code (diproses Anthropic seperti percakapan agent, tanpa API terpisah); subagen itu hanya melaporkan ID + kategori ke sesi induk. Penilaian soal publik di `jawab/tinjauan/agent-2026-10-26.jsonl` (subfolder, supaya tidak terbaca sebagai berkas soal). Jangan memakai berkas agent ini sebagai `--reviews`/golden resmi.
+
 Pemulihan holdout memakai:
 
 ```bash
