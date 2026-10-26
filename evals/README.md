@@ -82,6 +82,8 @@ Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke
 
 **X07 / ADR-106 (2026-10-26, izin pemilik di chat: satu run publik, pagu US$0,50):** `x07-publik-answer7-v1` (42 soal publik versi 2, tanpa holdout, routing baru; teks pertanyaan + paragraf Ihya kandidat dikirim ke Anthropic), biaya US$0,1205. Arsip di folder privat yang sama. Penilaian agent per jawaban (`x07-agent-nilai-2026-10-26.jsonl`, tiga subagen sesi Claude Code membaca teks Arab staging) disalin ke R2 `surau-evals/jawab-runs/x07-agent-nilai-2026-10-26.jsonl`.
 
+**X08 / ADR-110 (2026-10-26, izin pemilik di chat: satu run publik, pagu US$0,50):** `x08-publik-answer8-v1` (42 soal publik versi 2, tanpa holdout), biaya US$0,1167. Arsip di folder privat yang sama. Penilaian agent per jawaban (`x08-agent-nilai-2026-10-26.jsonl`) disalin ke R2 `surau-evals/jawab-runs/x08-agent-nilai-2026-10-26.jsonl`.
+
 Pemulihan holdout memakai:
 
 ```bash

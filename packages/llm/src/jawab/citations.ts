@@ -130,6 +130,88 @@ export function ayahGlossSuspects(text: string): number {
     .filter((s) => QS_REF.test(s) && GLOSS.test(s)).length;
 }
 
+const words = (s: string) => s.toLowerCase().match(/[\p{L}\p{N}'’-]+/gu) ?? [];
+
+/** Rangkaian kata berurutan sepanjang `n`, digabung spasi. */
+const shinglesOf = (w: readonly string[], n: number) =>
+  Array.from({ length: Math.max(0, w.length - n + 1) }, (_, i) => w.slice(i, i + n).join(" "));
+
+/** Panjang rangkaian kata yang sama yang dihitung sebagai isi berulang. */
+const REPEAT_SHINGLE = 6;
+/**
+ * Rumus atribusi dan lokasi yang wajar berulang ("Menurut al-Ghazali dalam Ihya (j. 1, h. 5)").
+ * Varian lain ("j. 1 h. 5", "hlm.") tidak ditangkap; diagnostik ini heuristik.
+ */
+const ATTRIBUTION =
+  /(?:menurut\s+)?al-ghazali\s+dalam\s+ihya|\(?(?:ihya\s+)?j\.\s*\d+,\s*h\.\s*\d+(?:[–-]\d+)?\)?/giu;
+
+/**
+ * Pasangan kalimat (semua pasangan, bukan hanya bersebelahan) dalam satu paragraf yang berbagi
+ * rangkaian ≥ 6 kata persis (run x07 j007/j008/
+ * j012: parafrase model lalu terjemahan AI yang sama, "puasa khusus al-khusus adalah puasa hati").
+ * Diagnostik `repeated_sentences`, tidak menyaring.
+ */
+export function repeatedSentences(raw: string): number {
+  // Teks buatan kode (pemberitahuan pengganti, baris label status) wajar berulang: tidak dihitung.
+  const text = withoutNotices(raw).replace(
+    new RegExp(`${ANSWER_HADITH_PREFIX}[^\\n]*`, "gu"),
+    (m) => " ".repeat(m.length),
+  );
+  let n = 0;
+  let offset = 0;
+  for (const para of text.split(/\n\s*\n/u)) {
+    const from = text.indexOf(para, offset);
+    offset = from + para.length;
+    const sets = sentencesIn(text, from, from + para.length).map(
+      (s) =>
+        new Set(
+          shinglesOf(words(text.slice(s.start, s.end).replace(ATTRIBUTION, " ")), REPEAT_SHINGLE),
+        ),
+    );
+    for (let a = 0; a < sets.length; a++)
+      for (let b = a + 1; b < sets.length; b++) if ([...sets[a]!].some((g) => sets[b]!.has(g))) n++;
+  }
+  return n;
+}
+
+/** Panjang rangkaian kata yang dihitung sebagai salinan terjemahan. */
+const COPY_SHINGLE = 8;
+
+/**
+ * Kalimat jawaban yang memuat rangkaian ≥ 8 kata persis dari terjemahan AI dokumen (salinan, bukan
+ * uraian; run x07 j010 "Ketahuilah bahwa batasan ghibah adalah …"). Diagnostik `translation_copy`.
+ */
+export function translationCopies(text: string, translations: readonly string[]): number {
+  const shingles = new Set(translations.flatMap((t) => shinglesOf(words(t), COPY_SHINGLE)));
+  if (shingles.size === 0) return 0;
+  return sentencesIn(text, 0, text.length).filter((s) =>
+    shinglesOf(words(text.slice(s.start, s.end)), COPY_SHINGLE).some((g) => shingles.has(g)),
+  ).length;
+}
+
+const GRADING_TERM =
+  /(?<!\p{L})(?:lemah|dha'?if|da'?if|palsu|maudhu'?|mawdu'?|munkar|matruk|sahih|shahih|hasan|tidak ada asal(?:nya)?|tidak (?:ditemukan|didapati) sanad(?:nya)?|tanpa sanad)(?!\p{L})/iu;
+const HADITH_SUBJECT = /(?<!\p{L})(?:hadits|hadis|riwayat|sanad)(?!\p{L})/iu;
+
+/**
+ * Kalimat penilaian hadits (istilah derajat + kata hadits/riwayat/sanad) di luar baris label kode
+ * yang bloknya tidak menyitasi catatan kaki takhrij mana pun: penilaian tulisan model yang tidak
+ * dipaksa `hadithCheck` (risiko yang diterima ADR-106/ADR-110). Dihitung per blok jawaban.
+ */
+export function uncitedGradings(
+  blocks: readonly { text: string; citations: readonly number[] }[],
+  isFoot: (n: number) => boolean,
+): number {
+  return blocks.filter(
+    (b) =>
+      !b.text.trimStart().startsWith(ANSWER_HADITH_PREFIX) &&
+      !NOTICES.some((n) => b.text.includes(n)) &&
+      GRADING_TERM.test(b.text) &&
+      HADITH_SUBJECT.test(b.text) &&
+      !b.citations.some(isFoot),
+  ).length;
+}
+
 /**
  * Jenis penolakan baku: `not_found` (prompt `answer@1`+) atau `false_premise` (`answer@3`+), bila
  * kalimat bakunya ada di paragraf pertama (model kadang menulis satu kalimat pengantar dulu);

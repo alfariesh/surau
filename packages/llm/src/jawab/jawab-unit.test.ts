@@ -23,8 +23,11 @@ import {
   isNotFound,
   pipelineTerms,
   refusalKind,
+  repeatedSentences,
   stripArabic,
   stripCiteTags,
+  translationCopies,
+  uncitedGradings,
 } from "./citations.ts";
 import { buildDoc, docContext, sectionPath, segmentText, toDocumentBlock } from "./documents.ts";
 import {
@@ -627,6 +630,63 @@ describe("diagnostik mutu jawaban (pipeline@8)", () => {
     ])
       expect(ayahGlossSuspects(`Ayat ${ref} berarti menyembah Allah dengan ikhlas.`), ref).toBe(1);
     expect(ayahGlossSuspects("Ikhlas berarti murni (j. 4, h. 376; QS 98:5).")).toBe(1);
+  });
+});
+
+describe("diagnostik bahasa (pipeline@9)", () => {
+  test("isi berulang dalam satu paragraf dihitung; rumus atribusi tidak (x07 j008, j019)", () => {
+    expect(
+      repeatedSentences(
+        "Menurut al-Ghazali dalam Ihya (j. 1, h. 234), puasa khusus al-khusus adalah puasa hati. Puasa khusus al-khusus adalah puasa hati dari cita-cita rendah.",
+      ),
+    ).toBe(1);
+    expect(
+      repeatedSentences(
+        "Menurut al-Ghazali dalam Ihya (j. 3, h. 305), ikhlas itu cukup. Menurut al-Ghazali dalam Ihya (j. 3, h. 310), riya itu tersembunyi.",
+      ),
+    ).toBe(0);
+    // Paragraf berbeda tidak dibandingkan.
+    expect(
+      repeatedSentences(
+        "Puasa khusus al-khusus adalah puasa hati.\n\nPuasa khusus al-khusus adalah puasa hati.",
+      ),
+    ).toBe(0);
+  });
+
+  test("baris label status buatan kode tidak dihitung berulang (peninjau ADR-110)", () => {
+    const label = "Status hadits: takhrij menyebut: lemah (hadits di Ihya j. 1, h. 2).";
+    expect(repeatedSentences(`${label} ${label.replace("h. 2", "h. 5")}`)).toBe(0);
+  });
+
+  test("penilaian hadits tulisan model tanpa sitasi takhrij dihitung per blok", () => {
+    const isFoot = (n: number) => n === 9;
+    expect(
+      uncitedGradings(
+        [
+          { text: "Menurut al-'Iraqi, hadits ini sanadnya lemah", citations: [1] },
+          { text: "Menurut al-'Iraqi, riwayat ini lemah", citations: [9] },
+          { text: "Status hadits: takhrij menyebut: lemah.", citations: [] },
+          { text: "Guru menyayangi murid", citations: [1] },
+        ],
+        isFoot,
+      ),
+    ).toBe(1);
+  });
+
+  test("salinan ≥ 8 kata persis dari terjemahan AI dihitung per kalimat (x07 j010)", () => {
+    const tr = [
+      "Ketahuilah bahwa batasan ghibah adalah engkau menyebut saudaramu dengan hal yang ia benci.",
+    ];
+    expect(
+      translationCopies(
+        "Menurut al-Ghazali, gibah dirumuskan singkat. Ketahuilah bahwa batasan ghibah adalah engkau menyebut saudaramu dengan hal yang ia benci.",
+        tr,
+      ),
+    ).toBe(1);
+    expect(translationCopies("Gibah adalah menyebut saudara dengan hal yang ia benci.", tr)).toBe(
+      0,
+    );
+    expect(translationCopies("Apa saja.", [])).toBe(0);
   });
 });
 
