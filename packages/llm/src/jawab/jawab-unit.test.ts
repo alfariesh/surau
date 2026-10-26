@@ -591,6 +591,7 @@ describe("diagnostik mutu jawaban (pipeline@8)", () => {
   test("istilah pipeline yang bocor dihitung", () => {
     expect(pipelineTerms("Dokumen yang dilampirkan tidak memuat takhrij lain.")).toBe(2);
     expect(pipelineTerms("Dalam terjemahan AI yang disertakan, …")).toBe(1);
+    expect(pipelineTerms("Konteks yang diberikan tidak memuatnya.")).toBe(1);
     expect(
       pipelineTerms("Menurut al-Ghazali dalam Ihya (j. 1, h. 55), guru menyayangi murid."),
     ).toBe(0);
@@ -611,6 +612,15 @@ describe("diagnostik mutu jawaban (pipeline@8)", () => {
       ),
     ).toBe(0);
     expect(ayahGlossSuspects("Ia menyebut QS 2:153 sebagai dalil sabar.")).toBe(0);
+    // Format rujukan lain (peninjau ADR-106): "QS." tidak memenggal kalimat.
+    for (const ref of [
+      "QS. 98:5",
+      "QS Ali 'Imran [3]: 7",
+      "QS Al-Baqarah (2): 153",
+      "QS Al-Baqarah: 153",
+    ])
+      expect(ayahGlossSuspects(`Ayat ${ref} berarti menyembah Allah dengan ikhlas.`), ref).toBe(1);
+    expect(ayahGlossSuspects("Ikhlas berarti murni (j. 4, h. 376; QS 98:5).")).toBe(1);
   });
 });
 
@@ -829,16 +839,78 @@ describe("klaim hadits", () => {
       { passage_id: 1, footnote: { passage_id: 2 }, status: LABEL, label: "rule_extracted" },
     ]);
     const text = checked.blocks.map((b) => b.text).join("");
-    // Baris status tidak meminjam takhrij kalimat lain; tulisan model "sahih" tidak tampil, dan
-    // pemberitahuan yang berdiri sendiri dibuang karena bagian "Status hadits" berisi (pipeline@8,
-    // j025–j029).
-    expect(text).toBe(
-      "Menurut takhrij, hadits ini diriwayatkan dengan sanad lemah. Catatan lain menjelaskan kata.",
-    );
+    // Baris status tidak meminjam takhrij kalimat lain; tulisan model "sahih" tidak tampil. Tanpa
+    // baris label bersitasi, pemberitahuan tetap ada (takhrij tersitasi bisa milik hadits lain).
+    expect(text.endsWith(HADITH_NOT_CITED)).toBe(true);
     expect(text).not.toContain("sahih");
   });
 
-  test("pipeline@8: pemberitahuan berdiri sendiri di antara paragraf dibuang bila ada klaim (j025)", () => {
+  test("pipeline@8: pemberitahuan berdiri sendiri dibuang hanya bila ada baris label bersitasi (j025)", () => {
+    const passages = new Map([
+      [1, passage(1, SENT, { footnote_ids: [2] })],
+      [2, passage(2, FOOT, { kind: "foot", referenced_by: [1] })],
+    ]);
+    const citations = [
+      {
+        n: 1,
+        passage_id: 2,
+        char_start: 0,
+        char_end: 12,
+        kind: "foot" as const,
+        label: "",
+        permalink: "",
+      },
+      {
+        n: 2,
+        passage_id: 1,
+        char_start: 0,
+        char_end: 12,
+        kind: "body" as const,
+        label: "",
+        permalink: "",
+      },
+    ];
+    const run = (blocks: { text: string; citations: number[] }[]) => {
+      const checked = hadithCheck(blocks, citations, passages);
+      return { checked, text: checked.blocks.map((b) => b.text).join("") };
+    };
+    // Ada baris label (status bersitasi takhrij): baris kedua yang tak bersitasi dibuang beserta
+    // baris kosongnya; sitasi blok lain utuh.
+    const labeled = run([
+      { text: "Status hadits: sanadnya lemah", citations: [1] },
+      { text: ".\n\nStatus hadits: sahih.\n\n", citations: [] },
+      { text: "Di tempat lain hanya ada rujukan balik", citations: [2] },
+      { text: ".", citations: [] },
+    ]);
+    expect(labeled.text).toBe(
+      `Status hadits: ${IN_TEXT}.\n\nDi tempat lain hanya ada rujukan balik.`,
+    );
+    expect(labeled.text).not.toContain("sahih");
+    expect(labeled.checked.unsupported).toBe(1);
+    expect(labeled.checked.blocks.find((b) => b.text.startsWith("Di tempat"))?.citations).toEqual([
+      2,
+    ]);
+    // Di awal jawaban: dibuang tanpa menyisakan baris kosong di depan.
+    const first = run([
+      { text: "Status hadits: sahih.\n\n", citations: [] },
+      { text: "Status hadits: sanadnya lemah", citations: [1] },
+      { text: ".", citations: [] },
+    ]);
+    expect(first.text).toBe(`Status hadits: ${IN_TEXT}.`);
+    // Tanpa baris label (takhrij hanya disitasi kalimat isi): pemberitahuan tetap, tanpa
+    // "tidak dipastikan".
+    const plain = run([
+      { text: "Menurut al-'Iraqi, ", citations: [] },
+      { text: "hadits ini diriwayatkan Ibnu Majah dan dilemahkan Ahmad", citations: [1] },
+      { text: ".\n\nStatus hadits: lemah.\n\nLanjut.", citations: [] },
+    ]);
+    expect(plain.text).toContain(`\n\n${HADITH_NOT_CITED}\n\nLanjut.`);
+    // Tanpa klaim sama sekali: "belum diketahui".
+    const none = run([{ text: "Isi.\n\nStatus hadits: lemah.\n\nLanjut.", citations: [] }]);
+    expect(none.text).toBe(`Isi.\n\n${HADITH_UNKNOWN}\n\nLanjut.`);
+  });
+
+  test("peninjau ADR-106: gabungan dengan 'belum diketahui' tetap 'belum diketahui' dan tidak dibuang", () => {
     const passages = new Map([
       [1, passage(1, SENT, { footnote_ids: [2] })],
       [2, passage(2, FOOT, { kind: "foot", referenced_by: [1] })],
@@ -856,29 +928,14 @@ describe("klaim hadits", () => {
     ];
     const checked = hadithCheck(
       [
-        { text: "Menurut al-'Iraqi, ", citations: [] },
-        { text: "hadits ini diriwayatkan Ibnu Majah dan dilemahkan Ahmad", citations: [1] },
-        {
-          text: ".\n\nStatus hadits: lemah.\n\nDi tempat lain hanya ada rujukan balik.",
-          citations: [],
-        },
+        { text: "Status hadits: sanadnya lemah", citations: [1] },
+        { text: ".\n\nStatus hadits A: sahih. Status hadits B: belum diketahui.", citations: [] },
       ],
       citations,
       passages,
     );
     const text = checked.blocks.map((b) => b.text).join("");
-    expect(text).toBe(
-      "Menurut al-'Iraqi, hadits ini diriwayatkan Ibnu Majah dan dilemahkan Ahmad.\n\nDi tempat lain hanya ada rujukan balik.",
-    );
-    expect(checked.unsupported).toBe(1);
-    expect(checked.claims).toHaveLength(1);
-    // Tanpa klaim (takhrij tidak tersitasi), kalimat yang sama tetap jadi "belum diketahui".
-    const none = hadithCheck(
-      [{ text: "Isi.\n\nStatus hadits: lemah.\n\nLanjut.", citations: [] }],
-      [],
-      passages,
-    );
-    expect(none.blocks.map((b) => b.text).join("")).toBe(`Isi.\n\n${HADITH_UNKNOWN}\n\nLanjut.`);
+    expect(text).toBe(`Status hadits: ${IN_TEXT}.\n\n${HADITH_UNKNOWN}`);
   });
 
   test("kalimat status wajib menyitasi takhrij SENDIRI; takhrij kalimat sebelumnya tidak dipinjam", () => {

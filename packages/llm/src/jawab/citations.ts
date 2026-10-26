@@ -105,14 +105,16 @@ export function stripArabic(text: string): { text: string; removed: number } {
  * yang disertakan"; penilaian agent 2026-10-26: ±15 dari 42 jawaban x06). Hanya diagnostik: kata
  * "dokumen" bisa sah di kalimat lain, jadi tidak dibuang.
  */
-const PIPELINE_TERMS = /(?<!\p{L})(?:dokumen|lampiran|dilampirkan|terjemahan AI)(?!\p{L})/giu;
+const PIPELINE_TERMS =
+  /(?<!\p{L})(?:dokumen|lampiran|dilampirkan|konteks|terjemahan AI)(?!\p{L})/giu;
 
 /** Jumlah istilah pipeline di jawaban (diagnostik `pipeline_terms`). */
 export function pipelineTerms(text: string): number {
   return [...text.matchAll(PIPELINE_TERMS)].length;
 }
 
-const QS_REF = /(?<!\p{L})QS\.?\s*(?:[\p{L}'’-]+\s*)?\[?\d{1,3}\]?\s*:\s*\d{1,3}/u;
+/** "QS 98:5", "QS. 98:5", "QS Al-Baqarah [2]: 153", "QS Ali 'Imran (3): 7", "QS Al-Baqarah: 153". */
+const QS_REF = /(?<!\p{L})QS\.?\s*[^\n:.;]{0,40}?:\s*\d{1,3}/u;
 const GLOSS =
   /(?<!\p{L})(?:artinya|berarti|bermakna|maknanya|berbunyi|bunyinya|terjemahnya)(?!\p{L})|"[^"\n]{12,}"|“[^”\n]{12,}”/iu;
 
@@ -123,7 +125,9 @@ const GLOSS =
  * yang menjelaskan penalaran al-Ghazali di sekitar ayat juga bisa tertangkap.
  */
 export function ayahGlossSuspects(text: string): number {
-  return text.split(/(?<=[.!?])\s+|\n+/u).filter((s) => QS_REF.test(s) && GLOSS.test(s)).length;
+  return sentencesIn(text, 0, text.length)
+    .map((s) => text.slice(s.start, s.end))
+    .filter((s) => QS_REF.test(s) && GLOSS.test(s)).length;
 }
 
 /**
@@ -253,6 +257,7 @@ const ABBREVIATIONS = new Set([
   "jil",
   "juz",
   "cet",
+  "qs",
 ]);
 
 /**

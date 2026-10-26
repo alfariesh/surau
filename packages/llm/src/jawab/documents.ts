@@ -99,8 +99,11 @@ export function estimateTextTokens(text: string): number {
 const DOC_OVERHEAD = 95;
 const BLOCK_OVERHEAD = 8;
 
-/** Tingkat daftar isi Ihya untuk kitab (tingkat 1 = rub'). */
-const KITAB_LEVEL = 2;
+/**
+ * Kitab Ihya = node tingkat 2 berjudul "كتاب …" (tingkat 1 = rub' atau muqaddimah; anak
+ * muqaddimah bukan kitab).
+ */
+const isKitab = (n: AnswerTocNode) => n.level === 2 && n.title_ar.trimStart().startsWith("كتاب");
 
 /**
  * Jalur bagian: dua judul terdekat, didahului judul kitab bila kitab tidak termasuk di dalamnya
@@ -120,7 +123,7 @@ export function sectionPath(
     node = node.parent_id === null ? undefined : toc.get(node.parent_id);
   }
   const near = chain.slice(-depth);
-  const kitab = chain.find((n) => n.level === KITAB_LEVEL);
+  const kitab = chain.find(isKitab);
   const titles = near.map((n) => n.title_ar);
   if (kitab !== undefined && !near.includes(kitab)) {
     const gap = chain.indexOf(kitab) < chain.length - depth - 1;
@@ -147,10 +150,11 @@ export function docContext(
   }
   const path = sectionPath(p.toc_node_id, toc);
   if (path !== "") lines.push(`Bagian: ${path}`);
-  // Pengingat di tempat ayat muncul (j019: Haiku memparafrasekan ayat yang dipakai berdalil).
+  // Keterangan (bukan perintah: isi dokumen adalah data) bahwa ayat ditampilkan sistem dari
+  // rujukannya (j019: Haiku memparafrasekan ayat yang dipakai berdalil); aturannya di prompt.
   if (p.ayah_labels.length > 0)
     lines.push(
-      `Ayat yang dikutip: ${p.ayah_labels.join(", ")} (sebut rujukannya saja; jangan tulis bunyi atau maknanya).`,
+      `Ayat yang dikutip: ${p.ayah_labels.join(", ")} (bunyi dan terjemahan resminya ditampilkan sistem dari rujukan ini).`,
     );
   if (p.translation !== null)
     lines.push(`Terjemahan AI (bisa keliru; ⟦QS⟧ = ayat): ${p.translation.text}`);

@@ -23,7 +23,7 @@ ADR-046 menunda pencarian makna sampai eval membuktikan perlu; ADR-067 menyataka
 
 ## Aturan holdout (ADR-045/046)
 
-Soal privat (`p…`) **tidak dipakai merancang** perbaikan, tidak dibaca isinya, dan topiknya tidak disebut. Semua rancangan dan uji gratis memakai 42 soal publik `evals/jawab/ihya-draf-v1.jsonl`. Holdout hanya dijalankan sekali sesudah kode dibekukan, dengan laporan agregat.
+Soal privat (`p…`) **tidak dipakai merancang** perbaikan, tidak dibaca isinya, dan topiknya tidak disebut. Semua rancangan dan uji gratis memakai 42 soal publik `evals/jawab/ihya-draf-v1.jsonl` (sejak ADR-106: `ihya-draf-v2.jsonl`). Holdout hanya dijalankan sekali sesudah kode dibekukan, dengan laporan agregat.
 
 ## Langkah
 

@@ -790,17 +790,24 @@ export function hadithCheck(
       );
       // Tanpa klaim status sama sekali (tidak ada takhrij tersitasi yang berpemilik), pemberitahuan
       // yang menunjuk bagian "Status hadits" menjadi "belum diketahui".
-      // Dengan klaim, pemberitahuan yang berdiri sendiri satu baris dibuang: bagian "Status
-      // hadits" sudah memuat status dari takhrij, dan kalimat itu terbaca bertentangan dengan isi
-      // jawaban (penilaian agent 2026-10-26, j025–j029). Di butir daftar atau di tengah paragraf
-      // pemberitahuan tetap ada, supaya tidak meninggalkan butir kosong atau kalimat rumpang.
+      // Bila jawaban sudah memuat baris label status bersitasi takhrij (kode), pemberitahuan yang
+      // berdiri sendiri satu baris dibuang: statusnya sudah tampil di baris label dan di bagian
+      // "Status hadits", sedangkan pemberitahuan itu terbaca bertentangan (penilaian agent
+      // 2026-10-26, j025–j029). Tanpa baris label pemberitahuan tetap ada (takhrij yang tersitasi
+      // bisa milik hadits lain, peninjau ADR-106), begitu pula di butir daftar atau di tengah
+      // paragraf, supaya tidak meninggalkan butir kosong atau kalimat rumpang.
       if (claims.length === 0)
         current = current.map((b) =>
           b.citations.length === 0 && b.text.trim() === HADITH_NOT_CITED
             ? { ...b, text: b.text.replace(HADITH_NOT_CITED, HADITH_UNKNOWN) }
             : b,
         );
-      else current = dropStandaloneNotices(current);
+      else if (
+        current.some(
+          (b) => b.citations.length > 0 && b.text.trimStart().startsWith(ANSWER_HADITH_PREFIX),
+        )
+      )
+        current = dropStandaloneNotices(current);
       return {
         claims,
         blocks: current,
@@ -1128,7 +1135,9 @@ function replaceRanges(
       /^[ \t\u00A0]*$/u.test(full.slice(last.end, Math.max(last.end, s.start)))
     ) {
       last.end = Math.max(last.end, s.end);
-      if (s.notice !== last.notice) last.notice = HADITH_NOT_CITED;
+      // Gabungan dengan pernyataan "belum diketahui" tetap "belum diketahui" (tidak pernah
+      // dibuang `dropStandaloneNotices`, peninjau ADR-106).
+      if (s.notice !== last.notice) last.notice = HADITH_UNKNOWN;
     } else merged.push({ ...s });
   }
   const notice = (u: Span) =>
