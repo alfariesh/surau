@@ -62,6 +62,7 @@ import type { HadithStatement } from "./citations.ts";
 import type { CitedSpan } from "./citations.ts";
 import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
+import { echoSeeds, pickEchoes, searchFootnotes } from "./echo.ts";
 import { fuse, pairIds, searchLists, semanticLists, withPairs } from "./retrieve.ts";
 import type { SearchList, SemanticInput } from "./retrieve.ts";
 import { ROUTE_PROMPT, buildRouteRequest, normalizeRoute, parseRoute, tocText } from "./route.ts";
@@ -304,6 +305,8 @@ export interface JawabCandidates {
   ranked: number[];
   /** Paragraf kandidat beserta pasangannya. */
   passages: Map<number, AnswerPassage>;
+  /** Gema takhrij (ADR-111): paragraf → takhrij kemunculan pertama hadits yang sama. */
+  echoes: Map<number, number[]>;
   /**
    * Dokumen jawaban: urutan RRF + pasangan dipangkas anggaran token, lalu dikelompokkan per bagian
    * (`orderBySection`, X05); kosong = tanpa kandidat.
@@ -338,7 +341,8 @@ export async function jawabCandidates(
   const missing = pairIds(first).filter((id) => !ranked.includes(id));
   const extra = missing.length ? await answerPassages(db, missing) : [];
   const passages = new Map([...first, ...extra].map((p) => [p.id, p]));
-  const order = withPairs(ranked, passages);
+  const echoes = route?.hadith ? await takhrijEchoes(db, ranked, passages) : new Map();
+  const order = withPairs(ranked, passages, echoes);
   const labels = new Map([...passages.values()].map((p) => [p.id, docLabel(p)]));
   const budget = Math.min(
     DOC_BUDGET_TOKENS,
@@ -349,12 +353,29 @@ export async function jawabCandidates(
       order.map((id, i) => {
         const p = passages.get(id)!;
         const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
-        return buildDoc(shown, docContext(shown, toc, labels));
+        return buildDoc(shown, docContext(shown, toc, labels, echoes));
       }),
       budget,
     ),
   );
-  return { lists, ranked, passages, docs };
+  return { lists, ranked, passages, echoes, docs };
+}
+
+/**
+ * Gema takhrij (ADR-111, hanya soal hadits): lafaz hadits tanpa takhrij di kandidat teratas dicari
+ * di catatan kaki; catatan kaki yang matannya cocok dimuat ke `passages` (dimutasi) dan dipasangkan.
+ */
+async function takhrijEchoes(
+  db: D1Db,
+  ranked: readonly number[],
+  passages: Map<number, AnswerPassage>,
+): Promise<Map<number, number[]>> {
+  const seeds = echoSeeds(ranked, passages);
+  if (seeds.length === 0) return new Map();
+  const found = await Promise.all(seeds.map((s) => searchFootnotes(db, s)));
+  const missing = [...new Set(found.flat())].filter((id) => !passages.has(id));
+  for (const p of missing.length ? await answerPassages(db, missing) : []) passages.set(p.id, p);
+  return pickEchoes(seeds, found, passages);
 }
 
 export async function runJawab(deps: JawabDeps, question: string): Promise<JawabResult> {
