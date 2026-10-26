@@ -96,6 +96,8 @@ status hadits 0/5/1 → 2/3/1, di luar cakupan 4/0/0 → 1/3/0, premis keliru 2/
   kesetiaan 27 → 29, bahasa 3,74 → 3,41. Jadi naiknya jumlah Benar di soal yang direvisi tidak
   terulang di soal yang tidak berubah; yang turun terutama bahasa (pola 1–4 di atas).
 - Satu run per prompt (Haiku nondeterministik); selisih kecil bisa derau.
+- Label status hadits di x07 masih memakai aturan istilah takhrij versi 1. Aturan versi 2 (ADR-108)
+  masuk ke `main` sesudah run ini dan belum ikut diukur.
 
 ## Rekomendasi (belum dikerjakan)
 
