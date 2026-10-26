@@ -26,6 +26,10 @@ export interface JawabLog {
   citations_dropped: number;
   blocks_dropped: number;
   arabic_removed: number;
+  /** Istilah pipeline yang bocor ke jawaban (ADR-106). */
+  pipeline_terms: number;
+  /** Kalimat calon parafrase ayat, heuristik (ADR-106). */
+  ayah_gloss_suspect: number;
   hadith_unsupported: number;
   /** Pernyataan status bertakhrij yang diganti teks label kode (X06). */
   hadith_labeled: number;
@@ -63,6 +67,8 @@ export function resultLog(environment: string, r: JawabResult, cached: boolean):
     citations_dropped: d.citations_dropped,
     blocks_dropped: d.blocks_dropped,
     arabic_removed: d.arabic_removed,
+    pipeline_terms: d.pipeline_terms,
+    ayah_gloss_suspect: d.ayah_gloss_suspect,
     hadith_unsupported: d.hadith_unsupported,
     hadith_labeled: d.hadith_labeled,
     hadith_reviewed: d.hadith_reviewed,
@@ -101,6 +107,8 @@ export function emptyLog(
     citations_dropped: 0,
     blocks_dropped: 0,
     arabic_removed: 0,
+    pipeline_terms: 0,
+    ayah_gloss_suspect: 0,
     hadith_unsupported: 0,
     hadith_labeled: 0,
     hadith_reviewed: 0,

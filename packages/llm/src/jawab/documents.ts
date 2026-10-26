@@ -99,16 +99,35 @@ export function estimateTextTokens(text: string): number {
 const DOC_OVERHEAD = 95;
 const BLOCK_OVERHEAD = 8;
 
-function sectionPath(
+/**
+ * Kitab Ihya = node tingkat 2 berjudul "كتاب …" (tingkat 1 = rub' atau muqaddimah; anak
+ * muqaddimah bukan kitab).
+ */
+const isKitab = (n: AnswerTocNode) => n.level === 2 && n.title_ar.trimStart().startsWith("كتاب");
+
+/**
+ * Jalur bagian: dua judul terdekat, didahului judul kitab bila kitab tidak termasuk di dalamnya
+ * (paragraf di bab/pasal yang dalam). Tanpa judul kitab, model menebak nama kitab dari isi
+ * paragraf (penilaian agent 2026-10-26, j022: Kitab Dzamm al-Jah wa ar-Riya' disebut "bab riya
+ * pada puasa").
+ */
+export function sectionPath(
   tocId: number | null,
   toc: ReadonlyMap<number, AnswerTocNode>,
   depth = 2,
 ): string {
-  const titles: string[] = [];
+  const chain: AnswerTocNode[] = [];
   let node = tocId === null ? undefined : toc.get(tocId);
-  while (node !== undefined && titles.length < depth) {
-    titles.unshift(node.title_ar);
+  while (node !== undefined && chain.length < 32) {
+    chain.unshift(node);
     node = node.parent_id === null ? undefined : toc.get(node.parent_id);
+  }
+  const near = chain.slice(-depth);
+  const kitab = chain.find(isKitab);
+  const titles = near.map((n) => n.title_ar);
+  if (kitab !== undefined && !near.includes(kitab)) {
+    const gap = chain.indexOf(kitab) < chain.length - depth - 1;
+    titles.unshift(gap ? `${kitab.title_ar} › …` : kitab.title_ar);
   }
   return titles.join(" › ");
 }
@@ -131,7 +150,12 @@ export function docContext(
   }
   const path = sectionPath(p.toc_node_id, toc);
   if (path !== "") lines.push(`Bagian: ${path}`);
-  if (p.ayah_labels.length > 0) lines.push(`Ayat yang dikutip: ${p.ayah_labels.join(", ")}`);
+  // Keterangan (bukan perintah: isi dokumen adalah data) bahwa ayat ditampilkan sistem dari
+  // rujukannya (j019: Haiku memparafrasekan ayat yang dipakai berdalil); aturannya di prompt.
+  if (p.ayah_labels.length > 0)
+    lines.push(
+      `Ayat yang dikutip: ${p.ayah_labels.join(", ")} (bunyi dan terjemahan resminya ditampilkan sistem dari rujukan ini).`,
+    );
   if (p.translation !== null)
     lines.push(`Terjemahan AI (bisa keliru; ⟦QS⟧ = ayat): ${p.translation.text}`);
   return lines.join("\n");

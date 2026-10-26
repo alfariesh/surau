@@ -1,5 +1,5 @@
 // Tes regresi label status hadits (X06, ADR-069; versi 2, ADR-108) atas takhrij Ihya di D1 lokal: jenis istilah untuk
-// enam catatan kaki gold soal Jawab PUBLIK (`evals/jawab/ihya-draf-v1.jsonl`), yang cocok dengan
+// enam catatan kaki gold soal Jawab PUBLIK (`evals/jawab/ihya-draf-v2.jsonl`), yang cocok dengan
 // kategori status gold-nya (dibandingkan manual di ADR-069). Mencegah perubahan aturan istilah
 // diam-diam mengubah label kunci. Teks kitab tidak disalin ke sini; hanya ID dan jenis istilah.
 // Dilewati bila state D1 lokal tidak ada (CI) atau Ihya belum dimuat. State disalin ke folder

@@ -15,6 +15,17 @@ Format entri:
 
 ---
 
+## 2026-10-26 · Mutu Jawab answer@7 dari penilaian agent pengganti ustadz — selesai
+- Dikerjakan:
+  - Prompt `answer@7`, pipeline@8 (judul kitab di konteks bagian, kalimat status pengganti dirumuskan ulang dan dibuang bila berdiri sendiri di samping baris label, diagnostik `pipeline_terms`/`ayah_gloss_suspect`), penyelidikan parafrase ayat j019 (tidak bisa dicegah kode secara pasti; ADR-106 butir 3).
+  - Soal versi 2: 8 publik (`ihya-draf-v2.jsonl`) + 4 holdout (subagen, hanya ID + kategori; R2 `surau-evals/jawab/2026-10-26-draf-v2.jsonl`). docs/05 §5 diselaraskan; usulan "praktik berbahaya" sebagai pertanyaan terbuka.
+  - Run publik `x07-publik-answer7-v1` (42 soal) dinilai ulang tiga subagen dari teks Arab staging; [laporan perbandingan](../evals/reports/jawab-x07-answer7-banding.md).
+- Hasil: Benar/Kurang/Salah 19/20/3 → 17/22/3, kesetiaan 76,2% → 83,3%, bahasa 3,74 → 3,45, fatwa 1 → 0, status hadits 4/6 → 5/6, lokasi 85,3% → 91,2% (kunci baru; 88,2% kunci lama). R4 belum terpenuhi.
+- Verifikasi: `pnpm verify` → lolos (1047 + 440 tes); lokasi dihitung ulang dari arsip (x06 kunci lama 29/34 dan x07 kunci baru 31/34, sama dengan laporan kode); subagen `peninjau` → tanpa blocker, 12 temuan ditindaklanjuti.
+- Biaya API: **US$0,1205** (izin pemilik di chat, pagu US$0,50; hanya 42 soal publik, tanpa holdout).
+- Keputusan: ADR-106.
+- Catatan untuk sesi berikutnya: `answer@8` untuk bahasa (terjemahan kutipan disalin mentah, tambahan sesudah kalimat penolakan, pembuka meta), pencarian kemunculan pertama hadits (j024).
+
 ## 2026-10-26 · Label status hadits aturan versi 2 (dari tinjauan agent ADR-105) — selesai
 - Dikerjakan:
   - `TAKHRIJ_TERMS_VERSION` 2: pemindaian per segmen untuk catatan kaki tergabung, lafaz yang dikutip sesudah pembuka tidak dipindai untuk kata ambigu, penjaga konteks al-Bukhari/Muslim/la ba'sa/bin, penilaian yang dibantah (`dibantah`), jenis baru `lam_ajid_marfu`, `tsiqat`, `mukhtalaf`, dan bentuk-bentuk yang terlewat versi 1.

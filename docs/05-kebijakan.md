@@ -53,10 +53,15 @@
 
 ## 5. Menolak menjawab
 
-Jawab "tidak ditemukan di kitab yang dicakup" bila:
-- tidak ada bagian relevan yang ditemukan;
-- pertanyaannya berpremis keliru (misalnya menanyakan pendapat yang tidak pernah ditulis sang ulama); atau
+Jawab "Tidak ditemukan di kitab yang dicakup." bila:
+- tidak ada bagian relevan yang ditemukan; atau
 - pertanyaannya di luar cakupan ruang/agen.
+
+Sesudah kalimat itu boleh ada paling banyak satu kalimat tentang apa yang dibahas bagian yang ditemukan.
+
+Bila pertanyaannya berpremis keliru (misalnya menanyakan mengapa sang ulama mengharamkan sesuatu yang tidak pernah ia haramkan), kalimat pertama jawaban adalah "Anggapan dalam pertanyaan ini tidak didukung teks Ihya." (untuk kitab lain, nama kitabnya), lalu jawaban menjelaskan apa yang sebenarnya dikatakan teks, dengan sitasi. Premis keliru tidak dijawab "tidak ditemukan", karena teksnya sering justru membahas hal itu dengan pendapat yang berbeda. Pertanyaan yang menanyakan apakah suatu pendapat milik sang ulama, dinukil dari orang lain, atau dibantahnya bukan premis keliru dan dijawab langsung. Kalimat baku ini sejalan dengan prompt Jawab sejak `answer@3` (diselaraskan 2026-10-26, ADR-106).
+
+Kesimpulan negatif ("kitab tidak membahas …") hanya untuk bagian yang ditemukan: "Di bagian yang ditemukan, …". Surau tidak menyatakan seluruh kitab tidak membahas sesuatu dari potongan yang diambil pencarian.
 
 Kemampuan menolak ini diukur di setiap eval.
 
@@ -224,6 +229,7 @@ Intisari (X15–X17, ADR-097) adalah ringkasan belajar berlapis per kitab dan pe
 | Apakah pertanyaan dan jawaban pengguna boleh disimpan di `answer_log` untuk evaluasi mutu, berapa lama, dan apakah pengguna bisa memilih keluar | Diputuskan pemilik dan dewan pengawas sebelum rilis Jawab |
 | Kebijakan retensi data API di sisi Anthropic | **Terjawab 2026-10-21 (S20):** 30 hari, tanpa pelatihan, konten bertanda pelanggaran hingga 2 tahun; dicantumkan di §8 dan halaman publik `/privasi` |
 | Tanggapan Shamela atas email pemberitahuan | Menunggu jawaban |
+| **Usulan (belum diputuskan):** kisah atau praktik dalam kitab yang bisa membahayakan kesehatan atau keselamatan bila ditiru (lapar berkepanjangan, tawakal tanpa ikhtiar seperti kisah Abu Hamzah al-Khurasani di sumur, j4 h272) disampaikan sebagai riwayat yang dinukil, disertai anjuran bertanya kepada ulama atau ahli. Usulan agent pengganti ustadz 2026-10-26 (ADR-105, ADR-106); prompt Jawab belum mengaturnya | Diputuskan pemilik dan dewan pengawas |
 
 ## Opsi yang ditolak
 

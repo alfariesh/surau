@@ -101,6 +101,36 @@ export function stripArabic(text: string): { text: string; removed: number } {
 }
 
 /**
+ * Istilah mekanisme pipeline yang bocor ke pembaca ("dokumen yang dilampirkan", "terjemahan AI
+ * yang disertakan"; penilaian agent 2026-10-26: ±15 dari 42 jawaban x06). Hanya diagnostik: kata
+ * "dokumen" bisa sah di kalimat lain, jadi tidak dibuang.
+ */
+const PIPELINE_TERMS =
+  /(?<!\p{L})(?:dokumen|lampiran|dilampirkan|konteks|terjemahan AI)(?!\p{L})/giu;
+
+/** Jumlah istilah pipeline di jawaban (diagnostik `pipeline_terms`). */
+export function pipelineTerms(text: string): number {
+  return [...text.matchAll(PIPELINE_TERMS)].length;
+}
+
+/** "QS 98:5", "QS. 98:5", "QS Al-Baqarah [2]: 153", "QS Ali 'Imran (3): 7", "QS Al-Baqarah: 153". */
+const QS_REF = /(?<!\p{L})QS\.?\s*[^\n:.;]{0,40}?:\s*\d{1,3}/u;
+const GLOSS =
+  /(?<!\p{L})(?:artinya|berarti|bermakna|maknanya|berbunyi|bunyinya|terjemahnya)(?!\p{L})|"[^"\n]{12,}"|“[^”\n]{12,}”/iu;
+
+/**
+ * Kalimat yang menyebut rujukan ayat sekaligus penanda makna/kutipan ("ikhlas berarti …, lihat
+ * QS 98:5"): calon parafrase ayat oleh model (j019). Heuristik untuk diagnostik dan eval, bukan
+ * penyaring: parafrase makna tidak bisa dideteksi pasti tanpa membandingkan arti, dan kalimat
+ * yang menjelaskan penalaran al-Ghazali di sekitar ayat juga bisa tertangkap.
+ */
+export function ayahGlossSuspects(text: string): number {
+  return sentencesIn(text, 0, text.length)
+    .map((s) => text.slice(s.start, s.end))
+    .filter((s) => QS_REF.test(s) && GLOSS.test(s)).length;
+}
+
+/**
  * Jenis penolakan baku: `not_found` (prompt `answer@1`+) atau `false_premise` (`answer@3`+), bila
  * kalimat bakunya ada di paragraf pertama (model kadang menulis satu kalimat pengantar dulu);
  * `null` bila jawaban biasa. Kalimat baku di paragraf berikutnya tidak dihitung.
@@ -125,12 +155,14 @@ export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ad
  * Pengganti NETRAL (peninjau S21 putaran 3–4): dipakai bila jawaban menyitasi takhrij di tempat
  * lain, karena "belum diketahui" bisa keliru (takhrijnya ada) dan menunjuk takhrij pada kutipan bisa
  * menunjuk takhrij hadits lain; juga untuk pernyataan yang takhrijnya ambigu atau diklaim kelompok
- * lain. Sejak X06 menyebut bahwa status tiap takhrij yang dikutip ada di bagian "Status hadits"
- * beserta lokasi haditsnya, TANPA mengaitkannya dengan kalimat ini (bagian itu bisa hanya memuat
- * hadits lain, peninjau X06). Tanpa klaim status sama sekali, `hadithCheck` memakai
- * `HADITH_UNKNOWN`.
+ * lain. Sejak X06 menunjuk bagian "Status hadits" (status tiap takhrij yang dikutip beserta lokasi
+ * haditsnya), TANPA mengaitkannya dengan kalimat ini (bagian itu bisa hanya memuat hadits lain,
+ * peninjau X06). Sejak pipeline@8 tanpa "tidak dipastikan": sesudah takhrij disampaikan benar,
+ * kata itu terbaca bertentangan (penilaian agent 2026-10-26, j025–j029). Pemberitahuan yang
+ * berdiri sendiri satu baris dibuang bila bagian "Status hadits" berisi (`hadithCheck`); tanpa klaim
+ * status sama sekali, `hadithCheck` memakai `HADITH_UNKNOWN`.
  */
-export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} tidak dipastikan untuk kalimat ini; status tiap takhrij yang dikutip ada di bagian "Status hadits" beserta lokasi haditsnya.`;
+export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} lihat bagian "Status hadits", yang memuat status tiap takhrij yang dikutip beserta lokasi haditsnya.`;
 
 const NOTICES = [HADITH_UNKNOWN, HADITH_NOT_CITED] as const;
 /** Pemberitahuan pengganti dimulai di `pos`: bukan label dan bukan pernyataan (tidak diperiksa ulang). */
@@ -225,6 +257,7 @@ const ABBREVIATIONS = new Set([
   "jil",
   "juz",
   "cet",
+  "qs",
 ]);
 
 /**
