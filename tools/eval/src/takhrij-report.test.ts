@@ -22,7 +22,7 @@ describe("laporan label takhrij", () => {
     const md = labelReport("uji-v1", s);
     expect(md).toContain("· uji-v1");
     expect(md).toContain("| Hanya menyebut sumber riwayat | 1 | 20,0% |");
-    expect(md).toContain("| lemah (`daif`) | 2 |");
+    expect(md).toContain("| dinilai lemah (`daif`) | 2 |");
     expect(md).not.toMatch(/\p{Script=Arabic}/u);
   });
 });

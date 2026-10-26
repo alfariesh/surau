@@ -114,7 +114,7 @@ function ItemView({ item }: { item: TakhrijReviewItem }) {
         <Typography.Heading level={3} className="text-base">
           {t.autoLabel}
         </Typography.Heading>
-        <Typography>{item.label.text}</Typography>
+        <Typography className="first-letter:uppercase">{item.label.text}</Typography>
         <Typography type="body-xs" color="muted">
           {t.terms}
         </Typography>
@@ -142,7 +142,9 @@ function ItemView({ item }: { item: TakhrijReviewItem }) {
           {t.currentLabel}
         </Typography>
         <div className="flex flex-wrap items-center gap-2">
-          <Typography type="body-sm">{item.current.text}</Typography>
+          <Typography type="body-sm" className="first-letter:uppercase">
+            {item.current.text}
+          </Typography>
           <Chip
             size="sm"
             variant="soft"
@@ -292,7 +294,9 @@ function DecisionForm({
             <Typography type="body-xs" color="muted">
               {t.preview}
             </Typography>
-            <Typography type="body-sm">{preview}</Typography>
+            <Typography type="body-sm" className="first-letter:uppercase">
+              {preview}
+            </Typography>
           </div>
         </div>
       ) : null}

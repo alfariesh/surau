@@ -232,7 +232,7 @@ describe("jawaban terverifikasi", () => {
       const foot = result.citations.find((c) => c.kind === "foot")!;
       expect(await dbSlice(foot.passage_id, foot.char_start, foot.char_end)).toBe(TAKHRIJ);
       const label = takhrijLabel(TAKHRIJ);
-      expect(label.text).toBe("takhrij menyebut: lemah");
+      expect(label.text).toBe("dinilai lemah, menurut takhrij al-'Iraqi");
       expect(result.hadith).toEqual([
         {
           passage_id: PASSAGES.body1,
@@ -254,7 +254,9 @@ describe("jawaban terverifikasi", () => {
         },
       ]);
       // Kalimat status model diganti teks label; "sahih" tulisan model tidak tampil.
-      expect(result.text).toContain("Status hadits: takhrij menyebut: lemah (hadits di ");
+      expect(result.text).toContain(
+        "Status hadits: dinilai lemah, menurut takhrij al-'Iraqi (hadits di ",
+      );
       expect(result.text).not.toContain("sahih");
     } finally {
       await setFoot(FOOT_1);
@@ -299,12 +301,14 @@ describe("jawaban terverifikasi", () => {
       expect(first.result.hadith).toMatchObject([
         {
           label: "ustadz_corrected",
-          status: "menurut peninjau: mursal",
+          status: "diriwayatkan mursal, menurut peninjau",
           terms: [],
-          added_terms: [{ kind: "mursal", gloss: "mursal" }],
+          added_terms: [{ kind: "mursal", gloss: "diriwayatkan mursal" }],
         },
       ]);
-      expect(first.result.text).toContain("Status hadits: menurut peninjau: mursal (hadits di ");
+      expect(first.result.text).toContain(
+        "Status hadits: diriwayatkan mursal, menurut peninjau (hadits di ",
+      );
       // Tinjauan tidak berubah: cache disajikan.
       expect(final((await ask()).events).data).toMatchObject({ cached: true });
       const answers = sent.filter((x) => x.kind === "answer").length;

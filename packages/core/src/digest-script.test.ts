@@ -6,12 +6,14 @@ import {
   SCRIPT_DOOR,
   SCRIPT_LABEL,
   SCRIPT_VERSION,
+  SPOKEN_WEAK_GLOSS,
   ScriptError,
   digestScript,
   loadDigestScript,
   segmentText,
 } from "./digest-script.ts";
 import { digestView } from "./schema.ts";
+import { VERY_WEAK_TAKHRIJ_KINDS } from "./takhrij-label.ts";
 import type { DigestPointView, DigestQuoteView, DigestView } from "./schema.ts";
 import { textSha256 } from "./translation-revision.ts";
 
@@ -102,6 +104,10 @@ function view(extra: Partial<DigestView> = {}): DigestView {
 }
 
 describe("digestScript (X17, aturan 11)", () => {
+  test("setiap jenis sangat lemah punya glosa lisan (ADR-111)", () => {
+    expect(Object.keys(SPOKEN_WEAK_GLOSS).sort()).toEqual([...VERY_WEAK_TAKHRIJ_KINDS].sort());
+  });
+
   test("urutan segmen, kalimat label lebih dulu, pintu ke kitab di akhir", async () => {
     const script = await digestScript(view());
     expect(script.script_version).toBe(SCRIPT_VERSION);

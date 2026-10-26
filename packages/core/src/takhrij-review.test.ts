@@ -2,7 +2,7 @@ import type { TakhrijReview } from "@surau/db";
 import { TAKHRIJ_TERMS_VERSION } from "@surau/text";
 import { describe, expect, test } from "vite-plus/test";
 
-import { takhrijLabel, takhrijStatus } from "./takhrij-label.ts";
+import { TAKHRIJ_STATUS_MAX, takhrijLabel, takhrijStatus } from "./takhrij-label.ts";
 import {
   effectiveTakhrijReview,
   isUstadzReviewer,
@@ -33,12 +33,41 @@ const row = (over: Partial<TakhrijReview> = {}): TakhrijReview => ({
 });
 
 describe("takhrijStatus", () => {
+  test("dipotong: atribusi takhrij dan peninjau tidak tertukar, 'dan lainnya' di kelompok yang benar", () => {
+    const many = ["sahih", "hasan", "gharib", "mursal", "mawquf", "daif", "sangat_lemah"] as const;
+    const tail = { tail: " (hadits pertama dari beberapa)" };
+    const byTakhrij = ", menurut takhrij al-'Iraqi";
+    // Sisa campuran (istilah takhrij + jenis tambahan): "dan lainnya" tanpa atribusi.
+    const mixedRest = takhrijStatus(many, ["la_asl"], tail).text;
+    expect(mixedRest).toMatch(/, menurut takhrij al-'Iraqi; dan lainnya( \(|$)/u);
+    expect(mixedRest).not.toContain("peninjau");
+    // Sisa hanya jenis tambahan yang belum tampil: atribusi peninjau tetap disebut.
+    const addedRest = takhrijStatus(["lam_ajid_marfu"], ["la_asl", "palsu"]).text;
+    expect(addedRest).toBe(
+      `tidak ditemukan sebagai sabda Nabi (marfu')${byTakhrij}; dan lainnya, menurut peninjau`,
+    );
+    // Sebagian jenis tambahan tampil: "dan lainnya" masuk kelompok peninjau.
+    const someAdded = takhrijStatus(
+      ["daif"],
+      ["sahih", "hasan", "gharib", "mursal", "mawquf", "palsu"],
+    ).text;
+    expect(someAdded).toMatch(
+      /^dinilai lemah, menurut takhrij al-'Iraqi; dinilai sahih;(?: .*;)? dan lainnya, menurut peninjau/u,
+    );
+    for (const text of [mixedRest, addedRest, someAdded]) {
+      expect(text.length).toBeLessThanOrEqual(TAKHRIJ_STATUS_MAX);
+      // Atribusi takhrij selalu mendahului kelompok peninjau (bila ada).
+      const reviewer = text.indexOf("menurut peninjau");
+      if (reviewer !== -1) expect(reviewer).toBeGreaterThan(text.indexOf(byTakhrij));
+    }
+  });
+
   test("disusun dengan aturan yang sama dengan label kode", () => {
     expect(takhrijStatus(label.terms.map((t) => t.kind)).text).toBe(label.text);
     expect(takhrijStatus(["sahih", "daif"])).toMatchObject({
       kind: "terms",
       mixed: true,
-      text: "takhrij menyebut: sahih; lemah (berbeda per jalur)",
+      text: "dinilai sahih; dinilai lemah, menurut takhrij al-'Iraqi (berbeda per jalur)",
     });
     expect(takhrijStatus([])).toMatchObject({ kind: "sources_only" });
     expect(takhrijStatus(["rujukan"])).toMatchObject({ kind: "refers_back" });
@@ -146,9 +175,9 @@ describe("tinjauan label", async () => {
       review: "corrected",
       kind: "terms",
       // Jenis tambahan penilai disebut terpisah, tidak pernah sebagai isi takhrij.
-      text: "takhrij menyebut: mauquf; menurut peninjau: mursal",
+      text: "diriwayatkan mauquf, menurut takhrij al-'Iraqi; diriwayatkan mursal, menurut peninjau",
       weak: false,
-      added: [{ kind: "mursal", gloss: "mursal" }],
+      added: [{ kind: "mursal", gloss: "diriwayatkan mursal" }],
     });
     // Frasa yang tersisa tetap rentang DB.
     expect(corrected.terms.map((t) => RAW.slice(t.char_start, t.char_end))).toEqual(["موقوفا"]);
@@ -162,13 +191,13 @@ describe("tinjauan label", async () => {
     expect(
       reviewedTakhrijLabel(RAW, { decision: "corrected", kinds: [], reviewed_at: "x" }),
     ).toMatchObject({ kind: "sources_only", weak: false, terms: [] });
-    // Hanya jenis tambahan: tanpa "takhrij menyebut".
+    // Hanya jenis tambahan: tanpa "menurut takhrij al-'Iraqi".
     expect(
       reviewedTakhrijLabel(RAW, { decision: "corrected", kinds: ["sahih"], reviewed_at: "x" }).text,
-    ).toBe("menurut peninjau: sahih");
+    ).toBe("dinilai sahih, menurut peninjau");
     expect(takhrijStatus(["mawquf"], ["sahih", "daif"])).toMatchObject({
       mixed: true,
-      text: "takhrij menyebut: mauquf; menurut peninjau: sahih; lemah (berbeda per jalur)",
+      text: "diriwayatkan mauquf, menurut takhrij al-'Iraqi; dinilai sahih; dinilai lemah, menurut peninjau (berbeda per jalur)",
     });
   });
 
@@ -182,7 +211,7 @@ describe("tinjauan label", async () => {
     const tail = { start: cut, end: RAW.length };
     expect(reviewedTakhrijLabel(RAW, review, tail)).toMatchObject({
       review: "approved",
-      text: "takhrij menyebut: lemah; tidak ditemukan penakhrij",
+      text: "dinilai lemah; tidak ditemukan sanad atau lafaznya, menurut takhrij al-'Iraqi",
     });
     // Penilai menolak "lemah" (mis. bagian lafaz): sitasi sebagian tidak menyebutnya lagi.
     const noWeak = {
@@ -193,7 +222,7 @@ describe("tinjauan label", async () => {
     const part = reviewedTakhrijLabel(RAW, noWeak, tail);
     expect(part).toMatchObject({
       review: "corrected",
-      text: "takhrij menyebut: tidak ditemukan penakhrij",
+      text: "tidak ditemukan sanad atau lafaznya, menurut takhrij al-'Iraqi",
       weak: true,
     });
     expect(part.terms.map((t) => t.kind)).toEqual(["lam_ajid"]);
@@ -258,11 +287,11 @@ describe("tinjauan label catatan kaki tergabung (versi 2, ADR-108)", () => {
     };
     expect(reviewedTakhrijLabel(merged, corrected)).toMatchObject({
       review: "corrected",
-      text: "menurut peninjau: hasan (hadits pertama dari beberapa)",
+      text: "dinilai hasan, menurut peninjau (hadits pertama dari beberapa)",
     });
     expect(reviewedTakhrijLabel(merged, corrected, second)).toMatchObject({
       review: "rule",
-      text: "takhrij menyebut: lemah",
+      text: "dinilai lemah, menurut takhrij al-'Iraqi",
     });
     // Sitasi utuh mencakup hadits lain: label kode, bukan "ditinjau/dikoreksi ustadz".
     const whole = { start: 0, end: merged.length };

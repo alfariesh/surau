@@ -268,7 +268,9 @@ function HadithClaims({
           return (
             <li key={i} className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <Typography type="body-sm">{h.status}</Typography>
+                <Typography type="body-sm" className="first-letter:uppercase">
+                  {h.status}
+                </Typography>
                 <Chip
                   size="sm"
                   variant="soft"

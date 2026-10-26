@@ -73,11 +73,12 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * status hadits dari istilah takhrij (X06: 6), label yang ditinjau ustadz (X07: 7), konteks
  * bagian berjudul kitab + pemberitahuan status yang berdiri sendiri dibuang (ADR-106: 8),
  * diagnostik bahasa dan penilaian hadits tanpa sitasi (ADR-110: 9; keluaran tidak berubah, versi
- * dinaikkan supaya log/cache membedakan prompt `answer@8`), dan
+ * dinaikkan supaya log/cache membedakan prompt `answer@8`), bunyi label status hadits untuk
+ * pembaca (ADR-111: 10), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 9;
+export const JAWAB_PIPELINE_VERSION = 10;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -945,7 +946,8 @@ const CLAIM_LABEL = {
 /**
  * Teks label satu pernyataan (kode): status tiap takhrij + lokasi haditsnya (halaman catatan kaki =
  * halaman penandanya), supaya label di butir daftar tetap jelas milik hadits mana. Awalan
- * "Status hadits:" hanya bila pernyataannya berawalan.
+ * "Status hadits:" hanya bila pernyataannya berawalan; mis. "Status hadits: dinilai lemah, menurut
+ * takhrij al-'Iraqi (hadits di Ihya j. 1, h. 2)." (bunyi ADR-111).
  */
 function labelText(
   st: HadithStatement,
@@ -958,7 +960,10 @@ function labelText(
         `${citedLabel(footnote, c, reviews).text} (hadits di Ihya j. ${footnote.location.juz}, h. ${footnote.location.page_no})`,
     )
     .join("; ");
-  return st.prefixed ? `${ANSWER_HADITH_PREFIX} ${body}.` : `${body}.`;
+  // Tanpa awalan, label membuka kalimat atau butir daftar sendiri: huruf pertamanya kapital.
+  return st.prefixed
+    ? `${ANSWER_HADITH_PREFIX} ${body}.`
+    : `${body.charAt(0).toUpperCase()}${body.slice(1)}.`;
 }
 
 /** Klaim status dari label takhrij (kode); `passage_id` = paragraf badan yang merujuknya. */

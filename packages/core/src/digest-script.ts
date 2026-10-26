@@ -244,6 +244,16 @@ function quoteSentences(q: DigestQuoteView): Line[] {
 const list = (items: readonly string[]): string =>
   items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} dan ${items.at(-1)}`;
 
+// Glosa lisan sendiri, tidak ikut arti tampilan `TAKHRIJ_TERM_GLOSS` (bunyinya berubah di ADR-111):
+// mengubah kalimat skrip mengubah sha skrip audio yang sudah direkam, jadi itu keputusan
+// `SCRIPT_VERSION` tersendiri.
+// Kuncinya wajib = `VERY_WEAK_TAKHRIJ_KINDS` (dikunci tes), supaya tanda lisan tidak hilang diam-diam.
+export const SPOKEN_WEAK_GLOSS: Readonly<Record<string, string>> = {
+  sangat_lemah: "sangat lemah",
+  palsu: "palsu/batil",
+  la_asl: "tidak ada asalnya",
+};
+
 /**
  * Tanda lisan untuk gagasan yang bersandar pada riwayat sangat lemah, palsu, atau tanpa asal
  * (docs/05 §4 dan §12): dari dalil `evidence` yang sama dengan chip di halaman Intisari, dengan
@@ -254,7 +264,8 @@ function weakMark(view: DigestView, p: DigestPointView): Line[] {
   for (const h of view.evidence.hadith) {
     if (!h.point_ords.includes(p.ord)) continue;
     for (const term of h.status.terms) {
-      if (VERY_WEAK_TAKHRIJ_KINDS.has(term.kind)) glosses.add(term.gloss);
+      const spoken = SPOKEN_WEAK_GLOSS[term.kind];
+      if (VERY_WEAK_TAKHRIJ_KINDS.has(term.kind) && spoken !== undefined) glosses.add(spoken);
     }
   }
   if (glosses.size === 0) return [];
