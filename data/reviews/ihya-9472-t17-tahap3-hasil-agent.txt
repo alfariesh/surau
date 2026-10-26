@@ -1,0 +1,61 @@
+T-17 tahap 3 · sampel 344d2b8f695d · penilai: Agent (pengganti ustadz sementara, bukan manusia)
+1 K tambahan — Perumpamaan "seperti unta" ditambahkan; teks hanya menyebut hamba dikendalikan dengan tali kekang adab dan orang bertakwa dengan kekangnya. Sisanya setia.
+2 B — Setia. Subjek "engkau" pada bagian terus-menerus melakukannya bisa juga dibaca "jiwa", tetapi gramatikal dimungkinkan.
+3 K lain — Hampir seluruhnya setia, tetapi frasa yang berarti "dan mereka sudah di tepi jurang (kebinasaan)" diterjemahkan "kesembuhan mereka sulit"; kata itu dikira dari akar "sembuh".
+4 B — Setia, rincian Multazam dan doa lengkap.
+5 B — Bait syair setia.
+6 B — Setia.
+7 B — Setia; konteks menunjukkan si penganut qadariyah yang rujuk.
+8 K angka,lain — Teks menyebut tugas KEEMPAT, terjemahan menulis "Tugas kelima". Kata kerja dalam hadis berarti meremukkan/menghancurkan kotoran unta, bukan "memakan kotoran kambing". Sisanya setia.
+9 S hilang,dalil — Subjek riwayat pertama hilang: yang memakan kebaikan adalah "pembicaraan (obrolan) di masjid", bukan "(seseorang) di masjid". Terjemahan membaca kata pembicaraan sebagai "hadis" sehingga isi riwayat berubah.
+10 B — Setia.
+11 K lain — Struktur analogi kabur: tidur, sujud, dan rukuk di rumah adalah cara kita berterima kasih kepada raja, bukan nikmat yang diberikan raja ("membiarkan kita tidur"). Bagian lain setia.
+12 B — Makna setia. Catatan pipeline: kutipan ayat (QS 15:98) diterjemahkan sendiri oleh AI, tidak lewat penanda Kemenag.
+13 S lain — Ucapan Abu ad-Darda adalah pepatah terkenal "ujilah (manusia), niscaya engkau membencinya" (konteks: anjuran uzlah). Terjemahan "Beritahu aku, niscaya aku akan mengatakan (hikmah itu) kepadamu" keliru total.
+14 K istilah — Istilah tasawuf "huzhuz an-nafs" (bagian/kesenangan nafsu) diterjemahkan "hak-hak nafsu", padahal hak nafsu (huquq) adalah istilah lain yang maknanya berbeda.
+15 B — Setia.
+16 K tambahan — Rujukan "(harta itu)" ditambahkan dan keliru: yang diletakkan pada puting dada lalu tembus ke tulang belikat adalah setrikaan/batu panas (sengatan) dari riwayat sebelumnya, bukan harta. Sisa hadis setia.
+17 B — Setia.
+18 B — Setia; "bahkan dikatakan" sedikit lebih tegas daripada "bisa dikatakan".
+19 B — Setia.
+20 B — Setia.
+21 B — Setia.
+22 B — Setia; nama Umar dilengkapi dari konteks.
+23 S negasi,lain — Kalimat akhir terbalik: "karena membelakangi kiblat justru yang benar" adalah sangkaan ORANG LAIN, bukan pernyataan penulis. Terjemahan membuatnya seolah al-Ghazali menyatakan membelakangi kiblat itu benar.
+24 B — Setia; "dirinya" sesuai pola derajat sebelumnya.
+25 K hilang — Kalimat pembuka (akhir kutipan dari halaman sebelumnya: "aku tidak tahu mana di antara keduanya yang lebih baik bagiku") tidak diterjemahkan. Sisanya setia.
+26 S pelaku,lain — Dua kekeliruan: (1) maksudnya ucapan seorang muslim tetap meninggalkan sedikit pengaruh (dugaan) di hati, bukan "ucapannya tidak lepas dari pengaruh kondisi jiwa"; (2) "merendahkan kedudukannya" adalah sikap Uqbah meremehkan budak itu, bukan niat si budak.
+27 B — Setia; "orang seperti Umar" diringkas menjadi "Umar".
+28 B — Setia.
+29 B — Setia; kata "ada tiga" ditambahkan tetapi sesuai isi.
+30 B — Setia.
+31 B — Setia; "imam" sesuai konteks bab.
+32 B — Setia.
+33 S negasi,pelaku — Inti jawaban Umar bin Abdul Aziz terbalik: ia berkata "aku tidak memberi mereka hak milik orang lain", bukan "tidak memberikan hak mereka kepada orang lain". Juga "aku menyimpan Tuhanku untuk anakku" diubah menjadi Tuhan yang menyimpan.
+34 K pelaku,lain — "Bila itu memuaskannya, ia berhenti" maksudnya pengajar cukup sampai kadar itu, bukan "berhenti dari keraguannya". Kata yang berarti "penyakitnya menguasai" diterjemahkan "kebanyakan penyakitnya sudah parah".
+35 K pelaku,lain — Nabi keluar bertumpu pada Ali dan al-Fadhl, sedangkan ABBAS di depan beliau; terjemahan menulis beliau yang berjalan di depan. "Siwak terasa keras bagi beliau" menjadi "beliau menggigitnya dengan keras". Kalimat terakhir mengikuti teks yang rusak.
+36 B — Setia.
+37 B — Bait syair setia.
+38 B — Setia.
+39 B — Setia.
+40 S lain — Maknanya: bila Allah mencintai seorang hamba, Dia suka hamba itu tidak dikenal/tidak menjadi perhatian orang (konteks: uzlah dan ketersembunyian). Terjemahan "agar hamba itu tidak merasakannya" keliru.
+41 B — Setia.
+42 B — Setia.
+43 B — Setia.
+44 B — Setia; "khuf" dilengkapi dari konteks.
+45 B — Setia.
+46 K negasi,pelaku — Logika terbalik: tidur akhir malam disukai karena menghilangkan kantuk pagi (yang tidak disukai salaf) DAN mengurangi pucat wajah serta kemasyhuran; terjemahan menjadikan pengurangan pucat sebab ketidaksukaan. Khatam 90 kali sebulan milik Kahmas, bukan "ada pula".
+47 K hilang — Judul bagian berikut di akhir teks ("Murabathah keempat: menghukum diri atas kelalaiannya") tidak diterjemahkan. Sisanya setia.
+48 S lain,pelaku — Inti kisah hilang: ulama itu bersumpah agar orang yang pernah belajar Al-Qur’an atau hadis darinya TIDAK ikut menariknya, khawatir pahala mengajarnya gugur. Terjemahan "agar tidak berhenti bersama orang yang..." tidak bermakna.
+49 B — Setia.
+50 B — Setia.
+51 B — Setia.
+52 B — Setia.
+53 B — Setia.
+54 K pelaku — Yang menyifati Uwais adalah Umar (lalu orang itu menjawab ya), bukan laki-laki itu. Sisanya setia.
+55 B — Setia.
+56 B — Setia.
+57 S negasi,angka,istilah — Teguran Allah kepada Musa terbalik: maksudnya "engkau hendak membatalkan hikmah-Ku dengan tawakalmu; siapa selain Aku yang menitipkan khasiat pada obat?", bukan "tawakal kepada selain Aku". Bulan keempat hilang; skamonia obat pencahar, bukan "obat diare".
+58 B — Setia.
+59 B — Setia.
+60 K lain — Kalimat "orang rendahan bisa menghasad raja" disusun ambigu ("menghasad raja sekalipun yang rendah derajatnya") sehingga bisa terbaca raja yang rendah derajatnya. Sisanya setia.
