@@ -1,0 +1,255 @@
+{"passage_id":10004923,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10004923,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10004923,"set":"in","arm":"base","grade":"B","categories":[],"note":"'seperti unta' penjelas metafora zimam, wajar"}
+{"passage_id":10004923,"set":"in","arm":"h5","grade":"K","categories":["tambahan","lain"],"note":"Diawali label 'terjemahan AI:' yang bukan bagian terjemahan"}
+{"passage_id":10004923,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10016347,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10016347,"set":"in","arm":"base","grade":"K","categories":["tambahan"],"note":"'membiarkan kita tidur' menggeser makna: tidur di rumah sebagai bentuk syukur kita"}
+{"passage_id":10016347,"set":"in","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10016347,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10016347,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10013493,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10013493,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10013493,"set":"in","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10013493,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10013493,"set":"in","arm":"base","grade":"K","categories":["pelaku"],"note":"'menghasad raja sekalipun yang rendah derajatnya' mengaburkan bahwa orang rendahan yang mendengki raja"}
+{"passage_id":10017889,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10017889,"set":"in","arm":"h5","grade":"K","categories":["istilah","angka","hilang","tambahan"],"note":"'putih telur'; saqmuniya 'obat diare'; 'tidak lepas dari' salah; bulan keempat hilang; 'manusia' ditambah"}
+{"passage_id":10017889,"set":"in","arm":"base","grade":"K","categories":["istilah","angka","tambahan"],"note":"'obat diare' salah; bulan keempat hilang; 'telur seluruhnya', 'dimasak', '(yang sakit)' tambahan"}
+{"passage_id":10017889,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10017889,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10012931,"set":"dev-panjang","arm":"h5","grade":"S","categories":["dalil","tambahan"],"note":"Penanda QS 2:255 disisipkan di tengah 'Nabi bersabda', padahal teks tidak mengutip ayat"}
+{"passage_id":10012931,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10012931,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10012931,"set":"dev-panjang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10012931,"set":"dev-panjang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10005705,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10005705,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10005705,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10005705,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10005705,"set":"dev-sedang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10015879,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10015879,"set":"in","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10015879,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10015879,"set":"in","arm":"base","grade":"K","categories":["istilah"],"note":"isyfa' (ambang binasa) dibaca kesembuhan: 'kesembuhan mereka sulit'"}
+{"passage_id":10015879,"set":"in","arm":"s4","grade":"K","categories":["istilah","lain"],"note":"isyfa' dibaca 'kesembuhan mereka mungkin'; 'seakan-akan ia telah meninggalkan dunia' menggeser makna"}
+{"passage_id":10015022,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10015022,"set":"in","arm":"base","grade":"K","categories":["istilah","pelaku"],"note":"yaqif diterjemahkan 'berhenti'; struktur sumpah membuat subjek kabur"}
+{"passage_id":10015022,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10015022,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10015022,"set":"in","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10017625,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10017625,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10017625,"set":"dev-sedang","arm":"base","grade":"K","categories":["tambahan"],"note":"Kurung '(wol seharga)' menebak rujukan lima dirham"}
+{"passage_id":10017625,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10017625,"set":"dev-sedang","arm":"h5","grade":"S","categories":["hilang","lain"],"note":"Premis 'wol salah satu tanda zuhud' hilang; tanda zuhud dijadikan larangan memakai wol"}
+{"passage_id":10013808,"set":"dev-sedang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10013808,"set":"dev-sedang","arm":"s5m","grade":"K","categories":["tambahan"],"note":"tambahan tafsiran dalam kurung 'menjadi simpanan di sisi Allah'; salah ketik 'using'"}
+{"passage_id":10013808,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10013808,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":"salah ketik 'using' untuk usang"}
+{"passage_id":10013808,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":"glos kecil '(ke akhirat)' wajar"}
+{"passage_id":10013373,"set":"dev-panjang","arm":"h5","grade":"K","categories":["istilah","lain"],"note":"nama 'Arabah jadi Mu'arrib; penanda QS diulang janggal; 'hamidta' jadi perintah"}
+{"passage_id":10013373,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10013373,"set":"dev-panjang","arm":"base","grade":"K","categories":["istilah"],"note":"'arraftahum (mengenal) diterjemahkan 'menguji'"}
+{"passage_id":10013373,"set":"dev-panjang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10013373,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10000645,"set":"in","arm":"h5","grade":"K","categories":["istilah"],"note":"fatt al-ba'r (meremukkan kotoran) jadi 'memakan kotoran'"}
+{"passage_id":10000645,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10000645,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10000645,"set":"in","arm":"base","grade":"S","categories":["angka","tambahan","istilah"],"note":"tugas keempat jadi 'kelima'; 'memakan kotoran' untuk meremukkan"}
+{"passage_id":10000645,"set":"in","arm":"s4","grade":"B","categories":[],"note":"'murid yang berakhlak buruk' sedikit bergeser, tidak membalik makna"}
+{"passage_id":10001185,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10001185,"set":"in","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10001185,"set":"in","arm":"base","grade":"K","categories":["istilah","tambahan"],"note":"ghaliban jadi 'kebanyakan'; tambahan 'ajal'; kaff 'anhu jadi berhenti dari keraguan"}
+{"passage_id":10001185,"set":"in","arm":"s4","grade":"K","categories":["lain","istilah"],"note":"kata rusak 'dolanya'; sariyan jadi 'menular'"}
+{"passage_id":10001185,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10008864,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10008864,"set":"dev-sedang","arm":"base","grade":"S","categories":["lain"],"note":"'dari menyibukkan diri menyingkap rahasia' membalik: kesibukan itu manfaat, bukan dijauhi"}
+{"passage_id":10008864,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10008864,"set":"dev-sedang","arm":"s5","grade":"S","categories":["lain"],"note":"'dari menyibukkan diri menyingkap rahasia' membalik makna manfaat uzlah"}
+{"passage_id":10008864,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10007041,"set":"in","arm":"base","grade":"K","categories":["pelaku","lain"],"note":"'hendak merendahkan kedudukannya' salah pelaku; logika kesaksian jamaah kabur"}
+{"passage_id":10007041,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10007041,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10007041,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10007041,"set":"in","arm":"h5","grade":"B","categories":[],"note":"'pengaruh keadaan jiwa' tafsiran mungkin dari teks"}
+{"passage_id":10015039,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10015039,"set":"dev-panjang","arm":"base","grade":"K","categories":["hilang","istilah"],"note":"kalimat 'ia tahu bila berpantang ia hidup' hilang; amkanathu jadi 'dikuasai syahwat'"}
+{"passage_id":10015039,"set":"dev-panjang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10015039,"set":"dev-panjang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10015039,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10008878,"set":"dev-pendek","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10008878,"set":"dev-pendek","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10008878,"set":"dev-pendek","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10008878,"set":"dev-pendek","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10008878,"set":"dev-pendek","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10009751,"set":"dev-pendek","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10009751,"set":"dev-pendek","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10009751,"set":"dev-pendek","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10009751,"set":"dev-pendek","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10009751,"set":"dev-pendek","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10019846,"set":"in","arm":"h5","grade":"K","categories":["tambahan","pelaku","lain"],"note":"Sisa teks meta 'terjemahan AI/Baik, berikut'; 'leher-nya'; Abbas di depan jadi 'mereka'; 'aku mendatanginya' terbalik"}
+{"passage_id":10019846,"set":"in","arm":"base","grade":"K","categories":["pelaku","tambahan","lain"],"note":"'menggigit dengan keras'; 'Dia tidak memilih'; beliau di depan; 'menyusulku'; 'didatangi olehku' terbalik; wasiat Quraisy tergeser"}
+{"passage_id":10019846,"set":"in","arm":"s5","grade":"B","categories":[],"note":"Setia; pembicara Aisyah sesuai konteks; posisi Abbas dan haudh benar"}
+{"passage_id":10019846,"set":"in","arm":"s5m","grade":"K","categories":["lain"],"note":"'ingin mendatangkannya kepadaku' keliru untuk 'yaridahu alayya'; selebihnya setia"}
+{"passage_id":10019846,"set":"in","arm":"s4","grade":"K","categories":["pelaku"],"note":"'Ma taqulun' diubah jadi 'apa yang mereka katakan' dan jawaban orang ketiga"}
+{"passage_id":10018457,"set":"dev-panjang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10018457,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10018457,"set":"dev-panjang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10018457,"set":"dev-panjang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10018457,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10014213,"set":"dev-pendek","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10014213,"set":"dev-pendek","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10014213,"set":"dev-pendek","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10014213,"set":"dev-pendek","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10014213,"set":"dev-pendek","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10013746,"set":"in","arm":"s4","grade":"K","categories":["pelaku"],"note":"'fawasafahu lahu' dijadikan orang Qarn yang menggambarkan, padahal Umar"}
+{"passage_id":10013746,"set":"in","arm":"s5m","grade":"B","categories":[],"note":"Setia; 'aku tidak bertanya' sedikit bebas"}
+{"passage_id":10013746,"set":"in","arm":"h5","grade":"K","categories":["lain"],"note":"Kalimat pembuka tak berpredikat, 'apabila' harfiah membuat janggal"}
+{"passage_id":10013746,"set":"in","arm":"base","grade":"K","categories":["pelaku"],"note":"'laki-laki itu menyifatinya' padahal Umar yang menyifati Uwais"}
+{"passage_id":10013746,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10017916,"set":"dev-pendek","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10017916,"set":"dev-pendek","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10017916,"set":"dev-pendek","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10017916,"set":"dev-pendek","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10017916,"set":"dev-pendek","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10017783,"set":"in","arm":"h5","grade":"K","categories":["tambahan","lain"],"note":"Sisa teks meta dan salinan Arab di awal; kalimat iman-tawakal disusun janggal"}
+{"passage_id":10017783,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10017783,"set":"in","arm":"s5m","grade":"B","categories":[],"note":"Penambahan 'Umar melanjutkan' sesuai konteks"}
+{"passage_id":10017783,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10017783,"set":"in","arm":"base","grade":"K","categories":["hilang"],"note":"Kalimat pembuka 'la adri ayyuhuma khairun li' tidak diterjemahkan"}
+{"passage_id":10000300,"set":"dev-panjang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10000300,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10000300,"set":"dev-panjang","arm":"h5","grade":"K","categories":["pelaku"],"note":"Komentar al-Ghazali dimasukkan ke dalam kutipan perawi (tanda kutip ditutup di akhir)"}
+{"passage_id":10000300,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10000300,"set":"dev-panjang","arm":"base","grade":"K","categories":["hilang"],"note":"'Qala' pembuka (penanda perawi) tidak diterjemahkan"}
+{"passage_id":10002980,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10002980,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10002980,"set":"in","arm":"base","grade":"K","categories":["tambahan"],"note":"Kurung '(harta itu)' menebak rujukan keliru; yang diletakkan adalah besi/batu panas"}
+{"passage_id":10002980,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10002980,"set":"in","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10007091,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":"Pemenggalan 'al-shighar' ambigu di teks; pembacaan wajar"}
+{"passage_id":10007091,"set":"dev-sedang","arm":"base","grade":"B","categories":[],"note":"Anak disebut dua kali karena pemenggalan ambigu; makna tetap"}
+{"passage_id":10007091,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":"Sama dengan B; pemenggalan ambigu"}
+{"passage_id":10007091,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":"Pemenggalan ambigu; pembacaan wajar"}
+{"passage_id":10007091,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":"Pemenggalan ambigu; pembacaan wajar"}
+{"passage_id":10009024,"set":"in","arm":"h5","grade":"S","categories":["lain"],"note":"akhbur taqlih salah tangkap; maksudnya 'ujilah, niscaya engkau membencinya'"}
+{"passage_id":10009024,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10009024,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10009024,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10009024,"set":"in","arm":"base","grade":"S","categories":["lain"],"note":"akhbur taqlih salah tangkap menjadi 'beritahu aku, niscaya kukatakan'"}
+{"passage_id":10001960,"set":"in","arm":"s5m","grade":"K","categories":["tambahan"],"note":"menambah 'tentang urusan dunia' pada al-hadits fi al-masjid"}
+{"passage_id":10001960,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10001960,"set":"in","arm":"base","grade":"S","categories":["istilah","lain"],"note":"al-hadits (berbicara) dibaca 'hadis'; menjadi 'di masjid memakan kebaikan'"}
+{"passage_id":10001960,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10001960,"set":"in","arm":"h5","grade":"S","categories":["istilah","lain"],"note":"al-hadits (berbicara) dibaca 'hadis'; makna kalimat pertama rusak"}
+{"passage_id":10013015,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10013015,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10013015,"set":"dev-sedang","arm":"base","grade":"K","categories":["hilang","negasi"],"note":"klausa 'seharusnya membersihkan diri' hilang; 'tidak menuduh langsung' menyimpang"}
+{"passage_id":10013015,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10013015,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10004745,"set":"dev-panjang","arm":"s5","grade":"K","categories":["tambahan"],"note":"menambah kalimat dalam kurung menebak sambungan paragraf sebelumnya"}
+{"passage_id":10004745,"set":"dev-panjang","arm":"base","grade":"K","categories":["hilang"],"note":"kata pembuka al-fasiq tidak diterjemahkan"}
+{"passage_id":10004745,"set":"dev-panjang","arm":"h5","grade":"K","categories":["hilang"],"note":"kata pembuka al-fasiq tidak diterjemahkan"}
+{"passage_id":10004745,"set":"dev-panjang","arm":"s4","grade":"K","categories":["tambahan","lain"],"note":"catatan editorial dalam kurung dan 'fasik?' ikut di teks; 'agar kuat bangun' tambahan"}
+{"passage_id":10004745,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10018907,"set":"in","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10018907,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10018907,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10018907,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10018907,"set":"in","arm":"base","grade":"K","categories":["istilah"],"note":"huzhuz an-nafs diterjemahkan 'hak-hak nafsu', kurang tepat"}
+{"passage_id":10003482,"set":"dev-sedang","arm":"h5","grade":"K","categories":["lain","negasi"],"note":"pernyataan 'mereka telah diampuni' jadi doa; ma ru'iya kehilangan negasi"}
+{"passage_id":10003482,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10003482,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10003482,"set":"dev-sedang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10003482,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10013954,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10013954,"set":"dev-panjang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10013954,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10013954,"set":"dev-panjang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10013954,"set":"dev-panjang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10020387,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10020387,"set":"dev-panjang","arm":"h5","grade":"K","categories":["tambahan"],"note":"menambah 'botak' yang tidak ada di teks; ta'zhim ajsam jadi 'keagungan'"}
+{"passage_id":10020387,"set":"dev-panjang","arm":"s4","grade":"K","categories":["tambahan","istilah"],"note":"menambah 'botak'; al-bighal diterjemahkan 'keledai'"}
+{"passage_id":10020387,"set":"dev-panjang","arm":"s5","grade":"K","categories":["tambahan"],"note":"menambah 'botak' yang tidak ada di teks"}
+{"passage_id":10020387,"set":"dev-panjang","arm":"base","grade":"K","categories":["tambahan"],"note":"menambah 'botak kepalanya karena racunnya' yang tidak ada di teks"}
+{"passage_id":10000441,"set":"dev-panjang","arm":"h5","grade":"K","categories":["pelaku","lain"],"note":"kalimat akhir: yang tak tertolong jadi orang lain, bukan dirinya; rujukan tanah jadi hati"}
+{"passage_id":10000441,"set":"dev-panjang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10000441,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10000441,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10000441,"set":"dev-panjang","arm":"base","grade":"K","categories":["lain","tambahan"],"note":"rujukan tanah jadi hati; 'wajib dibersihkan' tafsiran; kalimat 'jelas setiap hal' janggal"}
+{"passage_id":10006824,"set":"dev-panjang","arm":"s4","grade":"K","categories":["istilah"],"note":"'fainnahum al-jundiyyah' (mereka itulah tentara) diterjemahkan 'demikian pula bala tentara mereka'"}
+{"passage_id":10006824,"set":"dev-panjang","arm":"h5","grade":"K","categories":["hilang","istilah"],"note":"'ash-shahih', 'mereka itulah tentara', 'ma'a tana''umihim' hilang; zhalamah jadi 'kezaliman'"}
+{"passage_id":10006824,"set":"dev-panjang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10006824,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10006824,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10003693,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10003693,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10003693,"set":"dev-sedang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10003693,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10003693,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10013834,"set":"in","arm":"h5","grade":"S","categories":["pelaku"],"note":"'tidak memberi mereka hak orang lain' dibalik jadi memberi hak mereka kepada orang lain"}
+{"passage_id":10013834,"set":"in","arm":"base","grade":"S","categories":["pelaku"],"note":"hak orang lain dibalik; 'aku menyimpan Tuhanku' jadi 'Tuhanku yang menyimpan'"}
+{"passage_id":10013834,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10013834,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10013834,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10008044,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10008044,"set":"dev-sedang","arm":"h5","grade":"K","categories":["pelaku"],"note":"objek 'setiap orang beragama berakal dijadikan saudara' dijadikan pelaku persaudaraan"}
+{"passage_id":10008044,"set":"dev-sedang","arm":"base","grade":"K","categories":["pelaku"],"note":"objek 'setiap orang beragama berakal dijadikan saudara' dijadikan pelaku persaudaraan"}
+{"passage_id":10008044,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10008044,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10010916,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10010916,"set":"in","arm":"h5","grade":"K","categories":["negasi"],"note":"'membelakangi itulah yang benar' dibalik menjadi 'keliru'"}
+{"passage_id":10010916,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10010916,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10010916,"set":"in","arm":"base","grade":"K","categories":["istilah","tambahan"],"note":"ihtisab dipersempit jadi amar makruf; tambahan kurung '(dalam keadaan demikian)'"}
+{"passage_id":10004898,"set":"in","arm":"h5","grade":"S","categories":["pelaku","lain"],"note":"khatam 90 kali dilepas dari Kahmas; alasan pucat wajah dibalik; Basrah hanya tiga; yu'dzinuhu jadi azan"}
+{"passage_id":10004898,"set":"in","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10004898,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10004898,"set":"in","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10004898,"set":"in","arm":"base","grade":"S","categories":["pelaku","lain"],"note":"khatam 90 kali dilepas dari Kahmas; salaf tak suka 'karena mengurangi pucat' membalik logika"}
+{"passage_id":10008643,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10008643,"set":"dev-sedang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10008643,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10008643,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10008643,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10019168,"set":"in","arm":"base","grade":"K","categories":["hilang"],"note":"judul penutup 'al-murabathah ar-rabi'ah' tidak diterjemahkan"}
+{"passage_id":10019168,"set":"in","arm":"s5","grade":"K","categories":["istilah"],"note":"nama jadi 'Tuwaibah'; murabathah jadi 'Muraqabah'; 'alaihi' jadi 'untuknya'"}
+{"passage_id":10019168,"set":"in","arm":"s4","grade":"K","categories":["istilah"],"note":"nama jadi 'Tuwaibah ibn ash-Shummah'; salah ketik 'lariumu'"}
+{"passage_id":10019168,"set":"in","arm":"s5m","grade":"K","categories":["istilah"],"note":"judul murabathah diterjemahkan 'Muraqabah keempat'"}
+{"passage_id":10019168,"set":"in","arm":"h5","grade":"K","categories":["istilah"],"note":"judul murabathah diterjemahkan 'Mujahadah keempat'"}
+{"passage_id":10007550,"set":"dev-pendek","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10007550,"set":"dev-pendek","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10007550,"set":"dev-pendek","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10007550,"set":"dev-pendek","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10007550,"set":"dev-pendek","arm":"h5","grade":"S","categories":["pelaku"],"note":"'Engkau membenciku' diubah menjadi 'Engkau membencinya'"}
+{"passage_id":10012298,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10012298,"set":"dev-panjang","arm":"h5","grade":"B","categories":[],"note":"al-imsak bil-haqq jadi 'untuk yang berhak', pergeseran kecil"}
+{"passage_id":10012298,"set":"dev-panjang","arm":"s4","grade":"K","categories":["istilah"],"note":"yatarajjah diterjemahkan 'lebih berat', terbaca 'lebih sulit', menyesatkan"}
+{"passage_id":10012298,"set":"dev-panjang","arm":"base","grade":"S","categories":["pelaku"],"note":"ata Allaha salima jadi 'Allah telah mendatanginya', pelaku terbalik"}
+{"passage_id":10012298,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10005709,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10005709,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10005709,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10005709,"set":"dev-sedang","arm":"base","grade":"K","categories":["lain"],"note":"nafratan ma dipindah; keengganan dijadikan yang terasa berat, struktur bergeser"}
+{"passage_id":10005709,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10008928,"set":"in","arm":"s5m","grade":"K","categories":["pelaku"],"note":"subjek ahabba kedua (Allah) dijadikan hamba"}
+{"passage_id":10008928,"set":"in","arm":"s5","grade":"K","categories":["pelaku"],"note":"subjek ahabba kedua (Allah) dijadikan hamba"}
+{"passage_id":10008928,"set":"in","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10008928,"set":"in","arm":"base","grade":"S","categories":["lain"],"note":"la yusy'ar bihi (tidak dikenal orang) jadi 'hamba tidak merasakannya'"}
+{"passage_id":10008928,"set":"in","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10009787,"set":"dev-pendek","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10009787,"set":"dev-pendek","arm":"h5","grade":"B","categories":[],"note":""}
+{"passage_id":10009787,"set":"dev-pendek","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10009787,"set":"dev-pendek","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10009787,"set":"dev-pendek","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10001303,"set":"dev-panjang","arm":"base","grade":"K","categories":["tambahan","istilah"],"note":"'pencipta yang baru' menambah sifat baru; logika rantai disusun ulang; yudadduhu kurang"}
+{"passage_id":10001303,"set":"dev-panjang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10001303,"set":"dev-panjang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10001303,"set":"dev-panjang","arm":"h5","grade":"S","categories":["negasi"],"note":"negasi mencakup 'berakhir pada pencipta qadim', kesimpulan dalil terbalik"}
+{"passage_id":10001303,"set":"dev-panjang","arm":"s4","grade":"B","categories":[],"note":""}
+{"passage_id":10010347,"set":"dev-sedang","arm":"base","grade":"B","categories":[],"note":""}
+{"passage_id":10010347,"set":"dev-sedang","arm":"s5m","grade":"B","categories":[],"note":""}
+{"passage_id":10010347,"set":"dev-sedang","arm":"s4","grade":"B","categories":[],"note":"rujukan 'annahu' digeser ke rupa, makna tetap"}
+{"passage_id":10010347,"set":"dev-sedang","arm":"s5","grade":"B","categories":[],"note":""}
+{"passage_id":10010347,"set":"dev-sedang","arm":"h5","grade":"B","categories":[],"note":""}
