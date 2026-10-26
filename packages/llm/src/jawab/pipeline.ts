@@ -52,8 +52,10 @@ import {
   hasHadithPrefix,
   pipelineTerms,
   refusalKind,
+  repeatedSentences,
   stripArabic,
   stripCiteTags,
+  translationCopies,
 } from "./citations.ts";
 import type { HadithStatement } from "./citations.ts";
 import type { CitedSpan } from "./citations.ts";
@@ -68,11 +70,12 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
 /**
  * Versi kode pipeline di luar prompt: pencarian kandidat (X03: 4), urutan dokumen (X05: 5), label
  * status hadits dari istilah takhrij (X06: 6), label yang ditinjau ustadz (X07: 7), konteks
- * bagian berjudul kitab + pemberitahuan status yang berdiri sendiri dibuang (ADR-106: 8), dan
+ * bagian berjudul kitab + pemberitahuan status yang berdiri sendiri dibuang (ADR-106: 8),
+ * diagnostik bahasa kalimat berulang/salinan terjemahan (ADR-109: 9), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 8;
+export const JAWAB_PIPELINE_VERSION = 9;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -162,6 +165,10 @@ export interface JawabDiagnostics {
   pipeline_terms: number;
   /** Kalimat calon parafrase ayat: rujukan QS + penanda makna/kutipan (pipeline@8, heuristik). */
   ayah_gloss_suspect: number;
+  /** Pasangan kalimat bersebelahan yang isinya berulang (pipeline@9, heuristik). */
+  repeated_sentences: number;
+  /** Kalimat yang menyalin ≥ 8 kata persis dari terjemahan AI dokumen (pipeline@9). */
+  translation_copy: number;
   /** Klaim status yang labelnya disetujui/dikoreksi penilai (X07). */
   hadith_reviewed: number;
   /** Tinjauan label gagal dimuat (DB app); label kode dipakai. */
@@ -376,6 +383,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     arabic_removed: 0,
     pipeline_terms: 0,
     ayah_gloss_suspect: 0,
+    repeated_sentences: 0,
+    translation_copy: 0,
     hadith_unsupported: 0,
     hadith_labeled: 0,
     hadith_reviewed: 0,
@@ -692,6 +701,11 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     .trim();
   diagnostics.pipeline_terms = pipelineTerms(text);
   diagnostics.ayah_gloss_suspect = ayahGlossSuspects(text);
+  diagnostics.repeated_sentences = repeatedSentences(text);
+  diagnostics.translation_copy = translationCopies(
+    text,
+    [...passages.values()].flatMap((p) => (p.translation === null ? [] : [p.translation.text])),
+  );
   const refusal = refusalKind(text);
   const notFound = refusal !== null;
   if (!notFound && citations.length === 0) return fallback("unverified", model);

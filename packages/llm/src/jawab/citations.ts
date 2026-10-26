@@ -130,6 +130,56 @@ export function ayahGlossSuspects(text: string): number {
     .filter((s) => QS_REF.test(s) && GLOSS.test(s)).length;
 }
 
+const words = (s: string) => s.toLowerCase().match(/[\p{L}\p{N}'’-]+/gu) ?? [];
+
+/** Rangkaian kata berurutan sepanjang `n`, digabung spasi. */
+const shinglesOf = (w: readonly string[], n: number) =>
+  Array.from({ length: Math.max(0, w.length - n + 1) }, (_, i) => w.slice(i, i + n).join(" "));
+
+/** Panjang rangkaian kata yang sama yang dihitung sebagai isi berulang. */
+const REPEAT_SHINGLE = 6;
+/** Rumus atribusi dan lokasi yang wajar berulang ("Menurut al-Ghazali dalam Ihya (j. 1, h. 5)"). */
+const ATTRIBUTION =
+  /(?:menurut\s+)?al-ghazali\s+dalam\s+ihya|\(?(?:ihya\s+)?j\.\s*\d+,\s*h\.\s*\d+(?:[–-]\d+)?\)?/giu;
+
+/**
+ * Pasangan kalimat dalam satu paragraf yang berbagi rangkaian ≥ 6 kata persis (run x07 j007/j008/
+ * j012: parafrase model lalu terjemahan AI yang sama, "puasa khusus al-khusus adalah puasa hati").
+ * Diagnostik `repeated_sentences`, tidak menyaring.
+ */
+export function repeatedSentences(text: string): number {
+  let n = 0;
+  let offset = 0;
+  for (const para of text.split(/\n\s*\n/u)) {
+    const from = text.indexOf(para, offset);
+    offset = from + para.length;
+    const sets = sentencesIn(text, from, from + para.length).map(
+      (s) =>
+        new Set(
+          shinglesOf(words(text.slice(s.start, s.end).replace(ATTRIBUTION, " ")), REPEAT_SHINGLE),
+        ),
+    );
+    for (let a = 0; a < sets.length; a++)
+      for (let b = a + 1; b < sets.length; b++) if ([...sets[a]!].some((g) => sets[b]!.has(g))) n++;
+  }
+  return n;
+}
+
+/** Panjang rangkaian kata yang dihitung sebagai salinan terjemahan. */
+const COPY_SHINGLE = 8;
+
+/**
+ * Kalimat jawaban yang memuat rangkaian ≥ 8 kata persis dari terjemahan AI dokumen (salinan, bukan
+ * uraian; run x07 j010 "Ketahuilah bahwa batasan ghibah adalah …"). Diagnostik `translation_copy`.
+ */
+export function translationCopies(text: string, translations: readonly string[]): number {
+  const shingles = new Set(translations.flatMap((t) => shinglesOf(words(t), COPY_SHINGLE)));
+  if (shingles.size === 0) return 0;
+  return sentencesIn(text, 0, text.length).filter((s) =>
+    shinglesOf(words(text.slice(s.start, s.end)), COPY_SHINGLE).some((g) => shingles.has(g)),
+  ).length;
+}
+
 /**
  * Jenis penolakan baku: `not_found` (prompt `answer@1`+) atau `false_premise` (`answer@3`+), bila
  * kalimat bakunya ada di paragraf pertama (model kadang menulis satu kalimat pengantar dulu);

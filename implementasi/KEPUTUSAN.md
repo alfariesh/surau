@@ -2862,3 +2862,36 @@ Agent menyampaikan risikonya lebih dulu dan menawarkan jalan tengah (label ringk
 - Syarat R4 "status hadits benar 100%" masih bergantung pada tinjauan manusia; versi 2 hanya mengurangi label menyesatkan pada sampel agent.
 
 **Tinjau ulang bila:** ustadz meninjau label versi 2, pemisahan catatan kaki di ingest selesai, atau patch salah cetak dibuat.
+
+## ADR-109 · Bahasa jawaban Jawab: prompt `answer@8`, pipeline@9 (diagnostik kalimat berulang dan salinan terjemahan) — diterima · 2026-10-26
+
+**Konteks:** run `x07-publik-answer7-v1` (ADR-106) memperbaiki kesetiaan, fatwa, dan status hadits, tetapi skor bahasa agent turun dari 3,74 ke 3,45. Penyebab yang tercatat di [laporan perbandingan](../evals/reports/jawab-x07-answer7-banding.md):
+- model menulis parafrasenya sendiri lalu menempel terjemahan AI yang sama kata per kata (j006, j007, j008, j010, j012);
+- kalimat tambahan sesudah "Tidak ditemukan …" memuat kartu kutipan tak relevan, celah "…", atau kata "dokumen" (j031–j033);
+- ada pembuka meta dan orang pertama (j026, j039);
+- "di bagian yang ditemukan" dipakai sebagai penutup (j012);
+- baris "Status hadits:" tanpa sitasi menjadi pemberitahuan pengganti yang terbaca sebagai bahasa sistem (j026, j027).
+
+Pemilik meminta `answer@8` untuk bahasa di chat (2026-10-26).
+
+**Keputusan:**
+1. **Prompt `answer@8`** (`packages/llm/prompts/answer-v8.ts`) mengatur hal-hal berikut:
+   - jawaban mulai langsung dengan isi, tanpa mengulang atau menggolongkan pertanyaan dan tanpa kata "saya";
+   - kata "paragraf" dan "potongan teks" ikut dilarang;
+   - terjemahan AI tidak disalin, dan setiap isi ditulis sekali;
+   - tanpa kutipan langsung bertanda petik, selain judul atau istilah;
+   - "bagian yang ditemukan" hanya untuk kesimpulan negatif;
+   - "Tidak ditemukan di kitab yang dicakup." berdiri sendiri tanpa sitasi, karena hasil Cari pelengkap sudah ditampilkan sistem;
+   - penilaian takhrij ditulis sebagai kalimat biasa yang menyitasi takhrijnya. Baris "Status hadits:" tidak lagi wajib, karena status klaim dibuat dari struktur sejak X06 (ADR-069). Bila ditulis, baris itu harus bersitasi di kalimatnya sendiri.
+
+   Kalimat baku dan aturan lain sama dengan `answer@7`.
+2. **Pipeline@9:** diagnostik `repeated_sentences` dan `translation_copy` di `JawabDiagnostics` dan log Worker, keduanya heuristik dan tidak menyaring jawaban.
+   - `repeated_sentences` menghitung pasangan kalimat dalam satu paragraf yang berbagi rangkaian ≥ 6 kata persis, setelah rumus atribusi "Menurut al-Ghazali dalam Ihya (j. …, h. …)" dibuang. Atas arsip x07, diagnostik ini menandai tepat lima jawaban yang dicatat penilai (j006, j007, j008, j010, j012). Atas arsip x06 ada tiga (j005, j008, j024).
+   - `translation_copy` menghitung kalimat yang memuat rangkaian ≥ 8 kata persis dari terjemahan AI dokumen.
+3. docs/05 §5: kalimat "Tidak ditemukan …" berdiri sendiri.
+
+**Tidak dipilih:**
+- Membuang kalimat berulang atau salinan terjemahan dengan kode. Blok bersitasi bisa hilang atau bergeser sitasinya, dan heuristik bisa salah tangkap.
+- Menghapus terjemahan AI dari konteks dokumen. X03 menunjukkan terjemahan menaikkan cakupan sitasi.
+
+**Tinjau ulang bila:** run publik `answer@8` (berbayar, izin pemilik) dinilai ulang dengan rubrik yang sama.
