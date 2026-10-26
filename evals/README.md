@@ -80,6 +80,8 @@ Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke
 
 **Versi soal 2 (2026-10-26, ADR-106):** 4 holdout direvisi dari tinjauan agent (subagen yang menerapkan hanya melaporkan ID + kategori). Berkas lokal `evals/private/jawab.jsonl` kini versi 2 (cadangan versi 1 di `evals/private/jawab-draf-v1.jsonl`); salinan R2 kunci baru `surau-evals/jawab/2026-10-26-draf-v2.jsonl` (sha256 `4bdbb92f…c3e8`). Kunci lama tidak ditimpa.
 
+**X07 / ADR-106 (2026-10-26, izin pemilik di chat: satu run publik, pagu US$0,50):** `x07-publik-answer7-v1` (42 soal publik versi 2, tanpa holdout, routing baru; teks pertanyaan + paragraf Ihya kandidat dikirim ke Anthropic), biaya US$0,1205. Arsip di folder privat yang sama. Penilaian agent per jawaban (`x07-agent-nilai-2026-10-26.jsonl`, tiga subagen sesi Claude Code membaca teks Arab staging) disalin ke R2 `surau-evals/jawab-runs/x07-agent-nilai-2026-10-26.jsonl`.
+
 Pemulihan holdout memakai:
 
 ```bash
