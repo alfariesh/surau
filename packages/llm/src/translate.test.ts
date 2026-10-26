@@ -60,7 +60,7 @@ describe("request terjemahan", () => {
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ]);
-    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@4");
+    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@5");
     // v3 (X02): aturan satuan dan ungkapan tebusan ada di prefix sistem.
     expect(TRANSLATE_PROMPT.system).toContain("Jangan mengganti satu satuan dengan satuan lain");
     expect(TRANSLATE_PROMPT.system).toContain("ayah dan ibuku menjadi tebusanmu");
@@ -70,10 +70,10 @@ describe("request terjemahan", () => {
     expect(passageCustomId(10_000_001)).toMatch(CUSTOM_ID_PATTERN);
   });
 
-  test("v5 (X21): memuat semua aturan v3–v4 dan tiga bagian baru; dipilih lewat opsi, bukan default", () => {
+  test("v5 (X21, aktif): memuat semua aturan v3–v4 dan tiga bagian baru; v4 tetap bisa dipilih lewat opsi", () => {
     const v5 = TRANSLATE_PROMPTS["translate-passage@5"];
     const v4 = TRANSLATE_PROMPTS["translate-passage@4"];
-    expect(TRANSLATE_PROMPT.id).toBe(v4.id);
+    expect(TRANSLATE_PROMPT.id).toBe(v5.id);
     for (const rule of [
       "Jangan mengganti satu satuan dengan satuan lain",
       "ayah dan ibuku menjadi tebusanmu",
@@ -94,16 +94,18 @@ describe("request terjemahan", () => {
     // Tidak ada huruf Arab di prompt selain angka penanda catatan kaki (aturan teks-arab 1).
     expect(v5.system.replace(/[\u0660-\u0669]/g, "")).not.toMatch(/\p{Script=Arabic}/u);
     const req = buildTranslateRequest(input(), "claude-sonnet-5-5", {
-      prompt: v5,
+      prompt: v4,
       effort: "medium",
     });
     expect(req.output_config).toEqual({ effort: "medium" });
     expect(req.system).toEqual([
-      { type: "text", text: v5.system, cache_control: { type: "ephemeral", ttl: "1h" } },
-    ]);
-    // Tanpa opsi: tetap v4 dan effort low (perilaku batch yang berjalan tidak berubah).
-    expect(buildTranslateRequest(input()).system).toEqual([
       { type: "text", text: v4.system, cache_control: { type: "ephemeral", ttl: "1h" } },
+    ]);
+    // Tanpa opsi: prompt aktif (v5) dan effort low.
+    const def = buildTranslateRequest(input());
+    expect(def.output_config).toEqual({ effort: "low" });
+    expect(def.system).toEqual([
+      { type: "text", text: v5.system, cache_control: { type: "ephemeral", ttl: "1h" } },
     ]);
   });
 

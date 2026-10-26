@@ -40,6 +40,13 @@ import { z } from "zod";
 import type { CorpusRows } from "../rows.ts";
 import type { LlmContext } from "./cli.ts";
 import { mapPool } from "./pool.ts";
+import {
+  NO_RETRANSLATION,
+  RETRANSLATE_FILE,
+  loadRetranslation,
+  translationDone,
+} from "./retranslate.ts";
+import type { Retranslation } from "./retranslate.ts";
 import { REVIEW_FILE, loadReviews, rejectionFor } from "./reviews.ts";
 import { loadRevisions, protectedRevisions } from "./revisions.ts";
 import type { LoadedRevisions } from "./revisions.ts";
@@ -77,6 +84,8 @@ import type { Work } from "./work.ts";
 export const BATCH_MAX_REQUESTS = 4_000;
 /** Percobaan maksimal per custom_id (1 + 2 ulangan); sesudahnya dicatat gagal. */
 export const MAX_ATTEMPTS = 3;
+/** Request terjemahan ulang terarah per tahap kirim (ADR-108); lebih dari ini wajib `--limit`. */
+export const BATCH_STAGE_MAX = 2_500;
 /** Skenario baca cache prefix sistem untuk estimasi (batch: best-effort, docs 30–98%). */
 export const CACHE_SCENARIOS = [0.95, 0.5, 0] as const;
 
@@ -134,13 +143,16 @@ function readAccepted(dir: string): Accepted {
 function translationRequest(work: Work, passageId: number, model: ModelId): PlannedRequest | null {
   const u = work.units.get(passageId);
   if (u === undefined) return null;
+  // Versi prompt yang dicatat diambil dari objek prompt yang sama dengan yang dikirim (aturan
+  // teks-arab 8): tidak mungkin hasil prompt baru tercatat dengan versi lama.
+  const prompt = TRANSLATE_PROMPT;
   return {
     custom_id: passageCustomId(passageId),
     kind: "translation",
-    prompt_version: TRANSLATE_PROMPT.id,
+    prompt_version: prompt.id,
     source_sha256: u.sourceSha256,
     source_chars: contentLength(u.masked.text),
-    params: buildTranslateRequest(u, model),
+    params: buildTranslateRequest(u, model, { prompt }),
   };
 }
 
@@ -242,17 +254,31 @@ export function reviewProtected(
 }
 
 /** Request yang masih perlu dikirim untuk satu putaran (yang sudah lolos dengan hash sama dilewati). */
-export function pendingRequests(work: Work, acc: Accepted, round: 1 | 2): PlannedRequest[] {
+export function pendingRequests(
+  work: Work,
+  acc: Accepted,
+  round: 1 | 2,
+  retranslate: Retranslation = NO_RETRANSLATION,
+): PlannedRequest[] {
   const out: PlannedRequest[] = [];
   // Yang pernah gagal untuk sumber yang SAMA dengan versi prompt SAAT INI diulang lewat `retry`
   // (hitungan percobaan, refusal → Sonnet), bukan di sini. Kegagalan untuk sumber lama (hash beda)
   // atau versi prompt lama tidak dihitung: unitnya masuk rencana lagi dengan prompt baru (#70).
   const failed = failedKeys(acc.failures);
   if (round === 1) {
+    const attempted = new Set(acc.failures.map((f) => f.custom_id));
     for (const u of work.units.values()) {
-      if (acc.translations.get(u.passageId)?.source_sha256 === u.sourceSha256) continue;
-      if (failed.has(`${passageCustomId(u.passageId)}:${u.sourceSha256}`)) continue;
-      const r = translationRequest(work, u.passageId, MODELS.haiku);
+      const target = retranslate.get(u.passageId);
+      const prior = acc.translations.get(u.passageId);
+      if (translationDone(prior, u.sourceSha256, target)) continue;
+      const id = passageCustomId(u.passageId);
+      if (failed.has(`${id}:${u.sourceSha256}`)) continue;
+      // Terjemahan ulang terarah (X21) dan paragraf yang sudah pernah diterjemahkan atau gagal
+      // (sumbernya berubah, mis. ayat baru dikenali) langsung ke model yang disetujui/Sonnet;
+      // hanya paragraf yang belum pernah disentuh memakai Haiku.
+      const model =
+        target?.model ?? (prior !== undefined || attempted.has(id) ? MODELS.sonnet : MODELS.haiku);
+      const r = translationRequest(work, u.passageId, model);
       if (r !== null) out.push(r);
     }
     for (const c of work.chunks) {
@@ -351,7 +377,8 @@ export function outputRates(dir: string): OutputRates {
   const sm = rows.filter((r) => r.kind === "summary");
   if (tr.length === 0 || sm.length === 0) {
     return {
-      translationPerChar: 1.2,
+      // Terukur uji X21 (Sonnet 5.5 + v5, effort low): 0,947 token keluaran per karakter Arab.
+      translationPerChar: 1.0,
       summaryPerRequest: 900,
       source: "cadangan (uji kecil belum ada)",
     };
@@ -475,7 +502,16 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
     );
     for (const b of work.blocked.slice(0, 10)) console.error(`  ${b.passageId}: ${b.detail}`);
   }
-  const reqs = pendingRequests(work, acc, round);
+  const retranslate = loadRetranslation(ctx.repo, ctx.rows());
+  const reqs = pendingRequests(work, acc, round, retranslate);
+  if (retranslate.size > 0 && round === 1) {
+    const due = reqs.filter(
+      (r) => r.kind === "translation" && retranslate.has(Number(r.custom_id.split("-")[1])),
+    ).length;
+    console.info(
+      `Terjemahan ulang terarah: ${retranslate.size} paragraf terpilih (${RETRANSLATE_FILE}), ${due} request tertunda.`,
+    );
+  }
   if (reqs.length === 0) {
     console.info(`Putaran ${round}: tidak ada request tertunda.`);
     return 0;
@@ -888,19 +924,34 @@ export function submittable(
   acc: Accepted,
   busy: ReadonlySet<string>,
   planned: readonly PlannedRequest[],
+  retranslate: Retranslation = NO_RETRANSLATION,
 ): { ready: PlannedRequest[]; stale: number } {
   const failed = failedKeys(acc.failures);
   let stale = 0;
   const ready = planned.filter((r) => {
     const sha = currentSha(work, r.custom_id);
-    if (sha !== r.source_sha256) {
+    // Rencana lama yang dibuat dengan prompt lain (mis. plan-r1.jsonl era S13 dari T-28) atau model
+    // lain dari yang dipilih sekarang tidak boleh terkirim: hasilnya sia-sia dan tercatat salah.
+    const parts0 = parseCustomId(r.custom_id);
+    const wantModel =
+      parts0?.kind === "passage" ? retranslate.get(parts0.passageId)?.model : undefined;
+    if (
+      sha !== r.source_sha256 ||
+      r.prompt_version !== currentPromptVersion(r.custom_id) ||
+      (wantModel !== undefined && r.params.model !== wantModel)
+    ) {
       stale++;
       return false;
     }
     if (busy.has(r.custom_id) || failed.has(`${r.custom_id}:${sha}`)) return false;
     const parts = parseCustomId(r.custom_id);
-    if (parts?.kind === "passage")
-      return acc.translations.get(parts.passageId)?.source_sha256 !== sha;
+    if (parts?.kind === "passage") {
+      return !translationDone(
+        acc.translations.get(parts.passageId),
+        sha,
+        retranslate.get(parts.passageId),
+      );
+    }
     if (parts?.kind === "toc" && parts.round === 1)
       return acc.r1.get(r.custom_id)?.source_sha256 !== sha;
     if (parts?.kind === "toc")
@@ -934,7 +985,8 @@ export async function runSubmit(
     all,
     reviewProtected(ctx.rows(), all, accepted, loadRevisions(ctx.repo)),
   );
-  const { ready, stale } = submittable(work, accepted, inFlight(dir), planned);
+  const retranslateGuard = loadRetranslation(ctx.repo, ctx.rows());
+  const { ready, stale } = submittable(work, accepted, inFlight(dir), planned, retranslateGuard);
   if (stale > 0) {
     console.error(
       `${stale} request di rencana sudah usang (sumber berubah). Jalankan ulang: pnpm llm plan --round ${round}`,
@@ -943,6 +995,15 @@ export async function runSubmit(
   }
   const remaining = ready.filter((r) => opts.kind === undefined || r.kind === opts.kind);
   const reqs = opts.limit === undefined ? remaining : remaining.slice(0, opts.limit);
+  // Terjemahan ulang terarah dikirim bertahap (ADR-108): biaya aktual tahap pertama dicek dulu.
+  const bulk =
+    retranslateGuard.size > 0 && opts.limit === undefined && reqs.length > BATCH_STAGE_MAX;
+  if (bulk) {
+    console.error(
+      `${reqs.length} request sekaligus: kirim bertahap dengan --limit ${BATCH_STAGE_MAX} (atau kurang), cek biaya aktual lewat collect, baru lanjut.`,
+    );
+    return 1;
+  }
   if (reqs.length === 0) {
     console.info(`Putaran ${round}: tidak ada request tersisa untuk dikirim.`);
     return 0;
@@ -1345,6 +1406,11 @@ export interface RetryState {
   /** Jumlah percobaan yang memakai Sonnet 5.5. */
   sonnet: number;
   summary: boolean;
+  /**
+   * Paragraf terpilih terjemahan ulang terarah (X21): semua percobaan memakai model yang disetujui
+   * (Sonnet 5.5), bukan Haiku dulu; menyerah sesudah `MAX_ATTEMPTS` (terjemahan lama tetap dimuat).
+   */
+  sonnetOnly?: boolean;
 }
 
 /** sha256 sumber SAAT INI untuk sebuah custom_id (null bila unitnya tidak ada lagi). */
@@ -1386,7 +1452,11 @@ export function awaitingReplan(work: Work, acc: Accepted): string[] {
  * pernah ditolak model. Kegagalan untuk sumber lama (hash berbeda) tidak dihitung: unit itu
  * dijadwalkan ulang sebagai request baru oleh `plan`.
  */
-export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
+export function unresolved(
+  work: Work,
+  acc: Accepted,
+  retranslate: Retranslation = NO_RETRANSLATION,
+): Map<string, RetryState> {
   const out = new Map<string, RetryState>();
   for (const f of acc.failures) {
     const sha = currentSha(work, f.custom_id);
@@ -1395,7 +1465,11 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
     if (parts === null) continue;
     const done =
       parts.kind === "passage"
-        ? acc.translations.get(parts.passageId)?.source_sha256 === sha
+        ? translationDone(
+            acc.translations.get(parts.passageId),
+            sha,
+            retranslate.get(parts.passageId),
+          )
         : parts.round === 1
           ? acc.r1.get(f.custom_id)?.source_sha256 === sha
           : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
@@ -1432,6 +1506,7 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
       refusal: prev.refusal || f.reason === "refusal",
       sonnet: prev.sonnet + (f.model === MODELS.sonnet ? 1 : 0),
       summary: prev.summary,
+      ...(parts.kind === "passage" && retranslate.has(parts.passageId) ? { sonnetOnly: true } : {}),
     });
   }
   return out;
@@ -1445,6 +1520,7 @@ export function unresolved(work: Work, acc: Accepted): Map<string, RetryState> {
  */
 export function retryModel(s: RetryState): ModelId | null {
   if (s.needsNewPrompt === true) return null;
+  if (s.sonnetOnly === true) return s.attempts >= MAX_ATTEMPTS ? null : MODELS.sonnet;
   // Ringkasan mendapat dua percobaan Sonnet: satu ringkasan anak yang gagal menghalangi ringkasan
   // putaran 2 semua induknya (S13: ringkasan Inggris bagian doa terus ditulis dalam bahasa Indonesia).
   if (s.attempts >= MAX_ATTEMPTS && s.sonnet >= (s.summary ? 2 : 1)) return null;
@@ -1467,7 +1543,7 @@ export async function runRetry(
   const all = buildWork(ctx.rows());
   const acc = readAccepted(dir);
   const work = withoutReviewed(all, reviewProtected(ctx.rows(), all, acc, loadRevisions(ctx.repo)));
-  const todo = unresolved(work, acc);
+  const todo = unresolved(work, acc, loadRetranslation(ctx.repo, ctx.rows()));
   const busy = inFlight(dir);
   const reqs: PlannedRequest[] = [];
   const givenUp: string[] = [];

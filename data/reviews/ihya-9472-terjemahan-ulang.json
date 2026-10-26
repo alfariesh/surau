@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "id": "x21-sedang-panjang",
+      "date": "2026-10-26",
+      "basis": "T-17 tahap 3 (Benar 71,9%, Salah 13,3%; penilai agent, ADR-105) + uji buta X21 (Sonnet 5.5 + prompt v5: 88% Benar vs 46% produksi pada sampel baru sedang+panjang); izin pemilik di chat 2026-10-26: strata sedang + panjang, pagu US$36",
+      "prompt": "translate-passage@5",
+      "model": "claude-sonnet-5-5",
+      "min_chars": 100
+    }
+  ]
+}

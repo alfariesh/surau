@@ -1,4 +1,4 @@
-// Request dan validasi terjemahan per paragraf (S13; prompt aktif `translate-passage@4`, X02). Teks yang dikirim
+// Request dan validasi terjemahan per paragraf (S13; prompt aktif `translate-passage@5`, X21). Teks yang dikirim
 // sudah bertanda: kutipan ayat diganti placeholder `⟦QS s:a⟧` (`maskAyat`, @surau/core), sehingga
 // model tidak pernah melihat atau menerjemahkan ayat (ADR-020, ADR-040).
 import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
@@ -21,8 +21,9 @@ import {
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 
-export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V4;
-/** Prompt yang boleh dipakai uji X21 (`buildTranslateRequest(..., { prompt })`); aktif tetap `TRANSLATE_PROMPT`. */
+// Aktif sejak X21 (ADR-108): v5 + Sonnet 5.5 terpilih lewat uji buta atas sampel baru (88% vs 46% Benar).
+export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V5;
+/** Prompt yang bisa dipilih (`buildTranslateRequest(..., { prompt })`); bawaan = `TRANSLATE_PROMPT`. */
 export const TRANSLATE_PROMPTS = {
   [TRANSLATE_PASSAGE_V4.id]: TRANSLATE_PASSAGE_V4,
   [TRANSLATE_PASSAGE_V5.id]: TRANSLATE_PASSAGE_V5,

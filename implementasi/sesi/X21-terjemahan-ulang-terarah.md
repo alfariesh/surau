@@ -60,7 +60,7 @@ Sisa risiko (tidak diubah): deret pendek (< 8 kata, sebagian ayat) di konteks ha
 
 ### Prompt v5 (`packages/llm/prompts/translate-passage-v5.ts`)
 
-v4 + "Membaca dengan teliti" + "Kelengkapan dan ketepatan" + "Tambahan glosarium (v5)". Tidak memuat huruf Arab. Belum aktif: `TRANSLATE_PROMPT` tetap v4; `buildTranslateRequest(..., model, { prompt, effort })` memilih v5 dan effort `low|medium|high` untuk uji. Beralih ke v5 hanya sesudah uji lolos.
+v4 + "Membaca dengan teliti" + "Kelengkapan dan ketepatan" + "Tambahan glosarium (v5)". Tidak memuat huruf Arab. Dipakai untuk uji lewat `buildTranslateRequest(..., model, { prompt, effort })`. Sesudah uji lolos, `TRANSLATE_PROMPT` dialihkan ke v5 (ADR-108).
 
 ### Uji kecil (butuh izin)
 
@@ -141,10 +141,13 @@ Dampak pada target: bila hanya strata panjang membaik (Benar 35% → ±70%), est
 2. [x] Perbaikan pencocok ayat (ADR-107) + tes; prompt v5 + opsi request + tes. (sesi ini)
 3. [x] Hitung biaya dan rancang uji; ajukan ke pemilik. (sesi ini)
 4. [x] Izin pemilik untuk uji kecil (batas US$2,00, chat 2026-10-26). Batch dikirim, dikumpulkan, dinilai buta; lengan diputuskan dengan aturan di atas (Sonnet 5.5 + v5, effort low).
-5. [ ] Pemilik memilih lingkup + pagu terjemahan ulang berdasarkan hasil uji (tabel biaya di atas).
-6. [ ] Selesaikan T-28 (`data/build/llm`, `data/raw/kemenag`; Tanzil/OpenITI diunduh agent). Tambahkan mekanisme terjemahan ulang terarah di `tools/ingest/src/llm` (pilihan paragraf per strata/jilid; hasil lama dipertahankan sampai hasil baru lolos validasi), **catat versi prompt dan effort yang benar-benar dipakai per hasil** (sekarang `batch.ts`, `report.ts`, dan `sample.ts` mencatat konstanta `TRANSLATE_PROMPT.id`, jadi hasil v5 akan tercatat v4 bila tidak diubah; aturan teks-arab 8) dengan tesnya, jalankan batch dalam pagu.
-7. [ ] Bangun korpus berikutnya; promote hanya atas izin pemilik. QA `corpus:qa`.
-8. [ ] Ukur ulang T-17 dengan 40 sampel lanjutan (seed 20261024–26) dan catat di laporan + TUGAS-PEMILIK.
+5. [x] Pemilik memilih lingkup + pagu (chat 2026-10-26): strata sedang + panjang, Sonnet 5.5 + v5, pagu US$36.
+6. [x] (kode) Mekanisme terjemahan ulang terarah (ADR-108): pilihan `data/reviews/ihya-9472-terjemahan-ulang.json`, hasil lama dipertahankan sampai hasil baru lolos, ulangan selalu Sonnet, `pnpm llm terjemah-ulang`; prompt v5 aktif; versi prompt dicatat dari objek prompt yang dikirim; rencana lama dengan prompt/model lain ditolak sebagai usang; kirim >2.500 request wajib `--limit`; tes di `retranslate.test.ts`.
+   - **Penyimpangan terbuka dari rancangan awal langkah ini:** *effort* tidak dicatat per hasil (tidak ada kolom untuknya di `translation`/ledger); semua terjemahan ulang memakai effort `low` (di-hardcode di `buildTranslateRequest`) dan itu dicatat di ADR-108, bukan per baris. Versi prompt dan model memang dicatat per hasil.
+7. [ ] Selesaikan T-28 (`data/build/llm`, `data/raw/kemenag`; Tanzil/OpenITI diunduh agent).
+8. [ ] `plan` → tanya pemilik dengan angka `count_tokens` → `submit --limit … --budget <terpakai + 36> --confirm` bertahap per jilid → `collect` → `retry` → `report`.
+9. [ ] Bangun korpus berikutnya; promote hanya atas izin pemilik. QA `corpus:qa`.
+10. [ ] Ukur ulang T-17 dengan 40 sampel lanjutan (seed 20261024–26) dan catat di laporan + TUGAS-PEMILIK.
 
 ## T-28 untuk sesi ini (langkah pemilik; agent memandu saat tiba)
 

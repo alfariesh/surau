@@ -20,6 +20,7 @@
 //   rejudge                   nilai ulang semua hasil mentah dengan aturan/sumber saat ini (gratis)
 //   retry [--budget USD] [--confirm]  kirim ulang yang gagal (refusal/percobaan terakhir →
 //                             Sonnet 5.5; ringkasan dua kali Sonnet); --budget seperti submit
+//   terjemah-ulang            ringkasan pilihan terjemahan ulang terarah per jilid (X21; gratis)
 //   report                    tulis laporan data/reports/ihya-9472-terjemahan.md + sampel QA
 //   judul [--budget USD] [--limit N] [--confirm]  judul daftar isi Indonesia (X04 bagian B): node + subjudul kurasi,
 //                             Sonnet 5.5 lewat API biasa (berbayar; tanpa --confirm hanya rencana +
@@ -50,6 +51,7 @@ import {
   runWait,
 } from "./batch.ts";
 import { runReport } from "./report.ts";
+import { runRetranslateInfo } from "./retranslate-info.ts";
 import { readSubheadings, runTitleJob, titleUnits } from "./titles.ts";
 import { runSample } from "./sample.ts";
 import { batchKind } from "./store.ts";
@@ -177,6 +179,8 @@ async function main(argv: string[]): Promise<number> {
     }
     case "report":
       return runReport(ctx);
+    case "terjemah-ulang":
+      return runRetranslateInfo(ctx);
     case "judul": {
       const budget = z.coerce.number().positive().max(5).optional().parse(values.budget);
       const units = titleUnits(ctx.rows(), readSubheadings(repo, IHYA), IHYA.edition.id);
@@ -211,7 +215,7 @@ async function main(argv: string[]): Promise<number> {
     }
     default:
       console.error(
-        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|reconcile|wait|collect|rejudge|retry|report|judul|glosarium [--round 1|2] [--kind …] [--limit N] [--budget USD] [--confirm]",
+        "Pakai: pnpm llm tokens|mcp-tokens|sample|plan|submit|status|reconcile|wait|collect|rejudge|retry|report|terjemah-ulang|judul|glosarium [--round 1|2] [--kind …] [--limit N] [--budget USD] [--confirm]",
       );
       console.error(INTISARI_USAGE);
       return 2;
