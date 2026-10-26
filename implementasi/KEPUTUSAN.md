@@ -2897,4 +2897,6 @@ Pemilik meminta `answer@8` untuk bahasa di chat (2026-10-26).
 - Membuang kalimat berulang atau salinan terjemahan dengan kode. Blok bersitasi bisa hilang atau bergeser sitasinya, dan heuristik bisa salah tangkap.
 - Menghapus terjemahan AI dari konteks dokumen. X03 menunjukkan terjemahan menaikkan cakupan sitasi.
 
+**Hasil run `x08-publik-answer8-v1`** (42 soal publik, US$0,1167, izin pemilik di chat; dinilai ulang agent, [laporan](../evals/reports/jawab-x08-answer8-banding.md)): dibanding x07, Benar/Kurang/Salah 17/22/3 → 17/23/2, kesetiaan 83,3% → 85,7%, bahasa 3,45 → 3,55, atribusi 97,6% → 92,9% (j022, j025), fatwa 0, menolak 8/8, lokasi kode tetap 91,2% (kunci versi 2). Kalimat berulang 5 → 3 jawaban, salinan terjemahan 102 → 81 kalimat. Menurut butir 4 (ditulis sebelum run), `answer@8` dipakai karena bahasa dan kesetiaan tidak turun; selisihnya kecil dan dalam rentang derau penilai. R4 belum terpenuhi. Iterasi berikutnya sebaiknya menunggu penilaian manusia atau memperbaiki kode (bunyi label status, pencarian takhrij kemunculan pertama), bukan prompt lagi.
+
 **Tinjau ulang bila:** run publik `answer@8` (berbayar, izin pemilik) dinilai ulang dengan rubrik yang sama.

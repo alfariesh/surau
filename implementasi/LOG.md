@@ -15,6 +15,14 @@ Format entri:
 
 ---
 
+## 2026-10-26 · Bahasa Jawab answer@8 — selesai
+- Dikerjakan: prompt `answer@8` (tanpa pembuka meta, terjemahan AI tidak disalin, "Tidak ditemukan …" berdiri sendiri, baris "Status hadits:" wajib bersitasi di kalimatnya), pipeline@9 (diagnostik `repeated_sentences`, `translation_copy`, `grading_uncited`), docs/05 §5; run publik `x08-publik-answer8-v1` dinilai ulang tiga subagen; [laporan tiga run](../evals/reports/jawab-x08-answer8-banding.md).
+- Hasil: x07 → x08 Benar/Kurang/Salah 17/22/3 → 17/23/2, kesetiaan 83,3% → 85,7%, bahasa 3,45 → 3,55, atribusi 97,6% → 92,9%, lokasi 91,2% tetap. R4 belum terpenuhi.
+- Verifikasi: `pnpm verify` → lolos; diagnostik kalimat berulang atas arsip x07 → tepat 5 jawaban yang dicatat penilai; lokasi dihitung ulang dari arsip (x08 kunci versi 2 31/34, sama dengan laporan kode); subagen `peninjau` → tanpa blocker, temuan penting (status hadits pindah ke kalimat bebas) diperbaiki sebelum run.
+- Biaya API: **US$0,1167** (izin pemilik di chat, pagu US$0,50; 42 soal publik).
+- Keputusan: ADR-109.
+- Catatan untuk sesi berikutnya: bunyi label kode "takhrij menyebut: …" di baris status, pencarian takhrij kemunculan pertama (j024), dan penilaian manusia sebelum iterasi prompt berikutnya.
+
 ## 2026-10-26 · Mutu Jawab answer@7 dari penilaian agent pengganti ustadz — selesai
 - Dikerjakan:
   - Prompt `answer@7`, pipeline@8 (judul kitab di konteks bagian, kalimat status pengganti dirumuskan ulang dan dibuang bila berdiri sendiri di samping baris label, diagnostik `pipeline_terms`/`ayah_gloss_suspect`), penyelidikan parafrase ayat j019 (tidak bisa dicegah kode secara pasti; ADR-106 butir 3).
