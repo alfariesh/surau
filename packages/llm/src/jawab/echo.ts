@@ -1,4 +1,4 @@
-// Gema takhrij (X22, ADR-111): al-'Iraqi menakhrij hadits sekali, di kemunculan pertamanya. Bila
+// Gema takhrij (ADR-112): al-'Iraqi menakhrij hadits sekali, di kemunculan pertamanya. Bila
 // hadits yang sama muncul lagi, paragrafnya tidak bertanda catatan kaki sama sekali (j024: j1 h48
 // dan h59 tanpa penanda, takhrijnya di j1 h2), atau catatan kakinya hanya merujuk balik ("تقدم").
 // Untuk soal hadits, lafaz hadits seperti itu dicari di catatan kaki lewat `searchText`, lalu
@@ -14,7 +14,7 @@ export const ECHO_SCAN = 20;
 /** Pencarian gema maksimal per pertanyaan (di luar `MAX_SEARCHES`; beban D1). */
 export const ECHO_MAX_SEARCHES = 6;
 /** Halaman per pencarian gema. */
-const ECHO_SEARCH_LIMIT = 5;
+const ECHO_SEARCH_LIMIT = 10;
 /** Kata lafaz hadits yang dipakai sebagai kueri. */
 const SEED_QUERY_TOKENS = 10;
 /** Kata lafaz hadits yang dipakai untuk mencocokkan matan catatan kaki. */
@@ -26,6 +26,9 @@ const MATN_MIN_MATCH = 4;
 const MATN_MIN_SHARE = 0.75;
 
 const norm = (s: string) => normalizeArabic(s).text;
+/** Kata yang dihitung saat mencocokkan: bukan kata pendek (من, في, ان) dan bukan lafaz Allah. */
+const content = (tokens: readonly string[]) => tokens.filter((w) => w.length >= 3 && w !== "الله");
+
 const FORMULA = norm("صلى الله عليه وسلم");
 const MARKER = new RegExp(FOOTNOTE_MARKER_SOURCE, "gu");
 /** Kata pembuka sebelum lafaz ("قال صلى الله عليه وسلم إن …", "أنه قال …"). */
@@ -44,23 +47,48 @@ export interface EchoSeed {
   tokens: string[];
 }
 
+/** Matan satu takhrij di catatan kaki (kata bentuk normal). */
+export interface FootnoteMatn {
+  tokens: string[];
+  /** Matan berakhir pada rujukan "تقدم": takhrijnya ada di tempat lain, bukan di sini. */
+  referral: boolean;
+  /**
+   * Matan diakhiri kata sumber/keterangan (`MATN_END`, "لم أجده"). Tanpa itu teksnya bukan
+   * takhrij (mis. lafaz hadits yang tersalin ke catatan kaki tanpa keterangan sumber).
+   */
+  sourced: boolean;
+}
+
 /**
- * Matan catatan kaki takhrij (murni): kata sesudah "حديث" sampai kata sumber/keterangan pertama
- * (`MATN_END`, "لم أجده", atau rujukan "تقدم"). `referral` = matan berakhir pada rujukan, yaitu
- * catatan kaki yang hanya merujuk ke takhrij di tempat lain. `null` bila bukan bentuk "حديث …".
+ * Matan setiap takhrij di catatan kaki (murni; satu catatan kaki bisa memuat beberapa takhrij
+ * berpenanda): kata sesudah "حديث" (atau dari awal bila tidak diawali "حديث") sampai kata
+ * sumber/keterangan pertama (`MATN_END`, "لم أجده") atau rujukan "تقدم".
  */
-export function footnoteMatn(raw: string): { tokens: string[]; referral: boolean } | null {
-  const words = norm(raw).split(" ");
-  const start = words.findIndex((w, i) => i < 3 && (w === "حديث" || w === "وحديث"));
-  if (start < 0) return null;
-  const tokens: string[] = [];
-  for (let i = start + 1; i < words.length; i++) {
-    const w = words[i]!;
-    if (REFERRAL.has(w)) return { tokens, referral: true };
-    if (MATN_END.has(w) || MATN_END_PAIRS.has(`${w} ${words[i + 1] ?? ""}`)) break;
-    tokens.push(w);
+export function footnoteMatns(raw: string): FootnoteMatn[] {
+  const out: FootnoteMatn[] = [];
+  for (const part of raw.split(MARKER).filter((_, i) => i % 2 === 0)) {
+    const words = norm(part)
+      .split(" ")
+      .filter((w) => w !== "");
+    const lead = words.findIndex((w, i) => i < 3 && (w === "حديث" || w === "وحديث"));
+    const tokens: string[] = [];
+    let referral = false;
+    let sourced = false;
+    for (let i = lead + 1; i < words.length; i++) {
+      const w = words[i]!;
+      if (REFERRAL.has(w)) {
+        referral = true;
+        break;
+      }
+      if (MATN_END.has(w) || MATN_END_PAIRS.has(`${w} ${words[i + 1] ?? ""}`)) {
+        sourced = true;
+        break;
+      }
+      tokens.push(w);
+    }
+    if (tokens.length > 0) out.push({ tokens, referral, sourced });
   }
-  return { tokens, referral: false };
+  return out;
 }
 
 /**
@@ -82,7 +110,7 @@ export function unmarkedHadith(raw: string): string[][] {
       let lead = 0;
       while (lead < 3 && LEAD.has(words[lead] ?? "")) lead++;
       const tokens = words.slice(lead, lead + SEED_MATCH_TOKENS);
-      if (tokens.length >= MATN_MIN_MATCH) out.push(tokens);
+      if (content(tokens).length >= MATN_MIN_MATCH) out.push(tokens);
     }
   });
   return out;
@@ -109,25 +137,40 @@ export function echoSeeds(
     const p = passages.get(id);
     if (p === undefined) continue;
     if (p.kind === "foot") {
-      const matn = footnoteMatn(p.text_raw);
-      if (matn?.referral && matn.tokens.length >= MATN_MIN_MATCH) add(id, matn.tokens);
+      for (const matn of footnoteMatns(p.text_raw))
+        if (matn.referral && content(matn.tokens).length >= MATN_MIN_MATCH) add(id, matn.tokens);
     } else for (const tokens of unmarkedHadith(p.text_raw)) add(id, tokens);
   }
   return out;
 }
 
-/**
- * Skor cocok matan catatan kaki dengan lafaz (murni): jumlah dari `MATN_TOKENS` kata awal matan
- * yang ada di lafaz, atau 0 bila di bawah ambang (`MATN_MIN_MATCH` kata dan `MATN_MIN_SHARE`).
- * Catatan kaki rujukan saja ("تقدم") tidak pernah cocok: ia bukan takhrij lengkap.
- */
-export function matnScore(footnoteRaw: string, seed: readonly string[]): number {
-  const matn = footnoteMatn(footnoteRaw);
-  if (matn === null || matn.referral) return 0;
-  const head = matn.tokens.slice(0, MATN_TOKENS);
-  const words = new Set(seed);
+/** Kata dari `head` yang ada di `words`, atau 0 bila di bawah ambang. */
+function overlap(head: readonly string[], words: ReadonlySet<string>): number {
   const hit = head.filter((w) => words.has(w)).length;
   return hit >= MATN_MIN_MATCH && hit >= Math.ceil(head.length * MATN_MIN_SHARE) ? hit : 0;
+}
+
+/**
+ * Skor cocok catatan kaki dengan lafaz (murni), terbaik atas semua takhrij di catatan kaki itu:
+ * kata awal matan ada di lafaz, atau kata awal lafaz ada di matan (matan yang diawali kisah,
+ * "إن الله أوحى إلى نبيه … إني أجعل …"). Hanya kata isi (`content`), `MATN_TOKENS` kata awal,
+ * ambang `MATN_MIN_MATCH` kata dan `MATN_MIN_SHARE`. Hanya matan yang diakhiri kata sumber
+ * (`sourced`): takhrij rujukan saja ("تقدم") dan teks tanpa keterangan sumber tidak pernah cocok.
+ */
+export function matnScore(footnoteRaw: string, seed: readonly string[]): number {
+  const lafaz = content(seed);
+  const lafazSet = new Set(lafaz);
+  let best = 0;
+  for (const matn of footnoteMatns(footnoteRaw)) {
+    if (!matn.sourced) continue;
+    const words = content(matn.tokens);
+    best = Math.max(
+      best,
+      overlap(words.slice(0, MATN_TOKENS), lafazSet),
+      overlap(lafaz.slice(0, MATN_TOKENS), new Set(words.slice(0, SEED_MATCH_TOKENS))),
+    );
+  }
+  return best;
 }
 
 /**

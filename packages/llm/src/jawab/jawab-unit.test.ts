@@ -30,6 +30,7 @@ import {
   uncitedGradings,
 } from "./citations.ts";
 import { buildDoc, docContext, sectionPath, segmentText, toDocumentBlock } from "./documents.ts";
+import { echoSeeds, footnoteMatns, matnScore, pickEchoes, unmarkedHadith } from "./echo.ts";
 import {
   MAX_SEARCHES,
   QUESTION_WEIGHT,
@@ -381,6 +382,91 @@ describe("teks model", () => {
       `${ANSWER_HADITH_PREFIX} sanadnya lemah menurut al-'Iraqi.`,
     );
     expect(hadithStatements("Tanpa status.")).toEqual([]);
+  });
+});
+
+describe("gema takhrij (ADR-112)", () => {
+  // Teks buatan (bukan salinan kitab): pola Ihya, hadits disebut ulang tanpa penanda.
+  const FULL = "(١) حديث الصبر مفتاح الفرج والرضا باب السلامة للعبد أخرجه فلان في كتابه بإسناد ضعيف";
+  const REFER = "(٢) حديث الصبر مفتاح الفرج والرضا باب السلامة تقدم في الباب الأول";
+  const BODY =
+    "وقال صلى الله عليه وسلم الصبر مفتاح الفرج والرضا باب السلامة للعبد وقال صلى الله عليه وسلم العلم نور يقذف في القلب (١)";
+
+  test("lafaz tanpa penanda jadi benih; lafaz berpenanda dilewati", () => {
+    const seeds = unmarkedHadith(BODY);
+    expect(seeds).toHaveLength(1);
+    expect(seeds[0]!.slice(0, 3)).toEqual(["الصبر", "مفتاح", "الفرج"]);
+    expect(unmarkedHadith("قال صلى الله عليه وسلم العلم نور يقذف في القلب (١)")).toEqual([]);
+  });
+
+  test("matan catatan kaki: rujukan, bersumber, dan beberapa takhrij sekaligus", () => {
+    expect(footnoteMatns(REFER)).toEqual([
+      {
+        tokens: ["الصبر", "مفتاح", "الفرج", "والرضا", "باب", "السلامه"],
+        referral: true,
+        sourced: false,
+      },
+    ]);
+    const two = footnoteMatns(`${FULL} (٣) حديث العلم نور يقذف في القلب رواه فلان`);
+    expect(two.map((m) => m.sourced)).toEqual([true, true]);
+    expect(two[1]!.tokens[0]).toBe("العلم");
+  });
+
+  test("hanya takhrij bersumber yang cocok; rujukan dan teks tanpa sumber tidak", () => {
+    const seed = unmarkedHadith(BODY)[0]!;
+    expect(matnScore(FULL, seed)).toBeGreaterThan(0);
+    expect(matnScore(REFER, seed)).toBe(0);
+    expect(matnScore("(١) وقال عليه السلام الصبر مفتاح الفرج والرضا باب السلامة", seed)).toBe(0);
+    expect(matnScore("(١) حديث العلم نور يقذف في القلب أخرجه فلان", seed)).toBe(0);
+  });
+
+  test("matan berawal kisah tetap cocok lewat kata awal lafaz", () => {
+    const story =
+      "(١) حديث أن رجلا سأل النبي صلى الله عليه وسلم فقال الصبر مفتاح الفرج والرضا باب السلامة رواه فلان";
+    expect(matnScore(story, unmarkedHadith(BODY)[0]!)).toBeGreaterThan(0);
+  });
+
+  test("benih dari badan dan catatan kaki rujukan; pasangan memilih kemunculan terawal", () => {
+    const map = new Map([
+      [10, passage(10, BODY, { footnote_ids: [11] })],
+      [11, passage(11, "(١) حديث العلم نور يقذف في القلب أخرجه فلان", { kind: "foot" })],
+      [20, passage(20, REFER, { kind: "foot", referenced_by: [21] })],
+      [3, passage(3, FULL, { kind: "foot", referenced_by: [2] })],
+      [5, passage(5, FULL, { kind: "foot", referenced_by: [4] })],
+    ]);
+    const seeds = echoSeeds([10, 20], map);
+    expect(seeds.map((s) => s.passage_id)).toEqual([10, 20]);
+    const echoes = pickEchoes(
+      seeds,
+      [
+        [11, 5, 3],
+        [20, 3],
+      ],
+      map,
+    );
+    expect(echoes).toEqual(
+      new Map([
+        [10, [3]],
+        [20, [3]],
+      ]),
+    );
+    expect(withPairs([10, 20], map, echoes)).toEqual([10, 11, 3, 20]);
+  });
+
+  test("konteks dokumen menyebut kemunculan pertama dan kemunculan berikutnya", () => {
+    const body = passage(10, BODY);
+    const foot = passage(3, FULL, { kind: "foot", location: { ...body.location, page_no: 2 } });
+    const labels = new Map([
+      [10, "Ihya j. 1, h. 55"],
+      [3, "Ihya j. 1, h. 2 (catatan kaki)"],
+    ]);
+    const echoes = new Map([[10, [3]]]);
+    expect(docContext(body, new Map(), labels, echoes)).toContain(
+      "kemunculan pertamanya: Ihya j. 1, h. 2 (catatan kaki)",
+    );
+    expect(docContext(foot, new Map(), labels, echoes)).toContain(
+      "Lafaz hadits yang sama muncul lagi di Ihya j. 1, h. 55",
+    );
   });
 });
 

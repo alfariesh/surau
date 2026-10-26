@@ -149,6 +149,8 @@ export interface JawabDiagnostics {
   summary_sections: number[];
   /** Pencarian makna (X13): tidak ada bila `semanticSearch` tidak diberikan. */
   semantic?: { hits: number; footnote_hits: number; error: boolean };
+  /** Pasangan gema takhrij (ADR-112; hanya soal hadits): takhrij kemunculan pertama yang dimuat. */
+  takhrij_echoes?: number;
   candidates: number;
   docs: number;
   doc_tokens_est: number;
@@ -305,7 +307,7 @@ export interface JawabCandidates {
   ranked: number[];
   /** Paragraf kandidat beserta pasangannya. */
   passages: Map<number, AnswerPassage>;
-  /** Gema takhrij (ADR-111): paragraf → takhrij kemunculan pertama hadits yang sama. */
+  /** Gema takhrij (ADR-112): paragraf → takhrij kemunculan pertama hadits yang sama. */
   echoes: Map<number, number[]>;
   /**
    * Dokumen jawaban: urutan RRF + pasangan dipangkas anggaran token, lalu dikelompokkan per bagian
@@ -362,7 +364,7 @@ export async function jawabCandidates(
 }
 
 /**
- * Gema takhrij (ADR-111, hanya soal hadits): lafaz hadits tanpa takhrij di kandidat teratas dicari
+ * Gema takhrij (ADR-112, hanya soal hadits): lafaz hadits tanpa takhrij di kandidat teratas dicari
  * di catatan kaki; catatan kaki yang matannya cocok dimuat ke `passages` (dimutasi) dan dipasangkan.
  */
 async function takhrijEchoes(
@@ -526,6 +528,7 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     footnotes: semantic.footnotes,
   });
   diagnostics.search_lists = found.lists.length;
+  if (route?.hadith) diagnostics.takhrij_echoes = [...found.echoes.values()].flat().length;
   diagnostics.summary_sections = [
     ...new Set(
       found.lists

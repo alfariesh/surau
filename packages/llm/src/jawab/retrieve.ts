@@ -287,7 +287,7 @@ export function fuse(lists: readonly SearchList[], k = RRF_K): number[] {
 /**
  * Susun urutan dokumen: setiap paragraf diikuti pasangannya (catatan kaki takhrij untuk paragraf
  * badan; paragraf badan yang merujuk untuk catatan kaki), lalu takhrij gema-nya (`echoes`,
- * ADR-111: takhrij kemunculan pertama hadits yang sama), tanpa duplikat.
+ * ADR-112: takhrij kemunculan pertama hadits yang sama), tanpa duplikat.
  */
 export function withPairs(
   ranked: readonly number[],

@@ -134,7 +134,7 @@ export function sectionPath(
 
 /**
  * Konteks dokumen (tidak bisa dikutip): jenis, bagian, ayat, terjemahan AI berlabel. `echoes` =
- * pasangan gema (ADR-111, paragraf → takhrij kemunculan pertama hadits yang sama).
+ * pasangan gema (ADR-112, paragraf → takhrij kemunculan pertama hadits yang sama).
  */
 export function docContext(
   p: AnswerPassage,
