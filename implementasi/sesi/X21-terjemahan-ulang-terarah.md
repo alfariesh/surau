@@ -78,7 +78,43 @@ Satu batch (Message Batches) berisi 51 paragraf × 4 lengan = 204 request:
 3. Pakai v5 bila `s5` tidak lebih buruk dari `s4`: selisih Benar atau Salah sampai 1 butir (dari 24) dianggap sama dan v5 dipilih; lebih dari itu, v4 menang. Setiap hasil v5 juga diperiksa untuk dua risiko: kata benda yang ditambahkan dan terjemahan yang diam-diam menyimpang dari Arab.
 4. Hasil in-sample dilaporkan terpisah dan tidak masuk keputusan.
 
-## Biaya terjemahan ulang (perkiraan; dihitung ulang dengan `count_tokens` sebelum kirim)
+## Hasil uji kecil (2026-10-26, izin pemilik di chat: batas US$2,00)
+
+Batch `msgbatch_01LVKwMdgp4oAKo6PRX6ARPN`: 204/204 sukses, **biaya aktual US$1,13** (s5 0,41 · s5m 0,35 · s4 0,34 · h5 0,04). Penilaian buta oleh 6 subagen (Opus; 9 butir × 5 kandidat tiap paket; kandidat A–E diacak per butir; kunci tidak dibuka sampai semua selesai), satu penilai per butir, rubrik B/K/S T-17. Nilai per butir (tanpa teks): [`data/reviews/ihya-9472-x21-uji-prompt-penilaian.jsonl`](../../data/reviews/ihya-9472-x21-uji-prompt-penilaian.jsonl). `base` = terjemahan produksi (Haiku + prompt v2).
+
+**Sampel baru, sedang + panjang (n = 24), basis keputusan:**
+
+| Lengan | Benar | Kurang | Salah |
+|---|---:|---:|---:|
+| base (produksi) | 11 (46%) | 11 | 2 (8%) |
+| h5 Haiku + v5 | 13 (54%) | 8 | 3 (13%) |
+| s4 Sonnet + v4 | 20 (83%) | 4 | 0 |
+| **s5 Sonnet + v5 (effort low)** | **21 (88%)** | 2 | 1 (4%) |
+| s5m Sonnet + v5 (effort medium) | 23 (96%) | 1 | 0 |
+
+Semua 30 sampel baru: base 57% B / 7% S · h5 60% / 13% · s4 87% / 0% · s5 90% / 3% · s5m 97% / 0%. Strata panjang saja (n = 12): base 33% B, s5 83%, s5m 100%. Strata pendek (n = 6): semua lengan Sonnet 6/6 Benar, base 6/6, h5 5/6. In-sample (21 butir K/S T-17; bias, tidak masuk keputusan): base 1 B · h5 9 · s4 16 · s5 19 · s5m 17.
+
+**Aturan keputusan (ditetapkan sebelum hasil terlihat):**
+1. **Sonnet, bukan Haiku:** s5 − h5 = +34 poin Benar (≥ 15) → Sonnet. Haiku + v5 nyaris tidak lebih baik dari produksi (54% vs 46%) dan punya Salah lebih banyak, jadi prompt saja tidak cukup; modelnya yang menentukan.
+2. **Effort medium: tidak dipilih menurut aturan.** s5m − s5 = +8,3 poin (2 butir dari 24), di bawah ambang 10. Catatan jujur: pada uji ini effort medium tidak menambah token keluaran (±32,7 ribu token di kedua lengan) dan biayanya tidak lebih tinggi (cache write berbeda), jadi tidak ada alasan biaya untuk menolaknya; selisihnya hanya 2 butir dan tidak signifikan. Kriteria tidak diubah sesudah melihat hasil. Bila pemilik ingin, effort medium boleh dipilih dengan biaya yang sama.
+3. **v5 dipakai:** s5 21 B / 1 S vs s4 20 B / 0 S; selisih ≤ 1 butir → v5 (toleransi aturan). Risiko yang dipantau: s5 menambahkan satu kalimat dalam kurung yang menebak sambungan paragraf (no. 31, tipe "tambahan" di s5 = 2, sama dengan s4 = 2); satu Salah di s5 (no. 14) membalik makna manfaat uzlah, paragraf yang sama dibenarkan oleh s4, h5, dan s5m (variasi antar-jalankan, bukan pola).
+4. In-sample dilaporkan terpisah (di atas).
+
+**Keterbatasan:** n kecil (selisih satu butir = 4 poin); penilai Claude Opus, satu keluarga model dengan penerjemah, satu penilai per butir (tanpa kesepakatan antar-penilai); sampel uji dipilih seed 20261030+k dan hanya 12 panjang. Ini memilih lengan, bukan mengesahkan mutu. Pembanding menguatkan kalibrasi: base di sedang+panjang 46% Benar, sejalan dengan 52% perkiraan T-17 (sedang 70%, panjang 35%).
+
+**Biaya terjemahan ulang, dikalibrasi ulang dengan pemakaian aktual** (keluaran Sonnet 0,494 token/karakter terjemahan, bukan 0,59; cache hit di batch 204 request hanya 63–71% karena tiap awalan ditulis berulang, batch S13 4.000 request nyaris 100%). Perkiraan batch Sonnet 5.5 + v5, effort low; "pagu" = perkiraan +30% (ulangan ditolak validasi, cache lebih jelek dari S13):
+
+| Lingkup | Paragraf | Perkiraan | Pagu yang disarankan |
+|---|---:|---:|---:|
+| Panjang saja | 2.355 | US$13 | US$17 |
+| **Panjang + sedang** | 10.492 | **US$28** | **US$36** |
+| Semua paragraf | 16.111 | US$33 | US$43 |
+| Per jilid, panjang + sedang | j1 2.464 · j2 3.165 · j3 2.291 · j4 2.572 | 6,0 · 6,4 · 6,6 · 8,8 | 7,8 · 8,4 · 8,6 · 11,5 |
+| Per jilid, panjang saja | j1 490 · j2 338 · j3 643 · j4 884 | 2,4 · 1,6 · 3,5 · 5,6 | 3,2 · 2,1 · 4,6 · 7,3 |
+
+Ditambah ±US$0,3 untuk 28 paragraf ayat berubah dan 25 paragraf yang belum punya terjemahan. Rekomendasi: **panjang + sedang, Sonnet 5.5 + v5, per jilid** (jilid 4 dulu atau berurutan, berhenti bila biaya melewati pagu). Alasan: ini yang diuji di sampel baru (88% Benar), dan strata sedang membawa separuh bobot dan 15% Salah di T-17. Strata pendek tidak disentuh (6/6 Benar di uji; 10% Salah di T-17 berasal dari 2 butir). Perkiraan dampak T-17, **tidak dijanjikan**: Benar tertimbang ±85–90% dan Salah ±4–6% bila hasil uji bertahan.
+
+## Biaya terjemahan ulang (perkiraan awal sebelum uji; tabel yang berlaku ada di Hasil uji)
 
 Asumsi: Message Batches (−50%), prompt sistem v5 ±5.700 token dibaca dari cache, Arab 0,716 token/karakter, keluaran 0,59 token per karakter terjemahan lama (dikalibrasi ke ledger S13, sudah termasuk thinking effort low). "Batas atas" mengalikan keluaran 1,6× (Sonnet effort sedang). Tambahkan ±10% untuk ulangan yang ditolak validasi.
 
@@ -104,7 +140,7 @@ Dampak pada target: bila hanya strata panjang membaik (Benar 35% → ±70%), est
 1. [x] Analisis pola, pengecekan 21 usulan koreksi terhadap Arab, selidik pencocok ayat. (sesi ini)
 2. [x] Perbaikan pencocok ayat (ADR-107) + tes; prompt v5 + opsi request + tes. (sesi ini)
 3. [x] Hitung biaya dan rancang uji; ajukan ke pemilik. (sesi ini)
-4. [ ] **Izin pemilik** untuk uji kecil (≤ US$1,50). Kirim batch uji, kumpulkan, nilai buta, putuskan lengan dengan aturan di atas.
+4. [x] Izin pemilik untuk uji kecil (batas US$2,00, chat 2026-10-26). Batch dikirim, dikumpulkan, dinilai buta; lengan diputuskan dengan aturan di atas (Sonnet 5.5 + v5, effort low).
 5. [ ] Pemilik memilih lingkup + pagu terjemahan ulang berdasarkan hasil uji (tabel biaya di atas).
 6. [ ] Selesaikan T-28 (`data/build/llm`, `data/raw/kemenag`; Tanzil/OpenITI diunduh agent). Tambahkan mekanisme terjemahan ulang terarah di `tools/ingest/src/llm` (pilihan paragraf per strata/jilid; hasil lama dipertahankan sampai hasil baru lolos validasi), **catat versi prompt dan effort yang benar-benar dipakai per hasil** (sekarang `batch.ts`, `report.ts`, dan `sample.ts` mencatat konstanta `TRANSLATE_PROMPT.id`, jadi hasil v5 akan tercatat v4 bila tidak diubah; aturan teks-arab 8) dengan tesnya, jalankan batch dalam pagu.
 7. [ ] Bangun korpus berikutnya; promote hanya atas izin pemilik. QA `corpus:qa`.
