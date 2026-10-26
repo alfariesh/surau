@@ -8,6 +8,7 @@ import {
   isUstadzReviewer,
   parseUstadzKeys,
   reviewedTakhrijLabel,
+  takhrijCitedWeak,
   takhrijLabelHash,
   takhrijReviewInput,
   takhrijReviewsFor,
@@ -263,5 +264,21 @@ describe("tinjauan label catatan kaki tergabung (versi 2, ADR-108)", () => {
       review: "rule",
       text: "takhrij menyebut: lemah",
     });
+    // Sitasi utuh mencakup hadits lain: label kode, bukan "ditinjau/dikoreksi ustadz".
+    const whole = { start: 0, end: merged.length };
+    const approved = { decision: "approved" as const, kinds: ["sahih" as const], reviewed_at: "x" };
+    expect(reviewedTakhrijLabel(merged, approved, whole).review).toBe("rule");
+    expect(reviewedTakhrijLabel(merged, corrected, whole)).toMatchObject({
+      review: "rule",
+      weak: true,
+    });
+  });
+
+  test("tanda kelemahan kutipan dari hadits yang beririsan dengan potongan", () => {
+    expect(takhrijCitedWeak(merged, null)).toBe(false);
+    expect(takhrijCitedWeak(merged, null, second)).toBe(true);
+    expect(takhrijCitedWeak(merged, null, { start: 0, end: merged.length })).toBe(true);
+    // Potongan tanpa istilah lemah, padahal hadits yang sama menyebutnya: tetap bertanda.
+    expect(takhrijCitedWeak(RAW, null, { start: 0, end: 10 })).toBe(true);
   });
 });

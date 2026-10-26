@@ -111,6 +111,7 @@ export const TAKHRIJ_RANGE_WITHOUT_TERMS =
 const RANGE_WITHOUT_TERMS = TAKHRIJ_RANGE_WITHOUT_TERMS;
 const BY_REVIEWER = "menurut peninjau: ";
 const MIXED = " (berbeda per jalur)";
+const MORE = "; dan lainnya";
 /** Catatan kaki memuat takhrij beberapa hadits (penanda "(N)" internal, masalah ingest). */
 const FIRST_OF_MANY = " (hadits pertama dari beberapa)";
 const MANY = " (beberapa hadits)";
@@ -221,14 +222,16 @@ export function takhrijStatus(
   const refersBack = kinds.includes("rujukan");
   kinds = kinds.filter((k) => k !== "rujukan");
   extra = extra.filter((k) => k !== "rujukan");
+  const many = ctx.tail ?? "";
   if (kinds.length === 0 && extra.length === 0)
     return refersBack
-      ? { kind: "refers_back", text: ctx.sources ? SOURCES_REFERS_BACK : REFERS_BACK, mixed: false }
-      : { kind: "sources_only", text: SOURCES_ONLY, mixed: false };
+      ? {
+          kind: "refers_back",
+          text: `${ctx.sources ? SOURCES_REFERS_BACK : REFERS_BACK}${many}`,
+          mixed: false,
+        }
+      : { kind: "sources_only", text: `${SOURCES_ONLY}${many}`, mixed: false };
   const mixed = ctx.mixed ?? isMixed([...kinds, ...extra]);
-  const tail = `${mixed ? MIXED : ""}${ctx.tail ?? ""}`;
-  // Setiap istilah hanya masuk bila sisa ruang masih cukup untuk "; dan lainnya" sesudahnya.
-  const more = "; dan lainnya";
   const items = [
     ...kinds.map((k, i) => ({ k, lead: i === 0 ? "takhrij menyebut: " : "; " })),
     ...extra.map((k, i) => ({
@@ -236,12 +239,20 @@ export function takhrijStatus(
       lead: i > 0 ? "; " : kinds.length > 0 ? `; ${BY_REVIEWER}` : BY_REVIEWER,
     })),
   ];
-  let text = "";
+  // Istilah pertama selalu masuk: bila ruangnya tidak cukup, keterangan "beberapa hadits" lalu
+  // "berbeda per jalur" yang dipangkas lebih dulu.
+  const tails = [`${mixed ? MIXED : ""}${many}`, mixed ? MIXED : "", ""];
+  const first = `${items[0]!.lead}${TAKHRIJ_TERM_GLOSS[items[0]!.k]}`;
+  const reserve0 = items.length > 1 ? MORE.length : 0;
+  const tail = tails.find((x) => first.length + reserve0 + x.length <= TAKHRIJ_STATUS_MAX) ?? "";
+  // Setiap istilah hanya masuk bila sisa ruang masih cukup untuk "; dan lainnya" sesudahnya.
+  let text = first;
   for (const [i, { k, lead }] of items.entries()) {
+    if (i === 0) continue;
     const next = `${text}${lead}${TAKHRIJ_TERM_GLOSS[k]}`;
-    const reserve = i < items.length - 1 ? more.length : 0;
+    const reserve = i < items.length - 1 ? MORE.length : 0;
     if (next.length + tail.length + reserve > TAKHRIJ_STATUS_MAX) {
-      text = i === 0 ? `${lead}${more}` : `${text}${more}`;
+      text = `${text}${MORE}`;
       break;
     }
     text = next;

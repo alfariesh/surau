@@ -698,7 +698,11 @@ const REFUTABLE: ReadonlySet<PatternKind> = new Set([
   "palsu",
   "tsiqat",
 ]);
-const POSITIVE_KINDS: ReadonlySet<PatternKind> = new Set([
+/**
+ * Penilaian yang bisa dibantah sebagai "terlalu baik" ("وصححه فلان وليس بجيد", "رجاله ثقات قلت فيه
+ * …"). Termasuk `tsiqat`, walaupun di label (core) `tsiqat` bukan penilaian positif hadits.
+ */
+const FAVORABLE_KINDS: ReadonlySet<PatternKind> = new Set([
   "sahih",
   "hasan",
   "hasan_sahih",
@@ -707,6 +711,8 @@ const POSITIVE_KINDS: ReadonlySet<PatternKind> = new Set([
   "tsiqat",
 ]);
 const NEGATIVE_KINDS: ReadonlySet<PatternKind> = new Set(["daif", "sangat_lemah", "palsu"]);
+/** Kata kerja penilaian yang menyebut penilainya ("وضعفه المنذري"): penilaian orang lain. */
+const ATTRIBUTED_VERBS = new Set(["ضعفه", "ضعفوه", "اعله", "جهله", "كذبه", "صححه", "حسنه"]);
 /** Jarak kata maksimum antara penilaian dan bantahannya ("وصححه القرطبي في التذكرة وليس كذلك"). */
 const REFUTE_GAP = 4;
 
@@ -779,7 +785,10 @@ function scan(tokens: readonly Token[], from: number, to: number): Found[] {
         opens: best.opens,
         refutes: best.pat.refutes === true,
       });
-      lafazFrom = best.pat.lafaz ? i + best.len + best.pat.lafaz.skip : Infinity;
+      // Kata di jendela `skip` ("وفي رواية لمسلم …": nama penghimpun) tidak membatalkan lafaz
+      // yang dimulai sesudahnya.
+      if (best.pat.lafaz) lafazFrom = i + best.len + best.pat.lafaz.skip;
+      else if (i >= lafazFrom) lafazFrom = Infinity;
       i += best.len - 1;
       continue;
     }
@@ -803,6 +812,15 @@ function scan(tokens: readonly Token[], from: number, to: number): Found[] {
  * yang dinukil lalu dibantah penakhrij menjadi satu istilah `dibantah` (penilaian + bantahan), bukan
  * istilah penilaiannya. Bantahan tanpa penilaian di dekatnya dibuang.
  */
+/** Penilaian `f` dinukil dari orang lain: kata kerja penilaian, atau "قال" ≤ 3 kata sebelumnya. */
+function attributed(tokens: readonly Token[], f: Found): boolean {
+  const head = tokens[f.i]!.text.replace(/^[وف]/, "");
+  if (ATTRIBUTED_VERBS.has(head)) return true;
+  for (let k = f.i - 1; k >= Math.max(0, f.i - 3); k--)
+    if (["قال", "وقال"].includes(tokens[k]!.text)) return true;
+  return false;
+}
+
 function resolveRefutations(tokens: readonly Token[], found: Found[]): Found[] {
   const out: Found[] = [];
   for (const [n, f] of found.entries()) {
@@ -813,12 +831,17 @@ function resolveRefutations(tokens: readonly Token[], found: Found[]): Found[] {
     const prev = out.at(-1);
     const near =
       prev !== undefined && REFUTABLE.has(prev.kind) && f.i - (prev.i + prev.len) <= REFUTE_GAP;
-    // "قلت" saja hanya membantah penilaian positif yang langsung disusul penilaian lemah.
+    // "قلت" saja hanya membantah penilaian baik yang langsung disusul penilaian lemah. "فيه نظر",
+    // "ليس بجيد/بصحيح" membantah penilaian baik, atau penilaian lemah yang dinukil dari orang lain
+    // ("وضعفه المنذري وليس بجيد", "وقال إنه معضل وفيه نظر"); sesudah penilaian lemah penakhrij
+    // sendiri ("منكر وليس بصحيح") itu penguatan, jadi keduanya tetap istilah lemah.
     const bare = f.kind === "refute" && f.len === 1 && tokens[f.i]!.text.endsWith("قلت");
+    const favorable = prev !== undefined && FAVORABLE_KINDS.has(prev.kind);
     const refutes =
       near &&
-      (!bare ||
-        (POSITIVE_KINDS.has(prev.kind) && NEGATIVE_KINDS.has(found[n + 1]?.kind ?? "source")));
+      (bare
+        ? favorable && NEGATIVE_KINDS.has(found[n + 1]?.kind ?? "source")
+        : f.kind === "refute" || favorable || attributed(tokens, prev));
     if (refutes) out[out.length - 1] = { ...prev, kind: "dibantah", len: f.i + f.len - prev.i };
     else if (f.kind !== "refute") out.push(f);
   }
@@ -854,7 +877,8 @@ function segmentStarts(raw: string): number[] {
   const starts = [0];
   for (const m of raw.matchAll(MARKER)) {
     if (m.index === 0 || raw.slice(0, m.index).trim() === "") continue;
-    const after = normalizeArabic(raw.slice(m.index + m[0].length, m.index + m[0].length + 12));
+    // Jendela mentah cukup lebar untuk "حديث" berharakat/bertatweel.
+    const after = normalizeArabic(raw.slice(m.index + m[0].length, m.index + m[0].length + 40));
     if (after.text.trim().startsWith("حديث")) starts.push(m.index);
   }
   return starts;

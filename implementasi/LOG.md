@@ -15,6 +15,16 @@ Format entri:
 
 ---
 
+## 2026-10-26 · Label status hadits aturan versi 2 (dari tinjauan agent ADR-105) — selesai
+- Dikerjakan:
+  - `TAKHRIJ_TERMS_VERSION` 2: pemindaian per segmen untuk catatan kaki tergabung, lafaz yang dikutip sesudah pembuka tidak dipindai untuk kata ambigu, penjaga konteks al-Bukhari/Muslim/la ba'sa/bin, penilaian yang dibantah (`dibantah`), jenis baru `lam_ajid_marfu`, `tsiqat`, `mukhtalaf`, dan bentuk-bentuk yang terlewat versi 1.
+  - Label core: hadits pertama untuk paragraf gabungan, "berbeda per jalur" per hadits, teks rujukan bersumber; tinjauan tidak dipakai untuk sitasi di segmen lain.
+  - Laporan `data/reports/ihya-9472-takhrij-v2.md` (kecocokan, sisa selisih, rancangan pemisahan ingest + patch salah cetak).
+- Verifikasi: kecocokan dengan 234 keputusan tegas agent 192 → 228; tes integrasi D1 lokal (ekspor ihya-v7, enam gold + 40 butir agent) lolos; `pnpm run eval:takhrij` diperbarui; `pnpm verify` lolos.
+- Biaya API: – (ekspor D1 hanya-baca)
+- Keputusan: ADR-108
+- Catatan untuk sesi berikutnya: sesi ingest untuk memisah 35 catatan kaki tergabung, membuat patch matan bocor, dan memperbaiki salah cetak edisi (butuh build + promote korpus atas izin); lalu tinjauan manusia atas label versi 2.
+
 ## 2026-10-26 · Eval agent pengganti ustadz (paket R4, label takhrij, T-17 tahap 3) — selesai
 - Dikerjakan:
   - Pemilik meminta agent menggantikan ustadz untuk sementara (ADR-105). Enam subagen menilai dari teks Arab `ihya-v7` (ekspor hanya-baca D1): 42 soal publik, 18 holdout (terpisah, laporan hanya kategori), 42 jawaban nyata run x06 (dari `answer_log` produksi), dan 253 label takhrij (dua bagian). T-17 tahap 3 dinilai buta, 60 sampel.

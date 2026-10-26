@@ -149,9 +149,10 @@ export function reviewedTakhrijLabel(
   const rule = takhrijLabel(raw, range);
   const found = takhrijTerms(raw);
   const segs = takhrijSegmentsInScope(found, range);
-  // Tinjauan menilai label catatan kaki utuh = segmen pertama; sitasi di segmen lain (hadits lain
-  // yang tergabung di paragraf yang sama) tidak ikut tinjauan itu.
-  if (review === null || rule.kind === "not_takhrij" || !segs.includes(0))
+  // Tinjauan menilai label catatan kaki utuh = segmen pertama. Sitasi yang mencakup segmen lain
+  // (hadits lain yang tergabung di paragraf yang sama) tetap label kode, supaya istilah hadits lain
+  // tidak pernah tampil "ditinjau ustadz" atau terbuang oleh koreksi untuk hadits pertama.
+  if (review === null || rule.kind === "not_takhrij" || segs.length !== 1 || segs[0] !== 0)
     return { ...rule, review: "rule", added: [] };
   if (review.decision === "approved") return { ...rule, review: "approved", added: [] };
   const chosen = new Set(review.kinds);
@@ -185,6 +186,24 @@ export function reviewedTakhrijLabel(
     review: "corrected",
     added: added.map((kind) => ({ kind, gloss: TAKHRIJ_TERM_GLOSS[kind] })),
   };
+}
+
+/**
+ * Tanda "memuat istilah kelemahan" untuk kartu kutipan: dari semua istilah setiap hadits (segmen)
+ * yang beririsan dengan bagian yang dikutip, bukan hanya istilah di potongan itu (docs/05 §4);
+ * hadits pertama mengikuti tinjauan efektifnya.
+ */
+export function takhrijCitedWeak(
+  raw: string,
+  review: EffectiveTakhrijReview | null,
+  range?: { start: number; end: number },
+): boolean {
+  const found = takhrijTerms(raw);
+  return takhrijSegmentsInScope(found, range).some((s) =>
+    s === 0
+      ? reviewedTakhrijLabel(raw, review).weak
+      : found.terms.some((t) => t.segment === s && isWeakTakhrijKind(t.kind)),
+  );
 }
 
 /** Tinjauan efektif per catatan kaki (teks dari DB korpus, baris dari DB app). */

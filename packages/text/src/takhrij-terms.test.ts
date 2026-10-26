@@ -166,8 +166,16 @@ describe("takhrijTerms versi 2", () => {
     expect(kinds("حديث تجريبي رواه فلان من حديث فلان وهو موضوع")).toEqual(["palsu"]);
     // Kata ambigu yang langsung disusul pernyataan penakhrij tetap penilaian.
     expect(kinds("حديث تجريبي رواه فلان من حديث فلان كذا وكذا باطل ورواه فلان")).toEqual(["palsu"]);
-    // "وفي رواية لمسلم": nama penghimpun sesudah penanda lafaz tetap dikenali.
+    // "وفي رواية لمسلم": nama penghimpun sesudah penanda lafaz tetap dikenali, dan lafaz
+    // sesudahnya tetap dilewati.
     expect(kinds("حديث تجريبي رواه فلان وفي رواية لمسلم كذا")).toEqual(["muslim"]);
+    expect(kinds("حديث تجريبي رواه فلان وفي رواية لمسلم وثيابه موضوعة على المشجب")).toEqual([
+      "muslim",
+    ]);
+    expect(kinds("حديث تجريبي متفق عليه ولفظ البخاري كل رجل مسلم")).toEqual([
+      "muttafaq",
+      "bukhari",
+    ]);
   });
 
   it("pola 4: penilaian yang dinukil lalu dibantah penakhrij", () => {
@@ -184,6 +192,8 @@ describe("takhrijTerms versi 2", () => {
       "dibantah",
     ]);
     expect(kinds("حديث تجريبي رواه فلان وقال إنه معضل وفيه نظر")).toEqual(["dibantah"]);
+    // Sesudah penilaian lemah penakhrij sendiri: penguatan, bukan bantahan.
+    expect(kinds("حديث تجريبي رواه فلان وهو منكر وليس بصحيح")).toEqual(["sangat_lemah", "daif"]);
     // "قلت" saja: hanya bila positif lalu langsung penilaian lemah.
     expect(kinds("حديث تجريبي رواه الحاكم وقال صحيح الإسناد قلت فيه فلان ضعيف")).toEqual([
       "dibantah",

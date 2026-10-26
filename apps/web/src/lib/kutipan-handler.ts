@@ -3,7 +3,7 @@ import {
   ayahPlaceholderPattern,
   ipKey,
   ipNetwork,
-  reviewedTakhrijLabel,
+  takhrijCitedWeak,
   takhrijReviewsFor,
 } from "@surau/core";
 import type { AnswerPassage, EffectiveTakhrijReview, HumanReview } from "@surau/core";
@@ -152,7 +152,12 @@ export async function handleKutipan(request: Request, deps: KutipanDeps): Promis
               human_review: p.translation.human_review,
               text: ayahRefsOnly(p.translation.text),
             },
-      weak: p.kind === "foot" && reviewedTakhrijLabel(p.text_raw, reviews.get(p.id) ?? null).weak,
+      weak:
+        p.kind === "foot" &&
+        takhrijCitedWeak(p.text_raw, reviews.get(p.id) ?? null, {
+          start: r.char_start,
+          end: r.char_end,
+        }),
     };
   });
   // Isi = fungsi ID + offset atas korpus yang ID-nya stabil (ADR-059): aman di-cache singkat. Tanda

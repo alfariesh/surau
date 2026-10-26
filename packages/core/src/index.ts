@@ -90,6 +90,7 @@ export {
   isUstadzReviewer,
   parseUstadzKeys,
   reviewedTakhrijLabel,
+  takhrijCitedWeak,
   takhrijLabelHash,
   takhrijReviewInput,
   takhrijReviewsFor,

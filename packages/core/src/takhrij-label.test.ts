@@ -42,6 +42,20 @@ describe("takhrijLabel", () => {
     });
   });
 
+  test("teks status paling panjang tetap memuat istilah pertama dan ≤ batas", () => {
+    const raw =
+      "حديث تجريبي لم أجده مرفوعا ورواه فلان موقوفا بإسناد صحيح ورواه فلان بسند ضعيف (٤) حديث آخر رواه فلان";
+    const label = takhrijLabel(raw);
+    expect(label.mixed).toBe(true);
+    expect(label.text.length).toBeLessThanOrEqual(TAKHRIJ_STATUS_MAX);
+    expect(label.text.startsWith("takhrij menyebut: tidak ditemukan sebagai sabda Nabi")).toBe(
+      true,
+    );
+    expect(takhrijLabel("حديث تجريبي رواه فلان (٢) حديث آخر رواه فلان بسند ضعيف").text).toBe(
+      "takhrij hanya menyebut sumber riwayat, tanpa istilah penilaian (hadits pertama dari beberapa)",
+    );
+  });
+
   test("penilaian yang dibantah, perawi tepercaya/diperselisihkan, rujukan bersumber", () => {
     const refuted = takhrijLabel("حديث تجريبي رواه الحاكم وقال صحيح الإسناد قلت بل منقطع");
     expect(refuted).toMatchObject({
