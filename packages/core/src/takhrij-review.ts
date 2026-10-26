@@ -6,6 +6,7 @@
 // terdeteksi atau MENAMBAH jenis tanpa frasa (disebut "menurut peninjau", tanpa teks Arab).
 import { TAKHRIJ_REVIEW_DECISIONS } from "@surau/db";
 import type { TakhrijReview } from "@surau/db";
+import { takhrijTerms } from "@surau/text";
 import type { TakhrijTermKind } from "@surau/text";
 import { z } from "zod";
 
@@ -16,7 +17,9 @@ import {
   TAKHRIJ_TERM_KINDS,
   isWeakTakhrijKind,
   takhrijLabel,
+  takhrijSegmentsInScope,
   takhrijStatus,
+  takhrijStatusContext,
 } from "./takhrij-label.ts";
 import type { TakhrijLabel } from "./takhrij-label.ts";
 
@@ -144,22 +147,35 @@ export function reviewedTakhrijLabel(
   range?: { start: number; end: number },
 ): ReviewedTakhrijLabel {
   const rule = takhrijLabel(raw, range);
-  if (review === null || rule.kind === "not_takhrij") return { ...rule, review: "rule", added: [] };
+  const found = takhrijTerms(raw);
+  const segs = takhrijSegmentsInScope(found, range);
+  // Tinjauan menilai label catatan kaki utuh = segmen pertama; sitasi di segmen lain (hadits lain
+  // yang tergabung di paragraf yang sama) tidak ikut tinjauan itu.
+  if (review === null || rule.kind === "not_takhrij" || !segs.includes(0))
+    return { ...rule, review: "rule", added: [] };
   if (review.decision === "approved") return { ...rule, review: "approved", added: [] };
-  const full = range === undefined ? rule : takhrijLabel(raw);
   const chosen = new Set(review.kinds);
+  const scoped = found.terms.filter((t) => segs.includes(t.segment));
+  const inRange = (t: { start: number; end: number }) =>
+    range === undefined || (t.start >= range.start && t.end <= range.end);
+  const picked = scoped.filter((t) => inRange(t) && chosen.has(t.kind));
   const terms = rule.terms.filter((t) => chosen.has(t.kind));
-  const detected = new Set(full.terms.map((t) => t.kind));
+  const detected = new Set(scoped.map((t) => t.kind));
   const added = TAKHRIJ_TERM_KINDS.filter((k) => chosen.has(k) && !detected.has(k));
+  const ctx = takhrijStatusContext(found, segs, range, (s) =>
+    picked.filter((t) => t.segment === s),
+  );
   const status = takhrijStatus(
     terms.map((t) => t.kind),
     added,
+    // Jenis tambahan penilai tidak punya segmen: "berbeda per jalur" dihitung dari semua jenis.
+    added.length > 0 ? { ...ctx, mixed: undefined } : ctx,
   );
   // Bagian yang dikutip tanpa istilah yang dipilih, padahal catatan kaki utuhnya memuat.
   const outside =
     range !== undefined &&
     status.kind !== "terms" &&
-    full.terms.some((t) => chosen.has(t.kind) && t.kind !== "rujukan");
+    scoped.some((t) => chosen.has(t.kind) && t.kind !== "rujukan");
   return {
     ...rule,
     ...status,

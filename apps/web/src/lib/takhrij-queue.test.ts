@@ -10,6 +10,7 @@ import {
   takhrijCitedCounts,
 } from "@surau/db";
 import type { D1Db, TakhrijReview } from "@surau/db";
+import { TAKHRIJ_TERMS_VERSION } from "@surau/text";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { queueOrder, saveTakhrijDecision, takhrijQueue, takhrijReviewItem } from "./takhrij-queue";
@@ -46,7 +47,7 @@ let built = 0;
 
 const review = async (passage_id: number, text: string, over: Partial<TakhrijReview> = {}) => ({
   passage_id,
-  rules_version: 1,
+  rules_version: TAKHRIJ_TERMS_VERSION,
   label_hash: await takhrijLabelHash(takhrijLabel(text)),
   reviewer_key: ME,
   reviewer_name: "Anas",
@@ -154,7 +155,7 @@ describe("antrean label takhrij", () => {
     vi.mocked(answerPassages).mockResolvedValue([passage(12, WEAK)]);
     const input = {
       passage_id: 12,
-      rules_version: 1,
+      rules_version: TAKHRIJ_TERMS_VERSION,
       label_hash: await takhrijLabelHash(takhrijLabel(WEAK)),
       reviewer_name: "Penilai",
       decision: "approved" as const,
@@ -162,7 +163,9 @@ describe("antrean label takhrij", () => {
       note: "",
     };
     expect(await saveTakhrijDecision(deps, { ...input, label_hash: "d".repeat(64) })).toBe("stale");
-    expect(await saveTakhrijDecision(deps, { ...input, rules_version: 2 })).toBe("stale");
+    expect(
+      await saveTakhrijDecision(deps, { ...input, rules_version: TAKHRIJ_TERMS_VERSION + 1 }),
+    ).toBe("stale");
     expect(saveTakhrijReview).not.toHaveBeenCalled();
     expect(await saveTakhrijDecision(deps, input)).toBe("ok");
     expect(saveTakhrijReview).toHaveBeenCalledWith(
