@@ -89,7 +89,47 @@ ayat/hadits; lainnya (tulis di catatan). Perkiraan waktu 60–90 menit.
 
 ## Hasil
 
-*Belum ada. Diisi setelah penilai mengirim hasil.*
+### Penilai agent (pengganti sementara, **bukan manusia**, bukan estimasi resmi) · 2026-10-26
+
+**Penyimpangan dari pra-registrasi (bertanggal 2026-10-26):** bagian *Penilai* di atas mensyaratkan
+penilai manusia, bukan agent. Pemilik meminta agent menggantikan penilai manusia untuk sementara
+("eval/gantikan ustad untuk sementara … kerjakan semuanya: … T-17 tahap 3"), ADR-105. Hasil ini
+dicatat sebagai **penilai agent** dan belum memenuhi syarat penilai manusia. Penilaian manusia (pemilik,
+Anas, atau orang yang ditunjuk) tetap bisa dilakukan kapan saja dengan halaman nilai yang sama; nomor
+1–20 bisa dipakai untuk kesepakatan agent vs manusia (`pnpm t17 hasil a b`). **Penilai manusia
+pertama yang menyelesaikan 60 nomor menjadi estimasi resmi (bagian *Penilai*) dan menggantikan hasil
+agent ini.** Seed, sampel, strata, rubrik, dan aturan keputusan tidak berubah. Catatan bias: penilai
+ini satu keluarga model (Claude) dengan penerjemahnya.
+
+Pelaksanaan: subagen menilai buta (teks Arab, terjemahan AI, dan konteks Kemenag saja; tanpa model,
+versi prompt, status koreksi, atau strata), dari ekspor hanya-baca `surau-corpus-ihya-v7`. Agent induk
+mengecek ulang tiga butir Salah (no. 13, 23, 40) terhadap teks Arab, dan ketiganya terkonfirmasi.
+Hasil: [`data/reviews/ihya-9472-t17-tahap3-hasil-agent.txt`](../reviews/ihya-9472-t17-tahap3-hasil-agent.txt)
+(format "Salin hasil") dan [`…-detail-agent.jsonl`](../reviews/ihya-9472-t17-tahap3-detail-agent.jsonl)
+(usulan koreksi Indonesia untuk setiap K/S). `pnpm t17 hasil data/reviews/ihya-9472-t17-tahap3-hasil-agent.txt`:
+
+| Strata | n | Benar | Kurang | Salah |
+|---|---:|---|---|---|
+| pendek | 20 | 90,0% (69,9–97,2%) | 0,0% (0,0–16,1%) | 10,0% (2,8–30,1%) |
+| sedang | 20 | 70,0% (48,1–85,5%) | 15,0% (5,2–36,0%) | 15,0% (5,2–36,0%) |
+| panjang | 20 | 35,0% (18,1–56,7%) | 50,0% (29,9–70,1%) | 15,0% (5,2–36,0%) |
+| **tertimbang** | 60 | **71,9%** (59,3–81,8%) | 14,9% (8,0–26,0%) | **13,3%** (6,4–25,3%) |
+
+Kategori: pelaku tertukar 7, makna terbalik/negasi 4, bagian hilang 3, tambahan 2, nama/angka 2,
+istilah 2, ayat/hadits 1, lainnya 11.
+
+**Keputusan (aturan 2 pra-registrasi): tidak lolos, Salah ≤ 15% → usulan terjemahan ulang terarah.**
+Pemicu tinjau ulang ADR-048 ("T-17 tahap 3 … menemukan Salah > 10%") terpenuhi oleh penilai agent
+ini; diteruskan ke ADR-105 dan `/rilis 4`.
+Strata **panjang** (≥ 500 karakter Arab, 2.343 terjemahan) paling lemah, dengan Benar hanya 35%.
+Kategori terbanyak adalah "lainnya" (11, salah tangkap makna kalimat), lalu pelaku tertukar (7) dan
+negasi terbalik (4), terutama di kisah dan nukilan ucapan tokoh. Terjemahan ulang terarah butuh perkiraan biaya dan izin pemilik. Usulan koreksi untuk 8 butir Salah dan 13
+butir Kurang ada di berkas detail; usulan itu belum masuk lapisan koreksi (ADR-047). Usulan dibuat
+agent, jadi perlu dicek sebelum dipakai.
+
+Temuan pipeline (bukan nilai makna): kutipan ayat tanpa placeholder ⟦QS⟧ ikut diterjemahkan AI
+(no. 12, QS 15:98), padahal ayat wajib memakai terjemahan Kemenag (aturan teks Arab 9). Ini sisa
+risiko ADR-042 yang terulang; perbaikan deteksi ayat masuk langkah berikutnya.
 
 ### Klarifikasi dan penyimpangan (bertanggal)
 
