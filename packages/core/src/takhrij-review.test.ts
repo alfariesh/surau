@@ -8,13 +8,14 @@ import {
   isUstadzReviewer,
   parseUstadzKeys,
   reviewedTakhrijLabel,
+  takhrijCitedWeak,
   takhrijLabelHash,
   takhrijReviewInput,
   takhrijReviewsFor,
 } from "./takhrij-review.ts";
 
 // Kalimat BUATAN bergaya takhrij (bukan teks kitab).
-const RAW = "حديث تجريبي رواه فلان موقوفا بإسناد ضعيف ولم أره مرفوعا";
+const RAW = "حديث تجريبي رواه فلان موقوفا بإسناد ضعيف ولم أجده";
 const label = takhrijLabel(RAW);
 const KEYS = new Set(["b".repeat(64)]);
 const row = (over: Partial<TakhrijReview> = {}): TakhrijReview => ({
@@ -242,5 +243,42 @@ describe("takhrijReviewInput", () => {
       false,
     );
     expect(takhrijReviewInput.safeParse({ ...input, reviewer_name: arabic }).success).toBe(false);
+  });
+});
+
+describe("tinjauan label catatan kaki tergabung (versi 2, ADR-108)", () => {
+  // Dua takhrij dalam satu paragraf: tinjauan menilai label hadits pertama saja.
+  const merged = "حديث تجريبي أخرجه فلان بإسناد صحيح (٤) حديث تجريبي آخر رواه فلان بسند ضعيف";
+  const second = { start: merged.indexOf("(٤)"), end: merged.length };
+  test("sitasi di segmen lain tidak memakai tinjauan hadits pertama", () => {
+    const corrected = {
+      decision: "corrected" as const,
+      kinds: ["hasan" as const],
+      reviewed_at: "x",
+    };
+    expect(reviewedTakhrijLabel(merged, corrected)).toMatchObject({
+      review: "corrected",
+      text: "menurut peninjau: hasan (hadits pertama dari beberapa)",
+    });
+    expect(reviewedTakhrijLabel(merged, corrected, second)).toMatchObject({
+      review: "rule",
+      text: "takhrij menyebut: lemah",
+    });
+    // Sitasi utuh mencakup hadits lain: label kode, bukan "ditinjau/dikoreksi ustadz".
+    const whole = { start: 0, end: merged.length };
+    const approved = { decision: "approved" as const, kinds: ["sahih" as const], reviewed_at: "x" };
+    expect(reviewedTakhrijLabel(merged, approved, whole).review).toBe("rule");
+    expect(reviewedTakhrijLabel(merged, corrected, whole)).toMatchObject({
+      review: "rule",
+      weak: true,
+    });
+  });
+
+  test("tanda kelemahan kutipan dari hadits yang beririsan dengan potongan", () => {
+    expect(takhrijCitedWeak(merged, null)).toBe(false);
+    expect(takhrijCitedWeak(merged, null, second)).toBe(true);
+    expect(takhrijCitedWeak(merged, null, { start: 0, end: merged.length })).toBe(true);
+    // Potongan tanpa istilah lemah, padahal hadits yang sama menyebutnya: tetap bertanda.
+    expect(takhrijCitedWeak(RAW, null, { start: 0, end: 10 })).toBe(true);
   });
 });

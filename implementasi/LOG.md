@@ -17,10 +17,20 @@ Format entri:
 - Dikerjakan: (1) 21 usulan koreksi agent T-17 dicek ulang terhadap teks Arab (8 Salah terkonfirmasi; usulan tidak dipakai sebagai koreksi manusia); (2) pola kesalahan dipetakan: populasi 98% Haiku + prompt v2, kesalahan utama salah baca struktur kalimat/pelaku/negasi, kelengkapan dan angka; (3) pencocok ayat diperbaiki (ADR-107, +30 kutipan Qur'ani di 28 paragraf, QS 15:98 terdeteksi); (4) prompt `translate-passage@5` (belum aktif) + opsi `prompt`/`effort` di `buildTranslateRequest`; (5) biaya dihitung dan uji kecil dirancang ([sesi](sesi/X21-terjemahan-ulang-terarah.md)).
 - Verifikasi: `vp test run packages/llm tools/ingest/src/quran` → 11 berkas, 186 tes lolos; `pnpm verify` lolos · pencocok lokal vs D1 `ihya-v8` → 2.484 rujukan identik, +30 baru.
 - Biaya API: US$1,13 (uji kecil 204 request atas izin pemilik, batas US$2,00; `msgbatch_01LVKwMdgp4oAKo6PRX6ARPN`). Hasil: Sonnet 5.5 + v5 88% Benar / 4% Salah di sampel baru sedang+panjang (n = 24) vs produksi 46% / 8%; Haiku + v5 54% / 13%.
-- Keputusan: ADR-107, ADR-108
-- Catatan untuk sesi berikutnya (diperbarui): pemilik memilih sedang + panjang, pagu US$36; mekanisme terjemahan ulang selesai di kode (ADR-108); batch menunggu T-28 dan `count_tokens`. Semula: menunggu pemilik memilih lingkup + pagu terjemahan ulang (rekomendasi: panjang + sedang, ±US$28, pagu US$36; panjang saja ±US$13). Sebelum batch: catat versi prompt/effort yang dipakai per hasil di `batch.ts`. T-28 (`data/build/llm`, `data/raw/kemenag`) dibutuhkan sebelum korpus berikutnya.
+- Keputusan: ADR-107, ADR-109
+- Catatan untuk sesi berikutnya (diperbarui): pemilik memilih sedang + panjang, pagu US$36; mekanisme terjemahan ulang selesai di kode (ADR-109); batch menunggu T-28 dan `count_tokens`. Semula: menunggu pemilik memilih lingkup + pagu terjemahan ulang (rekomendasi: panjang + sedang, ±US$28, pagu US$36; panjang saja ±US$13). Sebelum batch: catat versi prompt/effort yang dipakai per hasil di `batch.ts`. T-28 (`data/build/llm`, `data/raw/kemenag`) dibutuhkan sebelum korpus berikutnya.
 
 ---
+
+## 2026-10-26 · Label status hadits aturan versi 2 (dari tinjauan agent ADR-105) — selesai
+- Dikerjakan:
+  - `TAKHRIJ_TERMS_VERSION` 2: pemindaian per segmen untuk catatan kaki tergabung, lafaz yang dikutip sesudah pembuka tidak dipindai untuk kata ambigu, penjaga konteks al-Bukhari/Muslim/la ba'sa/bin, penilaian yang dibantah (`dibantah`), jenis baru `lam_ajid_marfu`, `tsiqat`, `mukhtalaf`, dan bentuk-bentuk yang terlewat versi 1.
+  - Label core: hadits pertama untuk paragraf gabungan, "berbeda per jalur" per hadits, teks rujukan bersumber; tinjauan tidak dipakai untuk sitasi di segmen lain.
+  - Laporan `data/reports/ihya-9472-takhrij-v2.md` (kecocokan, sisa selisih, rancangan pemisahan ingest + patch salah cetak).
+- Verifikasi: kecocokan dengan 234 keputusan tegas agent 192 → 228; tes integrasi D1 lokal (ekspor ihya-v7, enam gold + 40 butir agent) lolos; `pnpm run eval:takhrij` diperbarui; `pnpm verify` lolos.
+- Biaya API: – (ekspor D1 hanya-baca)
+- Keputusan: ADR-108
+- Catatan untuk sesi berikutnya: sesi ingest untuk memisah 35 catatan kaki tergabung, membuat patch matan bocor, dan memperbaiki salah cetak edisi (butuh build + promote korpus atas izin); lalu tinjauan manusia atas label versi 2.
 
 ## 2026-10-26 · Eval agent pengganti ustadz (paket R4, label takhrij, T-17 tahap 3) — selesai
 - Dikerjakan:

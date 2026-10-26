@@ -1,4 +1,4 @@
-// Tes terjemahan ulang terarah (X21, ADR-108) dengan baris korpus buatan: pemilihan paragraf,
+// Tes terjemahan ulang terarah (X21, ADR-109) dengan baris korpus buatan: pemilihan paragraf,
 // permintaan tertunda, model ulangan, dan hasil lama yang dipertahankan bila hasil baru gagal.
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";

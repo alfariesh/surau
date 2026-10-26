@@ -1,4 +1,4 @@
-// Terjemahan ulang terarah (X21, ADR-108). Berkas `data/reviews/ihya-9472-terjemahan-ulang.json` (di
+// Terjemahan ulang terarah (X21, ADR-109). Berkas `data/reviews/ihya-9472-terjemahan-ulang.json` (di
 // git, tanpa teks kitab) memilih paragraf yang diterjemahkan ulang dengan prompt dan model tertentu,
 // menurut aturan panjang teks Arab (strata T-17: sedang ≥ 100, panjang ≥ 500) dan jilid. Berbeda dari
 // lapisan koreksi tinjauan (`reviews.ts`), hasil lama TIDAK ditolak: terjemahan lama tetap dimuat

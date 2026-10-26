@@ -84,7 +84,7 @@ import type { Work } from "./work.ts";
 export const BATCH_MAX_REQUESTS = 4_000;
 /** Percobaan maksimal per custom_id (1 + 2 ulangan); sesudahnya dicatat gagal. */
 export const MAX_ATTEMPTS = 3;
-/** Request terjemahan ulang terarah per tahap kirim (ADR-108); lebih dari ini wajib `--limit`. */
+/** Request terjemahan ulang terarah per tahap kirim (ADR-109); lebih dari ini wajib `--limit`. */
 export const BATCH_STAGE_MAX = 2_500;
 /** Skenario baca cache prefix sistem untuk estimasi (batch: best-effort, docs 30–98%). */
 export const CACHE_SCENARIOS = [0.95, 0.5, 0] as const;
@@ -995,7 +995,7 @@ export async function runSubmit(
   }
   const remaining = ready.filter((r) => opts.kind === undefined || r.kind === opts.kind);
   const reqs = opts.limit === undefined ? remaining : remaining.slice(0, opts.limit);
-  // Terjemahan ulang terarah dikirim bertahap (ADR-108): biaya aktual tahap pertama dicek dulu.
+  // Terjemahan ulang terarah dikirim bertahap (ADR-109): biaya aktual tahap pertama dicek dulu.
   const bulk =
     retranslateGuard.size > 0 && opts.limit === undefined && reqs.length > BATCH_STAGE_MAX;
   if (bulk) {

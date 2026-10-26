@@ -15,7 +15,7 @@ import {
   TextField,
   Typography,
 } from "@heroui/react";
-import { TAKHRIJ_TERM_GLOSS, TAKHRIJ_TERM_KINDS, takhrijStatus } from "@surau/core";
+import { TAKHRIJ_TERM_GLOSS, TAKHRIJ_TERM_KINDS, reviewedTakhrijLabel } from "@surau/core";
 import type { TakhrijReviewInput } from "@surau/core";
 import type { TakhrijReviewDecision } from "@surau/db";
 import { ArabicInline, ArabicText } from "../arabic";
@@ -204,10 +204,12 @@ function DecisionForm({
   const [note, setNote] = useState(own?.note ?? "");
   const [pending, setPending] = useState(false);
   const [status, setStatus] = useState("");
-  const preview = takhrijStatus([
-    ...detected.filter((k) => kinds.includes(k)),
-    ...TAKHRIJ_TERM_KINDS.filter((k) => kinds.includes(k) && !detected.includes(k)),
-  ]).text;
+  // Teks yang akan dipakai Jawab untuk catatan kaki utuh bila koreksi ini berlaku.
+  const preview = reviewedTakhrijLabel(item.text, {
+    decision: "corrected",
+    kinds: TAKHRIJ_TERM_KINDS.filter((k) => kinds.includes(k)),
+    reviewed_at: "",
+  }).text;
   return (
     <form
       className="space-y-5"

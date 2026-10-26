@@ -21,7 +21,7 @@ import {
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 
-// Aktif sejak X21 (ADR-108): v5 + Sonnet 5.5 terpilih lewat uji buta atas sampel baru (88% vs 46% Benar).
+// Aktif sejak X21 (ADR-109): v5 + Sonnet 5.5 terpilih lewat uji buta atas sampel baru (88% vs 46% Benar).
 export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V5;
 /** Prompt yang bisa dipilih (`buildTranslateRequest(..., { prompt })`); bawaan = `TRANSLATE_PROMPT`. */
 export const TRANSLATE_PROMPTS = {

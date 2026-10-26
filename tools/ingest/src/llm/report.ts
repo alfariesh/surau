@@ -146,7 +146,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     "",
     "> Dibuat otomatis oleh `pnpm llm report` (`tools/ingest/src/llm`). Tanpa teks kitab: hanya angka, ID, dan permalink.",
     "",
-    `- Prompt terjemahan per hasil: ${promptCounts} (aktif untuk paragraf baru: \`${TRANSLATE_PROMPT.id}\`) · ringkasan \`${SUMMARY_PROMPT.id}\` (\`packages/llm/prompts/\`) · model dan prompt per terjemahan: ${modelCounts} (effort low; terjemahan ulang terarah X21, ADR-108) · Message Batches`,
+    `- Prompt terjemahan per hasil: ${promptCounts} (aktif untuk paragraf baru: \`${TRANSLATE_PROMPT.id}\`) · ringkasan \`${SUMMARY_PROMPT.id}\` (\`packages/llm/prompts/\`) · model dan prompt per terjemahan: ${modelCounts} (effort low; terjemahan ulang terarah X21, ADR-109) · Message Batches`,
     '- Ayat yang dikenali pencocok tidak diterjemahkan model: kutipannya dikirim sebagai placeholder `⟦QS s:a⟧` dan diganti terjemahan Kemenag saat tampil (ADR-020, ADR-040, ADR-042). Ayat yang luput dari pencocok bisa ikut diterjemahkan model (sisa risiko ADR-042; lihat "Kemungkinan ayat belum ditandai").',
     "",
     "## Cakupan",
