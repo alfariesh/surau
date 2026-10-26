@@ -2,7 +2,7 @@
 
 > **Penilai semantik: agent (Claude), bukan ustadz dan bukan manusia** (ADR-105). Hasil ini tidak
 > dihitung sebagai "ditinjau ustadz" di mana pun, termasuk `disetujui_oleh` dan gerbang R4.
-> Keputusannya ada di ADR-106 (`answer@7`) dan ADR-109 (`answer@8`). Laporan x06 → x07:
+> Keputusannya ada di ADR-106 (`answer@7`) dan ADR-110 (`answer@8`). Laporan x06 → x07:
 > [`jawab-x07-answer7-banding.md`](jawab-x07-answer7-banding.md).
 
 | | x06 | x07 | x08 |
@@ -37,7 +37,7 @@ dinukil al-'Iraqi tidak dibedakan).
 Pada 34 soal yang sama di ketiga run (tanpa 8 soal yang direvisi): Benar/Kurang/Salah 18/14/2 →
 12/20/2 → 13/19/2, kesetiaan 27 → 29 → 29, bahasa 3,74 → 3,41 → 3,50.
 
-**Kesimpulan: syarat R4 masih belum terpenuhi.** Menurut aturan yang ditulis sebelum run (ADR-109
+**Kesimpulan: syarat R4 masih belum terpenuhi.** Menurut aturan yang ditulis sebelum run (ADR-110
 butir 4: `answer@7` dipertahankan bila bahasa atau kesetiaan turun), `answer@8` dipakai karena keduanya
 naik sedikit. Selisih x07 → x08 kecil dan sebagian besar masih dalam rentang derau penilai, dan
 atribusi turun dua jawaban (j022, j025).

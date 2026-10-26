@@ -1,4 +1,4 @@
-// Prompt jawaban Jawab, versi 8 (bahasa; penilaian agent atas run x07 `answer@7`, ADR-109). Beda
+// Prompt jawaban Jawab, versi 8 (bahasa; penilaian agent atas run x07 `answer@7`, ADR-110). Beda
 // dari v7: terjemahan AI di konteks tidak disalin dan isi yang sama tidak ditulis dua kali (j006–j012:
 // parafrase model lalu terjemahan AI yang sama ditempel mentah); mulai langsung dengan isi, tanpa
 // pembuka meta, kata "saya", atau istilah "paragraf/potongan teks" (j026, j039); "di bagian yang
@@ -7,7 +7,7 @@
 // hasil Cari atau tautan Cari ditampilkan sistem); tanpa kutipan langsung bertanda petik selain judul
 // dan istilah (j034); baris "Status hadits:" wajib menyitasi takhrij di kalimatnya sendiri (isinya
 // diganti label kode) dan derajat tidak dirumuskan model di kalimat lain (j026, j027; peninjau
-// ADR-109). Kalimat baku sama dengan v7.
+// ADR-110). Kalimat baku sama dengan v7.
 import { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "./answer-v1.ts";
 import { ANSWER_FALSE_PREMISE } from "./answer-v3.ts";
 

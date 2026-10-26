@@ -30,7 +30,7 @@ export interface JawabLog {
   pipeline_terms: number;
   /** Kalimat calon parafrase ayat, heuristik (ADR-106). */
   ayah_gloss_suspect: number;
-  /** Kalimat berulang dalam satu paragraf, salinan terjemahan AI, penilaian hadits tanpa sitasi takhrij (ADR-109). */
+  /** Kalimat berulang dalam satu paragraf, salinan terjemahan AI, penilaian hadits tanpa sitasi takhrij (ADR-110). */
   repeated_sentences: number;
   translation_copy: number;
   grading_uncited: number;

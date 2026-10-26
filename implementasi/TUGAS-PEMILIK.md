@@ -278,6 +278,17 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   - **Shamela: sudah ada** di mesin agent, `/home/rekanesia/shamela/database` (hanya dibaca, seperti drive `Elfariesh`). Dipakai lewat `SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`. Ukuran dan sha256 `book/472/9472.db`, `update/master/book.sqlite`, dan `update/master/author.sqlite` cocok dengan `data/SOURCES.md` (dicek sesi induk 2026-10-25, diulang agent X15b).
   - **OpenITI dan Tanzil** (`data/raw/openiti`, `data/raw/tanzil`): publik. Agent mengunduhnya sendiri dengan perintah di `data/SOURCES.md`; ingest menolak berkas yang sha256-nya berbeda.
   - **Masih dari Anda:** `data/raw/kemenag` (salinan pribadi terjemahan + transliterasi Kemenag) dan `data/build/llm` (hasil terjemahan, ringkasan, dan judul AI lama), keduanya di Mac Anda. Saat X15c dimulai, agent memandu cara menyalinnya ke mesin agent, atau menjalankan ingest di Mac.
+  - **Langkah salin (dibutuhkan juga oleh terjemahan ulang X21):**
+    1. Di Mac, buka aplikasi Terminal, masuk ke folder repo Surau (folder yang berisi `data/build/llm`), lalu ketik (sesuaikan folder bila perlu):
+       ```bash
+       tar czf ~/Desktop/surau-data-x21.tgz --exclude=data/build/llm/intisari data/build/llm data/raw/kemenag
+       ```
+    2. Pindahkan `surau-data-x21.tgz` dari Desktop ke laptop agent dengan flashdisk atau transfer langsung (jangan ke layanan awan pihak ketiga: `data/raw/kemenag` belum punya syarat pakai tertulis, ADR-040). Jangan hapus folder aslinya di Mac.
+    3. Di Terminal laptop agent, dari folder berkas itu berada:
+       ```bash
+       tar xzf surau-data-x21.tgz -C /home/rekanesia/surau
+       ```
+    4. Ketik ke agent "T-28 selesai". Agent memeriksa ukuran dan isi (tanpa membaca `.env`) sebelum memakai. Perintah `pnpm llm` dijalankan agent dari checkout utama (`/home/rekanesia/surau`) sesudah PR terjemahan ulang di-merge, karena folder `data/` tidak ikut git dan tidak ada di worktree sesi.
 
 ---
 

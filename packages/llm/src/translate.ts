@@ -1,4 +1,4 @@
-// Request dan validasi terjemahan per paragraf (S13; prompt aktif `translate-passage@4`, X02). Teks yang dikirim
+// Request dan validasi terjemahan per paragraf (S13; prompt aktif `translate-passage@5`, X21). Teks yang dikirim
 // sudah bertanda: kutipan ayat diganti placeholder `⟦QS s:a⟧` (`maskAyat`, @surau/core), sehingga
 // model tidak pernah melihat atau menerjemahkan ayat (ADR-020, ADR-040).
 import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
@@ -6,6 +6,7 @@ import { checkPlaceholders } from "@surau/core";
 import type { MaskedPassage } from "@surau/core";
 
 import { TRANSLATE_PASSAGE_V4 } from "../prompts/translate-passage-v4.ts";
+import { TRANSLATE_PASSAGE_V5 } from "../prompts/translate-passage-v5.ts";
 import {
   MAX_ARABIC_RUN_WORDS,
   footnoteMarkerDigits,
@@ -20,7 +21,15 @@ import {
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 
-export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V4;
+// Aktif sejak X21 (ADR-109): v5 + Sonnet 5.5 terpilih lewat uji buta atas sampel baru (88% vs 46% Benar).
+export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V5;
+/** Prompt yang bisa dipilih (`buildTranslateRequest(..., { prompt })`); bawaan = `TRANSLATE_PROMPT`. */
+export const TRANSLATE_PROMPTS = {
+  [TRANSLATE_PASSAGE_V4.id]: TRANSLATE_PASSAGE_V4,
+  [TRANSLATE_PASSAGE_V5.id]: TRANSLATE_PASSAGE_V5,
+} as const;
+export type TranslatePrompt = (typeof TRANSLATE_PROMPTS)[keyof typeof TRANSLATE_PROMPTS];
+export type TranslateEffort = "low" | "medium" | "high";
 export const TRANSLATION_LANG = "id";
 
 /** Ruang untuk thinking (effort low) + terjemahan paragraf terpanjang Ihya (±4,2 ribu karakter). */
@@ -56,15 +65,16 @@ export function translateUserText(input: TranslateInput): string {
 export function buildTranslateRequest(
   input: TranslateInput,
   model: ModelId = MODELS.haiku,
+  opts: { prompt?: TranslatePrompt; effort?: TranslateEffort } = {},
 ): MessageCreateParamsNonStreaming {
   return {
     model,
     max_tokens: TRANSLATE_MAX_TOKENS,
-    output_config: { effort: "low" },
+    output_config: { effort: opts.effort ?? "low" },
     system: [
       {
         type: "text",
-        text: TRANSLATE_PROMPT.system,
+        text: (opts.prompt ?? TRANSLATE_PROMPT).system,
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ],

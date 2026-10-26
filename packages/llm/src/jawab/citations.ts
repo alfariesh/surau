@@ -196,7 +196,7 @@ const HADITH_SUBJECT = /(?<!\p{L})(?:hadits|hadis|riwayat|sanad)(?!\p{L})/iu;
 /**
  * Kalimat penilaian hadits (istilah derajat + kata hadits/riwayat/sanad) di luar baris label kode
  * yang bloknya tidak menyitasi catatan kaki takhrij mana pun: penilaian tulisan model yang tidak
- * dipaksa `hadithCheck` (risiko yang diterima ADR-106/ADR-109). Dihitung per blok jawaban.
+ * dipaksa `hadithCheck` (risiko yang diterima ADR-106/ADR-110). Dihitung per blok jawaban.
  */
 export function uncitedGradings(
   blocks: readonly { text: string; citations: readonly number[] }[],

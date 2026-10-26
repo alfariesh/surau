@@ -653,7 +653,7 @@ describe("diagnostik bahasa (pipeline@9)", () => {
     ).toBe(0);
   });
 
-  test("baris label status buatan kode tidak dihitung berulang (peninjau ADR-109)", () => {
+  test("baris label status buatan kode tidak dihitung berulang (peninjau ADR-110)", () => {
     const label = "Status hadits: takhrij menyebut: lemah (hadits di Ihya j. 1, h. 2).";
     expect(repeatedSentences(`${label} ${label.replace("h. 2", "h. 5")}`)).toBe(0);
   });

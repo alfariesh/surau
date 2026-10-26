@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-26 · X21 · Terjemahan ulang terarah Ihya (rancangan + biaya) — sebagian
+- Dikerjakan: (1) 21 usulan koreksi agent T-17 dicek ulang terhadap teks Arab (8 Salah terkonfirmasi; usulan tidak dipakai sebagai koreksi manusia); (2) pola kesalahan dipetakan: populasi 98% Haiku + prompt v2, kesalahan utama salah baca struktur kalimat/pelaku/negasi, kelengkapan dan angka; (3) pencocok ayat diperbaiki (ADR-107, +30 kutipan Qur'ani di 28 paragraf, QS 15:98 terdeteksi); (4) prompt `translate-passage@5` (belum aktif) + opsi `prompt`/`effort` di `buildTranslateRequest`; (5) biaya dihitung dan uji kecil dirancang ([sesi](sesi/X21-terjemahan-ulang-terarah.md)).
+- Verifikasi: `vp test run packages/llm tools/ingest/src/quran` → 11 berkas, 186 tes lolos; `pnpm verify` lolos · pencocok lokal vs D1 `ihya-v8` → 2.484 rujukan identik, +30 baru.
+- Biaya API: US$1,13 (uji kecil 204 request atas izin pemilik, batas US$2,00; `msgbatch_01LVKwMdgp4oAKo6PRX6ARPN`). Hasil: Sonnet 5.5 + v5 88% Benar / 4% Salah di sampel baru sedang+panjang (n = 24) vs produksi 46% / 8%; Haiku + v5 54% / 13%.
+- Keputusan: ADR-107, ADR-109
+- Catatan untuk sesi berikutnya (diperbarui): pemilik memilih sedang + panjang, pagu US$36; mekanisme terjemahan ulang selesai di kode (ADR-109); batch menunggu T-28 dan `count_tokens`. Semula: menunggu pemilik memilih lingkup + pagu terjemahan ulang (rekomendasi: panjang + sedang, ±US$28, pagu US$36; panjang saja ±US$13). Sebelum batch: catat versi prompt/effort yang dipakai per hasil di `batch.ts`. T-28 (`data/build/llm`, `data/raw/kemenag`) dibutuhkan sebelum korpus berikutnya.
+
 ---
 
 ## 2026-10-26 · Bahasa Jawab answer@8 — selesai
@@ -20,7 +27,7 @@ Format entri:
 - Hasil: x07 → x08 Benar/Kurang/Salah 17/22/3 → 17/23/2, kesetiaan 83,3% → 85,7%, bahasa 3,45 → 3,55, atribusi 97,6% → 92,9%, lokasi 91,2% tetap. R4 belum terpenuhi.
 - Verifikasi: `pnpm verify` → lolos; diagnostik kalimat berulang atas arsip x07 → tepat 5 jawaban yang dicatat penilai; lokasi dihitung ulang dari arsip (x08 kunci versi 2 31/34, sama dengan laporan kode); subagen `peninjau` → tanpa blocker, temuan penting (status hadits pindah ke kalimat bebas) diperbaiki sebelum run.
 - Biaya API: **US$0,1167** (izin pemilik di chat, pagu US$0,50; 42 soal publik).
-- Keputusan: ADR-109.
+- Keputusan: ADR-110.
 - Catatan untuk sesi berikutnya: bunyi label kode "takhrij menyebut: …" di baris status, pencarian takhrij kemunculan pertama (j024), dan penilaian manusia sebelum iterasi prompt berikutnya.
 
 ## 2026-10-26 · Mutu Jawab answer@7 dari penilaian agent pengganti ustadz — selesai

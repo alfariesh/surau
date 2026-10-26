@@ -72,7 +72,7 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * Versi kode pipeline di luar prompt: pencarian kandidat (X03: 4), urutan dokumen (X05: 5), label
  * status hadits dari istilah takhrij (X06: 6), label yang ditinjau ustadz (X07: 7), konteks
  * bagian berjudul kitab + pemberitahuan status yang berdiri sendiri dibuang (ADR-106: 8),
- * diagnostik bahasa dan penilaian hadits tanpa sitasi (ADR-109: 9; keluaran tidak berubah, versi
+ * diagnostik bahasa dan penilaian hadits tanpa sitasi (ADR-110: 9; keluaran tidak berubah, versi
  * dinaikkan supaya log/cache membedakan prompt `answer@8`), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.

@@ -116,6 +116,17 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     .toSorted(([a], [b]) => a.localeCompare(b))
     .map(([v, n]) => `\`${v}\` ${num(n)}`)
     .join(", ");
+  // Asal terjemahan per (model, prompt): catatan asal-usul model (aturan teks-arab 8) tidak boleh
+  // basi setelah terjemahan ulang X21 (Sonnet + v5 untuk sedang+panjang, sisanya Haiku + v2).
+  const byModelPrompt = new Map<string, number>();
+  for (const t of acc.translations.values()) {
+    const k = `${t.model} · ${t.prompt_version}`;
+    byModelPrompt.set(k, (byModelPrompt.get(k) ?? 0) + 1);
+  }
+  const modelCounts = [...byModelPrompt]
+    .toSorted(([a], [b]) => a.localeCompare(b))
+    .map(([k, n]) => `\`${k}\` ${num(n)}`)
+    .join(", ");
 
   // Sampel QA T-17 tahap 2: 20 paragraf acak (seed tetap) dari SEMUA paragraf badan, bukan dari
   // hasil yang lolos, supaya daftarnya tidak berubah tiap kali hasil dinilai ulang (X02: juga tidak
@@ -135,7 +146,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     "",
     "> Dibuat otomatis oleh `pnpm llm report` (`tools/ingest/src/llm`). Tanpa teks kitab: hanya angka, ID, dan permalink.",
     "",
-    `- Prompt terjemahan per hasil: ${promptCounts} (aktif untuk paragraf baru: \`${TRANSLATE_PROMPT.id}\`) · ringkasan \`${SUMMARY_PROMPT.id}\` (\`packages/llm/prompts/\`) · model Claude Haiku 5.5 (\`claude-haiku-5-5\`, effort low), ulangan Claude Sonnet 5.5 · Message Batches`,
+    `- Prompt terjemahan per hasil: ${promptCounts} (aktif untuk paragraf baru: \`${TRANSLATE_PROMPT.id}\`) · ringkasan \`${SUMMARY_PROMPT.id}\` (\`packages/llm/prompts/\`) · model dan prompt per terjemahan: ${modelCounts} (effort low; terjemahan ulang terarah X21, ADR-109) · Message Batches`,
     '- Ayat yang dikenali pencocok tidak diterjemahkan model: kutipannya dikirim sebagai placeholder `⟦QS s:a⟧` dan diganti terjemahan Kemenag saat tampil (ADR-020, ADR-040, ADR-042). Ayat yang luput dari pencocok bisa ikut diterjemahkan model (sisa risiko ADR-042; lihat "Kemungkinan ayat belum ditandai").',
     "",
     "## Cakupan",
@@ -147,7 +158,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     `| Ringkasan final bahasa Inggris | ${num(finalOk("en"))} | ${num(nodes)} | ${pct(finalOk("en"), nodes)} |`,
     `| Ringkasan putaran 1 (potongan, 2 bahasa) | ${num(acc.r1.size)} | ${num(work.chunks.length * 2)} | ${pct(acc.r1.size, work.chunks.length * 2)} |`,
     "",
-    `Dibuat Claude Sonnet 5.5: ${num(sonnet)} (termasuk ${num(sonnetReview)} terjemahan ulang dari koreksi tinjauan, \`data/reviews/\`; sisanya percobaan terakhir sesudah dua kali gagal, atau refusal Haiku). Penolakan model (refusal): ${num(refusals)}. Terjemahan tanpa penanda catatan kaki (diterima, dicatat; takhrij tetap tertaut di teks Arab): ${num(markersMissing)}. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): ${num(work.blocked.length)}.`,
+    `Dibuat Claude Sonnet 5.5: ${num(sonnet)} (termasuk ${num(sonnetReview)} terjemahan ulang dari koreksi tinjauan, \`data/reviews/\`; terjemahan ulang terarah X21; percobaan terakhir sesudah dua kali gagal; atau refusal Haiku). Penolakan model (refusal): ${num(refusals)}. Terjemahan tanpa penanda catatan kaki (diterima, dicatat; takhrij tetap tertaut di teks Arab): ${num(markersMissing)}. Paragraf yang tidak boleh dikirim (rujukan ayat tak bisa ditandai): ${num(work.blocked.length)}.`,
     "",
     `## Belum lolos (${num(stuck.size + replan.length)})`,
     "",
@@ -269,7 +280,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     writeText(
       join(dir, "qa", "review-batch.html"),
       reviewHtml(
-        `QA terjemahan AI (T-17 tahap 2) · ${TRANSLATE_PROMPT.id}`,
+        `QA terjemahan AI (T-17) · ${promptCounts}`,
         `${sample.length} paragraf acak dari hasil batch penuh (dinilai) dan ${items.length - sample.length} contoh ringkasan (tidak dinilai). Kotak hijau = terjemahan ayat Kemenag (bukan buatan AI). Beri nilai tiap nomor paragraf: <b>Benar</b>, <b>Kurang</b>, atau <b>Salah</b>, dengan catatan singkat.`,
         items,
         kemenagLookup(rows.quran_translation),

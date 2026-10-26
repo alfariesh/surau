@@ -37,6 +37,12 @@ const AYAT = [
   { surah: 8, ayah: 1, text: "وهو معكم أين ما كنتم تذكرون" },
   // Kutipan pendek yang berlanjut > 4 kata dengan satu beda ejaan (أولوا/أولو) di tengah.
   { surah: 9, ayah: 1, text: "ولا يغفل أولو النهى منكم والسعة عن ذكره" },
+  // X21: kutipan di konteks hadits. Delapan kata (panjang), lima kata utuh satu ayat, lima kata
+  // di awal ayat yang lebih panjang (sebagian), dan zikir yang kebetulan sama dengan ayat.
+  { surah: 10, ayah: 1, text: "والحكمة تنفع الناس في الدنيا ويبقى الخير للصالحين" },
+  { surah: 10, ayah: 2, text: "ثم أمر عباده بالصدق والصبر" },
+  { surah: 10, ayah: 3, text: "وأوصى بالحق لمن سلك الطريق القويم الهادي إلى النور" },
+  { surah: 11, ayah: 1, text: "له الملك وله الحمد وهو على كل شيء قدير" },
 ];
 const index = buildQuranIndex(AYAT);
 
@@ -346,6 +352,45 @@ describe("perbaikan tinjauan kedua S13", () => {
       matchPassage(index, "قال النبي صلى الله عليه وسلم فطوبى للصابرين الذين يذكرون ربهم بالليل")
         .spans,
     ).toEqual([]);
+  });
+});
+
+describe("kutipan Qur'ani di konteks hadits (X21, ADR-107)", () => {
+  const kinds = (raw: string) => matchPassage(index, raw).spans.map((s) => [s.kind, s.surah]);
+
+  test("deret panjang (≥ 8 kata) diterima walau di sabda/ucapan sahabat", () => {
+    expect(
+      kinds("قال النبي صلى الله عليه وسلم والحكمة تنفع الناس في الدنيا ويبقى الخير للصالحين"),
+    ).toEqual([["unmarked", 10]]);
+  });
+
+  test("seluruh satu ayat (≥ 5 kata) diterima; lima kata sebagian ayat ditolak", () => {
+    expect(kinds("فقال النبي صلى الله عليه وسلم ثم أمر عباده بالصدق والصبر")).toEqual([
+      ["unmarked", 10],
+    ]);
+    expect(kinds("فقال النبي صلى الله عليه وسلم وأوصى بالحق لمن سلك الطريق")).toEqual([]);
+  });
+
+  test("kata wahyu di dekatnya = ayat, bukan lafaz hadits", () => {
+    // "أوحي إلى رسول الله صلى الله عليه وسلم أن …": رسول di antara kata wahyu dan kutipan.
+    expect(
+      kinds("ولكن أوحي إلى رسول الله صلى الله عليه وسلم أن وأوصى بالحق لمن سلك الطريق"),
+    ).toEqual([["unmarked", 10]]);
+    // Kata wahyu di luar jendela 16 kata, atau kata "nazala" biasa, tidak membuka pengecualian.
+    expect(
+      kinds(
+        "أوحي كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة كلمة قال النبي صلى الله عليه وسلم وأوصى بالحق لمن سلك الطريق",
+      ),
+    ).toEqual([]);
+    expect(kinds("نزل ضيف عند النبي صلى الله عليه وسلم وأوصى بالحق لمن سلك الطريق")).toEqual([]);
+    // Kata wahyu sesudah kutipan tidak ikut dihitung.
+    expect(kinds("قال النبي صلى الله عليه وسلم وأوصى بالحق لمن سلك الطريق ثم أوحي")).toEqual([]);
+  });
+
+  test("zikir yang kebetulan sama dengan ayat tetap ditolak walau panjang", () => {
+    expect(kinds("لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير")).toEqual(
+      [],
+    );
   });
 });
 

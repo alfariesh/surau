@@ -783,6 +783,26 @@ const UNMARKED_SKIP = new Set([
 ]);
 // Basmalah di awal deret tanpa tanda = pembuka kitab/khutbah/surat, bukan kutipan 1:1–2.
 const BASMALAH = "بسم الله الرحمن الرحيم";
+// X21 (ADR-107): di konteks hadits, deret Qur'ani tetap diterima bila (a) sebuah kata wahyu ada di
+// dekatnya ("أوحي إلى رسول الله … أن سبح بحمد ربك" = 15:98), (b) deretnya panjang (≥ 8 kata: tidak
+// mungkin kebetulan sama dengan lafaz hadits, dan Nabi memang sering membacakan ayat), atau (c)
+// seluruhnya satu ayat atau lebih (≥ 5 kata). Hanya lafaz zikir yang kebetulan sama dengan ayat
+// diblokir (awalan, karena deretnya bisa lebih panjang dari zikirnya).
+const REVELATION_WORD_RE = /^(?:و|ف)?(?:اوحي|يوحي|نزلت|انزل|انزلت)$/;
+export const HADITH_LONG_MIN_TOKENS = 8;
+export const HADITH_WHOLE_MIN_TOKENS = 5;
+const ZIKR_PREFIXES = [
+  // "لا اله الا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير" (64:1)
+  "له الملك وله الحمد وهو علي كل شيء قدير",
+];
+
+/** Ada kata wahyu (أوحي، نزلت …) dalam jendela konteks sebelum `i`. */
+function nearRevelation(words: readonly string[], i: number): boolean {
+  for (let k = i - 1; k >= Math.max(0, i - HADITH_LOOKBACK); k--) {
+    if (REVELATION_WORD_RE.test(words[k] as string)) return true;
+  }
+  return false;
+}
 
 /** Ada penanda hadits dalam beberapa kata sebelum `i` tanpa pengantar ayat di antaranya. */
 function inHadith(words: readonly string[], i: number): boolean {
@@ -859,13 +879,24 @@ function unmarkedSpans(
     // Lafaz berulang hanya diterima bila tepat didahului pengantar ayat (تعالى، عز وجل …): itu jelas
     // kutipan, dan letaknya dipilih dengan aturan S12 (ayat utuh, surah kutipan sebelumnya).
     const quranCued = QURAN_CUE_WORD_RE.test(prevWord);
+    const runText = run.join(" ");
+    const cand = pickCandidate(index, hits, preferSurah());
+    // Konteks hadits menolak deret pendek (lafaz hadits/zikir), kecuali tiga pengecualian X21.
+    const hadithBlocked =
+      inHadith(words, i) &&
+      (ZIKR_PREFIXES.some((z) => runText.startsWith(z)) ||
+        !(
+          nearRevelation(words, i) ||
+          best >= HADITH_LONG_MIN_TOKENS ||
+          (best >= HADITH_WHOLE_MIN_TOKENS && cand !== null && !cand.best.loc.partial)
+        ));
     const picked =
       (alt > 0 && !quranCued) ||
-      UNMARKED_SKIP.has(run.join(" ")) ||
-      run.join(" ").startsWith(BASMALAH) ||
-      inHadith(words, i)
+      UNMARKED_SKIP.has(runText) ||
+      runText.startsWith(BASMALAH) ||
+      hadithBlocked
         ? null
-        : pickCandidate(index, hits, preferSurah());
+        : cand;
     if (picked === null) {
       // Seluruh deret ditolak: ekornya (mis. "الله الرحمن الرحيم الحمد لله" sesudah بسم) bukan
       // kutipan tersendiri.
