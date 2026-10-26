@@ -12,13 +12,74 @@ describe("takhrijLabel", () => {
       version: TAKHRIJ_TERMS_VERSION,
       kind: "terms",
       mixed: false,
-      text: "takhrij menyebut: mauquf; lemah; tidak ditemukan penakhrij",
+      text: "takhrij menyebut: mauquf; lemah; tidak ditemukan sebagai sabda Nabi (marfu')",
     });
     expect(label.terms.map((t) => [raw.slice(t.char_start, t.char_end), t.gloss])).toEqual([
       ["موقوفا", "mauquf"],
       ["بإسناد ضعيف", "lemah"],
-      ["ولم أره مرفوعا", "tidak ditemukan penakhrij"],
+      ["ولم أره مرفوعا", "tidak ditemukan sebagai sabda Nabi (marfu')"],
     ]);
+  });
+
+  // Versi 2 (ADR-108): kalimat BUATAN.
+  test("catatan kaki tergabung: label dari hadits pertama, atau dari bagian yang disitasi", () => {
+    const raw = "حديث تجريبي أخرجه فلان بإسناد صحيح (٤) حديث تجريبي آخر رواه فلان بسند ضعيف";
+    const cut = raw.indexOf("(٤)");
+    expect(takhrijLabel(raw)).toMatchObject({
+      mixed: false,
+      weak: false,
+      text: "takhrij menyebut: sahih (hadits pertama dari beberapa)",
+    });
+    expect(takhrijLabel(raw, { start: cut, end: raw.length })).toMatchObject({
+      mixed: false,
+      weak: true,
+      text: "takhrij menyebut: lemah",
+    });
+    // Dua hadits sekaligus: bukan "berbeda per jalur".
+    expect(takhrijLabel(raw, { start: 0, end: raw.length })).toMatchObject({
+      mixed: false,
+      text: "takhrij menyebut: sahih; lemah (beberapa hadits)",
+    });
+  });
+
+  test("teks status paling panjang tetap memuat istilah pertama dan ≤ batas", () => {
+    const raw =
+      "حديث تجريبي لم أجده مرفوعا ورواه فلان موقوفا بإسناد صحيح ورواه فلان بسند ضعيف (٤) حديث آخر رواه فلان";
+    const label = takhrijLabel(raw);
+    expect(label.mixed).toBe(true);
+    expect(label.text.length).toBeLessThanOrEqual(TAKHRIJ_STATUS_MAX);
+    expect(label.text.startsWith("takhrij menyebut: tidak ditemukan sebagai sabda Nabi")).toBe(
+      true,
+    );
+    expect(takhrijLabel("حديث تجريبي رواه فلان (٢) حديث آخر رواه فلان بسند ضعيف").text).toBe(
+      "takhrij hanya menyebut sumber riwayat, tanpa istilah penilaian (hadits pertama dari beberapa)",
+    );
+  });
+
+  test("penilaian yang dibantah, perawi tepercaya/diperselisihkan, rujukan bersumber", () => {
+    const refuted = takhrijLabel("حديث تجريبي رواه الحاكم وقال صحيح الإسناد قلت بل منقطع");
+    expect(refuted).toMatchObject({
+      mixed: false,
+      weak: true,
+      text: "takhrij menyebut: penilaian yang dibantah penakhrij; lemah",
+    });
+    expect(takhrijLabel("حديث تجريبي رواه فلان ورجاله ثقات").text).toBe(
+      "takhrij menyebut: perawi/sanad dinilai tepercaya",
+    );
+    expect(takhrijLabel("حديث تجريبي رواه فلان ورجاله ثقات إلا أن فيه انقطاعا")).toMatchObject({
+      mixed: false,
+      text: "takhrij menyebut: perawi/sanad dinilai tepercaya; lemah",
+    });
+    expect(takhrijLabel("حديث تجريبي رواه فلان وفيه فلان مختلف فيه")).toMatchObject({
+      weak: false,
+      text: "takhrij menyebut: perawi/sanad diperselisihkan",
+    });
+    expect(takhrijLabel("حديث تجريبي أخرجه الترمذي وقد تقدم").text).toBe(
+      "takhrij menyebut sumber riwayat dan merujuk ke takhrij di tempat lain",
+    );
+    expect(takhrijLabel("حديث تجريبي تقدم في الباب الأول").text).toBe(
+      "takhrij merujuk ke takhrij di tempat lain",
+    );
   });
 
   test("muttafaq mencakup al-Bukhari/Muslim; penilaian berlawanan ditandai berbeda per jalur", () => {
