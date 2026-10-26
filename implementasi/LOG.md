@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-26 · X21 · Terjemahan ulang terarah Ihya (rancangan + biaya) — sebagian
+- Dikerjakan: (1) 21 usulan koreksi agent T-17 dicek ulang terhadap teks Arab (8 Salah terkonfirmasi; usulan tidak dipakai sebagai koreksi manusia); (2) pola kesalahan dipetakan: populasi 98% Haiku + prompt v2, kesalahan utama salah baca struktur kalimat/pelaku/negasi, kelengkapan dan angka; (3) pencocok ayat diperbaiki (ADR-107, +30 kutipan Qur'ani di 28 paragraf, QS 15:98 terdeteksi); (4) prompt `translate-passage@5` (belum aktif) + opsi `prompt`/`effort` di `buildTranslateRequest`; (5) biaya dihitung dan uji kecil dirancang ([sesi](sesi/X21-terjemahan-ulang-terarah.md)).
+- Verifikasi: `vp test run packages/llm tools/ingest/src/quran` → 11 berkas, 186 tes lolos; `pnpm verify` lolos · pencocok lokal vs D1 `ihya-v8` → 2.484 rujukan identik, +30 baru.
+- Biaya API: – (tidak ada panggilan berbayar; uji ≤ US$1,50 menunggu izin pemilik)
+- Keputusan: ADR-107
+- Catatan untuk sesi berikutnya: setelah izin uji, kirim batch 204 request (51 paragraf × 4 lengan), nilai buta, pilih lengan dengan aturan di file sesi, lalu minta pagu terjemahan ulang (panjang saja ±US$15, panjang + sedang ±US$31, batas atas ±US$45). T-28 (`data/build/llm`, `data/raw/kemenag`) dibutuhkan sebelum korpus berikutnya.
+
 ---
 
 ## 2026-10-25 · X15b lanjutan · QA pilot Intisari oleh agent, Sonnet untuk Intisari Kitab, T-28 sebagian — selesai
