@@ -11,7 +11,7 @@ Status 2026-10-19: **60 draf, belum ada persetujuan ustadz**. Set ini menguji al
 | Premis keliru | 6 |
 | Atribusi | 6 |
 
-`ihya-draf-v1.jsonl` memuat 42 soal publik (`jNNN`); 18 holdout (`pNNN`) berada di `evals/private/jawab.jsonl`, bukan git. Semua `disetujui_oleh` masih `null`. Persetujuan pemilik atas set retrieval S15 tidak berlaku untuk set Jawab ini. Lokasi/sumber sudah diperiksa kode terhadap `ihya-v6`; ketepatan makna dan poin kunci tetap perlu Anas. Soal holdout tidak dipakai untuk merancang perbaikan.
+`ihya-draf-v2.jsonl` memuat 42 soal publik (`jNNN`); versi soal 2 (2026-10-26, ADR-106) menerapkan revisi tinjauan agent pengganti ustadz pada j009, j014, j018–j021, j023, j041 dan 4 holdout (pertanyaan ditulis ulang atau kunci keliru dibetulkan; alasannya di `catatan` tiap soal, versi lama di riwayat git sebagai `ihya-draf-v1.jsonl`); 18 holdout (`pNNN`) berada di `evals/private/jawab.jsonl`, bukan git. Semua `disetujui_oleh` masih `null`. Persetujuan pemilik atas set retrieval S15 tidak berlaku untuk set Jawab ini. Lokasi/sumber sudah diperiksa kode terhadap `ihya-v6`; ketepatan makna dan poin kunci tetap perlu Anas. Soal holdout tidak dipakai untuk merancang perbaikan.
 
 Kontrak Zod ada di `packages/core/src/eval-schema.ts`. Pertanyaan, poin kunci, dan jawaban hanya teks Latin; kutipan disimpan sebagai `{passage_id, char_start, char_end}` (offset UTF-16, akhir eksklusif, maksimal 2.000 karakter). Kode mengambil teks dari DB dan memverifikasi sebelum tampil. Snapshot jawaban mencatat hash soal/jawaban, versi korpus, model, prompt, biaya, latensi, dan waktu.
 

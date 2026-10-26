@@ -44,11 +44,13 @@ import {
   orderBySection,
 } from "./answer.ts";
 import {
+  ayahGlossSuspects,
   citationSpans,
   HADITH_NOT_CITED,
   HADITH_UNKNOWN,
   hadithStatements,
   hasHadithPrefix,
+  pipelineTerms,
   refusalKind,
   stripArabic,
   stripCiteTags,
@@ -65,11 +67,12 @@ import type { Route } from "./route.ts";
 export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
 /**
  * Versi kode pipeline di luar prompt: pencarian kandidat (X03: 4), urutan dokumen (X05: 5), label
- * status hadits dari istilah takhrij (X06: 6), label yang ditinjau ustadz (X07: 7), dan
+ * status hadits dari istilah takhrij (X06: 6), label yang ditinjau ustadz (X07: 7), konteks
+ * bagian berjudul kitab + pemberitahuan status yang berdiri sendiri dibuang (ADR-106: 8), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 7;
+export const JAWAB_PIPELINE_VERSION = 8;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -155,6 +158,10 @@ export interface JawabDiagnostics {
   hadith_unsupported: number;
   /** Pernyataan status bertakhrij yang isinya diganti teks label (X06). */
   hadith_labeled: number;
+  /** Istilah pipeline ("dokumen", "dilampirkan", "terjemahan AI") di jawaban akhir (pipeline@8). */
+  pipeline_terms: number;
+  /** Kalimat calon parafrase ayat: rujukan QS + penanda makna/kutipan (pipeline@8, heuristik). */
+  ayah_gloss_suspect: number;
   /** Klaim status yang labelnya disetujui/dikoreksi penilai (X07). */
   hadith_reviewed: number;
   /** Tinjauan label gagal dimuat (DB app); label kode dipakai. */
@@ -367,6 +374,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     citations_dropped: 0,
     blocks_dropped: 0,
     arabic_removed: 0,
+    pipeline_terms: 0,
+    ayah_gloss_suspect: 0,
     hadith_unsupported: 0,
     hadith_labeled: 0,
     hadith_reviewed: 0,
@@ -681,6 +690,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     .map((b) => b.text)
     .join("")
     .trim();
+  diagnostics.pipeline_terms = pipelineTerms(text);
+  diagnostics.ayah_gloss_suspect = ayahGlossSuspects(text);
   const refusal = refusalKind(text);
   const notFound = refusal !== null;
   if (!notFound && citations.length === 0) return fallback("unverified", model);
@@ -779,12 +790,17 @@ export function hadithCheck(
       );
       // Tanpa klaim status sama sekali (tidak ada takhrij tersitasi yang berpemilik), pemberitahuan
       // yang menunjuk bagian "Status hadits" menjadi "belum diketahui".
+      // Dengan klaim, pemberitahuan yang berdiri sendiri satu baris dibuang: bagian "Status
+      // hadits" sudah memuat status dari takhrij, dan kalimat itu terbaca bertentangan dengan isi
+      // jawaban (penilaian agent 2026-10-26, j025–j029). Di butir daftar atau di tengah paragraf
+      // pemberitahuan tetap ada, supaya tidak meninggalkan butir kosong atau kalimat rumpang.
       if (claims.length === 0)
         current = current.map((b) =>
           b.citations.length === 0 && b.text.trim() === HADITH_NOT_CITED
             ? { ...b, text: b.text.replace(HADITH_NOT_CITED, HADITH_UNKNOWN) }
             : b,
         );
+      else current = dropStandaloneNotices(current);
       return {
         claims,
         blocks: current,
@@ -807,6 +823,44 @@ export function hadithCheck(
     labeled,
     unresolved: true,
   };
+}
+
+/**
+ * Buang blok pemberitahuan `HADITH_NOT_CITED` yang menempati satu baris sendiri (tanpa penanda
+ * daftar, tanpa teks lain di baris itu), beserta baris kosong yang ditinggalkannya.
+ */
+function dropStandaloneNotices(blocks: readonly JawabBlock[]): JawabBlock[] {
+  const out = blocks.map((b) => ({ ...b }));
+  for (let i = out.length - 1; i >= 0; i--) {
+    const b = out[i]!;
+    if (b.citations.length > 0 || b.text.trim() !== HADITH_NOT_CITED) continue;
+    const before = out
+      .slice(0, i)
+      .map((x) => x.text)
+      .join("");
+    const after = out
+      .slice(i + 1)
+      .map((x) => x.text)
+      .join("");
+    if (!/(?:^|\n)[ \t\u00A0]*$/u.test(before) || !/^[ \t\u00A0]*(?:\r?\n|$)/u.test(after))
+      continue;
+    out.splice(i, 1);
+    // Rapikan baris kosong: blok sesudahnya kehilangan baris baru di depannya bila sebelumnya
+    // sudah berakhir dengan baris baru; di akhir jawaban spasi tepi blok sebelumnya dibuang.
+    const prev = out[i - 1];
+    const next = out[i];
+    if (next === undefined) {
+      if (prev !== undefined) prev.text = prev.text.trimEnd();
+    } else if (prev === undefined || /\n[ \t\u00A0]*$/u.test(prev.text)) {
+      // Pemisah paragraf yang tersisa = yang terpanjang dari kedua sisi (biasanya satu baris kosong).
+      const lead = /^\s*/u.exec(next.text)![0].split("\n").length - 1;
+      const trail = prev === undefined ? 0 : /\s*$/u.exec(prev.text)![0].split("\n").length - 1;
+      next.text =
+        "\n".repeat(prev === undefined ? 0 : Math.max(0, lead - trail)) +
+        next.text.replace(/^\s+/u, "");
+    }
+  }
+  return out.filter((b) => b.text !== "" || b.citations.length > 0);
 }
 
 interface Span {
