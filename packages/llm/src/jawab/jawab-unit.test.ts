@@ -54,11 +54,13 @@ import { buildRouteRequest, parseRoute, tocText } from "./route.ts";
 const SENT = "هذه جملة تجريبية طويلة لاختبار التقسيم. ";
 const NO_PUNCT = "كلمة تجريبية بلا علامة ";
 // Takhrij BUATAN (bukan teks kitab), cukup pendek untuk rentang sitasi 0–12 di tes: "رواه" membuka
-// takhrij, "وضعفه" → label "lemah".
+// takhrij, "وضعفه" → label "dinilai lemah".
 const FOOT = "رواه وضعفه";
 const LABEL = takhrijLabel(FOOT).text;
 /** Teks label di jawaban: status + lokasi hadits (fixture `passage`: j. 1, h. 55). */
 const IN_TEXT = `${LABEL} (hadits di Ihya j. 1, h. 55)`;
+/** Label tanpa awalan "Status hadits:" (butir daftar) dibuka huruf kapital. */
+const cap = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
 
 function passage(id: number, text: string, over: Partial<AnswerPassage> = {}): AnswerPassage {
   return {
@@ -740,7 +742,8 @@ describe("diagnostik bahasa (pipeline@9)", () => {
   });
 
   test("baris label status buatan kode tidak dihitung berulang (peninjau ADR-110)", () => {
-    const label = "Status hadits: takhrij menyebut: lemah (hadits di Ihya j. 1, h. 2).";
+    const label =
+      "Status hadits: dinilai lemah, menurut takhrij al-'Iraqi (hadits di Ihya j. 1, h. 2).";
     expect(repeatedSentences(`${label} ${label.replace("h. 2", "h. 5")}`)).toBe(0);
   });
 
@@ -751,7 +754,7 @@ describe("diagnostik bahasa (pipeline@9)", () => {
         [
           { text: "Menurut al-'Iraqi, hadits ini sanadnya lemah", citations: [1] },
           { text: "Menurut al-'Iraqi, riwayat ini lemah", citations: [9] },
-          { text: "Status hadits: takhrij menyebut: lemah.", citations: [] },
+          { text: "Status hadits: dinilai lemah, menurut takhrij al-'Iraqi.", citations: [] },
           { text: "Guru menyayangi murid", citations: [1] },
         ],
         isFoot,
@@ -811,15 +814,15 @@ describe("klaim hadits", () => {
     expect(checked.unresolved).toBe(false);
     const text = checked.blocks.map((b) => b.text).join("");
     expect(text).toBe(
-      `Status hadits:\n- ${IN_TEXT}.\n- ${takhrijLabel(MUSLIM).text} (hadits di Ihya j. 1, h. 55).`,
+      `Status hadits:\n- ${cap(IN_TEXT)}.\n- ${cap(takhrijLabel(MUSLIM).text)} (hadits di Ihya j. 1, h. 55).`,
     );
     expect(text).not.toContain("dha'if");
     expect(text).not.toContain("sahih");
     // Blok label butir A membawa sitasi takhrijnya DAN sitasi paragraf hadits A yang ada di kalimat itu.
-    expect(checked.blocks.find((b) => b.text.startsWith(IN_TEXT))?.citations).toEqual([2, 1]);
+    expect(checked.blocks.find((b) => b.text.startsWith(cap(IN_TEXT)))?.citations).toEqual([2, 1]);
     expect(checked.claims.map((c) => [c.passage_id, c.footnote.passage_id, c.status])).toEqual([
       [1, 2, LABEL],
-      [3, 4, "takhrij menyebut: riwayat Muslim"],
+      [3, 4, "diriwayatkan Muslim, menurut takhrij al-'Iraqi"],
     ]);
     // Stabil: pemeriksaan ulang atas hasilnya tidak mengubah apa pun.
     const again = hadithCheck(
@@ -848,14 +851,14 @@ describe("klaim hadits", () => {
     const checked = hadithCheck(blocks, at(0, FOOT.length), passages, corrected);
     // Jenis tambahan penilai tidak pernah disebut sebagai isi takhrij.
     expect(checked.blocks.map((b) => b.text).join("")).toBe(
-      "Status hadits: menurut peninjau: mursal (hadits di Ihya j. 1, h. 55).",
+      "Status hadits: diriwayatkan mursal, menurut peninjau (hadits di Ihya j. 1, h. 55).",
     );
     expect(checked.claims).toMatchObject([
       {
         label: "ustadz_corrected",
-        status: "menurut peninjau: mursal",
+        status: "diriwayatkan mursal, menurut peninjau",
         terms: [],
-        added_terms: [{ kind: "mursal", gloss: "mursal" }],
+        added_terms: [{ kind: "mursal", gloss: "diriwayatkan mursal" }],
       },
     ]);
     const approved = new Map([
@@ -915,7 +918,7 @@ describe("klaim hadits", () => {
     const text = checked.blocks.map((b) => b.text).join("");
     // Butir A: label + lokasi hadits A. Butir B: menunjuk bagian "Status hadits", tanpa menunjuk
     // status hadits A dan tanpa "tidak dipastikan" (pipeline@8). Butir tidak dibuang.
-    expect(text).toBe(`Status hadits:\n- ${IN_TEXT}.\n- ${HADITH_NOT_CITED}`);
+    expect(text).toBe(`Status hadits:\n- ${cap(IN_TEXT)}.\n- ${HADITH_NOT_CITED}`);
     expect(HADITH_NOT_CITED).not.toContain("tidak dipastikan");
     expect(checked.claims.map((c) => c.passage_id)).toEqual([1]);
   });

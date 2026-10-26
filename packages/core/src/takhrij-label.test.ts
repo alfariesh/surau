@@ -12,11 +12,11 @@ describe("takhrijLabel", () => {
       version: TAKHRIJ_TERMS_VERSION,
       kind: "terms",
       mixed: false,
-      text: "takhrij menyebut: mauquf; lemah; tidak ditemukan sebagai sabda Nabi (marfu')",
+      text: "diriwayatkan mauquf; dinilai lemah; tidak ditemukan sebagai sabda Nabi (marfu'), menurut takhrij al-'Iraqi",
     });
     expect(label.terms.map((t) => [raw.slice(t.char_start, t.char_end), t.gloss])).toEqual([
-      ["موقوفا", "mauquf"],
-      ["بإسناد ضعيف", "lemah"],
+      ["موقوفا", "diriwayatkan mauquf"],
+      ["بإسناد ضعيف", "dinilai lemah"],
       ["ولم أره مرفوعا", "tidak ditemukan sebagai sabda Nabi (marfu')"],
     ]);
   });
@@ -28,17 +28,17 @@ describe("takhrijLabel", () => {
     expect(takhrijLabel(raw)).toMatchObject({
       mixed: false,
       weak: false,
-      text: "takhrij menyebut: sahih (hadits pertama dari beberapa)",
+      text: "dinilai sahih, menurut takhrij al-'Iraqi (hadits pertama dari beberapa)",
     });
     expect(takhrijLabel(raw, { start: cut, end: raw.length })).toMatchObject({
       mixed: false,
       weak: true,
-      text: "takhrij menyebut: lemah",
+      text: "dinilai lemah, menurut takhrij al-'Iraqi",
     });
     // Dua hadits sekaligus: bukan "berbeda per jalur".
     expect(takhrijLabel(raw, { start: 0, end: raw.length })).toMatchObject({
       mixed: false,
-      text: "takhrij menyebut: sahih; lemah (beberapa hadits)",
+      text: "dinilai sahih; dinilai lemah, menurut takhrij al-'Iraqi (beberapa hadits)",
     });
   });
 
@@ -48,11 +48,9 @@ describe("takhrijLabel", () => {
     const label = takhrijLabel(raw);
     expect(label.mixed).toBe(true);
     expect(label.text.length).toBeLessThanOrEqual(TAKHRIJ_STATUS_MAX);
-    expect(label.text.startsWith("takhrij menyebut: tidak ditemukan sebagai sabda Nabi")).toBe(
-      true,
-    );
+    expect(label.text.startsWith("tidak ditemukan sebagai sabda Nabi")).toBe(true);
     expect(takhrijLabel("حديث تجريبي رواه فلان (٢) حديث آخر رواه فلان بسند ضعيف").text).toBe(
-      "takhrij hanya menyebut sumber riwayat, tanpa istilah penilaian (hadits pertama dari beberapa)",
+      "takhrij al-'Iraqi hanya menyebut sumber riwayatnya, tanpa istilah penilaian (hadits pertama dari beberapa)",
     );
   });
 
@@ -61,37 +59,39 @@ describe("takhrijLabel", () => {
     expect(refuted).toMatchObject({
       mixed: false,
       weak: true,
-      text: "takhrij menyebut: penilaian yang dibantah penakhrij; lemah",
+      text: "memuat penilaian ulama lain yang dibantah; dinilai lemah, menurut takhrij al-'Iraqi",
     });
     expect(takhrijLabel("حديث تجريبي رواه فلان ورجاله ثقات").text).toBe(
-      "takhrij menyebut: perawi/sanad dinilai tepercaya",
+      "perawi atau sanadnya dinilai tepercaya, menurut takhrij al-'Iraqi",
     );
     expect(takhrijLabel("حديث تجريبي رواه فلان ورجاله ثقات إلا أن فيه انقطاعا")).toMatchObject({
       mixed: false,
-      text: "takhrij menyebut: perawi/sanad dinilai tepercaya; lemah",
+      text: "perawi atau sanadnya dinilai tepercaya; dinilai lemah, menurut takhrij al-'Iraqi",
     });
     expect(takhrijLabel("حديث تجريبي رواه فلان وفيه فلان مختلف فيه")).toMatchObject({
       weak: false,
-      text: "takhrij menyebut: perawi/sanad diperselisihkan",
+      text: "sanad atau perawinya diperselisihkan, menurut takhrij al-'Iraqi",
     });
     expect(takhrijLabel("حديث تجريبي أخرجه الترمذي وقد تقدم").text).toBe(
-      "takhrij menyebut sumber riwayat dan merujuk ke takhrij di tempat lain",
+      "takhrij al-'Iraqi menyebut sumber riwayatnya dan merujuk ke takhrijnya di tempat lain",
     );
     expect(takhrijLabel("حديث تجريبي تقدم في الباب الأول").text).toBe(
-      "takhrij merujuk ke takhrij di tempat lain",
+      "takhrij al-'Iraqi merujuk ke takhrijnya di tempat lain",
     );
   });
 
   test("muttafaq mencakup al-Bukhari/Muslim; penilaian berlawanan ditandai berbeda per jalur", () => {
     expect(takhrijLabel("حديث تجريبي متفق عليه ولمسلم من حديث فلان").text).toBe(
-      "takhrij menyebut: muttafaq 'alaih",
+      "muttafaq 'alaih (al-Bukhari dan Muslim), menurut takhrij al-'Iraqi",
     );
     expect(takhrijLabel("حديث تجريبي أخرجه مسلم من حديث فلان").text).toBe(
-      "takhrij menyebut: riwayat Muslim",
+      "diriwayatkan Muslim, menurut takhrij al-'Iraqi",
     );
     const mixed = takhrijLabel("حديث تجريبي رواه فلان بإسناد صحيح ورواه فلان بإسناد ضعيف");
     expect(mixed).toMatchObject({ mixed: true });
-    expect(mixed.text).toBe("takhrij menyebut: sahih; lemah (berbeda per jalur)");
+    expect(mixed.text).toBe(
+      "dinilai sahih; dinilai lemah, menurut takhrij al-'Iraqi (berbeda per jalur)",
+    );
   });
 
   test("tanda kelemahan dari istilah yang sama dengan label; lafaz hadits tidak dipindai", () => {
@@ -110,7 +110,11 @@ describe("takhrijLabel", () => {
     const cut = raw.indexOf("ورواه");
     // Bagian kedua tanpa penanda pembuka sendiri tetap takhrij (lafaz dinilai dari teks utuh).
     const second = takhrijLabel(raw, { start: cut, end: raw.length });
-    expect(second).toMatchObject({ kind: "terms", text: "takhrij menyebut: lemah", mixed: false });
+    expect(second).toMatchObject({
+      kind: "terms",
+      text: "dinilai lemah, menurut takhrij al-'Iraqi",
+      mixed: false,
+    });
     expect(second.terms.every((t) => t.char_start >= cut)).toBe(true);
     expect(takhrijLabel(raw, { start: 0, end: 5 })).toMatchObject({
       kind: "sources_only",
@@ -122,11 +126,11 @@ describe("takhrijLabel", () => {
   test("hanya sumber, hanya rujukan, bukan takhrij", () => {
     expect(takhrijLabel("حديث تجريبي أخرجه فلان من حديث فلان")).toMatchObject({
       kind: "sources_only",
-      text: "takhrij hanya menyebut sumber riwayat, tanpa istilah penilaian",
+      text: "takhrij al-'Iraqi hanya menyebut sumber riwayatnya, tanpa istilah penilaian",
     });
     expect(takhrijLabel("حديث تجريبي تقدم في الباب الأول")).toMatchObject({
       kind: "refers_back",
-      text: "takhrij merujuk ke takhrij di tempat lain",
+      text: "takhrij al-'Iraqi merujuk ke takhrijnya di tempat lain",
     });
     expect(takhrijLabel("(١) قوله كذا اه مصححه").kind).toBe("not_takhrij");
     expect(takhrijLabel("(٤) وقال فلان كلاما تجريبيا").kind).toBe("not_takhrij");

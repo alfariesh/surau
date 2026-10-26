@@ -2932,6 +2932,23 @@ Pemilik meminta `answer@8` untuk bahasa di chat (2026-10-26).
 
 **Tinjau ulang bila:** run publik `answer@8` (berbayar, izin pemilik) dinilai ulang dengan rubrik yang sama.
 
+## ADR-111 · Bunyi label status hadits untuk pembaca: "dinilai lemah, menurut takhrij al-'Iraqi", pipeline@10 — diterima · 2026-10-26
+
+**Konteks:** di run `x08-publik-answer8-v1` (ADR-110) penilai agent menganggap baris "Status hadits: takhrij menyebut: lemah (hadits di Ihya j. 1, h. 2)." sebagai label mentah yang bocor ke kalimat (j025, j027, j028). Bahasa masih 3,55 dari syarat 4. Selain itu, arti `lam_ajid` "tidak ditemukan penakhrij" sulit dibedakan dari `lam_ajid_marfu` (j028 x06), dan kata kerja aktif bisa terbaca sebagai penilaian al-'Iraqi sendiri padahal takhrij sering menukil penilaian ulama lain (j025).
+
+**Keputusan:**
+1. **Teks status (`takhrijStatus`, `@surau/core`) berbentuk "predikat, menurut sumber":** "dinilai lemah, menurut takhrij al-'Iraqi". Beberapa istilah dipisah "; " sebelum atribusi ("dinilai sahih; dinilai lemah, menurut takhrij al-'Iraqi (berbeda per jalur)"). Jenis tambahan penilai menjadi kelompok sendiri dengan atribusinya ("…, menurut takhrij al-'Iraqi; diriwayatkan mursal, menurut peninjau"). Bila teks dipotong, "dan lainnya" hanya masuk ke kelompok terakhir kalau semua sisanya sekelompok, supaya atribusinya tidak keliru. Batas 120 karakter tetap berlaku.
+2. **Arti istilah (`TAKHRIJ_TERM_GLOSS`) menjadi predikat.** Kata pasif "dinilai" dipakai karena takhrij juga menukil penilaian orang lain: "dinilai lemah", "diriwayatkan al-Bukhari", "diriwayatkan mauquf", "perawi atau sanadnya dinilai tepercaya", "memuat penilaian ulama lain yang dibantah". `lam_ajid` = "tidak ditemukan sanad atau lafaznya" (sanad, atau lafaz ini, sama sekali tidak ditemukan), sedangkan `lam_ajid_marfu` = "tidak ditemukan sebagai sabda Nabi (marfu')". Gabungan j028 berbunyi "tidak ditemukan sebagai sabda Nabi (marfu'); diriwayatkan mauquf, menurut takhrij al-'Iraqi".
+3. **Teks tanpa istilah** menyebut penakhrijnya: "takhrij al-'Iraqi hanya menyebut sumber riwayatnya, tanpa istilah penilaian" dan "takhrij al-'Iraqi merujuk ke takhrijnya di tempat lain". Nama penakhrij ditulis di satu konstanta, karena aturan istilah `takhrijTerms` adalah pola frasa al-'Iraqi untuk Ihya. Kitab dengan penakhrij lain butuh aturan istilah sendiri, dan nama itu akan menjadi parameter.
+4. **Jawab (`labelText`):** "Status hadits: dinilai lemah, menurut takhrij al-'Iraqi (hadits di Ihya j. 1, h. 2)." Label tanpa awalan (butir daftar) dibuka dengan huruf kapital. UI (Status hadits di Jawab, dalil Intisari, `/tinjau/takhrij`) menampilkan huruf pertama kapital lewat CSS, sementara datanya tetap huruf kecil. `JAWAB_PIPELINE_VERSION` 9 → 10, sehingga cache jawaban lama tidak disajikan.
+5. **Yang tidak berubah:** label tetap dibuat kode dan menunjuk rentang frasa Arab di DB (aturan teks-arab no. 6). Status `rule_extracted` tetap berlabel "dikenali otomatis dari teks takhrij, belum ditinjau". Versi aturan istilah (`TAKHRIJ_TERMS_VERSION` 2) tidak naik karena istilah dan rentangnya sama. Teks status ikut `takhrijLabelHash`, jadi tinjauan lama tidak berlaku lagi. Di D1 `surau-app` produksi saat ini belum ada baris `takhrij_review` (dicek 2026-10-26), jadi tidak ada tinjauan yang hilang. Eval tetap konsisten: `goldStatus` dan status klaim sama-sama dari `takhrijLabel`/`reviewedTakhrijLabel`, dan kecocokan masih persis, tidak dilonggarkan. Kalimat lisan audio Intisari memakai glosa lisannya sendiri (bunyi lama) supaya sha skrip audio yang sudah direkam tidak berubah tanpa `SCRIPT_VERSION`.
+
+**Tidak dipilih:**
+- "menurut takhrij al-'Iraqi: lemah" di depan. Di baris Jawab akan muncul dua titik dua berturut-turut ("Status hadits: menurut …: lemah").
+- "al-'Iraqi menilai …" atau "takhrij menyebutnya …". Bentuk aktif menyatukan penilaian yang dinukil sebagai penilaian al-'Iraqi (j025).
+- Membiarkan LLM merumuskan baris status. Itu melanggar aturan teks-arab no. 6.
+
+**Tinjau ulang bila:** penilaian manusia (Anas) atau run eval berikutnya (berbayar, izin pemilik) menilai bunyi baru ini masih kaku, atau ada kitab dengan penakhrij lain.
 ## ADR-112 · Gema takhrij: takhrij kemunculan pertama hadits ikut ke dokumen Jawab, pipeline@11 — diterima · 2026-10-26
 
 **Konteks:** al-'Iraqi menakhrij sebuah hadits sekali, di kemunculan pertamanya di Ihya. Bila hadits itu muncul lagi, ada dua pola:

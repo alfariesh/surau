@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-26 · Bunyi label status hadits — selesai
+- Dikerjakan: teks label status buatan kode diubah dari "takhrij menyebut: lemah" menjadi "dinilai lemah, menurut takhrij al-'Iraqi"; arti istilah dijadikan predikat; `lam_ajid` ("tidak ditemukan sanad atau lafaznya") dibedakan dari `lam_ajid_marfu`; jenis tambahan peninjau diberi atribusi sendiri; butir daftar tanpa awalan dibuka huruf kapital; pipeline@10.
+- Verifikasi: `pnpm verify` → lolos · D1 `surau-app` produksi: `takhrij_review` kosong, jadi tidak ada tinjauan yang batal.
+- Biaya API: –
+- Keputusan: ADR-111
+- Catatan untuk sesi berikutnya: bunyi baru belum dinilai ulang (run eval berbayar hanya dengan izin pemilik).
+
 ## 2026-10-26 · X21 · Terjemahan ulang terarah Ihya (rancangan + biaya) — sebagian
 - Dikerjakan: (1) 21 usulan koreksi agent T-17 dicek ulang terhadap teks Arab (8 Salah terkonfirmasi; usulan tidak dipakai sebagai koreksi manusia); (2) pola kesalahan dipetakan: populasi 98% Haiku + prompt v2, kesalahan utama salah baca struktur kalimat/pelaku/negasi, kelengkapan dan angka; (3) pencocok ayat diperbaiki (ADR-107, +30 kutipan Qur'ani di 28 paragraf, QS 15:98 terdeteksi); (4) prompt `translate-passage@5` (belum aktif) + opsi `prompt`/`effort` di `buildTranslateRequest`; (5) biaya dihitung dan uji kecil dirancang ([sesi](sesi/X21-terjemahan-ulang-terarah.md)).
 - Verifikasi: `vp test run packages/llm tools/ingest/src/quran` → 11 berkas, 186 tes lolos; `pnpm verify` lolos · pencocok lokal vs D1 `ihya-v8` → 2.484 rujukan identik, +30 baru.

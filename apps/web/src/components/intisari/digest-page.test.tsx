@@ -73,7 +73,7 @@ describe("DigestPage (X16)", () => {
     );
     // Riwayat: label takhrij miliknya sendiri (kode) + teks takhrij asli, bukan tebakan.
     const report = /<figure[^>]*id="kutipan-2"[\s\S]*?<\/figure>/u.exec(html)?.[0] ?? "";
-    expect(report).toContain("Takhrij (١): takhrij menyebut: lemah");
+    expect(report).toContain("Takhrij (١): dinilai lemah, menurut takhrij al-&#x27;Iraqi");
     expect(report).toContain("Takhrij memuat istilah kelemahan");
     expect(report).toContain(FIXTURE_TEXT.foot);
     expect(report).not.toContain("belum diketahui");
@@ -92,7 +92,7 @@ describe("DigestPage (X16)", () => {
     expect(html).toContain("(Terjemahan Uji, 1:2)");
     expect(html).toContain('id="dalil-hadits-1"');
     expect(html).toContain(FIXTURE_TEXT.foot);
-    expect(html).toContain("takhrij menyebut: lemah");
+    expect(html).toContain("dinilai lemah, menurut takhrij al-&#x27;Iraqi");
     expect(html).toContain("dikenali otomatis dari teks takhrij, belum ditinjau");
     expect(html).toContain("Takhrij memuat istilah kelemahan");
     // Chip dalil di gagasannya menaut ke daftar Dalil.
