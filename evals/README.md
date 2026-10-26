@@ -78,10 +78,12 @@ Batch kalibrasi hanya mengirim **30 contoh publik** dan potongan sumber kitab ke
 
 **Agent pengganti ustadz (2026-10-26, ADR-105, izin pemilik di chat):** tanpa panggilan LLM. 42 jawaban `x06-publik-takhrij-v1` diekspor dari `answer_log` `surau-app` ke `evals/private/jawab-runs/x06-publik-takhrij-v1-answer-log.jsonl`. Penilaian agent per jawaban (`x06-agent-nilai-2026-10-26.jsonl`) dan per soal holdout (`evals/private/jawab-agent-tinjau-2026-10-26.jsonl`) disalin ke R2 `surau-evals/jawab-runs/x06-agent-nilai-2026-10-26.jsonl` dan `surau-evals/jawab/2026-10-26-tinjau-agent-privat.jsonl` (kunci baru). Teks 18 holdout dibaca satu subagen sesi Claude Code (diproses Anthropic seperti percakapan agent, tanpa API terpisah); subagen itu hanya melaporkan ID + kategori ke sesi induk. Penilaian soal publik di `jawab/tinjauan/agent-2026-10-26.jsonl` (subfolder, supaya tidak terbaca sebagai berkas soal). Jangan memakai berkas agent ini sebagai `--reviews`/golden resmi.
 
+**Versi soal 2 (2026-10-26, ADR-106):** 4 holdout direvisi dari tinjauan agent (subagen yang menerapkan hanya melaporkan ID + kategori). Berkas lokal `evals/private/jawab.jsonl` kini versi 2 (cadangan versi 1 di `evals/private/jawab-draf-v1.jsonl`); salinan R2 kunci baru `surau-evals/jawab/2026-10-26-draf-v2.jsonl` (sha256 `4bdbb92f…c3e8`). Kunci lama tidak ditimpa.
+
 Pemulihan holdout memakai:
 
 ```bash
-pnpm wrangler r2 object get surau-evals/jawab/2026-10-19-draf-v1.jsonl --file evals/private/jawab.jsonl --remote
+pnpm wrangler r2 object get surau-evals/jawab/2026-10-26-draf-v2.jsonl --file evals/private/jawab.jsonl --remote
 ```
 
 Ambil hanya bila file lokal belum ada. Jangan menimpa revisi lokal atau kunci R2 yang sudah dipakai laporan. Golden set resmi belum tersedia: semua 60 soal S18 masih draf sampai T-24.
