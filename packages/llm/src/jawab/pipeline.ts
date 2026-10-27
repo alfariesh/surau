@@ -80,11 +80,12 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * dinaikkan supaya log/cache membedakan prompt `answer@8`), bunyi label status hadits untuk
  * pembaca (ADR-111: 10), gema takhrij kemunculan pertama hadits (ADR-112: 11), jenis istilah
  * "tidak ditemukan" yang dipisah (ADR-113: 12), bekas huruf Arab buatan model dirapikan (ADR-114:
- * 13; angka Arab-India menjadi ASCII, ADR-114 hasil x10: 14), dan
+ * 13; angka Arab-India menjadi ASCII, ADR-114 hasil x10: 14), kutipan Arab bersitasi sesudah
+ * kalimat status memindah sitasinya ke kalimat itu (ADR-116: 15), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 14;
+export const JAWAB_PIPELINE_VERSION = 15;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -752,7 +753,10 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     return new Map<number, EffectiveTakhrijReview>();
   });
   // Bekas huruf Arab buatan model dirapikan atas teks gabungan, sebelum status hadits (ADR-114).
-  const tidy = tidyArabicCuts(kept);
+  const verifiedFeet = new Set(
+    [...verified.values()].filter((c) => c.kind === "foot").map((c) => c.n),
+  );
+  const tidy = tidyArabicCuts(kept, (n) => verifiedFeet.has(n));
   diagnostics.arabic_sentences_dropped = tidy.dropped_sentences;
   diagnostics.arabic_blocks_dropped = tidy.dropped_blocks;
   const checked = hadithCheck(tidy.blocks, [...verified.values()], passages, reviews);

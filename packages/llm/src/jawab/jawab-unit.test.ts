@@ -474,6 +474,66 @@ describe("teks model", () => {
       );
     });
 
+    test("kutipan Arab bersitasi sesudah kalimat status: sitasinya pindah ke kalimat itu (x10 j026)", () => {
+      // Model menulis status Latin, lalu kutipan takhrij Arab sebagai kalimat sendiri yang bersitasi.
+      const passages = new Map([
+        [1, passage(1, SENT, { footnote_ids: [2] })],
+        [2, passage(2, FOOT, { kind: "foot", referenced_by: [1] })],
+      ]);
+      const tidied = tidyArabicCuts([
+        { text: "Takhrijnya disebut di catatan kaki.\n\n", citations: [] },
+        { text: "Status hadits: muttafaq 'alaih.", citations: [] },
+        { text: " ", citations: [] },
+        { text: markArabic(`${A} (\u0661) ${A}`).text, citations: [1] },
+      ]);
+      expect(tidied.blocks.map((b) => b.text).join("")).toBe(
+        "Takhrijnya disebut di catatan kaki.\n\nStatus hadits: muttafaq 'alaih.",
+      );
+      expect(tidied.blocks.find((b) => b.text.startsWith("Status"))?.citations).toEqual([1]);
+      const checked = hadithCheck(tidied.blocks, [FOOT1], passages);
+      expect(checked.blocks.map((b) => b.text).join("")).toBe(
+        `Takhrijnya disebut di catatan kaki.\n\nStatus hadits: ${IN_TEXT}.`,
+      );
+      expect(checked.claims).toHaveLength(1);
+      // Tanpa kalimat sebelumnya di paragraf yang sama, kutipan bersitasi tetap dibuang bersama sitasinya.
+      expect(tidy(`${A}.`).blocks).toEqual([]);
+    });
+
+    test("sitasi kutipan tidak pindah ke kalimat biasa, butir saudara, atau status yang sudah bertakhrij", () => {
+      const cites = (r: ReturnType<typeof tidyArabicCuts<{ text: string; citations: number[] }>>) =>
+        r.blocks.map((b) => [b.text, b.citations]);
+      // Kalimat sebelumnya bukan pernyataan status.
+      expect(
+        cites(
+          tidyArabicCuts([
+            { text: "Al-Ghazali menukil riwayat ini. ", citations: [0] },
+            { text: markArabic(`${A}.`).text, citations: [1] },
+          ]),
+        ),
+      ).toEqual([["Al-Ghazali menukil riwayat ini.", [0]]]);
+      // Butir status saudara di baris lain.
+      expect(
+        cites(
+          tidyArabicCuts([
+            { text: "- Hadits A: sahih.", citations: [0] },
+            { text: markArabic(`\n- ${A}.`).text, citations: [1] },
+          ]),
+        ),
+      ).toEqual([["- Hadits A: sahih.", [0]]]);
+      // Pernyataan status yang sudah menyitasi takhrij tidak diberi takhrij kedua.
+      expect(
+        cites(
+          tidyArabicCuts(
+            [
+              { text: "Status hadits: sahih.", citations: [0] },
+              { text: markArabic(` ${A}.`).text, citations: [1] },
+            ],
+            () => true,
+          ),
+        ),
+      ).toEqual([["Status hadits: sahih.", [0]]]);
+    });
+
     test('label status di baris sendiri: isinya di baris berikutnya tetap "…", paragraf lain utuh', () => {
       const r = tidy("**Status hadits:**\n", `${A}.`, "\n\nParagraf biasa tentang sabar di sini.");
       expect(r.text).toBe("**Status hadits:**\n….\n\nParagraf biasa tentang sabar di sini.");
