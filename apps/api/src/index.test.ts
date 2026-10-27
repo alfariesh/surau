@@ -468,6 +468,27 @@ describe("jawaban terverifikasi", () => {
     expect(result.text).toBe("Klaim yang didukung.");
     expect(result.citations).toHaveLength(1);
   });
+
+  test("blok yang isinya hanya kalimat bertumpu pada teks Arab buatan model dibuang (ADR-114)", async () => {
+    // Teks Arab BUATAN untuk tes (bukan teks kitab).
+    const { ask } = setup((_n, docs) => ({
+      blocks: [
+        {
+          text: "Al-Ghazali menyimpulkan bahwa الصبر نور.",
+          cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+        },
+        {
+          text: " Kesabaran disebut cahaya secara mutlak (الصبر).",
+          cite: [{ doc: docIndex(docs, BODY_1), from: 0, to: 1 }],
+        },
+      ],
+    }));
+    const { result } = final((await ask()).events);
+    expect(result.outcome).toBe("answer");
+    expect(result.text).toBe("Kesabaran disebut cahaya secara mutlak.");
+    expect(result.text).not.toContain("…");
+    expect(result.blocks).toHaveLength(1);
+  });
 });
 
 describe("degradasi ke Cari", () => {

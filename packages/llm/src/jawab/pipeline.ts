@@ -52,10 +52,13 @@ import {
   hasHadithPrefix,
   pipelineTerms,
   refusalKind,
+  ARABIC_CUT,
+  markArabic,
   repeatedSentences,
-  stripArabic,
   stripCiteTags,
+  tidyArabicCuts,
   translationCopies,
+  trivial,
   uncitedGradings,
 } from "./citations.ts";
 import type { HadithStatement } from "./citations.ts";
@@ -76,11 +79,12 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * diagnostik bahasa dan penilaian hadits tanpa sitasi (ADR-110: 9; keluaran tidak berubah, versi
  * dinaikkan supaya log/cache membedakan prompt `answer@8`), bunyi label status hadits untuk
  * pembaca (ADR-111: 10), gema takhrij kemunculan pertama hadits (ADR-112: 11), jenis istilah
- * "tidak ditemukan" yang dipisah (ADR-113: 12), dan
+ * "tidak ditemukan" yang dipisah (ADR-113: 12), bekas huruf Arab buatan model dirapikan (ADR-114:
+ * 13), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 12;
+export const JAWAB_PIPELINE_VERSION = 13;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -166,6 +170,9 @@ export interface JawabDiagnostics {
   citations_dropped: number;
   blocks_dropped: number;
   arabic_removed: number;
+  /** Kalimat dan blok yang dibuang `tidyArabicCuts` karena isinya teks Arab buatan model (ADR-114). */
+  arabic_sentences_dropped: number;
+  arabic_blocks_dropped: number;
   /** Kalimat "Status hadits:" tanpa takhrij tersitasi, diganti `HADITH_UNKNOWN`. */
   hadith_unsupported: number;
   /** Pernyataan status bertakhrij yang isinya diganti teks label (X06). */
@@ -423,6 +430,8 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     citations_dropped: 0,
     blocks_dropped: 0,
     arabic_removed: 0,
+    arabic_sentences_dropped: 0,
+    arabic_blocks_dropped: 0,
     pipeline_terms: 0,
     ayah_gloss_suspect: 0,
     repeated_sentences: 0,
@@ -611,8 +620,13 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
   // berada di blok berikutnya, dan baru diputuskan `hadithCheck` di hasil akhir.
   let holdPreview = false;
   let pending: JawabBlock[] = [];
+  // Pratinjau menampilkan bekas huruf Arab sebagai "…"; hasil akhir merapikannya (ADR-114).
+  const preview = (b: JawabBlock): JawabBlock => ({
+    ...b,
+    text: b.text.replaceAll(ARABIC_CUT, "…"),
+  });
   const processBlock = async (raw: RawBlock) => {
-    const cleaned = stripArabic(stripCiteTags(raw.text));
+    const cleaned = markArabic(stripCiteTags(raw.text));
     diagnostics.arabic_removed += cleaned.removed;
     const ns: number[] = [];
     let total = 0;
@@ -650,10 +664,10 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     const cites = () => [...verified.values()].filter((c) => block.citations.includes(c.n));
     if (ns.length > 0 && !previewing) {
       previewing = true;
-      for (const b of pending) await emit({ type: "block", block: b, citations: [] });
+      for (const b of pending) await emit({ type: "block", block: preview(b), citations: [] });
       pending = [];
     }
-    if (previewing) await emit({ type: "block", block, citations: cites() });
+    if (previewing) await emit({ type: "block", block: preview(block), citations: cites() });
     else pending.push(block);
   };
 
@@ -737,7 +751,11 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     diagnostics.takhrij_reviews_error = true;
     return new Map<number, EffectiveTakhrijReview>();
   });
-  const checked = hadithCheck(kept, [...verified.values()], passages, reviews);
+  // Bekas huruf Arab buatan model dirapikan atas teks gabungan, sebelum status hadits (ADR-114).
+  const tidy = tidyArabicCuts(kept);
+  diagnostics.arabic_sentences_dropped = tidy.dropped_sentences;
+  diagnostics.arabic_blocks_dropped = tidy.dropped_blocks;
+  const checked = hadithCheck(tidy.blocks, [...verified.values()], passages, reviews);
   diagnostics.hadith_unsupported = checked.unsupported;
   diagnostics.hadith_labeled = checked.labeled;
   diagnostics.hadith_reviewed = checked.claims.filter((h) => h.label !== "rule_extracted").length;
@@ -1173,9 +1191,6 @@ function pairStatements(
   });
   return { unpaired, relabel };
 }
-
-/** Potongan yang isinya hanya spasi, tanda baca, angka, atau penanda daftar/Markdown. */
-const trivial = (text: string) => /^[\s.,;:!?*_\-–—•·()\d]*$/u.test(text);
 
 /**
  * Ganti rentang dengan blok pengganti: pemberitahuan (`HADITH_UNKNOWN`/`HADITH_NOT_CITED`, TANPA

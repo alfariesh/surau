@@ -13,12 +13,19 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
-## 2026-10-27 · Kitab "Segera hadir" + suara minat anonim di /kitab — sebagian (belum commit, atas permintaan pemilik)
+## 2026-10-27 · /kitab: Rilis terbaru + kitab "Segera hadir" dengan suara minat anonim — selesai
 - Dikerjakan: 13 kitab kandidat dari laporan pencocokan Shamela pemilik tampil di `/kitab` sebagai kartu "Segera hadir"; popup dua pertanyaan pilihan tetap (tujuan, kemampuan baca Arab) dikirim ke `POST /api/minat-kitab`; tabel `kitab_interest` (migrasi 0007); rekap di `/admin`; `/privasi` dan docs/05 diperbarui. Email tidak dikumpulkan (ADR-115 butir 4).
 - Verifikasi: `pnpm verify` → lolos (1.102 + 451 tes, build) · pratinjau `next dev` (korpus staging, D1 app lokal): 13 kartu tampil di desktop dan ponsel, popup terkirim (201), dua suara sama = satu baris agregat `votes 2`, tombol jadi "Sudah Anda pilih" setelah muat ulang, rekap admin dicek lewat halaman sementara (sudah dihapus) · peninjau: tanpa blocker; semua temuan "perbaiki" + saran tabel agregat diterapkan.
 - Biaya API: –
 - Keputusan: ADR-115
 - Catatan untuk sesi berikutnya: kandidat `TITLE_VARIANT` di CSV (mis. Minhaj ath-Thalibin, Bidayat al-Mujtahid, Tarikh al-Khulafa') bisa ditambahkan setelah dicek manual.
+
+## 2026-10-27 · Bekas huruf Arab di jawaban Maknaz — selesai
+- Dikerjakan: bekas huruf Arab buatan model ditandai per blok (`markArabic`) lalu dirapikan atas teks gabungan (`tidyArabicCuts`): bekas di kurung/akhir kalimat dibuang tanpa jejak, kalimat yang isinya hilang ("bahwa …", titik dua, < 3 kata) dibuang utuh, baris "Status hadits:" dilindungi, blok yang habis tidak ditampilkan; pipeline@13.
+- Verifikasi: `pnpm verify` → lolos · uji atas jawaban x08/x09 nyata ("…" dikembalikan ke kata Arab) → 0 "…" tersisa.
+- Biaya API: –
+- Keputusan: ADR-114
+- Catatan untuk sesi berikutnya: dampak ke skor bahasa belum diukur (run berbayar, izin pemilik); larangan transliterasi kalimat Arab di prompt butuh prompt baru + run berbayar.
 
 ## 2026-10-27 · Regresi lam_ajid (j029): aturan istilah versi 3 — selesai
 - Dikerjakan: `lam_ajid` dipisah menjadi empat jenis "tidak ditemukan": sanad ("tidak ditemukan sanadnya"), lafaz (`lam_ajid_lafaz`), jalur (`lam_ajid_jalur`), dan marfu'; "لم أقف على حاله" → `daif`; `TAKHRIJ_TERMS_VERSION` 3; pipeline@12; laporan label dibuat ulang atas `ihya-v9`.
@@ -55,6 +62,12 @@ Format entri:
 - Biaya API: –
 - Keputusan: ADR-111
 - Catatan untuk sesi berikutnya: bunyi baru belum dinilai ulang (run eval berbayar hanya dengan izin pemilik).
+
+## 2026-10-27 · X21 · 72 paragraf sisa (prompt v6) — selesai
+- Dikerjakan: prompt `translate-passage@6` (= v5 + "Keluaran bersih") dan entri `x21-sisa` (kolom `passages`) untuk 72 paragraf yang ditolak validator tiga kali; Sonnet 5.5, izin pemilik. 37 lolos (24 + 9 + 4), 35 tetap memakai terjemahan lama.
+- Verifikasi: `pnpm verify` lolos (PR #176); `pnpm llm plan` tepat 72 request.
+- Biaya API: US$1,06 (total terjemahan ulang US$36,95; folder US$41,64).
+- Catatan untuk sesi berikutnya: 37 perbaikan ini ada di `data/build/llm` tetapi belum di korpus produksi `ihya-v9`; ikut korpus berikutnya. Sisa 35 (3 tanpa terjemahan) perlu koreksi manusia (T-26) atau pemecahan paragraf.
 
 ## 2026-10-27 · X21 · Nilai ulang strata pendek — selesai
 - Dikerjakan: 13 sampel pendek T-17 lanjutan dinilai ulang (dua penilai Claude Opus buta) setelah diterjemahkan ulang Sonnet 5.5 + v5. Sebelum 8 Benar / 5 Kurang; sesudah 12 Benar, 1 butir (no. 31) Kurang/Salah.
