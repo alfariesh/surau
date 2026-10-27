@@ -2892,6 +2892,13 @@ Agent menyampaikan risikonya lebih dulu dan menawarkan jalan tengah (label ringk
 
 **Konsekuensi:** hasil uji adalah pemilihan lengan, bukan pengesahan mutu: n kecil, satu penilai Claude Opus per butir. Hasil yang sebenarnya diukur setelah korpus baru dibangun (T-28 dibutuhkan: `data/build/llm`, `data/raw/kemenag`). Paragraf baru (kitab lain) yang belum pernah disentuh masih memakai Haiku + v5, yang pada uji hampir tidak lebih baik dari produksi di sedang+panjang; pertimbangkan Sonnet untuk kitab berikutnya.
 
+**Hasil pelaksanaan (2026-10-27):**
+- Data T-28 dipasang dari dua zip pemilik (sha256 berkas Kemenag dan Tanzil cocok dengan pin); `translation.jsonl` 16.097 cocok dengan `ihya-v8`.
+- Lima kiriman terjemahan (2.500 + 2.500 + 2.500 + 1.500 + 1.471) dan dua putaran ulangan Sonnet: **10.435 dari 10.492 paragraf terpilih kini Sonnet 5.5 + `translate-passage@5`**; 57 tetap terjemahan lama setelah tiga percobaan ditolak validator (kebanyakan komentar model atau rasio panjang); 5 paragraf dari 16.111 tanpa terjemahan. Lolos validasi per tahap 98,6–99,3%.
+- **Biaya aktual terjemahan ulang US$30,47** (tahap 6,39 · 4,91 · 7,12 · 5,82 · 4,65, ulangan sisanya), plus ringkasan US$0,14 (40 potongan putaran 1 + 57 induk putaran 2, izin pemilik maks US$1,50); total folder US$35,30 dari pagu `--budget` 44,7 (US$4,69 lama + US$40). Cache terbaca ≈ 100% di batch besar (S13-like), jadi jauh di bawah skenario hati-hati alat (US$36,9).
+- Penjaga pagu memakai skenario cache 50% per tahap sehingga tahap 4 (2.500) ditolak walau biaya nyata kecil; dipecah jadi 1.500 + 1.471 dengan penjaga tetap utuh. Catatan untuk batch besar berikutnya.
+- Korpus `ihya-v9` dibangun lokal (belum dimuat/di-promote): semua gerbang ingest lolos; 2.514 rujukan ayat (+30), 1.341 terjemahan berisi ayat dengan 0 bermasalah, cakupan terjemahan 16.106/16.111 (99,97%), ringkasan 623/626 (99,52%), ID rilis stabil.
+
 **Tinjau ulang bila:** QA T-17 pasca terjemahan ulang masih Salah > 10% atau Benar < 80%, biaya aktual melewati pagu, atau penilai manusia (T-17 resmi) tidak sepakat dengan penilai agent.
 
 ## ADR-110 · Bahasa jawaban Jawab: prompt `answer@8`, pipeline@9 (diagnostik kalimat berulang dan salinan terjemahan) — diterima · 2026-10-26

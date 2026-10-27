@@ -27,6 +27,13 @@ Format entri:
 - Keputusan: ADR-111
 - Catatan untuk sesi berikutnya: bunyi baru belum dinilai ulang (run eval berbayar hanya dengan izin pemilik).
 
+## 2026-10-27 · X21 · Terjemahan ulang terarah Ihya — sebagian (korpus ihya-v9 dibangun, belum dimuat)
+- Dikerjakan: T-28 dipasang dari zip pemilik; 10.435 paragraf menengah+panjang diterjemahkan ulang (Sonnet 5.5 + prompt v5) dalam 5 kiriman + 2 putaran ulangan; 40 ringkasan putaran 1 + 57 putaran 2 dibuat ulang; `pnpm ingest ihya` (korpus `ihya-v9`, gerbang lolos); `pnpm t17 sampel-lanjutan` (sampel lanjutan 40) ditambahkan.
+- Verifikasi: `pnpm verify` → lolos · `pnpm ingest ihya` → semua gerbang ✓ (terjemahan 16.106/16.111, ringkasan 623/626, ayat 2.514 rujukan, 0 bermasalah).
+- Biaya API: US$30,47 terjemahan ulang + US$0,14 ringkasan (di atas US$4,69 lama; total folder US$35,30) atas izin pemilik, pagu US$40.
+- Keputusan: ADR-109
+- Catatan untuk sesi berikutnya: muat `ihya-v9` ke staging + `corpus:qa`; promote atas izin pemilik; ukur ulang T-17 dengan sampel lanjutan (dari korpus `ihya-v9`). 57 paragraf terpilih yang ditolak validator tetap memakai terjemahan lama.
+
 ## 2026-10-26 · X21 · Terjemahan ulang terarah Ihya (rancangan + biaya) — sebagian
 - Dikerjakan: (1) 21 usulan koreksi agent T-17 dicek ulang terhadap teks Arab (8 Salah terkonfirmasi; usulan tidak dipakai sebagai koreksi manusia); (2) pola kesalahan dipetakan: populasi 98% Haiku + prompt v2, kesalahan utama salah baca struktur kalimat/pelaku/negasi, kelengkapan dan angka; (3) pencocok ayat diperbaiki (ADR-107, +30 kutipan Qur'ani di 28 paragraf, QS 15:98 terdeteksi); (4) prompt `translate-passage@5` (belum aktif) + opsi `prompt`/`effort` di `buildTranslateRequest`; (5) biaya dihitung dan uji kecil dirancang ([sesi](sesi/X21-terjemahan-ulang-terarah.md)).
 - Verifikasi: `vp test run packages/llm tools/ingest/src/quran` → 11 berkas, 186 tes lolos; `pnpm verify` lolos · pencocok lokal vs D1 `ihya-v8` → 2.484 rujukan identik, +30 baru.

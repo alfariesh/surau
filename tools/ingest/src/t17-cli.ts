@@ -18,6 +18,8 @@ import { assertWritable, openReadOnly } from "./sqlite.ts";
 import {
   T17_CATEGORIES,
   T17_ORDER_SEED,
+  T17_FOLLOWUP_PER_STRATUM,
+  T17_FOLLOWUP_SEED,
   T17_PER_STRATUM,
   T17_SEED,
   drawT17Sample,
@@ -29,7 +31,12 @@ import {
 } from "./t17.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
-const SAMPLE = join(repo, "data/reviews/ihya-9472-t17-tahap3-sampel.json");
+const SAMPLE_FIRST = join(repo, "data/reviews/ihya-9472-t17-tahap3-sampel.json");
+const SAMPLE_FOLLOWUP = join(repo, "data/reviews/ihya-9472-t17-tahap3-sampel-lanjutan.json");
+/** ID sampel uji prompt X21 (ADR-109), dikeluarkan dari sampel lanjutan. */
+const X21_TEST_SAMPLE = join(repo, "data/reviews/ihya-9472-x21-sampel-uji.json");
+/** Berkas sampel yang dipakai `sampel`/`halaman`/`hasil`; `--lanjutan` memilih sampel lanjutan. */
+let SAMPLE = SAMPLE_FIRST;
 const PAGE = join(repo, "data/build/llm/qa/t17-tahap3.html");
 const EDITION = 1;
 const SITE = "https://surau.org";
@@ -58,6 +65,57 @@ const esc = (s: string) =>
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+
+/**
+ * Sampel lanjutan (aturan keputusan 1 dan klarifikasi 2026-10-21 pra-registrasi, penyimpangan
+ * 2026-10-27 di ADR-109): 13/14/13 dari populasi korpus yang sedang diukur, seed 20261024 + k,
+ * tanpa 60 sampel pertama dan tanpa 30 ID sampel uji X21.
+ */
+function sampleFollowup(dbPath: string, force: boolean): number {
+  if (existsSync(SAMPLE_FOLLOWUP) && !force) {
+    console.error(`${SAMPLE_FOLLOWUP} sudah ada. Menarik ulang hanya dengan --force dan dicatat.`);
+    return 1;
+  }
+  const first = JSON.parse(readFileSync(SAMPLE_FIRST, "utf8")) as SampleFile;
+  const test = JSON.parse(readFileSync(X21_TEST_SAMPLE, "utf8")) as {
+    items: { passage: number }[];
+  };
+  const exclude = new Set([...first.items, ...test.items].map((i) => i.passage));
+  const db = openReadOnly(dbPath);
+  try {
+    const corpus = String(
+      db.prepare("SELECT value FROM meta WHERE key = 'corpus_version'").get()?.value ?? "?",
+    );
+    const population = db
+      .prepare(
+        `SELECT p.id AS passage, length(p.text_raw) AS length FROM translation t
+         JOIN passage p ON p.id = t.passage_id WHERE t.lang = 'id' AND p.edition_id = ?`,
+      )
+      .all(EDITION)
+      .map((r) => ({ passage: Number(r.passage), length: Number(r.length) }));
+    const drawn = drawT17Sample(population, T17_FOLLOWUP_SEED, T17_FOLLOWUP_PER_STRATUM, exclude);
+    const file: SampleFile = {
+      format: 1,
+      corpus,
+      seed: T17_FOLLOWUP_SEED,
+      order_seed: T17_ORDER_SEED,
+      per_stratum: 0,
+      population: drawn.population,
+      items: drawn.items,
+    };
+    writeFileSync(assertWritable(SAMPLE_FOLLOWUP), `${JSON.stringify(file, null, 2)}\n`);
+    console.info(
+      `Sampel lanjutan ${drawn.items.length} (13/14/13), populasi ${population.length} (${Object.entries(
+        drawn.population,
+      )
+        .map(([k, v]) => `${k} ${v}`)
+        .join(", ")}), dikeluarkan ${exclude.size} ID, korpus ${corpus} → ${SAMPLE_FOLLOWUP}`,
+    );
+    return 0;
+  } finally {
+    db.close();
+  }
+}
 
 function sample(dbPath: string, force: boolean): number {
   if (existsSync(SAMPLE) && !force) {
@@ -435,14 +493,17 @@ function main(): number {
       db: { type: "string" },
       out: { type: "string" },
       force: { type: "boolean", default: false },
+      lanjutan: { type: "boolean", default: false },
     },
   });
   const [cmd, arg, arg2] = positionals;
+  if (values.lanjutan) SAMPLE = SAMPLE_FOLLOWUP;
+  if (cmd === "sampel-lanjutan") return sampleFollowup(values.db ?? defaultDb(), values.force);
   if (cmd === "sampel") return sample(values.db ?? defaultDb(), values.force);
   if (cmd === "halaman") return page(values.db ?? defaultDb(), values.out ?? PAGE);
   if (cmd === "hasil" && arg !== undefined) return result(arg, arg2);
   console.error(
-    "Pakai: pnpm t17 sampel [--force] | pnpm t17 halaman [--out berkas.html] | pnpm t17 hasil <berkas> [berkas penilai 2]",
+    "Pakai: pnpm t17 sampel [--force] | pnpm t17 sampel-lanjutan [--force] | pnpm t17 halaman [--lanjutan] [--out berkas.html] | pnpm t17 hasil [--lanjutan] <berkas> [berkas penilai 2]",
   );
   return 2;
 }
