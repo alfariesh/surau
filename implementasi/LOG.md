@@ -42,6 +42,12 @@ Format entri:
 - Keputusan: ADR-111
 - Catatan untuk sesi berikutnya: bunyi baru belum dinilai ulang (run eval berbayar hanya dengan izin pemilik).
 
+## 2026-10-27 · X21 · Nilai ulang strata pendek — selesai
+- Dikerjakan: 13 sampel pendek T-17 lanjutan dinilai ulang (dua penilai Claude Opus buta) setelah diterjemahkan ulang Sonnet 5.5 + v5. Sebelum 8 Benar / 5 Kurang; sesudah 12 Benar, 1 butir (no. 31) Kurang/Salah.
+- Verifikasi: perbandingan sebelum/sesudah (sampel sudah pernah dilihat), tercatat di `data/reports/ihya-9472-t17-tahap3.md`.
+- Biaya API: – (penilai subagen)
+- Catatan: rilis ini tanpa ustadz sementara (pemilik, 2026-10-27); penilaian tetap oleh agent (ADR-105).
+
 ## 2026-10-27 · X21 · Korpus ihya-v9 dipromosikan ke produksi — selesai
 - Dikerjakan: `corpus:promote ihya-v9 --confirm` atas izin pemilik (chat 2026-10-27; pemilik juga menyetujui Intisari pilot dan audio ikut tayang): DB `surau-corpus-ihya-v9` dibuat (apac), dimuat, smoke = hitungan build; `corpus:qa ihya-v9` 30/30; binding `CORPUS_DB` web, mcp, api dialihkan lewat PR; `ihya-v8` tetap sebagai target rollback (`corpus:promote surau-corpus-ihya-v8 --switch-only`).
 - Verifikasi: smoke D1 produksi baru (passage 20.509, translation 16.106, summary 623, digest 19, audio_track 6); QA produksi 30/30.
