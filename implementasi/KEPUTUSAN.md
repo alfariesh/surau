@@ -3075,3 +3075,20 @@ Peninjau draf pertama ADR ini menunjukkan bahwa memisahkan lafaz saja masih memb
 - Regresi kecil: angka catatan kaki Arab-India ikut terbuang ("nomor (١)" → "nomor,", j025). Diperbaiki: angka Arab-India yang berdiri sendiri menjadi ASCII, pipeline@14.
 
 **Tinjau ulang bila:** run eval berikutnya (berbayar, izin pemilik) menunjukkan kalimat yang dibuang ternyata penting, atau bekas "…" masih terlihat.
+
+## ADR-115 · Kutipan Arab bersitasi sesudah kalimat status hadits: sitasinya pindah ke kalimat itu, pipeline@15 — diterima · 2026-10-27
+
+**Konteks:** di run x10 ([laporan](../evals/reports/jawab-x10-elipsis-banding.md)), j026 turun dari Benar/4 ke Salah/1 dan menyumbang sebagian besar turunnya nilai bahasa. Model menulis kalimat status Latin ("Status hadits: muttafaq 'alaih."), lalu kutipan takhrij Arab sebagai kalimat sendiri yang menyitasi catatan kakinya. Ada dua penyebab:
+- `tidyArabicCuts` (ADR-114) melindungi seluruh **baris** yang memuat "Status hadits:", sehingga kutipan itu menjadi "… …".
+- Sitasi takhrijnya ada di kalimat lain, sehingga `hadithCheck` menganggap kalimat status tidak bersitasi takhrij dan menggantinya dengan pemberitahuan "lihat bagian Status hadits".
+
+Pembaca melihat pemberitahuan diikuti "… …", tanpa isi takhrij.
+
+**Keputusan:**
+1. Perlindungan status hanya untuk rentang kepemilikan pernyataan status (`hadithStatements`, `start`–`ownEnd`), bukan seluruh baris.
+2. Kalimat yang isinya hanya kutipan Arab bersitasi (tidak ada kata Latin di luar rujukan lokasi) yang langsung mengikuti **pernyataan status hadits di baris yang sama**: teksnya dibuang, dan **sitasinya dipindah ke blok tempat pernyataan itu berakhir**. Pernyataan yang sudah menyitasi takhrij tidak pernah diberi takhrij kedua, dan kutipan sesudah kalimat biasa, butir saudara, atau judul tidak memindah sitasinya (peninjau: jangan sampai takhrij menempel ke kalimat yang tidak didukungnya). Kutipan itu adalah bukti kalimat sebelumnya, jadi sitasinya tetap mendukung kalimat itu. Untuk j026, kalimat status menjadi bersitasi takhrij, sehingga `hadithCheck` mengganti isinya dengan label kode. Di luar kasus ini, kutipan tetap dibuang bersama sitasinya (ADR-114).
+3. `JAWAB_PIPELINE_VERSION` naik 14 → 15.
+
+**Risiko yang diterima:** sitasi pindah ke pernyataan status sebelumnya walaupun model mungkin bermaksud lain. Sitasi tetap diverifikasi terhadap DB (ARSITEKTUR §5), dan klaim status tetap dibuat kode dari takhrij yang disitasi, jadi tidak ada klaim baru tanpa sumber.
+
+**Tinjau ulang bila:** penilaian menemukan sitasi yang pindah ke kalimat yang tidak didukungnya.

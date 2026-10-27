@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Sisa "… …" di baris status hadits (j026) — selesai
+- Dikerjakan: perlindungan status kini per pernyataan (`ownEnd`), bukan per baris; kutipan Arab bersitasi sesudah kalimat memindah sitasinya ke kalimat itu, sehingga baris status mendapat label kode; pipeline@15.
+- Verifikasi: `pnpm verify` → lolos · reproduksi j026 (status Latin + kutipan takhrij Arab bersitasi) → "Status hadits: <label kode> (hadits di Ihya …)." tanpa "…".
+- Biaya API: –
+- Keputusan: ADR-115
+- Catatan untuk sesi berikutnya: dampak ke skor belum diukur (run berbayar, izin pemilik).
+
 ## 2026-10-27 · Eval x10: bekas huruf Arab dirapikan — selesai
 - Dikerjakan: satu run publik Jawab berbayar (izin pemilik di chat) dengan pipeline@13; 42 jawaban dinilai tiga subagen agent; laporan x09 → x10; regresi angka Arab-India ("nomor (١)") diperbaiki, pipeline@14.
 - Verifikasi: `eval:jawab answer` → 42/42, kutipan 100%, lokasi 85,3%, status hadits kode 5/6; penilaian agent → bahasa 3,26, kesetiaan 78,6%, atribusi 95,2%; `pnpm verify` → lolos.

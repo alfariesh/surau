@@ -105,7 +105,7 @@ export function markArabic(text: string): { text: string; removed: number } {
   const marked = text
     .replace(
       /(?<![\p{Script=Arabic}\p{M}\u0640])[\u0660-\u0669]+(?![\p{Script=Arabic}\p{M}])/gu,
-      (d) => [...d].map((c) => String(c.charCodeAt(0) - 0x0660)).join(""),
+      (d) => d.replace(/[\u0660-\u0669]/gu, (c) => String(c.charCodeAt(0) - 0x0660)),
     )
     .replace(ARABIC_RUN, (m) => {
       removed += m.length;
@@ -185,8 +185,10 @@ const LATIN_GLOSS = new RegExp(
  * Hanya blok yang seluruh isinya terbuang bersama kalimatnya yang dibuang; blok bersitasi lain tetap,
  * walau tinggal tanda baca, supaya sitasinya tetap mendukung kalimat itu.
  */
-export function tidyArabicCuts<B extends { text: string }>(
+export function tidyArabicCuts<B extends { text: string; citations?: readonly number[] }>(
   blocks: readonly B[],
+  /** Sitasi ke catatan kaki takhrij (untuk memindah sitasi kutipan, ADR-115). */
+  isFoot: (n: number) => boolean = () => false,
 ): { blocks: B[]; dropped_sentences: number; dropped_blocks: number } {
   if (!blocks.some((b) => b.text.includes(ARABIC_CUT)))
     return { blocks: [...blocks], dropped_sentences: 0, dropped_blocks: 0 };
@@ -201,8 +203,12 @@ export function tidyArabicCuts<B extends { text: string }>(
   // Pernyataan status hadits (label beserta isinya, juga di baris/butir sesudah label) tidak pernah
   // dirapikan: bekasnya menjadi "…" seperti sebelumnya dan isinya ditimpa `hadithCheck`.
   const shown = units.join("").replaceAll(ARABIC_CUT, "…");
+  // Rentang kepemilikan (`ownEnd`), bukan rentang penggantian: kutipan Arab di kalimat sesudahnya
+  // bukan isi pernyataan status (x10 j026).
   for (const st of hadithStatements(shown))
-    for (let i = st.start; i < st.end; i++) if (units[i] === ARABIC_CUT) units[i] = "…";
+    for (let i = st.start; i < st.ownEnd; i++) if (units[i] === ARABIC_CUT) units[i] = "…";
+  /** Sitasi yang dipindah dari kutipan Arab ke kalimat yang didukungnya, per blok tujuan. */
+  const moved = new Map<number, number[]>();
   const inDropped = new Set<number>();
   const del = (start: number, end: number) => {
     units.splice(start, end - start);
@@ -228,10 +234,6 @@ export function tidyArabicCuts<B extends { text: string }>(
     const start = s?.start ?? lineStart;
     const end = s?.ownEnd ?? lineEnd;
     const sentence = t.slice(start, end);
-    if (hasHadithPrefix(t.slice(lineStart, end))) {
-      units[at] = "…";
-      continue;
-    }
     if (
       new RegExp(`^${SP}*(?:[-*•·–]|\\d{1,2}[.)])?${SP}*$`, "u").test(before.slice(lineStart)) &&
       new RegExp(`^${SP}*:`, "u").test(after)
@@ -261,6 +263,35 @@ export function tidyArabicCuts<B extends { text: string }>(
         ? new RegExp(`${SP}*$`, "u").exec(t.slice(lineStart, start))![0].length
         : 0;
       for (let i = start; i < end; i++) inDropped.add(owner[i]!);
+      // Kalimat yang isinya hanya kutipan Arab bersitasi adalah bukti kalimat sebelumnya di paragraf
+      // yang sama ("Status hadits: muttafaq 'alaih. [kutipan takhrij]", x10 j026): sitasinya pindah ke
+      // blok tempat kalimat itu berakhir, supaya takhrijnya tetap mendukung kalimat itu.
+      // Hanya ke pernyataan status hadits di baris yang sama, dan tidak pernah menambah takhrij
+      // kedua: sitasi tidak boleh menempel ke kalimat yang tidak didukungnya (peninjau ADR-115).
+      const prevEnd = t.slice(lineStart, start).search(/\S\s*$/u);
+      const statement =
+        prevEnd === -1
+          ? undefined
+          : hadithStatements(t.replaceAll(ARABIC_CUT, "…")).find(
+              (st) => st.start <= lineStart + prevEnd && lineStart + prevEnd < st.ownEnd,
+            );
+      if (words === 0 && statement !== undefined) {
+        const target = owner[lineStart + prevEnd]!;
+        const list = [...(moved.get(target) ?? [])];
+        const has = (n: number) =>
+          (blocks[target]!.citations ?? []).includes(n) || list.includes(n);
+        let foot = [...(blocks[target]!.citations ?? []), ...list].some(isFoot);
+        for (let i = start; i < end; i++) {
+          const o = owner[i]!;
+          if (o === target) continue;
+          for (const n of blocks[o]!.citations ?? []) {
+            if (has(n) || (isFoot(n) && foot)) continue;
+            list.push(n);
+            if (isFoot(n)) foot = true;
+          }
+        }
+        moved.set(target, list);
+      }
       // Seluruh baris terbuang (mis. satu butir daftar): baris barunya ikut, tanpa baris kosong.
       const whole =
         start - leading === lineStart ||
@@ -294,8 +325,10 @@ export function tidyArabicCuts<B extends { text: string }>(
   let droppedBlocks = 0;
   blocks.forEach((b, i) => {
     const text = units.filter((_, k) => owner[k] === i).join("");
+    const extra = moved.get(i);
     if (text === "" && b.text !== "" && inDropped.has(i)) droppedBlocks++;
-    else out.push({ ...b, text });
+    else if (extra === undefined || b.citations === undefined) out.push({ ...b, text });
+    else out.push({ ...b, text, citations: [...new Set([...b.citations, ...extra])] });
   });
   return { blocks: out, dropped_sentences: droppedSentences, dropped_blocks: droppedBlocks };
 }
