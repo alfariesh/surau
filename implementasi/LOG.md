@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Regresi lam_ajid (j029): aturan istilah versi 3 — selesai
+- Dikerjakan: `lam_ajid` dipisah menjadi empat jenis "tidak ditemukan": sanad ("tidak ditemukan sanadnya"), lafaz (`lam_ajid_lafaz`), jalur (`lam_ajid_jalur`), dan marfu'; "لم أقف على حاله" → `daif`; `TAKHRIJ_TERMS_VERSION` 3; pipeline@12; laporan label dibuat ulang atas `ihya-v9`.
+- Verifikasi: `pnpm verify` → lolos · 46 baris harapan tes lokal dicek atas sqlite `ihya-v9` (2 berubah, diperiksa frasanya) · 166 catatan kaki `lam_ajid` versi 2 → 87 sanad, 57 lafaz, 21 jalur, 1 daif.
+- Biaya API: –
+- Keputusan: ADR-113
+- Catatan untuk sesi berikutnya: elipsis sisa teks Arab (`stripArabic`) masih cacat bahasa terbesar di x09; tanda kelemahan untuk lafaz/jalur perlu ditinjau bersama T-24.
+
 ## 2026-10-27 · Eval x09: bunyi label status hadits — selesai
 - Dikerjakan: satu run publik Jawab berbayar (izin pemilik di chat) dengan pipeline@11 dan korpus `ihya-v9`; run diulang dan digabung karena korpus staging diganti di tengah run dan koneksi D1 remote putus; 42 jawaban dinilai tiga subagen agent; laporan perbandingan x08 → x09.
 - Verifikasi: `eval:jawab score` gabungan → kutipan 100%, lokasi 85,3%, status hadits kode 5/6; penilaian agent → bahasa 3,36, kesetiaan 71,4%, atribusi 97,6%.

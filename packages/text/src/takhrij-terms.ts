@@ -1,6 +1,6 @@
 import { normalizeArabic, toRawSpan } from "./normalize.ts";
 
-// Istilah takhrij (X06, ADR-069; versi 2, ADR-108): pengenal deterministik frasa baku penakhrij
+// Istilah takhrij (X06, ADR-069; versi 2, ADR-108; versi 3, ADR-113): pengenal deterministik frasa baku penakhrij
 // (al-'Iraqi untuk Ihya) di teks catatan kaki, untuk label status hadits yang dibuat sekali dan bisa
 // ditinjau, bukan ringkasan bebas model per jawaban. Pencocokan per kata atas bentuk normal
 // `normalizeArabic` (satu fungsi normalisasi, aturan teks-arab no. 3); setiap istilah membawa
@@ -16,7 +16,7 @@ import { normalizeArabic, toRawSpan } from "./normalize.ts";
 // bentuk normal (tanpa harakat, أ/إ/آ → ا, ة → ه, ى → ي). Naikkan versi bila aturan berubah (label
 // yang sudah ditinjau terikat versi).
 
-export const TAKHRIJ_TERMS_VERSION = 2;
+export const TAKHRIJ_TERMS_VERSION = 3;
 
 export type TakhrijTermKind =
   /** Diriwayatkan al-Bukhari dan Muslim (متفق عليه، أخرجاه، في الصحيحين، وللشيخين). */
@@ -40,8 +40,18 @@ export type TakhrijTermKind =
   /** Disebut di kitab perawi lemah (في الضعفاء، كتاب الضعفاء لفلان). */
   | "duafa"
   | "la_asl"
-  /** Penakhrij tidak menemukannya (لم أجده، لم أقف عليه، لم أظفر له بإسناد). */
+  /** Penakhrij tidak menemukan sanadnya (لم أجده، لم أقف عليه، لم أظفر له بإسناد). */
   | "lam_ajid"
+  /**
+   * Tidak ditemukan dengan lafaz/susunan ini (لم أجده بهذا اللفظ، لم أجده هكذا، لم أقف على هذه
+   * الزيادة), versi 3: lafaz lain bisa ada, jadi bukan "sanadnya tidak ditemukan" (ADR-113).
+   */
+  | "lam_ajid_lafaz"
+  /**
+   * Tidak ditemukan dari jalur/sumber yang disebut (لم أره من حديث فلان، لم أجده عنده), versi 3:
+   * jalur lain sering disebut sesudahnya (ADR-113).
+   */
+  | "lam_ajid_jalur"
   /** Tidak ditemukan sebagai sabda Nabi (لم أره/أجده مرفوعا); riwayat lain (mis. mauquf) bisa ada. */
   | "lam_ajid_marfu"
   | "mursal"
@@ -546,14 +556,39 @@ const PATTERNS: readonly Pattern[] = [
     "لم اقف له علي اصل مرفوعا",
   ].map((w) => p("lam_ajid_marfu", w, { pre: W, opens: true })),
   // Varian yang lebih panjang supaya frasa yang ditampilkan memuat keterangannya.
+  ...["لم اظفر له باسناد", "لم اجد له اسنادا", "لم اجده الا بلاغا"].map((w) =>
+    p("lam_ajid", w, { pre: W, opens: true }),
+  ),
   ...[
-    "لم اظفر له باسناد",
-    "لم اجد له اسنادا",
     "لم اجده هكذا",
     "لم اجده بهذا اللفظ",
     "لم اجده بهذا السياق",
-    "لم اجده الا بلاغا",
-  ].map((w) => p("lam_ajid", w, { pre: W, opens: true })),
+    "لم اجده بجملته",
+    "لم اجده بتمامه",
+    "لم اجده بلفظ",
+    "لم اره بهذا اللفظ",
+    "لم اره هكذا",
+    "لم اجد هذا اللفظ",
+    "لم اظفر به هكذا",
+    "لم اقف عليه بهذا اللفظ",
+    "لم اقف عليه هكذا",
+    "لم اقف لهذه الزياده",
+    "لم اقف علي هذه الزياده",
+    "لم اجد لهذه الزياده",
+  ].map((w) => p("lam_ajid_lafaz", w, { pre: W, opens: true })),
+  ...[
+    "لم اره من حديث",
+    "لم اره من حديثهما",
+    "لم اجده من حديث",
+    "لم اجده من حديثهما",
+    "لم اقف عليه من حديث",
+    "لم اره من طريق",
+    "لم اجده من طريق",
+    "لم اجده عنده",
+    "لم اره عنده",
+  ].map((w) => p("lam_ajid_jalur", w, { pre: W, opens: true })),
+  // "لم أقف على حاله" = keadaan perawinya tidak diketahui (seperti "من لا أعرفه"), bukan "tidak ditemukan".
+  p("daif", "لم اقف علي حاله", { pre: W }),
   ...[
     "لم اجده",
     "لم اجد",

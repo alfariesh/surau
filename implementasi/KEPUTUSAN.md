@@ -2957,7 +2957,7 @@ Pemilik meminta `answer@8` untuk bahasa di chat (2026-10-26).
 - "al-'Iraqi menilai …" atau "takhrij menyebutnya …". Bentuk aktif menyatukan penilaian yang dinukil sebagai penilaian al-'Iraqi (j025).
 - Membiarkan LLM merumuskan baris status. Itu melanggar aturan teks-arab no. 6.
 
-**Hasil run `x09` (2026-10-27, izin pemilik di chat, biaya ±US$0,16 termasuk potongan yang terputus; dinilai ulang agent, [laporan](../evals/reports/jawab-x09-label-banding.md)):** bahasa 3,55 → 3,36, kesetiaan 85,7% → 71,4%, atribusi 92,9% → 97,6%, Benar/Kurang/Salah 17/23/2 → 22/13/7, status hadits 4/6 tetap. Bunyi baru **tidak menaikkan skor bahasa**: baris label ada di teks 3 jawaban dan di bagian Status hadits 7 jawaban, dan penilaian penilai atas bunyinya campuran (wajar di j026, masih seperti deretan label di j006). Penurunan berasal dari elipsis sisa teks Arab, kesimpulan negatif palsu, dan salah baca, serta derau penilai dan perubahan korpus/pipeline@11 yang ikut di run ini. Ada satu regresi dari keputusan ini: arti `lam_ajid` "tidak ditemukan sanad atau lafaznya" menambah klaim "lafaz" untuk frasa yang hanya berarti sanadnya tidak ditemukan (j029). Itu harus diperbaiki.
+**Hasil run `x09` (2026-10-27, izin pemilik di chat, biaya ±US$0,16 termasuk potongan yang terputus; dinilai ulang agent, [laporan](../evals/reports/jawab-x09-label-banding.md)):** bahasa 3,55 → 3,36, kesetiaan 85,7% → 71,4%, atribusi 92,9% → 97,6%, Benar/Kurang/Salah 17/23/2 → 22/13/7, status hadits 4/6 tetap. Bunyi baru **tidak menaikkan skor bahasa**: baris label ada di teks 3 jawaban dan di bagian Status hadits 7 jawaban, dan penilaian penilai atas bunyinya campuran (wajar di j026, masih seperti deretan label di j006). Penurunan berasal dari elipsis sisa teks Arab, kesimpulan negatif palsu, dan salah baca, serta derau penilai dan perubahan korpus/pipeline@11 yang ikut di run ini. Ada satu regresi dari keputusan ini: arti `lam_ajid` "tidak ditemukan sanad atau lafaznya" menambah klaim "lafaz" untuk frasa yang hanya berarti sanadnya tidak ditemukan (j029). Diperbaiki di ADR-113 (jenis `lam_ajid_lafaz`).
 
 **Tinjau ulang bila:** penilaian manusia (Anas) atau run eval berikutnya (berbayar, izin pemilik) menilai bunyi baru ini masih kaku, atau ada kitab dengan penakhrij lain.
 
@@ -3006,3 +3006,41 @@ j024 kini menjawab "Status hadits: dinilai lemah, menurut takhrij al-'Iraqi (had
 Run ini terganggu oleh pemuatan `ihya-v9` ke staging oleh sesi lain: j028–j042 diulang atas `ihya-v9` lokal, dan skornya dihitung atas `ihya-v9` setelah 91 paragraf yang disitasi dan kunci dicek identik dengan `ihya-v8`. Biaya jawaban US$0,1224. Penilaian semantik belum dilakukan.
 
 **Tinjau ulang bila:** run publik berikutnya (berbayar, izin pemilik) masih menilai j024 Salah, atau gema membuat pasangan yang keliru di soal mana pun.
+
+## ADR-113 · Aturan istilah takhrij versi 3: empat jenis "tidak ditemukan" dipisah, pipeline@12 — diterima · 2026-10-27
+
+**Konteks:** penilaian agent run x09 ([laporan](../evals/reports/jawab-x09-label-banding.md)) menemukan regresi dari ADR-111 di j029. Catatan kaki 10000070 berbunyi "لم أظفر له بإسناد" (sanadnya tidak kutemukan), padahal lafaznya ada pada Ibn 'Abd al-Barr secara ta'liq. Arti `lam_ajid` "tidak ditemukan sanad atau lafaznya" menambah klaim "lafaz" yang tidak ada di teks. Akar masalahnya: satu jenis `lam_ajid` mencakup tiga makna yang berbeda, dan satu arti tidak bisa tepat untuk ketiganya:
+- sanadnya tidak ditemukan ("لم أظفر له بإسناد", "لم أجده");
+- hanya lafaz atau tambahan ini yang tidak ditemukan ("لم أجده بهذا اللفظ", "لم أره هكذا", "لم أقف على هذه الزيادة");
+- hanya jalur atau sumber yang disebut yang tidak ditemukan ("لم أره من حديث فلان", "لم أجده عنده"). Jalur lain sering disebut sesudahnya, kadang sahih.
+
+Peninjau draf pertama ADR ini menunjukkan bahwa memisahkan lafaz saja masih membuat golongan jalur berbunyi "tidak ditemukan sanadnya". Itu kesalahan sejenis j029 dengan arah terbalik.
+
+**Keputusan:**
+1. **Aturan istilah versi 3** (`@surau/text`, `TAKHRIJ_TERMS_VERSION` 2 → 3):
+   - `lam_ajid` = "tidak ditemukan sanadnya" (frasa sanad dan "لم أجده" yang berdiri sendiri);
+   - `lam_ajid_lafaz` (baru) = "tidak ditemukan dengan lafaz ini" (frasa lafaz, susunan, dan tambahan);
+   - `lam_ajid_jalur` (baru) = "tidak ditemukan dari jalur yang disebut" ("… من حديث/من طريق", "… عنده");
+   - `lam_ajid_marfu` tetap = "tidak ditemukan sebagai sabda Nabi (marfu')".
+   
+   Pencocokan memilih frasa terpanjang, jadi frasa yang lebih khusus selalu menang atas "لم أجده"/"لم أره"/"لم أقف" yang umum. "لم أقف على حاله" (keadaan perawinya tidak diketahui) kini `daif`, bukan "tidak ditemukan". j029 kini berbunyi "diriwayatkan mu'allaq (tanpa sanad); tidak ditemukan sanadnya, menurut takhrij al-'Iraqi".
+2. Kedua jenis baru tetap bertanda kelemahan (`NEGATIVE`) dan tetap dilarang menjadi kutipan pilihan Intisari (`BANNED_TAKHRIJ_KINDS`), sama seperti saat masih bagian dari `lam_ajid`. Perilaku tanda kelemahan dan Intisari tidak berubah di ADR ini. Apakah "tidak ditemukan dengan lafaz ini" atau "dari jalur ini" pantas bertanda kelemahan, padahal lafaz atau jalur lain bisa sahih, perlu ditinjau bersama T-24.
+3. **Dampak di korpus `ihya-v9`** (label segmen pertama, diperiksa atas sqlite build): 166 catatan kaki `lam_ajid` versi 2 menjadi:
+
+   | Jenis | Catatan kaki |
+   |---|---|
+   | `lam_ajid` | 87 |
+   | `lam_ajid_lafaz` | 57 |
+   | `lam_ajid_jalur` | 21 |
+   | `daif` ("لم أقف على حاله") | 1 |
+
+   `lam_ajid_marfu` tetap 23. Dari 46 catatan kaki di tes regresi lokal (`packages/core/test/local/takhrij-label.test.ts`), dua berubah dan keduanya diperiksa terhadap frasanya: 10017400 ("لم أجده هكذا") dan 10014245 ("فلم أقف على هذه الزيادة إلا في قول …"). Laporan label dibuat ulang: `data/reports/ihya-9472-takhrij-label.md`.
+4. Versi aturan naik, jadi tinjauan label lama tidak berlaku lagi. Di D1 `surau-app` belum ada tinjauan (dicek 2026-10-26, ADR-111). `JAWAB_PIPELINE_VERSION` naik 11 → 12.
+
+**Tidak dipilih:**
+- Mengganti arti saja tanpa memisahkan jenis. Satu arti pasti keliru untuk salah satu golongan, dan "tidak ditemukan penakhrij" (bunyi lama) ambigu.
+- Arti per frasa (teks arti diambil dari frasa yang cocok). Itu memecah daftar arti tetap yang ditinjau bersama labelnya (T-24).
+
+**Keterbatasan:** "لم أجده مرسلا هكذا" (1×) masih terbaca `mursal` + `lam_ajid_lafaz`. Masalah ini sudah ada sebelum ADR ini. Frasa "tidak ditemukan" yang jarang dan belum terdaftar tetap jatuh ke `lam_ajid`.
+
+**Tinjau ulang bila:** penilaian manusia atau agent menemukan frasa "tidak ditemukan" lain yang salah golongan, atau T-24 memutuskan soal tanda kelemahan untuk lafaz/jalur.

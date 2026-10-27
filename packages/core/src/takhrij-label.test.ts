@@ -80,6 +80,23 @@ describe("takhrijLabel", () => {
     );
   });
 
+  // Versi 3 (ADR-113, j029 x09): kalimat BUATAN.
+  test("tiga jenis 'tidak ditemukan' berbunyi berbeda dan semuanya bertanda kelemahan", () => {
+    const sanad = takhrijLabel("حديث تجريبي ذكره فلان تعليقا ولم أظفر له بإسناد");
+    expect(sanad).toMatchObject({
+      weak: true,
+      text: "diriwayatkan mu'allaq (tanpa sanad); tidak ditemukan sanadnya, menurut takhrij al-'Iraqi",
+    });
+    expect(sanad.text).not.toContain("lafaz");
+    expect(takhrijLabel("حديث تجريبي لم أجده بهذا اللفظ")).toMatchObject({
+      weak: true,
+      text: "tidak ditemukan dengan lafaz ini, menurut takhrij al-'Iraqi",
+    });
+    expect(takhrijLabel("حديث تجريبي لم أره مرفوعا").text).toBe(
+      "tidak ditemukan sebagai sabda Nabi (marfu'), menurut takhrij al-'Iraqi",
+    );
+  });
+
   test("muttafaq mencakup al-Bukhari/Muslim; penilaian berlawanan ditandai berbeda per jalur", () => {
     expect(takhrijLabel("حديث تجريبي متفق عليه ولمسلم من حديث فلان").text).toBe(
       "muttafaq 'alaih (al-Bukhari dan Muslim), menurut takhrij al-'Iraqi",

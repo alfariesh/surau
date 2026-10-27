@@ -67,7 +67,8 @@ const BLOCK_TOKEN_OVERHEAD = 6;
  * Riwayat yang tidak boleh menjadi kutipan pilihan menurut istilah takhrijnya (docs/05 §12): sangat
  * lemah, palsu/batil, tidak ada asalnya, dan tidak ditemukan penakhrij (lam ajid, setara "tidak
  * diketahui asalnya"), termasuk tidak ditemukan sebagai sabda Nabi (`lam_ajid_marfu`, versi 2;
- * di versi 1 bagian dari `lam_ajid`, ADR-108).
+ * di versi 1 bagian dari `lam_ajid`, ADR-108) serta tidak ditemukan dengan lafaz ini atau dari jalur
+ * yang disebut (`lam_ajid_lafaz`, `lam_ajid_jalur`, versi 3; sebelumnya bagian dari `lam_ajid`, ADR-113).
  */
 export const BANNED_TAKHRIJ_KINDS: ReadonlySet<string> = new Set([
   "sangat_lemah",
@@ -75,6 +76,8 @@ export const BANNED_TAKHRIJ_KINDS: ReadonlySet<string> = new Set([
   "la_asl",
   "lam_ajid",
   "lam_ajid_marfu",
+  "lam_ajid_lafaz",
+  "lam_ajid_jalur",
 ]);
 
 export interface DigestBlock extends LeafBlock {
