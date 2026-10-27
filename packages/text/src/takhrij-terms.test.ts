@@ -131,7 +131,7 @@ describe("takhrijTerms", () => {
 
 // Versi 2 (ADR-108): pola keliru dari tinjauan agent 2026-10-26 (data/reports/
 // ihya-9472-takhrij-agent-2026-10-26.md, nomor pola di judul). Kalimat BUATAN, bukan teks kitab.
-describe("takhrijTerms versi 2", () => {
+describe("takhrijTerms versi 2 dan 3", () => {
   it("pola 1: catatan kaki tergabung dipindai per segmen penanda (N)", () => {
     const raw = "حديث تجريبي أخرجه فلان بسند ضعيف (٤) حديث تجريبي آخر متفق عليه";
     const t = takhrijTerms(raw);
@@ -219,6 +219,27 @@ describe("takhrijTerms versi 2", () => {
     expect(kinds("حديث تجريبي رواه فلان وفيه من لا أعرفه")).toEqual(["daif"]);
     expect(kinds("حديث تجريبي لم أجده إلا بلاغا لفلان")).toEqual(["lam_ajid"]);
     expect(kinds("حديث تجريبي لم أجد له أصلا في الموصولات")).toEqual(["lam_ajid"]);
+  });
+
+  // Versi 3 (ADR-113): kalimat BUATAN. Sanad tidak ditemukan ≠ hanya lafaz ini yang tidak ditemukan.
+  it("lafaz ini tidak ditemukan terpisah dari sanad yang tidak ditemukan", () => {
+    expect(kinds("حديث تجريبي ذكره فلان تعليقا ولم أظفر له بإسناد")).toEqual([
+      "muallaq",
+      "lam_ajid",
+    ]);
+    expect(kinds("حديث تجريبي لم أجده بهذا اللفظ")).toEqual(["lam_ajid_lafaz"]);
+    expect(kinds("حديث تجريبي لم أجده هكذا")).toEqual(["lam_ajid_lafaz"]);
+    expect(kinds("حديث تجريبي لم أجده بهذا السياق")).toEqual(["lam_ajid_lafaz"]);
+    expect(kinds("حديث تجريبي لم أره بهذا اللفظ")).toEqual(["lam_ajid_lafaz"]);
+    expect(kinds("حديث تجريبي لم أقف على هذه الزيادة")).toEqual(["lam_ajid_lafaz"]);
+    // Hanya jalur yang disebut yang tidak ditemukan; jalur lain bisa sahih.
+    expect(kinds("حديث تجريبي لم أره من حديث فلان وللحاكم وصحح إسناده")).toEqual([
+      "lam_ajid_jalur",
+      "sahih",
+    ]);
+    expect(kinds("حديث تجريبي أخرجه فلان لم أجده عنده")).toEqual(["lam_ajid_jalur"]);
+    // Keadaan perawi tidak diketahui, bukan "tidak ditemukan".
+    expect(kinds("حديث تجريبي رواه فلان وفيه فلان لم أقف على حاله")).toEqual(["daif"]);
   });
 
   it("pola 7: hasan/sahih/gharib sesudah bin/ibn adalah nama perawi", () => {

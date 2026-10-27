@@ -211,7 +211,7 @@ describe("tinjauan label", async () => {
     const tail = { start: cut, end: RAW.length };
     expect(reviewedTakhrijLabel(RAW, review, tail)).toMatchObject({
       review: "approved",
-      text: "dinilai lemah; tidak ditemukan sanad atau lafaznya, menurut takhrij al-'Iraqi",
+      text: "dinilai lemah; tidak ditemukan sanadnya, menurut takhrij al-'Iraqi",
     });
     // Penilai menolak "lemah" (mis. bagian lafaz): sitasi sebagian tidak menyebutnya lagi.
     const noWeak = {
@@ -222,7 +222,7 @@ describe("tinjauan label", async () => {
     const part = reviewedTakhrijLabel(RAW, noWeak, tail);
     expect(part).toMatchObject({
       review: "corrected",
-      text: "tidak ditemukan sanad atau lafaznya, menurut takhrij al-'Iraqi",
+      text: "tidak ditemukan sanadnya, menurut takhrij al-'Iraqi",
       weak: true,
     });
     expect(part.terms.map((t) => t.kind)).toEqual(["lam_ajid"]);

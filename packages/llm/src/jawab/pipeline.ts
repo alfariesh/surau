@@ -75,11 +75,12 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * bagian berjudul kitab + pemberitahuan status yang berdiri sendiri dibuang (ADR-106: 8),
  * diagnostik bahasa dan penilaian hadits tanpa sitasi (ADR-110: 9; keluaran tidak berubah, versi
  * dinaikkan supaya log/cache membedakan prompt `answer@8`), bunyi label status hadits untuk
- * pembaca (ADR-111: 10), gema takhrij kemunculan pertama hadits (ADR-112: 11), dan
+ * pembaca (ADR-111: 10), gema takhrij kemunculan pertama hadits (ADR-112: 11), jenis istilah
+ * "tidak ditemukan" yang dipisah (ADR-113: 12), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 11;
+export const JAWAB_PIPELINE_VERSION = 12;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;

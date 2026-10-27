@@ -28,10 +28,13 @@ export const TAKHRIJ_TERM_GLOSS: Readonly<Record<TakhrijTermKind, string>> = {
   palsu: "dinilai palsu atau batil",
   duafa: "disebut di kitab perawi lemah",
   la_asl: "dinyatakan tidak ada asalnya",
-  // Bedakan dari `lam_ajid_marfu`: di sini sanad (atau lafaz ini) sama sekali tidak ditemukan;
-  // di sana yang tidak ditemukan hanya jalur marfu', riwayat mauquf bisa tetap ada (j028 x06).
-  lam_ajid: "tidak ditemukan sanad atau lafaznya",
+  // Empat jenis "tidak ditemukan" yang tidak boleh tertukar (j028 x06, j029 x09, ADR-113): sanadnya
+  // tidak ditemukan; hanya jalur marfu' yang tidak ditemukan (riwayat mauquf bisa ada); hanya lafaz
+  // ini yang tidak ditemukan (lafaz lain bisa ada); hanya dari jalur/sumber yang disebut.
+  lam_ajid: "tidak ditemukan sanadnya",
   lam_ajid_marfu: "tidak ditemukan sebagai sabda Nabi (marfu')",
+  lam_ajid_lafaz: "tidak ditemukan dengan lafaz ini",
+  lam_ajid_jalur: "tidak ditemukan dari jalur yang disebut",
   mursal: "diriwayatkan mursal",
   mawquf: "diriwayatkan mauquf",
   muallaq: "diriwayatkan mu'allaq (tanpa sanad)",
@@ -59,6 +62,8 @@ const NEGATIVE: ReadonlySet<TakhrijTermKind> = new Set([
   "la_asl",
   "lam_ajid",
   "lam_ajid_marfu",
+  "lam_ajid_lafaz",
+  "lam_ajid_jalur",
 ]);
 
 /** Istilah kelemahan, palsu, tanpa asal, atau tidak ditemukan (dasar tanda `weak`). */
