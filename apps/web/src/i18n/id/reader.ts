@@ -4,8 +4,8 @@
 export const reader = {
   listTitle: "Kitab",
   listHeading: "Kitab",
-  listLead:
-    "Kitab yang bisa dibaca di Surau. Teks Arab ditampilkan persis seperti sumber digitalnya, lengkap dengan alamat cetak (juz dan halaman) untuk dirujuk.",
+  releasedHeading: "Rilis terbaru",
+  releasedLead: "Kitab yang sudah bisa dibaca lengkap, dengan alamat cetak untuk dirujuk.",
   soonHeading: "Pembaca kitab segera hadir",
   soonBody:
     "Pembaca Ihya sedang disiapkan dan diperiksa sebelum dibuka untuk umum. Sementara itu, kenali dulu prinsip Surau.",

@@ -31,7 +31,7 @@ function json(status: number, body: Record<string, unknown>): Response {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
 
-function sameOrigin(request: Request): boolean {
+export function sameOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (origin === null) return false;
   try {
@@ -42,7 +42,7 @@ function sameOrigin(request: Request): boolean {
 }
 
 /** Baca body sampai `max` byte; `null` bila lebih (tanpa membaca sisanya). */
-async function readLimited(request: Request, max: number): Promise<string | null> {
+export async function readLimited(request: Request, max: number): Promise<string | null> {
   const declared = Number(request.headers.get("content-length") ?? "0");
   if (declared > max) return null;
   if (request.body === null) return "";

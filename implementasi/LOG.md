@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Kitab "Segera hadir" + suara minat anonim di /kitab — sebagian (belum commit, atas permintaan pemilik)
+- Dikerjakan: 13 kitab kandidat dari laporan pencocokan Shamela pemilik tampil di `/kitab` sebagai kartu "Segera hadir"; popup dua pertanyaan pilihan tetap (tujuan, kemampuan baca Arab) dikirim ke `POST /api/minat-kitab`; tabel `kitab_interest` (migrasi 0007); rekap di `/admin`; `/privasi` dan docs/05 diperbarui. Email tidak dikumpulkan (ADR-115 butir 4).
+- Verifikasi: `pnpm verify` → lolos (1.102 + 451 tes, build) · pratinjau `next dev` (korpus staging, D1 app lokal): 13 kartu tampil di desktop dan ponsel, popup terkirim (201), dua suara sama = satu baris agregat `votes 2`, tombol jadi "Sudah Anda pilih" setelah muat ulang, rekap admin dicek lewat halaman sementara (sudah dihapus) · peninjau: tanpa blocker; semua temuan "perbaiki" + saran tabel agregat diterapkan.
+- Biaya API: –
+- Keputusan: ADR-115
+- Catatan untuk sesi berikutnya: kandidat `TITLE_VARIANT` di CSV (mis. Minhaj ath-Thalibin, Bidayat al-Mujtahid, Tarikh al-Khulafa') bisa ditambahkan setelah dicek manual.
+
 ## 2026-10-27 · Regresi lam_ajid (j029): aturan istilah versi 3 — selesai
 - Dikerjakan: `lam_ajid` dipisah menjadi empat jenis "tidak ditemukan": sanad ("tidak ditemukan sanadnya"), lafaz (`lam_ajid_lafaz`), jalur (`lam_ajid_jalur`), dan marfu'; "لم أقف على حاله" → `daif`; `TAKHRIJ_TERMS_VERSION` 3; pipeline@12; laporan label dibuat ulang atas `ihya-v9`.
 - Verifikasi: `pnpm verify` → lolos · 46 baris harapan tes lokal dicek atas sqlite `ihya-v9` (2 berubah, diperiksa frasanya) · 166 catatan kaki `lam_ajid` versi 2 → 87 sanad, 57 lafaz, 21 jalur, 1 daif.

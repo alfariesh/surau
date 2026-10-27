@@ -55,6 +55,34 @@ export const feedbackInput = z.strictObject({
 });
 export type FeedbackInput = z.input<typeof feedbackInput>;
 
+// Minat pada kitab kandidat "Segera hadir" (ADR-115): hanya pilihan tetap, tanpa data pribadi.
+export const kitabInterestPurpose = z.enum(["self_study", "teaching", "research", "other"]);
+export type KitabInterestPurpose = z.infer<typeof kitabInterestPurpose>;
+
+export const kitabInterestArabic = z.enum(["beginner", "with_help", "fluent"]);
+export type KitabInterestArabic = z.infer<typeof kitabInterestArabic>;
+
+export const kitabInterestRow = z.strictObject({
+  day: z.string(),
+  candidate: z.string(),
+  purpose: kitabInterestPurpose,
+  arabic: kitabInterestArabic,
+  votes: z.number().int().positive(),
+});
+export type KitabInterestRow = z.infer<typeof kitabInterestRow>;
+
+/** Satu suara minat (batas sistem). Slug kandidat sama dengan CHECK migrasi: huruf kecil, angka, `-`. */
+export const kitabInterestInput = z.strictObject({
+  candidate: z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[a-z0-9-]+$/),
+  purpose: kitabInterestPurpose,
+  arabic: kitabInterestArabic,
+});
+export type KitabInterestInput = z.input<typeof kitabInterestInput>;
+
 /** Bilangan bulat non-negatif dalam teks (`"10"`), maksimal `max`. */
 const intText = (max: number) =>
   z
@@ -157,4 +185,5 @@ export const appTables = {
   llm_ledger: llmLedgerRow,
   takhrij_review: takhrijReviewRow,
   translation_revision: translationRevisionRow,
+  kitab_interest: kitabInterestRow,
 } as const;
