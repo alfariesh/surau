@@ -12,7 +12,11 @@
     "deploy:web": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv --strict-vars=false cloudflare-env.d.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "dev:vinext": "vite dev --port 3004",
+    "build:vinext": "vite build",
+    "start:vinext": "wrangler dev --config dist/server/wrangler.json",
+    "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
   },
   "dependencies": {
     "@heroui-pro/react": "catalog:",
@@ -23,6 +27,7 @@
     "@surau/core": "workspace:*",
     "@surau/db": "workspace:*",
     "@surau/text": "workspace:*",
+    "@vinext/cloudflare": "catalog:",
     "jose": "catalog:",
     "motion": "catalog:",
     "next": "catalog:",
@@ -32,23 +37,29 @@
     "react-aria-components": "catalog:",
     "react-dom": "catalog:",
     "react-resizable-panels": "catalog:",
+    "react-server-dom-webpack": "catalog:",
     "react-stately": "catalog:",
     "tailwind-merge": "catalog:",
     "tailwind-variants": "catalog:",
+    "vinext": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@axe-core/playwright": "catalog:",
+    "@cloudflare/vite-plugin": "catalog:",
     "@opennextjs/cloudflare": "catalog:",
     "@playwright/test": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitejs/plugin-rsc": "catalog:",
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "wrangler": "catalog:"
   }
 }

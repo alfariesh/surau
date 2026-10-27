@@ -5,7 +5,7 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "surau-web",
-  "main": ".open-next/worker.js",
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-10-14",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   // Produksi hanya di https://surau.org (custom domain diatur di dashboard, T-07): workers.dev
@@ -20,8 +20,8 @@
   // (ReferenceError) di halaman yang dirender Worker saat runtime (ISR /kitab, S09, ADR-034).
   "keep_names": false,
   "assets": {
-    "directory": ".open-next/assets",
     "binding": "ASSETS",
+    "not_found_handling": "none",
   },
   // Pembaca kitab (/kitab/*) terbuka sejak rilis Fase 1 (`rilis-f1`, ADR-037). Tutup darurat:
   // ubah ke "0" lewat PR + deploy, BUKAN dashboard (cache ISR per BUILD_ID; tools/ingest/README.md).
@@ -58,22 +58,10 @@
   },
   "services": [
     {
-      // Self-reference OpenNext (revalidasi/queue ISR); nama harus sama dengan `name`. Dengan queue
-      // default (`dummy`) praktis belum dipakai. Dari Preview, binding ini memanggil PRODUKSI (ADR-026).
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "surau-web",
-    },
-    {
       // Worker Jawab tanpa route publik (S19, ADR-010): satu-satunya jalan ke pipeline LLM.
       // surau-api wajib ter-deploy sebelum web (deploy.yml: job deploy-api lebih dulu).
       "binding": "API",
       "service": "surau-api",
-    },
-  ],
-  "r2_buckets": [
-    {
-      "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      "bucket_name": "surau-next-cache",
     },
   ],
   // `database_id` WAJIB eksplisit (ARSITEKTUR-TEKNIS §7 aturan 3): binding tanpa ID diprovisikan
@@ -205,21 +193,11 @@
     },
     "services": [
       {
-        "binding": "WORKER_SELF_REFERENCE",
-        "service": "surau-web",
-      },
-      {
         // Service binding dari Preview selalu memanggil deployment PRODUKSI Worker tujuan
         // (docs Workers Previews). Karena itu Preview diarahkan ke Worker staging tersendiri
         // (data staging, apps/api env.staging), bukan surau-api produksi (S19).
         "binding": "API",
         "service": "surau-api-staging",
-      },
-    ],
-    "r2_buckets": [
-      {
-        "binding": "NEXT_INC_CACHE_R2_BUCKET",
-        "bucket_name": "surau-next-cache-preview",
       },
     ],
     "d1_databases": [

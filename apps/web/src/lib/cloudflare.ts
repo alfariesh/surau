@@ -1,18 +1,19 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { env as workerEnv, waitUntil } from "cloudflare:workers";
 
 // Binding Cloudflare (D1, Rate Limiting, vars) untuk server component dan route handler.
-// Selalu mode async: halaman ISR (`revalidate = false`) tidak punya konteks request sinkron, dan
-// mode sync melempar error di rute statis. Jangan dipanggil di top-level modul (ADR-034).
+// `cloudflare:workers` (vinext) memberi binding langsung, di dev maupun produksi. Fungsi tetap
+// async supaya pemanggil lama tidak berubah. Jangan dipanggil di top-level modul (ADR-034).
 
 export async function getEnv(): Promise<CloudflareEnv> {
-  const { env } = await getCloudflareContext({ async: true });
-  return env;
+  return workerEnv as unknown as CloudflareEnv;
 }
 
 /** Binding + `ctx` (untuk `ctx.waitUntil`, mis. menyimpan ke Cache API sesudah respons). */
-export async function getContext(): Promise<{ env: CloudflareEnv; ctx: ExecutionContext }> {
-  const { env, ctx } = await getCloudflareContext({ async: true });
-  return { env, ctx };
+export async function getContext(): Promise<{
+  env: CloudflareEnv;
+  ctx: Pick<ExecutionContext, "waitUntil">;
+}> {
+  return { env: workerEnv as unknown as CloudflareEnv, ctx: { waitUntil } };
 }
 
 /**
