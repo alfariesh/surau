@@ -351,7 +351,8 @@ describe("teks model", () => {
   test("huruf Arab buatan model dibuang dan dihitung; teks Latin utuh", () => {
     const r = stripArabic("Al-Ghazali menyebut sabar (الصبر) sebagai separuh iman (١).");
     expect(r.text).not.toMatch(/\p{Script=Arabic}/u);
-    expect(r.text).toBe("Al-Ghazali menyebut sabar … sebagai separuh iman ….");
+    // Angka Arab-India bukan kutipan: menjadi angka ASCII (x10 j025).
+    expect(r.text).toBe("Al-Ghazali menyebut sabar … sebagai separuh iman (1).");
     expect(r.removed).toBeGreaterThan(0);
     expect(stripArabic("Tanpa huruf Arab.")).toEqual({ text: "Tanpa huruf Arab.", removed: 0 });
   });
@@ -478,6 +479,20 @@ describe("teks model", () => {
       expect(r.text).toBe("**Status hadits:**\n….\n\nParagraf biasa tentang sabar di sini.");
       expect(r.dropped_sentences).toBe(0);
       expect(r.blocks.map((b) => b.citations)).toEqual([[0], [1], [2]]);
+    });
+
+    test("nomor catatan kaki Arab-India tetap terbaca sebagai angka", () => {
+      expect(
+        tidy("Takhrijnya ada pada catatan kaki nomor (\u0661\u0662) di halaman itu.").text,
+      ).toBe("Takhrijnya ada pada catatan kaki nomor (12) di halaman itu.");
+      // Angka yang menempel pada kata Arab ikut terbuang bersama katanya; angka yang diapit kata Arab
+      // berspasi tetap angka.
+      expect(markArabic("Lafaz \u0643\u062A\u0627\u0628\u0661\u0662 dibahas.").text).toBe(
+        "Lafaz \uE000 dibahas.",
+      );
+      expect(
+        markArabic("Ia berkata \u0642\u0627\u0644 \u0661\u0660 \u0645\u0631\u0627\u062A.").text,
+      ).toBe("Ia berkata \uE000 10 \uE000.");
     });
 
     test("perapian hanya di sekitar bekas; teks lain tidak berubah", () => {

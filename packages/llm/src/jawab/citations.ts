@@ -100,11 +100,18 @@ export const ARABIC_CUT = "";
 /** Ganti setiap rangkaian huruf Arab buatan model dengan `ARABIC_CUT` (rangkaian berdekatan jadi satu). */
 export function markArabic(text: string): { text: string; removed: number } {
   let removed = 0;
-  const marked = text.replace(ARABIC_RUN, (m) => {
-    removed += m.length;
-    return ARABIC_CUT;
-  });
-  if (removed === 0) return { text, removed };
+  // Angka Arab-India bukan kutipan: menjadi angka ASCII ("catatan kaki nomor (١)" → "(1)", x10
+  // j025), bukan bekas. Angka yang menempel pada kata Arab tetap ikut terbuang bersama katanya.
+  const marked = text
+    .replace(
+      /(?<![\p{Script=Arabic}\p{M}\u0640])[\u0660-\u0669]+(?![\p{Script=Arabic}\p{M}])/gu,
+      (d) => [...d].map((c) => String(c.charCodeAt(0) - 0x0660)).join(""),
+    )
+    .replace(ARABIC_RUN, (m) => {
+      removed += m.length;
+      return ARABIC_CUT;
+    });
+  if (removed === 0) return { text: marked, removed };
   return {
     text: marked
       .replace(new RegExp(`${ARABIC_CUT}(?:[ \\t\\u00A0,;،]*${ARABIC_CUT})+`, "gu"), ARABIC_CUT)
