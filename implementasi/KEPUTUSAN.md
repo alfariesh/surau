@@ -2957,6 +2957,8 @@ Pemilik meminta `answer@8` untuk bahasa di chat (2026-10-26).
 - "al-'Iraqi menilai …" atau "takhrij menyebutnya …". Bentuk aktif menyatukan penilaian yang dinukil sebagai penilaian al-'Iraqi (j025).
 - Membiarkan LLM merumuskan baris status. Itu melanggar aturan teks-arab no. 6.
 
+**Hasil run `x09` (2026-10-27, izin pemilik di chat, biaya ±US$0,16 termasuk potongan yang terputus; dinilai ulang agent, [laporan](../evals/reports/jawab-x09-label-banding.md)):** bahasa 3,55 → 3,36, kesetiaan 85,7% → 71,4%, atribusi 92,9% → 97,6%, Benar/Kurang/Salah 17/23/2 → 22/13/7, status hadits 4/6 tetap. Bunyi baru **tidak menaikkan skor bahasa**: baris label ada di teks 3 jawaban dan di bagian Status hadits 7 jawaban, dan penilaian penilai atas bunyinya campuran (wajar di j026, masih seperti deretan label di j006). Penurunan berasal dari elipsis sisa teks Arab, kesimpulan negatif palsu, dan salah baca, serta derau penilai dan perubahan korpus/pipeline@11 yang ikut di run ini. Ada satu regresi dari keputusan ini: arti `lam_ajid` "tidak ditemukan sanad atau lafaznya" menambah klaim "lafaz" untuk frasa yang hanya berarti sanadnya tidak ditemukan (j029). Itu harus diperbaiki.
+
 **Tinjau ulang bila:** penilaian manusia (Anas) atau run eval berikutnya (berbayar, izin pemilik) menilai bunyi baru ini masih kaku, atau ada kitab dengan penakhrij lain.
 
 ## ADR-112 · Gema takhrij: takhrij kemunculan pertama hadits ikut ke dokumen Jawab, pipeline@11 — diterima · 2026-10-26

@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Eval x09: bunyi label status hadits — selesai
+- Dikerjakan: satu run publik Jawab berbayar (izin pemilik di chat) dengan pipeline@11 dan korpus `ihya-v9`; run diulang dan digabung karena korpus staging diganti di tengah run dan koneksi D1 remote putus; 42 jawaban dinilai tiga subagen agent; laporan perbandingan x08 → x09.
+- Verifikasi: `eval:jawab score` gabungan → kutipan 100%, lokasi 85,3%, status hadits kode 5/6; penilaian agent → bahasa 3,36, kesetiaan 71,4%, atribusi 97,6%.
+- Biaya API: ±US$0,16 (jawaban yang dinilai US$0,1181).
+- Keputusan: hasil dicatat di ADR-111.
+- Catatan untuk sesi berikutnya: perbaiki arti `lam_ajid` (regresi j029) dan elipsis sisa teks Arab (`stripArabic`).
+
 ## 2026-10-27 · Gema takhrij: run eval berbayar — selesai
 - Dikerjakan: run publik 42 soal atas izin pemilik (`x09-publik-gema-v1` + lanjutan `x09-publik-gema-v1c`), skor kode atas arsip gabungan.
 - Hasil: takhrij 5/6 → 6/6, lokasi 31/34 → 32/34, kutipan valid 100% (dibanding x08). j024 kini benar ("dinilai lemah", sitasi 10000010).
