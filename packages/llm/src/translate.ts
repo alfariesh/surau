@@ -7,6 +7,7 @@ import type { MaskedPassage } from "@surau/core";
 
 import { TRANSLATE_PASSAGE_V4 } from "../prompts/translate-passage-v4.ts";
 import { TRANSLATE_PASSAGE_V5 } from "../prompts/translate-passage-v5.ts";
+import { TRANSLATE_PASSAGE_V6 } from "../prompts/translate-passage-v6.ts";
 import {
   MAX_ARABIC_RUN_WORDS,
   footnoteMarkerDigits,
@@ -21,12 +22,14 @@ import {
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 
-// Aktif sejak X21 (ADR-109): v5 + Sonnet 5.5 terpilih lewat uji buta atas sampel baru (88% vs 46% Benar).
-export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V5;
+// Aktif sejak X21 (ADR-109): v5 + Sonnet 5.5 terpilih lewat uji buta atas sampel baru (88% vs 46% Benar);
+// v6 (= v5 + "Keluaran bersih") sejak sisa 72 paragraf yang ditolak validator tiga kali.
+export const TRANSLATE_PROMPT = TRANSLATE_PASSAGE_V6;
 /** Prompt yang bisa dipilih (`buildTranslateRequest(..., { prompt })`); bawaan = `TRANSLATE_PROMPT`. */
 export const TRANSLATE_PROMPTS = {
   [TRANSLATE_PASSAGE_V4.id]: TRANSLATE_PASSAGE_V4,
   [TRANSLATE_PASSAGE_V5.id]: TRANSLATE_PASSAGE_V5,
+  [TRANSLATE_PASSAGE_V6.id]: TRANSLATE_PASSAGE_V6,
 } as const;
 export type TranslatePrompt = (typeof TRANSLATE_PROMPTS)[keyof typeof TRANSLATE_PROMPTS];
 export type TranslateEffort = "low" | "medium" | "high";
