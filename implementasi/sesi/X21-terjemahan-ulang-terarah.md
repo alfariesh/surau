@@ -147,7 +147,7 @@ Dampak pada target: bila hanya strata panjang membaik (Benar 35% → ±70%), est
 7. [x] T-28 (zip pemilik 2026-10-27, dipasang di `/home/rekanesia/surau`).
 8. [x] (US$30,47 + ringkasan US$0,14; lihat ADR-109) `plan` → tanya pemilik dengan angka `count_tokens` → `submit --limit … --budget <terpakai + 36> --confirm` bertahap per jilid → `collect` → `retry` → `report`.
 9. [x] Korpus `ihya-v9` dibangun lokal (gerbang ingest lolos). [ ] Muat ke staging, `corpus:qa`, promote hanya atas izin pemilik.
-10. [ ] Ukur ulang T-17: `pnpm t17 sampel-lanjutan` (40 sampel: 13/14/13, seed 20261024+k, tanpa 60 sampel pertama dan 30 ID uji X21), nilai, `pnpm t17 hasil --lanjutan`; catat di laporan + TUGAS-PEMILIK.
+10. [x] (agent, 2026-10-27: Benar 82,1%, Salah 1,1%, lolos belum pasti) Ukur ulang T-17: `pnpm t17 sampel-lanjutan` (40 sampel: 13/14/13, seed 20261024+k, tanpa 60 sampel pertama dan 30 ID uji X21), nilai, `pnpm t17 hasil --lanjutan`; catat di laporan + TUGAS-PEMILIK.
 
 ## T-28 untuk sesi ini (langkah pemilik; agent memandu saat tiba)
 
