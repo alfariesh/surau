@@ -3069,6 +3069,11 @@ Peninjau draf pertama ADR ini menunjukkan bahwa memisahkan lafaz saja masih memb
 - Mengulang jawaban bila model menulis huruf Arab. Itu menambah biaya dan latensi, sedangkan kartu kutipan sudah menampilkan teks aslinya.
 - Prompt baru (larangan transliterasi kalimat Arab, j004/j028/j038). Prompt baru hanya dipakai sesudah diukur dengan run berbayar, jadi diusulkan terpisah.
 
+**Hasil run `x10-publik-elipsis-v1`** (2026-10-27, izin pemilik di chat, US$0,1216; dinilai ulang agent, [laporan](../evals/reports/jawab-x10-elipsis-banding.md)):
+- Lubang di kalimat biasa hilang: model menulis huruf Arab di 5 jawaban, dan tidak ada kalimat yang dibuang. "… …" masih tersisa sesudah "Status hadits:" di j026 (perilaku lama `hadithCheck`).
+- Soal yang terkena lubang di x09 naik (j008, j014, j023), tetapi rata-rata bahasa tidak naik (3,36 → 3,26). j026 sendiri menyumbang −3 dari selisih −4 total skor (Benar/4 → Salah/1). Kesetiaan 71,4% → 78,6%, atribusi 95,2%.
+- Regresi kecil: angka catatan kaki Arab-India ikut terbuang ("nomor (١)" → "nomor,", j025). Diperbaiki: angka Arab-India yang berdiri sendiri menjadi ASCII, pipeline@14.
+
 **Tinjau ulang bila:** run eval berikutnya (berbayar, izin pemilik) menunjukkan kalimat yang dibuang ternyata penting, atau bekas "…" masih terlihat.
 
 ## ADR-115 · Kitab kandidat "Segera hadir" di /kitab dengan suara minat anonim, tanpa email — diterima · 2026-10-27
