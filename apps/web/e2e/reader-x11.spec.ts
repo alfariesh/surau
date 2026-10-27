@@ -178,8 +178,10 @@ test("berdampingan: paragraf tanpa terjemahan selebar penuh; mode Arab tanpa gri
   test.skip(isMobile, "tata letak berdampingan hanya di kolom teks lebar");
   await page.setViewportSize({ width: 1600, height: 1000 });
   await setMode(page, "both", { "surau:reader-tr-layout": "side" });
-  // j1/86 #p1022: satu dari paragraf yang belum punya terjemahan (laporan terjemahan).
-  await page.goto("/kitab/ihya/1/86");
+  // j3/368 #p15425: satu dari paragraf yang belum punya terjemahan (laporan terjemahan; sesudah
+  // terjemahan ulang X21 tinggal 5 paragraf, ditolak validator tiga kali). Bila ia kelak
+  // diterjemahkan, ganti ke paragraf lain dari daftar "Belum lolos" di laporan terjemahan.
+  await page.goto("/kitab/ihya/3/368");
   const untranslated = page.locator(".reader-text .passage[data-no-tr]:not(.passage-heading)");
   await expect(untranslated.first()).toBeVisible();
   const column = await page
@@ -337,8 +339,8 @@ test("mode Terjemahan: paragraf tanpa terjemahan menampilkan teks Arab dengan ke
   page,
 }) => {
   await setMode(page, "tr");
-  await page.goto("/kitab/ihya/1/86#p1022");
-  const passage = page.locator("#p1022");
+  await page.goto("/kitab/ihya/3/368#p15425");
+  const passage = page.locator("#p15425");
   await expect(passage.locator(".arabic-text")).toBeVisible();
   await expect(passage.locator(".no-tr-note")).toBeVisible();
   await expect(passage.locator(".passage-tools")).toHaveCount(0);
