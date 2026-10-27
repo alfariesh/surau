@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Bekas huruf Arab di jawaban Maknaz — selesai
+- Dikerjakan: bekas huruf Arab buatan model ditandai per blok (`markArabic`) lalu dirapikan atas teks gabungan (`tidyArabicCuts`): bekas di kurung/akhir kalimat dibuang tanpa jejak, kalimat yang isinya hilang ("bahwa …", titik dua, < 3 kata) dibuang utuh, baris "Status hadits:" dilindungi, blok yang habis tidak ditampilkan; pipeline@13.
+- Verifikasi: `pnpm verify` → lolos · uji atas jawaban x08/x09 nyata ("…" dikembalikan ke kata Arab) → 0 "…" tersisa.
+- Biaya API: –
+- Keputusan: ADR-114
+- Catatan untuk sesi berikutnya: dampak ke skor bahasa belum diukur (run berbayar, izin pemilik); larangan transliterasi kalimat Arab di prompt butuh prompt baru + run berbayar.
+
 ## 2026-10-27 · Regresi lam_ajid (j029): aturan istilah versi 3 — selesai
 - Dikerjakan: `lam_ajid` dipisah menjadi empat jenis "tidak ditemukan": sanad ("tidak ditemukan sanadnya"), lafaz (`lam_ajid_lafaz`), jalur (`lam_ajid_jalur`), dan marfu'; "لم أقف على حاله" → `daif`; `TAKHRIJ_TERMS_VERSION` 3; pipeline@12; laporan label dibuat ulang atas `ihya-v9`.
 - Verifikasi: `pnpm verify` → lolos · 46 baris harapan tes lokal dicek atas sqlite `ihya-v9` (2 berubah, diperiksa frasanya) · 166 catatan kaki `lam_ajid` versi 2 → 87 sanad, 57 lafaz, 21 jalur, 1 daif.

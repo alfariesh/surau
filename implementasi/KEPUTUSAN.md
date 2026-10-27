@@ -3044,3 +3044,28 @@ Peninjau draf pertama ADR ini menunjukkan bahwa memisahkan lafaz saja masih memb
 **Keterbatasan:** "لم أجده مرسلا هكذا" (1×) masih terbaca `mursal` + `lam_ajid_lafaz`. Masalah ini sudah ada sebelum ADR ini. Frasa "tidak ditemukan" yang jarang dan belum terdaftar tetap jatuh ke `lam_ajid`.
 
 **Tinjau ulang bila:** penilaian manusia atau agent menemukan frasa "tidak ditemukan" lain yang salah golongan, atau T-24 memutuskan soal tanda kelemahan untuk lafaz/jalur.
+
+## ADR-114 · Bekas huruf Arab buatan model dirapikan, bukan dibiarkan "…", pipeline@13 — diterima · 2026-10-27
+
+**Konteks:** prompt melarang model menulis huruf Arab, tetapi model kadang tetap menulisnya. `stripArabic` membuang huruf itu dan menggantinya dengan "…". Di run x09 ([laporan](../evals/reports/jawab-x09-label-banding.md)) bekas ini terlihat di 6 dari 42 jawaban dan merupakan cacat bahasa terbesar yang terukur. Contohnya "secara total ….", "(…, …)", dan "al-Ghazali menyimpulkan bahwa … (Ihya, j. 4, h. 286)". Di j014 kesimpulan intinya hilang, sehingga jawaban itu dinilai salah. Prompt sudah melarang huruf Arab dengan tegas (`answer@8`), jadi pengulangan larangan saja tidak cukup.
+
+**Keputusan:**
+1. **Dua tahap.** Saat streaming, `markArabic` mengganti huruf Arab buatan model per blok dengan penanda sementara (U+E000); pratinjau menampilkannya sebagai "…". Sebelum `hadithCheck`, `tidyArabicCuts` (`packages/llm/src/jawab/citations.ts`) merapikan penanda atas **teks gabungan semua blok**. Blok Citations API sering hanya potongan kalimat ("bahwa " | teks Arab bersitasi), jadi kalimat harus dinilai utuh. Setiap karakter tetap tercatat milik bloknya, sehingga sitasi blok tidak bergeser dan spasi antarblok tidak hilang.
+2. **Aturan rapikan** (batas kalimat = akhir kalimatnya sendiri, jadi aman sesudah "saw.", atau baris baru):
+   - **Pernyataan status hadits** (rentang `hadithStatements`, termasuk isi di baris atau butir sesudah label): bekas menjadi "…" seperti sebelumnya. Isinya ditimpa label kode oleh `hadithCheck`, dan sitasi takhrijnya tetap.
+   - **Istilah di awal butir daftar** ("- الصبر: sabar"): bekas dan titik duanya dibuang.
+   - **Kalimat dibuang utuh**, dalam dua keadaan. Pertama, bila bekas mengakhiri kalimat (diikuti akhir kalimat, koma, rujukan lokasi, atau baris baru) dan letaknya sesudah kata yang menuntut isi ("bahwa", "yaitu", "sabda", dan sejenisnya) atau sesudah titik dua. Kedua, bila kalimatnya tinggal kurang dari tiga kata di luar rujukan lokasi; judul dan butir daftar yang masih punya kata Latin hanya kehilangan bekasnya. Sisa kalimat seperti itu tidak bermakna atau menyesatkan, dan isinya tetap terbaca di kartu kutipan. Bila seluruh baris terbuang (mis. satu butir daftar), baris barunya ikut, dan butir lain tetap.
+   - **Diganti padanannya:** bekas yang diikuti padanan Latin pendek dalam kurung (1–3 kata, tanpa angka atau titik dua, bukan rujukan seperti "(HR Muslim)"): "التوكل (tawakal)" → "tawakal".
+   - **Selain itu dibuang tanpa jejak.** Koma sebelum bekas ikut terbuang bila sesudahnya akhir kalimat, rujukan, atau baris baru. Di antara dua kata tersisa satu spasi. Perapian (spasi sebelum tanda baca, titik ganda) hanya dilakukan di sambungan bekas; teks lain tidak berubah. Baris baru, paragraf, dan indentasi tidak disentuh.
+3. **Blok hanya dibuang bila seluruh isinya terbuang bersama kalimatnya.** Blok bersitasi lain tetap, walau tinggal tanda baca, supaya sitasinya tetap mendukung kalimat itu. Diagnostik baru `arabic_sentences_dropped` dan `arabic_blocks_dropped` (log Worker) memantau berapa kalimat yang dibuang. `stripArabic` (dipakai `eval:jawab`) tetap mengganti dengan "…" (kini lewat `markArabic`, jadi "**…**" juga diringkas menjadi "…"). `JAWAB_PIPELINE_VERSION` naik 12 → 13.
+4. **Uji atas jawaban nyata:** setiap "…" di jawaban x08 dan x09 dikembalikan menjadi kata Arab, lalu dirapikan. Hasilnya tidak ada "…" yang tersisa. Kalimat yang dibuang adalah kalimat yang isinya memang hilang (j014: 3 kalimat; j023: 1; j029 x08: 1); kalimat lain tetap utuh. Pola-polanya juga dijadikan tes unit dengan teks buatan. Peninjau menolak draf sebelumnya tiga kali, dan setiap temuannya kini diuji:
+   - draf per blok: kalimat terbelah antarblok, spasi antarblok hilang, kalimat sesudah "saw." terbuang;
+   - draf teks gabungan pertama: blok bersitasi dibuang padahal kalimatnya tetap tampil, isi baris "Status hadits:" dikosongkan sehingga paragraf berikutnya diambil sebagai pernyataan status, padanan dalam kurung terlalu longgar, dan perapian global.
+   - tinjauan ketiga: label status di baris sendiri (isinya di baris berikutnya), judul/butir pendek yang terbuang utuh, "(HR Muslim)" dianggap padanan, "bersabda" belum memicu.
+
+**Tidak dipilih:**
+- Mengganti bekas dengan kutipan dari DB. Kode tidak tahu bagian teks mana yang dimaksud model, dan teks Arab hanya boleh disalin berdasarkan sitasi (aturan teks-arab no. 1).
+- Mengulang jawaban bila model menulis huruf Arab. Itu menambah biaya dan latensi, sedangkan kartu kutipan sudah menampilkan teks aslinya.
+- Prompt baru (larangan transliterasi kalimat Arab, j004/j028/j038). Prompt baru hanya dipakai sesudah diukur dengan run berbayar, jadi diusulkan terpisah.
+
+**Tinjau ulang bila:** run eval berikutnya (berbayar, izin pemilik) menunjukkan kalimat yang dibuang ternyata penting, atau bekas "…" masih terlihat.
