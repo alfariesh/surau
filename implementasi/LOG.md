@@ -35,6 +35,13 @@ Format entri:
 - Keputusan: ADR-111
 - Catatan untuk sesi berikutnya: bunyi baru belum dinilai ulang (run eval berbayar hanya dengan izin pemilik).
 
+## 2026-10-27 · X21 · Korpus ihya-v9 dipromosikan ke produksi — selesai
+- Dikerjakan: `corpus:promote ihya-v9 --confirm` atas izin pemilik (chat 2026-10-27; pemilik juga menyetujui Intisari pilot dan audio ikut tayang): DB `surau-corpus-ihya-v9` dibuat (apac), dimuat, smoke = hitungan build; `corpus:qa ihya-v9` 30/30; binding `CORPUS_DB` web, mcp, api dialihkan lewat PR; `ihya-v8` tetap sebagai target rollback (`corpus:promote surau-corpus-ihya-v8 --switch-only`).
+- Verifikasi: smoke D1 produksi baru (passage 20.509, translation 16.106, summary 623, digest 19, audio_track 6); QA produksi 30/30.
+- Biaya API: – (promote tidak berbayar)
+- Keputusan: ADR-109
+- Catatan untuk sesi berikutnya: setelah deploy, cek surau.org (halaman j1/200, hasil Cari, Intisari Kitab Ilmu); bila bermasalah, rollback ke v8.
+
 ## 2026-10-27 · X21 · Terjemahan ulang terarah Ihya — sebagian (korpus ihya-v9 dibangun, belum dimuat)
 - Dikerjakan: T-28 dipasang dari zip pemilik; 10.435 paragraf menengah+panjang diterjemahkan ulang (Sonnet 5.5 + prompt v5) dalam 5 kiriman + 2 putaran ulangan; 40 ringkasan putaran 1 + 57 putaran 2 dibuat ulang; `pnpm ingest ihya` (korpus `ihya-v9`, gerbang lolos); `pnpm t17 sampel-lanjutan` (sampel lanjutan 40) ditambahkan.
 - Verifikasi: `pnpm verify` → lolos · `pnpm ingest ihya` → semua gerbang ✓ (terjemahan 16.106/16.111, ringkasan 623/626, ayat 2.514 rujukan, 0 bermasalah).
