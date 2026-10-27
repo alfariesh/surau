@@ -21,17 +21,20 @@ export function WorkCover({
   work,
   width,
   textured = false,
+  color = "var(--book-zaitun)",
 }: {
   work: WorkCoverData;
   width?: BookWidth;
   textured?: boolean;
+  /** Warna sampul; bawaan hijau zaitun (Ihya). Kitab kandidat memakai warna bidangnya. */
+  color?: string;
 }) {
   const author = CITE_AUTHOR[work.slug] ?? work.author?.name_id ?? null;
   const latin = work.title_id;
   return (
     <div aria-hidden="true" className="contents">
       <Book
-        color="var(--book-zaitun)"
+        color={color}
         direction="rtl"
         illustration={<BookPattern id={`book-pattern-${work.slug}`} />}
         subtitle={

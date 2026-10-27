@@ -73,6 +73,16 @@ export const adminText = {
     open: "Buka halaman",
     retention: "Laporan yang selesai ditangani dihapus otomatis 12 bulan kemudian.",
   },
+  minat: {
+    heading: "Minat kitab berikutnya",
+    intro:
+      'Suara pengunjung untuk kitab kandidat "Segera hadir" di /kitab. Tanpa data pribadi; satu orang bisa memilih lebih dari sekali dari browser lain, jadi baca sebagai petunjuk, bukan hitungan pasti.',
+    empty: "Belum ada suara.",
+    total: (n: number) => `${n} suara`,
+    purposes: "Tujuan",
+    arabic: "Baca Arab",
+    failed: "Rekap minat kitab gagal dimuat.",
+  },
   translations: {
     heading: "Koreksi terjemahan terbaru",
     intro:
