@@ -17,8 +17,15 @@ Format entri:
 - Dikerjakan: perlindungan status kini per pernyataan (`ownEnd`), bukan per baris; kutipan Arab bersitasi sesudah kalimat memindah sitasinya ke kalimat itu, sehingga baris status mendapat label kode; pipeline@15.
 - Verifikasi: `pnpm verify` → lolos · reproduksi j026 (status Latin + kutipan takhrij Arab bersitasi) → "Status hadits: <label kode> (hadits di Ihya …)." tanpa "…".
 - Biaya API: –
-- Keputusan: ADR-115
+- Keputusan: ADR-116
 - Catatan untuk sesi berikutnya: dampak ke skor belum diukur (run berbayar, izin pemilik).
+
+## 2026-10-27 · /kitab: Rilis terbaru + kitab "Segera hadir" dengan suara minat anonim — selesai
+- Dikerjakan: 13 kitab kandidat dari laporan pencocokan Shamela pemilik tampil di `/kitab` sebagai kartu "Segera hadir"; popup dua pertanyaan pilihan tetap (tujuan, kemampuan baca Arab) dikirim ke `POST /api/minat-kitab`; tabel `kitab_interest` (migrasi 0007); rekap di `/admin`; `/privasi` dan docs/05 diperbarui. Email tidak dikumpulkan (ADR-115 butir 4).
+- Verifikasi: `pnpm verify` → lolos (1.113 + 452 tes, build, sesudah digabung dengan main) · pratinjau `next dev` (korpus staging, D1 app lokal): 13 kartu tampil di desktop dan ponsel, popup terkirim (201), dua suara sama = satu baris agregat `votes 2`, popup kitab yang sudah dipilih menampilkan "sudah memilih" setelah muat ulang, rekap admin dicek lewat halaman sementara (sudah dihapus) · peninjau: tanpa blocker; semua temuan "perbaiki" + saran tabel agregat diterapkan.
+- Biaya API: –
+- Keputusan: ADR-115
+- Catatan untuk sesi berikutnya: kandidat `TITLE_VARIANT` di CSV (mis. Minhaj ath-Thalibin, Bidayat al-Mujtahid, Tarikh al-Khulafa') bisa ditambahkan setelah dicek manual.
 
 ## 2026-10-27 · Eval x10: bekas huruf Arab dirapikan — selesai
 - Dikerjakan: satu run publik Jawab berbayar (izin pemilik di chat) dengan pipeline@13; 42 jawaban dinilai tiga subagen agent; laporan x09 → x10; regresi angka Arab-India ("nomor (١)") diperbaiki, pipeline@14.

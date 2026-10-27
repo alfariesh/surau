@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Typography } from "@heroui/react";
+import { countKitabInterest } from "@surau/db";
 import { AdminClient } from "../../../components/admin/admin-client";
+import { AdminMinat } from "../../../components/admin/admin-minat";
 import { AdminTranslations } from "../../../components/admin/admin-translations";
 import { PageTitle } from "../../../components/page-title";
 import { adminText as t } from "../../../i18n/admin";
+import { UPCOMING_KITAB } from "../../../content/kitab-mendatang";
 import { adminOverview } from "../../../lib/admin-data";
 import { getEnv } from "../../../lib/cloudflare";
+import { minatSummary } from "../../../lib/minat-data";
 import { adminIdentity } from "../../../lib/review-auth";
 import { adminTranslationOverview } from "../../../lib/translation-review";
 
@@ -33,7 +37,7 @@ export default async function AdminPage() {
         </a>
       </section>
     );
-  const [overview, translations] = await Promise.all([
+  const [overview, translations, minat] = await Promise.all([
     adminOverview(env.APP_DB),
     // Galat daftar koreksi (D1 korpus, baris rusak) tidak boleh menjatuhkan sakelar Maknaz/biaya.
     adminTranslationOverview(env.APP_DB, env.CORPUS_DB).catch((error: unknown) => {
@@ -42,6 +46,13 @@ export default async function AdminPage() {
       );
       return null;
     }),
+    // Rekap minat kitab (ADR-115) juga tidak boleh menjatuhkan halaman admin.
+    countKitabInterest(env.APP_DB)
+      .then((counts) => minatSummary(UPCOMING_KITAB, counts))
+      .catch((error: unknown) => {
+        console.error(JSON.stringify({ event: "admin_minat_error", name: (error as Error)?.name }));
+        return null;
+      }),
   ]);
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:px-6">
@@ -59,6 +70,13 @@ export default async function AdminPage() {
         </Typography>
       ) : (
         <AdminTranslations initial={translations} today={adminToday()} />
+      )}
+      {minat === null ? (
+        <Typography role="alert" type="body-sm">
+          {t.minat.failed}
+        </Typography>
+      ) : (
+        <AdminMinat rows={minat} />
       )}
     </div>
   );

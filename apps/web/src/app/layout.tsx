@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import {
   Amiri,
+  Aref_Ruqaa,
   Google_Sans,
   Noto_Naskh_Arabic,
   Noto_Sans_Arabic,
@@ -77,6 +78,16 @@ const notoSansArabic = Noto_Sans_Arabic({
   preload: false,
 });
 
+// Khat Ruq'ah untuk watermark judul Arab di kartu "Rilis terbaru" /kitab (dekoratif, OFL). Tidak
+// di-preload: berkasnya hanya diunduh di layar lebar, saat watermark tampil.
+const ruqaa = Aref_Ruqaa({
+  subsets: ["arabic"],
+  weight: "400",
+  variable: "--font-ruqaa",
+  display: "swap",
+  preload: false,
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -102,7 +113,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       suppressHydrationWarning
-      className={`${googleSans.variable} ${googleSansItalic.variable} ${naskh.variable} ${amiri.variable} ${scheherazade.variable} ${notoSansArabic.variable}`}
+      className={`${googleSans.variable} ${googleSansItalic.variable} ${naskh.variable} ${amiri.variable} ${scheherazade.variable} ${notoSansArabic.variable} ${ruqaa.variable}`}
       dir="ltr"
       lang={UI_LANG}
     >

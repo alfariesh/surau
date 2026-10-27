@@ -69,6 +69,41 @@ export function AlertCircle(props: IconProps) {
   );
 }
 
+export function AlphabetArabic(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M9 4L9 11"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M13 14H22C22 12 18.5 9.5 16.5 9.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M13 4V19C13 19.5523 12.5523 20 12 20H10"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M5 4V19C5 19.5523 4.55228 20 4 20H2"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function ArrowDown01(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -130,6 +165,34 @@ export function Book02(props: IconProps) {
       />{" "}
       <path
         d="M20 22H6C4.89543 22 4 21.1046 4 20M4 20C4 18.8954 4.89543 18 6 18H20V2H6C4.89543 2 4 2.89543 4 4V20Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M19.5 18C19.5 18 18.5 18.7628 18.5 20C18.5 21.2372 19.5 22 19.5 22"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function BookA(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M20 22H6C4.89543 22 4 21.1046 4 20M4 20C4 18.8954 4.89543 18 6 18H20V2H6C4.89543 2 4 2.89543 4 4V20Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M8 14L11.2996 6.45808C11.4213 6.17981 11.6963 6 12 6C12.3037 6 12.5787 6.17981 12.7004 6.45808L16 14M9.5 11H14.5"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -443,6 +506,37 @@ export function GoogleGemini(props: IconProps) {
   );
 }
 
+export function GridView(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M8.99998 3H3.99998C3.4477 3 2.99998 3.44772 2.99998 4V9C2.99998 9.55228 3.4477 10 3.99998 10H8.99998C9.55227 10 9.99998 9.55228 9.99998 9V4C9.99998 3.44772 9.55227 3 8.99998 3Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M20 3H15C14.4477 3 14 3.44772 14 4V9C14 9.55228 14.4477 10 15 10H20C20.5523 10 21 9.55228 21 9V4C21 3.44772 20.5523 3 20 3Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M8.99998 14H3.99998C3.4477 14 2.99998 14.4477 2.99998 15V20C2.99998 20.5523 3.4477 21 3.99998 21H8.99998C9.55227 21 9.99998 20.5523 9.99998 20V15C9.99998 14.4477 9.55227 14 8.99998 14Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M20 14H15C14.4477 14 14 14.4477 14 15V20C14 20.5523 14.4477 21 15 21H20C20.5523 21 21 20.5523 21 20V15C21 14.4477 20.5523 14 20 14Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function Grok(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -593,6 +687,62 @@ export function InformationCircle(props: IconProps) {
   );
 }
 
+export function JusticeScale01(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M12 5V22M12 22H9.5M12 22H14.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M21 13L18.5 8L16 13"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M8 13L5.5 8L3 13"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M3.5 8H5.0482C6.31166 8 7.5375 7.471 8.5241 6.5C10.5562 4.5 13.4438 4.5 15.4759 6.5C16.4625 7.471 17.6883 8 18.9518 8H20.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M13.5 3.5C13.5 4.32843 12.8284 5 12 5C11.1716 5 10.5 4.32843 10.5 3.5C10.5 2.67157 11.1716 2 12 2C12.8284 2 13.5 2.67157 13.5 3.5Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M5.5 16.5C7.433 16.5 9 14.933 9 13H2C2 14.933 3.567 16.5 5.5 16.5Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M18.5 16.5C20.433 16.5 22 14.933 22 13H15C15 14.933 16.567 16.5 18.5 16.5Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function LeftToRightListBullet(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -615,6 +765,33 @@ export function LeftToRightListBullet(props: IconProps) {
       />{" "}
       <path
         d="M4.375 19H4.25M4.5 19C4.5 19.1381 4.38807 19.25 4.25 19.25C4.11193 19.25 4 19.1381 4 19C4 18.8619 4.11193 18.75 4.25 18.75C4.38807 18.75 4.5 18.8619 4.5 19Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function LegalDocument01(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M3 5V19C3 20.6569 4.34315 22 6 22H18C19.6569 22 21 20.6569 21 19V5C21 3.34315 19.6569 2 18 2H6C4.34315 2 3 3.34315 3 5Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M11.5 10.5005L8.5 13.5M12.0002 6.00012L16.0005 10.0005L13.5004 12.5006L9.5 8.5003L12.0002 6.00012Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M8.5 18H15.5"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -804,6 +981,27 @@ export function QuoteDown(props: IconProps) {
   );
 }
 
+export function Quran01(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M11.9991 12.5L20 6.5L17.6471 3.5L11.9991 8L5.88235 3.5L4 6.5L11.9991 12.5Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M22 8.5L6 20.5V16M2 8.5L18 20.5V16"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
 export function Search01(props: IconProps) {
   return (
     <Ikon {...props}>
@@ -875,6 +1073,60 @@ export function Sun01(props: IconProps) {
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </Ikon>
+  );
+}
+
+export function Tasbih(props: IconProps) {
+  return (
+    <Ikon {...props}>
+      <path
+        d="M7.58935 15L2.11596 17.9848C2.05777 18.0166 2.04599 18.0951 2.09233 18.1425L3.97733 20.0709M9 16.553L6.00641 21.886C5.97417 21.9435 5.89616 21.9546 5.84915 21.9084L3.97733 20.0709M3.97733 20.0709L4.95682 19.0361"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M19.6568 6.76742C18.9873 7.43695 17.9019 7.43695 17.2324 6.76742C16.5629 6.0979 16.5629 5.01238 17.2324 4.34285C17.9019 3.67333 18.9873 3.67333 19.6568 4.34285C20.3263 5.01238 20.3263 6.0979 19.6568 6.76742Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M10.7672 15.6575C10.0977 16.327 9.01223 16.327 8.34274 15.6575C7.67325 14.988 7.67325 13.9025 8.34274 13.2329C9.01223 12.5634 10.0977 12.5634 10.7672 13.2329C11.4367 13.9025 11.4367 14.988 10.7672 15.6575Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M17.2324 15.6575C16.5629 14.988 16.5629 13.9025 17.2324 13.2329C17.9019 12.5634 18.9873 12.5634 19.6568 13.2329C20.3263 13.9025 20.3263 14.988 19.6568 15.6575C18.9873 16.327 17.9019 16.327 17.2324 15.6575Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M8.34274 6.76742C7.67325 6.0979 7.67325 5.01238 8.34274 4.34285C9.01223 3.67333 10.0977 3.67333 10.7672 4.34285C11.4367 5.01238 11.4367 6.0979 10.7672 6.76742C10.0977 7.43695 9.01223 7.43695 8.34274 6.76742Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M20.2857 11.714C19.3388 11.714 18.5713 10.9464 18.5713 9.99958C18.5713 9.05272 19.3388 8.28515 20.2857 8.28515C21.2325 8.28515 22 9.05272 22 9.99958C22 10.9464 21.2325 11.714 20.2857 11.714Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M7.71434 11.7148C6.76754 11.7148 6 10.9472 6 10.0004C6 9.05351 6.76754 8.28594 7.71434 8.28594C8.66115 8.28594 9.42869 9.05351 9.42869 10.0004C9.42869 10.9472 8.66115 11.7148 7.71434 11.7148Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M12.2853 16.2856C12.2853 15.3387 13.0528 14.5711 13.9996 14.5711C14.9464 14.5711 15.7139 15.3387 15.7139 16.2856C15.7139 17.2324 14.9464 18 13.9996 18C13.0528 18 12.2853 17.2324 12.2853 16.2856Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />{" "}
+      <path
+        d="M12.2853 3.71443C12.2853 2.76758 13.0528 2 13.9996 2C14.9464 2 15.7139 2.76758 15.7139 3.71443C15.7139 4.66128 14.9464 5.42886 13.9996 5.42886C13.0528 5.42886 12.2853 4.66128 12.2853 3.71443Z"
+        stroke="currentColor"
         strokeWidth="1.5"
       />
     </Ikon>

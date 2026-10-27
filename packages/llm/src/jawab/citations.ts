@@ -187,7 +187,7 @@ const LATIN_GLOSS = new RegExp(
  */
 export function tidyArabicCuts<B extends { text: string; citations?: readonly number[] }>(
   blocks: readonly B[],
-  /** Sitasi ke catatan kaki takhrij (untuk memindah sitasi kutipan, ADR-115). */
+  /** Sitasi ke catatan kaki takhrij (untuk memindah sitasi kutipan, ADR-116). */
   isFoot: (n: number) => boolean = () => false,
 ): { blocks: B[]; dropped_sentences: number; dropped_blocks: number } {
   if (!blocks.some((b) => b.text.includes(ARABIC_CUT)))
@@ -267,7 +267,7 @@ export function tidyArabicCuts<B extends { text: string; citations?: readonly nu
       // yang sama ("Status hadits: muttafaq 'alaih. [kutipan takhrij]", x10 j026): sitasinya pindah ke
       // blok tempat kalimat itu berakhir, supaya takhrijnya tetap mendukung kalimat itu.
       // Hanya ke pernyataan status hadits di baris yang sama, dan tidak pernah menambah takhrij
-      // kedua: sitasi tidak boleh menempel ke kalimat yang tidak didukungnya (peninjau ADR-115).
+      // kedua: sitasi tidak boleh menempel ke kalimat yang tidak didukungnya (peninjau ADR-116).
       const prevEnd = t.slice(lineStart, start).search(/\S\s*$/u);
       const statement =
         prevEnd === -1

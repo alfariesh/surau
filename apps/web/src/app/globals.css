@@ -28,6 +28,8 @@
 @import "@heroui/styles/components/menu-item.css" layer(components);
 @import "@heroui/styles/components/menu-section.css" layer(components);
 @import "@heroui/styles/components/menu.css" layer(components);
+@import "@heroui/styles/components/tag-group.css" layer(components);
+@import "@heroui/styles/components/tag.css" layer(components);
 @import "@heroui/styles/components/slider.css" layer(components);
 @import "@heroui/styles/components/switch.css" layer(components);
 @import "@heroui/styles/components/chip.css" layer(components);
@@ -142,6 +144,13 @@
   --accent: oklch(0.47 0.085 150);
   --accent-foreground: oklch(0.99 0.005 90);
   --link: var(--accent);
+  /* Warna bidang kitab "Segera hadir" (ADR-115): hanya untuk ikon + teks, kontras teks ≥ AA. */
+  --kategori-tasawuf: oklch(0.47 0.12 320);
+  --kategori-quran: oklch(0.47 0.08 195);
+  --kategori-fikih: oklch(0.46 0.11 150);
+  --kategori-ushul: oklch(0.47 0.12 260);
+  --kategori-bahasa: oklch(0.5 0.12 60);
+  --kategori-istilah: oklch(0.5 0.14 20);
 }
 
 :root.dark {
@@ -159,6 +168,12 @@
   --field-background: var(--surface);
   --accent: oklch(0.79 0.1 150);
   --accent-foreground: oklch(0.2 0.03 150);
+  --kategori-tasawuf: oklch(0.8 0.09 320);
+  --kategori-quran: oklch(0.8 0.08 195);
+  --kategori-fikih: oklch(0.8 0.1 150);
+  --kategori-ushul: oklch(0.8 0.08 260);
+  --kategori-bahasa: oklch(0.82 0.1 70);
+  --kategori-istilah: oklch(0.8 0.09 20);
 }
 
 /* Kertas sepia (panel Tampilan, tema next-themes "sepia"): kertas krem kecokelatan, tinta cokelat
@@ -1643,6 +1658,22 @@ h3.reader-inline-subheading {
     ),
     var(--surface-secondary);
 }
+/* Versi lembut `.landing-gradient` untuk widget "Rilis terbaru" di /kitab (ADR-115): hijau dan emas
+   jauh lebih tipis supaya judul dan kalimat header tetap jelas terbaca. */
+.rilis-gradient {
+  background:
+    radial-gradient(
+      60% 90% at 10% 0%,
+      color-mix(in oklab, var(--accent) 16%, var(--surface)) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 80% at 90% 0%,
+      color-mix(in oklab, var(--ornament-gold) 16%, var(--surface)) 0%,
+      transparent 70%
+    ),
+    var(--surface-secondary);
+}
 .landing-gradient-gold {
   background:
     radial-gradient(
@@ -1861,4 +1892,88 @@ h3.reader-inline-subheading {
   line-height: 1.5;
   vertical-align: 0.1em;
   white-space: nowrap;
+}
+
+/*
+ * Filter bidang kitab "Segera hadir" (/kitab, ADR-115): chip lebih besar, ikon + teks berwarna per
+ * bidang (`--kategori` dari komponen). Di ponsel daftar chip digulir ke samping (tidak membungkus),
+ * melebar sampai tepi layar lalu kembali sejajar gutter halaman (px-4) lewat padding.
+ */
+.kategori-filter .tag-group__list {
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  margin-inline: -1rem;
+  padding: 0.25rem 1rem;
+  margin-block: -0.25rem;
+  overflow-x: auto;
+  scroll-padding-inline: 1rem;
+  scrollbar-width: none;
+}
+
+.kategori-filter .tag-group__list::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .kategori-filter .tag-group__list {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow-x: visible;
+  }
+}
+
+.kategori-filter .tag {
+  flex-shrink: 0;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 9999px;
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  color: var(--kategori, var(--foreground));
+}
+
+.kategori-filter .tag svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.kategori-filter .tag:is([data-selected="true"], [aria-selected="true"]) {
+  background-color: color-mix(in oklab, var(--kategori, var(--accent)) 16%, var(--surface));
+  color: var(--kategori, var(--accent));
+}
+
+/*
+ * Watermark judul Arab di widget "Rilis terbaru" (/kitab): khat Ruq'ah (Aref Ruqaa), besar dan sangat
+ * tipis, di kanan header dan menjorok sedikit ke bawah di BELAKANG isi: header dan Widget.Content
+ * diberi `relative z-[1]`, jadi teks dan kartu putih selalu di depannya. Tanpa menangkap klik;
+ * dipotong oleh overflow Widget. Dekoratif (aria-hidden),
+ * hanya di layar lebar; ukuran diatur di pembungkus karena ArabicInline memakai em.
+ */
+.rilis-watermark {
+  display: none;
+}
+
+@media (width >= 64rem) {
+  .rilis-watermark {
+    position: absolute;
+    top: -0.1em;
+    inset-inline-end: 1.5rem;
+    z-index: 0;
+    display: block;
+    /* Judul Arab panjang tidak melebar ke kalimat header di kiri. */
+    max-width: 55%;
+    overflow: hidden;
+    font-size: 4.5rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: var(--foreground);
+    opacity: 0.08;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .rilis-watermark .arabic-inline {
+    font-family: var(--font-ruqaa), var(--font-arabic);
+  }
 }

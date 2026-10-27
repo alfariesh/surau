@@ -81,7 +81,7 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * pembaca (ADR-111: 10), gema takhrij kemunculan pertama hadits (ADR-112: 11), jenis istilah
  * "tidak ditemukan" yang dipisah (ADR-113: 12), bekas huruf Arab buatan model dirapikan (ADR-114:
  * 13; angka Arab-India menjadi ASCII, ADR-114 hasil x10: 14), kutipan Arab bersitasi sesudah
- * kalimat status memindah sitasinya ke kalimat itu (ADR-115: 15), dan
+ * kalimat status memindah sitasinya ke kalimat itu (ADR-116: 15), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */

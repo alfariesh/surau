@@ -4,7 +4,9 @@ import { ZodError } from "zod";
 
 import { feedbackRow } from "../schema/app.ts";
 import {
+  countKitabInterest,
   createFeedback,
+  createKitabInterest,
   getAnswerCache,
   getSettings,
   putAnswerCache,
@@ -122,6 +124,47 @@ describe("answer_cache", () => {
     await expect(putAnswerCache(db, { ...row, key: "pendek" })).rejects.toBeInstanceOf(ZodError);
     await expect(
       putAnswerCache(db, { ...row, outcome: "fallback" as unknown as "answer" }),
+    ).rejects.toBeInstanceOf(ZodError);
+  });
+});
+
+describe("kitab_interest (ADR-115)", () => {
+  test("suara dijumlah per hari dan pilihan tanpa data pribadi", async () => {
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM kitab_interest").run();
+    });
+    await createKitabInterest(db, {
+      candidate: "al-waraqat",
+      purpose: "teaching",
+      arabic: "fluent",
+    });
+    await createKitabInterest(db, {
+      candidate: "al-waraqat",
+      purpose: "teaching",
+      arabic: "fluent",
+    });
+    await createKitabInterest(db, {
+      candidate: "bidayat-al-hidayah",
+      purpose: "self_study",
+      arabic: "beginner",
+    });
+    expect(await countKitabInterest(db)).toEqual([
+      { candidate: "al-waraqat", purpose: "teaching", arabic: "fluent", votes: 2 },
+      { candidate: "bidayat-al-hidayah", purpose: "self_study", arabic: "beginner", votes: 1 },
+    ]);
+    // Agregat: dua suara sama di hari yang sama = satu baris berhitungan 2, bukan dua baris.
+    const { results } = await db.prepare("SELECT day, votes FROM kitab_interest").all();
+    expect(results).toHaveLength(2);
+    expect(results).toContainEqual({ day: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/), votes: 2 });
+  });
+
+  test("slug atau pilihan di luar daftar ditolak sebelum menyentuh DB", async () => {
+    const ok = { candidate: "al-waraqat", purpose: "teaching", arabic: "fluent" } as const;
+    await expect(
+      createKitabInterest(db, { ...ok, candidate: "Al Waraqat" }),
+    ).rejects.toBeInstanceOf(ZodError);
+    await expect(
+      createKitabInterest(db, { ...ok, purpose: "email" as unknown as "other" }),
     ).rejects.toBeInstanceOf(ZodError);
   });
 });

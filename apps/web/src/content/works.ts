@@ -10,6 +10,11 @@ export const CITE_AUTHOR: Readonly<Record<string, string>> = {
   ihya: "al-Ghazali",
 };
 
+/** Keterangan singkat karya di daftar /kitab (ditulis tangan, bahasa Indonesia). */
+export const WORK_BLURB: Readonly<Record<string, string>> = {
+  ihya: "Ensiklopedia ibadah, adab, dan penyucian jiwa dalam empat bagian: ibadah, kebiasaan sehari-hari, hal yang membinasakan, dan hal yang menyelamatkan.",
+};
+
 /** Kunci: `<slug karya>/<slug edisi>`. */
 export const CITE_PUBLISHER: Readonly<Record<string, string>> = {
   "ihya/dar-al-marifah": "Dar al-Ma'rifah",
