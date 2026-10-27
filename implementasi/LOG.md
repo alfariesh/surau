@@ -56,6 +56,12 @@ Format entri:
 - Keputusan: ADR-111
 - Catatan untuk sesi berikutnya: bunyi baru belum dinilai ulang (run eval berbayar hanya dengan izin pemilik).
 
+## 2026-10-27 · X21 · 72 paragraf sisa (prompt v6) — selesai
+- Dikerjakan: prompt `translate-passage@6` (= v5 + "Keluaran bersih") dan entri `x21-sisa` (kolom `passages`) untuk 72 paragraf yang ditolak validator tiga kali; Sonnet 5.5, izin pemilik. 37 lolos (24 + 9 + 4), 35 tetap memakai terjemahan lama.
+- Verifikasi: `pnpm verify` lolos (PR #176); `pnpm llm plan` tepat 72 request.
+- Biaya API: US$1,06 (total terjemahan ulang US$36,95; folder US$41,64).
+- Catatan untuk sesi berikutnya: 37 perbaikan ini ada di `data/build/llm` tetapi belum di korpus produksi `ihya-v9`; ikut korpus berikutnya. Sisa 35 (3 tanpa terjemahan) perlu koreksi manusia (T-26) atau pemecahan paragraf.
+
 ## 2026-10-27 · X21 · Nilai ulang strata pendek — selesai
 - Dikerjakan: 13 sampel pendek T-17 lanjutan dinilai ulang (dua penilai Claude Opus buta) setelah diterjemahkan ulang Sonnet 5.5 + v5. Sebelum 8 Benar / 5 Kurang; sesudah 12 Benar, 1 butir (no. 31) Kurang/Salah.
 - Verifikasi: perbandingan sebelum/sesudah (sampel sudah pernah dilihat), tercatat di `data/reports/ihya-9472-t17-tahap3.md`.
