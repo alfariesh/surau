@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Riset ringkasan buku (Blinkist, Headway, Deepstash, Uptime), audit Intisari, pecahan produk — selesai
+- Dikerjakan: folder `docs/riset/2026-10-27-ringkasan-buku-dan-pecahan-produk/` (README + 9 dokumen: empat app, pola lintas app, lanskap kitab Islam dan Indonesia, korpus dan data, audit Intisari, pecahan produk); 8 halaman di file Paper "Surau Research" (layar Mobbin tidak masuk repo, hak cipta pihak ketiga); pemeriksaan fakta atas semua dokumen dan tinjauan `peninjau`.
+- Verifikasi: `pnpm verify` → lolos · grep huruf Arab di folder → 0 · 166 tautan relatif → 0 putus · peninjau → tanpa blocker, 12 temuan diperbaiki.
+- Biaya API: – (Mobbin dan WebSearch; tanpa LLM berbayar milik Surau)
+- Keputusan: tidak ada ADR baru. Rekomendasi (belum diputuskan pemilik): tidak memecah merek, "Academy" jadi "Jalur", Intisari dibenahi pembungkusnya; keputusan pemilik ada di `09-pecahan-produk.md` bagian 7.
+- Catatan untuk sesi berikutnya: dua gagasan Salah di bab 100017 dan 100007 masih tayang dengan audio (cek langsung 2026-10-27); menghapus mp3 dari R2 butuh izin pemilik. Produksi `ihya-v9` hanya memuat 19 Bab (100003 dan 100019 404, sedangkan laporan QA memuat 20 Bab): belum dijelaskan di repo.
+
 ## 2026-10-27 · Sisa "… …" di baris status hadits (j026) — selesai
 - Dikerjakan: perlindungan status kini per pernyataan (`ownEnd`), bukan per baris; kutipan Arab bersitasi sesudah kalimat memindah sitasinya ke kalimat itu, sehingga baris status mendapat label kode; pipeline@15.
 - Verifikasi: `pnpm verify` → lolos · reproduksi j026 (status Latin + kutipan takhrij Arab bersitasi) → "Status hadits: <label kode> (hadits di Ihya …)." tanpa "…".
