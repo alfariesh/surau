@@ -32,6 +32,7 @@ Format entri:
 - Verifikasi: `pnpm verify` → lolos · `pnpm ingest ihya` → semua gerbang ✓ (terjemahan 16.106/16.111, ringkasan 623/626, ayat 2.514 rujukan, 0 bermasalah).
 - Biaya API: US$30,47 terjemahan ulang + US$0,14 ringkasan (di atas US$4,69 lama; total folder US$35,30) atas izin pemilik, pagu US$40.
 - Keputusan: ADR-109
+- Pengukuran ulang T-17 (penilai agent, 40 sampel lanjutan): Benar 82,1%, Salah 1,1% tertimbang, "lolos, belum pasti"; strata pendek (Haiku v2, tidak diterjemahkan ulang) 5 dari 13 Kurang.
 - Catatan untuk sesi berikutnya: muat `ihya-v9` ke staging + `corpus:qa`; promote atas izin pemilik; ukur ulang T-17 dengan sampel lanjutan (dari korpus `ihya-v9`). 57 paragraf terpilih yang ditolak validator tetap memakai terjemahan lama.
 
 ## 2026-10-26 · X21 · Terjemahan ulang terarah Ihya (rancangan + biaya) — sebagian

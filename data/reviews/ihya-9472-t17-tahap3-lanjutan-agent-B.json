@@ -1,0 +1,246 @@
+{
+  "sample": "9a0eaa18f4ba",
+  "rater": "Agent penilai B (Claude Opus, buta, bukan manusia)",
+  "grades": [
+    {
+      "no": 1,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; urutan argumen dan perbandingan tabib vs ahli mata hati tepat."
+    },
+    {
+      "no": 2,
+      "grade": "B",
+      "categories": [],
+      "note": "Kebiasaan, dua hadits, angka seratus/seribu, dan alasan riya diterjemahkan tepat."
+    },
+    {
+      "no": 3,
+      "grade": "B",
+      "categories": [],
+      "note": "Tiga derajat tawakal, ucapan Sahl, dan perumpamaan anak/mayat setia; tambahan kecil 'sadarnya' tidak mengubah makna."
+    },
+    {
+      "no": 4,
+      "grade": "B",
+      "categories": [],
+      "note": "Dua larangan, contoh jemuran dan wajah terbakar, penempatan QS 3:191 wajar; setia."
+    },
+    {
+      "no": 5,
+      "grade": "B",
+      "categories": [],
+      "note": "Hukum masbuk dan kunut Subuh tepat."
+    },
+    {
+      "no": 6,
+      "grade": "S",
+      "categories": ["lain"],
+      "note": "Salah urai: kemuliaan jiwa dan keengganannya dijadikan peringan obat, padahal teks menyatakan sikap itu adalah kebodohan (subjek bagi khabar)."
+    },
+    {
+      "no": 7,
+      "grade": "B",
+      "categories": [],
+      "note": "Fragmen pembuka ditangani wajar; lima sebab, hakiki vs majas, kesimpulan setia."
+    },
+    {
+      "no": 8,
+      "grade": "B",
+      "categories": [],
+      "note": "Dua ujung, kemungkinan tanpa sebab, contoh rusa dan ikan, analogi air hujan tepat."
+    },
+    {
+      "no": 9,
+      "grade": "B",
+      "categories": [],
+      "note": "Tepat."
+    },
+    {
+      "no": 10,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; 'sehingga' menjadikan larangan menyimpan sebagai akibat, nuansa kecil."
+    },
+    {
+      "no": 11,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia: penilai melihat jelas, tipu daya tak laku, ulama berpakaian mewah mengaku hendak menundukkan ahli bid'ah."
+    },
+    {
+      "no": 12,
+      "grade": "K",
+      "categories": ["istilah", "tambahan"],
+      "note": "'bil-hilah' (rekayasa/siasat) dilunakkan jadi 'cara-cara tertentu'; kurung '(perasaan)' menebak objek penggerakan."
+    },
+    {
+      "no": 13,
+      "grade": "K",
+      "categories": ["hilang"],
+      "note": "Penghubung 'karena itulah' hilang, sehingga kaitan dengan argumen sebelumnya terputus; penempatan ayat 17:21 wajar."
+    },
+    {
+      "no": 14,
+      "grade": "B",
+      "categories": [],
+      "note": "Pendapat Sa'id dan az-Zuhri, riwayat Mu'adz dan 'Aisyah, serta catatan riwayat 'Aisyah dipersoalkan, semuanya tepat."
+    },
+    {
+      "no": 15,
+      "grade": "B",
+      "categories": [],
+      "note": "Adab ziarah dan rangkaian salam lengkap dan setia; penempatan ayat 17:80 wajar; nama-nama Nabi diterjemahkan maknanya."
+    },
+    {
+      "no": 16,
+      "grade": "B",
+      "categories": [],
+      "note": "Kalimat pengantar kisah 'Utbah al-Ghulam diterjemahkan tepat."
+    },
+    {
+      "no": 17,
+      "grade": "B",
+      "categories": [],
+      "note": "Nabi mengangkut bata bersama kaum membangun masjid sambil berucap; setia."
+    },
+    {
+      "no": 18,
+      "grade": "B",
+      "categories": [],
+      "note": "Empat sebab cinta pujian dan kenikmatan hati; tepat."
+    },
+    {
+      "no": 19,
+      "grade": "K",
+      "categories": ["hilang"],
+      "note": "Teks utama setia, tetapi catatan takhrij sisipan ('tidak kutemukan asalnya', 'muttafaq 'alaih dari Anas...') tidak diterjemahkan."
+    },
+    {
+      "no": 20,
+      "grade": "B",
+      "categories": [],
+      "note": "Batas haramnya olok-olok, pengecualian orang yang rela diolok, dan perendahan yang menyakitkan diterjemahkan tepat."
+    },
+    {
+      "no": 21,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; menolak celaan musuh dan sikap mencari-cari kesalahan sebagai kewajiban ikatan persaudaraan."
+    },
+    {
+      "no": 22,
+      "grade": "K",
+      "categories": ["istilah"],
+      "note": "Umumnya setia, penempatan QS 32:17 wajar; 'humum' diterjemahkan 'kegelisahan', lebih tepat 'perhatian/keinginan'."
+    },
+    {
+      "no": 23,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia, termasuk pembuka amma ba'du dan pendapat ulama yang mengingkari dinisbatkan dengan benar."
+    },
+    {
+      "no": 24,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia dan ringkas."
+    },
+    {
+      "no": 25,
+      "grade": "B",
+      "categories": [],
+      "note": "Tiga bingkisan dan urutannya benar; penempatan empat penanda ayat wajar."
+    },
+    {
+      "no": 26,
+      "grade": "B",
+      "categories": [],
+      "note": "Syarat kelima tempo diketahui benar; kata 'tertentu' tambahan wajar."
+    },
+    {
+      "no": 27,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia."
+    },
+    {
+      "no": 28,
+      "grade": "B",
+      "categories": [],
+      "note": "Kisah mimpi dan wasiat Uwais tertangkap benar; 'inda mahabbatihi' ditafsir wajar."
+    },
+    {
+      "no": 29,
+      "grade": "K",
+      "categories": ["tambahan"],
+      "note": "Kurung '(dan tidak bekerja)' menebak maksud, tidak ada di teks Arab."
+    },
+    {
+      "no": 30,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; sipir penjara, ucapan Dzun Nun, dan penutup tingkatan tak terhitung benar."
+    },
+    {
+      "no": 31,
+      "grade": "K",
+      "categories": ["istilah", "lain"],
+      "note": "Lanjutan nada heran ditangkap sebagai vonis 'tidak masuk akal'; rujukan (Allah) dipersempit jadi 'orang'."
+    },
+    {
+      "no": 32,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; definisi yakin dan sabar serta hadis terjemah tepat."
+    },
+    {
+      "no": 33,
+      "grade": "B",
+      "categories": [],
+      "note": "Fragmen pendek diterjemahkan apa adanya."
+    },
+    {
+      "no": 34,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; penebus dosa, tuduhan aib, gibah dan pujian tepat."
+    },
+    {
+      "no": 35,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; contoh, sanggahan sembilan halal, dan illah dominan serta kebutuhan tepat."
+    },
+    {
+      "no": 36,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; 'kami/kita' sedikit tidak konsisten."
+    },
+    {
+      "no": 37,
+      "grade": "K",
+      "categories": ["hilang", "istilah"],
+      "note": "Kata 'selain' (pada selain yang telah diterangi) tidak diterjemahkan; ditafsirkan 'baru diterangi sebagian'. Sisanya tepat."
+    },
+    {
+      "no": 38,
+      "grade": "K",
+      "categories": ["pelaku", "istilah"],
+      "note": "Rujukan 'atasnya' (orang yang diingkari) dijadikan 'perbuatan itu'; arah pengingkaran kabur."
+    },
+    {
+      "no": 39,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; mafhum pujian suara merdu tepat."
+    },
+    {
+      "no": 40,
+      "grade": "B",
+      "categories": [],
+      "note": "Setia; perumpamaan masjid dilumuri kotoran tepat."
+    }
+  ]
+}

@@ -150,3 +150,24 @@ risiko ADR-042 yang terulang; perbaikan deteksi ayat masuk langkah berikutnya.
   isian tersimpan dibuka lewat tombol *Lanjutkan sebagai …*, dan isian dari versi halaman sebelumnya
   dipindahkan otomatis ke nama penilainya. Saat perubahan ini dibuat, agent belum menerima isian penilai
   mana pun.
+
+### Sampel lanjutan sesudah terjemahan ulang X21 (penilai agent, 2026-10-27)
+
+**Penyimpangan dari pra-registrasi (bertanggal 2026-10-27, ditulis sebelum hasil terlihat di commit sampel `d08e358`):**
+- Populasi 16.092 pra-registrasi tidak bisa direproduksi (D1 `ihya-v7` memuat 16.086 terjemahan, `ihya-v8` 16.097). Sampel lanjutan ditarik dari populasi korpus yang sedang diukur, `ihya-v9` (16.106 terjemahan: pendek 5.618, sedang 8.135, panjang 2.353).
+- Prosedur sesuai klarifikasi 2026-10-21: `samplePages` atas ID strata itu, 13/14/13, seed 20261024 + k (`pnpm t17 sampel-lanjutan`). Dikeluarkan dari populasi tarikan: 60 sampel pertama **dan** 30 ID sampel uji prompt X21 (`data/reviews/ihya-9472-x21-sampel-uji.json`), supaya paragraf yang sudah dilihat saat memilih prompt tidak dinilai lagi.
+- Terjemahan di 60 sampel pertama (terutama sedang dan panjang) ikut diganti, jadi penggabungan 60 + 40 tidak sah; estimasi memakai **hanya 40 sampel lanjutan**.
+- Penilai: dua subagen Claude Opus buta (hanya teks Arab + satu terjemahan, tanpa model/versi/strata), bekerja paralel dan mandiri; **bukan manusia** (ADR-105). Penilaian manusia kapan pun tetap menggantikan penilaian agent ini.
+
+Hasil (`pnpm t17 hasil --lanjutan …`; berkas: `data/reviews/ihya-9472-t17-tahap3-lanjutan-agent-{A,B}.json`, tanpa teks kitab):
+
+| Strata | n | Benar | Kurang | Salah | Asal terjemahan |
+|---|---:|---|---|---|---|
+| pendek | 13 | 61,5% (35,5–82,3%) | 38,5% (17,7–64,5%) | 0,0% (0,0–22,8%) | Haiku + v2 (tidak diterjemahkan ulang) |
+| sedang | 14 | 100,0% (78,5–100,0%) | 0,0% | 0,0% (0,0–21,5%) | Sonnet 5.5 + v5 |
+| panjang | 13 | 69,2% (42,4–87,3%) | 23,1% (8,2–50,3%) | 7,7% (1,4–33,3%) | Sonnet 5.5 + v5 |
+| **tertimbang** | 40 | **82,1%** (67,6–91,0%) | 16,8% (8,3–31,1%) | **1,1%** (0,1–10,7%) | |
+
+Kategori: istilah 4, bagian hilang 3, tambahan 2, lainnya 3. Dua penilai sepakat di 40 dari 40 nomor (kappa 1,00 pada nomor 1–20); catatan keduanya berbeda kalimat, tetapi keduanya satu keluarga model dengan penerjemah, jadi kesepakatan ini bukan bukti keandalan.
+
+**Keputusan (aturan 1 pra-registrasi): "lolos, belum pasti"**: estimasi titik memenuhi target (Benar 82,1% ≥ 80%; Salah 1,1% ≤ 10%), tetapi batas atas Salah (10,7%) melewati 10%. Dibanding penilaian agent atas 60 sampel pertama (71,9% / 13,3%), terjemahan paragraf sedang dan panjang membaik jelas (sedang 100%, panjang 69%), sedangkan strata pendek (belum diterjemahkan ulang) 5 dari 13 Kurang, tanpa Salah. Satu-satunya Salah ada di strata panjang (1 dari 13).
