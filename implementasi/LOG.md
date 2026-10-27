@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Eval x09: bunyi label status hadits — selesai
+- Dikerjakan: satu run publik Jawab berbayar (izin pemilik di chat) dengan pipeline@11 dan korpus `ihya-v9`; run diulang dan digabung karena korpus staging diganti di tengah run dan koneksi D1 remote putus; 42 jawaban dinilai tiga subagen agent; laporan perbandingan x08 → x09.
+- Verifikasi: `eval:jawab score` gabungan → kutipan 100%, lokasi 85,3%, status hadits kode 5/6; penilaian agent → bahasa 3,36, kesetiaan 71,4%, atribusi 97,6%.
+- Biaya API: ±US$0,16 (jawaban yang dinilai US$0,1181).
+- Keputusan: hasil dicatat di ADR-111.
+- Catatan untuk sesi berikutnya: perbaiki arti `lam_ajid` (regresi j029) dan elipsis sisa teks Arab (`stripArabic`).
+
 ## 2026-10-27 · Gema takhrij (pencarian takhrij kemunculan pertama hadits) — selesai
 - Dikerjakan: untuk soal hadits, Jawab mencari takhrij al-'Iraqi di kemunculan pertama hadits yang muncul lagi tanpa penanda catatan kaki atau dengan catatan kaki rujukan "تقدم". Lafaznya dicocokkan kode (`packages/llm/src/jawab/echo.ts`), lalu catatan kaki itu ditaruh di dokumen tepat sesudah paragrafnya. Diagnostik `takhrij_echoes` ditambahkan; pipeline@11.
 - Verifikasi: `pnpm verify` → lolos · `eval:jawab kandidat --remote` (hanya SELECT) dengan rute tersimpan x08: 32 → 33/34 (j024 lengkap), x07: 31 → 32/34, status hadits 6/6 di keduanya, tanpa soal yang turun; `--tanpa-rute` tetap 29/34 · sampel acak 360 paragraf: 13 pasangan, semuanya benar.

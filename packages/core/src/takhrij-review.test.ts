@@ -58,7 +58,7 @@ describe("takhrijStatus", () => {
       expect(text.length).toBeLessThanOrEqual(TAKHRIJ_STATUS_MAX);
       // Atribusi takhrij selalu mendahului kelompok peninjau (bila ada).
       const reviewer = text.indexOf("menurut peninjau");
-      if (reviewer !== -1) expect(reviewer).toBeGreaterThan(text.indexOf(byTakhrij));
+      expect(reviewer === -1 || reviewer > text.indexOf(byTakhrij)).toBe(true);
     }
   });
 
