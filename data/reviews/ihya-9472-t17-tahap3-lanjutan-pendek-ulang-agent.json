@@ -1,0 +1,226 @@
+{
+  "basis": "Penilaian ulang 13 sampel pendek T-17 lanjutan setelah diterjemahkan ulang (Sonnet 5.5 + translate-passage@5). Sampel sudah pernah dilihat: perbandingan sebelum/sesudah, bukan estimasi tak bias. Penilai: dua subagen Claude Opus buta, bukan manusia.",
+  "items": [
+    {
+      "no": 9,
+      "passage_id": 10008736,
+      "nilai_lama_haiku_v2": "B",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; 'Hadis itu' tambahan wajar sebagai subjek."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; tambahan 'Hadis itu' wajar sebagai rujukan subjek."
+        }
+      }
+    },
+    {
+      "no": 12,
+      "passage_id": 10010200,
+      "nilai_lama_haiku_v2": "K",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; 'bil-hilah' sebagai upaya buatan dapat diterima, partikel fa' awal tidak diterjemahkan, tidak berdampak."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; 'upaya buatan' untuk hilah dapat diterima."
+        }
+      }
+    },
+    {
+      "no": 13,
+      "passage_id": 10018116,
+      "nilai_lama_haiku_v2": "K",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; penempatan ayat QS 17:21 wajar."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; penanda ayat QS 17:21 ditempatkan wajar setelah 'berfirman'."
+        }
+      }
+    },
+    {
+      "no": 16,
+      "passage_id": 10010261,
+      "nilai_lama_haiku_v2": "B",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia dan lengkap."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia pada kalimat pengantar kisah Utbah al-Ghulam."
+        }
+      }
+    },
+    {
+      "no": 18,
+      "passage_id": 10014456,
+      "nilai_lama_haiku_v2": "B",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; empat sebab terjaga."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; empat sebab, cinta pujian dan kenikmatan hati tepat."
+        }
+      }
+    },
+    {
+      "no": 24,
+      "passage_id": 10010076,
+      "nilai_lama_haiku_v2": "B",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; 'pengaruh lebih besar' untuk mazid atsar dapat diterima."
+        }
+      }
+    },
+    {
+      "no": 27,
+      "passage_id": 10010152,
+      "nilai_lama_haiku_v2": "B",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; pengandaian dan hukum haram tepat."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; pengandaian dan hukum haram tepat."
+        }
+      }
+    },
+    {
+      "no": 29,
+      "passage_id": 10006146,
+      "nilai_lama_haiku_v2": "K",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; bentuk pertanyaan kepada Ahmad tepat."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; pertanyaan kepada Ahmad diterjemahkan tepat."
+        }
+      }
+    },
+    {
+      "no": 31,
+      "passage_id": 10010049,
+      "nilai_lama_haiku_v2": "K",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "K",
+          "categories": ["negasi", "lain"],
+          "note": "Struktur negasi diubah: Arab 'cinta kepadanya tidak dipahami' (lanjutan rasa heran), terjemahan 'tidak masuk akal bila tidak dicintai'; kontras keheranan hilang."
+        },
+        "penilai2": {
+          "grade": "S",
+          "categories": ["negasi", "lain"],
+          "note": "Arab: cinta kepada pemberi kebaikan justru tidak dipahami (bagian keheranan). Terjemahan menambah negasi 'tidak dicintai' sehingga proposisinya terbalik."
+        }
+      }
+    },
+    {
+      "no": 33,
+      "passage_id": 10009268,
+      "nilai_lama_haiku_v2": "B",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Penggalan dua kata diterjemahkan apa adanya."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Fragmen pendek, diterjemahkan apa adanya."
+        }
+      }
+    },
+    {
+      "no": 36,
+      "passage_id": 10011800,
+      "nilai_lama_haiku_v2": "B",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; 'menunjuk kepada' agak kaku untuk 'mengisyaratkan', tidak mengubah makna."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; 'menunjuk' agak harfiah untuk menyinggung, makna tetap benar."
+        }
+      }
+    },
+    {
+      "no": 38,
+      "passage_id": 10010931,
+      "nilai_lama_haiku_v2": "K",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; 'hanyalah' sedikit penekanan tambahan tetapi sesuai kontras kalimat."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; kontras pokok pengingkaran dan perincian terjaga."
+        }
+      }
+    },
+    {
+      "no": 39,
+      "passage_id": 10009857,
+      "nilai_lama_haiku_v2": "B",
+      "baru_sonnet_v5": {
+        "penilai1": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; mafhum diterjemahkan tepat, penempatan QS 31:19 wajar."
+        },
+        "penilai2": {
+          "grade": "B",
+          "categories": [],
+          "note": "Setia; mafhum dan penanda QS 31:19 ditempatkan tepat."
+        }
+      }
+    }
+  ]
+}
