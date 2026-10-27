@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vite-plus/test";
 
 import {
+  T17_FOLLOWUP_PER_STRATUM,
+  T17_FOLLOWUP_SEED,
   T17_PER_STRATUM,
   drawT17Sample,
   parseT17Grades,
@@ -41,6 +43,29 @@ describe("sampel T-17 tahap 3", () => {
     // Urutan tampil diacak (bukan urut strata).
     expect(a.items.slice(0, 20).every((i) => i.stratum === "pendek")).toBe(false);
     expect(drawT17Sample(population, 1).items).not.toEqual(a.items);
+  });
+
+  test("sampel lanjutan: 13/14/13, tanpa ID yang dikeluarkan, bobot strata tetap seluruh populasi", () => {
+    const first = drawT17Sample(population);
+    const exclude = new Set(first.items.map((i) => i.passage));
+    const f = drawT17Sample(population, T17_FOLLOWUP_SEED, T17_FOLLOWUP_PER_STRATUM, exclude);
+    expect(f.items).toHaveLength(40);
+    for (const [s, n] of [
+      ["pendek", 13],
+      ["sedang", 14],
+      ["panjang", 13],
+    ] as const) {
+      expect(f.items.filter((i) => i.stratum === s)).toHaveLength(n);
+    }
+    expect(f.items.some((i) => exclude.has(i.passage))).toBe(false);
+    expect(f.population).toEqual(first.population);
+    // Deterministik, dan mengecualikan ID lain mengubah tarikan tanpa memuat ID itu.
+    expect(drawT17Sample(population, T17_FOLLOWUP_SEED, T17_FOLLOWUP_PER_STRATUM, exclude)).toEqual(
+      f,
+    );
+    const more = new Set([...exclude, ...f.items.slice(0, 5).map((i) => i.passage)]);
+    const g = drawT17Sample(population, T17_FOLLOWUP_SEED, T17_FOLLOWUP_PER_STRATUM, more);
+    expect(g.items.some((i) => more.has(i.passage))).toBe(false);
   });
 });
 
