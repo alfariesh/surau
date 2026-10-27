@@ -7,6 +7,14 @@
       "prompt": "translate-passage@5",
       "model": "claude-sonnet-5-5",
       "min_chars": 100
+    },
+    {
+      "id": "x21-pendek",
+      "date": "2026-10-27",
+      "basis": "Pengukuran ulang T-17 (40 sampel lanjutan, penilai agent): strata pendek yang masih Haiku + prompt v2 hanya 8 dari 13 Benar (5 Kurang), sedangkan sedang+panjang yang sudah Sonnet + v5 jauh lebih baik; izin pemilik di chat 2026-10-27 untuk strata pendek dengan Sonnet",
+      "prompt": "translate-passage@5",
+      "model": "claude-sonnet-5-5",
+      "min_chars": 0
     }
   ]
 }
