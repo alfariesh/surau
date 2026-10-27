@@ -86,18 +86,211 @@ export function stripCiteTags(text: string): string {
 
 /** Buang huruf Arab buatan model dari teks (bukan dari kutipan DB). */
 export function stripArabic(text: string): { text: string; removed: number } {
+  const marked = markArabic(text);
+  return { text: marked.text.replaceAll(ARABIC_CUT, "…"), removed: marked.removed };
+}
+
+/**
+ * Penanda bekas huruf Arab buatan model (ADR-114). Dipasang per blok saat streaming (`markArabic`),
+ * dirapikan atas teks gabungan semua blok (`tidyArabicCuts`), dan tidak pernah sampai ke pembaca:
+ * pratinjau menampilkannya sebagai "…".
+ */
+export const ARABIC_CUT = "";
+
+/** Ganti setiap rangkaian huruf Arab buatan model dengan `ARABIC_CUT` (rangkaian berdekatan jadi satu). */
+export function markArabic(text: string): { text: string; removed: number } {
   let removed = 0;
-  const cleaned = text.replace(ARABIC_RUN, (m) => {
+  const marked = text.replace(ARABIC_RUN, (m) => {
     removed += m.length;
-    return "…";
+    return ARABIC_CUT;
   });
-  // Tanda kurung/kutip yang kini hanya membungkus elipsis ikut dirapikan.
+  if (removed === 0) return { text, removed };
   return {
-    text: removed
-      ? cleaned.replace(/[("“'‘]\s*…\s*[)"”'’]/gu, "…").replace(/…(?:\s*…)+/gu, "…")
-      : text,
+    text: marked
+      .replace(new RegExp(`${ARABIC_CUT}(?:[ \\t\\u00A0,;،]*${ARABIC_CUT})+`, "gu"), ARABIC_CUT)
+      .replace(
+        new RegExp(`[("“'‘][ \\t\\u00A0]*${ARABIC_CUT}[ \\t\\u00A0]*[)"”'’]`, "gu"),
+        ARABIC_CUT,
+      )
+      .replace(new RegExp(`([*_]{1,3})${ARABIC_CUT}\\1`, "gu"), ARABIC_CUT),
     removed,
   };
+}
+
+/** Isi yang tidak mendukung klaim: spasi, tanda baca, angka, penanda daftar/Markdown. */
+export const trivial = (text: string) => /^[\s.,;:!?*_\-–—•·()\d]*$/u.test(text);
+
+/**
+ * Kata yang menuntut isi sesudahnya ("menyimpulkan bahwa …", "dalam kalimat …"): bila bekas teks
+ * Arab langsung sesudah kata ini juga mengakhiri kalimatnya, isi yang dituju hilang (x09: j014,
+ * j023, ADR-114). Bekas yang masih diikuti kata Latin tidak memicu ("menyebut doa … sebagai …").
+ */
+const NEEDS_CONTENT = new Set([
+  "bahwa",
+  "yaitu",
+  "yakni",
+  "ialah",
+  "adalah",
+  "berbunyi",
+  "kalimat",
+  "lafaz",
+  "lafal",
+  "sabda",
+  "firman",
+  "berkata",
+  "mengatakan",
+  "menyatakan",
+  "seharusnya",
+  "bersabda",
+  "berfirman",
+  "mengucapkan",
+  "membaca",
+  "berdoa",
+]);
+/** Rujukan lokasi dalam kurung ("(Ihya, j. 4, h. 286)"): tidak dihitung sebagai isi kalimat. */
+const NOT_GLOSS = new Set(["hr", "qs", "muttafaq", "riwayat", "lihat", "artinya", "yaitu"]);
+const LOCATION_REF = /\((?:[^()\n]*\bj\.\s*\d[^()\n]*)\)/gu;
+/** Spasi dalam baris (tanpa baris baru), untuk regex yang disusun. */
+const SP = "[ \\t\\u00A0]";
+/** Sesudah bekas: akhir kalimat/baris, rujukan lokasi, koma, atau titik dua. */
+const ENDS = new RegExp(`^${SP}*(?:[.!?;,:)*_]|\\(|\\n|$)`, "u");
+/**
+ * Padanan Latin pendek dalam kurung sesudah istilah Arab ("التوكل (tawakal)"): 1–3 kata, bukan
+ * rujukan riwayat/ayat ("(HR Muslim)", "(QS …)").
+ */
+const LATIN_GLOSS = new RegExp(
+  `^${SP}*\\((\\p{Script=Latin}[\\p{L}'’-]*(?: [\\p{L}'’-]+){0,2})\\)`,
+  "u",
+);
+
+/**
+ * Rapikan bekas huruf Arab (`ARABIC_CUT`) atas teks gabungan blok, supaya pembaca tidak melihat
+ * lubang "…" (x09: 6 dari 42 jawaban, ADR-114). Kalimat dinilai di teks gabungan karena blok
+ * Citations API sering hanya potongan kalimat; setiap karakter tetap milik bloknya, jadi sitasi
+ * blok tidak bergeser. Batas kalimat: akhir kalimat sendiri (`ownEnd`) atau baris baru.
+ * - Kalimat "Status hadits:": bekas menjadi "…" seperti sebelumnya (isinya ditimpa `hadithCheck`).
+ * - Istilah di awal butir daftar ("- الصبر: sabar"): bekas dan titik duanya dibuang.
+ * - Kalimat dibuang utuh bila bekas mengakhiri kalimat sesudah kata yang menuntut isi ("bahwa …"),
+ *   sesudah titik dua, atau bila kalimatnya tinggal kurang dari tiga kata di luar rujukan lokasi.
+ * - Bekas yang diikuti padanan Latin pendek dalam kurung diganti padanannya.
+ * - Selain itu bekas dibuang tanpa jejak: koma sebelumnya ikut bila sesudahnya akhir kalimat,
+ *   rujukan, atau baris baru; di antara dua kata tersisa satu spasi.
+ * Hanya blok yang seluruh isinya terbuang bersama kalimatnya yang dibuang; blok bersitasi lain tetap,
+ * walau tinggal tanda baca, supaya sitasinya tetap mendukung kalimat itu.
+ */
+export function tidyArabicCuts<B extends { text: string }>(
+  blocks: readonly B[],
+): { blocks: B[]; dropped_sentences: number; dropped_blocks: number } {
+  if (!blocks.some((b) => b.text.includes(ARABIC_CUT)))
+    return { blocks: [...blocks], dropped_sentences: 0, dropped_blocks: 0 };
+  const units: string[] = [];
+  const owner: number[] = [];
+  blocks.forEach((b, i) => {
+    for (const u of b.text.split("")) {
+      units.push(u);
+      owner.push(i);
+    }
+  });
+  // Pernyataan status hadits (label beserta isinya, juga di baris/butir sesudah label) tidak pernah
+  // dirapikan: bekasnya menjadi "…" seperti sebelumnya dan isinya ditimpa `hadithCheck`.
+  const shown = units.join("").replaceAll(ARABIC_CUT, "…");
+  for (const st of hadithStatements(shown))
+    for (let i = st.start; i < st.end; i++) if (units[i] === ARABIC_CUT) units[i] = "…";
+  const inDropped = new Set<number>();
+  const del = (start: number, end: number) => {
+    units.splice(start, end - start);
+    owner.splice(start, end - start);
+  };
+  // Sambungan sesudah penghapusan: spasi sebelum tanda baca dan titik ganda yang baru terbentuk.
+  const seam = (p: number) => {
+    if (p > 0 && /[ \t ]/u.test(units[p - 1] ?? "") && /[.,;!?)]/u.test(units[p] ?? ""))
+      del(p - 1, p);
+    else if (p > 0 && /[.!?]/u.test(units[p - 1] ?? "") && units[p] === ".") del(p, p + 1);
+  };
+  let droppedSentences = 0;
+  for (;;) {
+    const t = units.join("");
+    const at = t.indexOf(ARABIC_CUT);
+    if (at === -1) break;
+    const before = t.slice(0, at);
+    const after = t.slice(at + 1);
+    const lineStart = before.lastIndexOf("\n") + 1;
+    const nl = t.indexOf("\n", at);
+    const lineEnd = nl === -1 ? t.length : nl;
+    const s = sentencesIn(t, lineStart, lineEnd).find((x) => x.start <= at && at < x.ownEnd);
+    const start = s?.start ?? lineStart;
+    const end = s?.ownEnd ?? lineEnd;
+    const sentence = t.slice(start, end);
+    if (hasHadithPrefix(t.slice(lineStart, end))) {
+      units[at] = "…";
+      continue;
+    }
+    if (
+      new RegExp(`^${SP}*(?:[-*•·–]|\\d{1,2}[.)])?${SP}*$`, "u").test(before.slice(lineStart)) &&
+      new RegExp(`^${SP}*:`, "u").test(after)
+    ) {
+      del(at, at + 1 + new RegExp(`^${SP}*:${SP}*`, "u").exec(after)![0].length);
+      continue;
+    }
+    const lead = /(\p{L}+)[ \t ]*$/u.exec(before)?.[1]?.toLowerCase();
+    const ends = ENDS.test(after);
+    const words =
+      sentence.replace(LOCATION_REF, " ").match(/\p{Script=Latin}[\p{L}'’-]*/gu)?.length ?? 0;
+    // Judul dan butir daftar memang pendek: selama masih ada kata Latin, hanya bekasnya yang dibuang.
+    const short =
+      words > 0 &&
+      new RegExp(`^${SP}*(?:#{1,6}${SP}|[-*•·–]${SP}|\\d{1,2}[.)]${SP}|\\*\\*)`, "u").test(
+        t.slice(lineStart, lineEnd),
+      );
+    const colon = new RegExp(`:${SP}*$`, "u").test(before);
+    if (
+      (words < 3 && !short) ||
+      (ends && (colon || (lead !== undefined && NEEDS_CONTENT.has(lead))))
+    ) {
+      const trailing = new RegExp(`^${SP}*`, "u").exec(t.slice(end))![0].length;
+      // Kalimat terakhir di baris/teks: spasi sebelumnya ikut terbuang.
+      const last = end + trailing === t.length || t[end + trailing] === "\n";
+      const leading = last
+        ? new RegExp(`${SP}*$`, "u").exec(t.slice(lineStart, start))![0].length
+        : 0;
+      for (let i = start; i < end; i++) inDropped.add(owner[i]!);
+      // Seluruh baris terbuang (mis. satu butir daftar): baris barunya ikut, tanpa baris kosong.
+      const whole =
+        start - leading === lineStart ||
+        new RegExp(`^${SP}*$`, "u").test(t.slice(lineStart, start - leading));
+      if (whole && end + trailing === lineEnd && nl !== -1) del(lineStart, lineEnd + 1);
+      else if (whole && end + trailing === lineEnd && lineStart > 0) del(lineStart - 1, lineEnd);
+      else del(start - leading, end + trailing);
+      droppedSentences++;
+      continue;
+    }
+    const gloss = LATIN_GLOSS.exec(after);
+    if (gloss !== null && !NOT_GLOSS.has(/\p{L}+/u.exec(gloss[1]!)![0].toLowerCase())) {
+      // "التوكل (tawakal)" → "tawakal": buang bekas, spasi, dan kurungnya.
+      del(at + gloss[0].length, at + 1 + gloss[0].length);
+      del(at, at + 1 + gloss[0].indexOf("(") + 1);
+      continue;
+    }
+    if (ends) {
+      const lead0 = new RegExp(`${SP}*,?${SP}*$`, "u").exec(before.slice(lineStart))![0].length;
+      del(at - lead0, at + 1);
+      seam(at - lead0);
+      continue;
+    }
+    // Di antara dua kata: satu spasi tetap.
+    const lead0 = new RegExp(`${SP}*$`, "u").exec(before.slice(lineStart))![0].length;
+    const after0 = new RegExp(`^${SP}*`, "u").exec(after)![0].length;
+    if (lead0 > 0) del(at, at + 1 + after0);
+    else del(at, at + 1);
+  }
+  const out: B[] = [];
+  let droppedBlocks = 0;
+  blocks.forEach((b, i) => {
+    const text = units.filter((_, k) => owner[k] === i).join("");
+    if (text === "" && b.text !== "" && inDropped.has(i)) droppedBlocks++;
+    else out.push({ ...b, text });
+  });
+  return { blocks: out, dropped_sentences: droppedSentences, dropped_blocks: droppedBlocks };
 }
 
 /**
@@ -281,7 +474,6 @@ export interface HadithStatement {
   prefixed: boolean;
 }
 
-const SP = "[ \\t\\u00A0]";
 const HADITH_WORD = "[hḥ]ad[iī](?:ts|th|st|s|t)";
 const WORD = "[\\p{L}'’ʻ-]+";
 const LABEL_HEAD = "(?<![\\p{L}\\p{N}])(?:status|derajat|kualitas)";
