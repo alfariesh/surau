@@ -20,6 +20,14 @@ Format entri:
 - Keputusan: hasil dicatat di ADR-111.
 - Catatan untuk sesi berikutnya: perbaiki arti `lam_ajid` (regresi j029) dan elipsis sisa teks Arab (`stripArabic`).
 
+## 2026-10-27 · Gema takhrij: run eval berbayar — selesai
+- Dikerjakan: run publik 42 soal atas izin pemilik (`x09-publik-gema-v1` + lanjutan `x09-publik-gema-v1c`), skor kode atas arsip gabungan.
+- Hasil: takhrij 5/6 → 6/6, lokasi 31/34 → 32/34, kutipan valid 100% (dibanding x08). j024 kini benar ("dinilai lemah", sitasi 10000010).
+- Kendala: staging dikosongkan oleh pemuatan `ihya-v9` (sesi X21) di tengah run dan tetap kosong ≥ 1 jam (meta hanya `schema_version`); sesi X21 sudah dikabari. Lanjutan dan skor memakai `ihya-v9` lokal; 91 paragraf yang disitasi + kunci identik dengan `ihya-v8` produksi.
+- Biaya API: US$0,1224 jawaban (+ panggilan j028/j030 yang gagal, tak tercatat).
+- Keputusan: ADR-112 (bagian hasil)
+- Catatan untuk sesi berikutnya: penilaian semantik run ini belum dilakukan. Pencatat biaya `answer` membebankan pagu cadangan penuh (±US$0,17) untuk soal yang gagal, sehingga satu galat D1 bisa menghabiskan pagu kecil.
+
 ## 2026-10-27 · Gema takhrij (pencarian takhrij kemunculan pertama hadits) — selesai
 - Dikerjakan: untuk soal hadits, Jawab mencari takhrij al-'Iraqi di kemunculan pertama hadits yang muncul lagi tanpa penanda catatan kaki atau dengan catatan kaki rujukan "تقدم". Lafaznya dicocokkan kode (`packages/llm/src/jawab/echo.ts`), lalu catatan kaki itu ditaruh di dokumen tepat sesudah paragrafnya. Diagnostik `takhrij_echoes` ditambahkan; pipeline@11.
 - Verifikasi: `pnpm verify` → lolos · `eval:jawab kandidat --remote` (hanya SELECT) dengan rute tersimpan x08: 32 → 33/34 (j024 lengkap), x07: 31 → 32/34, status hadits 6/6 di keduanya, tanpa soal yang turun; `--tanpa-rute` tetap 29/34 · sampel acak 360 paragraf: 13 pasangan, semuanya benar.
@@ -39,6 +47,7 @@ Format entri:
 - Verifikasi: `pnpm verify` → lolos · `pnpm ingest ihya` → semua gerbang ✓ (terjemahan 16.106/16.111, ringkasan 623/626, ayat 2.514 rujukan, 0 bermasalah).
 - Biaya API: US$30,47 terjemahan ulang + US$0,14 ringkasan (di atas US$4,69 lama; total folder US$35,30) atas izin pemilik, pagu US$40.
 - Keputusan: ADR-109
+- Pengukuran ulang T-17 (penilai agent, 40 sampel lanjutan): Benar 82,1%, Salah 1,1% tertimbang, "lolos, belum pasti"; strata pendek (Haiku v2, tidak diterjemahkan ulang) 5 dari 13 Kurang.
 - Catatan untuk sesi berikutnya: muat `ihya-v9` ke staging + `corpus:qa`; promote atas izin pemilik; ukur ulang T-17 dengan sampel lanjutan (dari korpus `ihya-v9`). 57 paragraf terpilih yang ditolak validator tetap memakai terjemahan lama.
 
 ## 2026-10-26 · X21 · Terjemahan ulang terarah Ihya (rancangan + biaya) — sebagian

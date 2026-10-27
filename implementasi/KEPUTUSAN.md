@@ -2898,6 +2898,7 @@ Agent menyampaikan risikonya lebih dulu dan menawarkan jalan tengah (label ringk
 - **Biaya aktual terjemahan ulang US$30,47** (tahap 6,39 · 4,91 · 7,12 · 5,82 · 4,65, ulangan sisanya), plus ringkasan US$0,14 (40 potongan putaran 1 + 57 induk putaran 2, izin pemilik maks US$1,50); total folder US$35,30 dari pagu `--budget` 44,7 (US$4,69 lama + US$40). Cache terbaca ≈ 100% di batch besar (S13-like), jadi jauh di bawah skenario hati-hati alat (US$36,9).
 - Penjaga pagu memakai skenario cache 50% per tahap sehingga tahap 4 (2.500) ditolak walau biaya nyata kecil; dipecah jadi 1.500 + 1.471 dengan penjaga tetap utuh. Catatan untuk batch besar berikutnya.
 - Korpus `ihya-v9` dibangun lokal (belum dimuat/di-promote): semua gerbang ingest lolos; 2.514 rujukan ayat (+30), 1.341 terjemahan berisi ayat dengan 0 bermasalah, cakupan terjemahan 16.106/16.111 (99,97%), ringkasan 623/626 (99,52%), ID rilis stabil.
+- **T-17 diukur ulang (2026-10-27, penilai agent, 40 sampel lanjutan dari `ihya-v9`):** Benar 82,1% (67,6–91,0%), Salah 1,1% (0,1–10,7%) tertimbang → "lolos, belum pasti" (batas atas Salah > 10%). Sedang 14/14 Benar, panjang 9/13 Benar (1 Salah), pendek 8/13 Benar (5 Kurang, 0 Salah; tidak diterjemahkan ulang). Rincian dan penyimpangan bertanggal: `data/reports/ihya-9472-t17-tahap3.md`. Penilai bukan manusia (ADR-105).
 
 **Tinjau ulang bila:** QA T-17 pasca terjemahan ulang masih Salah > 10% atau Benar < 80%, biaya aktual melewati pagu, atau penilai manusia (T-17 resmi) tidak sepakat dengan penilai agent.
 
@@ -2993,5 +2994,14 @@ Dirancang hanya dengan soal publik dan sampel korpus. Holdout tidak dipakai (ADR
 - **Tabel tautan gema yang dihitung saat membangun korpus.** Cara ini deterministik dan bisa juga dipakai pembaca dan MCP `get_hadith_takhrij`, tetapi butuh migrasi, pembangunan ulang korpus, dan promote. Pencocok di sini murni dan bisa dipindah ke ingest nanti tanpa mengubah aturannya.
 - **Menyaring klaim "Status hadits" ke hadits yang dibahas jawaban.** Menentukan hadits mana yang dibahas membutuhkan penilaian makna (model). Itu melemahkan prinsip bahwa klaim dibuat dari struktur (ADR-069). Setiap butir sudah menampilkan teks takhrij Arab, yang diawali lafaz haditsnya, beserta tautan lokasinya. Di j024, takhrij hadits lain (10000686) muncul karena takhrij yang ditanyakan tidak ada di dokumen. Dengan gema, takhrij yang ditanyakan kini tersedia.
 - **Mengikuti rujukan berantai** (catatan kaki rujukan → catatan kaki rujukan lain). Untuk sekarang yang ditemukan hanya takhrij bersumber.
+
+**Hasil run berbayar** (2026-10-27, izin pemilik di chat; [laporan](../evals/reports/jawab-x09-publik-gema-skor.md)), skor kode 42 soal publik, dibanding x08:
+- takhrij/status hadits **5/6 → 6/6**;
+- lokasi 31/34 → **32/34**;
+- kutipan valid tetap 100%, menolak dengan tepat tetap 8/8.
+
+j024 kini menjawab "Status hadits: dinilai lemah, menurut takhrij al-'Iraqi (hadits di Ihya j. 1, h. 2)" dengan sitasi ke 10000010, dan menyebut bahwa kemunculan di j1 h59 tidak punya takhrij sendiri. j025 juga memakai gema: catatan kaki rujukan j2 h89 dipasangkan ke takhrij lengkap di j1 h2.
+
+Run ini terganggu oleh pemuatan `ihya-v9` ke staging oleh sesi lain: j028–j042 diulang atas `ihya-v9` lokal, dan skornya dihitung atas `ihya-v9` setelah 91 paragraf yang disitasi dan kunci dicek identik dengan `ihya-v8`. Biaya jawaban US$0,1224. Penilaian semantik belum dilakukan.
 
 **Tinjau ulang bila:** run publik berikutnya (berbayar, izin pemilik) masih menilai j024 Salah, atau gema membuat pasangan yang keliru di soal mana pun.

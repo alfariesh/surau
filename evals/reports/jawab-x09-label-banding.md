@@ -95,6 +95,9 @@ tersebar 5/6 → 3/6 (lokasi turun di bawah syarat R4). j019 berasal dari run v2
 D1, jadi pencarian yang diam-diam melemah karena D1 tidak stabil tidak bisa disingkirkan. Satu run per versi. x09
 menggabungkan tiga perubahan (label, gema takhrij, korpus `ihya-v9`), jadi efek label saja tidak bisa
 dipisahkan. Konvensi kecil berbeda antarpenilai (misalnya `location_ok` untuk soal di luar cakupan).
+Run `x09-publik-gema-*` sesi lain, dengan kode dan korpus yang sama, mendapat status hadits kode 6/6
+(j024 benar) dan lokasi 32/34, sedangkan run ini 5/6 dan 29/34: selisih antar-run sebesar itu adalah
+derau, bukan efek label.
 Penilaian manusia belum ada.
 
 ## Rekomendasi
