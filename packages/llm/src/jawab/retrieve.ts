@@ -286,11 +286,13 @@ export function fuse(lists: readonly SearchList[], k = RRF_K): number[] {
 
 /**
  * Susun urutan dokumen: setiap paragraf diikuti pasangannya (catatan kaki takhrij untuk paragraf
- * badan; paragraf badan yang merujuk untuk catatan kaki), tanpa duplikat.
+ * badan; paragraf badan yang merujuk untuk catatan kaki), lalu takhrij gema-nya (`echoes`,
+ * ADR-112: takhrij kemunculan pertama hadits yang sama), tanpa duplikat.
  */
 export function withPairs(
   ranked: readonly number[],
   passages: ReadonlyMap<number, AnswerPassage>,
+  echoes: ReadonlyMap<number, readonly number[]> = new Map(),
 ): number[] {
   const out: number[] = [];
   const seen = new Set<number>();
@@ -310,6 +312,7 @@ export function withPairs(
       add(id);
       for (const f of p.footnote_ids) add(f);
     }
+    for (const f of echoes.get(id) ?? []) add(f);
   }
   return out;
 }

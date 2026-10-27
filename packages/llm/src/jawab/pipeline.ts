@@ -62,6 +62,7 @@ import type { HadithStatement } from "./citations.ts";
 import type { CitedSpan } from "./citations.ts";
 import { buildDoc, docContext, docLabel } from "./documents.ts";
 import type { AnswerDoc } from "./documents.ts";
+import { echoSeeds, pickEchoes, searchFootnotes } from "./echo.ts";
 import { fuse, pairIds, searchLists, semanticLists, withPairs } from "./retrieve.ts";
 import type { SearchList, SemanticInput } from "./retrieve.ts";
 import { ROUTE_PROMPT, buildRouteRequest, normalizeRoute, parseRoute, tocText } from "./route.ts";
@@ -74,11 +75,11 @@ export const JAWAB_PROMPT_VERSION = `${ANSWER_PROMPT.id}+${ROUTE_PROMPT.id}`;
  * bagian berjudul kitab + pemberitahuan status yang berdiri sendiri dibuang (ADR-106: 8),
  * diagnostik bahasa dan penilaian hadits tanpa sitasi (ADR-110: 9; keluaran tidak berubah, versi
  * dinaikkan supaya log/cache membedakan prompt `answer@8`), bunyi label status hadits untuk
- * pembaca (ADR-111: 10), dan
+ * pembaca (ADR-111: 10), gema takhrij kemunculan pertama hadits (ADR-112: 11), dan
  * pascaproses (pemetaan/verifikasi sitasi, `hadithCheck`). Naikkan bila perilaku itu berubah: ikut
  * kunci `answer_cache`, jadi cache lama tidak disajikan dengan aturan lama.
  */
-export const JAWAB_PIPELINE_VERSION = 10;
+export const JAWAB_PIPELINE_VERSION = 11;
 /** Edisi default Ihya (satu-satunya kitab di Fase 4). */
 export const JAWAB_EDITION_ID = 1;
 export const QUESTION_MAX_CHARS = 1000;
@@ -149,6 +150,10 @@ export interface JawabDiagnostics {
   summary_sections: number[];
   /** Pencarian makna (X13): tidak ada bila `semanticSearch` tidak diberikan. */
   semantic?: { hits: number; footnote_hits: number; error: boolean };
+  /** Catatan kaki gema takhrij (ADR-112; hanya soal hadits) yang masuk dokumen. */
+  takhrij_echoes?: number;
+  /** Pencarian gema gagal (galat D1); jawaban tetap dibuat tanpa gema. */
+  takhrij_echoes_error?: boolean;
   candidates: number;
   docs: number;
   doc_tokens_est: number;
@@ -305,6 +310,10 @@ export interface JawabCandidates {
   ranked: number[];
   /** Paragraf kandidat beserta pasangannya. */
   passages: Map<number, AnswerPassage>;
+  /** Gema takhrij (ADR-112): paragraf → takhrij kemunculan pertama hadits yang sama. */
+  echoes: Map<number, number[]>;
+  /** Pencarian gema gagal; kandidat tetap dihitung tanpa gema. */
+  echoError: boolean;
   /**
    * Dokumen jawaban: urutan RRF + pasangan dipangkas anggaran token, lalu dikelompokkan per bagian
    * (`orderBySection`, X05); kosong = tanpa kandidat.
@@ -339,7 +348,17 @@ export async function jawabCandidates(
   const missing = pairIds(first).filter((id) => !ranked.includes(id));
   const extra = missing.length ? await answerPassages(db, missing) : [];
   const passages = new Map([...first, ...extra].map((p) => [p.id, p]));
-  const order = withPairs(ranked, passages);
+  let echoes = new Map<number, number[]>();
+  let echoError = false;
+  if (route?.hadith) {
+    // Gema hanya pelengkap: galat D1 di sini tidak menggagalkan jawaban (sama dengan pencarian makna).
+    try {
+      echoes = await takhrijEchoes(db, ranked, passages);
+    } catch {
+      echoError = true;
+    }
+  }
+  const order = withPairs(ranked, passages, echoes);
   const labels = new Map([...passages.values()].map((p) => [p.id, docLabel(p)]));
   const budget = Math.min(
     DOC_BUDGET_TOKENS,
@@ -350,12 +369,29 @@ export async function jawabCandidates(
       order.map((id, i) => {
         const p = passages.get(id)!;
         const shown = i < TRANSLATED_DOCS ? p : { ...p, translation: null };
-        return buildDoc(shown, docContext(shown, toc, labels));
+        return buildDoc(shown, docContext(shown, toc, labels, echoes));
       }),
       budget,
     ),
   );
-  return { lists, ranked, passages, docs };
+  return { lists, ranked, passages, echoes, echoError, docs };
+}
+
+/**
+ * Gema takhrij (ADR-112, hanya soal hadits): lafaz hadits tanpa takhrij di kandidat teratas dicari
+ * di catatan kaki; catatan kaki yang matannya cocok dimuat ke `passages` (dimutasi) dan dipasangkan.
+ */
+async function takhrijEchoes(
+  db: D1Db,
+  ranked: readonly number[],
+  passages: Map<number, AnswerPassage>,
+): Promise<Map<number, number[]>> {
+  const seeds = echoSeeds(ranked, passages);
+  if (seeds.length === 0) return new Map();
+  const found = await Promise.all(seeds.map((s) => searchFootnotes(db, s)));
+  const missing = [...new Set(found.flat())].filter((id) => !passages.has(id));
+  for (const p of missing.length ? await answerPassages(db, missing) : []) passages.set(p.id, p);
+  return pickEchoes(seeds, found, passages);
 }
 
 export async function runJawab(deps: JawabDeps, question: string): Promise<JawabResult> {
@@ -506,6 +542,13 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     footnotes: semantic.footnotes,
   });
   diagnostics.search_lists = found.lists.length;
+  if (route?.hadith) {
+    const inDocs = new Set(found.docs.map((d) => d.passage.id));
+    diagnostics.takhrij_echoes = new Set(
+      [...found.echoes.values()].flat().filter((id) => inDocs.has(id)),
+    ).size;
+    if (found.echoError) diagnostics.takhrij_echoes_error = true;
+  }
   diagnostics.summary_sections = [
     ...new Set(
       found.lists

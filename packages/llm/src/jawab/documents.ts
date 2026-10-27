@@ -132,21 +132,38 @@ export function sectionPath(
   return titles.join(" › ");
 }
 
-/** Konteks dokumen (tidak bisa dikutip): jenis, bagian, ayat, terjemahan AI berlabel. */
+/**
+ * Konteks dokumen (tidak bisa dikutip): jenis, bagian, ayat, terjemahan AI berlabel. `echoes` =
+ * pasangan gema (ADR-112, paragraf → takhrij kemunculan pertama hadits yang sama).
+ */
 export function docContext(
   p: AnswerPassage,
   toc: ReadonlyMap<number, AnswerTocNode>,
   labelOf: ReadonlyMap<number, string>,
+  echoes: ReadonlyMap<number, readonly number[]> = new Map(),
 ): string {
   const lines: string[] = [];
+  const labels = (ids: Iterable<number>) =>
+    [...new Set([...ids].map((id) => labelOf.get(id)).filter((l) => l !== undefined))].join("; ");
+  const echoedBy = [...echoes].filter(([, feet]) => feet.includes(p.id)).map(([id]) => id);
   if (p.kind === "foot") {
-    const refs = p.referenced_by.map((id) => labelOf.get(id)).filter((l) => l !== undefined);
+    const refs = labels(p.referenced_by);
     lines.push(
-      `Jenis: catatan kaki, takhrij hadits oleh al-'Iraqi${refs.length ? ` untuk hadits di paragraf ${refs.join("; ")}` : ""}.`,
+      `Jenis: catatan kaki, takhrij hadits oleh al-'Iraqi${refs ? ` untuk hadits di paragraf ${refs}` : ""}.`,
     );
+    const again = labels(echoedBy);
+    if (again)
+      lines.push(
+        `Lafaz hadits yang sama muncul lagi di ${again} tanpa takhrij sendiri; catatan kaki ini dicocokkan sistem dari lafaznya (biasanya kemunculan pertama hadits itu).`,
+      );
   } else {
     lines.push("Jenis: matan Ihya (perkataan al-Ghazali, termasuk yang ia nukil).");
     if (p.footnote_ids.length > 0) lines.push("Paragraf ini punya catatan kaki takhrij.");
+    const first = labels(echoes.get(p.id) ?? []);
+    if (first)
+      lines.push(
+        `Ada hadits di paragraf ini tanpa takhrij sendiri; takhrij yang dicocokkan sistem dari lafaznya: ${first} (periksa bahwa lafaznya sama).`,
+      );
   }
   const path = sectionPath(p.toc_node_id, toc);
   if (path !== "") lines.push(`Bagian: ${path}`);

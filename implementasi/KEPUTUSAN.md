@@ -2949,3 +2949,40 @@ Pemilik meminta `answer@8` untuk bahasa di chat (2026-10-26).
 - Membiarkan LLM merumuskan baris status. Itu melanggar aturan teks-arab no. 6.
 
 **Tinjau ulang bila:** penilaian manusia (Anas) atau run eval berikutnya (berbayar, izin pemilik) menilai bunyi baru ini masih kaku, atau ada kitab dengan penakhrij lain.
+
+## ADR-112 · Gema takhrij: takhrij kemunculan pertama hadits ikut ke dokumen Jawab, pipeline@11 — diterima · 2026-10-26
+
+**Konteks:** al-'Iraqi menakhrij sebuah hadits sekali, di kemunculan pertamanya di Ihya. Bila hadits itu muncul lagi, ada dua pola:
+- paragrafnya **tidak bertanda catatan kaki sama sekali**. Di korpus staging ada 536 paragraf badan yang memuat "صلى الله عليه وسلم" tanpa satu penanda pun, belum termasuk paragraf yang sebagian haditsnya saja bertanda;
+- catatan kakinya **hanya merujuk balik** ("تقدم", 820 dari 4.398 catatan kaki memuat kata itu).
+
+Soal j024 (riwayat orang alim yang tidak mendapat manfaat dari ilmunya) Salah di run x06, x07, dan x08 karena pola pertama. Hadits itu muncul di j1 h48 dan h59 tanpa penanda, sedangkan takhrijnya ("بإسناد ضعيف") ada di catatan kaki j1 h2 (10000010). Pencarian menemukan h59 tetapi tidak menemukan h2, jadi jawaban menyimpulkan statusnya belum diketahui. Pasangan takhrij `withPairs` hanya mengikuti penanda (`footnote_ref`), jadi tidak bisa menjangkaunya. Laporan: [penilaian agent](../evals/reports/jawab-agent-pengganti-2026-10-26.md) §2 pola 3 dan [x08](../evals/reports/jawab-x08-answer8-banding.md).
+
+**Keputusan:**
+1. **Gema takhrij** (`packages/llm/src/jawab/echo.ts`), hanya bila routing menandai soal hadits:
+   - Benih diambil dari ≤ 20 kandidat teratas hasil RRF. Benih pertama adalah lafaz sesudah "صلى الله عليه وسلم" sampai formula berikutnya, bila tidak diakhiri penanda catatan kaki (`unmarkedHadith`). Benih kedua adalah matan catatan kaki yang berakhir pada rujukan "تقدم".
+   - Paling banyak 6 benih per pertanyaan. Masing-masing dicari dengan `searchText` (10 kata pertama, 10 halaman), di luar `MAX_SEARCHES`. Hanya 5 catatan kaki teratas dari hasilnya yang dimuat. Kueri Arab `searchText` mencari frasa stem berurutan, jadi kandidat sudah memuat lafaz benih; pencocokan di bawah adalah pemeriksaan kedua. Bila pencarian dilonggarkan kelak, ambangnya perlu diukur ulang.
+   - Galat D1 di langkah gema tidak menggagalkan jawaban: jawaban dibuat tanpa gema dan diagnostik `takhrij_echoes_error` dicatat (sama dengan pencarian makna).
+   - **Pencocokan dilakukan kode, bukan model** (`matnScore`). Catatan kaki dibaca per takhrij berpenanda, karena satu catatan kaki bisa memuat beberapa takhrij. Matan adalah kata sesudah "حديث" sampai kata sumber pertama (أخرجه, رواه, متفق, ذكره, "لم أجده"), "الحديث" (dst.), atau rujukan "تقدم". Takhrij dianggap lengkap hanya bila ada kata sumber sesudah matan.
+   - Matan dianggap cocok bila ≥ 4 kata isi dan ≥ 75% dari 8 kata isi awalnya ada di lafaz, atau sebaliknya 8 kata isi awal lafaz ada di matan. Arah kedua untuk matan yang diawali kisah, misalnya "إن الله أوحى إلى نبيه … إني أجعل …". Kata isi berarti ≥ 3 huruf dan bukan kata formula (الله, صلى, عليه, وسلم, السلام, النبي, رسول), dengan normalisasi baku `normalizeArabic`. Lafaz benih paling banyak 24 kata.
+   - "تقدم" dianggap rujukan hanya bila tidak ada kata sumber sesudahnya di takhrij yang sama ("غفر له ما تقدم من ذنبه … متفق عليه" adalah lafaz).
+   - Matan yang tidak diakhiri kata sumber tidak pernah cocok, termasuk takhrij yang hanya merujuk dan lafaz yang tersalin ke catatan kaki tanpa keterangan sumber. Bila seri, yang dipilih ID terkecil (kemunculan lebih awal).
+2. Catatan kaki gema dimuat dan ditempatkan tepat sesudah paragraf pemiliknya (`withPairs`, parameter `echoes`). Konteks dokumen (tidak bisa dikutip) menyebut kedua arah sebagai pencocokan sistem dari lafaz, bukan kepastian: paragraf itu memuat hadits tanpa takhrij sendiri yang takhrijnya dicocokkan ke "Ihya j. …, h. … (catatan kaki)" (model diminta memeriksa lafaznya sama), dan catatan kaki itu dicocokkan untuk lafaz yang muncul lagi di paragraf tadi. Tidak ada teks yang ditulis kode maupun model. Klaim status tetap dari struktur (`takhrijClaims`), dipasangkan ke paragraf yang penandanya merujuk takhrij itu, yaitu kemunculan pertama. Untuk j024 ini adalah 10000004, sama dengan kunci soal.
+3. Diagnostik `takhrij_echoes` (catatan kaki gema yang masuk dokumen sesudah anggaran token, hanya soal hadits). `JAWAB_PIPELINE_VERSION` 11: dokumen berubah, jadi `answer_cache` lama tidak disajikan.
+
+**Bukti (uji gratis `eval:jawab kandidat --remote`, korpus staging ihya-v8, hanya SELECT):**
+- Rute tersimpan x08: lengkap 32 → **33/34**, status hadits 5 → **6/6**. Satu-satunya perubahan adalah j024.
+- Rute tersimpan x07: 31 → **32/34**, status hadits 5 → **6/6**. Juga hanya j024.
+- `--tanpa-rute`: tetap 29/34. Tanpa rute tidak ada tanda hadits, jadi gema tidak berjalan.
+- Tidak ada soal yang turun. Rata-rata dokumen 43,85 → 43,82 dan token dokumen 19.849 → 19.845 (x08).
+- Gema di soal publik: j024 (h59 → takhrij h2), j025 (catatan kaki rujukan "طلب العلم فريضة" j2 h89 → takhrij j1 h2), dan j026/j028 (hadits akhir j1 h6 → takhrij j1 h7, lafaznya bersambung ke halaman berikutnya). Keempatnya benar menurut pembacaan teks Arab.
+- **Presisi**, diukur pada sampel acak deterministik 360 paragraf (badan berformula atau catatan kaki "تقدم"). Versi pertama menghasilkan 15 pasangan dengan satu salah (catatan kaki tanpa keterangan sumber). Versi sesudah tinjauan juga sempat memasang satu catatan kaki rujukan "… الحديث تقدم غير مرة", karena "الحديث" (dst.) dihitung sebagai kata sumber. Versi akhir memisahkan akhir lafaz dari kata sumber, mengeluarkan kata formula dari hitungan, dan memuat 5 catatan kaki teratas per benih. Hasilnya 182 benih dan **13 pasangan, semuanya benar** menurut pembacaan teks Arab. Dua di antaranya catatan kaki di halaman yang sama yang penandanya hilang saat ingest. Pencocok ini konservatif: kebanyakan benih tidak menemukan pasangan, karena kemunculan pertama berlafaz lain atau tidak terjangkau pencarian.
+
+Dirancang hanya dengan soal publik dan sampel korpus. Holdout tidak dipakai (ADR-045). Run berbayar belum dijalankan dan menunggu izin pemilik.
+
+**Tidak dipilih:**
+- **Tabel tautan gema yang dihitung saat membangun korpus.** Cara ini deterministik dan bisa juga dipakai pembaca dan MCP `get_hadith_takhrij`, tetapi butuh migrasi, pembangunan ulang korpus, dan promote. Pencocok di sini murni dan bisa dipindah ke ingest nanti tanpa mengubah aturannya.
+- **Menyaring klaim "Status hadits" ke hadits yang dibahas jawaban.** Menentukan hadits mana yang dibahas membutuhkan penilaian makna (model). Itu melemahkan prinsip bahwa klaim dibuat dari struktur (ADR-069). Setiap butir sudah menampilkan teks takhrij Arab, yang diawali lafaz haditsnya, beserta tautan lokasinya. Di j024, takhrij hadits lain (10000686) muncul karena takhrij yang ditanyakan tidak ada di dokumen. Dengan gema, takhrij yang ditanyakan kini tersedia.
+- **Mengikuti rujukan berantai** (catatan kaki rujukan → catatan kaki rujukan lain). Untuk sekarang yang ditemukan hanya takhrij bersumber.
+
+**Tinjau ulang bila:** run publik berikutnya (berbayar, izin pemilik) masih menilai j024 Salah, atau gema membuat pasangan yang keliru di soal mana pun.
