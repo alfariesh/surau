@@ -60,7 +60,7 @@ describe("request terjemahan", () => {
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ]);
-    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@5");
+    expect(TRANSLATE_PROMPT.id).toBe("translate-passage@6");
     // v3 (X02): aturan satuan dan ungkapan tebusan ada di prefix sistem.
     expect(TRANSLATE_PROMPT.system).toContain("Jangan mengganti satu satuan dengan satuan lain");
     expect(TRANSLATE_PROMPT.system).toContain("ayah dan ibuku menjadi tebusanmu");
@@ -70,10 +70,9 @@ describe("request terjemahan", () => {
     expect(passageCustomId(10_000_001)).toMatch(CUSTOM_ID_PATTERN);
   });
 
-  test("v5 (X21, aktif): memuat semua aturan v3–v4 dan tiga bagian baru; v4 tetap bisa dipilih lewat opsi", () => {
+  test("v5 (X21): memuat semua aturan v3–v4 dan tiga bagian baru; v4 dan v5 tetap bisa dipilih lewat opsi", () => {
     const v5 = TRANSLATE_PROMPTS["translate-passage@5"];
     const v4 = TRANSLATE_PROMPTS["translate-passage@4"];
-    expect(TRANSLATE_PROMPT.id).toBe(v5.id);
     for (const rule of [
       "Jangan mengganti satu satuan dengan satuan lain",
       "ayah dan ibuku menjadi tebusanmu",
@@ -101,12 +100,26 @@ describe("request terjemahan", () => {
     expect(req.system).toEqual([
       { type: "text", text: v4.system, cache_control: { type: "ephemeral", ttl: "1h" } },
     ]);
-    // Tanpa opsi: prompt aktif (v5) dan effort low.
+    // Tanpa opsi: prompt aktif (v6) dan effort low.
     const def = buildTranslateRequest(input());
     expect(def.output_config).toEqual({ effort: "low" });
     expect(def.system).toEqual([
-      { type: "text", text: v5.system, cache_control: { type: "ephemeral", ttl: "1h" } },
+      {
+        type: "text",
+        text: TRANSLATE_PROMPT.system,
+        cache_control: { type: "ephemeral", ttl: "1h" },
+      },
     ]);
+  });
+
+  test("v6 (X21, aktif) = v5 + 'Keluaran bersih'; tanpa huruf Arab selain penanda catatan kaki", () => {
+    const v5 = TRANSLATE_PROMPTS["translate-passage@5"];
+    const v6 = TRANSLATE_PROMPTS["translate-passage@6"];
+    expect(TRANSLATE_PROMPT.id).toBe(v6.id);
+    expect(v6.system.startsWith(v5.system)).toBe(true);
+    expect(v5.system).not.toContain("Keluaran bersih");
+    expect(v6.system).toContain("Keluaran bersih (v6)");
+    expect(v6.system.replace(/[\u0660-\u0669]/g, "")).not.toMatch(/\p{Script=Arabic}/u);
   });
 
   test("prefix sistem identik untuk paragraf berbeda (syarat cache)", () => {

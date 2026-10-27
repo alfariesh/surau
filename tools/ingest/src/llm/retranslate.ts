@@ -30,6 +30,8 @@ const entry = z.strictObject({
   model: z.string().refine(isModelId, { message: "model tidak dikenal" }),
   /** Panjang minimal teks Arab paragraf (`text_raw`, karakter UTF-16), sama dengan strata T-17. */
   min_chars: z.number().int().nonnegative(),
+  /** Batasi ke paragraf ini saja (ID `passage.id`; kosong = semua yang memenuhi syarat lain). */
+  passages: z.array(z.number().int().positive()).optional(),
   /** Batasi ke jilid ini (kosong = semua jilid). */
   juz: z.array(z.number().int().positive()).optional(),
 });
@@ -71,9 +73,11 @@ export function selectRetranslation(
       );
       continue;
     }
+    const only = e.passages === undefined ? null : new Set(e.passages);
     for (const p of rows.passage) {
       if (p.kind !== "body" || p.text_raw.length < e.min_chars) continue;
       if (e.juz !== undefined && !e.juz.includes(juz.get(p.page_id) ?? -1)) continue;
+      if (only !== null && !only.has(p.id)) continue;
       out.set(p.id, { entry: e.id, prompt: e.prompt, model: e.model as ModelId });
     }
   }
