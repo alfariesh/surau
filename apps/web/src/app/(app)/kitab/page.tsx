@@ -36,7 +36,10 @@ export default async function KitabPage() {
   // Kitab terbaru = ID terbesar (listWorks urut ID); hanya ia yang tampil di "Rilis terbaru".
   const latest = works.at(-1);
   const latestEdition = latest?.editions[0];
-  const latestTitle = latest ? (latest.title_id ?? latest.title_ar) : "";
+  // Judul Latin; bila belum ada, judul Arab lewat ArabicInline (lang/dir benar).
+  const latestTitle = latest
+    ? (latest.title_id ?? <ArabicInline>{latest.title_ar}</ArabicInline>)
+    : null;
 
   return (
     <div className={`${PAGE_FRAME} flex flex-col gap-8 pt-8 pb-16 sm:pt-12`}>

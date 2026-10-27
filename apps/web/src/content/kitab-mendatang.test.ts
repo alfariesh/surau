@@ -18,4 +18,12 @@ describe("kitab kandidat Segera hadir (ADR-115)", () => {
       for (const a of k.authors) expect(a.death_hijri, k.slug).toBeGreaterThan(0);
     }
   });
+
+  it("tahun wafat mengikuti urutan pengarang (Jalalayn: al-Mahalli lalu as-Suyuthi)", () => {
+    const jalalayn = UPCOMING_KITAB.find((k) => k.slug === "tafsir-al-jalalayn");
+    expect(jalalayn?.authors).toEqual([
+      { name: "Jalaluddin al-Mahalli", death_hijri: 864 },
+      { name: "Jalaluddin as-Suyuthi", death_hijri: 911 },
+    ]);
+  });
 });

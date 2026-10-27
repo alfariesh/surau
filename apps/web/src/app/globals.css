@@ -1961,6 +1961,9 @@ h3.reader-inline-subheading {
     inset-inline-end: 1.5rem;
     z-index: 0;
     display: block;
+    /* Judul Arab panjang tidak melebar ke kalimat header di kiri. */
+    max-width: 55%;
+    overflow: hidden;
     font-size: 4.5rem;
     line-height: 1.4;
     white-space: nowrap;

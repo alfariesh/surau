@@ -39,7 +39,7 @@ import { FIELD_COVER_COLORS } from "./cover-colors";
 import { WorkCover } from "./work-cover";
 
 // Kitab kandidat "Segera hadir" di /kitab (ADR-115): filter bidang (TagGroup), lalu kartu Widget
-// seperti kartu Ihya. Mengeklik kartu membuka popup dua pertanyaan pilihan tetap, dikirim ke
+// bersampul (teks Arab hanya di sampul dan judul popup). Mengeklik kartu membuka popup dua pertanyaan pilihan tetap, dikirim ke
 // /api/minat-kitab tanpa data pribadi. Kitab yang sudah dipilih diingat hanya di browser ini
 // (localStorage), supaya popupnya tidak mengundang suara berulang; server tidak bisa (dan tidak
 // berusaha) mengenali pengirim.
@@ -146,8 +146,8 @@ export function UpcomingKitabList({ items }: { items: readonly UpcomingKitab[] }
           const single = k.authors.length === 1 ? k.authors[0] : undefined;
           return (
             <li key={k.slug} className="flex">
-              {/* Seluruh kartu bisa diklik lewat tombol judul (after:inset-0), sama dengan kartu
-                  Ihya di atasnya; sampul miring saat kartu di-hover atau tombolnya difokus. */}
+              {/* Seluruh kartu bisa diklik lewat tombol judul (after:inset-0); sampul miring saat
+                  kartu di-hover atau tombolnya difokus (book-trigger). */}
               <Widget className="book-trigger relative w-full has-[button:focus-visible]:ring-2 has-[button:focus-visible]:ring-[var(--focus)]">
                 <Widget.Header className="justify-center px-6 pt-8 pb-6">
                   <WorkCover
@@ -222,8 +222,10 @@ function MinatDialog({
   onDone: () => void;
   onOpenChange: (open: boolean) => void;
 }) {
-  // Kitab yang sudah dipilih dari browser ini langsung menampilkan ucapan terima kasih.
-  const [status, setStatus] = useState<Status>(alreadyVoted ? "sent" : "idle");
+  // Dibekukan saat dialog dibuka: sesudah mengirim, `alreadyVoted` dari induk ikut jadi true, tetapi
+  // yang tampil harus tetap ucapan terima kasih, bukan "sudah memilih" (temuan peninjau).
+  const [votedBefore] = useState(alreadyVoted);
+  const [status, setStatus] = useState<Status>(votedBefore ? "sent" : "idle");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -273,7 +275,7 @@ function MinatDialog({
                 <Alert status="success">
                   <Alert.Indicator />
                   <Alert.Content>
-                    <Alert.Title>{alreadyVoted ? t.alreadyVoted : t.thanks}</Alert.Title>
+                    <Alert.Title>{votedBefore ? t.alreadyVoted : t.thanks}</Alert.Title>
                   </Alert.Content>
                 </Alert>
               </Modal.Body>
