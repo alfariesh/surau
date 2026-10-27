@@ -414,6 +414,25 @@ describe("gema takhrij (ADR-112)", () => {
     expect(two[1]!.tokens[0]).toBe("العلم");
   });
 
+  test("'تقدم' di dalam lafaz yang bersumber bukan rujukan", () => {
+    const [m] = footnoteMatns("(١) حديث من صبر غفر له ما تقدم من ذنبه وما تأخر متفق عليه");
+    expect(m).toMatchObject({ referral: false, sourced: true });
+    expect(m!.tokens).toContain("تقدم");
+    expect(footnoteMatns("(١) حديث فضل الصف المتقدم على غيره رواه فلان")[0]!.sourced).toBe(true);
+    // "الحديث" (dst.) mengakhiri lafaz, tetapi tanpa kata sumber sesudahnya tetap rujukan.
+    expect(
+      footnoteMatns("(٢) حديث الصبر مفتاح الفرج والرضا باب السلامة الحديث تقدم غير مرة")[0],
+    ).toMatchObject({ referral: true, sourced: false });
+  });
+
+  test("kata formula dan sebutan Nabi tidak dihitung: hadits berbeda tidak cocok", () => {
+    const [refer] = footnoteMatns("(١) حديث أن النبي صلى الله عليه وسلم نهى عن بيع وشرط تقدم");
+    expect(refer!.referral).toBe(true);
+    expect(
+      matnScore("(٢) حديث أن النبي صلى الله عليه وسلم نهى عن بيع الغرر رواه فلان", refer!.tokens),
+    ).toBe(0);
+  });
+
   test("hanya takhrij bersumber yang cocok; rujukan dan teks tanpa sumber tidak", () => {
     const seed = unmarkedHadith(BODY)[0]!;
     expect(matnScore(FULL, seed)).toBeGreaterThan(0);
@@ -464,7 +483,7 @@ describe("gema takhrij (ADR-112)", () => {
     ]);
     const echoes = new Map([[10, [3]]]);
     expect(docContext(body, new Map(), labels, echoes)).toContain(
-      "kemunculan pertamanya: Ihya j. 1, h. 2 (catatan kaki)",
+      "takhrij yang dicocokkan sistem dari lafaznya: Ihya j. 1, h. 2 (catatan kaki)",
     );
     expect(docContext(foot, new Map(), labels, echoes)).toContain(
       "Lafaz hadits yang sama muncul lagi di Ihya j. 1, h. 55",

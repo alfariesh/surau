@@ -150,8 +150,10 @@ export interface JawabDiagnostics {
   summary_sections: number[];
   /** Pencarian makna (X13): tidak ada bila `semanticSearch` tidak diberikan. */
   semantic?: { hits: number; footnote_hits: number; error: boolean };
-  /** Pasangan gema takhrij (ADR-112; hanya soal hadits): takhrij kemunculan pertama yang dimuat. */
+  /** Catatan kaki gema takhrij (ADR-112; hanya soal hadits) yang masuk dokumen. */
   takhrij_echoes?: number;
+  /** Pencarian gema gagal (galat D1); jawaban tetap dibuat tanpa gema. */
+  takhrij_echoes_error?: boolean;
   candidates: number;
   docs: number;
   doc_tokens_est: number;
@@ -310,6 +312,8 @@ export interface JawabCandidates {
   passages: Map<number, AnswerPassage>;
   /** Gema takhrij (ADR-112): paragraf → takhrij kemunculan pertama hadits yang sama. */
   echoes: Map<number, number[]>;
+  /** Pencarian gema gagal; kandidat tetap dihitung tanpa gema. */
+  echoError: boolean;
   /**
    * Dokumen jawaban: urutan RRF + pasangan dipangkas anggaran token, lalu dikelompokkan per bagian
    * (`orderBySection`, X05); kosong = tanpa kandidat.
@@ -344,7 +348,16 @@ export async function jawabCandidates(
   const missing = pairIds(first).filter((id) => !ranked.includes(id));
   const extra = missing.length ? await answerPassages(db, missing) : [];
   const passages = new Map([...first, ...extra].map((p) => [p.id, p]));
-  const echoes = route?.hadith ? await takhrijEchoes(db, ranked, passages) : new Map();
+  let echoes = new Map<number, number[]>();
+  let echoError = false;
+  if (route?.hadith) {
+    // Gema hanya pelengkap: galat D1 di sini tidak menggagalkan jawaban (sama dengan pencarian makna).
+    try {
+      echoes = await takhrijEchoes(db, ranked, passages);
+    } catch {
+      echoError = true;
+    }
+  }
   const order = withPairs(ranked, passages, echoes);
   const labels = new Map([...passages.values()].map((p) => [p.id, docLabel(p)]));
   const budget = Math.min(
@@ -361,7 +374,7 @@ export async function jawabCandidates(
       budget,
     ),
   );
-  return { lists, ranked, passages, echoes, docs };
+  return { lists, ranked, passages, echoes, echoError, docs };
 }
 
 /**
@@ -529,7 +542,13 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
     footnotes: semantic.footnotes,
   });
   diagnostics.search_lists = found.lists.length;
-  if (route?.hadith) diagnostics.takhrij_echoes = [...found.echoes.values()].flat().length;
+  if (route?.hadith) {
+    const inDocs = new Set(found.docs.map((d) => d.passage.id));
+    diagnostics.takhrij_echoes = new Set(
+      [...found.echoes.values()].flat().filter((id) => inDocs.has(id)),
+    ).size;
+    if (found.echoError) diagnostics.takhrij_echoes_error = true;
+  }
   diagnostics.summary_sections = [
     ...new Set(
       found.lists

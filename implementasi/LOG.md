@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Gema takhrij (pencarian takhrij kemunculan pertama hadits) — selesai
+- Dikerjakan: untuk soal hadits, Jawab mencari takhrij al-'Iraqi di kemunculan pertama hadits yang muncul lagi tanpa penanda catatan kaki atau dengan catatan kaki rujukan "تقدم". Lafaznya dicocokkan kode (`packages/llm/src/jawab/echo.ts`), lalu catatan kaki itu ditaruh di dokumen tepat sesudah paragrafnya. Diagnostik `takhrij_echoes` ditambahkan; pipeline@11.
+- Verifikasi: `pnpm verify` → lolos · `eval:jawab kandidat --remote` (hanya SELECT) dengan rute tersimpan x08: 32 → 33/34 (j024 lengkap), x07: 31 → 32/34, status hadits 6/6 di keduanya, tanpa soal yang turun; `--tanpa-rute` tetap 29/34 · sampel acak 360 paragraf: 13 pasangan, semuanya benar.
+- Biaya API: –
+- Keputusan: ADR-112
+- Catatan untuk sesi berikutnya: j024 belum diukur dengan run berbayar (hanya dengan izin pemilik). Pindahkan pencocok ke ingest (tabel tautan) bila pembaca/MCP juga butuh.
+
 ## 2026-10-26 · Bunyi label status hadits — selesai
 - Dikerjakan: teks label status buatan kode diubah dari "takhrij menyebut: lemah" menjadi "dinilai lemah, menurut takhrij al-'Iraqi"; arti istilah dijadikan predikat; `lam_ajid` ("tidak ditemukan sanad atau lafaznya") dibedakan dari `lam_ajid_marfu`; jenis tambahan peninjau diberi atribusi sendiri; butir daftar tanpa awalan dibuka huruf kapital; pipeline@10.
 - Verifikasi: `pnpm verify` → lolos · D1 `surau-app` produksi: `takhrij_review` kosong, jadi tidak ada tinjauan yang batal.

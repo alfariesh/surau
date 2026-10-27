@@ -154,7 +154,7 @@ export function docContext(
     const again = labels(echoedBy);
     if (again)
       lines.push(
-        `Lafaz hadits yang sama muncul lagi di ${again}; al-'Iraqi hanya menakhrijnya di sini, pada kemunculan pertamanya (dicocokkan sistem dari lafaznya).`,
+        `Lafaz hadits yang sama muncul lagi di ${again} tanpa takhrij sendiri; catatan kaki ini dicocokkan sistem dari lafaznya (biasanya kemunculan pertama hadits itu).`,
       );
   } else {
     lines.push("Jenis: matan Ihya (perkataan al-Ghazali, termasuk yang ia nukil).");
@@ -162,7 +162,7 @@ export function docContext(
     const first = labels(echoes.get(p.id) ?? []);
     if (first)
       lines.push(
-        `Hadits di paragraf ini yang tanpa takhrij sendiri ditakhrij al-'Iraqi di kemunculan pertamanya: ${first}.`,
+        `Ada hadits di paragraf ini tanpa takhrij sendiri; takhrij yang dicocokkan sistem dari lafaznya: ${first} (periksa bahwa lafaznya sama).`,
       );
   }
   const path = sectionPath(p.toc_node_id, toc);
