@@ -2993,4 +2993,13 @@ Dirancang hanya dengan soal publik dan sampel korpus. Holdout tidak dipakai (ADR
 - **Menyaring klaim "Status hadits" ke hadits yang dibahas jawaban.** Menentukan hadits mana yang dibahas membutuhkan penilaian makna (model). Itu melemahkan prinsip bahwa klaim dibuat dari struktur (ADR-069). Setiap butir sudah menampilkan teks takhrij Arab, yang diawali lafaz haditsnya, beserta tautan lokasinya. Di j024, takhrij hadits lain (10000686) muncul karena takhrij yang ditanyakan tidak ada di dokumen. Dengan gema, takhrij yang ditanyakan kini tersedia.
 - **Mengikuti rujukan berantai** (catatan kaki rujukan → catatan kaki rujukan lain). Untuk sekarang yang ditemukan hanya takhrij bersumber.
 
+**Hasil run berbayar** (2026-10-27, izin pemilik di chat; [laporan](../evals/reports/jawab-x09-publik-gema-skor.md)), skor kode 42 soal publik, dibanding x08:
+- takhrij/status hadits **5/6 → 6/6**;
+- lokasi 31/34 → **32/34**;
+- kutipan valid tetap 100%, menolak dengan tepat tetap 8/8.
+
+j024 kini menjawab "Status hadits: dinilai lemah, menurut takhrij al-'Iraqi (hadits di Ihya j. 1, h. 2)" dengan sitasi ke 10000010, dan menyebut bahwa kemunculan di j1 h59 tidak punya takhrij sendiri. j025 juga memakai gema: catatan kaki rujukan j2 h89 dipasangkan ke takhrij lengkap di j1 h2.
+
+Run ini terganggu oleh pemuatan `ihya-v9` ke staging oleh sesi lain: j028–j042 diulang atas `ihya-v9` lokal, dan skornya dihitung atas `ihya-v9` setelah 91 paragraf yang disitasi dan kunci dicek identik dengan `ihya-v8`. Biaya jawaban US$0,1224. Penilaian semantik belum dilakukan.
+
 **Tinjau ulang bila:** run publik berikutnya (berbayar, izin pemilik) masih menilai j024 Salah, atau gema membuat pasangan yang keliru di soal mana pun.

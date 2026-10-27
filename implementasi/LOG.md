@@ -13,6 +13,14 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Gema takhrij: run eval berbayar — selesai
+- Dikerjakan: run publik 42 soal atas izin pemilik (`x09-publik-gema-v1` + lanjutan `x09-publik-gema-v1c`), skor kode atas arsip gabungan.
+- Hasil: takhrij 5/6 → 6/6, lokasi 31/34 → 32/34, kutipan valid 100% (dibanding x08). j024 kini benar ("dinilai lemah", sitasi 10000010).
+- Kendala: staging dikosongkan oleh pemuatan `ihya-v9` (sesi X21) di tengah run dan tetap kosong ≥ 1 jam (meta hanya `schema_version`); sesi X21 sudah dikabari. Lanjutan dan skor memakai `ihya-v9` lokal; 91 paragraf yang disitasi + kunci identik dengan `ihya-v8` produksi.
+- Biaya API: US$0,1224 jawaban (+ panggilan j028/j030 yang gagal, tak tercatat).
+- Keputusan: ADR-112 (bagian hasil)
+- Catatan untuk sesi berikutnya: penilaian semantik run ini belum dilakukan. Pencatat biaya `answer` membebankan pagu cadangan penuh (±US$0,17) untuk soal yang gagal, sehingga satu galat D1 bisa menghabiskan pagu kecil.
+
 ## 2026-10-27 · Gema takhrij (pencarian takhrij kemunculan pertama hadits) — selesai
 - Dikerjakan: untuk soal hadits, Jawab mencari takhrij al-'Iraqi di kemunculan pertama hadits yang muncul lagi tanpa penanda catatan kaki atau dengan catatan kaki rujukan "تقدم". Lafaznya dicocokkan kode (`packages/llm/src/jawab/echo.ts`), lalu catatan kaki itu ditaruh di dokumen tepat sesudah paragrafnya. Diagnostik `takhrij_echoes` ditambahkan; pipeline@11.
 - Verifikasi: `pnpm verify` → lolos · `eval:jawab kandidat --remote` (hanya SELECT) dengan rute tersimpan x08: 32 → 33/34 (j024 lengkap), x07: 31 → 32/34, status hadits 6/6 di keduanya, tanpa soal yang turun; `--tanpa-rute` tetap 29/34 · sampel acak 360 paragraf: 13 pasangan, semuanya benar.
