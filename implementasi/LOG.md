@@ -13,6 +13,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-27 · Eval x10: bekas huruf Arab dirapikan — selesai
+- Dikerjakan: satu run publik Jawab berbayar (izin pemilik di chat) dengan pipeline@13; 42 jawaban dinilai tiga subagen agent; laporan x09 → x10; regresi angka Arab-India ("nomor (١)") diperbaiki, pipeline@14.
+- Verifikasi: `eval:jawab answer` → 42/42, kutipan 100%, lokasi 85,3%, status hadits kode 5/6; penilaian agent → bahasa 3,26, kesetiaan 78,6%, atribusi 95,2%; `pnpm verify` → lolos.
+- Biaya API: US$0,1216.
+- Keputusan: hasil dicatat di ADR-114.
+- Catatan untuk sesi berikutnya: "… …" sisa pernyataan status di j026 (`hadithCheck`); kalimat gema/salinan terjemahan kini cacat bahasa terbesar (perlu prompt + run berbayar).
+
 ## 2026-10-27 · Bekas huruf Arab di jawaban Maknaz — selesai
 - Dikerjakan: bekas huruf Arab buatan model ditandai per blok (`markArabic`) lalu dirapikan atas teks gabungan (`tidyArabicCuts`): bekas di kurung/akhir kalimat dibuang tanpa jejak, kalimat yang isinya hilang ("bahwa …", titik dua, < 3 kata) dibuang utuh, baris "Status hadits:" dilindungi, blok yang habis tidak ditampilkan; pipeline@13.
 - Verifikasi: `pnpm verify` → lolos · uji atas jawaban x08/x09 nyata ("…" dikembalikan ke kata Arab) → 0 "…" tersisa.
