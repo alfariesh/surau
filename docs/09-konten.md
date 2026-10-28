@@ -157,7 +157,7 @@ Teks Inggris ditulis dari teks Arab dengan induk sebagai acuan, **bukan** diterj
 - transliterasi istilah Arab seragam di seluruh versi Inggris (aturannya ditetapkan di X26, karena ejaan KBBI dan "Swt./saw." tidak berlaku);
 - tanpa huruf Arab.
 
-Faedah Inggris menyalin terjemahan Inggris paragraf dari database, sehingga baru bisa dibuat sesudah batch terjemahan Inggris (X26).
+Faedah Inggris menyalin terjemahan Inggris paragraf dari database, sehingga baru bisa dibuat sesudah terjemahan Inggris paragrafnya dimuat ke korpus (dibuat lewat plugin, ADR-132; dimuat di X26).
 
 **MCP publik** akan memakai bahasa Inggris saja untuk bantuan baca sesudah peralihan di X26 (daftar lengkapnya di ADR-130 butir 3: terjemahan, ringkasan, judul, Intisari, glosarium, dan label buatan kode). Bagian tanpa Intisari Inggris mendapat `null`. Teks kitab, takhrij, dan ayat tetap Arab. Endpoint penulis `/redaksi` mengikuti bahasa draf, jadi induk Indonesia tetap bisa ditulis. Sampai X26 selesai, MCP masih berbahasa Indonesia.
 

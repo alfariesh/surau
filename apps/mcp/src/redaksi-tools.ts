@@ -1,13 +1,19 @@
-// Dua tool tambahan endpoint `/redaksi` (X23, ADR-125) untuk plugin `surau-redaksi`: pemeriksa draf
-// konten turunan (lapis 1 gerbang terbit) dan daftar calon Faedah. Deterministik, hanya membaca D1,
-// tanpa LLM (docs/05 §11). `/mcp` publik tetap delapan tool; tool ini tidak didaftarkan di sana.
+// Tool tambahan endpoint `/redaksi` untuk plugin `surau-redaksi`: pemeriksa draf konten turunan
+// (lapis 1 gerbang terbit) dan daftar calon Faedah (X23, ADR-125), serta bahan dan pemeriksa draf
+// terjemahan Inggris per paragraf (X27, ADR-132). Deterministik, hanya membaca D1, tanpa LLM
+// (docs/05 §11). `/mcp` publik tetap delapan tool; tool ini tidak didaftarkan di sana.
 import {
   checkContentDraft,
+  checkTranslationDraft,
   contentCheck,
   faedahCandidates,
   faedahCandidatesInput,
   listFaedahCandidates,
+  listTranslationUnits,
   loadCiteContext,
+  translationDraftCheck,
+  translationUnits,
+  translationUnitsInput,
 } from "@surau/core";
 import { PAGE_STRIDE } from "@surau/db";
 import type { D1Db } from "@surau/db";
@@ -52,7 +58,37 @@ export const REDAKSI_EXTRA_TOOLS: readonly McpTool[] = [
       return { view, sources: await editionSources(db, view.section.id) };
     },
   }),
+
+  defineTool({
+    name: "list_translation_units",
+    title: "Passages to translate",
+    description:
+      "List the body passages of a section (and its sub-sections) in reading order as translation units for an English paragraph translation (format surau-terjemah/1): the Arabic source with every Quran quotation replaced by a placeholder ⟦QS s:a⟧ (never translate an ayah; copy each placeholder exactly once), footnote marker digits to keep as (١), the Arabic heading path and the previous passage as context only, and whether the passage is blocked (skip it) or already translated. Paginate with offset/next_offset. · Bahan terjemahan Inggris per paragraf: teks Arab dengan ayat diganti placeholder.",
+    input: translationUnitsInput,
+    output: translationUnits,
+    run: async (args, db) => {
+      const view = await listTranslationUnits(db, args);
+      return { view, sources: await editionSources(db, view.section.id) };
+    },
+  }),
+
+  defineTool({
+    name: "check_translation_draft",
+    title: "Check a translation draft",
+    description:
+      "Check an English paragraph-translation draft (format surau-terjemah/1) with the same rules as the Surau translation batch: passages are body passages of the section, ayah placeholders exactly as in the source, footnote markers as Arabic digits (١), no Arabic letters, no Markdown, no translator notes or preambles, and a plausible length (warning only). Returns ok, errors and warnings with a path, facts (source and draft hashes) and, when ok, a stamp to copy into periksa.kode. Never echoes the draft. · Periksa draf terjemahan Inggris; bila lolos, salin stamp ke periksa.kode.",
+    input: z.strictObject({
+      draft: z
+        .record(z.string(), z.unknown())
+        .describe("The whole draft object (surau-terjemah/1), as it will be saved"),
+    }),
+    output: translationDraftCheck,
+    run: async (args, db) => {
+      const view = await checkTranslationDraft(db, args.draft);
+      return { view, sources: await editionSources(db, view.section?.id) };
+    },
+  }),
 ];
 
-/** Sepuluh tool `/redaksi`: delapan tool baca publik + dua tool redaksi. */
+/** Dua belas tool `/redaksi`: delapan tool baca publik + empat tool redaksi. */
 export const REDAKSI_TOOLS: readonly McpTool[] = [...TOOLS, ...REDAKSI_EXTRA_TOOLS];

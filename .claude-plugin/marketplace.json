@@ -8,8 +8,8 @@
     {
       "name": "surau-redaksi",
       "source": "./plugins/surau-redaksi",
-      "description": "Membuat Intisari Bab, Intisari Kitab, Faedah, dan Jalur 7 hari dari korpus Surau, dengan pemeriksa otomatis sebelum terbit.",
-      "version": "0.1.1",
+      "description": "Membuat Intisari Bab, Intisari Kitab, Faedah, Jalur 7 hari, dan terjemahan Inggris per paragraf dari korpus Surau, dengan pemeriksa otomatis sebelum terbit.",
+      "version": "0.2.0",
       "category": "productivity"
     }
   ]

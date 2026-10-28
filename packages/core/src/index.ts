@@ -226,6 +226,47 @@ export {
   quoteTranslationTextProblems,
 } from "./narrative-check.ts";
 export {
+  LENGTH_RATIO_MIN_CHARS,
+  MAX_ARABIC_RUN_WORDS,
+  REFILL_WINDOW,
+  TRANSLATION_LENGTH_RATIO,
+  checkPassageTranslation,
+  contentLength,
+  letterLength,
+  longestArabicRun,
+  refillsAyah,
+  restoreFootnoteMarkers,
+} from "./translation-check.ts";
+export type {
+  TranslationCheck,
+  TranslationCheckInput,
+  TranslationCheckLang,
+  TranslationProblem,
+} from "./translation-check.ts";
+export {
+  TRANSLATION_DRAFT_LANG,
+  TRANSLATION_DRAFT_MAX_ITEMS,
+  TRANSLATION_FORMAT,
+  TRANSLATION_RULES,
+  TRANSLATION_UNITS_MAX,
+  translationDraft,
+  translationDraftCheck,
+  translationUnits,
+  translationUnitsInput,
+} from "./translation-schema.ts";
+export type {
+  TranslationDraft,
+  TranslationDraftCheck,
+  TranslationUnits,
+  TranslationUnitsInput,
+} from "./translation-schema.ts";
+export {
+  checkTranslationDraft,
+  listTranslationUnits,
+  translationDraftSha256,
+  translationReadinessIssues,
+} from "./translation-draft.ts";
+export {
   TINJAU_ROOMS,
   canRevert,
   canUseTinjauRoom,

@@ -495,9 +495,15 @@ describe("batas pemakaian (HMAC(IP):tool)", () => {
   });
 });
 
-// ── /redaksi (X23, ADR-125): 8 tool baca + 2 tool redaksi, instruksi sendiri ≤ 2.000 karakter ─────
+// ── /redaksi (X23, ADR-125; X27, ADR-132): 8 tool baca + 4 tool redaksi, instruksi ≤ 2.000 karakter ─
 
-const REDAKSI_TOOLS = [...TOOLS, "check_content_draft", "list_faedah_candidates"];
+const REDAKSI_TOOLS = [
+  ...TOOLS,
+  "check_content_draft",
+  "list_faedah_candidates",
+  "list_translation_units",
+  "check_translation_draft",
+];
 const SENT = "هذه جملة تجريبية لاختبار تقسيم الأقسام الطويلة ";
 
 /** Draf Intisari Bab buatan untuk T_LONG (teks Indonesia contoh; kutipan = offset fixture). */
@@ -570,7 +576,7 @@ const checkOut = z.object({
 });
 
 describe.each(ERAS)("/redaksi era %s", (era) => {
-  test("tools/list: 10 tool (8 publik + 2 redaksi), instruksi sendiri ≤ 2.000 karakter", async () => {
+  test("tools/list: 12 tool (8 publik + 4 redaksi), instruksi sendiri ≤ 2.000 karakter", async () => {
     const client = await connect(era, nextIp(), REDAKSI);
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name)).toEqual(REDAKSI_TOOLS);
@@ -578,6 +584,7 @@ describe.each(ERAS)("/redaksi era %s", (era) => {
     const instructions = client.getInstructions() ?? "";
     expect(instructions.length).toBeLessThanOrEqual(2_000);
     expect(instructions).toContain("check_content_draft");
+    expect(instructions).toContain("check_translation_draft");
     expect(client.getServerVersion()).toMatchObject({ name: "surau-redaksi" });
     await client.close();
     // /mcp publik tetap delapan tool.
@@ -627,6 +634,52 @@ describe.each(ERAS)("/redaksi era %s", (era) => {
     expect(out.candidates).toHaveLength(5);
     expect(out.next_offset).toBe(5);
     expect(out.candidates.every((c) => !c.eligible && c.reasons.length > 0)).toBe(true);
+    await client.close();
+  });
+
+  test("list_translation_units + check_translation_draft: ayat jadi placeholder, draf lolos dengan stamp", async () => {
+    const client = await connect(era, nextIp(), REDAKSI);
+    const units = z
+      .object({
+        units: z.array(
+          z.object({
+            passage_id: z.number(),
+            source: z.string(),
+            placeholders: z.array(z.string()),
+          }),
+        ),
+      })
+      .parse(await ok(client, "list_translation_units", { section_id: T_ROOT }));
+    const body2 = units.units.find((u) => u.passage_id === PASSAGES.body2);
+    expect(body2?.placeholders).toEqual(["⟦QS 1:2-3⟧"]);
+    expect(body2?.source).toContain("⟦QS 1:2-3⟧");
+    const translation = (teks: string) => ({
+      format: "surau-terjemah/1",
+      lang: "en",
+      edition_id: ED,
+      section_id: T_ROOT,
+      status: "draf",
+      butir: [{ passage_id: PASSAGES.body2, teks }],
+      asal: {
+        pembuat: "claude-desktop",
+        model: "claude-sonnet-5-5",
+        plugin: "surau-redaksi@0.2.0",
+        skill: "terjemah-inggris@1",
+        operator: "pemilik",
+        dibuat: "2026-10-28T07:00:00+07:00",
+      },
+    });
+    const good = checkOut.parse(
+      await ok(client, "check_translation_draft", {
+        draft: translation("The text of ⟦QS 1:2-3⟧."),
+      }),
+    );
+    expect(good.errors).toEqual([]);
+    expect(good.stamp?.aturan).toBe("terjemah@1");
+    const bad = checkOut.parse(
+      await ok(client, "check_translation_draft", { draft: translation("The text of the page.") }),
+    );
+    expect(bad.errors.map((e) => e.code)).toContain("placeholders");
     await client.close();
   });
 });

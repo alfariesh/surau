@@ -26,7 +26,7 @@ Agen Claude Code boleh membuat draf untuk pilot dan pengujian (`asal.pembuat` = 
 - **Plugin `surau-redaksi`** dari marketplace `alfariesh/surau` ([plugins/surau-redaksi](../plugins/surau-redaksi/README.md)). Isinya skill per jenis konten, skill pemeriksa, dan konektor `https://mcp.surau.org/redaksi`.
 - Setelan yang wajib menyala: **Settings > Capabilities > "Code execution and file creation"** (supaya skill jalan dan hasilnya bisa diunduh).
 - Konektor plugin disambungkan sekali di tab **Connectors** plugin (tanpa login). Saat membuat konten, **matikan konektor "Surau" publik** di percakapan itu supaya tool tidak ganda.
-- **Claude Code** di repo Surau untuk impor: `pnpm konten impor`, agen `pemeriksa-konten`, lalu commit dan PR.
+- **Claude Code** di repo Surau untuk impor: `pnpm konten impor` (atau `pnpm terjemah impor`), agen `pemeriksa-konten`, lalu commit dan PR.
 
 Cara memasang ada di tugas pemilik **T-33** ([TUGAS-PEMILIK](../implementasi/TUGAS-PEMILIK.md)).
 
@@ -39,9 +39,16 @@ Cara memasang ada di tugas pemilik **T-33** ([TUGAS-PEMILIK](../implementasi/TUG
 5. **Impor.** Buka Claude Code di repo Surau dan ketik "impor konten dari Downloads". Agen menjalankan `pnpm konten impor <berkas>`, lalu agen `pemeriksa-konten` (konteks segar, model berbeda bila bisa) mengisi `periksa.independen`. Hasilnya disimpan apa adanya, terikat sidik isi yang dinilai (`draf_sha256`); bila isi diubah sesudahnya, lapis 3 diulang. Bila lolos tanpa Salah, status menjadi `siap`, lalu agen membuat PR dan menggabungkannya sesudah CI hijau.
 6. **Terbit** di build korpus berikutnya (X24). Sampai X24 selesai, berkas tersimpan di repo tetapi belum tampil.
 
+**Terjemahan Inggris per paragraf** (ADR-132) memakai alur yang sama dengan skill `terjemah-inggris`:
+- Pakai model **Sonnet**, ≤ 40 paragraf per percakapan. Ketik misalnya "Terjemahkan bab 100007 ke bahasa Inggris".
+- Skill memeriksa dengan `check_translation_draft` sampai lolos, lalu membuat berkas `terjemah-<bagian>-<paragraf>.json`.
+- Berkas diimpor dengan "impor terjemahan dari Downloads" (`pnpm terjemah impor`). Agen `pemeriksa-konten` lalu menilai sampel butirnya.
+- Urutan bagian: Kitab al-'Ilm lebih dulu (dipakai Intisari v2 dan Jalur), lalu Kitab lain di Rub' pertama (per Kitab, bukan per Rub'). Progres dilihat dengan `pnpm terjemah daftar`.
+- Terjemahan ini baru tampil di MCP sesudah cakupannya lengkap dan peralihan X26 dikerjakan.
+
 ## 5. Model dan kuota
 
-- **Intisari Bab dan Kitab:** Claude Opus 5.5. **Faedah dan Jalur:** Sonnet 5.5 sudah cukup.
+- **Intisari Bab dan Kitab:** Claude Opus 5.5. **Faedah dan Jalur:** Sonnet 5.5 sudah cukup. **Terjemahan Inggris:** Sonnet 5.5 (keputusan pemilik; mutunya setara batch Indonesia yang tayang).
 - `asal.model` diisi ID model yang dipakai. Pastikan sama dengan pilihan model di chat; model sendiri kadang tidak tahu ID-nya.
 - Kuota langganan dipakai bersama oleh Chat, Desktop, dan sesi agen Claude Code (batas 5 jam dan mingguan, lihat **Settings > Usage**). Jadwalkan produksi konten di luar jam sesi agen yang panjang.
 - Batch API berbayar tidak dipakai untuk konten ini. Bila kelak dibutuhkan, tetap perlu izin pemilik di chat (aturan keras 4).
@@ -89,7 +96,7 @@ Cek kode menjaga bentuk dan alamat, bukan makna. Kesetiaan makna dijaga lapis 2 
 
 - Produksi lewat langganan Claude: tanpa biaya API Surau. MCP `/redaksi` tidak memanggil LLM; biayanya hanya baca D1.
 - Audio baru (Dengar) untuk Intisari v2 berbayar dan butuh izin pemilik.
-- Batch terjemahan Inggris per paragraf (bahan Faedah Inggris dan MCP, X26) berbayar dan butuh izin pemilik. Versi Inggris Intisari dan Jalur tetap lewat langganan.
+- Terjemahan Inggris per paragraf dibuat lewat langganan (ADR-132), tanpa biaya API, tetapi memakan kuota: ±16.000 paragraf berarti ±400 percakapan. Batch API untuk sisanya hanya atas izin pemilik.
 
 ## 11. Privasi
 
