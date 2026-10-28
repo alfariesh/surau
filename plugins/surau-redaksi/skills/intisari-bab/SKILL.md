@@ -17,7 +17,7 @@ Ikuti **pedoman-redaksi** (aturan keras, bahasa, alur umum). Skill ini menambahk
 ## Langkah
 
 1. **Baca seluruh bagian**: `read_section(section_id)`, ulangi dengan `cursor` sampai `next_cursor` null. Catat `id` setiap paragraf badan (`kind: "body"`), panjangnya, dan apa isinya. Paragraf sangat pendek biasanya judul.
-2. **Lihat Intisari lama** dengan `get_section_digest` hanya sebagai pembanding: periksa ulang setiap gagasannya terhadap teks, jangan menyalin. Bila ada, isi `menggantikan: "digest-section@2"`.
+2. **Jangan membuka Intisari lama** (`get_section_digest`, hasil batch API uji coba). Tulis hanya dari teks bagian supaya tidak terpengaruh kesalahannya. Intisari lama bagian yang sama diganti otomatis saat impor, jadi `menggantikan` berisi `null` untuk unit baru (untuk revisi, lihat `format.md`).
 3. **Rencanakan gagasan** (lihat jumlah di `references/standar.md`). Untuk setiap gagasan tentukan: paragraf dasarnya (1–6 `passage_id`), sikapnya (`author`/`reported`/`refuted`), dan apakah anjuran. Susun berurutan mengikuti teks. Usahakan dasar seluruh gagasan menutup sebagian besar paragraf isi; bab yang dilewati harus karena memang tidak penting, bukan terlewat.
 4. **Tulis** `inti`, `ringkasan`, dan gagasan (judul tesis yang menyebut pemilik pendapat, isi, soal dan jawaban). Perhatikan baik-baik:
    - **negasi** ("bukan", "tidak", "kecuali"): jangan membalik maksud penulis;

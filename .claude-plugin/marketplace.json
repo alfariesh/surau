@@ -9,7 +9,7 @@
       "name": "surau-redaksi",
       "source": "./plugins/surau-redaksi",
       "description": "Membuat Intisari Bab, Intisari Kitab, Faedah, dan Jalur 7 hari dari korpus Surau, dengan pemeriksa otomatis sebelum terbit.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "productivity"
     }
   ]

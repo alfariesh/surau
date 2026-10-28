@@ -4,7 +4,7 @@
 
 AI untuk ilmu agama dengan sumber yang kuat, untuk masa depan umat. Surau membantu orang **menemukan, membaca, dan memahami** apa yang tertulis di kitab-kitab klasik. Setiap jawaban bisa diperiksa sendiri ke teks aslinya.
 
-Surau adalah proyek nirlaba berbahasa Indonesia. Kitab pertamanya *Ihya* karya al-Ghazali, lalu karya al-Ghazali lainnya, kemudian ±92 kitab kurikulum pesantren (lihat [implementasi/FASE.md](../implementasi/FASE.md)). Situs berbahasa Inggris direncanakan menyusul di alamat terpisah (`/en/…`); bahasa Indonesia tetap bahasa utama (ADR-092 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md)).
+Surau adalah proyek nirlaba berbahasa Indonesia. Kitab pertamanya *Ihya* karya al-Ghazali, lalu karya al-Ghazali lainnya, kemudian ±92 kitab kurikulum pesantren (lihat [implementasi/FASE.md](../implementasi/FASE.md)). Situs berbahasa Inggris direncanakan menyusul di alamat terpisah (`/en/…`); bahasa Indonesia tetap bahasa utama (ADR-092 di [implementasi/KEPUTUSAN.md](../implementasi/KEPUTUSAN.md)). MCP kelak menyajikan bantuan baca hanya dalam bahasa Inggris, sedangkan bahasa Arab hanya untuk teks kitab dan antarmuka situs Arab; tidak ada konten Arab tulisan AI (ADR-130).
 
 ## Siapa penggunanya
 
@@ -36,7 +36,7 @@ Per Oktober 2026 sudah ada beberapa layanan AI untuk kitab Islam. Surau **tidak 
 
 ### Lima pembeda
 
-1. **Bahasa Indonesia di semua lapisan:** antarmuka, pencarian, terjemahan dan ringkasan (berlabel AI), jawaban, dan deskripsi tool MCP (dwibahasa Inggris + Indonesia, ADR-012).
+1. **Bahasa Indonesia di semua lapisan situs Indonesia:** antarmuka, pencarian, terjemahan dan ringkasan (berlabel AI), dan jawaban. MCP pengecualiannya: sesudah X26 bantuan bacanya hanya berbahasa Inggris (ADR-130); sampai saat itu berbahasa Indonesia dengan deskripsi tool dwibahasa (ADR-012).
 2. **Kedalaman per kitab:** struktur dan daftar isi yang diperbaiki, takhrij hadits yang tertaut ke teksnya (al-'Iraqi untuk *Ihya*), dan ayat yang dikenali beserta terjemahan Kemenag.
 3. **Kutipan diverifikasi kode** dan **permalink halaman cetak yang stabil.** AI lain pun bisa mengecek kutipan lewat tool `verify_quote`.
 4. **Review ustadz dan eval terbuka.** Set eval dan hasil review direncanakan terbuka; sebagian soal tetap privat supaya tidak bocor ke data latih model (lihat [05 Kebijakan](05-kebijakan.md) dan [06 Evaluasi](06-evaluasi.md)).

@@ -4,7 +4,7 @@
   "section_id": 100017,
   "lang": "id",
   "versi": 1,
-  "menggantikan": "digest-section@2",
+  "menggantikan": null,
   "status": "siap",
   "asal": {
     "pembuat": "claude-code",

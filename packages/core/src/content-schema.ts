@@ -208,8 +208,8 @@ const envelope = {
   section_id: id,
   lang: z.literal("id").default("id"),
   versi: z.number().int().min(1).default(1),
-  /** Unit yang digantikan: `null`, versi sebelumnya ("intisari-bab/100007@1"), atau rekaman lama
-   * ("digest-section@2"). Dicatat agar build X24 tahu Intisari batch mana yang diganti. */
+  /** Versi unit chat sebelumnya untuk revisi ("intisari-bab/100007@1"), atau `null`. Intisari batch
+   * diganti per bagian dan bahasa saat impor, tanpa kolom ini (ADR-131). */
   menggantikan: z.string().trim().min(1).max(80).nullable().default(null),
   status: contentStatus,
   tarik: z

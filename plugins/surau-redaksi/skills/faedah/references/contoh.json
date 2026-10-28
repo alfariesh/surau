@@ -9,7 +9,7 @@
   "asal": {
     "pembuat": "claude-code",
     "model": "claude-opus-5-5",
-    "plugin": "surau-redaksi@0.1.0",
+    "plugin": "surau-redaksi@0.1.1",
     "skill": "faedah@1",
     "operator": "agen",
     "dibuat": "2026-10-28T12:30:00+07:00"

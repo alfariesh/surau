@@ -13,8 +13,8 @@ Ikuti **pedoman-redaksi**. Jalur menata tujuh bagian yang sudah punya Intisari m
 ## Langkah
 
 1. `get_table_of_contents(edition_id: 1, node_id: <kitab>, depth: 2)`: pilih tujuh bagian di dalam Kitab itu, biasanya tujuh Bab berurutan (Kitab al-'Ilm: 100004, 100009, 100011, 100014, 100017, 100019, 100020).
-2. Pastikan setiap bagian punya Intisari yang tampil: `get_section_digest(bagian)` tidak `null`. Bagian tanpa Intisari tidak boleh dipakai; tunggu Intisari-nya dibuat.
-3. Baca Intisari tiap bagian, lalu tulis `pengantar` 8–40 kata yang atributif ("Hari ini membaca bab tentang …, tempat al-Ghazali menjelaskan …"). Tanpa tugas atau target ("hafalkan", "amalkan hari ini").
+2. Pastikan setiap bagian punya **Intisari v2**: `get_section_digest(bagian)` tidak `null` dan `prompt_version`-nya berawalan `surau-redaksi/` (tampil sesudah impor X24). Intisari lama hasil batch API tidak dipakai. Bila ada bagian tanpa Intisari v2, berhenti dan beri tahu operator bagian mana yang perlu dibuatkan Intisari Bab-nya lebih dulu.
+3. Baca Intisari v2 tiap bagian, lalu tulis `pengantar` 8–40 kata yang atributif ("Hari ini membaca bab tentang …, tempat al-Ghazali menjelaskan …"). Tanpa tugas atau target ("hafalkan", "amalkan hari ini").
 4. Tulis `judul` (3–12 kata, menyebut isi, mis. "Tujuh hari bersama Kitab al-'Ilm") dan `deskripsi` (15–60 kata). Tanpa janji ("agar menjadi …", "raih …").
 5. `slug`: huruf kecil dan tanda hubung, mis. `kitab-al-ilm-7-hari`. `section_id` = ID Kitab.
 6. `check_content_draft` sampai `ok: true`; **periksa-draf** (satu entri per hari); salin `stamp`; buat berkas `jalur-<slug>.json`.

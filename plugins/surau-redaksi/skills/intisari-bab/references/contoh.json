@@ -4,12 +4,12 @@
   "section_id": 100007,
   "lang": "id",
   "versi": 1,
-  "menggantikan": "digest-section@2",
+  "menggantikan": null,
   "status": "draf",
   "asal": {
     "pembuat": "claude-code",
     "model": "claude-opus-5-5",
-    "plugin": "surau-redaksi@0.1.0",
+    "plugin": "surau-redaksi@0.1.1",
     "skill": "intisari-bab@1",
     "operator": "agen",
     "dibuat": "2026-10-28T11:03:20+07:00"

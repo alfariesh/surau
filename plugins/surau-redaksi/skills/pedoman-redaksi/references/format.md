@@ -10,13 +10,13 @@ Satu berkas JSON per unit. Kunci berbahasa Indonesia; nilai teks berbahasa Indon
   "edition_id": 1,
   "section_id": 100007,
   "versi": 1,
-  "menggantikan": "digest-section@2",
+  "menggantikan": null,
   "status": "draf",
   "isi": { "...": "sesuai jenis" },
   "asal": {
     "pembuat": "claude-desktop",
     "model": "claude-opus-5-5",
-    "plugin": "surau-redaksi@0.1.0",
+    "plugin": "surau-redaksi@0.1.1",
     "skill": "intisari-bab@1",
     "operator": "pemilik",
     "dibuat": "2026-10-28T09:30:00+07:00"
@@ -30,7 +30,7 @@ Satu berkas JSON per unit. Kunci berbahasa Indonesia; nilai teks berbahasa Indon
 ```
 
 - `section_id`: bagian sumber. Intisari Kitab dan Jalur memakai ID Kitab (tingkat 2 daftar isi, mis. 100003 Kitab al-'Ilm).
-- `menggantikan`: hanya untuk Intisari. Isi dengan `prompt_version` Intisari lama dari `get_section_digest` (mis. `"digest-section@2"` atau `"digest-merge@1"`), atau `null` bila belum ada. Faedah dan Jalur: `null` (Faedah tidak menggantikan Intisari).
+- `menggantikan`: hanya untuk revisi unit chat. Isinya versi sebelumnya (mis. `"intisari-bab/100007@1"`), atau `null` untuk unit baru. Intisari lama hasil batch API tidak dicatat di sini karena diganti otomatis saat impor.
 - `status`: selalu `"draf"` dari chat. Status `siap` hanya diberikan saat impor sesudah periksa independen.
 - `periksa.mandiri`: satu entri per gagasan (atau per butir Faedah, per hari Jalur), `nilai` = `benar`, `kurang`, atau `salah`, dengan catatan singkat.
 - `periksa.kode`: salin `stamp` dari hasil `check_content_draft` yang terakhir (`aturan`, `lolos`, `sumber_sha256`, `draf_sha256`, `waktu`). Setiap perubahan isi sesudahnya membuat cap tidak cocok; cek ulang.

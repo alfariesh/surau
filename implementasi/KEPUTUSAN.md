@@ -139,6 +139,8 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 127 | Daftar tarik Intisari di repo: gagasan Salah ditahan saat dibaca (web, Cari, MCP, audio) tanpa mengubah D1/R2 | diterima | 2026-10-28 | [keputusan/ADR-127.md](keputusan/ADR-127.md) |
 | 128 | Penundaan skrip Next ditolak: gerbang kedua (n=15) juga tidak lolos di LCP Lighthouse; PR #206 ditutup | diterima | 2026-10-28 | [keputusan/ADR-128.md](keputusan/ADR-128.md) |
 | 129 | Lokasi gold Jawab: pembobotan daftar sempit ditolak, pemberitahuan status hadits jadi kalimat biasa (pipeline@16), pencarian makna diukur ulang (lokasi 85,3% → 88,2%, belum ≥ 90%) | diterima | 2026-10-28 | [keputusan/ADR-129.md](keputusan/ADR-129.md) |
+| 130 | Tiga bahasa: Indonesia situs utama; Inggris untuk `/en` dan satu-satunya bahasa bantuan baca MCP (peralihan di X26); Arab hanya teks kitab dan antarmuka, tanpa konten Arab tulisan AI; konten turunan satu kerangka per bahasa | diterima | 2026-10-28 | [keputusan/ADR-130.md](keputusan/ADR-130.md) |
+| 131 | Intisari batch lama tidak menjadi bahan konten v2: skill tidak membukanya, Intisari Kitab dan Jalur hanya dari Intisari Bab v2 (sesudah X24), `menggantikan` hanya untuk revisi | diterima | 2026-10-28 | [keputusan/ADR-131.md](keputusan/ADR-131.md) |
 
 ## Cara menambah ADR baru
 
