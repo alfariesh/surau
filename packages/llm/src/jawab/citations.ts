@@ -477,7 +477,7 @@ export const HADITH_UNKNOWN = `${ANSWER_HADITH_PREFIX} belum diketahui (tidak ad
  * berdiri sendiri satu baris dibuang bila bagian "Status hadits" berisi (`hadithCheck`); tanpa klaim
  * status sama sekali, `hadithCheck` memakai `HADITH_UNKNOWN`.
  */
-export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} lihat bagian "Status hadits", yang memuat status tiap takhrij yang dikutip beserta lokasi haditsnya.`;
+export const HADITH_NOT_CITED = `${ANSWER_HADITH_PREFIX} keterangan tiap hadits yang dikutip ada di bagian "Status hadits" di bawah jawaban ini, bersama lokasi haditsnya.`;
 
 const NOTICES = [HADITH_UNKNOWN, HADITH_NOT_CITED] as const;
 /** Pemberitahuan pengganti dimulai di `pos`: bukan label dan bukan pernyataan (tidak diperiksa ulang). */
