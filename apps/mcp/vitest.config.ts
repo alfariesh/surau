@@ -5,13 +5,13 @@
 import { fileURLToPath } from "node:url";
 
 import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-plugin";
-import { defineConfig } from "vite-plus";
+import { defineProject } from "vite-plus";
 
 import { TEST_SEARCH_LIMIT, TEST_TOOL_LIMIT } from "./test/limits.ts";
 
 const dir = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
-export default defineConfig({
+export default defineProject({
   plugins: [
     cloudflareTest(async () => ({
       main: "./src/index.ts",

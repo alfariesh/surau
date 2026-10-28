@@ -131,6 +131,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 119 | Evaluasi vinext diukur ulang: vinext jadi kandidat migrasi (LCP ponsel lokal halaman kitab 1,7–2,1× lebih cepat, hidrasi +1,1 dtk), produksi tetap Next sampai gerbang Preview lolos; Redact tidak dipasang | diganti oleh ADR-121 | 2026-10-28 | [keputusan/ADR-119.md](keputusan/ADR-119.md) |
 | 120 | STATUS.md dipangkas: bagian Sekarang diringkas, teks lama dipindah apa adanya ke arsip | diterima | 2026-10-28 | [keputusan/ADR-120.md](keputusan/ADR-120.md) |
 | 121 | Gerbang Preview vinext (ADR-119 tahap 1): vinext tidak dimigrasi; LCP ponsel yang sama tampaknya bisa didapat di Next dengan menunda skrip sampai CSS selesai | diterima | 2026-10-28 | [keputusan/ADR-121.md](keputusan/ADR-121.md) |
+| 122 | Konfigurasi project tes workerd memakai `defineProject` dari Vite+ | diterima | 2026-10-28 | [keputusan/ADR-122.md](keputusan/ADR-122.md) |
 
 ## Cara menambah ADR baru
 
