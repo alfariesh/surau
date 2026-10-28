@@ -9,7 +9,7 @@
       "name": "surau-redaksi",
       "source": "./plugins/surau-redaksi",
       "description": "Membuat Intisari Bab, Intisari Kitab, Faedah, Jalur 7 hari, dan terjemahan Inggris per paragraf dari korpus Surau, dengan pemeriksa otomatis sebelum terbit.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "category": "productivity"
     }
   ]

@@ -28,6 +28,7 @@ Terjemahan Inggris per paragraf untuk Surau (ADR-130, ADR-132). Terjemahan ini k
 4. **Periksa mandiri** setiap paragraf dengan membaca ulang sumbernya, memakai daftar uji di `references/aturan.md` bagian "Before you finish": pelaku dan objek, jangkauan negasi, pendapat siapa, angka dan urutan, kelengkapan, dan placeholder. Nilai `benar`, `kurang`, atau `salah` dengan catatan satu kalimat. Semua yang `salah` wajib diperbaiki.
 5. Susun draf (bentuk di bawah), lalu `check_translation_draft({ draft })`. Perbaiki setiap galat dan ulangi sampai `ok: true`. Peringatan `length_ratio` berarti periksa ulang apakah ada yang hilang atau ditambah. Peringatan `markers_missing` berarti kembalikan penandanya bila memang ada di sumber.
 6. Salin `stamp` ke `periksa.kode`. Buat berkas `terjemah-<section_id>-<passage_id pertama>.json` untuk diunduh.
+   Di Claude Code tanpa konektor: bahan didapat dari `pnpm terjemah bahan <section_id> --limit 40`, dan pemeriksaan dengan `pnpm terjemah cek <berkas>`. Fungsinya sama dengan kedua tool MCP.
 7. Laporkan ke operator: jumlah paragraf, nilai periksa mandiri, dan `next_offset` untuk percakapan berikutnya. Sesudah diunduh, berkas diimpor di Claude Code ("impor terjemahan dari Downloads"), lalu diperiksa independen sebelum berstatus `siap`.
 
 ## Bentuk berkas
@@ -45,7 +46,7 @@ Terjemahan Inggris per paragraf untuk Surau (ADR-130, ADR-132). Terjemahan ini k
   "asal": {
     "pembuat": "claude-desktop",
     "model": "claude-sonnet-5-5",
-    "plugin": "surau-redaksi@0.2.0",
+    "plugin": "surau-redaksi@0.2.1",
     "skill": "terjemah-inggris@1",
     "operator": "pemilik",
     "dibuat": "2026-10-28T10:00:00+07:00"
