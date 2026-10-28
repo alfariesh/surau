@@ -13,7 +13,7 @@ Ikuti **pedoman-redaksi**. Intisari Kitab adalah peta besar satu Kitab (tingkat 
 ## Langkah
 
 1. `get_table_of_contents(edition_id: 1, node_id: <kitab>, depth: 3)`: catat semua Bab anak langsung dan sub-babnya.
-2. Untuk setiap Bab anak: `get_section_digest(bab)`. Utamakan Intisari v2 (dibuat lewat plugin); bila hanya ada Intisari lama, gagasannya wajib dicek ke paragraf jangkarnya. Bila sebuah Bab belum punya Intisari, baca sebagian awal dan akhirnya dengan `read_section` (potongan pertama dan terakhir).
+2. Untuk setiap Bab anak: `get_section_digest(bab)`. Pakai hanya **Intisari v2**, dikenali dari `prompt_version` yang berawalan `surau-redaksi/` (tampil sesudah impor X24). Intisari lama hasil batch API tidak dipakai. **Bila ada satu Bab anak tanpa Intisari v2, berhenti:** beri tahu operator Bab mana saja yang perlu dibuatkan Intisari Bab-nya dan diimpor lebih dulu.
 3. Baca pengantar Kitab (paragraf yang langsung milik node Kitab, biasanya di awal) dengan `read_section(kitab)` potongan pertama.
 4. Rencanakan **5–10 gagasan besar**. Setiap gagasan merangkum satu atau beberapa Bab (`bab`: ID Bab/sub-bab) dan punya 1–6 paragraf `dasar` yang benar-benar memuat gagasan itu (ambil dari jangkar Intisari Bab, lalu baca paragrafnya untuk memastikan). **Setiap Bab anak langsung harus dirujuk minimal satu gagasan.**
 5. Tulis `inti`, `pembuka` (apa yang dibahas Kitab ini, tanpa janji), `ringkasan`, gagasan (judul tesis yang menyebut pemilik pendapat, isi 60–200 kata, sikap, soal), `penutup` (tanpa kalimat "pintu ke teks"; itu ditambah kode).

@@ -15,6 +15,20 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-28 · X23 lanjutan · Tiga bahasa untuk konten dan MCP — selesai (dokumen)
+- Dikerjakan: keputusan pemilik dicatat sebagai ADR-130. MCP memakai bahasa Inggris saja untuk bantuan baca; agen menyarankan "ikut permintaan", tetapi pemilik memilih "Inggris saja". Tidak ada konten Arab tulisan AI. Konten turunan memakai satu kerangka dengan teks per bahasa.
+- Diperbarui: docs/09 §4, §5.2, §5.4, §6, §8 (Bahasa), dan §9; docs/01; docs/05 §11 dan §13; docs/07; pedoman redaksi §1 dan §10; FASE; X24 langkah 4. Rencana sesi baru X26 (MCP berbahasa Inggris), dengan pengecualian: `/redaksi` mengikuti bahasa draf.
+- ADR-131 dan plugin `surau-redaksi` 0.1.1 (pemilik: Intisari lama = uji coba):
+  - skill tidak lagi membuka Intisari lama;
+  - Intisari Kitab dan Jalur hanya dari Intisari Bab v2 sesudah X24;
+  - `menggantikan` hanya untuk revisi, dan dua pilot diubah ke `null` (di luar sidik, jadi cap tetap sah).
+- Verifikasi: `pnpm verify` → lolos · tes konten/plugin 33 lolos · `pnpm konten cek --luring` 3 pilot → lolos · `claude plugin validate` plugin dan marketplace → lolos · peninjau: 13 perbaikan dan 6 saran, dikerjakan kecuali saran yang dipindah ke X24/X26
+- Biaya API: –
+- Keputusan: ADR-130, ADR-131
+- Catatan untuk sesi berikutnya:
+  - Perkiraan ±$3–5 yang sempat disebut ke pemilik adalah angka Haiku. Dengan Sonnet (mutu yang tayang), batch Inggris ±US$35–45; X26 menyajikan kedua pilihan sebelum meminta izin.
+  - `contentDraftSha256` belum memuat `lang`. X26 menambahkannya hanya untuk `lang ≠ "id"` supaya cap unit Indonesia tetap sah.
+
 ## 2026-10-28 · A0 · Tarik dua gagasan Intisari Salah dari produksi — selesai
 - Dikerjakan: daftar tarik `data/reviews/ihya-9472-intisari-tolak.json` (100007 gagasan 4, 100017 gagasan 2; penjaga versi `created_at`) dibaca `packages/core`: `readDigest` (halaman Intisari, Uji pemahaman, `dengar.json`, MCP `get_section_digest`), kepala Intisari (`listShownDigestHeaders` dkk. + kueri db `getDigestPointSizes`), dan jalur gagasan Cari. Audio node yang terkena tidak dikirim. Audit induk: 100004 tidak memuat klaim gagasan 4 100007, dan 100003 belum ada di `ihya-v9`.
 - Verifikasi: tes core/db/web baru (berkas sah, versi lain tidak terkena, readDigest tanpa gagasan/dalil/audio, kepala dikurangi, Cari tanpa gagasan dan tanpa `matched_by` digest, sidik di kunci cache, penjaga impor web); `pnpm verify` → lolos (1139 + 487 tes); peninjau → 1 blocker (cache Cari 7 hari) + 4 penting, semua diperbaiki; PR #211 digabung (`3dc4fdd`), deploy web + MCP sukses; curl produksi `/kitab/ihya/bab/100007/intisari` dan `/100017/intisari` → HTTP 200, frasa "setara dengan ibadah sunah" dan "secara harfiah" 0 (sebelumnya 2), tombol Dengarkan 0 (sebelumnya 1), gagasan lain tetap tampil; `dengar.json` kedua bab → 404 (sebelumnya 200); MCP produksi `get_section_digest` 100017 → gagasan 1, 3–7, pertanyaan 2 hilang, `audio: null`.

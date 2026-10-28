@@ -25,6 +25,7 @@ Konektor yang dipakai: **surau-redaksi** (`https://mcp.surau.org/redaksi`). Bila
 
 ## Bahasa
 
+- Tulis dalam bahasa Indonesia (`lang: "id"`); versi ini menjadi induk. Versi bahasa Inggris belum dibuka (sesi X26). Konten berbahasa Arab tidak pernah dibuat.
 - Indonesia awam yang santun, kalimat pendek, kosakata pesantren (ngaji, kitab, bab).
 - Honorifik: "Allah Swt.", "Nabi saw.", nabi lain "as.", sahabat "ra." (huruf kecil, bertitik). Ejaan istilah mengikuti KBBI (sunah, hadis/hadits boleh, ulama); nama tokoh dengan apostrof bila ada di nama baku (Mu'adz, Atha').
 - **Hadits qudsi:** jangan menulis "Allah berfirman" (terbaca sebagai ayat dan ditolak pemeriksa); tulis "dalam sebuah hadits qudsi, Allah disebut …" atau "riwayat yang dinukil penulis menyebutkan …".
@@ -35,7 +36,7 @@ Konektor yang dipakai: **surau-redaksi** (`https://mcp.surau.org/redaksi`). Bila
 
 ## Alur umum
 
-1. Baca teks lewat konektor: `get_table_of_contents` (cari `section_id`), `read_section` (semua potongan sampai `next_cursor` null), `get_section_digest` (Intisari lama, hanya sebagai pembanding; jangan disalin), `read_page` bila perlu terjemahan AI per paragraf.
+1. Baca teks lewat konektor: `get_table_of_contents` (cari `section_id`), `read_section` (semua potongan sampai `next_cursor` null), `read_page` bila perlu terjemahan AI per paragraf. Jangan membuka Intisari lama (`get_section_digest`) sebagai bahan; Intisari Kitab dan Jalur hanya memakai Intisari v2 (lihat skill masing-masing).
 2. Tulis draf JSON `surau-konten/1` sesuai skill jenisnya (lihat `references/format.md`).
 3. Untuk setiap kutipan, panggil `verify_quote` dengan potongan Arab dari hasil `read_section`, lalu pakai `match.char_start`/`match.char_end`. Draf tidak memuat teks Arab.
 4. Panggil `check_content_draft` dengan seluruh draf. Perbaiki setiap galat (error) dan baca setiap peringatan. Ulangi sampai `ok: true`.
@@ -47,7 +48,7 @@ Konektor yang dipakai: **surau-redaksi** (`https://mcp.surau.org/redaksi`). Bila
 
 - `pembuat`: `claude-desktop` (aplikasi Claude), `claude-web` (claude.ai di peramban), `cowork`, atau `claude-code` (agen di repo).
 - `model`: ID model yang dipakai, mis. `claude-opus-5-5` atau `claude-sonnet-5-5`. Bila tidak yakin, tanyakan pemilik model apa yang dipilih di chat.
-- `plugin`: `surau-redaksi@0.1.0`. `skill`: nama skill dan versi standar, mis. `intisari-bab@1`.
+- `plugin`: `surau-redaksi@0.1.1`. `skill`: nama skill dan versi standar, mis. `intisari-bab@1`.
 - `operator`: `pemilik`, `agen` (agen Claude Code), atau nama pendek editor yang menjalankan (data publik di repo).
 - `dibuat`: waktu sekarang ISO 8601 dengan zona, mis. `2026-10-28T09:30:00+07:00`.
 

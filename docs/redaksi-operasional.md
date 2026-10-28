@@ -6,6 +6,11 @@ Pedoman ini mengatur **siapa, dengan alat apa, dan dengan aturan apa** konten tu
 
 Berlaku untuk konten turunan, yaitu unit yang ditulis lalu menunjuk korpus lewat ID paragraf dan offset. Tidak berlaku untuk korpus (teks Arab, terjemahan per paragraf, takhrij, ayat), koreksi terjemahan (`/tinjau/terjemahan`), dan jawaban Maknaz.
 
+**Bahasa** ([docs/09 §8](09-konten.md), ADR-130):
+- Sekarang konten dibuat dalam bahasa Indonesia. Versi itu menjadi induk.
+- Versi Inggris menyusul di X26, dengan kerangka yang sama dan teks yang ditulis dari teks Arab. Versi Inggris dibuat sesudah induknya berstatus `siap`, satu unit per percakapan, dan diperiksa ulang tiga lapis.
+- Tidak pernah ada konten berbahasa Arab tulisan AI.
+
 ## 2. Siapa yang boleh membuat
 
 | Fase | Pembuat | Catatan |
@@ -84,6 +89,7 @@ Cek kode menjaga bentuk dan alamat, bukan makna. Kesetiaan makna dijaga lapis 2 
 
 - Produksi lewat langganan Claude: tanpa biaya API Surau. MCP `/redaksi` tidak memanggil LLM; biayanya hanya baca D1.
 - Audio baru (Dengar) untuk Intisari v2 berbayar dan butuh izin pemilik.
+- Batch terjemahan Inggris per paragraf (bahan Faedah Inggris dan MCP, X26) berbayar dan butuh izin pemilik. Versi Inggris Intisari dan Jalur tetap lewat langganan.
 
 ## 11. Privasi
 

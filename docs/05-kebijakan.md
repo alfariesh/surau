@@ -180,6 +180,7 @@ MCP publik dirilis di Fase 3, sebelum Jawab (ADR-019), sebagai server terpisah d
 - Teks Arab, teks ayat, dan terjemahan Kemenag disalin verbatim dari DB.
 - Nama tool berbahasa Inggris dengan deskripsi Inggris + Indonesia: `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, `get_hadith_takhrij`, dan `get_section_digest` (Intisari, sejak X16).
 - Hasil dipaginasi (±4–6 ribu token per respons) supaya tidak melebihi batas output klien AI.
+- **Bahasa (ADR-130):** sesudah peralihan di X26, bantuan baca di `/mcp` (terjemahan AI, ringkasan, judul terjemahan, Intisari, glosarium, label buatan kode) **hanya berbahasa Inggris**, dan deskripsi tool juga hanya berbahasa Inggris. Endpoint penulis `/redaksi` mengikuti bahasa draf yang ditulis. Teks kitab, catatan kaki, takhrij, dan teks ayat tetap Arab. Terjemahan ayat memakai sumber Inggris berlisensi bila sudah ada; sampai itu tetap Kemenag. Sebelum X26 selesai, bantuan baca masih berbahasa Indonesia.
 - **Endpoint penulis `/redaksi`** (X23, ADR-125) di server yang sama: delapan tool di atas ditambah dua tool deterministik untuk plugin `surau-redaksi`, `check_content_draft` (pemeriksa draf konten turunan) dan `list_faedah_candidates`. Sifatnya sama: hanya-baca, tanpa login, tanpa LLM, dan draf tidak pernah disimpan atau dicatat. Instruksinya sendiri dan pendek (≤ 2.000 karakter, karena klien claude.ai memotong instruksi panjang). Kontrak `/mcp` publik tidak berubah.
 
 **Setiap respons memuat**
@@ -231,6 +232,7 @@ Konten di luar korpus diatur [docs/09-konten.md](09-konten.md) (rangka dan stand
 - Fase ini konten dibuat AI lewat Claude Desktop + plugin `surau-redaksi` dan terbit sesudah **cek otomatis tiga lapis** (cek kode, periksa mandiri, periksa independen oleh agen) tanpa tinjauan manusia (keputusan pemilik 2026-10-28). Labelnya tetap "AI, belum ditinjau manusia"; penilaian agen tidak pernah dilabeli manusia.
 - Faedah hanya dari paragraf pendapat penulis sendiri tanpa ayat dan tanpa penanda hadits; kisah atau praktik yang berbahaya bila ditiru tidak dijadikan Faedah. Jalur tidak memberi sertifikat, streak, atau peringkat.
 - Konten yang keliru ditarik (`status: ditarik` beserta alasan) dan dicatat terbuka seperti koreksi lain (§9).
+- Bahasa Indonesia adalah induk. Versi Inggris (mulai X26) memakai kerangka yang sama dan ditulis dari teks Arab, dan ikut ditarik bila induknya ditarik. Tidak ada konten Arab tulisan AI (ADR-130).
 
 ## Pertanyaan terbuka
 
