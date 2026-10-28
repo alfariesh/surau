@@ -1,0 +1,17 @@
+{
+  "base": "https://surau.org",
+  "tanggal": "2026-10-28T05:40:50.134Z",
+  "n": 1,
+  "mesin": {
+    "model": "Mac16,10",
+    "os": "darwin 27.2.0",
+    "cpu": "Apple M4 (10 utas)",
+    "ram": "16 GiB",
+    "chrome": "Chrome/156.0.8078.4",
+    "lighthouse": "13.5.0"
+  },
+  "results": {
+    "/kitab/ihya/1/200 baru": [3711],
+    "/kitab/ihya/3/202 baru": [4152]
+  }
+}
