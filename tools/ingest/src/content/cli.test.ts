@@ -1,5 +1,5 @@
-// Berkas konten di repo (X22): setiap unit di data/konten lolos cek luring (skema, bahasa, cap kode
-// cocok dengan isi, kesiapan status). Cek korpus berjalan saat impor dan build (X23), bukan di CI.
+// Berkas konten di repo (X23): setiap unit di data/konten lolos cek luring (skema, bahasa, cap kode
+// cocok dengan isi, kesiapan status). Cek korpus berjalan saat impor dan build (X24), bukan di CI.
 import { relative, resolve } from "node:path";
 
 import { CONTENT_FORMAT, contentDraftSha256, contentDraft } from "@surau/core";

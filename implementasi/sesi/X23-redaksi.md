@@ -1,6 +1,6 @@
-# X22 · Redaksi Surau: rangka konten turunan, standar, plugin Claude, dan pedoman
+# X23 · Redaksi Surau: rangka konten turunan, standar, plugin Claude, dan pedoman
 
-> **Fase:** Sisipan · **Status:** selesai (pilot; impor ke korpus di X23)
+> **Fase:** Sisipan · **Status:** selesai (pilot; impor ke korpus di X24)
 > **Prasyarat:** riset 2026-10-27 (PR #183) · Tugas pemilik: T-33 (pasang plugin), T-34 (aturan WAF `/redaksi`)
 > **Perkiraan:** 1 percakapan agent (tiga bagian: core + MCP, plugin + pedoman, pilot)
 
@@ -27,7 +27,7 @@ Riset 2026-10-27 menemukan pembungkus Intisari lemah, perbaikan isinya ("Tahap B
 5. Dokumen: docs/09 (rangka dan standar), pedoman redaksi, docs/05 §11 dan §13, ADR-125, README MCP.
 6. Plugin `plugins/surau-redaksi` (6 skill, konektor `/redaksi`, marketplace root `surau`), `pnpm plugin:paket`, tes struktur; agen `pemeriksa-konten`; server `surau` di `.mcp.json`; aturan teks-arab mencakup `plugins/**` dan `data/konten/**`.
 7. Pilot: Intisari Bab v2 untuk 100007 dan 100017 (dua bab ber-gagasan Salah) dan satu berkas Faedah, lolos tiga lapis; laporan QA di `data/reports/`.
-8. Dokumen X23 dan X24, T-33 dan T-34, STATUS dan LOG.
+8. Dokumen X24 dan X25, T-33 dan T-34, STATUS dan LOG.
 
 ## Selesai bila
 
@@ -40,14 +40,14 @@ Riset 2026-10-27 menemukan pembungkus Intisari lemah, perbaikan isinya ("Tahap B
 
 ## Di luar cakupan
 
-- Impor ke korpus dan tampil di web/MCP (X23); halaman Faedah dan Jalur (X24).
+- Impor ke korpus dan tampil di web/MCP (X24); halaman Faedah dan Jalur (X25).
 - Menghapus mp3 lama di R2 (izin pemilik); batch API apa pun; Bahan Kajian dan Rujukan.
 - Menarik dua gagasan Salah yang masih tayang di produksi (diusulkan sebagai sesi sendiri).
 
 ## Catatan hasil
 
-- **Dibuat:** core `content-schema`/`content-lint`/`content-check`/`narrative-check`/`quote-inspect`; MCP `/redaksi` (`redaksi-tools.ts`, `redaksi-instructions.ts` 1.614 karakter); CLI `tools/ingest/src/content/cli.ts`; plugin `plugins/surau-redaksi` + `.claude-plugin/marketplace.json`; agen `.claude/agents/pemeriksa-konten.md`; docs/09, pedoman redaksi, docs/05 §11 dan §13, ADR-125; sesi X23 dan X24; T-33 (#204) dan T-34 (#205).
+- **Dibuat:** core `content-schema`/`content-lint`/`content-check`/`narrative-check`/`quote-inspect`; MCP `/redaksi` (`redaksi-tools.ts`, `redaksi-instructions.ts` 1.614 karakter); CLI `tools/ingest/src/content/cli.ts`; plugin `plugins/surau-redaksi` + `.claude-plugin/marketplace.json`; agen `.claude/agents/pemeriksa-konten.md`; docs/09, pedoman redaksi, docs/05 §11 dan §13, ADR-125; sesi X24 dan X25; T-33 (#204) dan T-34 (#205).
 - **Bukti:** `pnpm verify` lolos; tes core konten 13, MCP 39, CLI dan plugin 16; `claude plugin validate` lolos; CLI terhadap korpus produksi (remote, hanya-SELECT) bekerja.
 - **Pilot:** periksa independen putaran final (diulang atas versi final sesudah perbaikan, temuan peninjau): 100007 B4/K3/S0, 100017 B6/K1/S0, Faedah 100008 B5/K0/S0 (satu butir p165 dibuang karena terjemahan sumbernya keliru); tiga unit `siap`; saran Kurang dicatat untuk versi 2. Kesalahan lama *sanah*/sunah dan sikap lahir-batin tidak terulang ([laporan QA](../../data/reports/konten-qa-2026-10-28.md)).
 - **Keputusan kecil:** nama kode berbahasa Inggris (`content-*`, `CONTENT_RULES = "konten@1"`), kunci berkas berbahasa Indonesia; tingkat tinjau R0–R3; tool redaksi memakai limiter sendiri `MCP_REDAKSI_LIMITER` (30/menit), plafon global FTS tetap satu; ambang cakupan mengikuti panjang bagian; `pnpm konten cek --cap` untuk cap ulang.
-- **Utang:** `/redaksi` belum di aturan WAF (T-34); `pemeriksa-konten` memakai `mcp__surau__*` dari `.mcp.json` (berlaku di sesi Claude Code baru); pilot memakai pemeriksa CLI karena `/redaksi` belum ter-deploy saat itu; terjemahan AI p165 perlu koreksi; dua gagasan Salah lama tetap tayang sampai X23 atau sesi penarikan; Faedah v2 dari potongan kalimat (paragraf > 90 kata) dan konteks daftar.
+- **Utang:** `/redaksi` belum di aturan WAF (T-34); `pemeriksa-konten` memakai `mcp__surau__*` dari `.mcp.json` (berlaku di sesi Claude Code baru); pilot memakai pemeriksa CLI karena `/redaksi` belum ter-deploy saat itu; terjemahan AI p165 perlu koreksi; dua gagasan Salah lama tetap tayang sampai X24 atau sesi penarikan; Faedah v2 dari potongan kalimat (paragraf > 90 kata) dan konteks daftar.

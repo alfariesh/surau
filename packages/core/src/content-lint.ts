@@ -1,4 +1,4 @@
-// Pemeriksa teks draf konten tanpa DB (X22, standar docs/09-konten.md): bahasa narasi
+// Pemeriksa teks draf konten tanpa DB (X23, standar docs/09-konten.md): bahasa narasi
 // (`narrativeProblems`: tanpa huruf Arab, fatwa, sapaan, status hadits, parafrase ayat), panjang,
 // judul dan soal yang tidak monoton, gagasan meta, janji manfaat, dan rujukan antarbutir. Dipakai
 // luring oleh CLI (CI) dan sebagai bagian `checkContentDraft` (MCP `/redaksi`).

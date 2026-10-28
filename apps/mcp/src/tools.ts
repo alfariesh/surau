@@ -335,7 +335,7 @@ export const TOOLS: readonly McpTool[] = [
 
 // ── Pendaftaran per permintaan ───────────────────────────────────────────────────────────────
 
-/** Endpoint yang melayani permintaan: `/mcp` publik atau `/redaksi` (X22, plugin penulis konten). */
+/** Endpoint yang melayani permintaan: `/mcp` publik atau `/redaksi` (X23, plugin penulis konten). */
 export type McpEndpoint = "mcp" | "redaksi";
 
 /** Bahan satu permintaan: binding, request asli (untuk kunci batas), dan origin situs. */

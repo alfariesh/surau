@@ -1,4 +1,4 @@
-// Plugin `surau-redaksi` (X22, ADR-125): struktur yang diterima Chat, Desktop, Cowork, dan Claude
+// Plugin `surau-redaksi` (X23, ADR-125): struktur yang diterima Chat, Desktop, Cowork, dan Claude
 // Code (docs plugin 2026-10-28), konektor ke /redaksi, dan contoh draf yang lolos cek luring.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";

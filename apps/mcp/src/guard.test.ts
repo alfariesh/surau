@@ -65,7 +65,7 @@ describe("guardTool", () => {
     expect(clientIp(undefined)).toBe("unknown");
   });
 
-  test("/redaksi (X22): kunci berlingkup endpoint; tool redaksi di limiter sendiri; plafon global tetap satu", async () => {
+  test("/redaksi (X23): kunci berlingkup endpoint; tool redaksi di limiter sendiri; plafon global tetap satu", async () => {
     const tool = counting();
     const search = counting();
     const global = counting();

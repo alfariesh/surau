@@ -1,4 +1,4 @@
-// Cek kode draf konten (lapis 1 gerbang terbit, X22, ADR-125): skema `surau-konten/1`, lint teks,
+// Cek kode draf konten (lapis 1 gerbang terbit, X23, ADR-125): skema `surau-konten/1`, lint teks,
 // lalu cek terhadap korpus: bagian dan tingkatnya, paragraf dasar di dalam bagian, kutipan sebagai
 // rentang `text_raw` yang utuh per kata (tanpa ayat dan tanpa riwayat terlarang), istilah di
 // glosarium, syarat Faedah (terjemahan berlabel, tanpa ayat/hadits, pendapat penulis), dan Intisari
@@ -543,7 +543,7 @@ export async function loadFaedahFacts(
   ]);
   const notAuthor = new Set<number>();
   // Sikap hanya diketahui untuk paragraf yang dijangkar gagasan yang tampil; paragraf lain di
-  // bagian ber-Intisari tetap "belum dicek" (peninjau X22).
+  // bagian ber-Intisari tetap "belum dicek" (peninjau X23).
   const anchored = new Set<number>();
   for (const rows of digests) {
     if (rows === null || rows.digest.review_status === "rejected") continue;

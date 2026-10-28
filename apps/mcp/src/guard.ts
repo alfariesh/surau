@@ -14,7 +14,7 @@ export interface GuardEnv {
   MCP_READ_GLOBAL_LIMITER: Limiter;
   MCP_SEARCH_LIMITER: Limiter;
   MCP_SEARCH_GLOBAL_LIMITER: Limiter;
-  /** Dua tool /redaksi (X22): per klien + kunci tetap "global" di binding yang sama. */
+  /** Dua tool /redaksi (X23): per klien + kunci tetap "global" di binding yang sama. */
   MCP_REDAKSI_LIMITER: Limiter;
   /** Secret Worker; tanpa ini setiap tool menjawab `not_configured` (gagal tertutup). */
   IP_HMAC_KEY?: string;
@@ -32,7 +32,7 @@ export function clientIp(request: Request | undefined): string {
 }
 
 /**
- * Tool /redaksi (X22, ADR-125): membaca seluruh subtree bagian per panggilan, pemakainya penulis
+ * Tool /redaksi (X23, ADR-125): membaca seluruh subtree bagian per panggilan, pemakainya penulis
  * konten. Limiter sendiri yang kecil; plafon semua klien = kunci "global" di binding yang sama.
  */
 export const REDAKSI_TOOLS_LIMITED: ReadonlySet<string> = new Set([
@@ -48,7 +48,7 @@ export async function guardTool(
 ): Promise<GuardResult> {
   if (env.IP_HMAC_KEY === undefined || env.IP_HMAC_KEY === "") return "not_configured";
   // Kunci `/mcp` tidak berubah; `/redaksi` punya ember per klien sendiri, supaya penulis konten
-  // tidak berbagi kuota dengan semua pengguna claude.ai yang lewat IP Anthropic (X22).
+  // tidak berbagi kuota dengan semua pengguna claude.ai yang lewat IP Anthropic (X23).
   const scope = endpoint === "mcp" ? "" : `${endpoint}:`;
   const key = `${await ipKey(env.IP_HMAC_KEY, ipNetwork(clientIp(request)))}:${scope}${tool}`;
   if (REDAKSI_TOOLS_LIMITED.has(tool)) {

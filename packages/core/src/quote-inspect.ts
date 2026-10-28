@@ -1,5 +1,5 @@
 // Jenis kutipan Intisari dan larangannya, ditentukan kode dari baris korpus (ADR-097, ADR-098
-// poin 11). Dipindah dari tools/ingest (X22) supaya validator batch, build, dan pemeriksa draf
+// poin 11). Dipindah dari tools/ingest (X23) supaya validator batch, build, dan pemeriksa draf
 // konten di MCP `/redaksi` memakai satu aturan: kutipan yang lolos cek di chat tidak boleh hilang
 // diam-diam saat build.
 import type { DigestQuoteKind, FootnoteRefRow, PageRow, PassageRow } from "@surau/db";

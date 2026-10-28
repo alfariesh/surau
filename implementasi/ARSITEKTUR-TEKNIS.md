@@ -37,7 +37,7 @@ Semua Worker mengimpor logika domain yang sama dari `packages/core`. Aturan keam
 surau/
 ├─ apps/
 │  ├─ web/            @surau/web   Next.js 16 + HeroUI (dipindah dari web/ di S01)
-│  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 8 tool di atas packages/core; /redaksi = 8 + 2 tool redaksi (X22)
+│  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 8 tool di atas packages/core; /redaksi = 8 + 2 tool redaksi (X23)
 │  └─ api/            @surau/api   Worker Hono `surau-api` (S19): Jawab SSE, cache; kuota/ledger/cron (S20)
 ├─ packages/
 │  ├─ text/           @surau/text  normalisasi Arab, offset map, stem, pembersih HTML Shamela, findQuote
@@ -47,10 +47,10 @@ surau/
 ├─ tools/
 │  ├─ ingest/         CLI Node: Shamela → validasi → patch → SQL/dump (node:sqlite, type stripping)
 │  └─ eval/           (Fase 2+) runner eval retrieval & jawaban
-├─ data/              LICENSE (CC BY-NC-SA), ATTRIBUTION.md, SOURCES.md, patches/, reports/ (di-commit; tanpa teks kitab); konten/ (draf konten turunan surau-konten/1, X22)
+├─ data/              LICENSE (CC BY-NC-SA), ATTRIBUTION.md, SOURCES.md, patches/, reports/ (di-commit; tanpa teks kitab); konten/ (draf konten turunan surau-konten/1, X23)
 │                     raw/ dan build/ (git-ignored): sumber unduhan, *.sqlite, *.sql
 ├─ evals/             dataset eval (JSONL); private/ git-ignored
-├─ plugins/           plugin Claude `surau-redaksi` (X22, ADR-125); marketplace di .claude-plugin/marketplace.json
+├─ plugins/           plugin Claude `surau-redaksi` (X23, ADR-125); marketplace di .claude-plugin/marketplace.json
 ├─ docs/  implementasi/  .claude/  .github/workflows/
 ├─ package.json  pnpm-workspace.yaml  vite.config.ts  tsconfig.base.json  .node-version
 └─ CLAUDE.md

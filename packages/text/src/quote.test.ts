@@ -67,7 +67,7 @@ describe("findQuote", () => {
   });
 });
 
-describe("findQuoteAll dan isQuoteSpan (X22)", () => {
+describe("findQuoteAll dan isQuoteSpan (X23)", () => {
   // Kalimat contoh buatan, bukan teks kitab.
   const raw = "العلم نور والعلم نور القلب";
 

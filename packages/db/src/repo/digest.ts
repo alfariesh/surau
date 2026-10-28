@@ -271,7 +271,7 @@ export async function getDigestHeadersOnPath(
 }
 
 /**
- * Kunci istilah glosarium satu bahasa yang ada di korpus (X22: pemeriksa draf konten menolak
+ * Kunci istilah glosarium satu bahasa yang ada di korpus (X23: pemeriksa draf konten menolak
  * istilah di luar glosarium). Kosong bila skema < 9.
  */
 export async function listGlossaryTermKeys(db: D1Db, lang: string): Promise<string[]> {

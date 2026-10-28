@@ -61,7 +61,7 @@ export function refillsAyah(text: string): boolean {
   return false;
 }
 
-// Pemeriksa narasi (komentar model, basa-basi, bahasa atribusi) dipindah ke @surau/core (X22) supaya
+// Pemeriksa narasi (komentar model, basa-basi, bahasa atribusi) dipindah ke @surau/core (X23) supaya
 // pemeriksa draf konten di MCP memakainya; diekspor ulang di sini untuk pemanggil batch.
 export {
   addressesReader,

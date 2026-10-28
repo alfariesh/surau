@@ -19,7 +19,7 @@ export const SERVER_INFO = {
 /** Umur cache hint daftar tool dan discover: satu jam (deploy baru = daftar baru). */
 export const LIST_CACHE_TTL_MS = 60 * 60 * 1000;
 
-/** Server `/redaksi` (X22): nama, instruksi, dan daftar tool sendiri. */
+/** Server `/redaksi` (X23): nama, instruksi, dan daftar tool sendiri. */
 export const REDAKSI_SERVER_INFO = {
   name: "surau-redaksi",
   title: "Surau Redaksi",

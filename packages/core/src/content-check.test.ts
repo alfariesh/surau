@@ -391,7 +391,7 @@ describe("contentDraftSha256 dan listFaedahCandidates", () => {
   });
 });
 
-describe("checkContentDraft: Intisari Kitab dan aturan tambahan (peninjau X22)", () => {
+describe("checkContentDraft: Intisari Kitab dan aturan tambahan (peninjau X23)", () => {
   const LONG_ISI = `${ISI} ${ISI} Penulis menutup uraian ini dengan menegaskan bahwa ilmu menjadi jalan menuju kedekatan kepada Allah Swt.`;
   const kids = [tocNodeId(ED, 60), tocNodeId(ED, 61)];
   const kitab = (bab: (i: number) => number[]) => ({

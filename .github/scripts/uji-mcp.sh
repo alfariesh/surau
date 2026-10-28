@@ -6,7 +6,7 @@
 # Pakai: uji-mcp.sh <URL endpoint, mis. https://mcp.surau.org/mcp> [lengkap|daftar]
 #   lengkap (bawaan): tools/list + tools/call kedelapan tool (data Ihya edisi 1) + kasus error
 #   daftar: tools/list + satu tools/call (list_works) saja (smoke produksi)
-#   redaksi: endpoint /redaksi (X22): 10 tool + check_content_draft (draf rusak, galat pasti) dan
+#   redaksi: endpoint /redaksi (X23): 10 tool + check_content_draft (draf rusak, galat pasti) dan
 #     list_faedah_candidates (data Ihya edisi 1); URL diakhiri /redaksi
 # Env opsional: INSPECTOR (versi paket, bawaan dipin di bawah), MAX_COBA (bawaan 12), JEDA (5 dtk).
 #

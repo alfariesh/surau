@@ -20,7 +20,7 @@ Worker MCP publik Surau (S16, [ADR-011](../../implementasi/KEPUTUSAN.md), ADR-04
 | `get_hadith_takhrij` | `getHadithTakhrij` | Catatan kaki takhrij tertaut; tanpa takhrij = status tidak diketahui | median ±0,9 ribu, maks. ±2,3 ribu |
 | `get_section_digest` | `readDigest` | Intisari satu bagian (X16, ADR-097/099): gagasan AI berjangkar ke paragraf, kutipan Arab dari DB, istilah, pertanyaan ingatan, dalil yang dihitung kode (ayat Tanzil + Kemenag, takhrij + label kode); `digest: null` bila bagian tanpa Intisari | belum diukur (data nyata menyusul X15b) |
 
-### Endpoint `/redaksi` (X22, ADR-125)
+### Endpoint `/redaksi` (X23, ADR-125)
 
 `https://mcp.surau.org/redaksi`: server `surau-redaksi` untuk plugin penulis konten ([plugins/surau-redaksi](../../plugins/surau-redaksi/README.md)). Delapan tool di atas ditambah dua tool deterministik dari [`src/redaksi-tools.ts`](src/redaksi-tools.ts); instruksi sendiri ≤ 2.000 karakter ([`src/redaksi-instructions.ts`](src/redaksi-instructions.ts)). Tidak diiklankan di info `/`.
 
@@ -35,7 +35,7 @@ Semua tool: nama ASCII snake_case (ADR-012), deskripsi Inggris + ringkasan Indon
 
 | Lapisan | Aturan |
 |---|---|
-| Path | Hanya `/mcp`, `/redaksi` (X22), dan `GET /` = info JSON; lainnya 404 |
+| Path | Hanya `/mcp`, `/redaksi` (X23), dan `GET /` = info JSON; lainnya 404 |
 | Origin | `originValidationResponse`: `surau.org`, `www.surau.org`, `mcp.surau.org`, localhost; Origin lain atau `null` → 403; tanpa Origin (klien server-ke-server) → lolos |
 | Body | `maxRequestBodySize` 64 KiB → 413; `maxSubscriptions` 16 per isolate |
 | Batas per tool | Rate Limiting binding, kunci `HMAC(IP_HMAC_KEY, jaringan IP):tool`: tool baca 120/menit per klien (`MCP_TOOL_LIMITER`) + 600/menit per lokasi Cloudflare, bukan global akun (`MCP_READ_GLOBAL_LIMITER`; daftar isi dan `read_section` membaca ±1.000 baris per panggilan), `search_text` 60/menit per klien (`MCP_SEARCH_LIMITER`) + 600/menit per lokasi Cloudflare (`MCP_SEARCH_GLOBAL_LIMITER`, D1 dipakai bersama web). Di `/redaksi` kunci per klien diberi lingkup `redaksi:` (ember sendiri; plafon global search tetap satu), dan dua tool redaksi memakai `MCP_REDAKSI_LIMITER` (30/menit per klien, dan kunci `global` di binding yang sama = 30/menit semua klien; `namespace_id` 3005, Preview 4005). Habis → hasil `isError` `rate_limited`. Tanpa secret `IP_HMAC_KEY` → `not_configured` (gagal tertutup) |

@@ -1,5 +1,5 @@
 // Pemeriksa teks narasi berbahasa Indonesia buatan model (S13, X15b; dipindah dari @surau/llm di
-// X22, pola X08/ADR-081) supaya pemeriksa draf konten (MCP `/redaksi`, CLI `konten`) memakainya
+// X23, pola X08/ADR-081) supaya pemeriksa draf konten (MCP `/redaksi`, CLI `konten`) memakainya
 // tanpa menarik @surau/llm. @surau/llm mengekspor ulang semuanya untuk pemanggil batch.
 // Heuristik pola, bukan jaminan semantik: yang lolos tetap dinilai (teks-arab.md aturan 6, 7, 9).
 import { hasArabicLetters, hasMarkdown } from "./translation-text.ts";

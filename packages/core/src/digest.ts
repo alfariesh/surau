@@ -43,7 +43,7 @@ export const DIGEST_READ_CHARS_PER_MINUTE = 1000;
 /**
  * Tingkat Intisari (Ihya): muqaddimah (akar tanpa anak) dan kitab (tingkat 2) = Intisari Kitab;
  * selebihnya, termasuk rub' yang dibuat dari kitab-kitabnya, Intisari Bab. Satu aturan untuk
- * pipeline batch (X15) dan pemeriksa draf konten (X22).
+ * pipeline batch (X15) dan pemeriksa draf konten (X23).
  */
 export function digestTierOf(level: number, hasChildNodes: boolean): "book" | "section" {
   return level === 2 || (level === 1 && !hasChildNodes) ? "book" : "section";

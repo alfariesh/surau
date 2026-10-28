@@ -67,7 +67,7 @@ export interface CountRange {
   max: number;
 }
 
-// Jumlah gagasan menurut panjang teks: satu aturan di @surau/core (X22).
+// Jumlah gagasan menurut panjang teks: satu aturan di @surau/core (X23).
 export { leafPointRange } from "@surau/core";
 
 /** Jumlah gagasan Intisari gabungan: rentang tingkatnya, dibatasi gagasan sumber yang tersedia. */
@@ -249,7 +249,7 @@ export interface LeafBlock {
   ayah: boolean;
 }
 
-// Bentuk kutipan dan hasil pemeriksaannya ada di @surau/core (X22, `quoteInspector`).
+// Bentuk kutipan dan hasil pemeriksaannya ada di @surau/core (X23, `quoteInspector`).
 export type { QuoteInspection, QuoteRange } from "@surau/core";
 
 export type DigestJudgeContext =
@@ -358,7 +358,7 @@ const words = (t: string) => t.trim().split(/\s+/u).filter(Boolean).length;
 const within = (n: number, [lo, hi]: readonly [number, number]) => n >= lo && n <= hi;
 const unique = <T>(list: readonly T[]) => [...new Set(list)];
 
-// Pemeriksa narasi dipindah ke @surau/core (X22); diekspor ulang untuk pemanggil lama.
+// Pemeriksa narasi dipindah ke @surau/core (X23); diekspor ulang untuk pemanggil lama.
 export { narrativeProblems };
 
 /**

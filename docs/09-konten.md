@@ -125,7 +125,7 @@ Satu berkas JSON per unit di `data/konten/<jenis>/<id>.json` (masuk git; isinya 
 
 | Lapis | Apa | Di mana |
 |---|---|---|
-| 1. Cek kode | skema, bahasa narasi (huruf Arab, fatwa, sapaan, status hadits, parafrase ayat, komentar model), panjang, judul dan soal yang tidak monoton, korpus (paragraf di dalam bagian, kutipan di batas kata tanpa ayat dan riwayat terlarang, istilah, syarat Faedah, Intisari tiap hari Jalur) | tool MCP `check_content_draft`, `pnpm konten cek`, build X23 |
+| 1. Cek kode | skema, bahasa narasi (huruf Arab, fatwa, sapaan, status hadits, parafrase ayat, komentar model), panjang, judul dan soal yang tidak monoton, korpus (paragraf di dalam bagian, kutipan di batas kata tanpa ayat dan riwayat terlarang, istilah, syarat Faedah, Intisari tiap hari Jalur) | tool MCP `check_content_draft`, `pnpm konten cek`, build X24 |
 | 2. Periksa mandiri | AI membaca ulang jangkar setiap gagasan: negasi, bilangan dan waktu, sikap tiga arah, ta'wil lahir-batin, aliran, fatwa | skill `periksa-draf` di chat |
 | 3. Periksa independen | agen konteks segar menilai Benar/Kurang/Salah per butir; satu Salah = tidak terbit | agen `pemeriksa-konten` saat impor di Claude Code |
 
@@ -133,6 +133,6 @@ Galat (error) wajib diperbaiki; peringatan wajib dibaca. Cek kode tidak menjamin
 
 ## 8. Yang belum ada
 
-- Impor ke korpus dan tampil di web/MCP (X23): kolom inti dan jawaban, daftar tarik, tombol Laporkan.
-- Halaman Faedah (dengan tombol salin untuk WhatsApp) dan Jalur (X24).
+- Impor ke korpus dan tampil di web/MCP (X24): kolom inti dan jawaban, daftar tarik, tombol Laporkan.
+- Halaman Faedah (dengan tombol salin untuk WhatsApp) dan Jalur (X25).
 - Peninjau manusia (R1–R3) dan alat tinjau per gagasan (pola `/tinjau`).

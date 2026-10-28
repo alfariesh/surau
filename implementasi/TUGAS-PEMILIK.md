@@ -234,7 +234,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Intisari + Dengar (X15–X17, ADR-097)
 
-- [ ] **T-33 · Pasang plugin Redaksi Surau di Claude Desktop (X22)** · untuk membuat Intisari, Faedah, dan Jalur lewat chat ([pedoman](../docs/redaksi-operasional.md))
+- [ ] **T-33 · Pasang plugin Redaksi Surau di Claude Desktop (X23)** · untuk membuat Intisari, Faedah, dan Jalur lewat chat ([pedoman](../docs/redaksi-operasional.md))
   1. Buka aplikasi Claude Desktop. Klik foto profil (kiri bawah) → **Settings** → **Capabilities**, lalu nyalakan **Code execution and file creation**.
   2. Di sidebar kiri, klik **Customize** → **Plugins** → **Add** → **Add marketplace**. Ketik `alfariesh/surau` lalu **Add**. Nyalakan **Sync automatically** pada marketplace **surau**.
   3. Di daftar plugin **surau**, pasang **Redaksi Surau**.
@@ -243,7 +243,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   6. Di Claude Code (folder Surau), ketik: "impor konten dari Downloads". Agent memeriksa, menjalankan pemeriksa independen, lalu membuat PR.
   7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
 
-- [ ] **T-34 · Perluas aturan WAF MCP ke `/redaksi` (X22)** · tidak mendesak; `/redaksi` sudah dibatasi limiter Worker
+- [ ] **T-34 · Perluas aturan WAF MCP ke `/redaksi` (X23)** · tidak mendesak; `/redaksi` sudah dibatasi limiter Worker
   1. Buka https://dash.cloudflare.com → domain **surau.org** → **Security** → **WAF** → **Rate limiting rules**.
   2. Buka aturan MCP yang dibuat di T-19 (path `/mcp`). Ubah kondisinya dari *URI Path equals `/mcp`* menjadi *URI Path is in `/mcp`, `/redaksi`* (atau tambahkan satu aturan yang sama untuk `/redaksi` bila paket tidak mengizinkan daftar). Simpan.
   3. Bilang ke agent "T-34 sudah". Agent memeriksa dengan beberapa panggilan cepat bahwa `/redaksi` ikut dibatasi.

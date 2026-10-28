@@ -1,7 +1,7 @@
-# X23 · Impor konten turunan ke korpus dan tampil di web
+# X24 · Impor konten turunan ke korpus dan tampil di web
 
 > **Fase:** Sisipan · **Status:** belum
-> **Prasyarat:** X22 selesai; minimal satu unit `siap` di `data/konten/` · Tugas pemilik: izin promote korpus (aturan keras 4: menimpa data produksi)
+> **Prasyarat:** X23 selesai; minimal satu unit `siap` di `data/konten/` · Tugas pemilik: izin promote korpus (aturan keras 4: menimpa data produksi)
 > **Perkiraan:** 1–2 percakapan agent
 
 ## Tujuan
@@ -35,4 +35,4 @@ Unit `siap` di `data/konten/` (Intisari Bab v2, Intisari Kitab) masuk build korp
 
 ## Di luar cakupan
 
-- Halaman Faedah dan Jalur (X24); rekam ulang audio (izin biaya); peninjau manusia R1–R3.
+- Halaman Faedah dan Jalur (X25); rekam ulang audio (izin biaya); peninjau manusia R1–R3.

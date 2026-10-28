@@ -41,7 +41,7 @@ function handlerFor(endpoint: McpEndpoint) {
 }
 
 const handler = handlerFor("mcp");
-// Endpoint penulis konten (X22, ADR-125): tidak diiklankan di info `/`.
+// Endpoint penulis konten (X23, ADR-125): tidak diiklankan di info `/`.
 const redaksiHandler = handlerFor("redaksi");
 
 function info(siteUrl: string, requestUrl: string): Response {

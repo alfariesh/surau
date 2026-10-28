@@ -39,7 +39,7 @@ export function findQuote(
 
 /**
  * Semua kecocokan sah kutipan di teks mentah (aturan sama dengan `findQuote`), urut posisi. Dipakai
- * pemeriksa draf konten (X22) untuk memastikan rentang offset yang disimpan adalah kecocokan utuh,
+ * pemeriksa draf konten (X23) untuk memastikan rentang offset yang disimpan adalah kecocokan utuh,
  * bukan hanya kecocokan pertama.
  */
 export function findQuoteAll(

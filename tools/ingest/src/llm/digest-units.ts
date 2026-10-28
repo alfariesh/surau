@@ -63,7 +63,7 @@ export const DIGEST_CHUNK_MAX_TOKENS = 24_000;
 /** Token per label blok dan tanda paragraf (perkiraan pemecahan; jumlah pasti dari count_tokens). */
 const BLOCK_TOKEN_OVERHEAD = 6;
 
-/** Riwayat yang tidak boleh menjadi kutipan pilihan (definisi di @surau/core, X22). */
+/** Riwayat yang tidak boleh menjadi kutipan pilihan (definisi di @surau/core, X23). */
 export const BANNED_TAKHRIJ_KINDS: ReadonlySet<string> = QUOTE_BANNED_TAKHRIJ_KINDS;
 
 export interface DigestBlock extends LeafBlock {
@@ -503,7 +503,7 @@ export function digestPlan(rows: DigestCorpus, opts: DigestPlanOptions = {}): Di
   };
 }
 
-// Pemeriksa kutipan dipindah ke @surau/core (X22); diekspor ulang untuk pemanggil lama.
+// Pemeriksa kutipan dipindah ke @surau/core (X23); diekspor ulang untuk pemanggil lama.
 export { BAN_LOOKAHEAD_CHARS, REPORT_LOOKAHEAD_CHARS, quoteInspector } from "@surau/core";
 
 /**

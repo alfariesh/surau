@@ -1,4 +1,4 @@
-// Berkas draf konten turunan `surau-konten/1` (X22, ADR-125): Intisari Bab, Intisari Kitab,
+// Berkas draf konten turunan `surau-konten/1` (X23, ADR-125): Intisari Bab, Intisari Kitab,
 // Faedah, dan Jalur yang ditulis di Claude Desktop lewat plugin `surau-redaksi` (kelak juga oleh
 // manusia). Isinya hanya teks Indonesia, ID, dan offset: teks Arab tidak pernah ada di berkas,
 // kode menyalinnya dari DB saat dibaca (teks-arab.md aturan 1). Kunci berbahasa Indonesia mengikuti
@@ -209,7 +209,7 @@ const envelope = {
   lang: z.literal("id").default("id"),
   versi: z.number().int().min(1).default(1),
   /** Unit yang digantikan: `null`, versi sebelumnya ("intisari-bab/100007@1"), atau rekaman lama
-   * ("digest-section@2"). Dicatat agar build X23 tahu Intisari batch mana yang diganti. */
+   * ("digest-section@2"). Dicatat agar build X24 tahu Intisari batch mana yang diganti. */
   menggantikan: z.string().trim().min(1).max(80).nullable().default(null),
   status: contentStatus,
   tarik: z
