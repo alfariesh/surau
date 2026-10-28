@@ -234,6 +234,20 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 
 ## Intisari + Dengar (X15–X17, ADR-097)
 
+- [ ] **T-33 · Pasang plugin Redaksi Surau di Claude Desktop (X23)** · untuk membuat Intisari, Faedah, dan Jalur lewat chat ([pedoman](../docs/redaksi-operasional.md))
+  1. Buka aplikasi Claude Desktop. Klik foto profil (kiri bawah) → **Settings** → **Capabilities**, lalu nyalakan **Code execution and file creation**.
+  2. Di sidebar kiri, klik **Customize** → **Plugins** → **Add** → **Add marketplace**. Ketik `alfariesh/surau` lalu **Add**. Nyalakan **Sync automatically** pada marketplace **surau**.
+  3. Di daftar plugin **surau**, pasang **Redaksi Surau**.
+  4. Buka plugin **Redaksi Surau** → tab **Connectors** → **Connect** pada `surau-redaksi` (tanpa login).
+  5. Buka chat baru, pilih model **Opus**. Matikan konektor "Surau" publik untuk chat ini bila terpasang (ikon konektor di kotak chat). Ketik: `Buat Intisari Bab 100006` (bab pendek tentang keutamaan belajar). Tunggu sampai Claude membuat berkas `intisari-bab-100006.json`, lalu unduh.
+  6. Di Claude Code (folder Surau), ketik: "impor konten dari Downloads". Agent memeriksa, menjalankan pemeriksa independen, lalu membuat PR.
+  7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
+
+- [ ] **T-34 · Perluas aturan WAF MCP ke `/redaksi` (X23)** · tidak mendesak; `/redaksi` sudah dibatasi limiter Worker
+  1. Buka https://dash.cloudflare.com → domain **surau.org** → **Security** → **WAF** → **Rate limiting rules**.
+  2. Buka aturan MCP yang dibuat di T-19 (path `/mcp`). Ubah kondisinya dari *URI Path equals `/mcp`* menjadi *URI Path is in `/mcp`, `/redaksi`* (atau tambahkan satu aturan yang sama untuk `/redaksi` bila paket tidak mengizinkan daftar). Simpan.
+  3. Bilang ke agent "T-34 sudah". Agent memeriksa dengan beberapa panggilan cepat bahwa `/redaksi` ikut dibatasi.
+
 - [ ] **T-31 · Uji dengar suara Intisari + QA sampel pilot** · butir 1, 1b, dan 2 selesai 2026-10-25 (suara Kang Sugiman, gaya variatif, lafal "Ihya Ulumuddin", pilot audio disetujui); **tinggal butir 4** (nilai QA Intisari X15b; sementara dinilai agent 2026-10-25, penilaian manusia menyusul)
   1. **Dengarkan dua contoh** yang dibuat agent di chat 24 Oktober: ringkasan Muqaddimah + istilah (ikhlas, riya', 'ujub, tawakkal, al-Ghazali, shallallahu 'alaihi wa sallam), dibacakan **Jefri** (pria, tenang menjelaskan) dan **Gendhis** (perempuan, tenang dan ramah). Di kartu suara Anda bisa mengganti suara, misalnya Mizan, Leya, atau Bayu. Setiap ganti memakai ±600 kredit dari paket Starter.
   1b. *(Sesudah T-29, dengan izin Anda di chat, ±900 karakter)* **Uji gaya narator** (ADR-101): agent memutar contoh A (tanpa gaya) lalu B (gaya "khidmat": kutipan lebih tenang dan khidmat, syair lebih lembut). Nilai: lebih jelas, atau malah terdengar berakting? Ketik "gaya: A" atau "gaya: B".

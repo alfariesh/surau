@@ -57,16 +57,24 @@
       "simple": { "limit": 600, "period": 60 },
     },
     {
-      // search_text per klien: kueri FTS paling mahal di D1.
+      // search_text per klien (di /redaksi kuncinya berlingkup sendiri): kueri FTS paling mahal di D1.
       "name": "MCP_SEARCH_LIMITER",
       "namespace_id": "3002",
       "simple": { "limit": 60, "period": 60 },
     },
     {
-      // search_text semua klien (kunci tetap): plafon beban D1, yang dipakai bersama web.
+      // search_text semua klien dan kedua endpoint (kunci tetap): plafon beban D1, dipakai bersama web.
       "name": "MCP_SEARCH_GLOBAL_LIMITER",
       "namespace_id": "3003",
       "simple": { "limit": 600, "period": 60 },
+    },
+    {
+      // Dua tool /redaksi (check_content_draft, list_faedah_candidates; X23, ADR-125): membaca
+      // seluruh subtree bagian per panggilan; pemakainya penulis konten, jadi batasnya kecil.
+      // Kunci per klien + kunci tetap "global" di binding yang sama (plafon semua klien).
+      "name": "MCP_REDAKSI_LIMITER",
+      "namespace_id": "3005",
+      "simple": { "limit": 30, "period": 60 },
     },
   ],
   // `invocation_logs: false` (S20, ADR-065): log otomatis per permintaan merekam IP mentah di
@@ -115,6 +123,14 @@
         "name": "MCP_SEARCH_GLOBAL_LIMITER",
         "namespace_id": "4003",
         "simple": { "limit": 600, "period": 60 },
+      },
+      {
+        // Dua tool /redaksi (check_content_draft, list_faedah_candidates; X23, ADR-125): membaca
+        // seluruh subtree bagian per panggilan; pemakainya penulis konten, jadi batasnya kecil.
+        // Kunci per klien + kunci tetap "global" di binding yang sama (plafon semua klien).
+        "name": "MCP_REDAKSI_LIMITER",
+        "namespace_id": "4005",
+        "simple": { "limit": 30, "period": 60 },
       },
     ],
   },

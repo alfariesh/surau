@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-plugin";
 import { defineProject } from "vite-plus";
 
-import { TEST_SEARCH_LIMIT, TEST_TOOL_LIMIT } from "./test/limits.ts";
+import { TEST_REDAKSI_LIMIT, TEST_SEARCH_LIMIT, TEST_TOOL_LIMIT } from "./test/limits.ts";
 
 const dir = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
@@ -30,6 +30,10 @@ export default defineProject({
             simple: { limit: TEST_SEARCH_LIMIT, period: 60 },
           },
           MCP_SEARCH_GLOBAL_LIMITER: { namespace_id: "9003", simple: { limit: 1000, period: 60 } },
+          MCP_REDAKSI_LIMITER: {
+            namespace_id: "9005",
+            simple: { limit: TEST_REDAKSI_LIMIT, period: 60 },
+          },
         },
         bindings: {
           SITE_URL: "https://surau.test",

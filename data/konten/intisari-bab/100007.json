@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 1,
+  "section_id": 100007,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": "digest-section@2",
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.1.0",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-10-28T11:03:20+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p124-p126 dibaca ulang: keterangan penulis atas ayat (yang dimaksud mengajar dan membimbing, pewajiban mengajar, pengharaman menyembunyikan) tepat, sabda janji ulama dan pesan kepada Mu'adz dinukil sesuai teks, tanpa isi ayat."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p134-p135: riwayat tujuh puluh shiddiq ditulis belajar untuk mengajar (bukan mengajar), ucapan Nabi Isa tepat, dan batasan penulis soal ilmu yang menjalar lewat pengajaran dipertahankan; frasa seperti sebagian malaikat dirapikan dari dijadikan menjadi disebut."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p136 bagian awal: ilmu pergi bersama ulama, ancaman kekang api, dan dunia terlaknat kecuali zikir, pengajar, dan pelajar sesuai teks; syarat bila ditanya yang sempat hilang sudah dikembalikan."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p136: kedua sabda menyebut ibadah satu tahun (sanah, bukan sunah) dan draf menulis setahun di judul, isi, dan soal; sebab-akibat tambahan pada kisah dua majelis dihapus."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p136 akhir: tiga macam tanah dan penjelasan penulis (yang mengambil manfaat, yang memberi manfaat, yang terhalang dari keduanya) sesuai teks dan kutipan, sikap penulis tepat."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p148-p149: tiga perkara, penunjuk kebaikan, dua orang yang boleh diirikan, dan pengganti Nabi yang menghidupkan sunah beliau (di sini memang sunah) sesuai teks; ucapan Umar dirapikan agar menyebut pahala seperti pelakunya."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p151-p158: kisah Sufyan dengan penjelasan penulis, tangis Sa'id, pelita zaman, al-Hasan, Yahya bin Mu'adz, dan ucapan Mu'adz yang juga penulis lihat marfu' sesuai teks; label ulama salaf diganti para ulama karena Yahya bin Mu'adz lebih belakangan."
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-28",
+      "draf_sha256": "13b486352bc09084afac3d50c13d9cc845cf2e7853a9905e101813a5459187f6",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Keterangan atas tiga ayat pertama (mengajar dan membimbing; mewajibkan mengajar; mengharamkan menyembunyikan, disandingkan dengan ayat kesaksian), janji ulama, dan pesan kepada Mu'adz sesuai p124-p126; tanpa isi ayat dan tanpa status hadits."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tujuh puluh shiddiq, ucapan Nabi Isa, dialog hari kiamat, dan penegasan penulis bahwa hal itu hanya terjadi pada ilmu yang menjalar lewat pengajaran sesuai p134-p135; offset kutipan 251-319 tepat pada kalimat penegasan itu."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Isinya setia, tetapi 'wafatnya' dan 'sekaligus' adalah kata tafsir yang tidak ada di teks."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Kedua sabda memang berbunyi ibadah satu tahun (setahun), bukan sunah; sabda yang dinukil, bukan sikap penulis, dan tanpa tambahan sebab-akibat."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Isi perumpamaan benar, tetapi kata kerja 'menyebut' di kalimat penjelas tidak punya subjek yang tegas di teks, sedangkan draf menetapkannya sebagai penjelasan al-Ghazali dan terjemahan kutipan memakai 'beliau' yang ambigu."
+        },
+        {
+          "ke": 6,
+          "nilai": "kurang",
+          "catatan": "Isinya setia, tetapi judul menyebut kebaikan yang diajarkan 'terus berpahala', padahal sabda-sabda itu hanya menyatakan pahala seperti pelakunya."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Kisah Sufyan dengan penjelasan penulis, tangis Sa'id, pelita zaman, al-Hasan, Yahya bin Mu'adz, dan ucapan Mu'adz (juga dilihat penulis sebagai marfu') sesuai p151-p158."
+        }
+      ],
+      "laporan": "data/reports/konten-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "a4d01ae60b0338d0bbc53da802fb8d497d7412db8df9783b7e752bf640464103",
+      "draf_sha256": "13b486352bc09084afac3d50c13d9cc845cf2e7853a9905e101813a5459187f6",
+      "waktu": "2026-10-28T04:32:30.660Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, dalil yang ia himpun menunjukkan bahwa mengajar adalah kewajiban orang berilmu, dan syafaat ulama pada hari kiamat hanya lahir dari ilmu yang diajarkan kepada orang lain.",
+    "ringkasan": "Al-Ghazali membuka dengan beberapa ayat yang ia pahami sebagai perintah mengajar dan larangan menyembunyikan ilmu. Ia lalu menukil banyak sabda Nabi saw.: pahala bagi yang belajar untuk mengajar, syafaat ulama yang ia batasi pada ilmu yang diajarkan, hilangnya ilmu bersama wafatnya ulama, ancaman bagi penyembunyi ilmu, mengajarkan satu kalimat hikmah yang disetarakan dengan ibadah setahun, dan perumpamaan hujan yang ia jelaskan sebagai tiga golongan manusia. Sesudahnya ia menukil sabda tentang pahala yang terus mengalir, ucapan sahabat dan para ulama, lalu menutup dengan ucapan panjang Mu'adz bin Jabal tentang ilmu.",
+    "gagasan": [
+      {
+        "judul": "Mengajar itu wajib dan menyembunyikan ilmu dilarang, menurut al-Ghazali",
+        "isi": "Al-Ghazali membuka dengan beberapa ayat dan memberi keterangan singkat atas tiga ayat pertama. Menurutnya, yang dimaksud ayat pertama ialah mengajar dan membimbing, ayat kedua ia sebut mewajibkan mengajar, dan ayat ketiga ia sebut mengharamkan menyembunyikan ilmu, yang ia sandingkan dengan ayat tentang kesaksian. Ia menambahkan sabda bahwa Allah mengambil janji dari setiap orang yang diberi ilmu, seperti janji para nabi, untuk menjelaskannya kepada manusia dan tidak menyembunyikannya. Ia juga menukil pesan Nabi saw. kepada Mu'adz saat diutus ke Yaman: satu orang yang diberi petunjuk oleh Allah lewat dirinya lebih baik baginya daripada dunia dan isinya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [10000124, 10000125, 10000126],
+        "soal": {
+          "tanya": "Kesimpulan apa yang ditarik al-Ghazali dari ayat-ayat pembuka tentang mengajar dan menyembunyikan ilmu?",
+          "jawab": "Mengajar itu diwajibkan dan menyembunyikan ilmu itu diharamkan, menurut pemahamannya atas ayat-ayat itu."
+        }
+      },
+      {
+        "judul": "Syafaat ulama hanya lahir dari ilmu yang diajarkan, menurut al-Ghazali",
+        "isi": "Penulis menukil sabda bahwa orang yang mempelajari satu bab ilmu untuk diajarkan kepada manusia diberi pahala tujuh puluh orang shiddiq, dan ucapan Nabi Isa bahwa orang yang berilmu, mengamalkan, dan mengajarkannya disebut agung di kerajaan langit. Ia juga menukil sabda tentang hari kiamat: ahli ibadah dan mujahid disuruh masuk surga, para ulama berkata bahwa berkat ilmu merekalah orang-orang itu beribadah dan berjihad, lalu Allah menyebut para ulama seperti sebagian malaikat-Nya dan mempersilakan mereka memberi syafaat. Al-Ghazali menegaskan bahwa kedudukan itu hanya bagi ilmu yang menjalar kepada orang lain lewat pengajaran, bukan ilmu yang tinggal pada pemiliknya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [10000134, 10000135],
+        "soal": {
+          "tanya": "Ilmu macam apa yang menurut al-Ghazali melahirkan kedudukan syafaat bagi ulama pada hari kiamat?",
+          "jawab": "Ilmu yang menjalar kepada orang lain lewat pengajaran, bukan ilmu yang hanya tinggal pada pemiliknya."
+        }
+      },
+      {
+        "judul": "Ilmu hilang bersama wafatnya ulama, menurut sabda yang dinukil penulis",
+        "isi": "Penulis menukil sabda bahwa Allah tidak mencabut ilmu dari manusia sekaligus, tetapi ilmu pergi bersama wafatnya para ulama, sampai yang tersisa hanya pemimpin bodoh yang bila ditanya berfatwa tanpa ilmu, sehingga sesat dan menyesatkan. Ia menukil pula ancaman bahwa orang yang mengetahui suatu ilmu lalu menyembunyikannya akan dikekang dengan kekang dari api pada hari kiamat, dan sabda bahwa dunia beserta isinya terlaknat kecuali zikir kepada Allah dan yang menyertainya, orang yang mengajar, dan orang yang belajar.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [10000136],
+        "soal": {
+          "tanya": "Bagaimana ilmu hilang dari manusia menurut sabda yang dinukil penulis?",
+          "jawab": "Ilmu pergi bersama wafatnya para ulama, bukan dicabut sekaligus dari manusia."
+        }
+      },
+      {
+        "judul": "Mengajarkan satu kalimat hikmah disetarakan dengan ibadah setahun dalam sabda yang dinukil penulis",
+        "isi": "Penulis menukil sabda bahwa sebaik-baik pemberian adalah kalimat hikmah yang didengar, disimpan, lalu dibawa dan diajarkan kepada saudara muslim; nilainya setara dengan ibadah selama setahun. Dalam sabda lain, satu kalimat kebaikan yang didengar seorang mukmin lalu diajarkan dan diamalkannya lebih baik baginya daripada ibadah selama setahun. Ia juga menukil bahwa Allah, para malaikat, penghuni langit dan bumi, sampai semut di lubangnya dan ikan di laut bershalawat atas orang yang mengajarkan kebaikan, serta kisah Nabi saw. yang melihat dua majelis, satu berdoa dan satu mengajar, lalu bersabda bahwa beliau diutus sebagai pengajar; kemudian beliau menghampiri dan duduk bersama kelompok yang mengajar.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [10000136],
+        "soal": {
+          "tanya": "Dengan ibadah berapa lama mengajarkan satu kalimat hikmah kepada saudara muslim disetarakan dalam sabda yang dinukil penulis?",
+          "jawab": "Disetarakan dengan ibadah selama setahun."
+        }
+      },
+      {
+        "judul": "Hujan dan tiga macam tanah menggambarkan tiga golongan, menurut penjelasan al-Ghazali",
+        "isi": "Penulis menukil perumpamaan Nabi saw. tentang petunjuk dan ilmu yang dibawanya, seperti hujan lebat yang menimpa tiga macam tanah: tanah yang menerima air lalu menumbuhkan banyak rumput, tanah yang menahan air sehingga manusia minum, memberi minum, dan bercocok tanam darinya, serta tanah datar yang tidak menahan air dan tidak menumbuhkan rumput. Al-Ghazali menjelaskan bahwa yang pertama perumpamaan orang yang mengambil manfaat dari ilmunya, yang kedua orang yang memberi manfaat kepada orang lain, dan yang ketiga orang yang terhalang dari keduanya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [10000136],
+        "soal": {
+          "tanya": "Menurut al-Ghazali, siapa yang digambarkan oleh tanah yang menahan air sehingga manusia bisa memanfaatkannya?",
+          "jawab": "Orang yang memberi manfaat kepada orang lain."
+        }
+      },
+      {
+        "judul": "Ilmu yang dimanfaatkan dan kebaikan yang diajarkan terus berpahala, menurut riwayat yang dinukil",
+        "isi": "Penulis menukil sabda bahwa amal anak Adam terputus saat ia wafat kecuali tiga, di antaranya ilmu yang terus dimanfaatkan; bahwa orang yang menunjukkan kebaikan seperti pelakunya; dan bahwa tidak ada iri kecuali kepada dua orang, yaitu orang yang diberi hikmah lalu memutuskan perkara dengannya dan mengajarkannya, serta orang yang diberi harta lalu membelanjakannya dalam kebaikan. Ia menukil pula doa rahmat Nabi saw. bagi para penggantinya, yaitu orang-orang yang menghidupkan sunah beliau dan mengajarkannya. Umar berkata bahwa orang yang menyampaikan suatu riwayat lalu riwayat itu diamalkan mendapat pahala seperti pelakunya, dan Ibnu Abbas menyebut segala sesuatu memohonkan ampun bagi pengajar kebaikan.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [10000148, 10000149],
+        "soal": {
+          "tanya": "Siapa yang disebut sebagai pengganti Nabi saw. dalam sabda yang dinukil penulis?",
+          "jawab": "Orang-orang yang menghidupkan sunah beliau dan mengajarkannya kepada hamba-hamba Allah."
+        }
+      },
+      {
+        "judul": "Ulama menjadi pelita zamannya, menurut ucapan sahabat dan para ulama yang dinukil penulis",
+        "isi": "Penulis menukil kisah Sufyan ats-Tsauri yang ingin meninggalkan Asqalan karena tak seorang pun bertanya kepadanya, lalu menjelaskan bahwa itu karena semangat meraih keutamaan mengajar dan menjaga ilmu tetap ada. Atha menuturkan Sa'id bin al-Musayyab menangis karena tidak ada yang bertanya kepadanya. Sebagian ulama menyebut ulama pelita zamannya; menurut al-Hasan, tanpa ulama manusia seperti hewan ternak; dan menurut Yahya bin Mu'adz, ulama lebih sayang daripada orang tua karena menjaga umat dari api akhirat. Penutupnya ucapan Mu'adz bin Jabal, yang juga penulis temukan diriwayatkan sebagai sabda Nabi saw.: mengajarkan ilmu kepada yang belum tahu adalah sedekah, dan ilmu adalah pemimpin yang diikuti amal.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [10000151, 10000152, 10000153, 10000155, 10000158],
+        "soal": {
+          "tanya": "Mengapa Sufyan ats-Tsauri ingin meninggalkan Asqalan, menurut penjelasan al-Ghazali?",
+          "jawab": "Karena semangatnya meraih keutamaan mengajar dan menjaga ilmu tetap hidup lewat pengajaran."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 10000135,
+        "char_start": 251,
+        "char_end": 319,
+        "terjemahan": "Hal ini hanya terjadi dengan ilmu yang menjalar kepada orang lain lewat pengajaran, bukan ilmu yang tinggal pada pemiliknya dan tidak menjalar."
+      },
+      {
+        "gagasan": 5,
+        "passage_id": 10000136,
+        "char_start": 1572,
+        "char_end": 1651,
+        "terjemahan": "Yang pertama beliau sebutkan sebagai perumpamaan bagi orang yang mengambil manfaat dari ilmunya, yang kedua beliau sebutkan sebagai perumpamaan bagi orang yang memberi manfaat, dan yang ketiga bagi orang yang terhalang dari keduanya."
+      }
+    ],
+    "istilah": ["ilmu", "ulama", "hadis", "atsar"]
+  }
+}
