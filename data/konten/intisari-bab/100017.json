@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 1,
+  "section_id": 100017,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": "digest-section@2",
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.1.0",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-10-28T11:02:08+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p536, p541, p547, p554 memuat tugas pertama, analogi salat dan bersuci, keburukan batin yang membinasakan, dan jawaban soal murid berakhlak buruk; kalimat najis kini bersandar ke p541, bukan ke ayat di p540."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p542 sampai p544 dibaca ulang: penulis menetapkan makna lahir lalu menambah isyarat batin, negasi aku tidak berkata dipertahankan, Batiniyah dinisbahkan tepat, ayat di p542 tidak diparafrasekan."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p556 sampai p568: tugas kedua dan ketiga, perumpamaan aliran air, pasien dan dokter, tanah gembur, serta izin bertanya sesuai teks; batasan hendaknya ada."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p571 sampai p589: tugas keempat sampai ketujuh; batasan biasanya dan satu atau beberapa ahlinya dipertahankan; tiga akibat mendengar perselisihan sesuai p571."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p593, p596, p605 sampai p607, p620: dua ukuran kemuliaan ilmu, niat, fardu kifayah, dan perumpamaan haji sesuai teks; fikih atau kedokteran kini disebut keduanya seperti p620."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p625 sampai p639: empat keadaan ilmu dan tugas pertama sampai ketiga guru; batasan guru ilmu akhirat dari p630 ditambahkan; kecaman p638 ditulis sebagai sikap penulis."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p645 sampai p662: batasan sedapat mungkin dipertahankan, riwayat bertakhrij tidak ditemukan di p645 tidak disebut, kutipan p662 kalimat penulis sendiri."
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-28",
+      "draf_sha256": "5f226bdbb924827e5daa23799b6778b21d326159f4c6067e670ede7145bb2cd3",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Setia pada p536, p541, p547, p554: ilmu sebagai ibadah hati, perumpamaan salat dan bersuci, najis batin lebih penting dijauhi, syarat niat mendekat kepada Allah dipertahankan; 'ahli fikih' menyempitkan 'ulama dan ahli fikih' di p554 tetapi tidak mengubah makna."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Makna lahir hadits rumah dan anjing tetap diakui, isyarat batin ditambahkan, negasi 'aku tidak berkata' utuh, kaum Batiniyah dinisbahkan tepat (p542 sampai p544); tidak ada status hadits dan tidak ada isi ayat."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Sesuai p556, p557, p559, p562, p563, p568; perumpamaan aliran air, pasien dan dokter, tanah gembur, dan izin bertanya hanya pada yang diizinkan guru tetap utuh, ayat tidak diparafrasekan."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Sesuai p571, p572, p577, p582, p588, p589 dengan batasan 'biasanya' dan 'satu atau beberapa orang' terjaga; syarat 'bila umur membantu, ia mendalami' (p577) tidak dibawa, tetapi tidak mengubah makna."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Dua ukuran kemuliaan (buah dan kekuatan dalil), niat, ilmu fardu kifayah, dan tiga bagian perumpamaan haji sesuai p593, p596, p605 sampai p607, p620; syarat 'tanpa memperbaiki hati' di p620 dipertahankan."
+        },
+        {
+          "ke": 6,
+          "nilai": "kurang",
+          "catatan": "Isi setia pada teks, tetapi judul menggabungkan dua tugas ('ayah' dari tugas pertama, 'tanpa upah' dari tugas kedua) dan dasar belum memuat p632 yang menyelesaikan kalimat p630."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Sesuai p645 sampai p648, p661, p662; 'sedapat mungkin' dan 'hendaknya' dipertahankan, hadits tak bertakhrij di p645 tidak disebut, tiga akibat teguran terbuka muat di jawaban soal."
+        }
+      ],
+      "laporan": "data/reports/konten-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "18a662e62c304a1d12730629f12c4938cbae180cc29db8bd29e6061ee222a5b8",
+      "draf_sha256": "5f226bdbb924827e5daa23799b6778b21d326159f4c6067e670ede7145bb2cd3",
+      "waktu": "2026-10-28T04:32:32.151Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, ilmu adalah ibadah hati sehingga murid perlu menyucikan batin, merendah kepada guru, dan belajar bertahap, sedangkan guru mengajar dengan kasih sayang, tanpa pamrih, sesuai kadar pemahaman murid, dan mengamalkan ilmunya.",
+    "ringkasan": "Al-Ghazali menghimpun adab murid dalam sepuluh tugas. Tugas pertama ialah menyucikan jiwa dari akhlak tercela; di sini ia menjelaskan riwayat tentang malaikat dan rumah yang ada anjingnya dengan tetap mengakui makna lahirnya sambil menambah isyarat bagi hati. Tugas berikutnya meliputi mengurangi kesibukan dunia, merendah dan patuh kepada guru, menunda mendengar perselisihan pendapat, belajar bertahap dari yang terpenting, meluruskan niat, dan menimbang ilmu menurut tujuannya lewat perumpamaan perjalanan haji. Sub-bab sesudahnya memuat delapan tugas guru, dari kasih sayang dan mengajar tanpa upah sampai mengamalkan ilmunya sendiri.",
+    "gagasan": [
+      {
+        "judul": "Ilmu adalah ibadah hati yang menuntut batin bersih, menurut al-Ghazali",
+        "isi": "Al-Ghazali menjadikan penyucian jiwa dari akhlak tercela sebagai tugas pertama murid. Alasannya, ilmu adalah ibadah hati; sebagaimana salat tidak sah tanpa bersuci dari hadas dan najis, ibadah batin tidak sah sebelum hati bersih dari sifat buruk. Menurutnya, najis ialah segala yang patut dijauhi, dan keburukan sifat batin lebih penting dijauhi karena membinasakan pada akhirnya. Murid berakhlak buruk yang telah memperoleh berbagai ilmu, katanya, masih jauh dari ilmu hakiki yang bermanfaat di akhirat. Kesibukan ahli fikih yang akhlaknya buruk bernilai kecil sebagai ilmu, dan baru bernilai sebagai amal bila diniatkan untuk mendekat kepada Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [10000536, 10000541, 10000547, 10000554],
+        "soal": {
+          "tanya": "Mengapa al-Ghazali menjadikan penyucian jiwa sebagai tugas pertama murid?",
+          "jawab": "Karena ilmu adalah ibadah hati, dan ibadah batin tidak sah sebelum hati bersih dari akhlak tercela."
+        }
+      },
+      {
+        "judul": "Makna lahir riwayat anjing tetap diakui dan isyarat batinnya ditambahkan, menurut al-Ghazali",
+        "isi": "Al-Ghazali berdalil dengan riwayat bahwa malaikat tidak masuk rumah yang ada anjingnya. Ia lalu menambahkan isyarat: hati adalah rumah tempat malaikat singgah, sedangkan marah, syahwat, dendam, dengki, sombong, dan sejenisnya ibarat anjing yang menggonggong, sehingga ilmu yang diantar malaikat tidak masuk ke hati itu. Ia menegaskan tidak berkata bahwa maksud kata rumah adalah hati dan maksud anjing adalah marah; makna lahirnya tetap diakui, lalu dijadikan pelajaran bagi batin. Menurutnya, perbedaan halus inilah yang memisahkan cara ini dari kaum Batiniyah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [10000542, 10000543, 10000544],
+        "soal": {
+          "tanya": "Apa yang membedakan cara al-Ghazali memahami riwayat anjing dari cara kaum Batiniyah?",
+          "jawab": "Ia tetap mengakui makna lahir rumah dan anjing, lalu menjadikannya isyarat bagi hati, bukan menggantinya."
+        }
+      },
+      {
+        "judul": "Al-Ghazali menganjurkan murid mengurangi kesibukan dunia dan tunduk kepada gurunya",
+        "isi": "Al-Ghazali menganjurkan murid mengurangi keterikatan pada dunia dan menjauh dari keluarga dan kampung halaman, sebab pikiran yang terpecah ibarat aliran air yang sebagian diserap tanah dan sebagian disambar udara. Murid hendaknya tidak sombong terhadap ilmu, tidak memerintah guru, dan tunduk pada nasihatnya seperti pasien kepada dokter yang penyayang, atau seperti tanah gembur yang menyerap seluruh hujan. Enggan belajar kecuali dari orang terkenal ia sebut kebodohan. Murid mengikuti cara belajar yang ditunjukkan guru dan bertanya hanya tentang hal yang diizinkan guru.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [10000556, 10000557, 10000559, 10000562, 10000563, 10000568],
+        "soal": {
+          "tanya": "Dengan perumpamaan apa al-Ghazali menggambarkan sikap murid terhadap nasihat gurunya?",
+          "jawab": "Seperti pasien yang tidak tahu tunduk kepada dokter yang penyayang dan mahir."
+        }
+      },
+      {
+        "judul": "Pemula sebaiknya menunda perselisihan pendapat dan belajar bertahap, kata al-Ghazali",
+        "isi": "Menurut al-Ghazali, pemula hendaknya tidak mendengarkan perselisihan pendapat lebih dulu karena hal itu membingungkan akalnya; ia menguasai satu jalan yang diridai gurunya, baru kemudian mendengar mazhab dan keraguan lain. Guru yang hanya menukil pendapat tanpa memilih perlu diwaspadai. Murid juga melihat setiap ilmu terpuji sekadar mengenal tujuannya, mendahulukan yang terpenting karena umur biasanya tidak cukup untuk semua, dan tidak berpindah ke satu cabang sebelum menguasai cabang sebelumnya. Ilmu tidak dinilai rusak hanya karena perselisihan di antara ahlinya atau kesalahan satu atau beberapa orang di antara mereka.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [10000571, 10000572, 10000577, 10000582, 10000588, 10000589],
+        "soal": {
+          "tanya": "Mengapa al-Ghazali menyarankan pemula tidak mendengarkan perselisihan pendapat lebih dulu?",
+          "jawab": "Karena perselisihan membingungkan akal pemula, melemahkan pendapatnya, dan membuatnya putus asa untuk memahami."
+        }
+      },
+      {
+        "judul": "Penulis mengumpamakan tingkatan ilmu dengan tahap-tahap perjalanan haji",
+        "isi": "Al-Ghazali menilai kemuliaan ilmu dari buahnya dan kekuatan dalilnya, sehingga ilmu agama lebih mulia daripada kedokteran. Murid hendaknya berniat menghiasi batin dan mendekat kepada Allah, bukan mencari kedudukan, harta, atau berbangga, tanpa meremehkan ilmu fardu kifayah seperti fatwa, nahwu, dan bahasa. Ia mengumpamakan ilmu dengan haji: fikih dan kedokteran seperti menyiapkan bekal dan unta, menyucikan batin seperti menempuh padang pasir, dan mengenal Allah seperti haji itu sendiri. Orang yang menekuni fikih atau kedokteran tanpa melawan hawa nafsu dan memperbaiki hati diibaratkan sibuk membeli unta tanpa menempuh perjalanan haji.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [10000593, 10000596, 10000605, 10000606, 10000607, 10000620],
+        "soal": {
+          "tanya": "Dalam perumpamaan haji, al-Ghazali menyamakan ilmu fikih dan kedokteran dengan apa?",
+          "jawab": "Dengan menyiapkan bekal dan kendaraan, termasuk membeli unta, sebelum menempuh perjalanan haji."
+        }
+      },
+      {
+        "judul": "Al-Ghazali menyamakan guru dengan ayah yang mengajar tanpa meminta upah",
+        "isi": "Al-Ghazali menyebut ilmu punya empat keadaan seperti harta, dan mengajarkannya adalah keadaan termulia. Tugas pertama guru ialah menyayangi murid seperti anaknya sendiri dan berusaha menyelamatkan mereka dari api akhirat; karena itu hak guru, yakni pengajar ilmu akhirat atau ilmu dunia yang diniatkan untuk akhirat, lebih besar daripada hak orang tua. Guru tidak meminta upah, balasan, atau terima kasih, dan tidak merasa berjasa. Ia juga menasihati murid bahwa tujuan belajar adalah dekat kepada Allah, bukan kedudukan. Penulis mengecam pengajar yang mengaku mengajar karena Allah padahal merendahkan diri kepada penguasa demi tunjangan.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [10000625, 10000629, 10000630, 10000636, 10000638, 10000639],
+        "soal": {
+          "tanya": "Mengapa al-Ghazali memandang hak guru lebih besar daripada hak orang tua?",
+          "jawab": "Orang tua menjadi sebab kehidupan dunia yang fana, sedangkan guru menjadi sebab kehidupan akhirat yang kekal."
+        }
+      },
+      {
+        "judul": "Guru menegur secara halus dan menakar pemahaman murid, menurut al-Ghazali",
+        "isi": "Menurut al-Ghazali, guru menegur akhlak buruk murid sedapat mungkin dengan sindiran dan kasih sayang, bukan terang-terangan dan celaan, karena teguran terbuka membuat murid berani membantah. Guru yang memegang satu ilmu hendaknya tidak menjelekkan ilmu lain di mata murid. Ia menyampaikan ilmu sesuai kadar pemahaman murid, dan kepada orang awam cukup mengajarkan ibadah, amanah dalam pekerjaan, serta harap dan takut akan surga dan neraka, tanpa membuka pembahasan hakikat ilmu yang halus. Hendaknya guru juga mengamalkan ilmunya, sebab amal dilihat mata kepala yang pemiliknya lebih banyak, sedangkan ilmu dilihat mata hati.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [10000645, 10000646, 10000647, 10000648, 10000661, 10000662],
+        "soal": {
+          "tanya": "Mengapa guru dalam pandangan al-Ghazali menegur murid dengan sindiran, bukan terang-terangan?",
+          "jawab": "Teguran terang-terangan merusak rasa segan, membuat murid berani menentang, dan mendorongnya bersikeras."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 10000543,
+        "char_start": 0,
+        "char_end": 211,
+        "terjemahan": "Aku tidak mengatakan bahwa yang dimaksud dengan kata rumah adalah hati dan dengan anjing adalah marah serta sifat-sifat tercela. Akan tetapi aku mengatakan bahwa itu adalah peringatan kepadanya. Ada perbedaan antara memindahkan makna lahir kepada batin dan memberi peringatan tentang batin dengan menyebut yang lahir sambil menetapkan yang lahir. Dengan kehalusan inilah bedanya dengan kaum Batiniyah."
+      },
+      {
+        "gagasan": 7,
+        "passage_id": 10000662,
+        "char_start": 16,
+        "char_end": 127,
+        "terjemahan": "Hendaknya guru mengamalkan ilmunya sehingga perbuatannya tidak mendustakan ucapannya, karena ilmu ditangkap dengan mata hati, sedangkan amal ditangkap dengan mata kepala, dan pemilik mata kepala lebih banyak."
+      }
+    ],
+    "istilah": ["ilmu", "akhlak", "qalb", "akhirat", "ikhlas"]
+  }
+}

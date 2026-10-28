@@ -5,6 +5,8 @@ paths:
   - "tools/**"
   - "web/**"
   - "docs/riset/**"
+  - "plugins/**"
+  - "data/konten/**"
 ---
 
 # Aturan: teks Arab, kutipan, dan atribusi

@@ -170,7 +170,7 @@ export interface McpTool {
   run: (args: never, db: D1Db) => Promise<{ view: unknown; sources: LicenseSource[] }>;
 }
 
-function defineTool<I extends z.ZodObject, O extends z.ZodObject>(def: {
+export function defineTool<I extends z.ZodObject, O extends z.ZodObject>(def: {
   name: string;
   title: string;
   description: string;
@@ -335,8 +335,13 @@ export const TOOLS: readonly McpTool[] = [
 
 // ── Pendaftaran per permintaan ───────────────────────────────────────────────────────────────
 
+/** Endpoint yang melayani permintaan: `/mcp` publik atau `/redaksi` (X23, plugin penulis konten). */
+export type McpEndpoint = "mcp" | "redaksi";
+
 /** Bahan satu permintaan: binding, request asli (untuk kunci batas), dan origin situs. */
 export interface ToolDeps {
+  /** Bawaan `mcp`. */
+  endpoint?: McpEndpoint;
   env: GuardEnv;
   db: D1Db;
   request: Request | undefined;
@@ -388,7 +393,7 @@ export async function runTool(tool: McpTool, deps: ToolDeps, args: never): Promi
   const started = performance.now();
   let outcome = "internal_error";
   try {
-    const gate = await guardTool(deps.env, deps.request, tool.name);
+    const gate = await guardTool(deps.env, deps.request, tool.name, deps.endpoint ?? "mcp");
     if (gate !== "ok") {
       outcome = gate;
       return errorResult(gate, GUARD_MESSAGE[gate]);
@@ -426,6 +431,7 @@ export async function runTool(tool: McpTool, deps: ToolDeps, args: never): Promi
     // hasil, alamat halaman, pesan error, IP, atau ID pengguna (P-7 belum diputuskan).
     console.info({
       event: "mcp_tool",
+      endpoint: deps.endpoint ?? "mcp",
       tool: tool.name,
       outcome,
       duration_ms: Math.round(performance.now() - started),
@@ -433,10 +439,14 @@ export async function runTool(tool: McpTool, deps: ToolDeps, args: never): Promi
   }
 }
 
-/** Daftarkan kedelapan tool ke `server` untuk satu permintaan. */
-export function registerTools(server: ToolRegistrar, deps: ToolDeps): void {
+/** Daftarkan tool (bawaan: delapan tool publik) ke `server` untuk satu permintaan. */
+export function registerTools(
+  server: ToolRegistrar,
+  deps: ToolDeps,
+  tools: readonly McpTool[] = TOOLS,
+): void {
   const register = server.registerTool.bind(server) as RegisterTool;
-  for (const tool of TOOLS) {
+  for (const tool of tools) {
     register(
       tool.name,
       {

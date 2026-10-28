@@ -23,7 +23,7 @@ export {
   stemToken,
 } from "./stem.ts";
 
-export { findQuote } from "./quote.ts";
+export { findQuote, findQuoteAll, isQuoteSpan } from "./quote.ts";
 export { SENTENCE_ABBREVIATIONS, indonesianSentences } from "./sentences.ts";
 export { SPOKEN_VERSION, numberWords, ordinalWords, spokenIndonesian } from "./spoken-id.ts";
 export type { SentenceSpan } from "./sentences.ts";

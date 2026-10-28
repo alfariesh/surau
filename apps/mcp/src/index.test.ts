@@ -12,6 +12,8 @@ import {
   PASSAGES,
   T_LONG,
   T_ROOT,
+  longBody,
+  longPassageId,
   seedAiText,
   seedCore,
   seedDigest,
@@ -24,6 +26,7 @@ import { SERVER_INSTRUCTIONS, SERVER_INSTRUCTIONS_MAX } from "./instructions.ts"
 const db = env.CORPUS_DB;
 const SITE = "https://surau.test";
 const ENDPOINT = "https://mcp.surau.test/mcp";
+const REDAKSI = "https://mcp.surau.test/redaksi";
 const TOOLS = [
   "list_works",
   "get_table_of_contents",
@@ -48,8 +51,8 @@ beforeAll(async () => {
 let ipSeq = 0;
 const nextIp = () => `198.51.100.${++ipSeq}`;
 
-async function connect(era: Era, ip = nextIp()): Promise<Client> {
-  const transport = new StreamableHTTPClientTransport(new URL(ENDPOINT), {
+async function connect(era: Era, ip = nextIp(), endpoint = ENDPOINT): Promise<Client> {
+  const transport = new StreamableHTTPClientTransport(new URL(endpoint), {
     fetch: async (url, init) => {
       const request = new Request(url, init);
       request.headers.set("cf-connecting-ip", ip);
@@ -489,5 +492,172 @@ describe("batas pemakaian (HMAC(IP):tool)", () => {
       /^rate_limited: /,
     );
     await client.close();
+  });
+});
+
+// ── /redaksi (X23, ADR-125): 8 tool baca + 2 tool redaksi, instruksi sendiri ≤ 2.000 karakter ─────
+
+const REDAKSI_TOOLS = [...TOOLS, "check_content_draft", "list_faedah_candidates"];
+const SENT = "هذه جملة تجريبية لاختبار تقسيم الأقسام الطويلة ";
+
+/** Draf Intisari Bab buatan untuk T_LONG (teks Indonesia contoh; kutipan = offset fixture). */
+function draft(overrides: Record<string, unknown> = {}) {
+  const isi =
+    "Penulis menjelaskan bahwa ilmu menjadi dasar amal dan menuntun hati menuju kedekatan kepada Allah Swt. serta menjauhkan murid dari sifat sombong yang merusak niat belajar.";
+  const point = (judul: string, dasar: number[], tanya: string) => ({
+    judul,
+    isi,
+    sikap: "author",
+    jenis: "idea",
+    dasar,
+    soal: { tanya, jawab: "Karena ilmu menyempurnakan manusia dan menuntun amalnya." },
+  });
+  const body = longBody(1, 1);
+  return {
+    format: "surau-konten/1",
+    jenis: "intisari-bab",
+    edition_id: ED,
+    section_id: T_LONG,
+    status: "draf",
+    isi: {
+      inti: "Menurut penulis, keutamaan sesuatu diukur dari kesempurnaannya, dan karena itu ilmu menempati derajat yang paling tinggi.",
+      ringkasan:
+        "Penulis membuka bab dengan menimbang apa yang membuat sesuatu disebut utama. Ia membedakan kelebihan yang menyempurnakan sesuatu dari kelebihan yang hanya menambah ukuran. Dari sana ia menyimpulkan bahwa ilmu utama pada dirinya sendiri dan menjadi jalan menuju kebahagiaan akhirat. Bagian akhir menempatkan pengajaran ilmu sesudah kenabian.",
+      gagasan: [
+        point(
+          "Keutamaan diukur dari kesempurnaan, menurut penulis",
+          [longPassageId(1, 1)],
+          "Apa ukuran keutamaan sesuatu dalam bab ini?",
+        ),
+        point(
+          "Menurut al-Ghazali, ilmu utama pada dirinya",
+          [longPassageId(1, 2)],
+          "Mengapa ilmu dicari karena dirinya sendiri?",
+        ),
+        point(
+          "Al-Ghazali menempatkan pengajaran sesudah kenabian",
+          [longPassageId(2, 1)],
+          "Pekerjaan apa yang paling mulia sesudah kenabian?",
+        ),
+      ],
+      kutipan: [
+        {
+          gagasan: 1,
+          passage_id: longPassageId(1, 1),
+          char_start: SENT.length * 9,
+          char_end: body.indexOf(" (١)"),
+          terjemahan: "Ini kalimat contoh untuk menguji pemotongan bagian yang panjang.",
+        },
+      ],
+      istilah: [],
+    },
+    asal: {
+      pembuat: "claude-desktop",
+      model: "claude-opus-5-5",
+      plugin: "surau-redaksi@0.1.0",
+      skill: "intisari-bab@1",
+      operator: "pemilik",
+      dibuat: "2026-10-28T07:00:00+07:00",
+    },
+    ...overrides,
+  };
+}
+
+const checkOut = z.object({
+  ok: z.boolean(),
+  errors: z.array(z.object({ code: z.string(), path: z.string() })),
+  stamp: z.object({ aturan: z.string() }).nullable(),
+});
+
+describe.each(ERAS)("/redaksi era %s", (era) => {
+  test("tools/list: 10 tool (8 publik + 2 redaksi), instruksi sendiri ≤ 2.000 karakter", async () => {
+    const client = await connect(era, nextIp(), REDAKSI);
+    const { tools } = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(REDAKSI_TOOLS);
+    for (const tool of tools) expect(tool.annotations?.readOnlyHint).toBe(true);
+    const instructions = client.getInstructions() ?? "";
+    expect(instructions.length).toBeLessThanOrEqual(2_000);
+    expect(instructions).toContain("check_content_draft");
+    expect(client.getServerVersion()).toMatchObject({ name: "surau-redaksi" });
+    await client.close();
+    // /mcp publik tetap delapan tool.
+    const pub = await connect(era);
+    expect((await pub.listTools()).tools.map((t) => t.name)).toEqual(TOOLS);
+    await pub.close();
+  });
+
+  test("check_content_draft: draf baik lolos dengan stamp; draf buruk = hasil biasa berisi error", async () => {
+    const client = await connect(era, nextIp(), REDAKSI);
+    const good = checkOut.parse(await ok(client, "check_content_draft", { draft: draft() }));
+    expect(good.errors).toEqual([]);
+    expect(good.ok).toBe(true);
+    expect(good.stamp?.aturan).toBe("konten@1");
+    const bad = draft();
+    bad.isi.gagasan[0]!.isi = `${bad.isi.gagasan[0]!.isi} Ia menulis نص di sini.`;
+    bad.isi.gagasan[1]!.dasar = [PASSAGES.body1];
+    const out = checkOut.parse(await ok(client, "check_content_draft", { draft: bad }));
+    expect(out.ok).toBe(false);
+    expect(out.errors.map((e) => e.code)).toEqual(
+      expect.arrayContaining(["arabic", "outside_section"]),
+    );
+    const broken = checkOut.parse(
+      await ok(client, "check_content_draft", { draft: { format: "lain" } }),
+    );
+    expect(broken.errors.map((e) => e.code)).toContain("schema");
+    // Draf tidak pernah digemakan kembali.
+    expect(JSON.stringify(out)).not.toContain("نص");
+    await client.close();
+  });
+
+  test("list_faedah_candidates: halaman berikutnya lewat next_offset, alasan berupa kode", async () => {
+    const client = await connect(era, nextIp(), REDAKSI);
+    const out = z
+      .object({
+        total: z.number(),
+        next_offset: z.number().nullable(),
+        candidates: z.array(z.object({ eligible: z.boolean(), reasons: z.array(z.string()) })),
+      })
+      .parse(
+        await ok(client, "list_faedah_candidates", {
+          section_id: T_LONG,
+          include_ineligible: true,
+          limit: 5,
+        }),
+      );
+    expect(out.candidates).toHaveLength(5);
+    expect(out.next_offset).toBe(5);
+    expect(out.candidates.every((c) => !c.eligible && c.reasons.length > 0)).toBe(true);
+    await client.close();
+  });
+});
+
+describe("/redaksi: pengaman dan batas", () => {
+  test("Origin asing → 403; GET → 405", async () => {
+    const res = await exports.default.fetch(
+      new Request(REDAKSI, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json, text/event-stream",
+          Origin: "https://evil.example",
+        },
+        body: "{}",
+      }),
+    );
+    expect(res.status).toBe(403);
+    expect((await exports.default.fetch(new Request(REDAKSI, { method: "GET" }))).status).toBe(405);
+  });
+
+  test("ember per klien berlingkup endpoint: search_text habis di /redaksi, /mcp tetap dilayani", async () => {
+    const ip = nextIp();
+    const client = await connect("modern", ip, REDAKSI);
+    const args = { query: "نص" };
+    for (let i = 0; i < TEST_SEARCH_LIMIT; i++) await ok(client, "search_text", args);
+    expect((await call(client, "search_text", args)).content[0]?.text).toMatch(/^rate_limited: /);
+    await client.close();
+    // Tool yang sama dari IP yang sama di /mcp memakai ember tanpa lingkup (tetap dilayani).
+    const pub = await connect("modern", ip);
+    await ok(pub, "search_text", args);
+    await pub.close();
   });
 });
