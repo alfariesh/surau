@@ -22,7 +22,7 @@ Surau adalah asisten riset kitab klasik Islam: nirlaba, open source, dan berbaha
 3. Jangan pernah meng-commit `.env*`, `.dev.vars*`, `*.db`, `*.sqlite`, teks kitab mentah (`data/raw/`, `data/build/`), atau skill HeroUI Pro (berlisensi). Jangan membaca `.env`.
 4. **Utamakan ship.** Agent langsung commit, push, membuat repo/PR, merge (squash, setelah `pnpm verify` dan CI hijau), dan deploy tanpa bertanya; cukup laporkan sesudahnya. Izin eksplisit pemilik di chat **hanya** untuk: mengirim batch/eval LLM berbayar, menghapus atau menimpa data produksi (D1/R2 remote), dan mengubah dotfile/konfigurasi di luar repo. `push --force` ke `main` tetap dilarang.
 5. Centang butir "Selesai bila" hanya dengan bukti perintah. Jangan mengubah kriteria supaya sesi tampak lolos.
-6. Setiap keputusan teknis baru dicatat sebagai ADR di `implementasi/KEPUTUSAN.md`. Bila menyimpang dari rencana, tulis secara terbuka.
+6. Setiap keputusan teknis baru dicatat sebagai ADR: satu file baru `implementasi/keputusan/ADR-NNN.md` plus satu baris di indeks `implementasi/KEPUTUSAN.md`. Bila menyimpang dari rencana, tulis secara terbuka.
 7. Data Shamela di `/Volumes/Elfariesh/database` hanya **dibaca** (readOnly), tidak pernah ditulis.
 
 ## Stack (ringkas; versi dan alasannya ada di `implementasi/STACK.md` dan `KEPUTUSAN.md`)
