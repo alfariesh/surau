@@ -1,0 +1,29 @@
+# Diagnostik sesudah gerbang (2026-10-28, bukan bagian kriteria). Keluaran perintah disalin; teks dalam kurung adalah anotasi tambahan.
+# Skrip: diagnostik-ulang10.mjs (blok pertama), ttfb.mjs (blok terakhir). Resource timing per berkas tidak disimpan.
+
+## Preview j1/200 diulang 10× (throttling ponsel): kapan CSS selesai, skrip mulai/selesai, hidrasi (ms)
+0 hidrasi=4247 cssSelesai=970 jsMulai=334 jsSelesai=3932 load=4044
+1 hidrasi=4249 cssSelesai=965 jsMulai=337 jsSelesai=3928 load=4040
+2 hidrasi=4259 cssSelesai=979 jsMulai=336 jsSelesai=3934 load=4047
+3 hidrasi=4240 cssSelesai=973 jsMulai=345 jsSelesai=3927 load=4040
+4 hidrasi=4139 cssSelesai=1138 jsMulai=441 jsSelesai=3987 load=4209
+5 hidrasi=4643 cssSelesai=942 jsMulai=314 jsSelesai=4497 load=4560
+6 hidrasi=18001 cssSelesai=1594 jsMulai=636 jsSelesai=17705 load=17823  (semua unduhan yang mulai di 1608 ms, termasuk font, macet ±15 dtk)
+7 hidrasi=4717 cssSelesai=1242 jsMulai=546 jsSelesai=4422 load=4537
+8 hidrasi=4861 cssSelesai=1250 jsMulai=358 jsSelesai=4805 load=4815
+9 hidrasi=4617 cssSelesai=1129 jsMulai=494 jsSelesai=4459 load=4526
+
+## Berkas JS yang mulai sebelum CSS selesai: satu skrip async Next (2 KB) yang ditulis di <body>, bukan <head>
+952–1731 link /_next/static/chunks/018zj11z9j-l7.css 5KB
+952–2039 link /_next/static/chunks/1uid9palynj9r.css 60KB
+1031–2001 script /_next/static/chunks/2w-tganolk_90.js 2KB
+2070–2984 script /_next/static/chunks/1_jy9zwveq77e.js 9KB
+script src di body: [ '<script src="/_next/static/chunks/2w-tganolk_90.js" async="">' ]
+
+## TTFB HTML (fetch Node dari Jakarta, n=10 per basis, bergantian)
+/kitab/ihya/1/200 preview        TTFB median 170 ms | min 67 max 511
+/kitab/ihya/1/200 produksi       TTFB median 255 ms | min 59 max 992
+/kitab/ihya/1/200 proksi-tunda   TTFB median 159 ms | min 90 max 1066
+/kitab/ihya/3/202 preview        TTFB median 116 ms | min 78 max 303
+/kitab/ihya/3/202 produksi       TTFB median 137 ms | min 70 max 592
+/kitab/ihya/3/202 proksi-tunda   TTFB median 136 ms | min 79 max 1393
