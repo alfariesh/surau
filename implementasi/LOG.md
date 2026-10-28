@@ -2,6 +2,8 @@
 
 Entri terbaru di paling atas. Satu entri per sesi (atau per hari kerja bila satu sesi butuh lebih dari satu percakapan).
 
+**Arsip:** file ini hanya memuat bulan berjalan. Entri bulan sebelumnya dipindah apa adanya ke [log/](log/), satu berkas per bulan (`log/YYYY-MM.md`). Per 2026-10-28 semua entri masih Oktober 2026, jadi belum ada arsip. Awal bulan berikutnya, pindahkan entri bulan lalu ke `log/YYYY-MM.md` tanpa mengubah isinya.
+
 Format entri:
 
 ```
@@ -12,6 +14,13 @@ Format entri:
 - Keputusan: ADR-NNN (bila ada)
 - Catatan untuk sesi berikutnya: …
 ```
+
+## 2026-10-28 · Pangkas bagian Sekarang di STATUS.md — selesai
+- Dikerjakan: bagian Sekarang (±24 KB) diganti ringkasan 13 baris (±3,9 KB); blok Diperbarui di header diringkas dan rollback ihya-v8 dipertahankan. Teks lama dipindah ke `log/STATUS-arsip-2026-10.md`. Ulasan peninjau memperbaiki 228/234, T-17 terbaru, syarat R4, dan butir tindak lanjut yang sempat terpotong.
+- Verifikasi: pembanding kalimat → 398 kalimat lama, 0 hilang; tautan relatif rusak 0; `session-start.sh` → exit 0 dan memuat "Mulai di sini (pemilik)"; tabel Progres dan bagian di bawahnya identik.
+- Biaya API: –
+- Keputusan: ADR-120
+- Catatan untuk sesi berikutnya: `Sudah bisa dicoba` dan `Perhatian` masih panjang dan belum dipangkas; US$35,89 (blok lama) dan US$36,95 (Progres X21) berbeda dan belum disamakan.
 
 ## 2026-10-27 · Riset ringkasan buku (Blinkist, Headway, Deepstash, Uptime), audit Intisari, pecahan produk — selesai
 - Dikerjakan: folder `docs/riset/2026-10-27-ringkasan-buku-dan-pecahan-produk/` (README + 9 dokumen: empat app, pola lintas app, lanskap kitab Islam dan Indonesia, korpus dan data, audit Intisari, pecahan produk); 8 halaman di file Paper "Surau Research" (layar Mobbin tidak masuk repo, hak cipta pihak ketiga); pemeriksaan fakta atas semua dokumen dan tinjauan `peninjau`.

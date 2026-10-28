@@ -5,6 +5,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 **Cara pakai:**
 - Agent menyebut ID tugas (misalnya **T-03**) saat sebuah sesi membutuhkannya.
 - Centang `[x]` setelah selesai, atau bilang ke agent "T-03 sudah". Agent yang mencentang setelah memverifikasinya.
+- Status tiap tugas yang masih terbuka juga ada di [papan Surau](https://github.com/users/alfariesh/projects/7) (isu berlabel `tugas-pemilik`). Kolom **Menunggu pemilik** berarti giliran Anda. Langkah lengkapnya tetap di file ini.
 - **Jangan pernah menempel token atau password di chat Claude.** Semua perintah di file ini diketik di aplikasi **Terminal**, dan perintah yang meminta rahasia menyembunyikan apa yang Anda tempel.
 
 **Cara membuka Terminal di folder Surau:** tekan `Cmd + Spasi`, ketik `Terminal`, lalu Enter. Di jendela yang muncul, ketik `cd ~/Documents/Surau`, lalu Enter. Ketik (atau tempel) perintah satu per satu, dan tekan Enter setelah tiap perintah.
@@ -273,7 +274,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
      - hasil Cari.
   3. Ketik ke agent "T-30 setuju" atau catatan perbaikannya.
 
-- [ ] **T-28 · Data kitab di mesin tempat agent bekerja (X15c)** · sebagian: data Shamela sudah ada (2026-10-25); hanya untuk membangun korpus `ihya-v9`, pilot tidak menunggu ini
+- [x] **T-28 · Data kitab di mesin tempat agent bekerja (X15c)** · **selesai 2026-10-28:** pemilik mengonfirmasi "T-28 sudah" di chat. Dicek: `LOG.md` 2026-10-27 mencatat data dipasang dari zip pemilik dan `pnpm ingest ihya` lolos semua gerbang (terjemahan 16.106/16.111, ringkasan 623/626, 2.514 rujukan ayat); korpus `ihya-v9` tayang (`CORPUS_DB` web, mcp, api di `main` menunjuk `surau-corpus-ihya-v9`, QA 30/30 di `data/reports/ihya-9472-qa-surau-corpus-ihya-v9.md`); folder asli di Mac masih ada (`data/raw/kemenag` 6 berkas, `data/build/llm` 100 berkas) dan tidak ter-track git. Isi folder di mesin agent tidak dilihat langsung dari sesi ini; buktinya hasil ingest di sana · semula: sebagian: data Shamela sudah ada (2026-10-25); hanya untuk membangun korpus `ihya-v9`, pilot tidak menunggu ini
   Korpus baru butuh data Shamela, folder `data/raw` (OpenITI, Tanzil, Kemenag), dan `data/build/llm` (hasil batch AI lama yang sudah dibayar). Tanpa semuanya, korpus baru tidak bisa dibangun dan terjemahan lama harus dibayar ulang. **Jangan hapus folder-folder itu di Mac Anda.**
   - **Shamela: sudah ada** di mesin agent, `/home/rekanesia/shamela/database` (hanya dibaca, seperti drive `Elfariesh`). Dipakai lewat `SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database`. Ukuran dan sha256 `book/472/9472.db`, `update/master/book.sqlite`, dan `update/master/author.sqlite` cocok dengan `data/SOURCES.md` (dicek sesi induk 2026-10-25, diulang agent X15b).
   - **OpenITI dan Tanzil** (`data/raw/openiti`, `data/raw/tanzil`): publik. Agent mengunduhnya sendiri dengan perintah di `data/SOURCES.md`; ingest menolak berkas yang sha256-nya berbeda.
