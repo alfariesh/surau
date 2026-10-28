@@ -1,6 +1,6 @@
 // Entri Worker web Surau: pembungkus Worker hasil build OpenNext (custom worker, docs OpenNext
 // "Custom Worker"). Satu tambahan: skrip Next di HTML ditunda sampai CSS selesai
-// (src/lib/defer-scripts.ts, ADR-122). `ctx` diteruskan apa adanya karena OpenNext menyimpan konteks
+// (src/lib/defer-scripts.ts, ADR-123). `ctx` diteruskan apa adanya karena OpenNext menyimpan konteks
 // Cloudflare per permintaan di dalam `fetch`-nya.
 // @ts-ignore: berkas dibuat `opennextjs-cloudflare build`, belum ada sebelum build.
 import { default as handler } from "./.open-next/worker.js";
