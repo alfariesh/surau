@@ -1,0 +1,126 @@
+{
+  "format": 1,
+  "basis": "Sampel uji prompt/model X21 (seed 20261030+k, 6/12/12 pendek/sedang/panjang) dari populasi ihya-v8 tanpa 60 sampel T-17. ID ini dikeluarkan dari sampel lanjutan T-17 (seed 20261024-26) supaya pengukuran ulang tidak memakai paragraf yang sudah dilihat saat memilih prompt. Hanya ID, tanpa teks kitab.",
+  "items": [
+    {
+      "passage": 10007550,
+      "stratum": "pendek"
+    },
+    {
+      "passage": 10008878,
+      "stratum": "pendek"
+    },
+    {
+      "passage": 10009751,
+      "stratum": "pendek"
+    },
+    {
+      "passage": 10009787,
+      "stratum": "pendek"
+    },
+    {
+      "passage": 10014213,
+      "stratum": "pendek"
+    },
+    {
+      "passage": 10017916,
+      "stratum": "pendek"
+    },
+    {
+      "passage": 10003482,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10003693,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10005705,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10005709,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10007091,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10008044,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10008643,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10008864,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10010347,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10013015,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10013808,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10017625,
+      "stratum": "sedang"
+    },
+    {
+      "passage": 10000300,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10000441,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10001303,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10004745,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10006824,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10012298,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10012931,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10013373,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10013954,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10015039,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10018457,
+      "stratum": "panjang"
+    },
+    {
+      "passage": 10020387,
+      "stratum": "panjang"
+    }
+  ]
+}

@@ -5,7 +5,7 @@
 
 - Sumber: Shamela `book/472/9472.db`, sha256 `36e66c5498b74e6d4fd7542108a29327361cf45534794d1c5a878e7bc2b7d586`
 - Patch daftar isi: `data/patches/ihya-9472.yaml` · peta ID: `data/ids/ihya-9472.json`
-- Korpus: `ihya-v8` · NORM_VERSION 2
+- Korpus: `ihya-v9` · NORM_VERSION 2
 
 ## Invarian (ingest gagal bila ada yang ✗)
 
@@ -23,14 +23,15 @@
 | Integritas lintas tabel (edisi halaman/node = edisi paragraf; penanda badan → catatan kaki halaman sama) | ✓ | 0 paragraf beda edisi atau tanpa node; 0 footnote_ref salah arah |
 | Matan = OpenITI (≥0,95 per halaman) | ✓ | 1705/1706 halaman (gerbang ≥1705); 0 halaman tidak ada di OpenITI |
 | Sumber Qur'an utuh (ayat = jumlah per surah; terjemahan + transliterasi tiap ayat; penomoran QUL = Tanzil) | ✓ | 114 surah, 6236/6236 ayat, 12472 baris terjemahan/transliterasi; 6 ayat beda teks QUL vs Tanzil (batas 20) |
-| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 2484 rujukan; 0 tidak sah |
-| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 2414 rujukan exact; 0 tidak sesuai |
+| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 2514 rujukan; 0 tidak sah |
+| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 2444 rujukan exact; 0 tidak sesuai |
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 977/1004 (97,3%); mirip 25, tidak cocok 2 |
-| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 1318 terjemahan berisi ayat; 0 bermasalah |
-| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 16097/16111 (99,91%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
-| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 626/626 (100,00%); usang 0, tidak sah 0 |
+| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 1341 terjemahan berisi ayat; 0 bermasalah |
+| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 16106/16111 (99,97%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
+| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 623/626 (99,52%); usang 0, tidak sah 0 |
 | Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 522/522 (100,00%): node 313, subjudul 209 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
+| Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 19/313 node, 119 gagasan, 28 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 144 istilah glosarium, 19 abstrak menggantikan ringkasan |
 | ID paragraf rilis stabil (ADR-059) | ✓ | 20509 ID lama ada dengan teks sama |
 
 ## Daftar isi

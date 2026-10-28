@@ -1,0 +1,136 @@
+[
+  {
+    "shamela_id": 12718,
+    "title_ar": "بداية الهداية",
+    "authors": [
+      {
+        "name_ar": "أبو حامد الغزالي",
+        "death_hijri": 505
+      }
+    ]
+  },
+  {
+    "shamela_id": 9246,
+    "title_ar": "المنقذ من الضلال",
+    "authors": [
+      {
+        "name_ar": "أبو حامد الغزالي",
+        "death_hijri": 505
+      }
+    ]
+  },
+  {
+    "shamela_id": 28168,
+    "title_ar": "نزهة المجالس ومنتخب النفائس",
+    "authors": [
+      {
+        "name_ar": "الصفوري",
+        "death_hijri": 894
+      }
+    ]
+  },
+  {
+    "shamela_id": 12876,
+    "title_ar": "تفسير الجلالين",
+    "authors": [
+      {
+        "name_ar": "المحلي، جلال الدين",
+        "death_hijri": 864
+      },
+      {
+        "name_ar": "الجلال السيوطي",
+        "death_hijri": 911
+      }
+    ]
+  },
+  {
+    "shamela_id": 1969,
+    "title_ar": "التبيان في آداب حملة القرآن",
+    "authors": [
+      {
+        "name_ar": "النووي",
+        "death_hijri": 676
+      }
+    ]
+  },
+  {
+    "shamela_id": 6146,
+    "title_ar": "نهاية الزين",
+    "authors": [
+      {
+        "name_ar": "نووي الجاوي",
+        "death_hijri": 1316
+      }
+    ]
+  },
+  {
+    "shamela_id": 6125,
+    "title_ar": "المقدمة الحضرمية",
+    "authors": [
+      {
+        "name_ar": "بافضل الحضرمي",
+        "death_hijri": 918
+      }
+    ]
+  },
+  {
+    "shamela_id": 6297,
+    "title_ar": "الورقات",
+    "authors": [
+      {
+        "name_ar": "الجويني، أبو المعالي",
+        "death_hijri": 478
+      }
+    ]
+  },
+  {
+    "shamela_id": 11371,
+    "title_ar": "الآجرومية",
+    "authors": [
+      {
+        "name_ar": "ابن آجروم",
+        "death_hijri": 723
+      }
+    ]
+  },
+  {
+    "shamela_id": 4234,
+    "title_ar": "متممة الأجرومية",
+    "authors": [
+      {
+        "name_ar": "الحطاب",
+        "death_hijri": 954
+      }
+    ]
+  },
+  {
+    "shamela_id": 9904,
+    "title_ar": "شرح ابن عقيل على ألفية ابن مالك",
+    "authors": [
+      {
+        "name_ar": "ابن عقيل",
+        "death_hijri": 769
+      }
+    ]
+  },
+  {
+    "shamela_id": 3284,
+    "title_ar": "جامع الدروس العربية",
+    "authors": [
+      {
+        "name_ar": "مصطفى الغلاييني",
+        "death_hijri": 1364
+      }
+    ]
+  },
+  {
+    "shamela_id": 7312,
+    "title_ar": "التعريفات",
+    "authors": [
+      {
+        "name_ar": "الجرجاني، الشريف",
+        "death_hijri": 816
+      }
+    ]
+  }
+]

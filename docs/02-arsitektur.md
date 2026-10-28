@@ -177,7 +177,7 @@ Ditambah **MCP**: pengguna memakai AI miliknya sendiri, sehingga Surau hanya mel
 | ESLint + Prettier | ditolak | typescript-eslint mensyaratkan TypeScript <6.1 (bentrok dengan TS 7), lambat, dan butuh banyak config | [008](../implementasi/KEPUTUSAN.md) |
 | Turborepo | ditolak | `vp run` sudah cukup | [008](../implementasi/KEPUTUSAN.md) |
 | Biome | cadangan | Dipakai bila Vite+ bermasalah serius | [008](../implementasi/KEPUTUSAN.md) |
-| vinext | cadangan | Direkomendasikan Cloudflare, tetapi masih beta dan punya dua advisory keamanan baru. Dievaluasi ulang di Fase 3 atau bila OpenNext tertinggal lebih dari satu minor Next. | [003](../implementasi/KEPUTUSAN.md) |
+| vinext | cadangan (tidak dimigrasi) | Gerbang Preview 2026-10-28: LCP ponsel halaman kitab lebih cepat, tetapi tombol aktif lebih lambat, dan LCP yang sama tampaknya bisa didapat di Next dengan menunda skrip sampai CSS selesai. | [121](../implementasi/keputusan/ADR-121.md) |
 | React Router v8, TanStack Start, Astro | ditolak | Butuh port template HeroUI Pro, dan agent kurang fasih | [003](../implementasi/KEPUTUSAN.md) |
 | Vercel AI SDK | tidak dipakai | Dengan satu penyedia dan pipeline tetap, lapisan tambahan ini tidak sepadan dengan risiko perubahan API-nya (3 versi mayor dalam 11 bulan). Bisa dipasang lagi bila nanti perlu banyak penyedia. | – |
 | MCP sebagai route Next (`mcp-handler`) | ditolak | MCP jadi terikat ke adapter dan cold start Next, dan `mcp-handler` tidak menambah nilai di luar Next | [010](../implementasi/KEPUTUSAN.md), [011](../implementasi/KEPUTUSAN.md) |

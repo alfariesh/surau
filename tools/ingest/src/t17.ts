@@ -60,17 +60,28 @@ export function shuffled<T>(items: readonly T[], seed: number, key: (x: T) => nu
   return out;
 }
 
-/** Tarik sampel berstrata (20 per strata, seed + indeks strata), lalu urutkan acak untuk tampil. */
+/** Sampel lanjutan pra-registrasi (aturan keputusan 1, klarifikasi 2026-10-21): 13/14/13, seed 20261024 + k. */
+export const T17_FOLLOWUP_SEED = 20261024;
+export const T17_FOLLOWUP_PER_STRATUM = [13, 14, 13] as const;
+
+/**
+ * Tarik sampel berstrata (20 per strata, seed + indeks strata), lalu urutkan acak untuk tampil.
+ * `exclude` = ID yang dikeluarkan dari populasi tarikan (sampel lanjutan: 20 ID pertama tiap strata,
+ * ditambah sampel uji X21); `population` yang dilaporkan tetap seluruh populasi (bobot strata).
+ */
 export function drawT17Sample(
   population: readonly { passage: number; length: number }[],
   seed = T17_SEED,
-  perStratum = T17_PER_STRATUM,
+  perStratum: number | readonly number[] = T17_PER_STRATUM,
+  exclude: ReadonlySet<number> = new Set(),
 ): { items: T17Item[]; population: Record<T17Stratum, number> } {
   const byStratum = new Map<T17Stratum, number[]>(T17_STRATA.map((s) => [s.key, []]));
   for (const row of population) byStratum.get(stratumOf(row.length))!.push(row.passage);
   const picked: { passage: number; stratum: T17Stratum }[] = [];
   T17_STRATA.forEach((s, k) => {
-    for (const passage of samplePages(byStratum.get(s.key)!, perStratum, seed + k)) {
+    const n = typeof perStratum === "number" ? perStratum : (perStratum[k] as number);
+    const pool = byStratum.get(s.key)!.filter((id) => !exclude.has(id));
+    for (const passage of samplePages(pool, n, seed + k)) {
       picked.push({ passage, stratum: s.key });
     }
   });

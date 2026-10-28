@@ -154,12 +154,15 @@ export type {
 export { QURAN_AYAT_MAX, ayahRefWithSurahRow, getAyahRefs, getQuranAyat } from "./repo/quran.ts";
 export type { AyahRange, AyahRefWithSurahRow, QuranAyat } from "./repo/quran.ts";
 export {
+  countKitabInterest,
   createFeedback,
+  createKitabInterest,
   getAnswerCache,
   getSettings,
   putAnswerCache,
   touchAnswerCache,
 } from "./repo/app.ts";
+export type { KitabInterestCount } from "./repo/app.ts";
 export {
   EMPTY_LEDGER_USAGE,
   MICRO,

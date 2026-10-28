@@ -2,6 +2,8 @@
 
 Entri terbaru di paling atas. Satu entri per sesi (atau per hari kerja bila satu sesi butuh lebih dari satu percakapan).
 
+**Arsip:** file ini hanya memuat bulan berjalan. Entri bulan sebelumnya dipindah apa adanya ke [log/](log/), satu berkas per bulan (`log/YYYY-MM.md`). Per 2026-10-28 semua entri masih Oktober 2026, jadi belum ada arsip. Awal bulan berikutnya, pindahkan entri bulan lalu ke `log/YYYY-MM.md` tanpa mengubah isinya.
+
 Format entri:
 
 ```
@@ -13,12 +15,111 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-28 · Pangkas bagian Sekarang di STATUS.md — selesai
+- Dikerjakan: bagian Sekarang (±24 KB) diganti ringkasan 13 baris (±3,9 KB); blok Diperbarui di header diringkas dan rollback ihya-v8 dipertahankan. Teks lama dipindah ke `log/STATUS-arsip-2026-10.md`. Ulasan peninjau memperbaiki 228/234, T-17 terbaru, syarat R4, dan butir tindak lanjut yang sempat terpotong.
+- Verifikasi: pembanding kalimat → 398 kalimat lama, 0 hilang; tautan relatif rusak 0; `session-start.sh` → exit 0 dan memuat "Mulai di sini (pemilik)"; tabel Progres dan bagian di bawahnya identik.
+- Biaya API: –
+- Keputusan: ADR-120
+- Catatan untuk sesi berikutnya: `Sudah bisa dicoba` dan `Perhatian` masih panjang dan belum dipangkas; US$35,89 (blok lama) dan US$36,95 (Progres X21) berbeda dan belum disamakan.
+
+## 2026-10-27 · Riset ringkasan buku (Blinkist, Headway, Deepstash, Uptime), audit Intisari, pecahan produk — selesai
+- Dikerjakan: folder `docs/riset/2026-10-27-ringkasan-buku-dan-pecahan-produk/` (README + 9 dokumen: empat app, pola lintas app, lanskap kitab Islam dan Indonesia, korpus dan data, audit Intisari, pecahan produk); 8 halaman di file Paper "Surau Research" (layar Mobbin tidak masuk repo, hak cipta pihak ketiga); pemeriksaan fakta atas semua dokumen dan tinjauan `peninjau`.
+- Verifikasi: `pnpm verify` → lolos · grep huruf Arab di folder → 0 · 166 tautan relatif → 0 putus · peninjau → tanpa blocker, 12 temuan diperbaiki.
+- Biaya API: – (Mobbin dan WebSearch; tanpa LLM berbayar milik Surau)
+- Keputusan: tidak ada ADR baru. Rekomendasi (belum diputuskan pemilik): tidak memecah merek, "Academy" jadi "Jalur", Intisari dibenahi pembungkusnya; keputusan pemilik ada di `09-pecahan-produk.md` bagian 7.
+- Catatan untuk sesi berikutnya: dua gagasan Salah di bab 100017 dan 100007 masih tayang dengan audio (cek langsung 2026-10-27); menghapus mp3 dari R2 butuh izin pemilik. Produksi `ihya-v9` hanya memuat 19 Bab (100003 dan 100019 404, sedangkan laporan QA memuat 20 Bab): belum dijelaskan di repo.
+
+## 2026-10-27 · Sisa "… …" di baris status hadits (j026) — selesai
+- Dikerjakan: perlindungan status kini per pernyataan (`ownEnd`), bukan per baris; kutipan Arab bersitasi sesudah kalimat memindah sitasinya ke kalimat itu, sehingga baris status mendapat label kode; pipeline@15.
+- Verifikasi: `pnpm verify` → lolos · reproduksi j026 (status Latin + kutipan takhrij Arab bersitasi) → "Status hadits: <label kode> (hadits di Ihya …)." tanpa "…".
+- Biaya API: –
+- Keputusan: ADR-116
+- Catatan untuk sesi berikutnya: dampak ke skor belum diukur (run berbayar, izin pemilik).
+
+## 2026-10-27 · /kitab: Rilis terbaru + kitab "Segera hadir" dengan suara minat anonim — selesai
+- Dikerjakan: 13 kitab kandidat dari laporan pencocokan Shamela pemilik tampil di `/kitab` sebagai kartu "Segera hadir"; popup dua pertanyaan pilihan tetap (tujuan, kemampuan baca Arab) dikirim ke `POST /api/minat-kitab`; tabel `kitab_interest` (migrasi 0007); rekap di `/admin`; `/privasi` dan docs/05 diperbarui. Email tidak dikumpulkan (ADR-115 butir 4).
+- Verifikasi: `pnpm verify` → lolos (1.113 + 452 tes, build, sesudah digabung dengan main) · pratinjau `next dev` (korpus staging, D1 app lokal): 13 kartu tampil di desktop dan ponsel, popup terkirim (201), dua suara sama = satu baris agregat `votes 2`, popup kitab yang sudah dipilih menampilkan "sudah memilih" setelah muat ulang, rekap admin dicek lewat halaman sementara (sudah dihapus) · peninjau: tanpa blocker; semua temuan "perbaiki" + saran tabel agregat diterapkan.
+- Biaya API: –
+- Keputusan: ADR-115
+- Catatan untuk sesi berikutnya: kandidat `TITLE_VARIANT` di CSV (mis. Minhaj ath-Thalibin, Bidayat al-Mujtahid, Tarikh al-Khulafa') bisa ditambahkan setelah dicek manual.
+
+## 2026-10-27 · Eval x10: bekas huruf Arab dirapikan — selesai
+- Dikerjakan: satu run publik Jawab berbayar (izin pemilik di chat) dengan pipeline@13; 42 jawaban dinilai tiga subagen agent; laporan x09 → x10; regresi angka Arab-India ("nomor (١)") diperbaiki, pipeline@14.
+- Verifikasi: `eval:jawab answer` → 42/42, kutipan 100%, lokasi 85,3%, status hadits kode 5/6; penilaian agent → bahasa 3,26, kesetiaan 78,6%, atribusi 95,2%; `pnpm verify` → lolos.
+- Biaya API: US$0,1216.
+- Keputusan: hasil dicatat di ADR-114.
+- Catatan untuk sesi berikutnya: "… …" sisa pernyataan status di j026 (`hadithCheck`); kalimat gema/salinan terjemahan kini cacat bahasa terbesar (perlu prompt + run berbayar).
+
+## 2026-10-27 · Bekas huruf Arab di jawaban Maknaz — selesai
+- Dikerjakan: bekas huruf Arab buatan model ditandai per blok (`markArabic`) lalu dirapikan atas teks gabungan (`tidyArabicCuts`): bekas di kurung/akhir kalimat dibuang tanpa jejak, kalimat yang isinya hilang ("bahwa …", titik dua, < 3 kata) dibuang utuh, baris "Status hadits:" dilindungi, blok yang habis tidak ditampilkan; pipeline@13.
+- Verifikasi: `pnpm verify` → lolos · uji atas jawaban x08/x09 nyata ("…" dikembalikan ke kata Arab) → 0 "…" tersisa.
+- Biaya API: –
+- Keputusan: ADR-114
+- Catatan untuk sesi berikutnya: dampak ke skor bahasa belum diukur (run berbayar, izin pemilik); larangan transliterasi kalimat Arab di prompt butuh prompt baru + run berbayar.
+
+## 2026-10-27 · Regresi lam_ajid (j029): aturan istilah versi 3 — selesai
+- Dikerjakan: `lam_ajid` dipisah menjadi empat jenis "tidak ditemukan": sanad ("tidak ditemukan sanadnya"), lafaz (`lam_ajid_lafaz`), jalur (`lam_ajid_jalur`), dan marfu'; "لم أقف على حاله" → `daif`; `TAKHRIJ_TERMS_VERSION` 3; pipeline@12; laporan label dibuat ulang atas `ihya-v9`.
+- Verifikasi: `pnpm verify` → lolos · 46 baris harapan tes lokal dicek atas sqlite `ihya-v9` (2 berubah, diperiksa frasanya) · 166 catatan kaki `lam_ajid` versi 2 → 87 sanad, 57 lafaz, 21 jalur, 1 daif.
+- Biaya API: –
+- Keputusan: ADR-113
+- Catatan untuk sesi berikutnya: elipsis sisa teks Arab (`stripArabic`) masih cacat bahasa terbesar di x09; tanda kelemahan untuk lafaz/jalur perlu ditinjau bersama T-24.
+
+## 2026-10-27 · Eval x09: bunyi label status hadits — selesai
+- Dikerjakan: satu run publik Jawab berbayar (izin pemilik di chat) dengan pipeline@11 dan korpus `ihya-v9`; run diulang dan digabung karena korpus staging diganti di tengah run dan koneksi D1 remote putus; 42 jawaban dinilai tiga subagen agent; laporan perbandingan x08 → x09.
+- Verifikasi: `eval:jawab score` gabungan → kutipan 100%, lokasi 85,3%, status hadits kode 5/6; penilaian agent → bahasa 3,36, kesetiaan 71,4%, atribusi 97,6%.
+- Biaya API: ±US$0,16 (jawaban yang dinilai US$0,1181).
+- Keputusan: hasil dicatat di ADR-111.
+- Catatan untuk sesi berikutnya: perbaiki arti `lam_ajid` (regresi j029) dan elipsis sisa teks Arab (`stripArabic`).
+
+## 2026-10-27 · Gema takhrij: run eval berbayar — selesai
+- Dikerjakan: run publik 42 soal atas izin pemilik (`x09-publik-gema-v1` + lanjutan `x09-publik-gema-v1c`), skor kode atas arsip gabungan.
+- Hasil: takhrij 5/6 → 6/6, lokasi 31/34 → 32/34, kutipan valid 100% (dibanding x08). j024 kini benar ("dinilai lemah", sitasi 10000010).
+- Kendala: staging dikosongkan oleh pemuatan `ihya-v9` (sesi X21) di tengah run dan tetap kosong ≥ 1 jam (meta hanya `schema_version`); sesi X21 sudah dikabari. Lanjutan dan skor memakai `ihya-v9` lokal; 91 paragraf yang disitasi + kunci identik dengan `ihya-v8` produksi.
+- Biaya API: US$0,1224 jawaban (+ panggilan j028/j030 yang gagal, tak tercatat).
+- Keputusan: ADR-112 (bagian hasil)
+- Catatan untuk sesi berikutnya: penilaian semantik run ini belum dilakukan. Pencatat biaya `answer` membebankan pagu cadangan penuh (±US$0,17) untuk soal yang gagal, sehingga satu galat D1 bisa menghabiskan pagu kecil.
+
+## 2026-10-27 · Gema takhrij (pencarian takhrij kemunculan pertama hadits) — selesai
+- Dikerjakan: untuk soal hadits, Jawab mencari takhrij al-'Iraqi di kemunculan pertama hadits yang muncul lagi tanpa penanda catatan kaki atau dengan catatan kaki rujukan "تقدم". Lafaznya dicocokkan kode (`packages/llm/src/jawab/echo.ts`), lalu catatan kaki itu ditaruh di dokumen tepat sesudah paragrafnya. Diagnostik `takhrij_echoes` ditambahkan; pipeline@11.
+- Verifikasi: `pnpm verify` → lolos · `eval:jawab kandidat --remote` (hanya SELECT) dengan rute tersimpan x08: 32 → 33/34 (j024 lengkap), x07: 31 → 32/34, status hadits 6/6 di keduanya, tanpa soal yang turun; `--tanpa-rute` tetap 29/34 · sampel acak 360 paragraf: 13 pasangan, semuanya benar.
+- Biaya API: –
+- Keputusan: ADR-112
+- Catatan untuk sesi berikutnya: j024 belum diukur dengan run berbayar (hanya dengan izin pemilik). Pindahkan pencocok ke ingest (tabel tautan) bila pembaca/MCP juga butuh.
+
 ## 2026-10-26 · Bunyi label status hadits — selesai
 - Dikerjakan: teks label status buatan kode diubah dari "takhrij menyebut: lemah" menjadi "dinilai lemah, menurut takhrij al-'Iraqi"; arti istilah dijadikan predikat; `lam_ajid` ("tidak ditemukan sanad atau lafaznya") dibedakan dari `lam_ajid_marfu`; jenis tambahan peninjau diberi atribusi sendiri; butir daftar tanpa awalan dibuka huruf kapital; pipeline@10.
 - Verifikasi: `pnpm verify` → lolos · D1 `surau-app` produksi: `takhrij_review` kosong, jadi tidak ada tinjauan yang batal.
 - Biaya API: –
 - Keputusan: ADR-111
 - Catatan untuk sesi berikutnya: bunyi baru belum dinilai ulang (run eval berbayar hanya dengan izin pemilik).
+
+## 2026-10-27 · X21 · 72 paragraf sisa (prompt v6) — selesai
+- Dikerjakan: prompt `translate-passage@6` (= v5 + "Keluaran bersih") dan entri `x21-sisa` (kolom `passages`) untuk 72 paragraf yang ditolak validator tiga kali; Sonnet 5.5, izin pemilik. 37 lolos (24 + 9 + 4), 35 tetap memakai terjemahan lama.
+- Verifikasi: `pnpm verify` lolos (PR #176); `pnpm llm plan` tepat 72 request.
+- Biaya API: US$1,06 (total terjemahan ulang US$36,95; folder US$41,64).
+- Catatan untuk sesi berikutnya: 37 perbaikan ini ada di `data/build/llm` tetapi belum di korpus produksi `ihya-v9`; ikut korpus berikutnya. Sisa 35 (3 tanpa terjemahan) perlu koreksi manusia (T-26) atau pemecahan paragraf.
+
+## 2026-10-27 · X21 · Nilai ulang strata pendek — selesai
+- Dikerjakan: 13 sampel pendek T-17 lanjutan dinilai ulang (dua penilai Claude Opus buta) setelah diterjemahkan ulang Sonnet 5.5 + v5. Sebelum 8 Benar / 5 Kurang; sesudah 12 Benar, 1 butir (no. 31) Kurang/Salah.
+- Verifikasi: perbandingan sebelum/sesudah (sampel sudah pernah dilihat), tercatat di `data/reports/ihya-9472-t17-tahap3.md`.
+- Biaya API: – (penilai subagen)
+- Catatan: rilis ini tanpa ustadz sementara (pemilik, 2026-10-27); penilaian tetap oleh agent (ADR-105).
+
+## 2026-10-27 · X21 · Korpus ihya-v9 dipromosikan ke produksi — selesai
+- Dikerjakan: `corpus:promote ihya-v9 --confirm` atas izin pemilik (chat 2026-10-27; pemilik juga menyetujui Intisari pilot dan audio ikut tayang): DB `surau-corpus-ihya-v9` dibuat (apac), dimuat, smoke = hitungan build; `corpus:qa ihya-v9` 30/30; binding `CORPUS_DB` web, mcp, api dialihkan lewat PR; `ihya-v8` tetap sebagai target rollback (`corpus:promote surau-corpus-ihya-v8 --switch-only`).
+- Verifikasi: smoke D1 produksi baru (passage 20.509, translation 16.106, summary 623, digest 19, audio_track 6); QA produksi 30/30.
+- Biaya API: – (promote tidak berbayar)
+- Keputusan: ADR-109
+- Catatan untuk sesi berikutnya: setelah deploy, cek surau.org (halaman j1/200, hasil Cari, Intisari Kitab Ilmu); bila bermasalah, rollback ke v8.
+
+## 2026-10-27 · X21 · Terjemahan ulang terarah Ihya — sebagian (korpus ihya-v9 dibangun, belum dimuat)
+- Dikerjakan: T-28 dipasang dari zip pemilik; 10.435 paragraf menengah+panjang diterjemahkan ulang (Sonnet 5.5 + prompt v5) dalam 5 kiriman + 2 putaran ulangan; 40 ringkasan putaran 1 + 57 putaran 2 dibuat ulang; `pnpm ingest ihya` (korpus `ihya-v9`, gerbang lolos); `pnpm t17 sampel-lanjutan` (sampel lanjutan 40) ditambahkan.
+- Verifikasi: `pnpm verify` → lolos · `pnpm ingest ihya` → semua gerbang ✓ (terjemahan 16.106/16.111, ringkasan 623/626, ayat 2.514 rujukan, 0 bermasalah).
+- Biaya API: US$30,47 terjemahan ulang + US$0,14 ringkasan (di atas US$4,69 lama; total folder US$35,30) atas izin pemilik, pagu US$40.
+- Keputusan: ADR-109
+- Strata pendek diterjemahkan ulang (izin pemilik): 16.039/16.106 terjemahan kini Sonnet 5.5 + v5, total terjemahan ulang US$35,89 (folder US$40,58); `ihya-v9` dimuat ke staging (sempat kosong sekitar 90 menit karena unggahan pertama putus, dipulihkan), `corpus:qa` staging 30/30; tes e2e `reader-x11` dialihkan ke paragraf tanpa terjemahan yang masih ada (j3/368 #p15425).
+- Pengukuran ulang T-17 (penilai agent, 40 sampel lanjutan): Benar 82,1%, Salah 1,1% tertimbang, "lolos, belum pasti"; strata pendek (Haiku v2, tidak diterjemahkan ulang) 5 dari 13 Kurang.
+- Catatan untuk sesi berikutnya: muat `ihya-v9` ke staging + `corpus:qa`; promote atas izin pemilik; ukur ulang T-17 dengan sampel lanjutan (dari korpus `ihya-v9`). 57 paragraf terpilih yang ditolak validator tetap memakai terjemahan lama.
 
 ## 2026-10-26 · X21 · Terjemahan ulang terarah Ihya (rancangan + biaya) — sebagian
 - Dikerjakan: (1) 21 usulan koreksi agent T-17 dicek ulang terhadap teks Arab (8 Salah terkonfirmasi; usulan tidak dipakai sebagai koreksi manusia); (2) pola kesalahan dipetakan: populasi 98% Haiku + prompt v2, kesalahan utama salah baca struktur kalimat/pelaku/negasi, kelengkapan dan angka; (3) pencocok ayat diperbaiki (ADR-107, +30 kutipan Qur'ani di 28 paragraf, QS 15:98 terdeteksi); (4) prompt `translate-passage@5` (belum aktif) + opsi `prompt`/`effort` di `buildTranslateRequest`; (5) biaya dihitung dan uji kecil dirancang ([sesi](sesi/X21-terjemahan-ulang-terarah.md)).

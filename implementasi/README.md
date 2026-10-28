@@ -25,9 +25,10 @@ Cukup ketik salah satu perintah ini di Claude Code (sebaiknya **buka percakapan 
 Kalimat biasa seperti "kerjakan sesi berikutnya" juga bisa.
 
 **Kapan Anda dibutuhkan:**
+- Cara tercepat melihatnya: buka [papan Surau](https://github.com/users/alfariesh/projects/7) dan lihat kolom *Menunggu pemilik*.
 - Saat agent berhenti dengan label **MENUNGGU PEMILIK**. Daftar lengkapnya ada di [TUGAS-PEMILIK.md](TUGAS-PEMILIK.md), misalnya membuat akun, menyiapkan token, atau memilih nama domain.
-- Saat agent meminta izin untuk tindakan yang keluar dari komputer Anda: deploy, push ke GitHub, atau menulis ke database produksi.
-- Di akhir setiap sesi: periksa hasilnya (agent memberi tautan atau cara melihatnya), lalu jawab "ya" bila agent bertanya "Gabungkan Sesi NN ke main sekarang?". Sesi berikutnya baru bisa dimulai setelah hasil sesi sebelumnya digabung.
+- Saat agent meminta izin eksplisit di chat. Menurut aturan keras 4 di [`CLAUDE.md`](../CLAUDE.md), itu hanya untuk: mengirim batch atau eval LLM berbayar, menghapus atau menimpa data produksi (D1/R2 remote), dan mengubah pengaturan di luar repo. Push, PR, merge, dan deploy dilakukan agent tanpa bertanya, lalu dilaporkan.
+- Di akhir setiap sesi: agent menggabungkan hasilnya ke `main` sendiri setelah `pnpm verify` dan CI hijau (tanpa bertanya), lalu melapor dengan tautan atau cara melihatnya, jadi periksalah hasilnya. Bila Anda belum mau menggabungkan, bilang di chat: agent menahan merge dan mencatatnya di STATUS. Sesi berikutnya baru bisa dimulai setelah hasil sesi sebelumnya digabung.
 
 ---
 
@@ -41,9 +42,10 @@ Kalimat biasa seperti "kerjakan sesi berikutnya" juga bisa.
 | [STACK.md](STACK.md) | Teknologi, versi, dan **tautan docs resmi yang wajib dibaca** | Agent, setiap kali versi berubah |
 | [ARSITEKTUR-TEKNIS.md](ARSITEKTUR-TEKNIS.md) | Struktur monorepo, model data, alur request, binding Cloudflare | Agent |
 | [KONVENSI.md](KONVENSI.md) | Aturan kode, git, tes, penamaan, dan bahasa | Agent (perubahan dicatat di KEPUTUSAN) |
-| [KEPUTUSAN.md](KEPUTUSAN.md) | Log keputusan teknis (ADR) beserta alasannya | Agent dan pemilik |
-| [LOG.md](LOG.md) | Jurnal sesi: apa yang dikerjakan, hasil verifikasi, biaya | Agent, setiap akhir sesi |
+| [KEPUTUSAN.md](KEPUTUSAN.md) | Indeks keputusan teknis (ADR); isi tiap ADR ada di [keputusan/](keputusan/) (satu file per ADR) | Agent dan pemilik |
+| [LOG.md](LOG.md) | Jurnal sesi bulan berjalan: apa yang dikerjakan, hasil verifikasi, biaya. Bulan sebelumnya di [log/](log/) | Agent, setiap akhir sesi |
 | [TUGAS-PEMILIK.md](TUGAS-PEMILIK.md) | Hal yang hanya bisa dikerjakan manusia | Agent menambah; pemilik mencentang |
+| [Papan GitHub Project](https://github.com/users/alfariesh/projects/7) | Tampilan visual status: kartu per sesi (dikelompokkan per Fase), tugas pemilik, dan PR. Kolom *Menunggu pemilik* berisi giliran Anda. Bukan sumber kebenaran; file di folder ini tetap yang utama | Agent menggeser kartu; pemilik boleh menggeser sendiri |
 
 Pengaturan agent ada di luar folder ini: [`CLAUDE.md`](../CLAUDE.md), [`.claude/skills/`](../.claude/skills/) (`sesi`, `posisi`, `rilis`, `docs-terbaru`), [`.claude/agents/peninjau.md`](../.claude/agents/peninjau.md), [`.claude/rules/teks-arab.md`](../.claude/rules/teks-arab.md), [`.claude/settings.json`](../.claude/settings.json) (izin + hook), dan [`.mcp.json`](../.mcp.json) (docs Cloudflare; MCP HeroUI dipasang pemilik di level user lewat T-01; `next-devtools` ditambahkan di S01).
 
@@ -59,7 +61,7 @@ Prosedur lengkapnya ada di skill [`/sesi`](../.claude/skills/sesi/SKILL.md). Rin
 4. **Kerjakan** di branch `sesi/sNN-slug` dengan commit kecil yang jelas.
 5. **Verifikasi** setiap butir "Selesai bila" dengan menjalankan perintahnya, bukan dengan asumsi.
 6. **Catat.** Centang file sesi dan isi bagian *Catatan hasil*. Perbarui `STATUS.md`, tambahkan entri ke `LOG.md`, catat keputusan baru di `KEPUTUSAN.md`, dan perbarui versi di `STACK.md`.
-7. **Gabungkan** ke `main` setelah pemilik setuju: lewat PR yang CI-nya hijau, atau secara lokal sebelum ada remote (S01).
+7. **Gabungkan** ke `main` tanpa bertanya (aturan keras 4 di [`CLAUDE.md`](../CLAUDE.md)) setelah `pnpm verify` dan CI hijau: lewat PR, atau secara lokal sebelum ada remote (S01). Bila pemilik minta menahan, catat di STATUS bahwa sesi berikutnya menunggu merge ini.
 8. **Lapor** ke pemilik dengan bahasa awam: apa yang sekarang bisa dilihat atau dicoba, apa yang belum, dan apa berikutnya.
 
 ### Rencana bergulir

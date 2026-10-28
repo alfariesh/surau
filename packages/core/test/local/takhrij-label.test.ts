@@ -1,4 +1,4 @@
-// Tes regresi label status hadits (X06, ADR-069; versi 2, ADR-108) atas takhrij Ihya di D1 lokal: jenis istilah untuk
+// Tes regresi label status hadits (X06, ADR-069; versi 2, ADR-108; versi 3, ADR-113) atas takhrij Ihya di D1 lokal: jenis istilah untuk
 // enam catatan kaki gold soal Jawab PUBLIK (`evals/jawab/ihya-draf-v2.jsonl`), yang cocok dengan
 // kategori status gold-nya (dibandingkan manual di ADR-069). Mencegah perubahan aturan istilah
 // diam-diam mengubah label kunci. Teks kitab tidak disalin ke sini; hanya ID dan jenis istilah.
@@ -62,7 +62,7 @@ const AGENT_REVIEWED: readonly [number, string[]][] = [
   [10012837, ["daif", "mursal"]],
   [10013881, ["daif", "muslim", "sebagian"]],
   [10013966, ["daif", "mawquf", "sangat_lemah", "sebagian", "tsiqat"]],
-  [10014245, ["lam_ajid", "mukhtalaf", "muttafaq", "rujukan", "sebagian"]],
+  [10014245, ["lam_ajid_lafaz", "mukhtalaf", "muttafaq", "rujukan", "sebagian"]],
   [10014268, ["lam_ajid"]],
   [10014350, ["daif", "muslim"]],
   [10016409, ["gharib", "hasan_sahih", "rujukan"]],
@@ -71,7 +71,7 @@ const AGENT_REVIEWED: readonly [number, string[]][] = [
   [10016642, ["daif", "rujukan", "sebagian"]],
   [10016662, ["muslim", "muttafaq", "sangat_lemah", "sebagian"]],
   [10016795, ["daif", "dibantah"]],
-  [10017400, ["bukhari", "daif", "hasan", "lam_ajid", "muttafaq", "rujukan", "sangat_lemah"]],
+  [10017400, ["bukhari", "daif", "hasan", "lam_ajid_lafaz", "muttafaq", "rujukan", "sangat_lemah"]],
   [10017880, ["daif", "gharib", "hasan", "mawquf", "sebagian"]],
   [10018659, ["lam_ajid", "mursal"]],
   [10019889, ["rujukan"]],

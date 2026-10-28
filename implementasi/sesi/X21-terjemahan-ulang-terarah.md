@@ -1,6 +1,6 @@
 # X21 · Terjemahan ulang terarah Ihya sesudah T-17 tahap 3
 
-> **Fase:** sisipan (sesudah T-17 tahap 3, sebelum `/rilis 4`) · **Status:** berjalan (rancangan + biaya diajukan; batch berbayar menunggu izin pemilik)
+> **Fase:** sisipan (sesudah T-17 tahap 3, sebelum `/rilis 4`) · **Status:** selesai (2026-10-27; korpus `ihya-v9` tayang, PR #172; lihat STATUS.md dan LOG.md. Semula: berjalan, rancangan + biaya diajukan, batch berbayar menunggu izin pemilik)
 > **Prasyarat:** T-17 tahap 3 dinilai agent 2026-10-26 (ADR-105, [laporan](../../data/reports/ihya-9472-t17-tahap3.md)) · izin pemilik di chat untuk setiap batch berbayar (CLAUDE.md aturan 4) · T-28 (`data/build/llm` dan `data/raw/kemenag` di mesin agent) sebelum korpus berikutnya dibangun
 > **Perkiraan:** 2–3 percakapan agent
 
@@ -144,10 +144,10 @@ Dampak pada target: bila hanya strata panjang membaik (Benar 35% → ±70%), est
 5. [x] Pemilik memilih lingkup + pagu (chat 2026-10-26): strata sedang + panjang, Sonnet 5.5 + v5, pagu US$36.
 6. [x] (kode) Mekanisme terjemahan ulang terarah (ADR-109): pilihan `data/reviews/ihya-9472-terjemahan-ulang.json`, hasil lama dipertahankan sampai hasil baru lolos, ulangan selalu Sonnet, `pnpm llm terjemah-ulang`; prompt v5 aktif; versi prompt dicatat dari objek prompt yang dikirim; rencana lama dengan prompt/model lain ditolak sebagai usang; kirim >2.500 request wajib `--limit`; tes di `retranslate.test.ts`.
    - **Penyimpangan terbuka dari rancangan awal langkah ini:** *effort* tidak dicatat per hasil (tidak ada kolom untuknya di `translation`/ledger); semua terjemahan ulang memakai effort `low` (di-hardcode di `buildTranslateRequest`) dan itu dicatat di ADR-109, bukan per baris. Versi prompt dan model memang dicatat per hasil.
-7. [ ] Selesaikan T-28 (`data/build/llm`, `data/raw/kemenag`; Tanzil/OpenITI diunduh agent).
-8. [ ] `plan` → tanya pemilik dengan angka `count_tokens` → `submit --limit … --budget <terpakai + 36> --confirm` bertahap per jilid → `collect` → `retry` → `report`.
-9. [ ] Bangun korpus berikutnya; promote hanya atas izin pemilik. QA `corpus:qa`.
-10. [ ] Ukur ulang T-17 dengan 40 sampel lanjutan (seed 20261024–26) dan catat di laporan + TUGAS-PEMILIK.
+7. [x] T-28 (zip pemilik 2026-10-27, dipasang di `/home/rekanesia/surau`).
+8. [x] (US$30,47 + ringkasan US$0,14; lihat ADR-109) `plan` → tanya pemilik dengan angka `count_tokens` → `submit --limit … --budget <terpakai + 36> --confirm` bertahap per jilid → `collect` → `retry` → `report`.
+9. [x] Korpus `ihya-v9` dibangun lokal (gerbang ingest lolos). [ ] Muat ke staging, `corpus:qa`, promote hanya atas izin pemilik.
+10. [x] (agent, 2026-10-27: Benar 82,1%, Salah 1,1%, lolos belum pasti) Ukur ulang T-17: `pnpm t17 sampel-lanjutan` (40 sampel: 13/14/13, seed 20261024+k, tanpa 60 sampel pertama dan 30 ID uji X21), nilai, `pnpm t17 hasil --lanjutan`; catat di laporan + TUGAS-PEMILIK.
 
 ## T-28 untuk sesi ini (langkah pemilik; agent memandu saat tiba)
 

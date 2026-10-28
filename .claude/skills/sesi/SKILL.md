@@ -32,11 +32,12 @@ Pemilik proyek adalah product designer, bukan developer. Ia mengandalkan Anda un
 
 - Buat branch `sesi/sNN-slug` dari `main` yang sudah memuat sesi sebelumnya.
 - Ubah status sesi menjadi `berjalan` di file sesi dan STATUS.md.
+- Geser kartu sesi di papan ke *Berjalan* (aturan *Papan status* di `CLAUDE.md`). Bila sesi ini belum punya kartu, buat kartu drafnya dulu.
 - Untuk setiap teknologi yang disentuh sesi ini, panggil `/docs-terbaru <paket> <pertanyaan>`. Skill ini berjalan di subagen terpisah sehingga konteks utama tetap ringan. Jangan menulis kode dari ingatan untuk API yang mungkin sudah berubah.
 
 ## 3. Kerjakan
 
-- Ikuti **Langkah** di file sesi. Bila temuan di lapangan menuntut perubahan rencana, ubah secara terbuka: tulis alasannya di `KEPUTUSAN.md`. Jangan diam-diam keluar dari cakupan.
+- Ikuti **Langkah** di file sesi. Bila temuan di lapangan menuntut perubahan rencana, ubah secara terbuka: tulis alasannya di file ADR baru (`implementasi/keputusan/`, lihat indeks `KEPUTUSAN.md`). Jangan diam-diam keluar dari cakupan.
 - Ikuti `implementasi/KONVENSI.md`. Untuk teks Arab, kutipan, atau atribusi, berlaku aturan `.claude/rules/teks-arab.md` (dimuat otomatis saat file kode dibuka).
 - Commit kecil dengan pesan yang jelas (lihat KONVENSI). Jalankan `pnpm check` sesering mungkin (setelah S01).
 - Jangan pernah menaruh data Shamela, token, atau `.env` di git. Jangan membuka dotfile pemilik (`~/.zshrc`, dan lain-lain).
@@ -53,10 +54,11 @@ Pemilik proyek adalah product designer, bukan developer. Ia mengandalkan Anda un
 1. **File sesi:** centang butir yang lolos, ubah status, isi *Catatan hasil* (apa yang dibuat, utang teknis, dan pesan untuk sesi berikutnya).
 2. **`STATUS.md`:** perbarui bagian *Sekarang* dan *Mulai di sini* bila perlu, *Sesi berikutnya*, *Menunggu pemilik*, dan tabel progres.
 3. **`LOG.md`:** tambahkan entri di paling atas, mengikuti format di file itu.
-4. **`KEPUTUSAN.md`:** tambahkan ADR untuk setiap keputusan teknis baru.
+4. **`KEPUTUSAN.md`:** tambahkan ADR untuk setiap keputusan teknis baru: satu file `implementasi/keputusan/ADR-NNN.md` dan satu baris di tabel indeks `KEPUTUSAN.md`.
 5. **`STACK.md`:** perbarui versi yang dipasang dan tanggal docs dicek.
 6. **`TUGAS-PEMILIK.md`:** tambahkan tugas baru yang ditemukan.
-7. Commit catatan ini.
+7. **Papan status:** ikuti aturan *Papan status* di `CLAUDE.md`. Buat isu `T-NN · …` (label `tugas-pemilik`) untuk tugas baru, tutup isu tugas yang terverifikasi selesai, dan pasang PR sesi ke papan. Geser kartu sesi ke *Selesai*, *Menunggu pemilik*, atau *Backlog* sesuai status akhirnya.
+8. Commit catatan ini.
 
 ## 6. Gabungkan ke main (tanpa bertanya)
 

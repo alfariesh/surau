@@ -26,6 +26,9 @@ export interface JawabLog {
   citations_dropped: number;
   blocks_dropped: number;
   arabic_removed: number;
+  /** Kalimat dan blok yang dibuang karena isinya teks Arab buatan model (ADR-114). */
+  arabic_sentences_dropped: number;
+  arabic_blocks_dropped: number;
   /** Istilah pipeline yang bocor ke jawaban (ADR-106). */
   pipeline_terms: number;
   /** Kalimat calon parafrase ayat, heuristik (ADR-106). */
@@ -71,6 +74,8 @@ export function resultLog(environment: string, r: JawabResult, cached: boolean):
     citations_dropped: d.citations_dropped,
     blocks_dropped: d.blocks_dropped,
     arabic_removed: d.arabic_removed,
+    arabic_sentences_dropped: d.arabic_sentences_dropped,
+    arabic_blocks_dropped: d.arabic_blocks_dropped,
     pipeline_terms: d.pipeline_terms,
     ayah_gloss_suspect: d.ayah_gloss_suspect,
     repeated_sentences: d.repeated_sentences,
@@ -114,6 +119,8 @@ export function emptyLog(
     citations_dropped: 0,
     blocks_dropped: 0,
     arabic_removed: 0,
+    arabic_sentences_dropped: 0,
+    arabic_blocks_dropped: 0,
     pipeline_terms: 0,
     ayah_gloss_suspect: 0,
     repeated_sentences: 0,

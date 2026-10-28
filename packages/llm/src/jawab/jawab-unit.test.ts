@@ -23,13 +23,16 @@ import {
   isNotFound,
   pipelineTerms,
   refusalKind,
+  markArabic,
   repeatedSentences,
   stripArabic,
   stripCiteTags,
+  tidyArabicCuts,
   translationCopies,
   uncitedGradings,
 } from "./citations.ts";
 import { buildDoc, docContext, sectionPath, segmentText, toDocumentBlock } from "./documents.ts";
+import { echoSeeds, footnoteMatns, matnScore, pickEchoes, unmarkedHadith } from "./echo.ts";
 import {
   MAX_SEARCHES,
   QUESTION_WEIGHT,
@@ -348,7 +351,8 @@ describe("teks model", () => {
   test("huruf Arab buatan model dibuang dan dihitung; teks Latin utuh", () => {
     const r = stripArabic("Al-Ghazali menyebut sabar (الصبر) sebagai separuh iman (١).");
     expect(r.text).not.toMatch(/\p{Script=Arabic}/u);
-    expect(r.text).toBe("Al-Ghazali menyebut sabar … sebagai separuh iman ….");
+    // Angka Arab-India bukan kutipan: menjadi angka ASCII (x10 j025).
+    expect(r.text).toBe("Al-Ghazali menyebut sabar … sebagai separuh iman (1).");
     expect(r.removed).toBeGreaterThan(0);
     expect(stripArabic("Tanpa huruf Arab.")).toEqual({ text: "Tanpa huruf Arab.", removed: 0 });
   });
@@ -358,6 +362,224 @@ describe("teks model", () => {
     const r = stripArabic("Lafaz \u0639\u0650\u0644\u0652\u0645\u064b dibahas.");
     expect(r.text).toBe("Lafaz … dibahas.");
     expect(r.text).not.toMatch(/[\u064B-\u065F]/u);
+  });
+
+  // ADR-114. Teks Arab BUATAN, kalimat Latin diringkas dari pola jawaban eval publik x09.
+  describe("bekas huruf Arab dirapikan atas teks gabungan blok", () => {
+    const A = "\u0627\u0644\u0635\u0628\u0631";
+    const tidy = (...texts: string[]) => {
+      const blocks = texts.map((t, i) => ({ text: markArabic(t).text, citations: [i] }));
+      const r = tidyArabicCuts(blocks);
+      return { ...r, text: r.blocks.map((b) => b.text).join("") };
+    };
+
+    test("menempel di akhir kalimat, di kurung, sesudah titik atau rujukan: dibuang tanpa jejak", () => {
+      expect(tidy(`Menahannya dari selain Allah secara total ${A}.\n\nLainnya ada.`).text).toBe(
+        "Menahannya dari selain Allah secara total.\n\nLainnya ada.",
+      );
+      expect(tidy(`Keyakinan pada rezeki yang dijanjikan-Nya (${A}, ${A}).`).text).toBe(
+        "Keyakinan pada rezeki yang dijanjikan-Nya.",
+      );
+      expect(tidy(`Al-'Iraqi tidak menemukan sanadnya.${A}\n\nRiwayat ini ada.`).text).toBe(
+        "Al-'Iraqi tidak menemukan sanadnya.\n\nRiwayat ini ada.",
+      );
+      expect(tidy(`Riwayat yang sama dikutip (Ihya j. 3, h. 389) ${A}. Lalu ada lagi.`).text).toBe(
+        "Riwayat yang sama dikutip (Ihya j. 3, h. 389). Lalu ada lagi.",
+      );
+      expect(tidy(`Seperti air untuk haus, ${A} (Ihya, j. 4, h. 283). Lainnya ada.`).text).toBe(
+        "Seperti air untuk haus (Ihya, j. 4, h. 283). Lainnya ada.",
+      );
+      expect(tidy(`Al-'Iraqi menulis bahwa hadits ${A} sudah disebutkan.`).text).toBe(
+        "Al-'Iraqi menulis bahwa hadits sudah disebutkan.",
+      );
+    });
+
+    test("bekas yang menggantikan isi yang dituju: kalimatnya dibuang utuh, tanpa penanda tersisa", () => {
+      const r = tidy(
+        `Ia menolak anggapan itu. Karena itu al-Ghazali menyimpulkan bahwa ${A} (Ihya, j. 4, h. 286). Ia menambahkan bahwa ${A}, dan hal itu berbeda. Lafaznya: ${A}. Lalu ${A}.`,
+      );
+      expect(r).toMatchObject({ text: "Ia menolak anggapan itu.", dropped_sentences: 4 });
+      expect(r.text).not.toMatch(/[…\uE000]/u);
+      // Hanya bekas + rujukan lokasi: kalimatnya dibuang.
+      expect(tidy(`Ada isi. ${A} (Ihya, j. 4, h. 286). Lanjut ada isi.`).text).toBe(
+        "Ada isi. Lanjut ada isi.",
+      );
+    });
+
+    test("kalimat terbelah di dua blok dinilai utuh; spasi antarblok tetap", () => {
+      // "bahwa " di blok tanpa sitasi, teks Arab di blok bersitasi (peninjau ADR-114).
+      const r = tidy(
+        "Kalimat pertama utuh. Al-Ghazali menyimpulkan bahwa ",
+        `${A}.`,
+        " Lanjut ada isi.",
+      );
+      expect(r.text).toBe("Kalimat pertama utuh. Lanjut ada isi.");
+      expect(r.dropped_blocks).toBe(1);
+      expect(r.blocks.map((b) => b.citations)).toEqual([[0], [2]]);
+      expect(tidy(`Al-Ghazali menyebut sabar (${A}) sebagai `, "separuh iman.").text).toBe(
+        "Al-Ghazali menyebut sabar sebagai separuh iman.",
+      );
+    });
+
+    test("blok bersitasi yang kalimatnya tetap tidak dibuang: sitasi dan tanda bacanya tetap", () => {
+      const r = tidy("Al-Ghazali menyebut sabar ", A, " sebagai separuh iman.");
+      expect(r.text).toBe("Al-Ghazali menyebut sabar sebagai separuh iman.");
+      expect(r.blocks.map((b) => b.citations)).toEqual([[0], [1], [2]]);
+      const dot = tidy("Kesabaran itu cahaya hati ", `${A} ${A}.`, " Lainnya ada di sini.");
+      expect(dot.text).toBe("Kesabaran itu cahaya hati. Lainnya ada di sini.");
+      expect(dot.dropped_blocks).toBe(0);
+    });
+
+    test("batas kalimat: singkatan dan baris baru; indentasi, butir daftar, Markdown", () => {
+      // Kalimat sesudah "saw." dinilai sendiri.
+      expect(tidy(`Hadits ini dari Nabi saw. Lafaznya: ${A}. Lanjut ada isi.`).text).toBe(
+        "Hadits ini dari Nabi saw. Lanjut ada isi.",
+      );
+      // Satu butir yang isinya hilang tidak membuang butir lain.
+      expect(tidy(`Tiga hal:\n- Pertama, sabar\n- Kedua, bahwa ${A}\n- Ketiga, syukur.`).text).toBe(
+        "Tiga hal:\n- Pertama, sabar\n- Ketiga, syukur.",
+      );
+      expect(tidy(`Riwayat ini lemah.\n\n  - butir ${A} di sini ada.`).text).toBe(
+        "Riwayat ini lemah.\n\n  - butir di sini ada.",
+      );
+      expect(tidy(`Istilahnya:\n- ${A}: sabar.`).text).toBe("Istilahnya:\n- sabar.");
+      expect(tidy(`Ia menyebut **${A}** sebagai inti amal.`).text).toBe(
+        "Ia menyebut sebagai inti amal.",
+      );
+    });
+
+    test("padanan Latin pendek dalam kurung; rujukan QS bukan padanan; kata pemicu di tengah kalimat", () => {
+      expect(tidy(`Ia menyebut dua maqam, seperti ${A} (tawakal) dan ${A} (rida).`).text).toBe(
+        "Ia menyebut dua maqam, seperti tawakal dan rida.",
+      );
+      // Isi yang dituju hilang: kalimatnya dibuang walau ada rujukan dalam kurung.
+      expect(
+        tidy(`Ada isi di sini. Firman Allah: ${A} (QS. Al-Baqarah: 153). Lanjut ada isi.`).text,
+      ).toBe("Ada isi di sini. Lanjut ada isi.");
+      // Kata pemicu tidak berlaku bila bekas masih diikuti kata.
+      expect(tidy(`Ia berkata ${A} sebagai pembuka rezeki hamba.`).text).toBe(
+        "Ia berkata sebagai pembuka rezeki hamba.",
+      );
+    });
+
+    test("judul dan butir pendek hanya kehilangan bekasnya; rujukan riwayat bukan padanan", () => {
+      expect(tidy(`## Hakikat Sabar (${A})\n\n- Sabar (${A})\n\n**Tawakal (${A})**`).text).toBe(
+        "## Hakikat Sabar\n\n- Sabar\n\n**Tawakal**",
+      );
+      expect(tidy(`Ada isi di sini. Nabi bersabda ${A} (HR Muslim). Lanjut ada isi.`).text).toBe(
+        "Ada isi di sini. Lanjut ada isi.",
+      );
+      expect(tidy(`Ada isi di sini. Nabi saw. bersabda ${A}. Lanjut ada isi.`).text).toBe(
+        "Ada isi di sini. Lanjut ada isi.",
+      );
+    });
+
+    test("kutipan Arab bersitasi sesudah kalimat status: sitasinya pindah ke kalimat itu (x10 j026)", () => {
+      // Model menulis status Latin, lalu kutipan takhrij Arab sebagai kalimat sendiri yang bersitasi.
+      const passages = new Map([
+        [1, passage(1, SENT, { footnote_ids: [2] })],
+        [2, passage(2, FOOT, { kind: "foot", referenced_by: [1] })],
+      ]);
+      const tidied = tidyArabicCuts([
+        { text: "Takhrijnya disebut di catatan kaki.\n\n", citations: [] },
+        { text: "Status hadits: muttafaq 'alaih.", citations: [] },
+        { text: " ", citations: [] },
+        { text: markArabic(`${A} (\u0661) ${A}`).text, citations: [1] },
+      ]);
+      expect(tidied.blocks.map((b) => b.text).join("")).toBe(
+        "Takhrijnya disebut di catatan kaki.\n\nStatus hadits: muttafaq 'alaih.",
+      );
+      expect(tidied.blocks.find((b) => b.text.startsWith("Status"))?.citations).toEqual([1]);
+      const checked = hadithCheck(tidied.blocks, [FOOT1], passages);
+      expect(checked.blocks.map((b) => b.text).join("")).toBe(
+        `Takhrijnya disebut di catatan kaki.\n\nStatus hadits: ${IN_TEXT}.`,
+      );
+      expect(checked.claims).toHaveLength(1);
+      // Tanpa kalimat sebelumnya di paragraf yang sama, kutipan bersitasi tetap dibuang bersama sitasinya.
+      expect(tidy(`${A}.`).blocks).toEqual([]);
+    });
+
+    test("sitasi kutipan tidak pindah ke kalimat biasa, butir saudara, atau status yang sudah bertakhrij", () => {
+      const cites = (r: ReturnType<typeof tidyArabicCuts<{ text: string; citations: number[] }>>) =>
+        r.blocks.map((b) => [b.text, b.citations]);
+      // Kalimat sebelumnya bukan pernyataan status.
+      expect(
+        cites(
+          tidyArabicCuts([
+            { text: "Al-Ghazali menukil riwayat ini. ", citations: [0] },
+            { text: markArabic(`${A}.`).text, citations: [1] },
+          ]),
+        ),
+      ).toEqual([["Al-Ghazali menukil riwayat ini.", [0]]]);
+      // Butir status saudara di baris lain.
+      expect(
+        cites(
+          tidyArabicCuts([
+            { text: "- Hadits A: sahih.", citations: [0] },
+            { text: markArabic(`\n- ${A}.`).text, citations: [1] },
+          ]),
+        ),
+      ).toEqual([["- Hadits A: sahih.", [0]]]);
+      // Pernyataan status yang sudah menyitasi takhrij tidak diberi takhrij kedua.
+      expect(
+        cites(
+          tidyArabicCuts(
+            [
+              { text: "Status hadits: sahih.", citations: [0] },
+              { text: markArabic(` ${A}.`).text, citations: [1] },
+            ],
+            () => true,
+          ),
+        ),
+      ).toEqual([["Status hadits: sahih.", [0]]]);
+    });
+
+    test('label status di baris sendiri: isinya di baris berikutnya tetap "…", paragraf lain utuh', () => {
+      const r = tidy("**Status hadits:**\n", `${A}.`, "\n\nParagraf biasa tentang sabar di sini.");
+      expect(r.text).toBe("**Status hadits:**\n….\n\nParagraf biasa tentang sabar di sini.");
+      expect(r.dropped_sentences).toBe(0);
+      expect(r.blocks.map((b) => b.citations)).toEqual([[0], [1], [2]]);
+    });
+
+    test("nomor catatan kaki Arab-India tetap terbaca sebagai angka", () => {
+      expect(
+        tidy("Takhrijnya ada pada catatan kaki nomor (\u0661\u0662) di halaman itu.").text,
+      ).toBe("Takhrijnya ada pada catatan kaki nomor (12) di halaman itu.");
+      // Angka yang menempel pada kata Arab ikut terbuang bersama katanya; angka yang diapit kata Arab
+      // berspasi tetap angka.
+      expect(markArabic("Lafaz \u0643\u062A\u0627\u0628\u0661\u0662 dibahas.").text).toBe(
+        "Lafaz \uE000 dibahas.",
+      );
+      expect(
+        markArabic("Ia berkata \u0642\u0627\u0644 \u0661\u0660 \u0645\u0631\u0627\u062A.").text,
+      ).toBe("Ia berkata \uE000 10 \uE000.");
+    });
+
+    test("perapian hanya di sekitar bekas; teks lain tidak berubah", () => {
+      expect(tidy(`Lalu... ada jeda  (dua spasi). Kata ${A} di sini ada.`).text).toBe(
+        "Lalu... ada jeda  (dua spasi). Kata di sini ada.",
+      );
+    });
+
+    test('kalimat Status hadits: bekas menjadi "…" lalu isinya ditimpa label kode', () => {
+      const r = tidy("Status hadits: ", `${A}.`);
+      expect(r.dropped_sentences).toBe(0);
+      expect(r.text).toBe("Status hadits: ….");
+      const passages = new Map([
+        [1, passage(1, SENT, { footnote_ids: [2] })],
+        [2, passage(2, FOOT, { kind: "foot", referenced_by: [1] })],
+      ]);
+      const blocks = tidyArabicCuts([
+        { text: "Status hadits: ", citations: [] },
+        { text: markArabic(`${A}.`).text, citations: [1] },
+        { text: "\n\nParagraf biasa tentang sabar di sini.", citations: [] },
+      ]).blocks;
+      const checked = hadithCheck(blocks, [FOOT1], passages);
+      expect(checked.blocks.map((b) => b.text).join("")).toBe(
+        `Status hadits: ${IN_TEXT}.\n\nParagraf biasa tentang sabar di sini.`,
+      );
+      expect(checked.claims).toHaveLength(1);
+    });
   });
 
   test("penolakan baku hanya di awal jawaban", () => {
@@ -383,6 +605,110 @@ describe("teks model", () => {
       `${ANSWER_HADITH_PREFIX} sanadnya lemah menurut al-'Iraqi.`,
     );
     expect(hadithStatements("Tanpa status.")).toEqual([]);
+  });
+});
+
+describe("gema takhrij (ADR-112)", () => {
+  // Teks buatan (bukan salinan kitab): pola Ihya, hadits disebut ulang tanpa penanda.
+  const FULL = "(١) حديث الصبر مفتاح الفرج والرضا باب السلامة للعبد أخرجه فلان في كتابه بإسناد ضعيف";
+  const REFER = "(٢) حديث الصبر مفتاح الفرج والرضا باب السلامة تقدم في الباب الأول";
+  const BODY =
+    "وقال صلى الله عليه وسلم الصبر مفتاح الفرج والرضا باب السلامة للعبد وقال صلى الله عليه وسلم العلم نور يقذف في القلب (١)";
+
+  test("lafaz tanpa penanda jadi benih; lafaz berpenanda dilewati", () => {
+    const seeds = unmarkedHadith(BODY);
+    expect(seeds).toHaveLength(1);
+    expect(seeds[0]!.slice(0, 3)).toEqual(["الصبر", "مفتاح", "الفرج"]);
+    expect(unmarkedHadith("قال صلى الله عليه وسلم العلم نور يقذف في القلب (١)")).toEqual([]);
+  });
+
+  test("matan catatan kaki: rujukan, bersumber, dan beberapa takhrij sekaligus", () => {
+    expect(footnoteMatns(REFER)).toEqual([
+      {
+        tokens: ["الصبر", "مفتاح", "الفرج", "والرضا", "باب", "السلامه"],
+        referral: true,
+        sourced: false,
+      },
+    ]);
+    const two = footnoteMatns(`${FULL} (٣) حديث العلم نور يقذف في القلب رواه فلان`);
+    expect(two.map((m) => m.sourced)).toEqual([true, true]);
+    expect(two[1]!.tokens[0]).toBe("العلم");
+  });
+
+  test("'تقدم' di dalam lafaz yang bersumber bukan rujukan", () => {
+    const [m] = footnoteMatns("(١) حديث من صبر غفر له ما تقدم من ذنبه وما تأخر متفق عليه");
+    expect(m).toMatchObject({ referral: false, sourced: true });
+    expect(m!.tokens).toContain("تقدم");
+    expect(footnoteMatns("(١) حديث فضل الصف المتقدم على غيره رواه فلان")[0]!.sourced).toBe(true);
+    // "الحديث" (dst.) mengakhiri lafaz, tetapi tanpa kata sumber sesudahnya tetap rujukan.
+    expect(
+      footnoteMatns("(٢) حديث الصبر مفتاح الفرج والرضا باب السلامة الحديث تقدم غير مرة")[0],
+    ).toMatchObject({ referral: true, sourced: false });
+  });
+
+  test("kata formula dan sebutan Nabi tidak dihitung: hadits berbeda tidak cocok", () => {
+    const [refer] = footnoteMatns("(١) حديث أن النبي صلى الله عليه وسلم نهى عن بيع وشرط تقدم");
+    expect(refer!.referral).toBe(true);
+    expect(
+      matnScore("(٢) حديث أن النبي صلى الله عليه وسلم نهى عن بيع الغرر رواه فلان", refer!.tokens),
+    ).toBe(0);
+  });
+
+  test("hanya takhrij bersumber yang cocok; rujukan dan teks tanpa sumber tidak", () => {
+    const seed = unmarkedHadith(BODY)[0]!;
+    expect(matnScore(FULL, seed)).toBeGreaterThan(0);
+    expect(matnScore(REFER, seed)).toBe(0);
+    expect(matnScore("(١) وقال عليه السلام الصبر مفتاح الفرج والرضا باب السلامة", seed)).toBe(0);
+    expect(matnScore("(١) حديث العلم نور يقذف في القلب أخرجه فلان", seed)).toBe(0);
+  });
+
+  test("matan berawal kisah tetap cocok lewat kata awal lafaz", () => {
+    const story =
+      "(١) حديث أن رجلا سأل النبي صلى الله عليه وسلم فقال الصبر مفتاح الفرج والرضا باب السلامة رواه فلان";
+    expect(matnScore(story, unmarkedHadith(BODY)[0]!)).toBeGreaterThan(0);
+  });
+
+  test("benih dari badan dan catatan kaki rujukan; pasangan memilih kemunculan terawal", () => {
+    const map = new Map([
+      [10, passage(10, BODY, { footnote_ids: [11] })],
+      [11, passage(11, "(١) حديث العلم نور يقذف في القلب أخرجه فلان", { kind: "foot" })],
+      [20, passage(20, REFER, { kind: "foot", referenced_by: [21] })],
+      [3, passage(3, FULL, { kind: "foot", referenced_by: [2] })],
+      [5, passage(5, FULL, { kind: "foot", referenced_by: [4] })],
+    ]);
+    const seeds = echoSeeds([10, 20], map);
+    expect(seeds.map((s) => s.passage_id)).toEqual([10, 20]);
+    const echoes = pickEchoes(
+      seeds,
+      [
+        [11, 5, 3],
+        [20, 3],
+      ],
+      map,
+    );
+    expect(echoes).toEqual(
+      new Map([
+        [10, [3]],
+        [20, [3]],
+      ]),
+    );
+    expect(withPairs([10, 20], map, echoes)).toEqual([10, 11, 3, 20]);
+  });
+
+  test("konteks dokumen menyebut kemunculan pertama dan kemunculan berikutnya", () => {
+    const body = passage(10, BODY);
+    const foot = passage(3, FULL, { kind: "foot", location: { ...body.location, page_no: 2 } });
+    const labels = new Map([
+      [10, "Ihya j. 1, h. 55"],
+      [3, "Ihya j. 1, h. 2 (catatan kaki)"],
+    ]);
+    const echoes = new Map([[10, [3]]]);
+    expect(docContext(body, new Map(), labels, echoes)).toContain(
+      "takhrij yang dicocokkan sistem dari lafaznya: Ihya j. 1, h. 2 (catatan kaki)",
+    );
+    expect(docContext(foot, new Map(), labels, echoes)).toContain(
+      "Lafaz hadits yang sama muncul lagi di Ihya j. 1, h. 55",
+    );
   });
 });
 

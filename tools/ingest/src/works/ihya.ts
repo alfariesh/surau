@@ -61,8 +61,8 @@ export const IHYA: WorkConfig = {
   subheadings: "data/patches/ihya-9472-subjudul.json",
   ids: "data/ids/ihya-9472.json",
   reportPrefix: "data/reports/ihya-9472",
-  corpusVersion: "ihya-v8",
-  output: "surau-corpus-ihya-v8.sqlite",
+  corpusVersion: "ihya-v9",
+  output: "surau-corpus-ihya-v9.sqlite",
   expect: {
     pages: 1706,
     volumes: [361, 386, 413, 546],

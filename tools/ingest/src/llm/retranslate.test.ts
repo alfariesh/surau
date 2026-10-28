@@ -110,6 +110,11 @@ describe("pemilihan paragraf", () => {
     });
     expect([...selectRetranslation(file({ min_chars: 500 }), rows).keys()]).toEqual([10_000_003]);
     expect([...selectRetranslation(file({ juz: [1] }), rows).keys()]).toEqual([10_000_002]);
+    // `passages` membatasi ke ID tertentu (sisa X21).
+    expect([
+      ...selectRetranslation(file({ passages: [10_000_003, 10_000_001] }), rows).keys(),
+    ]).toEqual([10_000_003]);
+    expect(selectRetranslation(file({ passages: [10_000_001], min_chars: 0 }), rows).size).toBe(1);
   });
 
   test("translationDone: terjemahan lama dengan sumber sama belum selesai bila dipilih", () => {
