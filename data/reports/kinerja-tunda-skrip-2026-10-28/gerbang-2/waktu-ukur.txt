@@ -1,0 +1,4 @@
+mulai 2026-10-28T05:40:09Z
+selesai 2026-10-28T05:49:41Z
+Versi yang diukur: Preview pr-206.surau.org = commit 6d78e9d (komentar CI "Preview Surau siap" 2026-10-28T05:38:50Z); produksi surau.org = deploy 462d318 (run Deploy selesai 2026-10-28T05:38:07Z). Keduanya sebelum jendela ukur.
+ulang.log tidak terbentuk: tidak ada putaran yang gagal atau diulang. Log per putaran (*.log) tidak disimpan.
