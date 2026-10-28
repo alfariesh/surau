@@ -138,6 +138,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 126 | Instruksi server MCP publik dipadatkan menjadi ≤ 2.000 karakter (klien claude.ai memotong di ±2.048); isi kedelapan aturan tetap, urutan menurut kepentingan | diterima | 2026-10-28 | [keputusan/ADR-126.md](keputusan/ADR-126.md) |
 | 127 | Daftar tarik Intisari di repo: gagasan Salah ditahan saat dibaca (web, Cari, MCP, audio) tanpa mengubah D1/R2 | diterima | 2026-10-28 | [keputusan/ADR-127.md](keputusan/ADR-127.md) |
 | 128 | Penundaan skrip Next ditolak: gerbang kedua (n=15) juga tidak lolos di LCP Lighthouse; PR #206 ditutup | diterima | 2026-10-28 | [keputusan/ADR-128.md](keputusan/ADR-128.md) |
+| 129 | Lokasi gold Jawab: pembobotan daftar sempit ditolak, pemberitahuan status hadits jadi kalimat biasa (pipeline@16), pencarian makna diukur ulang (lokasi 85,3% → 88,2%, belum ≥ 90%) | diterima | 2026-10-28 | [keputusan/ADR-129.md](keputusan/ADR-129.md) |
 
 ## Cara menambah ADR baru
 
