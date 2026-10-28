@@ -1,0 +1,10 @@
+import base from "./playwright.config";
+// uji hipotesis "tes mengklik sebelum hidrasi" dengan jeda antaraksi.
+export default {
+  ...base,
+  use: {
+    ...base.use,
+    ignoreHTTPSErrors: true,
+    launchOptions: { slowMo: Number(process.env.SLOWMO ?? 500) },
+  },
+};
