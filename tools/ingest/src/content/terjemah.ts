@@ -4,6 +4,8 @@
 //   pnpm terjemah cek --luring [berkas…] → tanpa korpus: skema + cap + kesiapan (dipakai tes)
 //   pnpm terjemah impor <berkas…>        → cek lengkap, lalu salin ke data/terjemah/en/ (status draf)
 //   pnpm terjemah daftar                 → semua berkas beserta status, jumlah paragraf, pemeriksaan
+//   pnpm terjemah bahan <section_id>     → bahan terjemahan (JSON, sama dengan MCP list_translation_units)
+//                                          untuk agen di Claude Code; --offset, --limit
 //   --korpus produksi|staging            → korpus remote yang dibaca (bawaan produksi, sama dengan MCP)
 //   --cap                                → cek: tulis cap baru ke berkas di data/terjemah/en yang lolos
 //                                          (sesudah perbaikan; periksa independen dikosongkan, status draf)
@@ -16,6 +18,7 @@ import { parseArgs } from "node:util";
 import {
   TRANSLATION_DRAFT_LANG,
   checkTranslationDraft,
+  listTranslationUnits,
   translationDraft,
   translationDraftSha256,
   translationReadinessIssues,
@@ -214,6 +217,22 @@ async function daftar() {
   return 0;
 }
 
+async function bahan(
+  sectionId: number,
+  offset: number,
+  limit: number,
+  which: z.infer<typeof korpus>,
+) {
+  const corpus = await openRemoteCorpus(which);
+  try {
+    const view = await listTranslationUnits(corpus.db, { section_id: sectionId, offset, limit });
+    console.log(JSON.stringify(view, null, 2));
+  } finally {
+    await corpus.dispose();
+  }
+  return 0;
+}
+
 async function main() {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
@@ -222,11 +241,13 @@ async function main() {
       korpus: { type: "string", default: "produksi" },
       cap: { type: "boolean", default: false },
       ganti: { type: "boolean", default: false },
+      offset: { type: "string", default: "0" },
+      limit: { type: "string", default: "20" },
     },
   });
   const [command, ...rest] = positionals;
   const which = korpus.parse(values.korpus);
-  const files = rest.map((f) => resolve(f));
+  const files = command === "bahan" ? [] : rest.map((f) => resolve(f));
   for (const f of files) if (!existsSync(f)) throw new Error(`berkas tidak ada: ${f}`);
   let failed = 0;
   switch (command) {
@@ -245,9 +266,15 @@ async function main() {
     case "daftar":
       failed = await daftar();
       break;
+    case "bahan": {
+      const id = Number(rest[0]);
+      if (!Number.isInteger(id) || id <= 0) throw new Error("pnpm terjemah bahan <section_id>");
+      failed = await bahan(id, Number(values.offset), Number(values.limit), which);
+      break;
+    }
     default:
       console.log(
-        `Perintah: cek | impor | daftar (lihat komentar di ${basename(import.meta.filename)})`,
+        `Perintah: cek | impor | daftar | bahan (lihat komentar di ${basename(import.meta.filename)})`,
       );
       process.exitCode = 2;
       return;

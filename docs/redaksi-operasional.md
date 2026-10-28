@@ -43,7 +43,8 @@ Cara memasang ada di tugas pemilik **T-33** ([TUGAS-PEMILIK](../implementasi/TUG
 - Pakai model **Sonnet**, ≤ 40 paragraf per percakapan. Ketik misalnya "Terjemahkan bab 100007 ke bahasa Inggris".
 - Skill memeriksa dengan `check_translation_draft` sampai lolos, lalu membuat berkas `terjemah-<bagian>-<paragraf>.json`.
 - Berkas diimpor dengan "impor terjemahan dari Downloads" (`pnpm terjemah impor`). Agen `pemeriksa-konten` lalu menilai sampel butirnya.
-- Urutan bagian: Kitab al-'Ilm lebih dulu (dipakai Intisari v2 dan Jalur), lalu Kitab lain di Rub' pertama (per Kitab, bukan per Rub'). Progres dilihat dengan `pnpm terjemah daftar`.
+- Urutan bagian: Kitab al-'Ilm lebih dulu (dipakai Intisari v2 dan Jalur), lalu Kitab lain di Rub' pertama (per Kitab, bukan per Rub'). Progres dilihat dengan `pnpm terjemah daftar`. Agen di Claude Code mengambil bahan lewat `pnpm terjemah bahan <bagian>`.
+- **Periksa mandiri saja tidak cukup:** pada pilot 100007, Sonnet menilai karyanya sendiri 18 benar, padahal penilai independen menemukan satu Salah (pelaku tertukar).
 - Terjemahan ini baru tampil di MCP sesudah cakupannya lengkap dan peralihan X26 dikerjakan.
 
 ## 5. Model dan kuota

@@ -5,7 +5,7 @@ English renderings for Surau's English translation. Transliteration is plain Lat
 ## Names and formulas
 - Allah ta'ala → Allah Most High; Allah subhanahu wa ta'ala → Allah, glorified and exalted is He; 'azza wa jalla → Allah, the Mighty and Majestic
 - salla Allahu 'alayhi wa sallam (and short forms) → (peace and blessings be upon him), once after "the Prophet" or "the Messenger of Allah"
-- 'alayhi as-salam → (peace be upon him); radiya Allahu 'anhu/'anha/'anhum → (may Allah be pleased with him/her/them); rahimahu Allah → (may Allah have mercy on him)
+- the same salawat formula after another prophet (e.g. Jesus) → the same rendering, (peace and blessings be upon him); 'alayhi as-salam → (peace be upon him); radiya Allahu 'anhu/'anha/'anhum → (may Allah be pleased with him/her/them); rahimahu Allah → (may Allah have mercy on him)
 - Rasul Allah → the Messenger of Allah; an-Nabi → the Prophet
 - wa Allahu a'lam → and Allah knows best; in sha' Allah → if Allah wills
 - al-Qur'an → the Qur'an; as-sunna → the Sunna

@@ -15,7 +15,24 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
-## 2026-10-28 · X27 · Terjemahan Inggris per paragraf lewat plugin — sebagian (alat selesai, pilot sesudah deploy)
+## 2026-10-28 · X27 · Pilot terjemahan Inggris 100007 — selesai
+- Dikerjakan:
+  - PR #217 digabung; deploy MCP; `/redaksi` produksi melayani 12 tool.
+  - Pilot bab 100007 (18 paragraf) diterjemahkan agen Sonnet mengikuti skill, lalu diimpor (`pnpm terjemah impor`) dan dinilai dua putaran periksa independen.
+  - Perintah `pnpm terjemah bahan` ditambahkan.
+  - Aturan sisa lafaz ayat dan salawat nabi lain masuk skill (plugin 0.2.1).
+- Verifikasi:
+  - `uji-mcp.sh https://mcp.surau.org/redaksi redaksi` → lolos di dua era (12 tool); `/mcp` daftar → 8 tool.
+  - `pnpm terjemah cek` → lolos; `pnpm terjemah daftar` → 18 paragraf siap.
+  - Periksa independen: putaran 1 B14/K3/S1 (pelaku tertukar, diperbaiki); putaran 2 B16/K2/S0.
+  - `pnpm verify` → lolos.
+- Biaya API: – (langganan; ±400 ribu token agen)
+- Keputusan: ADR-132 (lanjutan)
+- Catatan untuk sesi berikutnya:
+  - Periksa mandiri Sonnet terlalu murah hati (18 benar), jadi lapis 3 tetap wajib.
+  - Agen `pemeriksa-konten` terdaftar di sesi baru. Di Claude Code, bahan untuk penilai diberikan sebagai berkas JSON dari `pnpm terjemah bahan`.
+
+## 2026-10-28 · X27 · Terjemahan Inggris per paragraf lewat plugin — selesai (alat)
 - Dikerjakan:
   - Pemeriksa batch terjemahan dipindah ke core sebagai `checkPassageTranslation(…, lang)`; llm mengekspor ulang tanpa mengubah perilaku "id".
   - Format `surau-terjemah/1`, `listTranslationUnits`, `checkTranslationDraft`, `translationReadinessIssues`.
