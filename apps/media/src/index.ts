@@ -62,6 +62,30 @@ export async function serveMedia(request: Request, bucket: R2Bucket): Promise<Re
   return new Response((object as R2ObjectBody).body, { headers });
 }
 
+/**
+ * Objek yang dihapus dari R2 karena naskahnya memuat gagasan Intisari yang ditarik (ADR-127, izin
+ * pemilik 2026-10-28). Cache Worker dibagi lintas versi (`cross_version_cache`) dan objek media
+ * immutable 1 tahun, jadi salinan di cache tepi harus dibuang lewat `POST /_purge-ditarik`. Endpoint
+ * itu tanpa masukan: hanya kunci di daftar ini yang bisa dipurge, dan mengulanginya tidak berbahaya.
+ */
+export const PURGED_KEYS: readonly string[] = [
+  "ihya/id/100007-65113d52a871.mp3",
+  "ihya/id/100017-b81d9fe0c222.mp3",
+];
+export const PURGE_PATH = "/_purge-ditarik";
+
+/** Buang salinan cache `PURGED_KEYS` (POST tidak pernah di-cache, jadi selalu sampai ke Worker). */
+export async function purgeWithdrawn(cache: CacheContext | undefined): Promise<Response> {
+  const json = (body: unknown, status: number) =>
+    Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
+  if (cache === undefined) return json({ success: false, errors: ["no cache context"] }, 503);
+  const result = await cache.purge({ pathPrefixes: PURGED_KEYS.map((k) => `/${k}`) });
+  return json({ ...result, keys: PURGED_KEYS }, result.success ? 200 : 502);
+}
+
 export default {
-  fetch: (request, env) => serveMedia(request, env.MEDIA),
+  fetch: (request, env, ctx) =>
+    request.method === "POST" && new URL(request.url).pathname === PURGE_PATH
+      ? purgeWithdrawn(ctx.cache)
+      : serveMedia(request, env.MEDIA),
 } satisfies ExportedHandler<Env>;

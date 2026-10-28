@@ -14,6 +14,8 @@ import {
   MEDIA_CACHE_CONTROL,
   MEDIA_KEY,
   MEDIA_MIME,
+  PURGED_KEYS,
+  purgeWithdrawn,
   serveMedia,
 } from "./index.ts";
 
@@ -97,5 +99,21 @@ describe("serveMedia (X17, ADR-103)", () => {
     const res = await serveMedia(req(`/${KEY}`, "PUT"), bucket);
     expect(res.status).toBe(405);
     expect(res.headers.get("allow")).toBe("GET, HEAD");
+  });
+});
+
+describe("purge objek yang ditarik (ADR-127)", () => {
+  test("hanya kunci PURGED_KEYS, sebagai awalan path persis; tanpa cache 503", async () => {
+    expect(PURGED_KEYS.every((k) => MEDIA_KEY.test(k))).toBe(true);
+    const calls: CachePurgeOptions[] = [];
+    const cache = {
+      purge: async (o: CachePurgeOptions) => (calls.push(o), { success: true, errors: [] }),
+      invalidate: async () => ({ success: true, errors: [] }),
+    };
+    const res = await purgeWithdrawn(cache);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
+    expect(calls).toEqual([{ pathPrefixes: PURGED_KEYS.map((k) => `/${k}`) }]);
+    expect((await purgeWithdrawn(undefined)).status).toBe(503);
   });
 });

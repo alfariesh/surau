@@ -190,57 +190,6 @@
       "created_at": "2026-10-25T01:02:25.779Z"
     },
     {
-      "toc_node_id": 100007,
-      "lang": "id",
-      "voice_kind": "ai",
-      "r2_key": "ihya/id/100007-65113d52a871.mp3",
-      "sha256": "65113d52a871d0dff7fe9b1c27ec3cd82f9a96fda7c243c5a7dc621d59eaeb6f",
-      "bytes": 2544897,
-      "duration_ms": 317989,
-      "provider": "elevenlabs",
-      "voice_id": "aK834gEOxQEtviMPgurT",
-      "voice_name": "Kang Sugiman",
-      "model": "eleven_v4",
-      "output_format": "mp3_44100_64",
-      "script_sha256": "6ed647e929f9d1f046b8e02a170614f915a501d96fcf7e43cfd15cb14430e70b",
-      "script_version": 3,
-      "spoken_version": 1,
-      "lexicon_version": "01ec5ee9203f",
-      "style": "variatif@1",
-      "chapters": [
-        {
-          "point_ord": 1,
-          "start_ms": 32601
-        },
-        {
-          "point_ord": 2,
-          "start_ms": 65776
-        },
-        {
-          "point_ord": 3,
-          "start_ms": 101747
-        },
-        {
-          "point_ord": 4,
-          "start_ms": 134583
-        },
-        {
-          "point_ord": 5,
-          "start_ms": 170945
-        },
-        {
-          "point_ord": 6,
-          "start_ms": 210260
-        },
-        {
-          "point_ord": 7,
-          "start_ms": 270629
-        }
-      ],
-      "characters": 1824,
-      "created_at": "2026-10-25T01:56:23.493Z"
-    },
-    {
       "toc_node_id": 100009,
       "lang": "id",
       "voice_kind": "ai",
@@ -290,57 +239,6 @@
       ],
       "characters": 2137,
       "created_at": "2026-10-25T01:57:35.557Z"
-    },
-    {
-      "toc_node_id": 100017,
-      "lang": "id",
-      "voice_kind": "ai",
-      "r2_key": "ihya/id/100017-b81d9fe0c222.mp3",
-      "sha256": "b81d9fe0c2228849536efe750af8551f0b8a1439eb7711a2768bee79eddd9328",
-      "bytes": 2921281,
-      "duration_ms": 365035,
-      "provider": "elevenlabs",
-      "voice_id": "aK834gEOxQEtviMPgurT",
-      "voice_name": "Kang Sugiman",
-      "model": "eleven_v4",
-      "output_format": "mp3_44100_64",
-      "script_sha256": "1058ed4a4fee1e34d42a250c8cdfabd50d93399a9e156d74bf684c1f0f021c5d",
-      "script_version": 3,
-      "spoken_version": 1,
-      "lexicon_version": "01ec5ee9203f",
-      "style": "variatif@1",
-      "chapters": [
-        {
-          "point_ord": 1,
-          "start_ms": 32052
-        },
-        {
-          "point_ord": 2,
-          "start_ms": 68728
-        },
-        {
-          "point_ord": 3,
-          "start_ms": 107964
-        },
-        {
-          "point_ord": 4,
-          "start_ms": 171520
-        },
-        {
-          "point_ord": 5,
-          "start_ms": 213734
-        },
-        {
-          "point_ord": 6,
-          "start_ms": 278413
-        },
-        {
-          "point_ord": 7,
-          "start_ms": 324232
-        }
-      ],
-      "characters": 2098,
-      "created_at": "2026-10-25T01:58:43.040Z"
     },
     {
       "toc_node_id": 100019,
