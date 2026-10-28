@@ -269,3 +269,18 @@ export async function getDigestHeadersOnPath(
   });
   return rows ?? [];
 }
+
+/**
+ * Kunci istilah glosarium satu bahasa yang ada di korpus (X22: pemeriksa draf konten menolak
+ * istilah di luar glosarium). Kosong bila skema < 9.
+ */
+export async function listGlossaryTermKeys(db: D1Db, lang: string): Promise<string[]> {
+  const rows = await unlessOldSchema(db, async () => {
+    const { results } = await db
+      .prepare("SELECT term_key FROM glossary_term WHERE lang = ? ORDER BY term_key")
+      .bind(lang)
+      .all();
+    return results.map((r) => z.strictObject({ term_key: z.string() }).parse(r).term_key);
+  });
+  return rows ?? [];
+}

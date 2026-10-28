@@ -80,6 +80,21 @@ export const VERY_WEAK_TAKHRIJ_KINDS: ReadonlySet<string> = new Set([
   "la_asl",
 ]);
 
+/**
+ * Riwayat yang tidak boleh menjadi kutipan pilihan menurut istilah takhrijnya (docs/05 §12): sangat
+ * lemah, palsu/batil, tidak ada asalnya, dan tidak ditemukan penakhrij (lam ajid, setara "tidak
+ * diketahui asalnya"), termasuk tidak ditemukan sebagai sabda Nabi (`lam_ajid_marfu`, ADR-108) serta
+ * tidak ditemukan dengan lafaz ini atau dari jalur yang disebut (ADR-113). Satu definisi untuk
+ * validator Intisari batch (X15b) dan pemeriksa draf konten (X22).
+ */
+export const QUOTE_BANNED_TAKHRIJ_KINDS: ReadonlySet<string> = new Set([
+  ...VERY_WEAK_TAKHRIJ_KINDS,
+  "lam_ajid",
+  "lam_ajid_marfu",
+  "lam_ajid_lafaz",
+  "lam_ajid_jalur",
+]);
+
 /** Batas panjang teks status (skema eval `status`, `latin(120)`). */
 export const TAKHRIJ_STATUS_MAX = 120;
 

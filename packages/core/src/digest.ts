@@ -40,6 +40,15 @@ import { textSha256 } from "./translation-revision.ts";
 /** Kecepatan baca teks Intisari (karakter per menit): pelan, karena isinya bahan belajar. */
 export const DIGEST_READ_CHARS_PER_MINUTE = 1000;
 
+/**
+ * Tingkat Intisari (Ihya): muqaddimah (akar tanpa anak) dan kitab (tingkat 2) = Intisari Kitab;
+ * selebihnya, termasuk rub' yang dibuat dari kitab-kitabnya, Intisari Bab. Satu aturan untuk
+ * pipeline batch (X15) dan pemeriksa draf konten (X22).
+ */
+export function digestTierOf(level: number, hasChildNodes: boolean): "book" | "section" {
+  return level === 2 || (level === 1 && !hasChildNodes) ? "book" : "section";
+}
+
 /** Perkiraan waktu baca teks AI (menit, dibulatkan ke atas, minimal 1). */
 export function readingMinutes(chars: number): number {
   return Math.max(1, Math.ceil(chars / DIGEST_READ_CHARS_PER_MINUTE));
