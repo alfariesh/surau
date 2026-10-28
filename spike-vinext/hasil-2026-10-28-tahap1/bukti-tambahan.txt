@@ -1,0 +1,56 @@
+# Bukti tambahan gerbang d/e (diulang 2026-10-28T03:24:50Z)
+## Laporan kesalahan honeypot dengan kind valid ("text")
+{"ok":true} → HTTP 201
+## HMAC IP: /api/jawab GET (clientAllowed menjawab 503 bila IP_HMAC_KEY tidak ada)
+vinext /api/jawab → HTTP 200
+## /aset sesudah html_handling bawaan
+https://surau.org/aset/cara-mencari → 200 
+https://surau.org/aset/cara-mencari.html → 307 https://surau.org/aset/cara-mencari
+https://surau-web-vinext.alfarieshsalman.workers.dev/aset/cara-mencari → 200 
+https://surau-web-vinext.alfarieshsalman.workers.dev/aset/cara-mencari.html → 307 https://surau-web-vinext.alfarieshsalman.workers.dev/aset/cara-mencari
+## Cache halaman baru: MISS lalu HIT, TTFB (vinext) dan produksi
+x-vinext-cache: MISS ttfb=2.014055 
+x-vinext-cache: MISS ttfb=0.921491 
+x-vinext-cache: HIT ttfb=0.516682 
+x-vinext-cache: HIT ttfb=0.528023 
+x-vinext-cache: HIT ttfb=0.592399 
+x-nextjs-cache: MISS ttfb=1.915664 
+x-nextjs-cache: MISS ttfb=0.687724 
+x-nextjs-cache: HIT ttfb=0.133304 
+x-nextjs-cache: HIT ttfb=0.085954 
+## TTFB berulang (ms, sampai header; fetch Node dari Jakarta), n=12
+/kitab/ihya/2/80 vinext      median 132 | min 73 max 312 | HIT
+/kitab/ihya/2/80 produksi    median 46 | min 37 max 404 | HIT
+/kitab/ihya/1/203 vinext     median 111 | min 66 max 1003 | HIT
+/kitab/ihya/1/203 produksi   median 71 | min 35 max 626 | STALE
+/kitab/ihya/1/200 vinext     median 116 | min 72 max 494 | HIT
+/kitab/ihya/1/200 produksi   median 57 | min 35 max 350 | STALE
+
+# Keluaran perintah sebelumnya pada 2026-10-28 (disalin apa adanya dari sesi agent; tidak diulang)
+
+## Isi bucket R2 lewat binding list() (Worker diagnostik sementara surau-r2-intip, intip-r2.js, sudah dihapus)
+{"objects":27,"bytes":3500558,"sample":["runtime-cache/61769f8b-5c82-4e1b-b635-9777868f13a0/r2-v2/180dd4c5…/active 313137B 2026-10-28T02:43:32.388Z","runtime-cache/62ae4b55-f68a-47dc-a789-2439353dbd1f/r2-v2/0187367b…/active 38003B 2026-10-28T02:36:43.175Z", …]}
+Pada saat yang sama `wrangler r2 bucket info surau-web-vinext-response-store` menampilkan object_count: 0, bucket_size: 0 B.
+
+## Deploy baru: entri versi lama tidak dipakai
+sebelum deploy:  x-vinext-cache: HIT  x-vinext-build-id: 9272df4368e5675095cbefc96a496667  /kitab/ihya/1/203
+                 x-vinext-cache: HIT  x-vinext-build-id: 9272df4368e5675095cbefc96a496667  /kitab/ihya/2/50
+sesudah deploy:  x-vinext-build-id: db40749d55289c89888695c90ca9cb0e x-vinext-cache: MISS  /kitab/ihya/1/203
+                 x-vinext-build-id: db40749d55289c89888695c90ca9cb0e x-vinext-cache: MISS  /kitab/ihya/2/50
+
+## Tutup darurat: deploy --var READER_ENABLED:0 (versi 9133231b), sebelumnya /kitab/ihya/1/203 HIT
+/kitab/ihya/1/203 404
+/kitab/ihya/2/50 404
+/kitab 200 (katalog)
+/api/halaman?work=ihya&juz=1&page=201 404 {"error":"not_found"}
+/kitab/ihya/daftar-isi.json 404
+Deploy ulang normal (versi 61769f8b): /kitab/ihya/1/203 200.
+
+## Rate limit: 70 permintaan /api/search beruntun dalam ±1 menit (bukan uji batas per menit yang presisi)
+{"200":64,"429":6}
+
+## Tes anggaran hidrasi dijalankan sendiri: --repeat-each 4, dua proyek
+8 passed (3.7s)
+Di suite penuh (putaran 2) gagal sekali di chromium-ponsel: hidrasi 2189 ms, cat pertama 1124 ms (selisih 1065 > 1000).
+Catatan: tes ini tanpa throttling dan ambangnya (≤ 1 dtk sesudah cat pertama) BUKAN ambang gerbang b
+(≤ produksi + 0,5 dtk dengan throttling), jadi tidak peka terhadap kegagalan butir b.

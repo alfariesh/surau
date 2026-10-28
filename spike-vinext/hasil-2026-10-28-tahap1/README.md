@@ -3,7 +3,7 @@
 Worker uji `surau-web-vinext` (workers.dev, binding staging, Workers Response Store self-contained)
 dibandingkan dengan produksi Next (surau.org), produksi Next lewat Version URL workers.dev
 (`next-wdev`), dan dua proksi di depan produksi: `next-tunda` (skrip async Next ditunda sampai CSS
-selesai) dan `next-kontrol` (proksi tanpa perubahan). Tafsiran dan keputusannya ada di ADR-120 di `main`.
+selesai) dan `next-kontrol` (proksi tanpa perubahan). Tafsiran dan keputusannya ada di ADR-121 di `main`. Bukti yang dicek manual: `bukti-tambahan.txt`.
 
 - `lcp-a/`, `lcp-f/`: keluaran `pnpm ukur:lcp <base> baru 1 --json`, 5 putaran berselang-seling
   (`lcp-seling.sh`). Mesin Mac16,10 Apple M4, Chrome 156, Lighthouse 13.5.0.
