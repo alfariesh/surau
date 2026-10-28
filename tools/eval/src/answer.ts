@@ -268,7 +268,7 @@ async function main() {
         onDone: (o, total) => {
           appendFileSync(
             partial,
-            `${JSON.stringify({ id: o.item.question.id, private: o.item.private, answer: o.answer, cost_usd: o.result.cost_usd })}\n`,
+            `${JSON.stringify({ id: o.item.question.id, private: o.item.private, answer: o.answer, cost_usd: o.result.cost_usd, outcome: o.result.outcome, reason: o.result.reason, model: o.result.model, latency_ms: Math.round(o.result.latency_ms), usage: o.result.usage, diagnostics: o.result.diagnostics, blocks: o.result.blocks })}\n`,
             { mode: 0o600 },
           );
           // Soal privat tidak dicetak per soal (aturan holdout).
@@ -346,6 +346,68 @@ async function main() {
           archive: out,
         }),
       );
+    });
+    return;
+  }
+  if (command === "arsip-sebagian") {
+    // Pemulihan gratis (X22): run berbayar yang jawabannya sudah tersimpan di `<run>-sebagian.jsonl`
+    // tetapi tahap penilaian-kode di akhirnya gagal (mis. koneksi D1 remote putus). Tidak ada
+    // panggilan LLM; hanya menyusun arsip, skor kode, dan laporan dari jawaban yang tersimpan.
+    const run = id.parse(required(values.run, "--run"));
+    const out = join(privateDir, `${run}.jsonl`);
+    if (existsSync(out)) throw new Error("Arsip run sudah ada; pilih --run lain.");
+    const saved = new Map(
+      readFileSync(join(privateDir, `${run}-sebagian.jsonl`), "utf8")
+        .split("\n")
+        .filter((l) => l.trim() !== "")
+        .map((l) => {
+          const row = JSON.parse(l) as { id: string; private: boolean; answer: unknown };
+          return [row.id, row] as const;
+        }),
+    );
+    const items = loadAnswerQuestions(repo, true).filter((q) => saved.has(q.question.id));
+    if (items.length !== saved.size) throw new Error("Ada jawaban sebagian tanpa soal publik.");
+    await withCorpus(async (corpus, index) => {
+      const all: AnswerRecord[] = [];
+      const scored = [];
+      const diagnostics = [];
+      for (const q of items) {
+        const row = saved.get(q.question.id) as Record<string, unknown> & { answer: unknown };
+        const answer = evalAnswer.parse(row.answer);
+        const record = answerRecord.parse({
+          id: `${run}_${q.question.id}`,
+          run_id: run,
+          private: false,
+          corpus_version: index.meta.corpus_version,
+          question: q.question,
+          answer,
+          question_hash: await evalHash(q.question),
+          answer_hash: await evalHash(answer),
+          created_at: new Date().toISOString(),
+        });
+        all.push(record);
+        const scores = await scoreAnswer(corpus.db, index, q.question, answer, false);
+        scored.push({ record, scores });
+        diagnostics.push({
+          id: q.question.id,
+          jenis: q.question.jenis,
+          outcome: row.outcome ?? (answer.refused ? "not_found" : "answer"),
+          reason: row.reason ?? null,
+          model: answer.model,
+          cost_usd: answer.cost_usd,
+          latency_ms: answer.latency_ms,
+          usage: row.usage ?? null,
+          diagnostics: row.diagnostics ?? null,
+          blocks: row.blocks ?? null,
+          citations: answer.citations.map((c) => ({ passage_id: c.passage_id })),
+          scores,
+        });
+      }
+      output(out, jsonl(all));
+      output(join(privateDir, `${run}-diagnostik-publik.jsonl`), jsonl(diagnostics));
+      const report = join(repo, "evals/reports", `jawab-${run}.md`);
+      output(report, answerReport(scored, [], [], values.reviewer));
+      console.log(JSON.stringify({ run, records: all.length, report, archive: out }));
     });
     return;
   }
@@ -645,7 +707,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] | --tanpa-rute [--semantik PERINGKAT [--makna-k N] [--makna-bobot W] [--makna-takhrij-k N]] (gratis; soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] [--semantik PERINGKAT] [--model haiku|sonnet] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] | --tanpa-rute [--semantik PERINGKAT [--makna-k N] [--makna-bobot W] [--makna-takhrij-k N]] (gratis; soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] [--semantik PERINGKAT] [--model haiku|sonnet] (berbayar, izin pemilik)\narsip-sebagian --run ID (gratis; susun arsip dari <run>-sebagian.jsonl)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {
