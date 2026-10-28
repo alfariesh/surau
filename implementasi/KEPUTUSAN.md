@@ -134,6 +134,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 122 | Konfigurasi project tes workerd memakai `defineProject` dari Vite+ | diterima | 2026-10-28 | [keputusan/ADR-122.md](keputusan/ADR-122.md) |
 | 123 | Uji model jawaban Maknaz: Sonnet 5.5 menaikkan kesetiaan dan atribusi tetapi ±17× lebih mahal; produksi tetap Haiku sampai pemilik memutuskan | sementara | 2026-10-28 | [keputusan/ADR-123.md](keputusan/ADR-123.md) |
 | 124 | Skrip Next ditunda sampai CSS selesai (pembungkus Worker OpenNext): gerbang Preview tidak lolos di LCP Lighthouse j3/202, tidak digabung | diusulkan | 2026-10-28 | [keputusan/ADR-124.md](keputusan/ADR-124.md) |
+| 126 | Instruksi server MCP publik dipadatkan menjadi ≤ 2.000 karakter (klien claude.ai memotong di ±2.048); isi kedelapan aturan tetap, urutan menurut kepentingan | diterima | 2026-10-28 | [keputusan/ADR-126.md](keputusan/ADR-126.md) |
 
 ## Cara menambah ADR baru
 
