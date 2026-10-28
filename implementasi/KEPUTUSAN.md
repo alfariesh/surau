@@ -128,8 +128,10 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 116 | Kutipan Arab bersitasi sesudah kalimat status hadits: sitasinya pindah ke kalimat itu, pipeline@15 | diterima | 2026-10-27 | [keputusan/ADR-116.md](keputusan/ADR-116.md) |
 | 117 | Catatan keputusan dan jurnal dipecah: satu file per ADR, arsip log per bulan | diterima | 2026-10-28 | [keputusan/ADR-117.md](keputusan/ADR-117.md) |
 | 118 | Evaluasi vinext dan TanStack Redact: tetap Next 16 + OpenNext, ditinjau ulang bila pemicunya terpenuhi | diganti oleh ADR-119 | 2026-10-27 | [keputusan/ADR-118.md](keputusan/ADR-118.md) |
-| 119 | Evaluasi vinext diukur ulang: vinext jadi kandidat migrasi (LCP ponsel lokal halaman kitab 1,7–2,1× lebih cepat, hidrasi +1,1 dtk), produksi tetap Next sampai gerbang Preview lolos; Redact tidak dipasang | sementara | 2026-10-28 | [keputusan/ADR-119.md](keputusan/ADR-119.md) |
+| 119 | Evaluasi vinext diukur ulang: vinext jadi kandidat migrasi (LCP ponsel lokal halaman kitab 1,7–2,1× lebih cepat, hidrasi +1,1 dtk), produksi tetap Next sampai gerbang Preview lolos; Redact tidak dipasang | diganti oleh ADR-121 | 2026-10-28 | [keputusan/ADR-119.md](keputusan/ADR-119.md) |
 | 120 | STATUS.md dipangkas: bagian Sekarang diringkas, teks lama dipindah apa adanya ke arsip | diterima | 2026-10-28 | [keputusan/ADR-120.md](keputusan/ADR-120.md) |
+| 121 | Gerbang Preview vinext (ADR-119 tahap 1): vinext tidak dimigrasi; LCP ponsel yang sama tampaknya bisa didapat di Next dengan menunda skrip sampai CSS selesai | diterima | 2026-10-28 | [keputusan/ADR-121.md](keputusan/ADR-121.md) |
+| 122 | Konfigurasi project tes workerd memakai `defineProject` dari Vite+ | diterima | 2026-10-28 | [keputusan/ADR-122.md](keputusan/ADR-122.md) |
 
 ## Cara menambah ADR baru
 
