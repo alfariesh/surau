@@ -41,4 +41,4 @@ Ikuti **pedoman-redaksi**. Faedah adalah satu paragraf pilihan yang dibaca **tan
 }
 ```
 
-Standar: `references/standar.md`.
+Standar: `references/standar.md`. Contoh draf yang lolos tiga lapis (pilot X22): `references/contoh.json`.

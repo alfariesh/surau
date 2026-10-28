@@ -6,6 +6,8 @@
 //   pnpm konten calon <section_id>     → paragraf calon Faedah (layak saja; --semua: dengan alasan)
 //   --korpus produksi|staging          → korpus remote yang dibaca (bawaan produksi, sama dengan MCP)
 //   --ganti                            → impor boleh menimpa unit yang ada bila versinya lebih tinggi
+//   --cap                              → cek: tulis cap kode baru ke periksa.kode berkas di data/konten
+//                                        yang lolos (sesudah perbaikan kecil; status kembali draf)
 // Korpus dibaca lewat binding D1 remote (`getPlatformProxy`) dengan pagar hanya-SELECT; checkout
 // pemilik tidak punya korpus lokal yang segar. Tidak ada LLM dan tidak ada tulisan ke D1.
 import {
@@ -148,7 +150,12 @@ function printCheck(file: string, r: ContentCheck, ready: readonly ContentIssue[
   return ok;
 }
 
-async function cek(files: readonly string[], offline: boolean, which: z.infer<typeof korpus>) {
+async function cek(
+  files: readonly string[],
+  offline: boolean,
+  which: z.infer<typeof korpus>,
+  stamp = false,
+) {
   let failed = 0;
   if (files.length === 0) {
     console.log("tidak ada berkas konten untuk dicek");
@@ -171,6 +178,18 @@ async function cek(files: readonly string[], offline: boolean, which: z.infer<ty
       const r = await checkContentDraft(corpus.db, input);
       const parsed = contentDraft.safeParse(input);
       const ready = parsed.success ? await readinessIssues(parsed.data) : [];
+      if (stamp && parsed.success && r.ok && r.stamp !== null && file.startsWith(CONTENT_DIR)) {
+        // Isi berubah sesudah cap lama: cap baru, dan periksa independen wajib diulang.
+        const out: ContentDraft = {
+          ...parsed.data,
+          status: "draf",
+          periksa: { ...parsed.data.periksa, independen: null, kode: r.stamp },
+        };
+        writeFileSync(file, `${JSON.stringify(out, null, 2)}\n`);
+        printCheck(file, r, []);
+        console.log(`    → cap baru ditulis (status draf)`);
+        continue;
+      }
       if (!printCheck(file, r, ready)) failed++;
     }
   } finally {
@@ -285,6 +304,7 @@ async function main() {
       korpus: { type: "string", default: "produksi" },
       ganti: { type: "boolean", default: false },
       semua: { type: "boolean", default: false },
+      cap: { type: "boolean", default: false },
     },
   });
   const [command, ...rest] = positionals;
@@ -294,7 +314,12 @@ async function main() {
   let failed = 0;
   switch (command) {
     case "cek":
-      failed = await cek(files.length > 0 ? files : listContentFiles(), values.luring, which);
+      failed = await cek(
+        files.length > 0 ? files : listContentFiles(),
+        values.luring,
+        which,
+        values.cap,
+      );
       break;
     case "impor":
       if (files.length === 0) throw new Error("pnpm konten impor <berkas…>");

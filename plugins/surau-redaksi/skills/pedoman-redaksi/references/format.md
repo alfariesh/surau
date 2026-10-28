@@ -39,7 +39,7 @@ Satu berkas JSON per unit. Kunci berbahasa Indonesia; nilai teks berbahasa Indon
 
 | Kode | Artinya | Perbaikan |
 |---|---|---|
-| `schema` | bentuk JSON salah | ikuti contoh di `references/contoh.json` skill jenisnya |
+| `schema` | bentuk JSON salah | ikuti contoh `references/contoh.json` di skill intisari-bab atau faedah, atau bentuk `isi` di SKILL.md jenisnya |
 | `arabic` | ada huruf Arab | hapus; kutipan hanya lewat offset |
 | `fatwa`, `address`, `first_person` | bahasa fatwa, menyapa pembaca, kata ganti orang pertama | tulis ulang dengan atribusi orang ketiga |
 | `hadith_status`, `ayah_paraphrase`, `placeholder` | status hadits, isi ayat, atau "QS 2:255" | hapus; sebut saja bahwa penulis berdalil dengan ayat/riwayat |
