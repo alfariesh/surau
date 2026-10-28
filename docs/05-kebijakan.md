@@ -180,7 +180,7 @@ MCP publik dirilis di Fase 3, sebelum Jawab (ADR-019), sebagai server terpisah d
 - Teks Arab, teks ayat, dan terjemahan Kemenag disalin verbatim dari DB.
 - Nama tool berbahasa Inggris dengan deskripsi Inggris + Indonesia: `list_works`, `get_table_of_contents`, `read_page`, `read_section`, `search_text`, `verify_quote`, `get_hadith_takhrij`, dan `get_section_digest` (Intisari, sejak X16).
 - Hasil dipaginasi (±4–6 ribu token per respons) supaya tidak melebihi batas output klien AI.
-- **Endpoint penulis `/redaksi`** (X22, ADR-123) di server yang sama: delapan tool di atas ditambah dua tool deterministik untuk plugin `surau-redaksi`, `check_content_draft` (pemeriksa draf konten turunan) dan `list_faedah_candidates`. Sifatnya sama: hanya-baca, tanpa login, tanpa LLM, dan draf tidak pernah disimpan atau dicatat. Instruksinya sendiri dan pendek (≤ 2.000 karakter, karena klien claude.ai memotong instruksi panjang). Kontrak `/mcp` publik tidak berubah.
+- **Endpoint penulis `/redaksi`** (X22, ADR-125) di server yang sama: delapan tool di atas ditambah dua tool deterministik untuk plugin `surau-redaksi`, `check_content_draft` (pemeriksa draf konten turunan) dan `list_faedah_candidates`. Sifatnya sama: hanya-baca, tanpa login, tanpa LLM, dan draf tidak pernah disimpan atau dicatat. Instruksinya sendiri dan pendek (≤ 2.000 karakter, karena klien claude.ai memotong instruksi panjang). Kontrak `/mcp` publik tidak berubah.
 
 **Setiap respons memuat**
 - **Sitasi:** karya, edisi, juz, halaman cetak, permalink Surau, dan tautan ke halaman Shamela yang sama.
@@ -223,7 +223,7 @@ Intisari (X15–X17, ADR-097) adalah ringkasan belajar berlapis per kitab dan pe
 
 ## 13. Konten turunan (Intisari, Faedah, Jalur)
 
-Konten di luar korpus diatur [docs/09-konten.md](09-konten.md) (rangka dan standar) dan [pedoman redaksi](redaksi-operasional.md) (cara membuat, peran, fase manusia); keputusannya [ADR-123](../implementasi/keputusan/ADR-123.md).
+Konten di luar korpus diatur [docs/09-konten.md](09-konten.md) (rangka dan standar) dan [pedoman redaksi](redaksi-operasional.md) (cara membuat, peran, fase manusia); keputusannya [ADR-125](../implementasi/keputusan/ADR-125.md).
 
 - Konten turunan selalu menunjuk korpus lewat ID paragraf dan offset; teks Arab, ayat, terjemahan Faedah, dan status hadits disalin atau dihitung kode, tidak pernah ditulis model (§1, §4, §10).
 - Fase ini konten dibuat AI lewat Claude Desktop + plugin `surau-redaksi` dan terbit sesudah **cek otomatis tiga lapis** (cek kode, periksa mandiri, periksa independen oleh agen) tanpa tinjauan manusia (keputusan pemilik 2026-10-28). Labelnya tetap "AI, belum ditinjau manusia"; penilaian agen tidak pernah dilabeli manusia.

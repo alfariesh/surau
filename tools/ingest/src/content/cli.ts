@@ -1,4 +1,4 @@
-// `pnpm konten`: berkas draf konten turunan `surau-konten/1` (X22, ADR-123, docs/09-konten.md).
+// `pnpm konten`: berkas draf konten turunan `surau-konten/1` (X22, ADR-125, docs/09-konten.md).
 //   pnpm konten cek <berkas…>          → cek kode lengkap (skema, bahasa, korpus) + kesiapan
 //   pnpm konten cek --luring <berkas…> → tanpa korpus: skema, bahasa, cap, kesiapan (dipakai CI)
 //   pnpm konten impor <berkas…>        → cek lengkap, lalu salin ke data/konten/<jenis>/ (status draf)

@@ -10,7 +10,7 @@ Unit Faedah dan Jalur `siap` di `data/konten/` tampil di situs: halaman Faedah d
 
 ## Baca dulu (hanya ini)
 
-- [docs/09-konten.md](../../docs/09-konten.md) §5.3–5.4, [docs/redaksi-operasional.md](../../docs/redaksi-operasional.md), [ADR-123](../keputusan/ADR-123.md)
+- [docs/09-konten.md](../../docs/09-konten.md) §5.3–5.4, [docs/redaksi-operasional.md](../../docs/redaksi-operasional.md), [ADR-125](../keputusan/ADR-125.md)
 - Hasil X23 (pembangun baris dan gerbang build konten)
 
 ## Langkah

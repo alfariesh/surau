@@ -20,7 +20,7 @@ Worker MCP publik Surau (S16, [ADR-011](../../implementasi/KEPUTUSAN.md), ADR-04
 | `get_hadith_takhrij` | `getHadithTakhrij` | Catatan kaki takhrij tertaut; tanpa takhrij = status tidak diketahui | median ±0,9 ribu, maks. ±2,3 ribu |
 | `get_section_digest` | `readDigest` | Intisari satu bagian (X16, ADR-097/099): gagasan AI berjangkar ke paragraf, kutipan Arab dari DB, istilah, pertanyaan ingatan, dalil yang dihitung kode (ayat Tanzil + Kemenag, takhrij + label kode); `digest: null` bila bagian tanpa Intisari | belum diukur (data nyata menyusul X15b) |
 
-### Endpoint `/redaksi` (X22, ADR-123)
+### Endpoint `/redaksi` (X22, ADR-125)
 
 `https://mcp.surau.org/redaksi`: server `surau-redaksi` untuk plugin penulis konten ([plugins/surau-redaksi](../../plugins/surau-redaksi/README.md)). Delapan tool di atas ditambah dua tool deterministik dari [`src/redaksi-tools.ts`](src/redaksi-tools.ts); instruksi sendiri ≤ 2.000 karakter ([`src/redaksi-instructions.ts`](src/redaksi-instructions.ts)). Tidak diiklankan di info `/`.
 

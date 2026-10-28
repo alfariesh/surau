@@ -1,4 +1,4 @@
-// Instruksi endpoint `/redaksi` (X22, ADR-123): server MCP yang sama untuk penulis konten turunan
+// Instruksi endpoint `/redaksi` (X22, ADR-125): server MCP yang sama untuk penulis konten turunan
 // (plugin `surau-redaksi` di Claude Desktop). Klien claude.ai memotong instruksi server di sekitar
 // 2.048 karakter (X22), jadi teks ini ≤ 2.000 karakter; aturan lengkap dibawa skill plugin.
 

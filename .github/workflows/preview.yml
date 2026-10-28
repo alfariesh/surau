@@ -201,7 +201,7 @@ jobs:
           URL: ${{ steps.preview.outputs.url }}
         run: bash .github/scripts/uji-mcp.sh "$URL" lengkap
 
-      # Endpoint penulis konten (X22, ADR-123): 10 tool + dua tool redaksi.
+      # Endpoint penulis konten (X22, ADR-125): 10 tool + dua tool redaksi.
       - name: Uji MCP /redaksi (Inspector, era modern + legacy)
         env:
           URL: ${{ steps.preview.outputs.url }}

@@ -1,4 +1,4 @@
-// Cek kode draf konten (lapis 1 gerbang terbit, X22, ADR-123): skema `surau-konten/1`, lint teks,
+// Cek kode draf konten (lapis 1 gerbang terbit, X22, ADR-125): skema `surau-konten/1`, lint teks,
 // lalu cek terhadap korpus: bagian dan tingkatnya, paragraf dasar di dalam bagian, kutipan sebagai
 // rentang `text_raw` yang utuh per kata (tanpa ayat dan tanpa riwayat terlarang), istilah di
 // glosarium, syarat Faedah (terjemahan berlabel, tanpa ayat/hadits, pendapat penulis), dan Intisari

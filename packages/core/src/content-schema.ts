@@ -1,4 +1,4 @@
-// Berkas draf konten turunan `surau-konten/1` (X22, ADR-123): Intisari Bab, Intisari Kitab,
+// Berkas draf konten turunan `surau-konten/1` (X22, ADR-125): Intisari Bab, Intisari Kitab,
 // Faedah, dan Jalur yang ditulis di Claude Desktop lewat plugin `surau-redaksi` (kelak juga oleh
 // manusia). Isinya hanya teks Indonesia, ID, dan offset: teks Arab tidak pernah ada di berkas,
 // kode menyalinnya dari DB saat dibaca (teks-arab.md aturan 1). Kunci berbahasa Indonesia mengikuti

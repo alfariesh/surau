@@ -50,7 +50,7 @@ surau/
 ├─ data/              LICENSE (CC BY-NC-SA), ATTRIBUTION.md, SOURCES.md, patches/, reports/ (di-commit; tanpa teks kitab); konten/ (draf konten turunan surau-konten/1, X22)
 │                     raw/ dan build/ (git-ignored): sumber unduhan, *.sqlite, *.sql
 ├─ evals/             dataset eval (JSONL); private/ git-ignored
-├─ plugins/           plugin Claude `surau-redaksi` (X22, ADR-123); marketplace di .claude-plugin/marketplace.json
+├─ plugins/           plugin Claude `surau-redaksi` (X22, ADR-125); marketplace di .claude-plugin/marketplace.json
 ├─ docs/  implementasi/  .claude/  .github/workflows/
 ├─ package.json  pnpm-workspace.yaml  vite.config.ts  tsconfig.base.json  .node-version
 └─ CLAUDE.md

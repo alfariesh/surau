@@ -69,7 +69,7 @@
       "simple": { "limit": 600, "period": 60 },
     },
     {
-      // Dua tool /redaksi (check_content_draft, list_faedah_candidates; X22, ADR-123): membaca
+      // Dua tool /redaksi (check_content_draft, list_faedah_candidates; X22, ADR-125): membaca
       // seluruh subtree bagian per panggilan; pemakainya penulis konten, jadi batasnya kecil.
       // Kunci per klien + kunci tetap "global" di binding yang sama (plafon semua klien).
       "name": "MCP_REDAKSI_LIMITER",
@@ -125,7 +125,7 @@
         "simple": { "limit": 600, "period": 60 },
       },
       {
-        // Dua tool /redaksi (check_content_draft, list_faedah_candidates; X22, ADR-123): membaca
+        // Dua tool /redaksi (check_content_draft, list_faedah_candidates; X22, ADR-125): membaca
         // seluruh subtree bagian per panggilan; pemakainya penulis konten, jadi batasnya kecil.
         // Kunci per klien + kunci tetap "global" di binding yang sama (plafon semua klien).
         "name": "MCP_REDAKSI_LIMITER",

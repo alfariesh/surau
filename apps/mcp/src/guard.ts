@@ -32,7 +32,7 @@ export function clientIp(request: Request | undefined): string {
 }
 
 /**
- * Tool /redaksi (X22, ADR-123): membaca seluruh subtree bagian per panggilan, pemakainya penulis
+ * Tool /redaksi (X22, ADR-125): membaca seluruh subtree bagian per panggilan, pemakainya penulis
  * konten. Limiter sendiri yang kecil; plafon semua klien = kunci "global" di binding yang sama.
  */
 export const REDAKSI_TOOLS_LIMITED: ReadonlySet<string> = new Set([
