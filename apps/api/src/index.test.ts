@@ -728,6 +728,37 @@ describe("rute tersimpan (hanya eval, X05)", () => {
     expect(viaRouting.sent[1]?.documents).toEqual(fake.sent[0]?.documents);
   });
 
+  test("answerModel sonnet (hanya eval, X22): routing Haiku, jawaban Sonnet langsung, tanpa ulangan", async () => {
+    const fake = fakeAnthropic({ route: () => ROUTE, answer: cite });
+    const result = await runJawab(
+      { corpus: env.CORPUS_DB, anthropic: fake.client, editionId: ED, answerModel: MODELS.sonnet },
+      QUESTION,
+    );
+    expect(fake.sent.map((s) => [s.kind, s.model])).toEqual([
+      ["route", MODELS.haiku],
+      ["answer", MODELS.sonnet],
+    ]);
+    expect(result.outcome).toBe("answer");
+    expect(result.model).toBe(MODELS.sonnet);
+
+    // Ditolak oleh Sonnet: tidak ada ulangan ke model lain.
+    const refused = fakeAnthropic({
+      route: () => ROUTE,
+      answer: () => ({ blocks: [{ text: "x" }], stop: "refusal" }),
+    });
+    const r2 = await runJawab(
+      {
+        corpus: env.CORPUS_DB,
+        anthropic: refused.client,
+        editionId: ED,
+        answerModel: MODELS.sonnet,
+      },
+      QUESTION,
+    );
+    expect(refused.sent.filter((s) => s.kind === "answer")).toHaveLength(1);
+    expect(r2.reason).toBe("refusal");
+  });
+
   test("savedRoute null: tanpa routing, pencarian pertanyaan saja", async () => {
     const fake = fakeAnthropic({ route: () => ROUTE, answer: cite });
     const result = await runJawab(

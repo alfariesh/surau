@@ -28,7 +28,7 @@ next-env.d.ts
 # Data kitab & eval privat (tidak pernah di-commit)
 data/raw/
 data/build/
-evals/private/
+evals/private
 
 # HeroUI (berlisensi, jangan di-commit)
 .heroui-docs/

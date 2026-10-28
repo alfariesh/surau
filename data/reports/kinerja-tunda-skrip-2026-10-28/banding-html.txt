@@ -1,0 +1,11 @@
+/kitab/ihya/1/200: SAMA (skrip async dipindah 29, preload dihapus 1, pemuat 1, panjang 195621→196492)
+/kitab/ihya/3/202: SAMA (skrip async dipindah 29, preload dihapus 1, pemuat 1, panjang 206695→207566)
+/: SAMA (skrip async dipindah 28, preload dihapus 1, pemuat 1, panjang 186199→187056)
+/tentang: SAMA (skrip async dipindah 26, preload dihapus 1, pemuat 1, panjang 61049→61878)
+/cari: SAMA (skrip async dipindah 31, preload dihapus 1, pemuat 1, panjang 57901→58800)
+/kitab: SAMA (skrip async dipindah 28, preload dihapus 1, pemuat 1, panjang 121961→122818)
+HASIL: HTML sama selain tag skrip
+tanpa JS /kitab/ihya/1/200: elemen Arab 42, panjang teks 10199, judul «القسم الثاني ما يتكرر بتكرر الأسابيع · I»
+tanpa JS /kitab/ihya/3/202: elemen Arab 43, panjang teks 9514, judul «كتاب ذم الدنيا · Ihya' 'Ulum ad-Din j. 3»
+tanpa JS /tentang: elemen Arab 0, panjang teks 2409, judul «Tentang · Surau»
+Bukti tak langsung: e2e reader-x14.spec.ts:26 (petunjuk mode baca tampil walau JS Next diblokir) lolos di job Preview CI PR #206.
