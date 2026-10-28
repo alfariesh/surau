@@ -24,6 +24,7 @@ export {
   contentDraftSha256,
   listFaedahCandidates,
   loadFaedahFacts,
+  readinessIssues,
 } from "./content-check.ts";
 export type { FaedahFacts } from "./content-check.ts";
 export { lintContent, wordCount } from "./content-lint.ts";
@@ -109,7 +110,7 @@ export {
   selectAudioTracksIn,
 } from "./audio-manifest.ts";
 export type { AudioManifest, AudioManifestTrack, AudioSelection } from "./audio-manifest.ts";
-export { buildCitation } from "./citation.ts";
+export { buildCitation, loadCiteContext } from "./citation.ts";
 export { SYATR_MAX_CHARS, VERSE_SEPARATOR, verseBounds } from "./verse.ts";
 export { verifyQuote } from "./verify-quote.ts";
 export { ipKey, ipNetwork } from "./client-key.ts";

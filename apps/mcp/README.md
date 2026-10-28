@@ -20,17 +20,26 @@ Worker MCP publik Surau (S16, [ADR-011](../../implementasi/KEPUTUSAN.md), ADR-04
 | `get_hadith_takhrij` | `getHadithTakhrij` | Catatan kaki takhrij tertaut; tanpa takhrij = status tidak diketahui | median ±0,9 ribu, maks. ±2,3 ribu |
 | `get_section_digest` | `readDigest` | Intisari satu bagian (X16, ADR-097/099): gagasan AI berjangkar ke paragraf, kutipan Arab dari DB, istilah, pertanyaan ingatan, dalil yang dihitung kode (ayat Tanzil + Kemenag, takhrij + label kode); `digest: null` bila bagian tanpa Intisari | belum diukur (data nyata menyusul X15b) |
 
+### Endpoint `/redaksi` (X22, ADR-121)
+
+`https://mcp.surau.org/redaksi`: server `surau-redaksi` untuk plugin penulis konten ([plugins/surau-redaksi](../../plugins/surau-redaksi/README.md)). Delapan tool di atas ditambah dua tool deterministik dari [`src/redaksi-tools.ts`](src/redaksi-tools.ts); instruksi sendiri ≤ 2.000 karakter ([`src/redaksi-instructions.ts`](src/redaksi-instructions.ts)). Tidak diiklankan di info `/`.
+
+| Tool | Core | Isi |
+|---|---|---|
+| `check_content_draft` | `checkContentDraft` | Periksa draf `surau-konten/1` (skema, bahasa, korpus); `ok`, `errors`, `warnings`, `facts`, `stamp`. Draf tidak pernah digemakan |
+| `list_faedah_candidates` | `listFaedahCandidates` | Paragraf calon Faedah + terjemahan AI berlabel + alasan tidak layak (kode); paginasi `offset`/`next_offset` |
+
 Semua tool: nama ASCII snake_case (ADR-012), deskripsi Inggris + ringkasan Indonesia setelah ` · `, anotasi `readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`, `openWorldHint: false`, `outputSchema` berakar objek (skema Zod core + `license`), `structuredContent` + salinan JSON di `content`. Error core menjadi hasil `isError` dengan teks `<code>: <pesan>` (mis. `not_found: Page not found: juz 9, page 1`); error lain `internal_error` tanpa detail. Instruksi server: [`src/instructions.ts`](src/instructions.ts).
 
 ## Pengaman
 
 | Lapisan | Aturan |
 |---|---|
-| Path | Hanya `/mcp` (dan `GET /` = info JSON); lainnya 404 |
+| Path | Hanya `/mcp`, `/redaksi` (X22), dan `GET /` = info JSON; lainnya 404 |
 | Origin | `originValidationResponse`: `surau.org`, `www.surau.org`, `mcp.surau.org`, localhost; Origin lain atau `null` → 403; tanpa Origin (klien server-ke-server) → lolos |
 | Body | `maxRequestBodySize` 64 KiB → 413; `maxSubscriptions` 16 per isolate |
-| Batas per tool | Rate Limiting binding, kunci `HMAC(IP_HMAC_KEY, jaringan IP):tool`: tool baca 120/menit per klien (`MCP_TOOL_LIMITER`) + 600/menit per lokasi Cloudflare, bukan global akun (`MCP_READ_GLOBAL_LIMITER`; daftar isi dan `read_section` membaca ±1.000 baris per panggilan), `search_text` 60/menit per klien (`MCP_SEARCH_LIMITER`) + 600/menit per lokasi Cloudflare (`MCP_SEARCH_GLOBAL_LIMITER`, D1 dipakai bersama web). Habis → hasil `isError` `rate_limited`. Tanpa secret `IP_HMAC_KEY` → `not_configured` (gagal tertutup) |
-| Pagar luar | Satu aturan WAF rate limiting per IP untuk path `/mcp` (T-19, dashboard) |
+| Batas per tool | Rate Limiting binding, kunci `HMAC(IP_HMAC_KEY, jaringan IP):tool`: tool baca 120/menit per klien (`MCP_TOOL_LIMITER`) + 600/menit per lokasi Cloudflare, bukan global akun (`MCP_READ_GLOBAL_LIMITER`; daftar isi dan `read_section` membaca ±1.000 baris per panggilan), `search_text` 60/menit per klien (`MCP_SEARCH_LIMITER`) + 600/menit per lokasi Cloudflare (`MCP_SEARCH_GLOBAL_LIMITER`, D1 dipakai bersama web). Di `/redaksi` kunci per klien diberi lingkup `redaksi:` (ember sendiri) dan dua tool redaksi memakai limiter ketat `MCP_SEARCH_LIMITER` dengan ember global `global:redaksi`. Habis → hasil `isError` `rate_limited`. Tanpa secret `IP_HMAC_KEY` → `not_configured` (gagal tertutup) |
+| Pagar luar | Satu aturan WAF rate limiting per IP untuk path `/mcp` (T-19, dashboard); `/redaksi` belum tercakup (T-34) |
 | Cache | `cacheHints` publik 1 jam untuk `tools/list` dan `server/discover` (era modern) |
 
 Batas longgar karena semua pengguna claude.ai datang dari IP Anthropic (ADR-011). `namespace_id`: produksi 3001–3004, Preview 4001–4004 (web memakai 1001–1004 / 2001–2004).
@@ -38,7 +47,7 @@ Batas longgar karena semua pengguna claude.ai datang dari IP Anthropic (ADR-011)
 ## Perintah (dari root repo)
 
 - `pnpm --filter @surau/mcp dev` → http://localhost:3006/mcp (D1 lokal di `.wrangler/state`, sama dengan web; butuh `apps/mcp/.dev.vars` berisi `IP_HMAC_KEY=<nilai uji>`, git-ignored). Jangan jalankan bersamaan dengan proses lain yang menulis D1 lokal.
-- `bash .github/scripts/uji-mcp.sh http://localhost:3006/mcp` → MCP Inspector 2.11.0 CLI, era modern + legacy, kedelapan tool + kasus error + Origin 403 (sama dengan CI Preview).
+- `bash .github/scripts/uji-mcp.sh http://localhost:3006/mcp` → MCP Inspector 2.11.0 CLI, era modern + legacy, kedelapan tool + kasus error + Origin 403; mode `redaksi` untuk `/redaksi` (sama dengan CI Preview).
 - `pnpm exec vp test --project mcp` → tes workerd: `src/index.test.ts` (Client v2 in-process, kedua era, fixture buatan core) dan tes unit `envelope`, `guard`, `tools`.
 - `pnpm --filter @surau/mcp build` → `wrangler deploy --dry-run` ke `dist/` (bundel diperiksa tanpa deploy).
 - `pnpm llm mcp-tokens [--url …] [--n 25]` → ukur token hasil tool dengan `count_tokens` (gratis) → `data/reports/mcp-token.md`.

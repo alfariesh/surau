@@ -21,6 +21,7 @@
     "corpus:qa": "node tools/ingest/src/qa.ts",
     "subjudul": "node tools/ingest/src/subheadings-cli.ts",
     "t17": "node tools/ingest/src/t17-cli.ts",
+    "konten": "node tools/ingest/src/content/cli.ts",
     "review:export-terjemahan": "node tools/ingest/src/llm/revisions-cli.ts",
     "llm": "node tools/ingest/src/llm/cli.ts",
     "audio": "node tools/audio/src/cli.ts",

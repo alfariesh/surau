@@ -29,16 +29,31 @@ export function clientIp(request: Request | undefined): string {
   return request?.headers.get("cf-connecting-ip") ?? "unknown";
 }
 
+/**
+ * Tool berat: search_text (FTS) dan dua tool `/redaksi` yang membaca seluruh subtree bagian (X22).
+ * Memakai limiter ketat (60/menit per klien); ember global `/redaksi` terpisah dari search publik.
+ */
+export const HEAVY_TOOLS: ReadonlySet<string> = new Set([
+  "search_text",
+  "check_content_draft",
+  "list_faedah_candidates",
+]);
+
 export async function guardTool(
   env: GuardEnv,
   request: Request | undefined,
   tool: string,
+  endpoint: "mcp" | "redaksi" = "mcp",
 ): Promise<GuardResult> {
   if (env.IP_HMAC_KEY === undefined || env.IP_HMAC_KEY === "") return "not_configured";
-  const key = `${await ipKey(env.IP_HMAC_KEY, ipNetwork(clientIp(request)))}:${tool}`;
-  if (tool === "search_text") {
+  // Kunci `/mcp` tidak berubah; `/redaksi` punya ember per klien sendiri, supaya penulis konten
+  // tidak berbagi kuota dengan semua pengguna claude.ai yang lewat IP Anthropic (X22).
+  const scope = endpoint === "mcp" ? "" : `${endpoint}:`;
+  const key = `${await ipKey(env.IP_HMAC_KEY, ipNetwork(clientIp(request)))}:${scope}${tool}`;
+  if (HEAVY_TOOLS.has(tool)) {
     if (!(await env.MCP_SEARCH_LIMITER.limit({ key })).success) return "rate_limited";
-    if (!(await env.MCP_SEARCH_GLOBAL_LIMITER.limit({ key: "global" })).success) {
+    const global = endpoint === "mcp" ? "global" : `global:${endpoint}`;
+    if (!(await env.MCP_SEARCH_GLOBAL_LIMITER.limit({ key: global })).success) {
       return "rate_limited";
     }
     return "ok";

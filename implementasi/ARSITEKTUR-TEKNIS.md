@@ -37,7 +37,7 @@ Semua Worker mengimpor logika domain yang sama dari `packages/core`. Aturan keam
 surau/
 ├─ apps/
 │  ├─ web/            @surau/web   Next.js 16 + HeroUI (dipindah dari web/ di S01)
-│  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 8 tool di atas packages/core
+│  ├─ mcp/            @surau/mcp   Worker MCP publik (S16): 8 tool di atas packages/core; /redaksi = 8 + 2 tool redaksi (X22)
 │  └─ api/            @surau/api   Worker Hono `surau-api` (S19): Jawab SSE, cache; kuota/ledger/cron (S20)
 ├─ packages/
 │  ├─ text/           @surau/text  normalisasi Arab, offset map, stem, pembersih HTML Shamela, findQuote

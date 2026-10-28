@@ -696,3 +696,48 @@ export async function listFaedahCandidates(
     }),
   };
 }
+
+// ── Kesiapan berkas di repo (CLI `konten`, CI) ───────────────────────────────────────────────
+
+/**
+ * Masalah kesiapan satu berkas draf tanpa membaca DB: cap cek kode harus cocok dengan isi (isi tidak
+ * diubah sesudah dicek), dan status `siap` hanya sesudah tiga lapis lolos tanpa satu pun Salah.
+ */
+export async function readinessIssues(d: ContentDraft): Promise<ContentIssue[]> {
+  const out: ContentIssue[] = [];
+  const kode = d.periksa.kode;
+  if (kode !== null && kode.draf_sha256 !== (await contentDraftSha256(d))) {
+    out.push({
+      code: "stamp_mismatch",
+      path: "periksa.kode.draf_sha256",
+      message: "isi berubah sesudah dicek; jalankan cek ulang",
+    });
+  }
+  if (d.status === "siap") {
+    if (kode === null || !kode.lolos || kode.aturan !== CONTENT_RULES) {
+      out.push({
+        code: "not_checked",
+        path: "periksa.kode",
+        message: `status siap butuh cap cek kode ${CONTENT_RULES} yang lolos`,
+      });
+    }
+    if (d.periksa.independen === null) {
+      out.push({
+        code: "no_independent_review",
+        path: "periksa.independen",
+        message: "status siap butuh periksa independen",
+      });
+    }
+    const salah = [...d.periksa.mandiri, ...(d.periksa.independen?.nilai ?? [])].filter(
+      (n) => n.nilai === "salah",
+    );
+    if (salah.length > 0) {
+      out.push({
+        code: "review_salah",
+        path: "periksa",
+        message: `butir ${[...new Set(salah.map((n) => n.ke))].join(", ")} bernilai Salah`,
+      });
+    }
+  }
+  return out;
+}

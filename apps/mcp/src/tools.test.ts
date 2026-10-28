@@ -147,9 +147,16 @@ describe("runTool", () => {
       expect(limited.isError).toBe(true);
       expect(run).toHaveBeenCalledTimes(1);
       expect(log.mock.calls.map(([entry]) => entry)).toEqual([
-        { event: "mcp_tool", tool: "verify_quote", outcome: "ok", duration_ms: expect.any(Number) },
         {
           event: "mcp_tool",
+          endpoint: "mcp",
+          tool: "verify_quote",
+          outcome: "ok",
+          duration_ms: expect.any(Number),
+        },
+        {
+          event: "mcp_tool",
+          endpoint: "mcp",
           tool: "verify_quote",
           outcome: "rate_limited",
           duration_ms: expect.any(Number),

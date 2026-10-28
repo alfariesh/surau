@@ -130,6 +130,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 118 | Evaluasi vinext dan TanStack Redact: tetap Next 16 + OpenNext, ditinjau ulang bila pemicunya terpenuhi | diganti oleh ADR-119 | 2026-10-27 | [keputusan/ADR-118.md](keputusan/ADR-118.md) |
 | 119 | Evaluasi vinext diukur ulang: vinext jadi kandidat migrasi (LCP ponsel lokal halaman kitab 1,7–2,1× lebih cepat, hidrasi +1,1 dtk), produksi tetap Next sampai gerbang Preview lolos; Redact tidak dipasang | sementara | 2026-10-28 | [keputusan/ADR-119.md](keputusan/ADR-119.md) |
 | 120 | STATUS.md dipangkas: bagian Sekarang diringkas, teks lama dipindah apa adanya ke arsip | diterima | 2026-10-28 | [keputusan/ADR-120.md](keputusan/ADR-120.md) |
+| 121 | Konten turunan lewat Claude Desktop + plugin `surau-redaksi`: format `surau-konten/1`, cek otomatis tiga lapis, endpoint MCP `/redaksi` | diterima | 2026-10-28 | [keputusan/ADR-121.md](keputusan/ADR-121.md) |
 
 ## Cara menambah ADR baru
 

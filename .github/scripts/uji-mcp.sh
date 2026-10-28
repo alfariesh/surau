@@ -6,6 +6,8 @@
 # Pakai: uji-mcp.sh <URL endpoint, mis. https://mcp.surau.org/mcp> [lengkap|daftar]
 #   lengkap (bawaan): tools/list + tools/call kedelapan tool (data Ihya edisi 1) + kasus error
 #   daftar: tools/list + satu tools/call (list_works) saja (smoke produksi)
+#   redaksi: endpoint /redaksi (X22): 10 tool + check_content_draft (draf rusak, galat pasti) dan
+#     list_faedah_candidates (data Ihya edisi 1); URL diakhiri /redaksi
 # Env opsional: INSPECTOR (versi paket, bawaan dipin di bawah), MAX_COBA (bawaan 12), JEDA (5 dtk).
 #
 # Exit code Inspector (2.11): 0 sukses, 4 tidak terjangkau, 5 hasil `isError` / tool tidak ada.
@@ -69,6 +71,11 @@ for i in $(seq 1 "$MAX_COBA"); do
 done
 
 ALAT='["list_works","get_table_of_contents","read_page","read_section","search_text","verify_quote","get_hadith_takhrij","get_section_digest"]'
+JUMLAH=8
+if [ "$MODE" = "redaksi" ]; then
+  ALAT=$(jq -c '. + ["check_content_draft","list_faedah_candidates"]' <<<"$ALAT")
+  JUMLAH=10
+fi
 for era in modern legacy; do
   echo "== era $era"
   jalan --protocol-era "$era" --method tools/list || gagal "$era tools/list keluar $?"
@@ -76,10 +83,18 @@ for era in modern legacy; do
     gagal "$era tools/list: daftar tool berbeda: $(jq -c '[.result.tools[].name]' "$TMP/out")"
   jq -e 'all(.result.tools[]; .annotations.readOnlyHint == true and .outputSchema.type == "object")' \
     "$TMP/out" >/dev/null || gagal "$era tools/list: anotasi/outputSchema"
-  echo "  ✓ $era tools/list (8 tool)"
+  echo "  ✓ $era tools/list ($JUMLAH tool)"
 
   panggil "$era" list_works '(.works | length) >= 1 and .license.name == "CC BY-NC-SA 4.0"'
   [ "$MODE" = "daftar" ] && continue
+  if [ "$MODE" = "redaksi" ]; then
+    # Draf rusak: galat skema pasti di data mana pun (Preview = staging, deploy = produksi).
+    panggil "$era" check_content_draft '.ok == false and any(.errors[]; .code == "schema")' \
+      '{"draft":{"format":"lain"}}'
+    panggil "$era" list_faedah_candidates '.section.id == 100008 and (.candidates | length) >= 1' \
+      '{"section_id":100008,"include_ineligible":true,"limit":2}'
+    continue
+  fi
 
   panggil "$era" get_table_of_contents '(.nodes | length) >= 1 and (.citation.permalink | startswith("https://"))' \
     '{"edition_id":1}'
