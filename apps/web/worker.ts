@@ -9,7 +9,8 @@ import { deferNextScripts } from "./src/lib/defer-scripts";
 
 export default {
   async fetch(request: Request, env: CloudflareEnv, ctx: ExecutionContext): Promise<Response> {
-    return deferNextScripts(await handler.fetch(request, env, ctx));
+    const res = await handler.fetch(request, env, ctx);
+    return request.method === "GET" ? deferNextScripts(res) : res;
   },
 } satisfies ExportedHandler<CloudflareEnv>;
 

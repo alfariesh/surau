@@ -1,5 +1,5 @@
 // Skrip Next ditunda sampai CSS selesai (ADR-123, gerbang ADR-121 butir 2). Next menulis 30-an
-// `<script src async>` + satu `<link rel="preload" as="script">` di <head>. Di ponsel lambat skrip itu
+// `<script src async>` di <head>. Di ponsel lambat skrip itu
 // (±340–410 KB) berebut jaringan dengan CSS render-blocking, sehingga teks baru tampil sesudah
 // sebagian besar JS terunduh (FCP produksi ±3,2 dtk dengan throttling ponsel). Worker (`worker.ts`)
 // memindahkan tag itu ke pemuat kecil di akhir <head> yang baru menyisipkan skrip sesudah setiap
@@ -9,6 +9,10 @@
 // Hanya respons HTML tanpa content-encoding (server Next di OpenNext tidak mengompres; kompresi oleh
 // edge sesudah Worker). Payload RSC navigasi klien (`text/x-component`) tidak tersentuh, dan tanpa
 // JavaScript halaman tetap tampil dari HTML server.
+//
+// Celah yang diketahui: satu skrip bootstrap Next (±8 KB) ditulis di <body>, bukan <head>, jadi tidak
+// ditunda; `<link rel="preload" as="script">`-nya di <head> dihapus. CSP penuh (next.config.ts) nanti
+// butuh nonce untuk pemuat ini: isinya berbeda per halaman, jadi hash tidak bisa dipakai.
 
 /** Awalan berkas JS hasil build Next: hanya skrip ini yang ditunda. */
 const NEXT_STATIC = "/_next/static/";
@@ -41,7 +45,7 @@ export function deferNextScripts(res: Response): Response {
   headers.delete("content-length");
   headers.delete("etag");
   return new HTMLRewriter()
-    .on(`head script[src^="${NEXT_STATIC}"][async]`, {
+    .on(`head script[src^="${NEXT_STATIC}"][async]:not([type]):not([nomodule])`, {
       element(el) {
         scripts.push({
           src: el.getAttribute("src") ?? "",
