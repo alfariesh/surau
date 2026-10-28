@@ -178,6 +178,8 @@ export const digestHeaderRow = z.strictObject({
   toc_node_id: z.number().int().positive(),
   tier: digestTier,
   review_status: reviewStatus,
+  /** Waktu bangun Intisari (penjaga daftar tarik core, ADR-127). */
+  created_at: z.string(),
   points: z.number().int().nonnegative(),
   chars: z.number().int().nonnegative(),
   audio_ms: z.number().int().positive().nullable(),
@@ -190,7 +192,7 @@ const SHOWN_POINT = `p.toc_node_id = d.toc_node_id AND p.lang = d.lang
   AND EXISTS (SELECT 1 FROM digest_anchor a WHERE a.toc_node_id = p.toc_node_id
     AND a.lang = p.lang AND a.point_ord = p.ord)`;
 
-const HEADER_SELECT = `SELECT d.toc_node_id, d.tier, d.review_status,
+const HEADER_SELECT = `SELECT d.toc_node_id, d.tier, d.review_status, d.created_at,
   (SELECT count(*) FROM digest_point p WHERE ${SHOWN_POINT}) AS points,
   length(coalesce(d.opening, '')) + length(d.abstract) + length(coalesce(d.closing, ''))
     + coalesce((SELECT sum(length(p.title) + length(p.body)) FROM digest_point p
@@ -266,6 +268,43 @@ export async function getDigestHeadersOnPath(
       .bind(lang, tocNodeId)
       .all();
     return results.map((r) => digestHeaderRow.parse(r));
+  });
+  return rows ?? [];
+}
+
+/** Panjang teks satu gagasan yang tampil (judul + isi), untuk kepala yang disesuaikan core. */
+export const digestPointSizeRow = z.strictObject({
+  toc_node_id: z.number().int().positive(),
+  ord: z.number().int().positive(),
+  chars: z.number().int().nonnegative(),
+});
+export type DigestPointSizeRow = z.infer<typeof digestPointSizeRow>;
+
+/**
+ * Panjang judul + isi gagasan yang tampil (tidak ditolak, berjangkar; sama dengan kepala) di
+ * sejumlah node, urut node lalu `ord`. Dipakai core untuk mengurangi gagasan yang ditarik dari kepala
+ * Intisari (ADR-127); kosong bila skema < 9.
+ */
+export async function getDigestPointSizes(
+  db: D1Db,
+  tocNodeIds: readonly number[],
+  lang: string,
+): Promise<DigestPointSizeRow[]> {
+  const unique = [...new Set(tocNodeIds)].sort((a, b) => a - b);
+  if (unique.length === 0) return [];
+  const rows = await unlessOldSchema(db, async () => {
+    const stmts = chunk(unique, D1_MAX_PARAMS - 1).map((ids) =>
+      db
+        .prepare(
+          `SELECT p.toc_node_id, p.ord, length(p.title) + length(p.body) AS chars
+           FROM digest_point p JOIN digest d ON d.toc_node_id = p.toc_node_id AND d.lang = p.lang
+           WHERE d.lang = ? AND d.toc_node_id IN (${placeholders(ids.length)}) AND ${SHOWN_POINT}
+           ORDER BY p.toc_node_id, p.ord`,
+        )
+        .bind(lang, ...ids),
+    );
+    const results = await db.batch(stmts);
+    return results.flatMap((r) => r.results.map((row) => digestPointSizeRow.parse(row)));
   });
   return rows ?? [];
 }

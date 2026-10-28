@@ -27,16 +27,19 @@ export {
   ayahSpanRow,
   digestAnchorWithPageRow,
   digestHeaderRow,
+  digestPointSizeRow,
   digestQuoteWithPassageRow,
   getDigest,
   getDigestHeaders,
   getDigestHeadersOnPath,
+  getDigestPointSizes,
   listDigestHeaders,
 } from "./repo/digest.ts";
 export type {
   AyahSpanRow,
   DigestAnchorWithPageRow,
   DigestHeaderRow,
+  DigestPointSizeRow,
   DigestQuoteWithPassageRow,
   DigestRows,
 } from "./repo/digest.ts";

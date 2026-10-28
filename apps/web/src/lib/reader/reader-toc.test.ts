@@ -123,6 +123,7 @@ describe("readerToc", () => {
       toc_node_id: id,
       tier: "section" as const,
       review_status: "ai_generated" as const,
+      created_at: "2026-10-24",
       points,
       chars,
       audio_ms: null,

@@ -4,8 +4,9 @@ import { readingMinutes } from "@surau/core";
 
 // Intisari di situs (X16, ADR-097 butir 7): kepala ringkas satu Intisari (jumlah gagasan, waktu
 // baca/dengar, alamat) untuk hub, kartu ringkasan pembaca, menu ⋮, dan lencana daftar isi. Dari
-// `listDigestHeaders`/`getDigestHeaders` (db), bukan field baru di `SummaryView`. Korpus berskema
-// < 9 tidak punya Intisari: daftar kepala kosong, jadi tidak ada lencana maupun tautan.
+// `listShownDigestHeaders`/`getShownDigestHeaders` (core: kepala db dikurangi daftar tarik ADR-127),
+// bukan field baru di `SummaryView`. Korpus berskema < 9 tidak punya Intisari: daftar kepala kosong,
+// jadi tidak ada lencana maupun tautan.
 
 export interface DigestTeaser {
   nodeId: number;

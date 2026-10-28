@@ -1,0 +1,47 @@
+{
+  "format": 1,
+  "edition": 1,
+  "corpus": "ihya-v9",
+  "entries": [
+    {
+      "toc_node_id": 100007,
+      "lang": "id",
+      "ord": 4,
+      "digest_created_at": "2026-10-24T17:14:06.389358+00:00",
+      "digest_prompt_version": "digest-section@2",
+      "verdict": "salah",
+      "reason": "Isi menyebut mengajarkan kalimat hikmah setara ibadah sunah, padahal hadis di Dasar teks 1 menyebut ibadah setahun (sanah terbaca sunnah); pertanyaannya juga tidak terjawab isi.",
+      "reviewer": "agent: QA pilot Intisari X15b (subagen berkonteks baru), dicek ulang ke teks Arab oleh agent X15b",
+      "source": "data/reports/ihya-9472-intisari-qa-agent-2026-10-25.md",
+      "assessed": "2026-10-25",
+      "date": "2026-10-28",
+      "audio_r2_key": "ihya/id/100007-65113d52a871.mp3"
+    },
+    {
+      "toc_node_id": 100017,
+      "lang": "id",
+      "ord": 2,
+      "digest_created_at": "2026-10-24T17:24:46.296440+00:00",
+      "digest_prompt_version": "digest-merge@1",
+      "verdict": "salah",
+      "reason": "Kalimat terakhir isi (bukan rumah dan anjing secara harfiah) membalik Dasar teks 2: al-Ghazali menegaskan hadis itu peringatan kepada batin dengan tetap menetapkan makna lahirnya, dan justru itu yang membedakannya dari kaum Batiniyah.",
+      "reviewer": "agent: QA pilot Intisari X15b (subagen berkonteks baru), dicek ulang ke teks Arab oleh agent X15b",
+      "source": "data/reports/ihya-9472-intisari-qa-agent-2026-10-25.md",
+      "assessed": "2026-10-25",
+      "date": "2026-10-28",
+      "audio_r2_key": "ihya/id/100017-b81d9fe0c222.mp3"
+    }
+  ],
+  "parents_checked": [
+    {
+      "toc_node_id": 100004,
+      "date": "2026-10-28",
+      "result": "Induk 100007 (digest-merge@1, ihya-v9). Keenam gagasannya dibaca dari D1 produksi: tidak ada yang memuat klaim ibadah sunah, kalimat hikmah, atau perumpamaan hujan dari gagasan 4 100007 (gagasan 5 menyebut salat sunah dari nukilan Abu al-Darda' dan al-Syafi'i di 100006). Tidak ditarik. Kolom basis gagasan tidak ada di D1, dan berkas kerja data/build/llm/intisari tidak ada di mesin ini, jadi audit ini dari isi."
+    },
+    {
+      "toc_node_id": 100003,
+      "date": "2026-10-28",
+      "result": "Intisari Kitab al-'Ilm belum dimuat di ihya-v9 maupun staging. 100017 tidak punya induk ber-Intisari di produksi."
+    }
+  ]
+}

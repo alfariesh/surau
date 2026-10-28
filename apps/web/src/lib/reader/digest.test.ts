@@ -6,6 +6,7 @@ const head = (id: number, over: Partial<Parameters<typeof digestTeaser>[0]> = {}
   toc_node_id: id,
   tier: "section" as const,
   review_status: "ai_generated" as const,
+  created_at: "2026-10-24",
   points: 3,
   chars: 2500,
   audio_ms: null,

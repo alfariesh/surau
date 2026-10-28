@@ -11,6 +11,17 @@ export { humanReviewOf, readPage, reviewersFor, translationView } from "./page.t
 export { readSection } from "./section.ts";
 export { DIGEST_READ_CHARS_PER_MINUTE, readDigest, readingMinutes } from "./digest.ts";
 export {
+  DIGEST_WITHDRAWALS,
+  digestWithdrawal,
+  digestWithdrawalFile,
+  getShownDigestHeaders,
+  getShownDigestHeadersOnPath,
+  listShownDigestHeaders,
+  withdrawFromHeaders,
+  withdrawnOrds,
+} from "./digest-withdrawal.ts";
+export type { DigestWithdrawal } from "./digest-withdrawal.ts";
+export {
   SCRIPT_DOOR,
   SCRIPT_LABEL,
   SCRIPT_VERSION,

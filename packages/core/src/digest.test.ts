@@ -1,9 +1,12 @@
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, onTestFinished, test } from "vite-plus/test";
 
+import { listDigestHeaders } from "@surau/db";
+
 import {
   BODY_1,
   BODY_2,
+  ED,
   FOOT_1,
   FOOT_2,
   PASSAGES,
@@ -15,6 +18,8 @@ import {
   seedCore,
 } from "../test/fixture.ts";
 import { markerInAnchor, readDigest, readingMinutes } from "./digest.ts";
+import { withdrawFromHeaders } from "./digest-withdrawal.ts";
+import type { DigestWithdrawal } from "./digest-withdrawal.ts";
 import { NotFound } from "./errors.ts";
 import { digestView } from "./schema.ts";
 import { textSha256 } from "./translation-revision.ts";
@@ -276,6 +281,65 @@ describe("readDigest (X15, ADR-097)", () => {
     expect(await readDigest(db, T_LONG)).toBeNull();
     expect(await readDigest(db, T_ROOT, "en")).toBeNull();
     await expect(readDigest(db, T_ROOT + 98)).rejects.toBeInstanceOf(NotFound);
+  });
+});
+
+describe("daftar tarik Intisari (ADR-127)", () => {
+  /** Tarik gagasan 2 Intisari T_ROOT versi '2026-10-24' (fixture di atas). */
+  const pull = (createdAt = "2026-10-24"): DigestWithdrawal[] => [
+    {
+      toc_node_id: T_ROOT,
+      lang: "id",
+      ord: 2,
+      digest_created_at: createdAt,
+      digest_prompt_version: "intisari@1",
+      verdict: "salah",
+      reason: "Alasan uji.",
+      reviewer: "tes",
+      source: "tes",
+      assessed: "2026-10-25",
+      date: "2026-10-28",
+      audio_r2_key: "uji/id/intisari.mp3",
+    },
+  ];
+
+  test("readDigest: gagasan tertarik, dalilnya, dan audio tidak dikirim", async () => {
+    const view = await readDigest(db, T_ROOT, "id", pull());
+    expect(digestView.parse(view)).toEqual(view);
+    expect(view?.points.map((p) => p.ord)).toEqual([1]);
+    // Ayat fixture hanya dijangkar gagasan 2: ikut hilang.
+    expect(view?.evidence.ayat).toEqual([]);
+    expect(view?.questions.map((q) => q.point_ord)).toEqual([1]);
+    expect(view?.audio).toBeNull();
+    const chars = ["Pembuka.", "Abstrak.", "Penutup.", "Gagasan", "Isi satu."]
+      .map((t) => t.length)
+      .reduce((a, b) => a + b, 0);
+    expect(view?.reading_minutes).toBe(readingMinutes(chars));
+  });
+
+  test("readDigest: entri untuk versi Intisari lain (dibangun ulang) tidak berlaku", async () => {
+    const view = await readDigest(db, T_ROOT, "id", pull("2026-11-01"));
+    expect(view?.points.map((p) => p.ord)).toEqual([1, 2]);
+    expect(view?.audio).not.toBeNull();
+    expect(await readDigest(db, T_ROOT, "id", [])).toEqual(await readDigest(db, T_ROOT, "id"));
+  });
+
+  test("kepala: jumlah gagasan, panjang teks, dan audio dikurangi; node lain utuh", async () => {
+    const heads = await listDigestHeaders(db, ED, "id");
+    const before = heads.find((h) => h.toc_node_id === T_ROOT);
+    // Kepala db tidak memeriksa huruf Arab: gagasan 5 ikut dihitung (3), hanya gagasan 2 yang ditarik.
+    expect(before).toMatchObject({ points: 3, audio_ms: 95000 });
+    const after = await withdrawFromHeaders(db, heads, "id", pull());
+    expect(after.find((h) => h.toc_node_id === T_ROOT)).toEqual({
+      ...before,
+      points: 2,
+      chars: (before?.chars ?? 0) - "Anjuran".length - "Isi dua.".length,
+      audio_ms: null,
+    });
+    const others = (rows: typeof heads) => rows.filter((h) => h.toc_node_id !== T_ROOT);
+    expect(others(after)).toEqual(others(heads));
+    expect(await withdrawFromHeaders(db, heads, "id", pull("2026-11-01"))).toEqual(heads);
+    expect(await withdrawFromHeaders(db, heads, "en", pull())).toEqual(heads);
   });
 });
 

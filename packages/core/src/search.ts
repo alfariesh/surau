@@ -46,6 +46,8 @@ import type { FtsQueryPlan, LatinQueryPlan } from "@surau/text";
 
 import { ayahPlaceholderPattern } from "./ayah-placeholder.ts";
 import { citeContext } from "./citation.ts";
+import { DIGEST_WITHDRAWALS, withdrawnOrds } from "./digest-withdrawal.ts";
+import type { DigestWithdrawal } from "./digest-withdrawal.ts";
 import { humanReviewOf, reviewersFor } from "./page.ts";
 import type { CiteContext } from "./citation.ts";
 import { InvalidQuery, NotFound, Unavailable, parseInput } from "./errors.ts";
@@ -199,6 +201,7 @@ function digestPointOf(
   row: FusedSearchRow,
   cite: CiteContext,
   plan: LatinQueryPlan,
+  withdrawals: readonly DigestWithdrawal[],
 ): SearchDigestPoint | null {
   if (
     row.dp_node === null ||
@@ -210,6 +213,8 @@ function digestPointOf(
     row.dp_created === null ||
     row.dp_review === null ||
     row.dp_review === "rejected" ||
+    // Daftar tarik Intisari (ADR-127), sama dengan `readDigest`.
+    withdrawnOrds(row.dp_node, "id", row.dp_created, withdrawals).has(row.dp_ord) ||
     row.dp_section_title === null ||
     row.dp_section_level === null ||
     // Sama dengan `readDigest`: teks AI berhuruf Arab tidak pernah dikirim (aturan 1).
@@ -448,8 +453,9 @@ export async function searchText(
   /**
    * `digest`: sertakan jalur gagasan Intisari (X16; korpus skema ≥ 9). Cari situs, MCP, dan eval
    * retrieval menyalakannya; Jawab tidak (kandidat Jawab tetap dari teks dan ringkasan).
+   * `withdrawals`: daftar tarik Intisari (ADR-127); bawaannya berkas repo, tes menggantinya.
    */
-  paths: { digest?: boolean } = {},
+  paths: { digest?: boolean; withdrawals?: readonly DigestWithdrawal[] } = {},
 ): Promise<SearchView> {
   const input = parseInput(searchTextInput, { ...opts, query }, InvalidQuery);
   const parts = splitQueryScripts(input.query);
@@ -550,7 +556,7 @@ export async function searchText(
           score: row.score,
           matched_by: fusedMatches(row),
           summary: summaryOf(row, cite, latin),
-          digest_point: digestPointOf(row, cite, latin),
+          digest_point: digestPointOf(row, cite, latin, paths.withdrawals ?? DIGEST_WITHDRAWALS),
         }),
       (row) => row.page_best,
     ),

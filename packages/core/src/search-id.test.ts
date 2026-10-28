@@ -243,6 +243,50 @@ describe("searchText: jalur gagasan Intisari (X16)", () => {
     expect(hit?.digest_point?.title_highlights.length).toBeGreaterThan(0);
   });
 
+  test("gagasan di daftar tarik (ADR-127) tidak dikirim; paragrafnya tetap hasil", async () => {
+    await seedDigest(db);
+    const rowid = T_ROOT * 100 + 1;
+    await db
+      .prepare("INSERT INTO digest_point_fts (rowid, terms) VALUES (?, ?)")
+      .bind(rowid, latinIndexText("Gagasan contoh. Isi gagasan contoh."))
+      .run();
+    onTestFinished(async () => {
+      await db.prepare("DELETE FROM digest_point_fts WHERE rowid = ?").bind(rowid).run();
+    });
+    const pull = (createdAt: string) => [
+      {
+        toc_node_id: T_ROOT,
+        lang: "id",
+        ord: 1,
+        digest_created_at: createdAt,
+        digest_prompt_version: "digest-book@1",
+        verdict: "salah" as const,
+        reason: "Alasan uji.",
+        reviewer: "tes",
+        source: "tes",
+        assessed: "2026-10-25",
+        date: "2026-10-28",
+        audio_r2_key: null,
+      },
+    ];
+    const pulled = await searchText(
+      db,
+      "gagasan contoh",
+      {},
+      { digest: true, withdrawals: pull("2026-10-24") },
+    );
+    expect(hits(pulled).every((h) => h.digest_point === null)).toBe(true);
+    expect(hits(pulled).map((h) => h.id)).toContain(PASSAGES.body1);
+    // Intisari dibangun ulang (versi lain): entri tidak berlaku.
+    const rebuilt = await searchText(
+      db,
+      "gagasan contoh",
+      {},
+      { digest: true, withdrawals: pull("2026-11-01") },
+    );
+    expect(hits(rebuilt).some((h) => h.digest_point?.ord === 1)).toBe(true);
+  });
+
   test("D1 sungguhan tanpa tabel digest_point_fts (korpus skema < 9): Cari jalan tanpa jalur gagasan, kueri gagal tidak diulang", async () => {
     resetDigestIndexMemo();
     await db.batch([
