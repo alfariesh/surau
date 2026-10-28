@@ -1,4 +1,4 @@
-// Dua tool tambahan endpoint `/redaksi` (X22, ADR-121) untuk plugin `surau-redaksi`: pemeriksa draf
+// Dua tool tambahan endpoint `/redaksi` (X22, ADR-123) untuk plugin `surau-redaksi`: pemeriksa draf
 // konten turunan (lapis 1 gerbang terbit) dan daftar calon Faedah. Deterministik, hanya membaca D1,
 // tanpa LLM (docs/05 §11). `/mcp` publik tetap delapan tool; tool ini tidak didaftarkan di sana.
 import {

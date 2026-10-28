@@ -1,6 +1,6 @@
 # Pedoman redaksi: membuat konten turunan Surau
 
-Pedoman ini mengatur **siapa, dengan alat apa, dan dengan aturan apa** konten turunan Surau (Intisari Bab, Intisari Kitab, Faedah, Jalur) dibuat. Apa jenisnya dan standar isinya ada di [docs/09-konten.md](09-konten.md); kebijakan umumnya di [docs/05 §13](05-kebijakan.md); keputusannya [ADR-121](../implementasi/keputusan/ADR-121.md). Versi pedoman: **redaksi@1** (2026-10-28).
+Pedoman ini mengatur **siapa, dengan alat apa, dan dengan aturan apa** konten turunan Surau (Intisari Bab, Intisari Kitab, Faedah, Jalur) dibuat. Apa jenisnya dan standar isinya ada di [docs/09-konten.md](09-konten.md); kebijakan umumnya di [docs/05 §13](05-kebijakan.md); keputusannya [ADR-123](../implementasi/keputusan/ADR-123.md). Versi pedoman: **redaksi@1** (2026-10-28).
 
 ## 1. Ruang lingkup
 
@@ -99,7 +99,7 @@ Cek kode menjaga bentuk dan alamat, bukan makna. Kesetiaan makna dijaga lapis 2 
 | R2 | orang kedua | antrean yang sama | "divalidasi {nama}" |
 | R3 | ustadz peninjau terdaftar | antrean yang sama, prioritas laporan pembaca | "ditinjau ustadz {nama}" |
 
-Gerbang terbit dinaikkan (mis. Faedah dan Jalur minimal R1) begitu ada peninjau kedua yang aktif atau laporan kekeliruan melebihi 2% gagasan (ADR-121, "Tinjau ulang bila"). Editor dan ustadz kelak juga boleh memakai plugin yang sama di akun Claude mereka sendiri; `asal.pembuat` dan `asal.operator` mencatat siapa yang membuat.
+Gerbang terbit dinaikkan (mis. Faedah dan Jalur minimal R1) begitu ada peninjau kedua yang aktif atau laporan kekeliruan melebihi 2% gagasan (ADR-123, "Tinjau ulang bila"). Editor dan ustadz kelak juga boleh memakai plugin yang sama di akun Claude mereka sendiri; `asal.pembuat` dan `asal.operator` mencatat siapa yang membuat.
 
 ## 13. Mengubah pedoman
 

@@ -10,7 +10,7 @@ Unit `siap` di `data/konten/` (Intisari Bab v2, Intisari Kitab) masuk build korp
 
 ## Baca dulu (hanya ini)
 
-- [ADR-121](../keputusan/ADR-121.md), [docs/09-konten.md](../../docs/09-konten.md), [docs/redaksi-operasional.md](../../docs/redaksi-operasional.md)
+- [ADR-123](../keputusan/ADR-123.md), [docs/09-konten.md](../../docs/09-konten.md), [docs/redaksi-operasional.md](../../docs/redaksi-operasional.md)
 - `tools/ingest/src/llm/digest-attach.ts` (`digestRows`, invarian), `tools/ingest/src/pipeline.ts` (urutan ingest), `packages/db/migrations/corpus/0009_digest.sql`, `packages/core/src/digest.ts` (`readDigest`)
 - `packages/core/src/content-check.ts` (`checkContentDraft` dijalankan lagi saat build pada `.sqlite` baru lewat `sqliteD1`)
 

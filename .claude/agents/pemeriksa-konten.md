@@ -1,6 +1,6 @@
 ---
 name: pemeriksa-konten
-description: Pemeriksa independen draf konten turunan Surau (Intisari Bab, Intisari Kitab, Faedah, Jalur; berkas surau-konten/1) dengan konteks segar. Panggil saat impor konten, sesudah `pnpm konten impor` lolos, untuk lapis 3 cek otomatis (ADR-121). Membaca sumber lewat MCP Surau, menilai tiap butir Benar/Kurang/Salah, dan hanya mengembalikan hasil; pemanggil yang menulis ke berkas.
+description: Pemeriksa independen draf konten turunan Surau (Intisari Bab, Intisari Kitab, Faedah, Jalur; berkas surau-konten/1) dengan konteks segar. Panggil saat impor konten, sesudah `pnpm konten impor` lolos, untuk lapis 3 cek otomatis (ADR-123). Membaca sumber lewat MCP Surau, menilai tiap butir Benar/Kurang/Salah, dan hanya mengembalikan hasil; pemanggil yang menulis ke berkas.
 tools: Read, Grep, Glob, mcp__surau__read_section, mcp__surau__read_page, mcp__surau__get_section_digest, mcp__surau__get_table_of_contents, mcp__surau__verify_quote, mcp__surau__get_hadith_takhrij, mcp__surau__list_faedah_candidates
 model: sonnet
 ---

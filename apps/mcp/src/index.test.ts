@@ -469,7 +469,7 @@ describe("batas pemakaian (HMAC(IP):tool)", () => {
   });
 });
 
-// ── /redaksi (X22, ADR-121): 8 tool baca + 2 tool redaksi, instruksi sendiri ≤ 2.000 karakter ─────
+// ── /redaksi (X22, ADR-123): 8 tool baca + 2 tool redaksi, instruksi sendiri ≤ 2.000 karakter ─────
 
 const REDAKSI_TOOLS = [...TOOLS, "check_content_draft", "list_faedah_candidates"];
 const SENT = "هذه جملة تجريبية لاختبار تقسيم الأقسام الطويلة ";

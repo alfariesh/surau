@@ -1,6 +1,6 @@
 # Konten turunan Surau: rangka dan standar
 
-Dokumen ini menetapkan **jenis konten di luar korpus** yang dibuat Surau, kerangka tiap jenis, dan standar yang diperiksa kode sebelum terbit. Korpus (teks Arab, terjemahan per paragraf, takhrij, ayat) diatur [docs/03](03-sumber-data.md) dan [docs/05](05-kebijakan.md). Cara membuat konten (alat, langkah, peran, fase manusia) ada di [pedoman redaksi](redaksi-operasional.md). Keputusan: [ADR-121](../implementasi/keputusan/ADR-121.md). Dasar riset: [2026-10-27](riset/2026-10-27-ringkasan-buku-dan-pecahan-produk/README.md).
+Dokumen ini menetapkan **jenis konten di luar korpus** yang dibuat Surau, kerangka tiap jenis, dan standar yang diperiksa kode sebelum terbit. Korpus (teks Arab, terjemahan per paragraf, takhrij, ayat) diatur [docs/03](03-sumber-data.md) dan [docs/05](05-kebijakan.md). Cara membuat konten (alat, langkah, peran, fase manusia) ada di [pedoman redaksi](redaksi-operasional.md). Keputusan: [ADR-123](../implementasi/keputusan/ADR-123.md). Dasar riset: [2026-10-27](riset/2026-10-27-ringkasan-buku-dan-pecahan-produk/README.md).
 
 Prinsipnya sama dengan seluruh Surau: **konten turunan adalah pintu ke kitab, bukan penggantinya.** Setiap butir menunjuk paragraf sumbernya, dan teks Arab selalu disalin kode dari database.
 
@@ -40,7 +40,7 @@ Aturannya: **satu unit, banyak permukaan.** Perbaikan cukup dilakukan di unitnya
 | R2 | Divalidasi orang kedua | "divalidasi {nama}" |
 | R3 | Ditinjau ustadz terdaftar | "ditinjau ustadz {nama}" |
 
-Fase ini menerbitkan di **R0** (keputusan pemilik 2026-10-28, ADR-121). Label tidak pernah memakai kata "terverifikasi", dan penilaian agen AI tidak pernah dilabeli sebagai manusia (ADR-105). Nama "R" dipakai supaya tidak tertukar dengan nomor tugas pemilik (T-NN).
+Fase ini menerbitkan di **R0** (keputusan pemilik 2026-10-28, ADR-123). Label tidak pernah memakai kata "terverifikasi", dan penilaian agen AI tidak pernah dilabeli sebagai manusia (ADR-105). Nama "R" dipakai supaya tidak tertukar dengan nomor tugas pemilik (T-NN).
 
 ## 4. Aturan bersama semua jenis
 

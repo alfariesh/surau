@@ -6,7 +6,7 @@ Prinsipnya: **kode menyalin, model menunjuk.** Draf hanya berisi teks Indonesia,
 
 - Standar dan rangka konten: [docs/09-konten.md](../../docs/09-konten.md)
 - Pedoman produksi (alur, peran, aturan): [docs/redaksi-operasional.md](../../docs/redaksi-operasional.md)
-- Keputusan: [ADR-121](../../implementasi/keputusan/ADR-121.md)
+- Keputusan: [ADR-123](../../implementasi/keputusan/ADR-123.md)
 
 ## Isi plugin
 
