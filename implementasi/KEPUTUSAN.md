@@ -135,6 +135,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 123 | Uji model jawaban Maknaz: Sonnet 5.5 menaikkan kesetiaan dan atribusi tetapi ±17× lebih mahal; produksi tetap Haiku sampai pemilik memutuskan | sementara | 2026-10-28 | [keputusan/ADR-123.md](keputusan/ADR-123.md) |
 | 124 | Skrip Next ditunda sampai CSS selesai (pembungkus Worker OpenNext): gerbang Preview tidak lolos di LCP Lighthouse j3/202, tidak digabung | diganti oleh ADR-128 | 2026-10-28 | [keputusan/ADR-124.md](keputusan/ADR-124.md) |
 | 125 | Konten turunan lewat Claude Desktop + plugin `surau-redaksi`: format `surau-konten/1`, cek otomatis tiga lapis, endpoint MCP `/redaksi` | diterima | 2026-10-28 | [keputusan/ADR-125.md](keputusan/ADR-125.md) |
+| 126 | Instruksi server MCP publik dipadatkan menjadi ≤ 2.000 karakter (klien claude.ai memotong di ±2.048); isi kedelapan aturan tetap, urutan menurut kepentingan | diterima | 2026-10-28 | [keputusan/ADR-126.md](keputusan/ADR-126.md) |
 | 128 | Penundaan skrip Next ditolak: gerbang kedua (n=15) juga tidak lolos di LCP Lighthouse; PR #206 ditutup | diterima | 2026-10-28 | [keputusan/ADR-128.md](keputusan/ADR-128.md) |
 
 ## Cara menambah ADR baru

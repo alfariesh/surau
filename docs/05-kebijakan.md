@@ -197,6 +197,8 @@ MCP publik dirilis di Fase 3, sebelum Jawab (ADR-019), sebagai server terpisah d
 7. Untuk ayat, pakai terjemahan Kemenag yang disertakan. Jangan menerjemahkan ayat sendiri.
 8. Sertakan atribusi dan lisensi bila menyalin konten.
 
+Teks Inggris yang dikirim ([`apps/mcp/src/instructions.ts`](../apps/mcp/src/instructions.ts)) memuat kedelapan aturan ini ditambah aturan Intisari, dengan urutan menurut kepentingan dan panjang **≤ 2.000 karakter**, karena klien claude.ai memotong instruksi server di sekitar 2.048 karakter (ADR-126). Aturan yang ditambahkan harus tetap muat di batas itu.
+
 **Batas tanggung jawab.** Surau mengendalikan isi respons tool, bukan jawaban akhir AI lain. Instruksi server hanya arahan. Yang dijamin Surau: teks di dalam respons tool verbatim dari DB, dan siapa pun bisa memeriksa kutipan lewat `verify_quote`.
 
 **Penyalahgunaan.** Klien MCP tidak bisa melewati Turnstile, jadi MCP dibatasi lewat rate limit dan aturan WAF. Tidak ada tool MCP yang memanggil LLM, sehingga MCP tidak menimbulkan biaya model bagi Surau. Akses MCP tidak dijual.

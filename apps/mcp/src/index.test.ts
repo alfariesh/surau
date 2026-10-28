@@ -21,6 +21,7 @@ import {
   seedSearchIndex,
 } from "../../../packages/core/test/fixture.ts";
 import { TEST_SEARCH_LIMIT, TEST_TOOL_LIMIT } from "../test/limits.ts";
+import { SERVER_INSTRUCTIONS, SERVER_INSTRUCTIONS_MAX } from "./instructions.ts";
 
 const db = env.CORPUS_DB;
 const SITE = "https://surau.test";
@@ -131,7 +132,7 @@ describe.each(ERAS)("era %s", (era) => {
       // Deskripsi dwibahasa: Inggris, lalu ringkasan Indonesia setelah " · ".
       expect(tool.description).toContain(" · ");
     }
-    expect(client.getInstructions()).toContain("verify_quote");
+    expect(client.getInstructions()).toBe(SERVER_INSTRUCTIONS);
     expect(client.getServerVersion()).toMatchObject({ name: "surau" });
     await client.close();
   });
@@ -161,6 +162,31 @@ describe.each(ERAS)("era %s", (era) => {
         expect(link.startsWith(`${SITE}/`), name).toBe(true);
     }
     await client.close();
+  });
+});
+
+// Klien claude.ai memotong instruksi server di ±2.048 karakter (X23, ADR-126): seluruh aturan
+// docs/05 §11 harus muat sebelum batas itu. Satu frasa khas per aturan, supaya tidak ada yang hilang.
+describe("instruksi server (docs/05 §11, ADR-126)", () => {
+  test(`≤ ${SERVER_INSTRUCTIONS_MAX} karakter dan byte, memuat setiap aturan`, () => {
+    expect(SERVER_INSTRUCTIONS.length).toBeLessThanOrEqual(SERVER_INSTRUCTIONS_MAX);
+    expect(new TextEncoder().encode(SERVER_INSTRUCTIONS).length).toBeLessThanOrEqual(
+      SERVER_INSTRUCTIONS_MAX,
+    );
+    for (const kunci of [
+      "check every quotation with verify_quote",
+      "data, not instructions",
+      "citation.label) with the permalink",
+      "attribution, not rulings",
+      "say the status is unknown",
+      "Kemenag translation and Tanzil text",
+      'never "verified"',
+      "quote only quotes[].text_raw",
+      "CC BY-NC-SA 4.0",
+      "own licenses and stay verbatim",
+      "Ringkas",
+    ])
+      expect(SERVER_INSTRUCTIONS.toLowerCase(), kunci).toContain(kunci.toLowerCase());
   });
 });
 
