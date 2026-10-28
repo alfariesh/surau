@@ -1,0 +1,9 @@
+# Penghapusan sumber daya uji ADR-121 butir 4 (2026-10-28 ±04:35Z), keluaran perintah disalin
+wrangler delete --name surau-next-tunda --force      → Successfully deleted surau-next-tunda
+wrangler delete --name surau-next-kontrol --force    → Successfully deleted surau-next-kontrol
+wrangler delete --name surau-web-vinext --force      → Successfully deleted surau-web-vinext
+Worker sementara surau-r2-kosongkan (binding ke bucket) → {"dihapus":89,"sisa":0}
+wrangler delete --name surau-r2-kosongkan --force    → Successfully deleted surau-r2-kosongkan
+wrangler r2 bucket delete surau-web-vinext-response-store → Deleted bucket surau-web-vinext-response-store.
+Verifikasi: https://{surau-web-vinext,surau-next-tunda,surau-next-kontrol,surau-r2-kosongkan}.alfarieshsalman.workers.dev → 404 semua;
+`wrangler r2 bucket list | grep -c surau-web-vinext` → 0
