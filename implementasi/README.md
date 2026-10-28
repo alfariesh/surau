@@ -27,8 +27,8 @@ Kalimat biasa seperti "kerjakan sesi berikutnya" juga bisa.
 **Kapan Anda dibutuhkan:**
 - Cara tercepat melihatnya: buka [papan Surau](https://github.com/users/alfariesh/projects/7) dan lihat kolom *Menunggu pemilik*.
 - Saat agent berhenti dengan label **MENUNGGU PEMILIK**. Daftar lengkapnya ada di [TUGAS-PEMILIK.md](TUGAS-PEMILIK.md), misalnya membuat akun, menyiapkan token, atau memilih nama domain.
-- Saat agent meminta izin untuk tindakan yang keluar dari komputer Anda: deploy, push ke GitHub, atau menulis ke database produksi.
-- Di akhir setiap sesi: periksa hasilnya (agent memberi tautan atau cara melihatnya), lalu jawab "ya" bila agent bertanya "Gabungkan Sesi NN ke main sekarang?". Sesi berikutnya baru bisa dimulai setelah hasil sesi sebelumnya digabung.
+- Saat agent meminta izin eksplisit di chat. Menurut aturan keras 4 di [`CLAUDE.md`](../CLAUDE.md), itu hanya untuk: mengirim batch atau eval LLM berbayar, menghapus atau menimpa data produksi (D1/R2 remote), dan mengubah pengaturan di luar repo. Push, PR, merge, dan deploy dilakukan agent tanpa bertanya, lalu dilaporkan.
+- Di akhir setiap sesi: agent menggabungkan hasilnya ke `main` sendiri setelah `pnpm verify` dan CI hijau (tanpa bertanya), lalu melapor dengan tautan atau cara melihatnya, jadi periksalah hasilnya. Bila Anda belum mau menggabungkan, bilang di chat: agent menahan merge dan mencatatnya di STATUS. Sesi berikutnya baru bisa dimulai setelah hasil sesi sebelumnya digabung.
 
 ---
 
@@ -61,7 +61,7 @@ Prosedur lengkapnya ada di skill [`/sesi`](../.claude/skills/sesi/SKILL.md). Rin
 4. **Kerjakan** di branch `sesi/sNN-slug` dengan commit kecil yang jelas.
 5. **Verifikasi** setiap butir "Selesai bila" dengan menjalankan perintahnya, bukan dengan asumsi.
 6. **Catat.** Centang file sesi dan isi bagian *Catatan hasil*. Perbarui `STATUS.md`, tambahkan entri ke `LOG.md`, catat keputusan baru di `KEPUTUSAN.md`, dan perbarui versi di `STACK.md`.
-7. **Gabungkan** ke `main` setelah pemilik setuju: lewat PR yang CI-nya hijau, atau secara lokal sebelum ada remote (S01).
+7. **Gabungkan** ke `main` tanpa bertanya (aturan keras 4 di [`CLAUDE.md`](../CLAUDE.md)) setelah `pnpm verify` dan CI hijau: lewat PR, atau secara lokal sebelum ada remote (S01). Bila pemilik minta menahan, catat di STATUS bahwa sesi berikutnya menunggu merge ini.
 8. **Lapor** ke pemilik dengan bahasa awam: apa yang sekarang bisa dilihat atau dicoba, apa yang belum, dan apa berikutnya.
 
 ### Rencana bergulir

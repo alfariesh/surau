@@ -1,6 +1,6 @@
 # X21 · Terjemahan ulang terarah Ihya sesudah T-17 tahap 3
 
-> **Fase:** sisipan (sesudah T-17 tahap 3, sebelum `/rilis 4`) · **Status:** berjalan (rancangan + biaya diajukan; batch berbayar menunggu izin pemilik)
+> **Fase:** sisipan (sesudah T-17 tahap 3, sebelum `/rilis 4`) · **Status:** selesai (2026-10-27; korpus `ihya-v9` tayang, PR #172; lihat STATUS.md dan LOG.md. Semula: berjalan, rancangan + biaya diajukan, batch berbayar menunggu izin pemilik)
 > **Prasyarat:** T-17 tahap 3 dinilai agent 2026-10-26 (ADR-105, [laporan](../../data/reports/ihya-9472-t17-tahap3.md)) · izin pemilik di chat untuk setiap batch berbayar (CLAUDE.md aturan 4) · T-28 (`data/build/llm` dan `data/raw/kemenag` di mesin agent) sebelum korpus berikutnya dibangun
 > **Perkiraan:** 2–3 percakapan agent
 
