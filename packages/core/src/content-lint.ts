@@ -2,6 +2,8 @@
 // (`narrativeProblems`: tanpa huruf Arab, fatwa, sapaan, status hadits, parafrase ayat), panjang,
 // judul dan soal yang tidak monoton, gagasan meta, janji manfaat, dan rujukan antarbutir. Dipakai
 // luring oleh CLI (CI) dan sebagai bagian `checkContentDraft` (MCP `/redaksi`).
+import { indonesianSentences } from "@surau/text";
+
 import { CONTENT_LIMITS, CONTENT_MODELS } from "./content-schema.ts";
 import type { ContentDraft, ContentIssue } from "./content-schema.ts";
 import { narrativeProblems, quoteTranslationTextProblems } from "./narrative-check.ts";
@@ -211,11 +213,10 @@ function lintCore(c: Collector, text: string, range: Range): void {
       'inti tidak dibuka "Bagian/Teks ini membahas"; tulis isinya',
     );
   }
-  const sentences = text
-    .trim()
-    .split(/(?<=[.!?])\s+/u)
-    .filter(Boolean);
-  if (sentences.length > 1) c.error("not_one_sentence", "isi.inti", "inti satu kalimat");
+  // Pemecah kalimat bersama (mengenal "saw.", "Swt.", "ra.", inisial), bukan pecah di setiap titik.
+  if (indonesianSentences(text.trim()).length > 1) {
+    c.error("not_one_sentence", "isi.inti", "inti satu kalimat");
+  }
 }
 
 /** Semua masalah teks satu draf yang sudah lolos skema. */

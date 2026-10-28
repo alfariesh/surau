@@ -29,7 +29,7 @@ import { isQuoteSpan } from "@surau/text";
 
 import { loadCiteContext } from "./citation.ts";
 
-import { digestTierOf, readingMinutes } from "./digest.ts";
+import { digestTierOf, leafPointRange, readingMinutes } from "./digest.ts";
 import { NotFound, parseInput } from "./errors.ts";
 import {
   CONTENT_LIMITS,
@@ -99,12 +99,11 @@ class Issues {
   }
 }
 
-/** Jumlah gagasan Intisari Bab menurut panjang teks (aturan pipeline `leafPointRange`). */
+/** Jumlah gagasan Intisari Bab: bab induk 3–7, selain itu menurut panjang teks (`leafPointRange`). */
 function pointRange(bodyChars: number, hasChildren: boolean): readonly [number, number] {
   if (hasChildren) return [3, 7];
-  if (bodyChars < 1_500) return [1, 3];
-  if (bodyChars < 5_000) return [2, 5];
-  return [3, 7];
+  const r = leafPointRange(bodyChars);
+  return [r.min, r.max];
 }
 
 interface Section {
@@ -482,7 +481,7 @@ export async function checkContentDraft(
 
 /** Terjemahan yang dibuka kata sambung atau urutan daftar: potongan, bukan gagasan utuh. */
 const FRAGMENT_OPENER =
-  /^(?:dan|atau|lalu|kemudian|adapun|sedangkan|tetapi|namun|maka|yang\s+(?:pertama|kedua|ketiga|keempat|kelima|terakhir)|(?:pertama|kedua|ketiga|keempat|kelima)\s*[,:])\b/iu;
+  /^(?:(?:dan|atau|lalu|kemudian|adapun|sedangkan|tetapi|namun|maka|yang\s+(?:pertama|kedua|ketiga|keempat|kelima|terakhir))\b|(?:pertama|kedua|ketiga|keempat|kelima)\s*[,:])/iu;
 
 // ── Faedah ───────────────────────────────────────────────────────────────────────────────────
 
@@ -493,7 +492,7 @@ export interface FaedahFacts {
   needsReview: boolean;
   translation: TranslationRow | null;
   notAuthor: boolean;
-  /** Ada Intisari (bagian paragraf atau bagian yang diminta) untuk menilai sikap penulis. */
+  /** Paragraf dijangkar gagasan Intisari yang tampil, jadi sikap penulisnya diketahui. */
   stanceChecked: boolean;
 }
 
@@ -543,18 +542,17 @@ export async function loadFaedahFacts(
     Promise.all(nodes.map((n) => getDigest(db, n, CONTENT_LANG))),
   ]);
   const notAuthor = new Set<number>();
-  const digested = new Set<number>();
+  // Sikap hanya diketahui untuk paragraf yang dijangkar gagasan yang tampil; paragraf lain di
+  // bagian ber-Intisari tetap "belum dicek" (peninjau X22).
+  const anchored = new Set<number>();
   for (const rows of digests) {
-    if (rows !== null && rows.digest.review_status !== "rejected") {
-      digested.add(rows.digest.toc_node_id);
-    }
     if (rows === null || rows.digest.review_status === "rejected") continue;
     const stance = new Map(rows.points.map((p) => [p.ord, p]));
     for (const a of rows.anchors) {
       const point = stance.get(a.point_ord);
-      if (point !== undefined && point.review_status !== "rejected" && point.stance !== "author") {
-        notAuthor.add(a.passage_id);
-      }
+      if (point === undefined || point.review_status === "rejected") continue;
+      anchored.add(a.passage_id);
+      if (point.stance !== "author") notAuthor.add(a.passage_id);
     }
   }
   const tBy = new Map(translations.map((t) => [t.passage_id, t]));
@@ -567,7 +565,7 @@ export async function loadFaedahFacts(
         needsReview: flags.some((f) => f.passage_id === p.id),
         translation: tBy.get(p.id) ?? null,
         notAuthor: notAuthor.has(p.id),
-        stanceChecked: digested.has(sectionId) || digested.has(p.toc_node_id ?? sectionId),
+        stanceChecked: anchored.has(p.id),
       },
     ]),
   );
@@ -612,7 +610,7 @@ async function checkFaedah(
       issues.warn(
         "stance_unchecked",
         `isi.butir[${i}].passage_id`,
-        "belum ada Intisari untuk menilai sikap penulis; pastikan ini pendapat al-Ghazali sendiri",
+        "sikap paragraf ini belum dicek Intisari mana pun; pastikan ini pendapat al-Ghazali sendiri",
       );
     }
   });
@@ -734,6 +732,14 @@ export async function readinessIssues(d: ContentDraft): Promise<ContentIssue[]> 
       code: "stamp_mismatch",
       path: "periksa.kode.draf_sha256",
       message: "isi berubah sesudah dicek; jalankan cek ulang",
+    });
+  }
+  const indep = d.periksa.independen;
+  if (indep !== null && indep.draf_sha256 !== (await contentDraftSha256(d))) {
+    out.push({
+      code: "review_stale",
+      path: "periksa.independen.draf_sha256",
+      message: "isi berubah sesudah periksa independen; ulangi lapis 3",
     });
   }
   if (d.status === "siap") {

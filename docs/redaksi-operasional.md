@@ -31,7 +31,7 @@ Cara memasang ada di tugas pemilik **T-33** ([TUGAS-PEMILIK](../implementasi/TUG
 2. **Buat.** Ketik di chat baru, misalnya "Buat Intisari Bab 100007" atau "Buat 7 Faedah dari bab 100008". Skill membaca teks lewat konektor, menyusun draf, mencari offset kutipan dengan `verify_quote`, lalu menjalankan `check_content_draft` sampai lolos.
 3. **Periksa mandiri.** Skill `periksa-draf` membaca ulang paragraf dasar tiap gagasan dan mengisi `periksa.mandiri` (Benar/Kurang/Salah). Yang Salah diperbaiki dulu.
 4. **Unduh** berkas JSON yang dibuat Claude (mis. `intisari-bab-100007.json`). Jangan mengedit isinya dengan tangan; perubahan sesudah dicek membuat cap kode tidak cocok.
-5. **Impor.** Buka Claude Code di repo Surau dan ketik "impor konten dari Downloads". Agen menjalankan `pnpm konten impor <berkas>`, lalu agen `pemeriksa-konten` (konteks segar, model berbeda bila bisa) mengisi `periksa.independen`. Bila lolos tanpa Salah, status menjadi `siap`, lalu agen membuat PR dan menggabungkannya sesudah CI hijau.
+5. **Impor.** Buka Claude Code di repo Surau dan ketik "impor konten dari Downloads". Agen menjalankan `pnpm konten impor <berkas>`, lalu agen `pemeriksa-konten` (konteks segar, model berbeda bila bisa) mengisi `periksa.independen`. Hasilnya disimpan apa adanya, terikat sidik isi yang dinilai (`draf_sha256`); bila isi diubah sesudahnya, lapis 3 diulang. Bila lolos tanpa Salah, status menjadi `siap`, lalu agen membuat PR dan menggabungkannya sesudah CI hijau.
 6. **Terbit** di build korpus berikutnya (X23). Sampai X23 selesai, berkas tersimpan di repo tetapi belum tampil.
 
 ## 5. Model dan kuota
@@ -70,7 +70,7 @@ Penilaian agen AI tidak pernah dilabeli sebagai tinjauan manusia (ADR-105).
 |---|---|---|
 | 1. Cek kode (`check_content_draft`, `pnpm konten cek`) | galat / peringatan | Galat wajib diperbaiki; peringatan wajib dibaca (mis. cakupan dasar rendah, sikap belum bisa dicek) |
 | 2. Periksa mandiri (skill `periksa-draf`) | Benar / Kurang / Salah per butir | Salah = perbaiki sebelum diunduh |
-| 3. Periksa independen (agen `pemeriksa-konten`) | Benar / Kurang / Salah per butir | Satu Salah = tidak terbit. Kurang boleh terbit bila catatannya ditulis; rapikan bila murah |
+| 3. Periksa independen (agen `pemeriksa-konten`) | Benar / Kurang / Salah per butir | Satu Salah = tidak terbit. Kurang boleh terbit dengan catatan pemeriksa. Bila Kurang dirapikan, isi berubah: cap ulang (`pnpm konten cek --cap`) dan ulangi lapis 3 |
 
 Cek kode menjaga bentuk dan alamat, bukan makna. Kesetiaan makna dijaga lapis 2 dan 3, yang sama-sama AI dan bisa keliru bersamaan. Karena itu tombol Laporkan (X23) dan penarikan cepat wajib ada.
 

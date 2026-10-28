@@ -67,12 +67,8 @@ export interface CountRange {
   max: number;
 }
 
-/** Jumlah gagasan untuk sebuah teks menurut panjangnya (karakter Arab): "mengikuti panjang teks". */
-export function leafPointRange(chars: number): CountRange {
-  if (chars < 1_500) return { min: 1, max: 3 };
-  if (chars < 5_000) return { min: 2, max: 5 };
-  return { min: 3, max: 7 };
-}
+// Jumlah gagasan menurut panjang teks: satu aturan di @surau/core (X22).
+export { leafPointRange } from "@surau/core";
 
 /** Jumlah gagasan Intisari gabungan: rentang tingkatnya, dibatasi gagasan sumber yang tersedia. */
 export function mergePointRange(tier: DigestTier, available: number): CountRange {

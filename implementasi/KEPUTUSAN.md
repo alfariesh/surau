@@ -132,7 +132,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 120 | STATUS.md dipangkas: bagian Sekarang diringkas, teks lama dipindah apa adanya ke arsip | diterima | 2026-10-28 | [keputusan/ADR-120.md](keputusan/ADR-120.md) |
 | 121 | Gerbang Preview vinext (ADR-119 tahap 1): vinext tidak dimigrasi; LCP ponsel yang sama tampaknya bisa didapat di Next dengan menunda skrip sampai CSS selesai | diterima | 2026-10-28 | [keputusan/ADR-121.md](keputusan/ADR-121.md) |
 | 122 | Konfigurasi project tes workerd memakai `defineProject` dari Vite+ | diterima | 2026-10-28 | [keputusan/ADR-122.md](keputusan/ADR-122.md) |
-| 123 | Konten turunan lewat Claude Desktop + plugin `surau-redaksi`: format `surau-konten/1`, cek otomatis tiga lapis, endpoint MCP `/redaksi` | diterima | 2026-10-28 | [keputusan/ADR-121.md](keputusan/ADR-123.md) |
+| 123 | Konten turunan lewat Claude Desktop + plugin `surau-redaksi`: format `surau-konten/1`, cek otomatis tiga lapis, endpoint MCP `/redaksi` | diterima | 2026-10-28 | [keputusan/ADR-123.md](keputusan/ADR-123.md) |
 
 ## Cara menambah ADR baru
 

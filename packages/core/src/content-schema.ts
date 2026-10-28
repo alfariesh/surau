@@ -122,7 +122,12 @@ export const faedahContent = z.strictObject({
         passage_id: id,
         judul: words,
         konteks: words,
-        tema: z.array(z.string().trim().min(2).max(24)).min(1).max(CONTENT_LIMITS.faedah.temaMax),
+        tema: z
+          .array(
+            z.string().regex(/^[a-z][a-z' -]{1,23}$/u, "tema: huruf kecil Latin, 2–24 karakter"),
+          )
+          .min(1)
+          .max(CONTENT_LIMITS.faedah.temaMax),
       }),
     )
     .min(1)
@@ -182,6 +187,8 @@ export const contentReview = z.strictObject({
     .strictObject({
       penilai: z.string().min(1).max(160),
       tanggal: z.iso.date(),
+      /** Sidik isi yang dinilai (`contentDraftSha256`): isi berubah = periksa ulang. */
+      draf_sha256: sha256,
       nilai: z.array(z.strictObject({ ke, nilai: verdict, catatan })),
       laporan: z.string().max(200).nullable(),
     })

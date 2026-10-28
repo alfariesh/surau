@@ -20,7 +20,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, join, relative, resolve } from "node:path";
+import { basename, join, relative, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
 
 import {
@@ -178,7 +178,13 @@ async function cek(
       const r = await checkContentDraft(corpus.db, input);
       const parsed = contentDraft.safeParse(input);
       const ready = parsed.success ? await readinessIssues(parsed.data) : [];
-      if (stamp && parsed.success && r.ok && r.stamp !== null && file.startsWith(CONTENT_DIR)) {
+      if (
+        stamp &&
+        parsed.success &&
+        r.ok &&
+        r.stamp !== null &&
+        file.startsWith(CONTENT_DIR + sep)
+      ) {
         // Isi berubah sesudah cap lama: cap baru, dan periksa independen wajib diulang.
         const out: ContentDraft = {
           ...parsed.data,

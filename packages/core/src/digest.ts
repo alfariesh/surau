@@ -49,6 +49,13 @@ export function digestTierOf(level: number, hasChildNodes: boolean): "book" | "s
   return level === 2 || (level === 1 && !hasChildNodes) ? "book" : "section";
 }
 
+/** Jumlah gagasan untuk sebuah teks menurut panjangnya (karakter Arab): "mengikuti panjang teks". */
+export function leafPointRange(chars: number): { min: number; max: number } {
+  if (chars < 1_500) return { min: 1, max: 3 };
+  if (chars < 5_000) return { min: 2, max: 5 };
+  return { min: 3, max: 7 };
+}
+
 /** Perkiraan waktu baca teks AI (menit, dibulatkan ke atas, minimal 1). */
 export function readingMinutes(chars: number): number {
   return Math.max(1, Math.ceil(chars / DIGEST_READ_CHARS_PER_MINUTE));

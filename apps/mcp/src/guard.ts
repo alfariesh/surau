@@ -14,6 +14,8 @@ export interface GuardEnv {
   MCP_READ_GLOBAL_LIMITER: Limiter;
   MCP_SEARCH_LIMITER: Limiter;
   MCP_SEARCH_GLOBAL_LIMITER: Limiter;
+  /** Dua tool /redaksi (X22): per klien + kunci tetap "global" di binding yang sama. */
+  MCP_REDAKSI_LIMITER: Limiter;
   /** Secret Worker; tanpa ini setiap tool menjawab `not_configured` (gagal tertutup). */
   IP_HMAC_KEY?: string;
 }
@@ -30,11 +32,10 @@ export function clientIp(request: Request | undefined): string {
 }
 
 /**
- * Tool berat: search_text (FTS) dan dua tool `/redaksi` yang membaca seluruh subtree bagian (X22).
- * Memakai limiter ketat (60/menit per klien); ember global `/redaksi` terpisah dari search publik.
+ * Tool /redaksi (X22, ADR-123): membaca seluruh subtree bagian per panggilan, pemakainya penulis
+ * konten. Limiter sendiri yang kecil; plafon semua klien = kunci "global" di binding yang sama.
  */
-export const HEAVY_TOOLS: ReadonlySet<string> = new Set([
-  "search_text",
+export const REDAKSI_TOOLS_LIMITED: ReadonlySet<string> = new Set([
   "check_content_draft",
   "list_faedah_candidates",
 ]);
@@ -50,10 +51,14 @@ export async function guardTool(
   // tidak berbagi kuota dengan semua pengguna claude.ai yang lewat IP Anthropic (X22).
   const scope = endpoint === "mcp" ? "" : `${endpoint}:`;
   const key = `${await ipKey(env.IP_HMAC_KEY, ipNetwork(clientIp(request)))}:${scope}${tool}`;
-  if (HEAVY_TOOLS.has(tool)) {
+  if (REDAKSI_TOOLS_LIMITED.has(tool)) {
+    if (!(await env.MCP_REDAKSI_LIMITER.limit({ key })).success) return "rate_limited";
+    return (await env.MCP_REDAKSI_LIMITER.limit({ key: "global" })).success ? "ok" : "rate_limited";
+  }
+  if (tool === "search_text") {
+    // Ember per klien berlingkup endpoint; plafon global FTS satu untuk kedua endpoint.
     if (!(await env.MCP_SEARCH_LIMITER.limit({ key })).success) return "rate_limited";
-    const global = endpoint === "mcp" ? "global" : `global:${endpoint}`;
-    if (!(await env.MCP_SEARCH_GLOBAL_LIMITER.limit({ key: global })).success) {
+    if (!(await env.MCP_SEARCH_GLOBAL_LIMITER.limit({ key: "global" })).success) {
       return "rate_limited";
     }
     return "ok";

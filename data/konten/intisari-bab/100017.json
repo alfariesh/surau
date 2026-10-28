@@ -5,7 +5,7 @@
   "lang": "id",
   "versi": 1,
   "menggantikan": "digest-section@2",
-  "status": "siap",
+  "status": "draf",
   "asal": {
     "pembuat": "claude-code",
     "model": "claude-opus-5-5",
@@ -52,54 +52,13 @@
         "catatan": "p645 sampai p662: batasan sedapat mungkin dipertahankan, riwayat bertakhrij tidak ditemukan di p645 tidak disebut, kutipan p662 kalimat penulis sendiri."
       }
     ],
-    "independen": {
-      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
-      "tanggal": "2026-10-28",
-      "nilai": [
-        {
-          "ke": 1,
-          "nilai": "benar",
-          "catatan": "Setia pada p536, p541, p547, p554; negasi, alasan, dan batasan niat terjaga."
-        },
-        {
-          "ke": 2,
-          "nilai": "benar",
-          "catatan": "Makna lahir ditetapkan lalu ditambah isyarat batin; Batiniyah dinisbahkan tepat. Dua catatan kecil (\"tetap diakui\", \"dan sejenisnya\") sudah diterapkan."
-        },
-        {
-          "ke": 3,
-          "nilai": "benar",
-          "catatan": "Perumpamaan aliran air, pasien dan dokter, tanah gembur, dan izin bertanya sesuai p556-p568."
-        },
-        {
-          "ke": 4,
-          "nilai": "benar",
-          "catatan": "Tugas keempat sampai ketujuh tepat; batasan pemula dan biasanya terjaga."
-        },
-        {
-          "ke": 5,
-          "nilai": "benar",
-          "catatan": "Dua ukuran kemuliaan, niat, fardu kifayah, dan perumpamaan haji sesuai teks."
-        },
-        {
-          "ke": 6,
-          "nilai": "benar",
-          "catatan": "Empat keadaan ilmu, tugas pertama dan kedua guru, dan batasan guru ilmu akhirat ditulis sebagai sikap penulis."
-        },
-        {
-          "ke": 7,
-          "nilai": "kurang",
-          "catatan": "\"Pintu perdebatan\" terlalu sempit dan terjemahan kutipan p662 membuang bentuk anjuran. Sudah diperbaiki sesuai saran pemeriksa."
-        }
-      ],
-      "laporan": "data/reports/konten-qa-2026-10-28.md"
-    },
+    "independen": null,
     "kode": {
       "aturan": "konten@1",
       "lolos": true,
       "sumber_sha256": "18a662e62c304a1d12730629f12c4938cbae180cc29db8bd29e6061ee222a5b8",
       "draf_sha256": "5f226bdbb924827e5daa23799b6778b21d326159f4c6067e670ede7145bb2cd3",
-      "waktu": "2026-10-28T04:15:51.253Z"
+      "waktu": "2026-10-28T04:32:32.151Z"
     }
   },
   "jenis": "intisari-bab",

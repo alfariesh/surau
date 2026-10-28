@@ -15,7 +15,12 @@ import {
   longPassageId,
   seedCore,
 } from "../test/fixture.ts";
-import { checkContentDraft, contentDraftSha256, listFaedahCandidates } from "./content-check.ts";
+import {
+  checkContentDraft,
+  contentDraftSha256,
+  listFaedahCandidates,
+  readinessIssues,
+} from "./content-check.ts";
 import {
   CONTENT_FORMAT,
   CONTENT_RULES,
@@ -383,5 +388,145 @@ describe("contentDraftSha256 dan listFaedahCandidates", () => {
     expect(all.candidates.find((c) => c.passage_id === B13)?.reasons).toContain(
       "faedah_not_author",
     );
+  });
+});
+
+describe("checkContentDraft: Intisari Kitab dan aturan tambahan (peninjau X22)", () => {
+  const LONG_ISI = `${ISI} ${ISI} Penulis menutup uraian ini dengan menegaskan bahwa ilmu menjadi jalan menuju kedekatan kepada Allah Swt.`;
+  const kids = [tocNodeId(ED, 60), tocNodeId(ED, 61)];
+  const kitab = (bab: (i: number) => number[]) => ({
+    format: CONTENT_FORMAT,
+    jenis: "intisari-kitab",
+    edition_id: ED,
+    section_id: T_LONG_CHILD,
+    status: "draf",
+    isi: {
+      inti: INTI,
+      pembuka: RINGKASAN,
+      ringkasan: RINGKASAN,
+      gagasan: [1, 2, 3, 4, 5].map((n, i) => ({
+        judul: `Gagasan besar ke-${n} tentang ilmu dan amal, menurut penulis`,
+        isi: LONG_ISI,
+        sikap: "author",
+        jenis: "idea",
+        bab: bab(i),
+        dasar: [longPassageId(7 + i, 2)],
+        soal: {
+          tanya: `Apa isi gagasan besar ke-${n} dalam kitab ini?`,
+          jawab: "Ilmu menuntun amal dan hati.",
+        },
+      })),
+      kutipan: [] as never[],
+      istilah: [] as string[],
+      penutup:
+        "Penulis mengajak pembaca kembali membaca bab-bab kitab ini secara utuh dan perlahan bersama guru yang dipercaya.",
+    },
+    asal: { ...ASAL, skill: "intisari-kitab@1" },
+  });
+
+  beforeAll(async () => {
+    await db.batch(
+      kids.map((id, i) =>
+        db
+          .prepare(
+            `INSERT INTO toc_node (id, edition_id, parent_id, ord, level, title_ar, start_page_id)
+             VALUES (?, ?, ?, ?, 3, 'باب تجريبي', ?)`,
+          )
+          .bind(id, ED, T_LONG_CHILD, 10 + i, pageId(ED, 10)),
+      ),
+    );
+  });
+
+  test("Kitab baik lolos; Bab anak tak dirujuk dan bab di luar Kitab ditolak", async () => {
+    // Semua anak langsung Kitab (termasuk bab dari tes Jalur di berkas ini) dirujuk gagasan 1.
+    const { results } = await db
+      .prepare("SELECT id FROM toc_node WHERE parent_id = ? ORDER BY id")
+      .bind(T_LONG_CHILD)
+      .all();
+    const all = results.map((r) => Number(r.id));
+    const good = await checkContentDraft(
+      db,
+      kitab((i) => (i === 0 ? all.slice(0, 10) : [kids[i % 2]!])),
+    );
+    expect(good.errors).toEqual([]);
+    expect(good.facts?.reading_minutes).toBeGreaterThan(0);
+    const bad = await checkContentDraft(
+      db,
+      kitab((i) => (i === 0 ? [T_ROOT] : [kids[0]!])),
+    );
+    expect(codes(bad)).toEqual(expect.arrayContaining(["outside_kitab", "uncovered_chapter"]));
+    const few = kitab(() => [kids[0]!, kids[1]!]);
+    few.isi.gagasan = few.isi.gagasan.slice(0, 3);
+    few.isi.pembuka =
+      "Kitab ini dijamin mengubah hidup pembaca dalam waktu singkat dan penuh berkah bagi semua yang membacanya dengan sungguh-sungguh setiap hari tanpa henti sampai akhir hayat mereka nanti di dunia ini.";
+    expect(codes(await checkContentDraft(db, few))).toEqual(
+      expect.arrayContaining(["point_count", "promise"]),
+    );
+  });
+
+  test("inti dengan singkatan saw. tetap satu kalimat; dua kalimat ditolak; jumlah gagasan Bab", async () => {
+    const d = babDraft();
+    d.isi.inti =
+      "Menurut al-Ghazali, sabda Nabi saw. menempatkan pengajaran ilmu sebagai pekerjaan yang paling mulia sesudah kenabian.";
+    expect(codes(await checkContentDraft(db, d))).not.toContain("not_one_sentence");
+    d.isi.inti = `${INTI} Ini kalimat kedua yang menambah keterangan lain.`;
+    expect(codes(await checkContentDraft(db, d))).toContain("not_one_sentence");
+    const one = babDraft();
+    one.isi.gagasan = one.isi.gagasan.slice(0, 1);
+    one.isi.kutipan = [];
+    expect(codes(await checkContentDraft(db, one))).toContain("point_count");
+  });
+
+  test("Faedah: tema bukan huruf kecil Latin ditolak; paragraf tak dijangkar = sikap belum dicek", async () => {
+    const d = {
+      format: CONTENT_FORMAT,
+      jenis: "faedah",
+      edition_id: ED,
+      section_id: T_LONG,
+      status: "draf",
+      isi: {
+        butir: [
+          {
+            passage_id: B12,
+            judul: "Niat yang lurus memudahkan jalan ilmu",
+            konteks:
+              "Penulis menulis ini ketika menjelaskan hubungan niat dengan keberkahan belajar.",
+            tema: ["Ilmu!"],
+          },
+        ],
+      },
+      asal: { ...ASAL, skill: "faedah@1" },
+    };
+    expect(codes(await checkContentDraft(db, d))).toContain("schema");
+    d.isi.butir[0]!.tema = ["ilmu"];
+    const r = await checkContentDraft(db, d);
+    expect(r.ok).toBe(true);
+    // B12 tidak dijangkar Intisari T_LONG (hanya B13), jadi sikapnya belum dicek.
+    expect(r.warnings.map((w) => w.code)).toContain("stance_unchecked");
+  });
+});
+
+describe("readinessIssues: periksa independen terikat sidik draf", () => {
+  test("isi berubah sesudah periksa independen → review_stale", async () => {
+    const d = contentDraft.parse(babDraft());
+    const sha = await contentDraftSha256(d);
+    const indep = {
+      penilai: "Agen uji",
+      tanggal: "2026-10-28",
+      draf_sha256: sha,
+      nilai: [],
+      laporan: null,
+    };
+    expect(await readinessIssues({ ...d, periksa: { ...d.periksa, independen: indep } })).toEqual(
+      [],
+    );
+    const base = babDraft();
+    const edited = contentDraft.parse({
+      ...base,
+      isi: { ...base.isi, inti: `${INTI.slice(0, -1)} dan amal.` },
+      periksa: { independen: indep },
+    });
+    const out = await readinessIssues(edited);
+    expect(out.map((i) => i.code)).toContain("review_stale");
   });
 });

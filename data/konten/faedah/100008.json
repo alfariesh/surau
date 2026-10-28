@@ -5,7 +5,7 @@
   "lang": "id",
   "versi": 1,
   "menggantikan": null,
-  "status": "siap",
+  "status": "draf",
   "asal": {
     "pembuat": "claude-code",
     "model": "claude-opus-5-5",
@@ -42,44 +42,13 @@
         "catatan": "p181: diperbaiki sesudah periksa independen (kurang): judul memakai \"wewenang\" dan \"ulama pewaris nabi\", konteks \"berwenang atas batin orang awam\" sesuai p181-p182."
       }
     ],
-    "independen": {
-      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
-      "tanggal": "2026-10-28",
-      "nilai": [
-        {
-          "ke": 1,
-          "nilai": "benar",
-          "catatan": "p167: tiga macam hal berharga dan dirham-dinar sebagai sarana sesuai teks; utuh dibaca sendiri."
-        },
-        {
-          "ke": 2,
-          "nilai": "benar",
-          "catatan": "p168: terjemahan setia; pembuka \"Adapun\" dijelaskan konteks; pendapat penulis sendiri."
-        },
-        {
-          "ke": 3,
-          "nilai": "benar",
-          "catatan": "p178: pandai besi dan pemintal melayani pekerjaan pokok; konteks menjelaskan tiga golongan pekerjaan."
-        },
-        {
-          "ke": 4,
-          "nilai": "benar",
-          "catatan": "p180: negasi atas lahir, bukan batin, terjaga; urutan tingkat di konteks sesuai p179-p182."
-        },
-        {
-          "ke": 5,
-          "nilai": "kurang",
-          "catatan": "p181: judul semula melemahkan \"wewenang\" dan mengumumkan ulama. Judul dan konteks sudah diganti sesuai saran pemeriksa."
-        }
-      ],
-      "laporan": "data/reports/konten-qa-2026-10-28.md"
-    },
+    "independen": null,
     "kode": {
       "aturan": "konten@1",
       "lolos": true,
       "sumber_sha256": "454ebf7b21e732549170c57cff583e2696526206f36a7efc601a97f927e89a74",
       "draf_sha256": "e94a077263e98790d86b0a0f3ffdf8ac2fcf9c039113db16093fabdb89d56fb2",
-      "waktu": "2026-10-28T04:12:39.052Z"
+      "waktu": "2026-10-28T04:32:32.717Z"
     }
   },
   "jenis": "faedah",

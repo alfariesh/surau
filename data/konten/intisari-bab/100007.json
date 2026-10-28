@@ -5,7 +5,7 @@
   "lang": "id",
   "versi": 1,
   "menggantikan": "digest-section@2",
-  "status": "siap",
+  "status": "draf",
   "asal": {
     "pembuat": "claude-code",
     "model": "claude-opus-5-5",
@@ -34,7 +34,7 @@
       {
         "ke": 4,
         "nilai": "benar",
-        "catatan": "p136: kedua sabda menyebut ibadah satu tahun (sanah, bukan sunnah) dan draf menulis setahun di judul, isi, dan soal; sebab-akibat tambahan pada kisah dua majelis dihapus."
+        "catatan": "p136: kedua sabda menyebut ibadah satu tahun (sanah, bukan sunah) dan draf menulis setahun di judul, isi, dan soal; sebab-akibat tambahan pada kisah dua majelis dihapus."
       },
       {
         "ke": 5,
@@ -44,7 +44,7 @@
       {
         "ke": 6,
         "nilai": "benar",
-        "catatan": "p148-p149: tiga perkara, penunjuk kebaikan, dua orang yang boleh diirikan, dan pengganti Nabi yang menghidupkan sunnah beliau (di sini memang sunnah) sesuai teks; ucapan Umar dirapikan agar menyebut pahala seperti pelakunya."
+        "catatan": "p148-p149: tiga perkara, penunjuk kebaikan, dua orang yang boleh diirikan, dan pengganti Nabi yang menghidupkan sunah beliau (di sini memang sunah) sesuai teks; ucapan Umar dirapikan agar menyebut pahala seperti pelakunya."
       },
       {
         "ke": 7,
@@ -52,54 +52,13 @@
         "catatan": "p151-p158: kisah Sufyan dengan penjelasan penulis, tangis Sa'id, pelita zaman, al-Hasan, Yahya bin Mu'adz, dan ucapan Mu'adz yang juga penulis lihat marfu' sesuai teks; label ulama salaf diganti para ulama karena Yahya bin Mu'adz lebih belakangan."
       }
     ],
-    "independen": {
-      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
-      "tanggal": "2026-10-28",
-      "nilai": [
-        {
-          "ke": 1,
-          "nilai": "benar",
-          "catatan": "Keterangan penulis atas tiga ayat, janji ulama, dan pesan kepada Mu'adz setia; sikap author tepat; isi ayat tidak ditulis."
-        },
-        {
-          "ke": 2,
-          "nilai": "benar",
-          "catatan": "Tujuh puluh shiddiq, ucapan Nabi Isa, dan batasan penulis soal ilmu yang menjalar lewat pengajaran sesuai p134-p135."
-        },
-        {
-          "ke": 3,
-          "nilai": "benar",
-          "catatan": "Ilmu pergi bersama wafatnya ulama dan kekang api bagi penyembunyi sesuai p136; syarat bila ditanya tetap ada."
-        },
-        {
-          "ke": 4,
-          "nilai": "kurang",
-          "catatan": "Bilangan setahun benar; kalimat penutup kisah dua majelis sempat menggabungkan tindakan Nabi ke dalam sabda. Sudah diperbaiki sesuai saran pemeriksa."
-        },
-        {
-          "ke": 5,
-          "nilai": "benar",
-          "catatan": "Tiga macam tanah dan penjelasannya sesuai p136; urutan tepat."
-        },
-        {
-          "ke": 6,
-          "nilai": "kurang",
-          "catatan": "Isi setia p148-p149, tetapi judul menyimpulkan pahala pengajar sesudah wafat. Judul sudah diganti sesuai saran pemeriksa."
-        },
-        {
-          "ke": 7,
-          "nilai": "benar",
-          "catatan": "Ucapan Sufyan, Sa'id, al-Hasan, Yahya bin Mu'adz, dan Mu'adz sesuai p151-p158; sikap reported tepat."
-        }
-      ],
-      "laporan": "data/reports/konten-qa-2026-10-28.md"
-    },
+    "independen": null,
     "kode": {
       "aturan": "konten@1",
       "lolos": true,
       "sumber_sha256": "a4d01ae60b0338d0bbc53da802fb8d497d7412db8df9783b7e752bf640464103",
-      "draf_sha256": "1101e213ba77dc6e224ca741aee7b3f107bf88c69cf83c1df6b0360fc8a41f4b",
-      "waktu": "2026-10-28T04:13:33.996Z"
+      "draf_sha256": "13b486352bc09084afac3d50c13d9cc845cf2e7853a9905e101813a5459187f6",
+      "waktu": "2026-10-28T04:32:30.660Z"
     }
   },
   "jenis": "intisari-bab",
@@ -164,13 +123,13 @@
       },
       {
         "judul": "Ilmu yang dimanfaatkan dan kebaikan yang diajarkan terus berpahala, menurut riwayat yang dinukil",
-        "isi": "Penulis menukil sabda bahwa amal anak Adam terputus saat ia wafat kecuali tiga, di antaranya ilmu yang terus dimanfaatkan; bahwa orang yang menunjukkan kebaikan seperti pelakunya; dan bahwa tidak ada iri kecuali kepada dua orang, yaitu orang yang diberi hikmah lalu memutuskan perkara dengannya dan mengajarkannya, serta orang yang diberi harta lalu membelanjakannya dalam kebaikan. Ia menukil pula doa rahmat Nabi saw. bagi para penggantinya, yaitu orang-orang yang menghidupkan sunnah beliau dan mengajarkannya. Umar berkata bahwa orang yang menyampaikan suatu riwayat lalu riwayat itu diamalkan mendapat pahala seperti pelakunya, dan Ibnu Abbas menyebut segala sesuatu memohonkan ampun bagi pengajar kebaikan.",
+        "isi": "Penulis menukil sabda bahwa amal anak Adam terputus saat ia wafat kecuali tiga, di antaranya ilmu yang terus dimanfaatkan; bahwa orang yang menunjukkan kebaikan seperti pelakunya; dan bahwa tidak ada iri kecuali kepada dua orang, yaitu orang yang diberi hikmah lalu memutuskan perkara dengannya dan mengajarkannya, serta orang yang diberi harta lalu membelanjakannya dalam kebaikan. Ia menukil pula doa rahmat Nabi saw. bagi para penggantinya, yaitu orang-orang yang menghidupkan sunah beliau dan mengajarkannya. Umar berkata bahwa orang yang menyampaikan suatu riwayat lalu riwayat itu diamalkan mendapat pahala seperti pelakunya, dan Ibnu Abbas menyebut segala sesuatu memohonkan ampun bagi pengajar kebaikan.",
         "sikap": "reported",
         "jenis": "idea",
         "dasar": [10000148, 10000149],
         "soal": {
           "tanya": "Siapa yang disebut sebagai pengganti Nabi saw. dalam sabda yang dinukil penulis?",
-          "jawab": "Orang-orang yang menghidupkan sunnah beliau dan mengajarkannya kepada hamba-hamba Allah."
+          "jawab": "Orang-orang yang menghidupkan sunah beliau dan mengajarkannya kepada hamba-hamba Allah."
         }
       },
       {

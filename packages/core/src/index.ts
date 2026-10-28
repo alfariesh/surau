@@ -12,6 +12,7 @@ export { readSection } from "./section.ts";
 export {
   DIGEST_READ_CHARS_PER_MINUTE,
   digestTierOf,
+  leafPointRange,
   readDigest,
   readingMinutes,
 } from "./digest.ts";

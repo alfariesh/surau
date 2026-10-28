@@ -109,6 +109,7 @@ describe("runTool", () => {
     MCP_READ_GLOBAL_LIMITER: yes,
     MCP_SEARCH_LIMITER: yes,
     MCP_SEARCH_GLOBAL_LIMITER: yes,
+    MCP_REDAKSI_LIMITER: yes,
     IP_HMAC_KEY: "k",
   };
   const tool = (name: string) => {

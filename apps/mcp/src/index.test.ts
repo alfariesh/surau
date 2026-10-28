@@ -622,18 +622,16 @@ describe("/redaksi: pengaman dan batas", () => {
     expect((await exports.default.fetch(new Request(REDAKSI, { method: "GET" }))).status).toBe(405);
   });
 
-  test("tool redaksi memakai batas ketat dengan ember sendiri, terpisah dari /mcp", async () => {
+  test("ember per klien berlingkup endpoint: search_text habis di /redaksi, /mcp tetap dilayani", async () => {
     const ip = nextIp();
     const client = await connect("modern", ip, REDAKSI);
-    const args = { section_id: T_LONG };
-    for (let i = 0; i < TEST_SEARCH_LIMIT; i++) await ok(client, "list_faedah_candidates", args);
-    expect((await call(client, "list_faedah_candidates", args)).content[0]?.text).toMatch(
-      /^rate_limited: /,
-    );
+    const args = { query: "نص" };
+    for (let i = 0; i < TEST_SEARCH_LIMIT; i++) await ok(client, "search_text", args);
+    expect((await call(client, "search_text", args)).content[0]?.text).toMatch(/^rate_limited: /);
     await client.close();
-    // Tool baca yang sama dari IP yang sama di /mcp memakai ember publik (tetap dilayani).
+    // Tool yang sama dari IP yang sama di /mcp memakai ember tanpa lingkup (tetap dilayani).
     const pub = await connect("modern", ip);
-    await ok(pub, "list_works", {});
+    await ok(pub, "search_text", args);
     await pub.close();
   });
 });
