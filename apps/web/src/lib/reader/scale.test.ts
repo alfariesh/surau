@@ -1,3 +1,5 @@
+import { createContext, runInContext } from "node:vm";
+
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -101,6 +103,65 @@ describe("READER_SCALE_SCRIPT: mode baca (X11)", () => {
     expect(attrs.get("data-read-mode")).toBe("ar");
     expect(attrs.get("data-tr-layout")).toBe("side");
     expect(style.get("--reader-scale")).toBe("1.3");
+  });
+});
+
+describe("READER_SCALE_SCRIPT: scope global (ADR-119)", () => {
+  // Skrip mentah di <body> berbagi scope global dengan skrip inline lain. Di vinext, `var o` lama
+  // bertabrakan dengan `const o` tingkat atas milik framework ("Identifier 'o' has already been
+  // declared"). Di sini skrip dijalankan sebagai skrip klasik di konteks global tiruan.
+  const FRAMEWORK_CONSTS = "const d=1,l=1,s=1,r=1,o=1,m=1,i=1,k=1;";
+
+  function runGlobal(storage: Record<string, string>, earlierScript?: string) {
+    const attrs = new Map<string, string>();
+    const data = new Map(Object.entries(storage));
+    const ctx = createContext({
+      document: {
+        documentElement: {
+          setAttribute: (k: string, v: string) => attrs.set(k, v),
+          style: { setProperty: () => {} },
+        },
+      },
+      localStorage: {
+        get length() {
+          return data.size;
+        },
+        key: (i: number) => [...data.keys()][i] ?? null,
+        getItem: (k: string) => data.get(k) ?? null,
+        setItem: (k: string, v: string) => data.set(k, v),
+        removeItem: (k: string) => data.delete(k),
+      },
+    });
+    if (earlierScript) runInContext(earlierScript, ctx);
+    const before = new Set(Object.keys(ctx));
+    runInContext(READER_SCALE_SCRIPT, ctx);
+    return { ctx, attrs, added: Object.keys(ctx).filter((k) => !before.has(k)) };
+  }
+
+  it("tidak menambah variabel global (fixture menjalankan pemindahan dan posisi baca)", () => {
+    const { added, attrs } = runGlobal({
+      [LEGACY_TRANSLATION_KEY]: "0",
+      "surau:reader-font": "amiri",
+      "surau:reader-scale": "1.3",
+      "surau:last-read:ihya": "1/200",
+    });
+    expect(attrs.get("data-read-mode")).toBe("ar");
+    expect(attrs.has("data-reading")).toBe(true);
+    expect(added).toEqual([]);
+  });
+
+  it("const tingkat atas skrip lain bernama sama, sesudah atau sebelumnya, tidak bertabrakan", () => {
+    const { ctx } = runGlobal({ [READ_MODE_KEY]: "ar" });
+    expect(() => runInContext(FRAMEWORK_CONSTS, ctx)).not.toThrow();
+    // Urutan terbalik: versi lama gagal diurai, jadi tidak satu pun preferensi terpasang.
+    expect(runGlobal({ [READ_MODE_KEY]: "ar" }, FRAMEWORK_CONSTS).attrs.get("data-read-mode")).toBe(
+      "ar",
+    );
+  });
+
+  it("dijalankan dua kali di scope global yang sama tanpa galat (tanpa deklarasi leksikal tingkat atas)", () => {
+    const { ctx } = runGlobal({});
+    expect(() => runInContext(READER_SCALE_SCRIPT, ctx)).not.toThrow();
   });
 });
 
