@@ -32,6 +32,18 @@
       "audio_r2_key": "ihya/id/100017-b81d9fe0c222.mp3"
     }
   ],
+  "self_checked": [
+    {
+      "toc_node_id": 100007,
+      "date": "2026-10-28",
+      "result": "Abstrak, istilah (ilmu, ulama, hadis, atsar), satu-satunya kutipan (milik gagasan 6), dan ketujuh pertanyaan dibaca lewat MCP produksi. Pembuka dan penutup kosong. Klaim ibadah sunah hanya ada di gagasan 4 dan pertanyaannya (pertanyaan 4 ikut hilang karena miliknya). Sisa Intisari tetap tampil."
+    },
+    {
+      "toc_node_id": 100017,
+      "date": "2026-10-28",
+      "result": "Abstrak, istilah (ilmu, akhlak, hati, ikhlas, akhirat), kedua kutipan (milik gagasan 3 dan 5), dan ketujuh pertanyaan dibaca lewat MCP produksi. Pembuka dan penutup kosong. Kalimat yang membalik sikap al-Ghazali hanya ada di gagasan 2; abstrak hanya menyebut hati sebagai tempat ilmu dan malaikat. Pertanyaan 2 ikut hilang karena miliknya. Sisa Intisari tetap tampil."
+    }
+  ],
   "parents_checked": [
     {
       "toc_node_id": 100004,

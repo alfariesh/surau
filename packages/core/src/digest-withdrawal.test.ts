@@ -1,7 +1,14 @@
 import { describe, expect, test } from "vite-plus/test";
 
 import raw from "../../../data/reviews/ihya-9472-intisari-tolak.json" with { type: "json" };
-import { DIGEST_WITHDRAWALS, digestWithdrawalFile, withdrawnOrds } from "./digest-withdrawal.ts";
+import {
+  DIGEST_WITHDRAWAL_DIGEST,
+  DIGEST_WITHDRAWALS,
+  digestWithdrawalFile,
+  withdrawalDigest,
+  withdrawnOrds,
+} from "./digest-withdrawal.ts";
+import { searchCacheKey } from "./search.ts";
 import { hasArabicLetters } from "./translation-text.ts";
 
 describe("daftar tarik Intisari Ihya (ADR-127)", () => {
@@ -17,7 +24,8 @@ describe("daftar tarik Intisari Ihya (ADR-127)", () => {
       // Tanpa teks kitab di git (aturan keras 3): alasan ditulis tanpa huruf Arab.
       expect(hasArabicLetters(w.reason)).toBe(false);
     }
-    // Induk yang bisa dibangun dari gagasan tertarik sudah diaudit.
+    // Bagian lain Intisari yang sama dan induk yang bisa dibangun dari gagasan tertarik sudah diaudit.
+    expect(file.self_checked.map((p) => p.toc_node_id)).toEqual([100007, 100017]);
     expect(file.parents_checked.map((p) => p.toc_node_id)).toEqual([100004, 100003]);
   });
 
@@ -28,5 +36,13 @@ describe("daftar tarik Intisari Ihya (ADR-127)", () => {
     expect(withdrawnOrds(100007, "en", at).size).toBe(0);
     expect(withdrawnOrds(100004, "id", at).size).toBe(0);
     expect(withdrawnOrds(100007, "id", at, []).size).toBe(0);
+  });
+
+  test("sidik daftar tarik ikut kunci cache Cari: penarikan baru = kunci baru", () => {
+    expect(DIGEST_WITHDRAWAL_DIGEST).toBe(withdrawalDigest(DIGEST_WITHDRAWALS));
+    expect(withdrawalDigest(DIGEST_WITHDRAWALS.slice(1))).not.toBe(DIGEST_WITHDRAWAL_DIGEST);
+    expect(withdrawalDigest([])).not.toBe(DIGEST_WITHDRAWAL_DIGEST);
+    const key = JSON.parse(searchCacheKey("sabar") ?? "null") as { v: unknown[] };
+    expect(key.v).toContain(DIGEST_WITHDRAWAL_DIGEST);
   });
 });

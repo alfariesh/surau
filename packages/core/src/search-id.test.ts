@@ -276,6 +276,8 @@ describe("searchText: jalur gagasan Intisari (X16)", () => {
       { digest: true, withdrawals: pull("2026-10-24") },
     );
     expect(hits(pulled).every((h) => h.digest_point === null)).toBe(true);
+    // Jalur gagasan tidak disebut sebagai alasan cocok bila gagasannya ditarik.
+    expect(hits(pulled).some((h) => h.matched_by.some((m) => m.path === "digest"))).toBe(false);
     expect(hits(pulled).map((h) => h.id)).toContain(PASSAGES.body1);
     // Intisari dibangun ulang (versi lain): entri tidak berlaku.
     const rebuilt = await searchText(
@@ -285,6 +287,7 @@ describe("searchText: jalur gagasan Intisari (X16)", () => {
       { digest: true, withdrawals: pull("2026-11-01") },
     );
     expect(hits(rebuilt).some((h) => h.digest_point?.ord === 1)).toBe(true);
+    expect(hits(rebuilt).some((h) => h.matched_by.some((m) => m.path === "digest"))).toBe(true);
   });
 
   test("D1 sungguhan tanpa tabel digest_point_fts (korpus skema < 9): Cari jalan tanpa jalur gagasan, kueri gagal tidak diulang", async () => {

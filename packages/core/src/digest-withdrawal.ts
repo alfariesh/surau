@@ -44,6 +44,8 @@ export const digestWithdrawalFile = z.strictObject({
   edition: id,
   corpus: z.string(),
   entries: z.array(digestWithdrawal),
+  /** Audit bagian lain Intisari yang sama (abstrak, pembuka, penutup, kutipan, istilah). */
+  self_checked: z.array(z.strictObject({ toc_node_id: id, date: day, result: z.string() })),
   /** Audit Intisari induk (merge/Kitab) yang mungkin dibangun dari gagasan tertarik. */
   parents_checked: z.array(z.strictObject({ toc_node_id: id, date: day, result: z.string() })),
 });
@@ -51,6 +53,26 @@ export const digestWithdrawalFile = z.strictObject({
 /** Daftar tarik yang berlaku di situs. */
 export const DIGEST_WITHDRAWALS: readonly DigestWithdrawal[] =
   digestWithdrawalFile.parse(raw).entries;
+
+/** FNV-1a 32 bit (hex) atas kunci entri (node, bahasa, `ord`, versi). */
+export function withdrawalDigest(withdrawals: readonly DigestWithdrawal[]): string {
+  const text = JSON.stringify(
+    withdrawals.map((w) => [w.toc_node_id, w.lang, w.ord, w.digest_created_at]),
+  );
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
+/**
+ * Sidik daftar tarik yang berlaku, untuk kunci cache hasil yang memuat gagasan atau kepala Intisari
+ * (`/api/search`, `/api/halaman`; disimpan 7 hari dan tidak dikosongkan deploy): penarikan baru
+ * langsung memakai kunci baru.
+ */
+export const DIGEST_WITHDRAWAL_DIGEST = withdrawalDigest(DIGEST_WITHDRAWALS);
 
 /** `ord` gagasan yang ditarik dari satu Intisari (versi `createdAt`); kosong bila tidak ada. */
 export function withdrawnOrds(

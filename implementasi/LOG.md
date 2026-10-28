@@ -17,7 +17,7 @@ Format entri:
 
 ## 2026-10-28 · A0 · Tarik dua gagasan Intisari Salah dari produksi — selesai
 - Dikerjakan: daftar tarik `data/reviews/ihya-9472-intisari-tolak.json` (100007 gagasan 4, 100017 gagasan 2; penjaga versi `created_at`) dibaca `packages/core`: `readDigest` (halaman Intisari, Uji pemahaman, `dengar.json`, MCP `get_section_digest`), kepala Intisari (`listShownDigestHeaders` dkk. + kueri db `getDigestPointSizes`), dan jalur gagasan Cari. Audio node yang terkena tidak dikirim. Audit induk: 100004 tidak memuat klaim gagasan 4 100007, dan 100003 belum ada di `ihya-v9`.
-- Verifikasi: tes core/db baru (berkas sah, versi lain tidak terkena, readDigest tanpa gagasan/dalil/audio, kepala dikurangi, Cari tanpa gagasan); `pnpm verify` → lolos (1120 + 460 tes); curl produksi sesudah deploy → lihat PR.
+- Verifikasi: tes core/db/web baru (berkas sah, versi lain tidak terkena, readDigest tanpa gagasan/dalil/audio, kepala dikurangi, Cari tanpa gagasan dan tanpa `matched_by` digest, sidik di kunci cache, penjaga impor web); `pnpm verify` → lolos (1139 + 487 tes); peninjau → 1 blocker (cache Cari 7 hari) + 4 penting, semua diperbaiki; curl produksi sesudah deploy → lihat PR.
 - Biaya API: –
 - Keputusan: ADR-127
 - Catatan untuk sesi berikutnya: mp3 `ihya/id/100007-65113d52a871.mp3` dan `ihya/id/100017-b81d9fe0c222.mp3` masih di R2 (hapus + purge atas izin pemilik). Halaman `/koreksi` publik belum ada, dan guard promote untuk baris ditolak juga belum (sisa usulan A0, `09-pecahan-produk.md`). X24 harus memastikan audio lama kedua bab tidak ikut dimuat bersama Intisari v2.

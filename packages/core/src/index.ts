@@ -67,6 +67,7 @@ export type {
   ContentStamp,
 } from "./content-schema.ts";
 export {
+  DIGEST_WITHDRAWAL_DIGEST,
   DIGEST_WITHDRAWALS,
   digestWithdrawal,
   digestWithdrawalFile,
@@ -74,6 +75,7 @@ export {
   getShownDigestHeadersOnPath,
   listShownDigestHeaders,
   withdrawFromHeaders,
+  withdrawalDigest,
   withdrawnOrds,
 } from "./digest-withdrawal.ts";
 export type { DigestWithdrawal } from "./digest-withdrawal.ts";
