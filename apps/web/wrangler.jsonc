@@ -5,7 +5,8 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "surau-web",
-  "main": ".open-next/worker.js",
+  // Pembungkus Worker OpenNext (`.open-next/worker.js`): skrip Next ditunda sampai CSS selesai (ADR-122).
+  "main": "./worker.ts",
   "compatibility_date": "2026-10-14",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   // Produksi hanya di https://surau.org (custom domain diatur di dashboard, T-07): workers.dev

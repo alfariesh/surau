@@ -15,6 +15,7 @@
     "playwright.config.ts",
     "next.config.ts",
     "open-next.config.ts",
+    "worker.ts",
     "next-env.d.ts",
     "cloudflare-env.d.ts",
     "env.d.ts",
