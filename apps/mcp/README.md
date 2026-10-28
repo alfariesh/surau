@@ -29,7 +29,7 @@ Worker MCP publik Surau (S16, [ADR-011](../../implementasi/KEPUTUSAN.md), ADR-04
 | `check_content_draft` | `checkContentDraft` | Periksa draf `surau-konten/1` (skema, bahasa, korpus); `ok`, `errors`, `warnings`, `facts`, `stamp`. Draf tidak pernah digemakan |
 | `list_faedah_candidates` | `listFaedahCandidates` | Paragraf calon Faedah + terjemahan AI berlabel + alasan tidak layak (kode); paginasi `offset`/`next_offset` |
 
-Semua tool: nama ASCII snake_case (ADR-012), deskripsi Inggris + ringkasan Indonesia setelah ` · `, anotasi `readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`, `openWorldHint: false`, `outputSchema` berakar objek (skema Zod core + `license`), `structuredContent` + salinan JSON di `content`. Error core menjadi hasil `isError` dengan teks `<code>: <pesan>` (mis. `not_found: Page not found: juz 9, page 1`); error lain `internal_error` tanpa detail. Instruksi server: [`src/instructions.ts`](src/instructions.ts).
+Semua tool: nama ASCII snake_case (ADR-012), deskripsi Inggris + ringkasan Indonesia setelah ` · `, anotasi `readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`, `openWorldHint: false`, `outputSchema` berakar objek (skema Zod core + `license`), `structuredContent` + salinan JSON di `content`. Error core menjadi hasil `isError` dengan teks `<code>: <pesan>` (mis. `not_found: Page not found: juz 9, page 1`); error lain `internal_error` tanpa detail. Instruksi server: [`src/instructions.ts`](src/instructions.ts), ≤ 2.000 karakter (`SERVER_INSTRUCTIONS_MAX`, dijaga tes) karena klien claude.ai memotong instruksi di sekitar 2.048 karakter; aturan docs/05 §11 diurutkan menurut kepentingan (ADR-126).
 
 ## Pengaman
 
