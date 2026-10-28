@@ -4,11 +4,11 @@
 import { fileURLToPath } from "node:url";
 
 import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-plugin";
-import { defineConfig } from "vite-plus";
+import { defineProject } from "vite-plus";
 
 const dir = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
-export default defineConfig({
+export default defineProject({
   plugins: [
     cloudflareTest(async () => ({
       main: "./src/index.ts",
