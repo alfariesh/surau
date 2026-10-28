@@ -1,0 +1,16 @@
+{
+  "name": "surau",
+  "owner": { "name": "Surau", "url": "https://surau.org" },
+  "metadata": {
+    "description": "Plugin Surau untuk asisten Claude: produksi konten turunan kitab klasik yang beralamat."
+  },
+  "plugins": [
+    {
+      "name": "surau-redaksi",
+      "source": "./plugins/surau-redaksi",
+      "description": "Membuat Intisari Bab, Intisari Kitab, Faedah, dan Jalur 7 hari dari korpus Surau, dengan pemeriksa otomatis sebelum terbit.",
+      "version": "0.1.0",
+      "category": "productivity"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "surau-redaksi": {
+      "type": "http",
+      "url": "https://mcp.surau.org/redaksi"
+    }
+  }
+}

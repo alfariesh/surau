@@ -21,17 +21,8 @@ import {
 } from "../prompts/digest-schema.ts";
 import { DIGEST_SECTION_V2 } from "../prompts/digest-section-v2.ts";
 import { GLOSSARY_TERM_KEYS } from "../prompts/glossary-v2.ts";
-import {
-  addressesReader,
-  hasArabicLetters,
-  hasFatwaLanguage,
-  hasFirstPerson,
-  hasHadithStatus,
-  hasMarkdown,
-  hasMetaCommentary,
-  hasPreamble,
-  paraphrasesAyah,
-} from "./check.ts";
+import { narrativeProblems, quoteTranslationTextProblems } from "@surau/core";
+import type { QuoteInspection, QuoteRange } from "@surau/core";
 import { MODELS } from "./client.ts";
 import type { ModelId } from "./client.ts";
 import { messageText, stopProblem } from "./response.ts";
@@ -76,12 +67,8 @@ export interface CountRange {
   max: number;
 }
 
-/** Jumlah gagasan untuk sebuah teks menurut panjangnya (karakter Arab): "mengikuti panjang teks". */
-export function leafPointRange(chars: number): CountRange {
-  if (chars < 1_500) return { min: 1, max: 3 };
-  if (chars < 5_000) return { min: 2, max: 5 };
-  return { min: 3, max: 7 };
-}
+// Jumlah gagasan menurut panjang teks: satu aturan di @surau/core (X23).
+export { leafPointRange } from "@surau/core";
 
 /** Jumlah gagasan Intisari gabungan: rentang tingkatnya, dibatasi gagasan sumber yang tersedia. */
 export function mergePointRange(tier: DigestTier, available: number): CountRange {
@@ -262,18 +249,8 @@ export interface LeafBlock {
   ayah: boolean;
 }
 
-export interface QuoteRange {
-  passageId: number;
-  start: number;
-  end: number;
-}
-
-export interface QuoteInspection {
-  /** Ditentukan kode, bukan model (ADR-097). */
-  kind: DigestQuoteKind;
-  /** Alasan kutipan tidak boleh dipilih (mis. takhrij "palsu"), atau null. */
-  banned: string | null;
-}
+// Bentuk kutipan dan hasil pemeriksaannya ada di @surau/core (X23, `quoteInspector`).
+export type { QuoteInspection, QuoteRange } from "@surau/core";
 
 export type DigestJudgeContext =
   | {
@@ -381,46 +358,17 @@ const words = (t: string) => t.trim().split(/\s+/u).filter(Boolean).length;
 const within = (n: number, [lo, hi]: readonly [number, number]) => n >= lo && n <= hi;
 const unique = <T>(list: readonly T[]) => [...new Set(list)];
 
-/**
- * Masalah satu teks narasi Intisari berbahasa Indonesia (abstrak, pembuka, penutup, judul dan isi
- * gagasan, pertanyaan); kosong = lolos.
- */
-export function narrativeProblems(text: string): string[] {
-  const t = text.trim();
-  if (t === "") return ["empty"];
-  const out: string[] = [];
-  if (hasArabicLetters(t)) out.push("arabic");
-  if (t.includes("⟦") || /\bQS\s*\d/u.test(t)) out.push("placeholder");
-  if (hasMarkdown(t) || /^\s*[-*•]\s/mu.test(t)) out.push("markdown");
-  if (/[\r\n]/u.test(t)) out.push("newline");
-  // Tag atau kurung kurawal: masuk mentah ke prompt induk (<gagasan>, <kutipan>) dan ke halaman.
-  if (/[<>{}]/u.test(t)) out.push("markup");
-  if (hasPreamble(t)) out.push("preamble");
-  if (hasMetaCommentary(t, "id")) out.push("meta");
-  if (hasFatwaLanguage(t)) out.push("fatwa");
-  if (addressesReader(t)) out.push("address");
-  if (hasFirstPerson(t)) out.push("first_person");
-  if (hasHadithStatus(t)) out.push("hadith_status");
-  if (paraphrasesAyah(t)) out.push("ayah_paraphrase");
-  return out;
-}
+// Pemeriksa narasi dipindah ke @surau/core (X23); diekspor ulang untuk pemanggil lama.
+export { narrativeProblems };
 
 /**
  * Masalah terjemahan kutipan. Ia menerjemahkan kata penulis, jadi "aku"/"kami" boleh; teks Arab,
  * placeholder, Markdown, komentar model, dan isi ayat tetap tidak.
  */
 export function quoteTranslationProblems(text: string): string[] {
-  const t = text.trim();
-  if (t === "") return ["empty"];
-  const out: string[] = [];
-  if (hasArabicLetters(t)) out.push("arabic");
-  if (t.includes("⟦") || /\bQS\s*\d/u.test(t)) out.push("placeholder");
-  if (hasMarkdown(t)) out.push("markdown");
-  if (/[\r\n]/u.test(t)) out.push("newline");
-  if (hasPreamble(t)) out.push("preamble");
-  if (hasMetaCommentary(t, "id")) out.push("meta");
-  if (paraphrasesAyah(t)) out.push("ayah_paraphrase");
-  if (!within(words(t), DIGEST_LIMITS.translationWords)) out.push("length");
+  const out = quoteTranslationTextProblems(text);
+  if (out.includes("empty")) return out;
+  if (!within(words(text), DIGEST_LIMITS.translationWords)) out.push("length");
   return out;
 }
 

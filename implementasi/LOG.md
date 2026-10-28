@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-28 · X23 · Redaksi Surau: rangka konten, standar, plugin Claude, pedoman — selesai
+- Dikerjakan: rangka dan standar konten turunan ([docs/09-konten.md](../docs/09-konten.md)), pedoman redaksi ([docs/redaksi-operasional.md](../docs/redaksi-operasional.md)), docs/05 §11 dan §13, ADR-125. Core: format `surau-konten/1` (`contentDraft`), `lintContent`, `checkContentDraft`, `listFaedahCandidates`, `readinessIssues`; pemeriksa narasi, `quoteInspector`, `digestTierOf`, `QUOTE_BANNED_TAKHRIJ_KINDS` dipindah ke core (ekspor ulang di tempat lama); `findQuoteAll`/`isQuoteSpan` di text. MCP endpoint `/redaksi` (8 + `check_content_draft`, `list_faedah_candidates`), ember batas sendiri, label telemetri `endpoint`; `uji-mcp.sh` mode `redaksi`. CLI `pnpm konten cek|impor|daftar|calon` (korpus remote hanya-SELECT). Plugin `plugins/surau-redaksi` (6 skill, konektor `/redaksi`, marketplace root `surau`), `pnpm plugin:paket`, agen `pemeriksa-konten`. Pilot 3 unit `siap`.
+- Verifikasi: `pnpm verify` → lolos · tes core konten 13, MCP 39 (`/mcp` tetap 8 tool, `/redaksi` 10 di dua era), CLI/plugin 16 · `claude plugin validate` plugin dan marketplace → lolos · pilot: cek kode lolos, periksa independen putaran final (diulang sesudah perbaikan, atas temuan peninjau) 100007 B4/K3/S0, 100017 B6/K1/S0, Faedah B5/K0/S0; satu butir Faedah dibuang ([laporan](../data/reports/konten-qa-2026-10-28.md)).
+- Biaya API: – (pilot memakai langganan lewat agen Claude Code; MCP tanpa LLM)
+- Keputusan: ADR-125 (gerbang terbit cukup cek otomatis tiga lapis, keputusan pemilik; menyimpang dari saran riset)
+- Catatan untuk sesi berikutnya: X24 membangun baris DB langsung dari draf (bukan `acceptedDigest`), migrasi korpus 10 (`digest.lead`, `digest_question.answer`), kaskade induk 100004/100003 dan audio 100007/100017 gugur; terjemahan AI p165 perlu koreksi; dua gagasan Salah lama masih tayang di produksi sampai X24 atau sesi penarikan; T-33 baru berguna sesudah `/redaksi` ter-deploy.
+
 ## 2026-10-28 · X22 · Uji Sonnet 5.5 di tahap jawaban Maknaz — selesai
 - Dikerjakan: opsi eval `--model sonnet` (produksi tidak berubah) dan perintah gratis `arsip-sebagian`; satu run publik 42 soal dengan Sonnet 5.5 memakai rute x10; 84 jawaban (Sonnet + x10 dinilai ulang) diacak dan dinilai enam subagen buta model; laporan perbandingan.
 - Verifikasi: `eval:jawab answer --model sonnet` → 42/42, kutipan valid 100%, lokasi 85,3%; penilaian buta → kesetiaan 64,3% → 92,9%, atribusi 83,3% → 100%, bahasa 3,55 → 3,76, Benar/Kurang/Salah 31/7/4 → 36/5/1; `pnpm verify` → lihat PR.

@@ -1,0 +1,121 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 1,
+  "section_id": 100008,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.1.0",
+    "skill": "faedah@1",
+    "operator": "agen",
+    "dibuat": "2026-10-28T12:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p167: tiga macam, urutan, dan dirham-dinar sebagai yang dicari karena hal lain sesuai teks; judul tidak menambah klaim; aman dibaca sendiri."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p168: yang dicari karena dirinya memang macam kedua dalam urutan p167; terjemahan sesuai teks; sikap penulis (Intisari gagasan 3, author)."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p178: pandai besi dan pemintal sebagai penunjang pertanian dan tenun sesuai teks; konteks menyebut empat pekerjaan pokok dari p173-177 sehingga \"yang kedua\" terbaca jelas."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p180: negasi \"atas lahir, bukan batin\" dan cakupan khusus-awam terjaga; urutan tingkat di konteks sesuai p179-182; tanpa nada fatwa."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p181: diperbaiki sesudah periksa independen (kurang): judul memakai \"wewenang\" dan \"ulama pewaris nabi\", konteks \"berwenang atas batin orang awam\" sesuai p181-p182."
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-28",
+      "draf_sha256": "e94a077263e98790d86b0a0f3ffdf8ac2fcf9c039113db16093fabdb89d56fb2",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "p167 (10000167): tiga macam, urutan, dan dirham-dinar sebagai yang dicari karena hal lain sesuai teks; terjemahan setia dan pendapat milik al-Ghazali sendiri; judul dan konteks tidak menambah klaim; utuh dan aman dibaca sendirian."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "p168 (10000168): yang dicari karena dirinya sendiri adalah kebahagiaan di akhirat dan kenikmatan memandang wajah Allah, sesuai teks dan sesuai urutan macam kedua di p167; konteks menutup kesan potongan daftar."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "p178 (10000178): golongan kedua (penyiap dan pelayan), contoh pandai besi, pemisah biji kapas dan pemintal sesuai teks; konteks menyebut empat pekerjaan pokok sehingga 'yang kedua' dan 'keterampilan ini' terbaca jelas."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "p180 (10000180): negasi 'atas lahir, bukan atas batin' dan cakupan khusus-awam sekaligus terjaga di terjemahan; judul dan urutan tingkat di konteks sesuai p179-p182; tanpa nada fatwa."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "p181 (10000181): 'hanya atas batin kalangan khusus' dan dua batasan kekuatan ulama atas orang awam sesuai teks; judul dan konteks akurat; satu kalimat terjemahan tentang pemahaman orang awam perlu diketahui pemilik (lihat TEMUAN, tidak memblokir)."
+        }
+      ],
+      "laporan": "data/reports/konten-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "454ebf7b21e732549170c57cff583e2696526206f36a7efc601a97f927e89a74",
+      "draf_sha256": "e94a077263e98790d86b0a0f3ffdf8ac2fcf9c039113db16093fabdb89d56fb2",
+      "waktu": "2026-10-28T04:32:32.717Z"
+    }
+  },
+  "jenis": "faedah",
+  "isi": {
+    "butir": [
+      {
+        "passage_id": 10000167,
+        "judul": "Dirham dan dinar hanya sarana, bukan tujuan",
+        "konteks": "Al-Ghazali menulis ini ketika membagi hal berharga menjadi tiga macam menurut alasan ia dicari, sebagai jalan menjelaskan kedudukan ilmu.",
+        "tema": ["harta"]
+      },
+      {
+        "passage_id": 10000168,
+        "judul": "Kebahagiaan akhirat dicari karena dirinya sendiri",
+        "konteks": "Al-Ghazali menulis ini sebagai contoh macam kedua dari tiga macam hal berharga, yaitu yang dicari karena dirinya sendiri, bukan sebagai sarana.",
+        "tema": ["akhirat", "kebahagiaan"]
+      },
+      {
+        "passage_id": 10000178,
+        "judul": "Pekerjaan penunjang melayani pekerjaan pokok",
+        "konteks": "Al-Ghazali menulis ini tentang golongan kedua dari tiga golongan pekerjaan manusia; golongan pertamanya empat pekerjaan pokok: bertani, menenun, membangun, dan siasat.",
+        "tema": ["pekerjaan"]
+      },
+      {
+        "passage_id": 10000180,
+        "judul": "Kuasa para penguasa terbatas pada lahiriah",
+        "konteks": "Al-Ghazali menulis ini sebagai tingkat kedua dari empat tingkat pembimbing manusia, sesudah para nabi dan sebelum para ulama serta pemberi nasihat.",
+        "tema": ["kekuasaan"]
+      },
+      {
+        "passage_id": 10000181,
+        "judul": "Wewenang ulama pewaris nabi atas batin kalangan khusus",
+        "konteks": "Al-Ghazali menulis ini sebagai tingkat ketiga dari empat tingkat pembimbing manusia, sesudah para nabi dan para penguasa; tingkat keempat, para pemberi nasihat, berwenang atas batin orang awam.",
+        "tema": ["ulama"]
+      }
+    ]
+  }
+}
