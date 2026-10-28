@@ -24,10 +24,10 @@ Format entri:
 
 ## 2026-10-28 · X22b · Lokasi gold Jawab dan pemberitahuan status hadits — selesai
 - Dikerjakan: bedah lima soal yang gold-nya tidak ada di dokumen (j004 terpangkas anggaran di peringkat 36/39; j005 dan j024 hanya terjangkau pencarian makna; j019/j021 pertanyaan gabungan); percobaan bobot daftar sempit atas empat arsip rute ditolak; bunyi `HADITH_NOT_CITED` jadi kalimat biasa, pipeline@16.
-- Verifikasi: `eval:jawab kandidat` (gratis, `ihya-v9`) → 29/34 tanpa makna, 31/34 dengan peringkat makna v2; tes llm 176 dan api 52 lolos; `pnpm verify` → lihat PR.
-- Biaya API: –
+- Verifikasi: `eval:jawab kandidat` (gratis, `ihya-v9`) → 29/34 tanpa makna, 31/34 dengan peringkat makna v2; run publik berbayar `x22b-publik-makna-haiku-v1` (Haiku + makna) → lokasi 85,3% → 88,2% (30/34), takhrij 6/6, kutipan 100%, menolak 7/8; tes llm 176 lolos; `pnpm verify` → lolos.
+- Biaya API: US$0,1109 (izin pemilik di chat, pagu US$0,30)
 - Keputusan: ADR-126
-- Catatan untuk sesi berikutnya: mengaktifkan pencarian makna di Worker dan mengukurnya dengan satu run publik berbayar (±US$0,12, izin pemilik) adalah satu-satunya tuas lokasi yang terukur; "bahan yang ada" butuh prompt baru.
+- Catatan untuk sesi berikutnya: pencarian makna di Worker adalah satu-satunya tuas lokasi yang terukur (+1 soal, 88,2% < 90%); aktifkan bersama keputusan model/anggaran Jawab (ADR-123). "bahan yang ada" butuh prompt baru.
 
 ## 2026-10-28 · X22 · Uji Sonnet 5.5 di tahap jawaban Maknaz — selesai
 - Dikerjakan: opsi eval `--model sonnet` (produksi tidak berubah) dan perintah gratis `arsip-sebagian`; satu run publik 42 soal dengan Sonnet 5.5 memakai rute x10; 84 jawaban (Sonnet + x10 dinilai ulang) diacak dan dinilai enam subagen buta model; laporan perbandingan.
