@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 import type { Locator, Page } from "@playwright/test";
 
 // Mode baca (X11, ADR-091): Arab · Keduanya untuk pembaca, daftar isi, Cari, dan menu ⋮. Butuh D1

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 // Smoke e2e pembaca kitab (S09 langkah 10). Butuh D1 berisi Ihya: lokal = `pnpm corpus:load:local`,
 // Preview = surau-corpus-staging. Teks kitab tidak disalin ke sini; satu-satunya frasa Arab adalah

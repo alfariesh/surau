@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 // /tanya (S21). Di Preview, Jawab memakai surau-api-staging dengan sakelar staging biasanya MATI,
 // jadi tes ini tidak bergantung pada LLM: label, komposer, dan arahan ke Cari bila tidak tersedia.

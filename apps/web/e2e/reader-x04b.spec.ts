@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 // Mutu baca pembaca (X04 bagian B): subjudul kurasi di daftar isi pembaca (W7), judul node yang
 // diperbaiki (butir daftar pembuka, jangkar sumber terlalu awal), dan judul Indonesia berlabel AI

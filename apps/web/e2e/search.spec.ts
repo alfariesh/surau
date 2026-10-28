@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 // E2E Cari (S14 langkah 9). Butuh D1 berisi korpus ≥ ihya-v5 (indeks Arab + Indonesia): lokal =
 // `pnpm corpus:load:local`, Preview = surau-corpus-staging. Tidak ada teks kitab di sini: kesamaan

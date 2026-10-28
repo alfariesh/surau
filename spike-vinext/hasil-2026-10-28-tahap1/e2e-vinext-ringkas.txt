@@ -1,0 +1,11 @@
+    Error: expect(locator).toHaveAttribute(expected) failed
+    Expected: "off"
+    Received: ""
+    Error: expect(locator).toHaveAttribute(expected) failed
+    Expected: "off"
+    Received: ""
+  2 failed
+    [chromium] › e2e/reader-x14.spec.ts:26:1 › petunjuk tampil bagi pengunjung baru walau JS Next tidak dimuat; tersembunyi bila mode tersimpan atau ditutup 
+    [chromium-ponsel] › e2e/reader-x14.spec.ts:26:1 › petunjuk tampil bagi pengunjung baru walau JS Next tidak dimuat; tersembunyi bila mode tersimpan atau ditutup 
+  18 skipped
+  270 passed (2.4m)

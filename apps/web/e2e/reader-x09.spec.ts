@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 // Kinerja pembaca (X09): HTML halaman baca hanya membawa pohon daftar isi ringkas; pohon lengkap
 // diambil dari /kitab/<karya>/daftar-isi.json saat pohon tampil (panel samping desktop sesudah

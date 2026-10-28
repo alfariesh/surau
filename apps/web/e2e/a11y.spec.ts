@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 // Aksesibilitas (WCAG 2.1 AA, termasuk kontras warna) di setiap halaman, tema terang dan gelap.
 // Melengkapi Lighthouse, yang tidak bisa menilai halaman 404 maupun mode gelap.

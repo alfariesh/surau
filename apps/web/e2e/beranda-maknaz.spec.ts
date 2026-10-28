@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 import { search as searchText } from "../src/i18n/id/search";
 import { tanyaText } from "../src/i18n/tanya";

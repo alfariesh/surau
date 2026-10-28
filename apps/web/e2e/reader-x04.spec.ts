@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 // Mutu baca pembaca (X04 bagian A): label AI ringkas, tata letak terjemahan, subjudul kurasi,
 // bagikan tautan, lanjutkan membaca, dan gulir bersambung. Butuh D1 berisi Ihya (lokal: korpus

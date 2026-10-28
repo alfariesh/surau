@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 import type { Page } from "@playwright/test";
 
 // Lanjutan mode baca (X14, ADR-095): petunjuk mode baca sekali tampil dan Ringkasan AI yang ikut kata

@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 
 // Rapikan pembaca (X10): preferensi tampilan dipasang skrip mentah (tanpa menunggu JS Next), daftar
 // isi mengikuti posisi baca (subjudul aktif, leluhur dibuka di halaman sambungan), kaki halaman

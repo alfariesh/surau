@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { responseStoreAdapter } from "@vinext/cloudflare/cache/response-store-adapter";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import vinext from "vinext";
 import { defineConfig } from "vite";
@@ -24,11 +25,15 @@ function devRemoteConfig(): string | undefined {
   return target;
 }
 
+// Worker uji ADR-119 tahap 1 (`SURAU_VINEXT_UJI=1`): binding staging + cache Workers Response Store
+// (self-contained), lihat wrangler.vinext-uji.jsonc.
+const uji = process.env.SURAU_VINEXT_UJI === "1";
+
 export default defineConfig({
   plugins: [
-    vinext(),
+    vinext(uji ? { cache: responseStoreAdapter({ mode: "self-contained" }) } : {}),
     cloudflare({
-      configPath: devRemoteConfig(),
+      configPath: uji ? join(import.meta.dirname, "wrangler.vinext-uji.jsonc") : devRemoteConfig(),
       // Entri Worker berjalan di environment RSC, SSR sebagai anaknya.
       viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
     }),

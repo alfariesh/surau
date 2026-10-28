@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 import type { Page } from "@playwright/test";
 
 // Intisari (X16, ADR-097): halaman Intisari, hub, dan jejaknya di pembaca. Dua lapis:

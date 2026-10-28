@@ -1,0 +1,79 @@
+// Worker uji vinext (ADR-119 tahap 1), BUKAN produksi: Worker terpisah `surau-web-vinext` di workers.dev
+// dengan binding Preview (korpus dan app staging, `surau-api-staging`, namespace rate limit 20xx) dan
+// cache Workers Response Store mode self-contained (R2 + SQLite Durable Object di Worker ini).
+// Dipakai lewat `SURAU_VINEXT_UJI=1 pnpm build:vinext` (vite.config.ts). Hapus setelah gerbang selesai.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "surau-web-vinext",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-10-14",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "keep_names": false,
+  "assets": {
+    "binding": "ASSETS",
+    // html_handling bawaan (auto-trailing-slash) seperti produksi: /aset/x.html → 307 → /aset/x.
+    // vinext menyarankan "none" hanya bila middleware harus jalan untuk berkas public/ (Surau tanpa middleware).
+    "not_found_handling": "none",
+  },
+  // Response Store (README @cloudflare/workers-response-store, "Single-Worker setup"): Workers Cache
+  // mati untuk Worker dan entri default; hanya entri ResponseStoreBinding yang di-cache di edge.
+  "cache": { "enabled": false },
+  "exports": {
+    "default": { "type": "worker", "cache": { "enabled": false } },
+    "ResponseStoreBinding": { "type": "worker", "cache": { "enabled": true } },
+    "CacheMetadata": { "type": "durable-object", "storage": "sqlite" },
+  },
+  "r2_buckets": [{ "binding": "CACHE_BODIES", "bucket_name": "surau-web-vinext-response-store" }],
+  "durable_objects": {
+    "bindings": [{ "name": "CACHE_METADATA", "class_name": "CacheMetadata" }],
+  },
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
+  "vars": {
+    "REVIEW_ACCESS_ISSUER": "https://misty-moon-bf34.cloudflareaccess.com",
+    "REVIEW_ACCESS_AUD": "e123af2da26c3ef34fad7be2ce79480a6232edd72bf2c16d076030563f638bc4",
+    "ADMIN_ACCESS_AUD": "a7f9052cd2ce712ad14811208826bc2f5e4af04de1cc5f261949e79a851d65a4",
+    "TAKHRIJ_USTADZ_KEYS": "",
+    "TRANSLATION_EDITORS": "[]",
+    "READER_ENABLED": "1",
+    "SEARCH_TIMING_DETAIL": "1",
+    "SEARCH_CACHE_CORPUS": "",
+    "SITEMAP_ORIGIN": "",
+    "JAWAB_ROUTE_ENABLED": "1",
+    "DEV_PAGES": "1",
+  },
+  "services": [{ "binding": "API", "service": "surau-api-staging" }],
+  "d1_databases": [
+    {
+      "binding": "CORPUS_DB",
+      "database_name": "surau-corpus-staging",
+      "database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
+    },
+    {
+      "binding": "APP_DB",
+      "database_name": "surau-app-staging",
+      "database_id": "49fd36a5-9e35-4a07-960d-46cfdc5a02db",
+    },
+  ],
+  "ratelimits": [
+    { "name": "FEEDBACK_LIMITER", "namespace_id": "2001", "simple": { "limit": 5, "period": 60 } },
+    { "name": "FEEDBACK_GLOBAL_LIMITER", "namespace_id": "2002", "simple": { "limit": 30, "period": 60 } },
+    { "name": "SEARCH_LIMITER", "namespace_id": "2003", "simple": { "limit": 60, "period": 60 } },
+    { "name": "SEARCH_GLOBAL_LIMITER", "namespace_id": "2004", "simple": { "limit": 1200, "period": 60 } },
+    { "name": "JAWAB_LIMITER", "namespace_id": "2005", "simple": { "limit": 5, "period": 60 } },
+    { "name": "JAWAB_GLOBAL_LIMITER", "namespace_id": "2006", "simple": { "limit": 30, "period": 60 } },
+    { "name": "JAWAB_STATUS_LIMITER", "namespace_id": "2007", "simple": { "limit": 30, "period": 60 } },
+    { "name": "JAWAB_STATUS_GLOBAL_LIMITER", "namespace_id": "2008", "simple": { "limit": 600, "period": 60 } },
+    { "name": "PAGE_LIMITER", "namespace_id": "2009", "simple": { "limit": 60, "period": 60 } },
+    { "name": "PAGE_GLOBAL_LIMITER", "namespace_id": "2010", "simple": { "limit": 1200, "period": 60 } },
+    { "name": "MINAT_LIMITER", "namespace_id": "2011", "simple": { "limit": 10, "period": 60 } },
+    { "name": "MINAT_GLOBAL_LIMITER", "namespace_id": "2012", "simple": { "limit": 120, "period": 60 } },
+  ],
+  "observability": {
+    "enabled": true,
+    "redact_query_string": true,
+    "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+  },
+}

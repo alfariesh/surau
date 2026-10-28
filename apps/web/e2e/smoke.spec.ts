@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 import { NORM_VERSION } from "@surau/text";
 
 import { home } from "../src/i18n/id/home";

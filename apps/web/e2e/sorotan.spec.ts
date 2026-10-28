@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 import type { Page } from "@playwright/test";
 
 // Sorotan kalimat mengikuti audio (X18) di pratinjau /dev/intisari: audio SUNYI buatan + timestamps

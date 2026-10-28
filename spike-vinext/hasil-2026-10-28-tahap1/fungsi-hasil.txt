@@ -1,0 +1,73 @@
+OK   header keamanan /
+      next:   200 x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=max-age=31536000 | x-frame-options=DENY | content-security-policy=-
+      vinext: 200 x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=max-age=31536000 | x-frame-options=DENY | content-security-policy=-
+OK   header keamanan /kitab/ihya/1/200
+      next:   200 x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=max-age=31536000 | x-frame-options=DENY | content-security-policy=-
+      vinext: 200 x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=max-age=31536000 | x-frame-options=DENY | content-security-policy=-
+OK   header keamanan /cari
+      next:   200 x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=max-age=31536000 | x-frame-options=DENY | content-security-policy=-
+      vinext: 200 x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=max-age=31536000 | x-frame-options=DENY | content-security-policy=-
+OK   header keamanan /tentang
+      next:   200 x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=max-age=31536000 | x-frame-options=DENY | content-security-policy=-
+      vinext: 200 x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=max-age=31536000 | x-frame-options=DENY | content-security-policy=-
+BEDA statis /aset/cara-mencari.html
+      next:   307 cc=public, max-age=0, must-revalidate, no-transform | x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=- | x-frame-options=SAMEORIGIN | content-security-policy=frame-ancestors 'self'; sandbox allow-scripts
+      vinext: 200 cc=public, max-age=0, must-revalidate, no-transform | x-content-type-options=nosniff | referrer-policy=strict-origin-when-cross-origin | permissions-policy=camera=(), microphone=(), geolocation=() | strict-transport-security=- | x-frame-options=SAMEORIGIN | content-security-policy=frame-ancestors 'self'; sandbox allow-scripts
+OK   statis /kertas/serat.avif
+      next:   200 cc=public,max-age=31536000,immutable | x-content-type-options=- | referrer-policy=- | permissions-policy=- | strict-transport-security=- | x-frame-options=- | content-security-policy=-
+      vinext: 200 cc=public,max-age=31536000,immutable | x-content-type-options=- | referrer-policy=- | permissions-policy=- | strict-transport-security=- | x-frame-options=- | content-security-policy=-
+INFO chunk next /_next/static/chunks/1_jy9zwveq77e.js → 200 cc=public,max-age=31536000,immutable
+INFO chunk vinext /_next/static/chunks/Cb5hE25Z.js → 200 cc=public,max-age=31536000,immutable
+OK   api /api/version
+      next:   200 application/json {"normVersion":2}
+      vinext: 200 application/json {"normVersion":2}
+OK   api /api/search?q=%D8%B5%D9%84%D8%A7%D8%A9%20%D8%A7%D9%84%D8%AC%D9%85%D8%B9%D8%A9
+      next:   200 application/json {"query":"صلاة الجمعة","edition_id":null,"section_id":null,"limit":20,"terms":["صلاه","جمع
+      vinext: 200 application/json {"query":"صلاة الجمعة","edition_id":null,"section_id":null,"limit":20,"terms":["صلاه","جمع
+OK   api /api/search?q=shalat
+      next:   200 application/json {"query":"shalat","edition_id":null,"section_id":null,"limit":20,"terms":[],"latin_terms":
+      vinext: 200 application/json {"query":"shalat","edition_id":null,"section_id":null,"limit":20,"terms":[],"latin_terms":
+OK   api /api/halaman?work=ihya&juz=1&page=201
+      next:   200 application/json {"model":{"juz":1,"pageNo":201,"permalink":"/kitab/ihya/1/201","prev":{"juz":1,"page_no":2
+      vinext: 200 application/json {"model":{"juz":1,"pageNo":201,"permalink":"/kitab/ihya/1/201","prev":{"juz":1,"page_no":2
+OK   api /api/kutipan?r=abc
+      next:   400 application/json {"error":"invalid"}
+      vinext: 400 application/json {"error":"invalid"}
+OK   api /kitab/ihya/daftar-isi.json
+      next:   200 application/json {"items":[{"id":100001,"kind":"node","title":"مقدمة","level":1,"href":"/kitab/ihya/1/1","j
+      vinext: 200 application/json {"items":[{"id":100001,"kind":"node","title":"مقدمة","level":1,"href":"/kitab/ihya/1/1","j
+BEDA api /api/jawab
+      next:   404 application/json {"error":"not_found"}
+      vinext: 200 application/json {"available":true,"reason":null,"challenge":true,"sitekey":"1x00000000000000000000AA","quo
+OK   api /sitemap.xml
+      next:   200 application/xml <?xml version="1.0" encoding="UTF-8"?> <urlset xmlns="http://www.sitemaps.org/schemas/site
+      vinext: 200 application/xml <?xml version="1.0" encoding="UTF-8"?> <urlset xmlns="http://www.sitemaps.org/schemas/site
+OK   api /robots.txt
+      next:   200 text/plain User-Agent: * Allow: / Disallow: /api/ Sitemap: https://surau.org/sitemap.xml 
+      vinext: 200 text/plain User-Agent: * Allow: / Disallow: /api/ Sitemap: https://surau.org/sitemap.xml 
+OK   api /kitab/ihya/9/999
+      next:   404 text/html <!DOCTYPE html><html id="__next_error__"><head><meta charSet="utf-8"/><meta name="viewport
+      vinext: 404 text/html <!DOCTYPE html><html class="__variable_google_sans_1e2urad __variable_google_sans_0i8lcta 
+OK   api /tidak-ada-halaman
+      next:   404 text/html <!DOCTYPE html><html class="XaeMEa_variable hlpa9W_variable M9RhLW_variable nmnlFG_variabl
+      vinext: 404 text/html <!DOCTYPE html><html class="__variable_google_sans_1e2urad __variable_google_sans_0i8lcta 
+BEDA access /tinjau
+      next:   302 → https://misty-moon-bf34.cloudflareaccess.com/cdn-cgi/access/ <html> <head><title>302 Found</title></head> <body> <cent
+      vinext: 200 <!DOCTYPE html><html class="__variable_google_sans_1e2urad _
+BEDA access /tinjau/takhrij
+      next:   302 → https://misty-moon-bf34.cloudflareaccess.com/cdn-cgi/access/ <html> <head><title>302 Found</title></head> <body> <cent
+      vinext: 200 <!DOCTYPE html><html class="__variable_google_sans_1e2urad _
+BEDA access /admin
+      next:   302 → https://misty-moon-bf34.cloudflareaccess.com/cdn-cgi/access/ <html> <head><title>302 Found</title></head> <body> <cent
+      vinext: 200 <!DOCTYPE html><html class="__variable_google_sans_1e2urad _
+BEDA access /api/admin
+      next:   302 → https://misty-moon-bf34.cloudflareaccess.com/cdn-cgi/access/ <html> <head><title>302 Found</title></head> <body> <cent
+      vinext: 401 {"error":"unauthorized"}
+BEDA access /api/review
+      next:   302 → https://misty-moon-bf34.cloudflareaccess.com/cdn-cgi/access/ <html> <head><title>302 Found</title></head> <body> <cent
+      vinext: 401 {"error":"unauthorized"}
+BEDA access /api/review/export
+      next:   302 → https://misty-moon-bf34.cloudflareaccess.com/cdn-cgi/access/ <html> <head><title>302 Found</title></head> <body> <cent
+      vinext: 401 {"error":"unauthorized"}
+BEDA feedback honeypot vinext → 400 {"error":"invalid"}
+OK   rate limit /api/search vinext, 70 permintaan: {"200":64,"429":6}

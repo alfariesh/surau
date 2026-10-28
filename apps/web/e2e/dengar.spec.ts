@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./hidrasi";
 import type { Page } from "@playwright/test";
 
 // Pemutar "Dengarkan" (X17) di halaman uji /dev/dengar: audio SUNYI buatan (route /dev/dengar/

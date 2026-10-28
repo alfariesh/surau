@@ -1,0 +1,7 @@
+    Error: hidrasi 2189 ms, cat pertama 1124 ms
+    Expected: <= 1000
+    Received:    1065
+  1 failed
+    [chromium-ponsel] › e2e/anggaran-hidrasi.spec.ts:5:1 › tombol Tampilan halaman kitab terhidrasi ≤ 1 dtk sesudah cat pertama 
+  18 skipped
+  271 passed (3.0m)
