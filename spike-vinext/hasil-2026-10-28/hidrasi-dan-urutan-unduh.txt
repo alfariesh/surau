@@ -1,0 +1,18 @@
+ukur-hidrasi.mjs lewat proksi HTTP/2+brotli (median; "hidrasi" = tombol Tampilan / tombol di header punya __reactProps; ms sejak navigasi)
+
+throttle=false n=6
+/kitab/ihya/1/200 vinext     proto=h2 js=118 jsKB=424  FCP=88  LCP=88  load=247  hidrasi=289  [hidrasi semua: 289 217 234 336 471 468]
+/kitab/ihya/1/200 next       proto=h2 js=31 jsKB=380  FCP=84  LCP=108  load=141  hidrasi=168  [hidrasi semua: 162 148 168 206 210 211]
+/ vinext                     proto=h2 js=128 jsKB=443  FCP=144  LCP=144  load=352  hidrasi=261  [hidrasi semua: 256 163 321 261 308 320]
+/ next                       proto=h2 js=29 jsKB=376  FCP=128  LCP=164  load=221  hidrasi=217  [hidrasi semua: 348 349 217 150 235 214]
+
+throttle=true (CPU 4x, RTT 150 ms, 1,6 Mbps turun / 750 kbps naik, isMobile) n=5
+/kitab/ihya/1/200 vinext     proto=h2 js=115 jsKB=422  FCP=1072  LCP=1072  load=4158  hidrasi=4178  [hidrasi semua: 4254 4178 4177 4205 4141]
+/kitab/ihya/1/200 next       proto=h2 js=31 jsKB=381  FCP=2748  LCP=2828  load=3960  hidrasi=3075  [hidrasi semua: 3240 3074 3073 3075 3104]
+/ vinext                     proto=h2 js=100 jsKB=308  FCP=1084  LCP=1084  load=3106  hidrasi=2907  [hidrasi semua: 2906 2908 2907 2906 2909]
+/ next                       proto=h2 js=29 jsKB=376  FCP=2740  LCP=2852  load=3848  hidrasi=3008  [hidrasi semua: 3011 3008 3004 2990 3016]
+
+ukur-urutan-unduh.mjs, throttle sama, /kitab/ihya/1/200, n=1 per varian (bukan berselang-seling)
+next:   FCP=2840, HTML 24KB selesai 299; CSS 2 berkas 55KB selesai 2736 (render-blocking); JS 31 berkas 380KB, 310KB selesai sebelum FCP; font 4 berkas 167KB (35KB sebelum FCP)
+vinext: FCP=1080, HTML 32KB selesai 329; CSS 1 berkas 50KB selesai 930; JS 118 berkas 425KB, 32KB selesai sebelum FCP; font 4 berkas 167KB (35KB sebelum FCP)
+produksi surau.org (Next, Cloudflare, sama-sama throttle, n=3): FCP 3688 / 3240 / 3228; JS sebelum FCP 413 / 339 / 339 KB; CSS 2 berkas 65KB selesai 3585 / 3195 / 3180

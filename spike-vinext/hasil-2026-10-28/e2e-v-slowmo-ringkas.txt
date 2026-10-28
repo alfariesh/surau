@@ -1,0 +1,11 @@
+  8 failed
+    [chromium] › e2e/a11y.spec.ts:64:1 › tanpa pelanggaran a11y: panel Tampilan terbuka dan kertas sepia 
+    [chromium] › e2e/dengar.spec.ts:56:3 › Dengarkan (X17) › putar, Media Session berlabel suara AI, jeda, kecepatan, bab, ±15 dtk 
+    [chromium] › e2e/reader-x04.spec.ts:36:1 › tata letak terjemahan tersimpan per browser (dilipat → muat ulang → tetap) 
+    [chromium] › e2e/reader-x09.spec.ts:59:1 › panel Tampilan: isi kontrol dimuat saat panel dibuka 
+    [chromium] › e2e/reader-x11.spec.ts:367:1 › mode Terjemahan: salinan terjemahan tetap berlabel AI 
+    [chromium] › e2e/reader-x14.spec.ts:55:1 › memilih mode di petunjuk: paragraf yang dibaca tidak bergeser (≤ 2 px); tinggi petunjuk tetap 
+    [chromium] › e2e/smoke.spec.ts:172:1 › panduan MCP bisa ditemukan dan dipakai di layar ponsel ──
+    [chromium] › e2e/sorotan.spec.ts:79:3 › Sorotan kalimat audio (X18) › tautan di teks yang dibacakan tetap tautan; memilih teks tidak melompat 
+  5 skipped
+  41 passed (1.0m)

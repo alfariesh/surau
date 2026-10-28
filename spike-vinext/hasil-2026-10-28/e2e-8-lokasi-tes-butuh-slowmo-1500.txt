@@ -1,0 +1,8 @@
+e2e/a11y.spec.ts:64
+e2e/dengar.spec.ts:56
+e2e/reader-x04.spec.ts:36
+e2e/reader-x09.spec.ts:59
+e2e/reader-x11.spec.ts:367
+e2e/reader-x14.spec.ts:55
+e2e/smoke.spec.ts:172
+e2e/sorotan.spec.ts:79
