@@ -5,6 +5,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
 **Cara pakai:**
 - Agent menyebut ID tugas (misalnya **T-03**) saat sebuah sesi membutuhkannya.
 - Centang `[x]` setelah selesai, atau bilang ke agent "T-03 sudah". Agent yang mencentang setelah memverifikasinya.
+- Status tiap tugas yang masih terbuka juga ada di [papan Surau](https://github.com/users/alfariesh/projects/7) (isu berlabel `tugas-pemilik`). Kolom **Menunggu pemilik** berarti giliran Anda. Langkah lengkapnya tetap di file ini.
 - **Jangan pernah menempel token atau password di chat Claude.** Semua perintah di file ini diketik di aplikasi **Terminal**, dan perintah yang meminta rahasia menyembunyikan apa yang Anda tempel.
 
 **Cara membuka Terminal di folder Surau:** tekan `Cmd + Spasi`, ketik `Terminal`, lalu Enter. Di jendela yang muncul, ketik `cd ~/Documents/Surau`, lalu Enter. Ketik (atau tempel) perintah satu per satu, dan tekan Enter setelah tiap perintah.

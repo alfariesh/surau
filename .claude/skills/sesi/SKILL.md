@@ -56,7 +56,8 @@ Pemilik proyek adalah product designer, bukan developer. Ia mengandalkan Anda un
 4. **`KEPUTUSAN.md`:** tambahkan ADR untuk setiap keputusan teknis baru.
 5. **`STACK.md`:** perbarui versi yang dipasang dan tanggal docs dicek.
 6. **`TUGAS-PEMILIK.md`:** tambahkan tugas baru yang ditemukan.
-7. Commit catatan ini.
+7. **Papan status:** ikuti aturan *Papan status* di `CLAUDE.md`. Buat isu `T-NN · …` (label `tugas-pemilik`) untuk tugas baru, tutup isu tugas yang terverifikasi selesai, dan pasang PR sesi ke papan.
+8. Commit catatan ini.
 
 ## 6. Gabungkan ke main (tanpa bertanya)
 
