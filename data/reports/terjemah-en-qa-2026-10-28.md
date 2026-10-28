@@ -24,3 +24,18 @@ Pilot skill `terjemah-inggris` (ADR-132) untuk bab **100007** (keutamaan mengaja
 - Tidak ada huruf Arab ketikan model di berkas: hanya angka penanda catatan kaki, dicek kode dan skrip.
 - **Kurang yang tersisa** (bahan versi berikutnya): butir 15, "their own fathers and mothers" bisa terbaca sebagai orang tua para ulama; butir 18, "devoting it" untuk *badhl*, dan "to Allah" tersirat saja.
 - **Biaya API: US$0.** Kuota langganan untuk satu bab 18 paragraf: satu penerjemah dan dua penilai, ±400 ribu token agen. Kebutuhan kuota per bab perlu dipantau sebelum produksi besar.
+
+## Bab 100008 (bukti akal keutamaan ilmu)
+
+21 paragraf tanpa ayat dan catatan kaki. Penerjemahnya Sonnet 5.5 dengan plugin 0.2.1.
+
+| Lapis | Hasil |
+|---|---|
+| 1. Cek kode | lolos tanpa peringatan |
+| 2. Periksa mandiri | 18 benar, 3 kurang |
+| 3. Periksa independen (Sonnet, konteks segar, 21 butir) | **18 benar, 3 kurang, 0 salah**: lolos pada putaran pertama, status `siap` |
+
+Kurang yang tersisa, bahan versi berikutnya:
+- **butir 3 (p166):** *sil'a* sebaiknya "an extra lump", dan "to anything" dibuang;
+- **butir 18 (p181):** "of either" menutup ambiguitas kata ganti sumber;
+- **butir 19 (p182):** frasa "akal rasional atas yang bahasa" kemungkinan **salah cetak edisi** ("ilmu" tertulis "akal"). Diterjemahkan sesuai cetakan, dan perlu dicek ke edisi lain sebelum dipatch (`data/patches`).
