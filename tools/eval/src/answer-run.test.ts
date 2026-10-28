@@ -1,11 +1,12 @@
 import type { EvalQuestion } from "@surau/core";
 import type { D1Db, D1Statement } from "@surau/db";
-import { JAWAB_PIPELINE_VERSION } from "@surau/llm";
+import { JAWAB_PIPELINE_VERSION, MODELS } from "@surau/llm";
 import type { JawabResult } from "@surau/llm";
 import type Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, test } from "vite-plus/test";
 
 import {
+  ANSWER_MODEL_SUFFIX,
   FALLBACK_TEXT,
   SAVED_ROUTE_SUFFIX,
   SEMANTIC_FILE_SUFFIX,
@@ -68,6 +69,20 @@ describe("pagu eval", () => {
     expect(canRun(0, 0, per)).toBe(true);
     expect(canRun(0, 1, per * 1.5)).toBe(false);
     expect(canRun(0.01, 0, per)).toBe(false);
+  });
+
+  test("--model sonnet: tanpa cadangan ulangan, biaya terburuk lebih besar dari Haiku, arsip bersufiks", () => {
+    const h = questionCeilingUsd();
+    const s = questionCeilingUsd(MODELS.sonnet);
+    expect(s.sonnetReserve).toBe(0);
+    expect(s.haiku).toBeGreaterThan(0.1);
+    expect(s.haiku).toBeLessThan(h.haiku + h.sonnetReserve + 0.0001);
+    expect(canRun(0, 0, s.haiku, MODELS.sonnet)).toBe(true);
+    expect(canRun(0, 0, s.haiku, MODELS.haiku)).toBe(false);
+    expect(canRun(s.haiku / 2, 0, s.haiku * 1.2, MODELS.sonnet)).toBe(false);
+    const a = toEvalAnswer(result(), { answerModel: MODELS.sonnet });
+    expect(a.prompt_version.endsWith(ANSWER_MODEL_SUFFIX)).toBe(true);
+    expect(toEvalAnswer(result()).prompt_version).not.toContain(ANSWER_MODEL_SUFFIX);
   });
 
   test("runner menunggu soal berjalan selesai alih-alih berhenti, dan galat satu soal tidak menghentikan run", async () => {

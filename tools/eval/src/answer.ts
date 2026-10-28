@@ -3,7 +3,7 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } fr
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { answerToc, evalAnswer, evalHash, resolveEvalSource, searchText } from "@surau/core";
-import { JAWAB_EDITION_ID, createAnthropic, createGatewayAnthropic } from "@surau/llm";
+import { JAWAB_EDITION_ID, MODELS, createAnthropic, createGatewayAnthropic } from "@surau/llm";
 import type { Route } from "@surau/llm";
 import { z } from "zod";
 import { loadCorpusIndex } from "./corpus.ts";
@@ -63,6 +63,7 @@ const { positionals, values } = parseArgs({
     rute: { type: "string" },
     "tanpa-rute": { type: "boolean", default: false },
     semantik: { type: "string" },
+    model: { type: "string" },
     "makna-k": { type: "string" },
     "makna-bobot": { type: "string" },
     "makna-takhrij-k": { type: "string" },
@@ -186,10 +187,17 @@ async function main() {
     const run = id.parse(required(values.run, "--run"));
     const out = join(privateDir, `${run}.jsonl`);
     if (existsSync(out)) throw new Error("Run sudah ada; pilih --run baru agar arsip tetap utuh.");
+    // X22: `--model sonnet` = Sonnet menjawab langsung (routing tetap Haiku, tanpa ulangan); hanya
+    // eval, tidak mengubah produksi. Bawaan (haiku) = pipeline Worker apa adanya.
+    if (values.model !== undefined && values.model !== "haiku" && values.model !== "sonnet")
+      throw new Error("--model hanya haiku atau sonnet.");
+    const answerModel = values.model === "sonnet" ? MODELS.sonnet : undefined;
     const budget = Number(values["budget-usd"]);
-    if (!Number.isFinite(budget) || budget <= 0 || budget > 3)
-      throw new Error("--budget-usd wajib (0 < pagu ≤ 3, izin pemilik S19).");
-    const ceiling = questionCeilingUsd();
+    // Pagu bawaan ≤ 3 (izin pemilik S19); jawaban Sonnet ±20× Haiku, jadi pagunya ≤ 6.
+    const maxBudget = answerModel === undefined ? 3 : 6;
+    if (!Number.isFinite(budget) || budget <= 0 || budget > maxBudget)
+      throw new Error(`--budget-usd wajib (0 < pagu ≤ ${maxBudget}, izin pemilik).`);
+    const ceiling = questionCeilingUsd(answerModel);
     if (values["privat-saja"] && !values["termasuk-privat"])
       throw new Error("--privat-saja hanya bersama --termasuk-privat (izin pemilik).");
     // X13: set privat hanya dimuat bila diminta, jadi run publik tidak butuh salinan holdout lokal.
@@ -222,6 +230,7 @@ async function main() {
           private: items.filter((q) => q.private).length,
           saved_routes: routes !== undefined,
           semantic_file: semantic !== undefined,
+          answer_model: values.model ?? "haiku",
           ceiling_per_question_usd: Number(ceiling.haiku.toFixed(4)),
           sonnet_reserve_usd: Number(ceiling.sonnetReserve.toFixed(4)),
           note: "Belum ada panggilan berbayar; tambahkan --confirm setelah izin pemilik.",
@@ -251,6 +260,7 @@ async function main() {
         concurrency: Math.min(6, Math.max(1, Number(values.concurrency) || 1)),
         ...(routes ? { routes } : {}),
         ...(semantic ? { semantic } : {}),
+        ...(answerModel !== undefined ? { answerModel } : {}),
         onError: (item, error) =>
           console.error(
             `${item.private ? "(privat)" : item.question.id} GAGAL: ${error instanceof Error ? error.name : "galat"}`,
@@ -635,7 +645,7 @@ async function main() {
     return;
   }
   console.log(
-    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] | --tanpa-rute [--semantik PERINGKAT [--makna-k N] [--makna-bobot W] [--makna-takhrij-k N]] (gratis; soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] [--semantik PERINGKAT] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
+    "eval:jawab baseline --mode empty|search [--run ID] [--publik-saja]\nkandidat --input DIAGNOSTIK[,DIAGNOSTIK…] | --tanpa-rute [--semantik PERINGKAT [--makna-k N] [--makna-bobot W] [--makna-takhrij-k N]] (gratis; soal publik)\nhadits --run ID (gratis; ulang status hadits atas arsip publik)\nanswer --run ID --budget-usd USD [--confirm] [--termasuk-privat [--privat-saja]] [--gateway] [--only j001,j002] [--rute DIAGNOSTIK] [--semantik PERINGKAT] [--model haiku|sonnet] (berbayar, izin pemilik)\nscore --input ARSIP --run ID [--judge HASIL --reviews EKSPOR --reviewer NAMA]\nseed --input ARSIP --run ID\ngolden --reviews EKSPOR --reviewer NAMA --run ID\njudge-plan --input ARSIP --run ID [--termasuk-privat] (gratis; arsip privat ditolak)\njudge-submit --run ID --budget-usd USD --confirm [--termasuk-privat] (berbayar, perlu izin pemilik)\njudge-collect --run ID",
   );
 }
 try {

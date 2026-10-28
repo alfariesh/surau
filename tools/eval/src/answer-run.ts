@@ -14,7 +14,7 @@ import {
   runJawab,
   stripArabic,
 } from "@surau/llm";
-import type { JawabResult, Route } from "@surau/llm";
+import type { JawabResult, ModelId, Route } from "@surau/llm";
 
 import type { SavedRoute, SemanticRanks } from "./answer-candidates.ts";
 import type Anthropic from "@anthropic-ai/sdk";
@@ -28,7 +28,10 @@ const ROUTE_PROMPT_TOKENS = 12_500;
  * Biaya terburuk satu soal: routing (prefix ditulis ke cache 1 jam) + jawaban Haiku pada batas
  * prompt dan keluaran. Ulangan Sonnet (refusal) disisihkan terpisah sebagai cadangan satu kali.
  */
-export function questionCeilingUsd(): { haiku: number; sonnetReserve: number } {
+export function questionCeilingUsd(answerModel?: ModelId): {
+  haiku: number;
+  sonnetReserve: number;
+} {
   const route = costUsd(
     MODELS.haiku,
     {
@@ -44,6 +47,10 @@ export function questionCeilingUsd(): { haiku: number; sonnetReserve: number } {
       { input_tokens: JAWAB_MAX_PROMPT_TOKENS, output_tokens: ANSWER_MAX_TOKENS },
       { batch: false },
     );
+  // `--model sonnet` (X22): Sonnet menjawab langsung tanpa ulangan, jadi tidak ada cadangan terpisah
+  // dan "haiku" di hasil ini berarti biaya terburuk jawaban pertama.
+  if (answerModel === MODELS.sonnet)
+    return { haiku: route + answer(MODELS.sonnet), sonnetReserve: 0 };
   return { haiku: route + answer(MODELS.haiku), sonnetReserve: answer(MODELS.sonnet) };
 }
 
@@ -51,8 +58,13 @@ export function questionCeilingUsd(): { haiku: number; sonnetReserve: number } {
  * Pagu: soal berikutnya hanya dijalankan bila biaya terpakai + biaya terburuk SETIAP soal yang
  * sedang berjalan (termasuk ulangan Sonnet masing-masing) ≤ pagu.
  */
-export function canRun(spent: number, inflight: number, budget: number): boolean {
-  const c = questionCeilingUsd();
+export function canRun(
+  spent: number,
+  inflight: number,
+  budget: number,
+  answerModel?: ModelId,
+): boolean {
+  const c = questionCeilingUsd(answerModel);
   return spent + (inflight + 1) * (c.haiku + c.sonnetReserve) <= budget;
 }
 
@@ -66,11 +78,16 @@ export const SAVED_ROUTE_SUFFIX = "+rute-tersimpan";
  * `--semantik`), bukan indeks vektor produksi: arsip tidak boleh terbaca sebagai pipeline Worker.
  */
 export const SEMANTIC_FILE_SUFFIX = "+makna-berkas";
+/**
+ * Akhiran `prompt_version` arsip bila tahap jawaban memakai model selain bawaan produksi (X22,
+ * `--model sonnet`): arsip tidak boleh terbaca sebagai pipeline produksi.
+ */
+export const ANSWER_MODEL_SUFFIX = "+jawab-sonnet";
 
 /** Hasil pipeline → kontrak eval S18 (Latin saja, kutipan = pointer DB). */
 export function toEvalAnswer(
   r: JawabResult,
-  opts: { savedRoute?: boolean; semanticFile?: boolean } = {},
+  opts: { savedRoute?: boolean; semanticFile?: boolean; answerModel?: ModelId } = {},
 ): EvalAnswer {
   const fallback = r.outcome === "fallback";
   const spans = (fallback ? r.search : r.citations).slice(0, 20).map((c) => ({
@@ -89,7 +106,7 @@ export function toEvalAnswer(
     model: r.model ?? "none",
     // Sama dengan kunci cache Worker: versi pipeline (kandidat + pascaproses, X03) ikut tercatat,
     // supaya arsip dan laporan membedakan kode yang berbeda dengan prompt yang sama.
-    prompt_version: `${r.prompt_version}+pipeline@${JAWAB_PIPELINE_VERSION}${opts.savedRoute ? SAVED_ROUTE_SUFFIX : ""}${opts.semanticFile ? SEMANTIC_FILE_SUFFIX : ""}`,
+    prompt_version: `${r.prompt_version}+pipeline@${JAWAB_PIPELINE_VERSION}${opts.savedRoute ? SAVED_ROUTE_SUFFIX : ""}${opts.semanticFile ? SEMANTIC_FILE_SUFFIX : ""}${opts.answerModel === MODELS.sonnet ? ANSWER_MODEL_SUFFIX : ""}`,
     latency_ms: r.latency_ms,
     cost_usd: r.cost_usd,
   });
@@ -138,6 +155,8 @@ export async function runQuestions(
   opts: {
     budgetUsd: number;
     concurrency: number;
+    /** Hanya eval (X22): model tahap jawaban; `sonnet` = tanpa ulangan, routing tetap Haiku. */
+    answerModel?: ModelId;
     onDone?: (o: RunOutput, spent: number) => void;
     /** Galat non-API (mis. D1 putus) pada satu soal: dicatat, soal lain tetap jalan. */
     onError?: (item: RunItem, error: unknown) => void;
@@ -168,6 +187,7 @@ export async function runQuestions(
         {
           corpus: db,
           anthropic: client,
+          ...(opts.answerModel !== undefined ? { answerModel: opts.answerModel } : {}),
           ...(savedRoute !== undefined ? { savedRoute } : {}),
           ...(ranked !== undefined
             ? {
@@ -203,7 +223,7 @@ export async function runQuestions(
   const worker = async () => {
     for (;;) {
       if (stopped || next >= items.length) return;
-      if (!canRun(spent, inflight, opts.budgetUsd)) {
+      if (!canRun(spent, inflight, opts.budgetUsd, opts.answerModel)) {
         // Masih ada soal berjalan: tunggu salah satunya selesai (cadangannya kembali).
         if (inflight > 0) {
           await new Promise<void>((resolve) => waiters.push(resolve));
@@ -228,13 +248,14 @@ export async function runQuestions(
           answer: toEvalAnswer(result, {
             savedRoute: routes !== undefined,
             semanticFile: semantic !== undefined,
+            ...(opts.answerModel !== undefined ? { answerModel: opts.answerModel } : {}),
           }),
         };
         outputs.push(out);
       } catch (error) {
         // Soal yang gagal di tengah bisa sudah memakai panggilan berbayar yang biayanya tidak
         // diketahui di sini: dihitung biaya terburuknya supaya pagu izin tidak terlampaui.
-        const c = questionCeilingUsd();
+        const c = questionCeilingUsd(opts.answerModel);
         spent += c.haiku + c.sonnetReserve;
         failed++;
         opts.onError?.(item, error);
