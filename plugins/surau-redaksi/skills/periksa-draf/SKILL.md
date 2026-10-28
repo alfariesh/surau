@@ -12,7 +12,7 @@ Lapis 2 dari cek otomatis tiga lapis. Tujuannya menangkap kekeliruan makna yang 
 
 ## Langkah
 
-1. Untuk setiap butir (gagasan, butir Faedah, atau hari Jalur), baca ulang paragraf sumbernya dengan `read_section` atau `read_page` (untuk Faedah, juga terjemahan yang akan disalin kode). Jangan menilai dari ingatan percakapan.
+1. Untuk setiap butir (gagasan, butir Faedah, atau hari Jalur), baca ulang paragraf sumbernya: cukup paragraf `dasar` dan tetangganya lewat `read_page` di halamannya (bab panjang tidak perlu dibaca ulang seluruhnya). Untuk Faedah, juga terjemahan yang akan disalin kode. Jangan menilai dari ingatan percakapan.
 2. Jalankan daftar uji di `references/daftar-uji.md` untuk butir itu.
 3. Beri nilai:
    - **benar**: setia pada teks, atribusi dan sikap tepat, tanpa nada fatwa;

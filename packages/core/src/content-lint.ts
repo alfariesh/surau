@@ -28,8 +28,10 @@ const PROBLEM_MESSAGE: Readonly<Record<string, string>> = {
   fatwa: "bahasa fatwa atau perintah atas nama pembaca; pakai bahasa atribusi",
   address: "menyapa pembaca (Anda/kamu); narasi selalu orang ketiga",
   first_person: "kata ganti orang pertama di narasi (aku/saya/kami/kita)",
-  hadith_status: "menulis status hadits; status hanya dari takhrij yang ditampilkan kode",
-  ayah_paraphrase: "menulis isi atau makna ayat; ayat hanya tampil sebagai teks Kemenag dari kode",
+  hadith_status:
+    'menulis status hadits (mis. "hadits hasan", "sanadnya lemah"); status hanya dari takhrij yang ditampilkan kode',
+  ayah_paraphrase:
+    'menulis isi atau makna ayat (mis. "Allah berfirman", "ayat:", "ayat ini menyatakan"); ayat hanya tampil dari kode',
 };
 
 /** Pembuka topik datar yang dilarang untuk inti ("Bagian ini membahas …"). */
@@ -53,7 +55,7 @@ const STARTS_GHAZALI = /^al-?ghazali\b/iu;
  * ("…, menurut al-Ghazali"; opsi A riset 08), supaya judul tidak seragam.
  */
 const HOLDER =
-  /\b(?:al-?ghazali|penulis(?:nya)?|menurut|dinukil|dibantah|dikutip|kaum|golongan|kelompok|sebagian|para|ulama|ahli|kalangan|imam|sahabat|nabi|orang-orang)\b/iu;
+  /\b(?:al-?ghazali|penulis(?:nya)?|menurut|dinukil|dibantah|dikutip|kaum|golongan|kelompok|sebagian|ulama|ahli|kalangan|imam|sahabat|nabi|orang-orang)\b/iu;
 const STARTS_MENURUT = /^menurut\s+al-?ghazali\b/iu;
 const HONORIFIC_UPPER = /\b(?:SWT|SAW|S\.W\.T\.?|S\.A\.W\.?)(?![\p{L}])/u;
 

@@ -12,10 +12,10 @@ Kerangka tampil: **Inti → Ringkasan → Gagasan 1..n (judul, isi, sikap, Dasar
 | Judul gagasan | 4–14 kata, berupa tesis. Selalu menyebut siapa berpendapat (al-Ghazali, penulis, kaum …, menurut …). Paling banyak sepertiga judul dibuka "Al-Ghazali". Jangan membicarakan babnya ("bab ini bertujuan …"). Tanpa tanda baca di akhir |
 | Isi gagasan | 25–110 kata. Contoh dan alasan penulis dipertahankan; batasan ("sebagian", "hendaknya") jangan dibuang |
 | Sikap | `author`, `reported`, atau `refuted`. Pendapat yang dinukil lalu dibantah = `refuted`, dan isinya menyebut bantahan penulis |
-| Jenis | `idea`, atau `advice` bila penulis sendiri menganjurkan sesuatu (kasus pribadi ditanyakan kepada ulama; catatan itu ditambah kode) |
-| Dasar teks | 1–6 paragraf badan di dalam bagian ini. Cakupan dasar seluruh gagasan sebaiknya ≥ 50% paragraf isi |
+| Jenis | `idea`, atau `advice` bila isi utamanya anjuran penulis sendiri ("hendaknya murid …"); gagasan campuran (penjelasan + anjuran) pakai `advice` bila anjurannya inti, selain itu `idea`. Kasus pribadi ditanyakan kepada ulama; catatan itu ditambah kode |
+| Dasar teks | 1–6 paragraf badan di dalam bagian ini. Cakupan dasar seluruh gagasan sebaiknya ≥ 50% paragraf isi (untuk bab panjang ambang peringatan otomatis lebih rendah). Paragraf dasar boleh memuat riwayat, tetapi isi gagasan bersandar pada kalimat penulis dan tidak pernah menilai status riwayat; paragraf berayat sebaiknya bukan satu-satunya dasar |
 | Soal | Satu per gagasan. Pertanyaan 6–30 kata diakhiri "?"; jawaban 4–30 kata berupa pernyataan. Paling banyak separuh soal dibuka "Menurut al-Ghazali". Soal menguji isi teks, bukan pendapat pembaca, dan tidak benar/salah atas perkara khilafiyah |
-| Kutipan pilihan | 0–2. Satu paragraf, 20–400 karakter, di batas kata (offset dari `verify_quote`), tidak menyentuh ayat, bukan riwayat bertakhrij sangat lemah/palsu/tanpa asal/tidak ditemukan. Terjemahan 2–150 kata |
+| Kutipan pilihan | 0–2. Satu paragraf, 20–400 karakter, di batas kata (offset dari `verify_quote`), tidak menyentuh ayat, bukan riwayat bertakhrij sangat lemah/palsu/tanpa asal/tidak ditemukan; utamakan kalimat penulis sendiri. Terjemahan 2–150 kata; boleh "aku" atau "engkau" bila penulis berkata begitu (terjemahan kutipan menerjemahkan kata penulis, bukan sapaan Surau) |
 | Istilah | 0–5 kunci glosarium yang ada |
 
 ## Ciri Intisari yang baik

@@ -12,15 +12,16 @@ Ikuti **pedoman-redaksi**. Faedah adalah satu paragraf pilihan yang dibaca **tan
 
 ## Langkah
 
-1. `list_faedah_candidates(section_id)`: hanya paragraf yang `eligible: true`. Paginasi dengan `offset` sampai `next_offset` null bila perlu.
+1. `list_faedah_candidates(section_id)`: hanya paragraf yang `eligible: true`. Paginasi dengan `offset` sampai `next_offset` null bila perlu. Paragraf terlalu panjang (> 90 kata) memang tidak layak di v1, walau isinya bagus.
 2. Untuk setiap calon, baca terjemahannya dan, bila perlu, paragraf sebelum dan sesudahnya (`read_page` atau `read_section`) supaya yakin:
    - itu **pendapat al-Ghazali sendiri**, bukan pendapat yang ia nukil atau bantah (bila muncul peringatan `stance_unchecked`, pastikan dari konteks; bila ragu, lewati);
    - maknanya utuh tanpa paragraf lain;
-   - bukan kisah atau praktik yang berbahaya bila ditiru (lapar berkepanjangan, meninggalkan ikhtiar, menyakiti diri);
+   - bukan kisah atau praktik yang berbahaya bila ditiru (lapar berkepanjangan, meninggalkan ikhtiar, menyakiti diri), dan tidak merendahkan suku, bangsa, atau kelompok;
+   - bukan potongan daftar ("dan …", "yang kedua …"); bila terpaksa, konteks wajib menjelaskan daftarnya;
    - bukan perkara khilafiyah yang terbaca seperti fatwa.
 3. Pilih 1–14 butir (bawaan 7). Usahakan tema beragam.
 4. Untuk setiap butir tulis:
-   - `judul`: 2–8 kata, menyebut isinya, tanpa janji ("agar", "supaya", "rahasia", "cara mudah" ditolak);
+   - `judul`: 2–8 kata, menyebut isinya (aturan "menyebut siapa berpendapat" tidak berlaku; atribusinya di konteks), tanpa janji ("agar", "supaya", "rahasia", "cara mudah" ditolak);
    - `konteks`: 6–30 kata, atributif, menjelaskan di mana al-Ghazali menulisnya ("Al-Ghazali menulis ini ketika menjelaskan …");
    - `tema`: 1–3 kata kunci huruf kecil (mis. "ilmu", "adab", "niat").
 5. `check_content_draft` sampai `ok: true`; **periksa-draf** (satu entri per butir); salin `stamp`; buat berkas `faedah-<section_id>.json`.

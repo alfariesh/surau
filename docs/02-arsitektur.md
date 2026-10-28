@@ -32,7 +32,7 @@ Semua komponen berjalan di Cloudflare: satu tagihan, satu dashboard, satu CLI ([
 | Worker | Isi | Alamat | Mulai |
 |---|---|---|---|
 | `surau-web` | UI: pembaca, Cari, Tanya. Next.js 16 lewat OpenNext. Membaca D1 langsung lewat `packages/core`. Endpoint milik web sendiri (misalnya `/api/search`, `/api/feedback`) tetap di Next. | `<domain>/*` | Fase 0 |
-| `surau-mcp` | MCP publik: hanya-baca, tanpa LLM | `mcp.<domain>/mcp` | Fase 3 |
+| `surau-mcp` | MCP publik: hanya-baca, tanpa LLM; `/redaksi` untuk plugin penulis konten (X22) | `mcp.<domain>/mcp`, `mcp.<domain>/redaksi` | Fase 3 |
 | `surau-api` | Jawab (streaming), kuota, ledger biaya, cron. Satu-satunya Worker yang memanggil LLM. | Tanpa route publik; dipanggil `surau-web` lewat service binding dari route handler Next (`/api/jawab`, `/api/admin`) | Fase 4 |
 
 Alasannya: MCP dan LLM tidak ikut terikat ke adapter dan *cold start* Next, rate limit dan kegagalan tiap Worker terpisah, dan setiap fase bisa dirilis sendiri.

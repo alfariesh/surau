@@ -20,5 +20,6 @@ Untuk setiap butir, jawab semua pertanyaan dengan membaca teks sumber, bukan ing
 
 ## Khusus Faedah dan Jalur
 
-11. **Tanpa konteks.** Bila Faedah dibaca sendirian di WhatsApp, apakah maknanya tetap benar dan tidak berbahaya bila ditiru?
+11. **Tanpa konteks.** Bila Faedah dibaca sendirian di WhatsApp, apakah maknanya tetap benar, utuh (bukan potongan daftar), tidak berbahaya bila ditiru, dan tidak merendahkan suku, bangsa, atau kelompok?
+11b. **Terjemahan yang disalin.** Terjemahan AI paragraf adalah isi utama Faedah: bandingkan dengan teks Arabnya (negasi, bilangan, pemilik pendapat). Bila terjemahannya keliru, jangan jadikan Faedah; catat paragrafnya untuk koreksi terjemahan.
 12. **Pengantar Jalur.** Apakah pengantar hanya menyebut isi bab, tanpa tugas, target, atau janji?

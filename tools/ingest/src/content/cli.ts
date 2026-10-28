@@ -3,6 +3,7 @@
 //   pnpm konten cek --luring <berkas…> → tanpa korpus: skema, bahasa, cap, kesiapan (dipakai CI)
 //   pnpm konten impor <berkas…>        → cek lengkap, lalu salin ke data/konten/<jenis>/ (status draf)
 //   pnpm konten daftar                 → semua unit di data/konten beserta status dan pemeriksaannya
+//   pnpm konten calon <section_id>     → paragraf calon Faedah (layak saja; --semua: dengan alasan)
 //   --korpus produksi|staging          → korpus remote yang dibaca (bawaan produksi, sama dengan MCP)
 //   --ganti                            → impor boleh menimpa unit yang ada bila versinya lebih tinggi
 // Korpus dibaca lewat binding D1 remote (`getPlatformProxy`) dengan pagar hanya-SELECT; checkout
@@ -24,6 +25,7 @@ import {
   CONTENT_KINDS,
   checkContentDraft,
   contentDraft,
+  listFaedahCandidates,
   contentDraftSha256,
   lintContent,
   readinessIssues,
@@ -133,18 +135,25 @@ function printCheck(file: string, r: ContentCheck, ready: readonly ContentIssue[
   const ok = errors.length === 0;
   const facts = r.facts;
   const extra =
-    facts === null
+    facts === null || r.kind === "faedah" || r.kind === "jalur"
       ? ""
       : ` · cakupan ${facts.coverage === null ? "-" : `${Math.round(facts.coverage * 100)}%`}` +
         ` · ${facts.reading_minutes ?? "-"} menit`;
   console.log(`${ok ? "✓" : "✗"} ${file} (${r.kind ?? "?"} ${r.section?.id ?? ""})${extra}`);
   printIssues("galat", errors);
   printIssues("peringatan", r.warnings);
+  if (ok && r.stamp !== null) {
+    console.log(`    cap: ${JSON.stringify(r.stamp)}`);
+  }
   return ok;
 }
 
 async function cek(files: readonly string[], offline: boolean, which: z.infer<typeof korpus>) {
   let failed = 0;
+  if (files.length === 0) {
+    console.log("tidak ada berkas konten untuk dicek");
+    return 0;
+  }
   if (offline) {
     for (const file of files) {
       const r = await checkOffline(readJson(file));
@@ -217,6 +226,32 @@ async function impor(files: readonly string[], which: z.infer<typeof korpus>, re
   return failed;
 }
 
+async function calon(sectionId: number, all: boolean, which: z.infer<typeof korpus>) {
+  const corpus = await openRemoteCorpus(which);
+  try {
+    let offset: number | null = 0;
+    while (offset !== null) {
+      const page = await listFaedahCandidates(corpus.db, {
+        section_id: sectionId,
+        offset,
+        limit: 60,
+        include_ineligible: all,
+      });
+      for (const c of page.candidates) {
+        const mark = c.eligible ? "✓" : "✗";
+        console.log(
+          `${mark} ${c.anchor} (${c.passage_id}) ${c.words ?? "-"} kata ${c.reasons.join(", ")}`,
+        );
+        if (c.translation !== null) console.log(`    ${c.translation.text}`);
+      }
+      offset = page.next_offset;
+    }
+  } finally {
+    await corpus.dispose();
+  }
+  return 0;
+}
+
 async function daftar() {
   const files = listContentFiles();
   if (files.length === 0) {
@@ -249,11 +284,12 @@ async function main() {
       luring: { type: "boolean", default: false },
       korpus: { type: "string", default: "produksi" },
       ganti: { type: "boolean", default: false },
+      semua: { type: "boolean", default: false },
     },
   });
   const [command, ...rest] = positionals;
   const which = korpus.parse(values.korpus);
-  const files = rest.map((f) => resolve(f));
+  const files = command === "calon" ? [] : rest.map((f) => resolve(f));
   for (const f of files) if (!existsSync(f)) throw new Error(`berkas tidak ada: ${f}`);
   let failed = 0;
   switch (command) {
@@ -267,9 +303,15 @@ async function main() {
     case "daftar":
       failed = await daftar();
       break;
+    case "calon": {
+      const id = Number(rest[0]);
+      if (!Number.isInteger(id) || id <= 0) throw new Error("pnpm konten calon <section_id>");
+      failed = await calon(id, values.semua, which);
+      break;
+    }
     default:
       console.log(
-        `Perintah: cek | impor | daftar (lihat komentar di ${basename(import.meta.filename)})`,
+        `Perintah: cek | impor | daftar | calon (lihat komentar di ${basename(import.meta.filename)})`,
       );
       process.exitCode = 2;
       return;

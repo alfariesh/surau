@@ -30,7 +30,7 @@ Satu berkas JSON per unit. Kunci berbahasa Indonesia; nilai teks berbahasa Indon
 ```
 
 - `section_id`: bagian sumber. Intisari Kitab dan Jalur memakai ID Kitab (tingkat 2 daftar isi, mis. 100003 Kitab al-'Ilm).
-- `menggantikan`: isi `"digest-section@2"` bila bagian itu sudah punya Intisari lama (lihat `get_section_digest`), atau `null`.
+- `menggantikan`: hanya untuk Intisari. Isi dengan `prompt_version` Intisari lama dari `get_section_digest` (mis. `"digest-section@2"` atau `"digest-merge@1"`), atau `null` bila belum ada. Faedah dan Jalur: `null` (Faedah tidak menggantikan Intisari).
 - `status`: selalu `"draf"` dari chat. Status `siap` hanya diberikan saat impor sesudah periksa independen.
 - `periksa.mandiri`: satu entri per gagasan (atau per butir Faedah, per hari Jalur), `nilai` = `benar`, `kurang`, atau `salah`, dengan catatan singkat.
 - `periksa.kode`: salin `stamp` dari hasil `check_content_draft` yang terakhir (`aturan`, `lolos`, `sumber_sha256`, `draf_sha256`, `waktu`). Setiap perubahan isi sesudahnya membuat cap tidak cocok; cek ulang.

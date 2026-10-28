@@ -26,9 +26,12 @@ Konektor yang dipakai: **surau-redaksi** (`https://mcp.surau.org/redaksi`). Bila
 ## Bahasa
 
 - Indonesia awam yang santun, kalimat pendek, kosakata pesantren (ngaji, kitab, bab).
-- Honorifik: "Allah Swt.", "Nabi saw." (huruf kecil, bertitik).
+- Honorifik: "Allah Swt.", "Nabi saw.", nabi lain "as.", sahabat "ra." (huruf kecil, bertitik). Ejaan istilah mengikuti KBBI (sunah, hadis/hadits boleh, ulama); nama tokoh dengan apostrof bila ada di nama baku (Mu'adz, Atha').
+- **Hadits qudsi:** jangan menulis "Allah berfirman" (terbaca sebagai ayat dan ditolak pemeriksa); tulis "dalam sebuah hadits qudsi, Allah disebut …" atau "riwayat yang dinukil penulis menyebutkan …".
+- **Jebakan pemeriksa:** kata "ayat:" (dengan titik dua), "hadits hasan", "sanadnya …" memicu galat walau maksudnya lain; pilih kata lain ("perkataan yang baik", "ayat tentang …").
+- **Sikap campuran:** bila satu gagasan memuat riwayat yang dinukil dan komentar penulis, labeli menurut pemilik tesis gagasan itu; bila tesisnya kesimpulan penulis dari riwayat, sikapnya `author`.
 - Tanpa Markdown, tanpa baris baru di dalam satu kolom, tanpa komentar tentang pekerjaan sendiri ("Berikut ini …", "Catatan: …").
-- Judul gagasan berbentuk tesis (isi gagasannya) dan **menyebut siapa berpendapat**; paling banyak sepertiga judul dibuka "Al-Ghazali". Atribusi boleh di anak kalimat: "Keutamaan diukur dari kesempurnaan, menurut al-Ghazali".
+- Judul **gagasan Intisari** berbentuk tesis (isi gagasannya) dan **menyebut siapa berpendapat** (judul Faedah dan Jalur tidak; atribusinya di konteks atau pengantar); paling banyak sepertiga judul dibuka "Al-Ghazali". Atribusi boleh di anak kalimat: "Keutamaan diukur dari kesempurnaan, menurut al-Ghazali".
 
 ## Alur umum
 
@@ -42,10 +45,10 @@ Konektor yang dipakai: **surau-redaksi** (`https://mcp.surau.org/redaksi`). Bila
 
 ## Isian asal-usul (`asal`)
 
-- `pembuat`: `claude-desktop` (aplikasi Claude), `claude-web` (claude.ai di peramban), atau `cowork`.
+- `pembuat`: `claude-desktop` (aplikasi Claude), `claude-web` (claude.ai di peramban), `cowork`, atau `claude-code` (agen di repo).
 - `model`: ID model yang dipakai, mis. `claude-opus-5-5` atau `claude-sonnet-5-5`. Bila tidak yakin, tanyakan pemilik model apa yang dipilih di chat.
 - `plugin`: `surau-redaksi@0.1.0`. `skill`: nama skill dan versi standar, mis. `intisari-bab@1`.
-- `operator`: `pemilik` (atau nama pendek editor yang menjalankan).
+- `operator`: `pemilik`, `agen` (agen Claude Code), atau nama pendek editor yang menjalankan (data publik di repo).
 - `dibuat`: waktu sekarang ISO 8601 dengan zona, mis. `2026-10-28T09:30:00+07:00`.
 
 Rincian format dan kode galat: `references/format.md`.

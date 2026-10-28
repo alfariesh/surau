@@ -47,9 +47,10 @@ surau/
 ├─ tools/
 │  ├─ ingest/         CLI Node: Shamela → validasi → patch → SQL/dump (node:sqlite, type stripping)
 │  └─ eval/           (Fase 2+) runner eval retrieval & jawaban
-├─ data/              LICENSE (CC BY-NC-SA), ATTRIBUTION.md, SOURCES.md, patches/, reports/ (di-commit; tanpa teks kitab)
+├─ data/              LICENSE (CC BY-NC-SA), ATTRIBUTION.md, SOURCES.md, patches/, reports/ (di-commit; tanpa teks kitab); konten/ (draf konten turunan surau-konten/1, X22)
 │                     raw/ dan build/ (git-ignored): sumber unduhan, *.sqlite, *.sql
 ├─ evals/             dataset eval (JSONL); private/ git-ignored
+├─ plugins/           plugin Claude `surau-redaksi` (X22, ADR-121); marketplace di .claude-plugin/marketplace.json
 ├─ docs/  implementasi/  .claude/  .github/workflows/
 ├─ package.json  pnpm-workspace.yaml  vite.config.ts  tsconfig.base.json  .node-version
 └─ CLAUDE.md

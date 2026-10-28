@@ -99,7 +99,7 @@ Paragraf yang memenuhi syarat (daftar putih v1, diperiksa kode):
 - tanpa rujukan ayat, tanpa penanda catatan kaki atau hadits, dan tidak ditandai perlu ditinjau;
 - bukan pendapat yang dinukil atau dibantah menurut Intisari bagian itu (bila belum ada Intisari, muncul peringatan dan penulis wajib memastikan sendiri).
 
-Judul Faedah lebih ketat soal janji ("agar", "supaya", "rahasia sukses" ditolak). Kisah atau praktik yang berbahaya bila ditiru (lapar berkepanjangan, tawakal tanpa ikhtiar) tidak dijadikan Faedah, karena pos WhatsApp dibaca tanpa konteks.
+Judul Faedah lebih ketat soal janji ("agar", "supaya", "rahasia sukses" ditolak) dan tidak wajib menyebut pemilik pendapat (atribusinya di konteks). Kisah atau praktik yang berbahaya bila ditiru (lapar berkepanjangan, tawakal tanpa ikhtiar) dan kalimat yang merendahkan suku, bangsa, atau kelompok tidak dijadikan Faedah, karena pos WhatsApp dibaca tanpa konteks. Paragraf yang berupa potongan daftar (dibuka "dan", "yang kedua") diberi peringatan dan sebaiknya dilewati.
 
 ### 5.4 Jalur 7 hari
 

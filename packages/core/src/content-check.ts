@@ -401,7 +401,18 @@ export async function checkContentDraft(
           `${d.isi.gagasan.length} gagasan; untuk bagian ini ${lo}–${hi}`,
         );
       }
-      if (coverage !== null && coverage < CONTENT_LIMITS.coverageWarn) {
+      // Ambang 50% dikecilkan untuk bagian panjang: paling banyak gagasanMax × dasarMax paragraf
+      // bisa dijangkar (bab induk 117 paragraf → ±36%), jadi ambangnya 60% dari yang mungkin.
+      const possible =
+        bodyCount === null || bodyCount === 0
+          ? 1
+          : Math.min(
+              1,
+              (CONTENT_LIMITS.intisariBab.gagasanMax * CONTENT_LIMITS.intisariBab.dasarMax) /
+                bodyCount,
+            );
+      const threshold = Math.min(CONTENT_LIMITS.coverageWarn, 0.6 * possible);
+      if (coverage !== null && coverage < threshold) {
         issues.warn(
           "low_coverage",
           "isi.gagasan",
@@ -468,6 +479,10 @@ export async function checkContentDraft(
       : null,
   };
 }
+
+/** Terjemahan yang dibuka kata sambung atau urutan daftar: potongan, bukan gagasan utuh. */
+const FRAGMENT_OPENER =
+  /^(?:dan|atau|lalu|kemudian|adapun|sedangkan|tetapi|namun|maka|yang\s+(?:pertama|kedua|ketiga|keempat|kelima|terakhir)|(?:pertama|kedua|ketiga|keempat|kelima)\s*[,:])\b/iu;
 
 // ── Faedah ───────────────────────────────────────────────────────────────────────────────────
 
@@ -584,6 +599,14 @@ async function checkFaedah(
     if (p === undefined || f === undefined) return;
     for (const code of faedahProblems(p, f)) {
       issues.error(code, `isi.butir[${i}].passage_id`, FAEDAH_PROBLEM_MESSAGE[code] ?? code);
+    }
+    const opener = f.translation?.text.trim() ?? "";
+    if (FRAGMENT_OPENER.test(opener)) {
+      issues.warn(
+        "faedah_fragment",
+        `isi.butir[${i}].passage_id`,
+        "terjemahan dibuka kata sambung atau urutan daftar; pastikan utuh dibaca sendiri, atau jelaskan di konteks",
+      );
     }
     if (!f.stanceChecked) {
       issues.warn(

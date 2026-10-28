@@ -47,7 +47,8 @@ Semua dijalankan dari root repo.
 - `docs/`: dokumen produk (visi, kebijakan, arsitektur konsep, biaya, riset). Sumber kebenaran *apa* dan *kenapa*.
 - `implementasi/`: rencana eksekusi (STATUS, FASE, `sesi/`, STACK, ARSITEKTUR-TEKNIS, KONVENSI, KEPUTUSAN, LOG, TUGAS-PEMILIK).
 - `apps/`, `packages/`, `tools/`: kode. Web ada di `apps/web` (punya `CLAUDE.md` + `AGENTS.md` sendiri). Paket dibuat saat sesi yang membutuhkannya.
-- `data/`: lisensi, atribusi, sumber, patch, dan laporan. Teks kitab tidak masuk git.
+- `data/`: lisensi, atribusi, sumber, patch, laporan, dan `konten/` (draf konten turunan, X22). Teks kitab tidak masuk git.
+- `plugins/surau-redaksi/`: plugin Claude untuk membuat konten turunan (Intisari, Faedah, Jalur) lewat Claude Desktop; standar di `docs/09-konten.md`, pedoman di `docs/redaksi-operasional.md`.
 - `aset/`: aset visual interaktif (sumber `figur/`, hasil `keluaran/`), dibuat dengan skill `aset`.
 - `.claude/`: skills (`sesi`, `posisi`, `rilis`, `docs-terbaru`, `aset`), agents (`peninjau`), rules (`teks-arab`), dan hooks.
 
