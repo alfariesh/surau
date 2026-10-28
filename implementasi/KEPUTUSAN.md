@@ -127,7 +127,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 115 | Kitab kandidat "Segera hadir" di /kitab dengan suara minat anonim, tanpa email | diterima | 2026-10-27 | [keputusan/ADR-115.md](keputusan/ADR-115.md) |
 | 116 | Kutipan Arab bersitasi sesudah kalimat status hadits: sitasinya pindah ke kalimat itu, pipeline@15 | diterima | 2026-10-27 | [keputusan/ADR-116.md](keputusan/ADR-116.md) |
 | 117 | Catatan keputusan dan jurnal dipecah: satu file per ADR, arsip log per bulan | diterima | 2026-10-28 | [keputusan/ADR-117.md](keputusan/ADR-117.md) |
-| 118 | Evaluasi vinext dan TanStack Redact: tetap Next 16 + OpenNext, ditinjau ulang bila pemicunya terpenuhi | diterima | 2026-10-27 | [keputusan/ADR-118.md](keputusan/ADR-118.md) |
+| 118 | Evaluasi vinext dan TanStack Redact: vinext jadi kandidat migrasi (LCP ponsel lokal halaman kitab 1,7–2,1× lebih cepat, hidrasi +1,1 dtk), produksi tetap Next sampai gerbang Preview lolos; Redact tidak dipasang | sementara | 2026-10-28 | [keputusan/ADR-118.md](keputusan/ADR-118.md) |
 
 ## Cara menambah ADR baru
 
