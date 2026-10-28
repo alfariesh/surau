@@ -41,8 +41,8 @@ Kalimat biasa seperti "kerjakan sesi berikutnya" juga bisa.
 | [STACK.md](STACK.md) | Teknologi, versi, dan **tautan docs resmi yang wajib dibaca** | Agent, setiap kali versi berubah |
 | [ARSITEKTUR-TEKNIS.md](ARSITEKTUR-TEKNIS.md) | Struktur monorepo, model data, alur request, binding Cloudflare | Agent |
 | [KONVENSI.md](KONVENSI.md) | Aturan kode, git, tes, penamaan, dan bahasa | Agent (perubahan dicatat di KEPUTUSAN) |
-| [KEPUTUSAN.md](KEPUTUSAN.md) | Log keputusan teknis (ADR) beserta alasannya | Agent dan pemilik |
-| [LOG.md](LOG.md) | Jurnal sesi: apa yang dikerjakan, hasil verifikasi, biaya | Agent, setiap akhir sesi |
+| [KEPUTUSAN.md](KEPUTUSAN.md) | Indeks keputusan teknis (ADR); isi tiap ADR ada di [keputusan/](keputusan/) (satu file per ADR) | Agent dan pemilik |
+| [LOG.md](LOG.md) | Jurnal sesi bulan berjalan: apa yang dikerjakan, hasil verifikasi, biaya. Bulan sebelumnya di [log/](log/) | Agent, setiap akhir sesi |
 | [TUGAS-PEMILIK.md](TUGAS-PEMILIK.md) | Hal yang hanya bisa dikerjakan manusia | Agent menambah; pemilik mencentang |
 
 Pengaturan agent ada di luar folder ini: [`CLAUDE.md`](../CLAUDE.md), [`.claude/skills/`](../.claude/skills/) (`sesi`, `posisi`, `rilis`, `docs-terbaru`), [`.claude/agents/peninjau.md`](../.claude/agents/peninjau.md), [`.claude/rules/teks-arab.md`](../.claude/rules/teks-arab.md), [`.claude/settings.json`](../.claude/settings.json) (izin + hook), dan [`.mcp.json`](../.mcp.json) (docs Cloudflare; MCP HeroUI dipasang pemilik di level user lewat T-01; `next-devtools` ditambahkan di S01).
