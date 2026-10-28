@@ -24,6 +24,7 @@ Sudah bisa dicoba: <apa dan di mana; atau "belum ada">
 Terakhir dikerjakan: <sesi + 1 kalimat>
 Berikutnya: Sesi NN · <judul> (<1 kalimat apa yang akan dibuat>). Ketik /sesi.
 Menunggu Anda: <tugas pemilik yang memblokir, dengan langkah singkat; atau "tidak ada">
+Papan: https://github.com/users/alfariesh/projects/7 (kolom "Menunggu pemilik" = giliran Anda)
 Keputusan untuk Anda: <P-NN yang wajib dijawab dan belum dijawab; atau "tidak ada">
 Rilis berikutnya: <nama rilis fase ini + apa yang akan bisa dipakai publik>
 Sesi sisipan: <X01: menunggu gerbang / siap; tanggal terakhir dicek>

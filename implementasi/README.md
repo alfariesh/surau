@@ -25,6 +25,7 @@ Cukup ketik salah satu perintah ini di Claude Code (sebaiknya **buka percakapan 
 Kalimat biasa seperti "kerjakan sesi berikutnya" juga bisa.
 
 **Kapan Anda dibutuhkan:**
+- Cara tercepat melihatnya: buka [papan Surau](https://github.com/users/alfariesh/projects/7) dan lihat kolom *Menunggu pemilik*.
 - Saat agent berhenti dengan label **MENUNGGU PEMILIK**. Daftar lengkapnya ada di [TUGAS-PEMILIK.md](TUGAS-PEMILIK.md), misalnya membuat akun, menyiapkan token, atau memilih nama domain.
 - Saat agent meminta izin untuk tindakan yang keluar dari komputer Anda: deploy, push ke GitHub, atau menulis ke database produksi.
 - Di akhir setiap sesi: periksa hasilnya (agent memberi tautan atau cara melihatnya), lalu jawab "ya" bila agent bertanya "Gabungkan Sesi NN ke main sekarang?". Sesi berikutnya baru bisa dimulai setelah hasil sesi sebelumnya digabung.
@@ -44,6 +45,7 @@ Kalimat biasa seperti "kerjakan sesi berikutnya" juga bisa.
 | [KEPUTUSAN.md](KEPUTUSAN.md) | Indeks keputusan teknis (ADR); isi tiap ADR ada di [keputusan/](keputusan/) (satu file per ADR) | Agent dan pemilik |
 | [LOG.md](LOG.md) | Jurnal sesi bulan berjalan: apa yang dikerjakan, hasil verifikasi, biaya. Bulan sebelumnya di [log/](log/) | Agent, setiap akhir sesi |
 | [TUGAS-PEMILIK.md](TUGAS-PEMILIK.md) | Hal yang hanya bisa dikerjakan manusia | Agent menambah; pemilik mencentang |
+| [Papan GitHub Project](https://github.com/users/alfariesh/projects/7) | Tampilan visual status: kartu per sesi (dikelompokkan per Fase), tugas pemilik, dan PR. Kolom *Menunggu pemilik* berisi giliran Anda. Bukan sumber kebenaran; file di folder ini tetap yang utama | Agent menggeser kartu; pemilik boleh menggeser sendiri |
 
 Pengaturan agent ada di luar folder ini: [`CLAUDE.md`](../CLAUDE.md), [`.claude/skills/`](../.claude/skills/) (`sesi`, `posisi`, `rilis`, `docs-terbaru`), [`.claude/agents/peninjau.md`](../.claude/agents/peninjau.md), [`.claude/rules/teks-arab.md`](../.claude/rules/teks-arab.md), [`.claude/settings.json`](../.claude/settings.json) (izin + hook), dan [`.mcp.json`](../.mcp.json) (docs Cloudflare; MCP HeroUI dipasang pemilik di level user lewat T-01; `next-devtools` ditambahkan di S01).
 

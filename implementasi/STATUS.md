@@ -64,6 +64,8 @@
 
 ## Progres
 
+Tampilan visual tabel ini ada di [papan Surau](https://github.com/users/alfariesh/projects/7) (kartu per sesi, dikelompokkan per Fase). Tabel di bawah tetap sumber kebenaran; papan hanya menampilkan statusnya.
+
 | Fase | Sesi | Judul | Status | Catatan |
 |---|---|---|---|---|
 | – | S00 | Review dokumen & setup agent | selesai | 2026-10-15 |
