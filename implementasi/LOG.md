@@ -2,6 +2,8 @@
 
 Entri terbaru di paling atas. Satu entri per sesi (atau per hari kerja bila satu sesi butuh lebih dari satu percakapan).
 
+**Arsip:** file ini hanya memuat bulan berjalan. Entri bulan sebelumnya dipindah apa adanya ke [log/](log/), satu berkas per bulan (`log/YYYY-MM.md`). Per 2026-10-28 semua entri masih Oktober 2026, jadi belum ada arsip. Awal bulan berikutnya, pindahkan entri bulan lalu ke `log/YYYY-MM.md` tanpa mengubah isinya.
+
 Format entri:
 
 ```
