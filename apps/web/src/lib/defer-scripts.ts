@@ -1,10 +1,10 @@
-// Skrip Next ditunda sampai CSS selesai (ADR-123, gerbang ADR-121 butir 2). Next menulis 30-an
+// Skrip Next ditunda sampai CSS selesai (ADR-124, gerbang ADR-121 butir 2). Next menulis 30-an
 // `<script src async>` di <head>. Di ponsel lambat skrip itu
 // (±340–410 KB) berebut jaringan dengan CSS render-blocking, sehingga teks baru tampil sesudah
 // sebagian besar JS terunduh (FCP produksi ±3,2 dtk dengan throttling ponsel). Worker (`worker.ts`)
 // memindahkan tag itu ke pemuat kecil di akhir <head> yang baru menyisipkan skrip sesudah setiap
 // stylesheet selesai dimuat (atau gagal), dengan urutan dan atribut yang sama. Hidrasi bergeser
-// sesudah cat pertama; harganya diukur di ADR-123.
+// sesudah cat pertama; harganya diukur di ADR-124.
 //
 // Hanya respons HTML tanpa content-encoding (server Next di OpenNext tidak mengompres; kompresi oleh
 // edge sesudah Worker). Payload RSC navigasi klien (`text/x-component`) tidak tersentuh, dan tanpa

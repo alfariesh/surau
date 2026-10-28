@@ -5,7 +5,7 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "surau-web",
-  // Pembungkus Worker OpenNext (`.open-next/worker.js`): skrip Next ditunda sampai CSS selesai (ADR-123).
+  // Pembungkus Worker OpenNext (`.open-next/worker.js`): skrip Next ditunda sampai CSS selesai (ADR-124).
   "main": "./worker.ts",
   "compatibility_date": "2026-10-14",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],

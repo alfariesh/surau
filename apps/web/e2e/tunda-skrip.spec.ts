@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// Penundaan skrip di Worker (ADR-123): hanya berlaku bila e2e berjalan terhadap Worker (Preview CI,
+// Penundaan skrip di Worker (ADR-124): hanya berlaku bila e2e berjalan terhadap Worker (Preview CI,
 // `BASE_URL` diisi). `next dev` lokal tidak melewati worker.ts, jadi tes ini dilewati di sana.
 test.skip(!process.env.BASE_URL, "butuh Worker (BASE_URL), bukan next dev");
 
