@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-28 · Pangkas bagian Sekarang di STATUS.md — selesai
+- Dikerjakan: bagian Sekarang (±24 KB) diganti ringkasan 13 baris (±3,9 KB); blok Diperbarui di header diringkas dan rollback ihya-v8 dipertahankan. Teks lama dipindah ke `log/STATUS-arsip-2026-10.md`. Ulasan peninjau memperbaiki 228/234, T-17 terbaru, syarat R4, dan butir tindak lanjut yang sempat terpotong.
+- Verifikasi: pembanding kalimat → 398 kalimat lama, 0 hilang; tautan relatif rusak 0; `session-start.sh` → exit 0 dan memuat "Mulai di sini (pemilik)"; tabel Progres dan bagian di bawahnya identik.
+- Biaya API: –
+- Keputusan: ADR-120
+- Catatan untuk sesi berikutnya: `Sudah bisa dicoba` dan `Perhatian` masih panjang dan belum dipangkas; US$35,89 (blok lama) dan US$36,95 (Progres X21) berbeda dan belum disamakan.
+
 ## 2026-10-27 · Sisa "… …" di baris status hadits (j026) — selesai
 - Dikerjakan: perlindungan status kini per pernyataan (`ownEnd`), bukan per baris; kutipan Arab bersitasi sesudah kalimat memindah sitasinya ke kalimat itu, sehingga baris status mendapat label kode; pipeline@15.
 - Verifikasi: `pnpm verify` → lolos · reproduksi j026 (status Latin + kutipan takhrij Arab bersitasi) → "Status hadits: <label kode> (hadits di Ihya …)." tanpa "…".
