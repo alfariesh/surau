@@ -18,6 +18,7 @@ import {
   getDigest,
   getDigestHeaders,
   getDigestHeadersOnPath,
+  getDigestPointSizes,
   listDigestHeaders,
 } from "./digest.ts";
 
@@ -238,6 +239,17 @@ describe("kepala Intisari", () => {
     expect(heads[1]).toMatchObject({ tier: "section", points: 1, audio_ms: null });
   });
 
+  test("getDigestPointSizes (ADR-127): panjang judul + isi gagasan yang tampil saja", async () => {
+    const sizes = await getDigestPointSizes(db, [T_ROOT, T_CHILD_B, T_ROOT + 98], "id");
+    // Gagasan 3 ditolak, gagasan 4 tanpa jangkar, Intisari T_CHILD_B ditolak: tidak ikut.
+    expect(sizes).toEqual([
+      { toc_node_id: T_ROOT, ord: 1, chars: "Gagasan".length + "Isi satu.".length },
+      { toc_node_id: T_ROOT, ord: 2, chars: "Anjuran".length + "Isi dua.".length },
+    ]);
+    expect(await getDigestPointSizes(db, [], "id")).toEqual([]);
+    expect(await getDigestPointSizes(db, [T_ROOT], "en")).toEqual([]);
+  });
+
   test("getDigestHeaders: hanya node yang diminta; edisi lain kosong", async () => {
     const heads = await getDigestHeaders(db, [T_CHILD_A, T_CHILD_B, T_ROOT + 98], "id");
     expect(heads.map((h) => h.toc_node_id)).toEqual([T_CHILD_A]);
@@ -279,6 +291,7 @@ describe("korpus lama", () => {
     expect(await listDigestHeaders(fake(7), ED, "id")).toEqual([]);
     expect(await getDigestHeaders(fake(8), [T_ROOT], "id")).toEqual([]);
     expect(await getDigestHeadersOnPath(fake(8), T_ROOT, "id")).toEqual([]);
+    expect(await getDigestPointSizes(fake(8), [T_ROOT], "id")).toEqual([]);
     await expect(getDigest(fake(9), T_ROOT, "id")).rejects.toThrow(/no such table/);
     await expect(listDigestHeaders(fake(9), ED, "id")).rejects.toThrow(/no such table/);
   });

@@ -10,7 +10,12 @@ import type {
 } from "@surau/core";
 import type { NeedsReviewReason } from "@surau/db";
 
-import { ayahPlaceholderPattern, maskAyat, translationSegments } from "@surau/core";
+import {
+  DIGEST_WITHDRAWAL_DIGEST,
+  ayahPlaceholderPattern,
+  maskAyat,
+  translationSegments,
+} from "@surau/core";
 
 import type { Block, SubSpan } from "./blocks";
 import type { DigestTeaser } from "./digest";
@@ -34,7 +39,8 @@ import { SUBHEADING_DIGEST, sha16, subheadingOf } from "./subheadings";
  * syair, subjudul): tanpa itu, halaman sambungan di produksi memakai model lama sampai 7 hari per
  * data center. Model tidak memuat teks UI (i18n).
  */
-export const PAGE_MODEL_VERSION = `7.${SUBHEADING_DIGEST}`; // 7 = `digests` (Intisari, X16)
+// 7 = `digests` (Intisari, X16); sidik daftar tarik Intisari (ADR-127): kepala yang dikurangi ikut kunci.
+export const PAGE_MODEL_VERSION = `7.${SUBHEADING_DIGEST}.${DIGEST_WITHDRAWAL_DIGEST}`;
 
 /** Node daftar isi yang mulai di halaman ini (urut baca), dengan induknya. */
 export interface SectionNode {

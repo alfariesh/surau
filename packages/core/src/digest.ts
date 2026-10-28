@@ -16,6 +16,8 @@ import type { AyahSpanRow, D1Db, DigestQuoteWithPassageRow, DigestRows } from "@
 
 import { loadCiteContext } from "./citation.ts";
 import type { CiteContext } from "./citation.ts";
+import { DIGEST_WITHDRAWALS, withdrawnOrds } from "./digest-withdrawal.ts";
+import type { DigestWithdrawal } from "./digest-withdrawal.ts";
 import { NotFound, parseInput } from "./errors.ts";
 import { reviewersFor, translationView } from "./page.ts";
 import { sectionPermalink } from "./permalink.ts";
@@ -328,9 +330,10 @@ async function evidenceView(
   return { ayat, hadith, quran };
 }
 
-function audioView(rows: DigestRows): DigestAudioView | null {
+function audioView(rows: DigestRows, withdrawn: boolean): DigestAudioView | null {
   const track = rows.audio[0];
-  if (track === undefined) return null;
+  // Naskah audio memuat semua gagasan, termasuk yang ditarik (ADR-127): audionya ikut ditahan.
+  if (track === undefined || withdrawn) return null;
   return {
     r2_key: track.r2_key,
     duration_ms: track.duration_ms,
@@ -349,13 +352,15 @@ function audioView(rows: DigestRows): DigestAudioView | null {
  * Intisari sebuah node daftar isi dalam bahasa teks AI situs. `NotFound` bila node tidak ada; `null`
  * bila node itu belum punya Intisari, Intisari-nya ditolak peninjau, teks utamanya memuat huruf Arab,
  * atau skema korpus < 9. Gagasan yang ditolak atau tanpa jangkar tidak dikirim, begitu pula kutipan
- * dan pertanyaan miliknya; kutipan dan pertanyaan yang ditolak sendiri juga tidak. Dalil
- * (`evidence`) dihitung dari jangkar gagasan yang dikirim saja.
+ * dan pertanyaan miliknya; kutipan dan pertanyaan yang ditolak sendiri juga tidak. Gagasan di daftar
+ * tarik (`withdrawals`, ADR-127) diperlakukan sama dengan yang ditolak, dan audio Intisari-nya tidak
+ * dikirim. Dalil (`evidence`) dihitung dari jangkar gagasan yang dikirim saja.
  */
 export async function readDigest(
   db: D1Db,
   nodeId: number,
   lang: string = AI_TEXT_LANG,
+  withdrawals: readonly DigestWithdrawal[] = DIGEST_WITHDRAWALS,
 ): Promise<DigestView | null> {
   const input = parseInput(readDigestInput, { node_id: nodeId });
   const node = await getTocNode(db, input.node_id);
@@ -367,8 +372,11 @@ export async function readDigest(
   if (rows === null || rows.digest.review_status === "rejected") return null;
   const { digest } = rows;
   if (!clean(digest.opening, digest.abstract, digest.closing)) return null;
+  const withdrawn = withdrawnOrds(node.id, digest.lang, digest.created_at, withdrawals);
   const points: DigestPointView[] = rows.points
-    .filter((p) => p.review_status !== "rejected" && clean(p.title, p.body))
+    .filter(
+      (p) => p.review_status !== "rejected" && !withdrawn.has(p.ord) && clean(p.title, p.body),
+    )
     .map((p) => ({
       ord: p.ord,
       kind: p.kind,
@@ -438,7 +446,7 @@ export async function readDigest(
       })),
     reading_minutes: readingMinutes(chars),
     evidence,
-    audio: audioView(rows),
+    audio: audioView(rows, withdrawn.size > 0),
     withheld_quotes: withheld,
   };
 }

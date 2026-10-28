@@ -1,10 +1,14 @@
-import { getWork, isCoreError, readPage } from "@surau/core";
+import {
+  getShownDigestHeaders,
+  getShownDigestHeadersOnPath,
+  getWork,
+  isCoreError,
+  readPage,
+} from "@surau/core";
 import {
   AI_TEXT_LANG,
   DIGEST_SCHEMA_VERSION,
   getCorpusMeta,
-  getDigestHeaders,
-  getDigestHeadersOnPath,
   getTocNode,
   listTocNodesStartingAt,
 } from "@surau/db";
@@ -106,13 +110,13 @@ export async function GET(request: Request): Promise<Response> {
       const [node, sectionHeads, pathHeads] = await Promise.all([
         first === undefined ? null : getTocNode(db, first),
         digests
-          ? getDigestHeaders(
+          ? getShownDigestHeaders(
               db,
               nodes.map((n) => n.id),
               AI_TEXT_LANG,
             )
           : [],
-        digests && first !== undefined ? getDigestHeadersOnPath(db, first, AI_TEXT_LANG) : [],
+        digests && first !== undefined ? getShownDigestHeadersOnPath(db, first, AI_TEXT_LANG) : [],
       ]);
       const model = await buildPageModel(view, {
         editionId,

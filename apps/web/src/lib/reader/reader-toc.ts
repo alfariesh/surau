@@ -1,6 +1,11 @@
 import type { D1Db, DigestHeaderRow, ReviewStatus, TitleTranslations } from "@surau/db";
 
-import { readingMinutes, subheadingTitle, subheadingTocTargets } from "@surau/core";
+import {
+  listShownDigestHeaders,
+  readingMinutes,
+  subheadingTitle,
+  subheadingTocTargets,
+} from "@surau/core";
 import {
   AI_TEXT_LANG,
   DIGEST_SCHEMA_VERSION,
@@ -8,7 +13,6 @@ import {
   getCorpusMeta,
   getFootnoteRefs,
   getPassagesByIds,
-  listDigestHeaders,
   listTitleTranslations,
   passageId,
 } from "@surau/db";
@@ -56,8 +60,9 @@ export interface TitleSource {
 export interface ReaderTocExtras {
   subs: SubheadingItem[];
   /**
-   * Kepala Intisari edisi ini (X16, `listDigestHeaders`), urut `toc_node_id`: lencana daftar isi,
-   * kartu ringkasan pembaca, menu ⋮, dan hub memakai daftar yang sama. Kosong di skema < 9.
+   * Kepala Intisari edisi ini (X16, `listShownDigestHeaders`: daftar tarik ADR-127 diterapkan), urut
+   * `toc_node_id`: lencana daftar isi, kartu ringkasan pembaca, menu ⋮, dan hub memakai daftar yang
+   * sama. Kosong di skema < 9.
    */
   digests: DigestHeaderRow[];
   /** Judul Indonesia per node / per paragraf subjudul; `null` = korpus belum punya (skema < 7). */
@@ -174,7 +179,7 @@ async function loadExtras(
     getPassagesByIds(db, ids),
     getFootnoteRefs(db, ids),
     wantTitles ? listTitleTranslations(db, editionId, TITLE_LANG) : Promise.resolve(null),
-    wantDigests ? listDigestHeaders(db, editionId, AI_TEXT_LANG) : Promise.resolve([]),
+    wantDigests ? listShownDigestHeaders(db, editionId, AI_TEXT_LANG) : Promise.resolve([]),
   ]);
   const subs = await subheadingItems(editionId, rows, refs);
   if (titles === null) return { subs, digests, titles: null };

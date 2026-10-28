@@ -8,6 +8,7 @@
 // dipetakan ke `text_raw` (substring persis teks sumber), terjemahan AI-nya (berlabel), dan asal
 // kecocokannya (`matched_by`). Satu bolak-balik D1 per pencarian.
 import {
+  AI_TEXT_LANG,
   ANY_TERMS_BELOW,
   DIGEST_DEPTH,
   DIGEST_SCHEMA_VERSION,
@@ -46,6 +47,12 @@ import type { FtsQueryPlan, LatinQueryPlan } from "@surau/text";
 
 import { ayahPlaceholderPattern } from "./ayah-placeholder.ts";
 import { citeContext } from "./citation.ts";
+import {
+  DIGEST_WITHDRAWALS,
+  DIGEST_WITHDRAWAL_DIGEST,
+  withdrawnOrds,
+} from "./digest-withdrawal.ts";
+import type { DigestWithdrawal } from "./digest-withdrawal.ts";
 import { humanReviewOf, reviewersFor } from "./page.ts";
 import type { CiteContext } from "./citation.ts";
 import { InvalidQuery, NotFound, Unavailable, parseInput } from "./errors.ts";
@@ -199,6 +206,7 @@ function digestPointOf(
   row: FusedSearchRow,
   cite: CiteContext,
   plan: LatinQueryPlan,
+  withdrawn: boolean,
 ): SearchDigestPoint | null {
   if (
     row.dp_node === null ||
@@ -210,6 +218,8 @@ function digestPointOf(
     row.dp_created === null ||
     row.dp_review === null ||
     row.dp_review === "rejected" ||
+    // Daftar tarik Intisari (ADR-127), sama dengan `readDigest`.
+    withdrawn ||
     row.dp_section_title === null ||
     row.dp_section_level === null ||
     // Sama dengan `readDigest`: teks AI berhuruf Arab tidak pernah dikirim (aturan 1).
@@ -370,7 +380,15 @@ function groupByPage<R extends SearchPassageRow>(
   return [...pages.values()];
 }
 
-function fusedMatches(row: FusedSearchRow): SearchMatch[] {
+/** Gagasan baris ini ada di daftar tarik Intisari (ADR-127). */
+const withdrawnPoint = (row: FusedSearchRow, withdrawals: readonly DigestWithdrawal[]): boolean =>
+  row.dp_node !== null &&
+  row.dp_ord !== null &&
+  row.dp_created !== null &&
+  withdrawnOrds(row.dp_node, AI_TEXT_LANG, row.dp_created, withdrawals).has(row.dp_ord);
+
+/** Jalur yang menemukan baris ini; jalur gagasan tidak disebut bila gagasannya ditarik. */
+function fusedMatches(row: FusedSearchRow, withdrawn: boolean): SearchMatch[] {
   const out: SearchMatch[] = [];
   if (row.ar_rank !== null) out.push({ path: "arabic", rank: row.ar_rank, all_terms: true });
   if (row.tr_rank !== null) {
@@ -379,7 +397,7 @@ function fusedMatches(row: FusedSearchRow): SearchMatch[] {
   if (row.sm_rank !== null) {
     out.push({ path: "summary", rank: row.sm_rank, all_terms: row.sm_all === 1 });
   }
-  if (row.dp_rank !== null) {
+  if (row.dp_rank !== null && !withdrawn) {
     out.push({ path: "digest", rank: row.dp_rank, all_terms: row.dp_all === 1 });
   }
   return out;
@@ -448,8 +466,9 @@ export async function searchText(
   /**
    * `digest`: sertakan jalur gagasan Intisari (X16; korpus skema ≥ 9). Cari situs, MCP, dan eval
    * retrieval menyalakannya; Jawab tidak (kandidat Jawab tetap dari teks dan ringkasan).
+   * `withdrawals`: daftar tarik Intisari (ADR-127); bawaannya berkas repo, tes menggantinya.
    */
-  paths: { digest?: boolean } = {},
+  paths: { digest?: boolean; withdrawals?: readonly DigestWithdrawal[] } = {},
 ): Promise<SearchView> {
   const input = parseInput(searchTextInput, { ...opts, query }, InvalidQuery);
   const parts = splitQueryScripts(input.query);
@@ -545,13 +564,15 @@ export async function searchText(
     results: groupByPage(
       found.rows,
       cites,
-      (row, cite) =>
-        hitFrom(row, cite, plans, {
+      (row, cite) => {
+        const withdrawn = withdrawnPoint(row, paths.withdrawals ?? DIGEST_WITHDRAWALS);
+        return hitFrom(row, cite, plans, {
           score: row.score,
-          matched_by: fusedMatches(row),
+          matched_by: fusedMatches(row, withdrawn),
           summary: summaryOf(row, cite, latin),
-          digest_point: digestPointOf(row, cite, latin),
-        }),
+          digest_point: digestPointOf(row, cite, latin, withdrawn),
+        });
+      },
       (row) => row.page_best,
     ),
   };
@@ -739,6 +760,7 @@ export function searchCacheKey(
       ANY_TERMS_BELOW,
       AI_SNIPPET_CHARS,
       SEARCH_MAX_HIGHLIGHTS,
+      DIGEST_WITHDRAWAL_DIGEST,
     ],
     ar: arabic === null ? null : [arabic.phrases, arabic.prefix],
     la: latin?.stems ?? null,
