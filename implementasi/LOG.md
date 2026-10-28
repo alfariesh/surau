@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-28 · X22 · Uji Sonnet 5.5 di tahap jawaban Maknaz — selesai
+- Dikerjakan: opsi eval `--model sonnet` (produksi tidak berubah) dan perintah gratis `arsip-sebagian`; satu run publik 42 soal dengan Sonnet 5.5 memakai rute x10; 84 jawaban (Sonnet + x10 dinilai ulang) diacak dan dinilai enam subagen buta model; laporan perbandingan.
+- Verifikasi: `eval:jawab answer --model sonnet` → 42/42, kutipan valid 100%, lokasi 85,3%; penilaian buta → kesetiaan 64,3% → 92,9%, atribusi 83,3% → 100%, bahasa 3,55 → 3,76, Benar/Kurang/Salah 31/7/4 → 36/5/1; `pnpm verify` → lihat PR.
+- Biaya API: US$2,0761 (pagu US$4, izin pemilik di chat). Penilaian oleh subagen agent tanpa biaya API terpisah.
+- Keputusan: ADR-123
+- Catatan untuk sesi berikutnya: Sonnet ±17× lebih mahal (±US$0,05 per soal) dan R4 tetap belum terpenuhi (kesetiaan 92,9% < 95%, bahasa 3,76 < 4, lokasi 85,3% < 90%); produksi tetap Haiku sampai pemilik memutuskan anggaran/kuota. Retrieval lokasi dan pemberitahuan "lihat bagian Status hadits" (j024, j025) adalah perbaikan gratis berikutnya.
+
 ## 2026-10-28 · Pangkas bagian Sekarang di STATUS.md — selesai
 - Dikerjakan: bagian Sekarang (±24 KB) diganti ringkasan 13 baris (±3,9 KB); blok Diperbarui di header diringkas dan rollback ihya-v8 dipertahankan. Teks lama dipindah ke `log/STATUS-arsip-2026-10.md`. Ulasan peninjau memperbaiki 228/234, T-17 terbaru, syarat R4, dan butir tindak lanjut yang sempat terpotong.
 - Verifikasi: pembanding kalimat → 398 kalimat lama, 0 hilang; tautan relatif rusak 0; `session-start.sh` → exit 0 dan memuat "Mulai di sini (pemilik)"; tabel Progres dan bagian di bawahnya identik.

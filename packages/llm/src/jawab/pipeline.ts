@@ -258,6 +258,12 @@ export interface JawabDeps {
    */
   savedRoute?: Route | null;
   /**
+   * Hanya eval (X22, ADR-123): model tahap jawaban. Bawaan = Haiku, dengan ulangan Sonnet bila
+   * ditolak (refusal). `sonnet` = Sonnet langsung tanpa ulangan, supaya selisih mutu murni dari
+   * model; routing tetap Haiku. Worker `surau-api` tidak pernah mengisinya.
+   */
+  answerModel?: ModelId;
+  /**
    * Pencarian makna (X13, ADR-093/094): ID paragraf terdekat dengan pertanyaan, urut kemiripan;
    * `footnotes` (catatan kaki saja) hanya diminta bila routing menandai soal hadits. Belum diisi
    * Worker sampai indeks embedding ada; galat = tanpa daftar makna (dicatat di diagnostik),
@@ -705,9 +711,11 @@ export async function runJawab(deps: JawabDeps, question: string): Promise<Jawab
 
   if (deps.isCancelled?.()) return fallback("cancelled", null);
   await emit({ type: "stage", stage: "answer" });
-  let model: ModelId = MODELS.haiku;
+  const candidates: readonly [ModelId, ...ModelId[]] =
+    deps.answerModel === MODELS.sonnet ? [MODELS.sonnet] : [MODELS.haiku, MODELS.sonnet];
+  let model: ModelId = candidates[0];
   let message: Message | null = null;
-  for (const candidate of [MODELS.haiku, MODELS.sonnet] as const) {
+  for (const candidate of candidates) {
     if (candidate === MODELS.sonnet && deps.isCancelled?.()) return fallback("cancelled", model);
     if (
       candidate === MODELS.sonnet &&
