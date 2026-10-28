@@ -76,6 +76,7 @@ describe("pagu eval", () => {
     const s = questionCeilingUsd(MODELS.sonnet);
     expect(s.sonnetReserve).toBe(0);
     expect(s.haiku).toBeGreaterThan(0.1);
+    expect(s.haiku).toBeGreaterThan(h.haiku * 10);
     expect(s.haiku).toBeLessThan(h.haiku + h.sonnetReserve + 0.0001);
     expect(canRun(0, 0, s.haiku, MODELS.sonnet)).toBe(true);
     expect(canRun(0, 0, s.haiku, MODELS.haiku)).toBe(false);

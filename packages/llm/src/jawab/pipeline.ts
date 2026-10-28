@@ -258,7 +258,7 @@ export interface JawabDeps {
    */
   savedRoute?: Route | null;
   /**
-   * Hanya eval (X22, ADR-121): model tahap jawaban. Bawaan = Haiku, dengan ulangan Sonnet bila
+   * Hanya eval (X22, ADR-123): model tahap jawaban. Bawaan = Haiku, dengan ulangan Sonnet bila
    * ditolak (refusal). `sonnet` = Sonnet langsung tanpa ulangan, supaya selisih mutu murni dari
    * model; routing tetap Haiku. Worker `surau-api` tidak pernah mengisinya.
    */

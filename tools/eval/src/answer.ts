@@ -193,7 +193,7 @@ async function main() {
       throw new Error("--model hanya haiku atau sonnet.");
     const answerModel = values.model === "sonnet" ? MODELS.sonnet : undefined;
     const budget = Number(values["budget-usd"]);
-    // Pagu bawaan ≤ 3 (izin pemilik S19); jawaban Sonnet ±20× Haiku, jadi pagunya ≤ 6.
+    // Pagu bawaan ≤ 3 (izin pemilik S19); jawaban Sonnet ±17× Haiku (terukur, ADR-123), jadi pagunya ≤ 6.
     const maxBudget = answerModel === undefined ? 3 : 6;
     if (!Number.isFinite(budget) || budget <= 0 || budget > maxBudget)
       throw new Error(`--budget-usd wajib (0 < pagu ≤ ${maxBudget}, izin pemilik).`);
@@ -366,7 +366,10 @@ async function main() {
         }),
     );
     const items = loadAnswerQuestions(repo, true).filter((q) => saved.has(q.question.id));
-    if (items.length !== saved.size) throw new Error("Ada jawaban sebagian tanpa soal publik.");
+    if (items.length !== saved.size)
+      throw new Error(
+        "Berkas sebagian memuat soal bukan-publik atau soal tak dikenal; perintah ini hanya untuk run publik.",
+      );
     await withCorpus(async (corpus, index) => {
       const all: AnswerRecord[] = [];
       const scored = [];

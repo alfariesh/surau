@@ -75,7 +75,8 @@ Per jenis soal (Benar/Kurang/Salah, bahasa, kesetiaan; x10 → x22):
 - **Lokasi tidak berubah (85,3%), karena itu terutama masalah retrieval.** Rute dan korpus kedua run sama,
   jadi dokumen yang sampai ke model sama. Penilai mencatat paragraf kunci tidak dipakai di j004, j019, j021,
   j024, j025 (arsip tidak menyimpan daftar dokumen, jadi belum dipisahkan "tidak terambil" vs "tidak dipakai").
-- **Bahasa naik sedikit (+0,21) dan belum sampai 4.** Tidak ada jawaban Sonnet yang bernilai 5. Cacat
+- **Bahasa naik sedikit (+0,21) dan belum sampai 4**, dan tidak merata: naik di lokasi+isi (3,47 → 3,88),
+  atribusi, dan premis keliru, tetapi turun di topik tersebar (3,83 → 3,50) dan sama di status hadits. Tidak ada jawaban Sonnet yang bernilai 5. Cacat
   yang tersisa di Sonnet: "lihat bagian Status hadits" dan "bahan yang ada" (bahasa sistem, j024, j025),
   kalimat berulang, dan satu salah ketik. "Lihat bagian Status hadits" berasal dari kode pemberitahuan
   (ADR-116), bukan dari model.
@@ -91,8 +92,10 @@ murah dari perkiraan awal (US$0,056). Untuk Haiku, terukur US$0,0029 per soal (r
 ±17× lebih mahal. Tarif dicek di halaman harga resmi 2026-10-28: Sonnet 5.5 US$2 masuk / US$10 keluar per
 juta token, baca cache US$0,10 (0,05×); Haiku 5.5 US$0,10 / US$0,50 sampai 100 ribu token prompt. (Skill
 `claude-api` masih menyebut baca cache US$0,20; yang benar US$0,10, sesuai `packages/llm/src/pricing.ts`.)
-Prompt jawaban rata-rata 24,8 ribu token, hampir semuanya dokumen yang berbeda tiap pertanyaan, jadi
-cache tidak membantu menurunkan biaya Sonnet.
+Prompt jawaban x10 rata-rata 24,8 ribu token (hitungan Haiku, dari diagnostik x10), hampir semuanya
+dokumen yang berbeda tiap pertanyaan, jadi cache (hanya prompt sistem yang kecil) tidak menurunkan biaya
+Sonnet. Biaya terukur US$0,0494 menyiratkan hitungan token masuk Sonnet sedikit di bawah angka Haiku itu
+(24,8 ribu × US$2 saja sudah US$0,0496); selisih tokenizer belum diukur dengan `countTokens`.
 
 | Model jawaban | Per soal | Soal per bulan di US$20 | Anggaran untuk 6.900 soal/bulan |
 |---|---|---|---|
@@ -134,7 +137,9 @@ berkuota penuh, yaitu ±1,3 pengunjung per hari. Pada US$100 per bulan: ±2.000 
 - Rute x10 dipakai ulang, jadi x22 tidak mengukur routing. Biaya routing ±US$0,001 per soal ditambahkan
   sebagai perkiraan. Format arsip sebagian run ini belum menyimpan `usage` dan blok jawaban, sehingga
   token keluaran dan diagnostik bahasa (kalimat berulang, salinan terjemahan) tidak tersedia untuk x22.
-  Format itu sudah diperbaiki untuk run berikutnya (perintah `arsip-sebagian`, di bawah).
+  Format itu sudah diperbaiki untuk run berikutnya. Akibatnya diagnostik x22 tidak bisa dipakai sebagai
+  `--rute` atau `kandidat --input`, dan `corpus_version` arsip x22 diambil saat arsip disusun (`ihya-v9`,
+  sama dengan saat run; korpus tidak berganti di antaranya).
 - Run sempat terhenti sesudah semua 42 jawaban tersimpan (koneksi D1 remote putus saat penilaian kode),
   sehingga arsip akhir disusun dari berkas sebagian lewat `eval:jawab arsip-sebagian` (gratis, tanpa panggilan
   LLM). Biaya dihitung dari 42 jawaban yang tersimpan (US$2,0761); tidak ada biaya lain.
