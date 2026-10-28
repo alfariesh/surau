@@ -1,0 +1,7 @@
+# Gerbang 2 kriteria 1 (ms; n=15 ganjil, jadi median = elemen tengah setelah diurutkan)
+/kitab/ihya/1/200 preview: n=15 median=3643 min=2538 max=4165
+/kitab/ihya/1/200 produksi: n=15 median=4177 min=3267 max=5220
+/kitab/ihya/3/202 preview: n=15 median=2890 min=2425 max=4159
+/kitab/ihya/3/202 produksi: n=15 median=4169 min=3858 max=5297
+/kitab/ihya/1/200 rasio=0.872 TIDAK LOLOS
+/kitab/ihya/3/202 rasio=0.693 LOLOS

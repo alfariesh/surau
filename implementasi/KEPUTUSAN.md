@@ -133,9 +133,10 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 121 | Gerbang Preview vinext (ADR-119 tahap 1): vinext tidak dimigrasi; LCP ponsel yang sama tampaknya bisa didapat di Next dengan menunda skrip sampai CSS selesai | diterima | 2026-10-28 | [keputusan/ADR-121.md](keputusan/ADR-121.md) |
 | 122 | Konfigurasi project tes workerd memakai `defineProject` dari Vite+ | diterima | 2026-10-28 | [keputusan/ADR-122.md](keputusan/ADR-122.md) |
 | 123 | Uji model jawaban Maknaz: Sonnet 5.5 menaikkan kesetiaan dan atribusi tetapi ±17× lebih mahal; produksi tetap Haiku sampai pemilik memutuskan | sementara | 2026-10-28 | [keputusan/ADR-123.md](keputusan/ADR-123.md) |
-| 124 | Skrip Next ditunda sampai CSS selesai (pembungkus Worker OpenNext): gerbang Preview tidak lolos di LCP Lighthouse j3/202, tidak digabung | diusulkan | 2026-10-28 | [keputusan/ADR-124.md](keputusan/ADR-124.md) |
+| 124 | Skrip Next ditunda sampai CSS selesai (pembungkus Worker OpenNext): gerbang Preview tidak lolos di LCP Lighthouse j3/202, tidak digabung | diganti oleh ADR-128 | 2026-10-28 | [keputusan/ADR-124.md](keputusan/ADR-124.md) |
 | 125 | Konten turunan lewat Claude Desktop + plugin `surau-redaksi`: format `surau-konten/1`, cek otomatis tiga lapis, endpoint MCP `/redaksi` | diterima | 2026-10-28 | [keputusan/ADR-125.md](keputusan/ADR-125.md) |
-| 126 | Lokasi gold Jawab: pembobotan daftar sempit ditolak, pemberitahuan status hadits jadi kalimat biasa (pipeline@16), pencarian makna diukur ulang (lokasi 85,3% → 88,2%, belum ≥ 90%) | diterima | 2026-10-28 | [keputusan/ADR-126.md](keputusan/ADR-126.md) |
+| 128 | Penundaan skrip Next ditolak: gerbang kedua (n=15) juga tidak lolos di LCP Lighthouse; PR #206 ditutup | diterima | 2026-10-28 | [keputusan/ADR-128.md](keputusan/ADR-128.md) |
+| 129 | Lokasi gold Jawab: pembobotan daftar sempit ditolak, pemberitahuan status hadits jadi kalimat biasa (pipeline@16), pencarian makna diukur ulang (lokasi 85,3% → 88,2%, belum ≥ 90%) | diterima | 2026-10-28 | [keputusan/ADR-129.md](keputusan/ADR-129.md) |
 
 ## Cara menambah ADR baru
 
