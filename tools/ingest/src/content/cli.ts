@@ -92,10 +92,10 @@ export async function checkOffline(input: unknown): Promise<OfflineResult> {
   return { ok: errors.length === 0, draft: parsed.data, errors, warnings: lint.warnings };
 }
 
-const korpus = z.enum(["produksi", "staging"]);
+export const korpus = z.enum(["produksi", "staging"]);
 
 /** Binding D1 remote hanya-baca ke korpus produksi (DB yang dipakai MCP) atau staging. */
-async function openRemoteCorpus(which: z.infer<typeof korpus>) {
+export async function openRemoteCorpus(which: z.infer<typeof korpus>) {
   const { getPlatformProxy } = await import("wrangler");
   let configPath = join(repo, "tools/ingest/wrangler.staging.jsonc");
   let tmp: string | null = null;

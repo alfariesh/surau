@@ -22,6 +22,7 @@
     "subjudul": "node tools/ingest/src/subheadings-cli.ts",
     "t17": "node tools/ingest/src/t17-cli.ts",
     "konten": "node tools/ingest/src/content/cli.ts",
+    "terjemah": "node tools/ingest/src/content/terjemah.ts",
     "plugin:paket": "mkdir -p data/build && rm -f data/build/surau-redaksi.plugin && cd plugins/surau-redaksi && zip -qr ../../data/build/surau-redaksi.plugin . -x '*.DS_Store' && echo data/build/surau-redaksi.plugin",
     "review:export-terjemahan": "node tools/ingest/src/llm/revisions-cli.ts",
     "llm": "node tools/ingest/src/llm/cli.ts",

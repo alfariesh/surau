@@ -15,6 +15,18 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-28 · X27 · Terjemahan Inggris per paragraf lewat plugin — sebagian (alat selesai, pilot sesudah deploy)
+- Dikerjakan:
+  - Pemeriksa batch terjemahan dipindah ke core sebagai `checkPassageTranslation(…, lang)`; llm mengekspor ulang tanpa mengubah perilaku "id".
+  - Format `surau-terjemah/1`, `listTranslationUnits`, `checkTranslationDraft`, `translationReadinessIssues`.
+  - MCP `/redaksi`: `list_translation_units` + `check_translation_draft` (12 tool).
+  - CLI `pnpm terjemah cek|impor|daftar` (`--cap`, `--ganti`, cek `source_stale`).
+  - Skill `terjemah-inggris` (aturan `translate-passage@5` versi Inggris, glosarium), plugin 0.2.0, agen `pemeriksa-konten` untuk terjemahan.
+- Verifikasi: `pnpm verify` → lolos · tes core terjemahan 10, MCP 43 (dua era, 12 tool), CLI/plugin lolos · `claude plugin validate` → lolos · peninjau: 0 blocker, 7 perbaikan (bagian terlalu besar ditolak, sidik sumber basi, cap ulang CLI, meta Inggris, tes, aturan skill per jenis); kinerja kueri bagian besar dan sidik per paragraf ditunda ke X26
+- Biaya API: –
+- Keputusan: ADR-132
+- Catatan untuk sesi berikutnya: pilot satu bagian (Sonnet) sesudah deploy MCP. Batas 6.000 baris per bagian berarti Rub' ditolak, jadi terjemahan dikerjakan per Kitab ke bawah.
+
 ## 2026-10-28 · X23 lanjutan · Tiga bahasa untuk konten dan MCP — selesai (dokumen)
 - Dikerjakan: keputusan pemilik dicatat sebagai ADR-130. MCP memakai bahasa Inggris saja untuk bantuan baca; agen menyarankan "ikut permintaan", tetapi pemilik memilih "Inggris saja". Tidak ada konten Arab tulisan AI. Konten turunan memakai satu kerangka dengan teks per bahasa.
 - Diperbarui: docs/09 §4, §5.2, §5.4, §6, §8 (Bahasa), dan §9; docs/01; docs/05 §11 dan §13; docs/07; pedoman redaksi §1 dan §10; FASE; X24 langkah 4. Rencana sesi baru X26 (MCP berbahasa Inggris), dengan pengecualian: `/redaksi` mengikuti bahasa draf.

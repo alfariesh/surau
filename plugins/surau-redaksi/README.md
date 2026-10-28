@@ -1,6 +1,6 @@
 # Redaksi Surau (`surau-redaksi`)
 
-Plugin Claude untuk membuat **konten turunan Surau** dari kitab klasik: Intisari Bab, Intisari Kitab, Faedah, dan Jalur 7 hari. Dipakai di Claude Desktop atau claude.ai (paket berbayar), juga di Cowork dan Claude Code.
+Plugin Claude untuk membuat **konten turunan Surau** dari kitab klasik: Intisari Bab, Intisari Kitab, Faedah, dan Jalur 7 hari, serta **terjemahan Inggris per paragraf** (ADR-132). Dipakai di Claude Desktop atau claude.ai (paket berbayar), juga di Cowork dan Claude Code.
 
 Prinsipnya: **kode menyalin, model menunjuk.** Draf hanya berisi teks Indonesia, ID paragraf, dan offset; teks Arab, ayat, dan terjemahan Faedah disalin kode dari database Surau. Setiap draf diperiksa otomatis sebelum terbit.
 
@@ -18,8 +18,9 @@ Prinsipnya: **kode menyalin, model menunjuk.** Draf hanya berisi teks Indonesia,
 | `faedah` | Butir satu paragraf untuk WhatsApp Channel (terjemahan disalin kode) |
 | `jalur` | Jalur baca 7 hari, satu bagian ber-Intisari per hari |
 | `periksa-draf` | Periksa mandiri: baca ulang sumber, nilai Benar/Kurang/Salah |
+| `terjemah-inggris` | Terjemahan Inggris per paragraf dari teks Arab (Sonnet), ayat sebagai placeholder, format `surau-terjemah/1` |
 
-Konektor: `surau-redaksi` → `https://mcp.surau.org/redaksi` (tanpa login, hanya-baca, tanpa LLM): delapan tool baca Surau ditambah `check_content_draft` dan `list_faedah_candidates`.
+Konektor: `surau-redaksi` → `https://mcp.surau.org/redaksi` (tanpa login, hanya-baca, tanpa LLM): delapan tool baca Surau ditambah `check_content_draft`, `list_faedah_candidates`, `list_translation_units`, dan `check_translation_draft`.
 
 ## Memasang (Claude Desktop atau claude.ai)
 
@@ -41,8 +42,9 @@ Buka chat baru, pilih model (Opus untuk Intisari, Sonnet cukup untuk Faedah/Jalu
 - "Buat Intisari Kitab al-'Ilm (100003)"
 - "Pilih 7 Faedah dari bab 100008"
 - "Susun Jalur 7 hari Kitab al-'Ilm"
+- "Terjemahkan bab 100007 ke bahasa Inggris" (pilih model Sonnet)
 
-Claude membaca teks lewat konektor, menulis draf, menjalankan pemeriksa sampai lolos, memeriksa ulang setiap butir, lalu membuat berkas JSON untuk diunduh. Unduh berkasnya, lalu di Claude Code (repo Surau) ketik "impor konten dari Downloads".
+Claude membaca teks lewat konektor, menulis draf, menjalankan pemeriksa sampai lolos, memeriksa ulang setiap butir, lalu membuat berkas JSON untuk diunduh. Unduh berkasnya, lalu di Claude Code (repo Surau) ketik "impor konten dari Downloads" (atau "impor terjemahan dari Downloads").
 
 ## Lisensi
 

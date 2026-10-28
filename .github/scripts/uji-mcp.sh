@@ -6,8 +6,9 @@
 # Pakai: uji-mcp.sh <URL endpoint, mis. https://mcp.surau.org/mcp> [lengkap|daftar]
 #   lengkap (bawaan): tools/list + tools/call kedelapan tool (data Ihya edisi 1) + kasus error
 #   daftar: tools/list + satu tools/call (list_works) saja (smoke produksi)
-#   redaksi: endpoint /redaksi (X23): 10 tool + check_content_draft (draf rusak, galat pasti) dan
-#     list_faedah_candidates (data Ihya edisi 1); URL diakhiri /redaksi
+#   redaksi: endpoint /redaksi (X23, X27): 12 tool + check_content_draft dan check_translation_draft
+#     (draf rusak, galat pasti), list_faedah_candidates dan list_translation_units (data Ihya edisi 1);
+#     URL diakhiri /redaksi
 # Env opsional: INSPECTOR (versi paket, bawaan dipin di bawah), MAX_COBA (bawaan 12), JEDA (5 dtk).
 #
 # Exit code Inspector (2.11): 0 sukses, 4 tidak terjangkau, 5 hasil `isError` / tool tidak ada.
@@ -73,8 +74,8 @@ done
 ALAT='["list_works","get_table_of_contents","read_page","read_section","search_text","verify_quote","get_hadith_takhrij","get_section_digest"]'
 JUMLAH=8
 if [ "$MODE" = "redaksi" ]; then
-  ALAT=$(jq -c '. + ["check_content_draft","list_faedah_candidates"]' <<<"$ALAT")
-  JUMLAH=10
+  ALAT=$(jq -c '. + ["check_content_draft","list_faedah_candidates","list_translation_units","check_translation_draft"]' <<<"$ALAT")
+  JUMLAH=12
 fi
 for era in modern legacy; do
   echo "== era $era"
@@ -93,6 +94,10 @@ for era in modern legacy; do
       '{"draft":{"format":"lain"}}'
     panggil "$era" list_faedah_candidates '.section.id == 100008 and (.candidates | length) >= 1' \
       '{"section_id":100008,"include_ineligible":true,"limit":2}'
+    panggil "$era" check_translation_draft '.ok == false and any(.errors[]; .code == "schema")' \
+      '{"draft":{"format":"lain"}}'
+    panggil "$era" list_translation_units '.section.id == 100008 and (.units | length) == 2' \
+      '{"section_id":100008,"limit":2}'
     continue
   fi
 

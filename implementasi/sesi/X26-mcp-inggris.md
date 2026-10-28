@@ -1,10 +1,8 @@
-# X26 · MCP berbahasa Inggris: batch terjemahan Inggris dan peralihan bantuan baca
+# X26 · MCP berbahasa Inggris: muat terjemahan Inggris dan peralihan bantuan baca
 
 > **Fase:** Sisipan (tahap pertama baris "Bahasa Inggris" di FASE) · **Status:** belum
-> **Prasyarat:** X24 selesai (Intisari v2 di korpus) · Tugas pemilik:
-> - izin biaya batch terjemahan Inggris (aturan keras 4);
-> - tugas baru saat sesi ini: memilih sumber terjemahan ayat Inggris berlisensi.
-> **Perkiraan:** 2 percakapan agent: (1) batch, eval, dan ingest; (2) MCP dan konten.
+> **Prasyarat:** X24 selesai (Intisari v2 di korpus) · terjemahan paragraf Inggris lengkap di `data/terjemah/en` lewat plugin (X27, ADR-132; `pnpm terjemah daftar`) · Tugas pemilik: memilih sumber terjemahan ayat Inggris berlisensi (tugas baru saat sesi ini). Batch API hanya bila saldo pemilik cukup, dan tetap butuh izinnya.
+> **Perkiraan:** 2 percakapan agent: (1) ingest dan eval; (2) MCP dan konten.
 
 ## Tujuan
 
@@ -19,13 +17,13 @@ Bantuan baca di MCP publik `/mcp` menjadi **bahasa Inggris saja** ([ADR-130](../
 
 ## Langkah
 
-1. **Biaya dan izin.**
-   - Hitung batch terjemahan Inggris seluruh Ihya dengan `scripts/hitung_biaya.py`. Dasar perkiraan: Sonnet 5.5 + `translate-passage@5` di X21 US$36,95 (±US$35–45 untuk Inggris); Haiku di S13 US$3,35, tetapi mutunya jauh lebih rendah. Sajikan kedua pilihan model.
-   - Tulis angkanya di STATUS, lalu minta izin pemilik di chat sebelum mengirim apa pun.
-2. **Pipeline Inggris** (`packages/llm`, `tools/ingest`) untuk terjemahan paragraf, ringkasan bagian (313 ringkasan `en` lama dinilai dulu: pakai atau buat ulang), judul daftar isi dan subjudul (`translate-toc-title`, kini berkunci `indonesia`), serta gloss glosarium:
-   - prompt `translate-passage` versi Inggris, dengan transliterasi istilah yang seragam dengan glosarium;
-   - placeholder ayat tetap utuh;
-   - pemeriksa `check.ts` per bahasa (kata Inggris kini dianggap komentar meta);
+1. **Terjemahan paragraf sudah dibuat lewat plugin** (ADR-132: langganan, Sonnet, berkas `surau-terjemah/1` di `data/terjemah/en`). Yang dikerjakan di sini:
+   - Muat berkas `siap` ke tabel `translation` (`lang = 'en'`, `model` dari `asal`, `prompt_version` `surau-redaksi/terjemah-inggris@1`). Gerbang build: setiap berkas dicek ulang `checkTranslationDraft` dan `translationReadinessIssues` pada `.sqlite` baru.
+   - Paragraf yang belum punya terjemahan Inggris dihitung. MCP baru beralih bila cakupannya lengkap.
+   - Batch API (`scripts/hitung_biaya.py`; Sonnet ±US$35–45) hanya untuk sisa paragraf, dan hanya bila pemilik mengizinkan.
+2. **Pipeline Inggris lainnya** (`packages/llm`, `tools/ingest`, atau skill plugin bila API tetap menipis) untuk ringkasan bagian (313 ringkasan `en` lama dinilai dulu: pakai atau buat ulang), judul daftar isi dan subjudul (`translate-toc-title`, kini berkunci `indonesia`), serta gloss glosarium:
+   - transliterasi istilah seragam dengan glosarium plugin (`terjemah-inggris/references/glosarium.md`);
+   - pemeriksa terjemahan sudah per bahasa (`checkPassageTranslation`, X27);
    - `pnpm llm --lang en`;
    - ingest yang menerima `lang: "en"` (kini `z.literal("id")`).
 3. **Pilot dan eval.**

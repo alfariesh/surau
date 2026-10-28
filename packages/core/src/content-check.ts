@@ -77,7 +77,7 @@ export function contentDraftSha256(d: ContentDraft): Promise<string> {
   return textSha256(canonicalJson({ format, jenis, edition_id, section_id, versi, isi }));
 }
 
-const pathOf = (path: readonly PropertyKey[]): string =>
+export const pathOf = (path: readonly PropertyKey[]): string =>
   path.reduce<string>(
     (out, key) =>
       typeof key === "number"
@@ -88,7 +88,7 @@ const pathOf = (path: readonly PropertyKey[]): string =>
     "",
   );
 
-class Issues {
+export class Issues {
   errors: ContentIssue[] = [];
   warnings: ContentIssue[] = [];
   error(code: string, path: string, message: string): void {

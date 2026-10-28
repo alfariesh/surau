@@ -3,7 +3,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { CONTENT_RULES } from "@surau/core";
+import { CONTENT_RULES, TRANSLATION_RULES } from "@surau/core";
 import { describe, expect, test } from "vite-plus/test";
 import { parse } from "yaml";
 import { z } from "zod";
@@ -60,11 +60,17 @@ describe("plugin surau-redaksi", () => {
     expect(meta.name).toBe(skill);
     expect(meta.name).toMatch(/^[a-z0-9-]{1,64}$/u);
     expect(meta.name).not.toMatch(/claude|anthropic/u);
-    expect(meta.metadata.rules).toBe(CONTENT_RULES);
+    expect(meta.metadata.rules).toBe(
+      skill === "terjemah-inggris" ? TRANSLATION_RULES : CONTENT_RULES,
+    );
     // Batas ukuran skill (docs: < 500 baris).
     expect(text.split("\n").length).toBeLessThan(500);
     // Tidak ada huruf Arab di instruksi (aturan: model tidak menulis Arab).
     expect(text).not.toMatch(/\p{Script=Arabic}/u);
+    const refs = join(root, "skills", skill, "references");
+    for (const f of existsSync(refs) ? readdirSync(refs).filter((n) => n.endsWith(".md")) : []) {
+      expect(readFileSync(join(refs, f), "utf8")).not.toMatch(/\p{Script=Arabic}/u);
+    }
   });
 
   const examples = skills.flatMap((skill) => {
