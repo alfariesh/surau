@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vite-plus/test";
 
 import { normalizeArabic } from "./normalize.ts";
-import { findQuote } from "./quote.ts";
+import { findQuote, findQuoteAll, isQuoteSpan } from "./quote.ts";
 
 // Kalimat buatan dan hadits masyhur pendek (bukan salinan teks Shamela).
 const RAW = "فَقَالَ رَسُولُ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ مَنْ يُرِدِ اللَّهُ بِهِ خَيْرًا يُفَقِّهْهُ فِي الدِّينِ (١) وَقَالَ";
@@ -64,5 +64,29 @@ describe("findQuote", () => {
     expect(findQuote(RAW, "في الدين", { normalized })?.rawText).toBe("فِي الدِّينِ");
     // Hasil normalisasi dari teks lain ditolak, bukan dipakai diam-diam.
     expect(() => findQuote("قال", "قال", { normalized })).toThrow(TypeError);
+  });
+});
+
+describe("findQuoteAll dan isQuoteSpan (X23)", () => {
+  // Kalimat contoh buatan, bukan teks kitab.
+  const raw = "العلم نور والعلم نور القلب";
+
+  test("semua kecocokan sah, urut posisi", () => {
+    const all = findQuoteAll(raw, "العلم نور");
+    // "والعلم" bukan kecocokan: kata menempel huruf و, tidak di batas kata.
+    expect(all.map((m) => [m.rawStart, m.rawEnd])).toEqual([[0, 9]]);
+    const both = findQuoteAll("نور ثم نور", "نور");
+    expect(both.map((m) => m.rawStart)).toEqual([0, 7]);
+    expect(findQuote(raw, "العلم نور")?.rawStart).toBe(0);
+  });
+
+  test("rentang utuh diterima; rentang yang memotong kata ditolak", () => {
+    expect(isQuoteSpan(raw, 0, 9)).toBe(true);
+    const last = raw.lastIndexOf("نور القلب");
+    expect(isQuoteSpan(raw, last, raw.length)).toBe(true);
+    expect(isQuoteSpan(raw, 1, 9)).toBe(false);
+    expect(isQuoteSpan(raw, 0, 8)).toBe(false);
+    expect(isQuoteSpan(raw, 0, raw.length + 1)).toBe(false);
+    expect(isQuoteSpan(raw, 5, 5)).toBe(false);
   });
 });

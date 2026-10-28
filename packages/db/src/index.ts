@@ -34,6 +34,7 @@ export {
   getDigestHeadersOnPath,
   getDigestPointSizes,
   listDigestHeaders,
+  listGlossaryTermKeys,
 } from "./repo/digest.ts";
 export type {
   AyahSpanRow,

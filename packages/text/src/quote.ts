@@ -33,18 +33,44 @@ export function findQuote(
   quote: string,
   opts: FindQuoteOptions = {},
 ): QuoteMatch | null {
+  for (const m of quoteMatches(raw, quote, opts)) return m;
+  return null;
+}
+
+/**
+ * Semua kecocokan sah kutipan di teks mentah (aturan sama dengan `findQuote`), urut posisi. Dipakai
+ * pemeriksa draf konten (X23) untuk memastikan rentang offset yang disimpan adalah kecocokan utuh,
+ * bukan hanya kecocokan pertama.
+ */
+export function findQuoteAll(
+  raw: string,
+  quote: string,
+  opts: FindQuoteOptions = {},
+): QuoteMatch[] {
+  return [...quoteMatches(raw, quote, opts)];
+}
+
+/** Rentang `[start, end)` adalah kecocokan kutipan utuh: mulai dan berakhir di batas kata. */
+export function isQuoteSpan(raw: string, start: number, end: number): boolean {
+  if (start < 0 || end > raw.length || start >= end) return false;
+  return findQuoteAll(raw, raw.slice(start, end)).some(
+    (m) => m.rawStart === start && m.rawEnd === end,
+  );
+}
+
+function* quoteMatches(raw: string, quote: string, opts: FindQuoteOptions): Generator<QuoteMatch> {
   const n = opts.normalized ?? normalizeArabic(raw);
   const lastAt = n.map.at(-1);
   if (n.map.length !== n.text.length || (lastAt !== undefined && lastAt >= raw.length)) {
     throw new TypeError("opts.normalized bukan hasil normalizeArabic dari teks mentah ini");
   }
   const q = normalizeArabic(quote).text;
-  if (q === "") return null;
+  if (q === "") return;
   const { text, map } = n;
   let from = 0;
   for (;;) {
     const start = text.indexOf(q, from);
-    if (start === -1) return null;
+    if (start === -1) return;
     const end = start + q.length;
     const wordBoundary =
       (start === 0 || text[start - 1] === " ") && (end === text.length || text[end] === " ");
@@ -56,7 +82,7 @@ export function findQuote(
       (end + 1 < text.length && map[end + 1] === map[end - 1]);
     if (wordBoundary && !insideExpansion) {
       const [rawStart, rawEnd] = toRawSpan(raw, n, start, end);
-      return { rawStart, rawEnd, rawText: raw.slice(rawStart, rawEnd) };
+      yield { rawStart, rawEnd, rawText: raw.slice(rawStart, rawEnd) };
     }
     from = start + 1;
   }

@@ -134,6 +134,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 122 | Konfigurasi project tes workerd memakai `defineProject` dari Vite+ | diterima | 2026-10-28 | [keputusan/ADR-122.md](keputusan/ADR-122.md) |
 | 123 | Uji model jawaban Maknaz: Sonnet 5.5 menaikkan kesetiaan dan atribusi tetapi ±17× lebih mahal; produksi tetap Haiku sampai pemilik memutuskan | sementara | 2026-10-28 | [keputusan/ADR-123.md](keputusan/ADR-123.md) |
 | 124 | Skrip Next ditunda sampai CSS selesai (pembungkus Worker OpenNext): gerbang Preview tidak lolos di LCP Lighthouse j3/202, tidak digabung | diusulkan | 2026-10-28 | [keputusan/ADR-124.md](keputusan/ADR-124.md) |
+| 125 | Konten turunan lewat Claude Desktop + plugin `surau-redaksi`: format `surau-konten/1`, cek otomatis tiga lapis, endpoint MCP `/redaksi` | diterima | 2026-10-28 | [keputusan/ADR-125.md](keputusan/ADR-125.md) |
 | 127 | Daftar tarik Intisari di repo: gagasan Salah ditahan saat dibaca (web, Cari, MCP, audio) tanpa mengubah D1/R2 | diterima | 2026-10-28 | [keputusan/ADR-127.md](keputusan/ADR-127.md) |
 
 ## Cara menambah ADR baru

@@ -202,6 +202,12 @@ jobs:
           JEDA: "10"
         run: bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp daftar
 
+      - name: Smoke MCP /redaksi produksi
+        env:
+          MAX_COBA: "30"
+          JEDA: "10"
+        run: bash .github/scripts/uji-mcp.sh https://mcp.surau.org/redaksi redaksi
+
   # Worker media (X17, ADR-103): audio Intisari dari R2 `surau-media` di media.surau.org (custom
   # domain dari `routes` di apps/media/wrangler.jsonc). Tidak bergantung pada D1 atau web; sesudah
   # web supaya satu deploy gagal tidak meninggalkan pasangan versi yang tidak cocok. Cache Workers

@@ -29,6 +29,7 @@ describe("guardTool", () => {
       MCP_READ_GLOBAL_LIMITER: limiter,
       MCP_SEARCH_LIMITER: limiter,
       MCP_SEARCH_GLOBAL_LIMITER: limiter,
+      MCP_REDAKSI_LIMITER: limiter,
     };
     expect(await guardTool(env, req("203.0.113.9"), "read_page")).toBe("not_configured");
     expect(await guardTool({ ...env, IP_HMAC_KEY: "" }, req("203.0.113.9"), "read_page")).toBe(
@@ -47,6 +48,7 @@ describe("guardTool", () => {
       MCP_READ_GLOBAL_LIMITER: readGlobal.limiter,
       MCP_SEARCH_LIMITER: search.limiter,
       MCP_SEARCH_GLOBAL_LIMITER: global.limiter,
+      MCP_REDAKSI_LIMITER: counting().limiter,
       IP_HMAC_KEY: "k",
     };
     expect(await guardTool(env, req("203.0.113.9"), "read_page")).toBe("ok");
@@ -63,6 +65,31 @@ describe("guardTool", () => {
     expect(clientIp(undefined)).toBe("unknown");
   });
 
+  test("/redaksi (X23): kunci berlingkup endpoint; tool redaksi di limiter sendiri; plafon global tetap satu", async () => {
+    const tool = counting();
+    const search = counting();
+    const global = counting();
+    const redaksi = counting();
+    const env: GuardEnv = {
+      MCP_TOOL_LIMITER: tool.limiter,
+      MCP_READ_GLOBAL_LIMITER: counting().limiter,
+      MCP_SEARCH_LIMITER: search.limiter,
+      MCP_SEARCH_GLOBAL_LIMITER: global.limiter,
+      MCP_REDAKSI_LIMITER: redaksi.limiter,
+      IP_HMAC_KEY: "k",
+    };
+    expect(await guardTool(env, req("203.0.113.9"), "read_page", "redaksi")).toBe("ok");
+    expect(await guardTool(env, req("203.0.113.9"), "search_text", "redaksi")).toBe("ok");
+    expect(await guardTool(env, req("203.0.113.9"), "check_content_draft", "redaksi")).toBe("ok");
+    expect(tool.keys[0]).toMatch(/^[0-9a-f]{32}:redaksi:read_page$/);
+    expect(search.keys[0]).toMatch(/^[0-9a-f]{32}:redaksi:search_text$/);
+    expect(global.keys).toEqual(["global"]);
+    expect(redaksi.keys).toEqual([
+      expect.stringMatching(/:redaksi:check_content_draft$/),
+      "global",
+    ]);
+  });
+
   test("limiter per klien atau global habis → rate_limited", async () => {
     const no: Limiter = { limit: async () => ({ success: false }) };
     const yes: Limiter = { limit: async () => ({ success: true }) };
@@ -71,6 +98,7 @@ describe("guardTool", () => {
       MCP_READ_GLOBAL_LIMITER: yes,
       MCP_SEARCH_LIMITER: yes,
       MCP_SEARCH_GLOBAL_LIMITER: no,
+      MCP_REDAKSI_LIMITER: no,
       IP_HMAC_KEY: "k",
     };
     expect(await guardTool(env, req("203.0.113.1"), "verify_quote")).toBe("rate_limited");
