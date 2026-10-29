@@ -101,3 +101,19 @@ Lima berkas dengan 194 paragraf disimpan (197 diterjemahkan, 3 ditunda oleh pene
 - negasi yang terbalik oleh anak kalimat "sehingga".
 
 Ketiganya tertangkap penilai independen, bukan oleh periksa mandiri. Petunjuk penerjemah kini menyebut ketiga pola itu secara eksplisit.
+
+## Batch Kitab al-'Ilm 4 · 2026-10-29 (Bab 100019)
+
+Tujuh berkas dengan 247 paragraf disimpan (253 paragraf bab, 6 ditunda). Penerjemahnya Sonnet 5.5, dan penilai independen memeriksa seluruh butir.
+
+| Berkas | Paragraf | Periksa independen (final) | Catatan |
+|---|---|---|---|
+| 100019 (bag. 1) | 36 | B32/K4/S0 | p693 ditunda (lafaz ayat sesudah "Allah berfirman") |
+| 100019 (bag. 2) | 37 | B35/K2/S0 | putaran 1: 1 Salah ("salah satunya" menjadi "yang pertama"), diperbaiki |
+| 100019 (bag. 3) | 36 | B35/K1/S0 | p765 ditunda (istirja' diucapkan tokoh) |
+| 100019 (bag. 4) | 37 | B33/K4/S0 | |
+| 100019 (bag. 5) | 37 | B34/K3/S0 | |
+| 100019 (bag. 6) | 36 | B32/K4/S0 | p907 ditunda |
+| 100019 (bag. 7) | 28 | B26/K2/S0 | putaran 1: 1 Salah ("dua pembuat bidah" menjadi "dua bidah"), diperbaiki; p960, p966, p976 ditunda (QS 25:70 dan doa berlafaz ayat) |
+
+**Perlu dicek ke edisi cetak:** p971 tampaknya kehilangan predikat. Penerjemah menambah "is enough for him", dan penilai menandainya Kurang.
