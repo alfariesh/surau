@@ -1,0 +1,50 @@
+{
+  "format": "surau-terjemah/1",
+  "lang": "en",
+  "edition_id": 1,
+  "section_id": 100012,
+  "status": "siap",
+  "butir": [
+    {
+      "passage_id": 10000386,
+      "teks": "But if he means by it the face of the heart, which is what is required and what worship is meant to be, how can he be truthful in his words when his heart is wavering among its worldly aims and needs, busy seeking ruses for amassing wealth and status and multiplying means, and wholly turned toward them? So when has he ever turned his face to the One who originated the heavens and the earth? This phrase is a report of the reality of tawhid: the one who affirms Divine oneness is the one who sees only the One and turns his face to none but Him, and that is compliance with His saying, Most High, ⟦QS 6:91⟧ The intent is not saying it with the tongue, for the tongue is only an interpreter, truthful at one time and lying at another."
+    }
+  ],
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-sonnet-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "terjemah-inggris@1",
+    "operator": "agen Claude Code",
+    "dibuat": "2026-10-29T10:06:06+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "Iqtibas of 6:79 as author's discussion; placeholder QS 6:91 exactly once, braces dropped; subjects and negation (la ... illa) match; complete"
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-29",
+      "draf_sha256": "a4653b5cb9c86ef493839b28e82a34507138f982d96855f09a0202f314b6a721",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Placeholder 6:91 tepat sekali, tanpa isi ayat; kalimat iqtibas 'face to the One who originated the heavens and the earth' diterjemahkan sebagai prosa; pelaku tidak tertukar."
+        }
+      ],
+      "laporan": "data/reports/terjemah-en-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "terjemah@1",
+      "lolos": true,
+      "sumber_sha256": "4e4e56cdaac387b1ab80ea93372202f0cbc351f22632d63e6811f68043da9122",
+      "draf_sha256": "a4653b5cb9c86ef493839b28e82a34507138f982d96855f09a0202f314b6a721",
+      "waktu": "2026-10-29T03:07:05.151Z"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "format": "surau-terjemah/1",
+  "lang": "en",
+  "edition_id": 1,
+  "section_id": 100017,
+  "status": "siap",
+  "butir": [
+    {
+      "passage_id": 10000608,
+      "teks": "As for attaining happiness, none attains it except the knowers of Allah ('arifun), and they are those brought near (muqarrabun), enjoying bounty in the neighbourhood of Allah Most High, with rest, fragrance, and a garden of bliss. As for those who are held back short of the summit of perfection, theirs is salvation and safety, as Allah, the Mighty and Majestic, says, ⟦QS 56:88-91⟧ And everyone who does not turn toward the goal and does not rise for it, or who rises toward it not with the intention of obedience and servitude but for an immediate aim, is of the companions of the left and of those who have gone astray; for him is a hospitality of scalding water and the burning of Hell."
+    },
+    {
+      "passage_id": 10000615,
+      "teks": "And this precious jewel, which carries the trust of Allah Most High, and which is advanced in this rank over the heavens, the earths, and the mountains when they refused to bear it and were afraid of it, belongs to the world of the Command. It should not be understood from this that it is a hint at its being eternal, for whoever holds that spirits are eternal is deluded and ignorant, not knowing what he says. So let us rein in the exposition on this subject, for it lies beyond what we are addressing."
+    }
+  ],
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-sonnet-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "terjemah-inggris@1",
+    "operator": "agen Claude Code",
+    "dibuat": "2026-10-29T10:06:06+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "Iqtibas (rest, fragrance, garden of bliss; hospitality of scalding water) as prose; placeholder QS 56:88-91 once after 'says'; the two groups and negations match; complete"
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "Iqtibas (refusing to bear the trust) as prose; author refutes eternity of spirits, attribution kept; complete; no placeholders"
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-29",
+      "draf_sha256": "41ebd3cbf281a23d1e4dc71e0a6ccab623d7df157f4726c2db2c3e68546eced8",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Placeholder 56:88-91 tepat setelah 'says'; iqtibas rawh/rayhan/jannat na'im dan nuzul min hamim prosa wajar, tak ada ayat diterjemahkan di sekitar placeholder."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Iqtibas amanah (33:72) setia sebagai prosa; penolakan qidam ruh tetap pendapat al-Ghazali; kalimat terakhir ada."
+        }
+      ],
+      "laporan": "data/reports/terjemah-en-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "terjemah@1",
+      "lolos": true,
+      "sumber_sha256": "bc61956f48bf12a10d9ce553f48ace1a16de7868df11ef9817d39c5dde0f2c8a",
+      "draf_sha256": "41ebd3cbf281a23d1e4dc71e0a6ccab623d7df157f4726c2db2c3e68546eced8",
+      "waktu": "2026-10-29T03:07:12.349Z"
+    }
+  }
+}
