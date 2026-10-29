@@ -62,3 +62,23 @@ Lima bagian (134 paragraf) diterjemahkan paralel oleh Sonnet 5.5 (plugin 0.2.1) 
 - Penulis menjelaskan tiga kata ayat (QS 7:26) satu per satu ("X artinya ilmu").
 - Penerjemah menulis ketiga kata itu dalam transliterasi Latin, tanpa menerjemahkannya, supaya penjelasan penulis tetap terbaca. Penilai independen menerimanya.
 - Transliterasi ayat di Surau biasanya dari Kemenag, jadi ini perlu dipastikan peninjau.
+
+## Batch Kitab al-'Ilm 2 · 2026-10-29
+
+Tujuh berkas dengan 152 paragraf disimpan (155 diterjemahkan, 3 ditunda). Penerjemahnya Sonnet 5.5 (plugin 0.2.2), dan setiap berkas dinilai seluruh butirnya oleh penilai independen dengan konteks segar.
+
+| Berkas | Paragraf | Periksa independen (final) | Catatan |
+|---|---|---|---|
+| 100012 (bag. 1) | 24 | B21/K3/S0 | putaran 1: 1 Salah (lafaz QS 6:79 tanpa placeholder diterjemahkan); p385 dan p386 ditunda |
+| 100012 (bag. 2) | 26 | B25/K1/S0 | |
+| 100018 (bag. 1) | 20 | B18/K2/S0 | putaran 1: 1 Salah (iqtibas QS 32:12 diterjemahkan); p637 ditunda |
+| 100018 (bag. 2) | 21 | B17/K4/S0 | |
+| 100021 | 11 | B7/K4/S0 | lafaz ayat "cahaya" sesudah "firman-Nya" tidak diterjemahkan |
+| 100022 | 33 | B29/K4/S0 | lafaz ayat di p1031 dan p1033 tidak diterjemahkan |
+| 100023 | 17 | B16/K1/S0 | |
+
+**Pola utama:** lafaz ayat yang tidak dikenali pencocok ayat muncul di tiga dari tujuh berkas.
+- Bila lafaz itu didahului "firman-Nya", penerjemah menahannya dengan benar.
+- Bila lafaz itu dikutip sebagai ucapan orang (p385) atau dijalin ke kalimat penulis (p637), penerjemah ikut menerjemahkannya, dan penilai menangkapnya.
+
+Paragraf seperti itu kini ditunda ([daftar tunda](../terjemah/tunda-en.md)) sampai rujukan ayatnya dipatch ke korpus. Terjemahan Indonesia yang tayang kemungkinan memuat masalah yang sama dan perlu dicek di sesi pencocok ayat.
