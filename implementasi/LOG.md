@@ -15,6 +15,19 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-29 · X27 lanjutan · Terjemahan Inggris Kitab al-'Ilm selesai — selesai
+- Dikerjakan:
+  - 30 berkas `data/terjemah/en` (811 paragraf) dibuat dalam 5 batch paralel. Penerjemahnya Sonnet 5.5 lewat skill `terjemah-inggris`, dan setiap berkas dinilai penuh oleh penilai independen Sonnet dengan konteks segar.
+  - `pnpm terjemah bahan --belum` (bagian induk, melewati daftar tunda) dan penjaga paragraf ganda di `impor`.
+  - Aturan ayat diperketat (plugin 0.2.2).
+  - 12 paragraf ditunda karena lafaz ayat tanpa penanda.
+- Verifikasi: `pnpm verify` → lolos (satu tes DB Shamela lokal sempat habis waktu saat mesin sibuk, lalu lolos 5/5 saat dijalankan sendiri) · `pnpm terjemah daftar` → 811 siap · PR #220–#224 hijau dan digabung
+- Biaya API: – (langganan)
+- Keputusan: ADR-132 (lanjutan)
+- Catatan untuk sesi berikutnya:
+  - Delapan Salah putaran 1 tertangkap penilai independen dan tidak satu pun oleh periksa mandiri. Lapis 3 wajib dan tidak boleh disampel.
+  - Celah pencocok ayat (lafaz ayat tanpa `passage_ayah_ref`) kemungkinan juga memengaruhi terjemahan Indonesia yang tayang.
+
 ## 2026-10-28 · X27 · Pilot terjemahan Inggris 100007 — selesai
 - Dikerjakan:
   - PR #217 digabung; deploy MCP; `/redaksi` produksi melayani 12 tool.
