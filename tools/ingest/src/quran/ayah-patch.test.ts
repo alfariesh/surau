@@ -1,7 +1,17 @@
 // Tes patch ayat dengan mushaf BUATAN (kalimat karangan, bukan teks Al-Qur'an).
 import { describe, expect, test } from "vite-plus/test";
 
-import { applyAyahPatch, ayahCandidates, ayahPatch, spanSha256 } from "./ayah-patch.ts";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import {
+  applyAyahPatch,
+  ayahCandidates,
+  ayahPatch,
+  matcherRefs,
+  spanSha256,
+} from "./ayah-patch.ts";
 import type { AyahPatchEntry } from "./ayah-patch.ts";
 import { buildQuranIndex } from "./matcher.ts";
 import { mergePatchedRefs } from "./rows.ts";
@@ -133,5 +143,18 @@ describe("patch ayat", () => {
       withAlternatives: 2,
       passages: 2,
     });
+  });
+
+  test("rujukan pencocok saja: entri patch dibuang untuk ringkasan dan Intisari", () => {
+    const path = join(mkdtempSync(join(tmpdir(), "ayat-")), "patch.yaml");
+    writeFileSync(
+      path,
+      `shamela_book: 1\nayat:\n${JSON.stringify([entry()]).slice(1, -1).replace(/^/u, "  - ")}\n`,
+    );
+    const refs = [
+      { passage_id: 1, char_start: s1 },
+      { passage_id: 1, char_start: 0 },
+    ];
+    expect(matcherRefs(refs, path)).toEqual([{ passage_id: 1, char_start: 0 }]);
   });
 });

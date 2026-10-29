@@ -829,7 +829,7 @@ ayat:
     ayah_from: 164
     ayah_to: 164
     sumber: verifikasi-2026-10-29
-    catatan: recited (tala) inside account (verifikasi sisa X29) Lafaz dengan "wa la" ada di 6:164, 17:15, 35:18, 39:7 (bukan 53:38); dipilih letak pertama mushaf seperti pencocok.
+    catatan: recited (tala) inside account (verifikasi sisa X29). Lafaz dengan "wa la" ada di 6:164, 17:15, 35:18, 39:7 (bukan 53:38); dipilih letak pertama mushaf seperti pencocok.
   - passage_id: 10013500
     char_start: 380
     char_end: 402
@@ -1560,14 +1560,14 @@ ayat:
     sumber: verifikasi-2026-10-29
     catatan: Ibrahim words listed with his sayings; partial (verifikasi sisa X29)
   - passage_id: 10020357
-    char_start: 225
+    char_start: 248
     char_end: 266
-    span_sha256: 7a34842482de25a80795f364745de58ac0c1dad4affb75852fc8639aae8e3bf0
+    span_sha256: 69100c55964f910f0aab5e5f079d0ac01f90b4a1bf6d91078b7a7dd3f7bec3de
     surah: 108
     ayah_from: 1
     ayah_to: 1
     sumber: audit-2026-10-29
-    catatan: "Hadis: 'wa qara'a ... hatta khatamaha'; seluruh surat 108; basmala bukan ayat"
+    catatan: 'Hadis: ''wa qara''a ... hatta khatamaha''; seluruh surat 108; basmala bukan ayat. Rentang dimulai sesudah basmalah (di Tanzil XML basmalah bukan bagian 108:1). Teks kitab hanya memuat 108:1 lalu "hatta khatamaha"; ayat 2-3 tidak tertulis.'
   - passage_id: 10020407
     char_start: 827
     char_end: 876

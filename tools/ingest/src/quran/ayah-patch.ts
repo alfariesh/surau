@@ -5,12 +5,15 @@
 // fungsi pencocok yang sama (persis, lalu mirip ≥ SIMILAR_MIN_SCORE), dan nomor ayat di patch hanya
 // MEMILIH di antara letak yang ditemukan kode. Satu entri yang tidak lolos membuat ingest gagal.
 import { createHash } from "node:crypto";
+import { join } from "node:path";
 
 import { passageAyahRefRow } from "@surau/db";
 import type { PassageAyahRefRow } from "@surau/db";
 import { normalizeArabic } from "@surau/text";
 import { z } from "zod";
 
+import { readStrictYaml } from "../patch.ts";
+import { IHYA } from "../works/ihya.ts";
 import { exactHits, fuzzyMatch, locate, SIMILAR_MIN_SCORE } from "./matcher.ts";
 import type { QuranIndex } from "./matcher.ts";
 
@@ -172,4 +175,36 @@ export function applyAyahPatch(
     );
   }
   return { refs, problems };
+}
+
+/**
+ * Rujukan pencocok saja, tanpa entri patch ayat (ADR-134 butir 5, opsi b). Ringkasan AI dan Intisari
+ * dibuat dari teks bertanda rujukan ini, sehingga hash-nya tidak berubah oleh patch: patch hanya
+ * berlaku untuk terjemahan per paragraf. Entri dikenali dari berkas patch (passage_id + char_start),
+ * sehingga hasilnya sama untuk baris build maupun baris yang dibaca dari D1.
+ */
+export function matcherRefs<T extends { passage_id: number; char_start: number }>(
+  refs: readonly T[],
+  patchPath: string = DEFAULT_PATCH,
+): T[] {
+  const keys = patchKeys(patchPath);
+  return keys.size === 0
+    ? [...refs]
+    : refs.filter((r) => !keys.has(`${r.passage_id}@${r.char_start}`));
+}
+
+const DEFAULT_PATCH = join(import.meta.dirname, "../../../..", IHYA.ayahPatch ?? "");
+const keyCache = new Map<string, Set<string>>();
+function patchKeys(path: string): Set<string> {
+  let keys = keyCache.get(path);
+  if (keys === undefined) {
+    keys =
+      IHYA.ayahPatch === undefined && path === DEFAULT_PATCH
+        ? new Set()
+        : new Set(
+            readStrictYaml(path, ayahPatch).ayat.map((e) => `${e.passage_id}@${e.char_start}`),
+          );
+    keyCache.set(path, keys);
+  }
+  return keys;
 }
