@@ -11,6 +11,8 @@ import type { FootnoteRefRow, PageRow, PassageAyahRefRow, PassageRow, TocNodeRow
 import { contentLength, letterLength } from "@surau/llm";
 import type { TranslateInput } from "@surau/llm";
 
+import { matcherRefs } from "../quran/ayah-patch.ts";
+
 export interface UnitRows {
   page: readonly PageRow[];
   toc_node: readonly TocNodeRow[];
@@ -281,6 +283,8 @@ export function summaryPlan(
   opts: { maxTokens?: number; tokensPerChar?: number } = {},
 ): SummaryPlan {
   const tokensPerChar = opts.tokensPerChar ?? TOKENS_PER_CHAR;
+  // Ringkasan memakai rujukan pencocok saja: patch ayat tidak mengubah hash-nya (ADR-134 butir 5).
+  rows = { ...rows, passage_ayah_ref: matcherRefs(rows.passage_ayah_ref) };
   const headings = headingPaths(rows.toc_node);
   const page = new Map(rows.page.map((p) => [p.id, p]));
   // Paragraf terblokir (rujukan ayat tak bisa ditandai) tidak ikut diringkas: teksnya memuat ayat.

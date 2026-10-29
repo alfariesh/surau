@@ -1,6 +1,6 @@
 # X29 · Patch ayat: kutipan yang terlewat pencocok tampil dengan Kemenag
 
-> **Fase:** Sisipan · **Status:** sebagian (alat + patch selesai, patch belum diaktifkan; menunggu keputusan pemilik soal ringkasan/Intisari yang ikut gugur, ADR-134 butir 5)
+> **Fase:** Sisipan · **Status:** sebagian (patch aktif dengan opsi b; build staging, promote, dan terjemahan ulang menunggu izin pemilik)
 > **Prasyarat:** X28 (audit, ADR-133) · Tugas pemilik: izin build + promote korpus; izin biaya bila terjemahan Indonesia diulang lewat batch API
 > **Perkiraan:** 2 percakapan agent (alat + patch; penerjemahan ulang menyusul)
 
@@ -66,3 +66,16 @@ Kutipan ayat yang terverifikasi di audit X28 tetapi belum punya `passage_ayah_re
   - rentang patch mengikuti deret audit, sehingga bisa lebih pendek dari kutipan bila ejaan berbeda di ujungnya;
   - calon "lemah" (4.364) belum diaudit;
   - catatan kaki tidak diaudit.
+- **Opsi (b) (pilihan pemilik, 2026-10-29):** ringkasan dan Intisari memakai rujukan pencocok saja (`matcherRefs`), dan patch diaktifkan. Build lokal tanpa vs dengan patch:
+  - ringkasan 544/626 di keduanya;
+  - terjemahan 16.070 → 15.922;
+  - rujukan 2.514 → 2.693.
+
+  Build lokal tetap gagal di gerbang ringkasan karena data LLM di Mac ini tertinggal (82 ringkasan usang dan Intisari kosong sebelum patch). Bukti build sungguhan menunggu build staging.
+- **Perbaikan sumber Tanzil:** alat `ayat:patch` dan `ayat:audit` kini membaca Tanzil XML yang dipin, sama dengan ingest. Versi teks menempelkan basmalah ke ayat 1, sehingga entri p20357 (QS 108:1) sempat lolos `cek` tetapi gagal di ingest. Rentangnya kini dimulai sesudah basmalah.
+- **Temuan peninjau opsi (b), sudah ditangani:**
+  - bendera "blok berayat" Intisari diambil dari rujukan lengkap (`passageBlocks` `ayahFlag`), supaya batch menolak kutipan yang juga ditolak build;
+  - akibat permanen opsi (b) ditulis di ADR-134;
+  - 28 kutipan Intisari produksi dan staging tidak menyentuh rentang patch.
+- **Utang:** tes bahwa `summaryPlan`/`digestPlan` memberi hash sama dengan dan tanpa baris patch (sekarang dibuktikan lewat build lokal: ringkasan 544/626 di keduanya). `matcherRefs` terkunci ke `IHYA.ayahPatch`, jadi kitab kedua perlu meneruskan path dari `WorkConfig`.
+

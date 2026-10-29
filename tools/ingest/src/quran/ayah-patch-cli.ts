@@ -6,7 +6,7 @@
 //     terselesaikan dicetak, tidak ditulis.
 //   pnpm ayat:patch cek → semua entri dicocokkan ulang persis seperti ingest (`applyAyahPatch`).
 //   pnpm ayat:patch cek --terkena → plus tabel paragraf terkena (terjemahan id, berkas Inggris).
-// Opsi bersama: --korpus produksi|staging, --tanzil quran-simple-clean.txt.
+// Opsi bersama: --korpus produksi|staging, --quran <dir> (bawaan data/raw, berkas Tanzil yang dipin).
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -20,6 +20,7 @@ import { IHYA } from "../works/ihya.ts";
 import { applyAyahPatch, ayahCandidates, ayahPatch, spanSha256 } from "./ayah-patch.ts";
 import type { AyahPatch, PatchPassage } from "./ayah-patch.ts";
 import { buildQuranIndex } from "./matcher.ts";
+import { parseTanzilXml, QURAN_FILES, readPinned } from "./source.ts";
 import type { QuranIndex } from "./matcher.ts";
 
 const repo = resolve(import.meta.dirname, "../../../..");
@@ -29,15 +30,10 @@ const PATCH = join(repo, IHYA.ayahPatch ?? "data/patches/ihya-9472-ayat.yaml");
 const unquote = (cell: string): string =>
   /^".*"$/su.test(cell) ? cell.slice(1, -1).replaceAll('""', '"') : cell;
 
-function tanzilIndex(path: string): QuranIndex {
-  const ayat = readFileSync(path, "utf8")
-    .split("\n")
-    .filter((l) => /^\d+\|\d+\|/u.test(l))
-    .map((l) => {
-      const [s, a, ...rest] = l.split("|");
-      return { surah: Number(s), ayah: Number(a), text: rest.join("|") };
-    });
-  return buildQuranIndex(ayat);
+/** Indeks mushaf dari berkas Tanzil simple-clean yang dipin, persis seperti ingest (`loadQuran`). */
+export function tanzilIndex(root: string): QuranIndex {
+  const { text } = readPinned(root, QURAN_FILES.tanzilSimpleClean);
+  return buildQuranIndex(parseTanzilXml(text).ayat);
 }
 
 function readPatch(): AyahPatch {
@@ -85,7 +81,7 @@ async function main() {
     allowPositionals: true,
     options: {
       korpus: { type: "string", default: "produksi" },
-      tanzil: { type: "string", default: join(repo, "data/raw/tanzil/quran-simple-clean.txt") },
+      quran: { type: "string", default: join(repo, "data/raw") },
       vonis: { type: "string" },
       sumber: { type: "string", default: "audit-2026-10-29" },
       /** cek: cetak paragraf terkena (terjemahan id dan berkas Inggris) sebagai tabel Markdown. */
@@ -94,7 +90,7 @@ async function main() {
   });
   const cmd = positionals[0];
   if (cmd !== "buat" && cmd !== "cek") throw new Error("Perintah: buat --vonis <tsv> | cek");
-  const index = tanzilIndex(values.tanzil);
+  const index = tanzilIndex(values.quran);
   const patch = readPatch();
   const rows =
     cmd === "buat"

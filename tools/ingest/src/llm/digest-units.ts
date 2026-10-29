@@ -28,6 +28,7 @@ import type {
 import { contentLength, leafPointRange, letterLength, segmentText } from "@surau/llm";
 import type { CountRange, DigestStage, LeafBlock } from "@surau/llm";
 
+import { matcherRefs } from "../quran/ayah-patch.ts";
 import type { SubheadingEntries } from "./titles.ts";
 import {
   PARENT_OWN_MIN_LETTERS,
@@ -260,12 +261,17 @@ interface PassageBlocks {
   blocks: Omit<DigestBlock, "label" | "paragraph">[];
 }
 
-/** Blok satu paragraf, atau alasan paragraf itu tidak boleh dikirim. */
+/**
+ * Blok satu paragraf, atau alasan paragraf itu tidak boleh dikirim. `ayah` menentukan penanda dan
+ * potongan blok (rujukan pencocok); `ayahFlag` menentukan blok mana yang tidak boleh dikutip
+ * (rujukan lengkap termasuk patch ayat, sama dengan pemeriksaan build; ADR-134 butir 5).
+ */
 export function passageBlocks(
   p: PassageRow,
   ayah: readonly PassageAyahRefRow[],
   foot: readonly FootnoteRefRow[],
   headings: readonly Span[],
+  ayahFlag: readonly PassageAyahRefRow[] = ayah,
 ): PassageBlocks | string {
   const text = p.text_raw;
   const refs = ayah.map(toAyahRef);
@@ -299,7 +305,7 @@ export function passageBlocks(
       start: span.start,
       end: span.end,
       heading: headings.some((h) => overlaps(h, span)),
-      ayah: ayahSpans.some((a) => overlaps(a, span)),
+      ayah: ayahFlag.some((a) => overlaps({ start: a.char_start, end: a.char_end }, span)),
       text: masked.text,
     });
   }
@@ -398,7 +404,10 @@ export function digestPlan(rows: DigestCorpus, opts: DigestPlanOptions = {}): Di
       .filter((t) => t.lang === "id" && t.review_status !== "rejected")
       .map((t) => [t.toc_node_id, t.text]),
   );
-  const ayahBy = groupBy(rows.passage_ayah_ref, (r) => r.passage_id);
+  // Rujukan pencocok saja untuk penanda: patch ayat tidak mengubah hash Intisari (ADR-134 butir 5).
+  // Bendera "blok berayat" tetap dari rujukan lengkap supaya batch menolak kutipan yang ditolak build.
+  const ayahBy = groupBy(matcherRefs(rows.passage_ayah_ref), (r) => r.passage_id);
+  const ayahAllBy = groupBy(rows.passage_ayah_ref, (r) => r.passage_id);
   const footBy = groupBy(rows.footnote_ref, (r) => r.passage_id);
   const blocked: UnitIssue[] = [];
   const own = new Map<number, PassageBlocks[]>();
@@ -408,7 +417,13 @@ export function digestPlan(rows: DigestCorpus, opts: DigestPlanOptions = {}): Di
   for (const p of bodyInReadingOrder({ ...rows, passage: inScope })) {
     const node = nodeById.get(p.toc_node_id ?? 0);
     const foot = (footBy.get(p.id) ?? []).toSorted((a, b) => a.char_start - b.char_start);
-    const r = passageBlocks(p, ayahBy.get(p.id) ?? [], foot, headingSpans(p, node, subheadings));
+    const r = passageBlocks(
+      p,
+      ayahBy.get(p.id) ?? [],
+      foot,
+      headingSpans(p, node, subheadings),
+      ayahAllBy.get(p.id) ?? [],
+    );
     if (typeof r === "string") {
       blocked.push({ passageId: p.id, detail: r });
       continue;

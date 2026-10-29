@@ -61,9 +61,7 @@ export const IHYA: WorkConfig = {
   shamelaBook: 9472,
   patch: "data/patches/ihya-9472.yaml",
   subheadings: "data/patches/ihya-9472-subjudul.json",
-  // Patch ayat (X29, ADR-134) belum diaktifkan: memuatnya menggugurkan ringkasan dan Intisari yang
-  // hash-nya memakai teks bertanda ayat. Aktifkan sesudah keputusan pemilik (ADR-134 butir 5).
-  // ayahPatch: "data/patches/ihya-9472-ayat.yaml",
+  ayahPatch: "data/patches/ihya-9472-ayat.yaml",
   ids: "data/ids/ihya-9472.json",
   reportPrefix: "data/reports/ihya-9472",
   corpusVersion: "ihya-v9",

@@ -15,6 +15,16 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-29 · X29 lanjutan · Patch ayat aktif (opsi b) — sebagian
+- Dikerjakan:
+  - `matcherRefs`: ringkasan dan Intisari memakai rujukan pencocok saja (pilihan pemilik b).
+  - Patch diaktifkan.
+  - Alat `ayat:patch` dan `ayat:audit` kini membaca Tanzil XML yang dipin, sama dengan ingest; entri QS 108:1 diperbaiki.
+- Verifikasi: build lokal tanpa vs dengan patch → ringkasan 544/626 di keduanya, terjemahan 16.070 → 15.922, rujukan 2.514 → 2.693, 0 entri patch gagal (gerbang ringkasan lokal gagal di keduanya karena data LLM lokal tertinggal) · `pnpm ayat:patch cek` → 179/179 · `pnpm verify` → lolos (1187 + 500 tes, build)
+- Biaya API: –
+- Keputusan: ADR-134 butir 5 (opsi b)
+- Catatan untuk sesi berikutnya: build staging butuh izin pemilik. Cakupan terjemahan produksi sesudah patch ±15.953, tepat di atas gerbang 15.950; terjemahkan ulang 153 paragraf segera.
+
 ## 2026-10-29 · X29 · Patch ayat — sebagian
 - Dikerjakan:
   - Patch ayat (ADR-134): skema, pencocokan ulang kode, pemuat di ingest, dan `pnpm ayat:patch buat|cek`.

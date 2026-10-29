@@ -1,18 +1,19 @@
 // `pnpm ayat:audit`: audit lafaz ayat yang TIDAK punya `passage_ayah_ref` (X28). Hanya membaca korpus
-// (D1 remote hanya-SELECT) dan Tanzil simple-clean lokal; tanpa LLM dan tanpa menulis ke DB.
+// (D1 remote hanya-SELECT) dan Tanzil simple-clean lokal yang dipin; tanpa LLM dan tanpa menulis ke DB.
 // Setiap paragraf badan dinormalisasi (@surau/text), lalu dicari deret ≥ 3 kata yang juga deret di
 // mushaf. Pembanding memakai "kerangka" kata tanpa alif (السموات = السماوات, ابراهيم = ابرهيم) supaya
 // beda ejaan kecil tidak menyembunyikan kutipan. Deret yang menimpa rujukan ayat yang sudah ada
 // dilewati. Hasilnya daftar calon untuk ditinjau, bukan rujukan baru: pencocok (`matcher.ts`)
 // sengaja konservatif, dan lafaz umum ("إن الله على كل شيء قدير") memang bisa ucapan biasa.
-//   pnpm ayat:audit [--korpus produksi|staging] [--keluar berkas.tsv] [--tanzil quran-simple-clean.txt]
-import { readFileSync, writeFileSync } from "node:fs";
+//   pnpm ayat:audit [--korpus produksi|staging] [--keluar berkas.tsv] [--quran <dir> (bawaan data/raw)]
+import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 import { normalizeArabic, toRawSpan } from "@surau/text";
 
 import { korpus, openRemoteCorpus } from "../content/cli.ts";
+import { parseTanzilXml, QURAN_FILES, readPinned } from "./source.ts";
 
 const repo = resolve(import.meta.dirname, "../../../..");
 
@@ -153,17 +154,11 @@ async function main() {
     options: {
       korpus: { type: "string", default: "produksi" },
       keluar: { type: "string" },
-      tanzil: { type: "string", default: join(repo, "data/raw/tanzil/quran-simple-clean.txt") },
+      quran: { type: "string", default: join(repo, "data/raw") },
     },
   });
-  const tanzil = readFileSync(values.tanzil, "utf8");
-  const lines = tanzil
-    .split("\n")
-    .filter((l) => /^\d+\|\d+\|/u.test(l))
-    .map((l) => {
-      const [s, a, ...rest] = l.split("|");
-      return { surah: Number(s), ayah: Number(a), text: rest.join("|") };
-    });
+  // Berkas Tanzil yang dipin, sama dengan ingest: basmalah bukan bagian ayat 1 (atribut XML).
+  const lines = parseTanzilXml(readPinned(values.quran, QURAN_FILES.tanzilSimpleClean).text).ayat;
   const index = buildMushafIndex(lines);
   const corpus = await openRemoteCorpus(korpus.parse(values.korpus));
   try {
