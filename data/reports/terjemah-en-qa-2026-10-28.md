@@ -39,3 +39,26 @@ Kurang yang tersisa, bahan versi berikutnya:
 - **butir 3 (p166):** *sil'a* sebaiknya "an extra lump", dan "to anything" dibuang;
 - **butir 18 (p181):** "of either" menutup ambiguitas kata ganti sumber;
 - **butir 19 (p182):** frasa "akal rasional atas yang bahasa" kemungkinan **salah cetak edisi** ("ilmu" tertulis "akal"). Diterjemahkan sesuai cetakan, dan perlu dicek ke edisi lain sebelum dipatch (`data/patches`).
+
+## Batch Kitab al-'Ilm 1 · 2026-10-29
+
+Lima bagian (134 paragraf) diterjemahkan paralel oleh Sonnet 5.5 (plugin 0.2.1) dan dinilai seluruh butirnya oleh penilai independen Sonnet dengan konteks segar.
+
+| Bagian | Paragraf | Periksa mandiri | Periksa independen | Status |
+|---|---|---|---|---|
+| 100005 | 40 | B37/K3/S0 | **B39/K1/S0** | siap |
+| 100006 | 12 | B12 | **B10/K2/S0** | siap |
+| 100013 | 22 | B17/K5/S0 | putaran 1 B16/K6, lalu 1 Salah ditetapkan dari sumber; putaran 2 sesudah perbaikan **B17/K5/S0** | siap |
+| 100015 | 28 | B25/K3/S0 | **B23/K5/S0** | siap |
+| 100016 | 32 | B23/K9/S0 | **B27/K5/S0** | siap |
+
+**Temuan penting, 100013 butir 21 (p456):**
+- Kata *fahdzarhum* sesudah "firman-Nya" adalah lafaz QS 63:4 yang tidak ditandai placeholder (rentang ayat tidak dikenali). Penerjemah menerjemahkannya ("so beware of them").
+- Penilai independen mencurigainya, dan pemanggil memastikannya dari teks sumber. Karena ini pelanggaran aturan ayat, butir dinilai **Salah**.
+- Perbaikannya: lafaz ayat tidak diterjemahkan, dan kalimat berhenti pada "His saying, Most High". Aturan skill diperketat (plugin 0.2.2), lalu bagian ini dinilai ulang.
+- Pola ini juga menunjukkan celah data: kutipan ayat pendek tanpa `passage_ayah_ref`. Celah ini dicatat untuk pencocok ayat.
+
+**Pertanyaan terbuka untuk peninjau manusia, 100005 butir 7 (p45):**
+- Penulis menjelaskan tiga kata ayat (QS 7:26) satu per satu ("X artinya ilmu").
+- Penerjemah menulis ketiga kata itu dalam transliterasi Latin, tanpa menerjemahkannya, supaya penjelasan penulis tetap terbaca. Penilai independen menerimanya.
+- Transliterasi ayat di Surau biasanya dari Kemenag, jadi ini perlu dipastikan peninjau.

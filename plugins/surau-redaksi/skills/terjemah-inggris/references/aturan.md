@@ -41,7 +41,7 @@ The `source` of each unit is one paragraph. `heading` (the section's heading pat
 ## Markers that must be copied exactly
 
 - Ayah placeholders such as ⟦QS 2:255⟧ or ⟦QS 3:14-15⟧ replace Qur'an quotations. Copy each placeholder exactly, exactly once, in the matching place in the sentence. Never translate, rewrite, explain, or add the ayah's content. Write only placeholders that are in `source`; never create one for another quotation, including a hadith. Surau inserts an official translation of the ayah at the placeholder, so "Allah Most High says, ⟦QS 2:255⟧" is complete.
-- Sometimes a few words of the ayah remain in `source` right before or after its placeholder (the recognised span was slightly shorter than the quotation). They are still Qur'an: do not translate them; the placeholder stands for the ayah.
+- Sometimes a few words of the ayah remain in `source` right before or after its placeholder (the recognised span was slightly shorter than the quotation). They are still Qur'an: do not translate them; the placeholder stands for the ayah. The same holds for a few Qur'an words quoted without a placeholder right after "His saying, Most High" (or "Allah says"): write the introduction and stop; never translate the quoted ayah words.
 - Footnote markers are Arabic-Indic digits in parentheses. Copy each one exactly with the same Arabic-Indic digit (never replace it with 1 or 2), right after the word or sentence it marks.
 - Curly braces {…} left in `source` are only bold marks from the digital source, not ayah markers. Translate their content as normal text and do not write the braces.
 

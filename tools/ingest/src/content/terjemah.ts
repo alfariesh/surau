@@ -5,7 +5,8 @@
 //   pnpm terjemah impor <berkas…>        → cek lengkap, lalu salin ke data/terjemah/en/ (status draf)
 //   pnpm terjemah daftar                 → semua berkas beserta status, jumlah paragraf, pemeriksaan
 //   pnpm terjemah bahan <section_id>     → bahan terjemahan (JSON, sama dengan MCP list_translation_units)
-//                                          untuk agen di Claude Code; --offset, --limit
+//                                          untuk agen di Claude Code; --offset, --limit; --belum = lewati
+//                                          paragraf yang sudah ada di data/terjemah/en (bagian induk)
 //   --korpus produksi|staging            → korpus remote yang dibaca (bawaan produksi, sama dengan MCP)
 //   --cap                                → cek: tulis cap baru ke berkas di data/terjemah/en yang lolos
 //                                          (sesudah perbaikan; periksa independen dikosongkan, status draf)
@@ -23,7 +24,12 @@ import {
   translationDraftSha256,
   translationReadinessIssues,
 } from "@surau/core";
-import type { ContentIssue, TranslationDraft, TranslationDraftCheck } from "@surau/core";
+import type {
+  ContentIssue,
+  TranslationDraft,
+  TranslationDraftCheck,
+  TranslationUnits,
+} from "@surau/core";
 import type { z } from "zod";
 
 import { korpus, openRemoteCorpus, readJson } from "./cli.ts";
@@ -35,6 +41,17 @@ export const TRANSLATION_DIR = join(repo, "data/terjemah", TRANSLATION_DRAFT_LAN
 export function translationPath(d: TranslationDraft): string {
   const first = Math.min(...d.butir.map((b) => b.passage_id));
   return join(TRANSLATION_DIR, `${d.section_id}-${first}.json`);
+}
+
+/** Paragraf yang sudah punya berkas terjemahan di repo: passage_id → jalur berkas. */
+export function translatedPassages(dir = TRANSLATION_DIR): Map<number, string> {
+  const out = new Map<number, string>();
+  for (const file of listTranslationFiles(dir)) {
+    const d = translationDraft.safeParse(readJson(file));
+    if (!d.success) continue;
+    for (const b of d.data.butir) out.set(b.passage_id, file);
+  }
+  return out;
 }
 
 export function listTranslationFiles(dir = TRANSLATION_DIR): string[] {
@@ -164,6 +181,18 @@ async function impor(files: readonly string[], which: z.infer<typeof korpus>, re
         continue;
       }
       const target = translationPath(d);
+      const taken = translatedPassages();
+      const clash = d.butir.filter((b) => {
+        const other = taken.get(b.passage_id);
+        return other !== undefined && other !== target;
+      });
+      if (clash.length > 0) {
+        console.log(
+          `    galat duplicate · butir: ${clash.map((b) => b.passage_id).join(", ")} sudah ada di berkas lain`,
+        );
+        failed++;
+        continue;
+      }
       if (existsSync(target) && !replace) {
         console.log(
           `    galat exists · ${relative(repo, target)} sudah ada; pakai --ganti untuk menimpa`,
@@ -221,11 +250,42 @@ async function bahan(
   sectionId: number,
   offset: number,
   limit: number,
+  pending: boolean,
   which: z.infer<typeof korpus>,
 ) {
   const corpus = await openRemoteCorpus(which);
   try {
-    const view = await listTranslationUnits(corpus.db, { section_id: sectionId, offset, limit });
+    if (!pending) {
+      const view = await listTranslationUnits(corpus.db, { section_id: sectionId, offset, limit });
+      console.log(JSON.stringify(view, null, 2));
+      return 0;
+    }
+    // Bagian induk: kumpulkan seluruh subpohon lalu buang paragraf yang sudah punya berkas, supaya
+    // tidak ada paragraf yang diterjemahkan dua kali. `offset`/`limit` berlaku sesudah penyaringan.
+    const taken = translatedPassages();
+    const all: TranslationUnits["units"] = [];
+    let first: TranslationUnits | null = null;
+    let next: number | null = 0;
+    while (next !== null) {
+      const page = await listTranslationUnits(corpus.db, {
+        section_id: sectionId,
+        offset: next,
+        limit: 40,
+      });
+      first ??= page;
+      all.push(...page.units.filter((u) => !taken.has(u.passage_id)));
+      next = page.next_offset;
+    }
+    if (first === null) return 0;
+    const units = all.slice(offset, offset + limit);
+    const after = offset + units.length;
+    const view = {
+      ...first,
+      total: all.length,
+      offset,
+      next_offset: after < all.length ? after : null,
+      units,
+    };
     console.log(JSON.stringify(view, null, 2));
   } finally {
     await corpus.dispose();
@@ -242,6 +302,7 @@ async function main() {
       cap: { type: "boolean", default: false },
       ganti: { type: "boolean", default: false },
       offset: { type: "string", default: "0" },
+      belum: { type: "boolean", default: false },
       limit: { type: "string", default: "20" },
     },
   });
@@ -269,7 +330,7 @@ async function main() {
     case "bahan": {
       const id = Number(rest[0]);
       if (!Number.isInteger(id) || id <= 0) throw new Error("pnpm terjemah bahan <section_id>");
-      failed = await bahan(id, Number(values.offset), Number(values.limit), which);
+      failed = await bahan(id, Number(values.offset), Number(values.limit), values.belum, which);
       break;
     }
     default:
