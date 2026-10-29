@@ -82,3 +82,22 @@ Tujuh berkas dengan 152 paragraf disimpan (155 diterjemahkan, 3 ditunda). Penerj
 - Bila lafaz itu dikutip sebagai ucapan orang (p385) atau dijalin ke kalimat penulis (p637), penerjemah ikut menerjemahkannya, dan penilai menangkapnya.
 
 Paragraf seperti itu kini ditunda ([daftar tunda](../terjemah/tunda-en.md)) sampai rujukan ayatnya dipatch ke korpus. Terjemahan Indonesia yang tayang kemungkinan memuat masalah yang sama dan perlu dicek di sesi pencocok ayat.
+
+## Batch Kitab al-'Ilm 3 · 2026-10-29
+
+Lima berkas dengan 194 paragraf disimpan (197 diterjemahkan, 3 ditunda oleh penerjemah karena lafaz ayat yang dijalin ke kalimat). Penerjemahnya Sonnet 5.5, dan penilai independen memeriksa seluruh butir.
+
+| Berkas | Paragraf | Periksa independen (final) | Catatan |
+|---|---|---|---|
+| 100010 (bag. 1) | 39 | B38/K1/S0 | p225 ditunda (QS 32:7-8 dijalin); p235 kemungkinan salah cetak edisi |
+| 100010 (bag. 2) | 40 | B37/K3/S0 | putaran 1: 1 Salah (negasi "bukan ilmu sehingga tidak dicantumkan" terbalik), diperbaiki |
+| 100010 (bag. 3) | 38 | B36/K2/S0 | |
+| 100017 (bag. 1) | 40 | B40/K0/S0 | putaran 1: 1 Salah (Khidr dan Musa: pelaku "tidak sabar" terbaca Khidr), diperbaiki; sikap al-Ghazali soal riwayat anjing dan rumah (letak kesalahan Intisari lama) terjaga |
+| 100017 (bag. 2) | 37 | B35/K2/S0 | p608 dan p615 ditunda (lafaz ayat dijalin) |
+
+**Pola Salah sejauh ini:**
+- lafaz ayat tanpa penanda;
+- pelaku tertukar karena kata ganti dalam kisah;
+- negasi yang terbalik oleh anak kalimat "sehingga".
+
+Ketiganya tertangkap penilai independen, bukan oleh periksa mandiri. Petunjuk penerjemah kini menyebut ketiga pola itu secara eksplisit.

@@ -1,0 +1,582 @@
+{
+  "format": "surau-terjemah/1",
+  "lang": "en",
+  "edition_id": 1,
+  "section_id": 100010,
+  "status": "siap",
+  "butir": [
+    {
+      "passage_id": 10000205,
+      "teks": "The explanation of the knowledge that is a communal obligation (fard kifaya)"
+    },
+    {
+      "passage_id": 10000206,
+      "teks": "Know that an obligation cannot be distinguished from anything else except by mentioning the divisions of the sciences. In relation to the purpose we have in hand, the sciences are divided into the religious and the non-religious. By the religious I mean what is learned from the prophets (peace and blessings be upon them) and is not something that reason leads to, like arithmetic, or experience, like medicine, or hearing, like language. The sciences that are not religious are divided into the praiseworthy, the blameworthy, and the permissible. The praiseworthy is what the welfare of worldly affairs depends on, such as medicine and arithmetic. This is divided into what is a communal obligation and what is a virtue and not an obligation. As for the communal obligation, it is knowledge that cannot be done without for the maintenance of worldly affairs, such as medicine, since it is necessary for the need to preserve bodies, and such as arithmetic, since it is necessary in transactions and in the division of bequests and inheritances and the like. These are the sciences such that, if a town were empty of anyone who undertakes them, the people of the town would fall into sin; and when one person undertakes them, it suffices and the obligation falls from the others."
+    },
+    {
+      "passage_id": 10000207,
+      "teks": "So do not be surprised at our saying that medicine and arithmetic are among the communal obligations, for the foundations of the crafts are also among the communal obligations, such as farming, weaving, and governance, even cupping and tailoring. For if a town were without a cupper, destruction would quickly come upon them, and they would be in sin for exposing themselves to destruction."
+    },
+    {
+      "passage_id": 10000208,
+      "teks": "For the One who sent down the disease sent down the cure, guided to its use, and prepared the means for undertaking it, so it is not permissible to expose oneself to destruction by neglecting it."
+    },
+    {
+      "passage_id": 10000209,
+      "teks": "As for what is counted a virtue and not an obligation, it is delving deeply into the finer points of arithmetic and the realities of medicine and the like, which can be done without, but which adds strength in the amount that is needed."
+    },
+    {
+      "passage_id": 10000210,
+      "teks": "As for the blameworthy, it is the knowledge of sorcery and talismans, and the knowledge of conjuring tricks and deceptions."
+    },
+    {
+      "passage_id": 10000211,
+      "teks": "As for the permissible among them, it is knowledge of poems that contain nothing frivolous, histories of reports, and what runs along those lines."
+    },
+    {
+      "passage_id": 10000212,
+      "teks": "As for the religious sciences, which are the ones intended to be explained, they are all praiseworthy; but sometimes what is thought to be religious yet is blameworthy gets mixed up with them, so they are divided into the praiseworthy and the blameworthy."
+    },
+    {
+      "passage_id": 10000213,
+      "teks": "As for the praiseworthy, it has roots, branches, preliminaries, and complements, and it is of four kinds."
+    },
+    {
+      "passage_id": 10000214,
+      "teks": "The first kind: the roots. They are four: the Book of Allah, the Mighty and Majestic; the Sunna of the Messenger of Allah (peace and blessings be upon him); the consensus (ijma') of the community; and the reports (athar) of the Companions. Consensus is a root in that it points to the Sunna, so it is a root in the third degree."
+    },
+    {
+      "passage_id": 10000215,
+      "teks": "Likewise the report: it too points to the Sunna, because the Companions (may Allah be pleased with them) witnessed the revelation and the sending down, and perceived through the circumstantial indications of the situations what others had not witnessed with their own eyes; and perhaps expressions cannot encompass what was perceived through those indications."
+    },
+    {
+      "passage_id": 10000216,
+      "teks": "For this reason the scholars held that one should follow them and hold fast to their reports, under a particular condition and in a particular manner according to whoever holds this view, and explaining that is not fitting in this discipline."
+    },
+    {
+      "passage_id": 10000217,
+      "teks": "The second kind: the branches. This is what is understood from these roots, not by the necessity of their wording but by meanings to which minds are alerted, so that understanding broadens because of them until something other than the uttered wording is understood from the uttered wording, as it is understood from his saying (peace be upon him), “The judge must not judge while he is angry” (١), that he must not judge when he is afraid, hungry, or in pain from illness."
+    },
+    {
+      "passage_id": 10000219,
+      "teks": "This is of two kinds. One relates to the welfare of this world; the books of jurisprudence (fiqh) contain it, and the jurists are responsible for it, and they are the scholars of this world."
+    },
+    {
+      "passage_id": 10000220,
+      "teks": "The second relates to the welfare of the Hereafter. It is the knowledge of the states of the heart and its praiseworthy and blameworthy character traits, and of what is pleasing to Allah Most High and what is disliked. This is what the last part of this book contains, I mean the whole of the book Ihya' 'Ulum ad-Din. Part of it is the knowledge of what flows from the heart onto the limbs in their acts of worship and their customs, and this is what the first part of this book contains."
+    },
+    {
+      "passage_id": 10000221,
+      "teks": "The third kind: the preliminaries. These are what serve, in relation to it, as instruments, like the knowledge of language and grammar, for they are an instrument for the knowledge of the Book of Allah Most High and the Sunna of His Prophet (peace and blessings be upon him). Language and grammar are not in themselves among the religious sciences, but engaging in them becomes necessary because of the Sharia, since this Sharia came in the language of the Arabs, and every law appears only in a language, so learning that language becomes an instrument. Among the instruments is the knowledge of writing, but that is not necessary, since the Messenger of Allah (peace and blessings be upon him) (١) was unlettered."
+    },
+    {
+      "passage_id": 10000222,
+      "teks": "If it were conceivable that memory could suffice on its own for everything one hears, one would do without writing; but, by reason of the weakness that is common, it has become necessary."
+    },
+    {
+      "passage_id": 10000223,
+      "teks": "The fourth kind: the complements. That is in the knowledge of the Qur'an, which is divided into what relates to the wording, such as learning the recitations and the points of articulation of the letters; and what relates to the meaning, such as Qur'anic exegesis (tafsir), for its reliance too is on transmission, since language alone does not suffice for it; and what relates to its rulings, such as knowing the abrogating and the abrogated, the general and the specific, the explicit and the apparent."
+    },
+    {
+      "passage_id": 10000224,
+      "teks": "And the manner of using some of it with the rest. This is the knowledge called legal theory (usul al-fiqh), and it also covers the Sunna."
+    },
+    {
+      "passage_id": 10000226,
+      "teks": "And He created this world as provision for the return, so that a person may take from it what is fit for provisioning. Had they taken from it with justice, disputes would have ceased and the jurists would have been left idle; but they took from it through appetites, so disputes were generated from them, and the need arose for a ruler to govern them, and the ruler needed a law by which to govern them. The jurist is the one who knows the law of governance and the way of mediating between people when they quarrel under the sway of appetites. So the jurist was the teacher of the ruler and his guide to the ways of governing people and restraining them, so that through their uprightness their affairs in this world would be put in order. And by my life, it is also connected to religion, but not in itself, rather through the medium of this world, for this world is the field of the Hereafter, and religion is not complete except through this world."
+    },
+    {
+      "passage_id": 10000227,
+      "teks": "Kingship and religion are twins. Religion is the foundation and the ruler is the guard. What has no foundation collapses, and what has no guard is lost. Kingship and control are not complete except through the ruler, and the way of control in settling legal disputes is through jurisprudence (fiqh)."
+    },
+    {
+      "passage_id": 10000228,
+      "teks": "Just as governing people through sovereignty is not part of the knowledge of religion in the first degree but is an aid to what religion cannot be completed without, so likewise is knowing the way of governance. It is known that the pilgrimage (hajj) is not completed except with an escort (badhraqa) that guards against the Arabs on the road. But the hajj is one thing, travelling the road to the hajj is a second thing, carrying out the guarding without which the hajj is not completed is a third, and knowing the ways of guarding, its stratagems and its rules, is a fourth. The sum of the discipline of jurisprudence is knowledge of the ways of governance and guarding. Evidence for this is what has been narrated with a chain of transmission (isnad): “None gives legal opinions to the people except three: an amir or one commissioned”"
+    },
+    {
+      "passage_id": 10000230,
+      "teks": "“or one who burdens himself” (١). The amir is the imam, and they were the ones who used to give legal opinions; the one commissioned is his deputy; and the one who burdens himself is other than the two, and he is the one who assumes that responsibility without need."
+    },
+    {
+      "passage_id": 10000231,
+      "teks": "The Companions (may Allah be pleased with them) used to be wary of giving legal opinions, so much so that each of them would refer the questioner to his fellow; but they were not wary when they were asked about the knowledge of the Qur'an and the path of the Hereafter."
+    },
+    {
+      "passage_id": 10000232,
+      "teks": "In some of the narrations, “the one who shows off” appears in place of “the one who burdens himself”, for whoever takes on the danger of giving legal opinions when he is not singled out by need aims at nothing by it except seeking status and wealth."
+    },
+    {
+      "passage_id": 10000233,
+      "teks": "If you say: this may hold true for you in the rulings on wounds, fixed penalties, fines, and settling disputes, but it does not hold in what the quarter on acts of worship comprises, fasting and the prayer, nor in what the quarter on customs comprises, transactions and the explanation of the lawful and the forbidden, then know that the closest of the works of the Hereafter that the jurist speaks about are three, Islam, the prayer, and zakat, and the lawful and the forbidden. When you consider the limit of the jurist's examination of them, you will know that it does not go beyond the bounds of this world to the Hereafter, and if you know this in these three, then in others it is clearer."
+    },
+    {
+      "passage_id": 10000234,
+      "teks": "As for Islam, the jurist speaks about what makes it valid and what invalidates it, and about its conditions, and he pays attention in it only to the tongue."
+    },
+    {
+      "passage_id": 10000235,
+      "teks": "As for the heart, it lies outside the jurist's authority, because the Messenger of Allah (peace and blessings be upon him) removed the people of the swords and of sovereignty from it when he said, “Did you split open his heart?” (٢) to the one who killed a person who had spoken the word of Islam, excusing himself by saying that the man had said it out of fear of the sword. Rather, the jurist rules that Islam is valid under the shadows of swords, although he knows that the sword has not revealed to him that person's intention and has not lifted from that person's heart the veil of ignorance and bewilderment, but he is advising the swordsman, for the sword is extended to his neck and the hand is extended to his wealth, and this word on the tongue protects his neck and his wealth as long as he has a neck and wealth, and that is in this world. For that reason he said (peace and blessings be upon him), “I have been commanded to fight the people until they say, There is no god but Allah. When they say it, they have protected their blood and their wealth from me” (٣). He made the effect of that to be on blood and wealth."
+    },
+    {
+      "passage_id": 10000236,
+      "teks": "As for the Hereafter, wealth is of no benefit in it; what benefits is the lights of the hearts, their secrets, and their sincerity. That is not part of jurisprudence, and if the jurist delves into it, he is like one who delves into theology and medicine, and he would be outside his discipline."
+    },
+    {
+      "passage_id": 10000237,
+      "teks": "As for the prayer, the jurist gives a verdict of validity if the person performs the form of the acts with the outward conditions, even if he is heedless throughout his prayer from its beginning to its end, busy thinking about the accounts of his dealings in the market except at the takbir. Such a prayer does not benefit in the Hereafter, just as a statement made with the tongue in Islam is of no benefit. But the jurist gives a verdict of validity, meaning that by what he did, compliance with the form of the command was achieved, and killing and discretionary punishment (ta'zir) were cut off from him by it. As for humility in prayer (khushu') and bringing the heart to presence, which is a work of the Hereafter and through which the outward act becomes beneficial, the jurist does not address it, and if he did address it, he would be outside his discipline. As for zakat, the jurist looks to what cuts off the ruler's demand, so much so that if a person refuses to pay it and the ruler takes it by force, he rules that his liability is discharged."
+    },
+    {
+      "passage_id": 10000238,
+      "teks": "It is related that the judge Abu Yusuf used to give his wealth to his wife at the end of the year and ask her to give him her wealth, in order to remove the obligation of zakat. That was related to Abu Hanifa (may Allah have mercy on him), and he said, “That is part of his jurisprudence.”"
+    },
+    {
+      "passage_id": 10000239,
+      "teks": "And he spoke the truth, for that is from the jurisprudence of this world; but its harm in the Hereafter is greater than every offence, and the like of this is harmful knowledge."
+    },
+    {
+      "passage_id": 10000240,
+      "teks": "As for the lawful and the forbidden, scrupulousness (wara') about the forbidden is part of religion, but scrupulousness has four ranks."
+    },
+    {
+      "passage_id": 10000241,
+      "teks": "The first is the scrupulousness that is required for the probity of testimony. It is the one by whose abandonment a person falls outside eligibility for testimony, for judgeship, and for authority, and it is avoidance of the manifest forbidden."
+    },
+    {
+      "passage_id": 10000242,
+      "teks": "The second is the scrupulousness of the righteous, which is guarding against doubtful matters (shubuhat) in which the possibilities stand opposed to one another."
+    },
+    {
+      "passage_id": 10000243,
+      "teks": "The Prophet (peace and blessings be upon him) said, “Leave what makes you doubt for what does not make you doubt” (٤), and the Prophet (peace and blessings be upon him) said, “Sin is what pricks the hearts” (٥)."
+    },
+    {
+      "passage_id": 10000244,
+      "teks": "The third is the scrupulousness of"
+    },
+    {
+      "passage_id": 10000250,
+      "teks": "the God-conscious (muttaqin), which is leaving the purely lawful when one fears that it will lead to the forbidden."
+    },
+    {
+      "passage_id": 10000251,
+      "teks": "The Prophet (peace and blessings be upon him) said, “A man is not among the God-conscious until he leaves what there is no harm in for fear of what there is harm in” (١). That is like refraining from talking about the affairs of people for fear of being drawn into backbiting, and refraining from eating what the appetite craves for fear of the stirring of vigour and insolence that leads to committing forbidden acts."
+    }
+  ],
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-sonnet-5-5",
+    "plugin": "surau-redaksi@0.2.2",
+    "skill": "terjemah-inggris@1",
+    "operator": "agen Claude Code",
+    "dibuat": "2026-10-29T08:48:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "judul bagian diterjemahkan utuh"
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "pembagian ilmu, contoh, dan syarat fardhu kifayah lengkap sampai kalimat terakhir"
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "daftar keterampilan dan akibat tanpa tukang bekam sesuai sumber"
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "pelaku (Yang menurunkan penyakit) dan larangan membiarkan diri binasa sesuai"
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "keutamaan bukan kewajiban, kedalaman hisab dan tibb sesuai"
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "dua ilmu tercela disebut lengkap"
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "ilmu mubah: syair tanpa kekonyolan dan sejarah"
+      },
+      {
+        "ke": 8,
+        "nilai": "benar",
+        "catatan": "ilmu syar'i terpuji, yang menyerupai tetapi tercela dipisahkan"
+      },
+      {
+        "ke": 9,
+        "nilai": "benar",
+        "catatan": "empat unsur dan empat macam sesuai"
+      },
+      {
+        "ke": 10,
+        "nilai": "benar",
+        "catatan": "empat dasar dan ijmak derajat ketiga, hitungan sesuai"
+      },
+      {
+        "ke": 11,
+        "nilai": "benar",
+        "catatan": "alasan pada sahabat dan qarinah sesuai, tanpa tambahan"
+      },
+      {
+        "ke": 12,
+        "nilai": "benar",
+        "catatan": "syarat khusus menurut yang berpendapat demikian dipertahankan"
+      },
+      {
+        "ke": 13,
+        "nilai": "benar",
+        "catatan": "hadis dan penanda (١) di tempatnya, tiga keadaan qiyas lengkap"
+      },
+      {
+        "ke": 14,
+        "nilai": "benar",
+        "catatan": "dua jenis, fuqaha ulama dunia sesuai"
+      },
+      {
+        "ke": 15,
+        "nilai": "benar",
+        "catatan": "bagian akhir dan bagian awal kitab tidak tertukar"
+      },
+      {
+        "ke": 16,
+        "nilai": "benar",
+        "catatan": "ketiga, bahasa dan nahwu bukan ilmu syar'i, penanda (١) pada tempatnya"
+      },
+      {
+        "ke": 17,
+        "nilai": "benar",
+        "catatan": "pengandaian hafalan dan kebutuhan menulis sesuai"
+      },
+      {
+        "ke": 18,
+        "nilai": "benar",
+        "catatan": "tiga cabang ilmu Al-Qur'an dan contohnya lengkap"
+      },
+      {
+        "ke": 19,
+        "nilai": "benar",
+        "catatan": "kelanjutan daftar sebelumnya, ushul fikih dan sunnah"
+      },
+      {
+        "ke": 20,
+        "nilai": "benar",
+        "catatan": "alur sengketa, penguasa, dan fakih sesuai; kalimat terakhir ada"
+      },
+      {
+        "ke": 21,
+        "nilai": "benar",
+        "catatan": "agama pokok, penguasa penjaga, sesuai sumber"
+      },
+      {
+        "ke": 22,
+        "nilai": "benar",
+        "catatan": "empat hal berurutan dan hadis terputus di tengah sesuai sumber"
+      },
+      {
+        "ke": 23,
+        "nilai": "benar",
+        "catatan": "kelanjutan hadis, penanda (١), penjelasan tiga golongan"
+      },
+      {
+        "ke": 24,
+        "nilai": "benar",
+        "catatan": "sahabat berhati-hati berfatwa, tidak pada ilmu Al-Qur'an"
+      },
+      {
+        "ke": 25,
+        "nilai": "benar",
+        "catatan": "riwayat lain: al-murai, alasan mencari jabatan dan harta"
+      },
+      {
+        "ke": 26,
+        "nilai": "benar",
+        "catatan": "keberatan lawan bicara dan jawaban; hitungan tiga sesuai"
+      },
+      {
+        "ke": 27,
+        "nilai": "benar",
+        "catatan": "fakih hanya melihat lisan dalam Islam"
+      },
+      {
+        "ke": 28,
+        "nilai": "kurang",
+        "catatan": "kata 'mutsir' kemungkinan salah cetak 'musyir' (menasihati); diterjemahkan 'advising'. Penanda (٢) (٣) ada"
+      },
+      {
+        "ke": 29,
+        "nilai": "benar",
+        "catatan": "akhirat tidak memakai harta; fakih keluar bidang bila masuk"
+      },
+      {
+        "ke": 30,
+        "nilai": "benar",
+        "catatan": "salat, zakat, khusyuk; pelaku dan akibat tiap hukum sesuai"
+      },
+      {
+        "ke": 31,
+        "nilai": "benar",
+        "catatan": "kisah Abu Yusuf dan jawaban Abu Hanifah sesuai"
+      },
+      {
+        "ke": 32,
+        "nilai": "benar",
+        "catatan": "pembenaran Abu Hanifah lalu bahaya akhirat"
+      },
+      {
+        "ke": 33,
+        "nilai": "benar",
+        "catatan": "empat tingkat wara"
+      },
+      {
+        "ke": 34,
+        "nilai": "benar",
+        "catatan": "tingkat pertama dan batasnya sesuai"
+      },
+      {
+        "ke": 35,
+        "nilai": "benar",
+        "catatan": "tingkat kedua syubhat"
+      },
+      {
+        "ke": 36,
+        "nilai": "benar",
+        "catatan": "dua hadis dengan penanda (٤) (٥) pada tempatnya"
+      },
+      {
+        "ke": 37,
+        "nilai": "benar",
+        "catatan": "fragmen awal kalimat tingkat ketiga"
+      },
+      {
+        "ke": 38,
+        "nilai": "benar",
+        "catatan": "lanjutan kalimat sebelumnya, tanpa subjek baru"
+      },
+      {
+        "ke": 39,
+        "nilai": "benar",
+        "catatan": "hadis dengan penanda (١) dan dua contoh sesuai"
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-29",
+      "draf_sha256": "00a77a1648353d97f624972bbe64f485aa08e90dfe3b072bfeb545aba28ac3f5",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 8,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 9,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 10,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 11,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 12,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 13,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 14,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 15,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 16,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 17,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 18,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 19,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 20,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 21,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 22,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 23,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 24,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 25,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 26,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 27,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 28,
+          "nilai": "kurang",
+          "catatan": "Kata yang diduga salah cetak diterjemahkan 'advising' tanpa penanda; perlu cek edisi cetak; 'hala' jadi pertanyaan polos."
+        },
+        {
+          "ke": 29,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 30,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 31,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 32,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 33,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 34,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 35,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 36,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 37,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 38,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        },
+        {
+          "ke": 39,
+          "nilai": "benar",
+          "catatan": "pelaku, negasi, angka, penanda, dan kelengkapan sesuai sumber"
+        }
+      ],
+      "laporan": "data/reports/terjemah-en-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "terjemah@1",
+      "lolos": true,
+      "sumber_sha256": "aa323e11250184d489cab696a2a5b80b5f08e85a9ceaed2246948e858c6609dc",
+      "draf_sha256": "00a77a1648353d97f624972bbe64f485aa08e90dfe3b072bfeb545aba28ac3f5",
+      "waktu": "2026-10-29T01:49:01.941Z"
+    }
+  }
+}

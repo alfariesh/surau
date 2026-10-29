@@ -6,13 +6,13 @@
 //   pnpm terjemah daftar                 → semua berkas beserta status, jumlah paragraf, pemeriksaan
 //   pnpm terjemah bahan <section_id>     → bahan terjemahan (JSON, sama dengan MCP list_translation_units)
 //                                          untuk agen di Claude Code; --offset, --limit; --belum = lewati
-//                                          paragraf yang sudah ada di data/terjemah/en (bagian induk)
+//                                          paragraf yang sudah ada di data/terjemah/en atau di daftar tunda (bagian induk)
 //   --korpus produksi|staging            → korpus remote yang dibaca (bawaan produksi, sama dengan MCP)
 //   --cap                                → cek: tulis cap baru ke berkas di data/terjemah/en yang lolos
 //                                          (sesudah perbaikan; periksa independen dikosongkan, status draf)
 //   --ganti                              → impor boleh menimpa berkas yang sudah ada
 // Korpus dibaca lewat binding D1 remote hanya-SELECT (sama dengan `pnpm konten`). Tanpa LLM.
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -41,6 +41,16 @@ export const TRANSLATION_DIR = join(repo, "data/terjemah", TRANSLATION_DRAFT_LAN
 export function translationPath(d: TranslationDraft): string {
   const first = Math.min(...d.butir.map((b) => b.passage_id));
   return join(TRANSLATION_DIR, `${d.section_id}-${first}.json`);
+}
+
+/** Paragraf yang ditunda (lafaz ayat tanpa penanda): kolom pertama tabel di data/terjemah/tunda-en.md. */
+export function deferredPassages(): Set<number> {
+  const path = join(repo, "data/terjemah", `tunda-${TRANSLATION_DRAFT_LANG}.md`);
+  if (!existsSync(path)) return new Set();
+  const ids = [...readFileSync(path, "utf8").matchAll(/^\|\s*(\d{6,})\s*\|/gmu)].map((m) =>
+    Number(m[1]),
+  );
+  return new Set(ids);
 }
 
 /** Paragraf yang sudah punya berkas terjemahan di repo: passage_id → jalur berkas. */
@@ -263,6 +273,7 @@ async function bahan(
     // Bagian induk: kumpulkan seluruh subpohon lalu buang paragraf yang sudah punya berkas, supaya
     // tidak ada paragraf yang diterjemahkan dua kali. `offset`/`limit` berlaku sesudah penyaringan.
     const taken = translatedPassages();
+    const deferred = deferredPassages();
     const all: TranslationUnits["units"] = [];
     let first: TranslationUnits | null = null;
     let next: number | null = 0;
@@ -273,7 +284,9 @@ async function bahan(
         limit: 40,
       });
       first ??= page;
-      all.push(...page.units.filter((u) => !taken.has(u.passage_id)));
+      all.push(
+        ...page.units.filter((u) => !taken.has(u.passage_id) && !deferred.has(u.passage_id)),
+      );
       next = page.next_offset;
     }
     if (first === null) return 0;
