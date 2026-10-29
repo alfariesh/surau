@@ -46,7 +46,7 @@ Terjemahan Inggris per paragraf untuk Surau (ADR-130, ADR-132). Terjemahan ini k
   "asal": {
     "pembuat": "claude-desktop",
     "model": "claude-sonnet-5-5",
-    "plugin": "surau-redaksi@0.2.2",
+    "plugin": "surau-redaksi@0.2.3",
     "skill": "terjemah-inggris@1",
     "operator": "pemilik",
     "dibuat": "2026-10-28T10:00:00+07:00"

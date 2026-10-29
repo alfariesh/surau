@@ -1,7 +1,7 @@
 {
   "name": "surau-redaksi",
   "displayName": "Redaksi Surau",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Membuat konten turunan Surau (Intisari Bab, Intisari Kitab, Faedah, Jalur 7 hari) dan terjemahan Inggris per paragraf dari kitab klasik lewat Claude, dengan teks Arab yang selalu disalin kode dari database dan pemeriksa otomatis sebelum terbit.",
   "author": {
     "name": "Surau",
