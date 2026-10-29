@@ -1,0 +1,169 @@
+jenis	passage_id	char_start	char_end	surah	ayah_from	ayah_to	utuh	catatan
+iqtibas	10000386	196	219	6	79	79	0	Dinilai agen utama: lafaz 6:79 diubah ke orang ketiga dan dibahas penulis; dari daftar tunda X27.
+iqtibas	10000595	45	65					Dirangkai dalam kalimat penulis (rukun iman), bukan kutipan.
+iqtibas	10001162	640	651					"Setelah ""qala ta'ala"", tetapi bunyi ""hal 'indakum min sultan bihadza"" tidak persis ayat mana pun (6:148 ""min 'ilm""; 10:68 ""in 'indakum min sultan""); kutipan dari ingatan, tidak verbatim."
+iqtibas	10001225	25	42					Ucapan Abu Bakar; mirip 17:111
+iqtibas	10001363	190	209					Dirangkai dalam kalimat bersajak penulis
+iqtibas	10001480	104	118					Kemunculan kedua, penulis mengulang rumusan dalam kalimat sendiri (kemunculan pertama adalah kutipan 2:136).
+iqtibas	10001484	23	49					Ucapan ats-Tsauri memakai 2:285
+iqtibas	10002216	944	972					"Diadaptasi dengan perubahan tata bahasa (""man ittakhadza"" dalam kalimat penulis), memakai kata ayat 25:43."
+iqtibas	10002522	348	363					65:3 dirangkai ke kalimat penulis
+iqtibas	10003530	68	92					"Diadaptasi (""ja'ala"" untuk ""wa idz ja'alna""), bukan kutipan verbatim 2:125."
+iqtibas	10004229	203	222					Frasa 'ma harram Allah' menyatu dalam kalimat penulis.
+iqtibas	10004313	267	289	7	44	44	0	Sabda Nabi kepada korban Badr memakai kata 7:44 dalam ucapannya.
+iqtibas	10004629	96	122	23	86	86	0	Dzikir kesusahan dalam hadis; 5 kata dari 23:86, diadaptasi (kata penutup berbeda). Ragu.
+iqtibas	10004895	829	859					Dipakai dalam kalimat penulis tentang raja'.
+iqtibas	10005247	69	93					Parafrase kisah tamu Ibrahim dengan tata bahasa penulis.
+iqtibas	10006998	129	147					Dalam kalimat hadis/penulis; bukan kutipan
+iqtibas	10007363	1154	1164					Ucapan Abu Hazim, parafrase 3:187; bukan kutipan persis.
+iqtibas	10010296	171	196					Rujukan kisah Yusuf (12:31/50)
+iqtibas	10010649	694	729	9	112	112	0	Jawaban Nabi memakai sifat 9:112 dalam kalimatnya; tidak dibacakan sebagai ayat. Ragu (frasa umum).
+iqtibas	10011280	41	67					Ucapan perawi memakai kata ayat 33:72
+iqtibas	10011280	74	94					Sama dengan baris 3; ucapan perawi
+iqtibas	10011822	970	984					'nahaa an-nafs 'an al-hawa' menyatu di kalimat penulis; ayat 79:40-41 dikutip penuh sesudahnya
+iqtibas	10012100	1045	1104	34	2	2	0	Ta'awwudz hadis memakai kata-kata 34:2 (identik dengan 57:4) dalam doa yang diadaptasi. Ragu.
+iqtibas	10012752	220	242					frasa la'nat Allah 'ala azh-zhalimin dipakai sebagai lafaz yang diucapkan, bukan kutipan
+iqtibas	10013114	296	360					menyatu di kalimat penulis (2:27)
+iqtibas	10013120	238	260					menyatu di surat/kalimat penulis
+iqtibas	10013463	434	454					menyatu di kalimat penulis ('jannah 'ardhuha...')
+iqtibas	10013892	279	303	4	36	36	0	Isi baiat dalam hadis, kata 4:36 diadaptasi dalam kalimat sabda.
+iqtibas	10014739	324	347					penutup kalimat penulis, bukan dikutip
+iqtibas	10015176	66	81					Ucapan Fir'aun dalam kalimat penulis tanpa penanda kutipan
+iqtibas	10015184	346	371					16:75 dirangkai untuk argumen
+iqtibas	10015323	1173	1215					16:75 dirangkai ke kalimat penulis
+iqtibas	10015540	60	79					23:53 dirangkai ke kalimat penulis
+iqtibas	10015549	78	98					Pembukaan bab, ungkapan 2:257
+iqtibas	10015925	802	827					Tanpa penanda kutipan, menyatu dalam kalimat penulis (33:62/35:43/48:23)
+iqtibas	10015984	586	612					Ucapan Fir'aun disisipkan dalam kalimat penulis
+iqtibas	10016021	646	690					Menyatu dalam kalimat penulis tanpa penanda; juga 62:4
+iqtibas	10016032	598	651					Tata bahasa diubah, menyatu dalam kalimat penulis (33:72)
+iqtibas	10016070	46	62					Ucapan orang dalam riwayat memakai kata ayat 2:81
+iqtibas	10016283	1266	1290					Dirangkai ke kalimat penulis
+iqtibas	10016303	336	359					Frasa menyatu dalam kalimat penulis (7:185)
+iqtibas	10016322	929	949					Diadaptasi dari 2:74 dalam kalimat penulis
+iqtibas	10016371	2840	2862					Gubahan ayat cahaya (24:35); nomor tempat dari matcher keliru
+iqtibas	10016444	178	194					Frasa dalam kalimat penulis (7:185)
+iqtibas	10016456	1022	1039					Frasa dalam kalimat penulis (31:20)
+iqtibas	10016851	129	141					Menyatu dalam kalimat penulis (3:40)
+iqtibas	10017915	677	692					Ucapan Fir'aun dikutip dalam kalimat pengarang tanpa penanda ayat; ragu
+iqtibas	10018795	242	317					Terjalin dalam kalimat 'bal hum alladzina...' tanpa penanda kutipan
+iqtibas	10019526	956	984					Terjalin dalam kalimat pengarang
+iqtibas	10019710	67	87					Adaptasi ungkapan Al-Qur'an dalam kalimat penulis
+iqtibas	10019837	756	771					Dalam kisah dialog malaikat maut, kata ayat dijalin dalam tuturan (70:15-16)
+iqtibas	10019844	447	465					Ucapan dalam khutbah memakai frasa 44:19
+iqtibas	10020164	1322	1338	66	6	6	0	Deskripsi malaikat dalam hadis memakai kata 66:6; bukan dibacakan.
+iqtibas	10020211	740	764					Diucapkan dalam mimpi tanpa penanda ayat; ragu
+iqtibas	10020249	193	213					Adaptasi 39:68 dalam kalimat penulis
+iqtibas	10020381	1749	1771					Ayat 23:108 dalam narasi hadis tanpa penanda; konservatif, ragu
+kutipan	10000385	549	589	6	79	79	0	Doa iftitah dalam salat (6:79), dibaca sebagai ayat; kutipan sebagian ayat.
+kutipan	10000523	206	226	29	68	68	0	"Konteks ""menyamakan yang berdusta atas Allah dan yang mendustakan kebenaran"" cocok 29:68, bukan 6:21 (6:21 ""atau mendustakan ayat-Nya""). Teks konteks terpotong, jadi tidak pasti."
+kutipan	10000693	515	541	2	146	146	1	"Didahului ""qala Allah"". Frasa sama ada di 6:20; keduanya mungkin, 2:146 dipilih karena konteks Yahudi/Nasrani."
+kutipan	10000765	567	577	2	156	156		Istirja' yang diucapkan Syaqiq sebagai ungkapan duka; bukan dikutip sebagai ayat (sumbernya 2:156, bukan 29:62). Ragu antara kutipan dan iqtibas. Diubah ke kutipan sesuai ADR-133 butir 1 (istirja' diucapkan sebagai bacaan ayat).
+kutipan	10000982	330	369	24	35	35	1	"Setelah ""dalam firman-Nya"". Kutipan penulis berhenti di ""kamisykat""."
+kutipan	10001033	31	52	38	29	29	0	"Setelah ""qala azza wa jalla"". Penggalan akhir ayat 38:29; lanjutan kutipan berikutnya (5:7) terpisah."
+kutipan	10001033	100	135	54	17	17	1	Kutipan lengkap 54:17 (juga di 54:22/32/40, dipilih yang pertama).
+kutipan	10001162	559	575	2	111	111	1	"Setelah ""qala Allah ta'ala"". Frasa sama di 21:24 dan 27:64 (dan 28:75 varian); sumber pasti tidak bisa ditentukan."
+kutipan	10001162	765	778	2	258	258	0	"Kutipan rentang ""alam tara ... ila qawlihi fabuhita alladzi kafara""; span hanya ujungnya, awal kutipan ada di depan span."
+kutipan	10001162	965	986	26	23	30	0	"Rentang 26:23 sampai 26:30 (""ila qawlihi""); span hanya awalnya."
+kutipan	10001162	996	1016	26	23	30	0	Ujung rentang 26:23-30 yang sama dengan baris sebelumnya.
+kutipan	10001329	153	169	2	29	29	1	"Setelah ""shadiq fi qawlihi"". Frasa sama ada di beberapa tempat (2:29, 57:3, dst.); 2:29 dipilih."
+kutipan	10001456	0	25	4	48	48	0	Ayat dikutip lalu dibahas; potongan akhir ayat
+kutipan	10001526	85	112	6	115	115	1	"Setelah ""wa qila fi qawlihi ta'ala""; bacaan jamak ""kalimat""."
+kutipan	10001936	73	93	4	43	43	0	Setelah 'maka Dia berfirman'; potongan
+kutipan	10002107	225	246	1	6	6	1	"Setelah ""fi qawlihi""; Al-Fatihah ayat 6."
+kutipan	10002276	105	125	70	23	23	0	Tiga ayat sifat orang salat dikutip berurutan; span cocok 70:23 (juga 70:34/23:9)
+kutipan	10002824	469	488	3	26	26	0	Disebut 'sampai akhir ayat'; awal ayat dibaca dalam salat
+kutipan	10003171	32	45	16	62	62	0	"Setelah ""faqala ta'ala""; kutipan dimulai ""wa yaj'aluna"" dan lanjut ""wa tashifu alsinatuhum al-kadzib""; span hanya sebagian."
+kutipan	10003633	182	223	27	59	59	0	Ucapan saat melihat Ka'bah, kata-kata 27:59 (8 kata, bagian pertama ayat). Ragu: bentuk 'qala' bukan 'qul'.
+kutipan	10004095	78	112	5	118	118	0	"""qama bi ayah yuraddiduha wa hiya""; ayat berlanjut (""fa innaka anta al-'azizu al-hakim""), penulis memotong dengan ""al-ayah""."
+kutipan	10004096	38	66	36	59	59	1	"""yuraddidu hadzihi al-ayah""; kutipan penuh 36:59."
+kutipan	10004131	599	626	7	56	56	0	Kutipan dimulai dari kata sebelum span (inna rahmata).
+kutipan	10004137	83	121	6	15	15	1	Dibacakan sebagai ayat saat membahas tilawah; juga 10:15.
+kutipan	10004139	9	32	14	12	12	1	Dikutip dalam konteks tilawah.
+kutipan	10004194	655	677	8	1	1	0	Dilanjutkan dengan 8:5 (kama akhrajaka).
+kutipan	10004197	292	306	11	8	8	1	Setelah 'kaqaulihi azza wa jalla'.
+kutipan	10004338	421	437	40	60	60	1	Setelah 'tsumma qara'a'; diakhiri 'al-ayah'.
+kutipan	10004380	637	670	15	36	36	0	Kisah Iblis; bersambung ke jawaban Allah (pada baris berikut).
+kutipan	10004380	671	686	7	15	15	1	Jawaban Allah kepada Iblis; teks cocok persis dengan 7:15, sedangkan 15:36 untuk kalimat sebelumnya.
+kutipan	10004513	428	473	39	46	46	0	Doa Abu Bakr; 7 kata persis dari 39:46 (awal ayah, tanpa 'qul'). Ragu: bisa dianggap doa.
+kutipan	10004542	684	702	71	28	28	0	Doa Al-Qur'an dibaca berurutan; gabungan dengan 17:24
+kutipan	10004659	150	191	60	60	60	0	Doa pagi, 7 kata persis penutup 60:4 (doa Ibrahim). Ragu: bisa formula doa.
+kutipan	10004682	2096	2113	39	9	9	0	Setelah 'faqala ta'ala'; kata 'am' di depan span tidak tercakup.
+kutipan	10004785	2344	2392	7	54	54	0	Berlanjut 'ila qawlihi' (sampai ayat berikutnya).
+kutipan	10004795	140	196	38	65	66	0	Dzikir bangun tidur; 38:66 utuh ditambah akhir 38:65. Ragu.
+kutipan	10004796	230	244	93	2	2	1	Setelah 'fa qala'.
+kutipan	10004843	783	794	112	1	1	0	Menyebut surah al-Ikhlas untuk dibaca; hanya pembuka.
+kutipan	10004843	900	932	2	257	257	1	Penanda batas 'ila qawlihi'; tempat sebenarnya 2:257 (bukan 2:39).
+kutipan	10004843	971	1001	2	284	284	0	'ila akhiriha': berlanjut sampai 2:286.
+kutipan	10004934	605	624	4	29	29	1	Setelah 'ila qawlihi'; diakhiri 'al-ayah'.
+kutipan	10005248	197	234	2	57	57	1	Setelah 'tsumma qala ba'da dzikr al-mann wa as-salwa'.
+kutipan	10005439	658	690	2	245	245	1	Setelah 'faqala'.
+kutipan	10005788	89	114	4	119	119	1	Ucapan Iblis dikutip; kalimat sesudah 'idz haqq' milik penulis.
+kutipan	10005799	81	114	66	4	4	1	Setelah 'qala Allah ta'ala'.
+kutipan	10005884	37	51	112	1	1	0	Menyebut al-Ikhlas untuk dibaca; hanya pembuka surah.
+kutipan	10005940	320	340	23	14	14	1	Setelah 'ila qawlihi'.
+kutipan	10005940	387	405	81	8	8	1	Setelah 'tala qawlahu ta'ala'.
+kutipan	10006301	5	28	5	32	32	0	Ayat dikutip untuk tafsir; potongan
+kutipan	10007363	522	538	7	56	56	0	Jawaban Abu Hazim memakai bagian ayat; ragu dengan iqtibas, dipilih kutipan karena menjawab pertanyaan ayat.
+kutipan	10007759	187	211	6	36	36	1	Setelah 'iqra' hadzihi al-ayah'.
+kutipan	10008729	332	350	3	134	134	1	setelah 'Allah berfirman'; potongan akhir 3:134
+kutipan	10009725	30	52	2	144	144	1	setelah 'firman-Nya'; juga identik dengan 2:150, pilih 2:144
+kutipan	10010607	352	366	3	104	104	1	setelah 'bahkan Dia berfirman'
+kutipan	10011327	871	897	37	22	22	1	setelah seruan; ayat 37:22 'ihsyuru...'
+kutipan	10012157	458	480	6	110	110	1	setelah 'isyarat firman-Nya'
+kutipan	10012300	305	326	1	6	6	1	doa Fatihah dikutip sebagai ayat
+kutipan	10013500	457	490	7	63	63	0	setelah 'Allah berfirman'; kutipan berlanjut ('al-ayah')
+kutipan	10013660	1291	1313	53	31	31	1	setelah 'Allah berfirman' (li-yajziya...)
+kutipan	10013740	180	193	79	40	40	0	kalimat terpotong di akhir paragraf; kutipan berlanjut
+kutipan	10013750	1122	1142	44	38	42	0	dibaca dari 44:38 sampai 'inna-hu huwa al-aziz ar-rahim' (44:42); span hanya ujungnya
+kutipan	10014036	441	459	18	82	82	1	'mustadillan bi-qawlihi ta'ala'
+kutipan	10014118	125	144	95	1	2	1	orang badui membaca 'wa az-zaitun wa tur sinin' (95:1-2)
+kutipan	10014404	131	146	79	24	24	1	'min qawlihi' ucapan Fir'aun
+kutipan	10014437	688	713	18	45	45	0	'ila qawlihi' ujung 18:45; ayat dimulai sebelum span
+kutipan	10015169	210	233	6	93	93	0	Dikutip sesudah 'Allah berfirman'; kutipan dimulai sebelum span
+kutipan	10015169	262	293	39	72	72	0	Setelah 'Allah berfirman'; tanpa kata awal 'qila'
+kutipan	10015413	559	578	21	28	28	0	Setelah 'Allah berfirman'; sambungan 21:20, span cocok 21:28
+kutipan	10015601	48	67	19	77	77	1	Ucapan al-'Ash bin Wa'il, dikutip lalu dijawab ayat berikutnya
+kutipan	10015654	189	205	7	176	176	1	Sesudah 'kaulihi ta'ala'
+kutipan	10015948	395	411	2	40	40	1	Sesudah 'bi-qaulihi ta'ala'
+kutipan	10015958	55	74	17	25	25	1	Sesudah 'unzila qaulihi ta'ala'
+kutipan	10016228	570	608	6	94	94	1	Dikutip dengan 'yuqal' sebagai ayat
+kutipan	10016231	759	807	36	46	46	1	Dikutip dengan penanda kurung; identik dengan 6:4, konteks Yasin dipilih
+kutipan	10016260	1133	1159	64	15	15	1	Sesudah 'shadaqallah'; bukan 8:28 (berawalan 'wa'lamu anna')
+kutipan	10016265	212	227	79	24	24	1	Sesudah 'min qaulihi'
+kutipan	10016321	68	83	29	45	45	1	Dikutip 'ma'a annahu qala'
+kutipan	10016441	477	519	44	38	38	1	Sesudah 'wa qaulihi azza wa jall'
+kutipan	10016458	568	579	37	164	164	0	Sesudah 'bi-qaulihi ta'ala'; kutipan berlanjut 'wa lahu maqamun ma'lum'
+kutipan	10016460	951	974	6	120	120	1	Sesudah 'tsumma qala'
+kutipan	10016602	3037	3050	19	59	59	0	Nomor sebenarnya 19:59 bukan 7:169; kutipan berlanjut
+kutipan	10016638	607	641	13	6	6	1	Sesudah 'wa qala azza wa jall'
+kutipan	10016791	49	75	23	60	60	0	Aisyah membaca ayat; potongan
+kutipan	10016872	224	241	53	37	37	1	Sesudah 'fa qala'
+kutipan	10017223	573	599	57	21	21	0	Nabi membaca ayat ini dalam hadis fuqara'; identik dengan 5:54 dan 62:4, penentuan 57:21 dari catatan lama. Ragu soal nomor ayat.
+kutipan	10017453	515	537	47	36	36	1	Sesudah 'fa qala ta'ala'; ada variasi wa; mungkin pula 6:32/57:20
+kutipan	10017706	51	73	39	67	67	1	Sesudah 'qaulihi ta'ala'
+kutipan	10017714	736	755	20	88	88	1	Sesudah 'sami'u qaulahu'
+kutipan	10017725	1117	1137	32	11	11	1	Sesudah 'fa qala Allah ta'ala'
+kutipan	10017727	63	80	55	1	2	1	Sesudah 'tsumma qala'; mencakup 55:1-2
+kutipan	10017836	1659	1685	9	35	35	1	Setelah 'kama qala ta'ala'; potongan 9:35
+kutipan	10017845	1208	1221	46	35	35	0	Setelah 'wa qala'; ayat berlanjut (ulu al-azm min ar-rusul)
+kutipan	10018253	931	950	83	22	26	1	Kata sesudahnya 'yusqawna min rahiq' adalah 83:25-26, jadi tempat benar 83:22 bukan 82:13
+kutipan	10018736	28	55	16	43	43	1	Teks identik dengan 21:7; dipilih 16:43
+kutipan	10019008	106	123	49	15	15	1	'ila qawlihi' diikuti ujung 49:15; awal ayat sudah dikutip sebelum span
+kutipan	10019008	180	197	2	177	177	1	'ila qawlihi' menuju ujung 2:177
+kutipan	10019033	677	718	3	200	200	1	Setelah 'faqala azza min qa'il'
+kutipan	10019241	278	295	3	30	30	1	Teks 3:28 salah tempat; 'yawma tajidu...' hingga 'wa yuhadzdzirukumullahu nafsah' adalah 3:30; dibaca sebagai ayat
+kutipan	10019245	174	192	3	185	185	1	Dibaca sebagai ayat; teks identik di 21:35 dan 29:57, tempat ambigu; ragu
+kutipan	10019543	270	294	15	85	85	0	'fi qawlihi ta'ala'; ayat berlanjut 'wa ma baynahuma illa bil-haqq'
+kutipan	10019551	192	215	85	1	1	0	'ka qawlihi ta'ala'; berlanjut ke sumpah-sumpah lain (86:1 dst)
+kutipan	10019552	910	935	21	32	32	1	Setelah 'fa qala'
+kutipan	10019554	55	93	6	75	75	1	'bi qawlihi'
+kutipan	10019744	296	323	19	84	84	1	'qara'a hadzihi al-ayah'
+kutipan	10019748	104	120	57	14	14	1	Tafsir per kata; 'fi qawlihi ta'ala' memuat potongan 57:14
+kutipan	10019748	131	149	57	14	14	1	Potongan lanjutan 57:14 dalam tafsir yang sama
+kutipan	10020271	171	197	83	6	6	1	Tafsir Ka'b/Qatadah atas ayat
+kutipan	10020357	225	266	108	1	3	1	Hadis: 'wa qara'a ... hatta khatamaha'; seluruh surat 108; basmala bukan ayat
+kutipan	10020410	146	164	55	46	78	1	'iqra' min qawlihi ... ila akhir surat Ar-Rahman'
+kutipan	10020426	9	61	22	23	23	1	Setelah 'qala Allah'; teks identik dengan 35:33; dipilih 22:23, ambigu
+kutipan	10020436	623	645	76	18	18	1	Nabi menjawab pertanyaan Yahudi dengan membaca 76:18 utuh.
+kutipan	10020466	160	179	47	15	15	0	Ayat dibacakan dalam riwayat; potongan

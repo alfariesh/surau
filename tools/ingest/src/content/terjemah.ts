@@ -43,13 +43,16 @@ export function translationPath(d: TranslationDraft): string {
   return join(TRANSLATION_DIR, `${d.section_id}-${first}.json`);
 }
 
-/** Paragraf yang ditunda (lafaz ayat tanpa penanda): kolom pertama tabel di data/terjemah/tunda-en.md. */
+/**
+ * Paragraf yang ditunda (kutipan ayat tanpa penanda): kolom pertama tabel di
+ * data/terjemah/tunda-en.md. Baris berjenis iqtibas tidak ditunda lagi (ADR-133).
+ */
 export function deferredPassages(): Set<number> {
   const path = join(repo, "data/terjemah", `tunda-${TRANSLATION_DRAFT_LANG}.md`);
   if (!existsSync(path)) return new Set();
-  const ids = [...readFileSync(path, "utf8").matchAll(/^\|\s*(\d{6,})\s*\|/gmu)].map((m) =>
-    Number(m[1]),
-  );
+  const ids = [...readFileSync(path, "utf8").matchAll(/^\|\s*(\d{6,})\s*\|([^\n]*)$/gmu)]
+    .filter((m) => m[2]?.split("|")[2]?.trim() !== "iqtibas")
+    .map((m) => Number(m[1]));
   return new Set(ids);
 }
 

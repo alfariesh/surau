@@ -142,6 +142,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 130 | Tiga bahasa: Indonesia situs utama; Inggris untuk `/en` dan satu-satunya bahasa bantuan baca MCP (peralihan di X26); Arab hanya teks kitab dan antarmuka, tanpa konten Arab tulisan AI; konten turunan satu kerangka per bahasa | diterima | 2026-10-28 | [keputusan/ADR-130.md](keputusan/ADR-130.md) |
 | 131 | Intisari batch lama tidak menjadi bahan konten v2: skill tidak membukanya, Intisari Kitab dan Jalur hanya dari Intisari Bab v2 (sesudah X24), `menggantikan` hanya untuk revisi | diterima | 2026-10-28 | [keputusan/ADR-131.md](keputusan/ADR-131.md) |
 | 132 | Terjemahan Inggris per paragraf lewat plugin `surau-redaksi` (langganan, Sonnet), bukan batch API: format `surau-terjemah/1`, pemeriksa batch dipindah ke core, tool `/redaksi` `list_translation_units` + `check_translation_draft`, periksa independen per berkas | diterima | 2026-10-28 | [keputusan/ADR-132.md](keputusan/ADR-132.md) |
+| 133 | Lafaz Al-Qur'an di luar penanda ayat: kutipan yang terlewat dipatch agar tampil dengan Kemenag, iqtibas diterjemahkan sebagai kalimat penulis dengan rujukan ayat, formula zikir diabaikan | diterima | 2026-10-29 | [keputusan/ADR-133.md](keputusan/ADR-133.md) |
 
 ## Cara menambah ADR baru
 

@@ -15,6 +15,17 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-29 · X28 · Audit lafaz ayat tanpa penanda — selesai
+- Dikerjakan:
+  - `pnpm ayat:audit` (hanya membaca D1 produksi dan Tanzil) menemukan 989 calon kuat/sedang di 768 paragraf.
+  - Verifikasi agen Sonnet menghasilkan 112 kutipan terlewat dan 56 iqtibas ([laporan](../data/reports/ayat-audit-2026-10-29.md)).
+  - ADR-133 (pilihan pemilik "Terjemah + rujukan"); aturan 9 `teks-arab.md` diperjelas; skill `terjemah-inggris` diperbarui (plugin 0.2.3).
+  - Daftar tunda Inggris dibagi (3 kutipan, 9 iqtibas). Rencana X29 (patch ayat) dan X30 (rujukan iqtibas) ditulis.
+- Verifikasi: `pnpm verify` → lolos · `pnpm ayat:audit --korpus produksi` → kuat 709, sedang 280, lemah 4.364
+- Biaya API: – (langganan)
+- Keputusan: ADR-133
+- Catatan untuk sesi berikutnya: jangan membuat patch dari tebakan kode tanpa verifikasi (81/278 bukan ayat), dan validasi nomor ayat terhadap Tanzil. Terjemahan AI Indonesia ±100 paragraf memuat kutipan ayat yang diterjemahkan model sampai X29 selesai.
+
 ## 2026-10-29 · X27 lanjutan · Terjemahan Inggris Kitab al-'Ilm selesai — selesai
 - Dikerjakan:
   - 30 berkas `data/terjemah/en` (811 paragraf) dibuat dalam 5 batch paralel. Penerjemahnya Sonnet 5.5 lewat skill `terjemah-inggris`, dan setiap berkas dinilai penuh oleh penilai independen Sonnet dengan konteks segar.
