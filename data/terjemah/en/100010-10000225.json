@@ -1,0 +1,50 @@
+{
+  "format": "surau-terjemah/1",
+  "lang": "en",
+  "edition_id": 1,
+  "section_id": 100010,
+  "status": "siap",
+  "butir": [
+    {
+      "passage_id": 10000225,
+      "teks": "As for the complements in reports (athar) and narrations, they are knowledge of the men, their names and lineages, the names of the Companions and their descriptions; knowledge of the probity of the narrators and of their circumstances, in order to distinguish the weak from the strong; knowledge of their lifespans, in order to distinguish the mursal from the musnad; and whatever is connected with this. These are the religious sciences, and all of them are praiseworthy; indeed, all of them are communal obligations (fard kifaya). If you say, \"Why did you class jurisprudence with the knowledge of this world?\", know that Allah, the Mighty and Majestic, brought Adam (peace be upon him) out of dust, and brought his offspring out of an extract of clay and a fluid poured forth. He brought them out of loins into wombs, from the wombs into this world, then to the grave, then to the presentation, then to Paradise or to the Fire. This is their beginning, this is their end, and these are their stations."
+    }
+  ],
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-sonnet-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "terjemah-inggris@1",
+    "operator": "agen Claude Code",
+    "dibuat": "2026-10-29T10:06:06+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "Iqtibas (extract of clay, fluid poured forth) as prose; speaker, list items, 'if you say' pattern, order of stations all match; no ayah placeholders in source"
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-29",
+      "draf_sha256": "cc26cea30b8f336f26d1d2f76a19446a2c1562cf35849121203d4bd5692df8ff",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Lengkap; iqtibas (tanah liat, air memancar) menjadi prosa biasa tanpa catatan Qur'an; urutan tahapan dan negasi tepat."
+        }
+      ],
+      "laporan": "data/reports/terjemah-en-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "terjemah@1",
+      "lolos": true,
+      "sumber_sha256": "46f4bfc8831c85489a50b6ae8d285aa1483e03cb6916b1d9b10d44984f06127e",
+      "draf_sha256": "cc26cea30b8f336f26d1d2f76a19446a2c1562cf35849121203d4bd5692df8ff",
+      "waktu": "2026-10-29T03:06:58.068Z"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "format": "surau-terjemah/1",
+  "lang": "en",
+  "edition_id": 1,
+  "section_id": 100018,
+  "status": "siap",
+  "butir": [
+    {
+      "passage_id": 10000637,
+      "teks": "Whoever seeks wealth through knowledge is like one who wipes the underside of his sandal with his face to clean it: he has made the one served a servant and the servant the one served. That is turning upside down on the crown of the head. His likeness is the one who will stand in the Greatest Presentation with the criminals, their heads bowed before their Lord."
+    }
+  ],
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-sonnet-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "terjemah-inggris@1",
+    "operator": "agen Claude Code",
+    "dibuat": "2026-10-29T10:06:06+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "Iqtibas (criminals, heads bowed before their Lord) as prose; reversal of served and servant correct; complete"
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-29",
+      "draf_sha256": "333eaa57dae2a99572080af95f2da6fcb0c85fdbf9a01ab460ad99f883e4b5a1",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Perumpamaan sandal dan wajah, pelaku-objek terbalik tepat; iqtibas 'heads bowed before their Lord' prosa tanpa catatan."
+        }
+      ],
+      "laporan": "data/reports/terjemah-en-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "terjemah@1",
+      "lolos": true,
+      "sumber_sha256": "4c44af48df28e677f6cbcb92786acaa4bace27326676fdeb270053704b05d813",
+      "draf_sha256": "333eaa57dae2a99572080af95f2da6fcb0c85fdbf9a01ab460ad99f883e4b5a1",
+      "waktu": "2026-10-29T03:07:19.084Z"
+    }
+  }
+}

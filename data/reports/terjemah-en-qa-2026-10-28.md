@@ -118,6 +118,14 @@ Tujuh berkas dengan 247 paragraf disimpan (253 paragraf bab, 6 ditunda). Penerje
 
 **Perlu dicek ke edisi cetak:** p971 tampaknya kehilangan predikat. Penerjemah menambah "is enough for him", dan penilai menandainya Kurang.
 
+## Paragraf iqtibas dari daftar tunda · 2026-10-29
+
+Sesudah ADR-133, 9 dari 12 paragraf tunda dinilai iqtibas, lalu diterjemahkan sebagai kalimat penulis tanpa catatan "(Qur'an)". Ada 5 berkas (100010, 100012, 100017, 100018, 100019) dengan total 9 paragraf.
+
+- Putaran 1: B6/K3/S0. Ketiga Kurang ada di 100019. Yang paling penting: ucapan narator di p966 terbaca seolah ucapan Iblis karena tanda kutip. p960 dan p966 diperbaiki, lalu dinilai ulang oleh penilai baru: B4/K0/S0.
+- Final: B9/K0/S0. Placeholder ⟦QS 6:91⟧ (p386) dan ⟦QS 56:88-91⟧ (p608) disalin tepat sekali.
+- Sisa tunda: 3 paragraf kutipan (p385, p693, p765) menunggu patch ayat X29.
+
 ## Batch Kitab al-'Ilm 5 dan rekap · 2026-10-29
 
 Batch ini menerjemahkan paragraf yang langsung berada di bawah judul Kitab dan judul Bab induk (`pnpm terjemah bahan 100003 --belum`), dalam dua berkas: 23 paragraf (B22/K1/S0) dan 22 paragraf (B20/K2/S0). Keduanya lolos pada putaran pertama.

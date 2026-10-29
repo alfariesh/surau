@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-29 · X27 lanjutan · 9 paragraf iqtibas dari daftar tunda — selesai
+- Dikerjakan: sesudah ADR-133, 9 paragraf iqtibas di 5 berkas diterjemahkan sebagai kalimat penulis (Sonnet, skill `terjemah-inggris` 0.2.3). Daftar tunda tinggal 3 kutipan yang menunggu X29.
+- Verifikasi: `pnpm terjemah cek` → 5 berkas lolos · periksa independen putaran 1 B6/K3/S0; p960 dan p966 diperbaiki (ucapan narator terbaca seperti ucapan Iblis), dinilai ulang B4/K0/S0 · `pnpm terjemah daftar` → 820 siap · `pnpm verify` → lihat PR
+- Biaya API: – (langganan)
+- Keputusan: – (ADR-133)
+- Catatan untuk sesi berikutnya: Kitab al-'Ilm tinggal 3 paragraf (p385, p693, p765), dikerjakan sesudah patch ayat X29.
+
 ## 2026-10-29 · X28 · Audit lafaz ayat tanpa penanda — selesai
 - Dikerjakan:
   - `pnpm ayat:audit` (hanya membaca D1 produksi dan Tanzil) menemukan 989 calon kuat/sedang di 768 paragraf.

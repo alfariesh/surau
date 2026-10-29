@@ -1,0 +1,92 @@
+{
+  "format": "surau-terjemah/1",
+  "lang": "en",
+  "edition_id": 1,
+  "section_id": 100019,
+  "status": "siap",
+  "butir": [
+    {
+      "passage_id": 10000907,
+      "teks": "And its evil is that the idle among the people of this world call him eminent, a verifier, one who knows the fine points, while his recompense from Allah is that he gets no benefit in this world from people's acceptance, indeed its purity is clouded for him by the calamities of time, and then he comes to the Resurrection bankrupt, full of regret at what he sees of the gain of those who act and the success of those brought near. That is the manifest loss. Al-Hasan al-Basri (may Allah have mercy on him) was the closest of people in speech to the speech of the prophets (peace and blessings be upon them), and the nearest of them in guidance to the Companions (may Allah be pleased with them). Opinion agreed on this about him. Most of his speech concerned the thoughts of hearts, the corruption of deeds, the whisperings of souls, and the hidden, obscure traits arising from the appetites of the self. It was said to him, \"Abu Sa'id, you speak words that are heard from no one else; from where did you take them?\" He said, \"From Hudhayfa ibn al-Yaman.\""
+    },
+    {
+      "passage_id": 10000960,
+      "teks": "So when the Followers came, he sent out his troops, and they returned to him with heads bowed and said, \"We have not seen anything more astonishing than these people. We get a sin from them, and then another sin, but when the end of the day comes they take to seeking forgiveness, and Allah replaces their evil deeds with good.\" He said, \"You will never get anything from these, because of the soundness of their tawhid and their following the Sunna of their Prophet. But after these will come a people through whom your eyes will be delighted; you will play with them as a game and lead them by the reins of their desires however you wish. If they seek forgiveness, they are not forgiven, and they do not repent, such that Allah would replace their evil deeds"
+    },
+    {
+      "passage_id": 10000966,
+      "teks": "with good deeds.\" He said: Then after the first generation came a people among whom he spread desires and for whom he embellished innovations, so they deemed them lawful and took them as religion, not seeking Allah's forgiveness for them and not repenting of them. So enemies were given power over them, and they led them wherever they wished."
+    },
+    {
+      "passage_id": 10000976,
+      "teks": "So we ask Allah Most High to make us among those whom the life of this world does not deceive, and whom the Deceiver does not deceive about Allah."
+    }
+  ],
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-sonnet-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "terjemah-inggris@1",
+    "operator": "agen Claude Code",
+    "dibuat": "2026-10-29T10:06:06+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "Iqtibas 'manifest loss' as prose; speakers (questioner, al-Hasan) correct; complete incl. continuing fragment at start"
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "Iqtibas spoken by the troops; Iblis the speaker of the second quote; unit ends mid-sentence exactly as source, continued by next passage; complete"
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "Continuation of previous unit as source (starts 'good deeds'); subjects (he = Iblis spreading, enemies leading) match; complete. Closing quote mark added to end Iblis speech per preceding unit"
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "Iqtibas du'a as prose; negations cover both verbs; complete"
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-29",
+      "draf_sha256": "2707f69bd442c5f1d23e6ab9ca8f49b8973fcd75e337b67f9832eb09960e6135",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Complete and faithful; the manifest-loss wording is rendered as prose per ADR-133; speakers (questioner, al-Hasan) and the answer correct."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Complete; troops' speech then Iblis's reply correctly attributed; the troops' replacement-of-evil-deeds clause is iqtibas as prose; the unit ends mid-sentence exactly as the source."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Continues the preceding unit correctly (Iblis speech closes, then the narrator); subjects (he spread desires, enemies led them) and both negations are preserved; complete."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Du'a faithful; the iqtibas phrases are plain prose without a Qur'an note; both negations preserved."
+        }
+      ],
+      "laporan": "data/reports/terjemah-en-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "terjemah@1",
+      "lolos": true,
+      "sumber_sha256": "513d8ff09fdfd4a5708052525a4da0b49a2aca28f860d9c95963d8e17a93b152",
+      "draf_sha256": "2707f69bd442c5f1d23e6ab9ca8f49b8973fcd75e337b67f9832eb09960e6135",
+      "waktu": "2026-10-29T03:09:26.357Z"
+    }
+  }
+}
