@@ -117,3 +117,23 @@ Tujuh berkas dengan 247 paragraf disimpan (253 paragraf bab, 6 ditunda). Penerje
 | 100019 (bag. 7) | 28 | B26/K2/S0 | putaran 1: 1 Salah ("dua pembuat bidah" menjadi "dua bidah"), diperbaiki; p960, p966, p976 ditunda (QS 25:70 dan doa berlafaz ayat) |
 
 **Perlu dicek ke edisi cetak:** p971 tampaknya kehilangan predikat. Penerjemah menambah "is enough for him", dan penilai menandainya Kurang.
+
+## Batch Kitab al-'Ilm 5 dan rekap · 2026-10-29
+
+Batch ini menerjemahkan paragraf yang langsung berada di bawah judul Kitab dan judul Bab induk (`pnpm terjemah bahan 100003 --belum`), dalam dua berkas: 23 paragraf (B22/K1/S0) dan 22 paragraf (B20/K2/S0). Keduanya lolos pada putaran pertama.
+
+**Kitab al-'Ilm selesai:**
+- 811 dari 823 paragraf berstatus `siap` dalam 30 berkas.
+- 12 paragraf ditunda karena lafaz ayat tanpa penanda ([daftar](../terjemah/tunda-en.md)).
+- Setiap berkas dinilai penuh oleh penilai independen. Delapan Salah tertangkap di putaran pertama:
+  - 4 kasus lafaz ayat yang tidak dikenali pencocok ayat;
+  - 2 kasus pelaku tertukar;
+  - 1 kasus negasi terbalik;
+  - 1 kasus bilangan.
+
+  Semuanya sudah diperbaiki atau ditunda, lalu dinilai ulang, jadi versi final tidak memuat Salah.
+
+**Tindak lanjut:**
+- Patch pencocok ayat untuk 12 paragraf tunda. Terjemahan Indonesia yang tayang untuk paragraf yang sama kemungkinan juga menerjemahkan lafaz ayat itu, jadi perlu dicek.
+- Cek edisi cetak untuk dugaan salah cetak: p182, p235, p971.
+- Memuat terjemahan ke korpus dan peralihan MCP (X26).
