@@ -1,0 +1,204 @@
+{
+  "format": "surau-terjemah/1",
+  "lang": "en",
+  "edition_id": 1,
+  "section_id": 100006,
+  "status": "siap",
+  "butir": [
+    {
+      "passage_id": 10000107,
+      "teks": "The Virtue of Learning"
+    },
+    {
+      "passage_id": 10000108,
+      "teks": "As for the verses, Allah Most High says, ⟦QS 9:122⟧ and Allah, the Mighty and Majestic, says, ⟦QS 16:43⟧ As for the reports, there is his saying (peace and blessings be upon him), \"Whoever travels a path seeking knowledge in it, Allah makes him travel a path to Paradise.\" (١) And he (peace and blessings be upon him) said, \"The angels lower their wings for the seeker of knowledge, in approval of what he does.\" (٢) And he (peace and blessings be upon him) said, \"That you go out in the morning and learn a chapter of knowledge is better than that you pray a hundred rak'as.\" (٣) And he (peace and blessings be upon him) said, \"A chapter of knowledge that a man learns is better for him than this world and all that is in it.\" (٤) And he (peace and blessings be upon him) said, \"Seek knowledge"
+    },
+    {
+      "passage_id": 10000113,
+      "teks": "even in China.\" (١) And he (peace and blessings be upon him) said, \"Seeking knowledge is an obligation upon every Muslim.\" And he (peace and blessings be upon him) said, \"Knowledge is treasuries whose keys are asking. So ask, for four are rewarded in it: the one who asks, the scholar, the listener, and the one who loves them.\" (٢) And he (peace and blessings be upon him) said, \"It is not fitting for the ignorant person to stay silent about his ignorance, nor for the scholar to stay silent about his knowledge.\" (٣) In the hadith of Abu Dharr (may Allah be pleased with him): \"Attending the gathering of a scholar is better than praying a thousand rak'as, visiting a thousand sick people, and attending a thousand funerals.\" It was said, \"O Messenger of Allah, and better than reciting the Qur'an?\" He (peace and blessings be upon him) said, \"And does the Qur'an benefit anyone except through knowledge?\" (٤) And he (peace and blessings be upon him) said, \"Whoever death comes to while he is seeking knowledge in order to revive Islam through it, between him and the prophets in Paradise there is one degree.\" (٥) As for the reports (athar), Ibn Abbas (may Allah be pleased with them both) said, \"I was humble as a seeker, so I became honoured as one who is sought.\""
+    },
+    {
+      "passage_id": 10000114,
+      "teks": "Likewise Ibn Abi Mulayka (may Allah have mercy on him) said, \"I have not seen the like of Ibn Abbas. When I saw him, I saw the most handsome of people in face; when he spoke, he was the most eloquent of people in speech; and when he gave a legal ruling, he was the most knowledgeable of people.\""
+    },
+    {
+      "passage_id": 10000115,
+      "teks": "Ibn al-Mubarak (may Allah have mercy on him) said, \"I am amazed at the one who does not seek knowledge: how can his self call him to any noble quality?\" And some of the sages said, \"I have mercy on no men as I have mercy on one of two men: a man who seeks knowledge and does not understand, and a man who understands knowledge and does not seek it.\""
+    },
+    {
+      "passage_id": 10000116,
+      "teks": "Abu ad-Darda (may Allah be pleased with him) said, \"That I learn a single question is dearer to me than standing in prayer for a night.\""
+    },
+    {
+      "passage_id": 10000117,
+      "teks": "He also said, \"Be a scholar, or a learner, or a listener, and do not be the fourth, or you will perish.\""
+    },
+    {
+      "passage_id": 10000118,
+      "teks": "Ata said, \"One gathering of knowledge expiates seventy gatherings of amusement.\""
+    },
+    {
+      "passage_id": 10000119,
+      "teks": "Umar (may Allah be pleased with him) said, \"The death of a thousand worshippers, who stand in prayer through the night and fast by day, is a lighter matter than the death of a scholar who has insight into what Allah has made lawful and what He has made forbidden.\""
+    },
+    {
+      "passage_id": 10000120,
+      "teks": "ash-Shafi'i (may Allah be pleased with him) said, \"Seeking knowledge is better than voluntary worship.\""
+    },
+    {
+      "passage_id": 10000121,
+      "teks": "Ibn Abd al-Hakam (may Allah have mercy on him) said, \"I was with Malik, reading knowledge to him, when the time of noon came. I gathered the books to pray, and he said, 'You there, what you have risen to is not better than what you were engaged in, if the intention is sound.'\""
+    },
+    {
+      "passage_id": 10000122,
+      "teks": "Abu ad-Darda (may Allah be pleased with him) said, \"Whoever thinks that going out in the morning to seek knowledge is not jihad has fallen short in his view and in his reason.\""
+    }
+  ],
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-sonnet-5-5",
+    "plugin": "surau-redaksi@0.2.1",
+    "skill": "terjemah-inggris@1",
+    "operator": "agen Claude Code",
+    "dibuat": "2026-10-29T08:19:35+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "judul bagian, lengkap"
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "dua placeholder sekali, empat penanda, kutipan terakhir terpotong sesuai sumber"
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "lanjutan kalimat, lima penanda, pelaku dan penutup atsar Ibn Abbas lengkap"
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "pelaku orang pertama Ibn Abi Mulayka dan tiga sifat Ibn Abbas sesuai"
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "ucapan Ibn al-Mubarak dan sebagian hukama dipisah, dua orang tetap dua"
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "perbandingan satu masalah dengan qiyam malam sesuai"
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "tiga peran lalu jangan jadi yang keempat, ordinal terjaga"
+      },
+      {
+        "ke": 8,
+        "nilai": "benar",
+        "catatan": "tujuh puluh majelis, kata kerja menghapus dosa sesuai"
+      },
+      {
+        "ke": 9,
+        "nilai": "benar",
+        "catatan": "seribu ahli ibadah lebih ringan daripada wafatnya satu ulama"
+      },
+      {
+        "ke": 10,
+        "nilai": "benar",
+        "catatan": "pendek dan lengkap"
+      },
+      {
+        "ke": 11,
+        "nilai": "benar",
+        "catatan": "pelaku tanya jawab Ibn Abd al-Hakam dan Malik tidak tertukar, syarat niat ada"
+      },
+      {
+        "ke": 12,
+        "nilai": "benar",
+        "catatan": "negasi hanya pada jihad, kekurangan pendapat dan akal lengkap"
+      }
+    ],
+    "independen": {
+      "penilai": "Agen pemeriksa-konten (claude-sonnet-5-5, konteks segar; penilaian AI, bukan manusia)",
+      "tanggal": "2026-10-29",
+      "draf_sha256": "ed0b8606c38310be753963ca444a17846d2c168fe3d05fe02cdc523cb291d677",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Judul bagian lengkap dan setia."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Dua placeholder sekali, empat hadits dan empat penanda sesuai, kalimat terakhir terpotong seperti sumber."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Lima penanda dan semua hadits lengkap, tanya-jawab Abu Dharr tidak tertukar, atsar Ibn Abbas sesuai."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Pelaku orang pertama Ibn Abi Mulayka dan tiga sifat Ibn Abbas sesuai."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "'mercy on one of two men' bisa terbaca hanya satu dari dua orang yang dikasihani, padahal keduanya."
+        },
+        {
+          "ke": 6,
+          "nilai": "kurang",
+          "catatan": "'a single question' menambah penegas 'single' yang tidak ada di sumber."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Tiga peran dan larangan menjadi yang keempat sesuai, 'also' merujuk pada Abu ad-Darda."
+        },
+        {
+          "ke": 8,
+          "nilai": "benar",
+          "catatan": "Satu majelis ilmu menghapus tujuh puluh majelis lahwu, sesuai."
+        },
+        {
+          "ke": 9,
+          "nilai": "benar",
+          "catatan": "Seribu ahli ibadah lebih ringan daripada wafatnya satu ulama yang paham halal-haram, sesuai."
+        },
+        {
+          "ke": 10,
+          "nilai": "benar",
+          "catatan": "Pendek dan lengkap; 'voluntary worship' wajar untuk nafilah."
+        },
+        {
+          "ke": 11,
+          "nilai": "benar",
+          "catatan": "Penanya, penjawab, dan syarat niat sesuai; 'time of noon' sedikit longgar tetapi maknanya tepat."
+        },
+        {
+          "ke": 12,
+          "nilai": "benar",
+          "catatan": "Negasi hanya pada 'bukan jihad', kekurangan pada pendapat dan akal, lengkap."
+        }
+      ],
+      "laporan": "data/reports/terjemah-en-qa-2026-10-28.md"
+    },
+    "kode": {
+      "aturan": "terjemah@1",
+      "lolos": true,
+      "sumber_sha256": "c53ae6168acfd28688d69df5d5e82567440465681c80e3d0dbb9bff89595e7b9",
+      "draf_sha256": "ed0b8606c38310be753963ca444a17846d2c168fe3d05fe02cdc523cb291d677",
+      "waktu": "2026-10-29T01:20:01.561Z"
+    }
+  }
+}
