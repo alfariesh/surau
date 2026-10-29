@@ -243,6 +243,13 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   6. Di Claude Code (folder Surau), ketik: "impor konten dari Downloads". Agent memeriksa, menjalankan pemeriksa independen, lalu membuat PR.
   7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
 
+- [ ] **T-35 · Build korpus staging dengan patch ayat X29, di mesin agent** · izin build diberikan pemilik 2026-10-29; promote tetap menunggu izin terpisah
+  Kenapa di mesin agent: korpus produksi `ihya-v9` dibangun di sana (`/home/rekanesia/surau`), dan hanya di sana ada data LLM terbaru (terjemahan ulang X21, ringkasan, Intisari). Data LLM di Mac masih versi 20 Oktober, jadi build di Mac gagal di gerbang ringkasan, dengan atau tanpa patch (dicek 2026-10-29).
+  1. Buka sesi Claude Code di mesin agent, di folder `/home/rekanesia/surau` (cara yang biasa Anda pakai untuk sesi X15c/X21).
+  2. Ketik ke agent di sana: "Kerjakan T-35: build staging X29 sesuai implementasi/sesi/X29-patch-ayat.md langkah 6".
+  3. Agent di sana yang menjalankan perintahnya. Anda cukup menunggu laporannya: jumlah rujukan ayat bertambah 179 (2.514 → 2.693), ringkasan tetap 623/626, terjemahan ±15.953/16.111 (lolos gerbang 99%), lalu korpus dimuat ke staging.
+  4. Bilang ke agent di Mac "T-35 sudah" beserta ringkasan laporannya. Promote ke produksi dan terjemahan ulang 153 paragraf (perkiraan US$2–3 lewat batch, atau gratis lewat plugin) diputuskan sesudahnya.
+
 - [ ] **T-34 · Perluas aturan WAF MCP ke `/redaksi` (X23)** · tidak mendesak; `/redaksi` sudah dibatasi limiter Worker
   1. Buka https://dash.cloudflare.com → domain **surau.org** → **Security** → **WAF** → **Rate limiting rules**.
   2. Buka aturan MCP yang dibuat di T-19 (path `/mcp`). Ubah kondisinya dari *URI Path equals `/mcp`* menjadi *URI Path is in `/mcp`, `/redaksi`* (atau tambahkan satu aturan yang sama untuk `/redaksi` bila paket tidak mengizinkan daftar). Simpan.

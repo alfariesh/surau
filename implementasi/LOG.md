@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-29 · X29 lanjutan · T-35 build staging — terblokir di Mac
+- Dikerjakan: pemilik mengizinkan build staging. Data LLM di Mac masih versi 20 Oktober (v7), sedangkan `ihya-v9` dibangun di mesin agent dan mesin itu tidak bisa dijangkau dari sesi Mac (tanpa koneksi SSH). Dibuat T-35 dengan langkah build di mesin agent, langkah 6 X29 dirinci, dan perkiraan biaya terjemahan ulang dicatat.
+- Verifikasi: `list_start_targets` → tidak ada koneksi SSH · `ls data/build/llm` → berkas 20–21 Oktober, tanpa `intisari/`
+- Biaya API: –
+- Keputusan: –
+- Catatan untuk sesi berikutnya: jalankan T-35 di `/home/rekanesia/surau`. Terjemahan ulang 153 paragraf Indonesia diperkirakan ±US$2–3 (X21: 72 paragraf US$1,06).
+
 ## 2026-10-29 · X29 lanjutan · Patch ayat aktif (opsi b) — sebagian
 - Dikerjakan:
   - `matcherRefs`: ringkasan dan Intisari memakai rujukan pencocok saja (pilihan pemilik b).
