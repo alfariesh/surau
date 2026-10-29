@@ -18,7 +18,7 @@ import type {
 } from "@surau/db";
 
 import { buildQuranIndex, crossPassageSpans, matchPassage } from "./matcher.ts";
-import type { AyahSpan, PassageMatch, RejectedSpan } from "./matcher.ts";
+import type { AyahSpan, PassageMatch, QuranIndex, RejectedSpan } from "./matcher.ts";
 import { QURAN_SOURCE_IDS } from "./source.ts";
 import type { QuranData } from "./source.ts";
 
@@ -76,6 +76,8 @@ export interface AyahStats {
   withAlternatives: number;
   /** Kutipan yang terbelah dua paragraf badan berurutan (X02): jumlah pasang bentang. */
   cross: number;
+  /** Rujukan dari patch ayat terverifikasi (X29, ADR-133), di luar pencocok. */
+  patched: number;
   passages: number;
   /** exact / validated (gerbang S12: ≥ 0,95). */
   exactRatio: number;
@@ -134,6 +136,13 @@ export function quranTableRows(data: QuranData): Omit<QuranRows, "passage_ayah_r
   return { quran_source, quran_surah, quran_ayah, quran_translation };
 }
 
+/** Indeks mushaf dari Tanzil simple-clean (dipakai pencocok dan patch ayat). */
+export function quranIndex(data: QuranData): QuranIndex {
+  return buildQuranIndex(
+    data.ayat.map((a) => ({ surah: a.surah, ayah: a.ayah, text: a.simpleClean })),
+  );
+}
+
 /**
  * Cocokkan semua paragraf (badan dan catatan kaki) ke mushaf, lalu kutipan yang terbelah dua paragraf
  * badan berurutan (urutan baca = jilid, halaman cetak, `ord`; X02).
@@ -143,9 +152,7 @@ export function matchAyat(
   passages: readonly PassageRow[],
   pages: readonly PageOrder[],
 ): { refs: PassageAyahRefRow[]; matches: PassageAyat[]; stats: AyahStats } {
-  const index = buildQuranIndex(
-    data.ayat.map((a) => ({ surah: a.surah, ayah: a.ayah, text: a.simpleClean })),
-  );
+  const index = quranIndex(data);
   const refs: PassageAyahRefRow[] = [];
   const matches: PassageAyat[] = [];
   const rejectedByReason: AyahStats["rejectedByReason"] = {
@@ -261,8 +268,29 @@ export function matchAyat(
       multiAyah,
       withAlternatives,
       cross,
+      patched: 0,
       passages: new Set(refs.map((r) => r.passage_id)).size,
       exactRatio: validated === 0 ? 1 : exact / validated,
     },
   };
+}
+
+/**
+ * Gabungkan rujukan patch ayat (X29) ke hasil pencocok: urut kunci utama, statistik rujukan ikut
+ * diperbarui. `exact`/`similar`/`exactRatio` tetap khusus bentang berkurung (gerbang S12).
+ */
+export function mergePatchedRefs(
+  matched: { refs: PassageAyahRefRow[]; stats: AyahStats },
+  extra: readonly PassageAyahRefRow[],
+): void {
+  if (extra.length === 0) return;
+  matched.refs = [...matched.refs, ...extra].toSorted(
+    (a, b) => a.passage_id - b.passage_id || a.char_start - b.char_start,
+  );
+  const s = matched.stats;
+  s.patched += extra.length;
+  s.partial += extra.filter((r) => r.partial === 1).length;
+  s.multiAyah += extra.filter((r) => r.ayah_to > r.ayah_from).length;
+  s.withAlternatives += extra.filter((r) => r.alt_count > 0).length;
+  s.passages = new Set(matched.refs.map((x) => x.passage_id)).size;
 }

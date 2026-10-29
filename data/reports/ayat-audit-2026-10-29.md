@@ -57,3 +57,7 @@ Tebakan kode atas calon kuat/sedang: formula 242, iqtibas 469, kutipan 278.
 Daftar tunda [data/terjemah/tunda-en.md](../terjemah/tunda-en.md) dibagi ulang:
 - 3 paragraf berisi kutipan (10000385, 10000693, 10000765) menunggu X29;
 - 9 paragraf iqtibas boleh diterjemahkan sekarang.
+
+## Lanjutan X29 (2026-10-29)
+
+Sisa 651 calon kuat/sedang (tebakan iqtibas dan formula) diverifikasi 6 agen Sonnet: kutipan 67, iqtibas 198, formula 310, bukan 76. Perkiraan "±70 kutipan lagi" di atas terkonfirmasi. Total kutipan terverifikasi kini 179 di 153 paragraf. Semuanya masuk patch ayat [ADR-134](../../implementasi/keputusan/ADR-134.md), dan daftar paragraf terkena ada di [ayat-patch-terkena-2026-10-29.md](ayat-patch-terkena-2026-10-29.md).

@@ -15,6 +15,17 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-10-29 · X29 · Patch ayat — sebagian
+- Dikerjakan:
+  - Patch ayat (ADR-134): skema, pencocokan ulang kode, pemuat di ingest, dan `pnpm ayat:patch buat|cek`.
+  - Sisa 651 calon diverifikasi 6 agen Sonnet; hasilnya 67 kutipan lagi.
+  - `data/patches/ihya-9472-ayat.yaml` berisi 179 kutipan di 153 paragraf.
+  - Daftar paragraf terkena ditulis.
+- Verifikasi: `pnpm ayat:patch cek` → 179 lolos (153 persis, 26 mirip), 0 gagal · tes `tools/ingest/src/quran` → lolos · `pnpm verify` → lihat PR
+- Biaya API: – (langganan)
+- Keputusan: ADR-134
+- Catatan untuk sesi berikutnya: peninjau menemukan bahwa patch juga menggugurkan 245/623 ringkasan dan 7/19 Intisari, sehingga build akan gagal di gerbang cakupan. Patch belum diaktifkan sampai pemilik memilih opsi a/b/c (ADR-134 butir 5). Sesudah aktif, 153 terjemahan Indonesia gugur sampai diterjemahkan ulang.
+
 ## 2026-10-29 · X27 lanjutan · 9 paragraf iqtibas dari daftar tunda — selesai
 - Dikerjakan: sesudah ADR-133, 9 paragraf iqtibas di 5 berkas diterjemahkan sebagai kalimat penulis (Sonnet, skill `terjemah-inggris` 0.2.3). Daftar tunda tinggal 3 kutipan yang menunggu X29.
 - Verifikasi: `pnpm terjemah cek` → 5 berkas lolos · periksa independen putaran 1 B6/K3/S0; p960 dan p966 diperbaiki (ucapan narator terbaca seperti ucapan Iblis), dinilai ulang B4/K0/S0 · `pnpm terjemah daftar` → 820 siap · `pnpm verify` → lihat PR

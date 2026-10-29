@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import type { AudioTrackRow } from "@surau/db";
+import type { AudioTrackRow, PassageAyahRefRow, PassageRow } from "@surau/db";
 import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 
 import { buildSqlite } from "./build-sqlite.ts";
@@ -23,12 +23,13 @@ import type { IdAllocator } from "./ids.ts";
 import { parseOpenitiPages } from "./openiti/markdown.ts";
 import { checkMatan, checkTakhrij } from "./openiti/verify.ts";
 import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
-import { readTocPatch } from "./patch.ts";
+import { readStrictYaml, readTocPatch } from "./patch.ts";
 import { ayatReport } from "./quran/report.ts";
-import { matchAyat, quranTableRows } from "./quran/rows.ts";
+import { applyAyahPatch, ayahPatch } from "./quran/ayah-patch.ts";
+import { matchAyat, mergePatchedRefs, quranIndex, quranTableRows } from "./quran/rows.ts";
 import type { AyahStats, AyatBuild } from "./quran/rows.ts";
 import { loadQuran } from "./quran/source.ts";
-import type { QuranConfig } from "./quran/source.ts";
+import type { QuranConfig, QuranData } from "./quran/source.ts";
 import { openitiReport, validationReport } from "./report.ts";
 import type { ReportContext } from "./report.ts";
 import { TABLE_ORDER, buildRows, emptyDigestRows } from "./rows.ts";
@@ -210,6 +211,7 @@ function rowsFor(
   const fts = ftsRows(base.passage);
   const quran = loadQuran(paths.quran, (s) => normalizeArabic(s).text);
   const matched = matchAyat(quran, base.passage, base.page);
+  mergePatchedRefs(matched, ayahPatchRefs(config, paths, quran, base.passage, matched.refs));
   const rows: CorpusRows = {
     ...base,
     ...quranTableRows(quran),
@@ -271,6 +273,32 @@ function rowsFor(
       numberingMismatch: quran.numberingMismatch,
     },
   };
+}
+
+/** Rujukan dari patch ayat (X29): setiap entri dicocokkan ulang kode; satu yang gagal = ingest gagal. */
+function ayahPatchRefs(
+  config: WorkConfig,
+  paths: PipelinePaths,
+  quran: QuranData,
+  passages: readonly PassageRow[],
+  refs: readonly PassageAyahRefRow[],
+): PassageAyahRefRow[] {
+  if (config.ayahPatch === undefined) return [];
+  const path = join(paths.repo, config.ayahPatch);
+  if (!existsSync(path))
+    throw new Error(`${config.ayahPatch} tidak ada (WorkConfig.ayahPatch diisi)`);
+  const patch = readStrictYaml(path, ayahPatch);
+  if (patch.shamela_book !== config.shamelaBook) {
+    throw new Error(
+      `${config.ayahPatch} untuk kitab ${patch.shamela_book}, bukan ${config.shamelaBook}`,
+    );
+  }
+  const byId = new Map(passages.map((p) => [p.id, p]));
+  const { refs: extra, problems } = applyAyahPatch(quranIndex(quran), byId, refs, patch);
+  if (problems.length > 0) {
+    throw new Error(`${config.ayahPatch}: ${problems.length} entri gagal\n${problems.join("\n")}`);
+  }
+  return extra;
 }
 
 /**
