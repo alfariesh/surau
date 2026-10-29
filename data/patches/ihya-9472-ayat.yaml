@@ -1,0 +1,1615 @@
+# Patch ayat Ihya (X29, ADR-133): kutipan Al-Qur'an yang terlewat pencocok, terverifikasi.
+# Tanpa teks kitab. Dibuat/diuji dengan `pnpm ayat:patch`; ingest mencocokkan ulang setiap entri.
+shamela_book: 9472
+ayat:
+  - passage_id: 10000385
+    char_start: 549
+    char_end: 589
+    span_sha256: 96e60a80a4b6abaf99ccab1d1cb17fbaf261398fc061d57f5201595e4b13cc46
+    surah: 6
+    ayah_from: 79
+    ayah_to: 79
+    sumber: audit-2026-10-29
+    catatan: Doa iftitah dalam salat (6:79), dibaca sebagai ayat; kutipan sebagian ayat.
+  - passage_id: 10000523
+    char_start: 206
+    char_end: 226
+    span_sha256: 65ca9192d8cb158b5f4f64be196733bfc463278e09241ff46c8957d7bba086cc
+    surah: 29
+    ayah_from: 68
+    ayah_to: 68
+    sumber: audit-2026-10-29
+    catatan: Konteks "menyamakan yang berdusta atas Allah dan yang mendustakan kebenaran" cocok 29:68, bukan 6:21 (6:21 "atau mendustakan ayat-Nya"). Teks konteks terpotong, jadi tidak pasti.
+  - passage_id: 10000693
+    char_start: 515
+    char_end: 541
+    span_sha256: b54d3977dfe130102495a5eb51268a1cee505b4a48855788803756344f4d6293
+    surah: 2
+    ayah_from: 146
+    ayah_to: 146
+    sumber: audit-2026-10-29
+    catatan: Didahului "qala Allah". Frasa sama ada di 6:20; keduanya mungkin, 2:146 dipilih karena konteks Yahudi/Nasrani.
+  - passage_id: 10000765
+    char_start: 570
+    char_end: 594
+    span_sha256: aae45e2460be645dfadfea2205d0518f3291fb07f1d3536cd04eea895e750f01
+    surah: 2
+    ayah_from: 156
+    ayah_to: 156
+    sumber: audit-2026-10-29
+    catatan: Istirja' yang diucapkan Syaqiq sebagai ungkapan duka; bukan dikutip sebagai ayat (sumbernya 2:156, bukan 29:62). Ragu antara kutipan dan iqtibas. Diubah ke kutipan sesuai ADR-133 butir 1 (istirja' diucapkan sebagai bacaan ayat). Rentang diperluas oleh agen utama ke istirja' utuh (audit membelahnya d
+  - passage_id: 10000766
+    char_start: 120
+    char_end: 136
+    span_sha256: 5755a88b94cb12c379f1f92f4dd8975fc650c8c94fc3101c828bc7172dbb8e60
+    surah: 16
+    ayah_from: 96
+    ayah_to: 96
+    sumber: verifikasi-2026-10-29
+    catatan: after qala Allah; part of 16:96 (verifikasi sisa X29)
+  - passage_id: 10000982
+    char_start: 330
+    char_end: 369
+    span_sha256: 69e8d6bd8a95ef4eff124d6c7c3667eb5664c7b3ecb8561a34912fcd053328ac
+    surah: 24
+    ayah_from: 35
+    ayah_to: 35
+    sumber: audit-2026-10-29
+    catatan: Setelah "dalam firman-Nya". Kutipan penulis berhenti di "kamisykat".
+  - passage_id: 10001031
+    char_start: 0
+    char_end: 20
+    span_sha256: d29424fcc936335ee20ecd5d5ffb39bce25528b19250aefa043f11fe27bc0632
+    surah: 7
+    ayah_from: 172
+    ayah_to: 172
+    sumber: verifikasi-2026-10-29
+    catatan: ayat al-mithaq, quoted as ayah (verifikasi sisa X29)
+  - passage_id: 10001033
+    char_start: 31
+    char_end: 52
+    span_sha256: e018e4a8581b5e703ef5378fba5156bc1e86f7496f545bd5cfeb35cbbcef548f
+    surah: 38
+    ayah_from: 29
+    ayah_to: 29
+    sumber: audit-2026-10-29
+    catatan: Setelah "qala azza wa jalla". Penggalan akhir ayat 38:29; lanjutan kutipan berikutnya (5:7) terpisah.
+  - passage_id: 10001033
+    char_start: 100
+    char_end: 135
+    span_sha256: 41be0480fc2df4ae88a37f544e690543d49b240234530cd102e2719c73c4a845
+    surah: 54
+    ayah_from: 17
+    ayah_to: 17
+    sumber: audit-2026-10-29
+    catatan: Kutipan lengkap 54:17 (juga di 54:22/32/40, dipilih yang pertama).
+  - passage_id: 10001162
+    char_start: 559
+    char_end: 575
+    span_sha256: fe0b70c4f6fd0e116fb3f13674c53b4fd299a6a683883c87b1b4e720e9f1d4a8
+    surah: 2
+    ayah_from: 111
+    ayah_to: 111
+    sumber: audit-2026-10-29
+    catatan: Setelah "qala Allah ta'ala". Frasa sama di 21:24 dan 27:64 (dan 28:75 varian); sumber pasti tidak bisa ditentukan.
+  - passage_id: 10001162
+    char_start: 765
+    char_end: 778
+    span_sha256: 4d699e1c139b9c4b8937f981ce2ad72df8eac49810c1c5aac51635dad8a78fa8
+    surah: 2
+    ayah_from: 258
+    ayah_to: 258
+    sumber: audit-2026-10-29
+    catatan: Kutipan rentang "alam tara ... ila qawlihi fabuhita alladzi kafara"; span hanya ujungnya, awal kutipan ada di depan span.
+  - passage_id: 10001162
+    char_start: 965
+    char_end: 986
+    span_sha256: fcab71f2f7b8e5e8d43ce7c761001119af194483acbe5fb6a80961c987c9dedd
+    surah: 26
+    ayah_from: 23
+    ayah_to: 23
+    sumber: audit-2026-10-29
+    catatan: Rentang 26:23 sampai 26:30 ("ila qawlihi"); span hanya awalnya.
+  - passage_id: 10001162
+    char_start: 996
+    char_end: 1016
+    span_sha256: 8cae9dd92f7b529f5efe7ead48b41a94192633754452ec0d9c3c4acf9a2eab77
+    surah: 26
+    ayah_from: 30
+    ayah_to: 30
+    sumber: audit-2026-10-29
+    catatan: Ujung rentang 26:23-30 yang sama dengan baris sebelumnya.
+  - passage_id: 10001328
+    char_start: 58
+    char_end: 77
+    span_sha256: 811faca35b83d88b74f7daccd14435197d400378d60e6f53a43488f0cd6f83cf
+    surah: 5
+    ayah_from: 120
+    ayah_to: 120
+    sumber: verifikasi-2026-10-29
+    catatan: introduced by fi qawlihi; wording occurs in several ayahs (5:120, 6:17, 11:4, 57:2, 64:1) (verifikasi sisa X29)
+  - passage_id: 10001329
+    char_start: 153
+    char_end: 169
+    span_sha256: fed79153364600ab4f7e41171858b3f877b1216a470187081c1c3cae0d06562a
+    surah: 2
+    ayah_from: 29
+    ayah_to: 29
+    sumber: audit-2026-10-29
+    catatan: Setelah "shadiq fi qawlihi". Frasa sama ada di beberapa tempat (2:29, 57:3, dst.); 2:29 dipilih.
+  - passage_id: 10001456
+    char_start: 0
+    char_end: 25
+    span_sha256: 023aa68c890db8fc210aa882f27665ae0e313e575863378fa4cec58c9032b631
+    surah: 4
+    ayah_from: 48
+    ayah_to: 48
+    sumber: audit-2026-10-29
+    catatan: Ayat dikutip lalu dibahas; potongan akhir ayat
+  - passage_id: 10001490
+    char_start: 98
+    char_end: 120
+    span_sha256: 11e8f063706fa4b0ab44f5a28a43059097f003ef39efb80f4aec42a3c25b3308
+    surah: 8
+    ayah_from: 4
+    ayah_to: 4
+    sumber: verifikasi-2026-10-29
+    catatan: after qala Allah ta'ala (verifikasi sisa X29)
+  - passage_id: 10001526
+    char_start: 85
+    char_end: 112
+    span_sha256: 6b6608a249f0237ec666e57c46884b424a679a0260af55d30f90e34948c29ee1
+    surah: 6
+    ayah_from: 115
+    ayah_to: 115
+    sumber: audit-2026-10-29
+    catatan: Setelah "wa qila fi qawlihi ta'ala"; bacaan jamak "kalimat".
+  - passage_id: 10001917
+    char_start: 67
+    char_end: 91
+    span_sha256: aae45e2460be645dfadfea2205d0518f3291fb07f1d3536cd04eea895e750f01
+    surah: 2
+    ayah_from: 156
+    ayah_to: 156
+    sumber: verifikasi-2026-10-29
+    catatan: istirja' (verifikasi sisa X29)
+  - passage_id: 10001936
+    char_start: 73
+    char_end: 93
+    span_sha256: 12cd766a7ea862fd82b0f74ddaafb6f2ecc02a2d36a8b52e1d6b2d4f31e6a412
+    surah: 4
+    ayah_from: 43
+    ayah_to: 43
+    sumber: audit-2026-10-29
+    catatan: Setelah 'maka Dia berfirman'; potongan
+  - passage_id: 10002107
+    char_start: 225
+    char_end: 246
+    span_sha256: beaa4adaf321dd43136ef82c3687eb4df9104b2062fc2eceda5ac94c5af00909
+    surah: 1
+    ayah_from: 6
+    ayah_to: 6
+    sumber: audit-2026-10-29
+    catatan: Setelah "fi qawlihi"; Al-Fatihah ayat 6.
+  - passage_id: 10002207
+    char_start: 64
+    char_end: 102
+    span_sha256: 1fc6d32e246aae2fcf9603be8fa7ff07a1fe3d6175cf965998d35b7e538f0ca3
+    surah: 6
+    ayah_from: 79
+    ayah_to: 79
+    sumber: verifikasi-2026-10-29
+    catatan: iftitah du'a recited in prayer (verifikasi sisa X29)
+  - passage_id: 10002214
+    char_start: 15
+    char_end: 46
+    span_sha256: 607b0342a20972d20dd75bda067d8578c2e27c26207d89e0d9e4ed4b2c5b1435
+    surah: 6
+    ayah_from: 79
+    ayah_to: 79
+    sumber: verifikasi-2026-10-29
+    catatan: iftitah, end of 6:79 (verifikasi sisa X29)
+  - passage_id: 10002231
+    char_start: 465
+    char_end: 486
+    span_sha256: c6818a11739652ce65785c27ab3e3f7e8d66776fdc4f2910a1f087872ba4239d
+    surah: 1
+    ayah_from: 2
+    ayah_to: 2
+    sumber: verifikasi-2026-10-29
+    catatan: hadith qudsi, servant recites al-Fatihah (verifikasi sisa X29)
+  - passage_id: 10002276
+    char_start: 105
+    char_end: 125
+    span_sha256: 18df7dc72ef815e8c07937fa6f20dc725188dfaf8db329b45b9f45acc9b6a1af
+    surah: 70
+    ayah_from: 34
+    ayah_to: 34
+    sumber: audit-2026-10-29
+    catatan: Tiga ayat sifat orang salat dikutip berurutan; span cocok 70:23 (juga 70:34/23:9)
+  - passage_id: 10002369
+    char_start: 205
+    char_end: 224
+    span_sha256: ed97e7333b3d749bea651df2a9dc4ad18f625f6d7509f184e5ade2d33d1d1a69
+    surah: 3
+    ayah_from: 53
+    ayah_to: 53
+    sumber: verifikasi-2026-10-29
+    catatan: Prophet recited in prayer (hadith) (verifikasi sisa X29)
+  - passage_id: 10002824
+    char_start: 469
+    char_end: 488
+    span_sha256: a217b60105d183ebaa649c28d70c70c91b8398ce091139becaf8703fdb556164
+    surah: 3
+    ayah_from: 26
+    ayah_to: 26
+    sumber: audit-2026-10-29
+    catatan: Disebut 'sampai akhir ayat'; awal ayat dibaca dalam salat
+  - passage_id: 10002850
+    char_start: 179
+    char_end: 212
+    span_sha256: ebd4f4a9c04434caa2b5d1dd3bf35ea3bb429c0cbd1c807ace92c8a832a34831
+    surah: 6
+    ayah_from: 79
+    ayah_to: 79
+    sumber: verifikasi-2026-10-29
+    catatan: iftitah du'a recited in prayer (verifikasi sisa X29)
+  - passage_id: 10003171
+    char_start: 32
+    char_end: 45
+    span_sha256: 80ca5ddc5c09081549f2eaeb74fc64e091641eed60026c40cfd909c2c620b7c0
+    surah: 16
+    ayah_from: 62
+    ayah_to: 62
+    sumber: audit-2026-10-29
+    catatan: Setelah "faqala ta'ala"; kutipan dimulai "wa yaj'aluna" dan lanjut "wa tashifu alsinatuhum al-kadzib"; span hanya sebagian.
+  - passage_id: 10003171
+    char_start: 166
+    char_end: 182
+    span_sha256: 61ee7393c86354494d7a88d4b90a5514d94fcf517a6a92f513c7b0184d69fdc0
+    surah: 16
+    ayah_from: 62
+    ayah_to: 62
+    sumber: verifikasi-2026-10-29
+    catatan: qiraah discussion quoting the ayah (verifikasi sisa X29)
+  - passage_id: 10003270
+    char_start: 353
+    char_end: 376
+    span_sha256: 4e9c1e4e00bac328207d56927ba906342f123baa944d86875f1c324df2b13325
+    surah: 2
+    ayah_from: 273
+    ayah_to: 273
+    sumber: verifikasi-2026-10-29
+    catatan: after iqra' in shi'tum (hadith) (verifikasi sisa X29)
+  - passage_id: 10003633
+    char_start: 182
+    char_end: 223
+    span_sha256: 36c011bc832eace48186c551d424a80ae8b5c6c3f7623ce00d20f1fab30de6cd
+    surah: 27
+    ayah_from: 59
+    ayah_to: 59
+    sumber: audit-2026-10-29
+    catatan: "Ucapan saat melihat Ka'bah, kata-kata 27:59 (8 kata, bagian pertama ayat). Ragu: bentuk 'qala' bukan 'qul'."
+  - passage_id: 10004095
+    char_start: 78
+    char_end: 112
+    span_sha256: 6c53c6053511735c581b836f5ded823ac9ef5fe503ebfa78edc0893bb614c232
+    surah: 5
+    ayah_from: 118
+    ayah_to: 118
+    sumber: audit-2026-10-29
+    catatan: '"qama bi ayah yuraddiduha wa hiya"; ayat berlanjut ("fa innaka anta al-''azizu al-hakim"), penulis memotong dengan "al-ayah".'
+  - passage_id: 10004096
+    char_start: 38
+    char_end: 66
+    span_sha256: f0bd4df59ab224a386fd8c30dede183b470a6998b8d0d292716c5231b9c4aebb
+    surah: 36
+    ayah_from: 59
+    ayah_to: 59
+    sumber: audit-2026-10-29
+    catatan: '"yuraddidu hadzihi al-ayah"; kutipan penuh 36:59.'
+  - passage_id: 10004104
+    char_start: 751
+    char_end: 776
+    span_sha256: 6234577320923e714b6c2b146a1fa4af699d5dcc0289d2570f6a9a18ebafbd4f
+    surah: 56
+    ayah_from: 68
+    ayah_to: 68
+    sumber: verifikasi-2026-10-29
+    catatan: dibaca sebagai ayat, afara aytum (verifikasi sisa X29)
+  - passage_id: 10004104
+    char_start: 777
+    char_end: 801
+    span_sha256: d0f971fd88ff45706fdf0f00cee0b697a5cc1ab444315fe43617e82bdef7a443
+    surah: 56
+    ayah_from: 71
+    ayah_to: 71
+    sumber: verifikasi-2026-10-29
+    catatan: dibaca sebagai ayat (verifikasi sisa X29)
+  - passage_id: 10004131
+    char_start: 599
+    char_end: 626
+    span_sha256: a49fc8be4c6f0de8c1b993816042ecd35bb08c1c1a3edbe363e9a6126ad24e49
+    surah: 7
+    ayah_from: 56
+    ayah_to: 56
+    sumber: audit-2026-10-29
+    catatan: Kutipan dimulai dari kata sebelum span (inna rahmata).
+  - passage_id: 10004137
+    char_start: 83
+    char_end: 121
+    span_sha256: 99ba8a9d0ef3c308836dfaa08a92a3159a0af5ab2cf21e7fc4d721338dbe542c
+    surah: 6
+    ayah_from: 15
+    ayah_to: 15
+    sumber: audit-2026-10-29
+    catatan: Dibacakan sebagai ayat saat membahas tilawah; juga 10:15.
+  - passage_id: 10004139
+    char_start: 9
+    char_end: 32
+    span_sha256: 8e59cd69d1c55730e5b4d1646beb19cb6b34c703a95095da70851e44c58cbb3b
+    surah: 14
+    ayah_from: 12
+    ayah_to: 12
+    sumber: audit-2026-10-29
+    catatan: Dikutip dalam konteks tilawah.
+  - passage_id: 10004194
+    char_start: 6
+    char_end: 23
+    span_sha256: 2028d0ff1badb32bcda5f2a5608affc1741d2ae1861872ae3b5cc6c96c7cba3b
+    surah: 37
+    ayah_from: 130
+    ayah_to: 130
+    sumber: verifikasi-2026-10-29
+    catatan: qiraat Ibn Mas ud dikutip; teks Tanzil "ali yasin" (verifikasi sisa X29)
+  - passage_id: 10004194
+    char_start: 655
+    char_end: 677
+    span_sha256: 6a826160265e241435a31d35705d025c586170248aad66493e70958d5918cd82
+    surah: 8
+    ayah_from: 1
+    ayah_to: 1
+    sumber: audit-2026-10-29
+    catatan: Dilanjutkan dengan 8:5 (kama akhrajaka).
+  - passage_id: 10004197
+    char_start: 292
+    char_end: 306
+    span_sha256: 5423c9347aa2bb3326c1556adf1f27095c7b52a801160e0442a2e3012ee3c196
+    surah: 11
+    ayah_from: 8
+    ayah_to: 8
+    sumber: audit-2026-10-29
+    catatan: Setelah 'kaqaulihi azza wa jalla'.
+  - passage_id: 10004338
+    char_start: 421
+    char_end: 437
+    span_sha256: cdad1d5ed934d022c4b09faa67861627580be4cd781c8f71ff034bcd0fef7908
+    surah: 40
+    ayah_from: 60
+    ayah_to: 60
+    sumber: audit-2026-10-29
+    catatan: Setelah 'tsumma qara'a'; diakhiri 'al-ayah'.
+  - passage_id: 10004339
+    char_start: 417
+    char_end: 439
+    span_sha256: 5e1c7d82138bb5e6f71efa6b6503df86800513d9b382fe3a121d02afcbe90339
+    surah: 12
+    ayah_from: 98
+    ayah_to: 98
+    sumber: verifikasi-2026-10-29
+    catatan: ucapan Yaqub dikutip dari ayat (verifikasi sisa X29)
+  - passage_id: 10004380
+    char_start: 637
+    char_end: 670
+    span_sha256: 0551990176253780e58e4561c684615482d20cc45430182ba96194e5ab50860f
+    surah: 15
+    ayah_from: 36
+    ayah_to: 37
+    sumber: audit-2026-10-29
+    catatan: Kisah Iblis; bersambung ke jawaban Allah (pada baris berikut).
+  - passage_id: 10004380
+    char_start: 671
+    char_end: 686
+    span_sha256: ea70367c46c929608ed40e557abe026d83d31a34d6ea1752462e9fff5b81c22c
+    surah: 7
+    ayah_from: 15
+    ayah_to: 15
+    sumber: audit-2026-10-29
+    catatan: Jawaban Allah kepada Iblis; teks cocok persis dengan 7:15, sedangkan 15:36 untuk kalimat sebelumnya.
+  - passage_id: 10004462
+    char_start: 61
+    char_end: 81
+    span_sha256: ce62023309b5355ab5e7e0da1af6951ae550904448a39afcf26ba4b351b53b9d
+    surah: 2
+    ayah_from: 156
+    ayah_to: 156
+    sumber: verifikasi-2026-10-29
+    catatan: istirja (verifikasi sisa X29)
+  - passage_id: 10004513
+    char_start: 428
+    char_end: 473
+    span_sha256: 69de20c5a1c3fe607dff173f645a62472db0a44a9c4b684c259fa51fbceb07fb
+    surah: 39
+    ayah_from: 46
+    ayah_to: 46
+    sumber: audit-2026-10-29
+    catatan: "Doa Abu Bakr; 7 kata persis dari 39:46 (awal ayah, tanpa 'qul'). Ragu: bisa dianggap doa."
+  - passage_id: 10004542
+    char_start: 684
+    char_end: 702
+    span_sha256: cdaaef26f7e83486be8cf8683c7a1e690763156e75dd83cd2861e1ec5c5060d1
+    surah: 71
+    ayah_from: 28
+    ayah_to: 28
+    sumber: audit-2026-10-29
+    catatan: Doa Al-Qur'an dibaca berurutan; gabungan dengan 17:24
+  - passage_id: 10004542
+    char_start: 890
+    char_end: 910
+    span_sha256: ce62023309b5355ab5e7e0da1af6951ae550904448a39afcf26ba4b351b53b9d
+    surah: 2
+    ayah_from: 156
+    ayah_to: 156
+    sumber: verifikasi-2026-10-29
+    catatan: istirja (verifikasi sisa X29)
+  - passage_id: 10004579
+    char_start: 612
+    char_end: 637
+    span_sha256: f2272c9f1c6c046183893ffb5d94a03ab6aea45fdbd51b52ac91094d96718cec
+    surah: 23
+    ayah_from: 14
+    ayah_to: 14
+    sumber: verifikasi-2026-10-29
+    catatan: bacaan sujud, ujung ayat (verifikasi sisa X29)
+  - passage_id: 10004600
+    char_start: 23
+    char_end: 47
+    span_sha256: aae45e2460be645dfadfea2205d0518f3291fb07f1d3536cd04eea895e750f01
+    surah: 2
+    ayah_from: 156
+    ayah_to: 156
+    sumber: verifikasi-2026-10-29
+    catatan: istirja saat kabar wafat (verifikasi sisa X29)
+  - passage_id: 10004600
+    char_start: 48
+    char_end: 70
+    span_sha256: 15dbd22f9d9c56e776c69cabd05395ea3acb1cd957ac547f3b5fae4aa595532e
+    surah: 43
+    ayah_from: 14
+    ayah_to: 14
+    sumber: verifikasi-2026-10-29
+    catatan: doa safar/istirja, seluruh ayat (verifikasi sisa X29)
+  - passage_id: 10004603
+    char_start: 53
+    char_end: 71
+    span_sha256: 91e391a0bf1062dbbd0c88a476a928ecbb446fcdbc1802384ba643e961212b72
+    surah: 18
+    ayah_from: 10
+    ayah_to: 10
+    sumber: verifikasi-2026-10-29
+    catatan: doa dibaca dari ayat, bagian akhir ayat (verifikasi sisa X29)
+  - passage_id: 10004659
+    char_start: 150
+    char_end: 191
+    span_sha256: 7b8a73f3da25124d5b5e9d6822877b228d4a706e01d5444c507e2b0393e782fc
+    surah: 60
+    ayah_from: 4
+    ayah_to: 4
+    sumber: audit-2026-10-29
+    catatan: "Doa pagi, 7 kata persis penutup 60:4 (doa Ibrahim). Ragu: bisa formula doa."
+  - passage_id: 10004682
+    char_start: 2096
+    char_end: 2113
+    span_sha256: 39ed123586dbd45959aa3a94bbda2fb00fdb6612eb55d020e85e1706e87b984b
+    surah: 39
+    ayah_from: 9
+    ayah_to: 9
+    sumber: audit-2026-10-29
+    catatan: Setelah 'faqala ta'ala'; kata 'am' di depan span tidak tercakup.
+  - passage_id: 10004692
+    char_start: 545
+    char_end: 572
+    span_sha256: 77413355b5f65085fedd9836b3743e1fae21ed5feef135da3e491a09a2588425
+    surah: 18
+    ayah_from: 54
+    ayah_to: 54
+    sumber: verifikasi-2026-10-29
+    catatan: dibaca Nabi (hadis Ali) (verifikasi sisa X29)
+  - passage_id: 10004785
+    char_start: 2344
+    char_end: 2392
+    span_sha256: 270cc08ca5f27a5a443e13c68291f60aa8ceb21cf32412827f0aeccd99f9c933
+    surah: 7
+    ayah_from: 54
+    ayah_to: 54
+    sumber: audit-2026-10-29
+    catatan: Berlanjut 'ila qawlihi' (sampai ayat berikutnya).
+  - passage_id: 10004795
+    char_start: 140
+    char_end: 196
+    span_sha256: a198c455c287412826beaba9d251514fb9592ed17205864eee8dfefcd5320e7c
+    surah: 38
+    ayah_from: 65
+    ayah_to: 66
+    sumber: audit-2026-10-29
+    catatan: Dzikir bangun tidur; 38:66 utuh ditambah akhir 38:65. Ragu.
+  - passage_id: 10004796
+    char_start: 230
+    char_end: 244
+    span_sha256: c68eda4e7d690b5674b8e6f59fb5a941398a7dea5c7a37dfa46984351c793e5d
+    surah: 93
+    ayah_from: 2
+    ayah_to: 2
+    sumber: audit-2026-10-29
+    catatan: Setelah 'fa qala'.
+  - passage_id: 10004843
+    char_start: 783
+    char_end: 794
+    span_sha256: 5176ff2598d6a80c6e79585412854f90702bd636799b5c8e7dff7d2a1d471fef
+    surah: 112
+    ayah_from: 1
+    ayah_to: 1
+    sumber: audit-2026-10-29
+    catatan: Menyebut surah al-Ikhlas untuk dibaca; hanya pembuka.
+  - passage_id: 10004843
+    char_start: 900
+    char_end: 932
+    span_sha256: a6c9eba8c92b102e98e9ad9787d3590e5aa1959fcddaaa34b3b6d66070a67d5c
+    surah: 2
+    ayah_from: 257
+    ayah_to: 257
+    sumber: audit-2026-10-29
+    catatan: Penanda batas 'ila qawlihi'; tempat sebenarnya 2:257 (bukan 2:39).
+  - passage_id: 10004843
+    char_start: 971
+    char_end: 1001
+    span_sha256: 8d58079172d92d40268a50c948b5c311328c9d865b92dad08f182d7f215183cd
+    surah: 2
+    ayah_from: 284
+    ayah_to: 284
+    sumber: audit-2026-10-29
+    catatan: "'ila akhiriha': berlanjut sampai 2:286."
+  - passage_id: 10004902
+    char_start: 1609
+    char_end: 1632
+    span_sha256: aad81c371c62a956244b9616a3061a18da6f3623723541df8d398e85f694b154
+    surah: 3
+    ayah_from: 191
+    ayah_to: 191
+    sumber: verifikasi-2026-10-29
+    catatan: recited, hatta balagha (verifikasi sisa X29)
+  - passage_id: 10004902
+    char_start: 1641
+    char_end: 1660
+    span_sha256: e015039fa6e9c262b59f4dd11c1b4db674a13b3701e0d9768a6195b96fd9eef9
+    surah: 3
+    ayah_from: 194
+    ayah_to: 194
+    sumber: verifikasi-2026-10-29
+    catatan: continuation of recitation (verifikasi sisa X29)
+  - passage_id: 10004934
+    char_start: 605
+    char_end: 624
+    span_sha256: 8692f0928396b238b230aef26477f8e4baeae767b4c95111135560a6e8892c58
+    surah: 4
+    ayah_from: 29
+    ayah_to: 29
+    sumber: audit-2026-10-29
+    catatan: Setelah 'ila qawlihi'; diakhiri 'al-ayah'.
+  - passage_id: 10005248
+    char_start: 26
+    char_end: 52
+    span_sha256: d826cc779f12bfd71da0a713a6105dfc85ca3342050e0769d057450f55eb27df
+    surah: 2
+    ayah_from: 57
+    ayah_to: 57
+    sumber: verifikasi-2026-10-29
+    catatan: after qala taala (verifikasi sisa X29)
+  - passage_id: 10005248
+    char_start: 197
+    char_end: 234
+    span_sha256: e7bc5b23b6125f204005d8e8410137bc74304f003d7a854045a22808530b7793
+    surah: 2
+    ayah_from: 57
+    ayah_to: 57
+    sumber: audit-2026-10-29
+    catatan: Setelah 'tsumma qala ba'da dzikr al-mann wa as-salwa'.
+  - passage_id: 10005439
+    char_start: 658
+    char_end: 690
+    span_sha256: 4004cd4b937c3537a5c6497558c157d447def7b1dacbc1885a1ce6c53d836bf7
+    surah: 2
+    ayah_from: 245
+    ayah_to: 245
+    sumber: audit-2026-10-29
+    catatan: Setelah 'faqala'.
+  - passage_id: 10005739
+    char_start: 67
+    char_end: 103
+    span_sha256: 4fec3883292b41318ad6dda12e72728c0e2659e697857b015dcbc6954b1b218d
+    surah: 4
+    ayah_from: 21
+    ayah_to: 21
+    sumber: verifikasi-2026-10-29
+    catatan: after wa qala fi taadzim haqqihinna (verifikasi sisa X29)
+  - passage_id: 10005788
+    char_start: 89
+    char_end: 114
+    span_sha256: 01d04aa65ef6bca881c548571fe419998918dbb97bdfb13d592cc6f1f0b091a3
+    surah: 4
+    ayah_from: 119
+    ayah_to: 119
+    sumber: audit-2026-10-29
+    catatan: Ucapan Iblis dikutip; kalimat sesudah 'idz haqq' milik penulis.
+  - passage_id: 10005799
+    char_start: 81
+    char_end: 114
+    span_sha256: 5eede08bcb4149549bb4e0bedaa998af886cad4eb5e2c8c349293df26d9c93eb
+    surah: 66
+    ayah_from: 4
+    ayah_to: 4
+    sumber: audit-2026-10-29
+    catatan: Setelah 'qala Allah ta'ala'.
+  - passage_id: 10005884
+    char_start: 37
+    char_end: 51
+    span_sha256: 35e3d7f9e31a2c8d96d02c724f8e9a22386bfa4c93cf36404553be8a0675501b
+    surah: 112
+    ayah_from: 1
+    ayah_to: 1
+    sumber: audit-2026-10-29
+    catatan: Menyebut al-Ikhlas untuk dibaca; hanya pembuka surah.
+  - passage_id: 10005940
+    char_start: 320
+    char_end: 340
+    span_sha256: 0c114921405d36a26edabd38acbd6b9e14eb08e1710af2065b26350abb341686
+    surah: 23
+    ayah_from: 14
+    ayah_to: 14
+    sumber: audit-2026-10-29
+    catatan: Setelah 'ila qawlihi'.
+  - passage_id: 10005940
+    char_start: 387
+    char_end: 405
+    span_sha256: d376e0ccbd3113c0eb67c5283e5a1343e561a1c1aad34fa0378fe8b972549505
+    surah: 81
+    ayah_from: 8
+    ayah_to: 8
+    sumber: audit-2026-10-29
+    catatan: Setelah 'tala qawlahu ta'ala'.
+  - passage_id: 10006301
+    char_start: 5
+    char_end: 28
+    span_sha256: de9ebe9180c73fb9d07a4a388deb6ff74db51324dffda9087210c1f06ee74a13
+    surah: 5
+    ayah_from: 32
+    ayah_to: 32
+    sumber: audit-2026-10-29
+    catatan: Ayat dikutip untuk tafsir; potongan
+  - passage_id: 10006552
+    char_start: 35
+    char_end: 59
+    span_sha256: aae45e2460be645dfadfea2205d0518f3291fb07f1d3536cd04eea895e750f01
+    surah: 2
+    ayah_from: 156
+    ayah_to: 156
+    sumber: verifikasi-2026-10-29
+    catatan: istirja (verifikasi sisa X29)
+  - passage_id: 10007363
+    char_start: 522
+    char_end: 538
+    span_sha256: 1b807e12287f51f01347d1f53798c2a26b4547c61a6c24289cdc7970fed69012
+    surah: 7
+    ayah_from: 56
+    ayah_to: 56
+    sumber: audit-2026-10-29
+    catatan: Jawaban Abu Hazim memakai bagian ayat; ragu dengan iqtibas, dipilih kutipan karena menjawab pertanyaan ayat.
+  - passage_id: 10007759
+    char_start: 187
+    char_end: 211
+    span_sha256: 465d2891790b1feed7853fa7ebc5f9f1d9f666ecbae0d1f6753173789c13904b
+    surah: 6
+    ayah_from: 36
+    ayah_to: 36
+    sumber: audit-2026-10-29
+    catatan: Setelah 'iqra' hadzihi al-ayah'.
+  - passage_id: 10008729
+    char_start: 332
+    char_end: 350
+    span_sha256: f3735b32ca09f4089385915aef279308030b8414494e24dace9f58119d5cb293
+    surah: 3
+    ayah_from: 134
+    ayah_to: 134
+    sumber: audit-2026-10-29
+    catatan: setelah 'Allah berfirman'; potongan akhir 3:134
+  - passage_id: 10009725
+    char_start: 30
+    char_end: 52
+    span_sha256: 37dfcfc18c25e51f68bf372f3f1abe719a3427b41bc99d3fb9e2ceab03617a42
+    surah: 2
+    ayah_from: 144
+    ayah_to: 144
+    sumber: audit-2026-10-29
+    catatan: setelah 'firman-Nya'; juga identik dengan 2:150, pilih 2:144
+  - passage_id: 10010363
+    char_start: 57
+    char_end: 75
+    span_sha256: 1d11aa1d2d8ae1e601ad111f1e1668b916527bc0edf97f3eed1497dd568a0fce
+    surah: 26
+    ayah_from: 218
+    ayah_to: 218
+    sumber: verifikasi-2026-10-29
+    catatan: Dhu al-Nun recites; whole ayah (verifikasi sisa X29)
+  - passage_id: 10010411
+    char_start: 33
+    char_end: 50
+    span_sha256: f0c37a9b7f762ccdaa9250ad03f84c715b45c7f3659f5926ccd6ac801cec5419
+    surah: 52
+    ayah_from: 7
+    ayah_to: 7
+    sumber: verifikasi-2026-10-29
+    catatan: Umar hears recitation (verifikasi sisa X29)
+  - passage_id: 10010598
+    char_start: 358
+    char_end: 378
+    span_sha256: ce62023309b5355ab5e7e0da1af6951ae550904448a39afcf26ba4b351b53b9d
+    surah: 2
+    ayah_from: 156
+    ayah_to: 156
+    sumber: verifikasi-2026-10-29
+    catatan: istirja (verifikasi sisa X29)
+  - passage_id: 10010607
+    char_start: 352
+    char_end: 366
+    span_sha256: 73e2f052a3c558e86acc4afd3f351e03566da647a500125c102cbbc34163934d
+    surah: 3
+    ayah_from: 104
+    ayah_to: 104
+    sumber: audit-2026-10-29
+    catatan: setelah 'bahkan Dia berfirman'
+  - passage_id: 10011327
+    char_start: 871
+    char_end: 897
+    span_sha256: 1682564e025114e856ed4b23772add6f924da1fdb466ec30c9195ed0efec9aeb
+    surah: 37
+    ayah_from: 22
+    ayah_to: 22
+    sumber: audit-2026-10-29
+    catatan: setelah seruan; ayat 37:22 'ihsyuru...'
+  - passage_id: 10011897
+    char_start: 397
+    char_end: 421
+    span_sha256: 4edfc651e1826ef33cda54c3f9d5719402075d5a11ba215cb442e7b493dac305
+    surah: 2
+    ayah_from: 282
+    ayah_to: 282
+    sumber: verifikasi-2026-10-29
+    catatan: after qala taala (verifikasi sisa X29)
+  - passage_id: 10012157
+    char_start: 458
+    char_end: 480
+    span_sha256: f55b69da6b915bbd95d88989217bb1f6472ee96b8a991e53e4f63b5ce18d7b90
+    surah: 6
+    ayah_from: 110
+    ayah_to: 110
+    sumber: audit-2026-10-29
+    catatan: setelah 'isyarat firman-Nya'
+  - passage_id: 10012184
+    char_start: 1541
+    char_end: 1564
+    span_sha256: 2c17081da8f278a7666aa2d782b879524fa127f49690341b3bfcc199357bab2b
+    surah: 91
+    ayah_from: 10
+    ayah_to: 10
+    sumber: verifikasi-2026-10-29
+    catatan: after bi-qawlihi ta'ala (verifikasi sisa X29)
+  - passage_id: 10012186
+    char_start: 79
+    char_end: 104
+    span_sha256: 14464c1afbbfb8ac7a7decd4471d07a4f83faaa43dff715b4965510b6de6a8f9
+    surah: 68
+    ayah_from: 4
+    ayah_to: 4
+    sumber: verifikasi-2026-10-29
+    catatan: qala Allah ta'ala (verifikasi sisa X29)
+  - passage_id: 10012300
+    char_start: 305
+    char_end: 326
+    span_sha256: beaa4adaf321dd43136ef82c3687eb4df9104b2062fc2eceda5ac94c5af00909
+    surah: 1
+    ayah_from: 6
+    ayah_to: 6
+    sumber: audit-2026-10-29
+    catatan: doa Fatihah dikutip sebagai ayat
+  - passage_id: 10013428
+    char_start: 2609
+    char_end: 2630
+    span_sha256: b824be81cd5d1580a04411b542acaf4ea6909904e8218b26ecfeff4868bef2c1
+    surah: 6
+    ayah_from: 164
+    ayah_to: 164
+    sumber: verifikasi-2026-10-29
+    catatan: recited (tala) inside account (verifikasi sisa X29) Lafaz dengan "wa la" ada di 6:164, 17:15, 35:18, 39:7 (bukan 53:38); dipilih letak pertama mushaf seperti pencocok.
+  - passage_id: 10013500
+    char_start: 380
+    char_end: 402
+    span_sha256: e0f0ac47457b54a70f266dd4ba53c33e8844274726ed77d481147966095ba014
+    surah: 17
+    ayah_from: 94
+    ayah_to: 94
+    sumber: verifikasi-2026-10-29
+    catatan: quoted words of the deniers, verbatim (verifikasi sisa X29)
+  - passage_id: 10013500
+    char_start: 457
+    char_end: 490
+    span_sha256: 385ced26479d5e5965edbc5a89e7c06d1ba54bb5136cfdd1d923143a02003938
+    surah: 7
+    ayah_from: 63
+    ayah_to: 63
+    sumber: audit-2026-10-29
+    catatan: setelah 'Allah berfirman'; kutipan berlanjut ('al-ayah')
+  - passage_id: 10013550
+    char_start: 2088
+    char_end: 2110
+    span_sha256: ecacfda48cea0bddbad3d9d55d08aafa909c7efc6bced1a95e93d8594f40f8bd
+    surah: 23
+    ayah_from: 108
+    ayah_to: 108
+    sumber: verifikasi-2026-10-29
+    catatan: verbatim, introduced by yuqal lahum; ayah starts with qala (verifikasi sisa X29)
+  - passage_id: 10013660
+    char_start: 1291
+    char_end: 1313
+    span_sha256: 8157f5eb623f814f97957059321c72d4b98a44d3267efa9574da596124747bc1
+    surah: 53
+    ayah_from: 31
+    ayah_to: 31
+    sumber: audit-2026-10-29
+    catatan: setelah 'Allah berfirman' (li-yajziya...)
+  - passage_id: 10013740
+    char_start: 180
+    char_end: 193
+    span_sha256: 5d2a1d553d9c65424153b8005e7a43bea1ff660ab343fba3a3546a846b424018
+    surah: 79
+    ayah_from: 40
+    ayah_to: 40
+    sumber: audit-2026-10-29
+    catatan: kalimat terpotong di akhir paragraf; kutipan berlanjut
+  - passage_id: 10013750
+    char_start: 1122
+    char_end: 1142
+    span_sha256: ad5f7d6890fe128b3fd6fc98cb393c615d4a246f136448aa65d263c18c024825
+    surah: 44
+    ayah_from: 42
+    ayah_to: 42
+    sumber: audit-2026-10-29
+    catatan: dibaca dari 44:38 sampai 'inna-hu huwa al-aziz ar-rahim' (44:42); span hanya ujungnya
+  - passage_id: 10014036
+    char_start: 441
+    char_end: 459
+    span_sha256: 37b3f6fb6f955c8df3c3615ee2fc8536e7378f99088e70e0e1f9f017b053d9e3
+    surah: 18
+    ayah_from: 82
+    ayah_to: 82
+    sumber: audit-2026-10-29
+    catatan: "'mustadillan bi-qawlihi ta'ala'"
+  - passage_id: 10014118
+    char_start: 125
+    char_end: 144
+    span_sha256: 3ac62ba237553b0d359daa2d7a9e1cf4297ad2ed6c5c20e43dbe1e52f47d7dc8
+    surah: 95
+    ayah_from: 1
+    ayah_to: 2
+    sumber: audit-2026-10-29
+    catatan: orang badui membaca 'wa az-zaitun wa tur sinin' (95:1-2)
+  - passage_id: 10014404
+    char_start: 131
+    char_end: 146
+    span_sha256: 743004848f0a9af4e70613d94039a0bd3ab80bfdb4a1efd58e78d27914992b43
+    surah: 79
+    ayah_from: 24
+    ayah_to: 24
+    sumber: audit-2026-10-29
+    catatan: "'min qawlihi' ucapan Fir'aun"
+  - passage_id: 10014437
+    char_start: 688
+    char_end: 713
+    span_sha256: 59ac7effb30130f58dfc6e6d7bcf63fe6ae9995b07f9132f9d6265cfb7f88db4
+    surah: 18
+    ayah_from: 45
+    ayah_to: 45
+    sumber: audit-2026-10-29
+    catatan: "'ila qawlihi' ujung 18:45; ayat dimulai sebelum span"
+  - passage_id: 10015074
+    char_start: 11
+    char_end: 33
+    span_sha256: b71522ccea65b1d7769c3361f2186ab659a46f0a1dc4030ab57dd5690d6814d0
+    surah: 51
+    ayah_from: 21
+    ayah_to: 21
+    sumber: verifikasi-2026-10-29
+    catatan: qila fi (cued by context) (verifikasi sisa X29)
+  - passage_id: 10015169
+    char_start: 210
+    char_end: 233
+    span_sha256: bea6cdfa48115b389756d477dc6acfbb635d9e09091103f376bae03663bef4aa
+    surah: 6
+    ayah_from: 93
+    ayah_to: 93
+    sumber: audit-2026-10-29
+    catatan: Dikutip sesudah 'Allah berfirman'; kutipan dimulai sebelum span
+  - passage_id: 10015169
+    char_start: 262
+    char_end: 293
+    span_sha256: d1413215f495012cb6b081be68554bc5407ad86fd96253fb3f90d8306315c414
+    surah: 39
+    ayah_from: 72
+    ayah_to: 72
+    sumber: audit-2026-10-29
+    catatan: Setelah 'Allah berfirman'; tanpa kata awal 'qila'
+  - passage_id: 10015413
+    char_start: 559
+    char_end: 578
+    span_sha256: 448e1acd49e8fa814a6bf5f4af6c957ad1809a19053cdba8fda0c829e351d92a
+    surah: 21
+    ayah_from: 28
+    ayah_to: 28
+    sumber: audit-2026-10-29
+    catatan: Setelah 'Allah berfirman'; sambungan 21:20, span cocok 21:28
+  - passage_id: 10015569
+    char_start: 415
+    char_end: 431
+    span_sha256: 5755a88b94cb12c379f1f92f4dd8975fc650c8c94fc3101c828bc7172dbb8e60
+    surah: 16
+    ayah_from: 96
+    ayah_to: 96
+    sumber: verifikasi-2026-10-29
+    catatan: after bi-qawlihi; span is second half of clause (verifikasi sisa X29)
+  - passage_id: 10015601
+    char_start: 48
+    char_end: 67
+    span_sha256: 307d4e4b290bba24bc852dbea9c18643cbc7fd4a63eb81c8029db548c86ef4a6
+    surah: 19
+    ayah_from: 77
+    ayah_to: 77
+    sumber: audit-2026-10-29
+    catatan: Ucapan al-'Ash bin Wa'il, dikutip lalu dijawab ayat berikutnya
+  - passage_id: 10015626
+    char_start: 729
+    char_end: 749
+    span_sha256: 91a69aaa42459bb6c2151647eea0eef769635f5d2a21f7646d35ff02da662897
+    surah: 38
+    ayah_from: 88
+    ayah_to: 88
+    sumber: verifikasi-2026-10-29
+    catatan: ayah strung verbatim with 25:42 then introduced by yaqulun (verifikasi sisa X29)
+  - passage_id: 10015628
+    char_start: 0
+    char_end: 19
+    span_sha256: ebae9abe0d6ac904b7a7d7db879ea03e5c94e75677eeb035125afc8721f6c79c
+    surah: 2
+    ayah_from: 281
+    ayah_to: 281
+    sumber: verifikasi-2026-10-29
+    catatan: ayah strung verbatim with braces for 74:38 (verifikasi sisa X29)
+  - passage_id: 10015654
+    char_start: 189
+    char_end: 205
+    span_sha256: e97b68b342a19074e92adc691b0af84eb65571dbbd1c809e53b370c4edde831e
+    surah: 7
+    ayah_from: 176
+    ayah_to: 176
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'kaulihi ta'ala'
+  - passage_id: 10015829
+    char_start: 626
+    char_end: 644
+    span_sha256: 4193bd9913f034e6d46f48e0fd3f768ec7dee417907c04a680ef43d725aaad0f
+    surah: 6
+    ayah_from: 76
+    ayah_to: 76
+    sumber: verifikasi-2026-10-29
+    catatan: Ibrahim story, ila an qala follows (verifikasi sisa X29)
+  - passage_id: 10015948
+    char_start: 395
+    char_end: 411
+    span_sha256: 7a41d53b31b13ab0ff3bd88845f09118ae528b696f0f3a5f3ead4c6058ce20b7
+    surah: 2
+    ayah_from: 40
+    ayah_to: 40
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'bi-qaulihi ta'ala'
+  - passage_id: 10015957
+    char_start: 24
+    char_end: 48
+    span_sha256: 8f8b0498a68e0d50bf9fa3aacbd4eecd1e8666475dda9e25a14d7e576dff0bd7
+    surah: 11
+    ayah_from: 114
+    ayah_to: 114
+    sumber: verifikasi-2026-10-29
+    catatan: Prophet recites in hadith (verifikasi sisa X29)
+  - passage_id: 10015958
+    char_start: 55
+    char_end: 74
+    span_sha256: 8ab4dcc79f087f488485d420d30148b180fefb94fed520bc584cbb73ecf008e7
+    surah: 17
+    ayah_from: 25
+    ayah_to: 25
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'unzila qaulihi ta'ala'
+  - passage_id: 10016015
+    char_start: 59
+    char_end: 82
+    span_sha256: 1001168bd573f44c287e6d847645d26a6d0e790ff21c1ea029100cf758983566
+    surah: 29
+    ayah_from: 43
+    ayah_to: 43
+    sumber: verifikasi-2026-10-29
+    catatan: after fa-qala (verifikasi sisa X29)
+  - passage_id: 10016120
+    char_start: 505
+    char_end: 529
+    span_sha256: a3e46d9870161ce40f207d223ae8ebe4efe7c955873b921a67daa3073eb12e63
+    surah: 11
+    ayah_from: 114
+    ayah_to: 114
+    sumber: verifikasi-2026-10-29
+    catatan: Prophet recites in hadith (verifikasi sisa X29)
+  - passage_id: 10016228
+    char_start: 570
+    char_end: 608
+    span_sha256: cc87c9f66f6107602bd1318fa87938066a5fa943af582a846457206e2f35bcd1
+    surah: 6
+    ayah_from: 94
+    ayah_to: 94
+    sumber: audit-2026-10-29
+    catatan: Dikutip dengan 'yuqal' sebagai ayat
+  - passage_id: 10016231
+    char_start: 759
+    char_end: 807
+    span_sha256: 11e82fdc6661378e5b077f03b659ea4c7e319275e0a798835ba19de1f65fa35e
+    surah: 36
+    ayah_from: 46
+    ayah_to: 46
+    sumber: audit-2026-10-29
+    catatan: Dikutip dengan penanda kurung; identik dengan 6:4, konteks Yasin dipilih
+  - passage_id: 10016260
+    char_start: 1133
+    char_end: 1159
+    span_sha256: 841a2efdb3c373e0be6273b0d0f94cee23b268beddff82315a9eaa25fd8e5282
+    surah: 64
+    ayah_from: 15
+    ayah_to: 15
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'shadaqallah'; bukan 8:28 (berawalan 'wa'lamu anna')
+  - passage_id: 10016265
+    char_start: 212
+    char_end: 227
+    span_sha256: 743004848f0a9af4e70613d94039a0bd3ab80bfdb4a1efd58e78d27914992b43
+    surah: 79
+    ayah_from: 24
+    ayah_to: 24
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'min qaulihi'
+  - passage_id: 10016299
+    char_start: 144
+    char_end: 167
+    span_sha256: 645eeabe559d3ab8baeabf1032a1c33efe371e00373691d0df0a801213c4e267
+    surah: 26
+    ayah_from: 42
+    ayah_to: 42
+    sumber: verifikasi-2026-10-29
+    catatan: Pharaoh's words quoted; hayth qala (verifikasi sisa X29)
+  - passage_id: 10016321
+    char_start: 68
+    char_end: 83
+    span_sha256: 2e5b655134221d8ef7043a5ef97fd82d0543643222effdb2541dbc7985cca77c
+    surah: 29
+    ayah_from: 45
+    ayah_to: 45
+    sumber: audit-2026-10-29
+    catatan: Dikutip 'ma'a annahu qala'
+  - passage_id: 10016321
+    char_start: 290
+    char_end: 315
+    span_sha256: ce500b8121c0b2f3059272a767a20dd3bf617af9e0ec1685ac1d93180be0e0cd
+    surah: 7
+    ayah_from: 16
+    ayah_to: 16
+    sumber: verifikasi-2026-10-29
+    catatan: ikhbar an Iblis (verifikasi sisa X29)
+  - passage_id: 10016321
+    char_start: 656
+    char_end: 678
+    span_sha256: 4f288ba128c3ba3e8e13baf15b458547c44fb775d4a805002196eb5ed8a1fcc7
+    surah: 2
+    ayah_from: 212
+    ayah_to: 212
+    sumber: verifikasi-2026-10-29
+    catatan: wa qala (verifikasi sisa X29)
+  - passage_id: 10016321
+    char_start: 686
+    char_end: 711
+    span_sha256: 023aa68c890db8fc210aa882f27665ae0e313e575863378fa4cec58c9032b631
+    surah: 4
+    ayah_from: 48
+    ayah_to: 48
+    sumber: verifikasi-2026-10-29
+    catatan: wa qala (verifikasi sisa X29)
+  - passage_id: 10016441
+    char_start: 477
+    char_end: 519
+    span_sha256: ae64770393750d4515850a4ff163827f826d03afb8aab5746bd26a16f4631aa8
+    surah: 44
+    ayah_from: 38
+    ayah_to: 38
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'wa qaulihi azza wa jall'
+  - passage_id: 10016458
+    char_start: 568
+    char_end: 579
+    span_sha256: 81318223864c6cc77fc4f5c9487b4d57fb55393b310b1791316301cff0253a4b
+    surah: 37
+    ayah_from: 164
+    ayah_to: 164
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'bi-qaulihi ta'ala'; kutipan berlanjut 'wa lahu maqamun ma'lum'
+  - passage_id: 10016460
+    char_start: 951
+    char_end: 974
+    span_sha256: 378b2cf66536142933c247f5a944773ba699792501c4f06782c609db5afb45a7
+    surah: 6
+    ayah_from: 120
+    ayah_to: 120
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'tsumma qala'
+  - passage_id: 10016517
+    char_start: 540
+    char_end: 560
+    span_sha256: fa2bb778ed1a879287291cec893c84d522b576ae47fb62c48e9247a3d735b8da
+    surah: 6
+    ayah_from: 44
+    ayah_to: 44
+    sumber: verifikasi-2026-10-29
+    catatan: qara'a qawlahu ta'ala (verifikasi sisa X29)
+  - passage_id: 10016602
+    char_start: 3037
+    char_end: 3050
+    span_sha256: d2a6644bde97e18d1fdbd0cb66828701c630f8706079b121f6e87aa091761fc5
+    surah: 19
+    ayah_from: 59
+    ayah_to: 59
+    sumber: audit-2026-10-29
+    catatan: Nomor sebenarnya 19:59 bukan 7:169; kutipan berlanjut
+  - passage_id: 10016602
+    char_start: 3390
+    char_end: 3414
+    span_sha256: 1dab29596dd635b1cd9ee4e45ff6dc0a9f1e64ac4142b878d0ea2138d4b70725
+    surah: 18
+    ayah_from: 36
+    ayah_to: 36
+    sumber: verifikasi-2026-10-29
+    catatan: narrating Quranic owner of garden, verbatim; borderline (verifikasi sisa X29)
+  - passage_id: 10016638
+    char_start: 274
+    char_end: 294
+    span_sha256: 6c0f11745aeda17a2714c350c87dd071a15f6e79ac919546cc1cbc0934cedb80
+    surah: 39
+    ayah_from: 53
+    ayah_to: 53
+    sumber: verifikasi-2026-10-29
+    catatan: recited with prophetic qira'a; matcher ayah 12:98 less likely (verifikasi sisa X29)
+  - passage_id: 10016638
+    char_start: 607
+    char_end: 641
+    span_sha256: 73f2d01758783a8a9ee108f3cce1b54c5d06853c825bc7f366884ae863d37f1d
+    surah: 13
+    ayah_from: 6
+    ayah_to: 6
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'wa qala azza wa jall'
+  - passage_id: 10016791
+    char_start: 49
+    char_end: 75
+    span_sha256: dcab483f0b7128e4b96f09e9ccb10e4df5b019c561f66947cb54ddef1d54ae23
+    surah: 23
+    ayah_from: 60
+    ayah_to: 60
+    sumber: audit-2026-10-29
+    catatan: Aisyah membaca ayat; potongan
+  - passage_id: 10016872
+    char_start: 224
+    char_end: 241
+    span_sha256: bba8d2fb981861555e7f4b514d1eb8da20fa9fd9e365c24e9e5b227609a951dd
+    surah: 53
+    ayah_from: 37
+    ayah_to: 37
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'fa qala'
+  - passage_id: 10017017
+    char_start: 21
+    char_end: 42
+    span_sha256: 3be342a18f498150ab9b6d141665f44eb15283bf0af76dfb1bb31c59bb48dc29
+    surah: 45
+    ayah_from: 29
+    ayah_to: 29
+    sumber: verifikasi-2026-10-29
+    catatan: qara'a (verifikasi sisa X29)
+  - passage_id: 10017147
+    char_start: 863
+    char_end: 886
+    span_sha256: f4d1ea4492b380385801ce6c498b0f7579d8167387d7d8f0574b110f2ceab625
+    surah: 18
+    ayah_from: 28
+    ayah_to: 28
+    sumber: verifikasi-2026-10-29
+    catatan: recited with gloss (verifikasi sisa X29)
+  - passage_id: 10017220
+    char_start: 990
+    char_end: 1016
+    span_sha256: bd880c9b1458a43e2afc9024675e17311f491537347171e974cead519608d417
+    surah: 5
+    ayah_from: 54
+    ayah_to: 54
+    sumber: verifikasi-2026-10-29
+    catatan: Prophet says in hadith (verifikasi sisa X29)
+  - passage_id: 10017223
+    char_start: 573
+    char_end: 599
+    span_sha256: bd880c9b1458a43e2afc9024675e17311f491537347171e974cead519608d417
+    surah: 57
+    ayah_from: 21
+    ayah_to: 21
+    sumber: audit-2026-10-29
+    catatan: Nabi membaca ayat ini dalam hadis fuqara'; identik dengan 5:54 dan 62:4, penentuan 57:21 dari catatan lama. Ragu soal nomor ayat.
+  - passage_id: 10017453
+    char_start: 515
+    char_end: 537
+    span_sha256: a86a7307a3fab2912584be8be1a8155150c7aebef1e91c339c79b52dc02a954d
+    surah: 47
+    ayah_from: 36
+    ayah_to: 36
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'fa qala ta'ala'; ada variasi wa; mungkin pula 6:32/57:20
+  - passage_id: 10017703
+    char_start: 1188
+    char_end: 1204
+    span_sha256: a0c2cc1a38031b5676a6169aed153013928b0e079adb298ecba9951fe7babe21
+    surah: 20
+    ayah_from: 11
+    ayah_to: 12
+    sumber: verifikasi-2026-10-29
+    catatan: ma nudiya bihi; spans 20:11-12 (verifikasi sisa X29)
+  - passage_id: 10017706
+    char_start: 51
+    char_end: 73
+    span_sha256: 661dfd21ef66bbca53be3cc383dd5bef22585e6246428a301a262ae7fba83b91
+    surah: 39
+    ayah_from: 67
+    ayah_to: 67
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'qaulihi ta'ala'
+  - passage_id: 10017707
+    char_start: 600
+    char_end: 619
+    span_sha256: 15cf03f8b756084212a418fb67892d6e653a49485673c61c09fb0a3e56e581c4
+    surah: 20
+    ayah_from: 27
+    ayah_to: 27
+    sumber: verifikasi-2026-10-29
+    catatan: du'a of Musa taken verbatim (verifikasi sisa X29)
+  - passage_id: 10017714
+    char_start: 455
+    char_end: 484
+    span_sha256: d927d0d1029bc2434cf4ad9f37b44f86a0b44f9ccd11bad93e82a2eb61ce98fa
+    surah: 7
+    ayah_from: 124
+    ayah_to: 124
+    sumber: verifikasi-2026-10-29
+    catatan: qawl Fir'awn quoted; also 20:71, 26:49 (verifikasi sisa X29)
+  - passage_id: 10017714
+    char_start: 736
+    char_end: 755
+    span_sha256: 70cd3dc5be0e717be6b2efda826a02bbaec30e7d42d6b38ff6cd4d871736fd4e
+    surah: 20
+    ayah_from: 88
+    ayah_to: 88
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'sami'u qaulahu'
+  - passage_id: 10017725
+    char_start: 1117
+    char_end: 1137
+    span_sha256: b14e19bc95d96d299b58b2d9d9510b52c388f9796aabc5fe9827d7fc598e5c0b
+    surah: 32
+    ayah_from: 11
+    ayah_to: 11
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'fa qala Allah ta'ala'
+  - passage_id: 10017727
+    char_start: 63
+    char_end: 80
+    span_sha256: f25ebb15057be40249a8e04579630c6b1976c957a78d029e5a337b9cbad82585
+    surah: 55
+    ayah_from: 1
+    ayah_to: 2
+    sumber: audit-2026-10-29
+    catatan: Sesudah 'tsumma qala'; mencakup 55:1-2
+  - passage_id: 10017836
+    char_start: 1659
+    char_end: 1685
+    span_sha256: 51b7f50100b8004bfc70d6c76a2097f9b5c4714d5aa3058a9b9ec611ba637591
+    surah: 9
+    ayah_from: 35
+    ayah_to: 35
+    sumber: audit-2026-10-29
+    catatan: Setelah 'kama qala ta'ala'; potongan 9:35
+  - passage_id: 10017845
+    char_start: 1208
+    char_end: 1221
+    span_sha256: 1066b5cfc3c3bc9f4bd8e6ba4f63180017c887b9b1263aa5ce776b7371519d5b
+    surah: 46
+    ayah_from: 35
+    ayah_to: 35
+    sumber: audit-2026-10-29
+    catatan: Setelah 'wa qala'; ayat berlanjut (ulu al-azm min ar-rusul)
+  - passage_id: 10018253
+    char_start: 931
+    char_end: 950
+    span_sha256: 2dbfbb53a6ba193098c63de36a40376ee3f6e0345336f40ea6359f079cb665c4
+    surah: 83
+    ayah_from: 22
+    ayah_to: 22
+    sumber: audit-2026-10-29
+    catatan: Kata sesudahnya 'yusqawna min rahiq' adalah 83:25-26, jadi tempat benar 83:22 bukan 82:13
+  - passage_id: 10018736
+    char_start: 28
+    char_end: 55
+    span_sha256: f5583a375ad349061936711844865325f13f5f550cc37a6bdef565d53c15ef22
+    surah: 16
+    ayah_from: 43
+    ayah_to: 43
+    sumber: audit-2026-10-29
+    catatan: Teks identik dengan 21:7; dipilih 16:43
+  - passage_id: 10018957
+    char_start: 187
+    char_end: 233
+    span_sha256: 7ce7a21f1a8d53c05d34dc3a48673c0443d6b166cab95e874507e5dea92876ee
+    surah: 6
+    ayah_from: 79
+    ayah_to: 79
+    sumber: verifikasi-2026-10-29
+    catatan: iftitah-style supplication, kaqawlihi (verifikasi sisa X29)
+  - passage_id: 10019008
+    char_start: 106
+    char_end: 123
+    span_sha256: 917ece85aed24ea35990371a6f0a171831364954ffe19eb196590aeb044167ab
+    surah: 49
+    ayah_from: 15
+    ayah_to: 15
+    sumber: audit-2026-10-29
+    catatan: "'ila qawlihi' diikuti ujung 49:15; awal ayat sudah dikutip sebelum span"
+  - passage_id: 10019008
+    char_start: 180
+    char_end: 197
+    span_sha256: 11721d41da251e29bcd371f1fd1c3a9741d10c16877e15c0d061c0d2bc8230c4
+    surah: 2
+    ayah_from: 177
+    ayah_to: 177
+    sumber: audit-2026-10-29
+    catatan: "'ila qawlihi' menuju ujung 2:177"
+  - passage_id: 10019033
+    char_start: 677
+    char_end: 718
+    span_sha256: eb744bff0544e167526b2fcf8bb75510dec56a2ef271cc4f7c308b6e61f3e322
+    surah: 3
+    ayah_from: 200
+    ayah_to: 200
+    sumber: audit-2026-10-29
+    catatan: Setelah 'faqala azza min qa'il'
+  - passage_id: 10019111
+    char_start: 977
+    char_end: 997
+    span_sha256: 0cc022414ecf44198c165ba555c34b12c4f4bc83255b45337bb60cd78f3daa69
+    surah: 39
+    ayah_from: 3
+    ayah_to: 3
+    sumber: verifikasi-2026-10-29
+    catatan: after "I say"; partial ayah (verifikasi sisa X29)
+  - passage_id: 10019228
+    char_start: 65
+    char_end: 79
+    span_sha256: 35e3d7f9e31a2c8d96d02c724f8e9a22386bfa4c93cf36404553be8a0675501b
+    surah: 112
+    ayah_from: 1
+    ayah_to: 1
+    sumber: verifikasi-2026-10-29
+    catatan: surah opening recited as wird (verifikasi sisa X29)
+  - passage_id: 10019241
+    char_start: 278
+    char_end: 295
+    span_sha256: 97ef3bcd547cc933d48a66c71ddefe94648f42c4cb0932c1d381ef4fb4efba51
+    surah: 3
+    ayah_from: 30
+    ayah_to: 30
+    sumber: audit-2026-10-29
+    catatan: Teks 3:28 salah tempat; 'yawma tajidu...' hingga 'wa yuhadzdzirukumullahu nafsah' adalah 3:30; dibaca sebagai ayat
+  - passage_id: 10019245
+    char_start: 174
+    char_end: 192
+    span_sha256: 67cdada3e269dcd8adb1c7ec2e7af299cc2b52cda8586f297f1b95738eebf1c8
+    surah: 3
+    ayah_from: 185
+    ayah_to: 185
+    sumber: audit-2026-10-29
+    catatan: Dibaca sebagai ayat; teks identik di 21:35 dan 29:57, tempat ambigu; ragu
+  - passage_id: 10019505
+    char_start: 180
+    char_end: 202
+    span_sha256: b71522ccea65b1d7769c3361f2186ab659a46f0a1dc4030ab57dd5690d6814d0
+    surah: 51
+    ayah_from: 21
+    ayah_to: 21
+    sumber: verifikasi-2026-10-29
+    catatan: after "fa qala" (verifikasi sisa X29)
+  - passage_id: 10019543
+    char_start: 270
+    char_end: 294
+    span_sha256: c4046fb57d42612771f01a374cbe90173e8c6926122c05f350e3821ecbf87877
+    surah: 15
+    ayah_from: 85
+    ayah_to: 85
+    sumber: audit-2026-10-29
+    catatan: "'fi qawlihi ta'ala'; ayat berlanjut 'wa ma baynahuma illa bil-haqq'"
+  - passage_id: 10019551
+    char_start: 192
+    char_end: 215
+    span_sha256: d659975a2bced07848f516bfab8293b342c4a990bea0cd3efaebc18d07c88796
+    surah: 85
+    ayah_from: 1
+    ayah_to: 1
+    sumber: audit-2026-10-29
+    catatan: "'ka qawlihi ta'ala'; berlanjut ke sumpah-sumpah lain (86:1 dst)"
+  - passage_id: 10019552
+    char_start: 529
+    char_end: 559
+    span_sha256: cf3c0705a3b87140f8848321a7af92da55771fd92941268a8bc8d4d697ba495f
+    surah: 3
+    ayah_from: 191
+    ayah_to: 191
+    sumber: verifikasi-2026-10-29
+    catatan: after "fa qala"; partial ayah (verifikasi sisa X29)
+  - passage_id: 10019552
+    char_start: 910
+    char_end: 935
+    span_sha256: d64cb03a5f3257991a6086b60c963f0b6ded545746c27742112881354d0e5833
+    surah: 21
+    ayah_from: 32
+    ayah_to: 32
+    sumber: audit-2026-10-29
+    catatan: Setelah 'fa qala'
+  - passage_id: 10019554
+    char_start: 55
+    char_end: 93
+    span_sha256: bdd8edcef921b9346bfc654590f07a9230d24ba37a63a02e9cef8c988704c8ba
+    surah: 6
+    ayah_from: 75
+    ayah_to: 75
+    sumber: audit-2026-10-29
+    catatan: "'bi qawlihi'"
+  - passage_id: 10019744
+    char_start: 296
+    char_end: 323
+    span_sha256: e5657caf3a26aa0bb49c9b114f7724e764d1f82432401d32b40d83dc4270aeaa
+    surah: 19
+    ayah_from: 84
+    ayah_to: 84
+    sumber: audit-2026-10-29
+    catatan: "'qara'a hadzihi al-ayah'"
+  - passage_id: 10019748
+    char_start: 104
+    char_end: 120
+    span_sha256: d369b614b9da6db610e92e57478eecc1b1193095eb46dc5024ffaf990e62f485
+    surah: 57
+    ayah_from: 14
+    ayah_to: 14
+    sumber: audit-2026-10-29
+    catatan: Tafsir per kata; 'fi qawlihi ta'ala' memuat potongan 57:14
+  - passage_id: 10019748
+    char_start: 131
+    char_end: 149
+    span_sha256: d81f528456762668b9928123e0dc2bd91785154f6a26efe00b642e6adce3df8d
+    surah: 57
+    ayah_from: 14
+    ayah_to: 14
+    sumber: audit-2026-10-29
+    catatan: Potongan lanjutan 57:14 dalam tafsir yang sama
+  - passage_id: 10020167
+    char_start: 1101
+    char_end: 1119
+    span_sha256: bb25ddd99239e24f2a9eb3706249a3b70873747b79402469c47d0adac42a1cf0
+    surah: 20
+    ayah_from: 124
+    ayah_to: 124
+    sumber: verifikasi-2026-10-29
+    catatan: "hadith: revealed about; partial (verifikasi sisa X29)"
+  - passage_id: 10020271
+    char_start: 171
+    char_end: 197
+    span_sha256: d7981ff759beb2bfd343c6cc4f7163a9a80b2548f560c03f2d0263d598ed8d60
+    surah: 83
+    ayah_from: 6
+    ayah_to: 6
+    sumber: audit-2026-10-29
+    catatan: Tafsir Ka'b/Qatadah atas ayat
+  - passage_id: 10020282
+    char_start: 565
+    char_end: 599
+    span_sha256: 8021c5f1355842856c957972433d2966c981f0aa81ae704178ed4e79b072476e
+    surah: 54
+    ayah_from: 1
+    ayah_to: 1
+    sumber: verifikasi-2026-10-29
+    catatan: after "fa yaqulu" (verifikasi sisa X29)
+  - passage_id: 10020343
+    char_start: 80
+    char_end: 98
+    span_sha256: e862592ce5dae5f42a7fd16e5a6543aff340f1dbf0b330830ff2d529444c7d48
+    surah: 21
+    ayah_from: 63
+    ayah_to: 63
+    sumber: verifikasi-2026-10-29
+    catatan: Ibrahim words listed with his sayings; partial (verifikasi sisa X29)
+  - passage_id: 10020357
+    char_start: 225
+    char_end: 266
+    span_sha256: 7a34842482de25a80795f364745de58ac0c1dad4affb75852fc8639aae8e3bf0
+    surah: 108
+    ayah_from: 1
+    ayah_to: 1
+    sumber: audit-2026-10-29
+    catatan: "Hadis: 'wa qara'a ... hatta khatamaha'; seluruh surat 108; basmala bukan ayat"
+  - passage_id: 10020407
+    char_start: 827
+    char_end: 876
+    span_sha256: 1409bbfdb72e877cdf297cd7ef29dffe4cc4daab2c86b82c3328e7940cb73c71
+    surah: 55
+    ayah_from: 56
+    ayah_to: 56
+    sumber: verifikasi-2026-10-29
+    catatan: quoted with tashkil in houri description; partial (verifikasi sisa X29)
+  - passage_id: 10020410
+    char_start: 146
+    char_end: 164
+    span_sha256: 173da83a7e6be7eb8c52de84254eed069080a9a5daa30a47c4087ae8242e34a0
+    surah: 55
+    ayah_from: 46
+    ayah_to: 46
+    sumber: audit-2026-10-29
+    catatan: "'iqra' min qawlihi ... ila akhir surat Ar-Rahman'"
+  - passage_id: 10020426
+    char_start: 9
+    char_end: 61
+    span_sha256: 2c8c8af103c286ea0136172a46d4cb9b9132f7693af17475a9c342b868d12b39
+    surah: 22
+    ayah_from: 23
+    ayah_to: 23
+    sumber: audit-2026-10-29
+    catatan: Setelah 'qala Allah'; teks identik dengan 35:33; dipilih 22:23, ambigu
+  - passage_id: 10020436
+    char_start: 623
+    char_end: 645
+    span_sha256: 1cf657ad4851bf4a5ba16f0106ec162bb37282ac69e75c8f3b933b9f985d3fdf
+    surah: 76
+    ayah_from: 18
+    ayah_to: 18
+    sumber: audit-2026-10-29
+    catatan: Nabi menjawab pertanyaan Yahudi dengan membaca 76:18 utuh.
+  - passage_id: 10020466
+    char_start: 160
+    char_end: 179
+    span_sha256: e9dbbf23b0162824c3fb4be84c66f1ec904b0325fdd40dbeb63ed849b30c18e1
+    surah: 47
+    ayah_from: 15
+    ayah_to: 15
+    sumber: audit-2026-10-29
+    catatan: Ayat dibacakan dalam riwayat; potongan

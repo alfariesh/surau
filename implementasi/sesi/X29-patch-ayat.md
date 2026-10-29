@@ -1,6 +1,6 @@
 # X29 · Patch ayat: kutipan yang terlewat pencocok tampil dengan Kemenag
 
-> **Fase:** Sisipan · **Status:** belum
+> **Fase:** Sisipan · **Status:** sebagian (alat + patch selesai, patch belum diaktifkan; menunggu keputusan pemilik soal ringkasan/Intisari yang ikut gugur, ADR-134 butir 5)
 > **Prasyarat:** X28 (audit, ADR-133) · Tugas pemilik: izin build + promote korpus; izin biaya bila terjemahan Indonesia diulang lewat batch API
 > **Perkiraan:** 2 percakapan agent (alat + patch; penerjemahan ulang menyusul)
 
@@ -27,11 +27,11 @@ Kutipan ayat yang terverifikasi di audit X28 tetapi belum punya `passage_ayah_re
 
 ## Selesai bila
 
-- [ ] `pnpm verify` lolos, termasuk tes pemuat patch
-- [ ] `data/patches/ihya-9472-ayat.yaml` berisi semua kutipan terverifikasi, tanpa huruf Arab
-- [ ] Build staging memuat patch tanpa galat; jumlah rujukan baru = jumlah entri patch
-- [ ] Daftar paragraf terkena tercatat di laporan; terjemahannya ditandai usang
-- [ ] STATUS, LOG, dan file sesi ini sudah diperbarui
+- [x] `pnpm verify` lolos, termasuk tes pemuat patch (lokal 2026-10-29: 142 berkas tes lolos, build hijau; diulang sesudah perbaikan peninjau, lihat PR)
+- [x] `data/patches/ihya-9472-ayat.yaml` berisi semua kutipan terverifikasi, tanpa huruf Arab (179 entri; `pnpm ayat:patch cek` → 179 lolos, 0 gagal; `grep` huruf Arab → 0)
+- [ ] Build staging memuat patch tanpa galat; jumlah rujukan baru = jumlah entri patch (**menunggu izin pemilik**)
+- [ ] Daftar paragraf terkena tercatat di laporan; terjemahannya ditandai usang (daftar: [laporan](../../data/reports/ayat-patch-terkena-2026-10-29.md); penandaan usang baru terjadi saat build, belum dibuktikan)
+- [x] STATUS, LOG, dan file sesi ini sudah diperbarui
 
 ## Di luar cakupan
 
@@ -41,4 +41,28 @@ Kutipan ayat yang terverifikasi di audit X28 tetapi belum punya `passage_ayah_re
 
 ## Catatan hasil
 
-*(diisi agent di akhir sesi)*
+- **Alat** ([ADR-134](../keputusan/ADR-134.md)):
+  - `tools/ingest/src/quran/ayah-patch.ts` berisi skema, `ayahCandidates`, dan `applyAyahPatch`, dengan tes mushaf buatan;
+  - pemuat di `pipeline.ts` (`ayahPatchRefs`, `WorkConfig.ayahPatch`) dan baris laporan `patched`;
+  - `pnpm ayat:patch buat|cek [--terkena]`;
+  - `readStrictYaml` dipisah dari `readTocPatch`.
+- **Patch:** 179 kutipan di 153 paragraf (153 persis, 26 mirip). Asalnya:
+  - 112 dari vonis X28;
+  - 67 dari verifikasi sisa 651 calon tebakan iqtibas dan formula oleh 6 agen Sonnet (kutipan 67, iqtibas 198, formula 310, bukan 76).
+
+  Daftar vonis gabungan ada di [data/reports/ayat-audit-2026-10-29-vonis.tsv](../../data/reports/ayat-audit-2026-10-29-vonis.tsv): 179 kutipan dan 253 iqtibas (iqtibas untuk X30).
+- **Koreksi kecil oleh agen utama:**
+  - istirja' p765: rentang audit terbelah dua, diperluas ke lafaz utuh;
+  - p13428: lafaz "wa la taziru" ada di empat surat, bukan 53:38; dipilih letak pertama mushaf;
+  - basmalah yang dibaca Nabi tetap formula (ADR-133).
+- **Temuan peninjau (BLOCKER):** hash ringkasan AI dan Intisari juga memakai teks bertanda ayat. Patch akan menggugurkan 245/623 ringkasan dan 7/19 Intisari yang tayang, dan build gagal di gerbang cakupan ringkasan. Karena itu patch belum diaktifkan (`WorkConfig.ayahPatch` dikomentari) sampai pemilik memilih opsi di ADR-134 butir 5.
+- **Dampak terjemahan:** 153 terjemahan AI Indonesia yang tayang akan gugur di build berikutnya. Paragrafnya tampil tanpa terjemahan sampai diterjemahkan ulang. 5 paragraf Inggris di repo ikut usang ([daftar](../../data/reports/ayat-patch-terkena-2026-10-29.md)).
+- **Sisa langkah (butuh pemilik):**
+  - build korpus staging dan cek jumlah rujukan (+179);
+  - promote;
+  - terjemahan ulang Indonesia 153 paragraf: batch API (izin biaya, perkiraan kecil) atau plugin;
+  - terjemahan ulang Inggris 8 paragraf lewat plugin sesudah promote.
+- **Utang:**
+  - rentang patch mengikuti deret audit, sehingga bisa lebih pendek dari kutipan bila ejaan berbeda di ujungnya;
+  - calon "lemah" (4.364) belum diaudit;
+  - catatan kaki tidak diaudit.

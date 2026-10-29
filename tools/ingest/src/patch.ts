@@ -39,8 +39,8 @@ export const tocPatch = z.strictObject({
 });
 export type TocPatch = z.infer<typeof tocPatch>;
 
-/** Baca dan validasi file patch. Semua error dan peringatan YAML dianggap gagal. */
-export function readTocPatch(path: string): TocPatch {
+/** Baca berkas patch YAML dengan skema. Semua error dan peringatan YAML dianggap gagal. */
+export function readStrictYaml<T extends z.ZodType>(path: string, schema: T): z.infer<T> {
   const doc = parseDocument(readFileSync(path, "utf8"), {
     uniqueKeys: true,
     strict: true,
@@ -51,7 +51,12 @@ export function readTocPatch(path: string): TocPatch {
     throw new Error(`${path}: ${problems.map((e) => e.message).join("\n")}`);
   }
   // Alias YAML (&a / *a) ditolak: patch harus bisa dibaca apa adanya.
-  const parsed = tocPatch.safeParse(doc.toJS({ maxAliasCount: 0 }));
+  const parsed = schema.safeParse(doc.toJS({ maxAliasCount: 0 }));
   if (!parsed.success) throw new Error(`${path}: ${z.prettifyError(parsed.error)}`);
   return parsed.data;
+}
+
+/** Baca dan validasi file patch daftar isi. */
+export function readTocPatch(path: string): TocPatch {
+  return readStrictYaml(path, tocPatch);
 }
