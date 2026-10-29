@@ -23,6 +23,12 @@ Kutipan ayat yang terverifikasi di audit X28 tetapi belum punya `passage_ayah_re
 4. **Tes:** patch baik dimuat; sha salah, rentang tumpang tindih, ayat tak ada, dan rentang bukan ayat ditolak. Tes integrasi dengan DB Ihya lokal dilewati bila DB tidak ada.
 5. **Daftar paragraf terkena:** paragraf yang mendapat rujukan baru dan sudah punya terjemahan AI Indonesia (dan Inggris di `data/terjemah/en`). Tandai terjemahan itu `source_stale` agar tidak lolos kesiapan sampai diterjemahkan ulang.
 6. **Build korpus staging** dan cek: jumlah `passage_ayah_ref` bertambah sesuai patch, placeholder muncul di bahan terjemahan. Promote ke produksi hanya atas izin pemilik.
+   Build ini dijalankan **di mesin agent** (`/home/rekanesia/surau`), tempat data LLM terbaru berada (T-35). Perintahnya, dari checkout utama:
+   1. `git switch main && git pull` (patch aktif sejak PR #228).
+   2. `SURAU_SHAMELA_ROOT=/home/rekanesia/shamela/database pnpm ingest ihya`. Harapannya: semua gerbang ✓; "Rujukan ayat sah" 2.693 (= 2.514 + 179); ringkasan tetap 623/626; terjemahan ≥ 15.950 (perkiraan ±15.953, usang ±153 + sebelumnya); tidak ada galat `data/patches/ihya-9472-ayat.yaml`.
+   3. Bila gagal karena satu entri patch, catat galatnya dan jangan longgarkan patch. Perbaiki di Mac dengan `pnpm ayat:patch`.
+   4. `pnpm corpus:load:staging`, lalu `pnpm corpus:qa` untuk staging.
+   5. Laporkan angka-angka di atas ke pemilik. Laporan ingest (`data/reports/ihya-9472-*.md`) di-commit lewat PR dari mesin itu.
 7. **Terjemahan ulang:** Inggris lewat plugin (`terjemah-inggris`, tiga lapis cek), termasuk 3 paragraf tunda yang berisi kutipan (`data/terjemah/tunda-en.md`). Indonesia lewat batch API (butuh izin biaya) atau lewat plugin bila pemilik memilihnya.
 
 ## Selesai bila
