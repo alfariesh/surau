@@ -15,6 +15,16 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-26 · Sisipan · Patch keamanan Next 16.4.6 — selesai
+- Dikerjakan:
+  - Endpoint advisori npm bulk untuk `next@16.4.2` → 7 advisori moderate (mfr8, vc7v, vvgp, rhh4, 7qx7, f3mh, pc58), semuanya ditambal di 16.4.5.
+  - Catalog: `next` 16.4.2 → **16.4.6**, `@opennextjs/cloudflare` 1.20.13 → **1.20.17** (`@opennextjs/aws` 4.1.16). OpenNext 1.20.18 dilewati karena regresi cookie, dan 1.20.19 belum berumur 24 jam. Tanpa lompat ke 16.5 dan tanpa `next upgrade --agent`.
+  - ADR-140, STACK (baris Next + OpenNext), STATUS (Perhatian).
+- Verifikasi: peninjau → 0 wajib, 2 sebaiknya (STACK riwayat OpenNext, catatan glob ADR-003) ditangani · advisori bulk `next@16.4.6` → `{}` · `pnpm audit --prod` → tanpa `next` (sisa: `hono` 4 moderate + 1 low di `apps/api`, `figlet` high transitif HeroUI Pro) · `pnpm verify` → lolos sekali jalan, tanpa berhenti karena pesan keamanan (1.194 + 500 tes) · `pnpm --filter @surau/web preview` (workerd, OpenNext 1.20.17) → `/` 200, `/api/version` 200, `/tidak-ada` 404; `/kitab/ihya/1/200` dan `/cari` 500 karena D1 lokal worktree kosong (0 tabel), jadi pembaca dan Cari dicek lewat Preview PR (staging).
+- Biaya API: –
+- Keputusan: [ADR-140](keputusan/ADR-140.md)
+- Catatan untuk sesi berikutnya: naikkan OpenNext ke 1.20.19+ sebagai patch biasa bila sudah berumur. Advisori `hono`/`figlet` belum ditangani.
+
 ## 2026-11-26 · X31a · Fondasi multi-kitab + korpus Bidayat al-Hidayah — sebagian
 - Dikerjakan:
   - Ingest multi-kitab: `pnpm ingest korpus [--kitab]`, satu korpus `kitab-v10`, hasil LLM dan Intisari per kitab, batas bawah Intisari Ihya 19 (ADR-137).

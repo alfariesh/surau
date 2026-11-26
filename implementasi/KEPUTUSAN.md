@@ -149,6 +149,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 137 | Korpus banyak kitab: satu build gabungan `kitab-v10` (tabel bersama sekali, invarian lintas kitab), hasil LLM dan Intisari per kitab (Ihya memakai Intisari pilot, batas bawah 19), reset penuh tetap (menyimpang dari "reset per edisi"), alat batch LLM per kitab dipindah ke X31b | diterima | 2026-11-26 | [keputusan/ADR-137.md](keputusan/ADR-137.md) |
 | 138 | Kelas catatan kaki per kitab (ledger): klasik tampil, pentahqiq modern (Tibyan, Ajurrumiyyah) tidak dimuat ke korpus, tidak diketahui ditahan; implementasi di X31c | diterima | 2026-11-26 | [keputusan/ADR-138.md](keputusan/ADR-138.md) |
 | 139 | Halaman Shamela berurutan dengan nomor cetak sama digabung menjadi satu halaman Surau (al-Ajurrumiyyah: 31 halaman sumber, 19 nomor cetak); implementasi di X31d | diterima | 2026-11-26 | [keputusan/ADR-139.md](keputusan/ADR-139.md) |
+| 140 | Patch keamanan Next 16.4.6 + OpenNext 1.20.17 (7 advisori moderate ditambal 16.4.5; tanpa lompat ke 16.5; 1.20.18 regresi, 1.20.19 belum 24 jam) | diterima | 2026-11-26 | [keputusan/ADR-140.md](keputusan/ADR-140.md) |
 
 ## Cara menambah ADR baru
 
