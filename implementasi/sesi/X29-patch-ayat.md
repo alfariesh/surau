@@ -47,6 +47,8 @@ Kutipan ayat yang terverifikasi di audit X28 tetapi belum punya `passage_ayah_re
 
 ## Catatan hasil
 
+- **Promote (keputusan pemilik 2026-11-26):** X29 tidak dipromote sendiri. Patch sudah aktif di `main`, jadi build multi-kitab X31a memuatnya, dan patch tayang bersama Bidayah di promote [X31b](X31-gelombang-1-tiga-kitab.md). Terjemahan ulang 153 paragraf terkena digabung dengan batch terjemahan Bidayah (satu izin biaya). Build staging X29 2026-11-26 boleh ditimpa X31a; arsipnya tetap di mesin agent (ADR-136 butir 3).
+
 - **Alat** ([ADR-134](../keputusan/ADR-134.md)):
   - `tools/ingest/src/quran/ayah-patch.ts` berisi skema, `ayahCandidates`, dan `applyAyahPatch`, dengan tes mushaf buatan;
   - pemuat di `pipeline.ts` (`ayahPatchRefs`, `WorkConfig.ayahPatch`) dan baris laporan `patched`;

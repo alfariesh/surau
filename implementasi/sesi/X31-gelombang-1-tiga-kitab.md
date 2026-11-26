@@ -1,7 +1,7 @@
 # X31 · Gelombang 1: tiga kitab kecil yang lengkap
 
 > **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** belum
-> **Prasyarat:** X31a: kode boleh di Mac, tetapi **build dan staging wajib di mesin agent** (`/home/rekanesia/surau`, ADR-135 butir 5), T-35 selesai 2026-11-26, tetapi staging kini berisi build X29 yang menunggu izin promote: promote X29 dulu, atau bangun ulang staging X29 sesudah X31a. Build yang memuat Ihya wajib memakai Intisari pilot lewat penukaran folder [ADR-136](../keputusan/ADR-136.md) (build biasa menghapus 19 Intisari tayang). X31b–X31d: X31a dan X24 selesai.
+> **Prasyarat:** X31a: kode boleh di Mac, tetapi **build dan staging wajib di mesin agent** (`/home/rekanesia/surau`, ADR-135 butir 5), T-35 selesai 2026-11-26, tetapi staging berisi build X29 yang boleh ditimpa: pemilik memutuskan patch X29 ikut tayang bersama Bidayah (2026-11-26), jadi tidak ada promote X29 terpisah. Build yang memuat Ihya wajib memakai Intisari pilot lewat penukaran folder [ADR-136](../keputusan/ADR-136.md) (build biasa menghapus 19 Intisari tayang). X31b–X31d: X31a dan X24 selesai.
 > **Tugas pemilik:** izin `corpus:load:staging` (`tools/ingest/README.md`), izin biaya per batch (aturan keras 4), izin promote korpus, T-29 untuk audio
 > **Perkiraan:** X31a 1–2 percakapan, X31b 1–2, X31c 1, X31d 1–2
 > **Keputusan dasar:** [ADR-135](../keputusan/ADR-135.md)
@@ -69,7 +69,7 @@ Dipakai sama untuk ketiga kitab. Butir yang tidak berlaku hanya boleh dikecualik
 3. **Intisari** (setelah X24): skill plugin `surau-redaksi` dan instruksi `/redaksi` dibuat umum, tidak lagi menyebut Ihya saja (contoh tetap boleh dari Ihya). Buat Intisari Bab untuk setiap judul di ledger dan satu Intisari Kitab, periksa tiga lapis, lalu impor lewat jalur X24.
 4. **Audio:** nilai kriteria audio; bila lolos, skrip Intisari → ElevenLabs (T-29, **izin biaya**), sorotan kalimat (X18) bila timestamps tersedia.
 5. **Terjemahan Inggris** (opsional, bukan syarat selesai): lewat skill `terjemah-inggris` bila antrean X26 berjalan.
-6. Promote atas izin pemilik.
+6. Promote atas izin pemilik. Promote ini juga menayangkan patch ayat X29 (keputusan pemilik 2026-11-26), jadi sebelum promote: 153 paragraf Ihya yang terjemahannya gugur oleh patch diterjemahkan ulang di batch yang sama dengan langkah 1, dan cek X29 (rujukan ayat 2.693, terjemahan Ihya ≥ 99%) ikut di curl produksi.
 7. Tulis **catatan cetakan** di "Catatan hasil": urutan langkah yang ternyata perlu, waktu, dan biaya nyata.
 
 **Selesai bila:** semua butir "Definisi selesai" untuk Bidayah tercentang dengan bukti perintah · catatan cetakan tertulis · biaya nyata tercatat di LOG.
