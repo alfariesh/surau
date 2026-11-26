@@ -28,7 +28,7 @@ import { readStrictYaml, readTocPatch } from "./patch.ts";
 import { ayatReport } from "./quran/report.ts";
 import { applyAyahPatch, ayahPatch } from "./quran/ayah-patch.ts";
 import { matchAyat, mergePatchedRefs, quranIndex, quranTableRows } from "./quran/rows.ts";
-import type { AyahStats, AyatBuild, QuranRows } from "./quran/rows.ts";
+import type { AyahStats, AyatBuild } from "./quran/rows.ts";
 import { loadQuran } from "./quran/source.ts";
 import type { QuranConfig, QuranData } from "./quran/source.ts";
 import { openitiReport, validationReport } from "./report.ts";

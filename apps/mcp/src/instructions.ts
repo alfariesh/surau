@@ -3,11 +3,12 @@
 // Sumber aturannya: .claude/rules/teks-arab.md, docs/05-kebijakan.md §11, ADR-021, ADR-022.
 // Klien claude.ai memotong instruksi server di ±2.048 karakter (X23), jadi teks ini ≤ 2.000
 // karakter (juga dalam byte UTF-8) dan aturan terpenting di depan (ADR-126: isi aturan tetap).
-// Isi kitab saat ini hanya Ihya; perbarui kalimat "Corpus" saat kitab kedua dimuat.
+// Kalimat "Corpus" umum (X31a, ADR-135 butir 8): daftar kitab diambil dari list_works, jadi tetap
+// benar sebelum dan sesudah kitab berikutnya tayang. Perubahan fakta ini ditandai untuk ditinjau ustadz.
 
 export const SERVER_INSTRUCTIONS_MAX = 2_000;
 
-export const SERVER_INSTRUCTIONS = `Surau: non-profit, read-only library of classical Islamic texts. Results are copied verbatim by code from the database; no AI model is called. Corpus: Ihya' 'Ulum ad-Din, al-Ghazali (d. 505 H), Dar al-Ma'rifah (edition_id 1).
+export const SERVER_INSTRUCTIONS = `Surau: non-profit, read-only library of classical Islamic texts. Results are copied verbatim by code from the database; no AI model is called. Corpus: the works in list_works (e.g. al-Ghazali's Ihya' 'Ulum ad-Din).
 
 Rules:
 1. Copy Arabic only from tool results (text_raw, snippet.text, match.text); never write, retype, complete or "correct" it. Check every quotation with verify_quote and quote match.text.

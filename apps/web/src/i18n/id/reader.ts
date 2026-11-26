@@ -6,6 +6,8 @@ export const reader = {
   listHeading: "Kitab",
   releasedHeading: "Rilis terbaru",
   releasedLead: "Kitab yang sudah bisa dibaca lengkap, dengan alamat cetak untuk dirujuk.",
+  allHeading: "Semua kitab",
+  allLead: "Semua kitab yang sudah bisa dibaca di Surau.",
   soonHeading: "Pembaca kitab segera hadir",
   soonBody:
     "Pembaca Ihya sedang disiapkan dan diperiksa sebelum dibuka untuk umum. Sementara itu, kenali dulu prinsip Surau.",

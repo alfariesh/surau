@@ -8,16 +8,19 @@
  */
 export const CITE_AUTHOR: Readonly<Record<string, string>> = {
   ihya: "al-Ghazali",
+  "bidayat-al-hidayah": "al-Ghazali",
 };
 
 /** Keterangan singkat karya di daftar /kitab (ditulis tangan, bahasa Indonesia). */
 export const WORK_BLURB: Readonly<Record<string, string>> = {
   ihya: "Ensiklopedia ibadah, adab, dan penyucian jiwa dalam empat bagian: ibadah, kebiasaan sehari-hari, hal yang membinasakan, dan hal yang menyelamatkan.",
+  "bidayat-al-hidayah": "Panduan adab dan ibadah harian, pintu masuk sebelum Ihya.",
 };
 
 /** Kunci: `<slug karya>/<slug edisi>`. */
 export const CITE_PUBLISHER: Readonly<Record<string, string>> = {
   "ihya/dar-al-marifah": "Dar al-Ma'rifah",
+  "bidayat-al-hidayah/maktabat-madbuli": "Maktabat Madbuli",
 };
 
 /** Teks lisensi resmi per nama lisensi di `edition.license` (CC BY-NC-SA 4.0 §3(a)(1)). */
@@ -28,6 +31,10 @@ export const LICENSE_URL: Readonly<Record<string, string>> = {
 /** Materi berlisensi yang menjadi dasar hak pakai teks edisi (data/ATTRIBUTION.md, ADR-018). */
 export const EDITION_SOURCE: Readonly<Record<string, { label: string; url: string }>> = {
   "ihya/dar-al-marifah": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "bidayat-al-hidayah/maktabat-madbuli": {
     label: "OpenITI 2025.1.9 (Zenodo)",
     url: "https://zenodo.org/records/17767721",
   },
@@ -97,6 +104,33 @@ export const EDITION_CREDITS: readonly EditionCredit[] = [
       "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
       "Takhrij yang tercampur ke teks utama dipindah ke catatan kaki dan ditandai “perlu ditinjau”.",
       "Daftar isi diperbaiki lewat patch yang tercatat: dua kitab Rub' al-Munjiyat yang hilang ditambahkan dan satu bayan dikembalikan ke levelnya.",
+    ],
+  },
+  {
+    key: "bidayat-al-hidayah/maktabat-madbuli",
+    workSlug: "bidayat-al-hidayah",
+    title: "Bidayat al-Hidayah",
+    author: "al-Ghazali (w. 505 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0012718; digitalisasi asal: al-Maktaba al-Shamela; edisi: Maktabat Madbuli, Kairo 1413/1993",
+    parties: [
+      {
+        name: "OpenITI (Open Islamicate Texts Initiative), rilis 2025.1.9",
+        role: "Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks.",
+        link: { label: "Zenodo", url: "https://zenodo.org/records/17767721" },
+      },
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 12718). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/12718" },
+      },
+      {
+        name: "Maktabat Madbuli, Kairo",
+        role: "Penerbit edisi cetak: satu jilid, cetakan pertama 1413 H / 1993 M, tahqiq Muhammad Zainhum Muhammad 'Azab. Nomor halaman di Surau mengikuti cetakan ini.",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
     ],
   },
 ];

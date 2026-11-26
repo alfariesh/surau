@@ -35,6 +35,10 @@ export default async function KitabPage() {
   const { works } = await listWorks(env.CORPUS_DB);
   // Kitab terbaru = ID terbesar (listWorks urut ID); hanya ia yang tampil di "Rilis terbaru".
   const latest = works.at(-1);
+  // Kitab yang sudah ada di korpus tidak lagi tampil di "Segera hadir" (X31a): daftar kandidat statis,
+  // korpus yang menentukan kitab mana yang sudah tayang.
+  const loaded = new Set(works.map((w) => w.slug));
+  const upcoming = UPCOMING_KITAB.filter((k) => !loaded.has(k.slug));
   const latestEdition = latest?.editions[0];
   // Judul Latin; bila belum ada, judul Arab lewat ArabicInline (lang/dir benar).
   const latestTitle = latest
@@ -129,6 +133,40 @@ export default async function KitabPage() {
           </Widget>
         </section>
       ) : null}
+      {/* Semua kitab tayang (ADR-115 "Tinjau ulang bila: kitab kedua dirilis"): "Rilis terbaru" hanya
+          menampilkan satu kitab, jadi kitab yang lebih dulu tayang didaftar di sini. */}
+      {works.length > 1 ? (
+        <section aria-labelledby="semua-kitab" className="flex flex-col gap-4">
+          <header className="flex max-w-2xl flex-col gap-2">
+            <Typography.Heading id="semua-kitab" level={2} className="text-xl">
+              {t.allHeading}
+            </Typography.Heading>
+            <Typography color="muted">{t.allLead}</Typography>
+          </header>
+          <ul className="flex flex-col gap-3">
+            {works.map((w) => {
+              const edition = w.editions[0];
+              return (
+                <li key={w.slug} className="flex flex-col gap-0.5">
+                  {edition ? (
+                    <NextLink className="link font-medium" href={edition.permalink}>
+                      {w.title_id ?? <ArabicInline>{w.title_ar}</ArabicInline>}
+                    </NextLink>
+                  ) : (
+                    <span className="font-medium">
+                      {w.title_id ?? <ArabicInline>{w.title_ar}</ArabicInline>}
+                    </span>
+                  )}
+                  <Typography type="body-sm" color="muted">
+                    <ArabicInline>{w.title_ar}</ArabicInline>
+                    {w.author ? ` · ${w.author.name_id ?? w.author.name_ar}` : ""}
+                  </Typography>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
       {/* Kandidat kitab berikutnya (ADR-115): rencana, belum pasti; minat pembaca ikut menentukan. */}
       <section aria-labelledby="segera-hadir" className="flex flex-col gap-6 pt-4">
         <header className="flex max-w-2xl flex-col gap-2">
@@ -137,7 +175,7 @@ export default async function KitabPage() {
           </Typography.Heading>
           <Typography color="muted">{id.upcoming.lead}</Typography>
         </header>
-        <UpcomingKitabList items={UPCOMING_KITAB} />
+        <UpcomingKitabList items={upcoming} />
       </section>
     </div>
   );

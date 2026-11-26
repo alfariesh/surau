@@ -23,6 +23,22 @@ Perubahan yang dilakukan Surau atas teks tersebut (wajib disebut oleh CC BY-NC-S
 - Takhrij yang tercampur ke matan (ditandai `//` di sumber) dipindah ke catatan kaki dan ditandai perlu ditinjau.
 - Daftar isi diperbaiki lewat patch yang di-commit ([patches/ihya-9472.yaml](patches/ihya-9472.yaml)): dua kitab Rub' al-Munjiyat yang hilang ditambahkan dan satu bayan dikembalikan ke levelnya.
 
+## Bidayat al-Hidayah (al-Ghazali, w. 505 H)
+
+Dimuat sejak korpus `kitab-v10` (X31a, ADR-135, ADR-137). Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0012718; digitalisasi asal: al-Maktaba al-Shamela; edisi: Maktabat Madbuli, Kairo 1413/1993
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0505Ghazali.BidayatHidaya.Shamela0012718-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0525AH` commit `e8dddd44c7998cefce72e4f37fad471634dd9d1e` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 12718). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/bidayat-al-hidayah-12718-openiti.md](reports/bidayat-al-hidayah-12718-openiti.md)) | https://shamela.ws/book/12718 |
+| **Maktabat Madbuli, Kairo** | Penerbit edisi cetak: satu jilid, cetakan pertama 1413 H / 1993 M, tahqiq Muhammad Zainhum Muhammad 'Azab. Nomor halaman di Surau mengikuti cetakan ini | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+
 ## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 
 Kutipan ayat di dalam kitab dikenali otomatis dan ditautkan ke surah:ayat. Teks ayat, terjemahan, dan transliterasi yang tampil di Surau disalin **verbatim** dari sumber berikut. Model AI tidak pernah menulis, mengubah, atau menerjemahkan ayat (ADR-020, ADR-040).
