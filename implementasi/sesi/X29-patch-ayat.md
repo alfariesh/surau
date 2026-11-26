@@ -1,6 +1,6 @@
 # X29 · Patch ayat: kutipan yang terlewat pencocok tampil dengan Kemenag
 
-> **Fase:** Sisipan · **Status:** sebagian (patch aktif dengan opsi b; build staging, promote, dan terjemahan ulang menunggu izin pemilik)
+> **Fase:** Sisipan · **Status:** sebagian (patch aktif dengan opsi b; staging dimuat 2026-11-26 lewat T-35; promote dan terjemahan ulang menunggu izin pemilik)
 > **Prasyarat:** X28 (audit, ADR-133) · Tugas pemilik: izin build + promote korpus; izin biaya bila terjemahan Indonesia diulang lewat batch API
 > **Perkiraan:** 2 percakapan agent (alat + patch; penerjemahan ulang menyusul)
 
@@ -35,8 +35,8 @@ Kutipan ayat yang terverifikasi di audit X28 tetapi belum punya `passage_ayah_re
 
 - [x] `pnpm verify` lolos, termasuk tes pemuat patch (lokal 2026-10-29: 142 berkas tes lolos, build hijau; diulang sesudah perbaikan peninjau, lihat PR)
 - [x] `data/patches/ihya-9472-ayat.yaml` berisi semua kutipan terverifikasi, tanpa huruf Arab (179 entri; `pnpm ayat:patch cek` → 179 lolos, 0 gagal; `grep` huruf Arab → 0)
-- [ ] Build staging memuat patch tanpa galat; jumlah rujukan baru = jumlah entri patch (**menunggu izin pemilik**)
-- [ ] Daftar paragraf terkena tercatat di laporan; terjemahannya ditandai usang (daftar: [laporan](../../data/reports/ayat-patch-terkena-2026-10-29.md); penandaan usang baru terjadi saat build, belum dibuktikan)
+- [x] Build staging memuat patch tanpa galat; jumlah rujukan baru = jumlah entri patch (T-35, 2026-11-26: `pnpm ingest ihya` → semua gerbang ✓, "Rujukan ayat sah" 2.693 = 2.514 + 179; `pnpm corpus:load:staging --confirm` → `passage_ayah_ref 2693`; `pnpm corpus:qa staging` → 30/30 halaman cocok)
+- [x] Daftar paragraf terkena tercatat di laporan; terjemahannya ditandai usang (daftar: [laporan](../../data/reports/ayat-patch-terkena-2026-10-29.md); build T-35: "usang 153" (build tanpa patch 16.108 → dengan patch 15.955); [`cek-patch-build.ts`](bukti/X29/cek-patch-build.ts) atas SQLite build → [hasil](bukti/X29/cek-patch-build-2026-11-26.txt): 179/179 entri jadi rujukan di 153 paragraf, 0 dari 153 paragraf itu masih membawa terjemahan Indonesia lama, teks bertanda paragraf itu berisi 441 placeholder `⟦QS s:a⟧`)
 - [x] STATUS, LOG, dan file sesi ini sudah diperbarui
 
 ## Di luar cakupan
@@ -64,8 +64,8 @@ Kutipan ayat yang terverifikasi di audit X28 tetapi belum punya `passage_ayah_re
 - **Temuan peninjau (BLOCKER):** hash ringkasan AI dan Intisari juga memakai teks bertanda ayat. Patch akan menggugurkan 245/623 ringkasan dan 7/19 Intisari yang tayang, dan build gagal di gerbang cakupan ringkasan. Karena itu patch belum diaktifkan (`WorkConfig.ayahPatch` dikomentari) sampai pemilik memilih opsi di ADR-134 butir 5.
 - **Dampak terjemahan:** 153 terjemahan AI Indonesia yang tayang akan gugur di build berikutnya. Paragrafnya tampil tanpa terjemahan sampai diterjemahkan ulang. 5 paragraf Inggris di repo ikut usang ([daftar](../../data/reports/ayat-patch-terkena-2026-10-29.md)).
 - **Sisa langkah (butuh pemilik):**
-  - build korpus staging dan cek jumlah rujukan (+179);
-  - promote;
+  - ~~build korpus staging dan cek jumlah rujukan (+179)~~ selesai 2026-11-26 (T-35, lihat di bawah);
+  - promote (build ulang sebagai `ihya-v10`, [ADR-136](../keputusan/ADR-136.md));
   - terjemahan ulang Indonesia 153 paragraf: batch API (izin biaya, perkiraan kecil) atau plugin;
   - terjemahan ulang Inggris 8 paragraf lewat plugin sesudah promote.
 - **Utang:**
@@ -84,4 +84,10 @@ Kutipan ayat yang terverifikasi di audit X28 tetapi belum punya `passage_ayah_re
   - akibat permanen opsi (b) ditulis di ADR-134;
   - 28 kutipan Intisari produksi dan staging tidak menyentuh rentang patch.
 - **Utang:** tes bahwa `summaryPlan`/`digestPlan` memberi hash sama dengan dan tanpa baris patch (sekarang dibuktikan lewat build lokal: ringkasan 544/626 di keduanya). `matcherRefs` terkunci ke `IHYA.ayahPatch`, jadi kitab kedua perlu meneruskan path dari `WorkConfig`.
-
+- **Build staging T-35 (2026-11-26, mesin agent):**
+  - Angka akhir: rujukan ayat 2.514 → **2.693** (+179, 179 entri patch semuanya masuk); exact 2.597; terjemahan Indonesia **15.955/16.111** (99,03%, usang 153, lolos gerbang 99%); ringkasan **623/626**; Intisari **19/313** node, 119 gagasan, 28 kutipan; audio **4** track. Gerbang lain ✓. `sha256 build: 13c66330…74ace8`.
+  - Staging (`surau-corpus-staging`) kini memuat build ini; QA 30/30 halaman cocok byte demi byte. Produksi (`surau-corpus-ihya-v9`) tidak disentuh.
+  - **Temuan: Intisari tayang tidak terbangun dari `data/build/llm/intisari`.** Folder itu sudah berisi hasil X15c (prompt `digest-section@3` dan `digest-merge@2`, cabang `sesi/x15c-intisari-penuh` yang belum digabung, diparkir ADR-135). Kode di `main` masih `@2`/`@1`, jadi semua 463 hasil dianggap basi dan build pertama keluar dengan Intisari 0 dan audio 0. Build tanpa patch juga 0, jadi bukan akibat patch. Build yang dimuat memakai cadangan pilot X15b (`data/build/llm/intisari-pilot-x15b-cadangan-2026-10-27`) lewat penukaran folder sementara ([ADR-136](../keputusan/ADR-136.md)). Data X15c disalin dulu, lalu dikembalikan, dan `diff -rq` memastikannya utuh. Kesetaraan dengan produksi dicek lewat hitungan (staging lama = produksi: 19 Intisari, 119 gagasan; build: 19/119/28 kutipan). Daftar tarik ADR-127 tetap mengenai build ini: kunci `digest_created_at` 100007/100017 ada di cadangan pilot, sehingga dua gagasan Salah tetap ditahan.
+  - Audio 4, bukan 6 seperti produksi: 100007 dan 100017 sudah dikeluarkan dari manifest oleh A0 (ADR-127, mp3 dihapus atas izin pemilik). Produksi masih menyimpan baris audio keduanya, yang menunjuk mp3 yang sudah dihapus. Promote berikutnya sekaligus membersihkannya. Baris log "gugur: tanpa Intisari 2" bukan soal dua bab itu: manifest sekarang berisi 100003, 100004, 100005, 100006, 100009, dan 100019, dan 100003 serta 100019 tidak punya Intisari di data pilot, sama seperti saat produksi dibangun.
+  - **Untuk promote:** `ihya-v9` melayani produksi, jadi promote = naikkan `corpusVersion` ke `ihya-v10`, bangun ulang dengan penukaran folder ADR-136, cocokkan hitungannya dengan arsip `data/build/arsip/x29-staging-2026-11-26/`, lalu `corpus:promote ihya-v10`. Build biasa tanpa penukaran folder menghapus 19 Intisari tayang.
+  - **Utang:** path Intisari per karya + gerbang batas bawah Intisari (ADR-136 butir 4).

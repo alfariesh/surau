@@ -20,10 +20,11 @@
 | Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | 610 / 38 |
 | Kutipan S13 (paragraf badan): tanpa tanda (persis), dan pendek 2–3 kata sesudah pengantar (lafaz langka; bisa diperpanjang melewati beda ejaan) | 862 |
 | Kutipan terbelah dua paragraf badan berurutan (X02; aturan mode tanpa tanda, dua rujukan sebagian per pasang) | 1 pasang |
-| **Rujukan ayat** (`passage_ayah_ref`) | **2.514** di 1.454 paragraf |
-| · sebagian ayat (`partial`) | 1.927 |
-| · lebih dari satu ayat | 305 |
-| · lafaz yang sama ada di letak lain (`alt_count` > 0) | 92 |
+| Kutipan dari patch ayat terverifikasi (X29, ADR-133; `data/patches/*-ayat.yaml`) | 179 |
+| **Rujukan ayat** (`passage_ayah_ref`) | **2.693** di 1.519 paragraf |
+| · sebagian ayat (`partial`) | 2.075 |
+| · lebih dari satu ayat | 310 |
+| · lafaz yang sama ada di letak lain (`alt_count` > 0) | 133 |
 
 Gerbang S12: cocok persis ≥ 95% dari bentang `{…}` tervalidasi → 97,3% ✓.
 
