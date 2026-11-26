@@ -247,8 +247,8 @@ catalogs:
       specifier: 5.0.5
       version: 5.0.5
     hono:
-      specifier: 4.13.13
-      version: 4.13.13
+      specifier: 4.13.22
+      version: 4.13.22
     jose:
       specifier: 6.2.13
       version: 6.2.13
@@ -355,7 +355,7 @@ importers:
         version: link:../../packages/llm
       hono:
         specifier: 'catalog:'
-        version: 4.13.13
+        version: 4.13.22
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -3281,8 +3281,8 @@ packages:
     resolution: {integrity: sha512-Q56lE9bVb92HTsqZRUVTaCF6NRMaC4l/BdR7dZp/t3B0vhNYtAKxNinKn5P+g8/vt5YZagjKriU05c+PCmWcGQ==}
     hasBin: true
 
-  hono@4.13.13:
-    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
+  hono@4.13.22:
+    resolution: {integrity: sha512-wncKd5/40Pj8grx0RZ2fgNIicFEmVFwIHT5UFLTnphR8I6AQWFf9c2JoM6ZJ9g8y4pMzg3sNlCVNe0m2Yclg0Q==}
     engines: {node: '>=16.9.0'}
 
   http-errors@2.0.1:
@@ -6912,7 +6912,7 @@ snapshots:
     optionalDependencies:
       '@zowe/secrets-for-zowe-sdk': 8.29.4
 
-  hono@4.13.13: {}
+  hono@4.13.22: {}
 
   http-errors@2.0.1:
     dependencies:
