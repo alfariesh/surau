@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-26 · X29/X31 · Promote patch ayat ikut Bidayah — selesai
+- Dikerjakan: T-35 dicek ulang dari Mac; pemilik memutuskan patch ayat X29 tidak dipromote sendiri, tetapi tayang bersama Bidayah di promote X31b, dengan terjemahan ulang 153 paragraf digabung ke batch terjemahan Bidayah. STATUS, sesi X29, dan X31 diperbarui.
+- Verifikasi: `wrangler d1 execute surau-corpus-staging --remote --command "select …"` (hanya SELECT) → rujukan ayat 2.693, terjemahan 15.955, `built_at` 2026-11-26T03:52:39Z, sama dengan laporan PR #236
+- Biaya API: –
+- Keputusan: – (urutan rilis; mengikuti ADR-135 dan ADR-136)
+- Catatan untuk sesi berikutnya: X31a di mesin agent boleh menimpa staging X29; build yang memuat Ihya tetap memakai penukaran folder Intisari ADR-136.
+
 ## 2026-11-26 · X29 / T-35 · Build staging patch ayat — selesai (promote menunggu izin)
 - Dikerjakan:
   - `git pull`, lalu `pnpm ingest ihya` di mesin agent dengan patch ayat aktif, lalu `pnpm corpus:load:staging --confirm` dan `pnpm corpus:qa staging`.
