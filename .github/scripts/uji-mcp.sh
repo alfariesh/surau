@@ -3,9 +3,11 @@
 # `--protocol-era modern` (2026-07-28, server/discover) dan `legacy` (2025-11-25, initialize).
 # Dipakai preview.yml (Preview per PR, data staging) dan deploy.yml (produksi, mcp.surau.org).
 #
-# Pakai: uji-mcp.sh <URL endpoint, mis. https://mcp.surau.org/mcp> [lengkap|daftar]
+# Pakai: uji-mcp.sh <URL endpoint, mis. https://mcp.surau.org/mcp> [lengkap|daftar|tutup|redaksi]
 #   lengkap (bawaan): tools/list + tools/call kedelapan tool (data Ihya edisi 1) + kasus error
 #   daftar: tools/list + satu tools/call (list_works) saja (smoke produksi)
+#   tutup: tools/list + list_works harus menjawab `corpus_closed` (korpus ditutup, KITAB_OPEN "0",
+#     ADR-142); URL /redaksi atau /mcp
 #   redaksi: endpoint /redaksi (X23, X27): 12 tool + check_content_draft dan check_translation_draft
 #     (draf rusak, galat pasti), list_faedah_candidates dan list_translation_units (data Ihya edisi 1);
 #     URL diakhiri /redaksi
@@ -73,7 +75,19 @@ done
 
 ALAT='["list_works","get_table_of_contents","read_page","read_section","search_text","verify_quote","get_hadith_takhrij","get_section_digest"]'
 JUMLAH=8
-if [ "$MODE" = "redaksi" ]; then
+# Mode tutup: versi Worker lama (belum tertutup) bisa masih melayani beberapa detik sesudah deploy,
+# dan tools/list-nya sama. Ulangi list_works sampai menjawab corpus_closed sebelum uji per era.
+if [ "$MODE" = "tutup" ]; then
+  for i in $(seq 1 "$MAX_COBA"); do
+    jalan --protocol-era modern --method tools/call --tool-name list_works --tool-args-json '{}' || true
+    jq -e '.result.isError == true and (.result.content[0].text | startswith("corpus_closed:"))' \
+      "$TMP/out" >/dev/null && break
+    [ "$i" = "$MAX_COBA" ] && gagal "list_works belum menjawab corpus_closed setelah $MAX_COBA percobaan"
+    sleep "$JEDA"
+  done
+fi
+
+if [ "$MODE" = "redaksi" ] || { [ "$MODE" = "tutup" ] && [[ "$URL" == */redaksi ]]; }; then
   ALAT=$(jq -c '. + ["check_content_draft","list_faedah_candidates","list_translation_units","check_translation_draft"]' <<<"$ALAT")
   JUMLAH=12
 fi
@@ -86,6 +100,10 @@ for era in modern legacy; do
     "$TMP/out" >/dev/null || gagal "$era tools/list: anotasi/outputSchema"
   echo "  ✓ $era tools/list ($JUMLAH tool)"
 
+  if [ "$MODE" = "tutup" ]; then
+    panggil_error "$era" list_works "corpus_closed:" '{}'
+    continue
+  fi
   panggil "$era" list_works '(.works | length) >= 1 and .license.name == "CC BY-NC-SA 4.0"'
   [ "$MODE" = "daftar" ] && continue
   if [ "$MODE" = "redaksi" ]; then

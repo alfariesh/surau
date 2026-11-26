@@ -18,13 +18,18 @@ export interface GuardEnv {
   MCP_REDAKSI_LIMITER: Limiter;
   /** Secret Worker; tanpa ini setiap tool menjawab `not_configured` (gagal tertutup). */
   IP_HMAC_KEY?: string;
+  /**
+   * Var Worker: "0" = korpus ditutup, setiap tool menjawab `corpus_closed` tanpa menyentuh D1
+   * (Ihya diarsipkan dan diturunkan, ADR-142; padanan `READER_ENABLED` web). Selain "0" = terbuka.
+   */
+  KITAB_OPEN?: string;
 }
 
 /**
  * `not_configured` (secret hilang) sengaja beda dari kode core `unavailable` (korpus tanpa indeks /
  * NORM_VERSION beda): penanganannya beda, telemetrinya tidak boleh menyatu (#74).
  */
-export type GuardResult = "ok" | "rate_limited" | "not_configured";
+export type GuardResult = "ok" | "rate_limited" | "not_configured" | "corpus_closed";
 
 /** IP klien dari Cloudflare; permintaan tanpa header (tes in-process) berbagi satu ember. */
 export function clientIp(request: Request | undefined): string {
@@ -47,6 +52,7 @@ export async function guardTool(
   endpoint: "mcp" | "redaksi" = "mcp",
 ): Promise<GuardResult> {
   if (env.IP_HMAC_KEY === undefined || env.IP_HMAC_KEY === "") return "not_configured";
+  if (env.KITAB_OPEN === "0") return "corpus_closed";
   // Kunci `/mcp` tidak berubah; `/redaksi` punya ember per klien sendiri, supaya penulis konten
   // tidak berbagi kuota dengan semua pengguna claude.ai yang lewat IP Anthropic (X23).
   const scope = endpoint === "mcp" ? "" : `${endpoint}:`;

@@ -5,7 +5,7 @@ export const mcp = {
   pageTitle: "Pakai Surau dengan AI",
   eyebrow: "Untuk pengguna Claude, ChatGPT, dan asisten AI lain",
   heading: "Pakai Surau dari AI Anda",
-  lead: "Hubungkan asisten AI Anda ke perpustakaan Surau untuk mencari dan membaca Ihya karya al-Ghazali, dengan teks Arab asli dan tautan ke halaman cetaknya.",
+  lead: "Hubungkan asisten AI Anda ke perpustakaan Surau untuk mencari dan membaca kitab-kitab Surau, dengan teks Arab asli dan tautan ke halaman cetaknya.",
   endpointHeading: "Satu alamat, tanpa akun Surau",
   endpointLead:
     "MCP adalah cara asisten AI mengakses sumber tambahan. Salin alamat ini saat diminta URL server atau connector:",
@@ -38,7 +38,7 @@ export const mcp = {
       name: "ChatGPT",
       steps: [
         "Buka halaman Plugins di ChatGPT, lalu + → Add custom MCP server bila tersedia untuk akun Anda. Ketersediaan fitur mengikuti akun dan kebijakan organisasi; Developer mode mungkin perlu diaktifkan di Settings → Security and login.",
-        "Isi nama Surau, deskripsi singkat perpustakaan Ihya, dan alamat server di atas. Pilih autentikasi tanpa login, tinjau izin baca tool, lalu buat dan pasang plugin.",
+        "Isi nama Surau, deskripsi singkat perpustakaan kitab Surau, dan alamat server di atas. Pilih autentikasi tanpa login, tinjau izin baca tool, lalu buat dan pasang plugin.",
         "Di percakapan baru, ketik @ dan pilih Surau, lalu ajukan pertanyaan contoh. Ikuti panduan resmi bila nama menu di akun Anda berbeda.",
       ],
       docs: "https://developers.openai.com/api/docs/guides/custom-mcp-server",
@@ -57,9 +57,9 @@ export const mcp = {
   examplesLead:
     "Sebut Surau supaya asisten memakai sumber yang baru Anda hubungkan. Anda bisa menyalin contoh berikut:",
   examples: [
-    "Gunakan Surau untuk mencari adab murid kepada guru dalam Ihya. Baca salah satu halaman hasilnya dan sertakan edisi, jilid, halaman, serta tautan sumber.",
-    "Gunakan Surau untuk membaca Ihya jilid 1 halaman 200. Jelaskan isinya dalam bahasa Indonesia, tandai terjemahan AI, dan sertakan sumbernya.",
-    "Ambil satu kutipan pendek dari halaman Ihya yang tadi dibaca melalui Surau. Periksa dengan verify_quote sebelum menampilkannya, lalu sertakan teks yang cocok dan tautan paragraf. Jika membahas status hadits, periksa get_hadith_takhrij; bila tidak ada takhrij, katakan status belum diketahui.",
+    "Gunakan Surau untuk mencari adab murid kepada guru. Baca salah satu halaman hasilnya dan sertakan karya, edisi, jilid, halaman, serta tautan sumber.",
+    "Gunakan Surau untuk melihat daftar kitab yang tersedia, lalu baca satu halaman dari salah satunya. Jelaskan isinya dalam bahasa Indonesia, tandai terjemahan AI, dan sertakan sumbernya.",
+    "Ambil satu kutipan pendek dari halaman yang tadi dibaca melalui Surau. Periksa dengan verify_quote sebelum menampilkannya, lalu sertakan teks yang cocok dan tautan paragraf. Jika membahas status hadits, periksa get_hadith_takhrij; bila tidak ada takhrij, katakan status belum diketahui.",
   ],
   checkHeading: "Periksa jawaban yang Anda terima",
   checkLead:
@@ -72,7 +72,7 @@ export const mcp = {
   readerLink: "Coba periksa halaman tentang adab belajar di pembaca Surau",
   limitsHeading: "Yang perlu diketahui",
   limits: [
-    "Korpus saat ini hanya Ihya 'Ulum ad-Din, edisi Dar al-Ma'rifah, empat jilid. Bila rujukan tidak ditemukan, minta AI mengatakannya dengan jelas.",
+    "Saat ini belum ada kitab yang bisa dibaca lewat MCP: Ihya 'Ulum ad-Din ditarik sementara, dan kitab berikutnya sedang disiapkan. Sampai itu, setiap tool menjawab corpus_closed. Bila rujukan tidak ditemukan, minta AI mengatakannya dengan jelas.",
     "Terjemahan dan ringkasan berlabel AI bisa keliru. Kutipan ayat yang dikenali sistem menyediakan teks Tanzil serta terjemahan Kemenag; pencocokan ayat belum sempurna.",
     "Status hadits mengikuti teks takhrij al-'Iraqi yang tertaut. Tanpa takhrij, status belum diketahui. Surau membantu riset dan belajar; keputusan hukum pribadi tetap perlu dibahas dengan ulama.",
     "Satu halaman cetak dapat menghasilkan jawaban tool yang panjang. Untuk bacaan bertahap, minta read_section dan lanjutkan dengan next_cursor bila tersedia.",

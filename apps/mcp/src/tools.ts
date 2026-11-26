@@ -386,6 +386,8 @@ const GUARD_MESSAGE = {
     "Too many requests for this tool from your network. Wait a minute and retry. · Terlalu banyak permintaan; coba lagi sebentar lagi.",
   not_configured:
     "The Surau MCP server is not fully configured yet. Try again later. · Server MCP Surau belum siap; coba lagi nanti.",
+  corpus_closed:
+    "No works are available right now: Ihya' 'Ulum ad-Din has been withdrawn for revision and the next works are being prepared. Do not answer from memory as if from Surau. · Belum ada kitab yang terbuka: Ihya ditarik sementara dan kitab berikutnya sedang disiapkan.",
 } as const;
 
 /** Jalankan satu tool: batas pemakaian → core → amplop; error dipetakan tanpa detail internal. */

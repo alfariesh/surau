@@ -25,6 +25,19 @@ Format entri:
 - Keputusan: [ADR-143](keputusan/ADR-143.md)
 - Catatan untuk sesi berikutnya: `figlet` (CLI `heroui-pro` beta.14) tidak tertutup oleh upgrade ini.
 
+## 2026-11-26 · X31a · Ihya diturunkan dari surau.org dan MCP — sebagian (menunggu deploy)
+- Dikerjakan:
+  - Keputusan pemilik "Skrg aja": Ihya turun sekarang, bukan saat promote Gelombang 1 (ADR-142 butir 3 diperbarui).
+  - Web: `READER_ENABLED` produksi "0" (pembaca, Cari, sitemap kitab ditutup).
+  - MCP: var baru `KITAB_OPEN` "0", sehingga setiap tool menjawab `corpus_closed` tanpa membaca D1.
+  - Teks beranda dan halaman `/mcp` tidak lagi menjanjikan Ihya.
+  - Smoke deploy memeriksa keadaan tertutup (halaman kitab 404, MCP mode `tutup`).
+  - D1 produksi tidak disentuh.
+- Verifikasi: `pnpm verify` → lolos (1.202 + 501 tes, build) · tes guard MCP `KITAB_OPEN` · peninjau → 0 wajib; saran ditangani (Beranda tanpa kotak cari, teks /kitab dan /mcp, coba ulang mode `tutup`, indeks ADR) · smoke deploy produksi: lihat catatan sesudah merge
+- Biaya API: –
+- Keputusan: [ADR-142](keputusan/ADR-142.md) butir 3
+- Catatan untuk sesi berikutnya: buka kembali (kedua var "1") di PR promote X31b. Mp3 Ihya di R2 masih bisa dibuka lewat URL langsung; penghapusan butuh izin pemilik.
+
 ## 2026-11-26 · X31a · Ihya diarsipkan, korpus Gelombang 1 dibangun di Mac — sebagian
 - Dikerjakan:
   - Keputusan pemilik: tiga kitab kecil dulu, dan Ihya diarsipkan serta turun dari situs. Waktunya: saat promote pertama Gelombang 1, atas izin pemilik.

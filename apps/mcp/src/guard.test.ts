@@ -38,6 +38,27 @@ describe("guardTool", () => {
     expect(keys).toEqual([]);
   });
 
+  test('KITAB_OPEN "0" → corpus_closed tanpa limiter (ADR-142); selain "0" terbuka', async () => {
+    const { keys, limiter } = counting();
+    const env: GuardEnv = {
+      MCP_TOOL_LIMITER: limiter,
+      MCP_READ_GLOBAL_LIMITER: limiter,
+      MCP_SEARCH_LIMITER: limiter,
+      MCP_SEARCH_GLOBAL_LIMITER: limiter,
+      MCP_REDAKSI_LIMITER: limiter,
+      IP_HMAC_KEY: "kunci-uji",
+      KITAB_OPEN: "0",
+    };
+    expect(await guardTool(env, req("203.0.113.9"), "list_works")).toBe("corpus_closed");
+    expect(await guardTool(env, req("203.0.113.9"), "search_text", "redaksi")).toBe(
+      "corpus_closed",
+    );
+    expect(keys).toEqual([]);
+    expect(await guardTool({ ...env, KITAB_OPEN: "1" }, req("203.0.113.9"), "list_works")).toBe(
+      "ok",
+    );
+  });
+
   test("kunci = HMAC(jaringan IP):tool tanpa IP mentah; batas global terpisah baca/cari", async () => {
     const tool = counting();
     const readGlobal = counting();
