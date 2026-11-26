@@ -31,6 +31,8 @@ export interface BuildInfo {
   hash: string;
   counts: Record<string, number>;
   meta: Record<string, string>;
+  /** Slug karya di build (urut ID), untuk pengaman promote kitab yang belum siap (ADR-137). */
+  works: string[];
 }
 
 /**
@@ -40,14 +42,14 @@ export interface BuildInfo {
  */
 export function buildInfo(version?: string): BuildInfo {
   if (!existsSync(SQL_DIR))
-    throw new Error("data/build/sql tidak ada: jalankan `pnpm ingest ihya`");
+    throw new Error("data/build/sql tidak ada: jalankan `pnpm ingest korpus`");
   const candidates = readdirSync(BUILD_DIR)
     .map((f) => /^surau-corpus-(.+)\.sqlite$/.exec(f)?.[1])
     .filter((v): v is string => v !== undefined);
   const v = version ?? (candidates.length === 1 ? candidates[0] : undefined);
   if (v === undefined || !candidates.includes(v)) {
     throw new Error(
-      `Build korpus ${version ?? ""} tidak ditemukan di data/build (ada: ${candidates.join(", ") || "–"}). Jalankan \`pnpm ingest ihya\`.`,
+      `Build korpus ${version ?? ""} tidak ditemukan di data/build (ada: ${candidates.join(", ") || "–"}). Jalankan \`pnpm ingest korpus\`.`,
     );
   }
   const sqlite = join(BUILD_DIR, `surau-corpus-${v}.sqlite`);
@@ -56,7 +58,7 @@ export function buildInfo(version?: string): BuildInfo {
   const recorded = existsSync(hashFile) ? readFileSync(hashFile, "utf8").trim() : "";
   if (hash !== recorded) {
     throw new Error(
-      `data/build tidak konsisten: sha256 ${hash} ≠ ${recorded || "(tidak ada)"} di ${v}.sha256. Bangun ulang dengan \`pnpm ingest ihya\`.`,
+      `data/build tidak konsisten: sha256 ${hash} ≠ ${recorded || "(tidak ada)"} di ${v}.sha256. Bangun ulang dengan \`pnpm ingest korpus\`.`,
     );
   }
   const db = openReadOnly(sqlite);
@@ -73,7 +75,11 @@ export function buildInfo(version?: string): BuildInfo {
     if (meta.corpus_version !== v) {
       throw new Error(`${sqlite}: meta.corpus_version = ${meta.corpus_version ?? "–"}, bukan ${v}`);
     }
-    return { version: v, sqlite, hash, counts, meta };
+    const works = db
+      .prepare("SELECT slug FROM work ORDER BY id")
+      .all()
+      .map((r) => String(r.slug));
+    return { version: v, sqlite, hash, counts, meta, works };
   } finally {
     db.close();
   }
@@ -84,7 +90,7 @@ export function loadBuild(target: D1Target, log: (line: string) => void = consol
   const files = readdirSync(SQL_DIR)
     .filter((f) => f.endsWith(".sql"))
     .sort();
-  if (files.length === 0) throw new Error("data/build/sql kosong: jalankan `pnpm ingest ihya`");
+  if (files.length === 0) throw new Error("data/build/sql kosong: jalankan `pnpm ingest korpus`");
   applyMigrations(target);
   for (const f of files) {
     log(`→ ${f}`);

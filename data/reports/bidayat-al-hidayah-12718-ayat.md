@@ -1,6 +1,6 @@
 # Laporan ayat: Bidayat al-Hidayah (Shamela 12718)
 
-> Dibuat otomatis oleh `pnpm ingest ihya` (`tools/ingest/src/quran`, S12). Jangan disunting tangan.
+> Dibuat otomatis oleh `pnpm ingest korpus` (`tools/ingest/src/quran`, S12). Jangan disunting tangan.
 > Tanpa teks kitab panjang: rujukan juz/halaman, permalink paragraf, rujukan surah:ayat, dan ≤6 kata awal kutipan.
 
 - Korpus: `kitab-v10` · NORM_VERSION 2

@@ -106,33 +106,6 @@ export const EDITION_CREDITS: readonly EditionCredit[] = [
       "Daftar isi diperbaiki lewat patch yang tercatat: dua kitab Rub' al-Munjiyat yang hilang ditambahkan dan satu bayan dikembalikan ke levelnya.",
     ],
   },
-  {
-    key: "bidayat-al-hidayah/maktabat-madbuli",
-    workSlug: "bidayat-al-hidayah",
-    title: "Bidayat al-Hidayah",
-    author: "al-Ghazali (w. 505 H)",
-    attribution:
-      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0012718; digitalisasi asal: al-Maktaba al-Shamela; edisi: Maktabat Madbuli, Kairo 1413/1993",
-    parties: [
-      {
-        name: "OpenITI (Open Islamicate Texts Initiative), rilis 2025.1.9",
-        role: "Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks.",
-        link: { label: "Zenodo", url: "https://zenodo.org/records/17767721" },
-      },
-      {
-        name: "al-Maktaba al-Shamela",
-        role: "Digitalisasi asal edisi ini (kitab no. 12718). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
-        link: { label: "shamela.ws", url: "https://shamela.ws/book/12718" },
-      },
-      {
-        name: "Maktabat Madbuli, Kairo",
-        role: "Penerbit edisi cetak: satu jilid, cetakan pertama 1413 H / 1993 M, tahqiq Muhammad Zainhum Muhammad 'Azab. Nomor halaman di Surau mengikuti cetakan ini.",
-      },
-    ],
-    changes: [
-      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
-    ],
-  },
 ];
 
 /**

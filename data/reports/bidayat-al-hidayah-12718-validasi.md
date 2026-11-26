@@ -1,6 +1,6 @@
 # Laporan validasi ingest: Bidayat al-Hidayah (Shamela 12718)
 
-> Dibuat otomatis oleh `pnpm ingest ihya` (`tools/ingest`, S07). Jangan disunting tangan.
+> Dibuat otomatis oleh `pnpm ingest korpus` (`tools/ingest`, S07). Jangan disunting tangan.
 > Tanpa teks kitab: hanya angka, ID judul Shamela (`t<title.id>`), dan rujukan juz/halaman cetak.
 
 - Sumber: Shamela `book/718/12718.db`, sha256 `c41459f5c9a2f42354ba4fede121e5db5ddccdf94e1132db9805b35c568956ca`
@@ -32,7 +32,6 @@
 ## Daftar isi
 
 - 46 node (46 judul Shamela + node patch); 0 node ditandai `patched`.
-- Rub': .
 - Judul tanpa span di teks (dimulai di awal `title.page`): –.
 - Judul yang span-nya di halaman lain dari `title.page`: –.
 - Judul yang dimulai di tengah paragraf (paragraf itu ikut node baru): 2.

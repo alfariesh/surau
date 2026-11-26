@@ -1,6 +1,6 @@
 # Laporan verify-openiti: Bidayat al-Hidayah (Shamela 12718)
 
-> Dibuat otomatis oleh `pnpm ingest:verify` / `pnpm ingest ihya` (`tools/ingest`, S07, ADR-018). Jangan disunting tangan.
+> Dibuat otomatis oleh `pnpm ingest:verify` / `pnpm ingest korpus` (`tools/ingest`, S07, ADR-018). Jangan disunting tangan.
 > Tanpa teks kitab: hanya angka dan rujukan juz/halaman cetak.
 
 - OpenITI rilis 2025.1.9, repo `OpenITI/0525AH` commit `e8dddd44c7998cefce72e4f37fad471634dd9d1e`.

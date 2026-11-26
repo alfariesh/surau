@@ -25,7 +25,7 @@ Perubahan yang dilakukan Surau atas teks tersebut (wajib disebut oleh CC BY-NC-S
 
 ## Bidayat al-Hidayah (al-Ghazali, w. 505 H)
 
-Dimuat sejak korpus `kitab-v10` (X31a, ADR-135, ADR-137). Kalimat atribusi:
+Disiapkan untuk korpus `kitab-v10` (X31a, ADR-135, ADR-137): sudah dibangun dan dimuat ke staging, **belum tayang** di produksi sampai X31b. Rinciannya masuk halaman `/lisensi` saat kitab ini tayang. Kalimat atribusi:
 
 > Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0012718; digitalisasi asal: al-Maktaba al-Shamela; edisi: Maktabat Madbuli, Kairo 1413/1993
 

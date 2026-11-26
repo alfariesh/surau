@@ -153,7 +153,7 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
   const lines = [
     `# Laporan ayat: ${config.work.titleId} (Shamela ${config.shamelaBook})`,
     "",
-    "> Dibuat otomatis oleh `pnpm ingest ihya` (`tools/ingest/src/quran`, S12). Jangan disunting tangan.",
+    "> Dibuat otomatis oleh `pnpm ingest korpus` (`tools/ingest/src/quran`, S12). Jangan disunting tangan.",
     `> Tanpa teks kitab panjang: rujukan juz/halaman, permalink paragraf, rujukan surah:ayat, dan ≤${EXCERPT_WORDS} kata awal kutipan.`,
     "",
     `- Korpus: \`${ctx.corpusVersion}\` · NORM_VERSION ${ctx.normVersion}`,

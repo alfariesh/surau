@@ -14,6 +14,15 @@ import type { CorpusConfig, WorkConfig } from "../src/works/config.ts";
 import { writeQuranFixture } from "./quran-fixture.ts";
 
 export const BOOK_ID = 1234;
+/** Kitab buatan kedua (X31a): satu jilid, kolom `part` kosong, tabel tanpa `is_deleted`, tanpa takhrij. */
+export const BOOK_ID_2 = 2345;
+
+/** Halaman kitab kedua: [page.id, halaman cetak, content]. */
+const PAGES_2: [number, number, string][] = [
+  [1, 7, '<span data-type="title" id=toc-1>بَابُ الأَدَبِ</span>\rالأَدَبُ زِينَةُ الْمَرْءِ.'],
+  [2, 8, "والصدق طريق النجاة\rوالكذب طريق الهلاك."],
+];
+const MATAN_2 = ["بَابُ الأَدَبِ\nالأَدَبُ زِينَةُ الْمَرْءِ.", "والصدق طريق النجاة\nوالكذب طريق الهلاك."];
 
 /** Halaman kitab buatan: [page.id, juz, halaman cetak, content]. */
 export const PAGES: [number, number, number, string][] = [
@@ -94,10 +103,13 @@ const JK = [
   "الذكر حياة القلوب",
 ];
 
-function markdown(pages: readonly string[]): string {
+function markdown(
+  pages: readonly string[],
+  cites: readonly [number, number][] = PAGES.map((p) => [p[1], p[2]]),
+): string {
   const body = pages
     .map((text, i) => {
-      const [juz, page] = PAGES[i] ? [PAGES[i][1], PAGES[i][2]] : [1, i + 1];
+      const [juz, page] = cites[i] ?? [1, i + 1];
       const lines = text.split("\n");
       const marker = `PageV${String(juz).padStart(2, "0")}P${String(page).padStart(3, "0")}`;
       // Baris pertama "# …", baris lanjutan "~~…"; penanda halaman di AKHIR halaman, dan satu
@@ -116,6 +128,8 @@ const sha256 = (s: string): string => createHash("sha256").update(s).digest("hex
 export interface Fixture {
   paths: PipelinePaths;
   config: WorkConfig;
+  /** Konfigurasi kitab buatan kedua (sumbernya selalu ada di pohon Shamela/OpenITI buatan). */
+  second: WorkConfig;
 }
 
 /** Buat pohon Shamela + OpenITI + patch buatan di folder sementara. `matan` menimpa teks OpenITI. */
@@ -140,6 +154,19 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     titleStmt.run(id, content, String(page), String(parent));
   book.close();
 
+  // Kitab kedua: skema Shamela lama tanpa `is_deleted`, `part` NULL (satu jilid → juz 1).
+  const book2Dir = join(shamela, "book", String(BOOK_ID_2 % 1000).padStart(3, "0"));
+  mkdirSync(book2Dir, { recursive: true });
+  const book2 = new DatabaseSync(join(book2Dir, `${BOOK_ID_2}.db`));
+  book2.exec(
+    "CREATE TABLE page(id INTEGER PRIMARY KEY, content TEXT, part TEXT, page TEXT, number TEXT, services TEXT);" +
+      "CREATE TABLE title (id INTEGER PRIMARY KEY, content TEXT, page TEXT, parent TEXT);",
+  );
+  const page2 = book2.prepare("INSERT INTO page (id, content, part, page) VALUES (?, ?, NULL, ?)");
+  for (const [id, no, content] of PAGES_2) page2.run(id, content, String(no));
+  book2.prepare("INSERT INTO title VALUES (1, 'باب الأدب', '1', '0')").run();
+  book2.close();
+
   const master = new DatabaseSync(join(shamela, "update", "master", "book.sqlite"));
   master.exec(
     "CREATE TABLE book (id INTEGER, name TEXT, is_deleted TEXT, author TEXT, bibliography TEXT)",
@@ -147,6 +174,9 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
   master
     .prepare("INSERT INTO book VALUES (?, ?, '0', '9', ?)")
     .run(BOOK_ID, "كتاب تجريبي", "الكتاب: كتاب تجريبي\rالناشر: دار التجربة - مدينة\rعدد الأجزاء: ٢");
+  master
+    .prepare("INSERT INTO book VALUES (?, ?, '0', '9', ?)")
+    .run(BOOK_ID_2, "كتاب ثان", "الكتاب: كتاب ثان\rالناشر: دار التجربة - مدينة");
   master.close();
   const authors = new DatabaseSync(join(shamela, "update", "master", "author.sqlite"));
   authors.exec("CREATE TABLE author (id INTEGER, is_deleted TEXT, name TEXT, death_number TEXT)");
@@ -159,6 +189,11 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
   const jkText = markdown(JK);
   writeFileSync(join(openiti, "matan.md"), matanText);
   writeFileSync(join(openiti, "jk.md"), jkText);
+  const matan2Text = markdown(
+    MATAN_2,
+    PAGES_2.map(([, no]) => [1, no]),
+  );
+  writeFileSync(join(openiti, "matan2.md"), matan2Text);
 
   const repo = join(root, "repo");
   mkdirSync(join(repo, "patches"), { recursive: true });
@@ -197,8 +232,35 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
       takhrij: { file: "jk.md", sha256: sha256(jkText) },
     },
   };
+  const second: WorkConfig = {
+    shamelaBook: BOOK_ID_2,
+    ids: "ids/uji2.json",
+    reportPrefix: "reports/uji2",
+    expect: { pages: 2, volumes: [2], titles: 1, matanMinPages: 2, llmCoverage: 0 },
+    author: config.author,
+    work: {
+      id: 2,
+      slug: "uji-dua",
+      openitiUri: "0505Uji.KitabDua",
+      titleId: "Kitab Uji Dua",
+      attributionStatus: "authentic",
+      period: "klasik",
+    },
+    edition: {
+      id: 8,
+      slug: "uji-dua",
+      license: "CC BY-NC-SA 4.0",
+      attribution: "Atribusi uji dua",
+    },
+    openiti: {
+      release: "uji",
+      commit: "0".repeat(40),
+      matan: { file: "matan2.md", sha256: sha256(matan2Text) },
+    },
+  };
   return {
     config,
+    second,
     paths: {
       repo,
       shamela,

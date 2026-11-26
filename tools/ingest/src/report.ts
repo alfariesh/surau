@@ -27,7 +27,7 @@ export function validationReport(ctx: ReportContext, v: Validation): string {
   const lines = [
     `# Laporan validasi ingest: ${config.work.titleId} (Shamela ${config.shamelaBook})`,
     "",
-    "> Dibuat otomatis oleh `pnpm ingest ihya` (`tools/ingest`, S07). Jangan disunting tangan.",
+    "> Dibuat otomatis oleh `pnpm ingest korpus` (`tools/ingest`, S07). Jangan disunting tangan.",
     "> Tanpa teks kitab: hanya angka, ID judul Shamela (`t<title.id>`), dan rujukan juz/halaman cetak.",
     "",
     `- Sumber: Shamela \`book/${String(config.shamelaBook % 1000).padStart(3, "0")}/${config.shamelaBook}.db\`, sha256 \`${ctx.sourceSha256}\``,
@@ -43,7 +43,9 @@ export function validationReport(ctx: ReportContext, v: Validation): string {
     "## Daftar isi",
     "",
     `- ${num(v.toc.nodes)} node (${num(config.expect.titles)} judul Shamela + node patch); ${num(v.toc.patched)} node ditandai \`patched\`.`,
-    `- Rub': ${v.toc.rub.map((r) => `t${r.title} (${r.at}) ${r.kitab} kitab`).join(" · ")}.`,
+    ...(v.toc.rub.length === 0
+      ? []
+      : [`- Rub': ${v.toc.rub.map((r) => `t${r.title} (${r.at}) ${r.kitab} kitab`).join(" · ")}.`]),
     `- Judul tanpa span di teks (dimulai di awal \`title.page\`): ${list(v.toc.spanless)}.`,
     `- Judul yang span-nya di halaman lain dari \`title.page\`: ${list(v.toc.pageMismatch.map((id) => `t${id}`))}.`,
     `- Judul yang dimulai di tengah paragraf (paragraf itu ikut node baru): ${num(v.toc.midParagraph)}.`,
@@ -131,7 +133,7 @@ export function openitiReport(
   return [
     `# Laporan verify-openiti: ${config.work.titleId} (Shamela ${config.shamelaBook})`,
     "",
-    "> Dibuat otomatis oleh `pnpm ingest:verify` / `pnpm ingest ihya` (`tools/ingest`, S07, ADR-018). Jangan disunting tangan.",
+    "> Dibuat otomatis oleh `pnpm ingest:verify` / `pnpm ingest korpus` (`tools/ingest`, S07, ADR-018). Jangan disunting tangan.",
     "> Tanpa teks kitab: hanya angka dan rujukan juz/halaman cetak.",
     "",
     `- OpenITI rilis ${config.openiti.release}, repo \`OpenITI/0525AH\` commit \`${config.openiti.commit}\`.`,

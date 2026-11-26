@@ -1,4 +1,4 @@
-// Memuat korpus hasil `pnpm ingest ihya` ke D1 (binding CORPUS di packages/db/wrangler.jsonc).
+// Memuat korpus hasil `pnpm ingest korpus` ke D1 (binding CORPUS di packages/db/wrangler.jsonc).
 //   node tools/ingest/src/load.ts local     → D1 lokal di <root>/.wrangler/state (ARSITEKTUR §7)
 //   node tools/ingest/src/load.ts staging   → surau-corpus-staging (remote; minta izin pemilik dulu)
 // Urutan: migrasi korpus, lalu data/build/sql/*.sql satu per satu (tiap file atomik; file pertama

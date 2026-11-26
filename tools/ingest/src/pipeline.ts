@@ -413,30 +413,38 @@ export interface IngestOptions {
   audioTracks?: readonly AudioTrackRow[];
 }
 
-/** Tabel yang isinya sama untuk semua kitab (atau dipakai bersama): digabung tanpa duplikat. */
-const SHARED_TABLES: Partial<Record<CorpusTable, string | null>> = {
-  author: "id",
+type Row = Record<string, unknown>;
+
+/**
+ * Tabel yang isinya sama untuk semua kitab (atau dipakai bersama): digabung tanpa duplikat, dengan
+ * kunci primernya. Glosarium Intisari milik korpus (satu istilah, satu definisi per bahasa); kitab
+ * yang membawa definisi berbeda untuk istilah yang sama membuat build gagal (diputuskan di X31b).
+ */
+const SHARED_TABLES: Partial<Record<CorpusTable, ((r: Row) => string) | null>> = {
+  author: (r) => String(r.id),
   quran_source: null,
   quran_surah: null,
   quran_ayah: null,
   quran_translation: null,
-  glossary_term: "term_key",
+  glossary_term: (r) => `${String(r.term_key)}|${String(r.lang)}`,
 };
 
 /** Gabungkan baris tanpa duplikat persis; kunci sama dengan isi berbeda = galat. */
-function dedupeRows(table: string, rows: readonly object[], key: string | null): object[] {
+function dedupeRows(
+  table: string,
+  rows: readonly object[],
+  key: ((r: Row) => string) | null,
+): object[] {
   const seen = new Map<string, object>();
-  const byKey = new Map<unknown, string>();
+  const byKey = new Map<string, string>();
   for (const r of rows) {
     const json = JSON.stringify(r);
     if (seen.has(json)) continue;
     if (key !== null) {
-      const k = (r as Record<string, unknown>)[key];
+      const k = key(r as Row);
       const prev = byKey.get(k);
       if (prev !== undefined)
-        throw new Error(
-          `Tabel ${table}: ${key} ${String(k)} berbeda isi antar-kitab (${prev} ≠ ${json})`,
-        );
+        throw new Error(`Tabel ${table}: kunci ${k} berbeda isi antar-kitab (${prev} ≠ ${json})`);
       byKey.set(k, json);
     }
     seen.set(json, r);
@@ -523,6 +531,15 @@ export function runIngest(
   }
 
   if (corpus.works.length === 0) throw new Error("Korpus tanpa kitab: isi CorpusConfig.works");
+  // ID yang diterima berubah wajib milik salah satu edisi build ini: salah ketik atau ID kitab yang
+  // tidak ikut dibangun tidak boleh hilang diam-diam (ADR-059).
+  const editionOf = (id: number): number => Math.floor(id / 1e7);
+  const editions = new Set(corpus.works.map((w) => w.edition.id));
+  const stray = (opts.acceptTextChanges ?? []).filter((id) => !editions.has(editionOf(id)));
+  if (stray.length > 0)
+    throw new Error(
+      `--terima-teks-berubah: ${stray.join(", ")} bukan milik edisi mana pun di build ini (${[...editions].join(", ")})`,
+    );
   const shared = corpusShared(corpus, paths, opts.env);
   const built = corpus.works.map((config) => buildWork(config, paths, shared, opts));
   const head = built[0];
@@ -538,6 +555,16 @@ export function runIngest(
     corpus,
     built,
   );
+  // Revisi X08 untuk kitab yang tidak ikut dibangun (mis. `--kitab` sebagian) dicatat, bukan disembunyikan.
+  const outside = (shared.revisions?.lines ?? []).filter(
+    (l) => !editions.has(editionOf(l.passage_id)),
+  ).length;
+  if (outside > 0)
+    validation.invariants.push({
+      name: "Revisi terjemahan manusia milik kitab yang tidak ikut build",
+      ok: true,
+      detail: `${outside} baris tidak dipasang (kitabnya tidak dibangun)`,
+    });
   const ayat = head.ayat.stats;
   if (!validation.ok) return { validation, ayat, works };
 

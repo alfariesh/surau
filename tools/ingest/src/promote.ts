@@ -10,6 +10,8 @@
 //   --reload   muat ulang DB versi ini bila sudah ada (menimpa isinya). DITOLAK untuk DB yang melayani
 //              atau pernah melayani produksi: binding di working tree, di origin/main, atau tercatat di
 //              data/SOURCES.md. Korpus staging tidak pernah menjadi produksi (isinya dimuat ulang tiap sesi).
+//   --kitab-baru  izinkan build yang memuat kitab berstatus selain "tayang" di data/kitab/ledger.yaml
+//                 (tanpa itu promote menolak, ADR-137 butir 6)
 // Langkah 5 (deploy) = PR berisi wrangler.jsonc → merge → deploy.yml. Langkah 6: DB lama TIDAK
 // dihapus; catat di data/SOURCES.md sebagai target rollback. Prosedur lengkap: tools/ingest/README.md.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -44,6 +46,7 @@ import {
   rollbackSchemaProblem,
 } from "./promote-plan.ts";
 import type { RemoteDb } from "./promote-plan.ts";
+import { readLedger, unreleasedWorks } from "./works/ledger.ts";
 
 function listDatabases(): RemoteDb[] {
   return JSON.parse(wrangler(["d1", "list", "--json"])) as RemoteDb[];
@@ -106,6 +109,7 @@ function main(argv: string[]): number {
       confirm: { type: "boolean", default: false },
       "switch-only": { type: "boolean", default: false },
       reload: { type: "boolean", default: false },
+      "kitab-baru": { type: "boolean", default: false },
     },
   });
   const version = positionals[0] ?? "";
@@ -117,7 +121,7 @@ function main(argv: string[]): number {
   };
   if (!VERSION_PATTERN.test(version)) {
     console.error(
-      "Pakai: pnpm run corpus:promote <versi> [--confirm | --switch-only] [--reload]   (versi mis. ihya-v1)",
+      "Pakai: pnpm run corpus:promote <versi> [--confirm | --switch-only] [--reload]   (versi mis. kitab-v10) [--kitab-baru]",
     );
     return 2;
   }
@@ -171,8 +175,19 @@ function main(argv: string[]): number {
 
   const build = buildInfo(version);
   console.info(
-    `Build ${version}: sha256 ${build.hash}\n  ${formatCounts(build.counts)}\n  built_at ${build.meta.built_at ?? "?"} · schema ${build.meta.schema_version ?? "?"} · norm ${build.meta.norm_version ?? "?"}`,
+    `Build ${version}: sha256 ${build.hash}\n  ${formatCounts(build.counts)}\n  built_at ${build.meta.built_at ?? "?"} · schema ${build.meta.schema_version ?? "?"} · norm ${build.meta.norm_version ?? "?"}\n  kitab: ${build.works.join(", ")}`,
   );
+  // Kitab yang belum lolos "Definisi selesai" (ledger bukan `tayang`) tidak ikut ke produksi tanpa
+  // izin eksplisit (ADR-137 butir 6): bangun ulang dengan `--kitab`, atau tandai `tayang` di ledger
+  // dalam PR yang sama dengan promote, atau tambah `--kitab-baru`.
+  const unreleased = unreleasedWorks(readLedger(repo), build.works);
+  if (unreleased.length > 0 && !values["kitab-baru"]) {
+    console.error(
+      `Build memuat kitab yang belum berstatus "tayang" di data/kitab/ledger.yaml: ${unreleased.join(", ")}. ` +
+        "Bangun ulang dengan `pnpm ingest korpus --kitab <yang tayang>`, atau ubah status ledger, atau tambah --kitab-baru.",
+    );
+    return 1;
+  }
   if (plan.kind === "preview") {
     console.info(
       [
