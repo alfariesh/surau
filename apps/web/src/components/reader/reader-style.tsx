@@ -1,7 +1,6 @@
 "use client";
 
-import { Sheet } from "@heroui-pro/react";
-import { Button, ButtonGroup, Spinner } from "@heroui/react";
+import { Button, ButtonGroup, Sheet, Spinner } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useSyncExternalStore } from "react";
 
