@@ -1,61 +1,9 @@
 // Konfigurasi ingest Ihya' 'Ulum ad-Din (Shamela 9472). Teks Arab (judul, nama penulis, penerbit)
 // TIDAK ditulis di sini: semuanya disalin dari Shamela (book.sqlite, author.sqlite, page, title).
 // ID karya/edisi/penulis dan slug dibekukan sejak rilis Fase 1 (ADR-029). Keputusan: ADR-018, ADR-032.
-import type { AttributionStatus } from "@surau/db";
+import type { WorkConfig } from "./config.ts";
 
-export interface WorkConfig {
-  shamelaBook: number;
-  /** Path relatif ke root repo. */
-  patch: string;
-  /** Daftar kurasi subjudul pembaca (X04, ADR-074): sumber subjudul untuk judul daftar isi Indonesia. */
-  subheadings: string;
-  /** Patch ayat terverifikasi (X29, ADR-133); tanpa berkas = tanpa patch. */
-  ayahPatch?: string;
-  ids: string;
-  reportPrefix: string;
-  corpusVersion: string;
-  /** Nama file .sqlite di data/build. */
-  output: string;
-  expect: {
-    pages: number;
-    /** Jumlah halaman per juz, urut juz 1..n. */
-    volumes: number[];
-    titles: number;
-    /** `title.id` rub' (node akar yang wajib punya `kitabPerRub` anak). */
-    rub: number[];
-    kitabPerRub: number;
-    /** Gerbang verify-openiti: halaman minimal dengan kemiripan matan ≥ ambang. */
-    matanMinPages: number;
-    /**
-     * Cakupan minimal terjemahan dan ringkasan AI yang dimuat (S13; 0 = tidak diwajibkan). Gagal
-     * bila hasil batch di data/build/llm kurang dari ini (mis. file hilang atau sebagian usang).
-     */
-    llmCoverage: number;
-  };
-  author: { id: number; nameId: string; wikidataId: string | null };
-  work: {
-    id: number;
-    slug: string;
-    openitiUri: string;
-    titleId: string;
-    attributionStatus: AttributionStatus;
-    period: string;
-  };
-  edition: { id: number; slug: string; license: string; attribution: string };
-  /**
-   * Pindaian edisi cetak, HANYA ditautkan (ADR-018; dipakai daftar QA manusia S10). Halaman cetak
-   * `p` jilid `j` = `${details}/${volumes[j-1].file}/page/n${p + volumes[j-1].leafOffset}/mode/1up`.
-   */
-  scan?: { details: string; volumes: { file: string; leafOffset: number }[] };
-  openiti: {
-    release: string;
-    commit: string;
-    /** Versi pembanding matan (dasar lisensi). */
-    matan: { file: string; sha256: string };
-    /** Versi pembanding takhrij. */
-    takhrij: { file: string; sha256: string };
-  };
-}
+export type { WorkConfig } from "./config.ts";
 
 export const IHYA: WorkConfig = {
   shamelaBook: 9472,
@@ -64,8 +12,10 @@ export const IHYA: WorkConfig = {
   ayahPatch: "data/patches/ihya-9472-ayat.yaml",
   ids: "data/ids/ihya-9472.json",
   reportPrefix: "data/reports/ihya-9472",
-  corpusVersion: "ihya-v9",
-  output: "surau-corpus-ihya-v9.sqlite",
+  // Intisari pilot X15b (= yang tayang di ihya-v9), bukan folder `intisari` yang kini berisi hasil
+  // X15c yang belum digabung (ADR-136; folder per kitab sejak ADR-137).
+  llm: { dir: ".", intisari: "intisari-pilot-x15b-cadangan-2026-10-27" },
+  audioManifest: "data/audio/ihya-9472-audio.json",
   expect: {
     pages: 1706,
     volumes: [361, 386, 413, 546],
@@ -75,6 +25,8 @@ export const IHYA: WorkConfig = {
     matanMinPages: 1705,
     // "Selesai bila" S13: daftar yang gagal < 1%.
     llmCoverage: 0.99,
+    // 19 Intisari tayang di ihya-v9 (ADR-136): build yang memuat lebih sedikit gagal.
+    minDigests: 19,
   },
   author: { id: 1, nameId: "Abu Hamid al-Ghazali", wikidataId: null },
   work: {

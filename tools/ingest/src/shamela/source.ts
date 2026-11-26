@@ -14,7 +14,9 @@ const digits = z.string().regex(/^\d+$/, "harus berupa angka");
 
 const pageRow = z.object({
   id: z.number().int().positive(),
-  part: digits,
+  // Kitab satu jilid di Shamela mengosongkan `part` (NULL atau ""): dibaca sebagai juz 1 (ADR-029).
+  // Gerbang "Halaman per juz" di ingest tetap menangkap kitab berjilid yang `part`-nya hilang.
+  part: z.union([digits, z.literal(""), z.null()]),
   page: digits,
   content: z.string().nullable(),
 });
@@ -92,20 +94,30 @@ export function readShamelaBook(root: string, bookId: number): ShamelaSource {
   const db = openReadOnly(path);
   let pages: ShamelaPage[];
   let titles: ShamelaTitle[];
+  // Sebagian berkas Shamela (mis. 12718, 11371) tidak punya kolom `is_deleted`: tanpa kolom itu
+  // semua baris dianggap aktif.
+  const live = (table: string): string =>
+    db
+      .prepare(`SELECT name FROM pragma_table_info('${table}')`)
+      .all()
+      .some((c) => c.name === "is_deleted")
+      ? "WHERE coalesce(is_deleted, '0') = '0'"
+      : "";
   try {
     pages = db
-      .prepare(
-        "SELECT id, part, page, content FROM page WHERE coalesce(is_deleted, '0') = '0' ORDER BY id",
-      )
+      .prepare(`SELECT id, part, page, content FROM page ${live("page")} ORDER BY id`)
       .all()
       .map((r) => {
         const p = pageRow.parse(r);
-        return { id: p.id, juz: Number(p.part), pageNo: Number(p.page), content: p.content ?? "" };
+        return {
+          id: p.id,
+          juz: p.part === null || p.part === "" ? 1 : Number(p.part),
+          pageNo: Number(p.page),
+          content: p.content ?? "",
+        };
       });
     titles = db
-      .prepare(
-        "SELECT id, content, page, parent FROM title WHERE coalesce(is_deleted, '0') = '0' ORDER BY id",
-      )
+      .prepare(`SELECT id, content, page, parent FROM title ${live("title")} ORDER BY id`)
       .all()
       .map((r) => {
         const t = titleRow.parse(r);

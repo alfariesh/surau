@@ -128,7 +128,7 @@ export function validate(input: ValidateInput): Validation {
   );
 
   const childCount = (key: string): number => toc.nodes.filter((n) => n.parentKey === key).length;
-  const rub = exp.rub.map((title) => {
+  const rub = (exp.rub ?? []).map((title) => {
     const node = toc.nodes.find((n) => n.key === `t${title}`);
     const page = node === undefined ? undefined : pages[node.pageIndex];
     return {
@@ -137,11 +137,14 @@ export function validate(input: ValidateInput): Validation {
       kitab: node === undefined || node.level !== 1 ? -1 : childCount(node.key),
     };
   });
-  check(
-    `${exp.rub.length} rub' × ${exp.kitabPerRub} kitab setelah patch`,
-    rub.every((r) => r.kitab === exp.kitabPerRub),
-    rub.map((r) => `t${r.title}: ${r.kitab}`).join(", "),
-  );
+  // Struktur khas Ihya (rub' × kitab); kitab lain tanpa `expect.rub` dilewati.
+  if (exp.rub !== undefined) {
+    check(
+      `${exp.rub.length} rub' × ${exp.kitabPerRub ?? 0} kitab setelah patch`,
+      rub.every((r) => r.kitab === exp.kitabPerRub),
+      rub.map((r) => `t${r.title}: ${r.kitab}`).join(", "),
+    );
+  }
   const orphanIssues = toc.issues.filter((i) => !i.startsWith("urutan halaman"));
   check(
     "Daftar isi utuh (tanpa judul yatim, siklus, atau patch gagal)",

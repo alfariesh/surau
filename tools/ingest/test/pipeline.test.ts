@@ -10,7 +10,7 @@ import { describe, expect, test } from "vite-plus/test";
 
 import { buildTimestamp, runIngest } from "../src/pipeline.ts";
 import { MAX_STATEMENT_BYTES } from "../src/sql.ts";
-import { createFixture } from "./fixture.ts";
+import { createFixture, one } from "./fixture.ts";
 
 const env = { SOURCE_DATE_EPOCH: "1760000000" };
 
@@ -21,7 +21,7 @@ function open(path: string): DatabaseSync {
 describe("runIngest (kitab buatan)", () => {
   test("lolos validasi dan menulis baris yang benar ke .sqlite", () => {
     const { config, paths } = createFixture();
-    const r = runIngest(config, paths, { env });
+    const r = runIngest(one(config), paths, { env });
     expect(r.validation.invariants.filter((i) => !i.ok)).toEqual([]);
     expect(r.output?.counts).toEqual({
       author: 1,
@@ -245,7 +245,7 @@ describe("runIngest (kitab buatan)", () => {
 
   test("catatan kaki tanpa padanan di JK ditandai takhrij_unmatched", () => {
     const { config, paths } = createFixture();
-    const r = runIngest(config, paths, { env });
+    const r = runIngest(one(config), paths, { env });
     const db = open(r.output?.sqlite ?? "");
     const rows = db
       .prepare(
@@ -258,9 +258,9 @@ describe("runIngest (kitab buatan)", () => {
 
   test("deterministik: build ulang menghasilkan hash dan peta ID yang sama", () => {
     const { config, paths } = createFixture();
-    const first = runIngest(config, paths, { env });
+    const first = runIngest(one(config), paths, { env });
     const ids = readFileSync(join(paths.repo, config.ids), "utf8");
-    const second = runIngest(config, paths, { env });
+    const second = runIngest(one(config), paths, { env });
     expect(second.output?.hash).toBe(first.output?.hash);
     expect(second.output?.idsAdded).toEqual({ page: 0, toc: 0, passage: 0 });
     expect(readFileSync(join(paths.repo, config.ids), "utf8")).toBe(ids);
@@ -280,7 +280,7 @@ describe("runIngest (kitab buatan)", () => {
     const stale = ["surau-corpus-uji-v0.sqlite", "surau-corpus-uji-v0.sqlite-wal", "uji-v0.sha256"];
     for (const f of [...stale, "catatan.txt", "sha256.txt"])
       writeFileSync(join(paths.build, f), "x");
-    const r = runIngest(config, paths, { env });
+    const r = runIngest(one(config), paths, { env });
     const left = readdirSync(paths.build).sort();
     for (const f of stale) expect(left).not.toContain(f);
     expect(left).toEqual(
@@ -298,13 +298,13 @@ describe("runIngest (kitab buatan)", () => {
     const { config, paths } = createFixture();
     // Halaman 1 diubah sehingga tidak lagi sama dengan OpenITI tiruan; gerbang dilonggarkan.
     config.expect.matanMinPages = 4;
-    const before = runIngest(config, paths, { env });
+    const before = runIngest(one(config), paths, { env });
     const book = new DatabaseSync(join(paths.shamela, "book", "234", "1234.db"));
     book
       .prepare("UPDATE page SET content = replace(content, ?, ?) WHERE id = 1")
       .run("ظُلْمَةٌ.\r", "ظُلْمَةٌ.\rسطر جديد مصنوع\r");
     book.close();
-    const after = runIngest(config, paths, { env });
+    const after = runIngest(one(config), paths, { env });
     expect(after.output?.idsAdded).toEqual({ page: 0, toc: 0, passage: 1 });
     const map = JSON.parse(readFileSync(join(paths.repo, config.ids), "utf8")) as {
       passage: Record<string, number>;
@@ -325,7 +325,7 @@ describe("runIngest (kitab buatan)", () => {
   test("paragraf bergeser di tengah halaman setelah rilis → ditolak (#59)", () => {
     const { config, paths } = createFixture();
     config.expect.matanMinPages = 4;
-    const first = runIngest(config, paths, { env });
+    const first = runIngest(one(config), paths, { env });
     expect(stability(first)).toBeUndefined();
     const printsPath = join(paths.repo, config.ids.replace(/\.json$/, ".teks.json"));
     const prints = readFileSync(printsPath, "utf8");
@@ -334,7 +334,7 @@ describe("runIngest (kitab buatan)", () => {
     const shiftedId = 7 * 10 ** 7 + (map.passage["1:b1"] ?? 0);
     // Baris baru tepat setelah judul: paragraf lama 1:b1 kini 1:b2, dan 1:b1 menunjuk baris baru.
     editPage(paths, "</span>\r", "</span>\rسطر جديد مصنوع\r");
-    const shifted = runIngest(config, paths, { env });
+    const shifted = runIngest(one(config), paths, { env });
     expect(shifted.output).toBeUndefined();
     expect(stability(shifted)).toMatchObject({
       ok: false,
@@ -347,10 +347,13 @@ describe("runIngest (kitab buatan)", () => {
     expect(readFileSync(printsPath, "utf8")).toBe(prints);
     expect(readFileSync(join(paths.repo, config.ids), "utf8")).toBe(ids);
     // ID yang diterima tetapi tidak berubah juga gagal (daftar basi).
-    const wrong = runIngest(config, paths, { env, acceptTextChanges: [shiftedId, shiftedId + 1] });
+    const wrong = runIngest(one(config), paths, {
+      env,
+      acceptTextChanges: [shiftedId, shiftedId + 1],
+    });
     expect(wrong.output).toBeUndefined();
     // Koreksi teks yang disengaja: diterima hanya per ID, lalu sidik diperbarui.
-    const accepted = runIngest(config, paths, { env, acceptTextChanges: [shiftedId] });
+    const accepted = runIngest(one(config), paths, { env, acceptTextChanges: [shiftedId] });
     expect(stability(accepted)?.ok).toBe(true);
     expect(accepted.output).toBeDefined();
     expect(readFileSync(printsPath, "utf8")).not.toBe(prints);
@@ -359,40 +362,42 @@ describe("runIngest (kitab buatan)", () => {
   test("paragraf lama hilang → ditolak walau koreksi diterima (#59)", () => {
     const { config, paths } = createFixture();
     config.expect.matanMinPages = 4;
-    runIngest(config, paths, { env });
+    runIngest(one(config), paths, { env });
     const map = JSON.parse(readFileSync(join(paths.repo, config.ids), "utf8")) as {
       passage: Record<string, number>;
     };
     const lost = 7 * 10 ** 7 + (map.passage["1:b1"] ?? 0);
     // Baris badan terakhir halaman 1 dihapus: kunci 1:b1 tidak muncul lagi.
     editPage(paths, "الْعِلْمُ نُورٌ (١) وَالْجَهْلُ ظُلْمَةٌ.\r", "");
-    const r = runIngest(config, paths, { env, acceptTextChanges: [lost] });
+    const r = runIngest(one(config), paths, { env, acceptTextChanges: [lost] });
     expect(r.output).toBeUndefined();
     expect(stability(r)).toMatchObject({ ok: false, detail: expect.stringMatching(/hilang 1/) });
   });
 
   test("setelah rilis: --reset-ids, peta ID hilang, dan sidik hilang ditolak (#59)", () => {
     const { config, paths } = createFixture();
-    runIngest(config, paths, { env });
-    expect(() => runIngest(config, paths, { env, resetIds: true })).toThrow(/--reset-ids ditolak/);
+    runIngest(one(config), paths, { env });
+    expect(() => runIngest(one(config), paths, { env, resetIds: true })).toThrow(
+      /--reset-ids ditolak/,
+    );
     const idsPath = join(paths.repo, config.ids);
     const ids = readFileSync(idsPath, "utf8");
     rmSync(idsPath);
-    expect(() => runIngest(config, paths, { env })).toThrow(
+    expect(() => runIngest(one(config), paths, { env })).toThrow(
       /tidak ada padahal korpus sudah dirilis/,
     );
     writeFileSync(idsPath, ids);
     rmSync(idsPath.replace(/\.json$/, ".teks.json"));
-    expect(() => runIngest(config, paths, { env })).toThrow(/Sidik teks .* tidak ada/);
+    expect(() => runIngest(one(config), paths, { env })).toThrow(/Sidik teks .* tidak ada/);
     // Kitab yang belum pernah dirilis: --reset-ids membangun peta dan sidik dari nol.
-    expect(runIngest(config, paths, { env, resetIds: true }).output).toBeDefined();
+    expect(runIngest(one(config), paths, { env, resetIds: true }).output).toBeDefined();
   });
 
   test("gerbang matan gagal → laporan ditulis, keluaran tidak", () => {
     const { config, paths } = createFixture({
       matan: ["نص مختلف تماما", "نص آخر", "كلام غير ذلك", "شيء", "لا شيء"],
     });
-    const r = runIngest(config, paths, { env });
+    const r = runIngest(one(config), paths, { env });
     expect(r.output).toBeUndefined();
     expect(r.validation.ok).toBe(false);
     expect(r.validation.invariants.find((i) => i.name.startsWith("Matan"))?.ok).toBe(false);

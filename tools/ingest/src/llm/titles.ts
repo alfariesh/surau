@@ -54,6 +54,7 @@ export type SubheadingEntries = ReadonlyMap<number, SubheadingSpanEntry & { sha:
 
 /** Daftar kurasi subjudul karya ini (kosong bila berkasnya tidak ada). */
 export function readSubheadings(repo: string, config: WorkConfig): SubheadingEntries {
+  if (config.subheadings === undefined) return new Map();
   const path = join(repo, config.subheadings);
   if (!existsSync(path)) return new Map();
   const file = subheadingFile.parse(JSON.parse(readFileSync(path, "utf8")));

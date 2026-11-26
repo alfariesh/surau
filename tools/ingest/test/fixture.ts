@@ -10,7 +10,7 @@ import { join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
 import type { PipelinePaths } from "../src/pipeline.ts";
-import type { WorkConfig } from "../src/works/ihya.ts";
+import type { CorpusConfig, WorkConfig } from "../src/works/config.ts";
 import { writeQuranFixture } from "./quran-fixture.ts";
 
 export const BOOK_ID = 1234;
@@ -170,8 +170,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     subheadings: "patches/uji-subjudul.json",
     ids: "ids/uji.json",
     reportPrefix: "reports/uji",
-    corpusVersion: "uji-v1",
-    output: "uji.sqlite",
+    llm: { dir: ".", intisari: "intisari" },
     expect: {
       pages: 5,
       volumes: [3, 2],
@@ -209,4 +208,9 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
       quran: writeQuranFixture(join(root, "quran")),
     },
   };
+}
+
+/** Korpus satu kitab untuk `runIngest` (versi dan nama berkas uji tetap). */
+export function one(config: WorkConfig): CorpusConfig {
+  return { version: "uji-v1", output: "uji.sqlite", works: [config] };
 }

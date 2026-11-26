@@ -1,12 +1,13 @@
-// Alur ingest satu kitab (ARSITEKTUR-TEKNIS §6): baca → bersih/pecah → daftar isi + patch →
-// QA OpenITI → validasi → baris → SQL + .sqlite + peta ID + laporan. Semua keluaran deterministik:
+// Alur ingest (ARSITEKTUR-TEKNIS §6), per kitab: baca → bersih/pecah → daftar isi + patch → QA
+// OpenITI → validasi → baris; lalu baris semua kitab digabung menjadi satu korpus (X31a, ADR-137) →
+// SQL + .sqlite + peta ID dan laporan per kitab. Semua keluaran deterministik:
 // `built_at` diambil dari SOURCE_DATE_EPOCH atau tanggal commit HEAD, bukan jam sekarang.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import type { AudioTrackRow, PassageAyahRefRow, PassageRow } from "@surau/db";
+import type { AudioTrackRow, MetaRow, PassageAyahRefRow, PassageRow } from "@surau/db";
 import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 
 import { buildSqlite } from "./build-sqlite.ts";
@@ -21,19 +22,19 @@ import {
 import { createAllocator, readIdMap, writeIdMap } from "./ids.ts";
 import type { IdAllocator } from "./ids.ts";
 import { parseOpenitiPages } from "./openiti/markdown.ts";
-import { checkMatan, checkTakhrij } from "./openiti/verify.ts";
+import { checkMatan, checkTakhrij, noTakhrijCheck } from "./openiti/verify.ts";
 import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
 import { readStrictYaml, readTocPatch } from "./patch.ts";
 import { ayatReport } from "./quran/report.ts";
 import { applyAyahPatch, ayahPatch } from "./quran/ayah-patch.ts";
 import { matchAyat, mergePatchedRefs, quranIndex, quranTableRows } from "./quran/rows.ts";
-import type { AyahStats, AyatBuild } from "./quran/rows.ts";
+import type { AyahStats, AyatBuild, QuranRows } from "./quran/rows.ts";
 import { loadQuran } from "./quran/source.ts";
 import type { QuranConfig, QuranData } from "./quran/source.ts";
 import { openitiReport, validationReport } from "./report.ts";
 import type { ReportContext } from "./report.ts";
 import { TABLE_ORDER, buildRows, emptyDigestRows } from "./rows.ts";
-import type { CorpusRows } from "./rows.ts";
+import type { CorpusRows, CorpusTable } from "./rows.ts";
 import { ftsRows, latinFtsRows, termStats } from "./search-index.ts";
 import type { FtsRow } from "./search-index.ts";
 import { parsePage } from "./shamela/page.ts";
@@ -53,13 +54,13 @@ import {
   revisionInvariant,
   revisionMetaRows,
 } from "./llm/revisions.ts";
-import type { RevisionStats } from "./llm/revisions.ts";
+import type { LoadedRevisions, RevisionStats } from "./llm/revisions.ts";
 import { readSubheadings } from "./llm/titles.ts";
 import { buildToc } from "./toc.ts";
 import type { TocBuild } from "./toc.ts";
 import { validate } from "./validate.ts";
 import type { Validation } from "./validate.ts";
-import type { WorkConfig } from "./works/ihya.ts";
+import type { CorpusConfig, WorkConfig } from "./works/config.ts";
 
 export interface PipelinePaths {
   /** Root repo (semua path di WorkConfig relatif ke sini). */
@@ -120,24 +121,27 @@ export interface Prepared {
   ctx: ReportContext;
 }
 
-/** Baca sumber, pecah halaman, dan jalankan QA OpenITI (dipakai `ihya` dan `verify-openiti`). */
-export function prepare(config: WorkConfig, paths: PipelinePaths): Prepared {
+/** Baca sumber, pecah halaman, dan jalankan QA OpenITI (dipakai build dan `verify-openiti`). */
+export function prepare(config: WorkConfig, paths: PipelinePaths, corpusVersion: string): Prepared {
   const source = readShamelaBook(paths.shamela, config.shamelaBook);
   const pages = source.pages.map(parsePage);
   const matan = checkMatan(
     pages,
     parseOpenitiPages(readOpenitiFile(paths.openiti, config.openiti.matan)),
   );
-  const takhrij = checkTakhrij(
-    pages,
-    parseOpenitiPages(readOpenitiFile(paths.openiti, config.openiti.takhrij)),
-  );
+  const takhrij =
+    config.openiti.takhrij === undefined
+      ? noTakhrijCheck(pages)
+      : checkTakhrij(
+          pages,
+          parseOpenitiPages(readOpenitiFile(paths.openiti, config.openiti.takhrij)),
+        );
   return {
     source,
     pages,
     matan,
     takhrij,
-    ctx: { config, sourceSha256: source.sha256, normVersion: NORM_VERSION },
+    ctx: { config, corpusVersion, sourceSha256: source.sha256, normVersion: NORM_VERSION },
   };
 }
 
@@ -150,8 +154,9 @@ function writeText(path: string, content: string): void {
 export function runVerifyOpenIti(
   config: WorkConfig,
   paths: PipelinePaths,
+  corpusVersion: string,
 ): { ok: boolean; prepared: Prepared } {
-  const prepared = prepare(config, paths);
+  const prepared = prepare(config, paths, corpusVersion);
   const { pages, matan, takhrij, ctx } = prepared;
   writeText(
     join(paths.repo, `${config.reportPrefix}-openiti.md`),
@@ -164,7 +169,11 @@ export function runVerifyOpenIti(
 }
 
 function readToc(config: WorkConfig, paths: PipelinePaths, prepared: Prepared): TocBuild {
-  const patch = readTocPatch(join(paths.repo, config.patch));
+  // Kitab tanpa patch daftar isi: pohon judul Shamela apa adanya (gerbang yatim tetap berlaku).
+  const patch =
+    config.patch === undefined
+      ? { shamela_book: config.shamelaBook, add: [], move: [] }
+      : readTocPatch(join(paths.repo, config.patch));
   if (patch.shamela_book !== config.shamelaBook) {
     throw new Error(
       `${config.patch} untuk kitab ${patch.shamela_book}, bukan ${config.shamelaBook}`,
@@ -173,9 +182,42 @@ function readToc(config: WorkConfig, paths: PipelinePaths, prepared: Prepared): 
   return buildToc(prepared.source.titles, prepared.pages, patch);
 }
 
+/** Data bersama satu build korpus: sumber Qur'an dan waktu build (sama untuk semua kitab). */
+interface CorpusShared {
+  corpusVersion: string;
+  builtAt: string;
+  quran: QuranData;
+  /** Revisi terjemahan manusia (X08) seluruh korpus; disaring per edisi saat dipasang. */
+  revisions: LoadedRevisions | null;
+}
+
+function corpusShared(
+  corpus: Pick<CorpusConfig, "version">,
+  paths: PipelinePaths,
+  env?: NodeJS.ProcessEnv,
+): CorpusShared {
+  return {
+    corpusVersion: corpus.version,
+    builtAt: buildTimestamp(paths.repo, env),
+    quran: loadQuran(paths.quran, (s) => normalizeArabic(s).text),
+    revisions: loadRevisions(paths.repo),
+  };
+}
+
+/** Revisi milik satu edisi saja (`passage.id` = edition_id·10⁷ + seq, ADR-029). */
+function revisionsOf(loaded: LoadedRevisions | null, editionId: number): LoadedRevisions | null {
+  if (loaded === null) return null;
+  const lo = editionId * 1e7;
+  return {
+    ...loaded,
+    lines: loaded.lines.filter((l) => l.passage_id > lo && l.passage_id < lo + 1e7),
+  };
+}
+
 /**
- * Baris korpus + baris indeks FTS; `term_stat` dihitung dari indeks itu (S11), tabel Qur'an dan
- * rujukan ayat dari sumber Qur'an (S12).
+ * Baris korpus SATU kitab + baris indeks FTS-nya; tabel Qur'an dari sumber Qur'an bersama (S12).
+ * `term_stat` dihitung dari indeks bila `withTermStats` (QA satu kitab); build korpus menghitungnya
+ * sekali dari indeks gabungan semua kitab.
  */
 function rowsFor(
   config: WorkConfig,
@@ -183,17 +225,19 @@ function rowsFor(
   prepared: Prepared,
   toc: TocBuild,
   ids: IdAllocator,
-  env?: NodeJS.ProcessEnv,
+  shared: CorpusShared,
+  withTermStats: boolean,
 ): {
   rows: CorpusRows;
   fts: FtsRow[];
   ayat: AyatBuild;
   llm: LlmBuild | null;
   revisions: RevisionStats;
-  /** Intisari (X15b): baris + indeks + invarian; null bila build tanpa folder hasil LLM. */
+  /** Intisari (X15b): baris + indeks + invarian; null bila kitab dibangun tanpa hasil LLM. */
   digest: DigestBuild | null;
 } {
   const { source, pages, takhrij } = prepared;
+  const { quran } = shared;
   const base = buildRows({
     config,
     source,
@@ -204,12 +248,12 @@ function rowsFor(
     meta: {
       normVersion: NORM_VERSION,
       latinNormVersion: LATIN_NORM_VERSION,
-      builtAt: buildTimestamp(paths.repo, env),
+      corpusVersion: shared.corpusVersion,
+      builtAt: shared.builtAt,
       sourceHash: `sha256:${source.sha256}`,
     },
   });
   const fts = ftsRows(base.passage);
-  const quran = loadQuran(paths.quran, (s) => normalizeArabic(s).text);
   const matched = matchAyat(quran, base.passage, base.page);
   mergePatchedRefs(matched, ayahPatchRefs(config, paths, quran, base.passage, matched.refs));
   const rows: CorpusRows = {
@@ -222,13 +266,18 @@ function rowsFor(
     toc_title_translation: [],
     subheading_translation: [],
     ...emptyDigestRows(),
-    term_stat: termStats(fts, paths.migrations),
+    term_stat: withTermStats ? termStats(fts, paths.migrations) : [],
   };
+  // Hasil LLM per kitab (ADR-137): tanpa folder hasil LLM atau tanpa `config.llm` = tanpa
+  // terjemahan/ringkasan/Intisari (gerbang `llmCoverage` 0 yang menentukan boleh tidaknya).
+  const llmDir =
+    paths.llm === undefined || config.llm === undefined
+      ? undefined
+      : join(paths.llm, config.llm.dir);
+  const subheadings = readSubheadings(paths.repo, config);
   // Terjemahan/ringkasan AI dicek terhadap baris yang baru dibangun ini (hash sumber, ayat).
   const llm =
-    paths.llm === undefined
-      ? null
-      : llmRows(rows, paths.llm, loadReviews(paths.repo), readSubheadings(paths.repo, config));
+    llmDir === undefined ? null : llmRows(rows, llmDir, loadReviews(paths.repo), subheadings);
   if (llm !== null) {
     rows.translation = llm.translation;
     rows.summary = llm.summary;
@@ -237,20 +286,16 @@ function rowsFor(
   }
   // Revisi terjemahan manusia (X08 tahap 2, ADR-082): menimpa teks AI sesudah hasil batch dimuat,
   // divalidasi ulang terhadap baris korpus ini. Metadata git tanpa berkas ekspornya = GAGAL.
-  const loaded = loadRevisions(paths.repo);
-  const revisions = applyRevisions(rows, loaded);
+  const revisions = applyRevisions(rows, revisionsOf(shared.revisions, config.edition.id));
   rows.translation = revisions.translation;
   rows.translation_review = revisions.translation_review;
-  rows.meta = [...rows.meta, ...revisionMetaRows(loaded)];
   // Intisari (X15b, ADR-097): dicek terhadap baris korpus final ini (termasuk terjemahan yang sudah
   // direvisi, untuk kutipan satu paragraf utuh). Abstrak yang lolos `checkSummary` menjadi ringkasan
   // bahasa id node itu, sehingga Cari/Jawab/MCP memakai satu ringkasan.
   const digest =
-    paths.llm === undefined
+    paths.llm === undefined || config.llm === undefined
       ? null
-      : digestRows(rows, join(paths.llm, "intisari"), {
-          subheadings: readSubheadings(paths.repo, config),
-        });
+      : digestRows(rows, join(paths.llm, config.llm.intisari), { subheadings });
   if (digest !== null) {
     rows.glossary_term = digest.glossary_term;
     rows.digest = digest.digest;
@@ -302,31 +347,43 @@ function ayahPatchRefs(
 }
 
 /**
- * Baris korpus yang SEHARUSNYA ada, dibangun ulang di memori dari sumber Shamela dengan peta ID
- * yang di-commit (tanpa menulis apa pun). Dipakai QA sampel halaman (`qa.ts`, S10).
+ * Baris korpus SATU kitab yang SEHARUSNYA ada, dibangun ulang di memori dari sumber Shamela dengan
+ * peta ID yang di-commit (tanpa menulis apa pun). Dipakai QA sampel halaman (`qa.ts`, S10).
  */
 export function expectedRows(
   config: WorkConfig,
   paths: PipelinePaths,
   env?: NodeJS.ProcessEnv,
+  corpusVersion = "qa",
 ): CorpusRows {
-  const prepared = prepare(config, paths);
+  const prepared = prepare(config, paths, corpusVersion);
   const toc = readToc(config, paths, prepared);
   const ids = createAllocator(readIdMap(join(paths.repo, config.ids), config.edition.id));
-  const { rows } = rowsFor(config, paths, prepared, toc, ids, env);
+  const shared = corpusShared({ version: corpusVersion }, paths, env);
+  const { rows } = rowsFor(config, paths, prepared, toc, ids, shared, true);
   const added = Object.values(ids.added).reduce((a, b) => a + b, 0);
   if (added > 0) {
     throw new Error(
-      `Peta ID ${config.ids} belum memuat ${added} baris sumber: build korpus tidak sesuai sumber, jalankan \`pnpm ingest ihya\``,
+      `Peta ID ${config.ids} belum memuat ${added} baris sumber: build korpus tidak sesuai sumber, jalankan \`pnpm ingest korpus\``,
     );
   }
   return rows;
 }
 
-export interface IngestResult {
+/** Hasil satu kitab di dalam build korpus. */
+export interface WorkIngest {
+  config: WorkConfig;
   validation: Validation;
-  /** Statistik pencocok ayat (S12); ada juga bila validasi gagal. */
   ayat: AyahStats;
+  idsAdded: Record<string, number>;
+}
+
+export interface IngestResult {
+  /** Gabungan semua kitab (satu kitab = validasi kitab itu apa adanya). */
+  validation: Validation;
+  /** Statistik pencocok ayat (S12) kitab pertama; per kitab di `works`. Ada juga bila validasi gagal. */
+  ayat: AyahStats;
+  works: WorkIngest[];
   /** Diisi bila validasi lolos dan keluaran ditulis. */
   output?: {
     files: string[];
@@ -334,6 +391,7 @@ export interface IngestResult {
     counts: Record<string, number>;
     /** sha256 gabungan file SQL (terurut) + .sqlite. */
     hash: string;
+    /** Jumlah ID baru semua kitab (per kitab di `works`). */
     idsAdded: Record<string, number>;
   };
 }
@@ -344,7 +402,7 @@ export interface IngestOptions {
   /**
    * `passage.id` lama yang teksnya boleh berubah (koreksi teks yang disengaja), satu per satu. ID
    * yang HILANG tetap ditolak. Periksa daftar lengkap di laporan validasi dulu: paragraf bergeser
-   * juga tampil sebagai "berubah".
+   * juga tampil sebagai "berubah". Setiap ID hanya berlaku untuk edisinya (ADR-029).
    */
   acceptTextChanges?: readonly number[];
   env?: NodeJS.ProcessEnv;
@@ -355,21 +413,106 @@ export interface IngestOptions {
   audioTracks?: readonly AudioTrackRow[];
 }
 
+/** Tabel yang isinya sama untuk semua kitab (atau dipakai bersama): digabung tanpa duplikat. */
+const SHARED_TABLES: Partial<Record<CorpusTable, string | null>> = {
+  author: "id",
+  quran_source: null,
+  quran_surah: null,
+  quran_ayah: null,
+  quran_translation: null,
+  glossary_term: "term_key",
+};
+
+/** Gabungkan baris tanpa duplikat persis; kunci sama dengan isi berbeda = galat. */
+function dedupeRows(table: string, rows: readonly object[], key: string | null): object[] {
+  const seen = new Map<string, object>();
+  const byKey = new Map<unknown, string>();
+  for (const r of rows) {
+    const json = JSON.stringify(r);
+    if (seen.has(json)) continue;
+    if (key !== null) {
+      const k = (r as Record<string, unknown>)[key];
+      const prev = byKey.get(k);
+      if (prev !== undefined)
+        throw new Error(
+          `Tabel ${table}: ${key} ${String(k)} berbeda isi antar-kitab (${prev} ≠ ${json})`,
+        );
+      byKey.set(k, json);
+    }
+    seen.set(json, r);
+  }
+  return [...seen.values()];
+}
+
+/**
+ * Gabungkan baris beberapa kitab menjadi satu korpus. `meta` dibangun ulang: nilai korpus sama untuk
+ * semua kitab, `source_hash` menggabungkan sumber per kitab (satu kitab = apa adanya).
+ */
+function mergeRows(
+  parts: readonly { config: WorkConfig; rows: CorpusRows }[],
+  revisions: LoadedRevisions | null,
+): CorpusRows {
+  const out: Record<string, object[]> = {};
+  for (const table of TABLE_ORDER) {
+    if (table === "meta" || table === "term_stat") continue;
+    const all = parts.flatMap((p) => p.rows[table] as object[]);
+    out[table] =
+      table in SHARED_TABLES ? dedupeRows(table, all, SHARED_TABLES[table] ?? null) : all;
+  }
+  const first = parts[0]?.rows.meta ?? [];
+  const hashes = parts.map((p) => ({
+    slug: p.config.work.slug,
+    value: p.rows.meta.find((m) => m.key === "source_hash")?.value ?? "",
+  }));
+  const sourceHash =
+    hashes.length === 1
+      ? (hashes[0]?.value ?? "")
+      : hashes.map((h) => `${h.slug}=${h.value}`).join(";");
+  const meta: MetaRow[] = [
+    ...first.map((m) => (m.key === "source_hash" ? { ...m, value: sourceHash } : m)),
+    ...revisionMetaRows(revisions),
+  ];
+  return { ...(out as unknown as CorpusRows), meta, term_stat: [] };
+}
+
+/** Invarian lintas kitab: ID karya/edisi dan slug unik (ADR-029, ADR-137). */
+function corpusInvariants(corpus: CorpusConfig): Validation["invariants"] {
+  const dup = (values: readonly (string | number)[]): string[] =>
+    [...new Set(values.filter((v, i) => values.indexOf(v) !== i))].map(String);
+  const works = corpus.works;
+  const problems = [
+    ...dup(works.map((w) => w.work.id)).map((v) => `work.id ${v}`),
+    ...dup(works.map((w) => w.edition.id)).map((v) => `edition.id ${v}`),
+    ...dup(works.map((w) => w.work.slug)).map((v) => `slug ${v}`),
+    ...dup(works.map((w) => w.ids)).map((v) => `peta ID ${v}`),
+    ...dup(works.map((w) => w.reportPrefix)).map((v) => `laporan ${v}`),
+  ];
+  return [
+    {
+      name: "Korpus: ID karya, ID edisi, slug, peta ID, dan laporan unik per kitab",
+      ok: works.length > 0 && problems.length === 0,
+      detail:
+        works.length === 0
+          ? "tanpa kitab"
+          : problems.length === 0
+            ? `${works.length} kitab: ${works.map((w) => w.work.slug).join(", ")}`
+            : `ganda: ${problems.join("; ")}`,
+    },
+  ];
+}
+
+/** Bangun satu korpus berisi semua kitab `corpus.works` (X31a, ADR-137). */
 export function runIngest(
-  config: WorkConfig,
+  corpus: CorpusConfig,
   paths: PipelinePaths,
   opts: IngestOptions = {},
 ): IngestResult {
-  const prepared = prepare(config, paths);
-  const { source, pages, matan, takhrij, ctx } = prepared;
-  const toc = readToc(config, paths, prepared);
-
   // Keluaran build lama dihapus lebih dulu: bila validasi gagal, tidak ada SQL usang yang bisa
   // termuat tanpa sadar. Build versi lain (mis. ihya-v1 setelah naik ke ihya-v2) ikut dihapus:
   // data/build/sql hanya memuat satu build, dan .sqlite/.sha256 versi lain tidak lagi cocok dengannya.
   const sqlDir = join(paths.build, "sql");
-  const sqlitePath = join(paths.build, config.output);
-  const hashPath = join(paths.build, `${config.corpusVersion}.sha256`);
+  const sqlitePath = join(paths.build, corpus.output);
+  const hashPath = join(paths.build, `${corpus.version}.sha256`);
   const stale = existsSync(paths.build)
     ? readdirSync(paths.build)
         .filter((f) => /^(?:surau-corpus-.+\.sqlite(?:-journal|-wal|-shm)?|.+\.sha256)$/.test(f))
@@ -378,6 +521,73 @@ export function runIngest(
   for (const path of [sqlDir, sqlitePath, hashPath, ...stale]) {
     rmSync(assertWritable(path), { recursive: true, force: true });
   }
+
+  if (corpus.works.length === 0) throw new Error("Korpus tanpa kitab: isi CorpusConfig.works");
+  const shared = corpusShared(corpus, paths, opts.env);
+  const built = corpus.works.map((config) => buildWork(config, paths, shared, opts));
+  const head = built[0];
+  if (head === undefined) throw new Error("Korpus tanpa kitab");
+  const works: WorkIngest[] = built.map((b) => ({
+    config: b.config,
+    validation: b.validation,
+    ayat: b.ayat.stats,
+    idsAdded: { ...b.ids.added },
+  }));
+  const validation = mergeValidation(
+    built.map((b) => b.validation),
+    corpus,
+    built,
+  );
+  const ayat = head.ayat.stats;
+  if (!validation.ok) return { validation, ayat, works };
+
+  const rows = mergeRows(built, shared.revisions);
+  const fts = built.flatMap((b) => b.fts);
+  rows.term_stat = termStats(fts, paths.migrations);
+  if (opts.audioTracks !== undefined) rows.audio_track = [...opts.audioTracks];
+
+  mkdirSync(sqlDir, { recursive: true });
+  const files = emitSql(rows, fts, {
+    ...latinFtsRows(rows.translation, rows.summary),
+    digest: built.flatMap((b) => b.digest?.fts ?? []),
+  });
+  for (const f of files) writeFileSync(join(sqlDir, f.name), f.content);
+  const { counts } = buildSqlite(sqlitePath, paths.migrations, files, [
+    ...TABLE_ORDER,
+    "passage_fts",
+    "translation_fts",
+    "summary_fts",
+    "digest_point_fts",
+  ]);
+  for (const b of built) {
+    mkdirSync(dirname(b.idsPath), { recursive: true });
+    writeIdMap(b.idsPath, b.ids.snapshot());
+    writeFingerprints(b.printsPath, b.prints);
+  }
+
+  const digest = buildDigest(sqlDir, sqlitePath);
+  writeFileSync(hashPath, `${digest}\n`);
+  const idsAdded: Record<string, number> = {};
+  for (const w of works)
+    for (const [k, n] of Object.entries(w.idsAdded)) idsAdded[k] = (idsAdded[k] ?? 0) + n;
+  return {
+    validation,
+    ayat,
+    works,
+    output: { files: files.map((f) => f.name), sqlite: sqlitePath, counts, hash: digest, idsAdded },
+  };
+}
+
+/** Satu kitab: baca, bangun baris, validasi, sidik teks, dan laporan (belum menulis SQL). */
+function buildWork(
+  config: WorkConfig,
+  paths: PipelinePaths,
+  shared: CorpusShared,
+  opts: IngestOptions,
+) {
+  const prepared = prepare(config, paths, shared.corpusVersion);
+  const { source, pages, matan, takhrij, ctx } = prepared;
+  const toc = readToc(config, paths, prepared);
 
   const idsPath = assertWritable(join(paths.repo, config.ids));
   const printsPath = assertWritable(fingerprintPath(idsPath));
@@ -403,8 +613,7 @@ export function runIngest(
     llm,
     revisions,
     digest: intisari,
-  } = rowsFor(config, paths, prepared, toc, ids, opts.env);
-  if (opts.audioTracks !== undefined) rows.audio_track = [...opts.audioTracks];
+  } = rowsFor(config, paths, prepared, toc, ids, shared, false);
   const validation = validate({
     config,
     source,
@@ -422,9 +631,21 @@ export function runIngest(
     validation.invariants.push(digestInvariant(intisari));
     validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
   }
+  // Batas bawah Intisari (ADR-137, dari ADR-136): build yang memuat lebih sedikit dari yang tayang gagal.
+  const minDigests = config.expect.minDigests ?? 0;
+  if (minDigests > 0) {
+    const n = rows.digest.length;
+    validation.invariants.push({
+      name: `Intisari termuat ≥ ${minDigests} (tidak berkurang dari korpus tayang)`,
+      ok: n >= minDigests,
+      detail: `${n} Intisari${config.llm === undefined ? "" : ` dari ${config.llm.intisari}`}`,
+    });
+    validation.ok &&= n >= minDigests;
+  }
   const prints = fingerprints(config.edition.id, rows.passage);
-  const stability =
-    released === null ? null : checkStability(released, prints, opts.acceptTextChanges);
+  const lo = config.edition.id * 1e7;
+  const accepted = opts.acceptTextChanges?.filter((id) => id > lo && id < lo + 1e7);
+  const stability = released === null ? null : checkStability(released, prints, accepted);
   if (stability !== null) {
     validation.invariants.push({
       name: "ID paragraf rilis stabil (ADR-059)",
@@ -442,36 +663,40 @@ export function runIngest(
     openitiReport(ctx, pages, matan, takhrij),
   );
   writeText(join(paths.repo, `${config.reportPrefix}-ayat.md`), ayatReport(ctx, ayat, rows));
-  if (!validation.ok) return { validation, ayat: ayat.stats };
-
-  mkdirSync(sqlDir, { recursive: true });
-  const files = emitSql(rows, fts, {
-    ...latinFtsRows(rows.translation, rows.summary),
-    digest: intisari?.fts ?? [],
-  });
-  for (const f of files) writeFileSync(join(sqlDir, f.name), f.content);
-  const { counts } = buildSqlite(sqlitePath, paths.migrations, files, [
-    ...TABLE_ORDER,
-    "passage_fts",
-    "translation_fts",
-    "summary_fts",
-    "digest_point_fts",
-  ]);
-  mkdirSync(dirname(idsPath), { recursive: true });
-  writeIdMap(idsPath, ids.snapshot());
-  writeFingerprints(printsPath, prints);
-
-  const digest = buildDigest(sqlDir, sqlitePath);
-  writeFileSync(hashPath, `${digest}\n`);
   return {
+    config,
+    rows,
+    fts,
+    ayat,
     validation,
-    ayat: ayat.stats,
-    output: {
-      files: files.map((f) => f.name),
-      sqlite: sqlitePath,
-      counts,
-      hash: digest,
-      idsAdded: { ...ids.added },
-    },
+    digest: intisari,
+    ids,
+    idsPath,
+    printsPath,
+    prints,
   };
+}
+
+/** Satu kitab: validasinya apa adanya. Beberapa kitab: invarian diberi awalan slug + invarian korpus. */
+function mergeValidation(
+  list: readonly Validation[],
+  corpus: CorpusConfig,
+  built: readonly { config: WorkConfig }[],
+): Validation {
+  const corpusChecks = corpusInvariants(corpus);
+  const first = list[0];
+  if (first === undefined) {
+    throw new Error("Korpus tanpa kitab: isi CorpusConfig.works");
+  }
+  if (list.length === 1) {
+    const ok = first.ok && corpusChecks.every((i) => i.ok);
+    return { ...first, ok, invariants: [...first.invariants, ...corpusChecks] };
+  }
+  const invariants = [
+    ...list.flatMap((v, i) =>
+      v.invariants.map((inv) => ({ ...inv, name: `[${built[i]?.config.work.slug}] ${inv.name}` })),
+    ),
+    ...corpusChecks,
+  ];
+  return { ...first, ok: invariants.every((i) => i.ok), invariants };
 }
