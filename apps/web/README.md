@@ -28,7 +28,7 @@ Untuk menguji URL lain (misalnya preview PR): `BASE_URL=https://… pnpm test:e2
 | `/sitemap.xml`, `/robots.txt` | Sitemap dinamis (halaman kitab bila pembaca terbuka) |
 | 404        | Halaman tidak ditemukan (bahasa Indonesia)                           |
 
-Cari dan Tanya tampil di menu dengan label "segera". Pembaca kitab dibaca dari D1 (`CORPUS_DB`) lewat `@surau/core` dan dirender ISR on-demand; di produksi ditutup lewat `READER_ENABLED = "0"` sampai rilis Fase 1, di Preview dan `pnpm dev` terbuka (ADR-034). Lokal butuh Ihya di D1 lokal: `pnpm corpus:load:local` sekali (memigrasi + memuat; butuh `data/build/` hasil `pnpm ingest ihya`).
+Cari dan Tanya tampil di menu dengan label "segera". Pembaca kitab dibaca dari D1 (`CORPUS_DB`) lewat `@surau/core` dan dirender ISR on-demand; di produksi ditutup lewat `READER_ENABLED = "0"` (sampai rilis Fase 1, dan lagi sejak 2026-11-26 karena Ihya diturunkan, ADR-142), di Preview dan `pnpm dev` terbuka (ADR-034). Lokal butuh Ihya di D1 lokal: `pnpm corpus:load:local` sekali (memigrasi + memuat; butuh `data/build/` hasil `pnpm ingest ihya`).
 
 ## Struktur
 

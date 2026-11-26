@@ -40,7 +40,10 @@
     // BUKAN email; nama + gelar tampil publik di label terjemahan atas keputusan pemilik. Hanya akun
     // di sini yang bisa menyimpan koreksi. Menambah orang = PR + ADR (pola ADR-070).
     "TRANSLATION_EDITORS": "[]",
-    "READER_ENABLED": "1",
+    // "0" = pembaca, Cari, dan sitemap kitab ditutup (ADR-034). Ditutup lagi 2026-11-26: Ihya
+    // diarsipkan dan diturunkan (ADR-142). Kembali "1" bersama promote korpus Gelombang 1 (X31b),
+    // bersama KITAB_OPEN di apps/mcp/wrangler.jsonc.
+    "READER_ENABLED": "0",
     // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
     // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
     "SEARCH_TIMING_DETAIL": "0",

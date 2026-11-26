@@ -136,7 +136,7 @@ export const landing = {
   collectionHeading:
     "Perpustakaan yang tumbuh, satu kitab yang dikerjakan dengan teliti setiap kali.",
   collectionLead:
-    "Setiap kitab disiapkan strukturnya, daftar isinya diperbaiki, dan takhrijnya ditautkan sebelum dibuka. Dimulai dari Ihya' 'Ulum ad-Din.",
+    "Setiap kitab disiapkan strukturnya, daftar isinya diperbaiki, dan takhrijnya ditautkan sebelum dibuka. Ihya' 'Ulum ad-Din ditarik sementara untuk disempurnakan; berikutnya Bidayat al-Hidayah, at-Tibyan, dan al-Ajurrumiyyah.",
   collectionAvailable: "Tersedia",
   collectionSoon: "Menyusul",
   collectionStage: (n: number) => `Tahap ${n}`,
@@ -208,11 +208,11 @@ export const landing = {
     },
     {
       q: "Dari mana teks kitabnya?",
-      a: "Teks Arab Ihya berasal dari OpenITI dan al-Maktaba al-Shamela, edisi Dar al-Ma'rifah (Beirut), berlisensi CC BY-NC-SA 4.0. Rinciannya ada di halaman Lisensi.",
+      a: "Teks Arab kitab berasal dari OpenITI dan al-Maktaba al-Shamela, berlisensi CC BY-NC-SA 4.0. Rincian setiap edisi ada di halaman Lisensi.",
     },
     {
       q: "Kitab apa saja yang sudah ada?",
-      a: "Saat ini Ihya' 'Ulum ad-Din karya al-Ghazali, empat jilid. Karya al-Ghazali lainnya dan kitab-kitab kurikulum pesantren menyusul.",
+      a: "Saat ini belum ada kitab yang terbuka. Ihya' 'Ulum ad-Din karya al-Ghazali ditarik sementara untuk disempurnakan. Bidayat al-Hidayah, at-Tibyan, dan al-Ajurrumiyyah sedang disiapkan lengkap dengan terjemahan dan ringkasannya, lalu kitab kurikulum pesantren menyusul.",
     },
     {
       q: "Bagaimana dengan privasi?",

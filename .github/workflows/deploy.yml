@@ -157,7 +157,13 @@ jobs:
         run: |
           # Beberapa detik setelah deploy, sebagian permintaan masih dilayani versi Worker lama
           # (S04: `/` sempat 307 dari template). Ulangi sampai 200, paling lama ±60 detik per halaman.
-          for p in / /home /tentang /lisensi /mcp /kitab /kitab/ihya/1/200; do
+          # Pembaca ditutup (READER_ENABLED "0", ADR-142): halaman kitab harus 404, bukan 200.
+          if grep -q '"READER_ENABLED": "0"' apps/web/wrangler.jsonc; then
+            pages="/ /home /tentang /lisensi /mcp /kitab"; tertutup="/kitab/ihya/1/200 /cari"
+          else
+            pages="/ /home /tentang /lisensi /mcp /kitab /kitab/ihya/1/200"; tertutup=""
+          fi
+          for p in $pages; do
             for i in $(seq 1 12); do
               code=$(curl -s -o /dev/null -w '%{http_code}' "https://surau.org$p" || true)
               [ "$code" = "200" ] && break
@@ -165,6 +171,15 @@ jobs:
             done
             echo "$p → $code (percobaan $i)"
             [ "$code" = "200" ] || { echo "::error title=Smoke gagal::$p mengembalikan $code"; exit 1; }
+          done
+          for p in $tertutup; do
+            for i in $(seq 1 12); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "https://surau.org$p" || true)
+              [ "$code" = "404" ] && break
+              sleep 5
+            done
+            echo "$p → $code (tertutup, percobaan $i)"
+            [ "$code" = "404" ] || { echo "::error title=Smoke gagal::$p seharusnya 404 (pembaca ditutup), dapat $code"; exit 1; }
           done
 
   # Worker MCP (S16, ADR-049): custom domain mcp.surau.org dari `routes` di apps/mcp/wrangler.jsonc
@@ -200,13 +215,18 @@ jobs:
         env:
           MAX_COBA: "30"
           JEDA: "10"
-        run: bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp daftar
+        # Korpus ditutup (KITAB_OPEN "0", ADR-142): tool harus menjawab corpus_closed.
+        run: |
+          mode=daftar; grep -q '"KITAB_OPEN": "0"' apps/mcp/wrangler.jsonc && mode=tutup
+          bash .github/scripts/uji-mcp.sh https://mcp.surau.org/mcp "$mode"
 
       - name: Smoke MCP /redaksi produksi
         env:
           MAX_COBA: "30"
           JEDA: "10"
-        run: bash .github/scripts/uji-mcp.sh https://mcp.surau.org/redaksi redaksi
+        run: |
+          mode=redaksi; grep -q '"KITAB_OPEN": "0"' apps/mcp/wrangler.jsonc && mode=tutup
+          bash .github/scripts/uji-mcp.sh https://mcp.surau.org/redaksi "$mode"
 
   # Worker media (X17, ADR-103): audio Intisari dari R2 `surau-media` di media.surau.org (custom
   # domain dari `routes` di apps/media/wrangler.jsonc). Tidak bergantung pada D1 atau web; sesudah

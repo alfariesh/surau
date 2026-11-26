@@ -10,7 +10,7 @@ export const reader = {
   allLead: "Semua kitab yang sudah bisa dibaca di Surau.",
   soonHeading: "Pembaca kitab segera hadir",
   soonBody:
-    "Pembaca Ihya sedang disiapkan dan diperiksa sebelum dibuka untuk umum. Sementara itu, kenali dulu prinsip Surau.",
+    "Ihya' 'Ulum ad-Din ditarik sementara untuk disempurnakan, dan kitab berikutnya (Bidayat al-Hidayah, at-Tibyan, al-Ajurrumiyyah) sedang disiapkan. Sementara itu, kenali dulu prinsip Surau.",
   soonCta: "Kenali Surau",
   by: "karya",
   editionsLabel: "Edisi",

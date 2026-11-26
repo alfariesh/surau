@@ -96,9 +96,6 @@ export default function McpPage() {
             </li>
           ))}
         </ol>
-        <NextLink className="link underline" href="/kitab/ihya/1/48">
-          {t.readerLink}
-        </NextLink>
       </PageSection>
 
       <PageSection heading={t.limitsHeading} id="batasan">

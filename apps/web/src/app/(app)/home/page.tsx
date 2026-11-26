@@ -37,7 +37,7 @@ async function homeData() {
   try {
     const env = await getEnv();
     ask = jawabRouteOn(env);
-    if (!readerEnabled(env)) return { ask, real: [], shelf: [], sections: [] };
+    if (!readerEnabled(env)) return { ask, open: false, real: [], shelf: [], sections: [] };
     // Bagian kitab untuk pemilih sumber (sama dengan /cari): satu query daftar isi kedalaman 2.
     // Fitur sekunder: gagal = pemilih tanpa bagian, rak dan Maknaz tetap tampil.
     const [{ works }, sections] = await Promise.all([
@@ -58,18 +58,18 @@ async function homeData() {
             const work = real[i % real.length]!;
             return { ...work, slug: `${work.slug}-${i}` };
           });
-    return { ask, real, shelf, sections };
+    return { ask, open: true, real, shelf, sections };
   } catch (error) {
     // Gagal = Beranda tetap tampil tanpa rak dan pemilih kitab (Maknaz mengikuti saklarnya).
     console.error("data beranda gagal dimuat", error);
-    return { ask, real: [], shelf: [], sections: [] };
+    return { ask, open: true, real: [], shelf: [], sections: [] };
   }
 }
 
 // Beranda (ADR-086): fokus cari dan jelajah. Rak kitab, sambutan singkat, kotak cari (Cari/Maknaz),
 // lanjutkan membaca, lalu tiga prinsip.
 export default async function HomePage() {
-  const { ask, real, shelf, sections } = await homeData();
+  const { ask, open, real, shelf, sections } = await homeData();
   // Pemilih kitab memakai karya asli (bukan isian rak sementara); judul Latin, Arab tidak dipakai di
   // daftar teks biasa.
   const works = real.flatMap((w) => (w.title_id ? [{ slug: w.slug, title: w.title_id }] : []));
@@ -86,8 +86,18 @@ export default async function HomePage() {
         <PageTitle className="text-center text-balance" compactTitle={false} id="judul-beranda">
           {t.heading}
         </PageTitle>
-        <SearchBox ask={ask} sections={sections} works={works} />
-        <ContinueReading wide className="w-full text-start" />
+        {open ? (
+          <>
+            <SearchBox ask={ask} sections={sections} works={works} />
+            <ContinueReading wide className="w-full text-start" />
+          </>
+        ) : (
+          // Pembaca ditutup (READER_ENABLED "0", ADR-142): kotak cari dan "lanjutkan membaca" akan
+          // menuju halaman 404, jadi diganti pemberitahuan.
+          <Typography className="text-balance" color="muted">
+            {t.closedNotice}
+          </Typography>
+        )}
       </section>
 
       <section

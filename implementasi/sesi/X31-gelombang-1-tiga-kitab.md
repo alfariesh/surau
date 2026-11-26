@@ -75,12 +75,15 @@ Dipakai sama untuk ketiga kitab. Butir yang tidak berlaku hanya boleh dikecualik
 4. **Audio:** nilai kriteria audio; bila lolos, skrip Intisari → ElevenLabs (T-29, **izin biaya**), sorotan kalimat (X18) bila timestamps tersedia.
 5. **Terjemahan Inggris** (opsional, bukan syarat selesai): lewat skill `terjemah-inggris` bila antrean X26 berjalan.
 6. **Tampil:** tambahkan rincian atribusi Bidayah ke `EDITION_CREDITS` (/lisensi), hentikan suara minat untuk slug ini di `/api/minat-kitab`, ubah status ledger ke `tayang` (syarat promote, ADR-137 butir 6), dan pertimbangkan label "Halaman 25" tanpa "Juz 1" untuk kitab satu jilid.
-7. **Promote pertama Gelombang 1 = Ihya turun** (ADR-142 butir 3 dan 7), atas izin pemilik. Di PR yang sama atau sebelumnya:
+7. **Promote pertama Gelombang 1 = situs dibuka lagi** (ADR-142 butir 3 dan 7), atas izin pemilik. Ihya sudah diturunkan 2026-11-26 lewat `READER_ENABLED` "0" (web) dan `KITAB_OPEN` "0" (MCP). Di PR promote, kembalikan keduanya ke "1". Di PR yang sama atau sebelumnya:
    - landing (`apps/web/src/lib/landing-data.ts`: `LANDING_WORK`, `HERO_QUOTE`, `SEARCH_DEMO_IDS` diganti paragraf Bidayah, disalin kode dari DB; teks `i18n/id/landing.ts`);
    - halaman MCP (`i18n/id/mcp.ts`), `/lisensi` dan `data/ATTRIBUTION.md` (Ihya ditandai diarsipkan), daftar audio `apps/media`, sitemap;
    - CI produksi: `.github/workflows/deploy.yml` (cek `/kitab/ihya/1/200` dan `uji-mcp.sh … redaksi` dengan section Ihya; bila gagal, deploy MCP tidak jalan) dan `eval.yml` (eval Cari Ihya di staging);
    - rollback sesudah promote ini = revert PR promote (binding dan kode web sekaligus), bukan hanya `--switch-only`;
    - URL lama `/kitab/ihya/…`: putuskan halaman "diarsipkan" dengan `noindex` atau 410, lalu tulis pilihannya di sini.
+
+   - kembalikan tautan pembaca di halaman `/mcp` (dihapus saat Ihya diturunkan; string `readerLink` masih ada) dan contoh prompt bila perlu;
+   - `/redaksi` produksi ikut tertutup selama `KITAB_OPEN` "0", dan D1 produksi belum berisi Bidayah. Karena itu Intisari Bidayah (langkah 3) dibuat dengan plugin yang mengarah ke Preview atau MCP lokal berdata staging; tetapkan caranya di langkah 3.
 
    Patch ayat X29 dan terjemahan ulang 153 paragraf Ihya **dibatalkan** (ADR-142 butir 6).
 8. Tulis **catatan cetakan** di "Catatan hasil": urutan langkah yang ternyata perlu, waktu, dan biaya nyata.
