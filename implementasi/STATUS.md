@@ -50,13 +50,13 @@
 
 ## Perhatian (risiko aktif)
 
-- **Versi Next:** Next 16.4.1 + OpenNext 1.20.12 (ADR-030). Larangan ADR-003 tetap (tanpa `cacheComponents`, Server Actions, middleware, optimasi gambar).
+- **Versi Next:** Next 16.4.6 + OpenNext 1.20.17 (ADR-030, patch keamanan ADR-140). Larangan ADR-003 tetap (tanpa `cacheComponents`, Server Actions, middleware, optimasi gambar).
 - **Lisensi HeroUI Pro** melarang publikasi komponen dan template Pro, tetapi repo sudah publik atas keputusan pemilik (ADR-025). Disarankan tetap kirim email izin ke HeroUI (lampiran TUGAS-PEMILIK); bila ditegur, beralih ke HeroUI OSS.
 - **`main` terlindungi:** hanya bisa diubah lewat PR yang lolos CI `verify`, tanpa force-push (ADR-025). PR dari fork butuh persetujuan pemilik sebelum CI berjalan; jangan setujui PR fork yang mengubah `.github/`.
 - **Lisensi teks:** Shamela tidak memberi hak pakai ulang, jadi dipakai rantai lisensi OpenITI (ADR-018).
 - **Vite+ masih baru** (1.0 pada 28 Sep 2026). Spike S01 lolos (check, lint, type-check apps/web, test, staged); cadangan Biome tidak dipakai (ADR-023).
 - **Daftar tarik Intisari** (`data/reviews/ihya-9472-intisari-tolak.json`, ADR-127): gagasan Salah ditahan saat dibaca, bukan di D1. Entri mati sendiri bila Intisari dibangun ulang (penjaga `created_at`). Mp3 audio 100007 dan 100017 masih ada di R2 dan bisa dibuka lewat URL langsung sampai pemilik mengizinkan penghapusan.
-- **Advisory:** 3 advisory Next (673q, 2464, p3m5) ditambal di 16.4.1. Tambalan React RSC (xqc2, h3gv) di salinan React bawaan Next baru **indikasi** (ADR-030 poin 4), jadi larangan typed array dari Server Component (ADR-023) tetap wajib.
+- **Advisory:** 7 advisory Next moderate yang mengenai 16.4.2 ditambal lewat 16.4.6 (ADR-140); masih terbuka di luar Next: `hono` <4.13.16 (`apps/api`) dan `figlet` (transitif HeroUI Pro). 3 advisory Next (673q, 2464, p3m5) ditambal di 16.4.1. Tambalan React RSC (xqc2, h3gv) di salinan React bawaan Next baru **indikasi** (ADR-030 poin 4), jadi larangan typed array dari Server Component (ADR-023) tetap wajib.
 
 ## Progres
 
