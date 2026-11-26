@@ -178,10 +178,10 @@ test("berdampingan: paragraf tanpa terjemahan selebar penuh; mode Arab tanpa gri
   test.skip(isMobile, "tata letak berdampingan hanya di kolom teks lebar");
   await page.setViewportSize({ width: 1600, height: 1000 });
   await setMode(page, "both", { "surau:reader-tr-layout": "side" });
-  // j3/368 #p15425: satu dari paragraf yang belum punya terjemahan (laporan terjemahan; sesudah
-  // terjemahan ulang X21 tinggal 5 paragraf, ditolak validator tiga kali). Bila ia kelak
-  // diterjemahkan, ganti ke paragraf lain dari daftar "Belum lolos" di laporan terjemahan.
-  await page.goto("/kitab/ihya/3/368");
+  // j1/272 #p3942: satu dari paragraf yang belum punya terjemahan (ditolak validator tiga kali; staging
+  // 2026-11-26 tinggal 3 di luar 153 paragraf patch ayat X29). Bila ia kelak diterjemahkan, ganti
+  // ke paragraf lain dari daftar "Belum lolos" di laporan terjemahan.
+  await page.goto("/kitab/ihya/1/272");
   const untranslated = page.locator(".reader-text .passage[data-no-tr]:not(.passage-heading)");
   await expect(untranslated.first()).toBeVisible();
   const column = await page
@@ -313,7 +313,7 @@ test("mode Terjemahan: Arab tiap paragraf terlipat dan dibuka per paragraf; ⋮ 
 }) => {
   await setMode(page, "tr");
   await page.goto(PAGE);
-  const passage = page.locator("#p2824");
+  const passage = page.locator("#p2825");
   await expect(passage.locator(".passage-translation-body")).toBeVisible();
   await expect(passage.locator(".passage-ar")).toBeHidden();
   const toggle = passage.getByRole("button", { name: "Teks Arab" });
@@ -339,8 +339,8 @@ test("mode Terjemahan: paragraf tanpa terjemahan menampilkan teks Arab dengan ke
   page,
 }) => {
   await setMode(page, "tr");
-  await page.goto("/kitab/ihya/3/368#p15425");
-  const passage = page.locator("#p15425");
+  await page.goto("/kitab/ihya/1/272#p3942");
+  const passage = page.locator("#p3942");
   await expect(passage.locator(".arabic-text")).toBeVisible();
   await expect(passage.locator(".no-tr-note")).toBeVisible();
   await expect(passage.locator(".passage-tools")).toHaveCount(0);
@@ -374,7 +374,7 @@ test("mode Terjemahan: salinan terjemahan tetap berlabel AI", async ({
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await setMode(page, "tr");
   await page.goto(PAGE);
-  const body = page.locator("#p2824 .passage-translation-body [data-ai-text]").first();
+  const body = page.locator("#p2825 .passage-translation-body [data-ai-text]").first();
   await body.evaluate((el) => {
     const range = document.createRange();
     range.selectNodeContents(el);
@@ -384,7 +384,7 @@ test("mode Terjemahan: salinan terjemahan tetap berlabel AI", async ({
   });
   await page.keyboard.press("ControlOrMeta+c");
   const copied = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copied).toContain(`(Terjemahan AI, ${new URL(`${PAGE}#p2824`, baseURL).href})`);
+  expect(copied).toContain(`(Terjemahan AI, ${new URL(`${PAGE}#p2825`, baseURL).href})`);
 });
 
 test("mode Terjemahan di Cari: terjemahan lebih dulu, potongan Arab tetap tampil", async ({
@@ -419,8 +419,17 @@ test("mode Terjemahan: permalink #pN dan tautan balik catatan kaki membuka Arab 
   await expect(page.locator("#p2826")).toHaveAttribute("data-ar-open", "");
   await expect(page.locator("#p2826 .passage-ar")).toBeVisible();
   // Tautan "kembali ke teks" dari daftar catatan kaki menuju penanda di dalam Arab yang terlipat.
-  const back = page.locator(".reader-footnotes a[href^='#ref-']").first();
-  const href = (await back.getAttribute("href")) ?? "";
+  // Pemiliknya harus paragraf berterjemahan: paragraf tanpa terjemahan selalu menampilkan Arab.
+  const href = await page.evaluate(() => {
+    for (const a of document.querySelectorAll(".reader-footnotes a[href^='#ref-']")) {
+      const h = a.getAttribute("href") ?? "";
+      const p = document.getElementById(h.slice(1))?.closest(".passage");
+      if (p && !p.hasAttribute("data-no-tr")) return h;
+    }
+    return "";
+  });
+  expect(href).not.toBe("");
+  const back = page.locator(`.reader-footnotes a[href='${href}']`).first();
   const owner = await page.evaluate(
     (id) => document.getElementById(id)?.closest(".passage")?.id ?? null,
     href.slice(1),
@@ -443,7 +452,7 @@ test("mode Terjemahan: teks Arab yang dibuka tersalin apa adanya (tanpa label to
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await setMode(page, "tr");
   await page.goto(PAGE);
-  const passage = page.locator("#p2824");
+  const passage = page.locator("#p2825");
   const toggle = passage.getByRole("button", { name: "Teks Arab" });
   await expect(async () => {
     await toggle.click();

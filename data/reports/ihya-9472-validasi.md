@@ -23,11 +23,11 @@
 | Integritas lintas tabel (edisi halaman/node = edisi paragraf; penanda badan → catatan kaki halaman sama) | ✓ | 0 paragraf beda edisi atau tanpa node; 0 footnote_ref salah arah |
 | Matan = OpenITI (≥0,95 per halaman) | ✓ | 1705/1706 halaman (gerbang ≥1705); 0 halaman tidak ada di OpenITI |
 | Sumber Qur'an utuh (ayat = jumlah per surah; terjemahan + transliterasi tiap ayat; penomoran QUL = Tanzil) | ✓ | 114 surah, 6236/6236 ayat, 12472 baris terjemahan/transliterasi; 6 ayat beda teks QUL vs Tanzil (batas 20) |
-| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 2514 rujukan; 0 tidak sah |
-| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 2444 rujukan exact; 0 tidak sesuai |
+| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 2693 rujukan; 0 tidak sah |
+| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 2597 rujukan exact; 0 tidak sesuai |
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 977/1004 (97,3%); mirip 25, tidak cocok 2 |
-| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 1341 terjemahan berisi ayat; 0 bermasalah |
-| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 16106/16111 (99,97%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
+| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 1253 terjemahan berisi ayat; 0 bermasalah |
+| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 15955/16111 (99,03%); usang 153, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
 | Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 623/626 (99,52%); usang 0, tidak sah 0 |
 | Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 522/522 (100,00%): node 313, subjudul 209 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |

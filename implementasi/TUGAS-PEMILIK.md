@@ -243,7 +243,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   6. Di Claude Code (folder Surau), ketik: "impor konten dari Downloads". Agent memeriksa, menjalankan pemeriksa independen, lalu membuat PR.
   7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
 
-- [ ] **T-35 · Build korpus staging dengan patch ayat X29, di mesin agent** · izin build diberikan pemilik 2026-10-29; promote tetap menunggu izin terpisah
+- [x] **T-35 · Build korpus staging dengan patch ayat X29, di mesin agent** · izin build diberikan pemilik 2026-10-29; promote tetap menunggu izin terpisah · **selesai 2026-11-26**: staging memuat 2.693 rujukan ayat (+179), terjemahan 15.955/16.111, ringkasan 623/626, Intisari 19, QA 30/30 ([catatan](sesi/X29-patch-ayat.md#catatan-hasil))
   Kenapa di mesin agent: korpus produksi `ihya-v9` dibangun di sana (`/home/rekanesia/surau`), dan hanya di sana ada data LLM terbaru (terjemahan ulang X21, ringkasan, Intisari). Data LLM di Mac masih versi 20 Oktober, jadi build di Mac gagal di gerbang ringkasan, dengan atau tanpa patch (dicek 2026-10-29).
   1. Buka sesi Claude Code di mesin agent, di folder `/home/rekanesia/surau` (cara yang biasa Anda pakai untuk sesi X15c/X21).
   2. Ketik ke agent di sana: "Kerjakan T-35: build staging X29 sesuai implementasi/sesi/X29-patch-ayat.md langkah 6".

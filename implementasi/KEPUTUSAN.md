@@ -145,6 +145,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 133 | Lafaz Al-Qur'an di luar penanda ayat: kutipan yang terlewat dipatch agar tampil dengan Kemenag, iqtibas diterjemahkan sebagai kalimat penulis dengan rujukan ayat, formula zikir diabaikan | diterima | 2026-10-29 | [keputusan/ADR-133.md](keputusan/ADR-133.md) |
 | 134 | Patch ayat: kutipan terlewat ditambahkan lewat berkas terverifikasi yang dicocokkan ulang kode; terjemahan paragraf terkena gugur sampai diterjemahkan ulang | diterima | 2026-10-29 | [keputusan/ADR-134.md](keputusan/ADR-134.md) |
 | 135 | Gelombang 1: Bidayat al-Hidayah, at-Tibyan, al-Ajurrumiyyah tayang lengkap (baca, Cari, terjemahan, ayat, Intisari, audio bila cocok, MCP) tanpa menunggu Jawab; sesi X31; pekerjaan Ihya diparkir kecuali X24 dan T-35 | diterima | 2026-11-26 | [keputusan/ADR-135.md](keputusan/ADR-135.md) |
+| 136 | Build Ihya dari `main` memakai Intisari pilot X15b (penukaran folder sementara, cek 19/313 + `diff -rq`) sampai X15c digabung atau dibuang; promote X29 = build ulang `ihya-v10`; pemicu perbaikan permanen: path Intisari per karya + gerbang batas bawah | diterima | 2026-11-26 | [keputusan/ADR-136.md](keputusan/ADR-136.md) |
 
 ## Cara menambah ADR baru
 

@@ -50,7 +50,7 @@ test("tata letak terjemahan tersimpan per browser (dilipat → muat ulang → te
   await expect(html).toHaveAttribute("data-tr-layout", "fold");
   await page.keyboard.press("Escape");
   // Terjemahan tertutup; tombol "Terjemahan AI" membukanya per paragraf.
-  const passage = page.locator("#p2824");
+  const passage = page.locator("#p2825");
   await expect(passage.locator(".passage-translation-body")).toBeHidden();
   const toggle = passage.getByRole("button", { name: "Terjemahan AI" });
   await expect(async () => {
@@ -127,7 +127,7 @@ test("salin terjemahan: label AI + permalink ikut tersalin", async ({
   test.skip(isMobile, "seleksi teks dengan mouse");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto(PAGE);
-  const body = page.locator("#p2824 .passage-translation-body [data-ai-text]").first();
+  const body = page.locator("#p2825 .passage-translation-body [data-ai-text]").first();
   await body.evaluate((el) => {
     const range = document.createRange();
     range.selectNodeContents(el);
@@ -137,7 +137,7 @@ test("salin terjemahan: label AI + permalink ikut tersalin", async ({
   });
   await page.keyboard.press("ControlOrMeta+c");
   const copied = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copied).toContain(`(Terjemahan AI, ${new URL(`${PAGE}#p2824`, baseURL).href})`);
+  expect(copied).toContain(`(Terjemahan AI, ${new URL(`${PAGE}#p2825`, baseURL).href})`);
 });
 
 test("gulir bersambung: halaman 201 termuat di bawah j1/200 dan URL berganti saat dibaca", async ({

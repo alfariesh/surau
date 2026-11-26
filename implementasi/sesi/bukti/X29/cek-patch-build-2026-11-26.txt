@@ -1,0 +1,9 @@
+{
+ "built_at": "2026-11-26T03:52:39.000Z",
+ "entries": 179,
+ "passages": 153,
+ "passagesAllEntriesAsRefs": 153,
+ "placeholdersInMaskedText": 441,
+ "affectedWithIdTranslation": 0
+}
+6372417e8c0f1009a48c7d5ed48fcd277309c93dd60005151394605290fad4ba  data/build/surau-corpus-ihya-v9.sqlite

@@ -1,7 +1,7 @@
 # X31 · Gelombang 1: tiga kitab kecil yang lengkap
 
 > **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** belum
-> **Prasyarat:** X31a: kode boleh di Mac, tetapi **build dan staging wajib di mesin agent** (`/home/rekanesia/surau`, ADR-135 butir 5), sesudah T-35 selesai atau berurutan dengannya (keduanya memuat `surau-corpus-staging` yang sama dan saling menimpa). X31b–X31d: X31a dan X24 selesai.
+> **Prasyarat:** X31a: kode boleh di Mac, tetapi **build dan staging wajib di mesin agent** (`/home/rekanesia/surau`, ADR-135 butir 5), T-35 selesai 2026-11-26, tetapi staging kini berisi build X29 yang menunggu izin promote: promote X29 dulu, atau bangun ulang staging X29 sesudah X31a. Build yang memuat Ihya wajib memakai Intisari pilot lewat penukaran folder [ADR-136](../keputusan/ADR-136.md) (build biasa menghapus 19 Intisari tayang). X31b–X31d: X31a dan X24 selesai.
 > **Tugas pemilik:** izin `corpus:load:staging` (`tools/ingest/README.md`), izin biaya per batch (aturan keras 4), izin promote korpus, T-29 untuk audio
 > **Perkiraan:** X31a 1–2 percakapan, X31b 1–2, X31c 1, X31d 1–2
 > **Keputusan dasar:** [ADR-135](../keputusan/ADR-135.md)

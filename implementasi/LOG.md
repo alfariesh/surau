@@ -15,6 +15,17 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-26 · X29 / T-35 · Build staging patch ayat — selesai (promote menunggu izin)
+- Dikerjakan:
+  - `git pull`, lalu `pnpm ingest ihya` di mesin agent dengan patch ayat aktif, lalu `pnpm corpus:load:staging --confirm` dan `pnpm corpus:qa staging`.
+  - Build pertama keluar dengan Intisari 0: `data/build/llm/intisari` sudah berisi hasil X15c (prompt `@3`/`@2`, cabang belum digabung). Build yang dimuat memakai cadangan pilot X15b (= Intisari produksi) lewat penukaran folder sementara; data X15c dikembalikan utuh.
+  - Laporan ingest (`data/reports/ihya-9472-ayat.md`, `-validasi.md`) diperbarui; catatan di file sesi X29.
+  - E2e Preview (membaca staging) gagal karena data contoh berubah: `p2824` kehilangan terjemahan (patch), `p15425` kini berterjemahan (X21-sisa). Contoh dipindah ke `p2825` dan `p3942`.
+- Verifikasi: semua gerbang ingest ✓ · rujukan ayat 2.693 (= 2.514 + 179) · terjemahan 15.955/16.111 (usang 153) · ringkasan 623/626 · Intisari 19/313, 119 gagasan · audio 4 (A0 sudah mengeluarkan 100007/100017) · smoke staging = hitungan build · QA staging 30/30 halaman cocok byte demi byte · `implementasi/sesi/bukti/X29/cek-patch-build.ts` → 179/179 entri jadi rujukan, 0 terjemahan lama tersisa di 153 paragraf terkena
+- Biaya API: –
+- Keputusan: [ADR-136](keputusan/ADR-136.md) (Intisari pilot untuk build `main`, promote X29 = build ulang `ihya-v10`, pemicu perbaikan permanen; utang dicatat di file sesi X29)
+- Catatan untuk sesi berikutnya: promote hanya atas izin pemilik, sebagai `ihya-v10` dibangun ulang dengan penukaran folder ADR-136 (pembanding: arsip `data/build/arsip/x29-staging-2026-11-26/`). Membangun ulang tanpa penukaran folder menghapus 19 Intisari tayang.
+
 ## 2026-11-26 · X31 rencana · Gelombang 1: tiga kitab kecil — selesai
 - Dikerjakan:
   - Dicek (hanya baca): Bidayat al-Hidayah (Shamela 12718, 46 halaman), at-Tibyan (1969, 224 halaman), al-Ajurrumiyyah (11371, 31 halaman) punya versi OpenITI ber-ID Shamela sama; gabungan ±4% Ihya; catatan kaki: Bidayah nol, Tibyan 5 halaman, Ajurrumiyyah 4 halaman.
