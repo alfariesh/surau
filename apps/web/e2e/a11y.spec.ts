@@ -159,7 +159,7 @@ test("tanpa pelanggaran a11y: mode Terjemahan, terlipat dan terbuka (j1/200)", a
   await page.goto("/kitab/ihya/1/200");
   await expect(page.locator("html")).toHaveAttribute("data-read-mode", "tr");
   expect(await axeViolations(page)).toEqual([]);
-  const toggle = page.locator("#p2824").getByRole("button", { name: "Teks Arab" });
+  const toggle = page.locator("#p2825").getByRole("button", { name: "Teks Arab" });
   await expect(async () => {
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true", { timeout: 1000 });
