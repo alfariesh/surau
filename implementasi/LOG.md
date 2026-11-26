@@ -15,6 +15,16 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-26 · Sisipan · Patch keamanan Hono 4.13.22 — selesai
+- Dikerjakan:
+  - Catalog `hono` 4.13.13 → **4.13.22** (`apps/api`); 5 advisori (4m76, h7mg, 46wx, 4h7h moderate; 3gg2 low) ditambal di 4.13.16.
+  - `figlet` 1.11.0 (GHSA-62ch, high) dari CLI `heroui-pro` beta.14 dicatat tanpa override: tidak masuk bundel runtime, CLI terbaru masih membawanya.
+  - ADR-141, STACK (Hono, HeroUI Pro), STATUS.
+- Verifikasi: `pnpm audit --prod` → hanya `figlet` · lockfile hanya mengubah `hono` · `pnpm verify` → lolos (1.194 + 500 tes) · peninjau → 0 wajib, 2 sebaiknya (komentar catalog, rujukan ADR-003) ditangani
+- Biaya API: –
+- Keputusan: [ADR-141](keputusan/ADR-141.md)
+- Catatan untuk sesi berikutnya: `figlet` menutup sendiri saat CLI `heroui-pro` atau HeroUI Pro (1.0.1 stabil sudah ada) dinaikkan.
+
 ## 2026-11-26 · Sisipan · Patch keamanan Next 16.4.6 — selesai
 - Dikerjakan:
   - Endpoint advisori npm bulk untuk `next@16.4.2` → 7 advisori moderate (mfr8, vc7v, vvgp, rhh4, 7qx7, f3mh, pc58), semuanya ditambal di 16.4.5.
