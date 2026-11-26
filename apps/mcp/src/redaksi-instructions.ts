@@ -4,7 +4,7 @@
 
 export const REDAKSI_INSTRUCTIONS_MAX = 2_000;
 
-export const REDAKSI_INSTRUCTIONS = `Surau Redaksi: the same read-only Surau library (Ihya' 'Ulum ad-Din, edition_id 1) plus checks for drafting derived content (Intisari Bab, Intisari Kitab, Faedah, Jalur; format surau-konten/1) and English paragraph translations (surau-terjemah/1). No AI model is called here.
+export const REDAKSI_INSTRUCTIONS = `Surau Redaksi: the same read-only Surau library (works in list_works) plus checks for drafting derived content (Intisari Bab, Intisari Kitab, Faedah, Jalur; format surau-konten/1) and English paragraph translations (surau-terjemah/1). No AI model is called here.
 
 Rules:
 1. Never write Arabic in a draft. A quotation is passage_id + char_start + char_end taken from verify_quote (match.char_start/char_end); code copies the text.

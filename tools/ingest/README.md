@@ -6,7 +6,7 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 
 | Perintah | Isi |
 |---|---|
-| `pnpm ingest ihya` | Bangun korpus Ihya (±10 detik, termasuk indeks pencarian S11, ayat S12, terjemahan/ringkasan AI S13, dan indeks Indonesia S14): `data/build/sql/*.sql`, `data/build/surau-corpus-ihya-v7.sqlite`, `data/build/ihya-v7.sha256` (build versi lain di `data/build` dihapus; `data/build/llm/` TIDAK disentuh), peta ID `data/ids/ihya-9472.json`, sidik teks paragraf `data/ids/ihya-9472.teks.json` (ADR-059), dan laporan `data/reports/ihya-9472-{validasi,openiti,ayat}.md`. **Gagal** (tanpa keluaran) bila invarian dilanggar, termasuk bila hasil batch LLM di `data/build/llm/` hilang atau cakupannya < 99%. Opsi `--quran <dir>` (bawaan `data/raw`) |
+| `pnpm ingest korpus` | Bangun korpus **semua kitab** di `src/works/index.ts` menjadi satu DB (X31a, ADR-137; `pnpm ingest ihya` = nama lama, sama). Per kitab: peta ID `data/ids/<kitab>-<shamela>.json`, sidik teks `….teks.json` (ADR-059), laporan `data/reports/<kitab>-<shamela>-{validasi,openiti,ayat}.md`, dan gerbangnya sendiri. Satu keluaran: `data/build/sql/*.sql`, `data/build/surau-corpus-kitab-v10.sqlite`, `data/build/kitab-v10.sha256` (build versi lain di `data/build` dihapus; `data/build/llm/` TIDAK disentuh). Hasil LLM per kitab lewat `WorkConfig.llm` (Ihya: akar `data/build/llm` + Intisari pilot `intisari-pilot-x15b-cadangan-2026-10-27`, ADR-136/137). **Gagal** (tanpa keluaran) bila invarian satu kitab saja dilanggar, termasuk cakupan LLM < 99% dan Intisari Ihya < 19. Opsi `--kitab <slug,…>` (sebagian kitab, mis. `--kitab ihya` bila promote mendahului kitab baru), `--quran <dir>` (bawaan `data/raw`) |
 | `pnpm llm <perintah>` | Batch terjemahan dan ringkasan AI (S13). Lihat [Terjemahan dan ringkasan AI](#terjemahan-dan-ringkasan-ai-s13) |
 | `pnpm ingest:verify` | Hanya gerbang QA OpenITI (matan ≥0,95 per halaman di ≥1.705 halaman; takhrij vs JK000001) → laporan `…-openiti.md` |
 | `pnpm corpus:load:local` | Migrasi korpus + muat semua file SQL ke D1 lokal (`.wrangler/state`), lalu smoke query (jumlah baris termasuk indeks FTS, j1 h200, satu kueri الصبر) |
@@ -14,7 +14,7 @@ Pipeline lokal yang mengubah kitab Shamela menjadi data korpus Surau yang terval
 | `pnpm run corpus:promote <versi> [--confirm]` | Korpus **produksi** blue-green (ADR-005, ADR-036): tanpa `--confirm` hanya rencana. Lihat [Korpus produksi](#korpus-produksi-blue-green) |
 | `pnpm run corpus:qa <versi\|staging> [--human 10]` | QA sampel: 30 halaman acak (seed 9472) di D1 remote dibandingkan byte demi byte dengan sumber Shamela yang diparse ulang, plus `meta`, edisi, dan judul daftar isi. Untuk versi: laporan `data/reports/ihya-9472-qa-<db>.md`; untuk staging: hanya di layar. `--human` menulis daftar QA manusia (T-15) sekali |
 
-**Peringatan:** file pertama (`0000-reset.sql`) mengosongkan **seluruh** DB korpus, termasuk indeks `passage_fts` (`delete-all`: indeks contentless tidak menghapus token lama bila rowid yang sama dimasukkan ulang). Untuk sekarang satu DB berisi satu kitab; begitu ada kitab kedua, reset harus dibuat per edisi dulu (indeks lewat `DELETE … WHERE rowid BETWEEN`).
+**Peringatan:** file pertama (`0000-reset.sql`) mengosongkan **seluruh** DB korpus, termasuk indeks `passage_fts` (`delete-all`: indeks contentless tidak menghapus token lama bila rowid yang sama dimasukkan ulang). Satu DB berisi **semua** kitab dan setiap build memuat semuanya, jadi reset penuh tetap benar (ADR-137, menyimpang dari catatan lama "reset per edisi"). Reset per edisi baru perlu bila kelak satu kitab dimuat tanpa build penuh.
 
 **Indeks pencarian (S11, ADR-039):** setelah tabel biasa, file `passage-fts-*.sql` mengisi `passage_fts` (rowid = `passage.id`, kolom `sbody`/`sfoot` = stem dari `normalizeArabic(text_raw)`, `body`/`foot` kosong), lalu `passage-fts-optimize.sql` menggabungkan segmen indeks. `meta` tetap file terakhir. `term_stat` = stem di >10% paragraf, dihitung dari `fts5vocab` di DB sementara dengan migrasi yang sama (`src/search-index.ts`). Ihya: 20.509 baris indeks, 39 stem umum, ±5,4 MB; impor staging ±65 detik untuk seluruh korpus.
 
@@ -127,7 +127,7 @@ Satu versi korpus = satu DB D1 `surau-corpus-<versi>` yang tidak pernah diubah s
 | SQL D1 (≤90 KB/statement, tanpa BEGIN/COMMIT), `.sqlite` dari migrasi yang sama | `src/sql.ts`, `src/build-sqlite.ts` |
 | Orkestrasi, CLI, muat ke D1 | `src/pipeline.ts`, `src/cli.ts`, `src/load.ts` |
 | D1 remote: pembungkus wrangler, smoke, build, binding produksi, promote, QA sampel | `src/d1.ts`, `src/corpus.ts`, `src/promote.ts` (keputusan murni yang teruji: `src/promote-plan.ts`), `src/qa-sample.ts`, `src/qa.ts` |
-| Konfigurasi per kitab (ID, slug, harapan validasi, pin OpenITI) | `src/works/ihya.ts` |
+| Konfigurasi per kitab (ID, slug, harapan validasi, pin OpenITI) dan daftar kitab korpus | `src/works/<kitab>.ts`, `src/works/index.ts` (`CORPUS`), ledger `data/kitab/ledger.yaml` |
 
 Build deterministik: dua build pada commit yang sama menghasilkan sha256 yang sama (`built_at` = `SOURCE_DATE_EPOCH` atau tanggal commit HEAD).
 

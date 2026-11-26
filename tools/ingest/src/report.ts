@@ -16,6 +16,8 @@ const lengths = (s: LengthStats): string =>
 
 export interface ReportContext {
   config: WorkConfig;
+  /** Versi korpus tempat kitab ini dibangun (ADR-137). */
+  corpusVersion: string;
   sourceSha256: string;
   normVersion: number;
 }
@@ -25,12 +27,12 @@ export function validationReport(ctx: ReportContext, v: Validation): string {
   const lines = [
     `# Laporan validasi ingest: ${config.work.titleId} (Shamela ${config.shamelaBook})`,
     "",
-    "> Dibuat otomatis oleh `pnpm ingest ihya` (`tools/ingest`, S07). Jangan disunting tangan.",
+    "> Dibuat otomatis oleh `pnpm ingest korpus` (`tools/ingest`, S07). Jangan disunting tangan.",
     "> Tanpa teks kitab: hanya angka, ID judul Shamela (`t<title.id>`), dan rujukan juz/halaman cetak.",
     "",
     `- Sumber: Shamela \`book/${String(config.shamelaBook % 1000).padStart(3, "0")}/${config.shamelaBook}.db\`, sha256 \`${ctx.sourceSha256}\``,
-    `- Patch daftar isi: \`${config.patch}\` · peta ID: \`${config.ids}\``,
-    `- Korpus: \`${config.corpusVersion}\` · NORM_VERSION ${ctx.normVersion}`,
+    `- Patch daftar isi: \`${config.patch ?? "–"}\` · peta ID: \`${config.ids}\``,
+    `- Korpus: \`${ctx.corpusVersion}\` · NORM_VERSION ${ctx.normVersion}`,
     "",
     "## Invarian (ingest gagal bila ada yang ✗)",
     "",
@@ -41,7 +43,9 @@ export function validationReport(ctx: ReportContext, v: Validation): string {
     "## Daftar isi",
     "",
     `- ${num(v.toc.nodes)} node (${num(config.expect.titles)} judul Shamela + node patch); ${num(v.toc.patched)} node ditandai \`patched\`.`,
-    `- Rub': ${v.toc.rub.map((r) => `t${r.title} (${r.at}) ${r.kitab} kitab`).join(" · ")}.`,
+    ...(v.toc.rub.length === 0
+      ? []
+      : [`- Rub': ${v.toc.rub.map((r) => `t${r.title} (${r.at}) ${r.kitab} kitab`).join(" · ")}.`]),
     `- Judul tanpa span di teks (dimulai di awal \`title.page\`): ${list(v.toc.spanless)}.`,
     `- Judul yang span-nya di halaman lain dari \`title.page\`: ${list(v.toc.pageMismatch.map((id) => `t${id}`))}.`,
     `- Judul yang dimulai di tengah paragraf (paragraf itu ikut node baru): ${num(v.toc.midParagraph)}.`,
@@ -109,15 +113,34 @@ export function openitiReport(
     p.foot.flatMap((f, fi) => (f.line >= 0 ? [takhrij.scores[pi]?.[fi] ?? 0] : [])),
   );
   const gate = matan.passed >= config.expect.matanMinPages && matan.missing.length === 0;
+  const takhrijSection: string[] = !takhrij.compared
+    ? []
+    : [
+        "## Takhrij vs JK000001",
+        "",
+        `Setiap catatan kaki (termasuk takhrij menempel yang dipotong dari badan) dicocokkan dengan segmen takhrij JK000001 di halaman yang sama (potongan di antara \` + \` yang dibuka "حديث" atau menyebut sumbernya). Skor = bagian bigram token catatan yang ada di satu segmen. Skor <${dec(TAKHRIJ_THRESHOLD, 1)}, atau catatan kurang dari 3 token, ditandai \`takhrij_unmatched\`.`,
+        "",
+        `- ${num(takhrij.total)} catatan; **${num(takhrij.total - takhrij.unmatched)} cocok**, **${num(takhrij.unmatched)} ditandai \`takhrij_unmatched\`**.`,
+        `- Di antaranya ${num(inlineScores.length)} takhrij menempel: ${num(inlineScores.filter((s) => s >= TAKHRIJ_THRESHOLD).length)} cocok, ${num(inlineScores.filter((s) => s < TAKHRIJ_THRESHOLD).length)} tidak.`,
+        "",
+        "| Skor | Catatan |",
+        "|---|---|",
+        ...[...buckets.entries()]
+          .sort(([a], [b]) => (a < b ? -1 : 1))
+          .map(([b, n]) => `| ${b} | ${num(n)} |`),
+        "",
+      ];
   return [
     `# Laporan verify-openiti: ${config.work.titleId} (Shamela ${config.shamelaBook})`,
     "",
-    "> Dibuat otomatis oleh `pnpm ingest:verify` / `pnpm ingest ihya` (`tools/ingest`, S07, ADR-018). Jangan disunting tangan.",
+    "> Dibuat otomatis oleh `pnpm ingest:verify` / `pnpm ingest korpus` (`tools/ingest`, S07, ADR-018). Jangan disunting tangan.",
     "> Tanpa teks kitab: hanya angka dan rujukan juz/halaman cetak.",
     "",
     `- OpenITI rilis ${config.openiti.release}, repo \`OpenITI/0525AH\` commit \`${config.openiti.commit}\`.`,
     `- Matan: \`${config.openiti.matan.file}\` (sha256 \`${config.openiti.matan.sha256}\`, cocok).`,
-    `- Takhrij: \`${config.openiti.takhrij.file}\` (sha256 \`${config.openiti.takhrij.sha256}\`, cocok).`,
+    config.openiti.takhrij === undefined
+      ? "- Takhrij: tidak ada versi pembanding; catatan kaki tidak dinilai."
+      : `- Takhrij: \`${config.openiti.takhrij.file}\` (sha256 \`${config.openiti.takhrij.sha256}\`, cocok).`,
     `- Pembanding: teks badan halaman Shamela (sebelum takhrij \`//\` dipisah) vs teks halaman OpenITI yang sama (penanda \`PageVxxPyyy\` di akhir halaman), keduanya \`normalizeArabic\` (NORM_VERSION ${ctx.normVersion}). Kemiripan = 2·LCS token / (jumlah token kedua sisi).`,
     "",
     "## Gerbang matan",
@@ -128,18 +151,6 @@ export function openitiReport(
     `- Halaman di bawah ambang: ${list(below)}.`,
     `- Halaman Shamela tanpa pasangan di OpenITI: ${num(matan.missing.length)}.`,
     "",
-    "## Takhrij vs JK000001",
-    "",
-    `Setiap catatan kaki (termasuk takhrij menempel yang dipotong dari badan) dicocokkan dengan segmen takhrij JK000001 di halaman yang sama (potongan di antara \` + \` yang dibuka "حديث" atau menyebut sumbernya). Skor = bagian bigram token catatan yang ada di satu segmen. Skor <${dec(TAKHRIJ_THRESHOLD, 1)}, atau catatan kurang dari 3 token, ditandai \`takhrij_unmatched\`.`,
-    "",
-    `- ${num(takhrij.total)} catatan; **${num(takhrij.total - takhrij.unmatched)} cocok**, **${num(takhrij.unmatched)} ditandai \`takhrij_unmatched\`**.`,
-    `- Di antaranya ${num(inlineScores.length)} takhrij menempel: ${num(inlineScores.filter((s) => s >= TAKHRIJ_THRESHOLD).length)} cocok, ${num(inlineScores.filter((s) => s < TAKHRIJ_THRESHOLD).length)} tidak.`,
-    "",
-    "| Skor | Catatan |",
-    "|---|---|",
-    ...[...buckets.entries()]
-      .sort(([a], [b]) => (a < b ? -1 : 1))
-      .map(([b, n]) => `| ${b} | ${num(n)} |`),
-    "",
+    ...takhrijSection,
   ].join("\n");
 }

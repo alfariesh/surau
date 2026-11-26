@@ -71,6 +71,8 @@ export function checkMatan(
 }
 
 export interface TakhrijCheck {
+  /** false = kitab tanpa versi pembanding takhrij (`openiti.takhrij` kosong): skor tidak berarti. */
+  compared: boolean;
   /** Skor per catatan kaki: `scores[halaman][catatan]` (0..1). */
   scores: number[][];
   /** Jumlah catatan di bawah ambang (ditandai `takhrij_unmatched`). */
@@ -98,5 +100,10 @@ export function checkTakhrij(
       return score;
     });
   });
-  return { scores, unmatched, total };
+  return { compared: true, scores, unmatched, total };
+}
+
+/** Pengganti `checkTakhrij` untuk kitab tanpa versi pembanding takhrij (X31a). */
+export function noTakhrijCheck(pages: readonly ParsedPage[]): TakhrijCheck {
+  return { compared: false, scores: pages.map((p) => p.foot.map(() => 0)), unmatched: 0, total: 0 };
 }

@@ -14,6 +14,7 @@ import { runIngest } from "../src/pipeline.ts";
 import type { IngestResult, PipelinePaths } from "../src/pipeline.ts";
 import { QURAN_EXPECT, QURAN_FILES } from "../src/quran/source.ts";
 import { IHYA } from "../src/works/ihya.ts";
+import { CORPUS } from "../src/works/index.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
 const shamela = process.env.SURAU_SHAMELA_ROOT ?? "/Volumes/Elfariesh/database";
@@ -31,7 +32,14 @@ describe.skipIf(!available)("ingest Ihya 9472 (sumber lokal)", () => {
     const work = mkdtempSync(join(tmpdir(), "surau-ihya-"));
     // Patch, peta ID, dan sidik teks yang di-commit disalin, supaya ID hasil tes sama dengan build
     // sungguhan dan gerbang stabilitas ID (ADR-059) ikut diuji terhadap rilis.
-    for (const file of [IHYA.patch, IHYA.ids, fingerprintPath(IHYA.ids)]) {
+    const files = [
+      IHYA.patch,
+      IHYA.ayahPatch,
+      IHYA.subheadings,
+      IHYA.ids,
+      fingerprintPath(IHYA.ids),
+    ];
+    for (const file of files.filter((f): f is string => f !== undefined)) {
       mkdirSync(dirname(join(work, file)), { recursive: true });
       copyFileSync(join(repo, file), join(work, file));
     }
@@ -44,8 +52,10 @@ describe.skipIf(!available)("ingest Ihya 9472 (sumber lokal)", () => {
       quran: { root: quranRoot, files: QURAN_FILES, expect: QURAN_EXPECT },
     };
     // Tes struktur korpus: tanpa hasil LLM (dimuat dan diuji terpisah, test/llm-attach.test.ts).
-    const config = { ...IHYA, expect: { ...IHYA.expect, llmCoverage: 0 } };
-    result = runIngest(config, paths, { env: { SOURCE_DATE_EPOCH: "1760000000" } });
+    const config = { ...IHYA, expect: { ...IHYA.expect, llmCoverage: 0, minDigests: 0 } };
+    result = runIngest({ ...CORPUS, works: [config] }, paths, {
+      env: { SOURCE_DATE_EPOCH: "1760000000" },
+    });
     // Ingest penuh ±9 detik (S13: + pencocok ayat mode baru), lebih lambat di bawah coverage v8.
   }, 120_000);
 

@@ -17,7 +17,7 @@ import type { AcceptedSummary, AcceptedTranslation } from "../src/llm/store.ts";
 import { buildWork, chunkCustomId, round2InputSha } from "../src/llm/work.ts";
 import type { TranslationUnit } from "../src/llm/units.ts";
 import { expectedRows, runIngest } from "../src/pipeline.ts";
-import { createFixture } from "./fixture.ts";
+import { createFixture, one } from "./fixture.ts";
 
 const env = { SOURCE_DATE_EPOCH: "1760000000" };
 const usage = {
@@ -60,7 +60,7 @@ function translationLine(
 function setup() {
   const { config, paths } = createFixture();
   // Ingest pertama tanpa hasil LLM: membuat peta ID, supaya expectedRows bisa dipakai.
-  expect(runIngest(config, paths, { env }).output).toBeDefined();
+  expect(runIngest(one(config), paths, { env }).output).toBeDefined();
   const rows = expectedRows(config, paths, env);
   const work = buildWork(rows);
   const llm = mkdtempSync(join(tmpdir(), "surau-llm-"));
@@ -131,7 +131,7 @@ describe("hasil LLM → tabel translation/summary", () => {
     ).toBe(true);
     writeJsonl(join(llm, "summary.jsonl"), summaries);
 
-    const r = runIngest(config, { ...paths, llm }, { env });
+    const r = runIngest(one(config), { ...paths, llm }, { env });
     expect(r.validation.invariants.filter((i) => !i.ok)).toEqual([]);
     const ayahCheck = r.validation.invariants.find((i) => i.name.includes("Kemenag"));
     expect(ayahCheck).toMatchObject({ ok: true });
@@ -199,7 +199,7 @@ describe("hasil LLM → tabel translation/summary", () => {
   test("cakupan di bawah harapan → ingest gagal", () => {
     const { config, paths, llm } = setup();
     const r = runIngest(
-      { ...config, expect: { ...config.expect, llmCoverage: 0.99 } },
+      one({ ...config, expect: { ...config.expect, llmCoverage: 0.99 } }),
       { ...paths, llm },
       { env },
     );
@@ -285,7 +285,7 @@ describe("hasil LLM → tabel translation/summary", () => {
       subheadingTitles: 0,
       titlesMissing: [stale.id, oldPrompt.id, broken.id],
     });
-    const r = runIngest(config, { ...paths, llm }, { env });
+    const r = runIngest(one(config), { ...paths, llm }, { env });
     expect(r.output?.counts.toc_title_translation).toBe(ok.length);
     const db = new DatabaseSync(r.output?.sqlite ?? "", { readOnly: true });
     const row = db

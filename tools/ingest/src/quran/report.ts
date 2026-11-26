@@ -153,10 +153,10 @@ export function ayatReport(ctx: ReportContext, ayat: AyatBuild, rows: CorpusRows
   const lines = [
     `# Laporan ayat: ${config.work.titleId} (Shamela ${config.shamelaBook})`,
     "",
-    "> Dibuat otomatis oleh `pnpm ingest ihya` (`tools/ingest/src/quran`, S12). Jangan disunting tangan.",
+    "> Dibuat otomatis oleh `pnpm ingest korpus` (`tools/ingest/src/quran`, S12). Jangan disunting tangan.",
     `> Tanpa teks kitab panjang: rujukan juz/halaman, permalink paragraf, rujukan surah:ayat, dan ≤${EXCERPT_WORDS} kata awal kutipan.`,
     "",
-    `- Korpus: \`${config.corpusVersion}\` · NORM_VERSION ${ctx.normVersion}`,
+    `- Korpus: \`${ctx.corpusVersion}\` · NORM_VERSION ${ctx.normVersion}`,
     `- Sumber Qur'an: ${sources}`,
     `- Ambang: \`{…}\` mirip = skor penjajaran **huruf** ≥ ${String(SIMILAR_MIN_SCORE).replace(".", ",")} (alif/waw/ya/hamzah dan ه/ت = setengah biaya); tanpa kurung: jangkar ${CUE_ANCHOR_TOKENS} kata persis, minimal ${CUE_MIN_TOKENS} kata, skornya = porsi **kata** yang sama persis (metrik berbeda, jadi bisa < ${String(SIMILAR_MIN_SCORE).replace(".", ",")}). Aturan lengkap: ADR-040. Mode S13 (paragraf badan, selalu dari lafaz di mushaf): tanpa tanda = ≥ ${UNMARKED_MIN_TOKENS} kata sama persis, atau ≥ ${UNMARKED_CUED_MIN_TOKENS} kata tepat sesudah pengantar ayat (تعالى، عز وجل، قرأ، {وقال} …), lafaz satu-satunya di mushaf kecuali sesudah pengantar; pendek = 2–3 kata langka sesudah قال تعالى, diperpanjang melewati beda ejaan. ADR-042.`,
     "",

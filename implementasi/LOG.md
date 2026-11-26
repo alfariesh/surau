@@ -15,6 +15,17 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-26 · X31a · Fondasi multi-kitab + korpus Bidayat al-Hidayah — sebagian
+- Dikerjakan:
+  - Ingest multi-kitab: `pnpm ingest korpus [--kitab]`, satu korpus `kitab-v10`, hasil LLM dan Intisari per kitab, batas bawah Intisari Ihya 19 (ADR-137).
+  - Bidayat al-Hidayah (Shamela 12718, OpenITI `Shamela0012718`, diunduh atas izin pemilik): konfigurasi, peta ID, sidik teks, laporan, atribusi, ledger `data/kitab/ledger.yaml`.
+  - `corpus:qa --kitab`; instruksi MCP umum; `/kitab` mendaftar semua kitab dan menyaring "Segera hadir".
+  - ADR-138 (catatan kaki pentahqiq modern tidak dimuat) dan ADR-139 (halaman cetak ganda Ajurrumiyyah digabung).
+- Verifikasi: `pnpm ingest korpus --kitab bidayat-al-hidayah` → semua gerbang ✓ (46 halaman, 391 paragraf, matan 46/46, 24 rujukan ayat) · `vp test tools/ingest/test/multi-kitab.test.ts` → 2/2 (Ihya + Bidayah satu DB, ID Ihya stabil) · `vp test tools/ingest/test/ihya-ingest.test.ts` → 3/3 · pratinjau lokal port 3021: pembaca Bidayah, `/kitab`, `/api/search` ✓ · `pnpm verify` → lolos
+- Biaya API: –
+- Keputusan: ADR-137, ADR-138, ADR-139
+- Catatan untuk sesi berikutnya: build lengkap + staging + QA = T-36 di mesin agent. Alat batch LLM dan audio per kitab dikerjakan di X31b. Tes korpus lokal (`subheadings.test.ts`) memakai `.sqlite` tunggal di `data/build`; build Bidayah saja membuatnya gagal, jadi jangan tinggalkan build parsial di checkout yang menjalankan `pnpm test`.
+
 ## 2026-11-26 · X29/X31 · Promote patch ayat ikut Bidayah — selesai
 - Dikerjakan: T-35 dicek ulang dari Mac; pemilik memutuskan patch ayat X29 tidak dipromote sendiri, tetapi tayang bersama Bidayah di promote X31b, dengan terjemahan ulang 153 paragraf digabung ke batch terjemahan Bidayah. STATUS, sesi X29, dan X31 diperbarui.
 - Verifikasi: `wrangler d1 execute surau-corpus-staging --remote --command "select …"` (hanya SELECT) → rujukan ayat 2.693, terjemahan 15.955, `built_at` 2026-11-26T03:52:39Z, sama dengan laporan PR #236

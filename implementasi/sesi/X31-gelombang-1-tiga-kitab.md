@@ -1,6 +1,6 @@
 # X31 · Gelombang 1: tiga kitab kecil yang lengkap
 
-> **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** belum
+> **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** X31a sebagian (kode selesai 2026-11-26; build + staging menunggu T-36 di mesin agent)
 > **Prasyarat:** X31a: kode boleh di Mac, tetapi **build dan staging wajib di mesin agent** (`/home/rekanesia/surau`, ADR-135 butir 5), T-35 selesai 2026-11-26, tetapi staging berisi build X29 yang boleh ditimpa: pemilik memutuskan patch X29 ikut tayang bersama Bidayah (2026-11-26), jadi tidak ada promote X29 terpisah. Build yang memuat Ihya wajib memakai Intisari pilot lewat penukaran folder [ADR-136](../keputusan/ADR-136.md) (build biasa menghapus 19 Intisari tayang). X31b–X31d: X31a dan X24 selesai.
 > **Tugas pemilik:** izin `corpus:load:staging` (`tools/ingest/README.md`), izin biaya per batch (aturan keras 4), izin promote korpus, T-29 untuk audio
 > **Perkiraan:** X31a 1–2 percakapan, X31b 1–2, X31c 1, X31d 1–2
@@ -55,22 +55,23 @@ Dipakai sama untuk ketiga kitab. Butir yang tidak berlaku hanya boleh dikecualik
 8. Di mesin agent: build, lalu `corpus:load:staging` **atas izin pemilik**, `corpus:qa staging` untuk Bidayah, dan cek pembaca serta Cari di staging.
 
 **Selesai bila:**
-- [ ] `pnpm verify` lolos
-- [ ] build memuat Ihya + Bidayah; sidik teks membuktikan ID Ihya tidak berubah
-- [ ] `pnpm run corpus:qa staging` Bidayah 30/30
-- [ ] `curl` staging `/kitab/bidayat-al-hidayah/1/25` → 200, dan satu kueri Arab Bidayah di `/api/search` mengembalikan halaman Bidayah
-- [ ] ADR catatan kaki, ADR versi korpus (berikut penyimpangan reset), dan keputusan halaman ganda Ajurrumiyyah tertulis
-- [ ] STATUS, LOG, dan bagian ini diperbarui
+- [x] `pnpm verify` lolos
+- [ ] build memuat Ihya + Bidayah; sidik teks membuktikan ID Ihya tidak berubah (lolos di Mac tanpa data AI Ihya: `tools/ingest/test/multi-kitab.test.ts`; build lengkap dengan data AI menunggu T-36)
+- [ ] `pnpm run corpus:qa staging` Bidayah 30/30 (menunggu T-36)
+- [ ] `curl` staging `/kitab/bidayat-al-hidayah/1/25` → 200, dan satu kueri Arab Bidayah di `/api/search` mengembalikan halaman Bidayah (lolos di D1 lokal; staging menunggu T-36)
+- [x] ADR catatan kaki, ADR versi korpus (berikut penyimpangan reset), dan keputusan halaman ganda Ajurrumiyyah tertulis (ADR-137, ADR-138, ADR-139)
+- [x] STATUS, LOG, dan bagian ini diperbarui
 
 ## X31b · Bidayat al-Hidayah lengkap (cetakan)
 
-1. **Terjemahan Indonesia:** batch API yang sudah ada (`pnpm llm`, validator S13/X21, sudah per karya sejak X31a) dengan `--budget`. Perkiraan di bawah US$1; angka pastinya dari mode rencana (gratis), lalu **izin pemilik** sebelum `--confirm`. Alternatif tanpa biaya API: skill plugin terjemahan Indonesia (belum ada; skill `terjemah-inggris` bisa jadi contoh), hanya bila pemilik memilihnya.
+1. **Alat batch per kitab lalu terjemahan Indonesia:** jadikan `pnpm llm`, `pnpm llm intisari`, dan alat audio per kitab (`--kitab`, folder kerja `WorkConfig.llm.dir`, tautan dan laporan per kitab; dipindah dari X31a, ADR-137 butir 8). Lalu batch API yang sudah ada (validator S13/X21) dengan `--budget`. Perkiraan di bawah US$1; angka pastinya dari mode rencana (gratis), lalu **izin pemilik** sebelum `--confirm`. Alternatif tanpa biaya API: skill plugin terjemahan Indonesia (belum ada; skill `terjemah-inggris` bisa jadi contoh), hanya bila pemilik memilihnya.
 2. **Ringkasan bab** pembaca ikut batch yang sama atau dimatikan per karya; tulis pilihannya.
-3. **Intisari** (setelah X24): skill plugin `surau-redaksi` dan instruksi `/redaksi` dibuat umum, tidak lagi menyebut Ihya saja (contoh tetap boleh dari Ihya). Buat Intisari Bab untuk setiap judul di ledger dan satu Intisari Kitab, periksa tiga lapis, lalu impor lewat jalur X24.
+3. **Intisari** (setelah X24): tetapkan `intisari_bab` Bidayah di ledger dan putuskan glosarium milik korpus atau per kitab (ADR-137). Skill plugin `surau-redaksi` dan instruksi `/redaksi` dibuat umum, tidak lagi menyebut Ihya saja (contoh tetap boleh dari Ihya). Buat Intisari Bab untuk setiap judul di ledger dan satu Intisari Kitab, periksa tiga lapis, lalu impor lewat jalur X24.
 4. **Audio:** nilai kriteria audio; bila lolos, skrip Intisari → ElevenLabs (T-29, **izin biaya**), sorotan kalimat (X18) bila timestamps tersedia.
 5. **Terjemahan Inggris** (opsional, bukan syarat selesai): lewat skill `terjemah-inggris` bila antrean X26 berjalan.
-6. Promote atas izin pemilik. Promote ini juga menayangkan patch ayat X29 (keputusan pemilik 2026-11-26), jadi sebelum promote: 153 paragraf Ihya yang terjemahannya gugur oleh patch diterjemahkan ulang di batch yang sama dengan langkah 1, dan cek X29 (rujukan ayat 2.693, terjemahan Ihya ≥ 99%) ikut di curl produksi.
-7. Tulis **catatan cetakan** di "Catatan hasil": urutan langkah yang ternyata perlu, waktu, dan biaya nyata.
+6. **Tampil:** tambahkan rincian atribusi Bidayah ke `EDITION_CREDITS` (/lisensi), hentikan suara minat untuk slug ini di `/api/minat-kitab`, ubah status ledger ke `tayang` (syarat promote, ADR-137 butir 6), dan pertimbangkan label "Halaman 25" tanpa "Juz 1" untuk kitab satu jilid.
+7. Promote atas izin pemilik. Promote ini juga menayangkan patch ayat X29 (keputusan pemilik 2026-11-26), jadi sebelum promote: 153 paragraf Ihya yang terjemahannya gugur oleh patch diterjemahkan ulang di batch yang sama dengan langkah 1, dan cek X29 (rujukan ayat 2.693, terjemahan Ihya ≥ 99%) ikut di curl produksi.
+8. Tulis **catatan cetakan** di "Catatan hasil": urutan langkah yang ternyata perlu, waktu, dan biaya nyata.
 
 **Selesai bila:** semua butir "Definisi selesai" untuk Bidayah tercentang dengan bukti perintah · catatan cetakan tertulis · biaya nyata tercatat di LOG.
 
@@ -116,4 +117,16 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
 
 ## Catatan hasil
 
-*(diisi agent di akhir setiap bagian)*
+### X31a (2026-11-26, kode; build staging = T-36)
+
+- **Ingest multi-kitab** (ADR-137): `pnpm ingest korpus [--kitab …]` membangun setiap kitab sendiri lalu menggabungkan barisnya ke satu `surau-corpus-kitab-v10.sqlite`. `WorkConfig` di `tools/ingest/src/works/config.ts`, daftar kitab `works/index.ts`, Bidayah `works/bidayah.ts` (karya 2, edisi 2 `maktabat-madbuli`, pengarang 1 dipakai bersama).
+- **Bidayah lolos semua gerbang di Mac:** 46 halaman (cetak 25–70), 46 judul, 391 paragraf, matan 46/46 = OpenITI, 24 rujukan ayat, tanpa catatan kaki. Peta ID dan sidik teks di-commit (`data/ids/bidayat-al-hidayah-12718*.json`), jadi ID Bidayah sudah beku.
+- **Ihya:** Intisari dibaca dari folder pilot (`intisari-pilot-x15b-cadangan-2026-10-27`) dengan gerbang ≥ 19, sehingga penukaran folder ADR-136 tidak perlu lagi. Tes lokal Ihya kini ikut menyalin patch ayat X29 (sebelumnya gagal sejak X29 karena berkas itu tidak disalin).
+- **Pratinjau lokal** (D1 lokal, Ihya tanpa data AI + Bidayah): pembaca `/kitab/bidayat-al-hidayah/1/25` tampil dengan daftar isi; `/kitab` menampilkan "Semua kitab" dan Bidayah keluar dari "Segera hadir"; `/api/search` menemukan Bidayah dengan sitasi "Bidayat al-Hidayah, j. 1, h. 26". Bukti: `implementasi/sesi/bukti/X31a/`.
+- **Alat:** `corpus:qa --kitab <slug>` (seed bawaan = ID Shamela kitab; halaman < `--n` = semua). Instruksi MCP umum ("the works in list_works"), 1.974 byte.
+- **Menyimpang dari rencana (ditulis terbuka):** `intisari_bab` di ledger belum diisi untuk Bidayah. Daftar judul yang mendapat Intisari Bab lebih tepat ditetapkan bersama pembuatan Intisari di X31b (langkah 3), saat struktur 46 judul dibaca utuh. Rincian /lisensi Bidayah juga ditahan sampai X31b supaya produksi tidak menyebut kitab yang belum tayang.
+- **Perbaikan dari peninjau:** pengaman promote (ledger `tayang`, `--kitab-baru`), kunci glosarium `(term_key, lang)`, ID diterima di luar edisi = galat, revisi X08 di luar build dilaporkan, tes CI gabung dua kitab dari fixture buatan (`test/corpus-merge.test.ts`: skema Shamela lama, `part` kosong, tanpa takhrij, ID ganda, batas bawah Intisari).
+- **Dipindah ke X31b (terbuka, ADR-137 butir 8):** alat batch LLM (`pnpm llm`, `pnpm llm intisari`) dan alat audio masih khusus Ihya (±45 tempat: folder kerja, tautan, laporan). Baru dibutuhkan saat batch Bidayah.
+- **Temuan untuk X31c/X31d:** catatan kaki Tibyan dan Ajurrumiyyah dari pentahqiq modern (ADR-138, tidak dimuat); Ajurrumiyyah 31 halaman Shamela = 19 nomor cetak, digabung per nomor (ADR-139). Berkas Shamela 12718 dan 11371 tidak punya kolom `is_deleted`; sudah didukung.
+- **Catatan:** Next.js 16.4.2 menampilkan peringatan kerentanan keamanan saat `next dev` (rujukan advisori npm). Tidak ditindaklanjuti di sesi ini; diusulkan sebagai sesi terpisah.
+- **Berikutnya:** T-36 (build + staging di mesin agent), lalu X24, lalu X31b.

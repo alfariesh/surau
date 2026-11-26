@@ -243,6 +243,12 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   6. Di Claude Code (folder Surau), ketik: "impor konten dari Downloads". Agent memeriksa, menjalankan pemeriksa independen, lalu membuat PR.
   7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
 
+- [ ] **T-36 · Build korpus staging `kitab-v10` (Ihya + Bidayat al-Hidayah), di mesin agent (X31a langkah 8)** · menunggu pemilik: buka sesi di mesin agent dan beri izin memuat staging
+  Kenapa di mesin agent: korpus baru memuat Ihya beserta data AI terbarunya (terjemahan, ringkasan, Intisari pilot), dan data itu hanya ada di `/home/rekanesia/surau` (ADR-135 butir 5). Kode multi-kitab sudah di `main` (ADR-137).
+  1. Buka sesi Claude Code di mesin agent, folder `/home/rekanesia/surau`.
+  2. Ketik ke agent di sana: "Kerjakan T-36: tarik main, unduh berkas OpenITI Bidayah sesuai data/SOURCES.md, lalu `pnpm ingest korpus`, `corpus:load:staging --confirm`, dan `corpus:qa staging --kitab bidayat-al-hidayah` serta `--kitab ihya`. Izin memuat staging diberikan; promote belum."
+  3. Hasil yang diharapkan: build lolos semua gerbang (Ihya: terjemahan ≥ 99%, Intisari 19, rujukan ayat 2.693; Bidayah: 46 halaman, 391 paragraf), QA kedua kitab 30/30, dan `/kitab/bidayat-al-hidayah/1/25` tampil di Preview data staging.
+  4. Bilang ke agent di Mac "T-36 sudah" beserta ringkasan laporannya.
 - [x] **T-35 · Build korpus staging dengan patch ayat X29, di mesin agent** · izin build diberikan pemilik 2026-10-29; promote tetap menunggu izin terpisah · **selesai 2026-11-26**: staging memuat 2.693 rujukan ayat (+179), terjemahan 15.955/16.111, ringkasan 623/626, Intisari 19, QA 30/30 ([catatan](sesi/X29-patch-ayat.md#catatan-hasil))
   Kenapa di mesin agent: korpus produksi `ihya-v9` dibangun di sana (`/home/rekanesia/surau`), dan hanya di sana ada data LLM terbaru (terjemahan ulang X21, ringkasan, Intisari). Data LLM di Mac masih versi 20 Oktober, jadi build di Mac gagal di gerbang ringkasan, dengan atau tanpa patch (dicek 2026-10-29).
   1. Buka sesi Claude Code di mesin agent, di folder `/home/rekanesia/surau` (cara yang biasa Anda pakai untuk sesi X15c/X21).

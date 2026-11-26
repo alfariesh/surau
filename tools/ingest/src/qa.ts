@@ -3,7 +3,7 @@
 // deterministik @surau/text), termasuk catatan kaki, tautan penanda, dan tanda perlu ditinjau.
 //   pnpm run corpus:qa <versi>      DB surau-corpus-<versi> (remote, hanya baca) → laporan di data/reports/
 //   pnpm run corpus:qa staging      surau-corpus-staging (hanya ke layar)
-// Opsi: --n 30 · --seed 9472 · --human 10 (daftar QA manusia T-15, sekali tulis) · --surau <url dasar>
+// Opsi: --kitab ihya (slug, X31a) · --n 30 · --seed <ID Shamela kitab> · --human 10 (daftar QA manusia T-15, sekali tulis) · --surau <url dasar>
 // Selain halaman sampel, diperiksa juga baris tingkat korpus: meta (kecuali built_at), author, work,
 // edition, dan node daftar isi yang dirujuk paragraf sampel.
 // Butuh drive Shamela (T-09) dan unduhan OpenITI (data/SOURCES.md).
@@ -44,7 +44,8 @@ import {
 } from "./qa-sample.ts";
 import type { PageSummary, RowSet } from "./qa-sample.ts";
 import { SITE } from "./llm/report.ts";
-import { IHYA } from "./works/ihya.ts";
+import type { WorkConfig } from "./works/config.ts";
+import { workBySlug } from "./works/index.ts";
 
 /** Pembaca untuk tautan daftar QA manusia: situs produksi (sama dengan laporan LLM, #78). */
 const DEFAULT_SURAU = SITE;
@@ -87,8 +88,28 @@ interface Checked {
 }
 
 /** Baris tingkat korpus di D1 yang dibandingkan dengan sumber (selain halaman sampel). */
+/** Kunci meta tingkat korpus (bukan milik satu kitab): tidak dibandingkan per kitab. */
+const CORPUS_META = new Set(["corpus_version", "source_hash"]);
+
+/** `source_hash` korpus memuat sumber kitab ini: sama persis (satu kitab) atau `slug=sha256:…`. */
+function sourceHashDiff(
+  target: D1Target,
+  config: WorkConfig,
+  expected: ReturnType<typeof expectedRows>,
+): string[] {
+  const want = expected.meta.find((m) => m.key === "source_hash")?.value ?? "";
+  const got = String(
+    query(target, "SELECT value FROM meta WHERE key = 'source_hash'")[0]?.value ?? "",
+  );
+  const parts = got.split(";");
+  return parts.includes(want) || parts.includes(`${config.work.slug}=${want}`)
+    ? []
+    : [`meta source_hash: ${got} tidak memuat ${config.work.slug} ${want}`];
+}
+
 function corpusDiffs(
   target: D1Target,
+  config: WorkConfig,
   expected: ReturnType<typeof expectedRows>,
   sample: RowSet,
 ): string[] {
@@ -100,27 +121,37 @@ function corpusDiffs(
     // built_at = tanggal commit saat build, berbeda per checkout; sisanya harus sama persis.
     ...compareRows(
       "meta",
-      // schema_version diisi migrasi (bukan pipeline): harapannya versi skema kode ini.
-      [...expected.meta, { key: "schema_version", value: String(CORPUS_SCHEMA_VERSION) }],
-      query(target, "SELECT key, value FROM meta").map((r) => metaRow.parse(r)),
+      // schema_version diisi migrasi (bukan pipeline): harapannya versi skema kode ini. Korpus
+      // banyak kitab (ADR-137): corpus_version milik build, source_hash dicek terpisah per kitab.
+      [...expected.meta, { key: "schema_version", value: String(CORPUS_SCHEMA_VERSION) }].filter(
+        (m) => !CORPUS_META.has(m.key),
+      ),
+      query(target, "SELECT key, value FROM meta")
+        .map((r) => metaRow.parse(r))
+        .filter((m) => !CORPUS_META.has(m.key) && !m.key.startsWith("revisions_")),
       (r) => r.key,
     ).filter((d) => !d.startsWith("meta built_at:")),
+    ...sourceHashDiff(target, config, expected),
     ...compareRows(
       "author",
       expected.author,
-      query(target, "SELECT * FROM author").map((r) => authorRow.parse(r)),
+      query(target, `SELECT * FROM author WHERE id = ${config.author.id}`).map((r) =>
+        authorRow.parse(r),
+      ),
       byId,
     ),
     ...compareRows(
       "work",
       expected.work,
-      query(target, "SELECT * FROM work").map((r) => workRow.parse(r)),
+      query(target, `SELECT * FROM work WHERE id = ${config.work.id}`).map((r) => workRow.parse(r)),
       byId,
     ),
     ...compareRows(
       "edition",
       expected.edition,
-      query(target, "SELECT * FROM edition").map((r) => editionRow.parse(r)),
+      query(target, `SELECT * FROM edition WHERE id = ${config.edition.id}`).map((r) =>
+        editionRow.parse(r),
+      ),
       byId,
     ),
     ...(tocIds.length === 0
@@ -137,6 +168,7 @@ function corpusDiffs(
 }
 
 function autoReport(args: {
+  config: WorkConfig;
   label: string;
   uuid: string;
   meta: Record<string, string>;
@@ -149,12 +181,12 @@ function autoReport(args: {
 }): string {
   const ok = args.checked.filter((c) => c.diffs.length === 0).length;
   const lines = [
-    `# QA otomatis korpus D1: Ihya' 'Ulum ad-Din (Shamela 9472)`,
+    `# QA otomatis korpus D1: ${args.config.work.titleId} (Shamela ${args.config.shamelaBook})`,
     "",
     `> Dibuat oleh \`pnpm run corpus:qa\` (S10, \`tools/ingest/src/qa.ts\`). Tanpa teks kitab: hanya ID, jumlah, byte, dan sha256.`,
     "",
     `- DB: \`${args.label}\` (\`${args.uuid}\`) · korpus \`${args.meta.corpus_version ?? "?"}\` · built_at ${args.meta.built_at ?? "?"} · schema ${args.meta.schema_version ?? "?"} · NORM_VERSION ${args.meta.norm_version ?? "?"}`,
-    `- Pembanding: sumber Shamela \`${args.sourceHash}\` diparse ulang oleh pipeline ingest pada commit \`${args.commit}\` (pembersihan deterministik \`@surau/text\`, peta ID \`data/ids/ihya-9472.json\`).`,
+    `- Pembanding: sumber Shamela \`${args.sourceHash}\` diparse ulang oleh pipeline ingest pada commit \`${args.commit}\` (pembersihan deterministik \`@surau/text\`, peta ID \`${args.config.ids}\`).`,
     `- Sampel: ${args.checked.length} dari ${args.total} halaman, acak dengan seed **${args.seed}** (mulberry32, Fisher–Yates parsial atas page.id terurut).`,
     "- Diperiksa per halaman: baris `page` (juz, halaman, `source_page_id`), setiap paragraf (id, jenis, urutan, node daftar isi, `text_raw` **byte demi byte** UTF-8), `footnote_ref` (offset, penanda, paragraf tujuan), dan `passage_needs_review`.",
     `- Diperiksa sekali per korpus: \`meta\` (kecuali \`built_at\`), \`author\`, \`work\`, \`edition\` (termasuk lisensi dan kalimat atribusi), dan ${args.corpus.tocNodes} node daftar isi yang dirujuk paragraf sampel (judul Arab byte demi byte).`,
@@ -175,9 +207,9 @@ function autoReport(args: {
   return lines.join("\n");
 }
 
-function humanList(pages: Checked[], surau: string, seed: number): string {
+function humanList(config: WorkConfig, pages: Checked[], surau: string, seed: number): string {
   const lines = [
-    "# QA manusia (T-15): 10 halaman Ihya dibandingkan dengan edisi cetak",
+    `# QA manusia (T-15): ${pages.length} halaman ${config.work.titleId} dibandingkan dengan edisi cetak`,
     "",
     `> Dibuat oleh \`pnpm run corpus:qa --human\` (S10) dari sampel QA otomatis (seed ${seed}); hanya halaman yang punya catatan kaki, bergiliran per jilid. Kolom **Hasil** diisi agent dari jawaban pemilik/ustadz.`,
     `> Tautan Surau: \`${surau}\` (ganti dengan \`--surau <url>\` bila mencocokkan korpus selain produksi).`,
@@ -192,8 +224,8 @@ function humanList(pages: Checked[], surau: string, seed: number): string {
     "| # | Jilid/hal. | Surau | Shamela | Pindaian | Cat. kaki | Hasil |",
     "|---|---|---|---|---|---|---|",
     ...pages.map((c, i) => {
-      const scan = scanUrl(IHYA, c.page.juz, c.page.page_no);
-      return `| ${i + 1} | j${c.page.juz} h${c.page.page_no} | [buka](${surau}/kitab/ihya/${c.page.juz}/${c.page.page_no}) | [${c.page.source_page_id ?? "–"}](https://shamela.ws/book/${IHYA.shamelaBook}/${c.page.source_page_id ?? ""}) | ${scan === null ? "–" : `[jilid ${c.page.juz}](${scan})`} | ${c.summary.foot} | |`;
+      const scan = scanUrl(config, c.page.juz, c.page.page_no);
+      return `| ${i + 1} | j${c.page.juz} h${c.page.page_no} | [buka](${surau}/kitab/${config.work.slug}/${c.page.juz}/${c.page.page_no}) | [${c.page.source_page_id ?? "–"}](https://shamela.ws/book/${config.shamelaBook}/${c.page.source_page_id ?? ""}) | ${scan === null ? "–" : `[jilid ${c.page.juz}](${scan})`} | ${c.summary.foot} | |`;
     }),
     "",
   ];
@@ -206,7 +238,8 @@ function main(argv: string[]): number {
     allowPositionals: true,
     options: {
       n: { type: "string", default: "30" },
-      seed: { type: "string", default: "9472" },
+      kitab: { type: "string", default: "ihya" },
+      seed: { type: "string" },
       human: { type: "string" },
       surau: { type: "string", default: DEFAULT_SURAU },
       shamela: { type: "string" },
@@ -214,9 +247,12 @@ function main(argv: string[]): number {
   });
   const arg = positionals[0];
   if (arg === undefined || !(arg === "staging" || /^[a-z][a-z0-9]*-v\d+$/.test(arg))) {
-    console.error("Pakai: pnpm run corpus:qa <versi|staging> [--n 30] [--seed 9472] [--human 10]");
+    console.error(
+      "Pakai: pnpm run corpus:qa <versi|staging> [--kitab ihya] [--n 30] [--seed <id>] [--human 10]",
+    );
     return 2;
   }
+  const config = workBySlug(values.kitab);
   // Batas sistem (KONVENSI): angka CLI divalidasi Zod; batas atas n dicek setelah jumlah halaman diketahui.
   const parsed = z
     .object({
@@ -225,7 +261,11 @@ function main(argv: string[]): number {
       human: z.coerce.number().int().min(1).optional(),
     })
     .refine((v) => v.human === undefined || v.human <= v.n, { message: "--human harus ≤ --n" })
-    .safeParse({ n: values.n, seed: values.seed, human: values.human });
+    .safeParse({
+      n: values.n,
+      seed: values.seed ?? String(config.shamelaBook),
+      human: values.human,
+    });
   if (!parsed.success) {
     console.error(
       `Argumen tidak sah: ${parsed.error.issues.map((i) => `${i.path.join(".") || "-"} ${i.message}`).join("; ")}`,
@@ -263,7 +303,7 @@ function main(argv: string[]): number {
 
   try {
     console.info("Membangun ulang baris harapan dari sumber Shamela…");
-    const expected = expectedRows(IHYA, {
+    const expected = expectedRows(config, {
       repo,
       shamela,
       openiti: join(repo, "data/raw/openiti"),
@@ -271,13 +311,10 @@ function main(argv: string[]): number {
       migrations: join(repo, "packages/db/migrations/corpus"),
       quran: { root: join(repo, "data/raw"), files: QURAN_FILES, expect: QURAN_EXPECT },
     });
-    if (n > expected.page.length) {
-      console.error(`--n ${n} melebihi ${expected.page.length} halaman`);
-      return 2;
-    }
+    // Kitab kecil (X31): bila halaman kurang dari --n, semua halaman diperiksa.
     const sample = samplePages(
       expected.page.map((p) => p.id),
-      n,
+      Math.min(n, expected.page.length),
       seed,
     );
     console.info(`Membaca ${sample.length} halaman dari ${target.label}…`);
@@ -286,7 +323,7 @@ function main(argv: string[]): number {
     );
     const remote = readRemote(target, sample);
     const corpus = {
-      diffs: corpusDiffs(target, expected, remote),
+      diffs: corpusDiffs(target, config, expected, remote),
       tocNodes: new Set(remote.passage.map((p) => p.toc_node_id).filter((x) => x !== null)).size,
     };
     for (const d of corpus.diffs) console.error(`✗ ${d}`);
@@ -313,10 +350,11 @@ function main(argv: string[]): number {
         cwd: repo,
         encoding: "utf8",
       }).trim();
-      const path = join(repo, `${IHYA.reportPrefix}-qa-${target.label}.md`);
+      const path = join(repo, `${config.reportPrefix}-qa-${target.label}.md`);
       writeFileSync(
         path,
         autoReport({
+          config,
           label: target.label,
           uuid,
           meta,
@@ -333,11 +371,12 @@ function main(argv: string[]): number {
     if (human !== undefined) {
       const picked = new Set(pickForHuman(checked, human).map((p) => p.id));
       const list = humanList(
+        config,
         checked.filter((c) => picked.has(c.page.id)),
         values.surau.replace(/\/$/, ""),
         seed,
       );
-      const path = join(repo, `${IHYA.reportPrefix}-qa-manusia.md`);
+      const path = join(repo, `${config.reportPrefix}-qa-manusia.md`);
       if (existsSync(path)) {
         console.info(
           `${path.slice(repo.length + 1)} sudah ada (hasil mungkin sudah diisi); tidak ditimpa:\n${list}`,

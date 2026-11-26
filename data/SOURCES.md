@@ -10,6 +10,7 @@ Repo `OpenITI/0525AH`, commit `e8dddd44c7998cefce72e4f37fad471634dd9d1e` (rilis 
 |---|---|---|
 | `0505Ghazali.IhyaCulumDin.Shamela0009472-ara1.completed` | 7.968.487 | `e60d73c72033e5ca1be5ac3bf52f5fa5057aa4a3d1c750f26b9301b6b97e8997` |
 | `0505Ghazali.IhyaCulumDin.JK000001-ara1` | 9.470.821 | `0780031c3e4a55b65bdf45d7cca890869757cbedaa46a21273e9378428466018` |
+| `0505Ghazali.BidayatHidaya.Shamela0012718-ara1` (Bidayat al-Hidayah, diunduh 2026-11-26, X31a) | 145.181 | `15f75e3f926f249e3301143dad2ac4313b086527ac8dbcdf3252486a1f077263` |
 
 Cara mengunduh ulang (dari root repo):
 
@@ -19,6 +20,7 @@ B=https://raw.githubusercontent.com/OpenITI/0525AH/e8dddd44c7998cefce72e4f37fad4
 curl -fLO "$B/0505Ghazali.IhyaCulumDin.Shamela0009472-ara1.completed"
 curl -fLO "$B/0505Ghazali.IhyaCulumDin.JK000001-ara1"
 shasum -a 256 0505Ghazali.IhyaCulumDin.*
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0525AH/e8dddd44c7998cefce72e4f37fad471634dd9d1e/data/0505Ghazali/0505Ghazali.BidayatHidaya/0505Ghazali.BidayatHidaya.Shamela0012718-ara1"
 ```
 
 ## Shamela lokal (drive pemilik, hanya-baca, T-09)
@@ -28,6 +30,7 @@ Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struk
 | Berkas | Byte | sha256 |
 |---|---|---|
 | `book/472/9472.db` (Ihya) | 11.022.336 | `36e66c5498b74e6d4fd7542108a29327361cf45534794d1c5a878e7bc2b7d586` |
+| `book/718/12718.db` (Bidayat al-Hidayah, dicek 2026-11-26) | 196.608 | `c41459f5c9a2f42354ba4fede121e5db5ddccdf94e1132db9805b35c568956ca` |
 | `update/master/book.sqlite` | 11.882.496 | `acccdb02d46b80e21eab5da4127bf42b46020f5d09e727c477d1095eb8aa8794` |
 | `update/master/author.sqlite` | 8.933.376 | `0397cfc1f0c8d6dc61e13c0688e089d33f97aac6be981e3588368f49295a8a54` |
 

@@ -168,7 +168,14 @@ export interface RowsInput {
   toc: TocBuild;
   takhrij: TakhrijCheck;
   ids: IdAllocator;
-  meta: { normVersion: number; latinNormVersion: number; builtAt: string; sourceHash: string };
+  meta: {
+    normVersion: number;
+    latinNormVersion: number;
+    /** `meta.corpus_version`: milik korpus (CorpusConfig), bukan kitab (ADR-137). */
+    corpusVersion: string;
+    builtAt: string;
+    sourceHash: string;
+  };
 }
 
 /**
@@ -287,7 +294,8 @@ export function buildRows(input: RowsInput): Omit<CorpusRows, PipelineTables> {
     };
     const bodyIds = p.body.map((d, i) => add(d, i + 1, toc.body[pi]?.[i] ?? "", []));
     const footIds = p.foot.map((d, i) => {
-      const score = takhrij.scores[pi]?.[i] ?? 0;
+      // Tanpa versi pembanding takhrij (kitab selain Ihya) catatan kaki tidak dinilai, jadi tidak ditandai.
+      const score = takhrij.compared ? (takhrij.scores[pi]?.[i] ?? 0) : 1;
       const extra: NeedsReviewReason[] = score < TAKHRIJ_THRESHOLD ? ["takhrij_unmatched"] : [];
       return add(d, i + 1, toc.foot[pi]?.[i] ?? "", extra);
     });
@@ -311,7 +319,7 @@ export function buildRows(input: RowsInput): Omit<CorpusRows, PipelineTables> {
   const meta = [
     ["norm_version", String(input.meta.normVersion)],
     ["latin_norm_version", String(input.meta.latinNormVersion)],
-    ["corpus_version", config.corpusVersion],
+    ["corpus_version", input.meta.corpusVersion],
     ["built_at", input.meta.builtAt],
     ["source_hash", input.meta.sourceHash],
   ].map(([key, value]) => metaRow.parse({ key, value }));

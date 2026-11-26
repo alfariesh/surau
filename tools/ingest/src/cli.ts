@@ -1,7 +1,9 @@
-// CLI ingest (dipanggil dari root: `pnpm ingest ihya`, `pnpm ingest:verify`).
-//   ihya             bangun korpus Ihya: SQL + .sqlite di data/build, peta ID, dan laporan
-//   verify-openiti   hanya gerbang QA OpenITI (laporan data/reports/…-openiti.md)
-// Opsi: --shamela <dir> (bawaan /Volumes/Elfariesh/database atau $SURAU_SHAMELA_ROOT),
+// CLI ingest (dipanggil dari root: `pnpm ingest korpus`, `pnpm ingest:verify`).
+//   korpus           bangun korpus semua kitab (X31a, ADR-137): SQL + .sqlite di data/build, peta ID
+//                    dan laporan per kitab. `ihya` = nama lama, tetap diterima.
+//   verify-openiti   hanya gerbang QA OpenITI (laporan data/reports/…-openiti.md per kitab)
+// Opsi: --kitab <slug,…> (sebagian kitab, mis. `--kitab ihya` bila promote mendahului kitab baru),
+//       --shamela <dir> (bawaan /Volumes/Elfariesh/database atau $SURAU_SHAMELA_ROOT),
 //       --openiti <dir> (bawaan data/raw/openiti), --quran <dir> (bawaan data/raw: tanzil/ +
 //       kemenag/), --reset-ids (HANYA sebelum rilis; ditolak bila data/ids/…teks.json ada),
 //       --terima-teks-berubah <id,…> (passage.id lama yang teksnya boleh berubah, satu per satu;
@@ -10,21 +12,22 @@ import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
+import type { AudioTrackRow } from "@surau/db";
+
 import { audioReport, selectBuildAudio } from "./audio.ts";
 import { runIngest, runVerifyOpenIti } from "./pipeline.ts";
-import type { PipelinePaths } from "./pipeline.ts";
+import type { IngestOptions, PipelinePaths } from "./pipeline.ts";
 import { QURAN_EXPECT, QURAN_FILES } from "./quran/source.ts";
-import { IHYA } from "./works/ihya.ts";
+import { corpusWith } from "./works/index.ts";
 
 const repo = resolve(import.meta.dirname, "../../..");
-/** Metadata audio Intisari Ihya (ditulis `pnpm audio manifest`, tools/audio/src/works.ts). */
-const IHYA_AUDIO_MANIFEST = "data/audio/ihya-9472-audio.json";
 
 async function main(argv: string[]): Promise<number> {
   const { positionals, values } = parseArgs({
     args: argv,
     allowPositionals: true,
     options: {
+      kitab: { type: "string" },
       shamela: { type: "string" },
       openiti: { type: "string" },
       quran: { type: "string" },
@@ -33,12 +36,18 @@ async function main(argv: string[]): Promise<number> {
     },
   });
   const command = positionals[0];
-  if (command !== "ihya" && command !== "verify-openiti") {
+  if (command !== "korpus" && command !== "ihya" && command !== "verify-openiti") {
     console.error(
-      "Pakai: pnpm ingest ihya | pnpm ingest:verify  [--shamela <dir>] [--openiti <dir>] [--quran <dir>] [--reset-ids] [--terima-teks-berubah <id,…>]",
+      "Pakai: pnpm ingest korpus | pnpm ingest:verify  [--kitab <slug,…>] [--shamela <dir>] [--openiti <dir>] [--quran <dir>] [--reset-ids] [--terima-teks-berubah <id,…>]",
     );
     return 2;
   }
+  const corpus = corpusWith(
+    values.kitab
+      ?.split(",")
+      .map((s) => s.trim())
+      .filter((s) => s !== ""),
+  );
   const paths: PipelinePaths = {
     repo,
     shamela: resolve(
@@ -64,47 +73,66 @@ async function main(argv: string[]): Promise<number> {
   const started = performance.now();
   const seconds = (): string => ((performance.now() - started) / 1000).toFixed(1);
   if (command === "verify-openiti") {
-    const { ok, prepared } = runVerifyOpenIti(IHYA, paths);
-    console.info(
-      `verify-openiti: matan ${prepared.matan.passed}/${prepared.pages.length} halaman ≥0,95 (${ok ? "LOLOS" : "GAGAL"}); ` +
-        `takhrij tidak cocok ${prepared.takhrij.unmatched}/${prepared.takhrij.total}; ${seconds()} dtk`,
-    );
-    console.info(`Laporan: ${IHYA.reportPrefix}-openiti.md`);
-    return ok ? 0 : 1;
+    let allOk = true;
+    for (const config of corpus.works) {
+      const { ok, prepared } = runVerifyOpenIti(config, paths, corpus.version);
+      allOk &&= ok;
+      const t = prepared.takhrij;
+      console.info(
+        `${config.work.slug} verify-openiti: matan ${prepared.matan.passed}/${prepared.pages.length} halaman ≥0,95 (${ok ? "LOLOS" : "GAGAL"}); ` +
+          (t.compared
+            ? `takhrij tidak cocok ${t.unmatched}/${t.total}`
+            : "tanpa pembanding takhrij") +
+          ` · laporan ${config.reportPrefix}-openiti.md`,
+      );
+    }
+    console.info(`${seconds()} dtk`);
+    return allOk ? 0 : 1;
   }
+  if (command === "ihya")
+    console.info("Catatan: `pnpm ingest ihya` kini membangun korpus semua kitab (= `korpus`).");
 
-  let result = runIngest(IHYA, paths, {
+  const opts: IngestOptions = {
     resetIds: values["reset-ids"],
     acceptTextChanges: values["terima-teks-berubah"]?.split(",").map((id) => {
       const n = Number(id.trim());
       if (!Number.isSafeInteger(n) || n <= 0) throw new Error(`ID paragraf tidak sah: ${id}`);
       return n;
     }),
-  });
+  };
+  let result = runIngest(corpus, paths, opts);
   // Audio Intisari (X17): sha skrip dicocokkan dengan Intisari build ini; bila ada track yang cocok,
   // build diulang sekali dengan baris `audio_track` (deterministik: peta ID dan sidik teks sudah
   // ditulis putaran pertama, jadi hasilnya sama ditambah audio, dan `meta` tetap file terakhir).
   if (result.output !== undefined) {
-    const audio = await selectBuildAudio(result.output.sqlite, join(repo, IHYA_AUDIO_MANIFEST));
-    console.info(audioReport(audio));
-    if (audio.rows.length > 0) {
+    const tracks: AudioTrackRow[] = [];
+    for (const config of corpus.works) {
+      if (config.audioManifest === undefined) continue;
+      const audio = await selectBuildAudio(result.output.sqlite, join(repo, config.audioManifest));
+      console.info(`${config.work.slug}: ${audioReport(audio)}`);
+      tracks.push(...audio.rows);
+    }
+    if (tracks.length > 0) {
       const added = result.output.idsAdded;
-      result = runIngest(IHYA, paths, { audioTracks: audio.rows });
+      const works = result.works;
+      result = runIngest(corpus, paths, { ...opts, audioTracks: tracks });
       // ID baru tercatat di putaran pertama (peta ID wajib di-commit, ADR-059), bukan di putaran kedua.
       if (result.output !== undefined)
-        result = { ...result, output: { ...result.output, idsAdded: added } };
+        result = { ...result, works, output: { ...result.output, idsAdded: added } };
     }
   }
   for (const i of result.validation.invariants)
     console.info(`${i.ok ? "✓" : "✗"} ${i.name}: ${i.detail}`);
-  const a = result.ayat;
-  console.info(
-    `Ayat: {…} tervalidasi ${a.validated} → persis ${a.exact}, mirip ${a.similar}, tidak cocok ${a.unmatched}; ` +
-      `tanpa kurung ${a.cueExact + a.cueSimilar}; ${a.partial} sebagian ayat`,
-  );
-  console.info(
-    `Laporan: ${IHYA.reportPrefix}-validasi.md, ${IHYA.reportPrefix}-openiti.md, ${IHYA.reportPrefix}-ayat.md`,
-  );
+  for (const w of result.works) {
+    const a = w.ayat;
+    console.info(
+      `${w.config.work.slug} · Ayat: {…} tervalidasi ${a.validated} → persis ${a.exact}, mirip ${a.similar}, tidak cocok ${a.unmatched}; ` +
+        `tanpa kurung ${a.cueExact + a.cueSimilar}; ${a.partial} sebagian ayat`,
+    );
+    console.info(
+      `${w.config.work.slug} · Laporan: ${w.config.reportPrefix}-validasi.md, -openiti.md, -ayat.md`,
+    );
+  }
   if (result.output === undefined) {
     console.error(`Ingest GAGAL: invarian dilanggar (${seconds()} dtk). Keluaran tidak ditulis.`);
     return 1;
@@ -116,11 +144,14 @@ async function main(argv: string[]): Promise<number> {
       .join(", ")}`,
   );
   console.info(
-    `SQL: ${o.files.length} file di data/build/sql · ${o.sqlite.slice(repo.length + 1)}`,
+    `SQL: ${o.files.length} file di data/build/sql · ${o.sqlite.slice(repo.length + 1)} (korpus ${corpus.version})`,
   );
-  console.info(
-    `Peta ID: ${IHYA.ids} (baru: halaman ${o.idsAdded.page}, node ${o.idsAdded.toc}, paragraf ${o.idsAdded.passage})`,
-  );
+  for (const w of result.works) {
+    const n = w.idsAdded;
+    console.info(
+      `Peta ID: ${w.config.ids} (baru: halaman ${n.page ?? 0}, node ${n.toc ?? 0}, paragraf ${n.passage ?? 0})`,
+    );
+  }
   console.info(`sha256 build: ${o.hash}`);
   console.info(`Selesai dalam ${seconds()} dtk`);
   return 0;
