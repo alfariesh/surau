@@ -144,6 +144,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 132 | Terjemahan Inggris per paragraf lewat plugin `surau-redaksi` (langganan, Sonnet), bukan batch API: format `surau-terjemah/1`, pemeriksa batch dipindah ke core, tool `/redaksi` `list_translation_units` + `check_translation_draft`, periksa independen per berkas | diterima | 2026-10-28 | [keputusan/ADR-132.md](keputusan/ADR-132.md) |
 | 133 | Lafaz Al-Qur'an di luar penanda ayat: kutipan yang terlewat dipatch agar tampil dengan Kemenag, iqtibas diterjemahkan sebagai kalimat penulis dengan rujukan ayat, formula zikir diabaikan | diterima | 2026-10-29 | [keputusan/ADR-133.md](keputusan/ADR-133.md) |
 | 134 | Patch ayat: kutipan terlewat ditambahkan lewat berkas terverifikasi yang dicocokkan ulang kode; terjemahan paragraf terkena gugur sampai diterjemahkan ulang | diterima | 2026-10-29 | [keputusan/ADR-134.md](keputusan/ADR-134.md) |
+| 135 | Gelombang 1: Bidayat al-Hidayah, at-Tibyan, al-Ajurrumiyyah tayang lengkap (baca, Cari, terjemahan, ayat, Intisari, audio bila cocok, MCP) tanpa menunggu Jawab; sesi X31; pekerjaan Ihya diparkir kecuali X24 dan T-35 | diterima | 2026-11-26 | [keputusan/ADR-135.md](keputusan/ADR-135.md) |
 
 ## Cara menambah ADR baru
 

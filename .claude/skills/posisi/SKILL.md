@@ -14,7 +14,7 @@ hooks:
 
 Skill ini hanya membaca. Jangan mengubah file apa pun.
 
-1. Baca `implementasi/STATUS.md`, tiga entri teratas `implementasi/LOG.md`, butir yang belum dicentang di `implementasi/TUGAS-PEMILIK.md`, dan tabel "Keputusan yang menunggu pemilik" di `implementasi/KEPUTUSAN.md`.
+1. Baca `implementasi/STATUS.md`, tiga entri teratas `implementasi/LOG.md` (bila kurang dari tiga, lanjutkan dari arsip bulan terbaru di `implementasi/log/YYYY-MM.md`), butir yang belum dicentang di `implementasi/TUGAS-PEMILIK.md`, dan tabel "Keputusan yang menunggu pemilik" di `implementasi/KEPUTUSAN.md`.
 2. Cek `git status` dan `git log --oneline -5` untuk memastikan catatan sesuai dengan kenyataan. Bila tidak sesuai (misalnya STATUS bilang sesi selesai tapi ada perubahan yang belum di-commit atau belum digabung ke main), sebutkan.
 3. Jawab dengan format ini, maksimal ±14 baris, tanpa istilah teknis yang tidak perlu:
 
