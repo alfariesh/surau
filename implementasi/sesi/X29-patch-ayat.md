@@ -1,6 +1,6 @@
 # X29 · Patch ayat: kutipan yang terlewat pencocok tampil dengan Kemenag
 
-> **Fase:** Sisipan · **Status:** sebagian (patch aktif dengan opsi b; staging dimuat 2026-11-26 lewat T-35; promote dan terjemahan ulang menunggu izin pemilik)
+> **Fase:** Sisipan · **Status:** diarsipkan bersama Ihya ([ADR-142](../keputusan/ADR-142.md), 2026-11-26): patch aktif di repo (opsi b) dan dimuat staging lewat T-35, tetapi tidak tayang dan 153 paragraf tidak diterjemahkan ulang; berlaku lagi bila Ihya kembali
 > **Prasyarat:** X28 (audit, ADR-133) · Tugas pemilik: izin build + promote korpus; izin biaya bila terjemahan Indonesia diulang lewat batch API
 > **Perkiraan:** 2 percakapan agent (alat + patch; penerjemahan ulang menyusul)
 

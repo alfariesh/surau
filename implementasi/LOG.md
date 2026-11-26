@@ -15,6 +15,16 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-26 · X31a · Ihya diarsipkan, korpus Gelombang 1 dibangun di Mac — sebagian
+- Dikerjakan:
+  - Keputusan pemilik: tiga kitab kecil dulu, dan Ihya diarsipkan serta turun dari situs. Waktunya: saat promote pertama Gelombang 1, atas izin pemilik.
+  - Ledger mendapat status `arsip` (Ihya); `CORPUS` bawaan = `[BIDAYAH]`. Promote menolak build yang menghilangkan kitab `tayang`.
+  - X31 diperbarui ("Definisi selesai" tanpa Ihya, X31b langkah 7 = daftar halaman yang menyebut Ihya). T-36 dibatalkan, dan ADR-135 butir 5 dicabut.
+- Verifikasi: `pnpm ingest korpus` (Mac) → 1 kitab, semua gerbang ✓, 0,8 dtk · `pnpm verify` → lolos · peninjau → 3 wajib (smoke D1 dan CI Preview masih khusus Ihya → langkah 8a sebelum staging; centang build Ihya dibatalkan), sisanya diperbaiki
+- Biaya API: –
+- Keputusan: [ADR-142](keputusan/ADR-142.md)
+- Catatan untuk sesi berikutnya: X31a langkah 8a (smoke D1 per kitab, e2e dan `uji-mcp.sh` tanpa Ihya), lalu muat staging atas izin pemilik dan `corpus:qa staging --kitab bidayat-al-hidayah`. Staging masih berisi build X29 (Ihya).
+
 ## 2026-11-26 · Sisipan · Patch keamanan Hono 4.13.22 — selesai
 - Dikerjakan:
   - Catalog `hono` 4.13.13 → **4.13.22** (`apps/api`); 5 advisori (4m76, h7mg, 46wx, 4h7h moderate; 3gg2 low) ditambal di 4.13.16.

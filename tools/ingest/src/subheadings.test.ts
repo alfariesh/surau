@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+import { DatabaseSync } from "node:sqlite";
 
 import { describe, expect, test } from "vite-plus/test";
 
@@ -219,9 +220,15 @@ describe("buildSubheadings · node_tail (judul node dari butir daftar)", () => {
 // Berkas di repo = hasil bangun ulang dari korpus build lokal (dilewati bila korpus tidak ada, mis. CI).
 const repo = resolve(import.meta.dirname, "../../..");
 const build = join(repo, "data/build");
+const corpora = existsSync(build)
+  ? readdirSync(build).filter((f) => /^surau-corpus-.+\.sqlite$/.test(f))
+  : [];
+// Hanya korpus lokal yang memuat Ihya (korpus bawaan tanpa Ihya sejak ADR-142).
 const local =
-  existsSync(build) &&
-  readdirSync(build).filter((f) => /^surau-corpus-.+\.sqlite$/.test(f)).length === 1;
+  corpora.length === 1 &&
+  new DatabaseSync(join(build, corpora[0]!), { readOnly: true })
+    .prepare("SELECT 1 FROM work WHERE slug = 'ihya'")
+    .get() !== undefined;
 
 describe("data/patches/ihya-9472-subjudul.json", () => {
   test("bentuknya sah", () => {

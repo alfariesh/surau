@@ -8,7 +8,8 @@
 #   wafat_h         tahun wafat penulis (H)
 #   lisensi         lisensi teks digital
 #   catatan_kaki    classical | modern_editor | none | unknown (ADR-138)
-#   status          tayang | staging | rencana
+#   status          tayang | staging | rencana | arsip (arsip = tidak ikut build bawaan dan turun dari
+#                   produksi pada promote berikutnya; data dan peta ID tetap disimpan, ADR-142)
 #   intisari_bab    judul tingkat teratas daftar isi yang mendapat Intisari Bab (X31b–d); diisi saat
 #                   sesi kitab itu, sebagai title.id Shamela
 kitab:
@@ -23,7 +24,7 @@ kitab:
     wafat_h: 505
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: classical
-    status: tayang
+    status: arsip
   - slug: bidayat-al-hidayah
     shamela: 12718
     openiti:

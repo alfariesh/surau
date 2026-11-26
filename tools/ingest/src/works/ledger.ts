@@ -23,7 +23,7 @@ export const ledgerFile = z.strictObject({
       wafat_h: z.number().int().positive(),
       lisensi: z.string().min(1),
       catatan_kaki: z.enum(["classical", "modern_editor", "none", "unknown"]),
-      status: z.enum(["tayang", "staging", "rencana"]),
+      status: z.enum(["tayang", "staging", "rencana", "arsip"]),
       intisari_bab: z.array(z.number().int().positive()).optional(),
     }),
   ),
@@ -40,4 +40,15 @@ export function readLedger(repo: string): Ledger {
  */
 export function unreleasedWorks(ledger: Ledger, slugs: readonly string[]): string[] {
   return slugs.filter((s) => ledger.kitab.find((k) => k.slug === s)?.status !== "tayang");
+}
+
+/**
+ * Kitab berstatus `tayang` di ledger yang tidak ada di build. Promote menolaknya supaya kitab yang
+ * sedang tayang tidak turun tanpa sengaja; kitab yang memang diturunkan diberi status `arsip` dulu
+ * (ADR-142).
+ */
+export function droppedReleasedWorks(ledger: Ledger, slugs: readonly string[]): string[] {
+  return ledger.kitab
+    .filter((k) => k.status === "tayang" && !slugs.includes(k.slug))
+    .map((k) => k.slug);
 }

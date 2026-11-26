@@ -243,7 +243,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   6. Di Claude Code (folder Surau), ketik: "impor konten dari Downloads". Agent memeriksa, menjalankan pemeriksa independen, lalu membuat PR.
   7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
 
-- [ ] **T-36 · Build korpus staging `kitab-v10` (Ihya + Bidayat al-Hidayah), di mesin agent (X31a langkah 8)** · menunggu pemilik: buka sesi di mesin agent dan beri izin memuat staging
+- [ ] ~~**T-36 · Build korpus staging `kitab-v10` (Ihya + Bidayat al-Hidayah), di mesin agent (X31a langkah 8)**~~ · **dibatalkan 2026-11-26 (tidak dikerjakan):** Ihya diarsipkan ([ADR-142](keputusan/ADR-142.md)), dan korpus tanpa Ihya dibangun di Mac. Langkah lama di bawah disimpan sebagai catatan.
   Kenapa di mesin agent: korpus baru memuat Ihya beserta data AI terbarunya (terjemahan, ringkasan, Intisari pilot), dan data itu hanya ada di `/home/rekanesia/surau` (ADR-135 butir 5). Kode multi-kitab sudah di `main` (ADR-137).
   1. Buka sesi Claude Code di mesin agent, folder `/home/rekanesia/surau`.
   2. Ketik ke agent di sana: "Kerjakan T-36: tarik main, unduh berkas OpenITI Bidayah sesuai data/SOURCES.md, lalu `pnpm ingest korpus`, `corpus:load:staging --confirm`, dan `corpus:qa staging --kitab bidayat-al-hidayah` serta `--kitab ihya`. Izin memuat staging diberikan; promote belum."
@@ -254,7 +254,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   1. Buka sesi Claude Code di mesin agent, di folder `/home/rekanesia/surau` (cara yang biasa Anda pakai untuk sesi X15c/X21).
   2. Ketik ke agent di sana: "Kerjakan T-35: build staging X29 sesuai implementasi/sesi/X29-patch-ayat.md langkah 6".
   3. Agent di sana yang menjalankan perintahnya. Anda cukup menunggu laporannya: jumlah rujukan ayat bertambah 179 (2.514 → 2.693), ringkasan tetap 623/626, terjemahan ±15.953/16.111 (lolos gerbang 99%), lalu korpus dimuat ke staging.
-  4. Bilang ke agent di Mac "T-35 sudah" beserta ringkasan laporannya. Promote ke produksi dan terjemahan ulang 153 paragraf (perkiraan US$2–3 lewat batch, atau gratis lewat plugin) diputuskan sesudahnya.
+  4. Bilang ke agent di Mac "T-35 sudah" beserta ringkasan laporannya. Promote ke produksi dan terjemahan ulang 153 paragraf (perkiraan US$2–3 lewat batch, atau gratis lewat plugin) diputuskan sesudahnya. *(2026-11-26: keduanya batal, Ihya diarsipkan, ADR-142.)*
 
 - [ ] **T-34 · Perluas aturan WAF MCP ke `/redaksi` (X23)** · tidak mendesak; `/redaksi` sudah dibatasi limiter Worker
   1. Buka https://dash.cloudflare.com → domain **surau.org** → **Security** → **WAF** → **Rate limiting rules**.

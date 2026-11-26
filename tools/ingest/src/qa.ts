@@ -238,7 +238,7 @@ function main(argv: string[]): number {
     allowPositionals: true,
     options: {
       n: { type: "string", default: "30" },
-      kitab: { type: "string", default: "ihya" },
+      kitab: { type: "string" },
       seed: { type: "string" },
       human: { type: "string" },
       surau: { type: "string", default: DEFAULT_SURAU },
@@ -248,8 +248,13 @@ function main(argv: string[]): number {
   const arg = positionals[0];
   if (arg === undefined || !(arg === "staging" || /^[a-z][a-z0-9]*-v\d+$/.test(arg))) {
     console.error(
-      "Pakai: pnpm run corpus:qa <versi|staging> [--kitab ihya] [--n 30] [--seed <id>] [--human 10]",
+      "Pakai: pnpm run corpus:qa <versi|staging> --kitab <slug> [--n 30] [--seed <id>] [--human 10]",
     );
+    return 2;
+  }
+  // Wajib menyebut kitab: korpus bisa berisi beberapa kitab, dan bawaan lama (`ihya`) kini arsip.
+  if (values.kitab === undefined) {
+    console.error("Sebutkan kitab: --kitab <slug> (mis. --kitab bidayat-al-hidayah).");
     return 2;
   }
   const config = workBySlug(values.kitab);

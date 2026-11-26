@@ -1,8 +1,9 @@
 // CLI ingest (dipanggil dari root: `pnpm ingest korpus`, `pnpm ingest:verify`).
-//   korpus           bangun korpus semua kitab (X31a, ADR-137): SQL + .sqlite di data/build, peta ID
-//                    dan laporan per kitab. `ihya` = nama lama, tetap diterima.
+//   korpus           bangun korpus bawaan (`CORPUS`, X31a, ADR-137; tanpa Ihya sejak ADR-142): SQL +
+//                    .sqlite di data/build, peta ID dan laporan per kitab. `ihya` = nama lama, kini
+//                    ditolak dengan saran (Ihya diarsipkan).
 //   verify-openiti   hanya gerbang QA OpenITI (laporan data/reports/…-openiti.md per kitab)
-// Opsi: --kitab <slug,…> (sebagian kitab, mis. `--kitab ihya` bila promote mendahului kitab baru),
+// Opsi: --kitab <slug,…> (pilih kitab; `--kitab ihya` = kitab arsip, ditolak promote, ADR-142),
 //       --shamela <dir> (bawaan /Volumes/Elfariesh/database atau $SURAU_SHAMELA_ROOT),
 //       --openiti <dir> (bawaan data/raw/openiti), --quran <dir> (bawaan data/raw: tanzil/ +
 //       kemenag/), --reset-ids (HANYA sebelum rilis; ditolak bila data/ids/…teks.json ada),
@@ -89,8 +90,12 @@ async function main(argv: string[]): Promise<number> {
     console.info(`${seconds()} dtk`);
     return allOk ? 0 : 1;
   }
-  if (command === "ihya")
-    console.info("Catatan: `pnpm ingest ihya` kini membangun korpus semua kitab (= `korpus`).");
+  if (command === "ihya") {
+    console.error(
+      "Ihya diarsipkan (ADR-142): `pnpm ingest korpus` membangun korpus bawaan tanpa Ihya; untuk membangun Ihya pakai `pnpm ingest korpus --kitab ihya`.",
+    );
+    return 2;
+  }
 
   const opts: IngestOptions = {
     resetIds: values["reset-ids"],
