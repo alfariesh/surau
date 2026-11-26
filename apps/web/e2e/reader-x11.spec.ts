@@ -113,6 +113,12 @@ test("pilihan mode baca dari panel Tampilan bertahan sesudah muat ulang; kontrol
   const panel = page.getByRole("dialog", { name: "Tampilan baca" });
   const group = panel.getByRole("radiogroup", { name: "Mode baca" });
   await expect(group).toBeVisible();
+  // Sheet OSS (ADR-143) meluncur lewat scroll-snap; klik sebelum terbuka penuh membuat
+  // Playwright menggulir isi panel. Tunggu `data-expanded` dari React Aria.
+  await expect(page.locator(".sheet__content", { has: panel })).toHaveAttribute(
+    "data-expanded",
+    "true",
+  );
   await settled(group);
   const top = await group.evaluate((el) => el.getBoundingClientRect().top);
   await group.getByRole("radio", { name: "Arab" }).click();

@@ -21,7 +21,7 @@ updates:
       # Mayor dikerjakan lewat sesi (contoh: Next 17, ADR-003).
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-      # HeroUI Pro dipin persis ke beta; ada versi salah terbit 1.0.0-beta.19 (ADR-004).
+      # HeroUI Pro dipin persis (paket diunduh saat postinstall; pernah ada versi salah terbit 1.0.0-beta.19; ADR-004, ADR-143).
       - dependency-name: "@heroui-pro/react"
       # CSS HeroUI diimpor per komponen (ADR-035): CI tidak memeriksa gaya, jadi naik versi lewat
       # sesi yang menjalankan tes penjaga + banding di apps/web/scripts/heroui-css/.

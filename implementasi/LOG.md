@@ -15,6 +15,16 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-26 · Sisipan · HeroUI Pro 1.0.1 stabil — selesai
+- Dikerjakan:
+  - Catalog: `@heroui-pro/react` beta.10 → **1.0.1**, `@heroui/react`/`@heroui/styles` 3.2.6 → **3.2.8**, `tailwind-variants` 3.3.1 → **4.0.2** (peer Pro 1.0.1).
+  - `Sheet` (dihapus dari Pro) kini diimpor dari `@heroui/react` di panel Tampilan, lompat halaman, dan daftar isi ponsel; CSS dari `@heroui/styles` (juga dipakai sheet sidebar ponsel Pro).
+  - ADR-143, STACK (HeroUI OSS + Pro).
+- Verifikasi: `pnpm verify` → lolos (1.194 + 500 tes; `heroui-css.test.ts` menjaga urutan CSS) · semua berkas CSS Pro yang diimpor ada di 1.0.1 · `banding-deklarasi.mjs` main vs branch → 178 nilai / 38 urutan berubah, semuanya refaktor upstream (rincian ADR-143 butir 6) · Preview `pr-245` (staging): ponsel 375 px sheet daftar isi (gulir, baris aktif = produksi), panel Tampilan (gulir), sidebar ponsel; desktop 1280 px panel Tampilan kanan, palet ⌘K; konsol tanpa error · peninjau → 1 wajib (banding ADR-035) + 3 sebaiknya, ditangani
+- Biaya API: –
+- Keputusan: [ADR-143](keputusan/ADR-143.md)
+- Catatan untuk sesi berikutnya: `figlet` (CLI `heroui-pro` beta.14) tidak tertutup oleh upgrade ini.
+
 ## 2026-11-26 · X31a · Ihya diarsipkan, korpus Gelombang 1 dibangun di Mac — sebagian
 - Dikerjakan:
   - Keputusan pemilik: tiga kitab kecil dulu, dan Ihya diarsipkan serta turun dari situs. Waktunya: saat promote pertama Gelombang 1, atas izin pemilik.
