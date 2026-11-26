@@ -51,6 +51,8 @@
 @import "@heroui/styles/components/separator.css" layer(components);
 @import "@heroui/styles/components/avatar.css" layer(components);
 @import "@heroui/styles/components/avatar-group.css" layer(components);
+/* Sheet pindah dari Pro ke OSS di Pro 1.0 (ADR-142). */
+@import "@heroui/styles/components/sheet.css" layer(components);
 @import "@heroui/styles/components/modal.css" layer(components);
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/tooltip.css" layer(components);
@@ -74,7 +76,6 @@
 @import "@heroui-pro/react/css/components/hover-card.css" layer(components);
 @import "@heroui-pro/react/css/components/native-select.css" layer(components);
 @import "@heroui-pro/react/css/components/navbar.css" layer(components);
-@import "@heroui-pro/react/css/components/sheet.css" layer(components);
 @import "@heroui-pro/react/css/components/prompt-input.css" layer(components);
 @import "@heroui-pro/react/css/components/resizable.css" layer(components);
 @import "@heroui-pro/react/css/components/segment.css" layer(components);

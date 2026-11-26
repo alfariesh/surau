@@ -15,6 +15,16 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-26 · Sisipan · HeroUI Pro 1.0.1 stabil — selesai
+- Dikerjakan:
+  - Catalog: `@heroui-pro/react` beta.10 → **1.0.1**, `@heroui/react`/`@heroui/styles` 3.2.6 → **3.2.8**, `tailwind-variants` 3.3.1 → **4.0.2** (peer Pro 1.0.1).
+  - `Sheet` (dihapus dari Pro) kini diimpor dari `@heroui/react` di panel Tampilan dan lompat halaman pembaca; CSS dari `@heroui/styles`.
+  - ADR-142, STACK (HeroUI OSS + Pro).
+- Verifikasi: `pnpm verify` → lolos (1.194 + 500 tes; `heroui-css.test.ts` menjaga urutan CSS) · semua berkas CSS Pro yang diimpor ada di 1.0.1 · tampilan dicek di Preview PR (lihat PR)
+- Biaya API: –
+- Keputusan: [ADR-142](keputusan/ADR-142.md)
+- Catatan untuk sesi berikutnya: `figlet` (CLI `heroui-pro` beta.14) tidak tertutup oleh upgrade ini.
+
 ## 2026-11-26 · Sisipan · Patch keamanan Hono 4.13.22 — selesai
 - Dikerjakan:
   - Catalog `hono` 4.13.13 → **4.13.22** (`apps/api`); 5 advisori (4m76, h7mg, 46wx, 4h7h moderate; 3gg2 low) ditambal di 4.13.16.

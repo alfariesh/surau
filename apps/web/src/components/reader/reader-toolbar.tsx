@@ -11,8 +11,7 @@ import {
   LeftToRightListBullet,
   MoreVertical,
 } from "../../icons";
-import { Sheet } from "@heroui-pro/react";
-import { Button, ButtonGroup, Dropdown, Label, Popover, Spinner } from "@heroui/react";
+import { Button, ButtonGroup, Dropdown, Label, Popover, Sheet, Spinner } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
