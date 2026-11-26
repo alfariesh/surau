@@ -27,6 +27,7 @@
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 0/0 (100,0%); mirip 0, tidak cocok 0 |
 | Terjemahan & ringkasan AI dimuat | ✓ | tanpa path hasil LLM (harapan cakupan 0%) |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
+| ID paragraf rilis stabil (ADR-059) | ✓ | 391 ID lama ada dengan teks sama |
 
 ## Daftar isi
 

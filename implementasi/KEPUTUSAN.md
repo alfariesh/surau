@@ -146,6 +146,9 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 134 | Patch ayat: kutipan terlewat ditambahkan lewat berkas terverifikasi yang dicocokkan ulang kode; terjemahan paragraf terkena gugur sampai diterjemahkan ulang | diterima | 2026-10-29 | [keputusan/ADR-134.md](keputusan/ADR-134.md) |
 | 135 | Gelombang 1: Bidayat al-Hidayah, at-Tibyan, al-Ajurrumiyyah tayang lengkap (baca, Cari, terjemahan, ayat, Intisari, audio bila cocok, MCP) tanpa menunggu Jawab; sesi X31; pekerjaan Ihya diparkir kecuali X24 dan T-35 | diterima | 2026-11-26 | [keputusan/ADR-135.md](keputusan/ADR-135.md) |
 | 136 | Build Ihya dari `main` memakai Intisari pilot X15b (penukaran folder sementara, cek 19/313 + `diff -rq`) sampai X15c digabung atau dibuang; promote X29 = build ulang `ihya-v10`; pemicu perbaikan permanen: path Intisari per karya + gerbang batas bawah | diterima | 2026-11-26 | [keputusan/ADR-136.md](keputusan/ADR-136.md) |
+| 137 | Korpus banyak kitab: satu build gabungan `kitab-v10` (tabel bersama sekali, invarian lintas kitab), hasil LLM dan Intisari per kitab (Ihya memakai Intisari pilot, batas bawah 19), reset penuh tetap (menyimpang dari "reset per edisi"), alat batch LLM per kitab dipindah ke X31b | diterima | 2026-11-26 | [keputusan/ADR-137.md](keputusan/ADR-137.md) |
+| 138 | Kelas catatan kaki per kitab (ledger): klasik tampil, pentahqiq modern (Tibyan, Ajurrumiyyah) tidak dimuat ke korpus, tidak diketahui ditahan; implementasi di X31c | diterima | 2026-11-26 | [keputusan/ADR-138.md](keputusan/ADR-138.md) |
+| 139 | Halaman Shamela berurutan dengan nomor cetak sama digabung menjadi satu halaman Surau (al-Ajurrumiyyah: 31 halaman sumber, 19 nomor cetak); implementasi di X31d | diterima | 2026-11-26 | [keputusan/ADR-139.md](keputusan/ADR-139.md) |
 
 ## Cara menambah ADR baru
 
