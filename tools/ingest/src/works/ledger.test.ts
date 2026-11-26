@@ -3,8 +3,8 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vite-plus/test";
 
-import { WORKS } from "./index.ts";
-import { readLedger, unreleasedWorks } from "./ledger.ts";
+import { CORPUS, WORKS } from "./index.ts";
+import { droppedReleasedWorks, readLedger, unreleasedWorks } from "./ledger.ts";
 
 const repo = join(import.meta.dirname, "../../../..");
 
@@ -29,15 +29,44 @@ describe("data/kitab/ledger.yaml", () => {
       expect(row?.status).not.toBe("rencana");
     }
   });
+
+  test("korpus bawaan tidak memuat kitab arsip (ADR-142)", () => {
+    for (const w of CORPUS.works) {
+      expect(file.kitab.find((k) => k.slug === w.work.slug)?.status, w.work.slug).not.toBe("arsip");
+    }
+    expect(CORPUS.works.map((w) => w.work.slug)).not.toContain("ihya");
+  });
 });
 
 describe("unreleasedWorks (pengaman promote, ADR-137)", () => {
   const ledger = readLedger(repo);
-  test("Ihya tayang; Bidayah belum; slug tak dikenal dianggap belum", () => {
-    expect(unreleasedWorks(ledger, ["ihya"])).toEqual([]);
+  test("arsip dan staging belum tayang; slug tak dikenal dianggap belum", () => {
     expect(unreleasedWorks(ledger, ["ihya", "bidayat-al-hidayah", "x"])).toEqual([
+      "ihya",
       "bidayat-al-hidayah",
       "x",
     ]);
+  });
+});
+
+describe("droppedReleasedWorks (pengaman promote, ADR-142)", () => {
+  // Ledger sintetis: tidak ikut berubah saat status kitab asli berubah.
+  const row = readLedger(repo).kitab[0]!;
+  const ledger = (rows: [string, "tayang" | "arsip" | "staging"][]) => ({
+    kitab: rows.map(([slug, status]) => ({ ...row, slug, status })),
+  });
+  test("kitab tayang yang hilang dari build ditolak; kitab arsip dan staging boleh hilang", () => {
+    const l = ledger([
+      ["a", "tayang"],
+      ["b", "arsip"],
+      ["c", "staging"],
+    ]);
+    expect(droppedReleasedWorks(l, ["c"])).toEqual(["a"]);
+    expect(droppedReleasedWorks(l, ["a"])).toEqual([]);
+  });
+
+  test("korpus bawaan memuat setiap kitab yang tayang di ledger asli", () => {
+    const slugs = CORPUS.works.map((w) => w.work.slug);
+    expect(droppedReleasedWorks(readLedger(repo), slugs)).toEqual([]);
   });
 });

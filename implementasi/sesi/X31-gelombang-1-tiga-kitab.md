@@ -1,14 +1,14 @@
 # X31 · Gelombang 1: tiga kitab kecil yang lengkap
 
-> **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** X31a sebagian (kode selesai 2026-11-26; build + staging menunggu T-36 di mesin agent)
-> **Prasyarat:** X31a: kode boleh di Mac, tetapi **build dan staging wajib di mesin agent** (`/home/rekanesia/surau`, ADR-135 butir 5), T-35 selesai 2026-11-26, tetapi staging berisi build X29 yang boleh ditimpa: pemilik memutuskan patch X29 ikut tayang bersama Bidayah (2026-11-26), jadi tidak ada promote X29 terpisah. Build yang memuat Ihya wajib memakai Intisari pilot lewat penukaran folder [ADR-136](../keputusan/ADR-136.md) (build biasa menghapus 19 Intisari tayang). X31b–X31d: X31a dan X24 selesai.
+> **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** X31a sebagian (kode selesai 2026-11-26; Ihya diarsipkan [ADR-142](../keputusan/ADR-142.md), build tanpa Ihya lolos di Mac; tinggal muat staging + QA)
+> **Prasyarat:** Ihya diarsipkan ([ADR-142](../keputusan/ADR-142.md), keputusan pemilik 2026-11-26): korpus bawaan hanya kitab Gelombang 1, dibangun di Mac; mesin agent tidak diperlukan lagi (ADR-135 butir 5 dicabut). Patch ayat X29 tidak tayang. X31b–X31d: X31a dan X24 selesai.
 > **Tugas pemilik:** izin `corpus:load:staging` (`tools/ingest/README.md`), izin biaya per batch (aturan keras 4), izin promote korpus, T-29 untuk audio
 > **Perkiraan:** X31a 1–2 percakapan, X31b 1–2, X31c 1, X31d 1–2
 > **Keputusan dasar:** [ADR-135](../keputusan/ADR-135.md)
 
 ## Tujuan
 
-Tiga kitab kecil tayang di surau.org **lengkap**: teks asli, terjemahan Indonesia, ayat dengan Kemenag, Cari, Intisari, audio (bila memenuhi kriteria di bawah), dan MCP. Satu kitab langsung tayang begitu lolos "Definisi selesai", tanpa menunggu Jawab (`/rilis 4`). Kitab pertama menjadi cetakan untuk kitab berikutnya.
+Tiga kitab kecil tayang di surau.org **lengkap**, menggantikan Ihya yang diarsipkan (ADR-142): teks asli, terjemahan Indonesia, ayat dengan Kemenag, Cari, Intisari, audio (bila memenuhi kriteria di bawah), dan MCP. Satu kitab langsung tayang begitu lolos "Definisi selesai", tanpa menunggu Jawab (`/rilis 4`). Kitab pertama menjadi cetakan untuk kitab berikutnya.
 
 | Kitab | Shamela | OpenITI (ID sama) | Ukuran | Slug (sudah dipakai di "Segera hadir", ADR-115) |
 |---|---|---|---|---|
@@ -23,12 +23,12 @@ Diukur 2026-11-26 dari drive Shamela (hanya baca, `node:sqlite`) dan GitHub Open
 Dipakai sama untuk ketiga kitab. Butir yang tidak berlaku hanya boleh dikecualikan lewat ADR yang menyebut alasannya, dan dikutip di "Catatan hasil". Kriteria tidak boleh dilonggarkan supaya kitab tampak lolos (aturan keras 5).
 
 - [ ] **Sumber dan lisensi:** baris ledger (ID Shamela, URI OpenITI, edisi, penerbit, tahun wafat, kelas catatan kaki, lisensi); `pnpm ingest:verify` lolos ambang; atribusi di `data/ATTRIBUTION.md`, `/lisensi`, dan `EDITION_SOURCE`
-- [ ] **Korpus:** masuk build korpus bersama Ihya; peta ID `data/ids/<slug>-<shamela>.json` di-commit; ID Ihya tidak berubah (sidik teks lolos); `pnpm run corpus:qa staging` untuk kitab ini 30/30 (atau seluruh halaman bila kurang dari 30)
+- [ ] **Korpus:** masuk build korpus Gelombang 1; peta ID `data/ids/<slug>-<shamela>.json` di-commit; ID kitab lain di korpus tidak berubah (sidik teks lolos; semula "bersama Ihya", diubah ADR-142 butir 8); `pnpm run corpus:qa staging` untuk kitab ini 30/30 (atau seluruh halaman bila kurang dari 30)
 - [ ] **Pembaca:** `curl` staging/produksi `/kitab/<slug>`, satu halaman cetak `/kitab/<slug>/1/<halaman>`, dan `daftar-isi.json` → 200 dengan judul kitab yang benar; permalink paragraf, salin sitasi, dan laporan kesalahan dicek di browser
 - [ ] **Ayat:** laporan ingest menyebut jumlah rujukan ayat dan yang cocok persis (Tanzil + Kemenag)
 - [ ] **Hadits:** tidak ada takhrij tertaut, jadi `get_hadith_takhrij` dan kartu kutipan Intisari memakai frasa "status belum diketahui" (teks-arab aturan 6); tes atau curl membuktikan tidak ada label status untuk kitab ini
 - [ ] **Terjemahan Indonesia:** cakupan ≥ 99% paragraf badan (gerbang `llmCoverage` kitab ini dinaikkan ke 0,99), berlabel "terjemahan AI", lolos validator; ayat lewat placeholder Kemenag
-- [ ] **Cari:** `GET /api/search?q=<kata Arab yang ada di kitab ini>` dan satu kueri Indonesia (keduanya ditulis di "Catatan hasil" beserta hasil yang diharapkan) mengembalikan halaman kitab ini; filter per kitab bekerja; laporan `pnpm run eval:retrieval` untuk Ihya tidak turun
+- [ ] **Cari:** `GET /api/search?q=<kata Arab yang ada di kitab ini>` dan satu kueri Indonesia (keduanya ditulis di "Catatan hasil" beserta hasil yang diharapkan) mengembalikan halaman kitab ini; filter per kitab bekerja (butir "eval:retrieval Ihya tidak turun" dihapus, ADR-142 butir 8)
 - [ ] **Intisari:** Intisari Bab untuk setiap judul tingkat teratas daftar isi kitab (daftarnya ditetapkan di ledger saat X31a) + satu Intisari Kitab, dibuat lewat plugin `surau-redaksi`, lolos periksa tiga lapis, diimpor lewat jalur X24
 - [ ] **Audio (Dengar):** dibuat bila skrip Intisari kitab itu masih bermakna tanpa huruf Arab (kriteria: setidaknya 80% gagasan tidak bergantung pada contoh atau lafaz Arab, dinilai saat menulis skrip). Bila tidak, ADR menyatakan kitab itu tanpa audio
 - [ ] **MCP:** `list_works` memuat kitab ini; `read_page`, `search_text`, dan `get_section_digest` bekerja (uji lewat `bash .github/scripts/uji-mcp.sh`); instruksi server menyebut korpus umum (≤ 2.000 karakter, ADR-126)
@@ -52,13 +52,18 @@ Dipakai sama untuk ketiga kitab. Butir yang tidak berlaku hanya boleh dikecualik
 5. **`WorkConfig` Bidayah** (`tools/ingest/src/works/bidayah.ts`): ID karya dan edisi baru; penulis memakai `author.id` yang sama dengan Ihya (al-Ghazali); slug `bidayat-al-hidayah`; satu jilid (juz 1); `llmCoverage: 0` sampai X31b.
 6. **Alat yang masih khusus Ihya** dijadikan per karya: `tools/ingest/src/cli.ts` (`IHYA`, `IHYA_AUDIO_MANIFEST`), `tools/ingest/src/qa.ts` (impor `IHYA`, seed 9472), `tools/ingest/src/llm/cli.ts` (`expectedRows(IHYA…)`), dan `tools/ingest/src/llm/digest-cli.ts`. Audit sisanya dengan `git grep -n -i -E "'ihya'|\"ihya\"|IHYA|9472|edition_id 1" -- apps packages tools plugins`. Perbaiki yang membuat kitab kedua salah tampil atau salah atribusi (catatan takhrij al-'Iraqi hanya untuk `ihya/dar-al-marifah`, filter rub'/kitab di Cari, `CITE_AUTHOR`, instruksi MCP). Yang khusus Ihya dan benar dibiarkan.
 7. **Web dan MCP:** entri `works.ts` (blurb, sitasi, penerbit, sumber edisi, `/lisensi`); Bidayah keluar dari "Segera hadir"; `/kitab` mendaftar semua kitab tayang; `list_works` memuat dua karya. Instruksi MCP: hanya baris korpus dan kalimat takhrij yang diubah menjadi umum. Perubahan faktual ini ditandai untuk ditinjau ustadz kemudian (ADR-135 butir 8). Sitemap memuat halaman Bidayah.
-8. Di mesin agent: build, lalu `corpus:load:staging` **atas izin pemilik**, `corpus:qa staging` untuk Bidayah, dan cek pembaca serta Cari di staging.
+8a. **Persiapan sebelum staging tanpa Ihya** (temuan peninjau 2026-11-26, ADR-142 Dampak). Tanpa langkah ini muat staging gagal, dan CI Preview setiap PR menjadi merah:
+   - smoke D1 di `tools/ingest/src/d1.ts` (`SMOKE_PAGE`: Ihya j1 h200 + catatan kaki; dipakai `corpus:load:*` dan promote) dijadikan per kitab, dengan halaman contoh di `WorkConfig` dan cek catatan kaki hanya untuk kitab `classical`;
+   - e2e Preview (`apps/web/e2e/*`, 9 spec memakai `/kitab/ihya/…`) dan `.github/scripts/uji-mcp.sh` (Preview + deploy) tidak lagi bergantung pada Ihya: pindah ke Bidayah, atau dilewati bila kitabnya tidak ada;
+   - buktikan dengan `pnpm corpus:load:local` lalu `pnpm test:e2e` lokal.
+8. Di Mac (ADR-142; semula mesin agent): build, lalu `corpus:load:staging` **atas izin pemilik**, `corpus:qa staging` untuk Bidayah, dan cek pembaca serta Cari di staging.
 
 **Selesai bila:**
 - [x] `pnpm verify` lolos
-- [ ] build memuat Ihya + Bidayah; sidik teks membuktikan ID Ihya tidak berubah (lolos di Mac tanpa data AI Ihya: `tools/ingest/test/multi-kitab.test.ts`; build lengkap dengan data AI menunggu T-36)
-- [ ] `pnpm run corpus:qa staging` Bidayah 30/30 (menunggu T-36)
-- [ ] `curl` staging `/kitab/bidayat-al-hidayah/1/25` → 200, dan satu kueri Arab Bidayah di `/api/search` mengembalikan halaman Bidayah (lolos di D1 lokal; staging menunggu T-36)
+- [ ] ~~build memuat Ihya + Bidayah; sidik teks membuktikan ID Ihya tidak berubah~~ diganti ADR-142 butir 8 (Ihya diarsipkan; tidak dicentang)
+- [x] build bawaan (Bidayah) lolos semua gerbang: `pnpm ingest korpus` di Mac → 1 kitab, semua invarian ✓, 0,8 dtk, sha256 `95d8cccc…` (2026-11-26)
+- [ ] `pnpm run corpus:qa staging` Bidayah 30/30 (menunggu izin muat staging)
+- [ ] `curl` staging `/kitab/bidayat-al-hidayah/1/25` → 200, dan satu kueri Arab Bidayah di `/api/search` mengembalikan halaman Bidayah (lolos di D1 lokal; staging menunggu izin muat staging)
 - [x] ADR catatan kaki, ADR versi korpus (berikut penyimpangan reset), dan keputusan halaman ganda Ajurrumiyyah tertulis (ADR-137, ADR-138, ADR-139)
 - [x] STATUS, LOG, dan bagian ini diperbarui
 
@@ -70,7 +75,14 @@ Dipakai sama untuk ketiga kitab. Butir yang tidak berlaku hanya boleh dikecualik
 4. **Audio:** nilai kriteria audio; bila lolos, skrip Intisari → ElevenLabs (T-29, **izin biaya**), sorotan kalimat (X18) bila timestamps tersedia.
 5. **Terjemahan Inggris** (opsional, bukan syarat selesai): lewat skill `terjemah-inggris` bila antrean X26 berjalan.
 6. **Tampil:** tambahkan rincian atribusi Bidayah ke `EDITION_CREDITS` (/lisensi), hentikan suara minat untuk slug ini di `/api/minat-kitab`, ubah status ledger ke `tayang` (syarat promote, ADR-137 butir 6), dan pertimbangkan label "Halaman 25" tanpa "Juz 1" untuk kitab satu jilid.
-7. Promote atas izin pemilik. Promote ini juga menayangkan patch ayat X29 (keputusan pemilik 2026-11-26), jadi sebelum promote: 153 paragraf Ihya yang terjemahannya gugur oleh patch diterjemahkan ulang di batch yang sama dengan langkah 1, dan cek X29 (rujukan ayat 2.693, terjemahan Ihya ≥ 99%) ikut di curl produksi.
+7. **Promote pertama Gelombang 1 = Ihya turun** (ADR-142 butir 3 dan 7), atas izin pemilik. Di PR yang sama atau sebelumnya:
+   - landing (`apps/web/src/lib/landing-data.ts`: `LANDING_WORK`, `HERO_QUOTE`, `SEARCH_DEMO_IDS` diganti paragraf Bidayah, disalin kode dari DB; teks `i18n/id/landing.ts`);
+   - halaman MCP (`i18n/id/mcp.ts`), `/lisensi` dan `data/ATTRIBUTION.md` (Ihya ditandai diarsipkan), daftar audio `apps/media`, sitemap;
+   - CI produksi: `.github/workflows/deploy.yml` (cek `/kitab/ihya/1/200` dan `uji-mcp.sh … redaksi` dengan section Ihya; bila gagal, deploy MCP tidak jalan) dan `eval.yml` (eval Cari Ihya di staging);
+   - rollback sesudah promote ini = revert PR promote (binding dan kode web sekaligus), bukan hanya `--switch-only`;
+   - URL lama `/kitab/ihya/…`: putuskan halaman "diarsipkan" dengan `noindex` atau 410, lalu tulis pilihannya di sini.
+
+   Patch ayat X29 dan terjemahan ulang 153 paragraf Ihya **dibatalkan** (ADR-142 butir 6).
 8. Tulis **catatan cetakan** di "Catatan hasil": urutan langkah yang ternyata perlu, waktu, dan biaya nyata.
 
 **Selesai bila:** semua butir "Definisi selesai" untuk Bidayah tercentang dengan bukti perintah · catatan cetakan tertulis · biaya nyata tercatat di LOG.
@@ -110,7 +122,7 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
 ## Di luar cakupan
 
 - Jawab/Maknaz dan syarat R4 (eval, judge, label status hadits): tetap mati dan tidak dikerjakan di gelombang ini (ADR-135)
-- Perbaikan Ihya selain bug yang merusak tampilan (daftar parkir di ADR-135)
+- Semua pekerjaan Ihya: Ihya diarsipkan (ADR-142), termasuk patch ayat X29
 - Rilis Fase 5 atau Fase 7 (gelombang ini tidak mengklaim syarat rilis keduanya; lihat ADR-135 "Menyimpang dari rencana")
 - Kitab lain (al-Munqidz, Mutammimah, syarah), Jalur, Faedah, halaman `/en`
 - OCR dan kitab tanpa versi OpenITI
@@ -129,4 +141,17 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
 - **Dipindah ke X31b (terbuka, ADR-137 butir 8):** alat batch LLM (`pnpm llm`, `pnpm llm intisari`) dan alat audio masih khusus Ihya (±45 tempat: folder kerja, tautan, laporan). Baru dibutuhkan saat batch Bidayah.
 - **Temuan untuk X31c/X31d:** catatan kaki Tibyan dan Ajurrumiyyah dari pentahqiq modern (ADR-138, tidak dimuat); Ajurrumiyyah 31 halaman Shamela = 19 nomor cetak, digabung per nomor (ADR-139). Berkas Shamela 12718 dan 11371 tidak punya kolom `is_deleted`; sudah didukung.
 - **Catatan:** Next.js 16.4.2 menampilkan peringatan kerentanan keamanan saat `next dev` (rujukan advisori npm). Tidak ditindaklanjuti di sesi ini; diusulkan sebagai sesi terpisah.
-- **Berikutnya:** T-36 (build + staging di mesin agent), lalu X24, lalu X31b.
+- **Berikutnya (semula):** T-36 (build + staging di mesin agent), lalu X24, lalu X31b.
+
+### X31a lanjutan: Ihya diarsipkan (2026-11-26, ADR-142)
+
+- **Keputusan pemilik:** tiga kitab kecil dulu, Ihya diarsipkan dan turun dari surau.org. Waktunya: saat promote pertama Gelombang 1, kecuali pemilik minta lebih awal. T-36 dibatalkan.
+- **Kode:**
+  - ledger mendapat status `arsip`, dan Ihya kini `arsip`;
+  - `CORPUS` bawaan = `[BIDAYAH]`;
+  - promote menolak build yang menghilangkan kitab berstatus `tayang` (`droppedReleasedWorks`).
+- **Bukti:**
+  - `pnpm ingest korpus` di Mac → korpus `kitab-v10` berisi 1 kitab, semua gerbang ✓, sha256 `95d8cccc…`;
+  - `vp test tools/ingest/src/works` → 5 tes lolos.
+- **Peninjau:** smoke D1, e2e Preview, dan `uji-mcp.sh` masih khusus Ihya, jadi ditambahkan langkah 8a sebelum muat staging. `pnpm ingest ihya` kini ditolak dengan saran, `corpus:qa` wajib `--kitab`, tes lokal Ihya dilewati bila korpus lokal tanpa Ihya, dan tes pengaman promote memakai ledger sintetis.
+- **Berikutnya:** langkah 8a, lalu muat staging + `corpus:qa staging --kitab bidayat-al-hidayah` (izin pemilik), lalu X24, lalu X31b.

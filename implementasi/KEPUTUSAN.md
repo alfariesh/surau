@@ -151,6 +151,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 139 | Halaman Shamela berurutan dengan nomor cetak sama digabung menjadi satu halaman Surau (al-Ajurrumiyyah: 31 halaman sumber, 19 nomor cetak); implementasi di X31d | diterima | 2026-11-26 | [keputusan/ADR-139.md](keputusan/ADR-139.md) |
 | 140 | Patch keamanan Next 16.4.6 + OpenNext 1.20.17 (7 advisori moderate ditambal 16.4.5; tanpa lompat ke 16.5; 1.20.18 regresi, 1.20.19 belum 24 jam) | diterima | 2026-11-26 | [keputusan/ADR-140.md](keputusan/ADR-140.md) |
 | 141 | Patch keamanan Hono 4.13.22 di `apps/api` (5 advisori ditambal 4.13.16); `figlet` (CLI HeroUI Pro, bukan runtime) dicatat tanpa override | diterima | 2026-11-26 | [keputusan/ADR-141.md](keputusan/ADR-141.md) |
+| 142 | Ihya diarsipkan (ledger `arsip`): korpus bawaan Gelombang 1 tanpa Ihya, dibangun di Mac (ADR-135 butir 5 dicabut); Ihya turun dari produksi saat promote pertama Gelombang 1; promote menolak build yang menghilangkan kitab `tayang` | diterima | 2026-11-26 | [keputusan/ADR-142.md](keputusan/ADR-142.md) |
 
 ## Cara menambah ADR baru
 

@@ -46,7 +46,7 @@ import {
   rollbackSchemaProblem,
 } from "./promote-plan.ts";
 import type { RemoteDb } from "./promote-plan.ts";
-import { readLedger, unreleasedWorks } from "./works/ledger.ts";
+import { droppedReleasedWorks, readLedger, unreleasedWorks } from "./works/ledger.ts";
 
 function listDatabases(): RemoteDb[] {
   return JSON.parse(wrangler(["d1", "list", "--json"])) as RemoteDb[];
@@ -180,7 +180,18 @@ function main(argv: string[]): number {
   // Kitab yang belum lolos "Definisi selesai" (ledger bukan `tayang`) tidak ikut ke produksi tanpa
   // izin eksplisit (ADR-137 butir 6): bangun ulang dengan `--kitab`, atau tandai `tayang` di ledger
   // dalam PR yang sama dengan promote, atau tambah `--kitab-baru`.
-  const unreleased = unreleasedWorks(readLedger(repo), build.works);
+  const ledger = readLedger(repo);
+  // Kitab yang tayang tidak boleh hilang diam-diam dari produksi: ubah statusnya ke `arsip` dulu
+  // (ADR-142). Tanpa flag pengecualian.
+  const dropped = droppedReleasedWorks(ledger, build.works);
+  if (dropped.length > 0) {
+    console.error(
+      `Build tidak memuat kitab yang berstatus "tayang" di data/kitab/ledger.yaml: ${dropped.join(", ")}. ` +
+        "Bangun ulang dengan kitab itu, atau ubah statusnya ke `arsip` lewat PR (ADR-142).",
+    );
+    return 1;
+  }
+  const unreleased = unreleasedWorks(ledger, build.works);
   if (unreleased.length > 0 && !values["kitab-baru"]) {
     console.error(
       `Build memuat kitab yang belum berstatus "tayang" di data/kitab/ledger.yaml: ${unreleased.join(", ")}. ` +

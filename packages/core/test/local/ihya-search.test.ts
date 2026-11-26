@@ -77,6 +77,8 @@ describe.skipIf(!hasState)("pencarian Ihya di D1 lokal (regresi recall 18 kueri 
         throw e;
       },
     );
+    // Korpus lokal tanpa Ihya (korpus bawaan sejak ADR-142) juga bisa memuat "الصبر": lewati.
+    ready &&= (await db.prepare("SELECT 1 FROM work WHERE slug = 'ihya'").first()) !== null;
     if (!ready) return;
     const row = z.object({ id: z.number(), page_id: z.number(), text_raw: z.string() });
     for (let from = 0; ; from += 5000) {

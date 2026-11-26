@@ -1,6 +1,7 @@
-// Daftar kitab yang dibangun ke satu korpus D1 (X31a, ADR-137). Urutan = urutan build; ID karya,
-// edisi, dan slug wajib unik (dicek ingest). Kitab yang belum lolos "Definisi selesai" (X31) tidak
-// boleh ikut promote ke produksi: bangun dengan `--kitab ihya` bila promote dilakukan lebih dulu.
+// Kitab yang dikenal ingest (X31a, ADR-137) dan korpus bawaan. ID karya, edisi, dan slug wajib unik
+// (dicek ingest). Ihya diarsipkan (ADR-142): konfigurasi, peta ID, dan sidik teksnya tetap di repo
+// supaya ID-nya beku bila kembali (`--kitab ihya` + ADR baru), tetapi tidak ikut korpus bawaan.
+// Kitab yang belum lolos "Definisi selesai" (X31) tidak boleh ikut promote (pengaman di promote.ts).
 import { BIDAYAH } from "./bidayah.ts";
 import type { CorpusConfig, WorkConfig } from "./config.ts";
 import { IHYA } from "./ihya.ts";
@@ -9,10 +10,11 @@ export type { CorpusConfig, WorkConfig } from "./config.ts";
 
 export const WORKS: readonly WorkConfig[] = [IHYA, BIDAYAH];
 
+/** Korpus bawaan Gelombang 1 (ADR-142): tanpa Ihya, jadi bisa dibangun di mesin mana pun. */
 export const CORPUS: CorpusConfig = {
   version: "kitab-v10",
   output: "surau-corpus-kitab-v10.sqlite",
-  works: WORKS,
+  works: [BIDAYAH],
 };
 
 /** Konfigurasi kitab menurut slug karya; galat yang menyebut slug yang tersedia. */

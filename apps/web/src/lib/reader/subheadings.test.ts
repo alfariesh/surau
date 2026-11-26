@@ -27,17 +27,21 @@ describe("daftar kurasi subjudul", () => {
   });
 });
 
-// Tes integrasi korpus lokal (dilewati bila data/build tidak berisi tepat satu korpus, mis. CI):
-// setiap entri kurasi cocok dengan text_raw dan dipotong tanpa mengubah satu karakter pun.
+// Tes integrasi korpus lokal (dilewati bila data/build tidak berisi tepat satu korpus yang memuat
+// Ihya, mis. CI atau korpus bawaan tanpa Ihya sejak ADR-142): setiap entri kurasi cocok dengan
+// text_raw dan dipotong tanpa mengubah satu karakter pun.
 const repo = resolve(import.meta.dirname, "../../../../..");
 const build = join(repo, "data/build");
 const files = existsSync(build)
   ? readdirSync(build).filter((f) => /^surau-corpus-.+\.sqlite$/.test(f))
   : [];
 
-describe.skipIf(files.length !== 1)("korpus lokal", () => {
-  const db =
-    files.length === 1 ? new DatabaseSync(join(build, files[0]!), { readOnly: true }) : null;
+const opened =
+  files.length === 1 ? new DatabaseSync(join(build, files[0]!), { readOnly: true }) : null;
+const hasIhya = opened?.prepare("SELECT 1 FROM work WHERE slug = 'ihya'").get() !== undefined;
+
+describe.skipIf(!hasIhya)("korpus lokal", () => {
+  const db = opened;
   const passageRow = (seq: number) => {
     const id = 10_000_000 + seq;
     const row = db!.prepare("SELECT text_raw FROM passage WHERE id = ?").get(id);
