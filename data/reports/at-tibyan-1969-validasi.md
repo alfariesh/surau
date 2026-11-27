@@ -51,7 +51,7 @@
 
 ## Penanda catatan kaki (١)
 
-- 0 penanda di badan teks; 0 tertaut ke catatan bernomor sama (`footnote_ref`).
+- 32 penanda di badan teks; 0 tertaut ke catatan bernomor sama (`footnote_ref`).
 - Penanda yatim (tanpa catatan): 0.
 - Penanda di dalam takhrij menempel (ikut terpotong, tidak ditautkan): 0. Penanda pembuka takhrij tetap di matan.
 - Catatan bawah halaman yang tidak dirujuk penanda matan (ditandai `footnote_orphan`): 0; 0 di antaranya karena penandanya ada di dalam takhrij menempel.

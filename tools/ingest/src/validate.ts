@@ -352,7 +352,11 @@ export function validate(input: ValidateInput): Validation {
       ),
     },
     footnotes: {
-      refs: pages.reduce((a, p) => a + p.links.length + p.orphanRefs.length, 0),
+      // Penanda kitab `modern_editor` tetap di badan walau tidak ditautkan (ADR-138).
+      refs: pages.reduce(
+        (a, p) => a + p.links.length + p.orphanRefs.length + p.droppedEditorNotes.markers,
+        0,
+      ),
       linked: pages.reduce((a, p) => a + p.links.length, 0),
       orphanRefs: pages.flatMap((p) => p.orphanRefs.map((m) => `${cite(p)} (${m.number})`)),
       orphanNotes: pages.reduce((a, p) => a + p.orphanNotes, 0),
