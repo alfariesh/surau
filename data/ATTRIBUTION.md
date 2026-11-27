@@ -93,6 +93,22 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 - HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
 
+## Rusum Dar al-Khilafah (Hilal ibn al-Muhassin ash-Shabi', w. 448 H)
+
+Korpus `kitab-v11` (X32, ADR-152), berstatus `staging` (belum tayang). Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0008173; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar ar-Ra'id al-'Arabi, Beirut, cetakan kedua 1986 M, tahqiq Mikha'il 'Awwad
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0450AH` commit `e344cfe20a206c9ded3edfa15d45b4f821a97b8a` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 8173). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/rusum-dar-al-khilafah-8173-openiti.md](reports/rusum-dar-al-khilafah-8173-openiti.md)) | https://shamela.ws/book/8173 |
+| **Dar ar-Ra'id al-'Arabi** (Beirut), tahqiq **Mikha'il 'Awwad** | Penerbit edisi cetak: satu jilid, cetakan kedua 1986 M. Nomor halaman di Surau mengikuti cetakan ini (halaman 3–142) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+
 ## al-Waraqat (Imam al-Haramain al-Juwaini, w. 478 H)
 
 Korpus `kitab-v11` (X32, ADR-152). Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
@@ -109,6 +125,7 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 - HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
 - Basmalah pembuka menjadi butir daftar isi tersendiri (ADR-152 butir 4); teksnya tidak diubah.
+- Edisi digital ini tidak memuat teks catatan kaki, mukadimah, atau lampiran pentahqiq. Dua penanda nomor catatan yang tersisa di teks utama tetap ada sebagai teks biasa tanpa tautan.
 
 ## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 
