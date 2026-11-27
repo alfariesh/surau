@@ -107,6 +107,17 @@ describe("unit terjemahan", () => {
     expect(new Set(units.map((u) => u.sourceSha256)).size).toBe(3);
   });
 
+  test("kitab tanpa catatan kaki tertaut (modern_editor, ADR-148): penanda dibuang dari teks model saja", () => {
+    const { units } = translationUnits({ ...rows, footnote_ref: [] });
+    const first = units[0];
+    expect(first?.masked.text).not.toContain("(١)");
+    expect(first?.masked.text).toContain("⟦QS 2:3⟧");
+    expect(first?.markers).toEqual([]);
+    // text_raw tidak berubah; kitab dengan catatan kaki tertaut tetap membawa penandanya.
+    expect(rows.passage[1]?.text_raw).toContain("(١)");
+    expect(translationUnits(rows).units[0]?.masked.text).toContain("(١)");
+  });
+
   test("rujukan ayat yang tidak bisa ditandai → paragraf diblokir, tidak dikirim", () => {
     const bad: UnitRows = {
       ...rows,

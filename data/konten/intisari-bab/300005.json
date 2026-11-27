@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300005,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:56:04+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p65-p69 dibaca ulang: hal pertama yang patut (bukan wajib) dipertahankan, tiga tanda ikhlas Dzun Nun dan ucapan al-Qusyairi serta al-Fudhail tepat; kata sebagian kecil diganti sebagian karena teks hanya menyebut sebagian dari banyak perkataan salaf."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p71-p76: daftar tujuan dunia, larangan mengharap keuntungan walau sedikit atau berbentuk hadiah, musibah sebagian pengajar yang bodoh, dan ucapan Ali ra. sesuai teks; penilaian sanad yang ditulis an-Nawawi sengaja tidak dimuat."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p78-p85: daftar akhlak, sambutan Abu Sa'id, nasihat, perlakuan murid seperti anak dan alasan rentan kekurangan terutama yang kecil sesuai teks; batas wajah cerah tanpa kelewat batas dan larangan banyak tertawa dirapikan agar tidak tercampur."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p89-p95: fardu kifayah, menjadi tanggungan satu orang bila hanya ia yang layak, pendapat yang lebih kuat tidak berdosa tetapi makruh tanpa uzur, batas pujian dan teguran, serta nukilan para ulama tentang niat sesuai teks; syarat saat ramai ditambahkan."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p87, p97-p99: pendidikan bertahap, adab duduk, dua rakaat lebih ditekankan di masjid, tidak mendatangi tempat murid walau khalifah, dan majelis luas sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p103-p107: penyucian hati, tawaduk walau guru lebih muda, perumpamaan pasien dan dokter, syarat guru, ucapan Ibnu Sirin dan Malik, hak guru dari Ali ra., dan membela atau meninggalkan majelis sesuai teks; p110 dikeluarkan dari dasar karena isinya tidak dibahas."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p111-p118: waktu membaca, sabar dan takwil atas sikap guru, ketekunan tanpa melebihi kemampuan, ucapan Umar ra., makruhnya mendahulukan orang lain dalam ibadah, serta cara menolak ujub sesuai teks; pengecualian bila guru melihat maslahat dikembalikan."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "25a85876ef85b37e6954ff24061664bd15450cdfebfa2eb6d51d82b9b8953aa2",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "'Tandanya ada tiga' membaca bilangan Dzun Nun sebagai himpunan lengkap; teksnya 'tiga di antara tanda-tanda ikhlas' (p67)."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tujuan dunia, larangan mengharap keuntungan walau hadiah, musibah pengajar bodoh, nukilan Ali ra. sesuai teks."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "'Menghindari banyak tertawa dan bercanda' menukar kata 'banyak': teks menyebut menjauhi tertawa dan banyak bercanda (p78)."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Pengecualian bila murid pertama rela mendahulukan orang lain (p94) dan syarat teguran 'selama tidak dikhawatirkan murid lari' (p93) tidak disebut."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Pendidikan bertahap, adab duduk, dua rakaat, tidak mendatangi tempat murid, majelis luas sesuai p87, p97-p99."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Penyucian hati, rendah hati, perumpamaan dokter, syarat guru, ucapan Ibnu Sirin dan Malik, tambahan an-Nawawi tepat."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Waktu membaca, sabar, ucapan Umar ra., makruh mendahulukan orang lain dalam ibadah dengan pengecualian, cara menolak ujub tepat."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "64e2cd1d55ce13f49b3d5d8f9579d6de4d1e2eb1c684149b7b72bc23854898ef",
+      "draf_sha256": "25a85876ef85b37e6954ff24061664bd15450cdfebfa2eb6d51d82b9b8953aa2",
+      "waktu": "2026-11-27T04:00:31.965Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut an-Nawawi, pengajar dan pelajar Al-Qur'an sama-sama hendaknya mengikhlaskan niat untuk Allah, lalu menghiasi diri dengan adab: pengajar menyayangi muridnya, dan murid menghormati serta bersabar terhadap gurunya.",
+    "ringkasan": "An-Nawawi menyebut bab ini bersama dua bab sesudahnya sebagai tujuan kitab, lalu meringkasnya dalam beberapa fasal. Ia mulai dengan ikhlas dan menukil banyak definisi ikhlas dari para salaf. Pengajar diingatkan agar tidak mengejar dunia atau banyaknya murid, berakhlak mulia, lembut, tulus menasihati, dan memperlakukan murid seperti anaknya. Ia menyebut hukum mengajar dan cara mengajar yang adil, serta adab pengajar di majelis. Bagian akhir beralih ke adab murid: menyucikan hati, rendah hati, memilih guru yang layak, beradab di majelis, sabar atas sikap guru, tekun belajar, dan menjauhi dengki serta ujub.",
+    "gagasan": [
+      {
+        "judul": "Pengajar dan pembaca Al-Qur'an pertama-tama hendaknya mencari rida Allah, menurut an-Nawawi",
+        "isi": "An-Nawawi menyatakan bahwa hal pertama yang patut bagi pengajar dan pembaca Al-Qur'an ialah bermaksud mencari rida Allah. Ia berdalil dengan ayat dan hadits tentang niat, yang ia sebut salah satu pokok Islam. Ia lalu menukil banyak definisi ikhlas: menurut al-Qusyairi, mengesakan Allah dalam ketaatan tanpa mengharap pujian makhluk; menurut Dzun Nun, tandanya ada tiga, yaitu sama saja dipuji atau dicela orang awam, lupa melihat amal sendiri, dan mengharap pahala di akhirat; menurut al-Fudhail, meninggalkan amal karena manusia adalah riya dan beramal karena manusia adalah syirik. Ia menyebut nukilan ini hanya sebagian dari banyak perkataan salaf.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000065, 30000066, 30000067, 30000068, 30000069],
+        "soal": {
+          "tanya": "Apa saja tiga tanda ikhlas menurut Dzun Nun yang dinukil an-Nawawi?",
+          "jawab": "Sama saja dipuji atau dicela orang awam, lupa melihat amal sendiri, dan mengharap pahala amal di akhirat."
+        }
+      },
+      {
+        "judul": "Tidak rela murid belajar kepada pengajar lain tanda niat buruk, menurut an-Nawawi",
+        "isi": "Menurut an-Nawawi, pengajar hendaknya tidak bermaksud meraih tujuan dunia, seperti harta, jabatan, kedudukan, mengungguli teman, atau pujian, dan tidak mengharap keuntungan dari muridnya walau sedikit, termasuk hadiah yang tidak akan diberikan seandainya murid itu tidak belajar kepadanya. Ia juga memperingatkan keinginan memperbanyak murid dan rasa tidak suka bila murid belajar kepada pengajar lain yang bermanfaat. Ia menyebut hal itu musibah sebagian pengajar yang bodoh dan bukti buruknya niat; pengajar yang ikhlas akan berkata bahwa ia sudah meraih ketaatan dengan mengajar. Ia menukil ucapan Ali ra. tentang orang yang marah bila teman duduknya pindah ke majelis lain.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000071, 30000072, 30000074, 30000076],
+        "soal": {
+          "tanya": "Apa yang ditunjukkan oleh pengajar yang tidak suka muridnya belajar kepada pengajar lain, menurut an-Nawawi?",
+          "jawab": "Itu bukti buruknya niat dan tanda ia tidak mengajar karena Allah."
+        }
+      },
+      {
+        "judul": "Pengajar berakhlak mulia dan menyayangi murid seperti anaknya, menurut an-Nawawi",
+        "isi": "An-Nawawi menganjurkan pengajar berakhlak mulia: zuhud, dermawan, wajah cerah tanpa kelewat batas, menghindari banyak tertawa dan bercanda, sabar, wara', tawaduk, menjaga kebersihan diri, serta waspada terhadap dengki, riya, ujub, dan meremehkan orang lain. Ia hendaknya menyambut muridnya dengan lembut, sebagaimana Abu Sa'id al-Khudri menyambut para pelajar dengan wasiat Nabi saw., dan tulus menasihati mereka sebagai bagian dari nasihat bagi Allah dan kitab-Nya. Menurutnya, pengajar memperhatikan kepentingan murid seperti kepentingan anaknya, sabar atas kekasarannya, dan memaafkan kurangnya adab sesekali, apalagi bila masih kecil. Ia juga mencintai bagi murid apa yang ia cintai bagi dirinya dan tidak bersikap angkuh kepada mereka.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000078, 30000079, 30000081, 30000083, 30000084, 30000085],
+        "soal": {
+          "tanya": "Bagaimana an-Nawawi menganjurkan pengajar menyikapi murid yang kurang beradab sesekali?",
+          "jawab": "Pengajar bersabar atas kekasarannya dan memaafkannya, karena manusia rentan kekurangan, apalagi bila masih kecil."
+        }
+      },
+      {
+        "judul": "Mengajar itu fardu kifayah dan dijalankan dengan adil sesuai kemampuan murid, menurut an-Nawawi",
+        "isi": "An-Nawawi menyatakan bahwa mengajar murid hukumnya fardu kifayah: bila hanya satu orang yang layak, kewajiban itu menjadi tanggungannya; bila semua menolak, semuanya berdosa. Bila seorang diminta lalu menolak, menurut pendapat yang lebih kuat dari dua pendapat ia tidak berdosa, tetapi makruh bila tanpa uzur. Pengajar dianjurkan bersemangat mengajar, mengosongkan hati saat mengajar, memberi tiap murid sesuai kemampuannya, memuji yang cemerlang selama tidak dikhawatirkan ujub, dan menegur yang lalai dengan lembut. Saat murid ramai, ia mendahulukan yang datang lebih dulu. Ia menukil para ulama bahwa seseorang tidak ditolak belajar karena niatnya belum lurus.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000089, 30000090, 30000092, 30000093, 30000094, 30000095],
+        "soal": {
+          "tanya": "Menurut an-Nawawi, kapan kewajiban mengajar menjadi tanggungan satu orang tertentu?",
+          "jawab": "Bila tidak ada yang layak mengajar kecuali satu orang itu."
+        }
+      },
+      {
+        "judul": "Pengajar menjaga wibawa majelis dan kemuliaan ilmu, menurut an-Nawawi",
+        "isi": "An-Nawawi menganjurkan pengajar mendidik murid secara bertahap dengan adab yang luhur dan mendorongnya, lewat ucapan dan perbuatan, kepada ikhlas, jujur, dan merasa diawasi Allah. Di antara adab pengajar yang ia tekankan: menjaga tangan dari main-main dan pandangan dari berkeliaran tanpa perlu, duduk dalam keadaan suci menghadap kiblat dengan tenang, berpakaian putih bersih, dan shalat dua rakaat sebelum duduk, lebih ditekankan lagi bila di masjid. Pengajar juga tidak merendahkan ilmu dengan mendatangi tempat murid untuk mengajarnya, walau murid itu khalifah, sebagaimana salaf menjaganya. Majelisnya hendaknya luas agar para hadirin leluasa.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000087, 30000097, 30000098, 30000099],
+        "soal": {
+          "tanya": "Mengapa pengajar tidak mendatangi tempat murid untuk mengajarnya di sana, menurut an-Nawawi?",
+          "jawab": "Supaya tidak merendahkan ilmu, sebagaimana salaf menjaga ilmu dari hal itu, walau muridnya seorang khalifah."
+        }
+      },
+      {
+        "judul": "Murid belajar hanya dari guru yang layak dan menghormatinya, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut seluruh adab pengajar bagi dirinya juga adab murid. Murid hendaknya menyucikan hati agar layak menerima Al-Qur'an, rendah hati kepada gurunya walau guru lebih muda atau kurang terkenal, dan menerima nasihatnya seperti pasien berakal menerima kata dokter. Ia belajar hanya dari orang yang kelayakan, agama, dan ilmunya jelas, dan menurut Ibnu Sirin serta Malik, ilmu ini adalah agama sehingga perlu dilihat dari siapa diambil. Ia menukil daftar hak guru dari Ali ra. dan menambahkan bahwa murid membela gurunya dari gunjingan, atau meninggalkan majelis itu bila tak mampu. Murid masuk dengan suci, meminta izin, dan tidak melangkahi pundak orang.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000103, 30000104, 30000105, 30000106, 30000107],
+        "soal": {
+          "tanya": "Apa yang dilakukan murid bila ia tidak mampu membela gurunya dari gunjingan, menurut an-Nawawi?",
+          "jawab": "Ia meninggalkan majelis tempat gunjingan itu."
+        }
+      },
+      {
+        "judul": "Murid bersabar atas sikap guru dan tekun belajar, menurut an-Nawawi",
+        "isi": "Menurut an-Nawawi, murid tidak membaca kepada guru saat hati guru sedang sibuk, jemu, mengantuk, atau semacamnya, dan memanfaatkan saat guru bersemangat. Ia menanggung kekasaran guru, menakwilkan perbuatan guru yang tampak keliru dengan takwil yang benar, dan bila guru bersikap kasar ia sendiri yang lebih dulu meminta maaf. Murid tekun belajar, tidak puas dengan sedikit padahal mampu banyak, tetapi juga tidak membebani diri melebihi kemampuan. Ia menukil ucapan Umar ra. agar orang mendalami ilmu sebelum menjadi pemimpin. Murid tidak memberikan gilirannya kepada orang lain, karena mendahulukan orang lain dalam ibadah makruh, kecuali bila guru melihat maslahatnya, dan tidak mendengki teman atau ujub dengan karunia Allah.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000111, 30000112, 30000115, 30000116, 30000117, 30000118],
+        "soal": {
+          "tanya": "Bagaimana cara murid menolak ujub menurut an-Nawawi?",
+          "jawab": "Mengingatkan dirinya bahwa yang ia raih bukan karena daya dan kekuatannya, tetapi karunia dari Allah."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 30000079,
+        "char_start": 0,
+        "char_end": 244,
+        "terjemahan": "Hendaklah ia benar-benar waspada terhadap dengki, riya, ujub, dan meremehkan orang lain walaupun orang itu di bawahnya. Hendaknya ia mengamalkan hadits-hadits tentang tasbih, tahlil, dan zikir serta doa sejenisnya, merasa diawasi Allah dalam rahasia dan terang-terangan, menjaga hal itu, dan menjadikan Allah Swt. sandarannya dalam semua urusan."
+      },
+      {
+        "gagasan": 4,
+        "passage_id": 30000092,
+        "char_start": 1,
+        "char_end": 96,
+        "terjemahan": "Fasal. Dianjurkan bagi pengajar untuk bersemangat mengajar mereka, mendahulukan hal itu atas kepentingan duniawinya yang tidak mendesak."
+      }
+    ],
+    "istilah": []
+  }
+}

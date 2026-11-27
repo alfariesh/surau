@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300032,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:56:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p154, p157, p163, p170-p171: ikhlas dan munajat, siwak kayu arak, boleh tanpa wudu menurut ijmak dengan nukilan Imam al-Haramain, junub dan haid walau kurang dari satu ayat, serta masjid sebagai anjuran sebagian ulama sesuai teks; advice karena anjuran an-Nawawi sendiri."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p182-p184, p197, p199, p203: salaf mengulang satu ayat sampai pagi, pingsan dan wafat, negasi kecuali yang mengaku dibuat-buat dipertahankan, cara al-Ghazali dinukil, tartil disepakati dan anjuran bagi non-Arab dinisbahkan kepada ulama yang dinukil."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p224-p227: pengingkaran adh-Dhahhak dan Malik (satu surah bersama sampai khatam) dibantah an-Nawawi sebagai menyalahi salaf, khalaf, dan dalil sehingga ditinggalkan, batasan syarat dan penilaian idarah boleh dan baik ada; sikap refuted tepat."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p229-p230, p233-p235: kompromi al-Ghazali dan ulama lain dinukil lalu disetujui an-Nawawi, alasan mengeraskan, batasan tidak takut riya atau ujub dan tidak mengganggu orang shalat, serta penguatan bila berjamaah sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p236, p238-p241: ijmak memperindah suara, batas menambah atau menyembunyikan huruf dari ulama yang dinukil, rincian al-Mawardi (fasik bagi pembaca, mubah bila lafaz tidak berubah), dan penilaian bid'ah serta usaha an-Nawawi sesuai teks; frasa usaha dirapikan menjadi sebagian kemampuan."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p291-p293, p295, p309: ijmak atas perintah, jumhur tidak wajib dan Abu Hanifah wajib, kisah Umar dua Jumat, jawaban an-Nawawi tanpa mengutip isi ayat, empat belas sujud, dan Shad bukan sujud yang ditekankan sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p364-p367, p370: puasa hari khatam dengan pengecualian hari terlarang, tiga tabiin Kufah, Ibnu Abbas dan Anas, doa dan rahmat saat khatam, doa untuk kaum muslimin dan pemimpinnya, serta memulai khatam baru menurut salaf sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "9323568a7cb3ad3895915d0751a34fa392cd1a1613ec57d4d2cde25feb5ab980",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Ikhlas, siwak, boleh tanpa wudu menurut ijmak, haram bagi junub dan haid, masjid sebagai anjuran sebagian ulama sesuai p154-p171."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Negasi 'kecuali yang mengaku dibuat-buat' dipertahankan (p184); salaf mengulang satu ayat, tartil disepakati (p197-p203)."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Sikap refuted tepat: pengingkaran adh-Dhahhak dan Malik dinyatakan an-Nawawi menyalahi salaf dan dalil (p225-p227)."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Kompromi al-Ghazali disetujui an-Nawawi (p230, p235); syarat tidak takut riya dan tidak mengganggu orang shalat ada."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Ijmak tahsin (p236), batas huruf dinisbahkan ke ulama, haram dan fasik ke al-Mawardi (p238-p241)."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Jumhur tidak wajib vs Abu Hanifah wajib (p291-p293), empat belas sujud (p295), Shad tidak ditekankan (p309)."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Puasa hari khatam dengan pengecualian, tiga tabiin Kufah, doa saat khatam, khatam baru dianjurkan salaf (p364-p370)."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "32a6bd555da09bac758459e68807b473d0e82af5a3a13568c77fd83cce4041b9",
+      "draf_sha256": "9323568a7cb3ad3895915d0751a34fa392cd1a1613ec57d4d2cde25feb5ab980",
+      "waktu": "2026-11-27T04:00:50.430Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut an-Nawawi, adab membaca Al-Qur'an berpusat pada ikhlas, kesucian, khusyuk, dan tadabbur, lalu dirinci dengan fikih cara membaca, mengeraskan dan memperindah suara, sujud tilawah, serta khatam.",
+    "ringkasan": "An-Nawawi menyebut bab ini maksud utama kitabnya. Ia mulai dari adab persiapan: ikhlas, siwak, bersuci, tempat yang bersih, dan menghadap kiblat. Lalu ia membahas ta'awudz, basmalah, khusyuk, tadabbur, menangis, dan tartil, kemudian penghormatan terhadap majelis bacaan, pendapatnya bahwa Al-Qur'an tidak boleh dibaca dengan bahasa selain Arab atau qiraah syadz, urutan mushaf, membaca bersama, mengeraskan dan memperindah suara, adab berhenti, keadaan yang dimakruhkan, dan bid'ah dalam bacaan. Bagian panjang berikutnya berisi fikih bacaan dalam shalat dan sujud tilawah, disusul waktu terbaik membaca dan adab khatam.",
+    "gagasan": [
+      {
+        "judul": "Pembaca hendaknya ikhlas, bersiwak, suci, dan memilih tempat bersih, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut bab ini maksud utama kitabnya dan hanya menunjuk sebagian adabnya agar tidak memanjang. Yang pertama ikhlas dan menjaga adab, yaitu menghadirkan dalam diri bahwa ia sedang bermunajat kepada Allah Swt. Hendaknya ia membersihkan mulut dengan siwak, yang terpilih dari kayu arak. Ia menganjurkan membaca dalam keadaan suci; membaca tanpa wudu boleh menurut ijmak, dan menurut nukilannya dari Imam al-Haramain hal itu hanya meninggalkan yang lebih utama, sedangkan bagi orang junub dan haid ia menyebut membaca diharamkan walau kurang dari satu ayat. Sebagian ulama menganjurkan membaca di masjid karena bersih, mulia, dan bisa sekaligus berniat iktikaf.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000154, 30000157, 30000163, 30000170, 30000171],
+        "soal": {
+          "tanya": "Apa yang menurut an-Nawawi hendaknya dihadirkan pembaca dalam dirinya ketika membaca Al-Qur'an?",
+          "jawab": "Bahwa ia sedang bermunajat kepada Allah dan membaca seperti orang yang melihat-Nya."
+        }
+      },
+      {
+        "judul": "Khusyuk dan tadabbur adalah tujuan membaca, dan tartil menopangnya, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut khusyuk dan tadabbur sebagai maksud yang dituju, yang melapangkan dada dan menerangi hati. Ia menukil bahwa sebagian salaf semalaman mengulang satu ayat sampai pagi, sebagian pingsan, dan sebagian wafat saat membaca, seperti Zurarah bin Aufa. Tentang orang yang menjerit dan pingsan saat mendengar Al-Qur'an, yang diingkari sebagian ulama, ia berpendapat yang benar tidak mengingkarinya kecuali pada orang yang mengaku melakukannya karena dibuat-buat. Ia menukil cara al-Ghazali menghadirkan tangis dengan merenungi ancaman dan kelalaian diri. Ulama sepakat menganjurkan tartil, Ibnu Mas'ud mengecam bacaan yang terlalu cepat, dan para ulama yang ia nukil menganjurkan tartil bahkan bagi non-Arab yang tidak paham maknanya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000182, 30000183, 30000184, 30000197, 30000199, 30000203],
+        "soal": {
+          "tanya": "Siapa yang menurut an-Nawawi boleh diingkari karena menjerit dan pingsan saat mendengar Al-Qur'an?",
+          "jawab": "Hanya orang yang mengakui bahwa ia melakukannya karena dibuat-buat."
+        }
+      },
+      {
+        "judul": "Penolakan adh-Dhahhak dan Malik atas membaca bersama ditinggalkan, menurut an-Nawawi",
+        "isi": "An-Nawawi menyatakan membaca Al-Qur'an bersama-sama dianjurkan berdasarkan dalil yang jelas dan amalan salaf serta khalaf, dan ia menukil sabda tentang kaum yang berkumpul membaca dan mempelajari Kitab Allah lalu turun kepada mereka ketenangan dan rahmat. Ia menyebut adh-Dhahhak bin Abdurrahman mengingkari kebiasaan itu dan Malik mencela orang yang membaca satu surah bersama-sama sampai khatam. Menurut an-Nawawi, pengingkaran keduanya menyalahi amalan salaf dan khalaf serta tuntutan dalil, sehingga ditinggalkan, tetapi membaca bersama punya syarat yang perlu dijaga. Ia juga menyebut besarnya pahala orang yang mengumpulkan mereka, dan menilai cara membaca bergiliran boleh dan baik.",
+        "sikap": "refuted",
+        "jenis": "idea",
+        "dasar": [30000224, 30000225, 30000226, 30000227],
+        "soal": {
+          "tanya": "Bagaimana an-Nawawi menilai pengingkaran adh-Dhahhak dan Malik terhadap membaca Al-Qur'an bersama-sama?",
+          "jawab": "Pengingkaran itu menyalahi amalan salaf dan khalaf serta dalil, sehingga ditinggalkan."
+        }
+      },
+      {
+        "judul": "Bacaan lirih lebih utama bagi yang takut riya, menurut al-Ghazali dan an-Nawawi",
+        "isi": "An-Nawawi menyebut ada banyak hadits yang menunjukkan anjuran mengeraskan bacaan dan atsar yang menunjukkan anjuran melirihkannya. Ia menukil jalan kompromi al-Ghazali dan ulama lain: lirih lebih jauh dari riya sehingga lebih utama bagi yang takut riya; bila tidak takut, mengeraskan lebih utama karena amalnya lebih banyak, manfaatnya menjalar kepada orang lain, membangunkan hati pembaca, dan mengusir kantuk. Menurutnya, anjuran mengeraskan itu bagi yang tidak takut riya atau ujub dan tidak mengganggu orang yang sedang shalat. Ia menyimpulkan bahwa riwayat-riwayat itu sesuai dengan rincian tersebut, dan anjuran mengeraskan makin kuat bila dibaca berjamaah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000229, 30000230, 30000233, 30000234, 30000235],
+        "soal": {
+          "tanya": "Dalam keadaan apa melirihkan bacaan lebih utama, menurut kompromi yang dinukil dan disetujui an-Nawawi?",
+          "jawab": "Bagi orang yang takut riya; bila tidak takut, mengeraskan bacaan lebih utama."
+        }
+      },
+      {
+        "judul": "Memperindah suara dianjurkan, tetapi lagu yang mengubah lafaz adalah bid'ah haram menurut an-Nawawi",
+        "isi": "Menurut an-Nawawi, ulama salaf dan khalaf sepakat menganjurkan memperindah suara saat membaca Al-Qur'an. Para ulama yang ia nukil membatasinya selama tidak keluar dari batas bacaan karena dipanjang-panjangkan, dan bila berlebihan sampai menambah atau menyembunyikan huruf mereka menyebutnya haram. Ia menukil al-Mawardi bahwa bacaan berlagu yang mengeluarkan lafaz dari bentuknya, seperti memendekkan yang panjang atau memanjangkan yang pendek, haram dan membuat pembacanya fasik, sedangkan yang tidak mengubah lafaz mubah. An-Nawawi menyebut jenis pertama itu musibah dari sebagian orang bodoh di jenazah dan sebagian majelis, bid'ah yang membuat berdosa pendengarnya dan orang mampu yang tidak mencegahnya; ia sendiri telah mengerahkan sebagian kemampuannya untuk menghilangkannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000236, 30000238, 30000239, 30000240, 30000241],
+        "soal": {
+          "tanya": "Apa yang membuat bacaan berlagu menjadi haram menurut al-Mawardi yang dinukil an-Nawawi?",
+          "jawab": "Bila lagunya mengeluarkan lafaz Al-Qur'an dari bentuknya, seperti mengubah harakat atau panjang pendek bacaan."
+        }
+      },
+      {
+        "judul": "Sujud tilawah dianjurkan, bukan wajib, dan jumlahnya empat belas menurut pilihan an-Nawawi",
+        "isi": "An-Nawawi menyebut ulama sepakat sujud tilawah diperintahkan, tetapi berbeda apakah wajib atau dianjurkan. Jumhur, di antaranya Umar, Ibnu Abbas, Malik, asy-Syafi'i, dan Ahmad, menyebutnya tidak wajib, sedangkan Abu Hanifah menyebutnya wajib dengan berdalil pada sebuah ayat. Jumhur berdalil dengan perbuatan Umar yang sujud di mimbar pada satu Jumat, lalu pada Jumat berikutnya tidak sujud dan berkata tidak berdosa orang yang tidak sujud. An-Nawawi menilai jawaban atas dalil Abu Hanifah jelas, karena yang dicela adalah meninggalkan sujud karena mendustakan. Menurut pilihan asy-Syafi'i dan jumhur yang ia ikuti, jumlahnya empat belas, dan sujud pada surah Shad dianjurkan tetapi tidak termasuk sujud yang ditekankan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000291, 30000292, 30000293, 30000295, 30000309],
+        "soal": {
+          "tanya": "Apa dalil jumhur bahwa sujud tilawah tidak wajib, sebagaimana dinukil an-Nawawi?",
+          "jawab": "Umar tidak sujud pada Jumat berikutnya dan berkata tidak berdosa orang yang tidak sujud."
+        }
+      },
+      {
+        "judul": "Hari khatam dianjurkan berpuasa, berkumpul, berdoa, lalu memulai khatam baru, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut beberapa adab khatam. Ia menganjurkan berpuasa pada hari khatam kecuali bertepatan dengan hari yang dilarang berpuasa, dan menukil tiga tabiin Kufah yang berpuasa pada hari mereka khatam. Menurutnya, menghadiri majelis khatam sangat dianjurkan; ia menukil Ibnu Abbas yang meminta dikabari saat seseorang hendak khatam dan Anas yang mengumpulkan keluarganya lalu berdoa, serta ucapan bahwa doa dikabulkan dan rahmat turun saat khatam. Doa sesudah khatam juga sangat dianjurkan, dengan doa-doa yang menyeluruh, terutama untuk kebaikan kaum muslimin dan para pemimpin mereka. Sesudah selesai, ia menganjurkan langsung memulai khatam berikutnya, sebagaimana dianjurkan salaf.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000364, 30000365, 30000366, 30000367, 30000370],
+        "soal": {
+          "tanya": "Kapan puasa pada hari khatam tidak dianjurkan, menurut an-Nawawi?",
+          "jawab": "Bila hari khatam bertepatan dengan hari yang dilarang syariat untuk berpuasa."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 30000154,
+        "char_start": 0,
+        "char_end": 295,
+        "terjemahan": "Bab ini adalah maksud kitab ini, dan pembahasannya sangat luas. Aku hanya menunjuk sebagian maksudnya karena tidak suka memanjangkan dan khawatir pembacanya jemu. Yang pertama, pembaca wajib ikhlas sebagaimana telah kami sebutkan dan menjaga adab terhadap Al-Qur'an. Hendaknya ia menghadirkan dalam dirinya bahwa ia sedang bermunajat kepada Allah Ta'ala, dan membaca seperti keadaan orang yang melihat Allah Ta'ala; sebab bila ia tidak melihat-Nya, Allah Ta'ala melihatnya."
+      },
+      {
+        "gagasan": 4,
+        "passage_id": 30000229,
+        "char_start": 0,
+        "char_end": 211,
+        "terjemahan": "Ini pasal penting yang perlu diperhatikan. Ketahuilah, banyak hadits dalam ash-Shahih dan selainnya menunjukkan anjuran mengeraskan suara saat membaca, dan ada atsar yang menunjukkan anjuran melirihkan dan merendahkan suara. Kami akan menyebut sedikit darinya sebagai isyarat kepada pokoknya, insya Allah."
+      }
+    ],
+    "istilah": []
+  }
+}
