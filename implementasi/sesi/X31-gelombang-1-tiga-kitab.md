@@ -197,6 +197,41 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
 - **Bukti lokal:** `pnpm corpus:load:local` → smoke lolos · `next dev` port 3014: `/kitab/at-tibyan`, `/kitab/at-tibyan/1/5`, `/kitab/at-tibyan/1/13`, `/kitab`, `/lisensi` = 200 · `/api/search?q=التلاوة` → 27 hasil, halaman pertama 18 at-Tibyan + 2 Bidayah · `pnpm check` + `pnpm test` lolos. `pnpm verify` (build) belum dijalankan lokal: disk mesin penuh (126 MB bebas); CI menjalankannya.
 - **Peninjau (0 blocker):** laporan validasi menulis "0 penanda di badan" untuk Tibyan → kini 32 (diperbaiki). **Wajib sebelum batch terjemahan Tibyan:** `packages/core/src/translation-check.ts` / `translation-draft.ts` mengambil daftar penanda dari `footnote_ref`, yang kosong untuk kitab `modern_editor`; penanda (١) yang disalin model ke terjemahan akan dianggap karangan (`markers_extra`) dan ±30 paragraf ditolak. Putuskan: penanda tanpa tautan dihitung dari teks, atau dikecualikan (ADR baru + tes). Cek juga sekali 5 penanda tanpa catatan (32 penanda vs 27 catatan) di Shamela, untuk memastikan tidak ada catatan pentahqiq yang terselip di badan.
 - **Belum (sisa X31c):** filter "Bagian kitab" di `/cari` untuk korpus dua kitab (`lib/search/sections.ts` kini hanya "Semua kitab" bila karya > 1); terjemahan + ringkasan (Sonnet, izin biaya); Intisari; muat staging; QA 30; kueri Indonesia untuk Definisi selesai; `EDITION_CREDITS`; e2e/MCP untuk Tibyan.
+### X31c teks pentahqiq (2026-11-27, ADR-150)
+
+- **Temuan:** badan edisi at-Tibyan memuat tulisan pentahqiq Muhammad Mahmud al-Hajjar:
+  - mukadimah (h5);
+  - "al-Fawa'id al-Mazidah 'ala al-Kitab" (h227–229);
+  - "Kalimat al-Khitam" (h230);
+  - dua label pendek: "al-Fihris al-Ijmali" (h12) dan penanda akhir kitab (h225).
+
+  OpenITI **memuat** semuanya dan hanya membuang catatan kaki. Jadi alasannya hak cipta penyunting, yang tidak bisa dilisensikan OpenITI.
+- **Implementasi:**
+  - `data/patches/at-tibyan-1969-pentahqiq.yaml` (3 bagian: judul, kunci paragraf, halaman, dan `paragraf_id` yang wajib sama dengan hitungan kode) dan `tools/ingest/src/editor-text.ts`.
+  - Pembuangan terjadi sesudah alokasi ID, sebelum FTS, ayat, dan LLM.
+  - Gerbang ADR-059 menerima ID hilang hanya bila tercantum di berkas, dan sidiknya tetap ditulis.
+  - Invarian baru "Teks badan penyunting tidak dimuat" mencakup semua tabel yang merujuk paragraf, node, atau halaman.
+  - Tes `editor-text.test.ts` (6): rencana tanpa alokasi ID baru, pembuangan baris, entri tak ditemukan, `paragraf_id` tidak sama, anak node, halaman kosong, badan dan catatan kaki bertaut.
+  - Tes `fingerprint.test.ts` (+3): ID lain tetap; ID tak tercantum yang hilang tetap gagal; ID tercantum yang masih dimuat gagal; pengecualian tidak meloloskan koreksi teks.
+- **Dibuang:** 40 paragraf (30000002–08 mukadimah, 30000622–48 faedah, 30000649–54 penutup), 5 node (300123–127), dan 4 halaman (Shamela 221–224).
+- **Tetap dimuat:**
+  - judul "al-Muqaddimah" (30000001);
+  - ayat pembuka (30000009);
+  - kalimat penyalin naskah (30000010–11);
+  - daftar bab an-Nawawi dengan nomor halaman cetak (30000028–37);
+  - dua label pendek penyunting (30000027, 30000621), karena tanpa unsur kreatif. Membuang 30000621 juga mengubah sidik sumber Intisari 300122 yang sudah dicek: draf pertama sesi ini membuangnya, lalu gerbang konten gagal.
+- **Ledger:** 123 dan 127 dibuang dari `intisari_bab` Tibyan (kini 11 judul).
+- **Angka build** (`pnpm ingest korpus`, korpus bawaan tiga kitab sesudah #257 dan #258; semua invarian lolos; sha256 sama di dua run):
+  - Tibyan: 220 halaman, 122 node, 614 paragraf (dari 654), 65 rujukan ayat (dari 77). Matan = OpenITI 224/224; 4 Intisari Bab chat tetap lolos.
+  - Korpus: 1.144 paragraf (Bidayah 391, Tibyan 614, Ajurrumiyyah 139).
+  - Peta ID dan sidik ketiga kitab **identik** dengan origin/main (`git diff origin/main -- data/ids` kosong). Hasil gerbang: "614 ID lama ada dengan teks sama; 40 dikecualikan".
+- **Akibat ke LLM** (diukur pada build yang sama, dengan dan tanpa berkas):
+  - Terjemahan 653/654 → 613/614; 40 terjemahan paragraf yang dibuang tidak dimuat, dan tidak ada paragraf tersisa yang usang.
+  - Ringkasan 243/248 → 231/238: 10 milik node yang dibuang, dan ringkasan node 300001 (dua bahasa) usang, perlu dibuat ulang di batch berikutnya (berbayar).
+- **Lain-lain:**
+  - Smoke pindah ke j1 h8, karena h5 kini hanya berisi judul.
+  - `edition.attribution` dan `data/ATTRIBUTION.md` menyebut mukadimah, faedah tambahan, dan kata penutup pentahqiq tidak disertakan.
+
 ### X31b konten Bidayah (2026-11-27)
 
 - **Izin pemilik di chat:** "langsung aja pake llm model sonnet", "api batch", lalu "lanjut sampai selesai … 3 kitab tadi tanpa batasan dan gak usah konfirmasi saya … termasuk intisari kecuali audio".

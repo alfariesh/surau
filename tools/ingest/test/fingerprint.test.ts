@@ -7,6 +7,7 @@ import {
   fingerprintPath,
   fingerprints,
   formatFingerprints,
+  withExcluded,
 } from "../src/fingerprint.ts";
 
 describe("sidik teks paragraf (#59)", () => {
@@ -55,5 +56,62 @@ describe("sidik teks paragraf (#59)", () => {
     );
     expect(r.report).toContain("### Hilang (1)");
     expect(() => fingerprintPath("data/ids/peta")).toThrow(/\.json/);
+  });
+
+  test("checkStability: ID hilang hanya diterima bila tercantum sebagai teks penyunting (ADR-150)", () => {
+    const next = fingerprints(7, [
+      { id: 1, text_raw: "أ" },
+      { id: 3, text_raw: "ج" },
+    ]);
+    // ID 2 dikecualikan: lolos, ID lain tetap sama.
+    expect(checkStability(old, next, [], [2])).toEqual({
+      ok: true,
+      detail: "2 ID lama ada dengan teks sama; 1 dikecualikan sebagai teks penyunting (ADR-150)",
+      report: [],
+    });
+    // ID hilang yang tidak tercantum tetap gagal, walau ID lain dikecualikan.
+    const only1 = fingerprints(7, [{ id: 1, text_raw: "أ" }]);
+    const r = checkStability(old, only1, [], [2]);
+    expect(r.ok).toBe(false);
+    expect(r.report).toContain("### Hilang (1)");
+    expect(r.report).toContain("3");
+    // Tanpa daftar pengecualian, hilangnya ID 2 gagal seperti biasa.
+    expect(checkStability(old, next).ok).toBe(false);
+    // ID yang dikecualikan tetapi masih dimuat juga gagal.
+    const loaded = checkStability(old, old, [], [2]);
+    expect(loaded.ok).toBe(false);
+    expect(loaded.detail).toMatch(/dikecualikan tetapi masih dimuat 1/);
+    // Pengecualian tidak meloloskan teks yang berubah.
+    const shifted = fingerprints(7, [
+      { id: 1, text_raw: "أ" },
+      { id: 3, text_raw: "ب" },
+    ]);
+    expect(checkStability(old, shifted, [], [2]).ok).toBe(false);
+  });
+
+  test("withExcluded: sidik rilis ID yang dikecualikan tetap ditulis, ID lain dari build", () => {
+    const next = fingerprints(7, [
+      { id: 1, text_raw: "أ" },
+      { id: 3, text_raw: "ج" },
+    ]);
+    expect(withExcluded(next, old, [2])).toEqual(old);
+    expect(withExcluded(next, null, [2])).toEqual(next);
+    expect(withExcluded(next, old, [])).toEqual(next);
+    // ID dikecualikan yang tidak pernah dirilis diabaikan (tidak ada sidik untuk dibawa).
+    expect(withExcluded(next, old, [9])).toEqual(next);
+  });
+
+  test("checkStability: pengecualian tidak meloloskan koreksi teks, dan sebaliknya", () => {
+    const next = fingerprints(7, [
+      { id: 1, text_raw: "أ" },
+      { id: 3, text_raw: "ج" },
+    ]);
+    // ID 2 hilang; disebut sebagai koreksi teks (accepted) saja tidak cukup.
+    expect(checkStability(old, next, [2]).ok).toBe(false);
+    // Disebut di keduanya: hilang diterima sebagai pengecualian, tetapi "diterima tetapi tidak
+    // berubah" tetap gagal supaya daftar koreksi tidak basi.
+    const both = checkStability(old, next, [2], [2]);
+    expect(both.ok).toBe(false);
+    expect(both.detail).toMatch(/diterima tetapi tidak berubah 1/);
   });
 });

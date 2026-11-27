@@ -1,0 +1,39 @@
+# Teks badan karya pentahqiq modern di at-Tibyan (Shamela 1969; edisi Dar Ibn Hazm 1414 H, tahqiq
+# Muhammad Mahmud al-Hajjar) yang TIDAK dimuat ke korpus (ADR-150, perluasan ADR-138).
+# Hanya ID dan kunci, tanpa teks kitab. `kunci` = `<page.id Shamela>:<kunci paragraf di halaman>`
+# (sama dengan kunci peta ID data/ids/at-tibyan-1969.json); `judul` = title.id Shamela (node dan
+# semua paragrafnya dibuang); `halaman` = page.id Shamela yang ikut dibuang. `paragraf_id` wajib
+# sama persis dengan hitungan kode; gerbang stabilitas ID hanya menerima hilangnya ID di sini.
+# Diperiksa dengan membaca build kitab-v10 (2026-11-27). Yang sengaja TETAP dimuat:
+# - 1:b0 judul "al-Muqaddimah" (judul node yang juga menaungi mukadimah an-Nawawi, mulai halaman 7);
+# - 2:b0 ayat pembuka (teks Al-Qur'an) dan 2:b1, 3:b0 kalimat penyalin naskah
+#   (qala asy-syaikh al-faqih al-imam … an-Nawawi rahimahullah), bagian naskah klasik;
+# - 7:b0, 7:b1 (an-Nawawi; 7:b1 = kalimatnya bahwa kitab ini terdiri atas sepuluh bab) dan 7:b3–7:b12 (daftar sepuluh bab
+#   an-Nawawi; angka di depannya nomor halaman cetak dari penyunting, fakta tanpa unsur kreatif);
+# - 7:b2 judul "al-Fihris al-Ijmali" dan 220:b6 penanda akhir kitab ("ihi. ila huna tamma Kitab
+#   at-Tibyan"): sisipan penyunting, tetapi label pendek tanpa unsur kreatif. Yang dibuang hanya
+#   tulisan penyunting yang berupa karangan (pengantar, tambahan, penutup); 220:b6 juga ada di node
+#   300122 yang Intisari Bab-nya sudah dicek (membuangnya mengubah sidik sumber unit itu).
+shamela_book: 1969
+
+bagian:
+  - nama: Mukadimah pentahqiq
+    alasan: >-
+      Pengantar Muhammad al-Hajjar sebelum teks an-Nawawi (memuji Allah, menyebut tiga karya
+      an-Nawawi yang ia tahqiq), ditutup tanda tangannya. Karya penyunting modern.
+    kunci: ["1:b1", "1:b2", "1:b3", "1:b4", "1:b5", "1:b6", "1:b7"]
+    paragraf_id: [[30000002, 30000008]]
+  - nama: al-Fawa'id al-Mazidah 'ala al-Kitab
+    alasan: >-
+      Tiga "latifah" tambahan pentahqiq sesudah kitab berakhir, merujuk karya dan cetakan modern
+      (Manaqib Ahmad terbitan 1977 M, al-Itqan); bukan bagian at-Tibyan.
+    judul: [123, 124, 125, 126]
+    halaman: [221, 222, 223]
+    paragraf_id: [[30000622, 30000648]]
+  - nama: Kalimat al-Khitam
+    alasan: >-
+      Kata penutup pentahqiq tentang penyempurnaan cetakan ketiga, bertanda tangan Muhammad Mahmud
+      al-Hajjar.
+    judul: [127]
+    halaman: [224]
+    paragraf_id: [[30000649, 30000654]]
