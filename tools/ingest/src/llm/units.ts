@@ -126,18 +126,33 @@ export interface MaskedBody {
 
 /** Penanda catatan kaki `(١)` (angka Arab-India, Persia, atau Latin) beserta spasi sebelumnya. */
 const MARKER = /\s*\((?:[\u0660-\u0669]+|[\u06F0-\u06F9]+|[0-9]+)\)/gu;
+/**
+ * Penanda tanpa kurung (ADR-148 tambahan; diukur: hanya edisi al-Ajurrumiyyah): angka Arab-India/
+ * Persia sesudah kata Arab, (a) menempel langsung di akhir kata (`رَفَعْتَ١،`, `واع١:`), atau (b) dipisah
+ * satu spasi lalu langsung diikuti `:`/`،` (`أقسام ١:`). Huruf terakhir kata (boleh berharakat)
+ * dipertahankan lewat lookbehind, yang menuntut huruf (angka Arab-India juga ber-Script Arabic).
+ * Angka sesudah spasi tanpa `:`/`،` (penomoran, 54 kali di at-Tibyan) tidak tersentuh.
+ */
+const BARE_MARKER =
+  /(?<=[\p{Script=Arabic}&&\p{L}]\p{M}*)(?:[\u0660-\u0669\u06F0-\u06F9]+(?![\u0660-\u0669\u06F0-\u06F9])|\s[\u0660-\u0669\u06F0-\u06F9]+(?=[:\u060C]))/gv;
 
 /**
  * Buang penanda catatan kaki dari teks yang DIKIRIM ke model (ADR-148). Hanya untuk kitab tanpa
  * catatan kaki tertaut sama sekali (kelas `modern_editor`, ADR-138: catatannya tidak dimuat), jadi
  * penandanya tidak menunjuk apa pun; `text_raw` tidak berubah dan penanda tetap tampil di teks Arab.
+ * Dua bentuk: berkurung `(١)` selalu, dan angka yang menempel di akhir kata Arab (`…رَفَعْتَ١`) bila
+ * `bare` (hanya unit terjemahan: ringkasan tidak memeriksa penanda, jadi sidiknya dibiarkan).
  */
-export function stripUnlinkedMarkers(text: string): string {
-  return text.replaceAll(MARKER, "");
+export function stripUnlinkedMarkers(text: string, opts: { bare?: boolean } = {}): string {
+  const t = text.replaceAll(MARKER, "");
+  return opts.bare === true ? t.replaceAll(BARE_MARKER, "") : t;
 }
 
-/** Semua paragraf badan dalam urutan baca, sudah bertanda ayat. */
-export function maskedBodies(rows: UnitRows): MaskedBody[] {
+/**
+ * Semua paragraf badan dalam urutan baca, sudah bertanda ayat. `bareMarkers`: buang juga penanda
+ * tanpa kurung di kitab tanpa catatan kaki tertaut (unit terjemahan saja, ADR-148 tambahan).
+ */
+export function maskedBodies(rows: UnitRows, opts: { bareMarkers?: boolean } = {}): MaskedBody[] {
   const refs = groupBy(rows.passage_ayah_ref, (r) => r.passage_id);
   const notes = groupBy(rows.footnote_ref, (r) => r.passage_id);
   // Kitab tanpa satu pun catatan kaki tertaut (Ihya selalu punya; Bidayah tanpa penanda).
@@ -148,11 +163,28 @@ export function maskedBodies(rows: UnitRows): MaskedBody[] {
     const masked = maskAyat(p.text_raw, ayah, foot.map(toFootnoteRef));
     return {
       passage: p,
-      masked: unlinked ? { ...masked, text: stripUnlinkedMarkers(masked.text) } : masked,
+      masked: unlinked
+        ? {
+            ...masked,
+            text: stripUnlinkedMarkers(masked.text, { bare: opts.bareMarkers === true }),
+          }
+        : masked,
       markers: foot.map((f) => f.marker),
       refCount: ayah.length,
     };
   });
+}
+
+const ARABIC_LETTER = /(?=\p{L})\p{Script=Arabic}/u;
+
+/**
+ * Paragraf badan yang tidak memuat satu huruf Arab pun (mis. hanya "..." pemisah di edisi
+ * al-Ajurrumiyyah dan at-Tibyan): tidak ada yang bisa diterjemahkan, jadi tidak dijadikan unit
+ * terjemahan dan tidak dihitung dalam cakupan. Diuji pada `text_raw` (sebelum ayat ditandai),
+ * sehingga paragraf yang seluruhnya kutipan ayat tetap menjadi unit.
+ */
+export function hasArabicLetter(text: string): boolean {
+  return ARABIC_LETTER.test(text);
 }
 
 export function translationUnits(rows: UnitRows): TranslationUnits {
@@ -160,8 +192,10 @@ export function translationUnits(rows: UnitRows): TranslationUnits {
   const units: TranslationUnit[] = [];
   const blocked: UnitIssue[] = [];
   let prev: MaskedBody | null = null;
-  for (const b of maskedBodies(rows)) {
+  for (const b of maskedBodies(rows, { bareMarkers: true })) {
     const p = b.passage;
+    // Tanpa huruf: bukan unit dan bukan konteks paragraf berikutnya (`prev` tidak berubah).
+    if (!hasArabicLetter(p.text_raw)) continue;
     if (b.masked.slots.length !== b.refCount) {
       blocked.push({
         passageId: p.id,
