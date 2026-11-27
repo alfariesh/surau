@@ -15,16 +15,17 @@ export const tanyaText = {
   quota: (used: number, limit: number) => `Pertanyaan hari ini: ${used} dari ${limit}`,
   tooShort: "Tulis pertanyaan minimal 3 huruf.",
   challenge: "Memeriksa bahwa Anda bukan program otomatis…",
-  // Sumber jawaban di kepala kotak Maknaz (label, bukan pemilih; ADR-086). Kitab kedua = perbarui.
+  // Sumber jawaban di kepala kotak Maknaz (label, bukan pemilih; ADR-086). Korpus banyak kitab
+  // (Gelombang 1, ADR-151): label umum, bukan satu judul.
   sourceLabel: "Sumber jawaban:",
-  source: "Ihya' 'Ulum ad-Din",
+  source: "Kitab-kitab di Surau",
   composerPlaceholder: "Tanya Maknaz tentang isi kitab…",
   composerPlaceholderNext: "Pertanyaan baru, tulis lengkap (yang sebelumnya tidak ikut dibaca)…",
   suggestions: [
-    "Apa kata al-Ghazali tentang sabar?",
-    "Bagaimana adab menuntut ilmu menurut Ihya?",
-    "Apa keutamaan ikhlas dalam beramal?",
-    "Apa yang dimaksud dengan tawakal?",
+    "Apa permulaan hidayah menurut al-Ghazali?",
+    "Bagaimana adab membaca Al-Qur'an menurut an-Nawawi?",
+    "Apa yang dimaksud i'rab dalam al-Ajurrumiyyah?",
+    "Apa adab murid kepada gurunya?",
   ],
   separate:
     "Setiap pertanyaan dijawab terpisah: jawaban sebelumnya tidak ikut dibaca, jadi tulis pertanyaan lengkap.",
@@ -32,7 +33,7 @@ export const tanyaText = {
   noticeMore: "Tentang jawaban Maknaz",
   copy: "Salin jawaban",
   copyAttribution:
-    "Disusun AI oleh Maknaz, asisten AI Surau, dari Ihya' 'Ulum ad-Din; bukan fatwa. Periksa kutipannya di tautan sumber.",
+    "Disusun AI oleh Maknaz, asisten AI Surau, dari kitab-kitab di Surau; bukan fatwa. Periksa kutipannya di tautan sumber.",
   copyUncited: "Kalimat tanpa nomor [n] tidak didukung kutipan langsung.",
   copied: "Jawaban disalin.",
   copyFailed: "Jawaban tidak bisa disalin.",
@@ -65,7 +66,7 @@ export const tanyaText = {
     "Teks takhrij ini memuat istilah lemah, palsu, tidak ada asalnya, atau sanad yang tidak ditemukan. Istilah itu dikenali otomatis dari kata kuncinya: bisa hanya mengenai satu jalur, atau kebetulan muncul di lafaz hadits yang dikutip. Baca teks takhrijnya sebelum memakai hadits ini.",
   takhrijText: "Teks takhrij dari kitab",
   hadithSource: "Lihat teks takhrij",
-  takhrij: "Takhrij al-'Iraqi (catatan kaki)",
+  takhrij: "Takhrij (catatan kaki)",
   matan: "Teks kitab",
   openReader: "Buka di pembaca",
   translationAi: "Terjemahan AI paragraf ini",
