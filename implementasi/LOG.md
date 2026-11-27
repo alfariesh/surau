@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-27 · X31 · Situs dibuka lagi dengan Gelombang 1 — selesai (kecuali audio)
+- Dikerjakan: tampil tiga kitab (`/lisensi`, landing, teks UI/MCP, hub Intisari Bab, minat berhenti), sakelar `READER_ENABLED`/`KITAB_OPEN` "1", ledger `tayang`, tes penjaga sakelar vs binding; promote `kitab-v10` (dijalankan pemilik, T-38); PR #261 digabung.
+- Verifikasi: `corpus:qa kitab-v10` Bidayah 30/30, Tibyan 30/30, Ajurrumiyyah 19/19 · deploy web/MCP/API/media sukses · curl produksi: `/`, `/kitab`, `/cari`, `/lisensi`, halaman pertama tiap kitab, `/kitab/at-tibyan/intisari` = 200; `/kitab/ihya/1/200` = 404 · `uji-mcp.sh https://mcp.surau.org/mcp lengkap` lolos · `/api/search?q=adab membaca al-quran` → 43 halaman, teratas at-Tibyan.
+- Biaya API: –
+- Keputusan: [ADR-151](keputusan/ADR-151.md)
+- Catatan untuk sesi berikutnya: audio (T-29), string Tanya/Maknaz masih menyebut Ihya (wajib sebelum `/rilis 4`), kartu kitab unggulan landing baru Bidayah. Rollback = revert PR #261.
+
 ## 2026-11-27 · X31c/X31d · Konten at-Tibyan dan al-Ajurrumiyyah + staging tiga kitab — sebagian (audio, tampil, promote belum)
 - Dikerjakan:
   - Terjemahan + ringkasan Sonnet: Tibyan 642/642 + 238/238, Ajurrumiyyah 137/137 + 50/50; gerbang `llmCoverage` 0,99.
