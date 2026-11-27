@@ -4,12 +4,13 @@
 # Dipakai preview.yml (Preview per PR, data staging) dan deploy.yml (produksi, mcp.surau.org).
 #
 # Pakai: uji-mcp.sh <URL endpoint, mis. https://mcp.surau.org/mcp> [lengkap|daftar|tutup|redaksi]
-#   lengkap (bawaan): tools/list + tools/call kedelapan tool (data Ihya edisi 1) + kasus error
+#   lengkap (bawaan): tools/list + tools/call kedelapan tool + kasus error. Data uji dipilih dari
+#     list_works (X31a langkah 8a): Bidayat al-Hidayah (edisi 2) bila ada, selain itu Ihya (edisi 1)
 #   daftar: tools/list + satu tools/call (list_works) saja (smoke produksi)
 #   tutup: tools/list + list_works harus menjawab `corpus_closed` (korpus ditutup, KITAB_OPEN "0",
 #     ADR-142); URL /redaksi atau /mcp
 #   redaksi: endpoint /redaksi (X23, X27): 12 tool + check_content_draft dan check_translation_draft
-#     (draf rusak, galat pasti), list_faedah_candidates dan list_translation_units (data Ihya edisi 1);
+#     (draf rusak, galat pasti), list_faedah_candidates dan list_translation_units (data uji yang sama);
 #     URL diakhiri /redaksi
 # Env opsional: INSPECTOR (versi paket, bawaan dipin di bawah), MAX_COBA (bawaan 12), JEDA (5 dtk).
 #
@@ -73,6 +74,24 @@ for i in $(seq 1 "$MAX_COBA"); do
   sleep "$JEDA"
 done
 
+# Data uji per kitab (X31a langkah 8a, ADR-142): korpus Gelombang 1 tanpa Ihya memakai Bidayah.
+# KATA_ID kosong = cari Indonesia dilewati (Bidayah belum punya terjemahan sampai X31b).
+pilih_data() {
+  jalan --protocol-era modern --method tools/call --tool-name list_works --tool-args-json '{}' ||
+    gagal "list_works (pilih data uji) keluar $?"
+  if jq -e '[.result.structuredContent.works[].slug] | index("bidayat-al-hidayah")' "$TMP/out" >/dev/null; then
+    KITAB="bidayat-al-hidayah" EDISI=2 HAL=25 LABEL="Bidayat al-Hidayah, j. 1, h. 25" SEKSI=200002
+    PASAL=20000001 TAKHRIJ=none KATA="الهداية" KATA_ID=""
+  elif jq -e '[.result.structuredContent.works[].slug] | index("ihya")' "$TMP/out" >/dev/null; then
+    KITAB="ihya" EDISI=1 HAL=200 LABEL="Ihya' 'Ulum ad-Din, j. 1, h. 200" SEKSI=100074
+    PASAL=10002826 TAKHRIJ=linked KATA="الصبر" KATA_ID="sabar"
+  else
+    gagal "list_works tanpa kitab uji (bidayat-al-hidayah atau ihya): $(jq -c '[.result.structuredContent.works[].slug]' "$TMP/out")"
+  fi
+  echo "Data uji: $KITAB (edisi $EDISI)"
+}
+if [ "$MODE" = "lengkap" ] || [ "$MODE" = "redaksi" ]; then pilih_data; fi
+
 ALAT='["list_works","get_table_of_contents","read_page","read_section","search_text","verify_quote","get_hadith_takhrij","get_section_digest"]'
 JUMLAH=8
 # Mode tutup: versi Worker lama (belum tertutup) bisa masih melayani beberapa detik sesudah deploy,
@@ -110,29 +129,36 @@ for era in modern legacy; do
     # Draf rusak: galat skema pasti di data mana pun (Preview = staging, deploy = produksi).
     panggil "$era" check_content_draft '.ok == false and any(.errors[]; .code == "schema")' \
       '{"draft":{"format":"lain"}}'
-    panggil "$era" list_faedah_candidates '.section.id == 100008 and (.candidates | length) >= 1' \
-      '{"section_id":100008,"include_ineligible":true,"limit":2}'
+    panggil "$era" list_faedah_candidates ".section.id == $SEKSI and (.candidates | length) >= 1" \
+      "{\"section_id\":$SEKSI,\"include_ineligible\":true,\"limit\":2}"
     panggil "$era" check_translation_draft '.ok == false and any(.errors[]; .code == "schema")' \
       '{"draft":{"format":"lain"}}'
-    panggil "$era" list_translation_units '.section.id == 100008 and (.units | length) == 2' \
-      '{"section_id":100008,"limit":2}'
+    panggil "$era" list_translation_units ".section.id == $SEKSI and (.units | length) == 2" \
+      "{\"section_id\":$SEKSI,\"limit\":2}"
     continue
   fi
 
   panggil "$era" get_table_of_contents '(.nodes | length) >= 1 and (.citation.permalink | startswith("https://"))' \
-    '{"edition_id":1}'
-  panggil "$era" read_page '.citation.label == "Ihya'"'"' '"'"'Ulum ad-Din, j. 1, h. 200" and (.body | length) > 0 and (.license.attribution | length) > 0' \
-    '{"edition_id":1,"juz":1,"page_no":200}'
-  panggil "$era" read_section '(.passages | length) > 0 and .next_cursor != null' '{"section_id":100074}'
+    "{\"edition_id\":$EDISI}"
+  panggil "$era" read_page "$(jq -nc --arg l "$LABEL" '"(.citation.label == \($l | tojson)) and (.body | length) > 0 and (.license.attribution | length) > 0"' | jq -r .)" \
+    "{\"edition_id\":$EDISI,\"juz\":1,\"page_no\":$HAL}"
+  panggil "$era" read_section '(.passages | length) > 0 and .next_cursor != null' "{\"section_id\":$SEKSI}"
   panggil "$era" search_text '(.results | length) > 0 and all(.results[]; (.hits | length) <= 3)' \
-    '{"query":"الصبر","limit":3}'
-  panggil "$era" search_text '(.results | length) > 0' '{"query":"sabar","limit":2}'
+    "$(jq -nc --arg q "$KATA" '{query: $q, limit: 3}')"
+  if [ -n "$KATA_ID" ]; then
+    panggil "$era" search_text '(.results | length) > 0' "$(jq -nc --arg q "$KATA_ID" '{query: $q, limit: 2}')"
+  fi
   panggil "$era" verify_quote '.verified == false and .match == null' \
-    '{"passage_id":10002826,"quote":"قول لم يقله أحد"}'
-  panggil "$era" get_hadith_takhrij '.status == "linked" and (.takhrij | length) > 0' '{"passage_id":10002826}'
+    "{\"passage_id\":$PASAL,\"quote\":\"قول لم يقله أحد\"}"
+  # Bidayah tanpa takhrij tertaut: status none = "status belum diketahui" (teks-arab aturan 6).
+  if [ "$TAKHRIJ" = "linked" ]; then
+    panggil "$era" get_hadith_takhrij '.status == "linked" and (.takhrij | length) > 0' "{\"passage_id\":$PASAL}"
+  else
+    panggil "$era" get_hadith_takhrij '.status == "none" and (.takhrij | length) == 0' "{\"passage_id\":$PASAL}"
+  fi
   # Intisari (X16): null sampai korpus punya Intisari (skema < 9 atau sebelum pilot X15b).
-  panggil "$era" get_section_digest '.digest == null or .digest.label == "ai_digest"' '{"section_id":100074}'
-  panggil_error "$era" read_page "not_found:" '{"edition_id":1,"juz":9,"page_no":1}'
+  panggil "$era" get_section_digest '.digest == null or .digest.label == "ai_digest"' "{\"section_id\":$SEKSI}"
+  panggil_error "$era" read_page "not_found:" "{\"edition_id\":$EDISI,\"juz\":9,\"page_no\":1}"
   panggil_error "$era" search_text "Input validation error" '{"query":""}'
 done
 
