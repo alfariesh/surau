@@ -1,0 +1,165 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500001,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p3-p5: permintaan saudara, urutan kalam, ta'lim, filsafat, tasawuf, serta Baghdad dan Naisabur sesuai teks; kata kerja untuk tasawuf di teks tampak salah cetak (dibaca 'yang ia terima')."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p5: lautan dalam, sedikit yang selamat, dan sabda tujuh puluh tiga golongan sesuai teks; ayat hanya disebut disitir, tanpa isi."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p6-p7: sebelum dua puluh tahun sampai melewati lima puluh (anafa 'ala) dan daftar golongan yang diselidiki sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p8: dahaga sebagai naluri bukan pilihan, anak Nasrani, Yahudi, muslim, dan sabda fitrah sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p9: definisi ilmu yakin, contoh sepuluh dan tiga serta tongkat menjadi ular sesuai teks; negasi 'tidak ragu' terjaga."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "87a562630daf7950ce6b94c4a8696fa2342a21d6c3d0854d1c6d454db445a9e2",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "p3-p5 setia: permintaan saudara, empat jalan, Baghdad dan Naisabur."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Lautan perselisihan dan sabda 73 golongan tepat; isi ayat tidak ditulis."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Subjek kalimat penutup ambigu: yang ingin mengetahui hakikat setiap golongan adalah penulis (p6-p7)."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Naluri, anak-anak tiga agama, dan sabda fitrah tepat, tanpa status hadits."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Isi benar; redaksi Arab kutipan 1 (p9) tampak salah ketik pada satu kata kerja, terjemahan mengikuti makna yang dimaksud."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "46da7a30193ea6b43b27c7e19a9929f5462df612a69e840bb10bc1deab16d142",
+      "draf_sha256": "87a562630daf7950ce6b94c4a8696fa2342a21d6c3d0854d1c6d454db445a9e2",
+      "waktu": "2026-11-27T18:36:24.124Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, pencarian hakikat yang ia tempuh sejak muda melepaskannya dari taklid, lalu menuntutnya mencari ilmu yakin, yaitu ilmu yang tidak menyisakan keraguan sedikit pun.",
+    "ringkasan": "Al-Ghazali membuka risalah dengan pujian, lalu menyebut permintaan seorang saudara seagama agar ia menceritakan perjalanannya mencari kebenaran di tengah golongan yang berselisih: apa yang ia peroleh dari ilmu kalam, tidak ia sukai dari ahli ta'lim, ia remehkan dari filsafat, dan akhirnya ia terima dari tasawuf, serta sebab ia berhenti mengajar di Baghdad lalu kembali mengajar di Naisabur. Ia menggambarkan perselisihan umat sebagai lautan dalam, menuturkan kebiasaannya sejak muda menyelidiki setiap golongan, menjelaskan bagaimana ikatan taklid terlepas darinya, lalu merumuskan ciri ilmu yakin.",
+    "gagasan": [
+      {
+        "judul": "Pengalaman menimbang kalam, ta'lim, filsafat, dan tasawuf diceritakan penulis atas permintaan seorang saudara",
+        "isi": "Penulis menyebut bahwa seorang saudara seagama memintanya menjelaskan puncak dan rahasia ilmu serta bahaya tersembunyi berbagai mazhab. Ia lalu menyanggupi untuk menceritakan perjuangannya menyaring kebenaran dari kekacauan golongan: naik dari taklid menuju penglihatan yang terang, apa yang ia peroleh dari ilmu kalam, apa yang tidak ia sukai dari jalan ahli ta'lim yang menggantungkan kebenaran pada taklid kepada imam, apa yang ia remehkan dari filsafat, dan apa yang akhirnya ia terima dari tasawuf. Ia juga akan menyebut sebab ia berhenti mengajar di Baghdad padahal muridnya banyak, dan sebab ia kembali mengajar di Naisabur.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000003, 50000004, 50000005],
+        "soal": {
+          "tanya": "Jalan apa yang disebut penulis sebagai jalan yang akhirnya ia terima, sesudah kalam, ta'lim, dan filsafat?",
+          "jawab": "Jalan tasawuf, yang ia sebut paling akhir sesudah ketiga jalan itu."
+        }
+      },
+      {
+        "judul": "Perselisihan umat ibarat lautan dalam yang menenggelamkan kebanyakan orang, menurut al-Ghazali",
+        "isi": "Al-Ghazali menyatakan bahwa perselisihan manusia dalam agama, lalu perselisihan umat dalam mazhab dengan banyaknya golongan dan beragamnya jalan, adalah lautan dalam: kebanyakan orang tenggelam dan hanya sedikit yang selamat. Setiap golongan menyangka dirinya yang selamat, dan untuk itu ia menyitir sebuah ayat. Ia menukil sabda Nabi saw. bahwa umatnya akan terpecah menjadi tujuh puluh tiga golongan dan yang selamat hanya satu, lalu menegaskan bahwa apa yang dijanjikan itu telah terjadi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000005],
+        "soal": {
+          "tanya": "Menjadi berapa golongan umat ini terpecah menurut sabda yang dinukil al-Ghazali?",
+          "jawab": "Tujuh puluh tiga golongan, dan yang selamat hanya satu."
+        }
+      },
+      {
+        "judul": "Sejak sebelum usia dua puluh, penulis menyelidiki akidah setiap golongan",
+        "isi": "Penulis menuturkan bahwa sejak mendekati balig, sebelum usia dua puluh, sampai usianya melewati lima puluh, ia terus menerjang lautan itu dengan berani, bukan seperti pengecut. Ia menyelidiki akidah setiap golongan supaya bisa membedakan yang benar dari yang batil dan pengikut sunah dari ahli bid'ah. Tidak ada orang Batiniyah, Zhahiriyah, filsuf, ahli kalam, sufi, ahli ibadah, maupun zindik yang menafikan Tuhan kecuali ia ingin mengetahui hakikat pandangannya atau sebab keberaniannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000006, 50000007],
+        "soal": {
+          "tanya": "Untuk tujuan apa penulis menyelidiki akidah setiap golongan sejak masa mudanya?",
+          "jawab": "Untuk membedakan yang benar dari yang batil, dan pengikut sunah dari ahli bid'ah."
+        }
+      },
+      {
+        "judul": "Dahaga akan hakikat melepaskan penulis dari taklid sejak usia muda",
+        "isi": "Penulis menyebut dahaga untuk mengetahui hakikat segala perkara sebagai naluri yang Allah letakkan dalam dirinya, bukan hasil pilihannya. Karena itu ikatan taklid terlepas darinya ketika masih muda: ia melihat anak-anak Nasrani tumbuh dalam kenasranian, anak-anak Yahudi dalam keyahudian, dan anak-anak muslim dalam Islam. Ia juga menukil sabda bahwa setiap anak lahir di atas fitrah, lalu orang tuanya menjadikannya Yahudi, Nasrani, atau Majusi. Batinnya pun tergerak mencari hakikat fitrah asli dan membedakannya dari keyakinan yang datang lewat taklid kepada orang tua dan guru.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000008],
+        "soal": {
+          "tanya": "Apa yang dilihat penulis pada anak-anak berbagai agama sehingga ikatan taklidnya terlepas?",
+          "jawab": "Anak-anak Nasrani, Yahudi, dan muslim masing-masing hanya tumbuh di atas agama orang tuanya."
+        }
+      },
+      {
+        "judul": "Ilmu yakin tetap tidak goyah walau ditantang keajaiban, menurut al-Ghazali",
+        "isi": "Al-Ghazali menetapkan bahwa yang ia cari adalah ilmu tentang hakikat, sehingga ia lebih dahulu mencari hakikat ilmu. Ilmu yakin ialah ilmu yang menyingkap sesuatu tanpa menyisakan keraguan dan tanpa kemungkinan salah, bahkan hati tidak bisa membayangkan kemungkinan itu. Contohnya, orang yang tahu bahwa sepuluh lebih banyak daripada tiga tidak akan ragu meskipun seseorang mengubah tongkat menjadi ular untuk membuktikan sebaliknya; ia hanya heran akan kemampuan orang itu. Ilmu yang tidak memiliki rasa aman seperti itu, menurutnya, bukan ilmu yakin dan tidak dapat dipercaya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000009],
+        "soal": {
+          "tanya": "Menurut al-Ghazali, apa yang terjadi pada orang yang tahu sepuluh lebih banyak dari tiga bila seseorang mengubah tongkat menjadi ular untuk membantahnya?",
+          "jawab": "Ia tidak ragu sedikit pun akan pengetahuannya dan hanya heran akan kemampuan orang itu."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 5,
+        "passage_id": 50000009,
+        "char_start": 146,
+        "char_end": 241,
+        "terjemahan": "Ilmu yang yakin adalah ilmu yang di dalamnya sesuatu yang diketahui tersingkap dengan penyingkapan yang tidak menyisakan keraguan, dan tidak disertai kemungkinan salah dan keliru sangka."
+      },
+      {
+        "gagasan": 5,
+        "passage_id": 50000009,
+        "char_start": 766,
+        "char_end": 801,
+        "terjemahan": "Setiap ilmu yang tidak disertai rasa aman bukanlah ilmu yang yakin."
+      }
+    ],
+    "istilah": []
+  }
+}

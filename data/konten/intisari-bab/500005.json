@@ -1,0 +1,137 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500005,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p44-p49: tiga golongan dan Dahriyah (mengingkari Pencipta, alam ada dengan sendirinya, disebut zindik) sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p52-p53: Thabi'iyah mengakui Pencipta lewat anatomi, jiwa ikut watak, mengingkari akhirat, zindik karena hari akhir sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p56-p58: Sokrates, Plato, Aristoteles, bantahan atas dua golongan, sisa kekufuran, pengafiran pengikut seperti Ibnu Sina dan al-Farabi sesuai teks sebagai penilaian penulis."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p58-p61: dua penukil terbaik, nukilan lain kacau, tiga bagian; kata di p59 tampak salah cetak untuk pengafiran dan dibaca begitu."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "c280fe6f35bf8231b31ef708e438cd472bf5e71101f187b5660c1e0003273b16",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Tiga golongan dan Dahriyah setia pada p44-p49."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Thabi'iyah mengakui Pencipta, mengingkari akhirat, zindik karena hari akhir; kutipan p53 tepat."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Sokrates-Plato-Aristoteles, sisa kekufuran, dan pengafiran pengikut tepat sebagai penilaian penulis."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Dua penukil terbaik, nukilan lain kacau, tiga bagian; kata salah cetak di p59 dibaca sesuai konteks."
+        }
+      ],
+      "laporan": "Semua benar; lolos"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "52a4075e1761c96fa3d71c00563df3a827042927f08f7618b6bc08fa2b15db32",
+      "draf_sha256": "c280fe6f35bf8231b31ef708e438cd472bf5e71101f187b5660c1e0003273b16",
+      "waktu": "2026-11-27T18:36:32.018Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, para filsuf terbagi menjadi Dahriyah, Thabi'iyah, dan Ilahiyah, dan ketiganya ia nilai tercela dengan kekufuran, termasuk pengikut Aristoteles seperti Ibnu Sina dan al-Farabi.",
+    "ringkasan": "Al-Ghazali membagi para filsuf menjadi tiga golongan. Dahriyah mengingkari Pencipta dan menganggap alam ada dengan sendirinya. Thabi'iyah mengakui Pencipta yang bijaksana dari keajaiban tubuh makhluk, tetapi mengingkari akhirat karena mengira jiwa lenyap bersama tubuh. Ilahiyah, dari Sokrates, Plato, sampai Aristoteles, membantah kedua golongan pertama, tetapi Aristoteles masih menyisakan sebagian kekufuran pendahulunya. Penulis lalu menyebut Ibnu Sina dan al-Farabi sebagai penukil terbaik Aristoteles di kalangan filsuf muslim dan membagi ajaran yang dinukil keduanya menjadi tiga bagian.",
+    "gagasan": [
+      {
+        "judul": "Kaum Dahriyah mengingkari Pencipta dan disebut zindik oleh al-Ghazali",
+        "isi": "Al-Ghazali menyatakan bahwa para filsuf, dengan banyaknya aliran, terbagi menjadi tiga golongan: Dahriyah, Thabi'iyah, dan Ilahiyah. Golongan pertama, Dahriyah, adalah segolongan orang terdahulu yang mengingkari Pencipta yang mengatur, mengetahui, dan berkuasa. Mereka menyangka alam ada sejak dahulu dengan sendirinya tanpa pencipta, hewan berasal dari mani dan mani dari hewan, begitu seterusnya selamanya. Penulis menyebut mereka kaum zindik.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000044, 50000047, 50000048, 50000049],
+        "soal": {
+          "tanya": "Apa anggapan kaum Dahriyah tentang alam, menurut al-Ghazali?",
+          "jawab": "Alam ada sejak dahulu dengan sendirinya tanpa pencipta, dan akan tetap begitu selamanya."
+        }
+      },
+      {
+        "judul": "Kaum Thabi'iyah mengakui Pencipta, tetapi mengingkari akhirat, menurut penulis",
+        "isi": "Menurut penulis, kaum Thabi'iyah banyak meneliti alam, keajaiban hewan dan tumbuhan, serta bedah anggota tubuh, sehingga terpaksa mengakui adanya Pencipta yang bijaksana. Namun mereka melihat keseimbangan watak tubuh sangat berpengaruh pada daya hewan, lalu mengira daya berakal manusia juga mengikuti wataknya dan lenyap bersamanya, sedangkan yang lenyap menurut mereka tidak masuk akal dikembalikan. Karena itu mereka mengingkari akhirat, surga, neraka, kebangkitan, dan hisab, sehingga lepas kendali seperti hewan ternak. Penulis menyebut mereka zindik juga, sebab pokok iman adalah iman kepada Allah dan hari akhir, sedangkan mereka mengingkari hari akhir.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000052, 50000053],
+        "soal": {
+          "tanya": "Mengapa kaum Thabi'iyah tetap disebut zindik padahal mengakui adanya Pencipta?",
+          "jawab": "Karena mereka mengingkari hari akhir, sedangkan pokok iman adalah iman kepada Allah dan hari akhir."
+        }
+      },
+      {
+        "judul": "Aristoteles masih menyisakan kekufuran pendahulunya, sehingga pengikutnya ikut dikafirkan menurut al-Ghazali",
+        "isi": "Al-Ghazali menyebut kaum Ilahiyah sebagai filsuf belakangan, seperti Sokrates, guru Plato, dan Plato, guru Aristoteles; Aristoteles-lah yang menyusun logika dan merapikan ilmu mereka. Mereka semua membantah Dahriyah dan Thabi'iyah dan membongkar keburukan kedua golongan itu. Aristoteles lalu membantah Plato, Sokrates, dan pendahulunya sampai berlepas diri dari mereka, tetapi masih menyisakan sisa kekufuran dan bid'ah yang tidak ia tinggalkan. Karena itu penulis menilai mereka wajib dikafirkan, begitu pula pengikut mereka dari kalangan filsuf muslim seperti Ibnu Sina dan al-Farabi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000056, 50000057, 50000058],
+        "soal": {
+          "tanya": "Siapa saja filsuf muslim yang disebut al-Ghazali sebagai pengikut Aristoteles yang ikut dikafirkan?",
+          "jawab": "Ibnu Sina, al-Farabi, dan orang-orang semacam keduanya."
+        }
+      },
+      {
+        "judul": "Ajaran Aristoteles yang dinukil Ibnu Sina dan al-Farabi terbagi tiga, menurut penulis",
+        "isi": "Penulis menilai tidak ada filsuf muslim yang menukil ilmu Aristoteles sebaik Ibnu Sina dan al-Farabi; nukilan selain keduanya kacau dan membingungkan pembaca sampai tidak dipahami, padahal sesuatu yang tidak dipahami tidak bisa ditolak atau diterima. Ajaran Aristoteles yang sah menurut nukilan keduanya ia bagi menjadi tiga: bagian yang wajib dikafirkan, bagian yang wajib dinyatakan bid'ah, dan bagian yang sama sekali tidak wajib diingkari. Ketiga bagian itu ia janjikan untuk dirinci.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000058, 50000059, 50000060, 50000061],
+        "soal": {
+          "tanya": "Mengapa nukilan filsafat selain dari Ibnu Sina dan al-Farabi tidak bisa ditolak atau diterima, menurut penulis?",
+          "jawab": "Karena nukilan itu kacau sehingga tidak dipahami, dan yang tidak dipahami tidak bisa ditolak atau diterima."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 50000053,
+        "char_start": 144,
+        "char_end": 216,
+        "terjemahan": "Karena pokok iman ialah iman kepada Allah dan hari akhir, sedangkan mereka mengingkari hari akhir."
+      }
+    ],
+    "istilah": []
+  }
+}

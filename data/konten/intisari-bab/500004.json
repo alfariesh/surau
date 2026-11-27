@@ -1,0 +1,144 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500004,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p30-p32: kalam cukup untuk tujuannya bukan tujuan penulis, menjaga akidah ahlus sunnah, setan dan ahli bid'ah sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p33-p36: premis dari lawan (taklid, ijmak, penerimaan nas), jauhar dan 'aradh, dan obat berbeda menurut penyakit sesuai teks; batasan 'bercampur taklid' di p36 dipertahankan."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p38-p39: syarat melampaui ahli ilmu, tidak ada ulama yang melakukannya, kitab kalam yang kacau, melempar dalam kegelapan sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p40-p42: tanpa guru, tiga ratus pelajar, kurang dari dua tahun lalu hampir setahun, noda kekufuran dengan perbedaan jarak sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "9def3fc96be5e05ca755bc5424b0a1e624fce3b95411742e89bc93339097f636",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Tujuan kalam dan tidak memenuhi tujuan penulis tepat; kutipan p30 sesuai."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Premis dari lawan, jauhar dan 'aradh, dan kesembuhan sebagian orang yang bercampur taklid setia."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Syarat menilai kerusakan ilmu dan melempar dalam kegelapan tepat; kutipan p39 sesuai."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Kurang dari dua tahun, hampir setahun, tiga ratus pelajar, kekufuran dan ilhad cocok."
+        }
+      ],
+      "laporan": "Semua benar; lolos"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "230cb6cd332a07b9120917f7800f754d4316e8dd81bf1b50afe126b3cea96d5a",
+      "draf_sha256": "9def3fc96be5e05ca755bc5424b0a1e624fce3b95411742e89bc93339097f636",
+      "waktu": "2026-11-27T18:36:29.593Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, ilmu kalam cukup untuk menjaga akidah ahlus sunnah tetapi tidak menyembuhkan keraguannya, sehingga ia beralih menguasai filsafat sendiri sebelum menilai kerusakannya.",
+    "ringkasan": "Al-Ghazali mempelajari dan menulis dalam ilmu kalam, lalu mendapati ilmu itu memenuhi tujuannya sendiri, yaitu menjaga akidah ahlus sunnah dari kekacauan ahli bid'ah, tetapi tidak memenuhi tujuan al-Ghazali. Ahli kalam bersandar pada premis yang diterima lawan dan sibuk menyingkap pertentangan mereka, sesuatu yang kurang berguna bagi orang yang hanya menerima pengetahuan dharuri. Ia lalu beralih ke filsafat dengan keyakinan bahwa kerusakan suatu ilmu hanya bisa dinilai oleh orang yang menguasainya sampai ke puncak. Ia mempelajarinya sendiri dari kitab kurang dari dua tahun, merenungkannya hampir setahun, lalu menilai bahwa para filsuf terdiri atas beberapa golongan yang semuanya tercela dengan kekufuran.",
+    "gagasan": [
+      {
+        "judul": "Ilmu kalam memenuhi tujuannya sendiri, tetapi tidak tujuan penulis",
+        "isi": "Penulis menceritakan bahwa ia mempelajari ilmu kalam, memahaminya, menelaah kitab para penelitinya, dan menulis di dalamnya. Ia mendapati ilmu itu cukup untuk tujuannya sendiri, tetapi tidak untuk tujuan penulis: tujuan ilmu kalam ialah menjaga akidah ahlus sunnah dan melindunginya dari kekacauan ahli bid'ah. Menurutnya Allah menyampaikan akidah yang benar lewat Rasul-Nya, lalu setan membisikkan hal-hal yang menyelisihi sunah kepada ahli bid'ah, maka Allah memunculkan golongan ahli kalam untuk membela sunah dengan pembicaraan yang tersusun.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000030, 50000031, 50000032],
+        "soal": {
+          "tanya": "Apa tujuan ilmu kalam yang menurut penulis berhasil dipenuhi oleh ilmu itu?",
+          "jawab": "Menjaga akidah ahlus sunnah dan melindunginya dari kekacauan yang ditimbulkan ahli bid'ah."
+        }
+      },
+      {
+        "judul": "Ahli kalam bersandar pada premis lawan, sehingga kurang berguna bagi peragu, menurut al-Ghazali",
+        "isi": "Al-Ghazali mengakui sebagian ahli kalam membela sunah dengan baik, tetapi mereka bersandar pada premis yang diterima dari lawan karena taklid, ijmak umat, atau penerimaan dari Al-Qur'an dan riwayat. Kebanyakan upaya mereka menyingkap pertentangan lawan dan menuntut konsekuensi dari hal yang lawan terima, padahal itu sedikit manfaatnya bagi orang yang tidak menerima apa pun selain pengetahuan dharuri. Pembahasan mereka tentang jauhar dan 'aradh pun bukan tujuan ilmu itu dan tidak sampai ke puncak. Ia tidak menolak bahwa sebagian orang mendapat kesembuhan dari kalam, meski bercampur taklid dalam hal yang bukan pengetahuan awal, karena obat berbeda menurut penyakitnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000033, 50000034, 50000035, 50000036],
+        "soal": {
+          "tanya": "Mengapa cara ahli kalam kurang bermanfaat bagi al-Ghazali?",
+          "jawab": "Karena ia hanya menerima pengetahuan dharuri, sedangkan ahli kalam bersandar pada premis yang diterima lawan."
+        }
+      },
+      {
+        "judul": "Kerusakan suatu ilmu hanya bisa dinilai oleh orang yang melampaui ahlinya, menurut al-Ghazali",
+        "isi": "Sesudah ilmu kalam, al-Ghazali beralih ke filsafat dengan keyakinan bahwa kerusakan suatu ilmu tidak dapat diketahui oleh orang yang belum sampai ke ujungnya, menyamai orang paling alim di bidang itu lalu melampauinya. Ia tidak melihat seorang pun ulama Islam yang mencurahkan perhatian ke arah itu; kitab-kitab ahli kalam hanya memuat penggalan pendapat filsuf yang rumit dan tampak bertentangan. Karena itu ia menilai bahwa menolak suatu mazhab sebelum memahaminya ibarat melempar dalam kegelapan. Ia juga merencanakan penjelasan tentang bagian filsafat yang tercela dan yang tidak, yang menyebabkan kafir dan bid'ah, serta cara memisahkan yang benar dari yang palsu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000038, 50000039],
+        "soal": {
+          "tanya": "Apa syarat seseorang dapat mengetahui kerusakan suatu ilmu, menurut al-Ghazali?",
+          "jawab": "Ia harus sampai ke ujung ilmu itu, menyamai ahlinya yang paling alim, lalu melampauinya."
+        }
+      },
+      {
+        "judul": "Puncak ilmu filsafat dikuasai penulis dari kitab dalam kurang dari dua tahun",
+        "isi": "Penulis mempelajari filsafat hanya dengan membaca kitab, tanpa guru, pada waktu luang di sela menulis dan mengajar tiga ratus pelajar di Baghdad. Dalam kurang dari dua tahun ia mengetahui puncak ilmu mereka, lalu merenungkannya lagi hampir setahun sampai mengenali tipu daya, pengelabuan, kebenaran, dan khayalan di dalamnya. Ia melihat para filsuf terdiri atas beberapa golongan dan ilmu mereka beberapa bagian; semuanya, menurutnya, tercela dengan noda kekufuran dan ilhad, meskipun jarak mereka dari kebenaran sangat berbeda antara yang terdahulu dan yang belakangan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000040, 50000041, 50000042],
+        "soal": {
+          "tanya": "Berapa lama penulis merenungkan filsafat lagi setelah memahami puncak ilmunya?",
+          "jawab": "Hampir setahun, sesudah menguasainya dalam kurang dari dua tahun."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 50000030,
+        "char_start": 97,
+        "char_end": 142,
+        "terjemahan": "Ternyata ia ilmu yang memenuhi tujuannya sendiri, tetapi tidak memenuhi tujuanku."
+      },
+      {
+        "gagasan": 3,
+        "passage_id": 50000039,
+        "char_start": 523,
+        "char_end": 580,
+        "terjemahan": "Maka aku tahu bahwa menolak suatu mazhab sebelum memahaminya dan menelaah hakikatnya adalah melempar dalam kebutaan."
+      }
+    ],
+    "istilah": []
+  }
+}

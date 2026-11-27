@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500016,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p161-p164: hati dan sakitnya, racun dan obat, takaran sujud dan Subuh, akal menyerahkan diri kepada kenabian sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p165-p172: empat sebab, pertanyaan kepada yang lalai, dalih ulama, tasawuf, ibahah, dan ta'lim sesuai teks; dasar diganti agar memuat p171-p172."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p172-p175: dalih pembaca filsafat dari kitab Ibnu Sina dan al-Farabi (judul tidak lagi menyebut para filsuf), khamar, wasiat Ibnu Sina, penyanggah yang memerangi ilmu ukur sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p177-p183: keringanan uzlah, perintah sultan, musyawarah dan mimpi, Dzulqa'dah 499, sebelas tahun sejak 488, niat baru sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p186-p192: kafir terhadap kenabian bila disamakan dengan hikmah, opium, bentuk sembilan petak lima belas, ahli nujum sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p193-p197: kabar orang yang mencoba, ayah yang tabib, kasih sayang Nabi saw. lebih besar dari ayah sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p198-p201: tiga obat, syahwat yang sama, air dingin, ilmu sebagai tambahan derajat atau hujah, tergelincir bukan terus-menerus sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "e04809ac175d32bf271a1df4f8cefa8f42d47e8bb7741c9b97de97e4f63aa13a",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Badan dan hati, racun dan penawar, takaran ibadah, tugas akal sesuai p161-p164."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Dasar tidak memuat p166-p167 (batas enam paragraf), dan 'tasawuf yang menyimpang' di ringkasan menambah penilaian."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Dalih pembaca filsafat Ibnu Sina dan al-Farabi, khamar, wasiat Ibnu Sina sesuai p172-p175."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Sultan, isyarat orang saleh, 499 dan 488, uzlah sebelas tahun; kutipan p182 cocok."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Kafir terhadap kenabian, opium, sembilan petak, jumlah rakaat sesuai p186-p192."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Belum mencoba, ayah tabib, kasih sayang Nabi saw. sesuai p193-p197."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Tiga jawaban atas perilaku orang berilmu; kutipan p201 cocok."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "aff83a78b1316fe5a5cdc56e7be75b0fa7870dfed5a1d98f0dc13d3173f8e8bd",
+      "draf_sha256": "e04809ac175d32bf271a1df4f8cefa8f42d47e8bb7741c9b97de97e4f63aa13a",
+      "waktu": "2026-11-27T18:36:44.704Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, para nabi adalah tabib hati dan iman manusia melemah karena empat sebab, sehingga ia kembali mengajar di Naisabur dengan niat menyebarkan ilmu yang meninggalkan kedudukan.",
+    "ringkasan": "Dari uzlahnya al-Ghazali menyimpulkan bahwa hati punya sehat dan sakit, dan ibadah adalah obat yang takarannya hanya diketahui para nabi. Ia lalu melihat iman manusia melemah karena filsafat, tasawuf yang menyimpang, ajaran ta'lim, dan perilaku orang berilmu. Atas perintah sultan dan isyarat orang saleh, ia kembali ke Naisabur pada tahun 499 dengan niat yang berbeda dari dahulu. Ia menjawab orang yang imannya rusak karena filsafat dengan khasiat obat dan perbintangan serta perumpamaan ayah yang tabib, lalu menjelaskan sikap terhadap orang berilmu yang berbuat maksiat.",
+    "gagasan": [
+      {
+        "judul": "Para nabi adalah tabib hati dan ibadah adalah obatnya, menurut al-Ghazali",
+        "isi": "Al-Ghazali menyimpulkan dari uzlahnya bahwa manusia punya badan dan hati, yaitu ruh tempat mengenal Allah. Hati juga punya sehat dan sakit: bodoh tentang Allah adalah racun, maksiat karena hawa nafsu adalah penyakit, mengenal Allah adalah penawar, dan taat adalah obat. Takaran ibadah, misalnya sujud dua kali lipat rukuk dan Subuh separuh Asar, menyimpan rahasia yang tidak dijangkau akal, seperti takaran obat yang diambil dari para tabib. Tugas akal ialah membenarkan kenabian dan mengakui kebutaannya, lalu menyerahkan manusia kepada kenabian seperti orang buta kepada penuntun.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000161, 50000162, 50000163, 50000164],
+        "soal": {
+          "tanya": "Apa tugas akal menurut al-Ghazali sesudah ia membenarkan kenabian?",
+          "jawab": "Menyerahkan manusia kepada kenabian seperti orang buta diserahkan kepada penuntun, lalu memahami apa yang disampaikan."
+        }
+      },
+      {
+        "judul": "Iman melemah karena empat sebab, menurut penelusuran al-Ghazali",
+        "isi": "Al-Ghazali melihat keyakinan orang terhadap kenabian dan pengamalannya melemah, lalu menelusuri sebabnya: filsafat, tasawuf, ajaran ta'lim, dan perilaku orang yang dikenal berilmu. Ia bertanya kepada orang yang lalai menjalankan syariat; menurutnya, orang yang beriman kepada akhirat tetapi menjualnya dengan dunia itu bodoh. Jawaban mereka beragam: ada yang berdalih bahwa ulama terkenal pun tidak shalat dan memakan harta haram, ada yang mengaku sudah melampaui kebutuhan ibadah lewat tasawuf, ada yang berpegang pada syubhat kaum ibahah, dan ada yang terpengaruh ahli ta'lim sehingga menganggap kebenaran tidak bisa dipastikan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000165, 50000168, 50000169, 50000170, 50000171, 50000172],
+        "soal": {
+          "tanya": "Apa dalih orang yang lalai syariat karena melihat perilaku sebagian orang berilmu, menurut al-Ghazali?",
+          "jawab": "Seandainya syariat wajib dijaga, tentu para ulama lebih pantas menjaganya, padahal ada yang tidak shalat."
+        }
+      },
+      {
+        "judul": "Pembaca filsafat yang menyamakan syariat dengan hikmah hanya berhias Islam, menurut penulis",
+        "isi": "Penulis menuturkan dalih orang yang membaca filsafat Ilahiyah dari kitab Ibnu Sina dan al-Farabi: kenabian hanyalah hikmah dan kemaslahatan, dan ibadah dibuat untuk menertibkan orang awam, sehingga ia merasa tidak terikat taklif. Orang seperti itu bisa membaca Al-Qur'an dan shalat berjamaah, tetapi tetap minum khamar dengan dalih larangannya hanya karena khamar menimbulkan permusuhan. Penulis menyebut wasiat Ibnu Sina yang berjanji menghormati syariat, tetapi mengecualikan minum khamar untuk berobat. Penulis menilai banyak orang tertipu oleh mereka, apalagi karena para penyanggah malah memerangi ilmu ukur dan logika.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000172, 50000173, 50000174, 50000175],
+        "soal": {
+          "tanya": "Apa yang dikecualikan Ibnu Sina dalam wasiatnya, menurut penuturan penulis?",
+          "jawab": "Minum khamar, yang ia bolehkan bagi dirinya untuk tujuan berobat."
+        }
+      },
+      {
+        "judul": "Kepulangan ke Naisabur bukan kembali kepada niat lama, menurut al-Ghazali",
+        "isi": "Al-Ghazali merasa wajib menyingkap syubhat itu, tetapi zamannya penuh kebatilan, sehingga ia memberi dirinya keringanan untuk tetap beruzlah. Lalu sultan, atas dorongannya sendiri, memerintahkannya ke Naisabur; orang-orang yang hatinya hidup menyarankan agar ia keluar dari uzlah, dan banyak mimpi orang saleh menguatkannya, ditambah janji Allah yang ia sebut untuk menghidupkan agama di awal setiap abad. Ia berangkat pada Dzulqa'dah 499, sebelas tahun setelah keluar dari Baghdad pada 488. Dahulu ia menyebarkan ilmu yang mendatangkan kedudukan; kini ia menyeru kepada ilmu yang membuat kedudukan ditinggalkan, sambil memohon agar Allah memperbaiki dirinya lebih dahulu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000177, 50000178, 50000179, 50000181, 50000182, 50000183],
+        "soal": {
+          "tanya": "Berapa lama uzlah al-Ghazali, dihitung dari keluarnya dari Baghdad sampai berangkat ke Naisabur?",
+          "jawab": "Sebelas tahun, dari tahun 488 sampai Dzulqa'dah tahun 499."
+        }
+      },
+      {
+        "judul": "Khasiat yang diakui filsuf menunjukkan kemungkinan khasiat ibadah, menurut al-Ghazali",
+        "isi": "Menurut al-Ghazali, orang yang mengakui kenabian di lisan tetapi menyamakan syariat dengan hikmah sebenarnya kafir terhadap kenabian, sebab iman kepada kenabian ialah mengakui tahap di balik akal. Ia menunjuk khasiat yang tidak dijangkau akal: sedikit opium mematikan karena sangat dingin, padahal menurut ilmu alam tidak masuk akal. Para filsuf juga mengakui khasiat bentuk sembilan petak yang berjumlah lima belas untuk perempuan sulit melahirkan, dan mempercayai ahli nujum yang sering keliru. Maka tidak beralasan mereka menolak bahwa jumlah rakaat, lempar jumrah, dan rukun haji memiliki khasiat yang hanya diketahui lewat cahaya kenabian.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000186, 50000187, 50000188, 50000189, 50000191, 50000192],
+        "soal": {
+          "tanya": "Contoh khasiat apa yang dipakai al-Ghazali untuk menunjukkan sesuatu yang tidak sejalan dengan kias ilmu alam?",
+          "jawab": "Sedikit opium yang mematikan karena sangat dingin, melebihi dinginnya air dan tanah."
+        }
+      },
+      {
+        "judul": "Akal menuntut mengikuti Nabi saw. seperti anak sakit menuruti ayahnya yang tabib, menurut penulis",
+        "isi": "Bagi yang berkata belum mencoba sendiri, penulis menjawab bahwa ia pun membenarkan ilmu kedokteran dan bintang dari kabar orang yang mencoba, maka hendaknya ia mendengar para nabi yang telah mencoba dan menempuh jalan mereka. Lagi pula, akal sendiri menuntut pembenaran: anak yang sakit dan diberi obat pahit oleh ayahnya yang penyayang dan ahli pengobatan akan dianggap bodoh bila menolaknya karena tidak paham cara kerjanya. Kasih sayang ayah dikenal dari tanda keadaannya; begitu pula kasih sayang Nabi saw. kepada umatnya, yang lebih besar daripada kasih ayah, dikenal dari sabda dan perilakunya, serta kabar gaib beliau yang terbukti.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000193, 50000194, 50000195, 50000196, 50000197],
+        "soal": {
+          "tanya": "Mengapa anak sakit yang menolak obat pahit dari ayahnya dianggap bodoh, menurut perumpamaan penulis?",
+          "jawab": "Karena ayahnya penyayang dan ahli pengobatan, sedangkan ia menolak hanya karena tidak paham cara kerja obat itu."
+        }
+      },
+      {
+        "judul": "Lemahnya iman karena perilaku orang berilmu dijawab dengan tiga hal, menurut al-Ghazali",
+        "isi": "Menurut al-Ghazali, lemahnya iman karena perilaku orang berilmu diobati dengan tiga hal. Pertama, pengetahuan orang alim tentang haramnya suatu perbuatan sama dengan pengetahuan orang awam tentang haramnya khamar atau gibah; syahwat yang mengalahkannya sama, seperti orang percaya kedokteran yang tetap minum air dingin. Kedua, ilmu orang alim mungkin menjadi tambahan derajat baginya walau bisa pula menjadi hujah atasnya, sedangkan orang awam yang meniru meninggalkan amal tanpa bekal ilmu akan binasa. Ketiga, orang berilmu sejati tidak bermaksiat kecuali tergelincir dan tidak terus-menerus, sebab ilmu sejati menambah takut dan harap, sedangkan ilmu yang ditekuni kebanyakan orang hanya menambah keberanian bermaksiat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000198, 50000199, 50000200, 50000201],
+        "soal": {
+          "tanya": "Apa yang ditambahkan ilmu sejati kepada pemiliknya, menurut al-Ghazali?",
+          "jawab": "Rasa takut, khasyah, dan harap yang menghalanginya dari maksiat, kecuali ketergelinciran."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 4,
+        "passage_id": 50000182,
+        "char_start": 525,
+        "char_end": 594,
+        "terjemahan": "Adapun sekarang, aku menyeru kepada ilmu yang dengannya kedudukan ditinggalkan dan dengannya diketahui jatuhnya martabat kedudukan."
+      },
+      {
+        "gagasan": 7,
+        "passage_id": 50000201,
+        "char_start": 20,
+        "char_end": 106,
+        "terjemahan": "Orang berilmu yang sebenarnya tidak melakukan maksiat kecuali karena tergelincir, dan sama sekali tidak terus-menerus berbuat maksiat."
+      }
+    ],
+    "istilah": []
+  }
+}

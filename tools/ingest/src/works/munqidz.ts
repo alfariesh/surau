@@ -23,7 +23,9 @@ export const MUNQIDZ: WorkConfig = {
     // 92/93: h128 (0,897) memuat empat judul sisipan di tengah kalimat yang di OpenITI menjadi
     // baris judul tersendiri; teksnya sama (93% token berurutan), ADR-152.
     matanMinPages: 92,
-    llmCoverage: 0,
+    // 201/203 paragraf berterjemahan; sepuluh Intisari Bab judul teratas (data/konten, ADR-147).
+    llmCoverage: 0.99,
+    minDigests: 10,
   },
   // Halaman cetak 112 (awal judul kedua); kata pencarian mengenai paragraf badan kitab ini.
   smoke: { juz: 1, page: 112, search: "السفسطة", footnotes: false },

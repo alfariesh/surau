@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500012,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p63-p67: enam bagian, matematika tanpa kaitan agama, bahaya pertama, pembuktian vs dugaan, dan kewajiban mencegah sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p68-p70: sahabat Islam yang bodoh, gerhana, makin cinta filsafat, syariat tidak menafikan atau menetapkan sesuai teks; status tambahan sabda tidak ditulis."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p71-p72: isi logika, contoh pembalikan proposisi, tuduhan buruk pada pengingkar, dan kezaliman syarat burhan sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p73-p74: cakupan ilmu alam, analogi kedokteran, pengecualian di Tahafut, dan alam tunduk kepada Allah sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p75-p81 (dasar kini memuat p79): dua puluh pokok, tiga kufur dan tujuh belas bid'ah, isi tiga pokok, balasan rohani dan jasmani, Mu'tazilah sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p83-p85: politik dari kitab para nabi, akhlak dari kaum sufi, pasak bumi, dan dua bahaya sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p86-p92: mengenal kebenaran lewat tokoh, penukar uang, madu di wadah bekam, larangan bagi orang banyak, dan penawar dari ular sesuai teks; 'orang awam' diganti 'orang banyak' sesuai kata al-kaffah."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "eaabc9f005a20b4f009857f49e4008976d35375eee0501d8fff6f558f52a4bff",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Isi setia; inti menulis 'tidak bertentangan dengan agama', teks menyebut 'tidak berkaitan, baik menafikan maupun menetapkan'."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Gerhana, bukti pasti, dan Islam dikira dibangun di atas kebodohan tepat; status hadits tidak ditulis."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Tashawwur, tashdiq, contoh pembalikan, dan kelonggaran syarat burhan tepat."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Analogi kedokteran, pengecualian masalah tertentu, alam tunduk kepada Allah tepat."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Isi tepat; dasar melewatkan p77, lanjutan kalimat butir pertama (batas enam paragraf)."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Politik dari kitab para nabi, akhlak dari kaum sufi, dua bahaya tepat."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Mengenal kebenaran lewat tokoh, perumpamaan, dan pencegahan orang banyak tepat; kutipan p86 sesuai."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "c44e44ab0f2285e47643ea1e7df2e66c5ea038da545c1eac4147e80bc2308080",
+      "draf_sha256": "eaabc9f005a20b4f009857f49e4008976d35375eee0501d8fff6f558f52a4bff",
+      "waktu": "2026-11-27T18:36:34.524Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, ilmu para filsuf terbagi enam; matematika dan logika tidak bertentangan dengan agama tetapi berbahaya bagi pembacanya, dan kekeliruan terbesar mereka ada dalam ketuhanan.",
+    "ringkasan": "Al-Ghazali membagi ilmu para filsuf menjadi enam: matematika, logika, ilmu alam, ketuhanan, politik, dan akhlak. Matematika dan logika tidak menyentuh agama, tetapi melahirkan bahaya: orang yang kagum lalu ikut kafir, dan pembela Islam yang bodoh yang mengingkari kebenaran pasti. Ilmu alam hanya ditolak pada masalah tertentu. Dalam ketuhanan ia menghitung dua puluh kekeliruan, tiga di antaranya kekufuran. Politik dan akhlak menurutnya diambil dari para nabi dan kaum sufi lalu dicampur kebatilan, sehingga muncul bahaya menolak kebenaran karena sumbernya dan bahaya menerima kebatilan karena tercampur kebenaran.",
+    "gagasan": [
+      {
+        "judul": "Kekaguman pada matematika filsuf bisa menyeret orang kepada kekafiran, menurut al-Ghazali",
+        "isi": "Al-Ghazali membagi ilmu para filsuf menjadi enam. Matematika, yaitu hitung, ukur, dan susunan alam, tidak berkaitan dengan agama dan buktinya tidak dapat dibantah. Bahayanya, orang yang kagum akan ketelitiannya mengira semua ilmu mereka sekokoh itu, lalu mendengar kekafiran mereka dan ikut kafir karena taklid. Bila dijelaskan bahwa orang yang mahir dalam satu bidang belum tentu mahir di bidang lain, dan bahwa ucapan mereka dalam matematika bersifat pembuktian sedangkan dalam ketuhanan dugaan, ia tetap menolak karena hawa nafsu. Karena itu, menurut penulis, setiap orang yang mendalami ilmu itu wajib dicegah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000063, 50000064, 50000065, 50000066, 50000067],
+        "soal": {
+          "tanya": "Apa beda ucapan para filsuf dalam matematika dan dalam ketuhanan, menurut penjelasan al-Ghazali?",
+          "jawab": "Dalam matematika bersifat pembuktian yang kokoh, sedangkan dalam ketuhanan hanya dugaan."
+        }
+      },
+      {
+        "judul": "Pembela Islam yang bodoh merugikan agama dengan mengingkari ilmu yang pasti, menurut penulis",
+        "isi": "Bahaya kedua, menurut penulis, datang dari sahabat Islam yang bodoh: ia mengira agama dibela dengan mengingkari setiap ilmu filsuf, sampai mengingkari penjelasan mereka tentang gerhana. Orang yang mengetahui hal itu dengan bukti pasti tidak meragukan buktinya, tetapi justru mengira Islam dibangun di atas kebodohan, sehingga makin cinta filsafat dan benci Islam. Penulis menegaskan bahwa syariat tidak menafikan atau menetapkan ilmu-ilmu ini, dan sabda tentang gerhana matahari dan bulan tidak mengharuskan pengingkaran ilmu hisab tentang peredaran keduanya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000068, 50000069, 50000070],
+        "soal": {
+          "tanya": "Mengapa pengingkaran atas penjelasan filsuf tentang gerhana merugikan Islam, menurut penulis?",
+          "jawab": "Orang yang tahu buktinya mengira Islam dibangun di atas kebodohan, lalu makin cinta filsafat dan benci Islam."
+        }
+      },
+      {
+        "judul": "Logika tidak menyentuh agama, tetapi longgar saat dipakai filsuf dalam ketuhanan, menurut al-Ghazali",
+        "isi": "Al-Ghazali menjelaskan bahwa logika membahas cara pendalilan, syarat premis burhan, dan syarat definisi; pengetahuan berupa tashawwur dikenal lewat definisi dan tashdiq lewat burhan. Tidak ada yang patut diingkari di dalamnya, sebab sejenis dengan pembahasan ahli kalam dan hanya berbeda istilah serta kerincian. Contohnya, bila setiap manusia adalah hewan, maka sebagian hewan adalah manusia. Mengingkarinya hanya membuat ahli logika berburuk sangka pada akal si pengingkar. Namun para filsuf menetapkan syarat burhan yang melahirkan keyakinan, lalu tidak memenuhinya saat membahas agama; orang yang terkesan oleh logika bisa mengira kekufuran mereka didukung bukti serupa.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000071, 50000072],
+        "soal": {
+          "tanya": "Apa kezaliman para filsuf dalam ilmu logika, menurut al-Ghazali?",
+          "jawab": "Mereka menetapkan syarat burhan yang ketat, tetapi tidak memenuhinya saat membahas tujuan-tujuan agama."
+        }
+      },
+      {
+        "judul": "Ilmu alam tidak wajib diingkari, kecuali pada beberapa masalah, menurut penulis",
+        "isi": "Penulis menjelaskan bahwa ilmu alam membahas langit dan bintang, unsur tunggal seperti air, udara, tanah, dan api, benda majemuk seperti hewan, tumbuhan, dan barang tambang, serta sebab perubahannya, mirip ilmu kedokteran yang membahas tubuh manusia. Sebagaimana agama tidak mensyaratkan pengingkaran ilmu kedokteran, agama juga tidak mensyaratkan pengingkaran ilmu alam, kecuali pada beberapa masalah yang ia sebut dalam Tahafut al-Falasifah. Pokok semuanya: alam tunduk kepada Allah dan tidak bekerja dengan sendirinya; matahari, bulan, bintang, dan tabiat benda digerakkan oleh perintah-Nya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000073, 50000074],
+        "soal": {
+          "tanya": "Apa pokok yang menurut penulis harus diketahui tentang alam tabiat?",
+          "jawab": "Alam tunduk kepada Allah dan tidak bekerja dengan sendirinya, melainkan digerakkan oleh Penciptanya."
+        }
+      },
+      {
+        "judul": "Dari dua puluh kekeliruan filsuf dalam ketuhanan, tiga dinilai kufur oleh al-Ghazali",
+        "isi": "Menurut al-Ghazali, kekeliruan terbanyak filsuf ada dalam ketuhanan karena mereka tidak memenuhi syarat burhan yang mereka buat sendiri. Kekeliruan itu kembali kepada dua puluh pokok: tiga dinilai kufur dan tujuh belas bid'ah, dan untuk membantahnya ia menyusun Tahafut. Tiga pokok itu: jasad tidak dibangkitkan dan balasan hanya rohani, Allah mengetahui yang universal tetapi tidak yang partikular, serta alam qadim dan azali. Menurutnya mereka benar menetapkan balasan rohani tetapi keliru mengingkari balasan jasmani. Selebihnya, seperti penafian sifat, dekat dengan Mu'tazilah, yang tidak wajib dikafirkan karena hal itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000075, 50000076, 50000078, 50000079, 50000080, 50000081],
+        "soal": {
+          "tanya": "Berapa jumlah pokok kekeliruan filsuf dalam ketuhanan yang dinilai kufur oleh al-Ghazali?",
+          "jawab": "Tiga dari dua puluh pokok; tujuh belas sisanya dinilai bid'ah."
+        }
+      },
+      {
+        "judul": "Politik dan akhlak filsuf dipungut dari para nabi dan kaum sufi, menurut penulis",
+        "isi": "Menurut penulis, seluruh pembicaraan filsuf tentang politik kembali kepada hikmah kemaslahatan dunia dan tata kelola kekuasaan, yang mereka ambil dari kitab-kitab yang diturunkan kepada para nabi dan hikmah para nabi terdahulu. Pembicaraan mereka tentang akhlak, yaitu sifat jiwa dan cara melatihnya, mereka ambil dari kaum sufi yang tekun berzikir dan menentang hawa nafsu, lalu mereka campurkan dengan perkataan sendiri untuk melariskan kebatilan. Ia menambahkan bahwa setiap zaman memiliki orang-orang seperti itu, yang ia sebut pasak bumi, dan dari percampuran ini lahir dua bahaya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000083, 50000084, 50000085],
+        "soal": {
+          "tanya": "Dari mana para filsuf mengambil pembicaraan mereka tentang akhlak, menurut penulis?",
+          "jawab": "Dari perkataan kaum sufi, lalu mencampurnya dengan perkataan mereka sendiri."
+        }
+      },
+      {
+        "judul": "Kebenaran dikenal dari isinya, bukan dari siapa yang mengucapkannya, menurut al-Ghazali",
+        "isi": "Al-Ghazali mencela orang lemah akal yang menolak perkataan benar hanya karena tercantum dalam kitab filsuf, seperti menolak kalimat tauhid karena diucapkan orang Nasrani; mereka mengenal kebenaran lewat tokoh, bukan tokoh lewat kebenaran. Orang berakal menerima yang benar dari siapa pun, seperti penukar uang yang ahli memungut emas dari kantong uang palsu, atau orang yang tidak jijik pada madu dalam wadah bekam. Namun karena kebanyakan orang merasa dirinya ahli, ia menilai orang banyak perlu dicegah sedapat mungkin membaca kitab sesat, sebab ada bahaya kedua: menerima kebatilan yang tercampur kebenaran. Orang alim yang mantap tetap tidak boleh menahan kebenaran yang sudah ia saring.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000086, 50000087, 50000088, 50000090, 50000091, 50000092],
+        "soal": {
+          "tanya": "Mengapa al-Ghazali tetap menilai orang banyak perlu dicegah membaca kitab-kitab ahli kesesatan?",
+          "jawab": "Karena kebanyakan orang merasa dirinya ahli, padahal mereka tidak selamat dari bahaya menerima kebatilan yang tercampur."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 50000066,
+        "char_start": 260,
+        "char_end": 313,
+        "terjemahan": "Perkataan para filsuf terdahulu dalam ilmu matematika bersifat pembuktian, sedangkan dalam ilmu ketuhanan bersifat dugaan."
+      },
+      {
+        "gagasan": 7,
+        "passage_id": 50000086,
+        "char_start": 567,
+        "char_end": 627,
+        "terjemahan": "Inilah kebiasaan orang-orang yang lemah akalnya: mereka mengenal kebenaran melalui tokoh, bukan mengenal tokoh melalui kebenaran."
+      }
+    ],
+    "istilah": []
+  }
+}
