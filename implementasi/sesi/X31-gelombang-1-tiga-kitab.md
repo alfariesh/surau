@@ -1,6 +1,6 @@
 # X31 · Gelombang 1: tiga kitab kecil yang lengkap
 
-> **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** X31a selesai 2026-11-27 (kode selesai 2026-11-26; Ihya diarsipkan [ADR-142](../keputusan/ADR-142.md), build tanpa Ihya lolos di Mac; langkah 8a selesai 2026-11-27 [ADR-144](../keputusan/ADR-144.md); staging berisi Bidayah sejak 2026-11-27, QA 30/30)
+> **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** konten tiga kitab (kecuali audio) di staging 2026-11-27, menunggu tampil + promote; X31a selesai 2026-11-27 (kode selesai 2026-11-26; Ihya diarsipkan [ADR-142](../keputusan/ADR-142.md), build tanpa Ihya lolos di Mac; langkah 8a selesai 2026-11-27 [ADR-144](../keputusan/ADR-144.md); staging berisi Bidayah sejak 2026-11-27, QA 30/30)
 > **Prasyarat:** Ihya diarsipkan ([ADR-142](../keputusan/ADR-142.md), keputusan pemilik 2026-11-26): korpus bawaan hanya kitab Gelombang 1, dibangun di Mac; mesin agent tidak diperlukan lagi (ADR-135 butir 5 dicabut). Patch ayat X29 tidak tayang. X31b–X31d: X31a dan X24 selesai.
 > **Tugas pemilik:** izin `corpus:load:staging` (`tools/ingest/README.md`), izin biaya per batch (aturan keras 4), izin promote korpus, T-29 untuk audio
 > **Perkiraan:** X31a 1–2 percakapan, X31b 1–2, X31c 1, X31d 1–2
@@ -281,3 +281,33 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
   - Temuan: prompt `translate-passage@6` menyebut Ihya dan al-Ghazali di kalimat pertama; untuk at-Tibyan (an-Nawawi) petunjuk per kitab yang sama sebaiknya dipakai sebelum batch.
 - **Peninjau (0 blocker, 3 perbaikan dikerjakan):** judul tanpa span di halaman sumber kedua/ketiga kini mulai di awal halaman sumbernya (`ParsedPage.sourceOffsets`, tes `buildToc`); halaman gabungan dengan takhrij menempel `//` ditolak (kunci `t<baris>` lokal); `mergeSamePrintPage` + pembanding takhrij OpenITI ditolak; penanda OpenITI bernomor sama yang tidak berurutan ditolak; `pnpm llm --karya` sempat menolak kitab ber-`translateNote` (dicabut setelah petunjuk terpasang). Ketiganya laten (Ajurrumiyyah: 0 judul tanpa span, 0 `//`, tanpa takhrij). Nomor ADR-148 sengaja dilewati (dipakai PR lain).
 - **Belum (sisa X31d):** terjemahan + ringkasan, Intisari (Bab per judul akar, ADR-147), muat staging, QA 30, kueri Indonesia untuk Definisi selesai, e2e/MCP untuk Ajurrumiyyah.
+
+### X31c/X31d konten at-Tibyan + al-Ajurrumiyyah (2026-11-27, PR #260)
+
+- **Izin pemilik di chat:** "lanjut sampai selesai. anda bisa langsung 3 kitab tadi tanpa batasan dan gak usah konfirmasi saya. sampai semua konten teringest termasuk intisari kecuali audio".
+- **Terjemahan + ringkasan** (Message Batches, Sonnet 5.5):
+  - at-Tibyan: terjemahan 642/642 (100%), ringkasan 238/238, judul daftar isi 122/122. Teks pentahqiq dibuang (ADR-150), dua ringkasan pembuka diregenerasi.
+  - al-Ajurrumiyyah: terjemahan 137/137, ringkasan 50/50, judul 25/25.
+  - Gerbang `llmCoverage` 0,99 untuk ketiga kitab.
+- **Validator** (subagen, 3 commit):
+  - Penanda angka tanpa kurung dibuang (`stripUnlinkedMarkers({ bare: true })`), dan paragraf tanpa huruf Arab bukan unit terjemahan: 12 paragraf Tibyan (`* * *` dan sejenisnya), 2 Ajurrumiyyah (ADR-148 tambahan).
+  - Batas rasio panjang per kitab lewat petunjuk terjemahan: Ajurrumiyyah 6, sebab contoh bertransliterasi + glosa (ADR-149 tambahan). Kitab lain tidak berubah (dites).
+- **Intisari Bab (ADR-147):** at-Tibyan 11 judul teratas (`minDigests` 11), al-Ajurrumiyyah 25 judul (`minDigests` 25, ledger `intisari_bab` 1–25).
+  - Draf ditulis subagen Sonnet dari korpus lokal.
+  - Lapis 1: `pnpm konten cek --korpus staging`.
+  - Lapis 2: periksa mandiri.
+  - Lapis 3: `pemeriksa-konten` berkonteks segar (Sonnet).
+  - Hasil lapis 3:
+    - Ajurrumiyyah: 0 Salah; 4 draf direvisi atas temuan Kurang lalu diperiksa ulang; 6 butir Kurang tersisa dicatat (boleh terbit).
+    - Tibyan 300001: pemeriksaan pertama 1 Salah ("dua kalimat syahadat", padahal teks hanya syahadat tauhid). Direvisi bersama 3 Kurang; pemeriksaan kedua 0 Salah, 2 Kurang.
+  - Total korpus: 40 Intisari, 150 gagasan, 49 kutipan, 150 soal berjawaban.
+- **Staging:** `corpus:load:staging --confirm` (kitab-v10: 285 halaman, 1.144 paragraf, 1.129 terjemahan, 380 ringkasan, 40 digest). `corpus:qa staging --kitab …`: Bidayah 30/30, Tibyan 30/30, Ajurrumiyyah 19/19, baris korpus cocok.
+- **Biaya batch nyata** (`spentUsd` per folder kerja, termasuk ulangan; judul daftar isi lewat API biasa ±US$0,04 per kitab di luar angka ini): Bidayah US$1,06, Tibyan US$1,99, Ajurrumiyyah US$0,34. Total ±US$3,4. Intisari ditulis lewat Claude Code (langganan), tanpa biaya API.
+- **Catatan alat:**
+  - `konten cek` hanya membaca korpus remote. Bila sumber sebuah bagian berubah (Tibyan 300001 sesudah ADR-150), cap dibuat ulang sesudah staging dimuat, dan gerbang build menolak cap basi.
+  - Urutan aman: build tanpa unit itu → muat staging → cek ulang → build lengkap → muat lagi.
+- **Tindak lanjut kecil:**
+  - Daftar sepuluh bab Tibyan (p30000027–37) berformat indeks penyunting ("al-Fihris al-ijmali" + nomor halaman), tetapi isinya daftar bab an-Nawawi; dibiarkan, dan Intisari menyebutnya "daftar bab yang menyertainya di edisi ini".
+  - Kutipan "[فصل]" menyisakan "]"; laporan validasi Tibyan menghitung paragraf yang dibuang sebagai "usang" (40).
+  - Satu paragraf Bidayah (20000013) masih ditolak validator (placeholder `⟦QS 61:2⟧` berlebih).
+- **Belum:** audio (di luar izin; Ajurrumiyyah tanpa audio menurut ADR-149, Bidayah/Tibyan menunggu T-29), bukti Preview/MCP per kitab di PR ini, tampil (EDITION_CREDITS, minat, status ledger `tayang`), dan promote produksi (izin pemilik).
