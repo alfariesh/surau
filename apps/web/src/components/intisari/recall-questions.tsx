@@ -10,8 +10,8 @@ const t = intisariText;
 
 /**
  * "Uji pemahaman" (X16): pertanyaan ingatan per gagasan, terlipat (`<details>`, tanpa JavaScript).
- * Jawabannya tidak disimpan: membuka pertanyaan menunjukkan gagasan yang menjawabnya, dengan
- * tautan ke gagasan itu (dan dari sana ke Dasar teks).
+ * Intisari v2 (X24) punya jawaban satu kalimat berlabel AI; Intisari lama tanpa jawaban menunjukkan
+ * gagasan yang menjawabnya. Keduanya bertaut ke gagasan itu (dan dari sana ke Dasar teks).
  */
 export function RecallQuestions({
   questions,
@@ -28,7 +28,7 @@ export function RecallQuestions({
   return (
     <div className="flex flex-col gap-3">
       <Typography color="muted" type="body-sm">
-        {t.questionsLead}
+        {shown.some((q) => q.answer !== null) ? t.questionsLeadAnswered : t.questionsLead}
       </Typography>
       <ol className="intisari-questions flex list-none flex-col gap-2 p-0">
         {shown.map((q) => {
@@ -38,9 +38,21 @@ export function RecallQuestions({
               <details className="intisari-question">
                 <summary>{q.text}</summary>
                 <div className="flex flex-col gap-1 pt-2">
-                  <Typography type="body-sm">
-                    {t.questionAnswer(numbers.get(point.ord)!, point.title)}
-                  </Typography>
+                  {q.answer !== null ? (
+                    <>
+                      <Typography data-intisari-answer="" type="body-sm">
+                        <span className="ai-badge ms-0 me-1.5">{t.questionAnswerText}</span>
+                        {q.answer}
+                      </Typography>
+                      <Typography color="muted" type="body-xs">
+                        {t.questionAnswerFrom(numbers.get(point.ord)!, point.title)}
+                      </Typography>
+                    </>
+                  ) : (
+                    <Typography type="body-sm">
+                      {t.questionAnswer(numbers.get(point.ord)!, point.title)}
+                    </Typography>
+                  )}
                   <a className="link self-start text-sm" href={`#${pointAnchor(point.ord)}`}>
                     {t.questionGoto}
                   </a>

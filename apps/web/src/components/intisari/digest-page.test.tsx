@@ -9,7 +9,12 @@ import {
   FIXTURE_TEXT,
 } from "../../lib/reader/digest-fixture";
 
+import { intisari } from "../../i18n/id/intisari";
+import { FEEDBACK_MESSAGE_MAX } from "../../lib/feedback";
+import { feedbackRequest } from "../../lib/feedback-schema";
+
 import { DigestPage } from "./digest-page";
+import { pointReportBody } from "./point-report";
 import { ListenSlot } from "./listen-slot";
 
 const render = (digest = FIXTURE_BOOK, sections = FIXTURE_CHILDREN) =>
@@ -161,5 +166,54 @@ describe("QuoteCard: riwayat tanpa takhrij (X16)", () => {
     expect(html).toContain("Status riwayat ini belum diketahui");
     // Tanpa hub (belum ada Intisari Kitab): tanpa tautan "Semua Intisari".
     expect(html).not.toContain("Semua Intisari");
+  });
+});
+
+describe("Intisari v2 dari chat (X24)", () => {
+  const html = render(FIXTURE_SECTION, []);
+
+  it("inti di kepala, label asal menyebut model dan skill plugin", () => {
+    expect(html).toContain("data-intisari-lead");
+    expect(html).toContain(FIXTURE_SECTION.lead!);
+    expect(html).toContain(
+      "Dibuat Claude Opus 5.5 lewat skill intisari-bab@1 (plugin Surau Redaksi) pada 24 Oktober 2026, belum ditinjau manusia.",
+    );
+  });
+
+  it("jawaban soal berlabel AI; tanpa jawaban tetap menunjuk gagasannya", () => {
+    expect(html).toContain("data-intisari-answer");
+    expect(html).toContain("Jawaban (AI)");
+    expect(html).toContain(FIXTURE_SECTION.questions[0]!.answer!);
+    // Intisari batch (tanpa inti dan jawaban): kalimat lama.
+    const book = render({
+      ...FIXTURE_BOOK,
+      lead: null,
+      questions: FIXTURE_BOOK.questions.map((q) => ({ ...q, answer: null })),
+    });
+    expect(book).not.toContain("data-intisari-lead");
+    expect(book).not.toContain("Jawaban (AI)");
+  });
+
+  it("tombol Laporkan per gagasan dengan nama yang menyebut nomornya", () => {
+    for (let n = 1; n <= FIXTURE_SECTION.points.length; n++) {
+      expect(html).toContain(`aria-label="Laporkan kekeliruan di gagasan ${n}"`);
+    }
+  });
+});
+
+describe("Laporkan per gagasan (X24): body diterima /api/feedback", () => {
+  const path = `${FIXTURE_SECTION.section.permalink}/intisari`;
+
+  it("pesan terpanjang yang diizinkan dialog lolos skema server; path halaman Intisari sah", () => {
+    const max = FEEDBACK_MESSAGE_MAX - intisari.reportPrefix(7).length;
+    const body = pointReportBody(7, "x".repeat(max), path, 990000001);
+    expect(feedbackRequest.safeParse(body).success).toBe(true);
+    expect(body?.message.length).toBe(FEEDBACK_MESSAGE_MAX);
+    expect(body?.message.startsWith("[Intisari, gagasan 7] ")).toBe(true);
+  });
+
+  it("keterangan kosong atau spasi saja tidak dikirim", () => {
+    expect(pointReportBody(1, "   \n ", path, 1)).toBeNull();
+    expect(pointReportBody(1, null, path, 1)).toBeNull();
   });
 });

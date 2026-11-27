@@ -1,6 +1,6 @@
 # X24 · Impor konten turunan ke korpus dan tampil di web
 
-> **Fase:** Sisipan · **Status:** sebagian (bagian 1 selesai 2026-11-27: data, ingest, inti, MCP; bagian 2 tampilan web belum) · disesuaikan ke Gelombang 1 lewat [ADR-145](../keputusan/ADR-145.md)
+> **Fase:** Sisipan · **Status:** selesai untuk Gelombang 1 (bagian 1 dan 2 selesai 2026-11-27; bukti staging/produksi dipindah ke X31b, ADR-145 butir 10; `check_content_draft` v2 untuk Jalur/Faedah ditunda ke X25) · disesuaikan ke Gelombang 1 lewat [ADR-145](../keputusan/ADR-145.md)
 > **Prasyarat:** X23 selesai; minimal satu unit `siap` di `data/konten/` · Tugas pemilik: izin promote korpus (aturan keras 4: menimpa data produksi)
 > **Perkiraan:** 1–2 percakapan agent
 
@@ -50,3 +50,12 @@ Unit `siap` di `data/konten/` (Intisari Bab v2, Intisari Kitab) masuk build korp
 - **Menyimpang (terbuka, ADR-145):** induk batch dibuang utuh, bukan ditarik per gagasan; cek staging/produksi memakai Bidayah di X31b.
 - **Peninjau (0 blocker, 4 perbaikan dikerjakan):** batas bawah `minDigests` dikurangi induk basi; istilah dicek ke glosarium gabungan korpus; tes jalur baca skema 10; langkah 4 bagian `check_content_draft` (Jalur/Faedah v2) dicatat ditunda ke bagian 2 (ADR-145 butir 9).
 - **Berikutnya:** bagian 2 (tampilan web: inti, jawaban, label, Laporkan per gagasan; `check_content_draft` v2 untuk Jalur/Faedah), lalu X31b.
+
+### Bagian 2 (2026-11-27, ADR-145)
+
+- **Tampilan:** inti di kepala halaman Intisari (di bawah judul, di atas jumlah gagasan); jawaban soal di Uji pemahaman berlabel "Jawaban (AI)" plus tautan ke gagasannya (Intisari lama tetap menunjuk gagasan); label asal "Dibuat Claude Opus 5.5 lewat skill intisari-bab@1 (plugin Surau Redaksi) pada …, belum ditinjau manusia"; nama tampilan Opus/Fable 5.x.
+- **Laporkan per gagasan** (`point-report.tsx`): dialog kecil ke `/api/feedback` yang sudah ada, tanpa migrasi DB app: jenis `other`, path halaman Intisari, `passage_id` paragraf dasar pertama, pesan berawalan "[Intisari, gagasan N]". Dicoba lokal: laporan tersimpan di DB app lokal dengan awalan dan paragrafnya.
+- **Fixture** `/dev/intisari?tier=section` kini contoh Intisari v2 (inti, jawaban, skill).
+- **Bukti:** `pnpm verify` lolos (1.221 + 502 tes); `digest-page.test.tsx` 3 tes baru; `e2e/intisari.spec.ts` 12/12 (termasuk axe pada dialog Laporkan, tanpa mengirim ke staging); tangkapan ponsel 375 px.
+- **Peninjau (0 blocker, 2 perbaikan + 2 saran dikerjakan):** keterangan kosong/spasi tidak dikirim; tes bahwa body laporan lolos skema `/api/feedback` (panjang maksimum, path Intisari); awalan `CHAT_PROMPT_PREFIX` satu sumber di `@surau/core`; e2e menunggu animasi dialog, bukan jeda tetap.
+- **Ditunda ke X25 (ADR-145 butir 9):** `check_content_draft` hanya menerima Intisari v2 untuk hari Jalur dan `stance_unchecked` Faedah.

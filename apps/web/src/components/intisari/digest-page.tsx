@@ -1,4 +1,6 @@
 import type { DigestView } from "@surau/core";
+
+import { CHAT_PROMPT_PREFIX } from "@surau/core";
 import type { ReactNode } from "react";
 
 import { Alert, Breadcrumbs, Separator, Typography } from "@heroui/react";
@@ -120,12 +122,17 @@ export function DigestPage({
   const book = digest.tier === "book";
   const general = digest.quotes.filter((q) => q.point_ord === null);
   const hasEvidence = digest.evidence.ayat.length + digest.evidence.hadith.length > 0;
-  const meta = t.meta(
+  // Intisari v2 dari chat (X24): `prompt_version` = `surau-redaksi/<skill>`.
+  const skill = digest.prompt_version.startsWith(CHAT_PROMPT_PREFIX)
+    ? digest.prompt_version.slice(CHAT_PROMPT_PREFIX.length)
+    : null;
+  const meta = (skill === null ? t.meta : t.metaChat)(
     modelName(digest.model),
-    digest.prompt_version,
+    skill ?? digest.prompt_version,
     longDate(digest.created_at),
     t.review[digest.review_status],
   );
+  const pagePath = `${digest.section.permalink}/intisari`;
 
   return (
     <article className="mx-auto flex w-full max-w-2xl flex-col gap-10" data-intisari={digest.tier}>
@@ -163,6 +170,13 @@ export function DigestPage({
               <ArabicInline size="display">{digest.section.title_ar}</ArabicInline>
             )}
           </PageTitle>
+          {digest.lead !== null ? (
+            // Inti satu kalimat (X24, teks AI; label AI ada di baris jenis Intisari di atas).
+            <Typography className="text-pretty sm:text-lg" data-intisari-lead="">
+              <span className="sr-only">{t.leadLabel}: </span>
+              {digest.lead}
+            </Typography>
+          ) : null}
           <Typography className="flex flex-wrap items-baseline gap-x-3 gap-y-1" type="body-sm">
             <span>{t.points(digest.points.length)}</span>
             <span>{t.readTime(digest.reading_minutes)}</span>
@@ -199,7 +213,7 @@ export function DigestPage({
       </Section>
 
       <Section heading={t.pointsHeading} id="gagasan">
-        <PointList author={author} digest={digest} />
+        <PointList author={author} digest={digest} pagePath={pagePath} />
       </Section>
 
       {general.length > 0 ? (

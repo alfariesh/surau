@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-27 · X24 bagian 2 · Tampilan Intisari v2 — selesai (untuk Gelombang 1)
+- Dikerjakan: inti di kepala halaman Intisari, jawaban soal berlabel AI, label asal skill plugin, tombol Laporkan per gagasan (`/api/feedback`, tanpa migrasi), fixture `/dev/intisari` v2.
+- Verifikasi: `pnpm verify` → lolos (1.221 + 502 tes) · `e2e/intisari.spec.ts` 12/12 (axe dialog) · laporan uji tersimpan di DB app lokal · tangkapan ponsel 375 px
+- Biaya API: –
+- Keputusan: [ADR-145](keputusan/ADR-145.md) (diperbarui)
+- Catatan untuk sesi berikutnya: X31b. Bukti staging X24 (inti, jawaban, unit ditarik) dijalankan saat Intisari Bidayah pertama dimuat.
+
 ## 2026-11-27 · X24 bagian 1 · Impor Intisari chat ke korpus — sebagian
 - Dikerjakan:
   - Skema korpus 10 (`digest.lead`, `digest_question.answer`).

@@ -51,15 +51,16 @@ test.describe("fixture /dev/intisari", () => {
     );
   });
 
-  test("Uji pemahaman terlipat; membuka pertanyaan menunjukkan gagasan yang menjawabnya", async ({
+  test("Uji pemahaman terlipat; membuka pertanyaan menunjukkan jawaban AI dan gagasannya (X24)", async ({
     page,
   }) => {
     await openFixture(page);
     const question = page.locator("details.intisari-question").first();
     await expect(question).not.toHaveAttribute("open");
-    await expect(question.getByText("Jawabannya di gagasan 1")).toBeHidden();
+    await expect(question.getByText("Dari gagasan 1")).toBeHidden();
     await question.locator("summary").click();
-    await expect(question.getByText("Jawabannya di gagasan 1")).toBeVisible();
+    await expect(question.getByText("Jawaban (AI)")).toBeVisible();
+    await expect(question.getByText("Dari gagasan 1")).toBeVisible();
     await question.getByRole("link", { name: "Baca gagasannya" }).click();
     await expect(page.locator("#gagasan-1")).toBeInViewport();
   });
@@ -74,6 +75,36 @@ test.describe("fixture /dev/intisari", () => {
     await expect
       .poll(() => page.evaluate(() => localStorage.getItem("surau:intisari:read:v1")))
       .toBe("[9900002]");
+  });
+
+  test("Intisari v2 (X24): inti di kepala; Laporkan per gagasan membuka dialog tanpa pelanggaran a11y", async ({
+    page,
+  }) => {
+    await openFixture(page, `${FIXTURE}?tier=section`);
+    await expect(page.locator("[data-intisari-lead]")).toBeVisible();
+    await page.getByRole("button", { name: "Laporkan kekeliruan di gagasan 1" }).click();
+    const dialog = page.getByRole("dialog", { name: "Laporkan gagasan 1" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("textbox", { name: "Keterangan" })).toBeVisible();
+    // Kontras diukur sesudah animasi masuk selesai (latar setengah jalan memberi hasil palsu).
+    await expect(page.locator("[data-entering]")).toHaveCount(0);
+    // Latar dialog memudar lewat transisi CSS sesudah `data-entering` hilang: tunggu animasinya.
+    await page.evaluate(() =>
+      Promise.all(document.getAnimations().map((a) => a.finished.catch(() => undefined))),
+    );
+    const wcag = await new AxeBuilder({ page })
+      .include('[role="dialog"]')
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+    expect(
+      wcag.violations.map(
+        (v) =>
+          `${v.id}: ${v.nodes.map((n) => `${n.target.join(" ")} ${n.failureSummary ?? ""}`).join(" | ")}`,
+      ),
+    ).toEqual([]);
+    // Tanpa mengirim: Preview e2e tidak boleh mengotori DB app staging.
+    await dialog.getByRole("button", { name: "Batal" }).click();
+    await expect(dialog).toBeHidden();
   });
 
   for (const scheme of ["light", "dark"] as const) {

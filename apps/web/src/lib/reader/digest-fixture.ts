@@ -285,7 +285,10 @@ export const FIXTURE_SECTION: DigestView = {
   abstract:
     "Contoh abstrak Intisari Bab: bagian ini menjelaskan bahwa ilmu menuntun amal, dengan satu contoh riwayat.",
   closing: null,
+  // Intisari Bab contoh = Intisari v2 dari chat (X24): inti, jawaban, label skill.
   lead: "Menurut penulis, ilmu menuntun amal (inti contoh Intisari Bab).",
+  model: "claude-opus-5-5",
+  prompt_version: "surau-redaksi/intisari-bab@1",
   points: FIXTURE_BOOK.points.slice(0, 2),
   quotes: FIXTURE_BOOK.quotes.slice(0, 1),
   questions: FIXTURE_BOOK.questions.slice(0, 1),

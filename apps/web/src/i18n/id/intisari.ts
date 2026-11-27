@@ -35,6 +35,11 @@ export const intisari = {
   tierSection: "Intisari Bab",
   meta: (model: string, prompt: string, date: string, review: string) =>
     `Dibuat ${model} (${prompt}) pada ${date}, ${review}.`,
+  /** Intisari v2 dari chat (X24): skill plugin Surau Redaksi, bukan versi prompt batch. */
+  metaChat: (model: string, skill: string, date: string, review: string) =>
+    `Dibuat ${model} lewat skill ${skill} (plugin Surau Redaksi) pada ${date}, ${review}.`,
+  /** Inti satu kalimat di kepala Intisari v2 (X24). */
+  leadLabel: "Inti",
   review: {
     ai_generated: "belum ditinjau manusia",
     reviewed: "sudah ditinjau",
@@ -97,8 +102,31 @@ export const intisari = {
   evidenceChipWeak: "lemah",
   questionsHeading: "Uji pemahaman",
   questionsLead: "Coba jawab dulu, lalu buka untuk melihat gagasan yang menjawabnya.",
+  questionsLeadAnswered: "Coba jawab dulu, lalu buka untuk melihat jawabannya.",
+  /** Jawaban satu kalimat dari Intisari v2 (X24): teks AI berlabel. */
+  questionAnswerText: "Jawaban (AI)",
   questionAnswer: (n: number, title: string) => `Jawabannya di gagasan ${n}: ${title}`,
+  questionAnswerFrom: (n: number, title: string) => `Dari gagasan ${n}: ${title}`,
   questionGoto: "Baca gagasannya",
+  // Laporkan per gagasan (X24): lewat /api/feedback yang sama dengan pembaca, tanpa data pribadi.
+  reportButton: "Laporkan",
+  reportButtonLabel: (n: number) => `Laporkan kekeliruan di gagasan ${n}`,
+  reportHeading: (n: number) => `Laporkan gagasan ${n}`,
+  reportLead:
+    "Tulis apa yang keliru: isi tidak sesuai teks, salah menyebut pemilik pendapat, atau kalimat yang menyesatkan. Laporan dibaca pengelola; tanpa data pribadi.",
+  /** Awalan pesan yang tersimpan, supaya pengelola tahu gagasan mana (tanpa kolom DB baru). */
+  reportPrefix: (n: number) => `[Intisari, gagasan ${n}] `,
+  reportMessage: "Keterangan",
+  reportMessageHint: (max: number) => `Maksimal ${max.toLocaleString("id-ID")} karakter.`,
+  reportHoneypot: "Jangan isi kolom ini",
+  reportSubmit: "Kirim laporan",
+  reportCancel: "Batal",
+  reportSending: "Mengirim…",
+  reportThanks: "Terima kasih, laporan Anda tersimpan.",
+  reportClose: "Tutup",
+  reportErrorRate: "Terlalu banyak laporan dalam waktu singkat. Coba lagi sebentar lagi.",
+  reportErrorInvalid: "Laporan belum lengkap atau terlalu panjang.",
+  reportErrorGeneric: "Laporan gagal dikirim. Coba lagi nanti.",
   closingHeading: "Penutup",
   continueHeading: "Lanjut ke teks lengkap",
   continueText: "Intisari ini hanya pintu. Baca bagian ini utuh di teks kitab.",

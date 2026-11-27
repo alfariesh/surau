@@ -10,6 +10,11 @@ import { location, translationView } from "./schema.ts";
 
 /** Format berkas; naik bila bentuknya berubah tidak kompatibel. */
 export const CONTENT_FORMAT = "surau-konten/1";
+/**
+ * Awalan `prompt_version` Intisari v2 dari chat (`surau-redaksi/<skill>`, X24): dipakai ingest saat
+ * membangun baris dan web saat menulis label asal. Satu sumber supaya keduanya tidak menyimpang.
+ */
+export const CHAT_PROMPT_PREFIX = "surau-redaksi/";
 /** Versi aturan pemeriksa (lint + cek korpus); dicap di `periksa.kode.aturan`. */
 export const CONTENT_RULES = "konten@1";
 
