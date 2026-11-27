@@ -66,3 +66,103 @@ kitab:
     # 25 judul daftar isi, semuanya tingkat teratas (tanpa anak).
     intisari_bab:
       [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+  - slug: al-munqidz-min-adh-dhalal
+    shamela: 9246
+    openiti:
+      uri: 0505Ghazali.Munqidh.Shamela0009246-ara1
+      rilis: "2025.1.9"
+      repo: OpenITI/0525AH
+    edisi: "Dar al-Kutub al-Haditsah, Mesir, disertai Dr. 'Abd al-Halim Mahmud, 1 jilid (halaman cetak 101–207)"
+    wafat_h: 505
+    lisensi: CC BY-NC-SA 4.0
+    catatan_kaki: none
+    status: tayang
+    # 16 judul; sepuluh tingkat teratas (title.id 5 punya anak 6–11, dicakup Intisari-nya).
+    intisari_bab: [1, 2, 3, 4, 5, 12, 13, 14, 15, 16]
+  - slug: al-waraqat
+    shamela: 6297
+    openiti:
+      uri: 0478ImamHaramaynJuwayni.Waraqat.Shamela0006297-ara1
+      rilis: "2025.1.9"
+      repo: OpenITI/0500AH
+    edisi: "tahqiq Dr. 'Abd al-Lathif Muhammad al-'Abd, 1 jilid (halaman cetak 7–31)"
+    wafat_h: 478
+    lisensi: CC BY-NC-SA 4.0
+    catatan_kaki: none
+    status: tayang
+    # 20 judul Shamela, semuanya tingkat teratas; node basmalah (patch) tidak diberi Intisari.
+    intisari_bab: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+  - slug: rusum-dar-al-khilafah
+    shamela: 8173
+    openiti:
+      uri: 0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1
+      rilis: "2025.1.9"
+      repo: OpenITI/0450AH
+    edisi: "Dar ar-Ra'id al-'Arabi, Beirut, cetakan kedua 1986 M, tahqiq Mikha'il 'Awwad, 1 jilid (halaman cetak 3–142)"
+    wafat_h: 448
+    lisensi: CC BY-NC-SA 4.0
+    catatan_kaki: none
+    status: tayang
+    # 21 judul daftar isi, semuanya tingkat teratas dan semuanya teks Hilal ash-Shabi' (edisi
+    # Shamela tanpa mukadimah atau lampiran pentahqiq).
+    intisari_bab: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+  - slug: al-muqaddimah-al-hadhramiyyah
+    shamela: 6125
+    openiti:
+      uri: 0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1
+      rilis: "2025.1.9"
+      repo: OpenITI/0925AH
+    edisi: "ad-Dar al-Muttahidah, Damaskus, cetakan ke-2 1413 H, tahqiq Majid al-Hamawi, 1 jilid (halaman cetak 19–162)"
+    wafat_h: 918
+    lisensi: CC BY-NC-SA 4.0
+    catatan_kaki: none
+    status: tayang
+    # Intisari Bab (data/konten/intisari-bab, status siap): satu per node patch tingkat teratas,
+    # toc_node 700100 (mukadimah), 700101 (Thaharah), 700103 (Shalat), 700112 (Zakat),
+    # 700115 (Puasa), 700117 (Haji). intisari_bab tidak diisi karena kolom itu berisi title.id
+    # Shamela, sedangkan keenam node ini node patch (ADR-152).
+  - slug: at-tarifat
+    shamela: 7312
+    openiti:
+      uri: 0816IbnMuhammadSharifJurjani.Tacrifat.Shamela0007312-ara1
+      rilis: "2025.1.9"
+      repo: OpenITI/0825AH
+    edisi: "Dar al-Kutub al-'Ilmiyyah, Beirut, cetakan pertama 1403 H / 1983 M, disunting sekelompok ulama di bawah penerbit, 1 jilid (halaman cetak 5–262)"
+    wafat_h: 816
+    lisensi: CC BY-NC-SA 4.0
+    catatan_kaki: none
+    status: tayang
+    # Intisari Bab per judul tingkat teratas sesudah patch (ADR-152 tambahan): mukadimah (2) dan 28 bab
+    # huruf (3–30). Title 1 (label jilid) dan 31 (daftar isi penerbit) dibuang dari korpus, ADR-150.
+    intisari_bab:
+      [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+      ]

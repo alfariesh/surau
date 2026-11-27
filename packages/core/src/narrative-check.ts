@@ -31,6 +31,14 @@ const META_ID: readonly RegExp[] = [
   /\bterjemahan (?:yang )?(?:benar|tepat|lebih tepat)\b/i,
   /\bteks ini (?:berisi|memuat|hanya|tidak)\b/i,
   /\.\.\.\s*\(tidak(?: ada)?\)/i,
+  // Petunjuk identitas kitab (ADR-152 tambahan) yang bocor ke keluaran.
+  /\b(?:book guidance|petunjuk kitab)\b/i,
+  // Hanya bentuk bocoran yang terlihat (penulis/teks "bukan al-Ghazali"), bukan pembedaan pendapat
+  // yang sah seperti "not al-Ghazali's own view" atau "bukan dari al-Ghazali, melainkan dinukil".
+  /\b(?:penulis(?:nya)?|pengarang(?:nya)?|the author(?: here)?)\s+(?:adalah|ialah|is)\s+[^.]{1,60}?,?\s+(?:bukan|not)\s+al-Ghazali\b/i,
+  /\b(?:teks|kitab|bagian) ini (?:tampaknya )?bukan (?:dari |karya )?(?:al-Ghazali|petikan Ihya|bagian (?:dari )?Ihya)/i,
+  /\bthe (?:text|book|section) (?:here )?is not (?:from |by )?(?:al-Ghazali|(?:the )?Ihya)/i,
+  /\btampaknya bukan petikan Ihya/i,
 ];
 
 /**

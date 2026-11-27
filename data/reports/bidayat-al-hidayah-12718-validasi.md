@@ -5,7 +5,7 @@
 
 - Sumber: Shamela `book/718/12718.db`, sha256 `c41459f5c9a2f42354ba4fede121e5db5ddccdf94e1132db9805b35c568956ca`
 - Patch daftar isi: `–` · peta ID: `data/ids/bidayat-al-hidayah-12718.json`
-- Korpus: `kitab-v10` · NORM_VERSION 2
+- Korpus: `kitab-v11` · NORM_VERSION 2
 
 ## Invarian (ingest gagal bila ada yang ✗)
 

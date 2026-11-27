@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800003,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:00:01+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p12-p14, p108-p109: definisi abad, azal, azali dan pembagian tiga wujud sesuai; bagian yang tampak cacat di p109 tidak dirinci."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p165, p335-p336: Islam, nukilan al-Kasysyaf, komentar mazhab asy-Syafi'i dan Abu Hanifah, serta lima macam iman sesuai urutan pemiliknya."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p211, p40-p44: definisi ushul fikih, ijma' (bahasa, istilah, ahl al-hall wa al-'aqd) dan ijtihad (zhann tentang hukum syariat) sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p119-p120, p153-p154: istihsan sebagai salah satu dari empat dalil yang lebih kuat dari qiyas jali dan dua definisi istishab sesuai; ayat di p119 tidak disinggung."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p75-p76, p64-p65: ikhlas (bahasa dan istilah), nukilan al-Fudhail, ikhlas cabang shidq, dan ihsan secara syariat sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p127-p130: istiqamah dalam istilah ahl al-haqiqah dan tiga tingkat ad-Daqqaq sesuai; sikap reported."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p114, p118: istidlal, istiqra' (sebagian besar bagian, bukan seluruh = qiyas muqassam), contoh buaya dan tidak memberi yakin sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "e5327bde747885b09754b27ef545a7ee0f79d448c3cf6ede209db7d079e3aea9",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "p109: wujud dibagi tiga, tetapi golongan tengah (tidak azali dan tidak abadi) tidak disebut sehingga daftar tiganya tidak utuh."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "p165, p335-336: definisi, komentar mazhab, dan lima macam iman beserta pemiliknya sesuai."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "p211, p40-p44: definisi ushul fikih, ijma', dan ijtihad sesuai."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Terjemahan kutipan p153 menambahkan kata 'Istishab adalah' yang tidak ada dalam rentang, dan judul 'mengungguli' lebih kuat daripada syarat 'bila lebih kuat' di p119."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "p75-p76, p65: ikhlas, nukilan al-Fudhail, cabang shidq, dan ihsan sesuai."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "p127-p130: definisi ahli hakikat dan tiga tingkat ad-Daqqaq sesuai; sikap reported tepat."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "p114, p118: istidlal, istiqra', qiyas muqassam, dan contoh buaya sesuai; kutipan p114 setia."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "1cf4f63cb7fa42b1197400500e754d7c8bfc172a6adde050f0051029ea2d104f",
+      "draf_sha256": "e5327bde747885b09754b27ef545a7ee0f79d448c3cf6ede209db7d079e3aea9",
+      "waktu": "2026-11-27T19:33:40.770Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani dalam bab alif, istilah-istilah kunci ilmu kalam, ushul fikih, tasawuf, dan logika seperti abad, iman, ijma', ikhlas, dan istiqra' punya batasan makna yang tegas.",
+    "ringkasan": "Bab alif adalah bab terpanjang kedua at-Ta'rifat: memuat 324 entri definisi dari berbagai ilmu, dari nahwu, balaghah, fikih, ushul, kalam, filsafat, sampai tasawuf. Intisari ini hanya menyoroti sebagian istilah yang paling banyak dipakai lintas ilmu. Di antaranya abad dan azal beserta pembagian wujud, Islam dan iman, ushul fikih, ijma', dan ijtihad, istihsan dan istishab, ikhlas dan ihsan, istiqamah menurut ahli hakikat, serta istidlal dan istiqra' dalam logika. Untuk beberapa istilah al-Jurjani menyebut lebih dari satu definisi, sebagian dengan ungkapan wa qila (ada yang berkata).",
+    "gagasan": [
+      {
+        "judul": "Abad dan azal: wujud tak berujung ke masa depan dan masa lalu, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan abad sebagai berlangsungnya wujud dalam masa-masa yang diperkirakan tanpa batas ke arah masa depan, sedangkan azal adalah hal yang sama ke arah masa lalu. Ia juga menyebut definisi lain abad: masa yang tidak terbayangkan berakhir oleh pikiran, dan sesuatu yang tidak berujung. Azali adalah yang tidak didahului ketiadaan. Ia menambahkan bahwa wujud terbagi tiga, yang azali sekaligus abadi adalah Allah, sedangkan yang azali tetapi tidak abadi mustahil, sebab yang tetap keqadimannya tidak mungkin tiada.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000012, 80000013, 80000014, 80000108, 80000109],
+        "soal": {
+          "tanya": "Mengapa al-Jurjani menyebut sesuatu yang azali tetapi tidak abadi sebagai hal yang mustahil?",
+          "jawab": "Karena sesuatu yang sudah tetap keqadimannya tidak mungkin menjadi tiada."
+        }
+      },
+      {
+        "judul": "Islam adalah ketundukan, iman adalah keyakinan hati dan ikrar lisan, menurut penulis",
+        "isi": "Islam didefinisikan sebagai ketundukan dan kepatuhan kepada apa yang dikabarkan Rasulullah saw. Al-Jurjani menukil al-Kasysyaf bahwa ikrar lisan tanpa kesesuaian hati disebut Islam, sedangkan yang hati dan lisannya sejalan disebut iman; ia berkomentar bahwa ini mazhab asy-Syafi'i, sedangkan menurut mazhab Abu Hanifah keduanya tidak berbeda. Iman secara bahasa adalah pembenaran hati, secara syariat keyakinan hati dan ikrar lisan. Ia juga membagi iman menjadi lima macam: mathbu' (malaikat), ma'shum (para nabi), maqbul (orang mukmin), mauquf (ahli bid'ah), dan mardud (orang munafik).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000165, 80000335, 80000336],
+        "soal": {
+          "tanya": "Menurut komentar al-Jurjani, mazhab siapa yang tidak membedakan antara Islam dan iman?",
+          "jawab": "Mazhab Abu Hanifah; pembedaan keduanya ia sebut mazhab asy-Syafi'i."
+        }
+      },
+      {
+        "judul": "Ijma' dan ijtihad dibatasi oleh peran para mujtahid, menurut definisi penulis",
+        "isi": "Ushul fikih didefinisikan sebagai ilmu tentang kaidah-kaidah yang dipakai untuk sampai kepada fikih. Ijma' secara bahasa berarti tekad dan kesepakatan, sedangkan secara istilah adalah kesepakatan para mujtahid umat Muhammad saw. pada satu masa atas suatu perkara agama. Definisi lain menyebutnya tekad bulat ahl al-hall wa al-'aqd atas suatu perkara. Ijtihad secara bahasa berarti mengerahkan kemampuan, dan secara istilah adalah pengerahan seluruh kemampuan seorang faqih untuk memperoleh dugaan kuat (zhann) tentang suatu hukum syariat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000211, 80000040, 80000041, 80000043, 80000044],
+        "soal": {
+          "tanya": "Apa hasil yang hendak dicapai seorang faqih dalam ijtihad menurut definisi istilah al-Jurjani?",
+          "jawab": "Dugaan kuat (zhann) tentang suatu hukum syariat."
+        }
+      },
+      {
+        "judul": "Istihsan mengungguli qiyas jali dan istishab mempertahankan keadaan asal, menurut penulis",
+        "isi": "Istihsan secara istilah adalah nama bagi salah satu dari empat dalil yang menyelisihi qiyas jali dan diamalkan bila lebih kuat darinya; dinamai begitu karena umumnya lebih kuat sehingga menjadi qiyas yang dianggap baik. Definisi lain: meninggalkan qiyas dan mengambil yang lebih memudahkan manusia. Istishab adalah membiarkan sesuatu tetap pada keadaan semula karena tidak ada yang mengubahnya, atau hukum yang tetap pada masa kedua berdasarkan masa pertama.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000119, 80000120, 80000153, 80000154],
+        "soal": {
+          "tanya": "Kapan istihsan diamalkan meskipun menyelisihi qiyas jali menurut definisi al-Jurjani?",
+          "jawab": "Ketika dalil istihsan itu lebih kuat daripada qiyas jali."
+        }
+      },
+      {
+        "judul": "Ikhlas membersihkan hati dari campuran, ihsan beribadah seakan melihat Allah, menurut penulis",
+        "isi": "Ikhlas secara bahasa adalah meninggalkan riya dalam ketaatan, dan secara istilah membersihkan hati dari campuran yang mengeruhkan sifatnya. Al-Jurjani menukil al-Fudhail bin 'Iyadh: meninggalkan amal karena manusia adalah riya, beramal karena mereka adalah syirik, dan ikhlas adalah terlepas dari keduanya. Ia menyebut ikhlas sebagai cabang dari shidq yang menjadi pokoknya. Ihsan secara syariat adalah beribadah kepada Allah seakan melihat-Nya, dan bila tidak melihat-Nya, Dia melihat hamba itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000075, 80000076, 80000064, 80000065],
+        "soal": {
+          "tanya": "Bagaimana al-Fudhail bin 'Iyadh, yang dinukil al-Jurjani, membedakan riya, syirik, dan ikhlas?",
+          "jawab": "Meninggalkan amal karena manusia adalah riya, beramal karena manusia adalah syirik, dan ikhlas adalah terlepas dari keduanya."
+        }
+      },
+      {
+        "judul": "Ahli hakikat memaknai istiqamah sebagai menepati janji dan menjaga jalan tengah",
+        "isi": "Dalam istilah ahli hakikat, istiqamah adalah menepati seluruh janji dan menetapi jalan lurus dengan menjaga batas tengah dalam segala urusan, dari makanan, minuman, dan pakaian sampai urusan agama dan dunia. Definisi lain menyebutnya memadukan ketaatan dengan menjauhi maksiat, lawan dari kebengkokan, ketekunan, atau tidak memilih sesuatu di atas Allah. Abu 'Ali ad-Daqqaq yang dinukilnya menyebut tiga tingkat: taqwim (mendidik jiwa), iqamah (membersihkan hati), dan istiqamah (mendekatkan rahasia batin).",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000127, 80000128, 80000129, 80000130],
+        "soal": {
+          "tanya": "Apa tiga tingkat istiqamah menurut Abu 'Ali ad-Daqqaq yang dinukil al-Jurjani?",
+          "jawab": "Taqwim (mendidik jiwa), iqamah (membersihkan hati), dan istiqamah (mendekatkan rahasia batin)."
+        }
+      },
+      {
+        "judul": "Istiqra' yang tidak lengkap tidak menghasilkan keyakinan, menurut penjelasan penulis",
+        "isi": "Istidlal adalah menetapkan dalil untuk membuktikan yang ditunjuknya, baik dari akibat ke sebab, sebaliknya, atau dari satu akibat ke akibat lain. Istiqra' adalah menghukumi sesuatu yang umum karena hukum itu ada pada sebagian besar bagiannya; bila ada pada seluruh bagiannya, itu bukan istiqra' melainkan qiyas muqassam. Contohnya: setiap hewan menggerakkan rahang bawah saat mengunyah. Istiqra' seperti ini kurang dan tidak memberi keyakinan, sebab bisa ada bagian yang tidak diteliti dan berbeda hukumnya, seperti buaya yang menggerakkan rahang atas.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000114, 80000118],
+        "soal": {
+          "tanya": "Contoh apa yang dipakai al-Jurjani untuk menunjukkan bahwa istiqra' yang kurang tidak memberi keyakinan?",
+          "jawab": "Buaya, yang menggerakkan rahang atas saat mengunyah, berbeda dari hewan lain yang diteliti."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 4,
+        "passage_id": 80000153,
+        "char_start": 11,
+        "char_end": 64,
+        "terjemahan": "Istishab adalah ungkapan tentang membiarkan sesuatu tetap pada keadaan semula, karena tidak ada yang mengubahnya."
+      },
+      {
+        "gagasan": 7,
+        "passage_id": 80000114,
+        "char_start": 11,
+        "char_end": 113,
+        "terjemahan": "Istidlal adalah menetapkan dalil untuk membuktikan yang ditunjuknya, baik dari akibat kepada yang menimbulkannya atau sebaliknya, maupun dari salah satu dari dua akibat kepada yang lain."
+      }
+    ],
+    "istilah": []
+  }
+}

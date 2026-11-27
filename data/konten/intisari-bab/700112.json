@@ -1,0 +1,186 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 7,
+  "section_id": 700112,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p266-p267: muslim merdeka selain janin, jadwal unta 5-20, 25, 36, 46, 61, sesudah 130 setiap 40 dan 50, naik atau turun dengan dua kambing atau dua puluh dirham sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p269, p271, p273, p275: sapi 30, 40, 60; kambing 40, 121, 201, 400, lalu setiap seratus; cacat, jantan, kecil; empat syarat zakat ternak sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p276-p279, p281: makanan pokok, lima wasaq, enam puluh sha', empat mud, satu sepertiga rithl, sepersepuluh, seperdua puluh, tiga perempat, saat matang dan mengeras sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p283-p284, p286-p287: seperempat sepersepuluh, dua puluh mitsqal, dua puluh empat qirath, dua ratus dirham, tujuh belas qirath kurang seperlima, perhiasan, haul, rikaz seperlima, enam syarat dagangan sesuai teks; soal diperpanjang."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p289-p290, p292-p293: syarat zakat fitrah, tanggungan, satu sha' makanan pokok negeri, waktu boleh, sunah, dan haram ditunda, niat dan menyegerakan sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p295-p297, p299-p300: delapan golongan, paling sedikit tiga kecuali amil, sembunyi-sembunyi dan kerabat terdekat, larangan sedekah dari nafkah sehari semalam dan utang, mengungkit menggugurkan sedekah sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "9c08d692c9d953cac91f45560e222bcf75752de11767cd38a7133a60e8cb0644",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Angka dan umur benar, tetapi tahap 76, 91, dan 121 unta dilewati sehingga lompatan 61 ke 130 tidak utuh."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Sapi 30/40/60, kambing 40/121/201/400, cacat-jantan-kecil, dan syarat zakat ternak sesuai teks."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Lima wasaq, 60 sha', 4 mud, 1 1/3 rithl, sepersepuluh, seperdua puluh, tiga perempat, saat matang sesuai teks."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Angka benar; tambang juga tanpa syarat setahun tetapi hanya rikaz yang disebut."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Syarat fitrah, tanggungan, satu sha', waktu boleh-sunah-haram ditunda, niat dan menyegerakan sesuai teks."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Delapan golongan, minimal tiga kecuali amil, sedekah sunah, larangan nafkah sehari semalam dan utang sesuai teks."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "cea05cc7a98617079fcf78f91c77439be506ddc199dca90c1e2352528917a504",
+      "draf_sha256": "9c08d692c9d953cac91f45560e222bcf75752de11767cd38a7133a60e8cb0644",
+      "waktu": "2026-11-27T18:33:42.717Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Bafadl al-Hadrami, zakat hanya wajib atas muslim merdeka, pada ternak, tanaman pokok, emas dan perak, barang dagangan, dan fitrah, masing-masing dengan nisab dan kadar yang ia rinci, lalu dibagikan kepada delapan golongan.",
+    "ringkasan": "Bafadl al-Hadrami membuka Kitab Zakat dengan orang yang wajib berzakat dan zakat unta menurut bilangannya, lalu zakat sapi dan kambing, hewan yang tidak boleh diambil, serta syarat zakat ternak. Ia kemudian membahas zakat tanaman pokok beserta nisab dan kadarnya, zakat emas dan perak, rikaz, zakat dagangan, dan zakat fitrah. Sesudah itu ia menyebut niat dan menyegerakan zakat, kewajiban membaginya kepada delapan golongan yang ada, lalu adab dan batas sedekah sunah.",
+    "gagasan": [
+      {
+        "judul": "Setiap lima unta sampai dua puluh dikenai seekor kambing, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami membatasi kewajiban zakat pada muslim merdeka, selain janin. Pada unta, setiap lima ekor sampai dua puluh dikenai seekor kambing; dua puluh lima ekor dikenai bintu makhad berumur setahun; tiga puluh enam ekor bintu labun berumur dua tahun; empat puluh enam ekor hiqqah berumur tiga tahun; dan enam puluh satu ekor jadza'ah berumur empat tahun. Sesudah seratus tiga puluh, setiap empat puluh dikenai bintu labun dan setiap lima puluh hiqqah. Yang tidak memiliki hewan wajibnya boleh naik ke hewan yang lebih tinggi atau turun ke yang lebih rendah dengan selisih dua kambing atau dua puluh dirham.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000266, 70000267],
+        "soal": {
+          "tanya": "Apa zakat dua puluh lima ekor unta menurut Bafadl al-Hadrami?",
+          "jawab": "Seekor bintu makhad berumur setahun, atau ibnu labun berumur dua tahun bila tidak ada."
+        }
+      },
+      {
+        "judul": "Ternak dizakati bila genap setahun dan digembalakan di padang mubah, menurut penulis",
+        "isi": "Penulis menyebut zakat tiga puluh sapi berupa seekor tabi' berumur setahun, empat puluh sapi seekor musinnah berumur dua tahun, dan enam puluh sapi dua ekor tabi'. Pada kambing, empat puluh ekor dikenai seekor sampai seratus dua puluh satu yang dikenai dua ekor, dua ratus satu tiga ekor, empat ratus empat ekor, lalu seekor setiap seratus. Hewan cacat, jantan, atau kecil tidak diambil kecuali seluruh ternaknya demikian. Syarat zakat ternak: dimiliki genap setahun berturut-turut, digembalakan di padang rumput mubah oleh pemiliknya, dan tidak dipekerjakan membajak atau semacamnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000269, 70000271, 70000273, 70000275],
+        "soal": {
+          "tanya": "Apa zakat tiga puluh ekor sapi menurut penulis?",
+          "jawab": "Seekor tabi' atau tabi'ah yang berumur setahun."
+        }
+      },
+      {
+        "judul": "Zakat tanaman hanya pada makanan pokok dengan nisab lima wasaq, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami membatasi zakat tanaman pada makanan pokok: kurma dan anggur dari buah-buahan, serta gandum, jelai, beras, dan biji lain yang dimakan sebagai pokok dalam keadaan normal. Nisabnya lima wasaq; satu wasaq enam puluh sha', satu sha' empat mud, dan satu mud satu sepertiga rithl Baghdad. Tanaman yang diairi tanpa biaya dikenai sepersepuluh, yang diairi dengan biaya seperti unta penyiram seperdua puluh, dan yang diairi dengan keduanya sama banyak tiga perempat dari sepersepuluh. Zakat itu baru wajib saat buah tampak matang dan biji mengeras.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000276, 70000277, 70000278, 70000279, 70000281],
+        "soal": {
+          "tanya": "Berapa nisab zakat tanaman menurut Bafadl al-Hadrami?",
+          "jawab": "Lima wasaq, dan setiap wasaq sama dengan enam puluh sha'."
+        }
+      },
+      {
+        "judul": "Zakat emas, perak, dan dagangan seperempat dari sepersepuluh, menurut penulis",
+        "isi": "Menurut penulis, zakat emas dan perak, termasuk yang berasal dari tambang, ialah seperempat dari sepersepuluh. Nisab emas dua puluh mitsqal murni, dan satu mitsqal dua puluh empat qirath; nisab perak dua ratus dirham Islam, dan satu dirham tujuh belas qirath kurang seperlima qirath. Perhiasan tidak dizakati bila tidak dimaksudkan untuk disimpan, dan emas serta perak disyaratkan genap setahun, sedangkan rikaz dikenai seperlima tanpa syarat setahun. Barang dagangan juga dikenai seperempat dari sepersepuluh nilainya, dengan enam syarat, di antaranya niat berdagang yang menyertai kepemilikan dan kepemilikan melalui pertukaran.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000283, 70000284, 70000286, 70000287],
+        "soal": {
+          "tanya": "Berapa nisab zakat emas yang disebut penulis?",
+          "jawab": "Dua puluh mitsqal emas murni, dan satu mitsqal sama dengan dua puluh empat qirath."
+        }
+      },
+      {
+        "judul": "Zakat fitrah satu sha' makanan pokok negeri, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami mensyaratkan zakat fitrah bagi orang yang mendapati terbenamnya matahari malam hari raya, beragama Islam, dan memiliki kelebihan dari kebutuhan dirinya dan tanggungannya pada malam dan hari raya, serta dari pakaian, tempat tinggal, dan pembantu yang diperlukan. Ia juga menanggung zakat orang muslim yang ia nafkahi, seperti istri, anak, orang tua, dan budak. Kadarnya satu sha' dari makanan pokok yang umum di negerinya; boleh dikeluarkan di bulan Ramadan, disunahkan sebelum shalat hari raya, dan haram ditunda melewati hari raya. Sesudah itu ia menyebut zakat secara umum wajib disertai niat dan boleh disegerakan sebelum genap setahun, bila pemiliknya tetap wajib berzakat dan penerimanya tetap berhak sampai akhir tahun.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000289, 70000290, 70000292, 70000293],
+        "soal": {
+          "tanya": "Berapa kadar zakat fitrah menurut Bafadl al-Hadrami?",
+          "jawab": "Satu sha' dari makanan pokok yang umum di negeri itu."
+        }
+      },
+      {
+        "judul": "Zakat dibagikan kepada delapan golongan yang ada, menurut penulis",
+        "isi": "Penulis mewajibkan zakat dibagikan kepada golongan yang ada dari delapan golongan: fakir, miskin, orang berutang, ibnu sabil, amil, mualaf, pejuang sukarela, dan budak mukatab; setiap golongan paling sedikit tiga orang, kecuali bila jumlahnya terbatas dan zakat mencukupi kebutuhan mereka, sedangkan amil boleh satu orang. Untuk sedekah sunah, ia mengutamakan cara sembunyi-sembunyi dan memberi kerabat terdekat lebih dulu. Ia tidak menghalalkan bersedekah dengan harta yang dibutuhkan untuk nafkah sehari semalam diri dan tanggungannya, atau untuk utang yang tidak ada harapan melunasinya, dan menyebut mengungkit-ungkit sedekah menggugurkannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000295, 70000296, 70000297, 70000299, 70000300],
+        "soal": {
+          "tanya": "Berapa orang paling sedikit dari setiap golongan penerima zakat menurut penulis?",
+          "jawab": "Tiga orang, kecuali amil yang boleh satu orang."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 70000266,
+        "char_start": 19,
+        "char_end": 76,
+        "terjemahan": "Zakat tidak wajib kecuali atas orang merdeka yang muslim, selain janin."
+      },
+      {
+        "gagasan": 3,
+        "passage_id": 70000276,
+        "char_start": 244,
+        "char_end": 285,
+        "terjemahan": "Nisabnya lima wasaq, setiap wasaq enam puluh sha'."
+      }
+    ],
+    "istilah": []
+  }
+}

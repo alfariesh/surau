@@ -1,0 +1,150 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900013,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p270-p271: doa tertinggi untuk putra mahkota dan amir Buwaihi, lebih rendah untuk Khurasan dan daerah tepi sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p271-p273: Ibrahim bin Hilal menyusun surat yang mendahulukan 'Izz ad-Daulah, doa yang ditinggikan, salinan kepada 'Adhud ad-Daulah sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p274-p276: membalas yang berbuat baik, negara kadang sakit kadang sehat, Mu'izz ad-Daulah, dan penetapan bagi 'Izz ad-Daulah sesuai isi surat; sikap reported."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p277-p281: masa panjang al-Muthi', penyerahan kepada ath-Tha'i', tiga keistimewaan, Abu Thahir an-Nashih, tanggal Sabtu dua belas Jumadal Ula 366 H sesuai surat."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p282: penjara empat tahun lebih beberapa bulan, tambahan doa dan Taj al-Millah, doa Baha' ad-Daulah dan para wazir sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "e0c608aeb145a144c0d44d5af60e1e81f238632394c7b53b914d71e5d6ff5229",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Teks memakai bentuk lampau dan menyebut doa di bagian-bagian surat, draf memakai bentuk kini."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Penyusun surat, wafat Rukn ad-Daulah, dan bentuk doa sesuai."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Isi surat dinukil setia; sikap reported tepat."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Masa al-Muthi' lebih lama daripada khalifah mana pun sebelumnya kurang tegas, dan separuh keistimewaan ketiga hilang."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Empat tahun lebih beberapa bulan, Taj al-Millah, dan doa Baha' ad-Daulah sesuai."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "89afbeeed838487b7d6dc77c069d9466d79218cd158ce44e28b8fce109154aa9",
+      "draf_sha256": "e0c608aeb145a144c0d44d5af60e1e81f238632394c7b53b914d71e5d6ff5229",
+      "waktu": "2026-11-27T18:34:20.974Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', doa bagi para amir dalam surat khalifah bertingkat menurut kedudukan, dan satu surat ath-Tha'i' yang ditulis kakeknya untuk mengangkat 'Izz ad-Daulah membuat kakeknya dipenjara 'Adhud ad-Daulah.",
+    "ringkasan": "Hilal ash-Shabi' membuka bab dengan tingkat doa bagi para amir dalam surat khalifah: yang tertinggi untuk putra mahkota dan amir Buwaihi, yang lebih rendah untuk penguasa Khurasan dan daerah. Ia lalu menukil lengkap surat ath-Tha'i' kepada 'Adhud ad-Daulah tahun 366 H yang disusun kakeknya, Ibrahim bin Hilal, berisi pujian kepada Mu'izz ad-Daulah dan 'Izz ad-Daulah serta tiga keistimewaan bagi 'Izz ad-Daulah. Bab ditutup dengan akibat surat itu bagi kakeknya, tambahan doa bagi 'Adhud ad-Daulah setelah ia menguasai Irak, dan doa bagi para wazir.",
+    "gagasan": [
+      {
+        "judul": "Doa bagi amir dalam surat khalifah bertingkat menurut kedudukan, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', doa tertinggi bagi para amir dalam surat khalifah adalah doa agar Allah memperbagus penjagaan dan perlindungan bagi penerima serta menjadikan Amir al-Mu'minin dapat terus menikmati keberadaannya dan nikmat padanya. Doa itu dipakai untuk putra mahkota dan para amir Bani Buwaih, dengan doa singkat setiap kali namanya disebut. Di bawahnya, untuk penguasa Khurasan dan daerah-daerah tepi, doanya lebih pendek, dan doa singkat di tengah surat berupa permohonan penjagaan dan perlindungan Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000270, 90000271],
+        "soal": {
+          "tanya": "Untuk siapa doa tertinggi dalam surat khalifah dipakai menurut Hilal ash-Shabi'?",
+          "jawab": "Untuk putra mahkota dan para amir Bani Buwaih."
+        }
+      },
+      {
+        "judul": "Surat ath-Tha'i' yang ditulis kakek penulis mendahulukan 'Izz ad-Daulah",
+        "isi": "Penulis menuturkan bahwa setelah Rukn ad-Daulah wafat dan terjadi perselisihan antara 'Adhud ad-Daulah dan 'Izz ad-Daulah, kakeknya Ibrahim bin Hilal menyusun surat atas nama ath-Tha'i' yang memuliakan 'Izz ad-Daulah dan menjadikannya yang terdepan sesudah Rukn ad-Daulah. Dalam surat itu doa bagi 'Izz ad-Daulah ditetapkan lebih tinggi, yaitu doa panjang umur, kekalnya kemuliaan dan pertolongan, disertai doa singkat pada setiap sebutan namanya. Penulis lalu menukil salinan surat yang dikirim kepada 'Adhud ad-Daulah tentang hal itu, yang dibuka dari ath-Tha'i' kepada 'Adhud ad-Daulah putra Rukn ad-Daulah, maula Amir al-Mu'minin.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000271, 90000272, 90000273],
+        "soal": {
+          "tanya": "Siapa yang menyusun surat ath-Tha'i' yang mendahulukan 'Izz ad-Daulah?",
+          "jawab": "Ibrahim bin Hilal, kakek Hilal ash-Shabi'."
+        }
+      },
+      {
+        "judul": "Mu'izz ad-Daulah memulihkan wibawa khilafah, menurut surat ath-Tha'i' yang dinukil penulis",
+        "isi": "Surat yang dinukil penulis menyatakan bahwa membalas orang yang berbuat baik termasuk jalan keadilan yang ingin dihidupkan khalifah, sebagaimana para khalifah terdahulu. Menurut surat itu, negara Abbasiyah kadang sakit dan kadang sehat, tetapi akarnya kokoh; guncangannya menjadi pelajaran bagi orang yang lalai, lalu Allah mengutus wali yang setia untuk memulihkannya. Kedudukan itu, menurut surat, dimiliki Mu'izz ad-Daulah, yang mengambil kembali wilayah yang lepas, menundukkan musuh, mengembalikan wibawa penguasa, dan setia melayani al-Muthi' sampai wafat. Karena itu al-Muthi' menetapkan kedudukannya bagi putranya, 'Izz ad-Daulah, atas keutamaannya sendiri.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000274, 90000275, 90000276],
+        "soal": {
+          "tanya": "Bagaimana surat ath-Tha'i' menggambarkan guncangan yang menimpa negara Abbasiyah?",
+          "jawab": "Sebagai pelajaran bagi orang yang lalai, sementara akar negara itu tetap kokoh."
+        }
+      },
+      {
+        "judul": "Tiga keistimewaan dianugerahkan kepada 'Izz ad-Daulah, menurut surat ath-Tha'i' yang dinukil",
+        "isi": "Menurut surat itu, 'Izz ad-Daulah menjadi penolong al-Muthi' sampai al-Muthi' memerintah lebih lama daripada khalifah sebelumnya. Ketika al-Muthi' tua dan sakit berat, ia menyerahkan khilafah kepada ath-Tha'i', dan 'Izz ad-Daulah menghimpun para wali untuk membaiatnya. Ath-Tha'i' lalu memberinya tiga keistimewaan: ikatan perkawinan dengan keluarga khalifah, doa dalam surat yang belum pernah ditulis imam kepada putra mahkota, dan keikutsertaan bersama khalifah dalam mengangkat wazir. Abu Thahir an-Nashih disebut menjadi wazir bagi keduanya, dan orang lain dilarang memakai sebutannya. Surat itu bertanggal Sabtu, dua belas Jumadal Ula 366 H.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000277, 90000278, 90000279, 90000280, 90000281],
+        "soal": {
+          "tanya": "Apa keistimewaan pertama yang diberikan ath-Tha'i' kepada 'Izz ad-Daulah menurut surat yang dinukil?",
+          "jawab": "Ikatan perkawinan yang menyambungkan keluarganya dengan keluarga khalifah."
+        }
+      },
+      {
+        "judul": "Kakek penulis dipenjara 'Adhud ad-Daulah karena surat itu, menurut penuturan penulis",
+        "isi": "Penulis menuturkan bahwa surat inilah yang membuat 'Adhud ad-Daulah marah kepada kakeknya, Ibrahim bin Hilal, dan memenjarakannya empat tahun lebih beberapa bulan. Setelah menguasai Irak, 'Adhud ad-Daulah meminta tambahan doa kepada ath-Tha'i' dan dikabulkan, disertai gelar Taj al-Millah dan penegasan bahwa ia diangkat di atas para tandingannya dengan tanda amir para amir; menurut penulis, tingkat ini lebih agung daripada semua sebelumnya, dan menjadi aturan bagi saudara dan anak-anaknya. Pada masa al-Qadir doa bagi Baha' ad-Daulah ditetapkan lagi lalu berpindah kepada putranya. Adapun wazir para khalifah dahulu didoakan dengan doa yang lebih singkat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000282],
+        "soal": {
+          "tanya": "Berapa lama Ibrahim bin Hilal dipenjara 'Adhud ad-Daulah karena surat yang ia susun?",
+          "jawab": "Empat tahun lebih beberapa bulan."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

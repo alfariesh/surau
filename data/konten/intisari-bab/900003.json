@@ -1,0 +1,192 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900003,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p85-p86: tanpa cium tanah pada kebiasaan lama, tangan bertutup lengan, golongan yang tidak mencium, dan awam yang tidak patut mencium sesuai teks (negasi dijaga)."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p86-p90: ghaliyah Ibrahim bin al-Mahdi, Ali bin al-Ma'mun didudukkan di antara, pura-pura sakit sebulan, al-Muhallabi diusir karena suara, keluar mundur sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p90-p91, p120-p140, p168: burung unta, koreksi halus kepada penguasa, an-Nadhr menisbahkan kesalahan kepada Husyaim, delapan puluh ribu dirham, firasat buruk sesuai teks; gagasan memadukan dua adab yang berdekatan."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p98-p106: tiga puluh dua juta dirham, catatan dibakar, kurang dari lima belas hari, lima kopiah bersalib daun kurma, lima puluh cambukan sesuai teks; sikap reported."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p94, p107-p111: larangan gunjing dan adu domba, isyarat halus, pesan Abdul Malik bin Shalih, saran Ibnu al-Furat dan serangan terhadap jamaah haji sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p112-p119: Ubaidullah di bawah ranjang dengan alasannya sendiri, Isma'il bin Bulbul dan kuda muda, as-Sarakhsi, dan Abu Nuh sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p170-p182: larangan kemanjaan, tempat tinta di sepatu, Ali bin Isa wazir pertama yang dipegangkan tempat tinta, larangan meminta air, hadiah kepada al-Muhallabi sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "a2ccd08b0500d73c09c8dcbcd7552427f746f7fb0e4fbc99207e5d6f24a40eaf",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Cium tanah bukan kebiasaan lama, tangan tertutup lengan, dan golongan yang tidak mencium sesuai p85-p86."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Kisah ghaliyah, al-Muhallabi diusir karena suara, dan adab majelis sesuai p86-p90."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Tema syair berfirasat buruk bersandar pada p147-p167 yang tidak ada di dasar dan tidak tercermin di judul."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Angka dan pelaku kisah Makhlad dan Faraj sesuai p98-p106; sikap reported."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Gunjing, adu domba, isyarat halus, Abdul Malik bin Shalih, saran Ibnu al-Furat sesuai."
+        },
+        {
+          "ke": 6,
+          "nilai": "kurang",
+          "catatan": "Isi setia, tetapi pembunuhan as-Sarakhsi (p117) dan awal kisah Abu Nuh (p118) tidak tercantum di dasar."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Alasan aturan istana pada kisah al-Muhallabi dan batasan kalangan khusus hilang; p171 dan p181 tidak di dasar."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "2e6e49310d3eecd456f3d08e5aba6ba7db28f62f16c5d9c0ee511d301df9f9b5",
+      "draf_sha256": "a2ccd08b0500d73c09c8dcbcd7552427f746f7fb0e4fbc99207e5d6f24a40eaf",
+      "waktu": "2026-11-27T18:34:06.850Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', pelayan khalifah dinilai dari cara salam, penampilan, suara, ucapan, dan kemampuan menjaga rahasia, dan ia memperkuat setiap adab dengan kisah para wazir dan katib yang celaka atau selamat karenanya.",
+    "ringkasan": "Hilal ash-Shabi' memulai bab adab pelayanan dengan cara memberi salam kepada khalifah dan siapa yang boleh mencium tanah. Ia lalu menguraikan penampilan, wewangian, suara, dan gerak tubuh di majelis khalifah, larangan bercerita hal yang sulit dipercaya, serta larangan menggunjing dan mengadu domba, dengan kisah panjang Makhlad dan Faraj ar-Rukhkhaji. Sesudahnya ia membahas cara menyampaikan pendapat yang berbeda, menjaga rahasia, mengoreksi kesalahan penguasa secara halus, menghindari nama dan kata yang membawa firasat buruk, serta beberapa kebiasaan istana seperti tempat tinta di sepatu wazir dan meminta minum di Dar al-Khilafah.",
+    "gagasan": [
+      {
+        "judul": "Mencium tanah di hadapan khalifah bukan kebiasaan lama, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', kebiasaan lama tidak mengenal mencium tanah. Orang yang masuk cukup mengucapkan salam kepada khalifah dengan kata sapaan langsung karena itu lebih jelas dan lebih tepat. Kadang khalifah mengulurkan tangannya yang tertutup lengan baju kepada wazir atau amir untuk dicium, sebagai penghormatan, agar mulut tidak menyentuh tangan itu langsung. Kemudian kebiasaan bergeser ke mencium tanah dan semua orang melakukannya. Putra mahkota, kerabat Bani Hasyim, para qadhi, fuqaha, zahid, dan qurra' dahulu tidak mencium tangan maupun tanah. Adapun prajurit menengah ke bawah dan orang awam justru tidak patut mencium tanah karena kedudukan mereka belum sampai ke sana.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000085, 90000086],
+        "soal": {
+          "tanya": "Mengapa khalifah menutupi tangannya dengan lengan baju ketika mengulurkannya kepada wazir untuk dicium?",
+          "jawab": "Agar mulut atau bibir tidak menyentuh tangannya secara langsung."
+        }
+      },
+      {
+        "judul": "Wewangian, suara, dan gerak tubuh di majelis khalifah dijaga ketat, menurut penulis",
+        "isi": "Penulis menggambarkan wazir yang patut masuk dalam keadaan bersih, tenang langkahnya, dan harum, tetapi menjauhi wewangian yang tidak disukai penguasa. Ia menukil kisah Ibrahim bin al-Mahdi yang banyak memakai ghaliyah sampai al-Mu'tashim mendudukkan Ali bin al-Ma'mun di antara mereka; Ibrahim lalu berpura-pura sakit sebulan dan meninggalkannya. Di majelis, orang hanya berbicara bila ditanya dan merendahkan suara. Al-Muhallabi pernah dicaci dan diusir oleh al-Muthi' karena suaranya meninggi, lalu diizinkan kembali setelah meminta maaf. Orang juga menahan tawa, ludah, batuk, dan lirikan, serta keluar dengan mundur agar tidak membelakangi khalifah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000086, 90000087, 90000088, 90000089, 90000090],
+        "soal": {
+          "tanya": "Mengapa al-Muthi' mengusir wazir al-Muhallabi dari majelisnya?",
+          "jawab": "Karena suara al-Muhallabi meninggi ketika berbicara di hadapan khalifah."
+        }
+      },
+      {
+        "judul": "Cerita mustahil dan koreksi terbuka dihindari di hadapan penguasa, menurut penulis",
+        "isi": "Menurut penulis, pelayan penguasa menghindari cerita yang terdengar mustahil. Seorang wazir yang menyebut ada burung menelan bara menghabiskan harta besar untuk mendatangkan burung unta, lalu raja berkata kebodohannya kini lebih besar, sebab orang berakal tidak menceritakan hal yang diingkari pendengar. Bila penguasa salah ucap atau salah membaca syair, hadirin tidak membantahnya terang-terangan, tetapi menunjukkan yang benar dengan sindiran, dan kesalahan tulisannya diperbaiki wazir diam-diam. An-Nadhr bin Syumail mengoreksi bacaan al-Ma'mun secara halus dengan menisbahkan kesalahannya kepada perawi Husyaim, dan pulang membawa delapan puluh ribu dirham. Penulis juga menukil syair yang dianggap membawa firasat buruk dan menilai hal kecil itu berpengaruh di hati.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000090, 90000091, 90000120, 90000122, 90000140, 90000168],
+        "soal": {
+          "tanya": "Mengapa raja tetap menyalahkan wazir setelah burung unta terbukti menelan bara?",
+          "jawab": "Karena orang berakal tidak menceritakan hal yang diingkari pendengar sampai harus dibuktikan dengan biaya besar."
+        }
+      },
+      {
+        "judul": "Tipu daya Faraj ar-Rukhkhaji berbalik kepada dirinya, menurut kisah yang dinukil penulis",
+        "isi": "Penulis menukil kisah ini sebagai contoh kejahatan yang kembali kepada pelakunya. Al-Ma'mun meminta Makhlad menghitung tanggungan musuhnya, Faraj ar-Rukhkhaji, dan hasilnya tiga puluh dua juta dirham. Faraj datang malam-malam memohon ampun, dan Makhlad membakar catatan hitungan itu. Kurang dari lima belas hari kemudian Faraj menyelipkan salib dari daun kurma di dalam lima kopiah buatan budaknya, Nashr, lalu menuduh Makhlad menyembah salib di hadapan al-Ma'mun. Makhlad yang sudah menemukannya merobek kopiahnya sendiri dan membuka tipu daya itu. Nashr mengaku setelah dicambuk lima puluh kali, dan Faraj diserahkan kepada Makhlad untuk diperiksa hartanya.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000098, 90000100, 90000103, 90000104, 90000105, 90000106],
+        "soal": {
+          "tanya": "Dengan cara apa Faraj ar-Rukhkhaji berusaha menjatuhkan Makhlad di hadapan al-Ma'mun?",
+          "jawab": "Ia menyelipkan salib dari daun kurma ke kopiah Makhlad lalu menuduhnya menyembah salib."
+        }
+      },
+      {
+        "judul": "Pendapat yang berbeda disampaikan lewat isyarat halus, menurut penulis",
+        "isi": "Penulis menganjurkan pelayan penguasa menahan lidah dari menggunjing dan mengadu domba, sebab orang yang mengadu kepada seseorang juga akan mengadukannya. Bila penguasa menghendaki sesuatu yang keliru, menurutnya tidak termasuk adab membantahnya dengan hujah terbuka, karena itu memancing dendam; yang patut adalah isyarat halus, sindiran ringan, dan kisah yang serupa. Ia menukil pesan Abdul Malik bin Shalih kepada guru anaknya agar tidak membantahnya di depan orang. Ia juga menukil saran Ibnu al-Furat kepada wazir al-Abbas agar tidak menyelisihi perintah al-Muktafi tentang Zakrawaih; al-Abbas tetap pada pendapatnya, lalu terjadilah serangan terhadap jamaah haji.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000094, 90000107, 90000109, 90000110, 90000111],
+        "soal": {
+          "tanya": "Bagaimana cara yang patut menyampaikan pendapat berbeda kepada penguasa menurut Hilal ash-Shabi'?",
+          "jawab": "Dengan isyarat halus, sindiran ringan, dan kisah serupa, bukan dengan bantahan terbuka."
+        }
+      },
+      {
+        "judul": "Katib tidak berlagak berani dan tidak membuka rahasia, menurut penulis",
+        "isi": "Menurut penulis, tidak ada yang lebih buruk bagi juru tulis daripada berlagak berani seperti tentara. Ubaidullah bin Sulaiman lari ke bawah ranjang ketika seekor singa lepas di hadapan al-Mu'tadhid, lalu berkata kepada kawannya bahwa ia sengaja agar khalifah melihatnya lemah dan merasa aman darinya. Sebaliknya Isma'il bin Bulbul dipermalukan kuda muda yang ia coba tunggangi, padahal berkuda bukan urusannya. Penulis juga memperingatkan agar tidak membuka rahasia: al-Mu'tadhid membunuh Ahmad bin ath-Thayyib as-Sarakhsi dengan aturan yang dulu diucapkan Ahmad sendiri. Mengkhianati atasan demi mendekati wazir pun bisa merusak kedudukan, seperti Abu Nuh yang dijauhkan Isma'il bin Bulbul.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000112, 90000113, 90000114, 90000115, 90000116, 90000119],
+        "soal": {
+          "tanya": "Apa alasan Ubaidullah bin Sulaiman bersembunyi di bawah ranjang ketika singa lepas, menurut pengakuannya?",
+          "jawab": "Agar khalifah melihat kelemahannya dan merasa aman darinya."
+        }
+      },
+      {
+        "judul": "Wazir dahulu menyimpan tempat tinta di sepatunya sampai masa al-Muqtadir, menurut penulis",
+        "isi": "Penulis memperingatkan agar keakraban dengan penguasa tidak membuat orang merasa berhak atau berlebihan meminta, sebab kemanjaan merusak kehormatan. Ia menyebut kebiasaan lama: wazir atau katib membawa tempat tinta kecil berantai di sepatunya, memegangnya di tangan kiri dan kertas di tangan kanan saat menulis di hadapan khalifah. Kebiasaan itu berubah ketika al-Muqtadir merasa berat melihat Ali bin Isa menulis demikian, lalu menyuruh seorang khadim memegangkan tempat tinta; sejak itu menjadi aturan bagi para wazir. Meminta air di Dar al-Khilafah juga tidak termasuk adab. Ketika al-Muhallabi diberi minum, wadah emas dan budak pembawanya sekalian dihadiahkan kepadanya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000170, 90000176, 90000178, 90000179, 90000180, 90000182],
+        "soal": {
+          "tanya": "Siapa wazir pertama yang tempat tintanya dipegangkan seorang khadim di hadapan khalifah?",
+          "jawab": "Ali bin Isa, pada masa al-Muqtadir."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

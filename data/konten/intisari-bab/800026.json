@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800026,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:01:25+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1987-1988, p2016: definisi mantiq, dua pengecualian, dan mawdhu ilmu sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1672-1673: mahiyah, enam nama menurut sudut pandang sesuai; etimologi tidak dimuat."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1754-1755, 1916, 1735, 1839, 1708: urutan muhkam-mufassar-nash-zhahir dan khafi-musykil-mujmal-mutasyabih sesuai, contoh dari teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1684, 1824 (qila dipertahankan), 1982 (menurut fuqaha), 1952, 1900 sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1728-1729, 1706, 1838: majaz, syarat kesesuaian, isti arah vs mursal, mutaradif, musytarak sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p1682, 1998, 1873, 1843: unsur mukjizat dan beda masyi ah-iradah sesuai."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p2006-2010, 1791: istilah ahl al-haqq dinukil (reported); penjelasan fana pada maut hitam tidak dimuat."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "4a0c9adab3ca27572bb4e246f514f45d94abb77e540add1b73b665b5440908e0",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi mantiq, dua pengecualian, mawdhu', dan kutipan (p80001987) sesuai teks."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Mahiyah dan enam sebutan menurut sudut pandang sesuai p80001672-1673."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Urutan muhkam-mufassar-nash-zhahir dan khafi-musykil-mujmal-mutasyabih beserta contoh sesuai p80001755, 1735, 1708."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Mubah, mustahab (dengan 'qila'), mandub menurut fuqaha, makruh tahrimi/tanzihi, dan maksiat sesuai."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Majaz, syarat kesesuaian, isti'arah vs mursal, mutaradif, dan musytarak sesuai p80001728-1729, 1706, 1838."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Mukmin, munafik, unsur mukjizat, dan beda masyi'ah-iradah sesuai; terjemahan kutipan p80001682 tepat."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Definisi muraqabah (p80001791) adalah definisi penulis tanpa atribusi, tetapi ikut masuk gagasan bersikap reported; selain itu isi sesuai."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "315118be86ebfb36f09df64fa055a8331db317e0418974f311fe6d4fb762d6d9",
+      "draf_sha256": "4a0c9adab3ca27572bb4e246f514f45d94abb77e540add1b73b665b5440908e0",
+      "waktu": "2026-11-27T19:02:19.912Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani, istilah berhuruf mim menjangkau logika, ushul fikih, fikih, balaghah, akidah, dan tasawuf, dari definisi logika dan mahiyah sampai makna maut bagi ahli hakikat.",
+    "ringkasan": "Bab mim adalah bab terpanjang at-Ta'rifat dan memuat 335 entri definisi; Intisari ini hanya menyoroti sebagian yang paling sering dipakai lintas ilmu. Di bidang logika dan filsafat, al-Jurjani mendefinisikan mantiq, pokok bahasan (mawdhu') suatu ilmu, dan mahiyah. Di bidang ushul fikih, ia menyusun tingkatan lafaz dari muhkam sampai mutasyabih. Di bidang fikih, ia membedakan mubah, mustahab, mandub, dan makruh. Di bidang bahasa, ia menjelaskan majaz, mutaradif, dan musytarak. Bab ini juga memuat definisi mukmin, munafik, mukjizat, dan masyi'ah Allah, serta istilah ahli hakikat tentang maut dan empat warnanya.",
+    "gagasan": [
+      {
+        "judul": "Mantiq adalah alat berkaidah yang menjaga pikiran dari kesalahan, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan mantiq sebagai alat berkaidah (qanuniyyah) yang bila diperhatikan menjaga akal dari kesalahan dalam berpikir. Karena itu mantiq adalah ilmu praktis yang bersifat alat, sedangkan hikmah adalah ilmu teoretis yang bukan alat. Kata berkaidah mengeluarkan alat-alat parsial para tukang, dan frasa menjaga dari kesalahan berpikir mengeluarkan ilmu berkaidah yang menjaga dari kesalahan ucapan, seperti ilmu-ilmu bahasa Arab. Pokok bahasan setiap ilmu ia definisikan sebagai sesuatu yang sifat-sifat dzatinya dibahas di dalamnya, seperti badan manusia bagi kedokteran dan kata-kata bagi nahwu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001987, 80001988, 80002016],
+        "soal": {
+          "tanya": "Apa yang membedakan mantiq dari ilmu-ilmu bahasa Arab menurut definisi al-Jurjani?",
+          "jawab": "Mantiq menjaga akal dari kesalahan berpikir, sedangkan ilmu bahasa Arab menjaga dari kesalahan ucapan."
+        }
+      },
+      {
+        "judul": "Satu perkara yang dipahami akal punya banyak nama, menurut penulis",
+        "isi": "Mahiyah sesuatu, menurut al-Jurjani, adalah sesuatu yang dengannya sesuatu itu menjadi dirinya. Dilihat semata dari dirinya, mahiyah tidak maujud dan tidak ma'dum, bukan kulli dan bukan juz'i, bukan khusus dan bukan umum. Istilah ini umumnya dipakai untuk perkara yang dipahami akal, seperti hewan berakal bagi manusia, tanpa melihat wujud luarnya. Perkara yang sama disebut mahiyah karena menjadi jawaban pertanyaan apa dia, hakikat karena tetap di luar pikiran, huwiyyah karena berbeda dari yang lain, dzat karena memikul sifat-sifat lazimnya, madlul karena dipahami dari lafaz, dan jauhar karena menjadi tempat hal-hal baru.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001672, 80001673],
+        "soal": {
+          "tanya": "Mengapa perkara yang dipahami akal disebut hakikat dan bukan hanya mahiyah?",
+          "jawab": "Disebut hakikat karena tetapnya di luar pikiran, sedangkan mahiyah karena menjadi jawaban pertanyaan apa dia."
+        }
+      },
+      {
+        "judul": "Lafaz bertingkat dari muhkam yang paling jelas sampai mutasyabih, menurut penulis",
+        "isi": "Al-Jurjani menyusun tingkatan lafaz ushul fikih. Lafaz yang maksudnya tampak disebut muhkam bila tidak menerima naskh; bila menerima naskh tetapi tidak menerima ta'wil, mufassar; bila tidak demikian dan kalimatnya disusun untuk maksud itu, nash; selain itu zhahir. Lafaz yang tersamar karena faktor luar disebut khafi. Bila tersamar karena bentuk lafaznya sendiri lalu dapat dipahami dengan akal, musykil; dengan penjelasan yang dinukil, mujmal, seperti kata shalat, zakat, dan riba; bila tidak dapat dipahami sama sekali, mutasyabih, seperti huruf-huruf terpotong di awal surah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001754, 80001755, 80001916, 80001735, 80001839, 80001708],
+        "soal": {
+          "tanya": "Apa beda muhkam dan mufassar dalam susunan lafaz yang dijelaskan al-Jurjani?",
+          "jawab": "Muhkam tidak menerima naskh, sedangkan mufassar menerima naskh tetapi tidak menerima ta'wil."
+        }
+      },
+      {
+        "judul": "Mubah, mustahab, mandub, dan makruh dibedakan oleh timbangan syariat, menurut penulis",
+        "isi": "Menurut al-Jurjani, mubah adalah perbuatan yang kedua sisinya, dikerjakan atau ditinggalkan, setara. Mustahab adalah nama bagi yang disyariatkan sebagai tambahan atas fardhu dan wajib; ada pula yang berkata, mustahab adalah yang disukai pembuat syariat tanpa diwajibkan. Mandub menurut para fuqaha adalah perbuatan yang lebih kuat dikerjakan daripada ditinggalkan dalam pandangan pembuat syariat, sedangkan meninggalkannya boleh. Makruh adalah yang lebih kuat ditinggalkan: bila lebih dekat ke haram disebut tahrimi, bila lebih dekat ke halal disebut tanzihi, dan pelakunya tidak dihukum. Maksiat ia definisikan sebagai menyalahi perintah dengan sengaja.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001684, 80001824, 80001982, 80001952, 80001900],
+        "soal": {
+          "tanya": "Kapan makruh disebut tahrimi dan kapan disebut tanzihi dalam definisi al-Jurjani?",
+          "jawab": "Tahrimi bila lebih dekat ke haram, dan tanzihi bila lebih dekat ke halal."
+        }
+      },
+      {
+        "judul": "Majaz memindahkan lafaz karena ada kesesuaian makna, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan majaz sebagai nama bagi lafaz yang dipakai untuk selain makna asalnya karena ada kesesuaian antara keduanya, seperti menyebut orang pemberani singa. Lafaz yang dipindahkan tanpa kesesuaian bukan majaz, melainkan murtajal atau kekeliruan. Majaz terbagi dua: isti'arah bila kaitannya keserupaan, seperti singa untuk pemberani, dan mursal bila kaitannya selain keserupaan, seperti tangan untuk nikmat. Mutaradif adalah lafaz yang maknanya satu tetapi namanya banyak, seperti al-layts dan al-asad, dan ia lawan musytarak, yaitu lafaz yang ditetapkan untuk banyak makna dengan banyak penetapan, seperti kata 'ayn.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001728, 80001729, 80001706, 80001838],
+        "soal": {
+          "tanya": "Apa beda isti'arah dan majaz mursal menurut al-Jurjani?",
+          "jawab": "Isti'arah berkaitan karena keserupaan, sedangkan majaz mursal berkaitan karena hal selain keserupaan."
+        }
+      },
+      {
+        "judul": "Mukmin membenarkan, sedangkan munafik menyembunyikan kekufuran, menurut definisi penulis",
+        "isi": "Mukmin, menurut al-Jurjani, adalah orang yang membenarkan Allah, Rasul-Nya, dan apa yang dibawanya. Munafik adalah orang yang menyembunyikan kekufuran dalam keyakinan dan menampakkan iman dalam ucapan. Mukjizat adalah perkara yang menyalahi kebiasaan, mengajak kepada kebaikan dan kebahagiaan, disertai pengakuan kenabian, dan dimaksudkan untuk menampakkan kebenaran orang yang mengaku rasul dari Allah. Masyi'ah Allah ia jelaskan sebagai tajalli Dzat dan perhatian terdahulu untuk mengadakan yang tiada atau meniadakan yang ada, sedangkan iradah adalah tajalli-Nya untuk mengadakan yang tiada, sehingga dari satu sisi masyi'ah lebih umum daripada iradah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001682, 80001998, 80001873, 80001843],
+        "soal": {
+          "tanya": "Unsur apa saja yang disebut al-Jurjani dalam definisi mukjizat?",
+          "jawab": "Menyalahi kebiasaan, mengajak kepada kebaikan, disertai pengakuan kenabian, dan bertujuan menampakkan kebenaran sang rasul."
+        }
+      },
+      {
+        "judul": "Ahli hakikat memaknai maut sebagai menundukkan hawa nafsu",
+        "isi": "Al-Jurjani menyebut maut sebagai sifat wujudi yang diciptakan sebagai lawan kehidupan, lalu menukil istilah ahl al-haqq: maut adalah menundukkan hawa nafsu, sehingga siapa mati dari hawanya hidup dengan petunjuknya. Ia lalu merinci empat warna maut: merah, yaitu menyalahi nafsu; putih, yaitu lapar karena menerangi batin; hijau, yaitu memakai pakaian tambalan dari kain buangan karena hidupnya hijau dengan qana'ah; dan hitam, yaitu menanggung gangguan makhluk. Muraqabah ia definisikan sebagai terus-menerusnya kesadaran hamba bahwa Tuhan melihatnya dalam segala keadaan.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80002006, 80002007, 80002008, 80002009, 80002010, 80001791],
+        "soal": {
+          "tanya": "Apa yang dimaksud maut putih dalam istilah yang dinukil al-Jurjani?",
+          "jawab": "Maut putih adalah lapar, karena lapar menerangi batin dan memutihkan wajah hati."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 6,
+        "passage_id": 80001682,
+        "char_start": 8,
+        "char_end": 40,
+        "terjemahan": "Orang yang membenarkan Allah, Rasul-Nya, dan apa yang dibawanya."
+      },
+      {
+        "gagasan": 1,
+        "passage_id": 80001987,
+        "char_start": 8,
+        "char_end": 128,
+        "terjemahan": "Alat berkaidah yang bila diperhatikan menjaga pikiran dari kesalahan dalam berpikir; maka ia ilmu praktis yang bersifat alat, sebagaimana hikmah adalah ilmu teoretis yang bukan alat; maka kata alat berkedudukan sebagai genus."
+      }
+    ],
+    "istilah": []
+  }
+}

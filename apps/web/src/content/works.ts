@@ -11,6 +11,11 @@ export const CITE_AUTHOR: Readonly<Record<string, string>> = {
   "bidayat-al-hidayah": "al-Ghazali",
   "at-tibyan": "an-Nawawi",
   "al-ajurrumiyyah": "Ibnu Ajurrum",
+  "al-munqidz-min-adh-dhalal": "al-Ghazali",
+  "al-waraqat": "al-Juwaini",
+  "rusum-dar-al-khilafah": "Hilal ash-Shabi'",
+  "al-muqaddimah-al-hadhramiyyah": "Bafadl al-Hadrami",
+  "at-tarifat": "al-Jurjani",
 };
 
 /** Keterangan singkat karya di daftar /kitab (ditulis tangan, bahasa Indonesia). */
@@ -21,6 +26,16 @@ export const WORK_BLURB: Readonly<Record<string, string>> = {
     "Adab membaca, menghafal, dan mengajarkan Al-Qur'an bagi penghafal, guru, dan murid.",
   "al-ajurrumiyyah":
     "Matan ringkas ilmu nahwu: kalimat, i'rab, dan kedudukan kata, kitab pertama tata bahasa Arab di pesantren.",
+  "al-munqidz-min-adh-dhalal":
+    "Otobiografi intelektual al-Ghazali: keraguan, kajian atas ilmu kalam, filsafat, kaum Batiniyah, dan jalan tasawuf.",
+  "al-waraqat":
+    "Matan ringkas ushul fiqh: hukum, perintah dan larangan, umum dan khusus, nasakh, ijma', qiyas, dan ijtihad.",
+  "rusum-dar-al-khilafah":
+    "Catatan tata cara istana khilafah Abbasiyah di Baghdad: jabatan, upacara, pakaian, surat-menyurat, dan adab menghadap khalifah.",
+  "al-muqaddimah-al-hadhramiyyah":
+    "Matan fiqh ibadah mazhab Syafi'i: thaharah, shalat, zakat, puasa, dan haji, dipelajari luas di pesantren.",
+  "at-tarifat":
+    "Kamus istilah ilmu-ilmu Islam karya al-Jurjani, disusun menurut abjad: definisi dari kalam, fiqh, ushul, tasawuf, filsafat, dan bahasa.",
 };
 
 /** Kunci: `<slug karya>/<slug edisi>`. */
@@ -29,6 +44,11 @@ export const CITE_PUBLISHER: Readonly<Record<string, string>> = {
   "bidayat-al-hidayah/maktabat-madbuli": "Maktabat Madbuli",
   "at-tibyan/dar-ibn-hazm": "Dar Ibn Hazm",
   "al-ajurrumiyyah/dar-ash-shumaii": "Dar ash-Shumai'i",
+  "al-munqidz-min-adh-dhalal/dar-al-kutub-al-haditsah": "Dar al-Kutub al-Haditsah",
+  "al-waraqat/tahqiq-al-abd": "tahqiq 'Abd al-Lathif al-'Abd",
+  "rusum-dar-al-khilafah/dar-ar-raid-al-arabi": "Dar ar-Ra'id al-'Arabi",
+  "al-muqaddimah-al-hadhramiyyah/ad-dar-al-muttahidah": "ad-Dar al-Muttahidah",
+  "at-tarifat/dar-al-kutub-al-ilmiyyah": "Dar al-Kutub al-'Ilmiyyah",
 };
 
 /** Teks lisensi resmi per nama lisensi di `edition.license` (CC BY-NC-SA 4.0 §3(a)(1)). */
@@ -51,6 +71,26 @@ export const EDITION_SOURCE: Readonly<Record<string, { label: string; url: strin
     url: "https://zenodo.org/records/17767721",
   },
   "al-ajurrumiyyah/dar-ash-shumaii": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "al-munqidz-min-adh-dhalal/dar-al-kutub-al-haditsah": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "al-waraqat/tahqiq-al-abd": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "rusum-dar-al-khilafah/dar-ar-raid-al-arabi": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "al-muqaddimah-al-hadhramiyyah/ad-dar-al-muttahidah": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "at-tarifat/dar-al-kutub-al-ilmiyyah": {
     label: "OpenITI 2025.1.9 (Zenodo)",
     url: "https://zenodo.org/records/17767721",
   },
@@ -163,6 +203,125 @@ export const EDITION_CREDITS: readonly EditionCredit[] = [
       "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
       "Potongan halaman Shamela berurutan dengan nomor cetak sama digabung menjadi satu halaman cetak; urutan dan isi paragraf tidak berubah.",
       "Catatan kaki penyunting tidak disertakan; penanda nomor catatan di teks utama tetap ada sebagai teks biasa.",
+    ],
+  },
+  {
+    key: "al-munqidz-min-adh-dhalal/dar-al-kutub-al-haditsah",
+    workSlug: "al-munqidz-min-adh-dhalal",
+    title: "al-Munqidz min adh-Dhalal",
+    author: "al-Ghazali (w. 505 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009246; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-Haditsah, Mesir, disertai Dr. 'Abd al-Halim Mahmud",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 9246). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/9246" },
+      },
+      {
+        name: "Dar al-Kutub al-Haditsah, Mesir",
+        role: "Penerbit edisi cetak, disertai kajian Dr. 'Abd al-Halim Mahmud (kajian itu tidak dimuat). Nomor halaman di Surau mengikuti cetakan ini (halaman 101–207).",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+    ],
+  },
+  {
+    key: "al-waraqat/tahqiq-al-abd",
+    workSlug: "al-waraqat",
+    title: "al-Waraqat",
+    author: "Imam al-Haramain al-Juwaini (w. 478 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0006297; digitalisasi asal: al-Maktaba al-Shamela; edisi: tahqiq Dr. 'Abd al-Lathif Muhammad al-'Abd",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 6297). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/6297" },
+      },
+      {
+        name: "Edisi tahqiq Dr. 'Abd al-Lathif Muhammad al-'Abd",
+        role: "Edisi cetak satu jilid. Nomor halaman di Surau mengikuti cetakan ini (halaman 7–31).",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+      "Basmalah pembuka menjadi butir daftar isi tersendiri; teksnya tidak diubah.",
+    ],
+  },
+  {
+    key: "rusum-dar-al-khilafah/dar-ar-raid-al-arabi",
+    workSlug: "rusum-dar-al-khilafah",
+    title: "Rusum Dar al-Khilafah",
+    author: "Hilal ash-Shabi' (w. 448 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0008173; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar ar-Ra'id al-'Arabi, Beirut, cetakan kedua 1986 M, tahqiq Mikha'il 'Awwad",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 8173). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/8173" },
+      },
+      {
+        name: "Dar ar-Ra'id al-'Arabi, Beirut",
+        role: "Penerbit edisi cetak: satu jilid, cetakan kedua 1986 M, tahqiq Mikha'il 'Awwad. Nomor halaman di Surau mengikuti cetakan ini (halaman 3–142).",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+      "Dua penanda nomor catatan di teks utama tetap ada sebagai teks biasa; catatannya tidak ada di salinan digital.",
+    ],
+  },
+  {
+    key: "al-muqaddimah-al-hadhramiyyah/ad-dar-al-muttahidah",
+    workSlug: "al-muqaddimah-al-hadhramiyyah",
+    title: "al-Muqaddimah al-Hadhramiyyah",
+    author: "Bafadl al-Hadrami (w. 918 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0006125; digitalisasi asal: al-Maktaba al-Shamela; edisi: ad-Dar al-Muttahidah, Damaskus, cetakan ke-2 1413 H, tahqiq Majid al-Hamawi",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 6125). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/6125" },
+      },
+      {
+        name: "ad-Dar al-Muttahidah, Damaskus",
+        role: "Penerbit edisi cetak: cetakan ke-2, 1413 H, tahqiq Majid al-Hamawi. Nomor halaman di Surau mengikuti cetakan ini (halaman 19–162).",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+      "Judul kitab dan bab yang tertulis di dalam teks dijadikan butir daftar isi; teksnya tidak diubah.",
+    ],
+  },
+  {
+    key: "at-tarifat/dar-al-kutub-al-ilmiyyah",
+    workSlug: "at-tarifat",
+    title: "at-Ta'rifat",
+    author: "asy-Syarif al-Jurjani (w. 816 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0007312; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-'Ilmiyyah, Beirut, cetakan pertama 1403/1983, disunting sekelompok ulama di bawah penerbit; daftar isi penerbit tidak disertakan",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 7312). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/7312" },
+      },
+      {
+        name: "Dar al-Kutub al-'Ilmiyyah, Beirut",
+        role: "Penerbit edisi cetak: satu jilid, cetakan pertama 1403 H / 1983 M. Nomor halaman di Surau mengikuti cetakan ini (halaman 5–260).",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+      "Daftar isi penerbit di akhir edisi dan label jilid tidak disertakan.",
     ],
   },
 ];

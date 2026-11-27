@@ -1,0 +1,87 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900011,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p261: doa lama, tambahan Sulaiman bin Wahb, sayyidi ke sayyiduna lalu sayyiduna wa maulana, sampai ath-Tha'i', dan bentuk masa penulis sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p262-p265: surat Mahmud bin Sebuktegin, bentuk yang berbeda-beda, kesimpulan tanpa aturan tunggal, dan penilaian bahwa penanggalan sebutan adalah kekurangan sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "c5f6701a5afdb23f6fa1d9f87d31a38ff5b0530f749e7a33bceb468ff2b0b2d7",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Urutan sayyidi sampai sayyiduna wa maulana dan tambahan Sulaiman bin Wahb sesuai."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Surat Mahmud bin Sebuktegin, kesimpulan penulis, dan penilaian tentang gelar sesuai."
+        }
+      ],
+      "laporan": "Semua benar; boleh terbit"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "80e498844759f0b3816295e1ff2c8acd54f581a336cfa16f5243f168906b0379",
+      "draf_sha256": "c5f6701a5afdb23f6fa1d9f87d31a38ff5b0530f749e7a33bceb468ff2b0b2d7",
+      "waktu": "2026-11-27T18:34:18.371Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', sapaan dan doa untuk khalifah dalam surat terus bertambah panjang dari masa ke masa, dan surat-surat Mahmud bin Sebuktegin menunjukkan bahwa aturan lama tidak lagi diikuti secara seragam.",
+    "ringkasan": "Hilal ash-Shabi' menelusuri perubahan doa dan sapaan bagi khalifah dalam surat: dari doa panjang umur dan kemuliaan, tambahan Sulaiman bin Wahb, perpindahan dari sayyidi ke sayyiduna lalu sayyiduna wa maulana, sampai bentuk yang lebih panjang pada masanya. Ia lalu menguraikan surat-surat Mahmud bin Sebuktegin kepada al-Qadir yang bentuknya berbeda-beda, dan menilai bahwa menanggalkan gelar serta sebutan maula Amir al-Mu'minin bukan penghormatan, melainkan kekurangan.",
+    "gagasan": [
+      {
+        "judul": "Sapaan bagi khalifah bergeser dari sayyidi ke sayyiduna wa maulana, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', kebiasaan lama sesudah pembuka surat adalah doa agar Allah memanjangkan umur dan memuliakan Amir al-Mu'minin, dengan doa singkat setiap kali namanya disebut. Sulaiman bin Wahb memulai tambahan dengan mengganti doa kemuliaan menjadi doa agar kemuliaannya kekal. Lalu sebutan kepemimpinan masuk, dari sayyidi menjadi sayyiduna, kemudian menetap pada sayyiduna wa maulana. Bentuk itu berlaku sampai masa ath-Tha'i'. Pada masa penulis sebutannya menjadi sayyiduna wa maulana al-Imam Amir al-Mu'minin, dengan doa panjang tentang kemuliaan, pertolongan, kekuasaan, dan kejayaan panji-panjinya, ditambah sesuka penulis surat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000261],
+        "soal": {
+          "tanya": "Siapa yang memulai tambahan pada doa untuk khalifah dalam surat menurut Hilal ash-Shabi'?",
+          "jawab": "Sulaiman bin Wahb, yang mengganti doa kemuliaan menjadi doa agar kemuliaan itu kekal."
+        }
+      },
+      {
+        "judul": "Surat Mahmud bin Sebuktegin tidak mengikuti satu aturan, menurut pengamatan penulis",
+        "isi": "Penulis menuturkan bahwa ia melihat surat-surat Yamin ad-Daulah Mahmud bin Sebuktegin kepada al-Qadir. Pada sebagian surat, alamatnya ditujukan kepada hadrat sayyidina wa maulana al-Qadir dari hamba, pelayan, binaan, dan tanamannya, dengan pembuka salam, pujian, shalawat, dan doa panjang. Surat lain berbeda bentuk dan doanya. Dari situ ia menyimpulkan bahwa mereka tidak berpegang pada satu tata surat, berbeda dengan masa lalu. Ia juga mendapati Mahmud tidak menyebut gelarnya, gelar ayahnya, atau sebutan maula dan wali Amir al-Mu'minin. Menurut penulis, bila itu dimaksudkan sebagai penghormatan, sebenarnya justru kekurangan, karena sebutan itu adalah bentuk pengabdian.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000262, 90000263, 90000264, 90000265],
+        "soal": {
+          "tanya": "Apa kesimpulan Hilal ash-Shabi' setelah melihat surat-surat Mahmud bin Sebuktegin yang berbeda-beda bentuknya?",
+          "jawab": "Mereka tidak berpegang pada satu tata surat, dan menulis menurut yang terlintas saja."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

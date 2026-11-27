@@ -47,6 +47,66 @@ Repo `OpenITI/0725AH`, commit `1c14df8ff4ca37622d678a3a7e76f915848f3f88` (rilis 
 curl -fLO "https://raw.githubusercontent.com/OpenITI/0725AH/1c14df8ff4ca37622d678a3a7e76f915848f3f88/data/0723IbnAjrum/0723IbnAjrum.Ajrumiyya/0723IbnAjrum.Ajrumiyya.Shamela0011371-ara1"
 ```
 
+### al-Munqidz min adh-Dhalal (X32, diunduh 2026-11-28)
+
+Repo `OpenITI/0525AH`, commit `6290621b58e063ed1aa47ffd0a6fc1630191e7cb` (`master` saat diunduh; label rilis 2025.1.9, ADR-152 butir 8). Edisi tanpa catatan kaki.
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `0505Ghazali.Munqidh.Shamela0009246-ara1` | 115.477 | `a9d2ea465cb311b05d0a263035ea51b877f0bd7dc0a53e247531481377b0695a` |
+
+```bash
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0525AH/6290621b58e063ed1aa47ffd0a6fc1630191e7cb/data/0505Ghazali/0505Ghazali.Munqidh/0505Ghazali.Munqidh.Shamela0009246-ara1"
+```
+
+### al-Waraqat (X32, diunduh 2026-11-28)
+
+Repo `OpenITI/0500AH`, commit `fff9e21790e2e54f14826322ae49ab7671f12744` (`master` saat diunduh; label rilis 2025.1.9, ADR-152 butir 8). 17 dari 26 penanda halaman berkas ini `PageV00P000`; diisi dari urutannya saat QA (ADR-152 butir 3).
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `0478ImamHaramaynJuwayni.Waraqat.Shamela0006297-ara1` | 18.390 | `1d7f55f4193d849e4d385d2f3359ddb3e500b08e41ed9940102a8d861118e68e` |
+
+```bash
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0500AH/fff9e21790e2e54f14826322ae49ab7671f12744/data/0478ImamHaramaynJuwayni/0478ImamHaramaynJuwayni.Waraqat/0478ImamHaramaynJuwayni.Waraqat.Shamela0006297-ara1"
+```
+
+### Rusum Dar al-Khilafah (X32, ADR-152, diunduh 2026-11-28)
+
+Repo `OpenITI/0450AH`, commit `e344cfe20a206c9ded3edfa15d45b4f821a97b8a` (`master` saat diunduh; label rilis 2025.1.9). Versi Shamela tanpa teks catatan kaki maupun mukadimah pentahqiq.
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1` | 214.162 | `92a822726431d70a364750d07a70e3a2b433c00baec2c54f3fadec67ec0667b4` |
+
+```bash
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0450AH/e344cfe20a206c9ded3edfa15d45b4f821a97b8a/data/0448HilalSabi/0448HilalSabi.RusumDarKhilafa/0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1"
+```
+
+### al-Muqaddimah al-Hadhramiyyah (X32, diunduh 2026-11-28)
+
+Repo `OpenITI/0925AH`, commit `4f0f4562d1e13083c593e3a0ca6a19a3eb33805e` (`master` saat diunduh; label rilis 2025.1.9, ADR-152 butir 8). Edisi tanpa catatan kaki (ADR-138).
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1` | 129.806 | `1f2dee98e31f7a2df79c40b3f7990389e6030fd94fc4eb1a3e9d27536cb27149` |
+
+```bash
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0925AH/4f0f4562d1e13083c593e3a0ca6a19a3eb33805e/data/0918BafadlHadrami/0918BafadlHadrami.MuqaddimaHadramiyya/0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1"
+```
+
+### at-Ta'rifat (Gelombang 2, ADR-152, diunduh 2026-11-28)
+
+Repo `OpenITI/0825AH`, commit `2630748a4754b509908048087e569ccc8dd251ce` (`master` saat diunduh; label rilis 2025.1.9, ADR-152 butir 8). Edisi tanpa catatan kaki.
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `0816IbnMuhammadSharifJurjani.Tacrifat.Shamela0007312-ara1` | 516.207 | `7eb469f3a7d27785d456111e02456798dca66e9f256c7c01a2d207c6da19c3fe` |
+
+```bash
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0825AH/2630748a4754b509908048087e569ccc8dd251ce/data/0816IbnMuhammadSharifJurjani/0816IbnMuhammadSharifJurjani.Tacrifat/0816IbnMuhammadSharifJurjani.Tacrifat.Shamela0007312-ara1"
+```
+
 ## Shamela lokal (drive pemilik, hanya-baca, T-09)
 
 Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struktur dan diverifikasi terhadap OpenITI (ADR-018).
@@ -57,6 +117,11 @@ Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struk
 | `book/718/12718.db` (Bidayat al-Hidayah, dicek 2026-11-26) | 196.608 | `c41459f5c9a2f42354ba4fede121e5db5ddccdf94e1132db9805b35c568956ca` |
 | `book/969/1969.db` (at-Tibyan, dicek 2026-11-27) | 315.392 | `3455f0e5e215d9ef1621b606d7b4d89e1acfdfa67d747e83523d0ee14ba30124` |
 | `book/371/11371.db` (al-Ajurrumiyyah, dicek 2026-11-27) | 40.960 | `c4ac77d505163ba2c5484e77521193a0b6b1c72da5c4ab08e42461087013621e` |
+| `book/246/9246.db` (al-Munqidz, dicek 2026-11-28) | 155.648 | `ed96842363e9452c062b74ded000a7e40ecd56f13a9b88831bb11fd424c22cfe` |
+| `book/297/6297.db` (al-Waraqat, dicek 2026-11-28) | 40.960 | `fb39324f5ccdfbe6a97102a7ff8e985cf09d92740c5235d212668255ba3e9b95` |
+| `book/173/8173.db` (Rusum Dar al-Khilafah, dicek 2026-11-28) | 360.448 | `25b73e7f119c9b4fae7316fe87b1e9e76e24dc8d49f953b5e27c46126cdba16c` |
+| `book/125/6125.db` (al-Muqaddimah al-Hadhramiyyah, dicek 2026-11-28) | 225.280 | `799a724bfaaecf4c1bd3f32b2fd042bf7fa967c2f8d221430e2cc32b439dcaf1` |
+| `book/312/7312.db` (at-Ta'rifat, dicek 2026-11-28) | 782.336 | `42fc284c431b3d6267e63345f83959248574f42b1b8c265d49397531bdd553b9` |
 | `update/master/book.sqlite` | 11.882.496 | `acccdb02d46b80e21eab5da4127bf42b46020f5d09e727c477d1095eb8aa8794` |
 | `update/master/author.sqlite` | 8.933.376 | `0397cfc1f0c8d6dc61e13c0688e089d33f97aac6be981e3588368f49295a8a54` |
 

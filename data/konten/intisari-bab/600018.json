@@ -1,0 +1,74 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600018,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p100: syarat mufti sesuai teks; jawaban soal memakai 'mengetahui apa yang diperlukan untuk istinbath'."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "bcd192d4eadb536ab823dcee186a991bdab874561e0ed312804c6509e2fb4cd9",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Syarat mufti lengkap dan setia p100."
+        }
+      ],
+      "laporan": "Dirapikan sesudah pemeriksaan pertama (Kurang), diperiksa ulang."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "832e9b190c91221d6eac85c241ac4f80968421997862732eb9050995b7b59c3c",
+      "draf_sha256": "bcd192d4eadb536ab823dcee186a991bdab874561e0ed312804c6509e2fb4cd9",
+      "waktu": "2026-11-27T18:32:24.725Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, mufti disyaratkan menguasai fikih, pokok dan cabangnya, khilaf dan mazhabnya, serta sempurna penguasaan dalilnya dalam ijtihad untuk menggali hukum.",
+    "ringkasan": "Al-Juwaini menyebut syarat-syarat mufti dalam satu kalimat panjang. Mufti harus mengetahui fikih, baik pokok maupun cabangnya, baik masalah khilaf maupun mazhab. Ia juga harus sempurna penguasaan dalilnya dalam ijtihad, mengetahui apa yang diperlukan untuk menggali hukum, serta mengetahui tafsir ayat-ayat hukum dan akhbar yang berkaitan dengan hukum.",
+    "gagasan": [
+      {
+        "judul": "Mufti harus menguasai fikih dan dalil ijtihad secara lengkap, menurut al-Juwaini",
+        "isi": "Di antara syarat mufti, menurut al-Juwaini, adalah mengetahui fikih, pokok dan cabangnya, masalah yang diperselisihkan maupun mazhab. Ia juga harus sempurna penguasaan dalilnya dalam ijtihad, mengetahui apa yang dibutuhkan untuk menggali hukum, dan mengetahui tafsir ayat-ayat yang berkaitan dengan hukum serta akhbar yang berkaitan dengannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000100],
+        "soal": {
+          "tanya": "Selain fikih, apa saja yang harus diketahui mufti menurut al-Juwaini?",
+          "jawab": "Mengetahui apa yang diperlukan untuk menggali hukum, tafsir ayat-ayat hukum, dan akhbar yang berkaitan dengannya."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000100,
+        "char_start": 0,
+        "char_end": 68,
+        "terjemahan": "Di antara syarat mufti adalah ia mengetahui fikih, pokok dan cabangnya, khilaf dan mazhabnya."
+      }
+    ],
+    "istilah": []
+  }
+}

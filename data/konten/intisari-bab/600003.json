@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600003,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p16-p17: fikih lebih khusus dari ilmu, definisi ilmu dan jahl, ilmu dharuri dengan lima indra atau tawatur sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p18, p21: ilmu muktasab, nazhar, istidlal, dalil, dan definisi ilmu ushul fikih sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p19-p20: zhan dua kemungkinan dengan satu lebih kuat, syak tanpa kelebihan; arah negasi terjaga."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "5ff249c36b8a3acf98009bb107a5ffd000cab33fc06b040facb8519e7d116788",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Ilmu, jahl, dan ilmu dharuri setia pada p16-p17."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Muktasab, nazhar, istidlal, dalil, dan definisi ilmu ushul fikih tepat."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Zhan dan syak sesuai p19-p20."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "256d56d5c39774ac1b9b34228b3be40d3181e84f519ab972cf971e9a2f895e75",
+      "draf_sha256": "5ff249c36b8a3acf98009bb107a5ffd000cab33fc06b040facb8519e7d116788",
+      "waktu": "2026-11-27T18:27:15.514Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, fikih lebih khusus daripada ilmu; ilmu adalah mengetahui sesuatu sebagaimana adanya, sedangkan zhan dan syak dibedakan oleh ada tidaknya kemungkinan yang lebih kuat.",
+    "ringkasan": "Al-Juwaini menyatakan fikih lebih khusus daripada ilmu. Ilmu adalah mengetahui yang diketahui sebagaimana adanya, sedangkan jahl adalah membayangkan sesuatu tidak sesuai keadaannya. Ilmu terbagi menjadi dharuri, yang tidak lahir dari penalaran, seperti yang diperoleh lewat lima indra atau tawatur, dan muktasab, yang bergantung pada penalaran dan istidlal. Ia lalu mendefinisikan nazhar, istidlal, dan dalil, kemudian zhan dan syak. Bab ditutup dengan definisi ilmu ushul fikih: jalan-jalan fikih secara global dan cara berdalil dengannya.",
+    "gagasan": [
+      {
+        "judul": "Ilmu berarti mengetahui sesuatu sebagaimana adanya, dan fikih lebih khusus, menurut al-Juwaini",
+        "isi": "Al-Juwaini menyatakan bahwa fikih lebih khusus daripada ilmu. Ilmu ia definisikan sebagai mengetahui yang diketahui sebagaimana adanya, sedangkan jahl adalah membayangkan sesuatu tidak sesuai dengan keadaannya. Ilmu dharuri adalah ilmu yang tidak lahir dari penalaran dan istidlal, seperti yang diperoleh lewat salah satu dari lima indra (pendengaran, penglihatan, penciuman, pengecapan, perabaan) atau lewat tawatur.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000016, 60000017],
+        "soal": {
+          "tanya": "Dari mana ilmu dharuri diperoleh menurut contoh yang disebut al-Juwaini?",
+          "jawab": "Dari salah satu lima indra atau dari tawatur, tanpa penalaran dan istidlal."
+        }
+      },
+      {
+        "judul": "Ilmu muktasab bergantung pada penalaran dan dalil, menurut penulis",
+        "isi": "Penulis mendefinisikan ilmu muktasab sebagai ilmu yang bergantung pada nazhar dan istidlal. Nazhar adalah berpikir tentang keadaan sesuatu yang ditelaah, istidlal adalah mencari dalil, dan dalil adalah penunjuk kepada yang dicari karena ia menjadi tandanya. Di bagian akhir, ilmu ushul fikih ia definisikan sebagai jalan-jalan fikih secara global dan cara berdalil dengannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000018, 60000021],
+        "soal": {
+          "tanya": "Bagaimana penulis al-Waraqat mendefinisikan ilmu ushul fikih?",
+          "jawab": "Jalan-jalan fikih secara global dan cara berdalil dengannya."
+        }
+      },
+      {
+        "judul": "Zhan dan syak dibedakan oleh ada tidaknya sisi yang lebih kuat, menurut al-Juwaini",
+        "isi": "Menurut al-Juwaini, zhan adalah membolehkan dua kemungkinan yang salah satunya lebih kuat daripada yang lain. Syak adalah membolehkan dua kemungkinan tanpa ada kelebihan salah satunya atas yang lain. Keduanya sama-sama melibatkan dua kemungkinan, dan perbedaannya terletak pada kuat tidaknya salah satu sisi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000019, 60000020],
+        "soal": {
+          "tanya": "Apa yang membedakan zhan dari syak menurut al-Juwaini?",
+          "jawab": "Pada zhan salah satu kemungkinan lebih kuat, sedangkan pada syak keduanya setara."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000016,
+        "char_start": 0,
+        "char_end": 24,
+        "terjemahan": "Fikih lebih khusus daripada ilmu."
+      }
+    ],
+    "istilah": []
+  }
+}

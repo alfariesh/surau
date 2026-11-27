@@ -1,0 +1,108 @@
+# Patch daftar isi al-Muqaddimah al-Hadhramiyyah (Shamela 6125, ADR-152 tambahan). Hanya ID dan
+# struktur: judul node disalin dari paragraf pembukanya di halaman sumber.
+#
+# Shamela hanya menandai 99 "fasl" (dan satu bab, title 20) sebagai `title`, semuanya di akar.
+# Judul "kitab" ada sebagai teks sebaris di awal paragraf ("=كتاب … = …"), judul "bab" diapit
+# artefak konversi "- صلى الله عليه وسلم - باب … - صلى الله عليه وسلم -" (sama di OpenITI). Keduanya
+# menjadi node patch; `prefix` melewati artefak itu sehingga judul node hanya "باب …".
+# "باب الصلاة" (page.id 34) berfungsi sebagai kitab shalat dan ditaruh di akar; bab shalat lain
+# menjadi anaknya. Fasl mengikuti kitab/bab terakhir sebelumnya menurut urutan teks.
+shamela_book: 6125
+
+add:
+  # Mukadimah penulis di page.id 1, sebelum judul pertama.
+  - { id: muqaddimah, parent: 0, page: 1, heading: مقدمة }
+  - { id: kitab-thaharah, parent: 0, page: 2, heading: كتاب الطهارة }
+  - id: bab-tayammum
+    parent: kitab-thaharah
+    page: 27
+    prefix: صلى الله عليه وسلم
+    heading: باب التيمم
+  - { id: bab-shalah, parent: 0, page: 34, prefix: صلى الله عليه وسلم, heading: باب الصلاة }
+  - id: bab-sifat-shalah
+    parent: bab-shalah
+    page: 42
+    prefix: صلى الله عليه وسلم
+    heading: باب صفة الصلاة
+  - id: bab-shalah-musafir
+    parent: bab-shalah
+    page: 81
+    prefix: صلى الله عليه وسلم
+    heading: باب صلاة المسافر
+  - id: bab-jumuah
+    parent: bab-shalah
+    page: 84
+    prefix: صلى الله عليه وسلم
+    heading: باب صلاة الجمعة
+  - id: bab-khauf
+    parent: bab-shalah
+    page: 89
+    prefix: صلى الله عليه وسلم
+    heading: باب صلاة الخوف
+  - id: bab-idain
+    parent: bab-shalah
+    page: 90
+    prefix: صلى الله عليه وسلم
+    heading: باب صلاة العيدين
+  - id: bab-kusuf
+    parent: bab-shalah
+    page: 93
+    prefix: صلى الله عليه وسلم
+    heading: باب صلاة الكسوف والخسوف
+  - id: bab-istisqa
+    parent: bab-shalah
+    page: 94
+    prefix: صلى الله عليه وسلم
+    heading: باب صلاة الاستسقاء
+  - id: bab-janaiz
+    parent: bab-shalah
+    page: 96
+    prefix: صلى الله عليه وسلم
+    heading: باب الجنائز
+  - { id: kitab-zakat, parent: 0, page: 102, heading: كتاب الزكاة }
+  - id: bab-zakat-nabat
+    parent: kitab-zakat
+    page: 105
+    prefix: صلى الله عليه وسلم
+    heading: باب زكاة النبات
+  - id: bab-zakat-naqd
+    parent: kitab-zakat
+    page: 107
+    prefix: صلى الله عليه وسلم
+    heading: باب زكاة النقد
+  - { id: kitab-shiyam, parent: 0, page: 114, heading: كتاب الصيام }
+  - id: bab-itikaf
+    parent: kitab-shiyam
+    page: 121
+    prefix: صلى الله عليه وسلم
+    heading: باب الاعتكاف
+  - { id: kitab-hajj, parent: 0, page: 123, heading: كتاب الحج والعمرة }
+  - id: bab-udhiyah
+    parent: kitab-hajj
+    page: 139
+    prefix: صلى الله عليه وسلم
+    heading: باب الأضحية
+
+move:
+  - {
+      parent: kitab-thaharah,
+      titles: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    }
+  - { parent: 20, titles: [21] }
+  - { parent: bab-tayammum, titles: [22, 23, 24, 25] }
+  - { parent: bab-shalah, titles: [26, 27, 28, 29] }
+  - parent: bab-sifat-shalah
+    titles: [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+  - { parent: bab-shalah-musafir, titles: [52, 53, 54] }
+  - { parent: bab-jumuah, titles: [55, 56, 57] }
+  - { parent: bab-khauf, titles: [58] }
+  - { parent: bab-idain, titles: [59] }
+  - { parent: bab-istisqa, titles: [60, 61] }
+  - { parent: bab-janaiz, titles: [62, 63, 64, 65] }
+  - { parent: kitab-zakat, titles: [66, 67, 68, 69] }
+  - { parent: bab-zakat-nabat, titles: [70] }
+  - { parent: bab-zakat-naqd, titles: [71, 72, 73, 74, 75] }
+  - { parent: kitab-shiyam, titles: [76, 77, 78, 79, 80, 81] }
+  - { parent: bab-itikaf, titles: [82] }
+  - { parent: kitab-hajj, titles: [83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97] }
+  - { parent: bab-udhiyah, titles: [98, 99] }

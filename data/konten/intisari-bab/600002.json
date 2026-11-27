@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600002,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p7-p12: tujuh hukum dan definisi lima hukum dengan pahala/siksa dicek satu per satu, termasuk negasi pada mandub, mubah, makruh."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p13-p14: sahih berlaku dan diperhitungkan, batil tidak berlaku dan tidak diperhitungkan."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "0fff182c095a291c27b45105480e77076d87c217053fa70125f4f3f509d0bcdc",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Lima definisi pahala/siksa cocok p8-p12, negasi tepat."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Sahih dan batil sesuai p13-p14."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "0b8f8e17ddffbb982188b3e355da24eb780e28790ccedd26b7ada4e91d30ca67",
+      "draf_sha256": "0fff182c095a291c27b45105480e77076d87c217053fa70125f4f3f509d0bcdc",
+      "waktu": "2026-11-27T18:27:13.067Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, hukum ada tujuh: wajib, mandub, mubah, mahzhur, makruh, sahih, dan batil, yang dibedakan oleh pahala dan siksa atau oleh berlaku tidaknya akibat hukum.",
+    "ringkasan": "Al-Juwaini menyebut tujuh hukum, lalu mendefinisikan masing-masing. Lima yang pertama dibedakan menurut pahala dan siksa: wajib diberi pahala bila dikerjakan dan disiksa bila ditinggalkan; mandub diberi pahala bila dikerjakan tanpa siksa bila ditinggalkan; mubah tanpa pahala dan tanpa siksa; mahzhur diberi pahala bila ditinggalkan dan disiksa bila dikerjakan; makruh diberi pahala bila ditinggalkan tanpa siksa bila dikerjakan. Dua yang terakhir menyangkut keabsahan: sahih adalah yang berlaku akibatnya dan diperhitungkan, batil sebaliknya.",
+    "gagasan": [
+      {
+        "judul": "Lima hukum pertama dibedakan oleh pahala dan siksa, menurut al-Juwaini",
+        "isi": "Al-Juwaini menyebut tujuh hukum dan mendefinisikan lima yang pertama dengan pahala dan siksa. Wajib diberi pahala bila dikerjakan dan disiksa bila ditinggalkan. Mandub diberi pahala bila dikerjakan dan tidak disiksa bila ditinggalkan. Mubah tidak diberi pahala bila dikerjakan dan tidak disiksa bila ditinggalkan. Mahzhur diberi pahala bila ditinggalkan dan disiksa bila dikerjakan. Makruh diberi pahala bila ditinggalkan dan tidak disiksa bila dikerjakan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000007, 60000008, 60000009, 60000010, 60000011, 60000012],
+        "soal": {
+          "tanya": "Apa beda mahzhur dan makruh menurut definisi al-Juwaini?",
+          "jawab": "Keduanya berpahala bila ditinggalkan, tetapi hanya mahzhur yang mendatangkan siksa bila dikerjakan."
+        }
+      },
+      {
+        "judul": "Sahih dan batil diukur dari berlaku dan diperhitungkannya perbuatan, menurut penulis",
+        "isi": "Dua hukum terakhir dari tujuh hukum itu dirumuskan penulis tanpa menyebut pahala dan siksa. Sahih adalah yang padanya berlaku akibat hukum (nufudz) dan yang diperhitungkan (i'tidad). Batil adalah yang padanya tidak berlaku akibat hukum dan yang tidak diperhitungkan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000013, 60000014],
+        "soal": {
+          "tanya": "Apa yang membedakan perbuatan sahih dari yang batil menurut penulis al-Waraqat?",
+          "jawab": "Sahih berlaku akibat hukumnya dan diperhitungkan, sedangkan batil tidak berlaku dan tidak diperhitungkan."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000008,
+        "char_start": 0,
+        "char_end": 48,
+        "terjemahan": "Wajib adalah yang diberi pahala bila dikerjakan dan disiksa bila ditinggalkan."
+      }
+    ],
+    "istilah": []
+  }
+}

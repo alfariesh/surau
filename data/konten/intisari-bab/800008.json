@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800008,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:03:00+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p727-731, p722-723: hadd, hadd tam dan naqish dengan contoh manusia, huduts dzati lebih umum dari zamani; sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p791-793: haqq bahasa dan menurut ahli ma'ani, shidq khusus ucapan, pembedaan arah kesesuaian; sikap nukilan tepat."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p794-796: haqiqah lawan majaz dengan contoh shalat sebagai doa; wa qila disebut."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p808-810: hikmah ilmu teoretis, posisi tengah, tiga makna, nukilan ilmu disertai amal, hikmah ilahiyah; tafsir Ibnu Abbas tidak dimuat."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p814-815, p820-821, p788, p716: hukum, hukum syariat, dua definisi halal, hazhr, hujjah dan pendapat yang menyamakannya dengan dalil; sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p709, p719, p841: hal dan maqam menurut ahli al-haqq, hijab, dua macam haya'; sesuai."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p824-829: lima macam hamd dan definisi umumnya; sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "21de106b06fc5fd28e8ed56a30edaea8c5a1e7c42e4aa55064aeead3d5b0887f",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Hadd, hadd tam/naqish, dan huduts dzati/zamani (p722-731) setia pada teks."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Arah kesesuaian haqq (kenyataan) dan shidq (hukum) tepat (p793); sikap dinukil sesuai."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Haqiqah, majaz, dan contoh shalat sesuai p794-796."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Hikmah ilahiyah (p810) menghilangkan batasan 'yang bukan dalam kuasa dan pilihan kita', dan 'makna ketiga' (p809) dirumuskan samar."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Hukum, hukum syariat, halal, hazhr, hujjah sesuai; kutipan p815 menerjemahkan rentangnya dengan tepat."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Hal, maqam, hijab menurut ahli al-haqq dan dua macam haya' sesuai p709, p719, p841."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Lima macam hamd sesuai p824-829; kutipan p824 setia."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "b2a0ab4c1df3f33c8b9ae2446cd10df9152f1f37530efe8ee18a4e34306d1073",
+      "draf_sha256": "21de106b06fc5fd28e8ed56a30edaea8c5a1e7c42e4aa55064aeead3d5b0887f",
+      "waktu": "2026-11-27T19:03:54.187Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Bab ha at-Ta'rifat, menurut susunan al-Jurjani, memuat definisi kunci seperti hadd dalam logika, haqq dan haqiqah, hikmah, hukum syariat, hal dan maqam kaum sufi, serta macam-macam hamd.",
+    "ringkasan": "Bab huruf ha memuat 128 entri definisi, dan Intisari ini menyoroti sebagian yang paling luas dipakai. Al-Jurjani mendefinisikan hadd dan macamnya dalam logika serta huduts dzati dan zamani. Ia membedakan haqq dari shidq, lalu menjelaskan haqiqah sebagai lawan majaz. Hikmah ia beri beberapa makna, disusul definisi hukum, hukum syariat, halal, hazhr, dan hujjah. Dari istilah ahli hakikat ia menjelaskan hal, maqam, dan hijab, beserta haya'. Bab ini juga merinci macam-macam hamd: qauli, fi'li, hali, lughawi, dan 'urfi.",
+    "gagasan": [
+      {
+        "judul": "Hadd tam tersusun dari genus dan diferensia terdekat, menurut istilah ahli logika",
+        "isi": "Al-Jurjani mendefinisikan hadd sebagai ucapan yang menunjukkan hakikat sesuatu; secara istilah ia memuat unsur yang dimiliki bersama dan unsur pembeda. Hadd tam tersusun dari genus (jins) dan diferensia (fashl) terdekat, seperti mendefinisikan manusia sebagai hewan yang berpikir. Hadd naqish hanya memakai diferensia terdekat, atau diferensia itu bersama genus jauh. Ia juga membedakan huduts dzati, yaitu butuhnya sesuatu kepada yang lain dalam wujudnya, dari huduts zamani, yaitu didahului ketiadaan secara waktu; yang pertama lebih umum secara mutlak.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000727, 80000728, 80000730, 80000731, 80000722, 80000723],
+        "soal": {
+          "tanya": "Apa beda hadd tam dan hadd naqish menurut al-Jurjani?",
+          "jawab": "Hadd tam memakai genus dan diferensia terdekat, sedangkan hadd naqish hanya diferensia terdekat atau diferensia dengan genus jauh."
+        }
+      },
+      {
+        "judul": "Haqq dan shidq dibedakan dari arah kesesuaiannya, menurut ahli ma'ani",
+        "isi": "Menurut al-Jurjani, haqq adalah salah satu nama Allah, dan juga berarti sesuatu yang benar-benar tetap. Secara bahasa haqq adalah yang tetap dan tidak boleh diingkari; dalam istilah ahli ma'ani, haqq adalah hukum yang sesuai dengan kenyataan, dipakai untuk ucapan, akidah, agama, dan mazhab, dan lawannya batil. Shidq lazim dipakai khusus untuk ucapan, dan lawannya dusta. Keduanya kadang dibedakan: pada haqq kesesuaian dilihat dari arah kenyataan, sedangkan pada shidq dari arah hukum.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000791, 80000792, 80000793],
+        "soal": {
+          "tanya": "Dari arah mana kesesuaian dilihat pada shidq menurut pembedaan yang dinukil al-Jurjani?",
+          "jawab": "Pada shidq kesesuaian dilihat dari arah hukum, sedangkan pada haqq dari arah kenyataan."
+        }
+      },
+      {
+        "judul": "Haqiqah adalah kata yang dipakai sesuai makna asalnya dalam istilah pembicaraan, menurut penulis",
+        "isi": "Al-Jurjani menjelaskan bahwa haqiqah secara istilah adalah kata yang dipakai untuk makna yang ditetapkan baginya dalam istilah yang dipakai dalam pembicaraan itu. Batasan ini mengecualikan majaz, yaitu kata yang dipakai untuk makna yang ditetapkan dalam istilah lain. Contohnya kata shalat: bila orang yang berbicara dengan istilah syariat memakainya untuk doa, itu majaz, karena dalam syariat kata itu ditetapkan untuk rukun dan zikir tertentu, meskipun dalam bahasa ia berarti doa. Ia juga menukil definisi lain dengan wa qila.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000794, 80000795, 80000796],
+        "soal": {
+          "tanya": "Mengapa kata shalat yang dipakai untuk doa oleh pembicara beristilah syariat disebut majaz menurut al-Jurjani?",
+          "jawab": "Karena dalam istilah syariat kata itu ditetapkan untuk rukun dan zikir tertentu, bukan untuk doa."
+        }
+      },
+      {
+        "judul": "Hikmah adalah ilmu tentang hakikat segala sesuatu sebatas kemampuan manusia, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan hikmah sebagai ilmu yang membahas hakikat segala sesuatu sebagaimana adanya dalam wujud, sebatas kemampuan manusia; ia ilmu teoretis, bukan ilmu alat. Hikmah juga berarti keadaan daya akal yang berada di tengah antara gharizah, sisi berlebihan daya itu, dan baladah, sisi kekurangannya. Ia menyebut tiga makna hikmah: mewujudkan (ijad), ilmu, dan makna ketiga yang ia contohkan dengan matahari dan bulan, lalu menukil beberapa pendapat lain, antara lain bahwa secara bahasa hikmah adalah ilmu disertai amal. Hikmah ilahiyah membahas keadaan wujud yang lepas dari materi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000808, 80000809, 80000810],
+        "soal": {
+          "tanya": "Di antara dua sifat apa hikmah sebagai keadaan daya akal berada menurut al-Jurjani?",
+          "jawab": "Di tengah antara gharizah sebagai sisi berlebihan dan baladah sebagai sisi kekurangannya."
+        }
+      },
+      {
+        "judul": "Hukum syariat adalah hukum Allah yang berkaitan dengan perbuatan mukallaf, menurut penulis",
+        "isi": "Menurut al-Jurjani, hukum secara umum adalah menyandarkan satu perkara kepada perkara lain, baik dengan menetapkan maupun menafikan. Hukum syariat adalah hukum Allah Swt. yang berkaitan dengan perbuatan orang-orang mukallaf. Halal adalah segala sesuatu yang tidak dihukum karena memakainya, atau apa yang dibolehkan syariat untuk dilakukan. Hazhr adalah apa yang diberi pahala bila ditinggalkan dan dihukum bila dilakukan. Hujjah adalah sesuatu yang dipakai untuk menunjukkan benarnya suatu klaim; ada pula yang menyamakannya dengan dalil.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000814, 80000815, 80000820, 80000821, 80000788, 80000716],
+        "soal": {
+          "tanya": "Bagaimana al-Jurjani mendefinisikan hazhr dalam kaitannya dengan pahala dan hukuman?",
+          "jawab": "Hazhr adalah apa yang diberi pahala bila ditinggalkan dan dihukum bila dilakukan."
+        }
+      },
+      {
+        "judul": "Hal adalah anugerah dan maqam adalah usaha, menurut ahli hakikat",
+        "isi": "Al-Jurjani menukil bahwa menurut ahli al-haqq, hal adalah makna yang datang ke hati tanpa dibuat-buat, didatangkan, atau diusahakan, seperti gembira, sedih, qabdh, bast, atau rasa segan, dan hilang ketika sifat-sifat nafsu muncul. Bila ia menetap dan menjadi milik, ia disebut maqam; maka ahwal adalah anugerah dan maqamat adalah hasil usaha. Hijab menurut mereka adalah tercetaknya gambaran alam di hati yang menghalangi diterimanya tajalli al-Haqq. Haya' ia bagi dua: nafsani, yang Allah ciptakan dalam jiwa, dan imani, yang mencegah mukmin dari maksiat karena takut kepada Allah.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000709, 80000719, 80000841],
+        "soal": {
+          "tanya": "Kapan sebuah hal berubah menjadi maqam menurut ahli hakikat yang dinukil al-Jurjani?",
+          "jawab": "Ketika hal itu menetap dan menjadi milik tetap, ia disebut maqam."
+        }
+      },
+      {
+        "judul": "Hamd terbagi menurut lisan, perbuatan, dan keadaan hati, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan hamd sebagai pujian atas kebaikan dengan maksud mengagungkan, baik atas nikmat maupun lainnya. Hamd qauli adalah pujian lisan kepada al-Haqq dengan pujian yang Dia berikan untuk diri-Nya lewat lisan para nabi. Hamd fi'li adalah melakukan amal badan demi mencari wajah Allah. Hamd hali berkaitan dengan ruh dan hati, seperti bersifat dengan kesempurnaan ilmu dan amal. Hamd lughawi hanya dengan lisan, sedangkan hamd 'urfi adalah perbuatan yang menunjukkan pengagungan kepada pemberi nikmat karena ia pemberi nikmat, baik dengan lisan maupun anggota badan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000824, 80000825, 80000826, 80000827, 80000828, 80000829],
+        "soal": {
+          "tanya": "Apa perbedaan hamd lughawi dan hamd 'urfi menurut al-Jurjani?",
+          "jawab": "Hamd lughawi hanya dengan lisan, sedangkan hamd 'urfi bisa dengan lisan maupun anggota badan karena seseorang pemberi nikmat."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 7,
+        "passage_id": 80000824,
+        "char_start": 7,
+        "char_end": 57,
+        "terjemahan": "Hamd adalah pujian atas kebaikan dengan maksud mengagungkan, baik atas nikmat maupun selainnya."
+      },
+      {
+        "gagasan": 5,
+        "passage_id": 80000815,
+        "char_start": 14,
+        "char_end": 61,
+        "terjemahan": "Hukum syariat adalah hukum Allah Taala yang berkaitan dengan perbuatan orang-orang mukallaf."
+      }
+    ],
+    "istilah": []
+  }
+}

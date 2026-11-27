@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600020,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p106: definisi ijtihad dan dua pahala/satu pahala bagi mujtahid furu' yang lengkap perangkatnya."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p107: seluruh kalimat di bawah 'minhum man qala', kini dinisbahkan kepada sebagian ulama (reported), termasuk soal ushul kalamiyyah."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p107-p108: dalil pihak yang menolak semua mujtahid furu' benar dan wajh ad-dalil; tanpa status riwayat."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "ba62e4754c5946a99b441d17a5385fdfd9a1251cef23013d12083d2465b9da50",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi ijtihad dan dua/satu pahala setia p106."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Pendapat nukilan tentang furu' dan ushul kalamiyyah setia p107, reported tepat."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Dalil dan segi pendalilannya setia p107-p108."
+        }
+      ],
+      "laporan": "Pemeriksaan pertama: 1 Salah (atribusi pendapat ushul kalamiyyah), direvisi; pemeriksaan ulang lolos."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "06527dc9fb707862314ccd60fe704b71e57cb0790a635b3b39a1019e3d46b09b",
+      "draf_sha256": "ba62e4754c5946a99b441d17a5385fdfd9a1251cef23013d12083d2465b9da50",
+      "waktu": "2026-11-27T18:32:28.837Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, ijtihad adalah mengerahkan kemampuan untuk mencapai tujuan; mujtahid furu' yang benar mendapat dua pahala dan yang keliru satu pahala.",
+    "ringkasan": "Al-Juwaini mendefinisikan ijtihad sebagai mengerahkan kemampuan untuk mencapai tujuan. Mujtahid yang perangkatnya lengkap dalam masalah furu', bila benar, mendapat dua pahala, dan bila keliru mendapat satu pahala. Ia menukil pendapat sebagian ulama bahwa setiap mujtahid dalam furu' benar, tetapi tidak boleh dikatakan setiap mujtahid dalam pokok-pokok akidah benar, karena itu berarti membenarkan ahli kesesatan, Majusi, orang kafir, dan mulhid. Pihak yang berpendapat tidak setiap mujtahid furu' benar berdalil dengan sabda Nabi saw. tentang dua pahala dan satu pahala.",
+    "gagasan": [
+      {
+        "judul": "Mujtahid furu' yang benar mendapat dua pahala, yang keliru satu, menurut al-Juwaini",
+        "isi": "Al-Juwaini mendefinisikan ijtihad sebagai mengerahkan kemampuan untuk mencapai tujuan. Mujtahid yang perangkat ijtihadnya lengkap dalam masalah furu', bila ijtihadnya benar, mendapat dua pahala; bila ia berijtihad lalu keliru, ia mendapat satu pahala.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000106],
+        "soal": {
+          "tanya": "Berapa pahala mujtahid furu' yang berijtihad lalu keliru menurut al-Juwaini?",
+          "jawab": "Ia mendapat satu pahala."
+        }
+      },
+      {
+        "judul": "Sebagian ulama: setiap mujtahid furu' benar, tetapi tidak dalam ushul kalamiyyah",
+        "isi": "Penulis menukil pendapat sebagian ulama bahwa setiap mujtahid dalam masalah furu' benar, sedangkan tidak boleh dikatakan bahwa setiap mujtahid dalam pokok-pokok akidah (ushul kalamiyyah) benar, karena hal itu membawa kepada membenarkan ahli kesesatan, kaum Majusi, orang kafir, dan kaum mulhid.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [60000107],
+        "soal": {
+          "tanya": "Mengapa, menurut pendapat yang dinukil penulis, tidak boleh dikatakan setiap mujtahid dalam pokok akidah benar?",
+          "jawab": "Karena itu membawa kepada membenarkan ahli kesesatan, Majusi, orang kafir, dan mulhid."
+        }
+      },
+      {
+        "judul": "Kalangan yang menolak semua mujtahid furu' benar berdalil dengan sabda Nabi",
+        "isi": "Penulis menyebut dalil kalangan yang berpendapat bahwa tidak setiap mujtahid dalam furu' benar, yaitu sabda Nabi saw. bahwa orang yang berijtihad lalu benar mendapat dua pahala, dan yang berijtihad lalu keliru mendapat satu pahala. Segi pendalilannya, Nabi saw. menyatakan mujtahid keliru pada satu kali dan benar pada kali lain.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [60000107, 60000108],
+        "soal": {
+          "tanya": "Apa segi pendalilan sabda tentang dua pahala menurut penjelasan penulis al-Waraqat?",
+          "jawab": "Nabi saw. menyatakan mujtahid keliru pada satu kali dan benar pada kali lain."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000106,
+        "char_start": 0,
+        "char_end": 55,
+        "terjemahan": "Adapun ijtihad, ia adalah mengerahkan kemampuan untuk mencapai tujuan."
+      }
+    ],
+    "istilah": []
+  }
+}

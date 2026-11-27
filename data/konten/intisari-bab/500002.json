@@ -1,0 +1,165 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500002,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p11-p13: hanya hissiyyat dan dharuriyyat, bayang-bayang dan bintang sebesar dinar, hakim akal mendustakan indra sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p14-p16: gugatan indra, mimpi, keadaan sufi atau kematian sebagai kemungkinan sesuai teks; ayat di p16 tidak diparafrasekan."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p17-p18: hampir dua bulan, sofis menurut keadaan bukan ucapan, cahaya di dada, dan rahmat yang disempitkan sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p19-p23: sabda tentang cahaya dan tandanya, waktu-waktu tertentu, serta pengetahuan pertama yang hadir sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p24-p27: empat golongan dengan klaim masing-masing dan kaca taklid yang pecah sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "c63d129d9303f88c6fca65c779aea11ad13b74092229c25a53b360275086952b",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "p11-p13 setia: bayang-bayang dan bintang sebesar dinar, hakim akal mendustakan hakim indra."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "p14-p16 setia: gugatan indra, mimpi, kemungkinan keadaan sufi atau kematian tetap dugaan."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "p17-p18 setia: hampir dua bulan sofisme menurut keadaan, sembuh oleh cahaya; kutipan tepat."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "p19-p23 setia: sabda dinukil tanpa status, cahaya dinanti, mencari sampai yang tak perlu dicari."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "p24-p27 setia: empat golongan, syarat taklid dan kaca pecah; kutipan tepat."
+        }
+      ],
+      "laporan": "Semua benar; lolos"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "601ef4945ae8560b02fb069afa22f2cecfe9eb30a934ca94a5b266b291a90dc1",
+      "draf_sha256": "c63d129d9303f88c6fca65c779aea11ad13b74092229c25a53b360275086952b",
+      "waktu": "2026-11-27T18:36:26.323Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, keraguannya pernah meruntuhkan kepercayaan pada indra dan akal hampir dua bulan, lalu sembuh bukan karena dalil, melainkan karena cahaya yang Allah campakkan ke dalam dada.",
+    "ringkasan": "Al-Ghazali memeriksa ilmunya dan hanya mendapati pengetahuan inderawi dan pengetahuan dharuri yang mungkin yakin. Ia lalu meragukan indra karena akal sering mendustakannya, kemudian meragukan akal dengan perumpamaan mimpi yang baru disadari keliru saat terjaga. Keraguan itu tidak bisa diobati dengan dalil, sehingga ia berada dalam keadaan sofis hampir dua bulan sampai Allah memulihkannya dengan cahaya. Ia menjelaskan cahaya itu dengan beberapa sabda, lalu memetakan empat golongan pencari kebenaran: ahli kalam, Batiniyah, filsuf, dan sufi.",
+    "gagasan": [
+      {
+        "judul": "Kepercayaan pada indra runtuh karena akal sering mendustakannya, menurut al-Ghazali",
+        "isi": "Sesudah memeriksa ilmunya, al-Ghazali mendapati dirinya tidak memiliki ilmu yakin kecuali pengetahuan inderawi dan pengetahuan dharuri, lalu ia hendak mengujinya. Lama meragukan membuatnya tidak lagi percaya pada indra: mata melihat bayang-bayang diam, padahal sesudah beberapa saat ternyata ia bergerak sedikit demi sedikit; mata melihat bintang sebesar dinar, padahal bukti ilmu ukur menunjukkan bintang itu lebih besar daripada bumi. Hakim akal mendustakan hakim indra, sehingga ia menduga yang dapat dipercaya hanya pengetahuan akal yang paling awal, seperti sepuluh lebih banyak daripada tiga.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000011, 50000012, 50000013],
+        "soal": {
+          "tanya": "Contoh apa yang dipakai al-Ghazali untuk menunjukkan bahwa penglihatan bisa didustakan akal?",
+          "jawab": "Bayang-bayang yang tampak diam padahal bergerak, dan bintang yang tampak sebesar dinar padahal lebih besar daripada bumi."
+        }
+      },
+      {
+        "judul": "Mimpi membuka kemungkinan bahwa akal pun bisa didustakan, menurut penulis",
+        "isi": "Penulis menuturkan gugatan indra kepadanya: dahulu ia percaya kepada indra sampai akal mendustakannya, maka boleh jadi di balik akal ada hakim lain yang akan mendustakan akal. Jiwanya memperkuat keraguan itu dengan mimpi: dalam tidur orang meyakini banyak hal dengan mantap, lalu terjaga dan tahu semuanya tak berdasar. Boleh jadi ada keadaan yang nisbahnya kepada terjaga seperti terjaga kepada tidur. Ia menyebut kemungkinan keadaan itu adalah yang diklaim kaum sufi, atau kematian, dengan menukil sabda bahwa manusia tidur dan baru terbangun ketika mati.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000014, 50000015, 50000016],
+        "soal": {
+          "tanya": "Perumpamaan apa yang dipakai jiwa penulis untuk memperkuat keraguan terhadap akal?",
+          "jawab": "Mimpi, yang diyakini mantap saat tidur lalu ternyata tak berdasar saat terjaga."
+        }
+      },
+      {
+        "judul": "Kesembuhan dari keraguan datang lewat cahaya dari Allah, bukan dalil, menurut al-Ghazali",
+        "isi": "Al-Ghazali menjelaskan bahwa keraguan itu tidak bisa ditolak kecuali dengan dalil, sedangkan dalil hanya tersusun dari pengetahuan pertama yang justru sedang diragukan. Penyakit itu bertahan hampir dua bulan; selama itu ia berada di atas mazhab sofisme menurut keadaannya, bukan menurut ucapannya. Lalu Allah menyembuhkannya: kebenaran dharuri akal kembali diterima dengan yakin, bukan dengan menyusun dalil, melainkan dengan cahaya yang Allah campakkan ke dalam dada. Cahaya itu ia sebut kunci sebagian besar pengetahuan, dan orang yang mengira penyingkapan bergantung pada dalil yang tersusun rapi telah menyempitkan rahmat Allah yang luas.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000017, 50000018],
+        "soal": {
+          "tanya": "Berapa lama al-Ghazali berada dalam keadaan sofisme sebelum disembuhkan?",
+          "jawab": "Hampir dua bulan, menurut keadaannya, bukan menurut ucapannya."
+        }
+      },
+      {
+        "judul": "Pencari kebenaran mesti bersungguh-sungguh sampai mencari yang tidak perlu dicari, menurut penulis",
+        "isi": "Penulis menukil sabda Nabi saw. ketika ditanya tentang makna kelapangan dada: itu cahaya yang Allah campakkan ke dalam hati, dengan tanda menjauhi negeri tipu daya dan kembali kepada negeri yang kekal, serta sabda bahwa Allah menciptakan makhluk dalam kegelapan lalu memercikkan cahaya-Nya. Dari cahaya itu, katanya, penyingkapan semestinya dicari; cahaya itu memancar dari kemurahan Allah pada waktu-waktu tertentu dan perlu dinanti. Maksud kisah-kisah itu agar orang bersungguh-sungguh mencari sampai mencari yang tidak perlu dicari, sebab pengetahuan pertama sudah hadir, dan yang hadir justru menjauh bila dicari.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000019, 50000020, 50000022, 50000023],
+        "soal": {
+          "tanya": "Mengapa pengetahuan pertama tidak perlu dicari, menurut penulis?",
+          "jawab": "Karena ia sudah hadir, dan sesuatu yang hadir justru menjauh bila dicari."
+        }
+      },
+      {
+        "judul": "Kebenaran tidak keluar dari empat golongan pencari, menurut al-Ghazali",
+        "isi": "Setelah sembuh, al-Ghazali memetakan para pencari kebenaran menjadi empat golongan: ahli kalam yang mengaku ahli penalaran, kaum Batiniyah yang mengaku pemilik ta'lim dari imam maksum, para filsuf yang mengaku ahli logika dan burhan, serta kaum sufi yang mengaku ahli musyahadah dan mukasyafah. Menurutnya kebenaran tidak keluar dari mereka; bila luput dari mereka, tidak ada harapan lagi, sebab kembali kepada taklid tidak mungkin. Syarat orang bertaklid ialah tidak tahu bahwa ia bertaklid; bila sudah tahu, kaca taklidnya pecah dan tidak bisa ditambal kecuali dilebur dan dibentuk baru.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000024, 50000025, 50000026, 50000027],
+        "soal": {
+          "tanya": "Mengapa al-Ghazali tidak bisa kembali kepada taklid setelah meninggalkannya?",
+          "jawab": "Karena syarat orang bertaklid ialah tidak tahu bahwa ia bertaklid; bila tahu, kaca taklidnya pecah."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 50000018,
+        "char_start": 323,
+        "char_end": 395,
+        "terjemahan": "Siapa yang mengira bahwa penyingkapan bergantung pada dalil-dalil yang tersusun rapi, sungguh ia telah menyempitkan rahmat Allah Ta'ala yang luas."
+      },
+      {
+        "gagasan": 5,
+        "passage_id": 50000027,
+        "char_start": 242,
+        "char_end": 310,
+        "terjemahan": "Di antara syarat orang yang bertaklid ialah ia tidak tahu bahwa dirinya bertaklid; bila ia mengetahuinya, pecahlah kaca taklidnya."
+      }
+    ],
+    "istilah": []
+  }
+}

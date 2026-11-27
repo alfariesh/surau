@@ -41,7 +41,39 @@ export interface SummaryRound2Input {
   children: readonly { heading: string; summary: string }[];
 }
 
-function request(model: ModelId, user: string): MessageCreateParamsNonStreaming {
+/**
+ * Petunjuk ringkasan per kitab (ADR-152 tambahan; pola ADR-149): prompt dasar menyebut Ihya' dan
+ * al-Ghazali, jadi kitab penulis lain menambahkan identitasnya di ujung prompt sistem. `id` =
+ * `<nama>@<versi>`; mengubah teks = versi baru.
+ */
+export interface SummaryWorkNote {
+  id: string;
+  text: string;
+}
+
+/** Prompt ringkasan yang benar-benar dikirim: `id` dicatat sebagai `prompt_version`. */
+export interface ResolvedSummaryPrompt {
+  id: string;
+  system: string;
+}
+
+/** Tanpa petunjuk = `SUMMARY_PROMPT` apa adanya (id dan cache kitab lain tidak berubah). */
+export function summaryPromptFor(note?: SummaryWorkNote): ResolvedSummaryPrompt {
+  if (note === undefined) return { id: SUMMARY_PROMPT.id, system: SUMMARY_PROMPT.system };
+  if (!/^[a-z0-9-]+@\d+$/.test(note.id))
+    throw new Error(`id petunjuk ringkasan tidak sah: ${note.id}`);
+  if (note.text.trim() === "") throw new Error(`petunjuk ringkasan ${note.id} kosong`);
+  return {
+    id: `${SUMMARY_PROMPT.id}+${note.id}`,
+    system: `${SUMMARY_PROMPT.system}\n\n${note.text}`,
+  };
+}
+
+function request(
+  model: ModelId,
+  user: string,
+  prompt: ResolvedSummaryPrompt = SUMMARY_PROMPT,
+): MessageCreateParamsNonStreaming {
   return {
     model,
     max_tokens: SUMMARY_MAX_TOKENS,
@@ -49,7 +81,7 @@ function request(model: ModelId, user: string): MessageCreateParamsNonStreaming 
     system: [
       {
         type: "text",
-        text: SUMMARY_PROMPT.system,
+        text: prompt.system,
         cache_control: { type: "ephemeral", ttl: "1h" },
       },
     ],
@@ -79,15 +111,17 @@ export function summaryRound2UserText(input: SummaryRound2Input): string {
 export function buildSummaryRequest(
   input: SummaryChunkInput,
   model: ModelId = MODELS.haiku,
+  prompt?: ResolvedSummaryPrompt,
 ): MessageCreateParamsNonStreaming {
-  return request(model, summaryChunkUserText(input));
+  return request(model, summaryChunkUserText(input), prompt);
 }
 
 export function buildSummaryRound2Request(
   input: SummaryRound2Input,
   model: ModelId = MODELS.haiku,
+  prompt?: ResolvedSummaryPrompt,
 ): MessageCreateParamsNonStreaming {
-  return request(model, summaryRound2UserText(input));
+  return request(model, summaryRound2UserText(input), prompt);
 }
 
 export type SummaryProblem =

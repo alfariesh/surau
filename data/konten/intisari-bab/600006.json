@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600006,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p34-p35: definisi amr, if'al dibawa kepada wajib kecuali dalil nadb/ibahah, tanpa takrar 'ala as-sahih, tanpa fawr."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p36, p39: perintah mencakup yang menjadi syarat sempurnanya (contoh salat dan thaharah), keluar dari tanggungan, perintah = larangan atas lawan."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p37-p38: mukmin tercakup; lupa, anak kecil, gila tidak; kafir dikenai furu' dan Islam, berdalil dengan ayat tanpa isi ayat."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "3caf84873780ef8941d9432e270d5ddb5d18e0680b369fea0c97f5922a8e4093",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi amr, wajib tanpa qarinah, tanpa takrar dan fawr sesuai p34-p35."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Perintah mencakup syarat sempurnanya dan perintah = larangan atas lawan sesuai p36, p39."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Siapa yang tercakup khitab sesuai p37-p38, ayat tidak ditulis isinya."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "30a6b6bceab9c095219506038503c19e43eae66307fdafdf111790efe5af3feb",
+      "draf_sha256": "3caf84873780ef8941d9432e270d5ddb5d18e0680b369fea0c97f5922a8e4093",
+      "waktu": "2026-11-27T18:27:21.272Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, amr adalah tuntutan berbuat dengan ucapan kepada pihak yang lebih rendah secara wajib, dan bentuk if'al tanpa qarinah dibawa kepada wajib.",
+    "ringkasan": "Al-Juwaini mendefinisikan amr sebagai tuntutan melakukan perbuatan dengan ucapan kepada pihak yang lebih rendah dengan cara mewajibkan. Bentuknya if'al, yang bila mutlak tanpa qarinah dibawa kepada wajib, kecuali ada dalil yang menunjukkan nadb atau ibahah; menurut pendapat yang dinilainya sahih, bentuk itu tidak menuntut pengulangan, dan ia juga tidak menuntut segera. Perintah atas suatu perbuatan juga perintah atas apa yang menjadi syarat sempurnanya. Ia lalu menjelaskan siapa yang tercakup khitab, termasuk orang kafir, dan menutup dengan kaidah bahwa perintah atas sesuatu adalah larangan atas lawannya.",
+    "gagasan": [
+      {
+        "judul": "Bentuk perintah tanpa qarinah dibawa kepada wajib, menurut al-Juwaini",
+        "isi": "Al-Juwaini mendefinisikan amr sebagai tuntutan melakukan perbuatan dengan ucapan kepada pihak yang kedudukannya lebih rendah, dengan cara mewajibkan. Bentuknya if'al. Bila datang mutlak tanpa qarinah, bentuk itu dibawa kepada wajib, kecuali ada dalil bahwa yang dimaksud nadb atau ibahah. Menurut pendapat yang dinilainya sahih, bentuk itu tidak menuntut pengulangan kecuali ada dalil, dan ia juga tidak menuntut dikerjakan segera.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000034, 60000035],
+        "soal": {
+          "tanya": "Apakah bentuk if'al menuntut perbuatan diulang menurut pendapat yang dinilai sahih oleh al-Juwaini?",
+          "jawab": "Tidak, kecuali ada dalil yang menunjukkan maksud pengulangan."
+        }
+      },
+      {
+        "judul": "Perintah atas perbuatan mencakup apa yang menjadi syarat sempurnanya, menurut penulis",
+        "isi": "Menurut penulis, perintah untuk mewujudkan suatu perbuatan adalah perintah atas perbuatan itu dan atas sesuatu yang tanpanya perbuatan itu tidak sempurna. Contohnya, perintah salat adalah perintah bersuci yang mengantarkan kepadanya. Bila perbuatan itu sudah dikerjakan, orang yang diperintah keluar dari tanggungannya. Penulis juga menyatakan bahwa perintah atas sesuatu adalah larangan atas lawannya, dan larangan atas sesuatu adalah perintah atas lawannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000036, 60000039],
+        "soal": {
+          "tanya": "Mengapa perintah salat juga mencakup perintah bersuci menurut penulis al-Waraqat?",
+          "jawab": "Karena salat tidak sempurna tanpa bersuci yang mengantarkan kepadanya."
+        }
+      },
+      {
+        "judul": "Orang lupa, anak kecil, dan orang gila tidak tercakup khitab, menurut Imam al-Haramain",
+        "isi": "Imam al-Haramain menyatakan bahwa yang tercakup khitab Allah Swt. adalah orang-orang mukmin, sedangkan orang yang lupa, anak kecil, dan orang gila tidak tercakup. Orang kafir, menurutnya, dikenai khitab cabang-cabang syariat dan juga khitab tentang sesuatu yang tanpanya cabang itu tidak sah, yaitu Islam. Untuk pendapat itu ia berdalil dengan ayat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000037, 60000038],
+        "soal": {
+          "tanya": "Siapa saja yang tidak tercakup khitab perintah dan larangan menurut Imam al-Haramain?",
+          "jawab": "Orang yang lupa, anak kecil, dan orang gila."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 60000039,
+        "char_start": 0,
+        "char_end": 67,
+        "terjemahan": "Perintah atas sesuatu adalah larangan atas lawannya, dan larangan atas sesuatu adalah perintah atas lawannya."
+      }
+    ],
+    "istilah": []
+  }
+}

@@ -5,7 +5,7 @@
 
 - Sumber: Shamela `book/969/1969.db`, sha256 `3455f0e5e215d9ef1621b606d7b4d89e1acfdfa67d747e83523d0ee14ba30124`
 - Patch daftar isi: `–` · peta ID: `data/ids/at-tibyan-1969.json`
-- Korpus: `kitab-v10` · NORM_VERSION 2
+- Korpus: `kitab-v11` · NORM_VERSION 2
 
 ## Invarian (ingest gagal bila ada yang ✗)
 
@@ -28,7 +28,7 @@
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 0/0 (100,0%); mirip 0, tidak cocok 0 |
 | Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 34 terjemahan berisi ayat; 0 bermasalah |
 | Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 602/602 (100,00%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
-| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 238/238 (100,00%); usang 0, tidak sah 0 |
+| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 237/238 (99,58%); usang 0, tidak sah 0 |
 | Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 122/122 (100,00%): node 122, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/119 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |

@@ -2,6 +2,8 @@
 // ADR-137, ADR-138). Teks Arab (judul, nama penulis, penerbit) TIDAK ditulis di sini: semuanya
 // disalin dari Shamela. Slug `at-tibyan` sama dengan daftar "Segera hadir" (ADR-115) dan dibekukan
 // saat tayang.
+import { SUMMARY_NOTES } from "@surau/llm";
+
 import type { WorkConfig } from "./config.ts";
 
 export const TIBYAN: WorkConfig = {
@@ -13,7 +15,13 @@ export const TIBYAN: WorkConfig = {
   ids: "data/ids/at-tibyan-1969.json",
   reportPrefix: "data/reports/at-tibyan-1969",
   // Folder kerja LLM per kitab (ADR-137 butir 8); model Sonnet untuk Gelombang 1 (X31b).
-  llm: { dir: "at-tibyan", intisari: "at-tibyan/intisari", model: "sonnet" },
+  llm: {
+    dir: "at-tibyan",
+    intisari: "at-tibyan/intisari",
+    model: "sonnet",
+    // Identitas kitab untuk ringkasan (ADR-152 tambahan): 89/119 ringkasan v10 menyebut al-Ghazali.
+    summaryNote: SUMMARY_NOTES.tibyan,
+  },
   expect: {
     // Angka sumber Shamela. Yang dimuat: 220 halaman dan 122 node (4 halaman dan 5 judul pentahqiq
     // dibuang, ADR-150).

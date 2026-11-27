@@ -1,0 +1,10 @@
+# Patch daftar isi al-Waraqat (Shamela 6297, ADR-152). Hanya ID dan struktur: judul node disalin
+# dari paragraf pembukanya di halaman sumber.
+shamela_book: 6297
+
+add:
+  # Paragraf basmalah di page.id 1 sebelum judul pertama (title 1) menjadi node tingkat teratas.
+  - id: basmalah
+    parent: 0
+    page: 1
+    heading: بسم الله

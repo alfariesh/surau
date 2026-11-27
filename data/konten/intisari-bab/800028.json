@@ -1,0 +1,179 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800028,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:04:52+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p2107, 2110, 2119, 2121: wajib li-dzatihi/li-ghayrihi, wajib al-wujud, wujub dan wujub aqli sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p2108-2109 (urf al-fuqaha), 2119-2120: dalil bersyubhat, pahala/hukuman kecuali uzur, pengingkar disesatkan tidak dikafirkan, contoh zakat fitrah dan kurban sesuai (dirapikan)."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p2116 (qila dipertahankan), 2117 (an-Nuri, al-Junaid), 2112, 2128 sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p2151, 2153: dua makna fa il/maf ul, sifat wali, wilayah sufi dan syar i sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p2143: beda Abu Hanifah dan keduanya tentang rujuk dan milik; p2127 wadi ah vs amanah; p2138 wudhu sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p2155-2156: tempat daya wahm, contoh Zaid dan kambing-serigala, penguasaan atas daya jasmani sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "d05c844332ca183d6e4a1ca4f54169219803f9e21d88b351d24cd3f108239399",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Wajib li-dzatihi/li-ghayrihi, wajib al-wujud, wujub dan wujub 'aqli sesuai p80002107, 110, 119, 121."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Definisi wajib menurut fuqaha, status pengingkar (sesat tidak kafir), dan syughl adz-dzimmah sesuai p80002108-09, 119-20."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Wajd, wujud, kutipan an-Nuri dan al-Junaid, urutan tauhid-wajd-wujud, warid, dan wara' sesuai p80002116-17, 112, 128."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Dua makna wali, ciri wali, dan dua makna wilayah sesuai p80002151 dan 80002153."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Wakaf dua pendapat sesuai p80002143, tetapi wadi'ah dan wudhu (definisi penulis, p80002127, 138) ikut berlabel 'reported' dan tidak tercermin di judul."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Definisi wahm, contoh kambing dan serigala, serta kutipan p80002156 sesuai teks."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "8a9176da533e6903916010f29305c59d04a7a437cb49b3e836dd8060fe482749",
+      "draf_sha256": "d05c844332ca183d6e4a1ca4f54169219803f9e21d88b351d24cd3f108239399",
+      "waktu": "2026-11-27T19:06:06.351Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani, istilah berhuruf waw berpusat pada wajib dan wujub dalam filsafat dan fikih, lalu melebar ke wajd dan wujud kaum sufi, wali, wakaf, wadi'ah, dan daya wahm.",
+    "ringkasan": "Bab waw memuat 49 entri definisi; Intisari ini menyoroti sebagian yang paling banyak dipakai lintas ilmu. Al-Jurjani membuka dengan rangkaian istilah wajib: wajib li-dzatihi dan wajib al-wujud dalam filsafat dan kalam, lalu wajib menurut fuqaha dan pembagian wujub. Ia kemudian mendefinisikan istilah rohani seperti wajd, wujud, warid, dan wara', serta makna wali dan wilayah. Di bidang fikih ia menjelaskan wakaf, wadi'ah, dan wudhu. Bab ini ditutup dengan istilah-istilah daya wahm (estimasi) dalam ilmu jiwa.",
+    "gagasan": [
+      {
+        "judul": "Wajib li-dzatihi adalah wujud yang ketiadaannya mustahil dari dirinya, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan wajib li-dzatihi sebagai yang maujud yang ketiadaannya mustahil, dan wujudnya bukan dari selainnya melainkan dari dzatnya sendiri. Bila kewajiban wujud itu karena dzatnya, ia disebut wajib li-dzatihi; bila karena selainnya, wajib li-ghayrihi. Wajib al-wujud adalah yang wujudnya dari dzatnya dan tidak membutuhkan sesuatu apa pun. Wujub ia definisikan sebagai keharusan dzat menuntut dirinya dan perwujudannya di luar pikiran, sedangkan wujub 'aqli adalah sesuatu yang pasti keluar dari pelaku sehingga ia tidak bisa meninggalkannya, karena meninggalkannya meniscayakan hal mustahil.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002107, 80002110, 80002119, 80002121],
+        "soal": {
+          "tanya": "Kapan sesuatu disebut wajib li-ghayrihi dan bukan wajib li-dzatihi?",
+          "jawab": "Bila kewajiban wujudnya berasal dari selain dzatnya sendiri."
+        }
+      },
+      {
+        "judul": "Wajib menurut kalangan fuqaha ditetapkan dengan dalil yang mengandung syubhat",
+        "isi": "Al-Jurjani menukil bahwa dalam kebiasaan para fuqaha, wajib adalah yang kewajibannya ditetapkan dengan dalil yang mengandung syubhat, seperti khabar ahad; pelakunya diberi pahala dan yang meninggalkannya berhak dihukum bila tanpa uzur, sehingga orang yang mengingkarinya dinilai sesat tetapi tidak dikafirkan. Wajib dalam amal ia definisikan sebagai yang mengikat berdasarkan dalil yang mengandung syubhat, seperti khabar ahad, qiyas, lafaz umum yang sudah dikhususkan, atau ayat yang dita'wil; contohnya zakat fitrah dan kurban. Menurut fuqaha, wujub berarti terbebaninya tanggungan (syughl adz-dzimmah), dan wujub syar'i adalah yang meninggalkannya berhak dicela dan dihukum.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80002108, 80002109, 80002119, 80002120],
+        "soal": {
+          "tanya": "Bagaimana kedudukan orang yang mengingkari wajib dalam istilah fuqaha yang dinukil al-Jurjani?",
+          "jawab": "Ia dinilai sesat tetapi tidak dikafirkan, karena dalilnya mengandung syubhat."
+        }
+      },
+      {
+        "judul": "Wajd adalah yang datang ke hati tanpa dibuat-buat, menurut penulis dan kaum sufi",
+        "isi": "Al-Jurjani mendefinisikan wajd sebagai sesuatu yang menjumpai hati dan datang kepadanya tanpa dipaksakan dan dibuat-buat; ada pula yang berkata, wajd adalah kilat yang berkilau lalu cepat padam. Wujud adalah hilangnya hamba karena terhapusnya sifat-sifat kemanusiaan dan didapatinya al-Haqq. Untuk itu ia mengutip ucapan Abu al-Husain an-Nuri dan al-Junaid, lalu menyimpulkan bahwa tauhid adalah permulaan, wujud adalah akhir, dan wajd perantara di antara keduanya. Warid adalah setiap makna gaib yang datang ke hati tanpa disengaja hamba, sedangkan wara' adalah menjauhi syubhat karena takut terjatuh ke dalam yang haram.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002116, 80002117, 80002112, 80002128],
+        "soal": {
+          "tanya": "Bagaimana urutan tauhid, wajd, dan wujud dalam penjelasan al-Jurjani?",
+          "jawab": "Tauhid adalah permulaan, wujud adalah akhir, dan wajd berada di antara keduanya."
+        }
+      },
+      {
+        "judul": "Wali adalah orang yang ketaatannya beruntun tanpa diselingi maksiat, menurut penulis",
+        "isi": "Menurut al-Jurjani, kata wali bisa bermakna pelaku, yaitu orang yang ketaatannya beruntun tanpa diselingi maksiat, atau bermakna objek, yaitu orang yang terus-menerus menerima kebaikan dan karunia Allah. Wali adalah orang yang mengenal Allah dan sifat-sifat-Nya sebatas yang mungkin, tekun dalam ketaatan, menjauhi maksiat, dan berpaling dari tenggelam dalam kelezatan dan syahwat. Wilayah ia definisikan sebagai tegaknya hamba bersama al-Haqq ketika ia fana dari dirinya; dalam syariat, wilayah adalah berlakunya ucapan seseorang atas orang lain, baik orang itu mau maupun tidak.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002151, 80002152, 80002153],
+        "soal": {
+          "tanya": "Apa dua kemungkinan makna kata wali yang disebut al-Jurjani?",
+          "jawab": "Orang yang ketaatannya beruntun tanpa maksiat, atau orang yang terus-menerus menerima kebaikan Allah."
+        }
+      },
+      {
+        "judul": "Wakaf diperselisihkan antara Abu Hanifah dan dua sahabatnya, menurut nukilan penulis",
+        "isi": "Al-Jurjani menjelaskan wakaf secara bahasa sebagai menahan. Dalam syariat, menurut Abu Hanifah wakaf adalah menahan barang tetap dalam milik pewakaf dan menyedekahkan manfaatnya, sehingga ia boleh menariknya kembali. Menurut keduanya (dua sahabat Abu Hanifah), wakaf adalah menahan barang dari dimiliki disertai sedekah manfaatnya, sehingga barang itu dari satu sisi berpindah menjadi milik Allah. Wadi'ah adalah amanah yang sengaja dititipkan untuk dijaga; kata sengaja mengecualikan amanah yang sampai ke tangan seseorang tanpa disengaja, sehingga wadi'ah lebih khusus dan amanah lebih umum. Wudhu ia definisikan sebagai membasuh dan mengusap anggota-anggota tertentu.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80002143, 80002127, 80002138],
+        "soal": {
+          "tanya": "Mengapa pewakaf boleh menarik kembali wakafnya menurut pendapat Abu Hanifah yang dinukil al-Jurjani?",
+          "jawab": "Karena menurutnya barang wakaf tetap dalam milik pewakaf, hanya manfaatnya yang disedekahkan."
+        }
+      },
+      {
+        "judul": "Wahm adalah daya penangkap makna parsial dari yang terindra, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan wahm sebagai daya jasmani manusia yang bertempat di ujung rongga tengah otak, dan tugasnya menangkap makna-makna parsial yang berkaitan dengan hal-hal terindra, seperti keberanian dan kedermawanan Zaid. Dengan daya inilah seekor kambing menilai bahwa serigala harus dihindari dan anaknya harus dikasihi. Daya ini menguasai seluruh daya jasmani dan memakainya sebagaimana akal memakai seluruh daya akal. Dalam rumusan singkatnya, wahm adalah penangkapan makna parsial yang berkaitan dengan makna yang terindra.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002155, 80002156],
+        "soal": {
+          "tanya": "Contoh apa yang dipakai al-Jurjani untuk menjelaskan kerja daya wahm pada hewan?",
+          "jawab": "Kambing yang menilai serigala harus dihindari dan anaknya harus dikasihi."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 6,
+        "passage_id": 80002156,
+        "char_start": 7,
+        "char_end": 53,
+        "terjemahan": "Penangkapan makna parsial yang berkaitan dengan makna yang terindra."
+      }
+    ],
+    "istilah": []
+  }
+}

@@ -17,7 +17,6 @@ import {
   MAX_PROMPT_TOKENS,
   MODELS,
   SUMMARY_LANGS,
-  SUMMARY_PROMPT,
   TRANSLATE_PROMPT,
   addUsage,
   buildSummaryRequest,
@@ -163,10 +162,10 @@ function r1Request(work: Work, customId: string, model: ModelId): PlannedRequest
   return {
     custom_id: customId,
     kind: "summary-r1",
-    prompt_version: SUMMARY_PROMPT.id,
+    prompt_version: work.summaryPrompt.id,
     source_sha256: c.sourceSha256,
     source_chars: contentLength(c.text),
-    params: buildSummaryRequest({ ...c, lang: parts.lang }, model),
+    params: buildSummaryRequest({ ...c, lang: parts.lang }, model, work.summaryPrompt),
   };
 }
 
@@ -183,7 +182,7 @@ function r2Request(
   const children: { heading: string; summary: string }[] = [];
   for (const c of n.subtree) {
     const s = acc.r1.get(chunkCustomId(c, lang));
-    if (s === undefined || s.source_sha256 !== c.sourceSha256) return null;
+    if (s === undefined || !summaryCurrent(work, s, c.sourceSha256)) return null;
     children.push({ heading: relativeHeading(n, c), summary: s.text });
   }
   const input = round2InputSha(n, lang, acc.r1);
@@ -191,24 +190,45 @@ function r2Request(
   return {
     custom_id: tocRound2CustomId(tocNodeId, lang),
     kind: "summary-r2",
-    prompt_version: SUMMARY_PROMPT.id,
+    prompt_version: work.summaryPrompt.id,
     source_sha256: n.sourceSha256,
     input_sha256: input,
     source_chars: children.reduce((a, c) => a + c.summary.length, 0),
-    params: buildSummaryRound2Request({ tocNodeId, heading: n.heading, lang, children }, model),
+    params: buildSummaryRound2Request(
+      { tocNodeId, heading: n.heading, lang, children },
+      model,
+      work.summaryPrompt,
+    ),
   };
 }
 
 /** Unit kerja kitab `--karya`, dengan prompt terjemahan per kitab (petunjuk ADR-149). */
 function workOf(ctx: LlmContext): Work {
-  return buildWork(ctx.rows(), { translateNote: ctx.work.llm?.translateNote });
+  return buildWork(ctx.rows(), {
+    translateNote: ctx.work.llm?.translateNote,
+    summaryNote: ctx.work.llm?.summaryNote,
+  });
+}
+
+/**
+ * Ringkasan diterima masih berlaku: sumbernya sama, dan untuk kitab berpetunjuk ringkasan
+ * (ADR-152 tambahan) dibuat dengan prompt berpetunjuk itu (ringkasan lama tanpa petunjuk dibuat
+ * ulang). Kitab tanpa petunjuk tidak berubah.
+ */
+export function summaryCurrent(
+  work: Work,
+  rec: { source_sha256: string; prompt_version?: string } | undefined,
+  sha: string,
+): boolean {
+  if (rec === undefined || rec.source_sha256 !== sha) return false;
+  return !work.summaryNoted || rec.prompt_version === work.summaryPrompt.id;
 }
 
 /** Versi prompt yang dipakai request SAAT INI untuk sebuah custom_id (per kitab, ADR-149). */
 export function currentPromptVersion(work: Work, customId: string): string | null {
   const parts = parseCustomId(customId);
   if (parts === null) return null;
-  return parts.kind === "passage" ? work.translatePrompt.id : SUMMARY_PROMPT.id;
+  return parts.kind === "passage" ? work.translatePrompt.id : work.summaryPrompt.id;
 }
 
 /** Kegagalan dengan versi prompt saat ini (tanpa versi = berkas lama, dianggap saat ini). */
@@ -293,7 +313,7 @@ export function pendingRequests(
     for (const c of work.chunks) {
       for (const lang of SUMMARY_LANGS) {
         const id = chunkCustomId(c, lang);
-        if (acc.r1.get(id)?.source_sha256 === c.sourceSha256) continue;
+        if (summaryCurrent(work, acc.r1.get(id), c.sourceSha256)) continue;
         if (failed.has(`${id}:${c.sourceSha256}`)) continue;
         const r = r1Request(work, id, freshModel);
         if (r !== null) out.push(r);
@@ -304,7 +324,7 @@ export function pendingRequests(
   for (const n of work.nodes) {
     if (!n.round2) continue;
     for (const lang of SUMMARY_LANGS) {
-      if (acc.final.get(`${n.tocNodeId}-${lang}`)?.source_sha256 === n.sourceSha256) continue;
+      if (summaryCurrent(work, acc.final.get(`${n.tocNodeId}-${lang}`), n.sourceSha256)) continue;
       if (failed.has(`${tocRound2CustomId(n.tocNodeId, lang)}:${n.sourceSha256}`)) continue;
       const r = r2Request(work, acc, n.tocNodeId, lang, freshModel);
       if (r !== null) out.push(r);
@@ -471,6 +491,7 @@ function estimate(
 async function systemTokenCounts(
   client: Anthropic,
   translate: Work["translatePrompt"],
+  summary: Work["summaryPrompt"],
 ): Promise<Record<string, number>> {
   const count = async (system?: string) =>
     (
@@ -483,7 +504,7 @@ async function systemTokenCounts(
   const base = await count();
   return {
     [translate.id]: (await count(translate.system)) - base,
-    [SUMMARY_PROMPT.id]: (await count(SUMMARY_PROMPT.system)) - base,
+    [summary.id]: (await count(summary.system)) - base,
   };
 }
 
@@ -539,7 +560,7 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
   // Request ≥ MAX_PROMPT_TOKENS tidak masuk berkas rencana maupun estimasinya (tarif 5× dan harus
   // dipecah dulu), jadi submit tidak mungkin mengirimnya walau peringatan di bawah terlewat (#78).
   const { kept, over } = splitOversized(reqs, counts);
-  const system = await systemTokenCounts(client, work.translatePrompt);
+  const system = await systemTokenCounts(client, work.translatePrompt, work.summaryPrompt);
   const rates = outputRates(dir);
   const byKind = new Map<BatchKind, PlannedRequest[]>();
   for (const r of kept) byKind.set(r.kind, [...(byKind.get(r.kind) ?? []), r]);
@@ -967,9 +988,9 @@ export function submittable(
       );
     }
     if (parts?.kind === "toc" && parts.round === 1)
-      return acc.r1.get(r.custom_id)?.source_sha256 !== sha;
+      return !summaryCurrent(work, acc.r1.get(r.custom_id), sha);
     if (parts?.kind === "toc")
-      return acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 !== sha;
+      return !summaryCurrent(work, acc.final.get(`${parts.tocNodeId}-${parts.lang}`), sha);
     return false;
   });
   return { ready, stale };
@@ -1455,8 +1476,8 @@ export function awaitingReplan(work: Work, acc: Accepted): string[] {
       parts.kind === "passage"
         ? acc.translations.get(parts.passageId)?.source_sha256 === sha
         : parts.round === 1
-          ? acc.r1.get(f.custom_id)?.source_sha256 === sha
-          : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
+          ? summaryCurrent(work, acc.r1.get(f.custom_id), sha)
+          : summaryCurrent(work, acc.final.get(`${parts.tocNodeId}-${parts.lang}`), sha);
     if (!done) out.add(f.custom_id);
   }
   return [...out].sort();
@@ -1486,8 +1507,8 @@ export function unresolved(
             retranslate.get(parts.passageId),
           )
         : parts.round === 1
-          ? acc.r1.get(f.custom_id)?.source_sha256 === sha
-          : acc.final.get(`${parts.tocNodeId}-${parts.lang}`)?.source_sha256 === sha;
+          ? summaryCurrent(work, acc.r1.get(f.custom_id), sha)
+          : summaryCurrent(work, acc.final.get(`${parts.tocNodeId}-${parts.lang}`), sha);
     if (done) continue;
     // Ditolak peninjau (X02). Versi prompt lama: hitungan mulai dari awal dan langsung ke Sonnet 5.5
     // (sekali per versi yang ditolak, jadi terbatas). Versi prompt saat ini: tidak diulang.
@@ -1588,7 +1609,7 @@ export async function runRetry(
   // Perkiraan biaya ulangan (count_tokens gratis, cache 50%): ulangan Sonnet ±20× Haiku.
   const client = ctx.client();
   const counts = await countAll(client, dir, reqs);
-  const system = await systemTokenCounts(client, work.translatePrompt);
+  const system = await systemTokenCounts(client, work.translatePrompt, work.summaryPrompt);
   const rates = outputRates(dir);
   // Perkiraan disimpan per request (requests/<id>.jsonl), supaya pagu kiriman berikutnya menghitung
   // ulangan ini selama belum dikumpulkan (#62).

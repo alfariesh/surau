@@ -1,0 +1,179 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500013,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p95: akal tidak cukup, munculnya Ta'limiyah, perintah khilafah, dan pengumpulan ucapan mereka sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p96-p99: kritik Ahmad kepada al-Muhasibi, syubhat yang tersebar wajib dijawab, sumber dari sahabat yang bergabung sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p100-p101: kekuatan bid'ah karena pembela yang bodoh, guru maksum adalah Nabi saw., wafat dan gaib sesuai teks; ayat p101 tidak diparafrasekan."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p102-p105: Mu'adz, nas dan ijtihad, kiblat, zakat, mengikuti yang paling alim, putusan menurut yang tampak sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p106-p110: lima timbangan al-Qisthas, imam mereka menambah perselisihan, pertanyaan dibalik, perumpamaan orang sakit sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p111-p114: daftar kitab bantahan, imam gaib, orang berlumur najis, sebagian yang membawa sepotong filsafat Pythagoras, dan berhenti saat diminta mengajar sesuai teks; inti diselaraskan: pengikut tidak memperoleh ilmu dari imam."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "db8c287585e067c16ce52af69449df8fed37210c264f8da93f301217aa64f306",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Perintah khilafah, pengumpulan kitab, dan jawaban tuntas sesuai p95."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Kritik Ahmad kepada al-Muhasibi, syarat sudah tersebar, asal syubhat sesuai p96-p99."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Guru maksum adalah Nabi saw., balasan imam gaib; kutipan p101 cocok."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Kalimat penutup kabur: yang disasar adalah klaim maksum imam, karena para nabi pun tidak aman dari keliru dalam ijtihad (p105)."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Lima timbangan, imam menambah perselisihan, perumpamaan orang sakit sesuai p106-p110."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Lima kitab bantahan, imam gaib, perumpamaan najis, Pythagoras sesuai p111-p114."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "c59058c0cb5957274656cdb1c77726959b0504c92eabeb8206798dff941e3249",
+      "draf_sha256": "db8c287585e067c16ce52af69449df8fed37210c264f8da93f301217aa64f306",
+      "waktu": "2026-11-27T18:36:36.225Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, kaum Ta'limiyah benar bahwa manusia butuh guru maksum, tetapi guru maksum itu adalah Nabi saw., sedangkan para pengikut imam mereka tidak memperoleh ilmu apa pun darinya.",
+    "ringkasan": "Sesudah filsafat, al-Ghazali menelaah kaum Ta'limiyah yang mengaku mengambil ilmu dari imam maksum, apalagi setelah datang perintah khalifah agar ia menulis bantahan. Ia membela caranya memaparkan syubhat mereka secara utuh dengan menimbang kritik Ahmad bin Hanbal kepada al-Muhasibi. Ia menilai kekuatan mereka lahir dari lemahnya pembela kebenaran, mengakui kebutuhan kepada guru maksum dengan menunjuk Nabi saw., menjelaskan ijtihad dalam perkara yang tidak ada nasnya, menawarkan timbangan al-Qisthas al-Mustaqim untuk perselisihan, lalu menyimpulkan dari pengalamannya bahwa mereka tidak membawa ilmu apa pun.",
+    "gagasan": [
+      {
+        "judul": "Akal tidak mencakup semua persoalan, sehingga penulis beralih menelaah kaum Ta'limiyah",
+        "isi": "Penulis menuturkan bahwa sesudah menguasai filsafat ia tahu akal tidak mampu sendirian meliputi semua yang dicari dan menyingkap semua persoalan pelik. Saat itu muncul kaum Ta'limiyah yang mengaku mengetahui makna segala perkara dari imam maksum, sehingga ia ingin menelaah ucapan mereka. Kemudian datang perintah tegas dari pihak khilafah agar ia menulis kitab yang menyingkap mazhab mereka; dorongan dari luar itu bergabung dengan dorongan dari dalam. Ia mengumpulkan kitab dan ucapan mereka, termasuk perkataan baru orang zamannya, menyusunnya dengan rapi, lalu menjawabnya tuntas.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000095],
+        "soal": {
+          "tanya": "Dorongan dari luar apa yang membuat penulis mulai mengumpulkan kitab kaum Ta'limiyah?",
+          "jawab": "Perintah tegas dari pihak khilafah agar ia menulis kitab yang menyingkap mazhab mereka."
+        }
+      },
+      {
+        "judul": "Syubhat yang sudah tersebar wajib dijawab sesudah dipaparkan, menurut al-Ghazali",
+        "isi": "Sebagian ahli kebenaran mengkritik al-Ghazali karena terlalu kuat memaparkan hujah lawan. Ia mengakui kritik itu ada benarnya, seperti Ahmad bin Hanbal yang mengkritik al-Harits al-Muhasibi karena menuturkan syubhat Mu'tazilah sebelum menjawabnya. Namun menurutnya, ucapan Ahmad berlaku bagi syubhat yang belum tersebar; bila sudah tersebar, menjawabnya wajib dan jawaban tidak mungkin tanpa memaparkannya. Ia tidak mengada-adakan syubhat bagi mereka, tetapi mendengarnya dari salah seorang sahabatnya yang telah bergabung dengan mereka, yang bercerita bahwa mereka menertawakan para penulis bantahan. Karena itu ia memaparkan syubhat itu sejauh mungkin, lalu menunjukkan kebatilannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000096, 50000097, 50000098, 50000099],
+        "soal": {
+          "tanya": "Kapan menurut al-Ghazali sebuah syubhat wajib dipaparkan lalu dijawab?",
+          "jawab": "Ketika syubhat itu sudah tersebar dan masyhur di tengah orang banyak."
+        }
+      },
+      {
+        "judul": "Guru maksum yang dibutuhkan manusia adalah Nabi saw., menurut al-Ghazali",
+        "isi": "Menurut al-Ghazali, bid'ah yang lemah itu tersebar sejauh itu hanya karena pembelaan buruk dari sahabat kebenaran yang bodoh, yang mengingkari segala ucapan mereka, termasuk kebutuhan kepada pengajaran dan guru maksum. Yang benar ialah mengakui kebutuhan kepada guru dan bahwa guru itu harus maksum, tetapi guru maksum itu Nabi Muhammad saw. Bila mereka menjawab bahwa beliau telah wafat, imam mereka pun gaib. Bila mereka berkata imamnya telah mengajar para dai dan menyebarkan mereka, Nabi saw. pun demikian dan telah menyempurnakan pengajaran, sehingga wafatnya guru tidak merugikan, seperti gaibnya imam tidak merugikan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000100, 50000101],
+        "soal": {
+          "tanya": "Apa jawaban al-Ghazali bila kaum Ta'limiyah berkata bahwa Nabi saw. telah wafat?",
+          "jawab": "Imam mereka pun gaib, dan sesudah pengajaran sempurna, wafatnya guru tidak merugikan."
+        }
+      },
+      {
+        "judul": "Perkara tanpa nas diputuskan dengan ijtihad seperti dilakukan Mu'adz, menurut penulis",
+        "isi": "Kaum Ta'limiyah bertanya bagaimana memutuskan perkara yang tidak didengar nasnya. Penulis menjawab: seperti Mu'adz saat diutus ke Yaman, dengan nas bila ada dan ijtihad bila tidak ada, sebagaimana para dai mereka sendiri di negeri jauh. Nas yang terbatas tidak mencakup peristiwa yang tidak terbatas, dan merujuk ke imam untuk setiap perkara tidak mungkin; orang yang bingung arah kiblat shalat dengan ijtihad, dan pemberi zakat yang keliru menyangka orang kaya sebagai fakir tidak disalahkan. Orang bertaklid mengikuti yang paling alim, dan Nabi saw. sendiri memutuskan menurut yang tampak, sehingga aman dari keliru dalam ijtihad tidak mungkin diharapkan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000102, 50000103, 50000104, 50000105],
+        "soal": {
+          "tanya": "Bagaimana orang yang bingung arah kiblat shalat, menurut contoh yang dipakai penulis?",
+          "jawab": "Ia shalat menurut ijtihadnya, sebab bepergian ke negeri imam akan melewatkan waktu shalat."
+        }
+      },
+      {
+        "judul": "Timbangan al-Qisthas dapat menghapus perselisihan bila orang mau mendengar, menurut al-Ghazali",
+        "isi": "Al-Ghazali menjawab keberatan bahwa ijtihad tidak berlaku dalam pokok akidah: pokok akidah ada dalam Al-Qur'an dan sunah, sedangkan rinciannya diketahui dengan lima timbangan yang ia uraikan dalam al-Qisthas al-Mustaqim, timbangan yang tidak diselisihi siapa pun yang memahaminya. Imam mereka sendiri tidak menghapus perselisihan, malah menambahnya sampai menumpahkan darah. Atas keberatan bahwa orang bingung tidak wajib mengikutinya, ia membalik pertanyaan itu kepada mereka, sebab pembuktian imam pun butuh nalar yang mereka ingkari. Orang bingung, menurutnya, harus menyebut masalahnya seperti orang sakit menyebut penyakitnya, lalu masalah itu ditimbang.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000106, 50000107, 50000108, 50000109, 50000110],
+        "soal": {
+          "tanya": "Dengan perumpamaan apa al-Ghazali menjawab orang bingung yang tidak menyebut masalahnya?",
+          "jawab": "Orang sakit yang tidak menyebut penyakitnya, sebab obat hanya ada untuk penyakit tertentu."
+        }
+      },
+      {
+        "judul": "Kaum Ta'limiyah mencari guru seumur hidup tanpa belajar apa pun, menurut penulis",
+        "isi": "Penulis menyebut kitab-kitabnya yang membantah mereka, dari al-Mustazhhiri sampai al-Qisthas al-Mustaqim, dan menyimpulkan bahwa mereka tidak membawa obat apa pun. Mereka tidak bisa membuktikan siapa imamnya, tidak memahami persoalan yang diajukan kepada mereka, lalu menyerahkannya kepada imam gaib. Mereka menghabiskan umur mencari guru tanpa belajar apa pun darinya, seperti orang berlumur najis yang menemukan air tetapi tidak memakainya. Sebagian dari mereka yang mengaku berilmu hanya membawa sepotong filsafat Pythagoras yang lemah. Tujuan mereka hanya meyakinkan orang awam bahwa guru dibutuhkan, lalu berhenti saat diminta mengajar, sehingga penulis meninggalkan mereka.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000111, 50000112, 50000113, 50000114],
+        "soal": {
+          "tanya": "Dengan apa penulis mengumpamakan kaum Ta'limiyah yang menemukan guru tetapi tidak belajar darinya?",
+          "jawab": "Dengan orang berlumur najis yang menemukan air tetapi tidak memakainya."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 50000101,
+        "char_start": 286,
+        "char_end": 408,
+        "terjemahan": "Yang benar justru mengakui kebutuhan kepada guru dan bahwa guru itu harus maksum, tetapi guru kami yang maksum adalah Muhammad saw."
+      }
+    ],
+    "istilah": []
+  }
+}

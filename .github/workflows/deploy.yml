@@ -161,8 +161,8 @@ jobs:
           if grep -q '"READER_ENABLED": "0"' apps/web/wrangler.jsonc; then
             pages="/ /home /tentang /lisensi /mcp /kitab"; tertutup="/kitab/ihya/1/200 /cari"
           else
-            # Gelombang 1 tayang (X31): satu halaman cetak per kitab + Cari; Ihya diarsipkan = 404.
-            pages="/ /home /tentang /lisensi /mcp /kitab /cari /kitab/bidayat-al-hidayah/1/25 /kitab/at-tibyan/1/8 /kitab/al-ajurrumiyyah/1/5 /kitab/at-tibyan/intisari"
+            # Gelombang 1 + 2 tayang (X31, X32): satu halaman cetak per kitab + Cari; Ihya diarsipkan = 404.
+            pages="/ /home /tentang /lisensi /mcp /kitab /cari /kitab/bidayat-al-hidayah/1/25 /kitab/at-tibyan/1/8 /kitab/al-ajurrumiyyah/1/5 /kitab/at-tibyan/intisari /kitab/al-munqidz-min-adh-dhalal/1/112 /kitab/al-waraqat/1/31 /kitab/rusum-dar-al-khilafah/1/30 /kitab/al-muqaddimah-al-hadhramiyyah/1/50 /kitab/at-tarifat/1/7"
             tertutup="/kitab/ihya/1/200"
           fi
           for p in $pages; do

@@ -77,6 +77,92 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 - Shamela memecah satu halaman cetak menjadi beberapa halaman per bab. Potongan berurutan dengan nomor cetak yang sama digabung menjadi satu halaman (31 halaman Shamela menjadi 19 halaman cetak; ADR-139). Urutan dan isi paragraf tidak berubah.
 - Catatan kaki penyunting **tidak disertakan** (ADR-138): catatan itu karya penyunting modern di luar rilis OpenITI. Penanda nomor catatan di teks utama tetap ada sebagai teks biasa tanpa tautan.
 
+## al-Munqidz min adh-Dhalal (al-Ghazali, w. 505 H)
+
+Korpus `kitab-v11` (X32, ADR-152). Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009246; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-Haditsah, Mesir, disertai Dr. 'Abd al-Halim Mahmud
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0505Ghazali.Munqidh.Shamela0009246-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0525AH` commit `6290621b58e063ed1aa47ffd0a6fc1630191e7cb` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 9246). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi dengan rilis OpenITI di atas (laporan: [reports/al-munqidz-min-adh-dhalal-9246-openiti.md](reports/al-munqidz-min-adh-dhalal-9246-openiti.md)) | https://shamela.ws/book/9246 |
+| **Dar al-Kutub al-Haditsah, Mesir** | Penerbit edisi cetak (disertai kajian Dr. 'Abd al-Halim Mahmud). Nomor halaman di Surau mengikuti cetakan ini (halaman 101–207). Hanya teks al-Ghazali yang dimuat | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+
+## at-Ta'rifat (asy-Syarif al-Jurjani, w. 816 H)
+
+Korpus `kitab-v11` (X32, ADR-152). Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0007312; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-'Ilmiyyah, Beirut, cetakan pertama 1403/1983, disunting sekelompok ulama di bawah penerbit; daftar isi penerbit tidak disertakan
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0816IbnMuhammadSharifJurjani.Tacrifat.Shamela0007312-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0825AH` commit `2630748a4754b509908048087e569ccc8dd251ce` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 7312). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/at-tarifat-7312-openiti.md](reports/at-tarifat-7312-openiti.md)) | https://shamela.ws/book/7312 |
+| **Dar al-Kutub al-'Ilmiyyah** | Penerbit edisi cetak: satu jilid, Beirut, cetakan pertama 1403 H / 1983 M, disunting dan dikoreksi sekelompok ulama di bawah penerbit. Nomor halaman di Surau mengikuti cetakan ini (halaman 5–260) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+- Label jilid Shamela di puncak daftar isi tidak dimuat, dan bab-bab di bawahnya menjadi judul tingkat teratas (patch daftar isi, ADR-152).
+- Daftar isi penerbit di akhir edisi (halaman cetak 261–262) **tidak disertakan** (ADR-150): bukan teks al-Jurjani. Daftar persisnya: [patches/at-tarifat-7312-pentahqiq.yaml](patches/at-tarifat-7312-pentahqiq.yaml).
+
+## al-Muqaddimah al-Hadhramiyyah (Bafadl al-Hadrami, w. 918 H)
+
+Korpus `kitab-v11` (X32, ADR-152). Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0006125; digitalisasi asal: al-Maktaba al-Shamela; edisi: ad-Dar al-Muttahidah, Damaskus, cetakan ke-2 1413 H, tahqiq Majid al-Hamawi
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0925AH` commit `4f0f4562d1e13083c593e3a0ca6a19a3eb33805e` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 6125). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/al-muqaddimah-al-hadhramiyyah-6125-openiti.md](reports/al-muqaddimah-al-hadhramiyyah-6125-openiti.md)) | https://shamela.ws/book/6125 |
+| **ad-Dar al-Muttahidah**, Damaskus | Penerbit edisi cetak (cetakan ke-2, 1413 H), tahqiq Majid al-Hamawi. Nomor halaman di Surau mengikuti cetakan ini (halaman 19–162) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+- Daftar isi disusun ulang lewat patch yang bisa diaudit ([patches/al-muqaddimah-al-hadhramiyyah-6125.yaml](patches/al-muqaddimah-al-hadhramiyyah-6125.yaml)): judul "kitab" dan "bab" yang di Shamela hanya teks sebaris menjadi node daftar isi, dan judul "fasl" dipindah ke bawahnya. Judul node disalin dari teks halaman.
+- Edisi ini tanpa catatan kaki. Teks sumber memuat artefak konversi "صلى الله عليه وسلم" di sekitar judul bab (juga ada di OpenITI); teks tidak diubah.
+
+## Rusum Dar al-Khilafah (Hilal ibn al-Muhassin ash-Shabi', w. 448 H)
+
+Korpus `kitab-v11` (X32, ADR-152). Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0008173; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar ar-Ra'id al-'Arabi, Beirut, cetakan kedua 1986 M, tahqiq Mikha'il 'Awwad
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0450AH` commit `e344cfe20a206c9ded3edfa15d45b4f821a97b8a` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 8173). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/rusum-dar-al-khilafah-8173-openiti.md](reports/rusum-dar-al-khilafah-8173-openiti.md)) | https://shamela.ws/book/8173 |
+| **Dar ar-Ra'id al-'Arabi** (Beirut), tahqiq **Mikha'il 'Awwad** | Penerbit edisi cetak: satu jilid, cetakan kedua 1986 M. Nomor halaman di Surau mengikuti cetakan ini (halaman 3–142) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+- Edisi digital ini tidak memuat teks catatan kaki, mukadimah, atau lampiran pentahqiq. Dua penanda nomor catatan yang tersisa di teks utama tetap ada sebagai teks biasa tanpa tautan.
+
+## al-Waraqat (Imam al-Haramain al-Juwaini, w. 478 H)
+
+Korpus `kitab-v11` (X32, ADR-152). Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0006297; digitalisasi asal: al-Maktaba al-Shamela; edisi: tahqiq Dr. 'Abd al-Lathif Muhammad al-'Abd
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0478ImamHaramaynJuwayni.Waraqat.Shamela0006297-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0500AH` commit `fff9e21790e2e54f14826322ae49ab7671f12744` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 6297). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi dengan rilis OpenITI di atas (laporan: [reports/al-waraqat-6297-openiti.md](reports/al-waraqat-6297-openiti.md)) | https://shamela.ws/book/6297 |
+| **Edisi tahqiq Dr. 'Abd al-Lathif Muhammad al-'Abd** | Edisi cetak satu jilid. Nomor halaman di Surau mengikuti cetakan ini (halaman 7–31) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+- Basmalah pembuka menjadi butir daftar isi tersendiri (ADR-152 butir 4); teksnya tidak diubah.
+
 ## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 
 Kutipan ayat di dalam kitab dikenali otomatis dan ditautkan ke surah:ayat. Teks ayat, terjemahan, dan transliterasi yang tampil di Surau disalin **verbatim** dari sumber berikut. Model AI tidak pernah menulis, mengubah, atau menerjemahkan ayat (ADR-020, ADR-040).

@@ -1,0 +1,87 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900019,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p312: hanya khalifah, tiga waktu shalat subuh, magrib, dan isya bagi putra mahkota dan amir saat jauh, penolakan al-Muthi' sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p312-p313: rumah di Bab asy-Syammasiyah, syarat tidak melewati pintu ke padang, penabuh tidak pindah, izin bagi 'Adhud ad-Daulah di al-Mukharrim sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "77939c33420263465478e9769f4fdae3e0b5405796e4c305a2f30088c4afa9c3",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Tiga waktu subuh, magrib, isya dan penolakan al-Muthi' sesuai p312."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Bab asy-Syammasiyah, syarat pintu ke padang, dan izin di al-Mukharrim sesuai."
+        }
+      ],
+      "laporan": "Semua benar; boleh terbit"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "7dc48a0e63b0e71910156ada5bd3ef06cacfdb4ebc751f0a3dc65f7f0b094590",
+      "draf_sha256": "77939c33420263465478e9769f4fdae3e0b5405796e4c305a2f30088c4afa9c3",
+      "waktu": "2026-11-27T18:34:28.573Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', tabuh genderang pada waktu shalat di ibu kota dahulu hanya hak khalifah, lalu diizinkan bertahap bagi Mu'izz ad-Daulah dengan syarat dan bagi 'Adhud ad-Daulah di depan rumahnya.",
+    "ringkasan": "Hilal ash-Shabi' menjelaskan bahwa di ibu kota genderang waktu shalat dahulu hanya ditabuh untuk khalifah, sedangkan putra mahkota dan amir pasukan boleh menabuhnya pada tiga waktu shalat bila jauh dari ibu kota. Mu'izz ad-Daulah meminta izin kepada al-Muthi' dan ditolak, lalu diizinkan dengan syarat setelah membangun rumah di tepi kota. 'Adhud ad-Daulah kemudian mendapat izin dari ath-Tha'i' untuk menabuhnya di depan rumahnya di al-Mukharrim, dan hak itu berlanjut bagi anak-anaknya.",
+    "gagasan": [
+      {
+        "judul": "Genderang waktu shalat di ibu kota dahulu khusus bagi khalifah, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', dahulu tidak biasa genderang ditabuh untuk waktu shalat di ibu kota bagi selain khalifah. Putra mahkota dan amir pasukan hanya diizinkan menabuhnya pada tiga waktu shalat, yaitu subuh, magrib, dan isya, bila mereka sedang bepergian atau jauh dari ibu kota. Ketika berkuasa, Mu'izz ad-Daulah, yang tinggal di rumah Mu'nis di samping Dar al-Khilafah, ingin genderang ditabuh di depan pintunya dan meminta izin kepada al-Muthi'. Al-Muthi' menolak walaupun jarang menyelisihinya, dengan alasan hal itu tidak pernah menjadi kebiasaan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000312],
+        "soal": {
+          "tanya": "Pada waktu shalat apa saja putra mahkota dan amir pasukan boleh menabuh genderang ketika jauh dari ibu kota?",
+          "jawab": "Pada tiga waktu shalat, yaitu subuh, magrib, dan isya."
+        }
+      },
+      {
+        "judul": "Izin genderang bagi Mu'izz ad-Daulah dibatasi syarat, menurut penulis",
+        "isi": "Penulis menuturkan bahwa setelah Mu'izz ad-Daulah membangun rumah di Bab asy-Syammasiyah, ia mengulang permintaannya, dan al-Muthi' diberi tahu bahwa rumah itu di tepi kota, tempat perkemahan tentara. Al-Muthi' mengizinkan dengan syarat tabuhan tidak melewati pintu yang menghadap ke padang. Para penabuh berkemah di sana dan menabuh pada tiga waktu shalat, dan bila Mu'izz ad-Daulah masuk ke rumahnya di dalam kota mereka tidak ikut pindah. Keadaan itu berlanjut bagi 'Izz ad-Daulah. Kemudian 'Adhud ad-Daulah meminta izin kepada ath-Tha'i' untuk menabuh genderang di depan rumahnya di al-Mukharrim, bekas rumah hajib Sebuktegin, dan izin itu diberikan serta berlanjut bagi anak-anaknya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000312, 90000313],
+        "soal": {
+          "tanya": "Apa syarat al-Muthi' ketika mengizinkan genderang ditabuh di rumah Mu'izz ad-Daulah di Bab asy-Syammasiyah?",
+          "jawab": "Tabuhan tidak boleh melewati pintu rumah yang menghadap ke padang."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

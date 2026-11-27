@@ -1,0 +1,171 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900004,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p190-p192: sifat hajib, catur dan dadu, catatan al-Mu'tadhid, Khafif as-Samarqandi memukul yang bertugas sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p193-p194: julab, khawatir disangka khamar oleh para qadhi, dan persetujuan al-Mu'tashim sesuai teks; sikap reported."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p195-p199: pakaian putih Muhammad bin Umar, cat hitam ayahnya, alasan larangan sepatu merah, dan nasib Ibnu Abi asy-Syawarib sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p200-p202: duduk bersilang kaki diseret keluar, larangan membuka kepala dan bercanda, kisah Abu al-Haitsam dan alasan kepalanya mudah panas sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p203-p204: larangan memuliakan yang dimurkai, Hamid menyamar sebagai rahib, Nashr tidak berdiri sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p205-p206: pakaian hajib para hajib, urutan masuk, wazir di kanan sekitar lima hasta, amir pasukan di kiri, dua tali dan tujuannya sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "cd1bf1be4fb498501a5d6f3f4b140caf8425127a5d834af5c0c36539a543fe34",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Soal menyiratkan para pemain catur yang dipukul, padahal yang dipukul yang bertugas hari itu."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Ucapan Ishaq dan persetujuan al-Mu'tashim sesuai; sikap reported tepat."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Jawaban soal memakai kata sesudahnya yang membuat makna pakaian pemberontak kabur."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Akhir kisah Abu al-Haitsam dinyatakan pasti padahal kalimat penutup teks ringkas."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Dialog Nashr dan Hamid diringkas longgar; jawaban Hamid hilang."
+        },
+        {
+          "ke": 6,
+          "nilai": "kurang",
+          "catatan": "Hajib para hajib terbaca para hajib, dan syarat izin umum hilang."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "b045eeda72bb6cfed3b52801cef3ecaa7907d3fdf462b7fe78c9498ed579939b",
+      "draf_sha256": "cd1bf1be4fb498501a5d6f3f4b140caf8425127a5d834af5c0c36539a543fe34",
+      "waktu": "2026-11-27T18:34:08.281Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', hajib istana harus matang dan cermat menjaga tertib, karena pakaian, duduk, dan sikap kepada orang yang dimurkai khalifah semuanya diatur, dan pelanggarannya bisa berujung hukuman.",
+    "ringkasan": "Hilal ash-Shabi' membuka bab aturan hijabah dengan sifat hajib yang patut dan tugasnya menertibkan para pengiring, lalu menukil kisah anak-anak amir yang bermain catur di istana al-Mu'tadhid dan kisah Ishaq al-Mush'abi yang menyingkirkan minuman al-Mu'tashim sebelum para qadhi masuk. Ia menguraikan larangan berpakaian putih atau bersepatu merah, larangan duduk bersilang kaki dan membuka sorban, serta larangan hajib memuliakan orang yang dimurkai khalifah. Bab ditutup dengan susunan hari mawkib: siapa masuk lebih dulu dan di mana masing-masing berdiri.",
+    "gagasan": [
+      {
+        "judul": "Hajib yang patut ialah orang matang yang menjaga tertib pengiring, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', hajib sebaiknya orang setengah baya yang ditempa pengalaman atau orang tua yang masih tegap, berakal dan teguh. Ia menempatkan setiap pengiring pada tugasnya tanpa melampaui batas dan mengawasi mereka agar terus melayani dengan sopan. Penulis menukil kisah Ja'far bin Warqa' asy-Syaibani: pada masa al-Mu'tadhid anak-anak amir yang bertugas di istana melepas sepatu dan sorban lalu bermain catur dan dadu. Seorang mata-mata istana melaporkannya, al-Mu'tadhid menulis catatan tajam di balik laporan itu, dan hajib Khafif as-Samarqandi memukul setiap orang yang bertugas hari itu. Sesudahnya tidak ada lagi yang bersikap santai.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000190, 90000191, 90000192],
+        "soal": {
+          "tanya": "Apa yang dilakukan anak-anak amir di istana al-Mu'tadhid sampai mereka dipukul hajib?",
+          "jawab": "Mereka melepas sepatu dan sorban lalu bermain catur dan dadu di ruang istirahat istana."
+        }
+      },
+      {
+        "judul": "Ishaq al-Mush'abi menyingkirkan minuman khalifah sebelum para qadhi masuk, menurut kisah yang dinukil",
+        "isi": "Penulis menukil kisah Ibnu Dihqanah: al-Mu'tashim selesai berobat lalu meminta minuman julab dalam wadah kaca di atas nampan emas. Ketika para qadhi meminta izin masuk, Ishaq bin Ibrahim al-Mush'abi menyuruh agar minuman itu diangkat dulu, dan baru dikembalikan setelah mereka keluar. Al-Mu'tashim menegurnya karena itu hanya julab. Ishaq menjawab bahwa khalifah adalah imam penegak hukum, kesaksian para qadhi menentukan nyawa, dan bila mereka melihat minuman itu sebagian akan menyangka julab dan sebagian menyangka khamar. Al-Mu'tashim membenarkannya.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000193, 90000194],
+        "soal": {
+          "tanya": "Mengapa Ishaq al-Mush'abi menyuruh minuman al-Mu'tashim diangkat sebelum para qadhi masuk?",
+          "jawab": "Agar para qadhi tidak berprasangka minuman itu khamar, padahal hanya julab."
+        }
+      },
+      {
+        "judul": "Pakaian putih dan sepatu merah ditolak di Dar al-Khilafah, menurut penulis",
+        "isi": "Penulis menukil bahwa Muhammad bin Umar al-'Alawi datang ke istana al-Muthi' berpakaian putih, sementara rombongannya berpakaian hitam. Hajib Mu'nis al-Fadhli menegurnya bahwa itu bukan pakaian istana dan bahwa ayahnya dulu datang berpakaian hitam sampai catnya meleleh di dahi karena keringat; Muhammad memilih pulang. Penulis juga menyebut bahwa masuk dengan sepatu merah ditolak karena merah adalah pakaian khalifah dan pakaian para pemberontak. Qadhi Ibnu Abi asy-Syawarib, yang bernasab ke Bani Umayyah, pernah datang bersepatu merah lalu dipermalukan hajib yang memusuhinya, mengurung diri di rumahnya, dan wafat tidak lama sesudahnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000195, 90000196, 90000197, 90000198, 90000199],
+        "soal": {
+          "tanya": "Mengapa sepatu merah tidak boleh dipakai masuk ke Dar al-Khilafah menurut Hilal ash-Shabi'?",
+          "jawab": "Karena warna merah adalah pakaian khalifah dan sesudahnya pakaian orang yang keluar dari ketaatan."
+        }
+      },
+      {
+        "judul": "Duduk bersilang kaki dan membuka sorban dihukum di istana, menurut kisah yang dinukil",
+        "isi": "Penulis menukil dari kakeknya kisah al-Hasan bin Muhammad al-Anbari yang duduk di serambi istana masa al-Qahir dengan meletakkan satu kaki di atas kaki yang lain. Seorang wakil hajib yang menjadi sahabatnya memukul kakinya dengan tongkat dan menjelaskan bahwa mereka diperintah menyeret keluar siapa pun yang duduk seperti itu; ia juga melarangnya membuka kepala, bersantai, dan bercanda di sana. Kakeknya juga menuturkan Abu al-Haitsam yang melepas sorban di istana 'Adhud ad-Daulah: kepala rumah tangga istana memukulkan sorban itu ke kepalanya sampai robek lalu menahannya, dan ia baru dibebaskan setelah dijelaskan bahwa kepalanya mudah panas.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000200, 90000201, 90000202],
+        "soal": {
+          "tanya": "Apa perintah bagi para wakil hajib terhadap orang yang duduk bersilang kaki di istana?",
+          "jawab": "Kakinya diseret sampai ia dikeluarkan dari lingkungan istana."
+        }
+      },
+      {
+        "judul": "Hajib tidak memuliakan orang yang dimurkai khalifah, menurut penulis",
+        "isi": "Menurut penulis, hajib tidak boleh menyambut orang yang dijauhi penguasa, merelakan orang yang dimurkainya, atau tetap memberinya penghormatan seperti dahulu. Karena itulah hajib Nashr al-Qusyuri bersikap dingin kepada Hamid bin al-Abbas, mantan wazir. Hamid yang takut kepada Ibnu al-Furat pada masa wazaratnya yang ketiga datang diam-diam dari Wasith ke Baghdad dan masuk istana dengan menyamar sebagai rahib. Nashr tidak berdiri menyambutnya, bertanya mengapa ia datang ke tempat itu, lalu meminta maaf bahwa ia tidak bisa berbuat lebih karena mengetahui khalifah tidak suka kepadanya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000203, 90000204],
+        "soal": {
+          "tanya": "Dengan penyamaran apa Hamid bin al-Abbas masuk ke istana untuk menemui Nashr al-Qusyuri?",
+          "jawab": "Ia masuk dengan menyamar sebagai rahib."
+        }
+      },
+      {
+        "judul": "Hari mawkib memiliki urutan masuk dan tempat berdiri yang tetap, menurut penulis",
+        "isi": "Penulis menjelaskan bahwa pada hari mawkib hajib para hajib hadir berpakaian lengkap: qaba' hitam, sorban hitam, pedang, dan ikat pinggang. Setelah semua hadir, ia dipanggil masuk sendiri, mencium tanah, lalu diperintah memasukkan orang menurut kedudukannya: putra mahkota dan anak-anak khalifah, kemudian wazir yang berdiri di kanan singgasana sekitar lima hasta, lalu amir pasukan di kirinya. Sesudah itu para pemimpin diwan, katib, dan panglima, Bani Hasyim, dan para qadhi. Terakhir izin umum diberikan, dan tentara berdiri dua shaf di antara dua tali agar tidak berdesakan dan khalifah dapat melihat dari jauh siapa yang masuk.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000205, 90000206],
+        "soal": {
+          "tanya": "Untuk apa dua tali dibentangkan di halaman tempat tentara berdiri pada hari mawkib?",
+          "jawab": "Agar tidak berdesakan dan khalifah dapat melihat dari jauh siapa yang masuk di antaranya."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

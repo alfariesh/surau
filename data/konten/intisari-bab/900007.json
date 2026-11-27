@@ -1,0 +1,87 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900007,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p224-p225: kursi tinggi, qaba' hitam bukan brokat, sorban rushafiyah, pedang Nabi saw., sepatu merah, mushaf Utsman, burdah, tongkat, pemanah burung sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p226-p227: pakaian Abbasiyah, thailasan bagi qadhi, perubahan topi ke sorban hitam, pendapat penulis tentang qashab, kuning bagi Anshar, larangan hitam bagi selain mereka sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "08b8872ee95e0cf1dc3cf0f9c7d3d4da9b24a82983588f4ee8565420d3013882",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Perlengkapan duduk, pakaian, pusaka, khadim, dan tirai sesuai p224-p225."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Kelonggaran memilih warna lain asal tidak serampangan (p227) tidak disebut."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "b1d51824493391fb3189609052170dec9008e8ff914dbc1818e9bf0572cec612",
+      "draf_sha256": "08b8872ee95e0cf1dc3cf0f9c7d3d4da9b24a82983588f4ee8565420d3013882",
+      "waktu": "2026-11-27T18:34:12.183Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', khalifah duduk dalam mawkib dengan pakaian hitam dan pusaka kenabian, sedangkan setiap golongan yang menghadap memakai busana yang sudah ditetapkan untuk kedudukannya.",
+    "ringkasan": "Hilal ash-Shabi' menjelaskan kebiasaan duduk khalifah dalam mawkib: kursi tinggi, alas Armenia atau sutra khazz, qaba' hitam tanpa brokat, sorban hitam, pedang Nabi saw., mushaf Utsman, burdah, dan tongkat, dengan para khadim penjaga dan pemanah burung. Ia lalu menyebut pakaian kaum Abbasiyah, para qadhi beserta perubahan pada masanya, anak-anak Anshar, para amir dan panglima, dan larangan memakai hitam bagi golongan lain.",
+    "gagasan": [
+      {
+        "judul": "Khalifah duduk berpakaian hitam bersama pusaka kenabian, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', kebiasaannya khalifah duduk di kursi tinggi beralas Armenia atau khazz, dengan permadani Armenia di semua majelis pada musim panas maupun dingin. Ia memakai qaba' hitam, bukan brokat atau kain bergambar, sorban hitam rushafiyah, menyandang pedang Nabi saw., meletakkan pedang lain di sisinya, dan memakai sepatu merah. Di hadapannya mushaf Utsman, di pundaknya burdah Nabi, dan di tangannya tongkat. Para ghulam dan khadim bersenjata berdiri di sekitar singgasana, khadim Saqalibah mengipasinya, tirai sutra diangkat saat orang masuk, dan khadim berbusur peluru mengusir gagak agar tidak ada suara burung.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000224, 90000225],
+        "soal": {
+          "tanya": "Mengapa khadim dengan busur peluru ditempatkan dekat majelis khalifah menurut Hilal ash-Shabi'?",
+          "jawab": "Untuk memanah gagak dan burung agar tidak ada yang berbunyi."
+        }
+      },
+      {
+        "judul": "Warna hitam hanya untuk golongan tertentu di istana, menurut penulis",
+        "isi": "Penulis menyebut bahwa kaum Abbasiyah pemegang kedudukan memakai pakaian hitam, qaba', dan sepatu, kecuali yang menjabat qadhi boleh memakai thailasan. Para qadhi ibu kota memakai gamis, thailasan, dan topi tinggi, tetapi pada masanya topi itu ditinggalkan dan diganti sorban hitam mengilap; sebagian berlebihan memakai kain qashab dan khazz hitam, dan penulis berpendapat qashab hanya patut bila tanpa sulaman. Anak-anak Anshar memakai pakaian dan sorban kuning, tetapi hampir tidak tersisa lagi. Para amir dan panglima memakai qaba' dan sorban hitam serta kaus kaki dan sepatu hitam. Selain mereka dilarang memakai hitam.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000226, 90000227],
+        "soal": {
+          "tanya": "Warna apa yang dipakai anak-anak Anshar di istana menurut Hilal ash-Shabi'?",
+          "jawab": "Pakaian dan sorban berwarna kuning."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

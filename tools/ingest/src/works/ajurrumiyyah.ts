@@ -2,7 +2,7 @@
 // ADR-139). Teks Arab (judul, nama penulis, penerbit) TIDAK ditulis di sini: semuanya disalin dari
 // Shamela. Slug `al-ajurrumiyyah` sama dengan daftar "Segera hadir" (ADR-115) dan dibekukan saat
 // tayang.
-import { TRANSLATE_NOTES } from "@surau/llm";
+import { SUMMARY_NOTES, TRANSLATE_NOTES } from "@surau/llm";
 
 import type { WorkConfig } from "./config.ts";
 
@@ -23,6 +23,8 @@ export const AJURRUMIYYAH: WorkConfig = {
     intisari: "al-ajurrumiyyah/intisari",
     model: "sonnet",
     translateNote: TRANSLATE_NOTES.ajurrumiyyah,
+    // Identitas kitab untuk ringkasan (ADR-152 tambahan).
+    summaryNote: SUMMARY_NOTES.ajurrumiyyah,
   },
   expect: {
     pages: 19,

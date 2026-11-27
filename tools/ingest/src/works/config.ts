@@ -1,7 +1,7 @@
 // Bentuk konfigurasi ingest per kitab dan per korpus (X31a, ADR-137). Teks Arab (judul, nama
 // penulis, penerbit) TIDAK ditulis di konfigurasi: semuanya disalin dari Shamela.
 import type { AttributionStatus } from "@surau/db";
-import type { TranslateWorkNote } from "@surau/llm";
+import type { SummaryWorkNote, TranslateWorkNote } from "@surau/llm";
 
 /** Berkas sumber yang dipin sha256-nya (data/SOURCES.md). */
 export interface PinnedFile {
@@ -59,6 +59,11 @@ export interface WorkConfig {
      * = prompt bawaan apa adanya. Dipakai `pnpm llm` lewat `buildWork(rows, { translateNote })`.
      */
     translateNote?: TranslateWorkNote;
+    /**
+     * Petunjuk identitas kitab untuk prompt ringkasan (ADR-152 tambahan): prompt dasar menyebut
+     * Ihya' dan al-Ghazali. Dengan petunjuk, ringkasan lama tanpa petunjuk dibuat ulang.
+     */
+    summaryNote?: SummaryWorkNote;
   };
   /** Metadata audio Intisari (ditulis `pnpm audio manifest`); tanpa entri = tanpa audio. */
   audioManifest?: string;
@@ -117,6 +122,11 @@ export interface WorkConfig {
     matan: PinnedFile;
     /** Versi pembanding takhrij (hanya Ihya: JK). Tanpa entri = catatan kaki tidak dibandingkan. */
     takhrij?: PinnedFile;
+    /**
+     * Penanda halaman `PageV00P000` di berkas matan diisi dari urutannya (`fillZeroPageMarkers`,
+     * ADR-152). Hanya untuk berkas yang konversinya kehilangan nomor halaman (al-Waraqat).
+     */
+    fillZeroPageMarkers?: boolean;
   };
 }
 

@@ -67,6 +67,34 @@ describe("buildToc", () => {
     expect(toc.foot).toEqual([[], [], []]);
   });
 
+  test("patch: judul sebaris sesudah tanda baca dan sesudah `prefix` (al-Hadhramiyyah, ADR-152)", () => {
+    const inline = [
+      [1, "=كتاب اول = كلام اول"],
+      [2, "كلام\r- اثر - باب ثان - اثر - كلام ثان\rقال باب ثالث"],
+    ].map(([id, content], i) =>
+      parsePage({ id: id as number, juz: 1, pageNo: i + 1, content: content as string }),
+    );
+    const patch: TocPatch = {
+      shamela_book: 1,
+      add: [
+        { id: "kitab", parent: 0, page: 1, heading: "كتاب اول" },
+        { id: "bab", parent: "kitab", page: 2, prefix: "اثر", heading: "باب ثان" },
+        // Kata judul di tengah kalimat (didahului huruf) tidak dianggap pembuka paragraf.
+        { id: "tengah", parent: 0, page: 2, heading: "باب ثالث" },
+      ],
+      move: [],
+    };
+    const toc = buildToc([], inline, patch);
+    expect(toc.nodes.map((n) => [n.key, n.level, n.titleAr])).toEqual([
+      ["patch:kitab", 1, "كتاب اول"],
+      ["patch:bab", 2, "باب ثان"],
+    ]);
+    expect(toc.issues).toContain(
+      'patch tengah: tidak ada paragraf yang dibuka "باب ثالث" di page.id 2',
+    );
+    expect(toc.body).toEqual([["patch:kitab"], ["patch:kitab", "patch:bab", "patch:bab"]]);
+  });
+
   test("pelanggaran struktur dilaporkan", () => {
     const patch: TocPatch = {
       shamela_book: 1,

@@ -2,7 +2,7 @@
 // node daftar isinya. Posisi judul diambil dari span `id=toc-N` di teks halaman; judul tanpa span
 // dimulai di awal `title.page`. Node tambahan dari patch mendapat judul yang DISALIN dari paragraf
 // pembukanya di halaman sumber, bukan dari teks yang ditulis di patch.
-import { findQuote } from "@surau/text";
+import { findQuote, findQuoteAll, normalizeArabic } from "@surau/text";
 
 import type { TocPatch } from "./patch.ts";
 import type { ParsedPage } from "./shamela/page.ts";
@@ -111,8 +111,8 @@ export function buildToc(
     sourceOrder.set(key, sourceOrder.size);
   }
 
-  const refKey = (ref: number | string): string =>
-    typeof ref === "number" ? `t${ref}` : `patch:${ref}`;
+  const refKey = (ref: number | string): string | null =>
+    ref === 0 ? null : typeof ref === "number" ? `t${ref}` : `patch:${ref}`;
   for (const add of patch.add) {
     const key = `patch:${add.id}`;
     const pageIndex = pageIndexById.get(add.page);
@@ -123,13 +123,18 @@ export function buildToc(
     }
     let bodyIndex = -1;
     let titleAr = "";
+    const opening = add.prefix === undefined ? add.heading : `${add.prefix} ${add.heading}`;
     for (const [i, d] of page.body.entries()) {
-      const hit = findQuote(d.text, add.heading);
-      if (hit !== null && hit.rawStart === 0) {
-        bodyIndex = i;
-        titleAr = hit.rawText;
-        break;
+      const hit = findQuote(d.text, opening);
+      // Paragraf dibuka kata itu: sebelum kecocokan hanya ada tanda baca/spasi (mis. "=كتاب … =").
+      if (hit === null || normalizeArabic(d.text.slice(0, hit.rawStart)).text.trim() !== "") {
+        continue;
       }
+      const title = add.prefix === undefined ? hit : findQuoteAll(hit.rawText, add.heading).at(-1);
+      if (title === undefined) continue;
+      bodyIndex = i;
+      titleAr = title.rawText;
+      break;
     }
     if (bodyIndex < 0) {
       issues.push(
@@ -153,7 +158,7 @@ export function buildToc(
   }
   for (const move of patch.move) {
     const parent = refKey(move.parent);
-    if (!nodes.has(parent)) issues.push(`patch move: induk ${parent} tidak ada`);
+    if (parent !== null && !nodes.has(parent)) issues.push(`patch move: induk ${parent} tidak ada`);
     for (const id of move.titles) {
       const node = nodes.get(`t${id}`);
       if (node === undefined) {

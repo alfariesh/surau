@@ -1,0 +1,137 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800030,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:06:49+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p2184: definisi bahasa dan istilah serta fungsi empat batasan (genus, keluar zhann, jahl, muqallid) sesuai urutan teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p2184: rumusan ahl al-haqiqah dan enam rumusan qila dinukil, sikap reported."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p2185-2190: yamin bahasa-syariat, ghamus (lampau, dusta), laghw (dua rumusan, asy-Syafi i), mun aqidah (mendatang), shabr sesuai; ayat di p2185 tidak disebut."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p2182, p2192: nukilan dua kelompok; judul dinetralkan dan tujuan peralihan ke agama Shabi'ah ditambahkan sesudah periksa independen."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "126013a8c00716ecb60c114354e2c3c200cea43b2ebe8d9285e364e8b38ee069",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi yaqin dan empat batasan sesuai teks, urutan batasan benar."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Rumusan ahli hakikat dan rumusan 'qila' dinukil setia dengan sikap reported."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Macam-macam yamin, termasuk nukilan asy-Syafi'i, sesuai teks; kutipan ghamus cocok dengan terjemahan."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Isi netral dan benar, tetapi judul menyebut 'kenabian dan dosa' padahal pendapat Yunusiyyah soal Allah di atas Arsy."
+        }
+      ],
+      "laporan": "Diperiksa ulang sesudah revisi butir Salah; lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8)."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "87d56faf91907614508937c3abf99c56f78d0fb7d18b8b7d91ec76d221097021",
+      "draf_sha256": "126013a8c00716ecb60c114354e2c3c200cea43b2ebe8d9285e364e8b38ee069",
+      "waktu": "2026-11-27T19:41:43.755Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani, istilah berhuruf ya berpusat pada yaqin dengan empat batas definisinya, ragam sumpah dalam fikih, serta pendapat Yazidiyyah dan Yunusiyyah, lalu kitab ini ditutup.",
+    "ringkasan": "Bab ya adalah bab terakhir at-Ta'rifat dan memuat 14 entri definisi; Intisari ini menyoroti sebagian yang paling penting. Entri terpanjangnya adalah yaqin: al-Jurjani memberi definisi bahasa dan istilah beserta penjelasan setiap batasannya, lalu menukil rumusan ahli hakikat dan sejumlah pendapat lain. Di bidang fikih ia mendefinisikan yamin (sumpah) dan macam-macamnya: ghamus, laghw, mun'aqidah, dan yamin shabr. Ia juga menukil pendapat kelompok Yazidiyyah dan Yunusiyyah. Bab ini dan seluruh kitab ditutup dengan pujian kepada Allah.",
+    "gagasan": [
+      {
+        "judul": "Yaqin adalah keyakinan yang sesuai kenyataan dan tidak mungkin hilang, menurut penulis",
+        "isi": "Secara bahasa, yaqin adalah ilmu yang tidak disertai keraguan. Secara istilah, al-Jurjani mendefinisikannya sebagai meyakini sesuatu itu begini disertai keyakinan bahwa ia tidak mungkin selain begini, sesuai dengan kenyataan, dan tidak mungkin hilang. Ia menjelaskan empat batasannya: batasan pertama adalah genus yang juga mencakup zhann, batasan kedua mengeluarkan zhann, batasan ketiga mengeluarkan kebodohan, dan batasan keempat mengeluarkan keyakinan muqallid yang kebetulan benar.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002184],
+        "soal": {
+          "tanya": "Batasan mana dalam definisi yaqin yang mengeluarkan keyakinan muqallid yang benar?",
+          "jawab": "Batasan keempat, yaitu tidak mungkin hilang."
+        }
+      },
+      {
+        "judul": "Ahli hakikat memaknai yaqin sebagai penglihatan dengan kekuatan iman",
+        "isi": "Al-Jurjani menukil bahwa menurut ahli hakikat, yaqin adalah melihat secara nyata dengan kekuatan iman, bukan dengan hujjah dan burhan. Ia lalu menukil rumusan-rumusan lain yang diawali kata qila: menyaksikan hal-hal gaib dengan kejernihan hati, tenteramnya hati atas hakikat sesuatu, mewujudkan pembenaran terhadap yang gaib dengan menghilangkan segala keraguan, lawan dari syak, hilangnya keraguan dalam penyaksian yang gaib, dan ilmu yang diperoleh sesudah keraguan.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80002184],
+        "soal": {
+          "tanya": "Dengan apa yaqin dicapai menurut ahli hakikat yang dinukil al-Jurjani?",
+          "jawab": "Dengan kekuatan iman, bukan dengan hujjah dan burhan."
+        }
+      },
+      {
+        "judul": "Sumpah dibedakan menurut waktu dan niat pelakunya, menurut penulis",
+        "isi": "Al-Jurjani menjelaskan yamin secara bahasa sebagai kekuatan, dan secara syariat sebagai menguatkan salah satu sisi berita dengan menyebut Allah atau dengan ta'liq. Yamin ghamus adalah bersumpah dusta atas perbuatan atau tindakan meninggalkan pada masa lalu. Yamin laghw adalah bersumpah dengan mengira sesuatu begitu padahal sebaliknya; menurut asy-Syafi'i, ia adalah sumpah yang tidak diikatkan hati, seperti ucapan tidak demi Allah dan ya demi Allah. Yamin mun'aqidah adalah sumpah atas perbuatan atau tindakan meninggalkan pada masa datang, dan yamin shabr adalah sumpah yang sengaja dusta untuk menghilangkan harta seorang muslim.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002185, 80002186, 80002187, 80002188, 80002189, 80002190],
+        "soal": {
+          "tanya": "Apa beda yamin ghamus dan yamin mun'aqidah menurut al-Jurjani?",
+          "jawab": "Ghamus adalah sumpah dusta tentang masa lalu, mun'aqidah sumpah tentang perbuatan pada masa datang."
+        }
+      },
+      {
+        "judul": "Yazidiyyah dan Yunusiyyah punya pendapat khas tentang kenabian dan dosa, menurut nukilan penulis",
+        "isi": "Al-Jurjani menukil bahwa Yazidiyyah, pengikut Yazid bin Unaisah, menambah atas pendapat Ibadhiyyah dengan berkata bahwa akan diutus seorang nabi dari kalangan 'ajam dengan kitab yang ditulis di langit dan diturunkan sekaligus, dan syariat Nabi Muhammad saw. akan ditinggalkan menuju agama Shabi'ah yang disebut dalam Al-Qur'an. Mereka juga berkata bahwa pelaku hudud adalah musyrik dan setiap dosa, besar maupun kecil, adalah syirik. Yunusiyyah, pengikut Yunus bin 'Abdurrahman, berpendapat bahwa Allah di atas 'Arsy dan dipikul para malaikat.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80002182, 80002192],
+        "soal": {
+          "tanya": "Bagaimana Yazidiyyah memandang dosa besar dan kecil menurut nukilan al-Jurjani?",
+          "jawab": "Mereka menganggap setiap dosa, besar maupun kecil, sebagai syirik."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 80002186,
+        "char_start": 15,
+        "char_end": 50,
+        "terjemahan": "Bersumpah atas suatu perbuatan atau tindakan meninggalkan pada masa lampau secara dusta."
+      }
+    ],
+    "istilah": []
+  }
+}

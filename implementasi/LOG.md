@@ -15,6 +15,12 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-28 · X32 · Gelombang 2: empat kitab baru siap promote (kitab-v11) — sebagian
+- Dikerjakan: al-Munqidz, al-Waraqat, Rusum Dar al-Khilafah, al-Muqaddimah al-Hadhramiyyah (fondasi, terjemahan + ringkasan Sonnet batch, judul daftar isi, Intisari Bab 57 unit tiga lapis, /lisensi); petunjuk identitas kitab untuk terjemahan dan ringkasan (temuan: ringkasan at-Tibyan dan al-Ajurrumiyyah di produksi menyebut al-Ghazali/Ihya, diperbaiki); ADR-152.
+- Verifikasi: `pnpm ingest korpus` → 7 kitab, semua invarian ✓; `corpus:load:staging --confirm` → kitab-v11; `corpus:qa staging --kitab …` → 7/7 kitab cocok byte demi byte; `pnpm verify` → lolos (1.362 + 504 tes).
+- Biaya: ±US$5,0 batch Sonnet (izin pemilik 2026-11-28, pagu US$90); rincian di [sesi X32](sesi/X32-gelombang-2.md).
+- Berikutnya: promote `kitab-v11`; at-Ta'rifat dan Nihayat az-Zain (`kitab-v12`).
+
 ## 2026-11-27 · X31 · Situs dibuka lagi dengan Gelombang 1 — selesai (kecuali audio)
 - Dikerjakan: tampil tiga kitab (`/lisensi`, landing, teks UI/MCP, hub Intisari Bab, minat berhenti), sakelar `READER_ENABLED`/`KITAB_OPEN` "1", ledger `tayang`, tes penjaga sakelar vs binding; promote `kitab-v10` (dijalankan pemilik, T-38); PR #261 digabung.
 - Verifikasi: `corpus:qa kitab-v10` Bidayah 30/30, Tibyan 30/30, Ajurrumiyyah 19/19 · deploy web/MCP/API/media sukses · curl produksi: `/`, `/kitab`, `/cari`, `/lisensi`, halaman pertama tiap kitab, `/kitab/at-tibyan/intisari` = 200; `/kitab/ihya/1/200` = 404 · `uji-mcp.sh https://mcp.surau.org/mcp lengkap` lolos · `/api/search?q=adab membaca al-quran` → 43 halaman, teratas at-Tibyan.

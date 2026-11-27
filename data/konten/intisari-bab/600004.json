@@ -1,0 +1,66 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600004,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p23: daftar bab ushul fikih disalin urut tanpa menghitung jumlahnya; soal menguji butir terakhir daftar."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "c9764cf8f689cc47aae727cc65131726a0469b4a0929d7f12f6084747392184b",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Daftar bab di p23 lengkap dan berurutan; butir terakhir tepat."
+        }
+      ],
+      "laporan": "Dirapikan sesudah pemeriksaan pertama (Kurang), diperiksa ulang."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "c184838abc37fe59f95fb49053ee4390d1f136ba026a010aa1a3dda68a6fb7a0",
+      "draf_sha256": "c9764cf8f689cc47aae727cc65131726a0469b4a0929d7f12f6084747392184b",
+      "waktu": "2026-11-27T18:32:15.969Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, pembahasan ushul fikih mencakup bab-bab dari pembagian kalam, perintah dan larangan, sampai sifat mufti dan mustafti serta hukum para mujtahid.",
+    "ringkasan": "Dalam satu kalimat, al-Juwaini mendaftar bab-bab ushul fikih: pembagian kalam; amr dan nahi; 'amm dan khash; mujmal dan mubayyan; zahir dan mu'awwal; al-af'al (perbuatan); nasikh dan mansukh; ijmak; akhbar; kias; hazhr dan ibahah; urutan dalil; sifat mufti dan mustafti; serta hukum para mujtahid. Banyak pokok disebut berpasangan, seperti perintah dengan larangan.",
+    "gagasan": [
+      {
+        "judul": "Bab-bab ushul fikih membentang dari pembagian kalam sampai hukum mujtahid, menurut al-Juwaini",
+        "isi": "Al-Juwaini mendaftar bab-bab ushul fikih: pembagian kalam, amr dan nahi, 'amm dan khash, mujmal dan mubayyan, zahir dan mu'awwal, al-af'al, nasikh dan mansukh, ijmak, akhbar, kias, hazhr dan ibahah, urutan dalil, sifat mufti dan mustafti, serta hukum para mujtahid. Banyak pokok disebut berpasangan, seperti perintah dengan larangan dan yang umum dengan yang khusus.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000023],
+        "soal": {
+          "tanya": "Bab apa yang disebut al-Juwaini paling akhir dalam daftar bab ushul fikih?",
+          "jawab": "Hukum-hukum para mujtahid, sesudah sifat mufti dan mustafti."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

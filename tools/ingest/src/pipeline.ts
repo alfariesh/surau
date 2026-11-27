@@ -29,7 +29,11 @@ import {
 } from "./fingerprint.ts";
 import { createAllocator, readIdMap, writeIdMap } from "./ids.ts";
 import type { IdAllocator } from "./ids.ts";
-import { mergeSamePageMarkers, parseOpenitiPages } from "./openiti/markdown.ts";
+import {
+  fillZeroPageMarkers,
+  mergeSamePageMarkers,
+  parseOpenitiPages,
+} from "./openiti/markdown.ts";
 import { checkMatan, checkTakhrij, noTakhrijCheck } from "./openiti/verify.ts";
 import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
 import { readStrictYaml, readTocPatch } from "./patch.ts";
@@ -156,7 +160,9 @@ export function prepare(config: WorkConfig, paths: PipelinePaths, corpusVersion:
     );
   }
   const pages = merge ? mergeSamePrintPages(parsed) : parsed;
-  const openitiMatan = parseOpenitiPages(readOpenitiFile(paths.openiti, config.openiti.matan));
+  const openitiRaw = parseOpenitiPages(readOpenitiFile(paths.openiti, config.openiti.matan));
+  const openitiMatan =
+    config.openiti.fillZeroPageMarkers === true ? fillZeroPageMarkers(openitiRaw) : openitiRaw;
   const matan = checkMatan(pages, merge ? mergeSamePageMarkers(openitiMatan) : openitiMatan);
   const takhrij =
     config.openiti.takhrij === undefined
@@ -328,7 +334,14 @@ function rowsFor(
   const llm =
     llmDir === undefined
       ? null
-      : llmRows(rows, llmDir, loadReviews(paths.repo), subheadings, config.llm?.translateNote);
+      : llmRows(
+          rows,
+          llmDir,
+          loadReviews(paths.repo),
+          subheadings,
+          config.llm?.translateNote,
+          config.llm?.summaryNote,
+        );
   if (llm !== null) {
     rows.translation = llm.translation;
     rows.summary = llm.summary;
