@@ -30,7 +30,7 @@ export const RUSUM: WorkConfig = {
     volumes: [140],
     titles: 21,
     matanMinPages: 140,
-    llmCoverage: 0,
+    llmCoverage: 0.99,
   },
   // Halaman cetak 30 (bab keadaan Dar al-Khilafah, 2 paragraf badan); kata pencarian mengenai 20
   // paragraf badan kitab ini.

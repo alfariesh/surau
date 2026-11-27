@@ -29,7 +29,7 @@
 | Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 0 terjemahan berisi ayat; 0 bermasalah |
 | Terjemahan AI: cakupan paragraf badan ≥ 0% | ✓ | 0/2191 (0,00%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
 | Ringkasan AI: cakupan bagian × 2 bahasa ≥ 0% | ✓ | 0/58 (0,00%); usang 0, tidak sah 0 |
-| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 0/29 (0,00%): node 0, subjudul 0; belum ada n800002, n800003, n800004, n800005, n800006, n800007, n800008, n800009 … |
+| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 29/29 (100,00%): node 29, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/29 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
 | Teks badan penyunting tidak dimuat (ADR-150) | ✓ | 35 paragraf, 2 node, 2 halaman dibuang (2 bagian, data/patches/at-tarifat-7312-pentahqiq.yaml); 0 baris masih merujuknya |

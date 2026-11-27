@@ -31,6 +31,9 @@ const META_ID: readonly RegExp[] = [
   /\bterjemahan (?:yang )?(?:benar|tepat|lebih tepat)\b/i,
   /\bteks ini (?:berisi|memuat|hanya|tidak)\b/i,
   /\.\.\.\s*\(tidak(?: ada)?\)/i,
+  // Petunjuk identitas kitab (ADR-152 tambahan) yang bocor ke keluaran.
+  /\b(?:book guidance|petunjuk kitab)\b/i,
+  /\b(?:bukan|not) al-Ghazali\b/i,
 ];
 
 /**

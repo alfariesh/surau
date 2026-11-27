@@ -207,3 +207,18 @@ describe("respons", () => {
     expect(stopProblem({ content: text, stop_reason: "end_turn" } as never)).toBeNull();
   });
 });
+
+describe("hasMetaCommentary: petunjuk kitab bocor (ADR-152 tambahan)", () => {
+  test("menolak keluaran yang menyebut petunjuk identitas kitab", () => {
+    expect(
+      hasMetaCommentary(
+        "Following the book guidance, the author here is an-Nawawi, not al-Ghazali. The section deals with sujud.",
+        "en",
+      ),
+    ).toBe(true);
+    expect(hasMetaCommentary("Sesuai petunjuk kitab, penulisnya bukan al-Ghazali.")).toBe(true);
+    expect(hasMetaCommentary("An-Nawawi menukil pendapat al-Ghazali tentang menangis.")).toBe(
+      false,
+    );
+  });
+});

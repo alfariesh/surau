@@ -26,10 +26,10 @@
 | Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 12 rujukan; 0 tidak sah |
 | Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 12 rujukan exact; 0 tidak sesuai |
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 0/0 (100,0%); mirip 0, tidak cocok 0 |
-| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 0 terjemahan berisi ayat; 0 bermasalah |
-| Terjemahan AI: cakupan paragraf badan ≥ 0% | ✓ | 0/326 (0,00%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
-| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 0% | ✓ | 0/42 (0,00%); usang 0, tidak sah 0 |
-| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 0/21 (0,00%): node 0, subjudul 0; belum ada n900001, n900002, n900003, n900004, n900005, n900006, n900007, n900008 … |
+| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 6 terjemahan berisi ayat; 0 bermasalah |
+| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 325/326 (99,69%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
+| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 42/42 (100,00%); usang 0, tidak sah 0 |
+| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 21/21 (100,00%): node 21, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/21 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
 | ID paragraf rilis stabil (ADR-059) | ✓ | 326 ID lama ada dengan teks sama |

@@ -29,9 +29,11 @@
 | Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 0 terjemahan berisi ayat; 0 bermasalah |
 | Terjemahan AI: cakupan paragraf badan ≥ 0% | ✓ | 0/381 (0,00%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
 | Ringkasan AI: cakupan bagian × 2 bahasa ≥ 0% | ✓ | 0/236 (0,00%); usang 0, tidak sah 0 |
-| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 0/118 (0,00%): node 0, subjudul 0; belum ada n700100, n700101, n700001, n700002, n700003, n700004, n700005, n700006 … |
+| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 118/118 (100,00%): node 118, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/118 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
+| Konten chat (X24): unit siap jadi Intisari, kutipan di dalam paragraf dan tanpa ayat, unit ditarik tidak dimuat | ✓ | 6 unit, 35 gagasan, 9 kutipan, 35 soal berjawaban; menggantikan batch 0 (–), induk batch basi dibuang 0 (–); 0 unit ditarik |
+| Intisari termuat ≥ 6 (tidak berkurang dari korpus tayang) | ✓ | 6 Intisari dari al-muqaddimah-al-hadhramiyyah/intisari |
 | ID paragraf rilis stabil (ADR-059) | ✓ | 381 ID lama ada dengan teks sama |
 
 ## Daftar isi
