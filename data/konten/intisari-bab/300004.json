@@ -1,0 +1,108 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300004,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:56:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p58-p59, p61: ayat hanya disebut topiknya, rujukan dua riwayat bab kedua, tiga golongan yang dimuliakan (beruban, pembawa Al-Qur'an yang tidak berlebihan di dalamnya dan tidak menjauhinya, penguasa adil; batasan ini juga di judul, inti, dan ringkasan), dan perintah menempatkan manusia sesuai kedudukannya sesuai teks; status hadits tidak ditulis."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p62: syuhada Uhud yang lebih banyak mengambil Al-Qur'an (bukan hafalan) didahulukan di lahad sesuai teks, di judul, isi, dan ringkasan; tambahan dalam satu liang yang tidak ada di teks sudah dihapus."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p62-p63: hadits qudsi menyakiti wali (adza, bukan memusuhi), jaminan bagi yang shalat subuh, ucapan Abu Hanifah dan asy-Syafi'i, dan ucapan Ibnu Asakir sesuai teks; ayat penutup p63 tidak diparafrasekan."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perapian",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "08c370fdf239997331790ecf926507cb26c522cf4ddba44d3974b243827524ab",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Batasan 'tidak berlebihan dan tidak menjauhinya' utuh; tiga golongan dan perintah menempatkan manusia sesuai p58-p61."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Jabir: yang lebih banyak mengambil Al-Qur'an didahulukan di lahad sesuai p62."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Isi sesuai p62-p63, tetapi label 'hadits qudsi' dari luar teks, dan inti/ringkasan mengubah ucapan bersyarat Abu Hanifah-asy-Syafi'i menjadi pernyataan langsung."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "243910e46abcb264bac6d1e8b11c8d23a3dfdde4b1af33a486691efe3f2cdb06",
+      "draf_sha256": "08c370fdf239997331790ecf926507cb26c522cf4ddba44d3974b243827524ab",
+      "waktu": "2026-11-27T04:11:31.975Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut dalil yang dihimpun an-Nawawi, memuliakan pembawa Al-Qur'an yang tidak berlebihan di dalamnya dan tidak menjauhinya termasuk mengagungkan Allah, sedangkan menyakiti wali Allah, termasuk ulama menurut Abu Hanifah dan asy-Syafi'i, diancam perang.",
+    "ringkasan": "An-Nawawi membuka bab ketiga dengan beberapa ayat tentang mengagungkan syiar dan larangan menyakiti orang beriman, lalu merujuk dua riwayat dari bab kedua. Ia menukil sabda bahwa memuliakan pembawa Al-Qur'an yang tidak berlebihan di dalamnya dan tidak menjauhinya termasuk mengagungkan Allah, perintah menempatkan manusia pada kedudukannya, dan kisah Nabi saw. mendahulukan syuhada Uhud yang lebih banyak mengambil Al-Qur'an di liang lahad. Sesudah itu ia menukil ancaman bagi yang menyakiti wali Allah, ucapan Abu Hanifah dan asy-Syafi'i bahwa ulama adalah wali Allah, dan peringatan Ibnu Asakir tentang bahaya mencela ulama.",
+    "gagasan": [
+      {
+        "judul": "Pembawa Al-Qur'an yang tidak berlebihan di dalamnya dan tidak menjauhinya dimuliakan, menurut sabda Nabi",
+        "isi": "Sesudah berdalil dengan beberapa ayat tentang mengagungkan syiar dan larangan menyakiti orang beriman, penulis merujuk riwayat Abu Mas'ud al-Anshari dan Ibnu Abbas yang sudah disebut pada bab kedua. Ia menukil riwayat Abu Musa al-Asy'ari ra. bahwa termasuk mengagungkan Allah ialah memuliakan muslim yang beruban, pembawa Al-Qur'an yang tidak berlebihan di dalamnya dan tidak pula menjauhinya, serta penguasa yang adil. Ia menukil pula riwayat Aisyah ra. bahwa Rasulullah saw. memerintahkan agar manusia ditempatkan sesuai kedudukannya.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000058, 30000059, 30000061],
+        "soal": {
+          "tanya": "Pembawa Al-Qur'an yang bagaimana yang dimuliakan dalam riwayat Abu Musa al-Asy'ari?",
+          "jawab": "Pembawa Al-Qur'an yang tidak berlebihan di dalamnya dan tidak pula menjauhinya."
+        }
+      },
+      {
+        "judul": "Nabi mendahulukan syuhada yang lebih banyak mengambil Al-Qur'an di liang lahad, menurut riwayat Jabir",
+        "isi": "Penulis menukil riwayat Jabir bin Abdullah ra. bahwa Nabi saw. mengumpulkan dua orang dari para syuhada Uhud, lalu bertanya siapa di antara keduanya yang lebih banyak mengambil Al-Qur'an. Bila salah satunya ditunjuk, beliau mendahulukannya di liang lahad. Riwayat ini dibawakan penulis dalam bab tentang memuliakan ahli Al-Qur'an, riwayat al-Bukhari.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000062],
+        "soal": {
+          "tanya": "Siapa yang didahulukan Nabi saw. di liang lahad di antara dua syuhada Uhud?",
+          "jawab": "Yang lebih banyak mengambil Al-Qur'an di antara keduanya."
+        }
+      },
+      {
+        "judul": "Mencela ulama mendatangkan kematian hati, menurut Ibnu Asakir yang dinukil penulis",
+        "isi": "Penulis menukil sebuah hadits qudsi riwayat Abu Hurairah ra.: Allah disebut mengumumkan perang kepada siapa yang menyakiti wali-Nya. Ia juga menukil sabda bahwa orang yang shalat subuh berada dalam jaminan Allah. Abu Hanifah dan asy-Syafi'i berkata bahwa bila ulama bukan wali Allah, maka Allah tidak punya wali. Lalu ia menukil Ibnu Asakir: daging para ulama beracun, kebiasaan Allah menyingkap tabir orang yang merendahkan mereka sudah diketahui, dan siapa yang melepas lidahnya mencela ulama akan diuji Allah sebelum matinya dengan matinya hati.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000062, 30000063],
+        "soal": {
+          "tanya": "Dengan apa orang yang mencela ulama diuji sebelum matinya, menurut Ibnu Asakir?",
+          "jawab": "Ia diuji dengan matinya hati."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

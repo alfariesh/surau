@@ -1,0 +1,87 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300003,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:56:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p54-p55: imam yang paling banyak bacaannya dan para qurra di majelis Umar (tua dan muda) sesuai teks; nama perawi mengikuti p54 (Ibnu Mas'ud al-Anshari al-Badri) dengan keterangan bahwa rujukan bab ketiga (p59) menyebut Abu Mas'ud al-Anshari."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p55: pendapat terpilih bahwa membaca Al-Qur'an lebih utama daripada tasbih, tahlil, dan zikir lain, dengan dalil saling menguatkan, adalah kalimat penulis sendiri; sikap author tepat."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perapian",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "3f73d80ad2c3cefc8340f8eedfc4741927c6f14f8ecae0ef6e1395cfef044ecc",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Imam = paling banyak bacaannya dan para qari majelis Umar sesuai p54-p55; nama perawi mengikuti p54 dengan keterangan p59."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Pendapat milik penulis sesuai p55, tetapi inti menambah kaitan 'didukung riwayat yang mendahulukan para pembaca' yang tidak dinyatakan teks."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "02da85600cc852c42a24350e4a69818d230371a0d000fa9dd0ed0216d1c22ede",
+      "draf_sha256": "3f73d80ad2c3cefc8340f8eedfc4741927c6f14f8ecae0ef6e1395cfef044ecc",
+      "waktu": "2026-11-27T04:11:26.108Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut an-Nawawi, pendapat terpilih yang dipegang ulama yang diandalkan ialah bahwa membaca Al-Qur'an lebih utama daripada tasbih, tahlil, dan zikir lainnya, didukung riwayat yang mendahulukan para pembaca Al-Qur'an.",
+    "ringkasan": "Dalam bab kedua, an-Nawawi menukil sabda bahwa yang mengimami suatu kaum ialah yang paling banyak bacaannya terhadap kitab Allah, dan riwayat Ibnu Abbas bahwa para pembaca Al-Qur'an menjadi anggota majelis dan musyawarah Umar ra., baik yang tua maupun yang muda. Ia menyebut bahwa riwayat lain yang termasuk bab ini akan datang pada bab sesudahnya, lalu menegaskan pendapat terpilih bahwa membaca Al-Qur'an lebih utama daripada zikir lainnya, karena dalil-dalilnya saling menguatkan.",
+    "gagasan": [
+      {
+        "judul": "Pembaca Al-Qur'an didahulukan sebagai imam dan penasihat, menurut riwayat yang dinukil penulis",
+        "isi": "Penulis menukil sabda Nabi saw. dari Ibnu Mas'ud al-Anshari al-Badri ra. (tertulis demikian di teks; rujukan di bab ketiga menyebut Abu Mas'ud al-Anshari) bahwa yang mengimami suatu kaum ialah orang yang paling banyak bacaannya terhadap kitab Allah, riwayat Muslim. Ia juga menukil riwayat Ibnu Abbas ra. bahwa para pembaca Al-Qur'an adalah anggota majelis Umar ra. dan orang-orang yang ia ajak bermusyawarah, baik yang sudah tua maupun yang masih muda, riwayat al-Bukhari.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000054, 30000055],
+        "soal": {
+          "tanya": "Siapa yang menjadi anggota majelis dan musyawarah Umar menurut riwayat Ibnu Abbas?",
+          "jawab": "Para pembaca Al-Qur'an, baik yang sudah tua maupun yang masih muda."
+        }
+      },
+      {
+        "judul": "Membaca Al-Qur'an lebih utama daripada zikir lainnya, menurut an-Nawawi",
+        "isi": "An-Nawawi menegaskan bahwa pendapat yang benar dan terpilih, yang dipegang oleh ulama yang dapat diandalkan, ialah bahwa membaca Al-Qur'an lebih utama daripada tasbih, tahlil, dan zikir-zikir lainnya. Ia menyebut dalil-dalil atas hal itu saling menguatkan, tanpa merincinya di sini, dan mengingatkan bahwa riwayat lain yang masuk ke dalam pembahasan ini akan disebut pada bab sesudahnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000055],
+        "soal": {
+          "tanya": "Dibandingkan dengan apa membaca Al-Qur'an disebut lebih utama oleh an-Nawawi?",
+          "jawab": "Dibandingkan dengan tasbih, tahlil, dan zikir-zikir lainnya."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

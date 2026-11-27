@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300100,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:56:01+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p409 dibaca ulang: sepuluh hari Ramadan ditulis tanpa tambahan terakhir sesuai teks, judul netral (tanpa 'paling patut' atau 'hari-hari utama'), alasan tidak menyebut dalil dan anjuran menjaga Yasin, al-Waqi'ah, Tabarak dipertahankan."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p412-p413: surah Subuh Jumat, Jumat, dan Id sesuai teks (Id: Qaf dan surah as-Sa'ah sebagaimana tertulis), kritik atas imam yang memotong bacaan tepat, keterangan status riwayat tidak ditulis."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p414-p415: bacaan sunah fajar, Maghrib, thawaf, istikharah, dan witir tiga rakaat sesuai teks; dua ayat pilihan hanya disebut tanpa isi ayat."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p416: al-Kahfi hari Jumat (an-Nawawi), malam Jumat dari nukilan asy-Syafi'i dalam al-Umm, dalil riwayat ad-Darimi dari Abu Sa'id disebut sebagai keterangan an-Nawawi sendiri, surah Hud, dan Makhul sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p417-p419: Ayat Kursi, dua surah perlindungan sesudah shalat, bacaan menjelang tidur, dan dua tafsiran ulama atas kata mencukupi sesuai teks; kata sahih di teks tidak disalin."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p420-p421: riwayat Aisyah, dua ucapan Ali, pesan kepada 'Uqbah, tiga kali menurut an-Nakha'i, dan anjuran akhir Ali 'Imran ketika bangun tidur pada malam hari sesuai teks; kalimat anjuran itu dinyatakan eksplisit milik an-Nawawi."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p422-p423: al-Fatihah sebagai ruqyah, tiupan, Thalhah, kisah ar-Ramadi dengan kesimpulannya sebagai bagian nukilan, Yasin menurut ulama mazhab yang dinukil dan al-Baqarah dari asy-Sya'bi sesuai teks; sikap reported, penilaian perawi tidak ditulis."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perapian",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "addabb305bd0abe2353dfa60ebbfc9babbee8db560b45268852e8718b539089c",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Keluasan bab, waktu-waktu tilawah, dan surah yang dijaga sesuai p409."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Isi benar; kutipan 30000412 menyisakan ']' di awal."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Surah fajar, Maghrib, thawaf, istikharah, witir sesuai p414-p415."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Al-Kahfi hari Jumat, asy-Syafi'i dalam al-Umm, riwayat ad-Darimi, Hud, Makhul sesuai p416."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Ayat Kursi, mu'awwidzatayn, akhir al-Baqarah, dua penafsiran sesuai p417-p419."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Riwayat Nabi, Ali, 'Uqbah, an-Nakha'i, dan anjuran akhir Ali 'Imran sebagai anjuran penulis sesuai p420-p421."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Catatan kelemahan hadits Yasin dan riwayat asy-Sya'bi dari penulis (p423) tidak ditulis; Fatihah dan mu'awwidzat anjuran penulis sendiri."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "711357846ed4bfcf510b5e1c0cbf013c08160a29a63d50ac9803645554d2aa4a",
+      "draf_sha256": "addabb305bd0abe2353dfa60ebbfc9babbee8db560b45268852e8718b539089c",
+      "waktu": "2026-11-27T04:14:20.705Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut an-Nawawi, waktu, shalat, dan keadaan tertentu dianjurkan diisi dengan surah atau ayat tertentu, dan surah pada shalat Subuh hari Jumat, shalat Jumat, dan shalat Id semestinya dibaca utuh.",
+    "ringkasan": "An-Nawawi membuka dengan waktu-waktu yang dianjurkan untuk memperbanyak tilawah, seperti Ramadan, sepuluh hari pertama Dzulhijjah, dan hari Jumat, tanpa menyebut dalil untuk kebanyakannya karena sudah dikenal. Ia lalu merinci surah yang dibaca dalam shalat Subuh hari Jumat, shalat Jumat, shalat Id, sunah fajar, sunah Maghrib, dan witir, sambil mengkritik imam yang hanya membaca sebagian surah. Sesudahnya ia menyebut bacaan pada hari dan malam Jumat, sesudah shalat, menjelang tidur, saat bangun, di sisi orang sakit, dan di sisi orang yang menjelang wafat, dengan menukil riwayat Nabi saw., sahabat, dan para tabiin.",
+    "gagasan": [
+      {
+        "judul": "Menurut an-Nawawi, tilawah dianjurkan diperbanyak di Ramadan dan waktu-waktu tertentu",
+        "isi": "An-Nawawi menyebut bab ini sangat luas sehingga ia hanya memberi isyarat ringkas, dan karena kebanyakan isinya sudah dikenal kalangan khusus maupun awam, ia tidak menyebut dalil untuk sebagian besarnya. Di antaranya memperbanyak perhatian pada tilawah di bulan Ramadan, lebih kuat lagi pada sepuluh harinya, dan lebih kuat lagi pada malam-malam ganjilnya. Begitu pula sepuluh hari pertama Dzulhijjah, hari Arafah, hari Jumat, sesudah Subuh, dan malam hari. Ia juga menganjurkan agar seseorang menjaga bacaan surah Yasin, al-Waqi'ah, dan Tabarak al-Mulk.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000409],
+        "soal": {
+          "tanya": "Mengapa an-Nawawi tidak menyebutkan dalil untuk kebanyakan waktu dan bacaan dalam bab ini?",
+          "jawab": "Karena kebanyakan yang ia sebutkan sudah dikenal oleh kalangan khusus maupun orang awam."
+        }
+      },
+      {
+        "judul": "Surah dalam shalat Subuh Jumat, Jumat, dan Id dibaca utuh, menurut an-Nawawi",
+        "isi": "Menurut an-Nawawi, yang sunah pada shalat Subuh hari Jumat ialah membaca Alif Lam Mim Tanzil secara utuh pada rakaat pertama dan Hal Ata 'ala al-Insan secara utuh pada rakaat kedua. Ia mengkritik banyak imam masjid yang hanya membaca beberapa ayat dari keduanya sambil memanjang-manjangkan bacaan. Pada shalat Jumat ia menyebut al-Jumu'ah atau Sabbihisma pada rakaat pertama dan al-Ghasyiyah pada rakaat kedua, dan pada shalat Id surah Qaf lalu surah as-Sa'ah, atau Sabbihisma lalu al-Ghasyiyah. Ia menegaskan agar tidak mencukupkan sebagian surah saja.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000412, 30000413],
+        "soal": {
+          "tanya": "Kebiasaan banyak imam masjid apa yang dikritik an-Nawawi dalam bacaan shalat Subuh hari Jumat?",
+          "jawab": "Hanya membaca beberapa ayat dari kedua surah sambil memanjang-manjangkan bacaan, padahal keduanya semestinya dibaca utuh."
+        }
+      },
+      {
+        "judul": "Al-Kafirun dan al-Ikhlas menjadi bacaan beberapa shalat sunah, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut bahwa pada dua rakaat sunah fajar dibaca al-Kafirun pada rakaat pertama dan al-Ikhlas pada rakaat kedua sesudah al-Fatihah, atau bila mau, dua ayat tertentu dari al-Baqarah dan Ali 'Imran yang ia sebutkan. Kedua surah pendek itu juga dibaca pada sunah Maghrib, dua rakaat thawaf, dan dua rakaat istikharah. Orang yang berwitir tiga rakaat membaca Sabbihisma pada rakaat pertama, al-Kafirun pada rakaat kedua, dan pada rakaat ketiga al-Ikhlas bersama al-Falaq dan an-Nas.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000414, 30000415],
+        "soal": {
+          "tanya": "Surah apa saja yang disebut an-Nawawi untuk tiga rakaat witir?",
+          "jawab": "Sabbihisma pada rakaat pertama, al-Kafirun pada rakaat kedua, serta al-Ikhlas, al-Falaq, dan an-Nas pada rakaat ketiga."
+        }
+      },
+      {
+        "judul": "Al-Kahfi dianjurkan pada hari dan malam Jumat, menurut an-Nawawi dan asy-Syafi'i",
+        "isi": "An-Nawawi menganjurkan membaca surah al-Kahfi pada hari Jumat dengan berdalil pada riwayat Abu Sa'id al-Khudri ra. dan lainnya. Ia menukil Imam asy-Syafi'i dalam al-Umm bahwa al-Kahfi dianjurkan dibaca juga pada malam Jumat. An-Nawawi sendiri lalu menyebut dalilnya, yaitu riwayat ad-Darimi dari Abu Sa'id tentang cahaya yang menerangi pembaca al-Kahfi pada malam Jumat antara dirinya dan Baitul 'Atiq. Ia menambahkan bahwa ad-Darimi menyebut riwayat tentang membaca surah Hud pada hari Jumat, dan Makhul, seorang tabiin, menganjurkan membaca Ali 'Imran pada hari itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000416],
+        "soal": {
+          "tanya": "Siapa yang dinukil an-Nawawi menganjurkan membaca al-Kahfi juga pada malam Jumat, dan dalam kitab apa?",
+          "jawab": "Imam asy-Syafi'i dalam kitab al-Umm."
+        }
+      },
+      {
+        "judul": "Bacaan sesudah shalat dan menjelang tidur patut dijaga, menurut an-Nawawi",
+        "isi": "An-Nawawi menganjurkan memperbanyak bacaan Ayat Kursi di segala tempat, membacanya setiap malam saat hendak tidur, dan membaca al-Falaq dan an-Nas setiap selesai shalat, berdasarkan riwayat 'Uqbah bin 'Amir ra. Menjelang tidur ia menyebut Ayat Kursi, al-Ikhlas, al-Falaq, an-Nas, dan akhir al-Baqarah sebagai bacaan yang patut sangat diperhatikan. Tentang sabda bahwa dua ayat terakhir al-Baqarah mencukupi pembacanya pada malam itu, ia menukil dua penafsiran ulama: mencukupinya dari shalat malam, atau mencukupinya dari hal yang tidak disukai pada malam itu.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000417, 30000418, 30000419],
+        "soal": {
+          "tanya": "Dua penafsiran apa yang dinukil an-Nawawi tentang dua ayat terakhir al-Baqarah yang mencukupi pembacanya?",
+          "jawab": "Sebagian ulama memahaminya mencukupi dari shalat malam, sebagian lain mencukupi dari hal yang tidak disukai pada malam itu."
+        }
+      },
+      {
+        "judul": "Nabi saw., Ali ra., dan para tabiin membiasakan bacaan sebelum tidur",
+        "isi": "An-Nawawi menukil bahwa Nabi saw. setiap malam membaca al-Ikhlas, al-Falaq, dan an-Nas, dan tidak tidur sebelum membaca az-Zumar dan al-Isra'. Ali ra. berkata tidak melihat orang berakal yang masuk Islam lalu tidur sebelum membaca Ayat Kursi, juga tiga ayat terakhir al-Baqarah. 'Uqbah bin 'Amir ra. menuturkan pesan Nabi saw. agar tidak satu malam pun lewat tanpa membaca ketiga surah itu. Menurut Ibrahim an-Nakha'i, para pendahulu senang membaca ketiganya tiga kali setiap malam. Adapun anjuran membaca akhir Ali 'Imran ketika bangun tidur pada malam hari adalah anjuran an-Nawawi sendiri.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000420, 30000421],
+        "soal": {
+          "tanya": "Menurut Ibrahim an-Nakha'i yang dinukil an-Nawawi, berapa kali para pendahulu senang membaca tiga surah itu setiap malam?",
+          "jawab": "Tiga kali setiap malam, yaitu al-Ikhlas, al-Falaq, dan an-Nas."
+        }
+      },
+      {
+        "judul": "Al-Fatihah bagi orang sakit, Yasin bagi yang menjelang wafat menurut ulama yang dinukil an-Nawawi",
+        "isi": "An-Nawawi menganjurkan membaca al-Fatihah di sisi orang sakit karena sabda Nabi saw. yang menyebutnya ruqyah, juga al-Ikhlas, al-Falaq, dan an-Nas sambil meniup ke kedua tangan. Ia menukil Thalhah bin Musharrif bahwa orang sakit merasa lebih ringan bila dibacakan Al-Qur'an, dan riwayat al-Khathib tentang ar-Ramadi yang meminta dibacakan hadits saat sakit; nukilan itu ditutup dengan kesimpulan bahwa bila demikian pada hadits, Al-Qur'an lebih utama. Di sisi orang yang menjelang wafat, ia menukil ulama mazhabnya dan lainnya yang menganjurkan membaca Yasin, serta asy-Sya'bi yang menuturkan bahwa kaum Anshar membaca al-Baqarah.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000422, 30000423],
+        "soal": {
+          "tanya": "Kesimpulan apa yang ditarik dari kisah ar-Ramadi yang meminta dibacakan hadits saat sakit, dalam nukilan an-Nawawi?",
+          "jawab": "Bila hal itu berlaku pada hadits, maka Al-Qur'an lebih utama dibacakan di sisi orang sakit."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 30000412,
+        "char_start": 1,
+        "char_end": 259,
+        "terjemahan": "Pasal. Yang sunah pada shalat Subuh hari Jumat ialah membaca, sesudah al-Fatihah, surah Alif Lam Mim Tanzil secara utuh pada rakaat pertama dan Hal Ata 'ala al-Insan secara utuh pada rakaat kedua. Tidak seperti yang dilakukan banyak imam masjid, yaitu mencukupkan beberapa ayat dari masing-masing surah sambil memanjang-manjangkan bacaan; semestinya keduanya dibaca utuh."
+      },
+      {
+        "gagasan": 1,
+        "passage_id": 30000409,
+        "char_start": 0,
+        "char_end": 389,
+        "terjemahan": "Ketahuilah, bab ini sangat luas dan tidak mungkin dihimpun seluruhnya karena banyaknya riwayat tentangnya, tetapi kami menunjuk sebagian besarnya atau banyak darinya dengan ungkapan ringkas, sebab kebanyakan yang kami sebutkan sudah dikenal kalangan khusus dan awam. Karena itu aku tidak menyebutkan dalil untuk kebanyakannya. Di antaranya banyak memperhatikan tilawah Al-Qur'an di bulan Ramadan, lebih kuat lagi pada sepuluh harinya, dan lebih kuat lagi pada malam-malam ganjilnya; juga sepuluh hari pertama Dzulhijjah, hari Arafah, hari Jumat, sesudah Subuh, dan malam hari. Hendaknya seseorang menjaga bacaan Yasin, al-Waqi'ah, dan Tabarak al-Mulk."
+      }
+    ],
+    "istilah": []
+  }
+}

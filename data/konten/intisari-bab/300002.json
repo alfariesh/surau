@@ -1,0 +1,150 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300002,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:56:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p39-p40: riwayat Utsman dan Aisyah (mahir bersama malaikat, terbata-bata dua pahala) sesuai teks; ayat pembuka hanya disebut topiknya, tanpa status hadits."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p42-p45: empat perumpamaan (utrujjah, kurma, raihanah, hanzhalah) beserta bau dan rasanya, riwayat Umar dan Abu Umamah sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p46-p47: dua orang yang boleh diirikan dalam versi Ibnu Umar dan Ibnu Mas'ud, satu huruf sepuluh kebaikan, dan alif lam mim tiga huruf sesuai teks; penilaian at-Tirmidzi tidak ditulis."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p47-p49: riwayat Abu Sa'id ditulis sebagai riwayat yang menisbahkan firman kepada Allah (tanpa label hadits qudsi), keutamaan kalam Allah, dan rumah runtuh sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p50-p51: naik sampai ayat terakhir, mahkota orang tua, riwayat ad-Darimi, dan jawaban Sufyan ats-Tsauri sesuai teks; sapaan langsung riwayat diubah menjadi orang ketiga."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perapian",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "043bc8aa667e4d7fb9dc5cbe8ab5ba019a7a3f918a0af5c63aef838b828885bf",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Riwayat Utsman dan Aisyah (mahir bersama malaikat, terbata-bata dua pahala) setia pada p39-p40."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Isi setia pada p42-p45, tetapi soal bertanya 'buah apa' untuk raihanah (tanaman harum, bukan buah)."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Dua versi 'iri' (Ibnu Umar, Ibnu Mas'ud), sepuluh kebaikan, alif lam mim tiga huruf sesuai p46-p47."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Substansi sesuai p47-p49, tetapi 'zikir' kehilangan sasaran 'zikir kepada-Ku' di teks."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Naik sampai ayat terakhir, mahkota orang tua, ad-Darimi, jawaban Sufyan sesuai p50-p51."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "7b06a72c1b6587cab98ff9cda4b4a50342dc2962eb2675d881a98d4abf9b1bcb",
+      "draf_sha256": "043bc8aa667e4d7fb9dc5cbe8ab5ba019a7a3f918a0af5c63aef838b828885bf",
+      "waktu": "2026-11-27T04:11:18.723Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut riwayat-riwayat yang dihimpun an-Nawawi, membaca, mempelajari, dan mengajarkan Al-Qur'an mengangkat derajat pembacanya, melipatgandakan pahala tiap hurufnya, dan menjadikan Al-Qur'an pemberi syafaat pada hari kiamat.",
+    "ringkasan": "An-Nawawi membuka bab pertama dengan ayat tentang orang-orang yang membaca kitab Allah, lalu menghimpun sabda Nabi saw. tanpa banyak komentar: sebaik-baik orang yang belajar dan mengajarkan Al-Qur'an, dua pahala bagi yang terbata-bata, empat perumpamaan (utrujjah, kurma, raihanah, hanzhalah), Al-Qur'an sebagai pemberi syafaat, sabda bahwa tidak ada iri kecuali kepada dua orang, sepuluh kebaikan untuk tiap huruf, riwayat yang menisbahkan firman kepada Allah tentang orang yang sibuk dengan Al-Qur'an, rumah runtuh bagi rongga yang kosong dari Al-Qur'an, dan derajat yang naik sesuai bacaan. Bab ditutup dengan jawaban Sufyan ats-Tsauri yang mengutamakan membaca Al-Qur'an daripada berperang.",
+    "gagasan": [
+      {
+        "judul": "Orang terbaik ialah yang belajar dan mengajarkan Al-Qur'an, menurut sabda yang dinukil an-Nawawi",
+        "isi": "Sesudah berdalil dengan ayat tentang orang-orang yang membaca kitab Allah, an-Nawawi menukil riwayat Utsman bin Affan ra. bahwa sebaik-baik orang ialah yang mempelajari Al-Qur'an dan mengajarkannya, dan menyebut al-Bukhari meriwayatkannya dalam kitabnya. Ia juga menukil riwayat Aisyah ra.: orang yang membaca Al-Qur'an dengan mahir bersama para malaikat utusan yang mulia lagi taat, sedangkan orang yang membacanya dengan terbata-bata dan merasa berat mendapat dua pahala.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000039, 30000040],
+        "soal": {
+          "tanya": "Berapa pahala bagi orang yang membaca Al-Qur'an dengan terbata-bata dan merasa berat, menurut riwayat Aisyah?",
+          "jawab": "Ia mendapat dua pahala."
+        }
+      },
+      {
+        "judul": "Mukmin pembaca Al-Qur'an diumpamakan buah utrujjah, menurut riwayat Abu Musa",
+        "isi": "An-Nawawi menukil perumpamaan Nabi saw. dari Abu Musa al-Asy'ari ra.: mukmin yang membaca Al-Qur'an seperti utrujjah, harum baunya dan enak rasanya; mukmin yang tidak membacanya seperti kurma, tidak berbau tetapi manis; munafik yang membacanya seperti raihanah, harum baunya tetapi pahit rasanya; dan munafik yang tidak membacanya seperti hanzhalah, tidak berbau dan pahit. Ia menukil pula riwayat Umar ra. bahwa Allah mengangkat sebagian kaum dengan kalam ini dan merendahkan yang lain, serta riwayat Abu Umamah ra. bahwa Al-Qur'an datang pada hari kiamat sebagai pemberi syafaat bagi para pembacanya.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000042, 30000043, 30000044, 30000045],
+        "soal": {
+          "tanya": "Dengan buah apa munafik yang membaca Al-Qur'an diumpamakan dalam riwayat Abu Musa?",
+          "jawab": "Dengan raihanah, yang harum baunya tetapi pahit rasanya."
+        }
+      },
+      {
+        "judul": "Setiap huruf Al-Qur'an berpahala sepuluh kebaikan, dalam sabda yang dinukil penulis",
+        "isi": "Penulis menukil riwayat Ibnu Umar ra. bahwa tidak ada iri kecuali kepada dua orang: orang yang diberi Al-Qur'an lalu berdiri dengannya sepanjang malam dan siang, dan orang yang diberi harta lalu menginfakkannya sepanjang malam dan siang. Dalam riwayat Ibnu Mas'ud ra., dua orang itu ialah orang yang diberi harta lalu menghabiskannya dalam kebenaran, dan orang yang diberi hikmah lalu memutuskan perkara dengannya dan mengajarkannya. Ia juga menukil riwayat Ibnu Mas'ud bahwa siapa membaca satu huruf dari kitab Allah mendapat satu kebaikan, dan satu kebaikan dibalas sepuluh kali lipat; alif lam mim bukan satu huruf, melainkan alif satu huruf, lam satu huruf, dan mim satu huruf.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000046, 30000047],
+        "soal": {
+          "tanya": "Berapa huruf yang dihitung dari alif lam mim dalam sabda tentang pahala tiap huruf?",
+          "jawab": "Tiga huruf: alif satu huruf, lam satu huruf, dan mim satu huruf."
+        }
+      },
+      {
+        "judul": "Rongga tanpa Al-Qur'an seperti rumah runtuh, menurut riwayat yang dinukil penulis",
+        "isi": "Penulis menukil riwayat Abu Sa'id al-Khudri ra. berupa riwayat yang menisbahkan firman kepada Allah: siapa yang disibukkan oleh Al-Qur'an dan zikir sehingga tidak sempat meminta, Allah disebut memberinya lebih utama daripada yang diberikan kepada orang-orang yang meminta; keutamaan kalam Allah atas perkataan lain seperti keutamaan Allah atas makhluk-Nya. Ia juga menukil riwayat Ibnu Abbas ra. bahwa orang yang di dalam rongganya tidak ada sedikit pun dari Al-Qur'an seperti rumah yang runtuh.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000047, 30000048, 30000049],
+        "soal": {
+          "tanya": "Dengan apa orang yang rongganya kosong dari Al-Qur'an diumpamakan dalam riwayat Ibnu Abbas?",
+          "jawab": "Dengan rumah yang runtuh."
+        }
+      },
+      {
+        "judul": "Derajat pembaca Al-Qur'an naik sampai ayat terakhir yang dibacanya, menurut riwayat yang dinukil",
+        "isi": "Penulis menukil riwayat bahwa pemilik Al-Qur'an diminta membaca, naik, dan membaca dengan tartil seperti di dunia, karena kedudukannya berada pada ayat terakhir yang ia baca. Dalam riwayat Mu'adz bin Anas ra., orang yang membaca Al-Qur'an dan mengamalkan isinya, kedua orang tuanya dipakaikan mahkota pada hari kiamat yang cahayanya lebih indah daripada cahaya matahari di rumah-rumah dunia. Ad-Darimi meriwayatkan dari Ibnu Mas'ud ra. bahwa Allah tidak menyiksa hati yang menampung Al-Qur'an dan bahwa Al-Qur'an adalah jamuan Allah. Sufyan ats-Tsauri, ditanya mana yang lebih ia sukai, menjawab membaca Al-Qur'an daripada berperang, berdalil dengan sabda tentang sebaik-baik orang.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000050, 30000051],
+        "soal": {
+          "tanya": "Mana yang lebih disukai Sufyan ats-Tsauri, berperang atau membaca Al-Qur'an?",
+          "jawab": "Membaca Al-Qur'an, dengan dalil sabda bahwa sebaik-baik orang ialah yang belajar dan mengajarkannya."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

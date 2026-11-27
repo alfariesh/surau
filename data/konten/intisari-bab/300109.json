@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300109,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:58:30+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p425-p427: susunan di masa Nabi, penghimpunan Abu Bakar, salinan Utsman dengan kesepakatan Ali, alasan Nabi tidak menghimpun, serta empat (kebanyakan ulama menurut ad-Dani) dan tujuh (as-Sijistani) sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p430-p431, p433: anjuran tulisan indah, titik dan harakat, penjelasan atas asy-Sya'bi dan an-Nakha'i, hal baru yang baik dengan contoh kitab dan madrasah, najis haram dan dinding makruh menurut mazhab sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p435-p439: ijmak, kafir menurut ulama mazhab dan lainnya, bantal haram termasuk kitab ilmu, berdiri dengan alasannya, 'Ikrimah, larangan safar ke negeri musuh bersyarat khawatir, jual ke dzimmi, dan pencegahan anak dan orang gila sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p441, p443, p445: pembedaan mushaf dan jilid dari kantong, sarung, kotak (mazhab yang dipilih, pendapat lain lemah), papan, kayu (lebih kuat boleh), lengan baju (haram tanpa khilaf), dan menulis tanpa menyentuh (sahih dari tiga pendapat) sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p447-p448: sikap author; kebolehan kitab fikih, kain, dan uang menurut pendapat mazhab yang sahih, pendapat al-Mawardi ditandai dinilai lemah oleh an-Nawawi dan pembenaran al-Juwaini, rumusan tafsir dari ulama mazhab dengan tambahan an-Nawawi bila sama, kitab hadits tanpa ayat (lebih utama dalam keadaan suci), mansukh, serta Taurat dan Injil menurut ulama mazhab sesuai teks tanpa isi bacaan mansukh."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p449, p451-p453: najis yang tidak dimaafkan di bagian badan, kekeliruan ash-Shaimari dinilai ulama mazhab dan ditolak al-Qadhi Abu ath-Thayyib dengan ijmak, tayamum, tanpa air dan debu, darurat membawa dengan pendapat an-Nawawi soal tayamum, empat ancaman, dan anak mumayiz sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p455-p456: sah, beli tidak makruh, jual makruh menurut nash asy-Syafi'i, serta tiga kelompok ulama dengan nama yang dinukil Ibnul Mundzir sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perapian",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "7e872e56cf1913b082d0c0f071e6ed0ef98dc41aacf09cf8ee6621d2c687d4ba",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Sejarah penghimpunan dan perbedaan empat versus tujuh mushaf sesuai p425-p427."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Isi setia; kutipan 30000430 menyisakan ']' di awal."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Anjuran berdiri dan haram bantal (p436) milik ulama mazhab, ditulis 'Ia menganjurkan'."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Hukum benar; kutipan 30000443 menyisakan ']' di awal."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Kitab fikih, kain bersulam, al-Mawardi lawan al-Juwaini, kitab tafsir, hadits, mansukh, Taurat dan Injil sesuai."
+        },
+        {
+          "ke": 6,
+          "nilai": "kurang",
+          "catatan": "Beberapa kata hukum tanpa atribusi sendiri, selisih an-Nawawi dengan Abu ath-Thayyib tidak tampak, cakupan anak mumayiz melebar (p451-p453)."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Dua wajah mazhab, nash asy-Syafi'i, dan tiga golongan ulama sesuai p455-p456."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "302822f9462fc0d5f02d79b31a0665af7184d8e3bc18710084b1238e5a6e1a48",
+      "draf_sha256": "7e872e56cf1913b082d0c0f071e6ed0ef98dc41aacf09cf8ee6621d2c687d4ba",
+      "waktu": "2026-11-27T04:14:26.608Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut an-Nawawi, Al-Qur'an dihimpun dalam mushaf atas kesepakatan para sahabat, dan mushaf wajib dijaga kehormatannya lewat aturan menulis, menyentuh, membawa, dan memperjualbelikannya.",
+    "ringkasan": "An-Nawawi membuka dengan sejarah singkat penghimpunan Al-Qur'an pada masa Abu Bakar dan Utsman ra., beserta perbedaan pendapat tentang jumlah mushaf yang dikirim Utsman. Ia lalu menyebut anjuran menulis mushaf dengan indah dan memberi titik serta harakat, larangan menulisnya dengan benda najis, dan kewajiban menjaga kehormatan mushaf. Sesudahnya ia merinci pendapat mazhabnya tentang orang berhadas yang menyentuh, membawa, membalik, atau menulis mushaf, kitab yang memuat ayat, najis di badan, orang yang bertayamum, anak kecil, dan ditutup dengan perbedaan ulama tentang jual beli mushaf.",
+    "gagasan": [
+      {
+        "judul": "Al-Qur'an dihimpun dalam mushaf atas kesepakatan para sahabat, menurut an-Nawawi",
+        "isi": "Menurut an-Nawawi, susunan Al-Qur'an pada masa Nabi saw. sudah seperti di mushaf sekarang, tetapi belum dihimpun dalam satu mushaf; ia terjaga di dada para sahabat. Karena banyak penghafal gugur, Abu Bakar ra. bermusyawarah lalu menuliskannya dan menyimpannya di rumah Hafshah ra. Utsman ra. kemudian menyalinnya ke beberapa mushaf, mengirimnya ke berbagai negeri, dan memerintahkan agar yang menyelisihinya dimusnahkan, atas kesepakatan Ali ra. dan para sahabat. Nabi saw. tidak menghimpunnya karena masih menanti tambahan wahyu dan nasakh. Tentang jumlah mushaf Utsman, ia menukil Abu 'Amr ad-Dani bahwa kebanyakan ulama menyebut empat, sedangkan Abu Hatim as-Sijistani menyebut tujuh.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000425, 30000426, 30000427],
+        "soal": {
+          "tanya": "Mengapa Nabi saw. tidak menghimpun Al-Qur'an dalam satu mushaf, menurut an-Nawawi?",
+          "jawab": "Karena beliau masih menanti kemungkinan tambahan wahyu dan nasakh sebagian bacaan sampai beliau wafat."
+        }
+      },
+      {
+        "judul": "Titik dan harakat pada mushaf termasuk hal baru yang baik, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut para ulama sepakat menganjurkan penulisan mushaf yang indah, jelas, dan rapi. Memberi titik dan harakat juga dianjurkan karena menjaga mushaf dari salah baca dan salah tulis. Ketidaksukaan asy-Sya'bi dan an-Nakha'i terhadap titik ia jelaskan sebagai kekhawatiran akan perubahan pada masa mereka, sedangkan kini hal itu sudah aman. Menurutnya, sesuatu tidak terlarang hanya karena baru, sebab titik termasuk hal baru yang baik seperti menyusun kitab ilmu dan membangun madrasah. Ia juga menyebut haram menulis Al-Qur'an dengan benda najis dan makruh menulisnya di dinding menurut mazhabnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000430, 30000431, 30000433],
+        "soal": {
+          "tanya": "Bagaimana an-Nawawi menjelaskan ketidaksukaan asy-Sya'bi dan an-Nakha'i terhadap pemberian titik pada mushaf?",
+          "jawab": "Mereka khawatir terjadi perubahan pada mushaf di masa itu, sedangkan kekhawatiran itu kini sudah aman."
+        }
+      },
+      {
+        "judul": "Kaum muslimin sepakat wajib menjaga kehormatan mushaf, menurut nukilan an-Nawawi",
+        "isi": "An-Nawawi menukil ijmak kaum muslimin atas wajibnya menjaga dan menghormati mushaf. Menurut ulama mazhabnya dan lainnya, muslim yang melemparkannya ke kotoran menjadi kafir, menjadikannya bantal haram, bahkan menjadikan kitab ilmu sebagai bantal pun haram. Ia menganjurkan berdiri menyambut mushaf, sebab berdiri dianjurkan untuk ulama dan orang saleh sehingga mushaf lebih patut, dan menukil bahwa 'Ikrimah bin Abi Jahl ra. meletakkan mushaf di wajahnya. Ia juga menyebut haram membawa mushaf ke negeri musuh bila dikhawatirkan jatuh ke tangan mereka, haram menjualnya kepada dzimmi, dan wajib mencegah orang gila serta anak yang belum mumayiz menyentuhnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000435, 30000436, 30000438, 30000439],
+        "soal": {
+          "tanya": "Mengapa an-Nawawi menganjurkan berdiri menyambut mushaf?",
+          "jawab": "Karena berdiri dianjurkan untuk ulama dan orang saleh, maka mushaf lebih patut disambut dengan berdiri."
+        }
+      },
+      {
+        "judul": "Orang berhadas haram menyentuh dan membawa mushaf beserta sampulnya, menurut an-Nawawi",
+        "isi": "Menurut an-Nawawi, orang berhadas haram menyentuh dan membawa mushaf, baik tulisannya, pinggirnya, maupun jilidnya. Kantong, sarung, dan kotak yang berisi mushaf juga haram disentuh menurut pendapat mazhab yang dipilih; pendapat yang membolehkan ketiganya ia nilai lemah. Papan bertulisan Al-Qur'an sama dengan mushaf walau tulisannya sedikit. Membalik lembaran dengan kayu boleh menurut pendapat yang lebih kuat, tetapi membaliknya dengan tangan berbalut lengan baju haram tanpa khilaf, karena yang membalik tetap tangan. Orang junub atau berhadas yang menulis mushaf tanpa menyentuh dan membawa lembarannya boleh menurut pendapat yang sahih dari tiga pendapat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000441, 30000443, 30000445],
+        "soal": {
+          "tanya": "Mengapa membalik lembaran mushaf dengan tangan berbalut lengan baju tetap haram menurut an-Nawawi?",
+          "jawab": "Karena yang membalik lembaran sebenarnya tangan, bukan lengan baju."
+        }
+      },
+      {
+        "judul": "Kitab fikih dan barang bertulisan ayat boleh disentuh orang berhadas, menurut an-Nawawi",
+        "isi": "Menurut pendapat mazhab yang sahih, orang berhadas boleh menyentuh atau membawa kitab fikih yang memuat ayat, kain bersulam Al-Qur'an, uang bertulisan ayat, atau barang berisi mushaf, karena semua itu bukan mushaf. Pendapat al-Mawardi dalam al-Hawi bahwa kain bersulam boleh disentuh tetapi tidak boleh dipakai dinilai lemah oleh an-Nawawi, yang membenarkan al-Juwaini. Untuk kitab tafsir, ulama mazhabnya merumuskan: bila ayatnya lebih banyak, haram disentuh; bila tafsirnya lebih banyak, yang paling sahih tidak haram; an-Nawawi menambahkan haram bila keduanya sama. Kitab hadits tanpa ayat tidak haram disentuh, tetapi yang lebih utama tidak disentuh kecuali dalam keadaan suci. Bacaan mansukh tidak haram disentuh, dan menurut ulama mazhabnya begitu pula Taurat dan Injil.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000447, 30000448],
+        "soal": {
+          "tanya": "Pendapat al-Mawardi tentang kain bersulam Al-Qur'an apa yang dinilai lemah oleh an-Nawawi?",
+          "jawab": "Pendapat bahwa kain itu boleh disentuh tetapi tidak boleh dipakai."
+        }
+      },
+      {
+        "judul": "Hanya bagian badan yang bernajis yang haram menyentuh mushaf, menurut pendapat masyhur",
+        "isi": "Menurut an-Nawawi, orang suci yang badannya terkena najis yang tidak dimaafkan haram menyentuh mushaf dengan bagian bernajis itu, tetapi tidak dengan bagian lain menurut pendapat yang masyhur; ulama mazhabnya menilai keliru ash-Shaimari yang mengharamkannya, dan al-Qadhi Abu ath-Thayyib menolaknya dengan ijmak. Orang yang bertayamum secara sah boleh menyentuh mushaf; yang tidak mendapati air maupun debu shalat sesuai keadaannya tetapi tidak boleh menyentuhnya. Orang yang tak mampu berwudhu dan tak menemukan tempat menitipkan mushaf boleh membawanya karena darurat, dan menurut an-Nawawi semestinya bertayamum. Bila mushaf terancam terbakar, tenggelam, terkena najis, atau jatuh ke tangan kafir, ia diambil walau berhadas. Anak mumayiz tidak wajib diharuskan bersuci, menurut pendapat yang lebih sahih.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000449, 30000451, 30000452, 30000453],
+        "soal": {
+          "tanya": "Dalam keadaan apa orang berhadas tetap mengambil mushaf, menurut an-Nawawi?",
+          "jawab": "Bila mushaf terancam terbakar, tenggelam, terkena najis, atau jatuh ke tangan orang kafir."
+        }
+      },
+      {
+        "judul": "Jual beli mushaf sah tetapi menjualnya makruh, menurut an-Nawawi dan nash asy-Syafi'i",
+        "isi": "An-Nawawi menyebut jual beli mushaf sah dan membelinya tidak makruh. Tentang makruhnya menjual ada dua pendapat di mazhabnya; yang paling sahih, dan inilah nash asy-Syafi'i, adalah makruh. Ia menukil al-Hasan al-Bashri, 'Ikrimah, dan al-Hakam yang tidak memakruhkan jual beli mushaf, dan itu juga diriwayatkan dari Ibnu Abbas. Sekelompok ulama memakruhkan jual dan belinya, seperti dinukil Ibnul Mundzir dari 'Alqamah, Ibnu Sirin, an-Nakha'i, dan lainnya, sedangkan dari Umar dan Abu Musa diriwayatkan sikap keras. Kelompok lain memberi keringanan membeli tetapi memakruhkan menjual, seperti dinukil dari Ibnu Abbas, Sa'id bin Jubair, Ahmad, dan Ishaq.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000455, 30000456],
+        "soal": {
+          "tanya": "Pendapat mana tentang menjual mushaf yang disebut an-Nawawi paling sahih di mazhabnya?",
+          "jawab": "Menjual mushaf makruh, dan inilah nash asy-Syafi'i, sedangkan membelinya tidak makruh."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 30000430,
+        "char_start": 1,
+        "char_end": 339,
+        "terjemahan": "Pasal. Para ulama sepakat atas dianjurkannya menulis mushaf, memperindah tulisannya, menjelaskan dan memperjelasnya, serta memantapkan tulisan, bukan dengan gaya masyq dan ta'liq. Para ulama berkata: dianjurkan memberi titik dan harakat pada mushaf, karena itu menjaganya dari salah baca dan salah tulis. Adapun asy-Sya'bi dan an-Nakha'i yang tidak menyukai pemberian titik, mereka tidak menyukainya pada masa itu karena khawatir terjadi perubahan, sedangkan hal itu kini sudah aman, maka tidak ada larangan. Hal itu juga tidak terlarang karena ia sesuatu yang baru, sebab ia termasuk hal baru yang baik, sehingga tidak dilarang …"
+      },
+      {
+        "gagasan": 4,
+        "passage_id": 30000443,
+        "char_start": 1,
+        "char_end": 352,
+        "terjemahan": "Pasal. Bila orang berhadas, junub, atau haid membalik lembaran mushaf dengan sebatang kayu atau semacamnya, tentang kebolehannya ada dua pendapat di kalangan ulama mazhab kami. Pertama, yang lebih kuat, boleh, dan inilah yang dipastikan ulama Irak dari mazhab kami, karena ia tidak menyentuh dan tidak membawa. Kedua, haram, karena ia dianggap membawa lembaran itu, dan lembaran itu seperti keseluruhannya. Adapun bila ia membalut tangannya dengan lengan baju lalu membalik lembaran, maka haram tanpa khilaf. Sebagian ulama mazhab kami keliru dengan menyebut dua pendapat di situ; yang benar adalah memastikan keharamannya, karena membalik terjadi dengan tangan, bukan dengan lengan baju."
+      }
+    ],
+    "istilah": []
+  }
+}
