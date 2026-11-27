@@ -43,6 +43,7 @@ export const TIBYAN: WorkConfig = {
   },
   openiti: {
     release: "2025.1.9",
+    repo: "OpenITI/0700AH",
     commit: "6dca5e250b9e4405b93c4a5e73cfffdef5d7fef7",
     matan: {
       file: "0676Nawawi.Tibyan.Shamela0001969-ara1",

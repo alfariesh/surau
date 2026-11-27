@@ -141,7 +141,7 @@ export function openitiReport(
     "> Dibuat otomatis oleh `pnpm ingest:verify` / `pnpm ingest korpus` (`tools/ingest`, S07, ADR-018). Jangan disunting tangan.",
     "> Tanpa teks kitab: hanya angka dan rujukan juz/halaman cetak.",
     "",
-    `- OpenITI rilis ${config.openiti.release}, repo \`OpenITI/0525AH\` commit \`${config.openiti.commit}\`.`,
+    `- OpenITI rilis ${config.openiti.release}, repo \`${config.openiti.repo}\` commit \`${config.openiti.commit}\`.`,
     `- Matan: \`${config.openiti.matan.file}\` (sha256 \`${config.openiti.matan.sha256}\`, cocok).`,
     config.openiti.takhrij === undefined
       ? "- Takhrij: tidak ada versi pembanding; catatan kaki tidak dinilai."

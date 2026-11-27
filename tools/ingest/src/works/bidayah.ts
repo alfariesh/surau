@@ -42,6 +42,7 @@ export const BIDAYAH: WorkConfig = {
   },
   openiti: {
     release: "2025.1.9",
+    repo: "OpenITI/0525AH",
     commit: "e8dddd44c7998cefce72e4f37fad471634dd9d1e",
     matan: {
       file: "0505Ghazali.BidayatHidaya.Shamela0012718-ara1",

@@ -26,6 +26,7 @@ describe("data/kitab/ledger.yaml", () => {
       expect(row?.shamela).toBe(w.shamelaBook);
       expect(row?.openiti.uri).toBe(w.openiti.matan.file);
       expect(row?.openiti.rilis).toBe(w.openiti.release);
+      expect(row?.openiti.repo).toBe(w.openiti.repo);
       expect(row?.openiti.takhrij).toBe(w.openiti.takhrij?.file);
       expect(row?.status).not.toBe("rencana");
     }

@@ -61,6 +61,7 @@ export const IHYA: WorkConfig = {
   },
   openiti: {
     release: "2025.1.9",
+    repo: "OpenITI/0525AH",
     commit: "e8dddd44c7998cefce72e4f37fad471634dd9d1e",
     matan: {
       file: "0505Ghazali.IhyaCulumDin.Shamela0009472-ara1.completed",

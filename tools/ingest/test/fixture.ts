@@ -229,6 +229,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     edition: { id: 7, slug: "uji", license: "CC BY-NC-SA 4.0", attribution: "Atribusi uji" },
     openiti: {
       release: "uji",
+      repo: "OpenITI/0525AH",
       commit: "0".repeat(40),
       matan: { file: "matan.md", sha256: sha256(matanText) },
       takhrij: { file: "jk.md", sha256: sha256(jkText) },
@@ -258,6 +259,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     },
     openiti: {
       release: "uji",
+      repo: "OpenITI/0525AH",
       commit: "0".repeat(40),
       matan: { file: "matan2.md", sha256: sha256(matan2Text) },
     },

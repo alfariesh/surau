@@ -92,6 +92,8 @@ export interface WorkConfig {
   scan?: { details: string; volumes: { file: string; leafOffset: number }[] };
   openiti: {
     release: string;
+    /** Repo GitHub OpenITI per abad wafat (mis. `OpenITI/0700AH`); sama dengan ledger. */
+    repo: string;
     commit: string;
     /** Versi pembanding matan (dasar lisensi). */
     matan: PinnedFile;
