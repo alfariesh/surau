@@ -51,20 +51,23 @@ export function digestTierOf(level: number, hasChildNodes: boolean): "book" | "s
   return level === 2 || (level === 1 && !hasChildNodes) ? "book" : "section";
 }
 
-/** Edisi Ihya (ADR-029): satu-satunya edisi berstruktur rub' → Kitab → Bab (X15). */
-export const IHYA_EDITION_ID = 1;
+/**
+ * Edisi kitab Gelombang 1 (ADR-147): kitab satu jilid tanpa node akar seluruh kitab. Bidayat
+ * al-Hidayah (2), at-Tibyan (3), al-Ajurrumiyyah (4). ID edisi beku (ADR-029).
+ */
+export const SECTION_ONLY_EDITIONS: ReadonlySet<number> = new Set([2, 3, 4]);
 
 /**
- * Tingkat Intisari konten chat per edisi (X31b, ADR-146). Ihya memakai `digestTierOf`. Kitab
- * Gelombang 1 (satu jilid, tanpa node akar seluruh kitab) hanya punya Intisari Bab: setiap judul,
- * termasuk judul tingkat teratas yang punya anak (Intisari Bab membaca seluruh sub-babnya).
+ * Tingkat Intisari konten chat per edisi (X31b, ADR-147). Edisi Gelombang 1 hanya punya Intisari
+ * Bab: setiap judul, termasuk judul tingkat teratas yang punya anak (Intisari Bab membaca seluruh
+ * sub-babnya). Edisi lain (Ihya: rub' → Kitab → Bab) memakai `digestTierOf`.
  */
 export function contentTierOf(
   editionId: number,
   level: number,
   hasChildNodes: boolean,
 ): "book" | "section" {
-  return editionId === IHYA_EDITION_ID ? digestTierOf(level, hasChildNodes) : "section";
+  return SECTION_ONLY_EDITIONS.has(editionId) ? "section" : digestTierOf(level, hasChildNodes);
 }
 
 /** Jumlah gagasan untuk sebuah teks menurut panjangnya (karakter Arab): "mengikuti panjang teks". */

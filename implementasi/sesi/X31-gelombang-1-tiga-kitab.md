@@ -185,3 +185,21 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
 - **Belum diubah (sengaja):** `pnpm llm intisari` dan alat audio tetap khusus Ihya; Intisari Bidayah dibuat lewat chat (X24), audio diputuskan di langkah 4. `pnpm llm tokens` masih menulis laporan Ihya.
 - **Model:** `WorkConfig.llm.model` (bawaan Haiku); Bidayah `sonnet` atas keputusan pemilik di chat 2026-11-27 ("langsung aja pake llm model sonnet", "pake api", "api batch"): Message Batches, tanpa persetujuan lanjutan; agent memakai pagu `--budget 1.5`.
 - **Terblokir (T-37):** mode rencana (`plan`, gratis, `count_tokens`) gagal `401 invalid x-api-key`: kunci `surau-dev` di `.env` tidak berlaku lagi. Perkiraan lokal dari tarif X21: terjemahan 391 paragraf (±78 ribu karakter) ±US$0,55 + ringkasan 46 bab ±US$0,1.
+
+### X31b konten Bidayah (2026-11-27)
+
+- **Izin pemilik di chat:** "langsung aja pake llm model sonnet", "api batch", lalu "lanjut sampai selesai … 3 kitab tadi tanpa batasan dan gak usah konfirmasi saya … termasuk intisari kecuali audio".
+- **Terjemahan + ringkasan** (Message Batches, Sonnet 5.5): 391 paragraf, terjemahan lolos 390 (99,74%; 1 ditolak validator tiga kali), ringkasan bab 92/92 (2 bahasa), judul daftar isi Indonesia 46/46 (Sonnet, API biasa).
+  - Biaya nyata: putaran 1 US$0,99 (cache baca ±95%), putaran 2 US$0,06, ulangan US$0,01, judul US$0,04, total **±US$1,10**.
+  - Rencana gratis (`plan`) sebelumnya memperkirakan US$1,47 (cache 95%) sampai US$4,07 (cache 50%).
+- **Intisari** (ADR-147): 4 Intisari Bab (Muqaddimah 200001, Qism 1 200002, Qism 2 200017, Qism 3 200037), ditulis Claude Code (Opus 5.5) dari teks korpus lokal.
+  - Lapis 1: `pnpm konten cek --korpus staging` lolos.
+  - Lapis 2: periksa mandiri.
+  - Lapis 3: pemeriksa independen berkonteks segar (Sonnet 5.5). Hasil: 200001 5/5 benar; 200002 6 benar 1 kurang; 200017 5 benar 2 kurang; 200037 5 benar 2 kurang; 0 Salah. Kurang dicatat di `periksa.independen` dan boleh terbit (pedoman lapis 3).
+  - Cakupan jangkar: 94%, 22%, 55%, 44% (Qism 1 ±196 paragraf dirangkum dalam batas 7 gagasan).
+  - Hasil: 26 gagasan, 8 kutipan, 26 soal berjawaban.
+- **Korpus:** `pnpm ingest korpus` lolos dengan gerbang `llmCoverage` 0,99 dan `minDigests` 4.
+- **Catatan alat:**
+  - Kutipan paragraf utuh berakhir sebelum titik penutup (`isQuoteSpan`), jadi `char_end` = panjang − tanda baca akhir.
+  - MCP produksi tertutup, sehingga penulis dan pemeriksa membaca lewat skrip korpus lokal.
+- **Berikutnya:** gabung PR fondasi Tibyan (#254), bangun korpus dua kitab, muat staging, `corpus:qa`, cek pembaca/Cari/Intisari di staging (termasuk butir staging X24 yang dipindah ke sini, ADR-145 butir 10).

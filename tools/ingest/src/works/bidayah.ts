@@ -17,8 +17,10 @@ export const BIDAYAH: WorkConfig = {
     volumes: [46],
     titles: 46,
     matanMinPages: 46,
-    // Terjemahan dan ringkasan menyusul di X31b.
-    llmCoverage: 0,
+    // X31b: terjemahan + ringkasan Sonnet (batch 2026-11-27); "Definisi selesai" X31 = ≥ 99%.
+    llmCoverage: 0.99,
+    // Empat Intisari Bab chat (ADR-147): batas bawah supaya tidak hilang diam-diam (ADR-137).
+    minDigests: 4,
   },
   // Halaman cetak pertama (4 paragraf badan); الهداية mengenai 7 paragraf. Tanpa catatan kaki.
   smoke: { juz: 1, page: 25, search: "الهداية", footnotes: false },

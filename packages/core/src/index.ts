@@ -13,7 +13,7 @@ export {
   DIGEST_READ_CHARS_PER_MINUTE,
   contentTierOf,
   digestTierOf,
-  IHYA_EDITION_ID,
+  SECTION_ONLY_EDITIONS,
   leafPointRange,
   readDigest,
   readingMinutes,
