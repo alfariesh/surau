@@ -31,7 +31,8 @@ export const WORKS: readonly WorkConfig[] = [
 export const CORPUS: CorpusConfig = {
   version: "kitab-v11",
   output: "surau-corpus-kitab-v11.sqlite",
-  works: [BIDAYAH, TIBYAN, AJURRUMIYYAH, MUNQIDZ, WARAQAT, RUSUM, HADHRAMIYYAH, TARIFAT],
+  // at-Ta'rifat menyusul di kitab-v12 (terjemahan + Intisari belum lengkap); tetap di WORKS.
+  works: [BIDAYAH, TIBYAN, AJURRUMIYYAH, MUNQIDZ, WARAQAT, RUSUM, HADHRAMIYYAH],
 };
 
 /** Konfigurasi kitab menurut slug karya; galat yang menyebut slug yang tersedia. */
