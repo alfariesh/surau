@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800005,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:00:09+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p549, p423-424, p604: tafsir, ta'wil dengan syarat sesuai Kitab dan Sunnah, inzal sekaligus dan tanzil bertahap; isi ayat contoh tidak ditulis."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p511-513, p536-538: dua definisi tashawwur, tashdiq, ta'rif, dan ta'rif lafzhi bukan hakiki; sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p601, p486, p573: tanaqudh dengan contoh Zaid, empat macam tasalsul, menurut al-hakim hanya sebagian mustahil; takwin didahului materi."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p616-617, p571: tauhid bahasa dan menurut ahli hakikat, tiga unsur tauhid, taklif; sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "kurang",
+        "catatan": "p563-564, p452, p454 sesuai (taqlid, takhshish ushul dan nahwu), tetapi judul hanya menyebut taqlid."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p623, p621, p568: taubat, tawakal, takwa bahasa dan menurut ahli hakikat; sesuai."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p514-517: definisi utama tanpa atribusi, mazhab penuh kesungguhan, lalu nukilan wa qila; sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "922b2754dc1090e2a5c690b8c88cfd446d0f59ea94987a17623c917efc667112",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Sesuai p549, p423-424, p604; syarat ta'wil dan beda inzal/tanzil tepat."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Judul menisbahkan pembedaan kepada ahli logika, padahal p511-538 tidak menyebut kelompok itu; isi sendiri setia."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "P486 menyebut mustahil hanya menurut al-hakim yang terakhir (bukan dua macam pertama), tetapi draf menggeneralisasi menjadi kaum filsuf dan tidak menyebut macam yang mustahil."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Sesuai p616-617 dan p571; definisi bahasa dan ahli hakikat serta tiga unsur tepat."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Isi setia (p563-564, p452, p454; kutipan p564 tepat), tetapi judul hanya menyebut taqlid dan takhshish menurut ahli nahwu bercampur dengan sikap author."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Sesuai p623, p621, p568; kutipan tawakal tepat, bagian ahli hakikat ditulis eksplisit."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Sesuai p514-517; definisi utama dan nukilan wa qila dibedakan dengan benar."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "db3cbdb3a37fb44ebc9e3c539041a5bb1c9ae53f7590dcb4455631244f76893d",
+      "draf_sha256": "922b2754dc1090e2a5c690b8c88cfd446d0f59ea94987a17623c917efc667112",
+      "waktu": "2026-11-27T19:01:55.591Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Bab ta at-Ta'rifat, menurut susunan al-Jurjani, memuat definisi kunci lintas ilmu: tafsir dan ta'wil, tashawwur dan tashdiq, tauhid, taqlid dan takhshish, taubat dan takwa, serta tasawuf.",
+    "ringkasan": "Bab huruf ta memuat 203 entri definisi, dan Intisari ini menyoroti sebagian yang paling sering dipakai lintas ilmu. Al-Jurjani membedakan tafsir dari ta'wil serta inzal dari tanzil. Di bidang logika ia mendefinisikan tashawwur, tashdiq, ta'rif, tanaqudh, dan tasalsul. Di bidang akidah ia menjelaskan tauhid dan takwin. Di bidang ushul ia mendefinisikan taqlid dan takhshish, lalu di bidang suluk ia mendefinisikan taubat, tawakal, dan takwa. Bab ini juga memuat beberapa definisi tasawuf, sebagian ia nukil dengan ungkapan wa qila.",
+    "gagasan": [
+      {
+        "judul": "Tafsir menjelaskan makna lahir, sedangkan ta'wil memalingkan lafaz ke makna lain, menurut penulis",
+        "isi": "Menurut al-Jurjani, tafsir secara bahasa berarti menyingkap, dan dalam syariat berarti menjelaskan makna ayat, keadaannya, kisahnya, dan sebab turunnya dengan lafaz yang menunjukkannya secara jelas. Ta'wil secara bahasa berarti mengembalikan, dan dalam syariat berarti memalingkan lafaz dari makna lahirnya ke makna yang dimungkinkannya, bila makna itu sesuai dengan Kitab dan Sunnah. Ia juga membedakan inzal, yang dipakai untuk turun sekaligus, dari tanzil, yang dipakai untuk turun bertahap.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000549, 80000423, 80000424, 80000604],
+        "soal": {
+          "tanya": "Apa syarat makna yang dituju ta'wil menurut definisi al-Jurjani?",
+          "jawab": "Makna itu harus dimungkinkan oleh lafaz dan sesuai dengan Kitab dan Sunnah."
+        }
+      },
+      {
+        "judul": "Ahli logika membedakan tashawwur dari tashdiq dan definisi hakiki dari definisi lafzhi, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan tashawwur sebagai hadirnya gambaran sesuatu di akal, atau mengetahui hakikat sesuatu tanpa menghukuminya dengan menafikan atau menetapkan. Tashdiq ialah menisbahkan kebenaran kepada pemberi kabar dengan pilihan sendiri. Ta'rif adalah menyebut sesuatu yang pengetahuan tentangnya melahirkan pengetahuan tentang hal lain. Ta'rif lafzhi menjelaskan lafaz dengan lafaz lain yang lebih jelas, seperti menjelaskan kata ghadhanfar dengan kata singa; menurutnya ini bukan definisi hakiki, sebab tujuannya hanya menentukan makna yang dimaksud kata itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000511, 80000512, 80000513, 80000536, 80000537, 80000538],
+        "soal": {
+          "tanya": "Mengapa ta'rif lafzhi tidak dianggap definisi hakiki oleh al-Jurjani?",
+          "jawab": "Karena tujuannya bukan memberi gambaran yang belum ada, tetapi hanya menentukan makna yang dimaksud suatu lafaz."
+        }
+      },
+      {
+        "judul": "Tanaqudh dan tasalsul didefinisikan dengan istilah logika, sedangkan kaum filsuf tidak memustahilkan semua tasalsul",
+        "isi": "Menurut al-Jurjani, tanaqudh adalah perbedaan dua proposisi dalam hal menetapkan dan menafikan, sehingga secara zatnya menuntut benarnya salah satu dan dustanya yang lain, seperti kalimat Zaid manusia dan Zaid bukan manusia. Tasalsul adalah tersusunnya perkara-perkara yang tidak berujung. Ia membaginya menjadi empat macam, misalnya rangkaian peristiwa, rangkaian jiwa, rangkaian sebab dan akibat, dan rangkaian benda, lalu menyebut bahwa menurut kaum filsuf (al-hakim) tidak semua macam itu mustahil. Takwin ia definisikan sebagai mewujudkan sesuatu yang didahului materi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000601, 80000486, 80000573],
+        "soal": {
+          "tanya": "Apa yang dituntut oleh tanaqudh antara dua proposisi menurut definisi al-Jurjani?",
+          "jawab": "Secara zatnya menuntut salah satu proposisi benar dan yang lain dusta."
+        }
+      },
+      {
+        "judul": "Tauhid mencakup tiga hal, menurut penulis, dan ahli hakikat memaknainya sebagai penyucian zat Ilahi",
+        "isi": "Secara bahasa, tauhid menurut al-Jurjani adalah menghukumi dan mengetahui bahwa sesuatu itu satu. Dalam istilah ahli hakikat, tauhid adalah memurnikan zat Ilahi dari segala yang tergambar dalam pemahaman dan terbayang dalam angan dan pikiran. Pada entri berikutnya ia menyebut bahwa tauhid terdiri atas tiga hal: mengenal Allah Swt. dengan sifat rububiyah, mengakui keesaan-Nya, dan menafikan segala tandingan dari-Nya secara menyeluruh. Taklif ia definisikan sebagai membebankan kesulitan kepada orang yang diajak bicara.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000616, 80000617, 80000571],
+        "soal": {
+          "tanya": "Apa tiga hal yang membentuk tauhid menurut entri kedua al-Jurjani?",
+          "jawab": "Mengenal Allah dengan rububiyah, mengakui keesaan-Nya, dan menafikan semua tandingan dari-Nya."
+        }
+      },
+      {
+        "judul": "Taqlid adalah mengikuti orang lain tanpa menimbang dalil, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan taqlid sebagai mengikuti orang lain dalam ucapan atau perbuatannya dengan meyakini kebenarannya, tanpa menimbang dan merenungkan dalilnya, seakan-akan pengikut itu menjadikan ucapan atau perbuatan orang lain sebagai kalung (qiladah) di lehernya. Definisi lain: menerima ucapan orang lain tanpa hujah dan dalil. Dalam ushul, takhshish adalah membatasi lafaz umum pada sebagiannya dengan dalil mandiri yang menyertainya; istitsna, syarat, ghayah, dan sifat tidak termasuk, demikian pula naskh. Menurut ahli nahwu, takhshish berarti mempersempit keumuman kata nakirah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000563, 80000564, 80000452, 80000454],
+        "soal": {
+          "tanya": "Dengan perumpamaan apa al-Jurjani menjelaskan asal makna taqlid?",
+          "jawab": "Pengikut seakan menjadikan ucapan atau perbuatan orang lain sebagai kalung di lehernya."
+        }
+      },
+      {
+        "judul": "Taubat, tawakal, dan takwa didefinisikan dari sisi hati, termasuk menurut ahli hakikat",
+        "isi": "Menurut al-Jurjani, taubat adalah kembali kepada Allah dengan melepaskan simpul ishrar (terus-menerus dalam dosa) dari hati, lalu menunaikan semua hak Tuhan. Tawakal adalah percaya kepada apa yang ada di sisi Allah dan putus harapan dari apa yang ada di tangan manusia. Takwa secara bahasa berarti mengambil pelindung; menurut ahli hakikat, takwa adalah menjaga diri dari hukuman Allah dengan ketaatan kepada-Nya, yakni menjaga jiwa dari perbuatan atau sikap meninggalkan yang membuatnya layak dihukum.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000623, 80000621, 80000568],
+        "soal": {
+          "tanya": "Dua hal apa yang disebut dalam definisi tawakal menurut al-Jurjani?",
+          "jawab": "Percaya kepada apa yang ada di sisi Allah dan putus harapan dari apa yang ada di tangan manusia."
+        }
+      },
+      {
+        "judul": "Tasawuf berarti menjaga adab syariat lahir dan batin, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan tasawuf sebagai berpegang pada adab-adab syariat secara lahir dan batin, sehingga orang yang beradab dengan keduanya meraih kesempurnaan. Ia juga menyebut tasawuf sebagai mazhab yang seluruhnya kesungguhan dan tidak dicampur senda gurau. Sesudah itu ia menukil banyak definisi lain dengan ungkapan wa qila, antara lain menyucikan hati dari mengikuti makhluk, meninggalkan akhlak tabiat, mengikuti Rasulullah saw. dalam syariat, meninggalkan pilihan sendiri, dan sabar di bawah perintah dan larangan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000514, 80000515, 80000516, 80000517],
+        "soal": {
+          "tanya": "Apa yang diraih orang yang menjaga adab syariat lahir dan batin menurut definisi tasawuf al-Jurjani?",
+          "jawab": "Ia meraih kesempurnaan karena beradab dengan kedua hukum itu."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 6,
+        "passage_id": 80000621,
+        "char_start": 8,
+        "char_end": 55,
+        "terjemahan": "Tawakal adalah percaya kepada apa yang ada di sisi Allah dan putus harapan dari apa yang ada di tangan manusia."
+      },
+      {
+        "gagasan": 5,
+        "passage_id": 80000564,
+        "char_start": 9,
+        "char_end": 50,
+        "terjemahan": "Taqlid adalah menerima ucapan orang lain tanpa hujah dan tanpa dalil."
+      }
+    ],
+    "istilah": []
+  }
+}

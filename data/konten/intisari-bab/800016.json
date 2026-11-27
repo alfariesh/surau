@@ -1,0 +1,179 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800016,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T18:59:57+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1132: definisi sabar, doa tidak merusak sabar, ridha qadha vs maqdhi sesuai; isi ayat tidak diparafrasekan."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1141-p1142: makna bahasa, ahli hakikat, wa qila, nukilan al-Qusyairi, dan shiddiq sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1173-p1174: shawab vs shidq vs haqq dan nukilan masyayikh tentang ijtihad dan akidah sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1151-p1154: empat jenis sifat beserta contohnya sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1133-p1134, p1137: shihhah umum, menurut ahli fikih, dan shahih sesuai; lawannya buthlan."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p1161, p1179, p1143: definisi bahasa dan syariat shalat, puasa, sedekah sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "3f8904daee04802f0cb42bad7df845158d7e266b52af7193f29fdb899f54564f",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi sabar, doa tidak merusak sabar, dan ridha qadha versus maqdhi sesuai p80001132."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Makna bahasa, ahli hakikat, wa qila, nukilan al-Qusyairi, dan shiddiq sesuai; kutipan p80001142 terjemahannya setia."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Shawab vs shidq vs haqq dan nukilan masyayikh tentang ijtihad dan akidah sesuai."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Empat jenis sifat dan contohnya sesuai p80001151-54."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Shihhah umum, menurut ahli fikih, dan shahih sesuai; lawannya buthlan."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Definisi bahasa dan syariat shalat, puasa, sedekah sesuai."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "157409f731b198529ab1bc02b2540d6621654ebae3d392008bb5edbd3ea18407",
+      "draf_sha256": "3f8904daee04802f0cb42bad7df845158d7e266b52af7193f29fdb899f54564f",
+      "waktu": "2026-11-27T19:00:54.630Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam bab shad, al-Jurjani mendefinisikan sabar sebagai meninggalkan keluhan kepada selain Allah, lalu menguraikan shidq, shawab, sifat-sifat Allah, dan istilah fikih seperti shalat dan puasa.",
+    "ringkasan": "Bab shad memuat 46 entri definisi; Intisari ini menyoroti sebagiannya. Al-Jurjani membuka dengan istilah seperti ash-shalih, lalu memberi uraian panjang tentang sabar dan hubungannya dengan doa serta ridha terhadap qadha. Ia menghimpun beberapa definisi shidq dan shiddiq dari ahli bahasa dan ahli hakikat, membedakan shawab dari shidq dan haqq, lalu membagi sifat-sifat Allah menjadi sifat dzat, sifat perbuatan, sifat jamal, dan sifat jalal. Di bidang fikih ia menjelaskan makna shihhah dan shahih dalam ibadah dan muamalah, shalat, puasa, dan sedekah. Bab ini juga memuat istilah nahwu, saraf, 'arudh, filsafat, dan nama-nama firqah.",
+    "gagasan": [
+      {
+        "judul": "Sabar adalah tidak mengeluh kepada selain Allah, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan sabar sebagai meninggalkan keluhan atas pedihnya cobaan kepada selain Allah, bukan kepada Allah. Dengan berdalil pada ayat-ayat tentang Nabi Ayyub as., ia menyimpulkan bahwa doa hamba kepada Allah memohon dihilangkannya bahaya tidak merusak kesabarannya. Ia juga membedakan ridha terhadap qadha (ketetapan Allah), yang wajib karena hamba harus ridha dengan hukum Tuannya, dari ridha terhadap hal yang ditetapkan, yaitu bahaya itu sendiri, yang tidak dibebankan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001132],
+        "soal": {
+          "tanya": "Apakah berdoa agar bahaya diangkat merusak kesabaran, menurut definisi sabar al-Jurjani?",
+          "jawab": "Tidak; yang ditinggalkan orang sabar adalah keluhan kepada selain Allah, sedangkan doa kepada Allah tidak merusak kesabarannya."
+        }
+      },
+      {
+        "judul": "Shidq punya makna bahasa dan makna ahli hakikat, menurut beberapa kalangan",
+        "isi": "Menurut bahasa, shidq (jujur) adalah kesesuaian putusan dengan kenyataan. Dalam istilah ahli hakikat, shidq adalah mengatakan kebenaran di tempat-tempat yang membinasakan; ada pula yang berkata, jujur di tempat yang hanya bisa diselamatkan oleh dusta. Al-Jurjani juga menukil al-Qusyairi: shidq berarti tidak ada campuran dalam keadaan, tidak ada keraguan dalam keyakinan, dan tidak ada cacat dalam amal. Shiddiq ia definisikan sebagai orang yang tidak membiarkan sesuatu yang ia tampakkan dengan lisan kecuali ia wujudkan dengan hati dan amalnya.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001141, 80001142],
+        "soal": {
+          "tanya": "Apa makna shidq dalam istilah ahli hakikat yang dinukil al-Jurjani?",
+          "jawab": "Mengatakan kebenaran di tempat-tempat yang membinasakan."
+        }
+      },
+      {
+        "judul": "Shawab dan khatha' dipakai untuk masalah ijtihad, menurut para masyayikh",
+        "isi": "Al-Jurjani mendefinisikan shawab sebagai perkara tetap yang tidak boleh diingkari, dan membedakannya dari shidq (isi pikiran sesuai kenyataan di luar) dan haqq (kenyataan di luar sesuai isi pikiran). Ia lalu menukil dari para masyayikh bahwa pasangan shawab dan khatha' dipakai dalam masalah ijtihad, sedangkan haqq dan bathil dipakai dalam akidah. Karena itu, tentang masalah cabang, mazhab sendiri disebut benar tetapi mungkin salah dan mazhab lawan salah tetapi mungkin benar; tentang akidah, kebenaran disebut ada pada pihak sendiri.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001173, 80001174],
+        "soal": {
+          "tanya": "Untuk jenis masalah apa pasangan istilah shawab dan khatha' dipakai menurut nukilan al-Jurjani?",
+          "jawab": "Untuk masalah-masalah ijtihad (furu'), sedangkan haqq dan bathil untuk masalah akidah."
+        }
+      },
+      {
+        "judul": "Sifat Allah terbagi menjadi sifat dzat, perbuatan, jamal, dan jalal menurut penulis",
+        "isi": "Sifat dzat (shifat dzatiyyah) adalah sifat yang dilekatkan kepada Allah dan lawannya tidak boleh dilekatkan, seperti qudrah, 'izzah, dan 'azhamah. Sifat perbuatan (shifat fi'liyyah) adalah sifat yang lawannya boleh dilekatkan kepada Allah, seperti ridha dan rahmah serta murka dan marah. Sifat jamal berkaitan dengan kelembutan dan rahmat, sedangkan sifat jalal berkaitan dengan keperkasaan (qahr), 'izzah, keagungan, dan keluasan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001151, 80001152, 80001153, 80001154],
+        "soal": {
+          "tanya": "Apa yang membedakan sifat dzat dari sifat perbuatan Allah dalam definisi al-Jurjani?",
+          "jawab": "Lawan sifat dzat tidak boleh dilekatkan kepada Allah, sedangkan lawan sifat perbuatan boleh dilekatkan."
+        }
+      },
+      {
+        "judul": "Ahli fikih memaknai shihhah sebagai gugurnya qadha dan tercapainya buah akad",
+        "isi": "Al-Jurjani mendefinisikan shihhah secara umum sebagai keadaan atau kecakapan yang membuat perbuatan keluar dari tempatnya dengan selamat. Menurut ahli fikih, shihhah dalam ibadah berarti perbuatan itu menggugurkan kewajiban qadha, dan dalam muamalah berarti buah yang dituju darinya berlaku menurut syariat; lawannya adalah buthlan (batal). Yang shahih dalam ibadah dan muamalah ia definisikan sebagai yang rukun dan syaratnya lengkap sehingga diperhitungkan dalam hukum.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001133, 80001134, 80001137],
+        "soal": {
+          "tanya": "Kapan sebuah ibadah disebut sah menurut definisi ahli fikih yang dinukil al-Jurjani?",
+          "jawab": "Bila perbuatan itu menggugurkan kewajiban qadha, dengan rukun dan syaratnya lengkap."
+        }
+      },
+      {
+        "judul": "Shalat, puasa, dan sedekah dibedakan makna bahasa dan syariatnya menurut penulis",
+        "isi": "Shalat menurut bahasa adalah doa, dan menurut syariat adalah rukun-rukun tertentu dan zikir-zikir yang diketahui dengan syarat-syarat terbatas pada waktu-waktu yang ditentukan; shalat juga bermakna memohon pengagungan bagi Rasulullah saw. di dunia dan akhirat. Puasa menurut bahasa adalah menahan diri secara mutlak, dan menurut syariat adalah menahan diri dari makan, minum, dan jimak dari subuh sampai magrib disertai niat. Sedekah adalah pemberian yang dengannya diharapkan pahala dari Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001161, 80001179, 80001143],
+        "soal": {
+          "tanya": "Apa batas waktu menahan diri dalam definisi syar'i puasa menurut al-Jurjani?",
+          "jawab": "Dari subuh sampai magrib, disertai niat."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 80001142,
+        "char_start": 8,
+        "char_end": 63,
+        "terjemahan": "Yaitu orang yang tidak membiarkan sesuatu pun yang ia tampakkan dengan lisan kecuali ia wujudkan dengan hati dan amalnya."
+      }
+    ],
+    "istilah": []
+  }
+}

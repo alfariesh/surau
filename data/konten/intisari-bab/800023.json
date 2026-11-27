@@ -1,0 +1,200 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800023,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:11:05+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1492-p1494: dua jenis qadim, hubungan khusus-umum dan akibatnya pada hadits, qidam dzati dan zamani sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1496, p1501, p1503, p1531: qudrah, qadar, qadha azali vs qadar sesudahnya, Lauh Mahfuzh terhimpun vs terpisah, makna fuqaha sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1504: definisi mushaf mutawatir dan definisi ahli haqq sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1541, p1506, p1548: hati sebagai lathifah, sebutan ahli hikmah, qurb hamba bukan qurb al-Haqq (negasi tepat), qana'ah ahli hakikat sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "kurang",
+        "catatan": "p1484-p1485, p1535: qabdh-basth dan quthb sesuai; kata yang dipakai teks untuk perkara takut-harap tampak salah cetak, jadi ditulis netral 'belum hadir'."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p1560-p1562: qiyas bahasa, syariat, ahli logika, ahli ushul dengan alasan kata 'menampakkan', dan istihsan lebih umum sesuai."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p1490: definisi qatl 'amd dan pendapat keduanya serta asy-Syafi'i dengan contoh batu dan kayu besar sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "eca27c87812dfb380ace937c3b8b3bb1c331410b4613cb74b551db13f917cf07",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Sesuai p80001492-94: khusus-umum, qidam dzati dan zamani, serta akibatnya pada hadits tepat."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Qudrah, qadar, qadha azali, Lauh Mahfuzh terhimpun vs terpisah, dan makna fuqaha sesuai p80001496/1503/1531."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Judul menempelkan 'menurut ahli haqq' pada kedua definisi padahal definisi pertama (p80001504) tidak diatribusikan; ringkasan bahkan menyebutnya 'menurut ahli ushul' yang tidak ada di teks."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Hati, qurb (bukan qurb al-Haqq, negasi tepat), dan qana'ah sesuai p80001541/1506/1548."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Qabdh-basth di atas khauf-raja', perbedaan objeknya, dan quthb/ghauts sesuai p80001484-85/1535."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Empat makna qiyas, alasan kata 'menampakkan', dan istihsan lebih umum sesuai p80001560-62."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Definisi tepat, tetapi pendapat 'keduanya' (p80001490) ditulis tanpa dijelaskan siapa yang dimaksud sehingga membingungkan pembaca."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "1242cf7047efe11939072243ef589c30de075c58fc98d51d8e0006757d569991",
+      "draf_sha256": "eca27c87812dfb380ace937c3b8b3bb1c331410b4613cb74b551db13f917cf07",
+      "waktu": "2026-11-27T19:35:15.105Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam bab qaf, al-Jurjani membedakan qadim dzati dan zamani, qadha dan qadar, menjelaskan Al-Qur'an, hati, qabdh dan basth, aneka makna qiyas, dan perbedaan mazhab tentang pembunuhan sengaja.",
+    "ringkasan": "Bab qaf memuat 85 entri definisi; Intisari ini menyoroti sebagiannya. Al-Jurjani membedakan qadim bil-dzat dan qadim bil-zaman serta hubungan keduanya, lalu mendefinisikan qudrah dan membedakan qadha dari qadar. Ia mendefinisikan Al-Qur'an menurut ahli ushul dan menurut ahli haqq, lalu hati sebagai lathifah rabbaniyyah, qurb, dan qana'ah. Dalam tasawuf ia menjelaskan qabdh dan basth serta quthb. Ia menghimpun makna qiyas menurut bahasa, syariat, ahli logika, dan ahli ushul, termasuk istihsan. Di bidang fikih ia menukil perbedaan pendapat tentang pembunuhan sengaja. Bab ini juga memuat istilah logika, 'arudh, dan qafiyah.",
+    "gagasan": [
+      {
+        "judul": "Setiap yang qadim secara dzat juga qadim secara zaman, tidak sebaliknya, menurut penulis",
+        "isi": "Al-Jurjani membedakan qadim bil-dzat, yaitu yang maujud dan wujudnya tidak berasal dari yang lain, dari qadim bil-zaman, yaitu yang wujudnya tidak didahului ketiadaan. Setiap yang qadim secara dzat juga qadim secara zaman, tetapi tidak setiap yang qadim secara zaman qadim secara dzat; jadi qadim bil-dzat lebih khusus, dan karena itu hadits bil-dzat lebih umum daripada hadits bil-zaman. Qidam dzati ia definisikan sebagai tidak butuh kepada yang lain, dan qidam zamani sebagai tidak didahului ketiadaan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001492, 80001493, 80001494],
+        "soal": {
+          "tanya": "Mana yang lebih khusus menurut al-Jurjani, qadim bil-dzat atau qadim bil-zaman?",
+          "jawab": "Qadim bil-dzat lebih khusus, karena setiap yang qadim secara dzat juga qadim secara zaman, tidak sebaliknya."
+        }
+      },
+      {
+        "judul": "Qadha ada di azali dan qadar terjadi sesudahnya, menurut penulis",
+        "isi": "Qudrah ia definisikan sebagai sifat yang membuat makhluk hidup mampu berbuat dan meninggalkan dengan kehendak. Qadar adalah keluarnya hal-hal yang mungkin dari tiada menuju ada, satu demi satu, sesuai qadha. Qadha ada di azali, sedangkan qadar terjadi pada masa sesudahnya. Bedanya: qadha adalah adanya semua yang maujud di Lauh Mahfuzh secara terhimpun, sedangkan qadar adalah adanya semua itu secara terpisah dalam wujud nyata sesudah syarat-syaratnya terpenuhi. Menurut ahli fikih, qadha berarti menyerahkan yang semisal dengan kewajiban.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001496, 80001501, 80001503, 80001531],
+        "soal": {
+          "tanya": "Apa beda qadha dan qadar menurut al-Jurjani?",
+          "jawab": "Qadha adalah adanya semua yang maujud di Lauh Mahfuzh secara terhimpun; qadar adalah adanya secara terpisah sesudah syaratnya terpenuhi."
+        }
+      },
+      {
+        "judul": "Al-Qur'an didefinisikan dari sisi penukilan dan dari sisi ilmu ladunni, menurut ahli haqq",
+        "isi": "Al-Jurjani mendefinisikan Al-Qur'an sebagai yang diturunkan kepada Rasul, tertulis di mushaf-mushaf, dan dinukil darinya secara mutawatir tanpa syubhat. Ia lalu menyebut bahwa menurut ahli haqq, Al-Qur'an adalah ilmu ladunni yang global dan menghimpun semua hakikat.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001504],
+        "soal": {
+          "tanya": "Bagaimana Al-Qur'an didefinisikan menurut ahli haqq dalam nukilan al-Jurjani?",
+          "jawab": "Sebagai ilmu ladunni yang global dan menghimpun semua hakikat."
+        }
+      },
+      {
+        "judul": "Hati sejati adalah lathifah rabbaniyyah, hakikat manusia, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan qalb sebagai lathifah rabbaniyyah yang terkait dengan jantung jasmani berbentuk buah pinus di sisi kiri dada. Lathifah itulah hakikat manusia; ahli hikmah (al-hakim) menyebutnya jiwa rasional. Dialah yang mengetahui, yang diajak bicara, yang dituntut, dan yang ditegur. Qurb dalam istilah adalah dekatnya hamba kepada Allah dengan segala yang memberi kebahagiaan, bukan dekatnya al-Haqq kepada hamba, yang bersifat umum bagi hamba yang bahagia maupun celaka; untuk itu ia berdalil dengan ayat. Qana'ah menurut ahli hakikat adalah tenang ketika hal yang biasa dimiliki tidak ada.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001541, 80001506, 80001548],
+        "soal": {
+          "tanya": "Apa yang disebut ahli hikmah sebagai jiwa rasional dalam definisi hati al-Jurjani?",
+          "jawab": "Lathifah rabbaniyyah yang terkait dengan jantung jasmani, yaitu hakikat manusia."
+        }
+      },
+      {
+        "judul": "Qabdh dan basth adalah keadaan di atas takut dan harap, menurut penulis",
+        "isi": "Al-Jurjani menjelaskan bahwa qabdh dan basth adalah dua keadaan sesudah hamba naik dari keadaan takut (khauf) dan harap (raja'). Bedanya, takut dan harap terkait dengan perkara yang dibenci atau dicintai yang belum hadir, sedangkan qabdh dan basth terkait dengan perkara yang hadir pada saat itu dan menguasai hati orang arif karena datangnya sesuatu dari alam gaib. Quthb, yang juga disebut ghauts, adalah satu orang yang menjadi tempat pandangan Allah di setiap zaman dan mengalirkan limpahan ke alam seperti ruh mengalir di jasad.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001484, 80001485, 80001535],
+        "soal": {
+          "tanya": "Dengan apa qabdh dan basth terkait, berbeda dari takut dan harap, menurut al-Jurjani?",
+          "jawab": "Dengan perkara yang hadir pada saat itu dan menguasai hati orang arif."
+        }
+      },
+      {
+        "judul": "Qiyas punya makna berbeda bagi ahli logika dan ahli ushul",
+        "isi": "Menurut bahasa, qiyas berarti mengukur, dan menurut syariat adalah makna yang digali dari nash agar hukumnya menjangkau selain yang disebut nash. Bagi ahli logika, qiyas adalah perkataan yang tersusun dari beberapa proposisi yang bila diterima menghasilkan dengan sendirinya perkataan lain. Bagi ahli ushul, qiyas adalah menampakkan hukum yang semisal dengan illat yang semisal; dipilih kata 'menampakkan', bukan 'menetapkan', karena qiyas memperlihatkan hukum, bukan menetapkannya. Qiyas khafi disebut istihsan, tetapi istihsan lebih umum karena juga dipakai untuk yang tetap dengan nash, ijmak, dan darurat.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001560, 80001561, 80001562],
+        "soal": {
+          "tanya": "Mengapa ahli ushul memilih kata 'menampakkan' dalam definisi qiyas menurut nukilan al-Jurjani?",
+          "jawab": "Karena qiyas memperlihatkan hukum, bukan menetapkannya."
+        }
+      },
+      {
+        "judul": "Pembunuhan sengaja diukur dari alatnya, dengan perbedaan pendapat di kalangan fuqaha",
+        "isi": "Al-Jurjani mendefinisikan pembunuhan sengaja (qatl 'amd) sebagai sengaja memukul dengan senjata atau sesuatu yang berfungsi seperti senjata. Ia lalu menukil bahwa menurut 'keduanya' dan menurut asy-Syafi'i, pembunuhan sengaja adalah memukul dengan sengaja memakai sesuatu yang tidak tertahankan oleh tubuh, sehingga memukul dengan batu besar atau kayu besar juga termasuk sengaja.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001490],
+        "soal": {
+          "tanya": "Apakah memukul dengan batu besar termasuk pembunuhan sengaja menurut pendapat asy-Syafi'i yang dinukil al-Jurjani?",
+          "jawab": "Ya, karena alat itu tidak tertahankan oleh tubuh."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 80001493,
+        "char_start": 14,
+        "char_end": 46,
+        "terjemahan": "Keadaan sesuatu yang tidak membutuhkan yang lain."
+      }
+    ],
+    "istilah": []
+  }
+}

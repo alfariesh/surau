@@ -1,0 +1,137 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800010,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:09:11+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p913, p915: dalil, dilalah, dal dan madlul, empat cara menurut istilah ulama ushul dan cara pembedaannya sesuai; ayat di p915 tidak disinggung."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p916-p917: definisi dan tiga bagian dilalah wadh'iyyah dengan contoh manusia sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p918-p919: daur musharrah dan mudhmar, beda dua tingkat dan satu tingkat, tiga macam dawaran dengan dua contoh sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p921-p923: din, din dan millah satu zat beda i'tibar (din, millah, mazhab), dan wa qila tentang sandarannya sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "694982f2bf94f1aaee3c284cc194f9315427fd7f2bc14a54f16dd0b5d8109709",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi dalil dan dilalah, empat cara penunjukan, dan pembeda ibarah/isyarah/dilalah/iqtidha sesuai p913 dan p915."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tiga bagian dilalah wadh'iyyah dan contoh kata manusia sesuai p916-p917."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Frasa \"sedangkan yang kedua satu tingkat\" ambigu (bisa terbaca daur mudhmar); di p919 yang satu tingkat adalah mendefinisikan sesuatu dengan dirinya."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Isi menulis \"apa yang dibawa Rasulullah\" sedangkan p921 dan kutipannya berbunyi \"apa yang ada pada Rasulullah\"; sisanya (tiga sudut pandang, nukilan qila) sesuai."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "df301582e2c73d2bee960a7a0ed3c167227b0d28e639c9982fea49c5519f3c18",
+      "draf_sha256": "694982f2bf94f1aaee3c284cc194f9315427fd7f2bc14a54f16dd0b5d8109709",
+      "waktu": "2026-11-27T19:33:40.779Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani dalam bab dal, dalil dan dilalah, daur dan dawaran, serta din, millah, dan mazhab adalah istilah kunci yang dibedakan dengan batasan logika dan ushul.",
+    "ringkasan": "Bab dal memuat 21 entri definisi dari kedokteran, logika, geometri, fikih, ushul, dan tasawuf. Intisari ini menyoroti sebagian yang paling banyak dipakai. Al-Jurjani mendefinisikan dalil dan dilalah, lalu menukil empat cara penunjukan lafal menurut ulama ushul. Ia membagi dilalah lafal yang berdasarkan peletakan bahasa menjadi tiga: muthabaqah, tadhammun, dan iltizam. Ia menjelaskan daur (lingkaran sebab) dan dawaran beserta tiga macamnya. Terakhir ia menjelaskan bahwa din, millah, dan mazhab satu hakikat yang berbeda sudut pandang.",
+    "gagasan": [
+      {
+        "judul": "Ulama ushul membatasi penunjukan lafal pada empat cara",
+        "isi": "Dalil secara istilah adalah sesuatu yang bila diketahui, sesuatu yang lain ikut diketahui. Dilalah adalah keadaan sesuatu yang demikian; yang pertama disebut dal dan yang kedua madlul. Menurut istilah ulama ushul, cara lafal menunjuk makna terbatas pada empat: 'ibarat an-nash, isyarat an-nash, dilalat an-nash, dan iqtidha' an-nash. Hukum yang ditetapkan langsung oleh susunan lafal adalah 'ibarah bila susunan itu memang dimaksudkan untuknya, dan isyarah bila tidak. Bila tidak langsung, ia dilalah bila dipahami dari bahasa, dan iqtidha' bila dipahami dari syariat.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000913, 80000915],
+        "soal": {
+          "tanya": "Apa beda 'ibarat an-nash dan isyarat an-nash menurut uraian ulama ushul yang dinukil al-Jurjani?",
+          "jawab": "Pada 'ibarah susunan lafal memang dimaksudkan untuk hukum itu, sedangkan pada isyarah tidak."
+        }
+      },
+      {
+        "judul": "Dilalah lafal karena peletakan bahasa terbagi tiga, menurut penulis",
+        "isi": "Dilalah lafzhiyyah wadh'iyyah adalah keadaan lafal yang, bila diucapkan atau dibayangkan, maknanya dipahami karena diketahui peletakannya. Ia terbagi tiga. Muthabaqah adalah penunjukan lafal pada seluruh makna yang diletakkan untuknya, tadhammun pada sebagian makna itu, dan iltizam pada makna yang melekat padanya di pikiran. Contohnya kata manusia: ia menunjuk hewan yang berpikir secara utuh dengan muthabaqah, sebagiannya dengan tadhammun, dan yang dapat menerima ilmu dengan iltizam.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000916, 80000917],
+        "soal": {
+          "tanya": "Dengan dilalah apa kata manusia menunjuk makna dapat menerima ilmu menurut contoh al-Jurjani?",
+          "jawab": "Kata manusia menunjuknya dengan dilalah iltizam."
+        }
+      },
+      {
+        "judul": "Daur dan dawaran adalah dua hubungan ketergantungan yang berbeda, menurut penulis",
+        "isi": "Daur adalah ketergantungan sesuatu pada hal yang bergantung kepadanya, baik langsung (daur musharrah) maupun melalui beberapa tingkat (daur mudhmar). Bedanya dengan mendefinisikan sesuatu dengan dirinya: daur musharrah menuntut sesuatu mendahului dirinya dua tingkat, sedangkan yang kedua satu tingkat. Dawaran adalah tersusunnya sesuatu atas hal yang layak menjadi sebabnya, dan ada tiga macam: bergantung pada adanya saja, seperti minum obat saqmuniya dan diare; pada tiadanya saja, seperti hidup dan ilmu; atau pada adanya dan tiadanya sekaligus.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000918, 80000919],
+        "soal": {
+          "tanya": "Mengapa hidup menjadi contoh dawaran yang hanya berlaku pada sisi tiadanya menurut al-Jurjani?",
+          "jawab": "Karena tanpa hidup tidak ada ilmu, tetapi adanya hidup tidak mengharuskan adanya ilmu."
+        }
+      },
+      {
+        "judul": "Din, millah, dan mazhab satu hakikat dengan tiga sudut pandang, menurut penulis",
+        "isi": "Din adalah ketetapan ilahi yang mengajak orang berakal menerima apa yang dibawa Rasulullah saw. Al-Jurjani menjelaskan bahwa din dan millah satu pada zatnya dan berbeda pada sudut pandang: syariat disebut din karena ditaati, millah karena dihimpun, dan mazhab karena dijadikan rujukan. Menurut pendapat lain, bedanya terletak pada sandarannya: din disandarkan kepada Allah, millah kepada Rasul, dan mazhab kepada mujtahid.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000921, 80000922, 80000923],
+        "soal": {
+          "tanya": "Menurut pendapat lain yang dinukil al-Jurjani, kepada siapa din, millah, dan mazhab masing-masing disandarkan?",
+          "jawab": "Din kepada Allah, millah kepada Rasul, dan mazhab kepada mujtahid."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 4,
+        "passage_id": 80000921,
+        "char_start": 9,
+        "char_end": 83,
+        "terjemahan": "Din adalah ketetapan ilahi yang mengajak orang-orang berakal untuk menerima apa yang ada pada Rasulullah saw."
+      }
+    ],
+    "istilah": []
+  }
+}

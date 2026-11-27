@@ -1,0 +1,179 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800025,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:16:51+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1623, p1636-p1637: dua makna lazim bayyin dan mana yang lebih umum, luzum dzihni dan khariji dengan contohnya sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1634, p1666, p1643: definisi ladzdzah, alasan batasan dengan contoh obat pahit, lahw dan la'ib sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1632, p1641-p1642, p1665: lubb, lathifah, lathifah insaniyyah dengan sebutan 'indahum, shadr dan fu'ad, lawami' sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1663-p1664: empat lauh berurutan dan Lauh Mahfuzh sebagai lauh qadar sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1650, p1645: dua pendapat sumpah laghw dan li'an sebagai pengganti dua hukuman sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p1660-p1661: laqith bahasa dan syariat dengan dua sebab, luqathah dan penjelasan wazannya sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "734cff43027f13c75204892379eecef7ab8533cc8023bbe1abe503b09912a907",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Dua makna lazim bayyin, makna lebih umum, luzum dzihni dan khariji sesuai."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Soal menyiratkan obat pahit mutlak tidak lezat, padahal p80001634 hanya menolak lezat dari sisi pahitnya dan menyebutnya lezat dari sisi manfaat."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Lubb, lathifah, lathifah insaniyyah ('indahum), shadr dan fu'ad, lawami' sesuai; kutipan p80001632 terjemahannya setia."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Empat lauh dan Lauh Mahfuzh = lauh qadar sesuai p80001663-64."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Laghw menurut Abu Hanifah dan asy-Syafi'i serta li'an sesuai."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Laqith, penyebab pembuangan, luqathah, dan wazan mubalaghah sesuai."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "98b13e627e63fda7c67985dce6da1b9cd476de2d45ab2123f9a08444754ea43f",
+      "draf_sha256": "734cff43027f13c75204892379eecef7ab8533cc8023bbe1abe503b09912a907",
+      "waktu": "2026-11-27T19:35:15.108Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam bab lam, al-Jurjani mendefinisikan lazim dan luzum dalam logika, kelezatan, istilah tasawuf seperti lubb dan lathifah, empat lauh, serta li'an, sumpah laghw, laqith, dan luqathah.",
+    "ringkasan": "Bab lam memuat 40 entri definisi; Intisari ini menyoroti sebagiannya. Al-Jurjani membedakan dua makna lazim bayyin dan dua jenis luzum dalam logika. Ia mendefinisikan kelezatan beserta alasan batasannya, lalu lahw dan la'ib. Dalam istilah tasawuf ia menjelaskan lubb, lathifah, lathifah insaniyyah, lisan al-haqq, dan lawami'. Ia menguraikan empat lauh dari lauh qadha sampai lauh hayula. Di bidang fikih ia mendefinisikan li'an, menukil perbedaan Abu Hanifah dan asy-Syafi'i tentang sumpah laghw, lalu laqith dan luqathah. Bab ini juga memuat istilah nahwu, saraf, balaghah, dan sebuah golongan.",
+    "gagasan": [
+      {
+        "judul": "Lazim bayyin punya makna umum dan makna khusus, menurut penulis",
+        "isi": "Al-Jurjani menjelaskan bahwa lazim bayyin adalah yang cukup dibayangkan bersama yang melazimkannya agar akal memastikan keterkaitan keduanya, seperti terbaginya empat menjadi dua bagian sama. Kadang ia juga dipakai untuk lazim yang terbayang begitu yang melazimkannya dibayangkan, seperti dua adalah kelipatan satu. Makna pertama lebih umum dan disebut lazim bayyin bil-ma'na al-a'amm, sedangkan makna kedua lazim bayyin bil-ma'na al-akhash. Luzum dzihni membuat pikiran berpindah dari yang satu ke yang lain, sedangkan luzum khariji tidak harus demikian, seperti siang dengan terbitnya matahari.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001623, 80001636, 80001637],
+        "soal": {
+          "tanya": "Mana yang lebih umum di antara dua makna lazim bayyin menurut al-Jurjani?",
+          "jawab": "Makna pertama, yaitu cukup membayangkan lazim bersama yang melazimkannya."
+        }
+      },
+      {
+        "judul": "Kelezatan adalah merasakan yang cocok dari sisi kecocokannya, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan kelezatan (ladzdzah) sebagai mengetahui yang cocok dari sisi kecocokannya, seperti rasa manis bagi indra pengecap dan cahaya bagi mata. Batasan 'dari sisi kecocokannya' mengeluarkan obat pahit yang bermanfaat: ia cocok dari sisi manfaatnya, tetapi tidak lezat dari sisi pahitnya. Lahw adalah sesuatu yang dinikmati manusia sehingga melalaikannya lalu berlalu, dan la'ib adalah perbuatan anak-anak yang menyisakan lelah tanpa faedah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001634, 80001666, 80001643],
+        "soal": {
+          "tanya": "Mengapa obat pahit yang bermanfaat tidak disebut lezat menurut definisi al-Jurjani?",
+          "jawab": "Karena ia cocok dari sisi manfaatnya, bukan dari sisi pahitnya, sedangkan kelezatan menuntut kecocokan dari sisi itu."
+        }
+      },
+      {
+        "judul": "Lathifah insaniyyah adalah jiwa rasional yang disebut hati, menurut kalangan yang dinukil penulis",
+        "isi": "Lubb adalah akal yang diterangi cahaya kesucian dan bersih dari kulit waham dan khayalan. Lathifah adalah setiap isyarat halus yang tampak bagi pemahaman tetapi tidak tertampung oleh ungkapan, seperti ilmu-ilmu dzauq. Lathifah insaniyyah adalah jiwa rasional yang menurut mereka disebut qalb; sisi yang dekat dengan nafs disebut shadr dan sisi yang dekat dengan ruh disebut fu'ad. Lawami' adalah cahaya yang berkilau bagi para pemula yang jiwanya lemah.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001632, 80001641, 80001642, 80001665],
+        "soal": {
+          "tanya": "Apa nama dua sisi lathifah insaniyyah menurut istilah yang dinukil al-Jurjani?",
+          "jawab": "Sisi yang dekat dengan nafs disebut shadr, dan sisi yang dekat dengan ruh disebut fu'ad."
+        }
+      },
+      {
+        "judul": "Lauh ada empat, dari lauh qadha sampai lauh hayula, menurut penulis",
+        "isi": "Al-Jurjani menyebut lauh sebagai kitab yang nyata dan jiwa universal, lalu membaginya menjadi empat. Pertama, lauh qadha yang mendahului penghapusan dan penetapan, yaitu lauh akal pertama. Kedua, lauh qadar, yaitu lauh jiwa rasional universal tempat dirinci kulliyat lauh pertama, dan itulah Lauh Mahfuzh. Ketiga, lauh jiwa parsial langit tempat terukir segala yang ada di alam ini dengan bentuk dan ukurannya. Keempat, lauh hayula yang menerima bentuk-bentuk di alam syahadah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001663, 80001664],
+        "soal": {
+          "tanya": "Lauh mana yang disebut Lauh Mahfuzh dalam pembagian al-Jurjani?",
+          "jawab": "Lauh qadar, yaitu lauh jiwa rasional universal tempat dirinci kulliyat lauh pertama."
+        }
+      },
+      {
+        "judul": "Sumpah laghw dipahami berbeda oleh Abu Hanifah dan asy-Syafi'i, menurut nukilan penulis",
+        "isi": "Menurut Abu Hanifah, sumpah laghw adalah bersumpah atas sesuatu yang ia kira memang begitu, padahal kenyataannya tidak seperti yang ia kira. Menurut asy-Syafi'i, sumpah laghw adalah sumpah yang tidak diikat hati, seperti ucapan 'tidak, demi Allah' dan 'ya, demi Allah'. Al-Jurjani juga mendefinisikan li'an sebagai kesaksian yang dikuatkan dengan sumpah dan disertai laknat, yang menggantikan hukuman qadzaf bagi suami dan hukuman zina bagi istri.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001650, 80001645],
+        "soal": {
+          "tanya": "Apa sumpah laghw menurut asy-Syafi'i dalam nukilan al-Jurjani?",
+          "jawab": "Sumpah yang tidak diikat hati, seperti ucapan 'tidak, demi Allah' dan 'ya, demi Allah'."
+        }
+      },
+      {
+        "judul": "Laqith adalah anak yang dibuang, dan luqathah harta tanpa pemilik dikenal, menurut penulis",
+        "isi": "Menurut bahasa, laqith berarti yang dipungut dari tanah; menurut syariat ia adalah nama bagi anak kecil yang dibuang ke tanah karena takut miskin atau lari dari tuduhan zina. Luqathah adalah harta yang ditemukan di tanah dan tidak diketahui pemiliknya. Al-Jurjani menjelaskan bahwa wazannya menunjukkan makna pelaku secara mubalaghah: karena harta itu diinginkan, ia disebut seolah-olah 'pemungut' secara majaz, sebab ia menjadi sebab orang yang melihatnya memungutnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001660, 80001661],
+        "soal": {
+          "tanya": "Karena apa saja seorang anak dibuang dalam definisi laqith menurut al-Jurjani?",
+          "jawab": "Karena takut miskin atau lari dari tuduhan zina."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 80001632,
+        "char_start": 6,
+        "char_end": 66,
+        "terjemahan": "Akal yang diterangi cahaya kesucian, yang bersih dari kulit-kulit waham dan khayalan."
+      }
+    ],
+    "istilah": []
+  }
+}

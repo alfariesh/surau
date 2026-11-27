@@ -1,0 +1,137 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800011,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:09:11+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p929: dzimmah secara bahasa, dua pendapat (minhum man: sifat, zat) dan kesepakatan seluruh fuqaha sesuai; sikap reported."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p931, p930: dzauq indrawi dan dzauq ma'rifah, serta definisi dosa sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p933-p937: tiga pandangan, qurb an-nawafil dan qurb al-fara'idh pada sisi yang benar, nukilan bait Ibnu 'Arabi sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p938-p939, p927: dua definisi dzihn, dzati, beda dzat dan syakhsh sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "66ffd9a389855de02b0393791e561b9c836afb56166708cb5593f3ee17f8bdd5",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Dua pendapat fuqaha (sifat atau zat), arti bahasa, dan klaim semua fuqaha tentang kelahiran manusia sesuai p929."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Definisi dzauq indrawi dan ma'rifah serta dosa sesuai p931 dan p930."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Tiga pandangan, istilah qurb an-nawafil dan qurb al-fara'idh, serta dua bait Ibnu 'Arabi sesuai p933-p937."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Dua definisi dzihn, dzati, dan beda dzat-syakhsh sesuai p938, p939, p927; kutipan p939 diterjemahkan setia."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "7e1e7aca5e14901487c4b0c48eb22af841903540255b7a73ac31a6fba1b0a14a",
+      "draf_sha256": "66ffd9a389855de02b0393791e561b9c836afb56166708cb5593f3ee17f8bdd5",
+      "waktu": "2026-11-27T19:33:40.781Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani dalam bab dzal, istilah seperti dzimmah, dzauq, dzihn, dan tiga tingkat pandangan dzu al-'aql dan dzu al-'ain punya makna khusus dalam fikih dan tasawuf.",
+    "ringkasan": "Bab dzal adalah bab pendek yang memuat 11 entri definisi; Intisari ini menyoroti sebagian besarnya. Al-Jurjani menjelaskan dzimmah menurut bahasa dan dua cara fuqaha mendefinisikannya. Ia menerangkan dzauq sebagai indra perasa sekaligus cahaya ma'rifah di hati para wali, dan dosa sebagai penghalang dari Allah. Ia membedakan dzu al-'aql, dzu al-'ain, dan yang memiliki keduanya, dengan bait Ibnu 'Arabi sebagai penguat. Bab ini juga mendefinisikan dzati dan dzihn.",
+    "gagasan": [
+      {
+        "judul": "Sebagian fuqaha menjadikan dzimmah sifat, sebagian lain menjadikannya zat",
+        "isi": "Dzimmah secara bahasa berarti janji, karena melanggarnya mendatangkan celaan. Al-Jurjani menukil bahwa sebagian ulama menjadikannya sifat, sehingga mendefinisikannya sebagai sifat yang menjadikan seseorang layak menerima hak dan memikul kewajiban. Sebagian lain menjadikannya zat, yaitu jiwa yang memiliki janji. Menurut seluruh fuqaha, manusia lahir dengan dzimmah yang layak untuk hak dan kewajiban, berbeda dari hewan-hewan lain.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000929],
+        "soal": {
+          "tanya": "Apa yang membedakan manusia dari hewan lain dalam hal dzimmah menurut fuqaha yang dinukil al-Jurjani?",
+          "jawab": "Manusia lahir dengan dzimmah yang layak untuk menerima hak dan memikul kewajiban."
+        }
+      },
+      {
+        "judul": "Dzauq dalam ma'rifah adalah cahaya dari al-Haqq di hati para wali, menurut penulis",
+        "isi": "Dzauq secara indrawi adalah daya yang tersebar pada saraf di lidah untuk mengenali rasa makanan. Dalam ma'rifah kepada Allah, dzauq adalah cahaya pengenalan yang dilemparkan al-Haqq melalui tajalli-Nya ke hati para wali-Nya, yang dengannya mereka membedakan yang benar dari yang batil tanpa menukilnya dari kitab atau sumber lain. Dalam bab yang sama, dosa didefinisikan sebagai segala yang menghalangi dari Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000931, 80000930],
+        "soal": {
+          "tanya": "Apa yang dapat dibedakan para wali dengan dzauq menurut definisi al-Jurjani?",
+          "jawab": "Yang benar dari yang batil, tanpa menukilnya dari kitab atau sumber lain."
+        }
+      },
+      {
+        "judul": "Tiga pandangan dzu al-'aql, dzu al-'ain, dan pemilik keduanya, menurut penulis",
+        "isi": "Dzu al-'aql melihat makhluk secara lahir dan al-Haqq secara batin, sehingga al-Haqq baginya cermin makhluk. Dzu al-'ain melihat al-Haqq secara lahir dan makhluk secara batin, sehingga makhluk menjadi cermin al-Haqq. Pemilik akal dan mata sekaligus melihat al-Haqq dalam makhluk dan makhluk dalam al-Haqq tanpa terhalang oleh salah satunya. Melihat al-Haqq dalam makhluk ia sebut qurb an-nawafil, dan melihat makhluk dalam al-Haqq qurb al-fara'idh. Ia lalu menukil dua bait Muhyiddin Ibnu 'Arabi tentang tiga tingkat ini.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000933, 80000934, 80000935, 80000936, 80000937],
+        "soal": {
+          "tanya": "Bagi siapa makhluk menjadi cermin al-Haqq menurut definisi al-Jurjani?",
+          "jawab": "Bagi dzu al-'ain, yang melihat al-Haqq secara lahir dan makhluk secara batin."
+        }
+      },
+      {
+        "judul": "Dzihn adalah daya jiwa untuk memperoleh ilmu, menurut penulis",
+        "isi": "Dzihn didefinisikan sebagai daya jiwa yang mencakup indra lahir dan batin dan disiapkan untuk memperoleh ilmu, atau kesiapan penuh untuk memahami ilmu dan pengetahuan dengan berpikir. Dzati bagi setiap sesuatu adalah yang khusus baginya dan membedakannya dari selainnya. Al-Jurjani juga membedakan dzat dan syakhsh: dzat lebih umum karena dipakai untuk jism dan selainnya, sedangkan syakhsh hanya untuk jism.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000938, 80000939, 80000927],
+        "soal": {
+          "tanya": "Mengapa dzat lebih umum daripada syakhsh menurut al-Jurjani?",
+          "jawab": "Karena dzat dipakai untuk jism dan selainnya, sedangkan syakhsh hanya untuk jism."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 4,
+        "passage_id": 80000939,
+        "char_start": 7,
+        "char_end": 55,
+        "terjemahan": "Dzihn adalah kesiapan penuh untuk memahami ilmu dan pengetahuan dengan berpikir."
+      }
+    ],
+    "istilah": []
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800004,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:02:41+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p355-p357, p407-p408: tiga definisi batil, jual beli syar'i, batil vs fasid (asal dan sifat) dan catatan asy-Syafi'i sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p367-p368: dua definisi bid'ah dan alasan penamaan sesuai, tanpa tambahan."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p370-p373: badihi (umum = dharuri, khusus dengan contoh p371), burhan, limmi dan inni dengan contoh demam sesuai; dirapikan sesudah dibaca ulang."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p398-p403: lima bayan dan contoh diamnya tuan sesuai; ayat di p399-p400 tidak disinggung."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p393-p395: balaghah pembicara dan perkataan, setiap balig fasih tetapi tidak sebaliknya, dan wa qila sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "c0eb0fd7718fa8c8d6da9b883aa2cf92a31a74cb75a0221afd78ee51270bd489",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi batil, jual beli, batil versus fasid dan catatan asy-Syafi'i sesuai p355-p357, p407-p408."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Dua definisi bid'ah dan alasan penamaan sesuai p367-p368."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Badihi, burhan, limmi dan inni beserta contoh demam sesuai p370-p372."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Lima bayan, contoh diamnya tuan, dan kutipan naskh (p403, rentang 14-59) terjemahannya setia."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Balaghah pembicara dan perkataan, kesimpulan balig pasti fasih, dan definisi wa qila sesuai p393-p395."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "79015939fa96ce90e11a201aa8d04d6aebe4e51e0e18b41d519c355d3db4bebb",
+      "draf_sha256": "c0eb0fd7718fa8c8d6da9b883aa2cf92a31a74cb75a0221afd78ee51270bd489",
+      "waktu": "2026-11-27T19:33:40.773Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani dalam bab ba, istilah seperti batil, bid'ah, burhan, bayan, dan balaghah masing-masing punya batasan yang membedakannya dari istilah yang berdekatan.",
+    "ringkasan": "Bab ba memuat 59 entri definisi, dari nama-nama aliran, istilah tasawuf, logika, ushul, balaghah, sampai jual beli dalam fikih. Intisari ini menyoroti sebagian yang paling banyak dipakai lintas ilmu. Pertama, perbedaan batil dan fasid dalam akad jual beli. Kedua, dua definisi bid'ah. Ketiga, badihi dan burhan beserta pembagian burhan limmi dan inni. Keempat, lima macam bayan dalam ushul fikih, termasuk naskh. Kelima, balaghah pada pembicara dan pada perkataan, serta hubungannya dengan fashahah.",
+    "gagasan": [
+      {
+        "judul": "Batil rusak pada asalnya dan fasid hanya pada sifatnya, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan batil sebagai yang tidak sah pada asalnya, yang tidak dianggap dan tidak berguna, atau yang hilang maknanya sama sekali walau bentuknya ada, misalnya menjual orang merdeka. Jual beli secara syariat adalah pertukaran harta bernilai dengan harta bernilai sebagai pemindahan milik. Ia menjelaskan bahwa jual beli barang yang bukan harta, seperti khamar dan babi, batil, sedangkan fasid adalah yang sah pada asalnya tetapi tidak pada sifatnya. Ia mencatat bahwa menurut asy-Syafi'i tidak ada beda antara fasid dan batil.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000355, 80000356, 80000357, 80000407, 80000408],
+        "soal": {
+          "tanya": "Apa beda batil dan fasid menurut al-Jurjani, dan bagaimana pendapat asy-Syafi'i yang ia catat?",
+          "jawab": "Batil tidak sah pada asalnya, fasid sah pada asalnya tetapi tidak pada sifatnya; menurut asy-Syafi'i keduanya tidak berbeda."
+        }
+      },
+      {
+        "judul": "Bid'ah adalah perbuatan baru yang menyelisihi sunah, menurut dua definisi penulis",
+        "isi": "Bid'ah didefinisikan sebagai perbuatan yang menyelisihi sunah; dinamai begitu karena pelakunya mengada-adakannya tanpa perkataan seorang imam. Definisi kedua lebih rinci: perkara baru yang tidak dijalani para sahabat dan tabi'in, dan tidak pula dituntut oleh dalil syariat. Jadi definisi kedua memuat dua batasan sekaligus, yaitu tidak dikenal pada generasi awal dan tidak didukung dalil.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000367, 80000368],
+        "soal": {
+          "tanya": "Apa dua batasan bid'ah dalam definisi kedua yang disebut al-Jurjani?",
+          "jawab": "Tidak dijalani para sahabat dan tabi'in, dan tidak dituntut oleh dalil syariat."
+        }
+      },
+      {
+        "judul": "Burhan adalah qiyas yang tersusun dari premis-premis yakin, menurut penulis",
+        "isi": "Badihi adalah pengetahuan yang tidak bergantung pada penalaran, sehingga semakna dengan dharuri; kadang ia dimaksudkan lebih khusus, seperti membenarkan bahwa penafian dan penetapan tidak berkumpul dan tidak sama-sama hilang. Burhan adalah qiyas yang tersusun dari premis-premis yakin. Bila term tengahnya menjadi sebab hubungan di pikiran dan juga di kenyataan, itu burhan limmi; bila hanya di pikiran, itu burhan inni. Contohnya: rusaknya campuran tubuh menyebabkan demam di pikiran dan kenyataan, sedangkan demam hanya menjadi sebab di pikiran bagi penetapan kerusakan itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000370, 80000371, 80000372, 80000373],
+        "soal": {
+          "tanya": "Apa yang membedakan burhan limmi dari burhan inni dalam penjelasan al-Jurjani?",
+          "jawab": "Pada burhan limmi term tengah menjadi sebab di pikiran dan kenyataan; pada burhan inni hanya di pikiran."
+        }
+      },
+      {
+        "judul": "Bayan terbagi lima, dari taqrir sampai tabdil, menurut penulis",
+        "isi": "Bayan adalah menampakkan maksud pembicara kepada pendengar, dan menurut hubungannya ada lima. Bayan taqrir menguatkan perkataan sehingga tidak mengandung kemungkinan majaz dan pengkhususan. Bayan tafsir menjelaskan yang samar, seperti lafal musytarak, musykil, atau mujmal. Bayan taghyir mengubah ketentuan perkataan, seperti syarat, pengecualian, dan pengkhususan. Bayan dharurah terjadi dengan diam, seperti tuan yang diam melihat budaknya berdagang sehingga dianggap mengizinkan. Bayan tabdil adalah naskh, yaitu penghapusan hukum syariat dengan dalil syariat yang datang kemudian.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000398, 80000399, 80000400, 80000401, 80000402, 80000403],
+        "soal": {
+          "tanya": "Mengapa diamnya seorang tuan yang melihat budaknya berdagang dianggap izin menurut contoh al-Jurjani?",
+          "jawab": "Supaya orang yang bermuamalah dengan budak itu tidak tertipu, sebab mereka menyimpulkan izin dari diamnya."
+        }
+      },
+      {
+        "judul": "Setiap yang balig pasti fasih, tetapi tidak sebaliknya, menurut penulis",
+        "isi": "Balaghah pada pembicara adalah kemampuan yang menjadikannya sanggup menyusun perkataan yang balig. Balaghah pada perkataan adalah kesesuaiannya dengan tuntutan keadaan, disertai kefasihannya; yang dimaksud keadaan adalah hal yang mendorong orang berbicara dengan cara tertentu. Karena fashahah termasuk dalam definisi balaghah, al-Jurjani menyimpulkan bahwa setiap yang balig, baik perkataan maupun pembicara, pasti fasih, tetapi tidak setiap yang fasih itu balig. Menurut definisi lain, balaghah disifatkan pada perkataan dan pembicara saja, bukan pada kata tunggal.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000393, 80000394, 80000395],
+        "soal": {
+          "tanya": "Mengapa al-Jurjani menyimpulkan bahwa setiap yang balig pasti fasih?",
+          "jawab": "Karena fashahah termasuk dalam definisi balaghah."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 4,
+        "passage_id": 80000403,
+        "char_start": 14,
+        "char_end": 59,
+        "terjemahan": "Yaitu naskh, dan naskh adalah penghapusan suatu hukum syariat dengan dalil syariat yang datang kemudian."
+      }
+    ],
+    "istilah": []
+  }
+}

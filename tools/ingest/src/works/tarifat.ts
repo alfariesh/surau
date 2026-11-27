@@ -34,6 +34,7 @@ export const TARIFAT: WorkConfig = {
     titles: 31,
     matanMinPages: 257,
     llmCoverage: 0,
+    minDigests: 29,
   },
   // Halaman cetak 7 (awal bab alif, 11 paragraf badan); kata pencarian mengenai 15 paragraf badan.
   smoke: { juz: 1, page: 7, search: "الابتداء", footnotes: false },

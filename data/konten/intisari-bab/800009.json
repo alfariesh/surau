@@ -1,0 +1,179 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800009,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:07:25+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p889: khuluq hai'ah rasikhah, hasan dan sayyi', alasan rasikhah, bukan perbuatan dengan dua contoh sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p848: definisi khathir dan empat macamnya (rabbani, malaki/ilham, nafsani/hajis, syaithani) sesuai; ayat di p849 tidak dipakai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p872-p873, p895: khasyyah dua sebab, khasyyah nabi, khusyu' menurut ahli hakikat dan dua wa qila, khauf sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p882-p883: syarat ijtihad hanya pada gugurnya hak Allah (dirapikan), tidak dosa, tanpa had/qishash, tetap dhaman dan diyat, contoh sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p898-p901: empat khiyar, tiga hari atau kurang, contoh dua kain seharga sepuluh sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p844, p846, p875: khashshah dengan batasan fakat dan 'aradhi, contoh katib bil-quwwah/bil-fi'l, lafal khash dan alasan qayd infirad sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "05adc230fd7a49507ee345c8704a7be762e13305214983ced26de6c3ddb594a9",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi khuluq, alasan tertanam, dan contoh bukan perbuatan sesuai p889."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Empat macam khathir sesuai p848, tetapi dasar tidak memuat p849 yang melengkapi khathir syaithani (penyelisihan terhadap al-Haqq)."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Khasyyah, khusyu' dan khauf sesuai p872, p873, p895; terjemahan kutipan p895 setia."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Khatha', uzur hak Allah, tanggungan hak hamba dan contoh sesuai p882-p883."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Empat khiyar dan contohnya sesuai p898-p901."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Khashshah dan lafal khash beserta batasannya sesuai p844, p846, p875."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "af0892c732203fabafd8461cab63c36a6ecd581685e7473ed7c86e36498873da",
+      "draf_sha256": "05adc230fd7a49507ee345c8704a7be762e13305214983ced26de6c3ddb594a9",
+      "waktu": "2026-11-27T19:33:40.778Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani dalam bab kha, istilah seperti khuluq, khathir, khasyyah, khatha', khiyar, dan khashshah dibatasi dengan rinci dari akhlak, tasawuf, fikih, dan logika.",
+    "ringkasan": "Bab kha memuat 56 entri definisi dari logika, ushul, nahwu, 'arudh, fikih, aliran, dan tasawuf. Intisari ini menyoroti sebagian yang paling banyak dipakai lintas ilmu. Al-Jurjani mendefinisikan khuluq sebagai sifat jiwa yang tertanam, membagi khathir (lintasan hati) menjadi empat, dan membedakan khasyyah, khusyu', serta khauf. Dalam fikih ia menjelaskan khatha' (kekeliruan tanpa sengaja) beserta akibatnya dan empat macam khiyar dalam jual beli. Dalam logika dan ushul ia mendefinisikan khashshah dan lafal khash.",
+    "gagasan": [
+      {
+        "judul": "Khuluq adalah sifat jiwa yang tertanam, bukan perbuatan, menurut penulis",
+        "isi": "Khuluq adalah keadaan jiwa yang tertanam kuat, yang darinya perbuatan muncul dengan mudah tanpa perlu dipikirkan. Bila yang muncul perbuatan indah menurut akal dan syariat, disebut khuluq hasan; bila buruk, khuluq sayyi'. Disebut tertanam karena orang yang sesekali memberi harta karena keadaan sesaat tidak disebut berakhlak dermawan. Khuluq juga bukan perbuatan itu sendiri: bisa jadi seseorang berakhlak dermawan tetapi tidak memberi karena tidak punya harta, atau berakhlak kikir tetapi memberi karena riya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000889],
+        "soal": {
+          "tanya": "Mengapa orang yang sesekali memberi harta karena keadaan sesaat tidak disebut berakhlak dermawan menurut al-Jurjani?",
+          "jawab": "Karena khuluq adalah keadaan jiwa yang tertanam, bukan perbuatan yang muncul sesekali."
+        }
+      },
+      {
+        "judul": "Khathir yang berupa seruan terbagi empat macam, menurut penulis",
+        "isi": "Khathir adalah seruan yang datang ke hati, atau sesuatu yang datang tanpa andil hamba. Yang berupa seruan ada empat. Rabbani adalah lintasan pertama, tidak pernah keliru, dan kadang dikenali dari kekuatan dan dominasinya serta tidak bisa ditolak. Malaki mendorong kepada yang sunah atau wajib dan disebut ilham. Nafsani mengandung bagian hawa nafsu dan disebut hajis. Syaithani mengajak kepada penyelisihan terhadap al-Haqq.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000848],
+        "soal": {
+          "tanya": "Apa nama lain khathir malaki dan khathir nafsani menurut al-Jurjani?",
+          "jawab": "Khathir malaki disebut ilham, dan khathir nafsani disebut hajis."
+        }
+      },
+      {
+        "judul": "Khasyyah, khusyu', dan khauf dibedakan menurut penulis dan ahli hakikat",
+        "isi": "Khasyyah adalah rasa sakit hati karena menduga sesuatu yang tidak disukai akan terjadi, kadang karena banyaknya dosa hamba, kadang karena mengenal keagungan dan kewibawaan Allah; khasyyah para nabi termasuk jenis kedua. Khusyu', khudhu', dan tawadhu' semakna; dalam istilah ahli hakikat, khusyu' adalah tunduk kepada al-Haqq, atau menurut pendapat lain rasa takut yang terus-menerus di hati; pendapat lain lagi menyebut salah satu tandanya adalah menerima saat marah, diselisihi, atau ditolak. Khauf adalah menduga datangnya yang tidak disukai atau hilangnya yang disukai.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000872, 80000873, 80000895],
+        "soal": {
+          "tanya": "Dari dua sebab khasyyah yang disebut al-Jurjani, sebab manakah yang menjadi jenis khasyyah para nabi?",
+          "jawab": "Mengenal keagungan dan kewibawaan Allah, bukan banyaknya dosa."
+        }
+      },
+      {
+        "judul": "Khatha' menggugurkan hak Allah tetapi tidak hak sesama hamba, menurut penulis",
+        "isi": "Khatha' adalah perbuatan yang tidak disengaja oleh manusia. Ia menjadi uzur yang menggugurkan hak Allah bila terjadi karena ijtihad, dan menjadi syubhat dalam hukuman, sehingga pelakunya tidak berdosa dan tidak dikenai had maupun qishash. Namun ia tidak dijadikan uzur dalam hak sesama hamba, sehingga pelakunya wajib menanggung ganti rugi dan diyat. Contohnya memanah orang yang dikira buruan atau musuh perang ternyata muslim, atau orang tidur yang berguling menimpa orang lain hingga mati.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000882, 80000883],
+        "soal": {
+          "tanya": "Mengapa pelaku khatha' tetap menanggung diyat walau tidak berdosa menurut al-Jurjani?",
+          "jawab": "Karena khatha' tidak dijadikan uzur dalam hak sesama hamba."
+        }
+      },
+      {
+        "judul": "Fikih jual beli mengenal empat khiyar, menurut definisi penulis",
+        "isi": "Al-Jurjani mendefinisikan empat macam khiyar dalam jual beli. Khiyar syarat adalah salah satu pihak akad mensyaratkan hak memilih selama tiga hari atau kurang. Khiyar ru'yah adalah membeli barang yang belum dilihat dan boleh mengembalikannya dengan hak pilihnya. Khiyar ta'yin adalah membeli salah satu dari dua kain seharga sepuluh dengan hak menentukan mana yang dikehendaki. Khiyar 'aib adalah memilih mengembalikan barang kepada penjual karena cacat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000898, 80000899, 80000900, 80000901],
+        "soal": {
+          "tanya": "Berapa lama batas hak memilih dalam khiyar syarat menurut definisi al-Jurjani?",
+          "jawab": "Tiga hari atau kurang."
+        }
+      },
+      {
+        "judul": "Khashshah hanya dikatakan pada satu hakikat secara aksidental, menurut definisi penulis",
+        "isi": "Khashshah adalah konsep universal yang dikatakan hanya pada individu-individu satu hakikat, secara aksidental, baik ada pada semua individunya, seperti dapat menulis bagi manusia, maupun pada sebagiannya, seperti sedang menulis. Kata hanya mengeluarkan jins dan 'aradh umum, sedangkan secara aksidental mengeluarkan nau' dan fashl yang bersifat esensial. Adapun lafal khash adalah setiap lafal yang dibuat untuk satu makna tertentu secara tersendiri; batasan tersendiri itu membedakannya dari lafal musytarak.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000844, 80000846, 80000875],
+        "soal": {
+          "tanya": "Mengapa al-Jurjani memberi batasan tersendiri dalam definisi lafal khash?",
+          "jawab": "Supaya lafal khash dibedakan dari lafal musytarak."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 80000895,
+        "char_start": 7,
+        "char_end": 37,
+        "terjemahan": "Khauf adalah menduga datangnya sesuatu yang tidak disukai atau hilangnya sesuatu yang dicintai."
+      }
+    ],
+    "istilah": []
+  }
+}

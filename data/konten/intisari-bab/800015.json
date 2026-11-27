@@ -1,0 +1,200 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800015,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:07:54+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1093, p1097, p1082-1084: syar', syariat dengan wa qila, syarat dan dua definisi nukilan, syarat bahasa tanda; tesis judul adalah definisi wa qila sehingga reported."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1074-1075, p1086: syubhat, syubhat dalam perbuatan, syirkah asal dan perluasan ke akad; sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1107-1109: syukur, wa qila, lughawi, 'urfi, hubungan umum-khusus mutlak, tidak beda dengan hamd 'urfi; sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1112: syakk, wa qila, zhann, ghalib azh-zhann seperti yakin; sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1120: syahadah dan tiga macam kabar; sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p1098, p1081: syath tanpa izin Ilahi, syaja'ah antara nekat dan pengecut; contoh berperang tidak dimuat."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p1127: syai' menurut Sibawaih, wa qila wujud, dan istilah; sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "4743ad3323ebb8c1f291e0c67ee39fbaddf694a5dbf371e78a369cd53515c825",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi syar', syariat, dan syarat termasuk definisi yang dinukil (tiga ciri) serta arti bahasa sesuai p1093, p1097, p1082-p1084."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Definisi syubhat, syubhat fi al-fi'l, dan syirkah sesuai (kutipan p1074 setia), tetapi klaim macam syirkah milik dan akad bersumber dari p1087-p1088 yang tidak ada di dasar."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Definisi syukur, syukur lughawi dan 'urfi, hubungan umum-khusus mutlak, dan kesamaan dengan hamd 'urfi sesuai p1107-p1109."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Bagian zhann dan ghalib azh-zhann di p1112 merupakan kelanjutan nukilan \"wa qila\", tetapi draf menisbahkannya kepada penulis (sikap author, judul \"menurut penulis\")."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Definisi syahadah dan tiga jenis kabar (syahadah, dakwaan, ikrar) sesuai p1120."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Syath sebagai ucapan yang termasuk ketergelinciran muhaqqiq dan syaja'ah sebagai posisi tengah sesuai p1098 dan p1081."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Definisi syai' menurut Sibawaih, pendapat wujud, dan istilah sesuai p1127."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "415713d3f7e6380e745e54220e5b8090a7e1aa054b6cab280f6abf1210f5462f",
+      "draf_sha256": "4743ad3323ebb8c1f291e0c67ee39fbaddf694a5dbf371e78a369cd53515c825",
+      "waktu": "2026-11-27T19:08:42.993Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Bab syin at-Ta'rifat, menurut susunan al-Jurjani, memuat definisi syar', syariat, dan syarat, syubhat dan syirkah, syukur, syakk, syahadah, serta istilah syath dan syaja'ah.",
+    "ringkasan": "Bab huruf syin memuat 55 entri definisi, dan Intisari ini menyoroti sebagian di antaranya. Al-Jurjani menjelaskan arti syar' dan syariat, lalu beberapa definisi syarat. Dari fikih ia mendefinisikan syubhat, syubhat dalam perbuatan, dan syirkah. Ia membedakan syukur lughawi dari syukur 'urfi beserta hubungannya dengan hamd. Dari logika dan ushul ia menjelaskan syakk, zhann, dan syahadah yang dibedakan dari dakwaan dan ikrar. Bab ini juga memuat syath dalam istilah ahli makrifat dan syaja'ah sebagai sifat tengah, serta definisi syai'.",
+    "gagasan": [
+      {
+        "judul": "Syarat berada di luar hakikat sesuatu dan tidak memengaruhi wujudnya, menurut sebagian ulama",
+        "isi": "Al-Jurjani mendefinisikan syar' secara bahasa sebagai penjelasan dan penampakan, dan syariat sebagai menaati perintah dengan berpegang pada penghambaan, atau menurut pendapat lain jalan dalam agama. Syarat ia definisikan sebagai menggantungkan sesuatu pada sesuatu lain sehingga bila yang pertama ada, yang kedua ada. Ia menukil definisi lain: syarat adalah sesuatu yang menjadi tempat bergantung adanya sesuatu, berada di luar hakikatnya, dan tidak memengaruhi wujudnya. Secara bahasa syarat berarti tanda.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001093, 80001097, 80001082, 80001083, 80001084],
+        "soal": {
+          "tanya": "Tiga ciri apa yang disebut dalam salah satu definisi syarat yang dinukil al-Jurjani?",
+          "jawab": "Menjadi tempat bergantung adanya sesuatu, berada di luar hakikatnya, dan tidak memengaruhi wujudnya."
+        }
+      },
+      {
+        "judul": "Syubhat adalah apa yang belum pasti halal atau haramnya, menurut penulis",
+        "isi": "Menurut al-Jurjani, syubhat adalah sesuatu yang belum diyakini apakah haram atau halal. Syubhat dalam perbuatan adalah apa yang ditetapkan karena menyangka sesuatu yang bukan dalil sebagai dalil. Syirkah pada asalnya adalah bercampurnya dua bagian atau lebih sehingga tidak bisa dibedakan, kemudian nama syirkah dipakai juga untuk akadnya walaupun bagian-bagian itu tidak bercampur. Sesudah itu ia merinci beberapa macam syirkah, seperti syirkah milik dan syirkah akad.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001074, 80001075, 80001086],
+        "soal": {
+          "tanya": "Bagaimana al-Jurjani mendefinisikan syubhat dalam perbuatan?",
+          "jawab": "Apa yang ditetapkan karena menyangka sesuatu yang bukan dalil sebagai dalil."
+        }
+      },
+      {
+        "judul": "Syukur 'urfi adalah memakai semua nikmat untuk tujuan penciptaannya, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan syukur sebagai kebaikan yang membalas nikmat, baik dengan lisan, tangan, maupun hati; menurut pendapat lain, syukur adalah memuji orang yang berbuat baik dengan menyebut kebaikannya. Syukur lughawi adalah menyifati dengan keindahan sebagai pengagungan atas nikmat dengan lisan, hati, dan anggota badan. Syukur 'urfi adalah hamba memakai semua nikmat Allah, seperti pendengaran dan penglihatan, untuk tujuan ia diciptakan. Di antara keduanya ada hubungan umum dan khusus mutlak, dan menurutnya syukur lughawi tidak berbeda dengan hamd 'urfi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001107, 80001108, 80001109],
+        "soal": {
+          "tanya": "Istilah apa yang menurut al-Jurjani tidak berbeda dengan syukur lughawi?",
+          "jawab": "Syukur lughawi tidak berbeda dengan hamd 'urfi."
+        }
+      },
+      {
+        "judul": "Syakk berubah menjadi zhann bila salah satu sisi lebih kuat, menurut penulis",
+        "isi": "Menurut al-Jurjani, syakk adalah keraguan di antara dua hal yang berlawanan tanpa menguatkan salah satunya menurut orang yang ragu. Ia menukil pendapat lain: syakk adalah apa yang kedua sisinya sama, yaitu berhenti di antara dua hal tanpa hati condong ke salah satunya. Bila salah satu sisi lebih kuat, itu zhann; bila sisi yang lain dibuang, itu ghalib azh-zhann, yang kedudukannya seperti yakin.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001112],
+        "soal": {
+          "tanya": "Apa nama keadaan ketika salah satu sisi keraguan lebih kuat menurut al-Jurjani?",
+          "jawab": "Keadaan itu disebut zhann."
+        }
+      },
+      {
+        "judul": "Kabar terbagi tiga, yaitu syahadah, dakwaan, dan ikrar, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan syahadah dalam syariat sebagai kabar tentang sesuatu yang disaksikan, dengan lafaz kesaksian di majelis hakim, tentang hak seseorang atas orang lain. Dari situ ia membagi kabar menjadi tiga: kabar tentang hak orang lain atas pihak lain adalah syahadah, kabar tentang hak pemberi kabar atas orang lain adalah dakwaan, dan sebaliknya, kabar tentang hak orang lain atas pemberi kabar, adalah ikrar.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001120],
+        "soal": {
+          "tanya": "Apa perbedaan syahadah, dakwaan, dan ikrar menurut pembagian al-Jurjani?",
+          "jawab": "Syahadah untuk hak orang lain atas pihak lain, dakwaan untuk hak pemberi kabar, ikrar untuk hak orang lain atasnya."
+        }
+      },
+      {
+        "judul": "Syath termasuk ketergelinciran kaum ahli makrifat, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan syath sebagai ucapan yang berbau ru'unah dan klaim, yang keluar dari ahli makrifat karena terdesak dan gelisah. Ia termasuk ketergelinciran para muhaqqiq, karena ia klaim yang benar yang diucapkan seorang arif tetapi tanpa izin Ilahi. Syaja'ah ia definisikan sebagai keadaan daya marah yang berada di antara nekat dan pengecut, yang membuat orang maju pada perkara yang memang patut dihadapi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001098, 80001081],
+        "soal": {
+          "tanya": "Mengapa syath dianggap ketergelinciran walau isinya klaim yang benar menurut al-Jurjani?",
+          "jawab": "Karena klaim itu diucapkan seorang arif tanpa izin Ilahi."
+        }
+      },
+      {
+        "judul": "Syai' secara istilah adalah yang ada dan tetap di luar pikiran, menurut penulis",
+        "isi": "Al-Jurjani menukil bahwa menurut Sibawaih, syai' secara bahasa adalah apa yang layak diketahui dan dikabarkan. Ada pula yang berkata bahwa syai' adalah wujud, yaitu nama bagi semua yang ada, baik aksiden maupun substansi, dan layak diketahui serta dikabarkan. Secara istilah, syai' ia definisikan sebagai sesuatu yang ada, tetap, dan nyata di luar pikiran.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001127],
+        "soal": {
+          "tanya": "Bagaimana Sibawaih mendefinisikan syai' secara bahasa menurut nukilan al-Jurjani?",
+          "jawab": "Syai' adalah apa yang layak diketahui dan dikabarkan."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 80001074,
+        "char_start": 8,
+        "char_end": 44,
+        "terjemahan": "Syubhat adalah sesuatu yang belum diyakini apakah ia haram atau halal."
+      }
+    ],
+    "istilah": []
+  }
+}

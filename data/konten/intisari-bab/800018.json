@@ -1,0 +1,158 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800018,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:03:29+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1203-p1207: lima tingkatan ath-thahir dan alasannya sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1208: definisi tha'ah, boleh kepada selain Allah menurut kalangan penulis, dan pendapat Muktazilah sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1213, p1216, p1209-p1210: thariq umum dan menurut ahli hakikat, alasan rukhshah, thariqah, pengobatan ruhani sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1214-p1215: limmi dan inni beserta contohnya sesuai; negasi pada inni tepat."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1220-p1223, p1227: bilangan talak dan masa suci tiap jenis sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "5ef1fa93225ca539bcfc5412b818179b073a2248bb9fa8a258c3a89de79c3c3e",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Tingkatan ath-thahir (lahir, batin, rahasia, rahasia dan lahir) sesuai p80001203-07."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Ketaatan sebagai menuruti perintah, boleh untuk selain Allah menurut 'kami', dan Muktazilah menuruti kehendak, sesuai p80001208."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Thariq umum dan menurut ahli hakikat (tanpa rukhshah), thariqah, serta pengobatan ruhani sesuai p80001213, 1216, 1209-10; sikap reported tepat."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Jalan limmi dan inni beserta contohnya sesuai p80001214-15."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Talak bahasa/syariat, bid'ah, sunah, ahsan, dan thaharah sesuai p80001220-23 dan p80001227."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "6a339aeca861ec24dcb97b1f542abde59bfee055fabce0acf08e8a1f72443e64",
+      "draf_sha256": "5ef1fa93225ca539bcfc5412b818179b073a2248bb9fa8a258c3a89de79c3c3e",
+      "waktu": "2026-11-27T19:04:20.832Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam bab tha, al-Jurjani menyusun tingkatan orang yang suci, membedakan ketaatan dari kehendak, menjelaskan istilah jalan suluk dan dua cara pembuktian, lalu mendefinisikan talak dan thaharah.",
+    "ringkasan": "Bab tha memuat 27 entri definisi; Intisari ini menyoroti sebagiannya. Al-Jurjani membuka dengan tingkatan ath-thahir, yaitu orang yang dijaga Allah dari pelanggaran lahir, bisikan batin, sampai kelalaian sekejap. Ia mendefinisikan ketaatan dan menyebut pendapat Muktazilah yang berbeda. Ia menjelaskan ilmu pengobatan ruhani, thariq menurut ahli hakikat, dan thariqah bagi para salik, lalu dua jalan pembuktian dalam logika, limmi dan inni. Di bidang fikih ia mendefinisikan talak beserta talak bid'ah, sunah, dan ahsan, serta thaharah. Bab ini juga memuat istilah filsafat, 'arudh, dan saraf.",
+    "gagasan": [
+      {
+        "judul": "Kesucian bertingkat dari lahir sampai rahasia hati, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan ath-thahir sebagai orang yang dijaga Allah dari pelanggaran. Yang suci lahirnya dijaga dari maksiat, yang suci batinnya dijaga dari bisikan dan lintasan hati, dan yang suci rahasianya tidak lalai dari Allah sekejap mata pun. Yang suci rahasia dan lahirnya sekaligus adalah orang yang menunaikan hak-hak al-Haqq dan hak-hak makhluk semuanya, karena kelapangannya untuk menjaga kedua sisi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001203, 80001204, 80001205, 80001206, 80001207],
+        "soal": {
+          "tanya": "Siapa yang disebut suci rahasia dan lahirnya sekaligus dalam definisi al-Jurjani?",
+          "jawab": "Orang yang menunaikan hak-hak al-Haqq dan hak-hak makhluk semuanya karena mampu menjaga kedua sisi."
+        }
+      },
+      {
+        "judul": "Ketaatan adalah menuruti perintah, bukan menuruti kehendak seperti kata Muktazilah, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan ketaatan (tha'ah) sebagai menuruti perintah dengan sukarela, dan menurut pendapat kalangannya ketaatan boleh ditujukan kepada selain Allah. Ia lalu menyebut bahwa menurut Muktazilah ketaatan adalah kesesuaian dengan kehendak (iradah). Dengan begitu, ukuran ketaatan berbeda antara kedua kalangan: perintah atau kehendak.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001208],
+        "soal": {
+          "tanya": "Apa ukuran ketaatan menurut definisi al-Jurjani, dan apa ukurannya menurut Muktazilah?",
+          "jawab": "Menurut al-Jurjani ukurannya kesesuaian dengan perintah; menurut Muktazilah kesesuaian dengan kehendak."
+        }
+      },
+      {
+        "judul": "Jalan menurut ahli hakikat adalah hukum taklif tanpa mencari keringanan",
+        "isi": "Thariq secara umum adalah sesuatu yang dengan penalaran yang benar padanya tujuan bisa dicapai. Dalam istilah ahli hakikat, thariq adalah ketentuan Allah dan hukum-hukum taklif yang disyariatkan tanpa rukhshah, karena mengikuti rukhshah membuat tabiat longgar sehingga perjalanan terhenti dan melemah. Thariqah adalah jalan hidup khusus para salik menuju Allah, berupa menempuh persinggahan dan naik dalam maqam. Pengobatan ruhani adalah ilmu tentang kesempurnaan, cacat, dan penyakit hati serta cara menjaga kesehatannya, dan dokternya adalah syekh yang arif dan mampu membimbing.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001213, 80001216, 80001209, 80001210],
+        "soal": {
+          "tanya": "Mengapa mengikuti rukhshah dihindari dalam thariq menurut istilah ahli hakikat?",
+          "jawab": "Karena mengikuti rukhshah melonggarkan tabiat sehingga perjalanan terhenti dan melemah."
+        }
+      },
+      {
+        "judul": "Pembuktian limmi dan inni dibedakan dari peran batas tengah, menurut penulis",
+        "isi": "Dalam jalan limmi, batas tengah (al-hadd al-awsath) menjadi sebab bagi putusan di alam nyata sebagaimana di dalam pikiran, misalnya orang ini demam karena cairan tubuhnya busuk. Dalam jalan inni, batas tengah bukan sebab bagi putusan; isinya menetapkan klaim dengan membatalkan kebalikannya, seperti orang yang menetapkan bahwa akal itu qadim dengan membatalkan kebaruannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001214, 80001215],
+        "soal": {
+          "tanya": "Apa yang membedakan jalan limmi dari jalan inni menurut al-Jurjani?",
+          "jawab": "Pada limmi batas tengah menjadi sebab putusan di alam nyata, sedangkan pada inni tidak menjadi sebab."
+        }
+      },
+      {
+        "judul": "Talak dibedakan menjadi bid'ah, sunah, dan ahsan menurut penulis",
+        "isi": "Talak menurut bahasa adalah melepas ikatan, dan menurut syariat adalah menghilangkan kepemilikan nikah. Talak bid'ah adalah menjatuhkan talak tiga dengan satu kata dalam satu masa suci. Talak sunah adalah menjatuhkan talak tiga dalam tiga masa suci. Talak ahsan adalah menjatuhkan satu talak dalam masa suci yang tidak dicampuri, lalu membiarkan istri tanpa talak lain sampai iddahnya habis. Thaharah menurut syariat adalah membasuh anggota tertentu dengan cara tertentu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001220, 80001221, 80001222, 80001223, 80001227],
+        "soal": {
+          "tanya": "Apa beda talak bid'ah dan talak sunah dalam definisi al-Jurjani?",
+          "jawab": "Talak bid'ah adalah talak tiga dengan satu kata dalam satu masa suci, talak sunah talak tiga dalam tiga masa suci."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 80001206,
+        "char_start": 13,
+        "char_end": 40,
+        "terjemahan": "Orang yang tidak lalai dari Allah sekejap mata pun."
+      }
+    ],
+    "istilah": []
+  }
+}
