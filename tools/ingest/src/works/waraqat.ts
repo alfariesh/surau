@@ -1,6 +1,8 @@
 // Konfigurasi ingest al-Waraqat, Imam al-Haramain al-Juwaini (Shamela 6297; Gelombang 2, ADR-152).
 // Teks Arab (judul, nama penulis, penerbit) TIDAK ditulis di sini: semuanya disalin dari Shamela.
 // Slug `al-waraqat` sama dengan daftar "Segera hadir" (ADR-115), beku saat tayang.
+import { SUMMARY_NOTES, TRANSLATE_NOTES } from "@surau/llm";
+
 import type { WorkConfig } from "./config.ts";
 
 export const WARAQAT: WorkConfig = {
@@ -11,7 +13,15 @@ export const WARAQAT: WorkConfig = {
   patch: "data/patches/al-waraqat-6297.yaml",
   ids: "data/ids/al-waraqat-6297.json",
   reportPrefix: "data/reports/al-waraqat-6297",
-  llm: { dir: "al-waraqat", intisari: "al-waraqat/intisari", model: "sonnet" },
+  llm: {
+    dir: "al-waraqat",
+    intisari: "al-waraqat/intisari",
+    model: "sonnet",
+    // Identitas kitab: prompt dasar menyebut Ihya' (ADR-152 tambahan).
+    translateNote: TRANSLATE_NOTES.waraqat,
+    // Identitas kitab untuk ringkasan (ADR-152 tambahan).
+    summaryNote: SUMMARY_NOTES.waraqat,
+  },
   expect: {
     pages: 25,
     // Satu jilid; halaman cetak 7–31, unik.

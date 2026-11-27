@@ -32,6 +32,7 @@
 | Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 0/21 (0,00%): node 0, subjudul 0; belum ada n900001, n900002, n900003, n900004, n900005, n900006, n900007, n900008 … |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/21 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
+| ID paragraf rilis stabil (ADR-059) | ✓ | 326 ID lama ada dengan teks sama |
 
 ## Daftar isi
 

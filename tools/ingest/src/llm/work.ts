@@ -10,8 +10,15 @@ import {
   tocCustomId,
   tocRound2CustomId,
   translatePromptFor,
+  summaryPromptFor,
 } from "@surau/llm";
-import type { ResolvedTranslatePrompt, SummaryLang, TranslateWorkNote } from "@surau/llm";
+import type {
+  ResolvedSummaryPrompt,
+  ResolvedTranslatePrompt,
+  SummaryLang,
+  SummaryWorkNote,
+  TranslateWorkNote,
+} from "@surau/llm";
 
 import type { CorpusRows } from "../rows.ts";
 import type { AcceptedSummary } from "./store.ts";
@@ -78,6 +85,12 @@ export interface Work {
    */
   translatePrompt: ResolvedTranslatePrompt;
   /**
+   * Prompt ringkasan kitab ini (ADR-152 tambahan): `SUMMARY_PROMPT` + petunjuk identitas kitab bila
+   * ada. `summaryNoted` = kitab berpetunjuk: hanya ringkasan dari prompt ini yang dianggap selesai.
+   */
+  summaryPrompt: ResolvedSummaryPrompt;
+  summaryNoted: boolean;
+  /**
    * Batas atas rasio panjang terjemahan kitab ini (`TranslateWorkNote.maxLengthRatio`, ADR-149
    * tambahan), dipakai pemeriksa saat collect/rejudge dan saat ingest. Tanpa = batas bawaan.
    */
@@ -86,7 +99,10 @@ export interface Work {
 
 export function buildWork(
   rows: CorpusRows,
-  opts: { translateNote?: TranslateWorkNote | undefined } = {},
+  opts: {
+    translateNote?: TranslateWorkNote | undefined;
+    summaryNote?: SummaryWorkNote | undefined;
+  } = {},
 ): Work {
   const t = translationUnits(rows);
   const plan = summaryPlan(rows, { tokensPerChar: MEASURED_TOKENS_PER_CHAR });
@@ -102,6 +118,8 @@ export function buildWork(
     nodeById: new Map(plan.nodes.map((n) => [n.tocNodeId, n])),
     translatePrompt: translatePromptFor(TRANSLATE_PROMPT, opts.translateNote),
     maxLengthRatio: opts.translateNote?.maxLengthRatio,
+    summaryPrompt: summaryPromptFor(opts.summaryNote),
+    summaryNoted: opts.summaryNote !== undefined,
   };
 }
 

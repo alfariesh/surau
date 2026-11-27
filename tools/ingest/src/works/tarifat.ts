@@ -1,7 +1,7 @@
 // Konfigurasi ingest at-Ta'rifat, asy-Syarif al-Jurjani (Shamela 7312; Gelombang 2, ADR-152).
 // Teks Arab (judul, nama penulis, penerbit) TIDAK ditulis di sini: semuanya disalin dari Shamela.
 // Slug `at-tarifat` sama dengan daftar "Segera hadir" (ADR-115), beku saat tayang.
-import { TRANSLATE_NOTES } from "@surau/llm";
+import { SUMMARY_NOTES, TRANSLATE_NOTES } from "@surau/llm";
 
 import type { WorkConfig } from "./config.ts";
 
@@ -22,6 +22,8 @@ export const TARIFAT: WorkConfig = {
     intisari: "at-tarifat/intisari",
     model: "sonnet",
     translateNote: TRANSLATE_NOTES.tarifat,
+    // Identitas kitab untuk ringkasan (ADR-152 tambahan).
+    summaryNote: SUMMARY_NOTES.tarifat,
   },
   expect: {
     // Angka sumber Shamela. Yang dimuat: 255 halaman dan 29 node (halaman 256–257 dan judul 1, 31

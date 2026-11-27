@@ -80,6 +80,7 @@ export {
   SUMMARY_MAX_TOKENS,
   SUMMARY_PROMPT,
   buildSummaryRequest,
+  summaryPromptFor,
   buildSummaryRound2Request,
   checkSummary,
   summaryChunkUserText,
@@ -90,6 +91,8 @@ export type {
   SummaryChunkInput,
   SummaryProblem,
   SummaryRound2Input,
+  ResolvedSummaryPrompt,
+  SummaryWorkNote,
 } from "./summarize.ts";
 
 export {
@@ -248,3 +251,4 @@ export type { SearchList } from "./jawab/retrieve.ts";
 export { ANSWER_HADITH_PREFIX, ANSWER_NOT_FOUND } from "../prompts/answer-v1.ts";
 export { ANSWER_FALSE_PREMISE } from "../prompts/answer-v3.ts";
 export { answerCacheKey, tidyQuestion } from "./jawab/cache-key.ts";
+export { SUMMARY_NOTES } from "../prompts/summary-note-kitab-v1.ts";

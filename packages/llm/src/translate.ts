@@ -7,6 +7,12 @@ import type { TranslationCheck, TranslationCheckOptions } from "@surau/core";
 import type { MaskedPassage } from "@surau/core";
 
 import { TRANSLATE_NOTE_AJURRUMIYYAH_V1 } from "../prompts/translate-note-ajurrumiyyah-v1.ts";
+import {
+  TRANSLATE_NOTE_HADHRAMIYYAH_V1,
+  TRANSLATE_NOTE_NIHAYAH_V1,
+  TRANSLATE_NOTE_RUSUM_V1,
+  TRANSLATE_NOTE_WARAQAT_V1,
+} from "../prompts/translate-note-gelombang2-v1.ts";
 import { TRANSLATE_NOTE_TARIFAT_V1 } from "../prompts/translate-note-tarifat-v1.ts";
 import { TRANSLATE_PASSAGE_V4 } from "../prompts/translate-passage-v4.ts";
 import { TRANSLATE_PASSAGE_V5 } from "../prompts/translate-passage-v5.ts";
@@ -27,6 +33,10 @@ export const TRANSLATE_PROMPTS = {
 export const TRANSLATE_NOTES = {
   ajurrumiyyah: TRANSLATE_NOTE_AJURRUMIYYAH_V1,
   tarifat: TRANSLATE_NOTE_TARIFAT_V1,
+  waraqat: TRANSLATE_NOTE_WARAQAT_V1,
+  rusum: TRANSLATE_NOTE_RUSUM_V1,
+  hadhramiyyah: TRANSLATE_NOTE_HADHRAMIYYAH_V1,
+  nihayah: TRANSLATE_NOTE_NIHAYAH_V1,
 } as const;
 export type TranslatePrompt = (typeof TRANSLATE_PROMPTS)[keyof typeof TRANSLATE_PROMPTS];
 export type TranslateEffort = "low" | "medium" | "high";

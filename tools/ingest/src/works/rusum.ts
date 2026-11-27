@@ -2,6 +2,8 @@
 // Gelombang 2, ADR-152). Teks Arab (judul, nama penulis, penerbit) TIDAK ditulis di sini: semuanya
 // disalin dari Shamela. Slug `rusum-dar-al-khilafah` baru (tidak ada di "Segera hadir", ADR-115),
 // beku saat tayang.
+import { SUMMARY_NOTES, TRANSLATE_NOTES } from "@surau/llm";
+
 import type { WorkConfig } from "./config.ts";
 
 export const RUSUM: WorkConfig = {
@@ -17,6 +19,10 @@ export const RUSUM: WorkConfig = {
     dir: "rusum-dar-al-khilafah",
     intisari: "rusum-dar-al-khilafah/intisari",
     model: "sonnet",
+    // Identitas kitab: prompt dasar menyebut Ihya' (ADR-152 tambahan).
+    translateNote: TRANSLATE_NOTES.rusum,
+    // Identitas kitab untuk ringkasan (ADR-152 tambahan).
+    summaryNote: SUMMARY_NOTES.rusum,
   },
   expect: {
     pages: 140,

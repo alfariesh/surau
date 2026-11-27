@@ -2,6 +2,8 @@
 // 6125; Gelombang 2, ADR-152). Teks Arab (judul, nama penulis, penerbit) TIDAK ditulis di sini:
 // semuanya disalin dari Shamela. Slug `al-muqaddimah-al-hadhramiyyah` sama dengan daftar "Segera
 // hadir" (ADR-115), beku saat tayang.
+import { SUMMARY_NOTES, TRANSLATE_NOTES } from "@surau/llm";
+
 import type { WorkConfig } from "./config.ts";
 
 export const HADHRAMIYYAH: WorkConfig = {
@@ -18,6 +20,10 @@ export const HADHRAMIYYAH: WorkConfig = {
     dir: "al-muqaddimah-al-hadhramiyyah",
     intisari: "al-muqaddimah-al-hadhramiyyah/intisari",
     model: "sonnet",
+    // Identitas kitab: prompt dasar menyebut Ihya' (ADR-152 tambahan).
+    translateNote: TRANSLATE_NOTES.hadhramiyyah,
+    // Identitas kitab untuk ringkasan (ADR-152 tambahan).
+    summaryNote: SUMMARY_NOTES.hadhramiyyah,
   },
   expect: {
     pages: 142,
