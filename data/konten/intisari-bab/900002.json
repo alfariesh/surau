@@ -1,0 +1,192 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900002,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p9-p11: angka penghuni dicocokkan; lima ribu, empat ratus, dan delapan ratus kini disebut giliran jaga, bukan penghuni, sesudah periksa independen."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p13-p15: kisah Manshur bin al-Qasim, lebih dari lima ratus farrasy, pujian wazir kepada Nazuk, dan seribu dinar sesuai teks; sikap reported."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p16-p19: utusan Romawi mengira Nashr al-Qusyuri lalu Ibnu al-Furat sebagai khalifah sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p20-p25: tahun 376 H, sekitar sepuluh ribu Dailam, penilaian penulis tidak sebanding, dan pos hari keempat dan kesebelas sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p26-p30: hitungan kini dinisbahkan kepada Yazdajird (sikap reported), angka kakek dipisah dari hitungan penulis sendiri; angka sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p31-p32, p70-p74: defisit yang memang tujuan Ali bin Isa, tiga ratus dinar kesturi sebulan, dan alasan al-Muqtadir sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p75-p83: angka 179 H, 199 H, 873 juta, tiga ribu dinar, tiga ratus ribu dinar sesuai; klaim terus menyusut dihapus sesudah periksa independen."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perbaikan",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "51395ccaa1b6b8023145bc1a821d22e7bd8b8d42760698b92397a5646abbd8f2",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Angka penghuni dan giliran jaga lima ribu, empat ratus, delapan ratus sesuai teks."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Kisah Manshur, lima ratus farrasy, seribu dinar sesuai; sikap reported tepat."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Utusan Romawi mengira Nashr al-Qusyuri lalu Ibnu al-Furat sebagai khalifah sesuai."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Tahun 376 H, sekitar sepuluh ribu Dailam, pos hari ke-4 dan ke-11 sesuai."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Hitungan Yazdajird dinisbahkan benar; angka kakek dan hitungan penulis dipisah tepat."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Anggaran 306 H, tiga ratus dinar kesturi, dan permintaan al-Muqtadir sesuai."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Angka 338.910.000 dan 416.922.000 dibulatkan ke bawah menjadi sekitar 338 dan 416 juta."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "fbe8a06280874dca779595a3c8367634f1a816c1c8292e31dc7564cf43cf9252",
+      "draf_sha256": "51395ccaa1b6b8023145bc1a821d22e7bd8b8d42760698b92397a5646abbd8f2",
+      "waktu": "2026-11-27T18:43:41.792Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', Dar al-Khilafah dahulu jauh lebih luas, lebih ramai, dan lebih mewah daripada sisa yang ia saksikan, dan ia menukil angka penghasilan negara dari masa ar-Rasyid sampai masa al-Muthi'.",
+    "ringkasan": "Hilal ash-Shabi' membuka uraian tentang Dar al-Khilafah dengan luasnya dahulu dan jumlah penghuni serta penjaganya pada masa al-Muktafi dan al-Muqtadir. Ia lalu menukil kisah iring-iringan Nazuk, penyambutan utusan Romawi pada masa al-Muqtadir, dan menuturkan penyambutan Ward yang ia saksikan sendiri pada masa Shamsham ad-Daulah. Untuk menunjukkan bahwa angka-angka itu tidak berlebihan, ia menukil hitungan penduduk Baghdad dari kitab Yazdajird dan jumlah pemandian dari kakeknya. Bab ditutup dengan rincian anggaran Ali bin Isa, kisah biaya kesturi, dan angka penghasilan negara dari masa ar-Rasyid sampai al-Muthi'.",
+    "gagasan": [
+      {
+        "judul": "Dar al-Khilafah menyusut akibat kebakaran dan perusakan dalam fitnah, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', Dar al-Khilafah dahulu berlipat-lipat lebih luas daripada sisa yang ada pada masanya; buktinya, kompleks itu dulu bersambung dengan al-Hair dan ats-Tsurayya. Keduanya terpisah karena kebakaran dan perusakan dalam fitnah saat al-Muqtadir diturunkan lalu kembali, al-Qahir ditangkap, dan Abu al-Haija' bin Hamdan dibunuh. Di dalamnya ada ladang dan empat ratus pemandian. Pada masa al-Muktafi ia memuat dua puluh ribu ghulam dan sepuluh ribu khadim; pada masa al-Muqtadir sebelas ribu khadim dan empat ribu perempuan, sementara giliran jaganya lima ribu pejalan kaki, empat ratus penjaga, dan delapan ratus farrasy.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000009, 90000010, 90000011],
+        "soal": {
+          "tanya": "Berapa jumlah khadim di Dar al-Khilafah pada masa al-Muqtadir menurut Hilal ash-Shabi'?",
+          "jawab": "Sebelas ribu khadim, tujuh ribu berkulit hitam dan empat ribu Saqalibah berkulit putih."
+        }
+      },
+      {
+        "judul": "Wazir Ali bin Isa memuji iring-iringan Nazuk, menurut kisah yang dinukil penulis",
+        "isi": "Penulis menukil kisah Manshur bin al-Qasim al-Qana'i yang biasa menemani wazir Ali bin Isa pada hari raya. Suatu kali ia terlambat karena harus menunggu iring-iringan Nazuk lewat, dengan lebih dari lima ratus farrasy pembawa lilin. Saat menjelaskan sebabnya, ia menyesal karena tahu wazir tidak suka kepada Nazuk dan membenci kemewahan. Ternyata ketika Nazuk datang, wazir justru memujinya sebagai penghias negara dan menyuruhnya pulang agar orang datang memberi selamat. Nazuk lalu menjamu Manshur dan membekalinya barang senilai seribu dinar.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000013, 90000014, 90000015],
+        "soal": {
+          "tanya": "Mengapa Manshur bin al-Qasim menyesal setelah menceritakan iring-iringan Nazuk kepada wazir Ali bin Isa?",
+          "jawab": "Karena wazir tidak suka kepada Nazuk dan membenci kemewahan, sehingga ia takut dianggap memfitnah Nazuk."
+        }
+      },
+      {
+        "judul": "Utusan Romawi dua kali mengira pejabat sebagai khalifah, menurut penuturan penulis",
+        "isi": "Penulis menuturkan bahwa pada masa al-Muqtadir datang utusan raja Romawi. Istana dihampari permadani indah, para hajib dan pengiring diatur menurut tingkatnya, dan pasukan berbaris dua shaf dari Bab asy-Syammasiyah sampai dekat Dar al-Khilafah, sementara pasar dan atap rumah penuh penonton. Utusan itu masuk melewati kediaman Nashr al-Qusyuri, melihat kemegahan di sana, dan mengiranya khalifah sampai diberi tahu bahwa itu hajib. Di kediaman wazir Ibnu al-Furat ia kembali mengira melihat khalifah. Baru sesudah beberapa jam ia dihadapkan kepada al-Muqtadir.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000016, 90000017, 90000018, 90000019],
+        "soal": {
+          "tanya": "Siapa saja yang dikira khalifah oleh utusan Romawi sebelum ia dihadapkan kepada al-Muqtadir?",
+          "jawab": "Hajib Nashr al-Qusyuri, lalu wazir Ibnu al-Furat."
+        }
+      },
+      {
+        "judul": "Penyambutan Ward yang disaksikan penulis tidak sebanding dengan masa al-Muqtadir",
+        "isi": "Hilal ash-Shabi' menyaksikan sendiri kehadiran Ward, pembesar Romawi, di Dar al-Mamlakah pada tahun 376 H masa Shamsham ad-Daulah. Ward lari dari Basil, ditahan sejak masa 'Adhud ad-Daulah, lalu dibebaskan dengan syarat. Rumah dihampari permadani, tirai dipasang, sekitar sepuluh ribu pasukan Dailam berbaris, dan percakapan diterjemahkan juru bahasa. Menurut penulis, semua itu tidak sebanding dengan masa al-Muqtadir, dan masa al-Muqtadir tidak sebanding dengan masa khalifah sebelumnya. Ia menambahkan contoh ketertiban pos dahulu: kantong surat musim haji tiba pada hari keempat dan surat Mesir pada hari kesebelas.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000020, 90000021, 90000022, 90000023, 90000024, 90000025],
+        "soal": {
+          "tanya": "Berapa jumlah pasukan Dailam yang hadir saat penyambutan Ward menurut Hilal ash-Shabi'?",
+          "jawab": "Sekitar sepuluh ribu orang."
+        }
+      },
+      {
+        "judul": "Hitungan penduduk Baghdad dari kitab Yazdajird dinukil agar angka Dar al-Khilafah tidak dianggap berlebihan",
+        "isi": "Penulis menukil kitab Yazdajird tentang Baghdad masa al-Mu'tadhid. Menurut hitungan Yazdajird, klaim dua ratus ribu pemandian tidak dipakai; ia mengambil enam puluh ribu, enam pekerja untuk tiap pemandian, dua ratus rumah untuk tiap pemandian, dan delapan jiwa untuk tiap rumah, sehingga sampai pada sembilan puluh enam juta jiwa. Penulis menegaskan ia menukil ini agar angka Dar al-Khilafah tidak dianggap berlebihan. Kakeknya menuturkan pemandian dihitung tujuh belas ribu pada masa Mu'izz ad-Daulah, dibanding dua puluh tujuh ribu pada masa al-Muqtadir. Menurut hitungan penulis sendiri, jumlahnya lalu lima ribuan, seribu lima ratusan, dan kini seratus lima puluhan.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000026, 90000027, 90000028, 90000029, 90000030],
+        "soal": {
+          "tanya": "Untuk apa Hilal ash-Shabi' menukil hitungan penduduk Baghdad dari kitab Yazdajird?",
+          "jawab": "Agar angka-angka yang ia sebut tentang Dar al-Khilafah tidak dianggap berlebihan."
+        }
+      },
+      {
+        "judul": "Al-Muqtadir menolak memotong biaya kesturi dapur, menurut kisah yang dinukil penulis",
+        "isi": "Penulis menukil anggaran Ali bin Isa tahun 306 H, yang menunjukkan penerimaan negara menyusut dan pengeluaran melebihi penerimaan, dan menurut penulis memang itulah tujuan Ali bin Isa. Seorang khadim menuturkan bahwa Ali bin Isa pernah menegur al-Muqtadir karena duduk tanpa penutup kepala di hari dingin dan mengira ia banyak makan makanan berkesturi. Al-Muqtadir menyangkal. Ali bin Isa menyebut dapur mengeluarkan sekitar tiga ratus dinar sebulan untuk kesturi. Al-Muqtadir memanggilnya kembali dan meminta agar biaya itu tidak dipotong, sebab mungkin uang itu menjadi nafkah orang-orang yang tidak ingin ia putus.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000031, 90000032, 90000070, 90000072, 90000073, 90000074],
+        "soal": {
+          "tanya": "Mengapa al-Muqtadir meminta Ali bin Isa tidak memotong biaya kesturi dapur istana?",
+          "jawab": "Karena mungkin uang itu menjadi nafkah orang-orang yang tidak ingin ia putus nafkahnya."
+        }
+      },
+      {
+        "judul": "Angka penghasilan khilafah dari masa ar-Rasyid sampai al-Muthi', menurut yang dinukil penulis",
+        "isi": "Penulis menukil bahwa pada tahun 179 H Yahya bin Khalid memerintahkan hitungan pajak wilayah, dan hasilnya sekitar tiga ratus tiga puluh delapan juta dirham perak dan lima juta delapan ratus ribu lebih dinar emas, dan sesudah diwan terbakar dalam fitnah al-Amin, penerimaan tahun 199 H tercatat sekitar empat ratus enam belas juta dirham. Ia menukil kisah Isma'il bin Shubaih: harta ar-Rasyid delapan ratus tujuh puluh tiga juta dirham, dan ar-Rasyid ingin mencapai satu miliar. Pada masa ar-Radhi belanja harian dibatasi tiga ribu dinar dari tanah-tanah pilihan, sampai Mesir dan Syam lepas pada masa al-Muthi'. Penghasilan al-Muthi' disebut hanya tiga ratus ribu dinar, dan ath-Tha'i' mendekati itu.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000075, 90000076, 90000079, 90000080, 90000082, 90000083],
+        "soal": {
+          "tanya": "Berapa penghasilan khalifah al-Muthi' menurut kabar yang dinukil Hilal ash-Shabi'?",
+          "jawab": "Sekitar tiga ratus ribu dinar, dan ath-Tha'i' mendekati jumlah itu."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

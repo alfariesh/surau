@@ -31,6 +31,8 @@ export const RUSUM: WorkConfig = {
     titles: 21,
     matanMinPages: 140,
     llmCoverage: 0,
+    // Intisari Bab Gelombang 2: 21 judul teratas (toc_node 900001–900021), data/konten/intisari-bab.
+    minDigests: 21,
   },
   // Halaman cetak 30 (bab keadaan Dar al-Khilafah, 2 paragraf badan); kata pencarian mengenai 20
   // paragraf badan kitab ini.

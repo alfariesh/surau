@@ -1,0 +1,150 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900017,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p295: gelar Jahiliah, gelar dari Nabi saw. bagi para sahabat, alasan dua pedang, al-Washi dari orang-orang sesudah wafat beliau sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p295-p296: riwayat Labid dan Adi dipisah dari keterangan penulis, ucapan Amr kini kami kaum mukmin, perselisihan gelar Abu al-Abbas disebut sesudah periksa independen."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p302: rumusan dilunakkan menjadi orang pertama yang diberi gelar dalam negara itu, sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p302-p303: gelar panglima, arti al-Afsyin dan al-Ikhsyid, al-Muzhaffar, Nashir ad-Daulah dan Saif ad-Daulah sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p304-p305: kisah dinisbahkan kepada tuturan kakeknya di judul, kata mengeluhkan diganti menyinggung penolakan; tahun 364 dan 367 H sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perbaikan",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "90cdebb6edb6d6f54a7b60711d192ccfca1d0253afc04a62e3e25f5a7f5e6d2b",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Gelar Khuzaimah dan Ja'far berbentuk pasif di teks, tidak tegas dinisbahkan kepada Nabi saw."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Sikap reported menutupi tambahan penulis tentang Bani Umayyah dan Abu al-Abbas."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Klaim orang pertama bergelar tampak bertabrakan dengan gelar wazir sebelumnya yang disebut di gagasan."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Gelar panglima, al-Afsyin, dan al-Ikhsyid sesuai p302-p303."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Tuturan kakeknya bersumber bernama tetapi sikap author; kata putranya untuk Bakhtiyar tidak di teks."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "c6119feb42a192438870a3e33e1ceca06d94640e951573dce47ef353256e8110",
+      "draf_sha256": "90cdebb6edb6d6f54a7b60711d192ccfca1d0253afc04a62e3e25f5a7f5e6d2b",
+      "waktu": "2026-11-27T18:45:08.255Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', gelar sudah dikenal sejak Jahiliah dan masa Nabi saw., lalu berkembang dari sebutan Amir al-Mu'minin sampai gelar ganda para amir Buwaihi yang salah satunya diusulkan kakeknya sendiri.",
+    "ringkasan": "Hilal ash-Shabi' menelusuri sejarah gelar: gelar raja-raja Jahiliah, gelar yang diberikan Nabi saw. kepada para sahabat, peralihan dari Khalifah Rasulullah ke Amir al-Mu'minin, gelar khalifah Abbasiyah, lalu gelar para wazir dan panglima. Ia menutup dengan gelar para amir Buwaihi: perubahan gelar Mu'izz ad-Daulah dan 'Adhud ad-Daulah, usulan kakeknya tentang gelar Taj al-Millah, munculnya gelar ganda sampai empat gelar, dan gelar pertama bagi penguasa Khurasan.",
+    "gagasan": [
+      {
+        "judul": "Nabi saw. memberi gelar kepada para sahabatnya, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', gelar sudah ada sejak Jahiliah, seperti Dzu Nuwas dan Dzu Ru'ain. Ketika Islam datang, Nabi saw. memberi gelar kepada sejumlah sahabat: Hamzah bin Abdul Muththalib disebut singa Allah, Abu al-Haitsam bin at-Tayyihan disebut pemilik dua pedang karena berperang dengan dua pedang, Khuzaimah bin Tsabit disebut pemilik dua kesaksian, dan Ja'far bin Abi Thalib disebut ath-Thayyar. Para sahabat menyebut Nabi saw. al-Amin, dan beliau menggelari Abu Bakar ash-Shiddiq, Umar al-Faruq, dan Utsman Dzu an-Nurain. Sesudah beliau wafat, orang-orang menggelari Ali bin Abi Thalib al-Washi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000295],
+        "soal": {
+          "tanya": "Mengapa Abu al-Haitsam bin at-Tayyihan diberi gelar pemilik dua pedang menurut Hilal ash-Shabi'?",
+          "jawab": "Karena ia turun ke medan perang dengan membawa dua pedang."
+        }
+      },
+      {
+        "judul": "Sebutan Amir al-Mu'minin bermula dari ucapan Labid dan Adi, menurut riwayat yang dinukil",
+        "isi": "Penulis menyebut bahwa Abu Bakar dipanggil Khalifah Rasulullah, dan Umar sempat dipanggil Khalifah Khalifah Rasulullah, lalu Amir al-Mu'minin. Menurut riwayat yang ia nukil, Umar meminta dua ahli urusan Irak, lalu datang Labid bin Rabi'ah dan Adi bin Hatim. Di masjid mereka meminta Amr bin al-Ash memintakan izin kepada Amir al-Mu'minin. Ketika Umar menanyakan sebutan itu, Amr menjelaskan bahwa keduanya tepat memberi nama, sebab Umar adalah amir, sedangkan Amr dan para sahabat adalah kaum mukmin. Abu Musa al-Asy'ari lalu memakainya di mimbar. Penulis sendiri menambahkan bahwa Bani Umayyah tidak bergelar, sedangkan gelar Abu al-Abbas diperselisihkan sebelum ia dikenal as-Saffah karena banyaknya darah Bani Umayyah yang ia tumpahkan.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000295, 90000296],
+        "soal": {
+          "tanya": "Bagaimana Amr bin al-Ash menjelaskan ketepatan sebutan Amir al-Mu'minin bagi Umar?",
+          "jawab": "Umar adalah amir, sedangkan Amr dan orang-orang lain adalah kaum mukmin."
+        }
+      },
+      {
+        "judul": "Al-Qasim bin Ubaidullah orang pertama yang bergelar dalam negara Abbasiyah, menurut penulis",
+        "isi": "Penulis menyebut bahwa gelar kemudian meluas kepada para wazir. Abu Salamah al-Khallal bergelar wazir keluarga Muhammad dan menuliskannya di suratnya. Al-Mahdi menyebut wazirnya Ya'qub bin Dawud saudara di jalan Allah. Al-Ma'mun memberi al-Fadhl bin Sahl gelar Dzu ar-Ri'asatain dan saudaranya al-Hasan bin Sahl Dzu al-Kifayatain. Sha'id bin Makhlad bergelar Dzu al-Wizaratain karena menjadi wazir al-Mu'tamid dan al-Muwaffaq, dan Isma'il bin Bulbul menulis gelar panjang di suratnya. Al-Muktafi memberi al-Qasim bin Ubaidullah kun-yah dan gelar Wali ad-Daulah, dan menurut penulis dialah orang pertama yang diberi gelar dalam negara itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000296, 90000298, 90000299, 90000302],
+        "soal": {
+          "tanya": "Siapa orang pertama yang diberi gelar dalam negara Abbasiyah menurut Hilal ash-Shabi'?",
+          "jawab": "Al-Qasim bin Ubaidullah, yang digelari Wali ad-Daulah oleh al-Muktafi."
+        }
+      },
+      {
+        "judul": "Al-Afsyin dan al-Ikhsyid semula gelar raja negeri asal, menurut penulis",
+        "isi": "Penulis menyebut gelar para panglima pedang: Abu Muslim digelari kepercayaan atau pedang keluarga Muhammad, dan Thahir bin al-Husain pada masa al-Ma'mun Dzu al-Yaminain. Al-Mu'tashim menggelari Haidar bin Kawus al-Afsyin karena ia berasal dari Usrusyanah, dan al-Afsyin adalah sebutan raja di sana seperti Kaisar bagi raja Romawi. Muhammad bin Thughj digelari al-Ikhsyid pada masa ar-Radhi, dan al-Ikhsyid sebutan raja di Farghanah. Mu'nis digelari al-Muzhaffar pada masa al-Muqtadir, al-Hasan bin Hamdan Nashir ad-Daulah dan saudaranya Ali Saif ad-Daulah pada masa al-Muttaqi, dan Tuzun bergelar al-Muzhaffar pada masa al-Mustakfi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000302, 90000303],
+        "soal": {
+          "tanya": "Apa arti asal gelar al-Afsyin menurut Hilal ash-Shabi'?",
+          "jawab": "Sebutan bagi raja di Usrusyanah, seperti Kaisar bagi raja Romawi."
+        }
+      },
+      {
+        "judul": "Gelar Taj al-Millah diusulkan kakek penulis, menurut tuturan kakeknya",
+        "isi": "Penulis menyebut bahwa masa Buwaihi dibuka dengan gelar tiga bersaudara: 'Imad ad-Daulah, Rukn ad-Daulah, dan Mu'izz ad-Daulah. Mu'izz ad-Daulah semula meminta gelar 'Izz ad-Daulah, tetapi al-Mustakfi menurunkannya, dan gelar itu kemudian diberikan al-Muthi' kepada putranya, Bakhtiyar. 'Adhud ad-Daulah semula meminta gelar Taj ad-Daulah dan ditolak. Kakeknya, Ibrahim bin Hilal, menuturkan bahwa pada tahun 364 H 'Adhud ad-Daulah menyinggung penolakan gelar Taj ad-Daulah oleh pamannya, lalu kakeknya mengusulkan Taj al-Millah agar dua gelarnya menggabungkan daulah dan millah. Gelar itu dipakai pada tahun 367 H, sesudahnya gelar menjadi ganda, dan Baha' ad-Daulah mendapat gelar ketiga lalu keempat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000304, 90000305],
+        "soal": {
+          "tanya": "Mengapa Ibrahim bin Hilal mengusulkan gelar Taj al-Millah kepada 'Adhud ad-Daulah?",
+          "jawab": "Agar kedua gelarnya menggabungkan kata daulah dan millah."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

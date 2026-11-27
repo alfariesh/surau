@@ -1,0 +1,87 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900014,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p284: hanya non-Arab dan maula, Rafi' bin Muhammad dilarang al-Qadir, penulis hadir sebagai perantara, jawaban tentang Mudhar sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p284-p286: meluas pada masa Baha' ad-Daulah, shafi Amir al-Mu'minin, aturan bagi orang Turki, Sebuktegin, Alptakin, Bajkam, Tuzun, asal kebiasaan sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "5063c936861bc6939c2883b8f948c71deb7a0279f3da3cefae288d5f699cbe71",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Kasus Rafi' bin Muhammad, al-Qadir, dalih Mudhar, dan Muhammad bin Abdul Wahid sesuai."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Surat al-Mutawakkil (p286) di dasar tetapi tidak dipakai di isi; Bajkam dan Tuzun lebih dulu tidak disebut."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "f0419d52218a8208ef67b305f9d32993f25b66b19a78c36d6b8534341b0fc1f9",
+      "draf_sha256": "5063c936861bc6939c2883b8f948c71deb7a0279f3da3cefae288d5f699cbe71",
+      "waktu": "2026-11-27T18:34:22.231Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', sebutan maula Amir al-Mu'minin semula hanya bagi orang non-Arab dan maula khalifah, lalu meluas dan bahkan dipakai para panglima Turki yang sebenarnya maula orang lain.",
+    "ringkasan": "Hilal ash-Shabi' menegaskan bahwa sebutan maula Amir al-Mu'minin hanya dipakai orang non-Arab dan maula, bukan orang Arab murni, dan menceritakan larangan al-Qadir terhadap Rafi' bin Muhammad yang menyebut dirinya sepupu Amir al-Mu'minin. Ia lalu menjelaskan meluasnya sebutan itu pada masa Baha' ad-Daulah, aturan bagi orang Turki, contoh Sebuktegin, Alptakin, Bajkam, dan Tuzun, asal-usul kebiasaan ini, dan surat al-Mutawakkil bagi Ubaidullah bin Yahya bin Khaqan.",
+    "gagasan": [
+      {
+        "judul": "Orang Arab murni tidak menisbahkan diri sebagai maula khalifah, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', yang menisbahkan diri kepada sebutan maula Amir al-Mu'minin hanyalah orang non-Arab dan para maula; orang Arab murni tidak melakukannya. Ia ingat Rafi' bin Muhammad bin Muqan menulis di suratnya bahwa ia sepupu Amir al-Mu'minin. Al-Qadir mengingkari dan melarangnya, dan terjadi perdebatan panjang yang sebagiannya dihadiri penulis sebagai perantara. Rafi' berdalih bahwa ia orang Arab dari Mudhar, lalu dijawab bahwa tidak setiap orang Mudhar berhak atas nisbah itu, dan ia akhirnya meninggalkannya. Penulis juga menyebut Muhammad bin Abdul Wahid bin al-Muqtadir yang menulis dirinya paman Amir al-Mu'minin, dan ia tidak mengetahui kebiasaan itu pada masa awal.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000284],
+        "soal": {
+          "tanya": "Apa jawaban yang diberikan kepada Rafi' ketika ia berdalih sebagai orang Arab dari Mudhar?",
+          "jawab": "Tidak setiap orang dari Mudhar berhak menyebut diri sepupu Amir al-Mu'minin."
+        }
+      },
+      {
+        "judul": "Panglima Turki memakai sebutan maula khalifah untuk melepaskan diri dari tuannya, menurut penulis",
+        "isi": "Penulis menyebut bahwa pada masa Baha' ad-Daulah orang yang menisbahkan diri sebagai maula Amir al-Mu'minin bertambah banyak, sampai dibedakan dengan sebutan shafi Amir al-Mu'minin, dan para katib, pejabat, dan pengiring yang bergelar ikut memakainya untuk menaikkan kedudukan. Orang Turki tidak berhak memakainya karena mereka maula orang lain, kecuali yang menjadi budak dan maula khalifah sendiri. Namun Sebuktegin, hajib Mu'izz ad-Daulah, ketika memberontak kepada 'Izz ad-Daulah, menulis dirinya maula Amir al-Mu'minin untuk melepaskan diri dari tuannya; Alptakin, Bajkam, dan Tuzun berbuat serupa. Menurut penulis, asal kebiasaan ini adalah para mualaf dan budak khalifah yang memuliakan diri dengan wala' itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000284, 90000285, 90000286],
+        "soal": {
+          "tanya": "Mengapa orang Turki pada umumnya tidak berhak menyebut diri maula Amir al-Mu'minin menurut Hilal ash-Shabi'?",
+          "jawab": "Karena mereka maula orang lain, bukan maula khalifah, kecuali yang menjadi budak khalifah."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

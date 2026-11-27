@@ -1,0 +1,108 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900009,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p244: kebiasaan baru akibat harta menyusut, persembahan kepada perbendaharaan dan pemberian kepada katib sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p245-p247: lima ratus kuli, lima puluh ribu dinar Oman dalam sepuluh kantong, satu juta dirham dalam dua ratus kantong, lima ratus kain, tiga puluh nampan perak, sepuluh kuda, bagal, dan unta sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p248-p249: para amir Buwaihi, sepuluh ribu dinar, tiga puluh ribu dirham, seribu dinar dan dua puluh kain bagi az-Zainabi, ucapan bukan pinjaman sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "925f744bacdf30cd033f4f4765a766b63a5b689b2921af4c4f4e3866e3bb7911",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Sebab harta menyusut dan perubahan arah persembahan sesuai p244."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Semua angka persembahan 'Adhud ad-Daulah cocok dengan p245-p247."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Sepuluh ribu dinar, tiga puluh ribu dirham, seribu dinar az-Zainabi, dan ucapan bukan pinjaman sesuai."
+        }
+      ],
+      "laporan": "Semua benar; boleh terbit"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "6159f4272da737f2148452d06b2b1c21b45a7a551a1ba4ac24cc6fa3179df86d",
+      "draf_sha256": "925f744bacdf30cd033f4f4765a766b63a5b689b2921af4c4f4e3866e3bb7911",
+      "waktu": "2026-11-27T18:34:15.516Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', persembahan kepada perbendaharaan khalifah oleh orang yang dianugerahi jabatan atau gelar baru menjadi kebiasaan setelah harta khilafah menyusut, dan 'Adhud ad-Daulah mengirim persembahan yang sangat besar.",
+    "ringkasan": "Hilal ash-Shabi' menjelaskan bahwa dahulu pemberian dibagikan kepada para pengiring istana, lalu setelah harta khilafah berkurang, orang yang diangkat atau diberi gelar menjadi pihak yang mempersembahkan harta kepada perbendaharaan. Ia menukil rincian persembahan 'Adhud ad-Daulah kepada ath-Tha'i' pada tahun 367 H, menyebut persembahan besar para amir Buwaihi sesudahnya, dan menutup dengan kiriman Sulthan ad-Daulah dari Fars serta permadani dan tirai Ibnu Khalaf yang tidak mau diambil kembali.",
+    "gagasan": [
+      {
+        "judul": "Persembahan kepada perbendaharaan khalifah lahir dari menyusutnya harta, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', kebiasaan ini tidak ada sebelumnya; dahulu pemberian justru dibagikan kepada para pengiring istana. Ketika keadaan berubah, sumber penghasilan menyempit, dan harta berkurang, dijadikan aturan bahwa orang yang diangkat atau diberi gelar mempersembahkan kepada perbendaharaan khalifah harta, pakaian, wewangian, dan perkakas sesuai kemampuannya. Ia juga memberi para katib dan pengiring istana dengan cara yang sama.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000244],
+        "soal": {
+          "tanya": "Apa sebab kebiasaan mempersembahkan harta kepada perbendaharaan khalifah muncul menurut Hilal ash-Shabi'?",
+          "jawab": "Karena keadaan berubah, sumber penghasilan menyempit, dan harta khilafah berkurang."
+        }
+      },
+      {
+        "judul": "Persembahan 'Adhud ad-Daulah dibawa lima ratus kuli, menurut kisah yang dinukil penulis",
+        "isi": "Penulis mengaku tidak mengetahui rincian persembahan para amir Buwaihi sebelumnya, tetapi menukil dari Ali bin Abdul Aziz bin Hajib an-Nu'man persembahan 'Adhud ad-Daulah kepada ath-Tha'i' pada tahun 367 H. Persembahan itu dibawa lima ratus kuli: lima puluh ribu dinar Oman dalam sepuluh kantong brokat, satu juta dirham dalam dua ratus kantong, lima ratus potong kain dari yang bernilai dua ratus dinar sampai setengah dinar, tiga puluh nampan perak berisi ambar, kesturi, kapur barus, dan gaharu, dua puluh nampan berlapis cat, dua bilah pedang India, sepuluh kuda, sepuluh bagal, dan sepuluh unta berpakaian.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000245, 90000246, 90000247],
+        "soal": {
+          "tanya": "Berapa dinar Oman yang termasuk dalam persembahan 'Adhud ad-Daulah kepada ath-Tha'i'?",
+          "jawab": "Lima puluh ribu dinar Oman dalam sepuluh kantong brokat."
+        }
+      },
+      {
+        "judul": "Persembahan Ibnu Khalaf bukan pinjaman, menurut kisah yang dituturkan penulis",
+        "isi": "Penulis menyebut bahwa Shamsham ad-Daulah, Syaraf ad-Daulah, dan Baha' ad-Daulah juga mempersembahkan jumlah besar ketika diangkat, karena harta masih melimpah. Yang terakhir adalah kiriman Sulthan ad-Daulah dari Fars lewat Muhammad bin Ali bin Khalaf: sepuluh ribu dinar, dua peti pakaian dan wewangian, dan tiga puluh ribu dirham untuk Ibnu Hajib an-Nu'man, sementara utusannya az-Zainabi diberi seribu dinar, dua puluh potong kain, dan kuda berpelana emas. Ketika al-Qadir duduk untuk pembacaan surat pengangkatan, Ibnu Khalaf mengirim permadani dan tirai. Barang itu dikembalikan setelah majelis, tetapi ia mengirimnya lagi dan berkata bahwa itu persembahan, bukan pinjaman.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000248, 90000249],
+        "soal": {
+          "tanya": "Apa kata Ibnu Khalaf ketika permadani dan tirai kirimannya dikembalikan dari Dar al-Khilafah?",
+          "jawab": "Ia mengirimnya lagi dan berkata bahwa barang itu persembahan, bukan pinjaman."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

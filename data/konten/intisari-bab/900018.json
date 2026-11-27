@@ -1,0 +1,108 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900018,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p307: doa bagi khalifah di khutbah kedua sesudah duduk dan isi doanya sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p308: amir ibu kota tidak disebut di mimbar ibu kota, tiga khatib Muhammad bin Yaqut dipecat ar-Radhi, Nashir ad-Daulah tanpa aturan tetap sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p309-p310: khutbah Harun bin al-Muththalib disebut berdalil dengan ayat tanpa isi ayat, penilaian tanpa dasar, permintaan 'Adhud ad-Daulah dikabulkan sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "8df263957ebfaf3d9f3e4d14dbbd7f42c573d2ea5b7233785240002855ce4882",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Doa khalifah pada khutbah kedua sesudah duduk sesuai p307."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tiga khatib Muhammad bin Yaqut dipecat ar-Radhi dan penilaian tentang Nashir ad-Daulah sesuai."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Khutbah Harun, penilaian tanpa dasar, dan permintaan 'Adhud ad-Daulah dikabulkan sesuai."
+        }
+      ],
+      "laporan": "Semua benar; boleh terbit"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "4d0303fcc74024872afcf3ed7ece9ec956a876423bf8caa28d5ce7c3552d58b0",
+      "draf_sha256": "8df263957ebfaf3d9f3e4d14dbbd7f42c573d2ea5b7233785240002855ce4882",
+      "waktu": "2026-11-27T18:34:27.589Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', khutbah di mimbar ibu kota semula hanya mendoakan khalifah, dan penyebutan amir di dalamnya baru menjadi aturan setelah 'Adhud ad-Daulah memintanya kepada ath-Tha'i'.",
+    "ringkasan": "Hilal ash-Shabi' menjelaskan doa bagi khalifah dalam khutbah kedua di mimbar, lalu menegaskan bahwa para amir ibu kota tidak biasa disebut di mimbar Baghdad, hanya di mimbar daerah kekuasaan mereka. Ia menuturkan usaha Muhammad bin Yaqut dan Nashir ad-Daulah yang tidak berdasar aturan, khutbah Harun bin al-Muththalib yang memuji 'Adhud ad-Daulah tanpa perintah, dan bagaimana 'Adhud ad-Daulah kemudian meminta penyebutan resmi dari ath-Tha'i'.",
+    "gagasan": [
+      {
+        "judul": "Khalifah didoakan dalam khutbah kedua sesudah duduk, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', doa bagi khalifah di mimbar dibaca dalam khutbah kedua, sesudah duduk di antara dua khutbah dan sesudah mengulang pujian kepada Allah dan shalawat kepada Nabi Muhammad saw. Khatib memohon agar Allah memperbaiki hamba dan khalifah-Nya dengan menyebut nama dan gelarnya, sebagaimana Allah memperbaiki para khalifah dan imam yang mendapat petunjuk. Ia juga memohon agar khalifah ditolong memikul amanat yang dibebankan kepadanya, diberkahi dalam apa yang diberikan kepadanya, dijaga dalam apa yang dipercayakan kepadanya, dan dijadikan orang yang mensyukuri nikmat Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000307],
+        "soal": {
+          "tanya": "Pada bagian khutbah mana khalifah didoakan di mimbar menurut Hilal ash-Shabi'?",
+          "jawab": "Pada khutbah kedua, sesudah duduk dan sesudah mengulang pujian kepada Allah dan shalawat."
+        }
+      },
+      {
+        "judul": "Ar-Radhi memecat khatib yang mendoakan Muhammad bin Yaqut, menurut penuturan penulis",
+        "isi": "Penulis menegaskan bahwa para amir ibu kota tidak biasa disebut di mimbar ibu kota; mereka didoakan di mimbar negeri jauh yang berada di bawah kekuasaan mereka. Ketika berkuasa, Muhammad bin Yaqut bersepakat dengan tiga khatib Baghdad, yaitu imam masjid di kota, di masjid yang bersambung dengan Dar al-Khilafah, dan di ar-Rushafah, agar mendoakannya sesudah doa bagi ar-Radhi. Mereka melakukannya pada suatu Jumat. Ar-Radhi mengingkarinya, memecat mereka, dan mengangkat orang lain. Nashir ad-Daulah bin Hamdan juga pernah disebut dalam khutbah saat berada di ibu kota, tetapi menurut penulis itu tidak berdasar aturan tetap atau perintah dari khalifah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000308],
+        "soal": {
+          "tanya": "Apa tindakan ar-Radhi terhadap para khatib yang mendoakan Muhammad bin Yaqut sesudah dirinya?",
+          "jawab": "Ia mengingkarinya, memecat mereka, dan menggantinya dengan khatib lain."
+        }
+      },
+      {
+        "judul": "Pujian Harun bin al-Muththalib kepada 'Adhud ad-Daulah tidak berdasar aturan, menurut penulis",
+        "isi": "Penulis menuturkan bahwa setelah 'Adhud ad-Daulah menguasai urusan dan orang berlomba mendekatinya, khatib Harun bin al-Muththalib di masjid jami' ar-Rushafah memujinya panjang dalam khutbah. Ia menyebut 'Adhud ad-Daulah sebagai penakluk negeri, pemakmur masjid, dan penggali sungai, berdalil dengan beberapa ayat, lalu menyeru jamaah mendoakan khalifah dan 'Adhud ad-Daulah serta menaati keduanya. Menurut penulis, perbuatan Harun itu tidak berdasar aturan. Setelah mengetahuinya, 'Adhud ad-Daulah meminta ath-Tha'i' agar memerintahkan penyebutannya dalam khutbah. Ath-Tha'i' mengabulkannya, dan kebiasaan itu berlaku sampai masa penulis.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000309, 90000310],
+        "soal": {
+          "tanya": "Apa yang dilakukan 'Adhud ad-Daulah setelah mengetahui khutbah Harun bin al-Muththalib?",
+          "jawab": "Ia meminta ath-Tha'i' memerintahkan penyebutan namanya dalam khutbah, dan permintaan itu dikabulkan."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900016,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p291-p292: kertas setengah kini disebut dianjurkan, kata diamanatkan dihapus, bila disegel di akhir dan pengamatan penulis dilengkapi sesudah periksa independen."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p293: cincin Rasulullah saw. tiga baris dan ukiran cincin empat khalifah pertama diterjemahkan maknanya, bukan ayat; sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perbaikan",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "581eb31b1880e1f183b37d640b9909c9e5129d3bb4306a8a39013d63f897668d",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Kertas, tali, segel, kantong, dan surat pengangkatan tak beralamat sesuai p291-p292."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Cincin Rasulullah tiga baris dan ukiran cincin empat khalifah sesuai p293."
+        }
+      ],
+      "laporan": "Semua benar; boleh terbit"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "9841d487f32fe7e075cc23ac032cf9eb842f6205637d60f9b863d901e3b6992e",
+      "draf_sha256": "581eb31b1880e1f183b37d640b9909c9e5129d3bb4306a8a39013d63f897668d",
+      "waktu": "2026-11-27T18:43:50.215Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', jenis kertas, tali, segel, dan kantong surat khalifah diatur, dan segel khilafah adalah cincin Rasulullah saw. berukiran tiga baris, sedangkan ukiran cincin lain bebas dipilih.",
+    "ringkasan": "Hilal ash-Shabi' menyebut bahwa surat kesultanan dahulu ditulis di kertas Mesir yang lebar, lalu beralih ke kertas lebar lain ketika kiriman kertas Mesir terputus. Ia menjelaskan kertas setengah ukuran untuk catatan khalifah, tali sutra hitam, segel dari ambar dan kesturi atau tanah liat hitam, kantong brokat hitam, dan surat pengangkatan yang tidak perlu disegel. Bab ditutup dengan segel khilafah dan ukiran cincin para khalifah pertama.",
+    "gagasan": [
+      {
+        "judul": "Surat khalifah disegel dengan ambar dan dibawa dalam kantong brokat hitam, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', surat kesultanan dahulu ditulis di kertas Mesir yang lebar, lalu ketika kirimannya terputus diganti kertas lebar jenis lain, untuk surat pengangkatan, jabatan, gelar, dan surat dengan penguasa daerah. Untuk catatan khalifah dan laporan wazir yang dianjurkan kertas setengah ukuran. Surat diikat tali sutra hitam dan disegel dengan ambar dan kesturi atau tanah liat hitam bercampur ambar, lalu dibawa dalam kantong brokat hitam bertali dan bersegel. Surat pengangkatan tidak perlu disegel karena tidak beralamat, dan bila disegel maka di akhirnya; penulis tidak pernah melihat segel di akhirnya, dan lebih sering melihatnya pada surat muqatha'ah dan syarat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000291, 90000292],
+        "soal": {
+          "tanya": "Mengapa surat pengangkatan tidak perlu disegel menurut Hilal ash-Shabi'?",
+          "jawab": "Karena surat pengangkatan tidak memiliki alamat."
+        }
+      },
+      {
+        "judul": "Segel khilafah adalah cincin Rasulullah saw., menurut penulis",
+        "isi": "Penulis menyebut bahwa segel khilafah adalah cincin Rasulullah saw. dengan ukiran Muhammad Rasulullah dalam tiga baris, sedangkan ukiran cincin lain bebas dipilih. Cincin pribadi Abu Bakar berukiran pujian kepada Allah Yang Mahakuasa, cincin Umar bin al-Khaththab berukiran bahwa maut cukup sebagai penasihat baginya, cincin Utsman bin Affan berukiran pernyataan imannya kepada Allah Yang Mahaagung, dan cincin Ali bin Abi Thalib berukiran bahwa Allah Raja dan Ali hamba-Nya. Menurut penulis, generasi sesudah mereka berbeda-beda dalam ukiran cincinnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000293],
+        "soal": {
+          "tanya": "Dalam berapa baris ukiran Muhammad Rasulullah pada cincin segel khilafah menurut Hilal ash-Shabi'?",
+          "jawab": "Ukiran itu ditulis dalam tiga baris."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}
