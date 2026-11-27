@@ -35,6 +35,6 @@ describe("kitab kandidat Segera hadir (ADR-115)", () => {
       ).toBe(true);
       expect(UPCOMING_SLUGS.has(slug), slug).toBe(false);
     }
-    expect(UPCOMING_SLUGS.has("al-waraqat")).toBe(true);
+    expect(UPCOMING_SLUGS.has("syarh-ibn-aqil")).toBe(true);
   });
 });

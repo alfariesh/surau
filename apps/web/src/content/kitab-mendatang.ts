@@ -160,6 +160,8 @@ export const RELEASED_SLUGS: ReadonlySet<string> = new Set([
   "al-ajurrumiyyah",
   "al-munqidz-min-adh-dhalal",
   "al-waraqat",
+  "al-muqaddimah-al-hadhramiyyah",
+  "at-tarifat",
 ]);
 
 /** Slug yang masih menerima suara minat: kandidat yang belum tayang. */
