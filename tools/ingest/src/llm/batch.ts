@@ -258,6 +258,8 @@ export function pendingRequests(
   acc: Accepted,
   round: 1 | 2,
   retranslate: Retranslation = NO_RETRANSLATION,
+  /** Model untuk unit yang belum pernah disentuh (bawaan Haiku; per kitab lewat `WorkConfig.llm.model`). */
+  freshModel: ModelId = MODELS.haiku,
 ): PlannedRequest[] {
   const out: PlannedRequest[] = [];
   // Yang pernah gagal untuk sumber yang SAMA dengan versi prompt SAAT INI diulang lewat `retry`
@@ -276,7 +278,7 @@ export function pendingRequests(
       // (sumbernya berubah, mis. ayat baru dikenali) langsung ke model yang disetujui/Sonnet;
       // hanya paragraf yang belum pernah disentuh memakai Haiku.
       const model =
-        target?.model ?? (prior !== undefined || attempted.has(id) ? MODELS.sonnet : MODELS.haiku);
+        target?.model ?? (prior !== undefined || attempted.has(id) ? MODELS.sonnet : freshModel);
       const r = translationRequest(work, u.passageId, model);
       if (r !== null) out.push(r);
     }
@@ -285,7 +287,7 @@ export function pendingRequests(
         const id = chunkCustomId(c, lang);
         if (acc.r1.get(id)?.source_sha256 === c.sourceSha256) continue;
         if (failed.has(`${id}:${c.sourceSha256}`)) continue;
-        const r = r1Request(work, id, MODELS.haiku);
+        const r = r1Request(work, id, freshModel);
         if (r !== null) out.push(r);
       }
     }
@@ -296,7 +298,7 @@ export function pendingRequests(
     for (const lang of SUMMARY_LANGS) {
       if (acc.final.get(`${n.tocNodeId}-${lang}`)?.source_sha256 === n.sourceSha256) continue;
       if (failed.has(`${tocRound2CustomId(n.tocNodeId, lang)}:${n.sourceSha256}`)) continue;
-      const r = r2Request(work, acc, n.tocNodeId, lang, MODELS.haiku);
+      const r = r2Request(work, acc, n.tocNodeId, lang, freshModel);
       if (r !== null) out.push(r);
     }
   }
@@ -502,7 +504,13 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
     for (const b of work.blocked.slice(0, 10)) console.error(`  ${b.passageId}: ${b.detail}`);
   }
   const retranslate = loadRetranslation(ctx.repo, ctx.rows());
-  const reqs = pendingRequests(work, acc, round, retranslate);
+  const reqs = pendingRequests(
+    work,
+    acc,
+    round,
+    retranslate,
+    ctx.work.llm?.model === "sonnet" ? MODELS.sonnet : MODELS.haiku,
+  );
   if (retranslate.size > 0 && round === 1) {
     const due = reqs.filter(
       (r) => r.kind === "translation" && retranslate.has(Number(r.custom_id.split("-")[1])),
