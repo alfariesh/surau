@@ -22,8 +22,10 @@ export const TIBYAN: WorkConfig = {
     volumes: [224],
     titles: 127,
     matanMinPages: 224,
-    // Terjemahan dan ringkasan menyusul (X31c lanjutan).
-    llmCoverage: 0,
+    // X31c/X31d: terjemahan + ringkasan Sonnet (batch 2026-11-27); "Definisi selesai" X31 = ≥ 99%.
+    llmCoverage: 0.99,
+    // 11 Intisari Bab chat, satu per judul teratas di ledger (ADR-147): batas bawah (ADR-137).
+    minDigests: 11,
   },
   // Halaman cetak 8 (awal khutbah an-Nawawi, 4 paragraf badan; halaman 5 kini hanya berisi judul
   // karena mukadimah pentahqiq tidak dimuat, ADR-150); kata pencarian wajib mengenai paragraf

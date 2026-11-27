@@ -326,7 +326,9 @@ function rowsFor(
   const subheadings = readSubheadings(paths.repo, config);
   // Terjemahan/ringkasan AI dicek terhadap baris yang baru dibangun ini (hash sumber, ayat).
   const llm =
-    llmDir === undefined ? null : llmRows(rows, llmDir, loadReviews(paths.repo), subheadings);
+    llmDir === undefined
+      ? null
+      : llmRows(rows, llmDir, loadReviews(paths.repo), subheadings, config.llm?.translateNote);
   if (llm !== null) {
     rows.translation = llm.translation;
     rows.summary = llm.summary;

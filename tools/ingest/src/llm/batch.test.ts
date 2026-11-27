@@ -300,6 +300,9 @@ describe("prompt terjemahan per kitab (ADR-149)", () => {
 
   test("kitab tanpa petunjuk: versi dan request sama persis dengan prompt aktif", () => {
     expect(work.translatePrompt).toBe(TRANSLATE_PROMPT);
+    // Batas rasio panjang: bawaan untuk kitab tanpa petunjuk, 6 untuk al-Ajurrumiyyah.
+    expect(work.maxLengthRatio).toBeUndefined();
+    expect(noted.maxLengthRatio).toBe(6);
     expect(buildWork(rows, { translateNote: undefined }).translatePrompt).toBe(TRANSLATE_PROMPT);
     expect(currentPromptVersion(work, "passage-10000001")).toBe(TRANSLATE_PROMPT.id);
     const r = pendingRequests(work, accepted(), 1).find((x) => x.custom_id === "passage-10000001");

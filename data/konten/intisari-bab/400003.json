@@ -1,0 +1,165 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400003,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:25:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p13-p17: empat tanda rafa', dhammah di empat tempat, wawu di dua tempat dengan lima al-asma' al-khamsah, alif khusus tatsniyah, nun dengan tiga dhamir sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p18-p23: lima tanda nashab, fathah di tiga tempat, alif dengan contoh ra'aitu abaka wa akhaka, kasrah, ya', dan hadzf nun sesuai teks; terjemahan contoh berkata ganti 'aku' dihapus."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p24-p28: tiga tanda khafdh, kasrah di tiga tempat (mufrad dan taksir munsharif, jamak muannats salim), ya' di tiga tempat, fathah pada ghairu munsharif sesuai teks; p24 daftar tanda yang letaknya mendahului p25."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p29-p31: dua tanda jazm, sukun pada mudhari' shahih akhir, hadzf pada mudhari' mu'tal akhir dan al-af'al al-khamsah sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "kurang",
+        "catatan": "p33-p37: dua kelompok mu'rab, empat jenis dengan harakat, tiga pengecualian, dan empat jenis dengan huruf sesuai teks; rincian tanda tiap jenis dengan huruf (p38-p41) tidak dimuat karena batas jumlah gagasan, p40 dikeluarkan dari dasar."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "d68ea6f773ef6982cc7d4091cd65bb5203664ed732ac337de7fbb32af3aa4d28",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Rafa' empat tanda dan tempatnya cocok p13-p17."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Nashab lima tanda dan tempatnya cocok p18-p23."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Khafdh tiga tanda cocok p24-p28."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Jazm dua tanda dan tempatnya cocok p29-p31."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Isi cocok p33-p37, tetapi ringkasan menyebut rincian tanda jenis berhuruf (p38-p41) yang tidak ada di dasar gagasan."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "bf20be35659d5d355f1d8cbba20b2d136222ad1c09214636128fc47bf5b6ee74",
+      "draf_sha256": "d68ea6f773ef6982cc7d4091cd65bb5203664ed732ac337de7fbb32af3aa4d28",
+      "waktu": "2026-11-27T06:33:17.303Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, rafa' punya empat tanda, nashab lima, khafdh tiga, dan jazm dua, sedangkan kata mu'rab terbagi menjadi yang di-i'rab dengan harakat dan dengan huruf.",
+    "ringkasan": "Ibnu Ajurrum merinci tanda-tanda i'rab satu per satu beserta tempatnya. Rafa' bertanda dhammah, wawu, alif, dan nun; nashab bertanda fathah, alif, kasrah, ya', dan terbuangnya nun; khafdh bertanda kasrah, ya', dan fathah; jazm bertanda sukun dan pembuangan. Dalam satu fasal ia lalu membagi kata mu'rab menjadi dua: yang di-i'rab dengan harakat (empat jenis, dengan tiga pengecualian) dan yang di-i'rab dengan huruf (empat jenis), lalu menjelaskan tanda rafa', nashab, khafdh, atau jazm bagi tiap jenis yang di-i'rab dengan huruf.",
+    "gagasan": [
+      {
+        "judul": "Rafa' punya empat tanda dengan tempatnya masing-masing, menurut Ibnu Ajurrum",
+        "isi": "Menurut Ibnu Ajurrum, tanda rafa' ada empat: dhammah, wawu, alif, dan nun. Dhammah berlaku di empat tempat: isim mufrad, jamak taksir, jamak muannats salim, dan fi'il mudhari' yang akhirnya tidak bersambung dengan apa pun. Wawu di dua tempat: jamak mudzakkar salim dan al-asma' al-khamsah (\"abuka\", \"akhuka\", \"hamuka\", \"fuka\", \"dzu malin\"). Alif khusus pada tatsniyah isim. Nun pada fi'il mudhari' yang bersambung dengan dhamir tatsniyah, dhamir jamak, atau dhamir muannats mukhathabah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000013, 40000014, 40000015, 40000016, 40000017],
+        "soal": {
+          "tanya": "Di berapa tempat dhammah menjadi tanda rafa' menurut Ibnu Ajurrum?",
+          "jawab": "Di empat tempat: isim mufrad, jamak taksir, jamak muannats salim, dan fi'il mudhari' yang akhirnya tidak bersambung apa pun."
+        }
+      },
+      {
+        "judul": "Nashab punya lima tanda, termasuk terbuangnya nun, menurut penulis",
+        "isi": "Penulis menyebut lima tanda nashab: fathah, alif, kasrah, ya', dan terbuangnya nun. Fathah berlaku di tiga tempat: isim mufrad, jamak taksir, dan fi'il mudhari' yang dimasuki 'amil nashab dan akhirnya tidak bersambung apa pun. Alif pada al-asma' al-khamsah, seperti \"ra'aitu abaka wa akhaka\". Kasrah pada jamak muannats salim, ya' pada tatsniyah dan jamak, dan terbuangnya nun pada al-af'al al-khamsah yang rafa'-nya dengan tetapnya nun.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000018, 40000019, 40000020, 40000021, 40000022, 40000023],
+        "soal": {
+          "tanya": "Apa tanda nashab bagi jamak muannats salim menurut penulis al-Ajurrumiyyah?",
+          "jawab": "Tanda nashabnya adalah kasrah, bukan fathah."
+        }
+      },
+      {
+        "judul": "Khafdh bertanda kasrah, ya', dan fathah, menurut uraian penulis",
+        "isi": "Menurut uraian penulis, khafdh punya tiga tanda: kasrah, ya', dan fathah. Kasrah berlaku di tiga tempat: isim mufrad yang munsharif, jamak taksir yang munsharif, dan jamak muannats salim. Ya' juga di tiga tempat: al-asma' al-khamsah, tatsniyah, dan jamak. Fathah menjadi tanda khafdh pada isim yang tidak munsharif (ghairu munsharif).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000024, 40000025, 40000026, 40000027, 40000028],
+        "soal": {
+          "tanya": "Pada isim jenis apa fathah menjadi tanda khafdh menurut penulis?",
+          "jawab": "Pada isim yang tidak munsharif."
+        }
+      },
+      {
+        "judul": "Jazm hanya punya dua tanda, sukun dan pembuangan, menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum menyebut dua tanda jazm: sukun dan pembuangan (hadzf). Sukun menjadi tanda jazm pada fi'il mudhari' yang huruf akhirnya shahih. Pembuangan menjadi tanda jazm pada fi'il mudhari' yang huruf akhirnya mu'tal dan pada al-af'al al-khamsah yang rafa'-nya dengan tetapnya nun.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000029, 40000030, 40000031],
+        "soal": {
+          "tanya": "Kapan pembuangan menjadi tanda jazm menurut Ibnu Ajurrum?",
+          "jawab": "Pada fi'il mudhari' yang akhirnya mu'tal dan pada al-af'al al-khamsah."
+        }
+      },
+      {
+        "judul": "Kata mu'rab terbagi dua, dengan harakat dan dengan huruf, menurut penulis",
+        "isi": "Dalam fasal mu'rabat, penulis membagi kata mu'rab menjadi dua: yang di-i'rab dengan harakat dan yang di-i'rab dengan huruf. Yang dengan harakat ada empat jenis: isim mufrad, jamak taksir, jamak muannats salim, dan fi'il mudhari' yang akhirnya tidak bersambung apa pun; semuanya rafa' dengan dhammah, nashab dengan fathah, khafdh dengan kasrah, dan jazm dengan sukun. Ada tiga pengecualian: jamak muannats salim di-nashab dengan kasrah, isim ghairu munsharif di-khafdh dengan fathah, dan fi'il mudhari' mu'tal akhir di-jazm dengan membuang akhirnya. Yang dengan huruf juga empat jenis: tatsniyah, jamak mudzakkar salim, al-asma' al-khamsah, dan al-af'al al-khamsah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000033, 40000034, 40000035, 40000036, 40000037],
+        "soal": {
+          "tanya": "Ada berapa pengecualian dari kaidah kata yang di-i'rab dengan harakat menurut penulis?",
+          "jawab": "Tiga: jamak muannats salim, isim ghairu munsharif, dan fi'il mudhari' mu'tal akhir."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000013,
+        "char_start": 0,
+        "char_end": 49,
+        "terjemahan": "Rafa' punya empat tanda: dhammah, wawu, alif, dan nun."
+      },
+      {
+        "gagasan": 4,
+        "passage_id": 40000029,
+        "char_start": 0,
+        "char_end": 36,
+        "terjemahan": "Jazm punya dua tanda: sukun dan pembuangan."
+      }
+    ],
+    "istilah": []
+  }
+}

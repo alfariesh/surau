@@ -27,11 +27,13 @@
 | Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 0 rujukan exact; 0 tidak sesuai |
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 0/0 (100,0%); mirip 0, tidak cocok 0 |
 | Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 0 terjemahan berisi ayat; 0 bermasalah |
-| Terjemahan AI: cakupan paragraf badan ≥ 0% | ✓ | 0/139 (0,00%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
-| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 0% | ✓ | 0/50 (0,00%); usang 0, tidak sah 0 |
-| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 0/25 (0,00%): node 0, subjudul 0; belum ada n400001, n400002, n400003, n400004, n400005, n400006, n400007, n400008 … |
+| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 137/137 (100,00%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
+| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 50/50 (100,00%); usang 0, tidak sah 0 |
+| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 25/25 (100,00%): node 25, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/25 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
+| Konten chat (X24): unit siap jadi Intisari, kutipan di dalam paragraf dan tanpa ayat, unit ditarik tidak dimuat | ✓ | 25 unit, 60 gagasan, 26 kutipan, 60 soal berjawaban; menggantikan batch 0 (–), induk batch basi dibuang 0 (–); 0 unit ditarik |
+| Intisari termuat ≥ 25 (tidak berkurang dari korpus tayang) | ✓ | 25 Intisari dari al-ajurrumiyyah/intisari |
 | ID paragraf rilis stabil (ADR-059) | ✓ | 139 ID lama ada dengan teks sama |
 
 ## Daftar isi

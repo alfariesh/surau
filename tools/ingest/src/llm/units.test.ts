@@ -6,6 +6,7 @@ import {
   bodyInReadingOrder,
   headingPaths,
   splitPages,
+  stripUnlinkedMarkers,
   summaryPlan,
   translationUnits,
 } from "./units.ts";
@@ -116,6 +117,47 @@ describe("unit terjemahan", () => {
     // text_raw tidak berubah; kitab dengan catatan kaki tertaut tetap membawa penandanya.
     expect(rows.passage[1]?.text_raw).toContain("(١)");
     expect(translationUnits(rows).units[0]?.masked.text).toContain("(١)");
+  });
+
+  test("penanda tanpa kurung di akhir kata Arab (ADR-148 tambahan): dibuang dari unit terjemahan saja", () => {
+    // Kata karangan + harakat + angka Arab-India menempel; angka berdiri sendiri tetap.
+    const word = "\u0643\u062A\u0628\u064E";
+    expect(stripUnlinkedMarkers(`${word}\u0661 \u0628`, { bare: true })).toBe(`${word} \u0628`);
+    expect(stripUnlinkedMarkers(`${word}\u0661\u0662.`, { bare: true })).toBe(`${word}.`);
+    expect(stripUnlinkedMarkers(`\u0628 \u0661\u0662 \u0628`, { bare: true })).toBe(
+      `\u0628 \u0661\u0662 \u0628`,
+    );
+    // Dipisah satu spasi dari kata tetapi langsung diikuti titik dua / koma Arab = penanda.
+    expect(stripUnlinkedMarkers(`${word} \u0661: \u0628`, { bare: true })).toBe(`${word}: \u0628`);
+    expect(stripUnlinkedMarkers(`${word} \u0661\u060C`, { bare: true })).toBe(`${word}\u060C`);
+    // Tanpa `bare`: hanya penanda berkurung (perilaku lama, dipakai ringkasan).
+    expect(stripUnlinkedMarkers(`${word}\u0661 (\u0662)`)).toBe(`${word}\u0661`);
+    const bare: UnitRows = {
+      ...rows,
+      footnote_ref: [],
+      passage: rows.passage.map((p) =>
+        p.id % 100 === 2 ? { ...p, text_raw: `${word}\u0661 \u0646\u0635` } : p,
+      ),
+    };
+    const unit = translationUnits(bare).units.find((u) => u.passageId % 100 === 2);
+    expect(unit?.masked.text).toBe(`${word} \u0646\u0635`);
+    // Kitab dengan catatan kaki tertaut tidak tersentuh; ringkasan tetap memakai teks berpenanda.
+    const linked = translationUnits({ ...bare, footnote_ref: rows.footnote_ref }).units;
+    expect(linked.find((u) => u.passageId % 100 === 2)?.masked.text).toContain("\u0661");
+    const plan = summaryPlan(bare, { maxTokens: 2_500, tokensPerChar: 1 });
+    expect(plan.chunks.some((c) => c.text.includes(`${word}\u0661`))).toBe(true);
+  });
+
+  test('paragraf tanpa huruf Arab (mis. "...") bukan unit terjemahan dan bukan konteks', () => {
+    const dots: UnitRows = {
+      ...rows,
+      passage: [...rows.passage, passage(6, 4, 3, 0, "...")],
+    };
+    const { units, blocked } = translationUnits(dots);
+    expect(blocked).toEqual([]);
+    expect(units.map((u) => u.passageId % 100)).toEqual([1, 2, 3, 4, 5]);
+    // Paragraf 5 (sesudah "..." di halaman 4) tetap mendapat konteks paragraf 4.
+    expect(units[4]?.previous).toBe(LONG);
   });
 
   test("rujukan ayat yang tidak bisa ditandai → paragraf diblokir, tidak dikirim", () => {

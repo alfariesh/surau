@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400007,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:20:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p58-p59: definisi (isim marfu' tanpa penyebutan fa'il) dan pola harakat madhi (dhammah awal, kasrah sebelum akhir) serta mudhari' (dhammah awal, fathah sebelum akhir) sesuai teks, tidak tertukar."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p59: pembagian zhahir dan mudhmar, empat contoh zhahir (dhuriba/yudhrabu Zaidun, ukrima/yukramu 'Amrun), dan jumlah mudhmar dua belas sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "7902d80876f110520272a086c7af9e6b14648fd7adcab9300c6b90a0db3c0cb3",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi dan pola harakat madhi serta mudhari' sesuai p58-59, tidak tertukar."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Empat contoh zhahir dan dua belas mudhmar dengan urutan tepat sesuai p59."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "3eba019c4b8646ddee68c5ac09ad44771c53f5c2679af27a9309d41feed9a6f5",
+      "draf_sha256": "7902d80876f110520272a086c7af9e6b14648fd7adcab9300c6b90a0db3c0cb3",
+      "waktu": "2026-11-27T06:28:27.866Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, maf'ul yang tidak disebut fa'ilnya adalah isim marfu' yang tampil tanpa fa'il, dengan fi'il yang diubah bentuknya, dan ia terbagi menjadi zhahir dan mudhmar.",
+    "ringkasan": "Ibnu Ajurrum mendefinisikan maf'ul yang tidak disebut fa'ilnya sebagai isim marfu' yang tidak disertai penyebutan fa'ilnya. Ia lalu menjelaskan perubahan bentuk fi'ilnya: pada fi'il madhi huruf pertama didhammah dan huruf sebelum akhir dikasrah, sedangkan pada fi'il mudhari' huruf pertama didhammah dan huruf sebelum akhir difathah. Sesudah itu ia membaginya menjadi zhahir, dengan contoh \"dhuriba Zaidun\" dan \"ukrima 'Amrun\", dan mudhmar yang berjumlah dua belas, dengan contoh dari \"dhuribtu\" sampai bentuk untuk kelompok perempuan.",
+    "gagasan": [
+      {
+        "judul": "Maf'ul yang tidak disebut fa'ilnya ditandai perubahan harakat fi'il menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum mendefinisikan maf'ul yang tidak disebut fa'ilnya sebagai isim marfu' yang tidak disertai penyebutan fa'ilnya. Ia lalu menerangkan bentuk fi'ilnya. Bila fi'ilnya madhi, huruf pertamanya didhammah dan huruf sebelum huruf terakhirnya dikasrah. Bila fi'ilnya mudhari', huruf pertamanya didhammah dan huruf sebelum huruf terakhirnya difathah. Contoh yang ia berikan kemudian menunjukkan kedua pola itu, seperti \"dhuriba\" untuk madhi dan \"yudhrabu\" untuk mudhari'.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000058, 40000059],
+        "soal": {
+          "tanya": "Menurut Ibnu Ajurrum, bagaimana perubahan harakat fi'il madhi pada maf'ul yang tidak disebut fa'ilnya?",
+          "jawab": "Huruf pertamanya didhammah dan huruf sebelum huruf terakhirnya dikasrah."
+        }
+      },
+      {
+        "judul": "Maf'ul yang tidak disebut fa'ilnya terbagi zhahir dan mudhmar menurut penulis",
+        "isi": "Penulis membagi maf'ul yang tidak disebut fa'ilnya menjadi dua macam, zhahir dan mudhmar. Contoh yang zhahir adalah \"dhuriba Zaidun\" dan \"yudhrabu Zaidun\" (Zaid dipukul), serta \"ukrima 'Amrun\" dan \"yukramu 'Amrun\" ('Amr dimuliakan). Yang mudhmar menurutnya ada dua belas, dicontohkan dengan fi'il \"dhuriba\" yang bersambung dengan kata ganti, mulai \"dhuribtu\" untuk orang pertama tunggal dan \"dhuribna\" untuk orang pertama jamak, lalu bentuk lawan bicara, kemudian \"dhuriba\", \"dhuribat\", bentuk berdua, \"dhuribu\", dan bentuk jamak perempuan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000059],
+        "soal": {
+          "tanya": "Ada berapa bentuk mudhmar pada maf'ul yang tidak disebut fa'ilnya, menurut penulis?",
+          "jawab": "Ada dua belas bentuk, dicontohkan dari \"dhuribtu\" sampai bentuk jamak perempuan."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000058,
+        "char_start": 0,
+        "char_end": 46,
+        "terjemahan": "Yaitu isim marfu' yang tidak disebut fa'ilnya bersamanya."
+      }
+    ],
+    "istilah": []
+  }
+}

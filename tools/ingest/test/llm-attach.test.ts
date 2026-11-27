@@ -5,7 +5,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
-import { TRANSLATE_NOTES, TRANSLATE_PROMPT, contentLength, translatePromptFor } from "@surau/llm";
+import {
+  TRANSLATE_NOTES,
+  TRANSLATE_PROMPT,
+  contentLength,
+  letterLength,
+  translatePromptFor,
+} from "@surau/llm";
 import { describe, expect, test } from "vite-plus/test";
 
 import { llmRows } from "../src/llm/attach.ts";
@@ -213,6 +219,34 @@ describe("hasil LLM → tabel translation/summary", () => {
     expect(new Set(built.translation.map((t) => t.prompt_version))).toEqual(
       new Set([`${TRANSLATE_PROMPT.id}+nahwu-ajurrumiyyah@1`]),
     );
+  });
+
+  test("batas rasio per kitab (ADR-149 tambahan) ikut dipakai validasi ulang ingest", () => {
+    const { rows: base, llm } = setup();
+    // Paragraf fixture semuanya pendek (rasio tidak diperiksa): satu paragraf tanpa ayat dan tanpa
+    // catatan kaki dipanjangkan dengan kata Arab buatan.
+    const busy = new Set([
+      ...base.passage_ayah_ref.map((r) => r.passage_id),
+      ...base.footnote_ref.map((r) => r.passage_id),
+    ]);
+    const target = base.passage.find((p) => p.kind === "body" && !busy.has(p.id));
+    if (target === undefined) throw new Error("fixture tanpa paragraf polos");
+    const rows = {
+      ...base,
+      passage: base.passage.map((p) =>
+        p.id === target.id ? { ...p, text_raw: "كلام مصنوع للاختبار ".repeat(3).trim() } : p,
+      ),
+    };
+    const u = buildWork(rows).units.get(target.id);
+    if (u === undefined) throw new Error("unit paragraf polos tidak ada");
+    // ≈ 5× panjang Arab: ditolak batas bawaan 4, diterima batas 6 al-Ajurrumiyyah.
+    const want = letterLength(u.masked.text) * 5;
+    let text = "";
+    while (text.length < want) text += "Kalimat buatan pengujian. ";
+    writeJsonl(join(llm, "translation.jsonl"), [translationLine(u, text.trim())]);
+    expect(llmRows(rows, llm).stats).toMatchObject({ translations: 0, invalidTranslations: 1 });
+    const noted = llmRows(rows, llm, undefined, undefined, TRANSLATE_NOTES.ajurrumiyyah);
+    expect(noted.stats).toMatchObject({ translations: 1, invalidTranslations: 0 });
   });
 
   test("cakupan di bawah harapan → ingest gagal", () => {

@@ -1,0 +1,165 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300001,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-sonnet-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p12-p15: pujian, mukjizat bagi manusia dan jin, musim semi hati, mudah dihafal anak-anak, dan terpelihara sesuai teks; 'dua kalimat syahadat' semula keliru (teks hanya syahadat tauhid), direvisi atas temuan lapis 3."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p16-p17: umat dimuliakan dengan Islam dan kitab terbaik, isi kitab, pahala dilipatgandakan, perintah mengagungkan dan menjaga adab sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p18: ulama terdahulu menulis keutamaan tilawah, semangat melemah, warga Damaskus gigih, dan kewajiban nasihat bagi kitab sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p19-p25: sanad dibuang, kata asing di bab akhir, hanya derajat riwayat disebut tanpa nilai yang ditulis sendiri, dan batasan 'hanya sesekali' dipertahankan."
+      },
+      {
+        "ke": 5,
+        "nilai": "kurang",
+        "catatan": "p26-p37: sepuluh bab, bab pertama dan keenam (inti dan maksud kitab) serta bab kesepuluh sesuai daftar; bab lain tidak diuraikan. Dasar hanya 4 dari 12 baris daftar, jadi cakupan rendah."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar (pemeriksaan kedua sesudah revisi)",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "f2d9063da290d7643cefd050670e07b9df111b98698b43bc17bc63cce4a58e92",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Pujian, mukjizat, musim semi hati, mudah dihafal, terpelihara, dan syahadat tauhid sesuai p12-p15 (direvisi dari 'dua kalimat syahadat' atas temuan lapis 3 pertama)."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Kitab terbaik, pahala berlipat, dan perintah mengagungkan serta menjaga adab sesuai p16-p17."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Ulama terdahulu, semangat melemah, warga Damaskus, dan kewajiban nasihat sesuai p18."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Isi sesuai; batasan 'sebagian jenis' dari tiap macam adab (p19) hilang, dan 'berderajat tertinggi' parafrasa dari 'sahih' (p24)."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Sepuluh bab dan bab keenam sesuai; judul dan soal mengatribusikan ke an-Nawawi isi daftar bab yang tampak berformat penyunting (p27-p37)."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3). Pemeriksaan pertama: 1 Salah (dua kalimat syahadat), direvisi."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "b61c5619d95f3cd2a6c6128682d0871f4dfab24a6eb7ccac8d74700c054366ea",
+      "draf_sha256": "f2d9063da290d7643cefd050670e07b9df111b98698b43bc17bc63cce4a58e92",
+      "waktu": "2026-11-27T06:43:27.397Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam mukadimahnya, an-Nawawi menyatakan menyusun ringkasan adab pengemban Al-Qur'an karena melihat semangat warga Damaskus membacanya, dengan membuang sanad dan memilih riwayat berderajat tertinggi, dalam sepuluh bab.",
+    "ringkasan": "An-Nawawi membuka kitab dengan memuji Allah yang memuliakan umat Islam dengan Al-Qur'an, mukjizat yang terjaga dan mudah dihafal. Ia lalu menyebut keutamaan kitab itu serta perintah mengagungkannya dan menjaga adabnya. Ia melihat penduduk Damaskus gigih membaca dan mengajarkannya, sehingga menyusun ringkasan adab para pengembannya, sebagai nasihat bagi kitab Allah. Ia menjelaskan metodenya: sanad umumnya dibuang, kata asing dijelaskan di bab penutup, dan riwayat berderajat tertinggi yang diutamakan. Mukadimah ditutup dengan doa dan daftar sepuluh bab.",
+    "gagasan": [
+      {
+        "judul": "Menurut an-Nawawi, Al-Qur'an mukjizat yang terjaga dan mudah dihafal, maka Allah dipuji",
+        "isi": "An-Nawawi membuka dengan memuji Allah yang menunjukkan kepada iman dan memuliakan Nabi Muhammad saw. dengan Al-Qur'an, mukjizat yang terus ada sepanjang masa dan menantang manusia serta jin. Menurutnya, Allah menjadikan Al-Qur'an musim semi bagi hati para ahli bashirah, tidak usang meski sering diulang, dan memudahkannya untuk dihafal anak-anak. Ia menyebut Al-Qur'an terpelihara dari perubahan selama malam dan siang silih berganti, lalu menutup pujian dengan kesaksian bahwa tiada tuhan selain Allah Yang Esa tanpa sekutu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000012, 30000013, 30000014, 30000015],
+        "soal": {
+          "tanya": "Siapa saja yang ditantang oleh Al-Qur'an sebagai mukjizat, menurut mukadimah an-Nawawi?",
+          "jawab": "Manusia dan jin seluruhnya."
+        }
+      },
+      {
+        "judul": "Al-Qur'an kitab terbaik yang berpahala berlipat dan diperintahkan untuk diagungkan beserta adabnya, menurut an-Nawawi",
+        "isi": "Setelah pujian, an-Nawawi menyebut bahwa Allah memuliakan umat ini dengan agama Islam dan Nabi Muhammad saw., serta dengan kitab yang paling utama perkataannya. Menurut an-Nawawi, kitab itu memuat kabar umat terdahulu dan kemudian, nasihat, perumpamaan, adab, aneka hukum, dan dalil-dalil tegas tentang keesaan Allah. Allah melipatgandakan pahala membacanya dan memerintahkan hamba-Nya mengagungkannya, menjaga adab bersamanya, dan mengerahkan tenaga untuk menghormatinya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000016, 30000017],
+        "soal": {
+          "tanya": "Apa yang Allah lakukan terhadap pahala membaca Al-Qur'an, menurut mukadimah an-Nawawi?",
+          "jawab": "Allah melipatgandakan pahala membacanya."
+        }
+      },
+      {
+        "judul": "Semangat warga Damaskus dan kewajiban menasihati kitab Allah mendorong penulisan ringkasan adab, menurut an-Nawawi",
+        "isi": "An-Nawawi mengakui para ulama terdahulu telah menulis tentang keutamaan tilawah, tetapi semangat orang melemah untuk menghafal, bahkan membaca, kitab-kitab itu, sehingga hanya sedikit orang berakal yang mengambil manfaat. Ia melihat penduduk Damaskus tekun membaca Al-Qur'an siang dan malam, sendiri maupun berjamaah, lalu terdorong menyusun ringkasan adab para pengembannya dan sifat para penghafal dan penuntutnya. Ia menyebut Allah mewajibkan nasihat bagi kitab-Nya, dan termasuk nasihat itu menjelaskan adab pengembannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000018],
+        "soal": {
+          "tanya": "Apa yang mendorong an-Nawawi menyusun ringkasan tentang adab pengemban Al-Qur'an?",
+          "jawab": "Kegigihan penduduk Damaskus membaca Al-Qur'an dan kewajiban menasihati kitab Allah."
+        }
+      },
+      {
+        "judul": "Ringkasan perlu membuang sanad dan mengutamakan riwayat berderajat tertinggi, menurut an-Nawawi",
+        "isi": "An-Nawawi menyatakan memilih ringkas dan mengisyaratkan tiap macam adab, sehingga sebagian besar riwayat disebut tanpa sanad, padahal sanadnya ada padanya, demi memudahkan hafalan dan memperluas manfaat. Kata asing dijelaskan di sebuah bab pada akhir kitab. Ia juga menerangkan derajat riwayat dengan menyandarkannya kepada perawinya. Ia mengakui para ulama membolehkan beramal dengan riwayat berderajat rendah dalam keutamaan amal, tetapi mencukupkan diri pada yang tertinggi dan hanya sesekali menyebut yang rendah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000019, 30000020, 30000021, 30000022, 30000024, 30000025],
+        "soal": {
+          "tanya": "Riwayat berderajat apa yang diutamakan an-Nawawi dalam kitabnya, meski ulama membolehkan yang rendah dalam keutamaan amal?",
+          "jawab": "Riwayat berderajat tertinggi; yang rendah hanya sesekali disebut."
+        }
+      },
+      {
+        "judul": "Sepuluh bab dengan bab keenam sebagai inti dan maksud kitab, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut kitabnya terdiri atas sepuluh bab. Daftar bab yang menyertainya di edisi ini menyebut bab pertama tentang keutamaan membaca Al-Qur'an dan para pengembannya, sedangkan bab keenam tentang adab Al-Qur'an, yang disebut sebagai bagian terbesar serta maksud kitab. Daftar itu berlanjut sampai bab kesepuluh tentang ketepatan lafaz kitab ini.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000026, 30000028, 30000033, 30000037],
+        "soal": {
+          "tanya": "Bab keberapa yang disebut an-Nawawi sebagai bagian terbesar dan maksud kitab ini?",
+          "jawab": "Bab keenam, tentang adab Al-Qur'an."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 30000018,
+        "char_start": 516,
+        "char_end": 599,
+        "terjemahan": "Allah telah mewajibkan nasihat bagi kitab-Nya, dan termasuk nasihat bagi kitab itu ialah menjelaskan adab para pengembannya dan para penuntutnya."
+      },
+      {
+        "gagasan": 4,
+        "passage_id": 30000021,
+        "char_start": 0,
+        "char_end": 63,
+        "terjemahan": "Sebab aku memilih meringkasnya ialah keinginanku agar ia mudah dihafal, besar manfaatnya, dan tersebar luas."
+      }
+    ],
+    "istilah": []
+  }
+}

@@ -244,6 +244,7 @@ export type {
   TranslationCheck,
   TranslationCheckInput,
   TranslationCheckLang,
+  TranslationCheckOptions,
   TranslationProblem,
 } from "./translation-check.ts";
 export {

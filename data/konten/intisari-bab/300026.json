@@ -1,0 +1,200 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300026,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:56:36+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p121-p123 dibaca ulang: daftar adab (terjaga dari pekerjaan rendah, tidak tunduk kepada orang sombong ahli dunia, rendah hati kepada orang saleh dan miskin) serta ucapan Umar, Ibnu Mas'ud, al-Hasan bin Ali, dan al-Fudhail sesuai teks; sikap penulis dan jenis anjuran tepat."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p125-p128: peringatan penulis, dua sabda yang dinukil, dan penjelasan penulis atas tergesa-gesa mengambil balasan (harta atau nama baik) sesuai; kisah semula ditulis dua sahabat mendengar sabda, dibetulkan menjadi seorang sahabat yang menyebut sabda, dan catatan penulis bahwa riwayatnya terputus ditambahkan."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p128-p132: nama ulama pada tiga pendapat (melarang, boleh tanpa syarat, boleh dengan akad sewa) sesuai, dalil kisah Ubadah dan jawaban kedua pihak yang membolehkan tepat; paragraf p130-p131 yang sangat pendek dikeluarkan dari dasar, jawaban pertama tentang periwayatan sengaja tidak ditulis."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p134-p139: urutan kadar khataman, kebanyakan tujuh malam, delapan kali sehari semalam dari Ibnu al-Katib sebagai yang terbanyak, serta waktu Utsman dan al-Ghazali sesuai; atribusi kesukaan khatam di awal malam atau siang dipindah ke Amr bin Murrah."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p136-p137: pilihan penulis per keadaan orang, batas tanpa bosan dan tanpa terlalu cepat, serta kemakruhan menurut sekelompok ulama terdahulu sesuai; bilangan sabda ditulis tiga tanpa menambah kata di luar teks selain keterangan dalam kurung."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p140-p145: alasan penulis (menghimpun hati, jauh dari kesibukan, terjaga dari riya) dan dua pengecualian (seluruh malam terus-menerus, membahayakan diri) sesuai teks; isi ayat dan syair mimpi tidak ditulis."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p147-p152: dua perumpamaan unta, ancaman melupakan surah atau ayat, waktu ganti antara Subuh dan Zuhur, serta mimpi Abu Usaid dan penghafal lain sesuai teks; penilaian riwayat tidak ditulis."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perapian",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "0aa5c601691de30c2001324b00ab298abf2f2471bfcb785f952c202d895184ad",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Adab dan keempat ucapan sahabat/tabiin sesuai p121-p123."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Catatan an-Nawawi bahwa sanad kisah sahabat terputus (p128) tidak ditulis; kutipan 30000125 menyisakan ']' di awal."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Nama ulama pada tiga pendapat, dalil Ubadah, jawaban kedua pihak sesuai."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Ibnu al-Katib bisa terbaca sebagai periwayat, padahal ia pelakunya (p135)."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Tiga golongan pembaca, batasan, kemakruhan ulama terdahulu, sabda 'kurang dari tiga' sesuai teks."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Alasan malam dan pengecualiannya sesuai p143."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Judul 'dapat diganti' lebih kuat daripada 'dicatat seperti membaca malam' (p151); catatan an-Nawawi tentang hadits lupa (p148) tidak ditulis."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "ff34897f9d456635330ef4ea789e8936b06a6bc39fc882a18bf06d0563d060f5",
+      "draf_sha256": "0aa5c601691de30c2001324b00ab298abf2f2471bfcb785f952c202d895184ad",
+      "waktu": "2026-11-27T04:14:14.459Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut an-Nawawi, penghafal Al-Qur'an hendaknya berakhlak paling mulia, tidak menjadikan Al-Qur'an mata pencaharian, menjaga dan memperbanyak bacaannya terutama di malam hari, serta merawat hafalannya agar tidak lupa.",
+    "ringkasan": "An-Nawawi membuka bab dengan sifat-sifat yang patut bagi penghafal Al-Qur'an, dikuatkan ucapan Umar, Ibnu Mas'ud, al-Hasan bin Ali, dan al-Fudhail. Ia lalu memperingatkan agar Al-Qur'an tidak dijadikan mata pencaharian dan menukil perselisihan ulama tentang upah mengajarkannya. Sesudah itu ia memaparkan kebiasaan salaf dalam kadar dan waktu mengkhatamkan Al-Qur'an, kemudian menyatakan pilihannya sendiri bahwa kadarnya berbeda menurut keadaan orang. Bab ditutup dengan anjuran memperbanyak bacaan malam, perintah merawat hafalan, dan riwayat tentang orang yang tertidur dari wiridnya.",
+    "gagasan": [
+      {
+        "judul": "Penghafal Al-Qur'an patut berakhlak paling mulia, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut di antara adab penghafal Al-Qur'an: berada pada keadaan dan budi pekerti paling sempurna, menjauhkan diri dari semua yang dilarang Al-Qur'an demi memuliakannya, terjaga dari pekerjaan rendah, berjiwa mulia, tidak tunduk kepada orang-orang sombong dan kasar dari ahli dunia, rendah hati kepada orang saleh, orang baik, dan orang miskin, serta khusyuk, tenang, dan berwibawa. Ia menguatkannya dengan ucapan Umar agar para qari tidak menjadi beban bagi manusia, ucapan Ibnu Mas'ud tentang malam, siang, sedih, dan tangis penghafal, ucapan al-Hasan bin Ali, dan ucapan al-Fudhail bin Iyadh bahwa penghafal adalah pembawa panji Islam.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000121, 30000122, 30000123],
+        "soal": {
+          "tanya": "Kepada siapa penghafal Al-Qur'an hendaknya bersikap rendah hati, menurut an-Nawawi?",
+          "jawab": "Kepada orang-orang saleh, orang-orang baik, dan orang-orang miskin."
+        }
+      },
+      {
+        "judul": "Menjadikan Al-Qur'an mata pencaharian patut sangat dihindari, menurut an-Nawawi",
+        "isi": "An-Nawawi menyebut bahwa di antara hal terpenting yang diperintahkan kepada penghafal ialah sangat berhati-hati agar tidak menjadikan Al-Qur'an mata pencaharian. Ia menukil sabda agar membaca Al-Qur'an tanpa makan dengannya, tanpa menjauhinya, dan tanpa berlebihan padanya, serta sabda tentang kaum yang akan datang menegakkan bacaannya seperti meluruskan anak panah, tergesa-gesa mengambil balasannya dan tidak menundanya. Ia menjelaskan maksudnya: mereka menyegerakan upahnya, baik berupa harta maupun nama baik. Ia juga menukil kisah seorang sahabat yang, melihat orang meminta-minta sesudah membaca Al-Qur'an, menyebut sabda agar orang yang meminta dengan Al-Qur'an tidak diberi.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000125, 30000126, 30000127, 30000128],
+        "soal": {
+          "tanya": "Apa maksud kaum yang tergesa-gesa mengambil balasan Al-Qur'an, menurut penjelasan an-Nawawi?",
+          "jawab": "Mereka menyegerakan upah bacaannya, baik berupa harta maupun nama baik dan sejenisnya."
+        }
+      },
+      {
+        "judul": "Ulama berselisih tentang upah mengajarkan Al-Qur'an, menurut nukilan an-Nawawi",
+        "isi": "An-Nawawi menukil dari al-Khaththabi bahwa sekelompok ulama, di antaranya az-Zuhri dan Abu Hanifah, melarang mengambil upah mengajar Al-Qur'an. Kelompok lain membolehkannya bila tidak disyaratkan, yaitu pendapat al-Hasan al-Bashri, asy-Sya'bi, dan Ibnu Sirin. Atha, Malik, asy-Syafi'i, dan lainnya membolehkannya bila disyaratkan dengan akad sewa yang sah. An-Nawawi sendiri menyebut adanya hadits-hadits yang datang membolehkannya. Pihak yang melarang berdalil dengan kisah Ubadah bin ash-Shamit yang dihadiahi busur oleh muridnya dan diancam kalung dari api, serta dengan banyak atsar salaf. Pihak yang membolehkan menjawab dengan dua jawaban; salah satunya bahwa Ubadah mengajar secara sukarela lalu diberi hadiah sebagai imbalan, berbeda dengan orang yang berakad sewa sebelum mengajar.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000128, 30000129, 30000132],
+        "soal": {
+          "tanya": "Dalam keadaan apa Atha, Malik, dan asy-Syafi'i membolehkan upah mengajar Al-Qur'an, menurut nukilan an-Nawawi?",
+          "jawab": "Bila upah itu disyaratkan dan guru disewa dengan akad sewa yang sah."
+        }
+      },
+      {
+        "judul": "Salaf berbeda-beda kadar dan waktu mengkhatamkan Al-Qur'an, menurut riwayat yang dihimpun an-Nawawi",
+        "isi": "An-Nawawi menukil bahwa sebagian salaf mengkhatamkan sekali dalam dua bulan, sebulan, sepuluh malam, atau delapan malam; kebanyakan dalam tujuh malam; lalu ada yang enam, lima, empat, tiga, dua malam, sehari semalam, sampai delapan kali sehari semalam, menurut riwayat dari Ibnu al-Katib, yang disebut sebagai jumlah terbanyak yang sampai. Banyak yang khatam dalam satu rakaat dan banyak pula yang khatam seminggu sekali. Tentang waktunya, Utsman disebut memulai pada malam Jumat dan khatam pada malam Kamis, al-Ghazali menyebut lebih utama satu khataman siang pada hari Senin dan satu khataman malam pada malam Jumat, dan menurut Amr bin Murrah, mereka menyukai khatam di awal malam atau awal siang.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000134, 30000135, 30000136, 30000137, 30000138, 30000139],
+        "soal": {
+          "tanya": "Dalam berapa malam kebanyakan salaf mengkhatamkan Al-Qur'an, menurut riwayat yang dinukil an-Nawawi?",
+          "jawab": "Kebanyakan mereka mengkhatamkannya dalam tujuh malam."
+        }
+      },
+      {
+        "judul": "Kadar khataman yang dipilih berbeda menurut keadaan orangnya, menurut an-Nawawi",
+        "isi": "Menurut pilihan an-Nawawi, kadar khataman berbeda menurut orangnya. Orang yang dengan pikiran mendalam menemukan makna-makna halus hendaknya membatasi diri pada kadar yang membuatnya sempurna memahami bacaannya. Demikian pula orang yang sibuk menyebarkan ilmu atau urusan penting agama dan kemaslahatan umum kaum muslimin, hendaknya membaca sekadar tidak mengganggu tugasnya. Selain mereka, hendaknya memperbanyak sebisanya tanpa sampai bosan atau membaca terlalu cepat. Ia menambahkan bahwa sekelompok ulama terdahulu memakruhkan khatam dalam sehari semalam, dan menunjuk sabda bahwa orang yang membaca dalam kurang dari tiga tidak memahaminya.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [30000136, 30000137],
+        "soal": {
+          "tanya": "Berapa banyak hendaknya membaca bagi orang yang sibuk menyebarkan ilmu, menurut pilihan an-Nawawi?",
+          "jawab": "Sekadar kadar yang tidak mengganggu tugas yang sedang ia emban."
+        }
+      },
+      {
+        "judul": "Bacaan malam lebih utama karena lebih menghimpun hati, menurut an-Nawawi",
+        "isi": "An-Nawawi menyatakan perhatian kepada bacaan malam hendaknya lebih besar, berdalil dengan sebuah ayat dan beberapa sabda tentang shalat malam, serta ucapan para salaf seperti an-Nakha'i yang menganjurkan membaca di malam hari walau sebentar. Ia menjelaskan alasannya: malam lebih menghimpun hati, lebih jauh dari kesibukan dan hal yang melalaikan, serta lebih terjaga dari riya; ditambah riwayat tentang kebaikan yang terjadi di malam hari. Menurutnya keutamaan itu diperoleh dengan bacaan sedikit maupun banyak, dan makin banyak makin utama, kecuali menghabiskan seluruh malam terus-menerus atau sampai membahayakan diri.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000140, 30000141, 30000142, 30000143, 30000144, 30000145],
+        "soal": {
+          "tanya": "Kapan bacaan malam yang lebih banyak tidak lagi lebih utama, menurut an-Nawawi?",
+          "jawab": "Bila menghabiskan seluruh malam secara terus-menerus atau sampai membahayakan dirinya."
+        }
+      },
+      {
+        "judul": "Hafalan perlu dirawat dan wirid yang terlewat dapat diganti, menurut riwayat yang dinukil",
+        "isi": "An-Nawawi menukil sabda perintah merawat Al-Qur'an karena ia lebih mudah lepas daripada unta dari ikatannya, perumpamaan penghafal dengan pemilik unta yang tertambat, serta ancaman bagi orang yang diberi satu surah atau satu ayat lalu melupakannya. Tentang orang yang tertidur dari wiridnya, ia menukil sabda bahwa siapa yang tertidur dari bagian bacaan malamnya lalu membacanya antara shalat Subuh dan Zuhur, dicatat seperti membacanya di malam hari. Ia juga menukil kisah Abu Usaid yang bermimpi ditanduk sapi saat tertidur dari wirid Surah al-Baqarah, dan kisah seorang penghafal yang ditegur dalam mimpi dengan syair.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000147, 30000148, 30000149, 30000151, 30000152],
+        "soal": {
+          "tanya": "Kapan wirid malam yang terlewat karena tertidur dibaca agar dicatat seperti bacaan malam, menurut sabda yang dinukil?",
+          "jawab": "Antara shalat Subuh dan shalat Zuhur."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 30000125,
+        "char_start": 1,
+        "char_end": 73,
+        "terjemahan": "Fasal. Di antara hal terpenting yang diperintahkan ialah agar ia benar-benar berhati-hati jangan sampai menjadikan Al-Qur'an mata pencaharian yang dipakai untuk mencari nafkah."
+      }
+    ],
+    "istilah": []
+  }
+}

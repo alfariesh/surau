@@ -15,6 +15,20 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-27 · X31c/X31d · Konten at-Tibyan dan al-Ajurrumiyyah + staging tiga kitab — sebagian (audio, tampil, promote belum)
+- Dikerjakan:
+  - Terjemahan + ringkasan Sonnet: Tibyan 642/642 + 238/238, Ajurrumiyyah 137/137 + 50/50; gerbang `llmCoverage` 0,99.
+  - Validator: penanda tanpa kurung dan paragraf tanpa huruf (ADR-148 tambahan), rasio panjang per kitab (ADR-149 tambahan).
+  - 36 Intisari Bab baru (Tibyan 11, Ajurrumiyyah 25), tiga lapis periksa, 0 Salah tersisa.
+  - Staging dimuat: `kitab-v10`, 40 Intisari.
+- Verifikasi:
+  - `pnpm ingest korpus` → semua gerbang lolos (25 + 11 + 4 unit konten lolos cek ulang).
+  - `corpus:qa staging --kitab`: Bidayah 30/30, Tibyan 30/30, Ajurrumiyyah 19/19.
+  - `pnpm verify` → lolos (1.296 + 504 tes).
+- Biaya API: batch Bidayah US$1,06, Tibyan US$1,99, Ajurrumiyyah US$0,34 (±US$3,4 total, termasuk ulangan; judul daftar isi ±US$0,04 per kitab). Izin pemilik di chat 2026-11-27: "lanjut sampai selesai … tanpa batasan dan gak usah konfirmasi saya … kecuali audio".
+- Keputusan: ADR-148 dan ADR-149 (tambahan); ADR-147 dan ADR-150 diterapkan.
+- Catatan untuk sesi berikutnya: bukti Preview/MCP per kitab, lalu langkah tampil (EDITION_CREDITS, `/api/minat-kitab`, ledger `tayang`), lalu promote produksi atas izin pemilik (situs dibuka lagi). Audio menunggu T-29 dan izin.
+
 ## 2026-11-27 · X24 bagian 2 · Tampilan Intisari v2 — selesai (untuk Gelombang 1)
 - Dikerjakan: inti di kepala halaman Intisari, jawaban soal berlabel AI, label asal skill plugin, tombol Laporkan per gagasan (`/api/feedback`, tanpa migrasi), fixture `/dev/intisari` v2.
 - Verifikasi: `pnpm verify` → lolos (1.221 + 502 tes) · `e2e/intisari.spec.ts` 12/12 (axe dialog) · laporan uji tersimpan di DB app lokal · tangkapan ponsel 375 px

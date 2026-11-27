@@ -243,7 +243,7 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   6. Di Claude Code (folder Surau), ketik: "impor konten dari Downloads". Agent memeriksa, menjalankan pemeriksa independen, lalu membuat PR.
   7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
 
-- [ ] **T-37 · Kunci API Anthropic `surau-dev` baru (kunci lama ditolak)** (dibutuhkan X31b; isu [#253](https://github.com/alfariesh/surau/issues/253)) · ditemukan agent 2026-11-27: `pnpm llm plan` → `401 invalid x-api-key`. Batch terjemahan Bidayah sudah Anda izinkan di chat ("langsung aja pake llm model sonnet", "api batch"): Message Batches, Sonnet 5.5, pagu agent US$1,50, perkiraan ±US$0,7.
+- [x] **T-37 · Kunci API Anthropic `surau-dev` baru (kunci lama ditolak)** (dibutuhkan X31b; isu [#253](https://github.com/alfariesh/surau/issues/253)) · ditemukan agent 2026-11-27: `pnpm llm plan` → `401 invalid x-api-key`. Batch terjemahan Bidayah sudah Anda izinkan di chat ("langsung aja pake llm model sonnet", "api batch"): Message Batches, Sonnet 5.5, pagu agent US$1,50, perkiraan ±US$0,7. · **Selesai 2026-11-27:** kunci baru dipakai batch ketiga kitab (terverifikasi agent).
   1. Buka platform.claude.com → workspace `surau-dev` → **API Keys** → buat kunci baru. Cek juga saldo kredit dan spend limit workspace.
   2. Di aplikasi Terminal, dari folder Surau, jalankan lalu tempel kuncinya (tidak terlihat):
      ```
