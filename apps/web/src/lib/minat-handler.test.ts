@@ -31,7 +31,7 @@ function deps(over: Partial<MinatDeps> = {}) {
   return { d, saved, keys };
 }
 
-const GOOD = { candidate: "al-waraqat", purpose: "teaching", arabic: "with_help", website: "" };
+const GOOD = { candidate: "syarh-ibn-aqil", purpose: "teaching", arabic: "with_help", website: "" };
 
 function post(body: unknown, headers: Record<string, string> = {}): Request {
   return new Request(`${ORIGIN}/api/minat-kitab`, {
@@ -47,7 +47,9 @@ describe("POST /api/minat-kitab (ADR-115)", () => {
     const res = await handleMinat(post(GOOD), d);
     expect(res.status).toBe(201);
     expect(res.headers.get("cache-control")).toBe("no-store");
-    expect(saved).toEqual([{ candidate: "al-waraqat", purpose: "teaching", arabic: "with_help" }]);
+    expect(saved).toEqual([
+      { candidate: "syarh-ibn-aqil", purpose: "teaching", arabic: "with_help" },
+    ]);
     expect(keys).toEqual([await ipKey("kunci-uji", "203.0.113.7")]);
     expect(JSON.stringify(saved)).not.toContain("203.0.113.7");
   });
