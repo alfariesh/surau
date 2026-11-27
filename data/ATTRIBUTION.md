@@ -41,9 +41,9 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 ## at-Tibyan fi Adab Hamalat al-Qur'an (an-Nawawi, w. 676 H)
 
-Disiapkan untuk korpus `kitab-v10` (X31c, ADR-135, ADR-137, ADR-138): sudah dibangun lokal, **belum tayang** di produksi. Rinciannya masuk halaman `/lisensi` saat kitab ini tayang. Kalimat atribusi:
+Disiapkan untuk korpus `kitab-v10` (X31c, ADR-135, ADR-137, ADR-138, ADR-150): sudah dibangun lokal, **belum tayang** di produksi. Rinciannya masuk halaman `/lisensi` saat kitab ini tayang. Kalimat atribusi:
 
-> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0001969; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar Ibn Hazm, Beirut 1414/1994, tahqiq Muhammad al-Hajjar; catatan kaki pentahqiq tidak disertakan
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0001969; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar Ibn Hazm, Beirut 1414/1994, tahqiq Muhammad al-Hajjar; catatan kaki, mukadimah, faedah tambahan, dan kata penutup pentahqiq tidak disertakan
 
 | Pihak | Peran | Rujukan |
 |---|---|---|
@@ -55,6 +55,7 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 - HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
 - Catatan kaki pentahqiq (Muhammad al-Hajjar) **tidak disertakan** (ADR-138): catatan itu karya penyunting modern di luar rilis OpenITI. Penanda nomor catatan di teks utama tetap ada sebagai teks biasa tanpa tautan.
+- Teks badan tulisan pentahqiq **tidak disertakan** (ADR-150): mukadimah pentahqiq sebelum teks an-Nawawi (halaman cetak 5), bagian "al-Fawa'id al-Mazidah 'ala al-Kitab" (faedah tambahan, halaman 227–229), dan "Kalimat al-Khitam" (kata penutup bertanda tangan, halaman 230). Karya penyunting modern bisa masih dilindungi hak cipta; rilis OpenITI memuatnya, tetapi lisensi OpenITI tidak bisa memberikan hak atas karya penyunting. Daftar persisnya: [patches/at-tibyan-1969-pentahqiq.yaml](patches/at-tibyan-1969-pentahqiq.yaml).
 
 ## al-Ajurrumiyyah (Ibnu Ajurrum, w. 723 H)
 

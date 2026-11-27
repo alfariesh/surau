@@ -49,8 +49,9 @@ kitab:
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: modern_editor
     status: staging
-    # Intisari Bab per judul tingkat teratas (ADR-147): 13 judul.
-    intisari_bab: [1, 2, 3, 4, 5, 26, 32, 88, 100, 109, 122, 123, 127]
+    # Intisari Bab per judul tingkat teratas (ADR-147): 11 judul. 123 dan 127 (faedah tambahan dan
+    # kata penutup pentahqiq) dibuang dari korpus, ADR-150.
+    intisari_bab: [1, 2, 3, 4, 5, 26, 32, 88, 100, 109, 122]
   - slug: al-ajurrumiyyah
     shamela: 11371
     openiti:

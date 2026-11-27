@@ -77,26 +77,37 @@ export interface StabilityCheck {
 }
 
 /**
- * Bandingkan sidik rilis dengan build. ID hilang selalu gagal. ID berubah gagal kecuali tercantum
- * di `accepted` (koreksi teks yang disengaja, disebut satu per satu); ID di `accepted` yang tidak
+ * Bandingkan sidik rilis dengan build. ID hilang gagal, kecuali tercantum di `excluded` (teks badan
+ * penyunting yang sengaja tidak dimuat, ADR-150; daftarnya dari berkas pengecualian per kitab).
+ * ID di `excluded` yang ternyata masih dimuat juga gagal. ID berubah gagal kecuali tercantum di
+ * `accepted` (koreksi teks yang disengaja, disebut satu per satu); ID di `accepted` yang tidak
  * berubah juga gagal, supaya daftar tidak basi.
  */
 export function checkStability(
   released: FingerprintFile,
   next: FingerprintFile,
   accepted: readonly number[] = [],
+  excluded: readonly number[] = [],
 ): StabilityCheck {
-  const { missing, changed } = compareFingerprints(released, next);
+  const { missing: gone, changed } = compareFingerprints(released, next);
+  const skip = new Set(excluded);
+  const missing = gone.filter((id) => !skip.has(id));
+  const dropped = gone.filter((id) => skip.has(id));
+  const stillLoaded = [...skip]
+    .filter((id) => next.passage[String(id)] !== undefined)
+    .sort((a, b) => a - b);
   const allowed = new Set(accepted);
   const rejected = changed.filter((id) => !allowed.has(id));
   const stale = [...allowed].filter((id) => !changed.includes(id)).sort((a, b) => a - b);
-  const ok = missing.length === 0 && rejected.length === 0 && stale.length === 0;
+  const ok =
+    missing.length === 0 && rejected.length === 0 && stale.length === 0 && stillLoaded.length === 0;
   const total = Object.keys(released.passage).length;
   const parts = [
     missing.length > 0 ? `hilang ${missing.length}` : "",
     rejected.length > 0 ? `teks berubah ${rejected.length}` : "",
     changed.length > rejected.length ? `koreksi diterima ${changed.length - rejected.length}` : "",
     stale.length > 0 ? `diterima tetapi tidak berubah ${stale.length}` : "",
+    stillLoaded.length > 0 ? `dikecualikan tetapi masih dimuat ${stillLoaded.length}` : "",
   ].filter((x) => x !== "");
   const list = (title: string, ids: number[]) =>
     ids.length === 0 ? [] : [`### ${title} (${ids.length})`, "", ids.join(", "), ""];
@@ -106,7 +117,7 @@ export function checkStability(
       : [
           "## ID paragraf rilis (ADR-059)",
           "",
-          'Paragraf bergeser juga tampil sebagai "teks berubah". Terima koreksi hanya per ID (`--terima-teks-berubah <id,…>`) setelah memeriksa setiap ID.',
+          'Paragraf bergeser juga tampil sebagai "teks berubah". Terima koreksi hanya per ID (`--terima-teks-berubah <id,…>`) setelah memeriksa setiap ID. ID hilang hanya diterima bila tercantum di berkas teks penyunting (ADR-150).',
           "",
           ...list("Hilang", missing),
           ...list("Teks berubah, belum diterima", rejected),
@@ -115,15 +126,37 @@ export function checkStability(
             changed.filter((id) => allowed.has(id)),
           ),
           ...list("Diterima tetapi tidak berubah", stale),
+          ...list("Dikecualikan (teks penyunting) tetapi masih dimuat", stillLoaded),
         ];
+  const droppedNote =
+    dropped.length > 0 ? `; ${dropped.length} dikecualikan sebagai teks penyunting (ADR-150)` : "";
   return {
     ok,
     detail:
       parts.length === 0
-        ? `${total} ID lama ada dengan teks sama`
-        : `${parts.join("; ")} (daftar di bawah)`,
+        ? `${total - dropped.length} ID lama ada dengan teks sama${droppedNote}`
+        : `${parts.join("; ")}${droppedNote} (daftar di bawah)`,
     report,
   };
+}
+
+/**
+ * Sidik yang ditulis: build + sidik rilis ID yang dikecualikan (ADR-150). Peta ID tetap menyimpan
+ * kuncinya, jadi sidiknya juga tetap tersimpan: catatan bahwa ID itu pernah ada dengan teks itu
+ * dan sengaja tidak dimuat. Build berikutnya tetap wajib mencantumkannya di berkas pengecualian.
+ */
+export function withExcluded(
+  next: FingerprintFile,
+  released: FingerprintFile | null,
+  excluded: readonly number[],
+): FingerprintFile {
+  if (released === null || excluded.length === 0) return next;
+  const passage = { ...next.passage };
+  for (const id of excluded) {
+    const hash = released.passage[String(id)];
+    if (hash !== undefined && passage[String(id)] === undefined) passage[String(id)] = hash;
+  }
+  return { ...next, passage };
 }
 
 /** Satu entri per baris, urut ID, supaya diff git hanya menunjukkan yang berubah. */
