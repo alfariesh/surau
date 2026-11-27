@@ -32,6 +32,9 @@ export const HADHRAMIYYAH: WorkConfig = {
     titles: 99,
     matanMinPages: 142,
     llmCoverage: 0,
+    // Enam Intisari Bab chat, satu per node patch tingkat teratas (ADR-147, ADR-152): batas bawah
+    // supaya tidak hilang diam-diam (ADR-137).
+    minDigests: 6,
   },
   // Halaman cetak 50 (fasl rukun tayamum); kata pencarian mengenai paragraf badan kitab ini.
   smoke: { juz: 1, page: 50, search: "التيمم", footnotes: false },

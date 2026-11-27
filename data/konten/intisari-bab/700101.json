@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 7,
+  "section_id": 700101,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p3, p5, p7: hanya yang disebut air, perubahan parah karena campuran suci yang tidak diperlukan, perubahan yang tidak merusak, air makruh untuk badan, musta'mal sedikit dan basuhan kedua/ketiga sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p9-p11, p15-p16: pengecualian bangkai tanpa darah mengalir (kecuali mengubah atau dilempar), dua qullah walau perubahan sedikit, lima ratus rithl, kurang dua rithl, satu seperempat hasta dan ukuran bundar, bejana emas dan perak kecuali darurat sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p21, p23, p25, p26, p29, p35: enam fardu wudu dengan batas wajah, siku, mata kaki, tertib; sunah dan syarat yang disebut ada di teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p37-p38, p40-p41, p43-p44: syarat khuf, sehari semalam dan tiga hari tiga malam dari hadats sesudah memakai, empat pembatal dengan pengecualian mani, tidur duduk mantap, mahram, dan larangan berhadats sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p52-p53, p63-p64, p66-p67: istinja air atau batu, air lebih utama bila salah satu, tiga usapan lalu sampai bersih, tiga najis yang bisa suci, tujuh basuhan anjing dengan tanah, percikan kencing bayi laki-laki sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p56, p58-p59: lima sebab mandi, tanda mani, batas paling sedikit mandi dengan niat pada basuhan pertama, sunah dan satu sha', larangan junub di masjid dan membaca dengan niat membaca sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p68-p69, p73, p75, p80, p83: tiga sebab tayamum, enam ribu langkah, sepuluh syarat, lima fardu, haid sehari semalam sampai lima belas hari, umumnya enam atau tujuh, nifas sekejap sampai enam puluh, umumnya empat puluh sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "8990089cb8564c46a70fd051fd1451fd6b6c6b8ed68b15f66604060abe1e65e7",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Air mutlak, perubahan parah, makruh untuk badan, musta'mal sedikit dan basuhan sunah sesuai p3, p5, p7."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Bejana emas/perak hanya disebut diharamkan; teks juga mengharamkan menyimpannya, dan rincian sepuhan dihilangkan."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Enam fardu, batas wajah, siku, mata kaki, sunah dan syarat sesuai p21-p35."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Syarat khuf, sehari semalam dan tiga hari tiga malam dari hadats, empat pembatal beserta pengecualian, larangan berhadats sesuai teks."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Istinja air/batu, air lebih utama, tiga usapan, tiga najis yang bisa suci, tujuh basuhan dengan tanah, percikan kencing bayi sesuai teks."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Lima sebab mandi, tanda mani, batas paling sedikit, sunah dan satu sha', larangan junub sesuai p56-p59."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Sepuluh syarat dan lima fardu tayamum, enam ribu langkah, angka haid dan nifas tepat."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "1c1461de3dd1ca1cb50de084ac1f9ecf1e9cc09d4bd17240ac629e6cbce4481c",
+      "draf_sha256": "8990089cb8564c46a70fd051fd1451fd6b6c6b8ed68b15f66604060abe1e65e7",
+      "waktu": "2026-11-27T18:33:38.224Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Bafadl al-Hadrami, hadats dan najis hanya dihilangkan dengan sesuatu yang masih disebut air, sedangkan wudu, mandi, dan tayamum masing-masing punya fardu, sunah, dan syarat yang ia hitung satu per satu.",
+    "ringkasan": "Bafadl al-Hadrami membuka Kitab Thaharah dengan air yang sah untuk bersuci, lalu air makruh, air musta'mal, air najis dan ukuran dua qullah, ijtihad saat air suci tercampur yang najis, serta bejana emas dan perak. Ia kemudian menguraikan sunah fitrah dan siwak, fardu, sunah, makruh, dan syarat wudu, mengusap khuf, pembatal wudu, larangan bagi yang berhadats, adab buang hajat, dan istinja. Sesudah itu ia membahas sebab, cara, dan makruh mandi, macam najis dan cara menyucikannya, tayamum beserta syarat dan rukunnya, lalu haid, istihadah, dan nifas.",
+    "gagasan": [
+      {
+        "judul": "Hanya air yang masih disebut air dapat mengangkat hadats, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menyebut hadats tidak terangkat dan najis tidak hilang kecuali dengan sesuatu yang disebut air. Bila rasa, warna, atau baunya berubah parah karena campuran suci yang tidak diperlukan air sampai tidak lagi disebut air mutlak, bersuci dengannya tidak sah; perubahan sedikit, atau karena lama tergenang, tanah, lumut, dan tempat alirannya, tidak merusak. Ia memakruhkan air yang sangat panas, sangat dingin, dan air yang terjemur di negeri panas dalam bejana logam bila dipakai untuk badan. Air musta'mal yang sedikit tidak sah untuk bersuci, sedangkan air bekas basuhan sunah, seperti basuhan kedua dan ketiga, tetap sah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000003, 70000005, 70000007],
+        "soal": {
+          "tanya": "Kapan perubahan pada air membuatnya tidak sah untuk bersuci menurut Bafadl al-Hadrami?",
+          "jawab": "Bila perubahan parah karena campuran suci yang tidak diperlukan membuatnya tidak lagi disebut air mutlak."
+        }
+      },
+      {
+        "judul": "Air dua qullah tidak menjadi najis kecuali berubah, menurut penulis",
+        "isi": "Menurut penulis, air sedikit dan cairan lain menjadi najis karena bersentuhan dengan najis, dengan beberapa pengecualian, seperti najis yang tidak terlihat mata dan bangkai hewan yang darahnya tidak mengalir selama tidak mengubahnya dan tidak dilemparkan. Air dua qullah tidak menjadi najis kecuali rasa, warna, atau baunya berubah, walau sedikit. Dua qullah kira-kira lima ratus rithl Baghdad, sehingga kurang dua rithl tidak berpengaruh; dengan ukuran ruang, satu seperempat hasta panjang, lebar, dan dalamnya, atau pada wadah bundar dua hasta dalamnya dan satu hasta lebarnya. Ia juga mengharamkan bejana emas dan perak kecuali karena darurat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000009, 70000010, 70000011, 70000015, 70000016],
+        "soal": {
+          "tanya": "Berapa ukuran dua qullah dalam rithl Baghdad menurut penulis?",
+          "jawab": "Kira-kira lima ratus rithl Baghdad, dan kekurangan dua rithl tidak berpengaruh."
+        }
+      },
+      {
+        "judul": "Fardu wudu ada enam, dimulai niat saat membasuh wajah, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menghitung fardu wudu ada enam: niat mengangkat hadats atau semisalnya saat membasuh wajah, membasuh wajah dari tempat tumbuh rambut kepala sampai dagu dan di antara dua telinga, membasuh kedua tangan beserta siku, mengusap sebagian kulit atau rambut kepala, membasuh kedua kaki beserta mata kaki, dan tertib. Sunahnya antara lain siwak, basmalah yang disertai niat, berkumur, menghirup air ke hidung, dan mengulang tiga kali. Ia juga menyebut syarat wudu dan mandi, di antaranya Islam, tamyiz, air yang menyucikan, dan tidak ada penghalang air sampai ke kulit.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000021, 70000023, 70000025, 70000026, 70000029, 70000035],
+        "soal": {
+          "tanya": "Berapa jumlah fardu wudu menurut Bafadl al-Hadrami?",
+          "jawab": "Enam, yaitu niat, membasuh wajah, tangan, mengusap kepala, membasuh kaki, dan tertib."
+        }
+      },
+      {
+        "judul": "Penulis membatasi masa mengusap khuf dan menghitung empat pembatal wudu",
+        "isi": "Penulis membolehkan mengusap khuf sebagai ganti membasuh kaki dalam wudu, dengan syarat khuf dipakai sesudah bersuci sempurna, suci, kuat dipakai musafir berjalan terus-menerus untuk keperluannya, dan menutup bagian yang wajib dibasuh. Mukim melepasnya sesudah sehari semalam, dan musafir dalam perjalanan qashar sesudah tiga hari tiga malam, dihitung dari hadats sesudah memakainya. Pembatal wudu ia hitung empat: keluarnya sesuatu dari salah satu dua jalan kecuali mani, hilang akal kecuali tidur duduk yang mantap, bersentuhan kulit laki-laki dan perempuan selain mahram, dan menyentuh kemaluan atau lingkar dubur manusia dengan telapak tangan bagian dalam. Orang berhadats dilarang shalat, thawaf, serta membawa dan menyentuh mushaf.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000037, 70000038, 70000040, 70000041, 70000043, 70000044],
+        "soal": {
+          "tanya": "Berapa lama mukim boleh mengusap khuf menurut penulis?",
+          "jawab": "Sehari semalam, dihitung dari hadats sesudah memakai khuf."
+        }
+      },
+      {
+        "judul": "Hanya tiga najis yang dapat menjadi suci, menurut penulis",
+        "isi": "Penulis mewajibkan istinja dari setiap benda basah yang keluar dari salah satu dua jalan, dengan air atau batu atau benda padat suci yang dapat mengangkat kotoran; bila memilih salah satu, air lebih utama, dan batu disyaratkan tiga usapan, ditambah bila belum bersih. Menurutnya hanya tiga najis yang dapat menjadi suci: khamar yang menjadi cuka dengan sendirinya, kulit bangkai yang disamak, dan yang berubah menjadi hewan. Benda yang bersentuhan dengan anjing dalam keadaan basah dibasuh tujuh kali, salah satunya dicampur tanah yang suci, sedangkan kencing bayi laki-laki yang hanya minum susu cukup dipercik air.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000052, 70000053, 70000063, 70000064, 70000066, 70000067],
+        "soal": {
+          "tanya": "Berapa kali benda yang terkena anjing dibasuh menurut penulis?",
+          "jawab": "Tujuh kali, salah satunya dicampur tanah yang suci."
+        }
+      },
+      {
+        "judul": "Lima sebab mewajibkan mandi, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menyebut lima sebab mandi: kematian, haid, nifas, melahirkan walau berupa segumpal darah atau daging, dan janabah. Janabah terjadi karena keluarnya mani, yang dikenali dari pancarannya, rasa nikmat, atau baunya, dan karena masuknya kepala zakar atau seukurannya ke farji. Mandi paling sedikit berupa niat yang disertakan pada bagian pertama yang dibasuh dan meratakan air ke seluruh rambut dan kulit. Sunahnya antara lain menghadap kiblat, berwudu dulu, menuangkan air ke kepala lalu sisi kanan dan kiri, mengulang tiga kali, dan air tidak kurang dari satu sha'. Orang junub juga dilarang berdiam di masjid dan membaca Al-Qur'an dengan niat membaca.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000056, 70000058, 70000059],
+        "soal": {
+          "tanya": "Apa batas paling sedikit mandi menurut Bafadl al-Hadrami?",
+          "jawab": "Niat yang disertakan pada basuhan pertama dan meratakan air ke seluruh rambut dan kulit."
+        }
+      },
+      {
+        "judul": "Tayamum bersyarat sepuluh dan haid paling lama lima belas hari, menurut penulis",
+        "isi": "Menurut penulis, orang berhadats dan junub bertayamum karena tidak ada air, dingin, atau sakit. Bila yakin air ada, ia wajib mencarinya dalam jarak dekat, yaitu enam ribu langkah. Syarat tayamum ia hitung sepuluh, di antaranya dengan tanah yang suci, sesudah masuk waktu, dan satu tayamum untuk setiap shalat fardu; fardunya lima: memindahkan tanah, niat, mengusap wajah, mengusap tangan sampai siku, dan tertib. Ia juga menyebut haid paling sedikit sehari semalam, paling lama lima belas hari, umumnya enam atau tujuh hari, dan nifas paling sedikit sekejap, paling lama enam puluh hari, umumnya empat puluh hari.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000068, 70000069, 70000073, 70000075, 70000080, 70000083],
+        "soal": {
+          "tanya": "Berapa syarat tayamum yang dihitung penulis?",
+          "jawab": "Sepuluh syarat, di antaranya tanah yang suci dan dilakukan sesudah masuk waktu."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 70000003,
+        "char_start": 20,
+        "char_end": 87,
+        "terjemahan": "Hadats tidak sah diangkat dan najis tidak sah dihilangkan kecuali dengan sesuatu yang disebut air."
+      },
+      {
+        "gagasan": 2,
+        "passage_id": 70000010,
+        "char_start": 343,
+        "char_end": 473,
+        "terjemahan": "Bila air itu dua qullah, ia tidak menjadi najis karena kejatuhan najis, kecuali bila rasa, warna, atau baunya berubah, walaupun perubahannya sedikit."
+      }
+    ],
+    "istilah": []
+  }
+}

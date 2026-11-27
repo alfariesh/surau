@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 7,
+  "section_id": 700100,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p70000001 dibaca ulang: pujian kepada Allah yang mewajibkan belajar syariat dan mengenal muamalah sah dan rusak, akhir orang yang mengamalkan dan yang menyalahi, syahadat dan shalawat sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p70000002: ringkasan yang mesti diketahui setiap muslim atau yang semisalnya, keharusan memperhatikan dan menyebarkannya, doa manfaat dan ikhlas sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "4139e0fc39174dd8d7486c3dbe77641f144a26b7ab997cacfd258b228290195d",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Pujian, kewajiban belajar syariat dan muamalah sah/rusak, dua akhir, syahadat dan shalawat sesuai p70000001."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Ringkasan yang mesti diketahui setiap muslim atau yang semisalnya, keharusan memperhatikan dan menyebarkan, doa manfaat dan ikhlas sesuai p70000002."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "98f92a72f92fbfb616efc0471da507d26d82b1b6270f193a26c16c7f8fda52af",
+      "draf_sha256": "4139e0fc39174dd8d7486c3dbe77641f144a26b7ab997cacfd258b228290195d",
+      "waktu": "2026-11-27T18:33:36.407Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Bafadl al-Hadrami, Allah mewajibkan belajar syariat Islam serta mengenal muamalah yang sah dan yang rusak, dan ringkasannya ini, atau yang semisalnya, mesti diketahui setiap muslim.",
+    "ringkasan": "Bafadl al-Hadrami membuka karyanya dengan pujian kepada Allah yang mewajibkan belajar syariat Islam serta mengenal muamalah yang sah dan yang rusak, untuk mengenali halal dan haram. Ia menyebut bahwa orang yang mengetahui hal itu dan mengamalkannya berakhir kekal di negeri keselamatan, sedangkan orang yang menyalahinya berakhir di negeri pembalasan. Sesudah syahadat dan shalawat kepada Nabi saw., ia memperkenalkan karyanya sebagai ringkasan yang mesti diketahui setiap muslim, atau yang semisalnya, lalu berdoa agar karya itu bermanfaat dan disusun dengan ikhlas.",
+    "gagasan": [
+      {
+        "judul": "Belajar syariat dan muamalah diwajibkan Allah, menurut Bafadl al-Hadrami",
+        "isi": "Dalam pembukaannya, Bafadl al-Hadrami memuji Allah yang mewajibkan belajar syariat Islam dan mengenal muamalah yang sah dan yang rusak, untuk mengenali yang halal dan yang haram. Ia menyebut bahwa orang yang mengetahui hal itu lalu mengamalkannya berakhir kekal di negeri keselamatan, sedangkan orang yang menyalahi dan mendurhakainya berakhir di negeri pembalasan. Pembukaan itu ditutup dengan syahadat serta shalawat kepada Nabi saw., keluarga, dan sahabatnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000001],
+        "soal": {
+          "tanya": "Apa dua hal yang menurut pembukaan Bafadl al-Hadrami diwajibkan Allah untuk dipelajari?",
+          "jawab": "Syariat Islam serta pengetahuan tentang muamalah yang sah dan yang rusak."
+        }
+      },
+      {
+        "judul": "Ringkasan ini mesti diketahui setiap muslim, kata penulis",
+        "isi": "Penulis memperkenalkan karyanya sebagai ringkasan yang mesti diketahui setiap muslim, baik ringkasan itu sendiri maupun karya lain yang semisal. Karena itu, menurutnya, memperhatikan dan menyebarkan ringkasan ini menjadi keharusan. Ia lalu memohon kepada Allah agar karya itu memberi manfaat dan agar penyusunannya ikhlas semata karena Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000002],
+        "soal": {
+          "tanya": "Apa sebabnya penulis memandang ringkasannya perlu diperhatikan dan disebarkan?",
+          "jawab": "Sebab isinya, atau karya yang semisal, mesti diketahui setiap muslim."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 70000002,
+        "char_start": 8,
+        "char_end": 71,
+        "terjemahan": "Ini adalah sebuah ringkasan yang mesti diketahui oleh setiap muslim, atau yang semisal dengannya."
+      }
+    ],
+    "istilah": []
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 7,
+  "section_id": 700115,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p301-p304: genap tiga puluh atau rukyat seorang adil, mathla' yang sama, niat setiap hari, tabyit fardu, sunah sebelum tergelincir, penentuan tanpa kefarduan sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p305-p306: menahan dari jimak dan istimna', sengaja muntah, benda masuk lewat lubang terbuka, lupa sedikit atau banyak tidak batal, uzur orang tidak tahu, debu dan ludah, tiga syarat sisa, hari yang tidak sah sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p308, p310-p311: empat syarat wajib, tujuh dan sepuluh tahun bila mampu, alasan berbuka, safar sesudah fajar, puasa safar lebih utama bila tidak mudarat, qadha dan pengecualiannya sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p313-p314: menyegerakan berbuka, tiga kurma lalu sebutir lalu air, sahur diakhirkan, dusta dan gibah, amalan Ramadan, sepuluh malam terakhir, wishal haram sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p316, p318-p319: kafarat jimak Ramadan dan pengecualiannya, urutan budak, dua bulan, enam puluh miskin satu mud, kafarat per hari, fidyah satu mud bagi renta dan hamil atau menyusui dengan qadha sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p321-p324: tiga macam puasa sunah, hari putih 13-15, hari hitam 28 dan dua sesudahnya, Senin Kamis, sehari puasa sehari berbuka, itikaf sunah muakkadah dengan tujuh syarat sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "013daf8f712307f9e3527d3e39d8106567f6cfbdc1790ca05aa9b1dc07783a2c",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Syakban 30 hari atau rukyat satu adil, mathla', niat tiap hari, tabyit fardu, sunah sebelum zawal sesuai teks."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Lupa tidak membatalkan, pengecualian orang tidak tahu, debu dan ludah, syarat sisa, hari terlarang sesuai teks."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Anak 7 dan 10 tahun, uzur berbuka, safar sesudah fajar, qadha dan pengecualiannya sesuai teks."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Tiga kurma, lalu satu, lalu air; sahur diakhirkan; amalan Ramadan; wishal haram sesuai teks."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Kafarat bertingkat, 60 miskin masing-masing satu mud, pengecualian, fidyah satu mud sesuai teks."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Tiga kelompok puasa sunah, hari putih 13-15, hari hitam 28 dan dua sesudahnya, Senin-Kamis, itikaf tujuh syarat sesuai teks."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "272319396f0656128817533e354451a28656848d73b2e38efa91a51f27aacb37",
+      "draf_sha256": "013daf8f712307f9e3527d3e39d8106567f6cfbdc1790ca05aa9b1dc07783a2c",
+      "waktu": "2026-11-27T18:33:44.088Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Bafadl al-Hadrami, puasa Ramadan wajib dengan genapnya Syakban tiga puluh hari atau rukyat hilal, dan sahnya bergantung pada niat setiap hari serta menahan diri dari pembatal yang ia rinci.",
+    "ringkasan": "Bafadl al-Hadrami membuka Kitab Puasa dengan sebab wajibnya puasa Ramadan dan tujuh syarat sahnya puasa, lalu orang yang wajib berpuasa dan alasan yang membolehkan berbuka. Ia kemudian menyebut sunah-sunah puasa dan amalan di bulan Ramadan, kafarat bagi yang merusak puasa Ramadan dengan jimak, fidyah satu mud, dan tiga macam puasa sunah. Bab itikaf menutupnya: kedudukannya sebagai sunah muakkadah, tujuh syaratnya, pembatalnya, dan hal yang memutus kesinambungan itikaf nazar.",
+    "gagasan": [
+      {
+        "judul": "Puasa Ramadan wajib dengan genapnya Syakban atau rukyat seorang adil, menurut penulis",
+        "isi": "Penulis menyebut puasa Ramadan wajib dengan menggenapkan Syakban tiga puluh hari atau dengan rukyat hilal oleh seorang yang adil; bila hilal terlihat di suatu negeri, puasa wajib bagi negeri yang sama mathla'-nya. Syarat sah puasa pertama ialah niat untuk setiap hari: puasa fardu wajib diniatkan sejak malam, sedangkan puasa sunah cukup diniatkan sebelum matahari tergelincir. Niat fardu juga wajib menentukan jenis puasanya, tetapi tidak wajib menyebut kefarduannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000301, 70000302, 70000303, 70000304],
+        "soal": {
+          "tanya": "Kapan niat puasa sunah masih mencukupi menurut penulis?",
+          "jawab": "Sebelum matahari tergelincir, sedangkan puasa fardu wajib diniatkan sejak malam."
+        }
+      },
+      {
+        "judul": "Makan karena lupa tidak membatalkan puasa, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menyebut syarat sah lainnya: menahan diri dari jimak dan mengeluarkan mani dengan sengaja, dari sengaja muntah, dan dari masuknya benda ke rongga tubuh melalui lubang yang terbuka. Orang yang makan atau minum karena lupa, sedikit atau banyak, tidak batal puasanya, demikian pula karena debu jalan dan menelan ludah yang suci dari tempatnya; orang yang tidak tahu hanya dimaafkan bila baru masuk Islam atau tumbuh jauh dari ulama. Syarat sisanya Islam, bersih dari haid dan nifas, dan berakal sepanjang siang. Puasa tidak sah pada dua hari raya dan hari tasyrik.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000305, 70000306],
+        "soal": {
+          "tanya": "Apakah makan karena lupa membatalkan puasa menurut Bafadl al-Hadrami?",
+          "jawab": "Tidak membatalkan, baik yang dimakan sedikit maupun banyak."
+        }
+      },
+      {
+        "judul": "Musafir dan orang sakit boleh berbuka lalu mengqadha, menurut penulis",
+        "isi": "Menurut penulis, puasa Ramadan wajib atas orang berakal, balig, muslim, dan mampu, dan anak disuruh berpuasa pada usia tujuh tahun dan dipukul karena meninggalkannya pada usia sepuluh bila mampu. Berbuka dibolehkan karena sakit yang membolehkan tayamum, takut binasa, lapar atau haus yang berat, dan perjalanan jauh yang mubah, kecuali bila perjalanan dimulai sesudah fajar; berpuasa dalam safar lebih utama bila tidak memudaratkan. Setiap orang yang berbuka, karena uzur atau tidak, wajib mengqadha sesudah mampu, kecuali anak kecil, orang gila, dan orang kafir asli.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000308, 70000310, 70000311],
+        "soal": {
+          "tanya": "Kapan musafir tidak boleh berbuka menurut penulis?",
+          "jawab": "Bila perjalanannya baru dimulai sesudah terbit fajar."
+        }
+      },
+      {
+        "judul": "Penulis menganjurkan menyegerakan berbuka dan mengakhirkan sahur",
+        "isi": "Penulis menganjurkan menyegerakan berbuka saat yakin matahari terbenam, dengan tiga butir kurma basah atau kering; bila tidak mampu, sebutir; bila tidak mampu juga, air; serta berdoa saat berbuka, memberi makan orang berpuasa, sahur, dan mengakhirkannya selama tidak ragu. Orang berpuasa lebih ditekankan meninggalkan dusta dan gibah, dan bila dicaci, ia mengingat bahwa ia sedang berpuasa. Di bulan Ramadan ia menganjurkan melapangkan nafkah keluarga, banyak bersedekah dan membaca Al-Qur'an, serta itikaf terutama sepuluh malam terakhir, yang memuat Lailatul Qadar; puasa wishal ia haramkan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000313, 70000314],
+        "soal": {
+          "tanya": "Dengan apa berbuka puasa dianjurkan menurut penulis?",
+          "jawab": "Dengan tiga butir kurma; bila tidak mampu, sebutir; bila tidak mampu juga, air."
+        }
+      },
+      {
+        "judul": "Kafarat jimak di siang Ramadan bertingkat dari memerdekakan budak, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami mewajibkan kafarat atas orang yang merusak puasa Ramadan dengan jimak, tetapi tidak atas perempuan, orang yang lupa atau dipaksa, yang merusak puasa selain Ramadan, atau yang berbuka dengan selain jimak. Kafaratnya memerdekakan budak mukmin yang tidak cacat; bila tidak ada, puasa dua bulan berturut-turut; bila tidak mampu, memberi makan enam puluh orang miskin, masing-masing satu mud, dan setiap hari yang dirusak punya kafarat sendiri. Satu mud makanan pokok per hari juga wajib dikeluarkan sebagai fidyah, antara lain bagi orang tua renta dan perempuan hamil atau menyusui yang berbuka karena khawatir atas anaknya, disertai qadha.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000316, 70000318, 70000319],
+        "soal": {
+          "tanya": "Berapa orang miskin yang diberi makan dalam kafarat jimak menurut Bafadl al-Hadrami?",
+          "jawab": "Enam puluh orang miskin, masing-masing satu mud."
+        }
+      },
+      {
+        "judul": "Puasa sunah terbagi tiga menurut perulangannya, dan itikaf bersyarat tujuh, kata penulis",
+        "isi": "Penulis membagi puasa sunah menjadi tiga: yang berulang setiap tahun, seperti puasa Arafah bagi selain jamaah haji dan musafir, Asyura, Tasu'a, dan enam hari Syawal; yang berulang setiap bulan, yaitu hari-hari putih tanggal tiga belas, empat belas, dan lima belas serta hari-hari hitam tanggal dua puluh delapan dan dua hari sesudahnya; dan yang berulang setiap pekan, yaitu Senin dan Kamis. Puasa paling utama menurutnya sehari puasa dan sehari berbuka. Itikaf ia sebut sunah muakkadah dengan tujuh syarat, di antaranya Islam, berakal, berdiam lebih lama dari tumakninah shalat, di masjid, dan niat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000321, 70000322, 70000323, 70000324],
+        "soal": {
+          "tanya": "Tanggal berapa saja hari-hari putih menurut penulis?",
+          "jawab": "Tanggal tiga belas, empat belas, dan lima belas setiap bulan."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 70000301,
+        "char_start": 17,
+        "char_end": 90,
+        "terjemahan": "Puasa Ramadan wajib dengan menggenapkan Syakban tiga puluh hari atau dengan rukyat hilal oleh seorang yang adil."
+      }
+    ],
+    "istilah": []
+  }
+}

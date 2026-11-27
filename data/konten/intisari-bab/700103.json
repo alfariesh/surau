@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 7,
+  "section_id": 700103,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p84, p87-p88, p94-p95: syarat wajib, tujuh dan sepuluh tahun, empat waktu asar dan subuh, tiga waktu isya, lima waktu terlarang di luar Haram dan pengecualian sebab yang tidak datang belakangan sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p101-p106: tiga belas rukun berurutan, tumakninah, urutan keringanan bagi yang tidak mampu berdiri, tertib sengaja batal dan lupa sia-sia sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p142, p144-p145, p147, p149, p152: lima belas syarat, batas aurat, dua huruf atau satu huruf bermakna, tiga gerakan berturut-turut, makan minum, niat memutus sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p160, p162, p164-p165: tiga sebab sujud sahwi, berpegang pada yang lebih sedikit lalu sujud, dua sujud walau banyak, tempat antara tasyahud dan salam, luput karena salam sengaja sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p177, p187, p189-p190, p195, p202: fardu kifayah bagi laki-laki merdeka mukim, urutan subuh-isya-asar, tujuh syarat, tiga ratus hasta, dua rukun tanpa uzur, urutan imam yang berhak sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p205, p207, p213-p214, p222-p223: qashar tiga shalat, dua hari perjalanan, tiga marhalah, empat hari penuh di tempat yang diniatkan, empat syarat jamak taqdim, syarat Jumat empat puluh dan dua khutbah lima fardu sesuai teks; frasa akhir safar diperbaiki."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p254, p257-p258, p260, p262, p265: empat fardu kifayah, batas mandi dan kafan, tiga dan lima lapis, tujuh rukun shalat jenazah, syahid, batas kubur sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "acd2176bceec0ab596ce1082818d6196207a366e6d09b1f18a4b64e1d457d95c",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Judul menyebut waktu tiap shalat sampai kemakruhan; teks merinci empat tingkat hanya untuk asar dan subuh."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Akibat lupa tertib ditulis sia-sia tanpa lanjutan teks (dikerjakan bila teringat sebelum yang semisal, bila tidak rakaat itu sempurna)."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Lima belas syarat, aurat, bicara dua huruf, tiga langkah, makan minum, niat memutus sesuai p142-p152."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Jawaban soal menambah sujud sahwi tanpa syarat; teks tidak sujud bila keraguan hilang di rakaat selain terakhir."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Fardu kifayah, urutan subuh-isya-asar, tujuh syarat, tiga ratus hasta, urutan imam sesuai teks."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Qashar dua hari dengan beban, empat hari mukim, empat syarat jamak taqdim, empat puluh orang, dua khutbah lima fardu sesuai teks."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Fardu kifayah, tiga dan lima lapis kafan, tujuh rukun shalat jenazah, syahid, ukuran kubur sesuai teks."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "5fc58d2586988a87b86f73c79faa100fb22683a89a76ae48bf93db73a48e2ba1",
+      "draf_sha256": "acd2176bceec0ab596ce1082818d6196207a366e6d09b1f18a4b64e1d457d95c",
+      "waktu": "2026-11-27T18:33:40.678Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Bafadl al-Hadrami, shalat wajib atas setiap muslim balig, berakal, dan suci, dengan tiga belas rukun dan lima belas syarat, lalu dirinci untuk jamaah, safar, Jumat, shalat sunah, dan jenazah.",
+    "ringkasan": "Bafadl al-Hadrami membuka bab shalat dengan orang yang wajib shalat, waktu-waktu shalat, waktu yang diharamkan, serta azan dan iqamah. Ia lalu menguraikan tiga belas rukun shalat, sunah-sunahnya dari takbir sampai salam, lima belas syarat, makruh, sutrah, sujud sahwi, tilawah, dan syukur, serta shalat sunah. Sesudah itu ia membahas shalat berjamaah dan syaratnya, imam yang lebih berhak, shalat musafir dan jamak, Jumat, shalat khauf dan pakaian, dua hari raya, gerhana, istisqa', orang yang meninggalkan shalat, dan pengurusan jenazah sampai penguburan.",
+    "gagasan": [
+      {
+        "judul": "Waktu tiap shalat punya tingkat keutamaan sampai kemakruhan, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami mewajibkan shalat atas setiap muslim yang balig, berakal, dan suci; wali dan tuan wajib menyuruh anak yang sudah tamyiz shalat pada usia tujuh tahun dan memukulnya karena meninggalkannya pada usia sepuluh. Waktu zuhur dimulai saat matahari tergelincir sampai bayangan sama dengan bendanya; asar dan subuh masing-masing punya empat waktu, yaitu keutamaan, pilihan, boleh, dan makruh, sedangkan isya punya tiga sampai fajar shadiq. Ia mengharamkan shalat di luar Tanah Haram Makkah pada lima waktu, antara lain saat matahari terbit dan sesudah shalat subuh serta asar, kecuali shalat yang sebabnya tidak datang belakangan, seperti shalat yang terlewat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000084, 70000087, 70000088, 70000094, 70000095],
+        "soal": {
+          "tanya": "Berapa pembagian waktu shalat asar menurut Bafadl al-Hadrami?",
+          "jawab": "Empat, yaitu waktu keutamaan, pilihan, boleh, dan makruh."
+        }
+      },
+      {
+        "judul": "Rukun shalat ada tiga belas, dari niat sampai tertib, menurut penulis",
+        "isi": "Penulis menghitung tiga belas rukun shalat: niat dalam hati, takbiratul ihram, berdiri dalam shalat fardu bagi yang mampu, membaca Al-Fatihah, rukuk, iktidal, dua kali sujud, duduk di antara dua sujud, tasyahud akhir, duduk untuknya, shalawat kepada Nabi saw. sesudahnya, salam, dan tertib, dengan tumakninah pada rukuk, iktidal, sujud, dan duduk. Yang tidak mampu berdiri shalat sambil membungkuk, lalu duduk, lalu berbaring miring, lalu telentang dengan isyarat kepala, lalu isyarat mata, lalu menjalankan rukun dalam hati. Bila sengaja meninggalkan tertib, shalatnya batal; bila lupa, yang dikerjakan sesudah rukun yang tertinggal dianggap sia-sia.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000101, 70000102, 70000103, 70000104, 70000105, 70000106],
+        "soal": {
+          "tanya": "Berapa jumlah rukun shalat yang dihitung penulis?",
+          "jawab": "Tiga belas, dimulai dengan niat dan diakhiri dengan tertib."
+        }
+      },
+      {
+        "judul": "Lima belas syarat menjaga sahnya shalat, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menyebut lima belas syarat shalat, di antaranya Islam, tamyiz, masuk waktu, suci dari dua hadats dan dari najis pada pakaian, badan, dan tempat, menutup aurat, dan menghadap kiblat. Aurat laki-laki dan budak perempuan ialah antara pusar dan lutut, sedangkan aurat perempuan merdeka dalam shalat seluruh badan kecuali wajah dan kedua telapak tangan. Syarat lainnya meninggalkan bicara, yang batal dengan mengucapkan dua huruf atau satu huruf yang bermakna, meninggalkan banyak gerakan seperti tiga langkah berturut-turut, meninggalkan makan dan minum, serta tidak berniat memutus shalat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000142, 70000144, 70000145, 70000147, 70000149, 70000152],
+        "soal": {
+          "tanya": "Apa batas aurat perempuan merdeka dalam shalat menurut Bafadl al-Hadrami?",
+          "jawab": "Seluruh badan kecuali wajah dan kedua telapak tangan."
+        }
+      },
+      {
+        "judul": "Sujud sahwi disunahkan karena salah satu dari tiga sebab, menurut penulis",
+        "isi": "Menurut penulis, dua sujud sahwi disunahkan karena salah satu dari tiga sebab. Pertama, antara lain meninggalkan sebagian tasyahud awal, qunut subuh, atau shalawat pada tasyahud awal. Kedua, melakukan karena lupa sesuatu yang membatalkan bila disengaja, seperti sedikit bicara atau menambah rukun perbuatan. Ketiga, mengerjakan rukun perbuatan dengan ragu; orang yang ragu sudah shalat tiga atau empat rakaat wajib berpegang pada yang lebih sedikit. Sujud sahwi, walau kelupaannya banyak, tetap dua sujud, tempatnya antara tasyahud dan salam, dan luput bila salam dengan sengaja.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000160, 70000162, 70000164, 70000165],
+        "soal": {
+          "tanya": "Apa yang dilakukan orang yang ragu sudah shalat tiga atau empat rakaat menurut penulis?",
+          "jawab": "Ia wajib berpegang pada yang lebih sedikit, lalu sujud sahwi."
+        }
+      },
+      {
+        "judul": "Jamaah shalat fardu adalah fardu kifayah bagi laki-laki, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menyebut jamaah dalam shalat fardu yang ditunaikan pada waktunya sebagai fardu kifayah bagi laki-laki merdeka yang mukim, sampai syiarnya tampak, dan yang paling ditekankan jamaah subuh, lalu isya, lalu asar. Sahnya berjamaah ia ikat dengan tujuh syarat, di antaranya makmum tidak mendahului tumit imam, mengetahui perpindahan gerakan imam, berkumpul di satu masjid atau, di luar masjid, berjarak tidak lebih dari kira-kira tiga ratus hasta, berniat mengikuti, dan tidak tertinggal atau mendahului dua rukun perbuatan tanpa uzur. Imam yang paling berhak ialah penguasa, lalu penghuni tempat, imam tetap, kemudian yang paling paham fikih.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000177, 70000187, 70000189, 70000190, 70000195, 70000202],
+        "soal": {
+          "tanya": "Berapa syarat sahnya berjamaah yang disebut Bafadl al-Hadrami?",
+          "jawab": "Tujuh syarat, di antaranya makmum tidak mendahului imam dan berniat mengikutinya."
+        }
+      },
+      {
+        "judul": "Musafir boleh mengqashar dan Jumat butuh empat puluh orang, menurut penulis",
+        "isi": "Penulis membolehkan musafir dalam perjalanan jauh yang mubah mengqashar zuhur, asar, dan isya menjadi dua rakaat; jauhnya dua hari perjalanan sedang dengan beban, dan menyempurnakan lebih utama kecuali bila perjalanan mencapai tiga marhalah. Safar berakhir antara lain dengan sampai di tempat yang ia niatkan untuk bermukim empat hari penuh. Jamak taqdim ia syaratkan empat: memulai dengan shalat pertama, niat jamak, berturut-turut, dan safar berlanjut sampai takbir shalat kedua. Jumat wajib atas setiap mukallaf laki-laki merdeka yang mukim, dengan syarat antara lain pada waktu zuhur, di kawasan kota atau desa, jamaah empat puluh orang, dan dua khutbah dengan lima fardu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000205, 70000207, 70000213, 70000214, 70000222, 70000223],
+        "soal": {
+          "tanya": "Berapa jumlah jamaah yang menjadi syarat Jumat menurut penulis?",
+          "jawab": "Empat puluh muslim laki-laki yang mukallaf, merdeka, dan menetap di tempat itu."
+        }
+      },
+      {
+        "judul": "Memandikan, mengafani, menshalati, dan menguburkan jenazah adalah fardu kifayah, menurut penulis",
+        "isi": "Penulis menyebut memandikan, mengafani, menshalati, dan menguburkan jenazah sebagai fardu kifayah. Mandi jenazah paling sedikit meratakan air ke seluruh badan sesudah najis dihilangkan, dan kain kafan paling sedikit menutup aurat; laki-laki disunahkan tiga lapis, perempuan lima. Shalat jenazah ia sebut punya tujuh rukun: niat, empat takbir, Al-Fatihah, berdiri bagi yang mampu, shalawat sesudah takbir kedua, doa untuk mayit sesudah takbir ketiga, dan salam. Orang yang gugur karena perang melawan orang kafir tidak dimandikan dan tidak dishalati, dan kubur paling sedikit berupa lubang yang menutup baunya dan melindunginya dari binatang buas.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000254, 70000257, 70000258, 70000260, 70000262, 70000265],
+        "soal": {
+          "tanya": "Berapa rukun shalat jenazah menurut penulis?",
+          "jawab": "Tujuh, di antaranya empat takbir, Al-Fatihah, dan doa untuk mayit."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 70000101,
+        "char_start": 97,
+        "char_end": 144,
+        "terjemahan": "Fardunya tiga belas: pertama, niat dengan hati."
+      },
+      {
+        "gagasan": 5,
+        "passage_id": 70000177,
+        "char_start": 0,
+        "char_end": 99,
+        "terjemahan": "Berjamaah dalam shalat fardu yang ditunaikan pada waktunya, bagi laki-laki merdeka yang mukim, adalah fardu kifayah, sampai syiarnya tampak."
+      }
+    ],
+    "istilah": []
+  }
+}
