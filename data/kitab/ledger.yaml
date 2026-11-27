@@ -88,3 +88,17 @@ kitab:
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
     status: staging
+  - slug: rusum-dar-al-khilafah
+    shamela: 8173
+    openiti:
+      uri: 0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1
+      rilis: "2025.1.9"
+      repo: OpenITI/0450AH
+    edisi: "Dar ar-Ra'id al-'Arabi, Beirut, cetakan kedua 1986 M, tahqiq Mikha'il 'Awwad, 1 jilid (halaman cetak 3–142)"
+    wafat_h: 448
+    lisensi: CC BY-NC-SA 4.0
+    catatan_kaki: none
+    status: staging
+    # 21 judul daftar isi, semuanya tingkat teratas dan semuanya teks Hilal ash-Shabi' (edisi
+    # Shamela tanpa mukadimah atau lampiran pentahqiq).
+    intisari_bab: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]

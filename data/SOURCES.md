@@ -47,6 +47,18 @@ Repo `OpenITI/0725AH`, commit `1c14df8ff4ca37622d678a3a7e76f915848f3f88` (rilis 
 curl -fLO "https://raw.githubusercontent.com/OpenITI/0725AH/1c14df8ff4ca37622d678a3a7e76f915848f3f88/data/0723IbnAjrum/0723IbnAjrum.Ajrumiyya/0723IbnAjrum.Ajrumiyya.Shamela0011371-ara1"
 ```
 
+### Rusum Dar al-Khilafah (X32, ADR-152, diunduh 2026-11-28)
+
+Repo `OpenITI/0450AH`, commit `e344cfe20a206c9ded3edfa15d45b4f821a97b8a` (`master` saat diunduh; label rilis 2025.1.9). Versi Shamela tanpa teks catatan kaki maupun mukadimah pentahqiq.
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1` | 214.162 | `92a822726431d70a364750d07a70e3a2b433c00baec2c54f3fadec67ec0667b4` |
+
+```bash
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0450AH/e344cfe20a206c9ded3edfa15d45b4f821a97b8a/data/0448HilalSabi/0448HilalSabi.RusumDarKhilafa/0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1"
+```
+
 ## Shamela lokal (drive pemilik, hanya-baca, T-09)
 
 Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struktur dan diverifikasi terhadap OpenITI (ADR-018).
@@ -57,6 +69,7 @@ Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struk
 | `book/718/12718.db` (Bidayat al-Hidayah, dicek 2026-11-26) | 196.608 | `c41459f5c9a2f42354ba4fede121e5db5ddccdf94e1132db9805b35c568956ca` |
 | `book/969/1969.db` (at-Tibyan, dicek 2026-11-27) | 315.392 | `3455f0e5e215d9ef1621b606d7b4d89e1acfdfa67d747e83523d0ee14ba30124` |
 | `book/371/11371.db` (al-Ajurrumiyyah, dicek 2026-11-27) | 40.960 | `c4ac77d505163ba2c5484e77521193a0b6b1c72da5c4ab08e42461087013621e` |
+| `book/173/8173.db` (Rusum Dar al-Khilafah, dicek 2026-11-28) | 360.448 | `25b73e7f119c9b4fae7316fe87b1e9e76e24dc8d49f953b5e27c46126cdba16c` |
 | `update/master/book.sqlite` | 11.882.496 | `acccdb02d46b80e21eab5da4127bf42b46020f5d09e727c477d1095eb8aa8794` |
 | `update/master/author.sqlite` | 8.933.376 | `0397cfc1f0c8d6dc61e13c0688e089d33f97aac6be981e3588368f49295a8a54` |
 
