@@ -6,6 +6,7 @@ import NextLink from "next/link";
 import { intisari as intisariText } from "../../i18n/id/intisari";
 
 import { ayahAnchor, hadithAnchor, pointAnchor } from "./format";
+import { PointReport } from "./point-report";
 import { QuoteCard } from "./quote-card";
 
 const t = intisariText;
@@ -28,7 +29,16 @@ function basisLinks(point: DigestPointView) {
  * "Dasar teks" ke setiap paragraf jangkarnya, chip dalil (ke daftar Dalil di halaman yang sama),
  * dan kutipan milik gagasan itu.
  */
-export function PointList({ digest, author }: { digest: DigestView; author: string }) {
+export function PointList({
+  digest,
+  author,
+  pagePath,
+}: {
+  digest: DigestView;
+  author: string;
+  /** Path halaman Intisari ini, untuk laporan per gagasan (X24). */
+  pagePath: string;
+}) {
   const numbers = pointNumbers(digest.points);
   return (
     <ol className="intisari-points flex list-none flex-col gap-8 p-0">
@@ -120,6 +130,11 @@ export function PointList({ digest, author }: { digest: DigestView; author: stri
                 {quotes.map((q) => (
                   <QuoteCard key={q.ord} quote={q} />
                 ))}
+                <PointReport
+                  pagePath={pagePath}
+                  passageId={p.anchors[0]?.passage_id ?? null}
+                  pointNo={n}
+                />
               </div>
             </div>
           </li>

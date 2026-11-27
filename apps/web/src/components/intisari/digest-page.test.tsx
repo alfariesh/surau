@@ -163,3 +163,35 @@ describe("QuoteCard: riwayat tanpa takhrij (X16)", () => {
     expect(html).not.toContain("Semua Intisari");
   });
 });
+
+describe("Intisari v2 dari chat (X24)", () => {
+  const html = render(FIXTURE_SECTION, []);
+
+  it("inti di kepala, label asal menyebut model dan skill plugin", () => {
+    expect(html).toContain("data-intisari-lead");
+    expect(html).toContain(FIXTURE_SECTION.lead!);
+    expect(html).toContain(
+      "Dibuat Claude Opus 5.5 lewat skill intisari-bab@1 (plugin Surau Redaksi) pada 24 Oktober 2026, belum ditinjau manusia.",
+    );
+  });
+
+  it("jawaban soal berlabel AI; tanpa jawaban tetap menunjuk gagasannya", () => {
+    expect(html).toContain("data-intisari-answer");
+    expect(html).toContain("Jawaban (AI)");
+    expect(html).toContain(FIXTURE_SECTION.questions[0]!.answer!);
+    // Intisari batch (tanpa inti dan jawaban): kalimat lama.
+    const book = render({
+      ...FIXTURE_BOOK,
+      lead: null,
+      questions: FIXTURE_BOOK.questions.map((q) => ({ ...q, answer: null })),
+    });
+    expect(book).not.toContain("data-intisari-lead");
+    expect(book).not.toContain("Jawaban (AI)");
+  });
+
+  it("tombol Laporkan per gagasan dengan nama yang menyebut nomornya", () => {
+    for (let n = 1; n <= FIXTURE_SECTION.points.length; n++) {
+      expect(html).toContain(`aria-label="Laporkan kekeliruan di gagasan ${n}"`);
+    }
+  });
+});
