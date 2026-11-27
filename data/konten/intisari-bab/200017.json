@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 2,
+  "section_id": 200017,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:15:56+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p217-p224 dibaca ulang: dua bagian agama dan alasan meninggalkan larangan lebih berat (hanya para shiddiq), tujuh pintu dan tujuh anggota, empat larangan mata, dan riwayat pendengar sekutu yang berkata sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p225-p234: tujuan lisan, tujuh puluh kharif ditulis tujuh puluh tahun, dusta sebagai induk dosa besar, dan pengecualian ingkar janji (tidak mampu atau darurat) sesuai teks; p231 (cara mengenali buruknya dusta) hanya tercakup umum."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p236-p247: riwayat tiga puluh zina dinukil sebagai khabar, definisi ghibah dengan negasi walau benar, ghibah qurra riya, ayat hanya disebut, dan mutafaqqihat dirapikan menjadi pelajar fikih (bukan ahli fikih)."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p249-p257: celaan memuji diri, larangan laknat dan memastikan ahli kiblat kafir, Iblis tidak ditanyakan, doa buruk walau dizalimi, canda, dan diam kecuali sebatas darurat (dirapikan dari seperlunya) sesuai teks; anjuran milik penulis."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p259-p273: di bawah kenyang, tidak dituntut meyakini batin perkara, harta yang sebagian besar pasti haram, syarat menjaga kemaluan (kutipan p268), pena salah satu dua lisan, dan penguasa zalim tanpa darurat sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p274-p277: ucapan Allah Maha Pemurah disebut kalimat benar yang dimaksudkan batil, dua perumpamaan (faqih tanpa belajar, kaya tanpa bekerja) dan kemurahan berupa sabar beberapa hari sesuai teks; sikap refuted dengan bantahan penulis."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p278-p303: hati sumber amal lahir dan muraqabah, hasad cabang kekikiran, riya syirik tersembunyi, definisi sombong (kutipan p293), dan satu akar cinta dunia dengan batas sebatas darurat (dirapikan) sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "e0dacd5696f0a04e323ae77983e7e55a41588856b1013b95aaa1cd4969e37b73",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Dua bagian agama, tujuh pintu jahanam dengan tujuh anggota, empat larangan mata, dan pendengar sekutu yang berkata sesuai p217-p224; sikap author tepat."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Delapan perkara, dusta induk dosa besar, ingkar janji kecuali tidak mampu atau darurat, dan tujuh puluh kharif (tahun) sesuai p225-p234."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Negasi 'walau benar', riwayat tiga puluh zina sebagai khabar, ghibah qari riya, dan perdebatan sesuai p236-p247."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Memuji diri, laknat, Iblis tidak ditanyakan, doa buruk walau dizalimi, canda, dan diam kecuali darurat sesuai p249-p257."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Contoh 'harta orang yang sebagian besar hartanya pasti haram' dijadikan ilustrasi 'dugaan dengan tanda', padahal teks memisahkan keduanya; contoh teks (harta penguasa, penjual khamr, riba) tidak disebut."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Sikap refuted tepat: ucapan 'Allah Maha Pemurah, mengampuni' dinukil lalu dibantah penulis (p274-p276)."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Isi didukung dasar, tetapi dasar tidak memuat p297-p302 (hadits Mu'adz) padahal ringkasan menyebutnya."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "6737a7578b01b876081a013699290e0e61bdc49b1501e3e632c28aa5a66666f7",
+      "draf_sha256": "e0dacd5696f0a04e323ae77983e7e55a41588856b1013b95aaa1cd4969e37b73",
+      "waktu": "2026-11-27T03:32:47.541Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, menjauhi maksiat lebih berat daripada mengerjakan ketaatan, dan menuntut penjagaan tujuh anggota tubuh serta penyucian hati dari hasad, riya, dan ujub yang berakar pada cinta dunia.",
+    "ringkasan": "Al-Ghazali membuka dengan dua bagian agama dan menegaskan bahwa anggota tubuh adalah nikmat dan amanah. Ia lalu membahas adab tujuh anggota: mata, telinga, dan lisan dengan delapan bahayanya, dari dusta sampai bercanda, kemudian perut, kemaluan, tangan, dan kaki. Ia menolak alasan kemurahan Allah untuk meninggalkan amal, lalu beralih ke maksiat hati, yaitu hasad, riya, dan ujub, yang ia kuatkan dengan sebuah hadits panjang riwayat Mu'adz tentang tujuh malaikat penjaga langit. Penutupnya, ketiga sifat itu berakar pada cinta dunia, dan kitab Ihya dirujuk bagi yang ingin melangkah lebih jauh.",
+    "gagasan": [
+      {
+        "judul": "Maksiat dilakukan dengan anggota tubuh yang merupakan nikmat dan amanah, menurut al-Ghazali",
+        "isi": "Al-Ghazali membagi agama menjadi dua bagian, meninggalkan larangan dan mengerjakan ketaatan, dan menilai yang pertama lebih berat karena meninggalkan syahwat hanya sanggup dilakukan para shiddiq. Anggota tubuh ia sebut nikmat dan amanah dari Allah yang kelak bersaksi pada hari kiamat; jahanam memiliki tujuh pintu bagi yang bermaksiat dengan tujuh anggota: mata, telinga, lisan, perut, kemaluan, tangan, dan kaki. Mata diciptakan untuk petunjuk dan mengambil pelajaran, maka dijaga dari empat hal, antara lain memandang yang bukan mahram dan mengintip aib muslim. Telinga dijaga dari mendengar bid'ah, ghibah, dan kata keji, karena pendengar disebut sekutu yang berkata dalam riwayat yang ia nukil.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000217, 20000219, 20000220, 20000222, 20000224],
+        "soal": {
+          "tanya": "Mengapa al-Ghazali menekankan penjagaan tujuh anggota tubuh secara khusus?",
+          "jawab": "Karena jahanam memiliki tujuh pintu yang diperuntukkan bagi orang yang bermaksiat dengan tujuh anggota itu."
+        }
+      },
+      {
+        "judul": "Lisan anggota yang paling menguasai manusia dan dijaga dari delapan perkara, menurut penulis",
+        "isi": "Penulis menyebut lisan diciptakan untuk memperbanyak zikir, membaca kitab Allah, membimbing makhluk ke jalan-Nya, dan menyampaikan kebutuhan agama dan dunia; memakainya untuk selain itu berarti mengkufuri nikmat. Lisan ia sebut anggota yang paling menguasai manusia, dan ia menukil riwayat tentang orang yang berucap untuk membuat teman-temannya tertawa lalu jatuh ke dasar jahanam sejauh tujuh puluh tahun. Lisan dijaga dari delapan perkara. Yang pertama dusta, baik serius maupun bercanda, yang ia sebut termasuk induk dosa besar dan menjatuhkan kepercayaan. Yang kedua mengingkari janji; menurutnya janji jangan diingkari kecuali karena tidak mampu atau darurat, sebab ingkar janji termasuk tanda nifak.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000225, 20000226, 20000227, 20000230, 20000231, 20000234],
+        "soal": {
+          "tanya": "Dari berapa perkara lisan dijaga menurut penulis, dan apa dua yang pertama?",
+          "jawab": "Dari delapan perkara; dua yang pertama adalah dusta dan mengingkari janji."
+        }
+      },
+      {
+        "judul": "Ghibah tetap kezaliman walaupun yang diceritakan benar, menurut al-Ghazali",
+        "isi": "Al-Ghazali menukil riwayat bahwa ghibah lebih berat daripada tiga puluh kali zina dalam Islam, lalu mendefinisikannya sebagai menyebut seseorang dengan apa yang ia benci bila mendengarnya; pelakunya zalim walaupun benar. Ia memperingatkan ghibah para qari yang riya, yang menyindir aib orang sambil berdoa agar orang itu diperbaiki, karena menghimpun ghibah dan memuji diri sendiri. Ia berdalil dengan ayat tentang ghibah dan mengajak menengok aib diri sendiri. Perdebatan ia sebut menyakiti dan merendahkan lawan bicara serta memuji kecerdasan diri, dan bergaul dengan para pelajar fikih di zamannya membuat tabiat gemar berdebat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000236, 20000237, 20000238, 20000240, 20000243, 20000247],
+        "soal": {
+          "tanya": "Apa pengertian ghibah yang dikemukakan al-Ghazali dalam bagian ini?",
+          "jawab": "Menyebut seseorang dengan apa yang ia benci seandainya ia mendengarnya, walaupun yang disebut itu benar."
+        }
+      },
+      {
+        "judul": "Memuji diri, melaknat, mendoakan buruk, dan bercanda dicela penulis",
+        "isi": "Penulis menyebut memuji diri menurunkan derajat di mata manusia dan mendatangkan murka Allah, sebagaimana hati tidak suka melihat teman memuji dirinya. Ia melarang melaknat ciptaan Allah, baik hewan, makanan, maupun manusia tertentu, dan memastikan ahli kiblat syirik, kafir, atau munafik, sebab orang tidak ditanya pada hari kiamat mengapa tidak melaknat, bahkan tidak melaknat Iblis seumur hidup pun tidak ditanyakan. Mendoakan buruk orang lain ia larang walau dizalimi, dan bercanda ia sebut menjatuhkan wibawa dan menanam dendam. Menurutnya bahaya lisan hanya tertolong dengan uzlah atau diam kecuali sebatas darurat; Abu Bakar ash-Shiddiq ra. menaruh batu di mulutnya.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000249, 20000251, 20000253, 20000256, 20000257],
+        "soal": {
+          "tanya": "Apa yang menurut penulis bisa menolong seseorang dari bahaya-bahaya lisan?",
+          "jawab": "Uzlah atau membiasakan diam kecuali sebatas darurat."
+        }
+      },
+      {
+        "judul": "Perut, kemaluan, tangan, dan kaki dijaga dari yang haram, menurut penulis",
+        "isi": "Perut, menurut penulis, dijaga dari yang haram dan syubhat, dan dari yang halal pun dicukupkan di bawah kenyang karena kenyang mengeraskan hati dan memberatkan ibadah. Seseorang tidak dituntut meyakini batin perkara, cukup menghindari yang diketahui atau diduga haram dengan tanda yang jelas, seperti harta orang yang sebagian besar hartanya pasti haram. Kemaluan hanya terjaga dengan menjaga mata, hati, dan perut. Tangan dijaga dari memukul muslim, mengambil harta haram, berkhianat, dan menulis yang tidak boleh diucapkan, karena pena salah satu dari dua lisan. Kaki dijaga dari berjalan menuju yang haram atau ke pintu penguasa zalim tanpa darurat.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000259, 20000262, 20000268, 20000270, 20000272, 20000273],
+        "soal": {
+          "tanya": "Mengapa menulis hal yang tidak boleh diucapkan termasuk yang dijaga dari tangan, menurut penulis?",
+          "jawab": "Karena pena adalah salah satu dari dua lisan."
+        }
+      },
+      {
+        "judul": "Berharap ampunan tanpa beramal ditolak penulis sebagai kalimat benar yang dimaksudkan batil",
+        "isi": "Penulis memperingatkan ucapan bahwa Allah Maha Pemurah, Maha Penyayang, dan mengampuni para pendosa bila dijadikan alasan meninggalkan amal; ia menyebutnya kalimat benar yang dimaksudkan batil. Ia membandingkannya dengan orang yang ingin menjadi faqih tanpa belajar, atau ingin kaya tanpa bekerja sambil menunggu harta karun; keduanya ditertawakan walau kemurahan Allah yang mereka sebut memang benar. Menurutnya kemurahan Allah justru tampak dalam dimudahkannya jalan menuju kerajaan kekal dengan bersabar meninggalkan syahwat beberapa hari, sehingga orang tidak semestinya berharap menuai apa yang tidak ia tanam.",
+        "sikap": "refuted",
+        "jenis": "idea",
+        "dasar": [20000274, 20000275, 20000276, 20000277],
+        "soal": {
+          "tanya": "Dengan siapa penulis membandingkan orang yang mengharap ampunan tanpa beramal?",
+          "jawab": "Dengan orang yang ingin menjadi faqih tanpa belajar dan orang yang ingin kaya tanpa bekerja."
+        }
+      },
+      {
+        "judul": "Hasad, riya, dan ujub berakar pada cinta dunia, menurut al-Ghazali",
+        "isi": "Al-Ghazali menyebut amal anggota lahir bersumber dari sifat hati, sehingga hati diperbaiki dengan muraqabah. Dari banyak sifat tercela hati, ia memperingatkan tiga induknya: hasad, yang ia sebut cabang dari kekikiran, yaitu merasa berat bila Allah memberi nikmat kepada orang lain sampai menginginkan nikmat itu hilang; riya, yang ia sebut syirik tersembunyi berupa mencari kedudukan di hati manusia; serta ujub dan kesombongan, yaitu memandang diri mulia dan orang lain hina. Orang yang memandang dirinya lebih baik dari seorang makhluk Allah ia sebut sombong. Ketiganya, menurutnya, tumbuh dari satu akar, yaitu cinta dunia, walau dunia juga ladang akhirat bagi yang mengambilnya sebatas darurat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000278, 20000285, 20000289, 20000292, 20000293, 20000303],
+        "soal": {
+          "tanya": "Apa akar yang sama dari hasad, riya, dan ujub menurut al-Ghazali?",
+          "jawab": "Akarnya satu, yaitu cinta dunia."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 5,
+        "passage_id": 20000268,
+        "char_start": 0,
+        "char_end": 131,
+        "terjemahan": "Engkau tidak akan sampai pada penjagaan kemaluan kecuali dengan menjaga mata dari memandang, menjaga hati dari memikirkan, dan menjaga perut dari syubhat dan dari kenyang, karena semua itu penggerak syahwat dan tempat tumbuhnya."
+      },
+      {
+        "gagasan": 7,
+        "passage_id": 20000293,
+        "char_start": 0,
+        "char_end": 95,
+        "terjemahan": "Orang yang sombong ialah yang bila dinasihati merasa tinggi hati, dan bila menasihati bersikap kasar. Maka setiap orang yang memandang dirinya lebih baik daripada seorang pun dari makhluk Allah Ta'ala, ia orang yang sombong."
+      }
+    ],
+    "istilah": []
+  }
+}
