@@ -28,7 +28,10 @@ export const WARAQAT: WorkConfig = {
     volumes: [25],
     titles: 20,
     matanMinPages: 25,
-    llmCoverage: 0,
+    // Terjemahan + ringkasan Sonnet sudah ada; "Definisi selesai" = ≥ 99%.
+    llmCoverage: 0.99,
+    // 20 Intisari Bab chat, satu per judul Shamela (ADR-147): batas bawah (ADR-137).
+    minDigests: 20,
   },
   // Halaman cetak 31 (bab ijtihad); kata pencarian mengenai paragraf badan kitab ini.
   smoke: { juz: 1, page: 31, search: "الاجتهاد", footnotes: false },

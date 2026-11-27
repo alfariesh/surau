@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600007,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p41: definisi nahi dan dalalahnya atas fasad sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p42: empat makna lain shighat amr (ibahah, tahdid, taswiyah, takwin) sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "49e81c513088b38818c5430b1f3da87118c5e2d5db75a896972adcf7e8e57d7d",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi nahi dan penunjukan fasad sesuai p41."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Empat makna lain bentuk perintah sesuai p42."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "c18f6d5eb8c1da3484820c550310fd21e7e876190b4ce3faf1ee7d87e94281f5",
+      "draf_sha256": "49e81c513088b38818c5430b1f3da87118c5e2d5db75a896972adcf7e8e57d7d",
+      "waktu": "2026-11-27T18:27:22.814Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, nahi adalah tuntutan meninggalkan dengan ucapan kepada pihak yang lebih rendah secara wajib dan menunjukkan rusaknya yang dilarang, sedangkan bentuk perintah bisa bermakna selain perintah.",
+    "ringkasan": "Al-Juwaini mendefinisikan nahi dengan pola yang sama seperti amr: tuntutan meninggalkan perbuatan, dengan ucapan, kepada pihak yang lebih rendah, dengan cara mewajibkan. Ia menambahkan bahwa larangan menunjukkan rusaknya (fasad) perbuatan yang dilarang. Sesudah itu ia mencatat bahwa bentuk perintah kadang datang dengan maksud lain, yaitu ibahah, ancaman (tahdid), penyamaan (taswiyah), atau penciptaan (takwin).",
+    "gagasan": [
+      {
+        "judul": "Larangan menunjukkan rusaknya perbuatan yang dilarang, menurut al-Juwaini",
+        "isi": "Al-Juwaini mendefinisikan nahi sebagai tuntutan meninggalkan perbuatan dengan ucapan kepada pihak yang kedudukannya lebih rendah, dengan cara mewajibkan. Ia menambahkan bahwa nahi menunjukkan fasad, yakni rusaknya perbuatan yang dilarang.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000041],
+        "soal": {
+          "tanya": "Apa yang ditunjukkan nahi terhadap perbuatan yang dilarang menurut al-Juwaini?",
+          "jawab": "Nahi menunjukkan rusaknya (fasad) perbuatan yang dilarang."
+        }
+      },
+      {
+        "judul": "Bentuk perintah bisa bermakna ibahah, ancaman, penyamaan, atau penciptaan, menurut penulis",
+        "isi": "Penulis mencatat bahwa bentuk perintah (shighat al-amr) kadang datang tetapi yang dimaksud bukan tuntutan berbuat. Maksudnya bisa ibahah (pembolehan), tahdid (ancaman), taswiyah (penyamaan), atau takwin (penciptaan).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000042],
+        "soal": {
+          "tanya": "Apa saja makna lain bentuk perintah yang dicatat penulis al-Waraqat?",
+          "jawab": "Ibahah, ancaman, penyamaan, dan penciptaan."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000041,
+        "char_start": 0,
+        "char_end": 74,
+        "terjemahan": "Nahi adalah tuntutan meninggalkan dengan ucapan kepada pihak yang lebih rendah, dengan cara mewajibkan."
+      }
+    ],
+    "istilah": []
+  }
+}

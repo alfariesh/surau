@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600019,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p102-p103: syarat mustafti, alim tidak bertaklid, definisi taklid, dan konsekuensinya sesuai lafal teks (yusamma taqlidan)."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p103-p104: definisi kedua dinukil dari 'minhum'; pengandaian kias dinisbahkan kepada penulis sendiri."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "51ac8c829093de50d30242c5ec09c8371138d71e34f1b9562e258e7f46598bd5",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Syarat mustafti dan definisi taklid setia p102-p103."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Pengandaian kias di p104 milik penulis, tetapi gagasan bersikap reported; isi sudah memisahkannya."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3). Dirapikan sesudah pemeriksaan pertama (Kurang), diperiksa ulang."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "4f04c3025092a6ee6911729f562755951eb6492fe099ca50982e3e5aab591ac6",
+      "draf_sha256": "51ac8c829093de50d30242c5ec09c8371138d71e34f1b9562e258e7f46598bd5",
+      "waktu": "2026-11-27T18:32:27.188Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, mustafti harus termasuk ahli taklid, orang alim tidak boleh bertaklid, dan taklid adalah menerima ucapan orang yang berkata tanpa hujah.",
+    "ringkasan": "Al-Juwaini menyebut syarat mustafti: ia termasuk ahli taklid, sedangkan orang alim tidak boleh bertaklid. Taklid ia definisikan sebagai menerima ucapan orang yang berkata tanpa hujah; berdasarkan definisi ini, menerima ucapan Nabi saw. disebut taklid. Ia lalu menukil definisi lain: menerima ucapan seseorang tanpa mengetahui dari mana ia mengatakannya. Bila Nabi saw. dianggap berkata dengan kias, menerima ucapannya boleh disebut taklid.",
+    "gagasan": [
+      {
+        "judul": "Orang alim tidak boleh bertaklid, dan mustafti adalah ahli taklid, menurut al-Juwaini",
+        "isi": "Menurut al-Juwaini, di antara syarat mustafti adalah ia termasuk ahli taklid; orang alim tidak boleh bertaklid. Taklid adalah menerima ucapan orang yang berkata tanpa hujah. Berdasarkan definisi itu, penulis menyatakan bahwa menerima ucapan Nabi saw. disebut taklid.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000102, 60000103],
+        "soal": {
+          "tanya": "Bagaimana al-Juwaini mendefinisikan taklid dalam bab mustafti?",
+          "jawab": "Menerima ucapan orang yang berkata tanpa hujah."
+        }
+      },
+      {
+        "judul": "Sebagian ulama mendefinisikan taklid sebagai menerima ucapan tanpa tahu sumbernya",
+        "isi": "Penulis menukil definisi lain dari sebagian ulama: taklid adalah menerima ucapan seseorang tanpa mengetahui dari mana ia mengatakannya. Sesudah itu penulis sendiri menambahkan pengandaian: bila Nabi saw. dikatakan berkata dengan kias, menerima ucapan beliau boleh disebut taklid.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [60000103, 60000104],
+        "soal": {
+          "tanya": "Dengan anggapan apa menerima ucapan Nabi saw. boleh disebut taklid menurut penulis?",
+          "jawab": "Bila Nabi saw. dianggap berkata berdasarkan kias."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000102,
+        "char_start": 79,
+        "char_end": 120,
+        "terjemahan": "Taklid adalah menerima ucapan orang yang berkata tanpa hujah."
+      }
+    ],
+    "istilah": []
+  }
+}

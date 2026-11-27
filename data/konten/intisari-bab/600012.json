@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600012,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p65-p66: makna bahasa izalah, pendapat naql yang dinukil, definisi istilah dengan syarat tarakhi."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p67-p70: judul kini mencakup kebolehan nasakh dengan satu pengecualian, mutawatir dengan ahad."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p71-p73: empat keadaan ta'arudh dan penyelesaiannya (jam', tawaqquf bila tarikh tak diketahui, nasakh, takhsis)."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "0f9d44b34b2ae812681ba8e0e885a265ed0e7b77e16329dbf20d03a3c584e3ac",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi nasakh bahasa dan istilah setia p65-p66."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Bentuk dan sumber nasakh serta larangan mutawatir dengan ahad cocok p67-p70."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Empat keadaan ta'arudh dan penyelesaiannya sesuai p71-p73."
+        }
+      ],
+      "laporan": "Dirapikan sesudah pemeriksaan pertama (Kurang), diperiksa ulang."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "2512d061ffca5a2825820a1a2d21eb6e9c1da39ef64e44acbc36af0a93875a68",
+      "draf_sha256": "0f9d44b34b2ae812681ba8e0e885a265ed0e7b77e16329dbf20d03a3c584e3ac",
+      "waktu": "2026-11-27T18:32:21.549Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, nasakh adalah khitab yang mengangkat hukum khitab terdahulu dengan jarak waktu, terjadi dalam beberapa bentuk, dan dalil yang bertentangan diselesaikan dengan memadukan, mengkhususkan, atau menasakh.",
+    "ringkasan": "Al-Juwaini menjelaskan makna nasakh secara bahasa, yaitu menghilangkan, dan menukil pendapat bahwa maknanya memindahkan. Secara istilah, nasakh adalah khitab yang menunjukkan terangkatnya hukum yang ditetapkan khitab terdahulu, dengan jarak waktu di antara keduanya. Ia menyebut bentuk-bentuk nasakh dan sumber yang boleh saling menasakh, serta menolak nasakh mutawatir dengan ahad. Dalam catatan tentang ta'arudh, ia membagi dua nash yang bertentangan menjadi empat keadaan beserta cara penyelesaiannya.",
+    "gagasan": [
+      {
+        "judul": "Nasakh mengangkat hukum khitab terdahulu dengan khitab yang datang kemudian, menurut al-Juwaini",
+        "isi": "Menurut al-Juwaini, nasakh secara bahasa berarti menghilangkan; ada pula yang berpendapat maknanya memindahkan, seperti ungkapan menyalin isi kitab. Secara istilah, nasakh adalah khitab yang menunjukkan terangkatnya hukum yang ditetapkan dengan khitab terdahulu, dengan cara yang seandainya tidak ada khitab itu hukum tersebut tetap berlaku, dan khitab itu datang dengan jarak waktu sesudahnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000065, 60000066],
+        "soal": {
+          "tanya": "Apa makna nasakh secara bahasa menurut al-Juwaini?",
+          "jawab": "Menghilangkan; ada pula yang berpendapat maknanya memindahkan."
+        }
+      },
+      {
+        "judul": "Nasakh boleh dalam banyak bentuk, kecuali mutawatir dengan ahad, menurut penulis",
+        "isi": "Penulis membolehkan nasakh tulisan (rasm) dengan hukum tetap, dan nasakh hukum dengan tulisan tetap. Nasakh bisa dengan pengganti atau tanpa pengganti, kepada yang lebih berat atau yang lebih ringan. Kitab boleh dinasakh dengan Kitab, sunah dengan Kitab, dan sunah dengan sunah. Mutawatir boleh dinasakh dengan mutawatir, ahad dengan ahad dan dengan mutawatir, tetapi mutawatir tidak boleh dinasakh dengan ahad.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000067, 60000068, 60000069, 60000070],
+        "soal": {
+          "tanya": "Nasakh jenis apa yang tidak dibolehkan penulis al-Waraqat?",
+          "jawab": "Nasakh mutawatir dengan ahad."
+        }
+      },
+      {
+        "judul": "Pertentangan dua nash diselesaikan sesuai empat keadaannya, menurut al-Juwaini",
+        "isi": "Al-Juwaini membagi dua nash yang bertentangan menjadi empat: keduanya umum, keduanya khusus, satu umum dan satu khusus, atau masing-masing umum dari satu sisi dan khusus dari sisi lain. Bila keduanya umum atau keduanya khusus, keduanya dipadukan bila mungkin; bila tidak mungkin dan sejarahnya tidak diketahui, tawaqquf; bila diketahui, yang terdahulu dinasakh oleh yang kemudian. Yang umum dikhususkan dengan yang khusus, dan pada keadaan keempat keumuman masing-masing dikhususkan dengan kekhususan yang lain.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000071, 60000072, 60000073],
+        "soal": {
+          "tanya": "Apa yang dilakukan bila dua nash umum bertentangan, tidak bisa dipadukan, dan sejarahnya diketahui?",
+          "jawab": "Yang terdahulu dinasakh oleh yang datang kemudian."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 60000070,
+        "char_start": 78,
+        "char_end": 113,
+        "terjemahan": "Tidak boleh menasakh mutawatir dengan ahad."
+      }
+    ],
+    "istilah": []
+  }
+}

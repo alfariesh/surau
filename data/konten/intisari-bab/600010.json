@@ -1,0 +1,74 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600010,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p57: definisi zahir, ta'wil dengan dalil, dan namanya az-zahir bid-dalil sesuai teks (bukan nama lain)."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "c87f79bfcddde84257229133501c90106299f9a9e7e2b78f3e59fd034a9469c9",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi zahir, ta'wil dengan dalil, az-zahir bid-dalil sesuai p57."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "a5f5ccc22a487f0ca332bf3babacf7d5af484c0f8e539b4b01982a12c209ec50",
+      "draf_sha256": "c87f79bfcddde84257229133501c90106299f9a9e7e2b78f3e59fd034a9469c9",
+      "waktu": "2026-11-27T18:27:28.117Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, zahir adalah lafal yang mengandung dua kemungkinan makna dengan salah satunya lebih jelas, dan zahir dapat dita'wilkan dengan dalil.",
+    "ringkasan": "Al-Juwaini mendefinisikan zahir sebagai lafal yang mengandung dua kemungkinan makna, dan salah satu dari keduanya lebih jelas daripada yang lain. Ia lalu menyatakan bahwa zahir dapat dita'wilkan dengan dalil, dan zahir yang dita'wilkan dengan dalil disebut zahir dengan dalil (az-zahir bid-dalil). Dengan demikian, ta'wil atas zahir menurutnya bertumpu pada dalil.",
+    "gagasan": [
+      {
+        "judul": "Zahir mengandung dua makna dan dita'wilkan dengan dalil, menurut al-Juwaini",
+        "isi": "Al-Juwaini mendefinisikan zahir sebagai lafal yang mengandung dua kemungkinan makna, dan salah satunya lebih jelas daripada yang lain. Zahir dapat dita'wilkan dengan dalil. Zahir yang dita'wilkan itu ia namai zahir dengan dalil (az-zahir bid-dalil).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000057],
+        "soal": {
+          "tanya": "Disebut apa zahir yang dita'wilkan dengan dalil menurut al-Juwaini?",
+          "jawab": "Disebut zahir dengan dalil (az-zahir bid-dalil)."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000057,
+        "char_start": 0,
+        "char_end": 53,
+        "terjemahan": "Zahir adalah yang mengandung dua kemungkinan, salah satunya lebih jelas daripada yang lain."
+      }
+    ],
+    "istilah": []
+  }
+}
