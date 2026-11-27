@@ -1,0 +1,200 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 7,
+  "section_id": 700117,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p328-p331: empat syarat wajib, lima syarat kemampuan, dua marhalah, kelebihan dari utang dan tanggungan, perempuan dengan suami, mahram, atau perempuan tepercaya, kewajiban mewakilkan sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p333-p334, p336-p337: bulan haji, ihram di luar waktu menjadi umrah, lima miqat, dam bila tidak kembali, lima rukun haji dan empat rukun umrah sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p339, p344-p345, p347: ihram sebagai niat, talbiah keras bagi laki-laki, delapan wajib thawaf, empat wajib sa'i sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p349, p354-p355, p358, p360: wukuf sesaat sesudah tergelincir walau lewat atau tidur dan berakal, sampai fajar, enam wajib haji, dua tahalul dengan dua dari tiga amalan sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p362-p363, p365: urutan ifrad, tamattu', qiran, empat syarat dam tamattu', kambing atau puasa sepuluh hari tiga dan tujuh sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p367-p370: enam macam larangan ihram, tebusan tiga rambut atau kuku walau lupa, setengah sha' untuk enam miskin atau tiga hari, jimak sengaja sebelum tahalul pertama dengan qadha segera dan unta sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p374-p375, p378: sunah muakkadah, wajib karena nazar atau penetapan, hewan yang sah, umur lima, dua, dan satu tahun, cacat, waktu sampai akhir tasyrik, akikah sampai balig, hari ketujuh, dua kambing untuk laki-laki sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "5bd6df394677e744915533a82ad50e0ca9c2f519c1158b00b3b5715fdb180590",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Lima syarat kemampuan, dua marhalah, kelebihan dari utang, perempuan dan mahram, wakil, jarak qashar sesuai teks."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Bulan haji, miqat, dam bila tidak kembali, lima rukun haji dan empat rukun umrah sesuai teks."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Delapan wajib thawaf, empat wajib sa'i, talbiah pelan kali pertama sesuai teks."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Wukuf sesaat sesudah zawal sampai fajar, enam wajib haji, dua tahalul sesuai teks."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Urutan ifrad, tamattu', qiran; syarat dam tamattu'; kambing atau puasa 3+7 hari sesuai teks."
+        },
+        {
+          "ke": 6,
+          "nilai": "kurang",
+          "catatan": "Enam larangan dan fidyah benar; syarat sengaja-tahu-sukarela dan tahap pengganti unta pada jimak tidak disebut."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Kurban muakkadah, nazar, umur 5, 2, 1 tahun, waktu, akikah sesuai teks."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "d62bc4ad1fcad812864508e60e6a8e610f93fe0a492376179076ed0be69b5e2b",
+      "draf_sha256": "5bd6df394677e744915533a82ad50e0ca9c2f519c1158b00b3b5715fdb180590",
+      "waktu": "2026-11-27T18:33:45.800Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Bafadl al-Hadrami, haji dan umrah sama-sama fardu bagi muslim merdeka, mukallaf, dan mampu, dengan lima rukun haji, empat rukun umrah, enam wajib haji, dan larangan ihram yang punya tebusan.",
+    "ringkasan": "Bafadl al-Hadrami membuka Kitab Haji dan Umrah dengan syarat wajib dan lima syarat kemampuan, lalu waktu dan miqat ihram, rukun haji dan umrah, tata cara ihram dan talbiah, sunah-sunah manasik, wajib dan sunah thawaf, sa'i, wukuf, dan cukur. Ia kemudian menyebut enam wajib haji, sunah mabit dan melontar, dua tahalul, tiga cara menunaikan haji dan umrah, dam tertib, larangan ihram beserta tebusannya, dan penghalang haji. Bab kurban dan akikah menutupnya, ditambah larangan yang berkaitan dengan rambut dan semacamnya.",
+    "gagasan": [
+      {
+        "judul": "Kemampuan berhaji mencakup bekal, kendaraan, dan jalan yang aman, menurut penulis",
+        "isi": "Penulis menyebut haji dan umrah fardu dengan syarat Islam, merdeka, mukallaf, dan mampu. Kemampuan ia rinci lima: memiliki bekal serta biaya pergi dan pulang; kendaraan bagi yang jaraknya ke Makkah dua marhalah atau lebih; jalan yang aman; bekal dan air di tempat biasa dengan harga wajar; dan sanggup duduk di atas kendaraan tanpa kesulitan berat. Semua itu harus lebih dari utang, nafkah tanggungan, tempat tinggal, dan pembantu yang diperlukan. Perempuan baru wajib berhaji bila disertai suami, mahram, atau rombongan perempuan tepercaya, dan orang yang tidak mampu sendiri wajib mewakilkan bila sanggup dengan hartanya atau dengan orang yang menaatinya, kecuali bila jaraknya ke Makkah kurang dari jarak qashar.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000328, 70000329, 70000330, 70000331],
+        "soal": {
+          "tanya": "Berapa syarat kemampuan berhaji yang dirinci penulis?",
+          "jawab": "Lima, di antaranya bekal, kendaraan, dan jalan yang aman."
+        }
+      },
+      {
+        "judul": "Rukun haji lima dan rukun umrah empat, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menyebut umrah boleh diihramkan kapan saja, sedangkan haji hanya pada bulan-bulannya, yaitu Syawal, Zulkaidah, dan sepuluh hari Zulhijah; ihram haji di luar waktunya menjadi umrah. Miqat bagi Tihamah Yaman ialah Yalamlam, bagi Najd Qarn, bagi Irak Dzatu 'Irq, bagi Syam, Mesir, dan Maghrib Juhfah, dan bagi Madinah Dzul Hulaifah; yang melewatinya lalu berihram wajib membayar dam bila tidak kembali. Rukun haji lima: ihram, wukuf di Arafah, thawaf, sa'i, dan cukur, sedangkan rukun umrah empat: ihram, thawaf, sa'i, dan cukur.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000333, 70000334, 70000336, 70000337],
+        "soal": {
+          "tanya": "Apa yang menjadi rukun haji tetapi bukan rukun umrah menurut Bafadl al-Hadrami?",
+          "jawab": "Wukuf di Arafah termasuk rukun haji, tetapi tidak termasuk rukun umrah."
+        }
+      },
+      {
+        "judul": "Thawaf punya delapan wajib dan sa'i empat, menurut penulis",
+        "isi": "Menurut penulis, ihram ialah niat haji, umrah, atau keduanya, dan disunahkan mengucapkan niat serta memperbanyak talbiah dengan suara keras bagi laki-laki, kecuali pada kali pertama. Wajib thawaf ia hitung delapan: menutup aurat, suci dari hadats dan najis, menjadikan Kakbah di sebelah kiri, mulai dari Hajar Aswad, sejajar dengannya dengan seluruh badan, tujuh putaran, di dalam masjid, dan di luar Kakbah, syadzarwan, dan Hijr. Wajib sa'i empat: mulai dari Shafa pada putaran pertama, dari Marwah pada putaran kedua, tujuh kali, dan dilakukan sesudah thawaf rukun atau thawaf qudum.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000339, 70000344, 70000345, 70000347],
+        "soal": {
+          "tanya": "Dari mana sa'i dimulai pada putaran pertama menurut penulis?",
+          "jawab": "Dari Shafa, lalu putaran kedua dimulai dari Marwah."
+        }
+      },
+      {
+        "judul": "Wukuf cukup hadir sesaat di Arafah sesudah tergelincir matahari, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menyebut wajib wukuf ialah hadir di tanah Arafah sesaat sesudah matahari tergelincir pada hari Arafah, walau sambil lewat atau tidur, asalkan berakal, dan waktunya berlangsung sampai fajar. Wajib haji ia hitung enam: mabit di Muzdalifah sesaat pada paruh kedua malam, melontar Jumrah Aqabah tujuh kali, melontar tiga jumrah pada hari-hari tasyrik masing-masing tujuh kali, mabit pada malam-malamnya, ihram dari miqat, dan thawaf wada'. Tahalul ada dua: yang pertama tercapai dengan dua dari tiga amalan, yaitu melontar Jumrah Aqabah, cukur, dan thawaf ifadhah, dan yang kedua dengan amalan ketiga.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000349, 70000354, 70000355, 70000358, 70000360],
+        "soal": {
+          "tanya": "Berapa wajib haji menurut Bafadl al-Hadrami?",
+          "jawab": "Enam, di antaranya mabit di Muzdalifah, melontar jumrah, dan thawaf wada'."
+        }
+      },
+      {
+        "judul": "Ifrad lebih utama daripada tamattu' dan qiran, menurut penulis",
+        "isi": "Penulis menyebut haji dan umrah ditunaikan dengan tiga cara. Yang paling utama ifrad, yaitu berhaji lalu berumrah, bila umrahnya pada tahun haji itu; lalu tamattu', yaitu berumrah lalu berhaji; lalu qiran, yaitu berihram untuk keduanya, atau berihram umrah lalu haji sebelum thawaf. Orang yang bertamattu' wajib membayar dam dengan empat syarat, antara lain bukan penduduk Tanah Haram dan berihram umrah pada bulan-bulan haji. Dam tamattu', qiran, meninggalkan ihram dari miqat, melontar, dan mabit ialah seekor kambing kurban; bila tidak mampu, puasa sepuluh hari, tiga hari saat haji dan tujuh hari setelah pulang.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000362, 70000363, 70000365],
+        "soal": {
+          "tanya": "Apa ganti dam tamattu' bagi yang tidak mampu menurut penulis?",
+          "jawab": "Puasa sepuluh hari, tiga hari saat haji dan tujuh hari setelah pulang."
+        }
+      },
+      {
+        "judul": "Larangan ihram ada enam macam, masing-masing dengan tebusannya, menurut Bafadl al-Hadrami",
+        "isi": "Bafadl al-Hadrami menyebut enam macam larangan ihram: bagi laki-laki menutup kepala dan memakai pakaian berjahit, bagi perempuan menutup wajah dan memakai sarung tangan; wewangian; meminyaki rambut kepala dan janggut; menghilangkan rambut dan kuku; jimak; dan berburu hewan darat yang halal dimakan. Memakai pakaian terlarang, wewangian, atau minyak rambut dengan sengaja, serta mencukur tiga helai rambut atau memotong tiga kuku berturut-turut walau karena lupa, ditebus dengan kambing kurban, memberi enam orang miskin masing-masing setengah sha', atau puasa tiga hari. Jimak yang disengaja sebelum tahalul pertama merusak haji, tetapi haji itu tetap wajib disempurnakan dan diqadha segera, disertai seekor unta.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000367, 70000368, 70000369, 70000370],
+        "soal": {
+          "tanya": "Apa akibat jimak sengaja sebelum tahalul pertama dalam haji menurut Bafadl al-Hadrami?",
+          "jawab": "Hajinya rusak, tetapi wajib disempurnakan, diqadha segera, dan dibayar dengan seekor unta."
+        }
+      },
+      {
+        "judul": "Kurban sunah muakkadah dan hanya dari unta, sapi, atau kambing, menurut penulis",
+        "isi": "Penulis menyebut kurban sunah muakkadah yang hanya menjadi wajib karena nazar atau ucapan yang menetapkannya sebagai kurban, dan hanya sah dari unta, sapi, dan kambing. Unta disyaratkan genap lima tahun, sapi dan kambing kacang dua tahun, dan domba setahun, serta tidak berkudis, pincang parah, kurus, buta, atau terpotong sebagian telinganya. Waktunya sesudah matahari terbit pada hari raya kurban dan lewat kadar dua rakaat dan dua khutbah, sampai akhir hari tasyrik. Akikah juga sunah, waktunya dari kelahiran sampai balig, paling utama hari ketujuh, dan yang paling sempurna dua ekor kambing untuk anak laki-laki.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [70000374, 70000375, 70000378],
+        "soal": {
+          "tanya": "Berapa umur unta yang sah untuk kurban menurut penulis?",
+          "jawab": "Unta harus berumur genap lima tahun."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 70000336,
+        "char_start": 0,
+        "char_end": 87,
+        "terjemahan": "Rukun haji ada lima: ihram, wukuf di Arafah, thawaf, sa'i, dan cukur."
+      }
+    ],
+    "istilah": []
+  }
+}

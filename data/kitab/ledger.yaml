@@ -115,10 +115,10 @@ kitab:
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
     status: staging
-    # intisari_bab belum diisi: keenam node tingkat teratas adalah node patch, bukan title.id
-    # Shamela (data/patches/al-muqaddimah-al-hadhramiyyah-6125.yaml): muqaddimah, kitab-thaharah,
-    # bab-shalah, kitab-zakat, kitab-shiyam, kitab-hajj (peta ID: n700100, n700101, n700103,
-    # n700112, n700115, n700117).
+    # Intisari Bab (data/konten/intisari-bab, status siap): satu per node patch tingkat teratas,
+    # toc_node 700100 (mukadimah), 700101 (Thaharah), 700103 (Shalat), 700112 (Zakat),
+    # 700115 (Puasa), 700117 (Haji). intisari_bab tidak diisi karena kolom itu berisi title.id
+    # Shamela, sedangkan keenam node ini node patch (ADR-152).
   - slug: at-tarifat
     shamela: 7312
     openiti:
