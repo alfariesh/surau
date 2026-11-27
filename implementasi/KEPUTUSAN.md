@@ -156,8 +156,8 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 144 | Smoke D1, e2e Preview, dan uji MCP per kitab (korpus tanpa Ihya: tes Ihya dilewati, spec Bidayah); `/cari` memakai karya di korpus (sebelumnya 500 tanpa Ihya) | diterima | 2026-11-27 | [keputusan/ADR-144.md](keputusan/ADR-144.md) |
 | 145 | X24 untuk Gelombang 1: skema korpus 10 (`lead`, `answer`), impor Intisari chat (`tools/ingest/src/konten.ts`), gerbang build cek ulang di korpus baru, induk batch dari anak yang diganti dibuang, log tarik di repo; cek staging/produksi Ihya dipindah ke X31b dengan Bidayah | diterima | 2026-11-27 | [keputusan/ADR-145.md](keputusan/ADR-145.md) |
 | 146 | Kelas catatan kaki di ingest: `WorkConfig.footnotes` = ledger, catatan `modern_editor` dibuang sebelum alokasi ID (tanpa paragraf/`footnote_ref`), `//` di kitab `modern_editor` ditolak, gerbang per kelas; `parseImprint` melewati kotak pos/telepon; korpus at-Tibyan (karya/edisi 3) | diterima | 2026-11-27 | [keputusan/ADR-146.md](keputusan/ADR-146.md) |
-| 148 | Penanda `(١)` tanpa catatan kaki tertaut dibuang dari teks yang dikirim ke model (kitab `modern_editor`, mis. at-Tibyan); `text_raw` dan validator penanda tidak berubah | diterima | 2026-11-27 | [keputusan/ADR-148.md](keputusan/ADR-148.md) |
 | 147 | Intisari kitab Gelombang 1: setiap judul tingkat teratas = Intisari Bab (`contentTierOf`), tanpa Intisari Kitab seluruh kitab (tidak ada node akar); Bidayah `intisari_bab` [1, 2, 17, 37]; produksi lewat Claude Code + pemeriksa independen | diterima | 2026-11-27 | [keputusan/ADR-147.md](keputusan/ADR-147.md) |
+| 148 | Penanda `(١)` tanpa catatan kaki tertaut dibuang dari teks yang dikirim ke model (kitab `modern_editor`, mis. at-Tibyan); `text_raw` dan validator penanda tidak berubah | diterima | 2026-11-27 | [keputusan/ADR-148.md](keputusan/ADR-148.md) |
 
 ## Cara menambah ADR baru
 
