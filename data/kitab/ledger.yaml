@@ -102,3 +102,18 @@ kitab:
     # 21 judul daftar isi, semuanya tingkat teratas dan semuanya teks Hilal ash-Shabi' (edisi
     # Shamela tanpa mukadimah atau lampiran pentahqiq).
     intisari_bab: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+  - slug: al-muqaddimah-al-hadhramiyyah
+    shamela: 6125
+    openiti:
+      uri: 0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1
+      rilis: "2025.1.9"
+      repo: OpenITI/0925AH
+    edisi: "ad-Dar al-Muttahidah, Damaskus, cetakan ke-2 1413 H, tahqiq Majid al-Hamawi, 1 jilid (halaman cetak 19–162)"
+    wafat_h: 918
+    lisensi: CC BY-NC-SA 4.0
+    catatan_kaki: none
+    status: staging
+    # intisari_bab belum diisi: keenam node tingkat teratas adalah node patch, bukan title.id
+    # Shamela (data/patches/al-muqaddimah-al-hadhramiyyah-6125.yaml): muqaddimah, kitab-thaharah,
+    # bab-shalah, kitab-zakat, kitab-shiyam, kitab-hajj (peta ID: n700100, n700101, n700103,
+    # n700112, n700115, n700117).

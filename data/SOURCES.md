@@ -79,6 +79,16 @@ Repo `OpenITI/0450AH`, commit `e344cfe20a206c9ded3edfa15d45b4f821a97b8a` (`maste
 
 ```bash
 curl -fLO "https://raw.githubusercontent.com/OpenITI/0450AH/e344cfe20a206c9ded3edfa15d45b4f821a97b8a/data/0448HilalSabi/0448HilalSabi.RusumDarKhilafa/0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1"
+### al-Muqaddimah al-Hadhramiyyah (X32, diunduh 2026-11-28)
+
+Repo `OpenITI/0925AH`, commit `4f0f4562d1e13083c593e3a0ca6a19a3eb33805e` (`master` saat diunduh; label rilis 2025.1.9, ADR-152 butir 8). Edisi tanpa catatan kaki (ADR-138).
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1` | 129.806 | `1f2dee98e31f7a2df79c40b3f7990389e6030fd94fc4eb1a3e9d27536cb27149` |
+
+```bash
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0925AH/4f0f4562d1e13083c593e3a0ca6a19a3eb33805e/data/0918BafadlHadrami/0918BafadlHadrami.MuqaddimaHadramiyya/0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1"
 ```
 
 ## Shamela lokal (drive pemilik, hanya-baca, T-09)
@@ -94,6 +104,7 @@ Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struk
 | `book/246/9246.db` (al-Munqidz, dicek 2026-11-28) | 155.648 | `ed96842363e9452c062b74ded000a7e40ecd56f13a9b88831bb11fd424c22cfe` |
 | `book/297/6297.db` (al-Waraqat, dicek 2026-11-28) | 40.960 | `fb39324f5ccdfbe6a97102a7ff8e985cf09d92740c5235d212668255ba3e9b95` |
 | `book/173/8173.db` (Rusum Dar al-Khilafah, dicek 2026-11-28) | 360.448 | `25b73e7f119c9b4fae7316fe87b1e9e76e24dc8d49f953b5e27c46126cdba16c` |
+| `book/125/6125.db` (al-Muqaddimah al-Hadhramiyyah, dicek 2026-11-28) | 225.280 | `799a724bfaaecf4c1bd3f32b2fd042bf7fa967c2f8d221430e2cc32b439dcaf1` |
 | `update/master/book.sqlite` | 11.882.496 | `acccdb02d46b80e21eab5da4127bf42b46020f5d09e727c477d1095eb8aa8794` |
 | `update/master/author.sqlite` | 8.933.376 | `0397cfc1f0c8d6dc61e13c0688e089d33f97aac6be981e3588368f49295a8a54` |
 

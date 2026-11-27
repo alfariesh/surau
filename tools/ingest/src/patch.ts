@@ -28,6 +28,12 @@ export const tocPatch = z.strictObject({
         page: z.number().int().positive(),
         /** Kata pembuka paragraf judul di halaman itu (dicocokkan setelah normalisasi). */
         heading: z.string().min(1).max(80),
+        /**
+         * Kata yang mendahului judul di paragraf yang sama, bukan bagian judul (mis. artefak konversi
+         * "صلى الله عليه وسلم" di sekitar judul bab al-Muqaddimah al-Hadhramiyyah, ADR-152). Paragraf
+         * wajib dibuka `prefix` lalu `heading`; judul node disalin dari `heading` saja.
+         */
+        prefix: z.string().min(1).max(80).optional(),
       }),
     )
     .default([]),

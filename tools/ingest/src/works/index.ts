@@ -5,6 +5,7 @@
 import { AJURRUMIYYAH } from "./ajurrumiyyah.ts";
 import { BIDAYAH } from "./bidayah.ts";
 import type { CorpusConfig, WorkConfig } from "./config.ts";
+import { HADHRAMIYYAH } from "./hadhramiyyah.ts";
 import { IHYA } from "./ihya.ts";
 import { MUNQIDZ } from "./munqidz.ts";
 import { RUSUM } from "./rusum.ts";
@@ -21,13 +22,14 @@ export const WORKS: readonly WorkConfig[] = [
   MUNQIDZ,
   WARAQAT,
   RUSUM,
+  HADHRAMIYYAH,
 ];
 
 /** Korpus bawaan Gelombang 1 + 2 (ADR-142, ADR-152): tanpa Ihya, dibangun di mesin mana pun. */
 export const CORPUS: CorpusConfig = {
   version: "kitab-v11",
   output: "surau-corpus-kitab-v11.sqlite",
-  works: [BIDAYAH, TIBYAN, AJURRUMIYYAH, MUNQIDZ, WARAQAT, RUSUM],
+  works: [BIDAYAH, TIBYAN, AJURRUMIYYAH, MUNQIDZ, WARAQAT, RUSUM, HADHRAMIYYAH],
 };
 
 /** Konfigurasi kitab menurut slug karya; galat yang menyebut slug yang tersedia. */
