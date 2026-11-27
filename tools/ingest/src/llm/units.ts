@@ -124,16 +124,31 @@ export interface MaskedBody {
   refCount: number;
 }
 
+/** Penanda catatan kaki `(١)` (angka Arab-India, Persia, atau Latin) beserta spasi sebelumnya. */
+const MARKER = /\s*\((?:[\u0660-\u0669]+|[\u06F0-\u06F9]+|[0-9]+)\)/gu;
+
+/**
+ * Buang penanda catatan kaki dari teks yang DIKIRIM ke model (ADR-148). Hanya untuk kitab tanpa
+ * catatan kaki tertaut sama sekali (kelas `modern_editor`, ADR-138: catatannya tidak dimuat), jadi
+ * penandanya tidak menunjuk apa pun; `text_raw` tidak berubah dan penanda tetap tampil di teks Arab.
+ */
+export function stripUnlinkedMarkers(text: string): string {
+  return text.replaceAll(MARKER, "");
+}
+
 /** Semua paragraf badan dalam urutan baca, sudah bertanda ayat. */
 export function maskedBodies(rows: UnitRows): MaskedBody[] {
   const refs = groupBy(rows.passage_ayah_ref, (r) => r.passage_id);
   const notes = groupBy(rows.footnote_ref, (r) => r.passage_id);
+  // Kitab tanpa satu pun catatan kaki tertaut (Ihya selalu punya; Bidayah tanpa penanda).
+  const unlinked = rows.footnote_ref.length === 0;
   return bodyInReadingOrder(rows).map((p) => {
     const ayah = (refs.get(p.id) ?? []).map(toAyahRef);
     const foot = (notes.get(p.id) ?? []).toSorted((a, b) => a.char_start - b.char_start);
+    const masked = maskAyat(p.text_raw, ayah, foot.map(toFootnoteRef));
     return {
       passage: p,
-      masked: maskAyat(p.text_raw, ayah, foot.map(toFootnoteRef)),
+      masked: unlinked ? { ...masked, text: stripUnlinkedMarkers(masked.text) } : masked,
       markers: foot.map((f) => f.marker),
       refCount: ayah.length,
     };
