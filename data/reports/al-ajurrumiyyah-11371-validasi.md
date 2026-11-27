@@ -32,6 +32,8 @@
 | Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 25/25 (100,00%): node 25, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/25 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
+| Konten chat (X24): unit siap jadi Intisari, kutipan di dalam paragraf dan tanpa ayat, unit ditarik tidak dimuat | ✓ | 25 unit, 60 gagasan, 26 kutipan, 60 soal berjawaban; menggantikan batch 0 (–), induk batch basi dibuang 0 (–); 0 unit ditarik |
+| Intisari termuat ≥ 25 (tidak berkurang dari korpus tayang) | ✓ | 25 Intisari dari al-ajurrumiyyah/intisari |
 | ID paragraf rilis stabil (ADR-059) | ✓ | 139 ID lama ada dengan teks sama |
 
 ## Daftar isi

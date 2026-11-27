@@ -1,0 +1,123 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400020,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:19:50+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p114: delapan huruf istitsna' dihitung ulang dan urutannya sama dengan teks; kutipan p114 utuh."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p115-p117: tam mujab manshub, manfi tam boleh badal atau nashab, naqish mengikuti 'amil, dan contoh-contohnya sesuai teks; contoh p116 tidak ditransliterasi penuh, hanya disebut bentuk manshub dan marfu'."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p118-p119: ghairu, siwa, suwa, sawa' majrur 'tidak ada yang lain', khala, 'ada, hasya boleh nashab dan jarr beserta tiga contoh pasangan sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "58ac467fb55fda3e5a7ce850f4a10b04ee1586f94b292c400d7ad354dbfb150f",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Delapan huruf istitsna' lengkap dan urut sesuai p114."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "I'rab mustatsna dengan illa per keadaan sesuai p115-117."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Ghairu dan kawan-kawan majrur; khala, 'ada, hasya boleh nashab dan jarr sesuai p118-119."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "3502a13b21395a145d8efe2574400188e13e47b6ac147b6f16bfbae641595716",
+      "draf_sha256": "58ac467fb55fda3e5a7ce850f4a10b04ee1586f94b292c400d7ad354dbfb150f",
+      "waktu": "2026-11-27T06:29:22.639Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, huruf istitsna' ada delapan, dan i'rab mustatsna bergantung pada hurufnya serta pada keadaan kalimat: sempurna atau kurang, positif atau dinafikan.",
+    "ringkasan": "Ibnu Ajurrum menyebut delapan huruf istitsna': \"illa\", \"ghairu\", \"siwa\", \"suwa\", \"sawa'un\", \"khala\", \"'ada\", dan \"hasya\". Mustatsna dengan \"illa\" manshub bila kalimatnya sempurna dan positif; bila kalimatnya sempurna tetapi dinafikan, boleh badal atau nashab; bila kalimatnya kurang, i'rabnya mengikuti 'amil. Mustatsna dengan \"ghairu\", \"siwa\", \"suwa\", dan \"sawa'\" hanya majrur. Mustatsna dengan \"khala\", \"'ada\", dan \"hasya\" boleh manshub dan boleh majrur.",
+    "gagasan": [
+      {
+        "judul": "Huruf istitsna' ada delapan, menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum membuka bab istitsna' (pengecualian) dengan menyebut bahwa hurufnya ada delapan, yaitu \"illa\", \"ghairu\", \"siwa\", \"suwa\", \"sawa'un\", \"khala\", \"'ada\", dan \"hasya\". Kata yang dikecualikan dengan huruf-huruf ini disebut mustatsna, dan i'rabnya ia rinci sesudahnya menurut hurufnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000114],
+        "soal": {
+          "tanya": "Berapa jumlah huruf istitsna' yang disebut penulis di awal bab?",
+          "jawab": "Delapan huruf, dimulai dari \"illa\" dan diakhiri \"hasya\"."
+        }
+      },
+      {
+        "judul": "I'rab mustatsna dengan \"illa\" mengikuti keadaan kalimat, menurut penulis",
+        "isi": "Menurut penulis, mustatsna dengan \"illa\" manshub bila kalimatnya sempurna dan positif, seperti \"qama al-qaumu illa Zaidan\" dan \"kharaja an-nasu illa 'Amran\". Bila kalimatnya sempurna tetapi dinafikan, mustatsna boleh dijadikan badal atau dinashabkan karena istitsna', dan contohnya memuat \"Zaid\" dalam bentuk manshub dan marfu'. Bila kalimatnya kurang, i'rabnya mengikuti 'amil, seperti \"ma qama illa Zaidun\", \"ma dharabtu illa Zaidan\", dan \"ma marartu illa bi-Zaidin\".",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000115, 40000116, 40000117],
+        "soal": {
+          "tanya": "Bagaimana i'rab mustatsna dengan \"illa\" bila kalimatnya sempurna dan positif, menurut penulis?",
+          "jawab": "Manshub, seperti \"Zaidan\" pada \"qama al-qaumu illa Zaidan\"."
+        }
+      },
+      {
+        "judul": "Mustatsna dengan \"ghairu\" selalu majrur, sedangkan dengan \"khala\" boleh dua wajah, menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum menyebut bahwa mustatsna dengan \"ghairu\", \"siwa\", \"suwa\", dan \"sawa'\" hanya majrur, tidak ada bentuk lain. Adapun mustatsna dengan \"khala\", \"'ada\", dan \"hasya\" boleh manshub dan boleh majrur, seperti \"qama al-qaumu khala Zaidan\" atau \"Zaidin\", \"'ada 'Amran\" atau \"'Amrin\", dan \"hasya Bakran\" atau \"Bakrin\".",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000118, 40000119],
+        "soal": {
+          "tanya": "Bagaimana i'rab mustatsna sesudah \"khala\", \"'ada\", dan \"hasya\" dalam penjelasan penulis?",
+          "jawab": "Boleh manshub dan boleh majrur, seperti \"khala Zaidan\" atau \"khala Zaidin\"."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000114,
+        "char_start": 0,
+        "char_end": 85,
+        "terjemahan": "Huruf istitsna' ada delapan, yaitu \"illa\", \"ghairu\", \"siwa\", \"suwa\", \"sawa'un\", \"khala\", \"'ada\", dan \"hasya\"."
+      },
+      {
+        "gagasan": 3,
+        "passage_id": 40000118,
+        "char_start": 0,
+        "char_end": 53,
+        "terjemahan": "Mustatsna dengan \"ghairu\", \"siwa\", \"suwa\", dan \"sawa'\" majrur, tidak ada yang lain."
+      }
+    ],
+    "istilah": []
+  }
+}

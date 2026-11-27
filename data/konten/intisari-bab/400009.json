@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400009,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:20:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p71-p72: tiga kelompok 'amil, kerja kana (rafa' isim, nashab khabar), tiga belas anggota yang didaftar, bentuk tashrif, dan dua contoh sesuai teks; jumlah anggota tidak disebut karena penulis tidak menyebutnya."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p73: kerja inna (nashab isim, rafa' khabar), enam anggota, dua contoh, dan makna tiap huruf (taukid, istidrak, tasybih, tamanni, tarajji dan tawaqqu') sesuai teks; framing kebalikan kana dihapus."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p74: zhanantu menashabkan mubtada' dan khabar sebagai dua maf'ul, sepuluh anggota dan dua contoh sesuai teks; glos orang pertama diganti."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "f32b3dc97fabfb2be2921df7f285a18d8b765767bf8dab86e138300b148ebcda",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Tiga kelompok 'amil; kerja kana, tiga belas anggota dan tashrifnya sesuai p71-72."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Kerja inna, enam anggota, contoh dan makna tiap huruf sesuai p73; glosa tawaqqu' agak longgar."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Zhanantu menashabkan dua maf'ul; sepuluh anggota dan dua contoh sesuai p74."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "70f1aae868b22c255ee456f6ddfe9329d70153c4f471e35338f70dcd8d04de32",
+      "draf_sha256": "f32b3dc97fabfb2be2921df7f285a18d8b765767bf8dab86e138300b148ebcda",
+      "waktu": "2026-11-27T06:28:39.479Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, 'amil yang masuk pada mubtada' dan khabar ada tiga kelompok, yaitu kana, inna, dan zhanantu beserta saudara-saudaranya, masing-masing dengan pengaruh i'rab yang berbeda.",
+    "ringkasan": "Ibnu Ajurrum menyebut tiga kelompok 'amil yang masuk pada mubtada' dan khabar. Kana dan saudara-saudaranya merafa'kan isim dan menashabkan khabar; ia mendaftar anggotanya dan bentuk tashrifnya. Inna dan saudara-saudaranya menashabkan isim dan merafa'kan khabar; ia mendaftar anggotanya dan menjelaskan makna masing-masing, seperti taukid, istidrak, tasybih, tamanni, serta tarajji dan tawaqqu'. Zhanantu dan saudara-saudaranya menashabkan mubtada' dan khabar sebagai dua maf'ulnya. Setiap kelompok ia beri contoh kalimat.",
+    "gagasan": [
+      {
+        "judul": "Kana dan saudaranya merafa'kan isim dan menashabkan khabar menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum menyebut tiga kelompok 'amil yang masuk pada mubtada' dan khabar: kana, inna, dan zhanantu, masing-masing beserta saudara-saudaranya. Kelompok kana merafa'kan isim dan menashabkan khabar. Anggotanya: kana, amsa, ashbaha, adh-ha, zhalla, bata, shara, laisa, ma zala, ma-nfakka, ma fati'a, ma bariha, dan ma dama, juga bentuk tashrifnya seperti \"kana, yakunu, kun\" dan \"ashbaha, yushbihu, ashbih\". Contohnya \"kana Zaidun qa'iman\" (Zaid dahulu berdiri) dan \"laisa 'Amrun syakhishan\" ('Amr tidak pergi).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000071, 40000072],
+        "soal": {
+          "tanya": "Pengaruh apa yang diberikan kana dan saudara-saudaranya pada mubtada' dan khabar, menurut Ibnu Ajurrum?",
+          "jawab": "Kana dan saudaranya merafa'kan isim dan menashabkan khabar."
+        }
+      },
+      {
+        "judul": "Inna dan saudaranya menashabkan isim dan merafa'kan khabar menurut penulis",
+        "isi": "Menurut penulis, inna dan saudara-saudaranya menashabkan isim dan merafa'kan khabar. Anggotanya inna, anna, lakinna, ka'anna, laita, dan la'alla, dengan contoh \"inna Zaidan qa'imun\" dan \"laita 'Amran syakhishun\". Ia juga menjelaskan maknanya: inna dan anna untuk taukid (penegasan), lakinna untuk istidrak (meralat), ka'anna untuk tasybih (penyerupaan), laita untuk tamanni (berangan-angan), dan la'alla untuk tarajji dan tawaqqu' (berharap dan menanti).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000073],
+        "soal": {
+          "tanya": "Untuk makna apa la'alla digunakan menurut penjelasan penulis tentang inna dan saudara-saudaranya?",
+          "jawab": "La'alla digunakan untuk tarajji dan tawaqqu', yaitu berharap dan menanti."
+        }
+      },
+      {
+        "judul": "Zhanantu dan saudaranya menashabkan mubtada' dan khabar sebagai dua maf'ul menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum menjelaskan bahwa zhanantu dan saudara-saudaranya menashabkan mubtada' dan khabar sekaligus, dengan kedudukan keduanya sebagai dua maf'ul bagi fi'il itu. Anggotanya zhanantu, hasibtu, khiltu, za'amtu, ra'aitu, 'alimtu, wajadtu, ittakhadztu, ja'altu, dan sami'tu. Contohnya \"zhanantu Zaidan qa'iman\" (yang menyatakan sangkaan bahwa Zaid berdiri) dan \"ra'aitu 'Amran syakhishan\", dan yang serupa dengannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000074],
+        "soal": {
+          "tanya": "Dalam kedudukan apa mubtada' dan khabar dinashabkan oleh zhanantu dan saudaranya, menurut Ibnu Ajurrum?",
+          "jawab": "Keduanya dinashabkan sebagai dua maf'ul bagi fi'il zhanantu dan saudara-saudaranya."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000071,
+        "char_start": 0,
+        "char_end": 66,
+        "terjemahan": "'Amil itu ada tiga: kana dan saudara-saudaranya, inna dan saudara-saudaranya, serta zhanantu dan saudara-saudaranya."
+      }
+    ],
+    "istilah": []
+  }
+}

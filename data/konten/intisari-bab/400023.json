@@ -1,0 +1,74 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400023,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:17:28+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p129: definisi isim manshub penjelas sebab terjadinya perbuatan dan dua contohnya sesuai teks; penunjukan ijlalan dan ibtigha'a sebagai kata sebab adalah penerapan definisi pada contoh penulis; kalimat meta dan kata aku di narasi dihapus."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "0d1c44bffae5d2651bd654a92b3a1a260e5875dd9318b9ed88613797133a45f9",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi maf'ul min ajlih dan dua contoh sesuai p129."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "be7dcd526b37baebdb6876b15f92a5db9867d1aa38c9956b4eade55dae55cfae",
+      "draf_sha256": "0d1c44bffae5d2651bd654a92b3a1a260e5875dd9318b9ed88613797133a45f9",
+      "waktu": "2026-11-27T06:34:15.879Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, maf'ul min ajlih adalah isim manshub yang disebut untuk menjelaskan sebab terjadinya perbuatan, seperti \"qama Zaidun ijlalan li-'Amrin\".",
+    "ringkasan": "Ibnu Ajurrum mendefinisikan maf'ul min ajlih sebagai isim manshub yang disebut untuk menerangkan sebab terjadinya perbuatan. Ia memberi dua contoh: \"qama Zaidun ijlalan li-'Amrin\" (Zaid berdiri karena memuliakan Amr) dan \"qashadtuka ibtigha'a ma'rufika\" (mendatangimu karena mengharap kebaikanmu). Pada kedua contoh, kata yang manshub menjelaskan alasan perbuatan.",
+    "gagasan": [
+      {
+        "judul": "Maf'ul min ajlih menjelaskan sebab perbuatan, menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum mendefinisikan maf'ul min ajlih sebagai isim manshub yang disebut untuk menjelaskan sebab terjadinya perbuatan. Contohnya \"qama Zaidun ijlalan li-'Amrin\" (Zaid berdiri karena memuliakan Amr), dengan \"ijlalan\" sebagai sebab berdiri, dan \"qashadtuka ibtigha'a ma'rufika\" (mendatangimu karena mengharap kebaikanmu), dengan \"ibtigha'a\" sebagai sebab mendatangi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000129],
+        "soal": {
+          "tanya": "Apa fungsi maf'ul min ajlih dalam kalimat menurut definisi Ibnu Ajurrum?",
+          "jawab": "Menjelaskan sebab terjadinya perbuatan, dan isimnya manshub."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000129,
+        "char_start": 0,
+        "char_end": 119,
+        "terjemahan": "Yaitu isim manshub yang disebut untuk menjelaskan sebab terjadinya perbuatan, seperti ucapanmu \"qama Zaidun ijlalan li-'Amrin\" (Zaid berdiri karena memuliakan Amr) dan \"qashadtuka ibtigha'a ma'rufika\" (aku mendatangimu karena mengharap kebaikanmu)."
+      }
+    ],
+    "istilah": []
+  }
+}

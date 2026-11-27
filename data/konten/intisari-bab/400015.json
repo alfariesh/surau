@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400015,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:25:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p94: definisi maf'ul bih (isim manshub yang dikenai perbuatan) dan dua contoh sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p95-p97: dua macam (zhahir, mudhmar), zhahir sudah disebut sebelumnya, dan mudhmar dua macam (muttashil, munfashil) sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p98-p99: masing-masing dua belas sesuai teks, dan kedua puluh empat bentuk ditransliterasi berurutan seperti di teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "c5708789beca2a8e382d989bdb22637d8a7916c29f8120a722931c9c6970409f",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi dan dua contoh sesuai p94."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Zhahir/mudhmar dan muttashil/munfashil sesuai p95-97."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Dua belas bentuk muttashil dan munfashil cocok p98-99."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "08958fbaec15e5516a70abe725ab6ce8681482ad80c291ae44991f121aaa4e94",
+      "draf_sha256": "c5708789beca2a8e382d989bdb22637d8a7916c29f8120a722931c9c6970409f",
+      "waktu": "2026-11-27T06:33:42.714Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, maf'ul bih adalah isim manshub yang dikenai perbuatan, dan ia terbagi menjadi zhahir dan mudhmar, sedangkan mudhmar terbagi lagi menjadi muttashil dan munfashil.",
+    "ringkasan": "Ibnu Ajurrum mendefinisikan maf'ul bih sebagai isim manshub yang dikenai perbuatan, dengan dua contoh. Ia lalu membaginya menjadi dua: zhahir, yang menurutnya sudah disebut sebelumnya, dan mudhmar (kata ganti). Mudhmar terbagi lagi menjadi muttashil (bersambung) dan munfashil (terpisah). Masing-masing ia sebut ada dua belas dan ia rinci satu per satu, dari \"dharabani\" sampai \"dharabahunna\" untuk yang bersambung, dan dari \"iyyaya\" sampai \"iyyahunna\" untuk yang terpisah.",
+    "gagasan": [
+      {
+        "judul": "Maf'ul bih adalah isim manshub yang dikenai perbuatan, menurut Ibnu Ajurrum",
+        "isi": "Penulis mendefinisikan maf'ul bih sebagai isim yang manshub yang dikenai perbuatan (fi'il). Ia memberi dua contoh: \"dharabtu Zaidan\" (Zaid sebagai yang dipukul) dan \"rakibtu al-farasa\" (kuda sebagai yang ditunggangi). Pada kedua contoh, kata yang dikenai perbuatan itulah yang dibaca nashab.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000094],
+        "soal": {
+          "tanya": "Bagaimana Ibnu Ajurrum mendefinisikan maf'ul bih?",
+          "jawab": "Isim yang manshub yang dikenai perbuatan, seperti Zaid dalam \"dharabtu Zaidan\"."
+        }
+      },
+      {
+        "judul": "Ada dua macam maf'ul bih, zhahir dan mudhmar, menurut penulis",
+        "isi": "Menurut penulis, maf'ul bih ada dua macam: zhahir (isim yang tampak) dan mudhmar (kata ganti). Tentang yang zhahir ia hanya menyebut bahwa yang zhahir adalah yang sudah disebut sebelumnya. Mudhmar ia bagi lagi menjadi dua: muttashil, yang bersambung, dan munfashil, yang terpisah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000095, 40000096, 40000097],
+        "soal": {
+          "tanya": "Menjadi apa saja mudhmar dalam maf'ul bih dibagi oleh Ibnu Ajurrum?",
+          "jawab": "Menjadi muttashil yang bersambung dan munfashil yang terpisah."
+        }
+      },
+      {
+        "judul": "Mudhmar muttashil dan munfashil masing-masing ada dua belas, menurut penulis",
+        "isi": "Penulis menyebut bahwa mudhmar muttashil ada dua belas, yaitu \"dharabani\", \"dharabana\", \"dharabaka\", \"dharabaki\", \"dharabakuma\", \"dharabakum\", \"dharabakunna\", \"dharabahu\", \"dharabaha\", \"dharabahuma\", \"dharabahum\", dan \"dharabahunna\". Mudhmar munfashil juga ada dua belas, yaitu \"iyyaya\", \"iyyana\", \"iyyaka\", \"iyyaki\", \"iyyakuma\", \"iyyakum\", \"iyyakunna\", \"iyyahu\", \"iyyaha\", \"iyyahuma\", \"iyyahum\", dan \"iyyahunna\".",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000098, 40000099],
+        "soal": {
+          "tanya": "Berapa jumlah mudhmar muttashil dan mudhmar munfashil yang disebut Ibnu Ajurrum dalam bab maf'ul bih?",
+          "jawab": "Masing-masing ada dua belas bentuk."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000094,
+        "char_start": 0,
+        "char_end": 78,
+        "terjemahan": "Maf'ul bih ialah isim yang manshub yang dikenai perbuatan, seperti \"dharabtu Zaidan\" dan \"rakibtu al-farasa\"."
+      }
+    ],
+    "istilah": []
+  }
+}

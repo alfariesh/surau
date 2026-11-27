@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400021,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:17:28+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p121-p122 dibaca ulang: dua syarat nashab (langsung bertemu nakirah dan tidak diulang), tanpa tanwin, serta wajib rafa' dan wajib mengulang la bila terpisah sesuai teks; contoh pemisah fid-dar diambil dari contoh penulis."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p123: bila la diulang, boleh diamalkan dan boleh tidak, dua contoh (manshub dan marfu') sesuai teks; tanpa tambahan tarjih."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "fc250fa53fd7082ae945d160a75064271053c353456c9246ed198ddab7f407c1",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Dua syarat la dan hukum rafa' bila terpisah sesuai p121-122."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Bila la diulang boleh diamalkan atau tidak, sesuai p123."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "80c88c9529728317aa48a65e33931fb3cd88e66ab8cdeee6c41accb6039b9b18",
+      "draf_sha256": "fc250fa53fd7082ae945d160a75064271053c353456c9246ed198ddab7f407c1",
+      "waktu": "2026-11-27T06:34:02.290Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, \"la\" menashabkan isim nakirah tanpa tanwin bila langsung bertemu nakirah dan tidak diulang; bila terpisah, isimnya wajib rafa', dan bila diulang, \"la\" boleh diamalkan atau tidak.",
+    "ringkasan": "Ibnu Ajurrum membuka bab dengan kaidah dasar \"la\": ia menashabkan isim nakirah tanpa tanwin bila langsung bertemu nakirah dan tidak diulang, dengan contoh \"la rajula fid-dar\". Lalu ia menjelaskan keadaan sebaliknya: bila \"la\" tidak langsung bertemu nakirah, isim sesudahnya wajib rafa' dan \"la\" wajib diulang. Terakhir ia menyebut bahwa bila \"la\" diulang, boleh diamalkan dan boleh tidak diamalkan, masing-masing dengan contohnya.",
+    "gagasan": [
+      {
+        "judul": "\"La\" menashabkan nakirah tanpa tanwin bila bersambung langsung, menurut Ibnu Ajurrum",
+        "isi": "Menurut Ibnu Ajurrum, \"la\" menashabkan isim-isim nakirah tanpa tanwin dengan dua syarat: \"la\" langsung bertemu nakirah itu tanpa pemisah, dan \"la\" tidak diulang. Contohnya \"la rajula fid-dar\" (tidak ada seorang laki-laki pun di rumah). Bila \"la\" tidak langsung bertemu nakirah, misalnya terpisah oleh \"fid-dar\", isim sesudahnya wajib rafa' dan \"la\" wajib diulang, seperti \"la fid-dari rajulun wa la imra'atun\".",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000121, 40000122],
+        "soal": {
+          "tanya": "Apa yang terjadi pada isim nakirah bila \"la\" tidak langsung bertemu dengannya, menurut Ibnu Ajurrum?",
+          "jawab": "Isim itu wajib dibaca rafa' dan \"la\" wajib diulang."
+        }
+      },
+      {
+        "judul": "Bila \"la\" diulang, boleh diamalkan dan boleh tidak, menurut penulis",
+        "isi": "Penulis menjelaskan bahwa bila \"la\" diulang, ada dua pilihan yang sama-sama boleh: mengamalkannya atau tidak mengamalkannya. Bila diamalkan, isimnya manshub, seperti \"la rajula fid-dari wa la imra'ata\". Bila tidak diamalkan, isimnya marfu', seperti \"la rajulun fid-dari wa la imra'atun\".",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000123],
+        "soal": {
+          "tanya": "Pilihan apa yang dibolehkan penulis bila \"la\" disebut berulang dalam satu kalimat?",
+          "jawab": "Boleh mengamalkan \"la\" sehingga isimnya manshub, dan boleh tidak mengamalkannya sehingga isimnya marfu'."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000121,
+        "char_start": 0,
+        "char_end": 109,
+        "terjemahan": "Ketahuilah bahwa \"la\" menashabkan isim-isim nakirah tanpa tanwin bila ia langsung bertemu nakirah dan \"la\" tidak diulang, seperti \"la rajula fid-dar\" (tidak ada seorang laki-laki pun di rumah)."
+      }
+    ],
+    "istilah": []
+  }
+}

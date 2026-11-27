@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400013,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:25:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p87: kaidah badal berlaku bagi isim dari isim dan fi'il dari fi'il, mengikuti dalam seluruh i'rab, sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p88-p89: empat macam badal dan empat contohnya sesuai urutan teks; penjelasan badal ghalath (hendak menyebut al-faras, keliru menyebut Zaid, lalu menggantinya) tidak dibalik."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "19bf4052ad50c75688bf5c46ad9412c48afd45a7991f2fd397510691307f307d",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Kaidah badal isim dari isim dan fi'il dari fi'il setia pada p87."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Empat macam badal dan contohnya sesuai p88-89; badal ghalath tidak terbalik."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "24e7587732b6fccabdc1978d1406815e56c4ad84910ca212c9bae3eb4cf6c458",
+      "draf_sha256": "19bf4052ad50c75688bf5c46ad9412c48afd45a7991f2fd397510691307f307d",
+      "waktu": "2026-11-27T06:29:04.027Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, badal mengikuti kata yang digantikannya dalam seluruh i'rab, dan badal terbagi menjadi empat macam yang masing-masing ia beri contoh.",
+    "ringkasan": "Ibnu Ajurrum membuka bab badal dengan kaidah umum: bila suatu isim dijadikan badal dari isim lain, atau fi'il dari fi'il lain, ia mengikuti kata itu dalam seluruh i'rab-nya. Ia lalu menyebut empat macam badal, yaitu badal sesuatu dari sesuatu, badal sebagian dari keseluruhan, badal isytimal, dan badal ghalath (kekeliruan). Setiap macam diberi satu contoh, dan untuk badal ghalath ia menjelaskan bahwa pembicara sebenarnya hendak menyebut kata kedua, tetapi keliru menyebut kata pertama lalu menggantinya.",
+    "gagasan": [
+      {
+        "judul": "Badal mengikuti kata yang digantikannya dalam seluruh i'rab, menurut Ibnu Ajurrum",
+        "isi": "Penulis menetapkan kaidah umum badal: bila suatu isim dijadikan badal (pengganti) dari isim lain, atau suatu fi'il dijadikan badal dari fi'il lain, badal itu mengikuti kata yang digantikannya dalam seluruh i'rab-nya. Kaidah ini berlaku bagi isim maupun fi'il, tidak hanya bagi isim.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000087],
+        "soal": {
+          "tanya": "Apakah badal menurut Ibnu Ajurrum hanya berlaku pada isim, dan dalam hal apa ia mengikuti kata yang digantikan?",
+          "jawab": "Berlaku pada isim dan fi'il; badal mengikuti kata yang digantikan dalam seluruh i'rab-nya."
+        }
+      },
+      {
+        "judul": "Badal terbagi empat macam, menurut penulis, dengan contoh untuk tiap macam",
+        "isi": "Menurut penulis, badal ada empat macam: badal sesuatu dari sesuatu, seperti \"qama Zaidun akhuka\" (Zaid, saudaramu, berdiri); badal sebagian dari keseluruhan, seperti \"akaltu ar-raghifa tsulutsahu\" (sepertiga roti); badal isytimal, seperti \"nafa'ani Zaidun 'ilmuhu\" (ilmu Zaid); dan badal ghalath, seperti \"ra'aitu Zaidan al-farasa\". Pada contoh terakhir ia menjelaskan bahwa pembicara sebenarnya hendak menyebut \"al-farasa\" (kuda), tetapi keliru menyebut Zaid lebih dulu, lalu menjadikan kata kuda sebagai badal-nya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000088, 40000089],
+        "soal": {
+          "tanya": "Apa yang terjadi pada contoh badal ghalath \"ra'aitu Zaidan al-farasa\" menurut penjelasan Ibnu Ajurrum?",
+          "jawab": "Pembicara hendak menyebut \"al-farasa\", tetapi keliru menyebut Zaid, lalu menggantinya dengan kata itu."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000087,
+        "char_start": 0,
+        "char_end": 67,
+        "terjemahan": "Apabila suatu isim dijadikan badal dari isim lain, atau suatu fi'il dari fi'il lain, ia mengikutinya dalam seluruh i'rab-nya."
+      }
+    ],
+    "istilah": []
+  }
+}

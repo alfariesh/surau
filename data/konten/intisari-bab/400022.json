@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400022,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:17:28+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p125: bilangan lima macam dan urutan nama kelimanya sesuai teks; padanan Indonesia singkat tiap istilah adalah penjelasan istilah baku (ADR-149), bukan klaim baru."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p126-p127: mufrad 'alam dan nakirah maqshudah mabni atas dhammah tanpa tanwin dengan contoh ya Zaidu dan ya rajulu, dan tiga sisanya manshub la ghair sesuai teks; p127 pendek tetapi berisi hukum, bukan judul."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "c13dfac39b6ccc6c0bf3ff70c0673239a3fe0cc871d540aa15ee6fbb7277d8f1",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Lima macam munada sesuai p125."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Mufrad 'alam dan nakirah maqshudah mabni atas dhammah, sisanya manshub, sesuai p126-127."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "59cf4c196fd06f698d5bfc70d2a4caf336012f78abd7c650fc2a7fa9eb832980",
+      "draf_sha256": "c13dfac39b6ccc6c0bf3ff70c0673239a3fe0cc871d540aa15ee6fbb7277d8f1",
+      "waktu": "2026-11-27T06:34:08.973Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, munada ada lima macam; mufrad 'alam dan nakirah maqshudah dimabnikan atas dhammah tanpa tanwin, sedangkan tiga macam lainnya selalu manshub.",
+    "ringkasan": "Ibnu Ajurrum membagi munada, yaitu isim yang dipanggil, menjadi lima macam: mufrad 'alam, nakirah maqshudah, nakirah ghairu maqshudah, mudhaf, dan syabih bil-mudhaf. Ia lalu menerangkan hukum masing-masing. Mufrad 'alam dan nakirah maqshudah dimabnikan atas dhammah tanpa tanwin, dengan contoh \"ya Zaidu\" dan \"ya rajulu\". Tiga macam sisanya, yaitu nakirah ghairu maqshudah, mudhaf, dan syabih bil-mudhaf, menurutnya manshub saja.",
+    "gagasan": [
+      {
+        "judul": "Munada terbagi menjadi lima macam, menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum menyebut munada ada lima macam. Pertama mufrad 'alam, yaitu nama tunggal. Kedua nakirah maqshudah, isim umum yang dituju orang tertentu. Ketiga nakirah ghairu maqshudah, isim umum yang tidak dituju orang tertentu. Keempat mudhaf, isim yang disandarkan. Kelima syabih bil-mudhaf, isim yang menyerupai mudhaf.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000125],
+        "soal": {
+          "tanya": "Ada berapa macam munada menurut pembagian Ibnu Ajurrum?",
+          "jawab": "Lima macam: mufrad 'alam, nakirah maqshudah, nakirah ghairu maqshudah, mudhaf, dan syabih bil-mudhaf."
+        }
+      },
+      {
+        "judul": "Mufrad 'alam dan nakirah maqshudah mabni atas dhammah, sisanya manshub, menurut penulis",
+        "isi": "Menurut penulis, mufrad 'alam dan nakirah maqshudah dimabnikan atas dhammah tanpa tanwin, seperti \"ya Zaidu\" (wahai Zaid) dan \"ya rajulu\" (wahai laki-laki tertentu). Tiga macam yang tersisa, yaitu nakirah ghairu maqshudah, mudhaf, dan syabih bil-mudhaf, ia nyatakan manshub, tidak dibaca dengan selain nashab.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000126, 40000127],
+        "soal": {
+          "tanya": "Bagaimana hukum akhir munada mufrad 'alam seperti \"ya Zaidu\" menurut penulis?",
+          "jawab": "Dimabnikan atas dhammah tanpa tanwin."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000125,
+        "char_start": 0,
+        "char_end": 116,
+        "terjemahan": "Munada itu lima macam: mufrad 'alam, nakirah maqshudah, nakirah ghairu maqshudah, mudhaf, dan syabih bil-mudhaf."
+      }
+    ],
+    "istilah": []
+  }
+}

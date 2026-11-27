@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400006,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:18:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p53 dan p55 dibaca ulang: definisi fa'il (isim marfu' yang fi'ilnya disebut sebelumnya), pembagian zhahir dan mudhmar, serta contoh zhahir berpasangan madhi dan mudhari' sesuai teks, tanpa tambahan."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p56: jumlah mudhmar dua belas sesuai teks (itsna 'asyar), urutan contoh dari dharabtu sampai jamak perempuan tepat; glos orang pertama ditulis tanpa kata ganti aku/kami."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "c8d5d1cf6cc9915f7e203730b1cb0da3a8588e8a09e325284413c8b20d533b62",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi fa'il (isim marfu' yang fi'ilnya disebut sebelumnya) dan semua contoh zhahir sesuai p55; pembagian dua sesuai p54 (catatan kecil: p54 belum masuk dasar)."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Dua belas mudhmar benar dan urutannya tepat dengan p56."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "29a493a7f50eb098fca1ff13d5ec1606b23721ff1f27fdc79980de8c48ec8d5c",
+      "draf_sha256": "c8d5d1cf6cc9915f7e203730b1cb0da3a8588e8a09e325284413c8b20d533b62",
+      "waktu": "2026-11-27T06:28:21.679Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, fa'il adalah isim marfu' yang fi'ilnya disebut sebelumnya, dan fa'il terbagi dua: zhahir yang berupa isim tampak dan mudhmar yang berupa dua belas bentuk.",
+    "ringkasan": "Ibnu Ajurrum membuka bab ini dengan definisi fa'il sebagai isim marfu' yang fi'ilnya disebut sebelumnya. Ia lalu membagi fa'il menjadi dua macam, zhahir dan mudhmar. Untuk fa'il zhahir ia memberi deretan contoh dengan fi'il madhi dan mudhari', mencakup isim mufrad, mutsanna, jamak, nama perempuan, dan isim yang disandarkan, seperti \"qama Zaidun\" dan \"qama akhuka\". Untuk fa'il mudhmar ia menyebut jumlahnya dua belas dan memberi contoh dari fi'il \"dharaba\", mulai \"dharabtu\" sampai bentuk untuk kelompok perempuan.",
+    "gagasan": [
+      {
+        "judul": "Fa'il adalah isim marfu' yang didahului fi'ilnya menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum mendefinisikan fa'il sebagai isim yang marfu' dan fi'ilnya disebut sebelum isim itu. Ia membagi fa'il menjadi dua macam, zhahir dan mudhmar. Contoh fa'il zhahir yang ia berikan memakai fi'il madhi dan mudhari' secara berpasangan, misalnya \"qama Zaidun\" dan \"yaqumu Zaidun\", lalu bentuk mutsanna \"qama az-Zaidani\", jamak \"qama az-Zaiduna\" dan \"qama ar-rijalu\", nama perempuan \"qamat Hindu\" beserta mutsanna dan jamaknya, serta isim yang disandarkan seperti \"qama akhuka\" dan \"qama ghulami\", dan yang serupa dengannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000053, 40000055],
+        "soal": {
+          "tanya": "Bagaimana Ibnu Ajurrum mendefinisikan fa'il di awal bab ini?",
+          "jawab": "Fa'il adalah isim marfu' yang fi'ilnya disebut sebelum isim itu."
+        }
+      },
+      {
+        "judul": "Fa'il mudhmar berjumlah dua belas bentuk menurut penulis",
+        "isi": "Menurut penulis, fa'il mudhmar, yaitu fa'il berupa kata ganti, ada dua belas. Ia mencontohkannya dengan fi'il \"dharaba\" (memukul) yang bersambung dengan kata ganti, mulai \"dharabtu\" untuk orang pertama tunggal dan \"dharabna\" untuk orang pertama jamak, lalu bentuk untuk lawan bicara laki-laki, perempuan, berdua, dan jamak laki-laki maupun perempuan, kemudian \"dharaba\" untuk orang ketiga laki-laki, \"dharabat\" untuk orang ketiga perempuan, bentuk berdua, jamak laki-laki \"dharabu\", dan jamak perempuan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000056],
+        "soal": {
+          "tanya": "Berapa jumlah bentuk fa'il mudhmar yang disebut penulis, dan fi'il apa yang ia pakai sebagai contoh?",
+          "jawab": "Dua belas bentuk, dicontohkan dengan fi'il \"dharaba\" yang bersambung dengan kata ganti."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000053,
+        "char_start": 0,
+        "char_end": 49,
+        "terjemahan": "Fa'il adalah isim marfu' yang fi'ilnya disebut sebelumnya."
+      }
+    ],
+    "istilah": []
+  }
+}

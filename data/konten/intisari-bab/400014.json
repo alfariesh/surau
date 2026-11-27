@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400014,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:25:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p91: draf menulis lima belas sesuai teks dan menyalin ketiga belas butir yang dirinci di paragraf itu tanpa menambah atau menghitung ulang; tambahan tentang daftar bab sesudahnya sudah dihapus."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p92: empat pengikut isim manshub (na't, athaf, taukid, badal) sesuai teks; klaim tentang bab sebelumnya dihapus karena tidak ada di bagian ini."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "58c750d7dd8fa0e6d15c34af120aed3bcf4c5993c8e39c4a6bac924dbfdee96d",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Bilangan 'lima belas' sesuai p91; butir yang dirinci urut dan lengkap."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Empat pengikut sesuai p92; kutipan tepat."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "690799d74b9c306037a4d84fba810917ac1032d05a368e6ac02bc1441ab83f89",
+      "draf_sha256": "58c750d7dd8fa0e6d15c34af120aed3bcf4c5993c8e39c4a6bac924dbfdee96d",
+      "waktu": "2026-11-27T06:33:36.331Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, isim-isim yang manshub ada lima belas macam, serta kata-kata yang mengikuti isim manshub, yaitu na't, athaf, taukid, dan badal.",
+    "ringkasan": "Bab ini membuka pembahasan manshubat al-asma' (isim-isim yang dibaca nashab). Ibnu Ajurrum menyebut bahwa jumlahnya lima belas, lalu merinci maf'ul bih, mashdar, zharaf zaman, zharaf makan, hal, tamyiz, mustatsna, isim \"la\", munada, maf'ul min ajlih, maf'ul ma'ah, khabar \"kana\" dan saudara-saudaranya, serta isim \"inna\" dan saudara-saudaranya. Ia juga memasukkan pengikut isim manshub, yang ia sebut ada empat: na't, athaf, taukid, dan badal.",
+    "gagasan": [
+      {
+        "judul": "Isim yang manshub ada lima belas macam menurut Ibnu Ajurrum",
+        "isi": "Penulis menyebut bahwa manshubat (isim-isim yang dibaca nashab) ada lima belas, lalu merincinya: maf'ul bih, mashdar, zharaf zaman, zharaf makan, hal, tamyiz, mustatsna, isim \"la\", munada, maf'ul min ajlih, maf'ul ma'ah, khabar \"kana\" dan saudara-saudaranya, serta isim \"inna\" dan saudara-saudaranya. Semua butir itu ia sebut berurutan dalam satu kalimat, diawali maf'ul bih dan diakhiri isim \"inna\".",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000091],
+        "soal": {
+          "tanya": "Berapa jumlah isim manshub yang disebut Ibnu Ajurrum di awal bab manshubat?",
+          "jawab": "Lima belas, mulai dari maf'ul bih sampai isim \"inna\" dan saudara-saudaranya."
+        }
+      },
+      {
+        "judul": "Pengikut isim manshub ada empat, menurut penulis",
+        "isi": "Di ujung daftar manshubat, penulis memasukkan pengikut (tabi') bagi isim yang manshub. Menurutnya pengikut bagi yang manshub itu ada empat: na't (sifat), athaf, taukid, dan badal. Keempatnya ia sebut sesudah isim inna, sebagai butir terakhir daftar manshubat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000092],
+        "soal": {
+          "tanya": "Apa saja empat pengikut isim manshub yang disebut Ibnu Ajurrum?",
+          "jawab": "Na't, athaf, taukid, dan badal."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 40000092,
+        "char_start": 0,
+        "char_end": 65,
+        "terjemahan": "Dan pengikut bagi isim yang manshub, yaitu empat perkara: na't, athaf, taukid, dan badal."
+      }
+    ],
+    "istilah": []
+  }
+}

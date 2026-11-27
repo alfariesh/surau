@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400016,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:19:50+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p101: definisi mashdar (isim manshub, urutan ketiga dalam tashrif) dan contoh dharaba yadhribu dharban sesuai teks; tambahan madhi/mudhari' yang tidak ada di teks sudah dibuang."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p102-p103: pembagian lafzhi (lafaz sama) dan ma'nawi (makna sama tanpa lafaz) beserta contoh qatlan, qu'udan, wuqufan dan 'yang serupa' sesuai teks; kutipan p102 utuh."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "47696acfaeeee0e0c31fab357d80fa98f747f930348023fcd864e4b29ed0e0cd",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Mashdar urutan ketiga dalam tashrif sesuai p101."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Lafzhi dan ma'nawi sesuai p102-103."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "739efc61c06c79895b2bcddf4cf6582b9bb2ad9b47436a421a42213b23e64b3a",
+      "draf_sha256": "47696acfaeeee0e0c31fab357d80fa98f747f930348023fcd864e4b29ed0e0cd",
+      "waktu": "2026-11-27T06:33:48.839Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, mashdar adalah isim manshub yang datang di urutan ketiga dalam tashrif fi'il, dan ia terbagi menjadi mashdar lafzhi dan mashdar ma'nawi.",
+    "ringkasan": "Ibnu Ajurrum mendefinisikan mashdar sebagai isim manshub yang datang di urutan ketiga ketika sebuah fi'il ditashrif, dengan contoh \"dharaba yadhribu dharban\". Ia lalu membaginya menjadi dua. Mashdar lafzhi lafaznya sama dengan lafaz fi'ilnya, seperti \"qataltuhu qatlan\". Mashdar ma'nawi hanya sama maknanya dengan fi'ilnya tanpa sama lafaznya, seperti \"jalastu qu'udan\" dan \"qumtu wuqufan\".",
+    "gagasan": [
+      {
+        "judul": "Mashdar adalah isim manshub urutan ketiga dalam tashrif, menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum mendefinisikan mashdar (kata dasar) sebagai isim yang manshub dan datang di urutan ketiga ketika sebuah fi'il ditashrif. Contoh yang ia berikan adalah \"dharaba yadhribu dharban\" (memukul), dengan \"dharban\" sebagai mashdar di urutan ketiga sesudah \"dharaba\" dan \"yadhribu\".",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000101],
+        "soal": {
+          "tanya": "Di urutan keberapa mashdar datang dalam tashrif fi'il menurut definisi penulis?",
+          "jawab": "Mashdar datang di urutan ketiga, seperti \"dharban\" sesudah \"dharaba yadhribu\"."
+        }
+      },
+      {
+        "judul": "Mashdar terbagi lafzhi dan ma'nawi, menurut penulis",
+        "isi": "Penulis membagi mashdar menjadi dua. Bila lafaznya sama dengan lafaz fi'ilnya, ia disebut lafzhi, seperti \"qataltuhu qatlan\". Bila yang sama hanya maknanya, tidak lafaznya, ia disebut ma'nawi, seperti \"jalastu qu'udan\" (duduk) dan \"qumtu wuqufan\" (berdiri), serta contoh lain yang serupa.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000102, 40000103],
+        "soal": {
+          "tanya": "Kapan sebuah mashdar disebut ma'nawi dalam pembagian penulis?",
+          "jawab": "Bila mashdar itu sama makna dengan fi'ilnya tetapi tidak sama lafaznya, seperti \"jalastu qu'udan\"."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 40000102,
+        "char_start": 0,
+        "char_end": 97,
+        "terjemahan": "Mashdar ada dua macam: lafzhi dan ma'nawi. Bila lafaznya sesuai dengan lafaz fi'ilnya, ia lafzhi, seperti \"qataltuhu qatlan\"."
+      }
+    ],
+    "istilah": []
+  }
+}

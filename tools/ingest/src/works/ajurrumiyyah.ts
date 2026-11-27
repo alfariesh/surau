@@ -32,6 +32,8 @@ export const AJURRUMIYYAH: WorkConfig = {
     matanMinPages: 19,
     // X31c/X31d: terjemahan + ringkasan Sonnet (batch 2026-11-27); "Definisi selesai" X31 = ≥ 99%.
     llmCoverage: 0.99,
+    // 25 Intisari Bab chat, satu per judul (ADR-147): batas bawah supaya tidak hilang diam-diam (ADR-137).
+    minDigests: 25,
   },
   // Halaman cetak pertama (Shamela page.id 1, 8 paragraf badan); الإعراب mengenai 3 paragraf.
   // Catatan kaki tidak dimuat (ADR-138).

@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400024,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:17:28+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p131: definisi isim manshub penjelas siapa yang bersamanya perbuatan dilakukan dan dua contohnya sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p132: khabar kana dan saudaranya, isim inna dan saudaranya, serta tawabi' disebut sudah lebih dahulu dibahas di marfu'at, sesuai teks; penjelasan tawabi' dalam kurung hanya padanan istilah."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "02c1a9b5a96ff8f775432175eb4c20364ed5da80366b77fcfec91ef4b468d9c1",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi maf'ul ma'ah dan dua contoh sesuai p131."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Rujukan silang p132 setia."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "9fae5937be77520ca83dac7ad4e75d5b2ee034e147f30aef7f174e595b0539d8",
+      "draf_sha256": "02c1a9b5a96ff8f775432175eb4c20364ed5da80366b77fcfec91ef4b468d9c1",
+      "waktu": "2026-11-27T06:34:22.117Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, maf'ul ma'ah adalah isim manshub yang menjelaskan siapa yang menyertai perbuatan, sedangkan khabar kana, isim inna, dan tawabi' sudah ia bahas pada bab marfu'at.",
+    "ringkasan": "Ibnu Ajurrum mendefinisikan maf'ul ma'ah sebagai isim manshub yang disebut untuk menjelaskan siapa yang bersamanya perbuatan dilakukan. Ia memberi dua contoh, \"ja'a al-amiru wal-jaisya\" dan \"istawa al-ma'u wal-khasyabata\". Sesudah itu ia mencatat bahwa khabar kana dan saudara-saudaranya, isim inna dan saudara-saudaranya, serta tawabi' sudah disebut lebih dahulu pada bagian marfu'at, sehingga tidak diulang di sini.",
+    "gagasan": [
+      {
+        "judul": "Maf'ul ma'ah menjelaskan penyerta perbuatan, menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum mendefinisikan maf'ul ma'ah sebagai isim manshub yang disebut untuk menjelaskan siapa yang bersamanya perbuatan dilakukan. Contohnya \"ja'a al-amiru wal-jaisya\" (amir datang bersama pasukan) dan \"istawa al-ma'u wal-khasyabata\" (air naik sejajar dengan kayu). Pada keduanya, isim sesudah wawu dibaca manshub.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000131],
+        "soal": {
+          "tanya": "Apa yang dijelaskan oleh maf'ul ma'ah dalam kalimat menurut Ibnu Ajurrum?",
+          "jawab": "Siapa atau apa yang bersamanya perbuatan dilakukan, dan isimnya manshub."
+        }
+      },
+      {
+        "judul": "Khabar kana, isim inna, dan tawabi' sudah dibahas bersama marfu'at, menurut penulis",
+        "isi": "Penulis menyatakan bahwa khabar kana dan saudara-saudaranya serta isim inna dan saudara-saudaranya, yang juga termasuk isim manshub, sudah ia sebut lebih dahulu pada bagian marfu'at. Begitu pula tawabi' (isim yang mengikuti i'rab isim sebelumnya) sudah dibahas di sana, sehingga tidak dirinci lagi di sini.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000132],
+        "soal": {
+          "tanya": "Di bagian mana penulis menyatakan khabar kana dan isim inna sudah dibahas?",
+          "jawab": "Di bagian marfu'at, bersama pembahasan tawabi'."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000131,
+        "char_start": 0,
+        "char_end": 115,
+        "terjemahan": "Yaitu isim manshub yang disebut untuk menjelaskan siapa yang bersamanya perbuatan dilakukan, seperti ucapanmu \"ja'a al-amiru wal-jaisya\" (amir datang bersama pasukan) dan \"istawa al-ma'u wal-khasyabata\" (air naik sejajar dengan kayu)."
+      }
+    ],
+    "istilah": []
+  }
+}

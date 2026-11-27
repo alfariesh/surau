@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400010,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:20:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p76: na't mengikuti man'ut dalam rafa', nashab, khafadh, ta'rif, dan tankir, tiga contoh sesuai teks; kalimat penutup hanya membaca ulang contoh itu."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p77: lima macam ma'rifah dan contoh masing-masing sesuai teks, termasuk macam kelima yang di-idhafah-kan kepada salah satu dari empat."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p78: definisi nakirah dan pendekatan dengan alif lam beserta contoh ar-rajulu dan al-farasu sesuai teks; tambahan bentuk asal nakirah dihapus."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "244e84ae6a655de2ed609e4fe28ef742614ccf50a85fa65b000f6fb642b60ec5",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Na't mengikuti man'ut dalam lima hal dan tiga contoh sesuai p76."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Lima macam ma'rifah dan contohnya sesuai p77."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Nakirah dan pendekatan alif lam dengan contoh sesuai p78."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "03af40637be8e69c15aa8c30677f361ed8465c6a1b2e1b3195eb674329dc9d7a",
+      "draf_sha256": "244e84ae6a655de2ed609e4fe28ef742614ccf50a85fa65b000f6fb642b60ec5",
+      "waktu": "2026-11-27T06:28:45.468Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, na't mengikuti man'ut dalam i'rab serta ma'rifah dan nakirahnya, lalu ia menjelaskan lima macam isim ma'rifah dan batasan isim nakirah.",
+    "ringkasan": "Ibnu Ajurrum mendefinisikan na't sebagai pengikut man'ut dalam rafa', nashab, khafadh, ta'rif, dan tankirnya, dengan contoh \"Zaidun al-'aqilu\" dalam tiga keadaan i'rab. Sesudah itu ia menyebut lima macam isim ma'rifah: isim dhamir, isim 'alam, isim mubham, isim beralif lam, dan isim yang di-idhafah-kan kepada salah satu dari keempatnya. Terakhir ia mendefinisikan isim nakirah sebagai isim yang umum dalam jenisnya, dengan tanda praktis bisa dimasuki alif lam.",
+    "gagasan": [
+      {
+        "judul": "Na't mengikuti man'ut dalam lima hal menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum mendefinisikan na't sebagai tabi' (pengikut) bagi man'ut dalam rafa', nashab, khafadh, ta'rif, dan tankirnya. Ia mencontohkan tiga keadaan i'rab: \"qama Zaidun al-'aqilu\" (Zaid yang berakal berdiri) dengan rafa', \"ra'aitu Zaidan al-'aqila\" dengan nashab, dan \"marartu bi-Zaidin al-'aqili\" dengan khafadh. Ketiga contoh itu memperlihatkan \"al-'aqil\" mengikuti i'rab \"Zaid\".",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000076],
+        "soal": {
+          "tanya": "Dalam hal apa saja na't mengikuti man'ut menurut definisi Ibnu Ajurrum?",
+          "jawab": "Dalam rafa', nashab, khafadh, ta'rif, dan tankirnya."
+        }
+      },
+      {
+        "judul": "Isim ma'rifah ada lima macam menurut penulis",
+        "isi": "Penulis menyebut isim ma'rifah ada lima macam. Pertama isim dhamir, seperti \"ana\" dan \"anta\". Kedua isim 'alam, seperti \"Zaid\" dan \"Makkah\". Ketiga isim mubham, seperti \"hadza\", \"hadzihi\", dan \"ha'ula'i\". Keempat isim yang padanya ada alif dan lam, seperti \"ar-rajulu\" dan \"al-ghulamu\". Kelima isim yang di-idhafah-kan kepada salah satu dari empat macam sebelumnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000077],
+        "soal": {
+          "tanya": "Apa macam kelima isim ma'rifah yang disebut penulis dalam bab na't?",
+          "jawab": "Isim yang di-idhafah-kan kepada salah satu dari empat macam ma'rifah sebelumnya."
+        }
+      },
+      {
+        "judul": "Isim nakirah dikenali dari kepatutannya dimasuki alif lam menurut Ibnu Ajurrum",
+        "isi": "Ibnu Ajurrum mendefinisikan isim nakirah sebagai setiap isim yang umum dalam jenisnya dan tidak khusus menunjuk satu anggota tanpa yang lain. Untuk memudahkan, ia memberi pendekatan: setiap kata yang patut dimasuki alif dan lam, seperti \"ar-rajulu\" (laki-laki) dan \"al-farasu\" (kuda).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000078],
+        "soal": {
+          "tanya": "Tanda praktis apa yang diberikan Ibnu Ajurrum untuk mengenali isim nakirah?",
+          "jawab": "Setiap kata yang patut dimasuki alif dan lam adalah nakirah."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000076,
+        "char_start": 0,
+        "char_end": 143,
+        "terjemahan": "Na't adalah pengikut bagi man'ut dalam rafa', nashab, khafadh, ta'rif, dan tankirnya. Engkau berkata: \"qama Zaidun al-'aqilu\", \"ra'aitu Zaidan al-'aqila\", dan \"marartu bi-Zaidin al-'aqili\"."
+      }
+    ],
+    "istilah": []
+  }
+}

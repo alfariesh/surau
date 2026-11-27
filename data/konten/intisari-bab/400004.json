@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400004,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p43: tiga fi'il dengan contoh dharaba, yadhribu, idhrib; madhi selalu fathah dan amr selalu majzum (abadan) sesuai teks; klaim keliru bahwa mudhari' tidak memakai abadan dihapus."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p44: mudhari' diawali salah satu empat huruf zawaid yang terhimpun dalam anaitu dan selalu marfu' sampai dimasuki nashib atau jazim sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p45-p48: sepuluh nawashib dan delapan belas jawazim cocok dengan daftar teks (dihitung ulang: 10 dan 18 sebelum idza), idza dibatasi khusus syair."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "53944a15583925a71cd8ed29c2eb6a78e83e73d4bb81bd7b2dcb824d8df758fe",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Tiga fi'il dan abadan benar; frasa 'tanpa pengecualian' tambahan yang tidak ada di p43."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Mudhari' dengan huruf zawaid 'anaitu' dan selalu marfu' cocok p44."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Sepuluh nawashib: jawab dengan fa' dan wawu ditulis satu butir sehingga pembaca menghitung sembilan; delapan belas jawazim dan idza dalam syair ditangani benar."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "d29f9ae1db791b08511b76ea043fa260943c368b1cfb6ac990b7bbac3137f753",
+      "draf_sha256": "53944a15583925a71cd8ed29c2eb6a78e83e73d4bb81bd7b2dcb824d8df758fe",
+      "waktu": "2026-11-27T06:33:23.587Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, fi'il ada tiga, yaitu madhi, mudhari', dan amr, dan fi'il mudhari' selalu marfu' sampai dimasuki salah satu 'amil nashab atau 'amil jazm.",
+    "ringkasan": "Ibnu Ajurrum membagi fi'il menjadi tiga: madhi, mudhari', dan amr, dengan contoh \"dharaba\", \"yadhribu\", dan \"idhrib\". Fi'il madhi selalu berakhir fathah dan fi'il amr selalu majzum. Fi'il mudhari' diawali salah satu dari empat huruf tambahan yang terhimpun dalam kata \"anaitu\", dan selalu marfu' sampai dimasuki 'amil nashab atau 'amil jazm. Ia lalu mendaftar sepuluh 'amil nashab dan delapan belas 'amil jazm, dengan \"idza\" yang ia batasi khusus dalam syair.",
+    "gagasan": [
+      {
+        "judul": "Fi'il terbagi tiga, madhi selalu fathah dan amr selalu majzum, menurut Ibnu Ajurrum",
+        "isi": "Menurut Ibnu Ajurrum, fi'il ada tiga: madhi (lampau), mudhari', dan amr (perintah), seperti \"dharaba\" (telah memukul), \"yadhribu\" (sedang atau akan memukul), dan \"idhrib\" (pukullah). Fi'il madhi selalu berakhir dengan fathah, dan fi'il amr selalu majzum. Untuk keduanya ia memakai kata \"selamanya\" (abadan), tanpa pengecualian.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000043],
+        "soal": {
+          "tanya": "Bagaimana keadaan akhir fi'il madhi dan fi'il amr menurut Ibnu Ajurrum?",
+          "jawab": "Fi'il madhi selalu berakhir fathah, dan fi'il amr selalu majzum."
+        }
+      },
+      {
+        "judul": "Mudhari' diawali huruf \"anaitu\" dan selalu marfu' kecuali dimasuki nashib atau jazim, menurut penulis",
+        "isi": "Penulis mendefinisikan fi'il mudhari' sebagai fi'il yang di awalnya terdapat salah satu dari empat huruf tambahan, yaitu hamzah, nun, ya', dan ta', yang terhimpun dalam kata \"anaitu\". Menurutnya, mudhari' selalu marfu' sampai dimasuki 'amil nashab (nashib) atau 'amil jazm (jazim).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000044],
+        "soal": {
+          "tanya": "Kapan fi'il mudhari' tidak lagi marfu' menurut penulis al-Ajurrumiyyah?",
+          "jawab": "Ketika dimasuki 'amil nashab atau 'amil jazm."
+        }
+      },
+      {
+        "judul": "'Amil nashab berjumlah sepuluh dan 'amil jazm delapan belas, menurut penulis",
+        "isi": "Penulis menyebut 'amil nashab fi'il mudhari' ada sepuluh: \"an\", \"lan\", \"idzan\", \"kai\", lam kai, lam juhud, \"hatta\", jawab dengan fa' dan wawu, serta \"au\". 'Amil jazm ia sebut delapan belas: \"lam\", \"lamma\", \"alam\", \"alamma\", lam amr dan doa, \"la\" untuk larangan dan doa, \"in\", \"ma\", \"man\", \"mahma\", \"idzma\", \"ayyu\", \"mata\", \"ayyana\", \"aina\", \"anna\", \"haitsuma\", dan \"kaifama\". Daftar itu ia tutup dengan \"idza\", yang ia batasi khusus dalam syair.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000045, 40000046, 40000047, 40000048],
+        "soal": {
+          "tanya": "Berapa jumlah 'amil nashab fi'il mudhari' yang disebut penulis?",
+          "jawab": "Sepuluh, di antaranya \"an\", \"lan\", \"idzan\", dan \"kai\"."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000043,
+        "char_start": 0,
+        "char_end": 117,
+        "terjemahan": "Fi'il ada tiga: madhi, mudhari', dan amr, seperti \"dharaba\", \"yadhribu\", dan \"idhrib\". Fi'il madhi selalu berakhir fathah, dan fi'il amr selalu majzum."
+      }
+    ],
+    "istilah": []
+  }
+}

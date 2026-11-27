@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 4,
+  "section_id": 400001,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T13:20:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p5 dibaca ulang: definisi kalam (lafaz murakkab, mufid, bil wadh') dan tiga bagiannya sesuai teks; tambahan 'bahasa Arab' dan kalimat tentang bab sesudahnya dihapus."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p6: tanda isim (khafdh, tanwin, alif-lam, huruf khafdh) dan sembilan huruf khafdh serta tiga huruf qasam sesuai teks; bilangan 'empat tanda' karangan sendiri dihapus karena huruf qasam bisa dihitung terpisah."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p7-p8: empat tanda fi'il (qad, sin, saufa, ta' ta'nits sakinah) dan definisi harf secara negatif sesuai teks, negasi terjaga."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "391e1cfeda14226182048bb7813b3ae7f7868271ab72a428ea7c49408c15e2d6",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi kalam dan tiga bagiannya setia pada p5."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tanda isim, sembilan huruf khafdh dan tiga huruf qasam cocok dengan p6."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Empat tanda fi'il dan harf secara negatif cocok dengan p7-p8."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "e49181a44e5b4f7b574a80006b642b80a0e4d4b02b29eb72d1857c04c552cd99",
+      "draf_sha256": "391e1cfeda14226182048bb7813b3ae7f7868271ab72a428ea7c49408c15e2d6",
+      "waktu": "2026-11-27T06:33:04.006Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Ibnu Ajurrum, kalam adalah lafaz tersusun yang memberi faedah menurut ketetapan bahasa, dan bagiannya tiga: isim, fi'il, dan harf, masing-masing dikenali lewat tandanya.",
+    "ringkasan": "Ibnu Ajurrum membuka kitabnya dengan definisi kalam (kalimat sempurna) sebagai lafaz yang tersusun dan memberi faedah menurut ketetapan bahasa. Ia lalu membaginya menjadi tiga bagian: isim, fi'il, dan harf yang datang untuk suatu makna. Sesudah itu ia menyebut tanda-tanda pengenal masing-masing: isim dikenali dengan khafdh, tanwin, alif-lam, huruf khafdh, serta huruf sumpah; fi'il dikenali dengan \"qad\", \"sin\", \"saufa\", dan ta' ta'nits yang mati; sedangkan harf ialah kata yang tidak menerima tanda isim maupun tanda fi'il.",
+    "gagasan": [
+      {
+        "judul": "Kalam adalah lafaz tersusun yang berfaedah dan terbagi tiga, menurut Ibnu Ajurrum",
+        "isi": "Menurut Ibnu Ajurrum, kalam ialah lafaz yang tersusun (murakkab) dan memberi faedah (mufid) menurut ketetapan bahasa (bil wadh'). Bagian-bagiannya ada tiga: isim (kata benda), fi'il (kata kerja), dan harf yang datang untuk suatu makna.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000005],
+        "soal": {
+          "tanya": "Ada berapa bagian kalam menurut Ibnu Ajurrum, dan apa saja?",
+          "jawab": "Tiga bagian: isim, fi'il, dan harf yang datang untuk suatu makna."
+        }
+      },
+      {
+        "judul": "Isim dikenali lewat khafdh, tanwin, alif-lam, dan huruf khafdh, menurut penulis",
+        "isi": "Penulis menyebut tanda-tanda pengenal isim: menerima khafdh (jar), menerima tanwin, dimasuki alif dan lam, serta dimasuki huruf khafdh. Huruf khafdh yang ia sebut ialah \"min\", \"ila\", \"'an\", \"'ala\", \"fi\", \"rubba\", ba', kaf, dan lam. Ia juga memasukkan huruf qasam (sumpah), yaitu wawu, ba', dan ta'.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000006],
+        "soal": {
+          "tanya": "Apa saja huruf qasam yang menurut penulis termasuk tanda pengenal isim?",
+          "jawab": "Wawu, ba', dan ta'."
+        }
+      },
+      {
+        "judul": "Fi'il punya empat tanda, sedangkan harf tidak menerima tanda keduanya, menurut penulis",
+        "isi": "Menurut penulis, fi'il dikenali dengan masuknya \"qad\", \"sin\", \"saufa\", dan ta' ta'nits yang sukun (mati). Adapun harf ialah kata yang tidak bisa disertai tanda isim dan tidak pula tanda fi'il. Jadi harf dikenali karena tidak menerima satu pun tanda kedua jenis kata itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [40000007, 40000008],
+        "soal": {
+          "tanya": "Bagaimana harf dikenali menurut penulis al-Ajurrumiyyah?",
+          "jawab": "Harf tidak bisa disertai tanda isim maupun tanda fi'il."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 40000005,
+        "char_start": 0,
+        "char_end": 98,
+        "terjemahan": "Kalam adalah lafaz yang tersusun lagi memberi faedah menurut ketetapan bahasa. Bagiannya ada tiga: isim, fi'il, dan harf yang datang untuk suatu makna."
+      }
+    ],
+    "istilah": []
+  }
+}
