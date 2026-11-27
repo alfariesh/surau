@@ -31,7 +31,7 @@ export const HADHRAMIYYAH: WorkConfig = {
     volumes: [142],
     titles: 99,
     matanMinPages: 142,
-    llmCoverage: 0,
+    llmCoverage: 0.99,
     // Enam Intisari Bab chat, satu per node patch tingkat teratas (ADR-147, ADR-152): batas bawah
     // supaya tidak hilang diam-diam (ADR-137).
     minDigests: 6,

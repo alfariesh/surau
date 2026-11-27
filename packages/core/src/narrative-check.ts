@@ -33,7 +33,8 @@ const META_ID: readonly RegExp[] = [
   /\.\.\.\s*\(tidak(?: ada)?\)/i,
   // Petunjuk identitas kitab (ADR-152 tambahan) yang bocor ke keluaran.
   /\b(?:book guidance|petunjuk kitab)\b/i,
-  /\b(?:bukan|not) al-Ghazali\b/i,
+  /\b(?:bukan|not)(?: (?:dari|from|karya|by|written by))? al-Ghazali\b/i,
+  /\b(?:bukan (?:petikan |bagian |dari )?Ihya|not (?:from |part of )?(?:the )?Ihya)/i,
 ];
 
 /**

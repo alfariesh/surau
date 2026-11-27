@@ -15,6 +15,11 @@ function identity(id: string, kitab: string, author: string): SummaryWorkNote {
 }
 
 export const SUMMARY_NOTES = {
+  ajurrumiyyah: identity(
+    "kitab-ajurrumiyyah@1",
+    "al-Ajurrumiyyah, matan ringkas ilmu nahwu",
+    "Ibnu Ajurrum (w. 723 H)",
+  ),
   tibyan: identity("kitab-tibyan@1", "at-Tibyan fi Adab Hamalat al-Qur'an", "an-Nawawi (w. 676 H)"),
   waraqat: identity(
     "kitab-waraqat@1",
