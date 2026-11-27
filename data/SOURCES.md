@@ -69,6 +69,8 @@ Repo `OpenITI/0500AH`, commit `fff9e21790e2e54f14826322ae49ab7671f12744` (`maste
 
 ```bash
 curl -fLO "https://raw.githubusercontent.com/OpenITI/0500AH/fff9e21790e2e54f14826322ae49ab7671f12744/data/0478ImamHaramaynJuwayni/0478ImamHaramaynJuwayni.Waraqat/0478ImamHaramaynJuwayni.Waraqat.Shamela0006297-ara1"
+```
+
 ### Rusum Dar al-Khilafah (X32, ADR-152, diunduh 2026-11-28)
 
 Repo `OpenITI/0450AH`, commit `e344cfe20a206c9ded3edfa15d45b4f821a97b8a` (`master` saat diunduh; label rilis 2025.1.9). Versi Shamela tanpa teks catatan kaki maupun mukadimah pentahqiq.
@@ -79,6 +81,8 @@ Repo `OpenITI/0450AH`, commit `e344cfe20a206c9ded3edfa15d45b4f821a97b8a` (`maste
 
 ```bash
 curl -fLO "https://raw.githubusercontent.com/OpenITI/0450AH/e344cfe20a206c9ded3edfa15d45b4f821a97b8a/data/0448HilalSabi/0448HilalSabi.RusumDarKhilafa/0448HilalSabi.RusumDarKhilafa.Shamela0008173-ara1"
+```
+
 ### al-Muqaddimah al-Hadhramiyyah (X32, diunduh 2026-11-28)
 
 Repo `OpenITI/0925AH`, commit `4f0f4562d1e13083c593e3a0ca6a19a3eb33805e` (`master` saat diunduh; label rilis 2025.1.9, ADR-152 butir 8). Edisi tanpa catatan kaki (ADR-138).
@@ -89,6 +93,8 @@ Repo `OpenITI/0925AH`, commit `4f0f4562d1e13083c593e3a0ca6a19a3eb33805e` (`maste
 
 ```bash
 curl -fLO "https://raw.githubusercontent.com/OpenITI/0925AH/4f0f4562d1e13083c593e3a0ca6a19a3eb33805e/data/0918BafadlHadrami/0918BafadlHadrami.MuqaddimaHadramiyya/0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1"
+```
+
 ### at-Ta'rifat (Gelombang 2, ADR-152, diunduh 2026-11-28)
 
 Repo `OpenITI/0825AH`, commit `2630748a4754b509908048087e569ccc8dd251ce` (`master` saat diunduh; label rilis 2025.1.9, ADR-152 butir 8). Edisi tanpa catatan kaki.

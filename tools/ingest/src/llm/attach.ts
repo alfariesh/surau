@@ -14,7 +14,7 @@ import type {
 import { translationSegments } from "@surau/core";
 import type { QuranView } from "@surau/core";
 import { checkSummary, checkTranslation } from "@surau/llm";
-import type { TranslateWorkNote } from "@surau/llm";
+import type { SummaryWorkNote, TranslateWorkNote } from "@surau/llm";
 
 import type { CorpusRows } from "../rows.ts";
 import { rejectionFor } from "./reviews.ts";
@@ -111,7 +111,8 @@ export function quranViewFromRows(rows: CorpusRows): QuranView {
  * Baca hasil LLM yang lolos dari `dir` dan jadikan baris korpus. Tanpa file = tanpa baris.
  * `subheadings` = daftar kurasi subjudul (unit judul daftar isi Indonesia, X04 bagian B).
  * `translateNote` = petunjuk terjemahan kitab (ADR-149): batas rasio panjangnya ikut dipakai
- * validasi ulang, sama dengan collect/rejudge.
+ * validasi ulang, sama dengan collect/rejudge. `summaryNote` = petunjuk ringkasan kitab (ADR-152
+ * tambahan): ringkasan dari prompt tanpa petunjuk dihitung usang.
  */
 export function llmRows(
   rows: CorpusRows,
@@ -119,8 +120,9 @@ export function llmRows(
   reviews: ReviewRejections = new Map(),
   subheadings: SubheadingEntries = new Map(),
   translateNote?: TranslateWorkNote,
+  summaryNote?: SummaryWorkNote,
 ): LlmBuild {
-  const work = buildWork(rows, { translateNote });
+  const work = buildWork(rows, { translateNote, summaryNote });
   const quran = quranViewFromRows(rows);
   const stats: LlmStats = {
     units: work.units.size + work.blocked.length,
@@ -206,7 +208,9 @@ export function llmRows(
       n === undefined ? null : n.round2 ? n.sourceSha256 : (n.subtree[0]?.sourceSha256 ?? null);
     const inputOk =
       n === undefined || !n.round2 || round2InputSha(n, s.lang, r1) === s.input_sha256;
-    if (want === null || want !== s.source_sha256 || s.part !== null || !inputOk) {
+    // Kitab berpetunjuk ringkasan (ADR-152 tambahan): ringkasan dari prompt tanpa petunjuk usang.
+    const promptOk = !work.summaryNoted || s.prompt_version === work.summaryPrompt.id;
+    if (want === null || want !== s.source_sha256 || s.part !== null || !inputOk || !promptOk) {
       stats.staleSummaries++;
       continue;
     }

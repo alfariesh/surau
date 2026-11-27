@@ -300,30 +300,7 @@ export const EDITION_CREDITS: readonly EditionCredit[] = [
       "Judul kitab dan bab yang tertulis di dalam teks dijadikan butir daftar isi; teksnya tidak diubah.",
     ],
   },
-  {
-    key: "at-tarifat/dar-al-kutub-al-ilmiyyah",
-    workSlug: "at-tarifat",
-    title: "at-Ta'rifat",
-    author: "asy-Syarif al-Jurjani (w. 816 H)",
-    attribution:
-      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0007312; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-'Ilmiyyah, Beirut, cetakan pertama 1403/1983, disunting sekelompok ulama di bawah penerbit; daftar isi penerbit tidak disertakan",
-    parties: [
-      OPENITI_PARTY,
-      {
-        name: "al-Maktaba al-Shamela",
-        role: "Digitalisasi asal edisi ini (kitab no. 7312). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
-        link: { label: "shamela.ws", url: "https://shamela.ws/book/7312" },
-      },
-      {
-        name: "Dar al-Kutub al-'Ilmiyyah, Beirut",
-        role: "Penerbit edisi cetak: satu jilid, cetakan pertama 1403 H / 1983 M. Nomor halaman di Surau mengikuti cetakan ini (halaman 5–260).",
-      },
-    ],
-    changes: [
-      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
-      "Daftar isi penerbit di akhir edisi dan label jilid tidak disertakan.",
-    ],
-  },
+  // at-Ta'rifat: rincian /lisensi ditambahkan saat kitab-v12 tayang (ADR-152).
 ];
 
 /**

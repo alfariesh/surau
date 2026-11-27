@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
 import {
+  SUMMARY_NOTES,
   TRANSLATE_NOTES,
   TRANSLATE_PROMPT,
   contentLength,
@@ -200,6 +201,10 @@ describe("hasil LLM → tabel translation/summary", () => {
       r2(round2InputSha(n, "id", new Map(r1.map((s) => [s.custom_id, s])))),
     ]);
     expect(llmRows(rows, llm).stats).toMatchObject({ summaries: 1, staleSummaries: 0 });
+    // Kitab berpetunjuk ringkasan (ADR-152 tambahan): ringkasan dari prompt tanpa petunjuk usang.
+    expect(
+      llmRows(rows, llm, undefined, undefined, undefined, SUMMARY_NOTES.tibyan).stats,
+    ).toMatchObject({ summaries: 0, staleSummaries: 1 });
   });
 
   test("terjemahan dengan versi prompt per kitab (ADR-149) dimuat dan versinya tersimpan", () => {

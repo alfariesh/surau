@@ -334,7 +334,14 @@ function rowsFor(
   const llm =
     llmDir === undefined
       ? null
-      : llmRows(rows, llmDir, loadReviews(paths.repo), subheadings, config.llm?.translateNote);
+      : llmRows(
+          rows,
+          llmDir,
+          loadReviews(paths.repo),
+          subheadings,
+          config.llm?.translateNote,
+          config.llm?.summaryNote,
+        );
   if (llm !== null) {
     rows.translation = llm.translation;
     rows.summary = llm.summary;
