@@ -8,8 +8,17 @@ export interface PinnedFile {
   sha256: string;
 }
 
+/**
+ * Kelas catatan kaki kitab (ADR-138; sama dengan kolom `catatan_kaki` ledger, dicek tes ledger).
+ * `classical` = dimuat dan tampil (takhrij al-'Iraqi di Ihya); `modern_editor` = catatan penyunting
+ * modern TIDAK dimuat dan penandanya tidak ditautkan; `none` = sumber tanpa catatan kaki (gerbang
+ * ingest gagal bila ternyata ada). Kelas `unknown` tidak bisa dibangun (ditahan sampai ditetapkan).
+ */
+export type FootnoteClass = "classical" | "modern_editor" | "none";
+
 export interface WorkConfig {
   shamelaBook: number;
+  footnotes: FootnoteClass;
   /** Patch daftar isi (path relatif ke root repo); tanpa berkas = tanpa patch. */
   patch?: string;
   /** Daftar kurasi subjudul pembaca (X04, ADR-074): sumber subjudul untuk judul daftar isi Indonesia. */

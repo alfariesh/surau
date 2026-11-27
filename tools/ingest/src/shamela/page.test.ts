@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { parsePage } from "./page.ts";
+import { dropEditorFootnotes, parsePage } from "./page.ts";
 
 // Halaman BUATAN yang meniru struktur Shamela; isinya kalimat karangan.
 const page = (content: string) => parsePage({ id: 9, juz: 1, pageNo: 9, content });
@@ -74,5 +74,36 @@ describe("parsePage", () => {
   test("halaman kosong", () => {
     const p = page("");
     expect([p.body, p.foot, p.titles, p.links]).toEqual([[], [], [], []]);
+  });
+});
+
+describe("dropEditorFootnotes (ADR-138, kelas modern_editor)", () => {
+  test("catatan dan tautan dibuang; teks badan dan penanda (١) tidak berubah", () => {
+    const before = page("كلام اول (١) ثم (٢)\r_________\r(١) شرح لفظ كذا\r(٢) انظر كذا");
+    expect(before.foot).toHaveLength(2);
+    expect(before.links).toHaveLength(2);
+    const p = dropEditorFootnotes(before);
+    expect(p.foot).toEqual([]);
+    expect(p.links).toEqual([]);
+    expect(p.orphanRefs).toEqual([]);
+    expect(p.orphanNotes).toBe(0);
+    expect(p.body).toEqual(before.body);
+    expect(p.body.map((d) => d.text)).toEqual(["كلام اول (١) ثم (٢)"]);
+    expect(p.markers).toEqual(before.markers);
+    expect(p.droppedEditorNotes).toEqual({ notes: 2, markers: 2 });
+  });
+
+  test("penanda tanpa catatan ikut dihitung; halaman tanpa catatan tetap kosong", () => {
+    expect(dropEditorFootnotes(page("كلام (٣)")).droppedEditorNotes).toEqual({
+      notes: 0,
+      markers: 1,
+    });
+    expect(page("كلام").droppedEditorNotes).toEqual({ notes: 0, markers: 0 });
+  });
+
+  test("takhrij menempel (//) ditolak karena membuangnya menghapus teks badan", () => {
+    expect(() => dropEditorFootnotes(page("متن اول // حديث كذا أخرجه فلان"))).toThrow(
+      /modern_editor/,
+    );
   });
 });

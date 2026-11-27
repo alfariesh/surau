@@ -79,6 +79,12 @@ export interface ParsedPage {
   /** Arah takhrij menempel di halaman ini (`null` = ada `//` tetapi tidak dipecah). */
   inline: { direction: InlineTakhrijDirection | null; line: number }[];
   unknownTags: string[];
+  /**
+   * Catatan kaki penyunting modern yang TIDAK dimuat (ADR-138 butir 3, kelas `modern_editor`):
+   * jumlah catatan dan penanda (١) di badan yang karenanya tampil sebagai teks biasa. 0 untuk
+   * kitab lain.
+   */
+  droppedEditorNotes: { notes: number; markers: number };
 }
 
 // Catatan kaki yang memanjang beberapa baris tetap satu paragraf; baris barunya diseragamkan ke
@@ -212,5 +218,33 @@ export function parsePage(source: ShamelaPage): ParsedPage {
     markers,
     inline,
     unknownTags: [...new Set([...clean.unknownTags, ...footClean.unknownTags])].sort(),
+    droppedEditorNotes: { notes: 0, markers: 0 },
+  };
+}
+
+/**
+ * Buang catatan kaki penyunting modern dari halaman (ADR-138 butir 3): paragraf catatan tidak
+ * dimuat dan penandanya tidak ditautkan (`footnote_ref` tidak dibuat). Teks badan TIDAK diubah:
+ * penanda (١) tetap di `text_raw` sebagai teks biasa (teks-arab aturan 2). Takhrij menempel (`//`)
+ * dipotong DARI badan, jadi membuangnya akan menghapus teks badan: halaman seperti itu ditolak
+ * sampai cara menanganinya diputuskan.
+ */
+export function dropEditorFootnotes(page: ParsedPage): ParsedPage {
+  if (page.inline.length > 0) {
+    throw new Error(
+      `j${page.source.juz} h${page.source.pageNo}: kitab berkelas catatan kaki modern_editor memuat \`//\` (takhrij menempel); putuskan dulu penanganannya (ADR-138)`,
+    );
+  }
+  return {
+    ...page,
+    foot: [],
+    links: [],
+    orphanRefs: [],
+    orphanNotes: 0,
+    orphanNotesInInline: 0,
+    droppedEditorNotes: {
+      notes: page.foot.length,
+      markers: page.links.length + page.orphanRefs.length,
+    },
   };
 }

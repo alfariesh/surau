@@ -64,6 +64,11 @@ export function validationReport(ctx: ReportContext, v: Validation): string {
     `- Penanda yatim (tanpa catatan): ${num(v.footnotes.orphanRefs.length)}${v.footnotes.orphanRefs.length > 0 ? ` (${list(v.footnotes.orphanRefs)})` : ""}.`,
     `- Penanda di dalam takhrij menempel (ikut terpotong, tidak ditautkan): ${num(v.footnotes.inlineMarkers)}. Penanda pembuka takhrij tetap di matan.`,
     `- Catatan bawah halaman yang tidak dirujuk penanda matan (ditandai \`footnote_orphan\`): ${num(v.footnotes.orphanNotes)}; ${num(v.footnotes.orphanNotesInInline)} di antaranya karena penandanya ada di dalam takhrij menempel.`,
+    ...(config.footnotes === "modern_editor"
+      ? [
+          `- Catatan kaki penyunting modern tidak dimuat (kelas \`modern_editor\`, ADR-138): ${num(v.footnotes.droppedEditorNotes)} catatan dibuang; ${num(v.footnotes.droppedEditorMarkers)} penanda (١) di badan tetap di \`text_raw\` sebagai teks biasa tanpa tautan.`,
+        ]
+      : []),
     "",
     "## Takhrij yang menempel ke matan (`//`)",
     "",

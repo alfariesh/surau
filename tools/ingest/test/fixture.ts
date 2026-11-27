@@ -201,6 +201,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
 
   const config: WorkConfig = {
     shamelaBook: BOOK_ID,
+    footnotes: "classical",
     patch: "patches/uji.yaml",
     subheadings: "patches/uji-subjudul.json",
     ids: "ids/uji.json",
@@ -235,6 +236,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
   };
   const second: WorkConfig = {
     shamelaBook: BOOK_ID_2,
+    footnotes: "classical",
     ids: "ids/uji2.json",
     reportPrefix: "reports/uji2",
     expect: { pages: 2, volumes: [2], titles: 1, matanMinPages: 2, llmCoverage: 0 },

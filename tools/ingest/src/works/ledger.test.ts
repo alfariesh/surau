@@ -34,7 +34,8 @@ describe("data/kitab/ledger.yaml", () => {
   test("smoke: cek catatan kaki hanya untuk kitab berkelas classical (ADR-138, X31a 8a)", () => {
     for (const w of WORKS) {
       const row = file.kitab.find((k) => k.slug === w.work.slug);
-      expect(w.smoke.footnotes, w.work.slug).toBe(row?.catatan_kaki === "classical");
+      expect(w.footnotes, w.work.slug).toBe(row?.catatan_kaki);
+      expect(w.smoke.footnotes, w.work.slug).toBe(w.footnotes === "classical");
       // Kata contoh harus tetap menjadi kueri FTS sesudah normalisasi (bukan MATCH kosong).
       expect(buildFtsMatch(w.smoke.search), w.work.slug).not.toBeNull();
     }
@@ -51,9 +52,10 @@ describe("data/kitab/ledger.yaml", () => {
 describe("unreleasedWorks (pengaman promote, ADR-137)", () => {
   const ledger = readLedger(repo);
   test("arsip dan staging belum tayang; slug tak dikenal dianggap belum", () => {
-    expect(unreleasedWorks(ledger, ["ihya", "bidayat-al-hidayah", "x"])).toEqual([
+    expect(unreleasedWorks(ledger, ["ihya", "bidayat-al-hidayah", "at-tibyan", "x"])).toEqual([
       "ihya",
       "bidayat-al-hidayah",
+      "at-tibyan",
       "x",
     ]);
   });

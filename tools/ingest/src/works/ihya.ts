@@ -7,6 +7,7 @@ export type { WorkConfig } from "./config.ts";
 
 export const IHYA: WorkConfig = {
   shamelaBook: 9472,
+  footnotes: "classical",
   patch: "data/patches/ihya-9472.yaml",
   subheadings: "data/patches/ihya-9472-subjudul.json",
   ayahPatch: "data/patches/ihya-9472-ayat.yaml",

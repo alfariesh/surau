@@ -16,4 +16,11 @@ describe("sumber Shamela", () => {
     expect(parseImprint("الناشر: دار بلا مدينة")).toEqual({ publisher: "دار بلا مدينة", city: null });
     expect(parseImprint("الكتاب: س")).toEqual({ publisher: null, city: null });
   });
+
+  test("parseImprint: kota + negara dipertahankan, kotak pos dan telepon (berangka) dilewati", () => {
+    expect(parseImprint("الناشر: دار التجربة - مدينة - بلد - ص ب: ١٢٣ / ٤ - تلفون: 567")).toEqual({
+      publisher: "دار التجربة",
+      city: "مدينة - بلد",
+    });
+  });
 });

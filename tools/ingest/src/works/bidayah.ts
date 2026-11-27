@@ -5,6 +5,7 @@ import type { WorkConfig } from "./config.ts";
 
 export const BIDAYAH: WorkConfig = {
   shamelaBook: 12718,
+  footnotes: "none",
   ids: "data/ids/bidayat-al-hidayah-12718.json",
   reportPrefix: "data/reports/bidayat-al-hidayah-12718",
   // Folder kerja LLM per kitab (X31b, ADR-137 butir 8): data/build/llm/bidayat-al-hidayah. Intisari
