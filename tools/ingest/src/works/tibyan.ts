@@ -18,8 +18,8 @@ export const TIBYAN: WorkConfig = {
     volumes: [224],
     titles: 127,
     matanMinPages: 224,
-    // Terjemahan dan ringkasan menyusul (X31c lanjutan).
-    llmCoverage: 0,
+    // X31c/X31d: terjemahan + ringkasan Sonnet (batch 2026-11-27); "Definisi selesai" X31 = ≥ 99%.
+    llmCoverage: 0.99,
   },
   // Halaman cetak pertama (8 paragraf badan); التلاوة mengenai 24 paragraf. Catatan kaki tidak
   // dimuat (ADR-138).

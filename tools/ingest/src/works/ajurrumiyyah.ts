@@ -30,8 +30,8 @@ export const AJURRUMIYYAH: WorkConfig = {
     volumes: [19],
     titles: 25,
     matanMinPages: 19,
-    // Terjemahan dan ringkasan menyusul (X31d lanjutan).
-    llmCoverage: 0,
+    // X31c/X31d: terjemahan + ringkasan Sonnet (batch 2026-11-27); "Definisi selesai" X31 = ≥ 99%.
+    llmCoverage: 0.99,
   },
   // Halaman cetak pertama (Shamela page.id 1, 8 paragraf badan); الإعراب mengenai 3 paragraf.
   // Catatan kaki tidak dimuat (ADR-138).
