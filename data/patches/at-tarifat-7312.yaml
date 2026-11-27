@@ -1,0 +1,40 @@
+# Patch daftar isi at-Ta'rifat (Shamela 7312, ADR-152 tambahan). Hanya ID dan struktur.
+shamela_book: 7312
+
+move:
+  # Title 1 adalah label jilid Shamela ("jilid pertama") yang menaungi mukadimah, 28 bab huruf, dan
+  # daftar isi penerbit. Kitab satu jilid: semuanya dinaikkan menjadi node tingkat teratas.
+  - titles:
+      [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+      ]
+    parent: 0

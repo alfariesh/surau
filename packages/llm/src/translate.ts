@@ -7,6 +7,7 @@ import type { TranslationCheck, TranslationCheckOptions } from "@surau/core";
 import type { MaskedPassage } from "@surau/core";
 
 import { TRANSLATE_NOTE_AJURRUMIYYAH_V1 } from "../prompts/translate-note-ajurrumiyyah-v1.ts";
+import { TRANSLATE_NOTE_TARIFAT_V1 } from "../prompts/translate-note-tarifat-v1.ts";
 import { TRANSLATE_PASSAGE_V4 } from "../prompts/translate-passage-v4.ts";
 import { TRANSLATE_PASSAGE_V5 } from "../prompts/translate-passage-v5.ts";
 import { TRANSLATE_PASSAGE_V6 } from "../prompts/translate-passage-v6.ts";
@@ -25,6 +26,7 @@ export const TRANSLATE_PROMPTS = {
 /** Petunjuk terjemahan per kitab yang tersedia (ADR-149); dipilih lewat `WorkConfig.llm.translateNote`. */
 export const TRANSLATE_NOTES = {
   ajurrumiyyah: TRANSLATE_NOTE_AJURRUMIYYAH_V1,
+  tarifat: TRANSLATE_NOTE_TARIFAT_V1,
 } as const;
 export type TranslatePrompt = (typeof TRANSLATE_PROMPTS)[keyof typeof TRANSLATE_PROMPTS];
 export type TranslateEffort = "low" | "medium" | "high";

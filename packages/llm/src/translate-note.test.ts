@@ -43,6 +43,17 @@ describe("translatePromptFor (ADR-149)", () => {
     expect(text).not.toMatch(/[؀-ۿ]/);
   });
 
+  test("petunjuk at-Ta'rifat: istilah ditransliterasi, tanpa huruf Arab, rasio bawaan", () => {
+    const note = TRANSLATE_NOTES.tarifat;
+    const p = translatePromptFor(TRANSLATE_PROMPT, note);
+    expect(p.id).toBe(`${TRANSLATE_PROMPT.id}+istilah-tarifat@1`);
+    expect(p.system.endsWith(note.text)).toBe(true);
+    expect(note.text).toMatch(/al-Jurjani/);
+    expect(note.text).toMatch(/transliterasi/);
+    expect(note.text).not.toMatch(/[\u0600-\u06FF]/);
+    expect(note.maxLengthRatio).toBeUndefined();
+  });
+
   test("id atau teks petunjuk tidak sah ditolak", () => {
     expect(() => translatePromptFor(TRANSLATE_PROMPT, { id: "Nahwu 1", text: "x" })).toThrow(
       /tidak sah/,

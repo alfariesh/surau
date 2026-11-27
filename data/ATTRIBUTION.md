@@ -77,6 +77,24 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 - Shamela memecah satu halaman cetak menjadi beberapa halaman per bab. Potongan berurutan dengan nomor cetak yang sama digabung menjadi satu halaman (31 halaman Shamela menjadi 19 halaman cetak; ADR-139). Urutan dan isi paragraf tidak berubah.
 - Catatan kaki penyunting **tidak disertakan** (ADR-138): catatan itu karya penyunting modern di luar rilis OpenITI. Penanda nomor catatan di teks utama tetap ada sebagai teks biasa tanpa tautan.
 
+## at-Ta'rifat (asy-Syarif al-Jurjani, w. 816 H)
+
+Korpus `kitab-v11` (Gelombang 2, ADR-152), status `staging` (belum tayang). Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0007312; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-'Ilmiyyah, Beirut, cetakan pertama 1403/1983, disunting sekelompok ulama di bawah penerbit; daftar isi penerbit tidak disertakan
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0816IbnMuhammadSharifJurjani.Tacrifat.Shamela0007312-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0825AH` commit `2630748a4754b509908048087e569ccc8dd251ce` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 7312). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/at-tarifat-7312-openiti.md](reports/at-tarifat-7312-openiti.md)) | https://shamela.ws/book/7312 |
+| **Dar al-Kutub al-'Ilmiyyah** | Penerbit edisi cetak: satu jilid, Beirut, cetakan pertama 1403 H / 1983 M, disunting dan dikoreksi sekelompok ulama di bawah penerbit. Nomor halaman di Surau mengikuti cetakan ini (halaman 5–260) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+- Label jilid Shamela di puncak daftar isi tidak dimuat, dan bab-bab di bawahnya menjadi judul tingkat teratas (patch daftar isi, ADR-152).
+- Daftar isi penerbit di akhir edisi (halaman cetak 261–262) **tidak disertakan** (ADR-150): bukan teks al-Jurjani. Daftar persisnya: [patches/at-tarifat-7312-pentahqiq.yaml](patches/at-tarifat-7312-pentahqiq.yaml).
+
 ## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 
 Kutipan ayat di dalam kitab dikenali otomatis dan ditautkan ke surah:ayat. Teks ayat, terjemahan, dan transliterasi yang tampil di Surau disalin **verbatim** dari sumber berikut. Model AI tidak pernah menulis, mengubah, atau menerjemahkan ayat (ADR-020, ADR-040).
