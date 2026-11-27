@@ -39,6 +39,12 @@ export interface PassageDraft {
    * nomor penanda pembukanya hanya bila bagian bawah halaman tidak punya catatan bernomor sama.
    */
   noteNumber: number | null;
+  /**
+   * Shamela `page.id` asal draf ini, bagian kunci peta ID (`<page.id>:<key>`). Hanya diisi di
+   * halaman gabungan (ADR-139, `mergeSamePrintPages`); tanpa entri = `ParsedPage.source.id`.
+   * `line` dan `key` selalu relatif terhadap halaman asal ini.
+   */
+  sourcePageId?: number;
 }
 
 export interface TitleAnchor {
@@ -60,7 +66,12 @@ export interface FootnoteLink {
 }
 
 export interface ParsedPage {
+  /** Halaman Shamela (halaman pertama bila beberapa halaman digabung, ADR-139). */
   source: ShamelaPage;
+  /** Semua `page.id` Shamela di halaman ini, urut sumber (satu kecuali digabung, ADR-139). */
+  sourcePageIds: number[];
+  /** Offset awal teks badan tiap halaman sumber di `bodyText` (sejajar `sourcePageIds`). */
+  sourceOffsets: number[];
   /** Teks badan bersih utuh (sebelum `//` dipisah), untuk QA OpenITI. */
   bodyText: string;
   body: PassageDraft[];
@@ -204,6 +215,8 @@ export function parsePage(source: ShamelaPage): ParsedPage {
 
   return {
     source,
+    sourcePageIds: [source.id],
+    sourceOffsets: [0],
     bodyText,
     body,
     foot,
@@ -245,6 +258,105 @@ export function dropEditorFootnotes(page: ParsedPage): ParsedPage {
     droppedEditorNotes: {
       notes: page.foot.length,
       markers: page.links.length + page.orphanRefs.length,
+    },
+  };
+}
+
+/** Pemisah teks badan antarhalaman sumber di halaman gabungan (pemisah paragraf Shamela). */
+const MERGE_SEPARATOR = "\n";
+
+/**
+ * Gabungkan halaman Shamela BERURUTAN yang bernomor cetak sama (juz, halaman) menjadi satu halaman
+ * (ADR-139; kitab dengan `WorkConfig.mergeSamePrintPage`, mis. al-Ajurrumiyyah). Paragraf disusun
+ * menurut halaman sumber; `source` = halaman Shamela pertama (jadi `page.source_page_id` dan seq
+ * halaman tetap dari halaman pertama); setiap draf menyimpan `sourcePageId` asalnya sehingga kunci
+ * peta ID paragraf tetap per halaman sumber. Teks paragraf tidak diubah. Nomor cetak sama yang
+ * TIDAK berurutan = galat (ditangani patch, bukan aturan umum).
+ */
+export function mergeSamePrintPages(pages: readonly ParsedPage[]): ParsedPage[] {
+  const groups: ParsedPage[][] = [];
+  const seen = new Set<string>();
+  for (const p of pages) {
+    const key = `${p.source.juz}:${p.source.pageNo}`;
+    const last = groups.at(-1);
+    const lastPage = last?.[0];
+    if (lastPage !== undefined && `${lastPage.source.juz}:${lastPage.source.pageNo}` === key) {
+      (last as ParsedPage[]).push(p);
+      continue;
+    }
+    if (seen.has(key)) {
+      throw new Error(
+        `j${p.source.juz} h${p.source.pageNo} (page.id ${p.source.id}): nomor cetak sama muncul lagi tidak berurutan; tidak bisa digabung (ADR-139), perbaiki lewat patch`,
+      );
+    }
+    seen.add(key);
+    groups.push([p]);
+  }
+  return groups.map((g) => (g.length === 1 ? (g[0] as ParsedPage) : mergeGroup(g)));
+}
+
+function mergeGroup(group: readonly ParsedPage[]): ParsedPage {
+  const first = group[0] as ParsedPage;
+  // Takhrij menempel (`//`) memakai kunci `t<baris>` dan `line` lokal per halaman sumber, yang
+  // dicocokkan daftar isi dan validasi tanpa halaman asal: belum didukung di halaman gabungan.
+  for (const p of group) {
+    if (p.inline.length > 0) {
+      throw new Error(
+        `j${p.source.juz} h${p.source.pageNo} (page.id ${p.source.id}): halaman gabungan (ADR-139) memuat \`//\` (takhrij menempel); belum didukung`,
+      );
+    }
+  }
+  const sourceOffsets: number[] = [];
+  const body: PassageDraft[] = [];
+  const foot: PassageDraft[] = [];
+  const titles: TitleAnchor[] = [];
+  const links: FootnoteLink[] = [];
+  const texts: string[] = [];
+  let shift = 0;
+  for (const p of group) {
+    const bodyBase = body.length;
+    const footBase = foot.length;
+    const own = (d: PassageDraft): PassageDraft => ({
+      ...d,
+      sourcePageId: d.sourcePageId ?? p.source.id,
+    });
+    body.push(...p.body.map((d) => ({ ...own(d), start: d.start + shift, end: d.end + shift })));
+    // Catatan kaki tidak punya rentang di teks badan (-1), kecuali takhrij menempel.
+    foot.push(
+      ...p.foot.map((d) =>
+        d.start < 0 ? own(d) : { ...own(d), start: d.start + shift, end: d.end + shift },
+      ),
+    );
+    titles.push(...p.titles.map((t) => ({ tocId: t.tocId, offset: t.offset + shift })));
+    links.push(...p.links.map((l) => ({ ...l, body: l.body + bodyBase, foot: l.foot + footBase })));
+    texts.push(p.bodyText);
+    sourceOffsets.push(...p.sourceOffsets.map((o) => o + shift));
+    shift += p.bodyText.length + MERGE_SEPARATOR.length;
+  }
+  const sum = (f: (p: ParsedPage) => number): number => group.reduce((a, p) => a + f(p), 0);
+  return {
+    source: first.source,
+    sourcePageIds: group.flatMap((p) => p.sourcePageIds),
+    sourceOffsets,
+    bodyText: texts.join(MERGE_SEPARATOR),
+    body,
+    foot,
+    titles,
+    untitledSpans: sum((p) => p.untitledSpans),
+    links,
+    orphanRefs: group.flatMap((p) => p.orphanRefs),
+    orphanNotes: sum((p) => p.orphanNotes),
+    orphanNotesInInline: sum((p) => p.orphanNotesInInline),
+    markers: {
+      total: sum((p) => p.markers.total),
+      body: sum((p) => p.markers.body),
+      inline: sum((p) => p.markers.inline),
+    },
+    inline: [],
+    unknownTags: [...new Set(group.flatMap((p) => p.unknownTags))].sort(),
+    droppedEditorNotes: {
+      notes: sum((p) => p.droppedEditorNotes.notes),
+      markers: sum((p) => p.droppedEditorNotes.markers),
     },
   };
 }

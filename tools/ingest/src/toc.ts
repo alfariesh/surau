@@ -55,7 +55,10 @@ export function buildToc(
   const issues: string[] = [];
   const spanless: number[] = [];
   const pageMismatch: number[] = [];
-  const pageIndexById = new Map(pages.map((p, i) => [p.source.id, i]));
+  // Halaman gabungan (ADR-139) dikenali dari setiap page.id Shamela-nya.
+  const pageIndexById = new Map(
+    pages.flatMap((p, i) => p.sourcePageIds.map((id) => [id, i] as const)),
+  );
   const titleIds = new Set(titles.map((t) => t.id));
 
   const spans = new Map<number, { pageIndex: number; offset: number }[]>();
@@ -75,12 +78,17 @@ export function buildToc(
     if (found.length > 1) issues.push(`judul ${t.id}: span muncul ${found.length} kali`);
     if (found.length >= 1) {
       at = found[0];
-      if (pages[found[0]?.pageIndex ?? -1]?.source.id !== t.page) pageMismatch.push(t.id);
+      if (!(pages[found[0]?.pageIndex ?? -1]?.sourcePageIds.includes(t.page) ?? false))
+        pageMismatch.push(t.id);
     } else {
       spanless.push(t.id);
       const pageIndex = pageIndexById.get(t.page);
       if (pageIndex === undefined) issues.push(`judul ${t.id} yatim: page.id ${t.page} tidak ada`);
-      else at = { pageIndex, offset: 0 };
+      else {
+        // Halaman gabungan (ADR-139): judul tanpa span mulai di awal halaman sumbernya sendiri.
+        const page = pages[pageIndex] as ParsedPage;
+        at = { pageIndex, offset: page.sourceOffsets[page.sourcePageIds.indexOf(t.page)] ?? 0 };
+      }
     }
     if (at === undefined) continue;
     const page = pages[at.pageIndex] as ParsedPage;

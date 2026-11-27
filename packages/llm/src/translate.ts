@@ -6,6 +6,7 @@ import { TRANSLATION_LENGTH_RATIO, checkPassageTranslation } from "@surau/core";
 import type { TranslationCheck } from "@surau/core";
 import type { MaskedPassage } from "@surau/core";
 
+import { TRANSLATE_NOTE_AJURRUMIYYAH_V1 } from "../prompts/translate-note-ajurrumiyyah-v1.ts";
 import { TRANSLATE_PASSAGE_V4 } from "../prompts/translate-passage-v4.ts";
 import { TRANSLATE_PASSAGE_V5 } from "../prompts/translate-passage-v5.ts";
 import { TRANSLATE_PASSAGE_V6 } from "../prompts/translate-passage-v6.ts";
@@ -21,8 +22,44 @@ export const TRANSLATE_PROMPTS = {
   [TRANSLATE_PASSAGE_V5.id]: TRANSLATE_PASSAGE_V5,
   [TRANSLATE_PASSAGE_V6.id]: TRANSLATE_PASSAGE_V6,
 } as const;
+/** Petunjuk terjemahan per kitab yang tersedia (ADR-149); dipilih lewat `WorkConfig.llm.translateNote`. */
+export const TRANSLATE_NOTES = {
+  ajurrumiyyah: TRANSLATE_NOTE_AJURRUMIYYAH_V1,
+} as const;
 export type TranslatePrompt = (typeof TRANSLATE_PROMPTS)[keyof typeof TRANSLATE_PROMPTS];
 export type TranslateEffort = "low" | "medium" | "high";
+
+/**
+ * Petunjuk terjemahan per kitab (ADR-149; `WorkConfig.llm.translateNote`), mis. contoh Arab kitab
+ * nahwu ditulis sebagai transliterasi. `id` = `<nama>@<versi>`; mengubah teks = versi baru.
+ */
+export interface TranslateWorkNote {
+  id: string;
+  text: string;
+}
+
+/** Prompt yang benar-benar dikirim: `id` dicatat sebagai `prompt_version` (aturan teks-arab 8). */
+export interface ResolvedTranslatePrompt {
+  id: string;
+  system: string;
+}
+
+const NOTE_ID = /^[a-z0-9-]+@\d+$/;
+
+/**
+ * Prompt terjemahan untuk satu kitab: tanpa petunjuk = prompt itu sendiri (id dan teks sistem sama
+ * persis, jadi versi, sidik, dan cache kitab lain tidak berubah); dengan petunjuk = teks sistem +
+ * petunjuk di ujung, id `<prompt>+<petunjuk>`.
+ */
+export function translatePromptFor(
+  prompt: ResolvedTranslatePrompt,
+  note?: TranslateWorkNote,
+): ResolvedTranslatePrompt {
+  if (note === undefined) return prompt;
+  if (!NOTE_ID.test(note.id)) throw new Error(`id petunjuk kitab tidak sah: ${note.id}`);
+  if (note.text.trim() === "") throw new Error(`petunjuk kitab ${note.id} kosong`);
+  return { id: `${prompt.id}+${note.id}`, system: `${prompt.system}\n\n${note.text}` };
+}
 export const TRANSLATION_LANG = "id";
 
 /** Ruang untuk thinking (effort low) + terjemahan paragraf terpanjang Ihya (±4,2 ribu karakter). */
@@ -58,7 +95,7 @@ export function translateUserText(input: TranslateInput): string {
 export function buildTranslateRequest(
   input: TranslateInput,
   model: ModelId = MODELS.haiku,
-  opts: { prompt?: TranslatePrompt; effort?: TranslateEffort } = {},
+  opts: { prompt?: ResolvedTranslatePrompt; effort?: TranslateEffort } = {},
 ): MessageCreateParamsNonStreaming {
   return {
     model,

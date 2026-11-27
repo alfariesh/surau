@@ -50,3 +50,32 @@ export function parseOpenitiPages(source: string): OpenitiPage[] {
   }
   return pages;
 }
+
+/**
+ * Gabungkan penanda halaman OpenITI BERURUTAN yang bernomor sama (jilid, halaman) menjadi satu
+ * halaman, pasangan halaman Surau gabungan (ADR-139; mis. al-Ajurrumiyyah memecah satu halaman
+ * cetak per bab). Hanya untuk kitab ber-`mergeSamePrintPage`; kitab lain tetap per penanda.
+ */
+export function mergeSamePageMarkers(pages: readonly OpenitiPage[]): OpenitiPage[] {
+  const out: OpenitiPage[] = [];
+  const seen = new Set<string>();
+  for (const p of pages) {
+    const last = out.at(-1);
+    if (last !== undefined && last.volume === p.volume && last.page === p.page) {
+      out[out.length - 1] = {
+        ...last,
+        text: [last.text, p.text].filter((t) => t !== "").join("\n"),
+      };
+    } else {
+      const key = `${p.volume}:${p.page}`;
+      if (seen.has(key)) {
+        throw new Error(
+          `OpenITI PageV${p.volume}P${p.page}: nomor halaman sama muncul lagi tidak berurutan (ADR-139)`,
+        );
+      }
+      seen.add(key);
+      out.push(p);
+    }
+  }
+  return out;
+}

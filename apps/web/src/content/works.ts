@@ -10,6 +10,7 @@ export const CITE_AUTHOR: Readonly<Record<string, string>> = {
   ihya: "al-Ghazali",
   "bidayat-al-hidayah": "al-Ghazali",
   "at-tibyan": "an-Nawawi",
+  "al-ajurrumiyyah": "Ibnu Ajurrum",
 };
 
 /** Keterangan singkat karya di daftar /kitab (ditulis tangan, bahasa Indonesia). */
@@ -18,6 +19,8 @@ export const WORK_BLURB: Readonly<Record<string, string>> = {
   "bidayat-al-hidayah": "Panduan adab dan ibadah harian, pintu masuk sebelum Ihya.",
   "at-tibyan":
     "Adab membaca, menghafal, dan mengajarkan Al-Qur'an bagi penghafal, guru, dan murid.",
+  "al-ajurrumiyyah":
+    "Matan ringkas ilmu nahwu: kalimat, i'rab, dan kedudukan kata, kitab pertama tata bahasa Arab di pesantren.",
 };
 
 /** Kunci: `<slug karya>/<slug edisi>`. */
@@ -25,6 +28,7 @@ export const CITE_PUBLISHER: Readonly<Record<string, string>> = {
   "ihya/dar-al-marifah": "Dar al-Ma'rifah",
   "bidayat-al-hidayah/maktabat-madbuli": "Maktabat Madbuli",
   "at-tibyan/dar-ibn-hazm": "Dar Ibn Hazm",
+  "al-ajurrumiyyah/dar-ash-shumaii": "Dar ash-Shumai'i",
 };
 
 /** Teks lisensi resmi per nama lisensi di `edition.license` (CC BY-NC-SA 4.0 §3(a)(1)). */
@@ -43,6 +47,10 @@ export const EDITION_SOURCE: Readonly<Record<string, { label: string; url: strin
     url: "https://zenodo.org/records/17767721",
   },
   "at-tibyan/dar-ibn-hazm": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "al-ajurrumiyyah/dar-ash-shumaii": {
     label: "OpenITI 2025.1.9 (Zenodo)",
     url: "https://zenodo.org/records/17767721",
   },

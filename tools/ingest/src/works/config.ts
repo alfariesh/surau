@@ -1,6 +1,7 @@
 // Bentuk konfigurasi ingest per kitab dan per korpus (X31a, ADR-137). Teks Arab (judul, nama
 // penulis, penerbit) TIDAK ditulis di konfigurasi: semuanya disalin dari Shamela.
 import type { AttributionStatus } from "@surau/db";
+import type { TranslateWorkNote } from "@surau/llm";
 
 /** Berkas sumber yang dipin sha256-nya (data/SOURCES.md). */
 export interface PinnedFile {
@@ -19,6 +20,12 @@ export type FootnoteClass = "classical" | "modern_editor" | "none";
 export interface WorkConfig {
   shamelaBook: number;
   footnotes: FootnoteClass;
+  /**
+   * Halaman Shamela BERURUTAN dengan nomor cetak sama digabung menjadi satu halaman Surau (ADR-139;
+   * al-Ajurrumiyyah). Tanpa entri = setiap halaman Shamela satu halaman Surau, dan nomor ganda
+   * menggagalkan gerbang "(juz, halaman) unik".
+   */
+  mergeSamePrintPage?: boolean;
   /** Patch daftar isi (path relatif ke root repo); tanpa berkas = tanpa patch. */
   patch?: string;
   /** Daftar kurasi subjudul pembaca (X04, ADR-074): sumber subjudul untuk judul daftar isi Indonesia. */
@@ -41,6 +48,12 @@ export interface WorkConfig {
      * `sonnet` untuk kitab Gelombang 1 atas keputusan pemilik (X31b; mutu Sonnet di X21, ADR-109).
      */
     model?: "haiku" | "sonnet";
+    /**
+     * Petunjuk terjemahan khusus kitab ini (ADR-149), ditambahkan di ujung prompt sistem
+     * (`translatePromptFor`); versi prompt yang dicatat menjadi `<prompt>+<petunjuk>`. Tanpa entri
+     * = prompt bawaan apa adanya. BELUM dipasang ke `pnpm llm` (wajib sebelum batch kitab ini).
+     */
+    translateNote?: TranslateWorkNote;
   };
   /** Metadata audio Intisari (ditulis `pnpm audio manifest`); tanpa entri = tanpa audio. */
   audioManifest?: string;

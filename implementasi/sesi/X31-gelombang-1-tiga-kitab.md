@@ -214,3 +214,36 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
   - Kutipan paragraf utuh berakhir sebelum titik penutup (`isQuoteSpan`), jadi `char_end` = panjang − tanda baca akhir.
   - MCP produksi tertutup, sehingga penulis dan pemeriksa membaca lewat skrip korpus lokal.
 - **Berikutnya:** gabung PR fondasi Tibyan (#254), bangun korpus dua kitab, muat staging, `corpus:qa`, cek pembaca/Cari/Intisari di staging (termasuk butir staging X24 yang dipindah ke sini, ADR-145 butir 10).
+
+### X31d fondasi: korpus al-Ajurrumiyyah tanpa LLM (2026-11-27, ADR-139, ADR-149)
+
+- **ADR-139 diterapkan** (`WorkConfig.mergeSamePrintPage`, `mergeSamePrintPages` di `tools/ingest/src/shamela/page.ts`): halaman Shamela berurutan dengan nomor cetak sama digabung di `prepare`, sesudah catatan penyunting dibuang dan sebelum daftar isi, QA, dan alokasi ID.
+  - Paragraf urut sumber; offset badan dan judul digeser ke teks badan gabungan.
+  - `page.source_page_id` dan seq halaman = halaman Shamela pertama.
+  - Kunci peta ID paragraf tetap `<page.id asal>:<kunci>` (`PassageDraft.sourcePageId`).
+  - Daftar isi mengenali semua `page.id` halaman gabungan (`ParsedPage.sourcePageIds`).
+  - Penanda halaman OpenITI berurutan yang bernomor sama juga digabung (`mergeSamePageMarkers`), sehingga verify-openiti tetap per halaman Surau. `corpus:qa` memakai `prepare` yang sama.
+  - Nomor sama yang tidak berurutan = ingest gagal. Kitab tanpa tanda ini tidak berubah (peta ID dan laporan Bidayah/Tibyan tidak berubah).
+  - Tes: `tools/ingest/src/shamela/merge.test.ts` (gabung, ID per halaman asal, tautan catatan bergeser, tidak berurutan ditolak, juz beda tidak digabung, penanda OpenITI).
+- **Konfigurasi:** `tools/ingest/src/works/ajurrumiyyah.ts` (penulis 3 "Ibnu Ajurrum", nama Arab dari Shamela author 1591; karya 4; edisi 4 `dar-ash-shumaii`; slug `al-ajurrumiyyah`; `modern_editor`; OpenITI `0725AH` commit `1c14df8…`; `llm.model` sonnet; `llmCoverage` 0). Korpus bawaan `kitab-v10` = Bidayah + Tibyan + Ajurrumiyyah; ledger `staging`. Sumber dipin di `data/SOURCES.md`.
+- **Angka build** (`pnpm ingest korpus --kitab al-ajurrumiyyah --reset-ids`, lalu `pnpm ingest korpus` tiga kitab; semua invarian lolos; peta ID Bidayah dan Tibyan tidak berubah):
+  - 19 halaman Surau dari 31 halaman Shamela (12 digabung; cetak 5–23, satu jilid).
+  - 25 judul / 25 node, tanpa patch (semua akar, urutan monoton).
+  - 139 paragraf badan, 0 catatan; 4 catatan penyunting dibuang.
+  - 0 rujukan ayat.
+  - Matan = OpenITI 19/19 (min 1,000).
+- **Smoke:** j1 h5 (8 paragraf badan) + `الإعراب` (3 paragraf di Ajurrumiyyah).
+- **ADR-149 (contoh Arab):** tanpa placeholder baru. Contoh Arab ditulis sebagai transliterasi Latin di terjemahan AI, istilah nahwu baku pesantren, dan tanpa audio. Petunjuk terjemahan per kitab (`WorkConfig.llm.translateNote`, `translatePromptFor`, versi `<prompt>+nahwu-ajurrumiyyah@1`; kitab lain tetap prompt yang sama persis, dites).
+- **Web:** `works.ts` (sitasi "Ibnu Ajurrum", keterangan, penerbit "Dar ash-Shumai'i", sumber OpenITI Zenodo). `data/ATTRIBUTION.md` memuat bagian Ajurrumiyyah (catatan penyunting tidak disertakan, halaman digabung).
+- **Bukti lokal:**
+  - `pnpm corpus:load:local` → smoke lolos (`kitab-v10`, tiga kitab).
+  - `next dev` port 3015: `/kitab`, `/kitab/al-ajurrumiyyah`, `/1/5`, `/1/6` (gabungan 2 halaman Shamela), `/1/22` (gabungan 3 halaman: tiga bab tampil, tautan Shamela ke halaman 28) = 200; `/1/4` = 404.
+  - `/api/search?q=الفاعل` mengembalikan halaman Ajurrumiyyah.
+  - `pnpm verify`: check lolos, build lolos. Satu tes Ihya lokal (`ihya-text.test.ts`, round-trip findQuote) melewati batas 5 dtk saat seluruh tes berjalan; dijalankan sendiri lolos 5/5 (tidak terkait; tes ini dilewati di CI).
+  - Hasil LLM Bidayah (X31b) dibaca lewat symlink ke folder kerja `data/build/llm/bidayat-al-hidayah` supaya gerbang `llmCoverage` 0,99 Bidayah terpenuhi.
+- **Wajib sebelum batch Ajurrumiyyah:**
+  - pasang `translatePromptFor(TRANSLATE_PROMPT, work.llm.translateNote)` ke `pnpm llm` (`batch.ts`: `translationRequest`, `currentPromptVersion`, `retry`, perkiraan token);
+  - uji 5 paragraf (berbayar, izin pemilik).
+  - Temuan: prompt `translate-passage@6` menyebut Ihya dan al-Ghazali di kalimat pertama; untuk at-Tibyan (an-Nawawi) petunjuk per kitab yang sama sebaiknya dipakai sebelum batch.
+- **Peninjau (0 blocker, 3 perbaikan dikerjakan):** judul tanpa span di halaman sumber kedua/ketiga kini mulai di awal halaman sumbernya (`ParsedPage.sourceOffsets`, tes `buildToc`); halaman gabungan dengan takhrij menempel `//` ditolak (kunci `t<baris>` lokal); `mergeSamePrintPage` + pembanding takhrij OpenITI ditolak; penanda OpenITI bernomor sama yang tidak berurutan ditolak; `pnpm llm --karya` menolak kitab ber-`translateNote` sampai petunjuk dipasang ke batch. Ketiganya laten (Ajurrumiyyah: 0 judul tanpa span, 0 `//`, tanpa takhrij). Nomor ADR-148 sengaja dilewati (dipakai PR lain).
+- **Belum (sisa X31d):** terjemahan + ringkasan, Intisari (Bab per judul akar, ADR-147), muat staging, QA 30, kueri Indonesia untuk Definisi selesai, e2e/MCP untuk Ajurrumiyyah.

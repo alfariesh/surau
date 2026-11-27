@@ -112,7 +112,15 @@ export function validate(input: ValidateInput): Validation {
     invariants.push({ name, ok, detail });
   };
 
-  check("Jumlah halaman", pages.length === exp.pages, `${pages.length} (harapan ${exp.pages})`);
+  const merged = source.pages.length - pages.length;
+  check(
+    "Jumlah halaman",
+    pages.length === exp.pages,
+    `${pages.length} (harapan ${exp.pages})` +
+      (merged > 0
+        ? `; dari ${source.pages.length} halaman Shamela, ${merged} digabung ke nomor cetak yang sama (ADR-139)`
+        : ""),
+  );
   const perJuz = exp.volumes.map((_, i) => pages.filter((p) => p.source.juz === i + 1).length);
   const juzOk =
     perJuz.join("/") === exp.volumes.join("/") &&

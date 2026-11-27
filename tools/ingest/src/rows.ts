@@ -227,7 +227,8 @@ export function buildRows(input: RowsInput): Omit<CorpusRows, PipelineTables> {
   ];
 
   // Seq dialokasikan dalam urutan sumber (ADR-029): halaman per page.id, judul per title.id lalu
-  // node patch, paragraf per halaman (badan lalu catatan kaki).
+  // node patch, paragraf per halaman (badan lalu catatan kaki; di halaman gabungan ADR-139 badan
+  // semua halaman sumber lalu catatan kaki, kunci tetap per halaman asal sehingga ID tidak berubah).
   const pageIds = pages.map((p) => pageId(ed, ids.seq("page", String(p.source.id))));
   const page = pages.map((p, i) =>
     pageRow.parse({
@@ -274,7 +275,7 @@ export function buildRows(input: RowsInput): Omit<CorpusRows, PipelineTables> {
       node: string,
       extra: NeedsReviewReason[],
     ): number => {
-      const id = passageId(ed, ids.seq("passage", `${p.source.id}:${d.key}`));
+      const id = passageId(ed, ids.seq("passage", `${d.sourcePageId ?? p.source.id}:${d.key}`));
       passage.push(
         passageRow.parse({
           id,
