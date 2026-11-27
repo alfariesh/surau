@@ -76,7 +76,7 @@ kitab:
     wafat_h: 505
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
-    status: staging
+    status: tayang
     # 16 judul; sepuluh tingkat teratas (title.id 5 punya anak 6–11, dicakup Intisari-nya).
     intisari_bab: [1, 2, 3, 4, 5, 12, 13, 14, 15, 16]
   - slug: al-waraqat
@@ -89,7 +89,7 @@ kitab:
     wafat_h: 478
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
-    status: staging
+    status: tayang
     # 20 judul Shamela, semuanya tingkat teratas; node basmalah (patch) tidak diberi Intisari.
     intisari_bab: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
   - slug: rusum-dar-al-khilafah
@@ -102,7 +102,7 @@ kitab:
     wafat_h: 448
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
-    status: staging
+    status: tayang
     # 21 judul daftar isi, semuanya tingkat teratas dan semuanya teks Hilal ash-Shabi' (edisi
     # Shamela tanpa mukadimah atau lampiran pentahqiq).
     intisari_bab: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
@@ -116,7 +116,7 @@ kitab:
     wafat_h: 918
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
-    status: staging
+    status: tayang
     # Intisari Bab (data/konten/intisari-bab, status siap): satu per node patch tingkat teratas,
     # toc_node 700100 (mukadimah), 700101 (Thaharah), 700103 (Shalat), 700112 (Zakat),
     # 700115 (Puasa), 700117 (Haji). intisari_bab tidak diisi karena kolom itu berisi title.id

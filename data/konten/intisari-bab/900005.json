@@ -1,0 +1,150 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900005,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p207-p208: judul kini netral tanpa menyebut pelaku atau niat; tahun, permintaan, dan bata serta tanah liat sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p208-p209: pakaian hitam, sekitar seratus khadim, mushaf Utsman, burdah, tongkat, pedang Nabi saw., Dailam kiri Turki kanan, tanpa besi, dua puluh delapan wakil hajib sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p210-p211: ciuman tanah berulang, ucapan Ziyar dengan 'konon' karena teks memakai qila, busur peluru Marjan, cium tangan dan kaki, sumpah khalifah sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p211-p212: pelimpahan urusan kecuali urusan pribadi khalifah, jubah dan mahkota, dua panji timur dan barat, pembacaan surat, pedang sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p212-p214: ungkapan kembali di atas tumit diseragamkan, aturan umum ditandai sebagai kata penulis; angka tiga ratus pekerja sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perbaikan",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "0957e77c8731b9ed9c631c065ec8a810ce9514d63e3f2d6351b6bf5808cdb4a5",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Permintaan masuk berkendaraan dan tirai, janji, dan bata di depan pintu sesuai p208."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Hanya pedang yang dinisbahkan kepada Rasulullah; burdah dan tongkat tidak disebut pusaka Nabi."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Ciuman tanah, ucapan Ziyar dengan konon, Marjan, dan sumpah khalifah sesuai."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Pelimpahan urusan, jubah, mahkota, dua panji timur dan barat sesuai."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Firasat buruk, pintu taman, tiga ratus pekerja, dan aturan umum penulis sesuai."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "e69ed1f1135f228e68214d2b23de4f45ffad1c7630caa6d7c98e7ff643cece0d",
+      "draf_sha256": "0957e77c8731b9ed9c631c065ec8a810ce9514d63e3f2d6351b6bf5808cdb4a5",
+      "waktu": "2026-11-27T18:43:43.366Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut kisah yang dinukil Hilal ash-Shabi', penobatan 'Adhud ad-Daulah oleh ath-Tha'i' pada tahun 367 H diatur sangat rinci, dari tirai, tali, dan pakaian khalifah sampai pemberian mahkota, dua panji, dan jalan keluarnya.",
+    "ringkasan": "Hilal ash-Shabi' membuka bab dengan aturan bahwa hadirin harus diam tanpa suara. Lalu ia menukil dari Ali bin Abdul Aziz bin Hajib an-Nu'man kisah penobatan 'Adhud ad-Daulah tahun 367 H: permintaannya agar masuk berkendaraan dan agar khalifah ditutupi tirai, susunan majelis ath-Tha'i' beserta pusaka yang dikenakannya, ciuman tanah yang berulang, pelimpahan urusan rakyat dari timur sampai barat, pemakaian jubah kehormatan dan mahkota, dua panji, serta pintu taman yang dibuka agar ia tidak kembali lewat langkah semula. Bab ditutup dengan aturan tempat turun kendaraan, larangan senjata, dan siapa yang boleh duduk di kursi.",
+    "gagasan": [
+      {
+        "judul": "Permintaan masuk berkendaraan 'Adhud ad-Daulah terhalang bata di depan pintu, menurut kisah yang dinukil",
+        "isi": "Penulis menukil dari Ali bin Abdul Aziz bin Hajib an-Nu'man bahwa pada tahun 367 H, setelah diputuskan pemberian jubah kehormatan dan gelar Taj al-Millah, 'Adhud ad-Daulah meminta agar ia masuk ke Dar as-Salam dengan berkendaraan sebagai tanda kehormatan lebih. Ia juga meminta agar tirai dibentangkan di depan khalifah supaya tidak ada yang melihatnya sebelum ia menghadap; maksudnya agar orang tidak melihatnya mencium tanah. Permintaan itu dijanjikan, tetapi di depan pintu masuk dipasang potongan bata dan tanah liat sehingga ia tidak bisa melewatinya dengan berkendaraan.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000207, 90000208],
+        "soal": {
+          "tanya": "Apa maksud 'Adhud ad-Daulah meminta tirai dibentangkan di depan khalifah?",
+          "jawab": "Agar orang tidak melihatnya ketika ia mencium tanah di hadapan khalifah."
+        }
+      },
+      {
+        "judul": "Ath-Tha'i' duduk bersama pusaka Nabi saw. dan mushaf Utsman, menurut penuturan yang dinukil",
+        "isi": "Menurut penuturan yang dinukil penulis, ath-Tha'i' duduk di singgasana dengan pakaian hitam, dikelilingi sekitar seratus khadim berhias dan para khadim tua Saqalibah. Di hadapannya ada mushaf Utsman, di pundaknya burdah, di tangannya tongkat, dan ia menyandang pedang Rasulullah saw. Tirai sutra kiriman 'Adhud ad-Daulah dipasang agar tidak ada tentara yang melihat khalifah sebelum 'Adhud ad-Daulah. Tali dibentangkan di halaman; pasukan Dailam di sebelah kiri dan Turki di sebelah kanan masuk tanpa membawa besi sedikit pun. Para hajib khalifah dan dua puluh delapan wakilnya memakai qaba' hitam.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000208, 90000209],
+        "soal": {
+          "tanya": "Pusaka apa saja yang dikenakan atau diletakkan di hadapan ath-Tha'i' saat penobatan 'Adhud ad-Daulah?",
+          "jawab": "Mushaf Utsman, burdah, tongkat, dan pedang Rasulullah saw."
+        }
+      },
+      {
+        "judul": "Ciuman tanah berulang mengiringi langkah 'Adhud ad-Daulah, menurut kisah yang dinukil",
+        "isi": "Setelah tirai diangkat, Mu'nis dan Washif memberi tahu 'Adhud ad-Daulah bahwa khalifah telah melihatnya, lalu ia mencium tanah berulang kali sambil mendekat. Konon Ziyar bin Syahrakawaih heran melihat ciuman tanah itu dan mengira yang dihadapi adalah Tuhan, lalu 'Adhud ad-Daulah menyuruh Abdul Aziz bin Yusuf menjelaskan bahwa ia khalifah Allah di bumi-Nya. Selama itu tak seorang pun di balik tali bergerak, dan khadim Marjan berjaga dengan busur peluru untuk mengusir burung gagak. Di ambang pintu ia mencium tanah dua kali, mencium tangan dan kaki khalifah, lalu baru duduk di kursi setelah khalifah bersumpah memintanya.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000210, 90000211],
+        "soal": {
+          "tanya": "Apa tugas khadim Marjan yang berdiri di halaman saat 'Adhud ad-Daulah masuk?",
+          "jawab": "Memanah burung gagak dengan busur peluru bila ada yang terbang atau berbunyi."
+        }
+      },
+      {
+        "judul": "Urusan rakyat dilimpahkan kepada 'Adhud ad-Daulah kecuali urusan pribadi khalifah, menurut kisah yang dinukil",
+        "isi": "Menurut kisah yang dinukil penulis, ath-Tha'i' berkata bahwa ia melimpahkan kepada 'Adhud ad-Daulah urusan rakyat di timur dan barat bumi, kecuali urusan pribadi khalifah, kerabatnya, dan isi istananya. Atas permintaan 'Adhud ad-Daulah, para panglima dan beberapa orang terkemuka didekatkan agar mendengar sendiri ucapan itu. Ia lalu dipakaikan jubah kehormatan dan mahkota berhias permata sampai berjalan tertatih dan tak sanggup mencium tanah. Khalifah mengikat dua panji, satu untuk timur dan satu untuk barat, menyuruh surat pengangkatannya dibacakan, berpesan agar ia menjalankan apa yang diperintahkan Allah, lalu mengikat jumbai mahkota itu dan menyandangkan sebilah pedang.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000211, 90000212],
+        "soal": {
+          "tanya": "Untuk arah mana dua panji yang diikat ath-Tha'i' bagi 'Adhud ad-Daulah?",
+          "jawab": "Satu untuk timur dan satu untuk barat."
+        }
+      },
+      {
+        "judul": "'Adhud ad-Daulah enggan kembali lewat langkah semula, menurut kisah yang dinukil penulis",
+        "isi": "Ketika hendak pulang, 'Adhud ad-Daulah memberi tahu khalifah bahwa ia merasa berfirasat buruk bila kembali di atas tumitnya, dan meminta pintu yang menuju taman dibuka. Khalifah mengizinkan, dan seketika sekitar tiga ratus pekerja menyiapkan landasan bagi kudanya. Ia berkendaraan sendirian sementara seluruh pasukan berjalan kaki di antara duri dan semak sampai keluar dari Bab al-Khashshah. Penulis lalu menyebut aturan umumnya sendiri: penjaga pintu mengenal batas tempat orang turun dan naik kendaraan, tentara tidak boleh masuk bersenjata kecuali yang bertugas di sana, dan hanya hajib para hajib serta amir pasukan yang boleh duduk di kursi di Dar al-Khilafah.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000212, 90000213, 90000214],
+        "soal": {
+          "tanya": "Siapa saja yang boleh duduk di kursi di Dar al-Khilafah menurut aturan yang disebut penulis?",
+          "jawab": "Hanya hajib para hajib dan amir pasukan."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

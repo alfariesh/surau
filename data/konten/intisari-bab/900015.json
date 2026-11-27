@@ -1,0 +1,87 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900015,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p288: Ali, Mu'awiyah, Zaid bin Tsabit, alasan Nabi saw. ummi, Salim maula Abdul Malik, tulisan tangan al-Ma'mun, lalu diambil wazir sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p288-p289: dua nama pengganti dan keterangan bahwa hanya Abdul Aziz bin Yusuf memakai rumus itu atas nama amir ditambahkan sesudah periksa independen."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perbaikan",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "c5f69746fb0e3eaf24a46ab3482de4a1d06f1e61359404edc2be8ab24b9f6a93",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Ali, Mu'awiyah, Zaid, alasan Nabi ummi, surat Abdul Malik dan al-Ma'mun sesuai p288."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Frasa atas perintah ath-Tha'i' bisa terbaca khalifah memerintah kakeknya, padahal itu rumus dalam surat."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "fa4c1343d9d4a2a7ff65b8fcd1d6b32b3f318c3719531675d12cebf8b3ff2877",
+      "draf_sha256": "c5f69746fb0e3eaf24a46ab3482de4a1d06f1e61359404edc2be8ab24b9f6a93",
+      "waktu": "2026-11-27T18:44:19.388Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', kalimat penutup surat yang menyebut nama penulisnya bermula sebagai penanda siapa yang menulis, lalu menjadi tanda kedudukan yang dipakai wazir dan kepala diwan surat.",
+    "ringkasan": "Hilal ash-Shabi' menjelaskan asal penutup surat yang menyebut nama penulisnya: Ali bin Abi Thalib, Mu'awiyah, dan Zaid bin Tsabit menulisnya dalam surat-surat Nabi saw. untuk menandai siapa yang menulis. Kebiasaan itu diikuti para katib khalifah, lalu menjadi tanda kedudukan yang diambil para wazir. Ia menuturkan bagaimana kakeknya memakai namanya sendiri saat jabatan wazir kosong, kebiasaan itu diteruskan kepala diwan surat, dan bagaimana surat pengangkatan qadhi atas nama amir dikembalikan kepada nama khalifah.",
+    "gagasan": [
+      {
+        "judul": "Nama penulis di akhir surat semula sekadar penanda, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', Ali bin Abi Thalib menuliskan namanya di akhir surat-surat yang ia tulis atas nama Nabi saw., begitu pula Mu'awiyah dan Zaid bin Tsabit. Tujuannya saat itu bukan kedudukan, melainkan menandai siapa yang menulis, karena Nabi saw. ummi dan tidak menulis dengan tangannya. Para katib khalifah kemudian mengikutinya. Penulis membaca surat Abdul Malik bin Marwan yang ditutup dengan nama Salim, katib sekaligus maulanya, dan melihat surat bertulisan tangan al-Ma'mun yang ditutup bahwa Amir al-Mu'minin menulisnya dengan tangannya sendiri. Lalu kalimat itu menjadi tanda kemuliaan, dan para wazir mencantumkan nama mereka pada surat yang keluar.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000288],
+        "soal": {
+          "tanya": "Mengapa nama penulis dicantumkan di akhir surat-surat Nabi saw. menurut Hilal ash-Shabi'?",
+          "jawab": "Untuk menandai siapa penulisnya, karena Nabi saw. ummi dan tidak menulis dengan tangannya."
+        }
+      },
+      {
+        "judul": "Kakek penulis mencantumkan namanya saat jabatan wazir kosong, menurut penulis",
+        "isi": "Penulis menuturkan bahwa ketika 'Izz ad-Daulah menangkap wazir Abu Thahir bin Baqiyyah dan jabatan wazir kosong, kakeknya Ibrahim bin Hilal menulis namanya sendiri di akhir surat karena memegang diwan surat. Abdul Aziz bin Yusuf meneruskannya pada masa 'Adhud ad-Daulah, lalu kepala diwan surat sesudahnya; ketika surat kesultanan keluar dari Dar al-Khilafah, yang ditulis nama Ibnu Hajib an-Nu'man dan Ali bin Abdul Aziz. Menurut penulis, pada surat atas nama amir hanya Abdul Aziz bin Yusuf yang memakai rumus itu, pada surat pengangkatan atas nama 'Adhud ad-Daulah. Pada masa Shamsham ad-Daulah, kakeknya menambahkan atas perintah ath-Tha'i' karena pengangkatan qadhi hanya sah dari khalifah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000288, 90000289],
+        "soal": {
+          "tanya": "Mengapa Ibrahim bin Hilal menambahkan atas perintah ath-Tha'i' pada surat pengangkatan qadhi masa Shamsham ad-Daulah?",
+          "jawab": "Karena menurutnya pengangkatan qadhi hanya sah bila berasal dari khalifah."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

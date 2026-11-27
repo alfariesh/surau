@@ -1,0 +1,87 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900012,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p267: alamat dan pembuka, sebutan Amir al-Mu'minin, bentuk jamak boleh dalam surat dan catatan khusus, khusus surat ke daerah hanya Amir al-Mu'minin sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p268 dibaca ulang sesudah periksa independen: tiga ungkapan terlarang kini disebut apa adanya tanpa alasan tambahan; salam tanpa berkah dan nama wazir sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perbaikan",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "a1a8ad1d370b606ce7e957ccf5b2c9987641f68d49fc9ed14bcb70d08360a71b",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Alamat, kun-yah, gelar, pembuka, sebutan diri, dan pengecualian surat ke daerah sesuai p267."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tiga ungkapan terlarang, salam tanpa berkah, nama wazir, dan kun-yah di isi sesuai p268."
+        }
+      ],
+      "laporan": "Putaran pertama ada Salah, diperbaiki dan diperiksa ulang tanpa Salah; Semua benar; boleh terbit"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "a6d7bd9a1960162ff795c385030ba277104f7763c8f44ba4537cdae00a5ddba4",
+      "draf_sha256": "a1a8ad1d370b606ce7e957ccf5b2c9987641f68d49fc9ed14bcb70d08360a71b",
+      "waktu": "2026-11-27T18:44:18.145Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', surat yang keluar dari khalifah memakai alamat, pembuka, sebutan diri, perintah, dan salam penutup yang dibakukan, dan salamnya sengaja dibedakan dari salam kepada khalifah.",
+    "ringkasan": "Hilal ash-Shabi' menjelaskan alamat surat dari khalifah, dari nama khalifah kepada penerima beserta kun-yah, gelar, dan sebutan maula, lalu pembuka dengan salam, pujian, dan doa bagi penerima. Ia menerangkan bahwa khalifah menyebut dirinya Amir al-Mu'minin dalam surat ke daerah, bentuk perintah yang dipakai di akhir, salam penutup yang sengaja dibuat berbeda, nama wazir yang menulis, keterangan pokok surat di sampul, dan cara menyebut anugerah kun-yah atau gelar.",
+    "gagasan": [
+      {
+        "judul": "Khalifah menyebut dirinya Amir al-Mu'minin dalam surat ke daerah, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', alamat surat dari khalifah ditulis dari hamba Allah, nama dan kun-yah khalifah dengan gelarnya, kepada nama penerima dan nama ayahnya. Pemilik kun-yah cukup disebut kun-yahnya, pemilik gelar disebut gelar dan kun-yahnya, dan orang non-Arab atau maula ditambah sebutan maula Amir al-Mu'minin, semuanya dalam satu baris. Pembukanya salam kepada penerima, pujian kepada Allah dan shalawat, lalu doa agar Allah menjaga penerima. Khalifah menyebut dirinya Amir al-Mu'minin, misalnya Amir al-Mu'minin berpendapat atau memerintahkan, seperti raja dan amir memakai bentuk jamak untuk dirinya. Khalifah juga boleh memakai bentuk jamak dalam surat dan catatan khusus, tetapi dalam surat ke daerah ia hanya memakai sebutan Amir al-Mu'minin.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000267],
+        "soal": {
+          "tanya": "Dengan sebutan apa khalifah menyebut dirinya dalam surat yang dikirim ke daerah menurut Hilal ash-Shabi'?",
+          "jawab": "Ia hanya menyebut dirinya Amir al-Mu'minin."
+        }
+      },
+      {
+        "judul": "Salam dari khalifah sengaja dibedakan dari salam kepadanya, menurut penulis",
+        "isi": "Penulis menjelaskan bahwa di akhir surat ditulis perintah agar penerima mengetahui hal itu sebagai pendapat dan perintah Amir al-Mu'minin lalu mengamalkannya. Tidak boleh ditulis atas nama khalifah tiga ungkapan: perintah singkat agar penerima mengamalkannya, pernyataan bahwa penerima yang melakukannya, dan ungkapan yang menyebut pendapat penerima dalam mengamalkannya. Salam penutup ditulis dengan rahmat Allah tanpa kata berkah, agar ada beda antara salam kepada khalifah dan salam darinya. Sesudahnya ditulis nama wazir yang memegang urusan sebagai penulis surat, dengan nama, kun-yah, atau gelarnya. Di sisi kiri sampul ditulis pokok urusannya, dan surat anugerah kun-yah atau gelar tidak menyebutnya di pembuka, melainkan di dalam isi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000268],
+        "soal": {
+          "tanya": "Mengapa kata berkah tidak ditulis dalam salam penutup surat dari khalifah menurut Hilal ash-Shabi'?",
+          "jawab": "Agar ada perbedaan antara salam kepada khalifah dan salam dari khalifah."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

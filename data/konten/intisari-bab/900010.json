@@ -1,0 +1,150 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900010,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p251-p252: tulisan jelas, jarak baris, larangan titik dan harakat beserta alasannya sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p253-p254: alamat tanpa doa dan nama ayah dengan alasannya, kun-yah tidak disebut meskipun dari khalifah (sudah diperbaiki dari bacaan awal yang terbalik), maula, satu baris sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p254-p257: urutan nama, Zaid bin Tsabit, teguran al-Manshur, doa alamat dari al-Fadhl bin Sahl, dan dua sisi pendapat penulis tentang gelar dipertahankan; riwayat disebut tanpa status."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p258-p259: pembuka surat, tambahan masa al-Ma'mun, Quss bin Sa'idah, salam nakirah dan makrifah sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p259: surat putra mahkota, surat internal, pengadu tanpa sebutan khadim atau hamba, satu urusan per surat sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "b9c64f72aade9005c6d71290d162d56754fd2e49d232e33370cb143983ea44b7",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Irsal dan idgham diterjemahkan longgar menjadi tulisan sambung yang terburu-buru."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Alamat, kun-yah, gelar, dan maula sesuai p253-p254."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Kata menegur dan menyimpang dari adab tidak ada di teks; teks memakai tidak menyukai dan rutbah."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Quss bin Sa'idah, al-Ma'mun, nakirah dan makrifah sesuai p258-p259."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Syarat bila putra khalifah hilang dan judul hanya mewakili satu dari empat poin."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "e68cca5435eb4187aafae80fd372b2b551f6d8d341171cfd3a79f9b558a317ce",
+      "draf_sha256": "b9c64f72aade9005c6d71290d162d56754fd2e49d232e33370cb143983ea44b7",
+      "waktu": "2026-11-27T18:34:16.888Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', surat kepada dan dari khalifah mengikuti aturan tetap pada tulisan, alamat, pembuka, doa, dan penutup, dan sebagian aturan itu berubah dari masa ke masa.",
+    "ringkasan": "Hilal ash-Shabi' membuka bab dengan syarat tulisan surat khalifah: jelas, fasih, berjarak antarbaris, tanpa titik dan harakat. Ia lalu menerangkan bentuk alamat di kedua sisi sampul, sejarah urutan nama penulis dan penerima, teguran al-Manshur kepada Abu Muslim, awal doa pada alamat, dan pendapatnya tentang gelar. Sesudahnya ia menjelaskan pembuka surat, ungkapan amma ba'du dan asal-usulnya, salam di awal dan akhir, serta aturan surat kepada putra mahkota, surat internal istana, dan surat pengaduan.",
+    "gagasan": [
+      {
+        "judul": "Titik dan harakat dihindari dalam surat kepada khalifah, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', surat kepada dan dari khalifah ditulis dengan tulisan paling jelas dan kata paling fasih. Baris dimulai dari awal kertas tanpa ruang kosong di salah satu sisinya, dengan jarak lapang antarbaris. Penulis surat hendaknya mengurangi tarikan huruf, menghindari tulisan sambung yang terburu-buru, dan tidak membubuhkan titik maupun harakat, karena keduanya merendahkan penerima: seolah-olah ia orang yang kurang pengetahuan sehingga membutuhkan tanda bacaan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000251, 90000252],
+        "soal": {
+          "tanya": "Mengapa titik dan harakat tidak dibubuhkan dalam surat kepada khalifah menurut Hilal ash-Shabi'?",
+          "jawab": "Karena seolah menganggap penerima kurang pengetahuan sehingga membutuhkan tanda itu."
+        }
+      },
+      {
+        "judul": "Gelar Amir al-Mu'minin menggantikan nasab pada alamat surat, menurut penulis",
+        "isi": "Penulis menjelaskan bahwa di sisi kanan sampul ditulis basmalah lalu nama khalifah, misalnya Abdullah Abu Ja'far al-Imam al-Qa'im bi-Amrillah Amir al-Mu'minin, tanpa doa dan tanpa nama ayah, sebab gelar Amir al-Mu'minin sudah menggantikan nasab sebagai pengenal. Di sisi lain ditulis dari hamba atau hamba dan binaannya, dengan nama penulis dan nama ayahnya. Kun-yah tidak disebut meskipun dianugerahkan oleh khalifah; pemilik gelar cukup menyebut gelar, nama, dan nama ayah. Orang non-Arab dan maula menambahkan sebutan maula Amir al-Mu'minin. Semua itu ditulis dalam satu baris.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000253, 90000254],
+        "soal": {
+          "tanya": "Mengapa nama ayah khalifah tidak ditulis pada alamat surat menurut Hilal ash-Shabi'?",
+          "jawab": "Karena gelar Amir al-Mu'minin sudah menggantikan nasab sebagai pengenal."
+        }
+      },
+      {
+        "judul": "Al-Manshur menegur Abu Muslim karena urutan nama dalam surat, menurut penulis",
+        "isi": "Penulis menyebut bahwa dahulu nama penulis surat didahulukan, kecuali kepada imam atau ayah, berdasarkan riwayat yang ia nukil, dan Zaid bin Tsabit mendahulukan nama Mu'awiyah ketika menulis kepadanya. Al-Manshur tidak suka Abu Muslim menulis dari Abu Muslim kepada Abu Ja'far, karena itu menolak mengakui imamahnya. Kemudian orang mendahulukan nama penerima, dan doa pada alamat bermula dari surat al-Fadhl bin Sahl kepada Ibrahim bin al-Mahdi. Menurut penulis, pemilik gelar yang menanggalkan gelarnya ketika menulis kepada khalifah keliru menganggapnya penghormatan, sebab gelar adalah anugerah penguasa; namun pada masanya ia memandang penanggalan itu baik karena gelar sudah melampaui batas.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000254, 90000255, 90000256, 90000257],
+        "soal": {
+          "tanya": "Mengapa al-Manshur tidak suka surat Abu Muslim yang dibuka dari Abu Muslim kepada Abu Ja'far?",
+          "jawab": "Karena urutan itu menyimpang dari adab dan menolak mengakui imamahnya."
+        }
+      },
+      {
+        "judul": "Ungkapan amma ba'du pertama diucapkan Quss bin Sa'idah, menurut penulis",
+        "isi": "Penulis menjelaskan pembuka surat kepada khalifah: basmalah, nama khalifah tanpa doa, dari hambanya, salam kepada Amir al-Mu'minin, lalu pujian kepada Allah dan shalawat. Tambahan pujian dan shalawat sesudah salam bermula pada masa al-Ma'mun. Sesudah amma ba'du disusul doa panjang bagi khalifah, dan surat jawaban menyebut surat khalifah yang diterima. Menurutnya, yang pertama mengucapkan amma ba'du adalah Quss bin Sa'idah di 'Ukazh, lalu Nabi saw. memakainya. Di akhir surat ditulis doa, salam, dan tanggal tanpa nama penulis. Salam di awal berbentuk nakirah sebagai permulaan, dan salam di akhir berbentuk makrifah yang merujuk kepada salam pertama.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000258, 90000259],
+        "soal": {
+          "tanya": "Siapa yang pertama kali mengucapkan amma ba'du menurut Hilal ash-Shabi'?",
+          "jawab": "Quss bin Sa'idah dalam khutbahnya di 'Ukazh."
+        }
+      },
+      {
+        "judul": "Sebutan khadim dan hamba tidak dipakai sembarang pengadu, menurut penulis",
+        "isi": "Penulis menyebut bahwa surat kepada putra mahkota mengikuti susunan yang sama dengan sebutan wali ahd kaum muslimin dan putra Amir al-Mu'minin. Surat khusus antara khalifah dan wazir atau panglima yang tinggal di istana langsung dibuka dengan maksudnya, seperti laporan, permintaan pendapat, atau permohonan; demikian pula pengaduan orang yang teraniaya. Orang yang menulis pengaduan langsung tanpa lewat wazir, panglima, dan pejabat berpangkat cukup menulis nama dan nama ayahnya tanpa menyebut diri khadim atau hamba, karena kedudukan itu tidak diberikan kepada setiap orang. Kebiasaannya pula satu surat hanya memuat satu urusan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000259],
+        "soal": {
+          "tanya": "Berapa urusan yang dimuat dalam satu surat kepada atau dari khalifah menurut kebiasaan yang disebut penulis?",
+          "jawab": "Satu urusan saja; bila urusannya banyak, ditulis dalam beberapa surat."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900008,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p229-p230: jubah panglima, tambahan kalung, dua gelang, pedang, ikat pinggang bagi penakluk, permata 'Adhud ad-Daulah, enam nama penerima sebelumnya sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p231-p233 diperiksa ulang sesudah periksa independen: pemerian tulisan panji kini disebut sebagai panji lazim dengan nama khalifah yang memerintah, tidak lagi dikaitkan dengan panji 'Adhud ad-Daulah."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p235-p240: set brokat bertuliskan nama al-Muthi' yang tidak berisi (dibaca ulang), angka mitsqal dan harapan 'Adhud ad-Daulah sesuai teks; sikap reported."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p241-p242: tiga tingkat nilai sesuai; kalimat bagian belakang tunggangan yang bacaannya meragukan diganti pernyataan netral tanpa penutup semacam itu."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perbaikan",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "43411937cf244932e56eb6f4e40e694cfe28de2dd3c20bb95c5552a694cb7b0a",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Jubah panglima, tambahan bagi penakluk, permata, dan penerima terdahulu sesuai p229-p230."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Panji putih dan emas, gelar ganda, surat dibacakan, dan pemerian panji lazim sesuai."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Jubah wazir dan nadim, hadiah hari ketiga, set brokat bernama al-Muthi' tak berisi sesuai."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Tiga tingkat nilai benar, tetapi pengecualian bagian belakang tunggangan dihilangkan."
+        }
+      ],
+      "laporan": "Putaran pertama ada Salah, diperbaiki dan diperiksa ulang tanpa Salah; Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "ed71c70537184ddd7a027458d71a318b15fa3d2028b37131847aec6d0c35ffd8",
+      "draf_sha256": "43411937cf244932e56eb6f4e40e694cfe28de2dd3c20bb95c5552a694cb7b0a",
+      "waktu": "2026-11-27T18:43:46.471Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', jubah kehormatan dari khalifah berbeda menurut penerima dan bertingkat nilainya, dan pemberian kepada 'Adhud ad-Daulah melampaui kebiasaan sebelumnya dalam perhiasan, panji, gelar, dan hadiah.",
+    "ringkasan": "Hilal ash-Shabi' merinci jubah kehormatan bagi panglima pasukan dan tambahan kalung serta gelang bagi para penakluk, lalu pemberian 'Adhud ad-Daulah yang bertatahkan permata beserta mahkota yang sebelumnya pernah diberikan kepada beberapa amir. Ia menjelaskan panji putih dan panji emas, gelar ganda 'Adhud ad-Daulah, dan tulisan pada panji, kemudian jubah wazir, jubah nadim, hadiah ath-Tha'i' kepada 'Adhud ad-Daulah pada hari ketiga, dan pemberian kepada Muhammad bin Baqiyyah. Bab ditutup dengan tiga tingkat nilai jubah pengangkatan dan aturan hewan tunggangan pemberian khalifah.",
+    "gagasan": [
+      {
+        "judul": "Panglima penakluk ditambah kalung dan gelang, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', jubah kehormatan bagi panglima pasukan dan pemimpin perang biasanya berupa sorban hitam polos, beberapa lapis pakaian hitam, sutra khazz merah, kain bersulam emas, qaba' dabiqi, dan pedang bersarung perak, ditambah kuda berpelana Arab. Panglima yang berhasil menaklukkan negeri ditambah kalung, dua gelang, pedang, dan ikat pinggang, dan itu menjadi kebiasaan bagi para amir ibu kota. Ketika 'Adhud ad-Daulah menguasai Irak, gelang dan kalungnya dihiasi permata dan ia diberi mahkota berjumbai permata. Pemberian semacam itu, menurut penulis, sebelumnya pernah diberikan kepada al-Afsyin, Badr al-Mu'tadhidi, Mu'nis, Ibnu Yalbaq, Bajkam, dan Tuzun.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000229, 90000230],
+        "soal": {
+          "tanya": "Apa tambahan jubah kehormatan bagi panglima yang berhasil menaklukkan negeri menurut Hilal ash-Shabi'?",
+          "jawab": "Kalung, dua gelang, pedang, dan ikat pinggang."
+        }
+      },
+      {
+        "judul": "'Adhud ad-Daulah amir pertama bergelar ganda, menurut penulis",
+        "isi": "Penulis menyebut bahwa selain panji putih yang biasa diberikan kepada amir pasukan, 'Adhud ad-Daulah diberi panji emas yang biasanya khusus untuk putra mahkota, dan konon satu untuk timur dan satu untuk barat. Ia diberi gelar Taj al-Millah di samping 'Adhud ad-Daulah, sehingga menjadi amir pertama yang bergelar dua. Surat pengangkatannya dibacakan di depan umum di hadapan ath-Tha'i', padahal sebelumnya surat semacam itu diserahkan langsung kepada pemiliknya di hadapan khalifah disertai pesan agar diamalkan. Penulis lalu menggambarkan panji yang lazim: dari sutra putih bertuliskan kalimat tauhid dan beberapa ayat, dengan nama khalifah yang memerintah, yang pada masa penulis adalah al-Qa'im bi-Amrillah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000231, 90000232, 90000233],
+        "soal": {
+          "tanya": "Apa yang membuat 'Adhud ad-Daulah menjadi amir pertama yang istimewa dalam hal gelar menurut Hilal ash-Shabi'?",
+          "jawab": "Ia amir pertama yang diberi dua gelar, Taj al-Millah dan 'Adhud ad-Daulah."
+        }
+      },
+      {
+        "judul": "Hadiah ath-Tha'i' kepada 'Adhud ad-Daulah membuatnya sangat gembira, menurut kisah yang dinukil",
+        "isi": "Penulis menyebut jubah wazir sama seperti di atas tanpa perhiasan, dan jubah nadim berupa sorban bersulam emas dan beberapa pakaian, disertai wewangian. Ia menukil dari Ali bin Abdul Aziz bin Hajib an-Nu'man bahwa pada hari ketiga ath-Tha'i' mengirim kepada 'Adhud ad-Daulah kopiah bersulam emas, pakaian, nampan emas seberat delapan ratus mitsqal, baskom emas dua ratus mitsqal, botol kaca berisi minuman apel yang tidak penuh seolah sudah diminum, wadah-wadah wewangian, dan satu set brokat bertuliskan nama khalifah al-Muthi' yang tidak berisi. 'Adhud ad-Daulah sangat gembira, dan berkata ia berharap kain itu berisi dan dibawa melewati pasar agar kemuliaannya terlihat.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000235, 90000236, 90000237, 90000238, 90000239, 90000240],
+        "soal": {
+          "tanya": "Apa yang diharapkan 'Adhud ad-Daulah dari set kain brokat hadiah ath-Tha'i'?",
+          "jawab": "Ia berharap kain itu berisi dan dibawa melewati pasar agar kemuliaan hadiahnya terlihat."
+        }
+      },
+      {
+        "judul": "Jubah pengangkatan dahulu bernilai tiga tingkat, menurut Hilal ash-Shabi'",
+        "isi": "Menurut Hilal ash-Shabi', jubah pengangkatan jabatan dahulu memiliki tiga tingkat nilai: yang tertinggi tiga ratus dinar, yang tengah seratus dinar, dan yang terendah tiga puluh dinar. Pada masanya nilai itu sudah terlampaui karena tambahan perhiasan logam. Ia juga menyebut bahwa hewan tunggangan pemberian khalifah tidak biasa berupa bagal dan tidak memakai penutup punggung tertentu, melainkan dibiarkan tanpa penutup semacam itu. Kebiasaannya pula jubah kehormatan tidak diberikan kepada para pengiring orang yang menerimanya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000241, 90000242],
+        "soal": {
+          "tanya": "Berapa nilai jubah pengangkatan tingkat tertinggi dahulu menurut Hilal ash-Shabi'?",
+          "jawab": "Jubah itu bernilai tiga ratus dinar."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}

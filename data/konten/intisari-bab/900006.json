@@ -1,0 +1,129 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 9,
+  "section_id": 900006,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T11:30:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p216: cacat tunggangan, di bawah arah angin, sisi menghadap matahari, sedikit di depan agar dirinya yang menoleh sesuai ucapan Tsabit; sikap reported."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p217: tahun 364 H, ruang harem yang hanya dimasuki para khalifah, 'Adhud ad-Daulah berbalik, dan penilaian penulis sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p218-p219: diam saat marah, alasan lembut, alasan tanpa kelembutan lebih buruk daripada kesalahan tanpa alasan, Aristoteles, sikap tengah sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p220-p222: tidak mengeluh, tuli dan buta terhadap rahasia, kisah Tsabit bin Qurrah dan khadim Romawi sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perbaikan",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "9c885bafb4d5cabdd8968643b858ef0bca698762a08298980361c76a2c59e2c4",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Tunggangan, di bawah angin, sisi matahari, dan sedikit di depan sesuai p216."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tahun 364 H, Mu'nis berhenti, 'Adhud ad-Daulah berbalik, penilaian penulis sesuai."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Isi setia, tetapi berupa anjuran penulis sehingga jenis lebih tepat advice."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Judul berfokus pada kisah yang dinukil, sedangkan sikap author dan paruh pertama nasihat penulis."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "66b527829b79757732dd19e80d8f85a339a09213f4e418e4064f17f20cc323af",
+      "draf_sha256": "9c885bafb4d5cabdd8968643b858ef0bca698762a08298980361c76a2c59e2c4",
+      "waktu": "2026-11-27T18:43:44.653Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut Hilal ash-Shabi', orang yang mendampingi khalifah dalam iring-iringan dan majelis harus memikirkan kenyamanan khalifah, menahan diri saat ia marah, dan menjauh dari rahasia yang tidak ditujukan kepadanya.",
+    "ringkasan": "Hilal ash-Shabi' menukil dari kakeknya, yang meriwayatkan dari Sinan bin Tsabit, cara Tsabit bin Qurrah berkuda di samping al-Mu'tadhid: tunggangan yang tenang, posisi di bawah arah angin dan menghadap matahari, serta sedikit di depan khalifah. Ia lalu memuji sikap hajib Mu'nis dan 'Adhud ad-Daulah di depan ruang harem Dar al-Khilafah. Sesudahnya penulis menasihatkan cara bersikap saat penguasa marah, menghindari keakraban berlebihan maupun rasa takut berlebihan, tidak mengeluh, dan menjaga rahasia, lalu menutup dengan kisah Tsabit bin Qurrah yang keluar ketika seorang khadim berbicara bahasa Romawi kepada al-Mu'tadhid.",
+    "gagasan": [
+      {
+        "judul": "Pendamping khalifah berkuda di bawah angin dan sedikit di depan, menurut Tsabit bin Qurrah",
+        "isi": "Penulis menukil dari kakeknya bahwa Sinan bin Tsabit heran melihat ayahnya, Tsabit bin Qurrah, selalu berkuda sedikit di depan al-Mu'tadhid. Tsabit menjelaskan bahwa pendamping khalifah memilih tunggangan yang bebas cacat, tidak banyak berliur, menggeleng, meringkik, atau mogok; karena itu para pengikut memilih bagal yang jinak. Ia berjalan di bawah arah angin agar debu dan bau kotoran tidak mengenai khalifah, mengambil sisi yang menghadap matahari agar khalifah membelakanginya, dan sedikit mendahului agar dirinyalah yang menoleh, bukan khalifah. Setelah pembicaraan selesai ia maju ke depan iring-iringan sehingga mudah dipanggil.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [90000216],
+        "soal": {
+          "tanya": "Mengapa Tsabit bin Qurrah sengaja berkuda sedikit di depan al-Mu'tadhid?",
+          "jawab": "Agar dirinyalah yang menoleh kepada khalifah, dan khalifah tidak perlu menoleh."
+        }
+      },
+      {
+        "judul": "Hajib Mu'nis berhenti di depan ruang harem dan 'Adhud ad-Daulah berbalik, menurut penilaian penulis",
+        "isi": "Penulis menuturkan bahwa 'Adhud ad-Daulah datang ke Baghdad pada tahun 364 H, ketika pasukan Turki pengikut Mu'izz ad-Daulah kalah dan ath-Tha'i' keluar bersama mereka sehingga Dar al-Khilafah kosong. Ia ingin melihat seluruh bangunannya, dan hajib Mu'nis al-Fadhli menunjukkan tempat demi tempat. Ketika sampai di bagian khusus harem, Mu'nis berhenti dan berkata bahwa tempat itu tidak pernah dimasuki lelaki selain para khalifah, dan keputusannya diserahkan kepada 'Adhud ad-Daulah. 'Adhud ad-Daulah berbalik tanpa masuk. Menurut penulis, berhentinya Mu'nis adalah adab terbaik dan berbaliknya 'Adhud ad-Daulah perbuatan terbaik.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000217],
+        "soal": {
+          "tanya": "Apa yang dilakukan 'Adhud ad-Daulah ketika Mu'nis berhenti di depan ruang harem Dar al-Khilafah?",
+          "jawab": "Ia berbalik dan tidak memasukinya."
+        }
+      },
+      {
+        "judul": "Saat penguasa marah, diam lebih selamat daripada membantah, menurut penulis",
+        "isi": "Menurut penulis, orang tidak membantah penguasa ketika ia marah atau memaksanya melunak sesudah keras, sebab perdebatan memancing kekerasan kepala. Yang patut adalah diam saat amarahnya memuncak, menjauh dari pandangannya, dan menunggu dadanya tenang sebelum menyampaikan alasan dengan lembut, untuk menghilangkan syubhat, bukan untuk membanggakan diri tidak bersalah. Menurutnya, alasan tanpa kelembutan lebih buruk daripada kesalahan tanpa alasan. Jawaban atas perkara yang berisiko cukup berupa isyarat, dan ia menukil Aristoteles bahwa hal tersulit bagi manusia adalah diam. Ia juga menasihatkan sikap tengah antara keakraban berlebihan dan rasa segan yang membuat lalai.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000218, 90000219],
+        "soal": {
+          "tanya": "Mana yang lebih buruk menurut Hilal ash-Shabi', alasan tanpa kelembutan atau kesalahan tanpa alasan?",
+          "jawab": "Alasan tanpa kelembutan lebih buruk daripada kesalahan tanpa alasan."
+        }
+      },
+      {
+        "judul": "Tsabit bin Qurrah keluar agar tidak mendengar rahasia khalifah, menurut kisah yang dinukil",
+        "isi": "Penulis menasihatkan agar pemberian penguasa tidak dianggap sedikit, keluhan dan desakan ditinggalkan karena memberatkan dan mengundang penolakan, dan orang bersyukur serta bersabar. Pelayan penguasa hendaknya seperti tuli terhadap yang ia dengar, buta terhadap yang ia lihat, menyimpan amanat, dan tidak mencampuri rahasia yang ditutup darinya. Lalu ia menukil kisah berantai dari kakeknya: seorang khadim Romawi masuk untuk menyampaikan rahasia harem kepada al-Mu'tadhid dalam bahasa Romawi saat Tsabit bin Qurrah sedang diajak bermusyawarah. Tsabit segera keluar karena ia paham bahasa itu dan tidak ingin mendengar rahasia yang hendak disembunyikan darinya, dan al-Mu'tadhid makin menghargainya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [90000220, 90000221, 90000222],
+        "soal": {
+          "tanya": "Mengapa Tsabit bin Qurrah segera keluar ketika khadim berbicara bahasa Romawi kepada al-Mu'tadhid?",
+          "jawab": "Karena ia memahami bahasa Romawi dan tidak ingin mendengar rahasia yang disembunyikan darinya."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}
