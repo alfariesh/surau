@@ -40,16 +40,16 @@
     // BUKAN email; nama + gelar tampil publik di label terjemahan atas keputusan pemilik. Hanya akun
     // di sini yang bisa menyimpan koreksi. Menambah orang = PR + ADR (pola ADR-070).
     "TRANSLATION_EDITORS": "[]",
-    // "0" = pembaca, Cari, dan sitemap kitab ditutup (ADR-034). Ditutup lagi 2026-11-26: Ihya
-    // diarsipkan dan diturunkan (ADR-142). Kembali "1" bersama promote korpus Gelombang 1 (X31b),
-    // bersama KITAB_OPEN di apps/mcp/wrangler.jsonc.
-    "READER_ENABLED": "0",
+    // "0" = pembaca, Cari, dan sitemap kitab ditutup (ADR-034). Ditutup 2026-11-26 (Ihya diarsipkan,
+    // ADR-142); dibuka lagi bersama promote korpus Gelombang 1 (X31, kitab-v10: Bidayat al-Hidayah,
+    // at-Tibyan, al-Ajurrumiyyah), bersama KITAB_OPEN di apps/mcp/wrangler.jsonc.
+    "READER_ENABLED": "1",
     // Header Server-Timing /api/search: "1" = sertakan bolak-balik dan baris D1 dibaca (Preview,
     // untuk mengukur). Produksi hanya waktu (ADR-039): rows_read memudahkan memetakan kueri mahal.
     "SEARCH_TIMING_DETAIL": "0",
     // Versi korpus di kunci cache /api/search (S14, ADR-044): SELALU = database_name CORPUS_DB di
     // bawah. Diganti `corpus:promote` bersama binding (dijaga tes tools/ingest/src/corpus.test.ts).
-    "SEARCH_CACHE_CORPUS": "surau-corpus-ihya-v9",
+    "SEARCH_CACHE_CORPUS": "surau-corpus-kitab-v10",
     // Origin sitemap.xml: produksi selalu alamat kanonis, juga bila diminta lewat Version URL (#64).
     "SITEMAP_ORIGIN": "https://surau.org",
     // /api/jawab (S19–S20): MATI di produksi sampai `/rilis 4`. Guard biaya S20 (Turnstile, kuota,
@@ -87,8 +87,8 @@
   "d1_databases": [
     {
       "binding": "CORPUS_DB",
-      "database_name": "surau-corpus-ihya-v9",
-      "database_id": "faf1049e-7d78-41ff-90f4-73af2060d0ae",
+      "database_name": "surau-corpus-kitab-v10",
+      "database_id": "6a051588-755e-4a66-af82-d50583f5d510",
       "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
     },
     {

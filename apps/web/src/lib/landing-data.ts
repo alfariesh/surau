@@ -14,21 +14,27 @@ import type { TocItem } from "./reader/toc";
 import { translationLabel } from "./translation-label";
 import { transparencyMonths, type TransparencyMonth } from "./transparency-data";
 
-/** Karya yang dipamerkan landing page (satu-satunya kitab saat ini). */
-export const LANDING_WORK = "ihya";
+/**
+ * Karya yang dipamerkan landing page (hero, simulasi, dan kartu koleksi). Bidayat al-Hidayah, kitab
+ * pertama Gelombang 1 (ADR-142); at-Tibyan dan al-Ajurrumiyyah tampil di rak kitab.
+ */
+export const LANDING_WORK = "bidayat-al-hidayah";
 
 /**
  * Kutipan hero (dan kartu kutipan simulasi Maknaz): kalimat al-Ghazali sendiri (bukan nukilan) di
- * awal "Bayan a'mal al-mutawakkilin", j. 4 h. 265. Teks Arabnya DISALIN KODE dari `text_raw`
- * paragraf ini pada rentang [start, end) (aturan teks-arab no. 1), tidak pernah ditulis di sini.
+ * muqaddimah Bidayat al-Hidayah, h. 27: permulaan hidayah adalah takwa lahir, ujungnya takwa batin.
+ * Teks Arabnya DISALIN KODE dari `text_raw` paragraf ini pada rentang [start, end) (aturan teks-arab
+ * no. 1), tidak pernah ditulis di sini. Rentang berakhir sebelum tanda titik koma Arab, sepadan
+ * dengan kalimat pertama terjemahan AI-nya.
  */
-export const HERO_QUOTE = { passageId: 10017769, start: 0, end: 44 } as const;
+export const HERO_QUOTE = { passageId: 20000015, start: 0, end: 95 } as const;
 
 /**
- * Dua paragraf contoh hasil Cari "sabar" di simulasi (hasil nyata kueri itu, j. 4 h. 72 dan j. 3 h. 204).
+ * Dua paragraf contoh hasil Cari "sabar" di simulasi (hasil nyata kueri itu di Bidayat al-Hidayah,
+ * h. 64 dan h. 44; keduanya kalimat al-Ghazali sendiri, bukan syair nukilan).
  * Potongan Arabnya disalin kode dari `text_raw` (awal paragraf, dipotong di batas kata).
  */
-export const SEARCH_DEMO_IDS = [10016277, 10013591] as const;
+export const SEARCH_DEMO_IDS = [20000317, 20000154] as const;
 /** Kata yang "diketik" di simulasi Cari (Latin; dicari di terjemahan AI). */
 export const SEARCH_DEMO_QUERY = "sabar";
 // Lebih panjang dari satu baris kartu: kartu memotongnya dengan line-clamp (elipsis dari CSS).
@@ -58,7 +64,7 @@ export interface LandingWork {
   href: string;
   firstPage: string | null;
   /** Angka dari edisi dan pohon daftar isi yang sudah dimuat (tanpa kueri hitung tambahan). */
-  stats: { volumes: number | null; books: number; sections: number } | null;
+  stats: { volumes: number | null; parts: number; sections: number } | null;
 }
 
 export interface LandingData {
@@ -71,13 +77,14 @@ export interface LandingData {
   cost: TransparencyMonth | null;
 }
 
-// Rentang harus berada di batas kata (awal teks/spasi di kedua sisi), supaya kutipan tidak terpotong
-// di tengah kata bila korpus berubah; selain itu kartu tidak ditampilkan.
+// Rentang harus berada di batas kata (awal teks/spasi sebelum awal; akhir teks, spasi, atau tanda baca
+// sesudah akhir), supaya kutipan tidak terpotong di tengah kata bila korpus berubah; selain itu kartu
+// tidak ditampilkan.
 export function quoteSpan(raw: string, start: number, end: number): string | null {
   if (start < 0 || end <= start) return null;
   if (end > raw.length) return null;
   const before = start === 0 || /\s/u.test(raw[start - 1]!);
-  const after = end === raw.length || /\s/u.test(raw[end]!);
+  const after = end === raw.length || /[\s\p{P}]/u.test(raw[end]!);
   const text = raw.slice(start, end);
   return before && after && text.trim() === text && text.length > 0 ? text : null;
 }
@@ -214,8 +221,8 @@ export async function loadLandingData(): Promise<LandingData> {
         stats: toc
           ? {
               volumes: ctx.edition.volumes,
-              // Kitab = anak level 2 dari rub' (akar yang berisi anak; pendahuluan tanpa anak tidak dihitung).
-              books: toc.reduce((n, root) => n + root.children.length, 0),
+              // Bagian = akar daftar isi yang berisi bab (muqaddimah tanpa anak tidak dihitung).
+              parts: toc.filter((root) => root.children.length > 0).length,
               sections: countNodes(toc),
             }
           : null,

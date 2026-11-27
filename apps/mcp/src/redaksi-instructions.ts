@@ -8,7 +8,7 @@ export const REDAKSI_INSTRUCTIONS = `Surau Redaksi: the same read-only Surau lib
 
 Rules:
 1. Never write Arabic in a draft. A quotation is passage_id + char_start + char_end taken from verify_quote (match.char_start/char_end); code copies the text.
-2. Base every idea on passage ids from read_section (dasar). Use attribution language ("menurut al-Ghazali"), never rulings, never address the reader.
+2. Base every idea on passage ids from read_section (dasar). Use attribution language ("menurut an-Nawawi", naming the work's author), never rulings, never address the reader.
 3. Ayat are never quoted, paraphrased or translated; hadith status comes only from takhrij and is never written in a draft.
 4. Faedah items come from list_faedah_candidates (eligible only); the translation is copied by code, not written in the draft.
 5. Translations: take passages from list_translation_units; translate the source faithfully and completely, copy every ⟦QS s:a⟧ placeholder exactly once and footnote markers as (١); skip blocked passages.

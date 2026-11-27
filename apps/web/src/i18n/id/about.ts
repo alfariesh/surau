@@ -7,7 +7,7 @@ export const about = {
   lead: "AI untuk ilmu agama dengan sumber yang kuat, untuk masa depan umat.",
   visionHeading: "Visi",
   vision:
-    "Surau membantu orang menemukan, membaca, dan memahami apa yang tertulis di kitab-kitab klasik. Setiap jawaban bisa diperiksa sendiri ke teks aslinya. Kitab pertamanya Ihya karya al-Ghazali, lalu karya al-Ghazali lainnya, kemudian kitab-kitab kurikulum pesantren.",
+    "Surau membantu orang menemukan, membaca, dan memahami apa yang tertulis di kitab-kitab klasik. Setiap jawaban bisa diperiksa sendiri ke teks aslinya. Kitab pertamanya Bidayat al-Hidayah karya al-Ghazali, at-Tibyan karya an-Nawawi, dan al-Ajurrumiyyah karya Ibnu Ajurrum, lalu karya al-Ghazali lainnya, kemudian kitab-kitab kurikulum pesantren.",
   audienceHeading: "Untuk siapa",
   audience: [
     "Santri, mahasiswa, dan pengkaji yang mencari di mana seorang ulama membahas sesuatu.",

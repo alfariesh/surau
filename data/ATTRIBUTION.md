@@ -4,6 +4,8 @@ Konten Surau berlisensi **CC BY-NC-SA 4.0** ([LICENSE](LICENSE)). Siapa pun yang
 
 ## Ihya' 'Ulum ad-Din (al-Ghazali, w. 505 H)
 
+**Diarsipkan** sejak 2026-11-26 (ADR-142): tidak tayang di surau.org maupun MCP, dan tidak ada di halaman `/lisensi`. Atribusinya tetap dicatat di sini untuk korpus lama (`ihya-v1`–`ihya-v9`) dan bila kelak dibuka lagi.
+
 Kalimat atribusi yang tampil di setiap halaman Surau dan di setiap respons API/MCP:
 
 > Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009472 & JK000001; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Ma'rifah, Beirut 1402/1982
@@ -25,7 +27,7 @@ Perubahan yang dilakukan Surau atas teks tersebut (wajib disebut oleh CC BY-NC-S
 
 ## Bidayat al-Hidayah (al-Ghazali, w. 505 H)
 
-Disiapkan untuk korpus `kitab-v10` (X31a, ADR-135, ADR-137): sudah dibangun dan dimuat ke staging, **belum tayang** di produksi sampai X31b. Rinciannya masuk halaman `/lisensi` saat kitab ini tayang. Kalimat atribusi:
+Korpus `kitab-v10` (X31, ADR-135, ADR-137), tayang di produksi sejak promote Gelombang 1. Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
 
 > Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0012718; digitalisasi asal: al-Maktaba al-Shamela; edisi: Maktabat Madbuli, Kairo 1413/1993
 
@@ -41,7 +43,7 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 ## at-Tibyan fi Adab Hamalat al-Qur'an (an-Nawawi, w. 676 H)
 
-Disiapkan untuk korpus `kitab-v10` (X31c, ADR-135, ADR-137, ADR-138, ADR-150): sudah dibangun lokal, **belum tayang** di produksi. Rinciannya masuk halaman `/lisensi` saat kitab ini tayang. Kalimat atribusi:
+Korpus `kitab-v10` (X31c, ADR-135, ADR-137, ADR-138, ADR-150), tayang di produksi sejak promote Gelombang 1. Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
 
 > Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0001969; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar Ibn Hazm, Beirut 1414/1994, tahqiq Muhammad al-Hajjar; catatan kaki, mukadimah, faedah tambahan, dan kata penutup pentahqiq tidak disertakan
 
@@ -59,7 +61,7 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 ## al-Ajurrumiyyah (Ibnu Ajurrum, w. 723 H)
 
-Disiapkan untuk korpus `kitab-v10` (X31d, ADR-135, ADR-137, ADR-138, ADR-139): sudah dibangun lokal, **belum tayang** di produksi. Rinciannya masuk halaman `/lisensi` saat kitab ini tayang. Kalimat atribusi:
+Korpus `kitab-v10` (X31d, ADR-135, ADR-137, ADR-138, ADR-139), tayang di produksi sejak promote Gelombang 1. Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
 
 > Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0011371; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar ash-Shumai'i, 1419/1998; catatan kaki penyunting tidak disertakan
 

@@ -149,4 +149,18 @@ export const UPCOMING_KITAB: readonly UpcomingKitab[] = META.map((m) => {
   };
 });
 
-export const UPCOMING_SLUGS: ReadonlySet<string> = new Set(UPCOMING_KITAB.map((k) => k.slug));
+/**
+ * Kandidat yang sudah tayang (Gelombang 1, X31): suara minatnya berhenti di `/api/minat-kitab`.
+ * Kartunya sendiri sudah hilang dari "Segera hadir" karena kitabnya ada di korpus; entri tetap di
+ * `META` supaya hitungan suara lama masih terbaca di /admin.
+ */
+export const RELEASED_SLUGS: ReadonlySet<string> = new Set([
+  "bidayat-al-hidayah",
+  "at-tibyan",
+  "al-ajurrumiyyah",
+]);
+
+/** Slug yang masih menerima suara minat: kandidat yang belum tayang. */
+export const UPCOMING_SLUGS: ReadonlySet<string> = new Set(
+  UPCOMING_KITAB.filter((k) => !RELEASED_SLUGS.has(k.slug)).map((k) => k.slug),
+);

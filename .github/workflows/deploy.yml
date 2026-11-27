@@ -161,7 +161,9 @@ jobs:
           if grep -q '"READER_ENABLED": "0"' apps/web/wrangler.jsonc; then
             pages="/ /home /tentang /lisensi /mcp /kitab"; tertutup="/kitab/ihya/1/200 /cari"
           else
-            pages="/ /home /tentang /lisensi /mcp /kitab /kitab/ihya/1/200"; tertutup=""
+            # Gelombang 1 tayang (X31): satu halaman cetak per kitab + Cari; Ihya diarsipkan = 404.
+            pages="/ /home /tentang /lisensi /mcp /kitab /cari /kitab/bidayat-al-hidayah/1/25 /kitab/at-tibyan/1/8 /kitab/al-ajurrumiyyah/1/5 /kitab/at-tibyan/intisari"
+            tertutup="/kitab/ihya/1/200"
           fi
           for p in $pages; do
             for i in $(seq 1 12); do
@@ -179,7 +181,7 @@ jobs:
               sleep 5
             done
             echo "$p → $code (tertutup, percobaan $i)"
-            [ "$code" = "404" ] || { echo "::error title=Smoke gagal::$p seharusnya 404 (pembaca ditutup), dapat $code"; exit 1; }
+            [ "$code" = "404" ] || { echo "::error title=Smoke gagal::$p seharusnya 404 (tertutup/diarsipkan), dapat $code"; exit 1; }
           done
 
   # Worker MCP (S16, ADR-049): custom domain mcp.surau.org dari `routes` di apps/mcp/wrangler.jsonc

@@ -79,47 +79,90 @@ export interface EditionCredit {
   changes: readonly string[];
 }
 
+const OPENITI_PARTY = {
+  name: "OpenITI (Open Islamicate Texts Initiative), rilis 2025.1.9",
+  role: "Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks.",
+  link: { label: "Zenodo", url: "https://zenodo.org/records/17767721" },
+} as const;
+
 /**
  * Rincian atribusi per edisi untuk halaman /lisensi (S10, ADR-018, ADR-021). Halaman itu statis
  * (tanpa baca D1), jadi isinya diringkas dari data/ATTRIBUTION.md. Tes menjaga kalimat atribusi dan
  * semua tautannya sama persis; teks peran dan perubahan disunting tangan bila ATTRIBUTION.md berubah.
+ * Ihya diarsipkan dan tidak tayang (ADR-142), jadi tidak tercantum; atribusinya tetap di ATTRIBUTION.md.
  */
 export const EDITION_CREDITS: readonly EditionCredit[] = [
   {
-    key: "ihya/dar-al-marifah",
-    workSlug: "ihya",
-    title: "Ihya' 'Ulum ad-Din",
+    key: "bidayat-al-hidayah/maktabat-madbuli",
+    workSlug: "bidayat-al-hidayah",
+    title: "Bidayat al-Hidayah",
     author: "al-Ghazali (w. 505 H)",
     attribution:
-      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009472 & JK000001; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Ma'rifah, Beirut 1402/1982",
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0012718; digitalisasi asal: al-Maktaba al-Shamela; edisi: Maktabat Madbuli, Kairo 1413/1993",
     parties: [
-      {
-        name: "OpenITI (Open Islamicate Texts Initiative), rilis 2025.1.9",
-        role: "Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks.",
-        link: { label: "Zenodo", url: "https://zenodo.org/records/17767721" },
-      },
+      OPENITI_PARTY,
       {
         name: "al-Maktaba al-Shamela",
-        role: "Digitalisasi asal edisi ini (kitab no. 9472). Teks utama, struktur judul, dan catatan kaki dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
-        link: { label: "shamela.ws", url: "https://shamela.ws/book/9472" },
+        role: "Digitalisasi asal edisi ini (kitab no. 12718). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/12718" },
       },
       {
-        name: "Dar al-Ma'rifah, Beirut",
-        role: "Penerbit edisi cetak: 4 jilid, 1402 H / 1982 M. Nomor jilid dan halaman di Surau mengikuti cetakan ini.",
-        link: {
-          label: "pindaian di archive.org (hanya ditautkan)",
-          url: "https://archive.org/details/ihya-ghazali",
-        },
-      },
-      {
-        name: "Zain ad-Din al-'Iraqi (w. 806 H)",
-        role: "Penulis takhrij al-Mughni 'an Haml al-Asfar yang menjadi catatan kaki edisi ini.",
+        name: "Maktabat Madbuli, Kairo",
+        role: "Penerbit edisi cetak: satu jilid, cetakan pertama 1413 H / 1993 M, tahqiq Muhammad Zainhum Muhammad 'Azab. Nomor halaman di Surau mengikuti cetakan ini.",
       },
     ],
     changes: [
       "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
-      "Takhrij yang tercampur ke teks utama dipindah ke catatan kaki dan ditandai “perlu ditinjau”.",
-      "Daftar isi diperbaiki lewat patch yang tercatat: dua kitab Rub' al-Munjiyat yang hilang ditambahkan dan satu bayan dikembalikan ke levelnya.",
+    ],
+  },
+  {
+    key: "at-tibyan/dar-ibn-hazm",
+    workSlug: "at-tibyan",
+    title: "at-Tibyan fi Adab Hamalat al-Qur'an",
+    author: "an-Nawawi (w. 676 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0001969; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar Ibn Hazm, Beirut 1414/1994, tahqiq Muhammad al-Hajjar; catatan kaki, mukadimah, faedah tambahan, dan kata penutup pentahqiq tidak disertakan",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 1969). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/1969" },
+      },
+      {
+        name: "Dar Ibn Hazm, Beirut",
+        role: "Penerbit edisi cetak: satu jilid, cetakan ketiga 1414 H / 1994 M, tahqiq Muhammad al-Hajjar. Nomor halaman di Surau mengikuti cetakan ini.",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+      "Catatan kaki pentahqiq tidak disertakan; penanda nomor catatan di teks utama tetap ada sebagai teks biasa.",
+      "Tulisan pentahqiq di badan edisi (mukadimah, faedah tambahan, dan kata penutup) tidak disertakan.",
+    ],
+  },
+  {
+    key: "al-ajurrumiyyah/dar-ash-shumaii",
+    workSlug: "al-ajurrumiyyah",
+    title: "al-Ajurrumiyyah",
+    author: "Ibnu Ajurrum (w. 723 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0011371; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar ash-Shumai'i, 1419/1998; catatan kaki penyunting tidak disertakan",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 11371). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/11371" },
+      },
+      {
+        name: "Dar ash-Shumai'i",
+        role: "Penerbit edisi cetak: satu jilid, 1419 H / 1998 M. Nomor halaman di Surau mengikuti cetakan ini (halaman 5–23).",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+      "Potongan halaman Shamela berurutan dengan nomor cetak sama digabung menjadi satu halaman cetak; urutan dan isi paragraf tidak berubah.",
+      "Catatan kaki penyunting tidak disertakan; penanda nomor catatan di teks utama tetap ada sebagai teks biasa.",
     ],
   },
 ];

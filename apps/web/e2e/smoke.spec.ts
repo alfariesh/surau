@@ -91,7 +91,7 @@ test("halaman Tentang", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Lisensi" })).toBeVisible();
 });
 
-test("Lisensi: kode Apache-2.0, konten CC BY-NC-SA 4.0, atribusi Ihya, dan jalur koreksi", async ({
+test("Lisensi: kode Apache-2.0, konten CC BY-NC-SA 4.0, atribusi kitab tayang, dan jalur koreksi", async ({
   page,
 }) => {
   await page.goto("/tentang");
@@ -109,10 +109,12 @@ test("Lisensi: kode Apache-2.0, konten CC BY-NC-SA 4.0, atribusi Ihya, dan jalur
   );
 
   const sources = page.locator("#sumber");
-  await expect(sources).toContainText(
-    "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009472 & JK000001",
-  );
-  for (const name of ["OpenITI", "al-Maktaba al-Shamela", "Dar al-Ma'rifah, Beirut"]) {
+  // Gelombang 1 tayang (ADR-151); Ihya diarsipkan dan tidak tercantum.
+  for (const id of ["Shamela0012718", "Shamela0001969", "Shamela0011371"]) {
+    await expect(sources).toContainText(`Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi ${id}`);
+  }
+  await expect(sources).not.toContainText("Shamela0009472");
+  for (const name of ["OpenITI", "al-Maktaba al-Shamela", "Maktabat Madbuli, Kairo"]) {
     await expect(sources).toContainText(name);
   }
   await expect(

@@ -19,7 +19,8 @@ const t = id.intisari;
 // Hub Intisari satu karya (X16, ADR-097 butir 7): /kitab/ihya/intisari. Intisari Kitab (muqaddimah +
 // 40 kitab Ihya) dikelompokkan per akar daftar isi (rub'), dengan jumlah gagasan, waktu baca/dengar,
 // jumlah Intisari Bab-nya, dan tanda "sudah dibaca" dari browser ini. ISR on-demand (ADR-034/038).
-// 404 bila korpus belum punya Intisari Kitab (skema < 9, atau sebelum X15b mengisinya).
+// Kitab tanpa Intisari Kitab (Gelombang 1) menampilkan daftar Intisari Bab-nya (ADR-147 butir 3).
+// 404 bila karya belum punya Intisari sama sekali.
 export const revalidate = false;
 export const dynamicParams = true;
 export function generateStaticParams(): { work: string }[] {
@@ -64,6 +65,27 @@ export default async function DigestHubPage({ params }: Props) {
       ? []
       : [{ id: root.id, title: root.title, titleId: root.titleId ?? null, books }];
   });
+  // Kitab kecil tanpa Intisari Kitab (Gelombang 1, ADR-147 butir 3): hub = daftar Intisari Bab
+  // menurut urutan daftar isi, dalam satu kelompok tanpa judul.
+  if (groups.length === 0) {
+    const sections = shown.items
+      .flatMap((root) => [root, ...flattenToc(root.children)])
+      .filter((item) => item.kind === "node")
+      .flatMap((item) => {
+        const teaser = teasers.get(item.id);
+        if (teaser === undefined || teaser.tier !== "section") return [];
+        return [{ teaser, title: item.title, titleId: item.titleId ?? null, sections: 0 }];
+      });
+    if (sections.length > 0) {
+      groups.push({
+        id: edition.id,
+        title: work.title_ar,
+        titleId: work.title_id ?? null,
+        books: sections,
+        untitled: true,
+      });
+    }
+  }
   if (groups.length === 0) notFound();
   const title = work.title_id ?? work.title_ar;
   const hubHref = digestHubHref(segment);

@@ -4,7 +4,7 @@
 export const home = {
   heading: "Apa yang ingin Anda kaji?",
   closedNotice:
-    "Pembaca dan Cari ditutup sementara. Ihya' 'Ulum ad-Din ditarik untuk disempurnakan, dan Bidayat al-Hidayah, at-Tibyan, serta al-Ajurrumiyyah sedang disiapkan.",
+    "Pembaca dan Cari ditutup sementara untuk pemeliharaan. Silakan kembali lagi nanti.",
   shelfLabel:
     "Rak kitab Surau: seret, gulir, atau pakai panah untuk memutar; pilih buku terdepan untuk membukanya",
   shelfOf: "dari",

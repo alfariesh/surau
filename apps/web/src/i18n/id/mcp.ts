@@ -67,14 +67,14 @@ export const mcp = {
   checks: [
     "Cari pembahasan dengan search_text, lalu baca konteksnya dengan read_page atau read_section. Potongan hasil pencarian belum tentu mewakili pendapat penulis secara utuh.",
     "Untuk kutipan Arab, minta verify_quote dan gunakan teks hasil verifikasi. Kecocokan kutipan membuktikan teksnya ada, bukan membuktikan penafsiran AI benar.",
-    "Pastikan ada nama karya dan edisi, jilid, halaman cetak, serta tautan yang bisa dibuka di Surau. Bedakan pendapat al-Ghazali dari pendapat yang ia nukil atau bantah.",
+    "Pastikan ada nama karya dan edisi, jilid, halaman cetak, serta tautan yang bisa dibuka di Surau. Bedakan pendapat penulis kitab dari pendapat yang ia nukil atau bantah.",
   ],
-  readerLink: "Coba periksa halaman tentang adab belajar di pembaca Surau",
+  readerLink: "Coba periksa halaman tentang adab penuntut ilmu di pembaca Surau",
   limitsHeading: "Yang perlu diketahui",
   limits: [
-    "Saat ini belum ada kitab yang bisa dibaca lewat MCP: Ihya 'Ulum ad-Din ditarik sementara, dan kitab berikutnya sedang disiapkan. Sampai itu, setiap tool menjawab corpus_closed. Bila rujukan tidak ditemukan, minta AI mengatakannya dengan jelas.",
+    "Kitab yang bisa dibaca lewat MCP: Bidayat al-Hidayah, at-Tibyan, dan al-Ajurrumiyyah (daftar lengkapnya dari list_works). Bila rujukan tidak ditemukan, minta AI mengatakannya dengan jelas.",
     "Terjemahan dan ringkasan berlabel AI bisa keliru. Kutipan ayat yang dikenali sistem menyediakan teks Tanzil serta terjemahan Kemenag; pencocokan ayat belum sempurna.",
-    "Status hadits mengikuti teks takhrij al-'Iraqi yang tertaut. Tanpa takhrij, status belum diketahui. Surau membantu riset dan belajar; keputusan hukum pribadi tetap perlu dibahas dengan ulama.",
+    "Status hadits hanya diambil dari teks takhrij yang tertaut. Kitab yang sekarang tersedia belum punya takhrij tertaut, jadi status haditsnya belum diketahui. Surau membantu riset dan belajar; keputusan hukum pribadi tetap perlu dibahas dengan ulama.",
     "Satu halaman cetak dapat menghasilkan jawaban tool yang panjang. Untuk bacaan bertahap, minta read_section dan lanjutkan dengan next_cursor bila tersedia.",
     "Pertanyaan Anda mengikuti kebijakan layanan AI yang dipakai. Surau membatasi frekuensi permintaan agar akses bersama tetap tersedia.",
   ],

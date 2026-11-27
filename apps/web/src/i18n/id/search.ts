@@ -4,7 +4,7 @@
 export const search = {
   pageTitle: "Cari",
   metaDescription:
-    "Cari kata Indonesia atau Arab di kitab Ihya 'Ulum ad-Din: hasil per halaman cetak dengan teks Arab asli, terjemahan AI berlabel, dan tautan ke pembaca.",
+    "Cari kata Indonesia atau Arab di Bidayat al-Hidayah, at-Tibyan, dan al-Ajurrumiyyah: hasil per halaman cetak dengan teks Arab asli, terjemahan AI berlabel, dan tautan ke pembaca.",
   heading: "Cari di kitab",
   lead: "Kata Indonesia dicari di terjemahan dan ringkasan AI, kata Arab di teks aslinya.",
   inputLabel: "Kata yang dicari",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { UPCOMING_KITAB } from "./kitab-mendatang";
+import { RELEASED_SLUGS, UPCOMING_KITAB, UPCOMING_SLUGS } from "./kitab-mendatang";
 import data from "./kitab-mendatang.data.json";
 
 describe("kitab kandidat Segera hadir (ADR-115)", () => {
@@ -25,5 +25,16 @@ describe("kitab kandidat Segera hadir (ADR-115)", () => {
       { name: "Jalaluddin al-Mahalli", death_hijri: 864 },
       { name: "Jalaluddin as-Suyuthi", death_hijri: 911 },
     ]);
+  });
+
+  it("kitab yang sudah tayang tidak lagi menerima suara minat (X31)", () => {
+    for (const slug of RELEASED_SLUGS) {
+      expect(
+        UPCOMING_KITAB.some((k) => k.slug === slug),
+        slug,
+      ).toBe(true);
+      expect(UPCOMING_SLUGS.has(slug), slug).toBe(false);
+    }
+    expect(UPCOMING_SLUGS.has("al-waraqat")).toBe(true);
   });
 });
