@@ -28,6 +28,9 @@ export const IHYA: WorkConfig = {
     // 19 Intisari tayang di ihya-v9 (ADR-136): build yang memuat lebih sedikit gagal.
     minDigests: 19,
   },
+  // j1 h200: hadits shalat malam Jumat + takhrij al-'Iraqi (badan, catatan kaki, penanda tertaut);
+  // الصبر mengenai ±320 paragraf.
+  smoke: { juz: 1, page: 200, search: "الصبر", footnotes: true },
   author: { id: 1, nameId: "Abu Hamid al-Ghazali", wikidataId: null },
   work: {
     id: 1,

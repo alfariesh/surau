@@ -54,6 +54,13 @@ export interface WorkConfig {
      */
     minDigests?: number;
   };
+  /**
+   * Contoh baku smoke query D1 (X31a langkah 8a): satu halaman cetak yang wajib berisi paragraf
+   * badan, dan satu kata Arab (kueri pencarian buatan kode, bukan kutipan) yang wajib mengenai
+   * paragraf kitab ini. `footnotes` = halaman itu wajib punya catatan kaki dengan penanda tertaut;
+   * hanya untuk kitab berkelas catatan kaki `classical` di ledger (ADR-138; dicek tes ledger).
+   */
+  smoke: { juz: number; page: number; search: string; footnotes: boolean };
   author: { id: number; nameId: string; wikidataId: string | null };
   work: {
     id: number;

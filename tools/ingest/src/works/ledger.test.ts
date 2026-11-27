@@ -30,6 +30,14 @@ describe("data/kitab/ledger.yaml", () => {
     }
   });
 
+  test("smoke: cek catatan kaki hanya untuk kitab berkelas classical (ADR-138, X31a 8a)", () => {
+    for (const w of WORKS) {
+      const row = file.kitab.find((k) => k.slug === w.work.slug);
+      expect(w.smoke.footnotes, w.work.slug).toBe(row?.catatan_kaki === "classical");
+      expect(w.smoke.search.trim(), w.work.slug).not.toBe("");
+    }
+  });
+
   test("korpus bawaan tidak memuat kitab arsip (ADR-142)", () => {
     for (const w of CORPUS.works) {
       expect(file.kitab.find((k) => k.slug === w.work.slug)?.status, w.work.slug).not.toBe("arsip");
