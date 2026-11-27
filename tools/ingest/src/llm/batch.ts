@@ -56,7 +56,6 @@ import {
   acceptedTranslation,
   batchKind,
   failure,
-  llmDir,
   readBatches,
   readJsonl,
   storedUsage,
@@ -492,7 +491,7 @@ export function splitOversized(
 }
 
 export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
-  const dir = llmDir(ctx.repo);
+  const dir = ctx.dir;
   const all = buildWork(ctx.rows());
   const acc = readAccepted(dir);
   const work = withoutReviewed(all, reviewProtected(ctx.rows(), all, acc, loadRevisions(ctx.repo)));
@@ -565,7 +564,7 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
     return 1;
   }
   console.info(
-    `Rencana: data/build/llm/plan-r${round}.jsonl · kirim: pnpm llm submit --round ${round} --budget <USD> --confirm`,
+    `Rencana: ${ctx.dir.slice(ctx.repo.length + 1)}/plan-r${round}.jsonl · kirim: pnpm llm submit --karya ${ctx.work.work.slug} --round ${round} --budget <USD> --confirm`,
   );
   return 0;
 }
@@ -795,11 +794,7 @@ export async function reconcile(
 }
 
 export async function runReconcile(ctx: LlmContext, chosenId?: string): Promise<number> {
-  const result = await reconcile(
-    ctx.client(),
-    llmDir(ctx.repo),
-    chosenId === undefined ? {} : { chosenId },
-  );
+  const result = await reconcile(ctx.client(), ctx.dir, chosenId === undefined ? {} : { chosenId });
   switch (result.status) {
     case "none-open":
       console.info("Tidak ada pengiriman yang menggantung.");
@@ -967,7 +962,7 @@ export async function runSubmit(
   confirm: boolean,
   opts: SubmitOptions = {},
 ): Promise<number> {
-  const dir = llmDir(ctx.repo);
+  const dir = ctx.dir;
   const unreconciled = unreconciledProblem(dir);
   if (unreconciled !== null) {
     console.error(unreconciled);
@@ -1037,7 +1032,7 @@ export async function runSubmit(
 
 /** Tunggu sampai semua batch yang belum dikumpulkan selesai (poll tiap menit), lalu keluar. */
 export async function runWait(ctx: LlmContext): Promise<number> {
-  return waitBatches(ctx.client(), llmDir(ctx.repo));
+  return waitBatches(ctx.client(), ctx.dir);
 }
 
 /** `runWait` untuk folder kerja mana pun (Intisari memakai `data/build/llm/intisari`). */
@@ -1069,7 +1064,7 @@ export async function waitBatches(client: Anthropic, dir: string): Promise<numbe
 }
 
 export async function runStatus(ctx: LlmContext): Promise<number> {
-  return printBatchStatus(ctx.client(), llmDir(ctx.repo));
+  return printBatchStatus(ctx.client(), ctx.dir);
 }
 
 export async function printBatchStatus(client: Anthropic, dir: string): Promise<number> {
@@ -1312,7 +1307,7 @@ export function rebuild(
 }
 
 export async function runCollect(ctx: LlmContext): Promise<number> {
-  const dir = llmDir(ctx.repo);
+  const dir = ctx.dir;
   const pending = await downloadResults(ctx.client(), dir);
   printRebuild(dir, buildWork(ctx.rows()), ctx.repo);
   if (pending > 0) console.info(`${pending} batch belum selesai; ulangi collect nanti.`);
@@ -1386,7 +1381,7 @@ function printRebuild(dir: string, work: Work, repo: string): void {
 
 /** Nilai ulang semua hasil mentah dengan aturan dan sumber saat ini (tanpa API, gratis). */
 export function runRejudge(ctx: LlmContext): number {
-  printRebuild(llmDir(ctx.repo), buildWork(ctx.rows()), ctx.repo);
+  printRebuild(ctx.dir, buildWork(ctx.rows()), ctx.repo);
   return 0;
 }
 
@@ -1534,7 +1529,7 @@ export async function runRetry(
   confirm: boolean,
   opts: { budget?: number } = {},
 ): Promise<number> {
-  const dir = llmDir(ctx.repo);
+  const dir = ctx.dir;
   const unreconciled = unreconciledProblem(dir);
   if (unreconciled !== null) {
     console.error(unreconciled);

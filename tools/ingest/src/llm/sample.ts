@@ -27,9 +27,9 @@ import { mapPool } from "./pool.ts";
 import { SITE } from "./report.ts";
 import { kemenagLookup, reviewHtml } from "./review.ts";
 import type { ReviewItem } from "./review.ts";
-import { llmDir, writeJsonl, writeText } from "./store.ts";
+import { writeJsonl, writeText } from "./store.ts";
 import { MEASURED_TOKENS_PER_CHAR, summaryPlan, translationUnits } from "./units.ts";
-import { links } from "./work.ts";
+import { editionPathOf, links } from "./work.ts";
 
 export const SAMPLE_SEED = 9472;
 export const SAMPLE_PASSAGES = { withAyah: 7, other: 13 } as const;
@@ -157,10 +157,10 @@ export async function runSample(ctx: LlmContext, confirm: boolean): Promise<numb
   );
   process.stdout.write("\n");
 
-  const dir = join(llmDir(ctx.repo), "sample");
+  const dir = join(ctx.dir, "sample");
   writeJsonl(join(dir, `results-${TRANSLATE_PROMPT.id.replace("@", "-v")}.jsonl`), results);
 
-  const link = links(rows);
+  const link = links(rows, editionPathOf(rows));
   const byId = new Map(results.map((r) => [r.custom_id, r]));
   const items: ReviewItem[] = [
     ...passages.map((u, i): ReviewItem => {

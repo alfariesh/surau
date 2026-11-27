@@ -39,7 +39,8 @@ import { expectedRows } from "../pipeline.ts";
 import type { PipelinePaths } from "../pipeline.ts";
 import { QURAN_EXPECT, QURAN_FILES } from "../quran/source.ts";
 import type { CorpusRows } from "../rows.ts";
-import { IHYA } from "../works/ihya.ts";
+import { WORKS, workBySlug } from "../works/index.ts";
+import type { WorkConfig } from "../works/index.ts";
 import {
   runCollect,
   runPlan,
@@ -66,15 +67,37 @@ const repo = resolve(import.meta.dirname, "../../../..");
 
 export interface LlmContext {
   repo: string;
+  /** Kitab yang dikerjakan (`--karya`, X31b): baris, folder kerja, dan laporan per kitab. */
+  work: WorkConfig;
+  /** Folder kerja LLM kitab ini: `data/build/llm/<WorkConfig.llm.dir>`. */
+  dir: string;
   rows: () => CorpusRows;
   client: () => Anthropic;
 }
 
-function context(shamelaArg: string | undefined): LlmContext {
+/** Kitab dari `--karya`; wajib (Ihya diarsipkan, ADR-142) dan harus punya `WorkConfig.llm`. */
+function workOf(slug: string | undefined): WorkConfig {
+  if (slug === undefined) {
+    throw new Error(
+      `--karya <slug> wajib (X31b). Pilihan: ${WORKS.filter((w) => w.llm !== undefined)
+        .map((w) => w.work.slug)
+        .join(", ")}`,
+    );
+  }
+  const work = workBySlug(slug);
+  if (work.llm === undefined)
+    throw new Error(`Kitab ${slug} belum punya folder kerja LLM (WorkConfig.llm)`);
+  return work;
+}
+
+function context(shamelaArg: string | undefined, kitab: string | undefined): LlmContext {
+  const work = workOf(kitab);
   let rows: CorpusRows | null = null;
   let client: Anthropic | null = null;
   return {
     repo,
+    work,
+    dir: join(repo, "data/build/llm", work.llm!.dir),
     rows: () => {
       if (rows !== null) return rows;
       const shamela = resolve(
@@ -91,7 +114,7 @@ function context(shamelaArg: string | undefined): LlmContext {
         migrations: join(repo, "packages/db/migrations/corpus"),
         quran: { root: join(repo, "data/raw"), files: QURAN_FILES, expect: QURAN_EXPECT },
       };
-      rows = expectedRows(IHYA, paths);
+      rows = expectedRows(work, paths);
       return rows;
     },
     client: () => {
@@ -128,6 +151,8 @@ async function main(argv: string[]): Promise<number> {
       confirm: { type: "boolean", default: false },
       url: { type: "string" },
       id: { type: "string" },
+      // Kitab yang dikerjakan (slug, X31b). Beda dari `--kitab` Intisari (toc_node_id kitab Ihya).
+      karya: { type: "string" },
       // Intisari (X15b)
       from: { type: "string" },
       kitab: { type: "string" },
@@ -136,7 +161,7 @@ async function main(argv: string[]): Promise<number> {
       banding: { type: "boolean", default: false },
     },
   });
-  const ctx = context(values.shamela);
+  const ctx = context(values.shamela, values.karya);
   // Validasi di batas CLI (KONVENSI): nilai salah ditolak, bukan diam-diam diganti.
   const round = z.enum(["1", "2"]).default("1").transform(Number).parse(values.round) as 1 | 2;
   const positiveInt = z.coerce.number().int().positive();
@@ -183,9 +208,9 @@ async function main(argv: string[]): Promise<number> {
       return runRetranslateInfo(ctx);
     case "judul": {
       const budget = z.coerce.number().positive().max(5).optional().parse(values.budget);
-      const units = titleUnits(ctx.rows(), readSubheadings(repo, IHYA), IHYA.edition.id);
+      const units = titleUnits(ctx.rows(), readSubheadings(repo, ctx.work), ctx.work.edition.id);
       const limit = positiveInt.optional().parse(values.limit);
-      const pending = await runTitleJob(units, join(repo, "data/build/llm"), ctx.client, {
+      const pending = await runTitleJob(units, ctx.dir, ctx.client, {
         confirm: values.confirm,
         ...(budget === undefined ? {} : { budget }),
         ...(limit === undefined ? {} : { maxRequests: limit }),
