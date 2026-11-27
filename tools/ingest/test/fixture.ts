@@ -215,6 +215,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
       matanMinPages: 5,
       llmCoverage: 0,
     },
+    smoke: { juz: 1, page: 1, search: "صبر", footnotes: true },
     author: { id: 1, nameId: "Penulis Uji", wikidataId: null },
     work: {
       id: 1,
@@ -237,6 +238,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     ids: "ids/uji2.json",
     reportPrefix: "reports/uji2",
     expect: { pages: 2, volumes: [2], titles: 1, matanMinPages: 2, llmCoverage: 0 },
+    smoke: { juz: 1, page: 1, search: "صبر", footnotes: false },
     author: config.author,
     work: {
       id: 2,
