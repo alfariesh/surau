@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800020,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:05:37+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1337-p1338, p1348, p1382: definisi ilmu, nukilan hukama dan wa qila, pembagian qadim/hadits dan tiga bagian hadits, 'ilm vs 'ain al-yaqin sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1349, p1345-p1347: definisi ilmu kalam, ma'ani, bayan, badi' sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1310-p1312, p1314: definisi pertama penulis lalu wa qila: cahaya di hati, daya jiwa (perumpamaan pisau), tiga nama, tempat akal; sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1313, p1315-p1317: empat tingkat akal dan alasan nama hayulani sesuai; negasi 'tidak sedang disaksikan' tepat."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1271-p1272, p1309: 'adl sebagai tengah, makna nahwu dan fikih, 'iffah antara fujur dan khumud sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p1261-p1262, p1268, p1295, p1300: definisi ibadah, ubudiyah empat unsur, 'ujub, 'uzlah, 'ishmah sesuai."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p1250, p1293, p1287: 'amm dan tiga batasannya, 'azimah syariat, 'urf sebagai hujah sesuai; isi ayat tidak disebut."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "a97b0a4b0ccc5fe6ee0e3f398af29e0fad58ca152ee0d69aa5f9c14a23040e6e",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi, perbandingan keumuman, pembagian qadim/hadits dan tiga macam hadits, serta 'ilm vs 'ain al-yaqin sesuai p80001337-38, 1348, 1382."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Definisi ilmu kalam, ma'ani, bayan, dan badi' sesuai p80001349 dan p80001345-47."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Definisi pertama lalu nukilan wa qila (cahaya hati, daya jiwa, satu hal tiga nama, tempat di kepala atau hati) sesuai p80001310-12."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Empat tingkat akal, alasan nama hayulani, dan keterangan 'tidak sedang disaksikan' sesuai p80001313, 1315-17."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "'Adl sebagai tengah, makna nahwu dan fikih, serta 'iffah antara fujur dan khumud sesuai p80001272 dan p80001309."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Ibadah, ubudiyah empat unsur, 'ujub, 'uzlah, dan 'ishmah sesuai p80001261, 1262, 1268, 1295, 1300."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "'Amm dengan tiga batasannya, 'azimah, dan 'urf sesuai p80001250, 1293, 1287; isi ayat tidak ditulis."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "56406170c3eb02b10d6197e08486db7cf38f1aca896fdf21d0649560f490ecb9",
+      "draf_sha256": "a97b0a4b0ccc5fe6ee0e3f398af29e0fad58ca152ee0d69aa5f9c14a23040e6e",
+      "waktu": "2026-11-27T19:06:33.965Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam bab 'ain, al-Jurjani menghimpun aneka definisi ilmu dan akal beserta tingkatannya, lalu mendefinisikan keadilan, ibadah, ubudiyah, dan beberapa istilah ushul seperti 'amm, 'azimah, dan 'urf.",
+    "ringkasan": "Bab 'ain memuat 135 entri definisi; Intisari ini menyoroti sebagiannya. Al-Jurjani mengumpulkan banyak definisi ilmu, membaginya menjadi qadim dan hadits, dan membedakan 'ilm al-yaqin dari 'ain al-yaqin. Ia mendefinisikan ilmu kalam dan tiga ilmu balaghah. Ia menukil berbagai pendapat tentang hakikat akal, lalu menyusun empat tingkat akal dari hayulani sampai mustafad. Ia menjelaskan keadilan dan 'iffah sebagai titik tengah, makna 'adl bagi ahli nahwu dan ahli fikih, lalu ibadah, ubudiyah, 'ujub, 'uzlah, dan 'ishmah. Dalam ushul ia mendefinisikan 'amm, 'azimah, dan 'urf. Bab ini juga memuat istilah logika, 'arudh, faraid, dan firqah.",
+    "gagasan": [
+      {
+        "judul": "Ilmu adalah keyakinan pasti yang sesuai kenyataan, menurut penulis dan para hukama",
+        "isi": "Al-Jurjani mendefinisikan ilmu sebagai keyakinan pasti yang sesuai dengan kenyataan, sedangkan para hukama mendefinisikannya sebagai hadirnya gambaran sesuatu di dalam akal; definisi pertama lebih khusus daripada yang kedua. Ia menukil banyak definisi lain dengan 'wa qila', termasuk bahwa ilmu tidak perlu didefinisikan. Ilmu terbagi menjadi qadim, yang ada pada dzat Allah dan tidak serupa dengan ilmu hamba, dan hadits, yang terbagi tiga: badihi, dharuri, dan istidlali. 'Ilm al-yaqin diberikan oleh dalil, sedangkan 'ain al-yaqin diberikan oleh penyaksian dan kasyf.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001337, 80001338, 80001348, 80001382],
+        "soal": {
+          "tanya": "Menjadi berapa bagian ilmu yang hadits dibagi menurut al-Jurjani?",
+          "jawab": "Tiga bagian: badihi, dharuri, dan istidlali."
+        }
+      },
+      {
+        "judul": "Ilmu kalam dan tiga ilmu balaghah punya pokok bahasan berbeda, menurut penulis",
+        "isi": "Ilmu kalam ia definisikan sebagai ilmu yang membahas sifat-sifat dzati bagi yang maujud sebagaimana adanya, di atas kaidah Islam. Ilmu ma'ani adalah ilmu untuk mengetahui keadaan lafaz Arab yang sesuai dengan tuntutan keadaan. Ilmu bayan adalah ilmu untuk mengetahui cara menyampaikan satu makna dengan berbagai jalan yang berbeda kejelasan petunjuknya. Ilmu badi' adalah ilmu untuk mengetahui cara-cara memperindah perkataan sesudah kesesuaian dengan keadaan dan kejelasan petunjuk terpenuhi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001349, 80001345, 80001346, 80001347],
+        "soal": {
+          "tanya": "Apa yang dikaji ilmu bayan dalam definisi al-Jurjani?",
+          "jawab": "Cara menyampaikan satu makna dengan berbagai jalan yang berbeda kejelasan petunjuknya."
+        }
+      },
+      {
+        "judul": "Hakikat akal diperselisihkan berbagai kalangan, sebagaimana dinukil penulis",
+        "isi": "Al-Jurjani mendefinisikan akal sebagai substansi yang terpisah dari materi pada dzatnya tetapi menyertainya dalam perbuatan, yaitu jiwa rasional yang ditunjuk setiap orang dengan kata 'aku', lalu menukil pendapat-pendapat lain. Ada yang menyebutnya cahaya di hati untuk mengenal yang benar dan yang batil. Ada pula yang menyebutnya daya jiwa rasional, sehingga jiwa adalah pelaku dan akal alatnya, seperti pisau bagi pemotong. Pendapat lain menyebut akal, jiwa, dan dzihn satu hal dengan tiga nama menurut fungsinya. Tentang tempatnya, ada yang berkata di kepala dan ada yang berkata di hati.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001310, 80001311, 80001312, 80001314],
+        "soal": {
+          "tanya": "Menurut pendapat yang menyatukan akal, jiwa, dan dzihn, mengapa ia disebut akal?",
+          "jawab": "Karena ia mengetahui (mudrik); disebut jiwa karena bertindak dan dzihn karena siap untuk mengetahui."
+        }
+      },
+      {
+        "judul": "Akal bertingkat dari hayulani sampai mustafad, menurut penulis",
+        "isi": "Akal hayulani adalah kesiapan murni untuk mengetahui hal-hal rasional tanpa aktualitas, seperti pada anak-anak; dinamai demikian karena jiwa pada tingkat ini menyerupai hayula pertama yang kosong dari segala bentuk. Akal bil-malakah adalah pengetahuan tentang hal-hal dharuri dan kesiapan jiwa untuk memperoleh hal-hal nazhari. Akal bil-fi'l adalah tersimpannya hal-hal nazhari sehingga bisa dihadirkan kapan saja tanpa usaha baru, walau tidak sedang disaksikan. Akal mustafad adalah hadirnya hal-hal nazhari itu sehingga tidak hilang darinya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001313, 80001315, 80001316, 80001317],
+        "soal": {
+          "tanya": "Mengapa akal tingkat pertama disebut hayulani menurut al-Jurjani?",
+          "jawab": "Karena jiwa pada tingkat itu menyerupai hayula pertama yang kosong dari segala bentuk."
+        }
+      },
+      {
+        "judul": "Keadilan dan 'iffah adalah titik tengah antara dua ujung, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan 'adl sebagai perkara tengah di antara dua ujung, berlebihan (ifrath) dan berkekurangan (tafrith). Bagi ahli nahwu, 'adl berarti keluarnya kata benda dari bentuk asalnya ke bentuk lain. Bagi ahli fikih, orang 'adl adalah yang menjauhi dosa besar, tidak terus-menerus melakukan dosa kecil, lebih banyak benarnya, dan menjauhi perbuatan rendah seperti makan di jalan. 'Iffah adalah keadaan daya syahwat di tengah antara fujur (berlebihan) dan khumud (padam), sehingga orang yang 'afif bertindak sesuai syariat dan muru'ah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001271, 80001272, 80001309],
+        "soal": {
+          "tanya": "Siapa orang 'adl menurut ahli fikih dalam nukilan al-Jurjani?",
+          "jawab": "Orang yang menjauhi dosa besar, tidak terus-menerus melakukan dosa kecil, lebih banyak benarnya, dan menjauhi perbuatan rendah."
+        }
+      },
+      {
+        "judul": "Ibadah adalah melawan hawa nafsu demi mengagungkan Tuhan, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan ibadah sebagai perbuatan mukallaf yang menyelisihi hawa nafsunya untuk mengagungkan Tuhannya. Ubudiyah adalah menepati janji, menjaga batas, ridha dengan yang ada, dan sabar atas yang hilang. 'Ujub adalah membayangkan diri berhak atas kedudukan yang sebenarnya tidak ia berhak. 'Uzlah adalah keluar dari pergaulan dengan makhluk dengan menyendiri dan memutus hubungan. 'Ishmah adalah kecakapan menjauhi maksiat padahal mampu melakukannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001261, 80001262, 80001268, 80001295, 80001300],
+        "soal": {
+          "tanya": "Apa empat unsur ubudiyah dalam definisi al-Jurjani?",
+          "jawab": "Menepati janji, menjaga batas, ridha dengan yang ada, dan sabar atas yang hilang."
+        }
+      },
+      {
+        "judul": "Lafaz 'amm mencakup banyak hal tanpa batas, menurut penulis dalam istilah ushul",
+        "isi": "Al-Jurjani mendefinisikan 'amm sebagai lafaz yang dibuat dengan satu penetapan untuk banyak hal yang tidak terbatas dan mencakup semua yang layak baginya. Batasan 'satu penetapan' mengeluarkan musytarak, 'tidak terbatas' mengeluarkan nama bilangan seperti seratus, dan 'mencakup semua' mengeluarkan jamak nakirah. 'Azimah menurut syariat adalah nama bagi hukum pokok yang tidak terkait dengan keadaan yang datang kemudian. 'Urf adalah apa yang dimantapkan jiwa dengan kesaksian akal dan diterima tabiat; ia juga hujah, dan begitu pula kebiasaan ('adah).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001250, 80001293, 80001287],
+        "soal": {
+          "tanya": "Lafaz apa yang dikeluarkan oleh batasan 'tidak terbatas' dalam definisi 'amm menurut al-Jurjani?",
+          "jawab": "Nama-nama bilangan, misalnya seratus."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 6,
+        "passage_id": 80001261,
+        "char_start": 9,
+        "char_end": 54,
+        "terjemahan": "Ibadah adalah perbuatan mukallaf yang menyelisihi hawa nafsunya untuk mengagungkan Tuhannya."
+      },
+      {
+        "gagasan": 6,
+        "passage_id": 80001262,
+        "char_start": 10,
+        "char_end": 74,
+        "terjemahan": "Menepati janji-janji, menjaga batas-batas, ridha dengan yang ada, dan sabar atas yang hilang."
+      }
+    ],
+    "istilah": []
+  }
+}

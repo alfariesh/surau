@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800006,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:04:11+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p642, p641, p637: tsawab (rahmat, ampunan, syafaat; wa qila sesuai tabiat), tsana', tsiqah sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p636, p638, p639: tsarm (buang fa dan nun), tsalm (buang fa), tsulatsi tiga huruf asli sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p640: pendapat Tsumamiyah dinukil dengan qalu; sikap reported."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "ed8445bace2909fc58a92575df03d7ed0208c83aad9d7f178076bee72f443607",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Tsawab, wa qila, tsana' dan tsiqah sesuai p637, p641, p642; terjemahan kutipan p637 setia."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tsarm, tsalm dan tsulatsi sesuai p636, p638, p639."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Pendapat Tsumamiyah dinukil dengan benar (p640) dan sikap reported tepat."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "33d213df128ef43cc01b76c52ad872060a25e3e19e57d57f02a8cff2592ad952",
+      "draf_sha256": "ed8445bace2909fc58a92575df03d7ed0208c83aad9d7f178076bee72f443607",
+      "waktu": "2026-11-27T19:33:40.775Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani, bab tsa memuat istilah pendek seperti tsawab, tsana', dan tsiqah, istilah 'arudh tsarm dan tsalm, serta pendapat golongan Tsumamiyah tentang akhirat.",
+    "ringkasan": "Bab tsa adalah salah satu bab terpendek at-Ta'rifat: hanya 7 entri definisi, dan Intisari ini menyoroti hampir semuanya. Ada istilah akhlak dan akidah seperti tsawab (pahala), tsana' (pujian), dan tsiqah (orang tepercaya). Ada istilah 'arudh tentang perubahan pola fa'ulun, yaitu tsarm dan tsalm, serta istilah sharaf tsulatsi. Bab ini juga menyebut golongan Tsumamiyah, pengikut Tsumamah bin Asyras, beserta pendapat mereka tentang nasib Yahudi, Nasrani, dan zindiq di akhirat.",
+    "gagasan": [
+      {
+        "judul": "Tsawab adalah sebab rahmat, ampunan, dan syafaat, menurut definisi penulis",
+        "isi": "Tsawab didefinisikan sebagai sesuatu yang dengannya seseorang berhak memperoleh rahmat dan ampunan dari Allah serta syafaat dari Rasulullah saw. Menurut definisi lain yang disebut dengan wa qila, tsawab adalah pemberian sesuatu yang sesuai dengan tabiat. Al-Jurjani juga mendefinisikan tsana' atas sesuatu sebagai perbuatan yang menunjukkan pengagungan terhadapnya, dan tsiqah sebagai orang yang dapat diandalkan dalam perkataan dan perbuatan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000642, 80000641, 80000637],
+        "soal": {
+          "tanya": "Apa tiga hal yang disebut al-Jurjani dalam definisi pertamanya tentang tsawab?",
+          "jawab": "Rahmat dan ampunan dari Allah serta syafaat dari Rasulullah saw."
+        }
+      },
+      {
+        "judul": "Pembuangan huruf pada pola fa'ulun disebut tsarm dan tsalm, menurut penulis",
+        "isi": "Dalam istilah 'arudh, tsarm adalah membuang huruf fa dan nun dari pola fa'ulun sehingga tersisa 'ul, lalu dipindah ke pola fa'l, dan disebut atsram. Tsalm adalah membuang huruf fa saja dari fa'ulun sehingga tersisa 'ulun, lalu dipindah ke pola fa'lun; disebut atslam. Dalam sharaf, tsulatsi adalah kata kerja yang bentuk lampaunya terdiri atas tiga huruf asli.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000636, 80000638, 80000639],
+        "soal": {
+          "tanya": "Apa beda tsarm dan tsalm pada pola fa'ulun dalam penjelasan al-Jurjani?",
+          "jawab": "Tsarm membuang fa dan nun, sedangkan tsalm hanya membuang fa."
+        }
+      },
+      {
+        "judul": "Golongan Tsumamiyah berpendapat Yahudi, Nasrani, dan zindiq menjadi debu di akhirat",
+        "isi": "Al-Jurjani menyebut Tsumamiyah sebagai pengikut Tsumamah bin Asyras. Ia menukil pendapat mereka bahwa orang Yahudi, Nasrani, dan zindiq di akhirat akan menjadi debu, tidak masuk surga dan tidak pula neraka. Pendapat itu ia sajikan sebagai perkataan golongan tersebut, tanpa menyatakannya sebagai pendapatnya sendiri.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000640],
+        "soal": {
+          "tanya": "Menurut nukilan al-Jurjani, apa pendapat golongan Tsumamiyah tentang Yahudi, Nasrani, dan zindiq di akhirat?",
+          "jawab": "Mereka menjadi debu, tidak masuk surga dan tidak masuk neraka."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 80000637,
+        "char_start": 7,
+        "char_end": 47,
+        "terjemahan": "Tsiqah adalah orang yang dapat diandalkan dalam perkataan dan perbuatan."
+      }
+    ],
+    "istilah": []
+  }
+}

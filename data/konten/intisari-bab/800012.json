@@ -1,0 +1,158 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800012,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:04:50+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p954-955: rezeki mencakup halal dan haram, definisi Muktazilah membuat haram bukan rezeki, rizq hasan dan wa qila; sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p958-959: rasul, nukilan al-Kalbi dan al-Farra' (setiap rasul nabi, tidak sebaliknya) dan Muktazilah (tidak berbeda); sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p951, p972, p945: rukhshah dengan dalil pengharam tetap ada, rukun dan beda dengan syarat (wa qila), riba; sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p961-962: rasm tam dan tiga bentuk rasm naqish dengan contoh manusia; sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p948, p964, p981-982, p942: raja', ridha, riyadhah, riya', ran; sesuai tanpa tambahan."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "2ef0ddb45317d9d9697fa22de13892f39b1cb00d34a9c0abf1759c00707805ec",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi rezeki, nukilan Muktazilah, dan rizq hasan sesuai p954-955."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Pendapat al-Kalbi/al-Farra' dan Muktazilah beserta alasannya sesuai p959."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Rukhshah, rukun versus syarat, dan riba sesuai p951, p972, p945."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Contoh rasm naqish 'benda yang tertawa' menggantikan kata 'genus yang tertawa' yang tertulis di p962 (disunting diam-diam)."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Raja', ridha, riyadhah, riya', ran setia; kutipan p982 sesuai rentangnya."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "164e515280beae880273eb32167dad9f78d9a4b5857a00edd72acb39f313fc96",
+      "draf_sha256": "2ef0ddb45317d9d9697fa22de13892f39b1cb00d34a9c0abf1759c00707805ec",
+      "waktu": "2026-11-27T19:05:38.879Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Bab ra at-Ta'rifat, menurut susunan al-Jurjani, memuat definisi rezeki, rasul, rukhshah dan rukun, rasm dalam logika, serta istilah hati seperti raja', ridha, dan riya'.",
+    "ringkasan": "Bab huruf ra memuat 41 entri definisi, dan Intisari ini menyoroti sebagian di antaranya. Al-Jurjani mendefinisikan rezeki dan menyebut perbedaan pendapat kaum Muktazilah tentangnya. Ia menjelaskan arti rasul dan menukil dua pendapat tentang hubungan rasul dan nabi. Dari fikih dan ushul ia mendefinisikan rukhshah, rukun, dan riba. Dari logika ia menjelaskan rasm tam dan rasm naqish. Bab ini juga memuat istilah suluk seperti raja', ridha, riyadhah, riya', dan ran.",
+    "gagasan": [
+      {
+        "judul": "Rezeki mencakup yang halal dan yang haram, berbeda dengan pendapat kaum Muktazilah, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan rezeki sebagai nama bagi apa yang Allah giring kepada makhluk hidup lalu dimakannya, sehingga mencakup yang halal dan yang haram. Ia lalu menukil bahwa menurut kaum Muktazilah rezeki adalah milik yang dimakan oleh pemiliknya, sehingga menurut definisi itu yang haram bukan rezeki. Rezeki yang baik (rizq hasan) ia definisikan sebagai apa yang sampai kepada pemiliknya tanpa susah payah mencarinya, dan menurut pendapat lain apa yang datang tanpa ditunggu, diperhitungkan, atau diusahakan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000954, 80000955],
+        "soal": {
+          "tanya": "Mengapa yang haram tidak termasuk rezeki menurut definisi kaum Muktazilah yang dinukil al-Jurjani?",
+          "jawab": "Karena mereka mendefinisikan rezeki sebagai milik yang dimakan oleh pemiliknya."
+        }
+      },
+      {
+        "judul": "Sebagian ulama membedakan rasul dari nabi, sedangkan kaum Muktazilah menyamakannya",
+        "isi": "Menurut al-Jurjani, rasul adalah manusia yang diutus Allah kepada makhluk untuk menyampaikan hukum-hukum. Secara bahasa rasul adalah orang yang diperintah pengutusnya untuk menyampaikan pesan. Ia lalu menukil dua pendapat: al-Kalbi dan al-Farra' berkata bahwa setiap rasul adalah nabi, tetapi tidak sebaliknya; kaum Muktazilah berkata bahwa keduanya tidak berbeda, dengan alasan bahwa Allah memanggil Nabi Muhammad saw. kadang dengan sebutan nabi dan kadang dengan sebutan rasul.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000958, 80000959],
+        "soal": {
+          "tanya": "Apa pendapat al-Kalbi dan al-Farra' tentang hubungan rasul dan nabi yang dinukil al-Jurjani?",
+          "jawab": "Setiap rasul adalah nabi, tetapi tidak setiap nabi adalah rasul."
+        }
+      },
+      {
+        "judul": "Rukhshah adalah kebolehan karena uzur walau dalil larangan tetap ada, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan rukhshah secara bahasa sebagai kemudahan, dan dalam syariat sebagai apa yang disyariatkan karena keadaan yang datang, yakni apa yang dibolehkan karena uzur padahal dalil yang mengharamkannya tetap ada. Rukun sesuatu secara istilah adalah apa yang membuat sesuatu itu tegak, dan menurut pendapat lain apa yang menyempurnakannya dan berada di dalamnya, berbeda dengan syarat yang berada di luarnya. Riba secara bahasa berarti tambahan, dan dalam syariat berarti kelebihan tanpa imbalan yang disyaratkan bagi salah satu pihak akad.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000951, 80000972, 80000945],
+        "soal": {
+          "tanya": "Apa beda rukun dan syarat menurut pendapat yang dinukil al-Jurjani?",
+          "jawab": "Rukun berada di dalam sesuatu dan menyempurnakannya, sedangkan syarat berada di luarnya."
+        }
+      },
+      {
+        "judul": "Rasm tam memakai genus terdekat dan sifat khas, menurut istilah ahli logika",
+        "isi": "Dalam logika, al-Jurjani menjelaskan bahwa rasm tam tersusun dari genus terdekat dan sifat khas (khashshah), seperti mendefinisikan manusia sebagai hewan yang tertawa. Rasm naqish hanya memakai sifat khas, atau sifat khas bersama genus jauh, seperti mendefinisikan manusia sebagai yang tertawa atau benda yang tertawa. Rasm naqish juga bisa berupa kumpulan sifat aksidental yang bersama-sama hanya dimiliki satu hakikat, seperti menyebut manusia berjalan dengan dua kaki, berkuku lebar, berkulit tampak, bertubuh tegak, dan tertawa secara tabiat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000961, 80000962],
+        "soal": {
+          "tanya": "Unsur apa yang membentuk rasm tam menurut al-Jurjani?",
+          "jawab": "Rasm tam tersusun dari genus terdekat dan sifat khas."
+        }
+      },
+      {
+        "judul": "Raja', ridha, dan riya' didefinisikan sebagai keadaan hati, menurut penulis",
+        "isi": "Menurut al-Jurjani, raja' secara istilah adalah bergantungnya hati pada tercapainya sesuatu yang dicintai di masa depan. Ridha adalah gembiranya hati atas pahitnya ketetapan Allah. Riyadhah adalah mendidik akhlak jiwa dengan membersihkannya dari campuran tabiat dan dorongannya. Riya' adalah meninggalkan keikhlasan dalam amal karena memperhatikan selain Allah di dalamnya. Ran adalah hijab yang menghalangi hati dari alam kesucian karena dikuasai keadaan nafsu dan kegelapan jasmani, sampai hati terhijab sepenuhnya dari cahaya rububiyah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000948, 80000964, 80000981, 80000982, 80000942],
+        "soal": {
+          "tanya": "Apa yang membuat sebuah amal tergolong riya' menurut definisi al-Jurjani?",
+          "jawab": "Keikhlasan ditinggalkan karena pelakunya memperhatikan selain Allah dalam amal itu."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 5,
+        "passage_id": 80000982,
+        "char_start": 8,
+        "char_end": 49,
+        "terjemahan": "Riya' adalah meninggalkan keikhlasan dalam amal karena memperhatikan selain Allah di dalamnya."
+      }
+    ],
+    "istilah": []
+  }
+}

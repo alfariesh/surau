@@ -1,0 +1,137 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800017,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:01:39+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1183: makna bahasa dan empat langkah istilah dhabth sampai disampaikan sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1186, p1189-p1190: dhiddan vs naqidhan dan dharuriyyah muthlaqah sesuai, negasi tepat."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1194, p1201: dua definisi dhalalah dan uraian dhiya' dengan perumpamaan matahari sesuai; tanpa atribusi kelompok, jadi author."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1195-p1199: dhimar, dhaman ad-darak, rahn dengan yang lebih kecil, mabi' dengan harga sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "e91480d1a4f366da8c55f2e3003fdb6fad2bf5cdfc750b107778b41e6de836d6",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi dhabth bahasa dan istilah (mendengar, memahami, menghafal, menjaga sampai disampaikan) sesuai p80001183."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Dhiddan vs naqidhan dan dharuriyyah muthlaqah sesuai p80001186, 1189-90."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Dhalalah dan dhiya' (termasuk dua sisi dzat/nama dan perumpamaan matahari berawan tipis) sesuai p80001194 dan p80001201."
+        },
+        {
+          "ke": 4,
+          "nilai": "kurang",
+          "catatan": "Tanggungan gadai ditulis 'nilai yang lebih kecil', padahal p80001198 hanya menyebut 'yang lebih kecil' tanpa menentukan pembandingnya; sisanya sesuai p80001195-96, 1199."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "0aadde17f157c4bd7875b7625a7b9f8f45560155a052f7121b5370db4876f541",
+      "draf_sha256": "e91480d1a4f366da8c55f2e3003fdb6fad2bf5cdfc750b107778b41e6de836d6",
+      "waktu": "2026-11-27T19:02:25.331Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam bab dhad, al-Jurjani mendefinisikan dhabth sebagai mendengar, memahami, dan menjaga perkataan sampai disampaikan, lalu membedakan dua hal yang berlawanan, dhalalah, dhiya', dan beberapa jenis dhaman.",
+    "ringkasan": "Bab dhad memuat 19 entri definisi; Intisari ini menyoroti sebagiannya. Al-Jurjani menjelaskan dhabth (ketelitian) dalam penyampaian perkataan, lalu beralih ke logika: perbedaan dua hal yang berlawanan (dhiddan) dengan dua hal yang bertentangan (naqidhan), dan proposisi dharuriyyah muthlaqah. Ia mendefinisikan dhalalah (kesesatan) dan menguraikan dhiya' dalam istilah tasawuf. Di bidang fikih ia menyebut harta dhimar dan beberapa macam dhaman (tanggungan) dengan ukuran penggantiannya. Bab ini juga memuat istilah 'arudh, hitungan, dan ilmu hadits.",
+    "gagasan": [
+      {
+        "judul": "Dhabth mencakup mendengar, memahami, menghafal, dan menjaga perkataan menurut penulis",
+        "isi": "Menurut bahasa, dhabth berarti keteguhan (hazm). Dalam istilah, al-Jurjani mendefinisikannya sebagai mendengar perkataan sebagaimana mestinya didengar, lalu memahami makna yang dimaksud darinya, lalu menghafalnya dengan mengerahkan segenap upaya, dan tetap teguh menjaganya dengan mengulang-ulangnya sampai saat ia menyampaikannya kepada orang lain. Jadi dhabth adalah rangkaian langkah yang berlanjut hingga perkataan itu diteruskan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001183],
+        "soal": {
+          "tanya": "Sampai kapan seseorang harus teguh menjaga perkataan dalam definisi dhabth al-Jurjani?",
+          "jawab": "Sampai saat ia menyampaikan perkataan itu kepada orang lain."
+        }
+      },
+      {
+        "judul": "Dua hal berlawanan bisa sama-sama hilang, berbeda dari dua hal bertentangan, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan dhiddan sebagai dua sifat wujud yang bergantian di satu tempat dan mustahil berkumpul, seperti hitam dan putih. Bedanya dengan naqidhan: dua hal yang bertentangan tidak bisa berkumpul dan tidak bisa sama-sama hilang, seperti ada dan tiada, sedangkan dua hal yang berlawanan tidak bisa berkumpul tetapi bisa sama-sama hilang. Dalam logika ia juga mendefinisikan proposisi dharuriyyah muthlaqah, yang memastikan tetapnya atau ternafikannya predikat dari subjek selama dzat subjek itu ada.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001186, 80001189, 80001190],
+        "soal": {
+          "tanya": "Apa beda dhiddan dan naqidhan menurut al-Jurjani?",
+          "jawab": "Keduanya tidak bisa berkumpul, tetapi dhiddan bisa sama-sama hilang, sedangkan naqidhan tidak bisa sama-sama hilang."
+        }
+      },
+      {
+        "judul": "Dhiya' adalah melihat selain Allah dengan mata al-Haqq, menurut penulis",
+        "isi": "Dhalalah (kesesatan) didefinisikan sebagai hilangnya apa yang mengantar kepada tujuan; ada pula yang berkata, perjalanan yang tidak mengantar kepada tujuan. Dhiya' adalah melihat segala yang selain Allah (al-aghyar) dengan mata al-Haqq. Al-Jurjani menjelaskan bahwa al-Haqq dari sisi dzat-Nya adalah cahaya yang tidak terjangkau dan tidak menjadi sarana menjangkau, sedangkan dari sisi nama-nama-Nya adalah cahaya yang terjangkau dan menjadi sarana menjangkau. Ia mengumpamakannya dengan bundaran matahari yang bisa dilihat bila tertutup awan tipis.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001194, 80001201],
+        "soal": {
+          "tanya": "Dengan apa al-Jurjani mengumpamakan cahaya nama-nama yang membuat selain Allah bisa dilihat?",
+          "jawab": "Dengan bundaran matahari yang bisa dilihat ketika tertutup awan tipis."
+        }
+      },
+      {
+        "judul": "Tanggungan dalam fikih diukur berbeda menurut jenisnya, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan dhimar sebagai harta yang wujudnya masih ada tetapi tidak dapat diharapkan manfaatnya, seperti harta yang dirampas dan harta yang diingkari tanpa bukti. Dhaman ad-darak adalah mengembalikan harga kepada pembeli bila barang yang dijual ternyata hak orang lain. Tanggungan gadai dijamin dengan nilai yang lebih kecil, sedangkan tanggungan barang jualan dijamin dengan harganya, sedikit atau banyak.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001195, 80001196, 80001198, 80001199],
+        "soal": {
+          "tanya": "Dengan ukuran apa tanggungan barang jualan dijamin menurut definisi al-Jurjani?",
+          "jawab": "Dijamin dengan harganya, baik sedikit maupun banyak."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 80001194,
+        "char_start": 9,
+        "char_end": 72,
+        "terjemahan": "Yaitu hilangnya apa yang mengantar kepada tujuan; ada pula yang berkata: perjalanan yang tidak mengantar kepada tujuan."
+      }
+    ],
+    "istilah": []
+  }
+}

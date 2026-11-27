@@ -1,0 +1,200 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800022,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:09:03+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1436-p1438: fardhu dengan dalil qath'i, akibat ingkar dan meninggalkan, dua jenis beserta contohnya sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1420, p1449: fasid sah pokok tidak sifat, contoh budak dengan khamr, pendapat asy-Syafi'i, dan bagian ketiga menurut kalangan penulis sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1462: makna bahasa, istilah, wa qila, dan alasan Allah tidak disebut faqih sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1451-p1452: definisi fashl, empat pengeluaran beserta alasannya, qarib/ba'id, makna ahli ma'ani sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1453: fashahah pada kata, kalimat, dan pembicara sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p1467, p1465, p1471: definisi filsafat dan tafsiran penulis atas hadits yang dikutip (tanpa menilai status), fikr, fahm sesuai."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p1468, p1444-p1445, p1427, p1439: dua fana', farq pertama dan kedua, futuwwah dan firasah menurut ahli hakikat sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "e1a978aec5a7d3b2729a2333fdebe8ce723c419127a63d1431b79ae52894e8ba",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Isi sesuai, tetapi p80001438 (faraidh sebagai ilmu waris) ada di dasar padahal tidak dipakai dalam isi gagasan."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Fasid, contoh budak-khamr, pendapat asy-Syafi'i dan kalangan penulis sesuai p80001420 dan p80001449."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Definisi bahasa dan istilah fikih, wa qila, dan alasan Allah tidak disebut faqih sesuai p80001462."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Batasan fashl, pengeluaran nau', jins, 'aradh, khashshah, serta fashl bagi ahli ma'ani sesuai."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Fashahah pada kata, kalimat, dan pembicara sesuai p80001453."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Filsafat, fikr, fahm sesuai; kutipan fikr p80001465 setia; hadits tidak diberi status."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Dua fana', dua farq, futuwwah dan firasah sesuai; atribusi ahli hakikat tercantum di isi."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "68a773f29393dd4db8754365c79c2c14f03207c43c05e70a3df97dfabe24b630",
+      "draf_sha256": "e1a978aec5a7d3b2729a2333fdebe8ce723c419127a63d1431b79ae52894e8ba",
+      "waktu": "2026-11-27T19:35:15.100Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam bab fa, al-Jurjani mendefinisikan fardhu dan pembagiannya, fasid menurut dua mazhab, fikih, fashl dan fashahah, filsafat, serta fana' dan istilah tasawuf lainnya.",
+    "ringkasan": "Bab fa memuat 57 entri definisi; Intisari ini menyoroti sebagiannya. Al-Jurjani mendefinisikan fardhu sebagai yang tetap dengan dalil qath'i, membaginya menjadi fardhu 'ain dan kifayah, dan menyebut ilmu faraid. Ia membandingkan makna fasid menurut kalangannya dan menurut asy-Syafi'i, lalu mendefinisikan fikih menurut bahasa dan istilah. Dalam logika ia menguraikan fashl beserta batasan-batasannya, lalu syarat fashahah pada kata, kalimat, dan pembicara. Ia mendefinisikan filsafat, fikr, dan fahm. Dalam tasawuf ia menjelaskan dua macam fana', farq pertama dan kedua, futuwwah, dan firasah. Bab ini juga memuat istilah nahwu, 'arudh, dan kosmologi.",
+    "gagasan": [
+      {
+        "judul": "Fardhu tetap dengan dalil qath'i dan terbagi dua, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan fardhu sebagai yang tetap dengan dalil qath'i tanpa syubhat; orang yang mengingkarinya kafir dan orang yang meninggalkannya diazab. Faridhah menurut bahasa berarti penetapan kadar, dan menurut syariat adalah yang tetap dengan dalil pasti seperti Al-Qur'an, sunah, dan ijmak. Ia terbagi dua: fardhu 'ain, yang wajib ditegakkan setiap orang dan tidak gugur dengan pelaksanaan sebagian orang, seperti iman; dan fardhu kifayah, yang gugur dari yang lain bila sebagian telah menegakkannya, seperti jihad dan shalat jenazah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001436, 80001437, 80001438],
+        "soal": {
+          "tanya": "Apa beda fardhu 'ain dan fardhu kifayah menurut al-Jurjani?",
+          "jawab": "Fardhu 'ain tidak gugur dengan pelaksanaan sebagian orang, sedangkan fardhu kifayah gugur dari yang lain bila sebagian telah melaksanakannya."
+        }
+      },
+      {
+        "judul": "Fasid berbeda dari batal menurut kalangan penulis, tetapi sama menurut asy-Syafi'i",
+        "isi": "Al-Jurjani mendefinisikan fasid sebagai yang sah pada pokoknya tetapi tidak pada sifatnya. Akad fasid tetap menghasilkan kepemilikan bila disertai serah terima, sehingga orang yang membeli budak dengan khamr, menerimanya, lalu memerdekakannya, budak itu merdeka. Menurut asy-Syafi'i tidak ada beda antara fasid dan batal. Ia juga menegaskan bahwa menurut ahli fikih fasad adalah yang disyariatkan pokoknya tetapi tidak sifatnya; bagi asy-Syafi'i ia sinonim buthlan, sedangkan menurut kalangannya ia bagian ketiga di luar sah dan batal.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001420, 80001449],
+        "soal": {
+          "tanya": "Bagaimana kedudukan fasid terhadap sah dan batal menurut kalangan al-Jurjani?",
+          "jawab": "Fasid adalah bagian ketiga yang berbeda dari sah dan batal; bagi asy-Syafi'i fasid sama dengan batal."
+        }
+      },
+      {
+        "judul": "Fikih adalah ilmu hukum amaliah dari dalil terperinci, menurut penulis",
+        "isi": "Menurut bahasa, fikih adalah memahami maksud pembicara dari perkataannya. Dalam istilah, fikih adalah ilmu tentang hukum-hukum syariat yang bersifat amaliah yang diperoleh dari dalil-dalilnya yang terperinci. Ada pula yang berkata, fikih adalah menemukan makna tersembunyi yang menjadi sandaran hukum; ilmu ini digali dengan ra'y dan ijtihad serta butuh penalaran. Karena itu, kata al-Jurjani, Allah tidak boleh disebut faqih, sebab tidak ada yang tersembunyi bagi-Nya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001462],
+        "soal": {
+          "tanya": "Mengapa Allah tidak boleh disebut faqih menurut penjelasan al-Jurjani?",
+          "jawab": "Karena fikih adalah menemukan makna tersembunyi lewat ijtihad, sedangkan tidak ada yang tersembunyi bagi Allah."
+        }
+      },
+      {
+        "judul": "Fashl membedakan sesuatu pada substansinya, menurut definisi penulis",
+        "isi": "Al-Jurjani mendefinisikan fashl sebagai kulli yang dipredikatkan pada sesuatu sebagai jawaban atas pertanyaan 'sesuatu yang mana ia' dalam substansinya, seperti an-nathiq dan al-hassas. Batasan ini mengeluarkan nau' dan jins karena keduanya menjawab 'apa ia', mengeluarkan 'aradh 'amm karena tidak menjadi jawaban, dan mengeluarkan khashshah karena ia membedakan bukan pada substansi. Fashl qarib membedakan dari yang sejenis dekat, fashl ba'id dari yang sejenis jauh. Bagi ahli ma'ani, fashl adalah tidak menyambung kalimat dengan huruf athaf.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001451, 80001452],
+        "soal": {
+          "tanya": "Mengapa khashshah tidak termasuk fashl menurut definisi al-Jurjani?",
+          "jawab": "Karena khashshah membedakan sesuatu, tetapi bukan pada substansi dan dzatnya."
+        }
+      },
+      {
+        "judul": "Fashahah berlaku pada kata, kalimat, dan pembicara, menurut penulis",
+        "isi": "Fashahah menurut bahasa berarti penjelasan dan kejelasan. Pada kata tunggal, fashahah berarti bersih dari huruf-huruf yang saling berat diucapkan, dari keanehan, dan dari menyalahi kaidah. Pada kalimat, ia berarti bersih dari susunan yang lemah dan dari kata-kata yang saling berat diucapkan, padahal setiap katanya fasih. Pada pembicara, ia adalah kecakapan untuk mengungkapkan maksud dengan lafaz yang fasih.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001453],
+        "soal": {
+          "tanya": "Apa arti fashahah pada diri pembicara menurut al-Jurjani?",
+          "jawab": "Kecakapan untuk mengungkapkan maksud dengan lafaz yang fasih."
+        }
+      },
+      {
+        "judul": "Filsafat adalah menyerupai Tuhan sebatas kemampuan manusia, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan filsafat sebagai menyerupai Tuhan sesuai kemampuan manusia untuk meraih kebahagiaan abadi. Ia menyandarkannya pada sebuah hadits yang memerintahkan berakhlak dengan akhlak Allah, yang ia tafsirkan sebagai menyerupai-Nya dalam meliputi hal-hal yang diketahui dan dalam lepas dari hal-hal jasmani. Fikr ia definisikan sebagai menyusun hal-hal yang diketahui untuk sampai kepada yang belum diketahui, dan fahm sebagai menangkap makna dari lafaz lawan bicara.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001467, 80001465, 80001471],
+        "soal": {
+          "tanya": "Apa definisi fikr atau berpikir menurut al-Jurjani?",
+          "jawab": "Menyusun hal-hal yang diketahui untuk sampai kepada yang belum diketahui."
+        }
+      },
+      {
+        "judul": "Fana' ada dua macam, dan ahli hakikat memaknai futuwwah sebagai itsar",
+        "isi": "Al-Jurjani mendefinisikan fana' sebagai gugurnya sifat-sifat tercela, sebagaimana baqa' adalah adanya sifat-sifat terpuji. Fana' ada dua: yang pertama itu, dicapai dengan banyak riyadhah, dan yang kedua tidak merasakan alam mulk dan malakut karena tenggelam dalam keagungan Allah. Farq pertama adalah terhijab oleh makhluk dari al-Haqq, sedangkan farq kedua adalah menyaksikan makhluk tegak dengan al-Haqq tanpa terhijab oleh salah satunya. Dalam istilah ahli hakikat, futuwwah adalah mendahulukan makhluk atas diri sendiri dalam dunia dan akhirat, dan firasah adalah penyingkapan yakin dan penyaksian yang gaib.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001468, 80001444, 80001445, 80001427, 80001439],
+        "soal": {
+          "tanya": "Dengan apa fana' yang kedua dicapai menurut al-Jurjani?",
+          "jawab": "Dengan tenggelam dalam keagungan Allah dan menyaksikan al-Haqq, sehingga tidak merasakan alam mulk dan malakut."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 6,
+        "passage_id": 80001465,
+        "char_start": 7,
+        "char_end": 41,
+        "terjemahan": "Menyusun hal-hal yang sudah diketahui untuk sampai kepada yang belum diketahui."
+      }
+    ],
+    "istilah": []
+  }
+}

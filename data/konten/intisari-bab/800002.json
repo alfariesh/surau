@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800002,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T18:56:38+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p7: ta'rifat dikumpulkan dan ishthilahat diambil dari kitab al-qawm; sesuai, tanpa tambahan."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p6-p7: urutan alif-ba sampai ya, dua alasan (memudahkan penuntut dan yang berminat), penutup tawakal; sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "ef27ad9519b52431ac40d82cca258e3bccecbbcee47d8d2a1ed22490646af089",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "P7 hanya menyebut istilah diambil dari kitab al-qawm, sedangkan definisi 'dikumpulkan'; draf menyimpulkan seluruh isi disandarkan pada kitab terdahulu."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Sesuai p6-p7: urutan huruf, dua alasan, dan penutup; kutipan p7 tepat dan setia."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "607164b06cd7ea753110b41fe2d095132260258eedafc1ef14cbea66e55740ef",
+      "draf_sha256": "ef27ad9519b52431ac40d82cca258e3bccecbbcee47d8d2a1ed22490646af089",
+      "waktu": "2026-11-27T18:57:50.364Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut mukadimahnya, at-Ta'rifat adalah himpunan definisi dan istilah yang diambil al-Jurjani dari kitab-kitab para ahli lalu disusun menurut urutan huruf hijaiah.",
+    "ringkasan": "Mukadimah at-Ta'rifat sangat singkat. Sesudah basmalah, al-Jurjani memuji Allah dan bershalawat kepada Nabi Muhammad saw. dan keluarganya. Ia lalu menyebut bahwa kitab ini berisi definisi-definisi yang ia kumpulkan dan istilah-istilah yang ia ambil dari kitab-kitab para ahli (al-qawm). Semuanya ia susun menurut huruf hijaiah, dari alif dan ba sampai ya, supaya mudah dijangkau para penuntut ilmu dan mudah dipakai oleh orang yang berminat. Mukadimah ditutup dengan pernyataan bahwa Allah-lah pemberi petunjuk dan kepada-Nya ia bersandar.",
+    "gagasan": [
+      {
+        "judul": "At-Ta'rifat menghimpun definisi dan istilah dari kitab para ahli, menurut penulisnya",
+        "isi": "Dalam mukadimahnya, al-Jurjani menjelaskan bahwa kitab ini berisi dua hal: definisi-definisi (ta'rifat) yang ia kumpulkan dan istilah-istilah (ishthilahat) yang ia ambil dari kitab-kitab para ahli (al-qawm). Dengan begitu, isi kitab ini ia sandarkan pada kitab-kitab yang sudah ada sebelumnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000007],
+        "soal": {
+          "tanya": "Dari mana al-Jurjani mengambil istilah-istilah yang ia himpun dalam at-Ta'rifat?",
+          "jawab": "Dari kitab-kitab para ahli (al-qawm), lalu ia susun bersama definisi yang ia kumpulkan."
+        }
+      },
+      {
+        "judul": "Penulis menyusun entri menurut urutan huruf hijaiah agar mudah dijangkau penuntut ilmu",
+        "isi": "Al-Jurjani menyusun semua entri menurut urutan huruf hijaiah, dimulai dari alif dan ba hingga ya. Alasan yang ia sebut ada dua: memudahkan para penuntut ilmu menjangkaunya dan memudahkan orang yang berminat memakainya. Sesudah pujian kepada Allah dan shalawat, ia menutup mukadimah dengan menyatakan bahwa Allah adalah pemberi petunjuk dan tempat ia bersandar pada permulaan dan tempat kembalinya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000006, 80000007],
+        "soal": {
+          "tanya": "Apa dua alasan al-Jurjani menyusun at-Ta'rifat menurut urutan huruf hijaiah?",
+          "jawab": "Supaya mudah dijangkau para penuntut ilmu dan mudah dipakai oleh orang yang berminat."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 80000007,
+        "char_start": 6,
+        "char_end": 201,
+        "terjemahan": "Inilah definisi-definisi yang aku kumpulkan dan istilah-istilah yang aku ambil dari kitab-kitab al-qawm, lalu aku susun menurut huruf hijaiah, dari alif dan ba sampai ya, untuk memudahkan para penuntut menjangkaunya dan memudahkan orang-orang yang berminat memakainya. Allah-lah pemberi petunjuk, dan kepada-Nya aku bersandar pada permulaanku dan tempat kembaliku."
+      }
+    ],
+    "istilah": []
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800027,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:03:11+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p2037: tiga cara wahyu kepada nabi dan keutamaan rasul karena wahyu khusus Jibril dengan kitab sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p2049-2050, 2054-2055: dua rumusan naskh, beda sudut manusia dan ilmu Allah, nash dan qila tidak menerima ta wil sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p2070-2072, 2076: tiga tingkatan jiwa dan sebab penamaannya sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p2068-2069: jiwa zat uap halus, sebutan ruh hewani oleh al-hakim, tiga keadaan jaga-tidur-mati sesuai (dirapikan: al-hakim tunggal)."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p2091, 2093, 2046: definisi nikah, alasan qayd qashdan, gambaran mut ah (sepuluh, masa tertentu), nadzar sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p2044 (dua qila dipertahankan), 2104, 2081: nahwu, nahy, nafy sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "b0ba86d1e9d3560edf55cd0124c8cdb424cf1122eff28c15bd4565eb2b6f050d",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Sesuai p80002037: tiga cara wahyu kepada nabi dan keutamaan rasul karena wahyu khusus Jibril dengan kitab."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Rumusan nash pertama di p80002055 (hanya satu makna) tidak disebut, sehingga 'ada pula yang berkata' tampak sebagai satu-satunya rumusan kedua; sisanya setia."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Tiga tingkatan jiwa dan sebab penamaan sesuai p80002070-72 dan 76; kutipan p80002072 sesuai persis dengan terjemahannya."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Definisi nafs, penyebutan al-hakim, serta tiga keadaan jaga-tidur-mati sesuai p80002068-69."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Definisi nikah, alasan kata 'secara sengaja', gambaran mut'ah (sepuluh, masa tertentu), dan nadzar sesuai p80002091, 93, 46."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Tiga rumusan nahwu (dua dinukil), nahy, dan nafy sesuai p80002044, 104, 81."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "98ff031f9391c18f6d9259d60a00d97adc044cd65fcd1f9947052fe293e33d58",
+      "draf_sha256": "b0ba86d1e9d3560edf55cd0124c8cdb424cf1122eff28c15bd4565eb2b6f050d",
+      "waktu": "2026-11-27T19:04:03.552Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani, istilah berhuruf nun mencakup nabi dan rasul, naskh dan nash, tingkatan jiwa, hubungan jiwa dengan badan dalam tidur dan mati, nikah, serta ilmu nahwu.",
+    "ringkasan": "Bab nun memuat 70 entri definisi; Intisari ini menyoroti sebagian yang paling banyak dipakai lintas ilmu. Al-Jurjani membuka dengan istilah seperti nabi, yang ia bedakan dari rasul. Di bidang ushul fikih ia mendefinisikan naskh dan nash. Sejumlah entri berturut-turut membahas nafs: jiwa sebagai zat halus pembawa kehidupan, penjelasan tidur dan mati, serta tiga tingkatan jiwa yang ammarah, lawwamah, dan muthma'innah. Di bidang fikih ia mendefinisikan nikah, nikah mut'ah, dan nadzar, dan di bidang bahasa ia menjelaskan ilmu nahwu dan larangan (nahy).",
+    "gagasan": [
+      {
+        "judul": "Rasul lebih utama daripada nabi karena wahyu khusus, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan nabi sebagai orang yang diberi wahyu lewat malaikat, diilhami di dalam hatinya, atau diberi peringatan lewat mimpi yang baik. Rasul ia nilai lebih utama karena wahyu khusus yang berada di atas wahyu kenabian, sebab rasul adalah orang yang diberi wahyu oleh Jibril secara khusus dengan penurunan kitab dari Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002037],
+        "soal": {
+          "tanya": "Mengapa rasul lebih utama daripada nabi dalam definisi al-Jurjani?",
+          "jawab": "Karena rasul menerima wahyu khusus dari Jibril dengan penurunan kitab, di atas wahyu kenabian."
+        }
+      },
+      {
+        "judul": "Naskh adalah penjelasan berakhirnya masa hukum, menurut definisi penulis",
+        "isi": "Secara bahasa, naskh berarti menghapus, memindahkan, dan mengganti. Dalam syariat, al-Jurjani memberi dua rumusan: datangnya dalil syar'i yang terkemudian dan menuntut hukum yang berlawanan dengan dalil sebelumnya, dan penjelasan berakhirnya hukum syar'i. Bagi pengetahuan manusia naskh adalah penggantian, sedangkan bagi ilmu Allah ia penjelasan masa berlakunya hukum, karena berakhirnya sudah diketahui Allah. Nash ia definisikan sebagai lafaz yang lebih jelas daripada zhahir karena kalimatnya disusun untuk makna itu; ada pula yang berkata, nash adalah yang tidak menerima ta'wil.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002049, 80002050, 80002054, 80002055],
+        "soal": {
+          "tanya": "Mengapa naskh disebut penggantian bagi manusia tetapi penjelasan masa hukum bagi ilmu Allah?",
+          "jawab": "Karena berakhirnya hukum sudah diketahui Allah, sedangkan manusia baru mengetahuinya lewat dalil yang menaskh."
+        }
+      },
+      {
+        "judul": "Jiwa bertingkat dari ammarah sampai muthma'innah, menurut penulis",
+        "isi": "Al-Jurjani menyebut tiga tingkatan jiwa. Nafs ammarah condong kepada tabiat badan, memerintahkan kelezatan indrawi, dan menarik hati ke arah bawah, sehingga menjadi tempat keburukan. Nafs lawwamah telah diterangi cahaya hati sekadar terbangun dari kelalaian; setiap kali berbuat buruk, ia mencela dirinya dan bertobat. Nafs muthma'innah telah sempurna diterangi cahaya hati hingga terlepas dari sifat tercela dan berakhlak terpuji. Pada entri nafs nathiqah, ia menjelaskan nama-nama itu menurut sikap jiwa terhadap dorongan syahwat: tenang di bawah perintah, menentang tetapi belum tenang, atau tunduk kepada syahwat dan setan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002070, 80002071, 80002072, 80002076],
+        "soal": {
+          "tanya": "Apa yang dilakukan nafs lawwamah setiap kali berbuat buruk menurut al-Jurjani?",
+          "jawab": "Ia mencela dirinya sendiri dan bertobat dari keburukan itu."
+        }
+      },
+      {
+        "judul": "Tidur dan mati berasal dari satu jenis, menurut uraian penulis",
+        "isi": "Al-Jurjani mendefinisikan nafs sebagai zat uap yang halus pembawa daya hidup, indra, dan gerak kehendak; al-hakim (filsuf) menyebutnya ruh hewani. Zat itu menerangi badan. Saat mati, cahayanya terputus dari lahir dan batin badan; saat tidur, terputus dari lahir badan saja. Karena itu tidur dan mati satu jenis: mati keterputusan menyeluruh, tidur keterputusan sebagian. Hubungan jiwa dengan badan diatur dalam tiga keadaan: bila cahayanya mencapai seluruh bagian badan, itu jaga; bila terputus dari lahirnya saja, tidur; bila terputus seluruhnya, mati.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002068, 80002069],
+        "soal": {
+          "tanya": "Apa beda tidur dan mati menurut penjelasan al-Jurjani tentang cahaya jiwa?",
+          "jawab": "Mati adalah keterputusan cahaya jiwa dari lahir dan batin badan, tidur hanya dari lahirnya."
+        }
+      },
+      {
+        "judul": "Nikah adalah akad atas kepemilikan manfaat secara sengaja, menurut penulis",
+        "isi": "Nikah secara bahasa berarti menghimpun dan mengumpulkan; dalam syariat, menurut al-Jurjani, nikah adalah akad yang ditujukan untuk memiliki manfaat al-budh'u secara sengaja. Kata secara sengaja mengecualikan jual beli dan sejenisnya, karena tujuannya memiliki dzat barang, sedangkan kepemilikan manfaat hanya ikut di dalamnya. Nikah mut'ah ia gambarkan sebagai tawaran laki-laki kepada perempuan berupa sepuluh (keping) untuk bersenang-senang dengannya selama masa tertentu, lalu perempuan itu menerimanya. Nadzar ia definisikan sebagai mewajibkan atas diri sendiri suatu perbuatan mubah tertentu untuk mengagungkan Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002091, 80002093, 80002046],
+        "soal": {
+          "tanya": "Mengapa jual beli tidak masuk definisi nikah menurut al-Jurjani?",
+          "jawab": "Karena tujuan jual beli memiliki dzat barang, sedangkan kepemilikan manfaat hanya ikut di dalamnya."
+        }
+      },
+      {
+        "judul": "Nahwu adalah ilmu kaidah susunan kalimat Arab, menurut penulis dan pendapat lain",
+        "isi": "Al-Jurjani mendefinisikan nahwu sebagai ilmu tentang kaidah-kaidah yang dengannya diketahui keadaan susunan kalimat Arab, berupa i'rab, bina', dan lainnya. Ia menukil dua rumusan lain: ilmu untuk mengetahui keadaan kata dari sisi i'lal, dan ilmu tentang dasar-dasar untuk mengetahui benar dan rusaknya ucapan. Nahy ia definisikan sebagai lawan perintah, yaitu ucapan seseorang kepada yang lebih rendah darinya: jangan lakukan. Nafy adalah yang tidak dijazmkan dengan la, yaitu pemberitaan tentang tidak dilakukannya perbuatan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80002044, 80002104, 80002081],
+        "soal": {
+          "tanya": "Bagaimana al-Jurjani membedakan nahy dari nafy?",
+          "jawab": "Nahy adalah ucapan jangan lakukan kepada yang lebih rendah, sedangkan nafy memberitakan tidak dilakukannya perbuatan."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 80002072,
+        "char_start": 16,
+        "char_end": 98,
+        "terjemahan": "Jiwa yang telah sempurna diterangi cahaya hati hingga terlepas dari sifat-sifat tercelanya dan berakhlak dengan akhlak yang terpuji."
+      }
+    ],
+    "istilah": []
+  }
+}

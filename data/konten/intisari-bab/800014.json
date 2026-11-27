@@ -1,0 +1,158 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800014,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:06:35+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1058-1059: sunnah bahasa dan syariat, huda (ibadah, contoh azan, iqamah, rawatib) dan zawa'id (kebiasaan), peninggal sunnah tidak dihukum; sesuai, tanpa nada fatwa."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1008-1010, p1005-1006: sabab syariat tidak memengaruhi hukum, sabab tam dan tidak tam, sabr wa taqsim; sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1022, p1043: sariqah sepuluh dirham cetakan, tersimpan, tanpa syubhat; asy-Syafi'i seperempat dinar; salam; sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1030-1034: safar syariat tiga hari, safar menurut ahli hakikat, empat perjalanan diringkas sesuai urutan."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1020, p1038, p1035: sirr, sakinah sebagai permulaan 'ain al-yaqin, safah; sesuai."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "76a0e9d932b797df9038b321b1b92f4425eac5607796e856149677209b0486d1",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Pembagian sunnah huda dan zawa'id, contoh, dan akibat meninggalkan sesuai p1058-p1059."
+        },
+        {
+          "ke": 2,
+          "nilai": "kurang",
+          "catatan": "Judul menisbahkan definisi sabab kepada \"ahli ushul\" padahal p1008 tidak menyebut pemilik, dan judul tidak mencakup sabr wa taqsim; isi sendiri sesuai."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Batas sepuluh dirham, nukilan asy-Syafi'i seperempat dinar, dan definisi salam sesuai p1022 dan p1043."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Definisi safar syar'i dan empat perjalanan menurut ahli hakikat sesuai p1030-p1034, sikap reported tepat."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Isi menulis safah sebagai \"ringannya akal\", sedangkan p1035 hanya menyebut kekhfafan (ringan) yang menimpa manusia; sirr dan sakinah serta kutipan p1020 setia."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "57ec41b3dfcb2a4a1c1adc37bbc788b9bd84dd7491766200ecbf42392607f065",
+      "draf_sha256": "76a0e9d932b797df9038b321b1b92f4425eac5607796e856149677209b0486d1",
+      "waktu": "2026-11-27T19:07:20.473Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Bab sin at-Ta'rifat, menurut susunan al-Jurjani, memuat definisi kunci seperti sunnah dan dua macamnya, sabab dan sabr wa taqsim, sariqah dan salam, serta empat perjalanan menurut ahli hakikat.",
+    "ringkasan": "Bab huruf sin memuat 63 entri definisi, dan Intisari ini menyoroti sebagian di antaranya. Al-Jurjani mendefinisikan sunnah secara bahasa dan syariat lalu membaginya menjadi sunnah huda dan sunnah zawa'id. Dari ushul ia menjelaskan sabab beserta macamnya dan metode sabr wa taqsim. Dari fikih ia mendefinisikan sariqah dengan batas nilainya, termasuk pendapat asy-Syafi'i, serta akad salam. Ia juga menjelaskan safar menurut ahli hakikat dan empat tahap perjalanan hati, lalu istilah sirr dan sakinah.",
+    "gagasan": [
+      {
+        "judul": "Sunnah terbagi menjadi sunnah huda dan sunnah zawa'id, menurut penulis",
+        "isi": "Menurut al-Jurjani, sunnah secara bahasa adalah jalan, baik terpuji maupun tidak. Dalam syariat, sunnah adalah jalan yang ditempuh dalam agama tanpa diwajibkan, yaitu apa yang terus dilakukan Nabi saw. dengan sesekali ditinggalkan. Bila dilakukan sebagai ibadah, ia sunnah huda atau sunnah muakkadah, seperti azan, iqamah, dan rawatib; meninggalkannya membawa karahah atau isa'ah. Bila dilakukan sebagai kebiasaan, ia sunnah zawa'id, seperti cara Nabi saw. berdiri, duduk, berpakaian, dan makan; meninggalkannya tidak membawa karahah. Yang meninggalkan sunnah, berbeda dengan wajib, tidak dihukum.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001058, 80001059],
+        "soal": {
+          "tanya": "Apa yang membedakan sunnah huda dari sunnah zawa'id menurut al-Jurjani?",
+          "jawab": "Sunnah huda dilakukan Nabi sebagai ibadah, sedangkan sunnah zawa'id dilakukan sebagai kebiasaan."
+        }
+      },
+      {
+        "judul": "Sabab menjadi jalan menuju hukum tanpa memengaruhinya, menurut ahli ushul",
+        "isi": "Al-Jurjani mendefinisikan sabab secara bahasa sebagai apa yang dipakai untuk sampai kepada tujuan, dan dalam syariat sebagai apa yang menjadi jalan sampai kepada hukum tanpa memengaruhinya. Sabab tam adalah yang dengan adanya saja akibat itu ada, sedangkan sabab yang tidak tam adalah yang menjadi tempat bergantungnya akibat tetapi tidak cukup sendirian. Sabr wa taqsim adalah menyebut sifat-sifat pada ashl (yang dikiaskan kepadanya), lalu membatalkan sebagiannya supaya sisanya tertentu sebagai 'illat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001008, 80001009, 80001010, 80001005, 80001006],
+        "soal": {
+          "tanya": "Bagaimana cara kerja sabr wa taqsim dalam menentukan 'illat menurut definisi al-Jurjani?",
+          "jawab": "Sifat-sifat pada ashl disebutkan, sebagian dibatalkan, sehingga sisanya tertentu sebagai 'illat."
+        }
+      },
+      {
+        "judul": "Pencurian yang dikenai potong tangan dibatasi sepuluh dirham, menurut penulis, berbeda dengan asy-Syafi'i",
+        "isi": "Al-Jurjani mendefinisikan sariqah secara bahasa sebagai mengambil sesuatu milik orang lain secara sembunyi. Dalam syariat, untuk hukuman potong tangan, sariqah adalah pengambilan secara sembunyi oleh mukallaf atas harta senilai sepuluh dirham cetakan yang tersimpan di tempat atau penjaga, tanpa syubhat. Bila nilainya kurang dari itu, ia bukan sariqah dalam hadd potong tangan. Ia menukil bahwa menurut asy-Syafi'i batasnya seperempat dinar. Ia juga mendefinisikan akad salam sebagai akad yang memberi penjual hak milik atas harga secara segera dan memberi pembeli hak milik secara tangguh.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001022, 80001043],
+        "soal": {
+          "tanya": "Berapa batas nilai sariqah yang dikenai potong tangan menurut asy-Syafi'i sebagaimana dinukil al-Jurjani?",
+          "jawab": "Batasnya seperempat dinar menurut asy-Syafi'i."
+        }
+      },
+      {
+        "judul": "Ahli hakikat memaknai safar sebagai perjalanan hati menuju al-Haqq dalam empat tahap",
+        "isi": "Al-Jurjani menjelaskan bahwa safar dalam syariat adalah keluar dengan tujuan perjalanan tiga hari tiga malam atau lebih dengan perjalanan unta dan jalan kaki. Menurut ahli hakikat, safar adalah perjalanan hati ketika mulai menghadap al-Haqq dengan zikir, dan perjalanan itu ada empat. Yang pertama, perjalanan menuju Allah dari tempat-tempat persinggahan nafsu; yang kedua, perjalanan di dalam Allah dengan bersifat dengan sifat-sifat-Nya; yang ketiga, naik menuju 'ain al-jam'; dan yang keempat, kembali dari al-Haqq kepada makhluk untuk menyempurnakan, yaitu maqam baqa' sesudah fana'.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001030, 80001031, 80001032, 80001033, 80001034],
+        "soal": {
+          "tanya": "Apa ciri perjalanan keempat dalam pembagian safar menurut ahli hakikat yang dijelaskan al-Jurjani?",
+          "jawab": "Kembali dari al-Haqq kepada makhluk untuk menyempurnakan, yaitu maqam baqa' sesudah fana'."
+        }
+      },
+      {
+        "judul": "Sirr adalah tempat musyahadah di dalam hati, menurut penulis",
+        "isi": "Menurut al-Jurjani, sirr adalah unsur halus yang dititipkan di dalam hati seperti ruh di dalam badan. Sirr adalah tempat musyahadah, sebagaimana ruh adalah tempat mahabbah dan hati adalah tempat ma'rifah. Sakinah adalah ketenangan yang didapati hati ketika turunnya hal gaib; ia cahaya di dalam hati yang membuatnya tenang dan merupakan permulaan 'ain al-yaqin. Ia juga mendefinisikan safah sebagai ringannya akal yang datang kepada manusia karena gembira atau marah, lalu mendorongnya berbuat menyalahi akal dan tuntutan syariat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001020, 80001038, 80001035],
+        "soal": {
+          "tanya": "Apa tempat musyahadah, mahabbah, dan ma'rifah menurut pembagian al-Jurjani?",
+          "jawab": "Sirr tempat musyahadah, ruh tempat mahabbah, dan hati tempat ma'rifah."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 5,
+        "passage_id": 80001020,
+        "char_start": 6,
+        "char_end": 104,
+        "terjemahan": "Sirr adalah unsur halus yang dititipkan di dalam hati seperti ruh di dalam badan; ia tempat musyahadah, sebagaimana ruh tempat mahabbah dan hati tempat ma'rifah."
+      }
+    ],
+    "istilah": []
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800024,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:12:28+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p1592-p1594: definisi kalam, batasan yang mengeluarkan ilmu ketuhanan filsuf, definisi lain dan makna nahwu sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p1579, p1578, p1581: karim tanpa imbalan, kesimpulan ashhabuna tentang tujuan, kasb tidak untuk perbuatan Allah sesuai; dinisbahkan ke kalangan penulis."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p1580, p1585: karamah, istidraj, mukjizat, dan kasyf sesuai; negasi tepat."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p1572, p1591, p1587-p1588: kabirah, kufran, kafalah, kafa'ah sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p1601-p1602: kulli hakiki, idhafi, tiga hal, thabi'i dan manthiqi beserta alasannya sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p1607-p1608: definisi pertama tanpa atribusi (penulis), lalu ulama bayan, lalu definisi kedua; 'ahli ushul' dihapus sesudah periksa independen."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p1617-p1619: tiga definisi kimia tanpa klaim tingkatan (judul dirapikan sesudah periksa independen)."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "6cedd340ae505852e07f3a468d1d47b89b9c9a7f32dfdeb6b19bc230066c19f3",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi, batasan penyingkir filsafat, dan definisi lain (dinukil dengan 'qila') setia pada teks."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Karim dan kasb serta atribusi 'kalangannya' (ashabuna) sesuai teks, tanpa tambahan."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Karamah, istidraj, mukjizat, dan kasyf sesuai teks."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Dosa besar, kufran, kafalah, kafa'ah sesuai teks; label 'dalam fikih' hanya tafsiran ringan."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Kulli hakiki, idhafi, thabi'i, manthiqi sesuai teks (kulli 'aqli tidak disebut, tidak masalah)."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Dua definisi kinayah dan contoh bayan sesuai teks; sikap author memuat nukilan ulama bayan yang disebut di judul."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Isi dan kutipan setia, tetapi inti menyebut 'tiga tingkat' padahal teks hanya memuat tiga macam kimia tanpa urutan tingkat."
+        }
+      ],
+      "laporan": "Diperiksa ulang sesudah revisi butir Salah; lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8)."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "2899d5af2422e1b2d5d9348ac1589551b97080f153594fc560acc9bfbde3467e",
+      "draf_sha256": "6cedd340ae505852e07f3a468d1d47b89b9c9a7f32dfdeb6b19bc230066c19f3",
+      "waktu": "2026-11-27T19:41:43.750Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Dalam bab kaf, al-Jurjani mendefinisikan ilmu kalam, kemurahan dan kasb, karamah dan kasyf, dosa besar, kulli dalam logika, kinayah, dan tiga tingkat kimia kebahagiaan.",
+    "ringkasan": "Bab kaf memuat 47 entri definisi; Intisari ini menyoroti sebagiannya. Al-Jurjani mendefinisikan ilmu kalam dan kalam dalam nahwu, lalu menjelaskan karim sebagai pemberi manfaat tanpa imbalan, yang dijadikan kalangannya dasar bahwa Allah tidak berbuat karena tujuan, serta kasb yang tidak dilekatkan pada perbuatan Allah. Ia membedakan karamah, istidraj, dan mukjizat, mendefinisikan kasyf, dosa besar, dan kufran. Dalam logika ia menguraikan kulli hakiki, idhafi, thabi'i, dan manthiqi. Ia menjelaskan kinayah dengan definisinya sendiri dan menurut ulama bayan, lalu kimia kebahagiaan, kimia orang awam, dan kimia orang khusus. Bab ini juga memuat istilah fikih dan firqah.",
+    "gagasan": [
+      {
+        "judul": "Ilmu kalam membahas Allah dan alam di atas kaidah Islam, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan kalam sebagai ilmu yang membahas dzat Allah dan sifat-sifat-Nya serta keadaan hal-hal yang mungkin, dari permulaan sampai tempat kembali, menurut kaidah Islam. Batasan terakhir itu, katanya, untuk mengeluarkan ilmu ketuhanan para filsuf. Definisi lain menyebutnya ilmu tentang perkara akhirat seperti surga, neraka, shirath, dan mizan, dan ada pula yang menyebutnya ilmu tentang kaidah akidah syar'i yang diperoleh dari dalil. Bagi ahli nahwu, kalam adalah makna tersusun yang memuat penyandaran sempurna.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001593, 80001594, 80001592],
+        "soal": {
+          "tanya": "Apa yang dikeluarkan oleh batasan 'menurut kaidah Islam' dalam definisi ilmu kalam al-Jurjani?",
+          "jawab": "Ilmu ketuhanan para filsuf."
+        }
+      },
+      {
+        "judul": "Kalangan penulis menyimpulkan Allah tidak berbuat karena tujuan dari makna karim",
+        "isi": "Karim adalah orang yang menyampaikan manfaat tanpa imbalan; orang yang memberi harta untuk meraih manfaat atau lepas dari celaan bukanlah karim. Karena itu, kata al-Jurjani, kalangannya berkata bahwa mustahil Allah berbuat karena suatu tujuan, sebab bila demikian Dia memperoleh keutamaan dari perbuatan itu sehingga kurang pada dzat-Nya dan disempurnakan oleh yang lain, dan itu mustahil. Senada dengan itu, kasb adalah yang membawa manfaat atau menolak bahaya, sehingga perbuatan Allah tidak disebut kasb.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80001579, 80001578, 80001581],
+        "soal": {
+          "tanya": "Mengapa perbuatan Allah tidak disebut kasb menurut al-Jurjani?",
+          "jawab": "Karena kasb membawa manfaat atau menolak bahaya, sedangkan Allah suci dari itu."
+        }
+      },
+      {
+        "judul": "Karamah berbeda dari istidraj dan mukjizat, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan karamah sebagai munculnya perkara luar biasa dari seseorang yang tidak disertai pengakuan kenabian. Perkara luar biasa yang tidak disertai iman dan amal saleh adalah istidraj, sedangkan yang disertai pengakuan kenabian adalah mukjizat. Kasyf menurut bahasa berarti mengangkat hijab, dan dalam istilah adalah menyaksikan makna-makna gaib dan perkara hakiki yang ada di balik hijab, secara wujud maupun penyaksian.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001580, 80001585],
+        "soal": {
+          "tanya": "Disebut apa perkara luar biasa yang tidak disertai iman dan amal saleh menurut al-Jurjani?",
+          "jawab": "Perkara itu disebut istidraj."
+        }
+      },
+      {
+        "judul": "Dosa besar ditetapkan oleh nash qath'i dengan hukuman murni, menurut penulis",
+        "isi": "Al-Jurjani mendefinisikan dosa besar (kabirah) sebagai perbuatan yang murni haram dan baginya disyariatkan hukuman murni dengan nash yang pasti, di dunia dan di akhirat. Kufran adalah menutupi nikmat pemberi nikmat dengan mengingkarinya, atau dengan perbuatan yang serupa pengingkaran karena menyelisihi pemberi nikmat. Dalam fikih ia mendefinisikan kafalah sebagai menggabungkan tanggungan penjamin dengan tanggungan orang yang dijamin dalam hal penagihan, dan kafa'ah sebagai kesetaraan suami dengan istri.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001572, 80001591, 80001587, 80001588],
+        "soal": {
+          "tanya": "Dengan dalil apa hukuman dosa besar disyariatkan menurut definisi al-Jurjani?",
+          "jawab": "Dengan nash yang pasti (qath'i), di dunia dan di akhirat."
+        }
+      },
+      {
+        "judul": "Kulli thabi'i dan kulli manthiqi dibedakan oleh tempatnya, menurut penulis",
+        "isi": "Kulli hakiki adalah yang gambaran dirinya tidak mencegah adanya persekutuan di dalamnya, seperti manusia. Kulli idhafi adalah yang lebih umum dari sesuatu. Al-Jurjani menjelaskan bahwa bila dikatakan hewan itu kulli, ada tiga hal: hewan itu sendiri, pengertian kulli, dan gabungan keduanya. Yang pertama disebut kulli thabi'i karena ada di alam luar, dan yang kedua kulli manthiqi karena ilmu logika membahasnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001601, 80001602],
+        "soal": {
+          "tanya": "Mengapa pengertian kulli disebut kulli manthiqi menurut al-Jurjani?",
+          "jawab": "Karena ilmu logika (manthiq) yang membahasnya."
+        }
+      },
+      {
+        "judul": "Kinayah butuh niat atau petunjuk keadaan, menurut penulis dan ulama bayan",
+        "isi": "Al-Jurjani mendefinisikan kinayah sebagai perkataan yang maksudnya tertutup oleh pemakaian walau maknanya jelas secara bahasa, sehingga timbul keraguan dan diperlukan niat atau petunjuk keadaan, seperti suasana pembicaraan tentang talak. Menurut ulama bayan, kinayah adalah mengungkapkan sesuatu dengan lafaz yang tidak menunjuknya secara langsung untuk suatu tujuan, seperti menyamarkan bagi pendengar, atau demi kefasihan, misalnya 'banyak abunya' untuk orang yang banyak menjamu tamu. Dalam definisi lain, kinayah adalah yang maknanya tertutup dan hanya diketahui dengan petunjuk tambahan; karena itu kata ganti seperti huruf ta pada anta dan huruf ha pada innahu disebut huruf kinayah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001607, 80001608],
+        "soal": {
+          "tanya": "Apa yang diperlukan untuk menghilangkan keraguan dalam kinayah menurut definisi al-Jurjani?",
+          "jawab": "Niat atau sesuatu yang menggantikannya berupa petunjuk keadaan."
+        }
+      },
+      {
+        "judul": "Kimia kebahagiaan, kimia orang awam, dan kimia orang khusus didefinisikan penulis",
+        "isi": "Al-Jurjani mendefinisikan kimia kebahagiaan sebagai mendidik jiwa dengan menjauhi sifat-sifat tercela dan membersihkannya darinya, serta memperoleh keutamaan dan menghiasinya dengannya. Kimia orang awam adalah mengambil harta akhirat yang kekal sebagai ganti reruntuhan dunia yang fana. Kimia orang khusus adalah membersihkan hati dari alam ciptaan dengan mengutamakan Yang tersembunyi (al-maknun).",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80001617, 80001618, 80001619],
+        "soal": {
+          "tanya": "Apa kimia orang awam menurut definisi al-Jurjani?",
+          "jawab": "Mengambil harta akhirat yang kekal sebagai ganti reruntuhan dunia yang fana."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 7,
+        "passage_id": 80001617,
+        "char_start": 16,
+        "char_end": 87,
+        "terjemahan": "Mendidik jiwa dengan menjauhi sifat-sifat tercela dan membersihkannya darinya, serta memperoleh keutamaan dan menghiasinya dengannya."
+      }
+    ],
+    "istilah": []
+  }
+}

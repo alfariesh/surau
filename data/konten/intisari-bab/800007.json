@@ -1,0 +1,179 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800007,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:05:39+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p652, p705: jabr, dua macam Jabriyah dengan contohnya, dan nukilan pendapat Jahmiyah (qalu) sesuai."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p698, p670, p665: jauhar lima, jism tiga dimensi dan wa qila, juz' la yatajazza' sebagai mazhab mutakallimin sesuai; ayat di p698 tidak disinggung."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p702-p704: definisi jahl, keberatan dan jawabannya, jahl basith dan murakkab sesuai."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p659-p661: jadal logika dan tujuannya, definisi kedua, dan jidal sesuai."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p693-p694, p666-p667: jins, batasan yang mengeluarkan, jins dekat dan jauh, juz'i hakiki dan idhafi dengan contohnya sesuai."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p679-p680: tafriqah dan jam', keduanya wajib bagi hamba, awal dan akhir iradah, jam' al-jam' sesuai; ayat Fatihah di p679 tidak disinggung."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "23ab9fd061db352a368c77dd3a777ce2baaa24e71daffd40c2934e708428928c",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Pembagian jabriyah dan nukilan Jahmiyah sesuai p652 dan p705."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Jauhar, jism dan bagian tak terbagi sesuai p698, p670, p665; sikap reported tepat untuk mazhab mutakallimin."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Jahl, basith, murakkab sesuai p702-p704; terjemahan kutipan p704 setia."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Jadal (dua definisi) dan jidal sesuai p659-p661."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Isi sesuai p693-p694 dan p666-p667, tetapi judul menyiratkan juz'i dibedakan lewat uji jawaban apa dia, padahal uji itu hanya untuk jins dan juz'i dibedakan lewat pencegahan persekutuan."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Tafriqah, jam' dan jam' al-jam' sesuai p679-p680."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "f9a78807745bfd1d7031a933621028eb86867a68bedf37dd91216af3c3aa693d",
+      "draf_sha256": "23ab9fd061db352a368c77dd3a777ce2baaa24e71daffd40c2934e708428928c",
+      "waktu": "2026-11-27T19:33:40.776Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Jurjani dalam bab jim, istilah seperti jabr, jauhar, jahl, jadal, jins, serta jam' dan tafriqah dibedakan dengan batasan yang cermat dari kalam, logika, dan tasawuf.",
+    "ringkasan": "Bab jim memuat 61 entri definisi dari ilmu kalam, aliran-aliran, logika, nahwu, 'arudh, fikih, dan tasawuf. Intisari ini menyoroti sebagian yang paling sering dipakai. Al-Jurjani membagi Jabriyah menjadi dua dan menukil pendapat Jahmiyah. Ia merinci jauhar, jism, dan bagian yang tidak terbagi menurut kaum mutakallimin. Ia membedakan jahl basith dan jahl murakkab, mendefinisikan jadal dan jidal, menjelaskan jins dan juz'i dalam logika, lalu menutup dengan pasangan istilah tasawuf jam' dan tafriqah serta jam' al-jam'.",
+    "gagasan": [
+      {
+        "judul": "Jabriyah terbagi dua, pertengahan dan murni, menurut pembagian penulis",
+        "isi": "Jabr adalah menyandarkan perbuatan hamba kepada Allah. Al-Jurjani membagi Jabriyah menjadi dua: yang pertengahan, yang menetapkan kasb (usaha) bagi hamba dalam perbuatannya, seperti Asy'ariyah, dan yang murni, yang tidak menetapkannya, seperti Jahmiyah. Ia menukil bahwa pengikut Jahm bin Shafwan berkata hamba sama sekali tidak punya kemampuan, baik yang berpengaruh maupun yang berupa kasb, sehingga ia seperti benda mati, dan bahwa surga dan neraka akan lenyap sesudah penghuninya masuk.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000652, 80000705],
+        "soal": {
+          "tanya": "Apa yang membedakan Jabriyah pertengahan dari Jabriyah murni dalam pembagian al-Jurjani?",
+          "jawab": "Jabriyah pertengahan, seperti Asy'ariyah, menetapkan kasb bagi hamba; Jabriyah murni, seperti Jahmiyah, tidak menetapkannya."
+        }
+      },
+      {
+        "judul": "Kaum mutakallimin menyusun jism dari bagian-bagian yang tidak terbagi",
+        "isi": "Jauhar adalah hakikat yang, bila ada di alam nyata, tidak berada pada suatu tempat (maudhu'), dan menurut al-Jurjani terbatas pada lima: hayula, shurah, jism, nafs, dan 'aql. Jism adalah jauhar yang menerima tiga dimensi; ada pula yang berkata jism adalah susunan dari jauhar. Bagian yang tidak terbagi (al-juz' alladzi la yatajazza') adalah jauhar bertempat yang sama sekali tidak menerima pembagian, baik dalam khayalan maupun dalam asumsi akal; menurut mazhab mutakallimin, jism tersusun dari gabungan bagian-bagian seperti itu.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000698, 80000670, 80000665],
+        "soal": {
+          "tanya": "Menurut mazhab mutakallimin yang disebut al-Jurjani, dari apa jism tersusun?",
+          "jawab": "Dari gabungan bagian-bagian yang sama sekali tidak menerima pembagian."
+        }
+      },
+      {
+        "judul": "Jahl murakkab adalah keyakinan pasti yang menyalahi kenyataan, menurut penulis",
+        "isi": "Jahl didefinisikan sebagai meyakini sesuatu tidak sesuai dengan keadaannya. Al-Jurjani mencatat keberatan sebagian orang bahwa jahl bisa terhadap sesuatu yang tidak ada, padahal yang tidak ada bukan sesuatu; jawabannya, ia sesuatu di dalam pikiran. Jahl basith adalah ketiadaan ilmu pada orang yang semestinya bisa mengetahui, sedangkan jahl murakkab adalah keyakinan yang pasti tetapi tidak sesuai dengan kenyataan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000702, 80000703, 80000704],
+        "soal": {
+          "tanya": "Apa beda jahl basith dan jahl murakkab menurut al-Jurjani?",
+          "jawab": "Jahl basith adalah ketiadaan ilmu, sedangkan jahl murakkab adalah keyakinan pasti yang tidak sesuai kenyataan."
+        }
+      },
+      {
+        "judul": "Jadal dipakai untuk membungkam lawan dengan premis yang masyhur, menurut penulis",
+        "isi": "Dalam logika, jadal adalah qiyas yang tersusun dari premis yang masyhur dan yang diterima, dengan tujuan mengalahkan lawan dan membungkam orang yang tidak mampu memahami premis-premis burhan. Definisi kedua: seseorang menolak lawannya yang hendak merusak perkataannya dengan hujah atau syubhat, atau untuk membenarkan perkataannya sendiri; hakikatnya adalah perselisihan. Jidal adalah perbantahan yang berkaitan dengan menampakkan dan menetapkan mazhab-mazhab.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000659, 80000660, 80000661],
+        "soal": {
+          "tanya": "Dari premis macam apa jadal disusun dalam definisi logika al-Jurjani?",
+          "jawab": "Dari premis yang masyhur dan premis yang diterima (musallamat)."
+        }
+      },
+      {
+        "judul": "Jins dan juz'i dibedakan dengan uji jawaban apa dia, menurut penjelasan penulis",
+        "isi": "Jins adalah konsep universal yang dikatakan pada banyak hal yang berbeda hakikatnya, sebagai jawaban atas pertanyaan apa dia. Batasan berbeda hakikat mengeluarkan nau', khashshah, dan fashl dekat; batasan jawaban apa dia mengeluarkan fashl jauh dan 'aradh umum. Jins dekat, seperti hewan bagi manusia, dan jins jauh, seperti jism yang tumbuh bagi manusia. Juz'i hakiki adalah yang konsepnya sendiri mencegah persekutuan, seperti Zaid; juz'i idhafi adalah setiap yang lebih khusus di bawah yang lebih umum, seperti manusia terhadap hewan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000693, 80000694, 80000666, 80000667],
+        "soal": {
+          "tanya": "Contoh apa yang diberikan al-Jurjani untuk juz'i hakiki dan juz'i idhafi?",
+          "jawab": "Zaid untuk juz'i hakiki, dan manusia terhadap hewan untuk juz'i idhafi."
+        }
+      },
+      {
+        "judul": "Hamba membutuhkan tafriqah dan jam' sekaligus, menurut penjelasan tasawuf penulis",
+        "isi": "Tafriqah adalah yang dinisbahkan kepada hamba, yaitu usahanya menegakkan tugas-tugas ibadah, sedangkan jam' adalah yang dicabut darinya, yaitu yang datang dari al-Haqq berupa limpahan makna, kelembutan, dan kebaikan. Hamba harus memiliki keduanya: tanpa tafriqah tidak ada ubudiyah, dan tanpa jam' tidak ada ma'rifah. Tafriqah adalah awal iradah dan jam' akhirnya. Jam' al-jam' adalah maqam yang lebih sempurna, yaitu lebur sepenuhnya dan fana dari selain Allah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000679, 80000680],
+        "soal": {
+          "tanya": "Apa akibat bila hamba tidak memiliki tafriqah atau tidak memiliki jam' menurut al-Jurjani?",
+          "jawab": "Tanpa tafriqah tidak ada ubudiyah, dan tanpa jam' tidak ada ma'rifah."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 80000704,
+        "char_start": 14,
+        "char_end": 54,
+        "terjemahan": "Jahl murakkab adalah ungkapan tentang keyakinan yang pasti tetapi tidak sesuai dengan kenyataan."
+      }
+    ],
+    "istilah": []
+  }
+}

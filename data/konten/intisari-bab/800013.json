@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 8,
+  "section_id": 800013,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T19:04:50+00:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p990: zaman menurut hukama' dan menurut mutakallimin dengan contoh terbit matahari; sikap nukilan tepat."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p994, p984: zuhud bahasa, menurut ahli hakikat, dua wa qila; zajir; sesuai."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p989: zakat bahasa tambahan, syariat kewajiban bagian harta tertentu untuk pemilik tertentu; kalimat tiga unsur adalah uraian definisi itu."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "4a626ef00ad8d9b40e95b9e60b26c02674e43bc45a7dec2e0b7dd22956af500d",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Dua definisi zaman dan contoh terbit matahari sesuai p990; sikap dinukil tepat."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Zuhud menurut bahasa, ahli hakikat, dua pendapat lain, dan zajir sesuai p994, p984."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Zakat bahasa dan syariat sesuai p989; uraian tiga unsur sekadar penjabaran redaksi definisi; kutipan setia."
+        }
+      ],
+      "laporan": "Lapis 3 dari korpus lokal kitab-v11 (staging tanpa edisi 8 saat diperiksa); Kurang dicatat, tidak diubah."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "5e93acf6b0e7443161996b21fa0d132a18cc7a9e1bcb150a634bd53b76acf89a",
+      "draf_sha256": "4a626ef00ad8d9b40e95b9e60b26c02674e43bc45a7dec2e0b7dd22956af500d",
+      "waktu": "2026-11-27T19:05:40.571Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Bab za at-Ta'rifat, menurut susunan al-Jurjani, memuat antara lain definisi zaman menurut filsuf dan ahli kalam, zuhud menurut ahli hakikat, dan zakat menurut syariat.",
+    "ringkasan": "Bab huruf za adalah salah satu bab terpendek, dengan 15 entri definisi; Intisari ini menyoroti sebagian di antaranya. Al-Jurjani menyandingkan dua definisi zaman, yaitu menurut kaum filsuf dan menurut ahli kalam, disertai contoh. Ia mendefinisikan zuhud secara bahasa dan menurut ahli hakikat, lalu menukil dua pendapat lain. Ia juga menyebut zajir sebagai penasihat dari Allah di hati mukmin, dan mendefinisikan zakat secara bahasa dan syariat.",
+    "gagasan": [
+      {
+        "judul": "Kaum filsuf dan ahli kalam berbeda dalam mendefinisikan zaman",
+        "isi": "Al-Jurjani menukil bahwa menurut kaum filsuf (al-hukama') zaman adalah ukuran gerak falak al-athlas. Menurut ahli kalam, zaman adalah sesuatu yang baru yang dipakai untuk mengukur sesuatu baru lain yang masih samar. Contohnya ucapan seseorang bahwa ia akan datang ketika matahari terbit: terbitnya matahari sudah diketahui, sedangkan kedatangan itu masih samar, sehingga ketika yang samar disandingkan dengan yang diketahui, kesamaran itu hilang.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000990],
+        "soal": {
+          "tanya": "Bagaimana ahli kalam mendefinisikan zaman menurut nukilan al-Jurjani?",
+          "jawab": "Sesuatu yang baru yang dipakai untuk mengukur sesuatu baru lain yang masih samar."
+        }
+      },
+      {
+        "judul": "Zuhud adalah membenci dunia dan berpaling darinya, menurut ahli hakikat",
+        "isi": "Secara bahasa, zuhud menurut al-Jurjani adalah meninggalkan kecenderungan kepada sesuatu. Dalam istilah ahli hakikat, zuhud adalah membenci dunia dan berpaling darinya. Ia menukil dua pendapat lain: zuhud adalah meninggalkan kesenangan dunia demi mencari kesenangan akhirat, dan zuhud adalah kosongnya hati dari apa yang kosong dari tangan. Ia juga mendefinisikan zajir sebagai penasihat dari Allah di hati mukmin, yaitu cahaya yang dicampakkan ke dalamnya dan mengajaknya kepada kebenaran.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [80000994, 80000984],
+        "soal": {
+          "tanya": "Apa salah satu pendapat lain tentang zuhud yang dinukil al-Jurjani sesudah definisi ahli hakikat?",
+          "jawab": "Zuhud adalah meninggalkan kesenangan dunia demi mencari kesenangan akhirat."
+        }
+      },
+      {
+        "judul": "Zakat dalam syariat adalah kewajiban sebagian harta tertentu, menurut penulis",
+        "isi": "Al-Jurjani menjelaskan bahwa zakat secara bahasa berarti tambahan. Dalam syariat, zakat adalah diwajibkannya sejumlah harta dalam harta tertentu untuk pemilik tertentu. Definisi ini menyebut tiga unsur: bagian harta yang wajib dikeluarkan, jenis harta yang dikenai, dan pihak yang menjadi pemiliknya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [80000989],
+        "soal": {
+          "tanya": "Apa arti zakat secara bahasa menurut al-Jurjani?",
+          "jawab": "Secara bahasa zakat berarti tambahan."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 80000989,
+        "char_start": 0,
+        "char_end": 93,
+        "terjemahan": "Zakat secara bahasa berarti tambahan, dan dalam syariat ia adalah diwajibkannya sejumlah harta dalam harta tertentu untuk pemilik tertentu."
+      }
+    ],
+    "istilah": []
+  }
+}
