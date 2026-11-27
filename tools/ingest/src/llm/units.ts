@@ -5,7 +5,7 @@
 // memuat ayat yang kini dikenali, atau kehilangan placeholder).
 import { createHash } from "node:crypto";
 
-import { maskAyat } from "@surau/core";
+import { hasArabicLetters, maskAyat } from "@surau/core";
 import type { AyahRef, FootnoteRef, MaskedPassage } from "@surau/core";
 import type { FootnoteRefRow, PageRow, PassageAyahRefRow, PassageRow, TocNodeRow } from "@surau/db";
 import { contentLength, letterLength } from "@surau/llm";
@@ -175,18 +175,6 @@ export function maskedBodies(rows: UnitRows, opts: { bareMarkers?: boolean } = {
   });
 }
 
-const ARABIC_LETTER = /(?=\p{L})\p{Script=Arabic}/u;
-
-/**
- * Paragraf badan yang tidak memuat satu huruf Arab pun (mis. hanya "..." pemisah di edisi
- * al-Ajurrumiyyah dan at-Tibyan): tidak ada yang bisa diterjemahkan, jadi tidak dijadikan unit
- * terjemahan dan tidak dihitung dalam cakupan. Diuji pada `text_raw` (sebelum ayat ditandai),
- * sehingga paragraf yang seluruhnya kutipan ayat tetap menjadi unit.
- */
-export function hasArabicLetter(text: string): boolean {
-  return ARABIC_LETTER.test(text);
-}
-
 export function translationUnits(rows: UnitRows): TranslationUnits {
   const headings = headingPaths(rows.toc_node);
   const units: TranslationUnit[] = [];
@@ -195,7 +183,9 @@ export function translationUnits(rows: UnitRows): TranslationUnits {
   for (const b of maskedBodies(rows, { bareMarkers: true })) {
     const p = b.passage;
     // Tanpa huruf: bukan unit dan bukan konteks paragraf berikutnya (`prev` tidak berubah).
-    if (!hasArabicLetter(p.text_raw)) continue;
+    // Paragraf tanpa satu huruf Arab pun (mis. "..." pemisah) bukan unit terjemahan dan tidak
+    // dihitung dalam cakupan; diuji pada `text_raw` sehingga paragraf ayat penuh tetap unit (ADR-148).
+    if (!hasArabicLetters(p.text_raw)) continue;
     if (b.masked.slots.length !== b.refCount) {
       blocked.push({
         passageId: p.id,
