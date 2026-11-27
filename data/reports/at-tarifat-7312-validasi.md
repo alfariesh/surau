@@ -26,12 +26,14 @@
 | Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 77 rujukan; 0 tidak sah |
 | Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 75 rujukan exact; 0 tidak sesuai |
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 74/76 (97,4%); mirip 2, tidak cocok 0 |
-| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 0 terjemahan berisi ayat; 0 bermasalah |
-| Terjemahan AI: cakupan paragraf badan ≥ 0% | ✓ | 0/2191 (0,00%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
-| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 0% | ✓ | 0/58 (0,00%); usang 0, tidak sah 0 |
-| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 29/29 (100,00%): node 29, subjudul 0 |
+| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 62 terjemahan berisi ayat; 0 bermasalah |
+| Terjemahan AI: cakupan paragraf badan ≥ 99% | ✓ | 2189/2191 (99,91%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
+| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 99% | ✓ | 58/58 (100,00%); usang 0, tidak sah 0 |
+| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 29/29 (100,00%): node 29, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/29 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
+| Konten chat (X24): unit siap jadi Intisari, kutipan di dalam paragraf dan tanpa ayat, unit ditarik tidak dimuat | ✓ | 29 unit, 155 gagasan, 34 kutipan, 155 soal berjawaban; menggantikan batch 0 (–), induk batch basi dibuang 0 (–); 0 unit ditarik |
+| Intisari termuat ≥ 29 (tidak berkurang dari korpus tayang) | ✓ | 29 Intisari dari at-tarifat/intisari |
 | Teks badan penyunting tidak dimuat (ADR-150) | ✓ | 35 paragraf, 2 node, 2 halaman dibuang (2 bagian, data/patches/at-tarifat-7312-pentahqiq.yaml); 0 baris masih merujuknya |
 | ID paragraf rilis stabil (ADR-059) | ✓ | 2192 ID lama ada dengan teks sama; 35 dikecualikan sebagai teks penyunting (ADR-150) |
 

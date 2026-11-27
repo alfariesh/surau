@@ -33,7 +33,7 @@ export const TARIFAT: WorkConfig = {
     volumes: [257],
     titles: 31,
     matanMinPages: 257,
-    llmCoverage: 0,
+    llmCoverage: 0.99,
     minDigests: 29,
   },
   // Halaman cetak 7 (awal bab alif, 11 paragraf badan); kata pencarian mengenai 15 paragraf badan.

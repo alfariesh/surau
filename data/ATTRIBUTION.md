@@ -95,7 +95,7 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 ## at-Ta'rifat (asy-Syarif al-Jurjani, w. 816 H)
 
-Direncanakan untuk korpus `kitab-v12` (X32, ADR-152), belum tayang. Kalimat atribusi:
+Korpus `kitab-v11` (X32, ADR-152). Rinciannya juga di halaman `/lisensi`. Kalimat atribusi:
 
 > Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0007312; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-'Ilmiyyah, Beirut, cetakan pertama 1403/1983, disunting sekelompok ulama di bawah penerbit; daftar isi penerbit tidak disertakan
 

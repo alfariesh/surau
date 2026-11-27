@@ -131,7 +131,7 @@ kitab:
     wafat_h: 816
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
-    status: staging
+    status: tayang
     # Intisari Bab per judul tingkat teratas sesudah patch (ADR-152 tambahan): mukadimah (2) dan 28 bab
     # huruf (3–30). Title 1 (label jilid) dan 31 (daftar isi penerbit) dibuang dari korpus, ADR-150.
     intisari_bab:
