@@ -87,13 +87,6 @@ function workOf(slug: string | undefined): WorkConfig {
   const work = workBySlug(slug);
   if (work.llm === undefined)
     throw new Error(`Kitab ${slug} belum punya folder kerja LLM (WorkConfig.llm)`);
-  // Pengaman ADR-149: petunjuk terjemahan per kitab belum dipasang ke batch, jadi batch kitab ini
-  // akan memakai prompt tanpa petunjuk. Hapus pengaman ini saat `translatePromptFor` dipasang.
-  if (work.llm.translateNote !== undefined) {
-    throw new Error(
-      `Kitab ${slug} punya petunjuk terjemahan (${work.llm.translateNote.id}) yang belum dipasang ke \`pnpm llm\` (ADR-149)`,
-    );
-  }
   return work;
 }
 

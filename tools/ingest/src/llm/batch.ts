@@ -143,8 +143,9 @@ function translationRequest(work: Work, passageId: number, model: ModelId): Plan
   const u = work.units.get(passageId);
   if (u === undefined) return null;
   // Versi prompt yang dicatat diambil dari objek prompt yang sama dengan yang dikirim (aturan
-  // teks-arab 8): tidak mungkin hasil prompt baru tercatat dengan versi lama.
-  const prompt = TRANSLATE_PROMPT;
+  // teks-arab 8): tidak mungkin hasil prompt baru tercatat dengan versi lama. Prompt per kitab
+  // (petunjuk ADR-149) sudah terpasang di `work.translatePrompt`.
+  const prompt = work.translatePrompt;
   return {
     custom_id: passageCustomId(passageId),
     kind: "translation",
@@ -198,16 +199,23 @@ function r2Request(
   };
 }
 
-/** Versi prompt yang dipakai request SAAT INI untuk sebuah custom_id. */
-function currentPromptVersion(customId: string): string | null {
+/** Unit kerja kitab `--karya`, dengan prompt terjemahan per kitab (petunjuk ADR-149). */
+function workOf(ctx: LlmContext): Work {
+  return buildWork(ctx.rows(), { translateNote: ctx.work.llm?.translateNote });
+}
+
+/** Versi prompt yang dipakai request SAAT INI untuk sebuah custom_id (per kitab, ADR-149). */
+export function currentPromptVersion(work: Work, customId: string): string | null {
   const parts = parseCustomId(customId);
   if (parts === null) return null;
-  return parts.kind === "passage" ? TRANSLATE_PROMPT.id : SUMMARY_PROMPT.id;
+  return parts.kind === "passage" ? work.translatePrompt.id : SUMMARY_PROMPT.id;
 }
 
 /** Kegagalan dengan versi prompt saat ini (tanpa versi = berkas lama, dianggap saat ini). */
-function isCurrentPrompt(f: Failure): boolean {
-  return f.prompt_version === undefined || f.prompt_version === currentPromptVersion(f.custom_id);
+function isCurrentPrompt(work: Work, f: Failure): boolean {
+  return (
+    f.prompt_version === undefined || f.prompt_version === currentPromptVersion(work, f.custom_id)
+  );
 }
 
 /**
@@ -215,10 +223,10 @@ function isCurrentPrompt(f: Failure): boolean {
  * kegagalan versi prompt saat ini, dan SEMUA penolakan peninjau (punya jalur ulangan sendiri ke
  * Sonnet; tanpa ini paragraf yang sama terkirim dua kali, lewat plan dan retry).
  */
-function failedKeys(failures: readonly Failure[]): Set<string> {
+function failedKeys(work: Work, failures: readonly Failure[]): Set<string> {
   return new Set(
     failures
-      .filter((f) => f.reason === "review_rejected" || isCurrentPrompt(f))
+      .filter((f) => f.reason === "review_rejected" || isCurrentPrompt(work, f))
       .map((f) => `${f.custom_id}:${f.source_sha256}`),
   );
 }
@@ -265,7 +273,7 @@ export function pendingRequests(
   // Yang pernah gagal untuk sumber yang SAMA dengan versi prompt SAAT INI diulang lewat `retry`
   // (hitungan percobaan, refusal → Sonnet), bukan di sini. Kegagalan untuk sumber lama (hash beda)
   // atau versi prompt lama tidak dihitung: unitnya masuk rencana lagi dengan prompt baru (#70).
-  const failed = failedKeys(acc.failures);
+  const failed = failedKeys(work, acc.failures);
   if (round === 1) {
     const attempted = new Set(acc.failures.map((f) => f.custom_id));
     for (const u of work.units.values()) {
@@ -460,7 +468,10 @@ function estimate(
   };
 }
 
-async function systemTokenCounts(client: Anthropic): Promise<Record<string, number>> {
+async function systemTokenCounts(
+  client: Anthropic,
+  translate: Work["translatePrompt"],
+): Promise<Record<string, number>> {
   const count = async (system?: string) =>
     (
       await client.messages.countTokens({
@@ -471,7 +482,7 @@ async function systemTokenCounts(client: Anthropic): Promise<Record<string, numb
     ).input_tokens;
   const base = await count();
   return {
-    [TRANSLATE_PROMPT.id]: (await count(TRANSLATE_PROMPT.system)) - base,
+    [translate.id]: (await count(translate.system)) - base,
     [SUMMARY_PROMPT.id]: (await count(SUMMARY_PROMPT.system)) - base,
   };
 }
@@ -494,7 +505,7 @@ export function splitOversized(
 
 export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
   const dir = ctx.dir;
-  const all = buildWork(ctx.rows());
+  const all = workOf(ctx);
   const acc = readAccepted(dir);
   const work = withoutReviewed(all, reviewProtected(ctx.rows(), all, acc, loadRevisions(ctx.repo)));
   if (work.blocked.length > 0) {
@@ -528,7 +539,7 @@ export async function runPlan(ctx: LlmContext, round: 1 | 2): Promise<number> {
   // Request ≥ MAX_PROMPT_TOKENS tidak masuk berkas rencana maupun estimasinya (tarif 5× dan harus
   // dipecah dulu), jadi submit tidak mungkin mengirimnya walau peringatan di bawah terlewat (#78).
   const { kept, over } = splitOversized(reqs, counts);
-  const system = await systemTokenCounts(client);
+  const system = await systemTokenCounts(client, work.translatePrompt);
   const rates = outputRates(dir);
   const byKind = new Map<BatchKind, PlannedRequest[]>();
   for (const r of kept) byKind.set(r.kind, [...(byKind.get(r.kind) ?? []), r]);
@@ -929,7 +940,7 @@ export function submittable(
   planned: readonly PlannedRequest[],
   retranslate: Retranslation = NO_RETRANSLATION,
 ): { ready: PlannedRequest[]; stale: number } {
-  const failed = failedKeys(acc.failures);
+  const failed = failedKeys(work, acc.failures);
   let stale = 0;
   const ready = planned.filter((r) => {
     const sha = currentSha(work, r.custom_id);
@@ -940,7 +951,7 @@ export function submittable(
       parts0?.kind === "passage" ? retranslate.get(parts0.passageId)?.model : undefined;
     if (
       sha !== r.source_sha256 ||
-      r.prompt_version !== currentPromptVersion(r.custom_id) ||
+      r.prompt_version !== currentPromptVersion(work, r.custom_id) ||
       (wantModel !== undefined && r.params.model !== wantModel)
     ) {
       stale++;
@@ -982,7 +993,7 @@ export async function runSubmit(
     console.error(`Tidak ada rencana di ${path}. Jalankan dulu: pnpm llm plan --round ${round}`);
     return 1;
   }
-  const all = buildWork(ctx.rows());
+  const all = workOf(ctx);
   const accepted = readAccepted(dir);
   const work = withoutReviewed(
     all,
@@ -1317,7 +1328,7 @@ export function rebuild(
 export async function runCollect(ctx: LlmContext): Promise<number> {
   const dir = ctx.dir;
   const pending = await downloadResults(ctx.client(), dir);
-  printRebuild(dir, buildWork(ctx.rows()), ctx.repo);
+  printRebuild(dir, workOf(ctx), ctx.repo);
   if (pending > 0) console.info(`${pending} batch belum selesai; ulangi collect nanti.`);
   return 0;
 }
@@ -1389,7 +1400,7 @@ function printRebuild(dir: string, work: Work, repo: string): void {
 
 /** Nilai ulang semua hasil mentah dengan aturan dan sumber saat ini (tanpa API, gratis). */
 export function runRejudge(ctx: LlmContext): number {
-  printRebuild(ctx.dir, buildWork(ctx.rows()), ctx.repo);
+  printRebuild(ctx.dir, workOf(ctx), ctx.repo);
   return 0;
 }
 
@@ -1434,7 +1445,8 @@ export function awaitingReplan(work: Work, acc: Accepted): string[] {
   const stuck = unresolved(work, acc);
   const out = new Set<string>();
   for (const f of acc.failures) {
-    if (stuck.has(f.custom_id) || f.reason === "review_rejected" || isCurrentPrompt(f)) continue;
+    if (stuck.has(f.custom_id) || f.reason === "review_rejected" || isCurrentPrompt(work, f))
+      continue;
     const sha = currentSha(work, f.custom_id);
     if (sha === null || f.source_sha256 !== sha) continue;
     const parts = parseCustomId(f.custom_id);
@@ -1483,7 +1495,7 @@ export function unresolved(
       const prev = out.get(f.custom_id);
       out.set(
         f.custom_id,
-        f.prompt_version === TRANSLATE_PROMPT.id
+        f.prompt_version === work.translatePrompt.id
           ? {
               attempts: (prev?.attempts ?? 0) + 1,
               refusal: prev?.refusal ?? false,
@@ -1496,7 +1508,7 @@ export function unresolved(
       continue;
     }
     // Kegagalan dengan versi prompt lama tidak dihitung: unitnya masuk rencana lagi (#70).
-    if (!isCurrentPrompt(f)) continue;
+    if (!isCurrentPrompt(work, f)) continue;
     const prev = out.get(f.custom_id) ?? {
       attempts: 0,
       refusal: false,
@@ -1543,7 +1555,7 @@ export async function runRetry(
     console.error(unreconciled);
     return 1;
   }
-  const all = buildWork(ctx.rows());
+  const all = workOf(ctx);
   const acc = readAccepted(dir);
   const work = withoutReviewed(all, reviewProtected(ctx.rows(), all, acc, loadRevisions(ctx.repo)));
   const todo = unresolved(work, acc, loadRetranslation(ctx.repo, ctx.rows()));
@@ -1576,7 +1588,7 @@ export async function runRetry(
   // Perkiraan biaya ulangan (count_tokens gratis, cache 50%): ulangan Sonnet ±20× Haiku.
   const client = ctx.client();
   const counts = await countAll(client, dir, reqs);
-  const system = await systemTokenCounts(client);
+  const system = await systemTokenCounts(client, work.translatePrompt);
   const rates = outputRates(dir);
   // Perkiraan disimpan per request (requests/<id>.jsonl), supaya pagu kiriman berikutnya menghitung
   // ulangan ini selama belum dikumpulkan (#62).

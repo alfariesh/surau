@@ -51,7 +51,7 @@ export interface WorkConfig {
     /**
      * Petunjuk terjemahan khusus kitab ini (ADR-149), ditambahkan di ujung prompt sistem
      * (`translatePromptFor`); versi prompt yang dicatat menjadi `<prompt>+<petunjuk>`. Tanpa entri
-     * = prompt bawaan apa adanya. BELUM dipasang ke `pnpm llm` (wajib sebelum batch kitab ini).
+     * = prompt bawaan apa adanya. Dipakai `pnpm llm` lewat `buildWork(rows, { translateNote })`.
      */
     translateNote?: TranslateWorkNote;
   };

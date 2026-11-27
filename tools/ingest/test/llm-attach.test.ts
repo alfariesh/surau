@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
-import { contentLength } from "@surau/llm";
+import { TRANSLATE_NOTES, TRANSLATE_PROMPT, contentLength, translatePromptFor } from "@surau/llm";
 import { describe, expect, test } from "vite-plus/test";
 
 import { llmRows } from "../src/llm/attach.ts";
@@ -194,6 +194,25 @@ describe("hasil LLM → tabel translation/summary", () => {
       r2(round2InputSha(n, "id", new Map(r1.map((s) => [s.custom_id, s])))),
     ]);
     expect(llmRows(rows, llm).stats).toMatchObject({ summaries: 1, staleSummaries: 0 });
+  });
+
+  test("terjemahan dengan versi prompt per kitab (ADR-149) dimuat dan versinya tersimpan", () => {
+    const { rows, work, llm } = setup();
+    const version = translatePromptFor(TRANSLATE_PROMPT, TRANSLATE_NOTES.ajurrumiyyah).id;
+    const units = [...work.units.values()];
+    writeJsonl(
+      join(llm, "translation.jsonl"),
+      units.map((u) => ({ ...translationLine(u, fakeTranslation(u)), prompt_version: version })),
+    );
+    const built = llmRows(rows, llm);
+    expect(built.stats).toMatchObject({
+      translations: units.length,
+      staleTranslations: 0,
+      invalidTranslations: 0,
+    });
+    expect(new Set(built.translation.map((t) => t.prompt_version))).toEqual(
+      new Set([`${TRANSLATE_PROMPT.id}+nahwu-ajurrumiyyah@1`]),
+    );
   });
 
   test("cakupan di bawah harapan → ingest gagal", () => {
