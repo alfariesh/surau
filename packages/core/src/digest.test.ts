@@ -275,6 +275,40 @@ describe("readDigest (X15, ADR-097)", () => {
     expect(view?.terms.map((t) => t.key)).toEqual(["ikhlas"]);
   });
 
+  test("skema 10 (X24): inti dan jawaban terbaca; skema 9 / batch = null; jawaban Arab dibuang, inti Arab = null", async () => {
+    const before = await readDigest(db, T_ROOT);
+    expect(before?.lead).toBeNull();
+    expect(before?.questions.every((q) => q.answer === null)).toBe(true);
+    await db.batch([
+      db.prepare("UPDATE digest SET lead = 'Inti uji.' WHERE toc_node_id = ?1").bind(T_ROOT),
+      db
+        .prepare("UPDATE digest_question SET answer = 'Jawaban uji.' WHERE toc_node_id = ?1")
+        .bind(T_ROOT),
+    ]);
+    onTestFinished(async () => {
+      await db.batch([
+        db.prepare("UPDATE digest SET lead = NULL WHERE toc_node_id = ?1").bind(T_ROOT),
+        db.prepare("UPDATE digest_question SET answer = NULL WHERE toc_node_id = ?1").bind(T_ROOT),
+      ]);
+    });
+    const view = await readDigest(db, T_ROOT);
+    expect(digestView.parse(view)).toEqual(view);
+    expect(view?.lead).toBe("Inti uji.");
+    expect(view?.questions.map((q) => q.answer)).toEqual(["Jawaban uji."]);
+    await db
+      .prepare("UPDATE digest_question SET answer = ?2 WHERE toc_node_id = ?1")
+      .bind(T_ROOT, ARABIC)
+      .all();
+    expect((await readDigest(db, T_ROOT))?.questions.map((q) => [q.text, q.answer])).toEqual([
+      ["Siapa berpendapat?", null],
+    ]);
+    await db
+      .prepare("UPDATE digest SET lead = ?2 WHERE toc_node_id = ?1")
+      .bind(T_ROOT, ARABIC)
+      .all();
+    expect(await readDigest(db, T_ROOT)).toBeNull();
+  });
+
   test("tanpa Intisari, ditolak, atau teks utama berhuruf Arab → null; node tidak ada → NotFound", async () => {
     expect(await readDigest(db, T_CHILD_A)).toBeNull();
     expect(await readDigest(db, T_CHILD_B)).toBeNull();

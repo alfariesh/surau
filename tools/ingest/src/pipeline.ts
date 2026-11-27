@@ -327,7 +327,7 @@ function rowsFor(
   const units = unitsOf(shared.content, config.edition.id);
   let content: { chat: ChatDigestBuild; merged: MergedDigest; withdrawn: number } | null = null;
   if (units.ready.length > 0 || units.withdrawn.length > 0) {
-    const chat = contentDigestRows(rows, units.ready, digest?.glossary_term ?? []);
+    const chat = contentDigestRows(rows, units.ready);
     const merged = mergeDigests(digest, chat, rows.toc_node);
     digest = merged.build;
     rows.glossary_term = digest.glossary_term;
@@ -614,6 +614,21 @@ export function runIngest(
   if (!validation.ok) return { validation, ayat, works };
 
   const rows = mergeRows(built, shared.revisions);
+  // Istilah Intisari wajib ada di glosarium gabungan korpus (foreign key; sama dengan `unknown_term`
+  // di gerbang konten chat, X24).
+  const glossary = new Set(rows.glossary_term.map((g) => `${g.term_key}:${g.lang}`));
+  const orphanTerms = rows.digest_term.filter((t) => !glossary.has(`${t.term_key}:${t.lang}`));
+  if (orphanTerms.length > 0) {
+    validation.invariants.push({
+      name: "Istilah Intisari ada di glosarium korpus (X24)",
+      ok: false,
+      detail: orphanTerms
+        .slice(0, 20)
+        .map((t) => `${t.toc_node_id}:${t.term_key}`)
+        .join(", "),
+    });
+    return { validation: { ...validation, ok: false }, ayat, works };
+  }
   const fts = built.flatMap((b) => b.fts);
   rows.term_stat = termStats(fts, paths.migrations);
   if (opts.audioTracks !== undefined) rows.audio_track = [...opts.audioTracks];
@@ -700,27 +715,26 @@ function buildWork(
   });
   validation.invariants.push(revisionInvariant(rows, revisions));
   validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
-  if (intisari !== null && content === null) {
+  // Intisari batch (X15b) hanya bila kitab punya hasil LLM; konten chat (X24) dilaporkan terpisah.
+  if (config.llm !== undefined && paths.llm !== undefined && intisari !== null) {
     validation.invariants.push(digestInvariant(intisari));
     validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
   }
   if (content !== null) {
-    // Masalah batch tetap ikut (`merged.build.problems`); invarian chat dilaporkan terpisah.
-    if (intisari !== null) {
-      validation.invariants.push(digestInvariant(intisari));
-      validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
-    }
     validation.invariants.push(contentInvariant(content.chat, content.merged, content.withdrawn));
     validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
   }
   // Batas bawah Intisari (ADR-137, dari ADR-136): build yang memuat lebih sedikit dari yang tayang gagal.
-  const minDigests = config.expect.minDigests ?? 0;
-  if (minDigests > 0) {
+  // Induk batch yang dibuang karena anaknya diganti unit chat (X24, ADR-145) adalah pengurangan yang
+  // disengaja, jadi batas bawahnya ikut turun sebanyak itu (tercatat di detail).
+  const stale = content?.merged.staleParents.length ?? 0;
+  const minDigests = Math.max(0, (config.expect.minDigests ?? 0) - stale);
+  if ((config.expect.minDigests ?? 0) > 0) {
     const n = rows.digest.length;
     validation.invariants.push({
       name: `Intisari termuat ≥ ${minDigests} (tidak berkurang dari korpus tayang)`,
       ok: n >= minDigests,
-      detail: `${n} Intisari${config.llm === undefined ? "" : ` dari ${config.llm.intisari}`}`,
+      detail: `${n} Intisari${config.llm === undefined ? "" : ` dari ${config.llm.intisari}`}${stale > 0 ? `; batas ${config.expect.minDigests} dikurangi ${stale} induk batch basi (X24)` : ""}`,
     });
     validation.ok &&= n >= minDigests;
   }

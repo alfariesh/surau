@@ -31,7 +31,7 @@ import {
   digestTermRow,
   summaryRow,
 } from "@surau/db";
-import type { DigestRow, GlossaryTermRow, PassageAyahRefRow, TocNodeRow } from "@surau/db";
+import type { DigestRow, PassageAyahRefRow, TocNodeRow } from "@surau/db";
 import { checkSummary } from "@surau/llm";
 
 import { aiIndexText } from "./search-index.ts";
@@ -122,8 +122,6 @@ export interface ChatDigestStats {
   points: number;
   quotes: number;
   questions: number;
-  /** Istilah tanpa definisi glosarium di korpus ini (tidak dimuat). */
-  termsWithoutGloss: number;
   /** Abstrak (ringkasan) yang menggantikan ringkasan bab. */
   summaryOverrides: number;
 }
@@ -144,12 +142,10 @@ const touches = (
 export function contentDigestRows(
   rows: ContentCorpus,
   units: readonly ContentUnit[],
-  glossary: readonly GlossaryTermRow[],
 ): ChatDigestBuild {
   const inspect = quoteInspector(rows);
   const passages = new Map(rows.passage.map((p) => [p.id, p]));
   const nodes = new Set(rows.toc_node.map((n) => n.id));
-  const glossed = new Set(glossary.map((g) => `${g.term_key}:${g.lang}`));
   const out: ChatDigestBuild = {
     digest: [],
     digest_point: [],
@@ -164,7 +160,6 @@ export function contentDigestRows(
       points: 0,
       quotes: 0,
       questions: 0,
-      termsWithoutGloss: 0,
       summaryOverrides: 0,
     },
     problems: [],
@@ -287,15 +282,11 @@ export function contentDigestRows(
       out.stats.quotes++;
     });
 
-    let term = 0;
-    for (const k of isi.istilah) {
-      if (!glossed.has(`${k}:${d.lang}`)) {
-        out.stats.termsWithoutGloss++;
-        continue;
-      }
-      term++;
-      out.digest_term.push(digestTermRow.parse({ ...key, ord: term, term_key: k }));
-    }
+    // Semua istilah dimuat; glosarium milik seluruh korpus, jadi kecocokannya diperiksa runIngest
+    // sesudah baris semua kitab digabung (sama dengan `unknown_term` di gerbang, ADR-145).
+    isi.istilah.forEach((k, i) => {
+      out.digest_term.push(digestTermRow.parse({ ...key, ord: i + 1, term_key: k }));
+    });
 
     if (checkSummary(isi.ringkasan, d.lang).ok) {
       out.summary.push(
@@ -350,7 +341,9 @@ export function mergeDigests(
     .map((d) => d.toc_node_id);
   const drop = new Set([
     ...chatKeys,
-    ...staleParents.map((id) => `${id}:${batchDigest.find((d) => d.toc_node_id === id)?.lang}`),
+    ...batchDigest
+      .filter((d) => !chatKeys.has(keyOf(d)) && staleKeys.has(keyOf(d)) && d.basis !== "text")
+      .map(keyOf),
   ]);
   const keep = <T extends { toc_node_id: number; lang: string }>(list: readonly T[] = []) =>
     list.filter((r) => !drop.has(keyOf(r)));
@@ -381,7 +374,8 @@ export function mergeDigests(
       summaryOverrides: 0,
       abstractsKept: [],
     },
-    problems: [...(batch?.problems ?? []), ...chat.problems],
+    // Masalah chat dilaporkan `contentInvariant`, tidak digandakan di sini.
+    problems: [...(batch?.problems ?? [])],
   };
   return { build, replaced, staleParents };
 }
@@ -402,7 +396,7 @@ export function contentInvariant(
         : `${s.units} unit, ${s.points} gagasan, ${s.quotes} kutipan, ${s.questions} soal berjawaban; ` +
           `menggantikan batch ${merged.replaced.length} (${merged.replaced.join(", ") || "–"}), ` +
           `induk batch basi dibuang ${merged.staleParents.length} (${merged.staleParents.join(", ") || "–"}); ` +
-          `${withdrawn} unit ditarik; ${s.termsWithoutGloss} istilah tanpa glosarium`,
+          `${withdrawn} unit ditarik`,
   };
 }
 

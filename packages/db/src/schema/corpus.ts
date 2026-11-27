@@ -537,7 +537,7 @@ export const DIGEST_SCHEMA_VERSION = 9;
 /**
  * Skema korpus pertama yang punya inti Intisari (`digest.lead`) dan jawaban soal
  * (`digest_question.answer`) dari konten chat (X24, migrasi 0010, ADR-125). Di skema 9 keduanya
- * tidak ada: pembaca tidak memilih kolom itu.
+ * tidak ada; pembaca membaca `*` dan baris mengisinya null (packages/db/src/repo/digest.ts).
  */
 export const CONTENT_SCHEMA_VERSION = 10;
 

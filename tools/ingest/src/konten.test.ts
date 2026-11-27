@@ -123,7 +123,7 @@ const unit = (d: ContentDraft, file = "data/konten/intisari-bab/900002.json") =>
 
 describe("contentDigestRows", () => {
   test("inti, jawaban, jangkar paragraf utuh, kutipan berasal kode, label asal chat", () => {
-    const out = contentDigestRows(rows, [unit(draft())], []);
+    const out = contentDigestRows(rows, [unit(draft())]);
     expect(out.problems).toEqual([]);
     expect(out.digest[0]).toMatchObject({
       toc_node_id: 900002,
@@ -152,54 +152,45 @@ describe("contentDigestRows", () => {
       prompt_version: "surau-redaksi/intisari-bab@1",
     });
     expect(out.fts.map((f) => f.rowid)).toEqual([900002 * 100 + 1]);
-    // Istilah tanpa glosarium tidak dimuat (foreign key digest_term → glossary_term).
-    expect(out.digest_term).toEqual([]);
-    expect(out.stats.termsWithoutGloss).toBe(1);
+    // Istilah dimuat; kecocokan glosarium diperiksa runIngest pada glosarium gabungan korpus.
+    expect(out.digest_term.map((t) => t.term_key)).toEqual(["niat"]);
   });
 
   test("kutipan di luar paragraf atau menyentuh ayat = masalah build", () => {
-    const outside = contentDigestRows(
-      rows,
-      [
-        unit(
-          draft(
-            {},
-            {
-              kutipan: [
-                { gagasan: 1, passage_id: 90000003, char_start: 0, char_end: 999, terjemahan: "x" },
-              ],
-            },
-          ),
+    const outside = contentDigestRows(rows, [
+      unit(
+        draft(
+          {},
+          {
+            kutipan: [
+              { gagasan: 1, passage_id: 90000003, char_start: 0, char_end: 999, terjemahan: "x" },
+            ],
+          },
         ),
-      ],
-      [],
-    );
+      ),
+    ]);
     expect(outside.problems.join()).toMatch(/di luar paragraf/);
-    const ayah = contentDigestRows(
-      rows,
-      [
-        unit(
-          draft(
-            {},
-            {
-              kutipan: [
-                { gagasan: 1, passage_id: 90000002, char_start: 20, char_end: 33, terjemahan: "x" },
-              ],
-            },
-          ),
+    const ayah = contentDigestRows(rows, [
+      unit(
+        draft(
+          {},
+          {
+            kutipan: [
+              { gagasan: 1, passage_id: 90000002, char_start: 20, char_end: 33, terjemahan: "x" },
+            ],
+          },
         ),
-      ],
-      [],
-    );
+      ),
+    ]);
     expect(ayah.problems.join()).toMatch(/rujukan ayat/);
   });
 
   test("bagian yang tidak ada di edisi dan unit tanpa cap cek kode ditolak", () => {
-    expect(
-      contentDigestRows(rows, [unit(draft({ section_id: 900999 }))], []).problems.join(),
-    ).toMatch(/tidak ada/);
+    expect(contentDigestRows(rows, [unit(draft({ section_id: 900999 }))]).problems.join()).toMatch(
+      /tidak ada/,
+    );
     const unchecked = draft({ periksa: { mandiri: [], independen: null, kode: null } });
-    expect(contentDigestRows(rows, [unit(unchecked)], []).problems.join()).toMatch(/cap cek kode/);
+    expect(contentDigestRows(rows, [unit(unchecked)]).problems.join()).toMatch(/cap cek kode/);
   });
 });
 
@@ -247,7 +238,7 @@ describe("mergeDigests", () => {
   } as unknown as DigestBuild;
 
   test("unit chat menggantikan batch bagian yang sama; induk batch dari anak itu ikut dibuang", () => {
-    const chat = contentDigestRows(rows, [unit(draft())], []);
+    const chat = contentDigestRows(rows, [unit(draft())]);
     const m = mergeDigests(batch, chat, rows.toc_node);
     expect(m.replaced).toEqual([900002]);
     expect(m.staleParents).toEqual([900001]);
@@ -262,7 +253,7 @@ describe("mergeDigests", () => {
   });
 
   test("tanpa batch (kitab Gelombang 1): hanya baris chat", () => {
-    const m = mergeDigests(null, contentDigestRows(rows, [unit(draft())], []), rows.toc_node);
+    const m = mergeDigests(null, contentDigestRows(rows, [unit(draft())]), rows.toc_node);
     expect(m.build.digest.map((d) => d.toc_node_id)).toEqual([900002]);
     expect(m.replaced).toEqual([]);
   });
