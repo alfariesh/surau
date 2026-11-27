@@ -77,6 +77,24 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 - Shamela memecah satu halaman cetak menjadi beberapa halaman per bab. Potongan berurutan dengan nomor cetak yang sama digabung menjadi satu halaman (31 halaman Shamela menjadi 19 halaman cetak; ADR-139). Urutan dan isi paragraf tidak berubah.
 - Catatan kaki penyunting **tidak disertakan** (ADR-138): catatan itu karya penyunting modern di luar rilis OpenITI. Penanda nomor catatan di teks utama tetap ada sebagai teks biasa tanpa tautan.
 
+## al-Muqaddimah al-Hadhramiyyah (Bafadl al-Hadrami, w. 918 H)
+
+Korpus `kitab-v11` (X32, ADR-152), status `staging` (belum tayang). Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0006125; digitalisasi asal: al-Maktaba al-Shamela; edisi: ad-Dar al-Muttahidah, Damaskus, cetakan ke-2 1413 H, tahqiq Majid al-Hamawi
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0918BafadlHadrami.MuqaddimaHadramiyya.Shamela0006125-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0925AH` commit `4f0f4562d1e13083c593e3a0ca6a19a3eb33805e` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 6125). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/al-muqaddimah-al-hadhramiyyah-6125-openiti.md](reports/al-muqaddimah-al-hadhramiyyah-6125-openiti.md)) | https://shamela.ws/book/6125 |
+| **ad-Dar al-Muttahidah**, Damaskus | Penerbit edisi cetak (cetakan ke-2, 1413 H), tahqiq Majid al-Hamawi. Nomor halaman di Surau mengikuti cetakan ini (halaman 19–162) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+- Daftar isi disusun ulang lewat patch yang bisa diaudit ([patches/al-muqaddimah-al-hadhramiyyah-6125.yaml](patches/al-muqaddimah-al-hadhramiyyah-6125.yaml)): judul "kitab" dan "bab" yang di Shamela hanya teks sebaris menjadi node daftar isi, dan judul "fasl" dipindah ke bawahnya. Judul node disalin dari teks halaman.
+- Edisi ini tanpa catatan kaki. Teks sumber memuat artefak konversi "صلى الله عليه وسلم" di sekitar judul bab (juga ada di OpenITI); teks tidak diubah.
+
 ## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 
 Kutipan ayat di dalam kitab dikenali otomatis dan ditautkan ke surah:ayat. Teks ayat, terjemahan, dan transliterasi yang tampil di Surau disalin **verbatim** dari sumber berikut. Model AI tidak pernah menulis, mengubah, atau menerjemahkan ayat (ADR-020, ADR-040).

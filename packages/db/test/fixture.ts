@@ -4,7 +4,9 @@
 import { pageId, passageId, tocNodeId } from "../src/ids.ts";
 import type { D1Db } from "../src/d1.ts";
 
-export const ED = 7;
+// Edisi buatan di luar ID kitab nyata: 7 kini al-Muqaddimah al-Hadhramiyyah (section-only, ADR-152),
+// sedangkan fixture ini kitab bertingkat dengan Intisari Kitab.
+export const ED = 90;
 export const P1 = pageId(ED, 1); // juz 1 h.1
 export const P2 = pageId(ED, 2); // juz 1 h.2
 export const P3 = pageId(ED, 3); // juz 2 h.1
