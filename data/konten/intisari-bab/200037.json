@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 2,
+  "section_id": 200037,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:17:32+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p310-p315 dibaca ulang: dua hadits qudsi ditulis sebagai riwayat tanpa kata Allah berfirman, syarat bila tidak mampu sepanjang waktu dipertahankan, dan daftar adab sesuai teks; soal diganti agar tidak menambah klaim paling patut."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p317 dan p319: pengecualian sombong kepada orang zalim, fardu ain sebelum fardu kifayah, teladan amal lalu ucapan, dan kisah Musa yang keliru karena bersandar pada lahiriah sesuai teks tanpa isi ayat; kalimat teladan amal ditambahkan agar judul didukung isi."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p321-p326: larangan bepergian kecuali dengan izin (negasi) tepat, tiga golongan sesudah orang tua tepat, dan syarat harapan diterima pada adab awam dipertahankan; judul topik diganti tesis."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p330-p347: bilangan lima sifat dan urutannya sesuai; frasa keadaan terbaik teman dungu dikembalikan agar tidak menggeneralisasi; fasik dibatasi yang terus-menerus atas dosa besar sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p348-p349: dua pilihan, tiga macam saudara dengan kata hanya, dan tiga macam manusia sesuai; ucapan Nabi Isa dirapikan agar tidak menambah klaim belajar adab."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p352-p355: hak yang diwajibkan akad persahabatan, kisah siwak, dan batasan bila tidak bisa itsar maka memberi kelebihan harta (kini ditambahkan) sesuai teks; riwayat tidak dinilai statusnya."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p357-p365: teks menyebut keburukan seluruhnya dari kenalan, jadi judul dan soal tidak lagi memakai paling banyak; dalam seratus tidak menemukan satu pun disalin tanpa kata hampir; nasihat dengan syarat tanda diterima dan dosa sebagai sebab tepat."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "aaa7965e6fac849e4245bc9d70739faba07c8efe0f4291aedf240b60a83768e4",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Dua hadits qudsi ditulis sebagai nukilan, syarat 'bila tidak mampu sepanjang waktu' dan daftar adab (p314) sesuai; kutipan p315 offset 0-121 tepat."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Pengecualian sombong kepada orang zalim, urutan fardu ain sebelum kifayah, teladan amal lalu ucapan, kisah Musa-Khidir sesuai p317 dan p319."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Larangan bepergian kecuali dengan izin, tiga golongan, dan syarat 'bila ada harapan diterima' sesuai p322, p324, p326."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Lima sifat dan urutannya tepat; fasik dibatasi 'terus-menerus atas dosa besar'; syair Ali dan nasihat Alqamah tidak dimasukkan."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Bilangan tiga saudara dan tiga macam manusia tepat; soal menulis 'bergaul', sumber menyebut faedah 'menyaksikan' keburukannya (p349)."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Hak akad persahabatan, kisah siwak, batasan 'bila tidak bisa itsar maka kelebihan harta' sesuai p352-p354."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Isi sesuai, tetapi 'dalam seratus orang tidak ditemukan satu pun' tidak menyebut apa yang tidak ditemukan (yang tulus, p360); pengecualian p362 tidak disebut."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "7c5a03063aa5be5b7b50cd5863eb2f14d342e5d93653f960876b3c86c1ee9433",
+      "draf_sha256": "aaa7965e6fac849e4245bc9d70739faba07c8efe0f4291aedf240b60a83768e4",
+      "waktu": "2026-11-27T03:32:53.542Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, pergaulan dimulai dari adab bersama Allah sebagai sahabat yang tak pernah berpisah, lalu adab kepada guru, murid, orang tua, teman, kenalan, dan orang yang tidak dikenal.",
+    "ringkasan": "Al-Ghazali membuka bagian ketiga dengan adab bersama Allah, sahabat yang tidak berpisah dari hamba-Nya. Ia lalu merinci adab orang berilmu, adab murid kepada gurunya, dan adab anak kepada kedua orang tua. Sesudahnya ia membagi manusia menjadi tiga golongan: teman, kenalan, dan orang yang tidak dikenal. Untuk teman ia menyebut dua tugas, yaitu memilih teman dengan lima sifat dan menunaikan hak persahabatan. Ia menutup dengan peringatan panjang tentang kenalan, para pelajar fikih yang gemar berdebat, dan adab sikap sehari-hari di tengah manusia.",
+    "gagasan": [
+      {
+        "judul": "Allah sahabat yang tidak pernah berpisah dari hamba-Nya, menurut al-Ghazali",
+        "isi": "Al-Ghazali menyebut sahabat yang tidak berpisah dari seseorang di rumah dan perjalanan, saat tidur dan terjaga, bahkan saat hidup dan mati, adalah Tuhannya. Ia menukil hadits qudsi bahwa Allah disebut teman duduk orang yang mengingat-Nya dan berada di sisi orang yang hatinya hancur karena-Nya. Bila tidak mampu menyertai-Nya sepanjang waktu, hendaknya malam dan siang tidak kosong dari waktu menyendiri bermunajat. Adabnya antara lain menundukkan kepala, menahan pandangan, banyak diam, bersegera menjalankan perintah, menjauhi larangan, sedikit menentang takdir, terus berzikir dan berpikir, putus harap dari makhluk, dan bertawakal.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000310, 20000311, 20000312, 20000313, 20000314, 20000315],
+        "soal": {
+          "tanya": "Mengapa al-Ghazali meminta adab bersama Allah dijaga sepanjang malam dan siang?",
+          "jawab": "Karena Dia tidak pernah berpisah dari hamba-Nya, sedangkan seluruh makhluk berpisah pada sebagian waktu."
+        }
+      },
+      {
+        "judul": "Guru menjadi teladan lewat amal sebelum ucapan, menurut adab yang dirinci penulis",
+        "isi": "Menurut al-Ghazali, orang berilmu hendaknya sabar, santun, berwibawa, tidak sombong kecuali kepada orang zalim untuk mencegah kezalimannya, lembut kepada murid, dan tidak malu berkata tidak tahu. Ia menerima hujah, kembali kepada kebenaran saat keliru, mencegah murid dari ilmu yang membahayakan, dan melarangnya sibuk dengan fardu kifayah sebelum selesai fardu ain; ia lebih dulu menuntut dirinya bertakwa agar murid meneladani amalnya, baru ucapannya. Murid hendaknya memulai dengan salam, sedikit bicara, tidak bertanya sebelum minta izin, tidak membantah dengan pendapat orang lain, dan tidak berburuk sangka atas perbuatan guru yang tampak mungkar, seraya mengingat Nabi Musa as. yang keliru mengingkari Khidir karena bersandar pada lahiriah.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000317, 20000319],
+        "soal": {
+          "tanya": "Apa yang harus didahulukan murid menurut adab guru, fardu ain atau fardu kifayah?",
+          "jawab": "Fardu ain, yaitu memperbaiki lahir dan batinnya dengan takwa, sebelum sibuk dengan fardu kifayah."
+        }
+      },
+      {
+        "judul": "Orang tua didahulukan, lalu manusia terbagi tiga golongan, menurut al-Ghazali",
+        "isi": "Adab anak kepada orang tua menurut al-Ghazali antara lain mendengar ucapan keduanya, berdiri saat keduanya berdiri, menaati perintahnya, tidak berjalan di depan, tidak meninggikan suara, memenuhi panggilan, tidak mengungkit bakti, tidak bermuka masam, dan tidak bepergian kecuali dengan izin keduanya. Sesudah mereka, manusia ia bagi menjadi tiga golongan: teman, kenalan, dan orang yang tidak dikenal. Terhadap orang awam yang tidak dikenal, adabnya ialah tidak larut dalam obrolan mereka, sedikit mendengar kabar burung mereka, berpura-pura tidak tahu kata-kata buruk mereka, tidak sering bertemu, dan mengingatkan kemungkaran dengan lembut bila ada harapan diterima.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000321, 20000322, 20000324, 20000326],
+        "soal": {
+          "tanya": "Menjadi berapa golongan manusia dibagi al-Ghazali sesudah orang tua, dan apa saja?",
+          "jawab": "Tiga golongan: teman, kenalan, dan orang yang tidak dikenal."
+        }
+      },
+      {
+        "judul": "Teman dipilih karena lima sifat, menurut syarat yang ditetapkan penulis",
+        "isi": "Al-Ghazali berpesan agar tidak bersaudara kecuali dengan orang yang layak, dan menyebut lima sifat calon teman. Pertama berakal, karena keadaan terbaik teman yang dungu ialah merugikan walau ingin memberi manfaat, dan musuh yang berakal lebih baik daripada teman yang dungu. Kedua berakhlak baik, yaitu yang menguasai dirinya saat marah dan bersyahwat. Ketiga saleh, bukan orang fasik yang terus-menerus melakukan dosa besar. Keempat tidak rakus dunia, karena tabiat mencuri dari tabiat tanpa disadari. Kelima jujur, karena pendusta seperti fatamorgana yang mendekatkan yang jauh dan menjauhkan yang dekat.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000330, 20000331, 20000338, 20000343, 20000346, 20000347],
+        "soal": {
+          "tanya": "Mengapa al-Ghazali melarang berteman dengan orang yang rakus terhadap dunia?",
+          "jawab": "Karena tabiat cenderung meniru dan mencuri dari tabiat lain, sehingga bergaul dengan orang rakus menambah kerakusan."
+        }
+      },
+      {
+        "judul": "Ada tiga macam saudara dan tiga macam manusia, menurut al-Ghazali",
+        "isi": "Bila lima sifat itu tidak terkumpul pada penghuni madrasah dan masjid, al-Ghazali menyebut dua pilihan: uzlah yang membawa keselamatan, atau bergaul sesuai kadar sifat mereka. Saudara ada tiga: untuk akhirat yang dilihat hanya agamanya, untuk dunia yang dilihat hanya akhlaknya, dan untuk bermesra yang dilihat hanya selamat dari keburukannya. Manusia juga tiga: seperti makanan yang selalu dibutuhkan, seperti obat yang dibutuhkan sewaktu-waktu, dan seperti penyakit yang tidak pernah dibutuhkan. Golongan ketiga ditenggang sampai lepas darinya, dan keburukannya bisa menjadi pelajaran, seperti jawaban Nabi Isa as. bahwa ia beradab karena menjauhi kebodohan yang ia lihat pada orang bodoh.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000348, 20000349],
+        "soal": {
+          "tanya": "Apa faedah bergaul dengan orang yang diumpamakan al-Ghazali seperti penyakit?",
+          "jawab": "Melihat keburukan perilakunya lalu menjauhinya, sebagaimana orang berbahagia mengambil pelajaran dari orang lain."
+        }
+      },
+      {
+        "judul": "Akad persahabatan melahirkan hak yang wajib ditunaikan, menurut al-Ghazali",
+        "isi": "Penulis menyebut bahwa persahabatan yang telah terjalin mewajibkan hak-hak, dan menukil riwayat dua saudara seperti dua tangan yang saling membasuh, kisah siwak lurus yang diberikan Nabi saw. kepada sahabatnya, dan sabda bahwa setiap sahabat akan ditanya tentang persahabatannya walau sesaat. Adabnya antara lain mendahulukan teman dengan harta atau setidaknya memberi kelebihan harta saat ia butuh, membantu tanpa diminta, menyimpan rahasia, menutupi aib, membela saat ia tidak ada, menasihati dengan lembut, memaafkan, dan mendoakannya saat hidup dan sesudah wafat. Ringkasnya, memperlakukan teman seperti ingin diperlakukan; persaudaraan tanpa itu ia sebut kemunafikan.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000352, 20000353, 20000354, 20000355],
+        "soal": {
+          "tanya": "Apa ukuran ringkas al-Ghazali untuk seluruh adab persahabatan?",
+          "jawab": "Memperlakukan teman sebagaimana seseorang ingin diperlakukan."
+        }
+      },
+      {
+        "judul": "Keburukan datang dari kenalan, bukan dari teman atau orang asing, menurut penulis",
+        "isi": "Al-Ghazali menyebut teman akan menolong dan orang yang tidak dikenal tidak mengganggu, sedangkan keburukan seluruhnya datang dari kenalan yang menampakkan persahabatan dengan lisan. Karena itu kenalan hendaknya sedikit, tidak seorang pun dari mereka diremehkan, dan mereka tidak diagungkan karena dunianya. Permusuhan mereka tidak dibalas, dan pujian mereka tidak dijadikan sandaran, sebab bila dicari hakikatnya, dalam seratus orang tidak ditemukan satu pun. Nasihat hanya diberikan bila tampak tanda diterima. Kezaliman mereka ia pandang sebagai hukuman atas dosa sendiri, dan ia memperingatkan agar menjauhi pelajar fikih zamannya yang sibuk dengan perselisihan dan debat.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000357, 20000358, 20000360, 20000362, 20000364, 20000365],
+        "soal": {
+          "tanya": "Dari golongan mana seluruh keburukan datang, menurut peringatan al-Ghazali?",
+          "jawab": "Dari kenalan yang menampakkan persahabatan dengan lisan mereka."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 20000315,
+        "char_start": 0,
+        "char_end": 121,
+        "terjemahan": "Semua ini sepatutnya menjadi pakaianmu sepanjang malam dan siangmu, sebab itulah adab bersahabat dengan Sahabat yang tidak pernah berpisah darimu, sedangkan seluruh makhluk berpisah darimu pada sebagian waktumu."
+      },
+      {
+        "gagasan": 7,
+        "passage_id": 20000364,
+        "char_start": 0,
+        "char_end": 107,
+        "terjemahan": "Ketahuilah, Allah tidak menjadikan mereka berkuasa atasmu kecuali karena dosa yang telah engkau perbuat sebelumnya; maka mohonlah ampun kepada Allah atas dosamu, dan ketahuilah bahwa itu adalah hukuman dari Allah."
+      }
+    ],
+    "istilah": []
+  }
+}

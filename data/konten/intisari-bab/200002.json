@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 2,
+  "section_id": 200002,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:25:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p21-p23 dan p60 dibaca ulang: modal dan laba, negasi tidak bisa kecuali dengan muraqabah, pembagian waktu dari pagi sampai petang, dan sunah penambal kewajiban sesuai teks; hadits qudsi disebut tanpa menulis Allah berfirman."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p25, p34, p45, p49, p52-p53: bangun sebelum fajar, tiga batu lalu lima atau tujuh (ganjil dianjurkan, bersih wajib), ulang tiga kali, dan tujuh perkara makruh dalam wudu sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p67, p86-p88, p98: frasa li-ribh yang ambigu dinetralkan menjadi hal seperti itu; empat tugas, sepuluh kalimat, ulangan seratus/tujuh puluh/sepuluh, dan larangan bicara sebelum matahari terbit sesuai teks; angka keutamaan jamaah yang rusak di sumber tidak disebut."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p103-p104, p109-p112: empat keadaan berurutan, ciri ilmu bermanfaat, syarat niat benar, dan syarat tanpa maksiat pada keadaan keempat dipertahankan."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p130-p131, p145, p147, p154: napas sebagai permata tanpa ganti, wasiat tertulis, tidur tidak lebih dari delapan jam, enam puluh tahun dan dua puluh tahun sepertiga umur sesuai teks; p154 ditambahkan ke isi (sabar seperti orang sakit)."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p160-p161, p176-p177, p180, p188: kadar khusyuk, hanya yang dihayati, ucapan al-Hasan sebagai nukilan, imam meringankan, makmum tidak mendahului atau menyamai sesuai teks; hadits p178 tidak dipakai."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p190, p200, p202, p205, p209, p211: saat tersembunyi, majelis ilmu bukan tukang kisah, puasa bukan hanya meninggalkan makan, tujuan mematahkan syahwat; kata seluruh yang tidak ada di p211 dihapus."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "f98a486a320e2761c849d750869138c84978eeab3a968eab297ab96dbc87e859",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "'Meremehkan sunah muakkadah merugi' (p60) menutup uraian wudu dan mandi; isi memakainya sebagai klaim umum tentang sunah."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tiga batu lalu lima atau tujuh, ganjil dianjurkan dan bersih wajib, ulang tiga kali, tujuh perkara makruh sesuai p34, p49, p52-53."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Empat tugas sesudah subuh, sepuluh kalimat zikir, ulangan seratus/tujuh puluh/sepuluh, larangan bicara sebelum matahari terbit sesuai p86-p88, p98."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Empat keadaan berurutan, ciri ilmu bermanfaat, syarat niat, dan syarat tanpa maksiat sesuai p103-p112."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Napas sebagai permata, wasiat, tidur tidak lebih dari delapan jam, enam puluh dan dua puluh tahun, sabar seperti orang sakit sesuai p130-p154."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Tiang shalat, kadar khusyuk, istigfar, nukilan al-Hasan, adab imam dan makmum sesuai p160-p188; kutipan 2 tepat."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Saat tersembunyi, majelis ilmu bukan tukang kisah, puasa bukan hanya menahan makan, tujuan mematahkan syahwat sesuai p190-p211."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "cb9948e1a9c113b8749ab2abc820fcc29317ac9cfb7365223835a99fd677e1a4",
+      "draf_sha256": "f98a486a320e2761c849d750869138c84978eeab3a968eab297ab96dbc87e859",
+      "waktu": "2026-11-27T03:32:41.401Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, ketaatan dibangun di atas kewajiban sebagai modal dan amalan sunah sebagai laba, sehingga penuntut ilmu perlu menata seluruh waktunya dengan wirid dari bangun tidur sampai tidur kembali.",
+    "ringkasan": "Al-Ghazali membuka bagian ketaatan dengan membedakan kewajiban dan amalan sunah, lalu menuntut pengawasan hati dan anggota badan sepanjang hari. Ia kemudian menguraikan adab sehari secara berurutan: bangun tidur, buang hajat, wudu, mandi, dan tayamum; berangkat dan masuk masjid beserta wirid pagi; empat keadaan sesudah matahari terbit; persiapan shalat zuhur sampai isya; adab tidur; tata cara shalat dan kehadiran hati; adab imam dan makmum; adab Jumat; dan adab puasa. Ia menutup dengan menyebut bahwa uraian ini cukup untuk Bidayat al-Hidayah, sedangkan zakat, haji, dan rincian shalat serta puasa dirujuk ke Ihya'.",
+    "gagasan": [
+      {
+        "judul": "Kewajiban adalah modal dan amalan sunah adalah laba, menurut al-Ghazali",
+        "isi": "Al-Ghazali menyebut perintah Allah terbagi menjadi kewajiban dan amalan sunah: kewajiban adalah modal, pokok perdagangan, dan jalan keselamatan, sedangkan amalan sunah adalah laba yang mengantar ke derajat tinggi; ia berdalil dengan sebuah hadits qudsi tentang hamba yang mendekat dengan amalan sunah. Menurutnya, perintah Allah tidak bisa ditegakkan kecuali dengan mengawasi hati dan anggota badan setiap saat, dan itu hanya mungkin dengan membagi waktu dan menyusun wirid dari pagi sampai petang. Dalam adab mandi ia menambahkan bahwa orang yang meremehkan sunah muakkadah merugi, sebab amalan sunah menambal kekurangan kewajiban.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000021, 20000022, 20000023, 20000060],
+        "soal": {
+          "tanya": "Apa perumpamaan yang dipakai al-Ghazali untuk kewajiban dan amalan sunah dalam ketaatan?",
+          "jawab": "Kewajiban diumpamakan modal pokok perdagangan, dan amalan sunah diumpamakan labanya."
+        }
+      },
+      {
+        "judul": "Setiap anggota wudu disertai doa dan tujuh perkara dihindari, menurut penulis",
+        "isi": "Penulis menganjurkan bangun sebelum fajar dengan zikir dan doa pagi, lalu menguraikan adab buang hajat, termasuk beristinja dengan batu dan air; bila hanya memakai batu, tiga batu, dan bila belum bersih ditambah menjadi lima atau tujuh, sebab bilangan ganjil dianjurkan sedangkan bersihnya wajib. Dalam wudu ia menyertakan doa khusus untuk setiap anggota yang dibasuh dan mengulang setiap perbuatan tiga kali. Ia juga menyebut tujuh perkara makruh dalam wudu, di antaranya mengibaskan tangan, berbicara di tengah wudu, menambah basuhan lebih dari tiga kali, dan boros air karena was-was.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000025, 20000034, 20000045, 20000049, 20000052, 20000053],
+        "soal": {
+          "tanya": "Berapa perkara yang disebut penulis sebagai makruh dalam wudu?",
+          "jawab": "Tujuh perkara, di antaranya berbicara di tengah wudu dan menambah basuhan lebih dari tiga kali."
+        }
+      },
+      {
+        "judul": "Waktu sesudah subuh dibagi menjadi empat tugas wirid, menurut al-Ghazali",
+        "isi": "Al-Ghazali menganjurkan tidak meninggalkan shalat berjamaah, terutama subuh, dan bertanya apa guna menuntut ilmu bila hal seperti itu diremehkan, sebab buah ilmu adalah mengamalkannya. Waktu sesudah shalat sampai matahari terbit ia bagi menjadi empat tugas: doa, zikir yang diulang dengan tasbih, membaca Al-Qur'an, dan tafakur atas dosa dan kelalaian. Ia menyebut sepuluh kalimat zikir, masing-masing diulang seratus, tujuh puluh, atau paling sedikit sepuluh kali, serta menganjurkan tidak berbicara sebelum matahari terbit.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000067, 20000086, 20000087, 20000088, 20000098],
+        "soal": {
+          "tanya": "Menjadi berapa tugas al-Ghazali membagi waktu sesudah shalat subuh sampai matahari terbit?",
+          "jawab": "Empat tugas, yaitu doa, zikir, membaca Al-Qur'an, dan tafakur."
+        }
+      },
+      {
+        "judul": "Ilmu yang bermanfaat menempati keadaan terbaik dari empat keadaan, menurut al-Ghazali",
+        "isi": "Untuk waktu luang antara matahari terbit dan tergelincir, al-Ghazali menyebut empat keadaan. Yang terbaik ialah menuntut ilmu yang bermanfaat bagi agama, yaitu ilmu yang menambah takut kepada Allah, mengenalkan aib diri, mengurangi cinta dunia, dan menyingkap tipu daya setan terhadap ulama buruk; menurutnya itu lebih utama daripada ibadah sunah selama niatnya benar. Yang kedua, bila tidak mampu, sibuk dengan zikir, tasbih, bacaan, dan shalat. Yang ketiga, amal yang mendatangkan kebaikan bagi kaum muslim, seperti memberi makan fakir dan menjenguk orang sakit. Yang keempat, bekerja untuk diri dan keluarga tanpa maksiat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000103, 20000104, 20000109, 20000110, 20000111, 20000112],
+        "soal": {
+          "tanya": "Apa keadaan terbaik untuk mengisi waktu luang sesudah matahari terbit menurut al-Ghazali?",
+          "jawab": "Menuntut ilmu yang bermanfaat bagi agama dengan niat yang benar."
+        }
+      },
+      {
+        "judul": "Setiap tarikan napas adalah permata tak ternilai, kata al-Ghazali",
+        "isi": "Al-Ghazali menyebut waktu adalah umur, dan umur adalah modal menuju kenikmatan akhirat; setiap napas adalah permata tak ternilai karena tak ada gantinya dan tak kembali bila hilang. Karena itu ia menganjurkan setiap waktu diberi kesibukan tertentu, dan tidak bergembira kecuali dengan bertambahnya ilmu atau amal saleh yang menemani di kubur. Ia menyamakan tidur dengan mati, menganjurkan tidur dalam keadaan suci, bertobat, dan dengan wasiat tertulis, serta membatasi tidur siang dan malam tidak lebih dari delapan jam; bila hidup enam puluh tahun, dua puluh tahun di antaranya, yaitu sepertiga umur, habis untuk tidur. Ia juga menganjurkan bersabar menjalani susunan ini seperti orang sakit menahan pahitnya obat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000130, 20000131, 20000145, 20000147, 20000154],
+        "soal": {
+          "tanya": "Menurut al-Ghazali, berapa jam paling banyak tidur dalam sehari semalam?",
+          "jawab": "Tidak lebih dari delapan jam, karena itu sudah sepertiga umur."
+        }
+      },
+      {
+        "judul": "Shalat hanya bernilai sebatas yang dihayati hati, menurut al-Ghazali",
+        "isi": "Sesudah menguraikan tata cara shalat dari berdiri sampai salam, al-Ghazali menyebut tiang shalat adalah khusyuk dan hadirnya hati bersama pemahaman bacaan dan zikir. Menurutnya, Allah menerima shalat sesuai kadar khusyuk dan kerendahan hati, dan bagian yang dikerjakan dalam kelalaian lebih membutuhkan istigfar. Bila hati tidak hadir, ia menyarankan membayangkan seorang saleh dari keluarga sedang melihat, lalu menegur diri yang lebih malu kepada hamba daripada kepada Penciptanya. Ia menukil ucapan al-Hasan al-Bashri bahwa shalat tanpa kehadiran hati lebih cepat kepada hukuman. Tentang imam, ia menyebut imam hendaknya meringankan shalat dan makmum tidak mendahului atau menyamai gerakan imam.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000160, 20000161, 20000176, 20000177, 20000180, 20000188],
+        "soal": {
+          "tanya": "Apa yang disebut al-Ghazali sebagai tiang shalat?",
+          "jawab": "Khusyuk dan hadirnya hati bersama pemahaman bacaan dan zikir."
+        }
+      },
+      {
+        "judul": "Hari Jumat dikhususkan untuk akhirat dan puasa menahan seluruh anggota, menurut al-Ghazali",
+        "isi": "Al-Ghazali menyebut Jumat hari raya orang beriman yang memuat satu saat tersembunyi tempat doa dikabulkan, sehingga ia menganjurkan berdiam di masjid sambil menantinya, menghadiri majelis ilmu yang bermanfaat, bukan majelis tukang kisah, dan menjadikan hari itu khusus untuk akhirat. Tentang puasa, ia menegaskan bahwa puasa bukan hanya meninggalkan makan, minum, dan hubungan suami istri, tetapi menahan seluruh anggota badan dari yang dibenci Allah. Menurutnya, tujuan puasa adalah mematahkan syahwat, sehingga orang yang berbuka dengan menebus makanan yang terlewat di siang hari tidak mendapat faedah dari puasanya.",
+        "sikap": "author",
+        "jenis": "advice",
+        "dasar": [20000190, 20000200, 20000202, 20000205, 20000209, 20000211],
+        "soal": {
+          "tanya": "Apa tujuan puasa yang disebut al-Ghazali dalam adab puasa?",
+          "jawab": "Mematahkan syahwat dan melemahkan kekuatan agar kuat untuk bertakwa."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 20000060,
+        "char_start": 0,
+        "char_end": 115,
+        "terjemahan": "Selebihnya adalah sunah muakkadah yang besar keutamaannya dan melimpah pahalanya. Orang yang meremehkannya merugi, bahkan ia mempertaruhkan pokok kewajibannya, sebab amalan sunah menambal kekurangan amalan wajib."
+      },
+      {
+        "gagasan": 6,
+        "passage_id": 20000176,
+        "char_start": 0,
+        "char_end": 58,
+        "terjemahan": "Tiang shalat adalah khusyuk dan hadirnya hati bersama bacaan dan zikir dengan memahaminya."
+      }
+    ],
+    "istilah": []
+  }
+}

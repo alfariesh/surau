@@ -197,3 +197,20 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
 - **Bukti lokal:** `pnpm corpus:load:local` → smoke lolos · `next dev` port 3014: `/kitab/at-tibyan`, `/kitab/at-tibyan/1/5`, `/kitab/at-tibyan/1/13`, `/kitab`, `/lisensi` = 200 · `/api/search?q=التلاوة` → 27 hasil, halaman pertama 18 at-Tibyan + 2 Bidayah · `pnpm check` + `pnpm test` lolos. `pnpm verify` (build) belum dijalankan lokal: disk mesin penuh (126 MB bebas); CI menjalankannya.
 - **Peninjau (0 blocker):** laporan validasi menulis "0 penanda di badan" untuk Tibyan → kini 32 (diperbaiki). **Wajib sebelum batch terjemahan Tibyan:** `packages/core/src/translation-check.ts` / `translation-draft.ts` mengambil daftar penanda dari `footnote_ref`, yang kosong untuk kitab `modern_editor`; penanda (١) yang disalin model ke terjemahan akan dianggap karangan (`markers_extra`) dan ±30 paragraf ditolak. Putuskan: penanda tanpa tautan dihitung dari teks, atau dikecualikan (ADR baru + tes). Cek juga sekali 5 penanda tanpa catatan (32 penanda vs 27 catatan) di Shamela, untuk memastikan tidak ada catatan pentahqiq yang terselip di badan.
 - **Belum (sisa X31c):** filter "Bagian kitab" di `/cari` untuk korpus dua kitab (`lib/search/sections.ts` kini hanya "Semua kitab" bila karya > 1); terjemahan + ringkasan (Sonnet, izin biaya); Intisari; muat staging; QA 30; kueri Indonesia untuk Definisi selesai; `EDITION_CREDITS`; e2e/MCP untuk Tibyan.
+### X31b konten Bidayah (2026-11-27)
+
+- **Izin pemilik di chat:** "langsung aja pake llm model sonnet", "api batch", lalu "lanjut sampai selesai … 3 kitab tadi tanpa batasan dan gak usah konfirmasi saya … termasuk intisari kecuali audio".
+- **Terjemahan + ringkasan** (Message Batches, Sonnet 5.5): 391 paragraf, terjemahan lolos 390 (99,74%; 1 ditolak validator tiga kali), ringkasan bab 92/92 (2 bahasa), judul daftar isi Indonesia 46/46 (Sonnet, API biasa).
+  - Biaya nyata: putaran 1 US$0,99 (cache baca ±95%), putaran 2 US$0,06, ulangan US$0,01, judul US$0,04, total **±US$1,10**.
+  - Rencana gratis (`plan`) sebelumnya memperkirakan US$1,47 (cache 95%) sampai US$4,07 (cache 50%).
+- **Intisari** (ADR-147): 4 Intisari Bab (Muqaddimah 200001, Qism 1 200002, Qism 2 200017, Qism 3 200037), ditulis Claude Code (Opus 5.5) dari teks korpus lokal.
+  - Lapis 1: `pnpm konten cek --korpus staging` lolos.
+  - Lapis 2: periksa mandiri.
+  - Lapis 3: pemeriksa independen berkonteks segar (Sonnet 5.5). Hasil: 200001 5/5 benar; 200002 6 benar 1 kurang; 200017 5 benar 2 kurang; 200037 5 benar 2 kurang; 0 Salah. Kurang dicatat di `periksa.independen` dan boleh terbit (pedoman lapis 3).
+  - Cakupan jangkar: 94%, 22%, 55%, 44% (Qism 1 ±196 paragraf dirangkum dalam batas 7 gagasan).
+  - Hasil: 26 gagasan, 8 kutipan, 26 soal berjawaban.
+- **Korpus:** `pnpm ingest korpus` lolos dengan gerbang `llmCoverage` 0,99 dan `minDigests` 4.
+- **Catatan alat:**
+  - Kutipan paragraf utuh berakhir sebelum titik penutup (`isQuoteSpan`), jadi `char_end` = panjang − tanda baca akhir.
+  - MCP produksi tertutup, sehingga penulis dan pemeriksa membaca lewat skrip korpus lokal.
+- **Berikutnya:** gabung PR fondasi Tibyan (#254), bangun korpus dua kitab, muat staging, `corpus:qa`, cek pembaca/Cari/Intisari di staging (termasuk butir staging X24 yang dipindah ke sini, ADR-145 butir 10).

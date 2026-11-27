@@ -44,8 +44,10 @@ describe.skipIf(!available)("korpus Ihya + Bidayat al-Hidayah (sumber lokal)", (
       copyFileSync(join(repo, file), join(work, file));
     }
     const ihya = { ...IHYA, expect: { ...IHYA.expect, llmCoverage: 0, minDigests: 0 } };
+    // Tes ini tentang ID dan struktur, tanpa hasil LLM (X31b menaikkan gerbang Bidayah ke 99%).
+    const bidayah = { ...BIDAYAH, expect: { ...BIDAYAH.expect, llmCoverage: 0, minDigests: 0 } };
     result = runIngest(
-      { ...CORPUS, works: [ihya, BIDAYAH] },
+      { ...CORPUS, works: [ihya, bidayah] },
       {
         repo: work,
         shamela,
