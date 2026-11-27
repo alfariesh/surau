@@ -3,7 +3,7 @@
   "edition_id": 3,
   "section_id": 300100,
   "lang": "id",
-  "versi": 1,
+  "versi": 2,
   "menggantikan": null,
   "status": "siap",
   "asal": {
@@ -53,54 +53,54 @@
       }
     ],
     "independen": {
-      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar, periksa ulang sesudah perapian",
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar (versi 2 sesudah temuan peninjau)",
       "tanggal": "2026-11-27",
-      "draf_sha256": "addabb305bd0abe2353dfa60ebbfc9babbee8db560b45268852e8718b539089c",
+      "draf_sha256": "f415af3db65c63fbdaf220152c41db517672d70c4c3c9f2882d1e9f3857ccfba",
       "nilai": [
         {
           "ke": 1,
           "nilai": "benar",
-          "catatan": "Keluasan bab, waktu-waktu tilawah, dan surah yang dijaga sesuai p409."
+          "catatan": "Waktu tilawah dan tiga surah yang dijaga sesuai p409."
         },
         {
           "ke": 2,
-          "nilai": "kurang",
-          "catatan": "Isi benar; kutipan 30000412 menyisakan ']' di awal."
+          "nilai": "benar",
+          "catatan": "Subuh Jumat, Jumat, Id, dan kritik imam sesuai p412-413; kutipan mulai di char 1 menyisakan ']' (tanda baca, tidak memotong kata)."
         },
         {
           "ke": 3,
-          "nilai": "benar",
-          "catatan": "Surah fajar, Maghrib, thawaf, istikharah, witir sesuai p414-p415."
+          "nilai": "kurang",
+          "catatan": "Isi setia; nama surah al-Baqarah dan Ali 'Imran untuk dua ayat di p414 tidak tertulis di teks (identifikasi benar, melampaui teks)."
         },
         {
           "ke": 4,
           "nilai": "benar",
-          "catatan": "Al-Kahfi hari Jumat, asy-Syafi'i dalam al-Umm, riwayat ad-Darimi, Hud, Makhul sesuai p416."
+          "catatan": "Al-Kahfi, asy-Syafi'i dalam al-Umm, ad-Darimi, Hud, dan Makhul sesuai p416."
         },
         {
           "ke": 5,
           "nilai": "benar",
-          "catatan": "Ayat Kursi, mu'awwidzatayn, akhir al-Baqarah, dua penafsiran sesuai p417-p419."
+          "catatan": "Ayat Kursi, mu'awwidzatain, bacaan menjelang tidur, dan dua tafsiran sesuai p417-419."
         },
         {
           "ke": 6,
           "nilai": "benar",
-          "catatan": "Riwayat Nabi, Ali, 'Uqbah, an-Nakha'i, dan anjuran akhir Ali 'Imran sebagai anjuran penulis sesuai p420-p421."
+          "catatan": "Riwayat Nabi, dua ucapan Ali, 'Uqbah, an-Nakha'i, dan anjuran akhir Ali 'Imran milik an-Nawawi sesuai p420-421."
         },
         {
           "ke": 7,
-          "nilai": "kurang",
-          "catatan": "Catatan kelemahan hadits Yasin dan riwayat asy-Sya'bi dari penulis (p423) tidak ditulis; Fatihah dan mu'awwidzat anjuran penulis sendiri."
+          "nilai": "benar",
+          "catatan": "Al-Fatihah (an-Nawawi), Thalhah, ar-Ramadi, Yasin menurut ulama mazhabnya, dan Anshar sesuai p422-423; catatan kritis an-Nawawi atas jalur riwayat dirumuskan netral (tanpa status hadits)."
         }
       ],
-      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3). Versi 2: catatan kritis an-Nawawi atas riwayat Yasin/asy-Sya'bi dan atribusi judul gagasan 6-7."
     },
     "kode": {
       "aturan": "konten@1",
       "lolos": true,
       "sumber_sha256": "711357846ed4bfcf510b5e1c0cbf013c08160a29a63d50ac9803645554d2aa4a",
-      "draf_sha256": "addabb305bd0abe2353dfa60ebbfc9babbee8db560b45268852e8718b539089c",
-      "waktu": "2026-11-27T04:14:20.705Z"
+      "draf_sha256": "f415af3db65c63fbdaf220152c41db517672d70c4c3c9f2882d1e9f3857ccfba",
+      "waktu": "2026-11-27T06:55:03.939Z"
     }
   },
   "jenis": "intisari-bab",
@@ -164,8 +164,8 @@
         }
       },
       {
-        "judul": "Nabi saw., Ali ra., dan para tabiin membiasakan bacaan sebelum tidur",
-        "isi": "An-Nawawi menukil bahwa Nabi saw. setiap malam membaca al-Ikhlas, al-Falaq, dan an-Nas, dan tidak tidur sebelum membaca az-Zumar dan al-Isra'. Ali ra. berkata tidak melihat orang berakal yang masuk Islam lalu tidur sebelum membaca Ayat Kursi, juga tiga ayat terakhir al-Baqarah. 'Uqbah bin 'Amir ra. menuturkan pesan Nabi saw. agar tidak satu malam pun lewat tanpa membaca ketiga surah itu. Menurut Ibrahim an-Nakha'i, para pendahulu senang membaca ketiganya tiga kali setiap malam. Adapun anjuran membaca akhir Ali 'Imran ketika bangun tidur pada malam hari adalah anjuran an-Nawawi sendiri.",
+        "judul": "Bacaan sebelum tidur dari Nabi saw., Ali ra., dan an-Nakha'i, dinukil an-Nawawi",
+        "isi": "An-Nawawi menukil bahwa Nabi saw. setiap malam membaca al-Ikhlas, al-Falaq, dan an-Nas, dan tidak tidur sebelum membaca az-Zumar dan al-Isra'. Ali ra. berkata tidak melihat orang berakal yang masuk Islam lalu tidur sebelum membaca Ayat Kursi; dalam ucapan lain ia menyebut tiga ayat terakhir al-Baqarah. 'Uqbah bin 'Amir ra. menuturkan pesan Nabi saw. agar tidak satu malam pun lewat tanpa membaca ketiga surah itu. Menurut Ibrahim an-Nakha'i, mereka menganjurkan membaca ketiganya tiga kali setiap malam. Adapun anjuran membaca akhir Ali 'Imran ketika bangun tidur pada malam hari adalah anjuran an-Nawawi sendiri.",
         "sikap": "reported",
         "jenis": "idea",
         "dasar": [30000420, 30000421],
@@ -175,13 +175,13 @@
         }
       },
       {
-        "judul": "Al-Fatihah bagi orang sakit, Yasin bagi yang menjelang wafat menurut ulama yang dinukil an-Nawawi",
-        "isi": "An-Nawawi menganjurkan membaca al-Fatihah di sisi orang sakit karena sabda Nabi saw. yang menyebutnya ruqyah, juga al-Ikhlas, al-Falaq, dan an-Nas sambil meniup ke kedua tangan. Ia menukil Thalhah bin Musharrif bahwa orang sakit merasa lebih ringan bila dibacakan Al-Qur'an, dan riwayat al-Khathib tentang ar-Ramadi yang meminta dibacakan hadits saat sakit; nukilan itu ditutup dengan kesimpulan bahwa bila demikian pada hadits, Al-Qur'an lebih utama. Di sisi orang yang menjelang wafat, ia menukil ulama mazhabnya dan lainnya yang menganjurkan membaca Yasin, serta asy-Sya'bi yang menuturkan bahwa kaum Anshar membaca al-Baqarah.",
+        "judul": "Menurut an-Nawawi al-Fatihah di sisi orang sakit; Yasin menurut ulama yang dinukilnya",
+        "isi": "An-Nawawi menganjurkan membaca al-Fatihah di sisi orang sakit karena sabda Nabi saw. yang menyebutnya ruqyah, juga al-Ikhlas, al-Falaq, dan an-Nas sambil meniup ke kedua tangan. Ia menukil Thalhah bin Musharrif bahwa orang sakit merasa lebih ringan bila dibacakan Al-Qur'an, dan riwayat al-Khathib tentang ar-Ramadi yang meminta dibacakan hadits saat sakit; kisah itu diikuti kesimpulan bahwa bila demikian pada hadits, Al-Qur'an lebih utama. Di sisi orang yang menjelang wafat, ia menukil ulama mazhabnya dan lainnya yang menganjurkan membaca Yasin berdasarkan sebuah hadits, serta riwayat asy-Sya'bi bahwa kaum Anshar membaca al-Baqarah. Pada kedua riwayat itu an-Nawawi sendiri memberi catatan kritis tentang jalur periwayatannya; teks lengkapnya ada di paragraf rujukan.",
         "sikap": "reported",
         "jenis": "idea",
         "dasar": [30000422, 30000423],
         "soal": {
-          "tanya": "Kesimpulan apa yang ditarik dari kisah ar-Ramadi yang meminta dibacakan hadits saat sakit, dalam nukilan an-Nawawi?",
+          "tanya": "Kesimpulan apa yang menyertai kisah ar-Ramadi yang meminta dibacakan hadits saat sakit?",
           "jawab": "Bila hal itu berlaku pada hadits, maka Al-Qur'an lebih utama dibacakan di sisi orang sakit."
         }
       }
