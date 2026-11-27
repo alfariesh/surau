@@ -11,6 +11,8 @@ export const CITE_AUTHOR: Readonly<Record<string, string>> = {
   "bidayat-al-hidayah": "al-Ghazali",
   "at-tibyan": "an-Nawawi",
   "al-ajurrumiyyah": "Ibnu Ajurrum",
+  "al-munqidz-min-adh-dhalal": "al-Ghazali",
+  "al-waraqat": "al-Juwaini",
 };
 
 /** Keterangan singkat karya di daftar /kitab (ditulis tangan, bahasa Indonesia). */
@@ -21,6 +23,10 @@ export const WORK_BLURB: Readonly<Record<string, string>> = {
     "Adab membaca, menghafal, dan mengajarkan Al-Qur'an bagi penghafal, guru, dan murid.",
   "al-ajurrumiyyah":
     "Matan ringkas ilmu nahwu: kalimat, i'rab, dan kedudukan kata, kitab pertama tata bahasa Arab di pesantren.",
+  "al-munqidz-min-adh-dhalal":
+    "Otobiografi intelektual al-Ghazali: keraguan, kajian atas ilmu kalam, filsafat, kaum Batiniyah, dan jalan tasawuf.",
+  "al-waraqat":
+    "Matan ringkas ushul fiqh: hukum, perintah dan larangan, umum dan khusus, nasakh, ijma', qiyas, dan ijtihad.",
 };
 
 /** Kunci: `<slug karya>/<slug edisi>`. */
@@ -29,6 +35,8 @@ export const CITE_PUBLISHER: Readonly<Record<string, string>> = {
   "bidayat-al-hidayah/maktabat-madbuli": "Maktabat Madbuli",
   "at-tibyan/dar-ibn-hazm": "Dar Ibn Hazm",
   "al-ajurrumiyyah/dar-ash-shumaii": "Dar ash-Shumai'i",
+  "al-munqidz-min-adh-dhalal/dar-al-kutub-al-haditsah": "Dar al-Kutub al-Haditsah",
+  "al-waraqat/tahqiq-al-abd": "tahqiq 'Abd al-Lathif al-'Abd",
 };
 
 /** Teks lisensi resmi per nama lisensi di `edition.license` (CC BY-NC-SA 4.0 §3(a)(1)). */
@@ -51,6 +59,14 @@ export const EDITION_SOURCE: Readonly<Record<string, { label: string; url: strin
     url: "https://zenodo.org/records/17767721",
   },
   "al-ajurrumiyyah/dar-ash-shumaii": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "al-munqidz-min-adh-dhalal/dar-al-kutub-al-haditsah": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "al-waraqat/tahqiq-al-abd": {
     label: "OpenITI 2025.1.9 (Zenodo)",
     url: "https://zenodo.org/records/17767721",
   },
@@ -163,6 +179,53 @@ export const EDITION_CREDITS: readonly EditionCredit[] = [
       "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
       "Potongan halaman Shamela berurutan dengan nomor cetak sama digabung menjadi satu halaman cetak; urutan dan isi paragraf tidak berubah.",
       "Catatan kaki penyunting tidak disertakan; penanda nomor catatan di teks utama tetap ada sebagai teks biasa.",
+    ],
+  },
+  {
+    key: "al-munqidz-min-adh-dhalal/dar-al-kutub-al-haditsah",
+    workSlug: "al-munqidz-min-adh-dhalal",
+    title: "al-Munqidz min adh-Dhalal",
+    author: "al-Ghazali (w. 505 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0009246; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-Haditsah, Mesir, disertai Dr. 'Abd al-Halim Mahmud",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 9246). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/9246" },
+      },
+      {
+        name: "Dar al-Kutub al-Haditsah, Mesir",
+        role: "Penerbit edisi cetak, disertai kajian Dr. 'Abd al-Halim Mahmud (kajian itu tidak dimuat). Nomor halaman di Surau mengikuti cetakan ini (halaman 101–207).",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+    ],
+  },
+  {
+    key: "al-waraqat/tahqiq-al-abd",
+    workSlug: "al-waraqat",
+    title: "al-Waraqat",
+    author: "Imam al-Haramain al-Juwaini (w. 478 H)",
+    attribution:
+      "Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0006297; digitalisasi asal: al-Maktaba al-Shamela; edisi: tahqiq Dr. 'Abd al-Lathif Muhammad al-'Abd",
+    parties: [
+      OPENITI_PARTY,
+      {
+        name: "al-Maktaba al-Shamela",
+        role: "Digitalisasi asal edisi ini (kitab no. 6297). Teks utama dan struktur judul dibangun dari salinan Shamela, lalu diverifikasi dengan rilis OpenITI di atas. Setiap halaman Surau menautkan halaman yang sama di Shamela.",
+        link: { label: "shamela.ws", url: "https://shamela.ws/book/6297" },
+      },
+      {
+        name: "Edisi tahqiq Dr. 'Abd al-Lathif Muhammad al-'Abd",
+        role: "Edisi cetak satu jilid. Nomor halaman di Surau mengikuti cetakan ini (halaman 7–31).",
+      },
+    ],
+    changes: [
+      "HTML Shamela dibersihkan secara otomatis dan teks dibagi per paragraf; huruf teks Arab tidak diubah.",
+      "Basmalah pembuka menjadi butir daftar isi tersendiri; teksnya tidak diubah.",
     ],
   },
 ];
