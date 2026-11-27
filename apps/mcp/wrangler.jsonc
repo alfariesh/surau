@@ -35,8 +35,8 @@
   "d1_databases": [
     {
       "binding": "CORPUS_DB",
-      "database_name": "surau-corpus-ihya-v9",
-      "database_id": "faf1049e-7d78-41ff-90f4-73af2060d0ae",
+      "database_name": "surau-corpus-kitab-v10",
+      "database_id": "6a051588-755e-4a66-af82-d50583f5d510",
       "preview_database_id": "ffc5ce9a-2b5a-4d09-8487-922ff0e67827",
     },
   ],
