@@ -78,7 +78,7 @@ describe("AnswerView", () => {
     // Tanpa teks takhrij dari DB (dimuat sesudah render), tidak ada tanda kelemahan dari ringkasan AI.
     expect(html).not.toContain("istilah kelemahan");
     expect(html).toContain('id="kutipan-2"');
-    expect(html).toContain("Takhrij al-&#x27;Iraqi");
+    expect(html).toContain("Takhrij (catatan kaki)");
     expect(html).toContain("Claude Haiku 5.5");
     expect(html).toContain("Laporkan jawaban keliru");
     // Tidak ada teks Arab dari model di HTML awal (kutipan dimuat dari DB sesudahnya).
