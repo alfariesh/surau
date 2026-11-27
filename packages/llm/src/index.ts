@@ -57,13 +57,17 @@ export {
   LENGTH_RATIO_MIN_CHARS,
   TRANSLATE_MAX_TOKENS,
   TRANSLATE_PROMPT,
+  TRANSLATE_NOTES,
   TRANSLATE_PROMPTS,
   TRANSLATION_LANG,
   buildTranslateRequest,
   checkTranslation,
+  translatePromptFor,
   translateUserText,
 } from "./translate.ts";
 export type {
+  ResolvedTranslatePrompt,
+  TranslateWorkNote,
   TranslateEffort,
   TranslateInput,
   TranslatePrompt,

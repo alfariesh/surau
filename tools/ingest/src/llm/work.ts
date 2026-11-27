@@ -4,12 +4,14 @@ import { passagePermalink, sectionPermalink } from "@surau/core";
 import type { EditionPath } from "@surau/core";
 import {
   SUMMARY_LANGS,
+  TRANSLATE_PROMPT,
   parseCustomId,
   passageCustomId,
   tocCustomId,
   tocRound2CustomId,
+  translatePromptFor,
 } from "@surau/llm";
-import type { SummaryLang } from "@surau/llm";
+import type { ResolvedTranslatePrompt, SummaryLang, TranslateWorkNote } from "@surau/llm";
 
 import type { CorpusRows } from "../rows.ts";
 import type { AcceptedSummary } from "./store.ts";
@@ -69,9 +71,18 @@ export interface Work {
   chunkById: Map<string, SummaryChunk>;
   nodes: SummaryNode[];
   nodeById: Map<number, SummaryNode>;
+  /**
+   * Prompt terjemahan kitab ini (ADR-149): prompt aktif + petunjuk per kitab bila ada. Versinya
+   * (`id`) yang dicatat di setiap request dan dipakai pemeriksa kesegaran. Kitab tanpa petunjuk =
+   * `TRANSLATE_PROMPT` apa adanya.
+   */
+  translatePrompt: ResolvedTranslatePrompt;
 }
 
-export function buildWork(rows: CorpusRows): Work {
+export function buildWork(
+  rows: CorpusRows,
+  opts: { translateNote?: TranslateWorkNote | undefined } = {},
+): Work {
   const t = translationUnits(rows);
   const plan = summaryPlan(rows, { tokensPerChar: MEASURED_TOKENS_PER_CHAR });
   const chunkById = new Map<string, SummaryChunk>();
@@ -84,6 +95,7 @@ export function buildWork(rows: CorpusRows): Work {
     chunkById,
     nodes: plan.nodes,
     nodeById: new Map(plan.nodes.map((n) => [n.tocNodeId, n])),
+    translatePrompt: translatePromptFor(TRANSLATE_PROMPT, opts.translateNote),
   };
 }
 

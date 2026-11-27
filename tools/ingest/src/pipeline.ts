@@ -21,7 +21,7 @@ import {
 } from "./fingerprint.ts";
 import { createAllocator, readIdMap, writeIdMap } from "./ids.ts";
 import type { IdAllocator } from "./ids.ts";
-import { parseOpenitiPages } from "./openiti/markdown.ts";
+import { mergeSamePageMarkers, parseOpenitiPages } from "./openiti/markdown.ts";
 import { checkMatan, checkTakhrij, noTakhrijCheck } from "./openiti/verify.ts";
 import type { MatanCheck, TakhrijCheck } from "./openiti/verify.ts";
 import { readStrictYaml, readTocPatch } from "./patch.ts";
@@ -37,7 +37,7 @@ import { TABLE_ORDER, buildRows, emptyDigestRows } from "./rows.ts";
 import type { CorpusRows, CorpusTable } from "./rows.ts";
 import { ftsRows, latinFtsRows, termStats } from "./search-index.ts";
 import type { FtsRow } from "./search-index.ts";
-import { dropEditorFootnotes, parsePage } from "./shamela/page.ts";
+import { dropEditorFootnotes, mergeSamePrintPages, parsePage } from "./shamela/page.ts";
 import type { ParsedPage } from "./shamela/page.ts";
 import { readShamelaBook } from "./shamela/source.ts";
 import type { ShamelaSource } from "./shamela/source.ts";
@@ -136,13 +136,20 @@ export function prepare(config: WorkConfig, paths: PipelinePaths, corpusVersion:
   const source = readShamelaBook(paths.shamela, config.shamelaBook);
   // Catatan penyunting modern tidak dimuat sama sekali (ADR-138 butir 3): dibuang sebelum daftar
   // isi, QA, dan alokasi ID, jadi tidak ada paragraf, footnote_ref, maupun ID untuknya.
-  const pages = source.pages
+  const parsed = source.pages
     .map(parsePage)
     .map((p) => (config.footnotes === "modern_editor" ? dropEditorFootnotes(p) : p));
-  const matan = checkMatan(
-    pages,
-    parseOpenitiPages(readOpenitiFile(paths.openiti, config.openiti.matan)),
-  );
+  // Halaman Shamela berurutan bernomor cetak sama digabung (ADR-139), juga penanda OpenITI-nya,
+  // sehingga QA matan, daftar isi, dan baris tetap per halaman Surau.
+  const merge = config.mergeSamePrintPage === true;
+  if (merge && config.openiti.takhrij !== undefined) {
+    throw new Error(
+      `${config.work.slug}: mergeSamePrintPage dengan versi pembanding takhrij belum didukung (ADR-139)`,
+    );
+  }
+  const pages = merge ? mergeSamePrintPages(parsed) : parsed;
+  const openitiMatan = parseOpenitiPages(readOpenitiFile(paths.openiti, config.openiti.matan));
+  const matan = checkMatan(pages, merge ? mergeSamePageMarkers(openitiMatan) : openitiMatan);
   const takhrij =
     config.openiti.takhrij === undefined
       ? noTakhrijCheck(pages)

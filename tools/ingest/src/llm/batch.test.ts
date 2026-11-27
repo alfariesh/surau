@@ -9,12 +9,19 @@ import { join } from "node:path";
 
 import type Anthropic from "@anthropic-ai/sdk";
 
-import { MODELS, TRANSLATE_PROMPT } from "@surau/llm";
+import {
+  MODELS,
+  TRANSLATE_NOTES,
+  TRANSLATE_PROMPT,
+  buildTranslateRequest,
+  translatePromptFor,
+} from "@surau/llm";
 import type { ModelId } from "@surau/llm";
 
 import {
   awaitingReplan,
   budgetProblem,
+  currentPromptVersion,
   pendingRequests,
   pendingUsd,
   plannedRequest,
@@ -283,6 +290,59 @@ describe("ulangan", () => {
     const now = accepted({ failures: [fail("passage-10000001", "invalid:meta")] });
     expect(unresolved(work, now).get("passage-10000001")?.attempts).toBe(1);
     expect(pendingRequests(work, now, 1).map((r) => r.custom_id)).not.toContain("passage-10000001");
+  });
+});
+
+describe("prompt terjemahan per kitab (ADR-149)", () => {
+  const note = TRANSLATE_NOTES.ajurrumiyyah;
+  const noted = buildWork(rows, { translateNote: note });
+  const resolved = translatePromptFor(TRANSLATE_PROMPT, note);
+
+  test("kitab tanpa petunjuk: versi dan request sama persis dengan prompt aktif", () => {
+    expect(work.translatePrompt).toBe(TRANSLATE_PROMPT);
+    expect(buildWork(rows, { translateNote: undefined }).translatePrompt).toBe(TRANSLATE_PROMPT);
+    expect(currentPromptVersion(work, "passage-10000001")).toBe(TRANSLATE_PROMPT.id);
+    const r = pendingRequests(work, accepted(), 1).find((x) => x.custom_id === "passage-10000001");
+    const u = work.units.get(10_000_001);
+    expect(r?.prompt_version).toBe(TRANSLATE_PROMPT.id);
+    if (u === undefined) throw new Error("fixture tanpa paragraf 10000001");
+    expect(r?.params).toEqual(buildTranslateRequest(u, MODELS.haiku));
+  });
+
+  test("kitab berpetunjuk: request membawa petunjuk dan versi gabungan; ringkasan tidak berubah", () => {
+    const plan = pendingRequests(noted, accepted(), 1);
+    const r = plan.find((x) => x.custom_id === "passage-10000001");
+    expect(r?.prompt_version).toBe(`${TRANSLATE_PROMPT.id}+nahwu-ajurrumiyyah@1`);
+    const system = r?.params.system as { text: string }[];
+    expect(system[0]?.text).toBe(resolved.system);
+    expect(currentPromptVersion(noted, "passage-10000001")).toBe(resolved.id);
+    expect(currentPromptVersion(noted, "toc-100002-id")).toBe(
+      currentPromptVersion(work, "toc-100002-id"),
+    );
+    // Rencana berpetunjuk siap dikirim untuk kitabnya, tetapi usang bila petunjuknya hilang
+    // (dan sebaliknya): versi prompt tercatat harus sama dengan yang akan dikirim.
+    expect(submittable(noted, accepted(), new Set(), plan).stale).toBe(0);
+    expect(submittable(work, accepted(), new Set(), plan).stale).toBe(2);
+    expect(
+      submittable(noted, accepted(), new Set(), pendingRequests(work, accepted(), 1)).stale,
+    ).toBe(2);
+  });
+
+  test("kegagalan versi berpetunjuk dihitung sebagai prompt saat ini; versi tanpa petunjuk tidak", () => {
+    const withNote = accepted({
+      failures: [{ ...fail("passage-10000001", "invalid:meta"), prompt_version: resolved.id }],
+    });
+    expect(unresolved(noted, withNote).get("passage-10000001")?.attempts).toBe(1);
+    expect(pendingRequests(noted, withNote, 1).map((r) => r.custom_id)).not.toContain(
+      "passage-10000001",
+    );
+    const without = accepted({
+      failures: [
+        { ...fail("passage-10000001", "invalid:meta"), prompt_version: TRANSLATE_PROMPT.id },
+      ],
+    });
+    expect(unresolved(noted, without).has("passage-10000001")).toBe(false);
+    expect(awaitingReplan(noted, without)).toEqual(["passage-10000001"]);
   });
 });
 

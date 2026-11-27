@@ -56,6 +56,24 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 - HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
 - Catatan kaki pentahqiq (Muhammad al-Hajjar) **tidak disertakan** (ADR-138): catatan itu karya penyunting modern di luar rilis OpenITI. Penanda nomor catatan di teks utama tetap ada sebagai teks biasa tanpa tautan.
 
+## al-Ajurrumiyyah (Ibnu Ajurrum, w. 723 H)
+
+Disiapkan untuk korpus `kitab-v10` (X31d, ADR-135, ADR-137, ADR-138, ADR-139): sudah dibangun lokal, **belum tayang** di produksi. Rinciannya masuk halaman `/lisensi` saat kitab ini tayang. Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0011371; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar ash-Shumai'i, 1419/1998; catatan kaki penyunting tidak disertakan
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0723IbnAjrum.Ajrumiyya.Shamela0011371-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0725AH` commit `1c14df8ff4ca37622d678a3a7e76f915848f3f88` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 11371). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/al-ajurrumiyyah-11371-openiti.md](reports/al-ajurrumiyyah-11371-openiti.md)) | https://shamela.ws/book/11371 |
+| **Dar ash-Shumai'i** | Penerbit edisi cetak: satu jilid, 1419 H / 1998 M. Nomor halaman di Surau mengikuti cetakan ini (halaman 5–23) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+- Shamela memecah satu halaman cetak menjadi beberapa halaman per bab. Potongan berurutan dengan nomor cetak yang sama digabung menjadi satu halaman (31 halaman Shamela menjadi 19 halaman cetak; ADR-139). Urutan dan isi paragraf tidak berubah.
+- Catatan kaki penyunting **tidak disertakan** (ADR-138): catatan itu karya penyunting modern di luar rilis OpenITI. Penanda nomor catatan di teks utama tetap ada sebagai teks biasa tanpa tautan.
+
 ## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 
 Kutipan ayat di dalam kitab dikenali otomatis dan ditautkan ke surah:ayat. Teks ayat, terjemahan, dan transliterasi yang tampil di Surau disalin **verbatim** dari sumber berikut. Model AI tidak pernah menulis, mengubah, atau menerjemahkan ayat (ADR-020, ADR-040).

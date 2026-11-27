@@ -158,6 +158,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 146 | Kelas catatan kaki di ingest: `WorkConfig.footnotes` = ledger, catatan `modern_editor` dibuang sebelum alokasi ID (tanpa paragraf/`footnote_ref`), `//` di kitab `modern_editor` ditolak, gerbang per kelas; `parseImprint` melewati kotak pos/telepon; korpus at-Tibyan (karya/edisi 3) | diterima | 2026-11-27 | [keputusan/ADR-146.md](keputusan/ADR-146.md) |
 | 147 | Intisari kitab Gelombang 1: setiap judul tingkat teratas = Intisari Bab (`contentTierOf`), tanpa Intisari Kitab seluruh kitab (tidak ada node akar); Bidayah `intisari_bab` [1, 2, 17, 37]; produksi lewat Claude Code + pemeriksa independen | diterima | 2026-11-27 | [keputusan/ADR-147.md](keputusan/ADR-147.md) |
 | 148 | Penanda `(١)` tanpa catatan kaki tertaut dibuang dari teks yang dikirim ke model (kitab `modern_editor`, mis. at-Tibyan); `text_raw` dan validator penanda tidak berubah | diterima | 2026-11-27 | [keputusan/ADR-148.md](keputusan/ADR-148.md) |
+| 149 | Contoh Arab di terjemahan al-Ajurrumiyyah: transliterasi Latin oleh model (bagian terjemahan AI), tanpa placeholder baru; istilah nahwu baku pesantren; petunjuk terjemahan per kitab `WorkConfig.llm.translateNote` (`<prompt>+<petunjuk>`, kitab lain tidak berubah; pemasangan ke `pnpm llm` sebelum batch); tanpa audio. Implementasi ADR-139 (`mergeSamePrintPage`) dan korpus Ajurrumiyyah (karya/edisi 4) | diterima | 2026-11-27 | [keputusan/ADR-149.md](keputusan/ADR-149.md) |
 
 ## Cara menambah ADR baru
 
