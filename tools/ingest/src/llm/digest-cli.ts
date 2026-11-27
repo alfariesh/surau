@@ -10,7 +10,6 @@
 // `--banding`: Intisari Kitab juga dibuat Haiku 5.5 sebagai pembanding (pilot).
 import { z } from "zod";
 
-import { IHYA } from "../works/ihya.ts";
 import type { LlmContext } from "./cli.ts";
 import {
   runDigestCollect,
@@ -55,7 +54,7 @@ export async function runIntisari(ctx: LlmContext, args: IntisariArgs): Promise<
     throw new Error("--from staging wajib bersama --kitab <toc_node_id> (pilot satu kitab).");
   }
   let loaded: ReturnType<DigestContext["load"]> | null = null;
-  const subheadings = readSubheadings(ctx.repo, IHYA);
+  const subheadings = readSubheadings(ctx.repo, ctx.work);
   const load: DigestContext["load"] = () => {
     loaded ??= (async () => {
       if (from === "staging" && kitab !== undefined) {

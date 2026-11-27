@@ -243,6 +243,14 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   6. Di Claude Code (folder Surau), ketik: "impor konten dari Downloads". Agent memeriksa, menjalankan pemeriksa independen, lalu membuat PR.
   7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
 
+- [ ] **T-37 · Kunci API Anthropic `surau-dev` baru (kunci lama ditolak)** (dibutuhkan X31b; isu [#253](https://github.com/alfariesh/surau/issues/253)) · ditemukan agent 2026-11-27: `pnpm llm plan` → `401 invalid x-api-key`. Batch terjemahan Bidayah sudah Anda izinkan di chat ("langsung aja pake llm model sonnet", "api batch"): Message Batches, Sonnet 5.5, pagu agent US$1,50, perkiraan ±US$0,7.
+  1. Buka platform.claude.com → workspace `surau-dev` → **API Keys** → buat kunci baru. Cek juga saldo kredit dan spend limit workspace.
+  2. Di aplikasi Terminal, dari folder Surau, jalankan lalu tempel kuncinya (tidak terlihat):
+     ```
+     read -rs "K?Tempel API key surau-dev lalu Enter: " && printf 'ANTHROPIC_API_KEY=%s\n' "$K" > .env && chmod 600 .env; unset K
+     ```
+  3. Tulis ke agent: "kunci sudah diganti". Jangan tempel kuncinya di chat.
+
 - [ ] ~~**T-36 · Build korpus staging `kitab-v10` (Ihya + Bidayat al-Hidayah), di mesin agent (X31a langkah 8)**~~ · **dibatalkan 2026-11-26 (tidak dikerjakan):** Ihya diarsipkan ([ADR-142](keputusan/ADR-142.md)), dan korpus tanpa Ihya dibangun di Mac. Langkah lama di bawah disimpan sebagai catatan.
   Kenapa di mesin agent: korpus baru memuat Ihya beserta data AI terbarunya (terjemahan, ringkasan, Intisari pilot), dan data itu hanya ada di `/home/rekanesia/surau` (ADR-135 butir 5). Kode multi-kitab sudah di `main` (ADR-137).
   1. Buka sesi Claude Code di mesin agent, folder `/home/rekanesia/surau`.

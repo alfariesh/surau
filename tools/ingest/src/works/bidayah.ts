@@ -7,6 +7,10 @@ export const BIDAYAH: WorkConfig = {
   shamelaBook: 12718,
   ids: "data/ids/bidayat-al-hidayah-12718.json",
   reportPrefix: "data/reports/bidayat-al-hidayah-12718",
+  // Folder kerja LLM per kitab (X31b, ADR-137 butir 8): data/build/llm/bidayat-al-hidayah. Intisari
+  // Bidayah dibuat lewat chat (X24), jadi folder Intisari batch ini tetap kosong.
+  // Model Sonnet 5.5 atas keputusan pemilik 2026-11-27 ("langsung aja pake llm model sonnet").
+  llm: { dir: "bidayat-al-hidayah", intisari: "bidayat-al-hidayah/intisari", model: "sonnet" },
   expect: {
     pages: 46,
     // Satu jilid (kolom `part` Shamela kosong → juz 1, ADR-029); halaman cetak 25–70.

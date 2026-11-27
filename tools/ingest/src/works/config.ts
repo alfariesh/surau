@@ -27,6 +27,11 @@ export interface WorkConfig {
     dir: string;
     /** Folder hasil Intisari (X15b); per kitab sejak ADR-137 (pemicu ADR-136 butir 4). */
     intisari: string;
+    /**
+     * Model terjemahan dan ringkasan untuk unit yang belum pernah disentuh (bawaan Haiku, S13).
+     * `sonnet` untuk kitab Gelombang 1 atas keputusan pemilik (X31b; mutu Sonnet di X21, ADR-109).
+     */
+    model?: "haiku" | "sonnet";
   };
   /** Metadata audio Intisari (ditulis `pnpm audio manifest`); tanpa entri = tanpa audio. */
   audioManifest?: string;

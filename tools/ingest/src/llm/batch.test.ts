@@ -9,7 +9,8 @@ import { join } from "node:path";
 
 import type Anthropic from "@anthropic-ai/sdk";
 
-import { TRANSLATE_PROMPT } from "@surau/llm";
+import { MODELS, TRANSLATE_PROMPT } from "@surau/llm";
+import type { ModelId } from "@surau/llm";
 
 import {
   awaitingReplan,
@@ -163,6 +164,13 @@ describe("request tertunda", () => {
     const failed = accepted({ failures: [fail("passage-10000001", "refusal")] });
     expect(unresolved(work, failed).has("passage-10000001")).toBe(true);
     expect(unresolved(guarded, failed).has("passage-10000001")).toBe(false);
+  });
+
+  test("model unit baru per kitab (X31b): bawaan Haiku, Sonnet bila kitabnya memilih Sonnet", () => {
+    const models = (m?: ModelId) =>
+      new Set(pendingRequests(work, accepted(), 1, undefined, m).map((r) => r.params.model));
+    expect(models()).toEqual(new Set([MODELS.haiku]));
+    expect(models(MODELS.sonnet)).toEqual(new Set([MODELS.sonnet]));
   });
 
   test("putaran 1: semua paragraf + potongan × 2 bahasa; yang lolos (hash sama) dan yang gagal dilewati", () => {

@@ -12,7 +12,6 @@ import {
 import type { SummaryLang } from "@surau/llm";
 
 import type { CorpusRows } from "../rows.ts";
-import { IHYA } from "../works/ihya.ts";
 import type { AcceptedSummary } from "./store.ts";
 import {
   HEADING_SEPARATOR,
@@ -23,16 +22,25 @@ import {
 } from "./units.ts";
 import type { SummaryChunk, SummaryNode, TranslationUnit, UnitIssue } from "./units.ts";
 
-export const IHYA_PATH: EditionPath = {
-  workSlug: IHYA.work.slug,
-  editionSlug: IHYA.edition.slug,
-  isDefault: true,
-};
+/** Alamat edisi kitab yang sedang dikerjakan, dari baris korpusnya sendiri (X31b: per kitab). */
+export function editionPathOf(rows: {
+  work: readonly CorpusRows["work"][number][];
+  edition: readonly CorpusRows["edition"][number][];
+}): EditionPath {
+  const work = rows.work[0];
+  const edition = rows.edition.find((e) => e.is_default === 1) ?? rows.edition[0];
+  if (work === undefined || edition === undefined)
+    throw new Error("baris korpus tanpa karya/edisi");
+  return { workSlug: work.slug, editionSlug: edition.slug, isDefault: true };
+}
 
-export function links(rows: {
-  page: readonly CorpusRows["page"][number][];
-  passage: readonly CorpusRows["passage"][number][];
-}): {
+export function links(
+  rows: {
+    page: readonly CorpusRows["page"][number][];
+    passage: readonly CorpusRows["passage"][number][];
+  },
+  path: EditionPath,
+): {
   passage: (id: number) => string;
   section: (id: number) => string;
 } {
@@ -42,9 +50,9 @@ export function links(rows: {
     passage: (id) => {
       const pg = page.get(pageOf.get(id) ?? 0);
       if (pg === undefined) throw new Error(`paragraf ${id} tidak ada`);
-      return passagePermalink(IHYA_PATH, pg.juz, pg.page_no, id);
+      return passagePermalink(path, pg.juz, pg.page_no, id);
     },
-    section: (id) => sectionPermalink(IHYA_PATH, id),
+    section: (id) => sectionPermalink(path, id),
   };
 }
 

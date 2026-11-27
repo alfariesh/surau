@@ -22,7 +22,11 @@ import type { AcceptedDigest } from "./digest-store.ts";
 import { digestCustomId, parseDigestCustomId, quoteInspector } from "./digest-units.ts";
 import type { DigestCorpus, DigestNodeUnit, DigestPlan } from "./digest-units.ts";
 import { readBatches, readJsonl, writeText } from "./store.ts";
+import { IHYA } from "../works/ihya.ts";
 import { links } from "./work.ts";
+
+/** Pilot Intisari batch (X15b) khusus Ihya (ADR-142: diarsipkan). */
+const IHYA_PATH = { workSlug: IHYA.work.slug, editionSlug: IHYA.edition.slug, isDefault: true };
 
 const SITE = "https://surau.org";
 const STANCE: Record<string, string> = {
@@ -307,7 +311,7 @@ function qaHtml(
   // Jenis dan larangan kutipan dihitung ulang dengan aturan SAAT INI (sama dengan attach), supaya QA
   // tidak menampilkan kutipan yang nanti ditahan saat dimuat.
   const inspect = quoteInspector(rows);
-  const link = links(rows);
+  const link = links(rows, IHYA_PATH);
   const passages = new Map(rows.passage.map((p) => [p.id, p]));
   const pages = new Map(rows.page.map((p) => [p.id, p]));
   const titleAr = new Map(rows.toc_node.map((n) => [n.id, n.title_ar]));

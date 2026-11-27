@@ -1,5 +1,4 @@
 // `pnpm llm terjemah-ulang`: ringkasan pilihan terjemahan ulang terarah (X21), gratis (tanpa API).
-import { llmDir } from "./store.ts";
 import { readAccepted } from "./batch.ts";
 import { RETRANSLATE_FILE, loadRetranslation, translationDone } from "./retranslate.ts";
 import { buildWork } from "./work.ts";
@@ -13,7 +12,7 @@ export function runRetranslateInfo(ctx: LlmContext): number {
     return 0;
   }
   const work = buildWork(rows);
-  const acc = readAccepted(llmDir(ctx.repo));
+  const acc = readAccepted(ctx.dir);
   const juzOf = new Map(rows.page.map((p) => [p.id, p.juz]));
   const pageOf = new Map(rows.passage.map((p) => [p.id, p.page_id]));
   const stat = new Map<number, { selected: number; done: number; none: number }>();

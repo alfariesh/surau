@@ -17,8 +17,8 @@ import { samplePages } from "../qa-sample.ts";
 import type { LlmContext } from "./cli.ts";
 import { kemenagLookup, reviewHtml } from "./review.ts";
 import type { ReviewItem } from "./review.ts";
-import { llmDir, readBatches, writeText } from "./store.ts";
-import { buildWork, expectedIds, links } from "./work.ts";
+import { readBatches, writeText } from "./store.ts";
+import { buildWork, editionPathOf, expectedIds, links } from "./work.ts";
 import { awaitingReplan, readAccepted, unresolved } from "./batch.ts";
 
 export const QA_SEED = 9473;
@@ -41,12 +41,12 @@ function planEstimate(dir: string, round: number): Record<string, number> | null
 }
 
 export async function runReport(ctx: LlmContext): Promise<number> {
-  const dir = llmDir(ctx.repo);
+  const dir = ctx.dir;
   const rows = ctx.rows();
   const work = buildWork(rows);
   const acc = readAccepted(dir);
   const want = expectedIds(work);
-  const link = links(rows);
+  const link = links(rows, editionPathOf(rows));
 
   const tOk = [...work.units.values()].filter(
     (u) => acc.translations.get(u.passageId)?.source_sha256 === u.sourceSha256,
@@ -142,7 +142,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     });
 
   const lines = [
-    "# Terjemahan dan ringkasan AI: Ihya' 'Ulum ad-Din (S13)",
+    `# Terjemahan dan ringkasan AI: ${ctx.work.work.titleId}`,
     "",
     "> Dibuat otomatis oleh `pnpm llm report` (`tools/ingest/src/llm`). Tanpa teks kitab: hanya angka, ID, dan permalink.",
     "",
@@ -228,7 +228,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     ),
     "",
   ];
-  writeText(join(ctx.repo, "data/reports/ihya-9472-terjemahan.md"), lines.join("\n"));
+  writeText(join(ctx.repo, `${ctx.work.reportPrefix}-terjemahan.md`), lines.join("\n"));
 
   const passages = new Map(rows.passage.map((p) => [p.id, p]));
   const items: ReviewItem[] = sample.map((u, i) => {
@@ -289,7 +289,7 @@ export async function runReport(ctx: LlmContext): Promise<number> {
     );
   }
   console.info(
-    `Laporan: data/reports/ihya-9472-terjemahan.md · terjemahan ${pct(tOk.length, needed)}, ringkasan ID ${pct(finalOk("id"), nodes)}, EN ${pct(finalOk("en"), nodes)} · biaya ${usd(total.costUsd)}`,
+    `Laporan: ${ctx.work.reportPrefix}-terjemahan.md · terjemahan ${pct(tOk.length, needed)}, ringkasan ID ${pct(finalOk("id"), nodes)}, EN ${pct(finalOk("en"), nodes)} · biaya ${usd(total.costUsd)}`,
   );
   return 0;
 }

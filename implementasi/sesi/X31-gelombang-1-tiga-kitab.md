@@ -177,3 +177,11 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
 - `corpus:qa staging --kitab bidayat-al-hidayah` → 30/30. Pembaca, daftar isi, `/kitab`, `/cari`, dan `/api/search` di data staging → lolos (rincian di "Selesai bila").
 - **Akibat:** Preview setiap PR kini berisi Bidayah. PR lama yang belum memuat ADR-144 (mis. Dependabot #243, #231) akan gagal e2e Preview sampai di-rebase ke `main`.
 - **X31a selesai.** Berikutnya X24 (impor Intisari), lalu X31b (terjemahan Bidayah: izin biaya).
+
+### X31b langkah 1: alat batch per kitab (2026-11-27)
+
+- `pnpm llm … --karya <slug>` (wajib): baris korpus, folder kerja `data/build/llm/<WorkConfig.llm.dir>`, tautan sitasi, dan laporan `<reportPrefix>-terjemahan.md` per kitab. Nama opsi `--karya`, bukan `--kitab`, karena `pnpm llm intisari` sudah memakai `--kitab <toc_node_id>` (menyimpang dari tulisan langkah 1, ditulis terbuka di sini).
+- Bidayah: `WorkConfig.llm = { dir: "bidayat-al-hidayah", intisari: "bidayat-al-hidayah/intisari" }`; build bawaan tetap lolos (cakupan 0% sampai batch).
+- **Belum diubah (sengaja):** `pnpm llm intisari` dan alat audio tetap khusus Ihya; Intisari Bidayah dibuat lewat chat (X24), audio diputuskan di langkah 4. `pnpm llm tokens` masih menulis laporan Ihya.
+- **Model:** `WorkConfig.llm.model` (bawaan Haiku); Bidayah `sonnet` atas keputusan pemilik di chat 2026-11-27 ("langsung aja pake llm model sonnet", "pake api", "api batch"): Message Batches, tanpa persetujuan lanjutan; agent memakai pagu `--budget 1.5`.
+- **Terblokir (T-37):** mode rencana (`plan`, gratis, `count_tokens`) gagal `401 invalid x-api-key`: kunci `surau-dev` di `.env` tidak berlaku lagi. Perkiraan lokal dari tarif X21: terjemahan 391 paragraf (±78 ribu karakter) ±US$0,55 + ringkasan 46 bab ±US$0,1.
