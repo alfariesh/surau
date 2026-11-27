@@ -51,8 +51,9 @@ export default async function WorkPage({ params }: Props) {
     loadReaderToc(segment),
     loadDigestHeaders(segment),
   ]);
-  // Hub Intisari (X16) hanya bila korpus punya Intisari Kitab (skema ≥ 9, sesudah X15b).
-  const hasHub = digests.some((d) => d.tier === "book");
+  // Hub Intisari (X16) bila karya punya Intisari: Kitab (Ihya) atau, untuk kitab kecil tanpa Intisari
+  // Kitab, daftar Intisari Bab-nya (ADR-147 butir 3).
+  const hasHub = digests.length > 0;
   const title = work.title_id ?? work.title_ar;
   const start = toc[0]?.href;
 

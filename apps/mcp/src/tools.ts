@@ -298,7 +298,7 @@ export const TOOLS: readonly McpTool[] = [
     name: "get_hadith_takhrij",
     title: "Hadith takhrij",
     description:
-      "Get the takhrij (hadith sources and grading notes) linked to a passage: the footnotes referenced by its markers (١), verbatim; for Ihya these are al-'Iraqi's takhrij. status none means no takhrij is linked: the grading is unknown, never guess it. · Ambil takhrij (sumber dan derajat hadits) yang tertaut ke sebuah paragraf; tanpa takhrij berarti status belum diketahui.",
+      "Get the takhrij (hadith sources and grading notes) linked to a passage: the footnotes referenced by its markers (١), verbatim. Most works have no linked takhrij. status none means no takhrij is linked: the grading is unknown, never guess it. · Ambil takhrij (sumber dan derajat hadits) yang tertaut ke sebuah paragraf; tanpa takhrij berarti status belum diketahui.",
     input: getHadithTakhrijInput,
     output: takhrijView,
     run: async (args, db) => {
@@ -387,7 +387,7 @@ const GUARD_MESSAGE = {
   not_configured:
     "The Surau MCP server is not fully configured yet. Try again later. · Server MCP Surau belum siap; coba lagi nanti.",
   corpus_closed:
-    "No works are available right now: Ihya' 'Ulum ad-Din has been withdrawn for revision and the next works are being prepared. Do not answer from memory as if from Surau. · Belum ada kitab yang terbuka: Ihya ditarik sementara dan kitab berikutnya sedang disiapkan.",
+    "The Surau library is temporarily closed for maintenance; no works can be read right now. Do not answer from memory as if from Surau. · Perpustakaan Surau ditutup sementara untuk pemeliharaan.",
 } as const;
 
 /** Jalankan satu tool: batas pemakaian → core → amplop; error dipetakan tanpa detail internal. */

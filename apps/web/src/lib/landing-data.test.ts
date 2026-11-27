@@ -12,6 +12,15 @@ describe("quoteSpan: rentang kutipan hero disalin apa adanya, hanya di batas kat
     expect(quoteSpan(raw, 15, raw.length)).toBe("jim");
   });
 
+  it("akhir rentang boleh tepat sebelum tanda baca (koma, titik koma Arab)", () => {
+    const punct = "alif ba; ta, tsa؛ jim";
+    expect(quoteSpan(punct, 0, 7)).toBe("alif ba");
+    expect(quoteSpan(punct, 9, 11)).toBe("ta");
+    expect(quoteSpan(punct, 9, 16)).toBe("ta, tsa");
+    // Awal rentang tetap harus di awal teks atau sesudah spasi.
+    expect(quoteSpan(punct, 8, 11)).toBeNull();
+  });
+
   it("rentang terpotong di tengah kata ditolak", () => {
     expect(quoteSpan(raw, 0, 9)).toBeNull();
     expect(quoteSpan(raw, 1, 10)).toBeNull();

@@ -25,6 +25,8 @@ export interface HubGroup {
   title: string;
   titleId: string | null;
   books: HubBook[];
+  /** Satu-satunya kelompok tanpa judul (kitab kecil: daftar Intisari Bab, ADR-147). */
+  untitled?: boolean;
 }
 
 /** Judul Indonesia (bila ada) di atas judul Arab dari DB. */
@@ -73,11 +75,21 @@ export function DigestHubList({
           aria-labelledby={`intisari-rub-${g.id}`}
           className="flex flex-col gap-4"
         >
-          <Typography.Heading className="text-lg sm:text-xl" id={`intisari-rub-${g.id}`} level={2}>
-            <Titles lang={titleLang} title={g.title} titleId={g.titleId} />
-          </Typography.Heading>
+          {g.untitled ? (
+            <Typography.Heading className="sr-only" id={`intisari-rub-${g.id}`} level={2}>
+              {t.hubSectionsHeading}
+            </Typography.Heading>
+          ) : (
+            <Typography.Heading
+              className="text-lg sm:text-xl"
+              id={`intisari-rub-${g.id}`}
+              level={2}
+            >
+              <Titles lang={titleLang} title={g.title} titleId={g.titleId} />
+            </Typography.Heading>
+          )}
           <ul
-            aria-label={t.hubGroupLabel(g.titleId ?? g.title)}
+            aria-label={g.untitled ? t.hubSectionsHeading : t.hubGroupLabel(g.titleId ?? g.title)}
             className="grid list-none gap-3 p-0 sm:grid-cols-2"
           >
             {g.books.map((b) => (

@@ -52,13 +52,10 @@ describe("data/kitab/ledger.yaml", () => {
 
 describe("unreleasedWorks (pengaman promote, ADR-137)", () => {
   const ledger = readLedger(repo);
-  test("arsip dan staging belum tayang; slug tak dikenal dianggap belum", () => {
-    expect(unreleasedWorks(ledger, ["ihya", "bidayat-al-hidayah", "at-tibyan", "x"])).toEqual([
-      "ihya",
-      "bidayat-al-hidayah",
-      "at-tibyan",
-      "x",
-    ]);
+  test("arsip belum tayang, Gelombang 1 tayang (X31); slug tak dikenal dianggap belum", () => {
+    expect(
+      unreleasedWorks(ledger, ["ihya", "bidayat-al-hidayah", "at-tibyan", "al-ajurrumiyyah", "x"]),
+    ).toEqual(["ihya", "x"]);
   });
 });
 

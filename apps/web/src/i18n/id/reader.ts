@@ -8,9 +8,9 @@ export const reader = {
   releasedLead: "Kitab yang sudah bisa dibaca lengkap, dengan alamat cetak untuk dirujuk.",
   allHeading: "Semua kitab",
   allLead: "Semua kitab yang sudah bisa dibaca di Surau.",
-  soonHeading: "Pembaca kitab segera hadir",
+  soonHeading: "Pembaca kitab segera kembali",
   soonBody:
-    "Ihya' 'Ulum ad-Din ditarik sementara untuk disempurnakan, dan kitab berikutnya (Bidayat al-Hidayah, at-Tibyan, al-Ajurrumiyyah) sedang disiapkan. Sementara itu, kenali dulu prinsip Surau.",
+    "Pembaca kitab sedang ditutup sementara untuk pemeliharaan. Sementara itu, kenali dulu prinsip Surau.",
   soonCta: "Kenali Surau",
   by: "karya",
   editionsLabel: "Edisi",

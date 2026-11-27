@@ -22,6 +22,7 @@ export const intisari = {
     "Intisari adalah pintu ke kitab, bukan penggantinya. Untuk memahami dan mengamalkan isinya, pelajari kitabnya bersama guru.",
   hubGroupLabel: (title: string) => `Intisari kitab di ${title}`,
   hubSectionCount: (n: number) => `${n} Intisari bab`,
+  hubSectionsHeading: "Intisari per bab",
   readMark: "Sudah dibaca",
   breadcrumbLabel: "Lokasi",
   metaTitle: (section: string, work: string) => `Intisari ${section} · ${work}`,

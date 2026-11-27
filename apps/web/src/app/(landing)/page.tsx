@@ -439,7 +439,7 @@ function Collection({ work }: { work: LandingWork | null }) {
   const stats = work?.stats
     ? [
         work.stats.volumes ? { value: work.stats.volumes, label: t.collectionStats.volumes } : null,
-        { value: work.stats.books, label: t.collectionStats.books },
+        { value: work.stats.parts, label: t.collectionStats.parts },
         { value: work.stats.sections, label: t.collectionStats.sections },
       ].filter((x) => x !== null)
     : [];

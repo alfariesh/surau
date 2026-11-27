@@ -30,30 +30,30 @@ export const landingNav = {
 export const landingDemo = {
   tabsLabel: "Contoh pemakaian Surau",
   tabs: { tanya: "Maknaz", cari: "Cari", baca: "Baca" },
-  question: "Apa hubungan ilmu dan amal menurut al-Ghazali?",
+  question: "Apa permulaan hidayah menurut al-Ghazali?",
   asking: "Pertanyaan",
   answer: (label: string) =>
-    `Menurut al-Ghazali dalam ${label}, ilmu melahirkan keadaan batin (hal), dan keadaan batin itulah yang kemudian menghasilkan amal.`,
+    `Menurut al-Ghazali dalam ${label}, permulaan hidayah adalah takwa yang lahir, dan ujungnya takwa yang batin.`,
   answerBy: "Maknaz",
   citation: "Kutipan",
   openPage: "Buka halamannya",
   done: "Kutipan cocok dengan sumber",
   searchLabel: "Kotak cari",
-  resultsCount: (n: number) => `Contoh ${n} hasil dari ratusan halaman yang memuat kata ini`,
+  resultsCount: (n: number) => `Contoh ${n} hasil dari halaman-halaman yang memuat kata ini`,
   readModes: { ar: "Arab", both: "Keduanya", tr: "Terjemahan" },
   readModesLabel: "Mode baca",
   readNote: "Teks Arab dari kitab; terjemahan dibuat AI dan diberi label.",
   // Simulasi MCP: asisten AI milik pengguna memanggil tool Surau.
-  mcpUser: "Bagaimana al-Ghazali menjelaskan hubungan ilmu dan amal? Pakai Surau.",
+  mcpUser: "Menurut al-Ghazali, apa permulaan hidayah itu? Pakai Surau.",
   // Alamat (label) dari data kutipan, jadi simulasi tidak bisa melenceng dari kutipannya.
   mcpTools: (label: string) => [
-    { name: "search_text", detail: "ilmu, amal" },
+    { name: "search_text", detail: "permulaan hidayah" },
     { name: "read_page", detail: label },
     { name: "verify_quote", detail: "cocok" },
   ],
   mcpTool: "Surau",
   mcpAnswer: (label: string) =>
-    `Menurut al-Ghazali dalam ${label}, ilmu melahirkan keadaan batin, lalu keadaan batin menghasilkan amal. Kutipannya sudah diperiksa dengan verify_quote.`,
+    `Menurut al-Ghazali dalam ${label}, permulaan hidayah adalah takwa yang lahir, dan ujungnya takwa yang batin. Kutipannya sudah diperiksa dengan verify_quote.`,
   mcpAssistant: "Asisten AI Anda",
 } as const;
 
@@ -93,8 +93,8 @@ export const landing = {
     },
     {
       id: "takhrij",
-      title: "Takhrij hadits",
-      body: "Catatan al-'Iraqi tertaut langsung ke haditsnya.",
+      title: "Status hadits",
+      body: "Hanya dari teks takhrij; tanpa takhrij, belum diketahui.",
     },
     {
       id: "ayah",
@@ -122,7 +122,7 @@ export const landing = {
     },
     {
       title: "Membaca",
-      body: "Buka halaman cetaknya: teks Arab asli, terjemahan AI berlabel, takhrij, dan ayat yang dikutip.",
+      body: "Buka halaman cetaknya: teks Arab asli, terjemahan AI berlabel, catatan kaki, dan ayat yang dikutip.",
       art: "kitab-rehal",
     },
     {
@@ -136,16 +136,16 @@ export const landing = {
   collectionHeading:
     "Perpustakaan yang tumbuh, satu kitab yang dikerjakan dengan teliti setiap kali.",
   collectionLead:
-    "Setiap kitab disiapkan strukturnya, daftar isinya diperbaiki, dan takhrijnya ditautkan sebelum dibuka. Ihya' 'Ulum ad-Din ditarik sementara untuk disempurnakan; berikutnya Bidayat al-Hidayah, at-Tibyan, dan al-Ajurrumiyyah.",
+    "Setiap kitab disiapkan strukturnya dan diperiksa daftar isinya, lalu diberi terjemahan AI, ringkasan, dan Intisari Bab sebelum dibuka. Kini tersedia Bidayat al-Hidayah, at-Tibyan fi Adab Hamalat al-Qur'an, dan al-Ajurrumiyyah; semuanya ada di rak kitab.",
   collectionAvailable: "Tersedia",
   collectionSoon: "Menyusul",
   collectionStage: (n: number) => `Tahap ${n}`,
   collectionOpen: "Buka kitab",
-  collectionStats: { volumes: "jilid", books: "kitab", sections: "bagian" },
+  collectionStats: { volumes: "jilid", parts: "bagian", sections: "judul bab" },
   collectionNext: [
     {
       title: "Karya al-Ghazali lainnya",
-      body: "Kitab-kitab al-Ghazali sesudah Ihya, disiapkan dengan cara yang sama: struktur, daftar isi, dan takhrij.",
+      body: "Kitab-kitab al-Ghazali lainnya, disiapkan dengan cara yang sama: struktur, daftar isi, terjemahan, dan Intisari.",
     },
     {
       title: "Kitab kurikulum pesantren",
@@ -212,7 +212,7 @@ export const landing = {
     },
     {
       q: "Kitab apa saja yang sudah ada?",
-      a: "Saat ini belum ada kitab yang terbuka. Ihya' 'Ulum ad-Din karya al-Ghazali ditarik sementara untuk disempurnakan. Bidayat al-Hidayah, at-Tibyan, dan al-Ajurrumiyyah sedang disiapkan lengkap dengan terjemahan dan ringkasannya, lalu kitab kurikulum pesantren menyusul.",
+      a: "Saat ini ada tiga kitab: Bidayat al-Hidayah karya al-Ghazali, at-Tibyan fi Adab Hamalat al-Qur'an karya an-Nawawi, dan al-Ajurrumiyyah karya Ibnu Ajurrum, masing-masing dengan terjemahan AI, ringkasan, dan Intisari Bab. Ihya' 'Ulum ad-Din diarsipkan sementara untuk disempurnakan, dan kitab kurikulum pesantren menyusul.",
     },
     {
       q: "Bagaimana dengan privasi?",

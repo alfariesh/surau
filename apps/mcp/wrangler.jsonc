@@ -24,9 +24,9 @@
     "SITE_URL": "https://surau.org",
     // Satu-satunya host yang dilayani produksi; host lain (Version URL) → 404 (#64).
     "PUBLIC_HOST": "mcp.surau.org",
-    // "0" = korpus ditutup: setiap tool menjawab `corpus_closed` (Ihya diturunkan, ADR-142). Kembali
-    // "1" bersama promote korpus Gelombang 1 (X31b), sama seperti READER_ENABLED web.
-    "KITAB_OPEN": "0",
+    // "0" = korpus ditutup: setiap tool menjawab `corpus_closed` (dipakai saat Ihya diturunkan,
+    // ADR-142). "1" sejak promote korpus Gelombang 1 (X31), sama seperti READER_ENABLED web.
+    "KITAB_OPEN": "1",
   },
   // CORPUS_DB = korpus PRODUKSI yang SAMA dengan apps/web (satu D1, dua Worker). Nama + ID hanya
   // diubah `pnpm run corpus:promote` bersama apps/web/wrangler.jsonc (dijaga tes
