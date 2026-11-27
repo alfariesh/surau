@@ -93,6 +93,22 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 - HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
 
+## at-Ta'rifat (asy-Syarif al-Jurjani, w. 816 H)
+
+Korpus `kitab-v11` (Gelombang 2, ADR-152), status `staging` (belum tayang). Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0007312; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar al-Kutub al-'Ilmiyyah, Beirut, cetakan pertama 1403/1983, disunting sekelompok ulama di bawah penerbit; daftar isi penerbit tidak disertakan
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0816IbnMuhammadSharifJurjani.Tacrifat.Shamela0007312-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0825AH` commit `2630748a4754b509908048087e569ccc8dd251ce` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 7312). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/at-tarifat-7312-openiti.md](reports/at-tarifat-7312-openiti.md)) | https://shamela.ws/book/7312 |
+| **Dar al-Kutub al-'Ilmiyyah** | Penerbit edisi cetak: satu jilid, Beirut, cetakan pertama 1403 H / 1983 M, disunting dan dikoreksi sekelompok ulama di bawah penerbit. Nomor halaman di Surau mengikuti cetakan ini (halaman 5–260) | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+
 ## al-Muqaddimah al-Hadhramiyyah (Bafadl al-Hadrami, w. 918 H)
 
 Korpus `kitab-v11` (X32, ADR-152), status `staging` (belum tayang). Kalimat atribusi:
@@ -144,6 +160,8 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 - Edisi digital ini tidak memuat teks catatan kaki, mukadimah, atau lampiran pentahqiq. Dua penanda nomor catatan yang tersisa di teks utama tetap ada sebagai teks biasa tanpa tautan.
 - Daftar isi disusun ulang lewat patch yang bisa diaudit ([patches/al-muqaddimah-al-hadhramiyyah-6125.yaml](patches/al-muqaddimah-al-hadhramiyyah-6125.yaml)): judul "kitab" dan "bab" yang di Shamela hanya teks sebaris menjadi node daftar isi, dan judul "fasl" dipindah ke bawahnya. Judul node disalin dari teks halaman.
 - Edisi ini tanpa catatan kaki. Teks sumber memuat artefak konversi "صلى الله عليه وسلم" di sekitar judul bab (juga ada di OpenITI); teks tidak diubah.
+- Label jilid Shamela di puncak daftar isi tidak dimuat, dan bab-bab di bawahnya menjadi judul tingkat teratas (patch daftar isi, ADR-152).
+- Daftar isi penerbit di akhir edisi (halaman cetak 261–262) **tidak disertakan** (ADR-150): bukan teks al-Jurjani. Daftar persisnya: [patches/at-tarifat-7312-pentahqiq.yaml](patches/at-tarifat-7312-pentahqiq.yaml).
 
 ## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 

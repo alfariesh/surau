@@ -117,3 +117,48 @@ kitab:
     # Shamela (data/patches/al-muqaddimah-al-hadhramiyyah-6125.yaml): muqaddimah, kitab-thaharah,
     # bab-shalah, kitab-zakat, kitab-shiyam, kitab-hajj (peta ID: n700100, n700101, n700103,
     # n700112, n700115, n700117).
+  - slug: at-tarifat
+    shamela: 7312
+    openiti:
+      uri: 0816IbnMuhammadSharifJurjani.Tacrifat.Shamela0007312-ara1
+      rilis: "2025.1.9"
+      repo: OpenITI/0825AH
+    edisi: "Dar al-Kutub al-'Ilmiyyah, Beirut, cetakan pertama 1403 H / 1983 M, disunting sekelompok ulama di bawah penerbit, 1 jilid (halaman cetak 5–262)"
+    wafat_h: 816
+    lisensi: CC BY-NC-SA 4.0
+    catatan_kaki: none
+    status: staging
+    # Intisari Bab per judul tingkat teratas sesudah patch (ADR-152 tambahan): mukadimah (2) dan 28 bab
+    # huruf (3–30). Title 1 (label jilid) dan 31 (daftar isi penerbit) dibuang dari korpus, ADR-150.
+    intisari_bab:
+      [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+      ]

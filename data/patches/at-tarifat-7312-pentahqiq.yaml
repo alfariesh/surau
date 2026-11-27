@@ -1,0 +1,23 @@
+# Teks badan bukan karya al-Jurjani di at-Ta'rifat (Shamela 7312; edisi Dar al-Kutub al-'Ilmiyyah
+# 1403 H) yang TIDAK dimuat ke korpus (ADR-150, ADR-152 tambahan at-Ta'rifat).
+# Hanya ID dan kunci, tanpa teks kitab. `kunci` = `<page.id Shamela>:<kunci paragraf di halaman>`;
+# `judul` = title.id Shamela (node dan semua paragrafnya dibuang); `halaman` = page.id Shamela yang
+# ikut dibuang. `paragraf_id` wajib sama persis dengan hitungan kode.
+# Diperiksa dengan membaca build kitab-v11 (2026-11-28). Yang sengaja TETAP dimuat: mukadimah
+# al-Jurjani (halaman cetak 5, title 2) dan penanda akhir kitab di halaman cetak 260 (page.id 255).
+shamela_book: 7312
+
+bagian:
+  - nama: Label jilid Shamela
+    alasan: >-
+      Title 1 hanya label jilid ("jilid pertama") dari Shamela untuk kitab satu jilid. Semua bab
+      dinaikkan ke tingkat teratas lewat patch daftar isi, sehingga node ini hanya berisi label itu.
+    judul: [1]
+    paragraf_id: [80000001]
+  - nama: Daftar isi penerbit
+    alasan: >-
+      Bab "al-Faharis" di akhir edisi: daftar isi penerbit (nama bab dan nomor halaman cetak), bukan
+      teks al-Jurjani. Isinya sudah tersedia sebagai daftar isi pembaca.
+    judul: [31]
+    halaman: [256, 257]
+    paragraf_id: [[80002194, 80002227]]
