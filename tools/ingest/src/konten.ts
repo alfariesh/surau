@@ -15,6 +15,7 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
 import {
+  CHAT_PROMPT_PREFIX,
   checkContentDraft,
   contentDraft,
   quoteInspector,
@@ -43,8 +44,6 @@ import { sqliteD1 } from "./sqlite-d1.ts";
 export const CONTENT_DIR = "data/konten";
 /** Jenis yang menjadi baris Intisari; Faedah dan Jalur tampil lewat X25. */
 export const DIGEST_CONTENT_KINDS = ["intisari-bab", "intisari-kitab"] as const;
-/** Awalan `prompt_version` Intisari dari chat (penanda v2, X24 langkah 4). */
-export const CHAT_PROMPT_PREFIX = "surau-redaksi/";
 /** Log koreksi publik: unit yang ditarik (tanpa teks kitab). */
 export const WITHDRAWN_REPORT = "data/reports/konten-ditarik.md";
 

@@ -88,7 +88,10 @@ test.describe("fixture /dev/intisari", () => {
     await expect(dialog.getByRole("textbox", { name: "Keterangan" })).toBeVisible();
     // Kontras diukur sesudah animasi masuk selesai (latar setengah jalan memberi hasil palsu).
     await expect(page.locator("[data-entering]")).toHaveCount(0);
-    await page.waitForTimeout(400);
+    // Latar dialog memudar lewat transisi CSS sesudah `data-entering` hilang: tunggu animasinya.
+    await page.evaluate(() =>
+      Promise.all(document.getAnimations().map((a) => a.finished.catch(() => undefined))),
+    );
     const wcag = await new AxeBuilder({ page })
       .include('[role="dialog"]')
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])

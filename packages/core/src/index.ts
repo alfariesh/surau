@@ -33,6 +33,7 @@ export { BAN_LOOKAHEAD_CHARS, REPORT_LOOKAHEAD_CHARS, quoteInspector } from "./q
 export type { QuoteCorpus, QuoteInspection, QuoteRange } from "./quote-inspect.ts";
 export type { ContentLint } from "./content-lint.ts";
 export {
+  CHAT_PROMPT_PREFIX,
   CONTENT_FORMAT,
   CONTENT_KINDS,
   CONTENT_LIMITS,

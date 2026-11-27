@@ -9,7 +9,12 @@ import {
   FIXTURE_TEXT,
 } from "../../lib/reader/digest-fixture";
 
+import { intisari } from "../../i18n/id/intisari";
+import { FEEDBACK_MESSAGE_MAX } from "../../lib/feedback";
+import { feedbackRequest } from "../../lib/feedback-schema";
+
 import { DigestPage } from "./digest-page";
+import { pointReportBody } from "./point-report";
 import { ListenSlot } from "./listen-slot";
 
 const render = (digest = FIXTURE_BOOK, sections = FIXTURE_CHILDREN) =>
@@ -193,5 +198,22 @@ describe("Intisari v2 dari chat (X24)", () => {
     for (let n = 1; n <= FIXTURE_SECTION.points.length; n++) {
       expect(html).toContain(`aria-label="Laporkan kekeliruan di gagasan ${n}"`);
     }
+  });
+});
+
+describe("Laporkan per gagasan (X24): body diterima /api/feedback", () => {
+  const path = `${FIXTURE_SECTION.section.permalink}/intisari`;
+
+  it("pesan terpanjang yang diizinkan dialog lolos skema server; path halaman Intisari sah", () => {
+    const max = FEEDBACK_MESSAGE_MAX - intisari.reportPrefix(7).length;
+    const body = pointReportBody(7, "x".repeat(max), path, 990000001);
+    expect(feedbackRequest.safeParse(body).success).toBe(true);
+    expect(body?.message.length).toBe(FEEDBACK_MESSAGE_MAX);
+    expect(body?.message.startsWith("[Intisari, gagasan 7] ")).toBe(true);
+  });
+
+  it("keterangan kosong atau spasi saja tidak dikirim", () => {
+    expect(pointReportBody(1, "   \n ", path, 1)).toBeNull();
+    expect(pointReportBody(1, null, path, 1)).toBeNull();
   });
 });

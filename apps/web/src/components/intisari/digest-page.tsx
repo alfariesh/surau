@@ -1,4 +1,6 @@
 import type { DigestView } from "@surau/core";
+
+import { CHAT_PROMPT_PREFIX } from "@surau/core";
 import type { ReactNode } from "react";
 
 import { Alert, Breadcrumbs, Separator, Typography } from "@heroui/react";
@@ -29,8 +31,6 @@ import { RecallQuestions } from "./recall-questions";
 import { TermList } from "./term-list";
 
 const t = intisariText;
-/** Awalan `prompt_version` Intisari v2 dari chat (sama dengan `tools/ingest/src/konten.ts`). */
-const CHAT_PROMPT_PREFIX = "surau-redaksi/";
 const r = readerText;
 
 /** Intisari Bab di bawah Intisari Kitab (tata letak Kitab), urut daftar isi. */

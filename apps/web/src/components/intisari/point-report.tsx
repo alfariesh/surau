@@ -23,6 +23,28 @@ const t = intisariText;
 type Status = "idle" | "sending" | "sent" | "error_rate" | "error_invalid" | "error";
 
 /**
+ * Body POST /api/feedback untuk laporan satu gagasan, atau `null` bila keterangan kosong (spasi saja):
+ * awalan nomor gagasan membuat pesan tidak pernah kosong, jadi `min(1)` server tidak menolaknya.
+ */
+export function pointReportBody(
+  pointNo: number,
+  message: unknown,
+  pagePath: string,
+  passageId: number | null,
+  website: unknown = "",
+) {
+  const body = typeof message === "string" ? message.trim() : "";
+  if (body === "") return null;
+  return {
+    kind: "other" as const,
+    message: `${t.reportPrefix(pointNo)}${body}`,
+    path: pagePath,
+    passage_id: passageId,
+    website: typeof website === "string" ? website : "",
+  };
+}
+
+/**
  * Tombol "Laporkan" per gagasan Intisari (X24 langkah 6). Dikirim ke /api/feedback yang sama dengan
  * pembaca (tanpa migrasi DB app): jenis `other`, path halaman Intisari, `passage_id` = paragraf
  * dasar pertama gagasan (pengelola bisa membuka teksnya), dan pesan berawalan nomor gagasan. Tanpa
@@ -45,19 +67,23 @@ export function PointReport({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const text = form.get("message");
+    const payload = pointReportBody(
+      pointNo,
+      form.get("message"),
+      pagePath,
+      passageId,
+      form.get("website"),
+    );
+    if (payload === null) {
+      setStatus("error_invalid");
+      return;
+    }
     setStatus("sending");
     try {
       const response = await fetch("/api/feedback", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          kind: "other",
-          message: `${prefix}${typeof text === "string" ? text : ""}`,
-          path: pagePath,
-          passage_id: passageId,
-          website: form.get("website") ?? "",
-        }),
+        body: JSON.stringify(payload),
       });
       if (response.ok) setStatus("sent");
       else if (response.status === 429) setStatus("error_rate");
