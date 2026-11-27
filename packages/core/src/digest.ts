@@ -51,6 +51,22 @@ export function digestTierOf(level: number, hasChildNodes: boolean): "book" | "s
   return level === 2 || (level === 1 && !hasChildNodes) ? "book" : "section";
 }
 
+/** Edisi Ihya (ADR-029): satu-satunya edisi berstruktur rub' → Kitab → Bab (X15). */
+export const IHYA_EDITION_ID = 1;
+
+/**
+ * Tingkat Intisari konten chat per edisi (X31b, ADR-146). Ihya memakai `digestTierOf`. Kitab
+ * Gelombang 1 (satu jilid, tanpa node akar seluruh kitab) hanya punya Intisari Bab: setiap judul,
+ * termasuk judul tingkat teratas yang punya anak (Intisari Bab membaca seluruh sub-babnya).
+ */
+export function contentTierOf(
+  editionId: number,
+  level: number,
+  hasChildNodes: boolean,
+): "book" | "section" {
+  return editionId === IHYA_EDITION_ID ? digestTierOf(level, hasChildNodes) : "section";
+}
+
 /** Jumlah gagasan untuk sebuah teks menurut panjangnya (karakter Arab): "mengikuti panjang teks". */
 export function leafPointRange(chars: number): { min: number; max: number } {
   if (chars < 1_500) return { min: 1, max: 3 };
