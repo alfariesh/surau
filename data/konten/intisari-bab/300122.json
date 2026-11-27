@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300122,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:55:28+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p459 dan p615: banyaknya kata, isyarat ringkas, pilihan pendapat paling sahih dalam sebagian besar keadaan, rujukan Tahdzib, dan alasan menjelaskan yang jelas sesuai teks; kalimat urutan dari p460 dibuang bersama dasarnya."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p461-p467: makna al-hamd, al-karim, ath-thaul, hidayah, tahadda tepat; riwayat Ali dan nukilan Ibnu Faris diberi atribusi, dan batasan ada pendapat lain serta dan lainnya dikembalikan."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p487, p489, p492, p494, p509, p576: batasan taufik, infak, syi'ar, as-safarah, empat pendapat al-wakil, dan orang saleh menurut az-Zajjaj dan lainnya sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p500-p502: definisi hasad dan ghibthah, hukum haram dan terpuji menurut penulis, serta tafsirnya atas sabda dua perkara sesuai teks tanpa menyebut status riwayat."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p507, p512, p520, p530, p548: sekitar tiga puluh pendapat nama Abu Hurairah, jumhur lawan az-Zuhri dan al-Bukhari, as-Sam'ani, dan riwayat pengingkaran al-Ghazali tepat; atribusi Ibnu Abdil Barr ditambah, p542 dikeluarkan karena tidak dibahas."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p480, p481, p490, p511, p533, p551: dua dialek lahad dengan fathah lebih fasih, halqah menurut Tsa'lab dan al-Jauhari, enam dan empat dialek, serta asal makna a'lam dan nuha sesuai teks."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p617-p620: ringkasan dibanding adab para pembaca Al-Qur'an, alasan di awal kitab, doa manfaat bagi diri, orang tercinta, pembaca, dan kaum muslimin di dua negeri, lalu hamdalah dan shalawat sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "2de19c8e3e2ee043e14ef05584b570118ca601f54c2a70eca5318afac9e7c2c2",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Alasan ringkas, isyarat, pendapat paling sahih, rujukan Tahdzib sesuai p459 dan p615."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Makna al-hamd, al-karim (dengan 'ada pendapat lain'), ath-thaul, hidayah, riwayat Ali, nukilan Ibnu Faris sesuai p461-p467."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Taufik, infak, syi'ar, as-safarah, al-bararah, empat pendapat al-wakil, orang saleh menurut az-Zajjaj sesuai teks."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Definisi hasad dan ghibthah, hukum haram vs terpuji, tafsir sabda dua perkara sesuai p500-p502."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Asal julukan Abu Hurairah ('kucing kecil') adalah tafsiran: kata 'kucing' tidak ada di teks p512 (teks tampak rusak)."
+        },
+        {
+          "ke": 6,
+          "nilai": "kurang",
+          "catatan": "Asal makna nuha ditulis tunggal, padahal p481 menyebut dua alasan."
+        },
+        {
+          "ke": 7,
+          "nilai": "benar",
+          "catatan": "Ringkasan, alasan di awal kitab, doa, hamdalah, dan shalawat sesuai p617-p620."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "d041be07599142842dc521f11360b4c4076b40cf05e1d24b1403e5ce3e4b6978",
+      "draf_sha256": "2de19c8e3e2ee043e14ef05584b570118ca601f54c2a70eca5318afac9e7c2c2",
+      "waktu": "2026-11-27T03:59:29.801Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "An-Nawawi menutup at-Tibyan dengan pembakuan bacaan dan makna nama serta kata sulit di dalam kitabnya, diurutkan sesuai kemunculannya dan sengaja diringkas, karena uraian lengkapnya ada di karyanya yang lain.",
+    "ringkasan": "An-Nawawi membuka bab terakhir ini dengan menyatakan bahwa kata dan nama yang perlu dibakukan sangat banyak, sehingga ia hanya memberi isyarat singkat dan memilih pendapat yang paling sahih. Ia lalu menjelaskan kata-kata dari khutbah kitab, istilah agama seperti taufik dan infak, perbedaan hasad dan ghibthah, nama dan nisbah para perawi serta ulama, dan cara baca kata yang punya beberapa dialek. Ia menutup dengan rujukan ke Tahdzib al-Asma' wa al-Lughat, penjelasan mengapa kitabnya ringkas, dan doa agar kitab itu bermanfaat.",
+    "gagasan": [
+      {
+        "judul": "Pembakuan nama dan kata sulit sengaja diringkas, menurut an-Nawawi",
+        "isi": "Menurut an-Nawawi, nama dan kata yang perlu dibakukan dalam kitab ini banyak sekali, dan penjelasan lengkapnya bisa memenuhi satu jilid tebal. Karena itu ia hanya memberi isyarat paling ringkas, dengan ungkapan paling pendek, dan dalam sebagian besar keadaan mencukupkan diri pada pendapat yang paling sahih. Di akhir ia menyebut uraian luasnya ada di Tahdzib al-Asma' wa al-Lughat; kata yang sudah jelas ia tinggalkan, sedangkan sebagian yang jelas tetap ia terangkan demi orang yang tidak bergaul dengan para ulama.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000459, 30000615],
+        "soal": {
+          "tanya": "Mengapa an-Nawawi tetap menjelaskan sebagian kata yang sebenarnya sudah jelas?",
+          "jawab": "Supaya bermanfaat bagi orang yang tidak bergaul dengan para ulama."
+        }
+      },
+      {
+        "judul": "Al-Hamd dan kata khutbah lainnya diberi makna ringkas, menurut an-Nawawi",
+        "isi": "Untuk kata-kata di khutbah pembuka, an-Nawawi menjelaskan bahwa al-hamd berarti pujian dengan sifat-sifat yang indah, al-karim sebagai sifat Allah berarti Yang Maha Memberi karunia (ada pula pendapat lain), ath-thaul berarti kekayaan dan kelapangan, dan hidayah berarti taufik dan kelembutan. Ia menukil riwayat dari Ali bin Abi Thalib bahwa al-Mannan ialah yang memulai pemberian sebelum diminta, dan menukil Ibnu Faris dan lainnya bahwa Nabi saw. dinamai Muhammad karena banyaknya sifat terpuji beliau. Kata tahadda ia jelaskan, menurut ahli bahasa, sebagai menandingi dan berebut kemenangan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000461, 30000462, 30000463, 30000464, 30000466, 30000467],
+        "soal": {
+          "tanya": "Apa makna al-Mannan menurut riwayat dari Ali bin Abi Thalib yang dinukil an-Nawawi?",
+          "jawab": "Yang memulai pemberian sebelum diminta."
+        }
+      },
+      {
+        "judul": "Beberapa istilah agama diberi batasan makna, menurut an-Nawawi",
+        "isi": "An-Nawawi memberi batasan singkat bagi beberapa istilah agama. Taufik ialah penciptaan kemampuan untuk taat. Infak yang dipuji syariat ialah mengeluarkan harta dalam ketaatan kepada Allah Swt. Syi'ar Allah ialah tanda-tanda agama-Nya. As-safarah ialah para malaikat pencatat, dan al-bararah bentuk jamak dari barr, yaitu yang taat. Untuk al-wakil ia menyebut beberapa pendapat: yang diserahi urusan, yang diserahi pengaturan makhluk-Nya, yang mengurus kemaslahatan makhluk-Nya, dan Yang Maha Menjaga. Ia juga menukil az-Zajjaj, penulis al-Mathali', dan lainnya bahwa orang saleh ialah yang menunaikan hak-hak Allah dan hak-hak hamba.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000487, 30000489, 30000492, 30000494, 30000509, 30000576],
+        "soal": {
+          "tanya": "Bagaimana an-Nawawi mendefinisikan taufik dalam bab penjelasan kata ini?",
+          "jawab": "Taufik ialah penciptaan kemampuan untuk taat."
+        }
+      },
+      {
+        "judul": "Hasad haram sedangkan ghibthah dalam kebaikan terpuji, menurut an-Nawawi",
+        "isi": "An-Nawawi membedakan dua kata yang sering tertukar. Hasad ialah mengangankan hilangnya nikmat dari orang lain, sedangkan ghibthah ialah mengangankan nikmat serupa tanpa menginginkan nikmat itu hilang dari pemiliknya. Menurutnya hasad itu haram, sedangkan ghibthah dalam kebaikan terpuji dan disukai. Dengan pembedaan ini ia menjelaskan sabda tentang tidak ada hasad kecuali pada dua hal: maksudnya, tidak ada ghibthah terpuji yang sangat perlu diperhatikan kecuali pada dua perkara itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000500, 30000501, 30000502],
+        "soal": {
+          "tanya": "Apa beda hasad dan ghibthah menurut penjelasan an-Nawawi?",
+          "jawab": "Hasad mengangankan hilangnya nikmat orang lain; ghibthah mengangankan nikmat serupa tanpa menginginkan nikmat itu hilang."
+        }
+      },
+      {
+        "judul": "Nama dan nisbah perawi dibakukan beserta perbedaan pendapatnya, menurut penulis",
+        "isi": "Untuk nama orang, an-Nawawi menyebut nama asli, nisbah, dan asal julukan, sering dengan perbedaan pendapatnya. Abu Hurairah bernama Abdurrahman bin Shakhr menurut pendapat paling sahih dari sekitar tiga puluh pendapat, dijuluki karena kucing kecil miliknya semasa kecil. Abu Mas'ud al-Badri menurut jumhur tinggal di Badr tetapi tidak ikut perangnya, sedangkan az-Zuhri dan al-Bukhari menyebut ia ikut. Al-Muhasibi, menurut as-Sam'ani, disebut demikian karena biasa menghisab dirinya, dan Ayyub as-Sakhtiyani, menurut Ibnu Abdil Barr, karena berjualan kulit di Bashrah. Tentang al-Ghazali, ia menukil riwayat bahwa al-Ghazali sendiri mengingkari bacaan bertasydid dan menisbahkan namanya ke desa Ghazalah di Thus.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000507, 30000512, 30000520, 30000530, 30000548],
+        "soal": {
+          "tanya": "Mengapa al-Muhasibi diberi nama itu, menurut as-Sam'ani yang dinukil an-Nawawi?",
+          "jawab": "Karena ia biasa menghisab atau memperhitungkan dirinya sendiri."
+        }
+      },
+      {
+        "judul": "Kata yang punya beberapa dialek memiliki bacaan lebih fasih, menurut penulis",
+        "isi": "Banyak kata dijelaskan an-Nawawi dari segi harakat dan dialeknya. Lahad boleh dibaca dengan fathah atau dhammah, dan fathah lebih fasih; maknanya celah di sisi kiblat kubur tempat jenazah dimasukkan. Halqah ilmu dengan lam mati adalah dialek fasih yang masyhur, sedangkan lam berharakat fathah dialek yang sedikit, menurut Tsa'lab dan al-Jauhari. Fusthath punya enam dialek dan berarti kemah atau tempat tinggal, sedangkan bentuk tunggal ana' al-lail punya empat dialek. Ia juga menerangkan asal makna: orang alim disebut a'lam karena dijadikan petunjuk jalan, dan akal disebut nuha karena mencegah pemiliknya dari keburukan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000480, 30000481, 30000490, 30000511, 30000533, 30000551],
+        "soal": {
+          "tanya": "Bacaan lahad yang mana yang disebut an-Nawawi lebih fasih?",
+          "jawab": "Bacaan dengan fathah lebih fasih, walaupun dhammah juga merupakan dialek yang masyhur."
+        }
+      },
+      {
+        "judul": "At-Tibyan diakui penulisnya sebagai ringkasan adab para pembaca Al-Qur'an",
+        "isi": "Sesudah bab ini an-Nawawi menutup kitabnya. Ia menyebut at-Tibyan sebagai ringkasan pendek bila dibandingkan dengan adab para pembaca Al-Qur'an, dan mengatakan bahwa yang mendorongnya meringkas ialah alasan yang ia sebutkan di awal kitab. Ia lalu berdoa agar Allah menjadikan kitab itu bermanfaat luas bagi dirinya, orang-orang yang ia cintai, setiap pembacanya, dan seluruh kaum muslimin di dunia dan akhirat, kemudian menutup dengan pujian kepada Allah serta shalawat dan salam atas Nabi saw., keluarga, dan para sahabatnya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000617, 30000618, 30000619, 30000620],
+        "soal": {
+          "tanya": "Bagaimana an-Nawawi menggambarkan at-Tibyan dibandingkan dengan adab para pembaca Al-Qur'an?",
+          "jawab": "Sebagai ringkasan pendek dibandingkan dengan keseluruhan adab para pembaca Al-Qur'an."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 30000459,
+        "char_start": 0,
+        "char_end": 157,
+        "terjemahan": "Jumlahnya banyak, dan untuk membakukan, menerangkan, serta menguraikan semuanya diperlukan satu jilid tebal. Akan tetapi, aku hanya menunjuknya dengan isyarat paling ringkas, menandai maksud-maksudnya dengan ungkapan paling pendek, dan dalam sebagian besar keadaan mencukupkan diri pada yang paling sahih."
+      },
+      {
+        "gagasan": 1,
+        "passage_id": 30000615,
+        "char_start": 0,
+        "char_end": 199,
+        "terjemahan": "Aku telah menguraikan penjelasannya secara luas dalam Tahdzib al-Asma' wa al-Lughat. Inilah huruf-huruf ringkas tentang pembakuan kata yang sulit dalam kitab ini. Yang tersisa aku tinggalkan karena sudah jelas, dan bagian yang jelas yang kusebutkan kumaksudkan sebagai penjelasan bagi orang yang tidak bergaul dengan para ulama, sebab ia akan mengambil manfaat darinya, insya Allah."
+      }
+    ],
+    "istilah": []
+  }
+}
