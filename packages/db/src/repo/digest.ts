@@ -26,8 +26,9 @@ import type {
 } from "../schema/corpus.ts";
 import { getCorpusMeta } from "./corpus.ts";
 
-const DIGEST_COLS = `toc_node_id, lang, tier, basis, opening, abstract, closing, source_sha256,
-  model, prompt_version, created_at, review_status`;
+// `*` untuk `digest` dan `digest_question`: kolom `lead`/`answer` baru ada sejak skema 10 (X24); di
+// skema 9 kolomnya tidak ada dan skema baris mengisinya null (default).
+const DIGEST_COLS = "*";
 const ANCHOR_COLS =
   "a.toc_node_id, a.lang, a.point_ord, a.seq, a.passage_id, a.char_start, a.char_end";
 const QUOTE_COLS = `q.toc_node_id, q.lang, q.ord, q.point_ord, q.passage_id, q.char_start,
@@ -132,10 +133,7 @@ export async function getDigest(
         )
         .bind(tocNodeId, lang),
       db
-        .prepare(
-          `SELECT toc_node_id, lang, ord, point_ord, text, review_status FROM digest_question
-           WHERE toc_node_id = ?1 AND lang = ?2 ORDER BY ord`,
-        )
+        .prepare(`SELECT * FROM digest_question WHERE toc_node_id = ?1 AND lang = ?2 ORDER BY ord`)
         .bind(tocNodeId, lang),
       db
         .prepare(

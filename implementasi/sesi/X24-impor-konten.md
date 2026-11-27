@@ -1,6 +1,6 @@
 # X24 · Impor konten turunan ke korpus dan tampil di web
 
-> **Fase:** Sisipan · **Status:** belum
+> **Fase:** Sisipan · **Status:** sebagian (bagian 1 selesai 2026-11-27: data, ingest, inti, MCP; bagian 2 tampilan web belum) · disesuaikan ke Gelombang 1 lewat [ADR-145](../keputusan/ADR-145.md)
 > **Prasyarat:** X23 selesai; minimal satu unit `siap` di `data/konten/` · Tugas pemilik: izin promote korpus (aturan keras 4: menimpa data produksi)
 > **Perkiraan:** 1–2 percakapan agent
 
@@ -28,12 +28,25 @@ Unit `siap` di `data/konten/` (Intisari Bab v2, Intisari Kitab) masuk build korp
 
 ## Selesai bila
 
-- [ ] `pnpm verify` lolos; tes pembangun baris dan gerbang build (unit rusak membuat build gagal)
-- [ ] Staging: Intisari 100007 dan 100017 tampil versi v2 (inti, jawaban), dua gagasan Salah lama tidak ada, audio lama keduanya tidak tampil
+- [x] `pnpm verify` lolos; tes pembangun baris dan gerbang build (unit rusak membuat build gagal): `pnpm verify` → lolos (1.216 + 502 tes); `tools/ingest/src/konten.test.ts` 9 tes, termasuk `contentGate` menggagalkan unit dengan cap tidak cocok dan bagian yang tidak ada (2026-11-27)
+- [ ] (Ihya diarsipkan; bukti setara dipindah ke X31b langkah 3 dengan unit Bidayah, ADR-145 butir 10) Staging: Intisari 100007 dan 100017 tampil versi v2 (inti, jawaban), dua gagasan Salah lama tidak ada, audio lama keduanya tidak tampil
 - [ ] Unit `ditarik` tidak tampil dan tercatat di log koreksi
-- [ ] Promote ke produksi atas izin pemilik; curl halaman produksi membuktikan butir di atas
+- [ ] (dipindah ke promote X31b, ADR-145 butir 10) Promote ke produksi atas izin pemilik; curl halaman produksi membuktikan butir di atas
 - [ ] STATUS, LOG, dan file sesi ini diperbarui
 
 ## Di luar cakupan
 
 - Halaman Faedah dan Jalur (X25); rekam ulang audio (izin biaya); peninjau manusia R1–R3.
+
+## Catatan hasil
+
+### Bagian 1 (2026-11-27, ADR-145)
+
+- **Skema korpus 10** (`0010_konten_chat.sql`): `digest.lead`, `digest_question.answer`; pembaca membaca `*` (skema 9 dan 10).
+- **Impor** `tools/ingest/src/konten.ts`: unit `siap` Intisari Bab/Kitab → baris `digest*` + `digest_point_fts`; menggantikan batch per bagian dan bahasa; Intisari batch induk dari anak yang diganti tidak dimuat; unit `ditarik` → `data/reports/konten-ditarik.md`.
+- **Gerbang build** di CLI: `readinessIssues` + `checkContentDraft` pada `.sqlite` baru dan sidik sumber = cap; gagal = keluaran dihapus.
+- **Inti dan MCP:** `readDigest` dan `get_section_digest` menambah `lead` dan `questions[].answer` (field lama tetap). Fixture `/dev/intisari` berisi contoh inti dan jawaban untuk bagian 2.
+- **Bukti:** build Ihya lokal dengan unit 100007/100017 asli → 2 unit, 14 gagasan, 4 kutipan, 14 soal berjawaban tanpa masalah (build Ihya penuh tetap gagal di Mac karena data batch Ihya tidak ada, ADR-142). Build bawaan Bidayah lolos.
+- **Menyimpang (terbuka, ADR-145):** induk batch dibuang utuh, bukan ditarik per gagasan; cek staging/produksi memakai Bidayah di X31b.
+- **Peninjau (0 blocker, 4 perbaikan dikerjakan):** batas bawah `minDigests` dikurangi induk basi; istilah dicek ke glosarium gabungan korpus; tes jalur baca skema 10; langkah 4 bagian `check_content_draft` (Jalur/Faedah v2) dicatat ditunda ke bagian 2 (ADR-145 butir 9).
+- **Berikutnya:** bagian 2 (tampilan web: inti, jawaban, label, Laporkan per gagasan; `check_content_draft` v2 untuk Jalur/Faedah), lalu X31b.

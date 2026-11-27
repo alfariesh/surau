@@ -87,6 +87,7 @@ function view(extra: Partial<DigestView> = {}): DigestView {
     opening: "Al-Ghazali (w. 505 H) membahas ilmu.",
     abstract: "Kitab ini memuat 3 pokok. Nabi saw. dijadikan teladan.",
     closing: "Ilmu menuntun amal.",
+    lead: null,
     points: [point(1), point(2, { kind: "advice", title: "Anjuran menjaga niat" })],
     quotes: [
       quote(1),
@@ -259,6 +260,7 @@ describe("digestScript (X17, aturan 11)", () => {
       tier: "section",
       opening: null,
       closing: null,
+      lead: null,
       source: { ...v.source, work: { ...v.source.work, title_id: null, author: null } },
     });
     expect(script.segments[0]?.kind).toBe("intro");

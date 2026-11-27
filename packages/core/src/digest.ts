@@ -371,7 +371,7 @@ export async function readDigest(
   ]);
   if (rows === null || rows.digest.review_status === "rejected") return null;
   const { digest } = rows;
-  if (!clean(digest.opening, digest.abstract, digest.closing)) return null;
+  if (!clean(digest.opening, digest.abstract, digest.closing, digest.lead)) return null;
   const withdrawn = withdrawnOrds(node.id, digest.lang, digest.created_at, withdrawals);
   const points: DigestPointView[] = rows.points
     .filter(
@@ -427,11 +427,18 @@ export async function readDigest(
     opening: digest.opening,
     abstract: digest.abstract,
     closing: digest.closing,
+    lead: digest.lead,
     points,
     quotes,
     questions: rows.questions
       .filter((q) => q.review_status !== "rejected" && shown.has(q.point_ord) && clean(q.text))
-      .map((q) => ({ ord: q.ord, point_ord: q.point_ord, text: q.text })),
+      // Jawaban berhuruf Arab dibuang (bukan seluruh soal), sama dengan aturan teks AI lain.
+      .map((q) => ({
+        ord: q.ord,
+        point_ord: q.point_ord,
+        text: q.text,
+        answer: q.answer !== null && clean(q.answer) ? q.answer : null,
+      })),
     terms: rows.terms
       .filter((t) => t.review_status !== "rejected" && clean(t.label, t.gloss))
       .map((t) => ({

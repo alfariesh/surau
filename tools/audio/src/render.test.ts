@@ -114,6 +114,7 @@ function fixtureView(): DigestView {
     opening: null,
     abstract: "Bagian ini membahas ilmu.",
     closing: null,
+    lead: null,
     points: [point(1), point(2), point(3)],
     quotes: [],
     questions: [],

@@ -15,6 +15,17 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-27 · X24 bagian 1 · Impor Intisari chat ke korpus — sebagian
+- Dikerjakan:
+  - Skema korpus 10 (`digest.lead`, `digest_question.answer`).
+  - `tools/ingest/src/konten.ts`: unit siap → baris Intisari, penggantian batch + induk basi, log unit ditarik.
+  - Gerbang build di CLI (cek ulang di korpus baru).
+  - `readDigest`/MCP menambah inti dan jawaban.
+- Verifikasi: `pnpm verify` → lolos (1.216 + 502 tes) · `konten.test.ts` 9 tes · build Ihya lokal: unit chat 100007/100017 → 2 unit, 14 gagasan, 4 kutipan, 14 soal (build penuh Ihya gagal karena data batch tidak di Mac, ADR-142) · build Bidayah lolos
+- Biaya API: –
+- Keputusan: [ADR-145](keputusan/ADR-145.md)
+- Catatan untuk sesi berikutnya: bagian 2 = tampilan web (inti, jawaban, label, Laporkan). Bukti staging X24 dipindah ke X31b dengan unit Bidayah.
+
 ## 2026-11-27 · X31a · Staging berisi Bidayat al-Hidayah — selesai
 - Dikerjakan: PR #248 (langkah 8a) di-merge sesudah CI hijau; `pnpm corpus:load:staging --confirm` atas izin pemilik → `surau-corpus-staging` = `kitab-v10` (Bidayah saja).
 - Verifikasi: smoke per kitab lolos · `corpus:qa staging --kitab bidayat-al-hidayah` → 30/30 · `pnpm dev:remote`: `/kitab`, pembaca h25, `daftar-isi.json`, `/cari` = 200; `/api/search?q=الهداية` → 7 hasil Bidayah · tangkapan ponsel 375 px rapi

@@ -56,6 +56,7 @@ function view(audio: boolean) {
     opening: null,
     abstract: "Abstrak.",
     closing: null,
+    lead: null,
     points: [point(1), point(3)],
     quotes: [],
     questions: [],
