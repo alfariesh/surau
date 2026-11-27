@@ -1,8 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-// E2E Cari (S14 langkah 9). Butuh D1 berisi korpus ≥ ihya-v5 (indeks Arab + Indonesia): lokal =
-// `pnpm corpus:load:local`, Preview = surau-corpus-staging. Tidak ada teks kitab di sini: kesamaan
+import { butuhKitab } from "./korpus";
+
+// E2E Cari (S14 langkah 9). Kueri Arab berlaku untuk kitab mana pun di korpus; kueri Indonesia dan
+// filter rub' butuh Ihya (terjemahan, rub'), jadi dilewati bila Ihya tidak ada (X31a 8a, ADR-142).
+// Lokal = `pnpm corpus:load:local`, Preview = surau-corpus-staging. Tidak ada teks kitab di sini: kesamaan
 // teks diuji dengan membandingkan kartu hasil dengan paragraf yang sama di pembaca (keduanya dari DB).
 
 const results = (page: import("@playwright/test").Page) =>
@@ -23,7 +26,7 @@ test("kueri Arab: kartu dengan potongan Arab = substring teks paragraf di pembac
 
   const link = card.getByRole("link", { name: "Buka di pembaca" }).first();
   const href = (await link.getAttribute("href")) ?? "";
-  expect(href).toMatch(/^\/kitab\/ihya\/\d+\/\d+\?q=[^#]+#p\d+$/);
+  expect(href).toMatch(/^\/kitab\/[a-z-]+\/\d+\/\d+\?q=[^#]+#p\d+$/);
   await link.click();
   await expect(page).toHaveURL(new RegExp(href.replace(/[?]/g, "\\?")));
   const anchor = href.slice(href.indexOf("#"));
@@ -38,7 +41,9 @@ test("kueri Arab: kartu dengan potongan Arab = substring teks paragraf di pembac
 
 test("kueri Indonesia: terjemahan berlabel AI dan tautan ke paragraf yang benar", async ({
   page,
+  request,
 }) => {
+  await butuhKitab(request, "ihya");
   await page.goto("/cari?q=sabar");
   const card = results(page).first();
   await expect(card).toBeVisible();
@@ -54,7 +59,11 @@ test("kueri Indonesia: terjemahan berlabel AI dan tautan ke paragraf yang benar"
   await expect(page.locator(`${anchor} .passage-translation`)).toContainText("Terjemahan AI");
 });
 
-test("filter rub' menyimpan pilihan di URL; kueri tanpa hasil memberi saran", async ({ page }) => {
+test("filter rub' menyimpan pilihan di URL; kueri tanpa hasil memberi saran", async ({
+  page,
+  request,
+}) => {
+  await butuhKitab(request, "ihya");
   await page.goto("/cari?q=sabar");
   await expect(results(page).first()).toBeVisible();
   // Pemilih sumber di kepala kotak cari (ADR-087): daftar bertingkat dengan kolom cari.
@@ -68,8 +77,10 @@ test("filter rub' menyimpan pilihan di URL; kueri tanpa hasil memberi saran", as
   await expect(page.getByRole("heading", { name: "Tidak ada hasil" })).toBeVisible();
 });
 
-test("palet ⌘K/Ctrl+K membuka pencarian dari halaman lain", async ({ page, isMobile }) => {
+test("palet ⌘K/Ctrl+K membuka pencarian dari halaman lain", async ({ page, isMobile, request }) => {
   test.skip(isMobile, "pintasan papan ketik hanya di desktop");
+  // Kueri "niat" (Indonesia) butuh terjemahan Ihya.
+  await butuhKitab(request, "ihya");
   await page.goto("/tentang");
   await expect(page.getByRole("button", { name: "Cari" })).toBeVisible();
   await page.waitForLoadState("load");

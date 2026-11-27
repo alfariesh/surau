@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
 
+import { lewatiTanpaKitab } from "./korpus";
+
+lewatiTanpaKitab("ihya");
+
 // Mutu baca pembaca (X04 bagian B): subjudul kurasi di daftar isi pembaca (W7), judul node yang
 // diperbaiki (butir daftar pembuka, jangkar sumber terlalu awal), dan judul Indonesia berlabel AI
 // (W8, hanya bila korpus skema ≥ 7). Butuh D1 berisi Ihya (lokal: korpus build; Preview: staging).

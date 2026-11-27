@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
 
+import { lewatiTanpaKitab } from "./korpus";
+
+lewatiTanpaKitab("ihya");
+
 // Smoke e2e pembaca kitab (S09 langkah 10). Butuh D1 berisi Ihya: lokal = `pnpm corpus:load:local`,
 // Preview = surau-corpus-staging. Teks kitab tidak disalin ke sini; satu-satunya frasa Arab adalah
 // contoh baku takhrij j1 h200 (.claude/rules/teks-arab.md), dan kesamaan teks diuji dengan

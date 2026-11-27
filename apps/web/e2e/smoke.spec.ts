@@ -4,6 +4,7 @@ import { NORM_VERSION } from "@surau/text";
 import { home } from "../src/i18n/id/home";
 import { LANDING_SECTIONS, landing, landingNav } from "../src/i18n/id/landing";
 import { search } from "../src/i18n/id/search";
+import { butuhKitab } from "./korpus";
 
 test("landing page di / mengarah ke Beranda di /home (ADR-096)", async ({ page }) => {
   await page.goto("/");
@@ -25,7 +26,7 @@ test("landing page di / mengarah ke Beranda di /home (ADR-096)", async ({ page }
     await expect(quote).toHaveAttribute("dir", "rtl");
     await expect(page.getByRole("link", { name: landing.quoteOpen }).first()).toHaveAttribute(
       "href",
-      /^\/kitab\/ihya\/\d+\/\d+#p\d+$/,
+      /^\/kitab\/[a-z-]+\/\d+\/\d+#p\d+$/,
     );
   }
   await page.getByRole("link", { name: landing.start }).first().click();
@@ -67,7 +68,9 @@ test("teks Arab memakai lang=ar dan dir=rtl dengan font Naskh", async ({ page })
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
 });
 
-test("kotak cari Beranda membuka hasil Cari", async ({ page }) => {
+test("kotak cari Beranda membuka hasil Cari", async ({ page, request }) => {
+  // Kueri "sabar" (Indonesia) butuh terjemahan Ihya (X31a 8a, ADR-142).
+  await butuhKitab(request, "ihya");
   await page.goto("/home");
 
   // Hanya mode Cari: mode Maknaz memanggil LLM berbayar di Preview, jadi tidak dikirim di e2e.

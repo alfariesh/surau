@@ -2,6 +2,10 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
 
+import { lewatiTanpaKitab } from "./korpus";
+
+lewatiTanpaKitab("ihya");
+
 // Rapikan pembaca (X10): preferensi tampilan dipasang skrip mentah (tanpa menunggu JS Next), daftar
 // isi mengikuti posisi baca (subjudul aktif, leluhur dibuka di halaman sambungan), kaki halaman
 // sambungan menurut halamannya sendiri, rincian label tinjauan menempel di dekat lencananya.

@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { lewatiTanpaKitab } from "./korpus";
 
 // Intisari (X16, ADR-097): halaman Intisari, hub, dan jejaknya di pembaca. Dua lapis:
 // 1. Fixture `/dev/intisari` (data buatan, tanpa D1; ada di `next dev` dan Preview, 404 di produksi):
@@ -109,6 +110,8 @@ async function digestNodes(page: Page): Promise<number[]> {
 }
 
 test.describe("data korpus", () => {
+  lewatiTanpaKitab("ihya");
+
   test("tanpa Intisari: hub 404, pembaca dan halaman karya tanpa lencana atau tautan Intisari", async ({
     page,
   }) => {

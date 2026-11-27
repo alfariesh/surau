@@ -33,7 +33,8 @@ function sectionOf(key: Key | null): number | null {
 // di popover. Daftar bertingkat: pilihan teratas = seluruh kitab (judul kitab satu-satunya, atau
 // "Semua kitab"), lalu rub' dan kitab di dalamnya (judul Arab dari DB lewat ArabicInline; dicari
 // dengan huruf Arab). Satu pilihan: API Cari hanya menerima satu `bagian`. Bagian selalu milik
-// SEARCH_WORK (Ihya); dengan lebih dari satu karya, daftar per karya perlu dibangun (ADR-087).
+// satu-satunya karya di korpus (sections.ts); dengan lebih dari satu karya daftarnya kosong sampai
+// daftar per karya dibangun (ADR-087, X31c).
 export function SourcePicker({
   works,
   sections,
