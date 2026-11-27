@@ -16,6 +16,8 @@ export const BIDAYAH: WorkConfig = {
     // Terjemahan dan ringkasan menyusul di X31b.
     llmCoverage: 0,
   },
+  // Halaman cetak pertama (4 paragraf badan); الهداية mengenai 7 paragraf. Tanpa catatan kaki.
+  smoke: { juz: 1, page: 25, search: "الهداية", footnotes: false },
   // Pengarang sama dengan Ihya: baris `author` id 1 dipakai bersama (isinya dari Shamela author 619).
   author: { id: 1, nameId: "Abu Hamid al-Ghazali", wikidataId: null },
   work: {

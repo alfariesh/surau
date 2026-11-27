@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
+import { lewatiTanpaKitab } from "./korpus";
+
+lewatiTanpaKitab("ihya");
+
 // Lanjutan mode baca (X14, ADR-095): petunjuk mode baca sekali tampil dan Ringkasan AI yang ikut kata
 // cari. Butuh D1 berisi Ihya (lokal: korpus build atau `pnpm dev:remote`; Preview: staging). Teks
 // kitab tidak disalin ke sini: yang diperiksa atribut, struktur, dan posisi.

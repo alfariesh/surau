@@ -1,6 +1,6 @@
 # X31 · Gelombang 1: tiga kitab kecil yang lengkap
 
-> **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** X31a sebagian (kode selesai 2026-11-26; Ihya diarsipkan [ADR-142](../keputusan/ADR-142.md), build tanpa Ihya lolos di Mac; tinggal muat staging + QA)
+> **Fase:** Sisipan (jembatan ke Fase 5 dan 7) · **Status:** X31a sebagian (kode selesai 2026-11-26; Ihya diarsipkan [ADR-142](../keputusan/ADR-142.md), build tanpa Ihya lolos di Mac; langkah 8a selesai 2026-11-27 [ADR-144](../keputusan/ADR-144.md); tinggal muat staging + QA atas izin pemilik)
 > **Prasyarat:** Ihya diarsipkan ([ADR-142](../keputusan/ADR-142.md), keputusan pemilik 2026-11-26): korpus bawaan hanya kitab Gelombang 1, dibangun di Mac; mesin agent tidak diperlukan lagi (ADR-135 butir 5 dicabut). Patch ayat X29 tidak tayang. X31b–X31d: X31a dan X24 selesai.
 > **Tugas pemilik:** izin `corpus:load:staging` (`tools/ingest/README.md`), izin biaya per batch (aturan keras 4), izin promote korpus, T-29 untuk audio
 > **Perkiraan:** X31a 1–2 percakapan, X31b 1–2, X31c 1, X31d 1–2
@@ -52,7 +52,7 @@ Dipakai sama untuk ketiga kitab. Butir yang tidak berlaku hanya boleh dikecualik
 5. **`WorkConfig` Bidayah** (`tools/ingest/src/works/bidayah.ts`): ID karya dan edisi baru; penulis memakai `author.id` yang sama dengan Ihya (al-Ghazali); slug `bidayat-al-hidayah`; satu jilid (juz 1); `llmCoverage: 0` sampai X31b.
 6. **Alat yang masih khusus Ihya** dijadikan per karya: `tools/ingest/src/cli.ts` (`IHYA`, `IHYA_AUDIO_MANIFEST`), `tools/ingest/src/qa.ts` (impor `IHYA`, seed 9472), `tools/ingest/src/llm/cli.ts` (`expectedRows(IHYA…)`), dan `tools/ingest/src/llm/digest-cli.ts`. Audit sisanya dengan `git grep -n -i -E "'ihya'|\"ihya\"|IHYA|9472|edition_id 1" -- apps packages tools plugins`. Perbaiki yang membuat kitab kedua salah tampil atau salah atribusi (catatan takhrij al-'Iraqi hanya untuk `ihya/dar-al-marifah`, filter rub'/kitab di Cari, `CITE_AUTHOR`, instruksi MCP). Yang khusus Ihya dan benar dibiarkan.
 7. **Web dan MCP:** entri `works.ts` (blurb, sitasi, penerbit, sumber edisi, `/lisensi`); Bidayah keluar dari "Segera hadir"; `/kitab` mendaftar semua kitab tayang; `list_works` memuat dua karya. Instruksi MCP: hanya baris korpus dan kalimat takhrij yang diubah menjadi umum. Perubahan faktual ini ditandai untuk ditinjau ustadz kemudian (ADR-135 butir 8). Sitemap memuat halaman Bidayah.
-8a. **Persiapan sebelum staging tanpa Ihya** (temuan peninjau 2026-11-26, ADR-142 Dampak). Tanpa langkah ini muat staging gagal, dan CI Preview setiap PR menjadi merah:
+8a. ✅ (2026-11-27, ADR-144) **Persiapan sebelum staging tanpa Ihya** (temuan peninjau 2026-11-26, ADR-142 Dampak). Tanpa langkah ini muat staging gagal, dan CI Preview setiap PR menjadi merah:
    - smoke D1 di `tools/ingest/src/d1.ts` (`SMOKE_PAGE`: Ihya j1 h200 + catatan kaki; dipakai `corpus:load:*` dan promote) dijadikan per kitab, dengan halaman contoh di `WorkConfig` dan cek catatan kaki hanya untuk kitab `classical`;
    - e2e Preview (`apps/web/e2e/*`, 9 spec memakai `/kitab/ihya/…`) dan `.github/scripts/uji-mcp.sh` (Preview + deploy) tidak lagi bergantung pada Ihya: pindah ke Bidayah, atau dilewati bila kitabnya tidak ada;
    - buktikan dengan `pnpm corpus:load:local` lalu `pnpm test:e2e` lokal.
@@ -158,3 +158,14 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
   - `vp test tools/ingest/src/works` → 5 tes lolos.
 - **Peninjau:** smoke D1, e2e Preview, dan `uji-mcp.sh` masih khusus Ihya, jadi ditambahkan langkah 8a sebelum muat staging. `pnpm ingest ihya` kini ditolak dengan saran, `corpus:qa` wajib `--kitab`, tes lokal Ihya dilewati bila korpus lokal tanpa Ihya, dan tes pengaman promote memakai ledger sintetis.
 - **Berikutnya:** langkah 8a, lalu muat staging + `corpus:qa staging --kitab bidayat-al-hidayah` (izin pemilik), lalu X24, lalu X31b.
+
+### X31a langkah 8a (2026-11-27, ADR-144)
+
+- **Smoke D1 per kitab:** `WorkConfig.smoke` (halaman contoh, kata cari, catatan kaki hanya untuk kitab `classical`). Ihya tetap j1 h200 + catatan kaki (rollback ke `ihya-v9` diperiksa seperti dulu); Bidayah h25 + الهداية.
+- **e2e Preview:** `e2e/korpus.ts` melewati tes data Ihya bila Ihya tidak ada; `bidayah.spec.ts` baru (pembaca, sitasi, daftar isi, `/kitab`, `/api/search`); a11y memeriksa halaman Bidayah.
+- **`uji-mcp.sh`:** data uji dipilih dari `list_works` (Bidayah bila ada, selain itu Ihya).
+- **Temuan dan perbaikan:** `/cari` gagal 500 di korpus tanpa Ihya (`SEARCH_WORK = "ihya"`); kini memakai satu-satunya karya di korpus. Filter bagian untuk banyak kitab menyusul paling lambat X31c.
+- **Bukti:** `pnpm corpus:load:local` → smoke lolos (`kitab-v10`) · `pnpm test:e2e` lokal (D1 = Bidayah saja) → 134 lolos, 172 dilewati, 2 gagal di `smoke.spec.ts` "aset ilustrasi" (header `immutable` hanya di runtime Workers, tidak terkait) · `uji-mcp.sh` lokal mode `lengkap` dan `redaksi` → lolos kedua era · `pnpm verify` → lolos.
+- **Peninjau (0 blocker, 4 perbaikan dikerjakan):** skrip debug terhapus; e2e hanya melewati tes bila `daftar-isi.json` = 404 (status lain = gagal); tes penjaga "korpus memuat minimal satu kitab uji" (tidak pernah dilewati); teks rencana promote dan ARSITEKTUR-TEKNIS diperbarui; tes ledger mewajibkan kata contoh tetap kueri FTS.
+- **Utang untuk X31b:** tes pembaca yang kini dilewati (subjudul, terjemahan, mode baca, gulir bersambung, Intisari data) ditulis ulang ke Bidayah setelah datanya ada; `deploy.yml` (cek `/kitab/ihya/1/200`, `uji-mcp.sh … redaksi` produksi) diubah di PR promote.
+- **Berikutnya:** muat staging (`pnpm corpus:load:staging --confirm`, **izin pemilik**), `pnpm run corpus:qa staging --kitab bidayat-al-hidayah`, cek pembaca dan Cari di staging; lalu X24, lalu X31b.

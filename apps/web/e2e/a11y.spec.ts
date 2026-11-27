@@ -1,6 +1,17 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+import { butuhKitab } from "./korpus";
+
+// Halaman kitab dilewati bila kitabnya tidak ada di korpus (X31a langkah 8a, ADR-142).
+const kitabDari = (path: string): string | null =>
+  /^\/kitab\/([^/?#]+)\//.exec(`${path}/`)?.[1] ?? null;
+
+// Tes pembaca di bagian bawah berkas memakai halaman Ihya (j1/200, j3/202, kertas sepia).
+test.beforeEach(async ({ request }, testInfo) => {
+  if (/\(j\d+\/\d+|kertas sepia/.test(testInfo.title)) await butuhKitab(request, "ihya");
+});
+
 // Aksesibilitas (WCAG 2.1 AA, termasuk kontras warna) di setiap halaman, tema terang dan gelap.
 // Melengkapi Lighthouse, yang tidak bisa menilai halaman 404 maupun mode gelap.
 const PAGES = [
@@ -15,6 +26,8 @@ const PAGES = [
   "/kitab/ihya/1/200",
   // Kutipan ayat + label rujukan "QS s:a" (S12, korpus ≥ ihya-v3).
   "/kitab/ihya/1/119",
+  "/kitab/bidayat-al-hidayah",
+  "/kitab/bidayat-al-hidayah/1/25",
   // Halaman Cari tanpa kueri (S14); dengan hasil: e2e/search.spec.ts.
   "/cari",
   // Maknaz (keadaan awal, tanpa LLM), privasi, dan transparansi biaya (S20–S21).
@@ -28,7 +41,9 @@ for (const scheme of ["light", "dark"] as const) {
     test.use({ colorScheme: scheme });
 
     for (const path of PAGES) {
-      test(`tanpa pelanggaran a11y: ${path}`, async ({ page }) => {
+      test(`tanpa pelanggaran a11y: ${path}`, async ({ page, request }) => {
+        const kitab = kitabDari(path);
+        if (kitab !== null) await butuhKitab(request, kitab);
         await page.goto(path);
         await expect(page.locator("html")).toHaveClass(new RegExp(scheme));
 
@@ -48,12 +63,15 @@ for (const path of [
   "/kitab",
   "/kitab/ihya",
   "/kitab/ihya/1/200",
+  "/kitab/bidayat-al-hidayah/1/25",
   "/cari",
   "/tanya",
   "/privasi",
   "/transparansi",
 ]) {
-  test(`urutan heading berurutan: ${path}`, async ({ page }) => {
+  test(`urutan heading berurutan: ${path}`, async ({ page, request }) => {
+    const kitab = kitabDari(path);
+    if (kitab !== null) await butuhKitab(request, kitab);
     await page.goto(path);
     const result = await new AxeBuilder({ page }).withRules(["heading-order"]).analyze();
     expect(result.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);

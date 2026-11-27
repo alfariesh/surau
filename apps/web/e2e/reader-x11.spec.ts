@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
+import { butuhKitab } from "./korpus";
+
+// Semua tes memakai data Ihya kecuali menu ⋮ di Maknaz (X31a langkah 8a, ADR-142).
+test.beforeEach(async ({ request }, testInfo) => {
+  if (!testInfo.title.startsWith("menu ⋮ di Maknaz")) await butuhKitab(request, "ihya");
+});
+
 // Mode baca (X11, ADR-091): Arab · Keduanya untuk pembaca, daftar isi, Cari, dan menu ⋮. Butuh D1
 // berisi Ihya (lokal: korpus build atau `pnpm dev:remote`; Preview: staging). Teks kitab tidak
 // disalin ke sini: yang diperiksa atribut, struktur, dan posisi.

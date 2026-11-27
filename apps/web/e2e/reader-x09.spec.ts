@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
 
+import { lewatiTanpaKitab } from "./korpus";
+
+lewatiTanpaKitab("ihya");
+
 // Kinerja pembaca (X09): HTML halaman baca hanya membawa pohon daftar isi ringkas; pohon lengkap
 // diambil dari /kitab/<karya>/daftar-isi.json saat pohon tampil (panel samping desktop sesudah
 // halaman dimuat, sheet ponsel saat dibuka). Isi panel Tampilan dimuat saat dibuka.

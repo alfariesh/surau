@@ -17,6 +17,7 @@ import {
 import { buildFtsMatch, latinMatchExpression, planLatinQuery } from "@surau/text";
 
 import { sqlLiteral } from "./sql.ts";
+import { WORKS, type WorkConfig } from "./works/index.ts";
 
 export const repo = resolve(import.meta.dirname, "../../..");
 /** Config D1 bersama: binding CORPUS = korpus STAGING (lokal juga memakai ID ini). */
@@ -212,22 +213,38 @@ const QURAN_TABLES: ReadonlySet<string> = new Set([
 const smokeCounts = (tables: readonly string[]): string =>
   `SELECT ${tables.map((t) => `(SELECT count(*) FROM ${t}) AS ${t}`).join(", ")}`;
 
-// j1 h200 (contoh baku: hadits shalat malam Jumat + takhrij al-'Iraqi): paragraf badan, catatan
-// kaki, dan penanda yang tertaut.
-const SMOKE_PAGE = `SELECT p.kind AS kind, count(*) AS n,
+// Contoh baku per kitab (X31a langkah 8a, `WorkConfig.smoke`): halaman cetak berisi paragraf badan
+// (dan catatan kaki + penanda tertaut bila kitabnya `classical`), lalu kata Arab yang mengenai
+// paragraf kitab itu sendiri. Literal dibuat kode dari konfigurasi (bukan masukan pengguna).
+export function smokePageSql(slug: string, juz: number, page: number): string {
+  return `SELECT p.kind AS kind, count(*) AS n,
   (SELECT count(*) FROM footnote_ref f JOIN passage b ON b.id = f.passage_id WHERE b.page_id = pg.id) AS refs
 FROM page pg
 JOIN edition e ON e.id = pg.edition_id AND e.is_default = 1
-JOIN work w ON w.id = e.work_id AND w.slug = 'ihya'
+JOIN work w ON w.id = e.work_id AND w.slug = ${sqlLiteral(slug)}
 JOIN passage p ON p.page_id = pg.id
-WHERE pg.juz = 1 AND pg.page_no = 200
+WHERE pg.juz = ${String(Math.trunc(juz))} AND pg.page_no = ${String(Math.trunc(page))}
 GROUP BY p.kind ORDER BY p.kind`;
+}
 
-// Indeks pencarian (S11): kueri buatan @surau/text yang sama dengan searchText harus mengenai
-// paragraf. الصبر ada di ±320 paragraf Ihya; literal MATCH dibuat kode (bukan masukan pengguna).
-const SMOKE_SEARCH = `SELECT count(*) AS n FROM passage_fts WHERE passage_fts MATCH ${sqlLiteral(
-  buildFtsMatch("الصبر") ?? "",
-)}`;
+export function smokeSearchSql(slug: string, word: string): string {
+  return `SELECT count(*) AS n FROM passage_fts
+JOIN passage p ON p.id = passage_fts.rowid
+JOIN page pg ON pg.id = p.page_id
+JOIN edition e ON e.id = pg.edition_id AND e.is_default = 1
+JOIN work w ON w.id = e.work_id AND w.slug = ${sqlLiteral(slug)}
+WHERE passage_fts MATCH ${sqlLiteral(buildFtsMatch(word) ?? "")}`;
+}
+
+/** Kitab di D1 yang dikenal ingest, dengan contoh smoke-nya; kitab tak dikenal hanya dilaporkan. */
+export function smokeWorks(
+  slugs: readonly string[],
+  works: readonly Pick<WorkConfig, "work" | "smoke">[],
+): { known: Pick<WorkConfig, "work" | "smoke">[]; unknown: string[] } {
+  const known = works.filter((w) => slugs.includes(w.work.slug));
+  const unknown = slugs.filter((s) => !works.some((w) => w.work.slug === s));
+  return { known, unknown };
+}
 
 // Tinjauan manusia (X08, skema 8): status tinjauan di `translation` ada bila dan hanya bila baris
 // `translation_review`-nya ada (sama dengan invarian ingest).
@@ -262,8 +279,9 @@ export interface Smoke {
 }
 
 /**
- * Smoke query: jumlah baris per tabel (termasuk indeks FTS), isi `meta`, j1 h200 (badan + catatan
- * kaki + penanda), dan satu kueri pencarian.
+ * Smoke query: jumlah baris per tabel (termasuk indeks FTS), isi `meta`, lalu untuk setiap kitab di
+ * D1 yang dikenal ingest: halaman contohnya (badan; catatan kaki + penanda bila `classical`) dan satu
+ * kueri pencarian yang mengenai kitab itu (X31a langkah 8a).
  * Bila `expect` diberikan (hitungan dan meta dari .sqlite build), setiap angka harus sama persis.
  */
 export function smoke(
@@ -304,18 +322,36 @@ export function smoke(
   ) as Smoke["counts"];
   const problems: string[] = [];
   const limitations: string[] = [];
-  const page = query(target, SMOKE_PAGE);
-  const body = Number(page.find((r) => r.kind === "body")?.n ?? 0);
-  const foot = Number(page.find((r) => r.kind === "foot")?.n ?? 0);
-  if (body === 0 || foot === 0 || Number(page[0]?.refs ?? 0) === 0) {
-    problems.push("j1 h200 tidak punya paragraf badan, catatan kaki, atau penanda tertaut");
+  const slugs = query(target, "SELECT slug FROM work ORDER BY id").map((r) => String(r.slug));
+  const { known, unknown } = smokeWorks(slugs, WORKS);
+  if (known.length === 0) {
+    problems.push(
+      `tidak ada kitab yang dikenal ingest di D1 (work: ${slugs.join(", ") || "kosong"})`,
+    );
+  }
+  for (const slug of unknown) {
+    limitations.push(`kitab ${slug} tidak dikenal ingest; halaman contohnya tidak diperiksa`);
+  }
+  for (const w of known) {
+    const { juz, page: pageNo, search: word, footnotes } = w.smoke;
+    const label = `${w.work.slug} j${juz} h${pageNo}`;
+    const page = query(target, smokePageSql(w.work.slug, juz, pageNo));
+    const body = Number(page.find((r) => r.kind === "body")?.n ?? 0);
+    const foot = Number(page.find((r) => r.kind === "foot")?.n ?? 0);
+    if (body === 0) problems.push(`${label} tidak punya paragraf badan`);
+    if (footnotes && (foot === 0 || Number(page[0]?.refs ?? 0) === 0)) {
+      problems.push(`${label} tidak punya catatan kaki atau penanda tertaut`);
+    }
+    if (search && Number(query(target, smokeSearchSql(w.work.slug, word))[0]?.n ?? 0) === 0) {
+      problems.push(
+        `indeks passage_fts tidak mengenai ${word} di ${w.work.slug} (indeks kosong atau tidak sinkron)`,
+      );
+    }
   }
   if (!search) {
     limitations.push(
       `skema korpus ${meta.schema_version ?? "?"} belum punya indeks pencarian (S11)`,
     );
-  } else if (Number(query(target, SMOKE_SEARCH)[0]?.n ?? 0) === 0) {
-    problems.push("indeks passage_fts tidak mengenai الصبر (indeks kosong atau tidak sinkron)");
   }
   if (!quran) {
     limitations.push(`skema korpus ${meta.schema_version ?? "?"} belum punya tabel ayat (S12)`);
