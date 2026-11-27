@@ -23,16 +23,18 @@
 | Kelas catatan kaki modern_editor dipatuhi (ADR-138) | ✓ | 27 catatan di sumber; 0 paragraf catatan dan 0 footnote_ref dimuat |
 | Matan = OpenITI (≥0,95 per halaman) | ✓ | 224/224 halaman (gerbang ≥224); 0 halaman tidak ada di OpenITI |
 | Sumber Qur'an utuh (ayat = jumlah per surah; terjemahan + transliterasi tiap ayat; penomoran QUL = Tanzil) | ✓ | 114 surah, 6236/6236 ayat, 12472 baris terjemahan/transliterasi; 6 ayat beda teks QUL vs Tanzil (batas 20) |
-| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 77 rujukan; 0 tidak sah |
-| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 77 rujukan exact; 0 tidak sesuai |
+| Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 65 rujukan; 0 tidak sah |
+| Kutipan exact ada di teks ayat rujukannya (ayat utuh = sama persis) | ✓ | 65 rujukan exact; 0 tidak sesuai |
 | Kutipan {…} tervalidasi cocok persis ≥95% | ✓ | 0/0 (100,0%); mirip 0, tidak cocok 0 |
-| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 44 terjemahan berisi ayat; 0 bermasalah |
-| Terjemahan AI: cakupan paragraf badan ≥ 0% | ✓ | 651/654 (99,54%); usang 0, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
-| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 0% | ✓ | 227/248 (91,53%); usang 0, tidak sah 0 |
-| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 0/127 (0,00%): node 0, subjudul 0; belum ada n300001, n300002, n300003, n300004, n300005, n300006, n300007, n300008 … |
+| Terjemahan AI: setiap kutipan ayat diisi terjemahan Kemenag (tidak diterjemahkan model) | ✓ | 34 terjemahan berisi ayat; 0 bermasalah |
+| Terjemahan AI: cakupan paragraf badan ≥ 0% | ✓ | 613/614 (99,84%); usang 40, tidak sah 0, ditolak tinjauan 0, terblokir (rujukan ayat tak bisa ditandai) 0 |
+| Ringkasan AI: cakupan bagian × 2 bahasa ≥ 0% | ✓ | 231/238 (97,06%); usang 12, tidak sah 0 |
+| Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 0% | ✓ | 122/122 (100,00%): node 122, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
-| Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/124 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
-| ID paragraf rilis stabil (ADR-059) | ✓ | 654 ID lama ada dengan teks sama |
+| Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/119 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
+| Konten chat (X24): unit siap jadi Intisari, kutipan di dalam paragraf dan tanpa ayat, unit ditarik tidak dimuat | ✓ | 4 unit, 28 gagasan, 8 kutipan, 28 soal berjawaban; menggantikan batch 0 (–), induk batch basi dibuang 0 (–); 0 unit ditarik |
+| Teks badan penyunting tidak dimuat (ADR-150) | ✓ | 40 paragraf, 5 node, 4 halaman dibuang (3 bagian, data/patches/at-tibyan-1969-pentahqiq.yaml); 0 baris masih merujuknya |
+| ID paragraf rilis stabil (ADR-059) | ✓ | 614 ID lama ada dengan teks sama; 40 dikecualikan sebagai teks penyunting (ADR-150) |
 
 ## Daftar isi
 
@@ -69,3 +71,25 @@
 | Alasan | Paragraf |
 |---|---|
 | **paragraf unik** | **0** |
+
+## Teks badan penyunting tidak dimuat (ADR-150)
+
+### Mukadimah pentahqiq (7 paragraf)
+
+Pengantar Muhammad al-Hajjar sebelum teks an-Nawawi (memuji Allah, menyebut tiga karya an-Nawawi yang ia tahqiq), ditutup tanda tangannya. Karya penyunting modern.
+
+Paragraf: 30000002, 30000003, 30000004, 30000005, 30000006, 30000007, 30000008
+
+### al-Fawa'id al-Mazidah 'ala al-Kitab (27 paragraf, 4 node)
+
+Tiga "latifah" tambahan pentahqiq sesudah kitab berakhir, merujuk karya dan cetakan modern (Manaqib Ahmad terbitan 1977 M, al-Itqan); bukan bagian at-Tibyan.
+
+Paragraf: 30000622, 30000623, 30000624, 30000625, 30000626, 30000627, 30000628, 30000629, 30000630, 30000631, 30000632, 30000633, 30000634, 30000635, 30000636, 30000637, 30000638, 30000639, 30000640, 30000641, 30000642, 30000643, 30000644, 30000645, 30000646, 30000647, 30000648
+Node: 300123, 300124, 300125, 300126
+
+### Kalimat al-Khitam (6 paragraf, 1 node)
+
+Kata penutup pentahqiq tentang penyempurnaan cetakan ketiga, bertanda tangan Muhammad Mahmud al-Hajjar.
+
+Paragraf: 30000649, 30000650, 30000651, 30000652, 30000653, 30000654
+Node: 300127

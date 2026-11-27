@@ -13,10 +13,18 @@ import { LATIN_NORM_VERSION, NORM_VERSION, normalizeArabic } from "@surau/text";
 import { buildSqlite } from "./build-sqlite.ts";
 import { buildDigest } from "./corpus.ts";
 import {
+  applyEditorExclusion,
+  editorTextReport,
+  planEditorExclusion,
+  readEditorText,
+} from "./editor-text.ts";
+import type { EditorExclusion } from "./editor-text.ts";
+import {
   checkStability,
   fingerprintPath,
   fingerprints,
   readFingerprints,
+  withExcluded,
   writeFingerprints,
 } from "./fingerprint.ts";
 import { createAllocator, readIdMap, writeIdMap } from "./ids.ts";
@@ -261,10 +269,12 @@ function rowsFor(
   digest: DigestBuild | null;
   /** Konten chat (X24): null bila edisi ini tanpa unit siap maupun ditarik. */
   content: { chat: ChatDigestBuild; merged: MergedDigest; withdrawn: number } | null;
+  /** Teks badan penyunting yang dibuang (ADR-150); null bila kitab tanpa berkas pengecualian. */
+  editor: EditorExclusion | null;
 } {
   const { source, pages, takhrij } = prepared;
   const { quran } = shared;
-  const base = buildRows({
+  const built = buildRows({
     config,
     source,
     pages,
@@ -279,6 +289,19 @@ function rowsFor(
       sourceHash: `sha256:${source.sha256}`,
     },
   });
+  // Teks badan penyunting (ADR-150): dibuang sesudah ID dialokasikan, sebelum indeks, ayat, dan LLM.
+  const editor =
+    config.editorText === undefined
+      ? null
+      : planEditorExclusion(readEditorText(join(paths.repo, config.editorText)), {
+          shamelaBook: config.shamelaBook,
+          editionId: config.edition.id,
+          pages,
+          toc,
+          ids,
+          where: config.editorText,
+        });
+  const base = editor === null ? built : applyEditorExclusion(built, editor);
   const fts = ftsRows(base.passage);
   const matched = matchAyat(quran, base.passage, base.page);
   mergePatchedRefs(matched, ayahPatchRefs(config, paths, quran, base.passage, matched.refs));
@@ -353,6 +376,7 @@ function rowsFor(
   }
   return {
     content,
+    editor,
     digest,
     rows,
     llm,
@@ -712,6 +736,7 @@ function buildWork(
     revisions,
     digest: intisari,
     content,
+    editor,
   } = rowsFor(config, paths, prepared, toc, ids, shared, false);
   const validation = validate({
     config,
@@ -749,10 +774,57 @@ function buildWork(
     });
     validation.ok &&= n >= minDigests;
   }
-  const prints = fingerprints(config.edition.id, rows.passage);
+  if (editor !== null) {
+    // Tidak ada baris yang masih merujuk paragraf, node, atau halaman yang dibuang (semua tabel yang
+    // punya kolom passage_id/toc_node_id/page_id; foreign key build-sqlite menjadi lapis kedua).
+    const P = editor.passages;
+    const N = editor.tocNodes;
+    const leaks =
+      rows.page.filter((r) => editor.pages.has(r.id)).length +
+      rows.passage.filter(
+        (r) =>
+          P.has(r.id) ||
+          editor.pages.has(r.page_id) ||
+          (r.toc_node_id !== null && N.has(r.toc_node_id)),
+      ).length +
+      rows.toc_node.filter(
+        (r) =>
+          N.has(r.id) ||
+          editor.pages.has(r.start_page_id) ||
+          (r.parent_id !== null && N.has(r.parent_id)),
+      ).length +
+      rows.footnote_ref.filter((r) => P.has(r.passage_id) || P.has(r.footnote_passage_id)).length +
+      [
+        rows.passage_needs_review,
+        rows.passage_ayah_ref,
+        rows.translation,
+        rows.translation_review,
+        rows.subheading_translation,
+        rows.digest_anchor,
+        rows.digest_quote,
+      ].reduce((a, t) => a + t.filter((r) => P.has(r.passage_id)).length, 0) +
+      [
+        rows.summary,
+        rows.toc_title_translation,
+        rows.digest,
+        rows.digest_point,
+        rows.digest_question,
+      ].reduce((a, t) => a + t.filter((r) => N.has(r.toc_node_id)).length, 0);
+    validation.invariants.push({
+      name: "Teks badan penyunting tidak dimuat (ADR-150)",
+      ok: leaks === 0,
+      detail: `${editor.passages.size} paragraf, ${editor.tocNodes.size} node, ${editor.pages.size} halaman dibuang (${editor.sections.length} bagian, ${config.editorText}); ${leaks} baris masih merujuknya`,
+    });
+    validation.ok &&= leaks === 0;
+  }
+  const excluded = editor === null ? [] : [...editor.passages];
+  const prints = withExcluded(fingerprints(config.edition.id, rows.passage), released, excluded);
   const lo = config.edition.id * 1e7;
   const accepted = opts.acceptTextChanges?.filter((id) => id > lo && id < lo + 1e7);
-  const stability = released === null ? null : checkStability(released, prints, accepted);
+  const stability =
+    released === null
+      ? null
+      : checkStability(released, fingerprints(config.edition.id, rows.passage), accepted, excluded);
   if (stability !== null) {
     validation.invariants.push({
       name: "ID paragraf rilis stabil (ADR-059)",
@@ -763,7 +835,11 @@ function buildWork(
   }
   writeText(
     join(paths.repo, `${config.reportPrefix}-validasi.md`),
-    [validationReport(ctx, validation), ...(stability?.report ?? [])].join("\n"),
+    [
+      validationReport(ctx, validation),
+      ...(editor === null ? [] : editorTextReport(editor)),
+      ...(stability?.report ?? []),
+    ].join("\n"),
   );
   writeText(
     join(paths.repo, `${config.reportPrefix}-openiti.md`),

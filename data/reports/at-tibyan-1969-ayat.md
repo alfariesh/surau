@@ -18,12 +18,12 @@
 | · mirip, beda ejaan (`similar`) | 0 (–) |
 | · tidak cocok: tidak ditautkan (bisa ayat berejaan jauh berbeda; dibiarkan, tidak ditebak) | 0 (–) |
 | Kutipan tanpa kurung sesudah pengantar (قال تعالى …): persis / mirip | 24 / 0 |
-| Kutipan S13 (paragraf badan): tanpa tanda (persis), dan pendek 2–3 kata sesudah pengantar (lafaz langka; bisa diperpanjang melewati beda ejaan) | 53 |
+| Kutipan S13 (paragraf badan): tanpa tanda (persis), dan pendek 2–3 kata sesudah pengantar (lafaz langka; bisa diperpanjang melewati beda ejaan) | 41 |
 | Kutipan terbelah dua paragraf badan berurutan (X02; aturan mode tanpa tanda, dua rujukan sebagian per pasang) | 0 pasang |
 | Kutipan dari patch ayat terverifikasi (X29, ADR-133; `data/patches/*-ayat.yaml`) | 0 |
-| **Rujukan ayat** (`passage_ayah_ref`) | **77** di 45 paragraf |
-| · sebagian ayat (`partial`) | 58 |
-| · lebih dari satu ayat | 7 |
+| **Rujukan ayat** (`passage_ayah_ref`) | **65** di 34 paragraf |
+| · sebagian ayat (`partial`) | 52 |
+| · lebih dari satu ayat | 6 |
 | · lafaz yang sama ada di letak lain (`alt_count` > 0) | 7 |
 
 Gerbang S12: cocok persis ≥ 95% dari bentang `{…}` tervalidasi → – ✓.
@@ -59,32 +59,32 @@ Buka permalink (situs atau `pnpm dev`), cocokkan kutipan dengan rujukannya, lalu
 | 19 | j1 h157 | `/kitab/at-tibyan/1/157#p360` | QS Al-An'am [6]: 160 | persis, tanpa kurung, sebagian ayat | من جاء بالحسنة فله عشر أمثالها |  |
 | 20 | j1 h182 | `/kitab/at-tibyan/1/182#p421` | QS Al-Baqarah [2]: 164 | persis, tanpa kurung, sebagian ayat, +1 letak lain | إن في خلق السماوات والأرض |  |
 
-## Kutipan S13: tanpa tanda + pendek sesudah pengantar (53): 20 sampel acak
+## Kutipan S13: tanpa tanda + pendek sesudah pengantar (41): 20 sampel acak
 
 Ayat yang tidak dikurung dan tidak didahului frasa pengantar yang dikenali, misalnya karena kurung di sumber salah tempat (`{وقال}`) atau pengantarnya lain (كما قال، لقوله). Dicek agent; boleh ikut diperiksa bersama T-16.
 
 | # | Letak | Permalink | Rujukan | Jenis | Awal kutipan | Benar? |
 |---|---|---|---|---|---|---|
-| 1 | j1 h26 | `/kitab/at-tibyan/1/26#p58` | QS Al-Ahzab [33]: 58 | persis, tanpa tanda, sebagian ayat | بغير ما اكتسبوا فقد احتملوا بهتانا … |  |
-| 2 | j1 h81 | `/kitab/at-tibyan/1/81#p179` | QS An-Nahl [16]: 98 | persis, pendek sesudah pengantar, sebagian ayat | فإذا قرأت |  |
-| 3 | j1 h81 | `/kitab/at-tibyan/1/81#p179` | QS An-Nahl [16]: 98 | persis, tanpa tanda, sebagian ayat | فاستعذ بالله من الشيطان الرجيم |  |
-| 4 | j1 h83 | `/kitab/at-tibyan/1/83#p183` | QS Al-Muddaththir [74]: 8–9 | persis, tanpa tanda, ayat utuh | فإذا نقر في الناقور فذلك يومئذ … |  |
-| 5 | j1 h85 | `/kitab/at-tibyan/1/85#p191` | QS Al-Jathiyah [45]: 21 | persis, tanpa tanda, sebagian ayat | أم حسب الذين اجترحوا السيئات أن … |  |
-| 6 | j1 h93 | `/kitab/at-tibyan/1/93#p209` | QS Al-Baqarah [2]: 223 | persis, pendek sesudah pengantar, sebagian ayat | نساؤكم حرث لكم |  |
-| 7 | j1 h112 | `/kitab/at-tibyan/1/112#p240` | QS Az-Zumar [39]: 28 | persis, tanpa tanda, sebagian ayat | قرآنا عربيا غير ذي عوج |  |
-| 8 | j1 h121 | `/kitab/at-tibyan/1/121#p258` | QS Al-Ahzab [33]: 56 | persis, tanpa tanda, sebagian ayat | إن الله وملائكته يصلون على النبي |  |
-| 9 | j1 h121 | `/kitab/at-tibyan/1/121#p258` | QS Al-Qiyamah [75]: 40 | persis, tanpa tanda, ayat utuh | أليس ذلك بقادر على أن يحيي … |  |
-| 10 | j1 h121 | `/kitab/at-tibyan/1/121#p258` | QS Ar-Rahman [55]: 13 | persis, tanpa tanda, ayat utuh, +30 letak lain | فبأي آلاء ربكما تكذبان |  |
-| 11 | j1 h122 | `/kitab/at-tibyan/1/122#p261` | QS Ar-Rum [30]: 60 | persis, tanpa tanda, sebagian ayat | فاصبر ان وعد الله حق ولا … |  |
-| 12 | j1 h135 | `/kitab/at-tibyan/1/135#p292` | QS Al-Inshiqaq [84]: 20–21 | persis, tanpa tanda, sebagian ayat | فما لهم لا يؤمنون وإذا |  |
-| 13 | j1 h151 | `/kitab/at-tibyan/1/151#p349` | QS Al-Isra [17]: 108 | persis, tanpa tanda, sebagian ayat | سبحان ربنا إن كان وعد ربنا … |  |
-| 14 | j1 h158 | `/kitab/at-tibyan/1/158#p361` | QS An-Naml [27]: 65 | persis, tanpa tanda, sebagian ayat | قل لا يعلم من في السماوات … |  |
-| 15 | j1 h228 | `/kitab/at-tibyan/1/228#p631` | QS An-Nisa [4]: 27 | persis, tanpa tanda, ayat utuh | والله يريد أن يتوب عليكم ويريد … |  |
-| 16 | j1 h228 | `/kitab/at-tibyan/1/228#p632` | QS An-Nisa [4]: 28 | persis, tanpa tanda, ayat utuh | يريد الله أن يخفف عنكم وخلق … |  |
-| 17 | j1 h228 | `/kitab/at-tibyan/1/228#p635` | QS An-Nisa [4]: 110 | persis, tanpa tanda, ayat utuh | ومن يعمل سوءا أو يظلم نفسه … |  |
-| 18 | j1 h228 | `/kitab/at-tibyan/1/228#p637` | QS An-Nisa [4]: 152 | persis, tanpa tanda, sebagian ayat | بالله ورسله، ولم يفرقوا بين أحد … |  |
-| 19 | j1 h229 | `/kitab/at-tibyan/1/229#p643` | QS Az-Zumar [39]: 53 | persis, tanpa tanda, sebagian ayat | الذين أسرفوا على أنفسهم لا تقنطوا … |  |
-| 20 | j1 h229 | `/kitab/at-tibyan/1/229#p647` | QS Ash-Shuraa [42]: 30 | persis, tanpa tanda, sebagian ayat | وما أصابكم من مصيبة فبما كسبت … |  |
+| 1 | j1 h26 | `/kitab/at-tibyan/1/26#p58` | QS Al-Ahzab [33]: 58 | persis, pendek sesudah pengantar, sebagian ayat | والذين يؤذون المؤمنين |  |
+| 2 | j1 h74 | `/kitab/at-tibyan/1/74#p164` | QS Az-Zukhruf [43]: 13 | persis, tanpa tanda, sebagian ayat | سبحان الذي سخر لنا هذا وما … |  |
+| 3 | j1 h74 | `/kitab/at-tibyan/1/74#p164` | QS Al-Baqarah [2]: 201 | persis, tanpa tanda, sebagian ayat | ربنا آتنا في الدنيا حسنة وفي … |  |
+| 4 | j1 h81 | `/kitab/at-tibyan/1/81#p179` | QS An-Nahl [16]: 98 | persis, pendek sesudah pengantar, sebagian ayat | فإذا قرأت |  |
+| 5 | j1 h81 | `/kitab/at-tibyan/1/81#p179` | QS An-Nahl [16]: 98 | persis, tanpa tanda, sebagian ayat | فاستعذ بالله من الشيطان الرجيم |  |
+| 6 | j1 h85 | `/kitab/at-tibyan/1/85#p191` | QS At-Tur [52]: 27 | persis, tanpa tanda, ayat utuh | فمن الله علينا ووقانا عذاب السموم |  |
+| 7 | j1 h86 | `/kitab/at-tibyan/1/86#p192` | QS Al-Baqarah [2]: 281 | persis, tanpa tanda, sebagian ayat | واتقوا يوما ترجعون فيه إلى الله |  |
+| 8 | j1 h113 | `/kitab/at-tibyan/1/113#p242` | QS An-Nisa [4]: 41 | persis, tanpa tanda, ayat utuh | فكيف إذا جئنا من كل أمة … |  |
+| 9 | j1 h116 | `/kitab/at-tibyan/1/116#p246` | QS Az-Zumar [39]: 48 | persis, pendek sesudah pengantar, sebagian ayat, +1 letak lain | وبدا لهم سيئات |  |
+| 10 | j1 h116 | `/kitab/at-tibyan/1/116#p246` | QS Al-Baqarah [2]: 203 | persis, tanpa tanda, sebagian ayat | واذكروا الله في أيام معدودات |  |
+| 11 | j1 h120 | `/kitab/at-tibyan/1/120#p257` | QS At-Tawbah [9]: 30 | persis, tanpa tanda, sebagian ayat | اليهود عزير ابن الله وقالت النصارى … |  |
+| 12 | j1 h120 | `/kitab/at-tibyan/1/120#p257` | QS Al-Ma'idah [5]: 64 | persis, tanpa tanda, sebagian ayat | وقالت اليهود يد الله مغلولة |  |
+| 13 | j1 h121 | `/kitab/at-tibyan/1/121#p258` | QS Al-Isra [17]: 111 | persis, tanpa tanda, sebagian ayat | الحمد لله الذي لم يتخذ ولدا |  |
+| 14 | j1 h139 | `/kitab/at-tibyan/1/139#p310` | QS Al-Hajj [22]: 18 | persis, tanpa tanda, sebagian ayat | إن الله يفعل ما يشاء |  |
+| 15 | j1 h151 | `/kitab/at-tibyan/1/151#p349` | QS Al-Isra [17]: 108 | persis, tanpa tanda, sebagian ayat | سبحان ربنا إن كان وعد ربنا … |  |
+| 16 | j1 h157 | `/kitab/at-tibyan/1/157#p360` | QS Ali 'Imran [3]: 92 | persis, tanpa tanda, sebagian ayat | لن تنالوا البر حتى تنفقوا مما … |  |
+| 17 | j1 h157 | `/kitab/at-tibyan/1/157#p360` | QS At-Takwir [81]: 23 | persis, tanpa tanda, ayat utuh | ولقد رآه بالأفق المبين |  |
+| 18 | j1 h157 | `/kitab/at-tibyan/1/157#p360` | QS Al-An'am [6]: 103 | persis, tanpa tanda, sebagian ayat | لا تدركه الأبصار وهو يدرك الأبصار |  |
+| 19 | j1 h178 | `/kitab/at-tibyan/1/178#p414` | QS Al-Baqarah [2]: 136 | persis, tanpa tanda, sebagian ayat | قولوا آمنا بالله وما أنزل إلينا |  |
+| 20 | j1 h178 | `/kitab/at-tibyan/1/178#p414` | QS Ali 'Imran [3]: 64 | persis, tanpa tanda, sebagian ayat | قل يا أهل الكتاب تعالوا إلى … |  |
 
 ## Kutipan terbelah dua paragraf (X02, 0 bentang, semua)
 

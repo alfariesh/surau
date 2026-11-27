@@ -30,6 +30,11 @@ export interface WorkConfig {
   patch?: string;
   /** Daftar kurasi subjudul pembaca (X04, ADR-074): sumber subjudul untuk judul daftar isi Indonesia. */
   subheadings?: string;
+  /**
+   * Teks badan karya penyunting modern yang tidak dimuat (ADR-150): berkas YAML berisi judul, kunci
+   * paragraf, dan halaman yang dibuang beserta `paragraf_id`-nya. Tanpa berkas = semua badan dimuat.
+   */
+  editorText?: string;
   /** Patch ayat terverifikasi (X29, ADR-133); tanpa berkas = tanpa patch. */
   ayahPatch?: string;
   ids: string;
