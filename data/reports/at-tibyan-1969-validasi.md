@@ -5,7 +5,7 @@
 
 - Sumber: Shamela `book/969/1969.db`, sha256 `3455f0e5e215d9ef1621b606d7b4d89e1acfdfa67d747e83523d0ee14ba30124`
 - Patch daftar isi: `–` · peta ID: `data/ids/at-tibyan-1969.json`
-- Korpus: `kitab-v10` · NORM_VERSION 2
+- Korpus: `kitab-v11` · NORM_VERSION 2
 
 ## Invarian (ingest gagal bila ada yang ✗)
 

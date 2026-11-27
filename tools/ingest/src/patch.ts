@@ -9,8 +9,11 @@ import { z } from "zod";
 
 const titleId = z.number().int().positive();
 const patchId = z.string().regex(/^[a-z][a-z0-9-]*$/, "huruf kecil, angka, dan '-'");
-/** Induk: `title.id` Shamela (angka) atau `id` node tambahan di patch yang sama (teks). */
-const parentRef = z.union([titleId, patchId]);
+/**
+ * Induk: `title.id` Shamela (angka), `id` node tambahan di patch yang sama (teks), atau 0 = akar
+ * daftar isi (node tingkat teratas, mis. basmalah sebelum judul pertama al-Waraqat, ADR-152).
+ */
+const parentRef = z.union([z.literal(0), titleId, patchId]);
 
 export const tocPatch = z.strictObject({
   /** Kitab Shamela yang dipatch; dicek sama dengan sumber yang dibaca. */

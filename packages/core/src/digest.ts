@@ -53,9 +53,10 @@ export function digestTierOf(level: number, hasChildNodes: boolean): "book" | "s
 
 /**
  * Edisi kitab Gelombang 1 (ADR-147): kitab satu jilid tanpa node akar seluruh kitab. Bidayat
- * al-Hidayah (2), at-Tibyan (3), al-Ajurrumiyyah (4). ID edisi beku (ADR-029).
+ * al-Hidayah (2), at-Tibyan (3), al-Ajurrumiyyah (4); Gelombang 2 (ADR-152): al-Munqidz (5), al-Waraqat (6).
+ * ID edisi beku (ADR-029).
  */
-export const SECTION_ONLY_EDITIONS: ReadonlySet<number> = new Set([2, 3, 4]);
+export const SECTION_ONLY_EDITIONS: ReadonlySet<number> = new Set([2, 3, 4, 5, 6]);
 
 /**
  * Tingkat Intisari konten chat per edisi (X31b, ADR-147). Edisi Gelombang 1 hanya punya Intisari

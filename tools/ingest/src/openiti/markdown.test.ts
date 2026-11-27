@@ -32,3 +32,19 @@ describe("stripMarkdown", () => {
     expect(stripMarkdown("# ا  ب\r\n~~ج\r\n\r\n### || د")).toBe("ا ب ج\nد");
   });
 });
+
+describe("fillZeroPageMarkers (ADR-152)", () => {
+  const p = (volume: number, page: number) => ({ volume, page, text: `${volume}:${page}` });
+  test("mengisi deret awal, tengah, dan akhir dari urutan", async () => {
+    const { fillZeroPageMarkers } = await import("./markdown.ts");
+    const out = fillZeroPageMarkers([p(0, 0), p(1, 7), p(0, 0), p(0, 0), p(1, 10), p(0, 0)]);
+    expect(out.map((x) => x.page)).toEqual([6, 7, 8, 9, 10, 11]);
+    expect(out.every((x) => x.volume === 1)).toBe(true);
+    expect(out[2]?.text).toBe("0:0");
+  });
+  test("celah yang tidak pas = galat", async () => {
+    const { fillZeroPageMarkers } = await import("./markdown.ts");
+    expect(() => fillZeroPageMarkers([p(1, 7), p(0, 0), p(1, 10)])).toThrow(/tidak mengisi celah/);
+    expect(() => fillZeroPageMarkers([p(0, 0)])).toThrow(/bernomor/);
+  });
+});

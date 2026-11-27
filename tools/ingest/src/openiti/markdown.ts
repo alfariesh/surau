@@ -79,3 +79,53 @@ export function mergeSamePageMarkers(pages: readonly OpenitiPage[]): OpenitiPage
   }
   return out;
 }
+
+/**
+ * Isi penanda halaman OpenITI tanpa nomor (`PageV00P000`, hasil konversi yang kehilangan nomor)
+ * dari urutannya (ADR-152; mis. al-Waraqat). Setiap deret penanda tanpa nomor di antara dua penanda
+ * bernomor wajib PAS mengisi celahnya (jilid sama, selisih nomor = panjang deret + 1); deret di awal
+ * mendapat nomor mundur dari penanda bernomor pertama, deret di akhir maju dari yang terakhir.
+ * Celah yang tidak pas = galat, supaya teks tidak dipasangkan ke halaman yang salah diam-diam.
+ * Hanya untuk kitab ber-`openiti.fillZeroPageMarkers`; QA matan per halaman tetap berlaku.
+ */
+export function fillZeroPageMarkers(pages: readonly OpenitiPage[]): OpenitiPage[] {
+  const isZero = (p: OpenitiPage): boolean => p.volume === 0 && p.page === 0;
+  const numbered = pages.flatMap((p, i) => (isZero(p) ? [] : [i]));
+  const first = numbered[0];
+  const last = numbered.at(-1);
+  if (first === undefined || last === undefined) {
+    throw new Error("OpenITI: tidak ada penanda halaman bernomor untuk mengisi PageV00P000");
+  }
+  const out = pages.map((p) => ({ ...p }));
+  const at = (i: number): OpenitiPage => out[i] as OpenitiPage;
+  for (let i = first - 1; i >= 0; i--) {
+    const next = at(i + 1);
+    if (next.page <= 1)
+      throw new Error("OpenITI: PageV00P000 di awal tidak muat sebelum halaman 1");
+    out[i] = { ...at(i), volume: next.volume, page: next.page - 1 };
+  }
+  for (let k = 0; k + 1 < numbered.length; k++) {
+    const a = at(numbered[k] as number);
+    const bi = numbered[k + 1] as number;
+    const b = at(bi);
+    const run = bi - (numbered[k] as number) - 1;
+    if (run === 0) continue;
+    if (a.volume !== b.volume || b.page - a.page - 1 !== run) {
+      throw new Error(
+        `OpenITI: ${run} penanda PageV00P000 antara PageV${a.volume}P${a.page} dan PageV${b.volume}P${b.page} tidak mengisi celah dengan pas`,
+      );
+    }
+    for (let j = 1; j <= run; j++) {
+      out[(numbered[k] as number) + j] = {
+        ...at((numbered[k] as number) + j),
+        volume: a.volume,
+        page: a.page + j,
+      };
+    }
+  }
+  for (let i = last + 1; i < out.length; i++) {
+    const prev = at(i - 1);
+    out[i] = { ...at(i), volume: prev.volume, page: prev.page + 1 };
+  }
+  return out;
+}

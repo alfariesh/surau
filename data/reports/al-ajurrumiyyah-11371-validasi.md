@@ -5,7 +5,7 @@
 
 - Sumber: Shamela `book/371/11371.db`, sha256 `c4ac77d505163ba2c5484e77521193a0b6b1c72da5c4ab08e42461087013621e`
 - Patch daftar isi: `–` · peta ID: `data/ids/al-ajurrumiyyah-11371.json`
-- Korpus: `kitab-v10` · NORM_VERSION 2
+- Korpus: `kitab-v11` · NORM_VERSION 2
 
 ## Invarian (ingest gagal bila ada yang ✗)
 

@@ -117,6 +117,11 @@ export interface WorkConfig {
     matan: PinnedFile;
     /** Versi pembanding takhrij (hanya Ihya: JK). Tanpa entri = catatan kaki tidak dibandingkan. */
     takhrij?: PinnedFile;
+    /**
+     * Penanda halaman `PageV00P000` di berkas matan diisi dari urutannya (`fillZeroPageMarkers`,
+     * ADR-152). Hanya untuk berkas yang konversinya kehilangan nomor halaman (al-Waraqat).
+     */
+    fillZeroPageMarkers?: boolean;
   };
 }
 

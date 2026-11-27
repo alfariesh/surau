@@ -111,8 +111,8 @@ export function buildToc(
     sourceOrder.set(key, sourceOrder.size);
   }
 
-  const refKey = (ref: number | string): string =>
-    typeof ref === "number" ? `t${ref}` : `patch:${ref}`;
+  const refKey = (ref: number | string): string | null =>
+    ref === 0 ? null : typeof ref === "number" ? `t${ref}` : `patch:${ref}`;
   for (const add of patch.add) {
     const key = `patch:${add.id}`;
     const pageIndex = pageIndexById.get(add.page);
@@ -153,7 +153,7 @@ export function buildToc(
   }
   for (const move of patch.move) {
     const parent = refKey(move.parent);
-    if (!nodes.has(parent)) issues.push(`patch move: induk ${parent} tidak ada`);
+    if (parent !== null && !nodes.has(parent)) issues.push(`patch move: induk ${parent} tidak ada`);
     for (const id of move.titles) {
       const node = nodes.get(`t${id}`);
       if (node === undefined) {
