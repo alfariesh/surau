@@ -238,6 +238,8 @@ export const digestRow = z
     prompt_version: z.string(),
     created_at: z.string(),
     review_status: reviewStatus,
+    /** Inti satu kalimat Intisari v2 dari chat (skema ≥ 10, X24; kolom terakhir karena ALTER). */
+    lead: z.string().min(1).max(400).nullable().default(null),
   })
   .refine(
     (r) => r.tier === "section" || (r.opening !== null && r.closing !== null),
@@ -321,6 +323,8 @@ export const digestQuestionRow = z.strictObject({
   point_ord: ord,
   text: z.string(),
   review_status: reviewStatus,
+  /** Jawaban satu kalimat (skema ≥ 10, X24; kolom terakhir karena ALTER); batch lama = null. */
+  answer: z.string().min(1).max(400).nullable().default(null),
 });
 export type DigestQuestionRow = z.infer<typeof digestQuestionRow>;
 
@@ -498,7 +502,7 @@ export const corpusMeta = z.object({
 export type CorpusMeta = z.infer<typeof corpusMeta>;
 
 /** Versi skema korpus yang dibuat migrasi di repo ini (= nilai `meta.schema_version` terbaru). */
-export const CORPUS_SCHEMA_VERSION = 9;
+export const CORPUS_SCHEMA_VERSION = 10;
 
 /** Skema korpus pertama yang punya indeks `passage_fts` terisi dan `term_stat` (S11, migrasi 0004). */
 export const SEARCH_SCHEMA_VERSION = 4;
@@ -529,6 +533,13 @@ export const REVIEW_SCHEMA_VERSION = 8;
  * indeks `digest_point_fts` (X15, migrasi 0009, ADR-097). Di korpus lama fitur Intisari tidak ada.
  */
 export const DIGEST_SCHEMA_VERSION = 9;
+
+/**
+ * Skema korpus pertama yang punya inti Intisari (`digest.lead`) dan jawaban soal
+ * (`digest_question.answer`) dari konten chat (X24, migrasi 0010, ADR-125). Di skema 9 keduanya
+ * tidak ada: pembaca tidak memilih kolom itu.
+ */
+export const CONTENT_SCHEMA_VERSION = 10;
 
 /** Tabel biasa korpus → skema barisnya (passage_fts tidak termasuk: tabel virtual turunan). */
 export const corpusTables = {

@@ -241,8 +241,18 @@ export const FIXTURE_BOOK: DigestView = {
     },
   ],
   questions: [
-    { ord: 1, point_ord: 1, text: "Menurut penulis, apa yang mendahului amal?" },
-    { ord: 2, point_ord: 4, text: "Apa yang penulis sarankan untuk dipelajari lebih dulu?" },
+    {
+      ord: 1,
+      point_ord: 1,
+      text: "Menurut penulis, apa yang mendahului amal?",
+      answer: "Menurut penulis, ilmu mendahului amal (jawaban contoh).",
+    },
+    {
+      ord: 2,
+      point_ord: 4,
+      text: "Apa yang penulis sarankan untuk dipelajari lebih dulu?",
+      answer: null,
+    },
   ],
   terms: [
     {
@@ -262,6 +272,7 @@ export const FIXTURE_BOOK: DigestView = {
   ],
   reading_minutes: 4,
   evidence,
+  lead: "Menurut penulis, ilmu yang benar menuntun amal (inti contoh).",
 };
 
 /** Intisari Bab contoh: abstrak + dua gagasan, tanpa pembuka/penutup. */
@@ -274,6 +285,7 @@ export const FIXTURE_SECTION: DigestView = {
   abstract:
     "Contoh abstrak Intisari Bab: bagian ini menjelaskan bahwa ilmu menuntun amal, dengan satu contoh riwayat.",
   closing: null,
+  lead: "Menurut penulis, ilmu menuntun amal (inti contoh Intisari Bab).",
   points: FIXTURE_BOOK.points.slice(0, 2),
   quotes: FIXTURE_BOOK.quotes.slice(0, 1),
   questions: FIXTURE_BOOK.questions.slice(0, 1),

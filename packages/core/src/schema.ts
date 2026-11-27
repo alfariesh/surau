@@ -821,7 +821,15 @@ export const digestQuoteView = z
 export type DigestQuoteView = z.infer<typeof digestQuoteView>;
 
 export const digestQuestionView = z
-  .strictObject({ ord: id, point_ord: id, text: z.string() })
+  .strictObject({
+    ord: id,
+    point_ord: id,
+    text: z.string(),
+    answer: z
+      .string()
+      .nullable()
+      .describe("One-sentence answer (AI text); null for older digests without answers"),
+  })
   .describe("Recall question about one key idea (who holds which view), AI text");
 export type DigestQuestionView = z.infer<typeof digestQuestionView>;
 
@@ -923,6 +931,10 @@ export const digestView = z
     opening: z.string().nullable().describe("What the author discusses (book tier)"),
     abstract: z.string(),
     closing: z.string().nullable().describe("Closing summary (book tier)"),
+    lead: z
+      .string()
+      .nullable()
+      .describe("One-sentence gist shown at the top (AI text); null for older digests"),
     points: z.array(digestPointView),
     quotes: z.array(digestQuoteView),
     questions: z.array(digestQuestionView),

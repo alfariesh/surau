@@ -9,13 +9,14 @@
 //       kemenag/), --reset-ids (HANYA sebelum rilis; ditolak bila data/ids/…teks.json ada),
 //       --terima-teks-berubah <id,…> (passage.id lama yang teksnya boleh berubah, satu per satu;
 //       ID hilang tetap ditolak, ADR-059).
-import { existsSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 import type { AudioTrackRow } from "@surau/db";
 
 import { audioReport, selectBuildAudio } from "./audio.ts";
+import { contentGate, readContentUnits } from "./konten.ts";
 import { runIngest, runVerifyOpenIti } from "./pipeline.ts";
 import type { IngestOptions, PipelinePaths } from "./pipeline.ts";
 import { QURAN_EXPECT, QURAN_FILES } from "./quran/source.ts";
@@ -142,6 +143,25 @@ async function main(argv: string[]): Promise<number> {
     console.error(`Ingest GAGAL: invarian dilanggar (${seconds()} dtk). Keluaran tidak ditulis.`);
     return 1;
   }
+  // Gerbang konten chat (X24 langkah 3): cek yang sama dengan MCP /redaksi, pada korpus baru.
+  const editions = new Set(corpus.works.map((w) => w.edition.id));
+  const ready = readContentUnits(repo).ready.filter((u) => editions.has(u.draft.edition_id));
+  const gate = await contentGate(result.output.sqlite, ready);
+  if (gate.length > 0) {
+    for (const p of gate) console.error(`✗ Konten: ${p}`);
+    for (const path of [
+      join(paths.build, "sql"),
+      result.output.sqlite,
+      join(paths.build, `${corpus.version}.sha256`),
+    ])
+      rmSync(path, { recursive: true, force: true });
+    console.error(
+      `Ingest GAGAL: ${gate.length} masalah konten chat (${seconds()} dtk). Keluaran dihapus.`,
+    );
+    return 1;
+  }
+  if (ready.length > 0)
+    console.info(`✓ Konten chat: ${ready.length} unit lolos cek ulang pada korpus baru`);
   const o = result.output;
   console.info(
     `Baris: ${Object.entries(o.counts)

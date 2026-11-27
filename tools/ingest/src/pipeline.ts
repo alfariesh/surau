@@ -47,6 +47,16 @@ import { llmRows } from "./llm/attach.ts";
 import type { LlmBuild } from "./llm/attach.ts";
 import { digestInvariant, digestRows, withDigestSummaries } from "./llm/digest-attach.ts";
 import type { DigestBuild } from "./llm/digest-attach.ts";
+import {
+  WITHDRAWN_REPORT,
+  contentDigestRows,
+  contentInvariant,
+  mergeDigests,
+  readContentUnits,
+  unitsOf,
+  withdrawnReport,
+} from "./konten.ts";
+import type { ChatDigestBuild, ContentUnits, MergedDigest } from "./konten.ts";
 import { loadReviews } from "./llm/reviews.ts";
 import {
   applyRevisions,
@@ -189,6 +199,8 @@ interface CorpusShared {
   quran: QuranData;
   /** Revisi terjemahan manusia (X08) seluruh korpus; disaring per edisi saat dipasang. */
   revisions: LoadedRevisions | null;
+  /** Unit konten chat (X24) seluruh repo; disaring per edisi saat dipasang. */
+  content: ContentUnits;
 }
 
 function corpusShared(
@@ -201,6 +213,7 @@ function corpusShared(
     builtAt: buildTimestamp(paths.repo, env),
     quran: loadQuran(paths.quran, (s) => normalizeArabic(s).text),
     revisions: loadRevisions(paths.repo),
+    content: readContentUnits(paths.repo),
   };
 }
 
@@ -235,6 +248,8 @@ function rowsFor(
   revisions: RevisionStats;
   /** Intisari (X15b): baris + indeks + invarian; null bila kitab dibangun tanpa hasil LLM. */
   digest: DigestBuild | null;
+  /** Konten chat (X24): null bila edisi ini tanpa unit siap maupun ditarik. */
+  content: { chat: ChatDigestBuild; merged: MergedDigest; withdrawn: number } | null;
 } {
   const { source, pages, takhrij } = prepared;
   const { quran } = shared;
@@ -292,7 +307,8 @@ function rowsFor(
   // Intisari (X15b, ADR-097): dicek terhadap baris korpus final ini (termasuk terjemahan yang sudah
   // direvisi, untuk kutipan satu paragraf utuh). Abstrak yang lolos `checkSummary` menjadi ringkasan
   // bahasa id node itu, sehingga Cari/Jawab/MCP memakai satu ringkasan.
-  const digest =
+  const baseSummary = rows.summary;
+  let digest =
     paths.llm === undefined || config.llm === undefined
       ? null
       : digestRows(rows, join(paths.llm, config.llm.intisari), { subheadings });
@@ -306,7 +322,26 @@ function rowsFor(
     rows.digest_term = digest.digest_term;
     rows.summary = withDigestSummaries(rows.summary, digest.summary);
   }
+  // Konten chat (X24, ADR-145): unit siap menggantikan Intisari batch bagian yang sama; Intisari
+  // batch induk dari anak yang diganti ikut dibuang. Ringkasan dihitung ulang dari ringkasan dasar.
+  const units = unitsOf(shared.content, config.edition.id);
+  let content: { chat: ChatDigestBuild; merged: MergedDigest; withdrawn: number } | null = null;
+  if (units.ready.length > 0 || units.withdrawn.length > 0) {
+    const chat = contentDigestRows(rows, units.ready, digest?.glossary_term ?? []);
+    const merged = mergeDigests(digest, chat, rows.toc_node);
+    digest = merged.build;
+    rows.glossary_term = digest.glossary_term;
+    rows.digest = digest.digest;
+    rows.digest_point = digest.digest_point;
+    rows.digest_anchor = digest.digest_anchor;
+    rows.digest_quote = digest.digest_quote;
+    rows.digest_question = digest.digest_question;
+    rows.digest_term = digest.digest_term;
+    rows.summary = withDigestSummaries(baseSummary, digest.summary);
+    content = { chat, merged, withdrawn: units.withdrawn.length };
+  }
   return {
+    content,
     digest,
     rows,
     llm,
@@ -542,6 +577,8 @@ export function runIngest(
     );
   const shared = corpusShared(corpus, paths, opts.env);
   const built = corpus.works.map((config) => buildWork(config, paths, shared, opts));
+  // Log koreksi publik (X24): semua unit ditarik di repo, tanpa teks kitab.
+  writeText(join(paths.repo, WITHDRAWN_REPORT), withdrawnReport(shared.content.withdrawn));
   const head = built[0];
   if (head === undefined) throw new Error("Korpus tanpa kitab");
   const works: WorkIngest[] = built.map((b) => ({
@@ -565,6 +602,14 @@ export function runIngest(
       ok: true,
       detail: `${outside} baris tidak dipasang (kitabnya tidak dibangun)`,
     });
+  if (shared.content.problems.length > 0) {
+    validation.invariants.push({
+      name: "Berkas konten chat (data/konten) terbaca dan sah (X24)",
+      ok: false,
+      detail: shared.content.problems.slice(0, 20).join("; "),
+    });
+    validation.ok = false;
+  }
   const ayat = head.ayat.stats;
   if (!validation.ok) return { validation, ayat, works };
 
@@ -640,6 +685,7 @@ function buildWork(
     llm,
     revisions,
     digest: intisari,
+    content,
   } = rowsFor(config, paths, prepared, toc, ids, shared, false);
   const validation = validate({
     config,
@@ -654,8 +700,17 @@ function buildWork(
   });
   validation.invariants.push(revisionInvariant(rows, revisions));
   validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
-  if (intisari !== null) {
+  if (intisari !== null && content === null) {
     validation.invariants.push(digestInvariant(intisari));
+    validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
+  }
+  if (content !== null) {
+    // Masalah batch tetap ikut (`merged.build.problems`); invarian chat dilaporkan terpisah.
+    if (intisari !== null) {
+      validation.invariants.push(digestInvariant(intisari));
+      validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
+    }
+    validation.invariants.push(contentInvariant(content.chat, content.merged, content.withdrawn));
     validation.ok &&= validation.invariants.at(-1)?.ok ?? false;
   }
   // Batas bawah Intisari (ADR-137, dari ADR-136): build yang memuat lebih sedikit dari yang tayang gagal.
