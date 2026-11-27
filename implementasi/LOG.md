@@ -15,6 +15,13 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-27 · X31a · Staging berisi Bidayat al-Hidayah — selesai
+- Dikerjakan: PR #248 (langkah 8a) di-merge sesudah CI hijau; `pnpm corpus:load:staging --confirm` atas izin pemilik → `surau-corpus-staging` = `kitab-v10` (Bidayah saja).
+- Verifikasi: smoke per kitab lolos · `corpus:qa staging --kitab bidayat-al-hidayah` → 30/30 · `pnpm dev:remote`: `/kitab`, pembaca h25, `daftar-isi.json`, `/cari` = 200; `/api/search?q=الهداية` → 7 hasil Bidayah · tangkapan ponsel 375 px rapi
+- Biaya API: –
+- Keputusan: – (ADR-144 dari langkah 8a)
+- Catatan untuk sesi berikutnya: Preview semua PR kini Bidayah; PR Dependabot lama perlu rebase. Berikutnya X24, lalu X31b.
+
 ## 2026-11-27 · X31a langkah 8a · Persiapan staging tanpa Ihya — selesai (X31a tetap sebagian)
 - Dikerjakan:
   - Smoke D1 per kitab (`WorkConfig.smoke`), dipakai `corpus:load:*` dan promote; catatan kaki hanya dicek untuk kitab `classical`.
