@@ -1,0 +1,165 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 2,
+  "section_id": 200001,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:16:35+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p3-p4 dibaca ulang: lima tujuan duniawi, guru sebagai penolong maksiat seperti penjual pedang kepada perampok, dan negasi hidayah bukan sekadar riwayat sesuai teks; status sabda yang dinukil tidak ditulis."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p4-p9: awal-akhir dan lahir-batin hidayah beserta syaratnya, ujian hati, nafsu yang tunduk kepada setan, dan sabda yang dilalaikan setan sesuai teks; ayat di p7 tidak dikutip, dan sapaan silakan diganti agar tidak terbaca perintah."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p10-p14: tiga golongan (beruntung, dalam bahaya, binasa), syarat tobat dan tambahan amal pada golongan kedua, serta dugaan diri mulia pada golongan ketiga sesuai teks; negeri akhirat yang sempat terlewat sudah ditambahkan."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p13: putusnya harapan tobat karena merasa berbuat baik, sabda tentang yang lebih dikhawatirkan daripada Dajjal, dan alasan penulis (bahasa keadaan, keberanian orang tak berilmu meniru ulama) sesuai teks; orang awam diganti orang yang tidak berilmu agar sesuai kata teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p15-p17: takwa lahir sebagai awal dan takwa batin sebagai akhir, dua negasi kecuali dengan takwa, dua bagian takwa, dan bagian ketiga tambahan sesuai teks dan terjemahan kutipan."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "d8b82fc708665066ba39226009590241a7af53f2a45ef999b32b8162a6016698",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Niat bersaing/dunia vs hidayah, guru seperti penjual pedang kepada perampok, sabda penolong maksiat, sayap malaikat dan ikan laut sesuai p20000003-04; status sabda tidak ditulis."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Awal/akhir dan lahir/batin hidayah, ujian hati, nafsu pemerintah keburukan yang tunduk kepada setan, dua sabda yang dilalaikan setan sesuai p20000004-09; ayat p20000007 tidak dikutip."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Tiga golongan (beruntung, dalam bahaya, binasa), syarat tobat dan tambahan amal, serta rasa mulia di sisi Allah pada golongan ketiga sesuai p20000010-14; kutipan 3 (p20000010, 0-139) tepat memuat kalimat golongan pertama."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Harapan tobat putus karena merasa berbuat baik, sabda lebih dikhawatirkan daripada Dajjal, bahasa keadaan lebih fasih, dan orang tak berilmu meniru keberanian ulama sesuai p20000013; sikap penulis dan pemilik pendapat tepat."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Awal hidayah takwa lahir, akhirnya takwa batin, dua negasi, takwa = patuhi perintah dan jauhi larangan, bagian ketiga tambahan sesuai p20000015-17; kutipan 5 (p20000015, 0-141) dan terjemahannya setia."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "579ccd5cb076d7af8d6da26ccf1d2a97f32a24e98327387e1fb47205bbc6054d",
+      "draf_sha256": "d8b82fc708665066ba39226009590241a7af53f2a45ef999b32b8162a6016698",
+      "waktu": "2026-11-27T03:20:26.032Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, niat menentukan apakah menuntut ilmu menjadi jalan hidayah atau jalan kebinasaan, dan awal hidayah itu adalah takwa lahir yang diuji dengan kesediaan mengamalkannya.",
+    "ringkasan": "Al-Ghazali membuka dengan membedakan dua niat penuntut ilmu: niat bersaing dan mengumpulkan dunia yang merugikan agama, dan niat mencari hidayah yang diberi kabar gembira. Ia menjelaskan bahwa hidayah punya awal dan akhir, lahir dan batin, lalu menawarkan awalnya sebagai ujian bagi hati; hati yang menunda-nunda menandakan nafsu yang memerintah keburukan dan tipu daya setan. Sesudah itu ia membagi penuntut ilmu menjadi tiga golongan: yang beruntung, yang dalam bahaya, dan yang binasa, dengan uraian panjang tentang ulama yang memakai ilmunya untuk dunia. Ia menutup dengan menyebut awal hidayah sebagai takwa lahir dan rencana isi kitab.",
+    "gagasan": [
+      {
+        "judul": "Menuntut ilmu demi dunia berarti menjual akhirat, menurut al-Ghazali",
+        "isi": "Al-Ghazali menyatakan bahwa orang yang menuntut ilmu untuk bersaing, berbangga, mengungguli teman sebaya, menarik perhatian manusia, dan mengumpulkan harta dunia sedang meruntuhkan agamanya dan menjual akhiratnya dengan dunia. Gurunya pun ia sebut membantu kemaksiatannya, seperti penjual pedang kepada perampok, lalu ia menukil sabda tentang orang yang membantu kemaksiatan walau dengan setengah kata. Sebaliknya, bila niatnya hidayah dan bukan sekadar riwayat, ia memberi kabar gembira bahwa malaikat membentangkan sayapnya dan ikan di laut memohonkan ampun baginya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000003, 20000004],
+        "soal": {
+          "tanya": "Dengan apa al-Ghazali mengumpamakan guru yang mengajar orang yang menuntut ilmu demi dunia?",
+          "jawab": "Dengan penjual pedang kepada perampok, karena guru itu ikut membantu kemaksiatan muridnya."
+        }
+      },
+      {
+        "judul": "Kesediaan mengamalkan awal hidayah menjadi ujian hati, menurut penulis",
+        "isi": "Penulis menjelaskan bahwa hidayah, buah ilmu, punya awal dan akhir, lahir dan batin; akhirnya tidak tercapai kecuali sesudah awalnya kokoh, dan batinnya tidak ditemukan kecuali sesudah lahirnya dipahami. Awal hidayah ia tawarkan sebagai ujian: hati yang condong kepadanya boleh melangkah ke tingkat akhir. Hati yang menunda-nunda dan enggan mengamalkannya ia sebut tanda nafsu yang memerintah keburukan, yang tunduk kepada setan. Setan membacakan keutamaan ilmu sambil melalaikan dari sabda tentang ilmu yang tidak menambah petunjuk dan kaum yang memerintahkan kebaikan tetapi tidak melakukannya. Penulis memperingatkan agar tidak tunduk pada tipu daya itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000004, 20000005, 20000006, 20000007, 20000008, 20000009],
+        "soal": {
+          "tanya": "Apa yang ditandakan oleh hati yang menunda-nunda mengamalkan awal hidayah, menurut penulis?",
+          "jawab": "Nafsu yang bersemangat menuntut ilmu itu adalah nafsu yang memerintah keburukan dan tunduk kepada setan."
+        }
+      },
+      {
+        "judul": "Penuntut ilmu terbagi tiga golongan, menurut al-Ghazali",
+        "isi": "Penulis membagi manusia dalam menuntut ilmu menjadi tiga keadaan. Pertama, orang yang menuntut ilmu sebagai bekal ke akhirat dan hanya mengharap wajah Allah dan negeri akhirat; ia termasuk orang yang beruntung. Kedua, orang yang menuntutnya untuk kehidupan dunia, kemuliaan, kedudukan, dan harta, sambil sadar akan buruknya maksud itu; ia termasuk orang yang dalam bahaya. Bila ajal datang sebelum tobat, ia dikhawatirkan berakhir buruk; bila sempat bertobat dan menambah amal, ia bergabung dengan yang beruntung. Ketiga, orang yang dikuasai setan dan memakai ilmunya untuk dunia sambil merasa mulia di sisi Allah; ia termasuk yang binasa.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000010, 20000011, 20000012, 20000013, 20000014],
+        "soal": {
+          "tanya": "Ke golongan mana orang kedua bergabung bila ia sempat bertobat dan menambah amal sebelum ajal?",
+          "jawab": "Ia bergabung dengan golongan pertama, yaitu orang-orang yang beruntung."
+        }
+      },
+      {
+        "judul": "Ulama yang mengejar dunia merusak lewat perbuatannya, menurut penjelasan penulis",
+        "isi": "Tentang golongan ketiga, penulis menyebut harapan tobatnya terputus karena ia mengira dirinya termasuk orang yang berbuat baik. Ia menukil sabda bahwa ada yang lebih dikhawatirkan daripada Dajjal, yaitu ulama yang buruk, lalu menjelaskan alasannya: tujuan Dajjal paling jauh menyesatkan, sedangkan ulama seperti ini, walau memalingkan manusia dari dunia dengan lisannya, mendorong mereka kepadanya dengan perbuatannya. Menurut penulis, bahasa keadaan lebih fasih daripada bahasa ucapan, sehingga kerusakan yang ia timbulkan lebih banyak daripada perbaikannya, sebab orang yang tidak berilmu berani mengejar dunia karena melihat keberanian para ulama.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000013],
+        "soal": {
+          "tanya": "Mengapa ulama yang mengejar dunia lebih banyak merusak daripada memperbaiki, menurut penjelasan penulis?",
+          "jawab": "Karena perbuatannya mendorong manusia kepada dunia, dan bahasa keadaan lebih fasih daripada bahasa ucapan."
+        }
+      },
+      {
+        "judul": "Awal hidayah adalah takwa lahir dan akhirnya takwa batin, menurut penulis",
+        "isi": "Penulis menjawab pertanyaan tentang awal hidayah: awalnya takwa lahir dan akhirnya takwa batin; tidak ada akhir yang baik kecuali dengan takwa, dan tidak ada hidayah kecuali bagi orang bertakwa. Takwa ia artikan sebagai menjalankan perintah Allah Swt. dan menjauhi larangan-Nya, sehingga terbagi dua bagian. Ia menyatakan akan menyampaikan pokok-pokok ringkas ilmu takwa lahir dalam kedua bagian itu, lalu menambahkan bagian ketiga agar kitab ini lengkap dan mencukupi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [20000015, 20000016, 20000017],
+        "soal": {
+          "tanya": "Dua bagian apa yang menyusun takwa dalam penjelasan penulis?",
+          "jawab": "Menjalankan perintah Allah Swt. dan menjauhi larangan-Nya."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 3,
+        "passage_id": 20000010,
+        "char_start": 0,
+        "char_end": 139,
+        "terjemahan": "Ketahuilah bahwa manusia dalam menuntut ilmu ada pada tiga keadaan: seseorang yang menuntut ilmu untuk dijadikan bekalnya menuju hari kembali, dan dengan ilmu itu ia tidak bermaksud selain wajah Allah dan negeri akhirat; maka ia termasuk orang-orang yang beruntung."
+      },
+      {
+        "gagasan": 5,
+        "passage_id": 20000015,
+        "char_start": 0,
+        "char_end": 141,
+        "terjemahan": "Jika engkau bertanya: apakah awal hidayah itu, agar aku dapat menguji diriku dengannya? Ketahuilah bahwa awalnya adalah takwa lahir dan akhirnya adalah takwa batin; tidak ada akhir yang baik kecuali dengan takwa, dan tidak ada hidayah kecuali bagi orang-orang yang bertakwa."
+      }
+    ],
+    "istilah": []
+  }
+}

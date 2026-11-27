@@ -11,7 +11,9 @@ export { humanReviewOf, readPage, reviewersFor, translationView } from "./page.t
 export { readSection } from "./section.ts";
 export {
   DIGEST_READ_CHARS_PER_MINUTE,
+  contentTierOf,
   digestTierOf,
+  SECTION_ONLY_EDITIONS,
   leafPointRange,
   readDigest,
   readingMinutes,

@@ -36,6 +36,8 @@ kitab:
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
     status: staging
+    # Intisari Bab per judul tingkat teratas (ADR-147): Muqaddimah, Qism 1, Qism 2, Qism 3.
+    intisari_bab: [1, 2, 17, 37]
   - slug: at-tibyan
     shamela: 1969
     openiti:

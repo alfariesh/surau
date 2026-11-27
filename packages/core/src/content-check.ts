@@ -29,7 +29,7 @@ import { isQuoteSpan } from "@surau/text";
 
 import { loadCiteContext } from "./citation.ts";
 
-import { digestTierOf, leafPointRange, readingMinutes } from "./digest.ts";
+import { contentTierOf, leafPointRange, readingMinutes } from "./digest.ts";
 import { NotFound, parseInput } from "./errors.ts";
 import {
   CONTENT_LIMITS,
@@ -369,7 +369,7 @@ export async function checkContentDraft(
   }
   const cite = await loadCiteContext(db, node.edition_id);
   const s = await loadSection(db, node, issues);
-  const tier = digestTierOf(node.level, s.hasChildren);
+  const tier = contentTierOf(node.edition_id, node.level, s.hasChildren);
   const wantBook = d.jenis === "intisari-kitab" || d.jenis === "jalur";
   if (d.jenis !== "faedah" && (tier === "book") !== wantBook) {
     issues.error(
