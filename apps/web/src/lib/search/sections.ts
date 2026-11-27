@@ -2,7 +2,7 @@ import type { D1Db } from "@surau/db";
 
 import type { SectionOption } from "./section-pick";
 
-import { getToc, getWork, listWorks } from "@surau/core";
+import { getToc, listWorks } from "@surau/core";
 
 // Pilihan filter "Bagian kitab" di /cari (S14): node level 1 dan level 2 daftar isi, judul Arab
 // persis dari DB. Server saja (mengimpor @surau/core); bentuk data dan pemilihannya ada di
@@ -16,8 +16,8 @@ import { getToc, getWork, listWorks } from "@surau/core";
 export async function loadSearchSections(db: D1Db): Promise<SectionOption[]> {
   const { works } = await listWorks(db);
   if (works.length !== 1) return [];
-  const work = await getWork(db, works[0]!.slug);
-  const edition = work.editions.find((e) => e.is_default) ?? work.editions[0];
+  const editions = works[0]!.editions;
+  const edition = editions.find((e) => e.is_default) ?? editions[0];
   if (edition === undefined) return [];
   const toc = await getToc(db, edition.id, { depth: 2 });
   return toc.nodes.map((n) => ({

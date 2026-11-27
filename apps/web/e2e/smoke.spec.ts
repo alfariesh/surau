@@ -4,7 +4,7 @@ import { NORM_VERSION } from "@surau/text";
 import { home } from "../src/i18n/id/home";
 import { LANDING_SECTIONS, landing, landingNav } from "../src/i18n/id/landing";
 import { search } from "../src/i18n/id/search";
-import { butuhKitab } from "./korpus";
+import { KITAB_UJI, adaKitab, butuhKitab } from "./korpus";
 
 test("landing page di / mengarah ke Beranda di /home (ADR-096)", async ({ page }) => {
   await page.goto("/");
@@ -269,4 +269,12 @@ test("API versi melaporkan NORM_VERSION dari @surau/text", async ({ request }) =
   expect(response.ok()).toBe(true);
   expect(response.headers()["cache-control"]).toContain("no-store");
   expect(await response.json()).toEqual({ normVersion: NORM_VERSION });
+});
+
+// Penjaga e2e per kitab (X31a 8a, peninjau): tes kitab dilewati bila kitabnya tidak ada, jadi korpus
+// kosong atau binding D1 yang salah akan membuat semuanya "dilewati" tanpa suara. Tes ini tidak
+// pernah dilewati: korpus yang diuji wajib memuat minimal satu kitab uji.
+test("korpus yang diuji memuat minimal satu kitab uji", async ({ request }) => {
+  const ada = await Promise.all(KITAB_UJI.map((slug) => adaKitab(request, slug)));
+  expect(ada.some(Boolean), `tidak ada kitab ${KITAB_UJI.join(", ")} di korpus`).toBe(true);
 });

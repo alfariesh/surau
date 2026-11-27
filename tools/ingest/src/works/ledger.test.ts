@@ -1,6 +1,7 @@
 // Ledger kitab (X31a): setiap kitab yang dibangun ingest punya baris ledger yang sama ID-nya.
 import { join } from "node:path";
 
+import { buildFtsMatch } from "@surau/text";
 import { describe, expect, test } from "vite-plus/test";
 
 import { CORPUS, WORKS } from "./index.ts";
@@ -34,7 +35,8 @@ describe("data/kitab/ledger.yaml", () => {
     for (const w of WORKS) {
       const row = file.kitab.find((k) => k.slug === w.work.slug);
       expect(w.smoke.footnotes, w.work.slug).toBe(row?.catatan_kaki === "classical");
-      expect(w.smoke.search.trim(), w.work.slug).not.toBe("");
+      // Kata contoh harus tetap menjadi kueri FTS sesudah normalisasi (bukan MATCH kosong).
+      expect(buildFtsMatch(w.smoke.search), w.work.slug).not.toBeNull();
     }
   });
 

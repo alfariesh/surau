@@ -15,6 +15,16 @@ Format entri:
 - Catatan untuk sesi berikutnya: …
 ```
 
+## 2026-11-27 · X31a langkah 8a · Persiapan staging tanpa Ihya — selesai (X31a tetap sebagian)
+- Dikerjakan:
+  - Smoke D1 per kitab (`WorkConfig.smoke`), dipakai `corpus:load:*` dan promote; catatan kaki hanya dicek untuk kitab `classical`.
+  - e2e Preview tidak bergantung Ihya (`e2e/korpus.ts` melewati tes data Ihya, `bidayah.spec.ts` baru); `uji-mcp.sh` memilih data uji dari `list_works`.
+  - Perbaikan: `/cari` 500 di korpus tanpa Ihya (`SEARCH_WORK`), kini memakai karya di korpus.
+- Verifikasi: `pnpm verify` → lolos (1.207 + 501 tes) · `pnpm corpus:load:local` → smoke lolos (`kitab-v10`) · `pnpm test:e2e` lokal → 134 lolos, 172 dilewati, 2 gagal tidak terkait (header aset `next dev`) · `uji-mcp.sh` lokal `lengkap` dan `redaksi` → lolos
+- Biaya API: –
+- Keputusan: [ADR-144](keputusan/ADR-144.md)
+- Catatan untuk sesi berikutnya: muat staging atas izin pemilik, lalu `corpus:qa staging --kitab bidayat-al-hidayah`. Di X31b, tulis ulang tes pembaca yang kini dilewati ke Bidayah dan ubah `deploy.yml` di PR promote.
+
 ## 2026-11-26 · Sisipan · HeroUI Pro 1.0.1 stabil — selesai
 - Dikerjakan:
   - Catalog: `@heroui-pro/react` beta.10 → **1.0.1**, `@heroui/react`/`@heroui/styles` 3.2.6 → **3.2.8**, `tailwind-variants` 3.3.1 → **4.0.2** (peer Pro 1.0.1).

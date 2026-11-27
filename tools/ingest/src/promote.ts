@@ -208,7 +208,7 @@ function main(argv: string[]): number {
           ? `  1. wrangler d1 create ${name} --location apac`
           : `  1. (lewati) ${name} sudah ada; --reload memuat ulang isinya`,
         "  2. migrasi korpus (packages/db/migrations/corpus)",
-        "  3. muat data/build/sql/*.sql, lalu smoke: hitungan setiap tabel + meta = build, j1 h200",
+        "  3. muat data/build/sql/*.sql, lalu smoke: hitungan setiap tabel + meta = build, halaman contoh tiap kitab (WorkConfig.smoke)",
         `  4. ${WEB_CONFIG} + ${MCP_CONFIG} + ${API_CONFIG}: CORPUS_DB produksi → ${name} (file lokal; deploy lewat PR)`,
         "Minta izin pemilik dulu (CLAUDE.md aturan keras 4 bila menimpa DB yang sudah ada).",
       ].join("\n"),

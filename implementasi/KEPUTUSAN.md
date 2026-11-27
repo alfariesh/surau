@@ -153,6 +153,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 141 | Patch keamanan Hono 4.13.22 di `apps/api` (5 advisori ditambal 4.13.16); `figlet` (CLI HeroUI Pro, bukan runtime) dicatat tanpa override | diterima | 2026-11-26 | [keputusan/ADR-141.md](keputusan/ADR-141.md) |
 | 142 | Ihya diarsipkan (ledger `arsip`): korpus bawaan Gelombang 1 tanpa Ihya, dibangun di Mac (ADR-135 butir 5 dicabut); Ihya langsung diturunkan (pemilik: "sekarang") lewat sakelar `READER_ENABLED`/`KITAB_OPEN` "0" tanpa menyentuh D1; promote menolak build yang menghilangkan kitab `tayang` | diterima | 2026-11-26 | [keputusan/ADR-142.md](keputusan/ADR-142.md) |
 | 143 | HeroUI Pro 1.0.1 stabil + OSS 3.2.8 + tailwind-variants 4.0.2; `Sheet` pindah ke OSS (impor dan CSS); figlet CLI tetap (ADR-141) | diterima | 2026-11-26 | [keputusan/ADR-143.md](keputusan/ADR-143.md) |
+| 144 | Smoke D1, e2e Preview, dan uji MCP per kitab (korpus tanpa Ihya: tes Ihya dilewati, spec Bidayah); `/cari` memakai karya di korpus (sebelumnya 500 tanpa Ihya) | diterima | 2026-11-27 | [keputusan/ADR-144.md](keputusan/ADR-144.md) |
 
 ## Cara menambah ADR baru
 
