@@ -1,0 +1,186 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500014,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p116-p120: ilmu dan amal, kitab-kitab yang dibaca, dzauq dan perubahan sifat, perumpamaan sehat, kenyang, mabuk, zuhud sesuai teks."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p120-p123: tiga pokok iman tanpa satu dalil tertentu, takwa dan memutus ikatan, niat mengajar mencari kedudukan, tepi jurang sesuai teks."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p123-p126: tekad dan pembatalan, bisikan setan, hampir enam bulan sejak Rajab 488, lidah terkunci, para tabib sesuai teks."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p126-p130: Makkah dan Syam, celaan imam Irak, harta dibagikan, hampir dua tahun di Syam, Damaskus, Baitul Maqdis, haji, pulang, sekitar sepuluh tahun sesuai teks."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p130-p134: sufi penempuh jalan Allah, cahaya kenabian, taharah, kunci, fana sebagai awal, penyaksian malaikat sesuai teks."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p135-p140: hulul, ittihad, wushul keliru, karamah sebagai awal para nabi, Hira, tiga derajat ilmu, dzauq, iman sesuai teks; ayat p140 tidak diparafrasekan."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "56e4fa2fda415a47b660dc773084962a15f27bf108aff66305dd287ee6f1559d",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Ilmu dan amal, kitab yang dibaca, dzauq, perumpamaan sehat/kenyang/mabuk/zuhud sesuai p116-p120; kutipan p120 setia."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Tiga pokok iman, takwa, niat mengajar mencari kedudukan sesuai p120-p123."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Hampir enam bulan sejak Rajab 488, lidah terkunci, para tabib sesuai p123-p126."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Makkah dan Syam, hampir dua tahun di Syam, sekitar sepuluh tahun uzlah sesuai p126-p130."
+        },
+        {
+          "ke": 5,
+          "nilai": "benar",
+          "catatan": "Syarat pertama, kunci, fana sebagai awal jalan sesuai p130-p134."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Hulul/ittihad/wushul keliru, tiga derajat sesuai p135-p140; kutipan p139 setia."
+        }
+      ],
+      "laporan": "Semua benar; lolos"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "cf9b223ba40b439906ef6e8ce1f5ef3208ca1e1af3277cdb3f594a79f5ae9e42",
+      "draf_sha256": "56e4fa2fda415a47b660dc773084962a15f27bf108aff66305dd287ee6f1559d",
+      "waktu": "2026-11-27T18:36:38.202Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, inti jalan sufi tidak dapat dipelajari lewat kitab, melainkan dirasakan lewat amal, sehingga ia meninggalkan kedudukannya di Baghdad dan menempuh uzlah sekitar sepuluh tahun.",
+    "ringkasan": "Al-Ghazali mempelajari ilmu kaum sufi dari kitab-kitab mereka, lalu sadar bahwa inti jalan mereka hanya dicapai dengan dzauq dan perubahan sifat. Ia menilai keadaannya: tenggelam dalam ikatan dunia dan mengajar dengan niat mencari kedudukan. Setelah bimbang hampir enam bulan dan lidahnya terkunci, ia keluar dari Baghdad, membagikan hartanya, lalu menyendiri di Syam, Baitul Maqdis, dan Hijaz sebelum pulang. Dari khalwat sekitar sepuluh tahun ia meyakini bahwa kaum sufi menempuh jalan terbaik, menolak paham hulul dan ittihad, dan membedakan ilmu, dzauq, dan iman.",
+    "gagasan": [
+      {
+        "judul": "Inti jalan sufi dicapai dengan dzauq, bukan dengan belajar, menurut al-Ghazali",
+        "isi": "Al-Ghazali menjelaskan bahwa jalan sufi sempurna dengan ilmu dan amal, dengan tujuan memutus rintangan jiwa sampai hati kosong dari selain Allah dan terisi zikir. Ilmu lebih mudah baginya, maka ia membaca Qut al-Qulub karya Abu Thalib al-Makki, kitab al-Harits al-Muhasibi, dan ucapan al-Junaid, asy-Syibli, dan Abu Yazid al-Bisthami. Ternyata kekhususan mereka hanya dicapai dengan dzauq, keadaan batin, dan perubahan sifat. Ia membandingkan orang yang tahu definisi sehat, kenyang, atau mabuk dengan orang yang benar-benar sehat, kenyang, atau mabuk; begitu pula tahu hakikat zuhud berbeda dari benar-benar zuhud.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000116, 50000117, 50000118, 50000119, 50000120],
+        "soal": {
+          "tanya": "Perumpamaan apa yang dipakai al-Ghazali untuk membedakan mengetahui zuhud dari benar-benar zuhud?",
+          "jawab": "Perbedaan antara mengetahui definisi sehat, kenyang, atau mabuk dan benar-benar mengalaminya."
+        }
+      },
+      {
+        "judul": "Niat mengajar yang tidak ikhlas membuat penulis merasa di tepi jurang",
+        "isi": "Penulis menuturkan bahwa iman kepada Allah, kenabian, dan hari akhir telah tertanam kuat dalam dirinya, bukan oleh satu dalil tertentu, melainkan oleh banyak sebab dan pengalaman. Ia juga yakin bahwa kebahagiaan akhirat hanya diraih dengan takwa dan menahan diri dari hawa nafsu, dan pangkalnya memutus ikatan hati dengan dunia, berpaling dari kedudukan dan harta. Ketika memeriksa dirinya, ia mendapati dirinya tenggelam dalam ikatan dunia; amal terbaiknya, mengajar, tertuju pada ilmu yang tidak penting bagi akhirat, dan niatnya mencari kedudukan dan nama, sehingga ia merasa berada di tepi jurang neraka.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000120, 50000121, 50000122, 50000123],
+        "soal": {
+          "tanya": "Apa yang ditemukan penulis ketika merenungkan niatnya dalam mengajar?",
+          "jawab": "Niatnya tidak ikhlas karena Allah, tetapi didorong keinginan akan kedudukan dan tersebarnya nama."
+        }
+      },
+      {
+        "judul": "Kebimbangan penulis berakhir ketika Allah mengunci lidahnya dari mengajar",
+        "isi": "Penulis bertekad keluar dari Baghdad pada suatu hari lalu membatalkannya pada hari lain. Keinginan akan akhirat di pagi hari dilemahkan syahwat pada petang hari; penyeru iman menyuruhnya berangkat karena umur tinggal sedikit, sementara setan membisikkan bahwa itu keadaan sesaat dan kedudukannya sulit didapat kembali. Kebimbangan itu berlangsung hampir enam bulan sejak Rajab 488. Pada bulan itu Allah mengunci lidahnya sehingga ia tidak sanggup mengajar, kesedihannya merusak pencernaan, dan para tabib berkata penyakitnya berasal dari hati. Ia lalu berlindung kepada Allah seperti orang terdesak, dan Allah memudahkannya berpaling dari kedudukan, harta, dan keluarga.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000123, 50000124, 50000125, 50000126],
+        "soal": {
+          "tanya": "Berapa lama penulis bimbang antara tarikan dunia dan dorongan akhirat?",
+          "jawab": "Hampir enam bulan, dimulai sejak bulan Rajab tahun 488."
+        }
+      },
+      {
+        "judul": "Penulis meninggalkan Baghdad dan menyendiri sekitar sepuluh tahun di beberapa negeri",
+        "isi": "Penulis menampakkan niat ke Makkah padahal merencanakan ke Syam, agar khalifah dan sahabatnya tidak tahu ia hendak menetap di sana. Para imam Irak mencelanya karena mengira kedudukannya adalah puncak agama, dan orang-orang menduga-duga sebabnya. Ia membagikan hartanya kecuali sekadar kecukupan keluarga, lalu tinggal di Syam hampir dua tahun untuk uzlah, khalwat, riyadhah, dan mujahadah; ia beriktikaf di menara masjid Damaskus, lalu di Sakhrah Baitul Maqdis, kemudian berhaji dan berziarah ke Madinah. Doa anak-anaknya menariknya pulang; ia tetap memilih uzlah meski terganggu urusan hidup, sekitar sepuluh tahun.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000126, 50000127, 50000128, 50000129, 50000130],
+        "soal": {
+          "tanya": "Mengapa penulis menampakkan niat pergi ke Makkah padahal merencanakan perjalanan ke Syam?",
+          "jawab": "Karena khawatir khalifah dan para sahabatnya mengetahui tekadnya untuk menetap di Syam."
+        }
+      },
+      {
+        "judul": "Jalan kaum sufi adalah jalan terbaik yang bersumber dari cahaya kenabian, menurut al-Ghazali",
+        "isi": "Dari khalwatnya al-Ghazali meyakini bahwa kaum sufi secara khusus menempuh jalan Allah; perjalanan hidup, jalan, dan akhlak mereka yang terbaik, sampai akal para cendekia dan ilmu para ulama tidak bisa menggantinya dengan yang lebih baik, sebab gerak dan diam mereka bersumber dari cahaya kenabian. Syarat pertama jalan itu menyucikan hati dari selain Allah, kuncinya tenggelamnya hati dalam zikir, dan ujungnya fana di dalam Allah, yang sebenarnya baru awal jalan. Dari sana mereka menyaksikan malaikat dan ruh para nabi, lalu naik ke tingkat yang tidak bisa diungkapkan tanpa kekeliruan lafaz.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000130, 50000131, 50000132, 50000133, 50000134],
+        "soal": {
+          "tanya": "Apa kunci jalan kaum sufi, yang disamakan al-Ghazali dengan takbiratulihram dalam shalat?",
+          "jawab": "Tenggelamnya hati sepenuhnya dalam zikir kepada Allah."
+        }
+      },
+      {
+        "judul": "Hulul dan ittihad keliru, sedangkan pengalaman sufi dikenal lewat tiga derajat, menurut penulis",
+        "isi": "Penulis menyebut kedekatan yang dicapai kaum sufi membuat sebagian orang membayangkan hulul, ittihad, atau wushul, dan semua itu ia nilai keliru; orang yang mengalaminya cukup berkata bahwa terjadi sesuatu yang tidak ia sebutkan. Orang yang tidak merasakannya hanya mengenal nama kenabian, sebab karamah para wali adalah awal keadaan para nabi, seperti Nabi saw. menyendiri di Gua Hira. Ia membedakan tiga derajat: memastikan dengan bukti adalah ilmu, mengalami langsung adalah dzauq, dan menerima dari kabar dengan baik sangka adalah iman. Di luar mereka ada orang bodoh yang mengingkari dan mengejek.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000135, 50000136, 50000137, 50000138, 50000139, 50000140],
+        "soal": {
+          "tanya": "Apa nama tiga derajat pengenalan yang dibedakan penulis terhadap keadaan kaum sufi?",
+          "jawab": "Ilmu lewat bukti, dzauq lewat pengalaman langsung, dan iman lewat penerimaan dengan baik sangka."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 50000120,
+        "char_start": 0,
+        "char_end": 49,
+        "terjemahan": "Maka aku tahu dengan yakin bahwa mereka adalah pemilik keadaan, bukan pemilik ucapan."
+      },
+      {
+        "gagasan": 6,
+        "passage_id": 50000139,
+        "char_start": 224,
+        "char_end": 318,
+        "terjemahan": "Memastikan dengan bukti adalah ilmu, mengalami langsung keadaan itu adalah dzauq, dan menerimanya dari kabar orang dan pengalaman dengan baik sangka adalah iman."
+      }
+    ],
+    "istilah": []
+  }
+}

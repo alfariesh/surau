@@ -77,6 +77,8 @@ kitab:
     lisensi: CC BY-NC-SA 4.0
     catatan_kaki: none
     status: staging
+    # 16 judul; sepuluh tingkat teratas (title.id 5 punya anak 6–11, dicakup Intisari-nya).
+    intisari_bab: [1, 2, 3, 4, 5, 12, 13, 14, 15, 16]
   - slug: al-waraqat
     shamela: 6297
     openiti:

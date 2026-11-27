@@ -1,0 +1,66 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 5,
+  "section_id": 500003,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T01:40:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p28: urutan kalam, filsafat, Batiniyah, sufi sesuai teks; kalimat ringkasan tentang judul berikutnya dihapus karena di luar teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "5799434eaa505cde8ad75feeb6efc404e5ae82a3608fa86e5f8a960cfac51f6f",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Urutan kalam, filsafat, Batiniyah, sufi dan sikap penulis tepat; dasar p28 memuat semuanya."
+        }
+      ],
+      "laporan": "Semua benar; lolos"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "54f847a084f1a17853224c9213ec13eb1342dc5b93f5a995c2dbca0450041dfb",
+      "draf_sha256": "5799434eaa505cde8ad75feeb6efc404e5ae82a3608fa86e5f8a960cfac51f6f",
+      "waktu": "2026-11-27T18:36:27.632Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Ghazali, ia bergegas menelusuri keempat jalan pencari kebenaran secara berurutan: ilmu kalam, lalu filsafat, lalu ajaran Batiniyah, dan terakhir jalan kaum sufi.",
+    "ringkasan": "Sesudah memetakan empat golongan pencari kebenaran, al-Ghazali menyatakan bahwa ia segera menempuh jalan-jalan mereka dan menelusuri tuntas apa yang ada pada setiap golongan. Ia menyebut urutan penelusurannya: pertama ilmu kalam, kedua jalan filsafat, ketiga ajaran kaum Batiniyah, dan keempat jalan kaum sufi.",
+    "gagasan": [
+      {
+        "judul": "Penulis menelusuri empat jalan secara berurutan, dimulai dari ilmu kalam",
+        "isi": "Penulis menyatakan bahwa ia bergegas menempuh jalan-jalan itu dan menelusuri tuntas apa yang dimiliki setiap golongan. Ia memulai dengan ilmu kalam, lalu jalan filsafat, kemudian ajaran kaum Batiniyah, dan yang keempat jalan kaum sufi.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [50000028],
+        "soal": {
+          "tanya": "Jalan apa yang ditelusuri penulis pada urutan ketiga?",
+          "jawab": "Ajaran kaum Batiniyah, sesudah ilmu kalam dan filsafat."
+        }
+      }
+    ],
+    "kutipan": [],
+    "istilah": []
+  }
+}
