@@ -5,6 +5,7 @@ import { describe, expect, test } from "vite-plus/test";
 
 import { CUSTOM_ID_PATTERN, passageCustomId } from "./custom-id.ts";
 import {
+  TRANSLATE_NOTES,
   TRANSLATE_PROMPT,
   TRANSLATE_PROMPTS,
   buildTranslateRequest,
@@ -236,6 +237,24 @@ describe("validasi terjemahan", () => {
     // Dua versi terjemahan ≈ dua kali panjang: rasio > 4 ditolak.
     const twice = `${GOOD.replace("⟦QS 2:255⟧ ", "")} ${GOOD.repeat(2)}`;
     expect(checkTranslation(twice, input()).problems).toContain("length_ratio");
+  });
+
+  test("batas rasio per kitab (maxLengthRatio, ADR-149 tambahan) hanya melonggarkan batas atas", () => {
+    // Arab buatan 57 huruf; keluaran ≈ 5× dan ≈ 7× panjangnya.
+    const arab = "كلام مصنوع للاختبار ".repeat(3).trim();
+    const plain: TranslateInput = { ...input(), masked: { text: arab, slots: [] }, markers: [] };
+    const five = "kata contoh panjang ".repeat(14).trim();
+    const seven = "kata contoh panjang ".repeat(20).trim();
+    expect(checkTranslation(five, plain).problems).toEqual(["length_ratio"]);
+    expect(checkTranslation(five, plain, { maxLengthRatio: 6 }).ok).toBe(true);
+    expect(checkTranslation(seven, plain, { maxLengthRatio: 6 }).problems).toEqual([
+      "length_ratio",
+    ]);
+    // Batas bawah tidak berubah.
+    expect(checkTranslation("kata", plain, { maxLengthRatio: 6 }).problems).toEqual([
+      "length_ratio",
+    ]);
+    expect(TRANSLATE_NOTES.ajurrumiyyah.maxLengthRatio).toBe(6);
   });
 
   test("kosong, Markdown, dan kalimat pembuka ditolak", () => {

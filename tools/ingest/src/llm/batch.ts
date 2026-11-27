@@ -1145,7 +1145,7 @@ function judge(
     if (u === undefined || u.sourceSha256 !== planned.source_sha256) {
       return fail("stale", ["teks/rujukan ayat paragraf berubah sejak request dibuat"], text);
     }
-    const c = checkTranslation(text, u);
+    const c = checkTranslation(text, u, { maxLengthRatio: work.maxLengthRatio });
     if (!c.ok) return fail(`invalid:${c.problems.join(",")}`, c.details, text);
     return {
       failure: null,

@@ -77,6 +77,11 @@ export interface Work {
    * `TRANSLATE_PROMPT` apa adanya.
    */
   translatePrompt: ResolvedTranslatePrompt;
+  /**
+   * Batas atas rasio panjang terjemahan kitab ini (`TranslateWorkNote.maxLengthRatio`, ADR-149
+   * tambahan), dipakai pemeriksa saat collect/rejudge dan saat ingest. Tanpa = batas bawaan.
+   */
+  maxLengthRatio: number | undefined;
 }
 
 export function buildWork(
@@ -96,6 +101,7 @@ export function buildWork(
     nodes: plan.nodes,
     nodeById: new Map(plan.nodes.map((n) => [n.tocNodeId, n])),
     translatePrompt: translatePromptFor(TRANSLATE_PROMPT, opts.translateNote),
+    maxLengthRatio: opts.translateNote?.maxLengthRatio,
   };
 }
 

@@ -14,6 +14,7 @@ import type {
 import { translationSegments } from "@surau/core";
 import type { QuranView } from "@surau/core";
 import { checkSummary, checkTranslation } from "@surau/llm";
+import type { TranslateWorkNote } from "@surau/llm";
 
 import type { CorpusRows } from "../rows.ts";
 import { rejectionFor } from "./reviews.ts";
@@ -109,14 +110,17 @@ export function quranViewFromRows(rows: CorpusRows): QuranView {
 /**
  * Baca hasil LLM yang lolos dari `dir` dan jadikan baris korpus. Tanpa file = tanpa baris.
  * `subheadings` = daftar kurasi subjudul (unit judul daftar isi Indonesia, X04 bagian B).
+ * `translateNote` = petunjuk terjemahan kitab (ADR-149): batas rasio panjangnya ikut dipakai
+ * validasi ulang, sama dengan collect/rejudge.
  */
 export function llmRows(
   rows: CorpusRows,
   dir: string,
   reviews: ReviewRejections = new Map(),
   subheadings: SubheadingEntries = new Map(),
+  translateNote?: TranslateWorkNote,
 ): LlmBuild {
-  const work = buildWork(rows);
+  const work = buildWork(rows, { translateNote });
   const quran = quranViewFromRows(rows);
   const stats: LlmStats = {
     units: work.units.size + work.blocked.length,
@@ -153,7 +157,7 @@ export function llmRows(
       stats.reviewRejectedTranslations++;
       continue;
     }
-    const c = checkTranslation(t.text, u);
+    const c = checkTranslation(t.text, u, { maxLengthRatio: work.maxLengthRatio });
     if (!c.ok || c.text !== t.text) {
       stats.invalidTranslations++;
       continue;

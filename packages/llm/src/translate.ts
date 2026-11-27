@@ -3,7 +3,7 @@
 // model tidak pernah melihat atau menerjemahkan ayat (ADR-020, ADR-040).
 import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
 import { TRANSLATION_LENGTH_RATIO, checkPassageTranslation } from "@surau/core";
-import type { TranslationCheck } from "@surau/core";
+import type { TranslationCheck, TranslationCheckOptions } from "@surau/core";
 import type { MaskedPassage } from "@surau/core";
 
 import { TRANSLATE_NOTE_AJURRUMIYYAH_V1 } from "../prompts/translate-note-ajurrumiyyah-v1.ts";
@@ -36,6 +36,11 @@ export type TranslateEffort = "low" | "medium" | "high";
 export interface TranslateWorkNote {
   id: string;
   text: string;
+  /**
+   * Batas atas rasio panjang terjemahan ÷ Arab untuk kitab ini (ADR-149 tambahan); bukan bagian
+   * prompt (id dan teks sistem tidak berubah). Tanpa entri = `LENGTH_RATIO.max`.
+   */
+  maxLengthRatio?: number;
 }
 
 /** Prompt yang benar-benar dikirim: `id` dicatat sebagai `prompt_version` (aturan teks-arab 8). */
@@ -118,7 +123,14 @@ export type { TranslationCheck, TranslationProblem } from "@surau/core";
 /** Rasio panjang terjemahan Indonesia ÷ teks Arab yang dianggap wajar (di luar ini ditolak). */
 export const LENGTH_RATIO = TRANSLATION_LENGTH_RATIO.id;
 
-/** Pemeriksa keluaran batch Indonesia (aturan di @surau/core `checkPassageTranslation`). */
-export function checkTranslation(output: string, input: TranslateInput): TranslationCheck {
-  return checkPassageTranslation(output, input, "id");
+/**
+ * Pemeriksa keluaran batch Indonesia (aturan di @surau/core `checkPassageTranslation`).
+ * `maxLengthRatio` = batas atas rasio per kitab (`TranslateWorkNote.maxLengthRatio`).
+ */
+export function checkTranslation(
+  output: string,
+  input: TranslateInput,
+  opts: TranslationCheckOptions = {},
+): TranslationCheck {
+  return checkPassageTranslation(output, input, "id", opts);
 }

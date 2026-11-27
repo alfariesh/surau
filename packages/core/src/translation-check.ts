@@ -135,6 +135,14 @@ export const TRANSLATION_LENGTH_RATIO = {
   id: { min: 0.8, max: 4 },
   en: { min: 0.65, max: 3.5 },
 } as const;
+/**
+ * Pilihan pemeriksa per kitab. `maxLengthRatio` mengganti batas atas rasio panjang bahasa itu
+ * (ADR-149 tambahan: daftar contoh tasrif al-Ajurrumiyyah yang ditransliterasi + diartikan wajar
+ * lebih panjang); tanpa entri = `TRANSLATION_LENGTH_RATIO[lang].max`.
+ */
+export interface TranslationCheckOptions {
+  maxLengthRatio?: number | undefined;
+}
 /** Teks Arab sependek ini (judul, frasa) tidak diperiksa rasionya. */
 export const LENGTH_RATIO_MIN_CHARS = 40;
 
@@ -157,6 +165,7 @@ export function checkPassageTranslation(
   output: string,
   input: TranslationCheckInput,
   lang: TranslationCheckLang,
+  opts: TranslationCheckOptions = {},
 ): TranslationCheck {
   const problems: TranslationProblem[] = [];
   const details: string[] = [];
@@ -208,7 +217,8 @@ export function checkPassageTranslation(
   if (source >= LENGTH_RATIO_MIN_CHARS) {
     const ratio = letterLength(text) / source;
     const range = TRANSLATION_LENGTH_RATIO[lang];
-    if (ratio < range.min || ratio > range.max) {
+    const max = opts.maxLengthRatio ?? range.max;
+    if (ratio < range.min || ratio > max) {
       problems.push("length_ratio");
       details.push(`rasio panjang ${ratio.toFixed(2)}`);
     }
