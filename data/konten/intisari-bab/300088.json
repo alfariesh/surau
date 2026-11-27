@@ -1,0 +1,207 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 3,
+  "section_id": 300088,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-27T10:59:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p372-p374 dibaca ulang: lima tujuan nasihat dalam sabda dan rincian nasihat untuk Kitab Allah sesuai teks dan dinisbahkan kepada para ulama yang dinukil (sikap reported); judul dipendekkan agar sesuai batas kata."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p376-p377: ijmak yang disebut penulis dengan syarat dengan sadar, daftar al-Qadhi Iyadh, Taurat dan Injil, serta Ibnu Syanbudz tahun 323 sesuai; seluruh bagian sesudah nama Iyadh sampai akhir p377 memang nukilan Iyadh, kasus laknat terhadap mushaf sengaja tidak dimuat."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p379-p383: haram bagi yang bukan ahli, boleh bagi ulama, pembedaan perkara ijtihad dan perkara riwayat, tiga golongan penafsir dengan rakyu, dan kesimpulan haram sesuai; kebolehan menukil tafsir dari ahlinya tepat."
+      },
+      {
+        "ke": 4,
+        "nilai": "benar",
+        "catatan": "p385 dan p387: contoh berbantah, pengecualian orang yang dimaafkan, dan tiga tafsir kata berbantah sesuai; keterangan bahwa sabda menyebutnya kekafiran ditambahkan, adab bertanya tentang hikmah tepat."
+      },
+      {
+        "ke": 5,
+        "nilai": "benar",
+        "catatan": "p389-p396: makruh ungkapan lupa, bantahan atas as-Sulami, kebolehan nama Surah al-Baqarah, dua dialek kata surah, dan qiraah Abu Amr atau Nafi' sesuai; kata ganti orang pertama di narasi diganti ungkapan orang ketiga."
+      },
+      {
+        "ke": 6,
+        "nilai": "benar",
+        "catatan": "p398: tidak dilarang mendengar, dilarang menyentuh mushaf, rincian dua pendapat mengajari dan analogi jual mushaf sesuai teks; isi ayat tidak ditulis."
+      },
+      {
+        "ke": 7,
+        "nilai": "benar",
+        "catatan": "p400-p406: nama ulama yang membolehkan dan memakruhkan air tulisan, makanan bertulisan, ukiran dinding, jimat menurut Malik dan sebagian ulama mazhab, serta pilihan sunah meniup saat ruqyah sesuai; judul ditambah pemilik pendapat dan p407 yang sangat pendek dikeluarkan dari dasar."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-27",
+      "draf_sha256": "295506d998e6c86863d71188aaee682a9b732f1167a9b423daf67736f8810c83",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Lima tujuan nasihat dan rincian nasihat untuk Kitab Allah sesuai p372-p374; sikap reported tepat."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Ijmak, nukilan Iyadh, Taurat/Injil, dan tahun 323 sesuai; judul menyebut dua pemilik."
+        },
+        {
+          "ke": 3,
+          "nilai": "kurang",
+          "catatan": "Golongan pertama penafsir dengan rakyu kehilangan batasan (tidak kuat menduga itu maksud ayat) di p381."
+        },
+        {
+          "ke": 4,
+          "nilai": "benar",
+          "catatan": "Contoh berbantah, tiga tafsir kata berbantah, adab bertanya hikmah sesuai; kutipan p387 tepat."
+        },
+        {
+          "ke": 5,
+          "nilai": "kurang",
+          "catatan": "Rujukan 'mereka' pada riwayat an-Nakha'i (p396) ambigu; sikap author tepat; kutipan p389 tepat."
+        },
+        {
+          "ke": 6,
+          "nilai": "benar",
+          "catatan": "Mendengar, menyentuh mushaf, dua pendapat mengajari, analogi jual mushaf sesuai; 'paling sahih' beratribusi ulama mazhab."
+        },
+        {
+          "ke": 7,
+          "nilai": "kurang",
+          "catatan": "Batasan jimat (Al-Qur'an bersama tulisan lain) dan pegangan penulis mengikuti Malik/Ibnu Shalah (p403) tidak termuat."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3)"
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "c53bae3613a61b9f62e7f34a2a5f1269133384eb7f9c893bb62760b2c3fc80d5",
+      "draf_sha256": "295506d998e6c86863d71188aaee682a9b732f1167a9b423daf67736f8810c83",
+      "waktu": "2026-11-27T04:03:18.572Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut an-Nawawi, setiap orang berkewajiban memuliakan Al-Qur'an, dan kewajiban itu menuntut adab dalam menafsirkan, memperdebatkan, menyebut, mengajarkan, menuliskan, dan memakainya untuk ruqyah.",
+    "ringkasan": "An-Nawawi membuka bab dengan sabda bahwa agama adalah nasihat dan menukil penjelasan ulama tentang nasihat untuk Kitab Allah. Ia lalu menyebut ijmak wajib memuliakan Al-Qur'an beserta nukilan panjang al-Qadhi Iyadh tentang kekafiran orang yang meremehkan atau mengubahnya. Sesudah itu ia membahas tafsir yang boleh dan yang haram, larangan berbantah tentang Al-Qur'an, adab bertanya tentang susunan ayat, ungkapan lupa ayat, penamaan surah dan qiraah, orang kafir yang mendengar dan belajar Al-Qur'an, menulis Al-Qur'an di bejana, makanan, dinding, dan jimat, lalu menutup dengan meniup saat ruqyah.",
+    "gagasan": [
+      {
+        "judul": "Nasihat untuk Kitab Allah mencakup iman, pengagungan, dan pengamalan, menurut ulama nukilan an-Nawawi",
+        "isi": "An-Nawawi menukil sabda bahwa agama adalah nasihat, untuk Allah, Kitab-Nya, Rasul-Nya, para pemimpin kaum muslimin, dan kaum muslimin umumnya. Menurut para ulama yang ia nukil, nasihat untuk Kitab Allah ialah beriman bahwa ia kalam Allah yang tidak menyerupai perkataan makhluk dan tidak sanggup ditandingi seluruh makhluk, lalu mengagungkannya, membacanya dengan sebenar-benarnya, memperindah bacaan, khusyuk, menegakkan hurufnya, membelanya dari takwil orang yang menyelewengkan, membenarkan isinya, berpegang pada hukumnya, memahami ilmunya, mengamalkan yang muhkam, menerima yang mutasyabih, meneliti umum dan khusus serta nasikh dan mansukh, menyebarkan ilmunya, dan mengajak kepadanya.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [30000372, 30000373, 30000374],
+        "soal": {
+          "tanya": "Apa yang pertama disebut para ulama sebagai nasihat untuk Kitab Allah, menurut nukilan an-Nawawi?",
+          "jawab": "Beriman bahwa Al-Qur'an adalah kalam Allah yang tidak menyerupai perkataan makhluk."
+        }
+      },
+      {
+        "judul": "Kaum muslimin berijmak wajib memuliakan Al-Qur'an, menurut an-Nawawi dan al-Qadhi Iyadh",
+        "isi": "An-Nawawi menyebut ijmak kaum muslimin atas wajibnya memuliakan, menyucikan, dan menjaga Al-Qur'an, dan bahwa orang yang dengan sadar mengingkari satu huruf yang disepakati atau menambah huruf yang tidak dibaca siapa pun telah kafir. Ia menukil al-Qadhi Iyadh: orang yang meremehkan atau mencaci Al-Qur'an dan mushaf, mengingkari hurufnya, mendustakan hukum atau beritanya dengan sadar, atau meragukannya, kafir menurut ijmak; demikian pula terhadap Taurat, Injil, dan kitab-kitab Allah. Iyadh juga menukil bahwa fuqaha Baghdad meminta Ibnu Syanbudz bertobat dari bacaan syadz di luar mushaf pada tahun tiga ratus dua puluh tiga.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000376, 30000377],
+        "soal": {
+          "tanya": "Mengapa fuqaha Baghdad meminta Ibnu Syanbudz bertobat, menurut nukilan dari al-Qadhi Iyadh?",
+          "jawab": "Karena ia membaca dan mengajarkan bacaan syadz yang tidak ada di mushaf."
+        }
+      },
+      {
+        "judul": "Tafsir tanpa ilmu haram, sedangkan tafsir ulama yang cakap dibolehkan, menurut an-Nawawi",
+        "isi": "An-Nawawi menyatakan haram menafsirkan Al-Qur'an tanpa ilmu bagi yang bukan ahlinya, sedangkan tafsir para ulama boleh dan baik. Ahli tafsir yang lengkap alatnya menafsirkan perkara yang terjangkau ijtihad, seperti makna, hukum, umum dan khusus, serta i'rab, bila ia kuat menduga maksudnya; perkara yang bersandar pada riwayat dan makna kata hanya dengan nukilan yang sahih dari ahlinya. Ia membagi penafsir dengan rakyu tanpa dalil: yang memakai ayat untuk membela mazhabnya dan mengalahkan lawan, yang mengajak kepada kebaikan dengan ayat tanpa dalalah jelas, dan yang menafsirkan kata Arab tanpa merujuk ahli bahasa dan ahli tafsir. Semuanya ia sebut tafsir dengan rakyu yang haram.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000379, 30000380, 30000381, 30000383],
+        "soal": {
+          "tanya": "Apa yang tetap boleh dilakukan orang yang bukan ahli tafsir, menurut an-Nawawi?",
+          "jawab": "Menukil tafsir dari para ahli tafsir yang terpercaya."
+        }
+      },
+      {
+        "judul": "Berbantah tentang Al-Qur'an tanpa hak diharamkan, dan penanya hendaknya bertanya tentang hikmah, menurut an-Nawawi",
+        "isi": "Menurut an-Nawawi, haram berbantah dan berdebat tentang Al-Qur'an tanpa hak, misalnya ketika dalalah sebuah ayat jelas menyelisihi mazhabnya dan hanya lemah kemungkinannya mendukung, lalu ia membawanya kepada mazhabnya dan memperdebatkannya. Orang yang tidak melihat kejelasan itu ia sebut dimaafkan. Ia menukil sabda yang menyebut berbantah dalam Al-Qur'an sebagai kekafiran, serta tafsir al-Khaththabi dan lainnya: keraguan, perdebatan yang menimbulkan keraguan, atau perdebatan pengikut hawa nafsu tentang ayat-ayat takdir. Ia juga menganjurkan agar orang yang ingin bertanya tentang didahulukannya satu ayat atas ayat lain, atau kesesuaian letak suatu ayat, berkata: apa hikmahnya?",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000385, 30000387],
+        "soal": {
+          "tanya": "Siapa yang disebut an-Nawawi dimaafkan dalam perkara membawa ayat kepada mazhabnya?",
+          "jawab": "Orang yang tidak melihat jelasnya dalalah ayat itu menyelisihi mazhabnya."
+        }
+      },
+      {
+        "judul": "Ungkapan lupa ayat dimakruhkan, tetapi penamaan surah dan qiraah dibolehkan, menurut an-Nawawi",
+        "isi": "An-Nawawi memakruhkan ungkapan bahwa seseorang lupa ayat tertentu, dan menganjurkan ungkapan bahwa ia dibuat lupa atau telah menggugurkannya, berdasarkan sabda yang dinukil. Ia menolak ucapan as-Sulami yang melarang kata menggugurkan karena menyelisihi sabda, sehingga yang dipegang ialah bolehnya kata itu. Ia juga membolehkan sebutan Surah al-Baqarah dan sejenisnya, menolak sebagian ulama terdahulu yang menghendaki sebutan surah yang di dalamnya disebut sapi betina, dengan dalil sabda dan ucapan sahabat. Ia menyebut dua dialek kata surah, tanpa hamzah lebih fasih. Menyebut qiraah Abu Amr atau Nafi' juga tidak makruh, dan ia menolak riwayat an-Nakha'i yang menyebut mereka tidak menyukainya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000389, 30000391, 30000393, 30000394, 30000396],
+        "soal": {
+          "tanya": "Ungkapan apa yang dianjurkan an-Nawawi sebagai ganti ungkapan bahwa seseorang lupa suatu ayat?",
+          "jawab": "Ungkapan bahwa ia dibuat lupa atau telah menggugurkan ayat itu."
+        }
+      },
+      {
+        "judul": "Orang kafir tidak dilarang mendengar Al-Qur'an, menurut an-Nawawi",
+        "isi": "An-Nawawi menyatakan orang kafir tidak dilarang mendengar Al-Qur'an, berdalil dengan sebuah ayat, tetapi dilarang menyentuh mushaf. Tentang mengajarinya Al-Qur'an, ia menukil para ulama mazhabnya: bila tidak diharapkan masuk Islam, tidak boleh diajari; bila diharapkan, ada dua pendapat, yang paling sahih boleh karena berharap ia masuk Islam, dan yang kedua tidak boleh sebagaimana tidak boleh menjual mushaf kepadanya walau ia diharapkan masuk Islam. Bila ia terlihat sedang belajar, apakah ia dicegah juga ada dua pendapat.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000398],
+        "soal": {
+          "tanya": "Bagaimana hukum mengajari orang kafir yang tidak diharapkan masuk Islam, menurut ulama mazhab yang dinukil an-Nawawi?",
+          "jawab": "Ia tidak boleh diajari Al-Qur'an."
+        }
+      },
+      {
+        "judul": "Menulis Al-Qur'an untuk pengobatan diperselisihkan, meniup saat ruqyah dipilih sebagai sunah, menurut an-Nawawi",
+        "isi": "An-Nawawi menukil perselisihan tentang menulis Al-Qur'an di bejana lalu dicuci dan diminumkan kepada orang sakit: al-Hasan, Mujahid, Abu Qilabah, dan al-Auza'i membolehkan, an-Nakha'i memakruhkan. Ulama mazhabnya membolehkan memakan makanan yang ditulisi Al-Qur'an. Menurut mazhabnya, mengukir dinding dan pakaian dengan Al-Qur'an makruh; Malik membolehkan jimat bila dibungkus kulit atau buluh, dan sebagian ulama mazhabnya berkata tidak haram tetapi lebih utama ditinggalkan karena terbawa saat berhadas. Tentang meniup saat ruqyah, sebagian salaf memakruhkannya, tetapi pilihan an-Nawawi bahwa itu sunah, dengan riwayat Aisyah tentang Nabi saw. yang meniup kedua telapak tangan sebelum tidur.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [30000400, 30000401, 30000403, 30000406],
+        "soal": {
+          "tanya": "Apa pilihan an-Nawawi tentang meniup saat membaca Al-Qur'an untuk ruqyah?",
+          "jawab": "Tidak makruh, bahkan sunah yang dianjurkan."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 4,
+        "passage_id": 30000387,
+        "char_start": 1,
+        "char_end": 127,
+        "terjemahan": "Fasal. Hendaknya orang yang ingin bertanya tentang didahulukannya satu ayat atas ayat lain di dalam mushaf, atau kesesuaian ayat ini di tempat ini, dan semacamnya, berkata: Apa hikmah dalam hal ini?"
+      },
+      {
+        "gagasan": 5,
+        "passage_id": 30000389,
+        "char_start": 1,
+        "char_end": 58,
+        "terjemahan": "Fasal. Makruh berkata: Aku lupa ayat ini; hendaknya ia berkata: Aku dibuat lupa, atau aku menggugurkannya."
+      }
+    ],
+    "istilah": []
+  }
+}
