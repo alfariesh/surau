@@ -32,7 +32,8 @@
 | Judul daftar isi Indonesia (terjemahan AI): cakupan node + subjudul ≥ 99% | ✓ | 122/122 (100,00%): node 122, subjudul 0 |
 | Revisi terjemahan manusia (X08): status tinjauan = asal tinjauannya | ✓ | 0 revisi berlaku |
 | Intisari: kutipan cocok sidik dan tanpa ayat, gagasan berjangkar, indeks hanya gagasan tampil (X15b) | ✓ | 0/119 node, 0 gagasan, 0 kutipan (0 memakai terjemahan paragraf, 0 ditahan), 0 istilah glosarium, 0 abstrak menggantikan ringkasan |
-| Konten chat (X24): unit siap jadi Intisari, kutipan di dalam paragraf dan tanpa ayat, unit ditarik tidak dimuat | ✓ | 10 unit, 59 gagasan, 13 kutipan, 59 soal berjawaban; menggantikan batch 0 (–), induk batch basi dibuang 0 (–); 0 unit ditarik |
+| Konten chat (X24): unit siap jadi Intisari, kutipan di dalam paragraf dan tanpa ayat, unit ditarik tidak dimuat | ✓ | 11 unit, 64 gagasan, 15 kutipan, 64 soal berjawaban; menggantikan batch 0 (–), induk batch basi dibuang 0 (–); 0 unit ditarik |
+| Intisari termuat ≥ 11 (tidak berkurang dari korpus tayang) | ✓ | 11 Intisari dari at-tibyan/intisari |
 | Teks badan penyunting tidak dimuat (ADR-150) | ✓ | 40 paragraf, 5 node, 4 halaman dibuang (3 bagian, data/patches/at-tibyan-1969-pentahqiq.yaml); 0 baris masih merujuknya |
 | ID paragraf rilis stabil (ADR-059) | ✓ | 614 ID lama ada dengan teks sama; 40 dikecualikan sebagai teks penyunting (ADR-150) |
 
