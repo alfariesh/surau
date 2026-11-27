@@ -39,6 +39,23 @@ Perubahan yang dilakukan Surau atas teks tersebut:
 
 - HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
 
+## at-Tibyan fi Adab Hamalat al-Qur'an (an-Nawawi, w. 676 H)
+
+Disiapkan untuk korpus `kitab-v10` (X31c, ADR-135, ADR-137, ADR-138): sudah dibangun lokal, **belum tayang** di produksi. Rinciannya masuk halaman `/lisensi` saat kitab ini tayang. Kalimat atribusi:
+
+> Teks: OpenITI 2025.1.9 (CC BY-NC-SA 4.0), versi Shamela0001969; digitalisasi asal: al-Maktaba al-Shamela; edisi: Dar Ibn Hazm, Beirut 1414/1994, tahqiq Muhammad al-Hajjar; catatan kaki pentahqiq tidak disertakan
+
+| Pihak | Peran | Rujukan |
+|---|---|---|
+| **OpenITI** (Open Islamicate Texts Initiative), rilis 2025.1.9 | Rilis berlisensi CC BY-NC-SA 4.0 yang menjadi dasar hak pakai teks. Versi `0676Nawawi.Tibyan.Shamela0001969-ara1` (matan) | Zenodo: https://zenodo.org/records/17767721 · repo `OpenITI/0700AH` commit `6dca5e250b9e4405b93c4a5e73cfffdef5d7fef7` |
+| **al-Maktaba al-Shamela** | Digitalisasi asal edisi ini (kitab no. 1969). Matan dan struktur judul dibangun dari salinan lokal Shamela, lalu diverifikasi identik dengan rilis OpenITI di atas (laporan: [reports/at-tibyan-1969-openiti.md](reports/at-tibyan-1969-openiti.md)) | https://shamela.ws/book/1969 |
+| **Dar Ibn Hazm, Beirut** | Penerbit edisi cetak: satu jilid, cetakan ketiga 1414 H / 1994 M, tahqiq Muhammad al-Hajjar. Nomor halaman di Surau mengikuti cetakan ini | – |
+
+Perubahan yang dilakukan Surau atas teks tersebut:
+
+- HTML Shamela dibersihkan secara deterministik dan teks dipecah per paragraf; isi teks tidak diubah.
+- Catatan kaki pentahqiq (Muhammad al-Hajjar) **tidak disertakan** (ADR-138): catatan itu karya penyunting modern di luar rilis OpenITI. Penanda nomor catatan di teks utama tetap ada sebagai teks biasa tanpa tautan.
+
 ## Ayat Al-Qur'an (sejak korpus `ihya-v3`, S12)
 
 Kutipan ayat di dalam kitab dikenali otomatis dan ditautkan ke surah:ayat. Teks ayat, terjemahan, dan transliterasi yang tampil di Surau disalin **verbatim** dari sumber berikut. Model AI tidak pernah menulis, mengubah, atau menerjemahkan ayat (ADR-020, ADR-040).

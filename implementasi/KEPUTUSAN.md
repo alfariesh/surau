@@ -155,6 +155,7 @@ Indeks ini memuat semua ADR. Isi tiap ADR ada di file sendiri di folder [keputus
 | 143 | HeroUI Pro 1.0.1 stabil + OSS 3.2.8 + tailwind-variants 4.0.2; `Sheet` pindah ke OSS (impor dan CSS); figlet CLI tetap (ADR-141) | diterima | 2026-11-26 | [keputusan/ADR-143.md](keputusan/ADR-143.md) |
 | 144 | Smoke D1, e2e Preview, dan uji MCP per kitab (korpus tanpa Ihya: tes Ihya dilewati, spec Bidayah); `/cari` memakai karya di korpus (sebelumnya 500 tanpa Ihya) | diterima | 2026-11-27 | [keputusan/ADR-144.md](keputusan/ADR-144.md) |
 | 145 | X24 untuk Gelombang 1: skema korpus 10 (`lead`, `answer`), impor Intisari chat (`tools/ingest/src/konten.ts`), gerbang build cek ulang di korpus baru, induk batch dari anak yang diganti dibuang, log tarik di repo; cek staging/produksi Ihya dipindah ke X31b dengan Bidayah | diterima | 2026-11-27 | [keputusan/ADR-145.md](keputusan/ADR-145.md) |
+| 146 | Kelas catatan kaki di ingest: `WorkConfig.footnotes` = ledger, catatan `modern_editor` dibuang sebelum alokasi ID (tanpa paragraf/`footnote_ref`), `//` di kitab `modern_editor` ditolak, gerbang per kelas; `parseImprint` melewati kotak pos/telepon; korpus at-Tibyan (karya/edisi 3) | diterima | 2026-11-27 | [keputusan/ADR-146.md](keputusan/ADR-146.md) |
 
 ## Cara menambah ADR baru
 

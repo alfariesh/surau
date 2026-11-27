@@ -7,6 +7,7 @@ export type { WorkConfig } from "./config.ts";
 
 export const IHYA: WorkConfig = {
   shamelaBook: 9472,
+  footnotes: "classical",
   patch: "data/patches/ihya-9472.yaml",
   subheadings: "data/patches/ihya-9472-subjudul.json",
   ayahPatch: "data/patches/ihya-9472-ayat.yaml",
@@ -60,6 +61,7 @@ export const IHYA: WorkConfig = {
   },
   openiti: {
     release: "2025.1.9",
+    repo: "OpenITI/0525AH",
     commit: "e8dddd44c7998cefce72e4f37fad471634dd9d1e",
     matan: {
       file: "0505Ghazali.IhyaCulumDin.Shamela0009472-ara1.completed",

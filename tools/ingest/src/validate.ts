@@ -56,6 +56,9 @@ export interface Validation {
     orphanNotesInInline: number;
     /** Penanda di dalam takhrij menempel (tidak ditautkan). */
     inlineMarkers: number;
+    /** Catatan penyunting modern yang tidak dimuat (ADR-138) dan penanda badannya. */
+    droppedEditorNotes: number;
+    droppedEditorMarkers: number;
   };
   inline: {
     pages: number;
@@ -195,6 +198,19 @@ export function validate(input: ValidateInput): Validation {
     "Integritas lintas tabel (edisi halaman/node = edisi paragraf; penanda badan → catatan kaki halaman sama)",
     crossEdition === 0 && badRefs === 0,
     `${crossEdition} paragraf beda edisi atau tanpa node; ${badRefs} footnote_ref salah arah`,
+  );
+  // Kelas catatan kaki (ADR-138): `none` = sumber memang tanpa catatan; `modern_editor` = catatan
+  // penyunting tidak masuk korpus (tanpa paragraf catatan dan tanpa footnote_ref).
+  const footPassages = rows.passage.filter((p) => p.kind === "foot").length;
+  const sourceNotes = pages.reduce((a, p) => a + p.foot.length + p.droppedEditorNotes.notes, 0);
+  const footClassOk =
+    config.footnotes === "classical" ||
+    (config.footnotes === "none" && sourceNotes === 0) ||
+    (config.footnotes === "modern_editor" && footPassages === 0 && rows.footnote_ref.length === 0);
+  check(
+    `Kelas catatan kaki ${config.footnotes} dipatuhi (ADR-138)`,
+    footClassOk,
+    `${sourceNotes} catatan di sumber; ${footPassages} paragraf catatan dan ${rows.footnote_ref.length} footnote_ref dimuat`,
   );
   check(
     `Matan = OpenITI (≥${String(MATAN_THRESHOLD).replace(".", ",")} per halaman)`,
@@ -336,12 +352,18 @@ export function validate(input: ValidateInput): Validation {
       ),
     },
     footnotes: {
-      refs: pages.reduce((a, p) => a + p.links.length + p.orphanRefs.length, 0),
+      // Penanda kitab `modern_editor` tetap di badan walau tidak ditautkan (ADR-138).
+      refs: pages.reduce(
+        (a, p) => a + p.links.length + p.orphanRefs.length + p.droppedEditorNotes.markers,
+        0,
+      ),
       linked: pages.reduce((a, p) => a + p.links.length, 0),
       orphanRefs: pages.flatMap((p) => p.orphanRefs.map((m) => `${cite(p)} (${m.number})`)),
       orphanNotes: pages.reduce((a, p) => a + p.orphanNotes, 0),
       orphanNotesInInline: pages.reduce((a, p) => a + p.orphanNotesInInline, 0),
       inlineMarkers: pages.reduce((a, p) => a + p.markers.inline, 0),
+      droppedEditorNotes: pages.reduce((a, p) => a + p.droppedEditorNotes.notes, 0),
+      droppedEditorMarkers: pages.reduce((a, p) => a + p.droppedEditorNotes.markers, 0),
     },
     inline: {
       pages: inlinePages.length,

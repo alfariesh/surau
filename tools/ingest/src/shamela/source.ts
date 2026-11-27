@@ -164,8 +164,10 @@ export interface Imprint {
 }
 
 /**
- * Penerbit dan kota dari baris `الناشر: <penerbit> - <kota>` di `book.bibliography` (dipisah `\r`).
- * Teksnya disalin dari sumber; `null` bila baris itu tidak ada.
+ * Penerbit dan kota dari baris `الناشر: <penerbit> - <kota>[ - <negara>]` di `book.bibliography`
+ * (dipisah `\r`). Teksnya disalin dari sumber; `null` bila baris itu tidak ada. Potongan sesudah
+ * penerbit yang berisi angka (kotak pos, telepon; mis. at-Tibyan, X31c) bukan tempat terbit, jadi
+ * dilewati.
  */
 export function parseImprint(bibliography: string): Imprint {
   const line = bibliography
@@ -173,11 +175,10 @@ export function parseImprint(bibliography: string): Imprint {
     .map((l) => l.trim())
     .find((l) => l.startsWith("الناشر:"));
   if (line === undefined) return { publisher: null, city: null };
-  const value = line.slice("الناشر:".length).trim();
-  const dash = value.lastIndexOf(" - ");
-  if (dash < 0) return { publisher: value || null, city: null };
-  return {
-    publisher: value.slice(0, dash).trim() || null,
-    city: value.slice(dash + 3).trim() || null,
-  };
+  const [first = "", ...rest] = line
+    .slice("الناشر:".length)
+    .split(" - ")
+    .map((s) => s.trim());
+  const place = rest.filter((s) => s !== "" && !/[0-9\u0660-\u0669]/.test(s));
+  return { publisher: first || null, city: place.length === 0 ? null : place.join(" - ") };
 }

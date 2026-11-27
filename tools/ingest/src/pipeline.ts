@@ -37,7 +37,7 @@ import { TABLE_ORDER, buildRows, emptyDigestRows } from "./rows.ts";
 import type { CorpusRows, CorpusTable } from "./rows.ts";
 import { ftsRows, latinFtsRows, termStats } from "./search-index.ts";
 import type { FtsRow } from "./search-index.ts";
-import { parsePage } from "./shamela/page.ts";
+import { dropEditorFootnotes, parsePage } from "./shamela/page.ts";
 import type { ParsedPage } from "./shamela/page.ts";
 import { readShamelaBook } from "./shamela/source.ts";
 import type { ShamelaSource } from "./shamela/source.ts";
@@ -134,7 +134,11 @@ export interface Prepared {
 /** Baca sumber, pecah halaman, dan jalankan QA OpenITI (dipakai build dan `verify-openiti`). */
 export function prepare(config: WorkConfig, paths: PipelinePaths, corpusVersion: string): Prepared {
   const source = readShamelaBook(paths.shamela, config.shamelaBook);
-  const pages = source.pages.map(parsePage);
+  // Catatan penyunting modern tidak dimuat sama sekali (ADR-138 butir 3): dibuang sebelum daftar
+  // isi, QA, dan alokasi ID, jadi tidak ada paragraf, footnote_ref, maupun ID untuknya.
+  const pages = source.pages
+    .map(parsePage)
+    .map((p) => (config.footnotes === "modern_editor" ? dropEditorFootnotes(p) : p));
   const matan = checkMatan(
     pages,
     parseOpenitiPages(readOpenitiFile(paths.openiti, config.openiti.matan)),

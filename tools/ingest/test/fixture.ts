@@ -201,6 +201,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
 
   const config: WorkConfig = {
     shamelaBook: BOOK_ID,
+    footnotes: "classical",
     patch: "patches/uji.yaml",
     subheadings: "patches/uji-subjudul.json",
     ids: "ids/uji.json",
@@ -228,6 +229,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     edition: { id: 7, slug: "uji", license: "CC BY-NC-SA 4.0", attribution: "Atribusi uji" },
     openiti: {
       release: "uji",
+      repo: "OpenITI/0525AH",
       commit: "0".repeat(40),
       matan: { file: "matan.md", sha256: sha256(matanText) },
       takhrij: { file: "jk.md", sha256: sha256(jkText) },
@@ -235,6 +237,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
   };
   const second: WorkConfig = {
     shamelaBook: BOOK_ID_2,
+    footnotes: "classical",
     ids: "ids/uji2.json",
     reportPrefix: "reports/uji2",
     expect: { pages: 2, volumes: [2], titles: 1, matanMinPages: 2, llmCoverage: 0 },
@@ -256,6 +259,7 @@ export function createFixture(opts: { matan?: string[] } = {}): Fixture {
     },
     openiti: {
       release: "uji",
+      repo: "OpenITI/0525AH",
       commit: "0".repeat(40),
       matan: { file: "matan2.md", sha256: sha256(matan2Text) },
     },

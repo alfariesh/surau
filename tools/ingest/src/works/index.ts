@@ -5,16 +5,17 @@
 import { BIDAYAH } from "./bidayah.ts";
 import type { CorpusConfig, WorkConfig } from "./config.ts";
 import { IHYA } from "./ihya.ts";
+import { TIBYAN } from "./tibyan.ts";
 
 export type { CorpusConfig, WorkConfig } from "./config.ts";
 
-export const WORKS: readonly WorkConfig[] = [IHYA, BIDAYAH];
+export const WORKS: readonly WorkConfig[] = [IHYA, BIDAYAH, TIBYAN];
 
 /** Korpus bawaan Gelombang 1 (ADR-142): tanpa Ihya, jadi bisa dibangun di mesin mana pun. */
 export const CORPUS: CorpusConfig = {
   version: "kitab-v10",
   output: "surau-corpus-kitab-v10.sqlite",
-  works: [BIDAYAH],
+  works: [BIDAYAH, TIBYAN],
 };
 
 /** Konfigurasi kitab menurut slug karya; galat yang menyebut slug yang tersedia. */

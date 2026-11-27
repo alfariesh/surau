@@ -9,18 +9,22 @@
 export const CITE_AUTHOR: Readonly<Record<string, string>> = {
   ihya: "al-Ghazali",
   "bidayat-al-hidayah": "al-Ghazali",
+  "at-tibyan": "an-Nawawi",
 };
 
 /** Keterangan singkat karya di daftar /kitab (ditulis tangan, bahasa Indonesia). */
 export const WORK_BLURB: Readonly<Record<string, string>> = {
   ihya: "Ensiklopedia ibadah, adab, dan penyucian jiwa dalam empat bagian: ibadah, kebiasaan sehari-hari, hal yang membinasakan, dan hal yang menyelamatkan.",
   "bidayat-al-hidayah": "Panduan adab dan ibadah harian, pintu masuk sebelum Ihya.",
+  "at-tibyan":
+    "Adab membaca, menghafal, dan mengajarkan Al-Qur'an bagi penghafal, guru, dan murid.",
 };
 
 /** Kunci: `<slug karya>/<slug edisi>`. */
 export const CITE_PUBLISHER: Readonly<Record<string, string>> = {
   "ihya/dar-al-marifah": "Dar al-Ma'rifah",
   "bidayat-al-hidayah/maktabat-madbuli": "Maktabat Madbuli",
+  "at-tibyan/dar-ibn-hazm": "Dar Ibn Hazm",
 };
 
 /** Teks lisensi resmi per nama lisensi di `edition.license` (CC BY-NC-SA 4.0 §3(a)(1)). */
@@ -35,6 +39,10 @@ export const EDITION_SOURCE: Readonly<Record<string, { label: string; url: strin
     url: "https://zenodo.org/records/17767721",
   },
   "bidayat-al-hidayah/maktabat-madbuli": {
+    label: "OpenITI 2025.1.9 (Zenodo)",
+    url: "https://zenodo.org/records/17767721",
+  },
+  "at-tibyan/dar-ibn-hazm": {
     label: "OpenITI 2025.1.9 (Zenodo)",
     url: "https://zenodo.org/records/17767721",
   },

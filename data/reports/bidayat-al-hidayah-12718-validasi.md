@@ -20,6 +20,7 @@
 | Paragraf tidak kosong dan muat satu statement D1 | ✓ | 0 kosong; terpanjang 4146 byte (batas 90000) |
 | Penanda (١) tidak hilang saat takhrij dipisah | ✓ | ya |
 | Integritas lintas tabel (edisi halaman/node = edisi paragraf; penanda badan → catatan kaki halaman sama) | ✓ | 0 paragraf beda edisi atau tanpa node; 0 footnote_ref salah arah |
+| Kelas catatan kaki none dipatuhi (ADR-138) | ✓ | 0 catatan di sumber; 0 paragraf catatan dan 0 footnote_ref dimuat |
 | Matan = OpenITI (≥0,95 per halaman) | ✓ | 46/46 halaman (gerbang ≥46); 0 halaman tidak ada di OpenITI |
 | Sumber Qur'an utuh (ayat = jumlah per surah; terjemahan + transliterasi tiap ayat; penomoran QUL = Tanzil) | ✓ | 114 surah, 6236/6236 ayat, 12472 baris terjemahan/transliterasi; 6 ayat beda teks QUL vs Tanzil (batas 20) |
 | Rujukan ayat sah (offset di dalam teks tanpa spasi tepi, tidak tumpang tindih, ayat ada) | ✓ | 24 rujukan; 0 tidak sah |

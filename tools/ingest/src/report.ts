@@ -64,6 +64,11 @@ export function validationReport(ctx: ReportContext, v: Validation): string {
     `- Penanda yatim (tanpa catatan): ${num(v.footnotes.orphanRefs.length)}${v.footnotes.orphanRefs.length > 0 ? ` (${list(v.footnotes.orphanRefs)})` : ""}.`,
     `- Penanda di dalam takhrij menempel (ikut terpotong, tidak ditautkan): ${num(v.footnotes.inlineMarkers)}. Penanda pembuka takhrij tetap di matan.`,
     `- Catatan bawah halaman yang tidak dirujuk penanda matan (ditandai \`footnote_orphan\`): ${num(v.footnotes.orphanNotes)}; ${num(v.footnotes.orphanNotesInInline)} di antaranya karena penandanya ada di dalam takhrij menempel.`,
+    ...(config.footnotes === "modern_editor"
+      ? [
+          `- Catatan kaki penyunting modern tidak dimuat (kelas \`modern_editor\`, ADR-138): ${num(v.footnotes.droppedEditorNotes)} catatan dibuang; ${num(v.footnotes.droppedEditorMarkers)} penanda (١) di badan tetap di \`text_raw\` sebagai teks biasa tanpa tautan.`,
+        ]
+      : []),
     "",
     "## Takhrij yang menempel ke matan (`//`)",
     "",
@@ -136,7 +141,7 @@ export function openitiReport(
     "> Dibuat otomatis oleh `pnpm ingest:verify` / `pnpm ingest korpus` (`tools/ingest`, S07, ADR-018). Jangan disunting tangan.",
     "> Tanpa teks kitab: hanya angka dan rujukan juz/halaman cetak.",
     "",
-    `- OpenITI rilis ${config.openiti.release}, repo \`OpenITI/0525AH\` commit \`${config.openiti.commit}\`.`,
+    `- OpenITI rilis ${config.openiti.release}, repo \`${config.openiti.repo}\` commit \`${config.openiti.commit}\`.`,
     `- Matan: \`${config.openiti.matan.file}\` (sha256 \`${config.openiti.matan.sha256}\`, cocok).`,
     config.openiti.takhrij === undefined
       ? "- Takhrij: tidak ada versi pembanding; catatan kaki tidak dinilai."

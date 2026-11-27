@@ -23,6 +23,18 @@ shasum -a 256 0505Ghazali.IhyaCulumDin.*
 curl -fLO "https://raw.githubusercontent.com/OpenITI/0525AH/e8dddd44c7998cefce72e4f37fad471634dd9d1e/data/0505Ghazali/0505Ghazali.BidayatHidaya/0505Ghazali.BidayatHidaya.Shamela0012718-ara1"
 ```
 
+### at-Tibyan fi Adab Hamalat al-Qur'an (X31c, diunduh 2026-11-27)
+
+Repo `OpenITI/0700AH`, commit `6dca5e250b9e4405b93c4a5e73cfffdef5d7fef7` (rilis 2025.1.9). Versi Shamela tanpa catatan kaki pentahqiq (ADR-138).
+
+| Berkas | Byte | sha256 |
+|---|---|---|
+| `0676Nawawi.Tibyan.Shamela0001969-ara1` | 233.477 | `075cd037b0a57f30be4207118a7685281c08525d5ec99ab5ab4dfed5080ead7f` |
+
+```bash
+curl -fLO "https://raw.githubusercontent.com/OpenITI/0700AH/6dca5e250b9e4405b93c4a5e73cfffdef5d7fef7/data/0676Nawawi/0676Nawawi.Tibyan/0676Nawawi.Tibyan.Shamela0001969-ara1"
+```
+
 ## Shamela lokal (drive pemilik, hanya-baca, T-09)
 
 Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struktur dan diverifikasi terhadap OpenITI (ADR-018).
@@ -31,6 +43,7 @@ Lokasi `/Volumes/Elfariesh/database`. Tidak didistribusikan; dipakai untuk struk
 |---|---|---|
 | `book/472/9472.db` (Ihya) | 11.022.336 | `36e66c5498b74e6d4fd7542108a29327361cf45534794d1c5a878e7bc2b7d586` |
 | `book/718/12718.db` (Bidayat al-Hidayah, dicek 2026-11-26) | 196.608 | `c41459f5c9a2f42354ba4fede121e5db5ddccdf94e1132db9805b35c568956ca` |
+| `book/969/1969.db` (at-Tibyan, dicek 2026-11-27) | 315.392 | `3455f0e5e215d9ef1621b606d7b4d89e1acfdfa67d747e83523d0ee14ba30124` |
 | `update/master/book.sqlite` | 11.882.496 | `acccdb02d46b80e21eab5da4127bf42b46020f5d09e727c477d1095eb8aa8794` |
 | `update/master/author.sqlite` | 8.933.376 | `0397cfc1f0c8d6dc61e13c0688e089d33f97aac6be981e3588368f49295a8a54` |
 

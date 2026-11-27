@@ -256,6 +256,19 @@ describe("runIngest (kitab buatan)", () => {
     expect(rows.map((x) => x.text_raw)).toEqual(["(١) هذا كلام مصنوع للتجربة\nوله تتمة في سطر ثان"]);
   });
 
+  test("kelas catatan kaki (ADR-138): none dengan catatan di sumber gagal; modern_editor menolak //", () => {
+    const { config, paths } = createFixture();
+    const none = runIngest(one({ ...config, footnotes: "none" }), paths, { env });
+    expect(none.validation.invariants.filter((i) => !i.ok).map((i) => i.name)).toEqual([
+      "Kelas catatan kaki none dipatuhi (ADR-138)",
+    ]);
+    expect(none.output).toBeUndefined();
+    // Takhrij menempel dipotong dari badan: membuangnya akan menghapus teks badan.
+    expect(() => runIngest(one({ ...config, footnotes: "modern_editor" }), paths, { env })).toThrow(
+      /modern_editor/,
+    );
+  });
+
   test("deterministik: build ulang menghasilkan hash dan peta ID yang sama", () => {
     const { config, paths } = createFixture();
     const first = runIngest(one(config), paths, { env });

@@ -5,6 +5,7 @@ import type { WorkConfig } from "./config.ts";
 
 export const BIDAYAH: WorkConfig = {
   shamelaBook: 12718,
+  footnotes: "none",
   ids: "data/ids/bidayat-al-hidayah-12718.json",
   reportPrefix: "data/reports/bidayat-al-hidayah-12718",
   // Folder kerja LLM per kitab (X31b, ADR-137 butir 8): data/build/llm/bidayat-al-hidayah. Intisari
@@ -41,6 +42,7 @@ export const BIDAYAH: WorkConfig = {
   },
   openiti: {
     release: "2025.1.9",
+    repo: "OpenITI/0525AH",
     commit: "e8dddd44c7998cefce72e4f37fad471634dd9d1e",
     matan: {
       file: "0505Ghazali.BidayatHidaya.Shamela0012718-ara1",
