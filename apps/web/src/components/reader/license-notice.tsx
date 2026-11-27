@@ -1,7 +1,7 @@
 import { Typography } from "@heroui/react";
 import NextLink from "next/link";
 
-import { EDITION_SOURCE, LICENSE_URL } from "../../content/works";
+import { EDITION_CREDITS, EDITION_SOURCE, LICENSE_URL } from "../../content/works";
 import { common as commonText } from "../../i18n/id/common";
 import { reader as readerText } from "../../i18n/id/reader";
 
@@ -30,6 +30,10 @@ export function LicenseNotice({
 }) {
   const licenseUrl = LICENSE_URL[license];
   const source = EDITION_SOURCE[`${workSlug}/${editionSlug}`];
+  // Pernyataan perubahan per edisi (CC BY-NC-SA §3(a)(1)(B)) dari rincian /lisensi; kalimat umum
+  // bila edisi tidak tercantum di sana.
+  const changes = EDITION_CREDITS.find((c) => c.key === `${workSlug}/${editionSlug}`)?.changes;
+  const modified = changes ? `${t.modifiedLead} ${changes.join(" ")}` : t.modified;
 
   if (compact) {
     const linkClass = "link text-[length:inherit]";
@@ -106,7 +110,7 @@ export function LicenseNotice({
         </Typography>
       ) : null}
       <Typography type="body-xs" color="muted">
-        {t.modified}
+        {modified}
       </Typography>
       {sourceUrl ? (
         <a

@@ -122,7 +122,7 @@ export const landing = {
     },
     {
       title: "Membaca",
-      body: "Buka halaman cetaknya: teks Arab asli, terjemahan AI berlabel, catatan kaki, dan ayat yang dikutip.",
+      body: "Buka halaman cetaknya: teks Arab asli, terjemahan AI berlabel, dan ayat yang dikutip.",
       art: "kitab-rehal",
     },
     {

@@ -1,4 +1,5 @@
 // Ledger kitab (X31a): setiap kitab yang dibangun ingest punya baris ledger yang sama ID-nya.
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { buildFtsMatch } from "@surau/text";
@@ -78,5 +79,32 @@ describe("droppedReleasedWorks (pengaman promote, ADR-142)", () => {
   test("korpus bawaan memuat setiap kitab yang tayang di ledger asli", () => {
     const slugs = CORPUS.works.map((w) => w.work.slug);
     expect(droppedReleasedWorks(readLedger(repo), slugs)).toEqual([]);
+  });
+});
+
+describe("sakelar buka produksi vs binding korpus (ADR-151)", () => {
+  // Nilai top-level (produksi) saja: blok `env` Preview ada sesudahnya di berkas yang sama.
+  const topLevel = (file: string) => {
+    const text = readFileSync(join(repo, file), "utf8");
+    const cut = text.search(/^\s*"env":\s*\{/m);
+    return cut === -1 ? text : text.slice(0, cut);
+  };
+  const value = (text: string, key: string) => new RegExp(`"${key}":\\s*"([^"]*)"`).exec(text)?.[1];
+  const corpusDb = (text: string) =>
+    /"binding":\s*"CORPUS_DB",\s*"database_name":\s*"([^"]+)"/.exec(text)?.[1];
+
+  test("pembaca/MCP terbuka hanya dengan korpus yang semua karyanya tayang (bukan ihya-*)", () => {
+    const web = topLevel("apps/web/wrangler.jsonc");
+    const mcp = topLevel("apps/mcp/wrangler.jsonc");
+    const db = corpusDb(web);
+    expect(db).toBeDefined();
+    expect(corpusDb(mcp)).toBe(db);
+    const open = value(web, "READER_ENABLED") === "1" || value(mcp, "KITAB_OPEN") === "1";
+    // Terbuka → korpus bukan Ihya (diarsipkan) dan kunci cache pencarian ikut binding.
+    expect({ open, ihya: (db ?? "").startsWith("surau-corpus-ihya-") }).not.toEqual({
+      open: true,
+      ihya: true,
+    });
+    expect(value(web, "SEARCH_CACHE_CORPUS")).toBe(db);
   });
 });

@@ -35,9 +35,9 @@ export const reader = {
   pageMetaTitle: (bab: string | null, title: string, juz: number, page: number) =>
     `${bab ? `${bab} · ` : ""}${title} j. ${juz} h. ${page}`,
   pageMetaDescription: (title: string, author: string | null, juz: number, page: number) =>
-    `Baca ${title}${author ? ` karya ${author}` : ""}, juz ${juz} halaman ${page}: teks Arab asli beserta takhrij hadits, dengan sitasi dan tautan tetap.`,
+    `Baca ${title}${author ? ` karya ${author}` : ""}, juz ${juz} halaman ${page}: teks Arab asli beserta terjemahan AI berlabel, dengan sitasi dan tautan tetap.`,
   workMetaDescription: (title: string, author: string | null) =>
-    `Baca ${title}${author ? ` karya ${author}` : ""} di Surau: teks Arab asli per halaman cetak, daftar isi, takhrij hadits, dan sitasi.`,
+    `Baca ${title}${author ? ` karya ${author}` : ""} di Surau: teks Arab asli per halaman cetak, daftar isi, terjemahan AI berlabel, dan sitasi.`,
   textLabel: "Teks kitab",
   pageNavLabel: "Navigasi halaman",
   prevShort: "Sebelumnya",
@@ -109,8 +109,8 @@ export const reader = {
   sourceHeading: "Sumber dan lisensi",
   licenseText: "teks lisensi",
   sourceDigital: "Materi sumber",
-  modified:
-    "Diolah Surau: teks dibagi per paragraf, catatan kaki takhrij dipisahkan dari teks utama, dan daftar isi diperbaiki lewat patch yang tercatat. Huruf teks Arab tidak diubah.",
+  modified: "Diolah Surau: teks dibagi per paragraf. Huruf teks Arab tidak diubah.",
+  modifiedLead: "Diolah Surau:",
   sourceShamela: "Halaman ini di al-Maktaba al-Shamela",
   licenseMoreShort: "Lisensi, atribusi, dan perubahan",
   licenseMore: "Lisensi dan atribusi lengkap",

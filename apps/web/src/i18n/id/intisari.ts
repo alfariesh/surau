@@ -15,7 +15,7 @@ export const intisari = {
   hubHeading: "Intisari",
   hubMetaTitle: (work: string) => `Intisari ${work}`,
   hubMetaDescription: (work: string) =>
-    `Ringkasan belajar ${work} per kitab: gagasan kunci, kutipan Arab dari teks kitab, dan dalilnya, masing-masing tertaut ke paragraf sumbernya.`,
+    `Ringkasan belajar ${work} per bagian: gagasan kunci, kutipan Arab dari teks kitab, dan dalilnya, masing-masing tertaut ke paragraf sumbernya.`,
   hubLead:
     "Ringkasan belajar per kitab dan per bab untuk dibaca dalam beberapa menit. Setiap gagasan menunjuk paragraf sumbernya, jadi Anda bisa langsung membuka teks kitabnya.",
   hubDoor:

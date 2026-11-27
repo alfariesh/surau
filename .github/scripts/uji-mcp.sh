@@ -123,7 +123,8 @@ for era in modern legacy; do
     panggil_error "$era" list_works "corpus_closed:" '{}'
     continue
   fi
-  panggil "$era" list_works '(.works | length) >= 1 and .license.name == "CC BY-NC-SA 4.0"'
+  # Ihya diarsipkan (ADR-142, ADR-151): tidak boleh muncul di daftar karya mana pun yang diuji.
+  panggil "$era" list_works '(.works | length) >= 1 and .license.name == "CC BY-NC-SA 4.0" and ([.works[].slug] | index("ihya") == null)'
   [ "$MODE" = "daftar" ] && continue
   if [ "$MODE" = "redaksi" ]; then
     # Draf rusak: galat skema pasti di data mana pun (Preview = staging, deploy = produksi).
