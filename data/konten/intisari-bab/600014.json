@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600014,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p81-p83: definisi khabar, pembagian, syarat mutawatir (bukan dari ijtihad), ahad mewajibkan amal tanpa ilmu."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p83-p84: musnad dan mursal, pengecualian mursal Sa'id bin al-Musayyab beserta alasannya; tanpa menilai riwayat tertentu."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p85: 'an'anah dan lafal penyampaian menurut cara menerima sesuai teks."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "62dcd8fd28e03e9bf292c3ecf226eb7de0f095ed79b0c53e22426d15dcd171c3",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "kurang",
+          "catatan": "Frasa 'dari orang-orang yang setara dengan mereka' sedikit bergeser dari p82 (menyiratkan rantai kelompok)."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Musnad, mursal, dan pengecualian Sa'id bin al-Musayyab setia p84."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Lafal penyampaian setia p85."
+        }
+      ],
+      "laporan": "Kurang dicatat; boleh terbit (pedoman redaksi lapis 3). Dirapikan sesudah pemeriksaan pertama (Kurang), diperiksa ulang."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "599e0661d264c5dc8afcdc8458213369f8f84d40a4910fd625f81052d86138b2",
+      "draf_sha256": "62dcd8fd28e03e9bf292c3ecf226eb7de0f095ed79b0c53e22426d15dcd171c3",
+      "waktu": "2026-11-27T18:32:23.053Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, khabar adalah yang bisa benar atau dusta; mutawatir menghasilkan ilmu, ahad mewajibkan amal tanpa menghasilkan ilmu, dan mursal selain sahabat bukan hujah kecuali mursal Sa'id bin al-Musayyab.",
+    "ringkasan": "Al-Juwaini mendefinisikan khabar sebagai sesuatu yang bisa benar atau dusta, lalu membaginya menjadi ahad dan mutawatir. Mutawatir menghasilkan ilmu karena disampaikan oleh banyak orang yang mustahil sepakat berdusta sampai kepada yang dikabarkan, dan bersandar pada penyaksian atau pendengaran. Ahad mewajibkan amal tetapi tidak menghasilkan ilmu, dan terbagi menjadi musnad dan mursal. Mursal selain sahabat bukan hujah, kecuali mursal Sa'id bin al-Musayyab. Ia menutup dengan lafal-lafal penyampaian: 'an'anah, haddatsani, akhbarani, dan ijazah.",
+    "gagasan": [
+      {
+        "judul": "Mutawatir menghasilkan ilmu, sedangkan ahad mewajibkan amal, menurut al-Juwaini",
+        "isi": "Al-Juwaini mendefinisikan khabar sebagai sesuatu yang bisa dimasuki benar dan dusta, dan membaginya menjadi ahad dan mutawatir. Mutawatir menghasilkan ilmu: ia disampaikan oleh sekelompok orang yang mustahil bersepakat dusta, dari orang-orang yang setara dengan mereka sampai kepada yang dikabarkan, dan pada asalnya bersandar pada penyaksian atau pendengaran, bukan ijtihad. Ahad mewajibkan amal tetapi tidak menghasilkan ilmu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000081, 60000082, 60000083],
+        "soal": {
+          "tanya": "Pada apa mutawatir harus bersandar pada asalnya menurut al-Juwaini?",
+          "jawab": "Pada penyaksian atau pendengaran, bukan pada ijtihad."
+        }
+      },
+      {
+        "judul": "Mursal selain sahabat bukan hujah, kecuali mursal Sa'id bin al-Musayyab, menurut penulis",
+        "isi": "Penulis membagi ahad menjadi musnad dan mursal. Musnad adalah yang isnadnya bersambung, sedangkan mursal adalah yang isnadnya tidak bersambung. Mursal dari selain sahabat bukan hujah, kecuali mursal Sa'id bin al-Musayyab, karena mursal-mursalnya telah diteliti dan didapati bersambung (musnad) sampai kepada Nabi saw.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000083, 60000084],
+        "soal": {
+          "tanya": "Mengapa mursal Sa'id bin al-Musayyab dikecualikan menurut penulis al-Waraqat?",
+          "jawab": "Karena mursal-mursalnya telah diteliti dan didapati bersambung sampai kepada Nabi saw."
+        }
+      },
+      {
+        "judul": "Lafal penyampaian bergantung pada cara menerimanya dari guru, menurut al-Juwaini",
+        "isi": "Menurut al-Juwaini, 'an'anah (menyampaikan dengan kata 'an) bisa masuk ke dalam isnad. Bila guru yang membaca, perawi boleh berkata haddatsani atau akhbarani. Bila perawi yang membaca di hadapan guru, ia berkata akhbarani dan tidak berkata haddatsani. Bila guru memberinya ijazah tanpa pembacaan, ia berkata ajazani atau akhbarani ijazatan.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000085],
+        "soal": {
+          "tanya": "Lafal apa yang dipakai perawi bila ia sendiri membaca di hadapan guru menurut al-Juwaini?",
+          "jawab": "Akhbarani, dan tidak berkata haddatsani."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000081,
+        "char_start": 18,
+        "char_end": 56,
+        "terjemahan": "Khabar adalah yang bisa dimasuki benar dan dusta."
+      }
+    ],
+    "istilah": []
+  }
+}

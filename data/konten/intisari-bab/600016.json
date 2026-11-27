@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600016,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p94-p95: dua pendapat dinukil dari 'sebagian orang', penulis tidak memilih; sikap reported."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p95: makna istishab al-hal sesuai teks; kalimat kedua hanya menjabarkan definisinya."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "d8d8c75942bce378b3354e237fe1f1cb4e4c9ca7add804c791602549d4f41504",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Dua pendapat dinukil dengan benar, reported tepat."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Definisi istishab al-hal setia p95; kutipan cocok."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "02b1fc4c63899f444eb85705982f8fa5ec12db841d5016268f2863d1aadc9108",
+      "draf_sha256": "d8d8c75942bce378b3354e237fe1f1cb4e4c9ca7add804c791602549d4f41504",
+      "waktu": "2026-11-27T18:27:37.249Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Al-Juwaini menukil dua pendapat tentang hukum asal segala sesuatu, terlarang atau boleh, lalu menjelaskan istishab al-hal sebagai berpegang pada hukum asal saat tidak ada dalil syar'i.",
+    "ringkasan": "Al-Juwaini menukil dua pendapat yang berlawanan. Sebagian orang berpendapat bahwa segala sesuatu pada asalnya terlarang kecuali yang dibolehkan syariat; bila tidak ditemukan dalil kebolehan, orang berpegang pada asal, yaitu larangan. Sebagian lain berpendapat sebaliknya: asal segala sesuatu adalah boleh kecuali yang dilarang syariat. Ia tidak menyatakan pilihannya di antara keduanya, lalu mendefinisikan istishab al-hal yang dijadikan hujah: mempertahankan hukum asal ketika tidak ada dalil syar'i.",
+    "gagasan": [
+      {
+        "judul": "Sebagian orang menganggap asal segala sesuatu terlarang, sebagian lain boleh",
+        "isi": "Penulis menukil dua pendapat. Menurut sebagian orang, segala sesuatu pada asalnya terlarang (hazhr) kecuali yang dibolehkan syariat; bila dalam syariat tidak ditemukan dalil kebolehan, orang berpegang pada asal itu, yaitu larangan. Sebagian lain berpendapat sebaliknya: asal segala sesuatu adalah boleh (ibahah) kecuali yang dilarang syariat.",
+        "sikap": "reported",
+        "jenis": "idea",
+        "dasar": [60000094, 60000095],
+        "soal": {
+          "tanya": "Apa yang dipegang bila tidak ada dalil kebolehan menurut pendapat yang menganggap asal segala sesuatu terlarang?",
+          "jawab": "Berpegang pada hukum asal, yaitu larangan."
+        }
+      },
+      {
+        "judul": "Istishab al-hal berarti berpegang pada hukum asal tanpa dalil syar'i, menurut al-Juwaini",
+        "isi": "Al-Juwaini menjelaskan bahwa istishab al-hal, yang dijadikan hujah, berarti mempertahankan hukum asal ketika tidak ada dalil syar'i. Dengan pengertian ini, hukum asal tetap berlaku selama tidak ada dalil syar'i yang menunjukkan hukum lain.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000095],
+        "soal": {
+          "tanya": "Apa makna istishab al-hal yang dijadikan hujah menurut al-Juwaini?",
+          "jawab": "Mempertahankan hukum asal ketika tidak ada dalil syar'i."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 60000095,
+        "char_start": 113,
+        "char_end": 210,
+        "terjemahan": "Makna istishab al-hal yang dijadikan hujah adalah mempertahankan hukum asal ketika tidak ada dalil syar'i."
+      }
+    ],
+    "istilah": []
+  }
+}

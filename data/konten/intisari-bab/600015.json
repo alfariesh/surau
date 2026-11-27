@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600015,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p87-p88: definisi kias, tiga jenis, beda 'illat mujibah dan dallah."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p89: kias syabah dan tidak ditempuh selama yang sebelumnya mungkin."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p90-p92: syarat far', ashl, 'illat, hukum disebut sebagai 'di antara syarat' sesuai min syarth."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "464a65547cc9e25d2d0b085bb2f058e4c8ed165bba07be1c2cdd5904b83e5a11",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi kias dan tiga macamnya sesuai p87-p88."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Kias syabah sesuai p89."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Syarat far', ashl, 'illat, hukum sesuai p90-p92."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "1d944806782c6eff0c889585323b8fb210eebe2b65b520f8240c5483b906fc32",
+      "draf_sha256": "464a65547cc9e25d2d0b085bb2f058e4c8ed165bba07be1c2cdd5904b83e5a11",
+      "waktu": "2026-11-27T18:27:35.639Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, kias adalah mengembalikan cabang kepada pokok dengan 'illat yang menyatukan keduanya dalam hukum, terbagi tiga, dan menuntut syarat pada cabang, pokok, 'illat, dan hukum.",
+    "ringkasan": "Al-Juwaini mendefinisikan kias sebagai mengembalikan far' kepada ashl dengan 'illat yang menyatukan keduanya dalam hukum. Kias terbagi tiga: kias 'illat, kias dalalah, dan kias syabah. Pada kias 'illat, 'illat mewajibkan hukum; pada kias dalalah, 'illat menunjukkan hukum tanpa mewajibkannya; kias syabah adalah far' yang bimbang di antara dua ashl dan tidak ditempuh selama kias sebelumnya mungkin. Ia lalu menyebut syarat far', ashl, 'illat, dan hukum.",
+    "gagasan": [
+      {
+        "judul": "Kias terbagi menjadi kias 'illat, dalalah, dan syabah, menurut al-Juwaini",
+        "isi": "Al-Juwaini mendefinisikan kias sebagai mengembalikan far' (cabang) kepada ashl (pokok) dengan 'illat yang menyatukan keduanya dalam hukum. Kias terbagi tiga. Pada kias 'illat, 'illat mewajibkan hukum. Kias dalalah adalah berdalil dengan salah satu dari dua hal yang serupa atas yang lain, dan 'illatnya menunjukkan hukum tanpa mewajibkannya.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000087, 60000088],
+        "soal": {
+          "tanya": "Apa beda 'illat pada kias 'illat dan kias dalalah menurut al-Juwaini?",
+          "jawab": "Pada kias 'illat ia mewajibkan hukum, pada kias dalalah ia menunjukkan hukum tanpa mewajibkannya."
+        }
+      },
+      {
+        "judul": "Kias syabah tidak ditempuh selama kias sebelumnya masih mungkin, menurut penulis",
+        "isi": "Penulis mendefinisikan kias syabah sebagai far' yang bimbang di antara dua ashl. Kias jenis ini tidak ditempuh selama kias yang disebut sebelumnya masih mungkin dilakukan, sehingga kedudukannya sesudah kias 'illat dan kias dalalah.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000089],
+        "soal": {
+          "tanya": "Kapan kias syabah tidak ditempuh menurut penulis al-Waraqat?",
+          "jawab": "Selama kias yang disebut sebelumnya masih mungkin dilakukan."
+        }
+      },
+      {
+        "judul": "Far', ashl, 'illat, dan hukum masing-masing punya syarat, menurut Imam al-Haramain",
+        "isi": "Imam al-Haramain menyebut sebagian syarat keempat unsur kias. Di antara syarat far' adalah sesuai dengan ashl; syarat ashl, tetap dengan dalil yang disepakati kedua pihak yang berdebat; syarat 'illat, berlaku konsisten pada semua yang dihukuminya sehingga tidak batal secara lafal maupun makna; dan syarat hukum, mengikuti 'illat dalam ada dan tiadanya, karena 'illat itulah yang mendatangkan hukum.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000090, 60000091, 60000092],
+        "soal": {
+          "tanya": "Apa syarat ashl dalam kias yang disebut Imam al-Haramain?",
+          "jawab": "Ashl harus tetap dengan dalil yang disepakati kedua pihak yang berdebat."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000087,
+        "char_start": 0,
+        "char_end": 70,
+        "terjemahan": "Adapun kias, ia adalah mengembalikan cabang kepada pokok dengan 'illat yang menyatukan keduanya dalam hukum."
+      }
+    ],
+    "istilah": []
+  }
+}

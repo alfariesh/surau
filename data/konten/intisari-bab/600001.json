@@ -1,0 +1,95 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600001,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p3-p4: dua bagian nama adalah ushul dan fikih; ashl dan lawannya far' didefinisikan sesuai teks (dirapikan sesudah periksa independen)."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p5: fikih = ma'rifah hukum syariat yang jalannya ijtihad, tanpa tambahan."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "1b6739ee63c5ba64eb6072cd16baba0b08d7f8337247b91ef447c57bce13fc85",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Ashl dan far' sesuai p4; kutipan seluruh p4 setia."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Definisi fikih sesuai p5, tanpa tambahan."
+        }
+      ],
+      "laporan": "Dirapikan sesudah pemeriksaan pertama (Kurang), diperiksa ulang."
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "7473dd2e56dadf55c5d12ce17e9925ebe00ae3c416108c0df01dcae2566a04b1",
+      "draf_sha256": "1b6739ee63c5ba64eb6072cd16baba0b08d7f8337247b91ef447c57bce13fc85",
+      "waktu": "2026-11-27T18:32:14.045Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, istilah ushul fikih tersusun dari dua kata: ashl adalah yang menjadi dasar bangunan, dan fikih adalah pengetahuan hukum syariat yang jalannya ijtihad.",
+    "ringkasan": "Al-Juwaini membuka al-Waraqat dengan menyebut bahwa lembaran-lembaran ini memuat beberapa fasal ushul fikih. Ia lalu menjelaskan bahwa nama ushul fikih tersusun dari dua bagian tunggal, yaitu ushul dan fikih. Ashl (pokok, bentuk tunggal ushul) adalah sesuatu yang di atasnya dibangun hal lain, sedangkan lawannya, far' (cabang), adalah sesuatu yang dibangun di atas hal lain. Fikih ia definisikan sebagai pengetahuan tentang hukum-hukum syariat yang jalan mencapainya adalah ijtihad.",
+    "gagasan": [
+      {
+        "judul": "Ushul fikih tersusun dari dua kata yang masing-masing punya makna, menurut al-Juwaini",
+        "isi": "Al-Juwaini menyebut karyanya sebagai beberapa lembar yang memuat fasal-fasal ushul fikih. Nama ushul fikih, katanya, tersusun dari dua bagian tunggal, yaitu ushul (bentuk jamak ashl) dan fikih. Untuk bagian pertama ia mendefinisikan ashl sebagai sesuatu yang di atasnya dibangun hal lain, beserta lawannya, far', yaitu sesuatu yang dibangun di atas hal lain.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000003, 60000004],
+        "soal": {
+          "tanya": "Apa beda ashl dan far' menurut definisi al-Juwaini?",
+          "jawab": "Ashl adalah dasar tempat dibangunnya hal lain, sedangkan far' adalah yang dibangun di atas hal lain."
+        }
+      },
+      {
+        "judul": "Fikih adalah pengetahuan hukum syariat yang jalannya ijtihad, menurut penulis",
+        "isi": "Penulis mendefinisikan fikih sebagai pengetahuan (ma'rifah) tentang hukum-hukum syariat yang jalan untuk mencapainya adalah ijtihad. Definisi itu menyebut dua unsur: yang diketahui adalah hukum syariat, dan jalan mengetahuinya adalah ijtihad.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000005],
+        "soal": {
+          "tanya": "Menurut definisi penulis al-Waraqat, apa jalan untuk mengetahui hukum-hukum fikih?",
+          "jawab": "Jalan mengetahuinya adalah ijtihad."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 1,
+        "passage_id": 60000004,
+        "char_start": 0,
+        "char_end": 62,
+        "terjemahan": "Ashl adalah sesuatu yang di atasnya dibangun hal lain, dan far' adalah sesuatu yang dibangun di atas hal lain."
+      }
+    ],
+    "istilah": []
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "format": "surau-konten/1",
+  "edition_id": 6,
+  "section_id": 600013,
+  "lang": "id",
+  "versi": 1,
+  "menggantikan": null,
+  "status": "siap",
+  "asal": {
+    "pembuat": "claude-code",
+    "model": "claude-opus-5-5",
+    "plugin": "surau-redaksi@0.2.3",
+    "skill": "intisari-bab@1",
+    "operator": "agen",
+    "dibuat": "2026-11-28T10:00:00+07:00"
+  },
+  "periksa": {
+    "mandiri": [
+      {
+        "ke": 1,
+        "nilai": "benar",
+        "catatan": "p75-p76: definisi ijmak, makna ulama dan hadithah, hujah khusus umat ini; riwayat hanya diparafrasekan, tanpa status."
+      },
+      {
+        "ke": 2,
+        "nilai": "benar",
+        "catatan": "p77-p78: hujah atas masa kedua, inqiradh al-'ashr tidak disyaratkan 'ala as-sahih, akibat bila disyaratkan."
+      },
+      {
+        "ke": 3,
+        "nilai": "benar",
+        "catatan": "p79: ijmak dengan ucapan, perbuatan, dan sukut; ucapan seorang sahabat bukan hujah menurut qaul jadid."
+      }
+    ],
+    "independen": {
+      "penilai": "agen pemeriksa-konten (claude-sonnet-5-5), konteks segar",
+      "tanggal": "2026-11-28",
+      "draf_sha256": "5996b9d6c1f94be7119699198f2d9e3b3ecee8a62caf0c182713ce8756801a08",
+      "nilai": [
+        {
+          "ke": 1,
+          "nilai": "benar",
+          "catatan": "Definisi ijmak dan kehujahannya sesuai p75-p76."
+        },
+        {
+          "ke": 2,
+          "nilai": "benar",
+          "catatan": "Inqiradh al-'ashr dan akibatnya sesuai p77-p78."
+        },
+        {
+          "ke": 3,
+          "nilai": "benar",
+          "catatan": "Ijmak lewat ucapan, perbuatan, sukut; ucapan sahabat menurut qaul jadid sesuai p79."
+        }
+      ],
+      "laporan": null
+    },
+    "kode": {
+      "aturan": "konten@1",
+      "lolos": true,
+      "sumber_sha256": "5c9ba3fb71f2d1868c8ba13767b4dfbb2fbc1ad61f97af3809e70275b925f5ca",
+      "draf_sha256": "5996b9d6c1f94be7119699198f2d9e3b3ecee8a62caf0c182713ce8756801a08",
+      "waktu": "2026-11-27T18:27:32.890Z"
+    }
+  },
+  "jenis": "intisari-bab",
+  "isi": {
+    "inti": "Menurut al-Juwaini, ijmak adalah kesepakatan fuqaha suatu masa atas hukum peristiwa syar'i, menjadi hujah bagi umat ini, dan sah lewat ucapan, perbuatan, atau diamnya sebagian.",
+    "ringkasan": "Al-Juwaini mendefinisikan ijmak sebagai kesepakatan ulama suatu masa atas hukum suatu peristiwa, dengan ulama berarti fuqaha dan peristiwa berarti peristiwa syar'i. Ijmak umat ini hujah, tidak ijmak umat lain, dengan dalil riwayat dan keterjagaan umat ini. Ijmak menjadi hujah bagi masa berikutnya, dan menurut pendapat yang dinilainya sahih tidak disyaratkan berakhirnya masa. Ia lalu menjelaskan akibat bila syarat itu dipakai, cara terjadinya ijmak, dan bahwa ucapan seorang sahabat bukan hujah atas yang lain menurut qaul jadid.",
+    "gagasan": [
+      {
+        "judul": "Ijmak umat ini adalah kesepakatan fuqaha atas peristiwa syar'i, menurut al-Juwaini",
+        "isi": "Al-Juwaini mendefinisikan ijmak sebagai kesepakatan para ulama suatu masa atas hukum suatu peristiwa. Yang dimaksud ulama adalah fuqaha, dan peristiwa adalah peristiwa syar'i. Ijmak umat ini adalah hujah, tidak ijmak umat lain; ia berdalil dengan riwayat bahwa umat Nabi saw. tidak akan bersepakat atas kesesatan, dan dengan keterangan syariat tentang keterjagaan umat ini.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000075, 60000076],
+        "soal": {
+          "tanya": "Siapa yang dimaksud ulama dalam definisi ijmak al-Juwaini?",
+          "jawab": "Yang dimaksud adalah para fuqaha."
+        }
+      },
+      {
+        "judul": "Ijmak tidak mensyaratkan berakhirnya masa, menurut pendapat yang dipegang penulis",
+        "isi": "Menurut penulis, ijmak menjadi hujah atas masa kedua dan pada masa mana pun terjadinya. Menurut pendapat yang dinilainya sahih, berakhirnya masa (inqiradh al-'ashr) tidak disyaratkan. Bila syarat itu dipakai, ucapan orang yang lahir semasa hidup para pelaku ijmak lalu mendalami fikih dan menjadi mujtahid ikut diperhitungkan, dan para pelaku ijmak boleh menarik diri dari hukum itu.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000077, 60000078],
+        "soal": {
+          "tanya": "Apa akibat bila berakhirnya masa dijadikan syarat ijmak menurut penulis?",
+          "jawab": "Ucapan mujtahid baru yang lahir semasa mereka diperhitungkan, dan mereka boleh menarik diri dari hukumnya."
+        }
+      },
+      {
+        "judul": "Ijmak sah lewat ucapan sebagian dan diamnya yang lain, menurut al-Juwaini",
+        "isi": "Al-Juwaini menyatakan bahwa ijmak sah dengan ucapan dan perbuatan para ulama, juga dengan ucapan atau perbuatan sebagian dari mereka bila hal itu tersebar dan yang lain diam. Ucapan seorang sahabat, menurut qaul jadid, bukan hujah atas yang lain.",
+        "sikap": "author",
+        "jenis": "idea",
+        "dasar": [60000079],
+        "soal": {
+          "tanya": "Apakah ucapan seorang sahabat menjadi hujah atas yang lain menurut qaul jadid yang disebut al-Juwaini?",
+          "jawab": "Tidak, ucapan seorang sahabat bukan hujah atas yang lain."
+        }
+      }
+    ],
+    "kutipan": [
+      {
+        "gagasan": 2,
+        "passage_id": 60000077,
+        "char_start": 0,
+        "char_end": 109,
+        "terjemahan": "Ijmak adalah hujah atas masa kedua dan pada masa mana pun, dan berakhirnya masa tidak disyaratkan menurut pendapat yang sahih."
+      }
+    ],
+    "istilah": []
+  }
+}
