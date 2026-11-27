@@ -311,3 +311,18 @@ Ikuti cetakan X31b. Keputusan berikut wajib ditulis sebagai ADR sebelum batch:
   - Kutipan "[فصل]" menyisakan "]"; laporan validasi Tibyan menghitung paragraf yang dibuang sebagai "usang" (40).
   - Satu paragraf Bidayah (20000013) masih ditolak validator (placeholder `⟦QS 61:2⟧` berlebih).
 - **Belum:** audio (di luar izin; Ajurrumiyyah tanpa audio menurut ADR-149, Bidayah/Tibyan menunggu T-29), bukti Preview/MCP per kitab di PR ini, tampil (EDITION_CREDITS, minat, status ledger `tayang`), dan promote produksi (izin pemilik).
+
+### X31 buka situs: tampil + persiapan promote (2026-11-27, PR #261, ADR-151)
+
+- **Izin pemilik di chat:** "Yes, prepare it" (menyiapkan PR tampil dan promote).
+- **Tampil:**
+  - `/lisensi`: tiga kitab tayang (Ihya diarsipkan, tetap di ATTRIBUTION.md); pernyataan perubahan di halaman karya kini per edisi (`EDITION_CREDITS[].changes`).
+  - Suara minat tiga kitab berhenti (`RELEASED_SLUGS`).
+  - Hub Intisari kitab kecil = daftar Intisari Bab.
+  - Landing (kutipan hero p20000015 dan demo Cari p20000317/p20000154, Arab disalin kode dari DB), teks UI dan instruksi MCP untuk korpus tiga kitab.
+  - Meta deskripsi halaman baca tanpa klaim takhrij.
+- **Buka:** sakelar `READER_ENABLED`/`KITAB_OPEN` "1", ledger `tayang`, smoke `deploy.yml` per kitab + `/kitab/ihya/1/200` = 404, uji MCP menolak Ihya di `list_works`.
+  - Tes penjaga: sakelar terbuka + binding `surau-corpus-ihya-*` = gagal. Karena itu PR #261 merah sampai binding promote di-commit.
+- **Bukti Preview** (pr-261, data staging): `/`, `/kitab`, `/lisensi`, `/mcp`, hub Intisari ketiga kitab, `/kitab/bidayat-al-hidayah/1/64` = 200; `/kitab/ihya/1/200` = 404. e2e lolos kecuali tes lisensi yang masih mengandaikan Ihya (diperbaiki).
+- **Promote:** classifier menolak `corpus:promote` (juga mode rencana), jadi pemilik menjalankannya sendiri (T-38).
+- **Saran peninjau yang belum dikerjakan:** string Tanya/Maknaz masih menyebut Ihya (tidak tayang selama Jawab mati; wajib sebelum `/rilis 4`); landing hanya punya satu kartu kitab unggulan (Bidayah).

@@ -244,6 +244,12 @@ Hal-hal yang **hanya bisa dikerjakan manusia**, seperti membuat akun, login, tok
   7. Bilang ke agent "T-33 sudah" beserta apa saja yang terasa sulit (setelan, konektor, unduh). Bila marketplace gagal ditambahkan, minta agent membuat berkas `surau-redaksi.plugin`, lalu pakai **Customize** → **Plugins** → **Add** → **Upload plugin**.
 
 - [x] **T-37 · Kunci API Anthropic `surau-dev` baru (kunci lama ditolak)** (dibutuhkan X31b; isu [#253](https://github.com/alfariesh/surau/issues/253)) · ditemukan agent 2026-11-27: `pnpm llm plan` → `401 invalid x-api-key`. Batch terjemahan Bidayah sudah Anda izinkan di chat ("langsung aja pake llm model sonnet", "api batch"): Message Batches, Sonnet 5.5, pagu agent US$1,50, perkiraan ±US$0,7. · **Selesai 2026-11-27:** kunci baru dipakai batch ketiga kitab (terverifikasi agent).
+- [ ] **T-38 · Jalankan promote korpus Gelombang 1 (buka surau.org lagi)** (X31, ADR-151; PR [#261](https://github.com/alfariesh/surau/pull/261); isu [#262](https://github.com/alfariesh/surau/issues/262)) · ditemukan agent 2026-11-27. Perintah ini membuat D1 produksi baru `surau-corpus-kitab-v10` dan mengganti binding di PR #261; mode otomatis agent menolaknya. Situs belum berubah sampai PR #261 digabung.
+  1. Buka aplikasi **Terminal**, ketik:
+     `cd /Users/salmanalfariesh/Documents/Surau/.claude/worktrees/x31a-8a`
+  2. Lihat rencananya dulu (tidak mengubah apa pun): `pnpm run corpus:promote kitab-v10`
+  3. Bila rencana menyebut tiga kitab dan tanpa galat, jalankan: `pnpm run corpus:promote kitab-v10 --confirm` (±1 menit; butuh `pnpm wrangler login` bila diminta).
+  4. Tulis ke agent: "promote selesai". Agent lalu meng-commit binding, menjalankan `corpus:qa kitab-v10` untuk ketiga kitab, mencatat `data/SOURCES.md`, dan menggabungkan PR #261 setelah CI hijau.
   1. Buka platform.claude.com → workspace `surau-dev` → **API Keys** → buat kunci baru. Cek juga saldo kredit dan spend limit workspace.
   2. Di aplikasi Terminal, dari folder Surau, jalankan lalu tempel kuncinya (tidak terlihat):
      ```
